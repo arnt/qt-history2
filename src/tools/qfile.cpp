@@ -153,9 +153,9 @@ void QFile::init()
 
   Do not call this function if the file has already been opened.
 
-  Note that if the name is relative QFile does not associate it with the
-  current directory.  If you change directory before calling open(), open
-  uses the new current directory.
+  Note that if the name is relative QFile does not associate it with
+  the current directory.  If you change to a different directory
+  before calling open(), open uses the new current directory.
 
   Example:
   \code
@@ -262,7 +262,7 @@ bool QFile::atEnd() const
 /*!
   Reads a line of text.
 
-  Reads bytes from the file until end-of-line is reached, or up to \a
+  Reads bytes from the file until end-of-line is reached or up to \a
   maxlen bytes, and returns the number of bytes read, or -1 in case of
   error.  The terminating newline is not stripped.
 
@@ -316,7 +316,7 @@ int QFile::readLine( char *p, uint maxlen )
 /*!
   Reads a line of text.
 
-  Reads bytes from the file until end-of-line is reached, or up to \a
+  Reads bytes from the file until end-of-line is reached or up to \a
   maxlen bytes, and returns the number of bytes read, or -1 in case of
   error.  The terminating newline is not stripped.
 
@@ -479,22 +479,22 @@ static QCString locale_encoder( const QString &fileName )
 static QFile::EncoderFn encoder = locale_encoder;
 
 /*!
-  When you use QFile, QFileInfo, and QDir to access the filesystem
-  with Qt, you can use Unicode filenames.  On Unix, these filenames
+  When you use QFile, QFileInfo, and QDir to access the file system
+  with Qt, you can use Unicode file names.  On Unix, these file names
   are converted to an 8-bit encoding.  If you want to do your own
-  file I/O on Unix, you should convert the filename using this
-  function.  On Windows NT, Unicode filenames are supported directly
-  in the filesystem and this function should be avoided. On Windows 95,
+  file I/O on Unix, you should convert the file name using this
+  function.  On Windows NT, Unicode file names are supported directly
+  in the file system and this function should be avoided. On Windows 95,
   non-Latin1 locales are not supported at this time.
 
   By default, this function converts to the local 8-bit encoding
   determined by the user's locale.  This is sufficient for
-  filenames that the user chooses.  Filenames hard-coded into the
+  file names that the user chooses.  File names hard-coded into the
   application should only use 7-bit ASCII filename characters.
 
   The conversion scheme can be changed using setEncodingFunction().
   This might be useful if you wish to give the user an option to
-  store in filenames in UTF-8, etc., but beware that such filenames
+  store in file names in UTF-8, etc., but beware that such file names
   would probably then be unrecognizable when seen by other programs.
 
   \sa decodeName()
@@ -512,7 +512,7 @@ QCString QFile::encodeName( const QString &fileName )
 */
 
 /*!
-  Sets the function for encoding Unicode filenames.
+  Sets the function for encoding Unicode file names.
   The default encodes in the locale-specific 8-bit encoding.
 
   \sa encodeName()
@@ -547,7 +547,7 @@ QString QFile::decodeName( const QCString &localFileName )
 */
 
 /*!
-  Sets the function for decoding 8-bit filenames.
+  Sets the function for decoding 8-bit file names.
   The default uses the locale-specific 8-bit encoding.
 
   \sa encodeName(), decodeName()

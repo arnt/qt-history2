@@ -47,19 +47,19 @@
 
   An I/O device represents a medium that one can read bytes from
   and/or write bytes to.  The QIODevice class is the abstract
-  superclass of all such devices; classes like QFile, QBuffer and
-  QSocket inherit QIODevice and implement virtual functions like
+  superclass of all such devices; classes such as QFile, QBuffer and
+  QSocket inherit QIODevice and implement virtual functions such as
   write() appropriately.
 
-  While applications sometimes use QIODevice directly, mostly it is
-  better to go through QTextStream and QDataStream, which provide
+  Although applications sometimes use QIODevice directly, it is
+  usually better to go through QTextStream and QDataStream, which provide
   stream operations on any QIODevice subclass.  QTextStream provides
   text-oriented stream functionality (for human-readable ASCII files,
-  for example), while QDataStream deals with binary data in a totally
+  for example), whereas QDataStream deals with binary data in a totally
   platform-independent manner.
 
   The public member functions in QIODevice roughly fall into two
-  groups: The action functions and the state access functions.  The
+  groups: the action functions and the state access functions.  The
   most important action functions are: <ul>
 
   <li> open() opens a device for reading and/or writing, depending on
@@ -100,22 +100,22 @@
   the settings, and their associated access functions: <ul>
 
   <li> Access type.  Some devices are direct access (it is possible to
-  read/write anywhere) while others are sequential.  QIODevice
-  provides the access functions isDirectAccess(), isSequentialAccess()
-  and isCombinedAccess() to tell users what a given I/O device
+  read/write anywhere), whereas others are sequential.  QIODevice
+  provides the access functions (isDirectAccess(), isSequentialAccess(),
+  and isCombinedAccess()) to tell users what a given I/O device
   supports.
 
-  <li> Buffering.  Some devices are accessed in raw mode while others
+  <li> Buffering.  Some devices are accessed in raw mode, whereas others
   are buffered.  Buffering usually provides greater efficiency,
   particularly for small read/write operations.  isBuffered() tells
   the user whether a given device is buffered.  (This can often be set
   by the application in the call to open().)
 
-  <li> Synchronicity.  Synchronous devices work there and then, for
-  example files.  When you read from a file, the file delivers its
+  <li> Synchronicity.  Synchronous devices work there and then (for
+  example, files).  When you read from a file, the file delivers its
   data right away.  Others, such as a socket connected to a HTTP
   server, may not deliver the data until seconds after you ask to read
-  it.  isSynchronous() and isAsynchronous() tells the user how this
+  it.  isSynchronous() and isAsynchronous() tell the user how this
   device operates.
 
   <li> CR/LF translation.  For simplicity, applications often like to
@@ -124,19 +124,19 @@
   to just LF.  (This can often be set by the application in the call
   to open().)
 
-  <li> Accessibility.  Some files cannot be written, for example.
-  isReadable(), isWritable and isReadWrite() tells the application
+  <li> Accessibility.  Some files cannot be written. For example,
+  isReadable(), isWritable, and isReadWrite() tell the application
   whether it can read from and write to a given device.  (This can
   often be set by the application in the call to open().)
 
   <li> Finally, isOpen() returns TRUE if the device is open.  This can
-  quite obviously be set using open() :)
+  quite obviously be set using open(). :)
 
   </ul>
 
-  QIODevice provides numerous pure virtual functions you need to
+  QIODevice provides numerous pure virtual functions that you need to
   implement when subclassing it.  Here is a skeleton subclass with all
-  the members you are certain to need, and some it's likely that you
+  the members you are certain to need and some that you probably
   will need:
 
   \code
@@ -166,7 +166,7 @@
   \endcode
 
   The three non-pure virtual functions can be ignored if your device
-  is sequential (e.g. an RS-232 port).
+  is sequential (e.g., an RS-232 port).
 
   \sa QDataStream, QTextStream
 */
@@ -207,7 +207,7 @@ QIODevice::~QIODevice()
 
   These are the flags that were given to the open() function.
 
-  The flags are: \c IO_ReadOnly, \c IO_WriteOnly, \c IO_ReadWrite,
+  The flags are \c IO_ReadOnly, \c IO_WriteOnly, \c IO_ReadWrite,
   \c IO_Append, \c IO_Truncate and \c IO_Translate.
 */
 
@@ -238,7 +238,7 @@ QIODevice::~QIODevice()
 /*!
   \fn bool QIODevice::isCombinedAccess() const
   Returns TRUE if the I/O device is a combined access (both direct and
-  sequential) device,  otherwise FALSE.
+  sequential) device, otherwise FALSE.
 
   This access method is currently not in use.
 */
@@ -305,7 +305,7 @@ QIODevice::~QIODevice()
 
 /*!
   \fn bool QIODevice::isInactive() const
-  Returns TRUE if the I/O device state is 0, i.e. the device is not open.
+  Returns TRUE if the I/O device state is 0, i.e., the device is not open.
   \sa isOpen()
 */
 
@@ -425,10 +425,11 @@ void QIODevice::setStatus( int s )
   <li>\c IO_Append sets the file index to the end of the file.
   <li>\c IO_Truncate truncates the file.
   <li>\c IO_Translate enables carriage returns and linefeed translation
-  for text files under MS-DOS, Window, OS/2 and Macintosh.  On Unix systems 
-  this flag has no effect. Use with caution as it will also transform every linefeed
-  written to the file into a CRLF pair. This is likely to corrupt your file when
-  writing binary data to it. Cannot be combined with \c IO_Raw.
+  for text files under MS-DOS, Windows and Macintosh.  On Unix systems
+  this flag has no effect. Use with caution as it will also transform
+  every linefeed written to the file into a CRLF pair. This is likely to
+  corrupt your file if you write write binary data. Cannot be combined
+  with \c IO_Raw.
   </ul>
 
   This virtual function must be reimplemented by all subclasses.

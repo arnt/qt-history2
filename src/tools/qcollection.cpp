@@ -46,8 +46,8 @@
   \ingroup tools
 
   The QCollection class is an abstract base class for the Qt \link
-  collection.html collection classes\endlink QDict, QList etc. via QGDict,
-  QGList etc.
+  collection.html collection classes\endlink QDict, QList, etc. via QGDict,
+  QGList, etc.
 
   A QCollection knows only about the number of objects in the
   collection and the deletion strategy (see setAutoDelete()).
@@ -135,7 +135,7 @@
   Virtual function that creates a copy of an object that is about to
   be inserted into the collection.
 
-  The default implementation returns the \e d pointer, i.e. no copy
+  The default implementation returns the \e d pointer, i.e., no copy
   is made.
 
   This function is seldom reimplemented in the collection template
@@ -163,8 +163,8 @@ QCollection::Item QCollection::newItem( Item d )
   \warning If you reimplement this function you must also reimplement
   the destructor and call the virtual function clear() from your
   destructor.  This is due to the way virtual functions and
-  destructors work in C++: virtual functions in derived classes cannot
-  be called from a destructor.  If you do not do this your
+  destructors work in C++: Virtual functions in derived classes cannot
+  be called from a destructor.  If you do not do this, your
   deleteItem() function will not be called when the container is
   destructed.
 

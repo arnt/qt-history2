@@ -41,7 +41,7 @@
 // REVISED: paul
 /*!
   \class QBuffer qbuffer.h
-  \brief The QBuffer class is an I/O device that operates on a QByteArray
+  \brief The QBuffer class is an I/O device that operates on a QByteArray.
 
   \ingroup io
 
@@ -52,14 +52,14 @@
 
   The constructor \c QBuffer(QByteArray) creates a QBuffer with an
   existing byte array.  The byte array can also be set with setBuffer().
-  Writing to the QBuffer will modify the original byte array, since
+  Writing to the QBuffer will modify the original byte array because
   QByteArray is \link shclass.html explicitly shared.\endlink
 
-  Use open() to open the buffer before use, and to set the mode
-  (read-only,write-only, etc.).  close() closes the buffer. The buffer
+  Use open() to open the buffer before use and to set the mode
+  (read-only, write-only, etc.).  close() closes the buffer. The buffer
   must be closed before reopening or calling setBuffer().
 
-  The common way to use QBuffer is through \l QDataStream or \l QTextStream
+  The common way to use QBuffer is through \l QDataStream or \l QTextStream,
   which have constructors that take a QBuffer parameter. For
   convenience, there are also QDataStream and QTextStream constructors
   that take a QByteArray parameter.  These constructors create and open
@@ -169,8 +169,8 @@ bool QBuffer::setBuffer( QByteArray buf )
 
 /*!
   \reimp
-  Opens the buffer in the mode \a m.  Returns TRUE if successful,
-  otherwise FALSE. The buffer must be opened before use.
+  Opens the buffer in the mode \a m.  Returns TRUE if successful;
+  otherwise it returns FALSE. The buffer must be opened before use.
 
   The mode parameter \a m must be a combination of the following flags.
   <ul>

@@ -70,8 +70,8 @@
   The text stream class has a functional interface that is very
   similar to that of the standard C++ iostream class.  The difference
   between iostream and QTextStream is that our stream operates on a
-  QIODevice, which is easily subclassed, while iostream operates on
-  FILE * pointers, which can not be subclassed.
+  QIODevice which is easily subclassed, whereas iostream operates on
+  FILE * pointers which cannot be subclassed.
 
   Qt provides several global functions similar to the ones in iostream:
   <ul>
@@ -81,23 +81,23 @@
   <li> \c hex sets the QTextStream to read/write hexadecimal numbers
   <li> \c endl forces a line break
   <li> \c flush forces the QIODevice to flush any buffered data
-  <li> \c ws eats any available white space (on input)
-  <li> \c reset resets the QTextStream to its default mode (see reset()).
+  <li> \c ws eats any available whitespace (on input)
+  <li> \c reset resets the QTextStream to its default mode (see reset())
   </ul>
 
-  \warning By default, QTextStream will automatically detect whether
+  \warning By default QTextStream will automatically detect whether
   integers in the stream are in decimal, octal, hexadecimal or binary
   format when reading from the stream. In particular, a leading '0'
-  signifies octal, ie. the sequence "0100" will be interpreted as
+  signifies octal, i.e., the sequence "0100" will be interpreted as
   64.
 
-  The QTextStream class reads and writes text and it is not
+  The QTextStream class reads and writes text; it is not
   appropriate for dealing with binary data (but QDataStream is).
 
-  By default output of Unicode text (ie. QString) is done using the
+  By default, output of Unicode text (i.e., QString) is done using the
   local 8-bit encoding.  This can be changed using the setEncoding()
   method.  For input, the QTextStream will auto-detect standard
-  Unicode "byte order marked" text files, but otherwise the local
+  Unicode "byte order marked" text files; otherwise the local
   8-bit encoding is used.
 
   \sa QDataStream
@@ -488,7 +488,7 @@ int QStringBuffer::ungetch( int ch )
     ts <<  "2+2 = " << 2+2; 		// str == "2+2 = 414"
   \endcode
 
-  Note that since QString is Unicode, you should not use readRawBytes()
+  Note that because QString is Unicode, you should not use readRawBytes()
   or writeRawBytes() on such a stream.
 */
 
@@ -981,14 +981,14 @@ void QTextStream::ts_ungetc( QChar c )
 
 
 /*!
-  Reads \e len bytes from the stream into \e e s and returns a reference to
+  Reads \e len bytes from the stream into \e s and returns a reference to
   the stream.
 
   The buffer \e s must be preallocated.
 
   Note that no encoding is done by this function.
 
-  \warning The behaviour of this function is undefined unless the
+  \warning The behavior of this function is undefined unless the
   stream's encoding is set to Unicode or Latin1.
 
   \sa QIODevice::readBlock()
@@ -2059,28 +2059,28 @@ QTextStream &QTextStream::operator<<( void *ptr )
   \fn int QTextStream::flags() const
   Returns the current stream flags. The default value is 0.
 
-  The meaning of the flags are:
+  The meanings of the flags are:
   <ul>
-    <li> \e skipws - Not currently used - whitespace always skipped
+    <li> \e skipws - Not currently used; whitespace always skipped
     <li> \e left - Numeric fields are left-aligned
-    <li> \e right - Not currently used (by default numerics are right aligned)
-    <li> \e internal - Put any padding spaces between +/- and value
+    <li> \e right - Not currently used (by default, numerics are right-aligned)
+    <li> \e internal - Puts any padding spaces between +/- and value
     <li> \e bin - Output \e and input only in binary
     <li> \e oct - Output \e and input only in octal
     <li> \e dec - Output \e and input only in decimal
     <li> \e hex - Output \e and input only in hexadecimal
-    <li> \e showbase - Annotate numeric outputs with 0b, 0, or 0x if in
+    <li> \e showbase - Annotates numeric outputs with 0b, 0, or 0x if in
 		\e bin, \e oct, or \e hex format
     <li> \e showpoint - Not currently used
-    <li> \e uppercase - Use 0B and 0X rather than 0b and 0x
-    <li> \e showpos - Show + for positive numeric values
-    <li> \e scientific - Use scientific notation for floating point values
-    <li> \e fixed - Use fixed-point notation for floating point values
+    <li> \e uppercase - Uses 0B and 0X rather than 0b and 0x
+    <li> \e showpos - Shows + for positive numeric values
+    <li> \e scientific - Uses scientific notation for floating point values
+    <li> \e fixed - Uses fixed-point notation for floating point values
   </ul>
 
   Note that unless \e bin, \e oct, \e dec, or \e hex is set, the input base is
     octal if the value starts with 0, hexadecimal if it starts with 0x, binary
-    if the value starts with 0b, and decimal otherwise.
+    if it starts with 0b, and decimal otherwise.
 
   \sa setf(), unsetf()
 */
@@ -2211,11 +2211,11 @@ QTextStream &reset( QTextStream &s )
   \class QTextIStream qtextstream.h
   \brief A convenience class for input streams.
 
-  For simple tasks, code should be simple.  Hence this
+  For simple tasks code should be simple.  Hence, this
   class is a shorthand to avoid passing the \e mode argument
   to the normal QTextStream constructors.
 
-  This makes it easy for example, to write things like this:
+  This class makes it easy, for example, to write things like this:
 \code
     QString data = "123 456";
     int a, b;
@@ -2228,7 +2228,7 @@ QTextStream &reset( QTextStream &s )
 /*!
   \fn QTextIStream::QTextIStream( QString *s )
 
-  Constructs a stream to read from string \a s.
+  Constructs a stream to read from the string \a s.
 */
 /*!
   \fn QTextIStream::QTextIStream( QByteArray ba )
@@ -2278,32 +2278,33 @@ QTextStream &reset( QTextStream &s )
 /*!
   Sets the encoding of this stream to \a e, where \a e is one of:
   <ul>
-  <li> \c Locale Using local file format (Latin1 if locale is not
+  <li> \c Locale - Uses local file format (Latin1 if locale is not
   set), but autodetecting Unicode(utf16) on input.
-  <li> \c Unicode Using Unicode(utf16) for input and output. Output
+  <li> \c Unicode - Uses Unicode(utf16) for input and output. Output
   will be written in the order most efficient for the current platform
   (i.e. the order used internally in QString).
   <li> \c UnicodeUTF8 Using Unicode(utf8) for input and output. If you use it
   for input it will autodetect utf16 and use it instead of utf8.
-  <li> \c Latin1  ISO-8859-1. Will not autodetect utf16.
-  <li> \c UnicodeNetworkOrder Using network order Unicode(utf16) for
+  <li> \c Latin1 - ISO-8859-1. Will not autodetect utf16.
+  <li> \c UnicodeNetworkOrder - Uses network order Unicode(utf16) for
   input and output. Useful when reading Unicode data that does not
   start with the byte order marker.
-  <li> \c UnicodeReverse Using reverse network order Unicode(utf16)
+  <li> \c UnicodeReverse - Uses reverse network order Unicode(utf16)
   for input and output. Useful when reading Unicode data that does not
-  start with the byte order marker, or writing data that should be
+  start with the byte order marker or when writing data that should be
   read by buggy Windows applications.
-  <li> \c RawUnicode Like Unicode, but does not write the byte order
-  marker, nor does it autodetect the byte order. Only useful when
-  writing to non-persistent storage used by a single process.
+  <li> \c RawUnicode - Like Unicode, but does not write the byte order
+  marker nor does it auto-detect the byte order. Useful only when
+  writing to nonpersistent storage used by a single process.
   </ul>
 
   \c Locale and all Unicode encodings, except \c RawUnicode, will look at
-  the first two bytes in a input stream to determine the byte order. The
+  the first two bytes in an input stream to determine the byte order. The
   initial byte order marker will be stripped off before data is read.
 
   Note that this function should be called before any data is read
-  to/written from the stream.
+  to or written from the stream.
+
   \sa setCodec()
 */
 

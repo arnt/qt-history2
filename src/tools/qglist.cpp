@@ -45,14 +45,14 @@
   \class QLNode qglist.h
   \brief The QLNode class is an internal class for the QList template collection.
 
-  QLNode is a doubly linked list node; it has three pointers:
+  QLNode is a doubly-linked list node. It has three pointers:
   <ol>
   <li> Pointer to the previous node.
   <li> Pointer to the next node.
   <li> Pointer to the actual data.
   </ol>
 
-  Sometimes it might be practical to have direct access to the list nodes
+  It might sometimes be practical to have direct access to the list nodes
   in a QList, but it is seldom required.
 
   \warning Be very careful if you want to access the list nodes. The heap
@@ -76,7 +76,7 @@
   QStack.
 
   QGList has some virtual functions that can be reimplemented to customize
-  the subclasses.
+  the subclasses:
   <ul>
   <li> compareItems() compares two collection/list items.
   <li> read() reads a collection/list item from a QDataStream.
@@ -242,18 +242,18 @@ QGList& QGList::operator=( const QGList &list )
 }
 
 /*!
-  Compares this list with \a list. Retruns TRUE if the lists
-  contain the same data, else FALSE.
+  Compares this list with \a list. Returns TRUE if the lists
+  contain the same data, otherwise FALSE.
 */
 
 bool QGList::operator==( const QGList &list ) const
 {
     if ( count() != list.count() )
 	return FALSE;
-    
+
     if ( count() == 0 )
 	return TRUE;
-    
+
     QLNode *n1 = firstNode;
     QLNode *n2 = list.firstNode;
     while ( n1 && n2 ) {
@@ -263,7 +263,7 @@ bool QGList::operator==( const QGList &list ) const
 	n1 = n1->next;
 	n2 = n2->next;
     }
-    
+
     return TRUE;
 }
 

@@ -56,8 +56,6 @@
 #define DONT_USE_REALLOC			// comment to use realloc()
 #endif
 
-// NOT REVISED
-
 /*!
   \class QGVector qgvector.h
 
@@ -68,7 +66,7 @@
   the QVector collection class.
 
   QGVector has some virtual functions that may be reimplemented in
-  subclasses to to customize behavior.
+  subclasses to customize behavior.
 
   <ul>
   <li> compareItems() compares two collection/vector items.
@@ -93,7 +91,6 @@
   This function returns \e int rather than \e bool so that
   reimplementations can return one of three values and use it to sort
   by:
-
   <ul>
   <li> 0 if \e item1 == \e item2
   <li> \> 0 (positive integer) if \a item1 \> \a item2

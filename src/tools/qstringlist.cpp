@@ -53,7 +53,7 @@
   \ingroup shared
 
   QStringList is basically a QValueList of QString objects. As opposed
-  to QStrList, that stores pointers to characters, QStringList deals
+  to QStrList, which stores pointers to characters, QStringList deals
   with real QString objects.  It is the class of choice whenever you
   work with Unicode strings.
 
@@ -90,17 +90,18 @@
 */
 
 /*! \fn QStringList::QStringList( const QStringList& l )
-  Creates a copy of the list. This function is very fast since
-  QStringList is implicit shared. However, for the programmer this
+
+  Creates a copy of the list. This function is very fast because
+  QStringList is implicitly shared. However, for the programmer this
   is the same as a deep copy. If this list or the original one or some
-  other list referencing the same shared data is modified, then the
-  modifying list makes a copy first.
+  other list referencing the same shared data is modified, the
+  modifying list first makes a copy.
 */
 
 /*!
   \fn QStringList::QStringList (const QString & i)
   Constructs a string list consisting of the single string \a i.
-  To make longer lists easily, use:
+  To make longer lists easily, use
   \code
     QString s1,s2,s3;
     ...
@@ -235,7 +236,7 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str,
 /*!
   Returns a list of all strings containing the substring \a str.
 
-  If \a cs is TRUE, the grep is done case sensitively, else not.
+  If \a cs is TRUE, the grep is done case-sensitively, otherwise not.
 */
 
 QStringList QStringList::grep( const QString &str, bool cs ) const

@@ -55,20 +55,20 @@ extern bool qt_file_access( const QString& fn, int t );
   the file system, its access rights and whether it is a directory or a
   symbolic link.  Its size and last modified/read times are also available.
 
-  To speed up performance QFileInfo caches information about the file. Since
+  To speed up performance, QFileInfo caches information about the file. Because
   files can be changed by other users or programs, or even by other parts of
-  the same program there is a function that refreshes the file information;
-  refresh(). If you would rather like a QFileInfo to access the file system
+  the same program, there is a function that refreshes the file information:
+  refresh(). If you want a QFileInfo to access the file system
   every time you request information from it, you can call the function
   setCaching( FALSE ).
 
-  A QFileInfo can point to a file using either a relative or an absolute
+  A QFileInfo can point to a file by using either a relative or an absolute
   file path. Absolute file paths begin with the directory separator
   ('/') or a drive specification (not applicable to UNIX).
   Relative file names begin with a directory name or a file name and specify
   a path relative to the current directory. An example of
   an absolute path is the string "/tmp/quartz". A relative path might look like
-  "src/fatlib". You can use the function isRelative() to check if a QFileInfo
+  "src/fatlib". You can use the function isRelative() to check whether a QFileInfo
   is using a relative or an absolute file path. You can call the function
   convertToAbs() to convert a relative QFileInfo to an absolute one.
 
@@ -241,7 +241,7 @@ void QFileInfo::setFile( const QFile &file )
 }
 
 /*!
-  Sets the file to obtains information about to \e fileName in the
+  Sets the file to obtain information about to \e fileName in the
   directory \e d.
 
   If the directory has a relative path, the QFileInfo will also have one.
@@ -268,7 +268,7 @@ bool QFileInfo::exists() const
 }
 
 /*!
-  Refresh the information about the file, i.e. read in information from the
+  Refreshes the information about the file, i.e., reads in information from the
   file system the next time a cached property is fetched.
 
   \sa setCaching()
@@ -288,11 +288,11 @@ void QFileInfo::refresh() const
 */
 
 /*!
-  Enables caching of file information if \e enable is TRUE, or disables it
+  Enables caching of file information if \e enable is TRUE or disables it
   if \e enable is FALSE.
 
   When caching is enabled, QFileInfo reads the file information the first
-  time
+  time it's needed, but generally not later.
 
   Caching is enabled by default.
 
@@ -312,7 +312,7 @@ void QFileInfo::setCaching( bool enable )
 
 
 /*!
-  Returns the name, i.e. the file name including the path (which can be
+  Returns the name, i.e., the file name including the path (which can be
   absolute or relative).
 
   \sa isRelative(), absFilePath()
@@ -353,12 +353,12 @@ QString QFileInfo::baseName() const
 
   If \a complete is TRUE (the default), extension() returns the string
   of all characters in the file name after (but not including) the
-  first '.'  character.  For a file named "archive.tar.gz" this
+  first '.'  character.  For a file named "archive.tar.gz", this
   returns "tar.gz".
 
   If \a complete is FALSE, extension() returns the string of all
   characters in the file name after (but not including) the last '.'
-  character.  For a file named "archive.tar.gz" this returns "gz".
+  character.  For a file named "archive.tar.gz", this returns "gz".
 
   Example:
   \code
@@ -385,7 +385,7 @@ QString QFileInfo::extension( bool complete ) const
   Returns the directory path of the file.
 
   If the QFileInfo is relative and \e absPath is FALSE, the QDir will be
-  relative, otherwise it will be absolute.
+  relative; otherwise it will be absolute.
 
   \sa dirPath(), filePath(), fileName(), isRelative()
 */
@@ -430,10 +430,8 @@ bool QFileInfo::isExecutable() const
 
 /*!
   Returns TRUE if the file path name is relative to the current directory,
-  FALSE if the path is absolute (e.g. under UNIX a path is relative if it
+  FALSE if the path is absolute (e.g., under UNIX a path is relative if it
   does not start with a '/').
-
-  According to Einstein this function should always return TRUE.
 */
 #ifndef QT_NO_DIR
 bool QFileInfo::isRelative() const
@@ -444,7 +442,7 @@ bool QFileInfo::isRelative() const
 /*!
   Converts the file path name to an absolute path.
 
-  If it is already absolute nothing is done.
+  If it is already absolute, nothing is done.
 
   \sa filePath(), isRelative()
 */
