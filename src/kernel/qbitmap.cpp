@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#22 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#22 $")
 
 
 /*----------------------------------------------------------------------------
@@ -96,12 +96,12 @@ QBitmap::QBitmap( const QSize &size, bool clear )
 
   Example (creates an arrow bitmap):
   \code
-    char arrow_bits[] = { 0x3f, 0x1f, 0x0f, 0x1f, 0x3b, 0x71, 0xe0, 0xc0 };
+    uchar arrow_bits[] = { 0x3f, 0x1f, 0x0f, 0x1f, 0x3b, 0x71, 0xe0, 0xc0 };
     QBitmap bm( 8, 8, arrow_bits, TRUE );
   \endcode
  ----------------------------------------------------------------------------*/
 
-QBitmap::QBitmap( int w, int h, const char *bits, bool isXbitmap )
+QBitmap::QBitmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPixmap( w, h, bits, isXbitmap )
 {
     data->bitmap = TRUE;
@@ -111,7 +111,7 @@ QBitmap::QBitmap( int w, int h, const char *bits, bool isXbitmap )
   Overloaded constructor; takes a QSize parameter instead of \e (w,h).
  ----------------------------------------------------------------------------*/
 
-QBitmap::QBitmap( const QSize &size, const char *bits, bool isXbitmap )
+QBitmap::QBitmap( const QSize &size, const uchar *bits, bool isXbitmap )
     : QPixmap( size.width(), size.height(), bits, isXbitmap )
 {
     data->bitmap = TRUE;
