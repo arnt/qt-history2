@@ -1515,17 +1515,17 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	// move the left matra back to it's correct position in malayalam and tamil
 	if ((script == QFont::Malayalam || script == QFont::Tamil) && (form(reordered[0]) == Matra)) {
 	    // need to find the base in the shaped string and move the matra there
-	    int prebase = 0;
-	    while (prebase < newLen && char_map[prebase] < base)
-		prebase++;
-	    if (prebase == newLen)
-		prebase = 0;
-	    if (prebase != 0) {
+	    int basePos = 0;
+	    while (basePos < newLen && char_map[basePos] < base)
+		basePos++;
+	    if (basePos < newLen && basePos > 1) {
+		IDEBUG("moving prebase matra to position %d in syllable newlen=%d", basePos, newLen);
 		unsigned short *g = openType->glyphs();
 		unsigned short m = g[0];
-		for (i = 0; i < prebase; ++i)
+		--basePos;
+		for (i = 0; i < basePos; ++i)
 		    g[i] = g[i+1];
-		g[prebase] = m;
+		g[basePos] = m;
 	    }
 	}
 
