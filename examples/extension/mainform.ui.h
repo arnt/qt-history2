@@ -23,12 +23,14 @@ void MainForm::init()
 void MainForm::optionsDlg()
 {
     DialogForm *dlg = new DialogForm( this, "dialog", TRUE );
-    Extension *ext = (Extension*)dlg->extension();
+    Extension *ext = (Extension*)dlg->extension()->qt_cast( "Extension" );
+    if ( !ext )
+	return;
     dlg->sessionsCheckBox->setChecked( sessions );
     dlg->loggingCheckBox->setChecked( logging );
     ext->logfileLineEdit->setText( log_filename );
     ext->logErrorsCheckBox->setChecked( log_errors );
- 
+
     if ( dlg->exec() ) {
 	sessions = dlg->sessionsCheckBox->isChecked();
 	logging = dlg->loggingCheckBox->isChecked();
