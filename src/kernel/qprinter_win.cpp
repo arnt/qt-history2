@@ -407,7 +407,7 @@ void QPrinter::readPdlg( void* pdv )
                 setOrientation( Landscape );
             setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
             setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
-	    if (pd->flags & PD_USEDEVMODECOPIESANDCOLLATE)
+	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
             	ncopies = dm->dmCopies;
             if ( dm->dmCollate == DMCOLLATE_TRUE )
                 usercolcopies = TRUE;
@@ -468,7 +468,7 @@ void QPrinter::readPdlgA( void* pdv )
 	    else
 		setOrientation( Landscape );
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
-            if (pd->flags & PD_USEDEVMODECOPIESANDCOLLATE)
+            if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
             	ncopies = dm->dmCopies;
             if ( dm->dmCollate == DMCOLLATE_TRUE )
                 usercolcopies = TRUE;
@@ -621,7 +621,7 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
-	    if ( !appcolcopies )
+	    if ( !usercolcopies ) // ### was appcolcopies
 		pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
@@ -686,7 +686,7 @@ bool QPrinter::setup( QWidget *parent )
 
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
-	    if ( !appcolcopies )
+	    if ( !usercolcopies ) // ### was appcolatecopies
                 pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
