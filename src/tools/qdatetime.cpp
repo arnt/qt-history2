@@ -1044,7 +1044,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QDate::fromString: Parameter out of range." );
 #endif
-    	return QDate();
+	return QDate();
     }
     switch ( f ) {
     case Qt::ISODate:
@@ -1088,7 +1088,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 		}
 	    }
 #if defined(QT_CHECK_RANGE)
-    	    if ( month < 1 || month > 12 ) {
+	    if ( month < 1 || month > 12 ) {
 		qWarning( "QDate::fromString: Parameter out of range." );
 		month = 1;
 	    }
@@ -2450,7 +2450,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	    }
 	}
 #if defined(QT_CHECK_RANGE)
-    	if ( month < 1 || month > 12 ) {
+	if ( month < 1 || month > 12 ) {
 	    qWarning( "QDateTime::fromString: Parameter out of range." );
 	    month = 1;
 	}
