@@ -544,7 +544,7 @@ void QDataBrowser::first()
 	currentChanged( cur );
 	cur->primeUpdate();
 	emit primeUpdate( buf );
-	d->frm.readFields();
+	readFields();
     }
     updateBoundary();
 }
@@ -568,7 +568,7 @@ void QDataBrowser::last()
 	currentChanged( cur );
 	cur->primeUpdate();
 	emit primeUpdate( buf );
-	d->frm.readFields();
+	readFields();
     }
     updateBoundary();
 }
@@ -592,7 +592,7 @@ void QDataBrowser::next()
 	currentChanged( cur );
 	cur->primeUpdate();
 	emit primeUpdate( buf );
-	d->frm.readFields();
+	readFields();
     }
     updateBoundary();
 }
@@ -616,7 +616,7 @@ void QDataBrowser::prev()
 	currentChanged( cur );
 	cur->primeUpdate();
 	emit primeUpdate( buf );
-	d->frm.readFields();
+	readFields();
     }
     updateBoundary();
 }
