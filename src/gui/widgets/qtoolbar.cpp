@@ -225,7 +225,8 @@ class QToolBarPrivate : public QFramePrivate
     Q_DECLARE_PUBLIC(QToolBar);
 public:
     void actionTriggered();
-    Qt::ToolBarArea currentArea;
+    Qt::ToolBarArea area;
+    Qt::ToolBarAreaFlags allowedAreas;
     QToolBarExtension *extension;
     QToolBarHandle *handle;
 };
@@ -251,7 +252,7 @@ QToolBar::QToolBar(QMainWindow *parent)
     d->extension = new QToolBarExtension(this);
     d->extension->hide();
     layout->removeWidget(d->extension);
-    setCurrentArea(Qt::ToolBarAreaTop);
+    setArea(Qt::ToolBarAreaTop);
 }
 
 QToolBar::~QToolBar()
@@ -447,12 +448,12 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     }
 }
 
-Qt::ToolBarArea QToolBar::currentArea() const
+Qt::ToolBarArea QToolBar::area() const
 {
-    return d->currentArea;
+    return d->area;
 }
 
-void QToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
+void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
 {
     Q_ASSERT(parentWidget() && qt_cast<QMainWindowLayout *>(parentWidget()->layout()));
     QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
@@ -470,7 +471,7 @@ void QToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
     }
 
     QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
-    Q_ASSERT_X(box != 0, "QToolBar::setCurrentArea", "internal error");
+    Q_ASSERT_X(box != 0, "QToolBar::setArea", "internal error");
 
     switch (pos) {
     case 0: // Left
@@ -490,7 +491,7 @@ void QToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
 	break;
 
     default:
-	Q_ASSERT_X(false, "QToolBar::setCurrentArea", "internal error");
+	Q_ASSERT_X(false, "QToolBar::setArea", "internal error");
     }
 
     // change the orientation of any separators
@@ -512,7 +513,7 @@ void QToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
 	QPoint p = d->handle->state->offset;
 	d->handle->state->offset = QPoint(p.y(), p.x());
     }
-    d->currentArea = area;
+    d->area = area;
 }
 
 #include "moc_qtoolbar.cpp"

@@ -1445,7 +1445,7 @@ QRect QMainWindowLayout::placeToolBar(QToolBar *toolbar, const QPoint &mouse, co
         }
     }
 
-    int cur_pos = positionForArea(toolbar->currentArea());
+    int cur_pos = positionForArea(toolbar->area());
     QSize sh;
 
     // need to calc new size hint when we change orientation of the
@@ -1509,7 +1509,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 {
     POSITION where = static_cast<POSITION>(locateToolBar(mouse));
 
-    if (positionForArea(toolbar->currentArea()) == where) {
+    if (positionForArea(toolbar->area()) == where) {
 
 #ifdef TOOLBAR_DEBUG
 	TBDEBUG() << "###";
@@ -1588,7 +1588,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 	}
     } else { // changed area?
 	add(toolbar, where, false, offset);
-	toolbar->setCurrentArea(static_cast<Qt::ToolBarArea>(areaForPosition(where)));
+	toolbar->setArea(static_cast<Qt::ToolBarArea>(areaForPosition(where)));
     }
     relayout();
 }

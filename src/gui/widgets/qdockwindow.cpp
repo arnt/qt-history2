@@ -411,7 +411,7 @@ class QDockWindowPrivate : public QFramePrivate
     public:
     inline QDockWindowPrivate(QMainWindow *parent)
 	: QFramePrivate(), mainWindow(parent), closable(true), movable(true), floatable(true),
-          currentArea(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
+          area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
           grid(0), box(0), title(0)
     { }
 
@@ -423,7 +423,7 @@ class QDockWindowPrivate : public QFramePrivate
     bool closable;
     bool movable;
     bool floatable;
-    Qt::DockWindowArea currentArea;
+    Qt::DockWindowArea area;
     Qt::DockWindowAreaFlags allowedAreas;
 
     QGridLayout *grid;
@@ -476,7 +476,7 @@ QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlag
              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     d->init();
-    setCurrentArea(area);
+    setArea(area);
 }
 
 QDockWindow::~QDockWindow()
@@ -525,7 +525,7 @@ void QDockWindow::setFloated(bool floated, const QPoint &pos)
         if (!pos.isNull())
             move(pos);
     } else {
-        setCurrentArea(d->currentArea);
+        setArea(d->area);
     }
 
     if (visible)
@@ -541,14 +541,14 @@ void QDockWindow::setAllowedAreas(Qt::DockWindowAreaFlags areas)
 Qt::DockWindowAreaFlags QDockWindow::allowedAreas() const
 { return d->allowedAreas; }
 
-Qt::DockWindowArea QDockWindow::currentArea() const
-{ return d->currentArea; }
+Qt::DockWindowArea QDockWindow::area() const
+{ return d->area; }
 
 // add a window to an area using a hueristic to determine direction
-void QDockWindow::setCurrentArea(Qt::DockWindowArea area)
+void QDockWindow::setArea(Qt::DockWindowArea area)
 {
     Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "QDockWindow::setCurrentArea", "specified 'area' is not an allowed area");
+               "QDockWindow::setArea", "specified 'area' is not an allowed area");
 
 #ifdef Q_WS_MAC
     extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
@@ -577,7 +577,7 @@ void QDockWindow::setCurrentArea(Qt::DockWindowArea area)
     }
 #endif
 
-    d->currentArea = area;
+    d->area = area;
 
     if (!isFloated()) {
         Qt::Orientation direction;
@@ -598,27 +598,28 @@ void QDockWindow::setCurrentArea(Qt::DockWindowArea area)
 }
 
 // add a window to an area, placing done relative to the previous
-void QDockWindow::setCurrentArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
+void QDockWindow::setArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
 {
     Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "QDockWindow::setCurrentArea", "specified 'area' is not an allowed area");
+               "QDockWindow::setArea", "specified 'area' is not an allowed area");
 
-    d->currentArea = area;
+    d->area = area;
 
     if (!isFloated())
         d->place(area, direction, extend);
 }
 
 // splits the specified dockwindow
-void QDockWindow::setCurrentArea(QDockWindow *after, Qt::Orientation direction)
+void QDockWindow::setArea(QDockWindow *after, Qt::Orientation direction)
 {
-    Qt::DockWindowArea area = after->currentArea();
+    Qt::DockWindowArea area = after->area();
     Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "QDockWindow::setCurrentArea", "specified 'area' is not an allowed area");
+               "QDockWindow::setArea", "specified 'area' is not an allowed area");
 
-    d->currentArea = area;
+    d->area = area;
 
-    Q_ASSERT_X(false, "QDockWindow::place", "place after specified dock window is unimplemented");
+    Q_ASSERT_X(false, "QDockWindow::setArea",
+               "place after specified dock window is unimplemented");
     Q_UNUSED(direction);
 }
 

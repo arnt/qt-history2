@@ -14,6 +14,8 @@ class Q_GUI_EXPORT QToolBar : public QFrame
     Q_DECLARE_PRIVATE(QToolBar);
     Q_OBJECT
 
+    Q_PROPERTY(Qt::ToolBarArea area READ area WRITE setArea)
+
 public:
     QToolBar(QMainWindow *parent);
     ~QToolBar();
@@ -38,8 +40,8 @@ public:
     QAction *addSeparator();
     QAction *insertSeparator(QAction *before);
 
-    Qt::ToolBarArea currentArea() const;
-    void setCurrentArea(Qt::ToolBarArea area, bool linebreak = false);
+    Qt::ToolBarArea area() const;
+    void setArea(Qt::ToolBarArea area, bool linebreak = false);
 
 signals:
     void actionTriggered(QAction *action);

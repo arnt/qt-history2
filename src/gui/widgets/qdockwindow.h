@@ -14,7 +14,7 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
     Q_PROPERTY(bool floatable READ isFloatable WRITE setFloatable)
     Q_PROPERTY(Qt::DockWindowAreaFlags allowedAreas READ allowedAreas WRITE setAllowedAreas)
-    Q_PROPERTY(Qt::DockWindowArea currentArea READ currentArea WRITE setCurrentArea)
+    Q_PROPERTY(Qt::DockWindowArea area READ area WRITE setArea)
 
     Q_DECLARE_PRIVATE(QDockWindow)
 
@@ -44,12 +44,10 @@ public:
     inline bool isDockable(Qt::DockWindowArea area)
     { return (allowedAreas() & area) == area; }
 
-    Qt::DockWindowArea currentArea() const;
+    Qt::DockWindowArea area() const;
 
-    void setCurrentArea(Qt::DockWindowArea area); // always extends
-    void setCurrentArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend = false);
-
-    void setCurrentArea(QDockWindow *after, Qt::Orientation direction); // always splits
+    void setArea(Qt::DockWindowArea area); // always extends
+    void setArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend = false);    void setArea(QDockWindow *after, Qt::Orientation direction); // always splits
 
 protected:
     void changeEvent(QEvent *event);
