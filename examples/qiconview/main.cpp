@@ -52,10 +52,10 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     QIconView qiconview;
-    qiconview.setSelectionMode( QIconView::Multi );
+    qiconview.setSelectionMode( QIconView::Extended );
     qiconview.resize( 600, 480 );
 
-    for ( unsigned int i = 0; i < 350; i++ )
+    for ( unsigned int i = 0; i < 2000; i++ )
         ( void )new QIconViewItem( &qiconview, QString( "Item %1" ).arg( i + 1 ) );
 
     qiconview.setCaption( "Iconview" );
