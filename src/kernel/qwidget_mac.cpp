@@ -1352,8 +1352,9 @@ void QWidget::showWindow()
 	return;
 
     if(isTopLevel()) {
+	createTLExtra();
 	QDesktopWidget *dsk = QApplication::desktop();
-	if (dsk) {
+	if (!extra->topextra->is_moved && dsk) {
 	    int movex = x(), movey = y();
 	    QRect r = frameGeometry();
 	    QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
@@ -1361,7 +1362,8 @@ void QWidget::showWindow()
 		    movey = avail.bottom() - r.height();
 		if (r.right() > avail.right())
 		    movex = avail.right() - r.width();
-		move( QMAX( avail.left(), movex), QMAX( avail.top(), movey )); 
+		// +2 to prevent going under the menu bar
+		move( QMAX( avail.left(), movex), QMAX( avail.top() + 2, movey )); 
 	}
     }
     fstrut_dirty = TRUE;
@@ -1602,6 +1604,10 @@ void QWidget::stackUnder(QWidget *w)
 
 void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 {
+    if (isTopLevel() && isMove) {
+	createTLExtra();
+	extra->topextra->is_moved = 1;
+    }
     if(isDesktop())
 	return;
     if(extra) {				// any size restrictions?
@@ -1968,6 +1974,7 @@ void QWidget::deleteSysExtra()
 void QWidget::createTLSysExtra()
 {
     extra->topextra->group = NULL;
+    extra->topextra->is_moved = 0;
 }
 
 void QWidget::deleteTLSysExtra()
