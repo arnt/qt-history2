@@ -4,7 +4,7 @@
 **
 ** Created : 20000605
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -65,11 +65,10 @@ int main( int argc, char *argv[] )
     }
 
     int displayId = 0;
-    QRegExp r( ":[0-9]" );
-    int len;
-    int m = r.match( displaySpec, 0, &len );
+    QRegExp rx( ":[0-9]" );
+    int m = rx.search( displaySpec, 0 );
     if ( m >= 0 ) {
-	displayId = displaySpec.mid( m+1, len-1 ).toInt();
+	displayId = displaySpec.mid( m+1, rx.matchedLength()-1 ).toInt();
     }
 
     qDebug( "Using display %d", displayId );
