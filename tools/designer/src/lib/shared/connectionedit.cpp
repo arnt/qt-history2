@@ -398,6 +398,19 @@ void Connection::updateKneeList()
     } else if (m_target == m_edit->m_bg_widget) {
         m_knee_list.append(QPoint(s.x(), t.y()));
     } else if (tr.contains(sr) || sr.contains(tr)) {
+/*
+        +------------------+
+        | +----------+     |
+        | |          |     |
+        | |   o      |     |
+        | +---|------+     |
+        |     |     x      |
+        +-----|-----|------+
+              +-----+
+              
+        We find out which edge of the outer rectangle is closest to the target
+        point, and make a loop which exits and re-enters through that edge.
+*/        
         LineDir dir = closestEdge(t, tr);
         switch (dir) {
             case UpDir:
@@ -419,16 +432,102 @@ void Connection::updateKneeList()
         }
     } else {
         if (r.height() < sr.height() + tr.height()) {
-            if (s.y() >= tr.top() && s.y() <= tr.bottom() || t.y() >= sr.bottom() || t.y() <= sr.top())
-                m_knee_list.append(QPoint(s.x(), t.y()));
-            else
+            if (s.y() >= tr.top() && s.y() <= tr.bottom() || t.y() >= sr.bottom() || t.y() <= sr.top()) {
+/*
+                +--------+
+                |        |   +--------+
+                |     o--+---+--x     |
+                |     o  |   |        |
+                +-----|--+   |        |
+                      +------+--x     |
+                             +--------+
+
+                When dragging one end point, move the other end point to the same y position,
+                if that does not cause it to exit it's rectangle.
+*/
+                if (m_edit->state() == ConnectionEdit::Dragging) {
+                    if (m_edit->m_drag_end_point.type == EndPoint::Source) {
+                        QPoint p(t.x(), s.y());
+                        m_knee_list.append(p);
+                        if (tr.contains(p))
+                            t = m_target_pos = p;
+                    } else {
+                        QPoint p(s.x(), t.y());
+                        m_knee_list.append(p);
+                        if (sr.contains(p))
+                            s = m_source_pos = p;
+                    }
+                } else {
+                    m_knee_list.append(QPoint(s.x(), t.y()));
+                }
+            } else {
+/*
+                +--------+
+                |   o----+-------+
+                |        |   +---|----+
+                +--------+   |   |    |
+                             |   x    |
+                             +--------+
+*/
                 m_knee_list.append(QPoint(t.x(), s.y()));
+            }
         } else if (r.width() < sr.width() + tr.width()) {
-            if (s.x() >= tr.left() && s.x() <= tr.right() || t.x() >= sr.right() || t.x() <= sr.left())
-                m_knee_list.append(QPoint(t.x(), s.y()));
-            else
+            if (s.x() >= tr.left() && s.x() <= tr.right() || t.x() >= sr.right() || t.x() <= sr.left()) {
+/*
+                +--------+
+                |        |
+                |    o  o+--+
+                +----|---+  |
+                   +-|------|-+
+                   | x      x |
+                   |          |
+                   +----------+
+
+                When dragging one end point, move the other end point to the same x position,
+                if that does not cause it to exit it's rectangle.
+*/
+                if (m_edit->state() == ConnectionEdit::Dragging) {
+                    if (m_edit->m_drag_end_point.type == EndPoint::Source) {
+                        QPoint p(s.x(), t.y());
+                        m_knee_list.append(p);
+                        if (tr.contains(p))
+                            t = m_target_pos = p;
+                    } else {
+                        QPoint p(t.x(), s.y());
+                        m_knee_list.append(p);
+                        if (sr.contains(p))
+                            s = m_source_pos = p;
+                    }
+                } else {
+                    m_knee_list.append(QPoint(t.x(), s.y()));
+                }
+            } else {
+/*
+                +--------+
+                |        |
+                |  o     |
+                +--|-----+
+                   |   +--------+
+                   +---+-x      |
+                       |        |
+                       +--------+
+
+*/
                 m_knee_list.append(QPoint(s.x(), t.y()));
+            }
         } else {
+/*
+            +--------+
+            |        |
+            |  o   o-+--------+
+            +--|-----+        |
+               |        +-----|--+
+               |        |     x  |
+               +--------+-x      |
+                        +--------+
+                        
+            The line enters the target rectangle through the closest edge.
+*/
             if (sr.topLeft() == r.topLeft()) {
                 if (pointAboveLine(tr.topLeft(), tr.bottomRight(), t))
                     m_knee_list.append(QPoint(t.x(), s.y()));
@@ -485,6 +584,13 @@ void Connection::trimLine()
     if (cnt < 2)
         return;
 
+    if (!tr.contains(sr) && tr.contains(m_knee_list.at(cnt - 2)))
+        m_knee_list.removeLast();
+    
+    cnt = m_knee_list.size();
+    if (cnt < 2)
+        return;
+    
     if (sr.contains(m_knee_list.at(0)) && !sr.contains(m_knee_list.at(1)))
         m_knee_list[0] = lineEntryPos(m_knee_list.at(1), m_knee_list.at(0), sr);
 
