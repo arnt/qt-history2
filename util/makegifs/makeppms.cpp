@@ -359,6 +359,7 @@ public:
     EgQStatusBar(QWidget* parent=0) :
 	QStatusBar(parent)
     {
+	resize( 400, sizeHint().height() );
 	QLabel *l = new QLabel("R/W",this);
 	addWidget(l,1);
 	message("Ready");
