@@ -32,7 +32,7 @@ my %modules = ( # path to module name map
 	    "QtMotif" => "$basedir/extensions/motif/src",
 	    "QtNsPlugin" => "$basedir/extensions/nsplugin/src",
 );
-$modules{"QtCore"} .= ";$basedir/mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
+#$modules{"QtCore"} .= ";$basedir/mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 
 # global variables (modified by options)
 my $module = 0;
