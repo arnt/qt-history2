@@ -39,10 +39,11 @@
 #define QGL_H
 
 
+#if !defined(QT_CLEAN_NAMESPACE)
 #define QGL_VERSION	450
 #define QGL_VERSION_STR	"4.5"
-
-const char *qGLVersion();
+#define qGLVersion() qVersion()
+#endif
 
 
 #ifndef QT_H

@@ -46,15 +46,6 @@ static QGLFormat* qgl_default_overlay_format = 0;
 
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
-/*!
-  \obsolete
-*/
-
-const char *qGLVersion()
-{
-    return QGL_VERSION_STR;
-}
-
 
 
 /*! \class QGL qgl.h
