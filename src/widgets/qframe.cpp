@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#3 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#3 $";
 #endif
 
 
@@ -26,7 +26,7 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#2 $";
 QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
 {
     initMetaObject();
-    fstyle = Box | Plain;			// set default frame style
+    fstyle = NoFrame;				// set default frame style
     fwidth = 1;
     mwidth = 0;
     setForegroundColor( black );
