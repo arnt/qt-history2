@@ -1428,7 +1428,7 @@ void MainWindow::createNewTemplate()
 	templRoots << qtdir;
     templRoots << qInstallPathData();
     if(qtdir) //try the tools/designer directory last!
-	templRoots << QString(qtdir) << "/tools/designer";
+	templRoots << (QString(qtdir) + "/tools/designer");
     QFile f;
     for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
 	if ( QFile::exists( (*it) + "/templates/" )) {
