@@ -282,7 +282,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
     The resizeMode() and layoutMode() govern how and when the items are
     laid out. Items are spaced according to their spacing(), and can exist
     within a notional grid of size specified by gridSize(). The items can
-    be rendered as large or small icons depending on their iconMode().
+    be rendered as large or small icons depending on their iconSize().
 
     \sa \link model-view-programming.html Model/View Programming\endlink
 */
@@ -306,7 +306,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
-  \enum QListView::IconMode
+  \enum QListView::IconSize
 
   \value Automatic The icon size is Small if \l isWrapping is
   true; otherwise the icon size is Large.
@@ -336,6 +336,7 @@ QListView::QListView(QWidget *parent)
     : QAbstractItemView(*new QListViewPrivate, parent)
 {
     d->init();
+    setViewMode(ListMode);
 }
 
 /*!
@@ -345,6 +346,7 @@ QListView::QListView(QListViewPrivate &dd, QWidget *parent)
     : QAbstractItemView(dd, parent)
 {
     d->init();
+    setViewMode(ListMode);
 }
 
 /*!
@@ -382,6 +384,7 @@ void QListView::setModel(QAbstractItemModel *model)
 */
 void QListView::setMovement(Movement movement)
 {
+    d->modeProperties |= QListViewPrivate::Movement;
     d->movement = movement;
     if (isVisible())
         doItemsLayout();
@@ -407,6 +410,7 @@ QListView::Movement QListView::movement() const
 */
 void QListView::setFlow(Flow flow)
 {
+    d->modeProperties |= QListViewPrivate::Flow;
     d->flow = flow;
     if (isVisible())
         doItemsLayout();
@@ -430,6 +434,7 @@ QListView::Flow QListView::flow() const
 */
 void QListView::setWrapping(bool enable)
 {
+    d->modeProperties |= QListViewPrivate::Movement;
     d->wrap = enable;
     if (isVisible())
         doItemsLayout();
@@ -441,7 +446,7 @@ bool QListView::isWrapping() const
 }
 
 /*!
-    \property QListView::iconMode
+    \property QListView::iconSize
     \brief whether the items should be rendered as large or small items.
 
     If this property is \c Small (the default), the default delegate
@@ -455,16 +460,17 @@ bool QListView::isWrapping() const
     Setting this property when the view is visible will cause the
     items to be laid out again.
 */
-void QListView::setIconMode(IconMode mode)
+void QListView::setIconSize(IconSize size)
 {
-    d->iconMode = mode;
+    d->modeProperties |= QListViewPrivate::IconSize;
+    d->iconSize = size;
     if (isVisible())
         doItemsLayout();
 }
 
-QListView::IconMode QListView::iconMode() const
+QListView::IconSize QListView::iconSize() const
 {
-    return d->iconMode;
+    return d->iconSize;
 }
 
 /*!
@@ -519,6 +525,7 @@ QListView::LayoutMode QListView::layoutMode() const
 */
 void QListView::setSpacing(int space)
 {
+    d->modeProperties |= QListViewPrivate::Spacing;
     d->spacing = space;
     if (isVisible())
         doItemsLayout();
@@ -544,6 +551,7 @@ int QListView::spacing() const
 */
 void QListView::setGridSize(const QSize &size)
 {
+    d->modeProperties |= QListViewPrivate::GridSize;
     d->gridSize = size;
     if (isVisible())
         doItemsLayout();
@@ -552,6 +560,56 @@ void QListView::setGridSize(const QSize &size)
 QSize QListView::gridSize() const
 {
     return d->gridSize;
+}
+
+void QListView::setViewMode(ViewMode mode)
+{
+    d->viewMode = mode;
+
+    if (mode == ListMode) {
+        if (!d->modeProperties & QListViewPrivate::Wrap)
+            d->wrap = false;
+        if (!d->modeProperties & QListViewPrivate::Spacing)
+            d->spacing = 0;
+        if (!d->modeProperties & QListViewPrivate::GridSize)
+            d->gridSize = QSize();
+        if (!d->modeProperties & QListViewPrivate::Flow)
+            d->flow = TopToBottom;
+        if (!d->modeProperties & QListViewPrivate::Movement)
+            d->movement = Static;
+        if (!d->modeProperties & QListViewPrivate::IconSize)
+            d->iconSize = Small;
+        if (!d->modeProperties & QListViewPrivate::ResizeMode)
+            d->resizeMode = Fixed;
+    } else {
+        if (!d->modeProperties & QListViewPrivate::Wrap)
+            d->wrap = true;
+        if (!d->modeProperties & QListViewPrivate::Spacing)
+            d->spacing = 0;
+        if (!d->modeProperties & QListViewPrivate::GridSize)
+            d->gridSize = QSize();
+        if (!d->modeProperties & QListViewPrivate::Flow)
+            d->flow = LeftToRight;
+        if (!d->modeProperties & QListViewPrivate::Movement)
+            d->movement = Free;
+        if (!d->modeProperties & QListViewPrivate::IconSize)
+            d->iconSize = Large;
+        if (!d->modeProperties & QListViewPrivate::ResizeMode)
+            d->resizeMode = Adjust;
+    }
+
+    if (isVisible())
+        doItemsLayout();
+}
+
+QListView::ViewMode QListView::viewMode() const
+{
+    return d->viewMode;
+}
+
+void QListView::clearPropertyFlags()
+{
+    d->modeProperties = 0;
 }
 
 /*!
@@ -665,7 +723,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
         d->rubberBand->setGeometry(rect.normalize());
-        if (!d->rubberBand->isVisible() && d->iconMode == Large) {
+        if (!d->rubberBand->isVisible() && d->iconSize == Large) {
             d->rubberBand->show();
             d->rubberBand->raise();
         }
@@ -820,7 +878,7 @@ bool QListView::isDragEnabled(const QModelIndex &) const
 QStyleOptionViewItem QListView::viewOptions() const
 {
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
-    if (d->iconMode == Automatic ? !d->wrap : d->iconMode == Small) {
+    if (d->iconSize == Automatic ? !d->wrap : d->iconSize == Small) {
         option.decorationSize = QStyleOptionViewItem::Small;
         option.decorationPosition = (QApplication::reverseLayout()
                                       ? QStyleOptionViewItem::Right
@@ -1095,7 +1153,7 @@ void QListView::doItemsLayout()
 
     d->prepareItemsLayout();
 
-    if (d->layoutMode == OnePass)
+    if (d->layoutMode == SinglePass)
         doItemsLayout(d->model->rowCount(root())); // layout everything
     else
         while (!doItemsLayout(100)) // do layout in batches
@@ -1360,13 +1418,7 @@ void QListView::updateGeometries()
 
 QListViewPrivate::QListViewPrivate()
     : QAbstractItemViewPrivate(),
-      flow(QListView::TopToBottom),
-      movement(QListView::Static),
-      iconMode(QListView::Small),
-      resizeMode(QListView::Fixed),
-      layoutMode(QListView::OnePass),
-      wrap(false),
-      spacing(0),
+      modeProperties(0),
       layoutStart(0),
       translate(0),
       layoutWraps(0),

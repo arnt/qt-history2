@@ -24,12 +24,7 @@ int main(int argc, char *argv[])
     QListView *list = new QListView(&page);
     list->setModel(data);
     list->setSelectionModel(selections);
-    list->setLayoutMode(QListView::Batched);
-    list->setIconMode(QListView::Large);
-    list->setMovement(QListView::Free);
-    list->setFlow(QListView::LeftToRight);
-    list->setWrapping(true);
-    list->viewport()->setAcceptDrops(true);
+    list->setViewMode(QListView::IconMode);
 
     app.setMainWidget(&page);
     page.show();

@@ -24,22 +24,24 @@ class Q_GUI_EXPORT QListView : public QAbstractItemView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QListView)
-    Q_ENUMS(Movement Flow IconSize ResizeMode LayoutMode)
+    Q_ENUMS(Movement Flow IconSize ResizeMode LayoutMode ViewMode)
     Q_PROPERTY(Movement movement READ movement WRITE setMovement)
     Q_PROPERTY(Flow flow READ flow WRITE setFlow)
     Q_PROPERTY(bool isWrapping READ isWrapping WRITE setWrapping)
-    Q_PROPERTY(IconMode iconMode READ iconMode WRITE setIconMode)
+    Q_PROPERTY(IconSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
     Q_PROPERTY(LayoutMode layoutMode READ layoutMode WRITE setLayoutMode)
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
     Q_PROPERTY(QSize gridSize READ gridSize WRITE setGridSize)
+    Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
 
 public:
     enum Movement { Static, Free, Snap };
     enum Flow { LeftToRight, TopToBottom };
-    enum IconMode { Automatic, Small, Large };
+    enum IconSize { Automatic, Small, Large };
     enum ResizeMode { Fixed, Adjust };
-    enum LayoutMode { OnePass, Batched };
+    enum LayoutMode { SinglePass, Batched };
+    enum ViewMode { ListMode, IconMode };
 
     QListView(QWidget *parent = 0);
     ~QListView();
@@ -55,8 +57,8 @@ public:
     void setWrapping(bool enable);
     bool isWrapping() const;
 
-    void setIconMode(IconMode mode);
-    IconMode iconMode() const;
+    void setIconSize(IconSize size);
+    IconSize iconSize() const;
 
     void setResizeMode(ResizeMode mode);
     ResizeMode resizeMode() const;
@@ -69,6 +71,11 @@ public:
 
     void setGridSize(const QSize &size);
     QSize gridSize() const;
+    
+    void setViewMode(ViewMode mode);
+    ViewMode viewMode() const;
+
+    void clearPropertyFlags();
 
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &item);

@@ -141,16 +141,30 @@ public:
     QPoint draggedItemsDelta() const;
     QRect draggedItemsRect() const;
 
-    QListView::Flow flow;
-    QListView::Movement movement;
-    QListView::IconMode iconMode;
-    QListView::ResizeMode resizeMode;
-    QListView::LayoutMode layoutMode;
     bool wrap;
     int spacing;
+    QSize gridSize;
+    QListView::Flow flow;
+    QListView::Movement movement;
+    QListView::IconSize iconSize;
+    QListView::ResizeMode resizeMode;
+    QListView::LayoutMode layoutMode;
+    QListView::ViewMode viewMode; 
+
+    enum ModeProperties {
+        Wrap = 1,
+        Spacing = 2,
+        GridSize = 4,
+        Flow = 8,
+        Movement = 16,
+        IconSize = 32,
+        ResizeMode = 64
+    };
+
+    uint modeProperties : 8;
+    
     int layoutStart;
     int translate;
-    QSize gridSize;
     QRect layoutBounds;
     QSize contentsSize;
     // used for intersecting set
