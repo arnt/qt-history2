@@ -363,6 +363,26 @@ void QToolBar::addSeparator()
     (void) new QToolBarSeparator( orientation(), this, "tool bar separator" );
 }
 
+/*!\reimp
+*/
+
+void QToolBar::styleChange( QStyle& old )
+{
+    QObjectList *childs = queryList( "QWidget" );
+    if ( childs ) {
+        QObject *ob = 0;
+	for ( ob = childs->first(); ob; ob = childs->next() ) {
+            if ( ob->inherits( "QToolButton" ) ) {
+                QToolButton* w = (QToolButton*)ob;
+                w->setStyle( &style() );
+            } else if ( ob->inherits( "QToolBarSeparator" ) ) {
+                QToolBarSeparator* w = (QToolBarSeparator*)ob;
+                w->setStyle( &style() );
+            }
+        }
+    }
+    delete childs;
+}
 
 /*!  \reimp. */
 

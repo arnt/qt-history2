@@ -86,6 +86,7 @@ public:
 
 protected:
     void resizeEvent( QResizeEvent *e );
+    void styleChange( QStyle & );
 
 private slots:
     void popupSelected( int id );
