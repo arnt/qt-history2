@@ -477,13 +477,13 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 // 		   positions[i].back, positions[i].new_advance );
 	    // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
 	    if ( positions[i].new_advance ) {
-		glyphs[i].advance.x = si.analysis.bidiLevel % 2
-				      ? -qRound((positions[i].x_advance >> 6)*scale);
+		glyphs[i].advance.x = si->analysis.bidiLevel % 2
+				      ? -qRound((positions[i].x_advance >> 6)*scale)
 				      : qRound((positions[i].x_advance >> 6)*scale);
 		glyphs[i].advance.y = qRound((-positions[i].y_advance >> 6)*scale);
 	    } else {
-		glyphs[i].advance.x += si.analysis.bidiLevel % 2
-				      ? -qRound((positions[i].x_advance >> 6)*scale);
+		glyphs[i].advance.x += si->analysis.bidiLevel % 2
+				      ? -qRound((positions[i].x_advance >> 6)*scale)
 				      : qRound((positions[i].x_advance >> 6)*scale);
 		glyphs[i].advance.y -= qRound((positions[i].y_advance >> 6)*scale);
 	    }
