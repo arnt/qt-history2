@@ -812,9 +812,9 @@ void QPicture::resetFormat()
 
 QDataStream &operator<<( QDataStream &s, const QPicture &r )
 {
+    s << (Q_UINT32)r.pictb.buffer().size();
     // just write the whole buffer to the stream
     return s.writeRawBytes ( r.pictb.buffer().data(), r.pictb.buffer().size() );
-    s << (Q_UINT32)r.pictb.buffer().size();
 }
 
 /*!
