@@ -23,7 +23,7 @@
   the character \c{#} is prepended to the value from the database, otherwise
   the original value is returned.
 
-  Note that we explicitely check that the role is \c QAbstractItemModel::Display, since
+  Note that we explicitely check that the role is \c QAbstractItemModel::Role_Display, since
   we want the additional \c{#} character only when the value is displayed, and not
   when the user edits the value.
   

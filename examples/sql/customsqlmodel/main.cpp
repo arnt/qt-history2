@@ -33,7 +33,7 @@ static void createConnection()
     // create and populate a test table
     QSqlQuery q;
     q.exec("create table persons (id int primary key, firstname varchar(20), "
-           "lastname varchar(20)");
+           "lastname varchar(20))");
     q.exec("insert into persons values(1, 'Arthur', 'Tulip')");
     q.exec("insert into persons values(2, 'Scribe', 'Dent')");
     q.exec("insert into persons values(3, 'Peter', 'Arthurson')");
@@ -43,14 +43,14 @@ class CustomSqlModel: public QSqlModel
 {
 public:
     CustomSqlModel(QObject *parent = 0): QSqlModel(parent) {}
-    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Display) const;
+    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Role_Display) const;
 };
 
 QVariant CustomSqlModel::data(const QModelIndex &item, int role) const
 {
     QVariant v = QSqlModel::data(item, role);
     if (v.isValid() && item.column() == 0
-        && item.type() == QModelIndex::View && role == QAbstractItemModel::Display)
+        && item.type() == QModelIndex::View && role == QAbstractItemModel::Role_Display)
         return v.toString().prepend("#");
     return v;
 }

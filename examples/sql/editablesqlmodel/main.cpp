@@ -34,7 +34,7 @@ static void createConnection()
     // create and populate a test table
     QSqlQuery q;
     q.exec("create table persons (id int primary key, firstname varchar(20), "
-           "lastname varchar(20)");
+           "lastname varchar(20))");
     q.exec("insert into persons values(1, 'Arthur', 'Tulip')");
     q.exec("insert into persons values(2, 'Scribe', 'Dent')");
     q.exec("insert into persons values(3, 'Peter', 'Arthurson')");
@@ -81,7 +81,7 @@ bool EditableSqlModel::setData(const QModelIndex &idx, int role, const QVariant 
 bool EditableSqlModel::editLastName(int pkey, const QString &newValue)
 {
     QSqlQuery q;
-    q.prepare("update table persons set lastname = ? where id = ?");
+    q.prepare("update persons set lastname = ? where id = ?");
     q.addBindValue(newValue);
     q.addBindValue(pkey);
     return q.exec();
