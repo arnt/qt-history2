@@ -463,7 +463,15 @@ void QPixmap::fill(const QColor &fillColor)
 {
     if (isNull())
         return;
-    detach();                                        // detach other references
+    if (fillColor.alpha() != 255) {
+        QImage im = toImage().convertDepth(32);
+        im.fill(fillColor.rgba());
+        im.setAlphaBuffer(true);
+        *this = im;
+        return;
+    } else {
+        detach();
+    }
     GC gc = qt_xget_temp_gc(data->xinfo.screen(), depth()==1);
     XSetForeground(data->xinfo.display(), gc, QColormap::instance(data->xinfo.screen()).pixel(fillColor));
     XFillRectangle(data->xinfo.display(), data->hd, gc, 0, 0, width(), height());

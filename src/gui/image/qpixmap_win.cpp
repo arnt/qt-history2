@@ -361,7 +361,16 @@ void QPixmap::fill(const QColor &fillColor)
 {
     if (isNull())
         return;
-    detach();                                        // detach other references
+
+    if (fillColor.alpha() != 255) {
+        QImage im = toImage().convertDepth(32);
+        im.fill(fillColor.rgba());
+        im.setAlphaBuffer(true);
+        *this = im;
+        return;
+    } else {
+        detach();
+    }
 
     HDC dc = getDC();
     if (fillColor == Qt::black) {

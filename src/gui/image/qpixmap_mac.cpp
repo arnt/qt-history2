@@ -302,7 +302,7 @@ QImage QPixmap::toImage() const
     Q_ASSERT_X(data->hd, "QPixmap::convertToImage", "No handle");
 
     QRgb q;
-    int *sptr = reinterpret_cast<int*>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))), 
+    int *sptr = reinterpret_cast<int*>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))),
                 *srow, r;
     unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
 
@@ -402,7 +402,7 @@ void QPixmap::fill(const QColor &fillColor)
         uint *dptr = (uint *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
         int dbytes = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))*height();
         Q_ASSERT_X(dptr && dbytes, "QPixmap::fill", "No dptr or no dbytes");
-        QRgb colr = qRgb(fillColor.red(),fillColor.green(), fillColor.blue());
+        QRgb colr = fillColor.rgba();
         if(!colr) {
             memset(dptr, colr, dbytes);
         } else {
