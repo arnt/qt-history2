@@ -1424,8 +1424,6 @@ void QMenu::mousePressEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
         return;
-    if(e->button() != Qt::LeftButton)
-        return;
     if(!rect().contains(e->pos())) {
          if (d->noReplayFor
              && QRect(d->noReplayFor->mapToGlobal(QPoint()), d->noReplayFor->size()).contains(e->globalPos()))
@@ -1445,8 +1443,6 @@ void QMenu::mousePressEvent(QMouseEvent *e)
 void QMenu::mouseReleaseEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
-        return;
-    if(e->button() != Qt::LeftButton || !d->mouseDown)
         return;
     d->mouseDown = false;
     QAction *action = d->actionAt(e->pos());
