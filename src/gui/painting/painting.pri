@@ -40,9 +40,8 @@ SOURCES += \
 	painting/qregion.cpp \
 	painting/qmatrix.cpp
 
-win32 | mac {
 	DEFINES += QT_RASTER_IMAGEENGINE
-        win32:DEFINES += QT_RASTER_PAINTENGINE 
+        win32:DEFINES += QT_RASTER_PAINTENGINE
 	SOURCES += 					\
 	 	painting/qpaintengine_raster.cpp	\
 		painting/qdrawhelper.cpp 		\
@@ -54,7 +53,7 @@ win32 | mac {
 		painting/qrasterdefs_p.h		\
 		painting/qgrayraster_p.h		\
 		painting/qblackraster_p.h
-}
+
 win32 {
 	HEADERS += \
 		painting/qpaintengine_win_p.h \
@@ -77,13 +76,6 @@ wince-* {
 
 
 unix:x11 {
-#	DEFINES += _STANDALONE_ QT_RASTER_PAINTENGINE
-#	SOURCES += 					\
-#	 	painting/qpaintengine_raster.cpp	\
-#		painting/qdrawhelper.cpp 		\
-#		painting/qblackraster.c			\
-#		painting/qgrayraster.c
-
 	HEADERS += \
 		painting/qpaintengine_x11_p.h
 
