@@ -327,17 +327,37 @@ void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int firs
 /*!
   \class QHeaderWidget qheaderwidget.h
 
-  \brief The QHeaderWidget class provides a header that uses a perdefined model.
+  \brief The QHeaderWidget class provides a header for the Model/View
+  convenience view widgets.
 
   \ingroup model-view
 
-  ### more docs needed
+  Header widgets are used by QTableWidget and QTreeWidget to display header
+  labels for each row and column that they display.
+
+  A header widget is constructed with a specific orientation and number of
+  sections.
+  A header that provides the column labels at the top of a table is
+  constructed with a horizontal orientation; a header that provides the rows
+  has a vertical orientation. The parent widget is usually a QTableWidget or
+  a QTreeWidget:
+
+  \code
+      QHeaderWidget *columnsHeader = new QHeaderWidget(Qt::Horizontal, columns, tableWidget);
+      QHeaderWidget *rowsHeader = new QHeaderWidget(Qt::Vertical, rows, tableWidget);
+  \endcode
+
+  For horizontal headers, each section corresponds to a column label which
+  is provided by a \c QHeaderWidgetItem. For vertical headers, each section
+  corresponds to a row label. 
+
+  \sa QHeaderWidgetItem QTableWidget QTreeWidget \link model-view-programming.html
+  Model/View Programming\endlink
 */
 
 
 /*!
-    Constructs a header view with the given \a orientation and \a parent widget,
-    using the default model
+    Constructs a header view with the given \a orientation and \a parent widget.
 */
 
 QHeaderWidget::QHeaderWidget(Qt::Orientation orientation, int sections, QWidget *parent)

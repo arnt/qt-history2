@@ -64,7 +64,7 @@
     functions, or by its index position, using the index() and indexAt()
     functions. Note that the index can change if a section is moved.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QListView QTableView QTreeView
+    \sa \link model-view-programming.html Model/View Programming\endlink QListView QTableView QTreeView QHeaderWidget
 
 */
 
