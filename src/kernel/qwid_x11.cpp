@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#27 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#27 $";
 #endif
 
 
@@ -506,7 +506,7 @@ void QWidget::resize( int w, int h )		// resize widget
     QApplication::sendEvent( this, &e );	// send resize event immediatly
 }
 
-void QWidget::changeGeometry( int x, int y, int w, int h )
+void QWidget::setGeometry( int x, int y, int w, int h )
 {						// move and resize widget
     if ( w < 1 )				// invalid size
 	w = 1;

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#21 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#22 $
 **
 ** Definition of QWidget class
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -114,8 +114,9 @@ public:
     void    move( const QPoint & );
     virtual void resize( int w, int h );	// resize widget
     void    resize( const QSize & );
-    virtual void changeGeometry( int x, int y, int w, int h );
-    void    changeGeometry( const QRect & );	// move and resize
+    virtual void setGeometry( int x, int y, int w, int h );
+    void    setGeometry( const QRect & );	// move and resize
+
     void    recreate( QWidget *parent, WFlags f, const QPoint &p,
 		      bool showIt=FALSE );
 
@@ -224,9 +225,9 @@ inline void QWidget::resize( const QSize &s )
     resize( s.width(), s.height());
 }
 
-inline void QWidget::changeGeometry( const QRect &r )
+inline void QWidget::setGeometry( const QRect &r )
 {
-    changeGeometry( r.left(), r.top(), r.width(), r.height() );
+    setGeometry( r.left(), r.top(), r.width(), r.height() );
 }
 
 inline void QWidget::drawText( const QPoint &p, const char *s )
