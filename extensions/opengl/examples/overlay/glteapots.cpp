@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/overlay/glteapots.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/overlay/glteapots.cpp#2 $
 **
 ** Implementation of GLTeapots
 ** This is a QGLWidget displaying a group of teapots and a rubber-band
@@ -50,6 +50,10 @@
 
 #include "glteapots.h"
 #include <qapplication.h>
+
+#if defined(_CC_MSVC_)
+#pragma warning(disable:4305) // init: truncation from const double to float
+#endif
 
 /*!
   Create a GLTeapots widget.

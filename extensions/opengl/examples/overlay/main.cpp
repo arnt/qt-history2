@@ -38,6 +38,7 @@ int main( int argc, char **argv )
     GLObjectWindow w;
     w.resize( 400, 350 );
     a.setMainWidget( &w );
+
     w.show();
     return a.exec();
 }

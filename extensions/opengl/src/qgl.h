@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#20 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#21 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -185,6 +185,7 @@ protected:
     HGLRC		rc;
     HDC			dc;
     WId			win;
+    int			pixelFormatId;
 #elif defined(Q_GLX)
     void*		vi;
     void*		cx;
@@ -199,6 +200,7 @@ private:
     bool		initDone;
     bool		crWin;
     QPaintDevice*	paintDevice;
+    QColor		transpColor;
     static QGLContext*	currentCtx;
 
     friend class QGLWidget;
@@ -269,15 +271,18 @@ protected:
     virtual void	glDraw();
     
 private:
-    void		init( const QGLFormat& format,
+    void		init( const QGLFormat& fmt,
 			      const QGLWidget* shareWidget );
     bool		renderCxPm( QPixmap* pm );
     QGLContext*		glcx;
     bool		autoSwap;
-#if defined(Q_GLX)
+
+#if defined(Q_WGL)
+    QGLContext*		olcx;
+#elif defined(Q_GLX)
     QGLOverlayWidget*	olw;
     friend class QGLOverlayWidget;
-#endif;
+#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

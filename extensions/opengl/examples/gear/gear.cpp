@@ -9,6 +9,10 @@
 #include <qapplication.h>
 #include <math.h>
 
+#if defined(_CC_MSVC_)
+#pragma warning(disable:4305) // init: truncation from const double to float
+#endif
+
 /*
  * Draw a gear wheel.  You'll probably want to call this function when
  * building a display list since we do a lot of trig here.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl_x11.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl_x11.cpp#2 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -482,6 +482,7 @@ void QGLContext::reset()
     crWin = FALSE;
     sharing = FALSE;
     valid = FALSE;
+    transpColor = QColor();
     initDone = FALSE;
 }
 
@@ -531,6 +532,7 @@ void QGLContext::swapBuffers()
 
 QColor QGLContext::overlayTransparentColor() const
 {
+    //### make more efficient using the transpColor member
     if ( isValid() ) {
 	if ( !trans_colors_init )
 	    find_trans_colors();
@@ -683,7 +685,7 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 	setContext( new QGLContext( format, this ) );
     setBackgroundMode( NoBackground );
     
-    if ( format.hasOverlay() ) {
+    if ( isValid() && format.hasOverlay() ) {
 	QCString olwName( name() );
 	olwName += "-QGL_internal_overlay_widget";
 	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(), 

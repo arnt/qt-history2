@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#44 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#45 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -505,6 +505,9 @@ bool QGLFormat::testOption( FormatOption opt ) const
   \fn bool QGLFormat::hasOpenGL()
   Returns TRUE if the window system has any OpenGL support,
   otherwise FALSE.
+
+  Note: This function may not be called until the QApplication object has
+  been created.
 */
 
 
@@ -513,6 +516,9 @@ bool QGLFormat::testOption( FormatOption opt ) const
   \fn bool QGLFormat::hasOpenGLOverlays()
   Returns TRUE if the window system supports OpenGL overlays,
   otherwise FALSE.
+
+  Note: This function may not be called until the QApplication object has
+  been created.
 */
 
 
@@ -1074,9 +1080,11 @@ bool QGLContext::create( const QGLContext* shareContext )
   calling overlayContext().
 
   Note: QGLWidget overlay support is currently implemented only for
-  the X11 window system. On X servers where the default visual is in
-  an overlay plane, non-GL Qt windows can also be used for overlays;
-  see the "overlay_x11" example program for details.
+  the X11 window system. The Windows implementation is experimental.
+
+  Note: On X servers where the default visual is in an overlay plane,
+  non-GL Qt windows can also be used for overlays; see the "overlay_x11"
+  example program for details.
 
 */
 
@@ -1162,6 +1170,9 @@ QGLWidget::~QGLWidget()
     bool doRelease = ( glcx && glcx->windowCreated() );
 #endif
     delete glcx;
+#if defined(Q_WGL)
+    delete olcx;
+#endif
 #if defined(GLX_MESA_release_buffers)
     if ( doRelease )
 	glXReleaseBuffersMESA( x11Display(), winId() );
@@ -1473,6 +1484,7 @@ void QGLWidget::resizeOverlayGL( int, int )
 void QGLWidget::paintEvent( QPaintEvent * )
 {
     glDraw();
+    updateOverlayGL();
 }
 
 
