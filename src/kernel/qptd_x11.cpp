@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#30 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#30 $";
 #endif
 
 
@@ -131,13 +131,15 @@ Returns the window system handle of the paint device (X-Windows only).
 /*! \fn Display *QPaintDevice::display() const
   Returns a pointer to the X display (X-Windows only). */
 
+/*! \fn bool QPaintDevice::paintingActive() const
+  Returns TRUE if the device is currently active (someone has called
+  QPainter::begin() and not yet QPainter::end() on this device). */
 
-/*!
-Internal virtual function that interprets drawing commands from the painter.
+/*!  Internal virtual function that interprets drawing commands from
+the painter.
 
-Implemented by subclasses that have no direct support for drawing graphics
-(for instance QPicture).
-*/
+Implemented by subclasses that have no direct support for drawing
+graphics (for instance QPicture). */
 
 bool QPaintDevice::cmd( int, QPDevCmdParam * )
 {
