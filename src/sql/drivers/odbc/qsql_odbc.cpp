@@ -980,14 +980,8 @@ bool QODBCResult::exec()
     d->rInf.clear();
 
     if (!d->hStmt) {
-            qSqlWarning(QLatin1String("QODBCResult::exec: No statement handle available"), d);
-            return false;
-    } else {
-        r = SQLFreeStmt(d->hStmt, SQL_CLOSE);
-        if (r != SQL_SUCCESS) {
-            qSqlWarning(QLatin1String("QODBCResult::exec: Unable to close statement handle"), d);
-            return false;
-        }
+        qSqlWarning(QLatin1String("QODBCResult::exec: No statement handle available"), d);
+        return false;
     }
 
     // bind parameters - only positional binding allowed
