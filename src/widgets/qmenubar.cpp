@@ -750,6 +750,8 @@ void QMenuBar::show()
 
     if ( parentWidget() )
 	resize( parentWidget()->width(), height() );
+
+    QApplication::sendPostedEvents( this, QEvent::Resize );
     calculateRects();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
