@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#40 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#40 $";
 #endif
 
 
@@ -297,6 +297,8 @@ void QPushButton::drawButton( QPainter *paint )
 	QPixmap pm_direct = *pm;
 	pmpaint.begin( &pm_direct );
 	pmpaint.drawPixmap( 0, 0, *pm );
+	if ( text() )
+	    pmpaint.setFont( font() );
 	drawButtonLabel( &pmpaint );
 	pmpaint.end();
 	p->drawPixmap( 0, 0, pm_direct );
