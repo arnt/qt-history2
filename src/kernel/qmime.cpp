@@ -104,6 +104,8 @@ void QMimeSource::clearCache()
 QMimeSource::~QMimeSource()
 {
     clearCache();
+
+#if defined(Q_WS_X11)
     if (QApplication::closingDown()) return;
 
 #ifndef QT_NO_MIMECLIPBOARD
@@ -111,10 +113,9 @@ QMimeSource::~QMimeSource()
 #ifdef QT_CHECK_RANGE
 	qWarning("QMimeSource::~QMimeSource: clipboard data deleted!");
 #endif
-#if defined(Q_WS_X11)
 	QApplication::clipboard()->clobber();
-#endif
     }
+#endif
 #endif // QT_NO_CLIPBOARD
 }
 
