@@ -4893,15 +4893,15 @@ bool QTextDocument::hasPrefix(const QString& doc, int pos, QChar c)
 {
     if ( pos >= (int)doc.length() )
 	return FALSE;
-    return (doc.unicode())[pos] ==c;
+    return ( doc.unicode() )[ pos ].lower() == c.lower();
 }
 
-bool QTextDocument::hasPrefix(const QString& doc, int pos, const QString& s)
+bool QTextDocument::hasPrefix( const QString& doc, int pos, const QString& s )
 {
     if ( pos + s.length() >= doc.length() )
 	return FALSE;
-    for (int i = 0; i < int(s.length()); i++) {
-	if ((doc.unicode())[pos+i] != s[i])
+    for ( int i = 0; i < (int)s.length(); i++ ) {
+	if ( ( doc.unicode() )[ pos + i ].lower() != s[ i ].lower() )
 	    return FALSE;
     }
     return TRUE;
