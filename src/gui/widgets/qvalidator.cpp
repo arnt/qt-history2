@@ -297,20 +297,20 @@ QIntValidator::~QIntValidator()
     valid range, \c Intermediate if the \a input is an integer outside
     the valid range and \c Invalid if the \a input is not an integer.
 
-    Note: If the valid range consists of just positive integers (e.g. 0 - 100)
+    Note: If the valid range consists of just positive integers (e.g. 32 to 100)
     and \a input is a negative integer then Invalid is returned.
 
     \code
     int pos = 0;
-    s = "35";
-    v.validate(s, pos); // returns Acceptable
-
-    s = "105";
-    v.validate(s, pos); // returns Intermediate
 
     s = "abc";
-    v.validate(s, pos); // returns Invalid
+    v.validate(s, pos);    // returns Invalid
 
+    s = "5";
+    v.validate(s, pos);    // returns Intermediate
+
+    s = "50";
+    v.validate(s, pos);    // returns Acceptable
     \endcode
 
     By default, the \a pos parameter is not used by this validator.
