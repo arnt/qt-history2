@@ -208,7 +208,7 @@ void MainWindowWizardBase::accept()
 		QString slot = ac->name();
 		slot.remove( slot.length() - 6, 6 );
 		slot += "()";
-		dfw->addSlot( slot.latin1(), "virtual", "public", dIface->currentProject()->language(), "void" );
+		dfw->addFunction( slot.latin1(), "virtual", "public", "slot", dIface->currentProject()->language(), "void" );
 		dfw->addConnection( ac, "activated()", widget, slot );
 	}
     }

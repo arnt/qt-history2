@@ -179,15 +179,9 @@
         <receiver>AboutDialog</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
 </connections>
 <functions>
-    <function name="init()" >{
-    
-}</function>
-    <function name="destroy()" >{
-    
-}</function>
+    <function type="slot" access="protected" language="C++">init()</function>    
+    <function type="slot" access="protected" language="C++">destroy()</function>   
 </functions>
 </UI>
