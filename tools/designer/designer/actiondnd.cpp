@@ -942,7 +942,6 @@ void QDesignerPopupMenu::paintEvent( QPaintEvent *e )
     QPopupMenu::paintEvent( e );
     if ( e->rect() != rect() )
 	return;
-    QPoint p = lastIndicatorPos;
     lastIndicatorPos = QPoint( -1, -1 );
 }
 
