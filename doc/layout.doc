@@ -65,11 +65,11 @@ widgets inside each other.
 \list
 \i A \l QHBox lays out its children in a horizontal row, left to right.
 
-   \img qhbox-m.png QHBox with five children
+   \img qhbox-m.png Horizontal box with five children
 
 \i A \l QVBox lays out its children in a vertical row, top to bottom.
 
-   \img qvbox-m.png QVBox with five children
+   \img qvbox-m.png Vertical box with five children
 
 \i A \l QGrid lays out its children in a table. You specify how
    many columns the table has, and it is filled left to right,
@@ -78,7 +78,7 @@ widgets inside each other.
    widget is resized.
 \endlist
 
-   \img qgrid-m.png Two-column QGrid with five children
+   \img qgrid-m.png Two-column grid with five children
 
 The QGrid above can be produced by the following code:
 \code
