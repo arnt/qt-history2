@@ -893,6 +893,7 @@ void AddWidgetStackPageCommand::execute()
 {
     index = widgetStack->insertPage( stackPage, index );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    formWindow()->mainWindow()->objectHierarchy()->tabsChanged( 0 );
 }
 
 void AddWidgetStackPageCommand::unexecute()
@@ -900,6 +901,7 @@ void AddWidgetStackPageCommand::unexecute()
     index = widgetStack->removePage( stackPage );
     stackPage->hide();
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    formWindow()->mainWindow()->objectHierarchy()->tabsChanged( 0 );
 }
 
 DeleteWidgetStackPageCommand::DeleteWidgetStackPageCommand( const QString &n, FormWindow *fw,
