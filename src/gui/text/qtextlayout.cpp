@@ -480,7 +480,8 @@ void QTextLine::layout(int width)
 
         if (current.isObject) {
             QTextFormat format = eng->formats->format(eng->items[item].format);
-            eng->docLayout->layoutObject(QTextObject(item, eng), format);
+            if (eng->docLayout)
+                eng->docLayout->layoutObject(QTextObject(item, eng), format);
             if (line.length && !(eng->textFlags & Qt::SingleLine)) {
                 if (line.textWidth + current.width > line.width || eng->string[current.position] == QChar_linesep)
                     goto found;
