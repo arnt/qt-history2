@@ -1156,10 +1156,6 @@ void QWorkspace::maximizeWindow( QWidget* w)
 
     if ( !w || w && (!w->testWFlags( WStyle_Maximize ) || w->testWFlags( WStyle_Tool) ) )
 	return;
-    if ( w->maximumSize().isValid() && ( w->maximumWidth() < width() || w->maximumHeight() < height() ) ) {
-	w->resize( w->maximumSize() );
-	return;
-    }
 
     if ( c ) {
 	setUpdatesEnabled( FALSE );
