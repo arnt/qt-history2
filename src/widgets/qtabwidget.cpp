@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#17 $
 **
 ** Implementation of QTabWidget class
 **
@@ -206,7 +206,7 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
     td->insertTab( graphicsPane, "&Graphics" );
     td->insertTab( soundPane, "&Sound" );
   \endcode
-  
+
   If \a index is not specified, the tab is simply added. Otherwise
   it's inserted at the specified position.
 
@@ -472,7 +472,7 @@ QSize QTabWidget::sizeHint() const
 */
 QSize QTabWidget::minimumSizeHint() const
 {
-    QSize s( 0, d->stack->sizeHint().height() );
+    QSize s( 0, d->stack->minimumSizeHint().height() );
     QSize t( d->tabs->sizeHint() );
     return QSize( QMAX( s.width(), t.width()),
 		  s.height() + t.height() );
