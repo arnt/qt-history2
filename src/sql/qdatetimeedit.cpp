@@ -364,12 +364,7 @@ void QDateTimeEditBase::mousePressEvent( QMouseEvent *e )
     }
 }
 
-/*!  Returns TRUE if the editor draws itself inside a frame, FALSE if
-  it draws itself without any frame.
-
-  The default is to use a frame.
-
-  \sa setFrame()
+/*!
 */
 
 bool QDateTimeEditBase::frame() const
@@ -377,13 +372,15 @@ bool QDateTimeEditBase::frame() const
     return d ? d->frame() : TRUE;
 }
 
-/*!  Sets the editor to draw itself inside a two-pixel frame if \a
-  enable is TRUE and to draw itself without any frame if \a enable is
-  FALSE.
+/*! \property QDateTimeEditBase::frame
+
+  \brief the editor frame
+
+  The editor is drawn inside a two-pixel frame if the frame property
+  is TRUE, otherwise it is drawn without a frame.
 
   The default is TRUE.
 
-  \sa frame()
 */
 
 void QDateTimeEditBase::setFrame( bool enable )
@@ -918,8 +915,6 @@ int QDateEdit::sectionOffsetEnd( int sec )
 /*! \property QDateEdit::order
 
   \brief the order in which the year, month and day appear
-
-    \fn  void QDateEdit::setOrder( Order order )
 
 
   \sa Order
