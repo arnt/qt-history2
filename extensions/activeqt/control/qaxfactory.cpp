@@ -350,8 +350,8 @@ bool QAxFactory::hasStockEvents( const QString &key ) const
 extern bool qAxIsServer;
 
 /*!
-    Returns TRUE if the application has been started as an ActiveX server;
-    otherwise returns FALSE.
+    Returns TRUE if the application has been started (by COM) as an ActiveX 
+    server, otherwise returns FALSE.
 
     \code
     int main( int argc, char**argv )
@@ -371,4 +371,16 @@ extern bool qAxIsServer;
 bool QAxFactory::isServer()
 {
     return qAxIsServer;
+}
+
+/*!
+    Reimplement this function to return TRUE if the server is
+    running as a persistent service (e.g. an NT service) and should
+    not terminate even when all objects provided have been released.
+
+    The default implementation returns FALSE.
+*/
+bool QAxFactory::isService() const
+{
+    return FALSE;
 }

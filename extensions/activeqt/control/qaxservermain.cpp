@@ -54,6 +54,19 @@ char qAxModuleFilename[MAX_PATH];
 
 // The QAxFactory instance
 static QAxFactoryInterface* _factory;
+extern QUnknownInterface *ucm_instantiate();
+
+QAxFactoryInterface *qAxFactory()
+{
+    if ( !_factory ) {
+	QUnknownInterface *unknown = ucm_instantiate();
+	if ( unknown ) {
+	    unknown->queryInterface( IID_QAxFactory, (QUnknownInterface**)&_factory );
+	    unknown->release();
+	}
+    }
+    return _factory;
+}
 
 // Some local variables to handle module lifetime
 static bool qAxActivity = FALSE;
@@ -145,21 +158,7 @@ static bool StartMonitor()
     return (h != NULL);
 }
 
-extern QUnknownInterface *ucm_instantiate();
 extern HRESULT __stdcall GetClassObject( void *pv, const GUID &iid, void **ppUnk );
-
-QAxFactoryInterface *qAxFactory()
-{
-    if ( !_factory ) {
-	QUnknownInterface *unknown = ucm_instantiate();
-	if ( unknown ) {
-	    unknown->queryInterface( IID_QAxFactory, (QUnknownInterface**)&_factory );
-	    unknown->release();
-	}
-    }
-    return _factory;
-}
-
 
 
 // (Un)Register the ActiveX server in the registry.
@@ -989,7 +988,8 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 	    if ( !keys.count() )
 		return nRet;
 
-	    StartMonitor();
+	    if ( !qAxFactory()->isService() )
+		StartMonitor();
 
 	    int object = 0;
 	    DWORD *dwRegister = new DWORD[keys.count()];
