@@ -29,6 +29,8 @@ public:
     SpreadSheetItem();
     SpreadSheetItem(const QString &text);
 
+    QTableWidgetItem *clone() const;
+
     QVariant data(int role) const;
     void setData(int role, const QVariant &value);
     QVariant display() const;
@@ -47,6 +49,13 @@ SpreadSheetItem::SpreadSheetItem()
 
 SpreadSheetItem::SpreadSheetItem(const QString &text)
     : QTableWidgetItem(text), isResolving(false) {}
+
+QTableWidgetItem *SpreadSheetItem::clone() const
+{
+    SpreadSheetItem *item = new SpreadSheetItem();
+    *item = *this;
+    return item;
+}
 
 QVariant SpreadSheetItem::data(int role) const
 {
@@ -233,12 +242,12 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
 
     table = new SpreadSheetTable(rows, cols, this);
-    table->setItemCreator(new QTableWidgetItemCreator<SpreadSheetItem>);
     for (int c = 0; c < cols; ++c) {
         QString character(QChar('A' + c));
         table->setHorizontalHeaderItem(c, new QTableWidgetItem(character));
         table->horizontalHeaderItem(c)->setTextAlignment(Qt::AlignCenter);
     }
+    table->setItemPrototype(table->item(rows - 1, cols - 1));
 
     setupContextMenu();
     setupContents();

@@ -106,6 +106,7 @@ public:
     virtual bool operator<(const QTableWidgetItem &other) const;
     virtual QDataStream &operator<<(QDataStream &stream) const;
     virtual QDataStream &operator>>(QDataStream &stream);
+    virtual QTableWidgetItem *clone() const;
 
 private:
     struct Data {
@@ -119,19 +120,6 @@ private:
     QTableWidget *view;
     QTableModel *model;
     QAbstractItemModel::ItemFlags itemFlags;
-};
-
-class Q_GUI_EXPORT QTableWidgetItemCreatorBase
-{
-public:
-    virtual ~QTableWidgetItemCreatorBase();
-    virtual QTableWidgetItem *createItem() const = 0;
-};
-
-template <class T>
-class QTableWidgetItemCreator : public QTableWidgetItemCreatorBase
-{
-    inline QTableWidgetItem *createItem() const { return new T; }
 };
 
 class QTableWidgetPrivate;
@@ -198,8 +186,8 @@ public:
     inline QTableWidgetItem *itemAt(int x, int y) const  { return itemAt(QPoint(x, y)); }
     QRect visualItemRect(const QTableWidgetItem *item) const;
 
-    QTableWidgetItemCreatorBase *itemCreator() const;
-    void setItemCreator(QTableWidgetItemCreatorBase *factory);
+    const QTableWidgetItem *itemPrototype() const;
+    void setItemPrototype(const QTableWidgetItem *item);
 
 public slots:
     void scrollToItem(const QTableWidgetItem *item);

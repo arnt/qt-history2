@@ -77,14 +77,14 @@ public:
     void itemChanged(QTableWidgetItem *item);
 
     inline QTableWidgetItem *createItem() const
-        { return creator->createItem(); }
-    inline QTableWidgetItemCreatorBase *itemCreator() const
-        { return creator; }
-    inline void setItemCreator(QTableWidgetItemCreatorBase *c)
-        { delete creator; creator = c; }
+        { return prototype ? prototype->clone() : new QTableWidgetItem(); }
+    inline const QTableWidgetItem *itemPrototype() const
+        { return prototype; }
+    inline void setItemPrototype(const QTableWidgetItem *item)
+        { prototype = item; }
 
 private:
-    QTableWidgetItemCreatorBase *creator;
+    const QTableWidgetItem *prototype;
     QVector<QTableWidgetItem*> table;
     QVector<QTableWidgetItem*> vertical;
     QVector<QTableWidgetItem*> horizontal;
@@ -95,13 +95,12 @@ private:
 
 QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
     : QAbstractTableModel(parent),
-      creator(new QTableWidgetItemCreator<QTableWidgetItem>()),
+      prototype(0),
       table(rows * columns), vertical(rows), horizontal(columns)
 {}
 
 QTableModel::~QTableModel()
 {
-    delete creator;
     clear();
 }
 
@@ -860,6 +859,16 @@ QDataStream &QTableWidgetItem::operator>>(QDataStream &stream)
 }
 
 /*!
+  Creates an exact copy of the item.
+*/
+QTableWidgetItem *QTableWidgetItem::clone() const
+{
+    QTableWidgetItem *item = new QTableWidgetItem();
+    *item = *this;
+    return item;
+}
+
+/*!
     \class QTableWidget
     \brief The QTableWidget class provides an item-based table view with a default model.
 
@@ -1460,14 +1469,14 @@ void QTableWidget::scrollToItem(const QTableWidgetItem *item)
     QTableView::scrollTo(index);
 }
 
-QTableWidgetItemCreatorBase *QTableWidget::itemCreator() const
+const QTableWidgetItem *QTableWidget::itemPrototype() const
 {
-    return d->model()->itemCreator();
+    return d->model()->itemPrototype();
 }
 
-void QTableWidget::setItemCreator(QTableWidgetItemCreatorBase *creator)
+void QTableWidget::setItemPrototype(const QTableWidgetItem *item)
 {
-    d->model()->setItemCreator(creator);
+    d->model()->setItemPrototype(item);
 }
 
 /*!
@@ -1519,29 +1528,5 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
 }
-
-QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase() {}
-
-/*!
-    \class QTableWidgetItemCreatorBase
-*/
-
-/*!
-    \fn QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase()
-*/
-
-/*!
-    \fn QTableWidgetItem *QTableWidgetItemCreatorBase::createItem() const
-*/
-
-/*!
-    \class QTableWidgetItemCreator
-
-    \omit Explain that it's a template class, QTableWidgetItemCreator<T> \endomit
-*/
-
-/*!
-    \fn QTableWidgetItem *QTableWidgetItemCreator::createItem() const
-*/
 
 #include "moc_qtablewidget.cpp"
