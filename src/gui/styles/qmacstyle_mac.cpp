@@ -2115,7 +2115,10 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 for (int i = 1; i < lv->items.size() && y < h; ++i) {
                     QStyleOptionListViewItem item = lv->items.at(i);
                     if (y + item.height > 0 && (item.childCount > 0
-                        || item.features & QStyleOptionListViewItem::Expandable)) {
+                        || (item.features & (QStyleOptionListViewItem::Expandable
+                                            | QStyleOptionListViewItem::Visible))
+                            == (QStyleOptionListViewItem::Expandable
+                                | QStyleOptionListViewItem::Visible))) {
                         QStyleOption treeOpt(0);
                         treeOpt.rect.setRect(x, y + item.height / 2 - 4, 9, 9);
                         treeOpt.palette = lv->palette;
