@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#21 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#22 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -71,7 +71,7 @@ int main( int argc, char **argv )
 #if defined(QT_MODULE_OPENGL)
     // 3D Graphics
     tab = new QTabWidget();
-    GLWorkspace *ws = new GLWorkspace( tab );
+    w = new GLWorkspace( tab );
     tab->addTab( w, "3d Demo" );
     frame.addCategory( tab, threedpix, threedpix_sel, "3D Graphics" );
 #endif
