@@ -84,6 +84,11 @@ protected:
     static void sleep(unsigned long);
     static void msleep(unsigned long);
     static void usleep(unsigned long);
+#ifdef QT_COMPAT
+public:
+    inline QT_COMPAT bool finished() const { return isFinished(); }
+    inline QT_COMPAT bool running() const { return isRunning(); }
+#endif
 };
 
 #endif // QTHREAD_H
