@@ -834,9 +834,15 @@ void QSettings::insertSearchPath( System s, const QString &path)
 	    return;
     }
 
+    QString realPath = path;
+#if defined(Q_WS_WIN)
+    QString defPath = d->globalScope ? d->searchPaths.first() : d->searchPaths.last();
+    realPath = defPath + path;
+#endif
+
     QStringList::Iterator it = d->searchPaths.find(d->searchPaths.last());
     if (it != d->searchPaths.end()) {
-	d->searchPaths.insert(it, path);
+	d->searchPaths.insert(it, realPath);
     }
 }
 
@@ -1956,6 +1962,8 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
 //    User scope corresponds to ~/Library/Preferences/*.plist.
 //    Note that on most installations, not all users can write to the System
 //    scope.
+    d->globalScope = scope == Global;
+
     QString actualSearchPath;
     int lastDot = domain.findRev( '.' );
 
@@ -1972,8 +1980,6 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
     actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;
     insertSearchPath( Unix, actualSearchPath );
 #endif
-
-    d->globalScope = scope == Global;
 }
 
 /*!
