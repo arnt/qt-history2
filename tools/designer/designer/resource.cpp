@@ -2006,13 +2006,15 @@ void Resource::loadConnections( const QDomElement &e )
 			    if ( l->first() )
 				conn.sender = l->first();
 			    delete l;
+			    l = 0;
 			}
 			if ( !conn.sender )
-			    conn.sender = formwindow->findAction(  name );
+			    conn.sender = formwindow->findAction( name );
 		    }
 		} else if ( n2.tagName() == "signal" ) {
 		    conn.signal = n2.firstChild().toText().data();
 		} else if ( n2.tagName() == "receiver" ) {
+		    conn.receiver = 0;
 		    QString name = n2.firstChild().toText().data();
 		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
 			conn.receiver = toplevel;
@@ -2022,7 +2024,10 @@ void Resource::loadConnections( const QDomElement &e )
 			    if ( l->first() )
 				conn.receiver = l->first();
 			    delete l;
+			    l = 0;
 			}
+			if ( !conn.receiver )
+			    conn.receiver = formwindow->findAction( name );
 		    }
 		} else if ( n2.tagName() == "slot" ) {
 		    conn.slot = n2.firstChild().toText().data();
