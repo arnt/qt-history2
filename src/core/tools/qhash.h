@@ -49,10 +49,10 @@ Q_CORE_EXPORT uint qHash(const QString &key);
 template <class T> inline uint qHash(const T *key)
 {
     if (sizeof(const T *) > sizeof(uint))
-	return (uint)((reinterpret_cast<Q_ULLONG>(key) >> (8 * sizeof(uint) - 1))
-		      ^ reinterpret_cast<Q_ULLONG>(key));
+	return static_cast<uint>((reinterpret_cast<Q_ULLONG>(key) >> (8 * sizeof(uint) - 1))
+				 ^ reinterpret_cast<Q_ULLONG>(key));
     else
-	return reinterpret_cast<uint>(key);
+	return static_cast<uint>(reinterpret_cast<ulong>(key));
 }
 
 struct Q_CORE_EXPORT QHashData
