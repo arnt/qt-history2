@@ -767,7 +767,7 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
     QString remoteHost; // null if local
     QString deviceName; // null if remote
 
-    QRegExp newStanza(QLatin1String("^[0-z][0-z]*:$"));
+    QRegExp newStanza(QLatin1String("^[0-z\\-]*:$"));
 
     // our basic strategy here is to process each line, detecting new
     // stanzas.  each time we see a new stanza, we check if the
@@ -782,9 +782,8 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
         bool indented = line[0].isSpace();
         line = line.simplified();
 
-        if (indented && line.contains('=')) { // line in stanza
-
-            int i = line.indexOf('=');
+        int i = line.indexOf('=');
+        if (indented && i != -1) { // line in stanza
             QString variable = line.left(i).simplified();
             QString value=line.mid(i+1, line.length()).simplified();
             if (variable == QLatin1String("device"))
@@ -796,8 +795,7 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
         } else if (line[0] == '*') { // comment
             // nothing to do
         } else if (ts.atEnd() || // end of file, or beginning of new stanza
-                    (!indented &&
-                      line.contains(newStanza))) {
+                    (!indented && line.contains(newStanza))) {
             if (up && stanzaName.length() > 0 && stanzaName.length() < 21) {
                 if (remoteHost.length()) // remote printer
                     perhapsAddPrinter(printers, stanzaName, remoteHost,
