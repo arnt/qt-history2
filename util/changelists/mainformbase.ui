@@ -9,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>687</width>
-            <height>650</height>
+            <width>679</width>
+            <height>646</height>
         </rect>
     </property>
     <property name="caption">
@@ -349,4 +349,18 @@
 
 }</function>
 </functions>
+<tabstops>
+    <tabstop>path</tabstop>
+    <tabstop>changesFrom</tabstop>
+    <tabstop>changesTo</tabstop>
+    <tabstop>includeIntegrates</tabstop>
+    <tabstop>goButton</tabstop>
+    <tabstop>changes</tabstop>
+    <tabstop>quit</tabstop>
+    <tabstop>errorView</tabstop>
+    <tabstop>pathSelect</tabstop>
+    <tabstop>description</tabstop>
+    <tabstop>affectedFiles</tabstop>
+    <tabstop>diff</tabstop>
+</tabstops>
 </UI>
