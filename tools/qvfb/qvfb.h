@@ -55,12 +55,10 @@ private:
     void init( int display_id, int w, int h, int d, const QString &skin );
     QAction *newAction(const char *menuName, const char *shortkey, const char *slot);
     void createActions();
-    
+
     QVFbView *view;
     QVFbRateDialog *rateDlg;
     QFileDialog* imagesave;
-    QPopupMenu *viewMenu;
-    int cursorId;
     Config* config;
     QString currentSkin;
 

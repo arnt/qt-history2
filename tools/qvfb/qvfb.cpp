@@ -107,7 +107,8 @@ QAction *QVFb::newAction(const char *menuName, const char *shortkey, const char 
 void QVFb::createActions()
 {
     actions[ConfigAct] = newAction("&Configure", "Ctrl+Alt+C", SLOT(configure()));
-    actions[QuitAct] = newAction("&Quit", "", SLOT(quit()));
+    actions[QuitAct] = new QAction("&Quit", this);
+    connect(actions[QuitAct], SIGNAL(triggered()), qApp, SLOT(quit()));
     actions[AboutAct] = newAction("&About", "", SLOT(about()));
     actions[AboutQtAct] = newAction("About &Qt", "", SLOT(aboutQt()));
 
@@ -255,7 +256,7 @@ void QVFb::toggleAnimation()
 
 void QVFb::toggleCursor()
 {
-    enableCursor( !viewMenu->isItemChecked( cursorId ) );
+    enableCursor(actions[CursorAct]->isChecked());
 }
 
 void QVFb::changeRate()
