@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#117 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#118 $
 #
 # this is a massive hack, written very quickly
 #
@@ -865,7 +865,7 @@ sub readfiles {
 	print H $doctype, "
 <html><head><title>
 Qt Toolkit - ", $filename, " include file
-</title></head><body>
+</title></head><body bgcolor=white>
 <p>This is the verbatim text of the ", $filename," include file.  It is is
 provided only for illustration; the <a href=\"license.html\">copyright</a>
 remains with Troll Tech.
@@ -921,7 +921,7 @@ remains with Troll Tech.
 	print H $doctype, "
 <html><head><title>
 Qt Toolkit - ", $filename, " example file
-</title></head><body>
+</title></head><body bgcolor=white>
 
 The example program on this page may be used, distributed and modified
 without limitation.
@@ -1139,7 +1139,7 @@ sub readc {
 	} elsif ( $doc =~ m@^\\defgroup\s+([\w\.-]+)\s+(.*?)\s*$@s ) {
 	    # it's a \defgroup
 	    $pages{$1} = 
-		"<title>Qt toolkit - group index</title></head><body>\n"
+		"<title>Qt toolkit - group index</title></head><body bgcolor=white>\n"
 		    . $2;
 	    $classes{$1} = "";
 	} elsif ($doc =~ m@^\\example\s+([\w\./]+)\s+(.*?)\s*$@s) {
@@ -1507,7 +1507,7 @@ sub printclass {
 
     print O $doctype, "<html><head>\n<title>Qt Toolkit - ", 
     $class, 
-    " Class</title>\n</head><body>\n",
+    " Class</title>\n</head><body bgcolor=white>\n",
     "<h1>", $name{$url}, " Class Reference</h1>\n<hr>\n";
 
     my ($i, $family);
@@ -1799,7 +1799,7 @@ sub classindex {
     print O $doctype, "
 <html>
 <head><title>Qt Toolkit - Class List</title></head>
-<body>
+<body bgcolor=white>
 <h1>Qt Class Index</h1>
 <ul compact>
 ";
@@ -1808,7 +1808,7 @@ sub classindex {
     print P $doctype, "
 <html>
 <head><title>Qt Toolkit - Class List</title></head>
-<body>
+<body bgcolor=white>
 <h1>Annotated Qt Class Index</h1>
 <p>Here are the classes in Qt, with brief descriptions:
 <ul compact>
@@ -1831,7 +1831,7 @@ sub classindex {
 sub enumindex {
     open(O, "> $outputdir/enums.html")
 	|| die "can't open $outputdir/enums.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit, enum type indexe</title></head><body>\n<h1>Qt enum type index</h1>\n<p>Here are the enums defined in the Qt toolkit:\n<ul compact>";
+    print O $doctype, "<html><head><title>Qt toolkit, enum type indexe</title></head><body bgcolor=white>\n<h1>Qt enum type index</h1>\n<p>Here are the enums defined in the Qt toolkit:\n<ul compact>";
     foreach $url ( sort keys %type ) {
 	print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n"
 	    if ($type{$url} eq "enum");
@@ -1846,7 +1846,7 @@ sub headerindex {
     local($filename);
     open(O, "> $outputdir/headers.html")
 	|| die "can't open $outputdir/headers.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit - header file index</title></head><body>\n<h1>Qt header file index</h1>\n<p>Here are the header files that make up the Qt API:\n<ul compact>";
+    print O $doctype, "<html><head><title>Qt toolkit - header file index</title></head><body bgcolor=white>\n<h1>Qt header file index</h1>\n<p>Here are the header files that make up the Qt API:\n<ul compact>";
     foreach $filename ( sort keys %headerfiles ) {
 	$_ = $filename;
 	s/\./-/;
@@ -1864,7 +1864,7 @@ sub exampleindex {
     local($filename);
     open(O, "> $outputdir/examples.html")
 	|| die "can't open $outputdir/examples.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit - Example Index</title></head><body>\n<h1>Qt Example Index</h1>\n<p>Here are some of the examples that are included with Qt:\n<ul compact>";
+    print O $doctype, "<html><head><title>Qt toolkit - Example Index</title></head><body bgcolor=white>\n<h1>Qt Example Index</h1>\n<p>Here are some of the examples that are included with Qt:\n<ul compact>";
     foreach $filename ( sort keys %examples ) {
 	$_ = $filename;
 	$htmlfilename = $filename;
@@ -1894,7 +1894,7 @@ sub inheritanceindex {
     print O $doctype, "
 <html>
 <head><title>Qt Toolkit - Class Hierarchy</title></head>
-<body>
+<body bgcolor=white>
 <h1>Qt Class Hierarchy</h1>
 
 <p>This inheritance list is sorted roughly, but not completely,
@@ -1968,7 +1968,7 @@ sub memberlists {
 	    print O $doctype, "
 <html><head><title>
 Qt toolkit - ", $_, " member list
-</title></head><body>
+</title></head><body bgcolor=white>
 <h1>Complete Member List for ", $_, "</h1>
 <p>This is the complete list of member functions and enum types for 
 <a href=\"", $anchor{$_}, "\">", $_, "</a>, including all inherited members.
@@ -2015,7 +2015,7 @@ sub functionlist {
     print O $doctype, "
 <html>
 <head><title>Qt Toolkit - Member Function Index</title></head>
-<body>
+<body bgcolor=white>
 <h1>Qt Member Function Index</h1>
 
 Here is a list of all of the documented member functions in the Qt
@@ -2079,7 +2079,7 @@ sub linuxjournal {
 	    print O $doctype,"
 <html><head><title>
 Linux Journal: ", $i, "
-</title></head><body>
+</title></head><body bgcolor=white>
 <h1 align=center>Qt Article Example Code</h1>
 
 <p>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.12 1996/06/30 17:50:31 agulbra Exp $
+** $Id: indices.doc,v 1.13 1996/09/16 17:40:52 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,13 +8,13 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.12 1996/06/30 17:50:31 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 1.13 1996/09/16 17:40:52 agulbra Exp $";
 #endif
 
 /*! \page index.html
 
 <title>Qt toolkit - documentation home page</title>
-</head><body>
+</head><body bgcolor=white>
 
 <h1>Qt Documentation Home Page</h1>
 
@@ -63,7 +63,7 @@ within a few minutes.
 /*! \page topicals.html
 
 <title>Qt toolkit - topical index pages</title>
-</head><body>
+</head><body bgcolor=white>
 
 <h1>Topical Index pages</h1>
 
