@@ -46,7 +46,6 @@ parser reports certain document information while parsing the document.
 These reported information is referred to as "event".
 
 To make it less abstract consider the following example:
-
 \code 
 <quote>To make it less abstract consider the following example:</quote>
 \endcode
@@ -64,7 +63,8 @@ a suitable event handling routine can be invoked.
 
 Whilst this is a fast and simple approach to read XML documents
 manipulation is difficult because data are not stored, simply handled
-and discarded serially. This is when the DOM interface comes handy.
+and discarded serially. This is when the <a href="xml-dom.html">DOM interface</a> 
+comes handy.
 
 The Qt XML module provides an
 abstract class, \l QXmlReader, that defines the interface for potential 
@@ -76,7 +76,7 @@ The reader reports parsing events through special handler classes. In Qt
 the following ones are available:
 <ul>
 <li>\l QXmlContentHandler
-    reports events related to the content of a document (e.g. the start tag,
+    reports events related to the content of a document (e.g. the start tag
     or characters).
 <li>\l QXmlDTDHandler
     reports events related to the DTD (e.g. notation declarations).
@@ -119,7 +119,7 @@ provide the user with useful functionality:
 <a href="xml.html#namespaces">Namespaces</a> do not change the parsing behavior. 
 They are only reported through the handler.
 
-You can configure the behavior of the reader concerning namespace
+You can configure the behavior of the reader when it comes to namespace
 processing. This is done with the features
 \c http://xml.org/features/namespaces and
 \c http://xml.org/features/namespace-prefixes (for details on features see
@@ -129,7 +129,7 @@ There are four reporting behaviors that are influenced by these features:
 <ol>
 <li>The namespace prefix and local part of elements and attributes are
     reported.
-<li>The qualified name of elements and attributes are reported.
+<li>The qualified names of elements and attributes are reported.
 <li>The startPrefixMapping() and endPrefixMapping() functions of the
     \l QXmlContentHandler are called.
 <li>Attributes that declare namespaces (i.e. the attribute \c xmlns and
@@ -160,8 +160,8 @@ SAX2 requires the following behavior:
     <td>Unknown</td><td>Yes</td>
 </tr>
 </table>
-The combination that both features (namespaces and namespace-prefixes) are
-FALSE is an illegal combination.
+The combination of both features (namespaces and namespace-prefixes) set to
+FALSE is illegal.
  
 \l QXmlSimpleReader implements the following behavior:
 <table border="1">
@@ -187,8 +187,8 @@ FALSE is an illegal combination.
 </tr>
 </table>
  
-The default settings are
-\c http://xml.org/features/namespaces is \c TRUE and
+By default 
+\c http://xml.org/features/namespaces is set to \c TRUE and
 \c http://xml.org/features/namespace-prefixes is \c FALSE.
  
                                                                   
@@ -202,27 +202,29 @@ feature has a unique name, represented as an URI, and a value which can be
 TRUE or FALSE.
  
 Properties are a more general concept. They also have a unique name,
-represented as an URI, but their value is \c void*. So nearly everything
-can be used for a property values. This concept involves some danger,
-though: there are no means to get type-safety; the user has to take care
-that he passes the correct type. Properties are useful if a reader supports
-special handler classes, e.g.
+represented as an URI, but their value is \c void*. Thus nearly everything
+can be used as a property value. This concept involves some danger,
+though: there are no means to ensure type-safety; the user must take care
+that he or she passes the correct type. Properties are useful if a reader supports
+special handler classes.
+
+<!-- example! -->
  
-The URIs used for features and properties are often URLs like
-\c http://xml.org/sax/features/namespace. This does not mean that there
-must be any data at the address. It is simply a way to define unique names,
-not more.
+The URIs used for features and properties often look like URLs, e.g. 
+\c http://xml.org/sax/features/namespace. This does not mean that whatsoever
+data is required at this address. It is simply a way to define unique names.
  
-Everybody can define and use new SAX2 features and properties for his
-readers. There are only two features and no properties that a SAX2 reader
-must support: \c http://xml.org/sax/features/namespaces and \c
-http://xml.org/sax/features/namespace-prefixes.
+Everybody can define and use new SAX2 features and properties for his or her
+readers. Mandatory is the
+support of the two \c http://xml.org/sax/features/namespaces and \c
+http://xml.org/sax/features/namespace-prefixes features. Property support is not
+required.
  
-Features can be set or queried with the three following three functions:
+Features can be set or queried using the following three functions:
 \l QXmlReader::setFeature(), \l QXmlReader::feature() and \l
 QXmlReader::hasFeature().
  
-Properties can be set or queried with similar functions:
+Similar functions are used to set or query properties:
 \l QXmlReader::setProperty(), \l QXmlReader::property() and \l
 QXmlReader::hasProperty().                      
 
@@ -232,7 +234,7 @@ QXmlReader::hasProperty().
 For a practical example on how to use the Qt SAX2 classes see the 
 "<a href="xml-sax-walkthrough.html">tagreader walkthrough</a>".
 
-More information about XML (e.g. <a href="xml.html#sax2namespaces">namespaces</a>)
+More information about XML (e.g. <a href="xml.html#namespaces">namespaces</a>)
 can be found in the <a href="xml.html">introduction to the Qt XML module</a>.
 
 */

@@ -38,7 +38,7 @@
 \title Qt XML Module
 
 The XML module provides a well-formed XML parser using the SAX2 (Simple API for
-XML) interface plus an implementation of the DOM Level 1 (Document Object
+XML) interface plus an implementation of the DOM Level 2 (Document Object
 Model).
 
 This document assumes that you are more or less familiar with the XML terminology. It
@@ -53,7 +53,7 @@ e.g. <a href="http://www.w3.org/XML/">http://www.w3.org/XML/</a>.
 
 <h2><a name="overview">Overview of the XML architecture in Qt</a></h2>
 
-The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 1.
+The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 2.
 
 SAX is a very popular event-based standard interface for XML parsers.
 The Qt interface follows the design of the SAX2 Java implementation.
@@ -70,9 +70,9 @@ the document covering "<a href="xml-sax.html">The Qt SAX2 implementation</a>".
 A code example is discussed in the "<a href="xml-sax-walkthrough.html">tagreader
 walkthrough</a>".
 
-DOM Level 1 is a W3C Recommendation for XML interfaces that maps the
+DOM Level 2 is a W3C Recommendation for XML interfaces that maps the
 constituents of a XML document in a tree structure. Details and the
-specification of DOM Level 1 can be found at
+specification of DOM Level 2 can be found at
 <a href="http://www.w3.org/DOM/">http://www.w3.org/DOM/</a>.
 More information about the DOM classes in Qt is provided in the
 appropriate <a href="xml-dom.html">overview</a>.
@@ -87,7 +87,7 @@ are invited to read on.
  
 Namespaces are a concept introduced to XML to allow a more modular design.
 With their help data processing software can easily
-identify logical structures in a document. 
+resolve naming conflicts in XML documents. 
 
 Consider the following example:
 
@@ -106,10 +106,10 @@ Consider the following example:
 Here we find three different markups with the name \e title. If you wish
 to process the above document you will certainly come across difficulties
 because each of the \e titles should be displayed in a different manner --
-simply by name they however can't be distinguished.
+simply by name they can't be distinguished.
 
 The solution would be to have something that identifies the 
-first occurence of \e title as a title of a book or
+first occurence of \e title as title of a book or
 -- to put it differently -- to use the \e title element of a 
 book namespace to distinguish it from e.g. the chapter title, e.g.:
 \code
@@ -119,8 +119,8 @@ book namespace to distinguish it from e.g. the chapter title, e.g.:
 \e book in this case is
 a \e prefix denoting the namespace.
 
-Before one however can apply a
-namespace to element or attribute names one has to declare it.
+Before one can apply a
+namespace to element or attribute names one must declare it.
 
 Namespaces are URI references like \e http://trolltech.com/fnord/book/.
 This does not mean that data must be available under this
@@ -144,7 +144,7 @@ xmlns:book="http://trolltech.com/fnord/book/"
 
 A namespace that is declared like this can be applied
 to element and attribute names by prepending the appropriate
-prefix and a ":" as delimiter as we have seen with
+prefix and a ":" as delimiter. We have already seen it with
 the \e book:title element.
 
 Element names without a prefix belong to the default namespace.
@@ -194,12 +194,12 @@ They are however members of the "traditional" namespace of the element
 \e book:author, meaning that e.g. two \e title attributes 
 to \e book:author are forbidden.
 
-In the above example we outwit the last rule whilst adding a \e title
+In the above example we outwit the last rule by adding a \e title
 attribute from the \e http://trolltech.com/fnord/ namespace to \e book:author: 
 the \e fnord:title comes from the namespace with the prefix \e fnord
 that is declared in the \e book:author element. 
 
-You certainly mention that it has the same namespace URI as the
+You certainly recognise that the \e fnord namespace has the same namespace URI as the
 default namespace. So why wouldn't we simply use the already declared
 default namespace? The answer is quite complex:
 <UL>
@@ -209,6 +209,13 @@ even not to the default namespace,
 <LI>writing it like \e xmlns:title would declare a new namespace with
 the prefix \e title instead of applying the default \e xmlns namespace. 
 </UL>
+
+Elements and attributes can be accessed in two ways: obviously by
+refering to their qualified names consisting of the namespace prefix
+and the "real" name (or local name). 
+In addition the combination of local name and namespace URI makes up for a non-ambiguous
+selection.
+
 
 More and detailed information on XML namespaces can be found at
 <a href="http://www.w3.org/TR/REC-xml-names/">http://www.w3.org/TR/REC-xml-names/</a>.
@@ -225,9 +232,13 @@ namespaces:
 <li>A <i>namespace prefix</i> in a qualified name
     is the part to the left of the ":".  (\e book is the namespace prefix in 
     \e book:title.)
-<li>The <i>local part</i> of a name sits 
+<li>The <i>local part</i> of a name (also refered to as the <i>local name</i>) sits 
     on the right hand site of the ":".
     (Thus \e title is the local part of \e book:title.)
+<li>The <I>namespace URI</I> ("Uniform Resource Identifier") is a unique
+    identifier for a namespace. It looks like an URL
+    (e.g. \e http://trolltech.com/fnord/ ) but (unlike an URL) does not require 
+    data accessible by the given protocol at the named address.
 </ul>
 
 Elements without a ":" (like the above \e chapter) do not have a namespace
