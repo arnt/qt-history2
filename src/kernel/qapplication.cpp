@@ -45,13 +45,15 @@
 
 #include "qtranslator.h"
 #include "qtextcodec.h"
-#include "qpngio.h"
 #include "qsessionmanager.h"
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qstylefactory.h"
 #include <stdlib.h>
 #include "qcomponentfactory.h"
+#ifndef QT_NO_REMOTE
+#include <private/qremotecontrol_p.h>
+#endif
 
 #ifndef QT_NO_REMOTE
 #include "qremotecontrol_p.h"
@@ -793,10 +795,6 @@ void QApplication::initialize( int argc, char **argv )
 	     !(app_style = QStyleFactory::create( "Compact" ) ) )
 	    qFatal( "No %s style available!", style.latin1() );
     }
-#endif
-
-#ifndef QT_NO_IMAGEIO_PNG
-    qInitPngIO();
 #endif
 
 #ifndef QT_NO_STYLE

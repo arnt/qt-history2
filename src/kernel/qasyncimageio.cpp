@@ -290,6 +290,7 @@ public:
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 	    gif_decoder_factory = new QGIFFormatType;
 #endif
+	    qt_init_image_handlers();
 	    qAddPostRoutine( cleanup );
 	}
     }
