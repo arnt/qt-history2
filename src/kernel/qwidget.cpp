@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#31 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#31 $";
 #endif
 
 
@@ -317,6 +317,13 @@ bool QWidget::close( bool forceKill )		// close widget
 // QWidget event handling
 //
 
+class QKeyEventFriend : public QKeyEvent {	// trick to use accel flag
+public:
+    QKeyEventFriend() : QKeyEvent(0,0,0,0) {}
+    bool didAccel() const { return accel != 0; }
+    void setAccel()	  { accel = TRUE; }
+};
+
 bool QWidget::event( QEvent *e )		// receive event
 {
     if ( eventFilters ) {			// pass through event filters
@@ -346,7 +353,28 @@ bool QWidget::event( QEvent *e )		// receive event
 	    break;
 
 	case Event_KeyPress: {
-	    QKeyEvent *k = (QKeyEvent*)e;
+	    QKeyEventFriend *k = (QKeyEventFriend*)e;
+	    QWidget *w = this;
+	    if ( !k->didAccel() ) {
+		k->setAccel();			// flag that we tried accel
+		while ( w ) {
+		    if ( w->testFlag(WHasAccel) ) {
+			QObjectList *list = w->children();
+			QObject *obj = list->first();
+			while ( obj && !obj->inherits("QAccel") )
+			    obj = list->next();
+			if ( obj ) {		// accelerator found
+			    if ( list->at() > 0 ) // put first in list
+				w->setToFirstChild( obj );
+			    if ( obj->event( k ) )
+				return TRUE;
+			}
+			else			// no accelerator
+			    w->clearFlag( WHasAccel );
+		    }
+		    w = w->parentWidget();
+		}
+	    }
 	    keyPressEvent( k );
 #if defined(_WS_X11_)
 	    if ( !k->isAccepted() && !testFlag(WType_Overlap) && parentObj )
