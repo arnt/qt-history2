@@ -569,7 +569,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             p = p->topLevelWidget();
 
         if (dialog || testWFlags(Qt::WStyle_DialogBorder) || testWFlags(Qt::WStyle_Tool)) {
-            if (p && p->testWFlags(Qt::WGroupLeader)) {
+            if (p && (p->testWFlags(Qt::WGroupLeader) || p->testWFlags(Qt::WType_Dialog))) {
                 // transient for window
                 XSetTransientForHint(dpy, id, p->winId());
             } else {
