@@ -153,7 +153,7 @@ int ContextModel::columnCount(const QModelIndex &) const
     return 3;
 }
 
-QVariant ContextModel::headerData(int section, Qt::Orientation orientation, int role) const
+QCoreVariant ContextModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((role == QAbstractItemModel::DisplayRole) && (orientation == Qt::Horizontal)) {
         switch(section)    {
@@ -168,23 +168,23 @@ QVariant ContextModel::headerData(int section, Qt::Orientation orientation, int 
         return "Error";
     }
 
-    return QVariant();
+    return QCoreVariant();
 }
 
-QVariant ContextModel::data(const QModelIndex &index, int role) const
+QCoreVariant ContextModel::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     int column = index.column();
 
     if (row >= cntxtList.count() || !index.isValid())
-        return QVariant();
+        return QCoreVariant();
 
     ContextItem *cntxtItem = cntxtList.at(row);
 
     if (role == QAbstractItemModel::DisplayRole) {
         switch(column) {
         case 0: // done
-            return QVariant();
+            return QCoreVariant();
         case 1: // context
             return cntxtItem->context().simplified();
         case 2: // items
@@ -199,14 +199,14 @@ QVariant ContextModel::data(const QModelIndex &index, int role) const
     }
     else if ((role == QAbstractItemModel::DecorationRole) && (column == 0)) {
         if (cntxtItem->isContextObsolete())
-            return QVariant(*TrWindow::pxObsolete);
+            return qVariant(*TrWindow::pxObsolete);
         else if (cntxtItem->finished())
-            return QVariant(*TrWindow::pxOn);
+            return qVariant(*TrWindow::pxOn);
         else
-            return QVariant(*TrWindow::pxOff);
+            return qVariant(*TrWindow::pxOff);
     }
 
-    return QVariant();
+    return QCoreVariant();
 }
 
 void ContextModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)

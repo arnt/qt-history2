@@ -97,7 +97,7 @@ int MessageModel::columnCount(const QModelIndex &) const
     return 3;
 }
 
-QVariant MessageModel::headerData(int section, Qt::Orientation orientation, int role) const
+QCoreVariant MessageModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((role == QAbstractItemModel::DisplayRole) && (orientation == Qt::Horizontal)) {
         switch(section)
@@ -113,27 +113,27 @@ QVariant MessageModel::headerData(int section, Qt::Orientation orientation, int 
         return "Error";
     }
     else {
-        return QVariant();
+        return QCoreVariant();
     }
 }
 
-QVariant MessageModel::data(const QModelIndex &index, int role) const
+QCoreVariant MessageModel::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     int column = index.column();
 
     if (cntxtItem == 0)
-        return QVariant();
+        return QCoreVariant();
 
     if (row >= cntxtItem->messageItemsInList() || !index.isValid())
-        return QVariant();
+        return QCoreVariant();
 
     MessageItem *msgItem = cntxtItem->messageItem(row);
 
     if (role == QAbstractItemModel::DisplayRole) {
         switch(column) {
         case 0: // done
-            return QVariant();
+            return QCoreVariant();
         case 1: // source text
 			return msgItem->sourceText().simplified();
         case 2: // translation
@@ -142,20 +142,20 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
     }
     else if ((role == QAbstractItemModel::DecorationRole) && (column == 0)) {
         if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->translation().isEmpty())
-            return QVariant(*TrWindow::pxEmpty);
+            return qVariant(*TrWindow::pxEmpty);
         else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->danger())
-            return QVariant(*TrWindow::pxDanger);
+            return qVariant(*TrWindow::pxDanger);
         else if (msgItem->message().type() == MetaTranslatorMessage::Finished && msgItem->danger())
-            return QVariant(*TrWindow::pxObs);
+            return qVariant(*TrWindow::pxObs);
         else if (msgItem->message().type() == MetaTranslatorMessage::Finished)
-            return QVariant(*TrWindow::pxOn);
+            return qVariant(*TrWindow::pxOn);
         else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished)
-            return QVariant(*TrWindow::pxOff);
+            return qVariant(*TrWindow::pxOff);
         else if (msgItem->message().type() == MetaTranslatorMessage::Obsolete)
-            return QVariant(*TrWindow::pxObsolete);
+            return qVariant(*TrWindow::pxObsolete);
     }
 
-    return QVariant();
+    return QCoreVariant();
 }
 
 void MessageModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)

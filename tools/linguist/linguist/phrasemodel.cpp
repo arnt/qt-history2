@@ -98,7 +98,7 @@ int PhraseModel::columnCount(const QModelIndex &) const
     return 3;
 }
 
-QVariant PhraseModel::headerData(int section, Qt::Orientation orientation, int role) const
+QCoreVariant PhraseModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((role == QAbstractItemModel::DisplayRole) && (orientation == Qt::Horizontal)) {
         switch(section) {
@@ -111,16 +111,16 @@ QVariant PhraseModel::headerData(int section, Qt::Orientation orientation, int r
         }
     }
 
-    return QVariant();
+    return QCoreVariant();
 }
 
-QVariant PhraseModel::data(const QModelIndex &index, int role) const
+QCoreVariant PhraseModel::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     int column = index.column();
 
     if (row >= plist.count() || !index.isValid())
-        return QVariant();
+        return QCoreVariant();
 
     Phrase phrase = plist.at(row);
 
@@ -135,7 +135,7 @@ QVariant PhraseModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    return QVariant();
+    return QCoreVariant();
 }
 
 void PhraseModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)

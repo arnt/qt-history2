@@ -92,8 +92,8 @@ public:
 
     int rowCount(const QModelIndex &) const;
     int columnCount(const QModelIndex &) const;
-    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
+    QCoreVariant data(const QModelIndex &index, int role = DisplayRole) const;
+    QCoreVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
 private:
     Qt::SortOrder sortOrder;
     int sortColumn;
