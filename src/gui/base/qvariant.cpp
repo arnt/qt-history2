@@ -296,9 +296,7 @@ static bool isNull(const QVariant::Private *d)
 	return static_cast<QIconSet *>(d->value.ptr)->isNull();
 #endif
     case QVariant::Cursor:
-#ifndef QT_NO_STRINGLIST
     case QVariant::StringList:
-#endif //QT_NO_STRINGLIST
     case QVariant::Font:
     case QVariant::Brush:
     case QVariant::Color:

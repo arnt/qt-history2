@@ -28,7 +28,6 @@ class QDateTime;
 class QCoreVariant;
 class QString;
 class QStringList;
-class QStringList;
 class QTime;
 
 template <class Type> class QList;
@@ -99,9 +98,7 @@ class Q_CORE_EXPORT QCoreVariant
     inline QCoreVariant(const QByteArray &bytearray);
     inline QCoreVariant(const QBitArray &bitarray);
     inline QCoreVariant(const QString &string);
-#ifndef QT_NO_STRINGLIST
     inline QCoreVariant(const QStringList &stringlist);
-#endif
 
     inline QCoreVariant(const QDate &date);
     inline QCoreVariant(const QTime &time);
@@ -141,9 +138,7 @@ class Q_CORE_EXPORT QCoreVariant
     QByteArray toByteArray() const;
     QBitArray toBitArray() const;
     QString toString() const;
-#ifndef QT_NO_STRINGLIST
     QStringList toStringList() const;
-#endif
     QDate toDate() const;
     QTime toTime() const;
     QDateTime toDateTime() const;
@@ -162,9 +157,7 @@ class Q_CORE_EXPORT QCoreVariant
     inline QT_COMPAT QByteArray &asByteArray();
     inline QT_COMPAT QBitArray &asBitArray();
     inline QT_COMPAT QString &asString();
-#ifndef QT_NO_STRINGLIST
     inline QT_COMPAT QStringList &asStringList();
-#endif
     inline QT_COMPAT QDate &asDate();
     inline QT_COMPAT QTime &asTime();
     inline QT_COMPAT QDateTime &asDateTime();
@@ -279,10 +272,8 @@ inline QCoreVariant::QCoreVariant(const QBitArray &val)
 { d = create(BitArray, &val); }
 inline QCoreVariant::QCoreVariant(const QString &val)
 { d = create(String, &val); }
-#ifndef QT_NO_STRINGLIST
 inline QCoreVariant::QCoreVariant(const QStringList &val)
 { d = create(StringList, &val); }
-#endif
 
 inline QCoreVariant::QCoreVariant(const QDate &val)
 { d = create(Date, &val); }
@@ -321,10 +312,8 @@ inline QBitArray& QCoreVariant::asBitArray()
 { return *static_cast<QBitArray *>(castOrDetach(BitArray)); }
 inline QString& QCoreVariant::asString()
 { return *static_cast<QString *>(castOrDetach(String)); }
-#ifndef QT_NO_STRINGLIST
 inline QStringList& QCoreVariant::asStringList()
 { return *static_cast<QStringList *>(castOrDetach(StringList)); }
-#endif
 inline QDate& QCoreVariant::asDate()
 { return *static_cast<QDate *>(castOrDetach(Date)); }
 inline QTime& QCoreVariant::asTime()
@@ -349,26 +338,58 @@ Q_CORE_EXPORT QDataStream& operator<< ( QDataStream& s, const QCoreVariant::Type
 inline bool QCoreVariant::isDetached() const
 { return d->ref == 1; }
 
-template<typename T> T qt_cast(const QCoreVariant &v, const T* = 0);
-template<> inline int qt_cast<int>(const QCoreVariant &v, const int*) { return v.toInt(); }
-template<> inline uint qt_cast<uint>(const QCoreVariant &v, const uint*) { return v.toUInt(); }
-template<> inline Q_LLONG qt_cast<Q_LLONG>(const QCoreVariant &v, const Q_LLONG*) { return v.toLongLong(); }
-template<> inline Q_ULLONG qt_cast<Q_ULLONG>(const QCoreVariant &v, const Q_ULLONG*) { return v.toULongLong(); }
-template<> inline bool qt_cast<bool>(const QCoreVariant &v, const bool*) { return v.toBool(); }
-template<> inline double qt_cast<double>(const QCoreVariant &v, const double*) { return v.toDouble(); }
-template<> inline QByteArray qt_cast<QByteArray>(const QCoreVariant &v, const QByteArray*) { return v.toByteArray(); }
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <class T> inline T qt_cast_helper(const QCoreVariant &v, T *);
 
-template<> QString qt_cast<QString>(const QCoreVariant &v, const QString*);
-template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v, const QBitArray*);
-#ifndef QT_NO_STRINGLIST
-template<> QStringList qt_cast<QStringList>(const QCoreVariant &v, const QStringList*);
-#endif
-template<> QDate qt_cast<QDate>(const QCoreVariant &v, const QDate*);
-template<> QTime qt_cast<QTime>(const QCoreVariant &v, const QTime*);
-template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v, const QDateTime*);
+template <class T>
+inline T qt_cast(const QCoreVariant &v)
+{
+    return qt_cast_helper<T>(object, (T *)0);
+}
+
+template<> inline int qt_cast_helper<int>(const QCoreVariant &v, const int*) { return v.toInt(); }
+template<> inline uint qt_cast_helper<uint>(const QCoreVariant &v, const uint*) { return v.toUInt(); }
+template<> inline Q_LLONG qt_cast_helper<Q_LLONG>(const QCoreVariant &v, const Q_LLONG*) { return v.toLongLong(); }
+template<> inline Q_ULLONG qt_cast_helper<Q_ULLONG>(const QCoreVariant &v, const Q_ULLONG*) { return v.toULongLong(); }
+template<> inline bool qt_cast_helper<bool>(const QCoreVariant &v, const bool*) { return v.toBool(); }
+template<> inline double qt_cast_helper<double>(const QCoreVariant &v, const double*) { return v.toDouble(); }
+template<> inline QByteArray qt_cast_helper<QByteArray>(const QCoreVariant &v, const QByteArray*) { return v.toByteArray(); }
+
+template<> QBitArray qt_cast_helper<QBitArray>(const QCoreVariant &v, const QBitArray*);
+template<> QString qt_cast_helper<QString>(const QCoreVariant &v, const QString*);
+template<> QStringList qt_cast_helper<QStringList>(const QCoreVariant &v, const QStringList*);
+template<> QDate qt_cast_helper<QDate>(const QCoreVariant &v, const QDate*);
+template<> QTime qt_cast_helper<QTime>(const QCoreVariant &v, const QTime*);
+template<> QDateTime qt_cast_helper<QDateTime>(const QCoreVariant &v, const QDateTime*);
 #ifndef QT_NO_TEMPLATE_VARIANT
-template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*);
-template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMap<QString,QCoreVariant>*);
+template<> QList<QCoreVariant>
+qt_cast_helper<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*);
+template<> QMap<QString,QCoreVariant>
+qt_cast_helper<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMap<QString,QCoreVariant>*);
+#endif
+
+#else
+
+template<typename T> T qt_cast(const QCoreVariant &v);
+template<> inline int qt_cast<int>(const QCoreVariant &v) { return v.toInt(); }
+template<> inline uint qt_cast<uint>(const QCoreVariant &v) { return v.toUInt(); }
+template<> inline Q_LLONG qt_cast<Q_LLONG>(const QCoreVariant &v) { return v.toLongLong(); }
+template<> inline Q_ULLONG qt_cast<Q_ULLONG>(const QCoreVariant &v) { return v.toULongLong(); }
+template<> inline bool qt_cast<bool>(const QCoreVariant &v) { return v.toBool(); }
+template<> inline double qt_cast<double>(const QCoreVariant &v) { return v.toDouble(); }
+template<> inline QByteArray qt_cast<QByteArray>(const QCoreVariant &v) { return v.toByteArray(); }
+
+template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v);
+template<> QString qt_cast<QString>(const QCoreVariant &v);
+template<> QStringList qt_cast<QStringList>(const QCoreVariant &v);
+template<> QDate qt_cast<QDate>(const QCoreVariant &v);
+template<> QTime qt_cast<QTime>(const QCoreVariant &v);
+template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v);
+#ifndef QT_NO_TEMPLATE_VARIANT
+template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v);
+template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v);
+#endif
+
 #endif
 
 Q_DECLARE_TYPEINFO(QCoreVariant, Q_MOVABLE_TYPE);
