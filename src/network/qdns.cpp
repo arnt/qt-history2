@@ -1451,46 +1451,48 @@ void QDnsSocket::answer()
 }
 
 
-/*! \class QDns qdns.h
-  \brief The QDns class provides asynchronous DNS lookups.
+/*!
+    \class QDns qdns.h
+    \brief The QDns class provides asynchronous DNS lookups.
 
-  \module network
-  \ingroup io
+    \module network
+    \ingroup io
 
-  Both Windows and Unix provide synchronous DNS lookups; Windows
-  provides some asynchronous support too.  At the time of writing neither
-  operating system provides asynchronous support for anything other than
-  hostname-to-address mapping.
+    Both Windows and Unix provide synchronous DNS lookups; Windows
+    provides some asynchronous support too. At the time of writing
+    neither operating system provides asynchronous support for
+    anything other than hostname-to-address mapping.
 
-  QDns rectifies this shortcoming, by providing asynchronous caching lookups
-  for the record types that we expect modern GUI applications to need in the
-  near future.
+    QDns rectifies this shortcoming, by providing asynchronous caching
+    lookups for the record types that we expect modern GUI
+    applications to need in the near future.
 
-  The class is \e not straightforward to use (although it is much simpler than
-  the native APIs); QSocket provides much easier to use TCP connection
-  facilities. The aim of QDns is to provide a correct and small API to the
-  DNS and nothing more.  (We use "correctness" to mean that the DNS
-  information is correctly cached, and correctly timed out.)
+    The class is \e not straightforward to use (although it is much
+    simpler than the native APIs); QSocket provides much easier to use
+    TCP connection facilities. The aim of QDns is to provide a correct
+    and small API to the DNS and nothing more. (We use "correctness"
+    to mean that the DNS information is correctly cached, and
+    correctly timed out.)
 
-  The API comprises a constructor, functions to set the DNS node
-  (the domain in DNS terminology) and record type (setLabel() and
-  setRecordType()), the corresponding get functions, an isWorking() function
-  to determine whether QDns is working or reading, a resultsReady()
-  signal and query functions for the result.
+    The API comprises a constructor, functions to set the DNS node
+    (the domain in DNS terminology) and record type (setLabel() and
+    setRecordType()), the corresponding get functions, an isWorking()
+    function to determine whether QDns is working or reading, a
+    resultsReady() signal and query functions for the result.
 
-  There is one query function for each RecordType, namely addresses(),
-  mailServers(), servers(), hostNames() and texts(). There are also two
-  generic query functions: canonicalName() returns the name you'll presumably
-  end up using (the exact meaning of this depends on the record type) and
-  qualifiedNames() returns a list of the fully qualified names label() maps
-  to.
+    There is one query function for each RecordType, namely
+    addresses(), mailServers(), servers(), hostNames() and texts().
+    There are also two generic query functions: canonicalName()
+    returns the name you'll presumably end up using (the exact meaning
+    of this depends on the record type) and qualifiedNames() returns a
+    list of the fully qualified names label() maps to.
 
-  \sa QSocket
+    \sa QSocket
 */
 
 /*!
-  Constructs a DNS query object with invalid settings for both the
-  label and the search type.
+    Constructs a DNS query object with invalid settings for both the
+    label and the search type.
 */
 
 QDns::QDns()
@@ -1503,13 +1505,14 @@ QDns::QDns()
 
 
 /*!
-  Constructs a DNS query object that will return record type \a rr
-  information about \a label.
+    Constructs a DNS query object that will return record type \a rr
+    information about \a label.
 
-  The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emitted.
+    The DNS lookup is started the next time the application enters the
+    event loop. When the result is found the signal resultsReady() is
+    emitted.
 
-  \a rr defaults to \c A, IPv4 addresses.
+    \a rr defaults to \c A, IPv4 addresses.
 */
 
 QDns::QDns( const QString & label, RecordType rr )
@@ -1523,15 +1526,17 @@ QDns::QDns( const QString & label, RecordType rr )
 
 
 /*!
-  Constructs a DNS query object that will return record type \a rr information
-  about host address \a address.  The label is set to the IN-ADDR.ARPA domain
-  name. This is useful in combination with the Ptr record type (e.g. if you
-  want to look up a hostname for a given address).
+    Constructs a DNS query object that will return record type \a rr
+    information about host address \a address. The label is set to the
+    IN-ADDR.ARPA domain name. This is useful in combination with the
+    \c Ptr record type (e.g. if you want to look up a hostname for a
+    given address).
 
-  The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emitted.
+    The DNS lookup is started the next time the application enters the
+    event loop. When the result is found the signal resultsReady() is
+    emitted.
 
-  \a rr defaults to \c Ptr, that maps addresses to hostnames.
+    \a rr defaults to \c Ptr, that maps addresses to hostnames.
 */
 
 QDns::QDns( const QHostAddress & address, RecordType rr )
@@ -1566,13 +1571,15 @@ QDns::~QDns()
 
 
 /*!
-  Sets this DNS query object to query for information about \a label.
+    Sets this DNS query object to query for information about \a
+    label.
 
-  This does not change the recordType(), but its isWorking() status will
-  probably change as a result.
+    This does not change the recordType(), but its isWorking() status
+    will probably change as a result.
 
-  The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emitted.
+    The DNS lookup is started the next time the application enters the
+    event loop. When the result is found the signal resultsReady() is
+    emitted.
 */
 
 void QDns::setLabel( const QString & label )
@@ -1621,11 +1628,13 @@ void QDns::setLabel( const QString & label )
 }
 
 
-/*!  \overload
-  Sets this DNS query object to query for information about the host address \a
-  address. The label is set to the IN-ADDR.ARPA domain name. This is useful in
-  combination with the Ptr record type (e.g. if you want to look up a hostname
-  for a given address).
+/*!
+    \overload
+
+    Sets this DNS query object to query for information about the host
+    address \a address. The label is set to the IN-ADDR.ARPA domain
+    name. This is useful in combination with the \c Ptr record type
+    (e.g. if you want to look up a hostname for a given address).
 */
 
 void QDns::setLabel( const QHostAddress & address )
@@ -1635,12 +1644,12 @@ void QDns::setLabel( const QHostAddress & address )
 
 
 /*!
-  \fn QStringList QDns::qualifiedNames() const
+    \fn QStringList QDns::qualifiedNames() const
 
-  Returns a list of the fully qualified names label() maps to.
+    Returns a list of the fully qualified names label() maps to.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myDns.qualifiedNames();
     QStringList::Iterator it = list.begin();
@@ -1653,51 +1662,54 @@ void QDns::setLabel( const QHostAddress & address )
 */
 
 
-/*! \fn QString QDns::label() const
+/*!
+    \fn QString QDns::label() const
 
-  Returns the domain name for which this object returns information.
+    Returns the domain name for which this object returns information.
 
-  \sa setLabel()
-*/
-
-/*! \enum QDns::RecordType
-
-  This enum type defines the record types QDns can handle.  The DNS
-  provides many more; these are the ones we've judged to be in current
-  use, useful for GUI programs and important enough to support right
-  away:
-
-  \value None  No information.  This exists only so that QDns can
-  have a default.
-
-  \value A  IPv4 addresses.  By far the most common type.
-
-  \value Aaaa  IPv6 addresses.  So far mostly unused.
-
-  \value Mx  Mail eXchanger names.  Used for mail delivery.
-
-  \value Srv  SeRVer names.  Generic record type for finding
-  servers.  So far mostly unused.
-
-  \value Cname  Canonical names.  Maps from nicknames to the true
-  name (the canonical name) for a host.
-
-  \value Ptr  name PoinTeRs.  Maps from IPv4 or IPv6 addresses to hostnames.
-
-  \value Txt  arbitrary TeXT for domains.
-
-  We expect that some support for the
-  \link http://www.dns.net/dnsrd/rfc/rfc2535.html RFC-2535 \endlink
-  extensions will be added in future versions.
+    \sa setLabel()
 */
 
 /*!
-  Sets this object to query for record type \a rr records.
+    \enum QDns::RecordType
 
-  The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emitted.
+    This enum type defines the record types QDns can handle. The DNS
+    provides many more; these are the ones we've judged to be in
+    current use, useful for GUI programs and important enough to
+    support right away:
 
-  \sa RecordType
+    \value None  No information. This exists only so that QDns can
+    have a default.
+
+    \value A  IPv4 addresses. By far the most common type.
+
+    \value Aaaa  IPv6 addresses. So far mostly unused.
+
+    \value Mx  Mail eXchanger names. Used for mail delivery.
+
+    \value Srv  SeRVer names. Generic record type for finding
+    servers. So far mostly unused.
+
+    \value Cname  Canonical names. Maps from nicknames to the true
+    name (the canonical name) for a host.
+
+    \value Ptr  name PoinTeRs. Maps from IPv4 or IPv6 addresses to hostnames.
+
+    \value Txt  arbitrary TeXT for domains.
+
+    We expect that some support for the
+    \link http://www.dns.net/dnsrd/rfc/rfc2535.html RFC-2535 \endlink
+    extensions will be added in future versions.
+*/
+
+/*!
+    Sets this object to query for record type \a rr records.
+
+    The DNS lookup is started the next time the application enters the
+    event loop. When the result is found the signal resultsReady() is
+    emitted.
+
+    \sa RecordType
 */
 
 void QDns::setRecordType( RecordType rr )
@@ -1707,6 +1719,8 @@ void QDns::setRecordType( RecordType rr )
 }
 
 /*!
+  \internal
+
   Private slot for starting the query.
 */
 void QDns::startQuery()
@@ -1719,9 +1733,9 @@ void QDns::startQuery()
 }
 
 /*!
-  The three functions QDns::QDns(QString, RecordType), QDns::setLabel()
-  and QDns::setRecordType() may start a DNS lookup. This function handles
-  setting up the single shot timer.
+    The three functions QDns::QDns(QString, RecordType),
+    QDns::setLabel() and QDns::setRecordType() may start a DNS lookup.
+    This function handles setting up the single shot timer.
 */
 void QDns::setStartQueryTimer()
 {
@@ -1738,7 +1752,7 @@ void QDns::setStartQueryTimer()
 }
 
 /*!
-  Transforms the host address \a address to the IN-ADDR.ARPA domain name.
+    Transforms the host address \a address to the IN-ADDR.ARPA domain name.
 */
 QString QDns::toInAddrArpaDomain( const QHostAddress &address )
 {
@@ -1756,25 +1770,26 @@ QString QDns::toInAddrArpaDomain( const QHostAddress &address )
 
 
 /*!
-  \fn QDns::RecordType QDns::recordType() const
+    \fn QDns::RecordType QDns::recordType() const
 
-  Returns the record type of this DNS query object.
+    Returns the record type of this DNS query object.
 
-  \sa setRecordType() RecordType
+    \sa setRecordType() RecordType
 */
 
 /*!
-  \fn void QDns::resultsReady()
+    \fn void QDns::resultsReady()
 
-  This signal is emitted when results are available for one of
-  the qualifiedNames().
+    This signal is emitted when results are available for one of the
+    qualifiedNames().
 */
 
 /*!
-  Returns TRUE if QDns is doing a lookup for this object, and FALSE
-  if this object already has the information it wants.
+    Returns TRUE if QDns is doing a lookup for this object (i.e. if it
+    does not already have the necessary information); otherwise
+    returns FALSE.
 
-  QDns emits the resultsReady() signal when the status changes to FALSE.
+    QDns emits the resultsReady() signal when the status changes to FALSE.
 */
 
 bool QDns::isWorking() const
@@ -1810,15 +1825,15 @@ bool QDns::isWorking() const
 
 
 /*!
-  Returns a list of the addresses for this name if this QDns object
-  has a recordType() of \c QDns::A or \c QDns::Aaaa and the answer is
-  available; otherwise returns an empty list.
+    Returns a list of the addresses for this name if this QDns object
+    has a recordType() of \c QDns::A or \c QDns::Aaaa and the answer
+    is available; otherwise returns an empty list.
 
-  As a special case, if label() is a valid numeric IP address, this function
-  returns that address.
+    As a special case, if label() is a valid numeric IP address, this
+    function returns that address.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QValueList<QHostAddress> list = myDns.addresses();
     QValueList<QHostAddress>::Iterator it = list.begin();
@@ -1861,15 +1876,15 @@ QValueList<QHostAddress> QDns::addresses() const
   \internal
 */
 /*!
-   Returns a list of mail servers if the record type is \c Mx. The class
-   \c QDns::MailServer contains the following public variables:
-   \list
-   \i QString QDns::MailServer::name
-   \i Q_UINT16 QDns::MailServer::priority
-   \endlist
+    Returns a list of mail servers if the record type is \c Mx. The
+    class \c QDns::MailServer contains the following public variables:
+    \list
+    \i QString QDns::MailServer::name
+    \i Q_UINT16 QDns::MailServer::priority
+    \endlist
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QValueList<QDns::MailServer> list = myDns.mailServers();
     QValueList<QDns::MailServer>::Iterator it = list.begin();
@@ -1913,17 +1928,17 @@ QValueList<QDns::MailServer> QDns::mailServers() const
   \internal
 */
 /*!
-  Returns a list of servers if the record type is \c Srv. The class \c
-  QDns::Server contains the following public variables:
-  \list
-  \i QString QDns::Server::name
-  \i Q_UINT16 QDns::Server::priority
-  \i Q_UINT16 QDns::Server::weight
-  \i Q_UINT16 QDns::Server::port
-  \endlist
+    Returns a list of servers if the record type is \c Srv. The class
+    \c QDns::Server contains the following public variables:
+    \list
+    \i QString QDns::Server::name
+    \i Q_UINT16 QDns::Server::priority
+    \i Q_UINT16 QDns::Server::weight
+    \i Q_UINT16 QDns::Server::port
+    \endlist
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QValueList<QDns::Server> list = myDns.servers();
     QValueList<QDns::Server>::Iterator it = list.begin();
@@ -1958,10 +1973,10 @@ QValueList<QDns::Server> QDns::servers() const
 
 
 /*!
-  Returns a list of host names if the record type is \c Ptr.
+    Returns a list of host names if the record type is \c Ptr.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myDns.hostNames();
     QStringList::Iterator it = list.begin();
@@ -1997,10 +2012,10 @@ QStringList QDns::hostNames() const
 
 
 /*!
-  Returns a list of texts if the record type is \c Txt.
+    Returns a list of texts if the record type is \c Txt.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myDns.texts();
     QStringList::Iterator it = list.begin();
@@ -2035,17 +2050,18 @@ QStringList QDns::texts() const
 
 
 /*!
-  Returns the canonical name for this DNS node.  (This works
-  regardless of what recordType() is set to.)
+    Returns the canonical name for this DNS node. (This works
+    regardless of what recordType() is set to.)
 
-  If the canonical name isn't known, this function returns a null
-  string.
+    If the canonical name isn't known, this function returns a null
+    string.
 
-  The canonical name of a DNS node is its full name, or the full name of
-  the target of its CNAME.  For example, if l.trolltech.com is a CNAME to
-  lupinella.troll.no, and the search path for QDns is "trolltech.com", then
-  the canonical name for all of "lupinella", "l", "lupinella.troll.no."
-  and "l.trolltech.com" is "lupinella.troll.no.".
+    The canonical name of a DNS node is its full name, or the full
+    name of the target of its CNAME. For example, if l.trolltech.com
+    is a CNAME to lillian.troll.no, and the search path for QDns is
+    "trolltech.com", then the canonical name for all of "lillian",
+    "l", "lillian.troll.no." and "l.trolltech.com" is
+    "lillian.troll.no.".
 */
 
 QString QDns::canonicalName() const
