@@ -79,9 +79,9 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
     } else if (h_errno == HOST_NOT_FOUND) {
         results.d->err = QDnsHostInfo::HostNotFound;
         results.d->errorStr = tr("Host not found");
-    } else if (h_errno != NO_DATA) {
+    } else if (h_errno != NO_DATA && h_errno != NO_ADDRESS) {
         results.d->err = QDnsHostInfo::UnknownError;
-        results.d->errorStr = QString::fromLocal8Bit(hstrerror(h_errno));
+        results.d->errorStr = tr("Unknown error");
     }
 #endif //  !defined (QT_NO_GETADDRINFO)
 
