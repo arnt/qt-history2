@@ -35,6 +35,7 @@
 #include "qdir.h"
 #include "qfileinfo.h"
 #include "qhash.h"
+#include "qthread.h"
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
