@@ -273,11 +273,9 @@ void QAquaStyle::polish(QWidget * w)
 	label->setLineWidth(1);
     }
 
-    if(!w->isTopLevel()) {
-        if(!w->inherits("QSplitter") && w->backgroundPixmap() &&
-            (w->backgroundMode() == QWidget::PaletteBackground) && qApp->palette().isCopyOf(w->palette()))
+    if(!w->isTopLevel() && !w->inherits("QSplitter") && 
+       w->backgroundPixmap() && qApp->palette().isCopyOf(w->palette())) 
             w->setBackgroundOrigin(QWidget::WindowOrigin);
-    }
 
     if(w->inherits("QTitleBar")) {
 	w->font().setPixelSize(10);

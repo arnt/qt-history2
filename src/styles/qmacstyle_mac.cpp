@@ -303,11 +303,9 @@ void QMacStyle::polish(QWidget* w)
     qt_mac_polish_font(w, qt_aqua_size_constrain(w));
     d->addWidget(w);
 
-    if(!w->isTopLevel()) {
-        if(!w->inherits("QSplitter") && w->backgroundPixmap() &&
-            (w->backgroundMode() == QWidget::PaletteBackground) && qApp->palette().isCopyOf(w->palette()))
+    if(!w->isTopLevel() && !w->inherits("QSplitter") && 
+       w->backgroundPixmap() && qApp->palette().isCopyOf(w->palette())) 
             w->setBackgroundOrigin(QWidget::WindowOrigin);
-    }
 
     if(w->inherits("QLineEdit")) {
 	SInt32 frame_size;
