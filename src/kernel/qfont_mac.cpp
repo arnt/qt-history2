@@ -229,8 +229,11 @@ int QFontMetrics::width(QChar c) const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( engine->type() == QFontEngine::Mac );
 
-    return ((QFontEngineMac*) engine)->doTextTask(&c, 0, 1, 1,
-						  QFontEngineMac::WIDTH);
+    glyph_t g;
+    int l = 1;
+    advance_t a;
+    engine->stringToCMap(&c, 1, &g, &a, &l, false);
+    return a;
 }
 
 int QFontMetrics::charWidth(const QString &str, int pos) const
