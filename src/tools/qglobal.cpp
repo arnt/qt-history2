@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#30 $
 **
 ** Global functions
 **
@@ -17,7 +17,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#30 $")
+
+
+#define QT_VERSION "0.97"
 
 
 /*----------------------------------------------------------------------------
@@ -27,7 +30,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#29 $")
 
 const char *qVersion()
 {
-    return "0.96";
+    return QT_VERSION;
 }
 
 
