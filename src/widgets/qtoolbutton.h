@@ -49,7 +49,6 @@
 
 class QToolButtonPrivate;
 class QToolBar;
-class QCommonStyle;
 
 class Q_EXPORT QToolButton : public QButton
 {
@@ -123,6 +122,10 @@ protected:
     void moveEvent( QMoveEvent * );
 
     bool uses3D() const;
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *createAccessibilityInterface();
+#endif
 
 private slots:
     void popupTimerDone();

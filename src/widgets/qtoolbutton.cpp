@@ -51,6 +51,7 @@
 #include "qtimer.h"
 #include "qpopupmenu.h"
 #include "qguardedptr.h"
+#include "qaccessible.h"
 
 static QToolButton * threeDeeButton = 0;
 
@@ -867,4 +868,23 @@ bool QToolButton::isOnAndNoOnPixmap()
 	    (s->isGenerated(QIconSet::Small, QIconSet::Normal, QIconSet::On) &&
 	     s->isGenerated(QIconSet::Large, QIconSet::Normal, QIconSet::On)) );
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*!
+  \reimp
+
+  Provides accessible information for a push button, a menu button when this
+  toolbutton provides a popup menu, or a drop down button when this toolbutton has
+  a drop down section.
+*/
+QAccessibleInterface *QToolButton::createAccessibilityInterface()
+{
+    if ( !d->popup )
+	return new QAccessibleButton( this, QAccessible::PushButton );
+    else if ( !d->delay )
+	return new QAccessibleButton( this, QAccessible::ButtonDropDown );
+    return new QAccessibleButton( this, QAccessible::ButtonMenu );
+}
+#endif
+
 #endif

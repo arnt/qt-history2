@@ -44,6 +44,7 @@
 #include "qbitmap.h"
 #include "qtextstream.h"
 #include "qapplication.h"
+#include "qaccessible.h"
 
 /*!
   \class QCheckBox qcheckbox.h
@@ -382,5 +383,12 @@ void QCheckBox::updateMask()
     }
     setMask(bm);
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QCheckBox::createAccessibilityInterface()
+{
+    return new QAccessibleButton( this, QAccessible::CheckBox );
+}
+#endif
 
 #endif

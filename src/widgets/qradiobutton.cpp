@@ -45,6 +45,7 @@
 #include "qbitmap.h"
 #include "qtextstream.h"
 #include "qapplication.h"
+#include "qaccessible.h"
 
 /*!
   \class QRadioButton qradiobutton.h
@@ -390,5 +391,12 @@ void QRadioButton::updateMask()
     }
     setMask(bm);
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QRadioButton::createAccessibilityInterface()
+{
+    return new QAccessibleButton( this, QAccessible::RadioButton );
+}
+#endif
 
 #endif

@@ -48,6 +48,7 @@
 #include "qptrdict.h" // binary compatibility
 #include "qapplication.h"
 #include "qtoolbar.h"
+#include "qaccessible.h"
 
 // NOT REVISED
 /*!
@@ -654,5 +655,12 @@ bool QPushButton::isFlat() const
 {
     return flt;
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QPushButton::createAccessibilityInterface()
+{
+    return new QAccessibleButton( this, QAccessible::PushButton );
+}
+#endif
 
 #endif

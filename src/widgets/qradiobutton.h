@@ -66,6 +66,9 @@ protected:
     void    resizeEvent( QResizeEvent* );
 
     void    updateMask();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *createAccessibilityInterface();
+#endif
 
 private:
     void    init();
