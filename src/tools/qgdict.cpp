@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#81 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#82 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -925,7 +925,12 @@ QDataStream &QGDict::read( QDataStream &s )
 		    Q_UINT32 k;
 		    s >> k;
 		    read( s, d );
-		    look_ptr( (void *)k, d, op_insert );
+		    // ### cannot insert 0 - this renders the thing
+		    // useless since all pointers are written as 0,
+		    // but hey, serializing pointers?  can it be done
+		    // at all, ever?
+		    if ( k )
+			look_ptr( (void *)k, d, op_insert );
 		}
 		break;
 	}
@@ -956,7 +961,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
 		    s << (Q_UINT32)((QIntBucket*)n)->getKey();
 		    break;
 		case PtrKey:
-		    s << (Q_UINT32)((QPtrBucket*)n)->getKey();
+		    s << (Q_UINT32)0; // ### cannot serialize a pointer
 		    break;
 	    }
 	    write( s, n->getData() );		// write data
