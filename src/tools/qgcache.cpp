@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#10 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qstring.h"				/* used for statistics */
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#10 $";
 #endif
 
 
@@ -249,11 +249,11 @@ bool QGCache::makeRoomFor( long cost, short priority )
 	priority = 32767;			// use const from qglobal.h???
     register QCacheItem *tmp = lruList->last();
     long cntCost = 0;
-    int  dumps   = 0;                           // number of items to dump
+    int	 dumps	 = 0;				// number of items to dump
     while ( cntCost < cost && tmp && tmp->skipPriority <= priority ) {
 	cntCost += tmp->cost;
 	tmp	 = lruList->prev();
-        dumps++;
+	dumps++;
     }
     if ( cntCost < cost )			// can enough cost be dumped?
 	return FALSE;				// no
@@ -405,7 +405,3 @@ GCI QGCacheIterator::operator-=( uint i )
     register QCacheItem *tmp = it->operator-=(i);
     return tmp ? tmp->data : 0;
 }
-
-
-
-
