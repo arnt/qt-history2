@@ -663,7 +663,7 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-windows";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Direct", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Off", &settingsOK );
     if ( entry == "Direct" )
 	args += "-qt-style-windowsxp";
     else if ( entry == "Plugin" )
@@ -1212,7 +1212,7 @@ void SetupWizardImpl::showPageConfig()
 			   configPage->explainOption);
 
     folder = new CheckListItem( sqlfolder, "iBase" );
-
+    folder->addRequiredFiles("ibase.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/iBase", "Off", &settingsOK );
     ibaseOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     ibaseOff->setOn( true );
@@ -1223,13 +1223,13 @@ void SetupWizardImpl::showPageConfig()
     ibaseDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     ibaseDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     ibaseDirect->setEnabled( enterprise );
-    folder->addRequiredFiles("ibase.h");
     if (globalInformation.sysId() == GlobalInformation::Borland)
 	folder->addRequiredFiles("gds32.lib");
     else
 	folder->addRequiredFiles("gds32_ms.lib");
 
     folder = new CheckListItem( sqlfolder, "DB2" );
+    folder->addRequiredFiles("db2cli.lib,sqlcli1.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/DB2", "Off", &settingsOK );
     db2Off = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     db2Off->setOn( true );
@@ -1240,9 +1240,9 @@ void SetupWizardImpl::showPageConfig()
     db2Direct = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     db2Direct->setOn( entry == "Direct" && folder->verify() && enterprise );
     db2Direct->setEnabled( enterprise );
-    folder->addRequiredFiles("db2cli.lib,sqlcli1.h");
 
     folder = new CheckListItem( sqlfolder, "TDS" );
+    folder->addRequiredFiles("ntwdblib.lib,sqldb.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/TDS", "Off", &settingsOK );
     tdsOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     tdsOff->setOn( true );
@@ -1253,9 +1253,9 @@ void SetupWizardImpl::showPageConfig()
     tdsDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     tdsDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     tdsDirect->setEnabled( enterprise );
-    folder->addRequiredFiles("ntwdblib.lib,sqldb.h");
 
     folder = new CheckListItem( sqlfolder, "PostgreSQL" );
+    folder->addRequiredFiles("libpqdll.lib,libpq-fe.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/PostgreSQL", "Off", &settingsOK );
     psqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     psqlOff->setOn( true );
@@ -1266,9 +1266,9 @@ void SetupWizardImpl::showPageConfig()
     psqlDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     psqlDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     psqlDirect->setEnabled( enterprise );
-    folder->addRequiredFiles("libpqdll.lib,libpq-fe.h");
 
     folder = new CheckListItem( sqlfolder, "OCI" );
+    folder->addRequiredFiles("oci.lib,oci.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/OCI", "Off", &settingsOK );
     ociOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     ociOff->setOn( true );
@@ -1279,9 +1279,9 @@ void SetupWizardImpl::showPageConfig()
     ociDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     ociDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     ociDirect->setEnabled( enterprise );
-    folder->addRequiredFiles("oci.lib,oci.h");
 
     folder = new CheckListItem( sqlfolder, "MySQL" );
+    folder->addRequiredFiles("libmysql.lib,mysql.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/MySQL", "Off", &settingsOK );
     mysqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     mysqlOff->setOn( true );
@@ -1292,7 +1292,6 @@ void SetupWizardImpl::showPageConfig()
     mysqlDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     mysqlDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     mysqlDirect->setEnabled( enterprise );
-    folder->addRequiredFiles("libmysql.lib,mysql.h");
 
     folder = new CheckListItem( sqlfolder, "SQLite" );
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/SQLite", "Off", &settingsOK );
@@ -1307,6 +1306,7 @@ void SetupWizardImpl::showPageConfig()
     sqliteDirect->setEnabled( enterprise );
 
     folder = new CheckListItem( sqlfolder, "ODBC" );
+    folder->addRequiredFiles("odbc32.lib,sql.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/ODBC", "Off", &settingsOK );
     odbcOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     odbcOff->setOn( true );
@@ -1317,7 +1317,6 @@ void SetupWizardImpl::showPageConfig()
     odbcDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     odbcDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     odbcDirect->setEnabled( enterprise );
-    folder->addRequiredFiles("odbc32.lib,sql.h");
 
     CheckListItem *stfolder = new CheckListItem( configPage->advancedList, "Styles" );
     stfolder->setHelpText(tr("Select support for the various GUI styles that Qt supports." ),configPage->explainOption);
@@ -1368,19 +1367,20 @@ void SetupWizardImpl::showPageConfig()
     motifDirect->setOn( entry == "Direct" );
 
     folder = new CheckListItem( stfolder, "Windows XP" );
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Direct", &settingsOK );
-    xpOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
-    xpOff->setOn( entry == "Off" );
-    xpPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    xpPlugin->setOn( entry == "Plugin" && folder->verify() );
-    xpPlugin->setEnabled( true );
-    xpDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    xpDirect->setOn( entry == "Direct" && folder->verify() );
-    xpDirect->setEnabled( true );
     folder->addRequiredFiles("uxtheme.h");
     folder->setRequiredFileLocation("part of the Microsoft Platform SDK, which is usually available for "
 				    "download from the following location:"
 				    "<p>http://www.microsoft.com/msdownload/platformsdk/sdkupdate/<p>");
+
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Direct", &settingsOK );
+    xpOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    xpOff->setOn( true );
+    xpPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    xpPlugin->setOn( entry == "Plugin" && folder->verify() );
+    xpPlugin->setEnabled( folder->verify() );
+    xpDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    xpDirect->setOn( entry == "Direct" && folder->verify() );
+    xpDirect->setEnabled( folder->verify() );
 
     folder = new CheckListItem( stfolder, "Windows" );
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
@@ -1407,14 +1407,14 @@ void SetupWizardImpl::showPageConfig()
     advancedSTL->setOn( entries.contains( "STL" ) );
 
     folder = new CheckListItem( configPage->advancedList, "Tablet Support" );
+    folder->addRequiredFiles("wintab.h,wintab.lib");
+    folder->setRequiredFileLocation("available at http://www.pointing.com/FTP.HTM");
     folder->setHelpText(tr("Qt can support the Wacom brand tablet device."), configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
     tabletOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
-    tabletOff->setOn( entry == "Off" );
+    tabletOff->setOn( true );
     tabletOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );
     tabletOn->setOn( entry == "On" && folder->verify() );
-    folder->addRequiredFiles("wintab.h,wintab.lib");
-    folder->setRequiredFileLocation("available at http://www.pointing.com/FTP.HTM");
 
     folder = new CheckListItem( configPage->advancedList, "Accessibility" );
     folder->setHelpText(tr("<p>Accessibility means making software usable and accessible to a wide "
