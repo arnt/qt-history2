@@ -5684,8 +5684,6 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	animate_menu = enable;
 	break;
     case UI_FadeMenu:
-	if ( enable )
-	    animate_menu = TRUE;
 	fade_menu = enable;
 	break;
     case UI_AnimateCombo:
@@ -5695,8 +5693,6 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	animate_tooltip = enable;
 	break;
     case UI_FadeTooltip:
-	if ( enable )
-	    animate_tooltip = TRUE;
 	fade_tooltip = enable;
 	break;
     default:
@@ -5722,9 +5718,9 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     case UI_AnimateMenu:
 	return animate_menu;
     case UI_FadeMenu:
-	    if ( QColor::numBitPlanes() < 16 )
-		return FALSE;
-	    return fade_menu;
+	if ( QColor::numBitPlanes() < 16 )
+	    return FALSE;
+	return fade_menu;
     case UI_AnimateCombo:
 	return animate_combo;
     case UI_AnimateTooltip:
