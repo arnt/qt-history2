@@ -53,7 +53,7 @@ OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qbitmap.o     \
 		qwmatrix.o
 SRCMETA =	maccel.cpp	mapp.cpp	mclipbrd.cpp	mdialog.cpp   \
 		mtimer.cpp	mwidget.cpp	mwindow.cpp	msocknot.cpp
-OBJMETA =	maccel.o	mapp.o		mclipbrd.cpp	mdialog.o     \
+OBJMETA =	maccel.o	mapp.o		mclipbrd.o	mdialog.o     \
 		mtimer.o	mwidget.o	mwindow.o	msocknot.o
 TARGET	=	$(LIBDIR)/libqkernel.a
 
