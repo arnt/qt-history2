@@ -384,6 +384,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
                     engine->drawPolygon(polys.at(i).data(), polys.at(i).size(),
                                         QPaintEngine::PolygonDrawMode(path.fillRule()));
             }
+            q->setPen(oldPen);
         }
     } // end of filling
 
