@@ -5,6 +5,7 @@
 
 cd ${QTDIR}
 unset CPLUS_INCLUDE_DIR
+QT_VERSION=`grep "#define.*QT_VERSION_STR" src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g' -e 's/[^0-9\.]//g`
 
 exec > Makefile
 
@@ -137,7 +138,7 @@ cat <<EOF
 
 # Qt's version number
 
-VERSION=1.2
+VERSION=$QT_VERSION
 
 all: unconfigured # will be changed by ../Makefile
 
