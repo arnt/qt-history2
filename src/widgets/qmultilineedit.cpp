@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#57 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -175,7 +175,7 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
 */
 
 QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
-    :QTableView( parent, name)
+    :QTableView( parent, name, WNorthWestGravity )
 {
     mlData = new QMultiLineData;
     QFontMetrics fm( font() );
@@ -2316,7 +2316,7 @@ void QMultiLineEdit::copy() const
 }
 
 /* \obsolete
-  
+
   Backward compatibility.
 */
 void QMultiLineEdit::copyText() const

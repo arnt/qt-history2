@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#434 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#435 $
 **
 ** Implementation of QWidget class
 **
@@ -3324,6 +3324,17 @@ QSize QWidget::minimumSizeHint() const
 			This allows smart-repainting to avoid flicker.
   <dt>WMouseNoMask<dd> Even if the widget has a mask, mouse events
 			are delivered for the entire rectangle.
+  <dt>WNorthWestGravity<dd> Indicates that the widget contents is
+                                        north-west aligned and static. On resize, you will
+                                        recieve paint events consequentely only for the 
+			newly visible parts of the widget.
+                                        This allows even more smart-repainting to
+			avoid even more flicker.   In case you need
+			to repaint areas in addition (what shouldn't
+			be the case with true north-west gravity),
+			it's your responsibility to call repaint() or
+			update() in the resizeEvent()-handler for the
+			respective region.
   </dl>
 */
 

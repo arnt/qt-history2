@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#21 $
 **
 ** Implementation of the QTextView class
 **
@@ -104,7 +104,7 @@ public:
   with the standard \a parent and \a name optional arguments.
 */
 QTextView::QTextView(QWidget *parent, const char *name)
-    : QScrollView( parent, name)
+    : QScrollView( parent, name, WNorthWestGravity )
 {
     init();
 }
@@ -117,7 +117,7 @@ QTextView::QTextView(QWidget *parent, const char *name)
 */
 QTextView::QTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name)
+    : QScrollView( parent, name, WNorthWestGravity )
 {
     init();
     setText( text, context );
@@ -482,7 +482,8 @@ void QTextView::resizeEvent( QResizeEvent* e )
 			    richText().width),
 		      richText().height );
       QScrollView::resizeEvent( e );
-      viewport()->update();
+      if ( viewport()->isVisibleToTLW() )
+	  viewport()->repaint( FALSE );
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#28 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#29 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -149,7 +149,8 @@ public:
 	WPaintUnclipped		= 0x00040000,
 	WPaintClever		= 0x00080000,
 	WResizeNoErase		= 0x00100000,
-	WMouseNoMask		= 0x00200000
+	WMouseNoMask		= 0x00200000,
+	WNorthWestGravity	= 0x00400000
     };
 
     // Image conversion flags

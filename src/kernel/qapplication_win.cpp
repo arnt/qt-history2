@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#310 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#311 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -398,6 +398,9 @@ static void qt_set_windows_resources()
 		     disabled, Qt::white, Qt::white, cg.background() );
 	
 
+    QPalette pal( cg, dcg, cg );
+    QApplication::setPalette( pal, TRUE );
+    
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     {
@@ -417,8 +420,6 @@ static void qt_set_windows_resources()
  	QApplication::setPalette( pal, TRUE, "QMenuBar");
     }
 
-    QPalette pal( cg, dcg, cg );
-    QApplication::setPalette( pal, TRUE );
 }
 
 /*****************************************************************************
@@ -2648,7 +2649,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		QApplication::postEvent( this, e );
 	    }
 	}
-	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
+	if ( !testWFlags( WNorthWestGravity ) )
+	    repaint( visibleRect(), !testWFlags(WResizeNoErase) );
     } else if ( msg.message == WM_MOVE ) {	// move event
 	int a = (int) (short) LOWORD(msg.lParam);
 	int b = (int) (short) HIWORD(msg.lParam);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#106 $
 **
 ** Implementation of QScrollView class
 **
@@ -372,21 +372,21 @@ clipper, or scrollbars.
 Constructs a QScrollView.
 
 If you intend to add child widgets, you may see improved refresh
-if you include WPaintClever in the widgets flags, \a f.  WPaintClever
-will be propagated to the viewport() widget.
+if you include \c WPaintClever in the widgets flags, \a f.  \c WPaintClever
+as well as \c WNorthWestGravity will be propagated to the viewport() widget.
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
-    QFrame( parent, name, f, FALSE )
+    QFrame( parent, name, f & ~WNorthWestGravity, FALSE )
 {
-    d = new QScrollViewData(this,WResizeNoErase|(f&WPaintClever));
+    d = new QScrollViewData(this,WResizeNoErase| (f&WPaintClever) | (f&WNorthWestGravity));
 
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
     connect( &d->vbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( vslide( int ) ) );
     d->viewport.installEventFilter( this );
-    
+
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
 }
 
