@@ -876,14 +876,12 @@ void QTextPieceTable::scan_frames(int pos, int charsRemoved, int charsAddded)
 
     for (FragmentIterator it = begin(); it != end(); ++it) {
         QTextFormat fmt = formats->format(it->format);
-        QTextGroup *group = fmt.group();
-        if (!group || !group->commonFormat().isFrameFormat())
+        QTextFrame *frame = qt_cast<QTextFrame *>(fmt.group());
+        if (!frame)
             continue;
 
         Q_ASSERT(it.size() == 1);
         QChar ch = text.at(it->stringPosition);
-
-        QTextFrame *frame = static_cast<QTextFrame *>(group);
 
         if (ch == QTextBeginningOfFrame) {
             Q_ASSERT(f != frame);
