@@ -489,6 +489,7 @@ void QLineEdit::init()
 #endif
 
     setFocusPolicy( StrongFocus );
+    setInputMethodEnabled( TRUE );
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );

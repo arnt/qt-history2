@@ -788,6 +788,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     is_closing = 0;
     in_show = 0;
     in_show_maximized = 0;
+    im_enabled = FALSE;
 #ifndef QT_NO_LAYOUT
     lay_out = 0;
 #endif
@@ -1475,6 +1476,9 @@ void QWidget::setEnabled( bool enable )
 #if defined(Q_WS_X11)
     extern void qt_x11_enforce_cursor( QWidget * w, bool unset );
     qt_x11_enforce_cursor( this, FALSE );
+#endif
+#ifdef Q_WS_WIN
+    QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );
 #endif
 }
 
@@ -3047,7 +3051,7 @@ void QWidget::setFocus()
 	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
-	    }
+	    } 
 
 	    if ( qApp->focus_widget == this ) {
 		QFocusEvent in( QEvent::FocusIn );
@@ -3197,6 +3201,24 @@ QFocusData * QWidget::focusData( bool create )
 	ed->topextra->focusData = new QFocusData;
 
     return ed->topextra->focusData;
+}
+
+/*!
+    \property QWidget::inputMethodEnabled
+    \brief enables or disables the use of input methods for this widget. 
+
+    Most Widgets (as eg. buttons) that do not handle text input should have
+    the input method disabled if they have focus. This is the default.
+
+    If a widget handles text input it should set this property to TRUE.
+*/
+
+void QWidget::setInputMethodEnabled( bool b )
+{
+    im_enabled = b;
+#ifdef Q_WS_WIN
+    QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );
+#endif
 }
 
 

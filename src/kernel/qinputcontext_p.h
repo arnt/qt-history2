@@ -117,7 +117,7 @@ private:
     static bool composition( LPARAM lparam );
 
     static void accept( QWidget *fw = 0 );
-    static void enable( bool );
+    static void enable( QWidget *w, bool b );
 #endif
 };
 

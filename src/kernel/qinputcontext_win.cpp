@@ -524,23 +524,27 @@ bool QInputContext::composition( LPARAM lParam )
 
 static HIMC defaultContext = 0;
 
-void QInputContext::enable( bool b)
+void QInputContext::enable( QWidget *w, bool b )
 {
-    QWidget *fw = qApp->focusWidget();
 #ifdef Q_IME_DEBUG
-    qDebug( "enable: fw=%s, enable = %s", fw ? fw->className() : "(null)" , b ? "true" : "false" );
+    qDebug( "enable: w=%s, enable = %s", w ? w->className() : "(null)" , b ? "true" : "false" );
 #endif
-    HIMC imc = getContext( fw->winId() );
     if( aimm ) {
-	aimm->SetOpenStatus( imc, b );
-    } else {
+	HIMC oldimc;
 	if ( !b ) {
-	    HIMC oldimc = ImmAssociateContext( fw->winId(), 0 );
+	    aimm->AssociateContext( w->winId(), 0, &oldimc );
 	    if ( !defaultContext )
 		defaultContext = oldimc;
 	} else if ( defaultContext ) {
-	    ImmAssociateContext( fw->winId(), defaultContext );
+	    aimm->AssociateContext( w->winId(), defaultContext, &oldimc );
+	}
+    } else {
+	if ( !b ) {
+	    HIMC oldimc = ImmAssociateContext( w->winId(), 0 );
+	    if ( !defaultContext )
+		defaultContext = oldimc;
+	} else if ( defaultContext ) {
+	    ImmAssociateContext( w->winId(), defaultContext );
 	}
     }
-    releaseContext( fw->winId(), imc );
 }

@@ -128,6 +128,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
+    Q_PROPERTY( bool inputMethodEnabled READ isInputMethodEnabled WRITE setInputMethodEnabled DESIGNABLE false SCRIPTABLE false )
 
 public:
     Q_EXPLICIT QWidget( QWidget* parent=0, const char* name=0, WFlags f=0 );
@@ -294,7 +295,7 @@ public:
 	TabFocus = 0x1,
 	ClickFocus = 0x2,
 	StrongFocus = 0x3,
-	WheelFocus = 0x7
+	WheelFocus = 0x7,
     };
 
     bool		isActiveWindow() const;
@@ -308,6 +309,8 @@ public:
     virtual void	setFocusProxy( QWidget * );
     QWidget *		focusProxy() const;
 
+    void setInputMethodEnabled( bool b );
+    bool isInputMethodEnabled() const;
     // Grab functions
 
     void		grabMouse();
@@ -621,6 +624,7 @@ private:
     uint 	 in_show : 1;
     uint 	 in_show_maximized : 1;
     uint	 fstrut_dirty : 1;
+    uint	 im_enabled : 1;
     QRect	 crect;
     QColor	 bg_col;
 #ifndef QT_NO_PALETTE
@@ -894,6 +898,11 @@ inline bool QWidget::ownPalette() const
 inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
 {
     setSizePolicy( QSizePolicy( hor, ver, hfw) );
+}
+
+inline bool QWidget::isInputMethodEnabled() const 
+{
+    return (bool)im_enabled;
 }
 
 // Extra QWidget data

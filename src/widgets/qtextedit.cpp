@@ -1002,11 +1002,12 @@ void QTextEdit::init()
 
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
+    setInputMethodEnabled( TRUE );
     viewport()->installEventFilter( this );
     connect( this, SIGNAL(horizontalSliderReleased()), this, SLOT(sliderReleased()) );
     connect( this, SIGNAL(verticalSliderReleased()), this, SLOT(sliderReleased()) );
     installEventFilter( this );
-}
+}   
 
 void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
 {
@@ -5537,6 +5538,7 @@ void QTextEdit::setReadOnly( bool b )
 	viewport()->setCursor( arrowCursor );
     else
 	viewport()->setCursor( ibeamCursor );
+    setInputMethodEnabled( !readonly );
 #endif
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     checkOptimMode();

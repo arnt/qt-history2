@@ -2217,6 +2217,7 @@ void QComboBox::setLineEdit( QLineEdit *edit )
     edit->installEventFilter( this );
     setFocusProxy( edit );
     setFocusPolicy( StrongFocus );
+    setInputMethodEnabled( TRUE );
 
     if ( !d->usingListBox() )
 	setUpListBox();

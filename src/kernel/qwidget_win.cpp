@@ -408,6 +408,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     setFontSys();
+    QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );
 }
 
 
