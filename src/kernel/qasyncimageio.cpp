@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#50 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -26,7 +26,7 @@
 #include "qasyncimageio.h"
 #include "qpainter.h"
 #include "qlist.h"
-#include "qt_gif.h"
+#include "qgif.h"
 #include <stdlib.h>
 
 
@@ -124,7 +124,7 @@ static const int max_header = 32;
 
 
 
-// See qt_gif.h for important information regarding this option
+// See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 class Q_EXPORT QGIFFormat : public QImageFormat {
 public:
@@ -219,7 +219,7 @@ struct QImageDecoderPrivate {
     {
 	if ( !factories ) {
 	    factories = new QList<QImageFormatType>;
-// See qt_gif.h for important information regarding this option
+// See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 	    gif_decoder_factory = new QGIFFormatType;
 #endif
@@ -229,7 +229,7 @@ struct QImageDecoderPrivate {
 
     static QList<QImageFormatType> * factories;
 
-// See qt_gif.h for important information regarding this option
+// See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
     static QGIFFormatType * gif_decoder_factory;
 #endif
@@ -239,7 +239,7 @@ struct QImageDecoderPrivate {
 };
 
 QList<QImageFormatType> * QImageDecoderPrivate::factories = 0;
-// See qt_gif.h for important information regarding this option
+// See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 QGIFFormatType * QImageDecoderPrivate::gif_decoder_factory = 0;
 #endif
@@ -249,7 +249,7 @@ void QImageDecoderPrivate::cleanup()
 {
     delete factories;
     factories = 0;
-// See qt_gif.h for important information regarding this option
+// See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
     delete gif_decoder_factory;
     gif_decoder_factory = 0;
@@ -525,7 +525,7 @@ bool qt_builtin_gif_reader()
 #endif
 }
 
-// See qt_gif.h for important information regarding this option
+// See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 
 /* -- NOTDOC

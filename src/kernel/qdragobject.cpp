@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#89 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -31,7 +31,7 @@
 #include "qobjectdict.h"
 #include "qimage.h"
 #include "qbuffer.h"
-#include "qt_gif.h"
+#include "qgif.h"
 #include <ctype.h>
 
 
