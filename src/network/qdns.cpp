@@ -2445,7 +2445,7 @@ void QDns::doResInit()
 
 	while ( !stream.atEnd() ) {
 	    line = stream.readLine();
-	    QStringList list = QStringList::split( " ", line );
+	    QStringList list = line.split(" ");
 	    const QString type = list[0].toLower();
 
 	    if ( type == "nameserver" ) {
@@ -2459,7 +2459,7 @@ void QDns::doResInit()
 		    delete address;
 		}
 	    } else if ( type == "search" ) {
-		QStringList srch = QStringList::split( " ", list[1] );
+		QStringList srch = list[1].split(" ");
 		for ( QStringList::Iterator i = srch.begin(); i != srch.end(); ++i )
 		    domains->append( (*i).toLower().latin1() );
 
