@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#15 $
 **
 ** Implementation of movie classes
 **
@@ -583,6 +583,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		accum = 0;
 		bitcount = 0;
 		sp = stack;
+		needfirst = FALSE;
 	    }
 	    break;
 	  case TableImageLZWSize: {
