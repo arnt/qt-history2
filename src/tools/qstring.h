@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#16 $
+** $Id: //depot/qt/main/src/tools/qstring.h#17 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -226,7 +226,7 @@ public:
 
 		operator char *() const	      { return data(); }
 		operator const char *() const { return (pcchar)data(); }
-    bool	operator !() const	      { return isNull(); }
+    bool	operator!() const	      { return isNull(); }
     QString    &operator+=( const QString &s ); // append s to this string
     QString    &operator+=( const char *str );	// append str to this string
     QString    &operator+=( char c );		// append c to this string

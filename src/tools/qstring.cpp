@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#20 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#20 $";
 #endif
 
 
@@ -1073,7 +1073,7 @@ bool QString::setExpand( uint index, char c )	// set and expand if necessary
 /*! \fn QString::operator const char *() const
   Returns the string data. */
 
-/*! \fn bool QString::operator !() const
+/*! \fn bool QString::operator!() const
   Returns TRUE if it is a null string, otherwise FALSE.*/
 
 
