@@ -267,6 +267,84 @@ void Win32MakefileGenerator::fixTargetExt()
 
 void Win32MakefileGenerator::processRcFileVar()
 {
+    if (project->variables()["RC_FILE"].isEmpty() && project->variables()["RES_FILE"].isEmpty()
+        && !project->isActiveConfig("no_generated_target_info")
+        && (project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty())) {
+        QFile rcFile(project->variables()["TARGET"].first() + ".rc");
+        if (rcFile.open(QFile::WriteOnly)) {
+            QTextStream ts(&rcFile);
+
+            QString versionString;
+            if (!project->variables()["VERSION"].isEmpty())
+                versionString = project->variables()["VERSION"].first();
+            else
+                versionString = "0.0.0.0";
+
+            QString companyName;
+            if (!project->variables()["TARGET.company"].isEmpty())
+                companyName = project->variables()["TARGET.company"].join(" ");
+
+            QString description;
+            if (!project->variables()["TARGET.description"].isEmpty())
+                description = project->variables()["TARGET.description"].join(" ");
+            
+            QString copyright;
+            if (!project->variables()["TARGET.copyright"].isEmpty())
+                copyright = project->variables()["TARGET.copyright"].join(" ");
+
+            QString productName;
+            if (!project->variables()["TARGET.product"].isEmpty())
+                productName = project->variables()["TARGET.product"].join(" ");
+            else
+                productName = project->variables()["TARGET"].first();
+            
+            QString originalName = project->variables()["TARGET"].first() + project->variables()["TARGET_EXT"].first();
+
+            ts << "#ifndef Q_CC_BOR" << endl;
+            ts << "# if defined(UNDER_CE) && UNDER_CE >= 400" << endl;
+            ts << "#  include <winbase.h>" << endl;
+            ts << "# else" << endl;
+            ts << "#  include <winver.h>" << endl;
+            ts << "# endif" << endl;
+            ts << "#endif" << endl;
+            ts << endl;
+            ts << "VS_VERSION_INFO VERSIONINFO" << endl;
+	    ts << "\tFILEVERSION " << QString(versionString).replace(".", ",") << endl;
+            ts << "\tPRODUCTVERSION " << QString(versionString).replace(".", ",") << endl;
+            ts << "\tFILEFLAGSMASK 0x3fL" << endl;
+            ts << "#ifdef _DEBUG" << endl;
+            ts << "\tFILEFLAGS VS_FF_DEBUG" << endl;
+            ts << "#else" << endl;
+            ts << "\tFILEFLAGS 0x0L" << endl;
+            ts << "#endif" << endl;
+            ts << "\tFILEOS VOS__WINDOWS32" << endl;
+            if (project->isActiveConfig("dll"))
+                ts << "\tFILETYPE VFT_DLL" << endl;
+            else
+                ts << "\tFILETYPE VFT_APP" << endl;
+            ts << "\tFILESUBTYPE 0x0L" << endl;
+            ts << "\tBEGIN" << endl;
+            ts << "\t\tBLOCK \"StringFileInfo\"" << endl;
+            ts << "\t\tBEGIN" << endl;
+            ts << "\t\t\tBLOCK \"040904B0\"" << endl;
+            ts << "\t\t\tBEGIN" << endl;
+            ts << "\t\t\t\tVALUE \"CompanyName\", \"" << companyName << "\\0\"" << endl;/////
+            ts << "\t\t\t\tVALUE \"FileDescription\", \"" <<  description << "\\0\"" << endl;/////
+            ts << "\t\t\t\tVALUE \"FileVersion\", \"" << versionString << "\\0\"" << endl;
+            ts << "\t\t\t\tVALUE \"LegalCopyright\", \"" << copyright << "\\0\"" << endl; ////
+            ts << "\t\t\t\tVALUE \"OriginalFilename\", \"" << originalName << "\\0\"" << endl;
+            ts << "\t\t\t\tVALUE \"ProductName\", \"" << productName << "\\0\"" << endl; /////
+            ts << "\t\t\tEND" << endl;
+            ts << "\t\tEND" << endl;
+            ts << "\tEND" << endl;
+            ts << "/* End of Version info */" << endl;
+            ts << endl;
+            
+            ts.flush();
+
+            project->variables()["RC_FILE"].insert(0, rcFile.fileName());
+        }
+    }
     if (!project->variables()["RC_FILE"].isEmpty()) {
         if (!project->variables()["RES_FILE"].isEmpty()) {
             fprintf(stderr, "Both rc and res file specified.\n");

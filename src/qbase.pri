@@ -138,3 +138,9 @@ contains(QT_CONFIG, compat):DEFINES *= QT3_SUPPORT_WARNINGS #enable warnings
       else:TARGET = $$member(TARGET, 0)d
    }
 }
+
+TARGET.company = trolltech as
+TARGET.product = qt4
+TARGET.description = c++ application development framework.
+TARGET.copyright = copyright (c) 2003-2005 trolltech
+
