@@ -1247,6 +1247,10 @@ public:
 	    env->program().setLastError("Sort: no fields defined!");
 	    return 0;
 	}
+	if ( (list.count() % 2) != 0 ) {
+	    env->program().setLastError("Sort: wrong multiple of list elements!");
+	    return 0;
+	}
 	for ( uint i = 0; i < list.count(); ++i ) {
 	    QValueList<QVariant> fieldDescription = list[i].toList();
 	    if ( fieldDescription.count() != 2 ) {
@@ -1257,7 +1261,8 @@ public:
 	    QVariant::Type type = fieldDescription[1].type();
 	    QSqlField field( name, type );
 	    field.setValue( fieldDescription[1] );
-	    idx.append( field );
+	    bool descend = list[++i].toBool();
+	    idx.append( field, descend );
 	}
 	Interpreter::FileDriver& drv = env->fileDriver( p1.toInt() );
 	if ( !drv.isOpen() ) {

@@ -4,6 +4,7 @@
 #include <qdatetime.h>
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qtl.h>
 
 //using namespace SqlInterpreter;
 
@@ -500,6 +501,31 @@ Record& ResultSet::currentRecord()
 }
 
 
+static void reverse( ColumnKey& colkey, uint elements )
+{
+    if ( !colkey.count() || !elements )
+	return;
+    ColumnKey::Iterator asc = colkey.begin();
+    int a = 0;
+    ColumnKey::Iterator des = --colkey.end();
+    int d = des.data().count()-1;
+    for ( uint i = 0; i < elements/2; ++i ) {
+	qSwap<int>( asc.data()[a], des.data()[d] );
+	/* increment asc */
+	if ( a+1 > (int)asc.data().count()-1 ) { /* go to next map element */
+	    ++asc;
+	    a = 0;
+	} else /* go to next list element in the same map element */
+	    ++a;
+	/* decrement des */
+	if ( d-1 < 0 ) { /* go to previous map element */
+	    --des;
+	    d = des.data().count()-1;
+	} else /* go to previous list element in the same map element */
+	    --d;
+    }
+}
+
 /*!
 
 */
@@ -557,6 +583,8 @@ bool ResultSet::sort( const QSqlIndex* index )
 	    nl.append( i );
 	}
     }
+    if ( index->isDescending( index->count()-1 ) )
+	reverse( sortKey, data.count() );
     ColumnKey::Iterator it;
     if ( index->count() > 1 ) {
 	/* sort rest of fields */
@@ -587,6 +615,8 @@ bool ResultSet::sort( const QSqlIndex* index )
 		}
 	    }
 	    sortKey = subSort; /* save and continue */
+	    if ( index->isDescending( sortField ) )
+		reverse( sortKey, data.count() );
 	}
     }
 
