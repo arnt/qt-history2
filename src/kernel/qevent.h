@@ -58,7 +58,6 @@ public:
 
 	None = 0,				// invalid event
 
-
 	Timer = 1,				// timer event
 	MouseButtonPress = 2,			// mouse button pressed
 	MouseButtonRelease = 3,			// mouse button released
@@ -111,18 +110,16 @@ public:
 	ShowWindowRequest = 73,			// widget's window should be mapped
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
-	User = 1000,				// first user event id
-	MaxUser  = 65535                        		// last user event id	
+	User = 1000				// first user event id
     };
 
-    
-    QEvent( Type type ) : t(type), posted(FALSE) {}
+    QEvent( int type ) : t(type), posted(FALSE) {}
     virtual ~QEvent();
-    Type  type() const	{ return t; }
+    int type() const { return t; }
 protected:
-    Type  t;
+    int t;
 private:
-    bool  posted;
+    bool posted;
 #if defined(_CC_MSVC_)
     friend class QEvent;
 #endif
