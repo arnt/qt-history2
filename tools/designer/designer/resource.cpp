@@ -2773,7 +2773,8 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 
 void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 {
-    if ( !mw->child( 0, "QMenuBar" ) || QString( mw->menuBar()->name() ).startsWith( "qt_dead_widget_" ) )
+    MenuBarEditor *mb = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
+    if ( !mb )
 	return;
     ts << makeIndent( indent ) << "<menubar>" << endl;
     indent++;
