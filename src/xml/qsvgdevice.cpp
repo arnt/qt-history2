@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#9 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#10 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -150,6 +150,7 @@ bool QSVGDevice::play( QPainter *painter )
 
     // 'play' all elements recursively starting with 'svg' as root
     pt = painter;
+    pt->setPen( Qt::NoPen );
     return play( svg );
 }
 
@@ -226,6 +227,9 @@ bool QSVGDevice::play( const QDomNode &node )
 	pt->save();
 
 	QDomNamedNodeMap attr = child.attributes();
+	if ( attr.contains( "style" ) )
+	    setStyle( attr.namedItem( "style" ).nodeValue() );
+
 	int x1, y1, x2, y2, rx, ry;
 	ElementType t = typeMap[ child.nodeName() ];
 	switch ( t ) {
@@ -376,6 +380,63 @@ int QSVGDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
 	    return int(d);
     }
     return def;
+}
+
+void QSVGDevice::setStyle( const QString &s )
+{
+    QStringList rules = QStringList::split( QRegExp( ";" ), s );
+
+    QPen pen = pt->pen();
+    QFont font = pt->font();
+
+    QStringList::ConstIterator it = rules.begin();
+    for ( ; it != rules.end(); it++ ) {
+	int col = (*it).find( ':' );
+	if ( col > 0 ) {
+	    QString prop = (*it).left( col ).simplifyWhiteSpace();
+	    QString val = (*it).right( (*it).length() - col - 1 );
+	    val = val.lower().stripWhiteSpace();
+	    if ( prop == "stroke" ) {
+		if ( val == "none" )
+		    pen.setStyle( Qt::NoPen );
+		else {
+		    pen.setColor( parseColor( val ));
+		    if ( pen.style() == Qt::NoPen )
+			pen.setStyle( Qt::SolidLine );
+		}
+	    } else if ( prop == "stroke-width" ) {
+		pen.setWidth( int(parseLen( val )) );
+		if ( pen.style() == Qt::NoPen )
+		    pen.setStyle( Qt::SolidLine );
+	    } else if ( prop == "stroke-linecap" ) {
+		if ( val == "butt" )
+		    pen.setCapStyle( Qt::FlatCap );
+		else if ( val == "round" )
+		    pen.setCapStyle( Qt::RoundCap );
+		else if ( val == "square" )
+		    pen.setCapStyle( Qt::SquareCap );
+	    } else if ( prop == "stroke-linejoin" ) {
+		if ( val == "miter" )
+		    pen.setJoinStyle( Qt::MiterJoin );
+		else if ( val == "round" )
+		    pen.setJoinStyle( Qt::RoundJoin );
+		else if ( val == "bevel" )
+		    pen.setJoinStyle( Qt::BevelJoin );
+	    } else if ( prop == "fill" ) {
+		if ( val == "none" )
+		    pt->setBrush( Qt::NoBrush );
+		else
+		    pt->setBrush( parseColor( val ));
+	    } else if ( prop == "font-size" ) {
+		font.setPixelSizeFloat( float(parseLen( val )) );
+	    } else if ( prop == "font-family" ) {
+		font.setFamily( val );
+	    }
+	}
+    }
+
+    pt->setPen( pen );
+    pt->setFont( font );
 }
 
 #endif // QT_NO_SVG
