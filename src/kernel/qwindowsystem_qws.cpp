@@ -1290,13 +1290,21 @@ void QWSServer::openMouse()
 	qDebug("Assuming mouse %s", mice.latin1() );
     }
     closeMouse();
+#ifndef QT_NO_STRINGLIST
     QStringList mouse = QStringList::split(" ",mice);
     for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
 	QMouseHandler* mh = newMouseHandler(*m);
 	connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
-	    this, SLOT(setMouse(const QPoint&,int)));
+		this, SLOT(setMouse(const QPoint&,int)));
 	mousehandlers.append(mh);
     }
+#else
+    QMouseHandler* mh = newMouseHandler(mice); //Assume only one
+    connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
+	    this, SLOT(setMouse(const QPoint&,int)));
+    mousehandlers.append(mh);
+    
+#endif    
 }
 
 QWSKeyboardHandler::QWSKeyboardHandler()
@@ -1329,11 +1337,16 @@ void QWSServer::openKeyboard()
 	}
     }
     closeKeyboard();
+#ifndef QT_NO_STRINGLIST
     QStringList keyboard = QStringList::split(" ",keyboards);
     for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
 	QWSKeyboardHandler* kh = newKeyboardHandler(*k);
 	keyboardhandlers.append(kh);
     }
+#else
+    QWSKeyboardHandler* kh = newKeyboardHandler(keyboards); //assume only one
+    keyboardhandlers.append(kh);
+#endif
 }
 
 QWSServer *QWSServer::qwsServer=0; //there can be only one

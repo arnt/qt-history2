@@ -1170,7 +1170,7 @@ void QFont::removeSubstitution( const QString &familyName )
 	fontSubst->remove( familyName );
 }
 
-
+#ifndef QT_NO_STRINGLIST
 /*!
   Returns a sorted list of substituted family names.
 
@@ -1188,7 +1188,7 @@ QStringList QFont::substitutions()
     }
     return list;
 }
-
+#endif // QT_NO_STRINGLIST
 
 /*
   Internal function. Converts boolean font settings (except dirty)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#22 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#23 $
 **
 ** Definition of QStringList class
 **
@@ -32,6 +32,8 @@
 #include "qregexp.h"
 #endif // QT_H
 
+#ifndef QT_NO_STRINGLIST
+
 class QStrList;
 
 class Q_EXPORT QStringList : public QValueList<QString>
@@ -63,4 +65,5 @@ class QDataStream;
 extern Q_EXPORT QDataStream &operator>>( QDataStream &, QStringList& );
 extern Q_EXPORT QDataStream &operator<<( QDataStream &, const QStringList& );
 #endif
+#endif // QT_NO_STRINGLIST
 #endif // QSTRINGLIST_H

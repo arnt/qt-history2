@@ -184,7 +184,9 @@ private:	// Disabled copy constructor and operator=
 
 public:
     // obsolete
+#ifndef QT_NO_STRINGLIST
     QStringList  superClasses( bool includeThis = FALSE ) const; // obsolete, remove 3.0
+#endif
 };
 
 #endif

@@ -2772,7 +2772,7 @@ int QApplication::doubleClickInterval()
 /*****************************************************************************
   Session management support (-D QT_SM_SUPPORT to enable it)
  *****************************************************************************/
-
+#ifndef QT_NO_SESSIONMANAGER
 
 class QSessionManagerData
 {
@@ -2865,7 +2865,7 @@ bool QSessionManager::isPhase2() const
 void QSessionManager::requestPhase2()
 {
 }
-
+#endif //QT_NO_SESSIONMANAGER
 // Need to add some sort of implementation here?
 
 void QApplication::setWheelScrollLines(int)

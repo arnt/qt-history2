@@ -64,8 +64,10 @@ public:
     QGlyph lockGlyph(FontID, const QChar&);
     QGlyphMetrics* lockGlyphMetrics(FontID, const QChar&);
     void unlockGlyph(FontID, const QChar&);
+#ifndef QT_NO_QWS_SAVEFONTS
     void savePrerenderedFont(const QFontDef&, bool all=TRUE);
     void savePrerenderedFont(FontID id, bool all=TRUE);
+#endif
     bool fontSmooth(FontID id) const;
     int fontAscent(FontID id) const;
     int fontDescent(FontID id) const;

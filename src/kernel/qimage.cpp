@@ -2728,7 +2728,7 @@ QStrList QImage::inputFormats()
 {
     return QImageIO::inputFormats();
 }
-
+#ifndef QT_NO_STRINGLIST
 /*!
   Returns a list of image formats which are supported for image input.
 */
@@ -2736,6 +2736,16 @@ QStringList QImage::inputFormatList()
 {
     return QStringList::fromStrList(QImageIO::inputFormats());
 }
+
+
+/*!
+  Returns a list of image formats which are supported for image output.
+*/
+QStringList QImage::outputFormatList()
+{
+    return QStringList::fromStrList(QImageIO::outputFormats());
+}
+#endif //QT_NO_STRINGLIST
 
 /*!
   Returns a list of image formats which are supported for image output.
@@ -2745,14 +2755,6 @@ QStringList QImage::inputFormatList()
 QStrList QImage::outputFormats()
 {
     return QImageIO::outputFormats();
-}
-
-/*!
-  Returns a list of image formats which are supported for image output.
-*/
-QStringList QImage::outputFormatList()
-{
-    return QStringList::fromStrList(QImageIO::outputFormats());
 }
 
 

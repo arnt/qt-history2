@@ -505,7 +505,7 @@ bool QObject::inherits( const char *clname ) const
 #if QT_VERSION >= 290
 #error "remove superClasses now."
 #endif
-
+#ifndef QT_NO_STRINGLIST
 /*! \obsolete
 
   This function is misleadingly named, and cannot be implemented in a
@@ -533,7 +533,7 @@ QStringList QObject::superClasses( bool includeThis ) const
     }
     return lst;
 }
-
+#endif
 
 /*!
   \fn const char *QObject::name() const

@@ -481,10 +481,11 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    mmf->fm.smooth = mmf->renderer->smooth;
 	}
 	font_map[key] = (FontID)mmf;
-
+#ifndef QT_NO_QWS_SAVEFONTS
 	extern bool qws_savefonts;
 	if ( qws_savefonts && mmf->renderer )
 	    savePrerenderedFont(font);
+#endif
     } else {
 	mmf = (QMemoryManagerFont*)*i;
     }
@@ -530,7 +531,7 @@ QGlyphMetrics* QMemoryManager::lockGlyphMetrics(FontID id, const QChar& ch)
 void QMemoryManager::unlockGlyph(FontID id, const QChar& ch)
 {
 }
-
+#ifndef QT_NO_QWS_SAVEFONTS
 void QMemoryManager::savePrerenderedFont(const QFontDef& f, bool all)
 {
     QMemoryManagerFont* mmf = (QMemoryManagerFont*)findFont(f);
@@ -573,7 +574,7 @@ void QMemoryManager::savePrerenderedFont(FontID id, bool all)
 	mmf->tree->write(f);
     }
 }
-
+#endif
 // Perhaps we should just return the struct?
 //
 bool QMemoryManager::fontSmooth(FontID id) const

@@ -33,7 +33,7 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #endif // QT_H
-
+#ifndef QT_NO_SESSIONMANAGER
 class QSessionManagerData;
 
 class Q_EXPORT  QSessionManager : public QObject
@@ -79,5 +79,5 @@ private:
     QSessionManagerData* d;
 };
 
-
-#endif
+#endif // QT_NO_SESSIONMANAGER
+#endif // QSESSIONMANAGER_H

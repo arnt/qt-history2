@@ -32,6 +32,17 @@
 
 #include <qconfig.h>
 
+
+// Data structures
+
+/*! QStringList */
+//#define QT_NO_STRINGLIST
+
+// File I/O
+//#define QT_NO_DIR
+//#define QT_NO_TEXTSTREAM
+//#define QT_NO_DATASTREAM
+
 // Images
 /*!
     BMP image I/O
@@ -124,12 +135,17 @@
     QObject::tr()
 */
 //#define QT_NO_TRANSLATION
-/*!
-    QTextCodec classes
-    <p>This includes some large conversion tables.
-*/
-//#define QT_NO_CODECS
 
+/*! QTextCodec class and subclasses */
+//#define QT_NO_TEXTCODEC
+
+#if defined(QT_NO_TEXTCODEC)
+    /*!
+	QTextCodec classes
+	<p>This includes some large conversion tables.
+    */
+    #define QT_NO_CODECS
+#endif
 #if defined(QT_LITE_UNICODE)
     /*!
 	Unicode property tables
@@ -211,6 +227,13 @@
     32-bit color
 */
 //#define QT_NO_QWS_DEPTH_32
+
+/*! Window manager */
+//#define QT_NO_QWS_MANAGER
+
+/*! Saving of fonts */
+//#define QT_NO_QWS_SAVEFONTS
+
 
 /*!
     Drawing utility functions
@@ -444,5 +467,12 @@
     */
     #define QT_NO_WIZARD
 #endif
+
+#ifdef QT_NO_STRINGLIST
+    // Desktop features
+    /*! Session management support */
+    #define QT_NO_SESSIONMANAGER
+#endif
+
 
 #endif // QFEATURES_H

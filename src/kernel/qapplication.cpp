@@ -399,14 +399,17 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 #endif
 	    qWarning("Invalid -style option");
 #endif
+#ifndef QT_NO_SESSIONMANAGER
 	} else if ( strcmp(arg,"-session") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    if ( !s.isEmpty() ) {
 		session_id = QString::fromLatin1( s );
 		is_session_restored = TRUE;
 	    }
-	} else
+#endif
+	} else {
 	    argv[j++] = argv[i];
+	}
     }
     *argcptr = j;
 }
@@ -572,7 +575,9 @@ void QApplication::init_precmdline()
 {
     translators = 0;
     is_app_closing = FALSE;
+#ifndef QT_NO_SESSIONMANAGER
     is_session_restored = FALSE;
+#endif
     app_exit_loop = FALSE;
 #if defined(CHECK_STATE)
     if ( qApp )
@@ -637,8 +642,10 @@ void QApplication::initialize( int argc, char **argv )
     app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
 #endif
 
+#ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
     session_manager = new QSessionManager( qApp, session_id );
+#endif
 }
 
 
@@ -2465,7 +2472,7 @@ int QApplication::loopLevel() const
 
   \sa isSessionRestored(), sessionId(), saveState()
 */
-
+#ifndef QT_NO_SESSIONMANAGER
 void QApplication::commitData( QSessionManager& sm  )
 {
 
@@ -2526,7 +2533,7 @@ void QApplication::commitData( QSessionManager& sm  )
 void QApplication::saveState( QSessionManager& /* sm */ )
 {
 }
-
+#endif //QT_NO_SESSIONMANAGER
 /*!
   Sets the time after which a drag should start.
 

@@ -199,12 +199,13 @@ public:
     static bool winEffectSupport( Qt::WindowsEffect );
 #endif
 
+#ifndef QT_NO_SESSIONMANAGER
     // session management
     bool	     isSessionRestored() const;
     QString	     sessionId() const;
     virtual void     commitData( QSessionManager& sm );
     virtual void     saveState( QSessionManager& sm );
-
+#endif
 #if defined(_WS_X11_)
     static void create_xim();
     static void close_xim();
@@ -254,9 +255,11 @@ private:
     static int	     mouse_double_click_time;
     static int	     wheel_scroll_lines;
     QList<QTranslator> *translators;
+#ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;
     QString	     session_id;
     bool	     is_session_restored;
+#endif
     static QSize     app_strut;
 
     static QAsciiDict<QPalette> *app_palettes;
@@ -335,7 +338,7 @@ inline bool QApplication::inPopupMode() const
 {
     return popupWidgets != 0;
 }
-
+#ifndef QT_NO_SESSIONMANAGER
 inline bool QApplication::isSessionRestored() const
 {
     return is_session_restored;
@@ -345,7 +348,7 @@ inline QString QApplication::sessionId() const
 {
     return session_id;
 }
-
+#endif
 inline QSize QApplication::globalStrut()
 {
     return app_strut;

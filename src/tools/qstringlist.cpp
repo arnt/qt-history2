@@ -24,6 +24,8 @@
 *****************************************************************************/
 
 #include "qstringlist.h"
+
+#ifndef QT_NO_STRINGLIST
 #include "qstrlist.h"
 #include "qdatastream.h"
 #include "qtl.h"
@@ -277,3 +279,5 @@ QStringList QStringList::fromStrList(const QStrList& ascii)
 	res << s;
     return res;
 }
+
+#endif //QT_NO_STRINGLIST
