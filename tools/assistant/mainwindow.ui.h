@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt Assistant.
 **
@@ -206,7 +206,7 @@ void MainWindow::about()
     QString about_text =
 	"<center><img src=\"splash.png\">"
 	"<p>Version " + QString(QT_VERSION_STR) + "</p>"
-	"<p>Copyright (C) 2001-2002 Trolltech AS. All rights reserved.</p>"
+	"<p>Copyright (C) 2001-2003 Trolltech AS. All rights reserved.</p>"
 	"</center><p></p>"
 	"<p>This program is licensed to you under the terms of the GNU General "
 	"Public License Version 2 as published by the Free Software Foundation. This "
