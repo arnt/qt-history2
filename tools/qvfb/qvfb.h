@@ -89,6 +89,7 @@ private:
     QAction *actions[NCountAct];
 
 private slots:
+    void resetGamma();
     void setGamma400(int n);
     void setR400(int n);
     void setG400(int n);

@@ -351,12 +351,14 @@ void QVFb::configure()
     connect(config->rslider, SIGNAL(valueChanged(int)), this, SLOT(setR400(int)));
     connect(config->gslider, SIGNAL(valueChanged(int)), this, SLOT(setG400(int)));
     connect(config->bslider, SIGNAL(valueChanged(int)), this, SLOT(setB400(int)));
+    connect(config->resetgamma, SIGNAL(clicked()), this, SLOT(resetGamma()));
     updateGammaLabels();
 
     connect(config->buttonOk, SIGNAL(clicked()), config, SLOT(accept()));
     connect(config->buttonCancel, SIGNAL(clicked()), config, SLOT(reject()));
 
     double ogr=view->gammaRed(), ogg=view->gammaGreen(), ogb=view->gammaBlue();
+
 
     if ( config->exec() ) {
         int id = view->displayId(); // not settable yet
@@ -400,6 +402,15 @@ void QVFb::configure()
     config=0;
 }
 
+void QVFb::resetGamma()
+{
+    config->gammaslider->setValue(100);
+    config->rslider->setValue(100);
+    config->gslider->setValue(100);
+    config->bslider->setValue(100);
+    updateGammaLabels();
+    view->setGamma(1.0, 1.0, 1.0);
+}
 void QVFb::setGamma400(int n)
 {
     double g = n/100.0;
