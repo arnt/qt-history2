@@ -637,7 +637,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString app = (!project->isEmpty("DESTDIR") ? project->first("DESTDIR") + project->first("QMAKE_ORIG_TARGET") : 
 		       QDir::currentDirPath()) + Option::dir_sep + targ;
 	t << "\t\t\t" << "name = " <<  targ << ";" << "\n"
-	  << "\t\t\t" << "path = \"" << app << "\";" << "\n"
+	  << "\t\t\t" << "path = \"" << targ << "\";" << "\n"
 	  << "\t\t\t" << "refType = " << reftypeForFile(app) << ";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
