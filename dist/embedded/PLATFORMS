@@ -11,7 +11,8 @@ Supported platforms and compilers:
   arm           - Use arm-linux-g++ as compiler.
   mips          - Use mipsel-linux-g++ as compiler.
   ipaq          - Use arm config, add iPAQ options (eg. touchpanel).
-  cassiopeia    - Use mips config, add Cassiopeia options.
+  sharp         - Use arm config, add SHARP Zaurus options (eg. touchpanel).
+
 
 Compilation problems:
 
@@ -25,5 +26,5 @@ Example:
 Customization:
 
   You can create your own custom configuration by adding new files to
-  the configs directory.
+  the mkspecs/qws directory.
 
