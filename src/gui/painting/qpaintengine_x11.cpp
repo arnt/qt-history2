@@ -120,7 +120,10 @@ void qt_erase_background(QPaintDevice *pd, int screen,
 
     Qt::HANDLE hd = qt_x11Handle(pd);
     Display *dpy = QX11Info::display();
-    ulong pixel = QColormap::instance(screen).pixel(brush.color());
+    ulong pixel = (pd->devType() == QInternal::Pixmap && pd->depth() == 32
+                   && X11->use_xrender && X11->has_xft)
+                  ? brush.color().rgba()
+                  : QColormap::instance(screen).pixel(brush.color());
     XGCValues vals;
     vals.graphics_exposures = false;
     vals.foreground = pixel;
@@ -762,8 +765,6 @@ void QX11PaintEngine::updatePen(const QPen &pen)
 {
     d->cpen = pen;
     int ps = pen.style();
-    QColormap cmap = QColormap::instance(d->scrn);
-
     char dashes[10];                            // custom pen dashes
     int dash_len = 0;                           // length of dash list
     int s = LineSolid;
@@ -849,8 +850,15 @@ void QX11PaintEngine::updatePen(const QPen &pen)
                  | GCLineStyle | GCCapStyle | GCJoinStyle;
     XGCValues vals;
     vals.graphics_exposures = false;
-    vals.foreground = cmap.pixel(pen.color());
-    vals.background = cmap.pixel(d->bg_col);
+    if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
+        && X11->use_xrender && X11->has_xft) {
+        vals.foreground = pen.color().rgba();
+        vals.background = d->bg_col.rgba();
+    } else {
+        QColormap cmap = QColormap::instance(d->scrn);
+        vals.foreground = cmap.pixel(pen.color());
+        vals.background = cmap.pixel(d->bg_col);
+    }
     vals.line_width = (! allow_zero_lw && pen.width() == 0) ? 1 : pen.width();
     vals.cap_style = cp;
     vals.join_style = jn;
@@ -881,14 +889,19 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 
     int s  = FillSolid;
     int  bs = d->cbrush.style();
-    QColormap cmap = QColormap::instance(d->scrn);
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures
                  | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
     XGCValues vals;
     vals.graphics_exposures = false;
-    vals.foreground = cmap.pixel(d->cbrush.color());
-//    qDebug() << "updateBrush vals.foreground: " << hex << cmap.pixel(d->cbrush.color()) << d->cbrush.color();
-    vals.background = cmap.pixel(d->bg_col);
+    if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
+        && X11->use_xrender && X11->has_xft) {
+        vals.foreground = d->cbrush.color().rgba();
+        vals.background = d->bg_col.rgba();
+    } else {
+        QColormap cmap = QColormap::instance(d->scrn);
+        vals.foreground = cmap.pixel(d->cbrush.color());
+        vals.background = cmap.pixel(d->bg_col);
+    }
     vals.cap_style = CapButt;
     vals.join_style = JoinMiter;
     vals.line_style = LineSolid;
@@ -984,6 +997,7 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
                        G = qc.green(),
                        B = qc.blue();
 
+            // ###
             xfc.pixel = QColormap::instance(d->scrn).pixel(qc);
             xfc.color.alpha = (A | A << 8);
             xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
@@ -1238,29 +1252,29 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 	    dst_pict = static_cast<const QWidget *>(dst)->xftPictureHandle();
 	else
 	    dst_pict = static_cast<const QPixmap *>(dst)->xftPictureHandle();
-        if (dst_pict && src_pict) {
-            XRenderPictureAttributes pattr;
-            ulong picmask = 0;
-            if (include_inferiors) {
-                pattr.subwindow_mode = IncludeInferiors;
-                picmask |= CPSubwindowMode;
-            }
-            if (graphics_exposure) {
-                pattr.graphics_exposures = true;
-                picmask |= CPGraphicsExposure;
-            }
-            if (picmask)
-                XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
-            XRenderComposite(dpy, (src_pm->data->alpha && !ignoreMask ? PictOpOver : PictOpSrc),
-                             src_pict, XNone, dst_pict,
-                             sx, sy, sx, sy, dx, dy, sw, sh);
-            // restore attributes
-            pattr.subwindow_mode = ClipByChildren;
-            pattr.graphics_exposures = false;
-            if (picmask)
-                XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
-            return;
+        Q_ASSERT_X(dst_pict && src_pict, "qt_bit_blt", "internal error");
+
+        XRenderPictureAttributes pattr;
+        ulong picmask = 0;
+        if (include_inferiors) {
+            pattr.subwindow_mode = IncludeInferiors;
+            picmask |= CPSubwindowMode;
         }
+        if (graphics_exposure) {
+            pattr.graphics_exposures = true;
+            picmask |= CPGraphicsExposure;
+        }
+        if (picmask)
+            XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
+        XRenderComposite(dpy, (src_pm->data->alpha && !ignoreMask ? PictOpOver : PictOpSrc),
+                         src_pict, XNone, dst_pict,
+                         sx, sy, sx, sy, dx, dy, sw, sh);
+        // restore attributes
+        pattr.subwindow_mode = ClipByChildren;
+        pattr.graphics_exposures = false;
+        if (picmask)
+            XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
+        return;
     }
 #endif
 
@@ -1323,6 +1337,10 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
         } else if (mono_dst) {
             gcvals.background = 0;
             gcvals.foreground = 1;
+        } else if (td == QInternal::Pixmap && dst->depth() == 32
+                   && X11->use_xrender && X11->has_xft) {
+            gcvals.background = 0xffffffff; // white, fully opaque
+            gcvals.foreground = 0xff000000; // black, fully opaque
         } else {
             gcvals.background = WhitePixel(dpy, dst_xf->screen());
             gcvals.foreground = BlackPixel(dpy, dst_xf->screen());
@@ -1458,8 +1476,15 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     if (mono) {
         XSetClipMask(d->dpy, d->gc, pixmap.handle());
         XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
-        XSetBackground(d->dpy, d->gc, QColormap::instance(d->scrn).pixel(d->bg_brush.color()));
-        XSetForeground(d->dpy, d->gc, QColormap::instance(d->scrn).pixel(d->cpen.color()));
+        if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
+            && X11->use_xrender && X11->has_xft) {
+            XSetBackground(d->dpy, d->gc, d->bg_brush.color().rgba());
+            XSetForeground(d->dpy, d->gc, d->cpen.color().rgba());
+        } else {
+            QColormap cmap = QColormap::instance(d->scrn);
+            XSetBackground(d->dpy, d->gc, cmap.pixel(d->bg_brush.color()));
+            XSetForeground(d->dpy, d->gc, cmap.pixel(d->cpen.color()));
+        }
         XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
         XSetClipMask(d->dpy, d->gc, XNone);
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
@@ -1906,6 +1931,7 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItemInt &si)
     col.color.green = pen.green () | pen.green() << 8;
     col.color.blue = pen.blue () | pen.blue() << 8;
     col.color.alpha = 0xffff;
+    // ###
     col.pixel = QColormap::instance(screen).pixel(pen);
 
 #ifdef FONTENGINE_DEBUG
