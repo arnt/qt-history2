@@ -9,7 +9,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>596</width>
+            <width>592</width>
             <height>335</height>
         </rect>
     </property>
@@ -1522,26 +1522,27 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <receiver>SetupWizard</receiver>
         <slot>optionClicked(QListViewItem*)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <connection language="C++">
+        <sender>configTabs</sender>
+        <signal>currentChanged(QWidget*)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>configPageChanged()</slot>
+    </connection>
     <slot access="public" language="C++" returnType="void">clickedDevSysPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedEnvironmentButton()</slot>
     <slot access="public" language="C++" returnType="void">clickedFolderPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedLicenseFile()</slot>
     <slot access="public" language="C++" returnType="void">clickedPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedSystem( int )</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="public" language="C++" returnType="void">licenseAction( int )</slot>
     <slot access="public" language="C++" returnType="void">licenseChanged( const QString &amp; )</slot>
+    <slot access="protected" language="C++" returnType="void">configPageChanged()</slot>
     <slot access="public" language="C++" returnType="void">optionClicked(QListViewItem*)</slot>
     <slot access="public" language="C++" returnType="void">optionSelected(QListViewItem*)</slot>
 </connections>
 <functions>
-    <function name="init()" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
     <function name="clickedDevSysPath()" >{
 
 }</function>
@@ -1560,6 +1561,12 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <function name="clickedSystem(int)" >{
 
 }</function>
+    <function name="destroy()" >{
+
+}</function>
+    <function name="init()" >{
+
+}</function>
     <function name="licenseAction(int)" >{
 
 }</function>
@@ -1569,6 +1576,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
     	else
 	    setNextEnabled( licensePage, false );
 }</function>
+    <function name="" ></function>
     <function name="" ></function>
     <function name="" ></function>
 </functions>

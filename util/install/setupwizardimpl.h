@@ -23,6 +23,7 @@ public:
 //    virtual void clickedEnvironmentButton();
 
     virtual void showPage( QWidget* );
+    void stopProcesses();
 
 protected:
 //    virtual void pageChanged( const QString& );
@@ -56,6 +57,7 @@ protected slots:
 
     void optionSelected( QListViewItem * );
     void optionClicked( QListViewItem * );
+    void configPageChanged();
 //    virtual void envDone();
 
 private:
@@ -97,6 +99,11 @@ private:
     int timeCounter;
     bool triedToIntegrate;
 
-public:
-    void stopProcesses();
+    QCheckListItem *accOn, *accOff;
+
+    QCheckListItem *bigCodecsOn, *bigCodecsOff;
+
+    QCheckListItem *mngPresent, *mngDirect, *mngPlugin;
+    QCheckListItem *jpegPresent, *jpegDirect, *jpegPlugin;
+    QCheckListItem *pngPresent, *pngDirect, *pngPlugin;
 };
