@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#474 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#475 $
 **
 ** Implementation of QWidget class
 **
@@ -3379,6 +3379,8 @@ QRect QWidget::visibleRect() const
 
 void QWidget::adjustSize()
 {
+    if ( !testWState(WState_Polished) )
+	polish();
     QSize s = sizeHint();
     if ( s.isValid() ) {
 	resize( s );

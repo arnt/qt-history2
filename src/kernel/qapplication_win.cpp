@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#329 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#330 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -351,7 +351,7 @@ static void qt_set_windows_resources()
 
     QApplication::setFont( menuFont, TRUE, "QPopupMenu");
     QApplication::setFont( menuFont, TRUE, "QMenuBar");
-    QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
+    QApplication::setFont( messageFont, TRUE, "QMessageBox");
     QApplication::setFont( statusFont, TRUE, "QTipLabel");
     QApplication::setFont( statusFont, TRUE, "QStatusBar");
 

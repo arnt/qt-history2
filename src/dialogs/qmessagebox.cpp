@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#105 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#106 $
 **
 ** Implementation of QMessageBox class
 **
@@ -405,20 +405,6 @@ static const char *mb_texts[] = {
 };
 
 
-// Internal class - don't touch
-
-class QMessageBoxLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    QMessageBoxLabel(QWidget *parent=0, const char *name=0)
-	: QLabel( parent, name )
-	{
-	}
-
-};
-
-
 /*!
   Constructs a message box with no text and a button with the text "OK".
 
@@ -516,13 +502,13 @@ QMessageBox::~QMessageBox()
 
 void QMessageBox::init( int button0, int button1, int button2 )
 {
-    label = new QMessageBoxLabel( this, "text" );
+    label = new QLabel( this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignLeft );
 
     if ( (button2 && !button1) || (button1 && !button0) ) {
 #if defined(CHECK_RANGE)
-	::warning( "QMessageBox: Inconsistent button parameters" );
+	qWarning( "QMessageBox: Inconsistent button parameters" );
 #endif
 	button0 = button1 = button2 = 0;
     }
@@ -540,7 +526,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	if ( (b & Default) ) {
 	    if ( mbd->defButton >= 0 ) {
 #if defined(CHECK_RANGE)
-		::warning( "QMessageBox: There can be at most one "
+		qWarning( "QMessageBox: There can be at most one "
 			   "default button" );
 #endif
 	    } else {
@@ -550,7 +536,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	if ( (b & Escape) ) {
 	    if ( mbd->escButton >= 0 ) {
 #if defined(CHECK_RANGE)
-		::warning( "QMessageBox: There can be at most one "
+		qWarning( "QMessageBox: There can be at most one "
 			   "escape button" );
 #endif
 	    } else {
@@ -563,13 +549,13 @@ void QMessageBox::init( int button0, int button1, int button2 )
 		b = Ok;
 	} else if ( b < 0 || b > LastButton ) {
 #if defined(CHECK_RANGE)
-	    ::warning( "QMessageBox: Invalid button specifier" );
+	    qWarning( "QMessageBox: Invalid button specifier" );
 #endif
 	    b = Ok;
 	} else {
 	    if ( i > 0 && mbd->button[i-1] == 0 ) {
 #if defined(CHECK_RANGE)
-		::warning( "QMessageBox: Inconsistent button parameters; "
+		qWarning( "QMessageBox: Inconsistent button parameters; "
 			   "button %d defined but not button %d",
 			   i+1, i );
 #endif
@@ -848,16 +834,16 @@ void QMessageBox::buttonClicked()
 
 void QMessageBox::adjustSize()
 {
-    int i;
+    if ( !testWState(WState_Polished) )
+	polish();
+    resizeButtons();
+    label->adjustSize();
     QSize smax = mbd->buttonSize;
     int border = smax.height()/2;
     if ( border == 0 )
 	border = 10;
     else if ( style() == MotifStyle )
 	border += 6;
-    for ( i=0; i<mbd->numButtons; i++ )
-	mbd->pb[i]->resize( smax );
-    label->adjustSize();
     int bw = mbd->numButtons * smax.width() + (mbd->numButtons-1)*border;
     int w = QMAX( bw, label->width() ) + 2*border;
     int h = smax.height();
@@ -1279,31 +1265,6 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 			.arg(QString::fromLatin1(QT_VERSION_STR))
     );
 }
-
-
-#include <qmetaobject.h>
-
-
-const char *QMessageBoxLabel::className() const
-{
-    return "QMessageBoxLabel";
-}
-
-QMetaObject *QMessageBoxLabel::metaObj = 0;
-
-void QMessageBoxLabel::initMetaObject()
-{
-    if ( metaObj )
-	return;
-    if ( strcmp(QLabel::className(), "QLabel") != 0 )
-	badSuperclassWarning("QMessageBoxLabel","QLabel");
-    if ( !QLabel::metaObject() )
-	QLabel::initMetaObject();
-    metaObj = new QMetaObject( "QMessageBoxLabel", "QLabel",
-	0, 0,
-	0, 0 );
-}
-
 
 /*!
   \reimp
