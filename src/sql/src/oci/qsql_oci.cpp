@@ -170,7 +170,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 {
     OraFieldInfo ofi;
     ub4		colType(0);
-    text        *colName(0);
+    text        *colName = 0;
     ub4         colNameLen(0);
     sb1	colScale(0);
     ub4         colLength(0);
@@ -338,7 +338,7 @@ public:
 				    0, 0, OCI_DEFAULT);
 		break;
 	    }
-	    def[count-1] = dfn;
+	    def[(int)(count-1)] = dfn;
 	    count++;
 	    parmStatus = OCIParamGet( d->sql,
 				      OCI_HTYPE_STMT,
