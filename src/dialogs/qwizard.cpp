@@ -101,14 +101,13 @@ class QWizardPrivate
 public:
     struct Page {
 	Page( QWidget * widget, const QString & title ):
-	    w( widget ), t( title ), back( 0 ),
+	    w( widget ), t( title ),
 	    backEnabled( TRUE ), nextEnabled( TRUE ), finishEnabled( FALSE ),
 	    helpEnabled( TRUE ),
 	    appropriate( TRUE )
 	{}
 	QWidget * w;
 	QString t;
-	QWidget * back;
 	bool backEnabled;
 	bool nextEnabled;
 	bool finishEnabled;
@@ -307,7 +306,18 @@ void QWizard::showPage( QWidget * page )
 {
     QWizardPrivate::Page * p = d->page( page );
     if ( p ) {
-	setBackEnabled( p->back != 0 );
+	int i;
+	for( i = 0; i < (int)d->pages.count() && d->pages.at( i ) != p; i++ );
+	bool notFirst( false );
+
+	if( i ) {
+	    i--;
+	    while( ( i >= 0 ) && !notFirst ) {
+		notFirst |= appropriate( d->pages.at( i )->w );
+		i--;
+	    }
+	}
+	setBackEnabled( notFirst );
 	setNextEnabled( TRUE );
 	d->ws->raiseWidget( page );
 	d->current = p;
@@ -380,10 +390,8 @@ void QWizard::next()
     // if we fell of the end of the world, step back
     while ( i > 0 && (i >= (int)d->pages.count() || !d->pages.at( i ) ) )
 	i--;
-    if ( d->pages.at( i ) ) {
-	d->pages.at( i )->back = d->current ? d->current->w : 0;
+    if ( d->pages.at( i ) )
 	showPage( d->pages.at( i )->w );
-    }
 }
 
 
@@ -544,7 +552,17 @@ void QWizard::updateButtons()
     if ( !d->current )
 	return;
 
-    setBackEnabled( d->current->backEnabled && d->current->back != 0 );
+    int i;
+    for( i = 0; i < (int)d->pages.count() && d->pages.at( i ) != d->current; i++ );
+    bool notFirst( false );
+    if( i ) {
+	i--;
+	while( ( i >= 0 ) && !notFirst ) {
+	    notFirst |= appropriate( d->pages.at( i )->w );
+	    i--;
+	}
+    }
+    setBackEnabled( notFirst );
     setNextEnabled( d->current->nextEnabled );
     d->finishButton->setEnabled( d->current->finishEnabled );
     d->helpButton->setEnabled( d->current->helpEnabled );
