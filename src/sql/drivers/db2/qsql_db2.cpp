@@ -105,22 +105,12 @@ static QString qDB2Warn( const QDB2ResultPrivate* d )
 
 static void qSqlWarning( const QString& message, const QDB2DriverPrivate* d )
 {
-#ifdef QT_CHECK_RANGE
     qWarning( message + "\tError:" + qDB2Warn( d ) );
-#else
-    Q_UNUSED( message );
-    Q_UNUSED( d );
-#endif
 }
 
 static void qSqlWarning( const QString& message, const QDB2ResultPrivate* d )
 {
-#ifdef QT_CHECK_RANGE
     qWarning( message + "\tError:" + qDB2Warn( d ) );
-#else
-    Q_UNUSED( message );
-    Q_UNUSED( d );
-#endif
 }
 
 static QSqlError qMakeError( const QString& err, int type, const QDB2DriverPrivate* p )
@@ -316,9 +306,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& i
 	} else if ( r == SQL_NO_DATA ) {
 	    break;
 	} else {
-#ifdef QT_CHECK_RANGE
 	    qWarning( "qGetStringData: Error while fetching data (%d)", r );
-#endif
 	    fieldVal = QString::null;
 	    break;
 	}
@@ -347,10 +335,8 @@ static QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengt
 			&colSize,
 			&colScale,
 			&nullable );
-#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qWarning( QString( "qGetBinaryData: Unable to describe column %1" ).arg( column ) );
-#endif
     // SQLDescribeCol may return 0 if size cannot be determined
     if ( !colSize )
 	colSize = 255;
@@ -716,9 +702,7 @@ bool QDB2Result::exec()
 		break; }
 	}
 	if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
 	    qWarning( "QDB2Result::exec: unable to bind variable: " + qDB2Warn( d ) );
-#endif
 	    setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
 	    return FALSE;
 	}
@@ -726,9 +710,7 @@ bool QDB2Result::exec()
 
     r = SQLExecute( d->hStmt );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-#ifdef QT_CHECK_RANGE
 	qWarning( "QDB2Result::exec: Unable to execute statement: " + qDB2Warn( d ) );
-#endif
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
@@ -1108,11 +1090,9 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 		v = val.toUInt();
 		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0 );
 	    }
-#ifdef QT_CHECK_RANGE
 	    else {
 		  qWarning( "QDB2Driver::open: Unknown connection attribute '%s'", it.key().latin1() );
 	    }
-#endif		
 	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 		qSqlWarning( QString("QDB2Driver::open: Unable to set connection attribute '%1'").arg( opt ), d );
 		return FALSE;
@@ -1398,9 +1378,7 @@ bool QDB2Driver::hasFeature( DriverFeature f ) const
 bool QDB2Driver::beginTransaction()
 {
     if ( !isOpen() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning(" QDB2Driver::beginTransaction: Database not open" );
-#endif
 	return FALSE;
     }
     return setAutoCommit( FALSE );
@@ -1409,9 +1387,7 @@ bool QDB2Driver::beginTransaction()
 bool QDB2Driver::commitTransaction()
 {
     if ( !isOpen() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning(" QDB2Driver::commitTransaction: Database not open" );
-#endif
 	return FALSE;
     }
     SQLRETURN r = SQLEndTran( SQL_HANDLE_DBC,
@@ -1427,9 +1403,7 @@ bool QDB2Driver::commitTransaction()
 bool QDB2Driver::rollbackTransaction()
 {
     if ( !isOpen() ) {
-#ifdef QT_CHECK_RANGE
 	qWarning(" QDB2Driver::rollbackTransaction: Database not open" );
-#endif
 	return FALSE;
     }
     SQLRETURN r = SQLEndTran( SQL_HANDLE_DBC,
