@@ -1349,6 +1349,7 @@ QGfx * QWidget::graphicsContext() const
 	r = paintableRegion();
 	int rgnIdx = topLevelWidget()->alloc_region_index;
 	if ( rgnIdx >= 0 ) {
+	    QWSDisplay::grab();
 	    int *rgnRev = qwsDisplay()->regionManager()->revision( rgnIdx );
 	    if ( topLevelWidget()->alloc_region_revision != *rgnRev ) {
 		// The TL region has changed, so we better make sure we're
@@ -1358,6 +1359,7 @@ QGfx * QWidget::graphicsContext() const
 		r &= qwsDisplay()->regionManager()->region( rgnIdx );
 	    }
 	    qgfx_qws->setGlobalRegionIndex( rgnIdx );
+	    QWSDisplay::ungrab();
 	} else {
 	    r = QRegion();
 	}
