@@ -238,9 +238,11 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
 
     // some other thread woke us up... consume the data on the thread pipe so that
     // select doesn't immediately return next time
+    int nevents = 0;
     if (nsel > 0 && FD_ISSET(thread_pipe[0], &sn_vec[0].select_fds)) {
         char c;
         ::read(thread_pipe[0], &c, 1);
+        ++nevents;
     }
 
     // activate socket notifiers
@@ -256,7 +258,7 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
             }
         }
     }
-    return q->activateSocketNotifiers();
+    return (nevents + q->activateSocketNotifiers());
 }
 
 /*
@@ -583,15 +585,6 @@ void QEventDispatcherUNIX::setSocketNotifierPending(QSocketNotifier *notifier)
     }
 }
 
-int QEventDispatcherUNIX::timeToWait()
-{
-    timeval tm;
-    Q_D(QEventDispatcherUNIX);
-    if (!d->timerWait(tm))
-        return -1; // no active timers
-    return (tm.tv_sec * 1000l) + (tm.tv_usec / 1000l);
-}
-
 int QEventDispatcherUNIX::activateTimers()
 {
     Q_ASSERT(thread() == QThread::currentThread());
@@ -674,10 +667,12 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherUNIX);
 
-    int nevents = 0;
+    // we are awake, broadcast it
+    emit awake();
 
     QCoreApplication::sendPostedEvents();
 
+    int nevents = 0;
     QThreadData *data = QThreadData::current();
     const bool canWait = (data->postEventList.size() == 0
                           && !d->interrupt
@@ -686,43 +681,34 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
     if (canWait)
         emit aboutToBlock();
 
-    if (d->interrupt) {
-        d->interrupt = false;
-        return false;
-    }
+    if (!d->interrupt) {
+        // return the maximum time we can wait for an event.
+        timeval *tm = 0;
+        timeval wait_tm = { 0l, 0l };
+        if (!(flags & 0x08)) {                        // 0x08 == ExcludeTimers for X11 only
+            if (d->timerWait(wait_tm))
+                tm = &wait_tm;
 
-    // return the maximum time we can wait for an event.
-    timeval *tm = 0;
-    timeval wait_tm = { 0l, 0l };
-    if (!(flags & 0x08)) {                        // 0x08 == ExcludeTimers for X11 only
-        if (d->timerWait(wait_tm))
-            tm = &wait_tm;
+            if (!canWait) {
+                if (!tm)
+                    tm = &wait_tm;
 
-        if (!canWait) {
-            if (!tm) tm = &wait_tm;
-
-            // no time to wait
-            tm->tv_sec  = 0l;
-            tm->tv_usec = 0l;
+                // no time to wait
+                tm->tv_sec  = 0l;
+                tm->tv_usec = 0l;
+            }
         }
-    }
 
-    nevents += d->doSelect(flags, tm);
+        nevents = d->doSelect(flags, tm);
 
-    if (d->interrupt) {
+        // activate timers
+        if (! (flags & 0x08)) {
+            // 0x08 == ExcludeTimers for X11 only
+            nevents += activateTimers();
+        }
+    } else {
         d->interrupt = false;
-        return false;
     }
-
-    // we are awake, broadcast it
-    emit awake();
-
-    // activate timers
-    if (! (flags & 0x08)) {
-        // 0x08 == ExcludeTimers for X11 only
-        nevents += activateTimers();
-    }
-
     // return true if we handled events, false otherwise
     return (nevents > 0);
 }
