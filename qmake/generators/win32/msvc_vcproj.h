@@ -60,6 +60,7 @@ public:
     ~VcprojGenerator();
 
     QString defaultMakefile() const;
+    virtual bool doDepends() const { return FALSE; } //never necesary
 
 protected:
     virtual bool openOutput(QFile &file) const;
