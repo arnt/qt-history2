@@ -839,6 +839,7 @@ unsigned long NETRootInfo::event(XEvent *e) {
 	XEvent pe = *e;
 
 	Bool done = False;
+	Bool compaction = False;
 	while (! done) {
 	    if (pe.xproperty.atom == net_client_list)
 		dirty |= ClientList;
@@ -861,13 +862,15 @@ unsigned long NETRootInfo::event(XEvent *e) {
 	    else if (pe.xproperty.atom == net_active_window)
 		dirty |= ActiveWindow;
 	    else {
-		XPutBackEvent(p->display, &pe);
-		done = True;
+		if ( compaction )
+		    XPutBackEvent(p->display, &pe);
 		break;
 	    }
 
-	    if (! XCheckTypedWindowEvent(p->display, p->root, PropertyNotify, &pe))
-		done = True;
+	    if (XCheckTypedWindowEvent(p->display, p->root, PropertyNotify, &pe) )
+		compaction = True;
+	    else
+		break;
 	}
 
 	update(dirty & p->protocols);
@@ -1459,6 +1462,7 @@ unsigned long NETWinInfo::event(XEvent *e) {
 	XEvent pe = *e;
 
 	Bool done = False;
+	Bool compaction = False;
 	while (! done) {
 	    if (pe.xproperty.atom == net_wm_name)
 		dirty |= WMName;
@@ -1479,14 +1483,15 @@ unsigned long NETWinInfo::event(XEvent *e) {
 	    else if (pe.xproperty.atom == net_wm_desktop)
 		dirty |= WMDesktop;
 	    else {
-		XPutBackEvent(p->display, &pe);
-		done = True;
+		if ( compaction )
+		    XPutBackEvent(p->display, &pe);
 		break;
 	    }
 
-	    if (! XCheckTypedWindowEvent(p->display, p->window,
-					 PropertyNotify, &pe))
-		done = True;
+	    if (XCheckTypedWindowEvent(p->display, p->window, PropertyNotify, &pe) )
+		compaction = True;
+	    else
+		break;
 	}
 
 	update(dirty);
