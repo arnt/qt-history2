@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#82 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#82 $");
 
 
 /*!
@@ -309,9 +309,9 @@ void QPushButton::drawButton( QPainter *paint )
     register QPainter *p = paint;
     GUIStyle	gs = style();
     QColorGroup g  = colorGroup();
-    bool	updated = isDown() != (bool)lastDown
-			  || lastDef != defButton
-			  || isEnabled() != (bool)lastEnabled;
+    bool	updated = isDown() != (bool)lastDown ||
+			  lastDef != defButton ||
+			  isEnabled() != (bool)lastEnabled;
     QColor	fillcol = g.background();
     int		x1, y1, x2, y2;
 
@@ -374,18 +374,6 @@ void QPushButton::drawButton( QPainter *paint )
 	    } else {
 		qDrawWinButton( p, x1, y1, w, h, g, TRUE );
 	    }
-	} else if ( isToggleButton() && isOn() && isEnabled() ) {
-	    if ( defButton ) {
-		p->setPen( black );
-		p->drawRect( x1, y1, w, h );
-		x1++; y1++;
-		x2--; y2--;
-	    }
-	    qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
-	    p->setPen( NoPen );
-	    p->setBrush( QBrush( white, Dense4Pattern ) );
-	    p->drawRect( x1+2, y1+2, x2-x1-3, y2-y1-3 );
-	    updated = FALSE;
 	} else {
 	    if ( defButton ) {
 		p->setPen( black );
@@ -393,11 +381,16 @@ void QPushButton::drawButton( QPainter *paint )
 		x1++; y1++;
 		x2--; y2--;
 	    }
-	    qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() );
+	    if ( isToggleButton() && isOn() && isEnabled() ) {
+		QBrush fill(white, Dense4Pattern );
+		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
+		updated = FALSE;
+	    } else {
+		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() );
+	    }
 	}
-	if ( updated ) {
+	if ( updated )
 	    p->fillRect( x1+1, y1+1, x2-x1-2, y2-y1-2, g.background() );
-	}
     } else if ( gs == MotifStyle ) {		// Motif push button
 	if ( defButton ) {			// default Motif button
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
@@ -411,12 +404,9 @@ void QPushButton::drawButton( QPainter *paint )
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
 			     updated ? &fill : 0 );
 	} else if ( isToggleButton() && isOn() ) {
-	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2, 0 );
-	    if ( updated ) {
-		p->setPen( NoPen );
-		p->setBrush( g.mid() );
-		p->drawRect( x1+2, y1+2, x2-x1-3, y2-y1-3 );
-	    }
+	    QBrush fill( g.mid() );
+	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
+			     updated ? &fill : 0 );
 	} else {
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE, 2,
 			     updated ? &fill : 0 );
@@ -474,32 +464,24 @@ void QPushButton::drawButtonLabel( QPainter *paint )
     x += 2;  y += 2;  w -= 4;  h -= 4;
     p->setPen( g.text() );
     if ( pixmap() ) {
-	const QPixmap *pm = pixmap();
-	x += w/2 - pm->width()/2;		// center
-	y += h/2 - pm->height()/2;
-	if ( pm->width() > w || pm->height() > h )
+	QPixmap pm( *pixmap() );
+	if ( pm.width() > w || pm.height() > h )
 	    p->setClipRect( x, y, w, h );
-	p->setBackgroundColor( g.background() );
-	p->setBackgroundMode( TransparentMode );
+	x += w/2 - pm.width()/2;		// center
+	y += h/2 - pm.height()/2;
 	if ( gs == WindowsStyle && !isEnabled() ) {
-	    if ( !pm->isQBitmap() ) {
-		if ( pm->mask() == 0 ) {
-		    // detach and build a goodish mask -- slow!
-		    QPixmap masked = *pm;
-		    masked.detach();
-		    masked.setMask( masked.isQBitmap() ?
-				    *((QBitmap*)(&masked)) :
-				    masked.reasonableMask() );
-		    setPixmap( masked );
-		}
-		pm = pm->mask();
+	    if ( pm.depth() != 1 ) {
+		if ( pm.mask() )
+		    pm = *pm.mask();
+		else
+		    pm = pm.reasonableMask();
+		pm.setMask( *((QBitmap *)&pm) );
 	    }
-	    p->setBackgroundMode( TransparentMode );
 	    p->setPen( white );
-	    p->drawPixmap( x+1, y+1, *pm );
+	    p->drawPixmap( x+1, y+1, pm );
 	    p->setPen( g.foreground() );
 	}
-	p->drawPixmap( x, y, *pm );
+	p->drawPixmap( x, y, pm );
 	p->setClipping( FALSE );
     } else if ( text() ) {
 	if ( gs == WindowsStyle && !isEnabled() ) {
