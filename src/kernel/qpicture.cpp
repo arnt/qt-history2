@@ -508,7 +508,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
   Records painter commands and stores them in the pictb buffer.
 */
 
-bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
+bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 {
     QDataStream s;
     s.setDevice( &pictb );
@@ -553,33 +553,52 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
     s << (Q_UINT8)c;				// write cmd to stream
     s << (Q_UINT8)0;				// write dummy length info
     int pos = (int)pictb.at();			// save position
+    QRect br;					// bounding rect addition
+    bool corr = false;				// correction for pen width
+
     switch ( c ) {
 	case PdcDrawPoint:
 	case PdcMoveTo:
 	case PdcLineTo:
 	case PdcSetBrushOrigin:
 	    s << *p[0].point;
+	    br = QRect( *p[0].point, QSize( 1, 1 ) );
+	    corr = TRUE;
 	    break;
 	case PdcDrawLine:
 	    s << *p[0].point << *p[1].point;
+	    br = QRect( *p[0].point, *p[1].point ).normalize();
+	    corr = TRUE;
 	    break;
 	case PdcDrawRect:
 	case PdcDrawEllipse:
 	    s << *p[0].rect;
+	    br = *p[0].rect;
+	    corr = TRUE;
 	    break;
 	case PdcDrawRoundRect:
 	case PdcDrawArc:
 	case PdcDrawPie:
 	case PdcDrawChord:
 	    s << *p[0].rect << (Q_INT16)p[1].ival << (Q_INT16)p[2].ival;
+	    br = *p[0].rect;
+	    corr = TRUE;
 	    break;
 	case PdcDrawLineSegments:
 	case PdcDrawPolyline:
+	    s << *p[0].ptarr;
+	    br = p[0].ptarr->boundingRect();
+	    corr = TRUE;
+	    break;
 	case PdcDrawQuadBezier:
 	    s << *p[0].ptarr;
+	    br = p[0].ptarr->quadBezier().boundingRect(); // ### expensive
+	    corr = TRUE;
 	    break;
 	case PdcDrawPolygon:
 	    s << *p[0].ptarr << (Q_INT8)p[1].ival;
+	    br = p[0].ptarr->boundingRect();
+	    corr = TRUE;
 	    break;
 	case PdcDrawText2:
 	    if ( formatMajor == 1 ) {
@@ -591,6 +610,8 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    else {
 		s << *p[0].point << *p[1].str;
 	    }
+	    br = pt->fontMetrics().boundingRect( *p[1].str );
+	    br.moveBy( p[0].point->x(), p[0].point->y() );
 	    break;
 	case PdcDrawText2Formatted:
 	    if ( formatMajor == 1 ) {
@@ -602,14 +623,17 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    else {
 		s << *p[0].rect << (Q_INT16)p[1].ival << *p[2].str;
 	    }
+	    br = *p[0].rect;
 	    break;
 	case PdcDrawPixmap:
 	    s << *p[0].point;
 	    s << *p[1].pixmap;
+	    br = QRect( *p[0].point, p[1].pixmap->size() );
 	    break;
 	case PdcDrawImage:
 	    s << *p[0].point;
 	    s << *p[1].image;
+	    br = QRect( *p[0].point, p[1].image->size() );
 	    break;
 	case PdcSave:
 	case PdcRestore:
@@ -679,6 +703,17 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	newpos += 4;
     }
     pictb.at( newpos );				// set to new position
+
+    if ( br.isValid() ) {
+	if ( corr ) {				// widen bounding rect
+	    int w2 = pt->pen().width() / 2;
+	    br.setCoords( br.left() - w2, br.top() - w2,
+			  br.right() + w2, br.bottom() + w2 );
+	}
+	br = pt->worldMatrix().map( br );
+	brect |= br;				// merge with existing rect
+    }
+
     return TRUE;
 }
 
