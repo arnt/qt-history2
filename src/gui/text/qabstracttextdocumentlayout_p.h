@@ -17,8 +17,6 @@ public:
     Q_DECLARE_PUBLIC(QAbstractTextDocumentLayout);
 
     HandlerHash handlers;
-
-    QSize pageSize;
 };
 
 

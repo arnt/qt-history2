@@ -42,7 +42,7 @@ class QTextBlock : public QFragment
 {
 public:
     inline void initialize()
-    { layout = 0; layoutDirty = true; textDirty = true; rect = QRect(); }
+    { layout = 0; layoutDirty = true; textDirty = true; }
     inline void invalidate() const
     { layoutDirty = true; textDirty = true; }
     inline void free()
@@ -52,7 +52,6 @@ public:
     mutable QTextLayout *layout;
     mutable bool layoutDirty;
     mutable bool textDirty;
-    mutable QRect rect;
     mutable int format;
 };
 

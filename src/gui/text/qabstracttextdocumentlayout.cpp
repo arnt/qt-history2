@@ -30,6 +30,10 @@ QAbstractTextDocumentLayout::QAbstractTextDocumentLayout()
 {
 }
 
+QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &p)
+    :QObject(p, 0)
+{
+}
 
 void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *component)
 {
@@ -84,17 +88,6 @@ void QAbstractTextDocumentLayout::invalidate(const QRect & /* r */)
 void QAbstractTextDocumentLayout::invalidate(const QRegion & /* r */)
 {
 }
-
-void QAbstractTextDocumentLayout::setPageSize(const QSize &size)
-{
-    d->pageSize = size;
-}
-
-QSize QAbstractTextDocumentLayout::pageSize() const
-{
-    return d->pageSize;
-}
-
 
 QTextBlockIterator QAbstractTextDocumentLayout::findBlock(int pos) const
 {

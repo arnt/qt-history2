@@ -42,10 +42,12 @@ public:
     virtual void layoutObject(QTextObject item, const QTextFormat &format);
     virtual void drawObject(QPainter *p, const QPoint &position, QTextObject item, const QTextFormat &format, QTextLayout::SelectionType selType);
 
-    virtual void setPageSize(const QSize &size);
-    virtual QSize pageSize() const;
+    virtual void setPageSize(const QSize &size) = 0;
+    virtual QSize pageSize() const = 0;
 
 protected:
+    QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &);
+
     void invalidate(const QRect &r);
     void invalidate(const QRegion &r);
 

@@ -419,6 +419,7 @@ public:
     int num_glyphs;
     mutable int used;
     Q26Dot6 minWidth;
+    QRect boundingRect;
 
     int cursorPos;
     const QTextLayout::Selection *selections;

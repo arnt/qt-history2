@@ -219,6 +219,9 @@ bool QTextLayout::validCursorPosition(int pos) const
 
 QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 {
+    // invalidate bounding rect
+    d->boundingRect = QRect();
+
     QScriptLine line;
     line.x = x1;
     line.width = x2-x1;
@@ -372,25 +375,23 @@ QTextLine QTextLayout::findLine(int pos) const
     return QTextLine();
 }
 
-
 QRect QTextLayout::boundingRect() const
 {
-    Q26Dot6 xmin, xmax, ymin, ymax;
-    for (int i = 0; i < d->lines.size(); ++i) {
-        const QScriptLine &si = d->lines[i];
-        xmin = qMin(xmin, si.x);
-        ymin = qMin(ymin, si.y);
-        xmax = qMax(xmax, si.x+si.width);
-        // ### shouldn't the ascent be used in ymin???
-        ymax = qMax(ymax, si.y+si.ascent+si.descent);
+    if (!d->boundingRect.isValid()) {
+        Q26Dot6 xmin, xmax, ymin, ymax;
+        if (!d->lines.size())
+            qDebug("trying to determin bounding rect without lines");
+        for (int i = 0; i < d->lines.size(); ++i) {
+            const QScriptLine &si = d->lines[i];
+            xmin = qMin(xmin, si.x);
+            ymin = qMin(ymin, si.y);
+            xmax = qMax(xmax, si.x+si.width);
+            // ### shouldn't the ascent be used in ymin???
+            ymax = qMax(ymax, si.y+si.ascent+si.descent);
+        }
+        d->boundingRect = QRect(xmin.toInt(), ymin.toInt(), (xmax-xmin).toInt(), (ymax-ymin).toInt());
     }
-    return QRect(xmin.toInt(), ymin.toInt(), (xmax-xmin).toInt(), (ymax-ymin).toInt());
-}
-
-QRegion QTextLayout::region() const
-{
-    // ####
-    return QRegion();
+    return d->boundingRect;
 }
 
 int QTextLayout::minimumWidth() const

@@ -41,7 +41,6 @@ QTextLayout *QTextBlockIterator::layout() const
     if (b->textDirty) {
         QString text = blockText();
         b->layout->setText(text);
-        b->textDirty = false;
 
         // ######### looks wrong if a fragment spans a block boundary!
         if (!text.isEmpty()) {
@@ -70,6 +69,7 @@ QTextLayout *QTextBlockIterator::layout() const
             Q_ASSERT(lastFormatIdx != -1);
             b->layout->setFormat(lastTextPosition, textLength, lastFormatIdx);
         }
+        b->textDirty = false;
     }
     return b->layout;
 }

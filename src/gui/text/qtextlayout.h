@@ -146,9 +146,7 @@ public:
     }
     void draw(QPainter *p, const QPoint &pos, int cursorPos = NoCursor, const Selection *selections = 0, int nSelections = 0, const QRect &cr = QRect()) const;
 
-
     QRect boundingRect() const;
-    QRegion region() const;
 
     QTextEngine *engine() const { return d; }
 
