@@ -183,7 +183,8 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    }
 	    call += value + " );";
 
-	    if ( n.firstChild().toElement().tagName() == "string" ) {
+	    if ( n.firstChild().toElement().tagName() == "string" ||
+		 prop == "currentItem" ) {
 		trout << indent << call << endl;
 	    } else {
 		out << indent << call << endl;
