@@ -27,6 +27,7 @@
 #include <qsettings.h>
 #include <qdir.h>
 #include <qmessagebox.h>
+#include <qguardedptr.h>
 #include <stdlib.h>
 #include <iostream.h>
 
@@ -309,7 +310,7 @@ int main( int argc, char ** argv )
     delete config;
     config = 0;
 
-    MainWindow *mw = new MainWindow( 0, "Assistant", Qt::WDestructiveClose );
+    QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant", Qt::WDestructiveClose );
 
     if ( server ) {
 	as = new AssistantServer();
@@ -326,14 +327,17 @@ int main( int argc, char ** argv )
 
     qApp->processEvents();
 
+    if ( !mw )
+	exit( 0 );
+
     if ( !server ) {
 	if ( !file.isEmpty() )
 	    mw->showLink( file );
 	else if ( file.isEmpty() )
 	    mw->showLink( link );
     }
-    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
 
+    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     return a.exec();
 }
 

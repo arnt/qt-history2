@@ -22,6 +22,7 @@
 #include <qdir.h>
 #include <qstringlist.h>
 #include <qasciidict.h>
+#include <qapplication.h>
 
 #include <ctype.h>
 
@@ -54,6 +55,9 @@ Index::Index( const QString &dp, const QString &hp )
     : QObject( 0, 0 ), dict( 8999 ), docPath( dp ), homePath( hp )
 {
     alreadyHaveDocList = FALSE;
+    lastWindowClosed = FALSE;
+    connect( qApp, SIGNAL( lastWindowClosed() ),
+	     this, SLOT( setLastWinClosed() ) );
 }
 
 Index::Index( const QStringList &dl, const QString &hp )
@@ -61,6 +65,14 @@ Index::Index( const QStringList &dl, const QString &hp )
 {
     docList = dl;
     alreadyHaveDocList = TRUE;
+    lastWindowClosed = FALSE;
+    connect( qApp, SIGNAL( lastWindowClosed() ),
+	     this, SLOT( setLastWinClosed() ) );
+}
+
+void Index::setLastWinClosed()
+{
+    lastWindowClosed = TRUE;
 }
 
 void Index::setDictionaryFile( const QString &f )
@@ -73,24 +85,28 @@ void Index::setDocListFile( const QString &f )
     docListFile = f;
 }
 
-void Index::makeIndex()
+int Index::makeIndex()
 {
     if ( !alreadyHaveDocList )
 	setupDocumentList();
     if ( docList.isEmpty() )
-	return;
+	return 1;
     QStringList::Iterator it = docList.begin();
     int steps = docList.count() / 100;
     if ( !steps )
 	steps++;
     int prog = 0;
     for ( int i = 0; it != docList.end(); ++it, ++i ) {
+	if ( lastWindowClosed ) {
+	    return -1;
+	}
 	parseDocument( *it, i );
 	if ( i%steps == 0 ) {
 	    prog++;
 	    emit indexingProgress( prog );
 	}
     }
+    return 0;
 }
 
 void Index::setupDocumentList()

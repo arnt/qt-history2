@@ -930,7 +930,8 @@ void HelpDialog::setupFullTextIndex()
 	progressPrepare->show();
 	framePrepare->show();
 	qApp->processEvents();
-	fullTextIndex->makeIndex();
+	if ( fullTextIndex->makeIndex() == -1 )
+	    return;
 	fullTextIndex->writeDict();
 	progressPrepare->setProgress( 100 );
 	framePrepare->hide();

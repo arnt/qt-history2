@@ -66,7 +66,7 @@ public:
     Index( const QStringList &dl, const QString &hp );
     void writeDict();
     void readDict();
-    void makeIndex();
+    int makeIndex();
     QStringList query( const QStringList&, const QStringList&, const QStringList& );
     QString getDocumentTitle( const QString& );
     void setDictionaryFile( const QString& );
@@ -74,6 +74,9 @@ public:
 
 signals:
     void indexingProgress( int );
+
+private slots:
+    void setLastWinClosed();
 
 private:
     void setupDocumentList();
@@ -93,6 +96,7 @@ private:
     QString docPath, homePath;
     QString dictFile, docListFile;
     bool alreadyHaveDocList;
+    bool lastWindowClosed;
 };
 
 struct Term {
