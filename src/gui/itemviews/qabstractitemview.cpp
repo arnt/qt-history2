@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qabstractitemview.h"
-#include <qitemdelegate.h>
 #include <qpointer.h>
 #include <qapplication.h>
 #include <qpainter.h>
@@ -26,6 +25,7 @@
 #include <qwhatsthis.h>
 #include <qtooltip.h>
 #include <qrubberband.h>
+#include <qitemdelegate.h>
 #include <qdebug.h>
 
 #include <private/qabstractitemview_p.h>
@@ -74,6 +74,7 @@ void QAbstractItemViewPrivate::init()
 {
     viewport->installEventFilter(q);
 
+    q->setItemDelegate(new QItemDelegate(q));
     q->setModel(new QDefaultModel(q));
 
     q->verticalScrollBar()->setRange(0, 0);
@@ -426,25 +427,45 @@ QAbstractItemView::~QAbstractItemView()
 void QAbstractItemView::setModel(QAbstractItemModel *model)
 {
     if (d->model) {
-        QObject::disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                            this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-        QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                            this, SLOT(rowsInserted(QModelIndex,int,int)));
-        QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                            this, SLOT(rowsRemoved(QModelIndex,int,int)));
-        QObject::disconnect(d->model, SIGNAL(reset()), this, SLOT(reset()));
+        // view
+        disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                   this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+        disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                   this, SLOT(rowsInserted(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                   this, SLOT(rowsRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(reset()), this, SLOT(reset()));
+        // delegate
+        if (d->delegate) {
+            disconnect(d->delegate, SIGNAL(editingAccepted()), d->model, SLOT(submit()));
+            disconnect(d->delegate, SIGNAL(editingAborted()), d->model, SLOT(revert()));
+        }
+        // selections
+        if (d->selectionModel)
+            disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+                       d->model, SLOT(submit()));
     }
 
     d->model = model;
 
     if (d->model) {
-        QObject::connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                         this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-        QObject::connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                         this, SLOT(rowsInserted(QModelIndex,int,int)));
-        QObject::connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                         this, SLOT(rowsRemoved(QModelIndex,int,int)));
-        QObject::connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
+        // view
+        connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+        connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(rowsInserted(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                this, SLOT(rowsRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
+        // delegate
+        if (d->delegate) {
+            connect(d->delegate, SIGNAL(editingAccepted()), d->model, SLOT(submit()));
+            connect(d->delegate, SIGNAL(editingAborted()), d->model, SLOT(revert()));
+        }
+        // selections
+        if (d->selectionModel)
+            connect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+                    d->model, SLOT(submit()));
     }
 
     setRoot(QModelIndex::Null);// triggers layout
@@ -477,23 +498,33 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
     }
 
     if (d->selectionModel) {
+        // view
         disconnect(d->selectionModel, SIGNAL(destroyed(QObject*)),
                    this, SLOT(selectionModelDestroyed()));
         disconnect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                    this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                    this, SLOT(currentChanged(QModelIndex,QModelIndex)));
+        // model
+        if (d->model)
+            disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+                       d->model, SLOT(submit()));
     }
 
     d->selectionModel = selectionModel;
 
     if (d->selectionModel) {
+        // view
         connect(d->selectionModel, SIGNAL(destroyed(QObject*)),
                 this, SLOT(selectionModelDestroyed()));
         connect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                 this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                 this, SLOT(currentChanged(QModelIndex,QModelIndex)));
+        // model
+        if (d->model)
+            connect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+                    d->model, SLOT(submit()));
 
         bool block = d->selectionModel->blockSignals(true);
         if (!currentIndex().isValid())
@@ -526,17 +557,25 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     if (d->delegate) {
-        QObject::disconnect(d->delegate, SIGNAL(doneEditing(QWidget*)),
-                            this, SLOT(doneEditing(QWidget*)));
-        QObject::disconnect(d->delegate, SIGNAL(commitData(QWidget*)),
-                            this, SLOT(commitData(QWidget*)));
+        // view
+        disconnect(d->delegate, SIGNAL(doneEditing(QWidget*)), this, SLOT(doneEditing(QWidget*)));
+        disconnect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+        // model
+        if (d->model) {
+            disconnect(d->delegate, SIGNAL(editingAccepted(QWidget*)), d->model, SLOT(submit()));
+            disconnect(d->delegate, SIGNAL(editingAborted(QWidget*)), d->model, SLOT(revert()));
+        }
     }
     d->delegate = delegate;
     if (d->delegate) {
-        QObject::connect(delegate, SIGNAL(doneEditing(QWidget*)),
-                         this, SLOT(doneEditing(QWidget*)));
-        QObject::connect(d->delegate, SIGNAL(commitData(QWidget*)),
-                         this, SLOT(commitData(QWidget*)));
+        // view
+        connect(d->delegate, SIGNAL(doneEditing(QWidget*)), this, SLOT(doneEditing(QWidget*)));
+        connect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+        // model
+        if (d->model) {
+            connect(d->delegate, SIGNAL(editingAccepted(QWidget*)), d->model, SLOT(submit()));
+            connect(d->delegate, SIGNAL(editingAborted(QWidget*)), d->model, SLOT(revert()));
+        }
     }
 }
 
@@ -548,10 +587,6 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 */
 QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 {
-    if (!d->delegate) {
-        QAbstractItemView *that = const_cast<QAbstractItemView*>(this);
-        that->setItemDelegate(new QItemDelegate(that));
-    }
     return d->delegate;
 }
 
@@ -1127,6 +1162,9 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         case Qt::Key_PageDown:
             newCurrent = moveCursor(MovePageDown, e->modifiers());
             break;
+        case Qt::Key_Tab:
+            newCurrent = moveCursor(MoveRight, e->modifiers());
+            break;
         }
 
         if (newCurrent != current && newCurrent.isValid()) {
@@ -1155,6 +1193,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Qt::Key_End:
     case Qt::Key_PageUp:
     case Qt::Key_PageDown:
+    case Qt::Key_Tab:
     case Qt::Key_Escape:
     case Qt::Key_Shift:
     case Qt::Key_Control:

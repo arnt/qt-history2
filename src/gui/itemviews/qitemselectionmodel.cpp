@@ -603,7 +603,11 @@ void QItemSelectionModel::clear()
     emit selectionChanged(QItemSelection(), selection);
     QModelIndex previous = d->currentIndex;
     d->currentIndex = QPersistentModelIndex();
-    emit currentChanged(d->currentIndex, previous);
+    if (previous.isValid()) {
+        emit currentChanged(d->currentIndex, previous);
+        emit currentRowChanged(d->currentIndex, previous);
+        emit currentColumnChanged(d->currentIndex, previous);
+    }
 }
 
 /*!
@@ -639,6 +643,10 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFla
     if (command != NoUpdate)
         select(index, command); // select item
     emit currentChanged(index, previous);
+    if (d->currentIndex.row() != previous.row())
+        emit currentRowChanged(d->currentIndex, previous);
+    if (d->currentIndex.column() != previous.column())
+        emit currentColumnChanged(d->currentIndex, previous);
 }
 
 /*!

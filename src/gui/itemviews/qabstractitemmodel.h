@@ -215,6 +215,10 @@ signals:
     void columnsRemoved(const QModelIndex &parent, int first, int last);
     void reset();
 
+public slots:
+    virtual void submit();
+    virtual void revert();
+
 protected slots:
     void resetPersistentIndexes();
 

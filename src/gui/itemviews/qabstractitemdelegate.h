@@ -57,13 +57,15 @@ public:
                                       const QAbstractItemModel* model,
                                       const QModelIndex &index) const;
 
-    // events for non-widget editors
+    // for non-widget editors
     virtual bool editorEvent(QEvent *e, const QStyleOptionViewItem &option,
                              QAbstractItemModel* model, const QModelIndex &index);
 
 signals:
     void commitData(QWidget *editor);
     void doneEditing(QWidget *editor);
+    void editingAccepted();
+    void editingAborted();
 
 protected:
     QAbstractItemDelegate(QObjectPrivate &, QObject *parent = 0);

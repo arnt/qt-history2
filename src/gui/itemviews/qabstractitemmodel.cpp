@@ -1128,6 +1128,25 @@ QSize QAbstractItemModel::span(const QModelIndex &) const
 }
 
 /*!
+  Called to let the model know that it should submit whatever it has cached
+  to the permanent storage.
+*/
+
+void QAbstractItemModel::submit()
+{
+    // do nothing
+}
+
+/*!
+  Called to let the model know that it should discart whatever it has cached.
+*/
+
+void QAbstractItemModel::revert()
+{
+    // do nothing
+}
+
+/*!
   Returns the data for the given \a role and \a section in the header
   with the specified \a orientation.
 */

@@ -66,6 +66,9 @@ public:
 
     QSize span(const QModelIndex &index) const;
 
+    void submit();
+    void revert();
+
 protected:
     QProxyModel(QProxyModelPrivate &, QObject *parent = 0);
 };
