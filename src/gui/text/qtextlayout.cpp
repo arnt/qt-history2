@@ -1561,8 +1561,8 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
 
     int gl_before = 0;
     int gl_after = 0;
-    int it_before = 0;
-    int it_after = 0;
+    int it_before = firstItem;
+    int it_after = firstItem;
     float x_before = 0xffffff;
     float x_after = 0xffffff;
 
