@@ -608,8 +608,11 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    qApp->closePopup( this );
 
 #ifndef QT_NO_XFTFREETYPE
-	if (rendhd) {
-	    XftDrawDestroy( (XftDraw *) rendhd );
+	if ( rendhd) {
+	    if ( destroyWindow )
+		XftDrawDestroy( (XftDraw *) rendhd );
+	    else
+		::free( (void*) rendhd );
 	    rendhd = 0;
 	}
 #endif // QT_NO_XFTFREETYPE
