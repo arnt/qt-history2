@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#605 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#606 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2787,24 +2787,22 @@ QStringList QFileDialog::selectedFiles() const
     QStringList lst;
 
     if ( mode() == ExistingFiles ) {
-	QListViewItem * i = files->firstChild();
-	while( i ) {
-	    if ( i->isSelected() ) {
-		QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)i)->info.name() ) );
-		if ( u.isLocalFile() ) {
-		    QString s = u.toString();
-		    if ( s.left( 5 ) == "file:" )
-			s.remove( 0, 5 );
-		    lst << s;
-		} else {
-		    lst << u.toString();
-		}
+	QStringList selectedLst;
+	QString selectedFiles = nameEdit->text();
+	selectedFiles.truncate( selectedFiles.findRev( '\"' ) );
+	selectedLst = selectedLst.split( QString("\" "), selectedFiles );
+	for ( QStringList::Iterator it = selectedLst.begin(); it != selectedLst.end(); ++it ) {
+	    QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( (*it).mid(1) ) );
+	    if ( u.isLocalFile() ) {
+		QString s = u.toString();
+		if ( s.left( 5 ) == "file:" )
+		    s.remove( 0, 5 );
+		lst << s;
+	    } else {
+		lst << u.toString();
 	    }
-	    i = i->nextSibling();
 	}
-    } else {
-	lst << selectedFile();
-    }
+    }    
 
     return lst;
 }
@@ -3364,20 +3362,10 @@ void QFileDialog::okClicked()
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
-	QListViewItem * i = files->firstChild();
 	emit filesSelected( selectedFiles() );
-    while( i ) {
-	    if ( i->isSelected() ) {
-		accept();
-		return;
-	    }
-	    i = i->nextSibling();
-	}
-	for ( uint j = 0; j < d->moreFiles->count(); ++j ) {
-	    if ( d->moreFiles->isSelected( j ) ) {
-		accept();
-		return;
-	    }
+	if ( ! nameEdit->text().isEmpty() ) {
+	    accept();
+	    return;
 	}
     }
 
@@ -5149,21 +5137,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     QString result;
     QStringList lst;
     if ( dlg->exec() == QDialog::Accepted ) {
-	QListViewItem * i = dlg->files->firstChild();
-	while( i ) {
-	    if ( i->isSelected() ) {
-		QUrl u = QUrl( dlg->d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)i)->info.name() ) );
-		if ( u.isLocalFile() ) {
-		    QString s = u.toString();
-		    if ( s.left( 5 ) == "file:" )
-			s.remove( 0, 5 );
-		    lst << s;
-		} else {
-		    lst << u.toString();
-		}
-	    }
-	    i = i->nextSibling();
-	}
+	lst = dlg->selectedFiles();
 	*workingDirectory = dlg->d->url;
 	if ( selectedFilter )
 	    *selectedFilter = dlg->selectedFilter();
