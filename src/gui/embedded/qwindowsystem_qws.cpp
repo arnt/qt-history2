@@ -1259,7 +1259,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     event.simpleData.x_root=pos.x();
     event.simpleData.y_root=pos.y();
     event.simpleData.state=state | qws_keyModifiers;
-    event.simpleData.delta = wheel * 120; // WHEEL_DELTA?
+    event.simpleData.delta = wheel;
     event.simpleData.time=qwsServer->timer.elapsed();
 
     QWSClient *serverClient = qwsServer->clientMap[-1];

@@ -178,6 +178,7 @@ public:
                 wheel = packetsize > 3 ? (signed char)buffer[3] : 0;
                 if (wheel < -2 || wheel > 2)
                     wheel = 0;
+                wheel *= 120; // WHEEL_DELTA?
 #ifdef QWS_MOUSE_DEBUG
                 printf("Intellimouse: motion %d,%d, state %d, wheel %d\n", motion.x(), motion.y(), nbstate, wheel);
 #endif
