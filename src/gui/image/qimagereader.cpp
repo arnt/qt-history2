@@ -558,7 +558,7 @@ QImage QImageReader::read()
                 // likely a broken handler.
           } else {
                 if (d->scaledSize.isValid()) {
-                    image = image.scale(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                    image = image.scaled(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 }
                 if (d->scaledClipRect.isValid()) {
                     image = image.copy(d->scaledClipRect);
@@ -589,7 +589,7 @@ QImage QImageReader::read()
                 if (d->clipRect.isValid())
                     image = image.copy(d->clipRect);
                 if (d->scaledSize.isValid())
-                    image = image.scale(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                    image = image.scaled(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 if (d->scaledClipRect.isValid())
                     image = image.copy(d->scaledClipRect);
             }

@@ -1691,7 +1691,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::transform()
 */
 
-QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
+QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
     int           w = 0;
     int           h = 0;                                // size of target pixmap
@@ -1740,7 +1740,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     if (mode == Qt::SmoothTransformation) {
         QImage image = toImage();
-        return QPixmap::fromImage(image.transform(matrix, mode));
+        return QPixmap::fromImage(image.transformed(matrix, mode));
     }
 
 #if defined(QT_MITSHM)
@@ -1843,7 +1843,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
             if (data->selfmask)                // pixmap == mask
                 pm.setMask(*((QBitmap*)(&pm)));
             else
-                pm.setMask(data->mask->transform(matrix));
+                pm.setMask(data->mask->transformed(matrix));
         }
         return pm;
     } else {                                        // color pixmap
@@ -1867,7 +1867,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         XFreeGC(data->xinfo.display(), gc);
 
         if (data->mask) // xform mask, too
-            pm.setMask(data->mask->transform(matrix));
+            pm.setMask(data->mask->transformed(matrix));
 
         return pm;
     }

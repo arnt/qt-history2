@@ -249,7 +249,7 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
             pm = generated;
         }
         if (pm.size() != actualSize)
-            pm = pm.scale(actualSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            pm = pm.scaled(actualSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         if (pm.isDetached())
             QPixmapCache::insert(key + QString::number(mode), pm);
     }

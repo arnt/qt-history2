@@ -79,14 +79,14 @@ public:
     static inline QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-    inline QPixmap scale(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
-                        Qt::TransformationMode mode = Qt::FastTransformation) const
-        { return scale(QSize(w, h), aspectMode, mode); }
-    QPixmap scale(const QSize &s, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
-                 Qt::TransformationMode mode = Qt::FastTransformation) const;
-    QPixmap scaleWidth(int w) const;
-    QPixmap scaleHeight(int h) const;
-    QPixmap transform(const QMatrix &, Qt::TransformationMode mode = Qt::FastTransformation) const;
+    inline QPixmap scaled(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
+                          Qt::TransformationMode mode = Qt::FastTransformation) const
+        { return scaled(QSize(w, h), aspectMode, mode); }
+    QPixmap scaled(const QSize &s, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
+                   Qt::TransformationMode mode = Qt::FastTransformation) const;
+    QPixmap scaledToWidth(int w) const;
+    QPixmap scaledToHeight(int h) const;
+    QPixmap transformed(const QMatrix &, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &m, int w, int h);
 #endif
 
@@ -156,7 +156,7 @@ public:
     QT3_SUPPORT bool convertFromImage(const QImage &img, Qt::ImageConversionFlags flags = Qt::AutoColor)
         { (*this) = fromImage(img, flags); return !isNull(); }
     inline QT3_SUPPORT operator QImage() const { return toImage(); }
-    inline QT3_SUPPORT QPixmap xForm(const QMatrix &matrix) const { return transform(matrix); }
+    inline QT3_SUPPORT QPixmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
 #endif
 
 protected:
@@ -172,7 +172,7 @@ private:
     QPixmap(int w, int h, int depth, bool);
     void init(int, int, int, bool);
     void deref();
-    QPixmap copy(bool ignoreMask = false) const;
+    QPixmap copy() const;
 #if defined(Q_WS_WIN)
     void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
 #endif

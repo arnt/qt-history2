@@ -288,9 +288,9 @@ QBitmap &QBitmap::operator=(const QImage &image)
     \sa QPixmap::transform()
 */
 
-QBitmap QBitmap::transform(const QMatrix &matrix) const
+QBitmap QBitmap::transformed(const QMatrix &matrix) const
 {
-    QPixmap pm = QPixmap::transform(matrix);
+    QPixmap pm = QPixmap::transformed(matrix);
     QBitmap bm;
     // Here we fake the pixmap to think it's a QBitmap. With this trick,
     // the QBitmap::operator=(const QPixmap&) will just refer the

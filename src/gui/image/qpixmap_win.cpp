@@ -880,7 +880,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 }
 
 
-QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
+QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
     if (mode == Qt::SmoothTransformation) {
         // ###### do this efficiently!

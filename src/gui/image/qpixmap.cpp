@@ -260,7 +260,7 @@ QPixmap::~QPixmap()
     \sa operator=()
 */
 
-QPixmap QPixmap::copy(bool) const
+QPixmap QPixmap::copy() const
 {
 #if defined(Q_WS_X11)
     int old = x11SetDefaultScreen(data->xinfo.screen());
@@ -551,7 +551,7 @@ void QPixmap::setMask(const QBitmap &newmask)
 #if 0
     const QPixmap *tmp = &newmask;                // dec cxx bug
     if (data == tmp->data) {
-        QPixmap m = tmp->copy(true);
+        QPixmap m = tmp->copy();
         setMask(*((QBitmap*)&m));
         data->selfmask = true;                        // mask == pixmap
         return;
@@ -583,7 +583,7 @@ void QPixmap::setMask(const QBitmap &newmask)
     delete data->mask;
     QBitmap* newmaskcopy;
     if (newmask.mask())
-        newmaskcopy = (QBitmap*)new QPixmap(tmp->copy(true));
+        newmaskcopy = (QBitmap*)new QPixmap(tmp->copy());
     else
         newmaskcopy = new QBitmap(newmask);
 #ifdef Q_WS_X11
@@ -1144,7 +1144,7 @@ void QPixmap::deref()
 */
 
 /*!
-    \fn QPixmap QPixmap::scale(int w, int h, Qt::AspectRatioMode aspectRatioMode,
+    \fn QPixmap QPixmap::scaled(int w, int h, Qt::AspectRatioMode aspectRatioMode,
                              Qt::TransformationMode transformMode) const
 
     Returns a copy of the pixmap scaled to a rectangle of width \a w
@@ -1168,17 +1168,17 @@ void QPixmap::deref()
 */
 
 /*!
-    \fn QPixmap QPixmap::scale(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
+    \fn QPixmap QPixmap::scaled(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
 
     \overload
 
     Scales the pixmap to the given \a size, using the aspect ratio and
     transformation modes specified by \a aspectMode and \a transformMode.
 */
-QPixmap QPixmap::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
+QPixmap QPixmap::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
 {
     if (isNull()) {
-        qWarning("QPixmap::scale: Pixmap is a null pixmap");
+        qWarning("QPixmap::scaled: Pixmap is a null pixmap");
         return copy();
     }
     if (s.isEmpty())
@@ -1192,7 +1192,7 @@ QPixmap QPixmap::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Trans
     QPixmap pix;
     QMatrix wm;
     wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
-    pix = transform(wm, mode);
+    pix = transformed(wm, mode);
     return pix;
 }
 
@@ -1206,7 +1206,7 @@ QPixmap QPixmap::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Trans
 
     \sa scale() scaleHeight() transform()
 */
-QPixmap QPixmap::scaleWidth(int w) const
+QPixmap QPixmap::scaledToWidth(int w) const
 {
     if (isNull()) {
         qWarning("QPixmap::scaleWidth: Pixmap is a null pixmap");
@@ -1218,7 +1218,7 @@ QPixmap QPixmap::scaleWidth(int w) const
     QMatrix wm;
     double factor = (double) w / width();
     wm.scale(factor, factor);
-    return transform(wm);
+    return transformed(wm);
 }
 
 /*!
@@ -1231,7 +1231,7 @@ QPixmap QPixmap::scaleWidth(int w) const
 
     \sa scale() scaleWidth() transform()
 */
-QPixmap QPixmap::scaleHeight(int h) const
+QPixmap QPixmap::scaledToHeight(int h) const
 {
     if (isNull()) {
         qWarning("QPixmap::scaleHeight: Pixmap is a null pixmap");
@@ -1243,6 +1243,6 @@ QPixmap QPixmap::scaleHeight(int h) const
     QMatrix wm;
     double factor = (double) h / height();
     wm.scale(factor, factor);
-    return transform(wm);
+    return transformed(wm);
 }
 

@@ -3010,7 +3010,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         qreal scaley = h / sh;
         mat = QMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
         mat = QPixmap::trueMatrix(mat, qRound(sw), qRound(sh));
-        QPixmap pmx = source.transform(mat);
+        QPixmap pmx = source.transformed(mat);
         if (pmx.isNull())                        // xformed into nothing
             return;
         if (pmx.depth() == 1 && !pmx.mask())
@@ -3019,7 +3019,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         if (!pmx.mask() && d->state->txop == QPainterPrivate::TxRotShear) {
             QBitmap bm_clip(qRound(sw), qRound(sh), 1);        // make full mask, xform it
             bm_clip.fill(Qt::color1);
-            pmx.setMask(bm_clip.transform(mat));
+            pmx.setMask(bm_clip.transformed(mat));
         }
         d->state->matrix.map(x, y, &x, &y);        // compute position of pixmap
         qreal dx, dy;

@@ -129,14 +129,14 @@ public:
     QImage convertBitOrder(Endian) const;
 
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-    inline QImage scale(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
+    inline QImage scaled(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
                         Qt::TransformationMode mode = Qt::FastTransformation) const
-        { return scale(QSize(w, h), aspectMode, mode); }
-    QImage scale(const QSize &s, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
+        { return scaled(QSize(w, h), aspectMode, mode); }
+    QImage scaled(const QSize &s, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
                  Qt::TransformationMode mode = Qt::FastTransformation) const;
-    QImage scaleWidth(int w) const;
-    QImage scaleHeight(int h) const;
-    QImage transform(const QMatrix &matrix, Qt::TransformationMode mode = Qt::FastTransformation) const;
+    QImage scaledToWidth(int w) const;
+    QImage scaledToHeight(int h) const;
+    QImage transformed(const QMatrix &matrix, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &, int w, int h);
 #endif
 
@@ -193,12 +193,13 @@ public:
 #endif
 
 #ifdef QT3_SUPPORT
-    inline QT3_SUPPORT QImage xForm(const QMatrix &matrix) const { return transform(matrix); }
+    inline QT3_SUPPORT QImage xForm(const QMatrix &matrix) const { return transformed(matrix); }
     inline QT3_SUPPORT QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
-        { return scale(QSize(w, h), mode, Qt::SmoothTransformation); }
-    inline QImage QT3_SUPPORT smoothScale(const QSize &s,
-                                          Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
-        { return scale(s, mode, Qt::SmoothTransformation); }
+        { return scaled(QSize(w, h), mode, Qt::SmoothTransformation); }
+    inline QImage QT3_SUPPORT smoothScale(const QSize &s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
+        { return scaled(s, mode, Qt::SmoothTransformation); }
+    inline QT3_SUPPORT QImage scaleWidth(int w) const { return scaledToWidth(w); }
+    inline QT3_SUPPORT QImage scaleHeight(int h) const { return scaledToHeight(h); }
     inline QT3_SUPPORT void invertPixels(bool invertAlpha) { invertAlpha ? invertPixels(InvertRgba) : invertPixels(InvertRgb); }
 #ifndef QT_NO_IMAGEIO
     inline QT3_SUPPORT_CONSTRUCTOR QImage(const QByteArray &data)

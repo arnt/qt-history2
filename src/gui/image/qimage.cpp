@@ -2476,7 +2476,7 @@ bool QImage::isGrayscale() const
 */
 
 /*!
-    \fn QImage QImage::scale(int w, int h, Qt::AspectRatioMode aspectRatioMode,
+    \fn QImage QImage::scaled(int w, int h, Qt::AspectRatioMode aspectRatioMode,
                              Qt::TransformationMode transformMode) const
 
     Returns a copy of the image scaled to a rectangle of width \a w
@@ -2500,7 +2500,7 @@ bool QImage::isGrayscale() const
 */
 
 /*!
-    \fn QImage QImage::scale(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
+    \fn QImage QImage::scaled(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
 
     \overload
 
@@ -2508,10 +2508,10 @@ bool QImage::isGrayscale() const
     transformation modes specified by \a aspectMode and \a transformMode.
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
+QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
 {
     if (isNull()) {
-        qWarning("QImage::scale: Image is a null image");
+        qWarning("QImage::scaled: Image is a null image");
         return copy();
     }
     if (s.isEmpty())
@@ -2525,7 +2525,7 @@ QImage QImage::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transfo
     QImage img;
     QMatrix wm;
     wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
-    img = transform(wm, mode);
+    img = transformed(wm, mode);
     return img;
 }
 #endif
@@ -2541,7 +2541,7 @@ QImage QImage::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transfo
     \sa scale() scaleHeight() transform()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scaleWidth(int w) const
+QImage QImage::scaledToWidth(int w) const
 {
     if (isNull()) {
         qWarning("QImage::scaleWidth: Image is a null image");
@@ -2553,7 +2553,7 @@ QImage QImage::scaleWidth(int w) const
     QMatrix wm;
     double factor = (double) w / width();
     wm.scale(factor, factor);
-    return transform(wm);
+    return transformed(wm);
 }
 #endif
 
@@ -2568,7 +2568,7 @@ QImage QImage::scaleWidth(int w) const
     \sa scale() scaleWidth() transform()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scaleHeight(int h) const
+QImage QImage::scaledToHeight(int h) const
 {
     if (isNull()) {
         qWarning("QImage::scaleHeight: Image is a null image");
@@ -2580,7 +2580,7 @@ QImage QImage::scaleHeight(int h) const
     QMatrix wm;
     double factor = (double) h / height();
     wm.scale(factor, factor);
-    return transform(wm);
+    return transformed(wm);
 }
 #endif
 
@@ -2654,7 +2654,7 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     \sa scale() QPixmap::transform() QPixmap::trueMatrix() QMatrix
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
+QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
     // This function uses the same algorithm as (and steals quite some
     // code from) QPixmap::transform().
@@ -2664,7 +2664,7 @@ QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) con
 
     if (depth() == 16) {
         // inefficient
-        return convertDepth(32).transform(matrix, mode);
+        return convertDepth(32).transformed(matrix, mode);
     }
 
     // source image data

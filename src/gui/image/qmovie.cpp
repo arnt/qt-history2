@@ -64,7 +64,7 @@
     movie should loop before finishing. nextFrameDelay() returns the number of
     milliseconds the current frame should be displayed.
 
-    
+
    \sa QLabel, QImageReader
 */
 
@@ -181,7 +181,7 @@ void QMoviePrivate::loadNextFrame()
                 emit q->started();
             }
 
-            currentPixmap = currentImage;
+            currentPixmap = QPixmap::fromImage(currentImage);
             if (frameRect.size() != currentImage.rect().size()) {
                 frameRect = currentImage.rect();
                 emit q->resized(frameRect.size());
@@ -206,7 +206,7 @@ void QMoviePrivate::loadNextFrame()
     emit q->finished();
 }
 
-/*! 
+/*!
     Constructs a QMovie object, passing the \a parent object to QObject's
     constructor.
 
@@ -219,7 +219,7 @@ QMovie::QMovie(QObject *parent)
     d->reader = new QImageReader;
 }
 
-/*! 
+/*!
     Constructs a QMovie object. QMovie will use read image data from \a
     device, which it assumes is open and readable. If \a format is not empty,
     QMovie will use the image format \a format for decoding the image
@@ -234,7 +234,7 @@ QMovie::QMovie(QIODevice *device, const QByteArray &format, QObject *parent)
     d->reader = new QImageReader(device, format);
 }
 
-/*! 
+/*!
     Constructs a QMovie object. QMovie will use read image data from \a
     fileName. If \a format is not empty, QMovie will use the image format \a
     format for decoding the image data. Otherwise, QMovie will attempt to
@@ -510,7 +510,7 @@ bool QMovie::jumpToFrame(int frameNumber)
 {
     Q_D(QMovie);
     return d->reader->jumpToImage(frameNumber);
-}      
+}
 
 /*!
     Returns the number of times the movie will loop before it finishes.

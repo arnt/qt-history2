@@ -38,9 +38,9 @@ public:
     operator QVariant() const;
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-    QBitmap transform(const QMatrix &) const;
+    QBitmap transformed(const QMatrix &) const;
 #ifdef QT3_SUPPORT
-    inline QT3_SUPPORT QBitmap xForm(const QMatrix &matrix) const { return transform(matrix); }
+    inline QT3_SUPPORT QBitmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
 #endif
 #endif
 };

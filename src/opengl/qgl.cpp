@@ -1220,7 +1220,7 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
     int tx_w = nearest_gl_texture_size(image.width());
     int tx_h = nearest_gl_texture_size(image.height());
     if (target == GL_TEXTURE_2D && (tx_w != image.width() || tx_h != image.height()))
-	tx = QGLWidget::convertToGLFormat(image.scale(tx_w, tx_h));
+	tx = QGLWidget::convertToGLFormat(image.scaled(tx_w, tx_h));
     else
 	tx = QGLWidget::convertToGLFormat(image);
 
@@ -2466,8 +2466,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
 #if defined(Q_WS_X11)
         if (gl_pixmap_visual != QX11Info::appVisual()) {
             QImage image = pm.toImage();
-            QPixmap p;
-            p = image;
+            QPixmap p = QPixmap::fromImage(image);
             return p;
         }
 #endif
