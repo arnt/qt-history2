@@ -1043,6 +1043,8 @@ void QPaintEngine::releaseDC(HDC) const
 {
 }
 
+#endif
+
 /*!
     \internal
 
@@ -1057,4 +1059,3 @@ QPoint QPaintEngine::coordinateOffset() const
     return QPoint();
 }
 
-#endif
