@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#287 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#288 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#287 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#288 $");
 
 
 /*****************************************************************************
@@ -127,7 +127,7 @@ static Atom	qt_wm_protocols;		// window manager protocols
 Atom		qt_wm_delete_window;		// delete window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
 static Atom	qt_xsetroot_id;
-Atom		qt_selection_id;
+Atom		qt_selection_property;
 static Atom	qt_wm_state;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
@@ -248,10 +248,11 @@ static QDict<Atom> * atoms_to_be_created = 0;
 /*****************************************************************************
   qt_x11_intern_atom() - efficiently interns an atom, now or later.
 
-  if the app is being initialized, this function stores the adddress
-  of the atom and qt_init_internal will do the actual work quickly.
+  If the application is being initialized, this function stores the
+  adddress of the atom and qt_init_internal will do the actual work
+  quickly.  If the application is running, the atom is created here.
 
-  neither argument may point to temporary variables.
+  Neither argument may point to temporary variables.
  *****************************************************************************/
 
 void qt_x11_intern_atom( const char * name, Atom * result)
@@ -468,9 +469,9 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     qt_x11_intern_atom( "WM_PROTOCOLS", &qt_wm_protocols );
     qt_x11_intern_atom( "WM_DELETE_WINDOW", &qt_wm_delete_window );
-    qt_x11_intern_atom( "QT_SCROLL_DONE", &qt_qt_scrolldone );
     qt_x11_intern_atom( "_XSETROOT_ID", &qt_xsetroot_id );
-    qt_x11_intern_atom( "QT_SELECTION", &qt_selection_id );
+    qt_x11_intern_atom( "QT_SCROLL_DONE", &qt_qt_scrolldone );
+    qt_x11_intern_atom( "QT_SELECTION", &qt_selection_property );
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 
     qt_x11_process_intern_atoms();
