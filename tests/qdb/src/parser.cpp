@@ -964,6 +964,7 @@ void Parser::emitWhereLoop( const QVariant& cond,
 			    const QValueList<QVariant>& selectColumns,
 			    const QStringList& selectColumnNames, int level )
 {
+    QValueList<QVariant> rangeSaveColumns;
     int tableId = yyActiveTableIds[level];
     int lastLevel = (int) yyActiveTableIds.count() - 1;
     bool saving = !selectColumns.isEmpty();
@@ -972,10 +973,17 @@ void Parser::emitWhereLoop( const QVariant& cond,
     if ( !needLoop ) {
 	QValueList<QVariant>::ConstIterator c = selectColumns.begin();
 	while ( c != selectColumns.end() ) {
-	    if ( (*c).type() == QVariant::List &&
-		 (*c).toList()[0].toInt() != Node_ResolvedField ) {
-		needLoop = TRUE;
-		break;
+	    if ( (*c).type() == QVariant::List ) {
+		if ( (*c).toList()[0].toInt() == Node_ResolvedField ) {
+		    QValueList<QVariant> col;
+		    col.append( (*c).toList()[2] );
+		    rangeSaveColumns.append( col );
+		} else {
+		    needLoop = TRUE;
+		    break;
+		}
+	    } else {
+		rangeSaveColumns.append( *c );
 	    }
 	    ++c;
 	}
@@ -993,13 +1001,23 @@ void Parser::emitWhereLoop( const QVariant& cond,
 	}
     }
 
+    if ( saving && level == 0 )
+	emitCreateResult( 0, selectColumnNames, selectColumns );
+
     if ( needLoop && constantsForLevel.isEmpty() ) {
 	yyProg->append( new MarkAll(tableId) );
     } else {
 	if ( saving && !needLoop ) {
 	    yyProg->append( new PushSeparator );
 	    emitConstants( constantsForLevel );
-	    emitFieldDescs( selectColumnNames, selectColumns );
+
+	    yyProg->append( new PushSeparator );
+	    QValueList<QVariant>::ConstIterator c = rangeSaveColumns.begin();
+	    while ( c != rangeSaveColumns.end() ) {
+		yyProg->append( new Push(*c) );
+		++c;
+	    }
+	    yyProg->append( new MakeList );
 	    yyProg->append( new MakeList );
 	    yyProg->append( new RangeSave(tableId, 0) );
 	} else {
@@ -1011,11 +1029,6 @@ void Parser::emitWhereLoop( const QVariant& cond,
     if ( needLoop ) {
 	int next = yyNextLabel--;
 	int end = yyNextLabel--;
-
-	if ( saving && level == 0 ) {
-	    emitFieldDescs( selectColumnNames, selectColumns );
-	    yyProg->append( new CreateResult(0) );
-	}
 
 	yyProg->appendLabel( next );
 	yyProg->append( new NextMarked(tableId, end) );
@@ -1106,8 +1119,8 @@ void Parser::emitFieldDesc( const QString& columnName, const QVariant& column )
     }
 }
 
-void Parser::emitFieldDescs( const QStringList& columnNames,
-			     const QValueList<QVariant>& columns )
+void Parser::emitCreateResult( int resultId, const QStringList& columnNames,
+			       const QValueList<QVariant>& columns )
 {
     QStringList::ConstIterator nam = columnNames.begin();
     QValueList<QVariant>::ConstIterator col = columns.begin();
@@ -1116,6 +1129,7 @@ void Parser::emitFieldDescs( const QStringList& columnNames,
     while ( nam != columnNames.end() )
 	emitFieldDesc( *nam++, *col++ );
     yyProg->append( new MakeList );
+    yyProg->append( new CreateResult(resultId) );
 }
 
 int Parser::activateTable( const QString& tableName )
@@ -2137,6 +2151,7 @@ void Parser::matchOrderByClause()
     yyTok = getToken();
     matchOrInsert( Tok_by, "'by'" );
 
+    yyProg->append( new PushSeparator );
     while ( TRUE ) {
 	QVariant column;
 	bool descending = FALSE;
@@ -2220,9 +2235,6 @@ void Parser::matchSelectStatement()
     }
 #endif
 
-    if ( yyTok == Tok_order )
-	matchOrderByClause();
-
     if ( groupByColumns.isEmpty() && yyNumAggregateOccs == 0 ) {
 	/*
 	  This is the common, easy case where one pass is enough. We
@@ -2230,6 +2242,10 @@ void Parser::matchSelectStatement()
 	*/
 	emitWhere( &whereCond, &whereConstants, selectColumns,
 		   selectColumnNames );
+
+	// ### what happens with 'order by' in the "else"?
+	if ( yyTok == Tok_order )
+	    matchOrderByClause();
     } else {
 	/*
 	  This is the general case where two passes are needed. The
@@ -2312,8 +2328,7 @@ void Parser::matchSelectStatement()
 	int save = yyNextLabel--;
 	int end = yyNextLabel--;
 
-	emitFieldDescs( selectColumnNames, selectColumns );
-	yyProg->append( new CreateResult(1) );
+	emitCreateResult( 1, selectColumnNames, selectColumns );
 
 	yyProg->append( new PushSeparator );
 	QValueList<QVariant>::Iterator c = groupByColumns.begin();

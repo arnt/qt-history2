@@ -221,8 +221,8 @@ private:
     void emitExprList( const QValueList<QVariant>& exprs );
     void emitConstants( const QValueList<QVariant>& constants );
     void emitFieldDesc( const QString& columnName, const QVariant& column );
-    void emitFieldDescs( const QStringList& columnNames,
-			 const QValueList<QVariant>& columns );
+    void emitCreateResult( int resultId, const QStringList& columnNames,
+			   const QValueList<QVariant>& columns );
     int activateTable( const QString& tableName );
     void deactivateTables();
     void closeAllTables();
