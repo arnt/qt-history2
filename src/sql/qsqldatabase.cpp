@@ -47,7 +47,7 @@
 #include "drivers/ibase/qsql_ibase.h"
 #endif
 
-#include "qapplication.h"
+#include "qcoreapplication.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverinterface_p.h"
@@ -160,12 +160,12 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
     static QGuardedPtr<QSqlDatabaseManager> sqlConnection = 0;
     if ( !sqlConnection ) {
-	if( qApp == 0 ){
-	    qFatal( "QSqlDatabaseManager: A QApplication object has to be "
+	if( QCoreApplication::instance() == 0 ){
+	    qFatal( "QSqlDatabaseManager: A QCoreApplication object has to be "
 		    "instantiated in order to use the SQL module." );
 	    return 0;
 	}
-	sqlConnection = new QSqlDatabaseManager(qApp);
+	sqlConnection = new QSqlDatabaseManager(QCoreApplication::instance());
     }
     return (QSqlDatabaseManager*)sqlConnection;
 }
@@ -208,7 +208,7 @@ bool QSqlDatabaseManager::contains( const QString& name )
     Adds a database to the SQL connection manager. The database
     connection is referred to by \a name. The newly added database
     connection is returned. This function will only return 0 if it is
-    called \e before a QApplication object has been instantiated. Use
+    called \e before a QCoreApplication object has been instantiated. Use
     the output of drivers() to determine whether a particular driver
     is available or not.
 
@@ -417,7 +417,7 @@ QStringList QSqlDatabase::drivers()
 
 #ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
-    plugIns = new QPluginManager<QSqlDriverFactoryInterface>( IID_QSqlDriverFactory, QApplication::libraryPaths(), "/sqldrivers" );
+    plugIns = new QPluginManager<QSqlDriverFactoryInterface>( IID_QSqlDriverFactory, QCoreApplication::libraryPaths(), "/sqldrivers" );
 
     l = plugIns->featureList();
     delete plugIns;
@@ -616,7 +616,7 @@ void QSqlDatabase::init( const QString& type, const QString& )
 #ifndef QT_NO_COMPONENT
     if ( !d->driver ) {
 	d->plugIns =
-	    new QPluginManager<QSqlDriverFactoryInterface>( IID_QSqlDriverFactory, QApplication::libraryPaths(), "/sqldrivers" );
+	    new QPluginManager<QSqlDriverFactoryInterface>( IID_QSqlDriverFactory, QCoreApplication::libraryPaths(), "/sqldrivers" );
 
 	QInterfacePtr<QSqlDriverFactoryInterface> iface = 0;
 	d->plugIns->queryInterface( type, &iface );
