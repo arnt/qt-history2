@@ -76,6 +76,9 @@ public:
     virtual QLibrary* addLibrary( const QString& file ) = 0;
     virtual bool removeLibrary( const QString& file ) = 0;
 
+    bool autoUnload() const;
+    void setAutoUnload( bool );
+
 protected:
     QUuid interfaceId;
     QDict<QLibrary> plugDict;	    // Dict to match feature with library
@@ -83,7 +86,18 @@ protected:
     QStringList libList;
 
     uint casesens : 1;
+    uint autounload : 1;
 };
+
+inline void QGPluginManager::setAutoUnload( bool unload )
+{
+    autounload = unload;
+}
+
+inline bool QGPluginManager::autoUnload() const
+{
+    return autounload;
+}
 
 #endif
 
