@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#17 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#17 $")
 
 
 // --------------------------------------------------------------------------
@@ -190,7 +190,7 @@ bool QGList::insertAt( uint index, GCI d )	// add at i'th position
 
 QLNode *QGList::unlink()			// unlink current node
 {
-    if ( !count() ) {				// no items left
+    if ( numNodes == 0 ) {			// no items left
 #if defined(CHECK_NULL)
 	warning( "QGList::unlink: Cannot unlink from empty list" );
 #endif
@@ -215,8 +215,7 @@ QLNode *QGList::unlink()			// unlink current node
     }
     if ( n->next )				// change current node
 	curNode = n->next;
-    else
-    if ( n->prev ) {
+    else if ( n->prev ) {
 	curNode = n->prev;
 	curIndex--;
     }
@@ -237,7 +236,7 @@ bool QGList::removeNode( QLNode *n )		// remove one item
 #if defined(CHECK_NULL)
     if ( n == 0 || (n->prev && n->prev->next != n) ||
 	 (n->next && n->next->prev != n) ) {
-	warning( "QGList::takeNode: Attempt to remove invalid node" );
+	warning( "QGList::removeNode: Attempt to remove invalid node" );
 	return FALSE;
     }
 #endif
