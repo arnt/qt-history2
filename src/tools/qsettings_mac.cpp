@@ -153,16 +153,18 @@ search_keys::search_keys(QString path, QString key, const char *where)
     qi = path;
     qk = key;
     int start = 0;
-    if(qk[0] == '/')
+    while(qk[start] == '/')
 	start++;
     int slsh = qk.find('/', start);
     if(slsh != -1) {
 	qi += qk.left(slsh);
 	qk = qk.mid(slsh+1);
     }
-    qt_mac_fix_key(qi);
+    qt_mac_unfix_key(qi);
+    qi.replace('/', "");
     if(qt_mac_settings_base)
 	qi.prepend(*qt_mac_settings_base);
+
     qt_mac_fix_key(qk);
 #ifdef DEBUG_SETTINGS_KEYS
     qDebug("[QSettings::%s] %s::%s -> %s::%s", where ? where : "*Unknown*", 
