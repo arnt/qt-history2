@@ -1215,7 +1215,7 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		var.punkVal = (IUnknown*)ptrvalue;
 	    } else if ( QMetaObject::metaObject( vartype ) ) {
 		var.vt = VT_DISPATCH;
-		var.pdispVal = create_object_wrapper( (QObject*)ptrvalue );
+		var.pdispVal = ptrvalue ? create_object_wrapper( (QObject*)ptrvalue ) : 0;
 	    }
 	} else {
 	    vartype = param->type->desc();
