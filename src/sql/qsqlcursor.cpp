@@ -1040,6 +1040,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     if ( filter.length() )
 	str+= " where " + filter;
     str += ";";
+//    qDebug( str );
     return apply( str, invalidate );
 }
 
