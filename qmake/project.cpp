@@ -1008,9 +1008,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			end = arg_list[2].toInt();
 		    if(end < 0)
 			end += var.count() - 1;
-		    if(end < start)
+		    if(end < (int)start)
 			end = start;
-		    for(int i = start; i <= end && var.count() >= i; i++) {
+		    for(int i = start; i <= end && (int)var.count() >= i; i++) {
 			if(!replacement.isEmpty())
 			    replacement += " ";
 			replacement += var[i];
