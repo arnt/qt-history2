@@ -1068,7 +1068,7 @@ public:
 
 
 /* Go to next group of the result which is identified by 'id'.  On
- failure goto P2.
+   failure goto P2.
 */
 
 class NextGroupSet : public Op
@@ -1088,8 +1088,8 @@ public:
 };
 
 /* Push the value of field number P2 from the current group of the
- result set identified by 'id' on to the top of the stack.  The result set
- must be positioned on a valid group (see NextGroup).
+   result set identified by 'id' on to the top of the stack.  The result set
+   must be positioned on a valid group (see NextGroup).
 */
 
 class PushGroupValue : public Op
@@ -1103,10 +1103,10 @@ public:
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
 	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !res->groupSetField( p2.toString(), v ) )
+	    if ( !res->groupSetAction( LocalSQLResultSet::Value, p2.toString(), v ) )
 		return FALSE;
 	} else {
-	    if ( !res->groupSetField( p2.toInt(), v ) )
+	    if ( !res->groupSetAction( LocalSQLResultSet::Value, p2.toInt(), v ) )
 		return FALSE;
 	}
 	env->stack()->push( v );
@@ -1115,8 +1115,8 @@ public:
 };
 
 /* Push the count of field P2 from the current group of the
- result set identified by 'id' on to the top of the stack.  The result set
- must be positioned on a valid group (see NextGroup).
+   result set identified by 'id' on to the top of the stack.  The result set
+   must be positioned on a valid group (see NextGroup).
 */
 
 class PushGroupCount : public Op
@@ -1130,10 +1130,37 @@ public:
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
 	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !res->groupSetCount( p2.toString(), v ) )
+	    if ( !res->groupSetAction( LocalSQLResultSet::Count, p2.toString(), v ) )
 		return FALSE;
 	} else {
-	    if ( !res->groupSetCount( p2.toInt(), v ) )
+	    if ( !res->groupSetAction( LocalSQLResultSet::Count, p2.toInt(), v ) )
+		return FALSE;
+	}
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
+/* Push the sum of field P2 from the current group of the
+   result set identified by 'id' on to the top of the stack.  The result set
+   must be positioned on a valid group (see NextGroup).
+*/
+
+class PushGroupSum : public Op
+{
+public:
+    PushGroupSum( const QVariant& id, const QVariant& P2 )
+	: Op( id, P2 ) {}
+    QString name() const { return "pushgroupsum"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
+	QVariant v;
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
+	    if ( !res->groupSetAction( LocalSQLResultSet::Sum, p2.toString(), v ) )
+		return FALSE;
+	} else {
+	    if ( !res->groupSetAction( LocalSQLResultSet::Sum, p2.toInt(), v ) )
 		return FALSE;
 	}
 	env->stack()->push( v );

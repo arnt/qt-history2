@@ -127,15 +127,15 @@ struct LocalSQLResultSet : public LocalSQLDataSet
     virtual bool setGroupSet( const QVariant& v ) = 0;
     /*! Moves the internal pointer to the next group set */
     virtual bool nextGroupSet() = 0;
-    /*! Returns the value of groupset field \a i (zero-based) */
-    virtual bool groupSetField( uint i, QVariant& v ) = 0;
-    /*! Returns the value of the groupset field named \a name */
-    virtual bool groupSetField( const QString& name, QVariant& v ) = 0;
-    /*! Returns the count of groupset field \a i (zero-based) */
-    virtual bool groupSetCount( uint i, QVariant& v ) = 0;
-    /*! Returns the count of the groupset field named \a name */
-    virtual bool groupSetCount( const QString& name, QVariant& v ) = 0;
-
+    enum GroupSetAction{
+	Value,
+	Count,
+	Sum
+    };
+    /*! Returns the value of groupset field \a i (zero-based) according to \a action */
+    virtual bool groupSetAction( GroupSetAction action, uint i, QVariant& v ) = 0;
+    /*! Returns the value of the groupset field named \a name according to \a action */
+    virtual bool groupSetAction( GroupSetAction action, const QString& name, QVariant& v ) = 0;
 };
 
 /*! \struct FileDriver

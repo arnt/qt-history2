@@ -820,9 +820,9 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
     }
 
     ColumnKey::Iterator startit = group[currentGroup].start;
-    int substart = group[currentGroup].substart;
+    uint substart = group[currentGroup].substart;
     ColumnKey::Iterator lastit = group[currentGroup].last;
-    int sublast = group[currentGroup].sublast;
+    uint sublast = group[currentGroup].sublast;
     switch ( action ) {
     case Value: {
 	Record& rec = data[ startit.data()[substart] ];
@@ -846,26 +846,23 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
 	v = count;
 	break;
     }
+    case Sum: {
+	double sum = 0;
+	for ( ColumnKey::Iterator it = startit;
+	      ;
+	      ++it ){
+	    bool processingLast = ( startit == lastit );
+	    for ( uint s = 0; s < (*it).count(); ++s ) {
+		if ( processingLast && s > sublast )
+		     break;
+		sum += data[ it.data()[s] ][i].toDouble();
+	    }
+	    if ( processingLast )
+		break;
+	}
+	v = sum;
+	break;
+    }
     }
     return TRUE;
-}
-
-bool ResultSet::groupSetField( const QString& name, QVariant& v )
-{
-    return groupSetAction( Value, name, v );
-}
-
-bool ResultSet::groupSetField( uint i, QVariant& v )
-{
-    return groupSetAction( Value, i, v );
-}
-
-bool ResultSet::groupSetCount( const QString& name, QVariant& v )
-{
-    return groupSetAction( Count, name, v );
-}
-
-bool ResultSet::groupSetCount( uint i, QVariant& v )
-{
-    return groupSetAction( Count, i, v );
 }
