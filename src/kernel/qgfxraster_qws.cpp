@@ -2823,6 +2823,14 @@ GFX_INLINE void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
 	y2 = y1;
 	y1 = ty;
     }
+
+    // gross clip.
+    if ( y1 > clipbounds.bottom() || y2 < clipbounds.top() )
+	return;
+    if ( y1 < clipbounds.top() )
+	y1 = clipbounds.top();
+    if ( y2 > clipbounds.bottom() )
+	y2 = clipbounds.bottom();
     /*
     qDebug( "x %d, y1 %d, y2 %d, cliprects %d", x, y1, y2, ncliprect );
     for ( int i = 0; i < ncliprect; i++ ) {
@@ -3112,41 +3120,39 @@ drawing code. Performs clipping.
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 {
+    // gross clip.
+    if ( x1 > clipbounds.right() || x2 < clipbounds.left() )
+	return;
+    if ( x1 < clipbounds.left() )
+	x1 = clipbounds.left();
+    if ( x2 > clipbounds.right() )
+	x2 = clipbounds.right();
+
     QRect cr;
-#if !defined(Q_OS_QNX6) // small optimisation for QNX by moving this lower
-	unsigned char *l=scanLine(y);
-#endif
+    unsigned char *l=scanLine(y);
     bool plot=inClip(x1,y,&cr);
     int x=x1;
     for (;;) {
 	int xr = cr.right();
 	if ( xr >= x2 ) {
-	if (plot) {
-#if defined(Q_OS_QNX6) // Qnx-style hline takes x,y not pointer
-		if (isScreenGfx()) {
-			hlineUnclipped(x,x2,y);
-		} else {
-			unsigned char *l=scanLine(y);
+	    if (plot) {
+#if defined(_OS_QNX6_) // Qnx-style hline takes x,y not pointer
+		if (isScreenGfx())
+		    hlineUnclipped(x,x2,y);
+		else
 #endif
-			hlineUnclipped(x,x2,l); // only call made for non-QNX
-#if defined(Q_OS_QNX6)
-		}
-#endif
-	}
+		    hlineUnclipped(x,x2,l); // only call made for non-QNX
+	    }
 	    break;
 	} else {
 	    if (plot) {
-#if defined(Q_OS_QNX6)
-			if (isScreenGfx()) {
-				hlineUnclipped(x,xr,y);
-			} else {
-				unsigned char *l=scanLine(y);
+#if defined(_OS_QNX6_)
+		if (isScreenGfx())
+		    hlineUnclipped(x,xr,y);
+		else
 #endif
-				hlineUnclipped(x,xr,l); // only call made for non-QNX
-#if defined(Q_OS_QNX6)
-			}
-#endif
-		}
+		    hlineUnclipped(x,xr,l); // only call made for non-QNX
+	    }
 	    x=xr+1;
 	    plot=inClip(x,y,&cr,plot);
 	}
