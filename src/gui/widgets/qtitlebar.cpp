@@ -483,11 +483,11 @@ void QTitleBar::paintEvent(QPaintEvent *)
         }
     }
 
-    QStyle::SCFlags under_mouse = QStyle::SC_None;
+    QStyle::SubControl under_mouse = QStyle::SC_None;
     if(autoRaise() && underMouse()) {
         under_mouse = style().querySubControl(QStyle::CC_TitleBar, &opt,
                                               mapFromGlobal(QCursor::pos()), this);
-        opt.parts ^= under_mouse;
+        opt.parts = QStyle::SubControls(opt.parts ^ under_mouse);
     }
     opt.palette.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
 

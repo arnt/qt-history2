@@ -1490,16 +1490,16 @@ QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
     opt.stepEnabled = q->stepEnabled();
     opt.activeParts = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.parts = QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
+    opt.parts = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
     if (slider)
-        opt.parts |= QStyle::PE_SpinBoxSlider;
+        opt.parts |= QStyle::SC_SpinBoxSlider;
     if (frame)
         opt.parts |= QStyle::SC_SpinBoxFrame;
 
     if (d->buttonstate & Up) {
-        opt.activeParts = QStyle::PE_SpinBoxUp;
+        opt.activeParts = QStyle::SC_SpinBoxUp;
     } else if (buttonstate & Down) {
-        opt.activeParts = QStyle::PE_SpinBoxDown;
+        opt.activeParts = QStyle::SC_SpinBoxDown;
     }
 
     double days = (double)minimum.toDateTime().daysTo(value.toDateTime());

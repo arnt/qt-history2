@@ -2632,11 +2632,11 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap, const QStyleOption *, const
 }
 
 /*! \reimp */
-QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                                  const QStyleOption *opt) const
+QPixmap QCommonStyle::generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
+                                          const QStyleOption *opt) const
 {
-    switch(pixmaptype) {
-    case PT_Disabled: {
+    switch (iconMode) {
+    case IM_Disabled: {
         QBitmap pixmapMask;
         if (pixmap.mask()) {
             pixmapMask = *pixmap.mask();
@@ -2664,7 +2664,7 @@ QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
         ret.setMask(mask);
         return ret;
     }
-    case PT_Active:
+    case IM_Active:
         return pixmap;
     default:
         break;

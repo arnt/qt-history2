@@ -30,7 +30,7 @@ class QStyleHintReturn; // not defined yet
 
 struct QStyleOption;
 struct QStyleOptionComplex;
-class Q_GUI_EXPORT QStyle: public QObject
+class Q_GUI_EXPORT QStyle : public QObject
 {
     Q_OBJECT
 
@@ -50,13 +50,10 @@ public:
                            int flags, bool enabled,
                            const QString &text, int len = -1) const;
 
-    virtual QRect itemRect(const QRect &r,
-                            int flags, const QPixmap &pixmap) const;
+    virtual QRect itemRect(const QRect &r, int flags, const QPixmap &pixmap) const;
 
-    QRect itemRect(QPainter *p, const QRect &r,
-                   int flags, bool enabled,
-                   const QPixmap &pixmap,
-                   const QString &text, int len = -1) const;
+    QRect itemRect(QPainter *p, const QRect &r, int flags, bool enabled,
+                   const QPixmap &pixmap, const QString &text, int len = -1) const;
 
     virtual void drawItem(QPainter *p, const QRect &r,
                           int flags, const QPalette &pal, bool enabled,
@@ -79,7 +76,7 @@ public:
             drawItem(p, r, flags, pal, enabled, text, len, penColor);
     }
 
-    enum StyleFlags {
+    enum StyleFlag {
         Style_Default =       0x00000000,
         Style_Enabled =       0x00000001,
         Style_Raised =        0x00000002,
@@ -106,7 +103,11 @@ public:
         Style_Sibling =       0x00800000,
         Style_Editing =       0x01000000
     };
-    typedef uint SFlags;
+    Q_DECLARE_FLAGS(StyleFlags, StyleFlag);
+
+#ifdef QT_COMPAT
+    typedef StyleFlags SFlags;
+#endif
 
     enum PrimitiveElement {
         PE_ButtonCommand,
@@ -348,8 +349,10 @@ public:
 
         SC_All =                   0xffffffff
     };
-    typedef uint SCFlags;
-
+    Q_DECLARE_FLAGS(SubControls, SubControl);
+#ifdef QT_COMPAT
+    typedef SubControls SCFlags;
+#endif
 
     virtual void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                                     const QWidget *widget = 0) const = 0;
@@ -681,16 +684,16 @@ public:
     virtual QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt = 0,
                                    const QWidget *widget = 0) const = 0;
 
-    enum PixmapType {
-        PT_Disabled,
-        PT_Active,
+    enum IconMode {
+        IM_Disabled,
+        IM_Active,
 
         // do not add any values below/greater than this
-        PT_CustomBase = 0xf0000000
+        IM_CustomBase = 0xf0000000
     };
 
-    virtual QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                                const QStyleOption *opt) const = 0;
+    virtual QPixmap generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
+                                        const QStyleOption *opt) const = 0;
 
     static QRect visualRect(const QRect &logical, const QWidget *w);
     static QRect visualRect(const QRect &logical, const QRect &bounding);
@@ -721,6 +724,9 @@ protected:
                    const QColor *penColor = 0) const;
 #endif
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::StyleFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::SubControls)
 
 #endif // QT_NO_STYLE
 

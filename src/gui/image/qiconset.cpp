@@ -777,9 +777,9 @@ QPixmap *QIconSet::createIcon(Size size, Mode mode, State state) const
 
     QStyleOption opt(0);
     opt.palette = QApplication::palette();
-    QPixmap pix = QApplication::style().stylePixmap(mode == Disabled
-                                                    ? QStyle::PT_Disabled
-                                                    : QStyle::PT_Active, normalPix, &opt);
+    QPixmap pix = QApplication::style().generatedIconPixmap(mode == Disabled
+                                                            ? QStyle::IM_Disabled
+                                                            : QStyle::IM_Active, normalPix, &opt);
     return new QPixmap(pix);
 }
 

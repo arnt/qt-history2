@@ -20,71 +20,6 @@
 #include "qtabbar.h"
 #include "qtoolbutton.h"
 
-/*
-    Warning: Unless you plan to modify Qt's source code, you don't
-    need to read this comment.
-
-    The QStyleOption class and its subclasses use a versioning
-    mechanism to ensure binary compatibility. In addition:
-
-      * The constructors, destructors, and the QStyleOption::init()
-        function are not inline, to ensure that all three are defined
-        in the Qt library. The alternative would have been to make
-        all three inline, but we can never be sure that compilers
-        respect that hint and could end up with an asymmetric
-        situation, which could eventually result in a crash.
-
-      * The QSTYLEOPTION_PADDING() macro reserves extra space for
-        future extensions, without breaking binary compatibility. Its
-        first argument is the number of used extra variables. It
-        should be 0 at first and incremented every time a new member
-        variable is added. The second argument is the maximum number
-        of extra variables. Unsurprisingly, the first argument should
-        not be greater than the second argument.
-
-    How to add members: Increment numUsedVariables by one. If the
-    variable is of pointer type, just add it *after* the
-    QSTYLEOPTION_PADDING() macro. If it's not a pointer, do the same
-    but using a non-const reference type instead of a value type.
-
-    Example: Suppose that the type QStyleOptionFocusRect looks like
-    this in Qt 4.0:
-
-        class QStyleOptionFocusRect : public QStyleOption
-        {
-        public:
-            ...
-            QSTYLEOPTION_PADDING(0, 8)
-
-            ...
-        };
-
-    If we want to add a QWidget *, a QString, and an int, we would
-    end up with the following class definition:
-
-        class QStyleOptionFocusRect : public QStyleOption
-        {
-        public:
-            ...
-            QSTYLEOPTION_PADDING(3, 8)
-            QWidget *widget;
-            QString &label;
-            int &borderWidth;
-
-            ...
-        };
-
-    Then, in the constructor, we need to initialize the variables.
-    The QSTYLEOPTION_PADDING() macro preallocates some space that we
-    can use with a placement new, to avoid an extra memory
-    allocation:
-
-
-*/
-#define QSTYLEOPTION_PADDING(numUsedVariables, maxExtraVariables) \
-        union { Q_LLONG alonglong; double adouble; } qt_extraData[maxExtraVariables]; \
-        void *qt_extraVars[maxExtraVariables - numUsedVariables];
-
 class Q_GUI_EXPORT QStyleOption
 {
 public:
@@ -107,10 +42,9 @@ public:
 
     int version;
     int type;
-    QStyle::SFlags state;
+    QStyle::StyleFlags state;
     QRect rect;
     QPalette palette;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOption(int optionversion, int optiontype = SO_Default);
     ~QStyleOption();
@@ -130,7 +64,6 @@ public:
     enum { Type = SO_FocusRect };
 
     QColor backgroundColor;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionFocusRect(int version);
 
@@ -144,7 +77,6 @@ public:
 
     int lineWidth;
     int midLineWidth;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionFrame(int version);
 
@@ -160,7 +92,6 @@ public:
     int section;
     QString text;
     QIconSet icon;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionHeader(int version);
 
@@ -179,7 +110,6 @@ public:
     ButtonFeatures features;
     QString text;
     QIconSet icon;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionButton(int version);
 
@@ -187,6 +117,8 @@ public:
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIconSet icon);
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionButton::ButtonFeatures);
 
 class QStyleOptionTab : public QStyleOption
 {
@@ -199,7 +131,6 @@ public:
     QIconSet icon;
     int row;
     TabPosition position;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionTab(int version);
 
@@ -222,7 +153,6 @@ public:
     QString progressString;
     int totalSteps;
     int progress;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionProgressBar(int version);
 
@@ -231,6 +161,8 @@ public:
     QDOC_PROPERTY(int totalSteps);
     QDOC_PROPERTY(int progress);
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionProgressBar::ProgressBarFeatures);
 
 class QStyleOptionMenuItem : public QStyleOption
 {
@@ -248,7 +180,6 @@ public:
     int maxIconWidth;
     int tabWidth;
     QFont font;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionMenuItem(int version);
 
@@ -275,7 +206,6 @@ public:
     int totalHeight;
     int itemY;
     int childCount;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionListViewItem(int version);
 
@@ -285,6 +215,7 @@ public:
     QDOC_PROPERTY(int childCount);
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionListViewItem::ListViewItemFeatures);
 
 class QStyleOptionDockWindow : public QStyleOption
 {
@@ -293,7 +224,6 @@ public:
 
     bool docked;
     bool isCloseEnabled;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionDockWindow(int version);
 
@@ -313,7 +243,6 @@ public:
     Position decorationPosition;
     Size decorationSize;
     QFont font;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionViewItem(int version);
 
@@ -333,7 +262,6 @@ public:
     QPalette::ColorRole bgRole;
     QPalette::ColorRole currentWidgetBGRole;
     QPalette currentWidgetPalette;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionToolBox(int version);
 
@@ -350,14 +278,13 @@ class QStyleOptionComplex : public QStyleOption
 public:
     enum { Type = SO_Complex };
 
-    QStyle::SCFlags parts;
-    QStyle::SCFlags activeParts;
-    QSTYLEOPTION_PADDING(0, 8);
+    QStyle::SubControls parts;
+    QStyle::SubControls activeParts;
 
     QStyleOptionComplex(int version, int type = SO_Complex);
 
-    QDOC_PROPERTY(QStyle::SCFlags parts);
-    QDOC_PROPERTY(QStyle::SCFlags activeParts);
+    QDOC_PROPERTY(QStyle::SubControls parts);
+    QDOC_PROPERTY(QStyle::SubControls activeParts);
 };
 
 class QStyleOptionSlider : public QStyleOptionComplex
@@ -375,7 +302,6 @@ public:
     int sliderValue;
     int singleStep;
     int pageStep;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionSlider(int version);
 
@@ -401,7 +327,6 @@ public:
     double percentage;
     bool slider;
     bool frame;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionSpinBox(int version);
 
@@ -424,7 +349,6 @@ public:
     int itemMargin;
     int treeStepSize;
     bool rootIsDecorated;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionListView(int version);
 
@@ -453,7 +377,6 @@ public:
     QPoint pos;
     QFont font;
     QToolButton::TextPosition textPosition;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionToolButton(int version);
 
@@ -467,6 +390,8 @@ public:
     QDOC_PROPERTY(QToolButton::TextPosition textPosition);
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionToolButton::ToolButtonFeatures);
+
 class QStyleOptionComboBox : public QStyleOptionComplex
 {
 public:
@@ -474,7 +399,6 @@ public:
 
     bool editable;
     QRect popupRect;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionComboBox(int version);
 
@@ -491,7 +415,6 @@ public:
     QPixmap icon;
     int titleBarState;
     Qt::WFlags titleBarFlags;
-    QSTYLEOPTION_PADDING(0, 8);
 
     QStyleOptionTitleBar(int version);
 

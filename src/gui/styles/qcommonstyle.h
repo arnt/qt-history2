@@ -53,8 +53,8 @@ public:
     QPixmap standardPixmap(StandardPixmap sp, const QStyleOption *opt = 0,
                            const QWidget *widget = 0) const;
 
-    QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                        const QStyleOption *opt) const;
+    QPixmap generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
+                                const QStyleOption *opt) const;
 
 private:
     Q_DISABLE_COPY(QCommonStyle)

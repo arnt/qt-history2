@@ -57,7 +57,7 @@ public:
                   QStyleHintReturn *returnData = 0) const;
 
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
-                        const QWidget *widget = 0) const;
+                           const QWidget *widget = 0) const;
 
 private:
     Q_DISABLE_COPY(QWindowsStyle)

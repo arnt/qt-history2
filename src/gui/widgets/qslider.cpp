@@ -30,7 +30,7 @@ class QSliderPrivate : public QAbstractSliderPrivate
 {
     Q_DECLARE_PUBLIC(QSlider)
 public:
-    uint pressedControl;
+    QStyle::SubControl pressedControl;
     int tickInterval;
     QSlider::TickSetting tickSetting;
     int clickOffset;

@@ -75,8 +75,8 @@ public:
     QPixmap standardPixmap(StandardPixmap sp, const QStyleOption *opt,
                            const QWidget *widget = 0) const;
 
-    QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                        const QStyleOption *opt) const;
+    QPixmap generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
+                                const QStyleOption *opt) const;
 
     virtual void drawItem(QPainter *p, const QRect &r,
                           int flags, const QPalette &pal, bool enabled,

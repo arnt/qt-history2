@@ -564,9 +564,9 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         opt.rect = primitive;
         opt.state = QStyle::Style_Item
                     | (d->model->rowCount(parent) - 1 > index.row()
-                       ? QStyle::Style_Sibling : 0)
-                    | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
-                    | (d->items.at(d->current).open ? QStyle::Style_Open : 0);
+                       ? QStyle::Style_Sibling : QStyle::Style_Default)
+                    | (model()->hasChildren(index) ? QStyle::Style_Children : QStyle::Style_Default)
+                    | (d->items.at(d->current).open ? QStyle::Style_Open : QStyle::Style_Default);
         style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
     }
     // then go out level by level

@@ -4774,17 +4774,16 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
 }
 
 /*! \reimp */
-QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                               const QStyleOption *opt) const
+QPixmap QMacStyle::generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
+                                       const QStyleOption *opt) const
 {
-    QPixmap px = pixmap;
-    switch (pixmaptype) {
-    case QStyle::PT_Disabled: {
-        QImage img = px.toImage();
+    switch (iconMode) {
+    case QStyle::IM_Disabled: {
+        QImage img = pixmap.toImage();
         img.setAlphaBuffer(true);
-        QRgb pixel;
         int imgh = img.height();
         int imgw = img.width();
+        QRgb pixel;
         for (int y = 0; y < imgh; ++y) {
             for (int x = 0; x < imgw; ++x) {
                 pixel = img.pixel(x, y);
@@ -4792,10 +4791,9 @@ QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                                          qAlpha(pixel) / 2));
             }
         }
-        px = img;
-        break; }
-    case QStyle::PT_Active: {
-        QImage img = px.toImage();
+        return img; }
+    case QStyle::IM_Active: {
+        QImage img = pixmap.toImage();
         img.setAlphaBuffer(true);
         int imgh = img.height();
         int imgw = img.width();
@@ -4814,12 +4812,11 @@ QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                 img.setPixel(x, y, qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), a));
             }
         }
-        px = img;
-        break; }
+        return img; }
     default:
-        px = QCommonStyle::stylePixmap(pixmaptype, pixmap, opt);
+        ;
     }
-    return px;
+    return QCommonStyle::generatedIconPixmap(iconMode, pixmap, opt);
 }
 
 /*! \reimp */

@@ -2554,9 +2554,9 @@ QObjectUserData* QObject::userData(uint id) const
 #endif // QT_NO_USERDATA
 
 
-#if !defined(Q_OS_DARWIN) || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QObject *o) {
+#ifndef Q_NO_STREAMING_DEBUG
     if (!o)
         return dbg << "QObject(0x0) ";
     dbg.nospace() << o->metaObject()->className() << "(" << (void *)o;
@@ -2564,8 +2564,12 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
         dbg << ", name = \"" << o->objectName() << '\"';
     dbg << ')';
     return dbg.space();
-}
+#else
+    qWarning("This compiler doesn't support the streaming of QDebug");
+    return dbg;
+    Q_UNUSED(o);
 #endif
+}
 #endif
 
 /*!

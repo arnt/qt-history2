@@ -6550,7 +6550,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
     int r = marg;
 
     // Draw controller / checkbox / radiobutton ---------------------
-    int styleflags = QStyle::Style_Default;
+    QStyle::StyleFlags styleflags = QStyle::Style_Default;
     if (internalState() == On) {
         styleflags |= QStyle::Style_On;
     } else if (internalState() == NoChange) {

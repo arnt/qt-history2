@@ -445,7 +445,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     QStyleOption option(0);
     option.palette = pal;
     if (!enabled)
-        pm = stylePixmap(PT_Disabled, pm, &option);
+        pm = generatedIconPixmap(IM_Disabled, pm, &option);
 
     int fillX = qMax(rect.x(), x);
     int fillY = qMax(rect.y(), y);
@@ -1476,9 +1476,9 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 */
 
 /*!
-    \enum QStyle::StylePixmap
+    \enum QStyle::StandardPixmap
 
-    This enum represents a StylePixmap. A StylePixmap is a pixmap that
+    This enum represents a StandardPixmap. A StandardPixmap is a pixmap that
     can follow some existing GUI style or guideline.
 
     \value SP_TitleBarMinButton  Minimize button on title bars (e.g.,
@@ -1509,31 +1509,31 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value SP_CustomBase  Base value for custom ControlElements;
     custom values must be greater than this value
 
-    \sa stylePixmap()
+    \sa standardPixmap()
 */
 
 /*!
-  \enum QStyle::PixmapType
+  \enum QStyle::IconMode
 
   This enum represents the effects performed on a pixmap to achieve a
   GUI style's perferred way of representing the image in different
   states.
 
-  \value PT_Disabled  A disabled pixmap (drawn on disabled widgets)
-  \value PT_Active  An active pixmap (drawn on active tool buttons and menu items)
-  \value PT_CustomBase  Base value for custom PixmapTypes; custom
+  \value IM_Disabled  A disabled pixmap (drawn on disabled widgets)
+  \value IM_Active  An active pixmap (drawn on active tool buttons and menu items)
+  \value IM_CustomBase  Base value for custom PixmapTypes; custom
   values must be greater than this value
 
-  \sa stylePixmap()
+  \sa generatedIconPixmap()
 */
 
 /*!
-    \fn QPixmap QStyle::stylePixmap(PixmapType pixmapType, const QPixmap &pixmap, \
+    \fn QPixmap QStyle::generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap, \
                                     const QStyleOption *option) const
 
     \overload
 
-    Returns a pixmap styled to conform to \a pixmapType description
+    Returns a pixmap styled to conform to \a iconMode description
     out of \a pixmap, and taking into account the palette specified by
     \a option.
 
@@ -1544,18 +1544,16 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 */
 
 /*!
-    \fn QPixmap QStyle::stylePixmap(StylePixmap stylePixmap, const QStyleOption *option, \
-                                    const QWidget *widget) const
+    \fn QPixmap QStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option, \
+                                       const QWidget *widget) const
 
-    Returns a pixmap for \a stylePixmap.
+    Returns a pixmap for \a standardPixmap.
 
     The \a option argument can be used to pass extra information required
     when drawing the ControlElement. Currently, the \a option argument is unused.
 
     The \a widget argument is optional and may contain a widget that
     may aid in drawing the control.
-
-    \sa StylePixmap
 */
 
 /*!

@@ -839,7 +839,7 @@ static char * trashcan_xpm[] = {
  \reimp
  */
 QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
-                                   const QWidget *widget) const
+                                      const QWidget *widget) const
 {
 #ifndef QT_NO_IMAGEIO_XPM
     switch (standardPixmap) {

@@ -118,7 +118,7 @@ class QScrollBarPrivate : public QAbstractSliderPrivate
 {
     Q_DECLARE_PUBLIC(QScrollBar)
 public:
-    uint pressedControl;
+    QStyle::SubControl pressedControl;
     bool pointerLeftControl;
 
     int clickOffset, snapBackPosition;
@@ -293,7 +293,7 @@ void QScrollBarPrivate::init()
 QSize QScrollBar::sizeHint() const
 {
     ensurePolished();
-   QStyleOptionSlider opt = d->getStyleOption();
+    QStyleOptionSlider opt = d->getStyleOption();
     int sbextent = style().pixelMetric(QStyle::PM_ScrollBarExtent, &opt, this);
     if (d->orientation == Qt::Horizontal)
         return QSize(30, sbextent);
@@ -382,7 +382,7 @@ void QScrollBar::mouseReleaseEvent(QMouseEvent *e)
     if (e->stateAfter() & Qt::MouseButtonMask) // some other button is still pressed
         return;
 
-    QStyle::SubControl tmp = (QStyle::SubControl) d->pressedControl;
+    QStyle::SubControl tmp = d->pressedControl;
     setRepeatAction(SliderNoAction);
     d->pressedControl = QStyle::SC_None;
     if (tmp == QStyle::SC_ScrollBarSlider)
@@ -424,7 +424,7 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
         opt.parts = d->pressedControl;
         QRect pr = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ScrollBar,
                                                                      &opt,
-                                                                     QStyle::SubControl(opt.parts),
+                                                                     d->pressedControl,
                                                                      this), this);
         if (pr.contains(e->pos()) == d->pointerLeftControl) {
             if ((d->pointerLeftControl = !d->pointerLeftControl)) {
