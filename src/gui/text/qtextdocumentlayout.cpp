@@ -504,7 +504,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
             }
             layoutStruct.y = y;
             layoutStruct.x_left = td->columnPositions.at(c);
-            layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - layoutStruct.x_left;
+            layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1);
 //             qDebug("cell %d/%d at %d-%d/%d", r, c, layoutStruct.x_left, layoutStruct.x_right, layoutStruct.y);
 
             QTextFrame::Iterator it = cell.begin();
@@ -521,34 +521,6 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
                  : td->contentsHeight + 2*margin;
     td->boundingRect = QRect(0, 0, td->contentsWidth + 2*margin, height);
     td->dirty = false;
-}
-
-void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruct *layoutStruct)
-{
-    QTextFrameData *fd = data(layoutStruct->frame);
-
-    for ( ; !it.atEnd(); ++it) {
-        QTextFrame *c = it.currentFrame();
-
-        if (c && !fd->layoutedFrames.contains(c)) {
-            QTextFrameData *cd = data(c);
-            if (cd->position == QTextFrameFormat::InFlow) {
-                cd->boundingRect.moveTopLeft(QPoint(layoutStruct->x_left, layoutStruct->y));
-                layoutStruct->y += cd->boundingRect.height();
-            } else {
-                int left, right;
-                floatMargins(layoutStruct, &left, &right);
-                if (cd->position == QTextFrameFormat::FloatLeft)
-                    cd->boundingRect.moveTopLeft(QPoint(left, layoutStruct->y));
-                else
-                    cd->boundingRect.moveTopRight(QPoint(right, layoutStruct->y));
-                fd->layoutedFrames.append(c);
-            }
-        } else {
-            layoutBlock(it.currentBlock(), layoutStruct);
-        }
-    }
-
 }
 
 void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo)
@@ -666,6 +638,34 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     fd->dirty = false;
 }
 
+void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruct *layoutStruct)
+{
+    QTextFrameData *fd = data(layoutStruct->frame);
+
+    for ( ; !it.atEnd(); ++it) {
+        QTextFrame *c = it.currentFrame();
+
+        if (c && !fd->layoutedFrames.contains(c)) {
+            QTextFrameData *cd = data(c);
+            if (cd->position == QTextFrameFormat::InFlow) {
+                cd->boundingRect.moveTopLeft(QPoint(layoutStruct->x_left, layoutStruct->y));
+                layoutStruct->y += cd->boundingRect.height();
+            } else {
+                int left, right;
+                floatMargins(layoutStruct, &left, &right);
+                if (cd->position == QTextFrameFormat::FloatLeft)
+                    cd->boundingRect.moveTopLeft(QPoint(left, layoutStruct->y));
+                else
+                    cd->boundingRect.moveTopRight(QPoint(right, layoutStruct->y));
+                fd->layoutedFrames.append(c);
+            }
+        } else {
+            layoutBlock(it.currentBlock(), layoutStruct);
+        }
+    }
+
+}
+
 void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layoutStruct)
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
@@ -685,7 +685,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
     int l = layoutStruct->x_left + blockFormat.leftMargin() + indent(bl);
     int r = layoutStruct->x_right - blockFormat.rightMargin();
 
-    tl->setPosition(QPoint(0, cy));
+    tl->setPosition(QPoint(l, cy));
 
     while (1) {
         QTextLine line = tl->createLine();
@@ -716,7 +716,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
             }
         }
 
-        line.setPosition(QPoint(left, layoutStruct->y - cy));
+        line.setPosition(QPoint(left-l, layoutStruct->y - cy));
         layoutStruct->y += line.ascent() + line.descent() + 1;
         widthUsed = qMax(widthUsed, line.textWidth());
     }
