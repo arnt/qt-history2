@@ -411,7 +411,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     } else {
 	w = image.width();
 	h = image.height();
-	d = image.depth();	
+	d = image.depth();
     }
 
     if ( w == 0 || h == 0 || d == 0 )		// invalid image or pixmap
@@ -420,7 +420,8 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     if ( d > 1 && d <= 8 ) {			// set to nearest valid depth
 	d = 8;					//   2..7 ==> 8
 	ncols = 256;
-    } else if ( d > 8 ) {
+    }
+    else if ( d > 8 ) {
 	d = 32;					//   > 8  ==> 32
 	ncols = 0;
     }
@@ -444,7 +445,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = 0;
 
-    if ( ncols > 0 && !image.isNull() ) {	// image with color table
+    if ( ncols > 0  && !image.isNull()) {	// image with color map
 	RGBQUAD *r = (RGBQUAD*)(bmi_data + sizeof(BITMAPINFOHEADER));
 	ncols = QMIN(ncols,image.numColors());
 	for ( int i=0; i<ncols; i++ ) {
@@ -521,18 +522,26 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 	    int w;
 	    int h;
-	    //int d; // NOT USED
 
 	    if ( c == PdcDrawPixmap ) {
 		pixmap = *p[1].pixmap;
 		w = pixmap.width();
 		h = pixmap.height();
-		//d = pixmap.depth();
+		if ( pixmap.isQBitmap() ) {
+		    QColor bg = paint->backgroundColor();
+		    QColor fg = paint->pen().color();
+		    if ( (bg != Qt::white) || (fg != Qt::black) ) {
+			image = pixmap;
+			image.convertDepth( 8 );
+			image.setColor( 0, bg.rgb() );
+			image.setColor( 1, fg.rgb() );
+			pixmap = QPixmap();
+		    }
+		}
 	    } else {
 		image = *p[1].image;
 		w = image.width();
 		h = image.height();
-		//d = image.depth();
 	    }
 
 	    double xs = 1.0;			// x stretch
@@ -561,7 +570,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
 	    uchar *bits;
 
-	    if ( c == PdcDrawPixmap ) {
+	    if ( image.isNull() ) {
 		bits = new uchar[bmh->biSizeImage];
 		// We are guaranteed that the QPainter does not pass
 		// a multi cell pixmap, therefore we can access hbm().
@@ -587,7 +596,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		DeleteObject( hbm );
 		DeleteObject( hdcPrn );
 	    }
-	    if ( c == PdcDrawPixmap ) {
+	    if ( image.isNull() ) {
 		delete [] bits;
 	    }
 	    free( bmi );
