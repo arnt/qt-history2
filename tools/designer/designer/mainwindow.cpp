@@ -2250,14 +2250,7 @@ QObjectList *MainWindow::runProject()
     oWindow->parentWidget()->show();
     oWindow->clearErrorMessages();
     oWindow->clearDebug();
-#ifndef QT_NO_SQL
-    QStringList conns = currentProject->databaseConnectionList();
-    QStringList::Iterator cit;
-    for ( cit = conns.begin(); cit != conns.end(); ++cit )
-	currentProject->openDatabase( *cit, FALSE );
-
     QApplication::setOverrideCursor( WaitCursor );
-#endif
 
     delete qwf_functions;
     qwf_functions = 0;
