@@ -180,6 +180,8 @@ public:
 
     QUrl url() const;
 
+    void addFilter( const QString &filter );
+
 public slots:
     void done( int );
     void setDir( const QString& );
@@ -197,7 +199,6 @@ protected:
     void addToolButton( QButton *b, bool separator = FALSE );
     void addLeftWidget( QWidget *w );
     void addRightWidget( QWidget *w );
-    void addFilter( const QString &filter );
 
 signals:
     void fileHighlighted( const QString& );
