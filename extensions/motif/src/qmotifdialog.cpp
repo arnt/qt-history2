@@ -435,7 +435,7 @@ void QMotifDialog::acceptCallback( Widget widget, XtPointer client_data, XtPoint
     QMotifDialog *dialog = (QMotifDialog *) client_data;
 
 #ifdef QT_CHECK_STATE
-    if ( dialog->d->dialog != widget ) {
+    if ( ! dialog->d->wdict.find( XtWindow( widget ) ) ) {
 	qWarning( "QMotifDialog::acceptCallback: dialog does not contain widget." );
 	return;
     }
@@ -452,7 +452,7 @@ void QMotifDialog::rejectCallback( Widget widget, XtPointer client_data, XtPoint
     QMotifDialog *dialog = (QMotifDialog *) client_data;
 
 #ifdef QT_CHECK_STATE
-    if ( dialog->d->dialog != widget ) {
+    if ( ! dialog->d->wdict.find( XtWindow( widget ) ) ) {
 	qWarning( "QMotifDialog::rejectCallback: dialog does not contain widget." );
 	return;
     }
