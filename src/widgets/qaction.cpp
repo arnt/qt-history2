@@ -1511,7 +1511,7 @@ void QActionGroup::add( QAction* action )
     connect( action, SIGNAL( toggled( bool ) ), this, SLOT( childToggled( bool ) ) );
 
     for ( QPtrListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
-	cb.current()->insertItem( action->iconSet().pixmap(), action->text() );
+	action->addTo( cb.current() );
     }
     for ( QPtrListIterator<QToolButton> mb( d->menubuttons ); mb.current(); ++mb ) {
 	QPopupMenu* popup = mb.current()->popup();
