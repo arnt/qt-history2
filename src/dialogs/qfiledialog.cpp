@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#29 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#30 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#30 $");
 
 
 /*!
@@ -42,7 +42,7 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#29 $");
     }
   \endcode
 
-  There are two ready-made convenience functions, getOpenFileDialog()
+  There are two ready-made convenience functions, getOpenFileName()
   and getSaveFileName(), which may be used like this:
 
   \code
@@ -299,7 +299,7 @@ void QFileDialog::rereadDir()
   Example:
   \code
     // start at the current working directory and with *.cpp as filter
-    QString f = QFileDialog::getOpenFileDialog( 0, "*.cpp", this );
+    QString f = QFileDialog::getOpenFileName( 0, "*.cpp", this );
     if ( !f.isEmpty() ) {
         // the user selected a valid existing file
     } else {
