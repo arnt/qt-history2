@@ -40,6 +40,7 @@ my $showonly = 0;
 my $remove_stale = 1;
 my $force_win = 0;
 my $force_relative = 0;
+my $copy_headers = 0;
 my @modules_to_sync;
 $force_relative = 1 if ( -d "/System/Library/Frameworks" );
 my $includedir = $basedir . "/include";
@@ -56,6 +57,7 @@ $includedir =~ s=\\=/=g;
 sub showUsage
 {
     print "$0 usage:\n";
+    print "  -copy                 Copy headers instead of include-fwd(default: " . ($copy_headers ? "yes" : "no") . ")\n";
     print "  -remove-stale         Removes stale headers              (default: " . ($remove_stale ? "yes" : "no") . ")\n";
     print "  -relative             Force relative symlinks            (default: " . ($force_relative ? "yes" : "no") . ")\n";
     print "  -windows              Force platform to Windows          (default: " . ($force_win ? "yes" : "no") . ")\n";
@@ -224,21 +226,20 @@ sub syncHeader {
     my ($header, $iheader) = @_;
     $iheader =~ s=\\=/=g;
     $header =~ s=\\=/=g;
-    if(-e "$iheader") {
-        my $iheader_no_basedir = $iheader;
-        $iheader_no_basedir =~ s,^$basedir/?,,;
 
-	unless(-e "$header") {
-	    my $header_dir = dirname($header);
-	    mkpath $header_dir, 0777;
-
-	    #write it
-	    my $iheader_out = fixPaths($iheader, $header);
-	    open HEADER, ">$header" || die "Could not open $header for writing!\n";
-	    print HEADER "#include \"$iheader_out\"\n";
-	    close HEADER;
-	    return 1;
-	}
+    my $iheader_no_basedir = $iheader;
+    $iheader_no_basedir =~ s,^$basedir/?,,;
+    
+    unless(-e "$header") {
+        my $header_dir = dirname($header);
+        mkpath $header_dir, 0777;
+    
+        #write it
+        my $iheader_out = fixPaths($iheader, $header);
+        open HEADER, ">$header" || die "Could not open $header for writing!\n";
+        print HEADER "#include \"$iheader_out\"\n";
+        close HEADER;
+        return 1;
     }
     return 0;
 }
@@ -383,6 +384,8 @@ sub symlinkFile
 
     if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
         if ( $copy > 0 ) {
+            my $file_dir = dirname($file);
+            mkpath $file_dir, 0777 unless(-e "$file_dir");
             open(O, "> " . $file) || die "Could not open $file for writing (no write permission?)";
             local $/;
             binmode O;
@@ -390,6 +393,8 @@ sub symlinkFile
             close O;
             print "$file written\n";
         } elsif ( $copy < 0 ) {
+            my $ifile_dir = dirname($ifile);
+            mkpath $ifile_dir, 0777 unless(-e "$ifile_dir");
             open(O, "> " . $ifile) || die "Could not open $ifile for writing (no write permission?)";
             local $/;
             binmode O;
@@ -451,6 +456,9 @@ while ( @ARGV ) {
     if ("$arg" eq "-h" || "$arg" eq "-help" || "$arg" eq "?") {
 	$var = "show_help";
 	$val = "yes";
+    } elsif("$arg" eq "-copy") {
+	$var = "copy";
+	$val = "yes";
     } elsif("$arg" eq "-o" || "$arg" eq "-outdir") {
 	$var = "output";
 	$val = shift @ARGV;
@@ -476,6 +484,12 @@ while ( @ARGV ) {
     if(!$var || "$var" eq "show_help") {
 	print "Unknown option: $arg\n\n" if(!$var);
 	showUsage();
+    } elsif ("$var" eq "copy") {
+	if("$val" eq "yes") {
+	    $copy_headers++;
+	} elsif($showonly) {
+	    $copy_headers--;
+	}
     } elsif ("$var" eq "showonly") {
 	if("$val" eq "yes") {
 	    $showonly++;
@@ -648,13 +662,21 @@ foreach (@modules_to_sync) {
 			} else {
 			    @headers = ( "$includedir/Qt/private/$header", "$includedir/$lib/private/$header" );
 			}
-			foreach(@classes) {
-			    push @headers, "$includedir/$lib/$_";
-			}
+
                         #do the syncing..
+                        my $old_isunix = $isunix;
+                        $isunix = 0;
 			foreach(@headers) {
-			    $header_copies++ if(syncHeader($_, $iheader));
+                            if ($copy_headers) {
+			        $header_copies++ if(symlinkFile($iheader, $_));
+			    } else {
+			        $header_copies++ if(syncHeader($_, $iheader));
+			    }
 			}
+    		        foreach(@classes) {
+    		            $header_copies++ if(syncHeader("$includedir/$lib/$_", $copy_headers ? "$header" : "$iheader"));
+    		        }
+                        $isunix = $old_isunix;
 
 			if($public_header) {
 			    #put it into the master file
