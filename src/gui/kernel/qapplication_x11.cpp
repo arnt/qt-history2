@@ -5499,16 +5499,8 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
 
 QSessionManager::~QSessionManager()
 {
-    if (smcConnection) {
-        fd_set readset;
-        int fd = IceConnectionNumber(SmcGetIceConnection(smcConnection));
-        FD_ZERO(&readset);
-        FD_SET(fd, &readset);
-        struct timeval tv = { 0, 0 };
-        if (::select(fd + 1, &readset, 0, 0, &tv) > 0)
-            IceProcessMessages(SmcGetIceConnection(smcConnection), 0, 0);
+    if (smcConnection)
         SmcCloseConnection(smcConnection, 0, 0);
-    }
     smcConnection = 0;
     delete sm_receiver;
 }
