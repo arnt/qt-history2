@@ -57,3 +57,29 @@
 /*!
     \quickproperty Pixmap.size : Size
 */
+
+/*!
+    \quickfn Pixmap.fill( col : Color )
+
+    \quickify
+*/
+
+/*!
+    \quickfn Pixmap.load( fileName : String )
+*/
+
+/*!
+    \quickfn Pixmap.resize( size : Size )
+
+    \quickify
+*/
+
+/*!
+    \quickfn Pixmap.resize( width : Number, height : Number )
+
+    \quickify
+*/
+
+/*!
+    \quickfn Pixmap.save( fileName : String [ , format : String ] )
+*/

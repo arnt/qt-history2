@@ -146,6 +146,7 @@ void QsCodeParser::doneParsingHeaderFiles( Tree *tree )
 	    quickifyClass( (ClassNode *) *c );
 	++c;
     }
+    cppTre->root()->deleteChildren(); // save memory
     tree->resolveInheritance();
 }
 
@@ -203,24 +204,18 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	FunctionNode *clone;
 
 	if ( makeFunctionNode(arg, &parentPath, &clone) ) {
-	    quickFunc = qsTre->findFunctionNode( parentPath, clone );
-	    if ( quickFunc == 0 ) {
-		QStringList path = parentPath;
-		path << clone->name();
-		FunctionNode *kernelFunc = (FunctionNode *)
-			qsTre->findFunctionNode( path );
+	    FunctionNode *kernelFunc = findKernelFunction( parentPath,
+							   clone->name() );
+	    if ( kernelFunc != 0 )
+		kernelFunc->setAccess( Node::Private );
 
-		if ( kernelFunc != 0 &&
-		     kernelFunc->returnType() == "Object" &&
-		     kernelFunc->parameters().count() == 1 &&
-		     kernelFunc->parameters().first().leftType() == "..." ) {
-		    kernelFunc->setAccess( Node::Private );
-		    quickFunc = new FunctionNode( kernelFunc->parent(),
-						  kernelFunc->name() );
-		    quickFunc->setLocation( kernelFunc->location() );
-		    quickFunc->setReturnType( clone->returnType() );
-		    quickFunc->setParameters( clone->parameters() );
-		}
+	    quickFunc = qsTre->findFunctionNode( parentPath, clone );
+	    if ( quickFunc == 0 && kernelFunc != 0 ) {
+		quickFunc = new FunctionNode( kernelFunc->parent(),
+					      kernelFunc->name() );
+		quickFunc->setLocation( kernelFunc->location() );
+		quickFunc->setReturnType( clone->returnType() );
+		quickFunc->setParameters( clone->parameters() );
 	    }
 
 	    if ( quickFunc == 0 ) {
@@ -228,6 +223,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 					   " '\\%2'")
 					.arg(arg).arg(command) );
 	    } else {
+		quickFunc->setAccess( Node::Public );
 		QStringList qtParams = quickFunc->parameterNames();
 		quickFunc->borrowParameterNames( clone );
 		QStringList quickParams = quickFunc->parameterNames();
@@ -267,10 +263,10 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 					    .arg(quickNode->name()) );
 	    } else if ( quickNode->type() == Node::Property ) {
 		PropertyNode *quickProperty = (PropertyNode *) quickNode;
-		if ( quickProperty->dataType() == "Variant" ) {
+		if ( quickProperty->dataType() == "Object" ) {
 		    if ( dataType.isEmpty() ) {
 			doc.location().warning( tr("Missing data type in '\\%1'"
-						   " (assuming 'Variant')")
+						   " (assuming 'Object')")
 						.arg(command) );
 		    } else {
 			quickProperty->setDataType( dataType );
@@ -309,6 +305,15 @@ void QsCodeParser::processOtherMetaCommand( const Doc& doc,
 ClassNode *QsCodeParser::tryClass( const QString& className )
 {
     return (ClassNode *) cppTre->findNode( className, Node::Class );
+}
+
+FunctionNode *QsCodeParser::findKernelFunction( const QStringList& parentPath,
+						const QString& name )
+{
+    FunctionNode clone( 0, name );
+    clone.setReturnType( "Object" );
+    clone.addParameter( Parameter("...") );
+    return qsTre->findFunctionNode( parentPath, &clone );
 }
 
 void QsCodeParser::extractRegExp( const QRegExp& regExp, QString& source,
@@ -435,7 +440,7 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 {
     QString qtClassName = quickClass->name();
     QString bare = quickClass->name();
-    if ( bare != "Qt" ) {
+    if ( bare != "Qt" && bare != "Object" ) {
 	if ( bare.startsWith("Q") ) {
 	    bare = bare.mid( 1 );
 	} else {
@@ -487,10 +492,12 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	ClassNode *quickBaseClass = cpp2qs.findClassNode( qsTre,
 							  (*r).node->name() );
 	if ( quickBaseClass != 0 )
-	    quickClass->addBaseClass( (*r).access, quickBaseClass,
-				      (*r).templateArgs );
+	    quickClass->addBaseClass( (*r).access, quickBaseClass );
 	++r;
     }
+    if ( quickClass->baseClasses().isEmpty() && quickClass->name() != "Object" )
+	quickClass->addBaseClass( Node::Public,
+				  cpp2qs.findClassNode(qsTre, "Object") );
 
     Set<QString> funcBlackList;
     Set<QString> propertyBlackList;
@@ -523,12 +530,11 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 			    propertyBlackList.insert( property->name() );
 			}
 		    }
-		} else {
-		    if ( (*c)->type() == Node::Function &&
-			  !funcBlackList.contains((*c)->name()) )  {
-			FunctionNode *func = (FunctionNode *) *c;
-			quickifyFunction( quickClass, qtClass, func );
-		    }
+		} else if ( (*c)->type() == Node::Function )  {
+		    FunctionNode *func = (FunctionNode *) *c;
+		    quickifyFunction( quickClass, qtClass, func,
+				      funcBlackList.contains((*c)->name()) &&
+				      func->parameters().count() < 2 );
 		}
 	    }
 	    ++c;
@@ -557,19 +563,33 @@ void QsCodeParser::quickifyEnum( ClassNode *quickClass, EnumNode *enume )
 }
 
 void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
-				     FunctionNode *func )
+				     FunctionNode *func, bool onBlackList )
 {
     if ( func->metaness() == FunctionNode::Dtor )
 	return;
+
+    FunctionNode *kernelFunc = findKernelFunction(
+	    QStringList() << quickClass->name(), func->name() );
 
     QString quickName = func->name();
     if ( func->metaness() == FunctionNode::Ctor )
 	quickName = quickClass->name();
     FunctionNode *quickFunc = new FunctionNode( quickClass, quickName );
-
     quickFunc->setLocation( func->location() );
-    if ( func->metaness() == FunctionNode::Plain )
+
+    if ( onBlackList ) {
 	quickFunc->setAccess( Node::Protected );
+    } else {
+	if ( kernelFunc != 0 && func->numOverloads() == 1 &&
+	     (func->parameters().count() == 0 ||
+	      func->parameters().last().defaultValue().isEmpty()) ) {
+	    kernelFunc->setAccess( Node::Private );
+	} else {
+	    if ( func->metaness() == FunctionNode::Plain )
+		quickFunc->setAccess( Node::Protected );
+	}
+    }
+
     quickFunc->setReturnType( cpp2qs.convertedDataType(qsTre,
 						       func->returnType()) );
     if ( func->metaness() != FunctionNode::Slot )
@@ -579,9 +599,14 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 
     QValueList<Parameter>::ConstIterator q = func->parameters().begin();
     while ( q != func->parameters().end() ) {
-	Parameter param( cpp2qs.convertedDataType(qsTre, (*q).leftType(),
-						  (*q).rightType()),
-			 "", (*q).name() );
+	QString dataType = cpp2qs.convertedDataType( qsTre, (*q).leftType(),
+						     (*q).rightType() );
+	if ( dataType.isEmpty() ) {
+	    dataType = "UNKNOWN";
+	    quickFunc->setAccess( Node::Private );
+	}
+	Parameter param( dataType, "", (*q).name(),
+			 (*q).defaultValue().isEmpty() ? "" : "undefined" );
 	quickFunc->addParameter( param );
 	++q;
     }

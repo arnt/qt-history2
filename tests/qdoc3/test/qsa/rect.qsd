@@ -33,3 +33,25 @@
 /*!
     \quickproperty Rect.center : Point
 */
+
+/*!
+    \quickfn Rect.contains( p : Point ) : Boolean
+*/
+
+/*!
+    \quickfn Rect.contains( x : Number, y : Number ) : Boolean
+
+    \quickify
+*/
+
+/*!
+    \quickfn Rect.intersection( r : Rect ) : Rect
+
+    \omit This corresponds to QRect::intersection() --Jasmin \endomit
+*/
+
+/*!
+    \quickfn Rect.union( r : Rect ) : Rect
+
+    \omit This corresponds to QRect::union() --Jasmin \endomit
+*/

@@ -21,7 +21,7 @@ public:
     enum SectioningUnit { Book = -2, Part, Chapter, Section1,
 			  Section2, Section3, Section4 };
 
-    Doc();
+    Doc() : priv( 0 ) { }
     Doc( const Location& loc, const QString& source,
 	 const Set<QString>& metaCommandSet );
     Doc( const Doc& doc );

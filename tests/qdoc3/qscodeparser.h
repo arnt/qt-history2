@@ -39,6 +39,8 @@ protected:
 
 private:
     ClassNode *tryClass( const QString& className );
+    FunctionNode *findKernelFunction( const QStringList& parentPath,
+				      const QString& name );
     void extractRegExp( const QRegExp& regExp, QString& source,
 			const Doc& doc );
     void extractTarget( const QString& target, QString& source,
@@ -50,7 +52,7 @@ private:
     void quickifyClass( ClassNode *quickClass );
     void quickifyEnum( ClassNode *quickClass, EnumNode *enume );
     void quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
-			   FunctionNode *func );
+			   FunctionNode *func, bool onBlackList );
     void quickifyProperty( ClassNode *quickClass, ClassNode *qtClass,
 			   PropertyNode *property );
     QString quickifiedDoc( const QString& source );

@@ -5,3 +5,11 @@
 /*!
     \quickproperty ByteArray.size : Number
 */
+
+/*!
+    \quickfn ByteArray.charAt( index : Number ) : String
+*/
+
+/*!
+    \quickfn ByteArray.toString() : String
+*/

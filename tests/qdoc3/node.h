@@ -46,13 +46,13 @@ protected:
     Node( Type type, InnerNode *parent, const QString& name );
 
 private:
-    Type typ;
+    Type typ : 3;
+    Access acc : 2;
+    Status sta : 2;
     InnerNode *par;
     QString nam;
-    Access acc;
     Location loc;
     Doc d;
-    Status sta;
 };
 
 class FunctionNode;
@@ -71,6 +71,7 @@ public:
     void addInclude( const QString& include );
     void setOverload( const FunctionNode *func, bool overlode );
     void normalizeOverloads();
+    void deleteChildren();
 
     virtual bool isInnerNode() const;
     const Node *findNode( const QString& name ) const;
@@ -79,6 +80,7 @@ public:
     const FunctionNode *findFunctionNode( const FunctionNode *clone ) const;
     const NodeList& childNodes() const { return children; }
     int overloadNumber( const FunctionNode *func ) const;
+    int numOverloads( const QString& funcName ) const;
     const QStringList& includes() const { return inc; }
 
 protected:
@@ -136,7 +138,7 @@ public:
     ClassNode( InnerNode *parent, const QString& name );
 
     void addBaseClass( Access access, ClassNode *node,
-		       const QString& templateArgs );
+		       const QString& templateArgs = "" );
 
     const QValueList<RelatedClass>& baseClasses() const { return bas; }
     const QValueList<RelatedClass>& derivedClasses() const { return der; }
@@ -245,6 +247,7 @@ public:
     bool isStatic() const { return sta; }
     bool isOverload() const { return ove; }
     int overloadNumber() const;
+    int numOverloads() const;
     const QValueList<Parameter>& parameters() const { return params; }
     QStringList parameterNames() const;
     const FunctionNode *reimplementedFrom() const { return rf; }
@@ -254,11 +257,11 @@ private:
     friend class InnerNode;
 
     QString rt;
-    Metaness met;
-    Virtualness vir;
-    bool con;
-    bool sta;
-    bool ove;
+    Metaness met : 3;
+    Virtualness vir : 2;
+    bool con : 1;
+    bool sta : 1;
+    bool ove : 1;
     QValueList<Parameter> params;
     const FunctionNode *rf;
     QValueList<FunctionNode *> rb;
@@ -296,8 +299,8 @@ private:
     QString get;
     QString set;
     QString reset;
-    Trool sto;
-    Trool des;
+    Trool sto : 2;
+    Trool des : 2;
 };
 
 inline void FunctionNode::setParameters(

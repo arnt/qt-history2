@@ -17,3 +17,9 @@
 /*!
     \quickproperty Color.rgb : Number
 */
+
+/*!
+    \quickfn Color.setRgb( r : Number, g : Number, b : Number )
+
+    \quickify
+*/

@@ -1630,11 +1630,6 @@ QString DocParser::slashed( const QString& str )
     return "/" + result + "/";
 }
 
-Doc::Doc()
-{
-    priv = new DocPrivate;
-}
-
 Doc::Doc( const Location& location, const QString& source,
 	  const Set<QString>& metaCommandSet )
 {
@@ -1644,21 +1639,22 @@ Doc::Doc( const Location& location, const QString& source,
 }
 
 Doc::Doc( const Doc& doc )
+    : priv( 0 )
 {
-    priv = new DocPrivate;
     operator=( doc );
 }
 
 Doc::~Doc()
 {
-    if ( priv->deref() )
+    if ( priv != 0 && priv->deref() )
 	delete priv;
 }
 
 Doc& Doc::operator=( const Doc& doc )
 {
-    doc.priv->ref();
-    if ( priv->deref() )
+    if ( doc.priv != 0 )
+	doc.priv->ref();
+    if ( priv != 0 && priv->deref() )
 	delete priv;
     priv = doc.priv;
     return *this;
@@ -1666,22 +1662,24 @@ Doc& Doc::operator=( const Doc& doc )
 
 const Location& Doc::location() const
 {
-    return priv->loc;
+    static const Location dummy;
+    return priv == 0 ? dummy : priv->loc;
 }
 
 const QString& Doc::source() const
 {
-    return priv->src;
+    return priv == 0 ? QString::null : priv->src;
 }
 
 bool Doc::isEmpty() const
 {
-    return priv->src.isEmpty();
+    return priv == 0 || priv->src.isEmpty();
 }
 
 const Text& Doc::body() const
 {
-    return priv->text;
+    static const Text dummy;
+    return priv == 0 ? dummy : priv->text;
 }
 
 Text Doc::briefText() const
@@ -1691,7 +1689,7 @@ Text Doc::briefText() const
 
 const QString& Doc::baseName() const
 {
-    if ( priv->extra == 0 ) {
+    if ( priv == 0 || priv->extra == 0 ) {
 	return QString::null;
     } else {
 	return priv->extra->baseName;
@@ -1700,7 +1698,7 @@ const QString& Doc::baseName() const
 
 Doc::SectioningUnit Doc::granularity() const
 {
-    if ( priv->extra == 0 ) {
+    if ( priv == 0 || priv->extra == 0 ) {
 	return DocPrivateExtra().granularity;
     } else {
 	return priv->extra->granularity;
@@ -1710,7 +1708,7 @@ Doc::SectioningUnit Doc::granularity() const
 #if notyet // ###
 Doc::SectioningUnit Doc::sectioningUnit() const
 {
-    if ( priv->extra == 0 ) {
+    if ( priv == 0 || priv->extra == 0 ) {
 	return DocPrivateExtra().sectioningUnit;
     } else {
 	return priv->extra->sectioningUnit;
@@ -1720,27 +1718,27 @@ Doc::SectioningUnit Doc::sectioningUnit() const
 
 const Set<QString> *Doc::parameterNames() const
 {
-    return priv->params;
+    return priv == 0 ? 0 : priv->params;
 }
 
 const Set<QString> *Doc::enumItemNames() const
 {
-    return priv->enumItemSet;
+    return priv == 0 ? 0 : priv->enumItemSet;
 }
 
 const Set<QString> *Doc::omitEnumItemNames() const
 {
-    return priv->omitEnumItemSet;
+    return priv == 0 ? 0 : priv->omitEnumItemSet;
 }
 
 const Set<QString> *Doc::metaCommandsUsed() const
 {
-    return priv->metaCommandSet;
+    return priv == 0 ? 0 : priv->metaCommandSet;
 }
 
 QStringList Doc::metaCommandArgs( const QString& metaCommand ) const
 {
-    if ( priv->metaCommandMap == 0 ) {
+    if ( priv == 0 || priv->metaCommandMap == 0 ) {
 	return QStringList();
     } else {
 	return (*priv->metaCommandMap)[metaCommand];
@@ -1749,7 +1747,7 @@ QStringList Doc::metaCommandArgs( const QString& metaCommand ) const
 
 const QValueList<Text> *Doc::alsoList() const
 {
-    return priv->alsoList;
+    return priv == 0 ? 0 : priv->alsoList;
 }
 
 #if notyet // ###

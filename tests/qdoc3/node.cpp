@@ -20,7 +20,7 @@ void Node::setDoc( const Doc& doc, bool replace )
 }
 
 Node::Node( Type type, InnerNode *parent, const QString& name )
-    : typ( type ), par( parent ), nam( name ), acc( Public ), sta( Commendable )
+    : typ( type ), acc( Public ), sta( Commendable ), par( parent ), nam( name )
 {
     if ( par != 0 )
 	par->addChild( this );
@@ -36,8 +36,7 @@ Node::Status Node::inheritedStatus() const
 
 InnerNode::~InnerNode()
 {
-    while ( !children.isEmpty() )
-	delete children.first();
+    deleteChildren();
 }
 
 Node *InnerNode::findNode( const QString& name )
@@ -141,6 +140,12 @@ void InnerNode::normalizeOverloads()
     }
 }
 
+void InnerNode::deleteChildren()
+{
+    while ( !children.isEmpty() )
+	delete children.first();
+}
+
 bool InnerNode::isInnerNode() const
 {
     return TRUE;
@@ -181,6 +186,15 @@ int InnerNode::overloadNumber( const FunctionNode *func ) const
     }
 }
 
+int InnerNode::numOverloads( const QString& funcName ) const
+{
+    if ( primaryFunctionMap.contains(funcName) ) {
+	return secondaryFunctionMap[funcName].count() + 1;
+    } else {
+	return 0;
+    }
+}
+
 InnerNode::InnerNode( Type type, InnerNode *parent, const QString& name )
     : Node( type, parent, name )
 {
@@ -204,7 +218,8 @@ bool InnerNode::isSameSignature( const FunctionNode *f1,
     while ( p2 != f2->parameters().end() ) {
 	if ( (*p1).hasType() && (*p2).hasType() ) {
 	    if ( (*p1).leftType() != (*p2).leftType() ||
-		 (*p1).rightType() != (*p2).rightType() )
+		 (*p1).rightType() != (*p2).rightType() ||
+		 (*p1).defaultValue() != (*p2).defaultValue() )
 		return FALSE;
 	}
 	++p1;
@@ -366,6 +381,11 @@ void FunctionNode::setReimplementedFrom( FunctionNode *from )
 int FunctionNode::overloadNumber() const
 {
     return parent()->overloadNumber( this );
+}
+
+int FunctionNode::numOverloads() const
+{
+    return parent()->numOverloads( name() );
 }
 
 QStringList FunctionNode::parameterNames() const

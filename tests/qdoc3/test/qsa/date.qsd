@@ -147,11 +147,11 @@
 */
 
 /*!
-    \quickfn Date.setMonth( mn : Number )
+    \quickfn Date.setMonth( mon : Number )
 */
 
 /*!
-    \quickfn Date.setUTCMonth( mn : Number )
+    \quickfn Date.setUTCMonth( mon : Number )
 */
 
 /*!

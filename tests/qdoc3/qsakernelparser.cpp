@@ -55,9 +55,9 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 		className = ident;
 	    } else if ( ident.startsWith("add") && ident.endsWith("Member") &&
 			tok == Tok_LeftParen ) {
-		bool isProperty = ( ident == "addVariableMember" );
-		bool isWritable = TRUE;
-		bool isStatic = FALSE;
+		bool isProperty = ident.endsWith( "VariableMember" );
+		bool isStatic = ident.startsWith( "addStatic" );
+		bool isWritable = !isStatic;
 
 		readToken();
 		if ( tok == Tok_String ) {
@@ -101,7 +101,7 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 			PropertyNode *property = new PropertyNode( classe,
 								   member );
 			property->setLocation( tokenizer->location() );
-			property->setDataType( "QVariant" );
+			property->setDataType( "Object" );
 			property->setGetter( member );
 			if ( isWritable ) {
 			    QString setter = member;
@@ -113,9 +113,16 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 			FunctionNode *func = new FunctionNode( classe, member );
 			func->setLocation( tokenizer->location() );
 			func->setAccess( FunctionNode::Public );
-			func->setReturnType( "Object" );
 			func->setMetaness( FunctionNode::Slot );
-			func->addParameter( Parameter("...") );
+			if ( member == "toLocaleString" ||
+			     member == "toString" ) {
+			    func->setReturnType( "QString" );
+			} else if ( member == "valueOf" ) {
+			    func->setReturnType( "Object" );
+			} else {
+			    func->setReturnType( "Object" );
+			    func->addParameter( Parameter("...") );
+			}
 			func->setStatic( FALSE ); // ###
 		    }
 		}
