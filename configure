@@ -17,8 +17,10 @@ relpath=`(cd $relpath; pwd)`
 # the current directory is the "build tree" or "object tree"
 outpath=`pwd`
 
+# later cache the command line in config.status
+OPT_CMDLINE=`echo $@ | sed "s,-v,,g"` 
+
 # initialize global variables
-OPT_CMDLINE=`echo $@ | sed "s,-v,,g"` # cache the commandline for config.status
 QMAKE_SWITCHES=
 QMAKE_VARS=
 QMAKE_CONFIG=
@@ -27,6 +29,10 @@ QMAKE_CONFIG=
 X11_PLATFORM=no
 MAC_PLATFORM=no
 [ -d /System/Library/Frameworks/Carbon.framework ] && MAC_PLATFORM=yes
+### need some way to trigger Qt/Embedded instead of Qt/X11 other
+### than [ -d mkspecs/qws ] that works on internal edition - maybe
+### -embedded does the trick after all, but then options must be
+### parsed _before_ licensing
 QWS_PLATFORM=no
 [ "$MAC_PLATFORM" = "no" ] && [ -d mkspecs/qws ] && QWS_PLATFORM=maybe
 
@@ -171,19 +177,19 @@ QMAKE_VARS="$QMAKE_VARS \"styles += windows motif aqua mac platinum sgi cde moti
 
 
 #-------------------------------------------------------------------------------
-# parse script arguments
+# parse command line arguments
 #-------------------------------------------------------------------------------
 
 # initalize internal variables
 CFG_LAZY_DEPS_ALLOWED=no
-CFG_GPLUSPLUS_EXCEPTIONS=unspecified
+CFG_EXCEPTION_SUPPORT=unspecified
 CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
 if [ "$QWS_PLATFORM" = "yes" ]
 then
-    EMBEDDED=auto
+    CFG_EMBEDDED=auto
 else
-    EMBEDDED=no
+    CFG_EMBEDDED=no
 fi
 CFG_DEBUG=no
 CFG_SHARED=yes
@@ -232,6 +238,7 @@ QT_INSTALL_DOCS=
 QT_INSTALL_HEADERS=
 QT_INSTALL_LIBS=
 QT_INSTALL_BINS=
+### what about QT_INSTALL_SHARED or QT_INSTALL_TEMPLATES for Qt Designer?
 
 # parse the arguments, setting things to "yes" or "no"
 while [ -n "$1" ]
@@ -265,8 +272,8 @@ do
 	if [ "$QWS_PLATFORM" = "maybe" ]
 	then
 	    QWS_PLATFORM=yes
-	    EMBEDDED=$1
-		if [ $EMBEDDED = "qnx" ]
+	    CFG_EMBEDDED=$1
+		if [ $CFG_EMBEDDED = "qnx" ]
 		then
 			PLATFORM=qws/qnx-rtp-g++
 			XPLATFORM=qws/qnx-rtp-g++
@@ -274,10 +281,10 @@ do
 			CFG_QWS_QVFB=no
 		else
 			PLATFORM=qws/linux-generic-g++
-			XPLATFORM=qws/linux-${EMBEDDED}-g++;
+			XPLATFORM=qws/linux-${CFG_EMBEDDED}-g++;
 		fi
 	else
-	    echo "No license exists to enable Embedded. Disabling."
+	    echo "Qt/Embedded is not supported. Disabling."
 	fi
 	;;
     -depths)
@@ -340,8 +347,8 @@ do
 	QMAKE_VARS="$QMAKE_VARS QMAKE_CFLAGS+=-pg QMAKE_CXXFLAGS+=-pg"
 	QMAKE_VARS="$QMAKE_VARS QMAKE_LFLAGS+=-pg"
 	;;
-    -no-g++-exceptions)
-	CFG_GPLUSPLUS_EXCEPTIONS=no
+    -no-g++-exceptions|-no-exceptions)
+	CFG_EXCEPTION_SUPPORT=no
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fno-exceptions\""
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-fno-exceptions\""
@@ -516,9 +523,6 @@ do
 	else
 	    echo "Unknown module disabled: $MODULE"
 	fi
-	;;
-    -internal)
-	QMAKE_CONFIG="$QMAKE_CONFIG internal"
 	;;
     -h | -help | --help)
 	OPT_HELP=yes
@@ -797,7 +801,7 @@ fi ### help
 # auto-detect all that hasn't been specified in the arguments
 #-------------------------------------------------------------------------------
 
-if [ "$EMBEDDED" = "auto" ]
+if [ "$CFG_EMBEDDED" = "auto" ]
 then
     UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
     case "$UNAME_MACHINE" in
@@ -805,8 +809,8 @@ then
 	*86) ARCH=x86 ;;
 	*) ARCH=generic ;;
     esac
-    EMBEDDED=$ARCH
-	if [ $EMBEDDED = qnx ];
+    CFG_EMBEDDED=$ARCH
+	if [ $CFG_EMBEDDED = qnx ];
 	then
 		PLATFORM=qws/qnx-rtp-g++
 		XPLATFORM=qws/qnx-rtp-g++
@@ -814,20 +818,20 @@ then
 		CFG_QWS_QVFB=no
 	else
 		PLATFORM=qws/linux-generic-g++
-		XPLATFORM=qws/linux-${EMBEDDED}-g++
+		XPLATFORM=qws/linux-${CFG_EMBEDDED}-g++
 	fi
 fi
 
 if [ "$CFG_JPEG" = "auto" ]
 then
     CFG_JPEG=plugin
-    [ "$EMBEDDED" = "no" ] || CFG_JPEG=no
+    [ "$CFG_EMBEDDED" = "no" ] || CFG_JPEG=no
 fi
 
 if [ "$CFG_MNG" = "auto" ]
 then
     CFG_MNG=plugin
-    [ "$EMBEDDED" = "no" ] || CFG_MNG=no
+    [ "$CFG_EMBEDDED" = "no" ] || CFG_MNG=no
 fi
 
 
@@ -1737,7 +1741,7 @@ fi
 #-------------------------------------------------------------------------------
 
 ### fix this: user input should be in a loop and tested for correctness
-if [ "$CFG_QWS_DEPTHS" = "prompted" -a "$EMBEDDED" != "no" ]
+if [ "$CFG_QWS_DEPTHS" = "prompted" -a "$CFG_EMBEDDED" != "no" ]
 then
     echo
     echo "Choose pixel-depths to support:"
@@ -1759,7 +1763,7 @@ then
 	CFG_QWS_DEPTHS=8,16,32
     fi
 fi
-if [ -n "$CFG_QWS_DEPTHS" -a "$EMBEDDED" != "no" ]
+if [ -n "$CFG_QWS_DEPTHS" -a "$CFG_EMBEDDED" != "no" ]
 then
     DG=;DV=;D4=;D8=;D16=;D24=;D32=
     for D in `echo "$CFG_QWS_DEPTHS" | sed -e 's/,/ /g'`
@@ -1805,7 +1809,7 @@ then
 fi
 
 ### fix this: user input should be in a loop and tested for correctness
-if [ "$CFG_QWS_QVFB" = "prompted" -a "$EMBEDDED" != "no" ]
+if [ "$CFG_QWS_QVFB" = "prompted" -a "$CFG_EMBEDDED" != "no" ]
 then
     echo
     echo "Enable Qt Virtual Framebuffer support for development on X11 (default yes)"
@@ -1818,35 +1822,35 @@ then
     fi
 fi
 
-if [ -z "$CFG_QWS_VOODOO3" -a "$EMBEDDED" != "no" ]
+if [ -z "$CFG_QWS_VOODOO3" -a "$CFG_EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VOODOO3"
 fi
-if [ -z "$CFG_QWS_MACH64" -a "$EMBEDDED" != "no" ]
+if [ -z "$CFG_QWS_MACH64" -a "$CFG_EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_MACH64"
 fi
-if [ -z "$CFG_QWS_SHADOWFB" -a "$EMBEDDED" != "no" ]
+if [ -z "$CFG_QWS_SHADOWFB" -a "$CFG_EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_SHADOWFB"
 fi
-if [ -z "$CFG_QWS_REPEATER" -a "$EMBEDDED" != "no" ]
+if [ -z "$CFG_QWS_REPEATER" -a "$CFG_EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_REPEATER"
 fi
-if [ -z "$CFG_QWS_MATROX" -a "$EMBEDDED" != "no" ]
+if [ -z "$CFG_QWS_MATROX" -a "$CFG_EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_MATROX"
 fi
-if [ "$CFG_QWS_QVFB" = "no" -a "$EMBEDDED" != "no" ]
+if [ "$CFG_QWS_QVFB" = "no" -a "$CFG_EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VFB"
 fi
-if [ -z "$CFG_QWS_VNC" -a "$EMBEDDED" != "no" ]
+if [ -z "$CFG_QWS_VNC" -a "$CFG_EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
 fi
-if [ "$EMBEDDED" != "no" ]
+if [ "$CFG_EMBEDDED" != "no" ]
 then
     MODULES=`echo $MODULES | sed -e 's/opengl//'`
 fi
@@ -1950,9 +1954,9 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
 fi
-if [ "x$EMBEDDED" != "xno" ]
+if [ "x$CFG_EMBEDDED" != "xno" ]
 then
-    QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
+    QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$CFG_EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
 fi
@@ -2021,7 +2025,7 @@ then
     QMAKE_CONFIG="$QMAKE_CONFIG remote"
 fi
 
-[ "$CFG_QWS_FREETYPE" = "yes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
+[ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 if [ "$X11_PLATFORM" = "yes" ]
 then
     [ "$CFG_SM" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x11sm"
@@ -2197,7 +2201,7 @@ fi
 COMPILER=`echo $PLATFORM | cut -f 2- -d-`
 if [ "$COMPILER" = "g++" ]
 then
-    if [ "$CFG_GPLUSPLUS_EXCEPTIONS" != "no" ]
+    if [ "$CFG_EXCEPTION_SUPPORT" != "no" ]
     then
 	cat <<EOF
 
@@ -2275,7 +2279,7 @@ then
 fi
 if [ "$QWS_PLATFORM" = "yes" ]
 then
-    echo "Embedded support .... $EMBEDDED"
+    echo "Embedded support .... $CFG_EMBEDDED"
 fi
 if [ "$X11_PLATFORM" = "yes" ]
 then
