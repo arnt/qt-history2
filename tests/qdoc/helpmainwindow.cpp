@@ -208,8 +208,6 @@ HelpMainWindow::HelpMainWindow()
     tb->setStretchMode( QToolBar::FullWidth );
     setUsesTextLabel( TRUE );
 
-    tb->setBackgroundPixmap( QPixmap( "marble.xpm" ) );
-
     navigation->setViewMode( HelpNavigation::Index );
     viewer->blockSignals( TRUE );
     viewer->setSource( docDir + "/index.html" );
