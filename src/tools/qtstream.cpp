@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#11 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#11 $";
 #endif
 
 
@@ -710,7 +710,7 @@ QTextStream &QTextStream::operator<<( const char *s )
 /*!
 Writes a pointer to the stream and returns a reference to the stream.
 
-The \e ptr is outputted as an unsigned long hexadecimal integer.
+The \e ptr is output as an unsigned long hexadecimal integer.
 */
 
 QTextStream &QTextStream::operator<<( void *ptr )
