@@ -3546,6 +3546,8 @@ static QString encodeAttr( const QString& str )
 		tmp.replace( i, 1, "&gt;" );
 		len += 3;
 		i += 4;
+	    } else {
+		++i;
 	    }
 	} else {
 	    ++i;
