@@ -971,7 +971,7 @@ bool QApplication::processNextEvent( bool canWait )
 	*/
 	EventRef event;
 	OSStatus ret;
-	while(GetNumEventsInQueue(GetCurrentEventQueue())) {
+	do {
 	    do {
 		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, FALSE, &event ); //wtf^3
 		if(ret != noErr) {
@@ -993,7 +993,7 @@ bool QApplication::processNextEvent( bool canWait )
 		}
 	    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
 	    sendPostedEvents();
-	}
+	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::macUpdateMenuBar();
 #endif
