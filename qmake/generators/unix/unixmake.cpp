@@ -469,25 +469,32 @@ UnixMakefileGenerator::init()
 						    project->variables()["VER_MAJ"].first());
 	    project->variables()["TARGET"] = project->variables()["TARGET_x"];
 	} else if ( !project->variables()["QMAKE_AIX_SHLIB"].isEmpty() ) {
+	    QString so_ext = project->variables()["QMAKE_EXTENTION_SHLIB"].first();
+	    if(so_ext.isEmpty())
+		so_ext = "so";
 	    project->variables()["TARGET_"].append("lib" + project->variables()["TARGET"].first() + ".a");
-	    project->variables()["TARGET_x"].append("lib" + project->variables()["TARGET"].first() + ".so." +
-						    project->variables()["VER_MAJ"].first());
-	    project->variables()["TARGET_x.y"].append("lib" + project->variables()["TARGET"].first() + ".so." +
+	    project->variables()["TARGET_x"].append("lib" + project->variables()["TARGET"].first() + "." + so_ext + "." + 
+						project->variables()["VER_MAJ"].first());
+	    project->variables()["TARGET_x.y"].append("lib" + project->variables()["TARGET"].first() + "." + so_ext + "." +
 						      project->variables()["VER_MAJ"].first() + "." +
 						      project->variables()["VER_MIN"].first());
-	    project->variables()["TARGET_x.y.z"].append("lib" + project->variables()["TARGET"].first() + ".so." +
+	    project->variables()["TARGET_x.y.z"].append("lib" + project->variables()["TARGET"].first() + "." + so_ext + "." +
 					       project->variables()["VER_MAJ"].first() + "." +
 					       project->variables()["VER_MIN"].first() + "." +
 					       project->variables()["VER_PAT"].first());
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
 	} else {
-	    project->variables()["TARGET_"].append("lib" + project->variables()["TARGET"].first() + ".so");
-	    project->variables()["TARGET_x"].append("lib" + project->variables()["TARGET"].first() + ".so." +
+	    QString so_ext = project->variables()["QMAKE_EXTENTION_SHLIB"].first();
+	    if(so_ext.isEmpty())
+		so_ext = "so";
+
+	    project->variables()["TARGET_"].append("lib" + project->variables()["TARGET"].first() + "." + so_ext);
+	    project->variables()["TARGET_x"].append("lib" + project->variables()["TARGET"].first() + "." + so_ext + "." +
 						    project->variables()["VER_MAJ"].first());
-	    project->variables()["TARGET_x.y"].append("lib" + project->variables()["TARGET"].first() + ".so." +
+	    project->variables()["TARGET_x.y"].append("lib" + project->variables()["TARGET"].first() + "." + so_ext + "." +
 						      project->variables()["VER_MAJ"].first() + "." +
 						      project->variables()["VER_MIN"].first());
-	    project->variables()["TARGET_x.y.z"].append("lib" + project->variables()["TARGET"].first() + ".so." +
+	    project->variables()["TARGET_x.y.z"].append("lib" + project->variables()["TARGET"].first() + "." + so_ext + "." +
 					       project->variables()["VER_MAJ"].first() + "." +
 					       project->variables()["VER_MIN"].first() +  "." +
 					       project->variables()["VER_PAT"].first());

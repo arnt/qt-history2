@@ -27,7 +27,19 @@ internal {
 
 ##########################################################
 
-unix:!embedded {
+# mac hac fu
+macfu {
+     #we always use these
+     CONFIG += macx tools kernel widgets dialogs iconview workspace \
+               network canvas table xml zlib png
+     #never
+     CONFIG -= nas mng jpeg x11 x11sm
+     
+     CONFIG += shared debug
+} 
+
+#font fu
+unix:!macfu:!embedded {
 	contains(hacks,oldx11font):SOURCES += kernel/qfont_x11.cpp
 	contains(hacks,newx11font):SOURCES += ../tests/newfont/qfont_newx11.cpp
 }

@@ -128,6 +128,29 @@ kernel {
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	}
 
+        unix:macx {
+	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
+		          $$KERNEL_CPP/qclipboard_mac.cpp \
+			  $$KERNEL_CPP/qcolor_mac.cpp \
+			  $$KERNEL_CPP/qcursor_mac.cpp \
+			  $$KERNEL_CPP/qdnd_mac.cpp \
+			  $$KERNEL_CPP/qmotifdnd_mac.cpp \
+			  $$KERNEL_CPP/qpixmap_mac.cpp \
+			  $$KERNEL_CPP/qprinter_mac.cpp \
+			  $$KERNEL_CPP/qpaintdevice_mac.cpp \
+			  $$KERNEL_CPP/qpainter_mac.cpp \
+			  $$KERNEL_CPP/qregion_mac.cpp \
+			  $$KERNEL_CPP/qsound_mac.cpp \
+			  $$KERNEL_CPP/qwidget_mac.cpp \
+			  $$KERNEL_CPP/qnpsupport.cpp \
+			  $$KERNEL_CPP/qfont_mac.cpp \
+			  $$KERNEL_CPP/qwidgetcreate_mac.cpp
+             DEFINES += QT_NO_PLUGIN ALLOW_OLD_CARBON _EVENT_HANDLERS=0 
+             DEFINES += ALLOW_OLD_CREATE_FOO_CONTROL_PARAMETERS=0 CARBON_ON_MACH_O=1 
+             DEFINES += ALLOW_OLD_BLOCKING_APIS=0 ALLOW_OLD_EVENT_LOOP_APIS=0
+             LIBS += -framework Carbon
+        }
+
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
 		    $$KERNEL_CPP/qprocess_unix.cpp \
 		    $$KERNEL_CPP/qthread_unix.cpp

@@ -70,7 +70,9 @@
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
-#if defined(macintosh)
+#if defined( __APPLE__ ) && defined( __GNUC__ )
+#  define _OS_MACX_
+#elif defined(macintosh)
 #  define _OS_MAC_
 #elif defined(MSDOS) || defined(_MSDOS) || defined(__MSDOS__)
 #  define _OS_MSDOS_
@@ -274,7 +276,7 @@
 //   WIN16	- unsupported
 //
 
-#if defined(_OS_MAC_)
+#if defined(_OS_MAC_) || defined( _OS_MACX_ )
 #  define _WS_MAC_
 #elif defined(_OS_MSDOS_)
 #  define _WS_WIN16_
