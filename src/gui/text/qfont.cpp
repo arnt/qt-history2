@@ -22,7 +22,6 @@
 #include "qhash.h"
 #include "qdatastream.h"
 #include "qapplication.h"
-#include "qcleanuphandler.h"
 #include "qstringlist.h"
 #ifdef Q_WS_MAC
 #include "qpaintdevicemetrics.h"
@@ -2812,8 +2811,6 @@ static const int slow_timeout = 300000; //  5m
 QFontCache *QFontCache::instance = 0;
 const uint QFontCache::min_cost = 4*1024; // 4mb
 
-static QSingleCleanupHandler<QFontCache> cleanup_fontcache;
-
 
 QFontCache::QFontCache()
     : QObject(qApp), total_cost(0), max_cost(min_cost),
@@ -2821,7 +2818,6 @@ QFontCache::QFontCache()
 {
     Q_ASSERT(instance == 0);
     instance = this;
-    cleanup_fontcache.set(&instance);
 }
 
 QFontCache::~QFontCache()
