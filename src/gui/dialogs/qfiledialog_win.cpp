@@ -115,11 +115,11 @@ static QString qt_win_filter(const QString &filter)
     QString winfilters;
     for (; it != filterLst.end(); ++it) {
         winfilters += *it;
-        winfilters += QChar::Null;
+        winfilters += QChar();
         winfilters += qt_win_extract_filter(*it);
-        winfilters += QChar::Null;
+        winfilters += QChar();
     }
-    winfilters += QChar::Null;
+    winfilters += QChar();
     return winfilters;
 }
 
@@ -663,15 +663,15 @@ QString qt_win_get_existing_directory(const QString &initialDirectory,
             ptrSHGetPathFromIDList(pItemIDList, path);
             IMalloc *pMalloc;
             if (SHGetMalloc(&pMalloc) != NOERROR)
-                result = QString::null;
+                result = QString();
             else {
                 pMalloc->Free(pItemIDList);
                 pMalloc->Release();
                 result = QString::fromUtf16((ushort*)path);
             }
         } else
-            result = QString::null;
-        tTitle = QString::null;
+            result = QString();
+        tTitle = QString();
     } , {
         QString initDir = QDir::convertSeparators(initialDirectory);
         char path[MAX_PATH];
@@ -692,14 +692,14 @@ QString qt_win_get_existing_directory(const QString &initialDirectory,
             SHGetPathFromIDListA(pItemIDList, path);
             IMalloc *pMalloc;
             if (SHGetMalloc(&pMalloc) != NOERROR)
-                result = QString::null;
+                result = QString();
             else {
                 pMalloc->Free(pItemIDList);
                 pMalloc->Release();
                 result = QString::fromLocal8Bit(path);
             }
         } else
-            result = QString::null;
+            result = QString();
     });
     if (parent) {
         qt_leave_modal(parent);
@@ -719,7 +719,7 @@ QString qt_win_get_existing_directory(const QString &initialDirectory,
         result.replace("\\", "/");
     return result;
 #else
-    return QString::null;
+    return QString();
 #endif
 }
 
