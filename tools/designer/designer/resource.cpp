@@ -917,6 +917,7 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 
 void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 {
+    QStringList saved;
     QStringList changed;
     changed = MetaDataBase::changedProperties( w );
     if ( w->isWidgetType() ) {
@@ -945,6 +946,9 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     for ( QPtrListIterator<char> it( lst ); it.current(); ++it ) {
 	if ( changed.find( QString::fromLatin1( it.current() ) ) == changed.end() )
 	    continue;
+	if ( saved.find( QString::fromLatin1( it.current() ) ) != saved.end() )
+	    continue;
+	saved << QString::fromLatin1( it.current() );
 	const QMetaProperty* p = w->metaObject()->
 				 property( w->metaObject()->findProperty( it.current(), TRUE ), TRUE );
 	if ( !p || !p->stored( w ) || ( inLayout && qstrcmp( p->name(), "geometry" ) == 0 ) )
