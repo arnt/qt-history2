@@ -491,7 +491,7 @@ MakefileGenerator::init()
     }
 
     //Image files
-    {
+    if(!project->isEmpty("IMAGES")) {
 	if(project->isEmpty("QMAKE_IMAGE_FILE"))
 	    v["QMAKE_IMAGE_FILE"].append("images.cpp");
 	QString imgfile = project->first("QMAKE_IMAGE_FILE");
