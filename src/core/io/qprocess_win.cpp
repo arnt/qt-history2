@@ -171,7 +171,7 @@ void QProcessPrivate::startProcess()
 	        envlist[pos++] = 0;
 	        envlist[pos++] = 0;
 	    }
-	    success = CreateProcessA(program.constData(), args.toLocal8Bit().data(),
+	    success = CreateProcessA(program.toLocal8Bit().constData(), args.toLocal8Bit().data(),
 		0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
 		workingDirectory.local8Bit(), &startupInfo, (PROCESS_INFORMATION*)pid);
 #endif // Q_OS_TEMP
