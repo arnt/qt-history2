@@ -1473,9 +1473,9 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 {
     int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
     if (rect().contains(e->pos()) && 
-	((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= y() + sh) || //up
+	((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
 	 (d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
-	     e->pos().y() >= (y() + contentsRect().height()) - sh))) //down
+	     e->pos().y() >= contentsRect().height() - sh))) //down
 	return;
 
     mouseBtDn = TRUE;				// mouse button down
@@ -1523,9 +1523,9 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
     if ( !rect().contains( e->pos() ) && tryMenuBar(e) )
 	return;
-    else if((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= y() + sh) || //up
+    else if((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
 	    (d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
-	     e->pos().y() >= (y() + contentsRect().height()) - sh)) //down
+	     e->pos().y() >= contentsRect().height() - sh)) //down
 	return;
 
     if ( actItem < 0 ) { // we do not have an active item
@@ -1922,7 +1922,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 			d->scroll.topScrollableIndex--;
 			refresh = TRUE;
 		    }
-		} else if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) { //down
+		} else if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown) { //down
 		    QMenuItemListIt it(*mitems);
 		    int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 		    for(int i = 0, y = sh*2; it.current(); i++, ++it) {
@@ -1941,7 +1941,6 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		    }
 		}
 		if(refresh) {
-		    qDebug("Yes..");
 		    updateScrollerState();
 		    update();
 		}
