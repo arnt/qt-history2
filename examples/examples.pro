@@ -28,6 +28,7 @@ SUBDIRS     =	aclock \
 		movies \
 		picture \
 		popup \
+		process \
 		progress \
 		progressbar \
 		qdir \
@@ -61,7 +62,9 @@ opengl:SUBDIRS +=   box \
 nas:SUBDIRS += 	    sound
 iconview:SUBDIRS += fileiconview \
 		    iconview
-network:SUBDIRS +=  ftpclient \
+network:SUBDIRS +=  clientserver/client \
+		    clientserver/server \
+		    ftpclient \
 		    httpd \
 		    mail \
 		    networkprotocol
@@ -69,6 +72,10 @@ workspace:SUBDIRS+= mdi
 table:SUBDIRS +=    statistics \
 		    table
 sql:SUBDIRS += sql
+
+xml:SUBDIRS +=	xml/outliner \
+		xml/tagreader \
+		xml/tagreader-with-features
 
 embedded:SUBDIRS += winmanager \
 		notepad \
