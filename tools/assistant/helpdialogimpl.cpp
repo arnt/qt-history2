@@ -539,7 +539,7 @@ void HelpDialog::showInitDoneMessage()
     if ( initDoneMsgShown )
 	return;
     initDoneMsgShown = TRUE;
-    help->statusBar()->message( tr( "done." ), 3000 );
+    help->statusBar()->message( tr( "Done" ), 3000 );
 }
 
 void HelpDialog::currentIndexChanged( QListBoxItem * )
@@ -910,7 +910,7 @@ void HelpDialog::setupFullTextIndex()
 	help->statusBar()->message( tr( "Reading dictionary..." ) );
 	qApp->processEvents();
 	fullTextIndex->readDict();
-	help->statusBar()->message( tr( "Done." ), 3000 );
+	help->statusBar()->message( tr( "Done" ), 3000 );
 	setCursor( arrowCursor );
     }
 }
