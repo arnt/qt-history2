@@ -146,16 +146,19 @@ QItemDelegate::EditType QItemDelegate::editType(const QModelIndex &) const
     return WidgetOnTyping; // default
 }
 
-QWidget *QItemDelegate::createEditor(StartEditAction, QWidget *parent,
+QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
 				     const QItemOptions &options, const QModelIndex &item) const
 {
-    QLineEdit *lineEdit = new QLineEdit(parent, "QItemDelegate_lineedit");
-    lineEdit->setFrame(false);
-    int textElement = model()->element(item, QVariant::String);
-    lineEdit->setText(model()->data(item, textElement).toString());
-    lineEdit->selectAll();
-    updateEditorGeometry(lineEdit, options, item);
-    return lineEdit;
+    if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked)) {
+	QLineEdit *lineEdit = new QLineEdit(parent, "QItemDelegate_lineedit");
+	lineEdit->setFrame(false);
+	int textElement = model()->element(item, QVariant::String);
+	lineEdit->setText(model()->data(item, textElement).toString());
+	lineEdit->selectAll();
+	updateEditorGeometry(lineEdit, options, item);
+	return lineEdit;
+    }
+    return 0;
 }
 
 void QItemDelegate::setContentFromEditor(QWidget *editor, const QModelIndex &item) const

@@ -69,16 +69,15 @@ public:
 //	  sortColumn(-1),
 	  layoutLock(false),
 	  state(QAbstractItemView::NoState),
-	  startEditActions(QItemDelegate::SelectedClicked|
+	  startEditActions(QItemDelegate::DoubleClicked|
 			   QItemDelegate::EditKeyPressed|
-			   QItemDelegate::AnyKeyPressed) {}
+			   QItemDelegate::AnyKeyPressed|
+			   QItemDelegate::CurrentChanged) {}
 
     ~QAbstractItemViewPrivate() {}
 
     inline bool shouldEdit(const QModelIndex &item, QItemDelegate::StartEditAction action)
-    {
-	return q->model()->isEditable(item) && (action & startEditActions);
-    }
+	{ return q->model()->isEditable(item) && (action & startEditActions); }
 
     bool createEditor(const QModelIndex &item, QItemDelegate::StartEditAction action, QEvent *event);
 //     bool sendItemEvent(const QModelIndex &data, QEvent *event);
@@ -470,17 +469,12 @@ bool QAbstractItemView::startEdit(const QModelIndex &item,
 				  QItemDelegate::StartEditAction action,
 				  QEvent *event)
 {
-    if (!model()->isEditable(item))
-	return false;
-    
-    QItemDelegate::EditType editType = itemDelegate()->editType(item);
-    if (action & d->startEditActions) {
+//    QItemDelegate::EditType editType = itemDelegate()->editType(item);
+    if (d->shouldEdit(item, action) && d->createEditor(item, action, event))
 	setState(Editing);
-	return !!d->createEditor(item, action, event);
-    }
 //     if (event && delegate->editType() == QItemDelegate::NoWidget)
 // 	return d->sendItemEvent(data, event);
-    return false;
+    return state() == Editing;
 }
 
 void QAbstractItemView::endEdit(const QModelIndex &item, bool accept)
@@ -533,7 +527,6 @@ void QAbstractItemView::updateGeometries()
 
 bool QAbstractItemView::eventFilter(QObject *o, QEvent *e)
 {
-    // FIXME: try to remove this
     if (o == d->currentEditor) {
 	if (e->type() == QEvent::KeyPress) {
 	    switch (((QKeyEvent*)e)->key()) {
@@ -588,9 +581,9 @@ QItemDelegate *QAbstractItemView::itemDelegate() const
 void QAbstractItemView::setItemDelegate(QItemDelegate *delegate)
 {
 //     if (delegate->model() != model()) {
-// 	qWarning( "QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
-// 		  "which works on a different model than the view." );
-// 	return;
+//  	qWarning( "QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
+//  		  "which works on a different model than the view." );
+//  	return;
 //     }
     d->delegate = delegate;
 }
@@ -748,7 +741,7 @@ void QAbstractItemView::startDrag()
     QDragObject *obj = dragObject();
     if (!obj)
 	return;
-//     if ( obj->drag() && obj->target() != viewport() )
+//     if (obj->drag() && obj->target() != viewport())
 // 	emit moved();
     obj->drag();
 }
@@ -779,8 +772,6 @@ void QAbstractItemView::getViewOptions(QItemOptions *options) const
     options->editing = state() == Editing;
 }
 
-// FIXME: find better names
-
 QAbstractItemView::State QAbstractItemView::state() const
 {
     return d->state;
@@ -796,7 +787,8 @@ QItemSelectionModel::SelectionBehavior QAbstractItemView::selectionBehavior() co
     return QItemSelectionModel::SelectItems;
 }
 
-QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(ButtonState state, const QModelIndex &item) const
+QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(ButtonState state,
+										const QModelIndex &item) const
 {
     if (selectionModel()->isSelected(item) && !(state & ControlButton))
 	return QItemSelectionModel::NoUpdate;
@@ -815,31 +807,21 @@ bool QAbstractItemViewPrivate::createEditor(const QModelIndex &item,
 					    QItemDelegate::StartEditAction action,
 					    QEvent *event)
 {
-    static bool recursive_lock = false; // FIXME: hack around design flaw
-    if (recursive_lock)
-	return false;
-    recursive_lock = true;
-
     QItemDelegate *delegate = q->itemDelegate();
-
     QItemOptions options;
     q->getViewOptions(&options);
     options.itemRect = q->itemRect(item);
     options.itemRect.moveTop(options.itemRect.top() - q->contentsY());
     options.itemRect.moveLeft(options.itemRect.left() - q->contentsX());
-
-    QWidget *w = delegate->createEditor(action, q->viewport(), options, item);
-    if (!w)
+    QWidget *editor = delegate->createEditor(action, q->viewport(), options, item);
+    if (!editor)
 	return false;
-    w->show();
-    w->setFocus();
+    editor->show();
+    editor->setFocus();
     if (event && (action == QItemDelegate::AnyKeyPressed || event->type() == QEvent::MouseButtonPress))
-	QApplication::sendEvent(w, event);
-
-    recursive_lock = false;
-
+	QApplication::sendEvent(editor, event);
     if (delegate->editType(item) != QItemDelegate::PersistentWidget)
-	currentEditor = w;
+	currentEditor = editor;
     currentEditor->installEventFilter(q);
     editItem = item;
     return true;
