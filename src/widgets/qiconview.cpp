@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#15 $
 **
 ** Definition of QIconView widget class
 **
@@ -937,7 +937,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
         if ( item->rect().intersects( QRect( cx, cy, cw, ch ) ) )
             item->paintItem( p );
 
-    if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem && 
+    if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem &&
          d->currentItem->rect().intersects( QRect( cx, cy, cw, ch ) ) )
         d->currentItem->paintFocus( p );
 }
@@ -1484,6 +1484,34 @@ void QIconView::keyPressEvent( QKeyEvent *e )
                 break;
             }
         }
+        if ( !item ) {
+            item = d->firstItem;
+            QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
+            for ( ; item; item = item->next ) {
+                if ( r.intersects( item->rect() ) ) {
+                    QRect ir = r.intersect( item->rect() );
+                    if ( item->next && r.intersects( item->next->rect() ) ) {
+                        QRect irn = r.intersect( item->next->rect() );
+                        if ( irn.width() > ir.width() )
+                            item = item->next;
+                    }
+                    item = item->next;
+                    QIconViewItem *i = d->currentItem;
+                    d->currentItem = item;
+                    if ( d->selectionMode == Single ) {
+                        i->setSelected( FALSE );
+                        d->currentItem->setSelected( TRUE, TRUE );
+                    } else {
+                        if ( e->state() & ShiftButton )
+                            d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+                    }
+                    repaintItem( i );
+                    repaintItem( d->currentItem );
+              break;
+                }
+            }
+        }
+            
     } break;
     case Key_Up:
     {
@@ -1806,6 +1834,6 @@ bool QIconView::eventFilter( QObject * o, QEvent * e )
         // nothing
         break;
     }
-        
+
     return QScrollView::eventFilter( o, e );
 }
