@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#52 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -74,20 +74,20 @@
   special widget. By subclassing and reimplementing QWhatsThis::text()
   it is possible, to have different explanatory texts depending on the
   position of the mouse click.
-  
+
   If you widget needs even more control, see
   QWidget::customWhatsThis().
-  
+
   Other Qt classes support What's This help directly. Keyboard
   accelerators, for example, can also provide explanatory text with
   access through both they acceleration key itself or an attached menu
   item. See QAccel::setWhatsThis() for details.
-  
+
   The explanatory text can be both rich text or plain text.  If you
   specify a rich text formatted string, it will be rendered using the
   default stylesheet. This makes it also possible to embed images. See
   QStyleSheet::defaultSheet() for details.
-  
+
   \sa QToolTip
 */
 
@@ -231,7 +231,7 @@ QWhatsThisPrivate::Button::~Button()
 void QWhatsThisPrivate::Button::mouseReleaseEvent( QMouseEvent * e )
 {
     QToolButton::mouseReleaseEvent( e );
-    if ( isOn() ) {
+    if ( wt->state == Inactive && isOn() ) {
 	setUpWhatsThis();
 	QApplication::setOverrideCursor( *wt->cursor, FALSE );
 	wt->state = Waiting;
@@ -343,7 +343,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		    return TRUE;
 		}
 	    }
-	    else if ( kev->key() == Key_Menu || 
+	    else if ( kev->key() == Key_Menu ||
 		      ( kev->key() == Key_F10 && kev->state() == ShiftButton ) )
 		return FALSE; // ignore these keys, they are used for context menus
 	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta ) // not a modifier key
