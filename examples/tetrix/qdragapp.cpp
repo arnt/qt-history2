@@ -17,7 +17,6 @@
 #include "qfontmetrics.h"
 #include "qcursor.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 
 QWidget *cursorWidget( QPoint * = 0 );
 
