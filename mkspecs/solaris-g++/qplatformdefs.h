@@ -30,7 +30,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <stropts.h>
 #include <time.h>
 
 #include <netinet/in.h>
