@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.27 1999/06/30 16:04:33 warwick Exp $
+** $Id: i18n.doc,v 1.28 1999/07/10 16:29:14 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -222,18 +222,62 @@ in the following stages:
 	<p>
 	The QTextCodec class and the facilities in QTextStream
 	make it easy to support many input and
-	output encodings for your users' data.  Ideally, we recommend
-	that Unicode I/O be used as this maximizes the portability
+	output encodings for your users' data. When the application
+	starts, the locale of the machine will determine the 8-bit
+	encoding used when dealing with 8-bit data - such as for
+	font selection, text display, 8-bit text I/O, and character input.
+
+	The application may occassionally have need for encodings other
+	than the default local 8-bit encoding.  For example, an application
+        in a Cyrillic KOI8-R locale (the defacto-standard locale in Russia)
+	might need to output Cyrillic in the ISO 8859-5 encoding. Code for
+	this would be:
+
+	\code
+	QString string = ...; // Some Unicode text.
+
+	QTextCodec* codec = QTextCodec::codecByName("ISO 8859-5");
+	QCString encoded_string = codec->fromUnicode(string);
+
+	...; // Use encoded_string in 8-bit operations
+	\endcode
+
+	For converting Unicode to local 8-bit encodings,
+	a shortcut is available: the
+	\link QString::local8Bit() local8Bit()\endlink method of 
+	QString returns such 8-bit data.  Another useful shortcut
+	is the \link QString::utf8() utf8()\endlink method, which
+	returns text in the 8-bit UTF-8 encoding - interesting in
+	that it perfectly preserves Unicode information while looking
+	like plain US-ASCII if the Unicode is wholly US-ASCII.
+
+	For converting the other way, there are the
+	\link QString::fromUtf8() QString::fromUtf8()\endlink and
+	\link QString::fromLocal8Bit() QString::fromLocal8Bit()\endlink
+	convenience functions, or the general code, demonstrated by
+	this conversion from ISO 8859-5 Cyrillic to Unicode conversion:
+
+	\code
+	QCString encoded_string = ...; // Some ISO 8859-5 encoded text.
+
+	QTextCodec* codec = QTextCodec::codecByName("ISO 8859-5");
+	QString string = codec->toUnicode(encoded_string);
+
+	...; // Use string in all of Qt's QString operations.
+	\endcode
+
+	Ideally Unicode I/O should be used as this maximizes the portability
 	of documents between users around the world, but in reality
-	it is useful to support all the appropriate formats that
+	it is useful to support all the appropriate encodings that
 	your users' will need to process existing documents. In general,
-	Unicode (Utf16 or Utf8) is the best for information transferred
+	Unicode (UTF16 or UTF8) is the best for information transferred
 	between arbitrary people, while within a language or national group,
 	a local standard is often more appropriate.  The most important
 	encoding to support is the one returned by
 	\link QTextCodec::codecForLocale() QTextCodec::codecForLocale()\endlink,
 	as this is the one the user is most likely to need for communicating
-	with other people and applications.
+	with other people and applications (this is the codec used by
+	local8Bit()).
 	</p>
  <li><b>Localization.</b>
 	<p>
@@ -276,8 +320,12 @@ be too concerned with the actual limitations.
             <a href=http://www.ietf.org/rfc/rfc2279.txt>UTF-8</a>
             are under development
 	    in some Unix variants.  All Qt file functions allow Unicode,
-	    but currently converts all filenames to Latin-1.
-     <li>File I/O defaults to Latin-1, with Unicode options in QTextStream.
+	    but convert all filenames to the local 8-bit encoding, as
+	    this is the Unix convention
+	    (see \link QFile::setEncodingFunction() QFile::setEncodingFunction()\endlink
+	     if you are interested in exploring alternative encodings).
+     <li>File I/O defaults to the local 8-bit encoding,
+	    with Unicode options in QTextStream.
      </ul>
   <dt>Windows 95/98/NT
     <dd><ul>
