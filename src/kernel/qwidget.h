@@ -119,6 +119,8 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QRect visibleRect READ visibleRect )
     Q_PROPERTY( bool hidden READ isHidden )
     Q_PROPERTY( bool minimized READ isMinimized )
+    Q_PROPERTY( bool maximized READ isMaximized )
+    Q_PROPERTY( bool fullScreen READ isFullscreen )
     Q_PROPERTY( QSize sizeHint READ sizeHint )
     Q_PROPERTY( QSize minimumSizeHint READ minimumSizeHint )
     Q_PROPERTY( QRect microFocusHint READ microFocusHint )
@@ -371,6 +373,7 @@ public:
     bool 		isHidden() const;
     bool		isMinimized() const;
     bool		isMaximized() const;
+    bool		isFullScreen() const;
 
     virtual QSize	sizeHint() const;
     virtual QSize	minimumSizeHint() const;

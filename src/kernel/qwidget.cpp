@@ -5473,6 +5473,18 @@ void QWidget::showFullScreen()
 }
 
 /*!
+  \property QWidget::fullScreen
+
+  Returns TRUE if the widget is a top-level widget that is
+  shown fullscreen; otherwise returns FALSE;
+*/
+bool QWidget::isFullScreen() const
+{
+    QWidget* that = (QWidget*)this;
+    return isTopLevel() && that->topData()->fullscreen;
+}
+
+/*!
   \fn bool QWidget::isMaximized() const
 
   Returns TRUE if this widget is a top-level widget that is
