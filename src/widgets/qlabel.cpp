@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlabel.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_LABEL
 #include "qbitmap.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -157,7 +157,7 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
   \sa setText(), setBuddy(), setAlignment(), setFrameStyle(),
   setIndent()
 */
-
+#ifndef QT_NO_ACCEL
 QLabel::QLabel( QWidget *buddy,  const QString &text,
 		QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | WMouseNoMask )
@@ -166,7 +166,7 @@ QLabel::QLabel( QWidget *buddy,  const QString &text,
     setBuddy( buddy );
     setText( text );
 }
-
+#endif
 
 /*!
   Destructs the label.
@@ -185,9 +185,11 @@ void QLabel::init()
 #ifndef QT_NO_MOVIE
     lmovie = 0;
 #endif
+#ifndef QT_NO_ACCEL
     lbuddy = 0;
-    lpixmap = 0;
     accel = 0;
+#endif
+    lpixmap = 0;
     align = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
@@ -242,7 +244,7 @@ void QLabel::setText( const QString &text )
     QSize osh = sizeHint();
     clearContents();
     ltext = text;
-
+#ifndef QT_NO_ACCEL
     int p = QAccel::shortcutKey( ltext );
     if ( p ) {
 	if ( !accel )
@@ -250,7 +252,7 @@ void QLabel::setText( const QString &text )
 	accel->connectItem( accel->insertItem( p ),
 			    this, SLOT(acceleratorSlot()) );
     }
-
+#endif
 #ifndef QT_NO_RICHTEXT
     if ( textformat == RichText ||
 	 ( textformat == AutoText && QStyleSheet::mightBeRichText(ltext) ) ) {
@@ -260,9 +262,11 @@ void QLabel::setText( const QString &text )
     }
 #endif
 
+#ifndef QT_NO_RICHTEXT
     if ( doc || align & WordBreak )
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE ) );
     else
+#endif	
 	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum,  FALSE ) );
 
     updateLabel( osh );
@@ -381,9 +385,11 @@ void QLabel::setAlignment( int alignment )
     if ( alignment == align )
 	return;
     QSize osh = sizeHint();
+#ifndef QT_NO_ACCEL
     if ( lbuddy )
 	align = alignment | ShowPrefix;
     else
+#endif	
 	align = alignment;
     updateLabel( osh );
 }
@@ -537,8 +543,10 @@ QSize QLabel::sizeForWidth( int w ) const
 
 int QLabel::heightForWidth( int w ) const
 {
+#ifndef QT_NO_RICHTEXT
     if ( doc || align & WordBreak )
 	return sizeForWidth( w ).height();
+#endif
     return QWidget::heightForWidth( w );
 }
 
@@ -559,10 +567,11 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
+#ifndef QT_NO_RICHTEXT
     if ( doc )
 	return QSize( d->minimumWidth, -1 );
-    else
-	return QSize( -1, -1 );
+#endif
+    return QSize( -1, -1 );
 }
 
 
@@ -581,6 +590,10 @@ void QLabel::resizeEvent( QResizeEvent* e )
 {
     QFrame::resizeEvent( e );
 
+#ifdef QT_NO_RICHTEXT
+    static const bool doc = FALSE;
+#endif    
+    
     // optimize for standard labels
     if ( frameShape() == NoFrame && (align & WordBreak) == 0 && !doc &&
 	 ( e->oldSize().width() == e->size().width() || (align & AlignLeft ) == AlignLeft )
@@ -693,6 +706,7 @@ void QLabel::drawContents( QPainter *p )
 #endif
     {
 	QPixmap* pix = lpixmap;
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
 	if ( scaledcontents && lpixmap ) {
 	    if ( !d->img )
 		d->img = new QImage( lpixmap->convertToImage() );
@@ -702,6 +716,7 @@ void QLabel::drawContents( QPainter *p )
 		d->pix->convertFromImage( d->img->smoothScale( cr.width(), cr.height() ) );
 	    pix = d->pix;
 	}
+#endif	
 	// ordinary text or pixmap label
 	style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
 			  align, colorGroup(), isEnabled(),
@@ -770,12 +785,12 @@ void QLabel::drawContentsMask( QPainter *p )
 	return;
     }
 #endif
-
     QColorGroup g( color1, color1, color1, color1, color1, color1, color1,
 		   color1, color0);
 
     QBitmap bm;
     QPixmap* pix = lpixmap;
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
     if ( scaledcontents && lpixmap ) {
 	if ( !d->img )
 	    d->img = new QImage( lpixmap->convertToImage() );
@@ -785,6 +800,7 @@ void QLabel::drawContentsMask( QPainter *p )
 	    d->pix->convertFromImage( d->img->smoothScale( cr.width(), cr.height() ) );
 	pix = d->pix;
     }
+#endif    
     if (pix ) {
 	if (pix->mask()) {
 	    bm = *pix->mask();
@@ -848,7 +864,7 @@ void QLabel::updateLabel( QSize oldSizeHint )
 
   Internal slot, used to set focus for accelerator labels.
 */
-
+#ifndef QT_NO_ACCEL
 void QLabel::acceleratorSlot()
 {
     if ( !lbuddy )
@@ -865,19 +881,18 @@ void QLabel::acceleratorSlot()
 	    ( (QLineEdit*)w )->selectAll();
     }
 }
-
+#endif
 
 /*!
   \internal
 
   Internal slot, used to clean up if the buddy widget dies.
 */
-
+#ifndef QT_NO_ACCEL
 void QLabel::buddyDied() // I can't remember if I cried.
 {
     lbuddy = 0;
 }
-
 
 /*!
   Sets the buddy of this label to \a buddy.
@@ -951,6 +966,7 @@ QWidget * QLabel::buddy() const
 {
     return lbuddy;
 }
+#endif //QT_NO_ACCEL
 
 
 #ifndef QT_NO_MOVIE
@@ -1025,10 +1041,10 @@ void QLabel::clearContents()
     d->pix = 0;
 
     ltext = QString::null;
-
+#ifndef QT_NO_ACCEL
     if ( accel )
 	accel->clear();
-
+#endif
 #ifndef QT_NO_MOVIE
     if ( lmovie ) {
 	lmovie->disconnectResize(this, SLOT(movieResized(const QSize&)));
@@ -1095,6 +1111,7 @@ void QLabel::fontChange( const QFont & )
 	updateLabel( QSize( -1, -1 ) );
 }
 
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
 /*!
  */
 bool QLabel::hasScaledContents() const
@@ -1119,5 +1136,5 @@ void QLabel::setScaledContents( bool enable )
 	updateMask();
     update();
 }
-
-#endif
+#endif // QT_NO_IMAGE_SMOOTHSCALE
+#endif // QT_NO_LABEL

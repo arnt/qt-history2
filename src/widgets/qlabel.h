@@ -30,7 +30,7 @@
 #include "qframe.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_LABEL
 
 class QSimpleRichText;
 class QLabelPrivate;
@@ -49,9 +49,11 @@ public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );
     QLabel( const QString &text, QWidget *parent, const char *name=0,
 	    WFlags f=0 );
+#ifndef QT_NO_ACCEL
     QLabel( QWidget * buddy, const QString &,
 	    QWidget * parent, const char * name=0, WFlags f=0 );
-   ~QLabel();
+#endif
+    ~QLabel();
 
     QString	 text()		const	{ return ltext; }
     QPixmap     *pixmap()	const	{ return lpixmap; }
@@ -69,17 +71,17 @@ public:
 
     bool 	 autoResize() const	{ return autoresize; }
     virtual void setAutoResize( bool );
-    
+#ifndef QT_NO_IMAGE_SMOOTHSCALE    
     bool 	hasScaledContents() const;
     void 	setScaledContents( bool );
-
+#endif
     QSize	 sizeHint() const;
     QSize	 minimumSizeHint() const;
     QSizePolicy  sizePolicy() const;
-
+#ifndef QT_NO_ACCEL
     virtual void setBuddy( QWidget * );
     QWidget     *buddy() const;
-
+#endif
     void	 setAutoMask(bool);
 
     int		 heightForWidth(int) const;
@@ -101,8 +103,10 @@ protected:
     void	 resizeEvent( QResizeEvent* );
 
 private slots:
+#ifndef QT_NO_ACCEL
     void	 acceleratorSlot();
     void	 buddyDied();
+#endif
 #ifndef QT_NO_MOVIE
     void	 movieUpdated(const QRect&);
     void	 movieResized(const QSize&);
@@ -118,14 +122,20 @@ private:
 #ifndef QT_NO_MOVIE
     QMovie *	lmovie;
 #endif
+#ifndef QT_NO_ACCEL
     QWidget *	lbuddy;
+#endif
     ushort	align;
     short	extraMargin;
     uint	autoresize:1;
     uint	scaledcontents :1;
     TextFormat textformat;
+#ifndef QT_NO_RICHTEXT
     QSimpleRichText* doc;
+#endif
+#ifndef QT_NO_ACCEL
     QAccel *	accel;
+#endif
     QLabelPrivate* d;
 
 private:	// Disabled copy constructor and operator=
@@ -136,6 +146,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_LABEL
 
 #endif // QLABEL_H

@@ -602,7 +602,7 @@ void QApplication::initialize( int argc, char **argv )
 #endif
     is_app_running = TRUE; // no longer starting up
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_STYLE
     if (!app_style) {
 
 // Somewhat complicated compile-time search for default style
@@ -835,10 +835,9 @@ QApplication::~QApplication()
 
   \sa style(), QStyle, setPalette(), desktopSettingsAware()
 */
-
+#ifndef QT_NO_STYLE
 void QApplication::setStyle( QStyle *style )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
     QStyle* old = app_style;
     app_style = style;
 
@@ -895,8 +894,8 @@ void QApplication::setStyle( QStyle *style )
 	}
 	delete old;
     }
-#endif
 }
+#endif
 
 
 #if 1  /* OBSOLETE */

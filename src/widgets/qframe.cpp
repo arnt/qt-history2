@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qframe.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_FRAME
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qframe.h"
@@ -593,6 +593,11 @@ void QFrame::drawFrame( QPainter *p )
     QRect	r     = frameRect();
     int		type  = fstyle & MShape;
     int		cstyle = fstyle & MShadow;
+#ifdef QT_NO_DRAWUTIL
+    p->setPen( black ); // ####
+    p->drawRect( r ); //### a bit too simple
+#else    
+    
     const QColorGroup & g = colorGroup();
 
     switch ( type ) {
@@ -605,18 +610,19 @@ void QFrame::drawFrame( QPainter *p )
 			    midLineWidth() );
 	break;
 
+    case StyledPanel:
+#ifndef QT_NO_STYLE
+	if ( cstyle == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    style().drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == Sunken, lwidth );
+	break;
+#endif // fall through to Panel if QT_NO_STYLE
     case Panel:
 	if ( cstyle == Plain )
 	    qDrawPlainRect( p, r, g.foreground(), lwidth );
 	else
 	    qDrawShadePanel( p, r, g, cstyle == Sunken, lwidth );
-	break;
-
-    case StyledPanel:
-	if ( cstyle == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
-	else
-	    style().drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == Sunken, lwidth );
 	break;
 
     case PopupPanel:
@@ -654,6 +660,7 @@ void QFrame::drawFrame( QPainter *p )
 			    lwidth, midLineWidth() );
 	break;
     }
+#endif // QT_NO_DRAWUTIL
 }
 
 
@@ -733,7 +740,10 @@ void QFrame::drawFrameMask( QPainter* p )
     QRect	r     = frameRect();
     int		type  = fstyle & MShape;
     int		style = fstyle & MShadow;
-
+#ifdef QT_NO_DRAWUTIL
+    p->setPen( color1 );
+    p->drawRect( r ); //### a bit too simple
+#else    
     QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
 
     switch ( type ) {
@@ -781,6 +791,7 @@ void QFrame::drawFrameMask( QPainter* p )
 			    lwidth, midLineWidth() );
 	break;
     }
+#endif // QT_NO_DRAWUTIL
 }
 
 /*!
@@ -804,4 +815,4 @@ void QFrame::drawContentsMask( QPainter* p)
 
     p->setBrush( oldBrush );
 }
-#endif
+#endif //QT_NO_FRAME

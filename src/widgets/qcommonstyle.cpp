@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qcommonstyle.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#if !defined(QT_NO_STYLE_WINDOWS) || !defined(QT_NO_STYLE_MOTIF)
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
@@ -113,6 +113,7 @@ void QCommonStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
  */
 void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
+#ifndef QT_NO_COMPLEXWIDGETS
     QRect r = pushButtonContentsRect( btn );
     if ( btn->isDown() || btn->isOn() ){
 	int sx = 0;
@@ -147,6 +148,7 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	      AlignCenter | ShowPrefix,
 	      btn->colorGroup(), btn->isEnabled(),
 	      btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
+#endif
 }
 
 
@@ -174,17 +176,20 @@ int QCommonStyle::defaultFrameWidth() const
  */
 void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
 {
+#ifndef QT_NO_COMPLEXWIDGETS
     overlap = 3;
     hframe = 24;
     vframe = 0;
     if ( t->shape() == QTabBar::RoundedAbove || t->shape() == QTabBar::RoundedBelow )
 	vframe += 10;
+#endif
 }
 
 /*!\reimp
  */
 void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
 {
+#ifndef QT_NO_COMPLEXWIDGETS    
     if ( tb->shape() == QTabBar::TriangularAbove || tb->shape() == QTabBar::TriangularBelow ) {
 	// triangular, above or below
 	int y;
@@ -219,19 +224,23 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 	p->drawPolygon( a );
 	p->setBrush( NoBrush );
     }
+#endif
 }
 
 /*!\reimp
  */
 void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ )
 {
+#ifndef QT_NO_COMPLEXWIDGETS
     p->drawRect( t->r );
+#endif
 }
 
 /*!\reimp
  */
 QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
+#ifndef QT_NO_COMPLEXWIDGETS    
     if ( !sb->rect().contains( p ) )
 	return NoScroll;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
@@ -246,6 +255,7 @@ QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, in
     if ( pos < sliderMax + sliderLength )
 	return AddPage;
     return AddLine;
+#endif
 }
 
 /*!\reimp
@@ -298,22 +308,27 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
 				    bool enabled )
 {
+#ifndef QT_NO_COMPLEXWIDGETS
     drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
 	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
+#endif
 }
 
 // doesn't really belong here... fix 3.0
 QRect QStyle::pushButtonContentsRect( QPushButton* btn )
 {
+#ifndef QT_NO_COMPLEXWIDGETS    
     int fw = 0;
     if ( btn->isDefault() || btn->autoDefault() )
 	fw = buttonDefaultIndicatorWidth();
 
     return buttonRect( fw, fw, btn->width()-2*fw, btn->height()-2*fw );
+#endif
 }
 
 void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
 {
+#ifndef QT_NO_COMPLEXWIDGETS
     if ( !btn )
 	return;
 
@@ -350,6 +365,7 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
 #else
     drawToolButton( p, x, y, w, h, g, sunken, &fill );
 #endif
+#endif
 }
 
 //### remove in Version 3.0
@@ -357,6 +373,7 @@ void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
 				    bool enabled )
 {
+#ifndef QT_NO_COMPLEXWIDGETS    
 #ifndef QT_NO_STYLE_SGI
     if ( inherits("QSGIStyle" ) ) {
 	QSGIStyle* sg = (QSGIStyle*) this;
@@ -369,6 +386,6 @@ void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
     drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
 	g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
 #endif	// QT_NO_STYLE_SGI
-
+#endif
 }
 #endif

@@ -30,7 +30,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_FRAME
 
 class Q_EXPORT QFrame : public QWidget			// frame class
 {
@@ -150,6 +150,6 @@ inline int QFrame::frameWidth() const
 { return fwidth; }
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_FRAME
 
 #endif // QFRAME_H

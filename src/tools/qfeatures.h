@@ -353,8 +353,33 @@
   QSemiModal
 */
 //#define QT_NO_SEMIMODAL
+/*!
+  QFrame
+*/
+//#define QT_NO_FRAME
 
-#if defined(QT_NO_PALETTE) || defined(QT_NO_STYLE) || defined(QT_NO_ICONSET) || defined(QT_NO_IMAGE_SMOOTHSCALE)
+#if defined(QT_NO_FRAME) ||defined(QT_NO_PALETTE) || defined(QT_NO_STYLE) ||defined(QT_NO_DRAWUTIL)
+    /*! 
+      Basic widgets: QLAbel, QPushbutton, ...
+    */  
+    #define QT_NO_SIMPLEWIDGETS
+#endif
+
+#if defined(QT_NO_SIMPLEWIDGETS)
+    /*!
+      QLabel
+    */
+    #define QT_NO_LABEL
+    /*!
+      QPushButton (not implemented).
+    */
+    #define QT_NO_PUSHBUTTON
+    /*!
+      QLineEdit (not implemented).
+    */
+    #define QT_NO_LINEEDIT
+#endif
+#if  defined(QT_NO_ICONSET) || defined(QT_NO_IMAGE_SMOOTHSCALE) || defined(QT_NO_SIMPLEWIDGETS)
     /*!
 	Pre-defined complex widgets
     */
@@ -391,7 +416,7 @@
     */
     #define QT_NO_COMBOBOX
 #endif    
-#if defined(QT_NO_COMPLEXWIDGETS)
+#if defined(QT_NO_STYLE)
     /*!
 	Windows style
     */

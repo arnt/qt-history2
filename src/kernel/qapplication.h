@@ -69,9 +69,10 @@ public:
     int		    argc()	const;
     char	  **argv()	const;
 
+#ifndef QT_NO_STYLE
     static QStyle  &style();
     static void	    setStyle( QStyle* );
-
+#endif
 #if 1	/* OBSOLETE */
     enum ColorMode { NormalColors, CustomColors };
     static ColorMode colorMode();
@@ -297,12 +298,12 @@ inline char **QApplication::argv() const
 {
     return app_argv;
 }
-
+#ifndef QT_NO_STYLE
 inline QStyle& QApplication::style()
 {
     return *app_style;
 }
-
+#endif
 #ifndef QT_NO_CURSOR
 inline QCursor *QApplication::overrideCursor()
 {
