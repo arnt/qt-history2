@@ -43,6 +43,13 @@ void MainWindow::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty()) {
+        MdiChild *existing = findMdiChild(fileName);
+        if (existing) {
+            existing->show();
+            existing->setFocus();
+            return;
+        }
+
         MdiChild *child = createMdiChild();
         if (child->loadFile(fileName)) {
             statusBar()->showMessage(tr("File loaded"), 2000);
@@ -301,4 +308,16 @@ void MainWindow::writeSettings()
 MdiChild *MainWindow::activeMdiChild()
 {
     return qobject_cast<MdiChild *>(workspace->activeWindow());
+}
+
+MdiChild *MainWindow::findMdiChild(const QString &fileName)
+{
+    QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
+
+    foreach (QWidget *window, workspace->windowList()) {
+        MdiChild *mdiChild = qobject_cast<MdiChild *>(window);
+        if (mdiChild->currentFile() == canonicalFilePath)
+            return mdiChild;
+    }
+    return 0;
 }

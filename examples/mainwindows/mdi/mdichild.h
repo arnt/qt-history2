@@ -16,6 +16,7 @@ public:
     bool saveAs();
     bool saveFile(const QString &fileName);
     QString userFriendlyCurrentFile();
+    QString currentFile() { return curFile; }
     QAction *windowMenuAction() { return action; }
 
 protected:

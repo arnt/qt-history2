@@ -39,6 +39,7 @@ private:
     void readSettings();
     void writeSettings();
     MdiChild *activeMdiChild();
+    MdiChild *findMdiChild(const QString &fileName);
 
     QWorkspace *workspace;
 

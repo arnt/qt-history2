@@ -122,7 +122,7 @@ bool MdiChild::maybeSave()
 
 void MdiChild::setCurrentFile(const QString &fileName)
 {
-    curFile = fileName;
+    curFile = QFileInfo(fileName).canonicalFilePath();
     document()->setModified(false);
     setWindowModified(false);
     setWindowTitle(userFriendlyCurrentFile() + "[*]");
