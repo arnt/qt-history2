@@ -955,6 +955,29 @@ QDir::entryList(int filterSpec, int sortSpec) const
     return entryList(d->data->nameFilters, filterSpec, sortSpec);
 }
 
+
+/*!
+    \overload
+
+    Returns a list of QFileInfo objects for all the files and
+    directories in the directory, ordered in accordance with
+    setSorting() and filtered in accordance with setFilter() and
+    setNameFilters().
+
+    The filter and sorting specifications can be overridden using the
+    \a filterSpec and \a sortSpec arguments.
+
+    Returns an empty list if the directory is unreadable or does not exist.
+
+    \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
+*/
+
+QFileInfoList 
+QDir::entryInfoList(int filterSpec, int sortSpec) const
+{
+    return entryInfoList(d->data->nameFilters, filterSpec, sortSpec);
+}
+
 /*!
     Returns a list of the names of all the files and directories in
     the directory, ordered in accordance with setSorting() and
