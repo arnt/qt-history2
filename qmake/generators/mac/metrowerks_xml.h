@@ -51,8 +51,6 @@ class MetrowerksMakefileGenerator : public MakefileGenerator
     bool writeMakefile(QTextStream &);
     QString findTemplate(QString file);
     void init();
-    QString macifyPath(QString) const;
-
 public:
     MetrowerksMakefileGenerator(QMakeProject *p);
     ~MetrowerksMakefileGenerator() { }

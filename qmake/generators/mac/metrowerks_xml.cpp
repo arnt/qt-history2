@@ -104,7 +104,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			t << "\t\t\t\t<FILE>" << endl
 			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << macifyPath((*it)) << "</PATH>" << endl
+			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
 			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
 			  << "\t\t\t\t\t<FILEKIND>Text</FILEKIND>" << endl
 			  << "\t\t\t\t\t<FILEFLAGS></FILEFLAGS>" << endl
@@ -118,20 +118,20 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			t << "\t\t\t\t<FILEREF>" << endl
 			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << macifyPath((*it)) << "</PATH>" << endl
+			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
 			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
 			  << "\t\t\t\t</FILEREF>" << endl;
 		    }
 		}
 	    } else if(variable == "CODEWARRIOR_HEADERS_GROUP" || variable == "CODEWARRIOR_SOURCES_GROUP") {
-		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_'));
+		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_')+1);
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			t << "\t\t\t\t<FILEREF>" << endl
 			  << "\t\t\t\t\t<TARGETNAME>" << var("TARGET") << "</TARGETNAME>" << endl
 			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << macifyPath((*it)) << "</PATH>" << endl
+			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
 			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
 			  << "\t\t\t\t</FILEREF>" << endl;
 		    }
@@ -145,10 +145,19 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		}
 		if(!list.isEmpty()) {
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			QString p = (*it);
+			if(p.right(1) != '/')
+			    p += "/";
+			if(QDir::isRelativePath(p))
+			    p.prepend(Option::output_dir + '/');
+			p = QDir::cleanDirPath(p) + ":";
+			p.replace(QRegExp("/"), ":");
+			p.prepend("MacOS 9"); //FIXME
+
 			t << "\t\t\t\t\t<SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
-			  << "<VALUE>" << macifyPath((*it)) << "</VALUE></SETTING>" << endl
+			  << "<VALUE>" << p << "</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>Absolute</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t</SETTING>" << endl
@@ -214,6 +223,22 @@ MetrowerksMakefileGenerator::init()
     }
 
     MakefileGenerator::init();
+
+    //let metrowerks find the files
+    QString paths[] = { QString("SOURCES"),QString("HEADERS"),QString::null };
+    for(int y = 0; paths[y] != QString::null; y++) {
+	QStringList &l = project->variables()[paths[y]];
+	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+	    int s = (*val_it).findRev('/');
+	    if(s != -1) {
+		QString dir = (*val_it).left(s);
+		(*val_it) = (*val_it).right((*val_it).length() - s - 1);
+		if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
+		   project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
+		    project->variables()["INCLUDEPATH"].append(dir);
+	    }
+	}
+    }
 }
 
 
@@ -227,15 +252,3 @@ MetrowerksMakefileGenerator::findTemplate(QString file)
     return ret;
 }
 
-QString
-MetrowerksMakefileGenerator::macifyPath(QString p) const
-{
-    if(p.right(1) != '/')
-	p += "/";
-    if(QDir::isRelativePath(p))
-	p.prepend(Option::output_dir);
-    QDir::cleanDirPath(p);
-    p.replace(QRegExp("/"), ":");
-    p.prepend("MacOS 9");
-    return p;
-}
