@@ -11,6 +11,12 @@
  *
  ****************************************************/
 
+class QHttpHeaderPrivate
+{
+public:
+    QMap<QString,QString> m_values;
+};
+
 /*!
   \class QHttpHeader qhttp.h
   \brief The QHttpHeader class contains header information for HTTP.
@@ -20,18 +26,18 @@
   fnord
 */
 
-class QHttpHeaderPrivate
-{
-public:
-    QMap<QString,QString> m_values;
-};
-
+/*!
+  Constructs an empty HTTP header.
+*/
 QHttpHeader::QHttpHeader()
     : m_bValid( TRUE )
 {
     d = new QHttpHeaderPrivate;
 }
 
+/*!
+  Copy constructor.
+*/
 QHttpHeader::QHttpHeader( const QHttpHeader& header )
     : m_bValid( header.m_bValid )
 {
@@ -39,6 +45,10 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
     d->m_values = header.d->m_values;
 }
 
+/*!
+  Constructs a HTTP header for \a str.
+### \a atr is parsed...
+*/
 QHttpHeader::QHttpHeader( const QString& str )
     : m_bValid( TRUE )
 {	
@@ -46,47 +56,45 @@ QHttpHeader::QHttpHeader( const QString& str )
     parse( str );
 }
 
+/*!
+  Destructor.
+*/
 QHttpHeader::~QHttpHeader()
 {
     delete d;
 }
 
+/*!
+  Parses the HTTP header string \a str and add the information.
+*/
 void QHttpHeader::parse( const QString& str )
 {
     QStringList lst = QStringList::split( "\r\n", str.stripWhiteSpace(), FALSE );
 
     if ( lst.isEmpty() )
 	return;
-	
+
     QStringList lines;
     QStringList::Iterator it = lst.begin();
-    for( ; it != lst.end(); ++it )
-    {
-	if ( !(*it).isEmpty() )
-	{
-	    if ( (*it)[0].isSpace() )
-	    {
-		if ( lines.isEmpty() )
+    for( ; it != lst.end(); ++it ) {
+	if ( !(*it).isEmpty() ) {
+	    if ( (*it)[0].isSpace() ) {
+		if ( lines.isEmpty() ) {
 		    qWarning("Invalid line: '%s'", (*it).latin1() );
-		else
-		{
+		} else {
 		    lines.last() += " ";
 		    lines.last() += (*it).stripWhiteSpace();
 		}
-	    }
-	    else
-	    {
+	    } else {
 		lines.append( (*it) );
 	    }
 	}
     }
-    
+
     int number = 0;
     it = lines.begin();
-    for( ; it != lines.end(); ++it )
-    {
-	if ( !parseLine( *it, number++ ) )
-        {
+    for( ; it != lines.end(); ++it ) {
+	if ( !parseLine( *it, number++ ) ) {
 	    qWarning("Invalid line: '%s'", (*it).latin1() );
 	    m_bValid = FALSE;
 	    return;
@@ -94,31 +102,31 @@ void QHttpHeader::parse( const QString& str )
     }
 }
 
+/*!
+  Reads a HTTP header from the text stream \a stream and returns a reference to
+  the stream.
+*/
 QTextStream& QHttpHeader::read( QTextStream& stream )
 {
     m_bValid = TRUE;
 
     int number = 0;
-    while( 1 )
-    {
+    while( 1 ) {
 	QString str = stream.readLine();
 	
 	// Unexpected end of input ?
-	if ( str.isNull() )
-        {
+	if ( str.isNull() ) {
 	    m_bValid = FALSE;
 	    return stream;
 	}
 	
 	// End of header ?
-	if ( str.isEmpty() )
-        {
+	if ( str.isEmpty() ) {
 	    return stream;
 	}
 
 	// Parse the line
-    	if ( !parseLine( str, number++ ) )
-        {
+    	if ( !parseLine( str, number++ ) ) {
 	    m_bValid = FALSE;
 	    return stream;
 	}
@@ -128,11 +136,19 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
     return stream;
 }
 
+/*!
+  Looks up if the HTTP header contains an entry with the key \a key. If such an
+  entry exists, this function returns the value of the entry; otherwise an
+  empty string is returned.
+*/
 QString QHttpHeader::value( const QString& key ) const
 {
     return d->m_values[ key.lower() ];
 }
 
+/*!
+  Looks up all keys in the HTTP header and returns a list of them.
+*/
 QStringList QHttpHeader::keys() const
 {
     QStringList lst;
@@ -144,21 +160,37 @@ QStringList QHttpHeader::keys() const
     return lst;
 }
 
+/*!
+  Returns TRUE, if the HTTP header contains an entry with the key \a key,
+  otherwise FALSE.
+*/
 bool QHttpHeader::hasKey( const QString& key ) const
 {
     return d->m_values.contains( key.lower() );
 }
 
+/*!
+  Sets the value of the entry \a key to \a value.
+
+  If an entry with the key \a key already existed, the previous value will be
+  replaced. If no such entry existed, e new one will be added to HTTP header.
+*/
 void QHttpHeader::setValue( const QString& key, const QString& value )
 {
     d->m_values[ key.lower() ] = value;
 }
 
+/*!
+  Removes the entry with the key \a key from the HTTP header.
+*/
 void QHttpHeader::removeValue( const QString& key )
 {
     d->m_values.remove( key.lower() );
 }
 
+/*!
+  Parses a single HTTP header line and add it the information.
+*/
 bool QHttpHeader::parseLine( const QString& line, int )
 {
     int i = line.find( ":" );
@@ -170,6 +202,9 @@ bool QHttpHeader::parseLine( const QString& line, int )
     return TRUE;
 }
 
+/*!
+  Returns a string representation of the HTTP header.
+*/
 QString QHttpHeader::toString() const
 {
     QString ret = "";
@@ -181,17 +216,27 @@ QString QHttpHeader::toString() const
     return ret;
 }
 
+/*!
+  Writes a string representation of the HTTP header to the text stream \a
+  stream and returns a reference to the stream.
+*/
 QTextStream& QHttpHeader::write( QTextStream& stream ) const
 {
     stream << toString();
     return stream;
 }
 
+/*!
+  Returns the value of the special HTTP header entry \c content-length.
+*/
 uint QHttpHeader::contentLength() const
 {
     return d->m_values[ "content-length" ].toUInt();
 }
 
+/*!
+  Returns the value of the special HTTP header entry \c content-type.
+*/
 QString QHttpHeader::contentType() const
 {
     QString type = d->m_values[ "content-type" ];
@@ -205,29 +250,9 @@ QString QHttpHeader::contentType() const
     return type.left( pos ).stripWhiteSpace();
 }
 
-void QHttpHeader::setContentLength( int len )
-{
-    d->m_values[ "content-length" ] = QString::number( len );
-}
-
-void QHttpHeader::setContentType( const QString& type )
-{
-    d->m_values[ "content-type" ] = type;
-}
-
-void QHttpHeader::setConnection( QHttpHeader::Connection con )
-{
-    switch( con )
-    {
-    case Close:
-	d->m_values[ "connection" ] = "close";
-	break;
-    case KeepAlive:
-	d->m_values[ "connection" ] = "Keep-Alive";
-	break;
-    }
-}
-
+/*!
+  Returns the value of the special HTTP header entry \c connection.
+*/
 QHttpHeader::Connection QHttpHeader::connection() const
 {
     if ( !d->m_values.contains( "connection" ) )
@@ -245,6 +270,38 @@ QHttpHeader::Connection QHttpHeader::connection() const
     return Close;
 }
 
+/*!
+  Sets the value of the special HTTP header entry \c content-length to \a len.
+*/
+void QHttpHeader::setContentLength( int len )
+{
+    d->m_values[ "content-length" ] = QString::number( len );
+}
+
+/*!
+  Sets the value of the special HTTP header entry \c content-type to \a type.
+*/
+void QHttpHeader::setContentType( const QString& type )
+{
+    d->m_values[ "content-type" ] = type;
+}
+
+/*!
+  Sets the value of the special HTTP header entry \c connection to \a con.
+*/
+void QHttpHeader::setConnection( QHttpHeader::Connection con )
+{
+    switch( con )
+    {
+    case Close:
+	d->m_values[ "connection" ] = "close";
+	break;
+    case KeepAlive:
+	d->m_values[ "connection" ] = "Keep-Alive";
+	break;
+    }
+}
+
 /****************************************************
  *
  * QHttpReplyHeader
@@ -260,26 +317,41 @@ QHttpHeader::Connection QHttpHeader::connection() const
   fnord
 */
 
+/*!
+  Constructs an empty HTTP reply header.
+*/
 QHttpReplyHeader::QHttpReplyHeader()
 {
 }
 
+/*!
+  Constructs a HTTP reply header with....#### args?
+*/
 QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
     : QHttpHeader(), m_code( code ), m_text( text ), m_version( version )
 {
 }
 
+/*!
+  Copy constructor.
+*/
 QHttpReplyHeader::QHttpReplyHeader( const QHttpReplyHeader& header )
     : QHttpHeader( header ), m_code( header.m_code ), m_text( header.m_text ), m_version( header.m_version )
 {
 }
 
+/*!
+  Constructs a HTTP rely header from the string \a str.
+*/
 QHttpReplyHeader::QHttpReplyHeader( const QString& str )
     : QHttpHeader()
 {
     parse( str );
 }
 
+/*!
+  ####???
+*/
 void QHttpReplyHeader::setReply( int code, const QString& text, int version )
 {
     m_code = code;
@@ -287,21 +359,32 @@ void QHttpReplyHeader::setReply( int code, const QString& text, int version )
     m_version = version;
 }
 
+/*!
+  Returns the reply code of the HTTP reply header.
+*/
 int QHttpReplyHeader::replyCode() const
 {
     return m_code;
 }
 
+/*!
+  Returns the reply text of the HTTP reply header.
+*/
 QString QHttpReplyHeader::replyText() const
 {
     return m_text;
 }
 
+/*!
+  Returns the version of the HTTP reply header.
+*/
 int QHttpReplyHeader::version() const
 {
     return m_version;
 }
 
+/*! \reimpl
+*/
 bool QHttpReplyHeader::parseLine( const QString& line, int number )
 {
     if ( number != 0 )
@@ -311,45 +394,55 @@ bool QHttpReplyHeader::parseLine( const QString& line, int number )
     if ( l.length() < 10 )
 	return FALSE;
 
-    if ( l.left( 5 ) == "HTTP/" && l[5].isDigit() && l[6] == '.' && l[7].isDigit() &&
-	 l[8] == ' ' && l[9].isDigit() )
-    {
+    if ( l.left( 5 ) == "HTTP/" && l[5].isDigit() && l[6] == '.' &&
+	    l[7].isDigit() && l[8] == ' ' && l[9].isDigit() ) {
 	m_version = 10 * ( l[5].latin1() - '0' ) + ( l[7].latin1() - '0' );
 	
 	int pos = l.find( ' ', 9 );
-	if ( pos != -1 )
-        {
+	if ( pos != -1 ) {
 	    m_text = l.mid( pos + 1 );
 	    m_code = l.mid( 9, pos - 9 ).toInt();
-	}
-	else
-        {
+	} else {
 	    m_code = l.mid( 9 ).toInt();
 	    m_text = QString::null;
 	}
-    }
-    else
+    } else {
 	return FALSE;
+    }
 
     return TRUE;
 }
 
+/*! \reimpl
+*/
 QString QHttpReplyHeader::toString() const
 {
     QString ret( "HTTP/%1.%2 %3 %4\r\n%5\r\n" );
     return ret.arg( m_version / 10 ).arg ( m_version % 10 ).arg( m_code ).arg( m_text ).arg( QHttpHeader::toString() );
 }
 
+/*!
+  Reads a HTTP reply header from the text stream \a stream and stores it in \a
+  header and returns a refernce to the stream.
+*/
 QTextStream& operator>>( QTextStream& stream, QHttpReplyHeader& header )
 {
     return header.read( stream );
 }
 
+/*!
+  Writes the HTTP reply header \a header to the stream \a stream and returns a
+  reference to the stream.
+*/
 QTextStream& operator<<( QTextStream& stream, const QHttpReplyHeader& header )
 {
     return header.write( stream );
 }
 
+/*!
+  Returns TRUE if the HTTP relply header has no entry \c content-length,
+  otherwise FALSE.
+*/
 bool QHttpReplyHeader::hasAutoContentLength() const
 {
     if ( connection() == Close && !hasKey( "content-length" ) )
@@ -374,27 +467,42 @@ bool QHttpReplyHeader::hasAutoContentLength() const
   fnord
 */
 
+/*!
+  Constructs an empty HTTP request header.
+*/
 QHttpRequestHeader::QHttpRequestHeader()
     : QHttpHeader()
 {
 }
 
+/*!
+  ### args?
+*/
 QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int version )
     : QHttpHeader(), m_method( method ), m_path( path ), m_version( version )
 {
 }
 
+/*!
+  Copy constructor.
+*/
 QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
     : QHttpHeader( header ), m_method( header.m_method ), m_path( header.m_path ), m_version( header.m_version )
 {
 }
 
+/*!
+  Constructs a HTTP request header from the string \a str.
+*/
 QHttpRequestHeader::QHttpRequestHeader( const QString& str )
     : QHttpHeader()
 {
     parse( str );
 }
 
+/*!
+  ### args?
+*/
 void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int version )
 {
     m_method = method;
@@ -402,40 +510,48 @@ void QHttpRequestHeader::setRequest( const QString& method, const QString& path,
     m_version = version;
 }
 
+/*!
+  Returns the method of the HTTP request header.
+*/
 QString QHttpRequestHeader::method() const
 {
     return m_method;
 }
 
+/*!
+  Returns the path of the HTTP request header.
+*/
 QString QHttpRequestHeader::path() const
 {
     return m_path;
 }
 
+/*!
+  Returns the version of the HTTP request header.
+*/
 int QHttpRequestHeader::version()
 {
     return m_version;
 }
 
+/*! \reimpl
+*/
 bool QHttpRequestHeader::parseLine( const QString& line, int number )
 {
     if ( number != 0 )
 	return QHttpHeader::parseLine( line, number );
 
     QStringList lst = QStringList::split( " ", line.simplifyWhiteSpace() );
-    if ( lst.count() > 0 )
-    {
+    if ( lst.count() > 0 ) {
 	m_method = lst[0];
-	if ( lst.count() > 1 )
-        {
+	if ( lst.count() > 1 ) {
 	    m_path = lst[1];
-	    if ( lst.count() > 2 )
-            {
+	    if ( lst.count() > 2 ) {
 		QString v = lst[2];
-		if ( v.length() >= 8 && v.left( 5 ) == "HTTP/" && v[5].isDigit() &&
-		     v[6] == '.' && v[7].isDigit() )
-	        {
-		    m_version = 10 * ( v[5].latin1() - '0' ) + ( v[7].latin1() - '0' );		
+		if ( v.length() >= 8 && v.left( 5 ) == "HTTP/" &&
+			v[5].isDigit() && v[6] == '.' && v[7].isDigit() ) {
+		    m_version = 10 * ( v[5].latin1() - '0' ) +
+			( v[7].latin1() - '0' );		
 		    return TRUE;
 		}
 	    }
@@ -445,17 +561,27 @@ bool QHttpRequestHeader::parseLine( const QString& line, int number )
     return FALSE;
 }
 
+/*! \reimpl
+*/
 QString QHttpRequestHeader::toString() const
 {
     QString ret( "%1 %2 HTTP/%3.%4\r\n%5\r\n" );
     return ret.arg( m_method ).arg( m_path ).arg( m_version / 10 ).arg ( m_version % 10 ).arg( QHttpHeader::toString() );
 }
 
+/*!
+  Reads a HTTP request header from the text stream \a stream and stores it in
+  \a header and returns a refernce to the stream.
+*/
 QTextStream& operator>>( QTextStream& stream, QHttpRequestHeader& header )
 {
     return header.read( stream );
 }
 
+/*!
+  Writes the HTTP request header \a header to the stream \a stream and returns
+  a reference to the stream.
+*/
 QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 {
     return header.write( stream );
@@ -476,6 +602,9 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   fnord
 */
 
+/*!
+  Constructs a http client.
+*/
 QHttpClient::QHttpClient( QObject* parent, const char* name )
     : QObject( parent, name ), m_state( QHttpClient::Idle ), m_idleTimer( 0 ),
       m_device( 0 ), m_postDevice( 0 )
@@ -492,11 +621,17 @@ QHttpClient::QHttpClient( QObject* parent, const char* name )
     m_idleTimer = startTimer( 0 );
 }
 
+/*!
+  Destructor. If there is an open connection, this connection is closed.
+*/
 QHttpClient::~QHttpClient()
 {
     close();
 }
 
+/*!
+  Closes the connection. ### more details?
+*/
 void QHttpClient::close()
 {
     // If no connection is open -> ignore
@@ -507,45 +642,50 @@ void QHttpClient::close()
     m_state = Closed;
 
     // Already closed ?
-    if ( !m_socket->isOpen() )
-    {
+    if ( !m_socket->isOpen() ) {
 	m_idleTimer = startTimer( 0 );
-    }
-    else
-    {
+    } else {
 	// Close now.
 	m_socket->close();
 	
 	// Did close succeed immediately ?
-	if ( m_socket->state() == QSocket::Idle )
-        {
+	if ( m_socket->state() == QSocket::Idle ) {
 	    // Prepare to emit the idle() signal.
 	    m_idleTimer = startTimer( 0 );
 	}
     }
 }
 
+/*! \overload
+*/
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header )
 {
     return request( hostname, port, header, QByteArray(), 0 );
 }
 
+/*! \overload
+*/
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, const QByteArray& data )
 {
     return request( hostname, port, header, data, data.size() );
 }
 
+/*! \overload
+*/
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, const QCString& data )
 {
     return request( hostname, port, header, data, data.length() );
 }
 
-bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header,
-			   const char* data, uint size )
+/*!
+  Send a HTTP request to the server \a hostname at port \a port. Use the \a
+  header as the HTTP request header. \a data is a char array of size \a size;
+  it is used as the content data of the request.
+*/
+bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size )
 {
     // Is it allowed to make a new request now ?
-    if ( m_state != Idle && m_state != Alive )
-    {
+    if ( m_state != Idle && m_state != Alive ) {
 	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
 	return FALSE;
     }
@@ -555,8 +695,7 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
-    if ( m_socket->peerName() != hostname || m_socket->state() != QSocket::Connection )
-    {
+    if ( m_socket->peerName() != hostname || m_socket->state() != QSocket::Connection ) {
 	m_socket->connectToHost( hostname, port );
     }
 
@@ -570,10 +709,14 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
     return TRUE;
 }
 
+/*!
+  Send a HTTP request to the server \a hostname at port \a port. Use the \a
+  header as the HTTP request header. The conent data is read from \a device
+  (the device must be already open for reading).
+*/
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device )
 {
-    if ( m_state != Idle )
-    {
+    if ( m_state != Idle ) {
 	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
 	return FALSE;
     }
@@ -582,8 +725,7 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
     m_state = Connecting;
 
     m_postDevice = device;
-    if ( !m_postDevice || !m_postDevice->isOpen() || !m_postDevice->isReadable() )
-    {
+    if ( !m_postDevice || !m_postDevice->isOpen() || !m_postDevice->isReadable() ) {
 	qWarning("The device passes to QHttpClient::request must be opened for reading");
 	return FALSE;
     }
@@ -592,8 +734,7 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
-    if ( m_socket->peerName() != hostname || m_socket->state() != QSocket::Connection )
-    {
+    if ( m_socket->peerName() != hostname || m_socket->state() != QSocket::Connection ) {
 	m_socket->connectToHost( hostname, port );
     }
 
@@ -604,6 +745,9 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
     return TRUE;
 }
 
+/*!
+  Some cleanup if the connection got closed.
+*/
 void QHttpClient::closed()
 {
     if ( m_state == Closed )
@@ -611,10 +755,8 @@ void QHttpClient::closed()
 
     // If the other side closed the connection then there
     // may still be data left to read.
-    if ( m_state == Reading )
-    {
-	while( m_socket->bytesAvailable() > 0 )
-	{
+    if ( m_state == Reading ) {
+	while( m_socket->bytesAvailable() > 0 ) {
 	    qDebug(">>>>>>>>>>>>>>>>");
 	    readyRead();
 	    qDebug("<<<<<<<<<<<<<<<<");
@@ -622,8 +764,7 @@ void QHttpClient::closed()
 	
 	// If we got no Content-Length then we know
 	// now that the request has completed.
-	if ( m_reply.hasAutoContentLength() )
-	{
+	if ( m_reply.hasAutoContentLength() ) {
 	    if ( m_device )
 		emit reply( m_reply, m_device );
 	    else
@@ -631,19 +772,14 @@ void QHttpClient::closed()
 	
 	    // Save memory
 	    m_buffer = QByteArray();
-	}
-	// We got Content-Length, so did we get all bytes ?
-	else
-	{
-	    if ( m_bytesRead != m_reply.contentLength() )
-	    {
+	} else {
+	    // We got Content-Length, so did we get all bytes ?
+	    if ( m_bytesRead != m_reply.contentLength() ) {
 		qDebug("-----------------> REQUEST FAILED 1 <-------------------");
 		emit requestFailed();
 	    }
 	}
-    }    
-    else if ( m_state == Connecting || m_state == Sending )
-    {
+    } else if ( m_state == Connecting || m_state == Sending ) {
 	qDebug("-----------------> REQUEST FAILED 2 <-------------------");
 	emit requestFailed();
     }
@@ -671,8 +807,7 @@ void QHttpClient::error( int )
 {
     m_postDevice = 0;
 
-    if ( m_state == Connecting || m_state == Reading || m_state == Sending )
-    {	
+    if ( m_state == Connecting || m_state == Reading || m_state == Sending ) {	
 	emit requestFailed();
     }
 
@@ -684,20 +819,17 @@ void QHttpClient::bytesWritten( int )
     if ( !m_postDevice )
 	return;
 
-    if ( m_socket->bytesToWrite() == 0 )
-    {
+    if ( m_socket->bytesToWrite() == 0 ) {
 	int max = QMIN( 4096, m_postDevice->size() - m_postDevice->at() );
 	QByteArray arr( max );
 
 	int n = m_postDevice->readBlock( arr.data(), max );
-	if ( n != max )
-        {
+	if ( n != max ) {
 	    qWarning("Could not read enough bytes from the device");
 	    close();
 	    return;
 	}
-	if ( m_postDevice->atEnd() )
-        {
+	if ( m_postDevice->atEnd() ) {
 	    // qDebug("At end");
 	    m_postDevice = 0;
 	}
@@ -708,15 +840,13 @@ void QHttpClient::bytesWritten( int )
 
 void QHttpClient::readyRead()
 {
-    if ( m_state != Reading )
-    {
+    if ( m_state != Reading ) {
 	m_state = Reading;
 	m_buffer = QByteArray();
 	m_readHeader = TRUE;
     }
 
-    if ( m_readHeader )
-    {
+    if ( m_readHeader ) {
 	int n = m_socket->bytesAvailable();
 	if ( n == 0 )
 	    return;
@@ -729,22 +859,19 @@ void QHttpClient::readyRead()
 	const char* d = m_buffer.data();
 	int i;
 	bool end = FALSE;
-	for( i = QMAX( 0, s - 3 ); !end && i+3 < s + n; ++i )
-        {
+	for( i = QMAX( 0, s - 3 ); !end && i+3 < s + n; ++i ) {
 	    if ( d[i] == '\r' && d[i+1] == '\n' && d[i+2] == '\r' && d[i+3] == '\n' )
 		end = TRUE;
 	}
 	
-	if ( end )
-        {
+	if ( end ) {
 	    --i;
 	    m_readHeader = FALSE;
 	    m_buffer[i] = 0;
 	    m_reply = QHttpReplyHeader( QString( m_buffer ) );
 	
 	    // Check header
-	    if ( !m_reply.isValid() )
-	    {
+	    if ( !m_reply.isValid() ) {
 		emit requestFailed();
 		close();
 		return;
@@ -756,13 +883,10 @@ void QHttpClient::readyRead()
 		n = m_buffer.size() - i - 4;
 	    m_bytesRead = n;
 	
-	    if ( m_device )
-	    {
+	    if ( m_device ) {
 		// Write the data to file
 		m_device->writeBlock( m_buffer.data() + i + 4, n );
-	    }
-	    else
-	    {
+	    } else {
 		// Copy the data to the beginning of a new buffer.
 		QByteArray tmp;
 		// Resize the array. Do we know the size of the data a priori ?
@@ -778,22 +902,17 @@ void QHttpClient::readyRead()
 	}
     }
 
-    if ( !m_readHeader )
-    {
+    if ( !m_readHeader ) {
 	uint n = m_socket->bytesAvailable();
-	if ( n > 0 )
-        {
+	if ( n > 0 ) {
 	    if ( !m_reply.hasAutoContentLength() )
 		n = QMIN( m_reply.contentLength() - m_bytesRead, n );
 	
-	    if ( m_device )
-	    {
+	    if ( m_device ) {
 		QByteArray arr( n );
 		n = m_socket->readBlock( arr.data(), n );
 		m_device->writeBlock( arr.data(), n );
-	    }
-	    else
-	    {
+	    } else {
 		if ( m_reply.hasAutoContentLength() )
 		    m_buffer.resize( m_buffer.size() + n );
 		n = m_socket->readBlock( m_buffer.data() + m_bytesRead, n );
@@ -804,8 +923,7 @@ void QHttpClient::readyRead()
 	// Read everything ?
 	// We can only know that is the content length was given in advance.
 	// Otherwise we emit the signal in @ref #closed.
-	if ( !m_reply.hasAutoContentLength() && m_bytesRead == m_reply.contentLength() )
-        {	
+	if ( !m_reply.hasAutoContentLength() && m_bytesRead == m_reply.contentLength() ) {	
 	    if ( m_device )
 		emit reply( m_reply, m_device );
 	    else
@@ -815,8 +933,7 @@ void QHttpClient::readyRead()
 	    m_buffer = QByteArray();
 
 	    // Handle Keep Alive
-	    switch ( m_reply.connection() )
-	    {
+	    switch ( m_reply.connection() ) {
 	    case QHttpHeader::KeepAlive:
 		m_state = Alive;
 		// Start a timer, so that we emit the keep alive signal
@@ -832,6 +949,9 @@ void QHttpClient::readyRead()
     }
 }
 
+/*!
+  Returns the state of the HTTP client.
+*/
 QHttpClient::State QHttpClient::state() const
 {
     return m_state;
@@ -839,23 +959,19 @@ QHttpClient::State QHttpClient::state() const
 
 void QHttpClient::timerEvent( QTimerEvent *e )
 {
-    if ( e->timerId() == m_idleTimer )
-    {
+    if ( e->timerId() == m_idleTimer ) {
 	killTimer( m_idleTimer );
 	m_idleTimer = 0;
 	
-	if ( m_state == Alive )
-	{
+	if ( m_state == Alive ) {
 	    emit idle();
-	}
-	else if ( m_state != Idle )
-        {
+	} else if ( m_state != Idle ) {
 	    m_state = Idle;
 	    emit idle();
 	}
-    }
-    else
+    } else {
 	QObject::timerEvent( e );
+    }
 }
 
 void QHttpClient::killIdleTimer()
@@ -864,21 +980,22 @@ void QHttpClient::killIdleTimer()
     m_idleTimer = 0;
 }
 
+/*!
+  Sets the device of the HTTP client to \a d.
+### what is the use of this device?
+*/
 void QHttpClient::setDevice( QIODevice* d )
 {
     if ( d == m_device )
 	return;
 
-    if ( !d->isOpen() || !d->isWritable() )
-    {
+    if ( !d->isOpen() || !d->isWritable() ) {
 	qWarning("The socket must be opened for writing");
 	return;
     }
 
-    if ( m_device == 0 )
-    {
-	if ( m_state == Reading && !m_readHeader )
-        {
+    if ( m_device == 0 ) {
+	if ( m_state == Reading && !m_readHeader ) {
 	    d->writeBlock( m_buffer.data(), m_bytesRead );
 	}
     }
@@ -886,6 +1003,9 @@ void QHttpClient::setDevice( QIODevice* d )
     m_device = d;
 }
 
+/*!
+  Returns the device of the HTTP client.
+*/
 QIODevice* QHttpClient::device()
 {
     return m_device;
@@ -906,6 +1026,9 @@ QIODevice* QHttpClient::device()
   fnord
 */
 
+/*!
+  Constructor.
+*/
 QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
     : QServerSocket( port, 0, parent, name )
 {
@@ -926,6 +1049,9 @@ QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
   fnord
 */
 
+/*!
+  Constructor. ### args?
+*/
 QHttpConnection::QHttpConnection( int socket, QObject* parent, const char* name )
     : QObject( parent, name ), m_bytesToWrite( 0 ), m_state( Created ), m_killTimer( 0 ),
       m_allowKeepAlive( TRUE ), m_keepAliveTimeout( 10000 )
@@ -940,30 +1066,43 @@ QHttpConnection::QHttpConnection( int socket, QObject* parent, const char* name 
     connect( m_socket, SIGNAL( error(int) ), this, SLOT( socketError(int) ) );
 }
 
+/*!
+  Destructor.
+*/
 QHttpConnection::~QHttpConnection()
 {
     // qDebug("QHttpConnection::~QHttpConnection()");
 }
 
+/*!
+  Returns the state of the connection.
+*/
 QHttpConnection::State QHttpConnection::state() const
 {
     return m_state;
 }
 
+/*! \overload
+*/
 void QHttpConnection::reply( const QHttpReplyHeader& repl, const QCString& data )
 {
     reply( repl, data, data.length() );
 }
 
+/*! \overload
+*/
 void QHttpConnection::reply( const QHttpReplyHeader& repl, const QByteArray& data )
 {
     reply( repl, data, data.size() );
 }
 
+/*!
+  Sends a HTTP reply with the header \a repl. \a data is a char array with the
+  size \a size. This is used as the data for the HTTP reply.
+*/
 void QHttpConnection::reply( const QHttpReplyHeader& repl, const char* data, uint size )
 {
-    if ( m_state != Waiting )
-    {
+    if ( m_state != Waiting ) {
 	qWarning("QHttpConnection did not expect a call to QHttpConnection::reply." );
 	
 	emit replyFailed();
@@ -980,14 +1119,13 @@ void QHttpConnection::reply( const QHttpReplyHeader& repl, const char* data, uin
 	r.setContentLength( size );
 
     // Insert information about the connection.
-    if ( m_header.connection() == QHttpHeader::KeepAlive && m_allowKeepAlive )
-    {
+    if ( m_header.connection() == QHttpHeader::KeepAlive && m_allowKeepAlive ) {
 	r.setConnection( QHttpHeader::KeepAlive );
 	QString s( "timeout=%1" );
 	r.setValue( "Keep-Alive", s.arg( m_keepAliveTimeout / 1000 ) );
-    }
-    else
+    } else {
 	r.setConnection( QHttpHeader::Close );
+    }
 
     QString str = r.toString();
 	
@@ -1009,8 +1147,7 @@ void QHttpConnection::readyRead()
 	killTimer( m_killTimer );
 
     // Start reading? Do some initialization
-    if ( m_state != Reading )
-    {
+    if ( m_state != Reading ) {
 	m_state = Reading;
 	m_buffer = QByteArray();
 	m_readHeader = TRUE;
@@ -1019,8 +1156,7 @@ void QHttpConnection::readyRead()
     //
     // Reading the header.
     //
-    if ( m_readHeader )
-    {
+    if ( m_readHeader ) {
 	int n = m_socket->bytesAvailable();
 	int s = m_buffer.size();
 	m_buffer.resize( s + n );
@@ -1030,15 +1166,13 @@ void QHttpConnection::readyRead()
 	const char* d = m_buffer.data();
 	int i;
 	bool end = FALSE;
-	for( i = QMAX( 0, s - 3 ); !end && i+3 < s + n; ++i )
-        {
+	for( i = QMAX( 0, s - 3 ); !end && i+3 < s + n; ++i ) {
 	    if ( d[i] == '\r' && d[i+1] == '\n' && d[i+2] == '\r' && d[i+3] == '\n' )
 		end = TRUE;
 	}
 	
 	// Found the end of the header ?
-	if ( end )
-        {
+	if ( end ) {
 	    // Set a trailing zero
 	    --i;
 	    m_buffer[i] = 0;
@@ -1051,8 +1185,7 @@ void QHttpConnection::readyRead()
 	    m_readHeader = FALSE;
 		
 	    // Test wether header was valid.
-	    if ( !m_header.isValid() )
-	    {
+	    if ( !m_header.isValid() ) {
 		qWarning("Invalid header.\n==========\n%s\n===========", QString( m_buffer ).latin1() );
 		close();
 		return;
@@ -1063,8 +1196,7 @@ void QHttpConnection::readyRead()
 	    // Copy data that was already read to the beginning of the buffer.
 	    // And resize the buffer so that it can hold the entire data.
 	    QByteArray tmp;
-	    if ( !tmp.resize( m_header.contentLength() ) )
-	    {
+	    if ( !tmp.resize( m_header.contentLength() ) ) {
 		qWarning("Could not allocate memory");
 		close();
 		return;
@@ -1080,11 +1212,9 @@ void QHttpConnection::readyRead()
     //
     // Reading "data"
     //
-    if ( !m_readHeader )
-    {
+    if ( !m_readHeader ) {
 	// Still need to read bytes ?
-	if ( m_bytesToRead > 0 )
-        {
+	if ( m_bytesToRead > 0 ) {
 	    int n = m_socket->bytesAvailable();
 	    // Are bytes available ?
 	    if ( n > 0 )
@@ -1096,8 +1226,7 @@ void QHttpConnection::readyRead()
 	}
 	
 	// Did we read the entire request ?
-	if ( m_bytesToRead <= 0 )
-        {
+	if ( m_bytesToRead <= 0 ) {
 	    // We are waiting for the reply.
 	    m_state = Waiting;
 	
@@ -1185,6 +1314,8 @@ void QHttpConnection::error( int )
     // Do nothing
 }
 
+/*! \reimpl
+*/
 void QHttpConnection::timerEvent( QTimerEvent *e )
 {
     if ( e->timerId() == m_killTimer )
@@ -1196,18 +1327,26 @@ void QHttpConnection::timerEvent( QTimerEvent *e )
 	QObject::timerEvent( e );
 }
 
+/*!
+  If \a a is TRUE, the connection will try to keep it alive. If \a a is FALSE,
+  the connection is not allowed to be kept alive.
+*/
 void QHttpConnection::allowKeepAlive( bool a )
 {
     m_allowKeepAlive = a;
 }
 
+/*!
+  Returns TRUE, if the connection will try to keep it alive, otherwise FALSE.
+*/
 bool QHttpConnection::isKeepAliveAllowed() const
 {
     return m_allowKeepAlive;
 }
 
 /*!
-  Passing a value of 0 means infinite waiting.
+  Sets the timeout after which a connection that is kept alive will be
+  terminated. Passing a value of 0 means infinite waiting.
 */
 void QHttpConnection::setKeepAliveTimeout( int timeout )
 {
@@ -1215,7 +1354,8 @@ void QHttpConnection::setKeepAliveTimeout( int timeout )
 }
 
 /*!
-  The default value is 10 seconds.
+  Returns the timeout after which a connection that is kept alive will be
+  terminated. The default value is 10 seconds.
 */
 int QHttpConnection::keepAliveTimeout() const
 {
