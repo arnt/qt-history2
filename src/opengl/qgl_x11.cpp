@@ -119,7 +119,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 
     //qDebug( "Choosing cmap for vID %0x", vi->visualid );
 
-    if ( vi->visualid == 
+    if ( vi->visualid ==
 	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) ) {
 	//qDebug( "Using x11AppColormap" );
 	return QPaintDevice::x11AppColormap();
@@ -216,15 +216,15 @@ static void find_trans_colors()
     ulong bytesAfter;
     OverlayProp* overlayProps = 0;
     int res = XGetWindowProperty( appDisplay, rootWin->winId(),
-				  overlayVisualsAtom, 0, 10000, False, 
-				  overlayVisualsAtom, &actualType, 
+				  overlayVisualsAtom, 0, 10000, False,
+				  overlayVisualsAtom, &actualType,
 				  &actualFormat, &nItems, &bytesAfter,
 				  (uchar**)&overlayProps );
 
     if ( res != Success || actualType != overlayVisualsAtom
 	 || actualFormat != 32 || nItems < 4 || !overlayProps )
 	return;					// Error reading property
-	
+
     int numProps = nItems / 4;
     trans_colors.resize( numProps );
     int j = 0;
@@ -270,7 +270,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     if ( !vi )
 	return FALSE;
 
-    if ( deviceIsPixmap() && 
+    if ( deviceIsPixmap() &&
 	 ((XVisualInfo*)vi)->depth != paintDevice->x11Depth() ) {
 	XFree( vi );
 	XVisualInfo appVisInfo;
@@ -280,7 +280,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	vi = XGetVisualInfo( disp, VisualIDMask, &appVisInfo, &nvis );
 	if ( !vi )
 	    return FALSE;
-	
+
 	int useGL;
 	glXGetConfig( disp, (XVisualInfo*)vi, GLX_USE_GL, &useGL );
 	if ( !useGL )
@@ -305,8 +305,8 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     glFormat.setStereo( res );
 
     Bool direct = format().directRendering() ? True : False;
-    
-    if ( shareContext && 
+
+    if ( shareContext &&
 	 ( !shareContext->isValid() || !shareContext->cx ) ) {
 #if defined(QT_CHECK_NULL)
 	    qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
@@ -360,7 +360,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
 void *QGLContext::chooseVisual()
 {
-    static int bufDepths[] = { 8, 4, 2, 1 };	// Try 16, 12 also? 
+    static int bufDepths[] = { 8, 4, 2, 1 };	// Try 16, 12 also?
     //todo: if pixmap, also make sure that vi->depth == pixmap->depth
     void* vis = 0;
     int i = 0;
@@ -413,7 +413,7 @@ void *QGLContext::chooseVisual()
     return vis;
 }
 
-	  
+
 /*
   <strong>X11 only</strong>: This virtual function chooses a visual
   that matches the OpenGL \link format() format\endlink. Reimplement this
@@ -472,7 +472,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 	spec[i++] = 1;
 	spec[i++] = GLX_BLUE_SIZE;
 	spec[i++] = 1;
- 	if ( f.alpha() ) {
+	if ( f.alpha() ) {
 	    spec[i++] = GLX_ALPHA_SIZE;
 	    spec[i++] = 1;
 	}
@@ -487,7 +487,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 		spec[i++] = GLX_ACCUM_ALPHA_SIZE;
 		spec[i++] = 1;
 	    }
-        }
+	}
     }
     else {
 	spec[i++] = GLX_BUFFER_SIZE;
@@ -531,9 +531,9 @@ void QGLContext::makeCurrent()
     bool ok = TRUE;
     if ( deviceIsPixmap() )
 	ok = glXMakeCurrent( paintDevice->x11Display(),
-			     (GLXPixmap)gpm, 
+			     (GLXPixmap)gpm,
 			     (GLXContext)cx );
-	     
+
     else
 	ok = glXMakeCurrent( paintDevice->x11Display(),
 			     ((QWidget *)paintDevice)->winId(),
@@ -569,7 +569,7 @@ QColor QGLContext::overlayTransparentColor() const
     if ( isValid() ) {
 	if ( !trans_colors_init )
 	    find_trans_colors();
-    
+
 	VisualID myVisualId = ((XVisualInfo*)vi)->visualid;
 	for ( int i = 0; i < (int)trans_colors.size(); i++ ) {
 	    if ( trans_colors[i].vis == myVisualId )
@@ -586,7 +586,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	if ( format().plane()
 	     && c.pixel() == overlayTransparentColor().pixel() )
 	    return c.pixel();			// Special; don't look-up
-	if ( ((XVisualInfo*)vi)->visualid == 
+	if ( ((XVisualInfo*)vi)->visualid ==
 	     XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) )
 	    return c.pixel();		// We're using QColor's cmap
 
@@ -595,7 +595,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	    int rf = (int)(((float)c.red() * (x->scmap.red_max+1))/256.0);
 	    int gf = (int)(((float)c.green() * (x->scmap.green_max+1))/256.0);
 	    int bf = (int)(((float)c.blue() * (x->scmap.blue_max+1))/256.0);
-	    uint p = x->scmap.base_pixel 
+	    uint p = x->scmap.base_pixel
 		     + ( rf * x->scmap.red_mult )
 		     + ( gf * x->scmap.green_mult )
 		     + ( bf * x->scmap.blue_mult );
@@ -619,7 +619,7 @@ class QGLOverlayWidget : public QGLWidget
 {
     Q_OBJECT
 public:
-    QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent, 
+    QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
 		      const char* name=0, const QGLWidget* shareWidget=0 );
 
 protected:
@@ -634,7 +634,7 @@ protected:
     void		enterEvent( QEvent* );
     void		leaveEvent( QEvent* );
 
-    
+
 private:
     QGLWidget*		realWidget;
 
@@ -710,6 +710,7 @@ void QGLOverlayWidget::leaveEvent( QEvent* e )
     QApplication::sendEvent( realWidget, e );
 }
 
+#undef Bool
 #include "qgl_x11.moc"
 
 /*****************************************************************************
@@ -727,11 +728,11 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
     else
 	setContext( new QGLContext( format, this ) );
     setBackgroundMode( NoBackground );
-    
+
     if ( isValid() && format.hasOverlay() ) {
 	QCString olwName( name() );
 	olwName += "-QGL_internal_overlay_widget";
-	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(), 
+	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(),
 				    this, olwName, shareWidget );
 	if ( olw->isValid() ) {
 	    olw->setAutoBufferSwap( FALSE );
@@ -863,7 +864,7 @@ void QGLWidget::setContext( QGLContext *context,
     if ( XGetWMColormapWindows( x11Display(), topLevelWidget()->winId(),
 				&cmwret, &count ) ) {
 	cmw = new Window[count+1];
-        memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
+	memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
 	XFree( (char *)cmwret );
 	int i;
 	for ( i=0; i<count; i++ ) {
@@ -890,7 +891,7 @@ void QGLWidget::setContext( QGLContext *context,
 
     create( w );
 
-    XSetWMColormapWindows( x11Display(), topLevelWidget()->winId(), cmw, 
+    XSetWMColormapWindows( x11Display(), topLevelWidget()->winId(), cmw,
 			   count );
     delete [] cmw;
 
