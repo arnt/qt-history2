@@ -17,21 +17,17 @@
 #include "qstringlist.h"
 
 /*!
-    \class QSqlIndex qsqlindex.h
+    \class QSqlIndex
     \brief The QSqlIndex class provides functions to manipulate and
-    describe QSqlCursor and QSqlDatabase indexes.
+    describe database indexes.
 
     \ingroup database
     \module sql
 
-    This class is used to describe and manipulate QSqlCursor and
-    QSqlDatabase indexes. An index refers to a single table or view
-    in a database. Information about the fields that comprise the
-    index can be used to generate SQL statements, or to affect the
-    behavior of a \l QSqlCursor object.
-
-    Normally, QSqlIndex objects are created by \l QSqlDatabase or
-    QSqlCursor.
+    An \e index refers to a single table or view in a database.
+    Information about the fields that comprise the index can be used
+    to generate SQL statements, or to affect the behavior of a
+    QSqlCursor object.
 */
 
 /*!
@@ -40,9 +36,8 @@
 */
 
 QSqlIndex::QSqlIndex(const QString& cursorname, const QString& name)
-    : QSqlRecord(), cursor(cursorname), nm(name)
+    : cursor(cursorname), nm(name)
 {
-
 }
 
 /*!
