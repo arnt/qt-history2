@@ -44,10 +44,13 @@ QString loadFile( const QString &fileName )
     return in.read();
 }
 
-QMap<QString, QString> proFileTagMap( const QString& text )
+QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
 {
     QString t = text;
-
+    if (currentPath.isEmpty())
+        currentPath = QDir::currentPath();
+    
+    
     QMap<QString, QString> tagMap;
     bool stillProcess = true; // If include() has a $$tag then we need to reprocess
 
@@ -70,7 +73,7 @@ QMap<QString, QString> proFileTagMap( const QString& text )
         while ( (i = callToInclude.indexIn(t, i)) != -1 ) {
             bool doneWithVar = false;
             QString fileName = callToInclude.cap(1);
-            QString after = fileName.replace("$$PWD", QDir::currentPath());
+            QString after = fileName.replace("$$PWD", currentPath);
             if (!tagMap.isEmpty() && after.contains("$$")) {
                 QRegExp var( "\\$\\$[({]?([a-zA-Z0-9_]+)[)}]?" );
                 int ii = 0;
@@ -155,7 +158,7 @@ QMap<QString, QString> proFileTagMap( const QString& text )
                     if ( tagMap.contains(invocation) )
                         after = tagMap[invocation];
                     else if (invocation.toLower() == "pwd")
-                        after = QDir::currentPath();
+                        after = currentPath;
                     (*it).replace( i, len, after );
                     i += after.length();
                 }

@@ -17,7 +17,7 @@
 #include <qmap.h>
 #include <qstring.h>
 
-QMap<QString, QString> proFileTagMap( const QString& text );
+QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath = QString() );
 QString loadFile( const QString &fileName );
 
 

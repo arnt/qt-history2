@@ -9,6 +9,9 @@
 #include "fileporter.h"
 #include "logger.h"
 
+using std::cout;
+using std::endl;
+
 QString rulesFileName;
 QString rulesFilePath;
 
@@ -30,60 +33,48 @@ QString findRulesFile(QString fileName, QString programPath)
     return filePath;
 }
 
-int fileMode(QString inFile, QString outFile)
+int fileMode(QString inFile)
 {
-    puts("Port in file mode");
     QFileInfo inFileInfo(inFile);
     if(!inFileInfo.exists()) {
-        printf("Could not find file %s\n",inFile.latin1());
+        cout << "Could not find file" << inFile.latin1() << endl;
         return 1;
     }
-    printf("Porting %s, writing output to ", inFile.latin1());
-    if (!outFile.isEmpty())
-        printf("%s\n", outFile.latin1());
-    else
-        printf("stdout\n");
 
     FilePorter filePorter(rulesFilePath);
     if (QFileInfo(rulesFilePath).suffix() == "h" || (QFileInfo(rulesFilePath).suffix() == "hpp"))
-        filePorter.port(QString::null, inFile, QString::null, outFile, FilePorter::Header );
+        filePorter.port(QString::null, inFile, QString::null, inFile, FilePorter::Header );
     else
-        filePorter.port(QString::null, inFile, QString::null, outFile, FilePorter::Source );
+        filePorter.port(QString::null, inFile, QString::null, inFile, FilePorter::Source );
     return 0;
 }
 
-int projectMode(QString inFile, QString outDir)
+int projectMode(QString inFile)
 {
-    puts("Port in project mode");
     QFileInfo inFileInfo(inFile);
-    QString inFilePath = inFileInfo.canonicalFilePath();
-    if(inFilePath.isEmpty()) {
-        printf("Could not find file %s\n",inFile.latin1());
+    if(!inFileInfo.exists()) {
+        cout<<"Could not find file" << inFile.latin1() << endl;
         return 1;
     }
-    QString inFileName = inFileInfo.fileName();
-    int fileNamePos = inFilePath.indexOf(inFileName);
-    QString dir = inFilePath.remove(fileNamePos, inFileName.size());
-    printf("Porting project specified in %s\n", inFileName.latin1());
-    printf("Project directory: %s\n", dir.latin1());
-    printf("Output directory: %s \n", outDir.latin1());
-
+ 
     ProjectPorter porter(rulesFilePath);
-    porter.portProject(inFilePath, inFileName, outDir);
+    porter.portProject(inFileInfo.path(), inFileInfo.fileName());
     return 0;
 }
 
 void usage(char **argv)
 {
     using namespace std;
-    cout << "Usage: " << argv[0] << " infile.cpp/h outfile.cpp/h" << endl;
-    cout << "       " << argv[0] << " infile.pro outdir" << endl;
+    cout << "Usage: " << argv[0] << " infile.cpp/h/pro" << endl;
     cout << "Tool for porting Qt 3 applications to Qt 4, using the compatibility library" << endl;
     cout << "and compatibility functions in the core library." << endl;
     cout << endl;
     cout << "Port has two usage modes: " << endl;
-    cout << "* File mode:     port infile.cpp/h out_file" << endl;
-    cout << "* Project mode:  port infile.pro   out_directory" << endl;
+    cout << "* File mode:     port infile.cpp/h" << endl;
+    cout << "* Project mode:  port infile.pro " << endl;
+    cout << endl;
+    cout << "In file mode a single file is ported, while in project mode all files specified" << endl;
+    cout << "in the .pro file is ported." << endl;
     cout << endl;
     cout << "See README for more info." << endl;
 }
@@ -92,7 +83,7 @@ int main(int argc, char**argv)
 {
     QString in;
     QString out;
-    if(argc !=3) {
+    if(argc !=2) {
         usage(argv);
         return 0;
     }
@@ -104,23 +95,21 @@ int main(int argc, char**argv)
         return 0;
     }
 
-    if(argc==3) out=argv[2];
-
     rulesFileName="rules.xml";
     rulesFilePath=findRulesFile(rulesFileName, argv[0]);
     if (rulesFilePath.isEmpty()) {
         printf("Error: Could not find rules.xml file\n");
         return 0;
     } else {
-        printf("found rules file: %s\n", rulesFilePath.latin1());
+        printf("Using rules file: %s\n", rulesFilePath.latin1());
     }
 
 
     int retval;
     if(in.endsWith(".pro"))
-        retval = projectMode(in, out);
+        retval = projectMode(in);
     else
-        retval = fileMode(in, out);
+        retval = fileMode(in);
 
     Logger::instance()->print(Logger::instance()->cronologicalReport());
     QString logFileName =  "portinglog.txt";

@@ -14,21 +14,22 @@ using std::endl;
 
 ProjectPorter::ProjectPorter(QString rulesFileName)
 :rulesFileName(rulesFileName)
+,filePorter(rulesFileName)
 {
 
 }
 
-void ProjectPorter::portProject(QString inPath, QString proFileName, QString outPath)
+void ProjectPorter::portProject(QString basePath, QString proFileName)
 {
-    QString fullInFileName = inPath + proFileName;
+    QString fullInFileName = basePath + "/" + proFileName;
     QFileInfo infileInfo(fullInFileName);
     if(!infileInfo.exists()) {
-        cout<<"Could not open file: " << fullInFileName.latin1() <<endl;
+        cout<<"Could not open file: " << QDir::convertSeparators(fullInFileName).latin1() << endl;
         return;
     }     
    
     QString proFileContents = loadFile(fullInFileName);
-    QMap<QString, QString> proFileMap = proFileTagMap(proFileContents);
+    QMap<QString, QString> proFileMap = proFileTagMap(proFileContents, QDir(basePath).absolutePath());
 #if 0
     puts(proFileContents.latin1());
     puts(proFileMap["SOURCES"].latin1());
@@ -45,58 +46,48 @@ void ProjectPorter::portProject(QString inPath, QString proFileName, QString out
     if(templateTag == "subdirs") {
         QStringList subdirs = proFileMap["SUBDIRS"].split(" ", QString::SkipEmptyParts);
         foreach(QString subdir, subdirs) {
-            QString newInPath  = inPath  + subdir + "/";
-            QString newOutPath = outPath + subdir + "/";
-            
+            QString newBasePath  = basePath + "/" + subdir;
             QStringList dirsInSubdir = subdir.split(QRegExp("/|\\\\"), QString::SkipEmptyParts);
             QString newProFileName = dirsInSubdir.last() + ".pro";
-            portProject(newInPath, newProFileName, newOutPath);
+            portProject(newBasePath, newProFileName);
         }
      }
-       
     /*
         Get headers and sources file names from .pro file.
     */
     QStringList sources = proFileMap["SOURCES"].split(" ", QString::SkipEmptyParts);
     QStringList headers = proFileMap["HEADERS"].split(" ", QString::SkipEmptyParts);
-
-    #if 0
-    qDebug("Source files:");
-    foreach(QString sourceFileName, sources)
-        qDebug("|"+sourceFileName+"|");
-
-    qDebug("Header files:");
-    foreach(QString headerFileName, headers)
-        qDebug("|"+headerFileName+"|");
-    #endif
-
     
-    if(!outPath.isEmpty()&& !outPath.endsWith("/")) {
-        outPath +="/";
-    }
+    portFiles(basePath, sources, FilePorter::Source);
+    portFiles(basePath, headers, FilePorter::Header);
     
-    //process headers
-    FilePorter filePorter(rulesFileName);
-    foreach(QString headerFileName, headers) {
-        QString fullFilePath = QDir(inPath + headerFileName).absolutePath();
+    QString portedProFile = portProFile(proFileContents, proFileMap);
+    FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.latin1());
+}
+
+void ProjectPorter::portFiles(QString basePath, QStringList fileNames, FilePorter::FileType fileType)
+{
+    foreach(QString fileName, fileNames) {
+        QString fullFilePath; 
+        QFileInfo fileInfo(fileName);
+        if (fileInfo.isAbsolute()) {
+            fullFilePath = QDir::cleanPath(fileName);
+        } else {
+            fullFilePath = QDir::cleanPath(basePath + "/" + fileName);
+        }
+        
+        QFileInfo fullFilePathInfo(fullFilePath);
+        if(!fullFilePathInfo.exists()) {
+            cout << "Could not find file:" << 
+                QDir::convertSeparators(fullFilePath).latin1() <<endl;        
+            continue;
+        }
+       
         if(!processedFilesSet.contains(fullFilePath)){
-            filePorter.port(inPath , headerFileName, outPath , headerFileName, FilePorter::Header);
+            filePorter.port(QString(), fullFilePath, QString() , fullFilePath, fileType);
             processedFilesSet.insert(fullFilePath, 0);
         }
     }
-    //process source files
-    foreach(QString sourceFileName, sources) {
-        QString fullFilePath = QDir(inPath + sourceFileName).absolutePath();
-        if(!processedFilesSet.contains(fullFilePath)) {
-            filePorter.port(inPath , sourceFileName, outPath , sourceFileName, FilePorter::Source);
-            processedFilesSet.insert(fullFilePath, 0);
-         }
-    }
-
-    QString portedProFile = portProFile(proFileContents, proFileMap);
-    if(!outPath.isEmpty())
-        FileWriter::instance()->writeFileVerbously(outPath+proFileName, portedProFile.latin1());
-       
 }
 
 QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagMap)
@@ -124,7 +115,6 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
             j+=insertText.size() + 1;
         }
     }
-    
          
     return contents;
 }

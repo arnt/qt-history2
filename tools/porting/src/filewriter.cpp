@@ -54,10 +54,10 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
             printf("Error writing file %s: It already exists\n", cleanPath.latin1());
             return false;
         } else if(overWriteFiles == AskOnOverWrite) {
-            printf("Warning: file %s already exists.", cleanPath.latin1());
+            printf("Warning: overwriting file %s ", cleanPath.latin1());
             char answer = 0;
             int ret = 0;
-            printf("\nOverwrite? (Y)es, (N)o, (A)lways ");
+            printf("\nOk? (Y)es, (N)o, (A)ll ");
             while (ret == 0 || (answer != 'y' && answer != 'n' && answer != 'a')) {
                 ret = scanf("%c", &answer);            
                 answer = tolower(answer);
@@ -73,6 +73,6 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
     if (f.isOpen() && f.write(contents) == contents.size()) 
         return true;
     
-    printf("Could not write to to file: %s\n", filePath.latin1());
+    printf("Could not write to to file: %s. Is it write protected?\n", filePath.latin1());
     return false;
 }
