@@ -1,5 +1,5 @@
 TEMPLATE        = app
-TARGET          = sqlmodel
+TARGET          = simplesqlmodel
 
 QT              += sql
 
