@@ -106,7 +106,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                    || type == Qt::Drawer
                    || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
-    bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
+    bool tool = (type == Qt::Tool);
 
     bool customize =  (flags & (
                                 Qt::X11BypassWindowManagerHint
@@ -160,7 +160,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if (!style)
             qErrnoWarning("QWidget::create: GetWindowLong failed");
         topLevel = false; // #### needed for some IE plugins??
-    } else if (popup || (type == Qt::ToolTip)) {
+    } else if (popup || (type == Qt::ToolTip) || (type == Qt::SplashScreen)) {
         style = WS_POPUP;
     } else if (!topLevel) {
         if (!customize)
@@ -223,10 +223,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                     style |= WS_MINIMIZEBOX;
                 if (flags & Qt::WindowMaximizeButtonHint)
                     style |= WS_MAXIMIZEBOX;
-                if (tool || popup)
+                if (tool)
                     exsty |= WS_EX_TOOLWINDOW;
                 if (flags & Qt::WindowContextHelpButtonHint)
                     exsty |= WS_EX_CONTEXTHELP;
+            } else {
+                 exsty |= WS_EX_TOOLWINDOW;
             }
         }
     }
