@@ -19,7 +19,7 @@ void rmDirRecursive( QString dirPath )
     while( ( fi = it.current() ) ) {
 	if( ( fi->fileName() != "." ) && ( fi->fileName() != ".." ) ){
 	    QString fileName = dirPath + QString( "\\" ) + fi->fileName();
-	    progress->filesDisplay->append( fileName );
+	    progress->filesDisplay->append( fileName + "\n" );
 	    app->processEvents();
 	    if( fi->isDir() )
 		rmDirRecursive( fileName );
