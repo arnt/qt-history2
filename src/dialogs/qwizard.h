@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#8 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.h#9 $
 **
 ** Definition of the QWizard wizard framework
 **
@@ -41,7 +41,7 @@ public:
 
     QString title( QWidget * ) const;
 
-    void showPage( QWidget * );
+    virtual void showPage( QWidget * );
 
     QWidget * currentPage() const;
 
@@ -55,6 +55,7 @@ public:
     QPushButton * backButton() const;
     QPushButton * nextButton() const;
     QPushButton * finishButton() const;
+    QPushButton * cancelButton() const;
     QPushButton * helpButton() const;
 
     bool eventFilter( QObject *, QEvent * );
@@ -71,7 +72,6 @@ public slots:
 protected slots:
     virtual void back();
     virtual void next();
-    virtual void finish();
     virtual void help();
 
 signals:

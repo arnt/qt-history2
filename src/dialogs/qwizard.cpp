@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#24 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#25 $
 **
 ** Implementation of something useful.
 **
@@ -39,7 +39,7 @@
 
   A wizard is a dialog that consists of a sequential number of steps,
   each consisting of a single page.  QWizard provides a title for each
-  page, and "Next", "Back", "Finish" and "Help" buttons, as
+  page, and "Next", "Back", "Finish", "Cancel" and "Help" buttons, as
   appropriate.
 
 */
@@ -74,6 +74,7 @@ public:
     QPushButton * backButton;
     QPushButton * nextButton;
     QPushButton * finishButton;
+    QPushButton * cancelButton;
     QPushButton * helpButton;
 
     QFrame * hbar1, * hbar2;
@@ -105,10 +106,13 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     d->current = 0; // not quite true, but...
     d->ws = new QWidgetStack( this );
     d->title = 0;
-    d->backButton = new QPushButton( this, "back" );
+
+    // create in nice tab order
     d->nextButton = new QPushButton( this, "next" );
     d->finishButton = new QPushButton( this, "finish" );
     d->helpButton = new QPushButton( this, "help" );
+    d->backButton = new QPushButton( this, "back" );
+    d->cancelButton = new QPushButton( this, "cancel" );
 
     d->ws->installEventFilter( this );
 
@@ -116,10 +120,11 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     d->hbar1 = 0;
     d->hbar2 = 0;
 
-    d->helpButton->setText( tr( "Help" ) );
+    d->cancelButton->setText( tr( "Cancel" ) );
+    d->backButton->setText( tr( "<<Back" ) );
     d->nextButton->setText( tr( "Next>>" ) );
     d->finishButton->setText( tr( "Finish" ) );
-    d->backButton->setText( tr( "<<Back" ) );
+    d->helpButton->setText( tr( "Help" ) );
 
     d->nextButton->setDefault( TRUE );
 
@@ -128,7 +133,9 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     connect( d->nextButton, SIGNAL(clicked()),
 	     this, SLOT(next()) );
     connect( d->finishButton, SIGNAL(clicked()),
-	     this, SLOT(finish()) );
+	     this, SLOT(accept()) );
+    connect( d->cancelButton, SIGNAL(clicked()),
+	     this, SLOT(reject()) );
     connect( d->helpButton, SIGNAL(clicked()),
 	     this, SLOT(help()) );
 
@@ -201,15 +208,15 @@ void QWizard::addPage( QWidget * page, const QString & title )
 }
 
 
-/*!  Makes \a w be the displayed page. */
+/*!  Makes \a page be the displayed page. */
 
-void QWizard::showPage( QWidget * w )
+void QWizard::showPage( QWidget * page )
 {
-    QWizardPrivate::Page * p = d->page( w );
+    QWizardPrivate::Page * p = d->page( page );
     if ( p ) {
 	setBackEnabled( p->back != 0 );
 	setNextEnabled( TRUE );
-	d->ws->raiseWidget( w );
+	d->ws->raiseWidget( page );
 	d->current = p;
     }
 
@@ -227,9 +234,9 @@ int QWizard::count() const
 
 
 /*!
-
+  Called when the user clicks the Back button, this function shows
+  the page which the user saw prior to the current one.
 */
-
 void QWizard::back()
 {
     if ( d->current && d->current->back )
@@ -238,9 +245,9 @@ void QWizard::back()
 
 
 /*!
-
+  Called when the user clicks the Next button, this function shows
+  the next appropriate page.
 */
-
 void QWizard::next()
 {
     int i = 0;
@@ -260,15 +267,6 @@ void QWizard::next()
     }
 }
 
-
-/*!
-
-*/
-
-void QWizard::finish()
-{
-
-}
 
 /*!
   \fn void QWizard::helpClicked()
@@ -315,7 +313,7 @@ void QWizard::setHelpEnabled( bool enable )
 }
 
 
-/*!
+/*
 
 */
 
@@ -330,7 +328,7 @@ void QWizard::setFinish( QWidget * w, bool isLast )
 }
 
 
-/*!
+/*
 
 */
 
@@ -345,7 +343,7 @@ void QWizard::setBackEnabled( QWidget * w, bool enable )
 }
 
 
-/*!
+/*
 
 */
 
@@ -360,7 +358,7 @@ void QWizard::setNextEnabled( QWidget * w, bool enable )
 }
 
 
-/*!
+/*
 
 */
 
@@ -375,7 +373,7 @@ void QWizard::setFinishEnabled( QWidget * w, bool enable )
 }
 
 
-/*!
+/*
 
 */
 
@@ -410,7 +408,7 @@ bool QWizard::appropriate( QWidget * w ) const
 }
 
 
-/*!
+/*
 
 */
 
@@ -461,7 +459,7 @@ QString QWizard::title( QWidget * page ) const
 }
 
 
-/*!
+/*
 
 */
 
@@ -471,7 +469,7 @@ QPushButton * QWizard::backButton() const
 }
 
 
-/*!
+/*
 
 */
 
@@ -482,9 +480,11 @@ QPushButton * QWizard::nextButton() const
 
 
 /*!
+  Returns the Finish button of the dialog.
 
+  By default, this button is connected to the QDialog::accept()
+  slot, which is virtual so you may override it in a QWizard subclass.
 */
-
 QPushButton * QWizard::finishButton() const
 {
     return d->finishButton;
@@ -492,6 +492,18 @@ QPushButton * QWizard::finishButton() const
 
 
 /*!
+  Returns the Cancel button of the dialog.
+
+  By default, this button is connected to the QDialog::reject()
+  slot, which is virtual so you may override it in a QWizard subclass.
+*/
+QPushButton * QWizard::cancelButton() const
+{
+    return d->cancelButton;
+}
+
+
+/*
 
 */
 
@@ -527,6 +539,9 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 
     QBoxLayout * h = new QBoxLayout( QBoxLayout::LeftToRight );
     layout->addLayout( h );
+
+    h->addWidget( d->cancelButton );
+
     h->addStretch( 42 );
 
     h->addWidget( d->backButton );
@@ -574,7 +589,7 @@ void QWizard::layOutTitleRow( QHBoxLayout * layout, const QString & title )
 }
 
 
-/*!
+/*
 
 */
 
