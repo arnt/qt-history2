@@ -185,7 +185,7 @@ QTextView::QTextView( QWidget *parent, const char *name )
 
 QTextView::QTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase | WResizeNoErase ),
       doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
@@ -1532,7 +1532,6 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 void QTextView::setPalette( const QPalette &p )
 {
     QScrollView::setPalette( p );
-    doc->setSelectionColor( QTextDocument::Standard, p.color( QPalette::Active, QColorGroup::Highlight ) );
 }
 
 void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle )

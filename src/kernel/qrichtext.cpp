@@ -3531,7 +3531,10 @@ void QTextParag::drawParagString( QPainter &painter, const QString &str, int sta
 	    if ( i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
 		if ( !doc || doc->invertSelectionText( j ) )
 		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
-		painter.fillRect( startX, lastY, bw, h, doc ? doc->selectionColor( j ) : cg.color( QColorGroup::Highlight ) );
+		if ( j == QTextDocument::Standard )
+		    painter.fillRect( startX, lastY, bw, h, cg.color( QColorGroup::Highlight ) );
+		else
+		    painter.fillRect( startX, lastY, bw, h, doc ? doc->selectionColor( j ) : cg.color( QColorGroup::Highlight ) );
 	    }
 	}
     }
