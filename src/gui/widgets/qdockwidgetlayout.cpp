@@ -1049,12 +1049,12 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
     Qt::DockWidgetAreas allowedAreas = Qt::AllDockWidgetAreas;
     if (location.index >= 2) {
         const QDockWidgetLayoutInfo &prevInfo = layout_info.at(location.index - 2);
-        if (dockwidget == prevInfo.item->widget())
+        if (!prevInfo.item->isEmpty() && dockwidget == prevInfo.item->widget())
             allowedAreas &= horizontal ? ~Qt::LeftDockWidgetArea : ~Qt::TopDockWidgetArea;
     }
     if (location.index < layout_info.size() - 2) {
         const QDockWidgetLayoutInfo &nextInfo = layout_info.at(location.index + 2);
-        if (dockwidget == nextInfo.item->widget())
+        if (!nextInfo.item->isEmpty() && dockwidget == nextInfo.item->widget())
             allowedAreas &= horizontal ? ~Qt::RightDockWidgetArea : ~Qt::BottomDockWidgetArea;
     }
 
@@ -1121,12 +1121,12 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     Qt::DockWidgetAreas allowedAreas = Qt::AllDockWidgetAreas;
     if (location.index >= 2) {
         const QDockWidgetLayoutInfo &prevInfo = layout_info.at(location.index - 2);
-        if (dockwidget == prevInfo.item->widget())
+        if (!prevInfo.item->isEmpty() && dockwidget == prevInfo.item->widget())
             allowedAreas &= horizontal ? ~Qt::LeftDockWidgetArea : ~Qt::TopDockWidgetArea;
     }
     if (location.index < layout_info.size() - 2) {
         const QDockWidgetLayoutInfo &nextInfo = layout_info.at(location.index + 2);
-        if (dockwidget == nextInfo.item->widget())
+        if (!nextInfo.item->isEmpty() && dockwidget == nextInfo.item->widget())
             allowedAreas &= horizontal ? ~Qt::RightDockWidgetArea : ~Qt::BottomDockWidgetArea;
     }
 
