@@ -1675,19 +1675,24 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
                 return;
         }
 #endif
-        if (d->cursor.hasSelection()
-            && cursorPos >= d->cursor.selectionStart()
-            && cursorPos <= d->cursor.selectionEnd()) {
-            d->mightStartDrag = true;
-            d->dragStartPos = e->globalPos();
-            d->dragStartTimer.start(QApplication::startDragTime(), this);
-            return;
-        }
+        if (e->modifiers() == Qt::ShiftModifier) {
+            if (d->selectedWordOnDoubleClick.hasSelection())
+                d->extendWordwiseSelection(cursorPos, pos.x());
+            else
+                d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
+        } else {
 
-        if (e->modifiers() == Qt::ShiftModifier)
-            d->extendWordwiseSelection(cursorPos, pos.x());
-        else
+            if (d->cursor.hasSelection()
+                && cursorPos >= d->cursor.selectionStart()
+                && cursorPos <= d->cursor.selectionEnd()) {
+                d->mightStartDrag = true;
+                d->dragStartPos = e->globalPos();
+                d->dragStartTimer.start(QApplication::startDragTime(), this);
+                return;
+            }
+
             d->setCursorPosition(cursorPos);
+        }
     }
 
     d->updateCurrentCharFormatAndSelection();
