@@ -9,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>675</width>
-            <height>644</height>
+            <width>671</width>
+            <height>642</height>
         </rect>
     </property>
     <property name="caption">
@@ -212,7 +212,7 @@
                         <cstring>goButton</cstring>
                     </property>
                     <property name="text">
-                        <string>Go</string>
+                        <string>&amp;Go</string>
                     </property>
                 </widget>
                 <spacer>
