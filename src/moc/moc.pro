@@ -1,5 +1,6 @@
 TEMPLATE	= moc.t
 CONFIG		= console release qtinc yacc
+win32:DEFINES	= QT_NODLL
 LEXINPUT	= moc.l
 YACCINPUT	= moc.y
 INCLUDEPATH	= ../../include .
@@ -20,4 +21,4 @@ SOURCES		= $$MOCGEN		    \
 		  ../tools/qiodevice.cpp    \
 		  ../tools/qregexp.cpp	    \
 		  ../tools/qstring.cpp
-TARGET	    =	moc
+TARGET		= moc
