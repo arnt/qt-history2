@@ -1857,10 +1857,8 @@ void MainWindow::editPreferences()
     else
 	dia->radioColor->setChecked( TRUE );
     dia->checkBoxSplash->setChecked( splashScreen );
-    dia->editDocPath->setText( docPath );
     dia->checkAutoEdit->setChecked( !databaseAutoEdit );
-    connect( dia->buttonDocPath, SIGNAL( clicked() ),
-	     this, SLOT( chooseDocPath() ) );
+    dia->checkBoxStartDialog->setChecked( shStartDialog );
 
     SenderObject *senderObject = new SenderObject( designerInterface() );
     QValueList<Tab>::Iterator it;
@@ -1892,8 +1890,8 @@ void MainWindow::editPreferences()
 	    backPix = FALSE;
 	}
 	splashScreen = dia->checkBoxSplash->isChecked();
-	docPath = dia->editDocPath->text();
 	databaseAutoEdit = !dia->checkAutoEdit->isChecked();
+	shStartDialog = dia->checkBoxStartDialog->isChecked();
     }
     delete senderObject;
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
@@ -1908,15 +1906,6 @@ void MainWindow::editPreferences()
     delete dia;
     prefDia = 0;
     statusBar()->clear();
-}
-
-void MainWindow::chooseDocPath()
-{
-    if ( !prefDia )
-	return;
-    QString fn = QFileDialog::getExistingDirectory( QString::null, this );
-    if ( !fn.isEmpty() )
-	prefDia->editDocPath->setText( fn );
 }
 
 void MainWindow::searchFind()
@@ -2024,4 +2013,5 @@ void MainWindow::showStartDialog()
     sd->setRecentlyFiles( recentlyFiles );
     sd->setRecentlyProjects( recentlyProjects );
     sd->exec();
+    shStartDialog = sd->showDialogInFuture();
 }

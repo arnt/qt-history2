@@ -283,7 +283,6 @@ private slots:
     void clipboardChanged();
     void selectionChanged();
 
-    void chooseDocPath();
     void windowsMenuActivated( int id );
     void setupWindowActions();
 
@@ -374,7 +373,6 @@ private:
     bool restoreConfig;
     bool backPix;
     bool splashScreen;
-    QString docPath;
     QString fileFilter;
 
     QMap<QAction*, Project*> projects;

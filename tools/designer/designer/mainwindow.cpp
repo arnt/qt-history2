@@ -115,7 +115,6 @@ static QString textNoAccel( const QString& text)
 MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
-      docPath( QString( qInstallPathDocs() ) + "/html" ),
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
@@ -719,11 +718,6 @@ void MainWindow::helpContents()
 		propertyDocumentation[ s.mid( from + 1, to - from - 1 ) ] = s.mid( to + 2 ) + "-prop";
 	    }
 	    f.close();
-	} else {
-#if 0
-	    QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation index file!\n"
-					    "Please set the correct documentation path in the preferences dialog." ) );
-#endif
 	}
     }
 
@@ -764,15 +758,13 @@ void MainWindow::helpContents()
 	source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
     }
 
-    if ( !source.isEmpty() ) {
-	QString path = QString( qInstallPathDocs() ) + "/html/";
-	assistant->showPage( path + source );
-    }
+    if ( !source.isEmpty() )
+	assistant->showPage( documentationPath() + source );
 }
 
 void MainWindow::helpManual()
 {
-    assistant->showPage( QString( qInstallPathDocs() ) + "/html/designer-manual.html" );
+    assistant->showPage( documentationPath() + "/designer-manual.html" );
 }
 
 void MainWindow::helpAbout()
@@ -1895,7 +1887,7 @@ void MainWindow::writeConfig()
     QString keybase = DesignerApplication::settingsKey();
     config.writeEntry( keybase + "RestoreWorkspace", restoreConfig );
     config.writeEntry( keybase + "SplashScreen", splashScreen );
-    config.writeEntry( keybase + "DocPath", docPath );
+    config.writeEntry( keybase + "ShowStartDialog", shStartDialog );
     config.writeEntry( keybase + "FileFilter", fileFilter );
     config.writeEntry( keybase + "TemplatePath", templPath );
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentlyFiles, ',' );
@@ -2012,7 +2004,6 @@ void MainWindow::readConfig()
 	readPreviousConfig = TRUE;
     }
     if ( !readPreviousConfig ) {
-	docPath = config.readEntry( keybase + "DocPath", docPath );
 	fileFilter = config.readEntry( keybase + "FileFilter", fileFilter );
 	templPath = config.readEntry( keybase + "TemplatePath", QString::null );
 	databaseAutoEdit = config.readBoolEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
@@ -2482,23 +2473,7 @@ void MainWindow::setSnapGrid( bool b )
 
 QString MainWindow::documentationPath() const
 {
-    QString result = docPath;
-
-    if ( docPath[0] == '$' ) {
-	int fs = docPath.find('/');
-	if ( fs == -1 )
-	    fs = docPath.find('\\');
-
-	if ( fs > -1 ) {
-	    result = docPath.mid( 1, fs-1 );
-	} else {
-	    fs=docPath.length();
-	    result = docPath.right(fs-1);
-	}
-	result = getenv(result.latin1()) + docPath.right( docPath.length()-fs );
-    }
-
-    return result;
+    return QString( qInstallPathDocs() ) + "/html/";
 }
 
 void MainWindow::windowsMenuActivated( int id )
@@ -2567,7 +2542,7 @@ void MainWindow::showDialogHelp()
     QWidget *w = (QWidget*)sender();
     w = w->topLevelWidget();
 
-    QString link = QString( qInstallPathDocs() ) + "/html/designer-manual-13.html#";
+    QString link = documentationPath() + "/designer-manual-13.html#";
 
     if ( w->inherits( "NewFormBase" ) || w->inherits( "StartDialogBase" ) ) // own doc for startdialog?
 	link += "dialog-file-new";
@@ -3319,8 +3294,8 @@ SourceTemplateInterface* MainWindow::sourceTemplateInterface( const QString& tem
 QString MainWindow::whatsThisFrom( const QString &key )
 {
     if ( menuHelpFile.isEmpty() ) {
-	QString fn( qInstallPathDocs() );
-	fn += "/html/designer-manual-10.html";
+	QString fn( documentationPath() );
+	fn += "/designer-manual-10.html";
 	QFile f( fn );
 	if ( f.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &f );

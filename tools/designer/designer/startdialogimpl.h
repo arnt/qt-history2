@@ -54,19 +54,21 @@ public:
     StartDialog( QWidget *parent, const QString &templatePath );
     void setRecentlyFiles( QStringList& );
     void setRecentlyProjects( QStringList& );
+    bool showDialogInFuture() const { return showInFuture; }
 
 protected slots:
     void recentItemChanged( QIconViewItem *item );
     void clearFileInfo();
     void accept();
     void reject();
+
 private:
     void initFileOpen();
     void insertRecentItems( QStringList &files, bool isProject );
     NewForm *newForm;
     FileDialog *fd;
     QMap<int, QString> recentFiles;
-
+    bool showInFuture;
 };
 
 #endif

@@ -14,7 +14,6 @@
 #include <qmap.h>
 #include <qdatetime.h>
 #include <qapplication.h>
-#include <qsettings.h>
 #include <qcheckbox.h>
 
 #include "mainwindow.h"
@@ -36,10 +35,9 @@ StartDialog::StartDialog( QWidget *parent, const QString &templatePath )
     : StartDialogBase( parent, 0 )
 {
     newForm = new NewForm( templateView, templatePath );
-
     recentFiles.clear();
-
     initFileOpen();
+    showInFuture = TRUE;
 
     connect( buttonHelp, SIGNAL( clicked() ),
 	     MainWindow::self, SLOT( showDialogHelp() ) );
@@ -53,13 +51,7 @@ StartDialog::StartDialog( QWidget *parent, const QString &templatePath )
 void StartDialog::accept()
 {
     hide();
-    if ( checkShowInFuture->isChecked() ) { // means don't show it anymore
-	QSettings config;
-	// No search path for unix, only needs application name
-	config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-	QString keybase = DesignerApplication::settingsKey();
-	config.writeEntry( keybase + "ShowStartDialog", FALSE );
-    }
+    showInFuture = !checkShowInFuture->isChecked(); // means don't show it anymore
 
     int tabindex = tabWidget->currentPageIndex();
     QString filename;
