@@ -1119,7 +1119,6 @@ void QUrlOperator::finishedCopy()
     qDebug( "QUrlOperator: finished copy (finished putting)" );
 #endif
 
-    d->currPut = 0;
     if ( d->waitingCopies.isEmpty() )
 	return;
 
