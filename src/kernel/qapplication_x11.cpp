@@ -2491,7 +2491,7 @@ GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
     Sets the application's main widget to \a mainWidget.
 
     In most respects the main widget is like any other widget, except
-    that if it is deleted, the application exits.
+    that if it is closed, the application exits.
 
     You need not have a main widget; connecting lastWindowClosed() to
     quit() is an alternative.
