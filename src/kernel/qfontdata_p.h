@@ -164,7 +164,7 @@ public:
     enum { widthCacheSize = 0x500 };
     uchar widthCache[widthCacheSize];
 #else
-    QFontEngine *eng;
+    QFontEngine *engine;
 #endif // Q_WS_X11 || Q_WS_WIN
 };
 
@@ -182,9 +182,15 @@ public:
     QFontEngine *engineForScript( QFont::Script script ) const {
 	if ( script == QFont::NoScript )
 	    script = QFontPrivate::defaultScript;
+#if defined(Q_WS_X11) || defined(Q_WS_WIN)
 	if ( ! engineData || ! engineData->engines[script] )
 	    ((QFontPrivate *) this)->load( script );
 	return engineData->engines[script];
+#else
+        if ( ! engineData || ! engineData->engine )
+	  ((QFontPrivate *) this)->load( script );
+        return engineData->engine;
+#endif // Q_WS_X11 || Q_WS_WIN
     }
 
     QFontDef request;

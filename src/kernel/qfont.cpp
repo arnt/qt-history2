@@ -100,9 +100,9 @@ QFontEngineData::~QFontEngineData()
 	engines[i] = 0;
     }
 #else
-    if ( eng )
-	eng->deref();
-    eng = 0;
+    if ( engine )
+	engine->deref();
+    engine = 0;
 #endif // Q_WS_X11 || Q_WS_WIN
 }
 

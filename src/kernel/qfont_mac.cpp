@@ -39,6 +39,7 @@
 #include <qdict.h>
 #include <qapplication.h>
 #include <qpainter.h>
+#include <private/qunicodetables_p.h>
 #include <stdlib.h>
 
 QMacFontInfo *
@@ -158,11 +159,12 @@ QMacSetFontInfo::setMacFont(const QFontEngine *fe, QMacSetFontInfo *sfi, QPaintD
 bool 
 QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi, QPaintDevice *pdev)
 {
-    ((QFontPrivate *)d)->load();
-    Q_ASSERT(d->fin->type() == QFontEngine::Mac);
-    QMacFontInfo *fi = ((QFontEngineMac*)d->fin)->internal_fi;
+    QFontEngine *eng = d->engineForScript( QFont::NoScript );
+    Q_ASSERT( eng->type() == QFontEngine::Mac );
+    QFontEngineMac *engine = (QFontEngineMac *) eng;
+    QMacFontInfo *fi = engine->internal_fi;
     if(!fi) 
-	((QFontEngineMac*)d->fin)->internal_fi = fi = createFontInfo(d->fin, &d->request, pdev);
+	engine->internal_fi = fi = createFontInfo(engine, &d->request, pdev);
     return setMacFont(fi, sfi);
 }
 
@@ -210,36 +212,63 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::lineWidth() const
 {
-    // lazy computation of linewidth
-    d->computeLineWidth();
-    return d->lineWidth;
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( d->engineData != 0 );
+#endif // QT_CHECK_STATE
+    return d->engineData->lineWidth;
 }
 
 
 int QFontMetrics::leading() const
 {
-    return d->fin->leading();
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->leading();
 }
 
 int QFontMetrics::ascent() const
 {
-    return d->fin->ascent();
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->ascent();
 }
 
 int QFontMetrics::descent() const
 {
-    return d->fin->descent();
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->descent();
 }
 
 bool QFontMetrics::inFont(QChar ch) const
 {
-    return d->fin->canRender(&ch, 1);
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->canRender(&ch, 1);
 }
 
 int QFontMetrics::width(QChar c) const
 {
-    Q_ASSERT(d->fin->type() == QFontStruct::Mac);
-    return ((QFontEngineMac*)d->fin)->doTextTask(&c, 0, 1, 1, QFontEngineMac::WIDTH);
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+    Q_ASSERT( engine->type() == QFontEngine::Mac );
+#endif // QT_CHECK_STATE
+
+    return ((QFontEngineMac*) engine)->doTextTask(&c, 0, 1, 1,
+						  QFontEngineMac::WIDTH);
 }
 
 int QFontMetrics::charWidth(const QString &str, int pos) const
@@ -263,12 +292,22 @@ int QFontMetrics::width(const QString &str,int len) const
 
 int QFontMetrics::maxWidth() const
 {
-    return d->fin->maxCharWidth();
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->maxCharWidth();
 }
 
 int QFontMetrics::height() const
 {
-    return ascent()+descent();
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->ascent() + engine->descent();
 }
 
 int QFontMetrics::minRightBearing() const
@@ -305,12 +344,19 @@ int QFontMetrics::underlinePos() const
 
 QRect QFontMetrics::boundingRect(QChar ch) const
 {
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
     glyph_t glyphs[10];
     int nglyphs = 9;
-    advance_t advances[10];
-    d->fin->stringToCMap(&ch, 1, glyphs, advances, &nglyphs);
-    glyph_metrics_t gi = d->fin->boundingBox(glyphs[0]);
-    return QRect(gi.x, gi.y, gi.width, gi.height);
+    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
+    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
+    return QRect( gi.x, gi.y, gi.width, gi.height );
 }
 
 QRect QFontMetrics::boundingRect(const QString &str, int len) const
@@ -338,14 +384,14 @@ void QFont::setRawName(const QString &name)
 
 void QFont::cleanup()
 {
-    delete QFontPrivate::fontCache;
-    QFontPrivate::fontCache = NULL;
+    delete QFontCache::instance;
 }
 
 Qt::HANDLE QFont::handle() const
 {
-    if(d->request.dirty || d->actual.dirty) 
-	d->load();
+    if ( ! d->engineData )
+        d->load( QFont::NoScript );
+    // ### shouldn't this be some window system handle?
     return d;
 }
 
@@ -354,6 +400,10 @@ void QFont::macSetFont(QPaintDevice *v)
     QMacSavedPortInfo::setPaintDevice(v);
     QMacSetFontInfo::setMacFont(d, NULL, v);
 }
+
+#if 0
+// this will most likely go into either the font engine itself, or
+// into the font engine data construction...
 
 // Computes the line width (underline,strikeout)
 void QFontPrivate::computeLineWidth()
@@ -374,9 +424,76 @@ void QFontPrivate::computeLineWidth()
     if(nlw > lineWidth) 
 	lineWidth = nlw;
 }
+#endif
 
-void QFontPrivate::load()
+void QFontPrivate::load( QFont::Script script )
 {
+#if defined(QT_CHECK_STATE)
+    // sanity checks
+    Q_ASSERT( QFontCache::instance != 0 );
+    Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
+#endif // QT_CHECK_STATE  
+
+    // ### how do we get 'px' on the mac?
+    // int px = int( pixelSize( request, paintdevice, screen ) + .5 );
+    int px = request.pixelSize;
+
+    QFontDef req = request;
+    req.pixelSize = px;
+    req.pointSize = 0;
+    req.underline = req.strikeOut = 0;
+    req.mask = 0;
+
+    if ( ! engineData ) {
+	QFontCache::Key key( req, QFont::NoScript, screen );
+
+        // look for the requested font in the engine data cache
+        engineData = QFontCache::instance->findEngineData( key );
+
+        if ( ! engineData ) {
+            // create a new one
+            engineData = new QFontEngineData;
+	    QFontCache::instance->insertEngineData( key, engineData );
+        } else {
+            engineData->ref();
+        }
+    }
+
+    /*
+      ### look for a font engine macthing the request...
+
+      On Windows and X11, we do this by creating a list of families
+      and then calling QFontDatabase::findFont() on each family.  This
+      function isn't used on MacOSX, and I don't know if it makes
+      sense to do the same thing here as it does on Windows/X11.
+
+      If we decide to use QFontDatabase on MacOSX, then we need to
+      make sure that we make a copy of the request QFontDef.  This
+      copy will be used as the cache key for font engines.  This copy
+      should have the pointSize set to zero, underline/strikeout set
+      to FALSE (we do this ourselves), and the pixelSize set to the
+      requested pixelSize.  The px value calculated above should
+      suffice here.
+
+      One major difference between Windows/X11 and MacOSX is that
+      Windows/X11 use a "Box" font engine if we can't find a font for
+      the script.  However, on MacOSX, we don't do any font merging
+      (meaning we only use one QFontEngine to draw ALL scripts).  This
+      needs to be handled, but I am unsure how to do this.
+    */
+
+
+
+
+
+
+
+
+
+#if 0
+
+    // old loader code
+
     if(request.dirty) {
 	request.dirty=FALSE;
 
@@ -390,7 +507,7 @@ void QFontPrivate::load()
 	if(fin) 
 	    fin->deref();
 	fin=qfs;
-	Q_ASSERT(fin->type() == QFontStruct::Mac);
+	Q_ASSERT(fin->type() == QFontEngine::Mac);
 	QFontEngineMac *mac_fin = (QFontEngineMac*)fin;
 
 	if(mac_fin->fnum == -1) {
@@ -439,7 +556,7 @@ void QFontPrivate::load()
 	    actual.pixelSize = (actual.pointSize * 72 / (10 * logicalDpi));
 
 	Str255 font;
-	Q_ASSERT(fin->type() == QFontStruct::Mac);
+	Q_ASSERT(fin->type() == QFontEngine::Mac);
 	GetFontName(((QFontEngineMac*)fin)->fnum, font);
 	actual.family = p2qstring(font);
 
@@ -447,13 +564,15 @@ void QFontPrivate::load()
 		      (request.pointSize == -1 || (actual.pointSize == request.pointSize)) && 
 		      (request.pixelSize == -1 || (actual.pixelSize == request.pixelSize))); 
     }
+
+#endif
 }
 
 void QFont::initialize()
 {
-    if(!QFontPrivate::fontCache) 
-	QFontPrivate::fontCache = new QFontCache();
-    Q_CHECK_PTR(QFontPrivate::fontCache);
+    if(!QFontCache::instance)
+        new QFontCache(); 
+    Q_CHECK_PTR(QFontCache::instance);
     if(qApp) {
 	Str255 f_name;
 	SInt16 f_size;
@@ -467,12 +586,12 @@ void QFont::initialize()
 
 bool QFont::dirty() const
 {
-    return d->request.dirty;
+    return d->engineData == 0;
 }
 
-QString QFontPrivate::defaultFamily() const
+QString QFont::defaultFamily() const
 {
-    switch(request.styleHint) {
+    switch(d->request.styleHint) {
 	case QFont::Times:
 	    return QString::fromLatin1("Times New Roman");
 	case QFont::Courier:
@@ -486,12 +605,12 @@ QString QFontPrivate::defaultFamily() const
     }
 }
 
-QString QFontPrivate::lastResortFamily() const
+QString QFont::lastResortFamily() const
 {
-    return QString::fromLatin1("helvetica");
+    return QString::fromLatin1("Helvetica");
 }
 
-QString QFontPrivate::lastResortFont() const
+QString QFont::lastResortFont() const
 {
-    return QString::fromLatin1("arial");
+    return QString::fromLatin1("Arial");
 }
