@@ -78,7 +78,10 @@ QKernelApplication *QKernelApplication::self = 0;
 
 QKernelApplicationPrivate::QKernelApplicationPrivate(int &aargc,  char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv),
-      type_int("int"), type_QString("QString"), type_QByteArray("QByteArray")
+      type_int("int"),
+      type_QString("QString"),
+      type_QByteArray("QByteArray"),
+      type_voidStar("void*")
 {
     static const char *empty = "";
     if ( argc == 0 || argv == 0 ) {

@@ -668,7 +668,8 @@ bool QObject::event( QEvent *e )
 		     : QMetaObject::EmitSignal,
 		     mce->id(), mce->args());
 	QObjectPrivate::resetCurrentSender(senders, sender);
-    } break;
+	return true;
+    }
 
     default:
 	if ( e->type() >= QEvent::User ) {
@@ -1776,7 +1777,12 @@ bool QObject::connect(const QObject *sender, const char *signal,
 		++s;
 	    QByteArray type(e, s-e);
 	    ++s;
-	    types[n] = QMetaType::find(type);
+
+	    if (type.at(type.size()-1) == '*') {
+		types[n] = QMetaType::find("void*");
+	    } else {
+		types[n] = QMetaType::find(type);
+	    }
 	    if (!types[n]) {
 		qWarning("QObject::connect: Cannot queue arguments of type '%s'", type.data());
 		delete [] types;

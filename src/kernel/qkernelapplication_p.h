@@ -34,7 +34,8 @@ public:
 
     QMetaTypeTemplate<int> type_int;
     QMetaTypeTemplate<QString> type_QString;
-    QMetaTypeTemplate<QString> type_QByteArray;
+    QMetaTypeTemplate<QByteArray> type_QByteArray;
+    QMetaTypeTemplate<void*> type_voidStar;
 };
 
 
