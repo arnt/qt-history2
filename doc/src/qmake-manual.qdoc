@@ -2206,7 +2206,7 @@
     \title Function Reference
     \contentspage qmake-manual.html qmake Manual
     \previouspage qmake-variable-reference.html Variable Reference
-    \nextpage qmake-tutorial.html qmake Tutorial
+    \nextpage qmake-environment-reference.html Environment Variables and Configuration
 
     \c qmake provides built-in functions to allow the contents of
     variables to be processed, and to enable tests to be performed
@@ -2536,12 +2536,20 @@
     \code
         QMAKE_VERS = $$[QMAKE_VERSION]
     \endcode
+*/
 
-    \target Environment
-    \section1 Environment Variables and Configuration
+/*!
+    \page qmake-environment-reference.html
+    \contentspage qmake-manual.html qmake Manual
+    \previouspage qmake-function-reference.html Function Reference
+    \nextpage qmake-tutorial.html qmake Tutorial
+
+    \title Environment Variables and Configuration
+
+    \tableofcontents
 
     \target QMAKESPEC
-    \section2 QMAKESPEC
+    \section1 QMAKESPEC
 
     \c qmake requires a platform and compiler description file which
     contains many default values used to generate appropriate Makefiles.
@@ -2559,7 +2567,7 @@
     \link #INCLUDEPATH INCLUDEPATH \endlink system variable.
 
     \target INSTALLS
-    \section2 INSTALLS
+    \section1 INSTALLS
 
     It is common on UNIX to be able to install from the same utility as
     you build with (e.g make install). For this \c qmake has introduce the
@@ -2604,7 +2612,7 @@
     for you.
 
     \target cache
-    \section2 Cache File
+    \section1 Cache File
 
     The cache file (mentioned above in the options) is a special file \c qmake
     will read to find settings not specified in the \c qmake.conf file, the
@@ -2614,7 +2622,7 @@
     processing.
 
     \target LibDepend
-    \section2 Library Dependencies
+    \section1 Library Dependencies
 
     Often when linking against a library \c qmake relies on the underlying
     platform to know what other libraries this library links against, and
@@ -2667,7 +2675,7 @@
     platform dependent (like a Makefile).
 
     \target Extensions
-    \section2 File Extensions
+    \section1 File Extensions
 
     Under normal circumstances \c qmake will try to use appropriate file extensions
     for your platform. There may be times, however, that you would like to override
@@ -2704,7 +2712,7 @@
 
 
     \target Customizing
-    \section2 Customizing Makefile Output
+    \section1 Customizing Makefile Output
 
     \c qmake often tries to be all things to all build tools, this is often less
     than ideal when you really need to run special platform dependent
@@ -3039,6 +3047,15 @@
     This type of function should be used on the right-hand side of
     assignments (i.e, as an operand).
 
+    \omit
+    It is possible to define your own functions for processing the
+    contents of variables. This is achieved with the following syntax:
+
+    \quotefromfile snippets/qmake/replacefunction.pro
+    \skipto defineReplace
+    \printuntil 
+    \endomit
+
     \target ConditionalFunctions
     \section1 Conditional Functions
 
@@ -3052,6 +3069,15 @@
 
     This type of function should be used in conditional expressions
     only.
+
+    It is possible to define your own functions to provide conditions
+    for scopes. The following example tests for the presence of a list
+    of files:
+
+    \quotefromfile snippets/qmake/testfunction.pro
+    \skipto defineTest
+    \printuntil /^\}/
+
 */
 
 /*!
