@@ -2051,9 +2051,9 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bo
     int sw = sr.width();
     int sh = sr.height();
 
-    if (sw < 0)
+    if (sw <= 0)
         sw = pm.width() - sx;
-    if (sh < 0)
+    if (sh <= 0)
         sh = pm.height() - sy;
 
     if (w < 0)
