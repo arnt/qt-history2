@@ -2,7 +2,7 @@
 
 \quote
 Signals and slots provide inter-object communication. They are easy
-to understand and use and are fully supported by \l {Qt Designer}.
+to understand and use, and are fully supported by \l {Qt Designer}.
 \endquote
 
   \index Signal

@@ -4,7 +4,7 @@
 @Begin
 @QuotedDisplay { @I {
 Signals and slots provide inter-object communication. They are easy
-to understand and use and are fully supported by @QDR.
+to understand and use, and are fully supported by @QDR.
 } }
 @PP
 GUI applications respond to user actions. For example, when a user
