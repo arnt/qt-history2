@@ -444,7 +444,7 @@
             <cstring>actionOpenPage</cstring>
         </property>
         <property name="text">
-            <string>New page</string>
+            <string>New Page</string>
         </property>
         <property name="accel">
             <string>Ctrl+Alt+N</string>
