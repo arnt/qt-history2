@@ -125,7 +125,6 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
 
     // Create translation units for each cpp file and analyze it
     if(analyze) {
-        cout << "analyzing" << endl;
         foreach(QString sourceFile, sources) {
             TokenEngine::TokenSectionSequence translationUnit =
                 preprocessorController->evaluate(sourceFile);
@@ -142,8 +141,25 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
         portFiles(basePath, uidoth);
 
     Logger::instance()->globalState["currentFileName"] = proFileName;
+    Logger::instance()->beginSection();
     QString portedProFile = portProFile(proFileContents, proFileMap);
-    FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.toLocal8Bit().constData());
+
+    //check if any changes has been made.
+    if(portedProFile  == proFileContents) {
+        Logger::instance()->addEntry(
+            new PlainLogEntry("Info", "Porting",  QLatin1String("No changes made to file ") + fullInFileName));
+        Logger::instance()->commitSection();
+        return;
+    }
+
+    //Write file, commit log if write was successful
+    if (FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.toLocal8Bit().constData())) {
+         Logger::instance()->commitSection();
+    } else {
+        Logger::instance()->revertSection();
+        Logger::instance()->addEntry(
+            new PlainLogEntry("Error", "Porting",  QLatin1String("Error writing to file ") + fullInFileName));
+    }
 }
 
 /*

@@ -53,7 +53,8 @@ void FilePorter::port(QString fileName)
     if(sourceTokens.count() == 0)
         return;
 
-    //  Logger::instance()->globalState["currentFileName"] = inFilePath;
+    Logger::instance()->beginSection();
+
     //Perform token replacements.
     QByteArray portedContents =
         replaceToken.getTokenTextReplacements(sourceTokens).apply(sourceTokens.fullText());
@@ -62,11 +63,22 @@ void FilePorter::port(QString fileName)
     //we need to know which new class names that has been inserted in the source.
     portedContents = includeAnalyse(portedContents);
 
-    //Write file.
-    if(portedContents != sourceTokens.fullText()) //only write if contents has changed.
-        FileWriter::instance()->writeFileVerbously(fileName, portedContents);
-    else
-        cout << "No changes made to file " << fileName.toLocal8Bit().constData() << endl;  
+    //check if any changes has been made.
+    if(portedContents == sourceTokens.fullText()) {
+        Logger::instance()->addEntry(
+            new PlainLogEntry("Info", "Porting",  QLatin1String("No changes made to file ") + fileName));
+        Logger::instance()->commitSection();
+        return;
+    }
+
+    //Write file, commit log if write was successful
+    if (FileWriter::instance()->writeFileVerbously(fileName, portedContents)) {
+        Logger::instance()->commitSection();
+    } else {
+        Logger::instance()->revertSection();
+        Logger::instance()->addEntry(
+            new PlainLogEntry("Error", "Porting",  QLatin1String("Error writing to file ") + fileName));
+    }
 }
 
 QByteArray FilePorter::includeAnalyse(QByteArray fileContents)

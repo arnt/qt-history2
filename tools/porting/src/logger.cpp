@@ -38,6 +38,12 @@ QString SourcePointLogEntry::description() const
 
 /////////////////////////////////////////////////////
 
+
+Logger::~Logger()
+{
+   qDeleteAll(logEntries);
+}
+
 Logger *Logger::theInstance  = 0;
 Logger *Logger::instance()
 {
@@ -55,17 +61,35 @@ void Logger::deleteInstance()
 void Logger::addEntry(LogEntry *entry)
 {
    Q_ASSERT(entry);
-   logEntries.append(entry);
+   pendingLogEntries.append(entry);
+}
+
+void Logger::beginSection()
+{
+    commitSection();
+}
+
+void Logger::commitSection()
+{
+    logEntries += pendingLogEntries;
+    pendingLogEntries.clear();
+}
+
+void Logger::revertSection()
+{
+    qDeleteAll(pendingLogEntries);
+    pendingLogEntries.clear();
 }
 
 int Logger::numEntries()
 {
+    commitSection();
     return logEntries.size();
 }
 
-
 QStringList Logger::fullReport()
 {
+    commitSection();
     QStringList report;
     report << "Number of log entries: " + QString("%1").arg(logEntries.size());
     foreach(LogEntry *logEntry, logEntries) {

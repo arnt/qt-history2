@@ -62,11 +62,15 @@ class Logger
 {
 public:
     Logger(){};
-    virtual ~Logger() {};
+    ~Logger();
     static Logger *instance();
     static void deleteInstance();
 
+    void beginSection();
+    void commitSection();
+    void revertSection();
     void addEntry(LogEntry *entry);
+
     QStringList fullReport();
     int numEntries();
     /*
@@ -79,6 +83,7 @@ public:
 private:
     static Logger *theInstance;
     QList<LogEntry*> logEntries;
+    QList<LogEntry*> pendingLogEntries;
 };
 
 
