@@ -320,6 +320,9 @@ bool QProcess::start()
 	::close( d->socketStdin[1] );
 	::close( d->socketStdout[0] );
 	::close( d->socketStderr[0] );
+	::close( STDIN_FILENO );
+	::close( STDOUT_FILENO );
+	::close( STDERR_FILENO );
 	::dup2( d->socketStdin[0], STDIN_FILENO );
 	::dup2( d->socketStdout[1], STDOUT_FILENO );
 	::dup2( d->socketStderr[1], STDERR_FILENO );
