@@ -39,6 +39,8 @@
 // Class forward definitions
 class QWSDisplayData;
 class QWSRegionManager;
+class QWSEvent;
+class QGfx;
 
 class QWSWindowInfo
 {
