@@ -1061,12 +1061,6 @@ QDataStream &QGList::write( QDataStream &s ) const
 
 
 
-/*! \internal \fn QGListStdIterator QGList::begin() const
- */
-
-/*! \internal \fn QGListStdIterator QGList::end() const
- */
-
 /*! \internal
  */
 QLNode* QGList::erase( QLNode* it )

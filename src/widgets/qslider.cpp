@@ -761,10 +761,6 @@ void QSlider::setSizePolicy( QSizePolicy sp )
     QWidget::setSizePolicy( sp );
 }
 
-/*! \internal
-    \fn void QSlider::setSizePolicy( QSizePolicy::SizeType, QSizePolicy::SizeType, bool )
-*/
-
 /*! \reimp */
 QSizePolicy QSlider::sizePolicy() const
 {

@@ -272,10 +272,10 @@ void QToolBoxButton::drawButton( QPainter *p )
 */
 
 /*!
-    \fn void QToolBox::currentChanged( QWidget *page )
+    \fn void QToolBox::currentChanged( int index )
 
-    This signal is emitted when the current page is changed. The new
-    current page is passed in \a page.
+    This signal is emitted when the current page is changed. The index
+    position of the new current page is passed in \a index.
 */
 
 /*!

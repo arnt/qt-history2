@@ -1200,10 +1200,9 @@
 /*****************************************************************************
   QPtrListAutoDelete documentation
  *****************************************************************************/
-/*!
+/*
     \class QPtrListAutoDelete
-    \brief The QPtrListAutoDelete class is a template class that provides a list and 
-    auto-deletes its data.
+    \brief The QPtrListAutoDelete class is a template class that provides a list that auto-deletes its data.
 
     \ingroup collection
     \ingroup tools

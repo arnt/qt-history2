@@ -8,11 +8,11 @@
     A QObjectList is a \link qptrlist.html
     QPtrList\<QObject\>\endlink. The list can be traversed using
     inherited functions, e.g. getFirst(), next(), etc., or using a
-    QObjectListIt iterator.
+    QObjectListIterator iterator.
 
     See \l QObject::queryList() for an example of use.
 
-    \sa QObjectListIt QObject 
+    \sa QObjectListIterator QObject 
 */
 
 /*!
@@ -53,14 +53,14 @@
 
 
 /*!
-    \class QObjectListIt qobjectlist.h
-    \brief The QObjectListIt class provides an iterator for
+    \class QObjectListIterator qobjectlist.h
+    \brief The QObjectListIterator class provides an iterator for
     QObjectLists.
 
     \ingroup collection
     \ingroup tools
 
-    A QObjectListIt iterator is a \link qptrlistiterator.html
+    A QObjectListIterator iterator is a \link qptrlistiterator.html
     QPtrListIterator\<QObject\>\endlink.
 
     See \l QObject::queryList() for an example of use.
@@ -69,14 +69,14 @@
 */
 
 /*!
-    \fn QObjectListIt::QObjectListIt( const QObjectList &list )
+    \fn QObjectListIterator::QObjectListIterator( const QObjectList &list )
 
     Constructs an iterator for \a list. The current iterator item is
     set to point on the first item in the \a list.
 */
 
 /*!
-    \fn QObjectListIt& QObjectListIt::operator=( const QObjectListIt &it )
+    \fn QObjectListIterator& QObjectListIterator::operator=( const QObjectListIterator &it )
 
     Assignment. Makes a copy of the iterator \a it and returns a
     reference to this iterator.

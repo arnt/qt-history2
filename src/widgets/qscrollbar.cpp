@@ -379,10 +379,6 @@ void QScrollBar::setSizePolicy( QSizePolicy sp )
     QWidget::setSizePolicy( sp );
 }
 
-/*! \internal
-    \fn void QScrollBar::setSizePolicy( QSizePolicy::SizeType, QSizePolicy::SizeType, bool )
-*/
-
 /*!
   \internal
   Implements the virtual QRangeControl function.
