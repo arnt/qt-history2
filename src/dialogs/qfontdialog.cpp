@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#33 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#34 $
 **
 ** Implementation of QFontDialog
 **
@@ -656,14 +656,15 @@ void QFontDialog::styleHighlighted( const QString &s )
     int pSize = d->size.toInt();
     updateSizes();
     QString tmp;
-    int i;
-    for ( i = 0 ; (uint)i < d->sizeList->count() - 1 ; i++ ) {
-	tmp = d->sizeList->text(i);
-	if ( tmp.toInt() >= pSize )
-	    break;
-    }
-    if ( d->sizeList->count() != 0 )
+    if ( d->sizeList->count() != 0 ) {
+	int i;
+	for ( i = 0 ; i < (int)d->sizeList->count() - 1 ; i++ ) {
+	    tmp = d->sizeList->text(i);
+	    if ( tmp.toInt() >= pSize )
+		break;
+	}
 	d->sizeList->setCurrentItem( i );
+    }
 }
 
 
@@ -712,15 +713,15 @@ void QFontDialog::setFont( const QFont &f )
     if ( !styleString.isEmpty() )
 	styleHighlighted( styleString );
 
-    int pSize = f.pointSize();
-    QString tmp;
-    for ( i = 0 ; (uint)i < d->sizeList->count() - 1 ; i++ ) {
-	tmp = d->sizeList->text(i);
-	if ( tmp.toInt() >= pSize )
-	    break;
-    }
-    if ( d->sizeList->count() != 0 )
+    if ( d->sizeList->count() != 0 ) {
+	int pSize = f.pointSize();
+	for ( i = 0 ; i < (int)d->sizeList->count() - 1 ; i++ ) {
+	    QString tmp = d->sizeList->text(i);
+	    if ( tmp.toInt() >= pSize )
+		break;
+	}
 	d->sizeList->setCurrentItem( i );
+    }
 
 
     int a = f.pointSize();
