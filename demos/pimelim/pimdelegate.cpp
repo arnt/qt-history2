@@ -22,7 +22,7 @@ void PimDelegate::paint(QPainter *painter,
     Q_ASSERT(model); // if the model is not a PimModel we could have a fallback here
     const PimEntry &entry = model->entry(index);
 
-    bool selected = option.state & QStyle::Style_Selected;
+    bool selected = option.state & QStyle::State_Selected;
     painter->fillRect(option.rect, selected ? Qt::lightGray : Qt::white);
 
     QSize photoSize(64, 64);

@@ -14,10 +14,11 @@
 #ifndef QSTYLE_H
 #define QSTYLE_H
 
-#include "QtCore/qobject.h"
-#include "QtGui/qpixmap.h"
-#include "QtCore/qrect.h"
-#include "QtCore/qsize.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qrect.h>
+#include <QtCore/qsize.h>
+#include <QtGui/qicon.h>
+#include <QtGui/qpixmap.h>
 
 #ifndef QT_NO_STYLE
 
@@ -38,74 +39,61 @@ public:
     virtual ~QStyle();
 
     virtual void polish(QWidget *);
-    virtual void unPolish(QWidget *);
+    virtual void unpolish(QWidget *);
 
     virtual void polish(QApplication *);
-    virtual void unPolish(QApplication *);
+    virtual void unpolish(QApplication *);
 
     virtual void polish(QPalette &);
 
-    virtual QRect itemRect(const QFontMetrics &fm, const QRect &r,
+    virtual QRect itemTextRect(const QFontMetrics &fm, const QRect &r,
                            int flags, bool enabled,
                            const QString &text) const;
 
-    virtual QRect itemRect(const QRect &r, int flags, const QPixmap &pixmap) const;
+    virtual QRect itemPixmapRect(const QRect &r, int flags, const QPixmap &pixmap) const;
 
-    QRect itemRect(QPainter *p, const QRect &r, int flags, bool enabled,
-                   const QPixmap &pixmap, const QString &text) const;
-
-    virtual void drawItem(QPainter *p, const QRect &r,
+    virtual void drawItemText(QPainter *p, const QRect &r,
                           int flags, const QPalette &pal, bool enabled,
                           const QString &text, const QColor *penColor = 0) const;
 
-    virtual void drawItem(QPainter *p, const QRect &r,
+    virtual void drawItemPixmap(QPainter *p, const QRect &r,
                           int flags, const QPalette &pal, bool enabled,
                           const QPixmap &pixmap,
                           const QColor *penColor = 0) const;
 
-    inline void drawItem(QPainter *p, const QRect &r,
-                         int flags, const QPalette &pal, bool enabled,
-                         const QPixmap &pixmap, const QString &text,
-                         const QColor *penColor = 0) const {
-        if (!pixmap.isNull())
-            drawItem(p, r, flags, pal, enabled, pixmap, penColor);
-        else
-            drawItem(p, r, flags, pal, enabled, text, penColor);
-    }
-
-    enum StyleFlag {
-        Style_None    =       0x00000000,
+    enum StateFlag {
+        State_None    =       0x00000000,
 #ifdef QT_COMPAT
-        Style_Default = Style_None,
+        State_Default = State_None,
 #endif
-        Style_Enabled =       0x00000001,
-        Style_Raised =        0x00000002,
-        Style_Sunken =        0x00000004,
-        Style_Off =           0x00000008,
-        Style_NoChange =      0x00000010,
-        Style_On =            0x00000020,
-        Style_Down =          0x00000040,
-        Style_Horizontal =    0x00000080,
-        Style_HasFocus =      0x00000100,
-        Style_Top =           0x00000200,
-        Style_Bottom =        0x00000400,
-        Style_FocusAtBorder = 0x00000800,
-        Style_AutoRaise =     0x00001000,
-        Style_MouseOver =     0x00002000,
-        Style_Up =            0x00004000,
-        Style_Selected =      0x00008000,
-        Style_Active =        0x00010000,
-        Style_Rectangle =     0x00020000,
-        Style_Open =          0x00040000,
-        Style_Children =      0x00080000,
-        Style_Item =          0x00100000,
-        Style_Sibling =       0x00200000,
-        Style_Editing =       0x00400000
+        State_Enabled =       0x00000001,
+        State_Raised =        0x00000002,
+        State_Sunken =        0x00000004,
+        State_Off =           0x00000008,
+        State_NoChange =      0x00000010,
+        State_On =            0x00000020,
+        State_Down =          0x00000040,
+        State_Horizontal =    0x00000080,
+        State_HasFocus =      0x00000100,
+        State_Top =           0x00000200,
+        State_Bottom =        0x00000400,
+        State_FocusAtBorder = 0x00000800,
+        State_AutoRaise =     0x00001000,
+        State_MouseOver =     0x00002000,
+        State_Up =            0x00004000,
+        State_Selected =      0x00008000,
+        State_Active =        0x00010000,
+        State_Rectangle =     0x00020000,
+        State_Open =          0x00040000,
+        State_Children =      0x00080000,
+        State_Item =          0x00100000,
+        State_Sibling =       0x00200000,
+        State_Editing =       0x00400000
     };
-    Q_DECLARE_FLAGS(StyleFlags, StyleFlag)
+    Q_DECLARE_FLAGS(State, StateFlag)
 
 #ifdef QT_COMPAT
-        typedef StyleFlags SFlags;
+    typedef State SFlags;
 #endif
 
     enum PrimitiveElement {
@@ -273,7 +261,7 @@ public:
         CC_Slider,
         CC_ToolButton,
         CC_TitleBar,
-        CC_ListView,
+        CC_Q3ListView,
 
         // do not add any values below/greater than this
         CC_CustomBase = 0xf0000000
@@ -327,18 +315,20 @@ public:
         SC_All =                   0xffffffff
     };
     Q_DECLARE_FLAGS(SubControls, SubControl)
+
 #ifdef QT_COMPAT
-        typedef SubControls SCFlags;
+    typedef SubControls SCFlags;
 #endif
 
     virtual void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                                     const QWidget *widget = 0) const = 0;
     virtual void drawComplexControlMask(ComplexControl cc, const QStyleOptionComplex *opt,
                                         QPainter *p, const QWidget *widget = 0) const = 0;
-    virtual SubControl querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
-                                       const QPoint &pt, const QWidget *widget = 0) const = 0;
-    virtual QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
-                                         SubControl sc, const QWidget *widget = 0) const = 0;
+    virtual SubControl hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
+                                             const QPoint &pt, const QWidget *widget = 0) const = 0;
+    virtual QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
+                                 SubControl sc, const QWidget *widget = 0) const = 0;
+
     enum PixelMetric {
         PM_ButtonMargin,
         PM_ButtonDefaultIndicator,
@@ -456,199 +446,76 @@ public:
                                    const QSize &contentsSize, const QWidget *w = 0) const = 0;
 
     enum StyleHint {
-        // ...
-        // the general hints
-        // ...
-        // disabled text should be etched, ala Windows
         SH_EtchDisabledText,
-
-#ifdef QT_COMPAT
-        // the GUI style enum, argh!
-        SH_GUIStyle = 1,
-#endif
-
-        // ...
-        // widget specific hints
-        // ...
-        SH_ScrollBar_BackgroundMode = 2, // deprecated
         SH_ScrollBar_MiddleClickAbsolutePosition,
         SH_ScrollBar_ScrollWhenPointerLeavesControl,
-
-        // QEvent::Type - which mouse event to select a tab
         SH_TabBar_SelectMouseType,
-
         SH_TabBar_Alignment,
-
         SH_Header_ArrowAlignment,
-
-        // bool - sliders snap to values while moving, ala Windows
         SH_Slider_SnapToValue,
-
-        // bool - key presses handled in a sloppy manner - ie. left on a vertical
-        // slider subtracts a line
         SH_Slider_SloppyKeyEvents,
-
-        // bool - center button on progress dialogs, ala Motif, else right aligned
-        // perhaps this should be a Qt::Alignment value
         SH_ProgressDialog_CenterCancelButton,
-
-        // Qt::Alignment - text label alignment in progress dialogs
-        // Center on windows, Auto|VCenter otherwise
         SH_ProgressDialog_TextLabelAlignment,
-
-        // bool - right align buttons on print dialog, ala Windows
         SH_PrintDialog_RightAlignButtons,
-
-        // bool - 1 or 2 pixel space between the menubar and the dockarea, ala Windows
-        // this *REALLY* needs a better name
         SH_MainWindow_SpaceBelowMenuBar,
-
-        // bool - select the text in the line edit about the listbox when selecting
-        // an item from the listbox, or when the line edit receives focus, ala Windows
         SH_FontDialog_SelectAssociatedText,
-
-        // bool - allows disabled menu items to be active
         SH_Menu_AllowActiveAndDisabled,
-
-        // bool - pressing space activates item, ala Motif
         SH_Menu_SpaceActivatesItem,
-
-        // int - number of milliseconds to wait before opening a submenu
-        // 256 on windows, 96 on motif
         SH_Menu_SubMenuPopupDelay,
-
-        // bool - should scrollviews draw their frame only around contents (ala Motif),
-        // or around contents, scrollbars and corner widgets (ala Windows) ?
         SH_ScrollView_FrameOnlyAroundContents,
-
-        // bool - menubars items are navigatable by pressing alt, followed by using
-        // the arrow keys to select the desired item
         SH_MenuBar_AltKeyNavigation,
-
-        // bool - mouse tracking in combobox dropdown lists
         SH_ComboBox_ListMouseTracking,
-
-        // bool - mouse tracking in popupmenus
         SH_Menu_MouseTracking,
-
-        // bool - mouse tracking in menubars
         SH_MenuBar_MouseTracking,
-
-        // bool - gray out selected items when loosing focus
         SH_ItemView_ChangeHighlightOnFocus,
-
-        // bool - supports shared activation among modeless widgets
         SH_Widget_ShareActivation,
-
-        // bool - workspace should just maximize the client area
         SH_Workspace_FillSpaceOnMaximize,
-
-        // bool - supports popup menu comboboxes
         SH_ComboBox_Popup,
-
-        // bool - title bar has no border
         SH_TitleBar_NoBorder,
-
-        // bool - stop scrollbar at mouse
         SH_ScrollBar_StopMouseOverSlider,
-
-        //bool - blink cursort with selected text
         SH_BlinkCursorWhenTextSelected,
-
-        //bool - richtext selections extend the full width of the docuemnt
         SH_RichText_FullWidthSelection,
-
-        //bool - popupmenu supports scrolling instead of multicolumn mode
         SH_Menu_Scrollable,
-
-        // Qt::Alignment - text label vertical alignment in groupboxes
-        // Center on windows, Auto|VCenter otherwise
         SH_GroupBox_TextLabelVerticalAlignment,
-
-        // Qt::QRgb - text label color in groupboxes
         SH_GroupBox_TextLabelColor,
-
-        // bool - popupmenu supports sloppy submenus
         SH_Menu_SloppySubMenus,
-
-        // Qt::QRgb - table grid color
         SH_Table_GridLineColor,
-
-        // QChar - Unicode character for password char
         SH_LineEdit_PasswordCharacter,
-
-        // QDialogButtons::Button - default button
         SH_DialogButtons_DefaultButton,
-
-        // QToolBox - Boldness of the selected page title
         SH_ToolBox_SelectedPageTitleBold,
-
-        //bool - if a tabbar prefers not to have scroller arrows
         SH_TabBar_PreferNoArrows,
-
-        //bool - if left button should cause an absolute position
         SH_ScrollBar_LeftClickAbsolutePosition,
-
-        // QEvent::Type - which mouse event to select a list view expansion
         SH_ListViewExpand_SelectMouseType,
-
-        //bool - if underline for shortcuts
         SH_UnderlineShortcut,
+        SH_ScrollBar_BackgroundRole,
+        SH_SpinBox_AnimateButton,
+        SH_SpinBox_KeyPressAutoRepeatRate,
+        SH_SpinBox_ClickAutoRepeatRate,
+        SH_Menu_FillScreenWithScroll,
+        SH_TipLabel_Opacity,
+        SH_DrawMenuBarSeparator,
+        SH_TitlebarModifyNotification,
+        SH_Button_FocusPolicy,
+        SH_ColorDialog_SelectedColorBorder,
+        SH_MenuBar_DismissOnSecondClick,
+        SH_MessageBox_UseBorderForButtonSpacing,
+        SH_TitleBar_AutoRaise,
+        SH_ToolButton_PopupDelay,
+        SH_ToolBar_IconSize,
+        // Add new style hint values here
+
 #ifdef QT_COMPAT
+        SH_GUIStyle = 0x00000100,
+        SH_ScrollBar_BackgroundMode,
+        // Add other compat values here
+
         SH_UnderlineAccelerator = SH_UnderlineShortcut,
 #endif
-
-        SH_ScrollBar_BackgroundRole,
-
-        //bool - animate a click when up or down is pressed in a spin box
-        SH_SpinBox_AnimateButton,
-
-        //int - autorepeat interval for keyboard on spinboxes
-        SH_SpinBox_KeyPressAutoRepeatRate,
-
-        //int - autorepeat interval for mouse clicks on spinboxes
-        SH_SpinBox_ClickAutoRepeatRate,
-
-        //bool - small scrolling popups should fill the screen as scrolled
-        SH_Menu_FillScreenWithScroll,
-
-        // int - a scale of 0 (transparent) to 255 (solid) indicating opacity of tip label.
-        SH_TipLabel_Opacity,
-
-        // bool - if the menubar should have a menubar or not.
-        SH_DrawMenuBarSeparator,
-
-        // bool - If the titlebar should show a * for modified Windows
-        SH_TitlebarModifyNotification,
-
-        // FocusPolicy - The default focus policy for a button.
-        SH_Button_FocusPolicy,
-
-        // int - The border of the selection square
-        SH_ColorDialog_SelectedColorBorder,
-
-        // bool - Whether or not to dismiss the menubar on a second click or not
-        SH_MenuBar_DismissOnSecondClick,
-
-        // bool - Use the button border as the button spacing for a message box
-        SH_MessageBox_UseBorderForButtonSpacing,
-
-        // bool - Auto Raise for title bars
-        SH_TitleBar_AutoRaise,
-
-        // int - the popup delay for menus attached to tool buttons
-        SH_ToolButton_PopupDelay,
-
-        // Qt::IconSize - the preferred icon size for tool bars
-        SH_ToolBar_IconSize,
-
-        // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000
     };
 
     virtual int styleHint(StyleHint stylehint, const QStyleOption *opt = 0,
                           const QWidget *widget = 0, QStyleHintReturn* returnData = 0) const = 0;
-
 
     enum StandardPixmap {
         SP_TitleBarMenuButton,
@@ -698,47 +565,24 @@ public:
     virtual QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt = 0,
                                    const QWidget *widget = 0) const = 0;
 
-    enum IconMode {
-        IM_Disabled,
-        IM_Active,
-
-        // do not add any values below/greater than this
-        IM_CustomBase = 0xf0000000
-    };
-
-    virtual QPixmap generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
+    virtual QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
                                         const QStyleOption *opt) const = 0;
 
-    static QRect visualRect(Qt::LayoutDirection direction, const QRect &boundingRect, const QRect &logicalRect);
-    static QPoint visualPos(Qt::LayoutDirection direction, const QRect &boundingRect, const QPoint &logicalPos);
-    static int positionFromValue(int min, int max, int val, int space, bool upsideDown = false);
-    static int valueFromPosition(int min, int max, int pos, int space, bool upsideDown = false);
+    static QRect visualRect(Qt::LayoutDirection direction, const QRect &boundingRect,
+                            const QRect &logicalRect);
+    static QPoint visualPos(Qt::LayoutDirection direction, const QRect &boundingRect,
+                            const QPoint &logicalPos);
+    static int sliderPositionFromValue(int min, int max, int val, int space,
+                                       bool upsideDown = false);
+    static int sliderValueFromPosition(int min, int max, int pos, int space,
+                                       bool upsideDown = false);
     static Qt::Alignment horizontalAlignment(Qt::LayoutDirection direction, Qt::Alignment align);
 
 private:
     Q_DISABLE_COPY(QStyle)
-
-        protected:
-#if defined(QT_COMPAT) && !defined(QT_NO_UNRESOLVED_EXTERNALS)
-    // Cause a compile error when trying to use style functions that
-    // accept QColorGroup arguments. Remove in Qt 5.x.
-    void QT_COMPAT drawItem(QPainter *p, const QRect &r,
-                            int flags, const QColorGroup &colorgroup, bool enabled,
-                            const QString &text, int len = -1,
-                            const QColor *penColor = 0) const;
-    void QT_COMPAT drawItem(QPainter *p, const QRect &r,
-                            int flags, const QColorGroup colorgroup, bool enabled,
-                            const QPixmap &pixmap,
-                            const QColor *penColor = 0) const;
-    void QT_COMPAT drawItem(QPainter *p, const QRect &r,
-                            int flags, const QColorGroup colorgroup, bool enabled,
-                            const QPixmap *pixmap,
-                            const QString &text, int len = -1,
-                            const QColor *penColor = 0) const;
-#endif
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::StyleFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::State)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::SubControls)
 
 #endif // QT_NO_STYLE

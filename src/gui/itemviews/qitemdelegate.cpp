@@ -306,9 +306,9 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
                                 const QRect &rect, const QString &text) const
 {
     QPen pen = painter->pen();
-    QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
+    QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
-    if (option.state & QStyle::Style_Selected) {
+    if (option.state & QStyle::State_Selected) {
         QRect fill(rect.x() - border, rect.y() - border,
                    rect.width() + border * 2, rect.height() + border * 2);
         painter->fillRect(fill, option.palette.color(cg, QPalette::Highlight));
@@ -337,8 +337,8 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
                                    const QRect &rect, const QPixmap &pixmap) const
 {
     if (!pixmap.isNull() && !rect.isEmpty()) {
-        if (option.state & QStyle::Style_Selected) {
-            bool enabled = option.state & QStyle::Style_Enabled;
+        if (option.state & QStyle::State_Selected) {
+            bool enabled = option.state & QStyle::State_Enabled;
             QPixmap *pm = selected(pixmap, option.palette, enabled);
             painter->drawPixmap(rect.topLeft(), *pm);
         } else {
@@ -356,15 +356,15 @@ void QItemDelegate::drawFocus(QPainter *painter,
                               const QStyleOptionViewItem &option,
                               const QRect &rect) const
 {
-    if (option.state & QStyle::Style_HasFocus) {
+    if (option.state & QStyle::State_HasFocus) {
         QStyleOptionFocusRect o;
         o.rect.setRect(rect.x() - border, rect.y() - border,
                        rect.width() + border * 2, rect.height() + border * 2);
         o.palette = option.palette;
-        o.state = QStyle::Style_None;
-        QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
+        o.state = QStyle::State_None;
+        QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                                   ? QPalette::Normal : QPalette::Disabled;
-        if (option.state & QStyle::Style_Selected)
+        if (option.state & QStyle::State_Selected)
             o.backgroundColor = option.palette.color(cg, QPalette::Highlight);
         else
             o.backgroundColor = option.palette.color(cg, QPalette::Background);
@@ -529,9 +529,9 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
     case QVariant::Icon:
         return variant.toIcon().pixmap(option.decorationSize == QStyleOptionViewItem::Small
                                        ? Qt::SmallIconSize : Qt::LargeIconSize,
-                                       option.state & QStyle::Style_Enabled
+                                       option.state & QStyle::State_Enabled
                                        ? QIcon::Normal : QIcon::Disabled,
-                                       option.state & QStyle::Style_Open
+                                       option.state & QStyle::State_Open
                                        ? QIcon::On : QIcon::Off);
     case QVariant::Bool: {
         static QPixmap checked(QApplication::style()->standardPixmap(

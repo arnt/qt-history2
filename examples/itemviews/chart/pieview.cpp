@@ -349,7 +349,7 @@ void PieView::paintEvent(QPaintEvent *event)
 {
     QItemSelectionModel *selections = selectionModel();
     QStyleOptionViewItem option = viewOptions();
-    QStyle::StyleFlags state = option.state;
+    QStyle::State state = option.state;
 
     QBrush background = option.palette.base();
     QPen foreground(option.palette.color(QPalette::Foreground));

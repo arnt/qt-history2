@@ -62,7 +62,7 @@ void ItemDelegate::paint(QPainter *painter,
     QColor g1 = base.light();
     QColor g2 = base.dark();
 
-    bool selected = (options.state & QStyle::Style_Selected) != 0;
+    bool selected = (options.state & QStyle::State_Selected) != 0;
 
     if (selected) {
          base = QApplication::palette().color(QPalette::Highlight);

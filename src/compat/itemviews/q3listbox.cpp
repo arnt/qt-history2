@@ -3865,7 +3865,7 @@ void Q3ListBox::paintCell(QPainter * p, int row, int col)
         QStyleOptionFocusRect opt;
         opt.rect.setRect(0, 0, cw, ch);
         opt.palette = pal;
-        opt.state = QStyle::Style_FocusAtBorder;
+        opt.state = QStyle::State_FocusAtBorder;
         if (i->isSelected())
             opt.backgroundColor = pal.highlight().color();
         else
@@ -4120,7 +4120,7 @@ void Q3ListBox::drawRubber()
     QStyleOption opt(0);
     opt.rect = d->rubber->normalize();
     opt.palette = palette();
-    opt.state = QStyle::Style_Rectangle;
+    opt.state = QStyle::State_Rectangle;
     style()->drawControl(QStyle::CE_RubberBand, &opt, &p, this);
     p.end();
 }

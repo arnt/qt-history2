@@ -1286,10 +1286,10 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 
 void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
-    QStyle::StyleFlags state = QStyle::Style_None;
+    QStyle::State state = QStyle::State_None;
     if (d->clickableSections) {
         if (logicalIndex == d->pressed) {
-            state = QStyle::Style_Down;
+            state = QStyle::State_Down;
         } else if (d->highlightSelected) {
             bool selected = false;
             if (d->orientation == Qt::Horizontal)
@@ -1297,7 +1297,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
             else
                 selected = selectionModel()->isRowSelected(logicalIndex, QModelIndex());
             if (selected)
-                state = QStyle::Style_Down;
+                state = QStyle::State_Down;
         }
     }
 
@@ -1323,7 +1323,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         opt.rect = rect;
         opt.rect = style()->subRect(QStyle::SR_HeaderArrow, &opt, this);
         opt.state = (sortIndicatorOrder() == Qt::AscendingOrder
-                     ? QStyle::Style_Down : QStyle::Style_Up) | QStyle::Style_Off;
+                     ? QStyle::State_Down : QStyle::State_Up) | QStyle::State_Off;
         style()->drawPrimitive(QStyle::PE_IndicatorHeaderArrow, &opt, painter, this);
     }
 }
@@ -1624,11 +1624,11 @@ QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
     QStyleOptionHeader opt;
     opt.rect = q->rect();
     opt.palette = q->palette();
-    opt.state = QStyle::Style_None | QStyle::Style_Raised;
+    opt.state = QStyle::State_None | QStyle::State_Raised;
     if (orientation == Qt::Horizontal)
-        opt.state |= QStyle::Style_Horizontal;
+        opt.state |= QStyle::State_Horizontal;
     if (q->isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     opt.section = 0;
     return opt;
 }

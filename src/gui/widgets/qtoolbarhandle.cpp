@@ -27,7 +27,7 @@ static QStyleOption getStyleOption(const QToolBarHandle *tbh)
     QStyleOption opt;
     opt.init(tbh);
     if (tbh->orientation() == Qt::Horizontal)
-	opt.state |= QStyle::Style_Horizontal;
+	opt.state |= QStyle::State_Horizontal;
     return opt;
 }
 

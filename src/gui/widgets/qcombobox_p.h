@@ -70,7 +70,7 @@ protected:
         QPainter p(this);
         QStyleOptionMenuItem menuOpt;
         menuOpt.palette = palette();
-        menuOpt.state = QStyle::Style_None;
+        menuOpt.state = QStyle::State_None;
         menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
         menuOpt.menuRect = rect();
         menuOpt.rect = rect();
@@ -78,7 +78,7 @@ protected:
         menuOpt.tabWidth = 0;
         menuOpt.menuItemType = QStyleOptionMenuItem::Scroller;
         if (sliderAction == QAbstractSlider::SliderSingleStepAdd)
-            menuOpt.state = QStyle::Style_Down;
+            menuOpt.state = QStyle::State_Down;
         p.eraseRect(rect());
         style()->drawControl(QStyle::CE_MenuScroller, &menuOpt, &p);
     }
@@ -152,13 +152,13 @@ private:
         QStyleOptionMenuItem menuOption;
 
         menuOption.palette = QApplication::palette("QMenu");
-        menuOption.state = QStyle::Style_None;
+        menuOption.state = QStyle::State_None;
         if (mCombo->topLevelWidget()->isActiveWindow())
-            menuOption.state = QStyle::Style_Active;
-        if (option.state & QStyle::Style_Enabled)
-            menuOption.state |= QStyle::Style_Enabled;
-        if (option.state & QStyle::Style_Selected)
-            menuOption.state |= QStyle::Style_Selected;
+            menuOption.state = QStyle::State_Active;
+        if (option.state & QStyle::State_Enabled)
+            menuOption.state |= QStyle::State_Enabled;
+        if (option.state & QStyle::State_Selected)
+            menuOption.state |= QStyle::State_Selected;
         menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
         menuOption.checked = mCombo->currentItem() == index.row();
         menuOption.menuItemType = QStyleOptionMenuItem::Normal;

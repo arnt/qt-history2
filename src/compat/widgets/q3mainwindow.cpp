@@ -254,9 +254,9 @@ protected:
             opt.palette = palette();
             opt.docked = dw->area();
             opt.closeEnabled = dw->isCloseEnabled();
-            opt.state = QStyle::Style_None;
+            opt.state = QStyle::State_None;
             if (i == pressedHandle)
-                opt.state |= QStyle::Style_On;
+                opt.state |= QStyle::State_On;
 
             style()->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p, this);
             x += 30;
@@ -1429,7 +1429,7 @@ void Q3MainWindow::paintEvent(QPaintEvent *)
         QStyleOption opt(0, QStyleOption::SO_Default);
         opt.rect.setRect(0, y, width(), 1);
         opt.palette = palette();
-        opt.state = QStyle::Style_Sunken;
+        opt.state = QStyle::State_Sunken;
         style()->drawPrimitive(QStyle::PE_Q3Separator, &opt, &p, this);
     }
 }

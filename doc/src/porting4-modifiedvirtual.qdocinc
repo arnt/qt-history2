@@ -32,12 +32,14 @@
 \row \o void QStyle::drawPrimitive(PrimitiveElement, QPainter *, const QRect &, const QColorGroup &, SFlags, const QStyleOption &) const \o void QStyle::drawPrimitive(PrimitiveElement, const QStyleOption *, QPainter *, const QWidget *) const
 \row \o QRect QStyle::itemRect(QPainter *, const QRect &, int, bool, const QPixmap *, const QString &, int) const \o QRect QStyle::itemRect(const QFontMetrics &, const QRect &, int, bool, const QString &, int) const
 \row \o int QStyle::pixelMetric(PixelMetric, const QWidget *) const \o int QStyle::pixelMetric(PixelMetric, const QStyleOption *, const QWidget *) const
-\row \o SubControl QStyle::querySubControl(ComplexControl, const QWidget *, const QPoint &, const QStyleOption &) const \o SubControl QStyle::querySubControl(ComplexControl, const QStyleOptionComplex *, const QPoint &, const QWidget *) const
-\row \o QRect QStyle::querySubControlMetrics(ComplexControl, const QWidget *, SubControl, const QStyleOption &) const \o QRect QStyle::querySubControlMetrics(ComplexControl, const QStyleOptionComplex *, SubControl, const QWidget *) const
+\row \o SubControl QStyle::querySubControl(ComplexControl, const QWidget *, const QPoint &, const QStyleOption &) const \o SubControl QStyle::hitTestComplexControl(ComplexControl, const QStyleOptionComplex *, const QPoint &, const QWidget *) const
+\row \o QRect QStyle::querySubControlMetrics(ComplexControl, const QWidget *, SubControl, const QStyleOption &) const \o QRect QStyle::subControlRect(ComplexControl, const QStyleOptionComplex *, SubControl, const QWidget *) const
 \row \o QSize QStyle::sizeFromContents(ContentsType, const QWidget *, const QSize &, const QStyleOption &) const \o QSize QStyle::sizeFromContents(ContentsType, const QStyleOption *, const QSize &, const QFontMetrics &, const QWidget *) const
 \row \o int QStyle::styleHint(StyleHint, const QWidget *, const QStyleOption &, QStyleHintReturn *) const \o int QStyle::styleHint(StyleHint, const QStyleOption *, const QWidget *, QStyleHintReturn *) const
 \row \o QPixmap QStyle::stylePixmap(StylePixmap, const QWidget *, const QStyleOption &) const \o QPixmap QStyle::standardPixmap(StandardPixmap, const QStyleOption *, const QWidget *) const
 \row \o QRect QStyle::subRect(SubRect, const QWidget *) const \o QRect QStyle::subRect(SubRect, const QStyleOption *, const QFontMetrics &, const QWidget *) const
+\row \o void QStyle::unPolish(QApplication *) \o void QStyle::unpolish(QApplication *)
+\row \o void QStyle::unPolish(QWidget *) \o void QStyle::unpolish(QWidget *)
 \row \o QCString QTextCodec::fromUnicode(const QString &, int &) const \o QByteArray QTextCodec::fromUnicode(const QString &, int &) const
 \row \o QValueList<int> QTextCodecPlugin::mibEnums() const \o QList<int> QTextCodecPlugin::mibEnums() const
 \row \o void QTextDrag::setSubtype(const QCString &) \o void QTextDrag::setSubtype(const QString &)

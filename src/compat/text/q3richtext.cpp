@@ -4888,7 +4888,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
            document()->focusIndicator.start + document()->focusIndicator.len >= start + len)) {
         QStyleOptionFocusRect opt;
         opt.rect.setRect(xstart, y, w, h);
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
         opt.palette = pal;
         QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &painter);
     }

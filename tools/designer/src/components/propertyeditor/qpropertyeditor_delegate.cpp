@@ -75,9 +75,9 @@ void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
         option.font.setBold(true);
     }
 
-    option.state &= ~(QStyle::Style_Selected | QStyle::Style_HasFocus);
+    option.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);
 
-    if (opt.state & QStyle::Style_Selected)
+    if (opt.state & QStyle::State_Selected)
         painter->fillRect(option.rect, QColor(230, 230, 230));
 
     painter->drawLine(option.rect.x(), option.rect.bottom(),
@@ -100,7 +100,7 @@ QSize Delegate::sizeHint(const QStyleOptionViewItem &opt,
         option.font.setBold(true);
     }
 
-    option.state &= ~(QStyle::Style_Selected | QStyle::Style_HasFocus);
+    option.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);
 
     return QItemDelegate::sizeHint(option, index) + QSize(4,4);
 }

@@ -93,20 +93,20 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     opt.fontMetrics = q->fontMetrics();
     opt.direction = q->layoutDirection();
     bool isCurrent = tab == currentIndex;
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     opt.row = 0;
     if (tab == pressedIndex)
-        opt.state |= QStyle::Style_Sunken;
+        opt.state |= QStyle::State_Sunken;
     if (isCurrent)
-        opt.state |= QStyle::Style_Selected;
+        opt.state |= QStyle::State_Selected;
     if (isCurrent && q->hasFocus())
-        opt.state |= QStyle::Style_HasFocus;
+        opt.state |= QStyle::State_HasFocus;
     if (q->isEnabled() && ptab->enabled)
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     if (q->isActiveWindow())
-        opt.state |= QStyle::Style_Active;
+        opt.state |= QStyle::State_Active;
     if (opt.rect.contains(q->mapFromGlobal(QCursor::pos())))
-        opt.state |= QStyle::Style_MouseOver;
+        opt.state |= QStyle::State_MouseOver;
     opt.shape = shape;
     opt.text = ptab->text;
     opt.icon = ptab->icon;

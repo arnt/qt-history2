@@ -315,19 +315,19 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     Q_Q(const QMenuBar);
     QStyleOptionMenuItem opt;
     opt.palette = q->palette();
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     if (q->isEnabled() && action->isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     else
         opt.palette.setCurrentColorGroup(QPalette::Disabled);
     opt.fontMetrics = q->fontMetrics();
     if (currentAction && currentAction == action) {
-        opt.state |= QStyle::Style_Selected;
+        opt.state |= QStyle::State_Selected;
         if (popupState && !closePopupMode)
-            opt.state |= QStyle::Style_Down;
+            opt.state |= QStyle::State_Down;
     }
     if (q->hasFocus() || currentAction)
-        opt.state |= QStyle::Style_HasFocus;
+        opt.state |= QStyle::State_HasFocus;
     opt.menuRect = q->rect();
     opt.menuItemType = QStyleOptionMenuItem::Normal;
     opt.checkType = QStyleOptionMenuItem::NotCheckable;
@@ -663,7 +663,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         QStyleOptionFrame frame;
         frame.rect = rect();
         frame.palette = palette();
-        frame.state = QStyle::Style_None;
+        frame.state = QStyle::State_None;
         frame.lineWidth = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth);
         frame.midLineWidth = 0;
         style()->drawPrimitive(QStyle::PE_PanelMenuBar, &frame, &p, this);
@@ -671,7 +671,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
     p.setClipRegion(emptyArea);
     QStyleOptionMenuItem menuOpt;
     menuOpt.palette = palette();
-    menuOpt.state = QStyle::Style_None;
+    menuOpt.state = QStyle::State_None;
     menuOpt.menuItemType = QStyleOptionMenuItem::EmptyArea;
     menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
     menuOpt.rect = rect();
@@ -1134,7 +1134,7 @@ QSize QMenuBar::sizeHint() const
         QStyleOptionMenuItem opt;
         opt.rect = rect();
         opt.menuRect = rect();
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
         opt.menuItemType = QStyleOptionMenuItem::Normal;
         opt.checkType = QStyleOptionMenuItem::NotCheckable;
         opt.palette = palette();
@@ -1176,7 +1176,7 @@ int QMenuBar::heightForWidth(int max_width) const
         QStyleOptionMenuItem opt;
         opt.init(this);
         opt.menuRect = rect();
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
         opt.menuItemType = QStyleOptionMenuItem::Normal;
         opt.checkType = QStyleOptionMenuItem::NotCheckable;
         return style()->sizeFromContents(QStyle::CT_MenuBar, &opt, QSize(0, height), this).height(); //not pretty..

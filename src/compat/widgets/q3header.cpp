@@ -121,7 +121,7 @@ static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
         opt.icon = *header->iconSet(section);
     opt.text = header->label(section);
     if (header->orientation() == Qt::Horizontal)
-        opt.state = QStyle::Style_Horizontal;
+        opt.state = QStyle::State_Horizontal;
     return opt;
 }
 
@@ -1429,7 +1429,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
 {
     int section = mapToSection(index);
     QStyleOptionHeader opt = getStyleOption(this, section);
-    opt.state |= QStyle::Style_Raised;
+    opt.state |= QStyle::State_Raised;
     opt.rect = fr;
 
     if (section < 0) {
@@ -1440,22 +1440,22 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     if (sectionSize(section) <= 0)
         return;
 
-    opt.state = (orient == Qt::Horizontal ? QStyle::Style_Horizontal : QStyle::Style_None);
+    opt.state = (orient == Qt::Horizontal ? QStyle::State_Horizontal : QStyle::State_None);
     //pass in some hint about the sort indicator if it is used
     if (d->sortSection != section)
-        opt.state |= QStyle::Style_Off;
+        opt.state |= QStyle::State_Off;
     else if (!d->sortDirection)
-        opt.state |= QStyle::Style_Up;
+        opt.state |= QStyle::State_Up;
     if (isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     if (isClickEnabled(section)) {
         if (index == oldHandleIdx)
-            opt.state |= QStyle::Style_Sunken; //currently selected
+            opt.state |= QStyle::State_Sunken; //currently selected
         if ((state == Pressed || state == Moving) && index == handleIdx)
-            opt.state |= QStyle::Style_Down; //currently pressed
+            opt.state |= QStyle::State_Down; //currently pressed
     }
-    if(!(opt.state & QStyle::Style_Down))
-        opt.state |= QStyle::Style_Raised;
+    if(!(opt.state & QStyle::State_Down))
+        opt.state |= QStyle::State_Raised;
     p->setBrushOrigin(fr.topLeft());
     if (d->clicks[section]) {
         style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
@@ -1521,10 +1521,10 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
     if (index == handleIdx && (state == Pressed || state == Moving)) {
         dx = style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal, &opt, this);
         dy = style()->pixelMetric(QStyle::PM_ButtonShiftVertical, &opt, this);
-        opt.state |= QStyle::Style_Sunken;
+        opt.state |= QStyle::State_Sunken;
     }
     if (isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
 
 
     opt.rect.setRect(fr.x() + style()->pixelMetric(QStyle::PM_HeaderMargin) + dx, fr.y() + 2 + dy,
@@ -1545,13 +1545,13 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
             tw = fr.width() - tw;
             ew = fr.width() - ew - tw;
         }
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
         if (isEnabled())
-            opt.state |= QStyle::Style_Enabled;
+            opt.state |= QStyle::State_Enabled;
         if (d->sortDirection)
-            opt.state |= QStyle::Style_Down;
+            opt.state |= QStyle::State_Down;
         else
-            opt.state |= QStyle::Style_Up;
+            opt.state |= QStyle::State_Up;
         QRect ar(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight);
         if (label(section).isRightToLeft())
             ar.moveBy( 2*(fr.right() - ar.right()) + ar.width() - fr.width(), 0 );
@@ -1598,7 +1598,7 @@ void Q3Header::paintEvent(QPaintEvent *e)
                     QStyleOptionFocusRect opt;
                     opt.rect.setRect(r.x()+2, r.y()+2, r.width()-4, r.height()-4);
                     opt.palette = palette();
-                    opt.state = QStyle::Style_None;
+                    opt.state = QStyle::State_None;
                     style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
                 }
                 if (orient == Qt::Horizontal && r. right() >= e->rect().right() ||

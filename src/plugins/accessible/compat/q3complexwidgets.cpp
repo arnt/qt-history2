@@ -155,7 +155,7 @@ QRect Q3AccessibleTitleBar::rect(int child) const
     QRect r;
     if (sc != QStyle::SC_None) {
         QStyleOptionTitleBar option;
-        r = titleBar()->style()->querySubControlMetrics(QStyle::CC_TitleBar, &option, sc, titleBar());
+        r = titleBar()->style()->subControlRect(QStyle::CC_TitleBar, &option, sc, titleBar());
     }
 
     QPoint tp = titleBar()->mapToGlobal(QPoint(0,0));

@@ -453,8 +453,9 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *e)
     QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
-                                            style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
-                                                                            QStyle::SC_SpinBoxEditField, this)));
+                                            style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                    QStyle::SC_SpinBoxEditField,
+                                                                    this)));
     d->edit->installEventFilter(this);
 
     if (isVisible())
@@ -561,8 +562,9 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
     QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
-                                            style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
-                                                                            QStyle::SC_SpinBoxEditField, this)));
+                                            style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                    QStyle::SC_SpinBoxEditField,
+                                                                    this)));
     QWidget::resizeEvent(e);
 }
 
@@ -806,11 +808,11 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
         d->dragging = true;
     }
     if (d->spinclicktimerid != -1) {
-        if ((se & StepUpEnabled) && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
-                                                                    QStyle::SC_SpinBoxUp, this).contains(p)) {
+        if ((se & StepUpEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                            QStyle::SC_SpinBoxUp, this).contains(p)) {
             d->updateState(true);
-        } else if ((se & StepDownEnabled) && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
-                                                                             QStyle::SC_SpinBoxDown, this).contains(p)) {
+        } else if ((se & StepDownEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                     QStyle::SC_SpinBoxDown, this).contains(p)) {
             d->updateState(false);
         } else {
             d->resetState();
@@ -836,15 +838,15 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     const StepEnabled se = stepEnabled();
     QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_All;
-    if ((se & StepUpEnabled) && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
-                                                                QStyle::SC_SpinBoxUp, this).contains(p)) {
+    if ((se & StepUpEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                        QStyle::SC_SpinBoxUp, this).contains(p)) {
         d->updateState(true);
         e->accept();
-    } else if ((se & StepDownEnabled) && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+    } else if ((se & StepDownEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                                          QStyle::SC_SpinBoxDown, this).contains(p)) {
         d->updateState(false);
         e->accept();
-    } else if (d->slider && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+    } else if (d->slider && style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                             QStyle::SC_SpinBoxSlider, this).contains(p)) {
         d->sliderpressed = true;
         d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
@@ -1032,8 +1034,8 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
 {
     if (q) {
         QStyleOptionSpinBox opt = styleOption();
-        q->update(q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
-                                                    QStyle::SC_SpinBoxButtonField, q));
+        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                             QStyle::SC_SpinBoxButtonField, q));
     }
 }
 
@@ -1047,8 +1049,8 @@ void QAbstractSpinBoxPrivate::updateSlider()
 {
     if (q) {
         QStyleOptionSpinBox opt = styleOption();
-        q->update(q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
-                                                    QStyle::SC_SpinBoxSlider, q));
+        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                             QStyle::SC_SpinBoxSlider, q));
     }
 }
 
@@ -1118,10 +1120,12 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         QSize hint(w, h);
         QSize extra(35,6);
         opt.rect.setSize(hint + extra);
-        extra += hint - q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxEditField, q).size();
+        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                   QStyle::SC_SpinBoxEditField, q).size();
         // get closer to final result by repeating the calculation
         opt.rect.setSize(hint + extra);
-        extra += hint - q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxEditField, q).size();
+        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                   QStyle::SC_SpinBoxEditField, q).size();
         hint += extra;
 
         if (slider)
@@ -1171,8 +1175,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
 QCoreVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
 {
     QStyleOptionSpinBox opt = styleOption();
-    QRect r = q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
-                                                QStyle::SC_SpinBoxSlider, q);
+    QRect r = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxSlider, q);
 
     double percentage = (double)pos / r.width();
 

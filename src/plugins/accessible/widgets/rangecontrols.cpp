@@ -74,16 +74,16 @@ QRect QAccessibleSpinBox::rect(int child) const
     so.rect = widget()->rect();
     switch(child) {
     case Editor:
-        rect = widget()->style()->querySubControlMetrics(QStyle::CC_SpinBox, &so,
-                                                        QStyle::SC_SpinBoxEditField, widget());
+        rect = widget()->style()->subControlRect(QStyle::CC_SpinBox, &so,
+                                                 QStyle::SC_SpinBoxEditField, widget());
         break;
     case ValueUp:
-        rect = widget()->style()->querySubControlMetrics(QStyle::CC_SpinBox, &so,
-                                                        QStyle::SC_SpinBoxUp, widget());
+        rect = widget()->style()->subControlRect(QStyle::CC_SpinBox, &so,
+                                                 QStyle::SC_SpinBoxUp, widget());
         break;
     case ValueDown:
-        rect = widget()->style()->querySubControlMetrics(QStyle::CC_SpinBox, &so,
-                                                        QStyle::SC_SpinBoxDown, widget());
+        rect = widget()->style()->subControlRect(QStyle::CC_SpinBox, &so,
+                                                 QStyle::SC_SpinBoxDown, widget());
         break;
     default:
         rect = so.rect;
@@ -238,10 +238,8 @@ QRect QAccessibleScrollBar::rect(int child) const
 {
     QRect rect;
     QStyleOptionSlider option;
-    QRect srect = scrollBar()->style()->querySubControlMetrics(QStyle::CC_Slider,
-                                                              &option,
-                                                              QStyle::SC_SliderHandle,
-                                                              scrollBar());
+    QRect srect = scrollBar()->style()->subControlRect(QStyle::CC_Slider, &option,
+                                                       QStyle::SC_SliderHandle, scrollBar());
     int sz = scrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, &option, scrollBar());
     switch (child) {
     case LineUp:
@@ -388,10 +386,8 @@ QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
     QStyleOptionSlider option;
-    QRect srect = slider()->style()->querySubControlMetrics(QStyle::CC_Slider,
-                                                           &option,
-                                                           QStyle::SC_SliderHandle,
-                                                           slider());
+    QRect srect = slider()->style()->subControlRect(QStyle::CC_Slider, &option,
+                                                    QStyle::SC_SliderHandle, slider());
     switch (child) {
     case PageLeft:
         if (slider()->orientation() == Qt::Vertical)

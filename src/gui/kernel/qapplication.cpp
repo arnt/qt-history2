@@ -1167,11 +1167,11 @@ void QApplication::setStyle(QStyle *style)
                 register QWidget *w = *it;
                 if (!w->testWFlags(Qt::WType_Desktop) &&        // except desktop
                      w->testWState(Qt::WState_Polished)) { // has been polished
-                    old->unPolish(w);
+                    old->unpolish(w);
                 }
             }
         }
-        old->unPolish(qApp);
+        old->unpolish(qApp);
     }
 
     // take care of possible palette requirements of certain gui

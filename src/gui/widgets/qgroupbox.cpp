@@ -223,11 +223,11 @@ void QGroupBox::paintEvent(QPaintEvent *event)
     opt.rect = frameRect;
     opt.palette = palette();
 
-    opt.state = QStyle::Style_None | QStyle::Style_Sunken;
+    opt.state = QStyle::State_None | QStyle::State_Sunken;
     if (hasFocus())
-        opt.state |= QStyle::Style_HasFocus;
+        opt.state |= QStyle::State_HasFocus;
     if (testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::Style_MouseOver;
+        opt.state |= QStyle::State_MouseOver;
     opt.lineWidth = 1;
     opt.midLineWidth = 0;
 
@@ -256,8 +256,8 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         QColor pen((QRgb) style()->styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
         if (!style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             va |= Qt::TextHideMnemonic;
-        style()->drawItem(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
-                          isEnabled(), d->title, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
+        style()->drawItemText(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
+                              isEnabled(), d->title, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
         QRect cbClip = d->checkbox->geometry();

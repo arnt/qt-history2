@@ -1341,7 +1341,7 @@ void QWidget::setStyle(QStyle *style)
     d->extra->style = style;
     if (!testWFlags(Qt::WType_Desktop) // (except desktop)
          && d->polished) { // (and have been polished)
-        old->unPolish(this);
+        old->unpolish(this);
         QWidget::style()->polish(this);
     }
     QEvent e(QEvent::StyleChange);

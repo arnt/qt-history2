@@ -160,25 +160,25 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *)
     QStyleOption opt(0);
     opt.rect = r;
     opt.palette = palette();
-    opt.state = QStyle::Style_AutoRaise;
+    opt.state = QStyle::State_AutoRaise;
     if (isEnabled()) {
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
         if (underMouse()) {
-            opt.state |= QStyle::Style_MouseOver;
+            opt.state |= QStyle::State_MouseOver;
             if (!isChecked() && !isDown())
-                opt.state |= QStyle::Style_Raised;
+                opt.state |= QStyle::State_Raised;
         }
     }
     if (isChecked())
-        opt.state |= QStyle::Style_On;
+        opt.state |= QStyle::State_On;
     if (isDown())
-        opt.state |= QStyle::Style_Down;
+        opt.state |= QStyle::State_Down;
     style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
 
     r.addCoords(2, 2, -2, -2);
     const QPixmap pm =
         icon().pixmap(Qt::AutomaticIconSize, isEnabled() ? QIcon::Normal : QIcon::Disabled);
-    style()->drawItem(&p, r, Qt::AlignCenter, palette(), isEnabled(), pm);
+    style()->drawItemPixmap(&p, r, Qt::AlignCenter, palette(), isEnabled(), pm);
 }
 
 QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)
@@ -381,9 +381,9 @@ void QDockWindowTitle::paintEvent(QPaintEvent *)
     opt.rect = rect();
     opt.palette = palette();
     if (isEnabled()) {
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
         if (underMouse())
-            opt.state |= QStyle::Style_MouseOver;
+            opt.state |= QStyle::State_MouseOver;
     }
     opt.title = dockwindow->windowTitle();
     opt.closable = dockwindow->hasFeature(QDockWindow::DockWindowClosable);

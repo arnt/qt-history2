@@ -477,17 +477,17 @@ void QFrame::drawFrame(QPainter *p)
     }
     opt.lineWidth = lw;
     opt.midLineWidth = mlw;
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     if (isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     if (frameShadow == Sunken)
-        opt.state |= QStyle::Style_Sunken;
+        opt.state |= QStyle::State_Sunken;
     else if (frameShadow == Raised)
-        opt.state |= QStyle::Style_Raised;
+        opt.state |= QStyle::State_Raised;
     if (hasFocus())
-        opt.state |= QStyle::Style_HasFocus;
+        opt.state |= QStyle::State_HasFocus;
     if (testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::Style_MouseOver;
+        opt.state |= QStyle::State_MouseOver;
 
     switch (frameShape) {
     case Box:

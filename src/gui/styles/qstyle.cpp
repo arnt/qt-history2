@@ -279,7 +279,7 @@ void QStyle::polish(QWidget * /* widget */)
 
     \sa polish()
 */
-void QStyle::unPolish(QWidget * /* widget */)
+void QStyle::unpolish(QWidget * /* widget */)
 {
 }
 
@@ -301,7 +301,7 @@ void QStyle::polish(QApplication * /* app */)
 
     \sa polish()
 */
-void QStyle::unPolish(QApplication * /* app */)
+void QStyle::unpolish(QApplication * /* app */)
 {
 }
 
@@ -337,7 +337,7 @@ void QStyle::polish(QPalette & /* pal */)
 
     \sa Qt::Alignment
 */
-QRect QStyle::itemRect(const QFontMetrics &metrics, const QRect &rect, int alignment, bool enabled,
+QRect QStyle::itemTextRect(const QFontMetrics &metrics, const QRect &rect, int alignment, bool enabled,
                        const QString &text) const
 {
     QRect result;
@@ -356,12 +356,10 @@ QRect QStyle::itemRect(const QFontMetrics &metrics, const QRect &rect, int align
 }
 
 /*!
-    \overload
-
     Returns the appropriate area within rectangle \a rect in
     which to draw the \a pixmap.
 */
-QRect QStyle::itemRect(const QRect &rect, int alignment, const QPixmap &pixmap) const
+QRect QStyle::itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pixmap) const
 {
     QRect result;
     int x, y, w, h;
@@ -381,21 +379,6 @@ QRect QStyle::itemRect(const QRect &rect, int alignment, const QPixmap &pixmap) 
 }
 
 /*!
-    \obsolete
-
-    Returns the appropriate area within rectangle \a rect in which to
-    draw the \a pixmap and \a text using \a painter. The \a alignment
-    parameter determine the \a pixmap's alignment.
-*/
-QRect QStyle::itemRect(QPainter *painter, const QRect &rect, int alignment, bool enabled,
-                       const QPixmap &pixmap, const QString &text) const
-{
-    return !pixmap.isNull()
-        ? itemRect(rect, alignment, pixmap)
-        : itemRect(painter->fontMetrics(), rect, alignment, enabled, text);
-}
-
-/*!
     Draws the \a text in rectangle \a rect using \a painter and
     palette \a pal.
 
@@ -411,8 +394,8 @@ QRect QStyle::itemRect(QPainter *painter, const QRect &rect, int alignment, bool
 
     \sa Qt::Alignment
 */
-void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
-                      bool enabled, const QString& text, const QColor *penColor) const
+void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
+                          bool enabled, const QString& text, const QColor *penColor) const
 {
     int x, y, w, h;
     rect.getRect(&x, &y, &w, &h);
@@ -428,14 +411,14 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     }
 }
 
-/*! \overload
-
+/*!
     Draws the \a pixmap in rectangle \a rect using \a painter and the
     palette \a pal.
 */
 
-void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
-                      bool enabled, const QPixmap &pixmap, const QColor *penColor) const
+void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
+                            const QPalette &pal, bool enabled, const QPixmap &pixmap,
+                            const QColor *penColor) const
 {
     int x, y, w, h;
     rect.getRect(&x, &y, &w, &h);
@@ -456,7 +439,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     QStyleOption option(0);
     option.palette = pal;
     if (!enabled)
-        pm = generatedIconPixmap(IM_Disabled, pm, &option);
+        pm = generatedIconPixmap(QIcon::Disabled, pm, &option);
 
     int fillX = qMax(rect.x(), x);
     int fillY = qMax(rect.y(), y);
@@ -464,15 +447,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     int fillHeight = qMin(pm.height(), h);
     painter->drawPixmap(fillX, fillY, pm, fillX - x, fillY - y, fillWidth, fillHeight);
 }
-
-/*!
-    \fn void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal, bool enabled, const QPixmap &pixmap, const QString &text, int len, const QColor *penColor) const
-
-    \overload
-
-    Draws the \a pixmap in rectangle \a rect using \a painter and
-    palette \a pal.
-*/
 
 /*!
     \enum QStyle::PrimitiveElement
@@ -1662,7 +1636,7 @@ Qt::Alignment QStyle::horizontalAlignment(Qt::LayoutDirection direction,  Qt::Al
     \sa valueFromPosition()
 */
 
-int QStyle::positionFromValue(int min, int max, int logicalValue, int span, bool upsideDown)
+int QStyle::sliderPositionFromValue(int min, int max, int logicalValue, int span, bool upsideDown)
 {
     if (span <= 0 || logicalValue < min || max <= min)
         return 0;
@@ -1704,7 +1678,7 @@ int QStyle::positionFromValue(int min, int max, int logicalValue, int span, bool
     \sa positionFromValue()
 */
 
-int QStyle::valueFromPosition(int min, int max, int pos, int span, bool upsideDown)
+int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool upsideDown)
 {
     if (span <= 0 || pos <= 0)
         return upsideDown ? max : min;

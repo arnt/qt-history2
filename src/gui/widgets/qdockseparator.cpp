@@ -92,11 +92,11 @@ void QDockSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt(0);
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     if (isEnabled())
-	opt.state |= QStyle::Style_Enabled;
+	opt.state |= QStyle::State_Enabled;
     if (orientation == Qt::Horizontal)
-	opt.state |= QStyle::Style_Horizontal;
+	opt.state |= QStyle::State_Horizontal;
     opt.rect = rect();
     opt.palette = palette();
 

@@ -57,7 +57,8 @@ win32 {
 
 mac {
     ICON = assistant.icns
-    TARGET = Assistant
+    TARGET = assistant
+    QMAKE_INFO_PLIST = Info_mac.plist
 }
 
 #target.path = $$[QT_INSTALL_BINS]

@@ -169,9 +169,9 @@ static QStyleOption getStyleOption(const Q3ToolBarSeparator *tbs)
     opt.rect = tbs->rect();
     opt.palette = tbs->palette();
     if (tbs->orientation() == Qt::Horizontal)
-        opt.state = QStyle::Style_Horizontal;
+        opt.state = QStyle::State_Horizontal;
     else
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
     return opt;
 }
 

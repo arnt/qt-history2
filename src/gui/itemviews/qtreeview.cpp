@@ -550,7 +550,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
     d->left = qMin(d->left, d->right);
     d->right = qMax(tmp, d->right);
 
-    const QStyle::StyleFlags state = option.state;
+    const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
     const QColor oddColor = d->oddColor;
     const QColor evenColor = d->evenColor;
@@ -567,7 +567,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
         int h = d->height(i); // actual height
         if (y + h >= t) { // we are in the update area
             option.rect.setRect(0, y, 0, h);
-            option.state = state|(viewItems.at(i).open ? QStyle::Style_Open : QStyle::Style_None);
+            option.state = state | (viewItems.at(i).open ? QStyle::State_Open : QStyle::State_None);
             if (alternate)
                 option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
             d->current = i;
@@ -612,7 +612,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const QModelIndex current = selectionModel()->currentIndex();
     const bool focus = hasFocus() && current.isValid();
     const bool reverse = isRightToLeft();
-    const QStyle::StyleFlags state = opt.state;
+    const QStyle::State state = opt.state;
 
     int width, height = option.rect.height();
 
@@ -630,12 +630,11 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         if (!modelIndex.isValid())
             continue;
         opt.state = state;
-        opt.state |= (focus && current == modelIndex
-                     ? QStyle::Style_HasFocus : QStyle::Style_None);
+        opt.state |= (focus && current == modelIndex ? QStyle::State_HasFocus : QStyle::State_None);
         opt.state |= (selectionModel()->isSelected(modelIndex)
-                     ? QStyle::Style_Selected : QStyle::Style_None);
+                     ? QStyle::State_Selected : QStyle::State_None);
         if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
-            opt.state &= ~QStyle::Style_Enabled;
+            opt.state &= ~QStyle::State_Enabled;
         if (headerSection == 0) {
             int i = d->indentation(d->current);
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
@@ -674,11 +673,11 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         // start with the innermost branch
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
-        opt.state = QStyle::Style_Item
-                    |(d->model->rowCount(parent) - 1 > index.row()
-                      ? QStyle::Style_Sibling : QStyle::Style_None)
-                    |(model()->hasChildren(index) ? QStyle::Style_Children : QStyle::Style_None)
-                    |(d->viewItems.at(d->current).open ? QStyle::Style_Open : QStyle::Style_None);
+        opt.state = QStyle::State_Item
+                    | (d->model->rowCount(parent) - 1 > index.row()
+                      ? QStyle::State_Sibling : QStyle::State_None)
+                    | (model()->hasChildren(index) ? QStyle::State_Children : QStyle::State_None)
+                    | (d->viewItems.at(d->current).open ? QStyle::State_Open : QStyle::State_None);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
     // then go out level by level
@@ -686,7 +685,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         opt.rect = primitive;
         opt.state = (d->model->rowCount(ancestor) - 1 > current.row())
-                    ? QStyle::Style_Sibling : QStyle::Style_None;
+                    ? QStyle::State_Sibling : QStyle::State_None;
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
         current = ancestor;
         ancestor = current.parent();

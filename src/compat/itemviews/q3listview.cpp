@@ -1951,11 +1951,11 @@ static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListVie
         lvi.itemY = item->itemPos();
         lvi.childCount = item->childCount();
         lvi.features = QStyleOptionListViewItem::None;
-        lvi.state = QStyle::Style_None;
+        lvi.state = QStyle::State_None;
         if (item->isEnabled())
-            lvi.state |= QStyle::Style_Enabled;
+            lvi.state |= QStyle::State_Enabled;
         if (item->isOpen())
-            lvi.state |= QStyle::Style_Open;
+            lvi.state |= QStyle::State_Open;
         if (item->isExpandable())
             lvi.features |= QStyleOptionListViewItem::Expandable;
         if (item->multiLinesEnabled())
@@ -2140,7 +2140,7 @@ void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
             opt.palette = pal;
             opt.subControls = QStyle::SC_ListViewExpand;
             opt.activeSubControls = QStyle::SC_All;
-            lv->style()->drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
+            lv->style()->drawComplexControl(QStyle::CC_Q3ListView, &opt, p, lv);
         }
     }
 }
@@ -2191,10 +2191,10 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r
         opt.rect = r;
         opt.palette = pal;
         if (isSelected()) {
-            opt.state = QStyle::Style_FocusAtBorder;
+            opt.state = QStyle::State_FocusAtBorder;
             opt.backgroundColor = pal.highlight().color();
         } else {
-            opt.state = QStyle::Style_None;
+            opt.state = QStyle::State_None;
             opt.backgroundColor = pal.base().color();
         }
         lv->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, lv);
@@ -2231,7 +2231,7 @@ void Q3ListViewItem::paintBranches(QPainter * p, const QPalette & pal,
     opt.palette = pal;
     opt.subControls = QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand;
     opt.activeSubControls = QStyle::SC_None;
-    lv->style()->drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
+    lv->style()->drawComplexControl(QStyle::CC_Q3ListView, &opt, p, lv);
 }
 
 
@@ -2977,7 +2977,7 @@ void Q3ListView::paintEmptyArea(QPainter * p, const QRect & rect)
     QStyleOptionListView opt = getStyleOption(this, 0);
     opt.rect = rect;
     opt.sortColumn = d->sortcolumn;
-    style()->drawComplexControl(QStyle::CC_ListView, &opt, p, this);
+    style()->drawComplexControl(QStyle::CC_Q3ListView, &opt, p, this);
 }
 
 
@@ -4156,8 +4156,8 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
             Q3ListViewPrivate::DrawableItem it = d->drawables.at(draw);
             QStyleOptionListView opt = getStyleOption(this, i);
             x1 -= treeStepSize() * (it.l - 1);
-            QStyle::SubControl ctrl = style()->querySubControl(QStyle::CC_ListView, &opt,
-                                                              QPoint(x1, e->pos().y()), this);
+            QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_Q3ListView, &opt,
+                                                                     QPoint(x1, e->pos().y()), this);
             if (ctrl == QStyle::SC_ListViewExpand &&
                 e->type() == style()->styleHint(QStyle::SH_ListViewExpand_SelectMouseType, 0,
                                                this)) {
@@ -4368,8 +4368,8 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
             int x1 = vp.x() + d->h->offset() - d->h->cellPos(d->h->mapToActual(0)) -
                      (treeStepSize() * (d->drawables.at(draw).l - 1));
             QStyleOptionListView opt = getStyleOption(this, i);
-            QStyle::SubControl ctrl = style()->querySubControl(QStyle::CC_ListView, &opt,
-                                                              QPoint(x1, e->pos().y()), this);
+            QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_Q3ListView, &opt,
+                                                                     QPoint(x1, e->pos().y()), this);
             if (ctrl == QStyle::SC_ListViewExpand) {
                 bool close = i->isOpen();
                 setOpen(i, !close);
@@ -6530,21 +6530,21 @@ void Q3CheckListItem::paintCell(QPainter * p, const QPalette & pal,
     int r = marg;
 
     // Draw controller / checkbox / radiobutton ---------------------
-    QStyle::StyleFlags styleflags = QStyle::Style_None;
+    QStyle::State styleflags = QStyle::State_None;
     if (internalState() == On) {
-        styleflags |= QStyle::Style_On;
+        styleflags |= QStyle::State_On;
     } else if (internalState() == NoChange) {
         if (myType == CheckBoxController && !isTristate())
-            styleflags |= QStyle::Style_Off;
+            styleflags |= QStyle::State_Off;
         else
-            styleflags |= QStyle::Style_NoChange;
+            styleflags |= QStyle::State_NoChange;
     } else {
-        styleflags |= QStyle::Style_Off;
+        styleflags |= QStyle::State_Off;
     }
     if (isSelected())
-        styleflags |= QStyle::Style_Selected;
+        styleflags |= QStyle::State_Selected;
     if (isEnabled() && lv->isEnabled())
-        styleflags |= QStyle::Style_Enabled;
+        styleflags |= QStyle::State_Enabled;
 
     if (myType == RadioButtonController) {
         int x = 0;

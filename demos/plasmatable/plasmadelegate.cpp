@@ -29,7 +29,7 @@ void PlasmaDelegate::paint(QPainter *painter,
                            const QStyleOptionViewItem &option,
                            const QModelIndex &index) const
 {
-    unsigned char s = option.state & QStyle::Style_Selected ? 63 : 0;
+    unsigned char s = option.state & QStyle::State_Selected ? 63 : 0;
     unsigned int color = index.model()->data(index, QAbstractItemModel::DisplayRole).toInt();
     unsigned char r = ((color & 0x00FF0000) >> 16) + s;
     unsigned char g = ((color & 0x0000FF00) >> 8) + s;

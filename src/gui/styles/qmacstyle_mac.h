@@ -35,7 +35,7 @@ public:
     virtual ~QMacStyle();
 
     void polish(QWidget * w);
-    void unPolish(QWidget * w);
+    void unpolish(QWidget * w);
     void polish(QApplication*);
 
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
@@ -47,10 +47,10 @@ public:
     QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
-    SubControl querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
+    SubControl hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                const QPoint &pt, const QWidget *w = 0) const;
-    QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
-                                 const QWidget *w = 0) const;
+    QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
+                         const QWidget *w = 0) const;
     QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
                            const QSize &contentsSize, const QWidget *w = 0) const;
 
@@ -76,15 +76,11 @@ public:
     QPixmap standardPixmap(StandardPixmap sp, const QStyleOption *opt,
                            const QWidget *widget = 0) const;
 
-    QPixmap generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
+    QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
                                 const QStyleOption *opt) const;
 
-    virtual void drawItem(QPainter *p, const QRect &r,
-                          int flags, const QPalette &pal, bool enabled,
-                          const QString &text,
-                          const QColor *penColor = 0) const;
-    using QStyle::drawItem;
-
+    virtual void drawItemText(QPainter *p, const QRect &r, int flags, const QPalette &pal,
+                              bool enabled, const QString &text, const QColor *penColor = 0) const;
 private:
     Q_DISABLE_COPY(QMacStyle)
 

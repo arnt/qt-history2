@@ -278,11 +278,11 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
     if (defaultButton)
         opt.features |= QStyleOptionButton::DefaultButton;
     if (down)
-        opt.state |= QStyle::Style_Down;
+        opt.state |= QStyle::State_Down;
     if (checked)
-        opt.state |= QStyle::Style_On;
+        opt.state |= QStyle::State_On;
     if (!flat && !down)
-        opt.state |= QStyle::Style_Raised;
+        opt.state |= QStyle::State_Raised;
     opt.text = text;
     opt.icon = icon;
     return opt;

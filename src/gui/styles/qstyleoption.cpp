@@ -41,7 +41,7 @@
         {
             QStyleOptionButton option;
             option.init(this);
-            option.state = isDown() ? QStyle::Style_Down : QStyle::Style_Raised;
+            option.state = isDown() ? QStyle::State_Down : QStyle::State_Raised;
             if (isDefault())
                 option.features |= QStyleOptionButton::DefaultButton;
             option.text = text();
@@ -128,13 +128,14 @@
     the same option type.
 
     The \l state member variable is initialized to
-    QStyle::Style_None.
+    QStyle::State_None.
 
     \sa version, type
 */
 
 QStyleOption::QStyleOption(int version, int type)
-    : version(version), type(type), state(QStyle::Style_None), direction(QApplication::layoutDirection()), fontMetrics(QFont())
+    : version(version), type(type), state(QStyle::State_None),
+      direction(QApplication::layoutDirection()), fontMetrics(QFont())
 {
 }
 
@@ -156,13 +157,13 @@ QStyleOption::~QStyleOption()
 */
 void QStyleOption::init(const QWidget *widget)
 {
-    state = QStyle::Style_None;
+    state = QStyle::State_None;
     if (widget->isEnabled())
-        state |= QStyle::Style_Enabled;
+        state |= QStyle::State_Enabled;
     if (widget->hasFocus())
-        state |= QStyle::Style_HasFocus;
+        state |= QStyle::State_HasFocus;
     if (widget->topLevelWidget()->isActiveWindow())
-        state |= QStyle::Style_Active;
+        state |= QStyle::State_Active;
 
     direction = widget->layoutDirection();
     rect = widget->rect();

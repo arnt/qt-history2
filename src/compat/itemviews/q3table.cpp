@@ -1257,9 +1257,9 @@ void Q3ComboTableItem::paint(QPainter *p, const QColorGroup &cg,
         pal2.setColor(QPalette::Text, cg.highlightedText());
     }
 
-    QStyle::SFlags flags = QStyle::Style_None;
+    QStyle::State flags = QStyle::State_None;
     if(isEnabled() && table()->isEnabled())
-        flags |= QStyle::Style_Enabled;
+        flags |= QStyle::State_Enabled;
     // Since we still have the "fakeCombo" may as well use it in this case.
     QStyleOptionComboBox opt;
     opt.rect = fakeCombo->rect();
@@ -1271,8 +1271,8 @@ void Q3ComboTableItem::paint(QPainter *p, const QColorGroup &cg,
     table()->style()->drawComplexControl(QStyle::CC_ComboBox, &opt, p, fakeCombo);
 
     p->save();
-    QRect textR = table()->style()->querySubControlMetrics(QStyle::CC_ComboBox, &opt,
-                                                          QStyle::SC_ComboBoxEditField, fakeCombo);
+    QRect textR = table()->style()->subControlRect(QStyle::CC_ComboBox, &opt,
+                                                   QStyle::SC_ComboBoxEditField, fakeCombo);
     int align = alignment(); // alignment() changes entries
     p->drawText(textR, wordWrap() ? (align | Qt::WordBreak) : align, entries.at(current));
     p->restore();
@@ -1529,15 +1529,15 @@ void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
     QStyleOptionButton opt;
     opt.rect.setRect(0, (cr.height() - sz.height()) / 2, sz.width(), sz.height());
     opt.palette = pal2;
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     if(isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     if (checked)
-        opt.state |= QStyle::Style_On;
+        opt.state |= QStyle::State_On;
     else
-        opt.state |= QStyle::Style_Off;
+        opt.state |= QStyle::State_Off;
     if (isEnabled() && table()->isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     table()->style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &opt, p, table());
     int x = sz.width() + 6;
     w = w - x;
@@ -2949,10 +2949,10 @@ void Q3Table::paintFocus(QPainter *p, const QRect &cr)
         opt.rect = focusRect;
         opt.palette = palette();
         if (isSelected(curRow, curCol, false)) {
-            opt.state = QStyle::Style_FocusAtBorder;
+            opt.state = QStyle::State_FocusAtBorder;
             opt.backgroundColor = palette().highlight().color();
         } else {
-            opt.state = QStyle::Style_None;
+            opt.state = QStyle::State_None;
             opt.backgroundColor = palette().base().color();
         }
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
@@ -6605,19 +6605,19 @@ void Q3TableHeader::paintSection(QPainter *p, int index, const QRect& fr)
        QStyleOptionHeader opt;
        opt.palette = palette();
        opt.rect = fr;
-       opt.state = QStyle::Style_Off | (orient == Qt::Horizontal ? QStyle::Style_Horizontal
-                                                             : QStyle::Style_None);
+       opt.state = QStyle::State_Off | (orient == Qt::Horizontal ? QStyle::State_Horizontal
+                                                                 : QStyle::State_None);
        if (isEnabled())
-           opt.state |= QStyle::Style_Enabled;
+           opt.state |= QStyle::State_Enabled;
        if (isClickEnabled()) {
            if (sectionState(index) == Selected) {
-               opt.state |= QStyle::Style_Down;
+               opt.state |= QStyle::State_Down;
                if (!mousePressed)
-                   opt.state |= QStyle::Style_Sunken;
+                   opt.state |= QStyle::State_Sunken;
            }
        }
-       if (!(opt.state & QStyle::Style_Down))
-           opt.state |= QStyle::Style_Raised;
+       if (!(opt.state & QStyle::State_Down))
+           opt.state |= QStyle::State_Raised;
        style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
        paintSectionLabel(p, index, fr);
    }

@@ -3256,6 +3256,8 @@
     For example, at() returns the string, not an iterator. See the
     \l{#qvaluelist.section}{section on QValueList} for details.
 
+    \section1 QStyle
+
     \section1 QStyleSheet
 
     The QStyleSheet and QStyleSheetItem classes have been renamed

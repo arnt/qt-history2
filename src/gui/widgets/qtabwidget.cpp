@@ -653,7 +653,7 @@ QSize QTabWidget::sizeHint() const
     QSize lc(0, 0), rc(0, 0);
     QStyleOption opt(0);
     opt.init(this);
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
 
     if (d->leftCornerWidget)
         lc = d->leftCornerWidget->sizeHint();
@@ -706,7 +706,7 @@ QSize QTabWidget::minimumSizeHint() const
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     return style()->sizeFromContents(QStyle::CT_TabWidget, &opt, sz, this)
                     .expandedTo(QApplication::globalStrut());
 }
@@ -912,11 +912,11 @@ void QTabWidget::paintEvent(QPaintEvent *)
     QStyleOptionTabWidgetFrame opt;
     opt.palette = palette();
     opt.fontMetrics = d->tabs->fontMetrics();
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     if (isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     if (isActiveWindow())
-        opt.state |= QStyle::Style_Active;
+        opt.state |= QStyle::State_Active;
     switch (d->pos) {
     case North:
         opt.shape = d->shape == Rounded ? QTabBar::RoundedNorth : QTabBar::TriangularNorth;

@@ -86,7 +86,7 @@ QSize Q3DockWindowResizeHandle::sizeHint() const
     QStyleOptionQ3DockWindow opt;
     opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
-        opt.state |= QStyle::Style_Horizontal;
+        opt.state |= QStyle::State_Horizontal;
 
     opt.rect = rect();
     opt.docked = dockWindow->area();
@@ -226,11 +226,11 @@ void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
     QStyleOption opt(0, QStyleOption::SO_Default);
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     if (isEnabled())
-        opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::State_Enabled;
     if (orientation() == Qt::Horizontal)
-        opt.state |= QStyle::Style_Horizontal;
+        opt.state |= QStyle::State_Horizontal;
     style()->drawPrimitive(QStyle::PE_IndicatorDockWindowResizeHandle, &opt, &p, this);
 }
 
@@ -372,7 +372,7 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
     QStyleOptionQ3DockWindow opt;
     opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
-        opt.state |= QStyle::Style_Horizontal;
+        opt.state |= QStyle::State_Horizontal;
 
     opt.rect = rect();
     opt.docked = dockWindow->area();
@@ -587,7 +587,8 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
     opt.icon = windowIcon();
     opt.titleBarState = window() ? window()->windowState() : Qt::WindowNoState;
     opt.titleBarFlags = getWFlags();
-    QStyle::SubControl tbctrl = style()->querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
+    QStyle::SubControl tbctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
+                                                               e->pos(), this);
     if (tbctrl > QStyle::SC_TitleBarLabel) {
         Q3TitleBar::mousePressEvent(e);
         return;
@@ -1452,9 +1453,9 @@ void Q3DockWindow::drawFrame(QPainter *p)
     QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     if (titleBar->isActive())
-        opt.state |= QStyle::Style_Active;
+        opt.state |= QStyle::State_Active;
     opt.lineWidth = lineWidth();
     opt.midLineWidth = midLineWidth();
 
@@ -1470,7 +1471,7 @@ void Q3DockWindow::drawContents(QPainter *p)
     QStyleOption opt(0, QStyleOption::SO_Default);
     opt.init(this);
     if (titleBar->isActive())
-        opt.state |= QStyle::Style_Active;
+        opt.state |= QStyle::State_Active;
     style()->drawControl(QStyle::CE_DockWindowEmptyArea, &opt, p, this);
 }
 

@@ -766,7 +766,7 @@ void QLabel::paintEvent(QPaintEvent *)
 #ifndef QT_NO_MOVIE
     if (mov) {
         // ### should add movie to qDrawItem
-        QRect r = style()->itemRect(&paint, cr, align, isEnabled(), mov->framePixmap(), QString::null);
+        QRect r = style()->itemPixmapRect(cr, align, mov->framePixmap());
         // ### could resize movie frame at this point
         paint.drawPixmap(r.x(), r.y(), mov->framePixmap());
     }
@@ -861,7 +861,11 @@ void QLabel::paintEvent(QPaintEvent *)
         if ((align & Qt::TextShowMnemonic) && !style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             align |= Qt::TextHideMnemonic;
         // ordinary text or pixmap label
-        style()->drawItem(&paint, cr, align, palette(), isEnabled(), pix, d->ltext);
+        if (!pix.isNull())
+            style()->drawItemPixmap(&paint, cr, align, palette(), isEnabled(), pix);
+        else
+            style()->drawItemText(&paint, cr, align, palette(), isEnabled(), d->ltext);
+
     }
 }
 
@@ -959,7 +963,7 @@ void QLabelPrivate::movieUpdated(const QRect& rect)
 {
     if (lmovie && !lmovie->isNull()) {
         QRect r = q->contentsRect();
-        r = q->style()->itemRect(0, r, align, q->isEnabled(), lmovie->framePixmap(), QString::null);
+        r = q->style()->itemPixmapRect(r, align, lmovie->framePixmap());
         r.translate(rect.x(), rect.y());
         r.setWidth(qMin(r.width(), rect.width()));
         r.setHeight(qMin(r.height(), rect.height()));

@@ -25,18 +25,14 @@ class Q_GUI_EXPORT QStyleOption
 {
 public:
     enum OptionType {
-                      // Standard controls
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
                       SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_Q3DockWindow,
                       SO_DockWindow, SO_ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
 
-                      // Complex controls
-                      SO_Complex = 0xf000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
+                      SO_Complex = 0xf0000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
                       SO_ListView, SO_TitleBar,
 
-                      // base for custom standard controls
-                      SO_CustomBase = 0xf00000,
-                      // base for custom complex controls
+                      SO_CustomBase = 0xf00,
                       SO_ComplexCustomBase = 0xf000000
                     };
 
@@ -45,7 +41,7 @@ public:
 
     int version;
     int type;
-    QStyle::StyleFlags state;
+    QStyle::State state;
     Qt::LayoutDirection direction;
     QRect rect;
     QFontMetrics fontMetrics;
@@ -58,7 +54,7 @@ public:
 
     QDOC_PROPERTY(int version)
     QDOC_PROPERTY(int type)
-    QDOC_PROPERTY(QStyle::SFlags state)
+    QDOC_PROPERTY(QStyle::State state)
     QDOC_PROPERTY(QRect rect)
     QDOC_PROPERTY(QPalette palette)
 };
@@ -146,7 +142,8 @@ public:
     enum { Type = SO_Button };
     enum { Version = 1 };
 
-    enum ButtonFeature { None = 0x00, Flat = 0x01, HasMenu = 0x02, DefaultButton = 0x04, AutoDefaultButton = 0x08 };
+    enum ButtonFeature { None = 0x00, Flat = 0x01, HasMenu = 0x02, DefaultButton = 0x04,
+                         AutoDefaultButton = 0x08 };
     Q_DECLARE_FLAGS(ButtonFeatures, ButtonFeature)
 
     ButtonFeatures features;
@@ -172,7 +169,7 @@ public:
     enum { Version = 1 };
 
     enum TabPosition { Beginning, Middle, End, OnlyOneTab };
-    enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected};
+    enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected };
 
     QTabBar::Shape shape;
     QString text;
@@ -556,8 +553,7 @@ T qt_cast(const QStyleOption *opt)
     if (opt && opt->version <= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
         || int(static_cast<T>(0)->Type) == QStyleOption::SO_Default
         || (int(static_cast<T>(0)->Type) == QStyleOption::SO_Complex
-            && ((opt->type > QStyleOption::SO_Complex && opt->type < QStyleOption::SO_CustomBase)
-                || opt->type >= QStyleOption::SO_ComplexCustomBase))))
+            && opt->type > QStyleOption::SO_Complex)))
         return static_cast<T>(opt);
     return 0;
 }
@@ -568,8 +564,7 @@ T qt_cast(QStyleOption *opt)
     if (opt && opt->version <= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
         || int(static_cast<T>(0)->Type) == QStyleOption::SO_Default
         || (int(static_cast<T>(0)->Type) == QStyleOption::SO_Complex
-            && ((opt->type > QStyleOption::SO_Complex && opt->type < QStyleOption::SO_CustomBase)
-                || opt->type >= QStyleOption::SO_ComplexCustomBase))))
+            && opt->type > QStyleOption::SO_Complex)))
         return static_cast<T>(opt);
     return 0;
 }

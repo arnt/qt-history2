@@ -57,9 +57,9 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         QItemDelegate::paint(painter, option, index);
     } else {
         const QAbstractItemModel *model = index.model();
-        QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
+        QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                                   ? QPalette::Normal : QPalette::Disabled;
-        if (option.state & QStyle::Style_Selected)
+        if (option.state & QStyle::State_Selected)
             painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
         if (index.column() == 2) {
             QRect rect(option.rect.x() + 3, option.rect.y() + 3,

@@ -124,13 +124,13 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
     QStyleOptionButton opt;
     opt.init(q);
     if (down)
-        opt.state |= QStyle::Style_Down;
+        opt.state |= QStyle::State_Down;
     if (q->testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::Style_MouseOver;
+        opt.state |= QStyle::State_MouseOver;
     if (tristate && noChange)
-        opt.state |= QStyle::Style_NoChange;
+        opt.state |= QStyle::State_NoChange;
     else
-        opt.state |= checked ? QStyle::Style_On : QStyle::Style_Off;
+        opt.state |= checked ? QStyle::State_On : QStyle::State_Off;
     opt.text = text;
     opt.icon = icon;
     return opt;
@@ -212,8 +212,10 @@ QSize QCheckBox::sizeHint() const
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     QStyleOptionButton opt = d->getStyleOption();
-    QSize sz = style()->itemRect(fm, QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false, text()).size();
-    return (style()->sizeFromContents(QStyle::CT_CheckBox, &opt, sz, this) .expandedTo(QApplication::globalStrut()));
+    QSize sz = style()->itemTextRect(fm, QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false,
+                                     text()).size();
+    return (style()->sizeFromContents(QStyle::CT_CheckBox, &opt, sz, this)
+            .expandedTo(QApplication::globalStrut()));
 }
 
 /*!\reimp

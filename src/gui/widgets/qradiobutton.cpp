@@ -120,10 +120,10 @@ static QStyleOptionButton getStyleOption(const QRadioButton *btn)
     opt.text = btn->text();
     opt.icon = btn->icon();
     if (btn->isDown())
-        opt.state |= QStyle::Style_Down;
+        opt.state |= QStyle::State_Down;
     if (btn->testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::Style_MouseOver;
-    opt.state |= (btn->isChecked() ? QStyle::Style_On : QStyle::Style_Off);
+        opt.state |= QStyle::State_MouseOver;
+    opt.state |= (btn->isChecked() ? QStyle::State_On : QStyle::State_Off);
     return opt;
 }
 
@@ -133,7 +133,8 @@ static QStyleOptionButton getStyleOption(const QRadioButton *btn)
 QSize QRadioButton::sizeHint() const
 {
     ensurePolished();
-    QSize sz = style()->itemRect(fontMetrics(), QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false, text()).size();
+    QSize sz = style()->itemTextRect(fontMetrics(), QRect(0, 0, 1, 1), Qt::TextShowMnemonic,
+                                     false, text()).size();
     QStyleOptionButton opt = getStyleOption(this);
     return (style()->sizeFromContents(QStyle::CT_RadioButton, &opt, sz, this).
             expandedTo(QApplication::globalStrut()));

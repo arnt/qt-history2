@@ -214,7 +214,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
     opt.midLineWidth = 1;
     opt.rect.setRect(b, b, w - 2 * b, h - 2 * b);
     opt.palette = g;
-    opt.state = QStyle::Style_Enabled | QStyle::Style_Sunken;
+    opt.state = QStyle::State_Enabled | QStyle::State_Sunken;
     style()->drawPrimitive(QStyle::PE_Frame, &opt, p, this);
 
     int t = (row == selRow && col == selCol) ? selectedBorder : 0;
@@ -225,7 +225,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
             QStyleOptionFocusRect opt;
             opt.palette = g;
             opt.rect.setRect(0, 0, w, h);
-            opt.state = QStyle::Style_None;
+            opt.state = QStyle::State_None;
             style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
         }
     }

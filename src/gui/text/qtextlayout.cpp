@@ -1408,7 +1408,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
     if (focusRect.isValid()) {
         QStyleOptionFocusRect opt;
         opt.rect = focusRect.toRect();
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
         opt.palette = *eng->pal;
         QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
     }

@@ -2101,12 +2101,12 @@ void Q3WorkspaceChild::paintEvent(QPaintEvent *)
     QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     opt.lineWidth = lineWidth();
     opt.midLineWidth = midLineWidth();
 
     if (titlebar && titlebar->isActive())
-        opt.state |= QStyle::Style_Active;
+        opt.state |= QStyle::State_Active;
 
     style()->drawPrimitive(QStyle::PE_FrameWindow, &opt, &p, this);
 }

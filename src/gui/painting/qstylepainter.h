@@ -36,13 +36,10 @@ public:
     inline void drawControlMask(QStyle::ControlElement element, const QStyleOption &opt);
     inline void drawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex &opt);
     inline void drawComplexControlMask(QStyle::ComplexControl cc, const QStyleOptionComplex &opt);
-    inline void drawItem(const QRect &r, int flags, const QPalette &pal, bool enabled,
-                         const QString &text, const QColor *penColor = 0);
-    inline void drawItem(const QRect &r, int flags, const QPalette &pal, bool enabled,
-                         const QPixmap &pixmap, const QColor *penColor = 0);
-    inline void drawItem(const QRect &r, int flags, const QPalette &pal, bool enabled,
-                         const QPixmap &pixmap, const QString &text, const QColor *penColor = 0);
-
+    inline void drawItemText(const QRect &r, int flags, const QPalette &pal, bool enabled,
+                             const QString &text, const QColor *penColor = 0);
+    inline void drawItemPixmap(const QRect &r, int flags, const QPalette &pal, bool enabled,
+                               const QPixmap &pixmap, const QColor *penColor = 0);
     inline QStyle *style() const { return wstyle; }
 
 private:
@@ -75,25 +72,16 @@ void QStylePainter::drawComplexControlMask(QStyle::ComplexControl cc, const QSty
     wstyle->drawComplexControlMask(cc, &opt, this, widget);
 }
 
-void QStylePainter::drawItem(const QRect &r, int flags, const QPalette &pal, bool enabled,
-                             const QString &text, const QColor *penColor)
+void QStylePainter::drawItemText(const QRect &r, int flags, const QPalette &pal, bool enabled,
+                                 const QString &text, const QColor *penColor)
 {
-    wstyle->drawItem(this, r, flags, pal, enabled, text, penColor);
+    wstyle->drawItemText(this, r, flags, pal, enabled, text, penColor);
 }
 
-void QStylePainter::drawItem(const QRect &r, int flags, const QPalette &pal, bool enabled,
-                             const QPixmap &pixmap, const QColor *penColor)
+void QStylePainter::drawItemPixmap(const QRect &r, int flags, const QPalette &pal, bool enabled,
+                                   const QPixmap &pixmap, const QColor *penColor)
 {
-    wstyle->drawItem(this, r, flags, pal, enabled, pixmap, penColor);
-}
-
-void QStylePainter::drawItem(const QRect &r, int flags, const QPalette &pal, bool enabled,
-                             const QPixmap &pixmap, const QString &text, const QColor *penColor)
-{
-    if (!pixmap.isNull())
-        drawItem(r, flags, pal, enabled, pixmap, penColor);
-    else
-        drawItem(r, flags, pal, enabled, text, penColor);
+    wstyle->drawItemPixmap(this, r, flags, pal, enabled, pixmap, penColor);
 }
 
 #endif

@@ -61,10 +61,8 @@ void QSliderPrivate::init()
 int QSliderPrivate::pixelPosToRangeValue(int pos) const
 {
     QStyleOptionSlider opt = getStyleOption();
-    QRect gr = q->style()->querySubControlMetrics(QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove,
-                                                 q);
-    QRect sr = q->style()->querySubControlMetrics(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle,
-                                                 q);
+    QRect gr = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, q);
+    QRect sr = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, q);
     int sliderMin, sliderMax, sliderLength;
 
     if (orientation == Qt::Horizontal) {
@@ -76,7 +74,8 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
         sliderMin = gr.y();
         sliderMax = gr.bottom() - sliderLength + 1;
     }
-    return QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin, opt.upsideDown);
+    return QStyle::sliderValueFromPosition(d->minimum, d->maximum, pos - sliderMin,
+                                           sliderMax - sliderMin, opt.upsideDown);
 }
 
 inline int QSliderPrivate::pick(const QPoint &pt) const
@@ -105,7 +104,7 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     opt.singleStep = singleStep;
     opt.pageStep = pageStep;
     if (orientation == Qt::Horizontal)
-        opt.state |= QStyle::Style_Horizontal;
+        opt.state |= QStyle::State_Horizontal;
     return opt;
 }
 
@@ -302,7 +301,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
     }
     ev->accept();
     QStyleOptionSlider opt = d->getStyleOption();
-    d->pressedControl = style()->querySubControl(QStyle::CC_Slider, &opt, ev->pos(), this);
+    d->pressedControl = style()->hitTestComplexControl(QStyle::CC_Slider, &opt, ev->pos(), this);
     SliderAction action = SliderNoAction;
     if (d->pressedControl == QStyle::SC_SliderGroove) {
         int pressValue = d->pixelPosToRangeValue(d->pick(ev->pos()));
@@ -316,8 +315,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
         }
     } else if (d->pressedControl == QStyle::SC_SliderHandle) {
         setRepeatAction(SliderNoAction);
-        QRect sr = style()->querySubControlMetrics(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle,
-                                                  this);
+        QRect sr = style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
         d->clickOffset = d->pick(ev->pos() - sr.topLeft());
         d->snapBackPosition = d->position;
         update(sr);
@@ -357,14 +355,14 @@ void QSlider::mouseReleaseEvent(QMouseEvent *ev)
         return;
     }
     ev->accept();
-    QStyle::SubControl oldPressed = (QStyle::SubControl)d->pressedControl;
+    QStyle::SubControl oldPressed = QStyle::SubControl(d->pressedControl);
     d->pressedControl = QStyle::SC_None;
     setRepeatAction(SliderNoAction);
     if (oldPressed == QStyle::SC_SliderHandle)
         setSliderDown(false);
     QStyleOptionSlider opt = d->getStyleOption();
     opt.subControls = oldPressed;
-    update(style()->querySubControlMetrics(QStyle::CC_Slider, &opt, oldPressed, this));
+    update(style()->subControlRect(QStyle::CC_Slider, &opt, oldPressed, this));
 }
 
 /*!

@@ -2033,10 +2033,10 @@ void Q3IconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     opt.rect = textRect(false);
     opt.palette = cg;
     if (isSelected()) {
-        opt.state = QStyle::Style_FocusAtBorder;
+        opt.state = QStyle::State_FocusAtBorder;
         opt.backgroundColor = cg.highlight().color();
     } else {
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
         opt.backgroundColor = cg.base().color();
     }
     view->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
@@ -2044,7 +2044,7 @@ void Q3IconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     if (this != view->d->currentItem) {
         opt.rect = pixmapRect(false);
         opt.backgroundColor = cg.base().color();
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
         view->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
     }
 }
@@ -5263,7 +5263,7 @@ void Q3IconView::drawRubber(QPainter *p)
     QStyleOption opt(0, QStyleOption::SO_Default);
     opt.rect.setRect(pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height());
     opt.palette = palette();
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     style()->drawControl(QStyle::CE_RubberBand, &opt, p, this);
 }
 
@@ -5464,7 +5464,7 @@ void Q3IconView::drawDragShapes(const QPoint &pos)
     p.setPen(QPen(Qt::color0));
     QStyleOptionFocusRect opt;
     opt.palette = palette();
-    opt.state = QStyle::Style_None;
+    opt.state = QStyle::State_None;
     opt.backgroundColor = palette().base().color();
     if (d->isIconDrag) {
         QLinkedList<Q3IconDragDataItem>::Iterator it = d->iconDragData.begin();

@@ -232,15 +232,15 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     opt.iconSize = q->iconSize();
     opt.arrowType = arrowType;
     if (down)
-        opt.state |= QStyle::Style_Down;
+        opt.state |= QStyle::State_Down;
     if (checked)
-        opt.state |= QStyle::Style_On;
+        opt.state |= QStyle::State_On;
     if (autoRaise)
-        opt.state |= QStyle::Style_AutoRaise;
-    if (q->underMouse() && (opt.state & QStyle::Style_Enabled))
-        opt.state |= QStyle::Style_MouseOver;
+        opt.state |= QStyle::State_AutoRaise;
+    if (q->underMouse() && (opt.state & QStyle::State_Enabled))
+        opt.state |= QStyle::State_MouseOver;
     if (!checked && !down)
-        opt.state |= QStyle::Style_Raised;
+        opt.state |= QStyle::State_Raised;
 
     opt.subControls = QStyle::SC_ToolButton;
     opt.activeSubControls = QStyle::SC_None;
@@ -252,12 +252,12 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.subControls |= QStyle::SC_ToolButtonMenu;
         opt.features |= QStyleOptionToolButton::Menu;
         if (menuButtonDown || down) {
-            opt.state |= QStyle::Style_MouseOver;
+            opt.state |= QStyle::State_MouseOver;
             opt.activeSubControls |= QStyle::SC_ToolButtonMenu;
         }
     } else {
         if (menuButtonDown)
-            opt.state  |= QStyle::Style_Down;
+            opt.state  |= QStyle::State_Down;
     }
     if (arrowType != Qt::NoArrow)
         opt.features |= QStyleOptionToolButton::Arrow;
@@ -546,8 +546,9 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
     if (e->button() == Qt::LeftButton && d->popupMode == MenuButtonPopup) {
-        QRect popupr = QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(QStyle::CC_ToolButton, &opt,
-                                                                                                   QStyle::SC_ToolButtonMenu, this));
+        QRect popupr = QStyle::visualRect(opt.direction, opt.rect,
+                                          style()->subControlRect(QStyle::CC_ToolButton, &opt,
+                                                                  QStyle::SC_ToolButtonMenu, this));
         if (popupr.isValid() && popupr.contains(e->pos())) {
             showMenu();
             return;

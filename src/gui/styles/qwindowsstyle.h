@@ -33,10 +33,10 @@ public:
     ~QWindowsStyle();
 
     void polish(QApplication*);
-    void unPolish(QApplication*);
+    void unpolish(QApplication*);
 
     void polish(QWidget*);
-    void unPolish(QWidget*);
+    void unpolish(QWidget*);
 
     void polish(QPalette &);
 

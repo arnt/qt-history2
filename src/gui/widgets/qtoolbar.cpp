@@ -43,7 +43,7 @@ static QStyleOptionFrame getStyleOption(QToolBar *tb)
     QStyleOptionFrame opt;
     opt.init(tb);
     if (tb->orientation() == Qt::Horizontal)
-        opt.state |= QStyle::Style_Horizontal;
+        opt.state |= QStyle::State_Horizontal;
     opt.lineWidth = tb->style()->pixelMetric(QStyle::PM_ToolBarFrameWidth);
     return opt;
 }

@@ -1309,8 +1309,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const
 {
     QStyleOptionSpinBox sb = styleOption();
-    QRect r = q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
-                                                QStyle::SC_SpinBoxSlider, q);
+    QRect r = q->style()->subControlRect(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxSlider, q);
 
     double percentage = (double)pos / r.width();
 

@@ -172,9 +172,9 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     QStyleOptionToolBox opt;
     opt.init(this);
     if (selected)
-        opt.state |= QStyle::Style_Selected;
+        opt.state |= QStyle::State_Selected;
     if (isDown())
-        opt.state |= QStyle::Style_Down;
+        opt.state |= QStyle::State_Down;
     opt.text = text;
     opt.icon = icon();
     style()->drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());
@@ -227,14 +227,13 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
     if (!style()->styleHint(QStyle::SH_UnderlineShortcut, 0, this))
         alignment |= Qt::TextHideMnemonic;
-    style()->drawItem(p, tr, alignment, pal,
-                      isEnabled(), QPixmap(), txt, fill);
+    style()->drawItemText(p, tr, alignment, pal, isEnabled(), txt, fill);
 
     if (!txt.isEmpty() && hasFocus()) {
         QStyleOptionFocusRect opt;
         opt.rect = tr;
         opt.palette = pal;
-        opt.state = QStyle::Style_None;
+        opt.state = QStyle::State_None;
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
     }
 }

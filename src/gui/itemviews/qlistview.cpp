@@ -851,17 +851,17 @@ void QListView::paintEvent(QPaintEvent *e)
     const bool alternate = d->alternatingColors;
     const QColor oddColor = d->oddColor;
     const QColor evenColor = d->evenColor;
-    const QStyle::StyleFlags state = option.state;
+    const QStyle::State state = option.state;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
         Q_ASSERT((*it).isValid());
         option.rect = viewportRectForIndex(*it);
         option.state = state;
         option.state |= (selections && selections->isSelected(*it)
-                         ? QStyle::Style_Selected : QStyle::Style_None);
+                         ? QStyle::State_Selected : QStyle::State_None);
         if ((model()->flags(*it) & QAbstractItemModel::ItemIsEnabled) == 0)
-            option.state &= ~QStyle::Style_Enabled;
-        option.state |= (focus && current == *it ? QStyle::Style_HasFocus : QStyle::Style_None);
+            option.state &= ~QStyle::State_Enabled;
+        option.state |= (focus && current == *it ? QStyle::State_HasFocus : QStyle::State_None);
         if (alternate)
             option.palette.setColor(QPalette::Base, (*it).row() & 1 ? oddColor : evenColor);
         delegate->paint(&painter, option, *it);

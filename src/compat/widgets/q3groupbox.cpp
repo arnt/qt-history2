@@ -313,11 +313,11 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
     opt.palette = palette();
     opt.lineWidth = 1;
     opt.midLineWidth = 0;
-    opt.state = QStyle::Style_None | QStyle::Style_Sunken;
+    opt.state = QStyle::State_None | QStyle::State_Sunken;
     if (hasFocus())
-        opt.state |= QStyle::Style_HasFocus;
+        opt.state |= QStyle::State_HasFocus;
     if (testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::Style_MouseOver;
+        opt.state |= QStyle::State_MouseOver;
     if (lenvisible && !isCheckable()) {        // draw title
         QFontMetrics fm = paint.fontMetrics();
         int h = fm.height();
@@ -343,9 +343,8 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
         QColor pen((QRgb) style()->styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
         if (!style()->styleHint(QStyle::SH_UnderlineAccelerator, &opt, this))
             va |= Qt::NoAccel;
-        style()->drawItem(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
-                          isEnabled(), QPixmap(), str,
-                          testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
+        style()->drawItemText(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
+                              isEnabled(), str, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
         QRect cbClip = d->checkbox->geometry();

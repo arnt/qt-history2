@@ -391,7 +391,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     const QHeaderView *horizontalHeader = d->horizontalHeader;
     const QModelIndex current = currentIndex();
     const bool focus = hasFocus() && current.isValid();
-    const QStyle::StyleFlags state = option.state;
+    const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
     const QColor oddColor = d->oddColor;
     const QColor evenColor = d->evenColor;
@@ -417,13 +417,13 @@ void QTableView::paintEvent(QPaintEvent *e)
                 option.rect = QRect(colp, rowp, colw, rowh);
                 option.state = state;
                 option.state |= ((sels && sels->isSelected(index))
-                                 ? QStyle::Style_Selected : QStyle::Style_None);
+                                 ? QStyle::State_Selected : QStyle::State_None);
                 if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
-                    option.state &= ~QStyle::Style_Enabled;
+                    option.state &= ~QStyle::State_Enabled;
                 option.state |= (focus && index == current
-                                 ? QStyle::Style_HasFocus : QStyle::Style_None);
+                                 ? QStyle::State_HasFocus : QStyle::State_None);
                 painter.fillRect(colp, rowp, colw, rowh,
-                                 (option.state & QStyle::Style_Selected
+                                 (option.state & QStyle::State_Selected
                                   ? option.palette.highlight() : option.palette.base()));
                 itemDelegate()->paint(&painter, option, index);
             }

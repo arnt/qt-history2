@@ -1381,7 +1381,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
 
     QStyleOptionViewItem options = viewOptions();
     options.rect = viewportRectForIndex(buddy);
-    options.state |= (buddy == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
+    options.state |= (buddy == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 
     if (event && itemDelegate()->editorEvent(event, model(), options, buddy))
         return true; // the delegate handled the event
@@ -1694,7 +1694,7 @@ void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
 {
     QStyleOptionViewItem options = viewOptions();
     options.rect = viewportRectForIndex(index);
-    options.state |= (index == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
+    options.state |= (index == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 
     QWidget *editor = d->editor(index, options);
     if (editor)
@@ -1881,8 +1881,8 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     QStyleOptionViewItem option;
     option.palette = palette();
     option.font = font();
-    option.state = (isEnabled() ? QStyle::Style_Enabled : QStyle::Style_None);
-    option.state |= (state() == EditingState ? QStyle::Style_Editing : QStyle::Style_None);
+    option.state = (isEnabled() ? QStyle::State_Enabled : QStyle::State_None);
+    option.state |= (state() == EditingState ? QStyle::State_Editing : QStyle::State_None);
     option.decorationSize = QStyleOptionViewItem::Small;
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
