@@ -1419,24 +1419,6 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                 if (overWrite && !cursor->atParagEnd())
                     cursor->remove();
                 QString t = e->text();
-#ifdef Q_WS_X11
-                extern bool qt_hebrew_keyboard_hack;
-                if (qt_hebrew_keyboard_hack) {
-                    // the X11 keyboard layout is broken and does not reverse
-                    // braces correctly. This is a hack to get halfway correct
-                    // behaviour
-                    Q3TextParagraph *p = cursor->paragraph();
-                    if (p && p->string() && p->string()->isRightToLeft()) {
-                        QChar *c = (QChar *)t.unicode();
-                        int l = t.length();
-                        while(l--) {
-                            if (c->mirrored())
-                                *c = c->mirroredChar();
-                            c++;
-                        }
-                    }
-                }
-#endif
                 insert(t, true, false);
                 break;
             } else if (e->state() & Qt::ControlButton) {
