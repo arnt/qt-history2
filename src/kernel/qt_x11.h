@@ -177,9 +177,6 @@ typedef char *XPointer;
 #elif defined(Q_OS_AIX)
 // broken in Xlib up to what version of AIX?
 #define QT_NO_XIM
-#elif defined(Q_OS_SOLARIS)
-// XRegisterIMInstantiateCallback broken under "C" locale on Solaris
-#define QT_NO_XIM
 #elif defined(QT_NO_DEBUG) && defined(Q_OS_IRIX) && defined(Q_CC_EDG)
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
 #define QT_NO_XIM
@@ -192,7 +189,16 @@ typedef char *XPointer;
 #endif // QT_NO_XIM
 
 
-#if !defined(QT_NO_XIM) && (XlibSpecificationRelease >= 6)
+/*
+ * Solaris patch 108652-47 and higher fixes crases in
+ * XRegisterIMInstantiateCallback, but the function doesn't seem to
+ * work.
+ *
+ * Instead, we disabled R6 input, and open the input method
+ * immediately at application start.
+ */
+#if !defined(QT_NO_XIM) && (XlibSpecificationRelease >= 6) && \
+    !defined(Q_OS_SOLARIS)
 #define USE_X11R6_XIM
 
 //######### XFree86 has wrong declarations for XRegisterIMInstantiateCallback
