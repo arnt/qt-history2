@@ -22,7 +22,7 @@ struct QUuid;
 class QAxAggregated
 {
     friend class QAxServerBase;
-    friend class QAxHostWindow;
+    friend class QAxClientSite;
 public:
     virtual long queryInterface(const QUuid &iid, void **iface) = 0;
 
