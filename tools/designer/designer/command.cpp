@@ -645,7 +645,7 @@ void LayoutGridCommand::unexecute()
 
 BreakLayoutCommand::BreakLayoutCommand( const QString &n, FormWindow *fw,
 					QWidget *layoutBase, const QWidgetList &wl )
-    : Command( n, fw ), lb( layoutBase )
+    : Command( n, fw ), lb( layoutBase ), widgets( wl )
 {
     WidgetFactory::LayoutType lay = WidgetFactory::layoutType( layoutBase );
     spacing = MetaDataBase::spacing( layoutBase );
@@ -666,6 +666,8 @@ void BreakLayoutCommand::execute()
     formWindow()->clearSelection( FALSE );
     layout->breakLayout();
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
+    for ( QWidget *w = widgets.first(); w; w = widgets.next() )
+	w->resize( QMAX( 16, w->width() ), QMAX( 16, w->height() ) );
 }
 
 void BreakLayoutCommand::unexecute()

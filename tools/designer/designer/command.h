@@ -287,6 +287,7 @@ private:
     int spacing;
     int margin;
     QWidget *lb;
+    QWidgetList widgets;
     
 };
 
