@@ -795,23 +795,10 @@ bool Q3Process::start( QStringList *env )
 	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows sucess
 
 	if ( env == 0 ) { // inherit environment and start process
-	    QString command = _arguments[0];
-#if defined(Q_OS_MACX) //look in a bundle
-	    const QString mac_bundle_suffix = ".app/Contents/MacOS/";
-	    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) {
-		QString exec = command;
-		int lslash = command.findRev('/');
-		if(lslash != -1)
-		    exec = command.mid(lslash+1);
-		QFileInfo fileInfo( command + mac_bundle_suffix + exec );
-		if ( fileInfo.isExecutable() )
-		    command = fileInfo.absFilePath().local8Bit();
-	    }
-#endif
 #ifndef Q_OS_QNX4
-	    ::execvp( command.local8Bit(), (char*const*)arglist ); // ### cast not nice
+	    ::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
 #else
-	    ::execvp( command.local8Bit(), (char const*const*)arglist ); // ### cast not nice
+	    ::execvp( arglist[0], (char const*const*)arglist ); // ### cast not nice
 #endif
 	} else { // start process with environment settins as specified in env
 	    // construct the environment for exec
@@ -869,23 +856,6 @@ bool Q3Process::start( QStringList *env )
 		    }
 		}
 	    }
-#if defined(Q_OS_MACX)
-	    if(!QFile::exists(arglist[0])) {
-		QString command = arglist[0];
-		const QString mac_bundle_suffix = ".app/Contents/MacOS/";
-		if(QFile::exists(command + mac_bundle_suffix)) {
-		    QString exec = command;
-		    int lslash = command.findRev('/');
-		    if(lslash != -1)
-			exec = command.mid(lslash+1);
-		    QFileInfo fileInfo( command + mac_bundle_suffix + exec );
-		    if ( fileInfo.isExecutable() ) {
-			arglistQ[0] = fileInfo.absFilePath().local8Bit();
-			arglist[0] = arglistQ[0];
-		    }
-		}
-	    }
-#endif
 #ifndef Q_OS_QNX4
 	    ::execve( arglist[0], (char*const*)arglist, (char*const*)envlist ); // ### casts not nice
 #else
