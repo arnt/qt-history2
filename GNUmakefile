@@ -11,7 +11,7 @@ init: FORCE
 install: FORCE
 	@$(MAKE) QTDIR=`pwd` qt.install
 
-all: symlinks src-qmake src-moc sub-src sub-codecs sub-tools \
+all: symlinks src-qmake src-moc sub-src sub-tools \
 		sub-tutorial sub-examples
 	@echo
 	@echo "The Qt library is now built in ./lib"
@@ -44,7 +44,7 @@ src-qmake: symlinks FORCE
 src-moc: src-qmake FORCE
 	cd src/moc; $(MAKE)
 
-sub-tools: sub-src FORCE
+sub-tools: sub-plugins FORCE
 	cd tools; $(MAKE)
 
 symlinks: .qmake.cache
@@ -53,8 +53,8 @@ symlinks: .qmake.cache
 sub-src: src-moc .qmake.cache FORCE
 	cd src; $(MAKE)
 
-sub-codecs: sub-src .qmake.cache FORCE
-	cd plugins/src/codecs; $(MAKE)
+sub-plugins: sub-src .qmake.cache FORCE
+	cd plugins/src; $(MAKE)
 
 sub-tutorial: sub-src FORCE
 	cd tutorial; $(MAKE)
