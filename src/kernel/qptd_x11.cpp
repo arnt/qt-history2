@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#9 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#9 $";
 #endif
 
 
@@ -76,9 +76,9 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
     if ( rop != CopyROP )
 	XSetFunction( dpy, gc, ropCodes[rop] );
     if ( ts == PDT_PIXMAP )
-	copy_plane = ((QPixMap*)this)->planes() == 1;
+	copy_plane = ((QPixMap*)this)->depth() == 1;
     if ( td == PDT_PIXMAP ) {
-	bool singleplane = ((QPixMap*)dest)->planes() == 1;
+	bool singleplane = ((QPixMap*)dest)->depth() == 1;
 	if ( singleplane && !copy_plane ) {	
 #if defined(CHECK_RANGE)
 		warning( "QPaintDevice::bitBlt: Incompatible destination pixmap" );
