@@ -84,7 +84,7 @@ void QAbstractItemViewPrivate::init()
     
     q->setAttribute(WA_PaintOnScreen);
     q->setAttribute(WA_NoBackground);
-    q->setAttribute(WA_NoSystemBackground);
+
     viewport->setAttribute(WA_PaintOnScreen);
     viewport->setAttribute(WA_NoBackground);
     viewport->setAttribute(WA_NoSystemBackground);

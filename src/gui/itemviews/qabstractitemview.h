@@ -175,11 +175,6 @@ protected:
     void showEvent(QShowEvent *e);
     void timerEvent(QTimerEvent *e);
 
-    // double buffered drawing
-
-    QRect scrollHorizontally(int dx);
-    QRect scrollVertically(int dy);
-
 private slots:
     void fetchMore();
 };

@@ -49,16 +49,39 @@ private:
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
 #endif
 
+class QAbstractItemModel;
+class QPersistentModelIndexPrivate;
+
+class Q_GUI_EXPORT QPersistentModelIndex
+{
+public:
+    QPersistentModelIndex();
+    QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model);
+    QPersistentModelIndex(const QPersistentModelIndex &other);
+    ~QPersistentModelIndex();
+    void operator=(const QPersistentModelIndex &other);
+    operator const QModelIndex&();
+    int row() const;
+    int column() const;
+    void *data() const;
+    bool isValid() const;
+    bool operator==(const QModelIndex &other) const;
+    bool operator!=(const QModelIndex &other) const;
+private:
+    QPersistentModelIndexPrivate *d;
+};
+
 typedef QList<QModelIndex> QModelIndexList;
 typedef QList<QCoreVariant> QCoreVariantList;
 
 class QWidget;
 class QDragObject;
-class QObjectPrivate;
+class QAbstractItemModelPrivate;
 
 class Q_GUI_EXPORT QAbstractItemModel : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QAbstractItemModel)
 
 public:
     enum Role {
@@ -131,7 +154,8 @@ signals:
     void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 protected:
-    QAbstractItemModel(QObjectPrivate &d, QObject *parent);
+    QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
+    friend class QPersistentModelIndex;
 };
 
 #endif

@@ -13,12 +13,15 @@
 #include "qabstractitemmodel.h"
 #include <qdragobject.h>
 #include <qdatastream.h>
+#include <qatomic.h>
 #include <qdebug.h>
+#include <private/qabstractitemmodel_p.h>
 
 class QAbstractItemModelDrag : public QDragObject
 {
 public:
-    QAbstractItemModelDrag(const QModelIndexList &indices, QAbstractItemModel *model, QWidget *dragSource);
+    QAbstractItemModelDrag(const QModelIndexList &indices, QAbstractItemModel *model,
+                           QWidget *dragSource);
     ~QAbstractItemModelDrag();
 
     const char *format(int i) const;
@@ -112,6 +115,91 @@ bool QAbstractItemModelDrag::decode(QMimeSource *src,
 const char *QAbstractItemModelDrag::format()
 {
     return "application/x-qabstractitemmodeldatalist";
+}
+
+class QPersistentModelIndexPrivate
+{
+public:
+    QPersistentModelIndexPrivate() : model(0) {}
+    QAbstractItemModel *model;
+    QModelIndex index;
+    QAtomic ref;
+    static QPersistentModelIndexPrivate shared_null;
+};
+
+QPersistentModelIndexPrivate QPersistentModelIndexPrivate::shared_null;
+
+QPersistentModelIndex::QPersistentModelIndex()
+    : d(&QPersistentModelIndexPrivate::shared_null)
+{
+    ++d->ref;
+}
+
+QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
+    : d(other.d)
+{
+    ++d->ref;
+}
+
+QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
+{
+    // FIXME: should we make sure that we have no persistent index for index before we create a new one ?
+    d = new QPersistentModelIndexPrivate;
+    d->model = model;
+    d->index = index;
+    ++d->ref;
+    model->d_func()->persistentIndices.append(d);
+}
+
+QPersistentModelIndex::~QPersistentModelIndex()
+{
+    if (!--d->ref) {
+        d->model->d_func()->persistentIndices.removeAll(d);
+        if (d != &QPersistentModelIndexPrivate::shared_null)
+            delete d;
+    }
+}
+
+void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
+{
+    --d->ref;
+    d = other.d;
+    ++d->ref;
+}
+
+QPersistentModelIndex::operator const QModelIndex&()
+{
+    return d->index;
+}
+
+int QPersistentModelIndex::row() const
+{
+    return d->index.row();
+}
+
+int QPersistentModelIndex::column() const
+{
+    return d->index.column();
+}
+
+void *QPersistentModelIndex::data() const
+{
+    return d->index.data();
+}
+
+bool QPersistentModelIndex::isValid() const
+{
+    return d->index.isValid();
+}
+
+bool QPersistentModelIndex::operator==(const QModelIndex &other) const
+{
+    return d->index == other;
+}
+
+bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
+{
+    return d->index != other;
 }
 
 /*!
@@ -261,19 +349,22 @@ const char *QAbstractItemModelDrag::format()
 
 */
 
+#define d d_func()
+#define q q_func()
+
 /*!
     Constructs an abstract item model with parent \a parent.
 */
 QAbstractItemModel::QAbstractItemModel(QObject *parent)
-    : QObject(parent)
+    : QObject(*new QAbstractItemModelPrivate, parent)
 {
 }
 
 /*!
   \internal
 */
-QAbstractItemModel::QAbstractItemModel(QObjectPrivate &dp, QObject *parent)
-    : QObject(dp, parent)
+QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent)
+    : QObject(dd, parent)
 {
 }
 

@@ -15,7 +15,7 @@
 #include <qvector.h>
 #include <qobject.h>
 #include <qdragobject.h>
-#include <private/qobject_p.h>
+#include <private/qabstractitemmodel_p.h>
 
 /* XPM */
 static const char* const open_xpm[]={
@@ -221,7 +221,7 @@ QString QFileIconProvider::type(const QFileInfo &info) const
     return info.isDir() ? "Directory" : info.extension() + " File";
 }
 
-class QDirModelPrivate : public QObjectPrivate
+class QDirModelPrivate : public QAbstractItemModelPrivate
 {
     Q_DECLARE_PUBLIC(QDirModel)
 public:
