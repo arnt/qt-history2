@@ -2980,7 +2980,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
     QListViewItem *oldCurrent = currentItem();
     if ( !oldCurrent && !i && firstChild() ) {
-	setCurrentItem( firstChild() );
+	d->focusItem = firstChild();
+	repaintItem( d->focusItem );
 	oldCurrent = currentItem();
     }
 
@@ -3293,8 +3294,10 @@ void QListView::focusInEvent( QFocusEvent *e )
 {
     if ( d->focusItem )
 	repaintItem( d->focusItem );
-    else if ( firstChild() && e->reason() != QFocusEvent::Mouse )
-	setCurrentItem( firstChild() );
+    else if ( firstChild() && e->reason() != QFocusEvent::Mouse ) {
+	d->focusItem = firstChild();
+	repaintItem( d->focusItem );
+    }
 }
 
 
@@ -3652,7 +3655,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 
     if ( !isMultiSelection() )
 	emit selectionChanged( selected ? item : 0 );
-    
+
     emit selectionChanged();
 }
 

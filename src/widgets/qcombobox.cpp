@@ -1422,7 +1422,7 @@ void QComboBox::popup()
 	d->listBox()->move( x,y );
 	d->listBox()->raise();
 	d->listBox()->blockSignals( TRUE );
-	d->listBox()->setCurrentItem( d->current );
+	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
 	d->listBox()->blockSignals( FALSE );
 	d->listBox()->setAutoScrollBar( TRUE );
 	d->listBox()->show();

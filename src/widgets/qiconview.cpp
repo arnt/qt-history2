@@ -2375,7 +2375,7 @@ void QIconView::setCurrentItem( QIconViewItem *item )
     d->currentItem = item;
     emit currentChanged();
     emit currentChanged( d->currentItem );
-    if ( item && d->selectionMode == Single && old )
+    if ( item && d->selectionMode == Single )
 	item->setSelected( TRUE );
 
     if ( old )
@@ -3367,8 +3367,10 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
     if ( d->currentItem )
 	d->currentItem->renameItem();
 
-    if ( !d->currentItem && !item && d->firstItem )
-	setCurrentItem( d->firstItem );
+    if ( !d->currentItem && !item && d->firstItem ) {
+	d->currentItem = d->firstItem;
+	repaintItem( d->firstItem );
+    }
 
     d->startDrag = FALSE;
 
@@ -3534,7 +3536,7 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	d->highlightedItem = item;
     }
 
-    if ( d->mousePressed && d->currentItem && 
+    if ( d->mousePressed && d->currentItem &&
 	 d->currentItem->isSelected() && d->currentItem->dragEnabled() ) {
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );
@@ -4053,8 +4055,10 @@ void QIconView::focusInEvent( QFocusEvent *e )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
-    else if ( d->firstItem && e->reason() != QFocusEvent::Mouse )
-	setCurrentItem( d->firstItem );
+    else if ( d->firstItem && e->reason() != QFocusEvent::Mouse ) {
+	d->currentItem = d->firstItem;
+	repaintItem( d->currentItem );
+    }
 }
 
 /*!

@@ -1415,7 +1415,7 @@ void QListBox::setCurrentItem( QListBoxItem * i )
     QListBoxItem * o = d->current;
     d->current = i;
 
-    if ( i && selectionMode() == Single && o ) {
+    if ( i && selectionMode() == Single ) {
 	if ( o )
 	    setSelected( o, FALSE );
 	if ( i )
@@ -1522,9 +1522,11 @@ void QListBox::viewportMousePressEvent( QMouseEvent *e )
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
-    if ( !i && !d->current && d->head )
-	setCurrentItem( d->head );
-
+    if ( !i && !d->current && d->head ) {
+	d->current = d->head;
+	updateItem( d->head );
+    }
+    
     if ( !i && ( e->button() == RightButton || isMultiSelection() ) )
 	clearSelection();
 
@@ -1770,8 +1772,10 @@ void QListBox::updateSelection()
 	QListBoxItem * i = item( d->mouseMoveColumn * numRows() +
 				 d->mouseMoveRow );
 	if ( selectionMode() == Single ) {
-	    if ( i )
+	    if ( i ) {
+		setCurrentItem( i );
 		setSelected( i, TRUE );
+	    }
 	} else if ( selectionMode() != NoSelection ) {
 	    int c = QMIN( d->mouseMoveColumn, d->mousePressColumn );
 	    int r = QMIN( d->mouseMoveRow, d->mousePressRow );
@@ -1786,9 +1790,9 @@ void QListBox::updateSelection()
 		}
 		c++;
 	    }
+	    if ( i )
+		setCurrentItem( i );
 	}
-	if ( i )
-	    setCurrentItem( i );
     }
 }
 
@@ -2039,8 +2043,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 void QListBox::focusInEvent( QFocusEvent *e )
 {
-    if ( e->reason() != QFocusEvent::Mouse && !d->current && d->head )
-	setCurrentItem( d->head );
+    if ( e->reason() != QFocusEvent::Mouse && !d->current && d->head ) {
+	d->current = d->head;
+	updateItem( d->head );
+    }
     if ( d->current )
 	updateItem( currentItem() );
     emitChangedSignal( FALSE );
@@ -2801,7 +2807,7 @@ void QListBox::ensureCurrentVisible()
 {
     if ( !d->current )
 	return;
-
+    
     doLayout();
 
     int row = currentRow();
