@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#529 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#530 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2168,15 +2168,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( !widget ) {				// don't know this window
 	if ( (widget=(QETWidget*)QApplication::activePopupWidget()) )
 	    {
-		// Danger - make sure we don't lock the server
-		switch ( event->type ) {
-		case ButtonPress:
-		case ButtonRelease:
-		case XKeyPress:
-		case XKeyRelease:
-		    widget->hide();
-		    return 1;
-		}
+ 		// Danger - make sure we don't lock the server
+ 		switch ( event->type ) {
+ 		case ButtonPress:
+ 		case ButtonRelease:
+ 		case XKeyPress:
+ 		case XKeyRelease:
+ 		    widget->close();
+ 		    return 1;
+ 		}
 	    } else {
 		void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
 		qt_np_process_foreign_event( event );
@@ -3841,7 +3841,8 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	// WARNING: this is O(number_of_events * number_of_matching_events)
 	while ( XCheckIfEvent(x11Display(),&xevent,isPaintOrScrollDoneEvent,
 			      (XPointer)&info) &&
-		!qApp->x11EventFilter(&xevent) ) // send event through filter
+		!qApp->x11EventFilter(&xevent)  &&
+		!x11Event( &xevent ) ) // send event through filter
 	{
 	    if ( !info.config ) {
 		if ( xevent.type == Expose || xevent.type == GraphicsExpose ) {
@@ -3930,8 +3931,10 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
     XEvent otherEvent;
-    while ( XCheckTypedWindowEvent(x11Display(),winId(),ConfigureNotify,&otherEvent) ) {
-	if ( qApp->x11EventFilter(&otherEvent) )
+    while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
+	if ( qApp->x11EventFilter( &otherEvent ) )
+	    break;
+	if (x11Event( &otherEvent ) )
 	    break;
 	newSize.setWidth( otherEvent.xconfigure.width );
 	newSize.setHeight( otherEvent.xconfigure.height );
