@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#168 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#169 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1115,22 +1115,24 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	d->discardNextMousePress = FALSE;
 	return;
     }
-    d->arrowPressed = FALSE;
-    if ( style() == WindowsStyle ) {
-	popup();
-	if ( arrowRect().contains( e->pos() ) ) {
-	    d->arrowPressed = TRUE;
-	    d->arrowDown    = TRUE;
-	    repaint( FALSE );
+    if ( count() ) {
+	d->arrowPressed = FALSE;
+	if ( style() == WindowsStyle ) {
+	    popup();
+	    if ( arrowRect().contains( e->pos() ) ) {
+		d->arrowPressed = TRUE;
+		d->arrowDown    = TRUE;
+		repaint( FALSE );
+	    }
+	} else if ( d->usingListBox ) {
+	    popup();
+	    QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
+	    d->shortClick = TRUE;
+	} else {
+	    popup();
+	    QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
+	    d->shortClick = TRUE;
 	}
-    } else if ( d->usingListBox ) {
-	popup();
-	QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
-	d->shortClick = TRUE;
-    } else {
-	popup();
-	QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
-	d->shortClick = TRUE;
     }
 }
 
@@ -1189,8 +1191,10 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
     } else if ( e->key() == Key_F4 ||
 		( !d->ed && e->key() == Key_Space ) ) {
 	e->accept();
-	d->popup->setActiveItem( d->current );
-	popup();
+	if ( count() ) {
+	    d->popup->setActiveItem( d->current );
+	    popup();
+	}
 	return;
     } else {
 	e->ignore();
@@ -1231,14 +1235,15 @@ static int listHeight( QListBox *l, int sl )
 
 
 /*!
-  Popups the combo box popup list.  If the list is empty, inserts a
-  single, empty, string.
+  Popups the combo box popup list.
+
+  If the list is empty, no selections appear.
 */
 
 void QComboBox::popup()
 {
     if ( !count() )
-	insertItem( "", 0 );
+	return;
 
     if ( d->usingListBox ) {
 	                // Send all listbox events to eventFilter():
