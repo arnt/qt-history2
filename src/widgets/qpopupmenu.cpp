@@ -234,7 +234,7 @@ QPopupMenu::~QPopupMenu()
 	syncMenu = 0;
     }
     
-    delete (QWidget*) QMenuData::d->aWidget;  // tear-off menu
+    //delete (QWidget*) QMenuData::d->aWidget;  // tear-off menu
     
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
@@ -1807,10 +1807,9 @@ void QPopupMenu::toggleTearOff()
 	QPopupMenu* p = new QPopupMenu( 0, "tear off menu" );
 	p->setCaption( caption() );
 	p->setCheckable( isCheckable() );
-	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool | WRepaintNoErase | WDestructiveClose,
+	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool | 
+		     WRepaintNoErase | WDestructiveClose,
 		     geometry().topLeft(), FALSE );
-	if ( parentWidget() )
-	    parentWidget()->removeChild( p ); // we want to own this
 	p->mitems->setAutoDelete( FALSE );
 	p->tearedOff = TRUE;
 	for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {

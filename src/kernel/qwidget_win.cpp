@@ -196,7 +196,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else if ( topLevel ) {			// create top-level widget
 	// WWA: I cannot get the Unicode versions to work.
 	
-	if ( !popup && !testWFlags( WStyle_Dialog ) )
+	if ( !popup && !testWFlags( WStyle_Dialog ) && !testWFlags( WStyle_Tool) )
 	    parentw = 0;
 	
 	if ( exsty )
