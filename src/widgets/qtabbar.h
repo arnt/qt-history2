@@ -45,21 +45,20 @@
 
 #ifndef QT_NO_TABBAR
 
-class Q_EXPORT QTab
+class Q_EXPORT QTab : public Qt
 {
     friend class QTabBar;
     friend class QTabWidget;
 
 public:
-    QTab() : enabled( TRUE ), id( 0 ), iconset( 0 ) {}
+    QTab();
     virtual ~QTab();
-    QTab( const QString& text )
-	: label( text ), enabled( TRUE ), id( 0 ), iconset( 0 ) {}
-    QTab( const QIconSet& icon, const QString& text = QString::null )
-	: label( text ), enabled( TRUE ), id( 0 ), iconset( new QIconSet(icon) ) {}
+    QTab( const QString& text );
+    QTab( const QIconSet& icon, const QString& text = QString::null );
 
 #ifndef Q_QDOC
-    void setText( const QString& text) { label = text; }
+    void setTabBar( QTabBar *tb );
+    void setText( const QString& text);
     QString text() const { return label; }
     void setIconSet( const QIconSet& icon ) { iconset = new QIconSet( icon ); }
     QIconSet* iconSet() const { return iconset; }
@@ -77,11 +76,12 @@ private:
     bool enabled;
     int id;
     QIconSet* iconset; // optional iconset
+    QTabBar *tb;
 };
 
 
 struct QTabPrivate;
-
+//class *QAccel;
 
 class Q_EXPORT QTabBar: public QWidget
 {
@@ -111,7 +111,7 @@ public:
     virtual void setTabEnabled( int, bool );
     bool isTabEnabled( int ) const;
 
-    
+
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
@@ -125,11 +125,11 @@ public:
 
     virtual void layoutTabs();
     virtual QTab * selectTab( const QPoint & p ) const;
-    
+
     void 	removeToolTip( int index );
     void     	setToolTip( int index, const QString & tip );
     QString 	toolTip( int index ) const;
-    
+
 public slots:
     virtual void setCurrentTab( int );
     virtual void setCurrentTab( QTab * );
@@ -151,7 +151,7 @@ protected:
     void mouseReleaseEvent ( QMouseEvent * );
     void keyPressEvent( QKeyEvent * );
     void styleChange( QStyle& );
-    
+
     QPtrList<QTab> * tabList();
 
 private slots:
@@ -163,8 +163,9 @@ private:
     void makeVisible( QTab* t  );
     void updateArrowButtons();
     QTabPrivate * d;
-    
+
     friend class QTabBarToolTip;
+    friend class QTab;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -42,6 +42,7 @@
 #include "qapplication.h"
 #include "qwidgetstack.h"
 #include "qbitmap.h"
+#include "qaccel.h"
 
 /*!
   \class QTabWidget qtabwidget.h
@@ -377,14 +378,15 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
  */
 void QTabWidget::changeTab( QWidget *w, const QString &label)
 {
-    //#### accelerators
     int id = d->stack->id( w );
     if ( id < 0 )
         return;
     QTab* t = d->tabs->tab( id );
     if ( !t )
         return;
-    t->label = label;
+    // this will update the accelerators
+    t->setText( label );
+
     d->tabs->layoutTabs();
 
     int ct = d->tabs->currentTab();
@@ -404,7 +406,6 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
  */
 void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
 {
-    //#### accelerators
     int id = d->stack->id( w );
     if ( id < 0 )
         return;
@@ -413,9 +414,11 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
         return;
     if ( t->iconset )
         delete t->iconset;
-    t->label = label;
+    // this will update the accelerators
+    t->setText( label );
     t->iconset = new QIconSet( iconset );
-    d->tabs->layoutTabs();
+
+     d->tabs->layoutTabs();
 
     int ct = d->tabs->currentTab();
     bool block = d->tabs->signalsBlocked();

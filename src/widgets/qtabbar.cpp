@@ -60,15 +60,39 @@
   Constructs an empty tab.  All fields are set to empty.
 */
 
+QTab::QTab()
+    : enabled( TRUE ),
+      id ( 0 ),
+      iconset( 0 ),
+      tb( 0 )
+{
+}
 
 /*! \fn QTab::QTab( const QString& text )
   Constructs a tab with the text, \a text.
 */
 
+QTab::QTab( const QString &text )
+    : label( text ),
+      enabled( TRUE ),
+      id( 0 ),
+      iconset( 0 ),
+      tb( 0 )
+{
+}
 
 /*! \fn QTab::QTab( const QIconSet& icon, const QString& text )
   Constructs a tab with an \a icon and the text, \a text.
 */
+
+QTab::QTab( const QIconSet& icon, const QString& text )
+    : label( text ),
+      enabled( TRUE ),
+      id( 0 ),
+      iconset( new QIconSet(icon) ),
+      tb( 0 )
+{
+}
 
 
 /*! Destroys the tab and frees up all allocated resources */
@@ -76,8 +100,8 @@
 QTab::~QTab()
 {
     delete iconset;
+    tb = 0;
 }
-
 
 /*!
   \class QTabBar qtabbar.h
@@ -311,6 +335,7 @@ int QTabBar::addTab( QTab * newTab )
 int QTabBar::insertTab( QTab * newTab, int index )
 {
     newTab->id = d->id++;
+    newTab->setTabBar( this );
     l->insert( 0, newTab );
     if ( index < 0 || index > int(lstatic->count()) )
 	lstatic->append( newTab );
@@ -334,9 +359,14 @@ int QTabBar::insertTab( QTab * newTab, int index )
 */
 void QTabBar::removeTab( QTab * t )
 {
+
     //#### accelerator labels??
     if ( d->toolTips )
 	d->toolTips->remove( t );
+    if ( d->a )
+	d->a->removeItem( t->id );
+    // remove the TabBar Reference
+    t->setTabBar( 0 );
     l->remove( t );
     lstatic->remove( t );
     layoutTabs();
@@ -1102,5 +1132,28 @@ QString QTabBar::toolTip( int index ) const
     else
 	return QString();
 }
+
+#ifndef Q_QDOC
+// Okay, these are some kludgy ways to fix accelerators, but it is a good way to do it
+void QTab::setText( const QString& text )
+{
+    label = text;
+    if ( tb ) {
+	tb->d->a->removeItem( id );
+	int p = QAccel::shortcutKey( text );
+	tb->d->a->insertItem( p, id );
+    }
+}
+
+void QTab::setTabBar( QTabBar *newTb )
+{
+    tb = newTb;
+    tb->repaint();
+}
+
+#endif
+
+
+
 
 #endif
