@@ -2584,6 +2584,7 @@ int QRegExpEngine::getEscape()
         yyCharClass->addCategories(0x7fe07f8f);
         yyCharClass->addRange(0x203f, 0x2040);
         yyCharClass->addSingleton(0x2040);
+        yyCharClass->addSingleton(0x2054);
         yyCharClass->addSingleton(0x30fb);
         yyCharClass->addRange(0xfe33, 0xfe34);
         yyCharClass->addRange(0xfe4d, 0xfe4f);
