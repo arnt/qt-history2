@@ -61,20 +61,35 @@
 
 struct QLayoutStruct
 {
-    void initParameters() { minimumSize = sizeHint = 0;
-    maximumSize = QLAYOUTSIZE_MAX; expansive = FALSE; empty = TRUE; }
-    void init() { stretch = 0; initParameters(); }
-    //permanent storage:
+    void initParameters() {
+	minimumSize = sizeHint = 0;
+	maximumSize = QLAYOUTSIZE_MAX;
+	expansive = FALSE;
+	empty = TRUE;
+    }
+    void init() {
+	stretch = 0;
+	initParameters();
+    }
+
+    QCOORD smartSizeHint() {
+	return ( stretch > 0 ) ? minimumSize : sizeHint;
+    }
+
+    // permanent storage
     int stretch;
-    //parameters:
+
+    // parameters
     QCOORD sizeHint;
     QCOORD maximumSize;
     QCOORD minimumSize;
     bool expansive;
     bool empty;
-    //temporary storage:
+
+    // temporary storage
     bool done;
-    //result:
+
+    // result
     int pos;
     int size;
 };

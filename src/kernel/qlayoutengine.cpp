@@ -75,7 +75,7 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
     int i;
     for ( i = start; i < start + count; i++ ) {
 	chain[i].done = FALSE;
-	cHint += chain[i].sizeHint;
+	cHint += chain[i].smartSizeHint();
 	cMin += chain[i].minimumSize;
 	cMax += chain[i].maximumSize;
 	sumStretch += chain[i].stretch;
@@ -93,18 +93,23 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 	    chain[i].done = TRUE;
 	}
     } else if ( space < cHint + spacerCount*spacer ) {
-	// Less space than sizeHint, but more than minimum.
-	// Currently take space equally from each, like in Qt 2.x.
-	// Commented-out lines will give more space to stretchier items.
+	/*
+	  Less space than smartSizeHint(), but more than minimumSize.
+	  Currently take space equally from each, as in Qt 2.x.
+	  Commented-out lines will give more space to stretchier
+	  items.
+	*/
 	int n = count;
 	int space_left = space - spacerCount*spacer;
 	int overdraft = cHint - space_left;
+
 	// first give to the fixed ones:
-	for ( i = start; i < start+count; i++ ) {
-	    if ( !chain[i].done && chain[i].minimumSize >= chain[i].sizeHint) {
-		chain[i].size = chain[i].sizeHint;
+	for ( i = start; i < start + count; i++ ) {
+	    if ( !chain[i].done
+		 && chain[i].minimumSize >= chain[i].smartSizeHint() ) {
+		chain[i].size = chain[i].smartSizeHint();
 		chain[i].done = TRUE;
-		space_left -= chain[i].sizeHint;
+		space_left -= chain[i].smartSizeHint();
 		// sumStretch -= chain[i].stretch;
 		n--;
 	    }
@@ -123,13 +128,14 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 		// else
 		//    fp_w += (fp_over * chain[i].stretch) / sumStretch;
 		int w = fRound( fp_w );
-		chain[i].size = chain[i].sizeHint - w;
+		chain[i].size = chain[i].smartSizeHint() - w;
 		fp_w -= toFixed( w ); // give the difference to the next
 		if ( chain[i].size < chain[i].minimumSize ) {
 		    chain[i].done = TRUE;
 		    chain[i].size = chain[i].minimumSize;
 		    finished = FALSE;
-		    overdraft -= chain[i].sizeHint - chain[i].minimumSize;
+		    overdraft -= ( chain[i].smartSizeHint()
+				   - chain[i].minimumSize );
 		    // sumStretch -= chain[i].stretch;
 		    n--;
 		    break;
@@ -141,11 +147,12 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 	int space_left = space - spacerCount*spacer;
 	// first give to the fixed ones, and handle non-expansiveness
 	for ( i = start; i < start + count; i++ ) {
-	    if ( !chain[i].done && (chain[i].maximumSize <= chain[i].sizeHint
-				    || wannaGrow && !chain[i].expansive) ) {
-		chain[i].size = chain[i].sizeHint;
+	    if ( !chain[i].done
+		 && (chain[i].maximumSize <= chain[i].smartSizeHint()
+		     || (wannaGrow && !chain[i].expansive)) ) {
+		chain[i].size = chain[i].smartSizeHint();
 		chain[i].done = TRUE;
-		space_left -= chain[i].sizeHint;
+		space_left -= chain[i].smartSizeHint();
 		sumStretch -= chain[i].stretch;
 		n--;
 	    }
@@ -178,8 +185,8 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 		int w = fRound( fp_w );
 		chain[i].size = w;
 		fp_w -= toFixed( w ); // give the difference to the next
-		if ( w < chain[i].sizeHint ) {
-		    deficit +=  chain[i].sizeHint - w;
+		if ( w < chain[i].smartSizeHint() ) {
+		    deficit +=  chain[i].smartSizeHint() - w;
 		} else if ( w > chain[i].maximumSize ) {
 		    surplus += w - chain[i].maximumSize;
 		}
@@ -188,10 +195,10 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 		// give to the ones that have too little
 		for ( i = start; i < start+count; i++ ) {
 		    if ( !chain[i].done &&
-			 chain[i].size < chain[i].sizeHint ) {
-			chain[i].size = chain[i].sizeHint;
+			 chain[i].size < chain[i].smartSizeHint() ) {
+			chain[i].size = chain[i].smartSizeHint();
 			chain[i].done = TRUE;
-			space_left -= chain[i].sizeHint;
+			space_left -= chain[i].smartSizeHint();
 			sumStretch -= chain[i].stretch;
 			n--;
 		    }
