@@ -466,9 +466,10 @@ void QFontPrivate::load(QFont::Script script)
 	QFontDef req = request;
 	req.pixelSize = qt_mac_pixelsize(request, paintdevice);
 	req.pointSize = 0;
+	req.underline = req.strikeOut = 0;
 	req.mask = 0;
 	QFontCache::Key key = QFontCache::Key(req, QFont::NoScript, screen);
-	    
+
 	if(!(engineData = QFontCache::instance->findEngineData(key))) {
 	    engineData = new QFontEngineData;
 	    QFontCache::instance->insertEngineData(key, engineData);
@@ -514,7 +515,7 @@ void QFontPrivate::load(QFont::Script script)
 		GetFNum(request_str, &fnum);
 #endif
 		GetFontName(fnum, actual_str);
-		if(actual_str[0] == request_str[0] && 
+		if(actual_str[0] == request_str[0] &&
 		   !strncasecmp((const char *)actual_str+1, (const char *)request_str+1, actual_str[0])) {
 		    engine->fnum = fnum;
 		    break;
