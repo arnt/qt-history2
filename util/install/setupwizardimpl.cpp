@@ -486,8 +486,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    path.prepend( vsCommonDir + "\\Tools" );
 	    if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
 		path.prepend( installPath->text() + "\\bin" );
-	    if( path.findIndex( installPath->text() + "\\lib" ) == -1 )
-		path.prepend( installPath->text() + "\\lib" );
+//	    if( path.findIndex( installPath->text() + "\\lib" ) == -1 )
+//		path.prepend( installPath->text() + "\\lib" );
 	    QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
 	    QStringList include = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
 	    include.prepend( msVCDir + "\\ATL\\INCLUDE" );
@@ -521,8 +521,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	createDir( installPath->text() );
 	
 	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
-	if( path.findIndex( qtDir + "\\lib" ) == -1 )
-	    path.prepend( qtDir + "\\lib" );
+//	if( path.findIndex( qtDir + "\\lib" ) == -1 )
+//	    path.prepend( qtDir + "\\lib" );
 	if( path.findIndex( qtDir + "\\bin" ) == -1 )
 	    path.prepend( qtDir + "\\bin" );
 	QEnvironment::putEnv( "PATH", path.join( ";" ) );
@@ -533,8 +533,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	    path.clear();
 	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
-	    if( path.findIndex( qtDir + "\\lib" ) == -1 )
-		path.prepend( qtDir + "\\lib" );
+//	    if( path.findIndex( qtDir + "\\lib" ) == -1 )
+//		path.prepend( qtDir + "\\lib" );
 	    if( path.findIndex( qtDir + "\\bin" ) == -1 )
 		path.prepend( qtDir + "\\bin" );
 	    QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::PersistentEnv );
