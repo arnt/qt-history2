@@ -535,40 +535,39 @@ void QTreeView::paintEvent(QPaintEvent *e)
     QColor evenColor = d->evenColor;
 
     int t = area.top();
-    int h = area.bottom() + 1;
+    int b = area.bottom() + 1;
     int v = verticalScrollBar()->value();
     int c = d->viewItems.count();
-    int i = d->itemAt(v);
-    int s = d->height(i);
-    int y = d->coordinateAt(v, s);
+    int i = d->itemAt(v); // first item
+    int y = d->topItemDelta(v, d->height(i));
 
     QVector<QTreeViewItem> viewItems = d->viewItems;
 
-    while (y < h && i < c) {
-        s = d->height(i); // FIXME: _major_ slowdown if we have 100k+ items!
-        if (y + s >= t) {
-            option.rect.setRect(0, y, 0, s);
+    while (y < b && i < c) {
+        int h = d->height(i); // actual height
+        if (y + h >= t) { // we are in the update area
+            option.rect.setRect(0, y, 0, h);
             option.state = state|(viewItems.at(i).open ? QStyle::Style_Open : QStyle::Style_None);
             if (alternate)
                 option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
             d->current = i;
             drawRow(&painter, option, viewItems.at(i).index);
         }
-        y += s;
+        y += h;
         ++i;
     }
 
     int w = d->viewport->width();
     int x = d->header->length();
-    QRect bottom(0, y, w, h - y);
-    if (y < h && area.intersects(bottom))
+    QRect bottom(0, y, w, b - y);
+    if (y < b && area.intersects(bottom))
         painter.fillRect(bottom, base);
     if (QApplication::reverseLayout()) {
-        QRect right(0, 0, w - x, h);
+        QRect right(0, 0, w - x, b);
         if (x > 0 && area.intersects(right))
             painter.fillRect(right, base);
     } else {
-        QRect left(x, 0, w - x, h);
+        QRect left(x, 0, w - x, b);
         if (x < w && area.intersects(left))
             painter.fillRect(left, base);
     }
@@ -923,16 +922,15 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 
         const QVector<QTreeViewItem> viewItems = d->viewItems;
 
-        int currentHeight = d->height(currentViewIndex);
-        int currentY = d->coordinateAt(currentScrollbarValue, currentHeight);
-        int previousY = d->coordinateAt(previousScrollbarValue, currentHeight);
+        int currentY = d->topItemDelta(currentScrollbarValue, d->height(currentViewIndex));
+        int previousY = d->topItemDelta(previousScrollbarValue, d->height(previousViewIndex));
 
         dy = currentY - previousY;
-        if (currentViewIndex > previousViewIndex) {
+        if (previousViewIndex < currentViewIndex) { // scrolling down
             for (int i = previousViewIndex; i < currentViewIndex; ++i)
                 dy -= d->height(i);
-        } else if (currentViewIndex < previousViewIndex) {
-            for (int i = previousViewIndex; i > currentViewIndex; --i)
+        } else if (previousViewIndex > currentViewIndex) { // scrolling up
+            for (int i = previousViewIndex - 1; i >= currentViewIndex; --i)
                 dy += d->height(i);
         }
     }
@@ -1086,7 +1084,7 @@ int QTreeView::columnSizeHint(int column) const
     int i = d->itemAt(v);
     int c = viewItems.count();
     int s = d->height(i);
-    int y = d->coordinateAt(v, s);
+    int y = d->topItemDelta(v, s);
     int w = 0;
     QSize size;
 
@@ -1275,7 +1273,7 @@ int QTreeViewPrivate::coordinate(int item) const
     int viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
     int viewItemHeight = height(viewItemIndex);
     int viewportHeight = viewport->height();
-    int y = coordinateAt(scrollbarValue, viewItemHeight); // the part of the item above the page
+    int y = topItemDelta(scrollbarValue, viewItemHeight); // the part of the item above the page
     if (viewItemIndex <= item) {
         while (y < viewportHeight && viewItemIndex < viewItems.count()) {
             if (viewItemIndex == item)
@@ -1299,7 +1297,7 @@ int QTreeViewPrivate::item(int coordinate) const
         return -1;
     int viewItemHeight = height(viewItemIndex);
     int viewportHeight = viewport->height();
-    int y = coordinateAt(scrollbarValue, viewItemHeight);
+    int y = topItemDelta(scrollbarValue, viewItemHeight);
     if (coordinate >= y) {
         // search for item in viewport
         while (y < viewportHeight && viewItemIndex < viewItems.count()) {
@@ -1346,7 +1344,7 @@ int QTreeViewPrivate::itemAt(int value) const
     return value / q->verticalFactor();
 }
 
-int QTreeViewPrivate::coordinateAt(int value, int iheight) const
+int QTreeViewPrivate::topItemDelta(int value, int iheight) const
 {
     int factor = q->verticalFactor();
     int above = (value % factor) * iheight; // what's left; in "item units"
