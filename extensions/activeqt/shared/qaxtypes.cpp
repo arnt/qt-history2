@@ -620,7 +620,7 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
     if (!data)
         return true;
 
-    if (type == -1 || (type == 0 && typeName == "QVariant")) {
+    if (type == QVariant::LastType || (type == 0 && typeName == "QVariant")) {
         *(QVariant*)data = var;
         return true;
     }
@@ -977,7 +977,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
 		            list << qvar;
                         }
 
-                        listList << list;
+                        listList << QVariant(list);
                     }
                     var = listList;
                 }
@@ -1082,7 +1082,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     QVariant::Type proptype = (QVariant::Type)type;
     if (proptype == QVariant::Invalid && !typeName.isEmpty())
         proptype = QVariant::nameToType(typeName);
-    if (proptype != QVariant::Invalid && var.type() != proptype) {
+    if (proptype != QVariant::LastType && proptype != QVariant::Invalid && var.type() != proptype) {
         if (var.canCast(proptype)) {
             var.cast(proptype);
         } else if (proptype == QVariant::StringList && var.type() == QVariant::List) {
