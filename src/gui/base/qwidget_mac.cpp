@@ -117,10 +117,19 @@ QWidget *qt_mac_find_window(WindowPtr window)
 
 inline static void qt_mac_set_fullscreen_mode(bool b)
 {
+#if 0
     if(b)
 	SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
     else
 	SetSystemUIMode(kUIModeNormal, 0);
+#else
+    extern bool qt_mac_app_fullscreen;
+    qt_mac_app_fullscreen = b;
+    if(b)
+	HideMenuBar();
+    else
+	ShowMenuBar();
+#endif
 }
 
 //find a WindowPtr from a QWidget/HIView
@@ -1892,3 +1901,4 @@ QPaintEngine *QWidget::engine() const
     }
     return d->paintEngine;
 }
+

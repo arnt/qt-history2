@@ -46,7 +46,8 @@ QPaintEngine *qt_mac_current_engine = 0; //Current "active" QPaintEngine
 extern QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
 extern QRegion make_region(RgnHandle handle);
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-extern void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
+extern void qt_mac_clip_cg(CGContextRef, const QRegion &); //qpaintdevice_mac.cpp
+extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
 extern void unclippedBitBlt(QPaintDevice *dst, int dx, int dy, const QPaintDevice *src, int sx, int sy, int sw, int sh,
 			    Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
@@ -1035,20 +1036,6 @@ static void qt_mac_dispose_pattern(void *info)
     pat = NULL;
 }
 
-inline bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
-{
-    CGContextRef ret = static_cast<CGContextRef>(paint_d->pdev->macCGHandle());
-#if 0
-    //apply paint event region (in global coords)
-    if(paintevent_item *pevent = qt_mac_get_paintevent()) {
-	if((*pevent) == paint_d->pdev)
-	    qt_mac_clip_cg_handle(ret, pevent->region(), QPoint(0, 0), true);
-    }
-#endif
-    paint_d->hd = ret;
-    return ret != 0;
-}
-
 /*****************************************************************************
   QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
@@ -1086,8 +1073,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
     }
 
     d->pdev = pdev;
-    if(qt_mac_update_cg(d)) // get handle to drawable
-	CGContextRetain((CGContextRef)d->hd);
+    setupCGClip(); //get handle to drawable
     setActive(true);
     assignf(IsActive | DirtyFont);
 
@@ -1127,9 +1113,8 @@ QCoreGraphicsPaintEngine::end()
     setActive(false);
     if(d->hd) {
 	CGContextSynchronize((CGContextRef)d->hd);
-	if(CFGetRetainCount(d->hd) == 1)
-	    CGContextFlush((CGContextRef)d->hd);
-	CGContextRelease((CGContextRef)d->hd);
+	//CGContextFlush((CGContextRef)d->hd);
+	qt_mac_clip_cg_reset(d->hd);
 	d->hd = 0;
     }
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
@@ -1329,21 +1314,15 @@ void
 QCoreGraphicsPaintEngine::updateClipRegion(QPainterState *ps)
 {
     Q_ASSERT(isActive());
-
-    bool old_clipon = testf(ClipOn);
+    bool old_clipEnabled = testf(ClipOn);
     if(ps->clipEnabled)
 	setf(ClipOn);
     else
 	clearf(ClipOn);
-
-    if(d->hd) {
-	if(ps->clipEnabled || ps->clipEnabled != old_clipon) { //reset the clip
-	    CGContextRelease((CGContextRef)d->hd);
-	    if(qt_mac_update_cg(d))
-		CGContextRetain((CGContextRef)d->hd);
-	}
-	if(d->hd && ps->clipEnabled)
-	    qt_mac_clip_cg_handle((CGContextRef)d->hd, ps->clipRegion, QPoint(d->offx, d->offy), true);
+    if(ps->clipEnabled || old_clipEnabled) {
+	setupCGClip();
+	if(d->hd && ps->clipEnabled) 
+	    qt_mac_clip_cg((CGContextRef)d->hd, ps->clipRegion);
     }
 }
 
@@ -1650,6 +1629,27 @@ void
 QCoreGraphicsPaintEngine::cleanup()
 {
 }
+
+void QCoreGraphicsPaintEngine::setupCGClip()
+{
+    if(!d->hd) 
+	d->hd = static_cast<CGContextRef>(d->pdev->macCGHandle());
+    if(d->hd) {
+	qt_mac_clip_cg_reset(d->hd);
+	if(d->pdev->devType() == QInternal::Widget) {
+	    QWidget *w = static_cast<QWidget*>(d->pdev);
+	    QPoint mp(posInWindow(w));
+	    QRegion rgn = w->d->clippedRegion();
+	    rgn.translate(mp.x(), mp.y());
+	    qt_mac_clip_cg(d->hd, rgn);
+	}
+	if(paintevent_item *pevent = qt_mac_get_paintevent()) {
+	    if((*pevent) == d->pdev) 
+		qt_mac_clip_cg(d->hd, pevent->region());
+	}
+    }
+}
+
 
 void
 QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)

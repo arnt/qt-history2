@@ -414,31 +414,26 @@ Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 #endif // QMAC_PIXMAP_ALPHA
 }
 
-void qt_mac_clip_cg_handle(CGContextRef hd, const QRegion &rgn, const QPoint &offp, bool combine)
+void qt_mac_clip_cg_reset(CGContextRef hd)
+{
+    QRect qrect = QRect(0, 0, 99999, 999999);
+    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+1, qrect.bottom()+1);
+    ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
+}
+
+void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn)
 {
     if(rgn.isEmpty()) {
 	CGContextBeginPath(hd);
 	CGContextAddRect(hd, CGRectMake(0, 0, 0, 0));
 	CGContextClip(hd);
     } else {
-	if(!combine) {
-#if 1
-	    QRect qrect = QRect(0, 0, 99999, 999999);
-#else
-	    /* I have no idea why this doesn't work, something about the translation applied to the CGContextRef
-	       I suspect, I'll have to experiment, but for now just reset it as I do above!! FIXME!! ## --Sam */
-	    QRect qrect = rgn.boundingRect();
-	    qrect.moveBy(offp);
-#endif
-	    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+1, qrect.bottom()+1);
-	    ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
-	}
 	QVector<QRect> rects = rgn.rects();
 	const int count = rects.size();
 	CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
 	for(int i = 0; i < count; i++) {
 	    const QRect &r = rects[i];
-	    cg_rects[i] = CGRectMake(r.x()+offp.x(), r.y()+offp.y(), r.width(), r.height());
+	    cg_rects[i] = CGRectMake(r.x(), r.y(), r.width(), r.height());
 	}
 	CGContextClipToRects(hd, cg_rects, count);
 	free(cg_rects);

@@ -624,9 +624,11 @@ private:
     friend class QWidgetItem;
     friend class QGuiEventLoop;
 
-    // These two friends are needed because of the limitations of QuickDraw.
+#ifdef Q_WS_MAC
     friend class QMacSavedPortInfo;
     friend class QQuickDrawPaintEngine;
+    friend class QCoreGraphicsPaintEngine;
+#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
