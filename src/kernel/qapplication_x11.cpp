@@ -2516,7 +2516,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	return 0;
     }
-    
+
     if ( !widget ) {				// don't know this windows
 	QWidget* popup = QApplication::activePopupWidget();
 	if ( popup ) {
@@ -2560,6 +2560,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		x11ClientMessage( widget, event, TRUE );
 	    return 1;
 	}
+
 
     if ( widget->x11Event(event) )		// send through widget filter
 	return 1;
@@ -3584,8 +3585,11 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    popupOfPopupButtonFocus = 0;
 	}
 
-	if ( !popupTarget->isEnabled() )
+	XAllowEvents( x11Display(), SyncPointer, CurrentTime );
+	
+	if ( !popupTarget->isEnabled() ) {
 	    return FALSE;
+	}
 
 	switch ( type ) {
 	    case QEvent::MouseButtonPress:
@@ -3622,10 +3626,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( releaseAfter )
 	    qt_button_down = 0;
 
-	if ( qApp->inPopupMode() ) {			// still in popup mode
- 	    if ( popupGrabOk )
- 		XAllowEvents( dpy, SyncPointer, CurrentTime );
-	} else {
+	if ( !qApp->inPopupMode() ) { // no longer in popup mode
 	    if ( type != QEvent::MouseButtonRelease && state != 0 &&
 		 QWidget::find((WId)mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
