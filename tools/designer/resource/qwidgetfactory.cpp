@@ -58,7 +58,10 @@
 #include <qgroupbox.h>
 #include <qbuttongroup.h>
 #include <qiconview.h>
+#include <qheader.h>
+#ifndef QT_NO_TABLE
 #include <qtable.h>
+#endif
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qlineedit.h>
@@ -1164,7 +1167,9 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	    lv->header()->setClickEnabled( clickable, i );
 	if ( !resizeable )
 	    lv->header()->setResizeEnabled( resizeable, i );
-    } else if ( widget->inherits( "QTable" ) ) {
+    }
+#ifndef QT_NO_TABLE
+    else if ( widget->inherits( "QTable" ) ) {
 	QTable *table = (QTable*)widget;
 #ifndef QT_NO_SQL
 	bool isSql = (widget->inherits( "QDataTable" ));
@@ -1228,6 +1233,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	    fieldMaps.insert( table, fieldMap );
 	}
     }
+#endif
 }
 
 void QWidgetFactory::loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap )
