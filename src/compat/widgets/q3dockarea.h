@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDOCKAREA_H
-#define QDOCKAREA_H
+#ifndef Q3DOCKAREA_H
+#define Q3DOCKAREA_H
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -158,6 +158,6 @@ Q_COMPAT_EXPORT QTextStream &operator<<(QTextStream &, const Q3DockArea &);
 Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, Q3DockArea &);
 #endif
 
-#endif
-
 #endif //QT_NO_MAINWINDOW
+
+#endif //Q3DOCKAREA_H

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDOCKWINDOW_H
-#define QDOCKWINDOW_H
+#ifndef Q3DOCKWINDOW_H
+#define Q3DOCKWINDOW_H
 
 #ifndef QT_H
 #include "qframe.h"
@@ -203,4 +203,4 @@ inline Q3DockArea *Q3DockWindow::area() const
 
 #endif
 
-#endif // QDOCKWINDOW_H
+#endif // Q3DOCKWINDOW_H

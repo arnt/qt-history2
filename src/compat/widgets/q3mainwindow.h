@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMAINWINDOW_H
-#define QMAINWINDOW_H
+#ifndef Q3MAINWINDOW_H
+#define Q3MAINWINDOW_H
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -234,4 +234,4 @@ Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, Q3MainWindow &);
 
 #endif // QT_NO_MAINWINDOW
 
-#endif // QMAINWINDOW_H
+#endif // Q3MAINWINDOW_H
