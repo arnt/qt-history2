@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#4 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#5 $
 **
 ** Global type declarations and definitions
 **
@@ -121,7 +121,7 @@
 
 // Useful types
 
-#if defined(_CC_GNU_) && __GNUC_MINOR__ >= 6
+#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 6)
 #define bool		int			/* bool is built-in */
 #else
 typedef int		bool;
