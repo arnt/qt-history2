@@ -822,6 +822,8 @@ bool QDomNodeListPrivate::operator!= ( const QDomNodeListPrivate& other ) const
 
 void QDomNodeListPrivate::createList()
 {
+    if ( !node_impl )
+	return;
     timestamp = qt_nodeListTime;
     QDomNodePrivate* p = node_impl->first;
 
@@ -870,6 +872,8 @@ void QDomNodeListPrivate::createList()
 
 QDomNodePrivate* QDomNodeListPrivate::item( int index )
 {
+    if ( !node_impl )
+	return 0;
     if ( timestamp < qt_nodeListTime )
 	createList();
     return list.at( index );
@@ -877,6 +881,8 @@ QDomNodePrivate* QDomNodeListPrivate::item( int index )
 
 uint QDomNodeListPrivate::length() const
 {
+    if ( !node_impl )
+	return 0;
     if ( timestamp < qt_nodeListTime ) {
 	QDomNodeListPrivate *that = (QDomNodeListPrivate*)this;
 	that->createList();
