@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#58 $
 **
 ** Implementation of QAccel class
 **
@@ -375,7 +375,7 @@ void QAccel::repairEventFilter()
 
 bool QAccel::eventFilter( QObject *, QEvent *e )
 {
-    if ( d->enabled && 
+    if ( d->enabled &&
 	 ( e->type() == QEvent::Accel || e->type() == QEvent::AccelAvailable) &&
 	 parent() && parent()->isWidgetType() &&
 	 ((QWidget *)parent())->isVisibleToTLW() ) {
@@ -496,6 +496,5 @@ parentheses.
 
 <a href="http://www.amazon.com/exec/obidos/ASIN/1556156790/trolltech/t">
 <a href="http://www.amazon.com/exec/obidos/ASIN/1859121047/trolltech/t">
-
 
 */

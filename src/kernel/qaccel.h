@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#35 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#36 $
 **
 ** Definition of QAccel class
 **
@@ -40,7 +40,7 @@ class Q_EXPORT QAccel : public QObject			// accelerator class
     Q_OBJECT
 public:
     QAccel( QWidget *parent, const char *name=0 );
-   ~QAccel();
+    ~QAccel();
 
     bool	isEnabled() const;
     void	setEnabled( bool );
@@ -54,7 +54,7 @@ public:
     int		key( int id );
     int		findKey( int key ) const;
 
-    bool	isItemEnabled( int id )	 const;
+    bool	isItemEnabled( int id ) const;
     void	setItemEnabled( int id, bool enable );
 
     bool	connectItem( int id,
