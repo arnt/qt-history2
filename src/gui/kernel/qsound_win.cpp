@@ -169,9 +169,6 @@ void QAuServerWindows::stop(QSound*)
 
 bool QAuServerWindows::okay()
 {
-    // ### this should work, but returns 0
-    // return auxGetNumDevs() != 0;
-
     return true;
 }
 

@@ -254,6 +254,9 @@ void QSound::stop()
 
     If no sound is available, all QSound operations work silently and
     quickly.
+
+    Note: On Windows this always returns true because some sound card drivers
+    do not implement a way to find out whether it is available or not.
 */
 bool QSound::isAvailable()
 {
