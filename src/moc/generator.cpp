@@ -346,7 +346,7 @@ void Generator::generateCode()
     for (int i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
         const char *cname = cdef->superclassList.at(i);
         fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
-                cname, cname,   qualifiedClassNameIdentifier.constData());
+                cname, cname,   cdef->qualified.constData());
     }
     for (int i = 0; i < cdef->interfaceList.size(); ++i) {
         const QList<QByteArray> &iface = cdef->interfaceList.at(i);
@@ -355,7 +355,7 @@ void Generator::generateCode()
             for (int k = j; k >= 0; --k)
                 fprintf(out, "static_cast<%s*>(", iface.at(k).constData());
             fprintf(out, "const_cast<%s*>(this)%s;\n",
-                    qualifiedClassNameIdentifier.constData(), QByteArray(j+1, ')').constData());
+                    cdef->qualified.constData(), QByteArray(j+1, ')').constData());
         }
     }
     if (purestSuperClass.size() && !isQObject)
