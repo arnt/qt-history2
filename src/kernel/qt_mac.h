@@ -35,6 +35,13 @@
 
 #if defined(Q_WS_MAC)
 # define QMAC_DEFAULT_STYLE "QMacStyle" //DefaultStyle
+
+//This turns on core graphics (don't use it unless you're Sam!!!)
+//#define USE_CORE_GRAPHICS
+#ifdef USE_CORE_GRAPHICS
+# define USE_TRANSLATED_CG_CONTEXT
+#endif
+
 #endif
 
 #if !defined(Q_WS_MAC) || QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030
