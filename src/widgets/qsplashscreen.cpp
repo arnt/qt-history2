@@ -91,9 +91,10 @@ public:
    It is sometimes useful to update the splash screen with messages,
    for example, announcing connections established or modules loaded
    as the application starts up. QSplashScreen supports this with the
-   setStatus() function.  It is also possible to get a pointer to
-   the pixmap used in the splash screen and do your own drawing with
-   pixmap().
+   setStatus() function. If you wish to do your own drawing you can
+   get a pointer to the pixmap used in the splash screen with pixmap().
+   Alternatively, you can subclass QSplashScreen and reimplement
+   drawContents().
 
    The user can hide the splash screen by clicking on it with the
    mouse. Since the splash screen is typically displayed before the
@@ -116,7 +117,8 @@ public:
 /*!
     Construct a splash screen that will display \a pixmap.
 
-    There should be no need to set the widget flags, \a f.
+    There should be no need to set the widget flags, \a f, other than
+    perhaps WDestructiveClose.
 */
 QSplashScreen::QSplashScreen( const QPixmap &pixmap, WFlags f )
     : QWidget( 0, 0, WStyle_Customize | WStyle_Splash | f )
