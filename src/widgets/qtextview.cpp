@@ -1345,6 +1345,9 @@ void QTextView::undo()
     if ( isReadOnly() )
 	return;
 
+    for ( int i = 0; i < (int)QTextDocument::Temp; ++i )
+	doc->removeSelection( i );
+
     clearUndoRedo();
     drawCursor( FALSE );
     QTextCursor *c = doc->undo( cursor );
@@ -1363,6 +1366,9 @@ void QTextView::redo()
 {
     if ( isReadOnly() )
 	return;
+
+    for ( int i = 0; i < (int)QTextDocument::Temp; ++i )
+	doc->removeSelection( i );
 
     clearUndoRedo();
     drawCursor( FALSE );
