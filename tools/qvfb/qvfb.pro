@@ -7,6 +7,15 @@ SOURCES         = qvfb.cpp qvfbview.cpp qvfbratedlg.cpp \
 FORMS           = config.ui
 IMAGES          = images/logo.png
 TARGET          = qvfb
-INCLUDEPATH     += $$QT_SOURCE_TREE/src/3rdparty/libpng $$QT_SOURCE_TREE/src/3rdparty/zlib
+contains(QT_CONFIG, system-png) {
+	LIBS += -lpng
+} else {
+	INCLUDEPATH     += $$QT_SOURCE_TREE/src/3rdparty/libpng
+}
+contains(QT_CONFIG, system-zlib) {
+	LIBS += -lz
+} else {
+	INCLUDEPATH     += $$QT_SOURCE_TREE/src/3rdparty/zlib
+}
 DEPENDPATH      = ../../include
 DEFINES         += QT_COMPAT
