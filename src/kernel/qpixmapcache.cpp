@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#25 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -74,7 +74,7 @@ public:
     QPMCache():
 	QObject( 0, "global pixmap cache" ),
 	QCache<QPixmap>( cache_limit * 1024, cache_size ),
-	id( 0 ), ps( 0 );
+	id( 0 ), ps( 0 )
 	{
 	    qAddPostRoutine( cleanup_pixmap_cache );
 	    setAutoDelete( TRUE );
@@ -89,7 +89,7 @@ private:
 
 /* If the cache hasn't grown since the last tick, cut it down a
    little.  Remember its size anyway.
-   
+
    This is supposed to cut the cache size down by about 80% in a
    minute once the application becomes idle, to let any inserted
    pixmap remain in the cache for 20 seconds before it becomes a
@@ -100,7 +100,7 @@ private:
    timer so qt won't keep the CPU from going into sleep mode.
 */
 
-void QPMCache::timerEvent( QTimerEvent * e )
+void QPMCache::timerEvent( QTimerEvent * )
 {
     if ( totalCost() <= ps ) {
 	int mc = maxCost();
@@ -110,7 +110,7 @@ void QPMCache::timerEvent( QTimerEvent * e )
 
     ps = totalCost();
 
-    if ( !count() {
+    if ( !count() ) {
 	killTimer( id );
 	id = 0;
     }
@@ -123,7 +123,7 @@ bool QPMCache::insert( const char *k, const QPixmap *d, int c, int p )
 	id = startTimer( 10000 );
     return r;
 }
-    
+
 static QPMCache *pm_cache = 0;			// global pixmap cache
 
 
