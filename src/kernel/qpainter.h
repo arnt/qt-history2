@@ -410,6 +410,8 @@ protected:
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     QTextParag **internal, QPainter* painter );
+    friend void qt_draw_background( QPainter *p, int x, int y, int w,  int h );
+    friend void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool fill );
     friend class QPrinter;
 
 private:	// Disabled copy constructor and operator=

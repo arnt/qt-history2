@@ -2902,7 +2902,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 #endif
 }
 
-
+#if 0
 //
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
@@ -2944,7 +2944,42 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
     if ( !QPixmapCache::insert(key, bm) )       // cannot insert pixmap
         delete bm;
 }
+#endif
 
+void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool fill )
+{
+    XPoint points[5];
+    int xp = x,  yp = y;
+    p->map( xp, yp, &xp, &yp );
+    points[0].x = xp;
+    points[0].y = yp;
+    xp = x + w; yp = y;
+    p->map( xp, yp, &xp, &yp );
+    points[1].x = xp;
+    points[1].y = yp;
+    xp = x + w; yp = y + h;
+    p->map( xp, yp, &xp, &yp );
+    points[2].x = xp;
+    points[2].y = yp;
+    xp = x; yp = y + h;
+    p->map( xp, yp, &xp, &yp );
+    points[3].x = xp;
+    points[3].y = yp;
+    points[4] = points[0];
+
+    if ( fill )
+	XFillPolygon( p->dpy, p->hd, p->gc, points, 4, Convex, CoordModeOrigin );
+    else
+	XDrawLines( p->dpy, p->hd, p->gc, points, 5, CoordModeOrigin );
+}
+
+void qt_draw_background( QPainter *p,
+			 int x, int y, int w,  int h )
+{
+    XSetForeground( p->dpy, p->gc, p->bg_col.pixel(p->scrn) );
+    qt_draw_transformed_rect( p, x, y, w, h, TRUE);
+    XSetForeground( p->dpy, p->gc, p->cpen.color().pixel(p->scrn) );
+}
 
 /*!
     Draws at most \a len characters of the string \a str at position
@@ -2962,7 +2997,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     drawText( x, y, str, 0, len, dir );
 }
 
-
 /*!
   Draws at most \a len characters starting at position \a pos from the
   string \a str to position \a (x, y).
@@ -2979,114 +3013,20 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( pos + len > (int)str.length() )
         len = str.length() - pos;
 
-    if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
-        if ( testf(DirtyFont) ) {
-            updateFont();
-        }
+    if ( testf(DirtyFont) ) {
+	updateFont();
+    }
 
-        if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QPoint p(x, y);
-	    QString string = str.mid( pos,  len );
-	    param[0].point = &p;
-	    param[1].str = &string;
-	    param[2].ival = QFont::Latin;
-	    bool retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
-            if ( !retval || !hd )
-                return;
-        }
-
-        if ( txop >= TxScale ) {
-	    QConstString csubstr( str.unicode()+pos, len );
-	    QString substr = csubstr.string();
-            QFontMetrics fm = fontMetrics();
-            QRect bbox = fm.boundingRect( substr, len );
-            int w=bbox.width(), h=bbox.height();
-            int aw, ah;
-            int tx=-bbox.x(),  ty=-bbox.y();    // text position
-            QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
-            QFont dfont( cfont );
-	    float det = QABS(m11()*m22() - m12()*m21());
-	    if ( QABS( det -1. ) > 0.01 ) {
-		// det == 1. means we have only a rotation, so no need to change font size.
-		float pixSize = cfont.pixelSize();
-		if ( pixSize == -1 ) {
-		    pixSize = cfont.deciPointSize();
-		    int dpi = QPaintDeviceMetrics( pdev ).logicalDpiY();
-		    if ( dpi < 72 || dpi > 75 )
-			pixSize *= dpi / 72;
-		    pixSize /= 10;
-		}
-		int newSize = (int) (sqrt( det ) * pixSize) - 1;
-		newSize = QMAX( 6, QMIN( newSize, 72 )); // empirical values
-		dfont.setPixelSize( newSize );
-	    }
-	    QFontMetrics fm2( dfont );
-	    QRect abbox = fm2.boundingRect( substr, len );
-	    aw = abbox.width();
-	    ah = abbox.height();
-	    tx = -abbox.x();
-	    ty = -abbox.y();        // text position - off-by-one?
-	    if ( aw == 0 || ah == 0 )
-		return;
-	    double rx = (double)w / (double)aw;
-	    double ry = (double)h / (double)ah;
-            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
-            QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
-            QBitmap *wx_bm = get_text_bitmap( bm_key );
-            bool create_new_bm = wx_bm == 0;
-            if ( create_new_bm ) { 	        // no such cached bitmap
-                QBitmap bm( aw, ah, TRUE );     // create bitmap
-                QPainter paint;
-                paint.begin( &bm );             // draw text in bitmap
-                paint.setFont( dfont );
-                paint.drawText( tx, ty, str, pos, len, dir );
-                paint.end();
-                wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
-                if ( wx_bm->isNull() ) {
-                    delete wx_bm;               // nothing to draw
-                    return;
-                }
-            }
-            if ( bg_mode == OpaqueMode ) {      // opaque fill
-                int fx = x;
-                int fy = y - fm.ascent();
-                int fw = fm.width(str, len);
-                int fh = fm.ascent() + fm.descent();
-                int m, n;
-                QPointArray a(5);
-                mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
-                a.setPoint( 4, m, n );
-                mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
-                mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
-                mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
-                QBrush oldBrush = cbrush;
-                setBrush( backgroundColor() );
-                updateBrush();
-                XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 4,
-                              Nonconvex, CoordModeOrigin );
-                XDrawLines( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 5,
-                            CoordModeOrigin );
-                setBrush( oldBrush );
-            }
-            double fx=x, fy=y, nfx, nfy;
-            mat1.map( fx,fy, &nfx,&nfy );
-            double tfx=tx, tfy=ty, dx, dy;
-            mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
-            x = qRound(nfx-dx);
-            y = qRound(nfy-dy);
-            XSetFillStyle( dpy, gc, FillStippled );
-            XSetStipple( dpy, gc, wx_bm->handle() );
-            XSetTSOrigin( dpy, gc, x, y );
-            XFillRectangle( dpy, hd, gc, x, y,wx_bm->width(),wx_bm->height() );
-            XSetTSOrigin( dpy, gc, 0, 0 );
-            XSetFillStyle( dpy, gc, FillSolid );
-	    if ( create_new_bm )
-                ins_text_bitmap( bm_key, wx_bm );
-            return;
-        }
-        if ( txop == TxTranslate )
-            map( x, y, &x, &y );
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[3];
+	QPoint p(x, y);
+	QString string = str.mid( pos,  len );
+	param[0].point = &p;
+	param[1].str = &string;
+	param[2].ival = QFont::Latin;
+	bool retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
+	if ( !retval || !hd )
+	    return;
     }
 
     bool simple = str.simpleText();
@@ -3137,30 +3077,27 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	layout.addCurrentItem();
 	end++;
     }
-    int ascent;
-    layout.endLine( 0, 0, Qt::AlignLeft, &ascent, 0 );
+    int ascent, descent;
+    int left, right;
+    layout.endLine( 0, 0, Qt::AlignLeft, &ascent, &descent, &left, &right );
 
     // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
     // for painting.
 
+    int textFlags = 0;
+    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+
+    if ( bg_mode == OpaqueMode )
+	qt_draw_background( this, x, y-ascent, right-left, ascent+descent);
+
     for ( int i = start; i < end; i++ ) {
-	QScriptItem &si = engine.items[i];
+	QTextItem ti;
+	ti.item = i;
+	ti.engine = &engine;
 
-	QFontEngine *fe = si.fontEngine;
-	assert( fe );
-
-	int xpos = x + si.x;
-	int ypos = y + si.y - ascent;
-
-	bool rightToLeft = si.analysis.bidiLevel % 2;
-
-	int textFlags = 0;
-	if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
-	if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
-	if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
-
-	fe->draw( this, xpos,  ypos, engine.glyphs( &si ), engine.advances( &si ),
-		  engine.offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
+	drawTextItem( x, y - ascent, ti, textFlags );
     }
     layout.d = 0;
 }
@@ -3168,109 +3105,19 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
 /*! \internal
     Draws the text item \a ti at position \a (x, y ).
+
+    This method ignores the painters background mode and
+    color. drawText and qt_format_text have to do it themselves, as
+    only they know the extents of the complete string.
+
+    It ignores the font set on the painter as the text item has one of its own.
+
+    The underline and strikeout parameters of the text items font are
+    ignored aswell. You'll need to pass in the correct flags to get
+    underlining and strikeout.
 */
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 {
-    if ( testf(ExtDev) || txop >= TxScale ) {
-        if ( txop >= TxScale ) {
-            QRect bbox( 0, 0, ti.width(), ti.ascent() + ti.descent() );
-            int w=bbox.width(), h=bbox.height();
-            int aw = w, ah = h;
-            int tx=-bbox.x(),  ty=-bbox.y();    // text position
-            QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
-#if 0
-	    float det = QABS(m11()*m22() - m12()*m21());
-	    if ( QABS( det -1. ) > 0.01 ) {
-		// det == 1. means we have only a rotation, so no need to change font size.
-		float pixSize = cfont.pixelSize();
-		if ( pixSize == -1 ) {
-		    pixSize = cfont.deciPointSize();
-		    int dpi = QPaintDeviceMetrics( pdev ).logicalDpiY();
-		    if ( dpi < 72 || dpi > 75 )
-			pixSize *= dpi / 72;
-		    pixSize /= 10;
-		}
-		int newSize = (int) (sqrt( det ) * pixSize) - 1;
-		newSize = QMAX( 6, QMIN( newSize, 72 )); // empirical values
-		dfont.setPixelSize( newSize );
-	    }
-	    QFontMetrics fm2( dfont );
-	    QRect abbox = fm2.boundingRect( substr, len );
-	    aw = abbox.width();
-	    ah = abbox.height();
-	    tx = -abbox.x();
-	    ty = -abbox.y();        // text position - off-by-one?
-#endif
-	    if ( aw == 0 || ah == 0 )
-		return;
-	    double rx = (double)w / (double)aw;
-	    double ry = (double)h / (double)ah;
-            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
-	    QBitmap *wx_bm;
-#if 0
-            QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
-            wx_bm = get_text_bitmap( bm_key );
-            bool create_new_bm = wx_bm == 0;
-            if ( create_new_bm )
-#endif
-	    { 	        // no such cached bitmap
-                QBitmap bm( aw, ah, TRUE );     // create bitmap
-                QPainter paint;
-                paint.begin( &bm );             // draw text in bitmap
-                paint.drawTextItem( -ti.x(), -ti.y()+ti.ascent(), ti, textFlags );
-                paint.end();
-                wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
-                if ( wx_bm->isNull() ) {
-                    delete wx_bm;               // nothing to draw
-                    return;
-                }
-            }
-            if ( bg_mode == OpaqueMode ) {      // opaque fill
-                int fx = ti.x();
-                int fy = ti.y();
-                int fw = ti.width();
-                int fh = ti.ascent() + ti.descent();
-                int m, n;
-                QPointArray a(5);
-                mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
-                a.setPoint( 4, m, n );
-                mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
-                mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
-                mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
-                QBrush oldBrush = cbrush;
-                setBrush( backgroundColor() );
-                updateBrush();
-                XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 4,
-                              Nonconvex, CoordModeOrigin );
-                XDrawLines( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 5,
-                            CoordModeOrigin );
-                setBrush( oldBrush );
-            }
-            double fx=x + ti.x(), fy=y + ti.y() - ti.ascent(), nfx, nfy;
-            mat1.map( fx,fy, &nfx,&nfy );
-            double tfx=tx, tfy=ty, dx, dy;
-            mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
-            x = qRound(nfx-dx);
-            y = qRound(nfy-dy);
-            XSetFillStyle( dpy, gc, FillStippled );
-            XSetStipple( dpy, gc, wx_bm->handle() );
-            XSetTSOrigin( dpy, gc, x, y );
-            XFillRectangle( dpy, hd, gc, x, y,wx_bm->width(),wx_bm->height() );
-            XSetTSOrigin( dpy, gc, 0, 0 );
-            XSetFillStyle( dpy, gc, FillSolid );
-#if 0
-	    if ( create_new_bm )
-                ins_text_bitmap( bm_key, wx_bm );
-#else
-	    delete wx_bm;
-#endif
-            return;
-        }
-	return;
-    }
-    if ( txop == TxTranslate )
-	map( x, y, &x, &y );
-
     QTextEngine *engine = ti.engine;
     QScriptItem &si = engine->items[ti.item];
 
@@ -3282,10 +3129,6 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
     y += si.y;
 
     bool rightToLeft = si.analysis.bidiLevel % 2;
-
-    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
-    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
-    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
 
     fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
 	      engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );

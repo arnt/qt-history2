@@ -2947,13 +2947,18 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	for ( int i = 0; i < textLayout.numItems(); i++ ) {
 	    QTextItem ti = textLayout.itemAt( i );
 // 	    qDebug("Item %d: from=%d,  to=%d,  space=%d", i, ti.from(),  ti.length(), ti.isSpace() );
-	    if ( ti.isObject() || ti.isSpace() )
+	    if ( ti.isTab() || ti.isObject() )
 		continue;
 	    int textFlags = 0;
 	    if ( !noaccel && numUnderlines > cUlChar && ti.from() == underlinePositions[cUlChar] ) {
 		textFlags = QFontEngine::Underline;
 		cUlChar++;
 	    }
+#ifdef Q_WS_X11
+	    if ( painter->bg_mode == Qt::OpaqueMode )
+		qt_draw_background( painter, r.x() + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
+				    ti.width(), ti.ascent() + ti.descent());
+#endif
 	    painter->drawTextItem( r.x(), r.y() + yoff, ti, textFlags );
 	}
 

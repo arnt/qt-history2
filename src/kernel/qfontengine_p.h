@@ -318,6 +318,12 @@ private:
     int _cmap;
     short lbearing;
     short rbearing;
+    enum XlfdTransformations {
+	XlfdTrUnknown,
+	XlfdTrSupported,
+	XlfdTrUnsupported
+    };
+    XlfdTransformations xlfd_transformations;
 };
 
 class QScriptItem;
