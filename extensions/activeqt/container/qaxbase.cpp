@@ -236,7 +236,7 @@ public:
 	    else if ( pcount < argcount )
 		return DISP_E_BADPARAMCOUNT;
 
-	    // setup parameters
+	    // setup parameters (no return values in signals)
 	    bool ok = true;
 	    void **argv = pcount ? new void*[pcount + 1] : 0;
 	    QVariant *varp = pcount ? new QVariant[pcount] : 0;
@@ -252,24 +252,22 @@ public:
 		    argv[p + 1] = &varp[p];
 		}
 	    }
+
 	    // emit the generated signal if everything went well
-	    bool ret = ok && combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
+	    bool res = ok && combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
 
 	    // update the VARIANT for references and free memory
 	    for ( p = 0; p < pcount; ++p ) {
-		/*XXX
-		const QUParameter *param = params+p;
-		if ( param->inOut & QUParameter::Out ) {
+		bool out;
+		QString type = meta->paramType(signame, p, &out);
+		if (out) {
 		    VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
-		    QUObject *obj = objects + p + 1;
-		    QUObjectToVARIANT( obj, *arg, param );
+		    QVariantToVARIANT(varp[p], *arg, type);
 		}
-		clearQUObject( objects+p+1, param );
-		*/
 	    }
 	    delete [] argv;
 	    delete [] varp;
-	    return ret ? S_OK : ( ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH );
+	    return res ? S_OK : ( ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH );
 	}
 	return S_OK;
     }
@@ -1228,7 +1226,7 @@ private:
 	QString str;
 	switch ( tdesc.vt ) {
 	case VT_VOID:
-	    str = "void";
+	    str = QString();
 	    break;
 	case VT_BSTR:
 	    str = "QString";
@@ -1396,7 +1394,7 @@ private:
     {
 	qDebug("Adding signal: %s | %s | %s", type.latin1(), prototype.latin1(), parameters.latin1());
 	Method &signal = signal_list[prototype];
-	signal.type = type == "void" ? QString() : type;
+	signal.type = type;
 	signal.parameters = parameters;
 	signal.flags = QMetaMember::Public;
     }
@@ -1413,7 +1411,7 @@ private:
     {
 	qDebug("Adding slot: %s | %s | %s", type.latin1(), prototype.latin1(), parameters.latin1());
 	Method &slot = slot_list[prototype];
-	slot.type = type == "void" ? QString() : type;
+	slot.type = type;
 	slot.parameters = parameters;
 	slot.flags = QMetaMember::Public;
     }
@@ -1798,7 +1796,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
 		}
 		addProperty(type, function, flags);
 		// don't generate slots for incomplete properties
-		if (type.isEmpty() || type == "void")
+		if (type.isEmpty())
 		    break;
 
 		// Done for getters
