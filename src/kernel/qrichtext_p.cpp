@@ -87,7 +87,7 @@ void QTextFlow::setPageSize( int ps ) { pagesize = ps; }
 #ifndef QT_NO_TEXTCUSTOMITEM
 bool QTextFlow::isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
 #else
-bool QTextFlow::isEmpty() { return true; }
+bool QTextFlow::isEmpty() { return TRUE; }
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM

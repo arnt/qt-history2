@@ -1766,7 +1766,7 @@ moc_status do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fou
 
     CWFileInfo fi;
     memset(&fi, 0, sizeof(fi));
-	fi.fullsearch = true;
+	fi.fullsearch = TRUE;
 	fi.dependencyType = cwNormalDependency;
 	fi.isdependentoffile = kCurrentCompiledFile;
     if(CWFindAndLoadFile( ctx, fin.data(), &fi) != cwNoErr) {
