@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#19 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <qmemchk.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#19 $")
 
 
 // --------------------------------------------------------------------------
@@ -133,8 +133,12 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
 	    }
 	    r = start;
 	    while ( *p ) {
-		if ( *p == '\\' ) {
+		if ( *p == '\\' ) {		// escape char?
 		    p++;
+		    if ( *p == '\"' || *p == '\'' )
+			;			// yes
+		    else
+			p--;			// treat \ literally
 		}
 		else if ( quote ) {
 		    if ( *p == quote ) {
