@@ -1046,9 +1046,19 @@ bool QHeaderView::isSectionHidden(int section) const
 
 QModelIndex QHeaderView::itemAt(int x, int y) const
 {
-    return (orientation() == Qt::Horizontal ?
-            model()->index(0, sectionAt(x + offset()), QModelIndex(), QModelIndex::HorizontalHeader) :
-            model()->index(sectionAt(y + offset()), 0, QModelIndex(), QModelIndex::VerticalHeader));
+    int row = 0;
+    int column = 0;
+    if (d->orientation == Qt::Horizontal) {
+        column = sectionAt(x + offset());
+        if (column < 0)
+            return QModelIndex();
+        return model()->index(0, column, QModelIndex(), QModelIndex::HorizontalHeader);
+    } else {
+        row = sectionAt(y + offset());
+        if (row < 0)
+            return QModelIndex();
+        return model()->index(row, 0, QModelIndex(), QModelIndex::VerticalHeader);
+    }       
 }
 
 /*!
