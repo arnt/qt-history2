@@ -12632,29 +12632,26 @@ QString &QString::sprintf( const char* cformat, ... )
 
     if ( !cformat || !*cformat ) {
 	// Qt 1.x compat
-	*this = QString::fromLatin1("");
+	*this = QString::fromLatin1( "" );
 	return *this;
     }
-    QString format = QString::fromLatin1(cformat);
+    QString format = QString::fromLatin1( cformat );
 
     static QRegExp escape(
-	QString::fromLatin1("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?"));
+	QString::fromLatin1("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?") );
 
     QString result;
-    uint last=0;
+    uint last = 0;
 
-    int len=0;
+    int len = 0;
     int pos;
     while ( 1 ) {
-	pos=escape.match( format, last, &len );
+	pos = escape.match( format, last, &len );
 	// Non-escaped text
-	if ( pos > (int)last ) {
+	if ( pos > (int)last )
 	    result += format.mid(last,pos-last);
-//debug("%d UNESCAPED from %d = %s",pos-last,last,format.mid(last,pos-last).latin1());
-	}
 	if ( pos < 0 ) {
 	    // The rest
-//debug("THE REST = %s",format.mid(last).latin1());
 	    if ( last < format.length() )
 		result += format.mid(last);
 	    break;
@@ -12662,18 +12659,15 @@ QString &QString::sprintf( const char* cformat, ... )
 	last = pos + len + 1;
 
 	// Escape
-	QString f = format.mid(pos,len);
-//debug("fmt=%s",f.latin1());
+	QString f = format.mid( pos, len );
 	uint width, decimals;
-	int params=0;
+	int params = 0;
 	int wpos = f.find('*');
 	if ( wpos >= 0 ) {
 	    params++;
-	    width = va_arg(ap, int);
-//debug("pwidth=%d",width);
-	    if ( f.find('*',wpos+1) >= 0 ) {
-		decimals = va_arg(ap, int);
-//debug("pdec=%d",decimals);
+	    width = va_arg( ap, int );
+	    if ( f.find('*', wpos + 1) >= 0 ) {
+		decimals = va_arg( ap, int );
 		params++;
 	    } else {
 		decimals = 0;
@@ -12688,19 +12682,20 @@ QString &QString::sprintf( const char* cformat, ... )
 	{
 	    bool rightjust = ( f.find('-') < 0 );
 	    // Yes, %-5s really means left adjust in sprintf
-//if ( rightjust ) debug("rightjust");
 
 	    if ( wpos < 0 ) {
-		QRegExp num(QString::fromLatin1("[0-9]+"));
+		QRegExp num( QString::fromLatin1("[0-9]+") );
+		QRegExp dot( QString::fromLatin1("\\.") );
 		int nlen;
-		int p = num.match(f,0,&nlen);
-		if ( p >= 0 ) {
-		    width = f.mid(p,nlen).toInt();
-		    p = num.match(f,p+nlen,&nlen);
-		    //"decimals" is used to specify string truncation
-		    if ( p >= 0 ) {
-			decimals = f.mid(p,nlen).toInt();
-		    }
+		int p = num.match( f, 0, &nlen );
+		int q = dot.match( f, 0 );
+		if ( q < 0 || (p < q && p >= 0) )
+		    width = f.mid( p, nlen ).toInt();
+		if ( q >= 0 ) {
+		    p = num.match( f, q );
+		    // "decimals" is used to specify string truncation
+		    if ( p >= 0 )
+			decimals = f.mid( p, nlen ).toInt();
 		}
 	    }
 
@@ -12723,7 +12718,6 @@ QString &QString::sprintf( const char* cformat, ... )
 		    ? replacement.rightJustify(width)
 		    : replacement.leftJustify(width);
 	    }
-//debug("rep=%s",replacement.latin1());
 	} else if ( format[pos+len] == '%' ) {
 	    replacement = '%';
 	} else if ( format[pos+len] == 'n' ) {
@@ -12760,12 +12754,9 @@ QString &QString::sprintf( const char* cformat, ... )
 		}
 	      } break;
 	    }
-//debug("  %s -> %s",in,out);
 	    replacement = QString::fromLatin1(out);
 	}
-//debug("%s%c -> %s",f.latin1(),(char)format[pos+len],replacement.latin1());
 	result += replacement;
-//debug("now %s",result.latin1());
     }
     *this = result;
 
