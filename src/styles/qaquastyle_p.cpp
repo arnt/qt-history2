@@ -339,7 +339,7 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
 	// Find the correct button to use as default button
 	QObjectList list = btn->topLevelWidget()->queryList("QPushButton");
 	for(QObjectList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    QPushButton *pb = (*it);
+	    QPushButton *pb = static_cast<QPushButton*>(*it);
 	    if(((e->type() == QEvent::FocusOut) && (pb->isDefault() ||
 						    (pb->autoDefault() && pb->hasFocus())) && (pb != btn)) ||
 		((e->type() == QEvent::Show) && pb->isDefault()))  {
