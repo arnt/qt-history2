@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#2 $
 **
 ** Implementation of something useful.
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#2 $");
 
 
 struct QIconSetPrivate: public QShared
@@ -49,10 +49,10 @@ struct QIconSetPrivate: public QShared
 
 
 /*! \class QIconSet qiconset.h
-  
+
   \brief The QIconSet class provides a set of icons (normal, disabled,
   various sizes) for e.g. buttons.
-  
+
   QIconSet must be fed at least one icon, and can generate the other
   variants from the ones it is fed, or use programmer-specified icons.
 */
@@ -62,7 +62,7 @@ struct QIconSetPrivate: public QShared
 
 /*!  Constructs an icon set that will generate its members from \a
   defaultPixmap, which is assumed to be of \a defaultSize.
-  
+
   The default for \a defaultSize is \c Automatic, which means that
   QIconSet will determine the icon's size from its actual size.
 
@@ -98,7 +98,7 @@ QIconSet::~QIconSet()
 /*!
   Assigns \e other to this icon set and returns a reference to this
   icon set.
-  
+
   This is very fast.
 */
 
@@ -230,12 +230,12 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    i = i.createHeuristicMask();
 		    QBitmap tmp;
 		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
-		    p->smallDisabled.pm 
-			= new QPixmap( p->small.pm->width()+1,
-				       p->small.pm->height()+1);
+		    p->largeDisabled.pm
+			= new QPixmap( p->large.pm->width()+1,
+				       p->large.pm->height()+1);
 		    QColorGroup dis( QApplication::palette()->disabled() );
-		    p->smallDisabled.pm->fill( dis.background() );
-		    QPainter painter( p->smallDisabled.pm );
+		    p->largeDisabled.pm->fill( dis.background() );
+		    QPainter painter( p->largeDisabled.pm );
 		    painter.setPen( dis.base() );
 		    painter.drawPixmap( 1, 1, tmp );
 		    painter.setPen( dis.foreground() );
@@ -294,7 +294,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    i = pixmap( Small, Normal ).convertToImage();
 		    i = i.createHeuristicMask();
 		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
-		    p->smallDisabled.pm 
+		    p->smallDisabled.pm
 			= new QPixmap( p->small.pm->width()+1,
 				       p->small.pm->height()+1);
 		    QColorGroup dis( QApplication::palette()->disabled() );
