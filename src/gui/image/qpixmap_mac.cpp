@@ -795,7 +795,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 {
     QMacSavedPortInfo pi; //save the current state
     //create icon
-    IconFamilyHandle iconFamily = static_cast<IconFamilyHandle>(NewHandle(0));
+    IconFamilyHandle iconFamily = reinterpret_cast<IconFamilyHandle>(NewHandle(0));
     //create data
     {
         struct {
@@ -853,7 +853,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
     RegisterIconRefFromIconFamily(kQtCreator, (OSType)px.serialNumber(), iconFamily, &ret);
     AcquireIconRef(ret);
     UnregisterIconRef(kQtCreator, (OSType)px.serialNumber());
-    DisposeHandle(static_cast<Handle>(iconFamily));
+    DisposeHandle(reinterpret_cast<Handle>(iconFamily));
     return ret;
 
 }
