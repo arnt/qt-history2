@@ -732,6 +732,7 @@ QXPathNS::Token QXPathLexicalAnalyzer::nextToken()
     if ( parseChar == '$' ) {
 	forceVariableReference = TRUE;
 	parsePos++;
+	parseChar = expr[parsePos];
     }
     if ( parseChar.isLetter() || parseChar == '_' ) {
 	uint strBegin = parsePos;
@@ -758,15 +759,18 @@ QXPathNS::Token QXPathLexicalAnalyzer::nextToken()
 	// variableReference overwrites all other tests
 	if ( forceVariableReference ) {
 	    token = TkVariableReference;
-	    goto finished;
+	    return token;
 	}
 	// must an operator be recognized?
 	switch ( token ) {
 	    case TkAttribAbbr:
 	    case TkDoubleColon:
 	    case TkLeftParen:
-	    case TkRightParen:
+	    case TkLeftBracket:
+	    case TkComma:
 	    case TkOperator:
+		break;
+	    default:
 		token = TkOperator;
 		if ( str == "and" ) {
 		    op = OpAnd;
@@ -780,8 +784,6 @@ QXPathNS::Token QXPathLexicalAnalyzer::nextToken()
 		    token = TkError;
 		}
 		return token;
-	    default:
-		break;
 	}
 
 	// no operator
@@ -1100,6 +1102,7 @@ QXPathAtom* QXPathParser::parse( const QString& expr )
 		stack->push( new QXPathAtomNumber(lex->getNumber()) );
 		break;
 	    case TkVariableReference:
+		stack->push( new QXPathAtomVariableReference(lex->getString()) );
 		break;
 	}
     }
@@ -1108,7 +1111,6 @@ QXPathAtom* QXPathParser::parse( const QString& expr )
 
     // build the tree from the stack content
     while ( !stack->isEmpty() ) {
-qDebug( "Stack count: %d", stack->count() );
 	if ( act_root == 0 ) {
 	    act_root = stack->pop();
 	} else {
