@@ -2,9 +2,6 @@ Here is a list of (major) changes in Qt from 0.96 to 0.98.
 As usual, we fixed some bugs and improved the documentation.
 
 
-copy constructors og operators=
-
-
 moc:
 ----
   Moc previously gave a syntax error when the word "class" was found
@@ -33,8 +30,9 @@ QLabel:
 
 QListBox:
 ---------
-  QLBItem replaced by more flexible QListBoxItem (for custom listbox
-  entries).
+  The internals of QListBox is completely reworked. Definition of custom
+  QListBoxItems is now much easier. This is *not* compatible with the old
+  way of defining custom QLBItems. 
 
 QPainter:
 --------
@@ -63,3 +61,19 @@ QWidget:
   that if you have a top level widget and the user closes it via the close
   box, it will now hide itself if you have not reimplemented closeEvent().
   See the QWidget::closeEvent() and QCloseEvent documentation for details.
+
+
+Disabled copy constructors and operator=
+----------------------------------------
+  Copy constructors and operator= are disabled in the classes where
+  they make no sense. This should lead to compile time errors where
+  you would have got core dumps before. This is done in the following 
+  classes:
+
+  QAccel QApplication QBuffer QButton QButtonGroup QCheckBox QClipboard
+  QComboBox QConnection QDataStream QDialog QFile QFileDialog QFrame
+  QGroupBox QIODevice QImageIO QLCDNumber QLabel QLineEdit QListBox
+  QMenuBar QMenuData QMenuItem QMessageBox QMetaObject QObject
+  QPSPrinter QPaintDevice QPainter QPicture QPopupMenu QPrintDialog
+  QPrinter QPushButton QRadioButton QRangeControl QScrollBar QSignal
+  QSocketNotifier QTableView QTextStream QTimer QWidget QWindow
