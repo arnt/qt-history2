@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#94 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#93 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#94 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -730,8 +730,12 @@ void QWidget::repaint( const QRect &r, bool erase )
 
 /*!
   Makes the widget and its children visible on the screen.
-  \sa hide(), isVisible()
-*/
+
+  Notes: If the widget is already visible, any currently hidden
+  children are not made visible.  Popup children are not made visible;
+  in a sense they are top-level widgets.
+
+  \sa hide(), isVisible() */
 
 void QWidget::show()
 {
