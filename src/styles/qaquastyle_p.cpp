@@ -41,6 +41,7 @@
 #include <qsize.h>
 #include <qslider.h>
 #include <qlabel.h>
+#include <qradiobutton.h>
 #ifdef Q_WS_MAC
 #  include <qt_mac.h>
 #endif
@@ -594,6 +595,10 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    ret = QSize(minw, 17 + shadow_height);
 #endif
     } else if(ct == QStyle::CT_RadioButton) {
+	QRadioButton *rdo = (QRadioButton*)widg;
+        // Exception for case where multiline radiobutton text requires no size constrainment
+	if (rdo->text().find( '\n' ) != -1) 
+	    return QSize(-1, -1);
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricRadioButtonHeight) + shadow_height);
