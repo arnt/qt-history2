@@ -107,11 +107,18 @@ public:
 
     void connectToHost( const QString &host, Q_UINT16 port );
 
+    // the states are modelled after the generalized state diagram of RFC 959,
+    // page 58
+    enum State {
+	Begin,
+	Idle,
+	Waiting,
+	Success,
+	Failure
+    };
+
 signals:
     void connectState( int );
-
-private:
-    QSocket commandSocket;
 
 private slots:
     void hostFound();
@@ -120,9 +127,18 @@ private slots:
     void delayedCloseFinished();
     void readyRead();
     void error( int );
+
+private:
+    void processReply();
+
+    QSocket commandSocket;
+    QString replyText;
+    QChar replyCode[3];
+    State state;
 };
 
-QFtpPI::QFtpPI( QObject *parent ) : QObject( parent )
+QFtpPI::QFtpPI( QObject *parent ) : QObject( parent ),
+    state( Begin )
 {
     connect( &commandSocket, SIGNAL(hostFound()),
 	    SLOT(hostFound()) );
@@ -150,6 +166,7 @@ void QFtpPI::hostFound()
 
 void QFtpPI::connected()
 {
+    state = Begin;
     emit connectState( QFtp::CsConnected );
 }
 
@@ -165,6 +182,47 @@ void QFtpPI::delayedCloseFinished()
 
 void QFtpPI::readyRead()
 {
+    while ( commandSocket.canReadLine() ) {
+	// read line with respect to line continuation
+	QString line = commandSocket.readLine();
+	if ( replyText.isEmpty() ) {
+	    if ( line.length() < 3 ) {
+		// ### protocol error
+		return;
+	    }
+	    const int lowerLimit[3] = {1,0,0};
+	    const int upperLimit[3] = {5,5,9};
+	    for ( int i=0; i<3; i++ ) {
+		replyCode[i] = line[i];
+		if ( replyCode[i].digitValue()<lowerLimit[i] || replyCode[i].digitValue()>upperLimit[i] ) {
+		    // ### protocol error
+		    return;
+		}
+	    }
+	}
+
+	QString endOfMultiLine( replyCode, 3 );
+	endOfMultiLine += " ";
+	QString lineCont( endOfMultiLine );
+	lineCont[3] = '-';
+	QString lineLeft4 = line.left(4);
+
+	while ( lineLeft4 != endOfMultiLine ) {
+	    if ( lineLeft4 == lineCont )
+		replyText += line.mid( 4 ); // strip 'xyz-'
+	    else
+		replyText += line;
+	    if ( !commandSocket.canReadLine() )
+		return;
+	    line = commandSocket.readLine();
+	    lineLeft4 = line.left(4);
+	}
+	replyText += line.mid( 4 ); // strip reply code 'xyz '
+
+	processReply();
+
+	replyText = "";
+    }
 }
 
 void QFtpPI::error( int e )
@@ -173,6 +231,57 @@ void QFtpPI::error( int e )
 	emit connectState( QFtp::CsHostNotFound );
     else if ( e == QSocket::ErrConnectionRefused )
 	emit connectState( QFtp::CsConnectionRefused );
+}
+
+void QFtpPI::processReply()
+{
+    // get new state
+    static const State table[5] = {
+	/* 1yz   2yz      3yz   4yz      5yz */
+	Waiting, Success, Idle, Failure, Failure
+    };
+    int replyType = replyCode[0].digitValue();
+    switch ( state ) {
+	case Begin:
+	    if ( replyType == 1 ) {
+		return;
+	    } else if ( replyType == 2 ) {
+		state = Idle;
+		break;
+	    }
+	    // ### error handling
+	    return;
+	case Waiting:
+	    if ( replyType<0 || replyType>5 )
+		state = Failure;
+	    else
+		state = table[ replyType - 1 ];
+	    break;
+	default:
+	    // ### spontaneous message
+	    return;
+    }
+
+    // react on new state
+    switch ( state ) {
+	case Begin:
+	    // ### should never happen
+	    break;
+	case Idle:
+	    // ### if pending commands, start
+	    break;
+	case Waiting:
+	    // ### do nothing
+	    break;
+	case Failure:
+	    // ### error handling
+	    state = Idle;
+	    break;
+	case Success:
+	    // ### success handling
+	    state = Idle;
+	    break;
+    }
 }
 
 
