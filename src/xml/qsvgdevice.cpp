@@ -31,13 +31,13 @@ const char piData[] = "version=\"1.0\" standalone=\"no\"";
 const char publicId[] = "-//W3C//DTD SVG 20001102//EN";
 const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd";
 
-struct QM_EXPORT_SVG ImgElement {
+struct ImgElement {
     QDomElement element;
     QImage image;
     Q_DUMMY_COMPARISON_OPERATOR(ImgElement)
 };
 
-struct QM_EXPORT_SVG PixElement {
+struct PixElement {
     QDomElement element;
     QPixmap pixmap;
     Q_DUMMY_COMPARISON_OPERATOR(PixElement)

@@ -30,12 +30,6 @@
 #include "qrect.h"
 #include "qdom.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SVG
-#else
-#define QM_EXPORT_SVG Q_XML_EXPORT
-#endif
-
 #ifndef QT_NO_SVG
 
 class QPainter;
@@ -45,7 +39,7 @@ class QDomNamedNodeMap;
 struct QSvgDeviceState;
 class QSvgDevicePrivate;
 
-class QM_EXPORT_SVG QSvgDevice : public QPaintDevice
+class Q_XML_EXPORT QSvgDevice : public QPaintDevice
 {
 public:
     QSvgDevice();

@@ -18,15 +18,9 @@
 #include "qpaintengine.h"
 #include "private/qpicture_p.h" // for QPaintCommands
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SVG
-#else
-#define QM_EXPORT_SVG Q_XML_EXPORT
-#endif
-
 class QSVGPaintEnginePrivate;
 
-class QM_EXPORT_SVG QSVGPaintEngine : public QPaintEngine, public QPaintCommands
+class QSVGPaintEngine : public QPaintEngine, public QPaintCommands
 {
     Q_DECLARE_PRIVATE(QSVGPaintEngine)
 
