@@ -829,11 +829,11 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #ifdef Q_WS_WIN
 	if (!fp->paintdevice)
 #endif
-	{
-	    QFontCache::Key key( request, script, fp->screen );
-	    fe = QFontCache::instance->findEngine( key );
-	    if ( fe ) return fe;
-	}
+	    {
+		QFontCache::Key key( request, script, fp->screen );
+		fe = QFontCache::instance->findEngine( key );
+		if ( fe ) return fe;
+	    }
     }
 
     QString family_name, foundry_name;
@@ -873,23 +873,30 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    load( family_name, script );
 
 	for ( int x = 0; x < db->count; ++x ) {
-	    QtFontFamily *family = db->families[x];
+	    QtFontFamily *try_family = db->families[x];
+	    QtFontFoundry *try_foundry = 0;
+	    QtFontStyle *try_style = 0;
+	    QtFontSize *try_size = 0;
+#ifdef Q_WS_X11
+	    QtFontEncoding *try_encoding = 0;
+#endif // Q_WS_X11
+
 	    if ( !family_name.isEmpty() &&
-		 ucstricmp( family->name, family_name ) != 0 )
+		 ucstricmp( try_family->name, family_name ) != 0 )
 		continue;
 
 	    if ( loop == 2 && family_name.isNull() )
-		load( family->name, script );
+		load( try_family->name, script );
 
 	    QFont::Script override_script = script;
-	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) && script != QFont::Unicode) {
+	    if (!(try_family->scripts[script] & QtFontFamily::Supported) && script != QFont::Unicode) {
 		// family not supported in the script we want
 		if (family_name.isEmpty()) continue;
 
-		if (family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) {
+		if (try_family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) {
 		    // try with the unknown script (for a symbol font)
 		    override_script = QFont::UnknownScript;
-		} else if (family->scripts[QFont::Unicode] & QtFontFamily::Supported) {
+		} else if (try_family->scripts[QFont::Unicode] & QtFontFamily::Supported) {
 		    // try with the unicode script instead
 		    override_script = QFont::Unicode;
 		} else {
@@ -902,27 +909,33 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    // to find a matching font here.
 	    unsigned int newscore =
 		bestFoundry( override_script, score, request.styleStrategy,
-			     family, foundry_name, styleKey, request.pixelSize, pitch,
-			     &best_foundry, &best_style, &best_size
+			     try_family, foundry_name, styleKey, request.pixelSize,
+			     pitch, &try_foundry, &try_style, &try_size
 #ifdef Q_WS_X11
-			     , &best_encoding, force_encoding_id
+			     , &try_encoding, force_encoding_id
 #endif
 			     );
-	    if ( best_foundry == 0 ) {
+	    if ( try_foundry == 0 ) {
 		// the specific foundry was not found, so look for
 		// any foundry matching our requirements
-		newscore = bestFoundry( override_script, score, request.styleStrategy, family,
-					QString::null, styleKey, request.pixelSize,
-					pitch, &best_foundry, &best_style, &best_size
+		newscore = bestFoundry( override_script, score, request.styleStrategy,
+					try_family, QString::null, styleKey, request.pixelSize,
+					pitch, &try_foundry, &try_style, &try_size
 #ifdef Q_WS_X11
-					, &best_encoding, force_encoding_id
+					, &try_encoding, force_encoding_id
 #endif
 					);
 	    }
 
 	    if ( newscore < score ) {
 		score = newscore;
-		best_family = family;
+		best_family = try_family;
+		best_foundry = try_foundry;
+		best_style = try_style;
+		best_size = try_size;
+#ifdef Q_WS_X11
+		best_encoding = try_encoding;
+#endif
 	    }
 	    if ( newscore < 10 ) // xlfd instead of xft... just accept it
 		break;
@@ -947,9 +960,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	if ( fp
 #ifdef Q_WS_WIN
-	    && !fp->paintdevice
+	     && !fp->paintdevice
 #endif
-	    ) {
+	     ) {
 	    QFontCache::Key key( request, script, fp->screen );
 	    QFontCache::instance->insertEngine( key, fe );
 	}
@@ -997,9 +1010,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    if ( fp
 #ifdef Q_WS_WIN
-	    && !fp->paintdevice
+		 && !fp->paintdevice
 #endif
-	    ) {
+		 ) {
 		QFontCache::Key key( request, script, fp->screen );
 		QFontCache::instance->insertEngine( key, fe );
 	    }
@@ -1047,9 +1060,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	if ( fp
 #ifdef Q_WS_WIN
-	    && !fp->paintdevice
+	     && !fp->paintdevice
 #endif
-	    ) {
+	     ) {
 	    QFontCache::Key key( request, script, fp->screen );
 	    QFontCache::instance->insertEngine( key, fe );
 
@@ -1071,9 +1084,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    if ( fp
 #ifdef Q_WS_WIN
-		&& !fp->paintdevice
+		 && !fp->paintdevice
 #endif
-		) {
+		 ) {
 		QFontCache::Key key( request, script, fp->screen );
 		QFontCache::instance->insertEngine( key, fe );
 	    }
@@ -2311,6 +2324,24 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
     } else {
 	foundry = QString::null;
 	family = name;
+    }
+
+    // capitalize the family/foundry names
+    bool space = TRUE;
+    QChar *s = const_cast<QChar*>(family.unicode());
+    int len = family.length();
+    while( len-- ) {
+	if ( space ) *s = s->upper();
+	space = s->isSpace();
+	++s;
+    }
+
+    s = const_cast<QChar*>(foundry.unicode());
+    len = foundry.length();
+    while( len-- ) {
+	if ( space ) *s = s->upper();
+	space = s->isSpace();
+	++s;
     }
 }
 
