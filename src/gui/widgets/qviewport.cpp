@@ -188,6 +188,11 @@ QViewport::QViewport(QViewportPrivate &dd, QWidget *parent)
     d->init();
 }
 
+/*!
+    Constructs a viewport.
+
+    The \a parent arguments is sent to the QWidget constructor.
+*/
 QViewport::QViewport(QWidget *parent)
     :QFrame(*new QViewportPrivate, parent)
 {
@@ -195,13 +200,39 @@ QViewport::QViewport(QWidget *parent)
 }
 
 
+/*!
+  Destroys the viewport.
+ */
 QViewport::~QViewport()
 {
 }
 
+/*! Returns the viewport's viewport
+ */
 QWidget *QViewport::viewport() const
 {
     return d->viewport;
+}
+
+
+/*!
+... still thinking about the name ###
+
+Returns the size of the viewport as if the scroll bars had no valid
+scrolling range.
+*/
+QSize QViewport::maximumViewportSize() const
+{
+    int hsbExt = d->hbar->sizeHint().height();
+    int vsbExt = d->vbar->sizeHint().width();
+
+    int f = 2 * d->frameWidth;
+    QSize max = size() - QSize(f,f);
+    if (d->vbarpolicy == ScrollBarAlwaysOn)
+	max.rwidth() -= vsbExt;
+    if (d->hbarpolicy == ScrollBarAlwaysOn)
+	max.rheight() -= hsbExt;
+    return max;
 }
 
 
@@ -311,6 +342,9 @@ bool QViewport::event(QEvent *e)
 #endif
     case QEvent::ContextMenu:
         return false;
+    case QEvent::StyleChange:
+	d->layoutChildren();
+	// fall through
     default:
         return QFrame::event(e);
     }
@@ -467,6 +501,12 @@ void QViewport::keyPressEvent( QKeyEvent * e)
     case Key_Down:
 	d->vbar->triggerAction(QScrollBar::SliderSingleStepAdd);
 	break;
+    case Key_Left:
+	d->hbar->triggerAction(QScrollBar::SliderSingleStepSub);
+	break;
+    case Key_Right:
+	d->hbar->triggerAction(QScrollBar::SliderSingleStepAdd);
+	break;
     default:
 	e->ignore();
 	return;
@@ -541,6 +581,15 @@ void QViewportPrivate::vslide(int y)
 void QViewportPrivate::showOrHideScrollBars()
 {
     layoutChildren();
+}
+
+QSize QViewport::minimumSizeHint() const
+{
+    int h = fontMetrics().height();
+    if ( h < 10 )
+	h = 10;
+    int f = 2 * d->frameWidth;
+    return QSize( (6 * h) + f, (4 * h) + f );
 }
 
 #include "moc_qviewport.cpp"

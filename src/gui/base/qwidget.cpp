@@ -5605,7 +5605,9 @@ void QWidget::setParent_helper(QObject *parent)
 
 void QWidget::setParent(QWidget *parent, WFlags f)
 {
+    bool resized = testAttribute(WA_Resized);
     reparent_helper( parent, f, QPoint(0,0), false);
+    setAttribute(WA_Resized, resized);
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
     d->resolveFont();

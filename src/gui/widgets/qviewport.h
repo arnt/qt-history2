@@ -42,6 +42,9 @@ public:
     QScrollBar *horizontalScrollBar() const;
 
     QWidget *viewport() const;
+    QSize maximumViewportSize() const;
+
+    QSize minimumSizeHint() const;
 
 protected:
     QViewport(QViewportPrivate &dd, QWidget *parent);
