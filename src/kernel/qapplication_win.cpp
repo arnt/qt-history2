@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#26 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#26 $")
 
 
 // --------------------------------------------------------------------------
@@ -262,7 +262,7 @@ void msgHandler( QtMsgType, const char *str )	// print Qt message
 }
 
 
-void qAddPostRoutine( void (*p)() )		// add post routine
+void qAddPostRoutine( CleanUpFunction p )	// add post routine
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#124 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#123 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#124 $")
 
 
 /*****************************************************************************
@@ -378,6 +378,10 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
   Adds a global routine that will be called from the QApplication destructor.
   This function is normally used to add cleanup routines.
 
+  CleanUpFunctions is defined as <code> typedef void
+  (*CleanUpFunction)(); </code>, i.e. a pointer to a function that
+  takes no arguments and returns nothing.
+
   Example of use:
   \code
     static int *global_ptr = 0;
@@ -395,7 +399,7 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
   \endcode
  ----------------------------------------------------------------------------*/
 
-void qAddPostRoutine( void (*p)() )		// add post routine
+void qAddPostRoutine( CleanUpFunction p )		// add post routine
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;

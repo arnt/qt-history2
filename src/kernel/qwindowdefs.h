@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#62 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#63 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -145,7 +145,8 @@ char *qAppName();				// get application name
 
 // Misc functions
 
-void  qAddPostRoutine( void (*)() );
+typedef void (*CleanUpFunction)();
+void  qAddPostRoutine( CleanUpFunction );
 
 
 // GUI styles
