@@ -112,6 +112,12 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 	d->glFormat.setStencilBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STEREO, &res);
     d->glFormat.setStereo(res);
+    aglDescribePixelFormat(fmt, AGL_SAMPLE_BUFFERS_ARB, &res);
+    d->glFormat.setSampleBuffers(res);
+    if (d->glFormat.sampleBuffers()) {
+        aglDescribePixelFormat(fmt, AGL_SAMPLES_ARB, &res);
+        d->glFormat.setSamples(res);
+    }
 
     if(shareContext && (!shareContext->isValid() || !shareContext->d->cx)) {
         qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
