@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#198 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#199 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11283,6 +11283,16 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     return *this;
 }
 
+static bool
+ok_in_base( QChar c, int base )
+{
+    if ( base <= 10 )
+	return ucisdigit(c) && c.digitValue() < base;
+    else
+	return ucisdigit(c) || (c >= 'a' && c < 'a'+base-10)
+	                    || (c >= 'A' && c < 'A'+base-10);
+}
+
 /*!
   Returns the string converted to a <code>long</code> value.
 
@@ -11313,11 +11323,9 @@ long QString::toLong( bool *ok, int base ) const
     }
 
     // NOTE: toULong() code is similar
-    if ( !l || (!ucisdigit(*p) && !(*p >= 'a' && *p <= 'z'
-				    || *p >= 'A' && *p <= 'Z')) )
+    if ( !l || !ok_in_base(*p,base) )
 	goto bye;
-    while ( l && (ucisdigit(*p) || (*p >= 'a' && *p <= 'z'
-                                    || *p >= 'A' && *p <= 'Z') ) ) {
+    while ( l && ok_in_base(*p,base) ) {
 	l--;
 	int dv;
 	if ( ucisdigit(*p) ) {
@@ -11369,11 +11377,9 @@ ulong QString::toULong( bool *ok, int base ) const
 	l--,p++;
 
     // NOTE: toLong() code is similar
-    if ( !l || (!ucisdigit(*p) && !(*p >= 'a' && *p <= 'z'
-				    || *p >= 'A' && *p <= 'Z')) )
+    if ( !l || !ok_in_base(*p,base) )
 	goto bye;
-    while ( l && (ucisdigit(*p) || (*p >= 'a' && *p <= 'z'
-                                    || *p >= 'A' && *p <= 'Z') ) ) {
+    while ( l && ok_in_base(*p,base) ) {
 	l--;
 	uint dv;
 	if ( ucisdigit(*p) ) {
