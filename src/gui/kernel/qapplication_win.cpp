@@ -1248,7 +1248,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
     if (app_do_modal)        {                        // modal event handling
         int ret = 0;
         if (!qt_try_modal(widget, &msg, ret))
-            return ret;
+            RETURN(ret);
     }
 
     if (widget->winEvent(&msg))                // send through widget filter
@@ -1519,6 +1519,9 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
         }
 
         case WM_SETTINGCHANGE:
+            if ( qApp->type() == QApplication::Tty )
+	        break;
+
             if (!msg.wParam) {
                 QString area = QT_WA_INLINE(QString::fromUtf16((unsigned short *)msg.lParam),
                                              QString::fromLocal8Bit((char*)msg.lParam));
@@ -1563,6 +1566,9 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             break;
 
         case WM_ACTIVATE:
+	    if ( qApp->type() == QApplication::Tty )
+	        break;
+
 #if defined(QT_TABLET_SUPPORT)
             if (ptrWTOverlap && ptrWTEnable) {
                 // cooperate with other tablet applications, but when
