@@ -225,10 +225,13 @@ void ConfigureApp::parseCmdLine()
 	}
 
     }
-    qmakeConfig += enabledModules;
 
-    if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
+    if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
+	qmakeConfig += modules;
 	qmakeConfig += "internal";
+    }
+    else
+	qmakeConfig += enabledModules;
 
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
 	qmakeConfig.remove( (*it) );
