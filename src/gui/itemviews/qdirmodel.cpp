@@ -266,7 +266,7 @@ public:
   and provides functions for renaming and removing files
   and directories, and creating new directories.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+  \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 QDirModel::QDirModel(const QDir &directory, QObject *parent)
