@@ -97,7 +97,7 @@ public:
 	: list(0), iterator(0) {
     }
     ~QGListIteratorList() {
-	notifyClear();
+	notifyClear( TRUE );
 	delete list;
     }
 
@@ -124,14 +124,16 @@ public:
 	}
     }
 
-    void notifyClear() {
+    void notifyClear( bool zeroList ) {
 	if ( iterator ) {
-	    iterator->list = 0;
+	    if ( zeroList )
+		iterator->list = 0;
 	    iterator->curNode = 0;
 	}
 	if ( list ) {
 	    for ( QValueList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
-		(*i)->list = 0;
+		if ( zeroList )
+		    (*i)->list = 0;
 		(*i)->curNode = 0;
 	    }
 	}
@@ -676,7 +678,7 @@ void QGList::clear()
     curIndex = -1;
 
     if ( iterators )
-	iterators->notifyClear();
+	iterators->notifyClear( FALSE );
 
     QLNode *prevNode;
     while ( n ) {				// for all nodes ...
