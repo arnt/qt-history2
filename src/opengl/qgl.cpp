@@ -1925,7 +1925,7 @@ void QGLWidget::glDraw()
 	return;
     makeCurrent();
     if ( glcx->deviceIsPixmap() )
-	glDrawBuffer( GL_FRONT_LEFT );
+	glDrawBuffer( GL_FRONT );
     if ( !glcx->initialized() ) {
 	glInit();
 	QPaintDeviceMetrics dm( glcx->device() );

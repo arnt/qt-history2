@@ -951,7 +951,7 @@ bool QGLWidget::renderCxPm( QPixmap* pm )
 	return FALSE;
     }
 
-    glDrawBuffer( GL_FRONT_LEFT );
+    glDrawBuffer( GL_FRONT );
     if ( !glcx->initialized() )
 	glInit();
     resizeGL( pm->width(), pm->height() );
