@@ -49,10 +49,16 @@ friend class QBuffer;
 public:
     //### DO NOT USE THIS.  IT IS PUBLIC BUT DO NOT USE IT IN NEW CODE.
     struct array_data : public QShared {	// shared array
-	array_data():data(0),len(0),maxl(0){}
+	array_data():data(0),len(0)
+#ifdef QT_QGARRAY_SPEED_OPTIM
+		    ,maxl(0)
+#endif
+	    {}
 	char *data;				// actual array data
 	uint  len;
+#ifdef QT_QGARRAY_SPEED_OPTIM
 	uint maxl;
+#endif
     };
     QGArray();
     enum Optimization { MemOptim, SpeedOptim };

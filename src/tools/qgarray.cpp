@@ -135,7 +135,11 @@ QGArray::QGArray( int size )
 	return;
     shd->data = NEW(char,size);
     Q_CHECK_PTR( shd->data );
-    shd->len = shd->maxl = size;
+    shd->len =
+#ifdef QT_QGARRAY_SPEED_OPTIM
+	shd->maxl =
+#endif
+	size;
 }
 
 /*!
@@ -217,42 +221,46 @@ bool QGArray::isEqual( const QGArray &a ) const
 */
 bool QGArray::resize( uint newsize, Optimization optim )
 {
-    if ( newsize == shd->len && newsize == shd->maxl ) // nothing to do
+    if ( newsize == shd->len
+#ifdef QT_QGARRAY_SPEED_OPTIM
+	 && newsize == shd->maxl
+#endif
+	) // nothing to do
 	return TRUE;
     if ( newsize == 0 ) {			// remove array
 	duplicate( 0, 0 );
 	return TRUE;
     }
 
-    if ( optim == MemOptim ) {
-	shd->maxl = newsize;
-    } else {
+    uint newmaxl = newsize;
+#ifdef QT_QGARRAY_SPEED_OPTIM
+    if ( optim == SpeedOptim ) {
 	if ( newsize <= shd->maxl &&
 	     ( newsize * 4 > shd->maxl || shd->maxl <= 4 ) ) {
 	    shd->len = newsize;
 	    return TRUE;
 	}
-	uint newMax = 4;
-	while ( newMax < newsize )
-	    newMax *= 2;
+	newmaxl = 4;
+	while ( newmaxl < newsize )
+	    newmaxl *= 2;
 	// try to spare some memory
-	if ( newMax >= 1024 * 1024 && newsize <= newMax - (newMax >> 2) )
-	    newMax -= newMax >> 2;
-
-	shd->maxl = newMax;
+	if ( newmaxl >= 1024 * 1024 && newsize <= newmaxl - (newmaxl >> 2) )
+	    newmaxl -= newmaxl >> 2;
     }
+    shd->maxl = newmaxl;
+#endif
 
     if ( shd->data ) {				// existing data
 #if defined(DONT_USE_REALLOC)
 	char *newdata = NEW(char,newsize);	// manual realloc
-	memcpy( newdata, shd->data, QMIN(shd->len,shd->maxl) );
+	memcpy( newdata, shd->data, QMIN(shd->len,newmaxl) );
 	DELETE(shd->data);
 	shd->data = newdata;
 #else
-	shd->data = (char *)realloc( shd->data, shd->maxl );
+	shd->data = (char *)realloc( shd->data, newmaxl );
 #endif
     } else {
-	shd->data = NEW(char,shd->maxl);
+	shd->data = NEW(char,newmaxl);
     }
     if ( !shd->data )				// no memory
 	return FALSE;
@@ -346,7 +354,11 @@ QGArray &QGArray::assign( const char *d, uint len )
 	    DELETE(shd->data);
     }
     shd->data = (char *)d;
-    shd->len = shd->maxl = len;
+    shd->len =
+#ifdef QT_QGARRAY_SPEED_OPTIM
+	shd->maxl =
+#endif
+	len;
     return *this;
 }
 
@@ -391,7 +403,11 @@ QGArray &QGArray::duplicate( const QGArray &a )
     } else {
 	shd->data = 0;
     }
-    shd->len = shd->maxl = a.shd->len;
+    shd->len =
+#ifdef QT_QGARRAY_SPEED_OPTIM
+	shd->maxl =
+#endif
+	a.shd->len;
     if ( oldptr )
 	DELETE(oldptr);
     return *this;
@@ -429,7 +445,11 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 	    DELETE(shd->data);
     }
     shd->data = data;
-    shd->len  = shd->maxl = len;
+    shd->len =
+#ifdef QT_QGARRAY_SPEED_OPTIM
+	shd->maxl =
+#endif
+	len;
     return *this;
 }
 
