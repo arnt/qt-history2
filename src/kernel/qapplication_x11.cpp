@@ -3686,6 +3686,9 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 
     // send the event to the widget or its ancestors
     if (w){
+	QWidget* popup = qApp->activePopupWidget();
+	if ( popup && w != popup )
+	    popup->hide();
 	do {
 	    QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
 			   QPoint(global_x, global_y), delta, state );

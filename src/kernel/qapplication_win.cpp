@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#393 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#394 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2794,7 +2794,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
     QWidget* w = QApplication::widgetAt( globalPos, TRUE );
     if ( !w)
-      w = this;
+	w = this;
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
@@ -2806,6 +2806,11 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
     // send the event to the widget or its ancestors
     if (w){
+	QWidget* popup = qApp->activePopupWidget();
+	if ( popup && popup != w )
+	    popup->hide();
+	popup = qApp->activePopupWidget();
+
 	do {
 	    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
 	    QApplication::sendEvent( w, &e );
