@@ -193,8 +193,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
 void qthread_removePostedEvents( QObject *receiver )
 {
-    qthreadposteventprivate->eventmutex.lock();
-
+    QMutexLocker locker( qt_global_mutexpool->get( qthreadposteventprivate ) );
     QThreadQtEvent *qte;
     for ( qte = qthreadposteventprivate->events.first(); qte != 0;
 	  qte = qthreadposteventprivate->events.next() ) {
@@ -204,8 +203,6 @@ void qthread_removePostedEvents( QObject *receiver )
 	    qte->event = 0;
 	}
     }
-
-    qthreadposteventprivate->eventmutex.unlock();
 }
 
 
