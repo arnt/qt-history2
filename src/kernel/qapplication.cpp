@@ -2135,9 +2135,9 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	    return TRUE;
 
 	// toggle HasMouse widget state on enter and leave
-	if ( e->type() == QEvent::Enter )
+	if ( e->type() == QEvent::Enter || e->type() == QEvent::DragEnter )
 	    widget->setWState( WState_HasMouse );
-	else if ( e->type() == QEvent::Leave )
+	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
 	    widget->clearWState( WState_HasMouse );
     }
 
