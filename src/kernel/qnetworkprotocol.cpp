@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#15 $
 **
 ** Implementation of QFileDialog class
 **
@@ -146,7 +146,7 @@ struct QNetworkProtocolPrivate
 */
 
 QNetworkProtocol::QNetworkProtocol()
-    : QObject() 
+    : QObject()
 {
     d = new QNetworkProtocolPrivate;
     d->url = 0;
@@ -155,7 +155,7 @@ QNetworkProtocol::QNetworkProtocol()
     d->operationQueue.setAutoDelete( FALSE );
     connect( d->opStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startOps() ) );
-    
+
     connect( this, SIGNAL( data( const QString &, QNetworkOperation * ) ),
 	     this, SLOT( emitData( const QString &, QNetworkOperation * ) ) );
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
@@ -487,6 +487,14 @@ QUrlOperator *QNetworkProtocol::url() const
 QNetworkOperation *QNetworkProtocol::operationInProgress() const
 {
     return d->opInProgress;
+}
+
+/*!
+ */
+ 
+void QNetworkProtocol::dequeueOperation()
+{
+    d->opInProgress = d->operationQueue.dequeue();
 }
 
 /*!
