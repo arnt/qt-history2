@@ -123,11 +123,6 @@ public:
     void choosePixmap( int index = -1 );
     void showLineEdit( int index = -1);
     void setAccelerator( int key, Qt::ButtonState state, int index = -1 );
-    void resizeToContents();
-
-    void showSubMenu( int index = - 1 );
-    void hideSubMenu( int index = - 1 );
-    void focusOnSubMenu( int index = - 1 );
 
     FormWindow * formWindow() { return formWnd; }
     bool isCreatingAccelerator() { return ( currentField == 2 ); }
@@ -148,6 +143,11 @@ public slots:
 
     void remove( int index );
     void remove( QAction * a ) { remove( find( a ) ); }
+
+    void resizeToContents();
+    void showSubMenu();
+    void hideSubMenu();
+    void focusOnSubMenu();
 
 protected:
     PopupMenuEditorItem * createItem( QAction * a = 0 );

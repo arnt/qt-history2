@@ -20,6 +20,7 @@
 #include <qrect.h>
 #include <qsize.h>
 #include <qstyle.h>
+#include <qtimer.h>
 #include <qevent.h>
 #include "actiondnd.h"
 #include "actioneditorimpl.h"
@@ -316,6 +317,8 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
 	if ( isVisible() )
 	    currentIndex = index;
     }
+    item->m = this;
+    item->s->parentMenu = this;
     resizeToContents();
     if ( isVisible() && parentMenu ) {
 	if ( parentMenu->inherits( "PopupMenuEditor" ) )
@@ -562,29 +565,26 @@ void PopupMenuEditor::resizeToContents()
     // FIXME: the multilevel drawAll is a hack to keep the drawAll flag for two paint events.
 }
 
-void PopupMenuEditor::showSubMenu( int index )
+void PopupMenuEditor::showSubMenu()
 {
-    int idx = ( index == -1 ? currentIndex : index );
-    if ( idx < (int)itemList.count() ) {
-	itemList.at( idx )->showMenu( pos().x() + width() - borderSize * 3,
-				      pos().y() + itemPos( at( currentIndex ) ) +
-				      borderSize * 2 );
+    if ( currentIndex < (int)itemList.count() ) {
+	itemList.at( currentIndex )->showMenu( pos().x() + width() - borderSize * 3,
+					       pos().y() + itemPos( at( currentIndex ) ) +
+					       borderSize * 2 );
 	setFocus(); // Keep focus in this widget
     }
 }
 
-void PopupMenuEditor::hideSubMenu( int index )
+void PopupMenuEditor::hideSubMenu()
 {
-    int idx = ( index == -1 ? currentIndex : index );
-    if ( idx < (int)itemList.count() )
-	itemList.at( idx )->hideMenu();
+    if ( currentIndex < (int)itemList.count() )
+	itemList.at( currentIndex )->hideMenu();
 }
 
-void PopupMenuEditor::focusOnSubMenu( int index )
+void PopupMenuEditor::focusOnSubMenu()
 {
-    int idx = ( index == -1 ? currentIndex : index );
-    if ( idx < (int)itemList.count() )
-	itemList.at( idx )->focusOnMenu();
+    if ( currentIndex < (int)itemList.count() )
+	itemList.at( currentIndex )->focusOnMenu();
 }
 
 // This function has no undo. It is only here to remove an item when its action was
@@ -703,7 +703,6 @@ bool PopupMenuEditor::eventFilter( QObject * o, QEvent * e )
 	leaveEditMode( 0 );
 	update();
     }
-
     return QWidget::eventFilter( o, e );
 }
 
@@ -792,8 +791,8 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    } else { // item was dropped
 		hideSubMenu();
 		itemList.takeNode( node )->setVisible( TRUE );
-		resizeToContents();
-		showSubMenu();
+		// the drop might happen in another menu, so we'll resize
+		// and show the submenu there
 	    }
 	}
     }
@@ -835,9 +834,15 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 	 //e->provides( "application/x-designer-separator" ) ) )
 	return;
 
+    // Hide the sub menu of the current item, but do it later
+    if ( currentIndex < itemList.count() ) {
+	PopupMenuEditor *s = itemList.at( currentIndex )->s;
+	QTimer::singleShot( 0, s, SLOT( hide() ) );
+    }
+
     draggedItem = 0;
     PopupMenuEditorItem * i = 0;
-    hideSubMenu();
+    setFocusAt( e->pos() );
 
     if ( e->provides( "qt/popupmenueditoritemptr" ) ) {
 	PopupMenuEditorItemPtrDrag::decode( e, &i );
@@ -856,9 +861,11 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 	}
     }
 
-    if ( i )
+    if ( i ) {
 	dropInPlace( i, e->pos().y() );
-
+	QTimer::singleShot( 0, this, SLOT( resizeToContents() ) );
+    }
+    QTimer::singleShot( 0, this, SLOT( showSubMenu() ) );
     dropLine->hide();
     e->accept();
 }
