@@ -17,10 +17,12 @@ public slots:
     void rotateZ( int );
     void zoom( int );
     void fractalize();
+    void resetGrid();
     
     void setWireframe( int );
     void setFilled( int );
     void setSmoothShaded( int );
+    void setLandscape( int );
     void setGridSize( int );
     
     void toggleWaveAnimation( bool );
@@ -47,7 +49,7 @@ protected:
     
 private:
     enum Axis { XAxis, YAxis, ZAxis };
-    enum RenderModes { Wireframe, Filled, SmoothShaded };
+    enum RenderModes { Wireframe, Filled, SmoothShaded, Landscape };
     enum Views { DefaultView, CurrentView };
 
     void rotate( GLfloat deg, Axis axis );

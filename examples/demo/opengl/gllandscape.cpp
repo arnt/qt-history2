@@ -69,6 +69,7 @@ void GLLandscape::paintGL()
 	    drawFilled();
 	    break;
 	case SmoothShaded:
+	case Landscape:
 	    drawSmoothShaded();
 	    break;
     }
@@ -132,30 +133,23 @@ void GLLandscape::drawFilled()
 
 void GLLandscape::drawSmoothShaded()
 {
-    // Setup lighting and material properties
-    GLfloat position[] = { 15.0, -15.0, 15.0, 0.0 };
-    GLfloat ambient[]  = { 0.50, 0.50, 0.50, 0.0 };
-    GLfloat diffuse[]  = { 1.00, 1.00, 1.00, 0.0 };
-    GLfloat specular[] = { 1.0, 1.0, 1.0, 0.0 };
-    GLfloat materialAmbient[]   = { 0.00, 0.00, 1.0, 0.0 };
-//    GLfloat materialDiffuse[]   = { 1.00, 1.00, 1.0, 0.0 };
-    GLfloat materialShininess[] = { 128.0 };
-    GLfloat materialSpecular[]  = { 1.0, 1.0, 1.0, 0.0 };
+    if ( mode == SmoothShaded ) {
+	GLfloat materialAmbient[]   = { 0.00, 0.00, 1.0, 0.0 };
+	GLfloat materialShininess[] = { 128.0 };
+	GLfloat materialSpecular[]  = { 1.0, 1.0, 1.0, 0.0 };
 
-    glMaterialfv( GL_FRONT, GL_SPECULAR, materialSpecular );
-//   glMaterialfv( GL_FRONT, GL_DIFFUSE, materialDiffuse );
-    glMaterialfv( GL_FRONT, GL_AMBIENT, materialAmbient );
-    glMaterialfv( GL_FRONT, GL_SHININESS, materialShininess );
+	glMaterialfv( GL_FRONT, GL_SPECULAR, materialSpecular );
+	glMaterialfv( GL_FRONT, GL_AMBIENT, materialAmbient );
+	glMaterialfv( GL_FRONT, GL_SHININESS, materialShininess );
+    } else {
+	GLfloat materialAmbient[]   = { 0.20, 0.33, 0.20, 0.0 };
+	GLfloat materialShininess[] = { 1.0 };
+	GLfloat materialSpecular[]  = { 0.1, 0.1, 0.1, 0.1 };
 
-    glLightfv( GL_LIGHT0, GL_POSITION, position );
-    glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
-    glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
-    glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
-    glEnable( GL_LIGHTING );
-    glEnable( GL_LIGHT0 );
-    glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE );
-    glEnable( GL_NORMALIZE );
-    glShadeModel( GL_SMOOTH );
+	glMaterialfv( GL_FRONT, GL_SPECULAR, materialSpecular );
+	glMaterialfv( GL_FRONT, GL_AMBIENT, materialAmbient );
+	glMaterialfv( GL_FRONT, GL_SHININESS, materialShininess );
+    }
 
     for ( int y = 0; y < gridSize-1; y++ )
 	for ( int x = 0; x < gridSize-1; x++ ) {
@@ -185,6 +179,33 @@ void GLLandscape::drawSmoothShaded()
 	    }
 	    glEnd();
 	}
+
+    // Draw water
+    if ( mode == Landscape ) {
+	GLfloat materialAmbient[]   = { 0.00, 0.00, 1.0, 0.0 };
+	GLfloat materialShininess[] = { 128.0 };
+	GLfloat materialSpecular[]  = { 1.0, 1.0, 1.0, 0.0 };
+
+	glMaterialfv( GL_FRONT, GL_SPECULAR, materialSpecular );
+	glMaterialfv( GL_FRONT, GL_AMBIENT, materialAmbient );
+	glMaterialfv( GL_FRONT, GL_SHININESS, materialShininess );
+	
+	glEnable( GL_BLEND );
+	glBegin( GL_POLYGON );
+	{
+	    glNormal3f( 0, 0, 1 );
+	    glVertex3f( -gridHalf, -gridHalf, .2 );
+	    glNormal3f( 0, 0, 1 );
+	    glVertex3f( -gridHalf, gridHalf, .2 );
+	    glNormal3f( 0, 0, 1 );
+	    glVertex3f( gridHalf, gridHalf, .2 );
+	    glNormal3f( 0, 0, 1 );
+	    glVertex3f( gridHalf, -gridHalf, .2 );
+	
+	}
+	glEnd();
+	glDisable( GL_BLEND );
+    }
 }
 
 void GLLandscape::setGridSize( int size )
@@ -303,6 +324,10 @@ void GLLandscape::zoom( int z )
     updateGL();
 }
 
+void GLLandscape::resetGrid()
+{
+    setGridSize( gridSize );
+}
 
 void GLLandscape::fractalize()
 {
@@ -503,6 +528,39 @@ void GLLandscape::setSmoothShaded( int state )
     }
 }
 
+void GLLandscape::setLandscape( int state )
+{
+    if ( state != 1 ) {
+	makeCurrent();
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_LIGHTING );
+	glEnable( GL_LIGHT0 );
+	glEnable( GL_NORMALIZE );
+	glDisable( GL_LINE_SMOOTH );
+	glDisable( GL_BLEND );
+
+	glShadeModel( GL_SMOOTH );
+	glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE );
+
+	// Setup lighting and material properties
+	GLfloat position[] = { 15.0, -15.0, 15.0, 0.0 };
+	GLfloat ambient[]  = { 0.50, 0.50, 0.50, 0.0 };
+	GLfloat diffuse[]  = { 1.00, 1.00, 1.00, 0.0 };
+	GLfloat specular[] = { 1.0, 1.0, 1.0, 0.0 };
+	
+	glLightfv( GL_LIGHT0, GL_POSITION, position );
+	glLightfv( GL_LIGHT0, GL_AMBIENT, ambient );
+	glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
+	glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
+
+	glBlendFunc(GL_SRC_ALPHA, GL_SRC_COLOR );
+
+	mode = Landscape;
+	calculateVertexNormals();
+	updateGL();
+    }
+}
+
 void GLLandscape::mousePressEvent( QMouseEvent *e )
 {
     oldPos = e->pos();
@@ -544,8 +602,11 @@ void GLLandscape::timerEvent( QTimerEvent * )
     float s, v, W, t;
     int i, j;
 
-    dx = gridSize >> 1;
-    dy = gridSize >> 1;
+    if ( mode == Landscape ) {
+	dx = dy = 0;
+    } else {
+	dx = dy = gridSize >> 1;
+    }
     W = 0.3;
     v = -4; // wave speed
 
@@ -555,15 +616,31 @@ void GLLandscape::timerEvent( QTimerEvent * )
 	    s = sqrt( (j - dx) * (j - dx) + (i - dy) * (i - dy));
 	    wt[i][j] += 0.1;
 	    t = s / v;
-	    landscape[i][j] -= wave[i][j];
-	    if ( s != 0 )
-		wave[i][j] = 2 * sin(2 * PI * W * ( wt[i][j] + t )) / 
-			     (0.2*(s + 2));
-	    else
-		wave[i][j] = 2 * sin( 2 * PI * W * ( wt[i][j] + t ) );
-	    landscape[i][j] += wave[i][j];
+
+	    if ( mode == Landscape ) {
+		if ( (landscape[i][j] + wave[i][j]) < 0 )
+		    landscape[i][j] -= wave[i][j];
+		if ( (dy - j != 0) || (dx - i != 0) )
+		    wave[i][j] = (3 * sin( 2 * PI * W * (wt[i][j] + t ))) / 
+				 (0.2*(sqrt( pow(dx-i, 2) + pow(dy-j, 2))+2));
+		else
+		    wave[i][j] = ( 3 * sin( 2 * PI * W * ( wt[i][j] + t ) ) );
+		if ( landscape[i][j] + wave[i][j] < 0 )
+		    landscape[i][j] += wave[i][j];
+
+	    } else {
+		landscape[i][j] -= wave[i][j];
+
+		if ( s != 0 )
+		    wave[i][j] = 2 * sin(2 * PI * W * ( wt[i][j] + t )) / 
+				 (0.2*(s + 2));
+		else
+		    wave[i][j] = 2 * sin( 2 * PI * W * ( wt[i][j] + t ) );
+		landscape[i][j] += wave[i][j];
+	    }
+	    
 	}
-    if ( mode == SmoothShaded )
+    if ( mode == SmoothShaded || mode == Landscape )
 	calculateVertexNormals();
     updateGL();
 }

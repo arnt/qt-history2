@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#5 $
+** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#6 $
 **
 ** Definition of QThumbWheel class
 **
@@ -231,7 +231,7 @@ void QThumbWheel::drawContents( QPainter *p )
 		QBrush( backgroundColor(), *backgroundPixmap() ) : QBrush( backgroundColor() );
     pt.fillRect( cr, brush );
 
-    const int n = 11;
+    const int n = 17;
     const double delta = m_pi / double(n);
     // ### use positionFromValue() with rad*16 or similar
     double alpha = 2*m_pi*double(value()-minValue())/

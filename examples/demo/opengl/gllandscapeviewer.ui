@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>590</width>
-            <height>586</height>
+            <width>679</width>
+            <height>410</height>
         </rect>
     </property>
     <property name="caption">
@@ -27,84 +27,57 @@
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QSlider" row="1" column="2">
+        <widget class="QLabel" row="0" column="2">
             <property name="name">
-                <cstring>Slider16_2</cstring>
+                <cstring>TextLabel2_2</cstring>
             </property>
-            <property name="minValue">
-                <number>25</number>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>0</vsizetype>
+                </sizepolicy>
             </property>
-            <property name="maxValue">
-                <number>200</number>
-            </property>
-            <property name="lineStep">
-                <number>10</number>
-            </property>
-            <property name="value">
-                <number>50</number>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="tickmarks">
-                <enum>NoMarks</enum>
-            </property>
-            <property name="tickInterval">
-                <number>10</number>
+            <property name="text">
+                <string>Size</string>
             </property>
         </widget>
-        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="3">
+        <widget class="QThumbWheel" row="1" column="0">
             <property name="name">
-                <cstring>Layout1</cstring>
+                <cstring>wheelZoom</cstring>
             </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QSlider">
-                    <property name="name">
-                        <cstring>Slider1</cstring>
-                    </property>
-                    <property name="maxValue">
-                        <number>359</number>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                </widget>
-                <widget class="QSlider">
-                    <property name="name">
-                        <cstring>Slider2</cstring>
-                    </property>
-                    <property name="maxValue">
-                        <number>359</number>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                </widget>
-                <widget class="QSlider">
-                    <property name="name">
-                        <cstring>Slider3</cstring>
-                    </property>
-                    <property name="maxValue">
-                        <number>359</number>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                </widget>
-            </hbox>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>7</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>30</width>
+                    <height>0</height>
+                </size>
+            </property>
+        </widget>
+        <widget class="QThumbWheel" row="1" column="2">
+            <property name="name">
+                <cstring>wheelSize</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>5</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>30</width>
+                    <height>0</height>
+                </size>
+            </property>
         </widget>
         <widget class="QLayoutWidget" row="2" column="0" rowspan="1" colspan="3">
             <property name="name">
-                <cstring>Layout2</cstring>
+                <cstring>Layout9</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -114,49 +87,136 @@
                     <number>0</number>
                 </property>
                 <property name="spacing">
-                    <number>6</number>
+                    <number>18</number>
                 </property>
-                <widget class="QLabel">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>TextLabel1</cstring>
+                        <cstring>Layout5</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>1</hsizetype>
-                            <vsizetype>0</vsizetype>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>X-rotation</string>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>TextLabel1</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>1</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>X-rotation</string>
+                            </property>
+                        </widget>
+                        <widget class="QThumbWheel">
+                            <property name="name">
+                                <cstring>wheelX</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>5</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>100</width>
+                                    <height>30</height>
+                                </size>
+                            </property>
+                        </widget>
+                    </vbox>
                 </widget>
-                <widget class="QLabel">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>TextLabel1_2</cstring>
+                        <cstring>Layout6</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>1</hsizetype>
-                            <vsizetype>0</vsizetype>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>Y-rotation</string>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>TextLabel1_2</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>1</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>Y-rotation</string>
+                            </property>
+                        </widget>
+                        <widget class="QThumbWheel">
+                            <property name="name">
+                                <cstring>wheelY</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>100</width>
+                                    <height>30</height>
+                                </size>
+                            </property>
+                        </widget>
+                    </vbox>
                 </widget>
-                <widget class="QLabel">
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>TextLabel1_3</cstring>
+                        <cstring>Layout7</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>1</hsizetype>
-                            <vsizetype>0</vsizetype>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>Z-rotation</string>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>TextLabel1_3</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>1</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>Z-rotation</string>
+                            </property>
+                        </widget>
+                        <widget class="QThumbWheel">
+                            <property name="name">
+                                <cstring>wheelZ</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>100</width>
+                                    <height>30</height>
+                                </size>
+                            </property>
+                        </widget>
+                    </vbox>
                 </widget>
             </hbox>
         </widget>
@@ -189,25 +249,14 @@
                     <property name="name">
                         <cstring>landscape</cstring>
                     </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>7</vsizetype>
+                        </sizepolicy>
+                    </property>
                 </widget>
             </grid>
-        </widget>
-        <widget class="QSlider" row="1" column="0">
-            <property name="name">
-                <cstring>Slider16</cstring>
-            </property>
-            <property name="minValue">
-                <number>0</number>
-            </property>
-            <property name="maxValue">
-                <number>200</number>
-            </property>
-            <property name="value">
-                <number>100</number>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
         </widget>
         <widget class="QLabel" row="0" column="0">
             <property name="name">
@@ -223,23 +272,9 @@
                 <string>Zoom</string>
             </property>
         </widget>
-        <widget class="QLabel" row="0" column="2">
+        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="3">
             <property name="name">
-                <cstring>TextLabel2_2</cstring>
-            </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>1</hsizetype>
-                    <vsizetype>0</vsizetype>
-                </sizepolicy>
-            </property>
-            <property name="text">
-                <string>Size</string>
-            </property>
-        </widget>
-        <widget class="QLayoutWidget" row="4" column="0" rowspan="1" colspan="3">
-            <property name="name">
-                <cstring>Layout8</cstring>
+                <cstring>Layout18</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -260,14 +295,14 @@
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
-                            <hsizetype>7</hsizetype>
-                            <vsizetype>7</vsizetype>
+                            <hsizetype>1</hsizetype>
+                            <vsizetype>1</vsizetype>
                         </sizepolicy>
                     </property>
                     <property name="title">
-                        <string>Rendering model</string>
+                        <string>Rendering mode</string>
                     </property>
-                    <hbox>
+                    <grid>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
@@ -277,34 +312,42 @@
                         <property name="spacing">
                             <number>6</number>
                         </property>
-                        <widget class="QRadioButton">
+                        <widget class="QRadioButton" row="0" column="0">
                             <property name="name">
                                 <cstring>RadioButton1</cstring>
                             </property>
                             <property name="text">
-                                <string>Wireframe</string>
+                                <string>&amp;Wireframe</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QRadioButton">
+                        <widget class="QRadioButton" row="0" column="1">
                             <property name="name">
                                 <cstring>RadioButton1_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Flat shaded</string>
+                                <string>Fl&amp;at shaded</string>
                             </property>
                         </widget>
-                        <widget class="QRadioButton">
+                        <widget class="QRadioButton" row="0" column="2">
                             <property name="name">
                                 <cstring>RadioButton1_3</cstring>
                             </property>
                             <property name="text">
-                                <string>Smooth shaded</string>
+                                <string>&amp;Smooth shaded</string>
                             </property>
                         </widget>
-                    </hbox>
+                        <widget class="QRadioButton" row="0" column="3">
+                            <property name="name">
+                                <cstring>RadioButton1_3_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Landscape</string>
+                            </property>
+                        </widget>
+                    </grid>
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
@@ -315,6 +358,12 @@
                             <hsizetype>0</hsizetype>
                             <vsizetype>0</vsizetype>
                         </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>75</width>
+                            <height>25</height>
+                        </size>
                     </property>
                     <property name="text">
                         <string>&amp;Animate</string>
@@ -331,7 +380,7 @@
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>fractalize_btn</cstring>
+                        <cstring>fractalize_btn_2</cstring>
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
@@ -339,8 +388,37 @@
                             <vsizetype>0</vsizetype>
                         </sizepolicy>
                     </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>75</width>
+                            <height>25</height>
+                        </size>
+                    </property>
                     <property name="text">
                         <string>&amp;Fractalize</string>
+                    </property>
+                    <property name="autoRepeat">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>reset_btn</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>75</width>
+                            <height>25</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Reset grid</string>
                     </property>
                     <property name="autoRepeat">
                         <bool>true</bool>
@@ -360,8 +438,8 @@
         </sizehint>
         <container>0</container>
         <sizepolicy>
-            <hordata>3</hordata>
-            <verdata>3</verdata>
+            <hordata>7</hordata>
+            <verdata>7</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
         <signal>rotatedX(int)</signal>
@@ -369,50 +447,37 @@
         <slot access="public">rotateY(int)</slot>
         <slot access="public">rotateX(int)</slot>
         <slot access="public">zoom(int)</slot>
-        <slot access="public">fractalize()</slot>
         <slot access="public">setWireframe(int)</slot>
         <slot access="public">setFilled(int)</slot>
         <slot access="public">setGridSize(int)</slot>
         <slot access="public">toggleWaveAnimation(bool)</slot>
         <slot access="public">setSmoothShaded(int)</slot>
+        <slot access="public">setLandscape(int)</slot>
+        <slot access="public">fractalize()</slot>
+        <slot access="public">resetGrid()</slot>
+    </customwidget>
+    <customwidget>
+        <class>QThumbWheel</class>
+        <header location="local">qthumbwheel.h</header>
+        <sizehint>
+            <width>30</width>
+            <height>30</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>5</verdata>
+        </sizepolicy>
+        <pixmap>image0</pixmap>
+        <signal>valueChanged(int)</signal>
     </customwidget>
 </customwidgets>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1b8807f113148f82781855d0c314741e44fc776dbbacc9dab043ba47d32c6b6560bfdb80a9d4b36ffbab0377691f604eafae7b1f8eeb8fd24d03fe815acf94b6e0607bbf9d7d8eff1cdb855bd6f3404360085a8d8229a4a00826881945e1552867221a198403128d9236440a2281480a959d4aeab82c3617ccf7c45ef800a44c5c7ca9ac994fa720c589667f813a2852ba07eca54de76437c49ff35da91f3366675a</data>
+        <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1be245fc04c5a3201e4615f430059d0711ff5ddb2e6bb236ec90eed134cb5a19d8ef36602af5ecdbfeeac05dda0798d3abebde87e3faa374d3807fa0d633a52d38d8de6f679fe33fc776e196f53cd010188256a3600a292882096246517815ca99884606e18044a3a40d91824820924265a7923a2e8bcd05f33db1173e002913175f2a6be6d3294871a2d95fa00e8a94ee017b69d339d90df1e77c57ea072ede6758</data>
     </image>
 </images>
 <connections>
-    <connection>
-        <sender>fractalize_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>landscape</receiver>
-        <slot>fractalize()</slot>
-    </connection>
-    <connection>
-        <sender>Slider1</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>landscape</receiver>
-        <slot>rotateX(int)</slot>
-    </connection>
-    <connection>
-        <sender>Slider2</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>landscape</receiver>
-        <slot>rotateY(int)</slot>
-    </connection>
-    <connection>
-        <sender>Slider3</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>landscape</receiver>
-        <slot>rotateZ(int)</slot>
-    </connection>
-    <connection>
-        <sender>Slider16</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>landscape</receiver>
-        <slot>zoom(int)</slot>
-    </connection>
     <connection>
         <sender>RadioButton1</sender>
         <signal>stateChanged(int)</signal>
@@ -424,12 +489,6 @@
         <signal>stateChanged(int)</signal>
         <receiver>landscape</receiver>
         <slot>setFilled(int)</slot>
-    </connection>
-    <connection>
-        <sender>Slider16_2</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>landscape</receiver>
-        <slot>setGridSize(int)</slot>
     </connection>
     <connection>
         <sender>animate_btn</sender>
@@ -444,12 +503,81 @@
         <slot>setSmoothShaded(int)</slot>
     </connection>
     <connection>
-        <sender>landscape</sender>
-        <signal>rotatedX(int)</signal>
-        <receiver>Slider1</receiver>
-        <slot>setValue(int)</slot>
+        <sender>wheelY</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>landscape</receiver>
+        <slot>rotateY(int)</slot>
+    </connection>
+    <connection>
+        <sender>wheelZ</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>landscape</receiver>
+        <slot>rotateZ(int)</slot>
+    </connection>
+    <connection>
+        <sender>wheelSize</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>landscape</receiver>
+        <slot>setGridSize(int)</slot>
+    </connection>
+    <connection>
+        <sender>wheelZoom</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>landscape</receiver>
+        <slot>zoom(int)</slot>
+    </connection>
+    <connection>
+        <sender>wheelX</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>landscape</receiver>
+        <slot>rotateX(int)</slot>
+    </connection>
+    <connection>
+        <sender>RadioButton1_3_2</sender>
+        <signal>stateChanged(int)</signal>
+        <receiver>landscape</receiver>
+        <slot>setLandscape(int)</slot>
+    </connection>
+    <connection>
+        <sender>reset_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>landscape</receiver>
+        <slot>resetGrid()</slot>
+    </connection>
+    <connection>
+        <sender>fractalize_btn_2</sender>
+        <signal>clicked()</signal>
+        <receiver>landscape</receiver>
+        <slot>fractalize()</slot>
     </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
+<functions>
+    <function name="init()" >{
+	wheelX-&gt;setOrientation( Horizontal );
+	wheelY-&gt;setOrientation( Horizontal );
+	wheelZ-&gt;setOrientation( Horizontal );
+    
+    	wheelZoom-&gt;setOrientation( Vertical );
+	wheelZoom-&gt;setRange( 0, 200 );  
+    	wheelZoom-&gt;setValue( 100 );
+    
+    	wheelSize-&gt;setOrientation( Vertical ); 
+	wheelSize-&gt;setRange( 25, 200 );   
+    	wheelSize-&gt;setValue( 50 ); 
+    	wheelSize-&gt;setSteps( 10, 10 );
+    	
+	wheelX-&gt;setRange( 0, 360 ); 
+	wheelY-&gt;setRange( 0, 360 );  
+	wheelZ-&gt;setRange( 0, 360 );  
+		
+     	wheelX-&gt;setTransmissionRatio( 0.5 ); 
+     	wheelY-&gt;setTransmissionRatio( 0.5 );  
+     	wheelZ-&gt;setTransmissionRatio( 0.5 );  
+}</function>
+    <function name="destroy()" >{
+
+}</function>
+</functions>
 </UI>
