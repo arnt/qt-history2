@@ -505,9 +505,13 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos,
 			    nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal?
 			    nstyle->whiteSpaceMode() : QStyleSheetItem::WhiteSpaceNormal) ) {
-		    if ( dummy && dummy->next )
-			dummy = 0;
 		    CLOSE_TAG
+		    if ( current->child && current->lastChild()->style == nullstyle )
+			dummy = current->lastChild();
+		    else
+			dummy = 0;
+		    if ( wsm != QStyleSheetItem::WhiteSpacePre && current->child && !dummy )
+			(void) eatSpace( doc, pos ); // start of line, eat space
 		}
 	    }
 	}
