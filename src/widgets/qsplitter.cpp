@@ -198,7 +198,7 @@ public:
 	: opaque( FALSE ), firstShow( TRUE ), childrenCollapsible( TRUE ),
 	  handleWidth( 0 ) { }
 
-    QPtrList<QSplitterLayoutStruct> list;
+    QList<QSplitterLayoutStruct*> list;
     bool opaque : 8;
     bool firstShow : 8;
     bool childrenCollapsible : 8;
@@ -333,11 +333,11 @@ void QSplitter::setOrientation( Orientation o )
 
     orient = o;
 
-    QSplitterLayoutStruct *s = d->list.first();
-    while ( s ) {
-	if ( s->isHandle )
-	    ((QSplitterHandle*)s->wid)->setOrientation( o );
-	s = d->list.next();
+    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+    while ( it != d->list.end() ) {
+	if ( (*it)->isHandle )
+	    (((QSplitterHandle*)*it)->wid)->setOrientation( o );
+	++it;
     }
     recalc( isVisible() );
 }
@@ -390,11 +390,11 @@ void QSplitter::resizeEvent( QResizeEvent * )
 QSplitterLayoutStruct *QSplitter::findWidget( QWidget *w )
 {
     processChildEvents();
-    QSplitterLayoutStruct *s = d->list.first();
-    while ( s ) {
-	if ( s->wid == w )
-	    return s;
-	s = d->list.next();
+    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+    while ( *it != d->list.end() ) {
+	if ( (*it)->wid == w )
+	    return *it;
+	++it;
     }
     return addWidget( w );
 }
@@ -455,11 +455,11 @@ void QSplitter::childEvent( QChildEvent *c )
 	if ( ((QWidget*)c->child())->testWFlags( WType_TopLevel ) )
 	    return;
 
-	QSplitterLayoutStruct *s = d->list.first();
-	while ( s ) {
-	    if ( s->wid == c->child() )
+	QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+	while ( it != d->list.end() ) {
+	    if ( (*it)->wid == c->child() )
 		return;
-	    s = d->list.next();
+	    ++it;
 	}
 	addWidget( (QWidget*)c->child() );
 	recalc( isVisible() );
@@ -467,21 +467,21 @@ void QSplitter::childEvent( QChildEvent *c )
 	QSplitterLayoutStruct *prev = 0;
 	if ( d->list.count() > 1 )
 	    prev = d->list.at( 1 );  // yes, this is correct
-	QSplitterLayoutStruct *curr = d->list.first();
-	while ( curr ) {
-	    if ( curr->wid == c->child() ) {
-		d->list.removeRef( curr );
+	QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+	while ( it != d->list.end() ) {
+	    if ( (*it)->wid == c->child() ) {
+		delete d->list.take( *it );
 		if ( prev && prev->isHandle ) {
 		    QWidget *w = prev->wid;
-		    d->list.removeRef( prev );
+		    delete d->list.take(prev);
 		    delete w; // will call childEvent()
 		}
 		recalcId();
 		doResize();
 		return;
 	    }
-	    prev = curr;
-	    curr = d->list.next();
+	    prev = *it;
+	    ++it;
 	}
     }
 }
@@ -567,14 +567,14 @@ void QSplitter::drawSplitter( QPainter *p,
 
 int QSplitter::idAfter( QWidget* w ) const
 {
-    QSplitterLayoutStruct *s = d->list.first();
+    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
     bool seen_w = FALSE;
-    while ( s ) {
-	if ( s->isHandle && seen_w )
-	    return d->list.at();
-	if ( !s->isHandle && s->wid == w )
+    while ( it != d->list.end() ) {
+	if ( (*it)->isHandle && seen_w )
+	    return d->list.indexOf(*it);
+	if ( !(it)->isHandle && s->wid == w )
 	    seen_w = TRUE;
-	s = d->list.next();
+	++it;
     }
     return 0;
 }
@@ -1027,20 +1027,21 @@ void QSplitter::moveToFirst( QWidget *w )
 {
     processChildEvents();
     bool found = FALSE;
-    QSplitterLayoutStruct *s = d->list.first();
-    while ( s ) {
-	if ( s->wid == w ) {
+    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+    while ( it != d->list.end() ) {
+	if ( (*it)->wid == w ) {
 	    found = TRUE;
-	    QSplitterLayoutStruct *p = d->list.prev();
-	    if ( p ) { // not already at first place
-		d->list.take(); // take p
-		d->list.take(); // take s
-		d->list.prepend( p );
-		d->list.prepend( s );
+	    QSplitterLayoutStruct *s = *it;
+	    QSplitterLayoutStruct *p = *(--it);
+	    if ( it != d->list.begin()) { // not already at first place
+		d->list.take(p);
+		d->list.take(s);
+		d->list.prepend(p);
+		d->list.prepend(s);
 	    }
 	    break;
 	}
-	s = d->list.next();
+	++it;
     }
     if ( !found )
 	addWidget( w, TRUE );
@@ -1056,20 +1057,21 @@ void QSplitter::moveToLast( QWidget *w )
 {
     processChildEvents();
     bool found = FALSE;
-    QSplitterLayoutStruct *s = d->list.first();
-    while ( s ) {
-	if ( s->wid == w ) {
+    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+    while ( it != d->list.end() ) {
+	if ( (*it)->wid == w ) {
 	    found = TRUE;
-	    d->list.take(); // take s
-	    QSplitterLayoutStruct *p = d->list.current();
-	    if ( p ) { // the splitter handle after s
-		d->list.take(); // take p
-		d->list.append( p );
+	    QSplitterLayoutStruct *s = *it;
+	    QSplitterLayoutStruct *p = *(++it);
+	    if ( it != d->list.end() ) { // the splitter handle after s
+		d->list.take(p);
+		d->list.append(p);
 	    }
-	    d->list.append( s );
+	    d->list.take(s);
+	    d->list.append(s);
 	    break;
 	}
-	s = d->list.next();
+	++it;
     }
     if ( !found )
 	addWidget( w );
@@ -1137,11 +1139,11 @@ QSize QSplitter::minimumSizeHint() const
 
 void QSplitter::storeSizes()
 {
-    QSplitterLayoutStruct *s = d->list.first();
-    while ( s ) {
-	if ( !s->isHandle )
-	    s->sizer = pick( s->wid->size() );
-	s = d->list.next();
+    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+    while ( it != d->list.end() ) {
+	if ( !(*it)->isHandle )
+	    (*it)->sizer = pick( (*it)->wid->size() );
+	++it;
     }
 }
 
@@ -1193,11 +1195,11 @@ QList<int> QSplitter::sizes() const
     ensurePolished();
 
     QList<int> list;
-    QSplitterLayoutStruct *s = d->list.first();
-    while ( s ) {
-	if ( !s->isHandle )
-	    list.append( isCollapsed(s->wid) ? 0 : pick(s->wid->size()));
-	s = d->list.next();
+    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+    while ( it != d->list.end() ) {
+	if ( !(*it)->isHandle )
+	    list.append( isCollapsed((*it)->wid) ? 0 : pick((*it)->wid->size()));
+	++it;
     }
     return list;
 }
@@ -1219,27 +1221,27 @@ void QSplitter::setSizes( QList<int> list )
 {
     processChildEvents();
     QList<int>::Iterator it = list.begin();
-    QSplitterLayoutStruct *s = d->list.first();
-    while ( s && it != list.end() ) {
-	if ( !s->isHandle ) {
-	    s->sizer = qMax( *it, 0 );
-	    int smartMinSize = pick( qSmartMinSize(s->wid) );
+    QList<QSplitterLayoutStruct*>::iterator it2 = d->list.begin();
+    while ( it2 != d->list.end() && it != list.end() ) {
+	if ( !(*it2)->isHandle ) {
+	    (*it2)->sizer = qMax( *it, 0 );
+	    int smartMinSize = pick( qSmartMinSize((*it2)->wid) );
 	    // Make sure that we reset the collapsed state.
-	    if ( s->sizer == 0 ) {
+	    if ( (*it2)->sizer == 0 ) {
 		if ( collapsible(s) && smartMinSize > 0 ) {
-		    s->wid->move( -1, -1 );
+		    (*it2)->wid->move( -1, -1 );
 		} else {
-		    s->sizer = smartMinSize;
-		    s->wid->move( 0, 0 );
+		    (*it2)->sizer = smartMinSize;
+		    (*it2)->wid->move( 0, 0 );
 		}
 	    } else {
-		if ( s->sizer < smartMinSize )
-		    s->sizer = smartMinSize;
-		s->wid->move( 0, 0 );
+		if ( (*it2)->sizer < smartMinSize )
+		    (*it2)->sizer = smartMinSize;
+		(*it2)->wid->move( 0, 0 );
 	    }
 	    ++it;
 	}
-	s = d->list.next();
+	++it2;
     }
     doResize();
 }
@@ -1287,11 +1289,11 @@ void QSplitter::changeEvent( QEvent *ev )
 void QSplitter::updateHandles()
 {
     int hw = handleWidth();
-    QSplitterLayoutStruct *s = d->list.first();
-    while ( s ) {
-	if ( s->isHandle )
-	    s->sizer = hw;
-	s = d->list.next();
+    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+    while ( it != d->list.end() ) {
+	if ( (*it)->isHandle )
+	    (*it)->sizer = hw;
+	++it;
     }
     recalc( isVisible() );
 }
@@ -1308,25 +1310,25 @@ void QSplitter::updateHandles()
 
 QTextStream& operator<<( QTextStream& ts, const QSplitter& splitter )
 {
-    QSplitterLayoutStruct *s = splitter.d->list.first();
+    QList<QSplitterLayoutStruct*>::iterator it = splitter.d->list.begin();
     bool first = TRUE;
     ts << "[";
 
-    while ( s != 0 ) {
-	if ( !s->isHandle ) {
+    while ( it != splitter.d->list.end() ) {
+	if ( !(*it)->isHandle ) {
 	    if ( !first )
 		ts << ",";
 
-	    if ( s->wid->isHidden() ) {
+	    if ( (*it)->wid->isHidden() ) {
 		ts << "H";
 	    } else if ( isCollapsed(s->wid) ) {
 		ts << 0;
 	    } else {
-		ts << s->getSizer( splitter.orientation() );
+		ts << (*it)->getSizer( splitter.orientation() );
 	    }
 	    first = FALSE;
 	}
-	s = splitter.d->list.next();
+	++it;;
     }
     ts << "]" << endl;
     return ts;
@@ -1350,7 +1352,7 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
 	i++
 
     splitter.processChildEvents();
-    QSplitterLayoutStruct *s = splitter.d->list.first();
+    QList<QSplitterLayoutStruct*>::iterator it = splitter.d->list.begin();
     QString line = ts.readLine();
     int i = 0;
 
@@ -1359,25 +1361,25 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
 	i++;
 	SKIP_SPACES();
 	while ( line[i] != ']' ) {
-	    while ( s != 0 && s->isHandle )
-		s = splitter.d->list.next();
-	    if ( s == 0 )
+	    while ( (*it) != 0 && s->isHandle )
+		++it;
+	    if ( it == splitter.d->line.end() )
 		break;
 
 	    if ( line[i].upper() == 'H' ) {
-		s->wid->hide();
+		(*it)->wid->hide();
 		i++;
 	    } else {
-		s->wid->show();
+		(*it)->wid->show();
 		int dim = 0;
 		while ( line[i].digitValue() >= 0 ) {
 		    dim *= 10;
 		    dim += line[i].digitValue();
 		    i++;
 		}
-		s->sizer = dim;
+		(*it)->sizer = dim;
 		if ( dim == 0 )
-		    splitter.setGeo( s->wid, 0, 0, FALSE );
+		    splitter.setGeo( (*it)->wid, 0, 0, FALSE );
 	    }
 	    SKIP_SPACES();
 	    if ( line[i] == ',' ) {
@@ -1386,7 +1388,7 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
 		break;
 	    }
 	    SKIP_SPACES();
-	    s = splitter.d->list.next();
+	    ++it;
 	}
     }
     splitter.doResize();
