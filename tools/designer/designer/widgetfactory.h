@@ -52,7 +52,7 @@ class CustomWidgetFactory : public QWidgetFactory
 public:
     CustomWidgetFactory();
     QWidget *createWidget( const QString &className, QWidget *parent, const char *name ) const;
-    
+
 };
 
 class WidgetFactory : public Qt
@@ -187,6 +187,7 @@ public:
 	: QWidget( parent, name ), cusw( cw ) {
 	    alwaysExpand = parentWidget() && parentWidget()->inherits( "FormWindow" );
 	    setSizePolicy( cw->sizePolicy );
+	    setBackgroundMode( PaletteDark );
     }
 
     QSize sizeHint() const {
