@@ -25,8 +25,8 @@ styles {
 		  $$STYLES_CPP/qcompactstyle.cpp
 }
 
-!macx:DEFINES += QT_NO_STYLE_AQUA
-macx {
+!mac:DEFINES += QT_NO_STYLE_AQUA
+mac {
 	HEADERS +=$$STYLES_H/qaquastyle.h
 	SOURCES +=$$STYLES_CPP/qaquastyle.cpp
 }
