@@ -4,9 +4,6 @@
 #include <qcleanuphandler.h>
 
 #include <qcanvas.h>
-#include <qgl.h>
-#include <qworkspace.h>
-#include <qiconview.h>
 #include <qtable.h>
 
 class ExtraWidgetsInterface : public WidgetInterface
@@ -59,9 +56,6 @@ QStringList ExtraWidgetsInterface::featureList()
     QStringList list;
 
     list << "QCanvasView";
-    list << "QGLWidget";
-    list << "QWorkspace";
-    list << "QIconView";
     list << "QTable";
 
     return list;
@@ -74,12 +68,6 @@ QWidget* ExtraWidgetsInterface::create( const QString &description, QWidget* par
 	QCanvas* canvas = new QCanvas;
 	objects.addCleanUp( canvas );
 	w = new QCanvasView( canvas, parent, name );
-    } else if ( description == "QGLWidget" ) {
-	w = new QGLWidget( parent, name );
-    } else if ( description == "QWorkspace" ) {
-	w = new QWorkspace( parent, name );
-    } else if ( description == "QIconView" ) {
-	w = new QIconView( parent, name );
     } else if ( description == "QTable" ) {
 	w = new QTable( parent, name );
     } else {
@@ -93,12 +81,6 @@ QWidget* ExtraWidgetsInterface::create( const QString &description, QWidget* par
 QString ExtraWidgetsInterface::group( const QString& description )
 {
     if ( description == "QCanvasView" )
-	return "Views";
-    else if ( description == "QGLWidget" )
-	return "Extended";
-    else if ( description == "QWorkspace" )
-	return "Containers";
-    else if ( description == "QIconView" )
 	return "Views";
     else if ( description == "QTable" )
 	return "Views";
@@ -120,12 +102,6 @@ QString ExtraWidgetsInterface::toolTip( const QString& description )
 {
     if ( description == "QCanvasView" )
 	return "Canvas";
-    else if ( description == "QGLWidget" )
-	return "OpenGL Widget";
-    else if ( description == "QWorkspace" )
-	return "Workspace";
-    else if ( description == "QIconView" )
-	return "Icon View";
     else if ( description == "QTable" )
 	return "Table";
 
