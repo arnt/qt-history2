@@ -566,7 +566,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		    break;
 		}
 
-		int dist = (int)sqrt(distp.x() * distp.x() + distp.y() * distp.y());
+		int dist = (int)sqrt((double)distp.x() * distp.x() + distp.y() * distp.y());
 		if (dist < mindist) {
 		    if (candidate)
 			candidate->release();
