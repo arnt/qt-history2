@@ -414,6 +414,40 @@ QFile::exists(const QString &fileName)
 }
 
 /*!
+    \overload
+
+    Returns the name a symlink (or shortcut on Windows) points to, or
+    a an empty string if the object isn't a symbolic link.
+
+    This name may not represent an existing file; it is only a string.
+    QFie::exists() returns true if the symlink points to an
+    existing file.
+
+    \sa fileName() setFileName()
+*/
+
+QString
+QFile::readLink() const
+{
+    return fileEngine()->fileName(QFileEngine::LinkName);
+}
+
+/*!
+    Returns the name a symlink (or shortcut on Windows) points to, or
+    a an empty string if the object isn't a symbolic link.
+
+    This name may not represent an existing file; it is only a string.
+    QFie::exists() returns true if the symlink points to an
+    existing file.
+*/
+
+QString
+QFile::readLink(const QString &fileName)
+{
+    return QFileInfo(fileName).readLink();
+}
+
+/*!
     Removes the file specified by fileName(). Returns true if successful;
     otherwise returns false.
 

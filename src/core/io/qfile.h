@@ -110,6 +110,9 @@ public:
     bool exists() const;
     static bool exists(const QString &fileName);
 
+    QString readLink() const;
+    static QString readLink(const QString &fileName);
+
     bool remove();
     static bool remove(const QString &fileName);
 
