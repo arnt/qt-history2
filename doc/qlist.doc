@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.13 1998/10/31 02:27:24 agulbra Exp $
+** $Id: qlist.doc,v 2.14 1998/11/12 09:52:42 warwick Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -797,6 +797,14 @@
 
 /*!
   \fn type *QListIterator::operator()()
+  Makes the succeeding item current and returns the original current item.
+
+  If the current iterator item was the last item in the list or if it was
+  null, null is returned.
+*/
+
+/*!
+  \fn char *QStrListIterator::operator()()
   Makes the succeeding item current and returns the original current item.
 
   If the current iterator item was the last item in the list or if it was
