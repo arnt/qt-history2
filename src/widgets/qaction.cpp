@@ -676,13 +676,21 @@ QActionMenu::QActionMenu( const QString& text, QObject* parent, const char* name
     m_popup = new QPopupMenu( 0 );
 }
 
+QActionMenu::QActionMenu( const QString& text, const QIconSet& icon, QObject* parent, const char* name )
+    : QAction( text, icon, 0, parent, name )
+{
+    // ##### use some parent here ...
+    m_popup = new QPopupMenu( 0 );
+}
+
 QActionMenu::~QActionMenu()
 {
-    // QListIterator<QAction> it( m_children );
-    // for( ; it.current(); ++it )
-    // it.current()->unplug( m_popup );
-
     delete m_popup;
+}
+
+void QActionMenu::popup( const QPoint& global )
+{
+    popupMenu()->popup( global );
 }
 
 QPopupMenu* QActionMenu::popupMenu()
@@ -736,6 +744,31 @@ int QActionMenu::plug( QWidget* widget )
 	connect( menu, SIGNAL( destroyed() ), this, SLOT( slotDestroyed() ) );
 	
 	return containerCount() - 1;	
+    }
+    else if ( widget->inherits("QToolBar") )
+    {
+	QToolBar* bar = (QToolBar*)widget;
+	QToolButton* b;
+	if ( !pixmap().isNull() )
+	    b = new QToolButton( pixmap(), text(), group(), this, SLOT( slotActivated() ), bar );
+	else if ( hasIconSet() )
+	    b = new QToolButton( iconSet(), text(), group(), this, SLOT( slotActivated() ), bar );
+	else
+        {
+	    b = new QToolButton( bar );
+	    b->setTextLabel( text() );
+	    connect( b, SIGNAL( clicked() ), this, SLOT( slotActivated() ) );
+	}
+
+	b->setEnabled( isEnabled() );
+
+	addContainer( bar, b );
+	connect( bar, SIGNAL( destroyed() ), this, SLOT( slotDestroyed() ) );
+	
+	b->setPopup( m_popup );
+	b->setPopupDelay( 0 );
+	
+	return containerCount() - 1;
     }
     else if ( widget->inherits("QActionWidget" ) )
 	return QAction::plug( widget );

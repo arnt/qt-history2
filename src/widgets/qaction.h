@@ -17,6 +17,7 @@ class QComboBox;
 class QPoint;
 class QIconView;
 class QIconViewItem;
+class QPoint;
 
 class QAction : public QObject
 {
@@ -142,6 +143,7 @@ class QActionMenu : public QAction
     Q_BUILDER( "A user action menu", "" )
 public:
     QActionMenu( const QString& text, QObject* parent = 0, const char* name = 0 );
+    QActionMenu( const QString& text, const QIconSet& icon, QObject* parent = 0, const char* name = 0 );
     QActionMenu( QObject* parent = 0, const char* name = 0 );
     virtual ~QActionMenu();
 
@@ -152,9 +154,10 @@ public:
     virtual void remove( QAction* );
 
     QPopupMenu* popupMenu();
-
+    void popup( const QPoint& global );
+    
     virtual bool setConfiguration( const QDomElement& element );
-
+    
 private:
     QPopupMenu* m_popup;
 };
