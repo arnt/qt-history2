@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#111 $
 **
 ** Implementation of QTableView class
 **
@@ -1380,7 +1380,7 @@ void QTableView::paintEvent( QPaintEvent *e )
     // eraseInPaint or not. Reason: a subclass (for example
     // QMultiLineEdit) may implement flicker-freeness and encourage
     // the use of repaint(FALSE). The subclass, however, cannot draw
-    // all pixels, just the once in the cells. So QTableView is
+    // all pixels, just those inside the cells. So QTableView is
     // reponsible for all pixels outside the cells.
 
     QRect viewR = viewRect();
