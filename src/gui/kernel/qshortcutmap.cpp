@@ -234,7 +234,7 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
     }
     switch(nextState(e)) {
     case Qt::NoMatch:
-        return false;
+        return e->isAccepted();
     case Qt::Identical:
         dispatchEvent();
         resetState();
