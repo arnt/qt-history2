@@ -349,7 +349,7 @@ public:
     QSettingsPrivate();
 
     QSettingsGroup readGroup();
-    void removeGroup(const QString &);
+    bool removeGroup(const QString &);
     void writeGroup(const QString &, const QString &);
     QDateTime modificationTime();
 
@@ -400,7 +400,8 @@ QSettingsGroup QSettingsPrivate::readGroup()
 }
 
 
-void QSettingsPrivate::removeGroup(const QString &key) {
+bool QSettingsPrivate::removeGroup(const QString &key)
+{
     QSettingsHeading hd;
     QSettingsGroup grp;
     bool found = FALSE;
@@ -449,6 +450,8 @@ void QSettingsPrivate::removeGroup(const QString &key) {
 
 	modified = TRUE;
     }
+
+    return found;
 }
 
 
@@ -1005,7 +1008,6 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 	realkey = key;
 
     d->writeGroup(realkey, value);
-
     return TRUE;
 }
 
@@ -1060,9 +1062,7 @@ bool QSettings::removeEntry(const QString &key)
     } else
 	realkey = key;
 
-    d->removeGroup(realkey);
-
-    return TRUE;
+    return d->removeGroup(realkey);
 }
 
 
