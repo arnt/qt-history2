@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include <qwidget.h>
-#include "qcolormap.h"
+#include "qglcolormap.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPAT
@@ -207,7 +207,7 @@ protected:
     HDC			dc;
     WId	win;
     int			pixelFormatId;
-    QGLColorMap*	cmap;
+    QGLCmap*		cmap;
 #elif defined(Q_WS_X11)
     void*		vi;
     void*		cx;
@@ -291,6 +291,10 @@ public:
     void		setMouseTracking( bool enable );
     virtual void 	reparent( QWidget* parent, WFlags f, const QPoint& p,
 				  bool showIt = FALSE );
+    
+    const QGLColormap & colormap() const;
+    void                setColormap( const QGLColormap & map );
+    
 public slots:
     virtual void	updateGL();
     virtual void	updateOverlayGL();
@@ -312,14 +316,17 @@ protected:
 
     virtual void	glInit();
     virtual void	glDraw();
-
+    
 private:
+    void                cleanupColormaps();
     void		init( const QGLFormat& fmt,
 			      const QGLWidget* shareWidget );
     bool		renderCxPm( QPixmap* pm );
     QGLContext*		glcx;
     bool		autoSwap;
-
+    
+    QGLColormap         cmap;
+    
 #if  defined(Q_WS_WIN)
     QGLContext*		olcx;
 #elif defined(Q_WS_X11)

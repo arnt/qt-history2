@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qcolormap_mac.cpp#0 $
+** $Id: //depot/qt/main/src/kernel/qglcolormap.h#0 $
 **
-** Implementation of QColormap class
+** Definition of QGLColormap class
 **
 ** Created : 20010326
 **
@@ -35,88 +35,54 @@
 **
 **********************************************************************/
 
-#include "qcolormap.h"
-#include "qshared.h"
-#include "qarray.h"
-#include "qwidget.h"
+#ifndef QGLCOLORMAP_H
+#define QGLCOLORMAP_H
 
-class QColormapPrivate : public QShared
+#ifndef QT_H
+#include "qcolor.h"
+#include "qmemarray.h"
+#include "qshared.h"
+#endif // QT_H
+
+class QWidget;
+class Q_EXPORT QGLColormap
 {
 public:
-    QColormapPrivate() { 
-	valid  = FALSE; 
-	size   = 0;
-	topLevelWidget = 0;
-    }
+    QGLColormap();
+    QGLColormap( const QGLColormap & );
+    ~QGLColormap();
     
-    ~QColormapPrivate() {
-    }
+    QGLColormap &operator=( const QGLColormap & );
     
-    bool valid;
-    int size;
-    QWidget * topLevelWidget;
+    bool   isEmpty() const;
+    int    size() const;
+    void   detach();
+
+    void   setEntries( int base, int count, const QRgb * colors );
+    void   setEntry( int idx, QRgb color );
+    void   setEntry( int idx, const QColor & color );
+    QRgb   entryRgb( int idx ) const;
+    QColor entryColor( int idx ) const;
+    
+private:
+    class Private : public QShared
+    {
+    public:
+	Private() {
+	    cells.resize( 256 ); // ### hardcoded to 256 entries for now
+	    cmapHandle = 0;
+	}
+
+	~Private() {
+	}
+
+	QMemArray<QRgb> cells;
+	Qt::HANDLE      cmapHandle;
+    };
+    
+    Private * d;
+
+    friend class QGLWidget;
 };
 
-
-QColormap::QColormap( QWidget * w )
-    : QObject( w )
-{
-}
-
-QColormap::QColormap( const QColormap & map )
-    : QObject( map.d->topLevelWidget )
-{
-}
-
-QColormap::~QColormap()
-{
-}
-
-void QColormap::create( QWidget * )
-{
-}
-
-void QColormap::install( QWidget * )
-{
-}
-
-QColormap & QColormap::operator=( const QColormap & )
-{
-    return *this;
-}
-
-void QColormap::detach()
-{
-}
-
-void QColormap::setRgb( int, QRgb )
-{    
-}
-
-void QColormap::setRgb( int, int, const QRgb * )
-{    
-}
-
-void QColormap::setColor( int, const QColor & )
-{    
-}
-
-QRgb QColormap::rgb( int ) const
-{
-    return Qt::black.rgb();
-}
-
-QColor QColormap::color( int ) const
-{
-    return Qt::black;
-}
-
-bool QColormap::isValid() const
-{
-    return FALSE;
-}
-
-int QColormap::size() const
-{
-    return 0;
-}
+#endif

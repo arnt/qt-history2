@@ -1198,6 +1198,7 @@ QGLWidget::~QGLWidget()
 	gl_pix = NULL;
     }
 #endif
+    cleanupColormaps();
 }
 
 

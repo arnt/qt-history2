@@ -462,10 +462,21 @@ void QGLWidget::setContext( QGLContext *context,
 	delete oldcx;
 }
 
-
 bool QGLWidget::renderCxPm( QPixmap* )
 {
     return FALSE;
 }
 
+const QGLColormap & QGLWidget::colormap() const
+{
+    return cmap;
+}
+
+void QGLWidget::setColormap( const QGLColormap & )
+{
+}
+
+void QGLWidget::cleanupColormaps()
+{	
+}
 #endif

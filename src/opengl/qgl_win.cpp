@@ -80,23 +80,23 @@ public:
 
 
 
-#ifndef QGLCOLORMAP_H
-#define QGLCOLORMAP_H
+#ifndef QGLCMAP_H
+#define QGLCMAP_H
 
 #include <qcolor.h>
 
-class QGLColorMapPrivate;
+class QGLCmapPrivate;
 
-class /*Q_EXPORT*/ QGLColorMap
+class /*Q_EXPORT*/ QGLCmap
 {
 public:
     enum Flags { Reserved = 0x01 };
 
-    QGLColorMap( int maxSize = 256 );
-    QGLColorMap( const QGLColorMap& map );
-    ~QGLColorMap();
+    QGLCmap( int maxSize = 256 );
+    QGLCmap( const QGLCmap& map );
+    ~QGLCmap();
 
-    QGLColorMap& operator=( const QGLColorMap& map );
+    QGLCmap& operator=( const QGLCmap& map );
 
     // isEmpty and/or isNull ?
     int size() const;
@@ -114,27 +114,27 @@ public:
 
 private:
     void detach();
-    QGLColorMapPrivate* d;
+    QGLCmapPrivate* d;
 };
     
 #endif
 
     
-QGLColorMap::QGLColorMap( int maxSize ) // add a bool prealloc?
+QGLCmap::QGLCmap( int maxSize ) // add a bool prealloc?
 {
-    d = new QGLColorMapPrivate;
+    d = new QGLCmapPrivate;
     d->maxSize = maxSize;
 }
 
 
-QGLColorMap::QGLColorMap( const QGLColorMap& map )
+QGLCmap::QGLCmap( const QGLCmap& map )
 {
     d = map.d;
     d->ref();
 }
 
 
-QGLColorMap::~QGLColorMap()
+QGLCmap::~QGLCmap()
 {
     if ( d && d->deref() )
 	delete d;
@@ -142,7 +142,7 @@ QGLColorMap::~QGLColorMap()
 }
 
 
-QGLColorMap& QGLColorMap::operator=( const QGLColorMap& map )
+QGLCmap& QGLCmap::operator=( const QGLCmap& map )
 {
     map.d->ref();
     if ( d->deref() )
@@ -152,23 +152,23 @@ QGLColorMap& QGLColorMap::operator=( const QGLColorMap& map )
 }
 
 
-int QGLColorMap::size() const
+int QGLCmap::size() const
 {
     return d->colorArray.size();
 }
 
 
-int QGLColorMap::maxSize() const
+int QGLCmap::maxSize() const
 {
     return d->maxSize;
 }
 
 
-void QGLColorMap::detach()
+void QGLCmap::detach()
 {
     if ( d->count != 1 ) {
 	d->deref();
-	QGLColorMapPrivate* newd = new QGLColorMapPrivate;
+	QGLCmapPrivate* newd = new QGLCmapPrivate;
 	newd->maxSize = d->maxSize;
 	newd->colorArray = d->colorArray.copy();
 	newd->allocArray = d->allocArray.copy();
@@ -179,11 +179,11 @@ void QGLColorMap::detach()
 }
 
 
-void QGLColorMap::resize( int newSize )
+void QGLCmap::resize( int newSize )
 {
 #if defined (QT_CHECK_RANGE)
     if ( newSize < 0 || newSize > d->maxSize ) {
-	qWarning( "QGLColorMap::resize(): size out of range" );
+	qWarning( "QGLCmap::resize(): size out of range" );
 	return;
     }
 #endif
@@ -200,7 +200,7 @@ void QGLColorMap::resize( int newSize )
 }
 
 
-int QGLColorMap::find( QRgb color ) const
+int QGLCmap::find( QRgb color ) const
 {
     QMap<uint,int>::ConstIterator it = d->colorMap.find( color );
     if ( it != d->colorMap.end() )
@@ -209,7 +209,7 @@ int QGLColorMap::find( QRgb color ) const
 }
 
 
-int QGLColorMap::findNearest( QRgb color ) const
+int QGLCmap::findNearest( QRgb color ) const
 {
     int idx = find( color );
     if ( idx >= 0 )
@@ -221,7 +221,7 @@ int QGLColorMap::findNearest( QRgb color ) const
     int b = qBlue( color );
     int rx, gx, bx, dist;
     for ( int i=0; i < mapSize; i++ ) {
-	if ( !(d->allocArray[i] & QGLColorMapPrivate::Allocated) )
+	if ( !(d->allocArray[i] & QGLCmapPrivate::Allocated) )
 	    continue;
 	QRgb ci = d->colorArray[i];
 	rx = r - qRed( ci );
@@ -241,14 +241,14 @@ int QGLColorMap::findNearest( QRgb color ) const
 
 // Does not always allocate; returns existing c idx if found
 
-int QGLColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
+int QGLCmap::allocate( QRgb color, uint flags, Q_UINT8 context )
 {
     int idx = find( color );
     if ( idx >= 0 )
 	return idx;
 
     int mapSize = d->colorArray.size();
-    int newIdx = d->allocArray.find( QGLColorMapPrivate::UnAllocated );
+    int newIdx = d->allocArray.find( QGLCmapPrivate::UnAllocated );
 
     if ( newIdx < 0 ) {			// Must allocate more room
 	if ( mapSize < d->maxSize ) {
@@ -264,11 +264,11 @@ int QGLColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
     }
 
     d->colorArray[newIdx] = color;
-    if ( flags & QGLColorMap::Reserved ) {
-	d->allocArray[newIdx] = QGLColorMapPrivate::Reserved;
+    if ( flags & QGLCmap::Reserved ) {
+	d->allocArray[newIdx] = QGLCmapPrivate::Reserved;
     }
     else {
-	d->allocArray[newIdx] = QGLColorMapPrivate::Allocated;
+	d->allocArray[newIdx] = QGLCmapPrivate::Allocated;
 	d->colorMap.insert( color, newIdx );
     }
     d->contextArray[newIdx] = context;
@@ -276,11 +276,11 @@ int QGLColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
 }
 
 
-void QGLColorMap::setEntry( int idx, QRgb color, uint flags, Q_UINT8 context )
+void QGLCmap::setEntry( int idx, QRgb color, uint flags, Q_UINT8 context )
 {
 #if defined (QT_CHECK_RANGE)
     if ( idx < 0 || idx >= d->maxSize ) {
-	qWarning( "QGLColorMap::set(): Index out of range" );
+	qWarning( "QGLCmap::set(): Index out of range" );
 	return;
     }
 #endif
@@ -291,18 +291,18 @@ void QGLColorMap::setEntry( int idx, QRgb color, uint flags, Q_UINT8 context )
 	resize( mapSize );
     }
     d->colorArray[idx] = color;
-    if ( flags & QGLColorMap::Reserved ) {
-	d->allocArray[idx] = QGLColorMapPrivate::Reserved;
+    if ( flags & QGLCmap::Reserved ) {
+	d->allocArray[idx] = QGLCmapPrivate::Reserved;
     }
     else {
-	d->allocArray[idx] = QGLColorMapPrivate::Allocated;
+	d->allocArray[idx] = QGLCmapPrivate::Allocated;
 	d->colorMap.insert( color, idx );
     }
     d->contextArray[idx] = context;
 }
 
 
-const QRgb* QGLColorMap::colors() const
+const QRgb* QGLCmap::colors() const
 {
     return d->colorArray.data();
 }
@@ -528,9 +528,9 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	    else
 		d->transpColor = QColor( qRgb( 1, 2, 3 ), 0 );
 
-	    cmap = new QGLColorMap( 1 << lpfd.cColorBits );
+	    cmap = new QGLCmap( 1 << lpfd.cColorBits );
 	    cmap->setEntry( lpfd.crTransparent, qRgb( 1, 2, 3 ),
-			    QGLColorMap::Reserved );
+			    QGLCmap::Reserved );
 	}
 
         if ( shareContext && shareContext->isValid() )
@@ -987,4 +987,99 @@ void QGLWidget::setContext( QGLContext *context,
 bool QGLWidget::renderCxPm( QPixmap* )
 {
     return FALSE;
+}
+
+
+/*! Returns the colormap for this widget.
+    
+    Please note that only top-level widgets can have different
+    colormaps installed. Asking for the colormap of a child widget
+    will return the colormap for the child's top-level widget.
+    
+    If no colormap has been set for this widget, the QGLColormap
+    returned will be empty.
+    
+    \sa setColormap()
+*/
+
+const QGLColormap & QGLWidget::colormap() const
+{
+    return cmap;
+}
+
+/*\internal
+  Store color values in the given colormap.
+*/
+static void qStoreColors( HPALETTE cmap, const QGLColormap & cols )
+{
+    QRgb color;
+    PALETTEENTRY pe;
+    
+    for ( int i = 0; i < cols.size(); i++ ) {
+	color = cols.entryRgb( i );
+	pe.peRed   = qRed( color );
+	pe.peGreen = qGreen( color );
+	pe.peBlue  = qBlue( color );
+	pe.peFlags = 0;
+
+	SetPaletteEntries( cmap, i, 1, &pe );
+    }
+}
+
+/*! Set the colormap for this widget.
+    
+    Note that only top-level widgets can have colormaps installed. In
+    addidion, under X11 only GreyScale, PseudoColor or DirectColor
+    visuals can have dynamic (read/write) colormaps installed. If the
+    widget is not created with one of these visual types, setting a
+    colormap for the widget will fail.
+    
+    \sa colormap()
+*/
+void QGLWidget::setColormap( const QGLColormap & c )
+{
+    QWidget * tlw   = topLevelWidget(); // must return a valid widget
+
+    cmap = c;
+    if ( !cmap.d )
+	return;
+    
+    if ( cmap.d->cmapHandle ) { // already have an allocated cmap
+	qStoreColors( (HPALETTE) cmap.d->cmapHandle, c );
+    } else {
+        LOGPALETTE * lpal = (LOGPALETTE *) malloc( sizeof(LOGPALETTE)
+			    + c.size() * sizeof(PALETTEENTRY) );
+
+	lpal->palVersion    = 0x300;
+	lpal->palNumEntries = c.size();
+	cmap.d->cmapHandle  = CreatePalette( lpal );
+
+	if ( cmap.d->cmapHandle != 0 ) {
+	    HDC hdc = GetDC( tlw->winId() );
+	    SelectPalette( hdc, (HPALETTE) cmap.d->cmapHandle, FALSE );
+	    qStoreColors( (HPALETTE) cmap.d->cmapHandle, c );
+	    RealizePalette( hdc );
+	    ReleaseDC( tlw->winId(), hdc );
+	}
+	free( lpal );
+    }
+}
+
+/*! \internal
+  Free up any allocated colormaps. This fn is only called for
+  top-level widgets.
+*/
+void QGLWidget::cleanupColormaps()
+{	
+    if ( !cmap.d )
+	return;
+    
+    if ( cmap.d->cmapHandle ) {
+	HDC hdc = GetDC( topLevelWidget()->winId() ); 
+	SelectPalette( hdc, (HPALETTE) GetStockObject( DEFAULT_PALETTE ),
+		       FALSE );
+	DeleteObject( (HPALETTE) cmap.d->cmapHandle );
+	ReleaseDC( topLevelWidget()->winId(), hdc );
+	cmap.d->cmapHandle = 0;
+    }
 }
