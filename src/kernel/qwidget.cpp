@@ -883,7 +883,6 @@ QWidget::~QWidget()
 	deleteExtra();
 
     destroy();					// platform-dependent cleanup
-    isWidget = FALSE;         //We are no longer a QWidget because the destructor is finished
 }
 
 int QWidget::instanceCounter = 0;  // Current number of widget instances
