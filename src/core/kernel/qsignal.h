@@ -26,7 +26,7 @@ public:
     QSignalEmitter(const char *type = 0);
     ~QSignalEmitter();
     const QMetaObject *metaObject() const { return &staticMetaObject; }
-    void *qt_metacast(const char *) const;
+    void *qt_metacast(const char *);
     void activate(void * = 0);
     bool connect(const QObject *receiver, const char *member, Qt::ConnectionType = Qt::AutoConnection);
     bool disconnect(const QObject *receiver, const char *member=0);

@@ -137,7 +137,7 @@ QSignalEmitter::~QSignalEmitter()
 {
 }
 
-void *QSignalEmitter::qt_metacast(const char *clname) const
+void *QSignalEmitter::qt_metacast(const char *clname)
 {
     if (!clname) return 0;
     if (!strcmp(clname, staticMetaObject.className()))
