@@ -30,7 +30,7 @@ public:
     static void          removeDatabase( const QString& name );
     static void          free();
     QT_STATIC_CONST char * const defaultDatabase;
-private:
+protected:
     static QSqlConnection* instance();
     QSqlConnection( QObject* parent=0, const char* name=0 );
     ~QSqlConnection();
