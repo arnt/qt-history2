@@ -62,7 +62,11 @@ public:
   bars that start a new line are always positioned at the left end or
   top of the tool bar dock; others are placed next to the previous
   tool bar and word-wrapped as necessary.
-
+  Also you can specify if a toolbar should fill a whole row of a dock
+  (if the toolbar is Horizontal) of not, with setFullWidth(), by default
+  it is set to FALSE. Normally you want to set it to fill a full row,
+  if you have a stretchable widget in the toolbar (see setStretchableWidget()).
+  
   The tool bar is able to arrange its buttons horizontally or
   vertically (see setOrientation() for details) and draws the
   appropriate frames around the tool button in Windows and Motif
@@ -308,10 +312,11 @@ QMainWindow * QToolBar::mainWindow()
 }
 
 
-/*!  
+/*!
   Sets \a w to be expanded if this toolbar is requested to stretch
-  (because QMainWindow right-justifies the dock it's in).
-  
+  (because QMainWindow right-justifies the dock it's in or fullWidth()
+  of this toolbar is TRUE).
+
   \sa QMainWindow::setRightJustification(), setFullWidth()
 */
 
