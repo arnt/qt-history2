@@ -865,7 +865,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	      request.weight, request.italic, request.stretch, request.pixelSize, pitch );
 
 #ifdef QT_XFT2
-    if (family_name.isEmpty()) {
+    if (family_name == "Sans Serif"
+	|| family_name == "Serif"
+	|| family_name == "Monospace") {
 	fe = loadFontConfigFont(fp, request, script);
     }
     if (!fe)

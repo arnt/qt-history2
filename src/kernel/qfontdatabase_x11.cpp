@@ -874,6 +874,45 @@ static void loadXft()
     }
 
     XftFontSetDestroy (fonts);
+
+#ifdef QT_XFT2
+    struct XftDefaultFont {
+	const char *qtname;
+	const char *rawname;
+	bool fixed;
+    };
+    const XftDefaultFont defaults[] = {
+	{ "Serif", "serif", FALSE },
+	{ "Sans Serif", "sans-serif", FALSE },
+        { "Monospace", "monospace", TRUE },
+	{ 0, 0, FALSE }
+    };
+    const XftDefaultFont *f = defaults;
+    while (f->qtname) {
+	QtFontFamily *family = db->family( f->qtname, TRUE );
+	family->rawName = f->rawname;
+	family->hasXft = TRUE;
+	QtFontFoundry *foundry
+	    = family->foundry( QString::null,  TRUE );
+
+	for ( int i = 0; i < QFont::LastPrivateScript; ++i )
+	    family->scripts[i] = QtFontFamily::Supported;
+
+	QtFontStyle::Key styleKey;
+	styleKey.oblique = FALSE;
+	for (int i = 0; i < 4; ++i) {
+	    styleKey.italic = (i%2);
+	    styleKey.weight = (i > 1) ? QFont::Bold : QFont::Normal;
+	    QtFontStyle *style = foundry->style( styleKey,  TRUE );
+	    style->smoothScalable = TRUE;
+	    QtFontSize *size = style->pixelSize( SMOOTH_SCALABLE, TRUE );
+	    QtFontEncoding *enc = size->encodingID( -1, 0, 0, 0, 0, TRUE );
+	    enc->pitch = ( spacing_value >= XFT_CHARCELL ? 'c' :
+			   ( spacing_value >= XFT_MONO ? 'm' : 'p' ) );
+	}
+	++f;
+    }
+#endif
 }
 
 #ifndef QT_XFT2
@@ -1517,26 +1556,31 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
     if (!X11->has_xft)
 	return 0;
 
-    QStringList family_list = QStringList::split(QChar(','), fp->request.family);
+    QStringList family_list;
+    if (request.family.isEmpty()) {
+	family_list = QStringList::split(QChar(','), fp->request.family);
 
-    QString stylehint;
-    switch ( request.styleHint ) {
-    case QFont::SansSerif:
-	stylehint = "sans-serif";
-	break;
-    case QFont::Serif:
-	stylehint = "serif";
-	break;
-    case QFont::TypeWriter:
-	stylehint = "monospace";
-	break;
-    default:
-	if (request.fixedPitch)
+	QString stylehint;
+	switch ( request.styleHint ) {
+	case QFont::SansSerif:
+	    stylehint = "sans-serif";
+	    break;
+	case QFont::Serif:
+	    stylehint = "serif";
+	    break;
+	case QFont::TypeWriter:
 	    stylehint = "monospace";
-	break;
+	    break;
+	default:
+	    if (request.fixedPitch)
+		stylehint = "monospace";
+	    break;
+	}
+	if (!stylehint.isEmpty())
+	    family_list << stylehint;
+    } else {
+	family_list << request.family;
     }
-    if (!stylehint.isEmpty())
-	family_list << stylehint;
 
     FcPattern *pattern = FcPatternCreate();
 
@@ -1667,6 +1711,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 		scale = request.pixelSize/px;
 	    }
 	    fe->setScale( scale );
+	    fe->fontDef = request;
 	    if ( script != QFont::Unicode && !canRender( fe, QChar(ch) ) ) {
 		FM_DEBUG( "  WARN: font loaded cannot render sample 0x%04x", ch );
 		delete fe;
