@@ -1281,7 +1281,7 @@ static void qt_get_net_virtual_roots()
 
 static void qt_net_update_user_time(QWidget *tlw)
 {
-    XChangeProperty(QX11Info::appDisplay(), tlw->winId(), ATOM(_NET_WM_USER_TIME),
+    XChangeProperty(QX11Info::display(), tlw->winId(), ATOM(_NET_WM_USER_TIME),
                     XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
 }
 
@@ -2087,7 +2087,7 @@ void qt_cleanup()
         int screen;
         for (screen = 0; screen < X11->screenCount; screen++) {
             if (! QX11Info::appDefaultColormap(screen))
-                XFreeColormap(QX11Info::appDisplay(),
+                XFreeColormap(QX11Info::display(),
                                QX11Info::appColormap(screen));
         }
     }
@@ -2822,12 +2822,12 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (qic && qic->composing && qic->focusWidget && qt_compose_emptied) {
             XEvent event2;
             bool found = false;
-            if (XCheckTypedEvent(QX11Info::appDisplay(),
+            if (XCheckTypedEvent(QX11Info::display(),
                                    XKeyPress, &event2)) {
                 if (event2.xkey.keycode == 0) {
                     // found a key event with the 'commit' string
                     found = true;
-                    XPutBackEvent(QX11Info::appDisplay(), &event2);
+                    XPutBackEvent(QX11Info::display(), &event2);
                 }
             }
 

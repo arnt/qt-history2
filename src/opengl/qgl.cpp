@@ -1773,7 +1773,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
         int nvis;
         Visual *vis = (Visual *) QX11Info::appVisual();
         int screen = QX11Info::appScreen();
-        Display *appDpy = QX11Info::appDisplay();
+        Display *appDpy = QX11Info::display();
         XVisualInfo * vi;
         XVisualInfo visInfo;
         memset(&visInfo, 0, sizeof(XVisualInfo));
@@ -1817,12 +1817,12 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
         memset(&visInfo, 0, sizeof(XVisualInfo));
         visInfo.visualid = XVisualIDFromVisual((Visual *) gl_pixmap_visual);
         visInfo.screen = QX11Info::appScreen();
-        XVisualInfo *vi = XGetVisualInfo(QX11Info::appDisplay(), VisualIDMask | VisualScreenMask,
+        XVisualInfo *vi = XGetVisualInfo(QX11Info::display(), VisualIDMask | VisualScreenMask,
                                           &visInfo, &nvis);
         if (vi) {
             QX11InfoData* xd = pm.x11Info()->getX11Data(true);
-            xd->x_depth = vi->depth;
-            xd->x_visual = (Visual *) gl_pixmap_visual;
+            xd->depth = vi->depth;
+            xd->visual = (Visual *) gl_pixmap_visual;
             pm.x11Info()->setX11Data(xd);
             XFree(vi);
         }

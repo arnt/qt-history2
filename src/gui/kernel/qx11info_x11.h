@@ -31,7 +31,7 @@ public:
     QX11Info(const QX11Info &other);
     QX11Info &operator=(const QX11Info &other);
 
-    Display *display() const;
+    static Display *display();
     int screen() const;
     int depth() const;
     int cells() const;
@@ -40,7 +40,9 @@ public:
     void *visual() const;
     bool defaultVisual() const;
 
-    static Display *appDisplay();
+#ifdef QT_COMPAT
+    inline static QT_COMPAT Display *appDisplay() { return display(); }
+#endif
     static int appScreen();
     static int appDepth(int screen = -1);
     static int appCells(int screen = -1);
@@ -69,19 +71,6 @@ protected:
     friend void qt_init(QApplicationPrivate *priv, int, Display *display, Qt::HANDLE visual,
                         Qt::HANDLE colormap);
     friend void qt_cleanup();
-};
-
-// ### hm. maybe move this - needed for inlining
-struct QX11InfoData {
-    uint ref;
-    Display *x_display;
-    int x_screen;
-    int x_depth;
-    int x_cells;
-    Qt::HANDLE x_colormap;
-    bool x_defcolormap;
-    void *x_visual;
-    bool x_defvisual;
 };
 
 #endif // QX11INFO_X11_H

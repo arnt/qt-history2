@@ -40,7 +40,7 @@ QCursorData::QCursorData(int s)
 
 QCursorData::~QCursorData()
 {
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
 
     // Add in checking for the display too as on HP-UX
     // we seem to get a core dump as the cursor data is
@@ -134,7 +134,7 @@ QPoint QCursor::pos()
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    Display* dpy = QX11Info::appDisplay();
+    Display* dpy = QX11Info::display();
     for (int i = 0; i < ScreenCount(dpy); ++i) {
         if (XQueryPointer(dpy, QX11Info::appRootWindow(i), &root, &child, &root_x, &root_y,
                           &win_x, &win_y, &buttons))
@@ -152,7 +152,7 @@ int QCursor::x11Screen()
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    Display* dpy = QX11Info::appDisplay();
+    Display* dpy = QX11Info::display();
     for (int i = 0; i < ScreenCount(dpy); ++i) {
         if (XQueryPointer(dpy, QX11Info::appRootWindow(i), &root, &child, &root_x, &root_y,
                           &win_x, &win_y, &buttons))
@@ -181,7 +181,7 @@ void QCursor::setPos(int x, int y)
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    Display* dpy = QX11Info::appDisplay();
+    Display* dpy = QX11Info::display();
     int screen;
     for (screen = 0; screen < ScreenCount(dpy); ++screen) {
         if (XQueryPointer(dpy, QX11Info::appRootWindow(screen), &root, &child, &root_x, &root_y,
@@ -201,7 +201,7 @@ void QCursor::setPos(int x, int y)
     if (current == target)
         return;
 
-    XWarpPointer(QX11Info::appDisplay(), XNone, QX11Info::appRootWindow(screen), 0, 0, 0, 0, x, y);
+    XWarpPointer(QX11Info::display(), XNone, QX11Info::appRootWindow(screen), 0, 0, 0, 0, x, y);
 }
 
 /*!
@@ -227,7 +227,7 @@ void QCursor::update() const
     if (d->hcurs)
         return;
 
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     Window rootwin = QX11Info::appRootWindow();
 
     if (d->cshape == Qt::BitmapCursor) {

@@ -38,10 +38,10 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     // Two loops so that posted events accumulate
     do {
         while (!d->shortcut &&
-	       XEventsQueued(QX11Info::appDisplay(), QueuedAlready)) {
+	       XEventsQueued(QX11Info::display(), QueuedAlready)) {
             // process events from the X server
             XEvent event;
-            XNextEvent(QX11Info::appDisplay(), &event);
+            XNextEvent(QX11Info::display(), &event);
 
             if (flags & ExcludeUserInput) {
                 switch (event.type) {
@@ -76,7 +76,7 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
             if (qApp->x11ProcessEvent(&event) == 1)
                 return true;
         }
-    } while (!d->shortcut && XEventsQueued(QX11Info::appDisplay(), QueuedAfterFlush));
+    } while (!d->shortcut && XEventsQueued(QX11Info::display(), QueuedAfterFlush));
 
     if (d->shortcut)
 	return false;
@@ -101,12 +101,12 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 bool QGuiEventLoop::hasPendingEvents() const
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
-    return (qGlobalPostedEventsCount() || XPending(QX11Info::appDisplay()));
+    return (qGlobalPostedEventsCount() || XPending(QX11Info::display()));
 }
 
 void QGuiEventLoop::appStartingUp()
 {
-    d->xfd = XConnectionNumber(QX11Info::appDisplay());
+    d->xfd = XConnectionNumber(QX11Info::display());
 }
 
 void QGuiEventLoop::appClosingDown()
@@ -126,5 +126,5 @@ void QGuiEventLoop::cleanup()
 
 void QGuiEventLoop::flush()
 {
-    XFlush(QX11Info::appDisplay());
+    XFlush(QX11Info::display());
 }

@@ -235,6 +235,20 @@ extern "C" char *XSetIMValues(XIM /* im */, ...);
 
 class QWidget;
 
+
+struct QX11InfoData {
+    uint ref;
+    int screen;
+    int depth;
+    int cells;
+    Qt::HANDLE colormap;
+    Visual *visual;
+    bool defaultColormap;
+    bool defaultVisual;
+};
+
+
+
 struct QX11Data;
 extern QX11Data *qt_x11Data;
 

@@ -102,14 +102,13 @@ QX11InfoData* QX11Info::getX11Data(bool def) const
     QX11InfoData* res = 0;
     if (def) {
         res = new QX11InfoData;
-        res->x_display = appDisplay();
-        res->x_screen = appScreen();
-        res->x_depth = appDepth();
-        res->x_cells = appCells();
-        res->x_colormap = colormap();
-        res->x_defcolormap = appDefaultColormap();
-        res->x_visual = appVisual();
-        res->x_defvisual = appDefaultVisual();
+        res->screen = appScreen();
+        res->depth = appDepth();
+        res->cells = appCells();
+        res->colormap = colormap();
+        res->defaultColormap = appDefaultColormap();
+        res->visual = (Visual*) appVisual();
+        res->defaultVisual = appDefaultVisual();
     } else if (x11data) {
         res = new QX11InfoData;
         *res = *x11data;
@@ -155,7 +154,7 @@ void QX11Info::setAppDpiY(int screen, int ydpi)
 }
 
 
-Display *QX11Info::appDisplay()
+Display *QX11Info::display()
 {
     return X11->display;
 }
@@ -193,26 +192,23 @@ bool QX11Info::appDefaultColormap(int screen)
 bool QX11Info::appDefaultVisual(int screen)
 { return X11->screens[screen == -1 ? X11->defaultScreen : screen].defaultVisual; }
 
-Display *QX11Info::display() const
-{ return x11data ? x11data->x_display : QX11Info::appDisplay(); }
-
 int QX11Info::screen() const
-{ return x11data ? x11data->x_screen : QX11Info::appScreen(); }
+{ return x11data ? x11data->screen : QX11Info::appScreen(); }
 
 int QX11Info::depth() const
-{ return x11data ? x11data->x_depth : QX11Info::appDepth(); }
+{ return x11data ? x11data->depth : QX11Info::appDepth(); }
 
 int QX11Info::cells() const
-{ return x11data ? x11data->x_cells : QX11Info::appCells(); }
+{ return x11data ? x11data->cells : QX11Info::appCells(); }
 
 Qt::HANDLE QX11Info::colormap() const
-{ return x11data ? x11data->x_colormap : QX11Info::appColormap(); }
+{ return x11data ? x11data->colormap : QX11Info::appColormap(); }
 
 bool QX11Info::defaultColormap() const
-{ return x11data ? x11data->x_defcolormap : QX11Info::appDefaultColormap(); }
+{ return x11data ? x11data->defaultColormap : QX11Info::appDefaultColormap(); }
 
 void *QX11Info::visual() const
-{ return x11data ? x11data->x_visual : QX11Info::appVisual(); }
+{ return x11data ? x11data->visual : QX11Info::appVisual(); }
 
 bool QX11Info::defaultVisual() const
-{ return x11data ? x11data->x_defvisual : QX11Info::appDefaultVisual(); }
+{ return x11data ? x11data->defaultVisual : QX11Info::appDefaultVisual(); }

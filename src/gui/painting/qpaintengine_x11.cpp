@@ -413,7 +413,7 @@ void qt_erase_background(QPaintDevice *pd, int screen,
     }
 
     Qt::HANDLE hd = qt_x11Handle(pd);
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     GC gc;
     void *penref = 0;
     ulong pixel = brush.color().pixel(screen);
@@ -527,7 +527,7 @@ void QX11PaintEngine::initialize()
 void QX11PaintEngine::cleanup()
 {
     cleanup_gc_cache();
-    cleanup_gc_array(QX11Info::appDisplay());
+    cleanup_gc_array(QX11Info::display());
     QPointArray::cleanBuffers();
 }
 
@@ -1104,7 +1104,7 @@ static mask_gc gc_vec[max_mask_gcs];
 
 static void cleanup_mask_gc()
 {
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     init_mask_gc = false;
     for (int i=0; i<max_mask_gcs; i++) {
         if (gc_vec[i].gc)

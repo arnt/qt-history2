@@ -271,13 +271,13 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 
     if (defaultScreen >= 0 && defaultScreen != data->xinfo->screen()) {
         QX11InfoData* xd = data->xinfo->getX11Data(true);
-        xd->x_screen = defaultScreen;
-        xd->x_depth = QX11Info::appDepth(xd->x_screen);
-        xd->x_cells = QX11Info::appCells(xd->x_screen);
-        xd->x_colormap = QX11Info::appColormap(xd->x_screen);
-        xd->x_defcolormap = QX11Info::appDefaultColormap(xd->x_screen);
-        xd->x_visual = QX11Info::appVisual(xd->x_screen);
-        xd->x_defvisual = QX11Info::appDefaultVisual(xd->x_screen);
+        xd->screen = defaultScreen;
+        xd->depth = QX11Info::appDepth(xd->screen);
+        xd->cells = QX11Info::appCells(xd->screen);
+        xd->colormap = QX11Info::appColormap(xd->screen);
+        xd->defaultColormap = QX11Info::appDefaultColormap(xd->screen);
+        xd->visual = (Visual *)QX11Info::appVisual(xd->screen);
+        xd->defaultVisual = QX11Info::appDefaultVisual(xd->screen);
         data->xinfo->setX11Data(xd);
     }
 
@@ -1892,13 +1892,13 @@ void QPixmap::x11SetScreen(int screen)
 
     if (isNull()) {
         QX11InfoData* xd = data->xinfo->getX11Data(true);
-        xd->x_screen = screen;
-        xd->x_depth = QX11Info::appDepth(screen);
-        xd->x_cells = QX11Info::appCells(screen);
-        xd->x_colormap = QX11Info::appColormap(screen);
-        xd->x_defcolormap = QX11Info::appDefaultColormap(screen);
-        xd->x_visual = QX11Info::appVisual(screen);
-        xd->x_defvisual = QX11Info::appDefaultVisual(screen);
+        xd->screen = screen;
+        xd->depth = QX11Info::appDepth(screen);
+        xd->cells = QX11Info::appCells(screen);
+        xd->colormap = QX11Info::appColormap(screen);
+        xd->defaultColormap = QX11Info::appDefaultColormap(screen);
+        xd->visual = (Visual *)QX11Info::appVisual(screen);
+        xd->defaultVisual = QX11Info::appDefaultVisual(screen);
         data->xinfo->setX11Data(xd);
         return;
     }
@@ -1909,13 +1909,13 @@ void QPixmap::x11SetScreen(int screen)
     QImage img = convertToImage();
     resize(0,0);
     QX11InfoData* xd = data->xinfo->getX11Data(true);
-    xd->x_screen = screen;
-    xd->x_depth = QX11Info::appDepth(screen);
-    xd->x_cells = QX11Info::appCells(screen);
-    xd->x_colormap = QX11Info::appColormap(screen);
-    xd->x_defcolormap = QX11Info::appDefaultColormap(screen);
-    xd->x_visual = QX11Info::appVisual(screen);
-    xd->x_defvisual = QX11Info::appDefaultVisual(screen);
+    xd->screen = screen;
+    xd->depth = QX11Info::appDepth(screen);
+    xd->cells = QX11Info::appCells(screen);
+    xd->colormap = QX11Info::appColormap(screen);
+    xd->defaultColormap = QX11Info::appDefaultColormap(screen);
+    xd->visual = (Visual *)QX11Info::appVisual(screen);
+    xd->defaultVisual = QX11Info::appDefaultVisual(screen);
     data->xinfo->setX11Data(xd);
     convertFromImage(img);
 }

@@ -182,7 +182,7 @@ void QColor::initialize()
         return;
     color_init = true;
 
-    Display *dpy  = QX11Info::appDisplay();
+    Display *dpy  = QX11Info::display();
     int             spec = QApplication::colorSpec();
 
     screencount = ScreenCount(dpy);
@@ -321,7 +321,7 @@ void QColor::cleanup()
 */
 uint QColor::alloc(int screen)
 {
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     if (screen < 0)
         screen = QX11Info::appScreen();
     if (!color_init)
@@ -529,7 +529,7 @@ void QColor::setSystemNamedColor(const QString& name)
         *this = QColor();
     } else {
         XColor col, hw_col;
-        if (XLookupColor(QX11Info::appDisplay(),
+        if (XLookupColor(QX11Info::display(),
                           QX11Info::appColormap(), name.latin1(),
                           &col, &hw_col)) {
             setRgb(col.red>>8, col.green>>8, col.blue>>8);
@@ -705,7 +705,7 @@ void QColor::destroyAllocContext(int context)
             }
         }
         if (i)
-            XFreeColors(QX11Info::appDisplay(),
+            XFreeColors(QX11Info::display(),
                          QX11Info::appColormap(screen),
                          pixels, i, 0);
     }

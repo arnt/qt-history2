@@ -181,7 +181,7 @@ Display *QPaintDevice::x11Display() const
     QX11Info *info = qt_x11Info(this);
     if (info)
 	return info->display();
-    return QX11Info::appDisplay();
+    return QX11Info::display();
 }
 
 int QPaintDevice::x11Screen() const
@@ -247,7 +247,7 @@ Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
 { return QX11Info::appColormap(screen); }
 
 Display *QPaintDevice::x11AppDisplay()
-{ return QX11Info::appDisplay(); }
+{ return QX11Info::display(); }
 
 int QPaintDevice::x11AppScreen()
 { return QX11Info::appScreen(); }

@@ -629,7 +629,7 @@ static bool qt_fillFontDef(XFontStruct *fs, QFontDef *fd, int screen)
     if (fs && !XGetFontProperty(fs, XA_FONT, &value))
         return false;
 
-    char *n = XGetAtomName(QX11Info::appDisplay(), value);
+    char *n = XGetAtomName(QX11Info::display(), value);
     QByteArray xlfd(n);
     if (n)
         XFree(n);
@@ -694,7 +694,7 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
     xlfd_pattern += "-*-*-*-*-*-*-*-*-*-*-";
     xlfd_pattern += xlfd_for_id(encoding_id);
 
-    char **fontList = XListFonts(QX11Info::appDisplay(),
+    char **fontList = XListFonts(QX11Info::display(),
                                  xlfd_pattern,
                                  0xffff, &fontCount);
     // qDebug("requesting xlfd='%s', got %d fonts", xlfd_pattern.data(), fontCount);
@@ -826,7 +826,7 @@ static void loadXft()
     FcBool scalable;
 
     fonts =
-        XftListFonts(QX11Info::appDisplay(),
+        XftListFonts(QX11Info::display(),
                      QX11Info::appScreen(),
                      (const char *)0,
                      XFT_FAMILY, XFT_WEIGHT, XFT_SLANT,
@@ -1209,7 +1209,7 @@ QFontEngine *loadEngine(QFont::Script script,
         FM_DEBUG("Loading XLFD (rawmode) '%s'", xlfd.data());
 
         XFontStruct *xfs;
-        if (! (xfs = XLoadQueryFont(QX11Info::appDisplay(), xlfd.data())))
+        if (! (xfs = XLoadQueryFont(QX11Info::display(), xlfd.data())))
             return 0;
 
         QFontEngine *fe = new QFontEngineXLFD(xfs, xlfd.data(), 0);
@@ -1258,7 +1258,7 @@ QFontEngine *loadEngine(QFont::Script script,
 
         XftResult res;
         XftPattern *result =
-            XftFontMatch(QX11Info::appDisplay(), fp->screen, pattern, &res);
+            XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
 
  	if (script == QFont::Latin) {
  	    // since we added the Euro char on top, check we actually got the family
@@ -1273,7 +1273,7 @@ QFontEngine *loadEngine(QFont::Script script,
  		FcCharSetAddChar(cs, sample.unicode());
  		FcPatternAddCharSet(pattern, FC_CHARSET, cs);
  		FcCharSetDestroy(cs);
- 		result = XftFontMatch(QX11Info::appDisplay(), fp->screen, pattern, &res);
+ 		result = XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
  	    }
  	}
 	XftPatternDestroy(pattern);
@@ -1282,7 +1282,7 @@ QFontEngine *loadEngine(QFont::Script script,
         // will own the pattern after the call or the pattern will be
         // destroyed.
         XftPattern *dup = XftPatternDuplicate(result);
-        XftFont *xftfs = XftFontOpenPattern(QX11Info::appDisplay(), dup);
+        XftFont *xftfs = XftFontOpenPattern(QX11Info::display(), dup);
 
         if (! xftfs) // Xft couldn't find a font?
             return 0;
@@ -1349,7 +1349,7 @@ QFontEngine *loadEngine(QFont::Script script,
     FM_DEBUG("    xlfd: '%s'", xlfd.data());
 
     XFontStruct *xfs;
-    if (! (xfs = XLoadQueryFont(QX11Info::appDisplay(), xlfd)))
+    if (! (xfs = XLoadQueryFont(QX11Info::display(), xlfd)))
         return 0;
 
     QFontEngine *fe = 0;
@@ -1531,14 +1531,14 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
         addPatternProps(pattern, key, false, fp, request, script);
 
         XftPattern *result =
-            XftFontMatch(QX11Info::appDisplay(), fp->screen, pattern, &res);
+            XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
         XftPatternDestroy(pattern);
 
         // We pass a duplicate to XftFontOpenPattern because either xft font
         // will own the pattern after the call or the pattern will be
         // destroyed.
         XftPattern *dup = XftPatternDuplicate(result);
-        XftFont *xftfs = XftFontOpenPattern(QX11Info::appDisplay(), dup);
+        XftFont *xftfs = XftFontOpenPattern(QX11Info::display(), dup);
 
         if (!xftfs) {
             // Xft couldn't find a font?

@@ -160,12 +160,12 @@ static void create_wm_client_leader()
     if (X11->wm_client_leader) return;
 
     X11->wm_client_leader =
-        XCreateSimpleWindow(QX11Info::appDisplay(),
+        XCreateSimpleWindow(QX11Info::display(),
                              QX11Info::appRootWindow(),
                              0, 0, 1, 1, 0, 0, 0);
 
     // set client leader property to itself
-    XChangeProperty(QX11Info::appDisplay(),
+    XChangeProperty(QX11Info::display(),
                      X11->wm_client_leader, ATOM(WM_CLIENT_LEADER),
                      XA_WINDOW, 32, PropModeReplace,
                      (unsigned char *)&X11->wm_client_leader, 1);
@@ -173,7 +173,7 @@ static void create_wm_client_leader()
     // If we are session managed, inform the window manager about it
     QByteArray session = qApp->sessionId().toLatin1();
     if (!session.isEmpty()) {
-        XChangeProperty(QX11Info::appDisplay(),
+        XChangeProperty(QX11Info::display(),
                          X11->wm_client_leader, ATOM(SM_CLIENT_ID),
                          XA_STRING, 8, PropModeReplace,
                          (unsigned char *)session.data(), session.size());
@@ -329,24 +329,24 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         qt_x11_create_desktop_on_screen != d->xinfo->screen()) {
         // desktop on a certain screen other than the default requested
         QX11InfoData *xd = d->xinfo->getX11Data(true);
-        xd->x_screen = qt_x11_create_desktop_on_screen;
-        xd->x_depth = QX11Info::appDepth(xd->x_screen);
-        xd->x_cells = QX11Info::appCells(xd->x_screen);
-        xd->x_colormap = QX11Info::appColormap(xd->x_screen);
-        xd->x_defcolormap = QX11Info::appDefaultColormap(xd->x_screen);
-        xd->x_visual = QX11Info::appVisual(xd->x_screen);
-        xd->x_defvisual = QX11Info::appDefaultVisual(xd->x_screen);
+        xd->screen = qt_x11_create_desktop_on_screen;
+        xd->depth = QX11Info::appDepth(xd->screen);
+        xd->cells = QX11Info::appCells(xd->screen);
+        xd->colormap = QX11Info::appColormap(xd->screen);
+        xd->defaultColormap = QX11Info::appDefaultColormap(xd->screen);
+        xd->visual = (Visual *) QX11Info::appVisual(xd->screen);
+        xd->defaultVisual = QX11Info::appDefaultVisual(xd->screen);
         d->xinfo->setX11Data(xd);
     } else if (parentWidget() &&  parentWidget()->d->xinfo->screen() != d->xinfo->screen()) {
         // if we have a parent widget, move to its screen if necessary
         QX11InfoData* xd = d->xinfo->getX11Data(true);
-        xd->x_screen = parentWidget()->d->xinfo->screen();
-        xd->x_depth = QX11Info::appDepth(xd->x_screen);
-        xd->x_cells = QX11Info::appCells(xd->x_screen);
-        xd->x_colormap = QX11Info::appColormap(xd->x_screen);
-        xd->x_defcolormap = QX11Info::appDefaultColormap(xd->x_screen);
-        xd->x_visual = QX11Info::appVisual(xd->x_screen);
-        xd->x_defvisual = QX11Info::appDefaultVisual(xd->x_screen);
+        xd->screen = parentWidget()->d->xinfo->screen();
+        xd->depth = QX11Info::appDepth(xd->screen);
+        xd->cells = QX11Info::appCells(xd->screen);
+        xd->colormap = QX11Info::appColormap(xd->screen);
+        xd->defaultColormap = QX11Info::appDefaultColormap(xd->screen);
+        xd->visual = (Visual *) QX11Info::appVisual(xd->screen);
+        xd->defaultVisual = QX11Info::appDefaultVisual(xd->screen);
         d->xinfo->setX11Data(xd);
     }
 
@@ -388,22 +388,22 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         QX11InfoData* xd = d->xinfo->getX11Data(true);
 
         // find which screen the window is on...
-        xd->x_screen = QX11Info::appScreen(); // by default, use the default :)
+        xd->screen = QX11Info::appScreen(); // by default, use the default :)
         int i;
         for (i = 0; i < ScreenCount(dpy); i++) {
             if (RootWindow(dpy, i) == a.root) {
-                xd->x_screen = i;
+                xd->screen = i;
                 break;
             }
         }
 
-        xd->x_depth = a.depth;
-        xd->x_cells = DisplayCells(dpy, xd->x_screen);
-        xd->x_visual = a.visual;
-        xd->x_defvisual = (XVisualIDFromVisual((Visual *) a.visual) ==
+        xd->depth = a.depth;
+        xd->cells = DisplayCells(dpy, xd->screen);
+        xd->visual = a.visual;
+        xd->defaultVisual = (XVisualIDFromVisual((Visual *) a.visual) ==
                            XVisualIDFromVisual((Visual *) QX11Info::appVisual(d->xinfo->screen())));
-        xd->x_colormap = a.colormap;
-        xd->x_defcolormap = (a.colormap == QX11Info::appColormap(d->xinfo->screen()));
+        xd->colormap = a.colormap;
+        xd->defaultColormap = (a.colormap == QX11Info::appColormap(d->xinfo->screen()));
         d->xinfo->setX11Data(xd);
     } else if (desktop) {                        // desktop widget
         id = (WId)parentw;                        // id = root window
@@ -1053,7 +1053,7 @@ qstring_to_xtp(const QString& s)
         char* tl[2];
         tl[0] = mapped.data();
         tl[1] = 0;
-        errCode = XmbTextListToTextProperty(QX11Info::appDisplay(),
+        errCode = XmbTextListToTextProperty(QX11Info::display(),
                                              tl, 1, XStdICCTextStyle, &tp);
 #if defined(QT_DEBUG)
         if (errCode < 0)
@@ -1425,7 +1425,7 @@ static void qt_discard_double_buffer(QX11DoubleBuffer **db)
 {
     if (!*db) return;
 
-    XFreePixmap(QX11Info::appDisplay(), (*db)->hd);
+    XFreePixmap(QX11Info::display(), (*db)->hd);
 #ifndef QT_NO_XFT
     if (X11->use_xrender && X11->has_xft)
         XftDrawDestroy((XftDraw *) (*db)->xft_hd);
@@ -1450,12 +1450,12 @@ static void qt_x11_release_double_buffer(QX11DoubleBuffer **db)
 static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, int depth, int width, int height)
 {
     QX11DoubleBuffer *db = new QX11DoubleBuffer;
-    db->hd = XCreatePixmap(QX11Info::appDisplay(), hd, width, height, depth);
+    db->hd = XCreatePixmap(QX11Info::display(), hd, width, height, depth);
 
 #ifndef QT_NO_XFT
     if (X11->use_xrender && X11->has_xft)
         db->xft_hd =
-            (Qt::HANDLE) XftDrawCreate(QX11Info::appDisplay(),
+            (Qt::HANDLE) XftDrawCreate(QX11Info::display(),
                                        db->hd,
                                        (Visual *) QX11Info::appVisual(),
                                        QX11Info::appColormap());
@@ -2644,7 +2644,7 @@ void QWidget::updateFrameStrut() const
     unsigned char *data_ret;
     unsigned long l_unused;
 
-    while (XQueryTree(QX11Info::appDisplay(), w, &r, &p, &c, &nc)) {
+    while (XQueryTree(QX11Info::display(), w, &r, &p, &c, &nc)) {
         if (c && nc > 0)
             XFree(c);
 
@@ -2657,7 +2657,7 @@ void QWidget::updateFrameStrut() const
         // a NET WM virtual root window, stop here
         data_ret = 0;
         if (p == r ||
-            (XGetWindowProperty(QX11Info::appDisplay(), p,
+            (XGetWindowProperty(QX11Info::display(), p,
                                 ATOM(ENLIGHTENMENT_DESKTOP), 0, 1, False, XA_CARDINAL,
                                 &type_ret, &i_unused, &l_unused, &l_unused,
                                 &data_ret) == Success &&
@@ -2681,9 +2681,9 @@ void QWidget::updateFrameStrut() const
     // we have our window
     int transx, transy;
     XWindowAttributes wattr;
-    if (XTranslateCoordinates(QX11Info::appDisplay(), l, w,
+    if (XTranslateCoordinates(QX11Info::display(), l, w,
                               0, 0, &transx, &transy, &p) &&
-        XGetWindowAttributes(QX11Info::appDisplay(), w, &wattr)) {
+        XGetWindowAttributes(QX11Info::display(), w, &wattr)) {
         QTLWExtra *top = that->d->topData();
         top->fleft = transx;
         top->ftop = transy;

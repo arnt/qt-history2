@@ -96,7 +96,7 @@ static QByteArray qt_fixXLFD(const QByteArray &xlfd)
     QByteArray ret = xlfd;
     int count = 0;
     char **fontNames =
-        XListFonts(QX11Info::appDisplay(), xlfd, 32768, &count);
+        XListFonts(QX11Info::display(), xlfd, 32768, &count);
     if (count > 0)
         ret = fontNames[0];
     XFreeFontNames(fontNames);
@@ -542,8 +542,7 @@ static const char * const tryFonts[] = {
 static bool fontExists(const QString &fontName)
 {
     int count;
-    char **fontNames = XListFonts(QX11Info::appDisplay(),
-                                   (char*)fontName.latin1(), 32768, &count);
+    char **fontNames = XListFonts(QX11Info::display(), (char*)fontName.latin1(), 32768, &count);
     if (fontNames) XFreeFontNames(fontNames);
 
     return count != 0;

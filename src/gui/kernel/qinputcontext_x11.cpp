@@ -64,7 +64,7 @@ static XFontSet getFontSet(const QFont &f)
         i += 4;
 
     if (!fontsetCache[i]) {
-        Display* dpy = QX11Info::appDisplay();
+        Display* dpy = QX11Info::display();
         int missCount;
         char** missList;
         fontsetCache[i] = XCreateFontSet(dpy, fontsetnames[i], &missList, &missCount, 0);
@@ -374,7 +374,7 @@ QInputContext::~QInputContext()
         XDestroyIC((XIC) ic);
 
     if (--fontsetRefCount == 0) {
-        Display *dpy = QX11Info::appDisplay();
+        Display *dpy = QX11Info::display();
         for (int i = 0; i < 8; i++) {
             if (fontsetCache[i] && fontsetCache[i] != (XFontSet)-1) {
                 XFreeFontSet(dpy, fontsetCache[i]);

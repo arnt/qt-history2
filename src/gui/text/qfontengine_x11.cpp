@@ -130,7 +130,7 @@ bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, 
 
 void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     Qt::HANDLE hd = qt_x11Handle(p->painter()->device());
     GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
@@ -271,7 +271,7 @@ QFontEngineXLFD::QFontEngineXLFD(XFontStruct *fs, const char *name, int mib)
 
 QFontEngineXLFD::~QFontEngineXLFD()
 {
-    XFreeFont(QX11Info::appDisplay(), _fs);
+    XFreeFont(QX11Info::display(), _fs);
     _fs = 0;
 }
 
@@ -368,7 +368,7 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
 
 //     qDebug("QFontEngineXLFD::draw(%d, %d, numglyphs=%d", x, y, si.num_glyphs);
 
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     Qt::HANDLE hd = qt_x11Handle(p->painter()->device());
     GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
@@ -1129,13 +1129,13 @@ QFontEngineXft::~QFontEngineXft()
     delete _openType;
     XftUnlockFace(_font);
 
-    XftFontClose(QX11Info::appDisplay(),_font);
+    XftFontClose(QX11Info::display(),_font);
     XftPatternDestroy(_pattern);
     _font = 0;
     _pattern = 0;
     TransformedFont *trf = transformed_fonts;
     while (trf) {
-        XftFontClose(QX11Info::appDisplay(), trf->xft_font);
+        XftFontClose(QX11Info::display(), trf->xft_font);
         TransformedFont *tmp = trf;
         trf = trf->next;
         delete tmp;
@@ -1235,7 +1235,7 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::
             }
             if (!glyphs[i].advance.x()) {
                 XGlyphInfo gi;
-                XftGlyphExtents(QX11Info::appDisplay(), _font, &glyph, 1, &gi);
+                XftGlyphExtents(QX11Info::display(), _font, &glyph, 1, &gi);
                 glyphs[i].advance.rx() = gi.xOff;
                 glyphs[i].advance.ry() = gi.yOff;
                 if (glyph < widthCacheSize) {
@@ -1258,7 +1258,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     if (!si.num_glyphs)
         return;
 
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
 
     int xorig = xpos;
     int yorig = ypos;
@@ -1291,7 +1291,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
             TransformedFont *tmp = trf;
             trf = trf->next;
             if (i > 10) {
-                XftFontClose(QX11Info::appDisplay(), tmp->xft_font);
+                XftFontClose(QX11Info::display(), tmp->xft_font);
                 delete tmp;
                 prev->next = trf;
             } else {
@@ -1486,7 +1486,7 @@ glyph_metrics_t QFontEngineXft::boundingBox(const QGlyphLayout *glyphs, int numG
     float xmax = 0;
     for (int i = 0; i < numGlyphs; i++) {
         FT_UInt gl = glyphs[i].glyph;
-        XftGlyphExtents(QX11Info::appDisplay(), _font, &gl, 1, &xgi);
+        XftGlyphExtents(QX11Info::display(), _font, &gl, 1, &xgi);
         float x = overall.xoff + glyphs[i].offset.x() - xgi.x;
         float y = overall.yoff + glyphs[i].offset.y() - xgi.y;
         overall.x = qMin(overall.x, x);
@@ -1513,7 +1513,7 @@ glyph_metrics_t QFontEngineXft::boundingBox(glyph_t glyph)
 {
     XGlyphInfo xgi;
     FT_UInt x = glyph;
-    XftGlyphExtents(QX11Info::appDisplay(), _font, &x, 1, &xgi);
+    XftGlyphExtents(QX11Info::display(), _font, &x, 1, &xgi);
     glyph_metrics_t gm = glyph_metrics_t(-xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff);
     if (_scale != 1.) {
         gm.x *= _scale;

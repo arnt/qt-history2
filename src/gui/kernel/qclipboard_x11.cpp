@@ -276,7 +276,7 @@ QClipboardINCRTransaction::QClipboardINCRTransaction(Window w, Atom p, Atom t, i
 {
     DEBUG("QClipboard: sending %d bytes (INCR transaction %p)", d.size(), this);
 
-    XSelectInput(QX11Info::appDisplay(), window, PropertyChangeMask);
+    XSelectInput(QX11Info::display(), window, PropertyChangeMask);
 
     if (! transactions) {
         VDEBUG("QClipboard: created INCR transaction map");
@@ -292,7 +292,7 @@ QClipboardINCRTransaction::~QClipboardINCRTransaction(void)
 {
     VDEBUG("QClipboard: destroyed INCR transacton %p", this);
 
-    XSelectInput(QX11Info::appDisplay(), window, NoEventMask);
+    XSelectInput(QX11Info::display(), window, NoEventMask);
 
     transactions->remove(window);
     if (transactions->isEmpty()) {
@@ -325,12 +325,12 @@ int QClipboardINCRTransaction::x11Event(XEvent *event)
         VDEBUG("QClipboard: sending %d bytes, %d remaining (INCR transaction %p)",
                xfer, bytes_left - xfer, this);
 
-        XChangeProperty(QX11Info::appDisplay(), window, property, target, format,
+        XChangeProperty(QX11Info::display(), window, property, target, format,
                         PropModeReplace, (uchar *) data.data() + offset, xfer);
         offset += xfer;
     } else {
         // INCR transaction finished...
-        XChangeProperty(QX11Info::appDisplay(), window, property, target, format,
+        XChangeProperty(QX11Info::display(), window, property, target, format,
                         PropModeReplace, (uchar *) data.data(), 0);
         delete this;
     }
@@ -675,7 +675,7 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     }
 #endif
 
-    XChangeProperty(QX11Info::appDisplay(), window, property, XA_ATOM, 32,
+    XChangeProperty(QX11Info::display(), window, property, XA_ATOM, 32,
                     PropModeReplace, (uchar *) data.data(), n);
     return property;
 }
@@ -700,7 +700,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
             (target == ATOM(COMPOUND_TEXT)) ? XCompoundTextStyle : XStdICCTextStyle;
         XTextProperty textprop;
         if (list[0] != NULL
-            && XmbTextListToTextProperty(QX11Info::appDisplay(),
+            && XmbTextListToTextProperty(QX11Info::display(),
                                          list, 1, style, &textprop) == Success) {
             DEBUG("    textprop type %lx\n"
                   "    textprop name '%s'\n"
@@ -740,7 +740,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
 
     DEBUG("    format 8\n    %d bytes", data.size());
 
-    XChangeProperty(QX11Info::appDisplay(), window, property, xtarget, 8,
+    XChangeProperty(QX11Info::display(), window, property, xtarget, 8,
                     PropModeReplace, (uchar *) data.data(), data.size());
     return property;
 }
@@ -764,7 +764,7 @@ static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window,
         return XNone;
 
     Pixmap handle = pm.handle();
-    XChangeProperty(QX11Info::appDisplay(), window, property,
+    XChangeProperty(QX11Info::display(), window, property,
                     target, 32, PropModeReplace, (uchar *) &handle, 1);
     d->addTransferredPixmap(pm);
     return property;
@@ -797,11 +797,11 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     bool allow_incr = property != motif_clip_temporary;
 
     const int increment =
-        (XMaxRequestSize(QX11Info::appDisplay()) >= 65536 ?
-         65536 : XMaxRequestSize(QX11Info::appDisplay()));
+        (XMaxRequestSize(QX11Info::display()) >= 65536 ?
+         65536 : XMaxRequestSize(QX11Info::display()));
     if (data.size() > increment && allow_incr) {
         long bytes = data.size();
-        XChangeProperty(QX11Info::appDisplay(), window, property,
+        XChangeProperty(QX11Info::display(), window, property,
                         ATOM(INCR), 32, PropModeReplace, (uchar *) &bytes, 1);
 
         (void)new QClipboardINCRTransaction(window, property, target, format, data, increment);
@@ -809,11 +809,11 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     }
 
     // make sure we can perform the XChangeProperty in a single request
-    if ((int)data.size() >= XMaxRequestSize(QX11Info::appDisplay()) - 100)
+    if ((int)data.size() >= XMaxRequestSize(QX11Info::display()) - 100)
         return XNone; // ### perhaps use several XChangeProperty calls w/ PropModeAppend?
 
     // use a single request to transfer data
-    XChangeProperty(QX11Info::appDisplay(), window, property, target,
+    XChangeProperty(QX11Info::display(), window, property, target,
                     format, PropModeReplace, (uchar *) data.data(),
                     data.size() / sizeof_format(format));
     return property;
@@ -887,7 +887,7 @@ bool QClipboard::event(QEvent *e)
     }
 
     XEvent *xevent = (XEvent *)(((QCustomEvent *)e)->data());
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
 
     if (!xevent)
         return true;
@@ -1138,7 +1138,7 @@ QClipboardWatcher::~QClipboardWatcher()
 
 bool QClipboardWatcher::empty() const
 {
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     Window win = XGetSelectionOwner(dpy, atom);
 
     if(win == requestor->winId()) {
@@ -1239,7 +1239,7 @@ QByteArray QClipboardWatcher::encodedData(const char* fmt) const
         QByteArray pmd = getDataInFormat(fmtatom);
         if (pmd.size() == sizeof(Pixmap)) {
             Pixmap xpm = *((Pixmap*)pmd.data());
-            Display *dpy = QX11Info::appDisplay();
+            Display *dpy = QX11Info::display();
             Window r;
             int x,y;
             uint w,h,bw,d;
@@ -1278,7 +1278,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 {
     QByteArray buf;
 
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     Window   win = requestor->winId();
 
     DEBUG("QClipboardWatcher::getDataInFormat: selection '%s' format '%s'",
@@ -1380,7 +1380,7 @@ void QClipboard::setData(QMimeSource* src, Mode mode)
         return;
     }
 
-    Display *dpy = QX11Info::appDisplay();
+    Display *dpy = QX11Info::display();
     Window newOwner;
 
     if (! src) { // no data, clear clipboard contents
@@ -1448,7 +1448,7 @@ bool qt_check_selection_sentinel()
         ulong nitems;
         ulong bytesLeft;
 
-        if (XGetWindowProperty(QX11Info::appDisplay(),
+        if (XGetWindowProperty(QX11Info::display(),
                                QApplication::desktop()->screen(0)->winId(),
                                ATOM(_QT_SELECTION_SENTINEL), 0, 2, False, XA_WINDOW,
                                &actualType, &actualFormat, &nitems,
@@ -1487,7 +1487,7 @@ bool qt_check_clipboard_sentinel()
         int actualFormat;
         unsigned long nitems, bytesLeft;
 
-        if (XGetWindowProperty(QX11Info::appDisplay(),
+        if (XGetWindowProperty(QX11Info::display(),
                                QApplication::desktop()->screen(0)->winId(),
                                ATOM(_QT_CLIPBOARD_SENTINEL), 0, 2, False, XA_WINDOW,
                                &actualType, &actualFormat, &nitems, &bytesLeft,
