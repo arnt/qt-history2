@@ -189,8 +189,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     else {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
-	t << "staticlib: $(TARGET)" << "\n\t"
-	  << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
+	t << "staticlib: $(TARGET)" << endl << endl;
+	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
 	  << "-rm -f $(TARGET)" << "\n\t"
 	  << var("QMAKE_AR_CMD") << "\n\t"
 	  << varGlue("QMAKE_RANLIB","",""," $(TARGET)") << endl << endl;
