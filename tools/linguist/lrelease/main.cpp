@@ -40,6 +40,8 @@ TRANSLATIONS	= funnyapp_fr.ts \
 
 int main( int argc, char **argv )
 {
+    bool metTranslations = FALSE;
+
     if ( argc != 2 ) {
 	qWarning( "Usage:\n    lrelease file.pro" );
 	return 1;
@@ -47,7 +49,7 @@ int main( int argc, char **argv )
 
     QFile f( argv[1] );
     if ( !f.open(IO_ReadOnly) ) {
-	qWarning( "lrelease error: cannot open project file '%s': %s", argv[1],
+	qWarning( "lrelease error: Cannot open project file '%s': %s", argv[1],
 		  strerror(errno) );
 	return 1;
     }
@@ -73,6 +75,7 @@ int main( int argc, char **argv )
 
 	if ( toks.count() >= 3 && toks[1] == QString("=") ) {
 	    if ( toks.first() == QString("TRANSLATIONS") ) {
+		metTranslations = TRUE;
 		QStringList::Iterator t;
 		for ( t = toks.at(2); t != toks.end(); ++t ) {
 		    MetaTranslator tor;
@@ -92,5 +95,8 @@ int main( int argc, char **argv )
 	    }
 	}
     }
+    if ( !metTranslations )
+	qWarning( "lrelease warning: Met no 'TRANSLATIONS' entry in"
+		  " project file '%s'", argv[1] );
     return 0;
 }

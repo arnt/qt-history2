@@ -54,6 +54,8 @@ TRANSLATIONS	= funnyapp_fr.ts \
 */
 int main( int argc, char **argv )
 {
+    bool metSomething = FALSE;
+
     if ( argc != 2 ) {
 	qWarning( "Usage:\n    lupdate file.pro" );
 	return 1;
@@ -61,7 +63,7 @@ int main( int argc, char **argv )
 
     QFile f( argv[1] );
     if ( !f.open(IO_ReadOnly) ) {
-	qWarning( "lupdate error: cannot open project file '%s': %s", argv[1],
+	qWarning( "lupdate error: Cannot open project file '%s': %s", argv[1],
 		  strerror(errno) );
 	return 1;
     }
@@ -95,14 +97,18 @@ int main( int argc, char **argv )
 	    QStringList::Iterator t;
 	    for ( t = toks.at(2); t != toks.end(); ++t ) {
 		if ( toks.first() == QString("HEADERS") ||
-		     toks.first() == QString("SOURCES") )
+		     toks.first() == QString("SOURCES") ) {
 		    fetchtr_cpp( *t, &fetchedTor, defaultContext );
-		else if ( toks.first() == QString("INTERFACES") )
+		    metSomething = TRUE;
+		} else if ( toks.first() == QString("INTERFACES") ) {
 		    fetchtr_ui( *t, &fetchedTor, defaultContext );
-		else if ( toks.first() == QString("TRANSLATIONS") )
+		    metSomething = TRUE;
+		} else if ( toks.first() == QString("TRANSLATIONS") ) {
 		    translatorFiles.append( *t );
-		else if ( toks.first() == QString("CODEC") )
+		    metSomething = TRUE;
+		} else if ( toks.first() == QString("CODEC") ) {
 		    codec = (*t).latin1();
+		}
 	    }
 	}
     }
@@ -113,8 +119,11 @@ int main( int argc, char **argv )
 	    tor.setCodec( codec );
 	merge( &tor, &fetchedTor );
 	if ( !tor.save(*tf) )
-	    qWarning( "lupdate error: cannot save '%s': %s", (*tf).latin1(),
+	    qWarning( "lupdate error: Cannot save '%s': %s", (*tf).latin1(),
 		      strerror(errno) );
     }
+    if ( !metSomething )
+	qWarning( "lupdate warning: File '%s' does not look like a project"
+		  " file", argv[1] );
     return 0;
 }
