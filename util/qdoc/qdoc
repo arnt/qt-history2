@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#165 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#166 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1743,6 +1743,7 @@ sub printclass {
 	    s/\s+$//;
 	    s/\s+/ /g;
 	    s/\)\s*:\s*[A-Q].*/\)/;
+	    s/\)\s*throw\s+.*/\)/;
 
 	    if (/^operator\s+([\w\s\*\&]+?)\s*\(\s*\)\s*((?:const)?)\s*$/s) {
 		my($u, $r, $c);
