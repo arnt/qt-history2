@@ -263,9 +263,6 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                     // queue user input events for later processing
                     haveMessage = false;
                     d->queuedUserInputEvents.append(msg);
-                } else {
-                    // process non user input event
-                    haveMessage = true;
                 }
             }
             if (!haveMessage) {
