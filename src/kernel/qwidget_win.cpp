@@ -1426,9 +1426,7 @@ void QWidget::setMask( const QRegion &region )
 	fleft = topData()->fleft;
     }
     OffsetRgn(wr, fleft, ftop );
-#ifndef Q_OS_TEMP
     SetWindowRgn( winId(), wr, TRUE );
-#endif
 }
 
 void QWidget::setMask( const QBitmap &bitmap )
@@ -1443,16 +1441,12 @@ void QWidget::setMask( const QBitmap &bitmap )
 	fleft = topData()->fleft;
     }
     OffsetRgn(wr, fleft, ftop );
-#ifndef Q_OS_TEMP
     SetWindowRgn( winId(), wr, TRUE );
-#endif
 }
 
 void QWidget::clearMask()
 {
-#ifndef Q_OS_TEMP
     SetWindowRgn( winId(), 0, TRUE );
-#endif
 }
 
 void QWidget::setName( const char *name )
