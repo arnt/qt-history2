@@ -471,13 +471,13 @@ bool Configure::displayHelp()
 	cout << "-no-imgfmt-<format>     Fully disable format (PNG, JPEG, or MNG)" << endl << endl;
 	cout << "                        from Qt." << endl;
 
-	cout << "-qt-png            * Compile in PNG support." << endl;
+	cout << "-qt-png            * Use the libpng bundled with Qt." << endl;
 	cout << "-system-png          Use existing libPNG in system." << endl  << endl;
 
-	cout << "-qt-mng            * Compile in MNG support." << endl;
+	cout << "-qt-mng            * Use the libmng bundled with Qt." << endl;
 	cout << "-system-mng          Use existing libMNG in system." << endl << endl;
 
-	cout << "-qt-jpeg           * Compile in JPEG support" << endl;
+	cout << "-qt-jpeg           * Use the libjpeg bundled with Qt." << endl;
 	cout << "-system-jpeg         Use existing libJPEG in system" << endl << endl;
 
 	cout << "-stl                 Enable STL support." << endl;
@@ -604,10 +604,10 @@ void Configure::generateOutputVars()
     else if( dictionary[ "LIBMNG" ] == "system" )
 	qmakeConfig += "system-mng";
 
-    if( dictionary[ "PNG" ] == "qt" )
-	qmakeConfig += "png";
-    else if( dictionary[ "PNG" ] == "no" )
+    if( dictionary[ "PNG" ] == "no" )
 	qmakeConfig += "no-png";
+    else if( dictionary[ "PNG" ] == "qt" )
+	qmakeConfig += "png";
     else if( dictionary[ "PNG" ] == "plugin" )
 	qmakeFormatPlugins += "png";
     else if( dictionary[ "LIBPNG" ] == "system" )
