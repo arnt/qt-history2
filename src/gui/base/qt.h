@@ -81,6 +81,7 @@
 #include "qdialog.h"
 #include <qdataview.h>
 #include "qbitmap.h"
+#include "qpointer.h"
 #include "qguardedptr.h"
 #include "qurlinfo.h"
 #include "qgarray.h"
@@ -125,6 +126,7 @@
 #include <qinputdialog.h>
 #include "qlinkedlist.h"
 #include <qcleanuphandler.h>
+#include "qabstractslider.h"
 #include "qscrollbar.h"
 #include "qscrollview.h"
 #include "qnetworkprotocol.h"
@@ -134,6 +136,7 @@
 #include "qmenudata.h"
 #include <qmessagebox.h>
 #include "qmetaobject.h"
+#include "private/qpicture_p.h"
 #include "qpicture.h"
 #include <qmotifplusstyle.h>
 #include <qcdestyle.h>
