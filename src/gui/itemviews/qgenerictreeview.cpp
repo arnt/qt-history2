@@ -864,8 +864,9 @@ void QGenericTreeView::columnCountChanged(int, int)
 
 void QGenericTreeView::resizeColumnToContents(int column)
 {
-    int size = columnSizeHint(column);
-    d->header->resizeSection(column, size);
+    int contents = columnSizeHint(column);
+    int header = d->header->sectionSizeHint(column);
+    d->header->resizeSection(column, qMax(contents, header));
 }
 
 /*!
