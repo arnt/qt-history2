@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#454 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#455 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2440,7 +2440,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    qt_button_down = 0;
 	}
 
-	if ( type == QEvent::MouseButtonRelease && button == RightButton && ( ( state & (~button) ) == 0 ) ) {
+	if ( type == QEvent::MouseButtonRelease && button == RightButton ) {
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y) );
 	    QApplication::sendEvent( widget, &e );
 	    if ( !e.isAccepted() ) { // Only send mouse event when context event has not been processed
