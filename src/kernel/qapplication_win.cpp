@@ -187,12 +187,16 @@ extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 
 static UINT WM95_MOUSEWHEEL = 0;
 
+#if(_WIN32_WINNT < 0x0400)
+// This struct is defined in winuser.h if the _WIN32_WINNT >= 0x0400 -- in the
+// other cases we have to define it on our own.
 typedef struct tagTRACKMOUSEEVENT {
     DWORD cbSize;
     DWORD dwFlags;
     HWND  hwndTrack;
     DWORD dwHoverTime;
 } TRACKMOUSEEVENT, *LPTRACKMOUSEEVENT;
+#endif
 #ifndef WM_MOUSELEAVE
 #define WM_MOUSELEAVE                   0x02A3
 #endif
