@@ -672,10 +672,10 @@ static const char * const iso8859_13locales[] = {
 static const char * const iso8859_15locales[] = {
     "et", "et_EE",
     // Euro countries
-    "ca_ES", "de", "de_DE", "de_AT", "en_IE", "es", "es_ES", "eu_ES",
-    "fi", "fi_FI", "finnish", "fr", "fr_FR", "fr_BE", "fr_LU", "french",
-    "ga_IE", "gl_ES", "it", "it_IT", "nl", "nl_BE", "nl_NL",
-    "pt", "pt_PT", "sv_FI",
+    "br_FR", "ca_ES", "de", "de_AT", "de_BE", "de_DE", "de_LU", "en_IE",
+    "es", "es_ES", "eu_ES", "fi", "fi_FI", "finnish", "fr", "fr_FR",
+    "fr_BE", "fr_LU", "french", "ga_IE", "gl_ES", "it", "it_IT", "nl",
+    "nl_BE", "nl_NL", "pt", "pt_PT", "sv_FI", "wa_BE",
     0 };
 
 static const char * const koi8_ulocales[] = {
