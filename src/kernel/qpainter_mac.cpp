@@ -462,10 +462,8 @@ void QPainter::setBackgroundMode( BGMode m)
 
 static int ropCodes[] = {			// ROP translation table
     patCopy, patOr, patXor, patBic, notPatCopy,
-    notPatOr, notPatXor, notPatBic, patCopy /*huh?*/,
-    patCopy /*huh?*/, patCopy /*huh?*/, patCopy /*huh?*/,
-    patCopy /*huh?*/, patCopy /*huh?*/, patCopy /*huh?*/,
-    patCopy /*huh?*/, patCopy /*huh?*/
+    notPatOr, notPatXor, notPatBic, 
+    666, 666, 666, 666, 666, 666, 666, 666, 666
 };
 
 void QPainter::setRasterOp( RasterOp r )
@@ -481,6 +479,10 @@ void QPainter::setRasterOp( RasterOp r )
 	qWarning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif
 	return;
+    }
+    if(r == 666) {
+	qWarning("Woops, we don't have that rasterop, FIXME!!");
+	r = XorROP;
     }
     rop = r;
     if ( testf(ExtDev) ) {
