@@ -1608,6 +1608,27 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    custom = parseTable( attr, format, doc, pos, curpar );
 		    (void)eatSpace( doc, pos );
 		    emptyTag = TRUE;
+		} else if ( tagname == "qt" ) {
+		    for ( QMap<QString, QString>::Iterator it = attr.begin(); it != attr.end(); ++it ) {
+			if ( it.key() == "bgcolor" ) {
+			    QBrush *b = new QBrush( QColor( *it ) );
+			    setPaper( b );
+			} else if ( it.key() == "background" ) {
+			    QImage img;
+			    const QMimeSource* m = factory_->data( *it, contxt );
+			    if ( !m ) {
+				qWarning("QRichText: no mimesource for %s", (*it).latin1() );
+			    } else {
+				if ( !QImageDrag::decode( m, img ) ) {
+				    qWarning("QTextImage: cannot decode %s", (*it).latin1() );
+				}
+			    }
+			    if ( !img.isNull() ) {
+				QBrush *b = new QBrush( QColor(), QPixmap( img ) );
+				setPaper( b );
+			    }
+			}
+		    }
 		} else {
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
 		}
