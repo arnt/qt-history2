@@ -13,14 +13,14 @@
 
 #include <qapplication.h>
 
-#include "centralwidget.h"
+#include "addressview.h"
 
 int main(int argc, char ** argv)
 {
     QApplication a(argc, argv);
 
     AddressView view;
-    view.setWindowTitle("Qt Example - Addressbook");
+    view.setWindowTitle("Qt Example - Looking at Outlook");
     a.setMainWidget(&view);
     view.show();
 

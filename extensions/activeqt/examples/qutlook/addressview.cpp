@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "centralwidget.h"
+#include "addressview.h"
 
 #include <qcache.h>
 #include <qcheckbox.h>
