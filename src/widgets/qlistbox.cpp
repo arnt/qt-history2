@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#81 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#81 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -231,7 +231,9 @@ void QListBoxText::paint( QPainter *p )
 
 int QListBoxText::height( const QListBox *lb ) const
 {
-    return lb ? lb->fontMetrics().lineSpacing() + 2 : -1;
+    if ( lb )
+	return lb->fontMetrics().lineSpacing() + 2;
+    return -1;
 }
 
 /*!
@@ -242,7 +244,9 @@ int QListBoxText::height( const QListBox *lb ) const
 
 int QListBoxText::width( const QListBox *lb ) const
 {
-    return lb ? lb->fontMetrics().width( text() ) + 6 : -1;
+    if ( lb )
+	return lb->fontMetrics().width( text() ) + 6;
+    return -1;
 }
 
 
