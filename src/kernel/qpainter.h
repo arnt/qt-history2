@@ -102,9 +102,11 @@ public:
 //    PaintUnit unit()	       const;		// get set painter unit
 //    void	setUnit( PaintUnit );		// NOT IMPLEMENTED!!!
 
+    bool	hasViewXForm() const;
+    bool	hasWorldXForm() const;
+
 #if QT_FEATURE_TRANSFORMATIONS
     void	setViewXForm( bool );		// set xform on/off
-    bool	hasViewXForm() const;
     QRect	window()       const;		// get window
     void	setWindow( const QRect & );	// set window
     void	setWindow( int x, int y, int w, int h );
@@ -113,7 +115,6 @@ public:
     void	setViewport( int x, int y, int w, int h );
 
     void	setWorldXForm( bool );		// set world xform on/off
-    bool	hasWorldXForm() const;
     const QWMatrix &worldMatrix() const;	// get/set world xform matrix
     void	setWorldMatrix( const QWMatrix &, bool combine=FALSE );
 
@@ -125,8 +126,8 @@ public:
     void	shear( double sh, double sv );
     void	rotate( double a );
 
-    void	resetXForm();
 #else
+    void	resetXForm();
     void	translate( int dx, int dy );	// ###
 #endif
 
@@ -432,17 +433,23 @@ inline const QPoint &QPainter::brushOrigin() const
     return bro;
 }
 
-#if QT_FEATURE_TRANSFORMATIONS
 inline bool QPainter::hasViewXForm() const
 {
+#if QT_FEATURE_TRANSFORMATIONS
     return testf(VxF);
+#else
+    return xlatex || xlatey;
+#endif
 }
 
 inline bool QPainter::hasWorldXForm() const
 {
+#if QT_FEATURE_TRANSFORMATIONS
     return testf(WxF);
-}
+#else
+    return xlatex || xlatey;
 #endif
+}
 
 inline bool QPainter::hasClipping() const
 {

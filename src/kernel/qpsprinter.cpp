@@ -2535,6 +2535,7 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 
 void QPSPrinter::matrixSetup( QPainter *paint )
 {
+#if QT_FEATURE_TRANSFORMATIONS
     QWMatrix tmp;
     if ( paint->hasViewXForm() ) {
 	QRect viewport = paint->viewport();
@@ -2552,6 +2553,15 @@ void QPSPrinter::matrixSetup( QPainter *paint )
 	   << tmp.m21() << ' ' << tmp.m22() << ' '
 	   << tmp.dx()	<< ' ' << tmp.dy()
 	   << "]ST\n";
+#else
+    QPoint p(0,0);
+    p = paint->xForm(p);
+    stream << "["
+	   << 0 << ' ' << 0 << ' '
+	   << 0 << ' ' << 0 << ' '
+	   << p.x()    << ' ' << p.y()
+	   << "]ST\n";
+#endif
     dirtyMatrix = FALSE;
 }
 

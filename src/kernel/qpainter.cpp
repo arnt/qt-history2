@@ -1435,6 +1435,12 @@ void QPainter::updateInvXForm()
     ixmat = m.invert( &invertible );		// invert matrix
 }
 
+#else
+void QPainter::resetXForm()
+{
+    xlatex = 0;
+    xlatey = 0;
+}
 #endif // QT_FEATURE_TRANSFORMATIONS
 
 /*!
