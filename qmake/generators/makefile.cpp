@@ -212,14 +212,14 @@ MakefileGenerator::init()
 	    if(project->isActiveConfig("depend_includepath"))
 		incDirs += v["INCLUDEPATH"];
 	    QList<QMakeLocalFileName> deplist;
-	    for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it) 
+	    for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it)
 		deplist.append(QMakeLocalFileName((*it)));
 	    setDependencyPaths(deplist);
 	    debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").latin1());
 	}
 	if(!noIO()) {
 	    QString sources[] = { QString("OBJECTS"), QString("LEXSOURCES"), QString("YACCSOURCES"),
-				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"), 
+				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"),
 				  QString("PRECOMPILED_HEADER"), QString::null };
 	    int x;
 	    for(x = 0; sources[x] != QString::null; x++) {
@@ -289,11 +289,11 @@ MakefileGenerator::init()
 	    for(x = 0; sources[x] != QString::null; x++) {
 		uchar seek = 0;
 		if(mocAware() && (sources[x] == "SOURCES" || sources[x] == "HEADERS") &&
-		   (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_mocs)) 
+		   (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_mocs))
 		    seek |= QMakeSourceFileInfo::SEEK_MOCS;
-		if(sources[x] != "OBJECTS") 
+		if(sources[x] != "OBJECTS")
 		    seek |= QMakeSourceFileInfo::SEEK_DEPS;
-		if(seek) 
+		if(seek)
 		    addSourceFiles(v[sources[x]], seek);
 	    }
 	}
@@ -441,8 +441,8 @@ MakefileGenerator::init()
 
 	    QString mocable = createMocFileName((*it));
 	    checkMultipleDefinition(mocable, "SOURCES");
-	    v["_UIMOC"].append(mocable);
 	}
+	addSourceFiles(v["UICDECLS"], QMakeSourceFileInfo::ADD_MOC);
 	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("UICDECLS"));
     }
 
@@ -489,10 +489,10 @@ MakefileGenerator::init()
 	if(!project->isEmpty("MOC_DIR"))
 	    project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
 	if(Option::h_moc_ext == Option::cpp_ext.first())
-	    v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
+	    v["OBJMOC"] = createObjectList("_HDRMOC");
 
 	QStringList &l = v["SRCMOC"];
-	l = v["_HDRMOC"] + v["_UIMOC"] + v["_SRCMOC"];
+	l = v["_HDRMOC"] + v["_SRCMOC"];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 	    if(!(*val_it).isEmpty())
 		(*val_it) = Option::fixPathToTargetOS((*val_it), FALSE);
@@ -568,7 +568,7 @@ MakefileGenerator::processPrlFile(QString &file)
 	    if(!libinfo.readLib(f)) {
 		fprintf(stderr, "Error processing meta file: %s\n", real_meta_file.latin1());
 	    } else if(project->isActiveConfig("no_read_prl_" + libinfo.type().toLower())) {
-		debug_msg(2, "Ignored meta file %s [%s]", real_meta_file.latin1(), libinfo.type().latin1()); 
+		debug_msg(2, "Ignored meta file %s [%s]", real_meta_file.latin1(), libinfo.type().latin1());
 	    } else {
 		ret = TRUE;
 		QMap<QString, QStringList> &vars = libinfo.variables();
@@ -746,19 +746,19 @@ MakefileGenerator::usePlatformDir()
     QString slashPltDir = sep + pltDir;
 
     QString filePath = project->first("DESTDIR");
-    project->variables()["DESTDIR"] = filePath 
+    project->variables()["DESTDIR"] = filePath
 				    + (filePath.isEmpty() ? pltDir : slashPltDir);
 
     filePath = project->first("DLLDESTDIR");
-    project->variables()["DLLDESTDIR"] = filePath 
+    project->variables()["DLLDESTDIR"] = filePath
 				       + (filePath.isEmpty() ? pltDir : slashPltDir);
 
     filePath = project->first("OBJECTS_DIR");
-    project->variables()["OBJECTS_DIR"] = filePath 
+    project->variables()["OBJECTS_DIR"] = filePath
 					+ (filePath.isEmpty() ? pltDir : slashPltDir);
 
     filePath = project->first("QMAKE_LIBDIR_QT");
-    project->variables()["QMAKE_LIBDIR_QT"] = filePath 
+    project->variables()["QMAKE_LIBDIR_QT"] = filePath
 					    + (filePath.isEmpty() ? pltDir : slashPltDir);
 
     filePath = project->first("QMAKE_LIBS_QT");
@@ -769,7 +769,7 @@ MakefileGenerator::usePlatformDir()
         project->variables()["QMAKE_LIBS_QT"] = filePath.left(fpi)
 					      + slashPltDir
 					      + filePath.mid(fpi);
-    
+
     filePath = project->first("QMAKE_LIBS_QT_THREAD");
     fpi = filePath.lastIndexOf(sep);
     if(fpi == -1)
@@ -983,7 +983,7 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	QString yaccflags = "$(YACCFLAGS)", mangle = "y";
 	if(!project->isActiveConfig("yacc_no_name_mangle")) {
 	    mangle = fi.baseName(TRUE);
-	    if(!project->isEmpty("QMAKE_YACCFLAGS_MANGLE")) 
+	    if(!project->isEmpty("QMAKE_YACCFLAGS_MANGLE"))
 		yaccflags += " " + var("QMAKE_YACCFLAGS_MANGLE").replace(stringBase, mangle);
 	    else
 		yaccflags += " -p " + mangle;
@@ -1326,14 +1326,14 @@ MakefileGenerator::createMocFileName(const QString &file)
 
     QString ret;
     int dir_pos = file.lastIndexOf(Option::dir_sep),
-	ext_pos = file.indexOf('.', dir_pos == -1 ? 0 : dir_pos), 
+	ext_pos = file.indexOf('.', dir_pos == -1 ? 0 : dir_pos),
 	ext_len = file.length() - ext_pos;
     if(!project->isEmpty("MOC_DIR"))
 	ret = project->first("MOC_DIR");
     else if(dir_pos != -1)
 	ret = file.left(dir_pos+1);
 
-    if(from_cpp) 
+    if(from_cpp)
 	ret += Option::cpp_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_moc_ext;
     else
 	ret += Option::h_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::h_moc_ext;
@@ -1621,7 +1621,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d,
     return file;
 }
 
-void 
+void
 MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
 {
     if(!(Option::warn_level & WarnLogic))
@@ -1684,7 +1684,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
     //reliable these will be, most likely when problems arise turn it off
     //and see if they go away..
     if(Option::mkfile::do_dep_heuristics) {
-	if(depHeuristics.contains(file.real())) 
+	if(depHeuristics.contains(file.real()))
 	    return depHeuristics[file.real()];
 
 	{ //is it a file from a .ui?
@@ -1762,7 +1762,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
 	    if(mocAware() &&		    //is it a moc file?
 	       (file.local().endsWith(Option::cpp_ext.first()) || file.local().endsWith(Option::cpp_moc_ext))
 	       || ((Option::cpp_ext.first() != Option::h_moc_ext) && file.local().endsWith(Option::h_moc_ext))) {
-		QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null }; 
+		QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null };
 		for(int moc = 0; !mocs[moc].isNull(); moc++) {
 		    QStringList &l = project->variables()[mocs[moc]];
 		    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {

@@ -9,7 +9,7 @@ class SourceFiles;
 
 class QMakeLocalFileName {
     uint is_null : 1;
-    QString real_name, local_name;    
+    QString real_name, local_name;
 public:
     QMakeLocalFileName() : is_null(1) { }
     QMakeLocalFileName(const QString &);
@@ -20,7 +20,7 @@ public:
 
 class QMakeSourceFileInfo
 {
-private:    
+private:
     //quick project lookups
     SourceFiles *files;
     QList<QMakeLocalFileName> depdirs;
@@ -43,7 +43,7 @@ public:
     QMakeSourceFileInfo();
     ~QMakeSourceFileInfo();
     void setDependencyPaths(const QList<QMakeLocalFileName> &);
-    enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02 };
+    enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02, ADD_MOC=0x04 };
     void addSourceFiles(const QStringList &, uchar);
 
     QStringList dependencies(const QString &file);

@@ -213,8 +213,12 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek)
 	}
 	/* Do moc before dependency checking since some includes can come from
 	   moc_*.cpp files */
-	if(seek & SEEK_MOCS)
+	if(seek & ADD_MOC) {
+	    file->mocable = true;
+	    file->mocfile = findFileForMoc(file->file);
+	} else if(seek & SEEK_MOCS) {
 	    findMocs(file);
+	}
 	if(seek & SEEK_DEPS)
 	    findDeps(file);
 	files->addFile(file);
