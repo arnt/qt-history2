@@ -49,112 +49,135 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
     for(QDomElement child = root.firstChild().toElement(); !child.isNull(); 
         child = child.nextSibling().toElement()) {
         if(child.tagName() == QLatin1String("qresource")) {
+            QFileInfoList files;
             QLocale lang(QLocale::C);
             QString prefix = child.attribute("prefix");
             if(child.hasAttribute("lang"))
                 lang = QLocale(child.attribute("lang"));
             for(QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
                 if(res.toElement().tagName() == QLatin1String("file")) {
-                    //process this resource
-                    QFile inputQFile(res.firstChild().toText().data());
-                    if (!inputQFile.open(IO_ReadOnly)) {
-                        qWarning("Could not open file '%s'", inputQFile.fileName().latin1());
-                        continue;
-                    }
-                    int compressRatio = 0;
-                    QByteArray input = inputQFile.readAll();
-                    if(compress_level && input.length() > 100) {
-                        QByteArray compress = qCompress((uchar *)input.data(), input.size(), compress_level);
-                        compressRatio = (int)(((float)input.size())/compress.size()*100);
-                        if(compressRatio >= compress_threshold)
-                            input = compress;
-                        else
-                            compressRatio = 0;
-                    }
-                    if(verbose)
-                        qDebug("Read file %s [Compressed %d%%]", inputQFile.fileName().latin1(), 
-                               compressRatio);
-
-                    //header
-                    const QString location = QDir::cleanPath(resource_root + "/" + 
-                                                             prefix + "/" + 
-                                                             inputQFile.fileName());
-                    QByteArray resource_name;
-                    {
-                        const QChar *data = location.unicode();
-                        for(int i = 0; i < location.length(); i++) {
-                            if(!(data+i)->row() && 
-                               ((data+i)->cell() >= 'A' && (data+i)->cell() <= 'Z') ||
-                               ((data+i)->cell() >= '0' && (data+i)->cell() <= '9') ||
-                               ((data+i)->cell() >= 'a' && (data+i)->cell() <= 'z') ||
-                               (data+i)->cell() == '_') {
-                                resource_name += (data+i)->cell();
-                            } else {
-                                if((data+i)->row()) {
-                                    resource_name += "__";
-                                    resource_name += QByteArray::number((data+i)->row());
-                                }
-                                resource_name += "__";
-                                resource_name += QByteArray::number((data+i)->cell());
-                            }
+                    QFileInfo file(res.firstChild().toText().data());
+                    if(!file.exists() || file.isDir()) {
+                        QDir dir;
+                        if(!file.exists()) 
+                            dir = QDir(file.path(), file.fileName());
+                        else 
+                            dir = QDir(file.filePath(), "*");
+                        QFileInfoList subFiles = dir.entryInfoList();
+                        for(int subFile = 0; subFile < subFiles.count(); subFile++) {
+                            if(subFiles[subFile].fileName() == "." || subFiles[subFile].fileName() == "..")
+                                continue;
+                            files.append(subFiles[subFile]);
                         }
-                        if(lang.language() != QLocale::C) {
-                            resource_name += "__";
-                            resource_name += lang.name();
-                        }
+                    } else {
+                        files.append(file);
                     }
-                    uchar flags = 0;
-                    if(compressRatio)
-                        flags |= Compressed;
-                    out << endl;
-                    out << "//Generated from '" << inputQFile.fileName().latin1() << "'" << endl;
-                    out << "static uchar " << resource_name << "[] = {" << endl;
-                    out << "\t0x12, 0x15, 0x19, 0x78, //header" << endl;
-                    out << "\t0x01, //version" << endl;
-                    out << "\t" << (uchar) lang.language() << ", " 
-                        << (uchar)lang.country() << ", //lang" << endl;
-                    out << "\t" << flags << ", //flags" << endl;
-
-                    //name
-                    out << endl;
-                    out << "\t//name";
-                    for(int i = 0; i < location.length(); i++) {
-                        if(!(i % 10))
-                            out << "\n\t";
-                        QChar c = location[i];
-                        if(c == QDir::separator())
-                            c = '/';
-                        out << c.row() << ", " << c.cell() << ", ";
-                    }
-                    out << "\n\t0x00, 0x00, " << endl;
-
-                    //bits
-                    out << "\n\t//bits" << endl;
-                    uchar bytesNeeded = 0;
-                    const int input_length = input.length();
-                    for(int length = input_length; length > 0; length >>= 8)
-                        bytesNeeded++;
-                    out << "\t" << bytesNeeded << ", //bytes in len\n\t";
-                    for(int i = bytesNeeded; i; i--)
-                        out << ((input_length >> ((i-1)*8)) & 0xFF) << ", ";
-                    out << "//length";
-                    for(int i = 0; i < input_length; i++) {
-                        if(!(i % 10))
-                            out << "\n\t";
-                        out << (uchar)input[i];
-                        if(i != input_length-1)
-                            out << ", ";
-                    }
-
-                    //footer
-                    out << "\n};" << endl;
-
-                    //QMetaResource
-                    out << "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_" 
-                        << resource_name << ", (" << resource_name << "))" << endl;
-                    if(created)
-                        created->append("resource_" + resource_name);
                 }
+            }
+            for(int file = 0; file < files.count(); file++) {
+                if(files[file].isDir()) { //do we want to get recursive?
+                    continue;
+                }
+
+                //process this resource
+                QFile inputQFile(files[file].filePath());
+                if (!inputQFile.open(IO_ReadOnly)) {
+                    qWarning("Could not open file '%s'", inputQFile.fileName().latin1());
+                    continue;
+                }
+                int compressRatio = 0;
+                QByteArray input = inputQFile.readAll();
+                if(compress_level && input.length() > 100) {
+                    QByteArray compress = qCompress((uchar *)input.data(), input.size(), compress_level);
+                    compressRatio = (int)(((float)input.size())/compress.size()*100);
+                    if(compressRatio >= compress_threshold)
+                        input = compress;
+                    else
+                        compressRatio = 0;
+                }
+                if(verbose)
+                    qDebug("Read file %s [Compressed %d%%]", inputQFile.fileName().latin1(), 
+                           compressRatio);
+
+                //header
+                const QString location = QDir::cleanPath(resource_root + "/" + 
+                                                         prefix + "/" + 
+                                                         inputQFile.fileName());
+                QByteArray resource_name;
+                {
+                    const QChar *data = location.unicode();
+                    for(int i = 0; i < location.length(); i++) {
+                        if(!(data+i)->row() && 
+                           ((data+i)->cell() >= 'A' && (data+i)->cell() <= 'Z') ||
+                           ((data+i)->cell() >= '0' && (data+i)->cell() <= '9') ||
+                           ((data+i)->cell() >= 'a' && (data+i)->cell() <= 'z') ||
+                           (data+i)->cell() == '_') {
+                            resource_name += (data+i)->cell();
+                        } else {
+                            if((data+i)->row()) {
+                                resource_name += "__";
+                                resource_name += QByteArray::number((data+i)->row());
+                            }
+                            resource_name += "__";
+                            resource_name += QByteArray::number((data+i)->cell());
+                        }
+                    }
+                    if(lang.language() != QLocale::C) {
+                        resource_name += "__";
+                        resource_name += lang.name();
+                    }
+                }
+                uchar flags = 0;
+                if(compressRatio)
+                    flags |= Compressed;
+                out << endl;
+                out << "//Generated from '" << inputQFile.fileName().latin1() << "'" << endl;
+                out << "static uchar " << resource_name << "[] = {" << endl;
+                out << "\t0x12, 0x15, 0x19, 0x78, //header" << endl;
+                out << "\t0x01, //version" << endl;
+                out << "\t" << (uchar) lang.language() << ", " 
+                    << (uchar)lang.country() << ", //lang" << endl;
+                out << "\t" << flags << ", //flags" << endl;
+
+                //name
+                out << endl;
+                out << "\t//name";
+                for(int i = 0; i < location.length(); i++) {
+                    if(!(i % 10))
+                        out << "\n\t";
+                    QChar c = location[i];
+                    if(c == QDir::separator())
+                        c = '/';
+                    out << c.row() << ", " << c.cell() << ", ";
+                }
+                out << "\n\t0x00, 0x00, " << endl;
+
+                //bits
+                out << "\n\t//bits" << endl;
+                uchar bytesNeeded = 0;
+                const int input_length = input.length();
+                for(int length = input_length; length > 0; length >>= 8)
+                    bytesNeeded++;
+                out << "\t" << bytesNeeded << ", //bytes in len\n\t";
+                for(int i = bytesNeeded; i; i--)
+                    out << ((input_length >> ((i-1)*8)) & 0xFF) << ", ";
+                out << "//length";
+                for(int i = 0; i < input_length; i++) {
+                    if(!(i % 10))
+                        out << "\n\t";
+                    out << (uchar)input[i];
+                    if(i != input_length-1)
+                        out << ", ";
+                }
+
+                //footer
+                out << "\n};" << endl;
+
+                //QMetaResource
+                out << "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_" 
+                    << resource_name << ", (" << resource_name << "))" << endl;
+                if(created)
+                    created->append("resource_" + resource_name);
             }
         }
     }
