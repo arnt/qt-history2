@@ -43,13 +43,13 @@
 */
 
 /*!
-    \fn QTextLength::QTextLength()
+    \fn explicit QTextLength::QTextLength()
 
     Constructs a new length object which represents a variable size.
 */
 
 /*!
-    \fn QTextLength::QTextLength(Type type, int value)
+    \fn QTextLength::QTextLength(Type type, qreal value)
 
     Constructs a new length object of the given \a type and \a value.
 */
@@ -63,7 +63,7 @@
 */
 
 /*!
-    \fn int QTextLength::value(int maximumLength) const
+    \fn qreal QTextLength::value(qreal maximumLength) const
 
     Returns the effective length, constrained by the type of the length object
     and the specified \a maximumLength.
@@ -72,7 +72,7 @@
 */
 
 /*!
-    \fn int QTextLength::rawValue() const
+    \fn qreal QTextLength::rawValue() const
 
     Returns the constraint value that is specific for the type of the lenght.
     If the length is QTextLength::PercentageLengt then the raw value is in
@@ -230,8 +230,8 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     A format has a \c FormatType which specifies the kinds of thing it
     can format; e.g. a block of text, a list, a table, etc. A format
     also has various properties (some specific to particular format
-    types), as described by the \c Property enum. Every property has a
-    \c PropertyType.
+    types), as described by the Property enum. Every property has a
+    corresponding Property.
 
     The format type is given by type(), and the format can be tested
     with isCharFormat(), isBlockFormat(), isListFormat(),
@@ -251,7 +251,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     associate the format with a QTextObject. It is used to represent
     lists, frames, and tables inside the document.
 
-    \sa {text.html}{Text Related Classes}
+    \sa {Text Related Classes}
 */
 
 /*!
@@ -275,10 +275,15 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     Paragraph and character properties
 
     \value CssFloat
+    \value LayoutDirection  The layout direction of the text in the document
+                            (Qt::LayoutDirection).
+
+    \value OutlinePen
+    \value ForegroundBrush
+    \value BackgroundBrush
 
     Paragraph properties
 
-    \value BlockDirection
     \value BlockAlignment
     \value BlockTopMargin
     \value BlockBottomMargin
@@ -287,7 +292,6 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value BlockFirstLineMargin
     \value BlockIndent
     \value BlockNonBreakableLines
-    \value BlockBackgroundColor
 
     Character properties
 
@@ -301,8 +305,6 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value FontStrikeOut
     \value FontFixedPitch
 
-    \value TextColor
-    \value TextBackgroundColor
     \value TextUnderlineColor
     \value TextVerticalAlignment
 
@@ -323,18 +325,16 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value FrameBorder
     \value FrameMargin
     \value FramePadding
-    \value Width
-    \value Height
+    \value FrameWidth
+    \value FrameHeight
     \value TableColumnWidthConstraints
     \value TableCellSpacing
     \value TableCellPadding
-    \value TableBackgroundColor
 
     Table cell properties
 
     \value TableCellRowSpan
     \value TableCellColumnSpan
-    \value TableCellBackgroundColor
 
     Image properties
 
@@ -565,7 +565,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
     Returns the value of the property specified by \a propertyId. If the
     property isn't of \c QTextFormat::Bool type, false is returned instead.
 
-    \sa setProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
 */
 bool QTextFormat::boolProperty(int propertyId) const
 {
@@ -579,7 +579,7 @@ bool QTextFormat::boolProperty(int propertyId) const
     Returns the value of the property specified by \a propertyId. If the
     property is not of \c QTextFormat::Integer type, 0 is returned instead.
 
-    \sa setProperty() boolProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
 */
 int QTextFormat::intProperty(int propertyId) const
 {
@@ -593,7 +593,7 @@ int QTextFormat::intProperty(int propertyId) const
     Returns the value of the property specified by \a propertyId. If the
     property isn't of \c QVariant::Double type, 0 is returned instead.
 
-    \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
 */
 double QTextFormat::doubleProperty(int propertyId) const
 {
@@ -608,7 +608,7 @@ double QTextFormat::doubleProperty(int propertyId) const
     property isn't of \c QVariant::String type, a null string is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() doubleProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
 */
 QString QTextFormat::stringProperty(int propertyId) const
 {
@@ -623,7 +623,7 @@ QString QTextFormat::stringProperty(int propertyId) const
     property isn't of \c QVariant::Color type, an invalid color is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() Property
 */
 QColor QTextFormat::colorProperty(int propertyId) const
 {
@@ -638,7 +638,7 @@ QColor QTextFormat::colorProperty(int propertyId) const
     property isn't of \c QVariant::Pen type, Qt::NoPen is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() Property
 */
 QPen QTextFormat::penProperty(int propertyId) const
 {
@@ -653,7 +653,7 @@ QPen QTextFormat::penProperty(int propertyId) const
     property isn't of \c QVariant::Brush type, Qt::NoBrush is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() Property
 */
 QBrush QTextFormat::brushProperty(int propertyId) const
 {
@@ -666,7 +666,7 @@ QBrush QTextFormat::brushProperty(int propertyId) const
 /*!
     Returns the value of the property given by \a propertyId.
 
-    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthVectorProperty() Property
 */
 QTextLength QTextFormat::lengthProperty(int propertyId) const
 {
@@ -678,7 +678,7 @@ QTextLength QTextFormat::lengthProperty(int propertyId) const
     property isn't of \c QTextFormat::LengthVector type, an empty length
     vector is returned instead.
 
-    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() Property
 */
 QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 {
@@ -720,7 +720,7 @@ void QTextFormat::setProperty(int propertyId, const QVariant &value)
 /*!
     Sets the value of the property given by \a propertyId to \a value.
 
-    \sa lengthVectorProperty() PropertyType
+    \sa lengthVectorProperty() Property
 */
 void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
 {
@@ -787,7 +787,7 @@ void QTextFormat::setObjectIndex(int o)
     Returns true if the text format has a property with the given \a
     propertyId; otherwise returns false.
 
-    \sa propertyType() allPropertyIds() PropertyType
+    \sa properties() Property
 */
 bool QTextFormat::hasProperty(int propertyId) const
 {
@@ -797,7 +797,7 @@ bool QTextFormat::hasProperty(int propertyId) const
 /*
     Returns the property type for the given \a propertyId.
 
-    \sa hasProperty() allPropertyIds() PropertyType
+    \sa hasProperty() allPropertyIds() Property
 */
 
 /*!
@@ -859,6 +859,20 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
     functions.
 
     \sa QTextFormat QTextBlockFormat QTextTableFormat QTextListFormat
+*/
+
+/*!
+    \enum QTextCharFormat::VerticalAlignment
+
+    This enum describes the ways that adjacent characters can be vertically
+    aligned.
+
+    \value AlignNormal  Adjacent characters are positioned in the standard
+                        way for text in the writing system in use.
+    \value AlignSuperScript Characters are placed above the baseline for
+                            normal text.
+    \value AlignSubScript   Characters are placed below the baseline for
+                            normal text.
 */
 
 /*!
@@ -1032,20 +1046,31 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 
 
 /*!
-    \fn void QTextCharFormat::foreground(const QBrush &brush)
+    \fn void QTextFormat::setForeground(const QBrush &brush)
 
-    Sets the foreground brush to \a brush. The foreground brush is msotly used for drawing text.
+    Sets the foreground brush to the specified \a brush. The foreground
+    brush is mostly used to render text.
 
-    \sa foreground()
+    \sa foreground() clearForeground() setBackground()
 */
 
 
 /*!
-    \fn QBrush QTextCharFormat::foreground() const
+    \fn QBrush QTextFormat::foreground() const
 
-    returns the formats foreground brush.
+    Returns the brush used to render foreground details, such as text,
+    frame outlines, and table borders.
 
-    \sa setForeground()
+    \sa setForeground() clearForeground() background()
+*/
+
+/*!
+    \fn void QTextFormat::clearForeground()
+
+    Clears the brush used to paint the document's foreground. The default
+    brush will be used.
+
+    \sa foreground() setForeground() clearBackground()
 */
 
 
@@ -1148,20 +1173,37 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 */
 
 /*!
-    \fn void QTextCharFormat::setTableCellBackgroundColor(const QColor &color)
+    \fn void QTextCharFormat::setUnderlineColor(const QColor &color)
 
-    Sets the background \a color of the selected table cells.
+    Sets the underline color used for the characters with this format to
+    the \a color specified.
 
-    \sa tableCellBackgroundColor()
+    \sa underlineColor()
 */
 
 /*!
-    \fn QColor QTextCharFormat::tableCellBackgroundColor() const
+    \fn QColor QTextCharFormat::underlineColor() const
 
-    Returns the color that the text format uses for the background of table
-    cells.
+    Returns the color used to underline the characters with this format.
 
-    \sa tableCellBackgroundColor()
+    \sa setUnderlineColor()
+*/
+
+/*!
+    \fn void QTextCharFormat::setVerticalAlignment(VerticalAlignment alignment)
+
+    Sets the vertical alignment used for the characters with this format to
+    the \a alignment specified.
+
+    \sa verticalAlignment()
+*/
+
+/*!
+    \fn VerticalAlignment QTextCharFormat::verticalAlignment() const
+
+    Returns the vertical alignment used for characters with this format.
+
+    \sa setVerticalAlignment()
 */
 
 /*!
@@ -1237,14 +1279,6 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \enum QTextBlockFormat::Direction
-
-    \value LeftToRight   The text flows from left to right.
-    \value RightToLeft   The text flows from right to left.
-    \value AutoDirection The configuration of the system determines the direction.
-*/
-
-/*!
     \fn QTextBlockFormat::QTextBlockFormat()
 
     Constructs a new QTextBlockFormat.
@@ -1258,20 +1292,20 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn void QTextBlockFormat::setDirection(Direction direction)
+    \fn void QTextFormat::setLayoutDirection(Qt::LayoutDirection direction)
 
-    Sets the text's direction to the specified \a direction.
+    Sets the document's layout direction to the specified \a direction.
 
-    \sa direction()
+    \sa layoutDirection()
 */
 
 
 /*!
-    \fn Direction QTextBlockFormat::direction() const
+    \fn Qt::LayoutDirection QTextFormat::layoutDirection() const
 
-    Returns the text's direction.
+    Returns the document's layout direction.
 
-    \sa setDirection()
+    \sa setLayoutDirection()
 */
 
 
@@ -1294,7 +1328,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setTopMargin(int margin)
+    \fn void QTextBlockFormat::setTopMargin(qreal margin)
 
     Sets the paragraph's top \a margin.
 
@@ -1303,7 +1337,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn int QTextBlockFormat::topMargin() const
+    \fn qreal QTextBlockFormat::topMargin() const
 
     Returns the paragraph's top margin.
 
@@ -1312,7 +1346,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setBottomMargin(int margin)
+    \fn void QTextBlockFormat::setBottomMargin(qreal margin)
 
     Sets the paragraph's bottom \a margin.
 
@@ -1321,7 +1355,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn int QTextBlockFormat::bottomMargin() const
+    \fn qreal QTextBlockFormat::bottomMargin() const
 
     Returns the paragraph's bottom margin.
 
@@ -1330,7 +1364,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setLeftMargin(int margin)
+    \fn void QTextBlockFormat::setLeftMargin(qreal margin)
 
     Sets the paragraph's left \a margin. Indentation can be applied separately
     with setIndent().
@@ -1340,7 +1374,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn int QTextBlockFormat::leftMargin() const
+    \fn qreal QTextBlockFormat::leftMargin() const
 
     Returns the paragraph's left margin.
 
@@ -1349,7 +1383,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setRightMargin(int margin)
+    \fn void QTextBlockFormat::setRightMargin(qreal margin)
 
     Sets the paragraph's right \a margin.
 
@@ -1358,7 +1392,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn int QTextBlockFormat::rightMargin() const
+    \fn qreal QTextBlockFormat::rightMargin() const
 
     Returns the paragraph's right margin.
 
@@ -1367,7 +1401,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setFirstLineMargin(int margin)
+    \fn void QTextBlockFormat::setFirstLineMargin(qreal margin)
 
     Sets the \a margin for the first line in the block. This allows the first
     line of a paragraph to be indented differently to the other lines,
@@ -1378,7 +1412,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn int QTextBlockFormat::firstLineMargin() const
+    \fn qreal QTextBlockFormat::firstLineMargin() const
 
     Returns the paragraph's first line margin.
 
@@ -1387,7 +1421,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setIndent(int indentation)
+    \fn void QTextBlockFormat::setIndent(qreal indentation)
 
     Sets the paragraph's \a indentation. Margins are set independently of
     indentation with setLeftMargin() and setFirstLineMargin().
@@ -1397,7 +1431,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn int QTextBlockFormat::indent() const
+    \fn qreal QTextBlockFormat::indent() const
 
     Returns the paragraph's indent.
 
@@ -1422,33 +1456,6 @@ QFont QTextCharFormat::font() const
     otherwise returns false.
 
     \sa setNonBreakableLines()
-*/
-
-
-/*!
-    \fn void QTextBlockFormat::setBackgroundColor(const QColor &color)
-
-    Sets the paragraph's background \a color.
-
-    \sa backgroundColor()
-*/
-
-/*!
-    \fn void QTextBlockFormat::clearBackgroundColor()
-
-    Clears the paragraph's background color. The default background color
-    will be used for the paragraph.
-
-    \sa backgroundColor() setBackgroundColor()
-*/
-
-
-/*!
-    \fn QColor QTextBlockFormat::backgroundColor() const
-
-    Returns the paragraph's background color.
-
-    \sa setBackgroundColor()
 */
 
 
@@ -1521,7 +1528,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextListFormat::setIndent(int indentation)
+    \fn void QTextListFormat::setIndent(qreal indentation)
 
     Sets the list format's \a indentation.
 
@@ -1530,7 +1537,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn int QTextListFormat::indent() const
+    \fn qreal QTextListFormat::indent() const
 
     Returns the list format's indentation.
 
@@ -1604,37 +1611,37 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn QTextFrameFormat::setBorder(int width)
+    \fn QTextFrameFormat::setBorder(qreal width)
 
     Sets the \a width (in pixels) of the frame's border.
 */
 
 /*!
-    \fn int QTextFrameFormat::border() const
+    \fn qreal QTextFrameFormat::border() const
 
     Returns the width of the border in pixels.
 */
 
 /*!
-    \fn QTextFrameFormat::setMargin(int margin)
+    \fn QTextFrameFormat::setMargin(qreal margin)
 
     Sets the frame's \a margin in pixels.
 */
 
 /*!
-    \fn int QTextFrameFormat::margin() const
+    \fn qreal QTextFrameFormat::margin() const
 
     Returns the width of the frame's external margin in pixels.
 */
 
 /*!
-    \fn QTextFrameFormat::setPadding(int width)
+    \fn QTextFrameFormat::setPadding(qreal width)
 
     Sets the \a width of the frame's internal padding in pixels.
 */
 
 /*!
-    \fn int QTextFrameFormat::padding() const
+    \fn qreal QTextFrameFormat::padding() const
 
     Returns the width of the frame's internal padding in pixels.
 */
@@ -1648,7 +1655,7 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn QTextFrameFormat::setWidth(int width)
+    \fn QTextFrameFormat::setWidth(qreal width)
     \overload
 
     Convenience method that sets the width of the frame's border
@@ -1670,14 +1677,14 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn void QTextFrameFormat::setHeight(int height)
+    \fn void QTextFrameFormat::setHeight(qreal height)
     \overload
 
     Sets the frame's \a height.
 */
 
 /*!
-    \fn int QTextFrameFormat::height() const
+    \fn qreal QTextFrameFormat::height() const
 
     Returns the height of the frame's border rectangle.
 */
@@ -1788,7 +1795,7 @@ QTextTableFormat::QTextTableFormat()
 */
 
 /*!
-    \fn int QTextTableFormat::cellSpacing() const
+    \fn qreal QTextTableFormat::cellSpacing() const
 
     Returns the table's cell spacing. This describes the distance between
     adjacent cells.
@@ -1802,7 +1809,7 @@ QTextTableFormat::QTextTableFormat()
 */
 
 /*!
-    \fn int QTextTableFormat::cellPadding() const
+    \fn qreal QTextTableFormat::cellPadding() const
 
     Returns the table's cell padding. This describes the distance between
     the border of a cell and its contents.
@@ -1832,28 +1839,29 @@ QTextTableFormat::QTextTableFormat()
 */
 
 /*!
-    \fn void QTextTableFormat::setBackgroundColor(const QColor &color)
+    \fn void QTextFormat::setBackground(const QBrush &brush)
 
-    Sets the table's background \a color.
+    Sets the brush use to paint the document's background to the
+    \a brush specified.
 
-    \sa backgroundColor()
+    \sa background() clearBackground() setForeground()
 */
 
 /*!
-    \fn QColor QTextTableFormat::backgroundColor() const
+    \fn QColor QTextFormat::background() const
 
-    Returns the table's background color.
+    Returns the brush used to paint the document's background.
 
-    \sa setBackgroundColor()
+    \sa setBackground() clearBackground() foreground()
 */
 
 /*!
-    \fn void QTextTableFormat::clearBackgroundColor()
+    \fn void QTextFormat::clearBackground()
 
-    Clears the table's background color. The default background color will
-    be used for the table.
+    Clears the brush used to paint the document's background. The default
+    brush will be used.
 
-    \sa backgroundColor() setBackgroundColor()
+    \sa background() setBackground() clearForeground()
 */
 
 
@@ -1906,7 +1914,7 @@ QTextTableFormat::QTextTableFormat()
 
 
 /*!
-    \fn void QTextImageFormat::setWidth(int width)
+    \fn void QTextImageFormat::setWidth(qreal width)
 
     Sets the \a width of the rectangle occupied by the image.
 
@@ -1915,7 +1923,7 @@ QTextTableFormat::QTextTableFormat()
 
 
 /*!
-    \fn int QTextImageFormat::width() const
+    \fn qreal QTextImageFormat::width() const
 
     Returns the width of the rectangle occupied by the image.
 
@@ -1924,7 +1932,7 @@ QTextTableFormat::QTextTableFormat()
 
 
 /*!
-    \fn void QTextImageFormat::setHeight(int height)
+    \fn void QTextImageFormat::setHeight(qreal height)
 
     Sets the \a height of the rectangle occupied by the image.
 
@@ -1933,7 +1941,7 @@ QTextTableFormat::QTextTableFormat()
 
 
 /*!
-    \fn int QTextImageFormat::height() const
+    \fn qreal QTextImageFormat::height() const
 
     Returns the height of the rectangle occupied by the image.
 
