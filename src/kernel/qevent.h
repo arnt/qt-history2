@@ -340,18 +340,25 @@ class Q_EXPORT QContextMenuEvent : public QEvent
 {
 public:
     enum Cause { Mouse, Keyboard, Other };
-    QContextMenuEvent(Cause ca)
-	: QEvent(ContextMenu), accpt(FALSE), caus(ca) {}
+    QContextMenuEvent( Cause ca, const QPoint &pos, const QPoint &globalPos )
+	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( FALSE ), caus( ca ) {}
 
-    bool   isAccepted() const	{ return accpt; }
-    void   accept()		{ accpt = TRUE; }
-    void   ignore()		{ accpt = FALSE; }
+    int	    x() const { return p.x(); }
+    int	    y() const { return p.y(); }
+    int	    globalX() const { return gp.x(); }
+    int	    globalY() const { return gp.y(); }
 
-    Cause cause() const { return Cause(caus); }
+    bool    isAccepted() const	{ return accpt; }
+    void    accept()		{ accpt = TRUE; }
+    void    ignore()		{ accpt = FALSE; }
+
+    Cause   cause() const { return Cause( caus ); }
     
 protected:
-    bool   accpt;
-    uint caus:8;
+    QPoint  p;
+    QPoint  gp;
+    bool    accpt;
+    uint    caus:8;
 };
 
 #ifndef QT_NO_DRAGANDDROP
