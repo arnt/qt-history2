@@ -339,6 +339,8 @@ public:
 	SR_DialogButtonRetry,
 	SR_DialogButtonCustom,
 
+	SR_ToolBoxTabContents,
+
 	// do not add any values below/greater than this
 	SR_CustomBase =		0xf0000000
     };

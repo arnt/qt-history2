@@ -360,8 +360,9 @@ public:
     \value UI_AnimateCombo
     \value UI_AnimateTooltip
     \value UI_FadeTooltip
+    \omit
     \value UI_AnimateToolBox
-
+    \endomit
 */
 
 /*!
@@ -1130,6 +1131,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SR_DialogButtonAbort area for a dialog's abort button.
     \value SR_DialogButtonIgnore area for a dialog's ignore button.
     \value SR_DialogButtonCustom area for a dialog's custom widget area (in button row).
+
+    \value SR_ToolBoxTabContents area for a toolbox tab's icon and label
 
     \value SR_CustomBase  base value for custom ControlElements. All values above
 	    this are reserved for custom use. Therefore, custom values must be
