@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#170 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -380,8 +380,12 @@ void QPainter::updateFont()
     bool   killFont_old = killFont;
     bool   ownFont = pdev->devType() == QInternal::Printer;
     if ( ownFont ) {
+	int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
+	int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
+	bool vxfScale = testf(VxF) 
+	                && ( dw != ww || dw != vw || dh != wh || dh != vh );
 	bool stockFont;
-	hfont = cfont.create( &stockFont, hdc, testf(VxF) );
+	hfont = cfont.create( &stockFont, hdc, vxfScale );
 	killFont = !stockFont;
     } else {
 	hfont = cfont.handle();
