@@ -137,8 +137,6 @@ struct XPThemeData
     }
     ~XPThemeData()
     {
-/*        if ( htheme )
-            CloseThemeData( htheme );*/
     }
     
     HTHEME handle()
@@ -180,18 +178,6 @@ struct XPThemeData
         return r;
     }
     
-    void operator=( const XPThemeData &orig )
-    {
-/*        if ( htheme )
-            CloseThemeData( htheme );*/
-	
-        name = orig.name;
-        partId = orig.partId;
-        stateId = orig.stateId;
-        rec = orig.rec;
-        htheme = orig.htheme;
-    }
-
     HRGN mask()
     {
 	if ( IsThemeBackgroundPartiallyTransparent( handle(), partId, stateId ) ) {
@@ -235,7 +221,7 @@ struct XPThemeData
 
     int partId;
     int stateId;
-    QRect rec;    
+    QRect rec;
 
 private:
     const QWidget *widget;
@@ -574,6 +560,8 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     case PE_SizeGrip:
 	name = "STATUS";
 	partId = SP_GRIPPER;
+	// empiric correction values...
+	rect.addCoords( -4, -8, 0, 0 ); 
 	break;
 
     case PE_ScrollBarAddLine:
