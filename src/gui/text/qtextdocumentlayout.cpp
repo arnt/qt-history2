@@ -386,19 +386,22 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
     // draw frame decoration
     if (fd->border) {
         painter->save();
-        painter->setBrush(Qt::black);
+        painter->setBrush(Qt::lightGray);
         painter->setPen(Qt::NoPen);
         const int margin = fd->margin + fd->border;
         const int w = fd->boundingRect.width() - 2*margin;
         const int h = fd->boundingRect.height() - 2*margin;
         // left
-        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + fd->border, fd->border, h);
+        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, fd->border, h + 2 * fd->border);
         // top
-        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, w + 2 * fd->border, fd->border);
+        painter->drawRect(off.x() + fd->margin + fd->border, off.y() + fd->margin, w + fd->border, fd->border);
+
+        painter->setBrush(Qt::darkGray);
+
         // right
         painter->drawRect(off.x() + fd->margin + fd->border + w, off.y() + fd->margin + fd->border, fd->border, h);
         // bottom
-        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + fd->border + h, w + 2 * fd->border, fd->border);
+        painter->drawRect(off.x() + fd->margin + fd->border, off.y() + fd->margin + fd->border + h, w + fd->border, fd->border);
         /*
         if (table) {
             QTextTableData *td = static_cast<QTextTableData *>(fd);
@@ -465,18 +468,21 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                     const QBrush oldBrush = painter->brush();
                     const QPen oldPen = painter->pen();
 
-                    painter->setBrush(Qt::black);
+                    painter->setBrush(Qt::darkGray);
                     painter->setPen(Qt::NoPen);
 
                     // top border
-                    painter->drawRect(cellRect.left() - fd->border, cellRect.top() - fd->border,
-                                      cellRect.width() + 2 * fd->border, fd->border);
-                    // bottom border
-                    painter->drawRect(cellRect.left() - fd->border, cellRect.top() + cellRect.height(),
-                                      cellRect.width() + 2 * fd->border, fd->border);
+                    painter->drawRect(cellRect.left(), cellRect.top() - fd->border,
+                                      cellRect.width() + fd->border, fd->border);
                     // left border
-                    painter->drawRect(cellRect.left() - fd->border, cellRect.top(),
-                                      fd->border, cellRect.height());
+                    painter->drawRect(cellRect.left() - fd->border, cellRect.top() - fd->border,
+                                      fd->border, cellRect.height() + 2 * fd->border);
+
+                    painter->setBrush(Qt::lightGray);
+
+                    // bottom border
+                    painter->drawRect(cellRect.left(), cellRect.top() + cellRect.height(),
+                                      cellRect.width() + fd->border, fd->border);
                     // right border
                     painter->drawRect(cellRect.left() + cellRect.width(), cellRect.top(),
                                       fd->border, cellRect.height());

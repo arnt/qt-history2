@@ -443,7 +443,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1), tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1), 
-      tableCellSpacing(0), tableCellPadding(0), wsm(WhiteSpaceModeUndefined)
+      tableCellSpacing(2), tableCellPadding(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;

@@ -505,9 +505,9 @@ public:
     { return lengthVectorProperty(TableColumnWidthConstraints); }
 
     inline int cellSpacing() const
-    { return intProperty(TableCellSpacing, 0); }
+    { return intProperty(TableCellSpacing, 2); }
     inline void setCellSpacing(int spacing)
-    { setProperty(TableCellSpacing, spacing, 0); }
+    { setProperty(TableCellSpacing, spacing, 2); }
 
     inline int cellPadding() const
     { return intProperty(TableCellPadding, 0); }
