@@ -2737,6 +2737,7 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	    QListBoxItem *o = d->current;
 	    if ( d->current && d->current->s )
 		d->current->s = FALSE;
+	d->current = item;
 
 	    int ind = index( item );
 	    d->currentColumn = ind / numRows();
