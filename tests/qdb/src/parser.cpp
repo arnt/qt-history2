@@ -197,9 +197,9 @@ void Parser::warning( const char *format, ... )
     va_list ap;
 
     va_start( ap, format );
-    sprintf( yyPrintfBuf, "%d:%d: ", yyLineNo, yyColumnNo );
+    sprintf( yyPrintfBuf, "Warning: line %d:%d: ", yyLineNo, yyColumnNo );
     vsprintf( yyPrintfBuf + strlen(yyPrintfBuf), format, ap );
-    yyEnv->output() << yyPrintfBuf;
+    yyEnv->output() << yyPrintfBuf << endl;;
     va_end( ap );
 }
 
@@ -211,9 +211,9 @@ void Parser::error( const char *format, ... )
     va_list ap;
 
     va_start( ap, format );
-    sprintf( yyPrintfBuf, "%d:%d: ", yyLineNo, yyColumnNo );
+    sprintf( yyPrintfBuf, "line %d:%d: ", yyLineNo, yyColumnNo );
     vsprintf( yyPrintfBuf + strlen(yyPrintfBuf), format, ap );
-    yyEnv->output() << yyPrintfBuf;
+    yyEnv->output() << yyPrintfBuf << endl;
     va_end( ap );
 
     yyOK = FALSE;
@@ -1929,8 +1929,8 @@ void Parser::matchTableConstraintDef()
     case Tok_primary:
 	yyTok = getToken();
 	matchOrInsert( Tok_key, "'key'" );
-	warning( "'primary key' clause unsupported (will still create an"
-		 " index)" );
+//	warning( "'primary key' clause unsupported (will still create an"
+//		 " index)" );
 	matchOrInsert( Tok_LeftParen, "'('" );
 	yyNeedIndex[Unique][NotNull].append( matchColumnList() );
 	matchOrInsert( Tok_RightParen, "')'" );
@@ -1977,8 +1977,8 @@ void Parser::matchColumnDefOptions( const QString& column )
 	case Tok_primary:
 	    yyTok = getToken();
 	    matchOrInsert( Tok_key, "'key'" );
-	    warning( "'primary key' clause unsupported (will still create an"
-		     " index)" );
+//	    warning( "'primary key' clause unsupported (will still create an"
+//		     " index)" );
 	    yyNeedIndex[Unique][NotNull].append( column );
 	    break;
 	case Tok_references:
