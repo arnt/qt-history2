@@ -972,6 +972,8 @@ void PopupMenuEditor::focusOutEvent( QFocusEvent * )
     QWidget * fw = qApp->focusWidget();
     if ( !fw || ( !fw->inherits( "PopupMenuEditor" ) && fw != lineEdit ) ) {
 	hideSubMenu();
+	if ( fw && fw->inherits( "MenuBarEditor" ) )
+	    return;
 	QWidget * w = this;
 	while ( w && w->inherits( "PopupMenuEditor" ) ) {
 	    w->hide();

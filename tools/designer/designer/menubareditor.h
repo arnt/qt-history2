@@ -21,35 +21,31 @@ public:
     MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * bar, int id = -1 );
     MenuBarEditorItem( QActionGroup * actionGroup, MenuBarEditor * bar, int id = -1 );
     MenuBarEditorItem( MenuBarEditorItem * item, int id = -1 );
-    ~MenuBarEditorItem();
+    ~MenuBarEditorItem() { };
 
-    PopupMenuEditor * menu();//FIXME: rename to popup ?
-    int id();
+    PopupMenuEditor * menu() { return popupMenu; }
+    int id() { return identity; }
 
-    void setMenuText( const QString t );
-    QString menuText();
+    void setMenuText( const QString t ) { text = t; };
+    QString menuText() { return text; }
 
-    void setVisible( bool enable );
-    bool isVisible();
+    void setVisible( bool enable ) { visible = enable; }
+    bool isVisible() { return visible; }
 
-    void setRemovable( bool enable );
-    bool isRemovable();
+    void setRemovable( bool enable ) { removable = enable; }
+    bool isRemovable() { return removable; }
 
-    void setAutoDelete( bool enable );
-    bool isAutoDelete();
-
-     bool isSeparator();
+    bool isSeparator() { return separator; }
 protected:
-    void setSeparator( bool enable );
+    void setSeparator( bool enable ) { separator = enable; }
     
 private:
     MenuBarEditor * menuBar;
     PopupMenuEditor * popupMenu;
     QString text;
-    bool visible;
-    bool separator;
-    bool removable;
-    bool autodelete;
+    int visible : 1;
+    int separator : 1;
+    int removable : 1;
     int identity;
 };
 
@@ -133,9 +129,9 @@ protected:
     void drawSeparator( QPainter & p, QPoint & pos );
     
     QSize itemSize( MenuBarEditorItem * i );
-    void addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y, const int w );
+    void addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y, int w );
 
-    QPoint itemPos( const int index );
+    QPoint itemPos( int index );
     QPoint snapToItem( const QPoint & pos );
     void dropInPlace( MenuBarEditorItem * i, const QPoint & pos );
 

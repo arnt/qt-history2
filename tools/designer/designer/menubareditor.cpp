@@ -66,7 +66,7 @@ MenuBarEditorItem::MenuBarEditorItem( MenuBarEditor * bar, int id )
       visible( TRUE ),
       separator( FALSE ),
       removable( FALSE ),
-      autodelete( FALSE ),
+      //autodelete( FALSE ),
       identity( id )
 { }
 
@@ -76,7 +76,7 @@ MenuBarEditorItem::MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * ba
       visible( TRUE ),
       separator( FALSE ),
       removable( TRUE ),
-      autodelete( TRUE ),
+      //autodelete( TRUE ),
       identity( id )
 {
     text = menu->name();
@@ -89,7 +89,7 @@ MenuBarEditorItem::MenuBarEditorItem( QActionGroup * actionGroup,
       visible( TRUE ),
       separator( FALSE ),
       removable( TRUE ),
-      autodelete( TRUE ),
+      //autodelete( TRUE ),
       identity( id )
 {
     text = actionGroup->menuText();
@@ -104,75 +104,10 @@ MenuBarEditorItem::MenuBarEditorItem( MenuBarEditorItem * item, int id )
       visible( item->visible ),
       separator( item->separator ),
       removable( item->removable ),
-      autodelete( item->autodelete ),
+      //autodelete( item->autodelete ),
       identity( id )
 {
     popupMenu = new PopupMenuEditor( menuBar->formWindow(), item->popupMenu, menuBar );
-}
-
-MenuBarEditorItem::~MenuBarEditorItem()
-{
-// FIXME: autodelete not used
-}
-
-PopupMenuEditor * MenuBarEditorItem::menu()
-{
-    return popupMenu;
-}
-
-int MenuBarEditorItem::id()
-{
-    return identity;
-}
-
-void MenuBarEditorItem::setMenuText( const QString t )
-{
-    text = t;
-}
-
-QString MenuBarEditorItem::menuText()
-{
-    return text;
-}
-
-void MenuBarEditorItem::setVisible( bool enable )
-{
-    visible = enable;
-}
-
-bool MenuBarEditorItem::isVisible()
-{
-    return visible;
-}
-
-void MenuBarEditorItem::setRemovable( bool enable )
-{
-    removable = enable;
-}
-
-bool MenuBarEditorItem::isRemovable()
-{
-    return removable;
-}
-
-void MenuBarEditorItem::setAutoDelete( bool enable )
-{
-    autodelete = enable;
-}
-
-bool MenuBarEditorItem::isAutoDelete()
-{
-    return autodelete;
-}
-
-bool MenuBarEditorItem::isSeparator()
-{
-    return separator;
-}
-
-void MenuBarEditorItem::setSeparator( bool enable )
-{
-    separator = enable;
 }
 
 // MenuBarEditor --------------------------------------------------------
@@ -927,7 +862,7 @@ QSize MenuBarEditor::itemSize( MenuBarEditorItem * i )
     return QSize( r.width() + borderSize * 2, r.height() + borderSize * 4 );
 }
 
-void MenuBarEditor::addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y, const int w )
+void MenuBarEditor::addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y, int w )
 {
     int dx = itemSize( i ).width();
     if ( x + dx > w && x > borderSize ) {
@@ -937,7 +872,7 @@ void MenuBarEditor::addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y
     x += dx;
 }
 
-QPoint MenuBarEditor::itemPos( const int index )
+QPoint MenuBarEditor::itemPos( int index )
 {
     int x = borderSize;
     int y = 0;
