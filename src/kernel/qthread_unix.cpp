@@ -394,7 +394,7 @@ void QThread::sleep( unsigned long secs )
     gettimeofday(&tv, 0);
     struct timespec ti;
     ti.tv_sec = tv.tv_sec + secs;
-    ti.tv_nsec = 0;
+    ti.tv_nsec = (tv.tv_usec * 1000);
     thread_sleep(&ti);
 }
 
@@ -408,8 +408,9 @@ void QThread::msleep( unsigned long msecs )
     struct timeval tv;
     gettimeofday(&tv, 0);
     struct timespec ti;
-    ti.tv_sec = tv.tv_sec + (msecs / 1000);
     ti.tv_nsec = (tv.tv_usec * 1000) + (msecs % 1000) * 1000000;
+    ti.tv_sec = tv.tv_sec + (msecs / 1000) + (ti.tv_nsec / 1000000000);
+    ti.tv_nsec %= 1000000000;
     thread_sleep(&ti);
 }
 
@@ -423,8 +424,9 @@ void QThread::usleep( unsigned long usecs )
     struct timeval tv;
     gettimeofday(&tv, 0);
     struct timespec ti;
-    ti.tv_sec = tv.tv_sec + (usecs / 1000000);
     ti.tv_nsec = (tv.tv_usec * 1000) + (usecs % 1000000) * 1000;
+    ti.tv_sec = tv.tv_sec + (usecs / 1000000) + (ti.tv_nsec / 1000000000);
+    ti.tv_nsec %= 1000000000;
     thread_sleep(&ti);
 }
 
