@@ -314,16 +314,17 @@ QString QDate::dayName( int weekday ) const
 }
 
 
-/*!
-  Returns the date as a string.  The \a f parameter determines the format of the string.
-  
+/*!  Returns the date as a string.  The \a f parameter determines the
+  format of the string. 
+
   If \a f is Qt::TextDate, the string format is "Sat May 20 1995" (using the
   dayName() and monthName() functions to generate the string).
-  
-  If \a f is Qt::ISODate, the string format corresponds to the ISO 8601 specification
-  for representations of dates, which is YYYY-MM-DD where YYYY is the year, MM is 
-  the month of the year (between 01 and 12), and DD is the day of the month between 
-  01 and 31. 
+
+  If \a f is Qt::ISODate, the string format corresponds to the ISO
+  8601 specification for representations of dates, which is YYYY-MM-DD
+  where YYYY is the year, MM is the month of the year (between 01 and
+  12), and DD is the day of the month between 01 and 31. If the date
+  is invalid, QString::null is returned.
 
   \sa dayName(), monthName()
 */
@@ -335,9 +336,14 @@ QString QDate::toString( Qt::DateFormat f ) const
     switch ( f ) {
     case Qt::ISODate:
 	{
-	    QString month( QString::number( m ).rightJustify( 2, '0' ) );
-	    QString day( QString::number( d ).rightJustify( 2, '0' ) );
-	    return QString::number( y ) + "-" + month + "-" + day;
+	    if ( isValid() ) {
+		QString month( QString::number( m ).rightJustify( 2, '0' ) );
+		QString day( QString::number( d ).rightJustify( 2, '0' ) );
+		return QString::number( y ) + "-" + month + "-" + day;
+	    } else {
+		return QString::null;
+	    }
+	    break;
 	}
     default:
     case Qt::TextDate:
@@ -349,7 +355,8 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    t.sprintf( " %d %d", d, y);
 	    buf += t;
 	    return buf;
-	}	
+	    break;
+	}
     }
 }
 
@@ -474,7 +481,7 @@ QDate QDate::currentDate()
 }
 
 /*!
-  Returns the representation \a s as a QDate using the format \a f, or 
+  Returns the representation \a s as a QDate using the format \a f, or
   an invalid date if this is not possible.
  */
 QDate QDate::fromString( const QString& s, Qt::DateFormat f )
@@ -730,27 +737,30 @@ int QTime::msec() const
 }
 
 
-/*!
-  Returns the time as a string.  Milliseconds are not included.  The \a f parameter
-  determines the format of the string.
+/*!  Returns the time as a string.  Milliseconds are not included.
+  The \a f parameter determines the format of the string.
   
-  If \a f is Qt::TextDate, the string format is HH:MM:SS, e.g. 1 second
-    before midnight would be "23:59:59".
-  
-  If \a f is Qt::ISODate, the string format corresponds to the ISO 8601 specification
-  for representations of dates, which is also HH:MM:SS.
+  If \a f is Qt::TextDate, the string format is HH:MM:SS, e.g. 1
+  second before midnight would be "23:59:59".
+
+  If \a f is Qt::ISODate, the string format corresponds to the ISO
+  8601 specification for representations of dates, which is also
+  HH:MM:SS. If the time is invalid, QString::null is returned.
 
 */
 
 QString QTime::toString( Qt::DateFormat f ) const
 {
     switch ( f ) {
-    default:	
+    default:
     case Qt::ISODate:
     case Qt::TextDate:
-	QString buf;
-	buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );
-	return buf;
+	if ( isValid() ) {
+	    QString buf;
+	    buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );
+	    return buf;
+	} else
+	    return QString::null;
     }
 }
 
@@ -915,7 +925,7 @@ QTime QTime::currentTime()
     return ct;
 }
 /*!
-  Returns the representation \a s as a QTime using the format \a f, or 
+  Returns the representation \a s as a QTime using the format \a f, or
   an invalid time if this is not possible.
  */
 QTime QTime::fromString( const QString& s, Qt::DateFormat f )
@@ -1238,15 +1248,17 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 }
 
 
-/*!
-  Returns the datetime as a string.   The \a f parameter
-  determines the format of the string.
-  
-  If \a f is Qt::TextDate, the string format is "Sat May 20 03:40:13 1998" (using QDate::dayName(), 
-  QDate::monthName(), and QTime::toString() to generate the string).
-  
-  If \a f is Qt::ISODate, the string format corresponds to the ISO 8601 specification
-  for representations of dates and times, which is YYYY-MM-DDTHH:MM:SS.
+/*!  Returns the datetime as a string.  The \a f parameter determines
+  the format of the string.
+
+  If \a f is Qt::TextDate, the string format is "Sat May 20 03:40:13
+  1998" (using QDate::dayName(), QDate::monthName(), and
+  QTime::toString() to generate the string).
+
+  If \a f is Qt::ISODate, the string format corresponds to the ISO
+  8601 specification for representations of dates and times, which is
+  YYYY-MM-DDTHH:MM:SS. If the datetime is invalid, QString::null is
+  returned.
 
   \sa QDate::toString() QTime::toString
 
@@ -1257,7 +1269,10 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     switch ( f ) {
     case Qt::ISODate:
 	{
-	    return QString( d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate ) );
+	    if ( isValid() )
+		return QString( d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate ) );
+	    else 
+		return QString::null;
 	}
     default:
     case Qt::TextDate:
@@ -1271,7 +1286,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 	    buf += t.toString();
 	    buf += ' ';
 	    buf += QString().setNum(d.year());
-	    return buf;	    
+	    return buf;
 	}
     }
 }
@@ -1443,14 +1458,14 @@ QDateTime QDateTime::currentDateTime()
 }
 
 /*!
-  Returns the representation \a s as a QDateTime using the format \a f, or 
+  Returns the representation \a s as a QDateTime using the format \a f, or
   an invalid datetime if this is not possible.
  */
 QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 {
     switch ( f ) {
     case Qt::ISODate:
-	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ), QTime::fromString( s.mid(11,8), Qt::ISODate ) ); 
+	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ), QTime::fromString( s.mid(11,8), Qt::ISODate ) );
     case Qt::TextDate:
 	{
 	    QString monthName( s.mid( 4, 3 ) );
@@ -1475,12 +1490,12 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	    }
 	    return QDateTime( date, time );
 	}
-    default:	
+    default:
 	ASSERT(FALSE);
     }
     return QDateTime();
 }
-    
+
 
 
 /*****************************************************************************
