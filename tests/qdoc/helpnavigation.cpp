@@ -295,7 +295,7 @@ void HelpNavigation::searchInIndexLine( const QString &s )
     while ( i ) {
 	QString t = i->text();
 	if ( t.length() >= sl.length() && 
-	     i->text().lower().left( s.length() ) == sl )
+	     i->text().left(s.length()).lower() == sl )
 	{
 	    indexList->setCurrentItem( i );
 	    break;
