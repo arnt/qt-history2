@@ -1,3 +1,21 @@
+/****************************************************************************
+**
+** Qt/Embedded virtual framebuffer
+**
+** Created : 20000605
+**
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing.
+**
+*****************************************************************************/
 
 #include <unistd.h>
 #include <sys/ipc.h>
@@ -81,7 +99,9 @@ QVFbView::~QVFbView()
     struct shmid_ds shm;
     shmdt( data );
     shmctl( shmId, IPC_RMID, &shm );
+    sendKeyboardData( 0, 0, 0, TRUE, FALSE ); // magic die key
     ::close( mouseFd );
+    ::close( keyboardFd );
     unlink( QT_VFB_MOUSE_PIPE );
     unlink( QT_VFB_KEYBOARD_PIPE );
 }

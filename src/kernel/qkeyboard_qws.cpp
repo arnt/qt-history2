@@ -286,6 +286,8 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler() : QWSKeyboardHandler()
 	connect( notifier, SIGNAL(activated(int)),this, 
 		 SLOT(readKeyboardData()) );
     }
+
+    printf("\033[?25l"); fflush(stdout); // VT100 cursor off
 }
 
 QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
@@ -299,6 +301,8 @@ QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
     }
     delete notifier;
     notifier = 0;
+
+    printf("\033[?25h"); fflush(stdout); // VT100 cursor on
 }
 
 
@@ -565,6 +569,11 @@ void QWSVFbKeyboardHandler::readKeyboardData()
     int idx = 0;
     while ( kbdIdx - idx >= sizeof( QVFbKeyData ) ) {
 	QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
+	if ( kd->unicode == 0 ) {
+	    // magic exit key
+	    qWarning( "Instructed to quit by Virtual Keyboard" );
+	    qApp->quit();
+	}
 	server->processKeyEvent( kd->unicode&0xffff, kd->unicode>>16,
 				 kd->modifiers, kd->press, kd->repeat );
 	idx += sizeof( QVFbKeyData );

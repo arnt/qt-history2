@@ -1,11 +1,29 @@
-
-#include "qvfb.h"
-#include "qvfbview.h"
-#include "qvfbratedlg.h"
+/****************************************************************************
+**
+** Qt/Embedded virtual framebuffer
+**
+** Created : 20000605
+**
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing.
+**
+*****************************************************************************/
 
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qapplication.h>
+
+#include "qvfb.h"
+#include "qvfbview.h"
+#include "qvfbratedlg.h"
 
 QVFb::QVFb( int w, int h, int d, QWidget *parent, const char *name,
 			uint flags )

@@ -312,9 +312,6 @@ QWSServer::QWSServer( int flags,
     screenRegion = QRegion( 0, 0, swidth, sheight );
     paintBackground( screenRegion );
 
-    printf("\033[?25l"); fflush(stdout); // VT100 cursor off
-
-
     qt_init_display();
     client[-1] = new QWSClient( this, -1 );
 }
@@ -328,7 +325,6 @@ QWSServer::~QWSServer()
     closeDisplay();
     closeMouse();
     closeKeyboard();
-    printf("\033[?25h"); fflush(stdout); // VT100 cursor on
 }
 
 void QWSServer::newConnection( int socket )
