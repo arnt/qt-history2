@@ -27,6 +27,8 @@ private slots:
     void displayPage();
     void showAssistantErrors( const QString &err );
     void installExampleDocs();
+    void assistantOpened();
+    void assistantClosed();
 
 private:
     QWidget* lookForWidget();

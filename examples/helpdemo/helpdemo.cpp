@@ -5,6 +5,7 @@
 #include <qpopupmenu.h>
 #include <qcheckbox.h>
 #include <qprocess.h>
+#include <qpushbutton.h>
 
 #include "helpdemo.h"
 
@@ -28,6 +29,12 @@ HelpDemo::HelpDemo( QWidget *parent, const char *name )
 
     connect( assistant, SIGNAL( error( const QString& ) ),
 	this, SLOT( showAssistantErrors( const QString& ) ) );
+
+    connect( assistant, SIGNAL( assistantOpened() ),
+	     this, SLOT( assistantOpened() ) );
+    connect( assistant, SIGNAL( assistantClosed() ),
+	     this, SLOT( assistantClosed() ));
+    closeQAButton->setEnabled( FALSE );
 }
 
 HelpDemo::~HelpDemo()
@@ -81,16 +88,12 @@ void HelpDemo::openAssistant()
 {
     if ( !assistant->isOpen() )
 	assistant->openAssistant();
-    else
-	QMessageBox::information( this, "Help", "Qt Assistant is already open!" );
 }
 
 void HelpDemo::closeAssistant()
 {
     if ( assistant->isOpen() )
 	assistant->closeAssistant();
-    else
-	QMessageBox::information( this, "Help", "Qt Assistant is not open!" );
 }
 
 class ProcessListener : public QObject {
@@ -156,5 +159,16 @@ void HelpDemo::showAssistantErrors( const QString &err )
 
 }
 
+void HelpDemo::assistantOpened()
+{
+    closeQAButton->setEnabled( TRUE );
+    openQAButton->setEnabled( FALSE );
+}
+
+void HelpDemo::assistantClosed()
+{
+    closeQAButton->setEnabled( FALSE );
+    openQAButton->setEnabled( TRUE );
+}
 
 #include "helpdemo.moc"
