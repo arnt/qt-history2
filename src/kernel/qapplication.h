@@ -308,6 +308,7 @@ private:
     static QMAC_PASCAL void qt_select_timer_callbk(EventLoopTimerRef, void *);
     static bool qt_mac_apply_settings();
     friend class QMacInputMethod;
+    friend void qt_mac_update_os_settings();
     friend bool qt_set_socket_handler( int, int, QObject *, bool);
     friend void qt_mac_destroy_widget(QWidget *);
     friend void qt_init(int *, char **, QApplication::Type);

@@ -248,7 +248,7 @@ void qt_mac_clear_mouse_state()
     qt_button_down = 0;
 }
 
-static void qt_mac_get_os_settings()
+void qt_mac_update_os_settings()
 {
     { //setup the global peltte
 	QColor qc;
@@ -279,7 +279,8 @@ static void qt_mac_get_os_settings()
 	    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
 	}
 	pal.setDisabled(pal.inactive());
-	QApplication::setPalette(pal);
+	if(!(pal == QApplication::palette())) 
+	    QApplication::setPalette(pal);
     }
     { //setup the fonts
 	struct {
@@ -302,9 +303,15 @@ static void qt_mac_get_os_settings()
 	Style f_style;
 	for(int i = 0; mac_widget_fonts[i].qt_class; i++) {
 	    GetThemeFont(mac_widget_fonts[i].font_key, smSystemScript, f_name, &f_size, &f_style);
-	    QApplication::setFont(QFont(p2qstring(f_name), f_size,
-					(f_style & ::bold) ? QFont::Bold : QFont::Normal,
-					(bool)(f_style & ::italic)), TRUE, mac_widget_fonts[i].qt_class);
+	    QFont fnt(p2qstring(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+		      (bool)(f_style & ::italic));
+	    bool set_font = TRUE;
+	    if(QApplication::app_fonts) {
+		if(QFont *oldfnt = QApplication::app_fonts->find(mac_widget_fonts[i].qt_class)) 
+		    set_font = !(fnt == *oldfnt);
+	    }
+	    if(set_font) 
+		QApplication::setFont(fnt, TRUE, mac_widget_fonts[i].qt_class);
 	}
     }
     { //setup the palette
@@ -349,7 +356,13 @@ static void qt_mac_get_os_settings()
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
 		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
 	    }
-	    QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
+	    bool set_palette = TRUE;
+	    if(QApplication::app_palettes) {
+		if(QPalette *oldpal = QApplication::app_palettes->find(mac_widget_colours[i].qt_class)) 
+		    set_palette = !(pal == *oldpal);
+	    }
+	    if(set_palette) 
+		QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
 	}
     }
 }
@@ -641,7 +654,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 #endif
 	RegisterAppearanceClient();
 	if(QApplication::desktopSettingsAware())
-	    qt_mac_get_os_settings();
+	    qt_mac_update_os_settings();
 
 	if(!app_proc_handler) {
 	    app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
@@ -2162,8 +2175,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowShown) {
 	    widget->topLevelWidget()->setActiveWindow();
 	} else if(ekind == kEventWindowActivated) {
-	    if(QApplication::desktopSettingsAware())
-		qt_mac_get_os_settings();
 	    if(QApplication::app_style) {
 		//I shouldn't have to do this, but the StyleChanged isn't happening as I expected
 		//so this is in for now, FIXME!
@@ -2200,6 +2211,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break; }
     case kEventClassApplication:
 	if(ekind == kEventAppActivated) {
+	    if(QApplication::desktopSettingsAware())
+		qt_mac_update_os_settings();
 	    app->clipboard()->loadScrap(FALSE);
 	    if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
 		QEvent ev(QEvent::Clipboard);
@@ -2255,7 +2268,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     case kAppearanceEventClass:
 	if(ekind == kAEAppearanceChanged) {
 	    if(QApplication::desktopSettingsAware())
-		qt_mac_get_os_settings();
+		qt_mac_update_os_settings();
 	    if(QApplication::app_style) {
 		QEvent ev(QEvent::Style);
 		QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
