@@ -44,3 +44,7 @@ QLineEdit/QLCDNumber:
 QCursor
 -------
     hourGlassCursor => waitCursor
+
+QListBox
+--------
+    removed setStrList(), use clear(); insertStrList( ... , 0 ); instead 
