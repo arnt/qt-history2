@@ -979,7 +979,7 @@ QSize QComboBox::sizeHint() const
     QFontMetrics fm = fontMetrics();
 
     int maxW = count() ? 18 : 7 * fm.width(QChar('x')) + 18;
-    int maxH = QMAX( fm.height() + 2, 12 );
+    int maxH = QMAX( fm.lineSpacing() + 2, 12 );
 
     for( i = 0; i < count(); i++ ) {
 	if ( d->usingListBox() ) {
