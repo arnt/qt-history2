@@ -45,8 +45,6 @@
 #include "qnamespace.h"
 #endif // QT_H
 
-#include <limits.h>
-
 // Class forward definitions
 
 class QPaintDevice;
