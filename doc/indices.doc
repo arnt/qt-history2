@@ -14,6 +14,8 @@
 
 \page index.html
 
+\title Qt Reference Documentation
+
 <table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
 <tr bgcolor=white><td colspan=3 align=center>
 \if defined(commercial)
