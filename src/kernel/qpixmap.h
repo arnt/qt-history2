@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#5 $
 **
 ** Definition of QPixMap class
 **
@@ -33,6 +33,8 @@ public:
 #else
     bool   isValid() const { return hbm != 0; }
 #endif
+
+    void   erase();
 
 protected:
     QPixMap( int w, int h, const char *data );

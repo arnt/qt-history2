@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#3 $
 **
 ** Implementation of QPainter class
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file containts the platform independent implementation of the
@@ -17,9 +17,11 @@
 #define QPAINTER_C
 #include "qpainter.h"
 #include "qpntarry.h"
+#include "qwxfmat.h"
+#include "qstack.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#3 $";
 #endif
 
 
@@ -33,6 +35,114 @@ bool QPainter::redirect( const QPaintDevice *pd )
     return TRUE;
 }
 
+
+void QPainter::setf( uint b, bool v )
+{
+    if ( v )
+	setf( b );
+    else
+	clearf( b );
+}
+
+
+struct QPState {				// painter state
+    QFont	font;
+    QPen	pen;
+    QBrush	brush;
+    QColor	bgc;
+    BGMode	bgm;
+    RasterOp	rop;
+    QPoint	bro;
+    PainterUnit	pu;
+    QRect	sr, tr;
+    QWXFMatrix	wm;
+    bool	vxf;
+    bool	wxf;
+    QRegion	rgn;
+    bool	clip;
+};
+
+declare(QStackM,QPState);
+static QStackM(QPState) *ps_stack = 0;		// painter state stack
+// NOTE!!! Must be local to each painter!!!
+
+void QPainter::save()
+{
+    if ( ps_stack == 0 ) {
+	ps_stack = new QStackM(QPState);
+	ps_stack->setAutoDelete( TRUE );
+	CHECK_PTR( ps_stack );			// NOTE !!! Add delete callback
+    }
+    register QPState *ps = new QPState;
+    CHECK_PTR( ps );
+    /* HERE: Store data in stack object */
+//    ps->font  = cfont.copy();
+//    ps->pen   = cpen.copy();
+//    ps->brush = cbrush.copy();
+    ps->bgc = bg_col;
+    ps->bgm = bg_mode;
+    ps->rop = rop;
+    ps->bro = bro;
+    ps->pu  = pu;
+    ps->sr  = QRect( sx, sy, sw, sh );
+    ps->tr  = QRect( tx, ty, tw, th );
+    ps->wm  = *wxfmat;
+    ps->vxf = testf(VxF);
+    ps->wxf = testf(WxF);
+//    ps->rgn = crgn.copy();
+    ps->clip= testf(ClipOn);
+    ps_stack->push( ps );
+}
+
+void QPainter::restore()
+{
+    if ( ps_stack == 0 || ps_stack->isEmpty() )
+	return;
+    register QPState *ps = ps_stack->top();
+    bool eq = TRUE;
+/*
+    if ( ps->font != cfont )
+	setFont( ps->font );
+    if ( ps->pen != cpen )
+	setPen( ps->pen );
+    if ( ps->brush != cbrush )
+	setFont( ps->brush );
+*/
+//    if ( ps->bgc != bg_col )
+//	setBackgroundColor( ps->bgc );
+    if ( ps->bgm != bg_mode )
+	setBackgroundMode( ps->bgm );
+    if ( ps->rop != rop )
+	setRasterOp( ps->rop );
+/*
+    if ( ps->pu != pu )
+	setUnit( pu );
+*/
+    QRect sr( sx, sy, sw, sh );
+    QRect tr( tx, ty, tw, th );
+    if ( ps->sr != sr )
+	setSourceView( ps->sr );
+    if ( ps->tr != tr )
+	setTargetView( ps->tr );
+    if ( ps->wm != *wxfmat )
+	setWxfMatrix( ps->wm );
+    if ( ps->vxf != testf(VxF) )
+	setViewXForm( ps->vxf );
+    if ( ps->wxf != testf(WxF) )
+	setWorldXForm( ps->wxf );
+/*
+    if ( ps->rgn != crgn )
+	setRegion( ps->rgn );
+*/
+    if ( ps->clip != testf(ClipOn) )
+	setClipping( ps->clip );
+    ps_stack->pop();
+}
+
+
+// --------------------------------------------------------------------------
+// Painter functions for drawing shadow effects.
+//
 
 void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			      const QColor &tColor, const QColor &bColor )
@@ -157,6 +267,10 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
 }
 
 
+// --------------------------------------------------------------------------
+// Convenience function for filling a rectangle.
+//
+
 void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 {
     QPen oldPen = pen();			// save pen
@@ -206,37 +320,37 @@ void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
 
 void QPainter::drawRect( const QRect &r )
 {
-    drawRect( r.left(), r.top(), r.width(), r.height() );
+    drawRect( r.x(), r.y(), r.width(), r.height() );
 }
 
 void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
 {
-    drawRoundRect( r.left(), r.top(), r.width(), r.height(), xRnd, yRnd );
+    drawRoundRect( r.x(), r.y(), r.width(), r.height(), xRnd, yRnd );
 }
 
 void QPainter::drawEllipse( const QRect &r )
 {
-    drawEllipse( r.left(), r.top(), r.width(), r.height() );
+    drawEllipse( r.x(), r.y(), r.width(), r.height() );
 }
 
 void QPainter::drawArc( const QRect &r, int a1, int a2 )
 {
-    drawArc( r.left(), r.top(), r.width(), r.height(), a1, a2 );
+    drawArc( r.x(), r.y(), r.width(), r.height(), a1, a2 );
 }
 
 void QPainter::drawPie( const QRect &r, int a1, int a2 )
 {
-    drawPie( r.left(), r.top(), r.width(), r.height(), a1, a2 );
+    drawPie( r.x(), r.y(), r.width(), r.height(), a1, a2 );
 }
 
 void QPainter::drawChord( const QRect &r, int a1, int a2 )
 {
-    drawChord( r.left(), r.top(), r.width(), r.height(), a1, a2 );
+    drawChord( r.x(), r.y(), r.width(), r.height(), a1, a2 );
 }
 
 void QPainter::fillRect( const QRect &r, const QColor &c )
 {
-    fillRect( r.left(), r.top(), r.width(), r.height(), c );
+    fillRect( r.x(), r.y(), r.width(), r.height(), c );
 }
 
 void QPainter::eraseRect( int x, int y, int w, int h )
@@ -246,7 +360,7 @@ void QPainter::eraseRect( int x, int y, int w, int h )
 
 void QPainter::eraseRect( const QRect &r )
 {
-    fillRect( r.left(), r.top(), r.width(), r.height(), backgroundColor() );
+    fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
 }
 
 void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
@@ -259,7 +373,7 @@ void QPainter::drawShadeRect( const QRect &r,
 			      const QColor &tC, const QColor &bC,
 			      bool fill )
 {
-    drawShadeRect( r.left(), r.top(), r.width(), r.height(), tC, bC, fill );
+    drawShadeRect( r.x(), r.y(), r.width(), r.height(), tC, bC, fill );
 }
 
 void QPainter::drawShadePanel( const QRect &r,
@@ -267,7 +381,7 @@ void QPainter::drawShadePanel( const QRect &r,
 			       int tWidth, int bWidth,
 			       bool fill )
 {
-    drawShadePanel( r.left(), r.top(), r.width(), r.height(), tC, bC,
+    drawShadePanel( r.x(), r.y(), r.width(), r.height(), tC, bC,
 		    tWidth, bWidth, fill );
 }
 
@@ -276,8 +390,13 @@ void QPainter::drawText( const QPoint &p, const char *s, int len )
     drawText( p.x(), p.y(), s, len );
 }
 
-void QPainter::drawText( const QRect &r, TextAlignment ta, const char *s,
+void QPainter::drawText( const QRect &r, TextAlignment ta, const char *str,
 			 int len )
 {
-    drawText( r.left(), r.top(), r.width(), r.height(), ta, s, len );
+    drawText( r.x(), r.y(), r.width(), r.height(), ta, str, len );
+}
+
+void QPainter::setBrushOrigin( const QPoint &p )
+{
+    setBrushOrigin( p.x(), p.y() );
 }

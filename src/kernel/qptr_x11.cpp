@@ -1,26 +1,27 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#7 $
 **
 ** Implementation of QPainter class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qpntarry.h"
-#include "qpixmap.h"
+#include "qwxfmat.h"
+#include "qbitmap.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#7 $";
 #endif
 
 
@@ -28,22 +29,28 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#6 $";
 // QPen member functions
 //
 
-QPen::QPen()
+void QPen::init( const QColor &color, uint width, PenStyle style )
 {
     data = new QPenData;
     CHECK_PTR( data );
-    data->style = SolidLine;			// default pen settings
-    data->width = 0;
-    data->color = black;
+    data->style = style;
+    data->width = width;
+    data->color = color;
+}
+
+QPen::QPen()
+{
+    init( black, 0, SolidLine );		// default pen
+}
+
+QPen::QPen( PenStyle style )
+{
+    init( black, 0, style );
 }
 
 QPen::QPen( const QColor &color, uint width, PenStyle style )
 {
-    data = new QPenData;
-    CHECK_PTR( data );
-    data->style = style;			// set pen attributes
-    data->width = width;
-    data->color = color;
+    init( color, width, style );
 }
 
 QPen::QPen( const QPen &p )
@@ -95,24 +102,46 @@ void QPen::setColor( const QColor & c )		// set pen color
 // QBrush member functions
 //
 
-QBrush::QBrush()
+void QBrush::init( const QColor &color, BrushStyle style )
 {
     data = new QBrushData;
     CHECK_PTR( data );
-    data->style = NoBrush;			// default brush settings
-    data->color = white;
+    data->style = style;
+    data->color = color;
     data->dpy = 0;
     data->pixmap = 0;
+    data->bitmap = 0;
+}
+
+void QBrush::reset()
+{
+    if ( data->bitmap )
+	delete data->bitmap;
+    else if ( data->pixmap )
+	XFreePixmap( data->dpy, data->pixmap );
+    delete data;
+}
+
+
+QBrush::QBrush()
+{
+    init( black, NoBrush );
+}
+
+QBrush::QBrush( BrushStyle style )
+{
+    init( black, style );
 }
 
 QBrush::QBrush( const QColor &color, BrushStyle style )
 {
-    data = new QBrushData;
-    CHECK_PTR( data );
-    data->style = style;			// set brush attributes
-    data->color = color;
-    data->dpy = 0;
-    data->pixmap = 0;
+    init( color, style );
+}
+
+QBrush::QBrush( const QColor &color, QBitMap *bitmap )
+{
+    init( color, CustomPattern );
+    data->bitmap = bitmap;
 }
 
 QBrush::QBrush( const QBrush &p )
@@ -123,21 +152,15 @@ QBrush::QBrush( const QBrush &p )
 
 QBrush::~QBrush()
 {
-    if ( data->deref() ) {			// delete X11 brush
-	if ( data->pixmap )
-	    XFreePixmap( data->dpy, data->pixmap );
-	delete data;
-    }
+    if ( data->deref() )
+	reset();
 }
 
 QBrush &QBrush::operator=( const QBrush &p )
 {
     p.data->ref();				// beware of p = p
-    if ( data->deref() ) {			// delete X11 brush
-	if ( data->pixmap )
-	    XFreePixmap( data->dpy, data->pixmap );
-	delete data;
-    }
+    if ( data->deref() )
+	reset();
     data = p.data;
     return *this;
 }
@@ -170,10 +193,10 @@ void QBrush::setColor( const QColor &c )	// set brush color
 // The advantage is that you don't have to link in the math library.
 //
 
-const double Q_PI   = 3.14159265358979323;	// pi
-const double Q_2PI  = 6.28318530717958620;	// 2*pi
-const double Q_PI2  = 1.57079632679489660;	// pi/2
-const double Q_3PI2 = 4.71238898038468984;	// 3*pi/2
+const double Q_PI   = 3.14159265358979323846;	// pi                      
+const double Q_2PI  = 6.28318530717958647693;	// 2*pi
+const double Q_PI2  = 1.57079632679489661923;	// pi/2
+const double Q_3PI2 = 4.71238898038468985769;	// 3*pi/2
 
 double qsincos( double a, bool calcCos=FALSE )
 {
@@ -220,19 +243,27 @@ QPainter::QPainter()
 {
     if ( !list )				// create list
 	list = new QPnList;
-    isActive = 0;
+    flags = 0;
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
+    wxfmat  = new QWXFMatrix;			// create wxform matrices
+    CHECK_PTR( wxfmat );
+    wxfimat = new QWXFMatrix;
+    CHECK_PTR( wxfimat );
     list->insert( this );			// add to list of painters
 }
 
 QPainter::~QPainter()
 {
+    if ( isActive() ) {
 #if defined(CHECK_STATE)
-    if ( isActive )
-	warning( "QPainter::~QPainter: No end()" );
+	warning( "QPainter: Painting wasn't properly end()'ed" );
 #endif
+	end();
+    }
+    delete wxfmat;
+    delete wxfimat;
     list->remove( this );			// remove from painter list
 }
 
@@ -240,20 +271,20 @@ QPainter::~QPainter()
 void QPainter::setFont( const QFont &font )	// set current font
 {
     cfont = font;
-    dirtyFont = TRUE;
+    setf( DirtyFont );
 }
 
 void QPainter::setPen( const QPen &pen )	// set current pen
 {
     cpen = pen;
-    dirtyPen = TRUE;
+    setf( DirtyPen );
 }
 
 void QPainter::setBrush( const QBrush &brush )	// set current brush
 {
     cbrush = brush;
     cbrush.data->dpy = dpy;			// give brush a display pointer
-    dirtyBrush = TRUE;
+    setf( DirtyBrush );
 }
 
 
@@ -263,8 +294,8 @@ void QPainter::changedFont( const QFont *font, bool dirty )
 	return;
     register QPainter *p = list->first();
     while ( p ) {				// notify active painters
-	if ( p->isActive && p->cfont.data == font->data )
-	    p->dirtyFont = dirty;
+	if ( p->isActive() && p->cfont.data == font->data )
+	    dirty ? p->setf(DirtyFont) : p->clearf(DirtyFont);
 	p = list->next();
     }
 }
@@ -275,8 +306,8 @@ void QPainter::changedPen( const QPen *pen, bool dirty )
 	return;
     register QPainter *p = list->first();
     while ( p ) {				// notify active painters
-	if ( p->isActive && p->cpen.data == pen->data )
-	    p->dirtyPen = dirty;
+	if ( p->isActive() && p->cpen.data == pen->data )
+	    dirty ? p->setf(DirtyPen) : p->clearf(DirtyPen);
 	p = list->next();
     }
 }
@@ -287,8 +318,8 @@ void QPainter::changedBrush( const QBrush *brush, bool dirty )
 	return;
     register QPainter *p = list->first();
     while ( p ) {				// notify active painters
-	if ( p->isActive && p->cbrush.data == brush->data )
-	    p->dirtyBrush = dirty;
+	if ( p->isActive() && p->cbrush.data == brush->data )
+	    dirty ? p->setf(DirtyBrush) : p->clearf(DirtyBrush);
 	p = list->next();
     }
 }
@@ -296,7 +327,11 @@ void QPainter::changedBrush( const QBrush *brush, bool dirty )
 
 void QPainter::updateFont()			// update after changed font
 {
-    if ( extPDev ) {
+    clearf( DirtyFont );			// font becomes clean
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].str = cfont.name();
+	pdev->cmd( PDC_SETFONT, param );
 	return;
     }
     XSetFont( dpy, gc, cfont.fontId() );
@@ -309,8 +344,8 @@ void QPainter::updatePen()			// update after changed pen
     static char dash_dot_line[]	    = { 7, 3, 2, 3 };
     static char dash_dot_dot_line[] = { 7, 3, 2, 3, 2, 3 };
 
-    dirtyPen = FALSE;				// pen becomes clean
-    if ( extPDev ) {
+    clearf( DirtyPen );				// pen becomes clean
+    if ( testf(ExtDev) ) {
 	QPDevCmdParam param[3];
 	param[0].i = cpen.style();
 	param[1].i = cpen.width();
@@ -388,8 +423,8 @@ static char *pat_tbl[] = {
     hor_pat, ver_pat, cross_pat,
     bdiag_pat, fdiag_pat, dcross_pat };
 
-    dirtyBrush = FALSE;				// brush becomes clean
-    if ( extPDev ) {
+    clearf(DirtyBrush);				// brush becomes clean
+    if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
 	param[0].i = cbrush.style();
 	param[1].ul = cbrush.color().getRGB();
@@ -422,18 +457,27 @@ static char *pat_tbl[] = {
 	gc_brush = XCreateGC( dpy, hd, 0, 0 );
 	if ( rop != CopyROP )			// update raster op for brush
 	    setRasterOp( rop );
-	if ( doClip )
+	if ( testf(ClipOn) )
 	    XSetRegion( dpy, gc_brush, crgn.data->rgn );
+	if ( bro.x() != 0 || bro.y() != 0 )
+	    XSetTSOrigin( dpy, gc_brush, bro.x(), bro.y() );
     }
-    if ( cbrush.data->pixmap ) {		// delete old pixmap
+    if ( cbrush.data->bitmap ) {		// delete old bitmap
+	delete cbrush.data->bitmap;
+	cbrush.data->bitmap = 0;
+    }
+    else if ( cbrush.data->pixmap ) {		// delete old pixmap
 	XFreePixmap( cbrush.data->dpy, cbrush.data->pixmap );
 	cbrush.data->pixmap = 0;
     }
     cbrush.data->dpy = dpy;			// make sure display is set
     XSetForeground( dpy, gc_brush, cbrush.color().pixel() );
     XSetBackground( dpy, gc_brush, bg_col.pixel() );
-    if ( pat ) {
-	cbrush.data->pixmap = XCreateBitmapFromData( dpy, hd, pat, sz, sz);
+    if ( cbrush.style() == CustomPattern || pat ) {
+	if ( pat )
+	    cbrush.data->pixmap = XCreateBitmapFromData( dpy, hd, pat, sz, sz);
+	else
+	    cbrush.data->pixmap = cbrush.data->bitmap->hd;
 	XSetStipple( dpy, gc_brush, cbrush.data->pixmap );
 	s = bg_mode == TransparentMode ? FillStippled : FillOpaqueStippled;
     }
@@ -443,28 +487,33 @@ static char *pat_tbl[] = {
 
 bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 {
-    if ( isActive ) {				// already active painting
+    if ( isActive() ) {				// already active painting
 #if defined(CHECK_STATE)
-	warning( "QPainter::begin: Already active" );
+	warning( "QPainter::begin: Painter is already active" );
+#endif
+	end();
+	return begin( pd );
+    }
+    else if ( pd == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "QPainter::begin: Invalid NULL argument" );
 #endif
 	return FALSE;
     }
+
     QFont  defaultFont;				// default drawing tools
     QPen   defaultPen;
     QBrush defaultBrush;
     cfont = defaultFont;			// set these drawing tools
     cpen = defaultPen;
     cbrush = defaultBrush;
-    dirtyFont = TRUE;				// set all dirty flags
-    dirtyPen = TRUE;
-    dirtyBrush = TRUE;
-    doXForm = FALSE;				// no transformation
-    doClip = FALSE;				// no clipping
+    flags = DirtyFont | DirtyPen | DirtyBrush;	// default flags
     pdev = pdev_ov ? pdev_ov : (QPaintDevice *)pd;
-    extPDev = (pdev->devFlags & PDF_EXTDEV);
-    dpy = pdev->dpy;
+    if ( pdev->devFlags & PDF_EXTDEV )
+	setf(ExtDev);				// this is an extended device
+    dpy = pdev->dpy;				// get display variable
     hd = pdev->hd;				// get handle to drawable
-    if ( extPDev ) {
+    if ( testf(ExtDev) ) {
 	gc = 0;
 	if ( !pdev->cmd( PDC_BEGIN, 0 ) ) {	// could not begin painting
 	    pdev = 0;
@@ -473,11 +522,12 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else
 	gc = XCreateGC( dpy, hd, 0, 0 );
-    isActive = TRUE;				// painter becomes active
-    pdev->devFlags |= PDF_PAINTACTIVE;
+    setf( IsActive );				// painter becomes active
+    pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
     gc_brush = 0;
     bg_col = white;				// default background color
-    curPt = QPoint( 0, 0 );
+    bro = curPt = QPoint( 0, 0 );
+    wxfmat->reset();				// reset world xform matrix
     sx = sy = tx = ty = 0;			// default view origins
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
@@ -501,19 +551,15 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
 bool QPainter::end()				// end painting
 {
-#if defined(CHECK_STATE)
-    if ( !isActive ) {
-	warning( "QPainter::end: No begin()" );
+    if ( !isActive() )
 	return FALSE;
-    }
-#endif
-    if ( extPDev )
+    if ( testf(ExtDev) )
 	pdev->cmd( PDC_END, 0 );
     if ( gc_brush )
 	XFreeGC( dpy, gc_brush );
     if ( gc )
 	XFreeGC( dpy, gc );
-    isActive = FALSE;
+    clearf( IsActive );
     pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
     return TRUE;
@@ -523,9 +569,9 @@ bool QPainter::end()				// end painting
 void QPainter::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
-    if ( !isActive )
+    if ( !isActive() )
 	return;
-    if ( extPDev ) {
+    if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ul = bg_col.getRGB();
 	pdev->cmd( PDC_SETBKCOLOR, param );
@@ -538,7 +584,7 @@ void QPainter::setBackgroundColor( const QColor &c )
 
 void QPainter::setBackgroundMode( BGMode m )	// set background mode
 {
-    if ( !isActive )
+    if ( !isActive() )
 	return;
     if ( m != TransparentMode && m != OpaqueMode ) {
 #if defined(CHECK_RANGE)
@@ -547,7 +593,7 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
 	return;
     }
     bg_mode = m;
-    if ( extPDev ) {
+    if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].i = m;
 	pdev->cmd( PDC_SETBKMODE, param );
@@ -563,7 +609,7 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
     static short ropCodes[] =
 	{ GXcopy, GXor, GXxor, GXandInverted,
 	  GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
-    if ( !isActive )
+    if ( !isActive() )
 	return;
     if ( !(r >= CopyROP && r <= NotROP) ) {
 #if defined(CHECK_RANGE)
@@ -572,7 +618,7 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	return;
     }
     rop = r;
-    if ( extPDev ) {
+    if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].i = r;
 	pdev->cmd( PDC_SETROP, param );
@@ -583,16 +629,31 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	XSetFunction( dpy, gc_brush, ropCodes[rop] );
 }
 
-
-void QPainter::setXForm( bool onOff )		// set xform on/off
+void QPainter::setBrushOrigin( int x, int y )	// set brush origin
 {
-    if ( !isActive || onOff == doXForm )
+    if ( !isActive() )
 	return;
-    doXForm = onOff;
-    if ( extPDev ) {
+    bro = QPoint(x,y);
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].p = &bro;
+	pdev->cmd( PDC_SETBRUSHORIGIN, param );
+	return;
+    }
+    if ( gc_brush )
+	XSetTSOrigin( dpy, gc_brush, x, y );
+}
+
+
+void QPainter::setViewXForm( bool onOff )	// set xform on/off
+{
+    if ( !isActive() || onOff == testf(VxF) )
+	return;
+    setf( VxF, onOff );
+    if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].i = onOff;
-	pdev->cmd( PDC_SETXFORM, param );
+	pdev->cmd( PDC_SETVXFORM, param );
     }
 }
 
@@ -604,7 +665,7 @@ QRect QPainter::sourceView() const		// get source view
 void QPainter::setSourceView( const QRect &r )	// set source view
 {
     r.rect( &sx, &sy, &sw, &sh );
-    if ( extPDev ) {
+    if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].r = (QRect*)&r;
 	pdev->cmd( PDC_SETSOURCEVIEW, param );
@@ -620,7 +681,7 @@ QRect QPainter::targetView() const		// get target view
 void QPainter::setTargetView( const QRect &r )	// set target view
 {
     r.rect( &tx, &ty, &tw, &th );
-    if ( extPDev ) {
+    if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].r = (QRect*)&r;
 	pdev->cmd( PDC_SETTARGETVIEW, param );
@@ -628,40 +689,112 @@ void QPainter::setTargetView( const QRect &r )	// set target view
     }
 }
 
+
+void QPainter::setWorldXForm( bool onOff )	// set world xform on/off
+{
+    if ( !isActive() || onOff == testf(WxF) )
+	return;
+    setf( WxF, onOff );
+    updateXForm();
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].i = onOff;
+	pdev->cmd( PDC_SETWXFORM, param );
+    }
+}
+
+QWXFMatrix *QPainter::wxfMatrix() const		// get world xform matrix
+{
+    return wxfmat;
+}
+
+void QPainter::setWxfMatrix( const QWXFMatrix &m, bool combine )
+{						// set world xform matrix
+    if ( combine )
+	*wxfmat *= m;				// combine
+    else
+	*wxfmat = m;				// set
+    updateXForm();
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[2];
+	param[0].m = wxfmat;
+	param[1].i = combine;
+	pdev->cmd( PDC_SETWXFMATRIX, param );
+	return;
+    }
+}
+
+
+void QPainter::updateXForm()			// update xform params
+{
+    wm11 = (int)(wxfmat->m11()*65536.0);
+    wm12 = (int)(wxfmat->m12()*65536.0);
+    wm21 = (int)(wxfmat->m21()*65536.0);
+    wm22 = (int)(wxfmat->m22()*65536.0);
+    wdx  = (int)(wxfmat->dx() *65536.0);
+    wdy  = (int)(wxfmat->dy() *65536.0);
+    *wxfimat = wxfmat->invert();		// invert matrix
+    im11 = (int)(wxfimat->m11()*65536.0);
+    im12 = (int)(wxfimat->m12()*65536.0);
+    im21 = (int)(wxfimat->m21()*65536.0);
+    im22 = (int)(wxfimat->m22()*65536.0);
+    idx  = (int)(wxfimat->dx() *65536.0);
+    idy  = (int)(wxfimat->dy() *65536.0);
+}
+
+
 // xForm macros, use with care...
 
-#define XFORM_P(x,y) \
+#define VXFORM_P(x,y)						\
     { x = (tw*(x-sx))/sw + tx; y = (th*(y-sy))/sh + ty; }
 
-#define XFORM_R(x,y,w,h) \
-    { x = (tw*(x-sx))/sw + tx; y = (th*(y-sy))/sh + ty; \
-      w = (tw*w)/sw; h = (th*h)/sh; \
-      if ( w < 0 ) { w = -w; x -= w; } \
+#define VXFORM_R(x,y,w,h)					\
+    { x = (tw*(x-sx))/sw + tx; y = (th*(y-sy))/sh + ty;		\
+      w = (tw*w)/sw; h = (th*h)/sh;				\
+      if ( w < 0 ) { w = -w; x -= w; }				\
       if ( h < 0 ) { h = -h; y -= h; } }
+
+#define WXFORM_P(x,y)						\
+    { int xx = wm11*x+wm21*y+wdx;				\
+      xx += xx>0 ? 32768 : -32768;				\
+      y = wm12*x+wm22*y+wdy;					\
+      y += y>0 ? 32768 : -32768;				\
+      x = xx/65536;  y /= 65536; }
+
+#define WXFORM_R(x,y,w,h)					\
+    { int x1 = wm11*x+wm21*y+wdx;				\
+      int y1 = wm12*x+wm22*y+wdy; 				\
+      int x2 = wm11*(x+w-1)+wm21*(y+h-1)+wdx;			\
+      int y2 = wm12*(x+w-1)+wm22*(y+h-1)+wdy;			\
+      x1 += x1>0 ? 32768 : -32768;				\
+      y1 += y1>0 ? 32768 : -32768;				\
+      x2 += x2>0 ? 32768 : -32768;				\
+      y2 += y2>0 ? 32768 : -32768;				\
+      x=x1/65536; y=y1/65536; w=(x2-x1)/65536+1; h=(y2-y1)/65536+1; }
+
 
 QPoint QPainter::xForm( const QPoint &pv ) const
 {						// map point, virtual -> device
-    if ( !doXForm )
-	return pv;
-    return QPoint( (tw*(pv.x()-sx))/sw + tx,
-		   (th*(pv.y()-sy))/sh + ty );
+    QPoint p = pv;
+    if ( testf(WxF) )				// world xform
+	VXFORM_P( p.rx(), p.ry() );
+    if ( testf(VxF) )				// view xform
+	VXFORM_P( p.rx(), p.ry() );
+    return p;
 }
 
 QRect QPainter::xForm( const QRect &rv ) const
 {						// map rect, virtual -> device
-    if ( !doXForm )
+    if ( !testf(VxF|WxF) )
 	return rv;
-    int x = (tw*(rv.left()-sx))/sw + tx;
-    int y = (th*(rv.top()-sy))/sh + ty;
-    int w = (tw*rv.width())/sw;
-    int h = (th*rv.height())/sh;
-    if ( w < 0 ) {
-	w = -w;
-	x -= w;
-    }
-    if ( h < 0 ) {
-	h = -h;
-	y -= h;
+    int x, y, w, h;
+    rv.rect( &x, &y, &w, &h );
+    if ( testf(WxF) )				// world xform (no rot./shear)
+	WXFORM_R(x,y,w,h)
+    if ( testf(VxF) ) {				// view xform
+	VXFORM_P(x,y);
+	w = (tw*w)/sw;
+	h = (th*h)/sh;
     }
     return QRect( x, y, w, h );
 }
@@ -669,12 +802,15 @@ QRect QPainter::xForm( const QRect &rv ) const
 QPointArray QPainter::xForm( const QPointArray &av ) const
 {						// map point array, v -> d
     QPointArray a = av.copy();
-    if ( !doXForm )
+    if ( !testf(VxF|WxF) )
 	return a;
     int x, y;
     for ( int i=0; i<a.size(); i++ ) {
 	a.point( i, &x, &y );
-	XFORM_P( x, y );
+	if ( testf(WxF) )
+	    WXFORM_P( x, y );
+	if ( testf(VxF) )
+	    VXFORM_P( x, y );
 	a.setPoint( i, x, y );
     }
     return a;
@@ -682,27 +818,44 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
 
 QPoint QPainter::xFormDev( const QPoint &pd ) const
 {						// map point, device -> virtual
-    if ( !doXForm )
-	return pd;
-    return QPoint( (sw*(pd.x()-tx))/tw + sx,
-		   (sh*(pd.y()-ty))/th + sy );
+    QPoint p = pd;
+    if ( testf(WxF) ) {
+	int xx = im11*p.x()+im21*p.y()+idx;
+	xx += xx > 0 ? 32768 : -32768;
+	int yy = im12*p.x()+im22*p.y()+idy;
+	yy += yy > 0 ? 32768 : -32768;
+	p.rx() = xx/65536;
+	p.ry() = yy/65536;
+    }
+    if ( testf(VxF) ) {
+	p.rx() = (sw*(p.x()-tx))/tw + sx;
+	p.ry() = (sh*(p.y()-ty))/th + sy;
+    }
+    return p;
 }
 
 QRect QPainter::xFormDev( const QRect &rd ) const
 {						// map rect, device -> virtual
-    if ( !doXForm )
+    if ( !testf(VxF|WxF) )
 	return rd;
-    int x = (sw*(rd.left()-tx))/tw + sx;
-    int y = (sh*(rd.right()-ty))/th + sy;
-    int w = (sw*rd.width())/tw;
-    int h = (sh*rd.height())/th;
-    if ( w < 0 ) {
-	w = -w;
-	x -= w;
+    int x, y, w, h;
+    rd.rect( &x, &y, &w, &h );
+    if ( testf(WxF) ) {
+    	int x1 = im11*x+im21*y+idx;
+	int y1 = im12*x+im22*y+idy;
+	int x2 = im11*(x+w-1)+im21*(y+h-1)+idx;
+	int y2 = im12*(x+w-1)+im22*(y+h-1)+idy;
+	x1 += x1>0 ? 32768 : -32768;
+	y1 += y1>0 ? 32768 : -32768;
+	x2 += x2>0 ? 32768 : -32768;
+	y2 += y2>0 ? 32768 : -32768;
+	x=x1/65536; y=y1/65536; w=(x2-x1)/65536+1; h=(y2-y1)/65536+1;
     }
-    if ( h < 0 ) {
-	h = -h;
-	y -= h;
+    if ( testf(VxF) ) {
+	x = (sw*(x-tx))/tw + sx;
+	y = (sh*(y-ty))/th + sy;
+	w = (sw*w)/tw;
+	h = (sh*h)/th;
     }
     return QRect( x, y, w, h );
 }
@@ -710,13 +863,23 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 {						// map point array, d -> v
     QPointArray a = ad.copy();
-    if ( !doXForm )
+    if ( !testf(VxF|WxF) )
 	return a;
     int x, y;
     for ( int i=0; i<a.size(); i++ ) {
 	a.point( i, &x, &y );
-	x = (sw*(x-tx))/tw + sx;
-	y = (sh*(y-ty))/th + sy;
+	if ( testf(WxF) ) {
+	    int xx = im11*x+im21*y+idx;
+	    xx += xx > 0 ? 32768 : -32768;
+	    y = im12*x+im22*y+idy;
+	    y += y > 0 ? 32768 : -32768;
+	    x = xx/65536;
+	    y /= 65536;
+	}
+	if ( testf(VxF) ) {
+	    x = (sw*(x-tx))/tw + sx;
+	    y = (sh*(y-ty))/th + sy;
+	}
 	a.setPoint( i, x, y );
     }
     return a;
@@ -725,12 +888,16 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 
 void QPainter::setClipping( bool onOff )	// set clipping on/off
 {
-    if ( !isActive || onOff == doClip )
+    if ( !isActive() || onOff == testf(ClipOn) )
 	return;
-    doClip = onOff;
-    if ( extPDev )
+    setf( ClipOn, onOff );
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].i = onOff;
+	pdev->cmd( PDC_SETCLIP, param );
 	return;
-    if ( doClip ) {
+    }
+    if ( testf(ClipOn) ) {
 	XSetRegion( dpy, gc, crgn.data->rgn );
 	if ( gc_brush )
 	    XSetRegion( dpy, gc_brush, crgn.data->rgn );
@@ -742,7 +909,15 @@ void QPainter::setClipping( bool onOff )	// set clipping on/off
     }
 }
 
-void QPainter::setRegion( const QRegion &rgn )	// set clip region
+
+void QPainter::setClipRect( const QRect &rect )	// set clip rectangle
+{
+    QRegion rgn( rect );
+    crgn = rgn;
+    setClipping( TRUE );
+}
+
+void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
 {
     crgn = rgn;
     setClipping( TRUE );
@@ -751,55 +926,67 @@ void QPainter::setRegion( const QRegion &rgn )	// set clip region
 
 void QPainter::drawPoint( int x, int y )	// draw a single point
 {
-    if ( !isActive )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )
-	updatePen();
-    if ( extPDev ) {
-	QPDevCmdParam param[1];
-	QPoint p( x, y );
-	param[0].p = &p;
-	pdev->cmd( PDC_DRAWPOINT, param );
-	return;
+    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QPoint p( x, y );
+	    param[0].p = &p;
+	    pdev->cmd( PDC_DRAWPOINT, param );
+	    return;
+	}
+	if ( testf(WxF) )
+	    WXFORM_P( x, y );
+	if ( testf(VxF) )
+	    VXFORM_P( x, y );
     }
-    if ( doXForm )
-	XFORM_P( x, y );
     XDrawPoint( dpy, hd, gc, x, y );
 }
 
 
 void QPainter::moveTo( int x, int y )		// set current point for lineTo
 {
-    if ( !isActive )
+    if ( !isActive() )
 	return;
-    if ( extPDev ) {
-	QPDevCmdParam param[1];
-	QPoint p( x, y );
-	param[0].p = &p;
-	pdev->cmd( PDC_MOVETO, param );
-	return;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QPoint p( x, y );
+	    param[0].p = &p;
+	    pdev->cmd( PDC_MOVETO, param );
+	    return;
+	}
+	if ( testf(WxF) )
+	    WXFORM_P( x, y );
+	if ( testf(VxF) )
+	    VXFORM_P( x, y );
     }
-    if ( doXForm )
-	XFORM_P( x, y );
     curPt = QPoint( x, y );
 }
 
 
 void QPainter::lineTo( int x, int y )		// draw line from current point
 {
-    if ( !isActive )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )
-	updatePen();
-    if ( extPDev ) {
-	QPDevCmdParam param[1];
-	QPoint p( x, y );
-	param[0].p = &p;
-	pdev->cmd( PDC_LINETO, param );
-	return;
+    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QPoint p( x, y );
+	    param[0].p = &p;
+	    pdev->cmd( PDC_LINETO, param );
+	    return;
+	}
+	if ( testf(WxF) )
+	    WXFORM_P( x, y );
+	if ( testf(VxF) )
+	    VXFORM_P( x, y );
     }
-    if ( doXForm )
-	XFORM_P( x, y );
     if ( cpen.style() != NoPen )
 	XDrawLine( dpy, hd, gc, curPt.x(), curPt.y(), x, y );
     curPt = QPoint( x, y );
@@ -808,22 +995,28 @@ void QPainter::lineTo( int x, int y )		// draw line from current point
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 {						// draw line
-    if ( !isActive )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )
-	updatePen();
-    if ( extPDev ) {
-	QPDevCmdParam param[2];
-	QPoint p1( x1, y1 ),
-	       p2( x2, y2 );
-	param[0].p = &p1;
-	param[1].p = &p2;
-	pdev->cmd( PDC_DRAWLINE, param );
-	return;
-    }
-    if ( doXForm ) {
-	XFORM_P( x1, y1 );
-	XFORM_P( x2, y2 );
+    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[2];
+	    QPoint p1( x1, y1 ),
+	    	   p2( x2, y2 );
+	    param[0].p = &p1;
+	    param[1].p = &p2;
+	    pdev->cmd( PDC_DRAWLINE, param );
+	    return;
+	}
+	if ( testf(WxF) ) {
+	    WXFORM_P( x1, y1 );
+	    WXFORM_P( x2, y2 );
+	}
+	if ( testf(VxF) ) {
+	    VXFORM_P( x1, y1 );
+	    VXFORM_P( x2, y2 );
+	}
     }
     if ( cpen.style() != NoPen )
 	XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
@@ -831,23 +1024,56 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 }
 
 
+static void fix_neg_rect( int *x, int *y, int *w, int *h )
+{
+    if ( *w < 0 ) {
+	*w = -*w;
+	*x -= *w;
+    }
+    if ( *h < 0 ) {
+	*h = -*h;
+	*y -= *h;
+    }
+}
+
 void QPainter::drawRect( int x, int y, int w, int h )
 {						// draw rectangle
-    if ( !isActive || w <= 0 || h <= 0 )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )
-	updatePen();
-    if ( dirtyBrush )
-	updateBrush();
-    if ( extPDev ) {
-	QPDevCmdParam param[1];
-	QRect r( x, y, w, h );
-	param[0].r = &r;
-	pdev->cmd( PDC_DRAWRECT, param );
-	return;
+    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(DirtyBrush) )
+	    updateBrush();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QRect r( x, y, w, h );
+	    param[0].r = &r;
+	    pdev->cmd( PDC_DRAWRECT, param );
+	    return;
+	}
+	if ( testf(WxF) ) {			// world transform
+	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
+		WXFORM_R(x,y,w,h);
+	    }
+	    else {
+		QPointArray a( QRect(x,y,w,h) );// rectangle polygon
+		a = xForm( a );			// xform polygon
+		uint tmpf = flags;
+		flags = IsActive | SafePolygon;	// fake flags to speed up
+		drawPolygon( a );
+		flags = tmpf;
+		return;
+	    }
+	}
+	if ( testf(VxF) )
+	    VXFORM_R( x, y, w, h );
     }
-    if ( doXForm )
-	XFORM_R( x, y, w, h );
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
     if ( cbrush.style() != NoBrush ) {
 	int dp = cpen.style() == NoPen ? 0 : 1;
 	XFillRectangle( dpy, hd, gc_brush, x+dp, y+dp, w-dp, h-dp );
@@ -859,7 +1085,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 {						// draw round rectangle
-    if ( !isActive || w <= 0 || h <= 0 )
+    if ( !isActive() )
 	return;
     if ( xRnd <= 0 || yRnd <= 0 ) {
 	drawRect( x, y, w, h );			// draw normal rectangle
@@ -869,27 +1095,49 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	xRnd = 99;
     if ( yRnd >= 100 )
 	yRnd = 99;
-    if ( dirtyPen )
-	updatePen();
-    if ( dirtyBrush )
-	updateBrush();
-    if ( extPDev ) {
-	QPDevCmdParam param[3];
-	QRect r( x, y, w, h );
-	param[0].r = &r;
-	param[1].i = xRnd;
-	param[2].i = yRnd;
-	pdev->cmd( PDC_DRAWROUNDRECT, param );
-	return;
+    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(DirtyBrush) )
+	     updateBrush();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[3];
+	    QRect r( x, y, w, h );
+	    param[0].r = &r;
+	    param[1].i = xRnd;
+	    param[2].i = yRnd;
+	    pdev->cmd( PDC_DRAWROUNDRECT, param );
+	    return;
+	}
+	if ( testf(WxF) ) {			// world transform
+	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
+		WXFORM_R(x,y,w,h);
+	    }
+	    else {
+		QPointArray a;
+		a.makeEllipse( x, y, w, h );	// elliptic polygon
+		a = xForm( a );			// xform polygon
+		uint tmpf = flags;
+		flags = IsActive | SafePolygon;	// fake flags to speed up
+		drawPolygon( a );
+		flags = tmpf;
+		return;
+	    }
+	}
+	if ( testf(VxF) )
+	    VXFORM_R( x, y, w, h );
     }
-    if ( doXForm )
-	XFORM_R( x, y, w, h );
     int rx = (w*xRnd)/200;
     int ry = (h*yRnd)/200;
     int rx2 = 2*rx;
     int ry2 = 2*ry;
     w--;
     h--;
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
     if ( cbrush.style() != NoBrush ) {		// draw filled round rect
 	int dp, ds;
 	if ( cpen.style() == NoPen ) {
@@ -900,15 +1148,6 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	    dp = 1;
 	    ds = 0;
 	}
-#define SET_RCT(px,py,w,h) \
-    r->x=px; r->y=py; r->width=w; r->height=h; r++
-	XRectangle rects[3];
-	XRectangle *r = rects;
-	SET_RCT( x+rx, y+dp, w-rx2, ry );
-	SET_RCT( x+dp, y+ry, w+ds, h-ry2 );
-	SET_RCT( x+rx, y+h-ry, w-rx2, ry+ds );
-	XFillRectangles( dpy, hd, gc_brush, rects, 3 );
-#undef SET_RCT
 #define SET_ARC(px,py,w,h,a1,a2) \
     a->x=px; a->y=py; a->width=w; a->height=h; a->angle1=a1; a->angle2=a2; a++
 	XArc arcs[4];
@@ -919,18 +1158,17 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	SET_ARC( x+w-rx2, y+h-ry2, rx2, ry2, 270*64, 90*64 );
 	XFillArcs( dpy, hd, gc_brush, arcs, 4 );
 #undef SET_ARC
+#define SET_RCT(px,py,w,h) \
+    r->x=px; r->y=py; r->width=w; r->height=h; r++
+	XRectangle rects[3];
+	XRectangle *r = rects;
+	SET_RCT( x+rx, y+dp, w-rx2, ry );
+	SET_RCT( x+dp, y+ry, w+ds, h-ry2 );
+	SET_RCT( x+rx, y+h-ry, w-rx2, ry+ds );
+	XFillRectangles( dpy, hd, gc_brush, rects, 3 );
+#undef SET_RCT
     }
     if ( cpen.style() != NoPen ) {		// draw outline
-#define SET_SEG(xp1,yp1,xp2,yp2) \
-    s->x1=xp1; s->y1=yp1; s->x2=xp2; s->y2=yp2; s++
-	XSegment segs[4];
-	XSegment *s = segs;
-	SET_SEG( x+rx, y, x+w-rx, y );
-	SET_SEG( x+rx, y+h, x+w-rx, y+h );
-	SET_SEG( x, y+ry, x, y+h-ry );
-	SET_SEG( x+w, y+ry, x+w, y+h-ry );
-	XDrawSegments( dpy, hd, gc, segs, 4 );
-#undef SET_SET
 #define SET_ARC(px,py,w,h,a1,a2) \
     a->x=px; a->y=py; a->width=w; a->height=h; a->angle1=a1; a->angle2=a2; a++
 	XArc arcs[4];
@@ -941,29 +1179,61 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	SET_ARC( x+w-rx2, y+h-ry2, rx2, ry2, 270*64, 90*64 );
 	XDrawArcs( dpy, hd, gc, arcs, 4 );
 #undef SET_ARC
+#define SET_SEG(xp1,yp1,xp2,yp2) \
+    s->x1=xp1; s->y1=yp1; s->x2=xp2; s->y2=yp2; s++
+	XSegment segs[4];
+	XSegment *s = segs;
+	SET_SEG( x+rx, y, x+w-rx, y );
+	SET_SEG( x+rx, y+h, x+w-rx, y+h );
+	SET_SEG( x, y+ry, x, y+h-ry );
+	SET_SEG( x+w, y+ry, x+w, y+h-ry );
+	XDrawSegments( dpy, hd, gc, segs, 4 );
+#undef SET_SET
     }
 }
 
 
 void QPainter::drawEllipse( int x, int y, int w, int h )
 {						// draw ellipse
-    if ( !isActive || w <= 0 || h <= 0 )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )
-	updatePen();
-    if ( dirtyBrush )
-	updateBrush();
-    if ( extPDev ) {
-	QPDevCmdParam param[1];
-	QRect r( x, y, w, h );
-	param[0].r = &r;
-	pdev->cmd( PDC_DRAWELLIPSE, param );
-	return;
+    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(DirtyBrush) )
+	    updateBrush();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QRect r( x, y, w, h );
+	    param[0].r = &r;
+	    pdev->cmd( PDC_DRAWELLIPSE, param );
+	    return;
+	}
+	if ( testf(WxF) ) {			// world transform
+	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
+		WXFORM_R(x,y,w,h);
+	    }
+	    else {
+    		QPointArray a;
+		a.makeEllipse( x, y, w, h );
+		a = xForm( a );
+		uint tmpf = flags;
+		flags = IsActive | SafePolygon;	// fake flags to avoid overhead
+		drawPolygon( a );
+		flags = tmpf;
+		return;
+	    }
+	}
+	if ( testf(VxF) )
+	    VXFORM_R( x, y, w, h );
     }
-    if ( doXForm )
-	XFORM_R( x, y, w, h );
     w--;
     h--;
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
     if ( cbrush.style() != NoBrush )		// draw filled ellipse
 	XFillArc( dpy, hd, gc_brush, x, y, w, h, 0, 360*64 );
     if ( cpen.style() != NoPen )		// draw outline
@@ -973,21 +1243,45 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 
 void QPainter::drawArc( int x, int y, int w, int h, int a1, int a2 )
 {						// draw arc
-    if ( !isActive || w <= 0 || h <= 0 )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )
-	updatePen();
-    if ( extPDev ) {
-	QPDevCmdParam param[3];
-	QRect r( x, y, w, h );
-	param[0].r = &r;
-	param[1].i = a1;
-	param[2].i = a2;
-	pdev->cmd( PDC_DRAWARC, param );
-	return;
+    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[3];
+	    QRect r( x, y, w, h );
+	    param[0].r = &r;
+	    param[1].i = a1;
+	    param[2].i = a2;
+	    pdev->cmd( PDC_DRAWARC, param );
+	    return;
+	}
+	if ( testf(WxF) ) {			// world transform
+	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
+		WXFORM_R(x,y,w,h);
+	    }
+	    else {
+		QPointArray a;
+		a.makeArc( x, y, w, h, a1, a2 );// arc polygon
+		a = xForm( a );			// xform polygon
+		uint tmpf = flags;
+		flags = IsActive | SafePolygon;	// fake flags to speed up
+		drawPolygon( a );
+		flags = tmpf;
+		return;
+	    }
+	}
+	if ( testf(VxF) )
+	    VXFORM_R( x, y, w, h );
     }
-    if ( doXForm )
-	XFORM_R( x, y, w, h );
+    w--;
+    h--;
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
     if ( cpen.style() != NoPen )
 	XDrawArc( dpy, hd, gc, x, y, w, h, a1*4, a2*4 );
 }
@@ -995,24 +1289,50 @@ void QPainter::drawArc( int x, int y, int w, int h, int a1, int a2 )
 
 void QPainter::drawPie( int x, int y, int w, int h, int a1, int a2 )
 {						// draw arc
-    if ( !isActive || w <= 0 || h <= 0 )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )
-	updatePen();
-    if ( dirtyBrush )
-	updateBrush();
-    if ( extPDev ) {
-	QPDevCmdParam param[3];
-	QRect r( x, y, w, h );
-	param[0].r = &r;
-	param[1].i = a1;
-	param[2].i = a2;
-	pdev->cmd( PDC_DRAWPIE, param );
-	return;
+    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(DirtyBrush) )
+	    updateBrush();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[3];
+	    QRect r( x, y, w, h );
+	    param[0].r = &r;
+	    param[1].i = a1;
+	    param[2].i = a2;
+	    pdev->cmd( PDC_DRAWPIE, param );
+	    return;
+	}
+	if ( testf(WxF) ) {			// world transform
+	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
+		WXFORM_R(x,y,w,h);
+	    }
+	    else {
+		QPointArray a;
+		a.makeArc( x, y, w, h, a1, a2 );// arc polygon
+		int n = a.size();
+		a.resize( n+2 );
+		a.setPoint( n, x+w/2, y+h/2 );	// add legs
+		a.setPoint( n+1, a.at(0) );
+		a = xForm( a );			// xform polygon
+		uint tmpf = flags;
+		flags = IsActive | SafePolygon;	// fake flags to speed up
+		drawPolygon( a );
+		flags = tmpf;
+		return;
+	    }
+	}
+	if ( testf(VxF) )
+	    VXFORM_R( x, y, w, h );
     }
-    if ( doXForm )
-	XFORM_R( x, y, w, h );
     XSetArcMode( dpy, gc_brush, ArcPieSlice );
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
     if ( cbrush.style() != NoBrush )		// draw filled pie
 	XFillArc( dpy, hd, gc_brush, x, y, w, h, a1*4, a2*4 );
     if ( cpen.style() != NoPen ) {		// draw pie outline
@@ -1037,24 +1357,51 @@ void QPainter::drawPie( int x, int y, int w, int h, int a1, int a2 )
 
 void QPainter::drawChord( int x, int y, int w, int h, int a1, int a2 )
 {						// draw chord
-    if ( !isActive || w <= 0 || h <= 0 )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )
-	updatePen();
-    if ( dirtyBrush )
-	updateBrush();
-    if ( extPDev ) {
-	QPDevCmdParam param[3];
-	QRect r( x, y, w, h );
-	param[0].r = &r;
-	param[1].i = a1;
-	param[2].i = a2;
-	pdev->cmd( PDC_DRAWCHORD, param );
-	return;
+    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(DirtyBrush) )
+	    updateBrush();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[3];
+	    QRect r( x, y, w, h );
+	    param[0].r = &r;
+	    param[1].i = a1;
+	    param[2].i = a2;
+	    pdev->cmd( PDC_DRAWCHORD, param );
+	    return;
+	}
+	if ( testf(WxF) ) {			// world transform
+	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
+		WXFORM_R(x,y,w,h);
+	    }
+	    else {
+		QPointArray a;
+		a.makeArc( x, y, w-1, h-1, a1, a2 ); // arc polygon
+		int n = a.size();
+		a.resize( n+1 );
+		a.setPoint( n, a.at(0) );	// connect endpoints
+		a = xForm( a );			// xform polygon
+		uint tmpf = flags;
+		flags = IsActive | SafePolygon;	// fake flags to speed up
+		drawPolygon( a );
+		flags = tmpf;
+		return;
+	    }
+	}
+	if ( testf(VxF) )
+	    VXFORM_R( x, y, w, h );
     }
-    if ( doXForm )
-	XFORM_R( x, y, w, h );
     XSetArcMode( dpy, gc_brush, ArcChord );
+    w--;
+    h--;
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
     if ( cbrush.style() != NoBrush )		// draw filled chord
 	XFillArc( dpy, hd, gc_brush, x, y, w, h, a1*4, a2*4 );
     if ( cpen.style() != NoPen ) {		// draw chord outline
@@ -1077,135 +1424,300 @@ void QPainter::drawChord( int x, int y, int w, int h, int a1, int a2 )
 }
 
 
-void QPainter::drawLineSegments( const QPointArray &a )
+void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 {						// draw line segments
-    if ( !isActive || a.size() < 2 || (a.size() & 1) )
+    if ( nlines < 0 )
+	nlines = a.size()/2 - index/2;
+    if ( index + nlines*2 > a.size() )
+	nlines = (a.size() - index)/2;
+    if ( !isActive() || nlines < 1 || index < 0 )
 	return;
-    if ( dirtyPen )				// uses same colors as pen
-	updatePen();
-    if ( extPDev ) {
-	QPDevCmdParam param[1];
-	param[0].a = (QPointArray*)&a;
-	pdev->cmd( PDC_DRAWLINESEGS, param );
-	return;
+    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(ExtDev) ) {
+	    QPointArray tmp;
+	    if ( nlines == a.size()/2 )
+		tmp = a;
+	    else {
+		tmp.resize( nlines*2 );
+		for ( int i=0; i<nlines*2; i++ )
+		    tmp.setPoint( i, a.point(index+i) );
+	    }
+	    QPDevCmdParam param[1];
+	    param[0].a = (QPointArray*)&tmp;
+	    pdev->cmd( PDC_DRAWLINESEGS, param );
+	    return;
+	}
+	if ( testf(VxF|WxF) ) {
+	    if ( cpen.style() != NoPen ) {
+		QPointArray axf = xForm( a );
+		XDrawSegments( dpy, hd, gc, (XSegment*)(axf.data()+index),
+			       nlines );
+	    }
+	    return;
+	}
     }
-    if ( doXForm ) {				// xform point array
-	QPointArray axf = xForm( a );
-	if ( cpen.style() != NoPen )
-	    XDrawSegments( dpy, hd, gc, (XSegment*)axf.data(), axf.size()/2 );
-    }
-    else if ( cpen.style() != NoPen )
-	XDrawSegments( dpy, hd, gc, (XSegment*)a.data(), a.size()/2 );
+    if ( cpen.style() != NoPen )
+	XDrawSegments( dpy, hd, gc, (XSegment*)(a.data()+index), nlines );
 }
 
 
-void QPainter::drawPolyline( const QPointArray &a )
+void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 {						// draw connected lines
-    if ( !isActive || a.size() < 2 )
+    if ( npoints < 0 )
+	npoints = a.size() - index;
+    if ( index + npoints > a.size() )
+	npoints = a.size() - index;
+    if ( !isActive() || npoints < 1 || index < 0 )
 	return;
-    if ( dirtyPen )				// uses same colors as pen
-	updatePen();
-    if ( extPDev ) {
-	QPDevCmdParam param[1];
-	param[0].a = (QPointArray*)&a;
-	pdev->cmd( PDC_DRAWPOLYLINE, param );
-	return;
+    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(ExtDev) ) {
+	    QPointArray tmp;
+	    if ( npoints == a.size() )
+		tmp = a;
+	    else {
+		tmp.resize( npoints );
+		for ( int i=0; i<npoints; i++ )
+		    tmp.setPoint( i, a.point(index+i) );
+	    }
+	    QPDevCmdParam param[1];
+	    param[0].a = (QPointArray*)&tmp;
+	    pdev->cmd( PDC_DRAWPOLYLINE, param );
+	    return;
+	}
+	if ( testf(VxF|WxF) ) {
+	    if ( cpen.style() != NoPen ) {
+		QPointArray axf = xForm( a );
+		XDrawLines( dpy, hd, gc, (XPoint*)(axf.data()+index), npoints,
+			    CoordModeOrigin );
+	    }
+	    return;
+	}
     }
-    if ( doXForm ) {
-	QPointArray axf = xForm( a );
-	if ( cpen.style() != NoPen )
-	    XDrawLines( dpy, hd, gc, (XPoint*)axf.data(), axf.size(),
-			CoordModeOrigin );
-    }
-    else if ( cpen.style() != NoPen )
-	XDrawLines( dpy, hd, gc, (XPoint*)a.data(), a.size(),
+    if ( cpen.style() != NoPen )
+	XDrawLines( dpy, hd, gc, (XPoint*)(a.data()+index), npoints,
 		    CoordModeOrigin );
 }
 
 
-void QPainter::drawPolygon( const QPointArray &a, bool winding )
+void QPainter::drawPolygon( const QPointArray &a, bool winding,
+			    int index, int npoints )
 {						// draw polygon
-    if ( !isActive || a.size() < 2 )
+    if ( npoints < 0 )
+	npoints = a.size() - index;
+    if ( index + npoints > a.size() )
+	npoints = a.size() - index;
+    if ( !isActive() || npoints < 1 || index < 0 )
 	return;
-    if ( dirtyPen )				// uses same colors as pen
-	updatePen();
-    if ( dirtyBrush )
-	updateBrush();
-    if ( extPDev ) {
-	QPDevCmdParam param[2];
-	param[0].a = (QPointArray*)&a;
-	param[1].i = winding;
-	pdev->cmd( PDC_DRAWPOLYGON, param );
-	return;
-    }
     QPointArray axf;
-    QPointArray *pa;
-    if ( doXForm ) {
-	axf = xForm( a );
-	pa = &axf;
+    QPointArray *pa = (QPointArray*)&a;
+    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(DirtyBrush) )
+	    updateBrush();
+	if ( testf(ExtDev) ) {
+	    QPointArray tmp;
+	    if ( npoints == a.size() )
+		tmp = a;
+	    else {
+		tmp.resize( npoints );
+		for ( int i=0; i<npoints; i++ )
+		    tmp.setPoint( i, a.point(index+i) );
+	    }
+	    QPDevCmdParam param[2];
+	    param[0].a = (QPointArray*)&tmp;
+	    param[1].i = winding;
+	    pdev->cmd( PDC_DRAWPOLYGON, param );
+	    return;
+	}
+	if ( testf(VxF|WxF) ) {
+	    axf = xForm( a );
+	    pa = &axf;
+	}
     }
-    else
-	pa = (QPointArray*)&a;
-    if ( winding )				// set to winding fill rule
+    bool quickwxf = testf(SafePolygon);
+    
+    if ( winding && !quickwxf )			// set to winding fill rule
 	XSetFillRule( dpy, gc_brush, WindingRule );
-    if ( cbrush.style() != NoBrush )		// draw filled polygon
-	XFillPolygon( dpy, hd, gc_brush, (XPoint*)pa->data(), pa->size(),
-		      Complex, CoordModeOrigin );
+    if ( cbrush.style() != NoBrush ) {		// draw filled polygon
+	int shape = quickwxf ? Nonconvex : Complex;
+	XFillPolygon( dpy, hd, gc_brush, (XPoint*)(pa->data()+index),
+		      npoints, shape, CoordModeOrigin );
+    }
     if ( cpen.style() != NoPen ) {		// draw outline
-	XDrawLines( dpy, hd, gc, (XPoint*)pa->data(), pa->size(),
+	XDrawLines( dpy, hd, gc, (XPoint*)(pa->data()+index), npoints,
 		    CoordModeOrigin );
-	if ( pa->point(0) != a.point(pa->size()-1) ) {
+	if ( pa->point(0) != a.point(index+npoints-1) ) {
 	    int x1, y1, x2, y2;			// connect last to first point
-	    pa->point( a.size()-1, &x1, &y1 );
-	    pa->point( 0, &x2, &y2 );
+	    pa->point( index+npoints-1, &x1, &y1 );
+	    pa->point( index, &x2, &y2 );
 	    XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
 	}
     }
-    if ( winding )				// set to normal fill rule
+    if ( winding && !quickwxf )			// set to normal fill rule
 	XSetFillRule( dpy, gc_brush, EvenOddRule );
 }
 
 
 void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 {						// draw pixmap
-    if ( !isActive )
+    if ( !isActive() )
 	return;
-    if ( extPDev )
-	return;
-    if ( doXForm )
-	XFORM_P( x, y );
-    if ( pixmap.bitPlanes == 1 )		// bitmap
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) )			// NOTE: bitmaps should work
+	    return;
+	if ( testf(WxF) )			// no scaling or rotation ;-(
+	    WXFORM_P( x, y );
+	if ( testf(VxF) )
+	    VXFORM_P( x, y );	    
+    }
+    if ( pixmap.bitPlanes == 1 ) {		// bitmap
+	if ( testf(DirtyPen) )			// bitmap gets pen color
+	    updatePen();
 	XCopyPlane( dpy, pixmap.hd, hd, gc, 0, 0,
 		    pixmap.sz.width(), pixmap.sz.height(), x, y, 1 );
+    }
     else
 	XCopyArea( dpy, pixmap.hd, hd, gc, 0, 0,
 		   pixmap.sz.width(), pixmap.sz.height(), x, y );
 }
 
 
+QString get_tbm_key(  const QWXFMatrix &m, const char *str, int len )
+{
+    QString s = str;
+    s.resize( len );
+    QString k;
+    if ( len > 150 )
+	k.resize( len + 100 );
+    k.sprintf( "%s%g%g%g%g%g%g", (char *)s, m.m11(), m.m12(), m.m21(),m.m22(),
+	       m.dx(), m.dy() );
+    return k;
+}
+
+#include "qdict.h"
+declare(QDictM,QBitMap);
+static QDictM(QBitMap) *bmDict = 0;
+
+static long bmSize = 0;
+
+QBitMap *get_text_bitmap( const QWXFMatrix &m, const char *str, int len )
+{
+    QString k = get_tbm_key(m,str,len);
+    if ( !bmDict )
+	bmDict = new QDictM(QBitMap);
+    QBitMap *bm = bmDict->find( k );
+    return bm;
+}
+// NOTE.... Husk aa legge inn kall fra global destrukt|r!!!
+void ins_text_bitmap( const QWXFMatrix &m, const char *str, int len, QBitMap *bm )
+{
+    int sz = bm->size().width()*bm->size().height();
+    if ( bmSize + sz < 240000*8 ) {
+	bmSize += sz;
+	QString k = get_tbm_key(m,str,len);
+	bmDict->insert(k,bm);
+    }
+    else {
+	delete bm;
+	debug( "bm refused, count = %d, size=%d", bmDict->count(),bmSize );
+    }
+}
+
+
 void QPainter::drawText( int x, int y, const char *str, int len )
 {
-    if ( !isActive )
+    if ( !isActive() )
 	return;
-    if ( dirtyPen )				// uses same colors as pen
-	updatePen();
-    if ( dirtyFont )
-	updateFont();
-    if ( extPDev ) {
-	QPDevCmdParam param[2];
-	QPoint p( x, y );
-	QString newstr = str;
-	if ( len >= 0 )
-	    newstr.resize( len );
-	param[0].p = &p;
-	param[1].str = newstr.data();
-	pdev->cmd( PDC_DRAWTEXT, param );
-	return;
-    }
-    if ( doXForm )
-	XFORM_P( x, y );
     if ( len < 0 )
 	len = strlen( str );
+    if ( testf(DirtyPen|DirtyFont|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(DirtyFont) )	    
+	    updateFont();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[2];
+	    QPoint p( x, y );
+	    QString newstr = str;
+	    if ( len >= 0 )
+		newstr.resize( len );
+	    param[0].p = &p;
+	    param[1].str = newstr.data();
+	    pdev->cmd( PDC_DRAWTEXT, param );
+	    return;
+	}
+	if ( testf(WxF) ) {
+	    QFontMetrics fm(cfont);		// get font metrics
+	    int w = fm.width( str, len );
+	    int h = fm.height();
+	    int asc = fm.ascent();
+	    QWXFMatrix mat = *wxfmat;
+	    QBitMap *wxfbm = get_text_bitmap( *wxfmat, str, len );
+	    bool create_new_bm = wxfbm == 0;
+	    mat.translate( -wxfmat->dx(), -wxfmat->dy() );
+	    if ( create_new_bm ) {		// no such cached bitmap
+		QBitMap bm( w, h );		// create bitmap
+		QPainter paint;
+		paint.begin( &bm );		// draw text in bitmap
+		paint.setFont( cfont );
+		paint.eraseRect( bm.rect() );
+		paint.drawText( 0, asc, str, len );
+		paint.end();
+		wxfbm = bm.wxform( mat );	// world xform bitmap
+	    }
+	    WXFORM_P( x, y );
+	    if ( testf(VxF) )
+		VXFORM_P( x, y );
+	    mat = QBitMap::wxfTrueMatrix( mat, w, h );
+	    int dx, dy;
+	    mat.map( 0, asc, &dx, &dy );	// compute bitmap position
+	    x -= dx;  y -= dy;
+	    uint tmpf = flags;
+	    flags = IsActive;
+	    RasterOp save_rop = rasterOp();
+	    setRasterOp( OrROP );
+	    drawPixMap( x, y, *wxfbm );
+	    setRasterOp( save_rop );
+#if 0
+	    if ( backgroundMode() == TransparentMode ) {
+		RasterOp rop = rasterOp();
+		setRasterOp( CopyROP );
+		XSetClipMask( dpy, gc, wxfbm->handle() );
+		XSetClipOrigin( dpy, gc, x, y );
+		drawPixMap( x, y, *wxfbm );
+		XSetClipMask( dpy, gc, 0 );	    
+		XSetClipOrigin( dpy, gc, 0, 0 );
+	    }
+	    else {				// opaque fill
+		QPointArray a(4);
+		int m, n;
+		wxfmat->map( 0, 0, &m, &n );  a.setPoint( 0, m, n );
+		wxfmat->map( w, 0, &m, &n );  a.setPoint( 1, m, n );
+		wxfmat->map( w, h, &m, &n );  a.setPoint( 2, m, n );
+		wxfmat->map( 0, h, &m, &n );  a.setPoint( 3, m, n );
+		QBrush oldBrush = cbrush;
+		setBrush( backgroundColor() );
+		updateBrush();
+		XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(),
+			      a.size(), Convex, CoordModeOrigin );
+		setBrush( oldBrush );
+		drawPixMap( x, y, *wxfbm );
+	    }
+	    setRasterOp( rop );
+#endif
+	    flags = tmpf;
+	    if ( create_new_bm )
+		ins_text_bitmap( *wxfmat, str, len, wxfbm );
+	    return;
+	}
+	if ( testf(VxF) )
+	    VXFORM_P( x, y );
+    }
     if ( bg_mode == TransparentMode )
 	XDrawString( dpy, hd, gc, x, y, str, len );
     else
@@ -1213,27 +1725,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 }
 
 
-void QPainter::drawText( int x, int y, int w, int h, TextAlignment ta,
+void QPainter::drawText( int x, int y, int w, int h, TextAlignment,
 			 const char *str, int len )
 {
-    if ( !isActive )
-	return;
-    if ( dirtyPen )				// uses same colors as pen
-	updatePen();
-    if ( dirtyFont )
-	updateFont();
-    if ( extPDev ) {
-	return;
-    }
-    if ( doXForm ) {
-	XFORM_R( x, y, w, h );
-    }
-    else if ( w <= 0 || h <= 0 )
-	return;
-    if ( len < 0 )
-	len = strlen( str );
-    if ( bg_mode == TransparentMode )
-	XDrawString( dpy, hd, gc, x, y, str, len );
-    else
-	XDrawImageString( dpy, hd, gc, x, y, str, len );
+    drawText( x, y, str, len ); w=w; h=h;
 }
