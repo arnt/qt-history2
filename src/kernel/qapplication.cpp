@@ -1499,8 +1499,10 @@ void QApplication::setGlobalStrut( const QSize& strut )
 /*!
   Returns a list of paths that the application will search when
   dynamically loading libraries.
-  Returns \c $QTDIR/plugins as the only entry if no paths have been
-  set.
+  The installation directory for plugins is the only entry if no
+  paths have been set.  The default installation directory for plugins
+  is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
+  installed.
 
   If you want to iterate over the list, you should iterate over a
   copy, e.g.
@@ -1519,18 +1521,8 @@ QStringList QApplication::libraryPaths()
 {
     if ( !app_libpaths ) {
 	app_libpaths = new QStringList;
-
-	char *qtdir = getenv("QTDIR");
-	if ( qtdir && QFile::exists( QString(qtdir) + "/plugins" ) )
-	    app_libpaths->append( QString(qtdir) + "/plugins" );
-#ifdef QT_INSTALL_PREFIX
-	else if ( QFile::exists( QString(QT_INSTALL_PREFIX) + "/plugins" ) )
-	    app_libpaths->append( QString(QT_INSTALL_PREFIX) + "/plugins" );
-#endif // QT_INSTALL_PREFIX
-#ifdef QT_INSTALL_PLUGINS
-	else if ( QFile::exists( QString(QT_INSTALL_PLUGINS) ) )
+	if ( QFile::exists( QString(QT_INSTALL_PLUGINS) ) )
 	    app_libpaths->append( QString(QT_INSTALL_PLUGINS) );
-#endif
     }
     return *app_libpaths;
 }
@@ -1556,7 +1548,12 @@ void QApplication::setLibraryPaths( const QStringList &paths )
 /*!
   Append \a path to the end of the library path list. If \a path is
   empty or already in the path list, the path list is not changed.
-  The default path list consists of a single entry, \c $QTDIR/plugins.
+  The
+
+  The default path list consists of a single entry, the installation
+  directory for plugins.  The default installation directory for plugins
+  is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
+  installed.
 
   \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
@@ -3246,9 +3243,9 @@ int QApplication::enter_loop()
 	// send deferred deletes
 	sendPostedEvents( 0, QEvent::DeferredDelete );
     }
-    
+
     loop_level--;
-    
+
     return 0;
 }
 
