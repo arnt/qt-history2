@@ -308,7 +308,7 @@ void QWizard::showPage( QWidget * page )
     if ( p ) {
 	int i;
 	for( i = 0; i < (int)d->pages.count() && d->pages.at( i ) != p; i++ );
-	bool notFirst( false );
+	bool notFirst( FALSE );
 
 	if( i ) {
 	    i--;
@@ -554,7 +554,7 @@ void QWizard::updateButtons()
 
     int i;
     for( i = 0; i < (int)d->pages.count() && d->pages.at( i ) != d->current; i++ );
-    bool notFirst( false );
+    bool notFirst( FALSE );
     if( i ) {
 	i--;
 	while( ( i >= 0 ) && !notFirst ) {
