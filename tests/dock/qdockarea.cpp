@@ -251,10 +251,8 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 {
     if ( !dockWidgets || !dockWidgets->first() )
 	return 0;
-    if ( !testonly ) {
-	lines.clear();
-	ls.clear();
-    }
+    lines.clear();
+    ls.clear();
     QListIterator<QDockWidget> it( *dockWidgets );
     QDockWidget *dw = 0;
     int start = start_pos( r, orientation() );
@@ -295,7 +293,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
 	add_size( dock_extend( dw, orientation() ), pos, orientation() );
     }
-    
+
     // if some stuff was not placed/stored yet, do it now
     if ( !testonly )
 	place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
@@ -417,7 +415,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	    QList<QDockWidget> lineStarts = layout->lineStarts();
 	    for ( dw = lineStarts.first(); dw; dw = lineStarts.next() )
 		dw->setNewLine( TRUE );
-	    // find the index of the first widget in the search line	    
+	    // find the index of the first widget in the search line	
 	    int searchLine = dockLine;
 	    qDebug( "search line start of %d", searchLine );
 	    int index = dockWidgets->find( lineStarts.at( searchLine ) );
@@ -438,6 +436,8 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		    qDebug( "get rid of the old newline and get me one" );
 		    dockWidgets->at( index )->setNewLine( FALSE );
 		    dockWidget->setNewLine( TRUE );
+		} else { // if we are somewhere in a line, get rid of the newline
+		    dockWidget->setNewLine( FALSE );
 		}
 	    } else { // insert in a new line, so make sure the dock widget and the widget which will be after it have a newline
 		dockWidgets->at( index )->setNewLine( TRUE );
