@@ -35,21 +35,28 @@ static const unsigned char *no_ampersands(QString i) {
 }
 
 #if 0
-QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point, SInt16 *idx)
+QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point pt, SInt16 *idx)
 {
-    short id = (short)mr;
-    if(MacPopupBinding *mpb = pdict->find((int)id)) {
-	QMenuItem *item = mpb->qpopup->findItem((int)*(idx));
-	if(item && item->custom()) {
-	    QCustomMenuItem *cst = item->custom();
-	    switch(msg) {
-	    case mDrawItemMsg:
-		break;
-	    case mCalcItemMsg:
-		break;
+    qDebug("foo.. %d", msg);
+
+    if(pdict) {
+	short id = (short)mr;
+	if(MacPopupBinding *mpb = pdict->find((int)id)) {
+	    QMenuItem *item = mpb->qpopup->findItem((int)*(idx));
+	    if(item && item->custom()) {
+		qDebug("blah..");
+		QCustomMenuItem *cst = item->custom();
+		switch(msg) {
+		case kMenuHiliteItemMsg:
+		case kMenuDrawItemsMsg:
+		    break;
+		case mCalcItemMsg:
+		    break;
+		}
 	    }
 	}
     }
+    *(idx) = 0;
 }
 #endif
 
@@ -60,15 +67,8 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 	    QMenuItem *item = d->findItem(d->idAt(x));
 	
 	    if(item->custom()) {
-#if 0
-		MenuDefSpec spec;
-		spec.defType = kMenuDefProcPtr;
-		spec.defProc = NewMenuDefUPP(macMenuItemProc);
-		SetMenuDefinition(ret, &spec);
-#else
 		qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
 		continue;
-#endif
 	    }
 	    if(item->widget()) {
 		qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
@@ -108,8 +108,16 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 static MenuRef createPopup(QPopupMenu *d) 
 {
     MenuRef ret;
+#if 0
+    MenuDefSpec spec;
+    spec.defType = kMenuDefProcPtr;
+    spec.u.defProc = NewMenuDefUPP(macMenuItemProc);
+    if(CreateCustomMenu(&spec, textMenuProc, 0, &ret) != noErr)
+	return NULL;
+#else
     if(CreateNewMenu(textMenuProc, 0, &ret) != noErr)
 	return NULL;
+#endif
 
     if(!pdict) {
 	pdict = new QIntDict<MacPopupBinding>();
