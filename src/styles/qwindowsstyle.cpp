@@ -64,26 +64,18 @@
 #include <limits.h>
 
 
-static const int windowsItemFrame               = 2;    // menu item frame width
-static const int windowsSepHeight               = 2;    // separator item height
-static const int windowsItemHMargin     = 3;    // menu item hor text margin
-static const int windowsItemVMargin     = 2;    // menu item ver text margin
-static const int windowsArrowHMargin    = 6;    // arrow horizontal margin
-static const int windowsTabSpacing      = 12;   // space between text and tab
-static const int windowsCheckMarkHMargin        = 2;    // horiz. margins of check mark
-static const int windowsRightBorder     = 12;       // right border on windows
-static const int windowsCheckMarkWidth = 12;       // checkmarks width on windows
+static const int windowsItemFrame		=  2; // menu item frame width
+static const int windowsSepHeight		=  2; // separator item height
+static const int windowsItemHMargin		=  3; // menu item hor text margin
+static const int windowsItemVMargin		=  2; // menu item ver text margin
+static const int windowsArrowHMargin		=  6; // arrow horizontal margin
+static const int windowsTabSpacing		= 12; // space between text and tab
+static const int windowsCheckMarkHMargin	=  2; // horiz. margins of check mark
+static const int windowsRightBorder		= 12; // right border on windows
+static const int windowsCheckMarkWidth		= 12; // checkmarks width on windows
 
 
-class QWindowsStylePrivate
-{
-public:
-    QWindowsStylePrivate() : hotWidget( 0 )
-    {
-    }
-
-    QWidget *hotWidget;
-};
+static bool use2000style = TRUE;
 
 
 // NOT REVISED
@@ -96,38 +88,29 @@ public:
   platform. Naturally it is also Qt's default GUI style on Windows.
 */
 
-
 /*!
     Constructs a QWindowsStyle
 */
 QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 {
-    d = new QWindowsStylePrivate;
+#if defined(Q_OS_WIN)
+    if (qWinVersion() == Qt::WV_2000 ||
+	qWinVersion() == Qt::WV_98 ||
+	qWinVersion() == Qt::WV_XP)
+	use2000style = TRUE;
+    else
+	use2000style = FALSE;
+#else
+    use2000style = TRUE;
+#endif
 }
 
-
-/*!\reimp*/
+/*! \reimp */
 QWindowsStyle::~QWindowsStyle()
 {
-    delete d;
 }
 
-
-/*!\reimp */
-void QWindowsStyle::polish( QWidget *widget )
-{
-    if ( widget->inherits( "QToolButton" ) )
-	widget->installEventFilter( this );
-}
-
-
-/*!\reimp */
-void QWindowsStyle::unPolish( QWidget *widget )
-{
-    widget->removeEventFilter( this );
-}
-
-/*!\reimp*/
+/*! \reimp */
 void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 				   QPainter *p,
 				   const QRect &r,
@@ -138,42 +121,56 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
     switch (op) {
     case PO_ButtonCommand:
     case PO_ButtonBevel:
-    case PO_HeaderSection: 
+    case PO_HeaderSection:
 	{
 	    QBrush fill;
 
-	    if (! (flags & PStyle_Sunken) && (flags & PStyle_On))
+	    if (! (flags & PStyle_Down) && (flags & PStyle_On))
 		fill = QBrush(cg.light(), Dense4Pattern);
 	    else
 		fill = cg.brush(QColorGroup::Button);
 
-	    if (flags & (PStyle_Raised | PStyle_Sunken | PStyle_On))
-		qDrawWinButton(p, r, cg, flags & (PStyle_Sunken | PStyle_On), &fill);
+	    if (flags & (PStyle_Raised | PStyle_Down | PStyle_On))
+		qDrawWinButton(p, r, cg, flags & (PStyle_Down | PStyle_On), &fill);
 	    else
 		p->fillRect(r, fill);
-	    break; 
+	    break;
 	}
 
-    case PO_FocusRect: 
+    case PO_ButtonTool:
+	{
+	    QBrush fill;
+
+	    if (! (flags & (PStyle_Down | PStyle_MouseOver)) &&
+		(flags & PStyle_On) &&
+		(flags & PStyle_Enabled) &&
+		use2000style)
+		fill = QBrush(cg.light(), Dense4Pattern);
+	    else
+		fill = cg.brush(QColorGroup::Button);
+
+	    if (flags & (PStyle_Raised | PStyle_Down | PStyle_On)) {
+		if (flags & PStyle_AutoRaise)
+		    qDrawShadePanel(p, r, cg, flags & (PStyle_Down | PStyle_On),
+				    1, &fill);
+		else
+		    qDrawWinButton(p, r, cg, flags & (PStyle_Down | PStyle_On),
+				   &fill);
+	    } else
+		p->fillRect(r, fill);
+	    break;
+	}
+
+    case PO_FocusRect:
 	if (data)
 	    p->drawWinFocusRect(r, *((const QColor *) data[0]));
 	else
 	    p->drawWinFocusRect(r);
 	break;
 
-    case PO_Indicator: 
+    case PO_Indicator:
 	{
 #ifndef QT_NO_BUTTON
-	    QRect ir = r;
-
-	    if (r.width() < r.height()) {
-		ir.setTop(r.top() + (r.height() - r.width()) / 2);
-		ir.setHeight(r.width());
-	    } else if (r.height() < r.width()) {
-		ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-		ir.setWidth(r.height());
-	    }
-
 	    QBrush fill;
 	    if (flags & PStyle_NoChange) {
 		QBrush b = p->brush();
@@ -183,19 +180,19 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 		fill = QBrush(cg.base(), Dense4Pattern);
 		p->setBackgroundColor( c );
 		p->setBrush( b );
-	    } else if (flags & PStyle_Sunken)
+	    } else if (flags & PStyle_Down)
 		fill = cg.brush( QColorGroup::Button );
 	    else if (flags & PStyle_Enabled)
 		fill = cg.brush( QColorGroup::Base );
 	    else
 		fill = cg.brush( QColorGroup::Background );
 
-	    qDrawWinPanel( p, ir, cg, TRUE, &fill );
+	    qDrawWinPanel( p, r, cg, TRUE, &fill );
 	    if (! (flags & PStyle_Off)) {
 		QPointArray a( 7*2 );
 		int i, xx, yy;
-		xx = ir.x() + 3;
-		yy = ir.y() + 5;
+		xx = r.x() + 3;
+		yy = r.y() + 5;
 
 		for ( i=0; i<3; i++ ) {
 		    a.setPoint( 2*i,   xx, yy );
@@ -218,10 +215,10 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 		p->drawLineSegments( a );
 	    }
 #endif
-	    break; 
+	    break;
 	}
 
-    case PO_ExclusiveIndicator: 
+    case PO_ExclusiveIndicator:
 	{
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 	    static const QCOORD pts1[] = {              // dark lines
@@ -261,7 +258,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 
 	    p->eraseRect(ir);
 	    bool reverse = QApplication::reverseLayout();
-	    bool down = flags & PStyle_Sunken;
+	    bool down = flags & PStyle_Down;
 	    bool enabled = flags & PStyle_Enabled;
 	    bool on = flags & PStyle_On;
 	    QPointArray a;
@@ -308,14 +305,14 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 		p->drawRect( ir.x() + 5, ir.y() + 4, 2, 4 );
 		p->drawRect( ir.x() + 4, ir.y() + 5, 4, 2 );
 	    }
-    	    break; 
+	    break;
 	}
 
-    case PO_MenuBarItem: 
+    case PO_MenuBarItem:
 	{
 	    bool active = flags & PStyle_On;
 	    bool hasFocus = flags & PStyle_HasFocus;
-	    bool down = flags & PStyle_Sunken;
+	    bool down = flags & PStyle_Down;
 	    QRect pr = r;
 
 	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
@@ -334,11 +331,11 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 		}
 	    }
 	    QCommonStyle::drawPrimitive( PO_MenuBarItem, p, pr, cg, flags, data );
-	    break; 
+	    break;
 	}
 
     case PO_Panel:
-    case PO_PanelPopup: 
+    case PO_PanelPopup:
 	{
 	    int lw = pixelMetric(PM_DefaultFrameWidth);
 	    if (data)
@@ -348,13 +345,13 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 		qDrawWinPanel(p, r, cg, flags & PStyle_Sunken);
 	    else
 		QCommonStyle::drawPrimitive(op, p, r, cg, flags, data);
-	    break; 
+	    break;
 	}
 
     case PO_Splitter:
     case PO_DockWindowResizeHandle:
 	qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg );
- 	break;
+	break;
 
     default:
 	if (op >= PO_ArrowUp && op <= PO_ArrowLeft) {
@@ -370,11 +367,11 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 		break;
 
 	    case PO_ArrowRight:
-		a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
+		a.setPoints( 7, -2,-3, -2,3, -1,-2, -1,2, 0,-1, 0,1, 1,0 );
 		break;
 
 	    case PO_ArrowLeft:
-		a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
+		a.setPoints( 7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0 );
 		break;
 
 	    default:
@@ -385,7 +382,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 		return;
 
 	    p->save();
-	    if ( flags & PStyle_Sunken )
+	    if ( flags & PStyle_Down )
 		p->translate( pixelMetric( PM_ButtonShiftHorizontal ),
 			      pixelMetric( PM_ButtonShiftVertical ) );
 
@@ -423,7 +420,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 void **data ) const
 {
     switch (element) {
-    case CE_PushButton: 
+    case CE_PushButton:
 	{
 	    QPushButton *button = (QPushButton *) widget;
 	    QRect br = r;
@@ -433,10 +430,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    if (button->isEnabled())
 		flags |= PStyle_Enabled;
 	    if (button->isDown())
-		flags |= PStyle_Sunken;
+		flags |= PStyle_Down;
 	    if (button->isOn())
 		flags |= PStyle_On;
-	    if (! button->isFlat() && ! (flags & PStyle_Sunken))
+	    if (! button->isFlat() && ! (flags & PStyle_Down))
 		flags |= PStyle_Raised;
 
 	    if (button->isDefault() || button->autoDefault()) {
@@ -456,10 +453,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 		p->drawRect(br);
 	    } else
 		drawPrimitive(PO_ButtonCommand, p, br, cg, flags);
-	    break; 
+	    break;
 	}
 
-    case CE_TabBarTab: 
+    case CE_TabBarTab:
 	{
 	    if ( !widget || !widget->parentWidget() )
 		break;
@@ -559,11 +556,11 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    } else {
 		QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
 	    }
-	    break; 
+	    break;
 	}
 
 #ifndef QT_NO_POPUPMENU
-    case CE_PopupMenuItem: 
+    case CE_PopupMenuItem:
 	{
 	    if (! widget || !data)
 		break;
@@ -583,14 +580,11 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    r.rect(&x, &y, &w, &h);
 
 	    if ( checkable ) {
-#if defined(Q_WS_WIN)
-		if ( qWinVersion() == Qt::WV_2000 ||
-		     qWinVersion() == Qt::WV_98 ||
-		     qWinVersion() == Qt::WV_XP )
-
+		// space for the checkmarks
+		if (use2000style)
 		    maxpmw = QMAX( maxpmw, 20 );
-#endif
-		maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
+		else
+		    maxpmw = QMAX( maxpmw, 12 );
 	    }
 
 	    int checkcol = maxpmw;
@@ -761,7 +755,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    }
 #endif
 
-	    break; 
+	    break;
 	}
 
     default:
@@ -796,7 +790,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	// Returns the number of pixels to use for the business part of the
 	// slider (i.e., the non-tickmark portion). The remaining space is shared
 	// equally between the tickmark regions.
-    case PM_SliderControlThickness: 
+    case PM_SliderControlThickness:
 	{
 	    QSlider * sl = (QSlider *) widget;
 	    int space = (sl->orientation() == Horizontal) ? sl->height()
@@ -819,7 +813,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    if ( space > 0 )
 		thick += (space * 2) / (n + 2);
 	    ret = thick;
-	    break; 
+	    break;
 	}
 
     case PM_MenuBarFrameWidth:
@@ -850,7 +844,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
     QSize sz(contentsSize);
 
     switch (contents) {
-    case CT_PushButton: 
+    case CT_PushButton:
 	{
 	    QPushButton *button = (QPushButton *) widget;
 	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
@@ -867,10 +861,10 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	    }
 
 	    sz = QSize(w, h);
-	    break; 
+	    break;
 	}
 
-    case CT_ComboBox: 
+    case CT_ComboBox:
 	{
 	    QComboBox *combobox = (QComboBox *) widget;
 
@@ -881,7 +875,57 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 		sz.setHeight(12);
 
 	    sz = QCommonStyle::sizeFromContents(contents, widget, sz, data);
-	    break; 
+	    break;
+	}
+
+    case CT_PopupMenuItem:
+	{
+	    if (! widget || ! data)
+		break;
+
+	    QPopupMenu *popup = (QPopupMenu *) widget;
+	    bool checkable = popup->isCheckable();
+	    QMenuItem *mi = (QMenuItem *) data[0];
+	    int maxpmw = *((int *) data[1]);
+	    int w = sz.width(), h = sz.height();
+
+	    if (mi->isSeparator()) {
+		w = 10; // arbitrary
+		h = windowsSepHeight;
+		break;
+	    } else {
+		if (mi->pixmap())
+		    h = QMAX(h, mi->pixmap()->height() + 2*windowsItemFrame);
+		else
+		    h = QMAX(h, popup->fontMetrics().height() + 2*windowsItemVMargin +
+			     2*windowsItemFrame);
+
+		if (mi->iconSet() != 0)
+		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+						      QIconSet::Normal).height() +
+			     2*windowsItemFrame);
+	    }
+
+	    if (! mi->text().isNull()) {
+		if (mi->text().find('\t') >= 0)
+		    w += 12;
+	    }
+
+	    if (maxpmw)
+		w += maxpmw + 6;
+	    if (use2000style) {
+		if (checkable && maxpmw < 20)
+		    w += 20 - maxpmw;
+	    } else {
+		if (checkable && maxpmw < windowsCheckMarkWidth)
+		    w += windowsCheckMarkWidth - maxpmw;
+	    }
+	    if (checkable || maxpmw > 0)
+		w += windowsCheckMarkHMargin;
+	    w += windowsRightBorder;
+
+	    sz = QSize(w, h);
+	    break;
 	}
 
     default:
@@ -902,80 +946,6 @@ void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
         p->setCheckable( TRUE );
     p->setLineWidth( 2 );
 #endif
-}
-
-
-
-// /*! \reimp
-// */
-// void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
-//                                    const QColorGroup &g,
-//                                    bool act, bool dis )
-// {
-//     const int markW = w > 7 ? 7 : w;
-//     const int markH = markW;
-//     int posX = x + ( w - markW )/2 + 1;
-//     int posY = y + ( h - markH )/2;
-
-//     // Could do with some optimizing/caching...
-//     QPointArray a( markH*2 );
-//     int i, xx, yy;
-//     xx = posX;
-//     yy = 3 + posY;
-//     for ( i=0; i<markW/2; i++ ) {
-//         a.setPoint( 2*i,   xx, yy );
-//         a.setPoint( 2*i+1, xx, yy+2 );
-//         xx++; yy++;
-//     }
-//     yy -= 2;
-//     for ( ; i<markH; i++ ) {
-//         a.setPoint( 2*i,   xx, yy );
-//         a.setPoint( 2*i+1, xx, yy+2 );
-//         xx++; yy--;
-//     }
-//     if ( dis && !act ) {
-//         int pnt;
-//         p->setPen( g.highlightedText() );
-//         QPoint offset(1,1);
-//         for ( pnt = 0; pnt < (int)a.size(); pnt++ )
-//             a[pnt] += offset;
-//         p->drawLineSegments( a );
-//         for ( pnt = 0; pnt < (int)a.size(); pnt++ )
-//             a[pnt] -= offset;
-//     }
-//     p->setPen( g.text() );
-//     p->drawLineSegments( a );
-// }
-
-/*!
-  \reimp
-*/
-bool QWindowsStyle::eventFilter( QObject *o, QEvent *e )
-{
-    if ( e->type() != QEvent::Enter && e->type() != QEvent::Leave )
-	return QCommonStyle::eventFilter( o, e );
-    if ( !o || !o->inherits( "QToolButton" ) )
-	return QCommonStyle::eventFilter( o, e );
-
-    switch ( e->type() )
-    {
-    case QEvent::Enter:
-	d->hotWidget = (QWidget*)o;
-	d->hotWidget->update();
-	break;
-    case QEvent::Leave:
-	{
-	    QWidget *old = d->hotWidget;
-	    d->hotWidget = 0;
-	    if ( old )
-		old->update();
-	}
-	break;
-    default:
-	break;
-    }
-
-    return QCommonStyle::eventFilter( o, e );
 }
 
 static const char * const qt_close_xpm[] = {
@@ -1138,13 +1108,13 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					void **data ) const
 {
     switch (ctrl) {
-    case CC_ScrollBar: 
+    case CC_ScrollBar:
 	{
 	    if (! w)
 		break;
 
 	    QScrollBar *scrollbar = (QScrollBar *) w;
-	    QRect addline, subline, addpage, subpage, slider;
+	    QRect addline, subline, addpage, subpage, slider, addlinea, sublinea;
 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
 	    subline = querySubControlMetrics(ctrl, w, SC_ScrollBarSubLine, data);
@@ -1152,6 +1122,10 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    subpage = querySubControlMetrics(ctrl, w, SC_ScrollBarSubPage, data);
 	    addpage = querySubControlMetrics(ctrl, w, SC_ScrollBarAddPage, data);
 	    slider  = querySubControlMetrics(ctrl, w, SC_ScrollBarSlider,  data);
+	    addlinea = addline;
+	    addlinea.addCoords(2, 2, -2, -2);
+	    sublinea = subline;
+	    sublinea.addCoords(2, 2, -2, -2);
 
 	    if (sub & SC_ScrollBarSubLine) {
 		if (subActive == SC_ScrollBarSubLine) {
@@ -1164,10 +1138,10 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			       PO_ArrowLeft : PO_ArrowUp),
-			      p, subline, cg,
+			      p, sublinea, cg,
 			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			      ((subActive == SC_ScrollBarSubLine) ?
-			       PStyle_Sunken : PStyle_Default));
+			       PStyle_Down : PStyle_Default));
 	    }
 
 	    if (sub & SC_ScrollBarAddLine) {
@@ -1181,10 +1155,10 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			       PO_ArrowRight : PO_ArrowDown),
-			      p, addline, cg,
+			      p, addlinea, cg,
 			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			      ((subActive == SC_ScrollBarAddLine) ?
-			       PStyle_Sunken : PStyle_Default));
+			       PStyle_Down : PStyle_Default));
 	    }
 
 	    QBrush br = (cg.brush(QColorGroup::Light).pixmap() ?
@@ -1232,10 +1206,10 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default);
 	    }
 
-	    break; 
+	    break;
 	}
 
-    case CC_ListView: 
+    case CC_ListView:
 	{
 #ifndef QT_NO_LISTVIEW
 	    if (! data)
@@ -1362,11 +1336,11 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    }
 		}
 	    }
-	    break; 
+	    break;
 	}
 #endif //QT_NO_LISTVIEW
 
-    case CC_SpinWidget: 
+    case CC_SpinWidget:
 	switch ( sub ) {
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown:
@@ -1377,7 +1351,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    qDrawWinPanel( p, r, cg, TRUE );
 	    break;
 	}
-	break; 
+	break;
 
     case CC_ComboBox:
 	if ( sub != SC_None ) {
@@ -1422,7 +1396,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 				    void **data ) const
 {
     switch( subCtrl ) {
-    case SC_ComboBoxArrow: 
+    case SC_ComboBoxArrow:
 	{
 	    PFlags flags = PStyle_Default;
 
@@ -1448,10 +1422,10 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		flags |= PStyle_Sunken;
 	    }
 	    drawPrimitive( PO_ArrowDown, p, ar, cg, flags );
-	    break; 
+	    break;
 	}
 
-    case SC_ComboBoxEditField: 
+    case SC_ComboBoxEditField:
 	{
 	    QComboBox * cb = (QComboBox *) w;
 	    QRect re = querySubControlMetrics( CC_ComboBox, w,
@@ -1475,10 +1449,10 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		pdata[0] = (void *) &cg.highlight();
 		drawPrimitive( PO_FocusRect, p, re, cg, PStyle_FocusAtBorder, pdata);
 	    }
-	    break; 
+	    break;
 	}
 
-    case SC_SliderGroove: 
+    case SC_SliderGroove:
 	{
 	    QSlider * sl = (QSlider *) w;
 
@@ -1518,10 +1492,10 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		sl->erase( 0, 0,  tickOffset, sl->height() );
 		sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
 	    }
-	    break; 
+	    break;
 	}
 
-    case SC_SliderHandle: 
+    case SC_SliderHandle:
 	{
 	    // 4444440
 	    // 4333310
@@ -1727,7 +1701,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		break;
 	    }
 
-	    break; 
+	    break;
 	}
 
     default:

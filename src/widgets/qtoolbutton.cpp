@@ -390,20 +390,20 @@ void QToolButton::drawButton( QPainter * p )
     QStyle::SCFlags controls = QStyle::SC_ToolButton;
     QStyle::SCFlags active = QStyle::SC_None;
 
-    bool drawraised = (uses3D() || isOnAndNoOnPixmap());
+    bool use3d = uses3D();
     bool drawarrow = hasArrow;
     Qt::ArrowType arrowtype = d->arrow;
     void *data[3];
-    data[0] = (void *) &drawraised;
+    data[0] = (void *) &use3d;
     data[1] = (void *) &drawarrow;
     data[2] = (void *) &arrowtype;
 
-    if (isDown() || isOn())
+    if (isDown())
 	active |= QStyle::SC_ToolButton;
 
     if (d->popup && !d->delay) {
 	controls |= QStyle::SC_ToolButtonMenu;
-	if (d->instantPopup || isDown() || isOn())
+	if (d->instantPopup || isDown())
 	    active |= QStyle::SC_ToolButtonMenu;
     }
 

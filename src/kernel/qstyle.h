@@ -150,12 +150,15 @@ public:
 	PStyle_Off =			0x00000008,
 	PStyle_NoChange =		0x00000010,
 	PStyle_On =			0x00000020,
-	PStyle_Horizontal =		0x00000040,
-	PStyle_Vertical =		0x00000080,
-	PStyle_HasFocus =		0x00000100,
-	PStyle_Top =			0x00000200,
-	PStyle_Bottom =			0x00000300,
-	PStyle_FocusAtBorder =		0x00000400
+	PStyle_Down =			0x00000040,
+	PStyle_Horizontal =		0x00000080,
+	PStyle_Vertical =		0x00000100,
+	PStyle_HasFocus =		0x00000200,
+	PStyle_Top =			0x00000400,
+	PStyle_Bottom =			0x00000800,
+	PStyle_FocusAtBorder =		0x00001000,
+	PStyle_AutoRaise =		0x00002000,
+	PStyle_MouseOver =		0x00004000,
 
 	/*
 	  PStyle_FocusHighlight=	0x00000001,

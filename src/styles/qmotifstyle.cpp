@@ -196,7 +196,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
     case PO_ButtonBevel:
     case PO_ButtonTool:
     case PO_HeaderSection:
-	qDrawShadePanel( p, r, cg, bool(flags & PStyle_Sunken),
+	qDrawShadePanel( p, r, cg, bool(flags & (PStyle_Down | PStyle_On)),
 			 pixelMetric(PM_DefaultFrameWidth),
 			 &cg.brush(QColorGroup::Button) );
 	break;
@@ -204,7 +204,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
     case PO_Indicator: {
 #ifndef QT_NO_BUTTON
 	bool on = flags & PStyle_On;
-	bool down = flags & PStyle_Sunken;
+	bool down = flags & PStyle_Down;
 	bool showUp = !( down ^ on );
 	QBrush fill = showUp || flags & PStyle_NoChange ? cg.brush( QColorGroup::Button ) : cg.brush(QColorGroup::Mid );
 	if ( flags & PStyle_NoChange ) {
@@ -216,10 +216,10 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    qDrawShadePanel( p, r, cg, !showUp,
 			     pixelMetric(PM_DefaultFrameWidth), &fill );
 #endif
-	break; 
+	break;
     }
 
-    case PO_ExclusiveIndicator: 
+    case PO_ExclusiveIndicator:
 	{
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 	    static QCOORD inner_pts[] =         // used for filling diamond
@@ -230,7 +230,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		{ 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
 
 	    bool on = flags & PStyle_On;
-	    bool down = flags & PStyle_Sunken;
+	    bool down = flags & PStyle_Down;
 	    bool showUp = !(down ^ on );
 	    QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
 	    p->eraseRect( r );
@@ -249,10 +249,10 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    a.translate( r.x(), r.y() );
 	    p->drawPolyline( a );
 
-	    break; 
+	    break;
 	}
 
-    case PO_MenuBarItem: 
+    case PO_MenuBarItem:
 	{
 	    if ( flags & PStyle_On )  // active item
 		qDrawShadePanel( p, r, cg, FALSE, motifItemFrame,
@@ -260,13 +260,13 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    else  // other item
 		p->fillRect( r, cg.brush(QColorGroup::Button) );
 	    QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
-	    break; 
+	    break;
 	}
 
     case PO_ArrowUp:
     case PO_ArrowDown:
     case PO_ArrowRight:
-    case PO_ArrowLeft: 
+    case PO_ArrowLeft:
 	{
 	    QRect rect = r;
 	    QPointArray bFill;
@@ -340,7 +340,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		    matrix.translate( rect.width() - 1, rect.height() - 1 );
 		    matrix.rotate( 180 );
 		}
-		if ( flags & PStyle_Sunken )
+		if ( flags & PStyle_Down )
 		    colspec = horizontal ? 0x2334 : 0x2343;
 		else
 		    colspec = horizontal ? 0x1443 : 0x1434;
@@ -350,7 +350,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		    matrix.translate( rect.width() - 1, 0 );
 		    matrix.rotate( 90 );
 		}
-		if ( flags & PStyle_Sunken )
+		if ( flags & PStyle_Down )
 		    colspec = horizontal ? 0x2443 : 0x2434;
 		else
 		    colspec = horizontal ? 0x1334 : 0x1343;
@@ -402,11 +402,11 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 #undef CLEFT
 #undef CTOP
 #undef CBOT
-	    break; 
+	    break;
 	}
 
     case PO_SpinWidgetPlus:
-    case PO_SpinWidgetMinus: 
+    case PO_SpinWidgetMinus:
 	{
 	    p->save();
 	    int fw = pixelMetric( PM_DefaultFrameWidth );
@@ -440,11 +440,11 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		p->drawLine( ( x+w / 2 ) - 1, y + ymarg,
 			     ( x+w / 2 ) - 1, y + ymarg + length - 1 );
 	    p->restore();
-	    break; 
+	    break;
 	}
 
     case PO_SpinWidgetUp:
-    case PO_SpinWidgetDown: 
+    case PO_SpinWidgetDown:
 	{
 	    p->save();
 	    int fw = pixelMetric( PM_DefaultFrameWidth );;
@@ -484,10 +484,10 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    p->setBrush( cg.buttonText() );
 	    p->drawPolygon( a );
 	    p->restore();
-	    break; 
+	    break;
 	}
 
-    case PO_DockWindowHandle: 
+    case PO_DockWindowHandle:
 	{
 	    p->save();
 	    p->translate( r.x(), r.y() );
@@ -552,11 +552,11 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		}
 	    }
 	    p->restore();
-	    break; 
+	    break;
 	}
 
     case PO_Splitter:
-    case PO_DockWindowResizeHandle: 
+    case PO_DockWindowResizeHandle:
 	{
 	    const int motifOffset = 10;
  	    int sw = pixelMetric( PM_SplitterWidth );
@@ -579,10 +579,10 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
  				 cg, FALSE, 1, &cg.brush( QColorGroup::Button ) );
  		qDrawShadeLine( p, kPos + kSize - 1, yPos, r.width(), yPos, cg );
  	    }
- 	    break; 
+ 	    break;
 	}
 
-    case PO_CheckMark: 
+    case PO_CheckMark:
 	{
 	    const int markW = 6;
 	    const int markH = 6;
@@ -625,7 +625,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		qDrawShadePanel( p, posX, posY, markW, markH, cg, TRUE, dfw,
 				 &cg.brush( QColorGroup::Mid ) );
 
-	    break; 
+	    break;
 	}
 
     default:
@@ -644,10 +644,9 @@ void QMotifStyle::drawControl( ControlElement element,
 			       void **data ) const
 {
     switch( element ) {
-    case CE_PushButton: 
+    case CE_PushButton:
 	{
- 	    int diw,
- 		x1, y1, x2, y2;
+ 	    int diw, x1, y1, x2, y2;
  	    const QPushButton *btn;
 	    QColorGroup newCg = cg;
  	    btn = ( const QPushButton * )widget;
@@ -689,8 +688,10 @@ void QMotifStyle::drawControl( ControlElement element,
  	    if ( !btn->isFlat() || btn->isOn() || btn->isDown() ) {
 		QRect tmp( x1, y1, x2 - x1 + 1, y2 - y1 + 1 );
 		PFlags flags = PStyle_Default;
-		if ( btn->isOn() || btn->isDown() )
-		    flags |= PStyle_Sunken;
+		if ( btn->isOn())
+		    flags |= PStyle_On;
+		if (btn->isDown())
+		    flags |= PStyle_Down;
 		drawPrimitive( PO_ButtonCommand, p,
 			       tmp, newCg,
  			       flags );
@@ -700,7 +701,7 @@ void QMotifStyle::drawControl( ControlElement element,
 	    break;
 	}
 
-    case CE_TabBarTab: 
+    case CE_TabBarTab:
 	{
 	    if ( !widget || !widget->parentWidget() )
 		break;
@@ -805,10 +806,10 @@ void QMotifStyle::drawControl( ControlElement element,
 	    } else {
 		QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
 	    }
-	    break; 
+	    break;
 	}
 
-    case CE_ProgressBar: 
+    case CE_ProgressBar:
 	{
 	    QProgressBar *progressbar = (QProgressBar *) widget;
 
@@ -850,10 +851,10 @@ void QMotifStyle::drawControl( ControlElement element,
 		}
 	    }
 
-	    break; 
+	    break;
 	}
 
-    case CE_ProgressBarLabel: 
+    case CE_ProgressBarLabel:
 	{
 	    QProgressBar * pb = (QProgressBar *) widget;
 	    const int unit_width = pixelMetric( PM_ProgressBarChunkWidth, pb );
@@ -877,11 +878,11 @@ void QMotifStyle::drawControl( ControlElement element,
 		    p->drawText( r, AlignCenter | SingleLine, pb->progressString() );
 		}
 	    }
-	    break; 
+	    break;
 	}
 
 #ifndef QT_NO_POPUPMENU
-    case CE_PopupMenuItem: 
+    case CE_PopupMenuItem:
 	{
 	    if (! widget || ! data)
 		break;
@@ -1016,7 +1017,7 @@ void QMotifStyle::drawControl( ControlElement element,
 		    drawPrimitive(PO_ArrowRight, p,
 				  QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
 					y+h/2-dim/2, dim, dim), cg,
-				  (PStyle_Sunken |
+				  (PStyle_Down |
 				   (mi->isEnabled() ? PStyle_Enabled : PStyle_Default)));
 		else
 		    drawPrimitive(PO_ArrowRight, p,
@@ -1025,7 +1026,7 @@ void QMotifStyle::drawControl( ControlElement element,
 				  (mi->isEnabled() ? PStyle_Enabled : PStyle_Default));
 	    }
 
-	    break; 
+	    break;
 	}
 #endif // QT_NO_POPUPMENU
 
@@ -1085,7 +1086,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 			    subActive, data );
 	break;
 
-    case CC_ScrollBar: 
+    case CC_ScrollBar:
 	{
 	    if (! widget || ! data)
 		break;
@@ -1111,14 +1112,14 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 			       PO_ArrowLeft : PO_ArrowUp),
 			      p, subline, cg,
 			      PStyle_Enabled | ((subActive == SC_ScrollBarSubLine) ?
-						PStyle_Sunken : PStyle_Default));
+						PStyle_Down : PStyle_Default));
 
 	    if (sub & SC_ScrollBarAddLine && addline.isValid())
 		drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			       PO_ArrowRight : PO_ArrowDown),
 			      p, addline, cg,
 			      PStyle_Enabled | ((subActive == SC_ScrollBarAddLine) ?
-						PStyle_Sunken : PStyle_Default));
+						PStyle_Down : PStyle_Default));
 
 	    if (sub & SC_ScrollBarSubPage && subpage.isValid())
 		p->fillRect(subpage, cg.brush(QColorGroup::Mid));
@@ -1129,11 +1130,11 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    if (sub & SC_ScrollBarSlider && slider.isValid())
 		qDrawShadePanel(p, slider, cg, FALSE, fw, &cg.brush(QColorGroup::Button));
 
-	    break; 
+	    break;
 	}
 
 #ifndef QT_NO_LISTVIEW
-    case CC_ListView: 
+    case CC_ListView:
 	{
 	    if (! data)
 		break;
@@ -1205,7 +1206,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 			     dotlines[line+1].x(), dotlines[line+1].y() );
 	    }
 
-	    break; 
+	    break;
 	}
 #endif // QT_NO_LISTVIEW
 
@@ -1268,7 +1269,7 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 				  void **data ) const
 {
     switch( subCtrl ) {
-    case SC_SliderGroove: 
+    case SC_SliderGroove:
 	{
 	    QSlider * sl = (QSlider *) widget;
 
@@ -1308,10 +1309,10 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 		sl->erase( 0, 0,  tickOffset, sl->height() );
 		sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
 	    }
-	    break; 
+	    break;
 	}
 
-    case SC_SliderHandle: 
+    case SC_SliderHandle:
 	{
 	    QSlider * sl = (QSlider *) widget;
 
@@ -1332,10 +1333,10 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 		qDrawShadeLine( p, re.x(), mid,  re.x() + re.width() - 2, mid,
 				cg, TRUE, 1);
 	    }
-	    break; 
+	    break;
 	}
 
-    case SC_ComboBoxArrow: 
+    case SC_ComboBoxArrow:
 	{
 	    QComboBox * cb = (QComboBox *) widget;
 	    int awh, ax, ay, sh, sy, dh, ew;
@@ -1364,10 +1365,10 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 		drawPrimitive( PO_FocusRect, p, re, cg );
 	    }
 
-	    break; 
+	    break;
 	}
 
-    case SC_ComboBoxEditField: 
+    case SC_ComboBoxEditField:
 	{
 	    QComboBox * cb = (QComboBox *) widget;
 	    if ( cb->editable() ) {
@@ -1377,7 +1378,7 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 		qDrawShadePanel( p, er, cg, TRUE, 1,
 				 &cg.brush( QColorGroup::Button ));
 	    }
-	    break; 
+	    break;
 	}
 
     default:
@@ -1411,7 +1412,7 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 	ret = 24;
 	break;
 
-    case PM_SliderControlThickness: 
+    case PM_SliderControlThickness:
 	{
 	    QSlider * sl = (QSlider *) widget;
 	    int space = (sl->orientation() == Horizontal) ? sl->height()
@@ -1432,17 +1433,17 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 	    if ( space > 0 )
 		thick += (space * 2) / (n + 2);
 	    ret = thick;
-	    break; 
+	    break;
 	}
 
-    case PM_SliderSpaceAvailable: 
+    case PM_SliderSpaceAvailable:
 	{
 	    QSlider * sl = (QSlider *) widget;
 	    if ( sl->orientation() == Horizontal )
 		ret = sl->width() - pixelMetric( PM_SliderLength, sl ) - 6;
 	    else
 		ret = sl->height() - pixelMetric( PM_SliderLength, sl ) - 6;
-	    break; 
+	    break;
 	}
 
     case PM_DockWindowHandleExtent:
@@ -1469,7 +1470,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
     QRect rect;
 
     switch ( control ) {
-    case CC_SpinWidget: 
+    case CC_SpinWidget:
 	{
 	    if ( !widget )
 		break;
@@ -1505,10 +1506,10 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    default:
 		break;
 	    }
-	    break; 
+	    break;
 	}
 
-    case CC_Slider: 
+    case CC_Slider:
 	{
 	    switch ( sc ) {
 	    case SC_SliderHandle: {
@@ -1536,7 +1537,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    }
 
-	    break; 
+	    break;
 	}
 
     case CC_ScrollBar:
@@ -1623,12 +1624,12 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    }
 
-	    break; 
+	    break;
 	}
 
     case CC_ComboBox:
 	switch ( sc ) {
-	case SC_ComboBoxArrow: 
+	case SC_ComboBoxArrow:
 	    {
 		QComboBox * cb = (QComboBox *) widget;
 		int ew, awh, sh, dh, ax, ay, sy;
@@ -1637,10 +1638,10 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		cr.addCoords( fw, fw, -fw, -fw );
 		get_combo_parameters( cr, ew, awh, ax, ay, sh, dh, sy );
 		rect.setRect( ax, ay, awh, awh );
-		break; 
+		break;
 	    }
 
-	case SC_ComboBoxEditField: 
+	case SC_ComboBoxEditField:
 	    {
 		QComboBox * cb = (QComboBox *) widget;
 		int fw = pixelMetric( PM_DefaultFrameWidth, cb );
@@ -1651,7 +1652,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		if( QApplication::reverseLayout() )
 		    rect.moveBy( ew, 0 );
  		rect.addCoords( 1, 1, -1-ew, -1 );
-		break; 
+		break;
 	    }
 
 	default:
@@ -1674,17 +1675,17 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
     QSize sz(contentsSize);
 
     switch(contents) {
-    case CT_PushButton: 
+    case CT_PushButton:
 	{
 	    QPushButton *button = (QPushButton *) widget;
 	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
 	    if ((button->isDefault() || button->autoDefault()) &&
 		sz.width() < 80 && ! button->pixmap())
 		sz.setWidth(80);
-	    break; 
+	    break;
 	}
 
-    case CT_PopupMenuItem: 
+    case CT_PopupMenuItem:
 	{
 	    if (! widget || ! data)
 		break;
@@ -1717,7 +1718,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 		w += motifCheckMarkHMargin;
 
 	    sz = QSize(w, h);
-	    break; 
+	    break;
 	}
 
     default:
@@ -1738,7 +1739,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	rect.addCoords( 2, 2, -2, -3 );
 	break;
 
-    case SR_ComboBoxFocusRect: 
+    case SR_ComboBoxFocusRect:
 	{
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    int fw = pixelMetric( PM_DefaultFrameWidth, widget );
@@ -1747,10 +1748,10 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	    tr.addCoords( fw, fw, -fw, -fw );
 	    get_combo_parameters( tr, ew, awh, ax, ay, sh, dh, sy );
 	    rect.setRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
-	    break; 
+	    break;
 	}
 
-    case SR_DockWindowHandleRect: 
+    case SR_DockWindowHandleRect:
 	{
 	    if ( !widget || !widget->parent() )
 		break;
@@ -1764,7 +1765,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 		else
 		    rect.setRect(0, 2, widget->width() - 15, widget->height() - 2);
 	    }
-	    break; 
+	    break;
 	}
 
     case SR_ProgressBarContents:

@@ -76,11 +76,6 @@
   All the functions are documented in \l QStyle.
 */
 
-/*! \fn int QCommonStyle::menuBarFrameWidth() const
-
-  \reimp
-*/
-
 /*!
   Constructs a QCommonStyle that provides the style \a s.  This determines
   the default behavior of the virtual functions.
@@ -95,7 +90,6 @@ QCommonStyle::~QCommonStyle()
 }
 
 
-
 #define TITLEBAR_PAD 3
 #define TITLEBAR_SEPARATION 1
 #define TITLEBAR_PIXMAP_WIDTH 12
@@ -104,14 +98,7 @@ QCommonStyle::~QCommonStyle()
 #define TITLEBAR_CONTROL_HEIGHT (TITLEBAR_PAD+TITLEBAR_PIXMAP_HEIGHT)
 
 
-
-
-// New QStyle API
-
-
-/*!
-  Draws a primitive operation.
-*/
+/*! \reimp */
 void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  QPainter *p,
 				  const QRect &r,
@@ -129,7 +116,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
     case PO_ButtonTool:
     case PO_ButtonDropDown:
     case PO_HeaderSection:
-	qDrawShadePanel(p, r, cg, flags & PStyle_Sunken, 1,
+	qDrawShadePanel(p, r, cg, flags & (PStyle_Sunken | PStyle_Down | PStyle_On) , 1,
 			&cg.brush(QColorGroup::Button));
 	break;
 
@@ -330,7 +317,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_MenuBarItem: {
-	QMenuItem * mi;
+	QMenuItem *mi;
 
 	if ( data ) {
 	    mi = (QMenuItem *) data[0];
@@ -464,9 +451,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
     }
 }
 
-/*!
-  Draws a control.
-*/
+/*! \reimp */
 void QCommonStyle::drawControl( ControlElement element,
 				QPainter *p,
 				const QWidget *widget,
@@ -486,7 +471,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	if (button->isOn())
 	    flags |= PStyle_On;
 	if (button->isDown())
-	    flags |= PStyle_Sunken;
+	    flags |= PStyle_Down;
 	else if (! button->isFlat() && ! (flags & PStyle_Sunken))
 	    flags |= PStyle_Raised;
 
@@ -497,12 +482,11 @@ void QCommonStyle::drawControl( ControlElement element,
 	QPushButton *button = (QPushButton *) widget;
 	QRect ir = r;
 
-	if (button->isDown() || button->isOn())
+	if (button->isDown() || button->isOn()) {
 	    flags |= PStyle_Sunken;
-
-	if (button->isDown() || button->isOn())
 	    ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
 		      pixelMetric(PM_ButtonShiftVertical, widget));
+	}
 
 	if (button->isMenuButton()) {
 	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
@@ -552,7 +536,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	QCheckBox *checkbox = (QCheckBox *) widget;
 
 	if (checkbox->isDown())
-	    flags |= PStyle_Sunken;
+	    flags |= PStyle_Down;
 	if (checkbox->state() == QButton::On)
 	    flags |= PStyle_On;
 	else if (checkbox->state() == QButton::Off)
@@ -588,7 +572,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	QRadioButton *radiobutton = (QRadioButton *) widget;
 
 	if (radiobutton->isDown())
-	    flags |= PStyle_Sunken;
+	    flags |= PStyle_Down;
 	if (radiobutton->state() == QButton::On)
 	    flags |= PStyle_On;
 	else if (radiobutton->state() == QButton::Off)
@@ -732,9 +716,7 @@ void QCommonStyle::drawControl( ControlElement element,
     }
 }
 
-/*!
-  Draws a control mask.
-*/
+/*! \reimp */
 void QCommonStyle::drawControlMask( ControlElement control,
 				    QPainter *p,
 				    const QWidget *widget,
@@ -764,9 +746,7 @@ void QCommonStyle::drawControlMask( ControlElement control,
     }
 }
 
-/*!
-  Returns a contents(?) subrect.
-*/
+/*! \reimp */
 QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 {
     QRect rect, wrect(widget->rect());
@@ -947,9 +927,7 @@ static int qPositionFromValue( QRangeControl * rc, int logical_val,
 }
 
 
-/*!
-  Draws a complex control.
-*/
+/*! \reimp */
 void QCommonStyle::drawComplexControl( ComplexControl control,
 				       QPainter *p,
 				       const QWidget *widget,
@@ -968,33 +946,60 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
 	menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, data);
 
-	bool drawraised = FALSE;
+       	bool on = toolbutton->isOn();
+	bool down = toolbutton->isDown();
+	bool autoraise = toolbutton->autoRaise();
+	bool use3d = FALSE;
 	bool drawarrow = FALSE;
 	Qt::ArrowType arrowType = Qt::DownArrow;
+
 	if (data) {
-	    drawraised = *((bool *) data[0]);
+	    use3d      = *((bool *) data[0]);
 	    drawarrow  = *((bool *) data[1]);
 	    arrowType  = *((Qt::ArrowType *) data[2]);
 	}
 
-	PFlags bflags = PStyle_Default, mflags = PStyle_Default;
-	if (drawraised) {
-	    bflags |= PStyle_Raised;
-	    mflags |= PStyle_Raised;
-	}
+	PFlags bflags = PStyle_Default,
+	       mflags = PStyle_Default;
 
 	if (toolbutton->isEnabled()) {
 	    bflags |= PStyle_Enabled;
 	    mflags |= PStyle_Enabled;
 	}
 
-	if (active & SC_ToolButton)
-	    bflags |= PStyle_Sunken;
-	if (active & SC_ToolButtonMenu)
-	    mflags |= PStyle_Sunken;
+	if (down) {
+	    bflags |= PStyle_Down;
+	    mflags |= PStyle_Down;
+	}
+	if (on) {
+	    bflags |= PStyle_On;
+	    mflags |= PStyle_On;
+	}
+  	if (autoraise) {
+	    bflags |= PStyle_AutoRaise;
+	    mflags |= PStyle_AutoRaise;
+
+	    if (use3d) {
+		bflags |= PStyle_MouseOver;
+		mflags |= PStyle_MouseOver;
+
+		if (active & SC_ToolButton)
+		    bflags |= PStyle_Down;
+		if (active & SC_ToolButtonMenu)
+		    mflags |= PStyle_Down;
+
+		if (! on && ! down) {
+		    bflags |= PStyle_Raised;
+		    mflags |= PStyle_Raised;
+		}
+	    }
+	} else if (! on && ! down) {
+	    bflags |= PStyle_Raised;
+	    mflags |= PStyle_Raised;
+	}
 
 	if (controls & SC_ToolButton) {
-	    if (drawraised || (bflags & PStyle_Sunken))
+	    if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
 		drawPrimitive(PO_ButtonTool, p, button, cg, bflags, data);
 	    else if ( toolbutton->parentWidget() &&
 		      toolbutton->parentWidget()->backgroundPixmap() &&
@@ -1002,7 +1007,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		p->drawTiledPixmap( r, *(toolbutton->parentWidget()->backgroundPixmap()),
 				    toolbutton->pos() );
 
-	    if (bflags & PStyle_Sunken)
+	    if (bflags & (PStyle_Down | PStyle_On))
 		button.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
 			      pixelMetric(PM_ButtonShiftVertical, widget));
 
@@ -1035,7 +1040,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    QIconSet::Mode mode;
 		    if (! toolbutton->isEnabled())
 			mode = QIconSet::Disabled;
-		    else if (drawraised)
+		    else if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
 			mode = QIconSet::Active;
 		    else
 			mode = QIconSet::Normal;
@@ -1059,7 +1064,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	}
 
 	if (controls & SC_ToolButtonMenu) {
-	    if (drawraised || (mflags & PStyle_Sunken))
+	    if (mflags & (PStyle_Down | PStyle_On | PStyle_Raised))
 		drawPrimitive(PO_ButtonDropDown, p, menuarea, cg, mflags, data);
 	    drawPrimitive(PO_ArrowDown, p, menuarea, cg, mflags, data);
 	}
@@ -1192,7 +1197,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    QSpinWidget * sw = (QSpinWidget *) widget;
 	    PFlags flags = PStyle_Default;
 	    PrimitiveOperation op = (controls == SC_SpinWidgetUp) ?
-		PO_SpinWidgetUp : PO_SpinWidgetDown;
+				    PO_SpinWidgetUp : PO_SpinWidgetDown;
 
 	    flags |= PStyle_Enabled;
 	    if (active == controls ) {
@@ -1256,7 +1261,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 	    if ( ticks & QSlider::Below ) {
 		int avail = (sl->orientation() == Horizontal) ? sl->height() :
-		    sl->width();
+			    sl->width();
 		avail -= tickOffset + thickness;
 		p->setPen( cg.foreground() );
 		int v = sl->minValue();
@@ -1286,9 +1291,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 }
 
 
-/*!
-  Draws a complex control mask.
-*/
+/*! \reimp */
 void QCommonStyle::drawComplexControlMask( ComplexControl control,
 					   QPainter *p,
 					   const QWidget *widget,
@@ -1303,9 +1306,7 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 }
 
 
-/*!
-  Returns the metrics of a subcontrol in a complex control.
-*/
+/*! \reimp */
 QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *w,
 					    SubControl sc,
@@ -1562,9 +1563,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 }
 
 
-/*!
-  Returns the subcontrol in a complex control.
-*/
+/*! \reimp */
 QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 						 const QWidget *widget,
 						 const QPoint &pos,
@@ -1619,9 +1618,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 }
 
 
-/*!
-  Returns a pixel metric.
-*/
+/*! \reimp */
 int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 {
     int ret;
@@ -1742,9 +1739,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 }
 
 
-/*!
-  Returns the size for the contents.
-*/
+/*! \reimp */
 QSize QCommonStyle::sizeFromContents(ContentsType contents,
 				     const QWidget *widget,
 				     const QSize &contentsSize,
@@ -1801,12 +1796,21 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	bool checkable = popup->isCheckable();
 	QMenuItem *mi = (QMenuItem *) data[0];
 	int maxpmw = *((int *) data[1]);
-	int w = sz.width(), h = sz.height() + 8;
+	int w = sz.width(), h = sz.height();
 
 	if (mi->isSeparator()) {
 	    w = 10;
 	    h = 2;
 	    break;
+	} else {
+	    if (mi->pixmap())
+		h = QMAX(h, mi->pixmap()->height() + 4);
+	    else
+		h = QMAX(h, popup->fontMetrics().height() + 8);
+
+	    if (mi->iconSet() != 0)
+		h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+						  QIconSet::Normal).height() + 4);
 	}
 
 	if (! mi->text().isNull()) {
@@ -1837,9 +1841,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 }
 
 
-/*!
-  Returns a style (look and feel) hint.
-*/
+/*! \reimp */
 int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
 {
     int ret;
@@ -1858,10 +1860,8 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
 }
 
 
-/*!
-  Returns a style pixmap.
-*/
-QPixmap QCommonStyle::stylePixmap(StylePixmap sp, const QWidget *, void **) const
+/*! \reimp */
+QPixmap QCommonStyle::stylePixmap(StylePixmap, const QWidget *, void **) const
 {
     return QPixmap();
 }

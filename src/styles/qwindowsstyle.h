@@ -50,7 +50,6 @@
 #define Q_EXPORT_STYLE_WINDOWS Q_EXPORT
 #endif
 
-class QWindowsStylePrivate;
 
 class Q_EXPORT_STYLE_WINDOWS QWindowsStyle : public QCommonStyle
 {
@@ -58,9 +57,6 @@ class Q_EXPORT_STYLE_WINDOWS QWindowsStyle : public QCommonStyle
 public:
     QWindowsStyle();
     virtual ~QWindowsStyle();
-
-    virtual void polish( QWidget * );
-    virtual void unPolish( QWidget * );
 
     virtual void polishPopupMenu( QPopupMenu* );
 
@@ -112,13 +108,7 @@ public:
 			 void **data = 0 ) const;
 
 
-protected:
-    bool eventFilter( QObject *o, QEvent *e );
-
-
 private:
-    QWindowsStylePrivate *d;
-
     // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QWindowsStyle( const QWindowsStyle & );
