@@ -38,6 +38,17 @@
 #define d d_func()
 #define q q_func()
 
+
+static QStyleOptionFrame getStyleOption(QToolBar *tb)
+{
+    QStyleOptionFrame opt;
+    opt.init(tb);
+    if (tb->orientation() == Qt::Horizontal)
+        opt.state |= QStyle::Style_Horizontal;
+    opt.lineWidth = tb->style().pixelMetric(QStyle::PM_ToolBarFrameWidth);
+    return opt;
+}
+
 /*
     QToolBarPrivate
 */
@@ -46,16 +57,17 @@ void QToolBarPrivate::init()
 {
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 
+    QStyleOptionFrame opt = getStyleOption(q);
+
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     layout->setAlignment(Qt::AlignLeft);
-    layout->setMargin(q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, 0, q));
-    layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, 0, q));
+    layout->setMargin(q->style().pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q));
+    layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
 
     handle = new QToolBarHandle(q);
     layout->addWidget(handle);
 
     extension = new QToolBarExtension(q);
-    extension->setOrientation(Qt::Horizontal);
     extension->hide();
 
 #ifdef Q_WS_MAC
@@ -93,17 +105,11 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
     item.action = action;
     item.hidden = false;
 
-    QBoxLayout *box = qt_cast<QBoxLayout *>(q->layout());
-
     QToolBarWidgetAction *widgetAction = qt_cast<QToolBarWidgetAction *>(action);
     if (widgetAction) {
         item.widget = widgetAction->widget();
     } else if (action->isSeparator()) {
-        Qt::Orientation orientation = (box->direction() == QBoxLayout::LeftToRight
-                                       || box->direction() == QBoxLayout::RightToLeft)
-                                      ? Qt::Horizontal
-                                      : Qt::Vertical;
-        item.widget = new QToolBarSeparator(orientation, q);
+        item.widget = new QToolBarSeparator(q);
     } else {
         QToolBarButton *button = new QToolBarButton(q);
         button->addAction(action);
@@ -260,36 +266,26 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
     case Qt::Vertical:
 	box->setDirection(QBoxLayout::TopToBottom);
         box->setAlignment(Qt::AlignTop);
-	d->extension->setOrientation(Qt::Vertical);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
 	break;
 
     case Qt::Horizontal:
 	box->setDirection(QBoxLayout::LeftToRight);
         box->setAlignment(Qt::AlignLeft);
-	d->extension->setOrientation(Qt::Horizontal);
 	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 	break;
     }
+
+    d->handle->setOrientation(d->orientation);
+    d->extension->setOrientation(d->orientation);
 
     // change the orientation of any separators
     QLayoutItem *item = 0;
     int i = 0;
     while ((item = box->itemAt(i++))) {
 	QToolBarSeparator *sep = qt_cast<QToolBarSeparator *>(item->widget());
-	if (sep) {
-	    if (box->direction() == QBoxLayout::LeftToRight
-		|| box->direction() == QBoxLayout::RightToLeft)
-		sep->setOrientation(Qt::Horizontal);
-	    else
-		sep->setOrientation(Qt::Vertical);
-	}
-    }
-
-    // if we're dragging - swap the offset coords around as well
-    if (d->handle->state) {
-	QPoint p = d->handle->state->offset;
-	d->handle->state->offset = QPoint(p.y(), p.x());
+	if (sep)
+            sep->setOrientation(d->orientation);
     }
 }
 
@@ -613,6 +609,13 @@ void QToolBar::changeEvent(QEvent *event)
     case QEvent::WindowTitleChange:
         d->toggleViewAction->setText(windowTitle());
         break;
+    case QEvent::StyleChange:
+        {
+            QStyleOptionFrame opt = getStyleOption(q);
+            d->layout->setMargin(q->style().pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q));
+            d->layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
+            break;
+        }
     default:
         break;
     }
@@ -657,13 +660,8 @@ void QToolBar::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter p(this);
-    QStyleOptionFrame frame;
-    frame.rect = rect();
-    frame.palette = palette();
-    frame.state = QStyle::Style_None;
-    frame.lineWidth = style().pixelMetric(QStyle::PM_DockWindowFrameWidth);
-    frame.midLineWidth = 0;
-    style().drawPrimitive(QStyle::PE_PanelDockWindow, &frame, &p, this);
+    QStyleOptionFrame opt = getStyleOption(this);
+    style().drawPrimitive(QStyle::PE_PanelToolBar, &opt, &p, this);
 }
 
 /*! \reimp */
