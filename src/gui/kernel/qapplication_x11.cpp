@@ -318,7 +318,7 @@ TabletDeviceDataList *qt_tablet_devices()
     return tablet_devices();
 }
 
-extern bool tabletChokeMouse;
+extern bool qt_tabletChokeMouse;
 #endif
 
 // last timestamp read from QSettings
@@ -2721,12 +2721,12 @@ int QApplication::x11ProcessEvent(XEvent* event)
         // fall through intended
     case MotionNotify:
 #if !defined(QT_NO_TABLET_SUPPORT)
-        if (!tabletChokeMouse) {
+        if (!qt_tabletChokeMouse) {
 #endif
             widget->translateMouseEvent(event);
 #if !defined(QT_NO_TABLET_SUPPORT)
         } else {
-            tabletChokeMouse = false;
+            qt_tabletChokeMouse = false;
         }
 #endif
         break;
@@ -3410,8 +3410,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             if (XCheckTypedEvent(X11->display, xinput_button_press, &myEv)) {
                 if (translateXinputEvent(&myEv)) {
                     //Spontaneous event sent.  Check if we need to continue.
-                    if (tabletChokeMouse) {
-                        tabletChokeMouse = false;
+                    if (qt_tabletChokeMouse) {
+                        qt_tabletChokeMouse = false;
                         return false;
                     }
                 }
@@ -3444,8 +3444,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             if (XCheckTypedEvent(X11->display, xinput_button_release, &myEv)) {
                 if (translateXinputEvent(&myEv)) {
                     //Spontaneous event sent.  Check if we need to continue.
-                    if (tabletChokeMouse) {
-                        tabletChokeMouse = false;
+                    if (qt_tabletChokeMouse) {
+                        qt_tabletChokeMouse = false;
                         return false;
                     }
                 }

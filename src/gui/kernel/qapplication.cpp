@@ -369,7 +369,7 @@ bool QApplicationPrivate::fade_tooltip = false;
 bool QApplicationPrivate::animate_toolbox = false;
 bool QApplicationPrivate::widgetCount = false;
 
-bool tabletChokeMouse = false;
+bool qt_tabletChokeMouse = false;
 static bool force_reverse = false;
 
 int qt_double_buffer_timer = 0;
@@ -2871,7 +2871,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 tablet->accept();
             else
                 tablet->ignore();
-            tabletChokeMouse = tablet->isAccepted();
+            qt_tabletChokeMouse = tablet->isAccepted();
         }
         break;
 
