@@ -301,7 +301,6 @@ void QLabel::setText( const QString &text )
 	if ( (align & WordBreak) == 0  )
 	    t.prepend( "<nobr>" );
 	doc = new QSimpleRichText( t, font() );
-	doc->setDefaultFont( font() );
     }
 #endif
 

@@ -653,7 +653,7 @@ public:
     bool isNested() const { return TRUE; }
     void resize( QPainter*, int nwidth );
     virtual void invalidate();
-    QString anchorAt( QPainter* p, int x, int y );
+//     QString anchorAt( QPainter* p, int x, int y );
 
     virtual bool enter( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
     virtual bool enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos );
@@ -733,7 +733,6 @@ public:
     };
 
     QTextDocument( QTextDocument *p );
-    QTextDocument( QTextDocument *d, QTextFormatCollection *f );
     virtual ~QTextDocument();
 
     QTextDocument *parent() const { return par; }
@@ -968,6 +967,7 @@ private:
     int leftmargin;
     int rightmargin;
     QTextParag *minwParag;
+    QTextParag *curParag;
     QStyleSheet* sheet_;
 #ifndef QT_NO_MIME
     QMimeSourceFactory* factory_;
@@ -980,7 +980,6 @@ private:
     QString oText;
     QPtrList<QTextDocument> childList;
     QColor linkColor;
-
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1509,7 +1508,7 @@ public:
     enum VerticalAlignment { AlignNormal, AlignSuperScript, AlignSubScript };
 
     QTextFormat();
-    virtual ~QTextFormat() {}
+    virtual ~QTextFormat();
 
     QTextFormat( const QStyleSheetItem *s );
     QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent = 0 );
@@ -1630,8 +1629,13 @@ public:
     void setPaintDevice( QPaintDevice * );
 
 private:
+    void updateKeys();
+    void clearAnchorFormats();
+
+private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
     QDict<QTextFormat> cKey;
+    QPtrList<QTextFormat> anchors;
     QTextFormat *cres;
     QFont cfont;
     QColor ccol;
@@ -1794,7 +1798,8 @@ inline void QTextDocument::setPreProcessor( QTextPreProcessor * sh )
 
 inline void QTextDocument::setFormatter( QTextFormatter *f )
 {
-    delete pFormatter;
+    if ( !par || par->pFormatter != pFormatter )
+	delete pFormatter;
     pFormatter = f;
 }
 
@@ -1929,16 +1934,11 @@ inline void QTextFormat::addRef()
 
 inline void QTextFormat::removeRef()
 {
-    ref--;
-    if ( !collection )
-	return;
-    if ( this == collection->defFormat )
-	return;
 #ifdef DEBUG_COLLECTION
-    qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref, this );
+    qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref-1, this );
 #endif
-    if ( ref == 0 )
-	collection->remove( this );
+    if ( !--ref && collection )
+	    collection->remove( this );
 }
 
 inline QString QTextFormat::key() const

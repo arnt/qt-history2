@@ -2620,6 +2620,8 @@ bool QTextEdit::focusNextPrevChild( bool n )
     bool b = doc->focusNextPrevChild( n );
     if ( b ) {
 	repaintChanged();
+	//##### this does not work with tables. The focusIndicator
+	//should really be a QTextCursor. Fix 3.1
 	makeParagVisible( doc->focusIndicator.parag );
     }
     return b;
@@ -2822,7 +2824,8 @@ void QTextEdit::updateCurrentFormat()
     int i = cursor->index();
     if ( i > 0 )
 	--i;
-    if ( currentFormat->key() != cursor->parag()->at( i )->format()->key() && doc->useFormatCollection() ) {
+    if ( doc->useFormatCollection() && 
+	 ( !currentFormat || currentFormat->key() != cursor->parag()->at( i )->format()->key() ) ) {
 	if ( currentFormat )
 	    currentFormat->removeRef();
 	currentFormat = doc->formatCollection()->format( cursor->parag()->at( i )->format() );
@@ -3916,20 +3919,17 @@ void QTextEdit::scrollToAnchor( const QString& name )
 {
     if ( name.isEmpty() )
 	return;
-
     sync();
-    QTextParag *p = doc->firstParag();
-
-    while ( p ) {
-	for ( int i = 0; i < p->length(); ++i ) {
-	    if ( p->at( i )->format()->isAnchor() &&
-		 p->at( i )->format()->anchorName() == name ) {
-		makeParagVisible( p );
-		return;
-	    }
+    QTextCursor cursor( doc );
+    QTextParag* last = doc->lastParag();
+    do {
+	QTextFormat* f = cursor.parag()->at( cursor.index() )->format();
+	if( f->isAnchor() && f->anchorName() == name ) {
+	    setContentsPos( contentsX(), QMIN( cursor.parag()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight() ) );
+	    return;
 	}
-	p = p->next();
-    }
+	cursor.gotoNextLetter();
+    } while( cursor.parag() != last || !cursor.atParagEnd()  );
 }
 
 /*! If there is an anchor at position \a pos (in contents
