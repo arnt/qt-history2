@@ -472,6 +472,10 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	    qDebug( "search line start of %d", searchLine );
 #endif
 	    int index = dockWidgets->find( lineStarts.at( searchLine ) );
+	    if ( index == -1 ) {
+		index = 0;
+		(void)dockWidgets->at( index ); // move current to index
+	    }
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "     which starts at %d", index );
 #endif
