@@ -48,6 +48,7 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 #include <qfiledialog.h>
 #include <qmotif.h>
 #include <qmotifwidget.h>
+#include <qmotifdialog.h>
 
 #include <pwd.h>
 #include <unistd.h>
@@ -123,6 +124,7 @@ extern "C" {
     // void Save(Widget, char*, XmFileSelectionBoxCallbackStruct *);
     void Save(Widget, XtPointer, XmPushButtonCallbackStruct *);
     void Print(Widget, char*, XmdPrintCallbackStruct *);
+    void ShowPrintDialog(Widget, XtPointer, XmPushButtonCallbackStruct *);
     void SaveIt(Widget, char*, XmPushButtonCallbackStruct *);
     void PageChange(Widget, XtPointer, XmNotebookCallbackStruct *);
     void NewPage(Widget, XtPointer, XmPushButtonCallbackStruct *);
@@ -151,12 +153,12 @@ main(int argc, char* argv[])
 {
   Widget mainw, menubar;
   Widget *file_menu, *edit_menu, *selected_menu, *help_menu, temp;
-  Widget print_widget;
+  // Widget print_widget;
   Cardinal size;
   XtAppContext context;
   Arg args[10];
   int n, i;
-  XmString tmp;
+  // XmString tmp;
   char temppath[256];
 
   if (argc == 2 && strcmp(argv[1], "-help") == 0) {
@@ -210,18 +212,14 @@ main(int argc, char* argv[])
   XmdCreateMenu(FILE_MENU, menubar, &file_menu, &size);
   XtAddCallback(file_menu[FILE_NEW], XmNactivateCallback,
 		(XtCallbackProc) New, NULL);
-  /*
-  XtAddCallback(file_menu[FILE_OPEN], XmNactivateCallback,
-                (XtCallbackProc) PresentFDialog, (XtPointer) Open);
-  */
+  // XtAddCallback(file_menu[FILE_OPEN], XmNactivateCallback,
+  //               (XtCallbackProc) PresentFDialog, (XtPointer) Open);
   XtAddCallback(file_menu[FILE_OPEN], XmNactivateCallback,
 		(XtCallbackProc) Open, (XtPointer) &toplevel);
   XtAddCallback(file_menu[FILE_EXIT], XmNactivateCallback,
 		(XtCallbackProc) QuitAppl, NULL);
-  /*
-  XtAddCallback(file_menu[FILE_SAVE_AS], XmNactivateCallback,
-                (XtCallbackProc) PresentFDialog, (XtPointer) Save);
-  */
+  // XtAddCallback(file_menu[FILE_SAVE_AS], XmNactivateCallback,
+  //               (XtCallbackProc) PresentFDialog, (XtPointer) Save);
   XtAddCallback(file_menu[FILE_SAVE_AS], XmNactivateCallback,
 		(XtCallbackProc) Save, (XtPointer) &toplevel);
   XtAddCallback(file_menu[FILE_SAVE], XmNactivateCallback,
@@ -230,16 +228,16 @@ main(int argc, char* argv[])
   XmdCreateMenu(SELECTED_MENU, menubar, &selected_menu, &size);
   XtUnmanageChildren(selected_menu, size);
   XtManageChild(selected_menu[SELECTED_PROPERTIES]);
-  XtAddCallback(selected_menu[SELECTED_PROPERTIES],
-		XmNactivateCallback, (XtCallbackProc) EditPage, NULL);
+  // XtAddCallback(selected_menu[SELECTED_PROPERTIES], XmNactivateCallback,
+  //               (XtCallbackProc) EditPage, NULL);
+  XtAddCallback(selected_menu[SELECTED_PROPERTIES], XmNactivateCallback,
+		(XtCallbackProc) EditPage, (XtPointer) &toplevel );
   XtManageChild(selected_menu[SELECTED_NEW]);
   XtAddCallback(selected_menu[SELECTED_NEW], XmNactivateCallback,
 		(XtCallbackProc) NewPage, NULL);
   XtManageChild(selected_menu[SELECTED_DELETE]);
-  /*
-  XtAddCallback(selected_menu[SELECTED_DELETE], XmNactivateCallback,
-                (XtCallbackProc) DeletePage, NULL);
-  */
+  // XtAddCallback(selected_menu[SELECTED_DELETE], XmNactivateCallback,
+  //               (XtCallbackProc) DeletePage, NULL);
   XtAddCallback(selected_menu[SELECTED_DELETE], XmNactivateCallback,
 		(XtCallbackProc) DeletePage, (XtPointer) &toplevel);
 
@@ -247,18 +245,18 @@ main(int argc, char* argv[])
   XtUnmanageChildren(help_menu, size);
   XtManageChild(help_menu[HELP_OVERVIEW]);
 
-  print_widget = XmdCreatePrintDialog(shell, "print_manager", NULL, 0);
-  XtAddCallback(print_widget, XmdNprintCallback, (XtCallbackProc) Print, NULL);
-  tmp = XmStringCreateLocalized("About Printing");
-
+  // print_widget = XmdCreatePrintDialog(shell, "print_manager", NULL, 0);
+  // XtAddCallback(print_widget, XmdNprintCallback,
+  //               (XtCallbackProc) Print, NULL);
+  // tmp = XmStringCreateLocalized("About Printing");
   XtAddCallback(file_menu[FILE_PRINT], XmNactivateCallback,
-		(XtCallbackProc) manageCB, (XtPointer) print_widget);
+		(XtCallbackProc) ShowPrintDialog, (XtPointer) &toplevel);
 
   help_widget = XmdCreateHelpDialog(shell, "help_manager", NULL, 0);
   XtAddCallback(help_menu[HELP_OVERVIEW], XmNactivateCallback,
 		(XtCallbackProc) help_cb, (XtPointer) 0);
-  XtAddCallback(print_widget, XmNhelpCallback,
-		(XtCallbackProc) help_cb, (XtPointer) 1);
+  // XtAddCallback(print_widget, XmNhelpCallback,
+  //               (XtCallbackProc) help_cb, (XtPointer) 1);
 
   user = getpwuid(getuid());
   for (i = 0; i < MAXPAGES; i++) {
@@ -306,12 +304,10 @@ TextChanged(Widget w, XtPointer i, XtPointer i2)
 }
 
 // Use proper C++ function declarations
-/*
-void manageCB( widget, w_to_manage, callback_data)
-     Widget widget;
-     Widget w_to_manage;
-     XtPointer callback_data;
-*/
+// void manageCB( widget, w_to_manage, callback_data)
+//      Widget widget;
+//      Widget w_to_manage;
+//      XtPointer callback_data;
 void manageCB( Widget widget, Widget w_to_manage, XtPointer callback_data)
 {
   if (w_to_manage != (Widget) NULL)
@@ -342,12 +338,12 @@ New(Widget w, char* ignore, XmPushButtonCallbackStruct *cs)
 
 // Save using QFileDialog
 void
-Save(Widget w, XtPointer client_data,
+Save(Widget /*unused*/, XtPointer client_data,
      XmPushButtonCallbackStruct */*unused*/)
 {
   QMotifWidget *toplevel = (QMotifWidget *) client_data;
   QString filename =
-      QFileDialog::getOpenFileName( QString::null, QString::null,
+      QFileDialog::getSaveFileName( QString::null, QString::null,
 				    toplevel );
 
   if ( ! filename.isEmpty() ) {
@@ -362,7 +358,7 @@ Save(Widget w, XtPointer client_data,
 
 // Open using QFileDialog
 void
-Open(Widget w, XtPointer client_data,
+Open(Widget /*unused*/, XtPointer client_data,
      XmPushButtonCallbackStruct */*unused*/)
 {
   QMotifWidget *toplevel = (QMotifWidget *) client_data;
@@ -385,6 +381,32 @@ help_cb(Widget w, XtPointer item, XmAnyCallbackStruct *cb)
 {
   XtManageChild(help_widget);
   XmdGotoHelpItem(w, (int) item, help_widget);
+}
+
+// Print using QMotifDialog
+void ShowPrintDialog(Widget, XtPointer client_data,
+		     XmPushButtonCallbackStruct *)
+{
+    QMotifWidget *toplevel = (QMotifWidget *) client_data;
+    QMotifDialog dialog( toplevel->motifWidget() );
+    (void) XtCreateWidget( "print dialog", xmdPrintWidgetClass,
+			   dialog.shell(), NULL, 0 );
+
+    // the print callback calls QMotifDialog::acceptCallback()
+    XtAddCallback( dialog.dialog(), XmdNprintCallback,
+		   (XtCallbackProc) QMotifDialog::acceptCallback, &dialog );
+    // the cancel callback calls QMotifDialog::rejectCallback()
+    XtAddCallback( dialog.dialog(), XmNcancelCallback,
+		   (XtCallbackProc) QMotifDialog::rejectCallback, &dialog );
+
+    // the print callback also calls the original Print() function
+    XtAddCallback( dialog.dialog(), XmdNprintCallback,
+		   (XtCallbackProc) Print, NULL );
+    // the help callback opens the help viewer
+    XtAddCallback( dialog.dialog(), XmNhelpCallback,
+		   (XtCallbackProc) help_cb, (XtPointer) 1 );
+
+    dialog.exec();
 }
 
 void

@@ -43,6 +43,10 @@ static char *rcsid = "$TOG: actions.c /main/7 1997/05/02 10:01:40 dbl $";
 #endif
 #endif
 
+// PageEditDialog includes
+#include "pageeditdialog.h"
+#include <qlineedit.h>
+
 // Qt includes
 #include <qmessagebox.h>
 #include <qmotifwidget.h>
@@ -151,22 +155,43 @@ DeletePage(Widget w, XtPointer client_data,
   SetPage(currentPage);
 }
 
-Widget labelEditW, majorTabW, minorTabW;
-
+// EditPage using custom QDialog
 void
-DoEditPage(Widget w, XtPointer ig, XmPushButtonCallbackStruct *cs)
+EditPage(Widget w, XtPointer client_data,
+	 XmPushButtonCallbackStruct */*unused*/)
 {
+  if (pages[currentPage] == NULL) return;
+
+  QMotifWidget *toplevel = (QMotifWidget *) client_data;
+  PageEditDialog pedlg( toplevel, "page edit dialog", TRUE );
+
+  if (pages[currentPage] -> label != NULL)
+      pedlg.titleEdit->setText( pages[currentPage]->label );
+  if (pages[currentPage] -> majorTab != NULL)
+      pedlg.majorEdit->setText( pages[currentPage]->majorTab );
+  if (pages[currentPage] -> minorTab != NULL)
+      pedlg.minorEdit->setText( pages[currentPage]->minorTab );
+
+  int result = pedlg.exec();
+
+  if ( result != QDialog::Accepted )
+      return;
+
   char *temp;
   XmString tstr;
   Arg args[5];
   int i;
 
-  pages[currentPage] -> label = XmTextFieldGetString(labelEditW);
+  // pages[currentPage] -> label = XmTextFieldGetString(labelEditW);
+  QString qstr = pedlg.titleEdit->text().simplifyWhiteSpace();
+  pages[currentPage]->label = qstrdup( qstr.local8Bit().data() );
 
   if (pages[currentPage] -> minorTab != NULL)
     XtFree(pages[currentPage] -> minorTab);
-  temp = XmTextGetString(minorTabW);
-  temp = Trim(temp);
+  // temp = XmTextGetString(minorTabW);
+  // temp = Trim(temp);
+  qstr = pedlg.minorEdit->text().simplifyWhiteSpace();
+  temp = qstrdup( qstr.local8Bit().data() );
   if (strlen(temp) > 0)
     pages[currentPage] -> minorTab = temp;
   else {
@@ -178,8 +203,10 @@ DoEditPage(Widget w, XtPointer ig, XmPushButtonCallbackStruct *cs)
 
   if (pages[currentPage] -> majorTab != NULL)
     XtFree(pages[currentPage] -> majorTab);
-  temp = XmTextGetString(majorTabW);
-  temp = Trim(temp);
+  // temp = XmTextGetString(majorTabW);
+  // temp = Trim(temp);
+  qstr = pedlg.majorEdit->text().simplifyWhiteSpace();
+  temp = qstrdup( qstr.local8Bit().data() );
   if (strlen(temp) > 0)
     pages[currentPage] -> majorTab = temp;
   else {
@@ -226,98 +253,6 @@ DoEditPage(Widget w, XtPointer ig, XmPushButtonCallbackStruct *cs)
   pages[currentPage] -> page = XmTextGetString(textw);
 
   SetPage(currentPage);
-}
-
-void
-EditPage(Widget w, XtPointer i, XmPushButtonCallbackStruct *cs)
-{
-  if (pages[currentPage] == NULL) return;
-
-  if (editDialog == 0) {
-    Arg args[10];
-    XmString promptText, dialogTitle, temp;
-    XmString okLabel, cancelLabel;
-    Widget label, rc1, rc2;
-
-    dialogTitle = XmStringCreateLocalized("Page Edit Dialog");
-    promptText = XmStringCreateLocalized("Really edit this page?");
-    okLabel = XmStringCreateLocalized("OK");
-    cancelLabel = XmStringCreateLocalized("Cancel");
-    XtSetArg(args[0], XmNselectionLabelString, promptText);
-    XtSetArg(args[1], XmNdialogTitle, dialogTitle);
-    XtSetArg(args[2], XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL);
-    XtSetArg(args[3], XmNokLabelString, okLabel);
-    XtSetArg(args[4], XmNcancelLabelString, cancelLabel);
-    editDialog = XmCreateTemplateDialog(shell, "EditPage",
-					args, 5);
-    XtAddCallback(editDialog, XmNokCallback,
-		  (XtCallbackProc) DoEditPage, NULL);
-
-    XmStringFree(dialogTitle);
-    XmStringFree(promptText);
-    XmStringFree(okLabel);
-    XmStringFree(cancelLabel);
-
-    XtSetArg(args[0], XmNorientation, XmVERTICAL);
-    rc1 = XmCreateRowColumn(editDialog, "rc", args, 1);
-    XtManageChild(rc1);
-
-    XtSetArg(args[0], XmNorientation, XmHORIZONTAL);
-    rc2 = XmCreateRowColumn(rc1, "rc2", args, 1);
-    temp = XmStringCreateLocalized("Label:");
-    XtSetArg(args[0], XmNwidth, 100);
-    XtSetArg(args[1], XmNlabelString, temp);
-    label = XmCreateLabelGadget(rc2, "label", args, 2);
-    XtManageChild(label);
-    XmStringFree(temp);
-    XtManageChild(rc2);
-
-    labelEditW = XmCreateTextField(rc2, "editTF", NULL, 0);
-    XtManageChild(labelEditW);
-
-    XtSetArg(args[0], XmNorientation, XmHORIZONTAL);
-    rc2 = XmCreateRowColumn(rc1, "rc2", args, 1);
-    temp = XmStringCreateLocalized("Major Tab:");
-    XtSetArg(args[0], XmNwidth, 100);
-    XtSetArg(args[1], XmNlabelString, temp);
-    label = XmCreateLabelGadget(rc2, "label", args, 2);
-    XtManageChild(label);
-    XmStringFree(temp);
-
-    majorTabW = XmCreateTextField(rc2, "majorTF", NULL, 0);
-    XtManageChild(majorTabW);
-    XtManageChild(rc2);
-
-    XtSetArg(args[0], XmNorientation, XmHORIZONTAL);
-    rc2 = XmCreateRowColumn(rc1, "rc2", args, 1);
-    temp = XmStringCreateLocalized("Minor Tab:");
-    XtSetArg(args[0], XmNwidth, 100);
-    XtSetArg(args[1], XmNlabelString, temp);
-    label = XmCreateLabelGadget(rc2, "label", args, 2);
-    XtManageChild(label);
-    XmStringFree(temp);
-
-    minorTabW = XmCreateTextField(rc2, "minorTF", NULL, 0);
-    XtManageChild(minorTabW);
-    XtManageChild(rc2);
-  }
-
-  if (pages[currentPage] -> label != NULL)
-    XmTextFieldSetString(labelEditW, pages[currentPage] -> label);
-  else
-    XmTextFieldSetString(labelEditW, "");
-
-  if (pages[currentPage] -> majorTab != NULL)
-    XmTextSetString(majorTabW, pages[currentPage] -> majorTab);
-  else
-    XmTextSetString(majorTabW, "");
-
-  if (pages[currentPage] -> minorTab != NULL)
-    XmTextSetString(minorTabW, pages[currentPage] -> minorTab);
-  else
-    XmTextSetString(minorTabW, "");
-
-  XtManageChild(editDialog);
 }
 
 void
