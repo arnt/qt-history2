@@ -42,7 +42,7 @@ SeeAlso: ???
 
 Feature: SQL
 Section: Database
-Requires: MESSAGEBOX
+Requires:
 Name: SQL classes
 SeeAlso: ???
 

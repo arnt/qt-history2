@@ -670,12 +670,14 @@ QDataManager::~QDataManager()
 */
 void QDataManager::handleError( QWidget* parent, const QSqlError& e )
 {
+#ifndef QT_NO_MESSAGEBOX
     if (e.driverText().isEmpty() && e.databaseText().isEmpty()) {
 	QMessageBox::warning ( parent, "Warning", "An error occurred while accessing the database");
     } else {
 	QMessageBox::warning ( parent, "Warning", e.driverText() + "\n" + e.databaseText(),
 			   0, 0 );
     }
+#endif // QT_NO_MESSAGEBOX
 }
 
 
@@ -859,12 +861,16 @@ QSql::Confirm QDataManager::confirmEdit( QWidget* parent, QSql::Op m )
 {
     int ans = 2;
     if ( m == QSql::Delete ) {
+#ifndef QT_NO_MESSAGEBOX
 	ans = QMessageBox::information( parent,
 					qApp->translate( "QSql", "Delete" ),
 					qApp->translate( "QSql", "Delete this record?" ),
 					qApp->translate( "QSql", "Yes" ),
 					qApp->translate( "QSql", "No" ),
 					QString::null, 0, 1 );
+#else
+	ans = QSql::No;
+#endif // QT_NO_MESSAGEBOX
     } else if ( m != QSql::None ) {
 	QString caption;
 	if ( m == QSql::Insert ) {
@@ -872,12 +878,16 @@ QSql::Confirm QDataManager::confirmEdit( QWidget* parent, QSql::Op m )
 	} else { // QSql::Update
 	    caption = qApp->translate( "QSql", "Update" );
 	}
+#ifndef QT_NO_MESSAGEBOX
 	ans = QMessageBox::information( parent, caption,
 					qApp->translate( "QSql", "Save edits?" ),
 					qApp->translate( "QSql", "Yes" ),
 					qApp->translate( "QSql", "No" ),
 					qApp->translate( "QSql", "Cancel" ),
 					0, 2 );
+#else
+	ans = QSql::No;
+#endif // QT_NO_MESSAGEBOX
     }
 
     switch ( ans ) {
@@ -903,6 +913,7 @@ QSql::Confirm QDataManager::confirmEdit( QWidget* parent, QSql::Op m )
 
 QSql::Confirm QDataManager::confirmCancel( QWidget* parent, QSql::Op )
 {
+#ifndef QT_NO_MESSAGEBOX
     switch ( QMessageBox::information( parent,
 				       qApp->translate( "QSql", "Confirm" ),
 				       qApp->translate( "QSql", "Cancel your edits?" ),
@@ -916,6 +927,9 @@ QSql::Confirm QDataManager::confirmCancel( QWidget* parent, QSql::Op )
     default:
 	return QSql::Cancel;
     }
+#else
+    return QSql::Yes;
+#endif // QT_NO_MESSAGEBOX
 }
 
 #endif

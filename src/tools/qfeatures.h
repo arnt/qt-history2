@@ -852,11 +852,6 @@
 #define QT_NO_MESSAGEBOX
 #endif
 
-// SQL classes
-#if !defined(QT_NO_SQL) && (defined(QT_NO_MESSAGEBOX))
-#define QT_NO_SQL
-#endif
-
 // QTextBrowser
 #if !defined(QT_NO_TEXTBROWSER) && (defined(QT_NO_TEXTVIEW) || defined(QT_NO_MIME))
 #define QT_NO_TEXTBROWSER

@@ -214,7 +214,9 @@ QString QSqlError::text() const
 */
 void QSqlError::showMessage( const QString& msg ) const
 {
+#ifndef QT_NO_MESSAGEBOX
     QMessageBox::warning( NULL, "SQL Error", msg + text(), 
 			  QMessageBox::Ok, QMessageBox::NoButton ); 
+#endif // QT_NO_MESSAGEBOX
 }
 #endif // QT_NO_SQL
