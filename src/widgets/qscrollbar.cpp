@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#93 $
 **
 ** Implementation of QScrollBar class
 **
@@ -83,10 +83,8 @@
   default focusPolicy() of \c NoFocus. Use setFocusPolicy() to
   enable keyboard focus.
 
-  \ingroup realwidgets
-
   <img src=qscrbar-m.gif> <img src=qscrbar-w.gif>
-  
+
   \sa QSlider QSpinBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Scroll Bar</a>
 */
