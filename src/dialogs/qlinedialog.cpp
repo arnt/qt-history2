@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qlinedialog.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qlinedialog.cpp#3 $
 **
 ** Definition of QFileDialog class
 **
@@ -35,15 +35,15 @@ struct QLineDialogPrivate
     QLineEdit* lineEdit;
 };
 
-QLineDialog::QLineDialog( const QString& _text, QWidget* parent, const char* name, bool modal )
+QLineDialog::QLineDialog( const QString &label, QWidget* parent, const char* name, bool modal )
     : QDialog( parent, name, modal )
 {
     d = new QLineDialogPrivate;
     d->lineEdit = 0;
-    
+
     QVBoxLayout *vbox = new QVBoxLayout( this, 6, 6 );
 
-    QLabel* l = new QLabel( _text, this );
+    QLabel* l = new QLabel( label, this );
     vbox->addWidget( l );
 
     d->lineEdit = new QLineEdit( this );
@@ -52,15 +52,27 @@ QLineDialog::QLineDialog( const QString& _text, QWidget* parent, const char* nam
     QHBoxLayout *hbox = new QHBoxLayout( 6 );
     vbox->addLayout( hbox, AlignRight );
 
-    QPushButton *ok = new QPushButton( tr("Ok"), this );
-    hbox->addWidget( ok );
-    QPushButton *cancel = new QPushButton( tr("Cancel"), this );
-    hbox->addWidget( cancel );
+    QPushButton *ok = new QPushButton( tr( "&OK" ), this );
+    ok->setDefault( TRUE );
+    QPushButton *cancel = new QPushButton( tr( "&Cancel" ), this );
 
+    QSize bs( ok->sizeHint() );
+    if ( cancel->sizeHint().width() > bs.width() )
+	bs.setWidth( cancel->sizeHint().width() );
+
+    ok->setFixedSize( bs );
+    cancel->setFixedSize( bs );
+    
+    hbox->addWidget( new QWidget( this ) );
+    hbox->addWidget( ok );
+    hbox->addWidget( cancel );
+    
     connect( ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( d->lineEdit, SIGNAL( returnPressed() ), this, SLOT( accept() ) );
     connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-
+    
+    resize( sizeHint().width() * 2, sizeHint().height() );
+    
     d->lineEdit->setFocus();
 }
 
@@ -74,7 +86,24 @@ QString QLineDialog::text() const
     return d->lineEdit->text();
 }
 
-void QLineDialog::setText( const QString& text_ )
+void QLineDialog::setText( const QString& text )
 {
-    d->lineEdit->setText( text_ );
+    d->lineEdit->setText( text );
+}
+
+QString QLineDialog::getText( const QString &label, const QString &text,
+			      bool *ok, QWidget *parent, const char *name )
+{
+    QLineDialog *dlg = new QLineDialog( label, parent, name, TRUE );
+    dlg->setCaption( tr( "Enter a text" ) );
+    dlg->setText( text );
+    bool ok_ = FALSE;
+    QString result;
+    ok_ = dlg->exec() == QDialog::Accepted;
+    if ( ok )
+	*ok = ok_;
+    if ( ok_ )
+	result = dlg->text();
+    delete dlg;
+    return result;
 }

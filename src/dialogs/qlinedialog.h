@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qlinedialog.h#2 $
+** $Id: //depot/qt/main/src/dialogs/qlinedialog.h#3 $
 **
 ** Definition of QFileDialog class
 **
@@ -29,19 +29,21 @@
 #include <qdialog.h>
 #include <qstring.h>
 
-class QLineEdit;
 struct QLineDialogPrivate;
 
 class QLineDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QLineDialog( const QString& label, QWidget* parent = 0, const char* name = 0, bool modal = TRUE );
+    QLineDialog( const QString &label, QWidget* parent = 0, const char* name = 0, bool modal = TRUE );
     ~QLineDialog();
 
     QString text() const;
-    virtual void setText( const QString& );
+    virtual void setText( const QString &text );
 
+    static QString getText( const QString &label, const QString &text = QString::null,
+			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
+    
 private:
     QLineDialogPrivate *d;
 
