@@ -67,6 +67,7 @@ private:
 
     void initializeListBox(DomWidget *w);
     void initializeListView(DomWidget *w);
+    void initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
 
 private:
     Driver *driver;

@@ -648,8 +648,12 @@ void WriteInitialization::initializeListView(DomWidget *w)
             output << option.indent << varName << "->header()->setResizeEnabled(false, " << varName << "->header()->count() - 1);\n";
     }
 
+    initializeListViewItems(className, varName, w->elementItem());
+}
+
+void WriteInitialization::initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
+{
     // items
-    QList<DomItem*> items = w->elementItem();
     for (int i=0; i<items.size(); ++i) {
         DomItem *item = items.at(i);
 
@@ -663,6 +667,10 @@ void WriteInitialization::initializeListView(DomWidget *w)
             if (p->attributeName() == QLatin1String("text"))
                 output << option.indent << itemName << "->setText(" << i << ", "
                        << trCall(p->elementString(), className) << ");\n";
+        }
+
+        if (item->elementItem().size()) {
+            initializeListViewItems(className, itemName, item->elementItem());
         }
     }
 }

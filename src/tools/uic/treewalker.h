@@ -40,6 +40,7 @@ class DomActionGroup;
 class DomActionRef;
 class DomImages;
 class DomImage;
+class DomItem;
 
 struct TreeWalker
 {
