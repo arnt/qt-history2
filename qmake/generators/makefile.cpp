@@ -398,7 +398,7 @@ MakefileGenerator::init()
 		v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
 	}
 	QString currentDir = QDir::currentDirPath();
-	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_DIR"), QString("DESTDIR"), QString::null };
+	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_DIR"), QString("DESTDIR"), QString("SUBLIBS_DIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
 	    if ( !v[dirs[x]].isEmpty() ) {
 		{

@@ -267,10 +267,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "####### Build rules" << endl << endl;
     if(!project->variables()["SUBLIBS"].isEmpty()) {
+	QString libdir = "tmp/";
+	if(!project->isEmpty("SUBLIBS_DIR"))
+	    libdir = project->first("SUBLIBS_DIR");
 	t << "SUBLIBS= ";
 	QStringList &l = project->variables()["SUBLIBS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it)
-	    t << "tmp/lib" << (*it) << ".a ";
+	    t << libdir << "lib" << (*it) << ".a ";
 	t << endl << endl;
     }
     if(project->isActiveConfig("depend_prl") && !project->isEmpty("QMAKE_PRL_INTERNAL_FILES")) {
@@ -581,9 +584,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << varGlue("CLEAN_FILES","\t-rm -f "," ","") << endl << endl;
     t << "####### Sub-libraries" << endl << endl;
     if ( !project->variables()["SUBLIBS"].isEmpty() ) {
+	QString libdir = "tmp/";
+	if(!project->isEmpty("SUBLIBS_DIR"))
+	    libdir = project->first("SUBLIBS_DIR");
 	QStringList &l = project->variables()["SUBLIBS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it)
-	    t << "tmp/lib" << (*it) << ".a" << ":\n\t"
+	    t << libdir << "lib" << (*it) << ".a" << ":\n\t"
 	      << var(QString("MAKELIB") + (*it)) << endl << endl;
     }
 
@@ -628,21 +634,28 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << "SUBDIRS =	" << varList("SUBDIRS") << endl;
 
     // subdirectory targets are sub-directory
-    t << "SUBTARGETS =	";
+    QStringList::Iterator it;
     QStringList subdirs = project->variables()["SUBDIRS"];
-    QStringList::Iterator it = subdirs.begin();
-    while (it != subdirs.end())
-	t << " \\\n\t\tsub-" << *it++;
+    t << "SUBTARGETS =	";
+    for(it = subdirs.begin(); it != subdirs.end(); ++it) {
+	QString sr = (*it);
+	sr.replace(QRegExp("/"), "-");
+	t << " \\\n\t\tsub-" << sr;
+    }
     t << endl << endl;
 
-    t << "all: " << ofile << " $(SUBTARGETS)" << endl << endl;
+    t << "first all: " << ofile << " $(SUBTARGETS)" << endl << endl;
 
     // generate target rules
-    it = subdirs.begin();
-    while (it != subdirs.end()) {
-	t << "sub-" << *it << ": qmake_all FORCE" << "\n\t"
-	  << "cd " << *it << " && $(MAKE)" << endl << endl;
-	it++;
+    for(it = subdirs.begin(); it != subdirs.end(); ++it) {
+	QString sr = (*it), mkfile = (*it) + Option::dir_sep + "$(MAKEFILE)";
+	sr.replace(QRegExp("/"), "-");
+	//qmake it
+	t << mkfile << ": " << "\n\t"
+	  << "cd " << (*it) << " && $(QMAKE) -o $(MAKEFILE)" << endl;
+	//actually compile/
+	t << "sub-" << sr << ": " << mkfile << " FORCE" << "\n\t"
+	  << "cd " << *(it) << " && $(MAKE) -f $(MAKEFILE)" << endl << endl;
     }
 
     if (project->isActiveConfig("ordered")) {
@@ -662,18 +675,20 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     writeMakeQmake(t);
 
     if(project->isEmpty("SUBDIRS")) {
-	t << "qmake_all distclean install uiclean mocclean clean: FORCE" << endl;
+	t << "all qmake_all distclean install uiclean mocclean clean: FORCE" << endl;
     } else {
-	t << "qmake_all:" << "\n\t"
-	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; pro=`basename $$i`.pro ; "
-	  << "[ ! -f $(MAKEFILE) ] && $(QMAKE) $$pro -o $(MAKEFILE); "
-	  << "grep \"^qmake_all:$$\" $$pro 2>/dev/null >/dev/null && "
+	t << "qmake_all: " << varGlue("SUBDIRS", "", Option::dir_sep + "$(MAKEFILE) ", 
+				      Option::dir_sep + "$(MAKEFILE)") << "\n\t"
+	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
+	  << "grep \"^qmake_all:\" $(MAKEFILE) 2>/dev/null >/dev/null && "
 	  << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
-	
+
 	t <<"install uiclean mocclean clean:" << " FORCE\n\t"
-	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) $@; fi; ) ; done" << endl;
+	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
+	    "-f $(MAKEFILE) $@; fi; ) ; done" << endl;
 	t <<"distclean:" << " FORCE\n\t"
-	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) $@ ; rm -f $(MAKEFILE) ; fi; ) ; done" 
+	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
+	    "-f $(MAKEFILE) $@ ; rm -f $(MAKEFILE) ; fi; ) ; done" 
 	  << endl << endl;
     }
     t <<"FORCE:" << endl << endl;
