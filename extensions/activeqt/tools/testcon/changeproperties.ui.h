@@ -172,8 +172,10 @@ void ChangeProperties::editRequestChanged( QCheckListItem *item )
 {
     if ( !item )
 	return;
+    /*
     QString property = item->text();
     activex->setPropertyWritable(property.latin1(), item->isOn());
+    */
 }
 
 
