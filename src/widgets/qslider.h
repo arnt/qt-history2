@@ -144,6 +144,7 @@ private:	// Disabled copy constructor and operator=
     QSlider( const QSlider & );
     QSlider &operator=( const QSlider & );
 #endif
+    friend class QMacStyleCG;
 };
 
 inline bool QSlider::tracking() const
