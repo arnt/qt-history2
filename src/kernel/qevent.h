@@ -262,6 +262,18 @@ public:
 	: QInputEvent(Close) {}
 };
 
+class Q_GUI_EXPORT QIconDragEvent : public QEvent
+{
+public:
+    QIconDragEvent() 
+	: QEvent(IconDrag), accpt(FALSE) {}
+
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
+protected:
+    bool   accpt;
+};
 
 class Q_GUI_EXPORT QShowEvent : public QEvent
 {

@@ -1419,9 +1419,12 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	    widget->resize(widget->width(), widget->height() - h);
 	break; }
     case inProxyIcon: {
-	QEvent e(QEvent::IconDrag);
+	QIconDragEvent e;
 	QApplication::sendSpontaneousEvent(widget, &e);
-	break; }
+	if(e.isAccepted())
+	    break;
+	//fall through if not accepted
+	}
     case inDrag: {
 	{
 	    QMacBlockingFunction block;

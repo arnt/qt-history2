@@ -1145,6 +1145,54 @@ void QFocusEvent::resetReason()
 
 
 /*!
+   \class QIconDragEvent qevent.h
+   \brief The QIconDragEvent class signals that a main icon drag has begun.
+
+    \ingroup events
+
+    Icon drag events are sent to widgets when the main icon of a window has been dragged away.
+    On Mac OS X this is fired when the proxy icon of a window is dragged off titlebar, in response to
+    this event is is normal to begin using drag and drop.
+
+    \sa QDragManager
+*/
+
+/*!
+    \fn bool QIconDragEvent::isAccepted() const
+
+    Returns TRUE if the receiver of the event has started a drag and 
+    drop operation; otherwise returns FALSE.
+
+    \sa accept(), ignore()
+*/
+
+/*!
+    \fn void QIconDragEvent::accept()
+
+    Sets the accept flag of the icon drag event object.
+
+    Setting the accept flag indicates that the receiver of this event
+    has started a drag and drop oeration.
+
+    The accept flag is \e not set by default.
+
+    \sa ignore(), QWidget::hide()
+*/
+
+/*!
+    \fn void QIconDragEvent::ignore()
+
+    Clears the accept flag of the icon drag object.
+
+    Clearing the accept flag indicates that the receiver of this event
+    has not handled the icon drag as a result other events can be sent.
+
+    The icon drag event is constructed with the accept flag cleared.
+
+    \sa accept()
+*/
+
+/*!
     \class QContextMenuEvent qevent.h
     \brief The QContextMenuEvent class contains parameters that describe a context menu event.
 
