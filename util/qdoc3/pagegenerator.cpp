@@ -79,6 +79,7 @@ void PageGenerator::beginSubPage( const Location& location,
 
 void PageGenerator::endSubPage()
 {
+    outStreamStack.top()->flush();
     delete outStreamStack.top()->device();
     delete outStreamStack.pop();
 }

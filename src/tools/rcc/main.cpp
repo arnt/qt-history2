@@ -407,7 +407,7 @@ main(int argc, char **argv)
 
     bool write_error = false;
     QTextStream out(out_dev);
-    out.setf(QTextStream::showbase|QTextStream::hex);
+    out << hex << showbase;
     out <<  "/****************************************************************************" << endl;
     out << "** Resource object code" << endl;
     out << "**" << endl;

@@ -100,4 +100,6 @@ void ApiGenerator::generateNode(const Node *node, CodeMarker *marker, int indent
         foreach (const Node *child, nodes)
             generateNode(child, marker, indent);
     }
+
+    out.flush();
 }

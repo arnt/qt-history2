@@ -5747,14 +5747,15 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
         if (enc.isEmpty()) {
             enc = encoding.cap(5);
         }
-        if (enc.isEmpty()) {
-            s.setEncoding(QTextStream::UnicodeUTF8);
-        } else {
+        if (enc.isEmpty())
+            s.setCodec(QTextCodec::codecForName("UTF-8"));
+        else
             s.setCodec(QTextCodec::codecForName(enc.toLatin1().data()));
-        }
     } else {
-        s.setEncoding(QTextStream::UnicodeUTF8);
+        s.setCodec(QTextCodec::codecForName("UTF-8"));
     }
+    s.setAutoDetectUnicode(true);
+
     while (n) {
         if (!doc && !(n->isProcessingInstruction()&&n->nodeName()=="xml")) {
             // save doctype after XML declaration

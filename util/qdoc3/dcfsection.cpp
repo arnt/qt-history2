@@ -38,6 +38,7 @@ void generateDcfSubSections( QString indent, QTextStream& out, const DcfSection&
 	}
 	++ss;
     }
+    out.flush();
 }
 
 void generateDcfSections( const DcfSection& rootSect, const QString& fileName,
@@ -61,4 +62,5 @@ void generateDcfSections( const DcfSection& rootSect, const QString& fileName,
     generateDcfSubSections( "", out, rootSect );
 
     out << "</DCF>\n";
+    out.flush();
 }
