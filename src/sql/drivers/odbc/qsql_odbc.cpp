@@ -631,7 +631,7 @@ bool QODBCResult::fetchLast()
 	while ( fetchNext() ) 
 	    ++i;
 	setAt( i );
-	return;
+	return TRUE;
     }
     
     r = SQLFetchScroll( d->hStmt,
