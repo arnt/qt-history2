@@ -1,0 +1,43 @@
+diff -uwr template/Makefile hpux-cc-shared/Makefile
+--- template/Makefile	Thu Aug 22 19:08:20 1996
++++ hpux-cc-shared/Makefile	Thu Aug 22 19:07:12 1996
+@@ -4,8 +4,8 @@
+ # Read PORTING for instructions how to port Qt to a new platform.
+ #
+ 
+-CC	= gcc
+-CFLAGS	= -O2 -fno-strength-reduce -Wall
++CC	= CC
++CFLAGS	= -O -w
+ LFLAGS	= -lqt
+ 
+ all: moc library tutorial examples
+diff -uwr template/library/Makefile hpux-cc-shared/library/Makefile
+--- template/library/Makefile	Thu Aug 22 19:41:49 1996
++++ hpux-cc-shared/library/Makefile	Thu Aug 22 19:46:41 1996
+@@ -76,7 +76,7 @@
+ .SUFFIXES: .cpp
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) +z $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ 
+@@ -85,14 +85,8 @@
+ # Creates the library when all files have been compiled
+ 
+ library: $(OBJECTS) $(METAOBJ)
+-	-rm -f ../../../lib/libqt.so.${VERSION}
+-	$(CC) -shared -Wl,-soname,libqt.so.0 \
+-		-o ../../../lib/libqt.so.$(VERSION) \
+-		$(OBJECTS) $(METAOBJ) -lX11
+-	-rm -f ../../../lib/libqt.so
+-	-ln -sf libqt.so.$(VERSION) ../../../lib/libqt.so
+-	-rm -f ../../../lib/libqt.so.0
+-	-ln -s libqt.so.$(VERSION) ../../../lib/libqt.so.0
++	-rm -f ../../../lib/libqt.sl
++	$(CC) -b -o ../../../lib/libqt.sl $(OBJECTS) $(METAOBJ) -lX11
+ 
+ depend:
+ 	makedepend $(SOURCES) 2> /dev/null
