@@ -32,8 +32,8 @@
 CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, DesignerInterface *i )
     : Editor( fn, parent, name ), dIface( i )
 {
-	if ( dIface )
-		dIface->addRef();
+    if ( dIface )
+	dIface->addRef();
     document()->setPreProcessor( new SyntaxHighlighter_CPP );
     document()->setIndent( new CIndent );
     completion = new CppEditorCompletion( this );
@@ -46,8 +46,8 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
 
 CppEditor::~CppEditor()
 {
-	if ( dIface )
-	    dIface->release();
+    if ( dIface )
+	dIface->release();
 }
 
 void CppEditor::configChanged()
@@ -90,8 +90,8 @@ QPopupMenu *CppEditor::createPopupMenu()
 
 void CppEditor::addInclDecl()
 {
-	if ( !dIface )
-		return;
+    if ( !dIface )
+	return;
     QString s = QInputDialog::getText( tr( "Add Include File (In Declaration)" ),
 				       tr( "You should input that in the form <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
     if ( s.isEmpty() )
@@ -104,8 +104,8 @@ void CppEditor::addInclDecl()
 
 void CppEditor::addInclImpl()
 {
-	if ( !dIface )
-		return;
+    if ( !dIface )
+	return;
     QString s = QInputDialog::getText( tr( "Add Include File (In Implementation)" ),
 				       tr( "You should input that in the form <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
     if ( s.isEmpty() )
@@ -118,10 +118,12 @@ void CppEditor::addInclImpl()
 
 void CppEditor::addForward()
 {
-	if ( !dIface )
-		return;
+    if ( !dIface )
+	return;
     QString s = QInputDialog::getText( tr( "Add Forward Declaration" ),
 				       tr( "You should input that in the form <b>ClassName;</b>" ) );
+    if ( s.isEmpty() )
+	return;
     DesignerFormWindow *form = dIface->currentForm();
     QStringList lst = form->forwardDeclarations();
     lst << s;
@@ -130,10 +132,12 @@ void CppEditor::addForward()
 
 void CppEditor::addVar()
 {
-	if ( !dIface )
-		return;
+    if ( !dIface )
+	return;
     QString s = QInputDialog::getText( tr( "Add Class Variable" ),
 				       tr( "You should input that in the form <b>type var;</b>" ) );
+    if ( s.isEmpty() )
+	return;
     DesignerFormWindow *form = dIface->currentForm();
     QStringList lst = form->variables();
     lst << s;
