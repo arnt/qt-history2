@@ -118,6 +118,11 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h \
+		  $$KERNEL_H/qdom.h \
+		  $$KERNEL_H/qxml.h \
+		  $$KERNEL_H/qurlinfo.h \
+		  $$KERNEL_H/qurl.h \
+		  $$KERNEL_H/qnetprotocol.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
@@ -343,6 +348,12 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwmatrix.cpp \
+		  kernel/qdom.cpp \
+		  kernel/qdomext.cpp \
+		  kernel/qxml.cpp \
+		  kernel/qurl.cpp \
+		  kernel/qurlinfo.cpp \
+		  kernel/qnetprotocol.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qcdestyle.cpp \
