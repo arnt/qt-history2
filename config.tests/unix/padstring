@@ -4,11 +4,11 @@ LEN="$1"
 STR="$2"
 PAD="$3"
 STRLEN=`echo $STR | wc -c`
-echo "$STR\c"
+RES="$STR"
     
 EXTRALEN=`expr $LEN - $STRLEN`
 while [ "$EXTRALEN" -gt 0 ]; do
-   echo "$PAD\c"
+   RES="$RES$PAD"
    EXTRALEN=`expr $EXTRALEN - 1`
 done
-echo #return
+echo $RES #return
