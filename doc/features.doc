@@ -92,9 +92,33 @@ The available options are:
     Allows scripting of Qt-based applications.
 
 <tr><th colspan=3>Qt/Embedded-specific
+
 <tr><td valign=top>QWS_CURSOR <td valign=top>
     The cursor sprite on Qt/Embedded. Pen-operated devices would not
     normally need this feature.
+
+<tr><td valign=top>QWS_DEPTH_8GRAYSCALE <td valign=top>
+    8-bit-per-pixel - 256 levels of gray.
+    Incompatible with QWS_DEPTH_8
+
+<tr><td valign=top>QWS_DEPTH_8
+    8-bit-per-pixel - 216-color color-cube with 40 auxiliary colors.
+    Incompatible with QWS_DEPTH_8GRAYSCALE.
+
+<tr><td valign=top>QWS_DEPTH_15
+    15-bit-per-pixel - 32 levels each of Red, Blue, and Green.
+
+<tr><td valign=top>QWS_DEPTH_16
+    16-bit-per-pixel - 32 levels each of Red and Blue, 64 of Green.
+
+<tr><td valign=top>QWS_DEPTH_32
+    32-bit-per-pixel - 256 levels for each of Red, Green, and Blue.
+
+<tr><td valign=top>QWS_MACH64 <td valign=top>
+    Mach64 accelerated driver (demonstration only)
+
+<tr><td valign=top>QWS_VFB <td valign=top>
+    Virtual framebuffer running on X11 (see reference documentation).
 
 <tr><th colspan=3>Networking
 <tr><td valign=top>NETWORKPROTOCOL <td valign=top>

@@ -982,13 +982,13 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 
     gettimeofday( &watchtime, 0 );
 
-    if( qt_is_gui_used )
-	init_display();
-
     if ( type == QApplication::GuiServer ) {
 	qws_single_process = TRUE;
 	QWSServer::startup(flags);
     }
+
+    if( qt_is_gui_used )
+	init_display();
 }
 
 

@@ -73,7 +73,14 @@
 
 #define QT_FEATURE_PROPERTIES		1
 
-#define QT_FEATURE_QWS_CURSOR		1
+#define QT_FEATURE_QWS_CURSOR		1 && defined(_WS_QWS)
+#define QT_FEATURE_QWS_MACH64		0 && defined(_WS_QWS)
+#define QT_FEATURE_QWS_VFB		1 && defined(_WS_QWS)
+#define QT_FEATURE_QWS_DEPTH_8GRAYSCALE	0 && defined(_WS_QWS)
+#define QT_FEATURE_QWS_DEPTH_8		1 && defined(_WS_QWS)
+#define QT_FEATURE_QWS_DEPTH_15		0 && defined(_WS_QWS)
+#define QT_FEATURE_QWS_DEPTH_16		1 && defined(_WS_QWS)
+#define QT_FEATURE_QWS_DEPTH_32		1 && defined(_WS_QWS)
 
 // network
 #define QT_FEATURE_NETWORKPROTOCOL	1
