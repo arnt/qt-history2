@@ -7,6 +7,12 @@
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
+// 1) need to specify POSIX thread interfaces explicitly in glibc 2.0
+// 2) it seems older glibc need this to include the X/Open stuff
+#ifndef _GNU_SOURCE
+#  define _GNU_SOURCE
+#endif
+
 // DNS system header files are a mess!
 // <resolv.h> includes <arpa/nameser.h>. <arpa/nameser.h> is using
 // 'u_char' and includes <sys/types.h>.  Now the problem is that
