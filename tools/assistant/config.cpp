@@ -142,7 +142,7 @@ void Config::load( const QString &name )
 	}
     }
 
-    const QString profkey = key + profName + "/";
+    const QString profkey = key + "Profile/" + profName + "/";
 
     webBrows = settings.readEntry( key + "Webbrowser" );
     home = settings.readEntry( profkey + "Homepage" );
@@ -187,7 +187,7 @@ void Config::save()
 void Config::saveSettings()
 {
     const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
-    const QString profkey = key + profil->props["name"] + "/";
+    const QString profkey = key + "Profile/" + profil->props["name"] + "/";
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
