@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#35 $
 **
 ** Implementation of QTableView class
 **
@@ -19,7 +19,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#35 $");
 
 
 const int sbDim = 16;
@@ -1303,7 +1303,8 @@ void QTableView::paintEvent( QPaintEvent *e )
 	    cellR.setRect( xPos, yPos, cellW ? cellW : cellWidth(col),
 				       cellH ? cellH : cellHeight(row) );
 	    cellUR = cellR.intersect( updateR );
-	    cellUpdateR.setRect( 0, 0, cellUR.width(), cellUR.height() );
+	    cellUpdateR = cellUR;
+	    cellUpdateR.moveBy( -xPos, -yPos ); // cell coordinates
 	    if ( eraseInPaint )
 		paint.eraseRect( cellUR );
 
