@@ -1,4 +1,4 @@
-#include "../../designer/filteriface.h"
+#include "../designerinterface.h"
 
 #include <qcleanuphandler.h>
 #include <qapplication.h>
