@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#30 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1047,7 +1047,7 @@ Returns TRUE if the widget's preferred height depends on its width.
 */
 
 
-/*! \fn bool QSizePolicy::setHeightForWidth( bool b )
+/*! \fn void QSizePolicy::setHeightForWidth( bool b )
 Sets the hasHeightForWidth() flag to \a b.
 */
 
