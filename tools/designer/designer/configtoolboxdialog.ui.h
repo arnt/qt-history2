@@ -14,6 +14,7 @@
 #include "widgetaction.h"
 #include "listviewdnd.h"
 #include <qlistview.h>
+#include <qdict.h>
 
 void ConfigToolboxDialog::init()
 {

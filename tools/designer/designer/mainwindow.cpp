@@ -110,6 +110,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE ), autoSaveEnabled( FALSE ), autoSaveInterval( 1800 )
 {
+    qDebug("----> new mainwindow");
     extern void qInitImages_designercore();
     qInitImages_designercore();
 

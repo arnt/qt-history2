@@ -280,22 +280,18 @@ void NewForm::insertTemplates( QIconView *tView,
 	}
 	if ( !templPath.isEmpty() ) {
 	    QDir dir( templPath  );
-	    const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
-	    if ( filist ) {
-		QFileInfoListIterator it( *filist );
-		QFileInfo *fi;
-		while ( ( fi = it.current() ) != 0 ) {
-		    ++it;
-		    if ( !fi->isFile() || fi->extension() != "ui" )
-			continue;
-		    QString name = fi->baseName();
-		    name = name.replace( '_', ' ' );
-		    CustomFormItem *ci = new CustomFormItem( tView, name );
-		    allItems.append( ci );
-		    ci->setDragEnabled( FALSE );
-		    ci->setPixmap( QPixmap::fromMimeSource( "designer_newform.png" ) );
-		    ci->setTemplateFile( fi->absFilePath() );
-		}
+	    QFileInfoList filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
+	    for (int i = 0; i < filist.size(); ++i) {
+		QFileInfo fi = filist.at(i);
+		if ( !fi.isFile() || fi.extension() != "ui" )
+		    continue;
+		QString name = fi.baseName();
+		name = name.replace( '_', ' ' );
+		CustomFormItem *ci = new CustomFormItem( tView, name );
+		allItems.append( ci );
+		ci->setDragEnabled( FALSE );
+		ci->setPixmap( QPixmap::fromMimeSource( "designer_newform.png" ) );
+		ci->setTemplateFile( fi.absFilePath() );
 	    }
 	}
     }

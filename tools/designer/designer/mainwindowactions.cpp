@@ -2013,6 +2013,7 @@ void MainWindow::toolsConfigure()
 
 void MainWindow::showStartDialog()
 {
+    qDebug("showStartDialog called");
     if ( singleProjectMode() )
 	return;
     for ( int i = 1; i < qApp->argc(); ++i ) {
