@@ -474,7 +474,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			    }
 			}
 		    }
-		    if(fqn.isEmpty()) { //is it a moc file?
+		    if(fqn.isEmpty() && mocAware()) { //is it a moc file?
 			QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null };
 			for(int moc = 0; fqn.isEmpty() && !mocs[moc].isNull(); moc++) {
 			    QStringList &l = project->variables()[mocs[moc]];
@@ -486,6 +486,12 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 				    if(mocs[moc] == "_HDRMOC") {
 					project->variables()["_SRCMOC"].append((*it));
 					l.remove(it);
+				    } else if(findMocSource(fqn) != fn) {
+					/* Not really a very good test, but this will at least avoid confusion
+					   if it really does happen (since tmake/qmake previously didn't even 
+					   allow this the test is mostly accurate) */
+					warn_msg(WarnLogic, "Found potential multiple MOC include (%s) in '%s'",
+						 fqn.latin1(), fn.latin1());
 				    }
 				    break;
 				}
