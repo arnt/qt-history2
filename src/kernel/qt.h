@@ -304,6 +304,7 @@
 #include <private/qwidgetresizehandler_p.h>
 #include <private/qlibrary_p.h>
 #include <private/qlock_p.h>
+#include <private/qdialogbuttons_p.h>
 #endif // Private headers
 
 
