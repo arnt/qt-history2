@@ -152,7 +152,7 @@ public:
 
     QMouseEvent( Type type, const QPoint &pos, const QPoint&globalPos,
 		 int button, int state )
-	: QEvent(type), p(pos), g(globalPos), b(button),s((ushort)state),accpt(TRUE) {};
+	: QEvent(type), p(pos), g(globalPos), b((ushort)button),s((ushort)state),accpt(TRUE) {};
 
     const QPoint &pos() const	{ return p; }
     const QPoint &globalPos() const { return g; }
