@@ -115,6 +115,11 @@ QMutex *qt_mac_port_mutex = NULL;
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
+static struct {
+    int last_modifiers, last_button;
+    EventTime last_time;
+    bool active, use_qt_time_limit;
+} qt_mac_dblclick = { 0, 0, -2, 0, 0 };
 static int mouse_button_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
@@ -1849,6 +1854,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			}
 			qt_button_down = NULL;
 			mouse_button_state = 0;
+			qt_mac_dblclick.active = FALSE;
 #ifdef DEBUG_MOUSE_MAPS
 			qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, 
 			       mouse_button_state);
@@ -1909,13 +1915,24 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	switch(ekind) {
 	case kEventMouseDown:
 	{
-	    UInt32 count;
-	    GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
-			      sizeof(count), NULL, &count);
-	    if(!(count % 2))
-		etype = QEvent::MouseButtonDblClick;
-	    else
-		etype = QEvent::MouseButtonPress;
+	    etype = QEvent::MouseButtonPress;
+	    if(qt_mac_dblclick.active) {
+		if(qt_mac_dblclick.use_qt_time_limit) {
+		    EventTime now = GetEventTime(event);
+		    if(qt_mac_dblclick.last_time != -2 && 
+		       now - qt_mac_dblclick.last_time <= doubleClickInterval())
+			etype = QEvent::MouseButtonDblClick;
+		} else {
+		    UInt32 count;
+		    GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
+				      sizeof(count), NULL, &count);
+		    if(!(count % 2) && qt_mac_dblclick.last_modifiers == keys && 
+		       qt_mac_dblclick.last_button == button)
+			etype = QEvent::MouseButtonDblClick;
+		}
+		if(etype == QEvent::MouseButtonDblClick)
+		    qt_mac_dblclick.active = FALSE;
+	    }
 	    after_state = button;
 	    break;
 	}
@@ -1995,7 +2012,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    QPoint p(where.h, where.v);
 	    QPoint plocal(popupwidget->mapFromGlobal(p));
 	    bool was_context = FALSE;
-	    if(etype == QEvent::MouseButtonPress &&
+	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
@@ -2104,26 +2121,39 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    QPoint p(where.h, where.v );
 	    QPoint plocal(widget->mapFromGlobal(p));
 	    bool was_context = FALSE;
-	    if(etype == QEvent::MouseButtonPress &&
+	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
 		QApplication::sendSpontaneousEvent(widget, &cme);
 		was_context = cme.isAccepted();
 	    }
-	    if(!was_context) {
 #ifdef DEBUG_MOUSE_MAPS
-		char *desc = NULL;
+	    char *event_desc = NULL;
+	    if(was_context) {
+		event_desc = "Context Menu";
+	    } else if(etype == QEvent::MouseButtonDblClick) {
+		event_desc = "Double Click";
+	    } else {
 		switch(ekind) {
-		case kEventMouseDown: desc = "MouseButtonPress"; break;
-		case kEventMouseUp: desc = "MouseButtonRelease"; break;
-		case kEventMouseDragged: case kEventMouseMoved: desc = "MouseMove"; break;
-		case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
+		case kEventMouseDown: event_desc = "MouseButtonPress"; break;
+		case kEventMouseUp: event_desc = "MouseButtonRelease"; break;
+		case kEventMouseDragged: 
+		case kEventMouseMoved: event_desc = "MouseMove"; break;
+		case kEventMouseWheelMoved: event_desc = "MouseWheelMove"; break;
 		}
-		qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(),
-		       plocal.x(), plocal.y(), desc, widget->name(), widget->className(),
-		       button, state|keys, wheel_delta);
+	    }
+	    qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(),
+		   plocal.x(), plocal.y(), event_desc, widget->name(), widget->className(),
+		   button, state|keys, wheel_delta);
 #endif
+	    if(!was_context) {
+		if(etype == QEvent::MouseButtonPress) {
+		    qt_mac_dblclick.active = TRUE;
+		    qt_mac_dblclick.last_modifiers = keys;
+		    qt_mac_dblclick.last_button = button;
+		    qt_mac_dblclick.last_time = GetEventTime(event);
+		}
 		if(wheel_delta) {
 		    QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
 		    QApplication::sendSpontaneousEvent(widget, &qwe);
@@ -2621,13 +2651,13 @@ int QApplication::cursorFlashTime()
 
 void QApplication::setDoubleClickInterval( int ms )
 {
+    qt_mac_dblclick.use_qt_time_limit = 1;
     mouse_double_click_time = ms;
 }
 
-//FIXME: What is the default value on the Mac?
 int QApplication::doubleClickInterval()
 {
-    return mouse_double_click_time;
+    return mouse_double_click_time; //FIXME: What is the default value on the Mac?
 }
 
 void QApplication::setWheelScrollLines( int n )
@@ -2785,7 +2815,8 @@ bool QApplication::qt_mac_apply_settings()
 
     num = settings.readNumEntry("/qt/doubleClickInterval",
 				QApplication::doubleClickInterval());
-    QApplication::setDoubleClickInterval(num);
+    if(num != QApplication::doubleClickInterval())
+	QApplication::setDoubleClickInterval(num);
 
     num = settings.readNumEntry("/qt/cursorFlashTime",
 				QApplication::cursorFlashTime());
