@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#20 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#20 $");
 
 
 // QPrinter states
@@ -144,8 +144,8 @@ bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
 	ASSERT( hdc != 0 );
 	if ( c == PDC_DRAWPIXMAP ) {		// can't bitblt pixmaps
 	    QPoint pos = *p[0].point;
-	    const QPixmap *pm = p[1].pixmap;
 #if 0
+	    const QPixmap *pm = p[1].pixmap;
 	    HANDLE hdcMem = CreateCompatibleDC( hdc );
 	    HANDLE hbmOld = SelectObject( hdcMem, pm->hbm() );
 	    if ( paint && paint->hasWorldXForm() ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#83 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#83 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
@@ -471,8 +471,10 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	extra->winIcon = CreateIconIndirect( &ii );
 	DeleteObject( im );
     }
-    SendMessage( winId(), WM_SETICON, ICON_SMALL, (long)extra->winIcon );
-    SendMessage( winId(), WM_SETICON, ICON_BIG,   (long)extra->winIcon );
+    SendMessage( winId(), WM_SETICON, 0, /* ICON_SMALL */
+		 (long)extra->winIcon );
+    SendMessage( winId(), WM_SETICON, 1, /* ICON_BIG */
+		 (long)extra->winIcon );
 }
 
  
