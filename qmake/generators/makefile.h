@@ -32,6 +32,7 @@ class MakefileGenerator
     QStringList createObjectList(const QString &var);
     QString build_args();
     QString dependencyKey(const QString &file) const;
+    void checkMultipleDefinition(const QString &, const QString &);
     QMap<QString, bool> depProcessed;
     QMap<QString, QString> depHeuristics, fileFixed;
     QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
@@ -74,7 +75,6 @@ protected:
 
     void setMocAware(bool o);
     bool mocAware() const;
-    void logicWarn(const QString &, const QString &);
 
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
     bool writeHeader(QTextStream &);

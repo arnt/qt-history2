@@ -3,6 +3,8 @@
    qmake has been changed to allow features to be introduced without changes to
    C++ sources (ie project files).
 
+   DEPENDS supported to allow hard coded dependencies (when qmake's depend are inadaquate)
+
    $$printf() added to allow easy expansion of complex strings (using %1..%n)
 
    for() iteration has been introduced to do simple looping in a qmake script. 
