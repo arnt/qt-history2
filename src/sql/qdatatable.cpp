@@ -2118,6 +2118,32 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
 }
 
 /*!
+    \reimp
+*/
+
+void QDataTable::swapColumns( int col1, int col2, bool )
+{
+    QString fld = d->fld[ col1 ];
+    QString fldLabel = d->fldLabel[ col1 ];
+    QIconSet fldIcon = d->fldIcon[ col1 ];
+    int fldWidth = d->fldWidth[ col1 ];
+    
+    d->fld[ col1 ] = d->fld[ col2 ];
+    d->fldLabel[ col1 ] = d->fldLabel[ col2 ];
+    d->fldIcon[ col1 ] = d->fldIcon[ col2 ];
+    d->fldWidth[ col1 ] = d->fldWidth[ col2 ];
+
+    d->fld[ col2 ] = fld;
+    d->fldLabel[ col2 ] = fldLabel;
+    d->fldIcon[ col2 ] = fldIcon;
+    d->fldWidth[ col2 ] = fldWidth;
+    
+    int colIndex = d->colIndex[ col1 ];
+    d->colIndex[ col1 ] = d->colIndex[ col2 ];
+    d->colIndex[ col2 ] = colIndex;
+}
+
+/*!
     \fn void QDataTable::currentChanged( QSqlRecord* record )
 
     This signal is emitted whenever a new row is selected in the

@@ -168,6 +168,7 @@ public slots:
     void setColumnWidth( int col, int w );
     void adjustColumn( int col );
     void setColumnStretchable( int col, bool stretch );
+    void swapColumns( int col1, int col2, bool swapHeaders = FALSE );
 
 protected:
     virtual bool insertCurrent();
