@@ -363,7 +363,7 @@ public:
 
 #ifndef QT_NO_XFTFREETYPE
     XftPattern *findXftFont(const QChar &, bool *) const;
-    XftPattern *bestXftPattern(const QString &, const QString &) const;
+    XftPattern *bestXftPattern(const QString &, const QString &, const QChar &) const;
 #endif // QT_NO_XFTFREETYPE
     QCString findFont(QFont::Script, bool *) const;
     QCString findXftFont(QFont::Script, bool *) const;

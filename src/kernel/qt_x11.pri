@@ -4,7 +4,7 @@ unix {
 	!xftfreetype:DEFINES += QT_NO_XFTFREETYPE
 	!xkb:DEFINES += QT_NO_XKB
 	xftnameunparse:DEFINES += QT_NO_XFTNAMEUNPARSE
-	xftnameunparse:SOURCES += $$KERNEL_CPP/qtaddons_x11.cpp
+	SOURCES += $$KERNEL_CPP/qtaddons_x11.cpp
 }
 
 nas {

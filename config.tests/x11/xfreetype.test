@@ -74,6 +74,23 @@ then
     fi
 fi
 
+XFTCOMPAT_H=
+if [ "$XFREETYPE" = "yes" ]
+then
+    INC="X11/Xft/XftCompat.h"
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
+    INCDIRS="$IN_INCDIRS $XDIRS /usr/include /include"
+    for INCDIR in $INCDIRS
+    do
+	if [ -f $INCDIR/$INC ]
+	then
+	    XFTCOMPAT_H=$INCDIR/$INC
+	    [ "$VERBOSE" = "yes" ] && echo "  Found $INC in $INCDIR"
+	    break
+	fi
+    done
+fi
+
 if [ "$XFREETYPE" = "yes" ]
 then
     INC="X11/Xft/XftFreetype.h"
@@ -99,12 +116,16 @@ fi
 
 # check for XftNameUnparse in X11/Xft/Xft.h
 XFTNAMEUNPARSE=yes
-if [ "$XFREETYPE" = "yes" ] && [ -f "$XFT_H" ]
+if [ "$XFREETYPE" = "yes" ] && [ -f "$XFTCOMPAT_H" ]
 then
-    grep XftNameUnparse $XFT_H >/dev/null || XFTNAMEUNPARSE=no
-    [ "$XFTNAMEUNPARSE" = "no" ] && echo "xftnameunparse" > $x11tests/xfreetype.cfg
+   ;
+else
+    if [ "$XFREETYPE" = "yes" ] && [ -f "$XFT_H" ]
+    then
+        grep XftNameUnparse $XFT_H >/dev/null || XFTNAMEUNPARSE=no
+        [ "$XFTNAMEUNPARSE" = "no" ] && echo "xftnameunparse" > $x11tests/xfreetype.cfg
+    fi
 fi
-
 
 #check for freetype2 headers
 FREETYPE2_INCDIR=

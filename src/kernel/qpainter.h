@@ -382,7 +382,7 @@ protected:
     Display    *dpy;				// current display
     int		scrn;				// current screen
     Qt::HANDLE	hd;				// handle to drawable
-    Qt::HANDLE  rendhd;				// handle to Render Picture
+    Qt::HANDLE  rendhd;				// handle to Xft draw
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point

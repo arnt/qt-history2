@@ -140,10 +140,15 @@ extern "C" {
 #  include <X11/extensions/Xrender.h>
 // #define QT_NO_XFTFREETYPE
 #  ifndef QT_NO_XFTFREETYPE
-#    include <X11/Xft/XftFreetype.h>
+#    include <X11/Xft/Xft.h>
+#    if defined(XFT_VERSION) && XFT_VERSION >= 20000
+#      define QT_XFT2
+#    else
+#      include <X11/Xft/XftFreetype.h>
+#    endif // XFT_VERSION
 #  endif // QT_NO_XFTFREETYPE
 #else
-// make sure QT_NO_XFTTREETYPE is defined if QT_NO_XRENDER is defined
+// make sure QT_NO_XFTFREETYPE is defined if QT_NO_XRENDER is defined
 #  ifndef QT_NO_XFTFREETYPE
 #    define QT_NO_XFTFREETYPE
 #  endif

@@ -296,18 +296,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWinId( id );				// set widget id/handle + hd
     }
 
-#ifndef QT_NO_XRENDER
+#ifndef QT_NO_XFTFREETYPE
     if (rendhd) {
-	XRenderFreePicture(dpy, rendhd);
+	XftDrawDestroy( (XftDraw *) rendhd );
 	rendhd = 0;
     }
 
-    if (qt_use_xrender) {
-	XRenderPictFormat *format = XRenderFindVisualFormat(dpy, (Visual *) x11Visual());
-	if (format)
-	    rendhd = XRenderCreatePicture(dpy, id, format, 0, 0);
-    }
-#endif // QT_NO_XRENDER
+    rendhd = (HANDLE) XftDrawCreate( dpy, id, (Visual *) x11Visual(), x11Colormap() );
+#endif // QT_NO_XFTFREETYPE
 
     // NET window types
     long net_wintypes[4] = { 0, 0, 0, 0 };
@@ -580,12 +576,12 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	else if ( testWFlags(WType_Popup) )
 	    qApp->closePopup( this );
 
-#ifndef QT_NO_XRENDER
+#ifndef QT_NO_XFTFREETYPE
 	if (rendhd) {
-	    XRenderFreePicture(x11Display(), rendhd);
+	    XftDrawDestroy( (XftDraw *) rendhd );
 	    rendhd = 0;
 	}
-#endif // QT_NO_XRENDER
+#endif // QT_NO_XFTFREETYPE
 
 	if ( testWFlags(WType_Desktop) ) {
 	    if ( acceptDrops() )
