@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#39 $
 **
 ** Implementation of QDir class
 **
@@ -14,6 +14,7 @@
 #include "qfiledef.h"
 #include "qregexp.h"
 #include <stdlib.h>
+#include <ctype.h>
 #if defined(_OS_WIN32_)
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -23,11 +24,8 @@
 #include <windows.h>
 #endif
 #endif
-#if defined(_OS_OS2EMX_)
-#include <ctype.h>
-#endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#39 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -741,7 +739,7 @@ const QFileInfoList *QDir::entryInfoList( const char *nameFilter,
 
 bool QDir::mkdir( const char *dirName, bool acceptAbsPath ) const
 {
-#if defined (UNIX)
+#if defined (UNIX) || defined(__CYGWIN32__)
     return MKDIR( filePath(dirName,acceptAbsPath), 0777 ) == 0;
 #else
     return MKDIR( filePath(dirName,acceptAbsPath) ) == 0;

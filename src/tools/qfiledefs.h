@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#22 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#23 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -25,10 +25,15 @@
 # include <unistd.h>
 #endif
 #if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
-# include <io.h>
-# include <dos.h>
-# include <direct.h>
 # define _OS_FATFS_
+# if defined(__CYGWIN32__)
+#  include <dirent.h>
+#  include <unistd.h>
+# else
+#  include <io.h>
+#  include <dos.h>
+#  include <direct.h>
+# endif
 #endif
 #include <limits.h>
 
