@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+
+$targetratio = 0.5;
+$utargetratio = 1.0;
+
+$mode = shift
+ or die "\nUsage:
+
+    $0 [-e] [-u] libraryfile sourcefiles...
+          libraryfile contains symbols for functions found in sourcefiles.
+          output is srcsize:binarysize:functionname
+          sorted by srcsize*$targetratio-binarysize (expected gain from recoding)
+          srcsize is measured from *squished* source code
+
+          -u as above, but without squishing (*$targetratio replaced by *$utargetratio).
+              Comments are still ignored.
+
+          -e (embedded) ignore _x11 rather than _qws files.
+
+    $0 -f function sourcefiles...
+          show source of function as detected in sourcefiles.
+
+    $0 -F function sourcefiles...
+          show *squished* source of function (as measured for size).
+
+    *squished* source code removes spaces and comments, and reduces words
+    and digit sequences to at most 3 characters.
+
+    _mac, _win, and _qws (or _x11 if -e) files are ignored.
+";
+
+sub stdparm {
+    my($x) = @_;
+    $x =~ s/\bQ_LONG\b/long/;
+    $x =~ s/\bQ_ULONG\b/unsigned long/;
+    $x =~ s/\buint\b/unsigned/;
+    $x =~ s/\bushort\b/unsigned short/;
+    $x =~ s/\bconst (\w+)/$1 const/g;
+    $x =~ s/\bunsigned int\b/unsigned/;
+    $x =~ s/^((?:signed|unsigned|const|[*&]| )*)(\w+ *[*&]?) *\b(\w+) *$/$1$2/
+    or $x =~ s/^(\w+)((?:\b(?:const)|[*&]| )*)\b(\w+) *$/$1$2/;
+    $x =~ s/ *$//;
+    $x =~ s/ ([&*])/$1/;
+    return $x;
+}
+
+sub stdparms {
+    my($x) = @_;
+    $x =~ s/ *([^,)]*?) *([,\)])/stdparm($1).($2==','?"$2 ":"$2")/ge;
+    return $x;
+}
+
+sub stdfn {
+    my($x) = @_;
+    $x =~ s/[\n\t]/ /g;
+    $x =~ s/^(\w* )*//; # Ignore return type
+    $x =~ s/, */, /g;
+    $x =~ s/\( */(/g;
+    $x =~ s/ *\)/)/g;
+    $x =~ s/\((.*\))/"(".stdparms($1)/ge;
+    $x =~ s/  */ /g;
+    $x =~ s/ *$//g;
+    return $x;
+}
+
+
+
+
+if ( lc($mode) eq "-f" ) {
+    $findfn = stdfn(shift);
+} elsif ( $mode eq "-u" ) {
+    $lib = shift;
+    $targetratio = $utargetratio;
+} else {
+    $lib = $mode;
+    $mode = "";
+}
+
+for (@ARGV) {
+    next if /_mac\./;
+    next if /_win\./;
+    next if /_qws\./ && !$embedded;
+    next if /_x11\./ && $embedded;
+
+    open F, $_;
+    $c = join("",<F>);
+    $c =~ s{/\*(?:[^\*]+|\*[^\/])+?\*/}{}sg;
+    $c =~ s{//.*}{}g;
+    while ( $c =~ m@\n([\w ]*?::[^};]*?)\n*([:{].*?\n})@gs ) {
+	$f = stdfn($1);
+	$orgbody = $2;
+
+	$body = $orgbody;
+	if ( $mode ne "-u" ) {
+	    # squish
+	    $body =~ s/\s+//g; # ignore spaces
+	    $body =~ s/(\w\w\w)\w*/$1/g; # reduce identifiers and numbers
+	}
+
+	$n = length $body;
+	if ( lc($mode) eq "-f" && $findfn eq $f ) {
+	    print "$n:$f:\n";
+	    print $orgbody if $mode eq "-f";
+	    print $body if $mode eq "-F";
+	}
+	$srcsize{$f} = $n;
+    }
+}
+
+if ( lc($mode) eq "-f" ) {
+    # done
+} else {
+    open NM, "nm -S -C $lib |";
+    while (<NM>) {
+	($a,$s,$t,$f) = $_ =~ /^(\S+) (\S+) (.) (.*)\n/;
+	$f =~ s/ *\[.*\]//;
+	$binsize{$f}=hex($s);
+    }
+
+
+    for $f ((sort {
+	$srcsize{$a}*$targetratio-$binsize{$a}
+	    <=>
+	$srcsize{$b}*$targetratio-$binsize{$b}
+    } grep { $binsize{$_} } keys %srcsize),
+      grep { !$binsize{$_} } keys %srcsize) {
+	print "$srcsize{$f}:$binsize{$f}:$f\n";
+    }
+}
