@@ -42,9 +42,9 @@ extern void qt_init_image_handlers();
 
   \ingroup images
 
-  A QImageConsumer consumes information about changes to the
-  QImage maintained by a QImageDecoder.  It represents the
-  a view of the image which the decoder produces.
+  A QImageConsumer consumes information about changes to the QImage
+  maintained by a QImageDecoder.  It represents the a view of the
+  image which the decoder produces.
 
   \sa QImageDecoder
 */
