@@ -99,7 +99,7 @@ public:
              - columnPositions.at(column) - 2 * padding; }
 
     inline void calcRowPosition(int row)
-    { 
+    {
         if (row > 0)
             rowPositions[row] = rowPositions.at(row - 1) + heights.at(row - 1) + border + cellSpacing + border;
     }
@@ -582,7 +582,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 
     QTextLine firstLine = bl.layout()->lineAt(0);
     Q_ASSERT(firstLine.isValid());
-    QPoint pos = offset 
+    QPoint pos = offset
                  + bl.layout()->rect().topLeft()
                  + QPoint(firstLine.x(), firstLine.y());
 
@@ -1211,7 +1211,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 
                     // ### correct? I guess not...
                     if (align == Qt::AlignAuto)
-                        align == Qt::AlignLeft;
+                        align = Qt::AlignLeft;
                 }
 
                 QPoint pos(layoutStruct->x_left, layoutStruct->y);
