@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#185 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#186 $
 **
 ** Implementation of QFileDialog class
 **
@@ -315,7 +315,7 @@ void QRenameEdit::focusOutEvent( QFocusEvent * )
 }
 
 QFileListBox::QFileListBox( QWidget *parent, QFileDialog *d )
-    : QListBox( parent ), filedialog( d ), renaming( FALSE )
+    : QListBox( parent, "filelistbox" ), filedialog( d ), renaming( FALSE )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -323,6 +323,13 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *d )
              this, SLOT (rename() ) );
     connect( lined, SIGNAL( escapePressed() ),
              this, SLOT( cancelRename() ) );
+}
+
+void QFileListBox::show()
+{
+    setBackgroundMode( NoBackground );
+    viewport()->setBackgroundMode( NoBackground );
+    QListBox::show();
 }
 
 void QFileListBox::keyPressEvent( QKeyEvent *e )
@@ -339,24 +346,26 @@ void QFileListBox::keyPressEvent( QKeyEvent *e )
 void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 {
     cancelRename();
+    if ( !hasFocus() && !viewport()->hasFocus() )
+        setFocus();
 
     if ( e->button() != LeftButton ) {
         QListBox::viewportMousePressEvent( e );
 
         if ( e->button() == RightButton && currentItem() != -1 )
             filedialog->popupContextMenu( item( currentItem() ), mapToGlobal( e->pos() ) );
-        
+
         return;
     }
-    
+
     int i = currentItem();
     QListBox::viewportMousePressEvent( e );
 
     if ( itemAt( e->pos() ) != item( i ) )
         return;
-    
+
     if ( i == currentItem() && currentItem() != -1 &&
-         QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." ) 
+         QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." )
         startRename();
 }
 
@@ -379,7 +388,6 @@ void QFileListBox::startRename()
     lined->setGeometry( x, y, w, h );
     lined->show();
     viewport()->setFocusProxy( lined );
-    setFocusProxy( lined );
     renaming = TRUE;
 }
 void QFileListBox::clear()
@@ -423,10 +431,9 @@ void QFileListBox::cancelRename()
 {
     lined->hide();
     viewport()->setFocusProxy( 0L );
-    setFocusProxy( viewport() );
-    if ( !hasFocus() && !viewport()->hasFocus() )
-        setFocus();
+    setFocusPolicy( StrongFocus );
     renaming = FALSE;
+    updateItem( currentItem() );
 }
 
 QFileListView::QFileListView( QWidget *parent, QFileDialog *d )
@@ -455,6 +462,8 @@ void QFileListView::keyPressEvent( QKeyEvent *e )
 void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 {
     cancelRename();
+    if ( !hasFocus() && !viewport()->hasFocus() )
+        setFocus();
 
     if ( e->button() != LeftButton ) {
         QListView::viewportMousePressEvent( e );
@@ -492,7 +501,6 @@ void QFileListView::startRename()
     lined->setGeometry( x, y, w, h );
     lined->show();
     viewport()->setFocusProxy( lined );
-    setFocusProxy( lined );
     renaming = TRUE;
 }
 
@@ -540,10 +548,10 @@ void QFileListView::cancelRename()
 {
     lined->hide();
     viewport()->setFocusProxy( 0L );
-    setFocusProxy( viewport() );
-    if ( !hasFocus() && !viewport()->hasFocus() )
-        setFocus();
+    setFocusPolicy( StrongFocus );
     renaming = FALSE;
+    if ( currentItem() )
+        currentItem()->repaint();
 }
 
 QString QFileDialogPrivate::File::text( int column ) const
@@ -784,7 +792,7 @@ void QFileDialog::init()
 
     d->stack = new QWidgetStack( this, "files and more files" );
     d->stack->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
-			
+    
     files = new QFileListView( d->stack, this );
     QFontMetrics fm = fontMetrics();
     files->addColumn( tr("Name"), 150 );
@@ -813,6 +821,7 @@ void QFileDialog::init()
                                          const QPoint &, int)) );
 
     files->setFocusPolicy( StrongFocus );
+    //files->viewport()->setFocusPolicy( StrongFocus );
 
     files->installEventFilter( this );
     files->viewport()->installEventFilter( this );
@@ -820,6 +829,7 @@ void QFileDialog::init()
     d->moreFiles = new QFileListBox( d->stack, this );
     d->moreFiles->setFrameStyle( QFrame::NoFrame );
     d->moreFiles->setFocusPolicy( StrongFocus );
+    //d->moreFiles->viewport()->setFocusPolicy( StrongFocus );
     d->moreFiles->setRowMode( QListBox::FitToHeight );
     d->moreFiles->setVariableWidth( TRUE );
 
@@ -959,8 +969,6 @@ void QFileDialog::init()
     setTabOrder( d->types, okB );
     setTabOrder( okB, cancelB );
 
-    nameEdit->setFocus();
-
     setFontPropagation( SameFont );
     setPalettePropagation( SamePalette );
 
@@ -993,6 +1001,8 @@ void QFileDialog::init()
 
         resize( s );
     }
+
+    nameEdit->setFocus();
 }
 
 /*!
@@ -1704,75 +1714,93 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint & p,
         files->setCurrentItem( item );
         files->setSelected( item, TRUE );
     }
-    
+
     QPopupMenu m( files, "file dialog context menu" );
-
-    if ( item && QFileInfo( dirPath() ).isWritable() && item->text( 0 ) != ".." &&
-        !QFileInfo( dirPath() + "/" + item->text( 0 ) ).isDir() ) {
-        int rename = m.insertItem( tr( "&Rename" ) );
-        int del = m.insertItem( tr( "&Delete" ) );
+   
+    int ok = m.insertItem( QFileInfo( dirPath() + "/" + item->text( 0 ) ).isDir() ? tr( "&Open" ) :
+                           ( mode() == AnyFile ? tr( "&Save" ) : tr( "&Open" ) ) );
+    m.insertSeparator();
+    int rename = m.insertItem( tr( "&Rename" ) );
+    int del = m.insertItem( tr( "&Delete" ) );
+    m.insertSeparator();
+    int asc = m.insertItem( tr( "Sort &Ascending" ) );
+    int desc = m.insertItem( tr( "Sort &Descending" ) );
     
-        m.move( p );
-        int res = m.exec();
+    if ( !item || !QFileInfo( dirPath() ).isWritable() ||
+         item->text( 0 ) == ".." ) {
+        if ( item->text( 0 ) != ".." )
+            m.setItemEnabled( ok, FALSE );
+        m.setItemEnabled( rename, FALSE );
+        m.setItemEnabled( del, FALSE );
+    } else if ( !QFileInfo( dirPath() + "/" + item->text( 0 ) ).isFile() )
+        m.setItemEnabled( del, FALSE );
 
-        if ( res == rename )
-            files->startRename();
-        if ( res == del )
-            deleteFile( item );
-        
-    } else {
-        int asc = m.insertItem( tr("&Ascending") );
-        int desc = m.insertItem( tr("&Descending") );
+    m.move( p );
+    int res = m.exec();
 
-        m.move( p );
-        int res = m.exec();
-        if ( res == asc )
-            files->setSorting( c, TRUE );
-        else if ( res == desc )
-            files->setSorting( c, FALSE );
-    }
+    if ( res == ok )
+        selectDirectoryOrFile( item );
+    else if ( res == rename )
+        files->startRename();
+    else if ( res == del )
+        deleteFile( item );
+    else if ( res == asc )
+        files->setSorting( c, TRUE );
+    else if ( res == desc )
+        files->setSorting( c, FALSE );
 }
 
 void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 {
     if ( !item )
         return;
-    
-    QPopupMenu m( d->moreFiles->viewport(), "file dialog context menu" );
-    if ( QFileInfo( dirPath() ).isWritable() && item->text() != ".." &&
-        !QFileInfo( dirPath() + "/" + item->text() ).isDir() ) {
-        int rename = m.insertItem( tr( "&Rename" ) );
-        int del = m.insertItem( tr( "&Delete" ) );
-    
-        m.move( p );
-        int res = m.exec();
 
-        if ( res == rename )
-            d->moreFiles->startRename();
-        if ( res == del )
-            deleteFile( item );
-        
-    }
+    QPopupMenu m( files, "file dialog context menu" );
+   
+    int ok = m.insertItem( QFileInfo( dirPath() + "/" + item->text() ).isDir() ? tr( "&Open" ) :
+                           ( mode() == AnyFile ? tr( "&Save" ) : tr( "&Open" ) ) );
+    m.insertSeparator();
+    int rename = m.insertItem( tr( "&Rename" ) );
+    int del = m.insertItem( tr( "&Delete" ) );
+    
+    if ( !QFileInfo( dirPath() ).isWritable() ||
+         item->text() == ".." ) {
+        if ( item->text() != ".." )
+            m.setItemEnabled( ok, FALSE );
+        m.setItemEnabled( rename, FALSE );
+        m.setItemEnabled( del, FALSE );
+    } else if ( !QFileInfo( dirPath() + "/" + item->text() ).isFile() )
+        m.setItemEnabled( del, FALSE );
+
+    m.move( p );
+    int res = m.exec();
+
+    if ( res == ok )
+        selectDirectoryOrFile( item );
+    else if ( res == rename )
+        d->moreFiles->startRename();
+    else if ( res == del )
+        deleteFile( item );
 }
 
 void QFileDialog::deleteFile( QListBoxItem *item )
 {
     if ( !item )
         return;
-    
+
     QFileInfo fi( cwd, item->text() );
     QString t = "file";
     if ( fi.isDir() )
         t = "directory";
     if ( fi.isSymLink() )
         t = "symlink";
-        
-    
+
+
     if ( QMessageBox::warning( d->moreFiles, tr( "Delete %1" ).arg( t ), QString( tr ("Do you really want to delete the %1\n" ).arg( t )
                                                                           + item->text() + tr( "?" ) ),
                                tr( "Yes" ), tr( "No" ), QString::null, 1 ) == 0 ) {
         if ( !cwd.remove( item->text() ) ) {
-            QMessageBox::critical( d->moreFiles, tr( "ERROR: Delete %1" ).arg( t ), QString( tr( "Could not delete the %1\n" ).arg( t ) 
+            QMessageBox::critical( d->moreFiles, tr( "ERROR: Delete %1" ).arg( t ), QString( tr( "Could not delete the %1\n" ).arg( t )
                                                                                     + item->text() + tr( "." ) ) );
         }
         rereadDir();
@@ -1783,20 +1811,20 @@ void QFileDialog::deleteFile( QListViewItem *item )
 {
     if ( !item )
         return;
-    
+
     QFileInfo fi( cwd, item->text( 0 ) );
     QString t = "file";
     if ( fi.isDir() )
         t = "directory";
     if ( fi.isSymLink() )
         t = "symlink";
-        
-    
+
+
     if ( QMessageBox::warning( files, tr( "Delete %1" ).arg( t ), QString( tr ("Do you really want to delete the %1\n" ).arg( t )
                                                                           + item->text( 0 ) + tr( "?" ) ),
                                tr( "Yes" ), tr( "No" ), QString::null, 1 ) == 0 ) {
         if ( !cwd.remove( item->text( 0 ) ) ) {
-            QMessageBox::critical( files, tr( "ERROR: Delete %1" ).arg( t ), QString( tr( "Could not delete the %1\n" ).arg( t ) 
+            QMessageBox::critical( files, tr( "ERROR: Delete %1" ).arg( t ), QString( tr( "Could not delete the %1\n" ).arg( t )
                                                                                     + item->text( 0 ) + tr( "." ) ) );
         }
         rereadDir();
@@ -2169,7 +2197,22 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
     if ( !o || !e )
         return TRUE;
-    if ( mode() == ExistingFiles &&
+
+    if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F5 ) {
+        rereadDir();
+        ((QKeyEvent *)e)->accept();
+        return TRUE;
+    } else if ( e->type() == QEvent::KeyPress && d->moreFiles->renaming ) {
+        d->moreFiles->lined->setFocus();
+        QApplication::sendEvent( d->moreFiles->lined, e );
+        ((QKeyEvent *)e)->accept();
+        return TRUE;
+    } else if ( e->type() == QEvent::KeyPress && files->renaming ) {
+        files->lined->setFocus();
+        QApplication::sendEvent( files->lined, e );
+        ((QKeyEvent *)e)->accept();
+        return TRUE;
+    } else if ( mode() == ExistingFiles &&
          e->type() == QEvent::MouseButtonDblClick &&
          ( o == files || o == d->moreFiles || o == files->viewport() ||
            o == d->moreFiles->viewport() ) ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#47 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#48 $
 **
 ** Definition of QFileDialog class
 **
@@ -71,13 +71,14 @@ signals:
 class QFileListBox : public QListBox
 {
     friend class QFileDialog;
-    
+
     Q_OBJECT
 
 public:
     QFileListBox( QWidget *parent, QFileDialog *d );
 
     void clear();
+    void show();
     void startRename();
 
 protected:
@@ -97,6 +98,8 @@ private:
 
 class QFileListView : public QListView
 {
+    friend class QFileDialog;
+
     Q_OBJECT
 
 public:
@@ -104,7 +107,7 @@ public:
 
     void clear();
     void startRename();
-    
+
 protected:
     void viewportMousePressEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
@@ -123,7 +126,7 @@ private:
 class Q_EXPORT QFileDialog : public QDialog
 {
     friend class QFileListBox;
-    
+
     Q_OBJECT
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
@@ -219,7 +222,7 @@ private:
     bool trySetSelection( const QFileInfo&, bool );
     void deleteFile( QListBoxItem *item );
     void deleteFile( QListViewItem *item );
-    
+
     QDir cwd;
     QString fileName;
 
