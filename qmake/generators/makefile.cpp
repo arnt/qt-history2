@@ -1151,8 +1151,9 @@ MakefileGenerator::writePrlFile(QTextStream &t)
 	t << "QMAKE_PRL_SOURCE_DIR = " << project->first("QMAKE_ABSOLUTE_SOURCE_PATH") << endl;
     t << "QMAKE_PRL_TARGET = " << target << endl;
     if(!project->isEmpty("PRL_EXPORT_DEFINES"))
-	t << "QMAKE_PRL_DEFINES = "
-	  << project->variables()["PRL_EXPORT_DEFINES"].join(" ") << endl;
+	t << "QMAKE_PRL_DEFINES = " << project->variables()["PRL_EXPORT_DEFINES"].join(" ") << endl;
+    if(!project->isEmpty("CONFIG"))
+	t << "QMAKE_PRL_CONFIG = " << project->variables()["CONFIG"].join(" ") << endl;
     if(project->isActiveConfig("staticlib") || project->isActiveConfig("explicitlib")) {
 	QStringList libs;
 	if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))

@@ -43,6 +43,7 @@ class UnixMakefileGenerator : public MakefileGenerator
 {
     bool init_flag, include_deps;
     bool writeMakefile(QTextStream &);
+    QStringList uniqueSetLFlags(const QStringList &list1, QStringList &list2);
 
 public:
     UnixMakefileGenerator(QMakeProject *p);

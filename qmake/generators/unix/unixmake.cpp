@@ -282,66 +282,75 @@ UnixMakefileGenerator::init()
     }
 }
 
-void
-UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
+QStringList
+UnixMakefileGenerator::uniqueSetLFlags(const QStringList &list1, QStringList &list2)
 {
-    if(var == "QMAKE_PRL_LIBS") {
-	QStringList &out = project->variables()["QMAKE_LIBS"];
-	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-	    bool append = TRUE;
-	    if((*it).left(1) == "-") {
-		if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
-		    append = out.findIndex((*it)) == -1;
-		} else if(project->isActiveConfig("macx") && (*it).left(10) == "-framework") {
-		    int as_one = TRUE;
-		    QString framework_in;
-		    if((*it).length() > 11) {
-			framework_in = (*it).mid(11);
-		    } else {
-			if(it != l.end()) {
-			    ++it;
-			    as_one = FALSE;
-			    framework_in = (*it);
+    QStringList ret;
+    for(QStringList::ConstIterator it = list1.begin(); it != list1.end(); ++it) {
+	bool unique = TRUE;
+	if((*it).left(1) == "-") {
+	    if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
+		unique = list2.findIndex((*it)) == -1;
+	    } else if(project->isActiveConfig("macx") && (*it).left(10) == "-framework") {
+		int as_one = TRUE;
+		QString framework_in;
+		if((*it).length() > 11) {
+		    framework_in = (*it).mid(11);
+		} else {
+		    if(it != list1.end()) {
+			++it;
+			as_one = FALSE;
+			framework_in = (*it);
+		    }
+		}
+		if(!framework_in.isEmpty()) {
+		    for(QStringList::ConstIterator outit = list2.begin(); outit != list2.end(); ++outit) {
+			if((*outit).left(10) == "-framework") {
+			    QString framework_out;
+			    if((*outit).length() > 11) {
+				framework_out = (*outit).mid(11);
+			    } else {
+				if(it != list2.end()) {
+				    ++outit;
+				    framework_out = (*outit);
+				}
+			    }
+			    if(framework_out == framework_in) {
+				unique = FALSE;
+				break;
+			    }
 			}
 		    }
-		    if(!framework_in.isEmpty()) {
-			for(QStringList::ConstIterator outit = out.begin(); outit != out.end(); ++outit) {
-			    if((*outit).left(10) == "-framework") {
-				QString framework_out;
-				if((*outit).length() > 11) {
-				    framework_out = (*outit).mid(11);
-				} else {
-				    if(it != out.end()) {
-					++outit;
-					framework_out = (*outit);
-				    }
-				}
-				if(framework_out == framework_in) {
-				    append = FALSE;
-				    break;
-				}
-			    }
-			}
-			if(append) {
-			    append = FALSE;
-			    if(as_one) {
-				out.append("-framework " + framework_in);
-			    } else {
-				out.append("-framework");
-				out.append(framework_in);
-			    }
+		    if(unique) {
+			unique = FALSE; //because I'm about to just insert it myself
+			if(as_one) {
+			    ret.append("-framework " + framework_in);
+			} else {
+			    ret.append("-framework");
+			    ret.append(framework_in);
 			}
 		    }
 		}
-	    } else if(QFile::exists((*it))) {
-		append = out.findIndex((*it));
+	    } else {
+		unique = (list2.findIndex((*it)) == -1);
 	    }
-	    if(append)
-		out.append((*it));
-	}
-    } else {
-	MakefileGenerator::processPrlVariable(var, l);
+	} else if(QFile::exists((*it))) {
+	    unique = (list2.findIndex((*it)) == -1);
+	} 
+	if(unique)
+	    ret.append((*it));
     }
+    return ret;
+}
+
+
+void
+UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
+{
+    if(var == "QMAKE_PRL_LIBS") 
+	project->variables()["QMAKE_CURRENT_PRL_LIBS"] += uniqueSetLFlags(l, project->variables()["QMAKE_LIBS"]);
+    else
+	MakefileGenerator::processPrlVariable(var, l);
 }
 
 void
@@ -356,6 +365,7 @@ UnixMakefileGenerator::processPrlFiles()
 	    QStringList l_out;
 	    QStringList &l = project->variables()[lflags[i]];
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		project->variables()["QMAKE_CURRENT_PRL_LIBS"].clear();
 		QString opt = (*it).stripWhiteSpace();;
 		if(opt.left(1) == "-") {
 		    if(opt.left(2) == "-L") {
@@ -368,6 +378,7 @@ UnixMakefileGenerator::processPrlFiles()
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
 			    if(processPrlFile(prl)) {
+				l_out += uniqueSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"], l_out);
 				if(prl.left(mdd->local_dir.length()) == mdd->local_dir)
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
 				QRegExp reg("^.*lib(" + lib + "[^./=]*)\\..*$");
@@ -388,14 +399,17 @@ UnixMakefileGenerator::processPrlFiles()
 			}
 			QString prl = "/System/Library/Frameworks/" + opt +
 				      ".framework/" + opt + Option::prl_ext;
-			if(processPrlFile(prl))
+			if(processPrlFile(prl)) {
+			    l_out += uniqueSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"], l_out);
 			    ret = TRUE;
+			}
 			l_out.append("-framework");
 		    }
 		    if(!opt.isEmpty())
 			l_out.append(opt);
 		} else {
 		    if(!processed[opt] && processPrlFile(opt)) {
+			l_out += uniqueSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"], l_out);
 			processed.insert(opt, (void*)1);
 			ret = TRUE;
 		    }
@@ -506,3 +520,5 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     }
     return ret;
 }
+
+
