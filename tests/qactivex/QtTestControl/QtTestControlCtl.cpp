@@ -223,11 +223,6 @@ void CQtTestControlCtrl::AboutBox()
 {
 	CDialog dlgAbout(IDD_ABOUTBOX_QTTESTCONTROL);
 	dlgAbout.DoModal();
-	FireFoo();
-	long l = 0;
-	FireGetInt( &l );
-	if ( l )
-	    dlgAbout.DoModal();
 }
 
 
@@ -236,8 +231,6 @@ void CQtTestControlCtrl::AboutBox()
 
 void CQtTestControlCtrl::OnDoubleChanged() 
 {
-	FireFoo();
-
 	SetModifiedFlag();
 }
 

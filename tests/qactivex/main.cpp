@@ -26,7 +26,7 @@ public:
 	activex = new QActiveX( control, vbox );
 	activex->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 	QHBox *hbox = new QHBox( vbox );
-	leControl = new QLineEdit( hbox );
+	leControl = new QLineEdit( "QTTESTCONTROL.QtTestControlCtrl.1", hbox );
 	pbInstantiate = new QPushButton( "Create", hbox );
 
 	connect( pbInstantiate, SIGNAL(clicked()), this, SLOT(instantiate()) );
@@ -69,7 +69,7 @@ public slots:
 
     void slot( const QString &name, int argc, void *args )
     {
-	qDebug( "Signal %s emitted!", name.latin1() );
+	//qDebug( "Signal %s emitted!", name.latin1() );
     }
 
     void instantiate() 
@@ -86,23 +86,23 @@ public slots:
 
 	QMetaObject *mo = activex->metaObject();
 	QListViewItem *item = new QListViewItem( listview, "Class Info", QString::number( mo->numClassInfo() ) );
-	for ( int i = 0; i < mo->numClassInfo(TRUE ); ++i ) {
-	    const QClassInfo *info = mo->classInfo( i, TRUE );
+	for ( int i = 0; i < mo->numClassInfo(FALSE ); ++i ) {
+	    const QClassInfo *info = mo->classInfo( i, FALSE );
 	    (void)new QListViewItem( item, info->name, info->value );
 	}
-	item = new QListViewItem( listview, "Signals", QString::number( mo->numSignals( TRUE ) ) );
-	for ( i = 0; i < mo->numSignals(TRUE ); ++i ) {
-	    const QMetaData *signal = mo->signal( i, TRUE );
+	item = new QListViewItem( listview, "Signals", QString::number( mo->numSignals( FALSE ) ) );
+	for ( i = 0; i < mo->numSignals(FALSE ); ++i ) {
+	    const QMetaData *signal = mo->signal( i, FALSE );
 	    (void)new QListViewItem( item, signal->name );
 	}
-	item = new QListViewItem( listview, "Slots", QString::number( mo->numSlots( TRUE ) ) );
-	for ( i = 0; i < mo->numSlots(TRUE ); ++i ) {
-	    const QMetaData *slot = mo->slot( i, TRUE );
+	item = new QListViewItem( listview, "Slots", QString::number( mo->numSlots( FALSE ) ) );
+	for ( i = 0; i < mo->numSlots( FALSE ); ++i ) {
+	    const QMetaData *slot = mo->slot( i, FALSE );
 	    (void)new QListViewItem( item, slot->name );
 	}
-	item = new QListViewItem( listview, "Properties", QString::number( mo->numProperties( TRUE ) ) );    
-	for ( i = 0; i < mo->numProperties( TRUE ); ++i ) {
-	    const QMetaProperty *property = mo->property( i, TRUE );
+	item = new QListViewItem( listview, "Properties", QString::number( mo->numProperties( FALSE ) ) );    
+	for ( i = 0; i < mo->numProperties( FALSE ); ++i ) {
+	    const QMetaProperty *property = mo->property( i, FALSE );
 	    QString value = activex->property( property->n ).toString();
 	    (void)new QListViewItem( item, QString( "%1 %2" ).arg( property->t ).arg( property->n ), value );
 	}
