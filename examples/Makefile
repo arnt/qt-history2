@@ -22,6 +22,7 @@ SUBDIRS =	aclock \
 		drawlines \
 		forever \
 		hello \
+		helpviewer \
 		i18n \
 		layout \
 		life \
@@ -35,11 +36,10 @@ SUBDIRS =	aclock \
 		popup \
 		progress \
 		progressbar \
-		qbrowser \
 		qdir \
 		qfd \
-		qfileiconview \
-		qiconview \
+		fileiconview \
+		iconview \
 		qmag \
 		qwerty \
 		rangecontrols \
@@ -197,8 +197,8 @@ progressbar: FORCE
 	$(MAKE)
 	@cd ..
 
-qbrowser: FORCE
-	cd qbrowser
+helpviewer: FORCE
+	cd helpviewer
 	$(MAKE)
 	@cd ..
 
@@ -212,13 +212,13 @@ qfd: FORCE
 	$(MAKE)
 	@cd ..
 
-qfileiconview: FORCE
-	cd qfileiconview
+fileiconview: FORCE
+	cd fileiconview
 	$(MAKE)
 	@cd ..
 
-qiconview: FORCE
-	cd qiconview
+iconview: FORCE
+	cd iconview
 	$(MAKE)
 	@cd ..
 
@@ -405,8 +405,8 @@ tmake_all:
 	cd progressbar
 	$(TMAKE) progressbar.pro -o $(MAKEFILE)
 	@cd ..
-	cd qbrowser
-	$(TMAKE) qbrowser.pro -o $(MAKEFILE)
+	cd helpviewer
+	$(TMAKE) helpviewer.pro -o $(MAKEFILE)
 	@cd ..
 	cd qdir
 	$(TMAKE) qdir.pro -o $(MAKEFILE)
@@ -414,11 +414,11 @@ tmake_all:
 	cd qfd
 	$(TMAKE) qfd.pro -o $(MAKEFILE)
 	@cd ..
-	cd qfileiconview
-	$(TMAKE) qfileiconview.pro -o $(MAKEFILE)
+	cd fileiconview
+	$(TMAKE) fileiconview.pro -o $(MAKEFILE)
 	@cd ..
-	cd qiconview
-	$(TMAKE) qiconview.pro -o $(MAKEFILE)
+	cd iconview
+	$(TMAKE) iconview.pro -o $(MAKEFILE)
 	@cd ..
 	cd qmag
 	$(TMAKE) qmag.pro -o $(MAKEFILE)
@@ -561,7 +561,7 @@ clean:
 	cd progressbar
 	$(MAKE) clean
 	@cd ..
-	cd qbrowser
+	cd helpviewer
 	$(MAKE) clean
 	@cd ..
 	cd qdir
@@ -570,10 +570,10 @@ clean:
 	cd qfd
 	$(MAKE) clean
 	@cd ..
-	cd qfileiconview
+	cd fileiconview
 	$(MAKE) clean
 	@cd ..
-	cd qiconview
+	cd iconview
 	$(MAKE) clean
 	@cd ..
 	cd qmag
