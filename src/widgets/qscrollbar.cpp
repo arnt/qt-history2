@@ -486,7 +486,7 @@ void QScrollBar::wheelEvent( QWheelEvent *e )
     e->accept();
     int step = QMIN( QApplication::wheelScrollLines()*lineStep(),
 		     pageStep() );
-    if ( e->state() & ControlButton )
+    if ( ( e->state() & ControlButton ) || ( e->state() & ShiftButton ) )
 	step = pageStep();
     offset += -e->delta()*step/120;
     if (QABS(offset)<1)
