@@ -198,7 +198,6 @@ QCString uTypeExtra( QCString ctype )
     return typeExtra;
 }
 
-
 /*
   Attention!
   This table is copied from qvariant.cpp. If you change
@@ -250,8 +249,7 @@ int qvariant_nameToType( const char* name )
     return 0;
 }
 
-
-/*!
+/*
   Returns TRUE if the type is a QVariant types.
 */
 bool isVariantType( const char* type )
@@ -259,8 +257,15 @@ bool isVariantType( const char* type )
     return qvariant_nameToType( type ) != 0;
 }
 
-
-
+/*
+  Replaces '>>' with '> >' (as in 'QValueList<QValueList<double> >').
+  This function must be called to produce valid C++ code. However,
+  the string representation still uses '>>'.
+*/
+void fixRightAngles( QCString *str )
+{
+    str->replace( QRegExp(">>"), "> >" );
+}
 
 static QCString rmWS( const char * );
 
@@ -3122,6 +3127,8 @@ void generateClass()		      // generate C++ source code for a class
 	    }
 	}
 
+	fixRightAngles( &argstr );
+
 	fprintf( out, "\n// SIGNAL %s\n", (const char*)f->name );
 	fprintf( out, "void %s::%s(", (const char*)qualifiedClassName(),
 		 (const char*)f->name );
@@ -3220,6 +3227,7 @@ void generateClass()		      // generate C++ source code for a class
 	    while ( a ) {
 		QCString type = a->leftType + ' ' + a->rightType;
 		type = type.simplifyWhiteSpace();
+		fixRightAngles( &type );
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
 		    if ( utype == "ptr" || utype == "varptr" || utype == "enum" )
@@ -3244,7 +3252,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    default:\n" );
 
 	if ( !g->superClassName.isEmpty() && !isQObject ) {
-	    fprintf( out, "\treturn %s::qt_invoke(_id,_o);\n",
+	    fprintf( out, "\treturn %s::qt_invoke( _id, _o );\n",
 		     (const char *) purestSuperClassName() );
 	} else {
 	    fprintf( out, "\treturn FALSE;\n" );
@@ -3269,7 +3277,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    switch ( _id - staticMetaObject()->signalOffset() ) {\n" );
 	int signalindex = -1;
 	for ( f = g->signals.first(); f; f = g->signals.next() ) {
-	    signalindex ++;
+	    signalindex++;
 	    if ( f->type == "void" && f->args->isEmpty() ) {
 		fprintf( out, "    case %d: %s(); break;\n", signalindex, f->name.data() );
 		continue;
@@ -3287,6 +3295,7 @@ void generateClass()		      // generate C++ source code for a class
 	    while ( a ) {
 		QCString type = a->leftType + ' ' + a->rightType;
 		type = type.simplifyWhiteSpace();
+		fixRightAngles( &type );
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
 		    if ( utype == "ptr" || utype == "varptr" || utype == "enum" )
@@ -3294,7 +3303,7 @@ void generateClass()		      // generate C++ source code for a class
 		    else
 			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
+		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType(type).data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )

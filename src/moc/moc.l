@@ -202,15 +202,20 @@ STRING		{ALMOSTSTRING}\"
 					{ X; BEGIN QT_DEF; return ';' ;} }
 <IN_ENUM>"}"			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return '}' ;} }
-<IN_TEMPL_ARGS>"<"		{ templLevel++;Y; }
-<IN_TEMPL_ARGS>">"		{ templLevel--;Y;if (templLevel == 0)
-					{ X; BEGIN QT_DEF; return '>';} }
-<IN_TEMPL_ARGS>"("		{ templLevel++;Y; }
-<IN_TEMPL_ARGS>")"		{ templLevel--;Y;if (templLevel == 0)
-					{ X; BEGIN QT_DEF; return ')';} }
-<IN_TEMPL_ARGS>"["		{ templLevel++;Y; }
-<IN_TEMPL_ARGS>"]"		{ templLevel--;Y;if (templLevel == 0)
-					{ X; BEGIN QT_DEF; return ']';} }
+<IN_TEMPL_ARGS>[[(<]		{ templLevel++;
+				  Y;
+				  addExpressionChar( yytext[0] );
+				}
+<IN_TEMPL_ARGS>[])>]		{ templLevel--;
+				  Y;
+				  if ( templLevel == 0 ) {
+				      X;
+				      BEGIN QT_DEF;
+				      return yytext[0];
+				  } else {
+				      addExpressionChar( yytext[0] );
+				  }
+				}
 <QT_DEF>"friend"		{ X;return FRIEND; }
 <QT_DEF>"typedef"		{ X;return TYPEDEF; }
 <QT_DEF>"auto"			{ X;return AUTO; }
@@ -453,7 +458,7 @@ STRING		{ALMOSTSTRING}\"
 
 <IN_TEMPL_ARGS>[ \t\r\b\f]+	  {
 				    /* spaces are important in template args,
-				       cf. Foo<const int> */
+				       e.g. Foo<const int> */
 				    addExpressionChar( yytext[0] ); }
 [ \t\r\b\f]+		;
 <IN_CLASS>.		;
