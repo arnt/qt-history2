@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <limits.h>
 
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT-0 < 0x0500)
 typedef enum {
@@ -35,6 +36,11 @@ typedef enum {
     NameDnsDomain	  = 12
 } EXTENDED_NAME_FORMAT, *PEXTENDED_NAME_FORMAT;
 #endif
+
+// these are not defined on windows and the _I64XX are not in mingw
+#define _I64_MAX	LLONG_MAX    
+#define _I64_MIN	LLONG_MIN
+#define _UI64_MAX	ULLONG_MAX
 
 #define Q_FS_FAT
 #ifdef QT_LARGEFILE_SUPPORT
