@@ -462,7 +462,7 @@ Requires:
 Name: Console keyboard
 SeeAlso: ???
 
-Feature: QWS_KBD_SHARP
+Feature: QWS_KBD_SL5000
 Section: Qt/Embedded-specific
 Requires: QWS_KEYBOARD
 Name: Keyboard for SHARP Zaurus SL5xxx devices
