@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#136 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#135 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#136 $")
 
 
 /*****************************************************************************
@@ -100,6 +100,10 @@ static void	cleanupTimers();
 static timeval *waitTimer();
 static bool	activateTimer();
 static timeval	watchtime;			// watch if time is turned back
+
+static QWidgetList *modal_stack = 0;		// stack of modal widgets
+static QWidgetList *popupWidgets = 0;		// list of popup widgets
+static bool 	    popupCloseDownMode = FALSE;
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
@@ -1392,9 +1396,6 @@ bool QApplication::x11EventFilter( XEvent * )
  	    QWidget *widget	A modal widget
  *****************************************************************************/
 
-static QWidgetList *modal_stack = 0;		// stack of modal widgets
-
-
 bool qt_modal_state()				// application in modal state?
 {
     return app_do_modal;
@@ -1446,21 +1447,13 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    break;
     }
 
+    if ( popupWidgets )				// popup widget mode
+	return TRUE;
+
+    widget = widget->topLevelWidget();
     if ( widget->testWFlags(WType_Modal) )	// widget is modal
 	modal = widget;
-    else {					// widget is not modal
-	while ( widget->parentWidget() ) {	// find overlapped parent
-	    if ( widget->testWFlags(WType_Overlap) )
-		break;
-	    widget = widget->parentWidget();
-	}
-	if ( widget->testWFlags(WType_Popup) )	// popups are ok
-	    return TRUE;
-	if ( widget->testWFlags(WType_Modal) )	// is it modal?
-	    modal = widget;
-    }
 
-    ASSERT( modal_stack && modal_stack->getFirst() );
     QWidget *top = modal_stack->getFirst();
 
     if ( modal == top )				// don't block event
@@ -1486,9 +1479,6 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
  	Arguments:
  	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
-
-QWidgetList *popupWidgets = 0;			// list of popup widgets
-bool popupCloseDownMode = FALSE;
 
 void qt_open_popup( QWidget *popup )		// add popup widget
 {
