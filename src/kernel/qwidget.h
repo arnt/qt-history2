@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#32 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#33 $
 **
 ** Definition of QWidget class
 **
@@ -46,10 +46,13 @@ public:
     void    disable();				// disable events
     bool    isDisabled()	const	{ return testFlag(WState_Disabled); }
 
-  // Widget coordinates (relative to its parent)
+  // Widget coordinates
 
     QRect   frameGeometry()	const	{ return frect; }
     QRect   geometry()		const	{ return crect; }
+    int	    x()			const	{ return crect.x(); }
+    int	    y()			const	{ return crect.y(); }
+    QPoint  pos()		const	{ return crect.topLeft(); }
     QSize   size()		const	{ return crect.size(); }
     int	    width()		const	{ return crect.width(); }
     int	    height()		const	{ return crect.height(); }
