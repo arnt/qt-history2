@@ -8,13 +8,13 @@ This chapter shows you how to use Qt's data-aware widgets from within
 \qd. It demonstrates \ins, \upd and \del in both \class[QDataTable]s
 (tables) and \class[QDataBrowser]s (forms). It also shows how to code
 Master-Detail relationships and Drilldown. A simple approach to Foreign
-key handling is been presented, and a more sophisticated approach is
+key handling is presented, and a more sophisticated approach is
 given in the SQL module documentation.
 </para>
 
 <para>
 If you wish to run the examples or create your own applications using
-these widgets you need access to a SQL database and a Qt database driver
+these widgets you need access to an SQL database and a Qt database driver
 that can connect to the database. At the time of writing the drivers
 that Qt supports are QODBC (Open Database Connectivity), QOCI (Oracle),
 QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL). 
@@ -41,7 +41,7 @@ editing in \class[QDataBrowser]s. A great deal of functionality is available fro
 classes directly in \qd although subclassing is always available for
 finer control.
 <figure><title>The Book Application</title>
-\img[book-book9]
+\img[book-main]
 </figure>
 </para>
 
@@ -171,11 +171,12 @@ bool createConnections()
 	</para>
 	
 	<para>
-	Note that we do not need to keep a reference to database
+	Note that you do not need to keep a reference to database
 	connections. If you use a single database connection, this
 	becomes the default connection and database functions will use
-	this connection automatically. We can always get a pointer to a
-	connection by calling <function>QSqlDatabase::database()</>.
+	this connection automatically. We can always get a pointer to
+	any of our connections by calling
+	<function>QSqlDatabase::database()</>.
 	</para>
 
     </sect2>
@@ -191,7 +192,8 @@ bool createConnections()
     to the <function>primeInsert()</> signal, so that we can generate
     primary keys for example, or provide default values. If we wish to
     present records using a form view (perhaps combining data from
-    several tables and views) we would use \class[QDataBrowser]s and/or \class[QDataView]s.
+    several tables and views) we might use several \class[QDataBrowser]s
+    and \class[QDataView]s. 
     </para>
 
     <sect2 id="quickly-viewing-a-database-table">
@@ -203,7 +205,7 @@ bool createConnections()
 	the <filename>book.sql</> script. As we work through the chapter
 	we will build the 'book' application. Create or copy the
 	<filename>qt/tools/designer/eg/book/book1/main.cpp</> file shown
-	above. The project file for this first example is
+	earlier. The project file for this first example is
 	<filename>qt/tools/designer/eg/book/book1/book.pro</>. Start a new
 	project by clicking <guimenuitem>File|New Project</>. Complete
 	the dialog by entering a project name and a project file name. 
@@ -232,9 +234,10 @@ bool createConnections()
 	<title>Setting up a \class[QDataTable]</title>
 
 	    <para>
-	    To place a \class[QDataTable] widget on the form either click
-	    <guimenuitem>Tools|Views|QDataTable</> or click the \class[QDataTable] toolbar
-	    button. Click on the form and the SQL Table Wizard dialog will appear. 
+	    To place a \class[QDataTable] widget on the form either
+	    click <guimenuitem>Tools|Views|QDataTable</> or click the
+	    \button[QDataTable] toolbar button. Click on the form and
+	    the SQL Table Wizard will appear. 
 
 	    <orderedlist numeration="arabic">
 		<listitem>
@@ -260,12 +263,14 @@ bool createConnections()
 		    <para>
 		    The <emphasis>Displayed Fields</> wizard page
 		    provides a means of selecting which fields should be
-		    displayed in the \class[QDataTable] and in what order. By default all fields
-		    except the primary key (if there is one) are in the 
-		    Displayed Fields list box. The left and right blue arrow buttons
-		    can be used to move fields between the Displayed Fields and the
-		    Available Fields list boxes. The blue up and down arrow buttons
-		    are used to select the display order of the displayed fields. 
+		    displayed in the \class[QDataTable] and in what
+		    order. By default all fields except the primary key
+		    (if there is one) are in the Displayed Fields list
+		    box. The left and right pointing blue arrow buttons
+		    can be used to move fields between the Displayed
+		    Fields and the Available Fields list boxes. The blue
+		    up and down pointing arrow buttons are used to
+		    select the display order of the displayed fields. 
 		    </para>
 
 		    <para>
@@ -293,14 +298,16 @@ bool createConnections()
 		    the \class[QDataTable]'s Filter and Sort properties. The Filter is an SQL
 		    <literal>WHERE</> clause (without the word 'WHERE'). For
 		    example, to only list authors whose surnames begin with 'P', we
-		    would enter <literal>title LIKE 'P%'</>. The Available Fields
-		    list box lists all the fields. The Sort By list box lists the
-		    fields that the \class[QDataTable] is to sort by and the direction of their
-		    sorting (ASCending or DESCending). The left and right blue
-		    arrows are used to move fields between the two list boxes. The
-		    up and down blue arrows move fields up and down within the Sort
-		    By list box. The ASC or DESC setting is changed with the sort
-		    order button.
+		    would enter <literal>title LIKE 'P%'</>. We'll leave
+		    the filter empty. The Available Fields list box
+		    lists all the fields. The Sort By list box lists the
+		    fields that the \class[QDataTable] is to sort by and
+		    the direction of their sorting (ASCending or
+		    DESCending). The left and right blue arrows are used
+		    to move fields between the two list boxes. The up
+		    and down blue arrows move fields up and down within
+		    the Sort By list box. The ASC or DESC setting is
+		    changed with the sort order button.
 		    </para>
 
 		    <para>
@@ -370,7 +377,7 @@ bool createConnections()
 
 		<listitem>
 		    <para>
-		    Open the project file, e.g. <filename>book.pro</> in a
+		    Open the project file, e.g. <filename>book.pro</>, in a
 		    plain text editor and add the line: 
 		    <literal>SOURCES = main.cpp</>. 
 		    </para>
@@ -447,9 +454,9 @@ bool createConnections()
 		Click the <guibutton>Connect Signal/Slots</>
 		toolbar button, then click the AuthorDataTable, drag to
 		the form and release the mouse. The Edit Connections
-		dialog will now appear. Click the primeInsert signal and
-		then the primeInsertAuthor slot to make the connection.
-		Now click \ok.
+		dialog will now appear. Click the \fn[primeInsert]
+		signal and then the \fn[primeInsertAuthor] slot to make
+		the connection. Now click \ok.
 		</para>
 	    </listitem>
 
@@ -458,19 +465,25 @@ bool createConnections()
 		Click the Source tab of the Object Hierarchy window
 		(click <guimenuitem>Window|Object Hierarchy</> to make
 		the window visible if necessary). Click the
-		primeInsertAuthor slot and an editor window will
+		\fn[primeInsertAuthor] slot and an editor window will
 		appear.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
-		We must change the BookForm::primeInsertAuthor slot to
+		We must change the \fn[BookForm::primeInsertAuthor] slot to
 		specify the parameter name and perform the necessary
 		action:
 <programlisting>
 \scan eg/book/book2/book.cpp /BookForm::primeInsertAuthor/ /^}/
 </programlisting>
+		The \class[QSqlQuery] constructor executes the query and
+		we call \fn[next()] to navigate to the first record of
+		the resultant record set. The signal passed us a pointer
+		to the insertion buffer and we then put the value we've
+		retrieved, i.e. the next sequence number, into the
+		buffer's id field.
 		(Note that not all databases support the nextval
 		function so you may need to read your database engine's
 		documentation to see how to generate unique keys in
@@ -489,8 +502,7 @@ bool createConnections()
 	</para>
 
 	<para>
-	We can now browse, \ins, \upd and
-	\del records in the author table. Browsing is
+	Browsing is
 	supported by clicking records and by using the arrow keys. Once
 	a record is active (highlighted) we can edit the database. Press
 	the <keycap>Insert</> key to \ins a new record;
@@ -530,7 +542,7 @@ bool createConnections()
 		\P\Item
 
 		\item\p
-		\upd is initiated right-clicking the record and clicking
+		\upd is initiated by right-clicking the record and clicking
 		Update or by pressing F2. The update will take place if
 		the user presses Return or Tabs off the end of the last
 		field. If autoEdit is TRUE the update will take place if
@@ -663,8 +675,8 @@ bool createConnections()
 	<para>
 	Run the form by clicking <guimenuitem>Preview|Preview Form</>.
 	All the authors are displayed in the top \class[QDataTable]
-	and all the book are displayed in the bottom
-	\class[QDataTable]. Unfortunately we only want the book of the currently
+	and all the books are displayed in the bottom
+	\class[QDataTable]. Unfortunately we only want the books of the currently
 	selected author showing in the bottom \class[QDataTable]. We will deal with
 	this by filtering the records in the book_view according to the
 	author in the author table.
@@ -745,7 +757,7 @@ bool createConnections()
 		    <para>
 		    Click <guimenuitem>Edit|Slots</>. In the Edit Slots
 		    dialog click <guimenuitem>New Slot</> and enter a slot
-		    name of <literal>newCurrentAuthor(const QSqlRecord*)</>.
+		    name of 'newCurrentAuthor(QSqlRecord*)'.
 		    Click \ok.
 		    </para>
 		</listitem> 
@@ -765,20 +777,23 @@ bool createConnections()
 		    Click the Source tab of the Object Hierarchy window
 		    (click <guimenuitem>Window|Object Hierarchy</> to make
 		    the window visible if necessary). Click the
-		    newCurrentAuthor slot and an editor window will
+		    \fn[newCurrentAuthor] slot and an editor window will
 		    appear.
 		    </para>
 		</listitem>
 
 		<listitem>
 		<para>
-		    We must change the BookForm::newCurrentAuthor slot to
+		    We must change the \fn[BookForm::newCurrentAuthor] slot to
 		    specify the parameter name and perform the necessary
 		    action:
 <programlisting>
 \scan eg/book/book3/book.cpp /BookForm::newCurrentAuthor/ /^}/
 </programlisting>
 		</para>
+		All that's required is to change the BookDataTable's
+		filter and refresh the \class[QDataTable] to show the
+		results of the filter.
 		</listitem>
 	    </orderedlist>
 	    </para>
@@ -817,7 +832,7 @@ bool createConnections()
 			<listitem><para>QuitPushButton -- &amp;Quit</para>
 			</listitem>
 		    </itemizedlist>
-		    Shift+Click all the buttons and click the <guibutton>Lay
+		    Shift+Click both buttons and click the <guibutton>Lay
 		    Out Horizontally</> toolbar button. Click the form and
 		    click the <guibutton>Lay Out Vertically</> toolbar
 		    button.
@@ -848,7 +863,7 @@ bool createConnections()
 
 <para>
 <figure><title>The Book Application's Edit Books Dialog</title>
-\img[book-book9-dialog]
+\img[book-dialog]
 </figure>
 </para>
 
@@ -934,14 +949,15 @@ bool createConnections()
 		<literal>WHERE</> clause (without the word 'WHERE'). For
 		example, to only list book that cost less than 50 (of our
 		currency, e.g. dollars), we 
-		would enter <literal>price < 50</>. The Available Fields
-		list box lists all the fields. The Sort By list box lists the
-		fields that the \class[QDataBrowser] is to sort by and the direction of their
-		sorting (ASCending or DESCending). The left and right blue
-		arrows are used to move fields between the two list boxes. The
-		up and down blue arrows move fields up and down within the Sort
-		By list box. The ASC or DESC setting is changed with the sort
-		order button.
+		would enter <literal>price < 50</>. We will leave the
+		filter empty. The Available Fields list box lists all
+		the fields. The Sort By list box lists the fields that
+		the \class[QDataBrowser] is to sort by and the direction
+		of their sorting (ASCending or DESCending). The left and
+		right blue arrows are used to move fields between the
+		two list boxes. The up and down blue arrows move fields
+		up and down within the Sort By list box. The ASC or DESC
+		setting is changed with the sort order button.
 		</para>
 
 		<para>
@@ -968,7 +984,7 @@ bool createConnections()
 		form up to make it shorter. Click the \class[QDataBrowser] then click the
 		<guibutton>Break Layout</> toolbar button. Click the buttons
 		then click the <guibutton>Break Layout</> toolbar button. 
-		Add another button called 'ButtonPushButton' with the text
+		Add another button called 'PushButtonClose' with the text
 		'&amp;Close' and place it to the right of the Delete button.
 		</para>
 	    </listitem>
@@ -987,18 +1003,10 @@ bool createConnections()
 
 	    <listitem>
 		<para>
-		We want the Edit Books form to use the same database
-		cursor as the BookDataTable: this ensures that the two will
-		be synchronised and is more efficient than creating an extra
-		database cursor. If we use our own cursor or use a cursor
-		from elsewhere it is wisest to set the DataBrowser's
-		frameworkCode property to FALSE since it need not generate
-		C++ for creating a cursor that won't be used.
-		</para>
-
-		<para>
-		Click the Edit Books form, then the BookDataBrowser. Change
-		the BookDataBrowser's frameworkCode property to FALSE. 
+		We will be creating our own database cursor so we could
+		set the BookDataBrowser's frameworkCode property to
+		FALSE to prevent \qd from generating redundant code for
+		the cursor.
 		</para>
 	    </listitem>
 
@@ -1087,9 +1095,9 @@ bool createConnections()
 	<para>
 	We now have a working form for editing book records. We need to
 	start the form when the user clicks our 'Edit Books' button, and to
-	navigate to the record they have selected in the BookDataTable. We
-	also need to provide a means of editing the foreign keys, authorid
-	and formatid. 
+	navigate to the record they have selected in the BookDataTable.
+	We also need to provide a means of editing the foreign keys,
+	e.g. authorid.
 
 	<orderedlist numeration="arabic">
 	    <listitem>
@@ -1121,15 +1129,15 @@ bool createConnections()
 		\p
 		We create our dialog as before. We also create
 		a cursor over the book table and set the dialog's
-		\class[QDataBrowser], BookDataBrowser, to this new
+		\class[QDataBrowser], BookDataBrowser, to use this new
 		cursor. We set the \class[QDataBrowser]'s filter and
 		sort to those that applied to the main form's book_view
 		\class[QDataTable]. We refresh the \class[QDataBrowser]
 		and seek to the same record the user was viewing on the
 		main form. Then we exec the dialog and delete it when
 		the user has finished with it. Finally we update the
-		BookDataTable to reflect any changes that were made in
-		the dialog.
+		BookDataTable in the main form to reflect any changes
+		that were made in the dialog.
 		\P
 	    </listitem> 
 
@@ -1141,7 +1149,7 @@ bool createConnections()
 		tab of the Object Hierarchy window. Right click the 'Includes (In
 		Declaration)' item and click New. Type in
 		<filename>editbook.h</>. Now add a second include, this
-		time, <filename>qdatabrowser.h</>
+		time, <filename>qdatabrowser.h</>.
 		</para>
 	    </listitem> 
 
@@ -1166,8 +1174,7 @@ bool createConnections()
 	<para>
 	We will create a slot to receive the Edit Books form's
 	<function>primeInsert()</> signal so that we can insert a unique
-	primary key. For the sake of example we will also default the
-	price and format.
+	primary key. 
 
 	<orderedlist numeration="arabic">
 	    <listitem>
@@ -1185,7 +1192,7 @@ bool createConnections()
 	    <listitem>
 		<para>
 		Connect the BookDataBrowser's <function>primeInsert()</>
-		signal to the primeInsertBook slot. 
+		signal to the \fn[primeInsertBook] slot. 
 		</para>
 		<para>
 		Click the
@@ -1201,7 +1208,7 @@ bool createConnections()
 		<para>
 		In the
 		Object Hierarchy window click Source and then click the
-		<function>primeInsertBook</> function. We need to change
+		<function>primeInsertBook</> slot. We need to change
 		it to the following:
 <programlisting>
 \scan eg/book/book6/editbook.cpp /EditBookForm::primeInsertBook/ /^}/
@@ -1305,7 +1312,7 @@ bool createConnections()
 	\item\p
 	All that remains is to write the underlying code. All the
 	code snippets are taken from 
-	\f[qt/tools/designer/eg/book/book7/editbook.cpp].
+	\f[qt/tools/designer/eg/book/book7/editbook.ui].
 	    \list[1,1]
 	    \item\p
 	    We start with
@@ -1321,12 +1328,12 @@ bool createConnections()
 
 	    \item\p
 	    We next write the code which will be executed just before a
-	    record is updated in the database.
+	    record is updated (or inserted) in the database.
 <programlisting>
 \scan eg/book/book7/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/ 
 </programlisting>
 	    We look up the id of the ComboBox's current author and place
-	    it in the update buffer's authorid field.
+	    it in the update (or insert) buffer's authorid field.
 	    \P\Item
 
 	    \item\p
@@ -1342,8 +1349,12 @@ bool createConnections()
 	    \List1
 
 	\P\Item
-
 	\List1
+\p
+We could apply the same technique to the formatid foreign key
+but won't demonstrate this since it is essentially a repetition.
+\P
+
 <para>
 The book example demonstrates the basic techniques needed for SQL
 programming with Qt. Additional information on the Qt SQL classes,
