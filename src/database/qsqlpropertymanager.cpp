@@ -1,9 +1,6 @@
 #include "qsqlpropertymanager.h"
-
-#ifndef QT_H
 #include "qmetaobject.h"
 #include "qobject.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL
 
