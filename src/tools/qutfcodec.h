@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.h#1 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.h#2 $
 **
 ** Definition of QEucCodec class
 **
@@ -33,7 +33,7 @@ public:
 
     QTextDecoder* makeDecoder() const;
 
-    char* fromUnicode(const QString& uc, int& len_in_out) const;
+    QCString fromUnicode(const QString& uc, int& len_in_out) const;
 
     int heuristicContentMatch(const char* chars, int len) const;
 };

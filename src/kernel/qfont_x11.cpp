@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#125 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1223,9 +1223,9 @@ XCharStruct* charStr(const QTextCodec* mapper, XFontStruct *f, QChar ch)
 
     if ( mapper ) {
 	int l = 1;
-	char* c = mapper->fromUnicode(ch,l);
-	ch = *c;
-	delete [] c;
+	QCString c = mapper->fromUnicode(ch,l);
+	// #### What if c.length()>1 ?
+	ch = c[0];
     }
 
     if ( f->max_byte1 ) {
@@ -1257,9 +1257,8 @@ void getExt(QString str, int len, XRectangle& ink, XRectangle& logical, XFontSet
 {
     // Callers to this / this needs to be optimized.
 
-    char* x = m->fromUnicode(str,len);
+    QCString x = m->fromUnicode(str,len);
     XmbTextExtents( set, x, len, &ink, &logical );
-    delete [] x;
 }
 
 
@@ -1474,10 +1473,7 @@ int QFontMetrics::width( const QString &str, int len ) const
     if ( f ) {
 	const QTextCodec* m = mapper();
 	if ( m ) {
-	    char* s = m->fromUnicode(str,len);
-	    int r = printerAdjusted(XTextWidth( f, s, len ));
-	    delete [] s;
-	    return r;
+	    return printerAdjusted(XTextWidth( f, m->fromUnicode(str,len), len ));
 	} else {
 	    return printerAdjusted(XTextWidth16( f, (XChar2b*)str.unicode(), len ));
 	}
@@ -1538,9 +1534,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     if ( f ) {
 	const QTextCodec *m = mapper();
 	if ( m ) {
-	    char* s = m->fromUnicode(str,len);
-	    XTextExtents( f, s, len, &direction, &ascent, &descent, &overall );
-	    delete [] s;
+	    XTextExtents( f, m->fromUnicode(str,len), len, &direction, &ascent, &descent, &overall );
 	} else {
 	    XTextExtents16( f, (XChar2b*)str.unicode(), len, &direction, &ascent, &descent, &overall );
 	}

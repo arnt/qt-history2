@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#18 $
 **
 ** Implementation of QTextCodec class
 **
@@ -35,7 +35,7 @@ class QTextStatelessEncoder : public QTextEncoder {
     const QTextCodec* codec;
 public:
     QTextStatelessEncoder(const QTextCodec*);
-    char* fromUnicode(const QString& uc, int& len_in_out);
+    QCString fromUnicode(const QString& uc, int& len_in_out);
 };
 
 class QTextStatelessDecoder : public QTextDecoder {
@@ -50,7 +50,7 @@ QTextStatelessEncoder::QTextStatelessEncoder(const QTextCodec* c) :
 {
 }
 
-char* QTextStatelessEncoder::fromUnicode(const QString& uc, int& len_in_out)
+QCString QTextStatelessEncoder::fromUnicode(const QString& uc, int& len_in_out)
 {
     return codec->fromUnicode(uc,len_in_out);
 }
@@ -336,10 +336,10 @@ QString QTextCodec::toUnicode(const char* chars, int len) const
   this function, hence subclasses \e must reimplement one function or
   the other to avoid infinite recursion.
 */
-char* QTextCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QTextCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     QTextEncoder* i = makeEncoder();
-    char* result = i->fromUnicode(uc, len_in_out);
+    QCString result = i->fromUnicode(uc, len_in_out);
     delete i;
     return result;
 }
@@ -347,7 +347,7 @@ char* QTextCodec::fromUnicode(const QString& uc, int& len_in_out) const
 /*!
   \overload char* QTextCodec::fromUnicode(const QString& uc) const
 */
-char* QTextCodec::fromUnicode(const QString& uc) const
+QCString QTextCodec::fromUnicode(const QString& uc) const
 {
     int l = uc.length();
     return fromUnicode(uc,l);
@@ -658,11 +658,12 @@ public:
 	return result;
     }
 
-    char* fromUnicode(const QString& uc, int& len_in_out) const
+    QCString fromUnicode(const QString& uc, int& len_in_out) const
     {
 	if (len_in_out > (int)uc.length())
 	    len_in_out = uc.length();
-	char* result = new char[len_in_out*max_bytes_per_char];
+	int rlen = len_in_out*max_bytes_per_char;
+	char* result = new char[rlen];
 	char* cursor = result;
 	char* s;
 	int l = len_in_out;
@@ -688,7 +689,9 @@ public:
 	    }
 	}
 	len_in_out = lout;
-	return result;
+	QCString rstr;
+	rstr.setRawData(result,rlen);
+	return rstr;
     }
 };
 

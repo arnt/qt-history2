@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#269 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#270 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2551,7 +2551,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    map( x, y, &x, &y );
     }
 
-    char* mapped = 0;
+    QString mapped;
 
     const QTextCodec* mapper = cfont.d->mapper();
     if ( mapper ) {
@@ -2561,15 +2561,17 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     }
 
     if ( !cfont.handle() ) {
-	if ( !mapped )
-	    fatal("Fontsets only apply to mapped encodings");
-	XFontSet set = (XFontSet)cfont.d->fontSet();
-	if ( bg_mode == TransparentMode )
-	    XmbDrawString( dpy, hd, set, gc, x, y, mapped, len );
-	else
-	    XmbDrawImageString( dpy, hd, set, gc, x, y, mapped, len );
+	if ( mapped.isNull() )
+	    warning("Fontsets only apply to mapped encodings");
+	else {
+	    XFontSet set = (XFontSet)cfont.d->fontSet();
+	    if ( bg_mode == TransparentMode )
+		XmbDrawString( dpy, hd, set, gc, x, y, mapped, len );
+	    else
+		XmbDrawImageString( dpy, hd, set, gc, x, y, mapped, len );
+	}
     } else {
-	if ( mapped ) {
+	if ( !mapped.isNull() ) {
 	    if ( bg_mode == TransparentMode )
 		XDrawString( dpy, hd, gc, x, y, mapped, len );
 	    else
@@ -2581,9 +2583,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		XDrawImageString16( dpy, hd, gc, x, y, (XChar2b*)str.unicode(), len );
 	}
     }
-
-    if ( mapped )
-	delete [] mapped;
 
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();

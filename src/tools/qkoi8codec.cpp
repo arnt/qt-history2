@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#6 $
 **
 ** Implementation of QKoi8Codec class
 **
@@ -151,10 +151,11 @@ static const ushort koi8_to_unicode[256] = {
 	};
 
 
-char* QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
-    uchar* result = new uchar[l+1];
+    int rlen = l+1;
+    uchar* result = new uchar[rlen];
     uchar* cursor = result;
     for (int i=0; i<l; i++) {
 	const QChar ch = uc[i];
@@ -205,7 +206,9 @@ char* QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
     }
     *cursor++ = '\0';
     // len_in_out = cursor - result;
-    return (char*)result;
+    QCString rstr;
+    rstr.setRawData((char*)result,rlen);
+    return rstr;
 }
 
 QString QKoi8Codec::toUnicode(const char* chars, int len) const

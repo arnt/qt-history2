@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.h#6 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.h#7 $
 **
 ** Definition of QTextCodec class
 **
@@ -32,7 +32,7 @@ class QIODevice;
 class QTextEncoder {
 public:
     virtual ~QTextEncoder();
-    virtual char* fromUnicode(const QString& uc, int& len_in_out) = 0;
+    virtual QCString fromUnicode(const QString& uc, int& len_in_out) = 0;
 };
 
 class QTextDecoder {
@@ -62,9 +62,9 @@ public:
     virtual QTextEncoder* makeEncoder() const;
 
     virtual QString toUnicode(const char* chars, int len) const;
-    virtual char* fromUnicode(const QString& uc, int& len_in_out) const;
+    virtual QCString fromUnicode(const QString& uc, int& len_in_out) const;
 
-    char* fromUnicode(const QString& uc) const;
+    QCString fromUnicode(const QString& uc) const;
     QString toUnicode(const QByteArray&, int len) const;
     QString toUnicode(const QByteArray&) const;
     QString toUnicode(const char* chars) const;

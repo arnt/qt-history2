@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#3 $
 **
 ** Implementation of QEucCodec class
 **
@@ -28,10 +28,11 @@ int QUtf8Codec::mib() const
     return 106;
 }
 
-char* QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
-    uchar* result = new uchar[l*2+1];
+    int rlen = l*2+1;
+    uchar* result = new uchar[rlen];
     uchar* cursor = result;
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
@@ -49,7 +50,9 @@ char* QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 	}
     }
     len_in_out = cursor - result;
-    return (char*)result;
+    QCString rstr;
+    rstr.setRawData((char*)result,rlen);
+    return rstr;
 }
 
 const char* QUtf8Codec::name() const
@@ -176,19 +179,19 @@ public:
     {
     }
 
-    char* fromUnicode(const QString& uc, int& len_in_out)
+    QCString fromUnicode(const QString& uc, int& len_in_out)
     {
 	if ( headerdone ) {
 	    len_in_out = uc.length()*sizeof(QChar);
-	    char* d = new char[len_in_out];
-	    memcpy(d,uc.unicode(),len_in_out);
+	    QCString d(len_in_out+1);
+	    memcpy(d.data(),uc.unicode(),len_in_out);
 	    return d;
 	} else {
 	    headerdone = TRUE;
 	    len_in_out = (1+uc.length())*sizeof(QChar);
-	    char* d = new char[len_in_out];
-	    memcpy(d,&QChar::byteOrderMark,sizeof(QChar));
-	    memcpy(d+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
+	    QCString d(len_in_out+1);
+	    memcpy(d.data(),&QChar::byteOrderMark,sizeof(QChar));
+	    memcpy(d.data()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
 	    return d;
 	}
     }
