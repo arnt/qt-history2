@@ -74,7 +74,7 @@ $(TARGET): $(OBJECTS) $(OBJMETA)
 rcs:: ./RCS/$$@,v
 
 showfiles:
-	@echo $(HEADERS) $(SOURCES)
+	@echo $(HEADERS) $(SOURCES) Makefile
 
 include:
 	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/kernel/-'` $(INCDIR)
