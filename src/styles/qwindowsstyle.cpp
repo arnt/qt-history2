@@ -1093,13 +1093,11 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = qMax( 6, QApplication::globalStrut().width() );
 	break;
 
-    case PM_MDIFrameWidth:
 #if defined(Q_WS_WIN)
+    case PM_MDIFrameWidth:
 	ret = GetSystemMetrics(SM_CYFRAME);
-#else
-	ret = 3;
-#endif
 	break;
+#endif
 
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
