@@ -429,7 +429,8 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
 
     QTextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
-    while ( p ) {
+    bool supports = ( (Editor*)viewManager->currentView() )->supportsBreakPoints();
+    while ( p && supports ) {
 	if ( e->y() >= p->rect().y() - yOffset && e->y() <= p->rect().y() + p->rect().height() - yOffset ) {
 	    if ( ( (ParagData*)p->extraData() )->marker == ParagData::Breakpoint )
 		toggleBreakPoint = m.insertItem( tr( "Clear Breakpoint\tF9" ) );
