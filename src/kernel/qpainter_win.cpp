@@ -823,10 +823,6 @@ bool QPainter::end()
 #endif
 	return FALSE;
     }
-#if defined(CHECK_STATE)
-//     if ( ps_stack && !((QPStateStack *)ps)->isEmpty() ) ####### Arnt, this didn't compile (RS)
-// 	qWarning( "QPainter::end: Missing restore() before end()" );
-#endif
     killPStack();
     if ( testf(FontMet) )			// remove references to this
 	QFontMetrics::reset( this );
