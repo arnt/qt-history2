@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#55 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#56 $
 #
 # this is a massive hack, written very quickly
 #
@@ -186,7 +186,7 @@ sub processdocs {
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
 	$doc =~ s-\s*\\warning\s+-<p><strong>Warning: </strong>-gs;
-#	$doc =~ s/\\internal\s.*//s if (!$internal);
+	$doc =~ s/\\internal\s.*//s if (!$internal);
 
 	$doc =~ s-\\link\s+([\w:\.]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
@@ -609,6 +609,12 @@ sub readh {
 	   \s+\#define\s+(\S+)\s+(\S+)\s*\(\s*(\S+)\s*\)\s/gsx ) {
 	   next if ( ($1 ne $4) || ($2 ne $5) );
 	   $declared{$3} = $1 . " " . $2 . " " . $filename;
+       }
+
+    while ($h =~ /\bdeclare\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
+	   \s+\typedef\s+(\S+)\s*\(\s*(\S+)\s*\)\s+(\S+)\s;/gsx ) {
+	   next if ( ($1 ne $3) || ($2 ne $4) );
+	   $declared{$5} = $1 . " " . $2 . " " . $filename;
        }
     
     $headerfiles{$filename} = $filename;
@@ -1135,9 +1141,6 @@ sub printout {
 
 			    $u = &manglefn($t, $name{$url}, $f, $a, $c);
 			    &fixdefvalues($u, $a) if ($type{$u} eq "fn");
-#			    next unless ($internal || 
-#					 ($mode =~ /public/) ||
-#					 ($doc{$u} =~ /\S/s));
 			    next if ($mode =~ /rivate/ && !$internal);
 			    if ($type{$u} eq "fn") {
 				$_ = join("", &html($t), "<a href=", $u,
