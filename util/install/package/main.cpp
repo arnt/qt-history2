@@ -41,6 +41,7 @@ static int usage(const char *argv0, const char *un=NULL) {
     fprintf(stderr, "combined with the options above or any other option:\n\n" );
     fprintf(stderr, " -unpack file        : Unpack the archive file to the current directory\n");
     fprintf(stderr, " -getdesc file       : Print the description text of the archive file\n");
+    fprintf(stderr, " -getextra k file    : Print the extra value for the key k of the archive file\n");
 #if defined(Q_OS_WIN32)
     fprintf(stderr, " -res file1 file2    : Add the archive file1 as the binary resource\n");
     fprintf(stderr, "                       QT_ARQ to the excutable file2\n");
@@ -56,7 +57,7 @@ static int usage(const char *argv0, const char *un=NULL) {
     return 665;
 }
 
-static int unpack( char *filename, bool verbose )
+static int unpack( const char *filename, bool verbose )
 {
     QArchive arq( filename );
     ConsoleOutput output;
@@ -73,7 +74,7 @@ static int unpack( char *filename, bool verbose )
     return 0;
 }
 
-static int getdesc( char *filename )
+static int getdesc( const char *filename )
 {
     QArchive arq( filename );
     ConsoleOutput output;
@@ -89,6 +90,27 @@ static int getdesc( char *filename )
     }
     if ( !header->description().isNull() ) {
 	fprintf(stdout, header->description().latin1() );
+    }
+    return 0;
+}
+
+static int getextra( const char *key, const char *filename )
+{
+    QArchive arq( filename );
+    ConsoleOutput output;
+    output.connect( &arq, SIGNAL(operationFeedback(const QString&)), SLOT(updateProgress(const QString&)) );
+    if ( !arq.open( IO_ReadOnly ) ) {
+	fprintf(stderr, "Can't open the archive %s file to get description", filename);
+	return 42;
+    }
+    QArchiveHeader *header = arq.readArchiveHeader();
+    if ( !header ) {
+	fprintf(stderr, "Can't find the header in the archive %s file", filename);
+	return 42;
+    }
+    QString extraData = header->findExtraData(key);
+    if ( !extraData.isNull() ) {
+	fprintf(stdout, extraData.latin1() );
     }
     return 0;
 }
@@ -156,6 +178,12 @@ int main( int argc, char** argv )
 	} else if(!strcmp(argv[i], "-getdesc")) {
 	    if ( ++i < argc )
 		return getdesc( argv[i] );
+	//getextra
+	} else if(!strcmp(argv[i], "-getextra")) {
+	    if ( ++i < argc ) {
+		if ( ++i < argc )
+		    return getextra( argv[i-1], argv[i] );
+	    }
 #if defined(Q_OS_WIN32)
 	//res (Windows only)
 	} else if(!strcmp(argv[i], "-res")) {
