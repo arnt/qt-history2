@@ -5591,6 +5591,7 @@ QTableHeader::QTableHeader( int i, QTable *t,
 	     this, SLOT( updateStretches() ) );
     connect( widgetStretchTimer, SIGNAL( timeout() ),
 	     this, SLOT( updateWidgetStretches() ) );
+    startPos = -1;
 }
 
 /*!
@@ -5776,8 +5777,7 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
     QHeader::mousePressEvent( e );
     mousePressed = TRUE;
     pressPos = real_pos( e->pos(), orientation() );
-    // not if holding shift!
-    if ( ( e->state() & ShiftButton ) != ShiftButton )
+    if ( !table->currentSel || ( e->state() & ShiftButton ) != ShiftButton )
 	startPos = -1;
     setCaching( TRUE );
     resizedSection = -1;
@@ -5817,11 +5817,12 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	return TRUE;
     int p = real_pos( e->pos(), orientation() ) + offset();
     if ( startPos == -1 ) {
-	startPos = p;
 	int secAt = sectionAt( p );
-	if ( ( e->state() & ControlButton ) != ControlButton ||
+	if ( ( e->state() & ControlButton ) != ControlButton &&
+	     ( e->state() & ShiftButton ) != ShiftButton ||
 	     table->selectionMode() == QTable::Single ||
 	     table->selectionMode() == QTable::SingleRow ) {
+	    startPos = p;
 	    bool b = table->signalsBlocked();
 	    table->blockSignals( TRUE );
 	    table->clearSelection();
@@ -5829,6 +5830,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	}
 	saveStates();
 	if ( table->selectionMode() != QTable::NoSelection ) {
+	    startPos = p;
 	    table->currentSel = new QTableSelection();
 	    table->selections.append( table->currentSel );
 	    if ( orientation() == Vertical ) {
@@ -6103,7 +6105,7 @@ void QTableHeader::sectionWidthChanged( int col, int, int )
 	    p.drawLine( pt.x(), pt.y()+1,
 			pt.x(), pt.y()+ table->visibleHeight() );
 	    if ( d->oldLinePos >= 0 )
-		table->repaintContents( d->oldLinePos, table->contentsY(), 
+		table->repaintContents( d->oldLinePos, table->contentsY(),
 				       1, table->visibleHeight() );
 
 	    d->oldLinePos = lx;
@@ -6132,7 +6134,7 @@ void QTableHeader::sectionWidthChanged( int col, int, int )
 	    p.drawLine( pt.x()+1, pt.y(),
 			pt.x() + table->visibleWidth(), pt.y() );
 	    if ( d->oldLinePos >= 0 )
-		table->repaintContents(  table->contentsX(), d->oldLinePos, 
+		table->repaintContents(  table->contentsX(), d->oldLinePos,
 					table->visibleWidth(), 1 );
 	    d->oldLinePos = ly;
 	}
