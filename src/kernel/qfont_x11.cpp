@@ -2701,22 +2701,30 @@ extern bool qt_use_xrender; // defined in qapplication_x11.cpp
 void QFont::initialize()
 {
     // create font cache and name dict
-    QFontPrivate::fontCache = new QFontCache();
-    Q_CHECK_PTR(QFontPrivate::fontCache);
-    cleanup_fontcache.add(&QFontPrivate::fontCache);
+    if ( ! QFontPrivate::fontCache ) {
+	QFontPrivate::fontCache = new QFontCache();
+	Q_CHECK_PTR(QFontPrivate::fontCache);
+	cleanup_fontcache.add(&QFontPrivate::fontCache);
+    }
 
-    fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
-    Q_CHECK_PTR(fontNameDict);
-    fontNameDict->setAutoDelete(TRUE);
-    cleanup_fontnamedict.add(&fontNameDict);
+    if ( ! fontNameDict ) {
+	fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
+	Q_CHECK_PTR(fontNameDict);
+	fontNameDict->setAutoDelete(TRUE);
+	cleanup_fontnamedict.add(&fontNameDict);
+    }
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
-    (void) new QFontJis0208Codec;
-    (void) new QFontKsc5601Codec;
-    (void) new QFontGB2312Codec;
-    (void) new QFontBig5Codec;
-    (void) new QFontArabic68Codec;
+    static bool codecs_once = FALSE;
+    if ( ! codecs_once ) {
+	(void) new QFontJis0208Codec;
+	(void) new QFontKsc5601Codec;
+	(void) new QFontGB2312Codec;
+	(void) new QFontBig5Codec;
+	(void) new QFontArabic68Codec;
+	codecs_once = TRUE;
+    }
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
 
@@ -2728,8 +2736,11 @@ void QFont::initialize()
 	QSettings settings;
 	qt_has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
 	qt_use_antialiasing = QSettings().readBoolEntry( "/qt/useXft", TRUE );
-	qt_xft_render_sources = new QPixmapDict();
-	cleanup_pixmapdict.add(&qt_xft_render_sources);
+
+	if ( ! qt_xft_render_sources ) {
+	    qt_xft_render_sources = new QPixmapDict();
+	    cleanup_pixmapdict.add(&qt_xft_render_sources);
+	}
     }
 #endif // QT_NO_XFTFREETYPE
 
@@ -2812,13 +2823,13 @@ void QFont::cleanup()
     // care of by our cleanup handlers
     QFontPrivate::fontCache->setAutoDelete(TRUE);
     QFontPrivate::fontCache->clear();
-    QFontPrivate::fontCache = 0;
-    fontNameDict = 0;
+    fontNameDict->clear();
 
 #ifndef QT_NO_XFTFREETYPE
-    if (qt_xft_render_sources)
+    if (qt_xft_render_sources) {
 	qt_xft_render_sources->setAutoDelete(TRUE);
-    qt_xft_render_sources = 0;
+	qt_xft_render_sources->clear();
+    }
 #endif // QT_NO_XFTFREETYPE
 
 }
