@@ -15,6 +15,7 @@ static inline void tag_to_string( char *string, FT_ULong tag )
 }
 
 #define DefaultLangSys 0xffff;
+#define ALWAYS_APPLY 0xc000
 
 struct Features {
     FT_ULong tag;
@@ -23,36 +24,24 @@ struct Features {
 
 // ### keep in sync with Shape enum in scriptenginearabic.cpp
 const Features arabicGSUBFeatures[] = {
-    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x01 },
-    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), 0x02 },
-    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), 0x04 },
-    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), 0x08 },
-    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), 0x10 },
-    { FT_MAKE_TAG( 'r', 'l', 'i', 'g' ), 0x20 },
-    { FT_MAKE_TAG( 'c', 'a', 'l', 't' ), 0x40 },
-    { FT_MAKE_TAG( 'l', 'i', 'g', 'a' ), 0x80 },
+    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
+    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), 0x01 },
+    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), 0x02 },
+    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), 0x04 },
+    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), 0x08 },
+    { FT_MAKE_TAG( 'r', 'l', 'i', 'g' ), 0x4000 },
+    { FT_MAKE_TAG( 'c', 'a', 'l', 't' ), 0x8000 },
+    { FT_MAKE_TAG( 'l', 'i', 'g', 'a' ), 0x4000 },
     // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
-    { FT_MAKE_TAG( 'm', 's', 'e', 't' ), 0x100 },
+    { FT_MAKE_TAG( 'm', 's', 'e', 't' ), 0x8000 },
     { 0,  0 }
 };
 // required for minimal support are: fina, medi, init and rlig. Some old fonts actually only have liga instead of rlig,
 // so we also accept liga without rlig
 
 static inline bool arabicFoundRequiredFeatures( int found_bits ) {
-    return ((found_bits & 0x3c) == 0x3c || (found_bits & 0x9c) == 0x9c );
+    return ((found_bits & 0x400e) == 0x400e );
 }
-
-// these are the features that should get applied in all cases (if available in the font)
-static const short arabicGSUBorMask = 0xf1e1;
-
-const Features arabicGPOSFeatures[] = {
-    { FT_MAKE_TAG( 'c', 'u', 'r', 's' ), 0x1000 },
-    { FT_MAKE_TAG( 'k', 'e', 'r', 'n' ), 0x2000 },
-    { FT_MAKE_TAG( 'm', 'a', 'r', 'k' ), 0x4000 },
-    { FT_MAKE_TAG( 'm', 'k', 'm', 'k' ), 0x8000 },
-    { 0,  0 }
-};
-
 
 bool OpenTypeIface::loadArabicTables( FT_ULong script)
 {
@@ -108,18 +97,9 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 
 	for( int i = 0; i < numfeatures; i++ ) {
 	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
-	    FT_ULong feature = r->FeatureTag;
-	    const Features *f = arabicGPOSFeatures;
-	    while ( f->tag ) {
-		if ( f->tag == feature ) {
-		    found_bits |= f->bit;
-		    break;
-		}
-		f++;
-	    }
 	    FT_UShort feature_index;
-	    TT_GPOS_Select_Feature( gpos, f->tag, script_index, 0xffff, &feature_index );
-	    TT_GPOS_Add_Feature( gpos, feature_index, f->bit );
+	    TT_GPOS_Select_Feature( gpos, r->FeatureTag, script_index, 0xffff, &feature_index );
+	    TT_GPOS_Add_Feature( gpos, feature_index, ALWAYS_APPLY );
 
 	    char featureString[5];
 	    tag_to_string( featureString, r->FeatureTag );
@@ -129,7 +109,7 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 
     }
     if ( !arabicFoundRequiredFeatures( found_bits ) ) {
-	qDebug( "not all required features for arabic found!" );
+	qDebug( "not all required features for arabic found! found_bits=%x", found_bits );
 	TT_GSUB_Clear_Features( gsub );
 	return FALSE;
     }
@@ -204,8 +184,7 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     }
 
     for ( int i = 0; i < shaped->d->num_glyphs; i++ ) {
-	featuresToApply[i] |= arabicGSUBorMask;
-	featuresToApply[i] &= found_bits;
+	featuresToApply[i] |= ALWAYS_APPLY;
     }
 
 
@@ -235,8 +214,7 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
 
 //     qDebug("out: num_glyphs = %d", shaped->d->num_glyphs );
     GlyphAttributes *oldAttrs = shaped->d->glyphAttributes;
-    shaped->d->glyphAttributes = ( GlyphAttributes *) realloc( shaped->d->glyphAttributes,
-							       out->length*sizeof(GlyphAttributes) );
+    shaped->d->glyphAttributes = ( GlyphAttributes *) malloc( out->length*sizeof(GlyphAttributes) );
 
     int clusterStart = 0;
     int oldlc = 0;

@@ -56,10 +56,10 @@ enum Shape {
 
 // ### keep in sync with table entries in opentype.cpp
 static const unsigned short shapeToOpenTypeBit[] = {
+    0x01,
     0x02,
-    0x04,
-    0x10,
-    0x08
+    0x08,
+    0x04
 };
 
 /*
