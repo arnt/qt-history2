@@ -3945,7 +3945,8 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
 #ifdef QT3_SUPPORT
     bool isMain = (QApplicationPrivate::main_widget == q);
 #endif
-    bool checkLastWindowClosed = (q->isWindow() && q->windowType() != Qt::Popup);
+    Qt::WindowType type = q->windowType();
+    bool checkLastWindowClosed = (type == Qt::Window || ((type == Qt::Dialog || type == Qt::Tool) && !q->parentWidget()));
 
     if (mode != CloseNoEvent) {
         QPointer<QWidget> that = q;
@@ -3985,8 +3986,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
             if (w->isExplicitlyHidden())
                 continue;
             Qt::WindowType type = w->windowType();
-            if (type == Qt::Desktop || type == Qt::Popup
-                || ((type == Qt::Dialog || type == Qt::Tool) && !w->parentWidget()))
+            if (type != Qt::Window && ((type != Qt::Dialog && type != Qt::Tool) || w->parentWidget()))
                 continue;
             lastWindowClosed = false;
             break;
