@@ -854,12 +854,17 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
     QItemSelectionRange r;
     QModelIndex topIndex, bottomIndex;
     for (int i = 0; i < selection.count(); ++i) {
+        if (!r.isValid())
+            continue;
         r = selection.at(i);
         topIndex = model()->index(r.top(), r.left(), r.parent());
         top = qMin(d->viewIndex(topIndex), top);
         bottomIndex = model()->index(r.bottom(), r.left(), r.parent());
         bottom = qMax(d->viewIndex(bottomIndex), bottom);
     }
+
+    if (!(topIndex.isValid() && bottomIndex.isValid()))
+        return QRect();
 
     QStyleOptionViewItem option = viewOptions();
     int bottomHeight = itemDelegate()->sizeHint(option, bottomIndex).height();
