@@ -93,13 +93,13 @@ QUuid::QUuid( const QString &text )
 */
 
 /*!
-  \fn QUuid::operator==(const QUuid &other) const
+  \fn bool QUuid::operator==(const QUuid &other) const
 
   Returns TRUE if this QUuid and the \a other QUuid are identical, otherwise returns FALSE.
 */
 
 /*!
-  \fn QUuid::operator!=(const QUuid &other) const
+  \fn bool QUuid::operator!=(const QUuid &other) const
 
   Returns TRUE if this QUuid and the \a other QUuid are different, otherwise returns FALSE.
 */
