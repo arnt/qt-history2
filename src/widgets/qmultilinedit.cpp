@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#11 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -15,6 +15,7 @@
 #include "qscrbar.h"
 #include "qkeycode.h"
 #include "qclipbrd.h"
+#include "qpixmap.h"
 #include "qapp.h"
 
 /*!
@@ -98,8 +99,11 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     dummy          = TRUE;
     dragScrolling  = FALSE;
     dragMarking    = FALSE;
-    markAnchorX    = markAnchorY = 0;
-    markDragX      = markDragY   = 0;
+    markIsOn	   = TRUE;
+    markAnchorX    = 13;
+    markAnchorY    = 7;
+    markDragX      = 21;
+    markDragY      = 7;
 }
 
 /*!
@@ -144,16 +148,59 @@ QMultiLineEdit::~QMultiLineEdit()
 
 */
 
-void QMultiLineEdit::paintCell( QPainter *p, int row, int )
+const int nBuffers = 3;
+static QPixmap *buffer[nBuffers] = { 0, 0, 0 };   // ### delete ved avslutning
+static int freeNext = 0;
+
+static void cleanupMLBuffers()
 {
-    //debug( "paint cell %d", row );
+    for( int i = 0 ; i < nBuffers ; i++ ) {
+	delete buffer[i];
+	buffer[i] = 0;
+    }
+}
+
+static QPixmap *getCacheBuffer( QSize sz )
+{
+    static bool firstTime = TRUE;
+    if ( firstTime ) {
+	firstTime = FALSE;
+	qAddPostRoutine( cleanupMLBuffers );
+    }
+
+    for( int i = 0 ; i < nBuffers ; i++ ) {
+	if ( buffer[i] ) {
+	    if ( buffer[i]->size() == sz )
+		return buffer[i];
+	} else {
+	    return buffer[i] = new QPixmap( sz );
+	}
+    }
+    if ( ++freeNext == 3 )
+	freeNext = 0;
+    buffer[freeNext]->resize( sz );
+    return buffer[freeNext];
+}
+
+void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
+{
     QColorGroup	 g    = colorGroup();
-    QFontMetrics fm = p->fontMetrics();
+    QFontMetrics fm = painter->fontMetrics();
     QString *s = contents->at( row );
     if ( !s ) {
 	warning( "QMultiLineEdit::paintCell, no text at line %d", row );
 	return;
     }
+    QRect updateR   = cellUpdateRect();
+    QPixmap *buffer = getCacheBuffer( updateR.size() );
+    ASSERT(buffer);
+    buffer->fill ( g.base() );
+
+    QPainter p;
+    p.begin( buffer );
+    p.setFont( painter->font() );
+    p.translate( -updateR.left(), -updateR.top() );
+
     int yPos = fm.ascent() + fm.leading()/2 - 1;
     bool hasMark = FALSE;
     int markX1, markX2;			// in x-coordinate pixels
@@ -196,23 +243,24 @@ void QMultiLineEdit::paintCell( QPainter *p, int row, int )
 	}
     }
     if ( !hasMark ) {
-	p->setPen( g.text() );
-	p->drawText( BORDER,  yPos , *s );
+	p.setPen( g.text() );
+	p.drawText( BORDER,  yPos , *s );
     } else {
+	int xpos1, xpos2;
 	if ( markX1 != markX2 ) {
-	    	int xpos1 =  BORDER + fm.width( s->data(), markX1 );
-		int xpos2 =  xpos1 + fm.width( s->data() + markX1, 
+	    	xpos1 =  BORDER + fm.width( s->data(), markX1 );
+		xpos2 =  xpos1 + fm.width( s->data() + markX1, 
 					       markX2 - markX1 ) - 1;
-		p->fillRect( xpos1, 0, xpos2 - xpos1, cellHeight(row), 
+		p.fillRect( xpos1, 0, xpos2 - xpos1, cellHeight(row), 
 			     g.text() );
-		p->setPen( g.base() );
-		p->drawText( xpos1, yPos, s->data() + markX1, markX2 - markX1);
+		p.setPen( g.base() );
+		p.drawText( xpos1, yPos, s->data() + markX1, markX2 - markX1);
 	}
-	p->setPen( g.text() );
+	p.setPen( g.text() );
 	if ( markX1 != 0 )
-	    p->drawText( BORDER, yPos, *s, markX1 );
+	    p.drawText( BORDER, yPos, *s, markX1 );
 	if ( markX2 != (int)s->length() )
-	    p->drawText( BORDER + fm.width( *s, markX2 ), yPos,  // ### length
+	    p.drawText( BORDER + fm.width( *s, markX2 ), yPos,  // ### length
 			 s->data() + markX2, s->length() - markX2 );
     }
 
@@ -222,15 +270,16 @@ void QMultiLineEdit::paintCell( QPainter *p, int row, int )
 			fm.width( *s, cursorPos ) - 1;
 	int curYPos   = 0;
 	if ( hasFocus() ) {
-	    p->drawLine( curXPos - 2, curYPos,
+	    p.drawLine( curXPos - 2, curYPos,
 			 curXPos + 2, curYPos );
-	    p->drawLine( curXPos    , curYPos,
+	    p.drawLine( curXPos    , curYPos,
 			 curXPos    , curYPos + fm.height() - 2);
-	    p->drawLine( curXPos - 2, curYPos + fm.height() - 2,
+	    p.drawLine( curXPos - 2, curYPos + fm.height() - 2,
 			 curXPos + 2, curYPos + fm.height() - 2);
 	}
-
     }
+    p.end();
+    painter->drawPixmap( updateR.left(), updateR.top(), *buffer );
 }
 
 /*!
@@ -268,7 +317,7 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
     //killTimers();
     startTimer( blinkTime );
     cursorOn = TRUE;
-    updateCell( cursorY, 0 );
+    updateCell( cursorY, 0, FALSE );
 }
 
 /*!
@@ -295,7 +344,7 @@ void QMultiLineEdit::timerEvent( QTimerEvent * )
 		cursorRight( TRUE );	// mark right
 	} else */{
 	    cursorOn = !cursorOn;
-	    updateCell( cursorY, 0 );
+	    updateCell( cursorY, 0, FALSE );
 	}
     }
 }
@@ -543,7 +592,7 @@ void QMultiLineEdit::pageDown()
     }
     cursorX = mapFromView( curXPos, cursorY );
     //makeVisible();
-    updateCell( oldY, 0 );
+    updateCell( oldY, 0, FALSE );
 }
 
 void QMultiLineEdit::pageUp()
@@ -564,7 +613,7 @@ void QMultiLineEdit::pageUp()
 	cursorY = QMAX( cursorY - pageSize, 0 );
     }
     //makeVisible();
-    updateCell( oldY, 0 );
+    updateCell( oldY, 0, FALSE );
 }
 
 /*!
@@ -593,7 +642,7 @@ void QMultiLineEdit::insert( QString s, int row )
 	setNumRows( contents->count() );
 
 	if ( updt )
-	    repaint();
+	    repaint( FALSE );
     } else { //multiline
 	int from = 0;
 	if ( row < 0 || row >= count() )
@@ -638,7 +687,7 @@ void QMultiLineEdit::remove( int row )
 	updateCellWidth();
     makeVisible();
     if ( updt )
-	repaint();
+	repaint( FALSE );
 }
 
 /*!
@@ -704,7 +753,7 @@ void QMultiLineEdit::killLine()
 	s->remove( cursorX, s->length() );
 	if ( recalc )
 	    updateCellWidth();
-	updateCell( cursorY, 0 );
+	updateCell( cursorY, 0, FALSE );
     }
     curXPos = 0;
     makeVisible();
@@ -740,10 +789,10 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 		cursorY = 0; //### ?
 		cursorX = 0;
 	    }
-	    updateCell( oldY, 0 );
+	    updateCell( oldY, 0, FALSE );
 	}
 	startTimer( blinkTime );
-	updateCell( cursorY, 0 );
+	updateCell( cursorY, 0, FALSE );
     }
     curXPos = 0;
     makeVisible();
@@ -778,9 +827,9 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
 	    } else {
 		cursorX = lineLength( cursorY );
 	    }
-	    updateCell( oldY, 0 );
+	    updateCell( oldY, 0, FALSE );
 	}
-	updateCell( cursorY, 0 );
+	updateCell( cursorY, 0, FALSE );
 	startTimer( blinkTime );
     }
     curXPos = 0;
@@ -813,8 +862,8 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
 	    cursorY = 0;
 	}
         cursorX = mapFromView( curXPos, cursorY );
-	updateCell( oldY, 0 );
-	updateCell( cursorY, 0 );
+	updateCell( oldY, 0, FALSE );
+	updateCell( cursorY, 0, FALSE );
 	startTimer( blinkTime );
     }
     makeVisible();
@@ -846,8 +895,8 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
 	    cursorY = lastLin;
 	}
         cursorX = mapFromView( curXPos, cursorY );
-	updateCell( oldY, 0 );
-	updateCell( cursorY, 0 );
+	updateCell( oldY, 0, FALSE );
+	updateCell( cursorY, 0, FALSE );
 	startTimer( blinkTime );
     }
     makeVisible();
@@ -897,7 +946,7 @@ void QMultiLineEdit::del()
 		s->remove( cursorX, 1 );
 		if ( recalc )
 		    updateCellWidth();
-		updateCell( cursorY, 0 );
+		updateCell( cursorY, 0, FALSE );
 	    }
 	    //emit textChanged();
 	}
@@ -928,7 +977,7 @@ void QMultiLineEdit::home( bool ) //mark
 	}
 	*/
 	cursorOn = TRUE;
-	updateCell( cursorY, 0 );
+	updateCell( cursorY, 0, FALSE );
 	//startTimer( dragScrolling ? scrollTime : blinkTime );
 	startTimer( blinkTime );
     }
@@ -960,7 +1009,7 @@ void QMultiLineEdit::end( bool ) //mark
 	cursorOn  = TRUE;
 	//startTimer( dragScrolling ? scrollTime : blinkTime );
 	startTimer( blinkTime );
-	updateCell( cursorY, 0 );
+	updateCell( cursorY, 0, FALSE );
     }
     curXPos = 0;
     makeVisible();
@@ -1035,7 +1084,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	markIsOn       = FALSE;
 	if ( markWasOn ) {
 	    cursorY = newY;
-	    repaint();
+	    repaint( FALSE );
 	    return;
 	}	
     }
@@ -1044,9 +1093,9 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	if ( cursorY != newY ) {
 	    int oldY = cursorY;
 	    cursorY = newY;
-	    updateCell( oldY, 0 );
+	    updateCell( oldY, 0, FALSE );
 	}
-	updateCell( cursorY, 0 );		// ###
+	updateCell( cursorY, 0, FALSE );		// ###
     }
     if ( m->button() ==  MidButton )
 	paste();		// Will repaint the cursor line.
@@ -1067,7 +1116,7 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 	markDragX = newX;
 	markDragY = newY;
 	markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
-	repaint(); //###
+	repaint( FALSE ); //###
     }
 }
 
@@ -1232,7 +1281,7 @@ void QMultiLineEdit::paste()
 	    cursorX = lastLen;
 	    updateCellWidth();
 	    setAutoUpdate( TRUE );
-	    repaint();
+	    repaint( FALSE );
 	}
 	curXPos = 0;
     }
