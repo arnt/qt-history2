@@ -16261,11 +16261,9 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   copies of the string will cause it to create a copy of the
   data, thus it remains forever unmodified.
 
-  Note that \a unicode is \e not \e copied.  The caller \e must be
+  The data in \a unicode is not copied.  The caller must be
   able to guarantee that \a unicode will not be deleted or
-  modified. Since that is generally not the case with \c const strings
-  (they are references), this constructor demands a non-const pointer
-  even though it never modifies \a unicode.
+  modified.
 */
 QConstString::QConstString( const QChar* unicode, uint length ) :
     QString( new QStringData( (QChar*)unicode, length, length ), TRUE )
