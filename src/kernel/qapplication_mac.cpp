@@ -1832,6 +1832,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    if(imstart.isAccepted()) {
 			handled_event = TRUE;
 			doc->setInputWidget(widget);
+			QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
+			QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
 		    }
 		} else if(doc->inputWidget()) {
 		    long fixed_length;
@@ -1854,13 +1856,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 				QIMEvent imstart(QEvent::IMStart, text.mid(fixed_length / sizeof(UniChar)),
 						 (fixed_length - text.length()) / sizeof(UniChar));
 				QApplication::sendSpontaneousEvent(doc->inputWidget(), &imstart);
-				if(imstart.isAccepted())
+				if(imstart.isAccepted()) 
 				    handled_event = TRUE;
 			    }
 			} else {
 			    QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
 			    QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
-			    if(imcompose.isAccepted())
+			    if(imcompose.isAccepted()) 
 				handled_event = TRUE;
 			}
 		    }
@@ -1880,7 +1882,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	    char chr;
 	    GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
-	    if(text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr))) {
+	    if(!chr || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr)))) {
 		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 		QApplication::sendSpontaneousEvent(widget, &imstart);
 		if(imstart.isAccepted()) { //wants the event
@@ -1961,8 +1963,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	static UInt32 state = 0L;
 	char chr = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
 		   (modif & (kEventKeyModifierNumLockMask|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
-	if(!chr)
+	if(!chr) {
+	    if(CallNextEventHandler(er, event) == noErr)
+		handled_event = TRUE;
 	    break;
+	}
 
 	//map it into qt keys
 	QString mystr;
@@ -1975,7 +1980,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	qDebug("------------ Mapping modifiers and key -----------");
 #endif
 	if(modifiers & (Qt::AltButton | Qt::ControlButton)) {
-	    if(chr & (1 << 7))
+	    if(chr & (1 << 7)) 
 		chr = 0;
 	} else {  	//now get the real ascii value
 	    UInt32 tmp_mod = 0L;
@@ -1999,11 +2004,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	   is this a bug on X11? --Sam ### */
 	if(ekind == kEventRawKeyDown) {
 	    UInt32 unilen;
-	    if(GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, 0, &unilen, NULL) == noErr) {
+	    if(GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, 0, &unilen, NULL) == noErr && unilen == 2) {
 		UniChar *unicode = (UniChar*)NewPtr(unilen);
 		GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, unilen, NULL, unicode);
 		mystr = QString((QChar*)unicode, unilen / sizeof(UniChar));
-		DisposePtr((char*)unicode);
 	    } else if(chr) {
 		static QTextCodec *c = NULL;
 		if(!c)
