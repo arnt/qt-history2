@@ -63,6 +63,8 @@ public:
     void ensureItemVisible(const QModelIndex &item);
     QModelIndex itemAt(int x, int y) const;
 
+    void doItemsLayout();
+
 protected:
     QGenericListView(QGenericListViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
@@ -70,11 +72,14 @@ protected:
 
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &parent,
+                         const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
-    void startItemsLayout();
     bool doItemsLayout(int num);
-    void stopItemsLayout();
+    void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
+    
+    void doStaticLayout(const QRect &bounds, int first, int last);
+    void doDynamicLayout(const QRect &bounds, int first, int last);
 
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -98,10 +103,6 @@ protected:
 
     void setSelection(const QRect &rect, int selectionCommand);
     QRect selectionViewportRect(const QItemSelection &selection) const;
-
-    void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
-    void doStaticLayout(const QRect &bounds, int first, int last);
-    void doDynamicLayout(const QRect &bounds, int first, int last);
 
     bool supportsDragAndDrop() const;
 

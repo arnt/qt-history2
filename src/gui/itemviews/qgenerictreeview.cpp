@@ -395,6 +395,17 @@ QModelIndex QGenericTreeView::itemAt(int, int y) const
     return model()->sibling(mi.row(), d->editColumn, mi);
 }
 
+void QGenericTreeView::doItemsLayout()
+{
+    QItemOptions options;
+    getViewOptions(&options);
+    QModelIndex index = model()->index(0, 0, root());
+    d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), options, index).height();
+    d->layout(-1);
+    updateGeometries();
+    d->viewport->update();
+}
+
 int QGenericTreeView::horizontalOffset() const
 {
     return d->header->offset();
@@ -570,17 +581,6 @@ void QGenericTreeView::columnCountChanged(int, int)
 {
     if (isVisible())
         updateGeometries();
-}
-
-void QGenericTreeView::startItemsLayout()
-{
-    QItemOptions options;
-    getViewOptions(&options);
-    QModelIndex index = model()->index(0, 0, root());
-    d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), options, index).height();
-    d->layout(-1);
-    updateGeometries();
-    d->viewport->update();
 }
 
 void QGenericTreeView::resizeColumnToContents(int column)
@@ -983,6 +983,6 @@ void QGenericTreeViewPrivate::relayout(const QModelIndex &parent)
         }
     } else {
         items.resize(0);
-        q->startItemsLayout();
+        q->doItemsLayout();
     }
 }

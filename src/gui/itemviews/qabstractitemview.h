@@ -86,9 +86,13 @@ public:
     virtual void updateItem(const QModelIndex &item);
     virtual void updateRow(const QModelIndex &item);
 
+    virtual int rowSizeHint(int row) const;
+    virtual int columnSizeHint(int column) const;
+
 public slots:
-    void setRoot(const QModelIndex &index);
-    void edit(const QModelIndex &index);
+    virtual void setRoot(const QModelIndex &index);
+    virtual void edit(const QModelIndex &index);
+    virtual void doItemsLayout();
     void clearSelections();
     void setCurrentItem(const QModelIndex &data);
 
@@ -99,8 +103,6 @@ protected slots:
                                  const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
     virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
-    virtual void startItemsLayout();
-    virtual bool doItemsLayout(int num);
     virtual void updateCurrentEditor();
     virtual void updateGeometries();
     virtual void verticalScrollbarAction(int action);

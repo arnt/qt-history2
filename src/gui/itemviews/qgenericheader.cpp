@@ -147,10 +147,17 @@ int QGenericHeader::sectionSizeHint(int section) const
                              QModelIndex::HorizontalHeader :
                              QModelIndex::VerticalHeader;
     QModelIndex header = model()->index(row, col, 0, type);
-    if (orientation() == Vertical)
-        hint = delegate->sizeHint(fontMetrics(), options, header).height();
-    else
-        hint = delegate->sizeHint(fontMetrics(), options, header).width();
+    if (orientation() == Vertical) {
+        QSize size = delegate->sizeHint(fontMetrics(), options, header);
+        hint = size.height();
+        if (sortIndicatorSection() == section)
+            hint += size.width();
+    } else {
+        QSize size = delegate->sizeHint(fontMetrics(), options, header);
+        hint = size.width();
+        if (sortIndicatorSection() == section)
+            hint += size.height();
+    }
 
     return hint + border;
 }
@@ -229,14 +236,14 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
         //bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
         // FIXME: use alignRight and RTL
         QRect arrowRect;
-        int height = options->itemRect.height();
+        int h = options->itemRect.height();
         int x = options->itemRect.x();
         int y = options->itemRect.y();
+        int secSize = sectionSize(section);
         if (orientation() == Qt::Horizontal)
-            arrowRect.setRect(x + sectionSize(section) - border * 2 - (height / 2), y + 5,
-                              height / 2, height - border * 2);
+            arrowRect.setRect(x + secSize - border * 2 - (h / 2), y + 5, h / 2, h - border * 2);
         else
-            arrowRect.setRect(x + 5, y + sectionSize(section) - height, height / 2, height - border * 2);
+            arrowRect.setRect(x + 5, y + secSize - h, h / 2, h - border * 2);
         arrowFlags |= (sortIndicatorOrder() == Qt::Ascending ? QStyle::Style_Down : QStyle::Style_Up);
         style().drawPrimitive(QStyle::PE_HeaderArrow, painter, arrowRect, palette(), arrowFlags);
     }
@@ -436,7 +443,7 @@ void QGenericHeader::updateSection(int section)
 void QGenericHeader::resizeSections()
 {
     ResizeMode mode;
-    int secSize;
+    int secSize = 0;
     int stretchSecs = 0;
     int stretchSize = orientation() == Horizontal ? d->viewport->width() : d->viewport->height();
     QList<int> section_sizes;
@@ -448,10 +455,17 @@ void QGenericHeader::resizeSections()
             ++stretchSecs;
             continue;
         }
-        if (mode == Interactive)
+        if (mode == Interactive) {
             secSize = sectionSize(secs[i].section);
-        else //if (mode == QGenericHeader::Custom)
-            secSize = sectionSizeHint(secs[i].section); // FIXME: get the size of the section from the contents
+        } else {//if (mode == QGenericHeader::Custom)
+            // FIXME: get the size of the section from the contents;
+            //  this is just a temprary (hacky) solution
+            QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
+            if (par)
+                secSize = (orientation() == Horizontal
+                           ? par->columnSizeHint(i) : par->rowSizeHint(i));
+            secSize = qMax(secSize, sectionSizeHint(secs[i].section));
+        }
         section_sizes.append(secSize);
         stretchSize -= secSize;
     }
@@ -666,7 +680,7 @@ void QGenericHeader::showSection(int section)
 {
     d->sections[index(section)].hidden = false;
     resizeSection(section, orientation() == Horizontal ? default_width : default_height);
-    // FIXME: when you show a section, you should get the section size bach
+    // FIXME: when you show a section, you should get the old section size bach
 }
 
 bool QGenericHeader::isSectionHidden(int section) const
@@ -693,12 +707,6 @@ int QGenericHeader::verticalOffset() const
     if (orientation() == Qt::Vertical)
         return offset();
     return 0;
-}
-
-void QGenericHeader::autoScroll(int, int)
-{
-    QRect area = d->viewport->geometry();
-    qDebug("QGenericHeader::autoScroll");
 }
 
 QModelIndex QGenericHeader::moveCursor(QAbstractItemView::CursorAction, ButtonState)
@@ -853,11 +861,19 @@ int QGenericHeader::stretchSectionCount() const
 
 void QGenericHeader::setSortIndicator(int section, SortOrder order)
 {
-    if (section != d->sortIndicatorSection)
-        updateSection(d->sortIndicatorSection);
+    int old = d->sortIndicatorSection;
     d->sortIndicatorSection = section;
     d->sortIndicatorOrder = order;
-    updateSection(section);
+
+    if (d->sections.at(section).mode == Custom
+        || (old > -1 && d->sections.at(old).mode == Custom)) {
+        resizeSections();
+        d->viewport->update();
+    } else {
+        if (old > -1 && old != section)
+            updateSection(old);
+        updateSection(section);
+    }
 }
 
 int QGenericHeader::sortIndicatorSection() const

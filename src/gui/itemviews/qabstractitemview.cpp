@@ -73,7 +73,7 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
     
     QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
-                               q->metaObject()->indexOfSlot("startItemsLayout()"), q));
+                               q->metaObject()->indexOfSlot("doItemsLayout()"), q));
 }
 
 /*!
@@ -213,8 +213,7 @@ QModelIndex QAbstractItemView::currentItem() const
 void QAbstractItemView::setRoot(const QModelIndex &index)
 {
     d->root = index;
-    startItemsLayout();
-    update();
+    doItemsLayout();
 }
 
 QModelIndex QAbstractItemView::root() const
@@ -228,6 +227,12 @@ void QAbstractItemView::edit(const QModelIndex &index)
         qWarning("edit: index was invalid");
     if (!startEdit(index, QAbstractItemDelegate::AlwaysEdit, 0))
         qWarning("edit: editing failed");
+}
+
+void QAbstractItemView::doItemsLayout()
+{
+    update();
+    // do nothing
 }
 
 void QAbstractItemView::setStartEditActions(int actions)
@@ -518,9 +523,9 @@ void QAbstractItemView::autoScroll(int x, int y)
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); // scroll up
     else if (area.bottom() - y < border)
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); // scroll down
-    else if (y - area.left() < border)
+    else if (x - area.left() < border)
         horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); // scroll left
-    else if (area.right() - y < border)
+    else if (area.right() - x < border)
         horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); // scroll right
 }
 
@@ -684,6 +689,36 @@ void QAbstractItemView::updateRow(const QModelIndex &item)
     d->viewport->update(rect);
 }
 
+int QAbstractItemView::rowSizeHint(int row) const
+{
+    QItemOptions options;
+    getViewOptions(&options);
+    QAbstractItemDelegate *delegate = itemDelegate();
+    int height = 0;
+    int colCount = d->model->columnCount(root());
+    QModelIndex idx;
+    for (int c = 0; c < colCount; ++c) {
+        idx = d->model->index(row, c, root());
+        height = qMax(height, delegate->sizeHint(fontMetrics(), options, idx).height());
+    }
+    return height;
+}
+
+int QAbstractItemView::columnSizeHint(int column) const
+{
+    QItemOptions options;
+    getViewOptions(&options);
+    QAbstractItemDelegate *delegate = itemDelegate();
+    int width = 0;
+    int rowCount = d->model->rowCount(root());
+    QModelIndex idx;
+    for (int r = 0; r < rowCount; ++r) {
+        idx = d->model->index(r, column, root());
+        width = qMax(width, delegate->sizeHint(fontMetrics(), options, idx).width());
+    }
+    return width;
+}
+
 /*!
     \property QAbstractItemView::keyboardInputInterval
     \brief the interval threshold for doing keyboard searches.
@@ -709,9 +744,7 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
             updateItem(topLeft);
         return;
     }
-
-    update();
-    startItemsLayout();
+    doItemsLayout();
 }
 
 void QAbstractItemView::contentsInserted(const QModelIndex &, const QModelIndex &)
@@ -771,17 +804,6 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
         // FIXME: the QWidget::scroll() will sometimes blit before we get the chance to repaint the old item
         startEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
     }
-}
-
-void QAbstractItemView::startItemsLayout()
-{
-    while (!doItemsLayout(100))
-        qApp->processEvents();
-}
-
-bool QAbstractItemView::doItemsLayout(int)
-{
-    return true; // do nothing
 }
 
 void QAbstractItemView::fetchMore()

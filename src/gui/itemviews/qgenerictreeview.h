@@ -52,6 +52,8 @@ public:
     void ensureItemVisible(const QModelIndex &item);
     QModelIndex itemAt(int x, int y) const;
 
+    void doItemsLayout();
+
  signals:
     void expanded(const QModelIndex &index);
     void collapsed(const QModelIndex &index);
@@ -73,7 +75,6 @@ protected:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void startItemsLayout();
 
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     int horizontalOffset() const;

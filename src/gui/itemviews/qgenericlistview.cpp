@@ -268,7 +268,7 @@ void QGenericListView::setMovement(Movement movement)
 {
     d->movement = movement;
     if (isVisible())
-        startItemsLayout();
+        doItemsLayout();
 }
 
 QGenericListView::Movement QGenericListView::movement() const
@@ -280,7 +280,7 @@ void QGenericListView::setFlow(Flow flow)
 {
     d->flow = flow;
     if (isVisible())
-        startItemsLayout();
+        doItemsLayout();
 }
 
 QGenericListView::Flow QGenericListView::flow() const
@@ -292,7 +292,7 @@ void QGenericListView::setWrapping(bool enable)
 {
     d->wrap = enable;
     if (isVisible())
-        startItemsLayout();
+        doItemsLayout();
 }
 
 bool QGenericListView::isWrapping() const
@@ -304,7 +304,7 @@ void QGenericListView::setIconSize(Size size)
 {
     d->size = size;
     if (isVisible())
-        startItemsLayout();
+        doItemsLayout();
 }
 
 QGenericListView::Size QGenericListView::iconSize() const
@@ -336,7 +336,7 @@ void QGenericListView::setSpacing(int space)
 {
     d->spacing = space;
     if (isVisible())
-        startItemsLayout();
+        doItemsLayout();
 }
 
 int QGenericListView::spacing() const
@@ -348,7 +348,7 @@ void QGenericListView::setGridSize(const QSize &size)
 {
     d->gridSize = size;
     if (isVisible())
-        startItemsLayout();
+        doItemsLayout();
 }
 
 QSize QGenericListView::gridSize() const
@@ -419,7 +419,7 @@ void QGenericListView::contentsRemoved(const QModelIndex &parent,
         return;
 
     if (isVisible())
-        startItemsLayout();
+        doItemsLayout();
 
     bool needMore = false;
     if ((d->flow == TopToBottom && !d->wrap) || (d->flow == LeftToRight && d->wrap))
@@ -456,7 +456,7 @@ void QGenericListView::timerEvent(QTimerEvent *e)
     if (e->timerId() == d->layoutTimer) {
         killTimer(d->layoutTimer);
         d->layoutTimer = 0;
-        startItemsLayout();
+        doItemsLayout();
     }
 }
 
@@ -775,7 +775,7 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
     return rect;
 }
 
-void QGenericListView::startItemsLayout()
+void QGenericListView::doItemsLayout()
 {
     d->layoutStart = 0;
     d->layoutWraps = 0;
@@ -792,18 +792,8 @@ void QGenericListView::startItemsLayout()
     if (d->layoutMode == Instant)
         doItemsLayout(model()->rowCount(root())); // layout everything
     else
-        QAbstractItemView::startItemsLayout(); // do layout in batches
-}
-
-void QGenericListView::stopItemsLayout()
-{
-    if (d->movement == Static) {
-        d->wrapVector.resize(d->wrapVector.count());
-        if (d->flow == LeftToRight)
-            d->yposVector.resize(d->yposVector.count());
-        else // TopToBottom
-            d->xposVector.resize(d->xposVector.count());
-    }
+        while (!doItemsLayout(100)) // do layout in batches
+            qApp->processEvents();
 }
 
 bool QGenericListView::doItemsLayout(int delta)
@@ -826,13 +816,21 @@ bool QGenericListView::doItemsLayout(int delta)
     d->layoutStart = last + 1;
 
     if (d->layoutStart >= max) {
-        stopItemsLayout();
+        // stop items layout
+        if (d->movement == Static) {
+            d->wrapVector.resize(d->wrapVector.count());
+            if (d->flow == LeftToRight)
+                d->yposVector.resize(d->yposVector.count());
+            else // TopToBottom
+                d->xposVector.resize(d->xposVector.count());
+        }
         return true; // done
     }
     return false; // not done
 }
 
-void QGenericListView::doItemsLayout(const QRect &bounds, const QModelIndex &first,
+void QGenericListView::doItemsLayout(const QRect &bounds,
+                                     const QModelIndex &first,
                                      const QModelIndex &last)
 {
     if (first.row() >= last.row() || !first.isValid() || !last.isValid())

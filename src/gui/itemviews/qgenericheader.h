@@ -97,7 +97,6 @@ protected:
 
     int horizontalOffset() const;
     int verticalOffset() const;
-    void autoScroll(int x, int y);
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QModelIndex item(int section) const;
     void setSelection(const QRect&, int) {}
