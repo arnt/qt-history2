@@ -2,6 +2,7 @@ TEMPLATE	= app
 TARGET		= tetrix
 
 CONFIG		+= qt warn_on release
+QCONFIG         += compat
 DEPENDPATH	= ../../include
 
 QTDIR_build:REQUIRES	= small-config
