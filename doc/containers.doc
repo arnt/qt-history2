@@ -91,8 +91,9 @@
     associated with multiple values.
 
     \row \i \l{QHash}\<Key, T\>
-    \i This has almost the same API as QMap, but provides \e much
-    faster lookups. QHash stores its data in an arbitrary order.
+    \i This has almost the same API as QMap, but provides
+    significantly faster lookups. QHash stores its data in an
+    arbitrary order.
 
     \row \i \l{QMultiHash}\<Key, T\>
     \i This is a convenience subclass of QHash that
@@ -211,8 +212,7 @@
 
     For each container class, there are two Java-style iterator data
     types: one that provides read-only access and one that provides
-    read-write access. Read-only iterators should be used wherever
-    possible because they are faster than read-write iterators.
+    read-write access.
 
     \table
     \header \i Containers                             \i Read-only iterator
@@ -236,9 +236,9 @@
 
     Unlike STL-style iterators (covered \link {STL-style iterators}
     below \endlink), Java-style iterators point \e between items
-    rather than directly \e at items. For this reason they are either
+    rather than directly \e at items. For this reason, they are either
     pointing to the very beginning of the container (before the first
-    item), or at the very end of the container (after the last item), or
+    item), at the very end of the container (after the last item), or
     between two items. The diagram below shows the valid iterator
     positions as red arrows for a list containing four items:
 
@@ -319,12 +319,12 @@
         }
     \endcode
 
-    The i.next() call in the \c{if} is made every time. It jumps over
-    the next item in the list. The \link QListIterator::remove()
-    remove() \endlink function removes the last item that we jumped
-    over from the list. The call to \link QListIterator::remove()
-    remove() \endlink does not invalidate the iterator, so it is safe
-    to continue using it. This works just as well when iterating
+    The next() call in the loop is made every time. It jumps over the
+    next item in the list. The \link QListIterator::remove() remove()
+    \endlink function removes the last item that we jumped over from
+    the list. The call to \link QListIterator::remove() remove()
+    \endlink does not invalidate the iterator, so it is safe to
+    continue using it. This works just as well when iterating
     backward:
 
     \code
@@ -348,6 +348,12 @@
         }
     \endcode
 
+    Just like \link QListIterator::remove() remove() \endlink, \link
+    QListIterator::setValue() setValue() \endlink operates on the
+    last item that we jumped over. If we iterate forward, this is the
+    item just before the iterator; if we iterate backward, this is
+    the item just after the iterator.
+
     The \link QListIterator::next() next() \endlink function returns a
     non-const reference to the item in the list. For simple operations,
     we don't even need \link QListIterator::setValue() setValue() \endlink:
@@ -357,12 +363,6 @@
         while (i.hasNext())
 	    i.next() *= 2;
     \endcode
-
-    Just like \link QListIterator::remove() remove() \endlink, \link
-    QListIterator::setValue() setValue() \endlink operates on the
-    last item that we jumped over. If we iterate forward, this is the
-    item just before the iterator; if we iterate backward, this is
-    the item just after the iterator.
 
     As mentioned above, QLinkedList's and QVector's iterator classes
     have exactly the same API as QList. We will now turn to
@@ -466,13 +466,14 @@
 						      \i QHash\<Key, T\>::iterator
     \endtable
 
-    The API of the STL iterators is modelled on pointers in an
-    array. For example, the ++ operator advances the iterator to the
-    next item, and the * operator returns the item that the iterator
-    points to. In fact, for QVector and QStack, the \link
-    QVector::iterator iterator \endlink type is just a typedef for T
-    *, and the \link QVector::iterator const_iterator \endlink type
-    is just a typedef for const T *.
+    The API of the STL iterators is modelled on pointers in an array.
+    For example, the ++ operator advances the iterator to the next
+    item, and the * operator returns the item that the iterator
+    points to. In fact, for QVector and QStack, which store their
+    items at adjacent memory positions, the \link QVector::iterator
+    iterator \endlink type is just a typedef for T *, and the \link
+    QVector::iterator const_iterator \endlink type is just a typedef
+    for const T *.
 
     In this discussion, we will concentrate on QList and QMap. The
     iterator types for QLinkedList and QVector have exactly the same
@@ -487,19 +488,19 @@
         list << "A" << "B" << "C" << "D";
 
 	QList<QString>::const_iterator i;
-        for (i = list.constBegin(); i != list.constEnd(); ++i)
+        for (i = list.begin(); i != list.end(); ++i)
 	    cout << (*i).ascii() << endl;
     \endcode
 
-    If the list is empty, constBegin() equals constEnd(), so we never
-    execute the loop.
+    If the list is empty, begin() equals end(), so we never execute
+    the loop.
 
     Unlike Java-style iterators (covered \link {Java-style iterators}
     above \endlink), STL-style iterators point directly at items. The
-    constBegin() function of a container returns an iterator that
-    points to the first item in the container. The constEnd() function
+    begin() function of a container returns an iterator that
+    points to the first item in the container. The end() function
     of a container returns an iterator to the imaginary item one
-    position past the last item in the container. constEnd() marks an
+    position past the last item in the container. end() marks an
     invalid position; it must never be dereferenced. It is typically
     used in a loop's break condition.
 
@@ -516,8 +517,8 @@
 	QList<QString> list;
         list << "A" << "B" << "C" << "D";
 
-	QList<QString>::const_iterator i = list.constEnd();
-        while (i != list.constBegin()) {
+	QList<QString>::const_iterator i = list.end();
+        while (i != list.begin()) {
 	    --i;
 	    cout << (*i).ascii() << endl;
 	}
@@ -562,9 +563,16 @@
 	QMap<int, int> map;
         ...
         QMap<int, int>::const_iterator i;
-        for (i = map.constBegin(); i != map.constEnd(); ++i)
+        for (i = map.begin(); i != map.end(); ++i)
 	    cout << i.key() << ": " << i.value() << endl;
     \endcode
+
+    Final remark: On the side of begin() and end(), Qt's containers
+    also provide constBegin() and constEnd(), which return a const
+    iterator. We didn't use them in the examples above for
+    simplicity, but when iterating with a const iterator, you can
+    gain a little speed by calling constBegin() and constEnd()
+    instead of begin() and end().
 
     \target foreach
     \section1 The foreach Keyword
@@ -629,6 +637,15 @@
 	QMap<QString, int> map;
         ...
         foreach (QString str, map.keys())
+	    cout << str.ascii() << ": " << map.value(str) << endl;
+    \endcode
+
+    For a multi-valued map:
+
+    \code
+	QMultiMap<QString, int> map;
+        ...
+        foreach (QString str, map.keys())
 	    foreach (int i, map.values(str))
 		cout << str.ascii() << ": " << i << endl;
     \endcode
@@ -685,7 +702,6 @@
        that runs in linear-logarithmic time is asymptotically slower
        than a linear-time function, but faster than a quadratic-time
        function.
-### Jasmin: I changed asymtotically to asymptotically
 
     \i \e{quadratic time}: O(\e{n}^2). A quadratic-time function
        executes in a time that is proportional to the square of the
