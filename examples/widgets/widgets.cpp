@@ -14,6 +14,7 @@
 #include <qpixmap.h>
 #include <qlayout.h>
 #include <qapplication.h>
+#include <qevent.h>
 
 // Standard Qt widgets
 
