@@ -47,7 +47,7 @@ all:
 moc: tools mochack
 
 mochack:
-	${MAKE} -C moc
+	$(MAKE) -C moc
 
 #
 # Create a library, called from static, staticdbg, shared and shareddbg
@@ -62,29 +62,29 @@ tools kernel widgets dialogs: FORCE
 	-mkdir -p $(OBJDIR)/$@
 	-rm -f $@/*.o
 	-ln -f $(OBJDIR)/$@/*.o $@
-	${MAKE} -C $@ obj
+	$(MAKE) -C $@ obj
 	rm -f $(OBJDIR)/$@/*.o
 	mv -f $@/*.o $(OBJDIR)/$@
 
 static:
-	${MAKE} lib 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
+	$(MAKE) lib 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
 	/bin/rm -f $(STATICTARGET)
 	ar q $(STATICTARGET) obj/static/*/*.o
 	ranlib $(STATICTARGET)
 
 staticdbg:
-	${MAKE} lib 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
+	$(MAKE) lib 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
 	/bin/rm -f $(STATICTARGET)
 	ar q $(STATICTARGET) obj/staticdbg/*/*.o
 	ranlib $(STATICTARGET)
 
 shared:
-	${MAKE} lib 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
+	$(MAKE) lib 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
 	/bin/rm -f $(SHAREDTARGET)
 	$(CC) -shared -o $(SHAREDTARGET) obj/shared/*/*.o -lX11 -lgcc -lc
 
 shareddbg:
-	${MAKE} lib 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
+	$(MAKE) lib 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
 	/bin/rm -f $(SHAREDTARGET)
 	$(CC) -shared -o $(SHAREDTARGET) obj/shareddbg/*/*.o -lX11 -lgcc -lc
 
@@ -120,29 +120,29 @@ update:
 	@for d in $(DIRS); do cd $$d ; rupdate ; cd .. ; done
 
 checkout: 
-	set -e ; for d in $(DIRS); do ${MAKE} -C $$d checkout ; done
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d checkout ; done
 
 showdirs:
 	@echo $(DIRS)
 
 showfiles:
-	set -e ; for d in $(DIRS); do ${MAKE} -C $$d showfiles ; done
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showfiles ; done
 
 showsources:
-	set -e ; for d in $(DIRS); do ${MAKE} -C $$d showsources ; done
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showsources ; done
 
 showheaders:
-	set -e ; for d in $(DIRS); do ${MAKE} -C $$d showheaders" ; done
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showheaders" ; done
 
 clean:
-	set -e ; for d in $(DIRS); do ${MAKE} -C $$d clean ; done
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d clean ; done
 
 depend dep:
-	set -e ; for d in $(DIRS); do ${MAKE} -C $$d depend ; done
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d depend ; done
 
 include:
 	-rm $(INCDIR)/*.h
-	set -e ; for d in $(DIRS); do ${MAKE} -C $$d include ; done
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d include ; done
 
 tags:
 	echo */*.cpp */*.h | fmt -1 | egrep -v '_win|_os2|moc/' | etags --c++ -
