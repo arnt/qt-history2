@@ -51,9 +51,7 @@ SYSCONF_LINK_LIB_SHARED	= #${
 			     : '' )
 		       . ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED) $(OBJECTS) '
 		       . ' $(OBJMOC) $(LIBS);'
-		 . ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);'
-		 . ' cd $(DESTDIR);'
-		 . ' rm -f $(SYSCONF_LINK_TARGET_SHARED)';
+		 . ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);';
     } else {
 	if ( Project('TMAKE_LINK_SHLIB_CMD') ) {
 	    $text .= ' $(SYSCONF_LINK_SHLIB)'
