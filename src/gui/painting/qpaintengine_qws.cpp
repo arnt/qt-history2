@@ -380,8 +380,8 @@ void QWSPaintEngine::drawRect(const QRectF &r)
             drawPolyInternal(a);
             return;
         }
-        int x2 = x1 + (w-1);
-        int y2 = y1 + (h-1);
+        int x2 = x1 + w;
+        int y2 = y1 + h;
         bool paintBottom = y1 < y2;
         bool paintLeft   = y1 < y2 - 1;
         bool paintRight  = x1 < x2 && paintLeft;
@@ -396,8 +396,8 @@ void QWSPaintEngine::drawRect(const QRectF &r)
 
         x1 += 1;
         y1 += 1;
-        w -= 2;
-        h -= 2;
+        w -= 1;
+        h -= 1;
     }
 
     if (w > 0 && h > 0)
