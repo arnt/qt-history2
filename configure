@@ -2773,8 +2773,18 @@ EOF
   cat .projects.3 >>.projects
   rm -f .projects.3
     fi
+done
+# don't sort Qt and MOC in with the other project files
+# also work around a segfaulting uniq(1)
+if [ -f .sorted.projects.2 ]; then
+    sort .sorted.projects.2 > .sorted.projects.2.new
+    mv -f .sorted.projects.2.new .sorted.projects.2
+    uniq .sorted.projects.2 > .sorted.projects.2.new
+    mv -f .sorted.projects.2.new .sorted.projects.2
+    [ -f .sorted.projects.2 ] && cat .sorted.projects.2 >> .sorted.projects.1
 fi
-
+[ -f .sorted.projects.1 ] && cat .sorted.projects.1 >> .sorted.projects
+rm -f .sorted.projects.2 .sorted.projects.1
 for p in `echo $QMAKE_IGNORE_PROJECTS`; do
     if [ -f .projects ]; then
 	grep -v $p .projects > .tmp
