@@ -258,5 +258,5 @@ unix:SOURCES   += dialogs/qprndlg.cpp \
 		  kernel/qt_xdnd.cpp
 
 TARGET		= qt
-VERSION		= 1.31
+VERSION		= 1.40
 DESTDIR		= ../lib
