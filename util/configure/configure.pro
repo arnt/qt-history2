@@ -9,6 +9,8 @@ HEADERS	 = configureapp.h \
            $$QT_SOURCE_TREE/src/tools/qregexp.h \
            $$QT_SOURCE_TREE/src/tools/qgcache.h \
            $$QT_SOURCE_TREE/src/tools/qbitarray.h \
+	   $$QT_SOURCE_TREE/src/tools/qbytearray.h \
+	   $$QT_SOURCE_TREE/src/tools/qchar.h \
            $$QT_SOURCE_TREE/src/tools/qgdict.h \
            $$QT_SOURCE_TREE/src/tools/qgvector.h \
            $$QT_SOURCE_TREE/src/tools/qdatastream.h \ 
@@ -37,6 +39,8 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/tools/qregexp.cpp \
            $$QT_SOURCE_TREE/src/tools/qgcache.cpp \
            $$QT_SOURCE_TREE/src/tools/qbitarray.cpp \
+	   $$QT_SOURCE_TREE/src/tools/qbytearray.cpp \
+	   $$QT_SOURCE_TREE/src/tools/qchar.cpp \
            $$QT_SOURCE_TREE/src/tools/qgdict.cpp \
            $$QT_SOURCE_TREE/src/tools/qgvector.cpp \
            $$QT_SOURCE_TREE/src/tools/qdatastream.cpp \
