@@ -428,55 +428,63 @@ void DocEmitter::emitHtml() const
     QMap<QString, Doc *>::ConstIterator c;
 
     /*
-      A COBOL programmer wrote this clever loop. If it weren't for C, he would
-      be programming in OBOL.
+      This will most definitely kill the problems I have on my machine with qdoc.
+      - Trond K.
+      ps: this is done with Jasmin's blessings
     */
-    while ( def != groupdefs.end() || groupies != groupiemap.end() ) {
-	if ( def != groupdefs.end() ) {
-	    if ( groupies == groupiemap.end() || def.key() < groupies.key() ) {
-		warning( 2, (*def)->location(), "Empty group '%s'",
-			 def.key().latin1() );
-		++def;
-	    }
-	}
-	if ( groupies != groupiemap.end() ) {
-	    if ( def == groupdefs.end() || groupies.key() < def.key() ) {
-		c = (*groupies).begin();
-		while ( c != (*groupies).end() ) {
-		    if ( *c != 0 )
-			warning( 3, (*c)->location(),
-				 "Undefined group '%s'",
-				 groupies.key().latin1() );
-		    ++c;
+	  
+    if ( !QDir::homeDirPath().startsWith( "/home/trond" ) ) {
+	/*
+	  A COBOL programmer wrote this clever loop. If it weren't for C, he would
+	  be programming in OBOL.
+	*/
+	while ( def != groupdefs.end() || groupies != groupiemap.end() ) {
+	    if ( def != groupdefs.end() ) {
+		if ( groupies == groupiemap.end() || def.key() < groupies.key() ) {
+		    warning( 2, (*def)->location(), "Empty group '%s'",
+			     def.key().latin1() );
+		    ++def;
 		}
-		++groupies;
-	    } else if ( groupies.key() == def.key() ) {
-		/*
-		  Bingo! At this point *def is the doc and *groupies is a QMap
-		  with class- or page-name keys and Doc * values.
-		*/
-		htmlFileName = config->defgroupHref( (*def)->name() );
-
-		if ( config->generateFile(htmlFileName) ) {
-		    HtmlWriter out( (*def)->location(), htmlFileName );
-		    out.setHeading( (*def)->title() );
-		    (*def)->printHtml( out );
-
-		    QMap<QString, QString> list;
+	    }
+	    if ( groupies != groupiemap.end() ) {
+		if ( def == groupdefs.end() || groupies.key() < def.key() ) {
 		    c = (*groupies).begin();
 		    while ( c != (*groupies).end() ) {
-			list.insert( c.key(), (*c)->whatsThis() );
+			if ( *c != 0 )
+			    warning( 3, (*c)->location(),
+				     "Undefined group '%s'",
+				     groupies.key().latin1() );
 			++c;
 		    }
-		    out.putsMeta( Doc::htmlNormalList(list) );
+		    ++groupies;
+		} else if ( groupies.key() == def.key() ) {
+		    /*
+		      Bingo! At this point *def is the doc and *groupies is a QMap
+		      with class- or page-name keys and Doc * values.
+		    */
+		    htmlFileName = config->defgroupHref( (*def)->name() );
 
-		    XmlSection defgroupSection;
-		    defgroupSection.title = out.heading();
-		    defgroupSection.ref = htmlFileName;
-		    otherSections.append( defgroupSection );
+		    if ( config->generateFile(htmlFileName) ) {
+			HtmlWriter out( (*def)->location(), htmlFileName );
+			out.setHeading( (*def)->title() );
+			(*def)->printHtml( out );
+
+			QMap<QString, QString> list;
+			c = (*groupies).begin();
+			while ( c != (*groupies).end() ) {
+			    list.insert( c.key(), (*c)->whatsThis() );
+			    ++c;
+			}
+			out.putsMeta( Doc::htmlNormalList(list) );
+
+			XmlSection defgroupSection;
+			defgroupSection.title = out.heading();
+			defgroupSection.ref = htmlFileName;
+			otherSections.append( defgroupSection );
+		    }
+		    ++def;
+		    ++groupies;
 		}
-		++def;
-		++groupies;
 	    }
 	}
     }
