@@ -25,7 +25,7 @@
 
 
 #include "qthread.h"
-#include <process.h>
+#include "qt_windows.h"
 
 class QMutexPrivate {
 };
@@ -60,6 +60,7 @@ void QThread::postEvent(QObject *,QEvent *)
 extern "C" static unsigned long start_thread(QThread * t)
 {
   t->run();
+  return 0;
 }
 
 QThread::QThread()
