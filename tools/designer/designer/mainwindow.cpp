@@ -278,7 +278,7 @@ MainWindow::~MainWindow()
     desInterface = 0;
 
     delete actionPluginManager;
-    delete preferencePluginManager;
+    //delete preferencePluginManager;
     delete interpreterPluginManager;
     delete programPluginManager;
     delete templateWizardPluginManager;
@@ -3492,7 +3492,7 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "Background/Color", (int)workspace->backgroundColor().rgb() );
     if ( workspace->backgroundPixmap() )
 	workspace->backgroundPixmap()->save( QDir::home().absPath() + "/.designer/" + "background.xpm", "XPM" );
-  
+
     config.writeEntry( keybase + "Geometries/MainwindowX", x() );
     config.writeEntry( keybase + "Geometries/MainwindowY", y() );
     config.writeEntry( keybase + "Geometries/MainwindowWidth", width() );
