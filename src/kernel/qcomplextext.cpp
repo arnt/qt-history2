@@ -565,7 +565,10 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	uchar r = ch->row();
 	uchar c = ch->cell();
 	if ( r != 0x06 ) {
-	    *data = *ch;
+	    if ( dir == QPainter::RTL && ch->mirrored() )
+		*data = ch->mirroredChar();
+	    else
+		*data = *ch;
 	    data++;
 	    lenOut++;
 	} else {
@@ -1387,6 +1390,8 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
 		int pos = r->stop;
 		while(pos >= r->start) {
 		    *vch = str[pos];
+		    if ( vch->mirrored() )
+			*vch = vch->mirroredChar();
 		    vch++;
 		    pos--;
 		}
