@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#20 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#21 $
 **
 ** Implementation of something useful.
 **
@@ -78,6 +78,10 @@ public:
 
     QFrame * hbar1, * hbar2;
 
+    QAccel * accel;
+    int backAccel;
+    int nextAccel;
+
     Page * page( const QWidget * w )
     {
 	if ( !w )
@@ -128,11 +132,11 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     connect( d->helpButton, SIGNAL(clicked()),
 	     this, SLOT(help()) );
 
-    QAccel * a = new QAccel( this, "arrow-key accel" );
-    a->connectItem( a->insertItem( Qt::ALT + Qt::Key_Left ),
-		    this, SLOT(back()) );
-    a->connectItem( a->insertItem( Qt::ALT + Qt::Key_Right ),
-		    this, SLOT(next()) );
+    d->accel = new QAccel( this, "arrow-key accel" );
+    d->backAccel = d->accel->insertItem( Qt::ALT + Qt::Key_Left );
+    d->accel->connectItem( d->backAccel, this, SLOT(back()) );
+    d->nextAccel = d->accel->insertItem( Qt::ALT + Qt::Key_Right );
+    d->accel->connectItem( d->nextAccel, this, SLOT(next()) );
 }
 
 
@@ -294,12 +298,14 @@ void QWizard::help()
 void QWizard::setBackEnabled( bool enable )
 {
     d->backButton->setEnabled( enable );
+    d->accel->setItemEnabled( d->backAccel, enable );
 }
 
 
 void QWizard::setNextEnabled( bool enable )
 {
     d->nextButton->setEnabled( enable );
+    d->accel->setItemEnabled( d->nextAccel, enable );
 }
 
 
@@ -421,9 +427,8 @@ void QWizard::updateButtons()
     if ( !d->current )
 	return;
 
-    d->backButton->setEnabled( d->current->backEnabled &&
-			       d->current->back != 0 );
-    d->nextButton->setEnabled( d->current->nextEnabled );
+    setBackEnabled( d->current->backEnabled && d->current->back != 0 );
+    setNextEnabled( d->current->nextEnabled );
     d->finishButton->setEnabled( d->current->finishEnabled );
     d->helpButton->setEnabled( d->current->helpEnabled );
 
