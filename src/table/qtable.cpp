@@ -3425,8 +3425,12 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
     int tmpCol = columnAt( e->pos().x() );
     pressedRow = tmpRow;
     pressedCol = tmpCol;
-    fixRow( tmpRow, e->pos().y() );
-    fixCol( tmpCol, e->pos().x() );
+    if ( tmpRow == -1 || tmpCol == -1 ) {
+	qDebug( "contentsMousePressEventEx returning" );
+	clearSelection();
+	return;
+    }
+    qDebug( "contentsMousePressEventEx did not return" );
     startDragCol = -1;
     startDragRow = -1;
 
@@ -3577,8 +3581,10 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 	return;
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
-    fixRow( tmpRow, e->pos().y() );
-    fixCol( tmpCol, e->pos().x() );
+    if ( tmpCol == -1 || tmpRow == -1 ) {
+	clearSelection();
+	return;
+    }
 
 #ifndef QT_NO_DRAGANDDROP
     if ( dragEnabled() && startDragRow != -1 && startDragCol != -1 ) {
@@ -3651,9 +3657,6 @@ void QTable::doAutoScroll()
 	tmpCol = columnAt( pos.x() );
     pos -= QPoint( contentsX(), contentsY() );
 
-    fixRow( tmpRow, pos.y() );
-    fixCol( tmpCol, pos.x() );
-
     if ( tmpRow < 0 || tmpRow > numRows() - 1 )
 	tmpRow = currentRow();
     if ( tmpCol < 0 || tmpCol > numCols() - 1 )
@@ -3708,12 +3711,11 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
     if ( e->button() != LeftButton )
 	return;
     if ( shouldClearSelection ) {
+	qDebug( "shouldClearSelection" );
 	int tmpRow = rowAt( e->pos().y() );
 	int tmpCol = columnAt( e->pos().x() );
-	fixRow( tmpRow, e->pos().y() );
-	fixCol( tmpCol, e->pos().x() );
 	clearSelection();
-	if ( selMode != NoSelection ) {
+	if ( selMode != NoSelection && ( tmpRow != -1 && tmpCol != -1 ) ) {
 	    currentSel = new QTableSelection();
 	    selections.append( currentSel );
 	    if ( !isRowSelection( selectionMode() ) ) {
@@ -3726,12 +3728,15 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 	    emit selectionChanged();
 	}
 	shouldClearSelection = FALSE;
+    } else {
+	qDebug( "should not ClearSelection" );
     }
     autoScrollTimer->stop();
 
     if ( d->redirectMouseEvent && pressedRow == curRow && pressedCol == curCol &&
 	 item( pressedRow, pressedCol ) && item( pressedRow, pressedCol )->editType() ==
 	 QTableItem::WhenCurrent ) {
+	qDebug( "in if" );
 	QWidget *w = cellWidget( pressedRow, pressedCol );
 	if ( w ) {
 	    QMouseEvent ev( e->type(), w->mapFromGlobal( e->globalPos() ),
@@ -5204,6 +5209,7 @@ void QTable::activateNextCell()
 
 void QTable::fixRow( int &row, int y )
 {
+    qDebug( "fixRow" );
     if ( row == -1 ) {
 	if ( y < 0 )
 	    row = 0;
@@ -5217,6 +5223,7 @@ void QTable::fixRow( int &row, int y )
 
 void QTable::fixCol( int &col, int x )
 {
+    qDebug( "fixCol" );
     if ( col == -1 ) {
 	if ( x < 0 )
 	    col = 0;
@@ -5930,8 +5937,9 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
     oldCurrentCol = curCol;
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
-    fixRow( tmpRow, e->pos().y() );
-    fixCol( tmpCol, e->pos().x() );
+    if ( tmpCol == -1 || tmpRow == -1 ) {
+	return;
+    }
     if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) )
 	setCurrentCell( tmpRow, tmpCol, FALSE );
     e->accept();
@@ -5947,11 +5955,11 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
 
 void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
 {
+    qDebug( "contentsDragMoveEvent" );
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
-    fixRow( tmpRow, e->pos().y() );
-    fixCol( tmpCol, e->pos().x() );
-    if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) )
+    if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) &&
+	( tmpCol != -1 && tmpRow != -1 ) )
 	setCurrentCell( tmpRow, tmpCol, FALSE );
     e->accept();
 }
@@ -5963,6 +5971,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
+    qDebug( "contentsDragLeaveEvent" );
     setCurrentCell( oldCurrentRow, oldCurrentCol, FALSE );
 }
 
@@ -5974,6 +5983,7 @@ void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
 
 void QTable::contentsDropEvent( QDropEvent *e )
 {
+    qDebug( "contentsDropEvent" );
     setCurrentCell( oldCurrentRow, oldCurrentCol, FALSE );
     emit dropped( e );
 }
@@ -6005,6 +6015,7 @@ QDragObject *QTable::dragObject()
 
 void QTable::startDrag()
 {
+    qDebug( "startDrag" );
     if ( startDragRow == -1 || startDragCol == -1 )
 	return;
 
