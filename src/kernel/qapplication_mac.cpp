@@ -466,8 +466,12 @@ void QApplication::restoreOverrideCursor()
   \sa hasGlobalMouseTracking(), QWidget::hasMouseTracking()
 */
 
-void QApplication::setGlobalMouseTracking( bool )
+void QApplication::setGlobalMouseTracking( bool b)
 {
+    if(b)
+	app_tracking++;
+    else
+	app_tracking--;
 }
 
 
@@ -482,7 +486,7 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
   if(!objl) // No children
     return widg;
   for(QObjectListIt it(*objl); it.current(); ++it) {
-    if((*it)->inherits("QWidget")) {
+    if((*it)->isWidgetType()) {
       QWidget *curwidg=(QWidget *)(*it);
       int wx=curwidg->x(), wy=curwidg->y();
       int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
@@ -1358,14 +1362,21 @@ int QApplication::macProcessEvent(MSG * m)
 		    Point pp2 = er->where;
 		    widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 		}
-		if ( widget /*&& (mouse_button_state != Qt::NoButton
-			      || widget->hasMouseTracking() || hasGlobalMouseTracking())*/) {
-		    QPoint p( er->where.h, er->where.v );
-		    QPoint plocal(widget->mapFromGlobal( p ));
-		    QMouseEvent qme( QEvent::MouseMove, plocal, p, QMouseEvent::NoButton, 
-				     mouse_button_state);
-		    QApplication::sendEvent( widget, &qme );
-//		    qDebug("Mouse has Moved %s %s %d %d", widget->name(), widget->className(), 
+		if ( widget ) {
+		    if(widget->extra && widget->extra->curs) 
+			SetCursor((Cursor *)widget->extra->curs->handle());
+		    else
+			SetCursor((Cursor *)arrowCursor.handle());
+
+		    if(mouse_button_state != Qt::NoButton
+		       || widget->hasMouseTracking() || hasGlobalMouseTracking()) {
+			QPoint p( er->where.h, er->where.v );
+			QPoint plocal(widget->mapFromGlobal( p ));
+			QMouseEvent qme( QEvent::MouseMove, plocal, p, 
+					 QMouseEvent::NoButton, mouse_button_state);
+			QApplication::sendEvent( widget, &qme );
+		     }
+//		     qDebug("Mouse has Moved %s %s %d %d", widget->name(), widget->className(), 
 //			   plocal.x(), plocal.y());
 		} 
 	    }

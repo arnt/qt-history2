@@ -51,6 +51,7 @@
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
 #include <stdio.h>
+#include <qcursor.h>
 
 // NOT REVISED
 
@@ -67,6 +68,16 @@ const unsigned char * p_str(const char * c)
     ret[0]=qstrlen(c);
     qstrcpy(((char *)ret)+1,c);
     return ret;
+}
+
+QPoint posInWindow(QWidget *w)
+{
+  int x = 0, y = 0;
+  for(QWidget *p = w; p && !p->isTopLevel(); p = p->parentWidget()) {
+    x += p->x();
+    y += p->y();
+  }
+  return QPoint(x, y);
 }
 
 /*!
@@ -157,7 +168,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     WindowPtr behind = (WindowPtr)-1;
     unsigned char goaway=true;
 
-    if( isTopLevel() || (popup || modal) ) {
+    if( !parentWidget() || (popup || modal) ) {
 	mytop = this;
 	SetRect( &boundsRect, 50, 50, 600, 200 );
 	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title, 
@@ -171,17 +182,15 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     }
 
     bg_col = pal.normal().background();
-    if ( !parentWidget() ) {
+    if ( isTopLevel() ) {
 	setWinId( id );
     } else {
 	winid = id;
     }
 
     const char *c = name();
-    if( !parentWidget() ) {
-	if ( c ) {
-	    setCaption( QString( c ));
-	}
+    if( c && isTopLevel()) {
+	setCaption( QString( c ));
     }
 
     setWState( WState_MouseTracking );
@@ -325,19 +334,22 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap & )
 
 void show_children( QWidget * w, int show )
 {
-    const QObjectList *child = w->children();
-    if( child ) {
-	QObjectListIt it( *child );
-	QObject *sibling = it.toLast();
-	do {
-	    if( sibling->inherits( "QWidget" ) )
-		if( !sibling->inherits( "QMenuBar" ) )
-		    if (show)
-			((QWidget *)sibling)->show();
-		    else
-			((QWidget *)sibling)->hide();
-	    sibling = --it;
-	} while ( sibling != 0 );
+    const QObjectList *children = w->children();
+    if( children ) {
+	QObjectListIt it( *children );
+	for(QObject *child = it.toLast(); child; child = --it) {
+	    if(child->isWidgetType()) {
+		QWidget *childwidg = (QWidget *)child;
+		if(!childwidg->isTopLevel()) {
+		    if( !child->inherits( "QMenuBar" ) ) {
+			if (show)
+			    childwidg->show();
+			else
+			    childwidg->hide();
+		    }
+		}
+	    }
+	} 
     }
 }
 
@@ -345,7 +357,6 @@ void show_children( QWidget * w, int show )
 
 void redraw_children(QWidget * w)
 {
-
   //FIXME this erase blanks the window when it is resized smaller
   w->erase( 0, 0, w->width(), w->height()); 
   const QObjectList *child = w->children();
@@ -353,7 +364,7 @@ void redraw_children(QWidget * w)
     QObjectListIt it( *child );
     QObject *sibling = it.toLast();
     do {
-      if ( sibling->inherits( "QWidget" ))
+      if ( sibling->isWidgetType())
 	redraw_children( (QWidget *)sibling );
       sibling = --it;
     } while ( sibling !=0 );
@@ -391,8 +402,14 @@ void QWidget::setBackgroundEmpty()
   \sa cursor(), unsetCursor(), QApplication::setOverrideCursor()
 */
 
-void QWidget::setCursor( const QCursor & )
+void QWidget::setCursor( const QCursor &cursor )
 {
+    if ( cursor.handle() != arrowCursor.handle() || (extra && extra->curs) ) {
+	createExtra();
+	delete extra->curs;
+	extra->curs = new QCursor(cursor);
+    }
+    setWState( WState_OwnCursor );
 }
 
 
@@ -407,6 +424,13 @@ void QWidget::setCursor( const QCursor & )
 
 void QWidget::unsetCursor()
 {
+    if ( !isTopLevel() ) {
+	if (extra ) {
+	    delete extra->curs;
+	    extra->curs = 0;
+	}
+	clearWState( WState_OwnCursor );
+    }
 }
 
 /*!
@@ -456,7 +480,7 @@ void QWidget::setIconText( const QString & )
   \sa releaseMouse(), grabKeyboard(), releaseKeyboard()
 */
 
-QWidget *mac_mouse_grabber = 0;
+QWidget *mac_mouse_grabber = NULL;
 
 void QWidget::grabMouse()
 {
@@ -477,7 +501,7 @@ void QWidget::grabMouse()
 
 void QWidget::grabMouse( const QCursor & )
 {
-    mac_mouse_grabber=0;
+    mac_mouse_grabber=this;
 }
 
 /*!
@@ -488,6 +512,7 @@ void QWidget::grabMouse( const QCursor & )
 
 void QWidget::releaseMouse()
 {
+    mac_mouse_grabber = NULL;
 }
 
 /*!
@@ -516,7 +541,7 @@ void QWidget::grabKeyboard()
 
 void QWidget::releaseKeyboard()
 {
-    mac_keyboard_grabber = 0;
+    mac_keyboard_grabber = NULL;
 }
 
 
@@ -532,7 +557,7 @@ void QWidget::releaseKeyboard()
 
 QWidget *QWidget::mouseGrabber()
 {
-    return 0;
+    return mac_mouse_grabber;
 }
 
 /*!
@@ -547,7 +572,7 @@ QWidget *QWidget::mouseGrabber()
 
 QWidget *QWidget::keyboardGrabber()
 {
-    return 0;
+    return mac_keyboard_grabber;
 }
 
 
@@ -571,15 +596,19 @@ QWidget *QWidget::keyboardGrabber()
 void QWidget::setActiveWindow()
 {
     QWidget *widget = QWidget::find( myactive );
+    if(!widget || !widget->isVisible())
+	return;
+
     // FIXME: This is likely to flicker
-    if ( widget && !widget->isPopup() )
-        widget = 0;
+    if ( widget->isPopup() )
+        widget = NULL;
+
     if ( isTopLevel() ) {
 	SelectWindow( (WindowPtr)winid );  // FIXME: Also brings to front - naughty?
 	update();
 	myactive = winid;
     }
-    if ( !isPopup() && widget )
+    if ( widget && !isPopup() )
 	widget->setActiveWindow();
 }
 
@@ -631,11 +660,8 @@ void QWidget::update( int x, int y, int w, int h )
       return;
     Rect r;
 
-    for(QWidget *widg = this; widg && widg->parentWidget(); widg = widg->parentWidget()) {
-      x += widg->x();
-      y += widg->y();
-    }
-    SetRect( &r, x, y, x+w, y+h );
+    QPoint mp(posInWindow(this));
+    SetRect( &r, mp.x()+x, mp.y()+y, mp.x()+x+w, mp.y()+y+h );
     InvalWindowRect( (WindowRef)winId(), &r );
   }
 }
@@ -747,6 +773,13 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
+    if(isTopLevel()) 
+	ShowHide((WindowPtr)winid,0);
+    clearWState(WState_Visible);
+    setWState( WState_ForceHide );
+    if(parentWidget()) 
+	parentWidget()->update();
+    show_children(this,0);
 }
 
 
@@ -1186,7 +1219,7 @@ int QWidget::metric( int m ) const
 {
     WindowPtr p = (WindowPtr)winid;
     if ( m == QPaintDeviceMetrics::PdmWidth ) {
-	if ( parentWidget() ) {
+	if ( !isTopLevel() ) {
 	    return crect.width();
 	} else {
   	    Rect windowBounds;
@@ -1194,7 +1227,7 @@ int QWidget::metric( int m ) const
             return windowBounds.right;
 	}
     } else if( m == QPaintDeviceMetrics::PdmHeight ) {
-	if ( parentWidget() ) {
+	if ( !isTopLevel() ) {
 	    return crect.height();
 	} else {
   	    Rect windowBounds;
@@ -1337,15 +1370,6 @@ void QWidget::propagateUpdates(int , int , int w, int h)
   }
 }
 
-QPoint posInWindow(QWidget *w)
-{
-  int x = 0, y = 0;
-  for(QWidget *p = w; p && p->parentWidget(); p = p->parentWidget()) {
-    x += p->x();
-    y += p->y();
-  }
-  return QPoint(x, y);
-}
 
 RgnHandle QWidget::clippedRegion()
 {
@@ -1383,7 +1407,7 @@ RgnHandle QWidget::clippedRegion()
     }
 
     //clip away my siblings
-    if(parentWidget()) {
+    if(!isTopLevel() && parentWidget()) {
 	if(const QObjectList *siblst = parentWidget()->children()) {
 	    RgnHandle sibRgns = NewRgn();
 	    //loop to this because its in zorder, and i don't care about people behind me
