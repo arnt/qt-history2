@@ -139,6 +139,7 @@ public:
     } tm;
     QFontDef	s;
     int		lw;
+	int cache_cost;
 //    friend void QFont::initFontInfo() const;
 };
 
