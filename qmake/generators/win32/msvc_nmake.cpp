@@ -196,7 +196,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << endl << "<<" << endl;
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
-	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) 
+	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir )
 	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
     }
     if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
@@ -260,7 +260,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		dep = (*dep_it);
 	    deps += " " + dep;
 	}
-	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() && 
+	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
 	   project->variables()[(*it) + ".CONFIG"].findIndex("phony") != -1)
 	    deps += QString(" ") + "FORCE";
 	t << "\n\n" << targ << ":" << deps << "\n\t"
@@ -297,6 +297,9 @@ NmakeMakefileGenerator::init()
 	    project->variables()["QMAKE"].append("qmake");
 	return;
     }
+
+    if (!project->isActiveConfig("debug"))
+	project->variables()["DEFINES"] += "QT_NO_DEBUG";
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
