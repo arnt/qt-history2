@@ -2073,9 +2073,9 @@ void QTextEdit::drawCursor( bool visible )
 	 !cursor->paragraph() ||
 	 !cursor->paragraph()->isValid() ||
 	 ( !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) &&
-	   !selectedText().isEmpty() ) ||
+	   ( d->optimMode ? optimHasSelection() : doc->hasSelection( QTextDocument::Standard, TRUE ))) ||
 	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
-	 isReadOnly() )
+	 isReadOnly() ) 
 	return;
 
     QPainter p( viewport() );
