@@ -25,7 +25,7 @@ do
 	;;
     -l)
 	CLIBNAME=`echo $PARAM | sed -e 's/^-l//'`
-	LIBNAMES="$CLIBNAME lib${LIBNAMES}.*"
+	LIBNAMES="$LIBNAMES lib${CLIBNAME}.*"
 	;;
     -I)
         CINCDIR=`echo $PARAM | sed -e 's/^-I//'`
