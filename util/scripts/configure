@@ -103,15 +103,11 @@ while [ -n "$1" ]; do
 	;;
    -I)
 	shift
-	I_FLAGS="$I_FLAGS -I $1"
+	I_FLAGS="$I_FLAGS -I$1"
 	;;
    -L)
 	shift
-	L_FLAGS="$L_FLAGS -L $1"
-	;;
-   -l)
-	shift
-	l_FLAGS="$l_FLAGS -l $1"
+	L_FLAGS="$L_FLAGS -L$1"
 	;;
    *)
        echo $1: unknown argument
@@ -337,7 +333,7 @@ QT_ZLIB=""
 [ "x$LIBPNG" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
 [ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
-QT_LIBS="$QT_LIBS $L_FLAGS$l_FLAGS"
+QT_LIBS="$L_FLAGS $QT_LIBS $l_FLAGS"
 
 
 # Create the .buildopts file
