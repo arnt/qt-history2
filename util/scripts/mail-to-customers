@@ -6,6 +6,11 @@ system("cd ~/troll; cvs update kunder.txt");
 
 $dryrun="testrun";          # 0 for real, or file for test result
 
+if ( $ARGV[0] == "-y" ) {
+    $dryrun = 0;
+    shift @ARGV;
+}
+
 if ($dryrun) {
     open( MAIL, "> $dryrun" );
     print MAIL "All this WOULD have been sent...\n\n";
