@@ -112,9 +112,9 @@ mocgen.obj: mocgen.cpp \
 	$(CC) -c $(CFLAGS) $(INCPATH) -Fomocgen.obj mocgen.cpp
 
 qbuffer.obj: ..\tools\qbuffer.cpp \
-		..\tools\qbuffer.h \
-		..\tools\qiodev.h \
-		..\tools\qglobal.h \
+		..\..\include\qbuffer.h \
+		..\..\include\qiodev.h \
+		..\..\include\qglobal.h \
 		..\..\include\qstring.h \
 		..\..\include\qarray.h \
 		..\..\include\qgarray.h \
@@ -124,7 +124,7 @@ qbuffer.obj: ..\tools\qbuffer.cpp \
 
 qcollect.obj: ..\tools\qcollect.cpp \
 		..\..\include\qcollect.h \
-		..\tools\qglobal.h
+		..\..\include\qglobal.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqcollect.obj ..\tools\qcollect.cpp
 
 qdatetm.obj: ..\tools\qdatetm.cpp \
@@ -133,37 +133,37 @@ qdatetm.obj: ..\tools\qdatetm.cpp \
 		..\..\include\qarray.h \
 		..\..\include\qgarray.h \
 		..\..\include\qshared.h \
-		..\tools\qglobal.h \
+		..\..\include\qglobal.h \
 		..\..\include\qgeneric.h \
-		..\tools\qdstream.h \
-		..\tools\qiodev.h
+		..\..\include\qdstream.h \
+		..\..\include\qiodev.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqdatetm.obj ..\tools\qdatetm.cpp
 
 qdstream.obj: ..\tools\qdstream.cpp \
-		..\tools\qdstream.h \
-		..\tools\qiodev.h \
-		..\tools\qglobal.h \
+		..\..\include\qdstream.h \
+		..\..\include\qiodev.h \
+		..\..\include\qglobal.h \
 		..\..\include\qstring.h \
 		..\..\include\qarray.h \
 		..\..\include\qgarray.h \
 		..\..\include\qshared.h \
 		..\..\include\qgeneric.h \
-		..\tools\qbuffer.h
+		..\..\include\qbuffer.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqdstream.obj ..\tools\qdstream.cpp
 
 qgarray.obj: ..\tools\qgarray.cpp \
 		..\..\include\qgarray.h \
 		..\..\include\qshared.h \
-		..\tools\qglobal.h \
+		..\..\include\qglobal.h \
 		..\..\include\qstring.h \
 		..\..\include\qarray.h \
 		..\..\include\qgeneric.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqgarray.obj ..\tools\qgarray.cpp
 
 qgdict.obj: ..\tools\qgdict.cpp \
-		..\tools\qgdict.h \
+		..\..\include\qgdict.h \
 		..\..\include\qcollect.h \
-		..\tools\qglobal.h \
+		..\..\include\qglobal.h \
 		..\..\include\qlist.h \
 		..\..\include\qglist.h \
 		..\..\include\qgeneric.h \
@@ -171,17 +171,17 @@ qgdict.obj: ..\tools\qgdict.cpp \
 		..\..\include\qarray.h \
 		..\..\include\qgarray.h \
 		..\..\include\qshared.h \
-		..\tools\qdstream.h \
-		..\tools\qiodev.h
+		..\..\include\qdstream.h \
+		..\..\include\qiodev.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqgdict.obj ..\tools\qgdict.cpp
 
 qglist.obj: ..\tools\qglist.cpp \
 		..\..\include\qglist.h \
 		..\..\include\qcollect.h \
-		..\tools\qglobal.h \
-		..\tools\qgvector.h \
-		..\tools\qdstream.h \
-		..\tools\qiodev.h \
+		..\..\include\qglobal.h \
+		..\..\include\qgvector.h \
+		..\..\include\qdstream.h \
+		..\..\include\qiodev.h \
 		..\..\include\qstring.h \
 		..\..\include\qarray.h \
 		..\..\include\qgarray.h \
@@ -190,9 +190,9 @@ qglist.obj: ..\tools\qglist.cpp \
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqglist.obj ..\tools\qglist.cpp
 
 qglobal.obj: ..\tools\qglobal.cpp \
-		..\tools\qglobal.h \
-		..\tools\qdict.h \
-		..\tools\qgdict.h \
+		..\..\include\qglobal.h \
+		..\..\include\qdict.h \
+		..\..\include\qgdict.h \
 		..\..\include\qcollect.h \
 		..\..\include\qgeneric.h \
 		..\..\include\qstring.h \
@@ -202,22 +202,22 @@ qglobal.obj: ..\tools\qglobal.cpp \
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqglobal.obj ..\tools\qglobal.cpp
 
 qgvector.obj: ..\tools\qgvector.cpp \
-		..\tools\qgvector.h \
+		..\..\include\qgvector.h \
 		..\..\include\qcollect.h \
-		..\tools\qglobal.h \
+		..\..\include\qglobal.h \
 		..\..\include\qglist.h \
 		..\..\include\qstring.h \
 		..\..\include\qarray.h \
 		..\..\include\qgarray.h \
 		..\..\include\qshared.h \
 		..\..\include\qgeneric.h \
-		..\tools\qdstream.h \
-		..\tools\qiodev.h
+		..\..\include\qdstream.h \
+		..\..\include\qiodev.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqgvector.obj ..\tools\qgvector.cpp
 
 qiodev.obj: ..\tools\qiodev.cpp \
-		..\tools\qiodev.h \
-		..\tools\qglobal.h
+		..\..\include\qiodev.h \
+		..\..\include\qglobal.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqiodev.obj ..\tools\qiodev.cpp
 
 qstring.obj: ..\tools\qstring.cpp \
@@ -225,10 +225,10 @@ qstring.obj: ..\tools\qstring.cpp \
 		..\..\include\qarray.h \
 		..\..\include\qgarray.h \
 		..\..\include\qshared.h \
-		..\tools\qglobal.h \
+		..\..\include\qglobal.h \
 		..\..\include\qgeneric.h \
-		..\tools\qdstream.h \
-		..\tools\qiodev.h
+		..\..\include\qdstream.h \
+		..\..\include\qiodev.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqstring.obj ..\tools\qstring.cpp
 
 
