@@ -69,6 +69,7 @@
 //   GNU	- GNU Hurd
 //   DGUX	- DG Unix
 //   DYNIX	- Dynix
+//   RELIANT	- Reliant Unix
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
@@ -102,7 +103,7 @@
 #elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
 #  define Q_OS_ULTRIX
 #elif defined(reliantunix)
-#  define Q_OS_RELIANTUNIX
+#  define Q_OS_RELIANT
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #  define Q_OS_LINUX
 #elif defined(__FreeBSD__)
@@ -211,10 +212,21 @@
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
 #  endif
-#elif defined(__EDG) || defined(__EDG__)
+#elif defined(__CDS__)
+// does not seem to define __EDG__ or __EDG according to Reliant documentation
+// but nevertheless uses EDG conventions
+#  define Q_CC_EDG
+#  define Q_CC_CDS
+#elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
+// don't know whether it defines __EDG__ or __EDG but an EDG compiler for sure
+#  define Q_CC_EDG
+#  define Q_CC_OC
+#elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
 // __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
 // __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002
-#  define Q_CC_EDG
+#  if !defined(Q_CC_EDG)
+#    define Q_CC_EDG
+#  endif
 // the EDG documentation says that _BOOL is defined when the compiler has bool
 // but Compaq seem to have disabled this, as observed on Compaq C++ V6.3-002.
 #  if defined(__DECCXX)
@@ -237,17 +249,6 @@
 #      define Q_CC_USLC
 #    endif
 #  endif
-#elif defined(__CDS__)
-#  define Q_CC_EDG
-#  define Q_CC_CDS
-// does not seem to define __EDG__ or __EDG according to Reliant documentation
-// but nevertheless uses some EDG conventions
-#  if !defined(_BOOL)
-#    define Q_NO_BOOL_TYPE
-#  endif
-#elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
-// defines __EDG__?
-#  define Q_CC_OC
 #elif defined(__USLC__)
 // the older UnixWare compiler is not based on EDG
 #  define Q_CC_USLC
@@ -266,7 +267,7 @@
 #    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(Q_OS_HPUX)
-// __HP_aCC was not defined by first aCC releases
+// __HP_aCC was not defined in first aCC releases
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
 #    define Q_CC_HPACC
 #  else
