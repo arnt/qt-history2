@@ -21,6 +21,8 @@
 # Yes, this code used to be a shell script.
 #
 
+use File::Find;
+
 while ( defined($ARGV[0]) && $ARGV[0] =~ /^-/ ) {
     if ( $ARGV[0] eq "-nodoc" ) {
         $nodoc=1; shift;
@@ -37,38 +39,19 @@ while ( defined($ARGV[0]) && $ARGV[0] =~ /^-/ ) {
     }
 }
 
-$disttype=$ARGV[0] || 0;
-$platform=$ARGV[1] || 0;
-
-$VERSION=$ARGV[2] || 0;
+$VERSION=$ARGV[0] || 0;
 ($BRANCH)=$VERSION =~ /(.*)\.\d+/;
 $LABEL="qt/$VERSION";
 
 
-$DISTDIR="/tmp/qt-$VERSION-$disttype-$platform-".`whoami`;
+$DISTDIR="/tmp/qt-$VERSION-".`whoami`;
 chomp $DISTDIR;
 $scriptdir="$DISTDIR/qt/util/scripts";
 
-print "\nCreating a new Qt distribution:\n";
+print "\nCreating new Qt distributions:\n";
 
-if ( $disttype eq "free" || $disttype eq "commercial" ) {
-  $goodparam1=1;
-  print "  Distribution type... $disttype\n";
-}
-
-if ( $platform eq "x11" || $platform eq "win" ) {
-  $goodparam2=1;
-  print "  Platform ........... $platform\n";
-}
-print "\n";
-
-if ( !$goodparam1 || !$goodparam2 ) {
-  print STDERR "Usage: mkdist.generic commercial|free x11|win\n";
-  exit 1;
-}
-
-if ( $disttype eq "free" && $platform ne "x11" ) {
-  print STDERR "Impossible. Only X11 versions have a free license!\n";
+if ( !$VERSION ) {
+  print STDERR "Usage: mkdist.generic version\n";
   exit 1;
 }
 
@@ -86,7 +69,7 @@ if ( !`p4 labels | grep "^Label $LABEL "` ) {
     exit 1;
 }
 
-print "Deleting current $DISTDIR...\n";
+print "Deleting current $DISTDIR ...\n";
 system("rm -rf $DISTDIR");
 
 if ( $local ) {
@@ -120,9 +103,9 @@ if ( $local ) {
     print "Exporting the entire Qt and tmake depots...\n";
 
     $TMPCLIENT="qt-release-tmp-$$";
-    $client = `p4 client -t qt-release-$disttype-$platform -o $TMPCLIENT`;
+    $client = `p4 client -t qt-release -o $TMPCLIENT`;
     $client =~ s{(\nRoot:).*}{$1 $DISTDIR};
-    $client =~ s{/qt/main/}{/qt/$BRANCH/}g;
+    $client =~ s{/qt/X.Y/}{/qt/$BRANCH/}g;
     open P4CLIENT, "| p4 -s client -i | egrep -v '^(info|exit):'";
     print P4CLIENT $client;
     close P4CLIENT;
@@ -210,14 +193,12 @@ if ( $nodoc ) {
     mkdir "$DISTDIR/qt/doc", 0777;
     mkdir "$DISTDIR/qt/doc/html", 0777;
     system("$DISTDIR/qt/util/qdoc/qdoc $DISTDIR/qt");
-    if ( $platform eq "x11" ) {
-        mkdir "$DISTDIR/qt/doc/man", 0777;
-        mkdir "$DISTDIR/qt/doc/man/man1", 0777;
-        mkdir "$DISTDIR/qt/doc/man/man3", 0777;
-        system("$DISTDIR/qt/util/qdoc/man");
-        system("mv $DISTDIR/qt/doc/man $DISTDIR/qt");
-        system("mv $DISTDIR/qt/src/moc/moc.1 $DISTDIR/qt/man/man1");
-    }
+    mkdir "$DISTDIR/qt/doc/man", 0777;
+    mkdir "$DISTDIR/qt/doc/man/man1", 0777;
+    mkdir "$DISTDIR/qt/doc/man/man3", 0777;
+    system("$DISTDIR/qt/util/qdoc/man");
+    system("mv $DISTDIR/qt/doc/man $DISTDIR/qt");
+    system("mv $DISTDIR/qt/src/moc/moc.1 $DISTDIR/qt/man/man1");
     system("mv $DISTDIR/qt/doc/html $DISTDIR/qt");
     chdir $DISTDIR;
     system("mv -f $DISTDIR/qt/gif/*.png $DISTDIR/qt/html");
@@ -228,166 +209,237 @@ if ( $nodoc ) {
 }
 
 print "Removing local files...\n";
-if ( $platform eq "win" ) {
-  chdir "$DISTDIR/qt/src";
-  system(q{tmake qtinternal.pro -e "Expand('X11ONLY')" | xargs rm -v});
-  chdir $DISTDIR;
-  system("rm -rf qt/examples/timestamp");
-}
-chdir $DISTDIR;
-system("find qt -name .cvsignore -o -name doc.conf | xargs rm -f");
-unlink "qt/src/qtinternal.pro";
-unlink "qt/make.help qt/variables";
-system("rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests");
-chdir "qt/examples";
-system("rm -rf network sheet");
-
-chdir "$DISTDIR/qt/bin";
-system("rm -f syncqt*");
-
-############ This is done by the p4 client qt-release-$disttype-$platform
-print "Removing src .cpp files for other platforms...\n";
 chdir "$DISTDIR/qt/src";
-system("find . -name '*_x11.c*' "
-	    ."-o -name '*_fb.c*' "
-	    ."-o -name '*_mac.c*' "
-	    ."-o -name '*_win.c*' "
-	    ."-o -name '*_os2.c*' | grep -v '_$platform' | xargs rm -f");
-#############################################
+map { $x11only{"src/$_"}++ } split " ",`tmake qtinternal.pro -e "Expand('X11ONLY')"`;
+chdir $DISTDIR;
+chdir "qt/examples";
+system("rm -rf sheet");
+
+sub not_plat {
+    my ($f,$p) = @_;
+    return 0 if $f =~ /_$p\.c[pc]*$/;
+    return ($p ne "X11" && $x11only{$f})
+        || $f eq "bugs"
+        || $f eq "etc"
+        || $f eq "gif"
+        || $f eq "tests"
+        || $f eq "make.help"
+        || $f eq "variables"
+        || $f eq ".cvsignore"
+        || $f eq "doc.conf"
+        || $f eq "src/qtinternal.pro"
+        || $f eq "dist"
+        || $f eq "util"
+        || $f =~ /^bin\/syncqt/
+        || $f =~ /\/doc.conf$/
+	|| $f =~ /(_fb|_os2|_qws|_win|_x11|_mac)\.c[pc]*$/;
+}
+
+sub not_x11 {
+    my ($f) = @_;
+    if ( !defined($not_x11{$f}) ) {
+	$not_x11{$f}=
+	    $f =~ m{^src/mkfiles\b}
+	 || $f =~ m{^src/tmp\b}
+	 || $f =~ m{/qtmain.pro$}
+	 || $f =~ m{/Makefile.win32-dll$}
+	 || $f =~ m{\.bat$}
+	 || not_plat($f,"x11");
+    }
+    return $not_x11{$f};
+}
+
+sub not_win {
+    my ($f) = @_;
+    if ( !defined($not_win{$f}) ) {
+	$not_win{$f}=
+	    $f =~ m{^extensions/xt$}
+	 || $f =~ m{/qtmain.pro$}
+	 || $f =~ m{^configs$}
+	 || $f =~ m{/Makefile.in$}
+	 || not_plat($f,"win");
+    }
+    return $not_win{$f};
+}
 
 print "Generate lex and yacc files for moc...\n";
 chdir "$DISTDIR/qt/src/moc";
-system("make mocgen.cpp >/dev/null");
+chmod 0644,"GNUmakefile";
+system("make mocgen.cpp");
 
 print "Removing internal makefiles\n";
 chdir "$DISTDIR/qt";
 system("find . -name GNUmakefile -o -name Makefile | xargs rm -f");
 system("rm -f GNUmakefile.inc Makefile.inc");
 
-if ( $platform eq "win" ) {
-    chdir "$DISTDIR/qt/src/moc";
-    $lexyyc=`cat lex.yy.c`;
-    $lexyyc=~ s{^(#include \<unistd\.h\>)$}{/* $1 */};
-    open T, ">lex.yy.c";
-    print T $lexyyc;
-    close T;
-    chdir "$DISTDIR/qt/src";
-    print "Moving source and include files...\n";
-    system("mv ../include/qt.h .") if  -f "../include/qt.h";
-    system("rm -f ../include/*");
-    system("mv */q*.h ../include");
-    system("mv qt.h ../include") if -f "qt.h";
-    chdir "$DISTDIR/qt";
-    system("mv extensions/opengl/src/q*.h include");
-    system("mv extensions/nsplugin/src/q*.h include");
-    system("rm -rf makefiles");
-    system("rm -rf extensions/xt");
-    system("find . -name 'qtx11.*' | xargs rm -vf");
+chdir "$DISTDIR/qt/src/moc";
+$lexyyc=`cat lex.yy.c`;
+$lexyyc=~ s{^(#include \<unistd\.h\>)$}{#if !defined(_OS_WIN32_)\n$1\n#endif};
+open T, ">lex.yy.c";
+print T $lexyyc;
+close T;
 
-    chdir "$DISTDIR/qt";
-    mkdir "mkfiles",0777;
+chdir "$DISTDIR/qt";
+mkdir "mkfiles",0777;
 
 # Convince tmake to use the right DLL library and set right DLL lib Makefile
-    mkdir "lib",0777 if ! -d "lib";
-    $DLLVER=`tmake src/qt.pro -e "Expand('VERSION')"`;
-    chomp $DLLVER;
-    $DLLVER =~ 's/\.//g';
-    open T, ">lib/qt$DLLVER.lib";
-    close T;
-    system("mv src/Makefile.win32-dll src/Makefile");
+mkdir "lib",0777 if ! -d "lib";
+$DLLVER=`tmake src/qt.pro -e "Expand('VERSION')"`;
+chomp $DLLVER;
+$DLLVER =~ 's/\.//g';
+open T, ">lib/qt$DLLVER.lib";
+close T;
+system("mv src/Makefile.win32-dll src/Makefile");
 
-    if ( !$msonly ) {
-      print "Build DLL Makefiles for Borland C++...\n";
-      $ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-borland";
-      system("$scriptdir/buildmakefiles -win32 -dll");
-      system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
-      system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland_dll.zip});
-    }
-
-    print "Build DLL Makefiles for Microsoft Visual C++...\n";
-    $ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-msvc";
-    syetm("$scriptdir/buildmakefiles -win32 -dll");
+if (0) {
+if ( !$msonly ) {
+    print "Build DLL Makefiles for Borland C++...\n";
+    $ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-borland";
+    system("$scriptdir/buildmakefiles -win32 -dll");
     system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
-    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc_dll.zip});
-
-# Clean up after DLL library makefiles have been created
-    unlink "lib/qt$DLLVER.lib";
-    unlink "src/Makefile";
-    unlink "src/qtdll.mak";
-    unlink "src/qtmain.mak";
-
-    if ( !$msonly ) {
-        print "Build Makefiles for Borland C++...\n";
-        $ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-borland";
-        system("$scriptdir/buildmakefiles -win32");
-        system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
-        system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland.zip});
-    }
-
-    print "Build Makefiles for Microsoft Visual C++...\n";
-    $ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-msvc";
-    system("$scriptdir/buildmakefiles -win32");
-    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
-    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc.zip});
-  
-    print "Converting Unix text files to DOS...\n";
-    chdir $DISTDIR;
-    system(q{find qt -type f -print | fmt -1 | \
-	egrep -v '\.(dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm)$'}
-	." | xargs ${scriptdir}/unix_to_dos");
+    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland_dll.zip});
 }
 
-if ( $platform eq "x11" ) {
-  print "Removing more Windows-specific files...\n";
-  chdir "$DISTDIR/qt";
-  system("rm -f bin/*.bat");
-  system("rm -rf src/tmp");
-  system("rm -f src/qtmain.pro src/Makefile.win32-dll");
-  system("find . -name 'qtwin.*' | xargs rm -vf");
-  system("rm -rf ${DISTDIR}/qt/lib");
-  mkdir "$DISTDIR/qt/lib",0777;
+print "Build DLL Makefiles for Microsoft Visual C++...\n";
+$ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-msvc";
+system("$scriptdir/buildmakefiles -win32 -dll");
+system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
+system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc_dll.zip});
 
-  # Generate makefiles
-  system("$QTDIR/util/scripts/makeunixmake -v");
-  # Copy template files into qt/configs
-  system("cp $QTDIR/tmake/*.t $QTDIR/configs");
-  chdir "$QTDIR/configs";
-  system("rm -f propagate.t subdirs.t");
+# Clean up after DLL library makefiles have been created
+unlink "lib/qt$DLLVER.lib";
+unlink "src/Makefile";
+unlink "src/qtdll.mak";
+unlink "src/qtmain.mak";
+
+if ( !$msonly ) {
+    print "Build Makefiles for Borland C++...\n";
+    $ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-borland";
+    system("$scriptdir/buildmakefiles -win32");
+    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
+    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland.zip});
+}
+
+print "Build Makefiles for Microsoft Visual C++...\n";
+$ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-msvc";
+system("$scriptdir/buildmakefiles -win32");
+system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
+system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc.zip});
+
+# Generate makefiles
+system("$QTDIR/util/scripts/makeunixmake -v");
+# Copy template files into qt/configs
+system("cp $QTDIR/tmake/*.t $QTDIR/configs");
+chdir "$QTDIR/configs";
+system("rm -f propagate.t subdirs.t");
 }
 
 print "Copying the README, LICENSE etc. files...\n";
 chdir "$DISTDIR/qt/dist";
 system("cp [A-Z]* .. 2> /dev/null");
 system("cp -f changes-${VERSIONMAJOR}[.0-9]* ..") unless $noch;
-chdir "$DISTDIR/qt/dist/$disttype";
-system("tar cf - * | (cd $DISTDIR/qt ; tar xf -)");
-chdir "$DISTDIR/qt/dist/$platform";
-system("tar cf - * | (cd $DISTDIR/qt ; tar xf -)");
-chdir $DISTDIR;
-
-print "Including version-specific information...\n";
-chdir "$DISTDIR/qt";
-system("$scriptdir/versionize $SRC_VERSION $VERSIONWIN $SPECIAL [A-Z]*");
 
 print "Removing distribution-building files...\n";
-system("rm -rf qt/dist qt/util qt/tmake qt/makefiles");
+system("rm -rf qt/tmake qt/makefiles tmake");
 
-print "Finally packing the distribution, see ${DISTDIR} ...\n";
+print "Finally packing the distributions ...\n";
 
-if ( $platform eq "win" ) {
-    chdir $DISTDIR;
-    unlink "qt/MANIFEST";
-    system("zip -q -r -9 qtwin${VERSIONWIN}.zip qt");
-} elsif ( $platform eq "x11" ) {
-    chdir $DISTDIR;
-    rename "qt", "qt-${SRC_VERSION}";
-    if ( $disttype eq "commercial" ) {
-        system("tar cf qt-${SRC_VERSION}-commercial.tar qt-${SRC_VERSION}");
-        system("gzip -9 qt-${SRC_VERSION}-commercial.tar");
-    } else {
-        system("tar cf qt-${SRC_VERSION}.tar qt-${SRC_VERSION}");
-        system("gzip -9 qt-${SRC_VERSION}.tar");
-    }
+
+sub cpdist {
+    my ($disttype,$platform) = @_;
+    my @files = ();
+    opendir DIR, "dist/$disttype";
+    my @dfiles =
+
+    # Silly hack for README required because commercial/README is x11
+    # while win/README is Windows.
+    grep { !/^\./ && ($platform ne "win" || $_ ne "README") } readdir DIR;
+
+    for (@dfiles) { push(@files, "dist/$disttype/$_") }
+    opendir DIR, "dist/$platform";
+    my @pfiles = grep { !/^\./ } readdir DIR;
+    for (@pfiles) { push(@files, "dist/$platform/$_") }
+    system("cp -a ".(join " ",@files)." .");
+    system("util/scripts/versionize $SRC_VERSION $VERSIONWIN $SPECIAL [A-Z]*");
+    return (@dfiles,@pfiles);
 }
 
-print "Done\n";
+print "X11...\n";
+
+$qt="qt-${SRC_VERSION}";
+rename "$DISTDIR/qt", "$DISTDIR/$qt";
+
+for $free ( 0,1 ) {
+    print $free ? "  Free...\n" : "  Commercial...\n";
+
+    chdir $DISTDIR;
+    open X11, "| tar cfz $qt".($free?"":"-commercial").".tar.gz --files-from - $qt";
+    chdir $qt;
+    @files=cpdist($free ? "free" : "commercial", "x11");
+
+    # $File::Find::dir=""; $File::Find::prune=0; # Shut up perl
+
+    find ( sub {
+	my $f = "$File::Find::dir/$_";
+	#$f =~ s{^\./}{};
+	$f =~ s/^\.\///;
+	if ( -d $_ ) {
+	    $File::Find::prune=1 if not_x11($f);
+	} else {
+	    print X11 "$qt/$f\n" unless not_x11($f);
+	}
+    }, "." );
+    close X11;
+
+    system "rm -rf ".join(" ",@files);
+}
+chdir $DISTDIR;
+
+system("tar cfz $qt-doconly.tar.gz $qt/doc");
+
+rename "qt-${SRC_VERSION}", "qt";
+
+
+# Now we move stuff around...
+print "Windows...\n";
+
+# Replace symlinks with real files
+chdir "$DISTDIR/qt/src";
+print "Moving header files...\n";
+system("mv ../include/qt.h .") if -f "../include/qt.h";
+system("rm -f ../include/*.h");
+system("mv */q*.h ../include");
+system("mv qt.h ../include") if -f "qt.h";
+chdir "$DISTDIR/qt";
+system("mv extensions/opengl/src/q*.h include");
+system("mv extensions/nsplugin/src/q*.h include");
+
+cpdist("commercial", "win");
+
+print "Converting Unix text files to DOS...\n";
+chdir $DISTDIR;
+unlink "qt/MANIFEST";
+system(q{find qt -type f -print | fmt -1 | \
+	egrep -v '\.(dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm)$'}
+	." | xargs ${scriptdir}/unix_to_dos");
+
+open WINCOMM, "| zip -\@ -q -9 qtwin${VERSIONWIN}.zip";
+chdir "$DISTDIR/qt";
+find ( sub {
+    my $f = "$File::Find::dir/$_";
+    $f =~ s/^\.\///;
+    if ( -d $_ ) {
+	$File::Find::prune=1 if not_win($f);
+    } else {
+	print WINCOMM "qt/$f\n" unless not_win($f);
+    }
+}, "." );
+close WINCOMM;
+
+system("zip -r -q -9 $qt${VERSIONWIN}-doconly.zip qt/doc");
+
+print "Cleaning up...\n";
+
+system("rm -rf $DISTDIR/qt $DISTDIR/tmake"); # It's full of junk, remove it.
+
+print "Done, see ${DISTDIR}\n";
