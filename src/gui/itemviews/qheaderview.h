@@ -134,6 +134,9 @@ protected:
     int verticalOffset() const;
     void updateGeometries();
 
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void rowsInserted(const QModelIndex &parent, int start, int end);
+
     QRect itemViewportRect(const QModelIndex &index) const;
     void ensureItemVisible(const QModelIndex &index);
 

@@ -1312,6 +1312,26 @@ void QHeaderView::updateGeometries()
 
   Empty implementation because the header doesn't show QModelIndex items.
 */
+void QHeaderView::dataChanged(const QModelIndex &, const QModelIndex &)
+{
+    // do nothing
+}
+
+/*!
+  \internal
+
+  Empty implementation because the header doesn't show QModelIndex items.
+*/
+void QHeaderView::rowsInserted(const QModelIndex &, int, int)
+{
+    // do nothing    
+}
+
+/*!
+  \internal
+
+  Empty implementation because the header doesn't show QModelIndex items.
+*/
 
 QRect QHeaderView::itemViewportRect(const QModelIndex &) const
 {
