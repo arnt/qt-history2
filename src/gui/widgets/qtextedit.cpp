@@ -1203,13 +1203,15 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
 
     const int xOffset = horizontalScrollBar()->value();
     const int yOffset = verticalScrollBar()->value();
-    const QRect r = ev->rect();
 
     p.translate(-xOffset, -yOffset);
-    p.setClipRect(xOffset + r.x(), yOffset + r.y(), r.width(), r.height());
+
+    QRect r = ev->rect();
+    r.moveBy(xOffset, yOffset);
+    p.setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
-    ctx.showCursor = d->cursorOn && d->viewport->hasFocus();
+    ctx.showCursor = (d->cursorOn && d->viewport->hasFocus());
     ctx.cursor = d->cursor;
     ctx.palette = palette();
 
@@ -1219,9 +1221,9 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
 void QTextEdit::mousePressEvent(QMouseEvent *ev)
 {
     if (!(ev->button() & Qt::LeftButton))
-	return;
+        return;
 
-    QPoint pos = d->translateCoordinates(ev->pos());
+    const QPoint pos = d->translateCoordinates(ev->pos());
 
     d->mousePressed = true;
     d->mightStartDrag = false;
