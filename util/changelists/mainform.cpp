@@ -108,6 +108,8 @@ void MainForm::go()
     changeListTo = 0;
     changeDateTo = 0;
 
+    if(grouped) 
+	changeWhoTo = new QMap<int, QString>;
     changeListFrom = new QValueList<int>;
     if ( allChanges->isChecked() ) {
 	changeListTo = new QValueList<int>;
@@ -230,8 +232,6 @@ void MainForm::processExited()
 	    if ( changeListTo == 0 ) {
 		changeListTo = new QValueList<int>;
 		changeDateTo = new QMap<int,QString>;
-		if(grouped) 
-		    changeWhoTo = new QMap<int, QString>;
 		startChanges( changesTo->currentText() );
 	    } else {
 		QDict<QListViewItem> roots;
