@@ -86,8 +86,8 @@ private:
 class QTextObjectInterface
 {
 public:
-    virtual QSize intrinsicSize(const QTextFormat &format) = 0;
-    virtual void drawObject(QPainter *painter, const QRect &rect, const QTextFormat &format) = 0;
+    virtual QSize intrinsicSize(const QTextDocument *doc, const QTextFormat &format) = 0;
+    virtual void drawObject(QPainter *painter, const QRect &rect, const QTextDocument *doc, const QTextFormat &format) = 0;
 };
 Q_DECLARE_INTERFACE(QTextObjectInterface, "http://trolltech.com/Qt/QTextObjectInterface")
 

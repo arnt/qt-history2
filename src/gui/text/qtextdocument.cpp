@@ -597,6 +597,16 @@ void QTextDocument::setModified(bool m)
     docHandle()->setModified(m);
 }
 
+void QTextDocument::setContext(const QString &context)
+{
+    docHandle()->setContext(context);
+}
+
+QString QTextDocument::context() const
+{
+    return docHandle()->context();
+}
+
 /*!
   \internal
 

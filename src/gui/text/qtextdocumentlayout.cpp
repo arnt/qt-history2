@@ -1020,7 +1020,7 @@ void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &for
         pos = frame->format().position();
 
     item.setDescent(0);
-    QSize inlineSize = (pos == QTextFrameFormat::InFlow ? handler.iface->intrinsicSize(format) : QSize(0, 0));
+    QSize inlineSize = (pos == QTextFrameFormat::InFlow ? handler.iface->intrinsicSize(document(), format) : QSize(0, 0));
     item.setWidth(inlineSize.width());
     item.setAscent(inlineSize.height());
 }

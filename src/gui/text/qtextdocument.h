@@ -115,6 +115,9 @@ public:
 
     bool isModified() const;
 
+    void setContext(const QString &context);
+    QString context() const;
+
 signals:
     void contentsChanged();
     void undoAvailable(bool);

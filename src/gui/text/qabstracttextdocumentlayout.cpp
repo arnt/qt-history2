@@ -182,7 +182,7 @@ void QAbstractTextDocumentLayout::setSize(QTextInlineObject item, const QTextFor
     if (!handler.component)
         return;
 
-    QSize s = handler.iface->intrinsicSize(format);
+    QSize s = handler.iface->intrinsicSize(document(), format);
     item.setWidth(s.width());
     item.setAscent(s.height());
     item.setDescent(0);
@@ -217,7 +217,7 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTe
     QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
         return;
-    handler.iface->drawObject(p, rect, format);
+    handler.iface->drawObject(p, rect, document(), format);
 
     if (selType == QTextLayout::Highlight && item.engine()->pal) {
 #if defined (Q_WS_WIN) || defined (Q_WS_MAC)
