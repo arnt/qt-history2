@@ -40,6 +40,7 @@ private slots:
 
     void toggleJust();
     void toggleBigpix();
+    void toggleTextLabel();
 
     void about();
     void aboutQt();
@@ -52,11 +53,9 @@ private:
 
     QPopupMenu* appMenu;
 
-    bool just;
     int justId;
-
-    bool bigpix;
     int bigpixId;
+    int textlabelid;
 };
 
 

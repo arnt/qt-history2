@@ -40,7 +40,7 @@ class Q_EXPORT QPushButton : public QButton
 public:
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );
-    QPushButton( ArrowType type, QWidget *parent, const char *name=0 );
+    ~QPushButton();
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
@@ -64,6 +64,9 @@ public:
     bool	isMenuButton() const;
 
     virtual void setOn( bool );
+    
+    void setPopup( QPopupMenu* popup );
+    QPopupMenu* popup() const;
 
 public slots:
     void	toggle();
@@ -76,16 +79,18 @@ protected:
     void	resizeEvent( QResizeEvent * );
     void	updateMask();
 
+private slots:
+    void popupPressed();
+
 private:
     void	init();
 
     uint	autoDefButton	: 1;
     uint	defButton	: 1;
     uint	lastDown		: 1;
-    uint	autoDefDefined	: 1;
+    uint	reserved		: 1;
     uint	lastEnabled	: 1;
     uint	hasMenuArrow	: 1;
-    uint	hasArrow	: 1;
 
     friend class QDialog;
 

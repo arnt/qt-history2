@@ -31,6 +31,7 @@
 #include <qwhatsthis.h>
 #include <qobjectlist.h>
 #include <qmap.h>
+#include <qpushbutton.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -122,13 +123,12 @@ ApplicationWindow::ApplicationWindow()
 
     appMenu->setCheckable( TRUE );
 
-    justId = appMenu->insertItem( "&RightJustify", this,
+    justId = appMenu->insertItem( "Right &Justify", this,
 				  SLOT(toggleJust()), CTRL+Key_J );
-    just = FALSE;
-
     bigpixId = appMenu->insertItem( "&Big Pixmaps", this,
 				    SLOT(toggleBigpix()), CTRL+Key_B );
-    bigpix = FALSE;
+    textlabelid = appMenu->insertItem( "&Text Labels", this,
+				    SLOT(toggleTextLabel()), CTRL+Key_T );
 
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertSeparator();
@@ -152,6 +152,7 @@ ApplicationWindow::ApplicationWindow()
     resize( w, h );
 }
 
+
 QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 {
     QPixmap openIcon, saveIcon, printIcon;
@@ -161,6 +162,17 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	QToolBar* fileTools = new QToolBar( this, "file operations" );
 
 	openIcon = QPixmap( fileopen );
+	
+ 	QPushButton* tmp = new QPushButton( fileTools );
+ 	tmp->setText("Hallo");
+	QPopupMenu* popup = new QPopupMenu( this );
+	popup->insertItem("Eins");
+	popup->insertItem("Zwei");
+	popup->insertItem("Drei");
+	popup->insertItem("Vier");
+	tmp->setPopup( popup );
+	
+	
 	QToolButton * fileOpen
 	    = new QToolButton( openIcon, "Open File", QString::null,
 			       this, SLOT(load()), fileTools, "open file" );
@@ -255,13 +267,13 @@ ApplicationWindow::~ApplicationWindow()
     QMap< QString, int > nls;
     int j = 0;
     for ( unsigned int i = 0; i < 5; ++i ) {
-	lst = toolBarsOnDock( da[ i ] );
+	lst = toolBars( da[ i ] );
 	QToolBar *tb = lst.first();
 	while ( tb ) {
 	    ToolBarDock dock;
 	    int index;
 	    bool nl;
-	    if ( findDockAndIndexOfToolbar( tb, dock, index, nl ) ) {
+	    if ( getLocation( tb, dock, index, nl ) ) {
 		docks[ QString::number( j ) + tb->name() ] = dock;
 		indices[ QString::number( j ) + tb->name() ] = index;
 		nls[ QString::number( j ) + tb->name() ] = nl;
@@ -403,16 +415,21 @@ void ApplicationWindow::print2()
 void ApplicationWindow::toggleJust()
 {
     debug( "toggleJust" );
-    just = !just;
-    appMenu->setItemChecked( justId, just );
-    setRightJustification( just );
+    setRightJustification( !rightJustification() );
+    appMenu->setItemChecked( justId, rightJustification() );
 }
 
 
 void ApplicationWindow::toggleBigpix()
 {
     debug( "toggleBigpix" );
-    bigpix = !bigpix;
-    appMenu->setItemChecked( bigpixId, bigpix );
-    setUsesBigPixmaps( bigpix );
+    setUsesBigPixmaps( !usesBigPixmaps() );
+    appMenu->setItemChecked( bigpixId, usesBigPixmaps() );
+}
+
+void ApplicationWindow::toggleTextLabel()
+{
+    debug( "toggleTextLabel" );
+    setUsesTextLabel( !usesTextLabel() );
+    appMenu->setItemChecked( textlabelid, usesTextLabel() );
 }

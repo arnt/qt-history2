@@ -732,7 +732,10 @@ void QLabel::updateLabel( QSize oldSizeHint )
 	adjustSize();
     }
     else {
-	repaint( contentsRect() );		// Should rather be update() ?
+	if ( isVisible() ) {
+	    QApplication::postEvent( this, new QPaintEvent( rect(), TRUE ) );
+	    updateGeometry();
+	}
 	if ( autoMask() )
 	    updateMask();
     }

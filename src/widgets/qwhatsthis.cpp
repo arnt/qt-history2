@@ -218,6 +218,8 @@ QWhatsThisPrivate::Button::Button( QWidget * parent, const char * name )
     QPixmap p( button_image );
     setPixmap( p );
     setToggleButton( TRUE );
+    setAutoRaise( TRUE );
+    setFocusPolicy( NoFocus );
     wt->buttons->insert( (void *)this, this );
 }
 
@@ -411,7 +413,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int vMargin = 8;
     const int hMargin = 12;
-    
+
     if ( text.isEmpty() )
 	return;
 

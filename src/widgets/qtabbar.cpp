@@ -24,7 +24,7 @@
 #include "qtabbar.h"
 #include "qaccel.h"
 #include "qbitmap.h"
-#include "qpushbutton.h"
+#include "qtoolbutton.h"
 
 #include <ctype.h>
 
@@ -59,8 +59,8 @@ struct QTabPrivate {
     QTab * pressed;
     QAccel * a;
     QTabBar::Shape s;
-    QPushButton* rightB;
-    QPushButton* leftB;
+    QToolButton* rightB;
+    QToolButton* leftB;
     bool  scrolls;
 };
 
@@ -150,12 +150,10 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
     d->scrolls = FALSE;
-    d->leftB = new QPushButton( LeftArrow, this );
-    d->leftB->setFocusPolicy( NoFocus );
+    d->leftB = new QToolButton( LeftArrow, this );
     connect( d->leftB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->leftB->hide();
-    d->rightB = new QPushButton( RightArrow, this );
-    d->rightB->setFocusPolicy( NoFocus );
+    d->rightB = new QToolButton( RightArrow, this );
     connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->rightB->hide();
     l = new QList<QTab>;
@@ -881,7 +879,7 @@ void QTabBar::makeVisible( QTab* tab  )
 
 void QTabBar::updateArrowButtons()
 {
-    bool b = lstatic->last() ? 
+    bool b = lstatic->last() ?
 	lstatic->last()->r.right() > width() : FALSE;
     if ( d->scrolls == b )
 	return;

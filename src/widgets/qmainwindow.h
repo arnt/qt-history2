@@ -74,23 +74,26 @@ public:
 
     bool rightJustification() const;
     bool usesBigPixmaps() const;
-    bool movableToolbarsEnabled() const;
+    bool usesTextLabel() const;
+    bool toolBarsMovable() const;
 
     bool eventFilter( QObject*, QEvent* );
 
-    bool findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl ) const;
+    bool getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl ) const;
 
-    QList<QToolBar> toolBarsOnDock( ToolBarDock dock ) const;
+    QList<QToolBar> toolBars( ToolBarDock dock ) const;
 
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
-    void setMovableToolbarsEnabled( bool );
+    void setUsesTextLabel( bool ); // virtual 3.0
+    void setToolBarsMovable( bool ); // virtual 3.0
 
     void whatsThis();
 
 signals:
     void pixmapSizeChanged( bool );
+    void usesTextLabelChanged( bool );
     void startMovingToolbar( QToolBar * );
     void endMovingToolbar( QToolBar * );
 

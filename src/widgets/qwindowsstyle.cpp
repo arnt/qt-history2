@@ -241,7 +241,8 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     QPen savePen = p->pen();			// save current pen
     if (down)
 	p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-    p->fillRect( x, y, w, h, fill?*fill:g.brush( QColorGroup::Button ) );
+    if ( fill ) 
+	p->fillRect( x, y, w, h, *fill );
     if (down)
 	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     if ( enabled ) {
@@ -427,12 +428,6 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	if (btn->isDown())
 	    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     }
-    if ( btn->isMenuButton() ) {
-	int dx = (y2-y1) / 3;
-	drawArrow( p, DownArrow, FALSE,
-		    x1+dx, y1+2, dx, y2-y1-3,
-		    g, btn->isEnabled() );
-    }
 
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
@@ -462,7 +457,7 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     // the special reversed left shadow panel ( slightly different from drawPanel() )
     qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     drawArrow( p, QStyle::DownArrow, sunken,
-	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled, fill );
+	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled, fill?fill:&g.brush( QColorGroup::Button ) );
 
 }
 

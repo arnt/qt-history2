@@ -249,7 +249,12 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 /*! \reimp */
 
 QRect QPlatinumStyle::buttonRect( int x, int y, int w, int h){
-    return QRect(x+1, y+1, w-2, h-2);
+    QRect r = QCommonStyle::buttonRect(x,y,w,h);
+    r.setTop( r.top()+1);
+    r.setLeft( r.left()+1);
+    r.setBottom( r.bottom()-1);
+    r.setRight( r.right()-1);
+    return r;
 }
 
 /*!
@@ -472,14 +477,6 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 		    &fill );
     }
 	
-
-    if ( btn->isMenuButton() ) {
-	int dx = (y2-y1-4)/3;
-	drawArrow( p, DownArrow, FALSE,
-		   x1+dx, y1+3, dx, y2-y1-5,
-		   g, btn->isEnabled() );
-    }
-
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
 }
@@ -488,36 +485,37 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
-    QRect r = btn->rect();
+    bool on = btn->isDown() || btn->isOn();
+    QRect r = pushButtonContentsRect( btn );	
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
+    if ( btn->isMenuButton() ) {
+	int dx = menuButtonIndicatorWidth( btn->height() );
 
-    int x1, y1, x2, y2;
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    int dx = 0;
-    int dy = 0;
-    if ( btn->isMenuButton() )
-	dx = (y2-y1) / 3;
-    if ( dx || dy )
-	p->translate( dx, dy );
-
-    if (btn->isDown() || btn->isOn() ){
-	int sx = 0;
-	int sy = 0;
-	getButtonShift(sx, sy);
-	x+=sx;
-	y+=sy;
+	QColorGroup g( btn->colorGroup() );
+	int xx = x+w-dx-4;
+	int yy = y-3;
+	int hh = h+6;
+	    
+	if ( !on ) {
+	    p->setPen( g.mid() );
+	    p->drawLine(xx, yy+2, xx, yy+hh-3);
+	    p->setPen( g.button() );
+	    p->drawLine(xx+1, yy+1, xx+1, yy+hh-2);
+	    p->setPen( g.light() );
+	    p->drawLine(xx+2, yy+2, xx+2, yy+hh-2);
+	}
+	drawArrow( p, DownArrow, FALSE,
+		   x+w-dx-1, y+2, dx, h-4,
+		   btn->colorGroup(), 
+		   btn->isEnabled() );
+	w -= dx;
     }
-    int fw = defaultFrameWidth();
-    x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
 	      btn->colorGroup(), btn->isEnabled(),
 	      btn->pixmap(), btn->text(), -1,
-	      (btn->isDown() || btn->isOn())?&btn->colorGroup().brightText():&btn->colorGroup().buttonText());
-    if ( dx || dy )
-	p->translate( -dx, -dy );
-
+	      on?&btn->colorGroup().brightText():&btn->colorGroup().buttonText());
 }
 
 
@@ -1165,14 +1163,14 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 /*! \reimp */
 
 QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h){
-    return QRect(x+4, y+4, w-8-16, h-8);
+    return QRect(x+3, y+3, w-6-16, h-6);
 }
 
 /*! \reimp */
 
 QRect QPlatinumStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
-    return QRect(x+5, y+5, w-10-16, h-10);
+    return QRect(x+4, y+4, w-8-16, h-8);
 }
 
 

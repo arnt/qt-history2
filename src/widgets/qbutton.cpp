@@ -31,6 +31,7 @@
 #include "qaccel.h"
 #include "qpixmapcache.h"
 #include "qfocusdata.h"
+#include "qapplication.h"
 #include <ctype.h>
 
 static const int autoRepeatDelay  = 300;
@@ -294,10 +295,10 @@ QButton::~QButton()
 */
 
 /*!
-  \fn void QButton::clicked()
-  This signal is emitted when the button is activated (i.e. first
-  pressed down and then released when the mouse cursor is inside the
-  button).
+  \fn void QButton::clicked() This signal is emitted when the button
+  is activated, i.e. first pressed down and then released when the
+  mouse cursor is inside the button, or when the accelerator key is
+  typed, or when animateClick() is called.
 
   \sa pressed(), released(), toggled()
 */
@@ -336,14 +337,12 @@ QButton::~QButton()
 */
 
 /*!
-  Sets the button to display \e text and repaints
+  Sets the button to display \e text.
 
-  The button resizes itself if auto-resizing is enabled, changes its
-  minimum size if autoMinimumSize() is enabled, and sets the
-  appropriate accelerator.
-
-  \sa text(), setPixmap(), setAutoMinimumSize(), setAutoResize(),
-  setAccel(), QPixmap::mask()
+  If the text contains an ampersand, QButton creates an automatic
+  acceleror for it, such as  Alt-c for "&Cancel".
+  
+  \sa text(), setPixmap(), setAccel(), QPixmap::mask()
 */
 
 void QButton::setText( const QString &text )
@@ -362,7 +361,10 @@ void QButton::setText( const QString &text )
 
     setAccel( QAccel::shortcutKey( btext ) );
 
-    repaint( FALSE );
+    if ( isVisible() ) {
+	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
+	updateGeometry();
+    }
 }
 
 
@@ -372,7 +374,7 @@ void QButton::setText( const QString &text )
 */
 
 /*!
-  Sets the button to display \a pixmap and repaints at once.
+  Sets the button to display \a pixmap
 
   If \a pixmap is monochrome (i.e. it is a QBitmap or its \link
   QPixmap::depth() depth\endlink is 1) and it does not have a mask,
@@ -380,12 +382,7 @@ void QButton::setText( const QString &text )
   this is to draw transparent bitmaps, which is important for
   e.g. toggle buttons.
 
-  The button resizes itself if auto-resizing is enabled, changes its
-  minimum size if autoMinimumSize() is enabled, and always disables
-  any accelerator.
-
-  \sa pixmap(), setText(), setAutoMinimumSize(), setAutoResize(),
-  setAccel(), QPixmap::mask()
+  \sa pixmap(), setText(), setAccel(), QPixmap::mask()
 */
 
 void QButton::setPixmap( const QPixmap &pixmap )
@@ -410,9 +407,12 @@ void QButton::setPixmap( const QPixmap &pixmap )
     if ( autoresize && newSize )
 	adjustSize();
     setAccel( 0 );
-    repaint( FALSE );
     if ( autoMask() )
 	updateMask();
+    if ( isVisible() ) {
+	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
+	updateGeometry();
+    }
 }
 
 
@@ -464,7 +464,10 @@ void QButton::setAccel( int key )
 }
 
 
-/*!
+/*!\obsolete
+  
+  Strange pre-layout stuff.
+
   \fn bool QButton::autoResize() const
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
@@ -475,7 +478,10 @@ void QButton::setAccel( int key )
 */
 
 
-/*!
+/*!\obsolete
+  
+  Strange pre-layout stuff.
+  
   Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
   FALSE.
 
@@ -738,7 +744,7 @@ void QButton::keyReleaseEvent( QKeyEvent * e)
 	nextState();
 	emit released();
 	emit clicked();
-    } else 
+    } else
 	e->ignore();
 }
 

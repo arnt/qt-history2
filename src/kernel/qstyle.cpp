@@ -280,6 +280,8 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
   \fn void QStyle::drawButton( QPainter *, int , int , int , int ,
 			     const QColorGroup &, bool, const QBrush* )
   Draws a press-sensitive shape in the style of a full featured  push button
+  
+  \sa buttonRect()
 */
 
 /*!
@@ -287,7 +289,23 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &, bool, const QBrush* )
 
   Draws a press-sensitive shape in the style of a bevel button.
+  
+  \sa bevelButtonRect()
 */
+
+
+/*!
+  Returns the rectangle available for contents in a bevel
+  button. Usually this is the entire rectangle minus the border, but
+  it may also be smaller when you think about rounded buttons.
+  
+  \sa drawBevelButton()
+*/
+QRect QStyle::bevelButtonRect( int x, int y, int w, int h){
+    int fw = defaultFrameWidth()+1;
+    return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
+}
+
 
 /*!
   Draws a press-sensitive shape in the style of a toolbar button
@@ -301,19 +319,38 @@ void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
     drawBevelButton(p, x, y, w, h, g, sunken, fill);
 }
 
+/*!
+  Returns the rectangle available for contents in a tool
+  button. Usually this is the entire rectangle minus the border, but
+  it may also be smaller when you think about rounded buttons.
+  
+  The default implementation returns bevelButtonRect()
+  
+  \sa drawToolButton()
+*/
+QRect QStyle::toolButtonRect( int x, int y, int w, int h){
+    return bevelButtonRect( x, y, w, h );
+}
+
+
 
 /*!
   Returns the rectangle available for contents in a push
-  button. Usually this is the entire rectangle but it may also be
-  smaller when you think about rounded buttons.
+  button. Usually this is the entire rectangle minus the border, but
+  it may also be smaller when you think about rounded buttons.
+  
+  \sa drawButton()
 */
 QRect QStyle::buttonRect( int x, int y, int w, int h){
-    return QRect(x, y, w, h);
+    int fw = defaultFrameWidth()+1;
+    return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
 }
 
 /*!
   Draw the mask of a pushbutton. Useful if a rounded pushbuttons needs
   to be transparent because the style uses a fancy background pixmap.
+  
+  \sa drawButtonMask()
 */
 void QStyle::drawButtonMask( QPainter *, int , int , int , int )
 {
@@ -368,6 +405,9 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h)
   Draws the label of a pushbutton. This function will normally call
   drawItem() with arguments according to the current state of the
   pushbutton.
+  
+  In reimplementions of this function, you will find
+  pushButtonContentsRect() useful.
 
   \sa drawPushButton(), QPushButton::drawButtonLabel()
 */
@@ -858,3 +898,28 @@ void QStyle::setButtonDefaultIndicatorWidth( int w )
     d(this)->button_default_indiciator_width = w;
 }
 
+
+
+/*!
+  \fn QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
+
+  Auxiliary function to return the contents rectangle of a push button
+  \a btn. The contents rectangle is the space available for the button
+  label. 
+  
+  The result depends on the look (buttonRect() ), whether the
+  button needs space for a default indicator
+  (buttonDefaultIndicatorWidth()) and whether it is pushed down and
+  needs to be shifted (getButtonShift()).
+ */
+
+
+
+/*!
+  Returns the width of the menu button indicator for a given button
+  height \a h.
+ */
+int QStyle::menuButtonIndicatorWidth( int h )
+{
+    return QMAX( 12, (h-4)/3 );
+}

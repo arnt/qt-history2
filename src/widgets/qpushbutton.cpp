@@ -30,29 +30,62 @@
 #include "qdrawutil.h"
 #include "qpixmap.h"
 #include "qbitmap.h"
+#include "qpopupmenu.h"
+#include "qguardedptr.h"
+#include "qptrdict.h" // binary compatibility
+#include "qapplication.h"
 
 // NOT REVISED
 /*!
   \class QPushButton qpushbutton.h
-  \brief The QPushButton widget provides a push button with a text or pixmap label.
+  \brief The QPushButton widget provides a command button.
 
   \ingroup realwidgets
+  
+  The push button, also referred to as command button, is perhaps the
+  most central widget in any graphical user interface: Push it to
+  command the computer to perform some action. Typical actions are Ok,
+  Apply, Cancel, Close or Help.
+  
+  A command button is rectangular (ca. 80x22 pixel) and typically
+  displays a text label describing its action. An underscored
+  character in the label, marked with an ampersand in the text,
+  signals an accelerator key.
+  
+  This code creates a push button labelled "Rock & Roll".  Due to the
+  first ampersand, the c displays underscored and the button gets the
+  automatic accelerator key, Alt-C:
 
-  The push button (command button in Windows parlance) is perhaps the
-  most central widget: Push it to command the computer to perform some
-  action.
+  \code
+    QPushButton *p = new QPushButton( "Ro&ck && Roll", this );
+  \endcode
 
+  The text can be changed anytime later with setText(). You can also
+  define a pixmap with setPixmap(). The text/pixmap is manipulated as
+  necessary to create "disabled" appearance according to the
+  respective GUI style when the button is disabled.
+
+  A push button emits the signal clicked() when it is activated,
+  either with the mouse, the spacebar or a keyboard accelerator.
+  Connect to this signal to perform the button's action.  Other
+  signals of less importance are pressed() when the button is pressed
+  down and released() when it is released, respectively.
+  
+  Command buttons are by default auto-default buttons, i.e. they
+  become the default push button automatically when they receive the
+  keyboard input focus. A default button is a command button that is
+  activated when the users hits the Enter or Return key in a
+  dialog. Adjust this behaviour with setAutoDefault().
+  
   Being so central, the widget has grown to accomodate a great many
-  variations in the past decade, and by now the
-  <a href="http://www.microsoft.com/win32dev/uiguide/uigui162.htm">"comand
-  button" chapter</a> of the Microsoft style guide shows about ten
-  different states of Windows push buttons, and the text implies that
-  there are dozens more when all the combinations of features are taken
-  into consideration.
+  variations in the past decade, and by now the Microsoft style guide
+  shows about ten different states of Windows push buttons, and the
+  text implies that there are dozens more when all the combinations of
+  features are taken into consideration.
 
   The most important modes or states are, sorted roughly by importance: <ul>
   <li> Available or not ("grayed out", disabled).
-  <li> Standard push button or toggling push button.
+  <li> Standard push button, toggling push button or menu button.
   <li> On or off (only for toggling push buttons).
   <li> Default or normal.  The default button in a dialog can
   generally be "clicked" using the Enter or Return key.
@@ -60,17 +93,74 @@
   <li> Pressed down or not.
   </ul>
 
+  As a general rule, use a push button when the application or dialog
+  window performs an action when the user clicks it (like Apply,
+  Cancel, Close, Help, ...) \e and when the widget is supposed to have
+  a wide, rectangular shape with a text label.  Small, typically
+  square buttons that change the state of the window rather than
+  performing an action (like for example the buttons in the top/right
+  corner of the QFileDialog), are not command buttons, but tool
+  buttons. Qt provides a special class QToolButton for these.
+  
+  Also, if you need toggle behaviour (see setToggleButton()) or a button
+  that auto-repeats the activation signal when being pushed down like
+  the arrows in a scrollbar (see setAutoRepeat()), a command button is
+  probably not what you want. In case of doubt, go with a tool button.
+  
+  A variation of a command button is a menu button. It provides not
+  just one command, but several. Use the method setPopup() to
+  associate a popup menu with a push button.
+  
+  Other classes of buttons are option buttons (see QRadioButton) and
+  check boxes (see QCheckBox).
+  
   <img src="qpushbt-m.png"> <img src="qpushbt-w.png">
 
   In Qt, the QButton class provides most of the modes and other API,
   and QPushButton provides GUI logic.  See QButton for more
   information about the API.
 
-  \sa QRadioButton QToolButton
+  \sa QToolButton, QRadioButton QCheckBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
-  <a href="http://www.microsoft.com/win32dev/uiguide/uigui162.htm">Microsoft
-  Style Guide</a>
 */
+
+
+class QPushButtonPrivate
+{
+public:
+    QGuardedPtr<QPopupMenu> popup;
+};
+
+static QPtrDict<QPushButtonPrivate> *d_ptr = 0;
+static void cleanup_d_ptr()
+{
+    delete d_ptr;
+}
+static QPushButtonPrivate* d( const QPushButton* foo )
+{
+    if ( !d_ptr ) {
+	d_ptr = new QPtrDict<QPushButtonPrivate>;
+	qAddPostRoutine( cleanup_d_ptr );
+    }
+    QPushButtonPrivate* ret = d_ptr->find( (void*)foo );
+    if ( ! ret ) {
+	ret = new QPushButtonPrivate;
+	d_ptr->replace( (void*) foo, ret );
+    }
+    return ret;
+}
+
+static bool has_d( const QPushButton* foo )
+{
+    return !d_ptr || !d_ptr->find( (void*)foo );
+}
+
+static void delete_d( const QPushButton* foo )
+{
+    if ( d_ptr )
+	d_ptr->remove( (void*) foo );
+}
+
 
 
 /*!
@@ -101,36 +191,12 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
 
 
 /*!
-  Constructs a push button as arrow button. The ArrowType \a type
-  defines the arrow direction. Possible values are LeftArrow,
-  RightArrow, UpArrow and DownArrow.
-
-  The \a parent and \a name arguments are sent to the QWidget constructor.
-*/
-QPushButton::QPushButton( ArrowType type, QWidget *parent, const char *name )
-    : QButton( parent, name )
+  Destroys the push button
+ */
+QPushButton::~QPushButton()
 {
-    init();
-
-    setAutoRepeat( TRUE );
-    // abuse text due to the lack of a bit flag ### fix 3.0
-    switch ( type ) {
-    case LeftArrow:
-	setText("left");
-	break;
-    case RightArrow:
-	setText("right");
-	break;
-    case UpArrow:
-	setText("up");
-	break;
-    default: //LeftArrow:
-	setText("down");
-	break;
-    }
-    hasArrow = TRUE;
+    delete_d( this );
 }
-
 
 void QPushButton::init()
 {
@@ -139,8 +205,6 @@ void QPushButton::init()
     lastEnabled = FALSE;
     hasMenuArrow = FALSE;
     autoDefButton = TRUE;
-    autoDefDefined = FALSE;
-    hasArrow = FALSE;
     setBackgroundMode( PaletteButton );
 }
 
@@ -158,8 +222,6 @@ void QPushButton::init()
 void QPushButton::setToggleButton( bool enable )
 {
     QButton::setToggleButton( enable );
-    if ( !autoDefDefined )
-	autoDefButton = FALSE;
 }
 
 
@@ -203,14 +265,18 @@ void QPushButton::toggle()
 
   An auto-default button becomes the default push button automatically
   when it receives the keyboard input focus.
-
+  
+  In some GUI styles, a default button is drawn with an extra frame
+  around it, up to 3 pixels or more. Qt automatically keeps this space
+  free around auto-default buttons, i.e. auto-default buttons may have
+  a slightly larger size hint.
+  
   \sa autoDefault(), setDefault()
 */
 
 void QPushButton::setAutoDefault( bool enable )
 {
     autoDefButton = enable;
-    autoDefDefined = TRUE;
 }
 
 
@@ -260,8 +326,6 @@ QSize QPushButton::sizeHint() const
 {
     int w = 0;
     int h = 0;
-    if ( hasArrow )
-	return QSize( 16, 16 );
 
     if ( pixmap() ) {
 	QPixmap *pm = (QPixmap *)pixmap();
@@ -278,17 +342,14 @@ QSize QPushButton::sizeHint() const
 	w += h;
     }
 
-    bool adb = autoDefButton;
-    if ( adb && !autoDefDefined && autoRepeat() ) {
-	QPushButton* that  = (QPushButton*) this;
-	that->autoDefButton = FALSE;
-	adb = FALSE;
-    }
-
-    if ( adb || isDefault() ) {
+    if ( isDefault() || autoDefault() ) {
 	w += 2*style().buttonDefaultIndicatorWidth();
 	h += 2*style().buttonDefaultIndicatorWidth();
     }
+    
+    if ( isMenuButton() )
+	w += style().menuButtonIndicatorWidth( h );
+
 
     if ( style() == WindowsStyle ) {
 	// in windows style, try a little harder to conform to
@@ -371,6 +432,8 @@ void QPushButton::setGeometry( const QRect &r )
     QWidget::setGeometry( r );
 }
 
+/*!\reimp
+ */
 void QPushButton::resizeEvent( QResizeEvent * )
 {
     if ( autoMask() )
@@ -387,10 +450,6 @@ void QPushButton::drawButton( QPainter *paint )
     int diw = 0;
     if ( isDefault() || autoDefault() ) {
 	diw = style().buttonDefaultIndicatorWidth();
-	if ( !autoDefDefined && autoRepeat() ) {
-	    autoDefButton = FALSE;
-	    diw = 0;
-	}
 	if ( diw > 0 ) {
 	    if ( parentWidget() && parentWidget()->backgroundPixmap() ){
 		// pseudo tranparency
@@ -420,7 +479,7 @@ void QPushButton::drawButton( QPainter *paint )
     int x1, y1, x2, y2;
     style().buttonRect( 0,0,width(),height()).coords( &x1, &y1, &x2, &y2 );	// get coordinates
     if ( hasFocus() ) {
- 	QRect r(x1+3+diw, y1+3+diw, x2-x1-5-2*diw, y2-y1-5-2*diw);
+ 	QRect r(x1+3, y1+3, x2-x1-5, y2-y1-5);
  	style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
      }
     lastDown = isDown();
@@ -435,32 +494,12 @@ void QPushButton::drawButton( QPainter *paint )
 
 void QPushButton::drawButtonLabel( QPainter *paint )
 {
-    if ( hasArrow ) {
-	int x, y, w, h;
-	rect().rect( &x, &y, &w, &h );
-	if ( isDown() || isOn() ){
-	    int sx = 0;
-	    int sy = 0;
-	    style().getButtonShift(sx, sy);
-	    x+=sx;
-	    y+=sy;
-	}
-	int fw = style().defaultFrameWidth();
-	x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
-	ArrowType arrow = DownArrow;
-	if ( text()[0] == 'l' )
-	    arrow = LeftArrow;
-	else if ( text()[0] == 'r' )
-	    arrow = RightArrow;
-	else if ( text()[0] == 'u' )
-	    arrow = UpArrow;
-	style().drawArrow( paint, arrow, isDown(), x, y, w, h, colorGroup(), isEnabled() );
-	return;
-    }
     style().drawPushButtonLabel( this, paint );
 }
 
 
+/*!\reimp
+ */
 void QPushButton::updateMask()
 {
     QBitmap bm( size() );
@@ -503,7 +542,9 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 
 
 
-/*!  Tells this button to draw a menu indication triangle if \a enable
+/*!  \obsolete
+  
+  Tells this button to draw a menu indication triangle if \a enable
   is TRUE,  and to not draw one if \a enable is FALSE (the default).
 
   setIsMenuButton() does not cause the button to do anything other
@@ -517,11 +558,16 @@ void QPushButton::setIsMenuButton( bool enable )
     if ( (bool)hasMenuArrow == enable )
 	return;
     hasMenuArrow = enable ? 1 : 0;
-    repaint( FALSE );
+    if ( isVisible() ) {
+	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
+	updateGeometry();
+    }
 }
 
 
-/*!  Returns TRUE if this button indicates to the user that pressing
+/*!  \obsolete
+  
+  Returns TRUE if this button indicates to the user that pressing
   it will pop up a menu, and FALSE otherwise.  The default is FALSE.
 
   \sa setIsMenuButton()
@@ -533,3 +579,41 @@ bool QPushButton::isMenuButton() const
 }
 
 
+/*!
+  Associates the popup menu \a popup with this push button and
+  thus turns it into a menu button.
+
+  Ownership of the popup menu is not transferred.
+
+  \sa popup()
+ */
+void QPushButton::setPopup( QPopupMenu* popup )
+{
+    if ( popup && !::d( this )->popup )
+	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
+
+    ::d( this )->popup = popup;
+    setIsMenuButton( popup != 0 );
+}
+
+/*!
+  Returns the associated popup menu or 0 if no popup menu has been
+  defined.
+
+  \sa setPopup()
+*/
+QPopupMenu* QPushButton::popup() const
+{
+    if ( !::has_d( this ) )
+	return 0;
+    return ::d( this )->popup;
+}
+
+void QPushButton::popupPressed()
+{
+    QPopupMenu* popup = ::d( this )->popup;
+    if ( isDown() && popup ) {
+	popup->exec( mapToGlobal( rect().bottomLeft() ) );
+	setDown( FALSE );
+    }
+}

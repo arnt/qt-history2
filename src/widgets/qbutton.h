@@ -63,8 +63,8 @@ public:
     enum ToggleState { Off, NoChange, On };
     ToggleState	state() const;
 
-    bool	autoResize() const;
-    virtual void setAutoResize( bool );
+    bool	autoResize() const; // obsolete
+    virtual void setAutoResize( bool ); // obsolete
 
     bool	autoRepeat() const;
     virtual void setAutoRepeat( bool );
@@ -162,7 +162,7 @@ inline bool QButton::isOn() const
     return stat != Off;
 }
 
-inline bool QButton::autoResize() const
+inline bool QButton::autoResize() const // obsolete
 {
     return autoresize;
 }

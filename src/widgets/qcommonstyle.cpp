@@ -81,14 +81,14 @@ void QCommonStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
  */
 QRect QCommonStyle::comboButtonRect( int x, int y, int w, int h)
 {
-    return buttonRect(x+3, y+3, w-6-21, h-6);
+    return buttonRect(x, y, w-21, h);
 }
 
 /*! \reimp
  */
 QRect QCommonStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
-    return buttonRect(x+4, y+4, w-8-21, h-8);
+    return buttonRect(x+2, y+2, w-4-21, h-4);
 }
 
 /*! \reimp
@@ -104,35 +104,21 @@ void QCommonStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
  */
 void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
-    QRect r = btn->rect();
+    QRect r = pushButtonContentsRect( btn );
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
-
-    int x1, y1, x2, y2;
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    int dx = 0;
-    int dy = 0;
-    if ( btn->isMenuButton() )
-	dx = (y2-y1) / 3;
-    if ( dx || dy )
-	p->translate( dx, dy );
-
-    if ( btn->isDown() || btn->isOn() ){
-	int sx = 0;
-	int sy = 0;
-	getButtonShift(sx, sy);
-	x+=sx;
-	y+=sy;
+    if ( btn->isMenuButton() ) {
+	int dx = menuButtonIndicatorWidth( btn->height() );
+ 	drawArrow( p, DownArrow, FALSE,
+ 	 	   x+w-dx, y+2, dx-4, h-4,
+ 		   btn->colorGroup(), 
+ 		   btn->isEnabled() );
+	w -= dx;
     }
-    int fw = defaultFrameWidth();
-    x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
     drawItem( p, x, y, w, h,
 	       AlignCenter|ShowPrefix,
 	       btn->colorGroup(), btn->isEnabled(),
 	       btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
-
-    if ( dx || dy )
-	p->translate( -dx, -dy );
 }
 
 
@@ -276,4 +262,23 @@ static const int motifArrowHMargin	= 6;	// arrow horizontal margin
 int QCommonStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  )
 {
     return fm.ascent() + motifArrowHMargin;
+}
+
+
+
+// doesn't really belong here... fix 3.0
+QRect QStyle::pushButtonContentsRect( QPushButton* btn )
+{
+    int fw = 0;
+    if ( btn->isDefault() || btn->autoDefault() )
+	fw = buttonDefaultIndicatorWidth();
+    
+    QRect r = buttonRect( fw, fw, btn->width()-2*fw, btn->height()-2*fw );
+    if ( btn->isDown() || btn->isOn() ){
+	int sx = 0;
+	int sy = 0;
+	getButtonShift(sx, sy);
+	r.moveBy( sx, sy );
+    }
+    return r;
 }

@@ -44,7 +44,7 @@ class Q_EXPORT QToolButton: public QButton
     Q_OBJECT
 public:
     QToolButton( QWidget * parent, const char *name = 0 );
-    QToolButton( const QPixmap & pm, const QString &textLabel,
+    QToolButton( const QPixmap & pm, const QString &textLabel, //### fjern 3.0
 		 const QString& grouptext,
 		 QObject * receiver, const char* slot,
 		 QToolBar * parent, const char* name = 0 );
@@ -52,6 +52,7 @@ public:
 		 const QString& grouptext,
 		 QObject * receiver, const char* slot,
 		 QToolBar * parent, const char* name = 0 );
+    QToolButton( ArrowType type, QWidget *parent, const char *name = 0 );
     ~QToolButton();
 
     QSize sizeHint() const;
@@ -112,6 +113,7 @@ private:
 
     uint utl: 1;
     uint ubp: 1;
+    uint hasArrow : 1;
 };
 
 

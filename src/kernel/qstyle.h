@@ -108,9 +108,13 @@ public:
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 ) = 0;
 
+    QRect bevelButtonRect( int x, int y, int w, int h); // virtual 3.0
+    
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
+    
+    QRect toolButtonRect(  int x, int y, int w, int h); // virtual 3.0
 
     virtual void drawPanel( QPainter *p, int x, int y, int w, int h,
 		    const QColorGroup &, bool sunken=FALSE,
@@ -160,7 +164,8 @@ public:
     // push buttons
     virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
     virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p) = 0;
-
+    QRect pushButtonContentsRect( QPushButton* btn ); // virtual 3.0
+    int menuButtonIndicatorWidth( int h ); // virtual 3.0
     virtual void getButtonShift( int &x, int &y) = 0;
 
     // frame

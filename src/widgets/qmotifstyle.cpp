@@ -457,7 +457,7 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	x2 -= diw;
 	y2 -= diw;
     }
-    
+
     QBrush fill;
     if ( btn->isDown() )
 	fill = g.brush( QColorGroup::Mid );
@@ -486,14 +486,6 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
     drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
 		&fill );
 	
-
-    if ( btn->isMenuButton() ) {
-	int dx = (y2-y1-4)/3;
-	drawArrow( p, DownArrow, FALSE,
-		   x1+dx, y1+dx+2, dx, y2-y1,
-		   g, btn->isEnabled() );
-    }
-
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
 }
@@ -1063,16 +1055,16 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 static int get_combo_extra_width( int h, int *return_awh=0 )
 {
     int awh;
-    if ( h < 12 ) {
+    if ( h < 8 ) {
 	awh = 6;
-    } else if ( h < 18 ) {
-	awh = h - 6;
+    } else if ( h < 14 ) {
+	awh = h - 2;
     } else {
-	awh = h*4/10;
+	awh = h/2;
     }
     if ( return_awh )
 	*return_awh = awh;
-    return awh*3/2+4;
+    return awh*3/2;
 }
 
 
@@ -1096,7 +1088,7 @@ static void get_combo_parameters( const QRect &r,
     } else {
 	sy = ay+awh+dh;
     }
-    ax = r.x() + r.width() - ew +(ew-awh)/2 - 2; //###assume frameWidth 2
+    ax = r.x() + r.width() - ew +(ew-awh)/2;
 }
 
 /*! \reimp
@@ -1127,7 +1119,6 @@ void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
     if ( editable ) {
 	QRect r( comboButtonRect(x,y,w,h) );
-	r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
 	qDrawShadePanel( p, r, g, TRUE, 1, &fill );
     }
 }
@@ -1139,7 +1130,7 @@ QRect QMotifStyle::comboButtonRect( int x, int y, int w, int h)
 {
     QRect r = buttonRect( x, y, w, h );
     int ew = get_combo_extra_width( r.height() );
-    return QRect(r.x()+3, r.y()+3, r.width()-6-ew, r.height()-6);
+    return QRect(r.x(), r.y(), r.width()-ew, r.height());
 }
 
 /*! \reimp

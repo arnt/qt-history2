@@ -81,15 +81,19 @@
   and \c Hidden are meaningful.
 
   Several functions let you change the appearance of a QMainWindow
-  globally: setRightJustification() determines whether QMainWindow
+  globally: <ul>
+  <li> setRightJustification() determines whether QMainWindow
   should ensure that the toolbars fill the available space,
-  setUsesBigPixmaps() determines whether QToolButton (and other
+  <li>  setUsesBigPixmaps() determines whether QToolButton (and other
   classes) should draw small or large pixmaps (see QIconSet for more
-  about that).
+  about that),
+  <li> setUsesTextLabel() determines whether the toolbar buttons (and 
+  other classes), should display a textlabel in addition to pixmaps (see 
+  QToolButton for more about that).
 
   Toolbars can be dragged by the user into each enabled docking area
   and inside each docking area to change the order of the toolbars
-  there. This feature can be enabled and disabled using setMovableToolbarsEnabled().
+  there. This feature can be enabled and disabled using setToolBarsMovable().
   By default this feature is enabled. If the \c Hidden dock is enabled the user
   can hide/show a toolbar with a click on the toolbar handle. The handles of
   all hidden toolbars are drawn below the menu bar in one row, and if the user
@@ -98,18 +102,17 @@
 
   An application with multiple toolbars should always save the layout
   of the toolbars (docking area and position there) and restore that
-  when loading the application again. To get the information about
-  the docking area and position for each toolbar, use the
-  findDockAndIndexOfToolbar() and toolBarsOnDock() methods. To move
-  the toolbar again to a position of a docking area when restoring, use one of the
-  moveToolBar() methods.
-  When saving and restoring this layout, you have to be careful to save
-  and restore it in the same order to make it working correctly. So, it's
-  suggested to get first the toolbars of each docking area with
-  toolBarsOnDock(). Then get all information of each of these toolbars with
-  findDockAndIndexOfToolbar() for each toolbar in each list and save
-  it in the order of the list you got from toolBarsOnDock().
-  When restoring the layout, create the toolbars exactly in the order in
+  when loading the application again. To get the information about the
+  docking area and position for each toolbar, use the getLocation()
+  and toolBars() methods. To move the toolbar again to a position of a
+  docking area when restoring, use one of the moveToolBar() methods.
+  When saving and restoring this layout, you have to be careful to
+  save and restore it in the same order to make it working
+  correctly. So, it's suggested to get first the toolbars of each
+  docking area with toolBars(). Then get all information of each of
+  these toolbars with getLocation() for each toolbar in each list and
+  save it in the order of the list you got from toolBars().  When
+  restoring the layout, create the toolbars exactly in the order in
   which the infos are loaded.
 
   For multidocument interfaces (MDI), use a QWorkspace as central
@@ -155,8 +158,8 @@ public:
     enum InsertPos { Before, After, TotalAfter };
 
     QMainWindowPrivate()
-	: top(0), left(0), right(0), bottom(0), tornOff(0), unmanaged(0), hidden( 0 ),
-	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE ),
+	: top(0), left(0), right(0), bottom(0), tornOff(0), unmanaged(0),
+	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE ), utl( FALSE ),
 	  justify( FALSE )
     {
 	// nothing
@@ -210,6 +213,7 @@ public:
     QBoxLayout * tll;
 
     bool ubp;
+    bool utl;
     bool justify;
 
     QPoint pos;
@@ -1507,10 +1511,49 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
     emit pixmapSizeChanged( enable );
 }
 
+/*!  Returns the state last set by setUsesTextLabel().  The initial
+  state is FALSE.
+  \sa setUsesTextLabel();
+*/
+
+bool QMainWindow::usesTextLabel() const
+{
+    return d->utl;
+}
+
+
+/*!  Sets tool buttons in this main windows to use text labels if \a
+  enable is TRUE, and no text labels otherwise.
+
+  The default is FALSE.
+
+  Tool buttons and other interested widgets are responsible for
+  reading the correct state on startup, and for connecting to this
+  widget's usesTextLabelChanged() signal.
+
+  \sa QToolButton::setUsesTextLabel()
+*/
+
+void QMainWindow::setUsesTextLabel( bool enable )
+{
+    if ( d->utl == enable )
+	return;
+
+    d->utl = enable;
+    emit usesTextLabelChanged( enable );
+}
+
 
 /*! \fn void QMainWindow::pixmapSizeChanged( bool )
 
   This signal is called whenever the setUsesBigPixmaps() is called
+  with a value which is different from the current setting.  All
+  relevant widgets must connect to this signal.
+*/
+
+/*! \fn void QMainWindow::usesTextLabelChanged( bool )
+
+  This signal is called whenever the setUsesTextLabel() is called
   with a value which is different from the current setting.  All
   relevant widgets must connect to this signal.
 */
@@ -1983,7 +2026,7 @@ void QMainWindow::styleChange( QStyle& old )
   (e.g. because the toolbar \a tb was not found in this mainwindow)
 */
 
-bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl ) const
+bool QMainWindow::getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl ) const
 {
     if ( !tb )
 	return FALSE;
@@ -2019,7 +2062,7 @@ bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, in
   Returns a list of all toolbars which are placed in \a dock.
 */
 
-QList<QToolBar> QMainWindow::toolBarsOnDock( ToolBarDock dock ) const
+QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 {
     QList<QToolBar> lst;
     QMainWindowPrivate::ToolBarDock *tdock = 0;
@@ -2060,10 +2103,10 @@ QList<QToolBar> QMainWindow::toolBarsOnDock( ToolBarDock dock ) const
   If \a enable is TRUE, the user is allowed to drag toolbars between and
   in the toolbar docks. Else this feature is disabled.
 
-  \sa setDockEnabled()
+  \sa setDockEnabled(), toolbarsMovable()
 */
 
-void QMainWindow::setMovableToolbarsEnabled( bool enable )
+void QMainWindow::setToolBarsMovable( bool enable )
 {
     d->movable = enable;
 }
@@ -2072,10 +2115,10 @@ void QMainWindow::setMovableToolbarsEnabled( bool enable )
   Returns TRUE if the user is allowed to drag toolbars between and
   in the toolbar docks, else FALSE.
 
-  \sa setMovableToolbarsEnabled()
+  \sa setToolbarsMovable()
 */
 
-bool QMainWindow::movableToolbarsEnabled() const
+bool QMainWindow::toolBarsMovable() const
 {
     return d->movable;
 }

@@ -161,10 +161,12 @@ void QSpinBox::initSpinBox()
 
     up = new QPushButton( this, "up" );
     up->setFocusPolicy( QWidget::NoFocus );
+    up->setAutoDefault( FALSE );
     up->setAutoRepeat( TRUE );
 
     down = new QPushButton( this, "down" );
     down->setFocusPolicy( QWidget::NoFocus );
+    down->setAutoDefault( FALSE );
     down->setAutoRepeat( TRUE );
 
     validate = new QIntValidator( minValue(), maxValue(), this, "validator" );
