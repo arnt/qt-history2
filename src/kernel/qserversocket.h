@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qserversocket.h#6 $
+** $Id: //depot/qt/main/src/kernel/qserversocket.h#7 $
 **
 ** Definition of QServerSocket class
 **
@@ -32,7 +32,7 @@
 #endif // QT_H
 
 
-class QServerSocket : public QObject
+class Q_EXPORT QServerSocket : public QObject
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtl.h#7 $
+** $Id: //depot/qt/main/src/tools/qtl.h#8 $
 **
 ** Definition of Qt template library classes
 **
@@ -27,6 +27,7 @@
 
 #include <qtextstream.h>
 #include <qstring.h>
+
 
 template <class T>
 class QStreamIterator

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#7 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#8 $
 **
 ** Definition of the QChildWindow class
 **
@@ -45,7 +45,7 @@ class QLabel;
 class QWorkspace;
 
 
-class QWorkspaceChildTitleBar : public QWidget
+class Q_EXPORT QWorkspaceChildTitleBar : public QWidget
 {
     Q_OBJECT
 public:
@@ -85,7 +85,7 @@ private:
 };
 
 
-class QWorkspaceChild : public QFrame
+class Q_EXPORT QWorkspaceChild : public QFrame
 {
     Q_OBJECT
 public:

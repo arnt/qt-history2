@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#19 $
+** $Id: //depot/qt/main/src/tools/qmap.h#20 $
 **
 ** Definition of QMap class
 **
@@ -165,7 +165,7 @@ struct QMapIterator
 };
 
 
-class QMapPrivateBase : public QShared
+class Q_EXPORT QMapPrivateBase : public QShared
 {
 public:
     QMapPrivateBase() {
@@ -382,7 +382,7 @@ protected:
 
 
 template<class Key, class T>
-class QMap
+class Q_EXPORT QMap
 {
 public:
     /**

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qxml.h#1 $
+** $Id: //depot/qt/main/src/tools/qxml.h#2 $
 **
 ** Definition of QXML classes
 *
@@ -27,7 +27,8 @@
 
 #include "qstring.h"
 
-class QXMLConsumer
+
+class Q_EXPORT QXMLConsumer
 {
 public:
   QXMLConsumer() { }
@@ -44,7 +45,7 @@ public:
 
 class QXMLSimpleParserPrivate;
 
-class QXMLSimpleParser
+class Q_EXPORT QXMLSimpleParser
 {
 public:
   QXMLSimpleParser();
@@ -58,7 +59,7 @@ private:
 
 class QXMLValidatingParserPrivate;
 
-class QXMLValidatingParser
+class Q_EXPORT QXMLValidatingParser
 {
 public:
   QXMLValidatingParser() { d = 0; };

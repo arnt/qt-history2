@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qxmlparser.h#4 $
+** $Id: //depot/qt/main/src/tools/qxmlparser.h#5 $
 **
 ** Definition of QXMLParser class
 *
@@ -34,7 +34,8 @@
 class QXMLParser;
 class QXMLParseTree;
 
-class QXMLParser
+
+class Q_EXPORT QXMLParser
 {
 public:
   struct Tag
@@ -65,7 +66,8 @@ private:
   QXMLParseTree* tree;
 };
 
-class QXMLParseTree : public QShared
+
+class Q_EXPORT QXMLParseTree : public QShared
 {
   friend QXMLParser;
 public:
@@ -85,7 +87,8 @@ protected:
   QXMLParser::Tag* current_sibling;
 };
 
-class QXMLIterator
+
+class Q_EXPORT QXMLIterator
 {
 public:
   QXMLIterator( const QXMLParseTree& _tree );

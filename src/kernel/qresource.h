@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.h#3 $
+** $Id: //depot/qt/main/src/kernel/qresource.h#4 $
 **
 ** Definition of QResource classes
 *
@@ -39,7 +39,8 @@ class QResource;
 class QResourceConstIterator;
 struct QMetaProperty;
 
-class QResourceIterator
+
+class Q_EXPORT QResourceIterator
 {
   friend QResourceConstIterator;
 
@@ -74,7 +75,7 @@ protected:
   QResourceItem* tag;
 };
 
-class QResourceConstIterator
+class Q_EXPORT QResourceConstIterator
 {
 public:
   QResourceConstIterator() { tag = 0; }
@@ -109,7 +110,7 @@ protected:
   const QResourceItem* tag;
 };
 
-class QResourceItem
+class Q_EXPORT QResourceItem
 {
 public:
   QResourceItem() { bIsText = FALSE; firstChildItem = nextSiblingItem = parentItem = 0; }
@@ -184,7 +185,7 @@ private:
   bool bIsText;
 };
 
-class QResource
+class Q_EXPORT QResource
 {
 public:
   QResource();
@@ -229,8 +230,8 @@ private:
 #endif
 };
 
-QTextStream& operator<< ( QTextStream&, const QResourceItem& tag );
-QTextStream& operator<< ( QTextStream&, const QResource& );
-QTextStream& operator>> ( QTextStream&, QResource& );
+Q_EXPORT QTextStream& operator<< ( QTextStream&, const QResourceItem& tag );
+Q_EXPORT QTextStream& operator<< ( QTextStream&, const QResource& );
+Q_EXPORT QTextStream& operator>> ( QTextStream&, QResource& );
 
 #endif

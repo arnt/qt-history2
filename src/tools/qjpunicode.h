@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjpunicode.h#2 $
+** $Id: //depot/qt/main/src/tools/qjpunicode.h#3 $
 **
-** Definition of QEucJpCodec class
+** Definition of QJpUnicodeConv class
 **
 ** Created : 990225
 **
@@ -55,7 +55,8 @@
 #ifndef QJPUNICODE_H
 #define QJPUNICODE_H
 
-typedef	unsigned int	uint;
+#include "qglobal.h"
+
 
 #define	JU_Default		0x0000
 
@@ -71,7 +72,7 @@ typedef	unsigned int	uint;
 #define	JU_UDC		0x0200		// User Defined Char
 #define	JU_IBM_VDC	0x0400		// IBM Vender Defined Char
 
-class QJpUnicodeConv {
+class Q_EXPORT QJpUnicodeConv {
 public:
     static const QJpUnicodeConv *newConverter(int rule);
 

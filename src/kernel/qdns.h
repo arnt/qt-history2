@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdns.h#1 $
+** $Id: //depot/qt/main/src/kernel/qdns.h#2 $
 **
 ** Definition of something or other
 **
@@ -15,7 +15,7 @@
 #include "qobject.h"
 
 
-class QDns: public QObject
+class Q_EXPORT QDns: public QObject
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qproperty.h#6 $
+** $Id: //depot/qt/main/src/kernel/qproperty.h#7 $
 **
 ** Definition of QProperty class
 **
@@ -52,7 +52,7 @@ class QColorGroup;
  * time but it can hold the most common types.
  * For CORBA people: It is a poor mans CORBA::Any.
  */
-class QProperty : public QShared
+class Q_EXPORT QProperty : public QShared
 {
 public:
     enum Type {
@@ -177,10 +177,10 @@ private:
     static void initTypeNameMap();
 };
 
-QDataStream& operator>> ( QDataStream& s, QProperty& p );
-QDataStream& operator<< ( QDataStream& s, const QProperty& p );
-QDataStream& operator>> ( QDataStream& s, QProperty::Type& p );
-QDataStream& operator<< ( QDataStream& s, const QProperty::Type p );
+Q_EXPORT QDataStream& operator>> ( QDataStream& s, QProperty& p );
+Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QProperty& p );
+Q_EXPORT QDataStream& operator>> ( QDataStream& s, QProperty::Type& p );
+Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QProperty::Type p );
 
 #endif
 
