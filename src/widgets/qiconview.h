@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#19 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#20 $
 **
 ** Definition of QIconView widget class
 **
@@ -124,7 +124,7 @@ class Q_EXPORT QIconViewItem : public QObject
 {
     friend class QIconView;
     friend class QIconViewItemLineEdit;
-    
+
     Q_OBJECT
 
 public:
@@ -201,7 +201,6 @@ protected:
     virtual void paintItem( QPainter *p );
     virtual void paintFocus( QPainter *p );
     virtual void dropped( QDropEvent *e );
-    virtual void breakLines( const QString text, QStringList &lst, int width );
     virtual void dragEntered();
     virtual void dragLeft();
     virtual void init();
@@ -296,6 +295,11 @@ public:
     virtual void setResizeMode( ResizeMode am );
     virtual ResizeMode resizeMode() const;
 
+    virtual void setMaxItemWidth( int w );
+    virtual int maxItemWidth() const;
+    virtual void setMaxItemTextLength( int w );
+    virtual int maxItemTextLength() const;
+    
     bool eventFilter( QObject * o, QEvent * );
 
 signals:

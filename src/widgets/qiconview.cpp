@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#37 $
 **
 ** Definition of QIconView widget class
 **
@@ -118,6 +118,7 @@ struct QIconViewPrivate
     QValueList<QIconDragItem> iconDragData;
     bool isIconDrag;
     int numDragItems, cachedW, cachedH;
+    int maxItemWidth, maxItemTextLength;
 };
 
 /*****************************************************************************
@@ -129,7 +130,7 @@ struct QIconViewPrivate
 class QIconViewItemLineEdit : public QMultiLineEdit
 {
     friend class QIconViewItem;
-    
+
     Q_OBJECT
 
 public:
@@ -151,6 +152,10 @@ protected:
 QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char *name )
     : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
 {
+    setWordWrap( QMultiLineEdit::FixedWidthWrap | QMultiLineEdit::BreakWithinWords );
+    setWrapColumnOrWidth( item->iconView()->maxItemWidth() );
+    setMaxLength( item->iconView()->maxItemTextLength() );
+    setAlignment( Qt::AlignCenter );
     setText( text );
     clearTableFlags();
 }
@@ -910,7 +915,7 @@ bool QIconViewItem::acceptDrop( QMimeSource *mime )
 void QIconViewItem::rename()
 {
     renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
-    renameBox->resize( textRect().width(), textRect().height() );
+    renameBox->resize( textRect().width() + fm->width( ' ' ), textRect().height() );
     view->addChild( renameBox, textRect( FALSE ).x(), textRect( FALSE ).y() );
     renameBox->setFrameStyle( QFrame::Plain | QFrame::Box );
     renameBox->setLineWidth( 1 );
@@ -918,8 +923,10 @@ void QIconViewItem::rename()
     renameBox->setFocus();
     renameBox->show();
     view->viewport()->setFocusProxy( renameBox );
-    connect( renameBox, SIGNAL( returnPressed() ), this, SLOT( renameItem() ) );
-    connect( renameBox, SIGNAL( escapePressed() ), this, SLOT( cancelRenameItem() ) );
+    connect( renameBox, SIGNAL( returnPressed() ), 
+	     this, SLOT( renameItem() ) );
+    connect( renameBox, SIGNAL( escapePressed() ), 
+	     this, SLOT( cancelRenameItem() ) );
 }
 
 /*!
@@ -980,24 +987,14 @@ void QIconViewItem::calcRect( int w )
     int h = 0;
     if ( w == -1 ) {
 	w = 0;
-    
-	if ( view->rastX() != -1 && fm->width( itemText ) > view->rastX() - 4 ) {
-	    QStringList lst;	
-	    breakLines( itemText, lst, view->rastX() - 4 );
 
-	    QValueListIterator<QString> it = lst.begin();
-	    for ( ; it != lst.end(); ++it ) {
-		w = QMAX( w, fm->width( *it ) );
-		h += fm->height();
-	    }
-	    w += 6;
-	    h += 2;
-	} else {
-	    w = fm->width( itemText ) + 6;
-	    h = fm->height() + 2;
-	}
+	QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth(), 
+				   0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak,
+				   itemText ) );
+	w = r.width();
+	h = r.height();
     }
-    
+
     itemTextRect.setWidth( w );
     itemTextRect.setHeight( h );
 
@@ -1046,21 +1043,7 @@ void QIconViewItem::paintItem( QPainter *p )
     else
 	p->setPen( view->colorGroup().text() );
 
-    if ( view->rastX() != -1 && fm->width( itemText ) > view->rastX() - 4 ) {
-	QStringList lst;
-	breakLines( itemText, lst, view->rastX() - 4 );
-
-	QValueListIterator<QString> it = lst.begin();
-	int h = 0;
-	for ( ; it != lst.end(); ++it ) {
-	    p->drawText( QRect( textRect( FALSE ).x(), h + textRect( FALSE ).y(),
-				textRect( FALSE ).width(), fm->height() ),
-			 Qt::AlignCenter, *it);
-	    h += fm->height();
-	}
-    } else {
-	p->drawText( textRect( FALSE ), Qt::AlignCenter, itemText );
-    }
+    p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
 
     p->restore();
 }
@@ -1095,82 +1078,6 @@ void QIconViewItem::dropped( QDropEvent *e )
 {
     if ( e )
 	;
-}
-
-/*!
-  Does linebreaking for the item's text
-*/
-
-void QIconViewItem::breakLines( const QString text, QStringList &lst, int width )
-{
-    lst.clear();
-
-    if ( !fm )
-	return;
-
-    if ( text.isEmpty() ) {
-	lst.append( text );
-	return;
-    }
-
-    QStringList words;
-    QString line = text;
-
-    if ( line.simplifyWhiteSpace().find( QChar( ' ' ) ) == -1 ) {
-	// we have only one word - do some ugly line breaking
-
-	QString txt;
-	for ( unsigned int i = 0; i < line.length(); i++ ) {
-	    if ( fm->width( txt ) + fm->width( line.at( i ) ) <= width ) {
-		txt += line.at( i );
-	    } else {
-		lst.append( txt );
-		txt = line.at( i );
-	    }
-	}
-	if ( !txt.isEmpty() )
-	    lst.append( txt );
-
-	return;
-    }
-
-
-    int i = text.find( QChar( ' ' ), 0 );
-
-    while ( i != -1 ) {
-	words.append( line.left( i ) );
-	line.remove( 0, i + 1 );
-	i = line.find( QChar( ' ' ), 0 );
-    }
-
-    if ( !line.simplifyWhiteSpace().isEmpty() )
-	words.append( line.simplifyWhiteSpace() );
-
-    QValueListIterator<QString> it = words.begin();
-
-    int w = 0;
-    line = QString::null;
-
-    for ( ; it != words.end(); ++it ) {
-	if ( w == 0 ) {
-	    line = *it;
-	    line += QChar( ' ' );
-	    w = fm->width( line );
-	} else {
-	    if ( fm->width( line + *it ) <= width ) {
-		line += *it;
-		line += QChar( ' ' );
-		w = fm->width( line );
-	    } else {
-		lst.append( line );
-		w = 0;
-		--it;
-	    }
-	}
-    }
-
-    if ( !line.isEmpty() )
-	lst.append( line );
 }
 
 /*!
@@ -1257,7 +1164,9 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->numDragItems = 0;
     d->updateTimer = new QTimer( this );
     d->cachedW = d->cachedH = 0;
-
+    d->maxItemWidth = 200;
+    d->maxItemTextLength = 255;
+    
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -1846,6 +1755,29 @@ void QIconView::setResizeMode( ResizeMode rm )
 QIconView::ResizeMode QIconView::resizeMode() const
 {
     return d->resizeMode;
+}
+
+void QIconView::setMaxItemWidth( int w )
+{
+    d->maxItemWidth = w;
+}
+
+void QIconView::setMaxItemTextLength( int w )
+{
+    d->maxItemTextLength = w;
+}
+
+int QIconView::maxItemWidth() const
+{
+    if ( d->rastX != -1 )
+	return d->rastX;
+    else
+	return d->maxItemWidth;
+}
+
+int QIconView::maxItemTextLength() const
+{
+    return d->maxItemTextLength;
 }
 
 /*!
