@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#10 $
 **
 ** Implementation of QSize class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#10 $";
 #endif
 
 /*!
@@ -66,28 +66,28 @@ equal to or greater than 0, otherwise FALSE.
 */
 
 /*!
-\fn QCOORD QSize::width() const
+\fn int QSize::width() const
 Returns the width.
 
 \sa height().
 */
 
 /*!
-\fn QCOORD QSize::height() const
+\fn int QSize::height() const
 Returns the height.
 
 \sa width().
 */
 
 /*!
-\fn void QSize::setWidth( QCOORD w )
+\fn void QSize::setWidth( int w )
 Sets the width to \e w.
 
 \sa setHeight().
 */
 
 /*!
-\fn void QSize::setHeight( QCOORD h )
+\fn void QSize::setHeight( int h )
 Sets the height to \e h.
 
 \sa setWidth().

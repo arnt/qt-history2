@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#11 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#11 $";
 #endif
 
 
@@ -96,7 +96,7 @@ Sets the y coordinate of the point to \e y.
 
 
 /*!
-\fn int &QPoint::rx()
+\fn QCOORD &QPoint::rx()
 Returns a reference to the x coordinate of the point.
 
 Using a reference makes it possible to directly manipulate x:
@@ -109,7 +109,7 @@ Using a reference makes it possible to directly manipulate x:
 */
 
 /*!
-\fn int &QPoint::ry()
+\fn QCOORD &QPoint::ry()
 Returns a reference to the y coordinate of the point.
 
 Using a reference makes it possible to directly manipulate y:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#11 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,7 +13,7 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#11 $";
 #endif
 
 
@@ -303,7 +303,7 @@ void QIODevice::setStatus( int s )		// set status
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn void QIODevice::flush( int mode )
+  \fn void QIODevice::flush()
 
   Flushes an open IO device.
 
