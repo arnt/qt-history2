@@ -111,8 +111,10 @@ unsigned long TestComponent::addRef()
 
 unsigned long TestComponent::release()
 {
-    if ( !--ref )
+    if ( !--ref ) {
 	delete this;
+	return 0;
+    }
 
     return ref;
 }
