@@ -7002,22 +7002,16 @@ void QTableHeader::swapSections( int oldIdx, int newIdx, bool swapTable )
 {
     extern bool qt_qheader_label_return_null_strings; // qheader.cpp
     qt_qheader_label_return_null_strings = TRUE;
-    QIconSet is;
-    bool his = FALSE;
-    if ( iconSet( oldIdx ) ) {
-	his = TRUE;
-	is = *iconSet( oldIdx );
-    }
-    QString l = label( oldIdx );
-    if ( iconSet( newIdx ) )
-	setLabel( oldIdx, *iconSet( newIdx ), label( newIdx ) );
-    else if ( !label( newIdx ).isNull() )
-	setLabel( oldIdx, label( newIdx ) );
 
-    if (his || iconSet(newIdx))
-	setLabel( newIdx, is, l );
-    else if ( !l.isNull() )
-	setLabel( newIdx, l );
+    QIconSet oldIconSet, newIconSet;
+    if ( iconSet( oldIdx ) )
+	oldIconSet = *iconSet( oldIdx );
+    if ( iconSet( newIdx ) )
+	newIconSet = *iconSet( newIdx );
+    QString oldLabel = label( oldIdx );
+    setLabel( oldIdx, newIconSet, label( newIdx ) );
+    setLabel( newIdx, oldIconSet, oldLabel );
+
     qt_qheader_label_return_null_strings = FALSE;
 
      int w1 = sectionSize( oldIdx );

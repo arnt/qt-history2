@@ -952,7 +952,10 @@ void QHeader::setLabel( int section, const QString &s, int size )
 {
     if ( section < 0 || section >= count() )
 	return;
-    d->labels.insert( section, new QString( s ) );
+    if ( s.isNull() )
+	d->labels.remove( section );
+    else
+	d->labels.insert( section, new QString( s ) );
 
     setSectionSizeAndHeight( section, size );
 
