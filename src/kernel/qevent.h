@@ -108,6 +108,10 @@ protected:
     Type  t;
 private:
     bool  posted;
+#if defined(_CC_MSVC_)
+    friend class QEvent;
+#endif
+
     friend class QApplication;
     friend class QBaseApplication;
 };
@@ -244,10 +248,11 @@ public:
     const QRegion &region() const { return reg; }
     bool erased() const { return erase; }
 protected:
+    friend class QApplication;
+    friend class QBaseApplication;
     QRect rec;
     QRegion reg;
     bool erase;
-    friend QApplication;
 };
 
 
@@ -261,6 +266,7 @@ public:
 protected:
     QPoint p, oldp;
     friend QApplication;
+    friend QBaseApplication;
 };
 
 
@@ -274,6 +280,7 @@ public:
 protected:
     QSize s, olds;
     friend QApplication;
+    friend QBaseApplication;
 };
 
 
