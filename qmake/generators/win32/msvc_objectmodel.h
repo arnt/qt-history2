@@ -767,7 +767,7 @@ public:
         return Uindex;
     }
 
-    using Node::addElement;
+//     using Node::addElement;
     void addElement(const QString &filepath, const VCFilterFile &allInfo){
         QString newNodeName(filepath);
 
@@ -819,7 +819,7 @@ public:
         return Uindex;
     }
 
-    using Node::addElement;
+//     using Node::addElement;
     void addElement(const QString &filepath, const VCFilterFile &allInfo){
         QString newKey(filepath);
 
@@ -851,7 +851,7 @@ public:
     // Functions
     VCFilter();
     ~VCFilter();
-    
+
     void addFile(const QString& filename);
     void addFile(const VCFilterFile& fileInfo);
 
