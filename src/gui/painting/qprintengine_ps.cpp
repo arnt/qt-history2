@@ -831,8 +831,8 @@ public:
     bool        collate;
     int         copies;
     QString printerName;
-    bool outputToFile;
     QString outputFileName;
+    QString selectionOption;
     QString printProgram;
     QString docName;
     QString creator;
@@ -1476,6 +1476,11 @@ private:
 
 static FT_Face ft_face(QFontEngine *engine)
 {
+    if (engine->type() == QFontEngine::Multi) {
+        // #### HACK
+        QFontEngineMulti *mf = static_cast<QFontEngineMulti *>(engine);
+        engine = mf->engine(0);
+    }
 #ifdef Q_WS_X11
     if (engine->type() == QFontEngine::Xft) {
         QFontEngineXft *xft = static_cast<QFontEngineXft *>(engine);
@@ -2657,7 +2662,7 @@ end:
 QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     : buffer(0), outDevice(0), fd(-1), pageBuffer(0), fontBuffer(0), clipOn(false),
       bkMode(Qt::TransparentMode),
-      collate(false), copies(1), outputToFile(false), orientation(QPrinter::Portrait),
+      collate(false), copies(1), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::GrayScale),
       printerState(QPrinter::Idle)
 {
@@ -2711,6 +2716,12 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
     if (embedFonts) {
 #ifdef Q_WS_X11
 #ifndef QT_NO_XFT
+        if (fontType == QFontEngine::Multi) {
+            // ##### hack to get the multi engine sort of working
+            QFontEngineMulti *mf = static_cast<QFontEngineMulti *>(fe);
+            fe = mf->engine(0);
+            fontType = fe->type();
+        }
         if (X11->has_xft && fontType == QFontEngine::Xft && FT_IS_SCALABLE(ft_face(fe))) {
             FcPattern *pattern = static_cast<QFontEngineXft *>(fe)->pattern();
             FcChar8 *filename = 0;
@@ -2751,13 +2762,11 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
 #ifdef QT_HAVE_FREETYPE
         if (!fontKey.startsWith(QLatin1String("NonEmbed:"))) {
             currentPSFont = new QPSPrintEngineFontFT(fe);
-            qDebug("new FT font engine");
         } else
 #endif
         {
             // ### add Han handling
             currentPSFont = new QPSPrintEngineFontNotFound(fe);
-            qDebug("new 'not found' font engine");
         }
         if (currentPSFont->postScriptFontName() == "Symbol")
             currentPSFont->setSymbol();
@@ -3226,8 +3235,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     int width = pageRect.width();
     int height = pageRect.height();
     if (finished && pageCount == 1 && copies == 1 &&
-         ((fullPage && qt_gen_epsf) ||
-           (outputToFile && outputFileName.endsWith(".eps")))
+         ((fullPage && qt_gen_epsf) || (outputFileName.endsWith(".eps")))
        ) {
         if (!boundingBox.isValid())
             boundingBox.setRect(0, 0, width, height);
@@ -3324,6 +3332,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
         outStream << "/NumCopies " << copies << " SPD\n";
         outStream << "/Collate " << (collate ? "true" : "false") << " SPD\n";
     }
+    fontStream.flush();
     if (fontBuffer->buffer().size()) {
         if (pageCount == 1 || finished)
             outStream << "% Fonts and encodings used\n";
@@ -3332,6 +3341,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
                    << pageCount << "\n";
         for (QHash<QString, QPSPrintEngineFont *>::Iterator it = fonts.begin(); it != fonts.end(); ++it)
             (*it)->download(outStream, true); // true means its global
+        fontStream.flush();
         outStream << fontBuffer->buffer();
     }
     outStream << "%%EndSetup\n";
@@ -3381,8 +3391,10 @@ void QPSPrintEnginePrivate::flushPage(bool last)
             (*it)->download(outStream, false); // false means its for the page only
     }
     outStream  << "%%EndPageSetup\n";
-    if (pageBuffer)
+    if (pageBuffer) {
+        pageStream.flush();
         outStream << pageBuffer->buffer();
+    }
     outStream << "\nQP\n";
     pageCount++;
 }
@@ -3438,8 +3450,6 @@ static void ignoreSigPipe(bool b)
     }
 }
 
-#if 0
-// ### unused, according to the intel compiler
 static const char * const psToStr[QPrinter::NPageSize+1] =
 {
     "A4", "B5", "Letter", "Legal", "Executive",
@@ -3447,7 +3457,25 @@ static const char * const psToStr[QPrinter::NPageSize+1] =
     "B10", "B2", "B3", "B4", "B6", "B7", "B8", "B9", "C5E", "Comm10E",
     "DLE", "Folio", "Ledger", "Tabloid", 0
 };
+
+static void closeAllOpenFds()
+{
+    // hack time... getting the maximum number of open
+    // files, if possible.  if not we assume it's the
+    // larger of 256 and the fd we got
+    int i;
+#if defined(_SC_OPEN_MAX)
+    i = (int)sysconf( _SC_OPEN_MAX );
+#elif defined(_POSIX_OPEN_MAX)
+    i = (int)_POSIX_OPEN_MAX;
+#elif defined(OPEN_MAX)
+    i = (int)OPEN_MAX;
+#else
+    i = 256;
 #endif
+    while( --i > 0 )
+	::close( i );
+}
 
 #define d d_func()
 
@@ -3455,9 +3483,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
     d->pdev = pdev;
     d->printer = static_cast<QPrinter*>(pdev);
-    if (d->outputToFile) {
-        if (d->outputFileName.isEmpty())
-            d->outputFileName = "print.ps";
+    if (!d->outputFileName.isEmpty()) {
         d->fd = QT_OPEN( d->outputFileName.toLocal8Bit().constData(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 #if defined(Q_OS_WIN)
             _S_IREAD | _S_IWRITE
@@ -3466,19 +3492,16 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 #endif
             );
     } else {
-#if 0
         QString pr;
-        if ( printer_name )
-            pr = printer_name;
-        QApplication::flushX();
+        if (!d->printerName.isEmpty())
+            pr = d->printerName;
         int fds[2];
         if ( pipe( fds ) != 0 ) {
             qWarning( "QPSPrinter: could not open pipe to print" );
-            state = PST_ERROR;
             return false;
         }
 
-        pid = fork();
+        pid_t pid = fork();
         if ( pid == 0 ) {       // child process
             // if possible, exit quickly, so the actual lp/lpr
             // becomes a child of init, and ::waitpid() is
@@ -3498,48 +3521,50 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 
             closeAllOpenFds();
 
-            if ( print_prog ) {
-                if ( option_string )
-                    pr.prepend( option_string );
+            if ( !d->printProgram.isEmpty() ) {
+                if (!d->selectionOption.isEmpty())
+                    pr.prepend(d->selectionOption);
                 else
                     pr.prepend( QLatin1String( "-P" ) );
-                (void)execlp( print_prog.ascii(), print_prog.ascii(),
-                              pr.ascii(), (char *)0 );
+                (void)execlp( d->printProgram.toLocal8Bit().data(), d->printProgram.toLocal8Bit().data(),
+                              pr.toLocal8Bit().data(), (char *)0 );
             } else {
                 // if no print program has been specified, be smart
                 // about the option string too.
-                QStringList lprhack;
-                QStringList lphack;
-                QString media;
-                if ( pr || option_string ) {
-                    if ( option_string ) {
-                        lprhack = QStringList::split(QChar(' '), option_string);
+                QList<QByteArray> lprhack;
+                QList<QByteArray> lphack;
+                QByteArray media;
+                if ( !pr.isEmpty() || !d->selectionOption.isEmpty() ) {
+                    if ( !d->selectionOption.isEmpty() ) {
+                        QStringList list = d->selectionOption.split(QChar(' '));
+                        for (int i = 0; i < list.size(); ++i)
+                            lprhack.append(list.at(i).toLocal8Bit());
                         lphack = lprhack;
                     } else {
-                        lprhack.append( QString::fromLatin1( "-P" ) );
-                        lphack.append( QString::fromLatin1( "-d" ) );
+                        lprhack.append("-P");
+                        lphack.append("-d");
                     }
-                    lprhack.append(pr);
-                    lphack.append(pr);
+                    lprhack.append(pr.toLocal8Bit());
+                    lphack.append(pr.toLocal8Bit());
                 }
                 char ** lpargs = new char *[lphack.size()+6];
                 lpargs[0] = "lp";
-                uint i;
+                int i;
                 for (i = 0; i < lphack.size(); ++i)
-                    lpargs[i+1] = (char *)lphack[i].ascii();
-                if (psToStr[page_size]) {
+                    lpargs[i+1] = (char *)lphack.at(i).constData();
+                if (psToStr[d->pageSize]) {
                     lpargs[++i] = "-o";
-                    lpargs[++i] = (char *)psToStr[page_size];
+                    lpargs[++i] = (char *)psToStr[d->pageSize];
                     lpargs[++i] = "-o";
                     media = "media=";
-                    media += psToStr[page_size];
-                    lpargs[++i] = (char *)media.ascii();
+                    media += psToStr[d->pageSize];
+                    lpargs[++i] = (char *)media.constData();
                 }
                 lpargs[++i] = 0;
                 char **lprargs = new char *[lprhack.size()+1];
                 lprargs[0] = "lpr";
-                for (uint i = 0; i < lprhack.size(); ++i)
-                    lprargs[i+1] = (char *)lprhack[i].ascii();
+                for (int i = 0; i < lprhack.size(); ++i)
+                    lprargs[i+1] = (char *)lprhack[i].constData();
                 lprargs[lprhack.size() + 1] = 0;
                 (void)execvp( "lp", lpargs );
                 (void)execvp( "lpr", lprargs );
@@ -3555,12 +3580,10 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
             ::close( 0 );
             (void)::sleep( 1 );
             ::exit( 0 );
-        } else {                // parent process
-            ::close( fds[0] );
-            pdrv = new QPSPrinter( this, fds[1] );
-            state = PST_ACTIVE;
         }
-#endif
+        // parent process
+        ::close( fds[0] );
+        d->fd = fds[1];
     }
     if (d->fd < 0)
         return false;
@@ -4031,6 +4054,9 @@ void QPSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &val
     case PPK_Resolution:
         d->resolution = value.toInt();
         break;
+    case PPK_SelectionOption:
+        d->selectionOption = value.toString();
+        break;
     default:
         break;
     }
@@ -4089,6 +4115,9 @@ QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
         ret = d->paperRect();
     case PPK_PageRect:
         ret = d->pageRect();
+        break;
+    case PPK_SelectionOption:
+        ret = d->selectionOption;
         break;
     default:
         break;
