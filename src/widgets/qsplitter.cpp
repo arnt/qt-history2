@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#52 $
 **
 **  Splitter widget
 **
@@ -303,6 +303,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
     QSplitterLayoutStruct *s;
     if ( data->num++ ) {
 	s = new QSplitterLayoutStruct;
+	s->mode = KeepSize;
 	QSplitterHandle *sh = new QSplitterHandle( orientation(), this );
 	s->wid = sh;
 	sh->setId(data->list.count());
@@ -316,6 +317,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 	    sh->show();
     }
     s = new QSplitterLayoutStruct;
+    s->mode = Stretch;
     s->wid = w;
     s->sizer = pick( w->size() );
     s->isSplitter = FALSE;
@@ -348,6 +350,8 @@ void QSplitter::childEvent( QChildEvent *c )
     } else if ( c->type() == QEvent::ChildRemoved ) {
 	//debug( "QSplitter::child %p removed", c->child() );
 	QSplitterLayoutStruct *p = 0;
+	if ( data->list.count() > 1 )
+	    p = data->list.at(1); //remove handle _after_ first widget.
 	QSplitterLayoutStruct *s = data->list.first();
 	while ( s ) {
 	    if ( s->wid == c->child() ) {
@@ -358,6 +362,7 @@ void QSplitter::childEvent( QChildEvent *c )
 		    delete p->wid;
 		    delete p;
 		}
+		recalcId();
 		doResize();
 		return;
 	    }
@@ -817,11 +822,11 @@ QSize QSplitter::sizeHint() const
 }
 
 /*!
-  Returns a size based on the child widgets.
+  Says that this widget wants to grow in both height and width.
 */
 QSizePolicy QSplitter::sizePolicy() const
 {
-    return QFrame::sizePolicy();
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
 
