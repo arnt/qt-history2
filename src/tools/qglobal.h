@@ -1253,6 +1253,7 @@ Q_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 #    pragma warning(disable: 4355) // 'this' : used in base member initializer list
 #    pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
 #    pragma warning(disable: 4710) // function not inlined
+#    pragma warning(disable: 4530) // C++ exception handler used, but unwind semantics are not enabled. Specify -GX
 #  elif defined(Q_CC_BOR)
 #    pragma option -w-inl
 #    pragma option -w-aus
