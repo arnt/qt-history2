@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#16 $
 **
 ** Implementation of validator classes.
 **
@@ -14,7 +14,7 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#16 $");
 
 
 /*!
@@ -153,12 +153,14 @@ QIntValidator::~QIntValidator()
 
 /*!
   Returns \a Acceptable if \a input contains a number in the legal
-  range, \a Valid if it contains another integer, and \a Invalid if \a
-  input is not an integer.
+  range, \a Valid if it contains another integer or is empty, and \a
+  Invalid if \a input is not an integer.
 */
 
 QValidator::State QIntValidator::validate( QString & input, int & )
 {
+    if ( input.isEmpty() )
+	return QValidator::Valid;
     bool ok;
     long int tmp = input.toLong( &ok );
     if ( !ok )
@@ -203,7 +205,8 @@ void QIntValidator::setRange( int bottom, int top )
 /*!
   \class QDoubleValidator qvalidator.h
 
-  \brief The QDoubleValidator class provides range checking of integers.
+  \brief The QDoubleValidator class provides range checking of
+  floating-point numbers.
 
   QDoubleValidator provides an upper bound, a lower bound, and a limit
   on the number of digits after the decimal point.  It does not
@@ -259,12 +262,14 @@ QDoubleValidator::~QDoubleValidator()
 
 /*!
   Returns \a Acceptable if \a input contains a number in the legal
-  range and format, \a Valid if it contains another, and \a Invalid if
-  \a input is not a number.
+  range and format, \a Valid if it contains another number or is
+  empty, and \a Invalid if \a input is not a number.
 */
 
 QValidator::State QDoubleValidator::validate( QString & input, int & )
 {
+    if ( input.isEmpty() )
+	return QValidator::Valid;
     bool ok = TRUE;
     double tmp = input.toDouble( &ok );
     // check the number of decimals here!
