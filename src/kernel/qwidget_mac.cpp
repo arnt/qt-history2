@@ -22,7 +22,6 @@
 #include "qbitmap.h"
 #include "qaccel.h"
 #include "qdragobject.h"
-#include "qfocusdata.h"
 #include "qlayout.h"
 #include "qtextcodec.h"
 #include "qcursor.h"
