@@ -16,7 +16,7 @@
     \link collection.html collection classes\endlink, it uses pointers
     to the contained items.
 
-    Q3MemArray uses \link .html explicit sharing\endlink with a
+    Q3MemArray uses \bold{explicit sharing} with a
     reference count. If more than one array shares common data and one
     of the arrays is modified, all the arrays are modified.
 
