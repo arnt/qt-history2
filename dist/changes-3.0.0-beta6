@@ -39,18 +39,13 @@ QAccel
  - Make sure accelerators continue to work when a toplevel is reparented
    into another window.
 
-QApplication
-------------
-
- - The default directory for plugins does no longer include "./plugins" due
-   to security issues. If your application needs this, please add "./plugins"
-   to the library search path with QApplication::addLibraryPath().
-
 QColor
 -----
 
  - X11 only: better heuristic to decide if you use black or white when a
    color could not be allocated.
+ - Windows only: improve color allocation on 8bit displays, e.g. when
+   using a terminal server.
 
 QComboBox
 ---------
@@ -75,8 +70,8 @@ QCursor
 New function:
 	QCursor( HCURSOR ); (Windows only)
 
-QDateTimeEdit
--------------
+QDateTime and QDateTimeEdit
+---------------------------
 
  - Windows only: better handling of localization settings.
 
@@ -99,7 +94,7 @@ QFileDialog
 QFileInfo
 ---------
 
- - Windows only: permissions supports FAT permissions now.
+ - Windows only: permissions respects the read-only attribute now.
 
 QIconView
 ---------
@@ -190,7 +185,7 @@ QStyle
    controls, etc. -- this allows custom widgets to use the new style
    engine.
  - Fixed spacing problem for custom menu items.
- - Improved the look of the motif plus style.
+ - Improved the look of the motif plus and the SGI style.
 
 QTable
 ------
@@ -245,8 +240,7 @@ QWMatrix
 QWorkspace
 ----------
 
- - Fix for inactive top-level widget.
  - Update the titlebar when toggling shaded/non-shaded.
  - Update the titlebar to be deactive when the application's activation
    status changes.
-
+ - Improve placement of document windows.
