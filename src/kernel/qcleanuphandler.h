@@ -33,8 +33,8 @@ public:
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
 	    ++it;
-	    if ( guard == object ) {
-		cleanupObject.removeRef( guard );
+	    if ( (Type *)guard == object ) {
+		cleanupObjects.removeRef( guard );
 		delete guard;
 		break;
 	    }
@@ -86,7 +86,7 @@ public:
 
     bool isEmpty() const
     {
-	return cleanupObject.isEmpty();
+	return cleanupObjects.isEmpty();
     }
 
 private:

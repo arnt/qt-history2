@@ -66,10 +66,8 @@
 //#define DEBUG_COLLECTION
 
 class QTextDocument;
-class QTextCommand;
 class QTextString;
 class QTextPreProcessor;
-class QTextCommandHistory;
 class QTextFormat;
 class QTextCursor;
 class QTextParag;
@@ -189,6 +187,23 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+class QTextCommand
+{
+public:
+    enum Commands { Invalid, Insert, Delete, Format };
+    QTextCommand( QTextDocument *d ) : doc( d ), cursor( d ) {}
+    virtual ~QTextCommand() {}
+    virtual Commands type() const { return Invalid; };
+
+    virtual QTextCursor *execute( QTextCursor *c ) = 0;
+    virtual QTextCursor *unexecute( QTextCursor *c ) = 0;
+
+protected:
+    QTextDocument *doc;
+    QTextCursor cursor;
+
+};
+
 class QTextCommandHistory
 {
 public:
@@ -207,23 +222,6 @@ public:
 private:
     QList<QTextCommand> history;
     int current, steps;
-
-};
-
-class QTextCommand
-{
-public:
-    enum Commands { Invalid, Insert, Delete, Format };
-    QTextCommand( QTextDocument *d ) : doc( d ), cursor( d ) {}
-    virtual ~QTextCommand() {}
-    virtual Commands type() const { return Invalid; };
-
-    virtual QTextCursor *execute( QTextCursor *c ) = 0;
-    virtual QTextCursor *unexecute( QTextCursor *c ) = 0;
-
-protected:
-    QTextDocument *doc;
-    QTextCursor cursor;
 
 };
 
@@ -279,7 +277,260 @@ protected:
 
 };
 
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+class QTextCustomItem
+{
+public:
+    QTextCustomItem( QTextDocument *p )
+	:  xpos(0), ypos(-1), width(-1), height(0), parent( p )
+    {}
+    virtual ~QTextCustomItem() {}
+    virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg ) = 0;
+
+    virtual void adjustToPainter( QPainter* ) { width = 0; }
+
+    enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
+    virtual Placement placement() const { return PlaceInline; }
+    bool placeInline() { return placement() == PlaceInline; }
+
+    virtual bool ownLine() const { return FALSE; }
+    virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
+    virtual void invalidate() {};
+
+    virtual bool isNested() const { return FALSE; }
+    virtual int minimumWidth() const { return 0; }
+    virtual int widthHint() const { return 0; }
+
+    virtual QString richText() const { return QString::null; }
+
+    int xpos; // used for floating items
+    int ypos; // used for floating items
+    int width;
+    int height;
+
+    virtual void enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE ) {
+	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; Q_UNUSED( atEnd )
+    }
+    virtual void enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint & ) {
+	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
+    }
+    virtual void next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
+	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
+    }
+    virtual void prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
+	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
+    }
+    virtual void down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
+	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
+    }
+    virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
+	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
+    }
+
+    QTextDocument *parent;
+};
+
+class QTextImage : public QTextCustomItem
+{
+public:
+    QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
+		QMimeSourceFactory &factory);
+    ~QTextImage();
+
+    Placement placement() const { return place; }
+    void adjustToPainter( QPainter* );
+
+    QString richText() const;
+
+    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+
+private:
+    QRegion* reg;
+    QPixmap pm;
+    Placement place;
+    int tmpwidth, tmpheight;
+    QMap<QString, QString> attributes;
+
+};
+
+class QTextHorizontalLine : public QTextCustomItem
+{
+public:
+    QTextHorizontalLine( QTextDocument *p );
+    ~QTextHorizontalLine();
+    void adjustToPainter( QPainter* );
+    void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+    QString richText() const;
+
+    bool ownLine() const { return TRUE; }
+
+private:
+    int tmpheight;
+
+};
+
+class QTextFlow
+{
+    friend class QTextDocument;
+    friend class QTextTableCell;
+
+public:
+    QTextFlow();
+    virtual ~QTextFlow();
+
+    virtual void setWidth( int w );
+    virtual void setPageSize( int ps ) { pagesize = ps; }
+    int pageSize() const { return pagesize; }
+
+    virtual int adjustLMargin( int yp, int margin, int space );
+    virtual int adjustRMargin( int yp, int margin, int space );
+
+    virtual void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
+    virtual void unregisterFloatingItem( QTextCustomItem* item );
+    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+    virtual void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
+
+    virtual bool isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
+    virtual void updateHeight( QTextCustomItem *i );
+
+    virtual void draw( QPainter *, int , int , int , int ) {}
+    virtual void eraseAfter( QTextParag *, QPainter * ) {}
+
+    void clear();
+
+private:
+    int width;
+    int height;
+
+    int pagesize;
+
+    QList<QTextCustomItem> leftItems;
+    QList<QTextCustomItem> rightItems;
+
+};
+
+class QTextTable;
+
+class QTextTableCell : public QLayoutItem
+{
+    friend QTextTable;
+
+public:
+    QTextTableCell( QTextTable* table,
+		    int row, int column,
+		    const QMap<QString, QString> &attr,
+		    const QStyleSheetItem* style,
+		    const QTextFormat& fmt, const QString& context,
+		    QMimeSourceFactory &factory, QStyleSheet *sheet, const QString& doc );
+    QTextTableCell( QTextTable* table, int row, int column );
+
+    ~QTextTableCell();
+    QSize sizeHint() const ;
+    QSize minimumSize() const ;
+    QSize maximumSize() const ;
+    QSizePolicy::ExpandData expanding() const;
+    bool isEmpty() const;
+    void setGeometry( const QRect& ) ;
+    QRect geometry() const;
+
+    bool hasHeightForWidth() const;
+    int heightForWidth( int ) const;
+
+    void adjustToPainter();
+
+    int row() const { return row_; }
+    int column() const { return col_; }
+    int rowspan() const { return rowspan_; }
+    int colspan() const { return colspan_; }
+    int stretch() const { return stretch_; }
+
+    QTextDocument* richText()  const { return richtext; }
+    QTextTable* table() const { return parent; }
+
+    void draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+
+    QBrush *backGround() const { return background; }
+
+private:
+    QPainter* painter() const;
+    QRect geom;
+    QTextTable* parent;
+    QTextDocument* richtext;
+    int row_;
+    int col_;
+    int rowspan_;
+    int colspan_;
+    int stretch_;
+    int maxw;
+    int minw;
+    bool hasFixedWidth;
+    QBrush *background;
+    int cached_width;
+    int cached_sizehint;
+    QMap<QString, QString> attributes;
+
+};
+
+class QTextTable: public QTextCustomItem
+{
+    friend class QTextTableCell;
+
+public:
+    QTextTable( QTextDocument *p, const QMap<QString, QString> &attr );
+    ~QTextTable();
+    void adjustToPainter( QPainter *p );
+    void verticalBreak( int  y, QTextFlow* flow );
+    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
+	       const QColorGroup& cg );
+
+    bool noErase() const { return TRUE; };
+    bool ownLine() const { return TRUE; }
+    Placement placement() const { return place; }
+    bool isNested() const { return TRUE; }
+    void resize( QPainter*, int nwidth );
+    virtual void invalidate() { cachewidth = -1; };
+    QString anchorAt( QPainter* p, int x, int y );
+
+    virtual void enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
+    virtual void enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos );
+    virtual void next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+
+    QString richText() const;
+
+    int minimumWidth() const { return layout ? layout->minimumSize().width() : 0; }
+    int widthHint() const { return ( layout ? layout->sizeHint().width() : 0 ) + 2 * outerborder; }
+
+private:
+    void format( int &w );
+    void addCell( QTextTableCell* cell );
+
+private:
+    QGridLayout* layout;
+    QList<QTextTableCell> cells;
+    QPainter* painter;
+    int cachewidth;
+    int fixwidth;
+    int cellpadding;
+    int cellspacing;
+    int border;
+    int outerborder;
+    int stretch;
+    int innerborder;
+    int us_ib, us_b, us_ob, us_cs;
+    int lastX, lastY;
+    QMap<QString, QString> attributes;
+
+    int currCell;
+
+    Placement place;
+};
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 class QTextTableCell;
 class QTextParag;
 class QTextDocument : public QObject
@@ -987,259 +1238,6 @@ private:
     int different;
 
 };
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-class QTextCustomItem
-{
-public:
-    QTextCustomItem( QTextDocument *p )
-	:  xpos(0), ypos(-1), width(-1), height(0), parent( p )
-    {}
-    virtual ~QTextCustomItem() {}
-    virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg ) = 0;
-
-    virtual void adjustToPainter( QPainter* ) { width = 0; }
-
-    enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
-    virtual Placement placement() const { return PlaceInline; }
-    bool placeInline() { return placement() == PlaceInline; }
-
-    virtual bool ownLine() const { return FALSE; }
-    virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
-    virtual void invalidate() {};
-
-    virtual bool isNested() const { return FALSE; }
-    virtual int minimumWidth() const { return 0; }
-    virtual int widthHint() const { return 0; }
-
-    virtual QString richText() const { return QString::null; }
-
-    int xpos; // used for floating items
-    int ypos; // used for floating items
-    int width;
-    int height;
-
-    virtual void enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; Q_UNUSED( atEnd )
-    }
-    virtual void enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint & ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-    virtual void next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-    virtual void prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-    virtual void down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-    virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-
-    QTextDocument *parent;
-};
-
-class QTextImage : public QTextCustomItem
-{
-public:
-    QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
-		QMimeSourceFactory &factory);
-    ~QTextImage();
-
-    Placement placement() const { return place; }
-    void adjustToPainter( QPainter* );
-
-    QString richText() const;
-
-    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
-
-private:
-    QRegion* reg;
-    QPixmap pm;
-    Placement place;
-    int tmpwidth, tmpheight;
-    QMap<QString, QString> attributes;
-
-};
-
-class QTextHorizontalLine : public QTextCustomItem
-{
-public:
-    QTextHorizontalLine( QTextDocument *p );
-    ~QTextHorizontalLine();
-    void adjustToPainter( QPainter* );
-    void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
-    QString richText() const;
-
-    bool ownLine() const { return TRUE; }
-
-private:
-    int tmpheight;
-
-};
-
-class QTextFlow
-{
-    friend class QTextDocument;
-    friend class QTextTableCell;
-
-public:
-    QTextFlow();
-    virtual ~QTextFlow();
-
-    virtual void setWidth( int w );
-    virtual void setPageSize( int ps ) { pagesize = ps; }
-    int pageSize() const { return pagesize; }
-
-    virtual int adjustLMargin( int yp, int margin, int space );
-    virtual int adjustRMargin( int yp, int margin, int space );
-
-    virtual void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
-    virtual void unregisterFloatingItem( QTextCustomItem* item );
-    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg );
-    virtual void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
-
-    virtual bool isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
-    virtual void updateHeight( QTextCustomItem *i );
-
-    virtual void draw( QPainter *, int , int , int , int ) {}
-    virtual void eraseAfter( QTextParag *, QPainter * ) {}
-
-    void clear();
-
-private:
-    int width;
-    int height;
-
-    int pagesize;
-
-    QList<QTextCustomItem> leftItems;
-    QList<QTextCustomItem> rightItems;
-
-};
-
-class QTextTable;
-
-class QTextTableCell : public QLayoutItem
-{
-    friend QTextTable;
-
-public:
-    QTextTableCell( QTextTable* table,
-		    int row, int column,
-		    const QMap<QString, QString> &attr,
-		    const QStyleSheetItem* style,
-		    const QTextFormat& fmt, const QString& context,
-		    QMimeSourceFactory &factory, QStyleSheet *sheet, const QString& doc );
-    QTextTableCell( QTextTable* table, int row, int column );
-
-    ~QTextTableCell();
-    QSize sizeHint() const ;
-    QSize minimumSize() const ;
-    QSize maximumSize() const ;
-    QSizePolicy::ExpandData expanding() const;
-    bool isEmpty() const;
-    void setGeometry( const QRect& ) ;
-    QRect geometry() const;
-
-    bool hasHeightForWidth() const;
-    int heightForWidth( int ) const;
-
-    void adjustToPainter();
-
-    int row() const { return row_; }
-    int column() const { return col_; }
-    int rowspan() const { return rowspan_; }
-    int colspan() const { return colspan_; }
-    int stretch() const { return stretch_; }
-
-    QTextDocument* richText()  const { return richtext; }
-    QTextTable* table() const { return parent; }
-
-    void draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
-
-    QBrush *backGround() const { return background; }
-
-private:
-    QPainter* painter() const;
-    QRect geom;
-    QTextTable* parent;
-    QTextDocument* richtext;
-    int row_;
-    int col_;
-    int rowspan_;
-    int colspan_;
-    int stretch_;
-    int maxw;
-    int minw;
-    bool hasFixedWidth;
-    QBrush *background;
-    int cached_width;
-    int cached_sizehint;
-    QMap<QString, QString> attributes;
-
-};
-
-class QTextTable: public QTextCustomItem
-{
-    friend class QTextTableCell;
-
-public:
-    QTextTable( QTextDocument *p, const QMap<QString, QString> &attr );
-    ~QTextTable();
-    void adjustToPainter( QPainter *p );
-    void verticalBreak( int  y, QTextFlow* flow );
-    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
-	       const QColorGroup& cg );
-
-    bool noErase() const { return TRUE; };
-    bool ownLine() const { return TRUE; }
-    Placement placement() const { return place; }
-    bool isNested() const { return TRUE; }
-    void resize( QPainter*, int nwidth );
-    virtual void invalidate() { cachewidth = -1; };
-    QString anchorAt( QPainter* p, int x, int y );
-
-    virtual void enter( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
-    virtual void enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos );
-    virtual void next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
-    virtual void prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
-    virtual void down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
-    virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
-
-    QString richText() const;
-
-    int minimumWidth() const { return layout ? layout->minimumSize().width() : 0; }
-    int widthHint() const { return ( layout ? layout->sizeHint().width() : 0 ) + 2 * outerborder; }
-
-private:
-    void format( int &w );
-    void addCell( QTextTableCell* cell );
-
-private:
-    QGridLayout* layout;
-    QList<QTextTableCell> cells;
-    QPainter* painter;
-    int cachewidth;
-    int fixwidth;
-    int cellpadding;
-    int cellspacing;
-    int border;
-    int outerborder;
-    int stretch;
-    int innerborder;
-    int us_ib, us_b, us_ob, us_cs;
-    int lastX, lastY;
-    QMap<QString, QString> attributes;
-
-    int currCell;
-
-    Placement place;
-};
-
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

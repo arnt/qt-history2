@@ -39,10 +39,10 @@
 
 #ifndef QT_NO_ACCEL
 
+#include "qsignal.h"
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qlist.h"
-#include "qsignal.h"
 #include "qwhatsthis.h"
 #include "qguardedptr.h"
 

@@ -4997,7 +4997,7 @@ struct QT_smcConn {
 };
 
 static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
-				  int saveType, Bool shutdown , int interactStyle, Bool fast)
+				  int saveType, Bool shutdown , int interactStyle, Bool /*fast*/)
 {
     if (smcConn != smcConnection )
 	return;
