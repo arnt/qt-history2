@@ -457,51 +457,51 @@ Q_VARIANT_TO(Color);
 Q_VARIANT_TO(KeySequence);
 #endif
 
-template<typename T> T qt_cast(const QVariant &v);
-template<> inline int qt_cast<int>(const QVariant &v) { return v.toInt(); }
-template<> inline uint qt_cast<uint>(const QVariant &v) { return v.toUInt(); }
-template<> inline Q_LLONG qt_cast<Q_LLONG>(const QVariant &v) { return v.toLongLong(); }
-template<> inline Q_ULLONG qt_cast<Q_ULLONG>(const QVariant &v) { return v.toULongLong(); }
-template<> inline bool qt_cast<bool>(const QVariant &v) { return v.toBool(); }
-template<> inline double qt_cast<double>(const QVariant &v) { return v.toDouble(); }
-template<> inline QByteArray qt_cast<QByteArray>(const QVariant &v) { return v.toByteArray(); }
+template<typename T> T qt_cast(const QVariant &v, const T* = 0);
+template<> inline int qt_cast<int>(const QVariant &v, const int*) { return v.toInt(); }
+template<> inline uint qt_cast<uint>(const QVariant &v, const uint*) { return v.toUInt(); }
+template<> inline Q_LLONG qt_cast<Q_LLONG>(const QVariant &v, const Q_LLONG*) { return v.toLongLong(); }
+template<> inline Q_ULLONG qt_cast<Q_ULLONG>(const QVariant &v, const Q_ULLONG*) { return v.toULongLong(); }
+template<> inline bool qt_cast<bool>(const QVariant &v, const bool*) { return v.toBool(); }
+template<> inline double qt_cast<double>(const QVariant &v, const double*) { return v.toDouble(); }
+template<> inline QByteArray qt_cast<QByteArray>(const QVariant &v, const QByteArray*) { return v.toByteArray(); }
 
-template<> QString qt_cast<QString>(const QVariant &v);
-template<> QBitArray qt_cast<QBitArray>(const QVariant &v);
+template<> QString qt_cast<QString>(const QVariant &v, const QString*);
+template<> QBitArray qt_cast<QBitArray>(const QVariant &v, const QBitArray*);
 #ifndef QT_NO_STRINGLIST
-template<> QStringList qt_cast<QStringList>(const QVariant &v);
+template<> QStringList qt_cast<QStringList>(const QVariant &v, const QStringList*);
 #endif
-template<> QDate qt_cast<QDate>(const QVariant &v);
-template<> QTime qt_cast<QTime>(const QVariant &v);
-template<> QDateTime qt_cast<QDateTime>(const QVariant &v);
+template<> QDate qt_cast<QDate>(const QVariant &v, const QDate*);
+template<> QTime qt_cast<QTime>(const QVariant &v, const QTime*);
+template<> QDateTime qt_cast<QDateTime>(const QVariant &v, const QDateTime*);
 #ifndef QT_NO_TEMPLATE_VARIANT
-template<> QList<QVariant> qt_cast<QList<QVariant> >(const QVariant &v);
-template<> QMap<QString,QVariant> qt_cast<QMap<QString,QVariant> >(const QVariant &v);
+template<> QList<QVariant> qt_cast<QList<QVariant> >(const QVariant &v, const QList<QVariant>*);
+template<> QMap<QString,QVariant> qt_cast<QMap<QString,QVariant> >(const QVariant &v, const QMap<QString,QVariant>*);
 #endif
 
-template<> inline QFont qt_cast<QFont>(const QVariant &v) { return v.toFont(); }
-template<> inline QPixmap qt_cast<QPixmap>(const QVariant &v) { return v.toPixmap(); }
-template<> inline const QImage qt_cast<const QImage>(const QVariant &v) { return v.toImage(); }
-template<> inline QBrush qt_cast<QBrush>(const QVariant &v) { return v.toBrush(); }
-template<> inline QColor qt_cast<QColor>(const QVariant &v) { return v.toColor(); }
-template<> inline QPalette qt_cast<QPalette>(const QVariant &v) { return v.toPalette(); }
-template<> inline QIconSet qt_cast<QIconSet>(const QVariant &v) { return v.toIconSet(); }
-template<> inline const QPointArray qt_cast<const QPointArray>(const QVariant &v)
+template<> inline QFont qt_cast<QFont>(const QVariant &v, const QFont*) { return v.toFont(); }
+template<> inline QPixmap qt_cast<QPixmap>(const QVariant &v, const QPixmap*) { return v.toPixmap(); }
+template<> inline QImage qt_cast<const QImage>(const QVariant &v, const QImage*) { return v.toImage(); }
+template<> inline QBrush qt_cast<QBrush>(const QVariant &v, const QBrush*) { return v.toBrush(); }
+template<> inline QColor qt_cast<QColor>(const QVariant &v, const QColor*) { return v.toColor(); }
+template<> inline QPalette qt_cast<QPalette>(const QVariant &v, const QPalette*) { return v.toPalette(); }
+template<> inline QIconSet qt_cast<QIconSet>(const QVariant &v, const QIconSet*) { return v.toIconSet(); }
+template<> inline QPointArray qt_cast<const QPointArray>(const QVariant &v, const QPointArray*)
 { return v.toPointArray(); }
-template<> inline QBitmap qt_cast<QBitmap>(const QVariant &v) { return v.toBitmap(); }
-template<> inline QRegion qt_cast<QRegion>(const QVariant &v) { return v.toRegion(); }
+template<> inline QBitmap qt_cast<QBitmap>(const QVariant &v, const QBitmap*) { return v.toBitmap(); }
+template<> inline QRegion qt_cast<QRegion>(const QVariant &v, const QRegion*) { return v.toRegion(); }
 #ifndef QT_NO_CURSOR
-template<> inline QCursor qt_cast<QCursor>(const QVariant &v) { return v.toCursor(); }
+template<> inline QCursor qt_cast<QCursor>(const QVariant &v, const QCursor*) { return v.toCursor(); }
 #endif
 #ifndef QT_NO_ACCEL
-template<> inline QKeySequence qt_cast<QKeySequence>(const QVariant &v)
+template<> inline QKeySequence qt_cast<QKeySequence>(const QVariant &v, const QKeySequence*)
 { return v.toKeySequence(); }
 #endif
-template<> inline QPen qt_cast<QPen>(const QVariant &v) { return v.toPen(); }
-template<> inline QSizePolicy qt_cast<QSizePolicy>(const QVariant &v) { return v.toSizePolicy(); }
-template<> inline QPoint qt_cast<QPoint>(const QVariant &v) { return v.toPoint(); }
-template<> inline QRect qt_cast<QRect>(const QVariant &v) { return v.toRect(); }
-template<> inline QSize qt_cast<QSize>(const QVariant &v) { return v.toSize(); }
+template<> inline QPen qt_cast<QPen>(const QVariant &v, const QPen*) { return v.toPen(); }
+template<> inline QSizePolicy qt_cast<QSizePolicy>(const QVariant &v, const QSizePolicy*) { return v.toSizePolicy(); }
+template<> inline QPoint qt_cast<QPoint>(const QVariant &v, const QPoint*) { return v.toPoint(); }
+template<> inline QRect qt_cast<QRect>(const QVariant &v, const QRect*) { return v.toRect(); }
+template<> inline QSize qt_cast<QSize>(const QVariant &v, const QSize*) { return v.toSize(); }
 
 Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QVariant);

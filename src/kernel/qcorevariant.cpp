@@ -31,19 +31,19 @@
 
 typedef QMap<QString,QCoreVariant> QVariantMap;
 
-template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v) { return v.toBitArray(); }
-template<> QString qt_cast<QString>(const QCoreVariant &v) { return v.toString(); }
+template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v, const QBitArray*) { return v.toBitArray(); }
+template<> QString qt_cast<QString>(const QCoreVariant &v, const QString*) { return v.toString(); }
 #ifndef QT_NO_STRINGLIST
-template<> QStringList qt_cast<QStringList>(const QCoreVariant &v)
+template<> QStringList qt_cast<QStringList>(const QCoreVariant &v, const QStringList*)
 { return v.toStringList(); }
 #endif
-template<> QDate qt_cast<QDate>(const QCoreVariant &v) { return v.toDate(); }
-template<> QTime qt_cast<QTime>(const QCoreVariant &v) { return v.toTime(); }
-template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v) { return v.toDateTime(); }
+template<> QDate qt_cast<QDate>(const QCoreVariant &v, const QDate*) { return v.toDate(); }
+template<> QTime qt_cast<QTime>(const QCoreVariant &v, const QTime*) { return v.toTime(); }
+template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v, const QDateTime*) { return v.toDateTime(); }
 #ifndef QT_NO_TEMPLATE_VARIANT
-template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v) 
+template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*) 
 { return v.toList(); }
-template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v)
+template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMap<QString, QCoreVariant>*)
 { return v.toMap(); }
 #endif
 

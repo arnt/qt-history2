@@ -94,7 +94,7 @@ public:
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
-typedef QHash<QString, const QSqlDriverCreatorBase*> QDriverDict;
+typedef QHash<QString, QSqlDriverCreatorBase*> QDriverDict;
 
 class QSqlDatabaseManager : public QObject
 {
@@ -488,7 +488,7 @@ void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreat
 {
     QSqlDatabaseManager::driverDict()->remove( name );
     if ( creator )
-	QSqlDatabaseManager::driverDict()->insert( name, creator );
+	QSqlDatabaseManager::driverDict()->insert( name, const_cast<QSqlDriverCreatorBase*>(creator) );
 }
 
 /*!
