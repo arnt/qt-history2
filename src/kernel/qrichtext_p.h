@@ -204,7 +204,7 @@ public:
     void setDirection( QChar::Direction d ) { dir = d; bidiDirty = TRUE; }
 
     QMemArray<QTextStringChar> subString( int start = 0, int len = 0xFFFFFF ) const;
-    QMemArray<QTextStringChar> rawData() const { return data; }
+    QMemArray<QTextStringChar> rawData() const { return data.copy(); }
 
     void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
     void operator+=( const QString &s ) { insert( length(), s, 0 ); }
