@@ -418,6 +418,11 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
 	} else {
 	    sizehint = QSize( 0, 0 );
 	}
+	if ( !(dwMiscStatus & OLEMISC_NOUIACTIVATE ) ) {
+	    host->setFocusPolicy( QWidget::StrongFocus );
+	} else {
+	    host->setFocusPolicy( QWidget::NoFocus );
+	}
 
 	RECT rcPos = { host->x(), host->y(), 
 		       host->x()+sizehint.width(), host->y()+sizehint.height() };
@@ -1338,8 +1343,10 @@ bool QAxWidget::initialize( IUnknown **ptr )
     container->hostWidget()->resize( size() );
     container->hostWidget()->show();
 
-    setFocusProxy( container->hostWidget() );
-    setFocusPolicy( StrongFocus );
+    if ( container->hostWidget()->focusPolicy() != NoFocus ) {
+	setFocusProxy( container->hostWidget() );
+	setFocusPolicy( container->hostWidget()->focusPolicy() );
+    }
     if ( parentWidget() )
 	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
 
