@@ -98,26 +98,38 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 	if(!vars.contains("QMAKE_PRL_TARGET") &&
 	   (it.key() == "dlname" || it.key() == "library_names" || it.key() == "old_library")) {
 	    QString dir = v["libdir"].first();
-	    if(dir.startsWith("'") || dir.startsWith("\"") && dir.endsWith(QString(dir[0])))
+	    if((dir.startsWith("'") || dir.startsWith("\"")) && dir.endsWith(QString(dir[0])))
 		dir = dir.mid(1, dir.length() - 2);
+	    dir = dir.stripWhiteSpace();
 	    if(!dir.isEmpty() && !dir.endsWith(Option::dir_sep))
 		dir += Option::dir_sep;
 	    if(lst.count() == 1)
 		lst = QStringList::split(" ", lst.first());
 	    for(QStringList::Iterator lst_it = lst.begin(); lst_it != lst.end(); ++lst_it) {
 		bool found = FALSE;
-		QString dirs[] = { "", dir, dirf, dirf + ".libs" + Option::dir_sep, "(term)" };
+		QString dirs[] = { "", dir, dirf, dirf + ".libs" + QDir::separator(), "(term)" };
 		for(int i = 0; !found && dirs[i] != "(term)"; i++) {
 		    if(QFile::exists(dirs[i] + (*lst_it))) {
-			vars["QMAKE_PRL_TARGET"] << dirs[i] + (*lst_it);
+			QString targ = dirs[i] + (*lst_it);
+			if(QDir::isRelativePath(targ)) 
+			    targ.prepend(QDir::currentDirPath() + QDir::separator());
+			vars["QMAKE_PRL_TARGET"] << targ;
 			found = TRUE;
 		    }
 		}
 		if(found)
-		    break;
+ 		    break;
 	    }
 	} else if(it.key() == "dependency_libs") {
-	    vars["QMAKE_PRL_LIBS"] += lst;
+	    QStringList &libs = vars["QMAKE_PRL_LIBS"];
+	    if(lst.count() == 1) {
+		QString dep = lst.first();
+		if((dep.startsWith("'") || dep.startsWith("\"")) && dep.endsWith(QString(dep[0])))
+		    dep = dep.mid(1, dep.length() - 2);
+		libs += QStringList::split(" ", dep.stripWhiteSpace());
+	    } else {
+		libs += lst;
+	    }
 	}
     }
     return TRUE;
