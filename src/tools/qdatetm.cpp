@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#3 $
 **
 ** Implementation of date and time classes
 **
@@ -16,7 +16,7 @@
 #include <time.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#3 $";
 #endif
 
 
@@ -420,7 +420,7 @@ QDateTime QDateTime::currentDateTime()		// get current datetime
 
 
 // --------------------------------------------------------------------------
-// QDataStream functions for reading and writing date and time classes
+// Date/time stream functions
 //
 
 QDataStream &operator<<( QDataStream &s, const QDate &d )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#5 $
 **
 ** Implementation of QBitArray class
 **
@@ -14,9 +14,10 @@
 *****************************************************************************/
 
 #include "qbitarry.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#5 $";
 #endif
 
 
@@ -214,8 +215,6 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 // --------------------------------------------------------------------------
 // QBitArray stream functions
 //
-
-#include "qdstream.h"
 
 QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 {

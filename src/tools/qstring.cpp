@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#3 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -14,13 +14,14 @@
 #define	 NO_WARNINGS
 #define	 QSTRING_C
 #include "qstring.h"
+#include "qdstream.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#3 $";
 #endif
 
 
@@ -106,10 +107,8 @@ UINT16 qchecksum( const char *str, uint len )	// return IP checksum
 
 
 // --------------------------------------------------------------------------
-// QDataStream functions for reading and writing QByteArray
+// QByteArray stream functions
 //
-
-#include "qdstream.h"
 
 QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#2 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#3 $
 **
 ** Definition of date and time classes
 **
@@ -155,7 +155,7 @@ private:
 
 
 // --------------------------------------------------------------------------
-// QDataStream functions for reading and writing date and time classes
+// Date/time stream functions
 //
 
 QDataStream &operator<<( QDataStream &, const QDate & );
