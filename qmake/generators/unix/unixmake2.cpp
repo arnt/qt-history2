@@ -910,18 +910,20 @@ void UnixMakefileGenerator::init2()
         if(project->isActiveConfig("compile_libtool")) {
             project->variables()["TARGET"] = project->variables()["TARGET_la"];
         } else if(project->isActiveConfig("plugin")) {
-            project->variables()["TARGET_x.y.z"].append("lib" +
+            QString prefix;
+            if(!project->isActiveConfig("no_plugin_name_prefix"))
+                prefix = "lib";
+            project->variables()["TARGET_x.y.z"].append(prefix +
                                                         project->first("TARGET") + "." +
                                                         project->first("QMAKE_EXTENSION_PLUGIN"));
             if(project->isActiveConfig("lib_version_first"))
-                project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+                project->variables()["TARGET_x"].append(prefix + project->first("TARGET") + "." +
                                                         project->first("VER_MAJ") + "." +
                                                         project->first("QMAKE_EXTENSION_PLUGIN"));
             else
-                project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+                project->variables()["TARGET_x"].append(prefix + project->first("TARGET") + "." +
                                                         project->first("QMAKE_EXTENSION_PLUGIN") +
                                                         "." + project->first("VER_MAJ"));
-
             project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
         } else if (!project->isEmpty("QMAKE_HPUX_SHLIB")) {
             project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".sl");
