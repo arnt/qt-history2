@@ -303,11 +303,11 @@ void QCategoryBar::buttonClicked()
 	    buttons.append( c->button );
 	    if ( direction < 0 )
 		break;
-	    direction = 5;
+	    direction = 8;
 	} else if ( c->button == d->lastButton ) {
 	    if ( direction > 0 )
 		break;
-	    direction = -5;
+	    direction = -8;
 	} else if ( direction != 0 ) {
 	    buttons.append( c->button );
 	}
@@ -320,7 +320,7 @@ void QCategoryBar::buttonClicked()
     t.start();
 
     while ( dist < h ) {
-	if ( t.elapsed() > 2 ) {
+	if ( t.elapsed() > 1 ) {
 	    QWidgetListIt it( buttons );
 	    while ( it.current() ) {
 		it.current()->raise();
