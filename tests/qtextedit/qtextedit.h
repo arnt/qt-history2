@@ -113,7 +113,9 @@ private:
     int completionOffset;
     UndoRedoInfo undoRedoInfo;
     QTextEditFormat *currentFormat;
-
+    QPainter painter;
+    QPixmap *doubleBuffer;
+    
 };
 
 inline QTextEditDocument *QTextEdit::document() const
