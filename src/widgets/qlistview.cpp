@@ -2810,6 +2810,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 			buffer.painter()->setFont( p->font() );
 			buffer.painter()->setPen( p->pen() );
 			buffer.painter()->setBrush( p->brush() );
+			buffer.painter()->setBrushOrigin( -r.left(), -r.top() );
 			current->i->paintCell( buffer.painter(), cg, ac, r.width(),
 			    align );
 		    } else {
