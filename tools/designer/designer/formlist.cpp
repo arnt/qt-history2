@@ -201,6 +201,10 @@ void FormList::setProject( Project *pro )
 	    continue;
 	QListViewItemIterator it( this );
 	while ( it.current() ) {
+	    if ( !it.current()->parent() ) {
+		++it;
+		continue;
+	    }
 	    if ( project->makeAbsolute( ( (FormListItem*)it.current() )->text( 1 ) ) ==
 		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) ) {
 		( (FormListItem*)it.current() )->setFormWindow( ( (FormWindow*)o ) );
