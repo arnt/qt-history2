@@ -415,17 +415,10 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     if ( !connections.isNull() )
 	loadConnections( connections );
     
-    /*  old stuff...?
-    
-    if ( !functions.isNull() )
-	loadFunctions( functions );
-    */
-    
     if ( !tabOrder.isNull() )
 	loadTabOrder( tabOrder );
 
     if ( formwindow ) {
-	//formwindow->tryingParseCode();
 	MetaDataBase::setIncludes( formwindow, metaIncludes );
 	MetaDataBase::setForwards( formwindow, metaForwards );
 	MetaDataBase::setVariables( formwindow, metaVariables );
@@ -2790,70 +2783,6 @@ static QString make_function_pretty( const QString &s )
     res.replace( QRegExp( ":" ), " : " );
     res = res.simplifyWhiteSpace();
     return res;
-}
-
-void Resource::loadFunctions( const QDomElement &e )
-{
-    QDomElement n = e.firstChild().toElement();
-    QMap<QString, QString> bodies;
-    while ( !n.isNull() ) {
-	if ( n.tagName() == "function" ) {
-	    QString name = n.attribute( "name" );
-	    QString body = n.firstChild().toText().data();
-	    bodies.insert( name, body );
-	}
-	n = n.nextSibling().toElement();
-    }
-    MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null, QString::null );
-    if ( !bodies.isEmpty() ) {
-	LanguageInterface *iface = langIface;
-	if ( !iface )
-	    return;
-	QString code;
-	/*
-	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
-	for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
-	    if ( (*it).language != formwindow->project()->language() )
-		continue;
-	    QString sl( (*it).slot );
-	    QString comments = MetaDataBase::functionComments( formwindow, sl );
-	    if ( !comments.isEmpty() )
-		code += comments + "\n";
-	    code += iface->createFunctionStart( formwindow->name(), make_function_pretty( sl ),
-					       ( (*it).returnType.isEmpty() ?
-						 QString( "void" ) :
-						 (*it).returnType ), (*it).access );
-	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
-	    if ( bit != bodies.end() )
-		code += "\n" + *bit + "\n\n";
-	    else
-		code += "\n" + iface->createEmptyFunction() + "\n\n";
-	}
-	*/
-	QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formwindow );
-	for ( QValueList<MetaDataBase::Function>::Iterator fit = functionList.begin(); fit != functionList.end(); ++fit ) {
-	    if ( (*fit).language != formwindow->project()->language() )
-		continue;
-	    QString fu( (*fit).function );
-	    QString comments = MetaDataBase::functionComments( formwindow, fu );
-	    if ( !comments.isEmpty() )
-		code += comments + "\n";
-	    code += iface->createFunctionStart( formwindow->name(), make_function_pretty( fu ),
-					       ( (*fit).returnType.isEmpty() ?
-						 QString( "void" ) :
-						 (*fit).returnType ), (*fit).access );
-	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeFunction( (*fit).function ) );
-	    if ( bit != bodies.end() )
-		code += "\n" + *bit + "\n\n";
-	    else
-		code += "\n" + iface->createEmptyFunction() + "\n\n";
-	}	
-	if ( !code.isEmpty() ) {
-	    formwindow->formFile()->setCode( code );
-	    hasFunctions = TRUE;
-	}
-    }
-	
 }
 
 void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileName,

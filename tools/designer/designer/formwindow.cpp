@@ -193,11 +193,6 @@ void FormWindow::setMainWindow( MainWindow *w )
     initSlots();
 }
 
-void FormWindow::tryingParseCode()
-{
-    //formFile()->tryingParseCode();
-}
-
 void FormWindow::initSlots()
 {
     if ( isFake() )

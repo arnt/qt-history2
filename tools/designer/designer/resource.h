@@ -120,7 +120,6 @@ private:
     void loadMenuBar( const QDomElement &n );
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e, const QString &tagname = "pixmap" );
-    void loadFunctions( const QDomElement &e ); // compatibility with early 3.0 betas
 
 private:
     MainWindow *mainwindow;

@@ -768,7 +768,7 @@ bool MetaDataBase::hasFunction( QObject *o, const QCString &function, bool onlyC
 		  o, o->name(), o->className() );
 	return FALSE;
     }
-    /*
+    
     if ( !onlyCustom ) {
 	QStrList functionList = o->metaObject()->slotNames( TRUE );
 	if ( functionList.find( function ) != -1 )
@@ -776,23 +776,23 @@ bool MetaDataBase::hasFunction( QObject *o, const QCString &function, bool onlyC
 
 	if ( o->inherits( "FormWindow" ) ) {
 	    o = ( (FormWindow*)o )->mainContainer();
-	    functionList = o->metaObject()->functionNames( TRUE );
+	    functionList = o->metaObject()->slotNames( TRUE );
 	    if ( functionList.find( function ) != -1 )
 		return TRUE;
 	}
 
 	if ( o->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
-	    for ( QValueList<Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
-		QCString s = (*it).slot;
+	    for ( QValueList<Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
+		QCString s = (*it).function;
 		if ( !s.data() )
 		    continue;
-		if ( s == slot )
+		if ( s == function )
 		    return TRUE;
 	    }
 	}
     }
-    */
+    
     for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
 	Function f = *it;
 	if ( normalizeFunction( f.function ) == normalizeFunction( function ) )

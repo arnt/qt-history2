@@ -67,7 +67,6 @@ public:
     ~FormWindow();
 
     void init();
-    void tryingParseCode();
     virtual void setMainWindow( MainWindow *w );
 
     virtual QString fileName() const;
