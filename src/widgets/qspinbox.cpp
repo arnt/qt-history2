@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#28 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -546,7 +546,8 @@ void QSpinBox::valueChange()
 
 void QSpinBox::rangeChange()
 {
-    ((QIntValidator*)validator)->setRange( minValue(), maxValue() );
+    if ( validator->inherits( "QIntValidator" ) )
+	((QIntValidator*)validator)->setRange( minValue(), maxValue() );
     updateDisplay();
 }
 
