@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#5 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#6 $
 **
 ** Definition of the QChildWindow class
 **
@@ -45,12 +45,12 @@ class QLabel;
 class QWorkspace;
 
 
-class QWorkspaceChildTitelBar : public QWidget
+class QWorkspaceChildTitleBar : public QWidget
 {
     Q_OBJECT
 public:
-    QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent, const char* name=0, bool iconMode = FALSE );
-    ~QWorkspaceChildTitelBar();
+    QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent, const char* name=0, bool iconMode = FALSE );
+    ~QWorkspaceChildTitleBar();
 
     bool isActive() const;
 
@@ -124,8 +124,8 @@ private:
     int mode;
     QPoint moveOffset;
     bool act;
-    QWorkspaceChildTitelBar* titlebar;
-    QWorkspaceChildTitelBar* iconw;
+    QWorkspaceChildTitleBar* titlebar;
+    QWorkspaceChildTitleBar* iconw;
     QSize clientSize;
 
 };

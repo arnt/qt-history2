@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#12 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -156,7 +156,7 @@ static const char * normalize_xpm[] = {
 #define RANGE 16
 
 
-QWorkspaceChildTitelBar::QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent, const char* name, bool iconMode )
+QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent, const char* name, bool iconMode )
     : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder )
 {
     workspace = w;
@@ -202,11 +202,11 @@ QWorkspaceChildTitelBar::QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent
 
 }
 
-QWorkspaceChildTitelBar::~QWorkspaceChildTitelBar()
+QWorkspaceChildTitleBar::~QWorkspaceChildTitleBar()
 {
 }
 
-void QWorkspaceChildTitelBar::mousePressEvent( QMouseEvent * e)
+void QWorkspaceChildTitleBar::mousePressEvent( QMouseEvent * e)
 {
     if ( e->button() == LeftButton ) {
 	buttonDown = TRUE;
@@ -215,7 +215,7 @@ void QWorkspaceChildTitelBar::mousePressEvent( QMouseEvent * e)
     }
 }
 
-void QWorkspaceChildTitelBar::mouseReleaseEvent( QMouseEvent * e)
+void QWorkspaceChildTitleBar::mouseReleaseEvent( QMouseEvent * e)
 {
     if ( e->button() == LeftButton ) {
 	buttonDown = FALSE;
@@ -223,7 +223,7 @@ void QWorkspaceChildTitelBar::mouseReleaseEvent( QMouseEvent * e)
     }
 }
 
-void QWorkspaceChildTitelBar::mouseMoveEvent( QMouseEvent * e)
+void QWorkspaceChildTitleBar::mouseMoveEvent( QMouseEvent * e)
 {
     if ( !buttonDown )
 	return;
@@ -246,7 +246,7 @@ void QWorkspaceChildTitelBar::mouseMoveEvent( QMouseEvent * e)
 
 
 
-bool QWorkspaceChildTitelBar::eventFilter( QObject * o, QEvent * e)
+bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 {
     titleL->setText( caption() );
     if ( o == titleL ) {
@@ -270,7 +270,7 @@ bool QWorkspaceChildTitelBar::eventFilter( QObject * o, QEvent * e)
 }
 
 
-void QWorkspaceChildTitelBar::resizeEvent( QResizeEvent * )
+void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 {
     int bo = ( height()- BUTTON_SIZE) / 2;
     closeB->move( width() - BUTTON_SIZE - bo, bo  );
@@ -289,7 +289,7 @@ void QWorkspaceChildTitelBar::resizeEvent( QResizeEvent * )
 }
 
 
-void QWorkspaceChildTitelBar::setActive( bool active )
+void QWorkspaceChildTitleBar::setActive( bool active )
 {
     titleL->setText( caption() );
     act = active;
@@ -319,7 +319,7 @@ void QWorkspaceChildTitelBar::setActive( bool active )
 	resizeEvent(0);
 }
 
-bool QWorkspaceChildTitelBar::isActive() const
+bool QWorkspaceChildTitleBar::isActive() const
 {
     return act;
 }
@@ -334,7 +334,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     act = FALSE;
     iconw = 0;
 
-    titlebar = new QWorkspaceChildTitelBar( parent, this );
+    titlebar = new QWorkspaceChildTitleBar( parent, this );
     connect( titlebar, SIGNAL( doActivate() ),
 	     this, SLOT( activate() ) );
     connect( titlebar, SIGNAL( doClose() ),
@@ -598,7 +598,7 @@ QWidget* QWorkspaceChild::iconWidget() const
 	QVBox* vbox = new QVBox;
 	vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	vbox->resize( 196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth() );
-	that->iconw = new QWorkspaceChildTitelBar( (QWorkspace*)parentWidget(), vbox, 0, TRUE );
+	that->iconw = new QWorkspaceChildTitleBar( (QWorkspace*)parentWidget(), vbox, 0, TRUE );
 	iconw->setActive( isActive() );
 	connect( iconw, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );
