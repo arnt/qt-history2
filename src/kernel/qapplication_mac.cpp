@@ -343,6 +343,7 @@ void qt_mac_update_os_settings()
 	} mac_widget_colours[] = {
 	    { "QToolButton", kThemeTextColorBevelButtonActive, kThemeTextColorBevelButtonInactive },
 	    { "QButton", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
+	    { "QHeader", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
 	    { "QComboBox", kThemeTextColorPopupButtonActive, kThemeTextColorPopupButtonInactive },
 	    { "QListView", kThemeTextColorListView, kThemeTextColorDialogInactive },
 	    { "QListBox", kThemeTextColorListView, kThemeTextColorDialogInactive },
@@ -379,7 +380,8 @@ void qt_mac_update_os_settings()
 		pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
 		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
-	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton")) { //special
+	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton") ||
+		      !strcmp(mac_widget_colours[i].qt_class, "QHeader")) { //special
 		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText, 
 			     pal.color(QPalette::Disabled, QColorGroup::Text));
 		pal.setColor(QPalette::Inactive, QColorGroup::ButtonText,
