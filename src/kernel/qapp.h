@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#9 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#10 $
 **
 ** Definition of QApplication class
 **
 ** Author  : Haavard Nord
 ** Created : 931107
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -41,6 +41,9 @@ public:
     QWidget	*mainWidget() const { return main_widget; }
 
     virtual bool notify( QObject *, QEvent * ); // send event to object
+
+    static void  flushEvents();			// flush X event queue
+    static void  syncEvents();			// syncronize with X server
 
     static void	 cleanup();			// cleanup application
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#6 $
 **
 ** Implementation of QApplication class
 **
 ** Author  : Haavard Nord
 ** Created : 931107
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#6 $";
 #endif
 
 
@@ -87,3 +87,14 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 #endif
     return receiver->event( event );
 }
+
+
+#if !defined(_WS_X11_)
+
+// The X implementation of these functions is in qapp_x11.cpp
+
+void QApplication::flushEvents() {}		// do nothing
+
+void QApplication::syncEvents()	 {}		// do nothing
+
+#endif

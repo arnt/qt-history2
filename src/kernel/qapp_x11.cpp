@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#32 $
 **
 ** Implementation of X11 startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#32 $";
 #endif
 
 
@@ -298,6 +298,17 @@ QWidget *QApplication::desktop()
 	CHECK_PTR( desktopWidget );
     }
     return desktopWidget;
+}
+
+
+void QApplication::flushEvents()		// flush event queue
+{
+    XFlush( appDpy );
+}
+
+void QApplication::syncEvents()			// synchronize with server
+{
+    XSync( appDpy, FALSE );			// don't discard events
 }
 
 
