@@ -90,13 +90,13 @@ SYSCONF_LINK_LIB_STATIC	= #${
             $project{"TMAKE_AR_CMD"} =
                 '$(SYSCONF_AR) $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC) $(OBJECTS) $(OBJMOC)';
         }
-	$text .= 'rm -f $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC); ';
+	$text .= 'rm -f $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC)';
 	if ( $project{"TMAKE_AR_CMD"} ) {
-	    $text .= " \\\n\t\t\t\t";
+	    $text .= "; \\\n\t\t\t\t";
 	    Expand("TMAKE_AR_CMD");
 	}
 	if ( $project{"TMAKE_RANLIB"} ) {
-	    $text .= " \\\n\t\t\t\t";
+	    $text .= "; \\\n\t\t\t\t";
 	    ExpandGlue("TMAKE_RANLIB","","",' $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC)');
 	}
 #$}
