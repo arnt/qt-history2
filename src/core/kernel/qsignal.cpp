@@ -165,19 +165,6 @@ bool QSignalEmitter::disconnect(const QObject *receiver, const char *member)
     return QObject::disconnect(this, signal, receiver, member);
 }
 
-typedef QVarLengthArray<char, 512> QVarLengthString;
-
-inline static bool qAppendString(QVarLengthString &sig, const char *str)
-{
-    int len = qstrlen(str);
-    if (!len)
-        return false;
-    const int s = sig.size();
-    sig.resize(s + len);
-    memcpy(sig.data() + s, str, len);
-    return true;
-}
-
 /*! internal
  */
 bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type,
@@ -196,9 +183,11 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
     if (!obj)
         return false;
 
-    QVarLengthString sig;
-    if (!qAppendString(sig, member))
+    QVarLengthArray<char, 512> sig;
+    int len = qstrlen(member);
+    if (len <= 0)
         return false;
+    sig.append(member, len);
     sig.append('(');
 
     enum { ParamCount = 11 };
@@ -208,8 +197,10 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
 
     int i;
     for (i = 1; i < ParamCount; ++i) {
-        if (!qAppendString(sig, typeNames[i]))
+        len = qstrlen(typeNames[i]);
+        if (len <= 0)
             break;
+        sig.append(typeNames[i], len);
         sig.append(',');
     }
     if (i == 1)
