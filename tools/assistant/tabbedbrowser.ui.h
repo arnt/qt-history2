@@ -11,6 +11,17 @@
 
 #include "config.h"
 
+static QString reduceLabelLength( const QString &s )
+{
+    int maxLength = 16;
+    QString str = s;
+    if ( str.length() < maxLength )
+	return str;
+    str = str.left( maxLength - 3 );
+    str += "...";
+    return str;
+}
+
 void TabbedBrowser::forward()
 {
     currentBrowser()->forward();
@@ -97,6 +108,7 @@ void TabbedBrowser::init()
     tabLinkUnderline = FALSE;
     tabStyleSheet = new QStyleSheet( QStyleSheet::defaultSheet() );
     tabMimeFactory = new QMimeSourceFactory();
+    lastCurrentTab = 0;
     while( tab->count() )
 	tab->removePage( tab->page(0) );
     //    newTab( QString::null );
@@ -242,4 +254,14 @@ void TabbedBrowser::setupMimeSource()
 	if ( !config->docImageDir( *it ).isEmpty() )
 	    tabMimeFactory->addFilePath( config->docImageDir( *it ) );
     }
+}
+
+void TabbedBrowser::displayEntireLabel( QWidget *w )
+{
+    HelpWindow *win = (HelpWindow*)lastCurrentTab;
+    if ( win )
+	tab->changeTab( lastCurrentTab, reduceLabelLength( win->documentTitle() ) );
+    win = (HelpWindow*)(tab->currentPage());
+    tab->changeTab( w, win->documentTitle() );
+    lastCurrentTab = w;
 }

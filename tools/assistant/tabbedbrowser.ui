@@ -48,6 +48,14 @@
         </widget>
     </grid>
 </widget>
+<connections>
+    <connection>
+        <sender>tab</sender>
+        <signal>currentChanged(QWidget*)</signal>
+        <receiver>TabbedBrowser</receiver>
+        <slot>displayEntireLabel(QWidget*)</slot>
+    </connection>
+</connections>
 <includes>
     <include location="global" impldecl="in declaration">qsettings.h</include>
     <include location="local" impldecl="in implementation">helpwindow.h</include>
@@ -66,6 +74,7 @@
     <variable access="private">QStyleSheet *tabStyleSheet;</variable>
     <variable access="private">bool tabLinkUnderline;</variable>
     <variable access="private">QMimeSourceFactory *tabMimeFactory;</variable>
+    <variable access="private">QWidget *lastCurrentTab;</variable>
 </variables>
 <slots>
     <slot>forward()</slot>
@@ -88,15 +97,16 @@
     <slot>setPalette( const QPalette &amp; pal )</slot>
     <slot>copy()</slot>
     <slot>closeTab()</slot>
+    <slot>displayEntireLabel( QWidget *w )</slot>
 </slots>
 <functions>
-    <function returnType="QMimeSourceFactory*" specifier="non virtual">mimeSourceFactory()</function>
     <function returnType="HelpWindow *">currentBrowser()</function>
     <function access="private">init()</function>
     <function returnType="MainWindow *">mainWindow()</function>
     <function specifier="non virtual" returnType="QStyleSheet *">styleSheet()</function>
     <function specifier="non virtual" returnType="bool">linkUnderline()</function>
     <function specifier="non virtual" returnType="QStringList">sources()</function>
+    <function specifier="non virtual" returnType="QMimeSourceFactory*">mimeSourceFactory()</function>
     <function specifier="non virtual">setupMimeSource()</function>
 </functions>
 <pixmapinproject/>
