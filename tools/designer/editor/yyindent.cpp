@@ -734,7 +734,8 @@ static int indentForContinuationLine()
 		  end of the unfinished lines or by unbalanced
 		  parentheses.
 		*/
-		if ( j == 0 || QString("!=<>").find((*yyLine)[j - 1]) == -1 ) {
+		if ( QString("!=<>").find((*yyLine)[j - 1]) == -1 &&
+		     (*yyLine)[j + 1] != '=' ) {
 		    if ( braceDepth == 0 && delimDepth == 0 &&
 			 j < (int) yyLine->length() - 1 &&
 			 !yyLine->endsWith(",") &&
@@ -1127,6 +1128,7 @@ int main( int argc, char **argv )
 	QChar typedIn = firstNonWhiteSpace( *line );
 	if ( p.last().endsWith(":") )
 	    typedIn = ':';
+
 	int indent = indentForBottomLine( p, typedIn );
 
 	if ( !(*line).stripWhiteSpace().isEmpty() ) {
@@ -1135,7 +1137,7 @@ int main( int argc, char **argv )
 	    out += (*line).stripWhiteSpace();
 	}
 	out += "\n";
-	line++;
+	++line;
     }
 
     while ( out.endsWith("\n") )
