@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#25 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#26 $
 **
 ** Definition of QFont class
 **
@@ -99,6 +99,7 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;
+    friend void *get_tm( bool, void * );
     friend QDataStream &operator<<( QDataStream &, const QFont & );
     friend QDataStream &operator>>( QDataStream &, QFont & );
 
