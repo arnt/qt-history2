@@ -1646,6 +1646,10 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     for unwanted translation, i.e. xForm() returns the smallest image
     that contains all the transformed points of the original image.
 
+    This function is slow because it involves transformation to a
+    QImage, non-trivial computations and a transformation back to a
+    QPixmap.
+
     \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix() QImage::xForm()
 */
 
