@@ -582,11 +582,14 @@ void QGridLayoutData::setupLayoutData( int spacing )
 #endif
     has_hfw = FALSE;
     int i;
-    for ( i = 0; i < rr; i++ )
+    for ( i = 0; i < rr; i++ ) {
 	rowData[i].initParameters();
-    for ( i = 0; i < cc; i++ )
+	rowData[i].stretch = rStretch[i];
+    }
+    for ( i = 0; i < cc; i++ ) {
 	colData[i].initParameters();
-
+	colData[i].stretch = cStretch[i];
+    }
     QPtrListIterator<QGridBox> it( things );
     QGridBox * box;
     while ( (box = it.current()) != 0 ) {
