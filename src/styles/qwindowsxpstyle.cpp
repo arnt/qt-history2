@@ -464,7 +464,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	}
     } else if ( widget->inherits( "QDockWindowHandle" ) ) {
 	QWidget *p = (QWidget*)widget->parent();
-	if ( !p->inherits("QToolBar") ) {
+	if ( !((QDockWindow*)p)->isToolbar ) {
 	    QPalette pl = widget->palette();
 	    QColorGroup cga = pl.active();
 	    QColorGroup cgi = pl.inactive();
