@@ -2078,8 +2078,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    j;
 	bool gotStylus,
 	     gotEraser;
-	XDeviceInfo *devices,
-	    *devs;
+	XDeviceInfo *devices, *devs;
 	XInputClassInfo *ip;
 	XAnyClassPtr any;
 	XValuatorInfoPtr v;
@@ -2105,7 +2104,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    gotEraser = FALSE;
 #if defined(Q_OS_IRIX)
 	    gotStylus = ( !strncmp(devs->name,
-				   WACOM_NAME, sizeof(WACOM_NAME) - 1) )
+				   WACOM_NAME, sizeof(WACOM_NAME) - 1) );
 #else
 	    QString devName = devs->name;
 	    devName = devName.lower();
@@ -2114,8 +2113,8 @@ void qt_init_internal( int *argcptr, char **argv,
 	    if ( !gotStylus )
 		gotEraser = devName.startsWith( XFREENAMEERASER );
 
-	    if ( gotStylus || gotEraser ) {
 #endif
+	    if ( gotStylus || gotEraser ) {
 		// I only wanted to do this once, so wrap pointers around these
 		curr_event_count = 0;
 
@@ -3480,6 +3479,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XKeyRelease:
 	{
 	    if ( keywidget && keywidget->isEnabled() ) { // should always exist
+#ifndef QT_NO_XIM
 		if ( (qt_xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 ) {
 		    // input method has sent us a commit string
 		    QInputContext *qic =
@@ -3504,7 +3504,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			// qDebug( "invalid keypress, reseting input context" );
 			if ( qic ) qic->reset();
 		    }
-		} else {
+		} else 
+#endif // QT_NO_XIM
+		{
 		    // qDebug( "sending key event" );
 		    keywidget->translateKeyEvent( event, grabbed );
 		}

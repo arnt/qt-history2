@@ -2041,7 +2041,8 @@ static QString indic_reorder( int script, const QString &string, int start, int 
     }
 
 //     qDebug("length=%d",  len );
-    for ( int i = 0; i < len; i++ )
+    int i;
+    for ( i = 0; i < len; i++ )
 	featuresToApply[i] = 0;
 
     // nothing to do in this case!
@@ -2204,7 +2205,7 @@ static QString indic_reorder( int script, const QString &string, int start, int 
     if ( state == Consonant )
 	featuresToApply[0] |= AkhantFeature|NuktaFeature;
 
-    for ( int i = 1; i < len; i++ ) {
+    for ( i = 1; i < len; i++ ) {
 	int newState = form( uc[i] );
 	switch( newState ) {
 	case Consonant:
@@ -2253,7 +2254,7 @@ static QString indic_reorder( int script, const QString &string, int start, int 
 	state = newState;
     }
 
-    for ( int i = 0; i < (int)reordered.length(); i++ ) {
+    for ( i = 0; i < (int)reordered.length(); i++ ) {
 	attributes[i].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
 	attributes[i].clusterStart = FALSE;
     }
