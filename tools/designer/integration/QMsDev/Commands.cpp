@@ -514,13 +514,13 @@ void CCommands::addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
 
     if ( !fileext.IsEmpty() && fileext[0] == 'c' ) {
 	fileToMoc = filepath + filename + ".moc";
-	mocfile = "$(InputDir)\\$(InputName).moc";
+	mocfile = "\"$(InputDir)\\$(InputName).moc\"";
 	specialFile = TRUE;
     } else {
 	fileToMoc = filepath + file;
-	mocfile = "$(InputDir)\\moc_$(InputName).cpp";
+	mocfile = "\"$(InputDir)\\moc_$(InputName).cpp\"";
     }
-    inputfile = "$(InputDir)\\$(InputName)." + fileext;
+    inputfile = "\"$(InputDir)\\$(InputName)." + fileext + "\"";
 
     // Add the moc step to the file
     long cCount;
