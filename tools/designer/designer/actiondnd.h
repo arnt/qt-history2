@@ -28,6 +28,7 @@
 #include <qpopupmenu.h>
 #include <qptrlist.h>
 #include <qtoolbar.h>
+#include <qguardedptr.h>
 
 class QDesignerPopupMenu;
 class QDesignerIndicatorWidget;
@@ -282,7 +283,7 @@ private:
     bool mousePressed;
     QDesignerIndicatorWidget *indicator;
     FormWindow *formWindow;
-    QPopupMenu *popupMenu;
+    QGuardedPtr<QPopupMenu> popupMenu;
     QPoint popupPos;
     QPoint popupLocalPos;
 
