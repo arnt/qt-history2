@@ -163,7 +163,7 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
     return hint + border;
 }
 
-void QGenericHeader::paintEvent(QPaintEvent *e)
+void QGenericHeader::paintEvent(QPaintEvent *)
 {
     QPainter painter(viewport());
 
@@ -412,7 +412,7 @@ void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIn
 }
 
 void QGenericHeader::contentsRemoved(const QModelIndex &parent,
-				     const QModelIndex &topLeft, const QModelIndex &bottomRight)
+				     const QModelIndex &topLeft, const QModelIndex &)
 {
     if (orientation() == Horizontal)
 	initializeSections(topLeft.column(), model()->columnCount(parent) - 1);
@@ -420,7 +420,7 @@ void QGenericHeader::contentsRemoved(const QModelIndex &parent,
 	initializeSections(topLeft.row(), model()->rowCount(parent) - 1);
 }
 
-void QGenericHeader::ensureItemVisible(const QModelIndex &index)
+void QGenericHeader::ensureItemVisible(const QModelIndex &)
 {
     // this should only update the scrollvalue, and only if the item is not visible
 

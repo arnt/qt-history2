@@ -491,7 +491,7 @@ void qSystemWarning( const char *msg, ... )
 #endif
 	va_end( ap );
 	buf.resize(n);
-	if (!!sys) {
+	if (sys.size()) {
 	    buf += ": ";
 	    buf += sys;
 	}
@@ -506,7 +506,7 @@ void qSystemWarning( const char *msg, ... )
 	OutputDebugString( (fstr + "\n").ucs2() );
 #else
 	fprintf(stderr, "%s", buf.data());		// add newline
-	if (!!sys)
+	if (sys.size())
 	    fprintf(stderr, ": %s", sys.data());
 	fprintf(stderr, "\n");		// add newline
 #endif

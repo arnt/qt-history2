@@ -221,7 +221,7 @@ int QGenericTreeView::contentsHeight() const
     return -1; // FIXME: invalid
 }
 
-void QGenericTreeView::paintEvent(QPaintEvent *e)
+void QGenericTreeView::paintEvent(QPaintEvent *)
 {
     QPainter painter(viewport());
 
@@ -366,7 +366,7 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
     if (!item.isValid())
 	return QRect();
 
-    QGenericHeader *header = d->header;
+//     QGenericHeader *header = d->header;
     int x = columnViewportPosition(item.column());
     int w = columnWidth(item.column());
     int v = verticalScrollBar()->value();
@@ -594,7 +594,7 @@ bool QGenericTreeView::doItemsLayout(int num)
 	parent = model()->parent(parent);
 	idx = d->viewIndex(parent, v); // FIXME: slow
     }
-    int height = contentsHeight() + d->itemHeight * count;
+//     int height = contentsHeight() + d->itemHeight * count;
 //    resizeContents(contentsWidth(), height);
     updateGeometries();
     updateViewport();
@@ -609,7 +609,7 @@ void QGenericTreeView::setHorizontalOffset(int value)
     d->header->setOffset((left / horizontalFactor()) + d->header->sectionPosition(column));
 }
 
-void QGenericTreeView::columnWidthChanged(int column, int oldSize, int newSize)
+void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
     int columnPos = d->header->sectionPosition(column);
     updateViewport(QRect(columnPos, contentsY(),
@@ -689,7 +689,7 @@ void QGenericTreeViewPrivate::close(int i)
 	idx = viewIndex(parent, v); // FIXME: slow
     }
     collapse<QGenericTreeViewItem>(items, i, total);
-    int height = total * itemHeight;
+//     int height = total * itemHeight;
 //    q->resizeContents(q->contentsWidth(), q->contentsHeight() - height);
     q->updateGeometries();
     q->updateViewport();
@@ -830,7 +830,7 @@ int QGenericTreeViewPrivate::itemAt(int value) const
 int QGenericTreeViewPrivate::coordinateAt(int value, int iheight) const
 {
     int factor = q->verticalFactor();
-    int item = value / factor;
+//     int item = value / factor;
     int above = (value % factor) * iheight; // what's left; in "item units"
     return -(above / factor); // above the page
 }

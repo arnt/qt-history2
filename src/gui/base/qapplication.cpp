@@ -1373,7 +1373,7 @@ QPalette QApplication::palette(const QWidget* w)
 	qt_fix_tooltips();
     }
 
-    if ( w && app_palettes ) {
+    if (w && app_palettes.size()) {
 	QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(w->className());
         if (it != app_palettes.constEnd())
 	    return *it;
@@ -1414,7 +1414,7 @@ void QApplication::setPalette( const QPalette &palette, const char* className )
 	} else {
 	    *app_pal = pal;
 	}
-        if (app_palettes) {
+        if (app_palettes.size()) {
 	    all = true;
 	    app_palettes.clear();
 	}
@@ -1446,7 +1446,7 @@ void QApplication::setPalette( const QPalette &palette, const char* className )
 
 QFont QApplication::font( const QWidget *w )
 {
-    if (w && app_fonts) {
+    if (w && app_fonts.size()) {
 	QHash<QByteArray, QFont>::ConstIterator it = app_fonts.find(w->className());
         if (it != app_fonts.constEnd())
 	    return it.value();
@@ -1483,7 +1483,7 @@ void QApplication::setFont( const QFont &font, const char* className )
 	} else {
 	    *app_font = font;
 	}
-        if (app_fonts) {
+        if (app_fonts.size()) {
 	    all = true;
 	    app_fonts.clear();
 	}

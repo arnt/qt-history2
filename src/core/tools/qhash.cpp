@@ -560,27 +560,6 @@ void QHashData::free()
     \sa size()
 */
 
-/*! \fn bool QHash::operator!() const
-
-    \internal
-*/
-
-/*! \fn QHash::operator QSafeBool() const
-
-    Returns true if the hash contains at least one item; otherwise
-    returns false.
-
-    Example:
-    \code
-	static QHash<QString, int> hash;
-        ...
-        if (!hash)
-	    fillWithData(&hash);
-    \endcode
-
-    This is the same as \c{!hash.isEmpty()}.
-*/
-
 /*! \fn int QHash::capacity() const
 
     Returns the number of buckets in the QHash's internal hash table.
@@ -628,7 +607,7 @@ void QHashData::free()
 
     The sole purpose of this function is to provide a means of fine
     tuning QHash's memory usage. In general, you will rarely ever
-    need to call this function. 
+    need to call this function.
 
     \sa reserve(), capacity()
 */

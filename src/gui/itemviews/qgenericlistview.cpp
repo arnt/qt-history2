@@ -515,7 +515,7 @@ void QGenericListView::contentsInserted(const QModelIndex &topLeft, const QModel
 }
 
 void QGenericListView::contentsRemoved(const QModelIndex &parent,
-				       const QModelIndex &topLeft, const QModelIndex &bottomRight)
+				       const QModelIndex &, const QModelIndex &)
 {
     if (parent != root())
 	return;
@@ -605,7 +605,7 @@ void QGenericListView::getViewOptions(QItemOptions *options) const
     options->textAlignment = (d->wrap ? QFlag(Qt::AlignCenter) : Qt::AlignLeft | Qt::AlignVCenter);
 }
 
-void QGenericListView::paintEvent(QPaintEvent *e)
+void QGenericListView::paintEvent(QPaintEvent *)
 {
     QPainter painter(viewport());
     QRect area = visibleRect();

@@ -758,7 +758,7 @@ public:
 
 void QDnsAnswer::notify()
 {
-    if ( !ok || !query || !query->dns )
+    if ( !ok || !query || query->dns.size() == 0 )
 	return;
 
     QHash<const QDns *, const QDns *> notified;

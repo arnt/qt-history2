@@ -1168,7 +1168,7 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 	p.end();
     }
 
-    if (!parents)
+    if (parents.size() == 0)
 	return;
 
     w = parents.pop();
@@ -1181,7 +1181,7 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 	    QApplication::sendEvent(w, &e);
 	    QPainter::restoreRedirected(w);
 	}
-	if (!parents)
+	if (parents.size() == 0)
 	    break;
 	w = parents.pop();
 	offset -= w->pos();

@@ -40,9 +40,6 @@ class QCache
 	return n.t;
     }
 
-    struct BoolStruct { inline void QTrue() {} };
-    typedef void (BoolStruct::*QSafeBool)();
-
 #if defined(Q_DISABLE_COPY)
     QCache(const QCache &other);
     QCache &operator=(const QCache &other);
@@ -64,8 +61,6 @@ public:
     inline int size() const { return hash.size(); }
     inline int count() const { return hash.size(); }
     inline bool isEmpty() const { return hash.isEmpty(); }
-    inline bool operator!() const { return hash.isEmpty(); }
-    inline operator QSafeBool() const { return hash.isEmpty ? 0 : &BoolStruct::QTrue; }
 
     void clear();
 

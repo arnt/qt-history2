@@ -109,7 +109,7 @@ public:
 
     inline QItemSelectionPointer expandRows(const QItemSelection *selection) const
     {
-	if (!selection->ranges)
+	if (selection->ranges.size() == 0)
 	    return QItemSelectionPointer();
 	QModelIndex bottomRight = model->bottomRight(selection->ranges.first().parent());
 	QItemSelectionPointer rows(new QItemSelection);
@@ -175,9 +175,9 @@ void QItemSelectionModel::select(QItemSelection *selection,
 	    exchange( old, sel, false ); //emits selectionChanged
 	    return;
 	case ClearAndSelect:
-	    if (!!d->ranges || d->currentSelection)
+	    if (d->ranges.size() || d->currentSelection)
 		old = new QItemSelection;
-	    if (!!d->ranges) {
+	    if (d->ranges.size()) {
 		old->ranges += d->ranges;
 		d->ranges.clear();
 	    }
@@ -222,10 +222,10 @@ void QItemSelectionModel::mergeCurrentSelection()
 
 void QItemSelectionModel::clear()
 {
-    if (!d->ranges && !d->currentSelection)
+    if (d->ranges.size() == 0 && !d->currentSelection)
 	return;
     QItemSelectionPointer selection(new QItemSelection);
-    if (!!d->ranges) {
+    if (d->ranges.size()) {
 	selection->ranges = d->ranges;
 	d->ranges.clear();
     }

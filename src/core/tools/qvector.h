@@ -32,9 +32,6 @@ class QVector
     typedef QVectorTypedData<T> Data;
     union { QVectorData *p; QVectorTypedData<T> *d; };
 
-    struct BoolStruct { inline void QTrue() {} };
-    typedef void (BoolStruct::*QSafeBool)();
-
 public:
     inline QVector() : p(&QVectorData::shared_null) { ++d->ref; }
     explicit QVector(int size);
@@ -48,8 +45,6 @@ public:
     inline int size() const { return d->size; }
 
     inline bool isEmpty() const { return d->size == 0; }
-    inline bool operator!() const { return d->size == 0; }
-    inline operator QSafeBool() const { return d->size == 0 ? 0 : &BoolStruct::QTrue; }
 
     void resize(int size);
 

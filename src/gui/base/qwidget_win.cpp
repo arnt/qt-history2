@@ -961,7 +961,7 @@ void QWidget::repaint(const QRegion& rgn)
 				palette().brush(w->d->bg_role), offset.x(), offset.y());
 	}
 
-	if (!!parents) {
+	if (parents.size()) {
 	    w = parents.pop();
 	    for (;;) {
 		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
@@ -976,7 +976,7 @@ void QWidget::repaint(const QRegion& rgn)
 			w->clearWState(WState_InPaintEvent);
 		    QPainter::restoreRedirected(w);
 		}
-		if (!parents)
+		if (parents.size() == 0)
 		    break;
 		w = parents.pop();
 		offset -= w->pos();
@@ -1475,7 +1475,7 @@ void QWidget::setBaseSize( int w, int h )
 
 void QWidget::scroll( int dx, int dy )
 {
-    if ( testWState( WState_BlockUpdates ) && !children() )
+    if ( testWState( WState_BlockUpdates ) && children().size() == 0 )
 	return;
     UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
     if (!testAttribute(WA_NoBackground))

@@ -76,7 +76,7 @@ QString QAccessibleHeader::text(Text t, int child) const
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleHeader::role(int child) const
+QAccessible::Role QAccessibleHeader::role(int) const
 {
     return (header()->orientation() == Qt::Horizontal) ? ColumnHeader : RowHeader;
 }
@@ -140,7 +140,7 @@ QRect QAccessibleTabBar::rect(int child) const
 
     QPoint tp = tabBar()->mapToGlobal(QPoint(0,0));
     QRect rec;
-    if (child <= tabBar()->count()) { 
+    if (child <= tabBar()->count()) {
 	QTab *tab = tabBar()->tabAt(child - 1);
 	rec = tab->rect();
     } else {
@@ -222,7 +222,7 @@ int QAccessibleTabBar::state(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleTabBar::doAction(int action, int child)
+bool QAccessibleTabBar::doAction(int, int child)
 {
     if (!child)
 	return false;
@@ -419,7 +419,7 @@ int QAccessibleComboBox::state(int /*child*/) const
 }
 
 /*! \reimp */
-bool QAccessibleComboBox::doAction(int action, int child)
+bool QAccessibleComboBox::doAction(int, int child)
 {
     if (child != 2)
 	return false;
@@ -523,7 +523,7 @@ int QAccessibleTitleBar::childCount() const
 QString QAccessibleTitleBar::text(Text t, int child) const
 {
     QString str = QAccessibleWidget::text(t, child);
-    if (!!str)
+    if (str.size())
 	return str;
 
     QWidget *window = titleBar()->window();
@@ -601,7 +601,7 @@ int QAccessibleTitleBar::state(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleTitleBar::doAction(int action, int child)
+bool QAccessibleTitleBar::doAction(int, int child)
 {
     switch (child) {
     case 3:

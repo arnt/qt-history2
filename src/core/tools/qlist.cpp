@@ -399,29 +399,6 @@ void **QListData::erase(void **xi)
     \sa size()
 */
 
-/*! \fn bool QList::operator!() const
-
-    \internal
-*/
-
-/*! \fn QList::operator QSafeBool() const
-
-    Returns true if the list contains at least one item; otherwise
-    returns false.
-
-    Example:
-    \code
-	static QList<QString> list;
-        ...
-        if (list)
-	    do_something(list);
-    \endcode
-
-    This is the same as \c{!list.isEmpty()}.
-
-    \sa isEmpty()
-*/
-
 /*! \fn void QList::clear()
 
     Removes all items from the list.

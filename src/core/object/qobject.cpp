@@ -219,7 +219,7 @@ static inline bool isSpace( char x )
 void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 {
     QObjectList list = parent->children();
-    if (!list) return 0;
+    if (list.size() == 0) return 0;
     for (int i = 0; i < list.size(); ++i) {
 	QObject *obj = list.at(i);
 	if ( qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type) )

@@ -51,9 +51,6 @@ class QList
 
     union { QListData p; QListData::Data *d; };
 
-    struct BoolStruct { inline void QTrue() {} };
-    typedef void (BoolStruct::*QSafeBool)();
-
 public:
     inline QList() : d(&QListData::shared_null) { ++d->ref; }
     inline QList(const QList &l) : d(l.d) { ++d->ref; }
@@ -69,8 +66,6 @@ public:
     inline bool isDetached() const { return d->ref == 1; }
 
     inline bool isEmpty() const { return p.isEmpty(); }
-    inline bool operator!() const { return p.isEmpty(); }
-    inline operator QSafeBool() const { return p.isEmpty() ? 0 : &BoolStruct::QTrue; }
 
     void clear();
 

@@ -133,10 +133,10 @@ void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
     p->setPen(old);
 }
 
-void QGenericTableView::paintEvent(QPaintEvent *e)
+void QGenericTableView::paintEvent(QPaintEvent *)
 {
     QPainter painter(viewport());
-    
+
     int colfirst = columnAt(0);
     int collast = columnAt(viewport()->width());
     int rowfirst = rowAt(0);
@@ -205,7 +205,7 @@ void QGenericTableView::ensureItemVisible(const QModelIndex &item)
 
     if (area.contains(rect) || model()->parent(item) != root())
 	return;
-    
+
     // vertical
     if (rect.top() < area.top()) { // above
 	verticalScrollBar()->setValue(item.row() * verticalFactor());
@@ -217,7 +217,7 @@ void QGenericTableView::ensureItemVisible(const QModelIndex &item)
 	int a = (-y * verticalFactor()) / rowHeight(r);
 	verticalScrollBar()->setValue(++r * verticalFactor() + a);
     }
-    
+
     // horizontal
     if (rect.left() < area.left()) { // left of
 	horizontalScrollBar()->setValue(item.column() * horizontalFactor());
@@ -348,7 +348,7 @@ void QGenericTableView::updateGeometries()
     QItemOptions options;
     getViewOptions(&options);
     QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
-    
+
     int h = viewport()->height();
     int row = model()->rowCount(0);
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());

@@ -129,7 +129,7 @@ void QTextLayout::setDocumentLayout(QAbstractTextDocumentLayout *layout)
 
 void QTextLayout::setFormat(int from, int length, int format)
 {
-    if (!d->items)
+    if (d->items.size() == 0)
 	d->itemize(QTextEngine::Full);
     d->setFormat(from, length, format);
 }

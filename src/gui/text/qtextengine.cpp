@@ -901,7 +901,7 @@ const QCharAttributes *QTextEngine::attributes()
     if ( haveCharAttributes )
 	return charAttributes;
 
-    if ( !items )
+    if (items.size() == 0)
 	itemize();
 
     for ( int i = 0; i < items.size(); i++ ) {

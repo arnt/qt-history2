@@ -168,29 +168,6 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa size()
 */
 
-/*! \fn bool QLinkedList::operator!() const
-
-    \internal
-*/
-
-/*! \fn QLinkedList::operator QSafeBool() const
-
-    Returns true if the list contains at least one items; otherwise
-    returns false.
-
-    Example:
-    \code
-	static QLinkedList<QString> list;
-        ...
-        if (list)
-	    do_something(list);
-    \endcode
-
-    This is the same as \c{!list.isEmpty()}.
-
-    \sa isEmpty()
-*/
-
 /*! \fn void QLinkedList::clear()
 
     Removes all items from the list.

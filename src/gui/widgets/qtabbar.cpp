@@ -527,7 +527,7 @@ bool QTabBar::isTabEnabled( int id ) const
 QSize QTabBar::sizeHint() const
 {
     QSize sz(0, 0);
-    if (!!d->l) {
+    if (d->l.size()) {
 	QRect r(d->l.first()->r);
 	for (int i=1; i<d->l.size(); ++i)
 	    r = r.unite(d->l.at(i)->r);
@@ -829,7 +829,7 @@ void QTabBar::setCurrentTab( int id )
 
 void QTabBar::setCurrentTab( QTab * tab )
 {
-    if (tab && !!d->l) {
+    if (tab && d->l.size()) {
 	if ( d->l.last() == tab )
 	    return;
 

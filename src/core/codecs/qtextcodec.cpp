@@ -2201,7 +2201,7 @@ QByteArray QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 #ifdef Q_WS_QWS
     if ( this != reverseOwner )
 #else
-    if ( !reverseMap )
+    if (reverseMap.size() == 0)
 #endif
 	((QSimpleTextCodec *)this)->buildReverseMap();
 
@@ -2231,7 +2231,7 @@ void QSimpleTextCodec::fromUnicode( const QChar *in, unsigned short *out, int le
 #ifdef Q_WS_QWS
     if ( this != reverseOwner )
 #else
-    if ( !reverseMap )
+    if (reverseMap.size() == 0)
 #endif
 	((QSimpleTextCodec *)this)->buildReverseMap();
 
@@ -2250,7 +2250,7 @@ unsigned short QSimpleTextCodec::characterFromUnicode(const QString &str, int po
 #ifdef Q_WS_QWS
     if ( this != reverseOwner )
 #else
-    if ( !reverseMap )
+    if (reverseMap.size() == 0)
 #endif
 	((QSimpleTextCodec *)this)->buildReverseMap();
 
@@ -2265,7 +2265,7 @@ bool QSimpleTextCodec::canEncode( QChar ch ) const
 #ifdef Q_WS_QWS
     if ( this != reverseOwner )
 #else
-    if ( !reverseMap )
+    if (reverseMap.size() == 0)
 #endif
 	((QSimpleTextCodec *)this)->buildReverseMap();
 

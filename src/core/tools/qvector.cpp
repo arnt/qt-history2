@@ -259,29 +259,6 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa size(), resize()
 */
 
-/*! \fn bool QVector::operator!() const
-
-    \internal
-*/
-
-/*! \fn QVector::operator QSafeBool() const
-
-    Returns true if the vector contains at least one item; otherwise
-    returns false.
-
-    Example:
-    \code
-	static QVector<QString> vector(n);
-        ...
-        if (vector)
-	     do_something(vector);
-    \endcode
-
-    This is the same as \c{!vector.isEmpty()}.
-
-    \sa isEmpty()
-*/
-
 /*! \fn void QVector::resize(int size)
 
     Sets the size of the vector to \a size. If \a size is greater than the

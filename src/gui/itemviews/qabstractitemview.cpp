@@ -298,7 +298,7 @@ void QAbstractItemView::viewportMouseDoubleClickEvent(QMouseEvent *e)
     startEdit(item, QAbstractItemDelegate::DoubleClicked, e);
 }
 
-void QAbstractItemView::viewportContextMenuEvent(QContextMenuEvent *e)
+void QAbstractItemView::viewportContextMenuEvent(QContextMenuEvent *)
 {
     // do nothing
 }
@@ -309,12 +309,12 @@ void QAbstractItemView::viewportDragEnterEvent(QDragEnterEvent *e)
 	e->accept();
 }
 
-void QAbstractItemView::viewportDragMoveEvent(QDragMoveEvent *e)
+void QAbstractItemView::viewportDragMoveEvent(QDragMoveEvent *)
 {
     // do nothing
 }
 
-void QAbstractItemView::viewportDragLeaveEvent(QDragLeaveEvent *e)
+void QAbstractItemView::viewportDragLeaveEvent(QDragLeaveEvent *)
 {
     // do nothing
 }
@@ -723,7 +723,7 @@ void QAbstractItemView::updateRow(const QModelIndex &item)
     updateViewport(rect);
 }
 
-void QAbstractItemView::updateViewport(const QRect &rect)
+void QAbstractItemView::updateViewport(const QRect &)
 {
     // will only update if rect is visible
 //     if (viewport()->rect().intersects(rect))

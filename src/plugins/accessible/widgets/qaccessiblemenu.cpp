@@ -72,7 +72,7 @@ int QAccessiblePopup::childAt(int x, int y) const
 QString QAccessiblePopup::text(Text t, int child) const
 {
     QString tx = QAccessibleWidget::text(t, child);
-    if (!!tx)
+    if (tx.size())
 	return tx;
 
     int id;

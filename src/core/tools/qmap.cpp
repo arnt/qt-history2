@@ -436,29 +436,6 @@ void QMapData::dump()
     \sa size()
 */
 
-/*! \fn bool QMap::operator!() const
-
-    \internal
-*/
-
-/*! \fn QMap::operator QSafeBool() const
-
-    Returns true if the map contains at least one item; otherwise
-    returns false.
-
-    Example:
-    \code
-	static QMap<QString, int> map;
-        ...
-        if (map)
-	    do_something(map);
-    \endcode
-
-    This is the same as \c{!map.isEmpty()}.
-
-    \sa isEmpty()
-*/
-
 /*! \fn void QMap::detach()
 
     \internal

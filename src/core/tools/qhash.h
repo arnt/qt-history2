@@ -150,9 +150,6 @@ class QHash
 	return reinterpret_cast<Node *>(node);
     }
 
-    struct BoolStruct { inline void QTrue() {} };
-    typedef void (BoolStruct::*QSafeBool)();
-
 public:
     inline QHash() : d(&QHashData::shared_null) { ++d->ref; }
     inline QHash(const QHash<Key, T> &other) : d(other.d) { ++d->ref; }
@@ -166,8 +163,6 @@ public:
     inline int size() const { return d->size; }
 
     inline bool isEmpty() const { return d->size == 0; }
-    inline bool operator!() const { return d->size == 0; }
-    inline operator QSafeBool() const { return d->size == 0 ? 0 : &BoolStruct::QTrue; }
 
     inline int capacity() const { return d->numBuckets; }
     void reserve(int size);

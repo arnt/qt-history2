@@ -25,7 +25,7 @@
   mouseDoubleClickEvent() can be reimplemented.
 */
 
-QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelIndex &item) const
+QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelIndex &) const
 {
     return QAbstractItemDelegate::NoEditType;
 }

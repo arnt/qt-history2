@@ -85,9 +85,6 @@ public:
     bool isEmpty() const;
     void resize(int size);
 
-    bool operator!() const;
-    operator bool() const;
-
     QByteArray &fill(char c, int size = -1);
 
     int capacity() const;
@@ -311,10 +308,6 @@ inline char QByteArray::operator[](uint i) const
 { Q_ASSERT(i < (uint)size()); return d->data[i]; }
 inline bool QByteArray::isEmpty() const
 { return d->size == 0; }
-inline bool QByteArray::operator!() const
-{ return d->size == 0; }
-inline QByteArray::operator bool() const
-{ return d->size != 0; }
 inline QByteArray::operator const char *() const
 { return d->data; }
 inline QByteArray::operator const void *() const

@@ -71,9 +71,6 @@ class QMap
     static inline Node *concrete(QMapData::Node *node) {
 	return reinterpret_cast<Node *>(reinterpret_cast<char *>(node) - sizeof(Payload));
     }
-    struct BoolStruct { inline void QTrue() {} };
-    typedef void (BoolStruct::*QSafeBool)();
-
 public:
     inline QMap() : d(&QMapData::shared_null) { ++d->ref; }
     inline QMap(const QMap<Key, T> &other) : d(other.d) { ++d->ref; }
@@ -91,8 +88,6 @@ public:
     inline int size() const { return d->size; }
 
     inline bool isEmpty() const { return d->size == 0; }
-    inline bool operator!() const { return d->size == 0; }
-    inline operator QSafeBool() const { return d->size == 0 ? 0 : &BoolStruct::QTrue; }
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }

@@ -700,7 +700,7 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
 
     QSpinLockLocker locker(&postedEvents->spinlock);
 
-    if (!*postedEvents || (receiver && !receiver->d->hasPostedEvents))
+    if (postedEvents->size() == 0 || (receiver && !receiver->d->hasPostedEvents))
 	return;
 
     // okay. here is the tricky loop. be careful about optimizing
@@ -855,7 +855,7 @@ void QCoreApplication::removePostedEvent( QEvent * event )
 
     QSpinLockLocker locker(&postedEvents->spinlock);
 
-    if ( !*postedEvents ) {
+    if (postedEvents->size() == 0) {
 #if defined(QT_DEBUG)
 	qDebug( "QCoreApplication::removePostedEvent: %p %d is posted: impossible",
 		(void*)event, event->type() );

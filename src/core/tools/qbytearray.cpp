@@ -1302,7 +1302,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 		int insertstart = indices[pos] + pos*(al-bl);
 		int moveto = insertstart + al;
 		memmove( d + moveto, d + movestart, (moveend - movestart) );
-		if ( !!after )
+		if (after.size())
 		    memcpy( d + insertstart, after, al );
 		moveend = movestart - bl;
 	    }
