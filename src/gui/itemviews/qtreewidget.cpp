@@ -555,6 +555,7 @@ void QTreeModel::remove(QTreeWidgetItem *item)
 
 void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 {
+    qDebug("emitRowsInserted");
     QModelIndex idx = index(item);
     QModelIndex parentIndex = parent(idx);
     emit rowsInserted(parentIndex, idx.row(), idx.row());
@@ -1170,7 +1171,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
-    setModel(new QTreeModel(0, this));
+    setModel(new QTreeModel(1, this)); // default is 1 column
     connect(this, SIGNAL(pressed(const QModelIndex&, int)),
             SLOT(emitPressed(const QModelIndex&, int)));
     connect(this, SIGNAL(clicked(const QModelIndex&, int)),
