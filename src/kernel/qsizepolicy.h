@@ -71,6 +71,11 @@ public:
 
     QSizePolicy( SizeType hor, SizeType ver, bool hfw = FALSE )
 	: data( hor | (ver<<HSize) | (hfw ? (Q_UINT16)(1<<2*HSize) : 0) ) {}
+    QSizePolicy( SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw = FALSE )
+	: data( hor | (ver<<HSize) | (hfw ? (Q_UINT16)(1<<2*HSize) : 0) ) {
+	    setHorStretch( hors );
+	    setVerStretch( vers );
+    }
 
     SizeType horData() const { return (SizeType)( data & HMask ); }
     SizeType verData() const { return (SizeType)(( data & VMask ) >> HSize); }
