@@ -78,6 +78,9 @@ protected:
 
     void updateRegion( QWidget *widget );
 
+protected slots:
+    void activeTabChanged();
+
 private:
     QWindowsXPStylePrivate *d;
 

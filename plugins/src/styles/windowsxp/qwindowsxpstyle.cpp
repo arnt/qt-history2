@@ -261,6 +261,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QTabBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
+	connect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
     } else if ( widget->inherits( "QHeader" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
@@ -320,6 +321,8 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 		widget->parentWidget() &&
 		widget->parentWidget()->inherits( "QTabWidget" ) ) {
 	widget->setPaletteBackgroundPixmap( QPixmap() );
+    } else if ( widget->inherits( "QTabBar" ) ) {
+	disconnect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
     }
     QWindowsStyle::unPolish( widget );
 }
@@ -673,9 +676,11 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	{
 	    QTabBar *bar = (QTabBar*)widget;
 	    QTab *t = opt.tab();
-	    if ( bar->indexOf(t->identifier() == 0 ) )
+	    int idx = bar->indexOf( t->identifier() );
+	    int aidx = bar->indexOf( bar->currentTab() );
+	    if ( idx == 0 )
 		partId = TABP_TABITEMLEFTEDGE;
-	    else if ( bar->indexOf(t->identifier() == bar->count() ) )
+	    else if ( idx == bar->count()-1 )
 		partId = TABP_TABITEMRIGHTEDGE;
 	    else
 		partId = TABP_TABITEM;
@@ -690,10 +695,15 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		stateId = TIS_HOT;
 	    else 
 		stateId = TIS_NORMAL;
-	    if ( (flags & Style_Selected) || (flags & Style_HasFocus) )
-		rect.addCoords( 0, 1, 0, 1 );
-	    else
+	    if ( (flags & Style_Selected) || (flags & Style_HasFocus) ) {
+		rect.addCoords( 0, 0, 0, 1 );
+	    } else {
 		rect.addCoords( 0, 2, 0, 0 );
+		if ( idx != aidx+1 )
+		    rect.addCoords( 1, 0, 0, 0 );
+		if ( idx != aidx-1 )
+		    rect.addCoords( 0, 0, -1, 0 );
+	    }
 	}
 	break;
 
@@ -1594,7 +1604,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	return 1;
 
     case PM_TabBarTabOverlap:
-    	return -1;
+    	return 2;
 
     case PM_TabBarBaseOverlap:
 	return -1;
@@ -1814,6 +1824,15 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
     }
 
     return QWindowsStyle::eventFilter( o, e );
+}
+
+void QWindowsXPStyle::activeTabChanged()
+{
+    const QObject *s = sender();
+    if ( !s->inherits( "QTabBar" ) )
+	return;
+
+    ((QWidget *)s)->repaint( FALSE );
 }
 
 #endif //QT_NO_STYLE_WINDOWSXP
