@@ -1578,8 +1578,12 @@ void QWidget::setMinimumSize( int minw, int minh )
 	return;
     extra->minw = minw;
     extra->minh = minh;
-    if ( minw > width() || minh > height() )
+    if ( minw > width() || minh > height() ) {
+	bool resized = testWState( WState_Resized );
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
+	if ( !resized )
+	    clearWState( WState_Resized ); //not a user resize
+    }
     if ( testWFlags(WType_TopLevel) )
 	do_size_hints( this, extra );
     updateGeometry();
@@ -1623,8 +1627,12 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	return;
     extra->maxw = maxw;
     extra->maxh = maxh;
-    if ( maxw < width() || maxh < height() )
-	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
+    if ( maxw < width() || maxh < height() ) {
+	bool resized = testWState( WState_Resized );
+	resize( QMIN(maxw,width()), QMIN(maxh,height()) );	
+	if ( !resized )
+	    clearWState( WState_Resized ); //not a user resize
+    }
     if ( testWFlags(WType_TopLevel) )
 	do_size_hints( this, extra );
     updateGeometry();
