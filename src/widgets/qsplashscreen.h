@@ -43,7 +43,7 @@
 
 class QSplashScreenPrivate;
 
-class QSplashScreen : public QWidget
+class Q_EXPORT QSplashScreen : public QWidget
 {
     Q_OBJECT
 public:
