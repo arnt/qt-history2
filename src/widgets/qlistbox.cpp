@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#252 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#253 $
 **
 ** Implementation of QListBox widget class
 **
@@ -39,6 +39,7 @@ public:
     QListBoxPrivate():
 	head( 0 ), current( 0 ),
 	layoutDirty( TRUE ),
+	mustPaintAll( TRUE ),
 	dragging( FALSE ),
 	variableHeight( TRUE /* !!! ### FALSE */ ),
 	variableWidth( FALSE ),
@@ -61,6 +62,7 @@ public:
     QListBoxItem * head;
     QListBoxItem * current;
     bool layoutDirty;
+    bool mustPaintAll;
     bool dragging;
     bool variableHeight;
     bool variableWidth;
@@ -554,7 +556,7 @@ highlighted.
   In other words, \c Single is a real single-selection list box, \c
   Multi a real multi-selection list box, and \c Extended list box
   where users can select multiple items but usually want to select
-  either just one or a range of contiguous items..
+  either just one or a range of contiguous items.
 */
 
 /*!
@@ -567,7 +569,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     : QScrollView( parent, name, f )
 {
     d = new QListBoxPrivate;
-    d->updateTimer = new QTimer( this );
+    d->updateTimer = new QTimer( this, "listbox update timer" );
     connect( d->updateTimer, SIGNAL(timeout()),
              this, SLOT(refreshSlot()) );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken ); // ### win/motif
@@ -896,10 +898,6 @@ void QListBox::clear()
         i = n;
     }
     triggerUpdate( TRUE );
-    BackgroundMode m = viewport()->backgroundMode();
-    viewport()->setBackgroundMode( PaletteBase );
-    repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
-    viewport()->setBackgroundMode( m );
 }
 
 
@@ -1901,7 +1899,7 @@ QSize QListBox::sizeHint() const
 void QListBox::triggerUpdate( bool doLayout )
 {
     if ( doLayout )
-	d->layoutDirty = TRUE;
+	d->layoutDirty = d->mustPaintAll = TRUE;
     d->updateTimer->start( 0, TRUE );
 }
 
@@ -2502,7 +2500,8 @@ void QListBox::setVariableWidth( bool enable )
 
 void QListBox::refreshSlot()
 {
-    if ( d->layoutDirty ) {
+    if ( d->mustPaintAll || d->layoutDirty ) {
+	d->mustPaintAll = FALSE;
         doLayout();
         viewport()->repaint( FALSE );
         return;
@@ -2540,6 +2539,7 @@ void QListBox::refreshSlot()
         row = 0;
         col++;
     }
+
     if ( r.isEmpty() )
         viewport()->repaint( FALSE );
     else
@@ -2562,6 +2562,21 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     QPainter p( vp );
     QRegion r = e->region();
     p.setClipRegion( r );
+
+#if 0
+    { // this stuff has been useful enough times that from now I'm
+	//  leaving it in teh source.
+	int i = 0;
+	debug( "%s/%s: %i rects", className(), name(), r.rects().size() );
+	while( i < r.rects().size() ) {
+	    debug( "rect %d: %d, %d, %d, %d", i,
+		   r.rects()[i].left(), r.rects()[i].top(),
+		   r.rects()[i].width(), r.rects()[i].height() );
+	    i++;
+	}
+	debug( "" );
+    }
+#endif
 
     int x = contentsX();
     int y = contentsY();
@@ -2611,6 +2626,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
         row = 0;
         col++;
     }
+   
     if ( r.isEmpty() )
         return;
     p.setClipRegion( r );
