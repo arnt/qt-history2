@@ -82,8 +82,10 @@ Qt/X11
 Added support for Xft2 client side fonts on X servers without the
 RENDER extension.
 
-Added environment variable QT_NO_OPENGL_PROBE to avoid using GLX calls
-on X servers that don't provide GL support.
+Added a new configure option (-dlopen-opengl) which will remove the
+OpenGL and Xmu library dependencies in the Qt library. The functions
+used by Qt in those libraries are resolved manually using dlopen()
+when this option is used.
 
 Improved support for the Extended Window Manager Hints.
 
@@ -166,7 +168,7 @@ enables users to start browsing where they ended their previous
 assistant session.
 
 Shortcuts for Find Next (F3) and Find Previous (Shift+F3) have been
-implemented. 
+implemented.
 
 
 Compilers
@@ -208,7 +210,7 @@ IRIX MIPSpro o32 mode.
 	The sizeChange() signal is emitted when the section sizes are
 	adjusted by double clicking.
 
-- QHostAddress 
+- QHostAddress
 	Added new constructor for IPv6 and new functions
 	isIPv6Address() and toIPv6Address(). Obsoleted the functions
 	isIp4Addr() and ip4Addr(), replacing them with isIPv4Address()
@@ -272,7 +274,7 @@ IRIX MIPSpro o32 mode.
 
 - QWidget
 	Added setWindowOpacity() and windowOpacity() to support
-	transparent top-level widgets on Windows and Mac. 
+	transparent top-level widgets on Windows and Mac.
 	Added windowState() and setWindowState() to allow individual
 	setting of the minimized/maximized/fullscreen properties.
 
