@@ -442,6 +442,11 @@ void **QListData::erase(void **xi)
     \internal
 */
 
+/*! \fn void QList::setSharable(bool sharable)
+
+    \internal
+*/
+
 /*! \fn bool QList::isEmpty() const
 
     Returns true if the list contains no items; otherwise returns

@@ -447,7 +447,7 @@ void QHashData::free()
     Here's a list of the C++ and Qt types that can serve as keys in a
     QHash: any integer type (char, unsigned long, etc.), any pointer
     type, QChar, QString, and QByteArray. For all of these, \c
-    <qhash.h> defines a qHash() function that computes an adequate
+    <QHash> defines a qHash() function that computes an adequate
     hash value. If you want to use other types as the key, make sure
     that you provide operator==() and a qHash() implementation.
 
@@ -648,6 +648,11 @@ void QHashData::free()
     other hash object; otherwise returns false.
 
     \sa detach()
+*/
+
+/*! \fn void QHash::setSharable(bool sharable)
+
+    \internal
 */
 
 /*! \fn void QHash::clear()
@@ -943,7 +948,6 @@ void QHashData::free()
 
     Qt-style synonym for QHash::iterator.
 */
-
 
 /*! \typedef QHash::iterator::difference_type
     \internal

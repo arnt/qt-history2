@@ -487,6 +487,11 @@ void QMapData::dump()
     \sa detach()
 */
 
+/*! \fn void QMap::setSharable(bool sharable)
+
+    \internal
+*/
+
 /*! \fn void QMap::clear()
 
     Removes all items from the map.

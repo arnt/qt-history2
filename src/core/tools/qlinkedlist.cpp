@@ -173,6 +173,11 @@ QLinkedListData QLinkedListData::shared_null = {
     \internal
 */
 
+/*! \fn void QLinkedList::setSharable(bool sharable)
+
+    \internal
+*/
+
 /*! \fn bool QLinkedList::isEmpty() const
 
     Returns true if the list contains no items; otherwise returns

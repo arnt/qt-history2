@@ -236,7 +236,7 @@ const QString::Null QString::null = QString::Null();
 
     A QString can embed '\\0' characters (QChar::null). The size()
     function always returns the size of the whole string, including
-    embedded '\\0' bytes.
+    embedded '\\0' characters.
 
     After a call to resize(), newly allocated characters have
     undefined values. To set all the characters in the string to a
