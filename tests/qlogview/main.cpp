@@ -11,12 +11,22 @@ int main( int argc, char ** argv )
     
       log.setText( "Per Kåre bottolfson jr.\n" );
 // //      log.append( "per kåre knutsen\noddvar brå\n\n\nTrond Kjernåsen\n\n" );
-     log.setFont( QFont("Times",25) );
+     log.setFont( QFont("Times",18) );
      QString str;
-     for ( int i = 0; i < 10000; i++ ) {
+     for ( int i = 0; i < 30000; i++ ) {
 	 str.sprintf("%06d: 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n", i);
 	 log.append( str );
+	 if ( (i % 10000) == 0 )
+	     fprintf(stderr,"\rLines done: %08d", i );
      }
+//      fprintf(stderr,"\n");
+//      for ( int i = 0; i < 3000000; i++ ) {
+// 	 str.sprintf("%06d:\n", i);
+// 	 log.append( str );
+// 	 if ( (i % 10000) == 0 )
+// 	     fprintf(stderr,"\rLines done: %08d", i );
+//      }
+     fprintf(stderr,"\n");
      str.sprintf("Trond Kjgyfzp\n");
      log.append( str );
 

@@ -67,8 +67,9 @@ protected:
     void drawContents( QPainter * p, int clipx, int clipy, int clipw,
 		       int cliph );    
 private:
-    void    init();
+    void 	init();
     QStringList lineRange( int startLine, int numLines ) const;
+    QColor 	lineColor( int line ) const;
     
     QLogViewPrivate * d;
 };
