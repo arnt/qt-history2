@@ -1556,6 +1556,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     ctx.imEnd = d->imend;
     ctx.imSelectionStart = d->imselstart;
     ctx.imSelectionEnd = d->imselend;
+    ctx.focusIndicator = d->focusIndicator;
 
     d->doc->documentLayout()->draw(&p, ctx);
 }
@@ -1693,13 +1694,153 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 */
 bool QTextEdit::focusNextPrevChild(bool next)
 {
-    Q_D(const QTextEdit);
-    Q_UNUSED(next)
-// ###
-    return d->readOnly;
-//    if (d->cursor.atBlockStart())
-//        return false;
-//    return QScrollView::focusNextPrevChild(next);
+    Q_D(QTextEdit);
+
+    qDebug() << "QTextEdit::focusNextPrevChild(" << next << ")";
+
+    // ##### hmm, this could go into QTextBrowser
+
+    if (!d->readOnly)
+        return false;
+
+    if (!d->focusIndicator.hasSelection()) {
+        d->focusIndicator = QTextCursor(d->doc);
+        if (next)
+            d->focusIndicator.movePosition(QTextCursor::Start);
+        else
+            d->focusIndicator.movePosition(QTextCursor::End);
+    }
+
+    Q_ASSERT(!d->focusIndicator.isNull());
+
+    int anchorStart = -1;
+    int anchorEnd = -1;
+
+    if (next) {
+        int startPos = d->focusIndicator.selectionEnd();
+        QTextBlock block = d->doc->findBlock(startPos);
+
+        while (block.isValid()) {
+            anchorStart = -1;
+
+            QTextBlock::Iterator it = block.begin();
+
+            while (!it.atEnd() && it.fragment().position() < startPos)
+                ++it;
+
+            for (; !it.atEnd(); ++it) {
+                const QTextFragment fragment = it.fragment();
+                const QTextCharFormat fmt = fragment.charFormat();
+
+                if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
+                    anchorStart = fragment.position();
+                    break;
+                }
+            }
+
+            if (anchorStart != -1) {
+                anchorEnd = -1;
+
+                for (; !it.atEnd(); ++it) {
+                    const QTextFragment fragment = it.fragment();
+                    const QTextCharFormat fmt = fragment.charFormat();
+
+                    if (!fmt.isAnchor()) {
+                        anchorEnd = fragment.position();
+                        break;
+                    }
+                }
+
+                if (anchorEnd == -1)
+                    anchorEnd = block.position() + block.length() - 1;
+
+                break;
+            }
+
+            block = block.next();
+            startPos = block.position();
+        }
+    } else {
+        int startPos = d->focusIndicator.selectionStart();
+        if (startPos > 0)
+            --startPos;
+
+        QTextBlock block = d->doc->findBlock(startPos);
+
+        while (block.isValid()) {
+            anchorStart = -1;
+
+            const QTextBlock::Iterator blockStart = block.begin();
+            QTextBlock::Iterator it = blockStart;
+
+            while (!it.atEnd() && it.fragment().position() < startPos)
+                ++it;
+
+            if (!it.atEnd()) {
+                do {
+                    const QTextFragment fragment = it.fragment();
+                    const QTextCharFormat fmt = fragment.charFormat();
+
+                    if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
+                        anchorStart = fragment.position();
+                        break;
+                    }
+
+                    if (it == blockStart)
+                        it = QTextBlock::Iterator();
+                    else
+                        --it;
+                } while (!it.atEnd());
+            }
+
+            if (anchorStart != -1 && !it.atEnd()) {
+                anchorEnd = -1;
+
+                do {
+                    const QTextFragment fragment = it.fragment();
+                    const QTextCharFormat fmt = fragment.charFormat();
+
+                    if (!fmt.isAnchor()) {
+                        anchorEnd = fragment.position();
+                        break;
+                    }
+
+                    if (it == blockStart)
+                        it = QTextBlock::Iterator();
+                    else
+                        --it;
+                } while (!it.atEnd());
+
+                if (anchorEnd == -1)
+                    anchorEnd = qMax(0, block.position() - 1);
+
+                break;
+            }
+
+            block = block.previous();
+            startPos = block.position() + block.length() - 1;
+        }
+
+    }
+
+    if (anchorStart != -1 && anchorEnd != -1) {
+        qDebug() << "anchorStart" << anchorStart << "anchorEnd" << anchorEnd;
+        d->focusIndicator.setPosition(anchorStart);
+        d->focusIndicator.setPosition(anchorEnd, QTextCursor::KeepAnchor);
+    } else {
+        d->focusIndicator.clearSelection();
+    }
+
+    if (d->focusIndicator.hasSelection()) {
+        qSwap(d->focusIndicator, d->cursor);
+        ensureCursorVisible();
+        qSwap(d->focusIndicator, d->cursor);
+        d->viewport->update();
+        return true;
+    } else {
+        d->viewport->update();
+        return false;
+    }
 }
 
 /*! \reimp
@@ -1859,6 +2000,8 @@ void QTextEdit::focusOutEvent(QFocusEvent *ev)
 
         if (d->cursorBlinkTimer.isActive())
             d->setBlinkingCursorEnabled(false);
+    } else {
+        d->focusIndicator.clearSelection();
     }
     QViewport::focusOutEvent(ev);
 }
@@ -1961,7 +2104,7 @@ QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
     drop or for copying to the clipboard for example.
 
     If you re-implement this function note that the ownership of
-    the returned QMimeData object is passed to the caller. The
+    he returned QMimeData object is passed to the caller. The
     selection can be retrieved using the textCursor() function.
 */
 QMimeData *QTextEdit::createMimeDataFromSelection() const

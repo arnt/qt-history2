@@ -140,6 +140,8 @@ public:
     bool preferRichText;
 
     QString anchorToScrollToWhenVisible;
+
+    QTextCursor focusIndicator;
 };
 
 #endif // QTEXTEDIT_P_H
