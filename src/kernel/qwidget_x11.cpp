@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#363 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#364 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -47,11 +47,12 @@ int  qt_sip_count( QWidget* );			// --- "" ---
 void qt_updated_rootinfo();
 extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
-extern Atom qt_xdnd_aware;
 
 // paintevent clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
+
+extern bool qt_xdnd_rootwindow_enable( QWidget* w, bool on );
 
 
 extern bool qt_nograb();
@@ -399,7 +400,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
 	    if ( acceptDrops() )
-		XDeleteProperty( x11Display(), winId(), qt_xdnd_aware );
+		qt_xdnd_rootwindow_enable( this, FALSE );
 	} else {
 	    if ( destroyWindow )
 		qt_XDestroyWindow( this, x11Display(), winid );
@@ -1822,7 +1823,9 @@ bool QWidget::acceptDrops() const
   Announces to the system that this widget \e may be able to
   accept drop events.
 
-  In Qt 1.x, drop event handlers are in QDropSite.
+  If the widgets is \link QWidget::isDesktop() the desktop\endlink,
+  this may fail if another application is using the desktop - you
+  can call acceptDrops() to test if this occurs.
 
   \sa acceptDrops()
 */
@@ -1830,16 +1833,11 @@ bool QWidget::acceptDrops() const
 void QWidget::setAcceptDrops( bool on )
 {
     if ( testWState(WState_DND) != on ) {
-	if ( on ) {
-	    setWState(WState_DND);
-	    QWidget * tlw = topLevelWidget();
-
-	    Atom qt_xdnd_version = (Atom)3;
-	    XChangeProperty ( tlw->x11Display(), tlw->winId(), qt_xdnd_aware,
-			      XA_ATOM, 32, PropModeReplace,
-			      (unsigned char *)&qt_xdnd_version, 1 );
-	} else {
-	    clearWState(WState_DND);
+	if ( qt_xdnd_rootwindow_enable( this, on ) ) {
+	    if ( on )
+		setWState(WState_DND);
+	    else
+		clearWState(WState_DND);
 	}
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#85 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -499,6 +499,7 @@ void QTextDrag::setText( const QString &text )
     txt = text;
 }
 
+// #### Should use "text/plain;charset=utf8", etc. as per Xdnd4
 static const char* text_formats[] = { // All must start with "text/"
 	"text/utf16",
 	"text/utf8",
@@ -740,8 +741,9 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 {
     QImage img;
+    // We avoid dither, since the image probably came from this display
     if ( decode( e, img ) )
-	return pm.convertFromImage( img );
+	return pm.convertFromImage( img, AvoidDither );
     return FALSE;
 }
 
