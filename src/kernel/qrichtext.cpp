@@ -2436,8 +2436,37 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 	c1 = sel.endCursor;
     }
 
-    c2.restoreState();
-    c1.restoreState();
+    
+    /* 3.0.3 improvement: Make it possible to get a reasonable
+       selection inside a table.  This approach is very conservative:
+       make sure that both cursors have the same depth level and point
+       to paragraphs within the same text document.
+       
+       Meaning if you select text in two table cells, you will get the
+       entire table. This is still far better than the 3.0.2, where
+       you always got the entire table.
+       
+       ### Fix this properly for 3.0.4.
+     */
+    while ( c2.nestedDepth() > c1.nestedDepth() )
+	c2.oneUp();
+    while ( c1.nestedDepth() > c2.nestedDepth() )
+	c1.oneUp();
+    while ( c1.nestedDepth() && c2.nestedDepth() && 
+	    c1.parag()->document() != c2.parag()->document() ) {
+	c1.oneUp();
+	c2.oneUp();
+    }
+    // do not trust sel_swapped with tables. Fix this properly for 3.0.4 as well
+    if ( c1.parag()->paragId() > c2.parag()->paragId() ||
+	 (c1.parag() == c2.parag() && c1.index() > c2.index() ) ) {
+	QTextCursor tmp = c1;
+	c2 = c1;
+	c1 = tmp;
+    }
+    
+    // end selection 3.0.3 improvement
+    
 
     if ( c1.parag() == c2.parag() ) {
 	QString s;

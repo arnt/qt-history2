@@ -311,6 +311,7 @@ public:
     int y() const;
 
     int nestedDepth() const { return (int)indices.count(); } //### size_t/int cast
+    void oneUp() { if ( !indices.isEmpty() ) pop(); }
     void setValid( bool b ) { valid = b; }
     bool isValid() const { return valid; }
 
