@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#71 $
 **
 ** Implementation of the QDockWindow class
 **
@@ -51,7 +51,7 @@
 #include "qtooltip.h"
 #include "qguardedptr.h"
 
-#if defined( Q_WS_MAC )
+#if defined( Q_WS_MAC9 )
 #define MAC_DRAG_HACK
 #endif
 

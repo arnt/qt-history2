@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#181 $
 **
 ** Implementation of layout classes
 **
@@ -792,7 +792,7 @@ private:
 
   QGridLayout takes the space it gets (from its parent layout or from
   the mainWidget()), divides it up into rows and columns, and puts
-  each of the widgets it manages into the correct cell(s).
+  each widget it manages into the correct cell.
 
   Columns and rows behave identically; we will discuss columns, but
   there are equivalent functions for rows.
@@ -908,7 +908,7 @@ RwbV+8hNqf4Hob4MkPD3BvwAAAAASUVORK5CYII=
    layout is called \a name.
 
   \a border is the number of pixels between the edge of the widget and
-  the managed children. \a space is the default number of pixels
+  its managed children. \a space is the default number of pixels
   between cells.  If \a space is -1, the value of \a border is used.
 */
 
@@ -1519,26 +1519,27 @@ private:
   the mainWidget()), divides it up into a row of boxes, and makes each
   managed widget fill one box.
 
-  If the QBoxLayout is \c Horizontal the boxes are beside each other,
-  with suitable sizes.	Each widget (or other box) will get at least
-  its minimum sizes and at most its maximum size. Any excess space
-  is shared according to the stretch factors (more about that below).
+  If the QBoxLayout's orientation is \c Horizontal the boxes are
+  placed in a row, with suitable sizes. Each widget (or other
+  box) will get at least its minimum size and at most its maximum
+  size. Any excess space is shared according to the stretch factors
+  (more about that below).
 
-  If the QBoxLayout is \c Vertical, the boxes are above and below each
-  other, again with suitable sizes.
+  If the QBoxLayou's orientationt is \c Vertical, the boxes are placed
+  in a column, again with suitable sizes.
 
   The easiest way to create a QBoxLayout is to use one of the
-  convenience classes QHBoxLayout (for \c Horizontal boxes) or
+  convenience classes, e.g. QHBoxLayout (for \c Horizontal boxes) or
   QVBoxLayout (for \c Vertical boxes). You can also use the QBoxLayout
   constructor directly, specifying its direction as \c LeftToRight, \c
   Down, \c RightToLeft or \c Up.
 
-  If the QBoxLayout is not the top-level layout (i.e., it is not managing
+  If the QBoxLayout is not the top-level layout (i.e. it is not managing
   all of the widget's area and children), you must add it to its
   parent layout before you can do anything with it.  The normal way to
   add a layout is by calling parentLayout->addLayout().
 
-  Once you have done that, you can add boxes to the QBoxLayout using
+  Once you have done this, you can add boxes to the QBoxLayout using
   one of four functions:
 
   \list
@@ -1578,7 +1579,7 @@ private:
   You will almost always want to use the convenience classes
   QVBoxLayout and QHBoxLayout because of their simpler constructors.
 
-  See also the \link layout.html Layout overview documentation \endlink.
+  See also \link layout.html the Layout overview \endlink.
 */
 
 
@@ -1590,9 +1591,9 @@ private:
   \value LeftToRight  Horizontal, from left to right
   \value RightToLeft  Horizontal, from right to left
   \value TopToBottom  Vertical, from top to bottom
-  \value Down  An alias for \c TopToBottom
+  \value Down  The same as \c TopToBottom
   \value BottomToTop  Vertical, from bottom to top
-  \value Up  An alias for \c BottomToTop
+  \value Up  The same as \c BottomToTop
  */
 
 
@@ -1606,10 +1607,10 @@ static inline bool horz( QBoxLayout::Direction dir )
   Constructs a new QBoxLayout with direction \a d and main widget \a
   parent.  \a parent may not be 0.
 
-  \a border is the number of pixels between the edge of the widget and
-  the managed children.	 \a space is the default number of pixels
+  The \a border is the number of pixels between the edge of the widget and
+  its managed children.	 The \a space is the default number of pixels
   between neighboring children.  If \a space is -1 the value
-  of \a border is used.
+  of \a border is used for \a space.
 
   \a name is the internal object name.
 
@@ -1628,10 +1629,10 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 
 
 /*!
-  Constructs a new QBoxLayout with direction \a d and the name \a name
+  Constructs a new QBoxLayout with direction \a d and name \a name
   and inserts it into \a parentLayout.
 
-  \a space is the default number of pixels between neighboring children.
+  The \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QBoxLayout will inherit its parent's spacing().
 */
 
@@ -1647,7 +1648,7 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
 
 
 /*!
-  Constructs a new QBoxLayout with direction \a d and the name \a
+  Constructs a new QBoxLayout with direction \a d and name \a
   name.
 
   If \a space is -1, this QBoxLayout will inherit its parent's
@@ -1665,7 +1666,7 @@ QBoxLayout::QBoxLayout( Direction d, int space, const char *name )
 }
 
 /*!
-  Destroys this box.
+  Destroys this box layout.
 */
 
 QBoxLayout::~QBoxLayout()
@@ -1674,7 +1675,7 @@ QBoxLayout::~QBoxLayout()
 }
 
 /*!
-  Returns the preferred size of this grid.
+  Returns the preferred size of this box layout.
 */
 
 QSize QBoxLayout::sizeHint() const
@@ -1686,7 +1687,7 @@ QSize QBoxLayout::sizeHint() const
     return data->sizeHint + QSize(2*margin(),2*margin());
 }
 /*!
-  Returns the minimum size needed by this box.
+  Returns the minimum size needed by this box layout.
 */
 
 QSize QBoxLayout::minimumSize() const
@@ -1698,7 +1699,7 @@ QSize QBoxLayout::minimumSize() const
     return data->minSize + QSize(2*margin(),2*margin());
 }
 /*!
-  Returns the maximum size needed by this box.
+  Returns the maximum size needed by this box layout.
 */
 
 QSize QBoxLayout::maximumSize() const
@@ -1721,7 +1722,8 @@ QSize QBoxLayout::maximumSize() const
 
 
 /*!
-  Returns whether this layout's preferred height depends on its width.
+  Returns TRUE if this layout's preferred height depends on its width;
+  otherwise returns FALSE.
 */
 
 bool QBoxLayout::hasHeightForWidth() const
@@ -1773,7 +1775,7 @@ QLayoutIterator QBoxLayout::iterator()
 
 
 /*!
-  Returns the expansiveness of this layout
+  Returns the expansiveness of this layout.
 */
 
 QSizePolicy::ExpandData QBoxLayout::expanding() const
@@ -1854,7 +1856,7 @@ void QBoxLayout::addItem( QLayoutItem *item )
 
 
 /*!
-  Inserts \a item in this box layout at index \a index.  If \a index
+  Inserts \a item in this box layout at position \a index.  If \a index
   is negative, the item is added at the end.
 
   \warning does not call QLayout::insertChildLayout() if \a item is
@@ -1876,10 +1878,10 @@ void QBoxLayout::insertItem( int index, QLayoutItem *item )
 
 
 /*!
-  Inserts a non-stretchable space at index \a index, with size \a size.
+  Inserts a non-stretchable space at position \a index, with size \a size.
   If \a index is negative the space is added at the end.
 
-  QBoxLayout gives default border and spacing. This function adds
+  The box layout has default border and spacing. This function adds
   additional space.
 
   \sa insertStretch()
@@ -1907,7 +1909,7 @@ void QBoxLayout::insertSpacing( int index, int size )
 
 
 /*!
-  Inserts a stretchable space at index \a index, with zero minimum size
+  Inserts a stretchable space at position \a index, with zero minimum size
   and stretch factor \a stretch. If \a index is negative the space
   is added at the end.
 
@@ -1936,7 +1938,7 @@ void QBoxLayout::insertStretch( int index, int stretch )
 
 
 /*!
-  Inserts \a layout at index \a index, with serial stretch
+  Inserts \a layout at position \a index, with stretch
   factor \a stretch.  If \a index is negative, the layout is added at
   the end.
 
@@ -1955,22 +1957,22 @@ void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
 }
 
 /*!
-  Inserts \a widget at index \a index, with a \a stretch
-  factor and \a alignment.  If \a index is negative, the widget is
-  added at the end.
+  Inserts \a widget at position \a index, with stretch
+  factor \a stretch and alignment \a alignment.  If \a index is
+  negative, the widget is added at the end.
 
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
   widgets in this QBoxLayout.  Widgets and boxes with higher stretch
-  factor grow more.
+  factors grow more.
 
   If the stretch factor is 0 and nothing else in the QBoxLayout has a
   stretch factor greater than zero, the space is distributed according
   to the QWidget:sizePolicy() of each widget that's involved.
 
   Alignment is specified by \a alignment, which is a bitwise OR of
-  Qt::AlignmentFlags values.
-  The default alignment is 0, which means that the widget fills the entire cell.
+  Qt::AlignmentFlags values. The default alignment is 0, which means
+  that the widget fills the entire cell.
 
   Note: The alignment parameter is interpreted more aggressively
   than in previous versions of Qt.  A non-default alignment now
@@ -2023,7 +2025,7 @@ void QBoxLayout::addStretch( int stretch )
 
 /*!
   Adds \a widget to the end of this box layout, with a stretch factor
-  \a stretch and alignment \a alignment.
+  of \a stretch and alignment \a alignment.
 
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
@@ -2035,8 +2037,7 @@ void QBoxLayout::addStretch( int stretch )
   to the QWidget:sizePolicy() of each widget that's involved.
 
   Alignment is specified by \a alignment which is a bitwise OR of
-  Qt::AlignmentFlags values.
-  The default alignment is 0, which means
+  Qt::AlignmentFlags values. The default alignment is 0, which means
   that the widget fills the entire cell.
 
   Note: The alignment parameter is interpreted more aggressively
@@ -2066,7 +2067,7 @@ void QBoxLayout::addLayout( QLayout *layout, int stretch )
 
 
 /*!
-  Limits the perpendicular dimension of the box (e.g., height if the
+  Limits the perpendicular dimension of the box (e.g. height if the
   box is LeftToRight) to a minimum of \a size. Other constraints may
   increase the limit.
 */
@@ -2089,7 +2090,7 @@ void QBoxLayout::addStrut( int size )
 
 
 /*!
-  Searches for \a w in this layout (not including child layouts).
+  Searches for widget \a w in this layout (not including child layouts).
 
   Returns the index of \a w, or -1 if \a w is not found.
 */
@@ -2155,7 +2156,6 @@ bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
 
 /*!
   Sets the direction of this layout to \a direction.
-
 
 */
 
@@ -2337,18 +2337,11 @@ int QBoxLayout::calcHfw( int w )
 /*!
   \fn QBoxLayout::Direction QBoxLayout::direction() const
 
-  Returns the (serial) direction of the box. addWidget() and addSpacing()
+  Returns the direction of the box. addWidget() and addSpacing()
   work in this direction; the stretch stretches in this direction.
 
-  The directions are \c LeftToRight, \c RightToLeft, \c TopToBottom,
-  and \c BottomToTop. For the last two the shorter aliases \c Down and
-  \c Up are also available.
-
-  \sa addWidget(), addSpacing()
+  \sa QBoxLayout::Direction addWidget() addSpacing()
 */
-
-
-
 
 
 /*!
@@ -2358,11 +2351,10 @@ int QBoxLayout::calcHfw( int w )
 
   \ingroup geomanagement
 
-  This class provides an easier way to construct horizontal box layout
+  This class is used to construct horizontal box layout
   objects.  See \l QBoxLayout for more details.
 
-  The simplest ways to use this class are
-
+  The simplest way to use this class is like this:
   \code
      QBoxLayout * l = new QHBoxLayout( widget );
      l->setAutoAdd( TRUE );
@@ -2371,8 +2363,7 @@ int QBoxLayout::calcHfw( int w )
      new QAnotherWidget( widget );
   \endcode
 
-  or
-
+  or like this:
   \code
      QBoxLayout * l = new QHBoxLayout( widget );
      l->addWidget( existingChildOfWidget );
@@ -2380,18 +2371,18 @@ int QBoxLayout::calcHfw( int w )
   \endcode
 
   \sa QVBoxLayout QGridLayout
-      \link layout.html Layout overview documentation \endlink
+      \link layout.html the Layout overview \endlink
 */
 
 
 /*!
-  Constructs a new top-level horizontal box with the parent \a parent, the name
+  Constructs a new top-level horizontal box with parent \a parent and name
   \a name.
 
-  \a border is the number of pixels between the edge of the widget and
-  the managed children.	 \a space is the default number of pixels
+  The \a border is the number of pixels between the edge of the widget and
+  its managed children.	 The \a space is the default number of pixels
   between neighboring children.  If \a space is -1 the value
-  of \a border is used.
+  of \a border is used for \a space.
 
 */
 QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
@@ -2407,8 +2398,9 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
   Constructs a new horizontal box with the name \a name and adds it
   to \a parentLayout.
 
-  \a space is the default number of pixels between neighboring children.
-  If \a space is -1, this QHBoxLayout will inherit its parent's spacing()
+  The \a space is the default number of pixels between neighboring
+  children. If \a space is -1, this QHBoxLayout will inherit its
+  parent's spacing()
 
 */
 
@@ -2421,10 +2413,10 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
 
 
 /*!
-  Constructs a new horizontal box with the name \a name.  You have to add it to another
-  layout.
+  Constructs a new horizontal box with the name \a name.  You must
+  add it to another layout.
 
-  \a space is the default number of pixels between neighboring children.
+  The \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QHBoxLayout will inherit its parent's spacing()
 
  */
@@ -2435,7 +2427,7 @@ QHBoxLayout::QHBoxLayout( int space, const char *name )
 
 
 /*!
-  Destroys this box.
+  Destroys this box layout.
 */
 
 QHBoxLayout::~QHBoxLayout()
@@ -2450,11 +2442,10 @@ QHBoxLayout::~QHBoxLayout()
 
   \ingroup geomanagement
 
-  This class provides an easier way to construct vertical box layout
-  objects.  See \l QBoxLayout for more details.
+  This class is used to construct vertical box layout objects.  See \l
+  QBoxLayout for more details.
 
-  The simplest way to use this class is
-
+  The simplest way to use this class is like this:
   \code
      QBoxLayout * l = new QVBoxLayout( widget );
      l->addWidget( aWidget );
@@ -2462,17 +2453,17 @@ QHBoxLayout::~QHBoxLayout()
   \endcode
 
   \sa QHBoxLayout QGridLayout
-      \link layout.html Layout overview documentation \endlink
+      \link layout.html the Layout overview \endlink
 */
 
 /*!
-  Constructs a new top-level vertical box with the parent \a parent and the
+  Constructs a new top-level vertical box with parent \a parent and 
   name \a name.
 
-  \a border is the number of pixels between the edge of the widget and
-  the managed children.	 \a space is the default number of pixels
+  The \a border is the number of pixels between the edge of the widget and
+  its managed children.	 The \a space is the default number of pixels
   between neighboring children.  If \a space is -1 the value
-  of \a border is used.
+  of \a border is used for \a space.
 
  */
 QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
@@ -2487,7 +2478,7 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
   Constructs a new vertical box with the name \a name and adds it
   to \a parentLayout.
 
-  \a space is the default number of pixels between neighboring children.
+  The \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QVBoxLayout will inherit its parent's spacing()
 
 */
@@ -2500,10 +2491,10 @@ QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
 }
 
 /*!
-  Constructs a new vertical box with the name \a name. You will have
-  to add it to another layout.
+  Constructs a new vertical box with the name \a name. You must add it
+  to another layout.
 
-  \a space is the default number of pixels between neighboring children.
+  The \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QVBoxLayout will inherit its parent's spacing()
 
 */
@@ -2513,7 +2504,7 @@ QVBoxLayout::QVBoxLayout( int space, const char *name )
 }
 
 /*!
-  Destroys this box.
+  Destroys this box layout.
 */
 
 QVBoxLayout::~QVBoxLayout()

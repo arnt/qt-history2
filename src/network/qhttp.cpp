@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.cpp#34 $
+** $Id: //depot/qt/main/src/network/qhttp.cpp#35 $
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -1513,26 +1513,23 @@ QIODevice* QHttpClient::device() const
   \module network
 
   This class is derived from QNetworkProtocol and can be
-  used with QUrlOperator. In fact, you normally will not
-  use the QHttp class directly, but rather use it through
-  the QUrlOperator like
-
+  used with QUrlOperator. In practice this class is used through a
+  QUrlOperator rather than directly, for example:
   \code
   QUrlOperator op( "http://www.trolltech.com" );
   op.get( "index.html" );
   \endcode
 
-  This code will only work if the QHttp class is registered; to register the
-  class, you have to call qInitNetworkProtocols() before using a QUrlOperator
-  with HTTP.
+  Note: this code will only work if the QHttp class is registered; to
+  register the class, you must call qInitNetworkProtocols() before
+  using a QUrlOperator with HTTP.
 
-  QHttp supports only the operations operationGet() and operationPut(), i.e.
+  QHttp only supports the operations operationGet() and operationPut(), i.e.
   QUrlOperator::get() and QUrlOperator::put(), if you use it with a
   QUrlOperator.
 
-  If you really need to use QHttp directly, don't forget
-  to set the QUrlOperator on which it works using
-  setUrl().
+  If you really need to use QHttp directly, don't forget to set the
+  QUrlOperator on which it operates using setUrl().
 
   \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
@@ -1540,7 +1537,7 @@ QIODevice* QHttpClient::device() const
 /*!
   Constructs a QHttp object. Usually there is no need to use QHttp directly,
   since it is more convenient to use it through a QUrlOperator. If you want to
-  use it directly, you have to the QUrlOperator on which it works using
+  use it directly, you must set the QUrlOperator on which it operates using
   setUrl().
 */
 QHttp::QHttp()
@@ -1556,7 +1553,7 @@ QHttp::QHttp()
 }
 
 /*!
-  Destructor.
+  Destroys the QHttp object.
 */
 QHttp::~QHttp()
 {

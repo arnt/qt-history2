@@ -170,6 +170,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "SRCMOC   = " << srcMoc << endl;
     t << "OBJMOC = " << objMoc << endl;
     t << "DIST	   = " << varList("DISTFILES") << endl;
+    t << "QMAKE_TARGET = " << var("QMAKE_ORIG_TARGET") << endl;
     t << "TARGET   = " << var("TARGET") << endl;
     if(project->isActiveConfig("plugin") ) {
 	t << "TARGETD   = " << var("TARGET") << endl;
@@ -314,11 +315,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	if(project->isActiveConfig("plugin")) {
 	    t << "\n\t"
-	      << "-rm -f $(TARGETD)" << "\n\t"
+	      << "-rm -f $(TARGET)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD");
 	    if(!destdir.isEmpty())
 		t << "\n\t"
-		  << "-mv $(TARGETD) " << var("DESTDIR");
+		  << "-mv $(TARGET) " << var("DESTDIR");
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK") << "\n\t";
 	    t << endl << endl;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#179 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -93,8 +93,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
 QFontStruct::QFontStruct( const QString &key )
     : QShared(), k(key), hdc(0), hfont(0)
 {
-    s.dirty = TRUE;
-	cache_cost = 1;
+    cache_cost = 1;
 }
 
 HDC QFontStruct::dc() const
@@ -276,25 +275,25 @@ QString QFontPrivate::lastResortFont() const
 void QFontPrivate::initFontInfo()
 {
     currHDC = 0;
-    if ( !fin->s.dirty )				// already initialized
+    if ( !actual.dirty )				// already initialized
 	return;
     lineWidth = 1;
-    fin->s = request;				// most settings are equal
+    actual = request;				// most settings are equal
 #ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based ) {
 	TCHAR n[64];
 	GetTextFaceW( fin->dc(), 64, n );
-	fin->s.family = qt_winQString(n);
-	fin->s.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	actual.family = qt_winQString(n);
+	actual.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
     } else 
 #endif
     {
 	char an[64];
 	GetTextFaceA( fin->dc(), 64, an );
-	fin->s.family = QString::fromLocal8Bit(an);
-	fin->s.fixedPitch = !(fin->textMetricA()->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	actual.family = QString::fromLocal8Bit(an);
+	actual.fixedPitch = !(fin->textMetricA()->tmPitchAndFamily & TMPF_FIXED_PITCH);
     }
-    fin->s.dirty = FALSE;
+    actual.dirty = FALSE;
 }
 
 void QFontPrivate::load()
@@ -903,8 +902,7 @@ static int get_min_right_bearing( const QFontMetrics *f )
 
 int QFontMetrics::minLeftBearing() const
 {
-    // Safely cast away const, as we cache rbearing there.
-    const QFontDef* def = d->fin->spec();
+    const QFontDef* def = &d->actual;
 
     if ( def->lbearing == SHRT_MIN ) {
 		minRightBearing(); // calculates both
@@ -915,8 +913,8 @@ int QFontMetrics::minLeftBearing() const
 
 int QFontMetrics::minRightBearing() const
 {
-    // Safely cast away const, as we cache rbearing there.
-    QFontDef* def = (QFontDef*)d->fin->spec();
+    // Safely cast away const, as we cache bearings there.
+    QFontDef* def = (QFontDef*)&d->actual;
 
     if ( def->rbearing == SHRT_MIN ) {
 	int ml = 0;
@@ -1112,21 +1110,3 @@ int QFontMetrics::lineWidth() const
 	return d->lineWidth;
     }
 }
-
-
-/*****************************************************************************
-  QFontInfo member functions
- *****************************************************************************/
-
-#if 0
-const QFontDef *QFontInfo::spec() const
-{
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->spec();
-    } else {
-	return fin->spec();
-    }
-}
-#endif
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#376 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#377 $
 **
 ** Definition of QWidget class
 **
@@ -542,6 +542,9 @@ private:
     uint    own_id : 1; //owns the winid
     //mac event functions
     void propagateUpdates();
+    //friends, way too many - fix this immediatly!
+    friend void qt_clean_root_win();
+    friend bool qt_recreate_root_win();
     friend void qt_paint_children(QWidget *,QRegion &, uchar ops);
     friend void qt_event_request_updates(QWidget *, QRegion &);
     friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);

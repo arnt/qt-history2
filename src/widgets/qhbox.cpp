@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#38 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -37,22 +37,23 @@
 #include "qapplication.h"
 #include "qobjectlist.h"
 
-// NOT REVISED
+
 /*!
   \class QHBox qhbox.h
-  \brief The QHBox widget provides simple geometry management on its children.
+  \brief The QHBox widget provides geometry management for its children.
 
   \ingroup geomanagement
 
-  All its children will be placed beside each other and sized
-  according to their sizeHint()s.
+  All the horizontal box's children will be placed alongside each
+  other and sized according to their sizeHint()s.
 
   Use setMargin() to add space around the edge, and use setSpacing() to
-  add space between the widgets.
+  add space between the widgets. Use setStretchFactor() if you want
+  the widgets to be different sizes in proportion to one another.
 
   <img src=qhbox-m.png>
 
-  \sa QVBox and QGrid
+  \sa QHBoxLayout QVBox QGrid
 */
 
 
@@ -95,7 +96,7 @@ void QHBox::frameChanged()
 
 
 /*!
-  Sets the spacing between children to \a space.
+  Sets the spacing between the child widgets to \a space.
 */
 
 void QHBox::setSpacing( int space )
@@ -117,7 +118,7 @@ QSize QHBox::sizeHint() const
 }
 
 /*!
-  Sets the stretch factor of \a w to \a stretch.
+  Sets the stretch factor of widget \a w to \a stretch.
   \sa QBoxLayout::setStretchFactor()
 */
 bool QHBox::setStretchFactor( QWidget* w, int stretch )

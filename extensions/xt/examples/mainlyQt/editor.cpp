@@ -1,4 +1,3 @@
-#include "qxt.h"
 #include <qmainwindow.h>
 #include <qmultilineedit.h>
 #include <qpainter.h>
@@ -6,6 +5,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qsplitter.h>
+#include "qxt.h"
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/StringDefs.h>
@@ -62,7 +62,7 @@ public:
 
 };
 
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     QXtApplication app(argc, argv, "TwoEditors");
     TwoEditors m;

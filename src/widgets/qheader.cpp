@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#181 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#182 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -172,6 +172,9 @@ public:
   section number of a section at a particular index position call
   mapToSection() giving it the index number.
 
+  \img mapto-eg.png map-to example
+
+<!--
     <a name="mapexample">
   <table border="1" cellspacing="0" cellpadding="1">
   <caption><b>MapTo Example</b></caption>
@@ -198,6 +201,7 @@ public:
   <tr><td>mapToSection(3)</td><td align="center">1</td>
   <td>mapToIndex(3)</td><td align="center">2</td></tr>
   </table>
+-->
   In the example above, if we wanted to find out which section is at
   index position 3 we'd call mapToSection(3) and get a section number of
   1 since section 1 was moved. Similarly, if we wanted to know which

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#96 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -907,7 +907,7 @@ QDataStream &operator<<( QDataStream &s, const QPalette &p )
 }
 
 
-void readV1ColorGroup( QDataStream &s, QColorGroup &g,
+static void readV1ColorGroup( QDataStream &s, QColorGroup &g,
 		       QPalette::ColorGroup r )
 {
     QColor fg, bg, light, dark, mid, text, base;

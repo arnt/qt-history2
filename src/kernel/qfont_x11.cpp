@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#322 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#323 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -491,20 +491,15 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
     fd->weight = getFontWeight( tokens[Weight] );
 
     int r = atoi(tokens[ResolutionY]);
-    int px = atoi(tokens[PixelSize]);
+    fd->pixelSize = atoi(tokens[PixelSize]);
     // not "0" or "*", or required DPI
-    if ( r && px && QPaintDevice::x11AppDpiY() && r != QPaintDevice::x11AppDpiY() ) {
+    if ( r && fd->pixelSize && QPaintDevice::x11AppDpiY() && r != QPaintDevice::x11AppDpiY() ) {
 	// calculate actual pointsize for display DPI
-	fd->pixelSize = px;
-	fd->pointSize = (int) ((px * 720) / QPaintDevice::x11AppDpiY());
-    } else if ( px == 0 ) {
+	fd->pointSize = (int) ((fd->pixelSize * 720.) / QPaintDevice::x11AppDpiY() + 0.5);
+    } else if ( fd->pixelSize == 0 && fd->pointSize ) {
 	// calculate pixel size from pointsize/dpi
 	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY() ) / 720;
     }
-    // ### This looks wrong to me. Lars
-//     else {
-// 	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY() ) / 720;
-//      }
 
     fd->underline     = FALSE;
     fd->strikeOut     = FALSE;
@@ -1143,15 +1138,8 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 
 	    // byteswap!
 	    unsigned short *tstr;
-	    unsigned short *tshort, c;
-	    int i;
 
-	    tshort = new unsigned short[cache->length];
 	    tstr = (unsigned short *) cache->string;
-	    for (i = 0; i < cache->length; i++) {
-		c = tstr[i];
-		tshort[i] = htons( c );
-	    }
 
 	    if (bgmode != Qt::TransparentMode) {
 		XRenderColor col;
@@ -1166,9 +1154,8 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 	    }
 
 	    XftRenderString16(dpy, pm->x11RenderHandle(), xftfs, rendhd, 0, 0,
-			      x + cache->xoff, y + cache->yoff, tshort, cache->length);
+			      x + cache->xoff, y + cache->yoff, tstr, cache->length);
 
-	    delete [] tshort;
 	} else
 #endif // QT_NO_XFTFREETYPE
 	    if (xfs) {
@@ -1181,15 +1168,23 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 		    XChar2b *chars;
 		    if ( qfs->codec )
 			chars = (XChar2b *) cache->mapped.data();
-		    else
-			chars = (XChar2b *) cache->string;
-
+		    else {
+			chars = new XChar2b[cache->length];
+			int i;
+			for (i = 0; i < cache->length; i++) {
+			    chars[i].byte1 = cache->string[i].row();
+			    chars[i].byte2 = cache->string[i].cell();
+			}
+		    }
+		    
 		    if (bgmode != Qt::TransparentMode)
 			XDrawImageString16(dpy, hd, gc, x + cache->xoff, y + cache->yoff,
 					   chars, cache->length );
 		    else
 			XDrawString16(dpy, hd, gc, x + cache->xoff, y + cache->yoff,
 				      chars, cache->length );
+		    if ( !qfs->codec )
+			delete [] chars;
 		} else {
 		    const char *chars = cache->mapped.data();
 		    if ( chars ) {
@@ -1351,7 +1346,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     if ( request.pointSize != -1 )
 	size_value = request.pointSize / 10;
     else
-	size_value = ( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	size_value = request.pixelSize * 72. / QPaintDevice::x11AppDpiY();
     mono_value = request.fixedPitch ? XFT_MONO : XFT_PROPORTIONAL;
 
     switch (request.styleHint) {
@@ -1755,10 +1750,6 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	    int resy;
 	    int pSize;
 
-	    if ( request.pointSize != -1 )
-		pSize = request.pointSize;
-	    else
-		pSize = int( (10.*request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
 	    if ( bestScalable.smooth ) {
 		// X will scale the font accordingly
 		resx = QPaintDevice::x11AppDpiX();
@@ -1766,11 +1757,13 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	    } else {
 		resx = atoi(tokens[ResolutionX]);
 		resy = atoi(tokens[ResolutionY]);
-		pSize = ( (2 * pSize * QPaintDevice::x11AppDpiY()) + resy )
-			/ (resy * 2);
 	    }
+	    if ( request.pointSize != -1 )
+		pSize = int( (request.pointSize * QPaintDevice::x11AppDpiY()) / 720. + 0.5 );
+	    else
+		pSize = request.pixelSize;
 
-	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-%i-%i-%s-*-%s-%s",
+	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-%i-*-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
 			      tokens[Family],
 			      tokens[Weight],
@@ -1791,7 +1784,6 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
     bestName = best.name;
 
     XFreeFontNames( xFontNames );
-
     return bestName;
 }
 
@@ -1799,7 +1791,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 // Returns a score describing how well a font name matches the contents
 // of a font.
 int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
-				   float *pointSizeDiff, int  *weightDiff,
+				   float *pixelSizeDiff, int  *weightDiff,
 				   bool	 *scalable     , bool *smoothScalable,
 				  QFont::Script script ) const
 {
@@ -1809,7 +1801,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
     *scalable	      = FALSE;
     *smoothScalable   = FALSE;
     *weightDiff	      = 0;
-    *pointSizeDiff    = 0;
+    *pixelSizeDiff    = 0;
 
     qstrcpy( buffer.data(), fontName );	// NOTE: buffer must be large enough
     if ( ! parseXFontName( buffer, tokens ) )
@@ -1849,24 +1841,25 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
     // ### fix scaled bitmap fonts
     float diff;
     if ( *scalable ) {
-	// scaled bitmap fonts look just ugly. Never give them a size score.
-	diff = 9.0;	// choose scalable font over >= 0.9 point difference
+	diff = 0.9;	// choose scalable font over >= 0.9 point difference
 	if ( *smoothScalable )
 	    score |= SizeScore;
-	else
+	else {
+	    // scaled bitmap fonts look just ugly. Never give them a size score if not PreferMatch
 	    exactmatch = FALSE;
+	    if ( request.styleStrategy & QFont::PreferMatch )
+		score |= SizeScore;
+	}
     } else {
 	int pSize;
 	float percentDiff;
-	pSize = ( 2*atoi( tokens[PointSize] )*atoi(tokens[ResolutionY]) +
-		  QPaintDevice::x11AppDpiY())
-		/ (QPaintDevice::x11AppDpiY() * 2); // adjust actual pointsize
+	pSize = atoi(tokens[PixelSize]);
 
 	int reqPSize;
-	if ( request.pointSize != -1 )
-	    reqPSize = request.pointSize;
-	else
-	    reqPSize = int( (10*request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	if ( request.pointSize != -1 && QPaintDevice::x11AppDpiY() != 75 ) {
+	    reqPSize = int( (request.pointSize * QPaintDevice::x11AppDpiY()) / 720. + 0.5 );
+	} else
+	    reqPSize = request.pixelSize;
 
 	if ( reqPSize != 0 ) {
 	    diff = (float)QABS(pSize - reqPSize);
@@ -1876,19 +1869,18 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    percentDiff = 100;
 	}
 
-	if ( percentDiff < 10 ) {
+	if ( percentDiff < 10 && 
+	     (!(request.styleStrategy & QFont::PreferMatch) || request.styleStrategy & QFont::PreferQuality) ) {
 	    score |= SizeScore;
 
-	    if ( pSize != reqPSize ) {
-		exactmatch = FALSE;
-	    }
-	} else {
+	}
+	if ( pSize != reqPSize ) {
 	    exactmatch = FALSE;
 	}
     }
 
-    if ( pointSizeDiff )
-	*pointSizeDiff = diff;
+    if ( pixelSizeDiff )
+	*pixelSizeDiff = diff;
 
     int weightVal = getFontWeight(tokens[Weight], TRUE);
     if ( weightVal == (int) request.weight )
@@ -2108,8 +2100,8 @@ static QChar sampleCharacter(QFont::Script script)
  	row = cell = 0;
     }
 
-    ch.cell() = cell;
-    ch.row()  = row;
+    ch.setCell( cell );
+    ch.setRow( row );
     return ch;
 }
 

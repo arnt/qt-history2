@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#48 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#49 $
 **
 ** Implementation of QDns class.
 **
@@ -90,10 +90,22 @@ static void doResInit();
 
 class QDnsPrivate {
 public:
-    QDnsPrivate() : startQueryTimer(FALSE) {}
+    QDnsPrivate() : startQueryTimer(FALSE)
+    {
+#if defined(Q_DNS_SYNCHRONOUS)
+#if defined(Q_OS_UNIX)
+	noEventLoop = qApp==0 || qApp->loopLevel()==0;
+#else
+	noEventLoop = FALSE;
+#endif
+#endif
+    }
     ~QDnsPrivate() {}
 private:
     bool startQueryTimer;
+#if defined(Q_DNS_SYNCHRONOUS)
+    bool noEventLoop;
+#endif
 
     friend class QDns;
 };
@@ -1547,8 +1559,9 @@ QDns::~QDns()
 void QDns::setLabel( const QString & label )
 {
     l = label;
-    n.clear();
 
+    // consturct a list of qualified names
+    n.clear();
     if ( l.length() > 1 && l[(int)l.length()-1] == '.' ) {
 	n.append( l.left( l.length()-1 ).lower() );
     } else {
@@ -1560,7 +1573,7 @@ void QDns::setLabel( const QString & label )
 		dots++;
 	}
 	if ( dots < maxDots ) {
-	    (void)QDnsManager::manager();
+	    (void)QDnsManager::manager(); // ### What is this sideeffekt needed for?
 	    QStrListIterator it( *domains );
 	    const char * dom;
 	    while( (dom=it.current()) != 0 ) {
@@ -1570,7 +1583,16 @@ void QDns::setLabel( const QString & label )
 	}
 	n.append( l.lower() );
     }
+
+#if defined(Q_DNS_SYNCHRONOUS)
+    if ( d->noEventLoop ) {
+	doSynchronousLookup();
+    } else {
+	setStartQueryTimer(); // start query the next time we enter event loop
+    }
+#else
     setStartQueryTimer(); // start query the next time we enter event loop
+#endif
 #if defined(QDNS_DEBUG)
     qDebug( "QDns::setLabel: %d address(es) for %s", n.count(), l.ascii() );
     int i = 0;
@@ -1678,7 +1700,11 @@ void QDns::startQuery()
 */
 void QDns::setStartQueryTimer()
 {
+#if defined(Q_DNS_SYNCHRONOUS)
+    if ( !d->startQueryTimer && !d->noEventLoop ) {
+#else
     if ( !d->startQueryTimer ) {
+#endif
 	// start the query the next time we enter event loop
 	QTimer::singleShot( 0, this, SLOT(startQuery()) );
 	d->startQueryTimer = TRUE;
@@ -1860,7 +1886,6 @@ QValueList<QDns::Server> QDns::servers() const
 }
 
 
-// #### QStringList or QString as return value?
 /*!
   Returns a list of host names if the record type is \c Ptr.
 */
@@ -1945,8 +1970,76 @@ QString QDns::canonicalName() const
     return QString::null;
 }
 
+#if defined(Q_DNS_SYNCHRONOUS)
+/*! \reimpl
+*/
+void QDns::connectNotify( const char *signal )
+{
+    if ( d->noEventLoop && qstrcmp(signal,SIGNAL(resultsReady()) )==0 ) {
+	doSynchronousLookup();
+    }
+}
+#endif
 
 #if defined(Q_OS_UNIX)
+
+#if defined(Q_DNS_SYNCHRONOUS)
+void QDns::doSynchronousLookup()
+{
+    if ( t!=None && !l.isEmpty() ) {
+	QValueListIterator<QString> it = n.begin();
+	QValueListIterator<QString> end = n.end();
+	int type;
+	switch( t ) {
+	    case QDns::A:
+		type = 1;
+		break;
+	    case QDns::Aaaa:
+		type = 28;
+		break;
+	    case QDns::Mx:
+		type = 15;
+		break;
+	    case QDns::Srv:
+		type = 33;
+		break;
+	    case QDns::Cname:
+		type = 5;
+		break;
+	    case QDns::Ptr:
+		type = 12;
+		break;
+	    case QDns::Txt:
+		type = 16;
+		break;
+	    default:
+		type = (char)255; // any
+		break;
+	}
+	while( it != end ) {
+	    QString s = *it;
+	    it++;
+	    QByteArray ba( 512 );
+	    int len = res_search( s.latin1(), 1, type, (uchar*)ba.data(), ba.size() );
+	    if ( len > 0 ) {
+		ba.resize( len );
+
+		QDnsQuery * query = new QDnsQuery;
+		query->started = now();
+		query->id = ++::id;
+		query->t = t;
+		query->l = s;
+
+		QDnsAnswer a( ba, query );
+		a.parse();
+	    } else if ( len == -1 ) {
+		// res_search error
+	    }
+	}
+	emit resultsReady();
+    }
+}
+#endif
 
 static void doResInit()
 {
@@ -2034,6 +2127,13 @@ static void doResInit()
 }
 
 #elif defined(Q_OS_WIN32)
+
+#if defined(Q_DNS_SYNCHRONOUS)
+void QDns::doSynchronousLookup()
+{
+    // ### not implemented yet
+}
+#endif
 
 // the following typedefs are needed for GetNetworkParams() API call
 #ifndef IP_TYPES_INCLUDED

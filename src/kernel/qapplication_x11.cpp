@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#825 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#826 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -281,6 +281,7 @@ static int xinput_key_press = INVALID_EVENT;
 static int xinput_key_release = INVALID_EVENT;
 static int xinput_button_press = INVALID_EVENT;
 static int xinput_button_release = INVALID_EVENT;
+static int max_pressure;
 #endif
 
 typedef void (*VFPTR)();
@@ -1821,9 +1822,9 @@ void qt_init_internal( int *argcptr, char **argv,
 	qDebug( "Failed to get list of devices\n" );
 	ndev = -1;
     }
-    for ( i = 0; i < ndev; i++ ) {
-	if ( !strncmp( devices[i].name, WACOM_NAME, sizeof(WACOM_NAME) -1 ) ) {
-	    dev = XOpenDevice( appDpy, devices[i].id );
+    for ( i = 0; i < ndev; i++, devices++ ) {
+	if ( !strncmp( devices->name, WACOM_NAME, sizeof(WACOM_NAME) - 1 ) ) {
+	    dev = XOpenDevice( appDpy, devices->id );
 	    if ( dev == NULL ) {
 		qDebug( "Failed to open device" );
 	    }
@@ -1851,7 +1852,7 @@ void qt_init_internal( int *argcptr, char **argv,
 			// I'm only going to be interested in motion when the
 			// stylus is already down anyway!
 			DeviceMotionNotify( dev, xinput_motion,
-					     event_list[curr_xinput_events]);
+					    event_list[curr_xinput_events] );
 			curr_xinput_events++;
 			break;
 		    default:
@@ -1861,13 +1862,16 @@ void qt_init_internal( int *argcptr, char **argv,
 	    }
 	    // get the min/max value for pressure!
 	    any = (XAnyClassPtr) ( devices->inputclassinfo );
-	    for ( int k = 0; k < devices->num_classes; k++ ) {
+	    for (j = 0; j < devices->num_classes; j++) {
 		if ( any->c_class == ValuatorClass ) {
 		    v = (XValuatorInfoPtr) any;
-		    a = (XAxisInfoPtr) ( (char*)v + sizeof(XValuatorInfoPtr));
-		    qDebug( "%d", a[WAC_PRESSURE_I].min_value );
-		    qDebug( "%d", a[WAC_PRESSURE_I].max_value );
+		    a = (XAxisInfoPtr) ((char *) v +
+					sizeof (XValuatorInfo));
+		    max_pressure = a[WAC_PRESSURE_I].max_value;
+		    // got the max pressure no need to go further...
+		    break;
 		}
+		any = (XAnyClassPtr) ((char *) any + any->length);
 	    }
 
 	    // at this point we are assuming there is only one
@@ -4657,11 +4661,22 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
     QWidget *w = this;
     QPoint global,
 	curr;
-    int pressure,
+    int j,
+	pressure,
 	xTilt,
 	yTilt,
 	deviceType;
-    int j;
+    const int PRESSURE_LEVELS = 255;
+    // we got the maximum pressure at start time, since various tablets have
+    // varying levels of distinguishing pressure changes, let's standardize and
+    // scale everything to 256 different levels...
+    static int scaleFactor = -1;
+    if ( scaleFactor == -1 ) {
+	if ( max_pressure > PRESSURE_LEVELS )
+	    scaleFactor = max_pressure / PRESSURE_LEVELS;
+	else
+	    scaleFactor = PRESSURE_LEVELS / max_pressure;
+    }
     // Heh, we got an event from the stylus, but on Irix the event doesn't
     // give us all the information we need (some of the values are horibbly
     // wrong ),  It is slightly better to query the device state and get the
@@ -4673,6 +4688,7 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
     for ( j = 0; j < s->num_classes; j++ ) {
 	if ( iClass->c_class == ValuatorClass ) {
 	    vs = (XValuatorState *)iClass;
+	    // figure out what device we have, based on bitmasking...
 	    if ( vs->valuators[WAC_TRANSDUCER_I]
 		 & WAC_TRANSDUCER_PROX_MSK ) {
 		switch ( vs->valuators[WAC_TRANSDUCER_I]
@@ -4692,7 +4708,10 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	    // apparently Wacom needs a cast for the +/- values to make sense
 	    xTilt = short(vs->valuators[WAC_XTILT_I]);
 	    yTilt = short(vs->valuators[WAC_YTILT_I]);
-	    pressure = vs->valuators[WAC_PRESSURE_I] / 4;
+	    if ( max_pressure > PRESSURE_LEVELS )
+		pressure = vs->valuators[WAC_PRESSURE_I] / scaleFactor;
+	    else
+		pressure = vs->valuators[WAC_PRESSURE_I] * scaleFactor;
 	    // why not use the high res values for global?
 	    global = QPoint( vs->valuators[WAC_XCOORD_I],
 			     vs->valuators[WAC_YCOORD_I] );
@@ -4700,15 +4719,13 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	iClass = (XInputClass*)((char*)iClass + iClass->length);
     }
 
-    // repeating the work here a lot, does it really need to be done like this?
     XDeviceMotionEvent *motion = (XDeviceMotionEvent*)ev;
-    // figure out what device we have, based on bitmasking...
     curr = QPoint( motion->x, motion->y );
     QTabletEvent e( global, curr, deviceType, pressure, xTilt, yTilt );
     QApplication::sendSpontaneousEvent( w, &e );
     XFreeDeviceState( s );
     return TRUE;
-#else   // nothing else is implemented at the moment...
+#else   // nothing else is implemented for anything but Irix
     return FALSE;
 #endif
 }

@@ -4,5 +4,3 @@ HEADERS		=
 SOURCES		= dns.cpp
 INTERFACES	= 
 TARGET		= dns
-unix:LIBS       = -lqnetwork
-win32:LIBS      = $(QTDIR)\lib\qnetwork.lib

@@ -34,33 +34,28 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __UNIXMAKE_H__
-#define __UNIXMAKE_H__
+#ifndef __VcpMAKE_H__
+#define __VcpMAKE_H__
 
-#include "makefile.h"
+#include "winmakefile.h"
 
-class UnixMakefileGenerator : public MakefileGenerator
+class VcpMakefileGenerator : public Win32MakefileGenerator
 {
-    bool init_flag, include_deps;
-
-    void writeMakeParts(QTextStream &);
-    void writeSubdirs(QTextStream &);
+    bool init_flag;
+    bool writeVcpParts(QTextStream &);
 
     bool writeMakefile(QTextStream &);
-
+    QString findTemplate(QString file);
     void init();
 
 public:
-    UnixMakefileGenerator(QMakeProject *p);
-    ~UnixMakefileGenerator();
+    VcpMakefileGenerator(QMakeProject *p);
+    ~VcpMakefileGenerator();
 
-protected:
-    virtual bool doDepends() const { return !include_deps && MakefileGenerator::doDepends(); }
-    virtual QString defaultInstall(const QString &);
 };
 
-inline UnixMakefileGenerator::~UnixMakefileGenerator()
+inline VcpMakefileGenerator::~VcpMakefileGenerator()
 { }
 
 
-#endif /* __UNIXMAKE_H__ */
+#endif /* __VcpMAKE_H__ */

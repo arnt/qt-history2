@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_mac.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qcursor_mac.cpp#28 $
 **
 ** Implementation of QCursor class for mac
 **
@@ -34,6 +34,9 @@
 #include "qdatastream.h"
 #include "qnamespace.h"
 #include "qt_mac.h"
+#ifdef Q_WS_MACX
+#include <CGRemoteOperation.h>
+#endif
 #include <stdlib.h>
 
 // NOT REVISED
@@ -294,13 +297,19 @@ QPoint QCursor::pos()
     return QPoint(p.h, p.v);
 }
 
-// some kruft I found on the web.. it doesn't work, but I want to test more FIXME
-#define MTemp 0x828
-#define RawMouse 0x82c
-#define CrsrNewCouple 0x8ce
 
 void QCursor::setPos( int x, int y)
 {
+#ifdef Q_WS_MACX
+    CGPoint p;
+    p.x = x;
+    p.y = y;
+    CGPostMouseEvent(p, true, 0, false);
+#else
+// some kruft I found on the web.. it doesn't work, but I want to test more FIXME
+#   define MTemp 0x828
+#   define RawMouse 0x82c
+#   define CrsrNewCouple 0x8ce
     HideCursor();
     Point where;
     where.h = x;
@@ -309,6 +318,7 @@ void QCursor::setPos( int x, int y)
     *((Point *) MTemp) = where ;
     *((short *) CrsrNewCouple) = -1 ;
     ShowCursor ( ) ;
+#endif
 }
 
 void QCursor::update() const

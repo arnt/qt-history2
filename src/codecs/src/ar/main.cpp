@@ -1,6 +1,7 @@
 #include <qtextcodecinterface.h>
 #include <qtextcodec.h>
 #include <qptrlist.h>
+#include <qapplication.h>
 
 #include "../../qfontcodecs_p.h"
 

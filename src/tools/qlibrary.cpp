@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qlibrary.cpp#17 $
 **
 ** Implementation of QLibrary class
 **
@@ -327,6 +327,7 @@ bool QLibraryPrivate::loadLibrary()
 	glibs_loaded->insert( filename, pHnd ); //insert it in the loaded hash
 	return pHnd;
     }
+    return TRUE;
 #else
     return FALSE;
 #endif

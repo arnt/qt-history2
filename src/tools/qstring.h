@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#200 $
+** $Id: //depot/qt/main/src/tools/qstring.h#201 $
 **
 ** Definition of the QString class, and related Unicode
 ** functions.
@@ -173,8 +173,9 @@ public:
     Decomposition decompositionTag() const;
     unsigned char combiningClass() const;
 
-    char latin1() const { return rw ? 0 : cl; }
-    ushort unicode() const { return (rw << 8) | cl; }
+    char latin1() const { return ucs > 0xff ? 0 : (char) ucs; }
+    ushort unicode() const { return ucs; }
+    ushort &unicode() { return ucs; }
 #ifndef QT_NO_CAST_ASCII
     // like all ifdef'd code this is undocumented
     operator char() const { return latin1(); }
@@ -190,13 +191,15 @@ public:
     bool isLetterOrNumber() const;
     bool isDigit() const;
 
-    uchar& cell() { return cl; }
-    uchar& row() { return rw; }
-    uchar cell() const { return cl; }
-    uchar row() const { return rw; }
+    uchar cell() const { return ((uchar) ucs & 0xff); }
+    uchar row() const { return ((uchar) (ucs>>8)&0xff); }
+    void setCell( uchar cell ) { ucs = (ucs & 0xff00) + cell; }
+    void setRow( uchar row ) { ucs = (((ushort) row)<<8) + (ucs&0xff); }
 
-    static bool networkOrdered() { return (int)net_ordered == 1; }
-
+#ifndef QT_NO_COMPAT    
+    static bool networkOrdered() { return FALSE; }
+#endif
+    
     friend inline bool operator==( char ch, QChar c );
     friend inline bool operator==( QChar c, char ch );
     friend inline bool operator==( QChar c1, QChar c2 );
@@ -208,140 +211,121 @@ public:
     friend inline bool operator<=( QChar c1, QChar c2 );
 
 private:
-#if defined(Q_WS_X11) || defined(QT_WIN32BYTESWAP) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
-    // XChar2b on X11, ushort on QT_WIN32BYTESWAP
-    //### QWS must be defined on a platform by platform basis
-    uchar rw;
-    uchar cl;
+    ushort ucs;
 #if defined(QT_QSTRING_UCS_4)
     ushort grp;
-#endif
-    enum { net_ordered = 1 };
-#else
-    // ushort on Q_OS_WIN32
-    uchar cl;
-    uchar rw;
-#if defined(QT_QSTRING_UCS_4)
-    ushort grp;
-#endif
-    enum { net_ordered = 0 };
 #endif
 } Q_PACKED;
 
 inline QChar::QChar()
 {
-    rw = 0; cl = 0;
+    ucs = 0;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
 #endif
 }
 inline QChar::QChar( char c )
 {
-    rw = 0; cl = (uchar)c;
+    ucs = (uchar)c;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
 #endif
 }
 inline QChar::QChar( uchar c )
 {
-    rw = 0; cl = c;
+    ucs = c;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
 #endif
 }
 inline QChar::QChar( uchar c, uchar r )
 {
-    rw = r; cl = c;
+    ucs = r << 8 | c;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
 #endif
 }
 inline QChar::QChar( const QChar& c )
 {
-    rw = c.rw; cl = c.cl;
+    ucs = c.ucs;
 #ifdef QT_QSTRING_UCS_4
-    grp = 0;
+    grp = c.grp;
 #endif
 }
+
 inline QChar::QChar( ushort rc )
 {
-    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff);
+    ucs = rc;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
 #endif
 }
 inline QChar::QChar( short rc )
 {
-    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff);
+    ucs = (ushort) rc;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
 #endif
 }
 inline QChar::QChar( uint rc )
 {
-    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff);
+    ucs = (ushort ) (rc & 0xffff);
 #ifdef QT_QSTRING_UCS_4
-    grp = 0;
+    grp = (ushort) ((rc >> 16) & 0xffff);
 #endif
 }
 inline QChar::QChar( int rc )
 {
-    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff);
+    ucs = (ushort) (rc & 0xffff);
 #ifdef QT_QSTRING_UCS_4
-    grp = 0;
+    grp = (ushort) ((rc >> 16) & 0xffff);
 #endif
 }
 
 
 inline bool operator==( char ch, QChar c )
 {
-    return ch == c.cl && !c.rw;
+    return ((uchar) ch) == c.ucs;
 }
 
 inline bool operator==( QChar c, char ch )
 {
-    return ch == c.cl && !c.rw;
+    return ((uchar) ch) == c.ucs;
 }
 
 inline bool operator==( QChar c1, QChar c2 )
 {
-    return c1.cl == c2.cl
-        && c1.rw == c2.rw;
+    return c1.ucs == c2.ucs;
 }
 
 inline bool operator!=( QChar c1, QChar c2 )
 {
-    return c1.cl != c2.cl
-        || c1.rw != c2.rw;
+    return c1.ucs != c2.ucs;
 }
 
 inline bool operator!=( char ch, QChar c )
 {
-    return ch != c.cl || c.rw;
+    return ((uchar)ch) != c.ucs;
 }
 
 inline bool operator!=( QChar c, char ch )
 {
-    return ch != c.cl || c.rw;
+    return ((uchar) ch) != c.ucs;
 }
 
 inline bool operator<=( QChar c, char ch )
 {
-    return !(ch < c.cl || c.rw);
+    return c.ucs <= ((uchar) ch);
 }
 
 inline bool operator<=( char ch, QChar c )
 {
-    return ch <= c.cl || c.rw;
+    return ((uchar) ch) <= c.ucs;
 }
 
 inline bool operator<=( QChar c1, QChar c2 )
 {
-    return c1.rw > c2.rw
-        ? FALSE
-        : c1.rw < c2.rw
-            ? TRUE
-            : c1.cl <= c2.cl;
+    return c1.ucs <= c2.ucs;
 }
 
 inline bool operator>=( QChar c, char ch ) { return ch <= c; }

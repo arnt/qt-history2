@@ -153,9 +153,6 @@ else
 	exit 1
     fi
 fi
-if [ "$LAZY_DEPS_ALLOWED" = "yes" ]; then
-    ${MAKE} --version | grep GNU >/dev/null 2>&1 && QMAKE_CONFIG="$QMAKE_CONFIG GNUmake"
-fi
 
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]
@@ -656,7 +653,7 @@ do
 	L_FLAGS="$L_FLAGS $1"
 	;;
    -R?*)
-	R_FLAGS="$R_FLAGS $1"
+	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}${1}"
 	;;
    -l?*)
 	l_FLAGS="$l_FLAGS $1"
@@ -671,7 +668,7 @@ do
 	;;
    -R)
 	shift
-	R_FLAGS="$R_FLAGS -R$1"
+	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}${1}"
 	;;
    *)
 	echo $1: unknown argument
@@ -831,14 +828,15 @@ then
     esac
 fi
 
+if [ "$LAZY_DEPS_ALLOWED" = "yes" ]; then
+    ${MAKE} --version | grep GNU >/dev/null 2>&1 && QMAKE_CONFIG="$QMAKE_CONFIG GNUmake"
+fi
+
 if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
     CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
 fi
 
-if [ -z "$XPLATFORM" ]
-then
-    XPLATFORM="$PLATFORM"
-fi
+[ -z "$XPLATFORM" ] && XPLATFORM="$PLATFORM"
 QMAKESPEC="$relpath/mkspecs/${PLATFORM}"
 XQMAKESPEC="$relpath/mkspecs/${XPLATFORM}"
 if [ '!' -d "$QMAKESPEC" ]
@@ -1242,10 +1240,7 @@ then
 	echo "########################################################################" >>$mkfile
 	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
 	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX", >>$mkfile
-	if [ "$DEBUG" = "yes" ]
-	then
-	    grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
-	fi
+	[ "$DEBUG" = "yes" ] && grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
 	if [ "$MAC_PLATFORM" = "yes" ]; then
 	    echo "QMAKE_CFLAGS_EXTRA+=-I/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/" >>$mkfile
 	    echo "QMAKE_LFLAGS_EXTRA+=-framework Carbon" >> $mkfile
@@ -1258,7 +1253,7 @@ then
     (cd $outpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
-#stl must be
+#stl must be way down here after qmake has been made, because the test itself uses qmake
 if [ $STL = auto ]
 then
     STL=yes
@@ -1447,6 +1442,10 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
+else
+    QD="\$(QTDIR)"
+    [ "x$QTDIR" != "x$outpath" ] && QD="$outpath"
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$QD/lib\""
 fi
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
@@ -1502,7 +1501,20 @@ if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]
 then
     QMAKE_VARS="$QMAKE_VARS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
-[ '!' -z "$R_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=$R_FLAGS\""
+if [ '!' -z "$R_FLAGS" ]; then
+    if grep QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null
+    then
+	echo # Using -R/-rpath, so no need to warn
+    else
+	echo
+	echo "ERROR: -R cannot be used on this platform as \$QMAKE_RPATH is"
+	echo "       undefined."
+	echo
+	exit 1
+    fi
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=$R_FLAGS\""
+fi
+
 if [ '!' -z "$I_FLAGS" ]
 then
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=$I_FLAGS\""
@@ -1755,7 +1767,7 @@ if echo "$LD_LIBRARY_PATH" | grep >/dev/null $outpath/lib
 then
     echo
 else
-    if grep >/dev/null QMAKE_RPATH $XQMAKESPEC/qmake.conf
+    if grep QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null
     then
 	echo # Using -R/-rpath, so no need to warn
     else

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#466 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#467 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2805,6 +2805,8 @@ QListBox::LayoutMode QListBox::rowMode() const
 
 int QListBox::numColumns() const
 {
+    if ( count() == 0 )
+	return 0;
     if ( !d->rowModeWins && d->columnMode == FixedNumber )
 	return d->numColumns;
     doLayout();
@@ -2824,6 +2826,8 @@ int QListBox::numColumns() const
 
 int QListBox::numRows() const
 {
+    if ( count() == 0 )
+	return 0;
     if ( d->rowModeWins && d->rowMode == FixedNumber )
 	return d->numRows;
     doLayout();

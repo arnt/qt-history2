@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_mac.cpp#246 $
+** $Id: //depot/qt/main/src/kernel/qapplication_mac.cpp#247 $
 **
 ** Implementation of Mac startup routines and event handling
 **
@@ -277,6 +277,7 @@ void qt_event_request_updates(QWidget *w, QRegion &r)
 	w->extra->dirty_area |= r;	
 	return;
     }
+
     w->extra->has_dirty_area = TRUE;
     w->extra->dirty_area = r;
 
@@ -1479,8 +1480,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    }
 		    delete list;
 		}
-	    }
-
+	    } 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = FALSE;
@@ -1746,7 +1746,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    w = w->focusProxy();
 		if(QWidget *tlw = w->topLevelWidget()) {
 		    tlw->raise();
-		    if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog()))
+		    if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
+		       (tlw->isModal() || !tlw->isDialog()))
 			app->setActiveWindow(tlw);
 		}
 		if ( w->focusPolicy() & QWidget::ClickFocus ) {

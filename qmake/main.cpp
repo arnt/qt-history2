@@ -41,6 +41,7 @@
 #include "borland_bmake.h"
 #include "msvc_nmake.h"
 #include "msvc_dsp.h"
+#include "msvc_vcp.h"
 #include "mac/metrowerks_xml.h"
 #include "projectgenerator.h"
 #include <qnamespace.h>
@@ -106,6 +107,9 @@ int main(int argc, char **argv)
 		if(proj.first("TEMPLATE").find(QRegExp("^vc.*")) != -1) {
 		    def_mkfile = proj.first("TARGET") + ".dsp";
 		    mkfile = new DspMakefileGenerator(&proj);
+		} else if( proj.first( "TEMPLATE" ).find( QRegExp( "^ce.*" ) ) != -1 ) {
+		    def_mkfile = proj.first( "TARGET" ) + ".vcp";
+		    mkfile = new VcpMakefileGenerator( &proj );
 		} else {
 		    mkfile = new NmakeMakefileGenerator(&proj);
 		}

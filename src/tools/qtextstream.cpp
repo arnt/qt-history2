@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#183 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#184 $
 **
 ** Implementation of QTextStream class
 **
@@ -896,8 +896,8 @@ uint QTextStream::ts_getline( QChar* buf )
 	char *it = cbuf;
 	buf +=rnum;
 	while ( it != end ) {
-	    buf->cell() = *(it++);
-	    buf->row() = 0;
+	    buf->setCell( *(it++) );
+	    buf->setRow( 0 );
 	    buf++;
 	}
 	rnum += rlen;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_qws.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qfont_qws.cpp#38 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for FB
 **
@@ -64,7 +64,6 @@ class QFontStruct : public QShared
 public:
     QFontStruct( const QFontDef& );
    ~QFontStruct();
-    const QFontDef *spec()  const;
     void	    reset();
     bool	    dirty() const;
     QMemoryManager::FontID handle() const
@@ -99,11 +98,6 @@ inline QFontStruct::QFontStruct( const QFontDef& d )
 inline bool QFontStruct::dirty() const
 {
     return FALSE;
-}
-
-inline const QFontDef *QFontStruct::spec() const
-{
-    return &s;
 }
 
 inline void QFontStruct::reset()

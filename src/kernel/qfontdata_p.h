@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata_p.h#51 $
+** $Id: //depot/qt/main/src/kernel/qfontdata_p.h#52 $
 **
 ** Definition of internal QFontData struct
 **
@@ -56,8 +56,7 @@
 //
 //
 
-#ifndef QT_H
-#endif // QT_H
+class QPaintDevice;
 
 #ifdef Q_WS_WIN
 #include <qt_windows.h>
@@ -135,7 +134,6 @@ public:
     HFONT	    font()	 const { return hfont; }
     TEXTMETRICA	   *textMetricA() const;
     TEXTMETRICW	   *textMetricW() const;
-    const QFontDef *spec()	 const { return &s; }
 	QString key() const  { return k; }
     void	    reset();
 
@@ -147,7 +145,6 @@ public:
 	TEXTMETRICW	w;
 	TEXTMETRICA	a;
     } tm;
-    QFontDef	s;
     int		lw;
 	int cache_cost;
 //    friend void QFont::initFontInfo() const;
@@ -164,7 +161,6 @@ class QFontStruct : public QShared
 {
 public:
     inline QFontStruct( const QFontDef& d ) :   QShared(), s(d), info(NULL), cache_cost(0), internal_fi(NULL) { }
-    inline const QFontDef *spec()  const { return &s; }
     int ascent() const { return info->ascent; }
     int descent() const { return info->descent; }
     int minLeftBearing() const { return 0; }
@@ -173,7 +169,6 @@ public:
     int maxWidth() const { return info->widMax; }
 
     int psize;
-    QFontDef s;
     FontInfo *info;
     int cache_cost;
     QMacFontInfo *internal_fi;
@@ -226,11 +221,14 @@ public:
 #if defined(Q_WS_WIN)
 	currHDC = 0;
 #endif // Q_WS_WIN
+#ifdef Q_WS_X11
+	paintdevice = 0;
+#endif
 
     }
 
     QFontPrivate(const QFontPrivate &fp)
-	: QShared(fp), request(fp.request), actual(fp.actual),
+	: QShared(), request(fp.request), actual(fp.actual),
 	  exactMatch(fp.exactMatch), lineWidth(1)
     {
 
@@ -240,7 +238,9 @@ public:
 #if defined(Q_WS_WIN)
 	currHDC = 0;
 #endif // Q_WS_WIN
-
+#ifdef Q_WS_X11
+	paintdevice = 0;
+#endif
     }
 
     // requested font
@@ -420,6 +420,7 @@ public:
 	    }
 	}
     } x11data;
+    QPaintDevice *paintdevice;
 
     static QFont::Script defaultScript;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#611 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#612 $
 **
 ** Implementation of QFileDialog class
 **
@@ -958,14 +958,20 @@ public:
     static QString encodeFileName( const QString& fName ) {
 
 	QString newStr;
+	QString sChars;
+#ifdef Q_WS_WIN
+	sChars = "#%";
+#else
+	sChars = "<>#@\"&%$:,;?={}|^~[]\'`\\*";
+#endif
+	
 	int len = fName.length();
 	if ( !len )
 	    return QString::null;
 	for ( int i = 0; i < len ;++i ) {
 	    ushort inCh = fName[ i ].unicode();
-
-	    if ( inCh >= 128 ||
-		QString( "<>#@\"&%$:,;?={}|^~[]\'`\\*" ).contains(inCh) ) {
+	    if ( inCh >= 128 || sChars.contains(inCh) )
+	    {
 		newStr += QChar( '%' );
 		ushort c = inCh / 16;
 		c += c > 9 ? 'A' - 10 : '0';
@@ -2695,13 +2701,12 @@ QFileDialog::~QFileDialog()
 
 QString QFileDialog::selectedFile() const
 {
-    QString res;
     QUrl u( QFileDialogPrivate::encodeFileName( d->currentFileName ) );
     if ( u.isLocalFile() ) {
 	QString s = u.toString();
-	QUrl::decode( s );
 	if ( s.left( 5 ) == "file:" )
 	    s.remove( 0, 5 );
+	QUrl::decode( s );
 	return s;
     }
     return d->currentFileName;
@@ -2778,12 +2783,17 @@ QStringList QFileDialog::selectedFiles() const
 	selectedFiles.truncate( selectedFiles.findRev( '\"' ) );
 	selectedLst = selectedLst.split( QString("\" "), selectedFiles );
 	for ( QStringList::Iterator it = selectedLst.begin(); it != selectedLst.end(); ++it ) {
-	    QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( (*it).mid(1) ) );
+	    QUrl u;
+	    if ( (*it)[0] == '\"' ) {
+		u = QUrl( d->url, QFileDialogPrivate::encodeFileName( (*it).mid(1) ) );
+	    } else {
+		u = QUrl( d->url, QFileDialogPrivate::encodeFileName( (*it) ) );
+	    }
 	    if ( u.isLocalFile() ) {
 		QString s = u.toString();
-		QUrl::decode( s );
 		if ( s.left( 5 ) == "file:" )
 		    s.remove( 0, 5 );
+		QUrl::decode( s );
 		lst << s;
 	    } else {
 		lst << u.toString();
@@ -3491,10 +3501,15 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
     if ( updatelined && !d->currentFileName.isEmpty() ) {
 	// If the selection is valid, or if its a directory, allow OK.
 	if ( !d->currentFileName.isNull() || isDir ) {
-	    if ( u.fileName() != ".." )
-		nameEdit->setText( u.fileName() );
-	    else
+	    if ( u.fileName() != ".." ) {
+		if ( mode() == ExistingFiles ) {
+		    nameEdit->setText( QFileDialogPrivate::encodeFileName( u.fileName() ) );
+		} else {
+		    nameEdit->setText( u.fileName() );
+		}
+	    } else {
 		nameEdit->setText("");
+	    }
 	} else
 	    nameEdit->setText( QString::fromLatin1("") );
     }

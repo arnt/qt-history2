@@ -575,7 +575,7 @@ MakefileGenerator::init()
     /* get deps and mocables */
     {
 	QStringList incDirs;
-	if(Option::mkfile::do_deps) {
+	if(doDepends()) {
 	    QString dirs[] = { QString("QMAKE_ABSOLUTE_SOURCE_PATH"),
 				   QString("INCLUDEPATH"), QString("DEPENDPATH"), QString::null };
 	    for(int y = 0; dirs[y] != QString::null; y++) {
@@ -601,7 +601,7 @@ MakefileGenerator::init()
 	    QStringList &l = v[sources[x]];
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		if(!(*val_it).isEmpty()) {
-		    if(Option::mkfile::do_deps)
+		    if(doDepends())
 			generateDependancies(incDirs, (*val_it));
 		    if(mocAware()) {
 			if(!generateMocList((*val_it))) {

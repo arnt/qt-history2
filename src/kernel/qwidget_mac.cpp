@@ -45,6 +45,9 @@
 #include "qtextcodec.h"
 #include <qcursor.h>
 #include <qtimer.h>
+#ifdef Q_WS_MACX
+#include <CGImage.h>
+#endif
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include <qmenubar.h>
 #endif
@@ -205,28 +208,59 @@ void qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
 		if(!painted) {
 		    QRegion pa(r);
 		    pa.translate(point.x(), point.y());
-#if 0
-		    qt_dirty_wndw_rgn("paint_children",p, pa);
-#else
 		    p->update(pa.boundingRect()); //last try
-#endif
 		}
 	    }
 	}
     } 
 }
 
-static void *qt_root_win() {
-    WindowPtr ret = NULL;
+static QList<QWidget> qt_root_win_widgets;
+static WindowPtr qt_root_win = NULL;
+void qt_clean_root_win() {
+    for(QListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
+	if((*it)->hd == qt_root_win) {
+#if 0
+	    warning( "%s:%d: %s (%s) had his handle taken away!", __FILE__, __LINE__,
+		     (*it)->name(), (*it)->className());
+#endif
+	    (*it)->hd = NULL; //at least now we'll just crash
+	}
+    }
+    DisposeWindow(qt_root_win);
+    qt_root_win = NULL;
+}
+static bool qt_create_root_win() {
+    if(qt_root_win)
+	return FALSE;
 #ifdef Q_WS_MAC9
     //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP
     //GetCWMgrPort(ret);
 #else if defined(Q_WS_MACX)
     Rect r;
-    SetRect(&r, 0, 0, 1024, 768);
-    CreateNewWindow(kOverlayWindowClass, kWindowNoAttributes, &r, &ret);     
+    GDHandle g = GetMainDevice();
+    if(g) 
+	SetRect(&r, 0, 0, (*g)->gdRect.right, (*g)->gdRect.bottom);
+    else
+	qDebug("Whoa! error %s:%d", __FILE__, __LINE__);
+    CreateNewWindow(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
 #endif //MACX
-    return (void *) ret;
+    if(!qt_root_win)
+	return FALSE;
+    qAddPostRoutine(qt_clean_root_win);
+    return TRUE;
+}
+bool qt_recreate_root_win() {
+    if(!qt_root_win)
+	return FALSE;
+    DisposeWindow(qt_root_win);
+    qt_root_win = NULL;
+    qt_create_root_win();
+    for(QListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
+	if((*it)->hd == qt_root_win) 
+	    (*it)->hd = qt_root_win;
+    }
+    return TRUE;
 }
 
 QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn,
@@ -240,8 +274,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 #ifdef Q_WS_MAC9
 	/* this is the right way to do this, and it works very well on mac 9, however macosx is not calling
 	   this with the proper region, as some of the area (usually offscreen) isn't actually processed here
-	   even though it is dirty, so for now this is mac9 only
-	*/
+	   even though it is dirty, so for now this is mac9 only */
 	QRegion reg(rgn);
         { //lookup the x and y, don't use qwidget because this callback and be called before its updated
 	    Point px = { 0, 0 };
@@ -327,25 +360,19 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	hd = (void *)id;
 	setWinId(id);
     } else if ( desktop ) {			// desktop widget
-	own_id = 1;
-	hd = (void *)qt_root_win();
+	if(!qt_root_win)
+	    qt_create_root_win();
+	qt_root_win_widgets.append(this);
+	hd = (void *)qt_root_win;
 	id = (WId)hd;
-	QWidget *otherDesktop = find( id );	// is there another desktop?
-	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
-	    otherDesktop->setWinId( 0 );	// remove id from widget mapper
-	    setWinId( id );			// make sure otherDesktop is
-	    otherDesktop->setWinId( id );	//   found first
-	} else {
-	    setWinId( id );
-	}
+	own_id = 0;
+	setWinId( id );
     } else if( !parentWidget() || (popup || dialog) ) {
 	own_id = 1; //I created it, I own it
 
 	Rect r;
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
-
 	WindowClass wclass = kSheetWindowClass;
-
 	if(testWFlags(WType_Dialog) || testWFlags(WType_Popup) )
 	    wclass = kToolbarWindowClass;
 	else
@@ -407,16 +434,19 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     bg_col = pal.normal().background();
     setWState( WState_MouseTracking );
     setMouseTracking( FALSE );                  // also sets event mask
-    clearWState(WState_Visible);
-    dirtyClippedRegion(TRUE);
+    if(desktop) { //immediatly show a "desktop"
+	ShowWindow((WindowPtr)hd);
+	setWState(WState_Visible);
+    } else {
+	clearWState(WState_Visible);
+	dirtyClippedRegion(TRUE);
+    }
     macDropEnabled = false;
 
     if ( destroyw ) {
 	mac_window_count--;
 	DisposeWindow((WindowPtr)destroyw);
     }
-    if(desktop) 
-	QTimer::singleShot(0, this, SLOT(show()));
 }
 
 void qt_mac_destroy_widget(QWidget *w); //qapplication_mac.cpp
@@ -424,6 +454,9 @@ void qt_mac_destroy_widget(QWidget *w); //qapplication_mac.cpp
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
     deactivateWidgetCleanup();
+    if(isDesktop() && hd == qt_root_win) 
+	qt_root_win_widgets.removeRef(this);
+
     if(isVisible() && !isTopLevel()) {
 	dirtyClippedRegion(TRUE);
 	qt_dirty_wndw_rgn("destroy",this, mac_rect(posInWindow(this), geometry().size()));
@@ -647,8 +680,8 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	    extra->bg_pix = 0;
 	}
     } else {
-	QPixmap pm = pixmap;
-	if (!pm.isNull()) {
+	if (!pixmap.isNull()) {
+	    QPixmap pm = pixmap;
 	    if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
 		pm = QPixmap( pixmap.size() );
 		bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
@@ -658,7 +691,7 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	    delete extra->bg_pix;
 	else
 	    createExtra();
-	extra->bg_pix = new QPixmap( pm );
+	extra->bg_pix = new QPixmap( pixmap );
     }
     if ( !allow_null_pixmaps ) {
 	backgroundPixmapChange( old );
@@ -670,6 +703,15 @@ void QWidget::setBackgroundEmpty()
     allow_null_pixmaps++;
     setErasePixmap(QPixmap());
     allow_null_pixmaps--;
+
+#if 0
+    //I only do this for QWhatsThis for now.. we *could* do it for others
+    //but this isn't pretty - not sure what the side-effects are: FIXME
+    if ( isTopLevel() ) {
+	qDebug("trying..");
+	SetWindowClass((WindowPtr)hd, kOverlayWindowClass);
+    }
+#endif
 }
 
 void QWidget::setCursor( const QCursor &cursor )
@@ -715,11 +757,26 @@ void QWidget::setIcon( const QPixmap &pixmap )
     } else {
 	createTLExtra();
     }
-    QBitmap mask;
-    if ( !pixmap.isNull() ) {
+    if ( !pixmap.isNull() ) 
 	extra->topextra->icon = new QPixmap( pixmap );
-	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
+#ifdef Q_WS_MACX
+    if(isTopLevel()) {
+	if(pixmap.isNull()) {
+	    RestoreApplicationDockTileImage();
+	} else {
+	    QImage i = pixmap.convertToImage().convertDepth(32);
+	    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+	    CGDataProviderRef dp = CGDataProviderCreateWithData(NULL, i.bits(), i.numBytes(), NULL);
+	    CGImageRef ir = CGImageCreate(i.width(), i.height(), 8, 32,
+					  i.bytesPerLine(), cs, kCGImageAlphaFirst, dp,
+					  0, 0, kCGRenderingIntentDefault);
+	    SetApplicationDockTileImage(ir);
+	    CGImageRelease(ir);
+	    CGColorSpaceRelease(cs);
+	    CGDataProviderRelease(dp);
+	}
     }
+#endif
 }
 
 void QWidget::setIconText( const QString &iconText )
@@ -779,7 +836,7 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::setActiveWindow()
 {
-    if(!isVisible() || !isTopLevel() || isPopup() || testWFlags( WStyle_Tool ))
+    if(!isVisible() || !isTopLevel() || isPopup() || isDesktop() || testWFlags( WStyle_Tool ))
 	return;
     SelectWindow( (WindowPtr)hd );
 }
@@ -792,6 +849,9 @@ void QWidget::update()
 void QWidget::update( int x, int y, int w, int h )
 {
     if ( !testWState(WState_BlockUpdates) && testWState( WState_Visible ) && isVisible() ) {
+	if(!strcmp(className(), "QDesktopWidget"))
+	    qDebug("%s %s", name(), className());
+
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -832,6 +892,9 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 
 void QWidget::showWindow()
 {
+    if(isDesktop()) //desktop is always visible
+	return;
+
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 	//ick, this is needed because docks are updated by it and mac paints immediatly..
@@ -850,12 +913,15 @@ void QWidget::showWindow()
 	if(!isDesktop())
 	    setActiveWindow();
     } else { 
-	update();
+	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
     }
 }
 
 void QWidget::hideWindow()
 {
+    if(isDesktop()) //you can't hide the desktop!
+	return;
+
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 	ShowHide((WindowPtr)hd, 0);
@@ -873,7 +939,7 @@ void QWidget::hideWindow()
 		w->setActiveWindow();
 	}
     } else if(isVisible()) {
-	update();
+	qt_dirty_wndw_rgn("hide",this, mac_rect(posInWindow(this), geometry().size()));
     }
     deactivateWidgetCleanup();
 }
@@ -949,6 +1015,9 @@ void QWidget::showMaximized()
 
 void QWidget::showNormal()
 {
+    if(isDesktop()) //desktop is always visible
+	return;
+
     if ( isTopLevel() ) {
 	if ( topData()->fullscreen ) {
 	    reparent( 0, WType_TopLevel, QPoint(0,0) );
@@ -997,6 +1066,9 @@ void QWidget::showNormal()
 
 void QWidget::raise()
 {
+    if(isDesktop())
+	return;
+
     if(isTopLevel()) {
 	BringToFront((WindowPtr)hd);
     } else if(QWidget *p = parentWidget(TRUE)) {
@@ -1015,6 +1087,9 @@ void QWidget::raise()
 
 void QWidget::lower()
 {
+    if(!isDesktop())
+	return;
+
     if ( isTopLevel() )
 	SendBehind((WindowPtr)handle(), NULL);
     else if(QWidget *p = parentWidget(TRUE)) {
@@ -1034,7 +1109,7 @@ void QWidget::lower()
 
 void QWidget::stackUnder( QWidget *w )
 {
-    if ( !w || isTopLevel() )
+    if ( !w || isTopLevel() || isDesktop() )
 	return;
 
     QWidget *p = parentWidget();
@@ -1056,7 +1131,7 @@ void QWidget::stackUnder( QWidget *w )
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-    if ( testWFlags(WType_Desktop) )
+    if ( isDesktop() )
 	return;
 
     if ( extra ) {				// any size restrictions?
@@ -1603,6 +1678,18 @@ bool QWidget::isClippedRegionDirty()
 
 QRegion QWidget::clippedRegion(bool do_children)
 {
+    //the desktop doesn't participate in our clipping games
+    if(isDesktop()) {
+	createExtra();
+	if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {
+	    if(!do_children)
+		return extra->clip_sibs;
+	    return extra->clip_saved;
+	}
+	extra->child_dirty = (extra->clip_dirty = FALSE);
+	return extra->clip_sibs = extra->clip_children = QRegion(0, 0, width(), height());
+    }
+
     if(!isVisible() ||  (qApp->closingDown() || qApp->startingUp())) 
 	return QRegion();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_mac.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qpainter_mac.cpp#125 $
 **
 ** Implementation of QPainter class for Mac
 **
@@ -53,6 +53,7 @@ const int TxRotShear=3;
   QPainter member functions
  *****************************************************************************/
 
+bool qt_recreate_root_win(); //qwidget_mac.cpp
 static void drawTile( QPainter *, int, int, int, int, const QPixmap &, int, int );
 QPoint posInWindow(QWidget *w);
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
@@ -276,6 +277,12 @@ void QPainter::updatePen()
     PenPat( &pat );
 
     //penmodes
+#if defined( Q_WS_MACX )
+    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
+    //xor doesn't really work on an overlay widget FIXME
+    if(rop != CopyROP && pdev->devType() == QInternal::Widget && ((QWidget *)pdev)->isDesktop()) 
+	qt_recreate_root_win();
+#endif
     PenMode(ropCodes[rop]);
 }
 
@@ -365,6 +372,12 @@ void QPainter::updateBrush()
     }
 
     //penmodes
+#if defined( Q_WS_MACX )
+    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
+    //xor doesn't really work on an overlay widget FIXME
+    if(rop != CopyROP && pdev->devType() == QInternal::Widget && ((QWidget *)pdev)->isDesktop()) 
+	qt_recreate_root_win();
+#endif
     PenMode(ropCodes[rop]);
 }
 
@@ -470,6 +483,10 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	wh = vh = w->height();
 	if(!unclipped)
 	    unclipped = w->testWFlags(WPaintUnclipped);
+#ifdef Q_WS_MACX
+	if(w->isDesktop() && !unclipped)
+	    warning( "QPainter::begin: Does not support clipped desktop on MacOSX");
+#endif
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
@@ -670,7 +687,7 @@ void QPainter::setClipRect( const QRect &r, ClipMode m )
     setClipRegion(QRegion(r), m);
 }
 
-void QPainter::setClipRegion( const QRegion &r, ClipMode m )
+void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)

@@ -122,6 +122,7 @@
 #include "qdockwindow.h"
 #include "qwindowsstyle.h"
 #include <qeuckrcodec.h>
+#include "qvariant.h"
 #include "qmenudata.h"
 #include "qpopupmenu.h"
 #include <qmessagebox.h>
@@ -142,7 +143,6 @@
 #include <qbitmap.h>
 #include <qpaintdevicemetrics.h>
 #include "qpointarray.h"
-#include "qvariant.h"
 #include <qerrormessage.h>
 #include "qptrdict.h"
 #include <qdragobject.h>

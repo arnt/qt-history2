@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#49 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -51,6 +51,9 @@
 #include "../kernel/qinternal_p.h"
 #ifndef QT_NO_WORKSPACE
 #include "qworkspace.h"
+#endif
+#if defined(Q_WS_WIN)
+#include "qt_windows.h"
 #endif
 
 

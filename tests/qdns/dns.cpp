@@ -1,6 +1,7 @@
 #include <iostream.h>
-#include "qapplication.h"
-#include "qdns.h"
+#include <qapplication.h>
+#include <qdns.h>
+#include <qtimer.h>
 
 
 typedef QValueList<QHostAddress> HostAddresses;
@@ -12,12 +13,65 @@ class Reporter : public QObject
 {
     Q_OBJECT
 public:
-    Reporter() {}
-    ~Reporter() {}
-
-    QDns *dns;
+    Reporter( const char *l, const char *recType, bool synchronous ) :
+	dns(0), recordType(recType), label(l), sync(synchronous)
+    {
+    }
+    ~Reporter()
+    {
+	delete dns;
+    }
 
 public slots:
+    void start()
+    {
+	dns = new QDns;
+	dns->setLabel( label );
+	// what record type? and start query
+	if        ( recordType == "a" ) {
+	    dns->setRecordType( QDns::A );
+	    QObject::connect( dns, SIGNAL(resultsReady()),
+		    SLOT(reportA()) );
+	} else if ( recordType == "aaaa" ) {
+	    dns->setRecordType( QDns::Aaaa );
+	    QObject::connect( dns, SIGNAL(resultsReady()),
+		    SLOT(reportAaaa()) );
+	} else if ( recordType == "mx" ) {
+	    dns->setRecordType( QDns::Mx );
+	    QObject::connect( dns, SIGNAL(resultsReady()),
+		    SLOT(reportMx()) );
+	} else if ( recordType == "srv" ) {
+	    dns->setRecordType( QDns::Srv );
+	    QObject::connect( dns, SIGNAL(resultsReady()),
+		    SLOT(reportSrv()) );
+	} else if ( recordType == "cname" ) {
+	    dns->setRecordType( QDns::Cname );
+	    QObject::connect( dns, SIGNAL(resultsReady()),
+		    SLOT(reportCname()) );
+	} else if ( recordType == "ptr" ) {
+	    QHostAddress address;
+	    if ( address.setAddress( label ) )
+		dns->setLabel( address );
+	    dns->setRecordType( QDns::Ptr );
+	    QObject::connect( dns, SIGNAL(resultsReady()),
+		    SLOT(reportPtr()) );
+	} else if ( recordType == "txt" ) {
+	    dns->setRecordType( QDns::Txt );
+	    QObject::connect( dns, SIGNAL(resultsReady()),
+		    SLOT(reportTxt()) );
+	} else {
+	    cerr << "unknown record type" << endl;
+	}
+
+	// report qualifiedNames
+	QStringList list = dns->qualifiedNames();
+	cout << "Qualified Names: " << endl;
+	QStringList::Iterator it;
+	for( it = list.begin(); it != list.end(); ++it ) {
+	    cout << "  " << (*it).latin1() << endl;
+	}
+    }
+
     void reportA()
     {
 	HostAddresses list = dns->addresses();
@@ -25,7 +79,8 @@ public slots:
 	HostAddresses::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
 	    cout << (*it).toString().latin1() << endl;
-	qApp->quit();
+	if ( !sync )
+	    qApp->quit();
     }
 
     void reportAaaa()
@@ -35,7 +90,8 @@ public slots:
 	HostAddresses::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
 	    cout << (*it).toString().latin1() << endl;
-	qApp->quit();
+	if ( !sync )
+	    qApp->quit();
     }
 
     void reportMx()
@@ -47,7 +103,8 @@ public slots:
 	    cout << (*it).name.latin1() <<
 		" (" << (*it).priority << ")" << endl;
 	}
-	qApp->quit();
+	if ( !sync )
+	    qApp->quit();
     }
 
     void reportSrv()
@@ -60,14 +117,16 @@ public slots:
 		" (" << (*it).priority << ")" <<
 		"weight: " << (*it).weight << endl;
 	}
-	qApp->quit();
+	if ( !sync )
+	    qApp->quit();
     }
 
     void reportCname()
     {
 	QString cname = dns->canonicalName();
 	cout << "Found cname: " << cname.latin1() << endl;
-	qApp->quit();
+	if ( !sync )
+	    qApp->quit();
     }
 
     void reportPtr()
@@ -78,7 +137,8 @@ public slots:
 	for( it = list.begin(); it != list.end(); ++it ) {
 	    cout << (*it).latin1() << endl;
 	}
-	qApp->quit();
+	if ( !sync )
+	    qApp->quit();
     }
 
     void reportTxt()
@@ -89,70 +149,44 @@ public slots:
 	for( it = list.begin(); it != list.end(); ++it ) {
 	    cout << (*it).latin1() << endl;
 	}
-	qApp->quit();
+	if ( !sync )
+	    qApp->quit();
     }
+
+private:
+    QDns *dns;
+    QString recordType;
+    QString label;
+    bool sync;
 };
 
 
 int main( int argc, char **argv )
 {
-    QApplication a( argc, argv );
-
-    if ( argc != 3 ) {
+    if ( argc < 3 ) {
 	cerr << "you have to specify two arguments" << endl;
 	return -1;
     }
 
-    QDns dns;
-    Reporter reporter;
-    reporter.dns = &dns;
-    dns.setLabel( argv[1] );
-    // what record type? and start query
-    if        ( strcmp( argv[2], "a" ) == 0) {
-	dns.setRecordType( QDns::A );
-	QObject::connect( &dns, SIGNAL(resultsReady()),
-		&reporter, SLOT(reportA()) );
-    } else if ( strcmp( argv[2], "aaaa" ) == 0) {
-	dns.setRecordType( QDns::Aaaa );
-	QObject::connect( &dns, SIGNAL(resultsReady()),
-		&reporter, SLOT(reportAaaa()) );
-    } else if ( strcmp( argv[2], "mx" ) == 0) {
-	dns.setRecordType( QDns::Mx );
-	QObject::connect( &dns, SIGNAL(resultsReady()),
-		&reporter, SLOT(reportMx()) );
-    } else if ( strcmp( argv[2], "srv" ) == 0) {
-	dns.setRecordType( QDns::Srv );
-	QObject::connect( &dns, SIGNAL(resultsReady()),
-		&reporter, SLOT(reportSrv()) );
-    } else if ( strcmp( argv[2], "cname" ) == 0) {
-	dns.setRecordType( QDns::Cname );
-	QObject::connect( &dns, SIGNAL(resultsReady()),
-		&reporter, SLOT(reportCname()) );
-    } else if ( strcmp( argv[2], "ptr" ) == 0) {
-	QHostAddress address;
-	if ( address.setAddress( argv[1] ) )
-	    dns.setLabel( address );
-	dns.setRecordType( QDns::Ptr );
-	QObject::connect( &dns, SIGNAL(resultsReady()),
-		&reporter, SLOT(reportPtr()) );
-    } else if ( strcmp( argv[2], "txt" ) == 0) {
-	dns.setRecordType( QDns::Txt );
-	QObject::connect( &dns, SIGNAL(resultsReady()),
-		&reporter, SLOT(reportTxt()) );
+    int ret = 0;
+    if ( argc==3 ) {
+	// do an asynchronous lookup
+	cout << "Asynchronous lookup" << endl;
+	cout << "-------------------" << endl;
+	QApplication a( argc, argv );
+	Reporter reporter1( argv[1], argv[2], FALSE );
+	QTimer::singleShot( 0, &reporter1, SLOT(start()) );
+	ret = a.exec();
+	cout << endl;
     } else {
-	cerr << "unknown record type" << endl;
-	return -1;
+	// do a synchronous lookup
+	cout << "Synchronous lookup" << endl;
+	cout << "------------------" << endl;
+	Reporter reporter2( argv[1], argv[2], TRUE );
+	reporter2.start();
+	cout << endl;
     }
-
-    // report qualifiedNames
-    QStringList list = dns.qualifiedNames();
-    cout << "Qualified Names: " << endl;
-    QStringList::Iterator it;
-    for( it = list.begin(); it != list.end(); ++it ) {
-	cout << "  " << (*it).latin1() << endl;
-    }
-
-    return a.exec();
+    return ret;
 }
 
 #include "dns.moc"

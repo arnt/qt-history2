@@ -1,6 +1,7 @@
 #include <qtextcodecinterface.h>
 #include <qtextcodec.h>
 #include <qptrlist.h>
+#include <qapplication.h>
 
 #include <qeucjpcodec.h>
 #include <qjiscodec.h>

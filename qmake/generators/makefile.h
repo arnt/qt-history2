@@ -38,6 +38,7 @@
 #ifndef __MAKEFILE_H__
 #define __MAKEFILE_H__
 
+#include "option.h"
 #include "project.h"
 #include <qtextstream.h>
 
@@ -70,6 +71,7 @@ protected:
     void setMocAware(bool o);
     bool mocAware() const;
 
+    virtual bool doDepends() const { return Option::mkfile::do_deps; }
     bool writeHeader(QTextStream &);
     virtual bool writeMakefile(QTextStream &);
     virtual bool writeMakeQmake(QTextStream &);

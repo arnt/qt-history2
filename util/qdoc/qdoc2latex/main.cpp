@@ -655,7 +655,7 @@ static bool laTeXifyImages( QString& html )
 
 	if ( src.endsWith(QString(".png")) ) {
 	    src = src.left( src.length() - 4 );
-	    if ( system(QString("convert %1.png %2.eps")
+	    if ( system(QString("convert -geometry 75% %1.png %2.eps")
 			.arg(qdocOutputDir + src)
 			.arg(qdocOutputDir + src).latin1()) == 0 ) {
 		html.replace( k, img.matchedLength(),
@@ -868,7 +868,7 @@ static void emitTableOfContents( int pos )
 
 static bool emitChapter( const QString& html, const QString& label )
 {
-    qDebug( " Generating chapter '%s'", label.latin1() );
+    qDebug( "Generating chapter '%s'", label.latin1() );
     QString t = html;
     if ( !laTeXify(t, label) )
 	return FALSE;
@@ -953,23 +953,32 @@ static void checkUnusedQdocFiles()
     fileNameList = dir.entryList();
     f = fileNameList.begin();
 
-    int numUnused = 0;
-    const int MaxUnused = 200;
+    FILE *logfile = fopen( "qdoc2latex.log", "w" );
+    if ( logfile == 0 ) {
+	qWarning( "Cannot open 'qdoc2latex.log' for writing: %s",
+		  strerror(errno) );
+	return;
+    }
+
+    int numUsed = 0;
+    int numAll = 0;
 
     while ( f != fileNameList.end() ) {
-	if ( !(yyUsedQdocFiles.contains(*f) ||
-	       (*f).endsWith(QString("-members.html")) ||
-	       ((*f).endsWith(QString("-h.html")) &&
-		fileNameList.contains((*f).left((*f).length() - 7) +
-				      QString(".html")) > 0)) ) {
-	    if ( numUnused++ < MaxUnused )
-		qWarning( "File '%s' unused", (*f).latin1() );
+	if ( !(*f).endsWith(QString("-members.html")) &&
+	     !(*f).endsWith(QString("-h.html")) ) {
+	    if ( yyUsedQdocFiles.contains(*f) ) {
+		numUsed++;
+	    } else {
+		fprintf( logfile, "Unused '%s'\n", (*f).latin1() );
+	    }
+	    numAll++;
 	}
 	++f;
     }
-    if ( numUnused > MaxUnused )
-	qWarning( "And %d more file%s...", numUnused - MaxUnused,
-		  numUnused - MaxUnused == 1 ? "" : "s" );
+    qWarning( "Used %d of %d potentially relevant file%s", numUsed, numAll,
+	      numAll == 1 ? "" : "s" );
+    qWarning( "(See 'qdoc2latex.log' for details)" );
+    fclose( logfile );
 }
 
 int main( int argc, char **argv )

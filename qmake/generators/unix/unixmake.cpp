@@ -204,10 +204,8 @@ UnixMakefileGenerator::init()
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
     }
-    if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS")) {
-	Option::mkfile::do_deps = FALSE; //do not generate deps
-	include_deps = TRUE;
-    }
+    if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS")) 
+	include_deps = TRUE; //do not generate deps
 
     MakefileGenerator::init();
     if ( project->isActiveConfig("resource_fork") ) {
@@ -305,7 +303,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->first("TARGET_x");
 	if(project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty())
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
-		"$(LINK) $(LFLAGS) -o $(TARGETD) $(OBJECTS) $(OBJMOC) $(LIBS)");
+		"$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)");
     }
     if ( project->isActiveConfig("dll") ) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_SHLIB"];

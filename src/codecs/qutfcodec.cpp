@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qutfcodec.cpp#7 $
+** $Id: //depot/qt/main/src/codecs/qutfcodec.cpp#8 $
 **
 ** Implementation of QUtf{8,16}Codec class
 **
@@ -235,11 +235,11 @@ public:
 	    if ( half ) {
 		QChar ch;
 		if ( swap ) {
-		    ch.row() = *chars++;
-		    ch.cell() = buf;
+		    ch.setRow( *chars++ );
+		    ch.setCell( buf );
 		} else {
-		    ch.row() = buf;
-		    ch.cell() = *chars++;
+		    ch.setRow( buf );
+		    ch.setCell( *chars++ );
 		}
 		if ( !headerdone ) {
 		    if ( ch == QChar::byteOrderSwapped ) {

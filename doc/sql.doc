@@ -500,7 +500,7 @@ statement's WHERE clause).
     cur.select( "id > 100" );
 \endcode
 
-This select() call will execute the SQL<br>
+This select() call will execute the SQL
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid 
     FROM staff WHERE staff.id > 100;

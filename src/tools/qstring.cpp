@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#435 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#436 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11579,18 +11579,6 @@ Constructs a QChar for the character with Unicode code point \a rc.
   Returns the row (most significant byte) of the Unicode character.
 */
 
-/*! \fn uchar& QChar::cell ()
-  \overload
-
-  Returns a reference to the cell (least significant byte) of the Unicode character.
-*/
-
-/*! \fn uchar& QChar::row ()
-  \overload
-
-  Returns a reference to the row (most significant byte) of the Unicode character.
-*/
-
 /*!
   Returns whether the character is a printable character.  This is
   any character not of category Cc or Cn.  Note that this gives no indication
@@ -11684,10 +11672,10 @@ int QChar::digitValue() const
     return dec_row[cell()];
 #else
     // ##### just latin1
-    if ( rw != 0 || cl < '0' || cl > '9' )
+    if ( ucs < '0' || ucs > '9' )
 	return -1;
     else
-	return cl - '0';
+	return ucs - '0';
 #endif
 }
 
@@ -11702,8 +11690,8 @@ QChar::Category QChar::category() const
     return (Category)(unicode_info[row()][cell()]);
 #else
 // ### just ASCII
-    if ( rw == 0 ) {
-	return (Category)(ui_00[cell()]);
+    if ( ucs < 0x100 ) {
+	return (Category)(ui_00[ucs]);
     }
     return Letter_Uppercase; //#######
 #endif
@@ -11905,6 +11893,13 @@ QChar QChar::upper() const
   should use QChar objects as they are equivalent, but for some low-level
   tasks (e.g. indexing into an array of Unicode information), this function
   is useful.
+*/
+
+/*!
+  \fn ushort & QChar::unicode()
+  \overload
+
+  Returns a reference to the numeric Unicode value equal to the QChar.
 */
 
 /*****************************************************************************
@@ -15665,31 +15660,32 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 	s << l;
     }
     else {
-	const char* ub = (const char*)str.unicode();
+	int byteOrder = s.byteOrder();
+	const QChar* ub = str.unicode();
 	if ( ub || s.version() < 3 ) {
-	    if ( QChar::networkOrdered() ==
-		    (s.byteOrder()==QDataStream::BigEndian) ) {
-		s.writeBytes( ub, sizeof(QChar)*str.length() );
+	    static const uint auto_size = 1024;
+	    char t[auto_size];
+	    char *b;
+	    if ( str.length()*sizeof(QChar) > auto_size ) {
+		b = new char[str.length()*sizeof(QChar)];
 	    } else {
-		static const uint auto_size = 1024;
-		char t[auto_size];
-		char *b;
-		if ( str.length()*sizeof(QChar) > auto_size ) {
-		    b = new char[str.length()*sizeof(QChar)];
-		} else {
-		    b = t;
-		}
-		int l = str.length();
-		char *c=b;
-		while ( l-- ) {
-		    *c++ = ub[1];
-		    *c++ = ub[0];
-		    ub+=sizeof(QChar);
-		}
-		s.writeBytes( b, sizeof(QChar)*str.length() );
-		if ( str.length()*sizeof(QChar) > auto_size )
-		    delete [] b;
+		b = t;
 	    }
+	    int l = str.length();
+	    char *c=b;
+	    while ( l-- ) {
+		if ( byteOrder == QDataStream::BigEndian ) {
+		    *c++ = (char)ub->row();
+		    *c++ = (char)ub->cell();
+		} else {
+		    *c++ = (char)ub->cell();
+		    *c++ = (char)ub->row();
+		}
+		ub++;
+	    }
+	    s.writeBytes( b, sizeof(QChar)*str.length() );
+	    if ( str.length()*sizeof(QChar) > auto_size )
+		delete [] b;
 	} else {
 	    // write null marker
 	    s << (Q_UINT32)0xffffffff;
@@ -15723,19 +15719,29 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 	if ( bytes == 0xffffffff ) {                    // null string
 	    str = QString::null;
 	} else if ( bytes > 0 ) {                       // not empty
+	    int byteOrder = s.byteOrder();
 	    str.setLength( bytes/2 );
-	    char* b = (char*)str.d->unicode;
-	    s.readRawBytes( b, bytes );
-	    if ( QChar::networkOrdered() !=
-		    (s.byteOrder()==QDataStream::BigEndian) ) {
-		bytes /= 2;
-		while ( bytes-- ) {
-		    char c = b[0];
-		    b[0] = b[1];
-		    b[1] = c;
-		    b += 2;
-		}
+	    QChar* ch = str.d->unicode;
+	    static const uint auto_size = 1024;
+	    char t[auto_size];
+	    char *b;
+	    if ( bytes > auto_size ) {
+		b = new char[bytes];
+	    } else {
+		b = t;
 	    }
+	    s.readRawBytes( b, bytes );
+	    int bt = bytes/2;
+	    char *oldb = b;
+	    while ( bt-- ) {
+		if ( byteOrder == QDataStream::BigEndian )
+		    *ch++ = (ushort) (((ushort)b[0])<<8) | b[1];
+		else
+		    *ch++ = (ushort) (((ushort)b[1])<<8) | b[0];
+		b += 2;
+	    }
+	    if ( bytes > auto_size )
+		delete [] oldb;
 	} else {
 	    str = "";
 	}

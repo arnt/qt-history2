@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#72 $
 **
 ** Implementation of QRect class
 **

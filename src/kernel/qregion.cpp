@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#56 $
 **
 ** Implementation of QRegion class
 **
@@ -80,6 +80,9 @@
   \endcode
 
   QRegion is an \link shclass.html implicitely shared\endlink class.
+
+  Due to window system limitations, the width and height of a region
+  is limited to 65535 on Unix/X11.
 
   \sa QPainter::setClipRegion(), QPainter::setClipRect()
 */

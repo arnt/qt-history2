@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.h#10 $
+** $Id: //depot/qt/main/src/network/qdns.h#11 $
 **
 ** Definition of QDns class.
 **
@@ -52,6 +52,8 @@
 #endif
 
 #ifndef QT_NO_DNS
+
+//#define Q_DNS_SYNCHRONOUS
 
 class QDnsPrivate;
 
@@ -120,6 +122,11 @@ public:
 
     QStringList qualifiedNames() const { return n; }
 
+#if defined(Q_DNS_SYNCHRONOUS)
+protected:
+    void connectNotify( const char *signal );
+#endif
+
 signals:
     void resultsReady();
 
@@ -129,6 +136,9 @@ private slots:
 private:
     void setStartQueryTimer();
     QString toInAddrArpaDomain( const QHostAddress &address );
+#if defined(Q_DNS_SYNCHRONOUS)
+    void doSynchronousLookup();
+#endif
 
     QString l;
     QStringList n;

@@ -3,6 +3,7 @@ mac {
 	INCLUDEPATH += /System/Library/Frameworks/QuickTime.framework/Headers/ \
 	               /System/Library/Frameworks/Carbon.framework/Headers/ \
 		       /System/Library/Frameworks/HIToolbox.framework/Headers \
-		       /System/Library/Frameworks/PrintCore.framework/Headers
+		       /System/Library/Frameworks/PrintCore.framework/Headers \
+ /System/Library/Frameworks/ApplicationServices.framework/Frameworks/CoreGraphics.framework/Headers/
 	LIBS += -framework Carbon -framework QuickTime
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#175 $
 **
 ** Implementation of event classes
 **
@@ -49,7 +49,7 @@
 
   The main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them
-  into QEvent and sends the translated events to QObjects.
+  into \l{QEvent}s and sends the translated events to QObjects.
 
   Generally, events come from the underlying window system (spontaneous()
   returns TRUE) but it is also possible to manually send events through the
@@ -1636,11 +1636,11 @@ QCustomEvent::QCustomEvent( int type )
   a top-level window has been hidden (iconified) by the user.
 
   if spontaneous() is TRUE the event originated outside the
-  application - i.e., the user hid the window via the window manager
+  application, i.e. the user hid the window using the window manager
   controls, either by iconifying the window or by switching to another
   virtual desktop where the window isn't visible. The window will
   become hidden but not withdrawn.  If the window was iconified,
-  QWidget::isMinimized() is TRUE.
+  QWidget::isMinimized() returns TRUE.
 
 
   \sa QShowEvent
