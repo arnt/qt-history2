@@ -467,6 +467,9 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
     }
 //     p->eraseRect(x+obx-ox, y+oby-oy, width, height);
 
+    if (!onlyDirty)
+	p->drawTiledPixmap(x+obx-ox, y+oby-oy, width, height, *bg, x+obx, y+oby);
+
     dirty = FALSE;
     QMLNode* t = start;
     QMLContainer* par = parent;
@@ -483,7 +486,8 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 	while ( t != end && (tmp = t->nextSibling() ) && tmp->isSimpleNode
 		&& tmp->isSelected == select
 		&& tmp->isSelectionDirty == selectionDirty
- 		&& !t->isSpace()) {
+		&& !t->isSpace()
+		) {
 	    t = tmp;
 	    tmp->isSelectionDirty = 0;
 	    s += t->c;
@@ -500,13 +504,13 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
  		else
  		    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, Qt::white);
  	    }
- 	    else {
- 		if (t==end){
- 		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, width-(tx-x), height, *bg, tx+obx, y+oby);
- 		}
- 		else {
- 		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height, *bg, tx+obx, y+oby);
- 		}
+ 	    else if (onlyDirty) {
+  		if (t==end){
+  		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, width-(tx-x), height, *bg, tx+obx, y+oby);
+  		}
+  		else {
+  		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height, *bg, tx+obx, y+oby);
+  		}
  	    }
 	
 	    p->drawText(tx+obx-ox, y+oby-oy+base, s);
