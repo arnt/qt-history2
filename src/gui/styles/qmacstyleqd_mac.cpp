@@ -66,7 +66,6 @@ void QMacStyleQDPainter::setport()
 #include <qpointer.h>
 #include <qlayout.h>
 #include <qlineedit.h>
-#include <qlistview.h>
 #include <qmainwindow.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
@@ -248,29 +247,7 @@ bool QMacStyleQDPrivate::doAnimate(QAquaAnimate::Animates as)
     } else if(as == AquaProgressBar) {
         progressbarState.frame++;
     } else if(as == AquaListViewItemOpen) {
-        for(QMap<QListViewItem*, int>::Iterator it = lviState.lvis.begin(); it != lviState.lvis.end(); ++it) {
-            QListViewItem *i = it.key();
-            int &frame = it.value();
-            if(i->isOpen()) {
-                if(frame == 4) {
-                    stopAnimate(AquaListViewItemOpen, i);
-                    lviState.lvis.erase(it);
-                    if(lviState.lvis.isEmpty())
-                        break;
-                } else {
-                    frame++;
-                }
-            } else {
-                if(frame == 0) {
-                    stopAnimate(AquaListViewItemOpen, i);
-                    lviState.lvis.erase(it);
-                    if(lviState.lvis.isEmpty())
-                        break;
-                } else {
-                    frame--;
-                }
-            }
-        }
+        // To be revived later...
     }
     return true;
 }
@@ -1241,71 +1218,6 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
             QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
             DrawThemePopupArrow(qt_glb_mac_rect(r, p),
                                 kThemeArrowDown, kThemeArrow7pt, tds, NULL, 0);
-        }
-        break; }
-    case CC_ListView: {
-        if(sub & SC_ListView)
-            QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
-        if(sub & (SC_ListViewBranch | SC_ListViewExpand)) {
-            if(opt.isDefault())
-                break;
-            QListViewItem *item = opt.listViewItem();
-            int y=r.y(), h=r.height();
-            ((QMacStyleQDPainter *)p)->setport();
-            {
-                ::RGBColor f;
-                f.red = widget->palette().color(widget->backgroundRole()).red()*256;
-                f.green = widget->palette().color(widget->backgroundRole()).green()*256;
-                f.blue = widget->palette().color(widget->backgroundRole()).blue()*256;
-                RGBBackColor(&f);
-            }
-
-            QPixmap pm;
-            QPainter pm_paint;
-            for(QListViewItem *child = item->firstChild(); child && y < h;
-                y += child->totalHeight(), child = child->nextSibling()) {
-                if(y + child->height() > 0) {
-                    if(child->isExpandable() || child->childCount()) {
-                        ThemeButtonDrawInfo info = { tds, kThemeDisclosureRight, kThemeAdornmentDrawIndicatorOnly };
-
-                        int rot = 0, border = 2;
-                        QPainter *curPaint = p;
-                        QRect mr(r.right() - 10, (y + child->height()/2) - 4, 9, 9);
-                        Rect glb_r = *qt_glb_mac_rect(mr, p);
-                        if(d->animatable(QAquaAnimate::AquaListViewItemOpen, child)) {
-                            if(!d->lviState.lvis.contains(child)) {
-                                d->lviState.lvis.insert(child, child->isOpen() ? 0 : 4);
-                            } else {
-                                int frame = d->lviState.lvis[child];
-                                if((child->isOpen() && frame == 4) || (!child->isOpen() && frame == 0)) {
-                                    //nothing..
-                                } else {
-                                    if(pm.isNull()) {
-                                        pm = QPixmap(mr.width()+(border*2), mr.height()+(border*2), 32);
-                                        pm.fill(widget->palette().color(widget->backgroundRole()));
-                                        pm_paint.begin(&pm);
-                                    }
-                                    SetRect(&glb_r, border, border, mr.width(), mr.height());
-                                    curPaint = &pm_paint;
-                                    ((QMacStyleQDPainter *)curPaint)->setport();
-                                    rot = frame;
-                                }
-                            }
-                        }
-                        if(!rot && child->isOpen())
-                            info.value = kThemeDisclosureDown;
-                        DrawThemeButton(&glb_r, kThemeDisclosureButton, &info, NULL, NULL, NULL, 0);
-                        if(curPaint != p) {
-                            QWMatrix wm;
-                            wm.translate(-(pm.width()/2), -(pm.height()/2));
-                            wm.rotate((90 / 4) * rot);
-                            wm.translate((pm.width()/2), (pm.height()/2));
-                            p->drawPixmap(mr.topLeft()-QPoint(border, border), pm.xForm(wm));
-                            ((QMacStyleQDPainter *)p)->setport();
-                        }
-                    }
-                }
-            }
         }
         break; }
     case CC_SpinWidget: {
@@ -2608,6 +2520,19 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         break;
     case PE_FocusRect:
         break;     //This is not used because of the QAquaFocusWidget thingie..
+    case PE_TreeBranch:
+        if (!(opt->state & Style_Children))
+            break;
+        ThemeButtonDrawInfo currentInfo;
+        currentInfo.state = opt->state & Style_Enabled ? kThemeStateActive : kThemeStateInactive;
+        if (opt->state & Style_Down)
+            currentInfo.state |= kThemeStatePressed;
+        currentInfo.value = opt->state & Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
+        currentInfo.adornment = kThemeAdornmentNone;
+        static_cast<QMacStyleQDPainter *>(p)->setport();
+        DrawThemeButton(qt_glb_mac_rect(opt->rect, p), kThemeDisclosureButton, &currentInfo,
+                        0, 0, 0, 0);
+        break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
@@ -3106,6 +3031,42 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                     DrawThemeTrackTickMarks(&tdi, numTicks, 0, 0);
                 } else {
                     DrawThemeTrackTickMarks(&tdi, numTicks, 0, 0);
+                }
+            }
+        }
+        break;
+    case CC_ListView:
+        if (const Q4StyleOptionListView *lv = qt_cast<const Q4StyleOptionListView *>(opt)) {
+            if (lv->parts & SC_ListView)
+                QWindowsStyle::drawComplexControl(cc, lv, p, widget);
+
+            if (lv->parts & (SC_ListViewBranch | SC_ListViewExpand)) {
+                int y = lv->rect.y(),
+                h = lv->rect.height(),
+                x = lv->rect.right() - 10;
+                static_cast<QMacStyleQDPainter *>(p)->setport();
+                ::RGBColor f;
+                f.red = lv->viewportPalette.color(lv->viewportBGRole).red() * 256;
+                f.green = lv->viewportPalette.color(lv->viewportBGRole).green() * 256;
+                f.blue = lv->viewportPalette.color(lv->viewportBGRole).blue() * 256;
+                RGBBackColor(&f);
+
+                QPixmap pm;
+                QPainter pm_paint;
+                for (int i = 1; i < lv->items.size() && y < h; ++i) {
+                    Q4StyleOptionListViewItem child = lv->items.at(i);
+                    if (y + child.height > 0 && (child.childCount > 0
+                        || child.extras & Q4StyleOptionListViewItem::Expandable)) {
+                        Q4StyleOption treeOpt(0, Q4StyleOption::Default);
+                        treeOpt.rect.setRect(x, y + child.height / 2 - 4, 9, 9);
+                        treeOpt.palette = lv->palette;
+                        treeOpt.state = lv->state;
+                        treeOpt.state |= Style_Children;
+                        if (child.extras & Q4StyleOptionListViewItem::Open)
+                            treeOpt.state |= Style_Open;
+                        drawPrimitive(PE_TreeBranch, &treeOpt, p, widget);
+                    }
+                    y += child.totalHeight;
                 }
             }
         }

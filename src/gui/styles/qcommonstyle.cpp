@@ -2103,6 +2103,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             }
         }
         break;
+    case CC_ListView:
+        if (const Q4StyleOptionListView *lv = qt_cast<Q4StyleOptionListView *>(opt)) {
+            if (lv->parts & SC_ListView)
+                p->fillRect(lv->rect, lv->viewportPalette.brush(lv->viewportBGRole));
+        }
+        break;
     default:
         qWarning("drawComplexControl control not handled %d", cc);
     }
@@ -2678,14 +2684,6 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
         }
         break;
 #endif // QT_NO_SLIDER
-#ifndef QT_NO_LISTVIEW
-    case CC_ListView:
-        if (controls & SC_ListView) {
-            QListView *listview = (QListView*)widget;
-            p->fillRect(r, listview->viewport()->palette().brush(listview->viewport()->backgroundRole()));
-        }
-        break;
-#endif //QT_NO_LISTVIEW
     default:
         break;
     }

@@ -14,28 +14,25 @@
 
 #include "qlistview.h"
 #ifndef QT_NO_LISTVIEW
-#include "qevent.h"
-#include "qtimer.h"
-#include "qheader.h"
-#include "qpainter.h"
-#include "qcursor.h"
+#include "qalgorithms.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qcursor.h"
 #include "qdatetime.h"
 #include "qdragobject.h"
+#include "qevent.h"
+#include "qhash.h"
 #include "qheader.h"
 #include "qiconset.h"
 #include "qlineedit.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qpopupmenu.h"
-#include "qhash.h"
 #include "qstack.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 #include "qtimer.h"
-#include "qalgorithms.h"
 #include "qtooltip.h"
 #include "qvbox.h"
 #include <private/qinternal_p.h>
@@ -1939,6 +1936,44 @@ const QPixmap * QListViewItem::pixmap(int column) const
     \sa paintBranches(), QListView::drawContentsOffset()
 */
 
+static Q4StyleOptionListView getStyleOption(const QListView *lv, const QListViewItem *item)
+{
+    Q4StyleOptionListView opt(0);
+    opt.init(lv);
+    opt.parts = QStyle::SC_None;
+    opt.activeParts = QStyle::SC_None;
+    QWidget *vp = lv->viewport();
+    opt.viewportPalette = vp->palette();
+    opt.viewportBGRole = vp->backgroundRole();
+    opt.itemMargin = lv->itemMargin();
+    opt.sortColumn = 0;
+    bool firstItem = true;
+    while (item) {
+        Q4StyleOptionListViewItem lvi(0);
+        lvi.height = item->height();
+        lvi.totalHeight = item->totalHeight();
+        lvi.itemY = item->itemPos();
+        lvi.childCount = item->childCount();
+        lvi.extras = Q4StyleOptionListViewItem::None;
+        if (item->isExpandable())
+            lvi.extras |= Q4StyleOptionListViewItem::Expandable;
+        if (item->multiLinesEnabled())
+            lvi.extras |= Q4StyleOptionListViewItem::MultiLine;
+        if (item->isVisible())
+            lvi.extras |= Q4StyleOptionListViewItem::Visible;
+        if (item->isOpen())
+            lvi.extras |= Q4StyleOptionListViewItem::Open;
+        opt.items.append(lvi);
+        if (!firstItem) {
+            item = item->nextSibling();
+        } else {
+            firstItem = false;
+            item = item->firstChild();
+        }
+    }
+    return opt;
+}
+
 void QListViewItem::paintCell(QPainter * p, const QPalette & pal,
                                int column, int width, int align)
 {
@@ -2095,11 +2130,12 @@ void QListViewItem::paintCell(QPainter * p, const QPalette & pal,
             textheight++;
         if (textheight < height()) {
             int w = lv->treeStepSize() / 2;
-            lv->style().drawComplexControl(QStyle::CC_ListView, p, lv,
-                                            QRect(0, textheight, w + 1, height() - textheight + 1), pal,
-                                            lv->isEnabled() ? QStyle::Style_Enabled : QStyle::Style_Default,
-                                            QStyle::SC_ListViewExpand,
-                                            QStyle::SC_All, QStyleOption(this));
+            Q4StyleOptionListView opt = getStyleOption(lv, this);
+            opt.rect.setRect(0, textheight, w + 1, height() - textheight + 1);
+            opt.palette = pal;
+            opt.parts = QStyle::SC_ListViewExpand;
+            opt.activeParts = QStyle::SC_All;
+            lv->style().drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
         }
     }
 }
@@ -2179,14 +2215,12 @@ void QListViewItem::paintBranches(QPainter * p, const QPalette & pal,
         lv->paintEmptyArea(p, QRect(0, 0, w, h));
     if (!visible || !lv)
         return;
-    lv->style().drawComplexControl(QStyle::CC_ListView, p, lv,
-                                    QRect(0, y, w, h),
-                                    pal,
-                                    lv->isEnabled() ? QStyle::Style_Enabled :
-                                    QStyle::Style_Default,
-                                    (QStyle::SC_ListViewBranch |
-                                     QStyle::SC_ListViewExpand),
-                                    QStyle::SC_None, QStyleOption(this));
+    Q4StyleOptionListView opt = getStyleOption(lv, this);
+    opt.rect.setRect(0, y, w, h);
+    opt.palette = pal;
+    opt.parts = QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand;
+    opt.activeParts = QStyle::SC_None;
+    lv->style().drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
 }
 
 
@@ -2947,15 +2981,10 @@ void QListView::drawContentsOffset(QPainter * p, int ox, int oy,
 
 void QListView::paintEmptyArea(QPainter * p, const QRect & rect)
 {
-    QStyleOption opt(d->sortcolumn, 0); // ### hack; in 3.1, add a property in QListView and QHeader
-    QStyle::SFlags how = QStyle::Style_Default;
-    if (isEnabled())
-        how |= QStyle::Style_Enabled;
-
-    style().drawComplexControl(QStyle::CC_ListView,
-                                p, this, rect, palette(),
-                                how, QStyle::SC_ListView, QStyle::SC_None,
-                                opt);
+    Q4StyleOptionListView opt = getStyleOption(this, 0);
+    opt.rect = rect;
+    opt.sortColumn = d->sortcolumn;
+    style().drawComplexControl(QStyle::CC_ListView, &opt, p, this);
 }
 
 

@@ -25,7 +25,8 @@ struct Q_GUI_EXPORT Q4StyleOption {
     QStyle::SFlags state;
     QRect rect;             // Rect has overloaded meanings.
     QPalette palette;
-    enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar };
+    enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar,
+           ListView, ListViewItem };
     enum { Type = Default };
     Q4StyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
@@ -110,6 +111,30 @@ struct Q4StyleOptionSlider : public Q4StyleOptionComplex {
     int singleStep;
     int pageStep;
     Q4StyleOptionSlider(int version) : Q4StyleOptionComplex(version, Slider) {}
+};
+
+struct Q4StyleOptionListViewItem : public Q4StyleOption
+{
+    enum { Type = ListViewItem };
+    enum Extras { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04, Open = 0x08 };
+    uint extras;
+    int height;
+    int totalHeight;
+    int itemY;
+    int childCount;
+    Q4StyleOptionListViewItem(int version) : Q4StyleOption(version, ListViewItem) {}
+};
+
+struct Q4StyleOptionListView : public Q4StyleOptionComplex {
+    enum { Type = ListView };
+    // List of listview items. The first item corresponds to the old ListViewItem we passed,
+    // all the other items are its children
+    QList<Q4StyleOptionListViewItem> items;
+    QPalette viewportPalette;
+    QPalette::ColorRole viewportBGRole;
+    int sortColumn;
+    int itemMargin;
+    Q4StyleOptionListView(int version) : Q4StyleOptionComplex(version, ListView) {}
 };
 
 template <typename T>

@@ -1573,168 +1573,6 @@ void QWindowsStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
                                         const QStyleOption& opt) const
 {
     switch (ctrl) {
-#ifndef QT_NO_LISTVIEW
-    case CC_ListView:
-        {
-            if (sub & SC_ListView) {
-                QCommonStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
-            }
-            if (sub & (SC_ListViewBranch | SC_ListViewExpand)) {
-                if (opt.isDefault())
-                    break;
-
-                QListViewItem *item = opt.listViewItem(),
-                             *child = item->firstChild();
-
-                int y = r.y();
-                int c;
-                int dotoffset = 0;
-                QPointArray dotlines;
-                if (subActive == SC_All && sub == SC_ListViewExpand) {
-                    c = 2;
-                    dotlines.resize(2);
-                    dotlines[0] = QPoint(r.right(), r.top());
-                    dotlines[1] = QPoint(r.right(), r.bottom());
-                } else {
-                    int linetop = 0, linebot = 0;
-                    // each branch needs at most two lines, ie. four end points
-                    dotoffset = (item->itemPos() + item->height() - y) %2;
-                    dotlines.resize(item->childCount() * 4);
-                    c = 0;
-
-                    // skip the stuff above the exposed rectangle
-                    while (child && y + child->height() <= 0) {
-                        y += child->totalHeight();
-                        child = child->nextSibling();
-                    }
-
-                    int bx = r.width() / 2;
-
-                    // paint stuff in the magical area
-                    QListView* v = item->listView();
-                    while (child && y < r.height()) {
-                        if (child->isVisible()) {
-                            int lh;
-                            if (!item->multiLinesEnabled())
-                                lh = child->height();
-                            else
-                                lh = p->fontMetrics().height() + 2 * v->itemMargin();
-                            lh = qMax(lh, QApplication::globalStrut().height());
-                            if (lh % 2 > 0)
-                                lh++;
-                            linebot = y + lh/2;
-                            if ((child->isExpandable() || child->childCount()) &&
-                                (child->height() > 0)) {
-                                // needs a box
-                                p->setPen(pal.mid());
-                                p->drawRect(bx-4, linebot-4, 9, 9);
-                                // plus or minus
-                                p->setPen(pal.text());
-                                p->drawLine(bx - 2, linebot, bx + 2, linebot);
-                                if (!child->isOpen())
-                                    p->drawLine(bx, linebot - 2, bx, linebot + 2);
-                                // dotlinery
-                                p->setPen(pal.mid());
-                                dotlines[c++] = QPoint(bx, linetop);
-                                dotlines[c++] = QPoint(bx, linebot - 4);
-                                dotlines[c++] = QPoint(bx + 5, linebot);
-                                dotlines[c++] = QPoint(r.width(), linebot);
-                                linetop = linebot + 5;
-                                } else {
-                                // just dotlinery
-                                dotlines[c++] = QPoint(bx+1, linebot -1);
-                                dotlines[c++] = QPoint(r.width(), linebot -1);
-                            }
-                            y += child->totalHeight();
-                        }
-                        child = child->nextSibling();
-                    }
-
-                    // Expand line height to edge of rectangle if there's any
-                    // visible child below
-                    while (child && child->height() <= 0)
-                        child = child->nextSibling();
-                    if (child)
-                        linebot = r.height();
-
-                    if (linetop < linebot) {
-                        dotlines[c++] = QPoint(bx, linetop);
-                        dotlines[c++] = QPoint(bx, linebot);
-                    }
-                }
-                p->setPen(pal.text());
-
-                static QBitmap *verticalLine = 0, *horizontalLine = 0;
-                static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
-                if (!verticalLine) {
-                    // make 128*1 and 1*128 bitmaps that can be used for
-                    // drawing the right sort of lines.
-                    verticalLine = new QBitmap(1, 129, true);
-                    horizontalLine = new QBitmap(128, 1, true);
-                    QPointArray a(64);
-                    QPainter p;
-                    p.begin(verticalLine);
-                    int i;
-                    for(i=0; i<64; i++)
-                        a.setPoint(i, 0, i*2+1);
-                    p.setPen(color1);
-                    p.drawPoints(a);
-                    p.end();
-                    QApplication::flush();
-                    verticalLine->setMask(*verticalLine);
-                    p.begin(horizontalLine);
-                    for(i=0; i<64; i++)
-                        a.setPoint(i, i*2+1, 0);
-                    p.setPen(color1);
-                    p.drawPoints(a);
-                    p.end();
-                    QApplication::flush();
-                    horizontalLine->setMask(*horizontalLine);
-                    qlv_cleanup_bitmap.add(&verticalLine);
-                    qlv_cleanup_bitmap.add(&horizontalLine);
-                }
-
-                int line; // index into dotlines
-                if (sub & SC_ListViewBranch) for(line = 0; line < c; line += 2) {
-                    // assumptions here: lines are horizontal or vertical.
-                    // lines always start with the numerically lowest
-                    // coordinate.
-
-                    // point ... relevant coordinate of current point
-                    // end ..... same coordinate of the end of the current line
-                    // other ... the other coordinate of the current point/line
-                    if (dotlines[line].y() == dotlines[line+1].y()) {
-                        int end = dotlines[line+1].x();
-                        int point = dotlines[line].x();
-                        int other = dotlines[line].y();
-                        while(point < end) {
-                            int i = 128;
-                            if (i+point > end)
-                                i = end-point;
-                            p->drawPixmap(point, other, *horizontalLine,
-                                           0, 0, i, 1);
-                            point += i;
-                        }
-                    } else {
-                        int end = dotlines[line+1].y();
-                        int point = dotlines[line].y();
-                        int other = dotlines[line].x();
-                        int pixmapoffset = ((point & 1) != dotoffset) ? 1 : 0;
-                        while(point < end) {
-                            int i = 128;
-                            if (i+point > end)
-                                i = end-point;
-                            p->drawPixmap(other, point, *verticalLine,
-                                           0, pixmapoffset, 1, i);
-                            point += i;
-                        }
-                    }
-                }
-            }
-        }
-        break;
-#endif //QT_NO_LISTVIEW
-
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         if (sub & SC_ComboBoxArrow) {
@@ -2880,6 +2718,160 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                     p->setPen(c1);
                     p->drawLine(x2, y2-1, x2+d, y2-1-d);
                     break;
+                }
+            }
+        }
+        break;
+    case CC_ListView:
+        if (const Q4StyleOptionListView *lv = qt_cast<const Q4StyleOptionListView *>(opt)) {
+            int i;
+            if (lv->parts & SC_ListView)
+                QCommonStyle::drawComplexControl(cc, lv, p, widget);
+            if (lv->parts & (SC_ListViewBranch | SC_ListViewExpand)) {
+                if (lv->items.isEmpty())
+                    break;
+                Q4StyleOptionListViewItem item = lv->items.at(0);
+                int y = lv->rect.y();
+                int c;
+                int dotoffset = 0;
+                QPointArray dotlines;
+                if (lv->activeParts == SC_All && lv->parts == SC_ListViewExpand) {
+                    c = 2;
+                    dotlines.resize(2);
+                    dotlines[0] = QPoint(lv->rect.right(), lv->rect.top());
+                    dotlines[1] = QPoint(lv->rect.right(), lv->rect.bottom());
+                } else {
+                    int linetop = 0, linebot = 0;
+                    // each branch needs at most two lines, ie. four end points
+                    dotoffset = (item.itemY + item.height - y) % 2;
+                    dotlines.resize(item.childCount * 4);
+                    c = 0;
+
+                    // skip the stuff above the exposed rectangle
+                    for (i = 1; i < lv->items.size(); ++i) {
+                        Q4StyleOptionListViewItem child = lv->items.at(i);
+                        if (child.height + y > 0)
+                            break;
+                        y += child.totalHeight;
+                    }
+                    int bx = lv->rect.width() / 2;
+
+                    // paint stuff in the magical area
+                    while (i < lv->items.size() && y < lv->rect.height()) {
+                        Q4StyleOptionListViewItem child = lv->items.at(i);
+                        if (child.extras & Q4StyleOptionListViewItem::Visible) {
+                            int lh;
+                            if (!(item.extras & Q4StyleOptionListViewItem::MultiLine))
+                                lh = child.height;
+                            else
+                                lh = p->fontMetrics().height() + 2 * lv->itemMargin;
+                            lh = qMax(lh, QApplication::globalStrut().height());
+                            if (lh % 2 > 0)
+                                ++lh;
+                            linebot = y + lh / 2;
+                            if (child.extras & Q4StyleOptionListViewItem::Expandable
+                                || child.childCount > 0 && child.height > 0) {
+                                // needs a box
+                                p->setPen(lv->palette.mid());
+                                p->drawRect(bx - 4, linebot - 4, 9, 9);
+                                // plus or minus
+                                p->setPen(lv->palette.text());
+                                p->drawLine(bx - 2, linebot, bx + 2, linebot);
+                                if (!(child.extras & Q4StyleOptionListViewItem::Open))
+                                    p->drawLine(bx, linebot - 2, bx, linebot + 2);
+                                // dotlinery
+                                p->setPen(lv->palette.mid());
+                                dotlines[c++] = QPoint(bx, linetop);
+                                dotlines[c++] = QPoint(bx, linebot - 4);
+                                dotlines[c++] = QPoint(bx + 5, linebot);
+                                dotlines[c++] = QPoint(lv->rect.width(), linebot);
+                                linetop = linebot + 5;
+                            } else {
+                                // just dotlinery
+                                dotlines[c++] = QPoint(bx+1, linebot -1);
+                                dotlines[c++] = QPoint(lv->rect.width(), linebot -1);
+                            }
+                            y += child.totalHeight;
+                        }
+                        ++i;
+                    }
+
+                    // Expand line height to edge of rectangle if there's any
+                    // visible child below
+                    while (i < lv->items.size() && lv->items.at(i).height <= 0)
+                        ++i;
+                    if (i < lv->items.size())
+                        linebot = lv->rect.height();
+
+                    if (linetop < linebot) {
+                        dotlines[c++] = QPoint(bx, linetop);
+                        dotlines[c++] = QPoint(bx, linebot);
+                    }
+                }
+                p->setPen(lv->palette.text());
+
+                static QBitmap *verticalLine = 0, *horizontalLine = 0;
+                static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
+                if (!verticalLine) {
+                    // make 128*1 and 1*128 bitmaps that can be used for
+                    // drawing the right sort of lines.
+                    verticalLine = new QBitmap(1, 129, true);
+                    horizontalLine = new QBitmap(128, 1, true);
+                    QPointArray a(64);
+                    QPainter p;
+                    p.begin(verticalLine);
+                    for(i = 0; i < 64; ++i)
+                        a.setPoint(i, 0, i * 2 + 1);
+                    p.setPen(color1);
+                    p.drawPoints(a);
+                    p.end();
+                    QApplication::flush();
+                    verticalLine->setMask(*verticalLine);
+                    p.begin(horizontalLine);
+                    for(i = 0; i < 64; ++i)
+                        a.setPoint(i, i * 2 + 1, 0);
+                    p.setPen(color1);
+                    p.drawPoints(a);
+                    p.end();
+                    QApplication::flush();
+                    horizontalLine->setMask(*horizontalLine);
+                    qlv_cleanup_bitmap.add(&verticalLine);
+                    qlv_cleanup_bitmap.add(&horizontalLine);
+                }
+
+                int line; // index into dotlines
+                if (lv->parts & SC_ListViewBranch) for(line = 0; line < c; line += 2) {
+                    // assumptions here: lines are horizontal or vertical.
+                    // lines always start with the numerically lowest
+                    // coordinate.
+
+                    // point ... relevant coordinate of current point
+                    // end ..... same coordinate of the end of the current line
+                    // other ... the other coordinate of the current point/line
+                    if (dotlines[line].y() == dotlines[line+1].y()) {
+                        int end = dotlines[line + 1].x();
+                        int point = dotlines[line].x();
+                        int other = dotlines[line].y();
+                        while (point < end) {
+                            int i = 128;
+                            if (i + point > end)
+                                i = end-point;
+                            p->drawPixmap(point, other, *horizontalLine, 0, 0, i, 1);
+                            point += i;
+                        }
+                    } else {
+                        int end = dotlines[line + 1].y();
+                        int point = dotlines[line].y();
+                        int other = dotlines[line].x();
+                        int pixmapoffset = ((point & 1) != dotoffset) ? 1 : 0;
+                        while(point < end) {
+                            int i = 128;
+                            if (i + point > end)
+                                i = end-point;
+                            p->drawPixmap(other, point, *verticalLine, 0, pixmapoffset, 1, i);
+                            point += i;
+                        }
+                    }
                 }
             }
         }

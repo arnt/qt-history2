@@ -9,7 +9,6 @@
 #include <qcombobox.h>
 #include <qevent.h>
 #include <qgroupbox.h>
-#include <qlistview.h>
 #include <qmenu.h>
 #include <qpaintdevice.h>
 #include <qpainter.h>
@@ -1019,32 +1018,6 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         HIThemeDrawButton(qt_glb_mac_rect(comborect, p), &bdi,
                           static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal, 0);
         break; }
-    case CC_ListView:
-        if (sub & SC_ListView)
-            QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
-        if (sub & (SC_ListViewBranch | SC_ListViewExpand)) {
-            if (opt.isDefault())
-                break;
-            QListViewItem *item = opt.listViewItem()->firstChild();
-            int y = r.y();
-            int h = r.height();
-            int x = r.right() - 10;
-            while (item && y < h) {
-                if (y + item->height() > 0) {
-                    uint myflags = flags;
-                    if (item->isExpandable() || item->childCount()) {
-                        myflags |= Style_Children;
-                        if (item->isOpen())
-                            myflags |= Style_Open;
-                        QRect mr(x, y + item->height() / 2 - 4, 9, 9);
-                        drawPrimitive(PE_TreeBranch, p, mr, pal, myflags, opt);
-                    }
-                }
-                y += item->totalHeight();
-                item = item->nextSibling();
-            }
-        }
-        break;
     case CC_TitleBar: {
         const QTitleBar *titlebar = static_cast<const QTitleBar *>(w);
         HIThemeWindowDrawInfo wdi;
@@ -1641,7 +1614,7 @@ QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 
 
 void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
-                           const QWidget *w) const
+                                const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
     switch (pe) {
@@ -1748,6 +1721,21 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         HIThemeDrawPaneSplitter(&hirect, &sdi, static_cast<CGContextRef>(p->handle()),
                                 kHIThemeOrientationNormal);
         break; }
+    case PE_TreeBranch:
+        if (!(opt->state & Style_Children))
+            break;
+        HIThemeButtonDrawInfo bi;
+        bi.version = qt_mac_hitheme_version;
+        bi.state = opt->state & Style_Enabled ?  kThemeStateActive : kThemeStateInactive;
+        if (opt->state & Style_Down)
+            bi.state |= kThemeStatePressed;
+        bi.kind = kThemeDisclosureButton;
+        bi.value = opt->state & Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
+        bi.adornment = kThemeAdornmentNone;
+        HIRect hirect = qt_hirectForQRect(opt->rect, p);
+        HIThemeDrawButton(&hirect, &bi, static_cast<CGContextRef>(p->handle()),
+                          kHIThemeOrientationNormal, 0);
+        break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
     }
@@ -2122,6 +2110,32 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                                               static_cast<CGContextRef>(p->handle()),
                                               kHIThemeOrientationNormal);
 
+                }
+            }
+        }
+        break;
+    case CC_ListView:
+        if (const Q4StyleOptionListView *lv = qt_cast<const Q4StyleOptionListView *>(opt)) {
+            if (lv->parts & SC_ListView)
+                QWindowsStyle::drawComplexControl(cc, lv, p, widget);
+            if (lv->parts & (SC_ListViewBranch | SC_ListViewExpand)) {
+                int y = lv->rect.y();
+                int h = lv->rect.height();
+                int x = lv->rect.right() - 10;
+                for (int i = 1; i < lv->items.size() && y < h; ++i) {
+                    Q4StyleOptionListViewItem item = lv->items.at(i);
+                    if (y + item.height > 0 && (item.childCount > 0
+                        || item.extras & Q4StyleOptionListViewItem::Expandable)) {
+                        Q4StyleOption treeOpt(0, Q4StyleOption::Default);
+                        treeOpt.rect.setRect(x, y + item.height / 2 - 4, 9, 9);
+                        treeOpt.palette = lv->palette;
+                        treeOpt.state = lv->state;
+                        treeOpt.state |= Style_Children;
+                        if (item.extras & Q4StyleOptionListViewItem::Open)
+                            treeOpt.state |= Style_Open;
+                        drawPrimitive(PE_TreeBranch, &treeOpt, p, widget);
+                    }
+                    y += item.totalHeight;
                 }
             }
         }
