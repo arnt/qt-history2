@@ -501,6 +501,8 @@
 	findDialog-&gt;setBrowser( browser );
     }
     findDialog-&gt;comboFind-&gt;setFocus();
+    findDialog-&gt;comboFind-&gt;lineEdit()-&gt;setSelection(
+        0, findDialog-&gt;comboFind-&gt;lineEdit()-&gt;text().length() );
     findDialog-&gt;show();
 }</function>
     <function name="goHome()" >{
