@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#41 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -485,6 +485,7 @@ void QProcess::init()
 */
 void QProcess::reset()
 {
+    // ### close stdin? what about stdout, stderr?
     delete d;
     d = new QProcessPrivate();
     exitStat = 0;
@@ -495,8 +496,12 @@ void QProcess::reset()
 
 
 /*!
-  Destructor; if the process is running, it is NOT terminated! Standard input,
-  standard output and standard error of the process are closed.
+  Destructs the class.
+
+  If the process is running, it is NOT terminated! Standard input, standard
+  output and standard error of the process are closed.
+
+  \sa hangUp() kill()
 */
 QProcess::~QProcess()
 {
@@ -504,11 +509,21 @@ QProcess::~QProcess()
 }
 
 /*!
-  Runs the process. You can write data to the standard input of the process with
+  Tries to run a process for the command and arguments that were specified with
+  setArguments(), addArgument() or that were specified in the constructor. The
+  command is searched in the path for executable programs; you can also use an
+  absolute path to the command.
+
+  Returns TRUE if the process could be started, otherwise FALSE.
+
+  You can write data to standard input of the process with
   writeToStdin(), you can close standard input with closeStdin() and you can
   terminate the process hangUp() resp. kill().
 
-  Returns TRUE if the process could be started, otherwise FALSE.
+  You can call this function when a process that was started with this instance
+  still runs. In this case, it closes standard input of that process and it
+  deletes pending data - you loose all control over that process, but the
+  process is not terminated.
 
   \sa launch()
 */
@@ -651,33 +666,39 @@ error:
 
 
 /*!
-  Asks the process to terminate. If this does not work you can try kill()
+  Asks the process to terminate. Processes can ignore this wish. If you want to
+  be sure that the process really terminates, you must use kill()
   instead.
 
-  Returns TRUE on success, otherwise FALSE.
+  When the process really exited, the signal processExited() is emitted.
+
+  \sa kill() processExited()
 */
-bool QProcess::hangUp()
+void QProcess::hangUp()
 {
-    if ( d->proc == 0 )
-	return FALSE;
-    return ::kill( d->proc->pid, SIGHUP ) == 0;
+    if ( d->proc != 0 )
+	::kill( d->proc->pid, SIGHUP );
 }
 
 /*!
-  Terminates the process. This is not a safe way to end a process; you should
-  try hangUp() first and use this function only if it failed.
+  Terminates the process. This is not a safe way to end a process since the
+  process will not be able to do cleanup. hangUp() is the saver way to do it,
+  but processes might ignore a hangUp().
 
-  Returns TRUE on success, otherwise FALSE.
+  When the process really exited, the signal processExited() is emitted.
+
+  \sa hangUp() processExited()
 */
-bool QProcess::kill()
+void QProcess::kill()
 {
-    if ( d->proc == 0 )
-	return FALSE;
-    return ::kill( d->proc->pid, SIGKILL ) == 0;
+    if ( d->proc != 0 )
+	::kill( d->proc->pid, SIGKILL );
 }
 
 /*!
   Returns TRUE if the process is running, otherwise FALSE.
+
+  \sa normalExit() exitStatus() processExited()
 */
 bool QProcess::isRunning()
 {
@@ -711,8 +732,11 @@ bool QProcess::isRunning()
 
 /*!
   Writes the data \a buf to the standard input of the process. The process may
-  or may not read this data. If the data was read, the signal wroteStdin() is
-  emitted.
+  or may not read this data. If the data was written to the process, the signal
+  wroteStdin() is emitted. This does not mean that the process really read the
+  data.
+
+  \sa wroteStdin() closeStdin() readStdout() readStderr()
 */
 void QProcess::writeToStdin( const QByteArray& buf )
 {
@@ -728,7 +752,8 @@ void QProcess::writeToStdin( const QByteArray& buf )
 /*!
   Closes standard input of the process.
 
-  If there is pending data, this function will delete it.
+  This function also deletes pending data that is not written to standard input
+  yet.
 */
 void QProcess::closeStdin()
 {

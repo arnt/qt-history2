@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#25 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -249,15 +249,14 @@ bool QProcess::start()
     return TRUE;
 }
 
-bool QProcess::hangUp()
+void QProcess::hangUp()
 {
     // ### how to do it?
-    return FALSE;
 }
 
-bool QProcess::kill()
+void QProcess::kill()
 {
-    return ( TerminateProcess( d->pid.hProcess, 0 ) != 0 );
+    TerminateProcess( d->pid.hProcess, 0 );
 }
 
 bool QProcess::isRunning()
