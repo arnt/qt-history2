@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#22 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#23 $
 **
 ** Definition of QTabDialog class
 **
@@ -16,6 +16,8 @@
 
 
 struct QTabPrivate;
+class QTabBar;
+class QTab;
 
 
 class QTabDialog : public QDialog
@@ -30,6 +32,7 @@ public:
     void setFont( const QFont & font );
 
     void addTab( QWidget *, const char * );
+    void addTab( QWidget *, QTab* );
     bool isTabEnabled( const char * ) const;
     void setTabEnabled( const char *, bool );
 
@@ -46,11 +49,17 @@ public:
     bool hasApplyButton() const;
 
     void setOKButton( const char * text = "OK" );
+    bool hasOKButton() const;
+
+    void setMargins( int l, int r, int t, int b );
+    void getMargins( int& l, int& r, int& t, int& b ) const;
 
 protected:
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
     void styleChange( GUIStyle );
+    void setTabBar( QTabBar* );
+    QTabBar* tabBar() const;
 
 signals:
     void aboutToShow();
