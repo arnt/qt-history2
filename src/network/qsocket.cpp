@@ -277,16 +277,10 @@ int QSocketEngine::ungetch(int ch)
     return socket->d->rba.ungetch(ch);
 }
 
-QIOEngine::Type QSocketEngine::type() const
-{
-    return QIOEngine::Socket;
-}
-
 bool QSocketEngine::open(int)
 {
     return true;
 }
-
 
 bool QSocketEngine::close()
 {
