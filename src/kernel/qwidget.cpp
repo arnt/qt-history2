@@ -2842,6 +2842,8 @@ bool QWidget::hasFocus() const
   setFocus() gives focus to a widget regardless of its focus policy,
   but does not clear any keyboard grab (see grabKeyboard()).
 
+  Be aware that if the widget is hidden, it will not accept focus.
+
   \warning If you call setFocus() in a function which may itself be
   called from focusOutEvent() or focusInEvent(), you may experience
   infinite recursion.
@@ -3479,6 +3481,8 @@ void QWidget::show()
 	if ( sendLayoutHint ) {
 	    QEvent e( QEvent::ShowToParent );
 	    QApplication::sendEvent( this, &e );
+	    QApplication::postEvent( parentWidget(),
+				     new QEvent( QEvent::LayoutHint ) );
 	}
 	return;
     }
