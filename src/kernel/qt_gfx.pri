@@ -9,30 +9,6 @@ jpeg {
 }
 !jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
 
-
-#png support
-HEADERS+=$$KERNEL_H/qpngio.h
-SOURCES+=$$KERNEL_CPP/qpngio.cpp
-png {
-	INCLUDEPATH  += 3rdparty/libpng
-	SOURCES	+= 3rdparty/libpng/png.c \
-		  3rdparty/libpng/pngerror.c \
-		  3rdparty/libpng/pngget.c \
-		  3rdparty/libpng/pngmem.c \
-		  3rdparty/libpng/pngpread.c \
-		  3rdparty/libpng/pngread.c \
-		  3rdparty/libpng/pngrio.c \
-		  3rdparty/libpng/pngrtran.c \
-		  3rdparty/libpng/pngrutil.c \
-		  3rdparty/libpng/pngset.c \
-		  3rdparty/libpng/pngtrans.c \
-		  3rdparty/libpng/pngwio.c \
-		  3rdparty/libpng/pngwrite.c \
-		  3rdparty/libpng/pngwtran.c \
-		  3rdparty/libpng/pngwutil.c 
-}
-!png:LIBS += -lpng
-
 #zlib support
 zlib {
 	INCLUDEPATH       += 3rdparty/zlib
@@ -53,10 +29,36 @@ zlib {
 }
 !zlib:LIBS += -lz
 
+#png support
+HEADERS+=$$KERNEL_H/qpngio.h
+SOURCES+=$$KERNEL_CPP/qpngio.cpp
+png {
+	REQUIRES += zlib
+	!zlib:message(png support requires support for zlib)
+
+	INCLUDEPATH  += 3rdparty/libpng
+	SOURCES	+= 3rdparty/libpng/png.c \
+		  3rdparty/libpng/pngerror.c \
+		  3rdparty/libpng/pngget.c \
+		  3rdparty/libpng/pngmem.c \
+		  3rdparty/libpng/pngpread.c \
+		  3rdparty/libpng/pngread.c \
+		  3rdparty/libpng/pngrio.c \
+		  3rdparty/libpng/pngrtran.c \
+		  3rdparty/libpng/pngrutil.c \
+		  3rdparty/libpng/pngset.c \
+		  3rdparty/libpng/pngtrans.c \
+		  3rdparty/libpng/pngwio.c \
+		  3rdparty/libpng/pngwrite.c \
+		  3rdparty/libpng/pngwtran.c \
+		  3rdparty/libpng/pngwutil.c 
+}
+!png:LIBS += -lpng
+
 #mng support
 mng {
-	REQUIRES = jpeg
-	!jpeg:message(mng support requires jpeg)
+	REQUIRES += jpeg
+	!jpeg:message(mng support requires support for jpeg)
 
 	unix:LIBS	+= -lmng
 	INCLUDEPATH        += 3rdparty/libmng
