@@ -745,11 +745,11 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
         QT_WA({
             WNDCLASS wcinfo;
             classExists = GetClassInfo((HINSTANCE)qWinAppInst(), (TCHAR*)cname.utf16(), &wcinfo);
-            classExists &= classExists ? wcinfo.lpfnWndProc != QtWndProc : 0;
+            classExists = classExists && wcinfo.lpfnWndProc != QtWndProc;
         }, {
             WNDCLASSA wcinfo;
             classExists = GetClassInfoA((HINSTANCE)qWinAppInst(), cname.toLatin1(), &wcinfo);
-            classExists &= classExists ? wcinfo.lpfnWndProc != QtWndProc : 0;
+            classExists = classExists && wcinfo.lpfnWndProc != QtWndProc;
         });
     }
 
