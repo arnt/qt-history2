@@ -205,7 +205,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     // blasted incldues
     QStringList &qeui = project->variables()["QMAKE_EXTRA_UNIX_INCLUDES"];
     QStringList::Iterator it;
-    for( it = qeui.begin(); it != qeui.end(); ++it) 
+    for( it = qeui.begin(); it != qeui.end(); ++it)
 	t << "include " << (*it) << endl;
 
     /* rules */
@@ -558,7 +558,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		   project->first("QMAKE_DISTDIR");
     QString ddir_c = (project->isEmpty("OBJECTS_DIR") ? QString(".tmp/") :
 		    project->first("OBJECTS_DIR")) + ddir;
-    fileFixify(ddir_c);	
+    fileFixify(ddir_c);
     t << "dist: " << "\n\t"
       << "@mkdir -p " << ddir_c << " && "
       << "$(COPY_FILE) --parents $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && "
@@ -636,11 +636,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     // blasted user defined targets
     QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
     for(it = qut.begin(); it != qut.end(); ++it) {
-	QString targ = var((*it) + ".target"), 
+	QString targ = var((*it) + ".target"),
 		 cmd = var((*it) + ".commands"), deps;
 	if(targ.isEmpty())
-	    targ = (*it2);
-	QStringList &depends = project->variables()[(*it2) + ".depends"];
+	    targ = (*it);
+	QStringList &depends = project->variables()[(*it) + ".depends"];
 	for(QStringList::Iterator dep_it = depends.begin(); dep_it != depends.end(); ++dep_it) {
 	    QString dep = var((*dep_it) + ".target");
 	    if(dep.isEmpty())
