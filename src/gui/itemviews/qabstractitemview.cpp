@@ -251,18 +251,18 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QModelIndex QAbstractItemView::itemAt(const QPoint &p) const
+    \fn QModelIndex QAbstractItemView::indexAt(const QPoint &p) const
 
     \overload
 
     Returns the model index of the item at point \a p.
 
-    In the base class this is built on the other itemAt() function,
+    In the base class this is built on the other indexAt() function,
     which is pure virtual.
 */
 
 /*!
-    \fn QModelIndex QAbstractItemView::itemAt(int x, int y) const = 0
+    \fn QModelIndex QAbstractItemView::indexAt(int x, int y) const = 0
 
     Returns the model index of the item at point (\a x, \a y).
 
@@ -862,7 +862,7 @@ bool QAbstractItemView::event(QEvent *e)
         if (!he)
             break;
         QPoint margins = d->viewport->geometry().topLeft();
-        QModelIndex index = itemAt(he->pos() - margins);
+        QModelIndex index = indexAt(he->pos() - margins);
         if (index.isValid()) {
             QString tooltip = model()->data(index, QAbstractItemModel::ToolTipRole).toString();
             QToolTip::showText(he->globalPos(), tooltip, this);
@@ -871,7 +871,7 @@ bool QAbstractItemView::event(QEvent *e)
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         QPoint margins = d->viewport->geometry().topLeft();
-        QModelIndex index = itemAt(he->pos() - margins);
+        QModelIndex index = indexAt(he->pos() - margins);
         if (index.isValid()) {
             QString whatsthis = model()->data(index, QAbstractItemModel::WhatsThisRole).toString();
             QWhatsThis::showText(he->globalPos(), whatsthis, this);
@@ -880,7 +880,7 @@ bool QAbstractItemView::event(QEvent *e)
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         QPoint margins = d->viewport->geometry().topLeft();
-        QModelIndex index = itemAt(he->pos() - margins);
+        QModelIndex index = indexAt(he->pos() - margins);
         if (index.isValid()) {
             QString statustip = model()->data(index, QAbstractItemModel::StatusTipRole).toString();
             if (!statustip.isEmpty())
@@ -915,7 +915,7 @@ bool QAbstractItemView::event(QEvent *e)
 void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
-    QModelIndex index = itemAt(pos);
+    QModelIndex index = indexAt(pos);
 
     if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
         return;
@@ -966,7 +966,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     else
         topLeft = bottomRight;
 
-    QModelIndex index = itemAt(bottomRight);
+    QModelIndex index = indexAt(bottomRight);
     QModelIndex buddy = model() ? model()->buddy(d->pressedIndex) : QModelIndex();
     if (state() == EditingState && d->editors.contains(buddy))
         return;
@@ -1008,7 +1008,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
-    QModelIndex index = itemAt(pos);
+    QModelIndex index = indexAt(pos);
 
     if (state() == EditingState)
         return;
@@ -1029,7 +1029,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 */
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    QModelIndex index = itemAt(e->pos());
+    QModelIndex index = indexAt(e->pos());
     if (!index.isValid())
         return;
     emit doubleClicked(index, e->button(), e->modifiers());
@@ -1046,7 +1046,7 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
 void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
 {
     QPoint position = e->pos();
-    QModelIndex index = itemAt(position);
+    QModelIndex index = indexAt(position);
     QMenu contextMenu(this);
     contextMenu.move(e->globalPos());
     emit aboutToShowContextMenu(&contextMenu, index);
@@ -1081,7 +1081,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
     // the ignore by default
     e->ignore();
 
-    QModelIndex index = itemAt(e->pos());
+    QModelIndex index = indexAt(e->pos());
     index = model()->sibling(index.row(), 0, index);
 
     if (d->canDecode(e)) {
@@ -1154,7 +1154,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
     if (d->viewport->rect().contains(e->pos())) {
         QPoint center = d->dropIndicator->geometry().center();
         pos = d->viewport->mapFromGlobal(center);
-        index = itemAt(pos);
+        index = indexAt(pos);
         index = model()->sibling(index.row(), 0, index);
         if (!index.isValid())
             index = root(); // drop on viewport

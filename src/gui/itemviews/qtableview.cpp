@@ -464,7 +464,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     Returns the index position of the model item corresponding to the
     table item at position (\a x, \a y) in contents coordinates.
 */
-QModelIndex QTableView::itemAt(int x, int y) const
+QModelIndex QTableView::indexAt(int x, int y) const
 {
     int r = rowAt(y);
     int c = columnAt(x);
@@ -579,10 +579,8 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
 {
     if (!selectionModel())
         return;
-    QModelIndex tl = itemAt((isRightToLeft()
-                             ? rect.right() : rect.left()), rect.top());
-    QModelIndex br = itemAt((isRightToLeft()
-                             ? rect.left() : rect.right()), rect.bottom());
+    QModelIndex tl = indexAt((isRightToLeft() ? rect.right() : rect.left()), rect.top());
+    QModelIndex br = indexAt((isRightToLeft() ? rect.left() : rect.right()), rect.bottom());
     selectionModel()->select(QItemSelection(tl, br), command);
 }
 

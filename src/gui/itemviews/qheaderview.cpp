@@ -1448,7 +1448,7 @@ void QHeaderView::ensureVisible(const QModelIndex &)
   Empty implementation because the header doesn't show QModelIndex items.
 */
 
-QModelIndex QHeaderView::itemAt(int, int) const
+QModelIndex QHeaderView::indexAt(int, int) const
 {
     return QModelIndex();
 }

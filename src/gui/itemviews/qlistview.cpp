@@ -717,7 +717,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
             newRect.translate(d->draggedItemsDelta());
             d->viewport->repaint(oldRect|newRect);
             // set the item under the cursor to current
-            QModelIndex index = QAbstractItemView::itemAt(e->pos());
+            QModelIndex index = QAbstractItemView::indexAt(e->pos());
             // check if we allow drops here
             if (e->source() == this && d->draggedItems.contains(index))
                 e->accept(); // allow changing item position
@@ -877,7 +877,7 @@ void QListView::paintEvent(QPaintEvent *e)
 /*!
   \reimp
 */
-QModelIndex QListView::itemAt(int x, int y) const
+QModelIndex QListView::indexAt(int x, int y) const
 {
     QRect rect(x + horizontalOffset(), y + verticalOffset(), 1, 1);
     d->intersectingSet(rect);

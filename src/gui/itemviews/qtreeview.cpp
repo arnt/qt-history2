@@ -711,11 +711,11 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 /*!
-  \fn QModelIndex QTreeView::itemAt(int x, int y) const
+  \fn QModelIndex QTreeView::indexAt(int x, int y) const
 
   Returns the model index of the item at point (\a x, \a y).
 */
-QModelIndex QTreeView::itemAt(int x, int y) const
+QModelIndex QTreeView::indexAt(int x, int y) const
 {
     int vi = d->item(y);
     QModelIndex mi = d->modelIndex(vi);
@@ -728,7 +728,7 @@ QModelIndex QTreeView::itemAt(int x, int y) const
 /*!
   Returns the model index of the item above \a index.
 */
-QModelIndex QTreeView::itemAbove(const QModelIndex &index) const
+QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
 {
     int above = d->above(d->viewIndex(index));
     return d->modelIndex(above);
@@ -737,7 +737,7 @@ QModelIndex QTreeView::itemAbove(const QModelIndex &index) const
 /*!
   Returns the model index of the item below \a index.
 */
-QModelIndex QTreeView::itemBelow(const QModelIndex &index) const
+QModelIndex QTreeView::indexBelow(const QModelIndex &index) const
 {
     int below = d->below(d->viewIndex(index));
     return d->modelIndex(below);
@@ -849,10 +849,8 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 {
     if (!selectionModel())
         return;
-    int start = d->viewIndex(itemAt(isRightToLeft()
-                                    ? rect.right() : rect.left(), rect.top()));
-    int stop = d->viewIndex(itemAt(isRightToLeft()
-                                   ? rect.left() : rect.right(), rect.bottom()));
+    int start = d->viewIndex(indexAt(isRightToLeft() ? rect.right() : rect.left(), rect.top()));
+    int stop = d->viewIndex(indexAt(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));
     d->select(start, stop, command);
 }
 

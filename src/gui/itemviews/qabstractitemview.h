@@ -122,8 +122,8 @@ public:
 
     virtual QRect itemViewportRect(const QModelIndex &index) const = 0;
     virtual void ensureVisible(const QModelIndex &index) = 0;
-    inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
-    virtual QModelIndex itemAt(int x, int y) const = 0;
+    inline QModelIndex indexAt(const QPoint &p) const { return indexAt(p.x(), p.y()); }
+    virtual QModelIndex indexAt(int x, int y) const = 0;
 
     QSize itemSizeHint(const QModelIndex &index) const;
     virtual int rowSizeHint(int row) const;
