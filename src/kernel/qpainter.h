@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#72 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#73 $
 **
 ** Definition of QPainter class
 **
@@ -189,6 +189,7 @@ public:
     static void cleanup();
 
 private:
+    void	drawPolyInternal( const QPointArray & );
     void	updateFont();
     void	updatePen();
     void	updateBrush();
