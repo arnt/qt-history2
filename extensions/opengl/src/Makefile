@@ -52,6 +52,9 @@ $(TARGET): $(OBJECTS) $(OBJMOC)
 
 moc: $(SRCMOC)
 
+include:
+	( cd $(QTDIR)/include ; ln -s -f ../opengl/src/*.h . )
+
 clean:
 	-rm -f $(OBJECTS) $(OBJMOC) $(SRCMOC)
 
