@@ -168,8 +168,6 @@ void QProcessPrivate::cleanup()
     Q_Q(QProcess);
 
     q->setOpenMode(QIODevice::ReadOnly);
-    processChannel = QProcess::StandardOutput;
-    processError = QProcess::UnknownError;
     processState = QProcess::NotRunning;
 #ifdef Q_OS_WIN
     if (pid) {
@@ -836,6 +834,8 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
     QCoreApplication::flush();
 
     d->exitCode = 0;
+    d->processError = QProcess::UnknownError;
+    setErrorString(tr("Unknown error"));
     d->startProcess();
 }
 
