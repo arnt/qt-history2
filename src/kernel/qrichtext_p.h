@@ -425,6 +425,11 @@ public:
     int alignment() const;
     void setAlignment( int a );
 
+    int *tabArray() const;
+    int tabStopWidth() const;
+    void setTabArray( int *a );
+    void setTabStops( int tw );
+    
 signals:
     void minimumWidthChanged( int );
 
@@ -490,6 +495,8 @@ private:
     QString contxt;
     QMap<QString, QString> attribs;
     int align;
+    int *tArray;
+    int tStopWidth;
 
 };
 
@@ -743,6 +750,10 @@ public:
     QTextFormatCollection *formatCollection() const;
     QTextFormatter *formatter() const;
     int minimumWidth() const;
+
+    int nextTab( int x );
+    void setTabArray( int *a );
+    void setTabStops( int tw );
     
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
@@ -782,6 +793,8 @@ private:
     QRect docRect;
     QTextFormatCollection *fCollection;
     QTextFormatter *pFormatter;
+    int *tabArray;
+    int tabStopWidth;
     
 };
 
@@ -1405,6 +1418,26 @@ inline int QTextDocument::alignment() const
 inline void QTextDocument::setAlignment( int a )
 {
     align = a;
+}
+
+inline int *QTextDocument::tabArray() const
+{
+    return tArray;
+}
+
+inline int QTextDocument::tabStopWidth() const
+{
+    return tStopWidth;
+}
+
+inline void QTextDocument::setTabArray( int *a )
+{
+    tArray = a;
+}
+
+inline void QTextDocument::setTabStops( int tw )
+{
+    tStopWidth = tw;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2155,6 +2188,22 @@ inline QTextFormatter *QTextParag::formatter() const
 inline int QTextParag::minimumWidth() const
 {
     return doc ? doc->minimumWidth() : 0;
+}
+
+inline void QTextParag::setTabArray( int *a )
+{
+    if ( doc )
+	doc->setTabArray( a );
+    else
+	tabArray = a;
+}
+
+inline void QTextParag::setTabStops( int tw )
+{
+    if ( doc )
+	doc->setTabStops( tw );
+    else
+	tabStopWidth = tw;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1007,7 +1007,7 @@ bool QTextCursor::checkClosedParen()
 const int QTextDocument::numSelections = 4; // Don't count the Temp one!
 
 QTextDocument::QTextDocument( QTextDocument *p )
-    : par( p ), tc( 0 )
+    : par( p ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
 {
 #if defined(PARSER_DEBUG)
     qDebug( debug_indent + "new QTextDocument (%p)", this );
@@ -1064,6 +1064,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     selectionText[ ParenMatch ] = FALSE;
     selectionText[ Search ] = FALSE;
     commandHistory = new QTextCommandHistory( 100 ); // ### max undo/redo steps should be configurable
+    tStopWidth = formatCollection()->defaultFormat()->width( 'x' ) * 8;
 }
 
 QTextDocument::~QTextDocument()
@@ -1077,6 +1078,8 @@ QTextDocument::~QTextDocument()
     delete syntaxHighlighte;
     delete buf_pixmap;
     delete indenter;
+    if ( tArray )
+	delete [] tArray;
 }
 
 void QTextDocument::clear()
@@ -2469,9 +2472,12 @@ void QTextString::basicDirection() const
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
     : invalid( -1 ), p( pr ), n( nx ), doc( d ), align( -1 ), numSubParag( -1 ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), tc( 0 ),
-      numCustomItems( 0 ), fCollection( 0 ), pFormatter( 0 )
+      numCustomItems( 0 ), fCollection( 0 ), pFormatter( 0 ),
+      tabArray( 0 ), tabStopWidth( 0 )
 {
     defFormat = formatCollection()->defaultFormat();
+    if ( !doc )
+	tabStopWidth = defFormat->width( 'x' ) * 8;
 #if defined(PARSER_DEBUG)
     qDebug( debug_indent + "new QTextParag" );
 #endif
@@ -2526,7 +2532,9 @@ QTextParag::~QTextParag()
     if ( doc && p == doc->minwParag ) {
 	doc->minwParag = 0;
 	doc->minw = 0;
-    }	
+    }
+    if ( tabArray )
+	delete [] tabArray;
 }
 
 void QTextParag::setNext( QTextParag *s )
@@ -2852,7 +2860,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     bool lastDirection = 0;
 
     int numSelections = doc ? doc->numSelections : 0;
-    
+
     int selectionStarts[ numSelections ];
     int selectionEnds[ numSelections ];
     if ( drawSelections ) {
@@ -3119,7 +3127,7 @@ void QTextParag::setList( bool b, int listStyle )
 {
     if ( !doc )
 	return;
-    
+
     if ( !style() ) {
 	styleSheetItemsVec.resize( 2 );
 	styleSheetItemsVec.insert( 0, doc->styleSheet()->item( "html" ) );
@@ -3214,6 +3222,32 @@ void QTextParag::decDepth()
 	setList( FALSE, -1 );
     invalidate( 0 );
     lm = -1;
+}
+
+int QTextParag::nextTab( int x )
+{
+    if ( doc ) {
+	tabArray = doc->tabArray();
+	tabStopWidth = doc->tabStopWidth();
+    }
+    if ( tabArray ) {
+	int i = 0;
+	while ( tabArray[ i ] ) {
+	    if ( tabArray[ i ] >= x ) {
+		if ( doc )
+		    tabArray = 0;
+		return tabArray[ i ];
+	    }
+	    ++i;
+	}
+	if ( doc )
+	    tabArray = 0;
+	return tabArray[ 0 ];
+    } else {
+	int d = x / tabStopWidth;
+	return tabStopWidth * ( d + 1 );
+    }
+    return -1;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3933,8 +3967,14 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    firstChar = c;
 	}
 	int ww = 0;
-	if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
+	if ( c->c.unicode() >= 32 || c->isCustom ) {
 	    ww = c->width();
+	} else if ( c->c == '\t' ) {
+	    int nx = parag->nextTab( x );
+	    if ( nx < x )
+		ww = w - x;
+	    else
+		ww = nx - x + 1;
 	} else {
 	    ww = c->format()->width( ' ' );
 	}
@@ -4046,8 +4086,14 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    lastWasNonInlineCustom = FALSE;
 	
 	int ww = 0;
-	if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
+	if ( c->c.unicode() >= 32 || c->isCustom ) {
 	    ww = c->width();
+	} else if ( c->c == '\t' ) {
+	    int nx = parag->nextTab( x );
+	    if ( nx < x )
+		ww = w - x;
+	    else
+		ww = nx - x + 1;
 	} else {
 	    ww = c->format()->width( ' ' );
 	}
@@ -4075,7 +4121,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    minw = QMAX( minw, QMIN( c->customItem()->widthHint(), c->customItem()->width ) );
 	    continue;
 	}
-	minw = QMAX( ww, minw );
+	if ( c->c != '\t' )
+	    minw = QMAX( ww, minw );
 	
 	if ( x + ww > w ) {
 	    if ( lastBreak == -1 ) {
