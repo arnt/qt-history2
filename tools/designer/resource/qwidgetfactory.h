@@ -9,6 +9,7 @@
 #include "qpixmap.h"
 #include "qvaluelist.h"
 #include "qmap.h"
+#include "qaction.h"
 #endif // QT_H
 
 class QWidget;
@@ -16,7 +17,6 @@ class QLayout;
 class QDomElement;
 class QListViewItem;
 class QTable;
-class QAction;
 
 class QWidgetFactory
 {
