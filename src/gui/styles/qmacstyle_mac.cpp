@@ -2023,7 +2023,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             HIThemeTabDrawInfo tdi;
             tdi.version = 1;
             tdi.style = kThemeTabNonFront;
-            if (tabOpt->state & QStyle::State_Selected) {
+            bool selected = tabOpt->state & QStyle::State_Selected;
+            if (selected) {
                 if (!(tabOpt->state & QStyle::State_Active))
                     tdi.style = kThemeTabFrontUnavailable;
                 else if (!(tabOpt->state & QStyle::State_Enabled))
@@ -2039,46 +2040,49 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 tdi.style = kThemeTabNonFrontPressed;
             }
             tdi.direction = getTabDirection(tabOpt->shape);
+            bool verticalTabs = tdi.direction == kThemeTabWest || tdi.direction == kThemeTabEast;
             if (tabOpt->state & QStyle::State_HasFocus)
                 tdi.adornment = kHIThemeTabAdornmentFocus;
             else
                 tdi.adornment = kHIThemeTabAdornmentNone;
             QRect tabRect = tabOpt->rect;
-            tdi.kind = kHIThemeTabKindNormal;
-            if (tabOpt->position == QStyleOptionTab::Beginning)
-                tdi.position = kHIThemeTabPositionFirst;
-            else if (tabOpt->position == QStyleOptionTab::Middle)
-                tdi.position = kHIThemeTabPositionMiddle;
-            else if (tabOpt->position == QStyleOptionTab::End)
-                tdi.position = kHIThemeTabPositionLast;
+            if (!verticalTabs)
+                tabRect.setY(tabRect.y() - 1);
             else
+                tabRect.setX(tabRect.x() - 1);
+            tdi.kind = kHIThemeTabKindNormal;
+            switch (tabOpt->position) {
+            case QStyleOptionTab::Beginning:
+                tdi.position = kHIThemeTabPositionFirst;
+                if (verticalTabs)
+                    tabRect.setHeight(tabRect.height() + 1);
+                else
+                    tabRect.setWidth(tabRect.width() + 1);
+                if (tabOpt->selectedPosition != QStyleOptionTab::NextIsSelected)
+                    tdi.adornment |= kHIThemeTabAdornmentTrailingSeparator;
+                break;
+            case QStyleOptionTab::Middle:
+                tdi.position = kHIThemeTabPositionMiddle;
+                if (verticalTabs)
+                    tabRect.setHeight(tabRect.height() + 1);
+                else
+                    tabRect.setWidth(tabRect.width() + 1);                
+                if (selected)
+                    tdi.adornment |= kHIThemeTabAdornmentLeadingSeparator;
+                if (tabOpt->selectedPosition != QStyleOptionTab::NextIsSelected)  // Also when we're selected.
+                    tdi.adornment |= kHIThemeTabAdornmentTrailingSeparator;
+                break;
+            case QStyleOptionTab::End:
+                tdi.position = kHIThemeTabPositionLast;
+                if (selected)
+                    tdi.adornment |= kHIThemeTabAdornmentLeadingSeparator;
+                break;
+            case QStyleOptionTab::OnlyOneTab:
                 tdi.position = kHIThemeTabPositionOnly;
-            if (tabOpt->position != QStyleOptionTab::End)
-                tabRect.setWidth(tabRect.width() + 1);
-            HIRect hirect = qt_hirectForQRect(tabRect, p);
-            QCFType<HIShapeRef> tabDrawShape;
-            HIThemeGetTabDrawShape(&hirect, &tdi, &tabDrawShape);
-            HIShapeGetBounds(tabDrawShape, &hirect);
-            HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
-#if 0
-            // Draw the little line for the tabs.
-            if (tabOpt->position != QStyleOptionTab::End) {
-                QCFType<HIShapeRef> tabShape;
-                HIRect hirect2 = qt_hirectForQRect(tabRect);
-                HIThemeGetTabShape(&hirect2, &tdi, &tabShape);
-                HIShapeGetBounds(tabShape, &hirect2);
-                QRect newRect = qt_qrectForHIRect(hirect2);
-                QColor curCol = opt->state & QStyle::State_Selected ? QColor(0, 0, 255, 30)
-                                                                    : QColor(0, 0, 0, 51);
-                p->save();
-                p->setPen(curCol);
-                // I don't like these y-components in the QPoint thing, but it seems that
-                // the bounds for the tab shape a a bit bigger than the actual tab.
-                p->drawLine(newRect.topRight() - QPoint(1, -5),
-                            newRect.bottomRight() - QPoint(1, 2));
-                p->restore();
+                break;
             }
-#endif
+            HIRect hirect = qt_hirectForQRect(tabRect, p);
+            HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
 #else
             drawPantherTab(tabOpt, p, w);
 #endif
@@ -5284,7 +5288,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         break;
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
-            // Make sure we draw panther style tabs on Panther
+            // Make sure we draw Panther-style tabs on Panther
             if (QSysInfo::MacintoshVersion == QSysInfo::MV_10_3
                 || (!d->useHITheme && QSysInfo::MacintoshVersion != QSysInfo::MV_10_2)) {
                 d->drawPantherTab(tab, p, w);
@@ -5298,16 +5302,17 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         break;
     case CE_TabBarTabLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
-            if (QSysInfo::MacintoshVersion == QSysInfo::MV_10_3) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 QStyleOptionTab myTab = *tab;
-                bool westSide = getTabDirection(myTab.shape) == kThemeTabWest;
+                ThemeTabDirection ttd = getTabDirection(myTab.shape);
+                bool verticalTabs = ttd == kThemeTabWest || ttd == kThemeTabEast;
                 myTab.rect.setHeight(myTab.rect.height() - 2);
-                if (westSide) {
+                if (verticalTabs) {
                     p->save();
-                    p->translate(-1, 0);
+                    p->translate((ttd == kThemeTabWest) ? -2 : 0, 0);
                 }
                 QCommonStyle::drawControl(ce, &myTab, p, w);
-                if (westSide)
+                if (verticalTabs)
                     p->restore();
             } else {
                 QCommonStyle::drawControl(ce, tab, p, w);
