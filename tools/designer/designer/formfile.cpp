@@ -553,7 +553,11 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
     if ( it == functionBodies.end() ) {
 	if ( !codeEdited && !timeStamp.isUpToDate() )
 	    loadCode();
-	QString body = "\n\n" + iface->createFunctionStart( formWindow()->name(),
+	MetaDataBase::MetaInfo mi = MetaDataBase::metaInfo( formWindow() );
+	QString cn = mi.className;
+	if ( cn.isEmpty() )
+	    cn = formWindow()->name();
+	QString body = "\n\n" + iface->createFunctionStart( cn,
 							    make_func_pretty( slot.slot ),
 							    slot.returnType.isEmpty() ?
 							    QString( "void" ) :
