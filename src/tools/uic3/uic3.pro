@@ -1,6 +1,7 @@
 TEMPLATE = app
 CONFIG += console
 CONFIG -= resource_fork
+build_all:CONFIG += release
 
 QT += xml compat
 

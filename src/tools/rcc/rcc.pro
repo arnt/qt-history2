@@ -2,6 +2,7 @@ TARGET = rcc
 CONFIG += console
 DESTDIR = ../../../bin
 mac:CONFIG -= resource_fork
+build_all:CONFIG += release
 
 DEFINES += QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NO_UNICODETABLES QT_NODLL \
            QT_BUILD_RCC QT_NO_THREAD QT_NO_QFILE_QOBJECT
