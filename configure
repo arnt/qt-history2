@@ -230,10 +230,6 @@ QMAKE_PROJECTS=""
 # Parse the arguments, setting things to "yes" or "no".
 while [ -n "$1" ]; do
    case $1 in
-   -config)
-	shift
-	QMAKE_CONFIG="$QMAKE_CONFIG $1"
-	;;
    -frommake)
        FROMMAKE=yes
 	;;
@@ -330,8 +326,15 @@ while [ -n "$1" ]; do
    -kde)
        KDE=yes
 	;;
-   -no-*)
-       MODULE=`echo $1 | sed -e "s/-no-//"`;
+   -enable-*)
+       MODULE=`echo $1 | sed "s/-enable-//"`
+       if [ -d "src/$MODULE" ] && ! echo $MODULES | grep $MODULE >/dev/null 2>&1
+       then
+	   MODULES="$MODULES $MODULE"
+       fi
+	;;
+   -disable-*)
+       MODULE=`echo $1 | sed -e "s/-disable-//"`
        if [ -d "src/$MODULE" ]
        then
 	   MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
@@ -339,9 +342,19 @@ while [ -n "$1" ]; do
 	   FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
 	   QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
        fi
-	
-    #buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
-	;;
+       ;;
+    -with-*-*-*)
+       CONFIG=`echo $1 | sed -e "s/-with-//"`
+       VAR=`echo $CONFIG | sed -e "s/-[^-]*$//"`
+       VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
+       QMAKE_ARGS="$QMAKE_ARGS \"$VAR+=$VAL\""
+       ;;
+    -without-*-*-*)
+       CONFIG=`echo $1 | sed -e "s/-without-//"`
+       VAR=`echo $CONFIG | sed -e "s/-[^-]*$//"`
+       VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
+       QMAKE_ARGS="$QMAKE_ARGS \"$VAR-=$VAL\""
+       ;;
    -h | -help | --help)
        HELP=yes
 	;;
@@ -721,8 +734,14 @@ each option:
     -Rstring ........... Add an explicit dynamic library runtime search path.
     -lstring ........... Add an explicit library.
 
-    -no-<module> ....... Disables a module, where module can
-                         can be one of: $MODULES_HELP
+    
+    -enable-<module> .......... Enables a module where module is one of the below.
+    -disable-<module> ......... Disables a module, where module can can be one of: 
+                                $MODULES_HELP
+
+    -with-<module setting> .... This will activate a setting as described below.
+    -without-<module setting> . This will deactivate a setting for any enabled module, 
+			        consult each Qt module for their specific settings.
 EOF
 
    [ "x$ERROR" = "xyes" ] && exit 1

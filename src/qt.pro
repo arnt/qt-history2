@@ -22,17 +22,17 @@ XML_CPP	        = xml
 
 win32 {
 	WIN_ALL_H = ../include
-	SQL_H	= $$WIN_ALL_H
+	SQL_H	        = $$WIN_ALL_H
 	KERNEL_H	= $$WIN_ALL_H
 	WIDGETS_H	= $$WIN_ALL_H
-	TABLE_H	= $$WIN_ALL_H
+	TABLE_H	        = $$WIN_ALL_H
 	DIALOGS_H	= $$WIN_ALL_H
 	ICONVIEW_H	= $$WIN_ALL_H
 	NETWORK_H	= $$WIN_ALL_H
 	OPENGL_H	= $$WIN_ALL_H
-	TOOLS_H	= $$WIN_ALL_H
+	TOOLS_H	        = $$WIN_ALL_H
 	WORKSPACE_H	= $$WIN_ALL_H
-	XML_H	= $$WIN_ALL_H
+	XML_H	        = $$WIN_ALL_H
 	CANVAS_H	= $$WIN_ALL_H
 
 	CONFIG	+= png zlib
@@ -45,18 +45,18 @@ win32 {
 win32-borland:INCLUDEPATH += kernel
 
 unix {
-	CANVAS_H	= canvas
-	KERNEL_H	= kernel	
-	WIDGETS_H	= widgets
-	SQL_H	= sql
-	TABLE_H	= table
-	DIALOGS_H	= dialogs
-	ICONVIEW_H	= iconview
-	NETWORK_H	= network
-	OPENGL_H	= opengl
-	TOOLS_H	= tools
-	WORKSPACE_H	= workspace
-	XML_H	= xml
+	CANVAS_H	= $$CANVAS_CPP
+	KERNEL_H	= $$KERNEL_CPP
+	WIDGETS_H	= $$WIDGETS_CPP
+	SQL_H	        = $$SQL_CPP
+	TABLE_H	        = $$TABLE_CPP
+	DIALOGS_H	= $$DIALOGS_CPP
+	ICONVIEW_H	= $$ICONVIEW_CPP
+	NETWORK_H	= $$NETWORK_CPP
+	OPENGL_H	= $$OPENGL_CPP
+	TOOLS_H	        = $$TOOLS_CPP
+	WORKSPACE_H	= $$WORKSPACE_CPP
+	XML_H	        = $$XML_CPP
 
 	CONFIG	   += x11 x11inc
 	DEFINES    += QT_FATAL_ASSERT

@@ -1,14 +1,14 @@
 # Qt/Embedded 
 
 embedded {
-	ps2 {
+	contains(embedded-videodriver, ps2) {
 		GSOS_INCLUDEPATH        = 3rdparty/gsos
 		INCLUDEPATH         += $$GSOS_INCLUDEPATH
 		SUBLIBS += gsos
 		MAKELIBgsos = $(MAKE) -C 3rdparty/gsos; \
 			cp 3rdparty/gsos/libgsos.a tmp
 	}
-	!ps2:DEFINES += QT_NO_QWS_PS2
+	!contains(embedded-videodriver, ps2):DEFINES += QT_NO_QWS_PS2
 
 	CONFIG -= opengl
 	CONFIG	+= png zlib

@@ -7,10 +7,6 @@
 #	sql_odbc	- link with odbc
 #
 
-sql_postgres:CONFIG += sql
-sql_mysql:CONFIG += sql
-sql_odbc:CONFIG += sql
-
 !sql:DEFINES    += QT_NO_SQL
 
 sql {
@@ -44,7 +40,7 @@ sql {
 		    $$SQL_CPP/qsqlindex.cpp \
 		    $$SQL_CPP/qsqltable.cpp
 
-	sql_postgres {
+	contains(sql-driver, postgres) {
 		HEADERS += $$SQL_H/src/p$$SQL_CPP/qsql_psql.h
 		SOURCES += $$SQL_CPP/src/p$$SQL_CPP/qsql_psql.cpp
 		DEFINES += QT_SQL_POSTGRES
@@ -54,7 +50,7 @@ sql {
 		}
 	}
 
-	sql_mysql {
+	contains(sql-driver, mysql) {
 		HEADERS += $$SQL_H/src/my$$SQL_CPP/qsql_mysql.h
 		SOURCES += $$SQL_CPP/src/my$$SQL_CPP/qsql_mysql.cpp
 		DEFINES += QT_SQL_MYSQL
@@ -64,7 +60,7 @@ sql {
 		}
 	}
 	
-	sql_odbc {
+	contains(sql-driver, odbc) {
 		HEADERS += $$SQL_H/src/odbc/qsql_odbc.h
 		SOURCES += $$SQL_CPP/src/odbc/qsql_odbc.cpp
 		DEFINES += QT_SQL_ODBC

@@ -80,7 +80,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     const char *d = s.latin1();
     SKIP_WS(d);
     bool scope_failed = FALSE;
-    while(*d && *d != '+' && *d != '-' && *d != '=') {
+    while(*d && ((*d != '+' || *d != '-') && *(d+1) != '=') && *d != '=') {
 	if(*d == ':' || *d == '{') {
 	    scope = var.stripWhiteSpace();
 	    var = "";
