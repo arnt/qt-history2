@@ -146,6 +146,7 @@ Frame::Frame( QWidget *parent, const char *name )
 
     // stack for the demo widgets
     stack = new QWidgetStack( hbox );
+    stack->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
     setCentralWidget( hbox );
 }
