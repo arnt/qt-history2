@@ -198,7 +198,6 @@ QTimer *QButton::timer()
     have no automatic accelerator.
 
     \code
-	QPushButton *p;
 	p->setPixmap( QPixmap("print.png") );
 	p->setAccel( ALT+Key_F7 );
     \endcode
