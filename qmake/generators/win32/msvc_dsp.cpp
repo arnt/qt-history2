@@ -68,12 +68,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     if(!project->variables()["QMAKE_PLATFORM"].isEmpty())
 	platform = varGlue("QMAKE_PLATFORM", "", " ", "");
 
-    bool usePCH = !project->variables()["PRECOMPH"].isEmpty();
-    QString precomph = project->first("PRECOMPH");
-    QString precompcpp = project->first("PRECOMPCPP");
+    QString precomph = Option::fixPathToLocalOS(project->first("PRECOMPH"));
+    QString precompcpp = Option::fixPathToLocalOS(project->first("PRECOMPCPP"));
     if ( project->variables()["PRECOMPCPP"].size() > 1 )
 	warn_msg(WarnLogic, "dsp generator doesn't support multiple files in PRECOMPCPP, only first one used" );
     QString pch = QString(precomph).replace(".h", ".pch");
+    bool usePCH = !precomph.isEmpty();
     bool deletePCHcpp = precompcpp.isEmpty();
     if (usePCH && deletePCHcpp) {
 	precompcpp = project->first("TARGET");
@@ -105,8 +105,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    if (usePCH) {
+			QString realPrecomph = fileFixify(precomph, QFileInfo((*it)).dirPath(TRUE), QDir::currentDirPath(), TRUE);
 			t << "# ADD CPP /Y" << (precompcpp == (*it)?'c':'u')
-			<< "\"" << precomph << "\" /Fp" << pch << endl;
+			<< "\"" << realPrecomph << "\" /Fp" << pch << endl;
 		    }
 		    if(project->isActiveConfig("moc") && (*it).endsWith(Option::cpp_moc_ext)) {
 			QString base = (*it);
