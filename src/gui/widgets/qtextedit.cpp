@@ -2260,7 +2260,8 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
 /*!
     Sets the text edit's \a text. The text can be plain text or HTML
     and the text edit will try to guess the right format.
-    Use setTextFormat() to avoid text edit's guessing.
+
+    Use setHtml() or setPlainText() directly to avoid text edit's guessing.
 */
 void QTextEdit::setText(const QString &text)
 {
@@ -2277,8 +2278,10 @@ void QTextEdit::setText(const QString &text)
 */
 QString QTextEdit::text() const
 {
-    // ########## richtext case
-    return document()->toPlainText();
+    if (d->textFormat == Qt::PlainText)
+        return d->doc->toPlainText();
+    else
+        return d->doc->toHtml();
 }
 
 
