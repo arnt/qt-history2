@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#157 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#156 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#157 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -58,14 +58,14 @@ const uint stdWidgetEventMask =			// X event mask
 
 /*!
   \internal
-  Creates the widget window.
-  Usually called from the QWidget constructor.
+  Creates a new widget window if \e window is null, otherwise sets the
+  widget's window.
 */
 
-bool QWidget::create()
+void QWidget::create( WId window )
 {
-    if ( testWFlags(WState_Created) )		// already created
-	return FALSE;
+    if ( testWFlags(WState_Created) && window == 0 )
+	return;
     setWFlags( WState_Created );		// set created flag
 
     if ( !parentWidget() )
@@ -79,7 +79,7 @@ bool QWidget::create()
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
     Window root_win = RootWindow(dpy,scr);
-    Window parentw;
+    Window parentw, destroyw = 0;
     WId	   id;
 
     if ( popup )				// a popup is a tool window
@@ -100,16 +100,19 @@ bool QWidget::create()
     if ( desktop ) {				// desktop widget
 	frect.setRect( 0, 0, sw, sh );
 	modal = popup = FALSE;			// force these flags off
-    }
-    else if ( topLevel )			// calc pos/size from screen
+    } else if ( topLevel ) {			// calc pos/size from screen
 	frect.setRect( sw/4, 3*sh/10, sw/2, 4*sh/10 );
-    else					// child widget
+    } else {					// child widget
 	frect.setRect( 0, 0, 100, 30 );
+    }
     crect = frect;				// default client rect
 
     parentw = topLevel ? root_win : parentWidget()->winId();
 
-    if ( desktop ) {				// desktop widget
+    if ( window ) {				// override the old window
+	destroyw = winid;
+	setWinId( window );
+    } else if ( desktop ) {			// desktop widget
 	id = parentw;				// id = root window
 	QWidget *otherDesktop = find( id );	// is there another desktop?
 	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
@@ -210,6 +213,20 @@ bool QWidget::create()
 	XDefineCursor( dpy, winid, oc ? oc->handle() : curs.handle() );
 	setWFlags( WCursorSet );
     }
+    if ( destroyw )
+	XDestroyWindow( dpy, destroyw );
+}
+
+
+/*!
+  \internal
+  Creates the widget's window. Equivalent with create(0).
+  This function is usually called from the QWidget constructor.
+*/
+
+bool QWidget::create()
+{
+    create( 0 );
     return TRUE;
 }
 

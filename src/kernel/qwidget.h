@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#104 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#105 $
 **
 ** Definition of QWidget class
 **
@@ -233,6 +233,7 @@ protected:
 #endif
     int		 metric( int )	const;
 
+    void	 create( WId );
     WFlags	 getWFlags()	const;
     void	 setWFlags( WFlags );
     void	 clearWFlags( WFlags n );
