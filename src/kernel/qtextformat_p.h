@@ -2,14 +2,11 @@
 #define QTEXTFORMAT_P_H
 
 #include "qtextformat.h"
+#include <qvector.h>
 
-class QTextFormatCollection : public QObject
+class QTextFormatCollection
 {
-    Q_OBJECT
 public:
-    QTextFormatCollection(QObject *parent = 0);
-    ~QTextFormatCollection();
-
     int createReferenceIndex(const QTextFormat &newFormat);
     void updateReferenceIndex(int index, const QTextFormat &newFormat);
 
@@ -28,14 +25,14 @@ public:
     QTextImageFormat imageFormat(int index) const
     { return format(index, QTextFormat::ImageFormat).toImageFormat(); }
 
-    int numFormats() const;
+    int numFormats() const { return formats.count(); }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QTextFormatCollection(const QTextFormatCollection &);
-    QTextFormatCollection &operator=(const QTextFormatCollection &);
-#endif
-    Q_DECL_PRIVATE(QTextFormatCollection);
+    int indexToReference(int idx) const;
+    int referenceToIndex(int ref) const;
+
+    QVector<QTextFormat> formats;
+    QVector<int> formatReferences;
 };
 
 #endif // QTEXTFORMAT_P_H

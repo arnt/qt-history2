@@ -4,7 +4,6 @@
 #include <qstring.h>
 #include <qfontmetrics.h>
 #include <qdebug.h>
-#include <qvector.h>
 #include "qobject_p.h"
 #include <qmap.h>
 #include <qfont.h>
@@ -96,18 +95,6 @@ public:
 private:
     QTextFormatPropertyMap properties;
 };
-
-class QTextFormatCollectionPrivate : public QObjectPrivate
-{
-    Q_DECL_PUBLIC(QTextFormatCollection);
-public:
-    int indexToReference(int idx) const;
-    int referenceToIndex(int ref) const;
-
-    QVector<QTextFormat> formats;
-    QVector<int> formatReferences;
-};
-
 
 QTextFormatProperty::QTextFormatProperty(const QString &value)
 {
@@ -489,7 +476,7 @@ QFont QTextCharFormat::font() const
 
 // ------------------------------------------------------
 
-int QTextFormatCollectionPrivate::indexToReference(int idx) const
+int QTextFormatCollection::indexToReference(int idx) const
 {
     if (idx >= -1)
 	return -1;
@@ -501,7 +488,7 @@ int QTextFormatCollectionPrivate::indexToReference(int idx) const
     return idx;
 }
 
-int QTextFormatCollectionPrivate::referenceToIndex(int ref) const
+int QTextFormatCollection::referenceToIndex(int ref) const
 {
     if (ref < 0 || ref >= formatReferences.count())
 	return -1;
@@ -509,27 +496,15 @@ int QTextFormatCollectionPrivate::referenceToIndex(int ref) const
     return -(ref + 2);
 }
 
-#define d d_func()
-#define q q_func()
-
-QTextFormatCollection::QTextFormatCollection(QObject *parent)
-    : QObject(*new QTextFormatCollectionPrivate, parent)
-{
-}
-
-QTextFormatCollection::~QTextFormatCollection()
-{
-}
-
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
     // certainly need speedup
-    for (int i = 0; i < d->formats.size(); ++i)
-	if (d->formats[i] == format)
+    for (int i = 0; i < formats.size(); ++i)
+	if (formats[i] == format)
 	    return i;
 
-    int idx = d->formats.size();
-    d->formats.append(format);
+    int idx = formats.size();
+    formats.append(format);
     return idx;
 }
 
@@ -537,41 +512,36 @@ int QTextFormatCollection::createReferenceIndex(const QTextFormat &format)
 {
     int formatIdx = indexForFormat(format);
 
-    int ref = d->formatReferences.size();
-    d->formatReferences.append(formatIdx);
-    return d->referenceToIndex(ref);
+    int ref = formatReferences.size();
+    formatReferences.append(formatIdx);
+    return referenceToIndex(ref);
 }
 
 void QTextFormatCollection::updateReferenceIndex(int index, const QTextFormat &newFormat)
 {
-    int ref = d->indexToReference(index);
+    int ref = indexToReference(index);
     if (ref == -1)
 	return;
 
-    d->formatReferences[ref] = indexForFormat(newFormat);
+    formatReferences[ref] = indexForFormat(newFormat);
 
-    Q_ASSERT(d->referenceToIndex(ref) == index);
+    Q_ASSERT(referenceToIndex(ref) == index);
 }
 
 QTextFormat QTextFormatCollection::format(int idx, int defaultFormatType) const
 {
-    if (idx == -1 || idx > d->formats.count())
+    if (idx == -1 || idx > formats.count())
 	return QTextFormat(defaultFormatType);
 
     if (idx < 0) {
-	int ref = d->indexToReference(idx);
+	int ref = indexToReference(idx);
 	if (ref == -1)
 	    return QTextFormat(defaultFormatType);
 
-	idx = d->formatReferences[ref];
-	Q_ASSERT(idx >= 0 && idx < d->formats.count());
+	idx = formatReferences[ref];
+	Q_ASSERT(idx >= 0 && idx < formats.count());
     }
 
-    return QTextFormat(d->formats[idx]);
-}
-
-int QTextFormatCollection::numFormats() const
-{
-    return d->formats.count();
+    return QTextFormat(formats[idx]);
 }
 
