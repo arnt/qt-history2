@@ -22,7 +22,11 @@ class AlphaShade : public DemoWidget
 {
 public:
     AlphaShade(QWidget *parent=0);
+
+protected:
     void paintEvent(QPaintEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
 };
 
 #endif // ALPHASHADE_H
