@@ -56,6 +56,24 @@ ResourceFile::ResourceFile(const QString &file_name)
     setFileName(file_name);
 }
 
+static QStringList uniqueItems(QStringList list)
+{
+    QStringList result;
+    
+    list.sort();
+    QString last;
+    bool first = true;
+    foreach (QString s, list) {
+        if (first || s != last) {
+            result.append(s);
+            last = s;
+        }
+        first = false;
+    }
+
+    return result;
+}
+
 bool ResourceFile::load()
 {
     m_error_message.clear();
@@ -71,7 +89,7 @@ bool ResourceFile::load()
         return false;
     }
 
-    m_resource_map.clear();
+    m_prefix_list.clear();
 
     QDomDocument doc;
 
@@ -95,7 +113,16 @@ bool ResourceFile::load()
         QDomElement felt = relt.firstChildElement(QLatin1String("file"));
         for (; !felt.isNull(); felt = felt.nextSiblingElement(QLatin1String("file")))
             file_list.append(absolutePath(felt.text()));
-        m_resource_map.insert(fixPrefix(relt.attribute(QLatin1String("prefix"))), file_list);
+
+        QString prefix = fixPrefix(relt.attribute(QLatin1String("prefix")));
+        int idx = indexOfPrefix(prefix);
+        if (idx == -1) {
+            m_prefix_list.append(Prefix(prefix, uniqueItems(file_list)));
+        } else {
+            Prefix &pref = m_prefix_list[idx];
+            pref.file_list += file_list;
+            pref.file_list = uniqueItems(pref.file_list);
+        }
     }
 
     return true;
@@ -120,16 +147,24 @@ bool ResourceFile::save()
     QDomElement root = doc.createElement(QLatin1String("RCC"));
     doc.appendChild(root);
 
-    ResourceMap::const_iterator it = m_resource_map.begin();
-    for (; it != m_resource_map.end(); ++it) {
+    QStringList name_list = uniqueItems(prefixList());
+    
+    foreach (QString name, name_list) {
+        QStringList file_list;
+        foreach (Prefix pref, m_prefix_list) {
+            if (pref.name == name)
+                file_list += pref.file_list;
+        }
+        file_list = uniqueItems(file_list);
+                
         QDomElement relt = doc.createElement(QLatin1String("qresource"));
         root.appendChild(relt);
-        relt.setAttribute(QLatin1String("prefix"), it.key());
+        relt.setAttribute(QLatin1String("prefix"), name);
 
-        foreach (QString f, it.value()) {
+        foreach (QString file, file_list) {
             QDomElement felt = doc.createElement(QLatin1String("file"));
             relt.appendChild(felt);
-            QDomText text = doc.createTextNode(relativePath(f));
+            QDomText text = doc.createTextNode(relativePath(file));
             felt.appendChild(text);
         }
     }
@@ -140,114 +175,126 @@ bool ResourceFile::save()
     return true;
 }
 
-bool ResourceFile::split(const QString &_path, QString &prefix, QString &file) const
+int ResourceFile::matchPrefix(const QString &_path) const
 {
-    prefix.clear();
-    file.clear();
-
     QString path = _path;
     
+    if (!path.startsWith(QLatin1String(":")))
+        return -1;
+    
+    path = path.mid(1);
+
+    for (int i = 0; i < m_prefix_list.size(); ++i) {
+        const Prefix &prefix = m_prefix_list.at(i);
+        if (path.startsWith(prefix.name))
+            return i;
+    }
+    
+    return -1;        
+}
+
+bool ResourceFile::split(const QString &_path, QString *prefix, QString *file) const
+{
+    prefix->clear();
+    file->clear();
+
+    QString path = _path;
     if (!path.startsWith(QLatin1String(":")))
         return false;
     path = path.mid(1);
-
-    ResourceMap::const_iterator it = m_resource_map.begin();
-    for (; it != m_resource_map.end(); ++it) {
-        if (!path.startsWith(it.key()))
+    
+    for (int i = 0; i < m_prefix_list.size(); ++i) {
+        const Prefix &pref = m_prefix_list.at(i);
+        if (!path.startsWith(pref.name))
             continue;
-
-        prefix = it.key();
-        file = path.mid(it.key().size() + 1);
-        return it.value().contains(absolutePath(file));
+    
+        *prefix = pref.name;
+        *file = path.mid(pref.name.size() + 1);
+        
+        if (pref.file_list.contains(absolutePath(*file)))
+            return true;
     }
-
+    
     return false;
 }
 
-QString ResourceFile::resolvePath(const QString &_path) const
+QString ResourceFile::resolvePath(const QString &path) const
 {
-    QString path = _path;
+    QString prefix, file;
+    if (split(path, &prefix, &file))
+        return absolutePath(file);
     
-    if (!path.startsWith(QLatin1String(":")))
-        return QString();
-    path = path.mid(1);
-
-    ResourceMap::const_iterator it = m_resource_map.begin();
-    for (; it != m_resource_map.end(); ++it) {
-        if (!path.startsWith(it.key()))
-            continue;
-            
-        QString result = absolutePath(path.mid(it.key().size() + 1));
-        if (it.value().contains(result))
-            return result;
-        else
-            return QString();
-    }
-
     return QString();
 }
 
 QStringList ResourceFile::prefixList() const
 {
-    return m_resource_map.keys();
+    QStringList result;
+    for (int i = 0; i < m_prefix_list.size(); ++i)
+        result.append(m_prefix_list.at(i).name);
+    return result;
 }
 
-QStringList ResourceFile::fileList(const QString &prefix)
+bool ResourceFile::isEmpty() const
 {
-    QStringList abs_file_list = m_resource_map.value(fixPrefix(prefix));
+    return m_file_name.isEmpty() && m_prefix_list.isEmpty();
+}
+
+QStringList ResourceFile::fileList(int pref_idx) const
+{
+    const QStringList &abs_file_list = m_prefix_list.at(pref_idx).file_list;
     QStringList result;
     foreach (QString abs_file, abs_file_list)
         result.append(relativePath(abs_file));
     return result;
 }
 
+void ResourceFile::addFile(int prefix_idx, const QString &file)
+{
+    m_prefix_list[prefix_idx].file_list.append(absolutePath(file));
+}
+
 void ResourceFile::addPrefix(const QString &prefix)
 {
     QString fixed_prefix = fixPrefix(prefix);
-    if (m_resource_map.contains(fixed_prefix))
+    if (indexOfPrefix(fixed_prefix) != -1)
         return;
-    m_resource_map.insert(fixed_prefix, QStringList());
+    m_prefix_list.append(fixed_prefix);
 }
 
-int ResourceFile::indexOfPrefix(const QString &prefix)
+void ResourceFile::removePrefix(int prefix_idx)
+{
+    m_prefix_list.removeAt(prefix_idx);
+}
+
+void ResourceFile::removeFile(int prefix_idx, int file_idx)
+{
+    m_prefix_list[prefix_idx].file_list.removeAt(file_idx);
+}
+
+void ResourceFile::replacePrefix(int prefix_idx, const QString &prefix)
+{
+    m_prefix_list[prefix_idx].name = fixPrefix(prefix);
+}
+
+void ResourceFile::replaceFile(int pref_idx, int file_idx, const QString &file)
+{
+    m_prefix_list[pref_idx].file_list[file_idx] = file;
+}
+
+int ResourceFile::indexOfPrefix(const QString &prefix) const
 {
     QString fixed_prefix = fixPrefix(prefix);
-    int i = 0;
-    ResourceMap::const_iterator it = m_resource_map.begin();
-    for (; it != m_resource_map.end(); ++it, ++i) {
-        if (it.key() == fixed_prefix)
+    for (int i = 0; i < m_prefix_list.size(); ++i) {
+        if (m_prefix_list.at(i).name == fixed_prefix)
             return i;
     }
     return -1;
 }
 
-int ResourceFile::indexOfFile(int pref_idx, const QString &file)
+int ResourceFile::indexOfFile(int pref_idx, const QString &file) const
 {
-    QString prefix = this->prefix(pref_idx);
-    if (prefix.isEmpty())
-        return -1;
-    return m_resource_map.value(prefix).indexOf(absolutePath(file));
-}
-
-void ResourceFile::addFile(const QString &prefix, const QString &file)
-{
-    QString abs_file = absolutePath(file);
-    QString fixed_prefix = fixPrefix(prefix);
-
-    m_resource_map[fixed_prefix].append(abs_file);
-}
-
-void ResourceFile::removePrefix(const QString &prefix)
-{
-    m_resource_map.remove(fixPrefix(prefix));
-}
-
-void ResourceFile::removeFile(const QString &prefix, const QString &file)
-{
-    QString fixed_prefix = fixPrefix(prefix);
-    if (!m_resource_map.contains(fixed_prefix))
-        return;
-    m_resource_map[fixed_prefix].removeAll(absolutePath(file));
+    return m_prefix_list.at(pref_idx).file_list.indexOf(absolutePath(file));
 }
 
 QString ResourceFile::relativePath(const QString &abs_path) const
@@ -267,29 +314,19 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
     return QDir::cleanPath(QFileInfo(m_file_name).path() + QDir::separator() + rel_path);
 }
 
-bool ResourceFile::contains(const QString &prefix) const
-{
-    return m_resource_map.contains(fixPrefix(prefix));
-}
-
 bool ResourceFile::contains(const QString &prefix, const QString &file) const
 {
-    QStringList file_list = m_resource_map.value(fixPrefix(prefix));
-    return file_list.contains(absolutePath(file));
+    int pref_idx = indexOfPrefix(prefix);
+    if (pref_idx == -1)
+        return false;
+    if (file.isEmpty())
+        return true;
+    return m_prefix_list.at(pref_idx).file_list.contains(absolutePath(file));
 }
 
-void ResourceFile::changePrefix(const QString &old_prefix, const QString &new_prefix)
+bool ResourceFile::contains(int pref_idx, const QString &file) const
 {
-    QString fixed_old_prefix = fixPrefix(old_prefix);
-    QString fixed_new_prefix = fixPrefix(new_prefix);
-
-    if (!m_resource_map.contains(fixed_old_prefix))
-        return;
-    if (m_resource_map.contains(fixed_new_prefix))
-        return;
-    QStringList file_list = m_resource_map.value(fixed_old_prefix);
-    m_resource_map.remove(fixed_old_prefix);
-    m_resource_map.insert(fixed_new_prefix, file_list);
+    return m_prefix_list.at(pref_idx).file_list.contains(absolutePath(file));
 }
 
 QString ResourceFile::fixPrefix(const QString &prefix)
@@ -310,33 +347,22 @@ QString ResourceFile::fixPrefix(const QString &prefix)
 
 int ResourceFile::prefixCount() const
 {
-    return m_resource_map.size();
+    return m_prefix_list.size();
 }
 
 QString ResourceFile::prefix(int idx) const
 {
-    int i = 0;
-    ResourceMap::const_iterator it = m_resource_map.begin();
-    for (; it != m_resource_map.end(); ++it, ++i) {
-        if (i == idx)
-            return it.key();
-    }
-    return QString();
+    return m_prefix_list.at(idx).name;
 }
 
 int ResourceFile::fileCount(int prefix_idx) const
 {
-    return m_resource_map.value(prefix(prefix_idx)).size();
+    return m_prefix_list.at(prefix_idx).file_list.size();
 }
 
 QString ResourceFile::file(int prefix_idx, int file_idx) const
 {
-    QStringList list = m_resource_map.value(prefix(prefix_idx));
-    if (file_idx >= list.size())
-        return QString();
-    QString path = list.at(file_idx);
-    QString rel_path = relativePath(path);
-    return rel_path;
+    return m_prefix_list.at(prefix_idx).file_list.at(file_idx);
 }
 
 /******************************************************************************
@@ -527,47 +553,42 @@ QModelIndex ResourceModel::addNewPrefix()
     return index(i, 0, QModelIndex());
 }
 
-QModelIndex ResourceModel::addFiles(const QModelIndex &idx, const QStringList &file_list)
+QModelIndex ResourceModel::addFiles(const QModelIndex &model_idx, const QStringList &file_list)
 {
-    if (!idx.isValid())
+    if (!model_idx.isValid())
         return QModelIndex();
-    QModelIndex prefix_idx = prefixIndex(idx);
-    QString prefix = m_resource_file.prefix(prefix_idx.row());
-    Q_ASSERT(!prefix.isEmpty());
+    QModelIndex prefix_model_idx = prefixIndex(model_idx);
+    int prefix_idx = prefix_model_idx.row();
 
     int added = 0;
     foreach (QString file, file_list) {
-        if (m_resource_file.contains(prefix, file))
-            continue;
-        m_resource_file.addFile(prefix, file);
-        ++added;
+        if (!m_resource_file.contains(prefix_idx, file)) {
+            m_resource_file.addFile(prefix_idx, file);
+            ++added;
+        }
     }
 
-    int cnt = m_resource_file.fileCount(prefix_idx.row());
+    int cnt = m_resource_file.fileCount(prefix_idx);
     if (added > 0) {
-        emit rowsInserted(prefix_idx, cnt - added, cnt - 1);
+        emit rowsInserted(prefix_model_idx, cnt - added, cnt - 1);
         setDirty(true);
     }
     
-    return index(cnt - 1, 0, prefix_idx);
+    return index(cnt - 1, 0, prefix_model_idx);
 }
 
-void ResourceModel::changePrefix(const QModelIndex &idx, const QString &prefix)
+void ResourceModel::changePrefix(const QModelIndex &model_idx, const QString &prefix)
 {
-    if (!idx.isValid())
+    if (!model_idx.isValid())
         return;
 
-    QString fixed_prefix = ResourceFile::fixPrefix(prefix);
-    if (m_resource_file.contains(fixed_prefix))
+    QModelIndex prefix_model_idx = prefixIndex(model_idx);
+    int prefix_idx = model_idx.row();
+    if (m_resource_file.prefix(prefix_idx) == ResourceFile::fixPrefix(prefix))
         return;
-
-    QModelIndex prefix_idx = prefixIndex(idx);
-
-    QString old_prefix = m_resource_file.prefix(prefix_idx.row());
-    Q_ASSERT(!old_prefix.isEmpty());
-
-    m_resource_file.changePrefix(old_prefix, fixed_prefix);
-    emit dataChanged(prefix_idx, prefix_idx);
+        
+    m_resource_file.replacePrefix(prefix_idx, prefix);
+    emit dataChanged(prefix_model_idx, prefix_model_idx);
     setDirty(true);
 }
 
@@ -585,11 +606,11 @@ QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
     emit rowsAboutToBeRemoved(parent(idx), idx.row(), idx.row());
 
     if (file.isEmpty()) {
-        m_resource_file.removePrefix(prefix);
+        m_resource_file.removePrefix(prefix_idx);
         if (prefix_idx == m_resource_file.prefixCount())
             --prefix_idx;
     } else {
-        m_resource_file.removeFile(prefix, file);
+        m_resource_file.removeFile(prefix_idx, file_idx);
         if (file_idx == m_resource_file.fileCount(prefix_idx))
             --file_idx;
     }

@@ -115,7 +115,7 @@ void FindIconDialog::updateBoxes()
 
             if (m_icon_file_name.startsWith(QLatin1String(":"))) {
                 QString prefix, file;
-                rf.split(m_icon_file_name, prefix, file);
+                rf.split(m_icon_file_name, &prefix, &file);
                 QModelIndex file_index = new_model->getIndex(prefix, file);
                 QModelIndex prefix_index = new_model->prefixIndex(file_index);
                 m_resource_tree->setExpanded(prefix_index, true);

@@ -21,7 +21,6 @@ LIBS += -L../../lib \
     -lformeditor \
     -lobjectinspector \
     -lpropertyeditor \
-    -lresourceeditor \
     -lwidgetbox \
     -lsignalsloteditor \
     -lbuddyeditor \

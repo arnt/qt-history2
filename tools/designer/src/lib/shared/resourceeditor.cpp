@@ -1,5 +1,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/qdebug.h>
+#include <QtCore/QUrl>
 #include <QtGui/QTabWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -102,6 +103,18 @@ class QrcView : public QTreeView
     Q_OBJECT
 public:
     QrcView(QWidget *parent = 0);
+
+protected:
+    virtual void dragEnterEvent(QDragEnterEvent *);
+    virtual void dragMoveEvent(QDragMoveEvent *);
+    virtual void dragLeaveEvent(QDragLeaveEvent *);
+    virtual void dropEvent(QDropEvent *);
+
+private:
+    bool acceptDrop(QDropEvent *event);
+    QStringList mimeFileList(const QMimeData *mime);
+    const QMimeData *m_last_mime_data;
+    QStringList m_last_file_list;
 };
 
 QrcView::QrcView(QWidget *parent)
@@ -111,7 +124,99 @@ QrcView::QrcView(QWidget *parent)
     setEditTriggers(QTreeView::DoubleClicked
                             | QTreeView::AnyKeyPressed);
     header()->hide();
-    setDragEnabled(true);
+    setAcceptDrops(true);
+
+    m_last_mime_data = 0;
+}
+
+QStringList QrcView::mimeFileList(const QMimeData *mime)
+{
+    if (mime == m_last_mime_data)
+        return m_last_file_list;
+
+    m_last_mime_data = mime;
+    m_last_file_list.clear();
+            
+    if (!mime->hasFormat(QLatin1String("text/uri-list")))
+        return m_last_file_list;
+
+    QByteArray data_list_str = mime->data(QLatin1String("text/uri-list"));
+    QList<QByteArray> data_list = data_list_str.split('\n');
+    
+    foreach (QByteArray data, data_list) {
+        QString uri = QFile::decodeName(data.trimmed());
+        if (uri.startsWith(QLatin1String("file:")))
+            m_last_file_list.append(uri.mid(5));
+    }
+
+    return m_last_file_list;
+}
+
+bool QrcView::acceptDrop(QDropEvent *e)
+{
+    if (!(e->proposedAction() & Qt::CopyAction)) {
+        e->ignore();
+        return false;
+    }
+
+    if (mimeFileList(e->mimeData()).isEmpty()) {
+        e->ignore();
+        return false;
+    }
+    
+    e->acceptProposedAction();
+
+    return true;
+}
+
+void QrcView::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (!acceptDrop(e))
+        return;
+}
+
+void QrcView::dragMoveEvent(QDragMoveEvent *e)
+{
+    if (!acceptDrop(e))
+        return;
+
+    QModelIndex index = indexAt(e->pos());
+    if (!index.isValid()) {
+        e->ignore();
+        return;
+    }
+
+    selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+}
+
+void QrcView::dragLeaveEvent(QDragLeaveEvent*)
+{
+    m_last_mime_data = 0;
+}
+
+void QrcView::dropEvent(QDropEvent *e)
+{
+    if (!acceptDrop(e)) {
+        m_last_mime_data = 0;
+        return;
+    }
+
+    QStringList file_list = mimeFileList(e->mimeData());
+    m_last_mime_data = 0;
+
+    QModelIndex index = indexAt(e->pos());
+    if (!index.isValid()) {
+        e->ignore();
+        return;
+    }
+    
+    ResourceModel *model = qobject_cast<ResourceModel*>(this->model());
+    Q_ASSERT(model != 0);
+    
+    QModelIndex prefix_index = model->prefixIndex(index);
+    QModelIndex last_added_idx = model->addFiles(prefix_index, file_list);
+    setExpanded(prefix_index, true);
+    selectionModel()->setCurrentIndex(last_added_idx, QItemSelectionModel::ClearAndSelect);
 }
 
 /******************************************************************************
@@ -123,7 +228,7 @@ class EditableResourceModel : public ResourceModel
 public:
     EditableResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
     virtual ItemFlags flags(const QModelIndex &index) const;
-    virtual QStringList mimeTypes() const;
+    virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
 };
 
 EditableResourceModel::EditableResourceModel(const ResourceFile &resource_file,
@@ -136,8 +241,7 @@ QAbstractItemModel::ItemFlags EditableResourceModel::flags(const QModelIndex &in
 {
     QAbstractItemModel::ItemFlags result
         = ItemIsSelectable
-            | ItemIsEnabled
-            | ItemIsDropEnabled;
+            | ItemIsEnabled;
     
     QString prefix, file;
     getItem(index, prefix, file);
@@ -148,10 +252,40 @@ QAbstractItemModel::ItemFlags EditableResourceModel::flags(const QModelIndex &in
     return result;
 }
 
-QStringList EditableResourceModel::mimeTypes() const
+QModelIndex EditableResourceModel::addFiles(const QModelIndex &idx,
+                                                const QStringList &file_list)
 {
-    QStringList result = QAbstractItemModel::mimeTypes();
-    result << QLatin1String("text/uri-list");
+    QModelIndex result;
+
+    QStringList good_file_list;
+    foreach (QString file, file_list) {
+        if (!relativePath(file).startsWith(QLatin1String("..")))
+            good_file_list.append(file);
+    }
+
+    if (good_file_list.size() == file_list.size()) {
+        result = ResourceModel::addFiles(idx, good_file_list);
+    } else if (good_file_list.size() > 0) {
+        int answer = 
+            QMessageBox::warning(0, tr("Invalid files"),
+                                    tr("Files referenced in a qrc must be in the qrc's "
+                                        "directory or one of its subdirectories:<p><b>%1</b><p>"
+                                        "Some of the selected files do not comply with this.")
+                                            .arg(absolutePath(QString())),
+                                    tr("Cancel"), tr("Only insert files which comply"),
+                                    QString(), 1);
+                                
+        if (answer != 0) 
+            result = ResourceModel::addFiles(idx, good_file_list);
+    } else {
+        QMessageBox::warning(0, tr("Invalid files"),
+                                tr("Files referenced in a qrc must be in the qrc's "
+                                    "directory or one of its subdirectories:<p><b>%1</b><p>"
+                                    "The selected files do not comply with this.")
+                                        .arg(absolutePath(QString())),
+                                    QMessageBox::Cancel, QMessageBox::NoButton);
+    }
+
     return result;
 }
 
@@ -205,12 +339,11 @@ ResourceModel *ModelCache::model(const QString &file)
 ResourceEditor::ResourceEditor(AbstractFormWindow *form, QWidget *parent)
     : QDialog(parent)
 {
+    setModal(true);
     setupUi(this);
 
     m_form = form;
 
-    connect(form, SIGNAL(mainContainerChanged(QWidget*)),
-            this, SLOT(updateQrcStack()));
     connect(form, SIGNAL(fileNameChanged(const QString &)),
             this, SLOT(updateQrcPaths()));
     connect(m_qrc_combo, SIGNAL(activated(int)),
@@ -218,11 +351,15 @@ ResourceEditor::ResourceEditor(AbstractFormWindow *form, QWidget *parent)
 
     m_remove_qrc_button->setIcon(createIconSet("editdelete.png"));
     connect(m_remove_qrc_button, SIGNAL(clicked()), this, SLOT(removeCurrentView()));
-    
+
+    m_add_button->setIcon(createIconSet("plus.png"));
     connect(m_add_button, SIGNAL(clicked()), this, SLOT(addPrefix()));
+    m_remove_button->setIcon(createIconSet("minus.png"));
     connect(m_remove_button, SIGNAL(clicked()), this, SLOT(deleteItem()));
+    m_add_files_button->setIcon(createIconSet("fileopen.png"));
     connect(m_add_files_button, SIGNAL(clicked()), this, SLOT(addFiles()));
 
+    updateQrcStack();
     updateUi();
 }
 
@@ -376,6 +513,13 @@ void ResourceEditor::updateUi()
     m_remove_button->setEnabled(!prefix.isEmpty());
     m_add_files_button->setEnabled(!prefix.isEmpty());
     m_remove_qrc_button->setEnabled(currentModel() != 0);
+
+    QString name = QFileInfo(m_form->fileName()).fileName();
+    if (name.isEmpty())
+        name = tr("Untitled");
+
+    setWindowTitle(tr("Resource Editor: %1").arg(name));
+
 }
 
 int ResourceEditor::currentIndex() const
@@ -447,6 +591,8 @@ void ResourceEditor::updateQrcPaths()
         ResourceModel *model = this->model(i);
         m_qrc_combo->setItemText(i, qrcName(model->fileName()));
     }
+
+    updateUi();
 }
 
 void ResourceEditor::addView(const QString &qrc_file)
@@ -464,7 +610,7 @@ void ResourceEditor::addView(const QString &qrc_file)
     m_qrc_stack->addWidget(view);
     connect(view->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateUi()));
-    connect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
+//    connect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
 
     setCurrentIndex(idx);
 

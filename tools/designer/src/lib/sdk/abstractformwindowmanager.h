@@ -60,6 +60,8 @@ public:
     virtual QAction *actionBreakLayout() const;
     virtual QAction *actionAdjustSize() const;
 
+    virtual QAction *actionShowResourceEditor()const;
+    
     virtual AbstractFormWindow *activeFormWindow() const;
 
     virtual int formWindowCount() const;

@@ -3,7 +3,7 @@
 
 #include <QtGui/QDialog>
 
-#include "resourceeditor_global.h"
+#include "shared_global.h"
 #include "ui_resourceeditor.h"
 
 class AbstractFormWindow;
@@ -16,7 +16,7 @@ class QStackedWidget;
 class QString;
 class QTreeView;
 
-class ResourceEditor : public QDialog, public Ui::ResourceEditor
+class QT_SHARED_EXPORT ResourceEditor : public QDialog, public Ui::ResourceEditor
 {
     Q_OBJECT
 

@@ -144,3 +144,9 @@ QAction *AbstractFormWindowManager::actionRedo() const
 {
     return 0;
 }
+
+QAction *AbstractFormWindowManager::actionShowResourceEditor()const
+{
+    return 0;
+}
+

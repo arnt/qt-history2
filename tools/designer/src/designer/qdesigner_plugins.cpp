@@ -20,5 +20,4 @@
 Q_IMPORT_PLUGIN(SignalSlotEditorPlugin)
 Q_IMPORT_PLUGIN(BuddyEditorPlugin)
 Q_IMPORT_PLUGIN(TabOrderEditorPlugin)
-Q_IMPORT_PLUGIN(ResourceEditorPlugin)
 

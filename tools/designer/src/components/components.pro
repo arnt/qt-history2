@@ -8,7 +8,6 @@ SUBDIRS = propertyeditor \
     widgetbox \
     buddyeditor \
     taskmenu \
-    tabordereditor \
-    resourceeditor
+    tabordereditor
 
 

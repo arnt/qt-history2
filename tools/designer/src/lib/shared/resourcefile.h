@@ -22,36 +22,47 @@ public:
     QString resolvePath(const QString &path) const;
 
     QStringList prefixList() const;
-    QStringList fileList(const QString &prefix);
-    void addPrefix(const QString &prefix);
-    void addFile(const QString &prefix, const QString &file);
-    void removePrefix(const QString &prefix);
-    void removeFile(const QString &prefix, const QString &file);
-    bool contains(const QString &prefix) const;
-    bool contains(const QString &prefix, const QString &file) const;
-    void changePrefix(const QString &old_prefix, const QString &new_prefix);
+    QStringList fileList(int pref_idx) const;
     
     int prefixCount() const;
     QString prefix(int idx) const;
     int fileCount(int prefix_idx) const;
     QString file(int prefix_idx, int file_idx) const;
 
-    int indexOfPrefix(const QString &prefix);
-    int indexOfFile(int pref_idx, const QString &file);
+    void addFile(int prefix_idx, const QString &file);
+    void addPrefix(const QString &prefix);
+    void removePrefix(int prefix_idx);
+    void removeFile(int prefix_idx, int file_idx);
+    void replacePrefix(int prefix_idx, const QString &prefix);
+    void replaceFile(int pref_idx, int file_idx, const QString &file);
+    
+    int indexOfPrefix(const QString &prefix) const;
+    int indexOfFile(int pref_idx, const QString &file) const;
+    bool contains(const QString &prefix, const QString &file = QString()) const;
+    bool contains(int pref_idx, const QString &file) const;
         
     QString relativePath(const QString &abs_path) const;
     QString absolutePath(const QString &rel_path) const;
         
     static QString fixPrefix(const QString &prefix);
-    bool split(const QString &path, QString &prefix, QString &file) const;
+    bool split(const QString &path, QString *prefix, QString *file) const;
     
-    bool isEmpty() const { return m_file_name.isEmpty() && m_resource_map.isEmpty(); }
+    bool isEmpty() const;
 
 private:
-    typedef QMap<QString, QStringList> ResourceMap;
-    ResourceMap m_resource_map;
+    struct Prefix {
+        Prefix(const QString &_name = QString(),
+                const QStringList &_file_list = QStringList())
+            : name(_name), file_list(_file_list) {}
+        QString name;
+        QStringList file_list;
+    };
+    typedef QList<Prefix> PrefixList;
+    PrefixList m_prefix_list;
     QString m_file_name;
     QString m_error_message;
+
+    int matchPrefix(const QString &path) const;
 };
 
 class QT_SHARED_EXPORT ResourceModel : public QAbstractItemModel
@@ -74,14 +85,17 @@ public:
     void setFileName(const QString &file_name) { m_resource_file.setFileName(file_name); }
     void getItem(const QModelIndex &index, QString &prefix, QString &file) const;
 
-    QModelIndex addNewPrefix();
-    QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
-    void changePrefix(const QModelIndex &idx, const QString &prefix);
-    QModelIndex prefixIndex(const QModelIndex &sel_idx) const;
-    QModelIndex deleteItem(const QModelIndex &idx);
+    virtual QModelIndex addNewPrefix();
+    virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
+    virtual void changePrefix(const QModelIndex &idx, const QString &prefix);
+    virtual QModelIndex deleteItem(const QModelIndex &idx);
     QModelIndex getIndex(const QString &prefix, const QString &file);
+    QModelIndex prefixIndex(const QModelIndex &sel_idx) const;
 
-    QString absolutePath(const QString &path) const { return m_resource_file.absolutePath(path); }
+    QString absolutePath(const QString &path) const
+        { return m_resource_file.absolutePath(path); }
+    QString relativePath(const QString &path) const
+        { return m_resource_file.relativePath(path); }
 
     void reload();
     void save();
