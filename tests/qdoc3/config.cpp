@@ -163,7 +163,6 @@ QStringList Config::getAllFiles( const QString& filesVar,
 				 const QString& nameFilter )
 {
     QStringList result = getStringList( filesVar );
-
     QStringList dirs = getStringList( dirsVar );
     QStringList::ConstIterator d = dirs.begin();
     while ( d != dirs.end() ) {
@@ -242,6 +241,7 @@ void Config::load( Location location, const QString& fileName )
 	    QString word;
 	    bool inQuote = FALSE;
 	    bool prevWordQuoted = TRUE;
+	    bool metWord = FALSE;
 
 	    QValueStack<MetaKeyState> stack;
 	    stack.push( MetaKeyState() );
@@ -335,10 +335,11 @@ void Config::load( Location location, const QString& fileName )
 			    PUT_CHAR();
 			} else {
 			    if ( !word.isEmpty() ) {
-				if ( !stringListValue.isEmpty() )
+				if ( metWord )
 				    stringValue += " ";
 				stringValue += word;
 				stringListValue << word;
+				metWord = TRUE;
 				word = "";
 				prevWordQuoted = FALSE;
 			    }
@@ -351,7 +352,9 @@ void Config::load( Location location, const QString& fileName )
 			    if ( !prevWordQuoted )
 				stringValue += " ";
 			    stringValue += word;
-			    stringListValue << word;
+			    if ( !word.isEmpty() )
+				stringListValue << word;
+			    metWord = TRUE;
 			    word = "";
 			    prevWordQuoted = TRUE;
 			}
@@ -371,7 +374,7 @@ void Config::load( Location location, const QString& fileName )
 						   " undefined")
 						.arg(var) );
 			    } else {
-				stringValue += QString( val );
+				word += QString( val );
 			    }
 			}
 		    } else {

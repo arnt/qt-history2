@@ -43,6 +43,8 @@ public:
     static void internalError( const QString& hint );
 
 private:
+    enum MessageType { Warning, Error };
+
     struct StackEntry
     {
 	QString pathAndFileName;
@@ -50,7 +52,7 @@ private:
 	int columnNo;
     };
 
-    void emitMessage( bool isWarning, const QString& message,
+    void emitMessage( MessageType type, const QString& message,
 		      const QString& details ) const;
     QString toString() const;
     QString top() const;

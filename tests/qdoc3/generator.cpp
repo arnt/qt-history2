@@ -146,9 +146,6 @@ void Generator::generateText( const Text& text, const Node *relative,
 			      CodeMarker *marker )
 {
     if ( text.firstAtom() != 0 ) {
-qDebug( "Generate text" );
-text.dump();
-qDebug( " " );
 	int numAtoms = 0;
 	startText( relative, marker );
 	generateAtomList( text.firstAtom(), relative, marker, TRUE, numAtoms );

@@ -125,17 +125,17 @@ QString Location::fileName() const
 
 void Location::warning( const QString& message, const QString& details ) const
 {
-    emitMessage( TRUE, message, details );
+    emitMessage( Warning, message, details );
 }
 
 void Location::error( const QString& message, const QString& details ) const
 {
-    emitMessage( FALSE, message, details );
+    emitMessage( Error, message, details );
 }
 
 void Location::fatal( const QString& message, const QString& details ) const
 {
-    emitMessage( FALSE, message, details );
+    emitMessage( Error, message, details );
     information( "Aborting" );
     exit( EXIT_FAILURE );
 }
@@ -178,17 +178,18 @@ void Location::internalError( const QString& hint )
 			  .arg(programName).arg(programName) );
 }
 
-void Location::emitMessage( bool isWarning, const QString& message,
+void Location::emitMessage( MessageType type, const QString& message,
 			    const QString& details ) const
 {
-    if ( spuriousRegExp != 0 && spuriousRegExp->exactMatch(message) )
+    if ( type == Warning && spuriousRegExp != 0
+	 && spuriousRegExp->exactMatch(message) )
 	return;
 
     QString result = message;
     if ( !details.isEmpty() )
 	result += "\n[" + details + "]";
     result.replace( QRegExp("\n"), "\n    " );
-    if ( isWarning )
+    if ( type == Warning )
 	result.prepend( tr("warning: ") );
     result.prepend( toString() );
     printf( "%s\n", result.latin1() );
