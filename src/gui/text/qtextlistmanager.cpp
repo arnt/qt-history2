@@ -24,9 +24,9 @@ QTextList *QTextListManager::list(int listIdx) const
     return lists.value(listIdx);
 }
 
-QList<QTextPieceTable::BlockIterator> QTextListManager::blocksForObject(int listIdx) const
+QVector<QTextPieceTable::BlockIterator> QTextListManager::blocksForObject(int listIdx) const
 {
-    QList<QTextPieceTable::BlockIterator> blocks;
+    QVector<QTextPieceTable::BlockIterator> blocks;
     QTextList *l = list(listIdx);
     if (l)
 	blocks = l->d_func()->blocks;
@@ -116,7 +116,12 @@ void QTextListManager::removeListEntry(int listIdx, const QTextPieceTable::Block
     QTextListPrivate *d = list->d_func();
     Q_ASSERT(d->blocks.contains(blockIt));
 
-    d->blocks.remove(blockIt);
+    int idx = d->blocks.indexOf(blockIt);
+    while (idx != -1) {
+	d->blocks.remove(idx, 1);
+	idx = d->blocks.indexOf(blockIt, idx - 1);
+    }
+
     if (d->blocks.isEmpty()) {
 	lists.remove(listIdx);
 	delete list;

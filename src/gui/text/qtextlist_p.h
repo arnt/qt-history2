@@ -22,7 +22,7 @@ public:
 
     void removeAllFormatIndicesFromBlocks();
 
-    typedef QList<QTextPieceTable::BlockIterator> BlockList;
+    typedef QVector<QTextPieceTable::BlockIterator> BlockList;
     BlockList blocks;
 };
 
@@ -61,7 +61,7 @@ public:
 
 	QAbstractTextDocumentLayout *layout = pt->layout();
 
-	QList<QTextPieceTable::BlockIterator> affectedBlocks = manager->blocksForObject(objectId);
+	QVector<QTextPieceTable::BlockIterator> affectedBlocks = manager->blocksForObject(objectId);
 	for (int i = 0; i < affectedBlocks.size(); ++i) {
 	    const QTextPieceTable::BlockIterator &block = affectedBlocks.at(i);
 	    int start = block.start();

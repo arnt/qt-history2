@@ -90,13 +90,18 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
     return tables.value(tableIdx);
 }
 
-QList<QTextPieceTable::BlockIterator> QTextTableManager::blocksForObject(int tableIdx) const
+QVector<QTextPieceTable::BlockIterator> QTextTableManager::blocksForObject(int tableIdx) const
 {
-    QList<QTextPieceTable::BlockIterator> blocks;
+    QVector<QTextPieceTable::BlockIterator> blocks;
     QTextTable *tab = table(tableIdx);
     if (tab) {
-	Q_FOREACH(const QTextTablePrivate::Row &row, tab->d->rowList)
-	    blocks += row;
+	QTextTablePrivate *tp = tab->d_func();
+	blocks.reserve(tp->rows() * tp->cols());
+
+	QTextPieceTable::BlockIterator it = tp->start();
+	QTextPieceTable::BlockIterator end = tp->end();
+	for (; !it.atEnd() && it != end; ++it)
+	    blocks.append(it);
     }
     return blocks;
 }

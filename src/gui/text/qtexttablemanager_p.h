@@ -32,7 +32,7 @@ public:
 
     QTextPieceTable *pieceTable() { return pt; }
 
-    QList<QTextPieceTable::BlockIterator> blocksForObject(int tableIdx) const;
+    QVector<QTextPieceTable::BlockIterator> blocksForObject(int tableIdx) const;
 
 private slots:
     void blockChanged(int blockPosition, QText::ChangeOperation op);
