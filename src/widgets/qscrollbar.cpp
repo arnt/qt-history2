@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#29 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#29 $";
 #endif
 
 
@@ -783,7 +783,7 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
     QPointArray bTop;				// top shadow.
     QPointArray bBot;				// bottom shadow.
     QPointArray bLeft;				// left shadow.
-    Q2DMatrix	matrix;				// xform matrix
+    QWMatrix	matrix;				// xform matrix
     bool vertical = type == UpArrow || type == DownArrow;
     bool horizontal = !vertical;
     int	 dim = w < h ? w : h;
