@@ -2,7 +2,6 @@ TEMPLATE	= lib
 CONFIG		= qt warn_on release
 unix:CONFIG    += x11inc
 
-unix:TMAKE_CFLAGS += -fno-exceptions -O2
 
 win32:INCLUDEPATH	= tmp
 win32:MOC_DIR		= tmp
