@@ -226,9 +226,12 @@ void QTipManager::add( const QRect &gm, QWidget *w,
 	qApp->setGlobalMouseTracking( TRUE );
     }
 
-    if ( t->group )
+    if ( t->group ) {
+	disconnect( removeTimer, SIGNAL( timeout() ),
+		 t->group, SIGNAL( removeTip() ) );
 	connect( removeTimer, SIGNAL( timeout() ),
 		 t->group, SIGNAL( removeTip() ) );
+    }
 }
 
 void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
@@ -265,6 +268,9 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 	    delete d;
 	}
     }
+
+    if ( (*tips)[ w ] == 0 )
+	disconnect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
 #if 0 // not needed, leads sometimes to crashes
     if ( tips->isEmpty() ) {
 	// the manager will be recreated if needed
@@ -313,6 +319,7 @@ void QTipManager::remove( QWidget *w )
 	t = d;
     }
 
+    disconnect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
 #if 0
     if ( tips->isEmpty() ) {
 	delete tipManager;

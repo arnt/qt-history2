@@ -12404,12 +12404,16 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   unicode()) is generally not terminated by a null.
 
   \keyword QString::null
-  A QString that has not been assigned to anything is \e null, i.e., both
+  A QString that has not been assigned to anything is \e null, i.e. both
   the length and data pointer is 0. A QString that references the empty
   string ("", a single '\0' char) is \e empty.  Both null and empty
-  QStrings are legal parameters to the methods. Assigning \c {(const char
-  *) 0} to QString gives a null QString. For convenience,
-  \c QString::null is a null QString.
+  QStrings are legal parameters to the methods. Assigning
+  \c{(const char *) 0} to QString gives a null QString. For
+  convenience, \c QString::null is a null QString. When sorting, empty
+  strings come first, followed by non-empty strings, followed by null
+  strings. We recommend using \c{if ( !str.isNull() )} to check for a
+  non-null string rather than \c{if ( !str )}; see \l operator!() for
+  an explanation.
 
   Note that if you find that you are mixing usage of \l QCString,
   QString, and \l QByteArray, this causes lots of unnecessary copying
