@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#53 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#53 $")
 
 
 /*----------------------------------------------------------------------------
@@ -145,13 +145,13 @@ void QPushButton::setAutoDefault( bool enable )
   Sets the button to be the default button if \e enable is TRUE, or
   to be a normal button if \e enable is FALSE.
 
-  A default push button in a \link QDialog dialog \endlink emits the
+  A default push button in a \link QDialog dialog\endlink emits the
   QButton::clicked() signal if the user presses the Enter key.  Only
   one push button in the dialog can be default.
 
   Default push buttons are only allowed in dialogs.
 
-  \sa default() setAutoDefault() QDialog
+  \sa default(), setAutoDefault(), QDialog
  ----------------------------------------------------------------------------*/
 
 void QPushButton::setDefault( bool enable )
@@ -269,7 +269,10 @@ void QPushButton::setGeometry( const QRect &r )
 }
 
 
-/*! Draws the push button, except its label. \sa drawButtonLabel() */
+/*----------------------------------------------------------------------------
+  Draws the push button, except its label.
+  \sa drawButtonLabel()
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::drawButton( QPainter *paint )
 {
