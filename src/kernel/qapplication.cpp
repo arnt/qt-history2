@@ -2536,6 +2536,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
     }
 
     bool consumed = FALSE;
+    bool handled = FALSE;
     if ( receiver->isWidgetType() ) {
 	QWidget *widget = (QWidget*)receiver;
 
@@ -2574,12 +2575,53 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	if ( e->type() == QEvent::MouseMove &&
 	     (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
 	     !widget->hasMouseTracking() ) {
+	    handled = TRUE;
 	    consumed = TRUE;
-	    goto done;
+	} else if ( !widget->isEnabled() ) { // throw away mouse events to disabled widgets
+	    switch(e->type()) {
+	    case QEvent::MouseButtonPress:
+	    case QEvent::MouseButtonRelease:
+	    case QEvent::MouseButtonDblClick:
+	    case QEvent::MouseMove:
+		( (QMouseEvent*) e)->ignore();
+		handled = TRUE;
+		consumed = TRUE;
+		break;
+
+	    case QEvent::DragEnter:
+	    case QEvent::DragMove:
+		( (QDragMoveEvent*) e)->ignore();
+		handled = TRUE;
+		break;
+
+	    case QEvent::DragLeave:
+	    case QEvent::DragResponse:
+		handled = TRUE;
+		break;
+
+	    case QEvent::Drop:
+		( (QDropEvent*) e)->ignore();
+		handled = TRUE;
+		break;
+
+	    case QEvent::Wheel:
+		( (QWheelEvent*) e)->ignore();
+		handled = TRUE;
+		break;
+
+	    case QEvent::ContextMenu:
+		( (QContextMenuEvent*) e)->ignore();
+		handled = TRUE;
+		break;
+	    default:
+		break;
+	    }
 	}
+
     }
-    consumed = receiver->event( e );
- done:
+
+    if (!handled)
+	consumed = receiver->event( e );
     e->spont = FALSE;
     return consumed;
 }
