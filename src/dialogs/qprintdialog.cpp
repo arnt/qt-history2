@@ -425,7 +425,7 @@ static char * parsePrintersConf( QListView * printers )
 }
 
 // NIS only tested on Solaris
-#if defined(Q_OS_SOLARIS) && !defined(QT_NO_NIS)
+#if !defined(Q_OS_SOLARIS) && !defined(QT_NO_NIS)
 #define QT_NO_NIS
 #endif
 
