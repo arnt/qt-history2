@@ -36,17 +36,14 @@ Paper::Paper(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)
 {
     setBackgroundMode(PaletteBase);
-    font1 = QFont("Helvetica", 24);
-    font2 = QFont("Times", 12);
-    rtext = 0;
-    setRichText();
+    font1 = QFont("Arial", 48);
+    font2 = QFont("Times new roman", 10);
 
     sizeToA4();
 }
 
 Paper::~Paper()
 {
-    delete rtext;
 }
 
 static ushort some_unicode[] = {
@@ -59,17 +56,6 @@ static ushort some_unicode[] = {
     0x305b, 0x305d, 0x000a, 0x0419, 0x0426, 0x0423, 0x041a, 0x0415,
     0x041d, 0x000a, 0x0439, 0x0446, 0x0443, 0x043a, 0x0435, 0x043d
 };
-
-void Paper::setRichText()
-{
-    delete rtext;
-    QString html =
-	"<h1>Rich Text</h1>"
-	"<p>The Qt <i>rich text</i> features allow you to use many "
-	"HTML tags to improve the presentation of text information.<br>";
-    html += QString().setUnicodeCodes(some_unicode,sizeof(some_unicode)/sizeof(ushort));
-    rtext = new QSimpleRichText(html, font2);
-}
 
 void Paper::changeFont1()
 {
@@ -85,7 +71,6 @@ void Paper::changeFont2()
     QFont nf = QFontDialog::getFont( 0, font2, this );
     if ( nf != font2 ) {
 	font2 = nf;
-	setRichText();
 	update();
     }
 }
@@ -120,23 +105,29 @@ void Paper::print()
 void Paper::paint(QPainter& p)
 {
     QPaintDeviceMetrics metrics(p.device());
-    int dpix = metrics.logicalDpiX();
-    int dpiy = metrics.logicalDpiY();
 
-    const int margin = 72; // pt
+    int width = int(metrics.width()-metrics.logicalDpiX()*2.0);
+    int height = int(metrics.height()-metrics.logicalDpiY()*2.0);
+    p.setViewport( int(metrics.logicalDpiX()*1.0),
+		 int(metrics.logicalDpiY()*1.0),
+		 width, height );
+    const int scale=2;
+    width *= scale;
+    height *= scale;
+    p.setWindow( 0, 0, width, height );
+    QFont font1_scaled = font1; font1_scaled.setPointSize(font1.pointSize()*scale);
+    QFont font2_scaled = font2; font2_scaled.setPointSize(font2.pointSize()*scale);
+
     QString text = "Text";
 
-    p.setFont(font1);
+    p.setFont(font1_scaled);
     QRect r = p.boundingRect(0,0,0,0,DontClip,text);
-    r.moveTopLeft(QPoint(margin*dpix/72, margin*dpiy/72));
     p.drawRect(r);
-    QRect body(margin*dpix/72, margin*dpiy/72,
-	       metrics.width()-margin*dpix/72*2,
-		metrics.height()-margin*dpiy/72*2 );
+    QRect body(0, 0, width, height );
     p.drawRect(body);
     p.drawText(r,DontClip,text);
 
-    p.setFont(font2);
+    p.setFont(font2_scaled);
     QFontMetrics fm = p.fontMetrics();
 
     static const char* word[] = {
@@ -157,8 +148,15 @@ void Paper::paint(QPainter& p)
     p.drawText(body.left(), r.bottom()+fm.lineSpacing()*2,
 	"These lines may be spaced differently. ");
 
-    rtext->setWidth(&p,body.width());
-    rtext->draw(&p, body.left(), r.bottom()+fm.lineSpacing()*2, body, palette().active());
+
+    QString html =
+	"<h1>Rich Text</h1>"
+	"<p>The Qt <i>rich text</i> features allow you to use many "
+	"HTML tags to improve the presentation of text information.<br>";
+    html += QString().setUnicodeCodes(some_unicode,sizeof(some_unicode)/sizeof(ushort));
+    QSimpleRichText rtext(html, font2_scaled);
+    rtext.setWidth(&p,body.width());
+    rtext.draw(&p, body.left(), r.bottom()+fm.lineSpacing()*2, body, palette().active());
 }
 
 void Paper::paintEvent(QPaintEvent*)

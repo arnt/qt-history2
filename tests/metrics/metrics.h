@@ -1,7 +1,6 @@
 #include <qmainwindow.h>
 #include <qprinter.h>
 
-class QSimpleRichText;
 
 class Paper : public QWidget {
     Q_OBJECT
@@ -23,7 +22,6 @@ private:
     void setRichText();
     QFont font1, font2;
     QPrinter::PageSize ps;
-    QSimpleRichText* rtext;
 };
 
 class Main : public QMainWindow {
