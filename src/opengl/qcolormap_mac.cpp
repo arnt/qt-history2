@@ -85,7 +85,7 @@ bool QColormap::isValid() const
     return FALSE;
 }
 
-const Qt::HANDLE QColormap::colormap() const
+Qt::HANDLE QColormap::colormap() const
 {
     return 0;
 }

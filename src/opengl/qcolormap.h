@@ -32,17 +32,18 @@
 
 class QColormapPrivate;
 class QWidget;
-class Q_EXPORT QColormap {
+class Q_EXPORT QColormap : public Qt
+{
 public:
     QColormap();
     QColormap( QWidget * w );
     QColormap( const QColormap & );
-    virtual ~QColormap();
-    QColormap        &operator=( const QColormap & );
-    bool             isValid() const;
-    void             setEntry( int idx, QRgb color );
-    void             setEntry( int idx, const QColor & color );
-    const Qt::HANDLE colormap() const;
+    virtual   ~QColormap();
+    QColormap &operator=( const QColormap & );
+    bool      isValid() const;
+    void      setEntry( int idx, QRgb color );
+    void      setEntry( int idx, const QColor & color );
+    HANDLE    colormap() const;
     
 private:
     void detach();
