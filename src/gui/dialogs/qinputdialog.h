@@ -51,22 +51,39 @@ private:
     Type type() const;
 
 public:
-    static QString getText(const QString &caption, const QString &label,
+    static QString getText(QWidget *parent, const QString &caption, const QString &label,
+                           QLineEdit::EchoMode echo = QLineEdit::Normal,
+                           const QString &text = QString::null, bool *ok = 0, Qt::WFlags f = 0);
+    static int getInteger(QWidget *parent, const QString &caption, const QString &label, int value = 0,
+                          int minValue = -2147483647, int maxValue = 2147483647,
+                          int step = 1, bool *ok = 0, Qt::WFlags f = 0);
+    static double getDouble(QWidget *parent, const QString &caption, const QString &label, double value = 0,
+                            double minValue = -2147483647, double maxValue = 2147483647,
+                            int decimals = 1, bool *ok = 0, Qt::WFlags f = 0);
+    static QString getItem(QWidget *parent, const QString &caption, const QString &label, const QStringList &list,
+                           int current = 0, bool editable = true, bool *ok = 0,Qt::WFlags f = 0);
+
+
+#ifdef QT_COMPAT
+    inline static QT_COMPAT QString getText(const QString &caption, const QString &label,
                            QLineEdit::EchoMode echo = QLineEdit::Normal,
                            const QString &text = QString::null, bool *ok = 0,
-                           QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0);
-    static int getInteger(const QString &caption, const QString &label, int value = 0,
+                           QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
+        { return getText(parent, caption, label, echo, text, ok, f); }
+    inline static QT_COMPAT int getInteger(const QString &caption, const QString &label, int value = 0,
                           int minValue = -2147483647, int maxValue = 2147483647,
                           int step = 1, bool *ok = 0,
-                          QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0);
-    static double getDouble(const QString &caption, const QString &label, double value = 0,
+                          QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
+        { return getInteger(parent, caption, label, value, minValue, maxValue, step, ok, f); }
+    inline static QT_COMPAT double getDouble(const QString &caption, const QString &label, double value = 0,
                             double minValue = -2147483647, double maxValue = 2147483647,
                             int decimals = 1, bool *ok = 0,
-                            QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0);
-    static QString getItem(const QString &caption, const QString &label, const QStringList &list,
+                            QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
+        { return getDouble(parent, caption, label, value, minValue, maxValue, decimals, ok, f); }
+    inline static QT_COMPAT QString getItem(const QString &caption, const QString &label, const QStringList &list,
                            int current = 0, bool editable = true, bool *ok = 0,
-                           QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0);
-
+                           QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0);
+#endif
 private slots:
     void textChanged(const QString &s);
     void tryAccept();
