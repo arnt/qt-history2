@@ -5772,8 +5772,9 @@ void QListView::setOpen( QListViewItem * item, bool open )
 	QListViewItem* lastChild;
 	if ( !nextParent ) {
 	    lastChild = item;
-	    for ( int i=0;i<item->childCount();++i )
+	    for ( int i=0;i<item->childCount() && lastChild;++i ) {
 		lastChild = lastChild->itemBelow();
+	    }
 	} else {
 	    lastChild = nextParent->itemAbove();
 	}
