@@ -988,7 +988,7 @@ void QTextStream::ts_putc(QChar c)
         if (d->doUnicodeHeader) {
             d->doUnicodeHeader = false;
             if (!dev->isSequentialAccess() && dev->at() == 0)
-                ts_putc(QChar::byteOrderMark);
+                ts_putc(QChar::ByteOrderMark);
         }
         if (d->internalOrder) {
             // this case is needed by QStringBuffer
@@ -1061,7 +1061,7 @@ QTextStream &QTextStream::writeBlock(const char* p, uint len)
     if (d->doUnicodeHeader) {
         d->doUnicodeHeader = false;
         if (!d->mapper && !d->latin1 && !dev->isSequentialAccess() && dev->at() == 0)
-            ts_putc(QChar::byteOrderMark);
+            ts_putc(QChar::ByteOrderMark);
     }
     // QByteArray and const char * are treated as Latin1
     if (!d->mapper && d->latin1) {
@@ -1098,7 +1098,7 @@ QTextStream &QTextStream::writeBlock(const QChar* p, uint len)
         if (d->doUnicodeHeader) {
             d->doUnicodeHeader = false;
             if (!dev->isSequentialAccess() && dev->at() == 0)
-                ts_putc(QChar::byteOrderMark);
+                ts_putc(QChar::ByteOrderMark);
         }
         dev->writeBlock((char*)p, sizeof(QChar)*len);
     } else {

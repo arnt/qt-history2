@@ -615,7 +615,7 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     if (format.isBlockFormat())
         blockFmt = format.toBlockFormat();
 
-    QStringList blocks = text.split(QTextParagraphSeparator);
+    QStringList blocks = text.split(QChar::ParagraphSeparator);
     for (int i = 0; i < blocks.size(); ++i) {
         if (i > 0)
             insertBlock(blockFmt);
@@ -1050,7 +1050,7 @@ void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
 */
 void QTextCursor::insertImage(const QTextImageFormat &format)
 {
-    insertText(QString(QTextObjectReplacementChar), format);
+    insertText(QString(QChar::ObjectReplacementCharacter), format);
 }
 
 bool QTextCursor::operator!=(const QTextCursor &rhs) const

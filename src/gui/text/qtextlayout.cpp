@@ -223,8 +223,6 @@ void QTextLayout::clearLines()
     d->boundingRect = QRect();
 }
 
-#define QChar_linesep QChar(0x2028U)
-
 QTextLine QTextLayout::createLine()
 {
     int l = d->lines.size();
@@ -489,7 +487,7 @@ void QTextLine::layout(int width)
 
             line.length++;
             // the width of the linesep doesn't count into the textwidth
-            if (eng->string[current.position] == QChar_linesep)
+            if (eng->string[current.position] == QChar::LineSeparator)
                 goto found;
             line.textWidth += current.width;
 

@@ -86,7 +86,7 @@ private:
     void appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt = QTextCharFormat());
     void appendText(const QString &text, const QTextFormat &format);
     inline void appendImage(const QTextImageFormat &format)
-    { appendText(QString(QTextObjectReplacementChar), format); }
+    { appendText(QString(QChar::ObjectReplacementCharacter), format); }
 
     QTextDocumentFragmentPrivate *d;
     QVarLengthArray<int> listReferences;

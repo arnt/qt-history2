@@ -13,8 +13,6 @@
 #include <private/qtextpiecetable_p.h>
 #include "qtextcursor.h"
 
-#define QChar_linesep QChar(0x2028U) // in QChar maybe?
-
 #define MAX_ENTITY 259
 static const struct QTextHtmlEntity { const char *name; Q_UINT16 code; } entities[MAX_ENTITY]= {
     { "AElig", 0x00c6 },
@@ -501,7 +499,7 @@ int QTextHtmlParser::findNextChild(int parent, int currentChild) const
 
 void QTextHtmlParser::eatSpace()
 {
-    while (pos < len && txt.at(pos).isSpace() && txt.at(pos) != QTextParagraphSeparator)
+    while (pos < len && txt.at(pos).isSpace() && txt.at(pos) != QChar::ParagraphSeparator)
         pos++;
 }
 
@@ -515,10 +513,10 @@ void QTextHtmlParser::parse() {
         } else if (c == QLatin1Char('&')) {
             nodes.last().text += parseEntity();
         } else {
-            if (c.isSpace() && c != QChar(QChar::nbsp) && c != QTextParagraphSeparator) {
+            if (c.isSpace() && c != QChar(QChar::Nbsp) && c != QChar::ParagraphSeparator) {
                 if (wsm == QStyleSheetItem::WhiteSpacePre) {
                     if (c == QLatin1Char('\n'))
-                        c = QChar_linesep;
+                        c = QChar::LineSeparator;
                 } else { // non-pre mode: collapse whitespace except nbsp
                     while (pos < len && txt.at(pos).isSpace()
                            && txt.at(pos) != QChar::nbsp)
@@ -759,7 +757,7 @@ void QTextHtmlParser::resolveNode()
     node->cssFloat = QTextFrameFormat::None;
 
     if (node->tag == QLatin1String("br")) {
-        node->text = QChar_linesep;
+        node->text = QChar::LineSeparator;
     } else if (node->tag == QLatin1String("a")) {
         node->isAnchor = true;
     }

@@ -6,9 +6,10 @@
 class QTextFormat;
 class QIODevice;
 
-#define QTextParagraphSeparator QChar(0x2029U)
-#define QTextLineSeparator QChar(0x2928U)
-#define QTextObjectReplacementChar QChar(0xfffcU)
+#define QTextBeginningOfFrame QChar(0xfdd0)
+#define QTextEndOfFrame QChar(0xfdd1)
+#define QTextTableCellSeparator QChar(0xfdd2)
+
 
 struct QTextDocumentConfig
 {

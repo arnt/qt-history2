@@ -371,7 +371,7 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 
     res.d = new QTextDocumentFragmentPrivate;
 
-    QStringList blocks = plainText.split(QTextParagraphSeparator);
+    QStringList blocks = plainText.split(QChar::ParagraphSeparator);
     for (int i = 0; i < blocks.count(); ++i) {
         if (i > 0)
             res.d->appendBlock(-1, -1);

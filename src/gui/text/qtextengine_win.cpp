@@ -440,7 +440,7 @@ static unsigned char script_for_win_language[0x80] = {
 
 static inline QFont::Script scriptForWinLanguage(DWORD langid)
 {
-    QFont::Script script = (QFont::Script)script_for_win_language[langid];
+    QFont::Script script = langid < 0x80 ? (QFont::Script)script_for_win_language[langid] : QFont::NScripts;
     if (script == QFont::NScripts)
         qWarning("Qt Uniscribe support: Encountered unhandled language id %x", (unsigned int)langid);
     return script;
@@ -576,7 +576,7 @@ void QTextEngine::shapeText(int item) const
         return;
 
     QFont::Script script = (QFont::Script)si.analysis.script;
-#if 0 
+#if 0
     // Just to get the warning away
     int from = si.position;
 #endif

@@ -92,7 +92,7 @@ QTextPieceTable::~QTextPieceTable()
 void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op)
 {
     // ##### optimise when only appending to the fragment!
-    Q_ASSERT(!text.mid(strPos, length).contains(QTextParagraphSeparator));
+    Q_ASSERT(!text.mid(strPos, length).contains(QChar::ParagraphSeparator));
 
     split(pos);
     uint x = fragments.insert_single(pos, length);
@@ -120,7 +120,7 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     X->stringPosition = strPos;
     // no need trying to unite, since paragraph separators are always in a fragment of their own
 
-    Q_ASSERT(text.at(strPos) == QTextParagraphSeparator);
+    Q_ASSERT(text.at(strPos) == QChar::ParagraphSeparator);
     Q_ASSERT(blocks.length()+1 == fragments.length());
 
     int block_pos = pos;
@@ -159,7 +159,7 @@ void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat, Undo
     beginEditBlock();
 
     int strPos = text.length();
-    text.append(QTextParagraphSeparator);
+    text.append(QChar::ParagraphSeparator);
     insert_block(pos, strPos, charFormat, blockFormat, op, UndoCommand::BlockRemoved);
 
     Q_ASSERT(blocks.length() == fragments.length());
@@ -201,7 +201,7 @@ void QTextPieceTable::insert(int pos, const QString &str, int format)
     if (str.size() == 0)
         return;
 
-    Q_ASSERT(!str.contains(QTextParagraphSeparator));
+    Q_ASSERT(!str.contains(QChar::ParagraphSeparator));
 
     int strPos = text.length();
     text.append(str);
@@ -219,7 +219,7 @@ int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation 
 
     Q_ASSERT(blocks.size(b) > length);
     Q_ASSERT(x && fragments.position(x) == (uint)pos && fragments.size(x) == length);
-    Q_ASSERT(!text.mid(fragments.fragment(x)->stringPosition, length).contains(QTextParagraphSeparator));
+    Q_ASSERT(!text.mid(fragments.fragment(x)->stringPosition, length).contains(QChar::ParagraphSeparator));
 
     blocks.setSize(b, blocks.size(b)-length);
     const int w = fragments.erase_single(x);
@@ -240,7 +240,7 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
 
     Q_ASSERT(x && (int)fragments.position(x) == pos);
     Q_ASSERT(fragments.size(x) == 1);
-    Q_ASSERT(text.at(fragments.fragment(x)->stringPosition) == QTextParagraphSeparator);
+    Q_ASSERT(text.at(fragments.fragment(x)->stringPosition) == QChar::ParagraphSeparator);
     Q_ASSERT(b);
 
     if (blocks.size(b) == 1 && command == UndoCommand::BlockAdded) {
@@ -298,11 +298,11 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 
         if (key+1 != blocks.position(b)) {
 //  	    qDebug("remove_string from %d length %d", key, X->size);
-            Q_ASSERT(!text.mid(X->stringPosition, X->size).contains(QTextParagraphSeparator));
+            Q_ASSERT(!text.mid(X->stringPosition, X->size).contains(QChar::ParagraphSeparator));
             w = remove_string(key, X->size, op);
         } else {
 //  	    qDebug("remove_block at %d", key);
-            Q_ASSERT(X->size == 1 && text.at(X->stringPosition) == QTextParagraphSeparator);
+            Q_ASSERT(X->size == 1 && text.at(X->stringPosition) == QChar::ParagraphSeparator);
             b = blocks.prev(b);
             c.command = blocks.size(b) == 1 ? UndoCommand::BlockDeleted : UndoCommand::BlockRemoved;
             w = remove_block(key, &c.blockFormat, UndoCommand::BlockAdded, op);
@@ -473,8 +473,8 @@ bool QTextPieceTable::unite(uint f)
     QTextFragment *nf = fragments.fragment(n);
 
     if (nf->format == ff->format && (ff->stringPosition + (int)ff->size == nf->stringPosition)) {
-        if (text.at(ff->stringPosition) == QTextParagraphSeparator
-            || text.at(nf->stringPosition) == QTextParagraphSeparator)
+        if (text.at(ff->stringPosition) == QChar::ParagraphSeparator
+            || text.at(nf->stringPosition) == QChar::ParagraphSeparator)
             return false;
 
         fragments.setSize(f, ff->size + nf->size);
@@ -872,14 +872,17 @@ void QTextPieceTable::remove_frame(QTextFrame *f)
     f->d->parentFrame = 0;
 }
 
-
+/*!
+  end == -1 means we have a frame on a single character in the piecetable, as e.g. a
+  floating image
+*/
 QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFormat &format)
 {
     Q_ASSERT(start >= 0 && start < length());
     Q_ASSERT(end >= 0 && end < length());
-    Q_ASSERT(start <= end);
+    Q_ASSERT(start <= end || end == -1);
 
-    if (start != end && frameAt(start) != frameAt(end))
+    if (start != end && end != -1 && frameAt(start) != frameAt(end))
         return 0;
 
     beginEditBlock();
@@ -893,15 +896,19 @@ QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFor
     cfmt.setGroup(frame);
     int charIdx = formats->indexForFormat(cfmt);
 
-    insertBlock(start, idx, charIdx);
-    insertBlock(end+1, idx, charIdx, UndoCommand::KeepCursor);
+    if (end != -1) {
+        insertBlock(start, idx, charIdx);
+        insertBlock(++end, idx, charIdx, UndoCommand::KeepCursor);
+    } else {
+        end = start;
+    }
 
     frame->d_func()->fragment_start = find(start).n;
-    frame->d_func()->fragment_end = find(end+1).n;
+    frame->d_func()->fragment_end = find(end).n;
 
     insert_frame(frame);
     UndoCommand c = { UndoCommand::FrameInserted, true, UndoCommand::KeepCursor, 0,
-                          0, 0, { 1 } };
+                      0, 0, { 1 } };
     c.frame = frame;
     appendUndoItem(c);
 

@@ -32,14 +32,24 @@ public:
     QChar(short rc);
     QChar(uint rc);
     QChar(int rc);
-    enum SpecialChar {
-        null = 0x0000,
-        replacement = 0xfffd,
-        byteOrderMark = 0xfeff,
-        byteOrderSwapped = 0xfffe,
-        nbsp = 0x00a0
+    enum SpecialCharacter {
+        Null = 0x0000,
+        Nbsp = 0x00a0,
+        ReplacementCharacter = 0xfffd,
+        ObjectReplacementCharacter = 0xfffc,
+        ByteOrderMark = 0xfeff,
+        ByteOrderSwapped = 0xfffe,
+#ifdef QT_COMPAT
+        null = Null,
+        replacement = ReplacementCharacter,
+        byteOrderMark = ByteOrderMark,
+        byteOrderSwapped = ByteOrderSwapped,
+        nbsp = Nbsp,
+#endif
+        ParagraphSeparator = 0x2029,
+        LineSeparator = 0x2028
     };
-    QChar(SpecialChar sc);
+    QChar(SpecialCharacter sc);
 
     // Unicode information
 
@@ -192,7 +202,7 @@ inline QChar::QChar(uchar c, uchar r) : ucs((r << 8) | c){}
 inline QChar::QChar(short rc) : ucs((ushort) rc){}
 inline QChar::QChar(uint rc) : ucs((ushort) (rc & 0xffff)){}
 inline QChar::QChar(int rc) : ucs((ushort) (rc & 0xffff)){}
-inline QChar::QChar(SpecialChar s) : ucs((ushort) s) {}
+inline QChar::QChar(SpecialCharacter s) : ucs((ushort) s) {}
 inline QChar::QChar(QLatin1Char ch) : ucs(ch.unicode()) {}
 
 inline bool operator==(QChar c1, QChar c2) { return c1.unicode() == c2.unicode(); }

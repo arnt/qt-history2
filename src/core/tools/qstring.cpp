@@ -811,7 +811,7 @@ void QString::realloc(int alloc)
         if (alloc < x->size)
             x->size = alloc;
         ::memcpy(x->array, d->data, x->size * sizeof(QChar));
-        x->array[x->size] = QChar::null;
+        x->array[x->size] = QChar::Null;
         x->c = 0;
         x->cache = 0;
         x->ref = 1;

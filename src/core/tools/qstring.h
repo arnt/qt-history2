@@ -167,7 +167,7 @@ public:
     inline QString &prepend(const QString &s) { return insert(0, s); }
     inline QString &prepend(const QLatin1String &s) { return insert(0, s); }
     inline QString &operator+=(QChar c) { return append(c); }
-    inline QString &operator+=(QChar::SpecialChar c) { return append(QChar(c)); }
+    inline QString &operator+=(QChar::SpecialCharacter c) { return append(QChar(c)); }
     inline QString &operator+=(const QString &s) { return append(s); }
     inline QString &operator+=(const QLatin1String &s) { return append(s); }
 
