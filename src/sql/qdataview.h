@@ -62,7 +62,7 @@ public:
     QSqlRecord* record();
 
 public slots:
-    virtual void refresh( QSqlRecord* record );
+    virtual void refresh( QSqlRecord* buf );
     virtual void readFields();
     virtual void writeFields();
     virtual void clearValues();

@@ -179,9 +179,10 @@ void QDataView::writeFields()
 
 */
 
-void QDataView::refresh( QSqlRecord* record )
+void QDataView::refresh( QSqlRecord* buf )
 {
-    setRecord( record );
+    if ( buf && buf != record() )
+	setRecord( buf );
     readFields();
 }
 
