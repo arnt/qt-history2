@@ -227,10 +227,13 @@
 
     INF and CAB files are documented in almost every book available about
     ActiveX and COM programming as well as in the MSDN library and various
-    other Online resources. The examples include INF files that can be used 
-    to build CAB archives, e.g. using the CABARC tool from Microsoft. The
-    files assume a static build of Qt, so no dependencies to other DLLs are
-    listed in the INF files. To distribute an ActiveX server depending on DLLs 
-    you will have to add the respective dependencies, and provide the library 
-    files with the archive.
+    other Online resources. The examples include INF files that can be used
+    to build CAB archives, e.g. using the CABARC tool from Microsoft:
+
+	cabarc N simpleax.cab simpleax.exe simple.inf
+
+    The INF files assume a static build of Qt, so no dependencies to other DLLs
+    are listed in the INF files. To distribute an ActiveX server depending on
+    DLLs you will have to add the respective dependencies, and provide the
+    library files with the archive.
 */
