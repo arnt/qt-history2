@@ -903,7 +903,19 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Left:
 	case Key_Right: {
 	    int step =  (d->parag->string()->isRightToLeft() == (e->key() == Key_Right)) ? -1 : 1;
+#ifdef Q_WS_MACX
+	    if ( d->parag->hasSelection( QTextDocument::Standard ) &&
+		 !(e->state() & ShiftButton) ) {
+		int start = d->parag->selectionStart( QTextDocument::Standard );
+		int end = d->parag->selectionEnd( QTextDocument::Standard );
+		d->parag->removeSelection( QTextDocument::Standard );
+		d->cursor->setIndex( (step == -1) ? start : end );
+	    } else {
+		cursorForward( e->state() & ShiftButton, step );
+	    }
+#else
 	    cursorForward( e->state() & ShiftButton, step );
+#endif
 	}
 	break;
 	case Key_Backspace:
