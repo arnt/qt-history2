@@ -29,6 +29,11 @@ NmakeMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+	{ //write the extra unix targets..
+	    QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
+	    for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
+		t << *it << " ";
+	}
 	t << "all clean:" << "\n\t"
 	  << "@echo \"Some of the required modules ("
 	  << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
