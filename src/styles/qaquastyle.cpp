@@ -1617,6 +1617,8 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	    rect = QRect(51, 3, 15, 17);
 	else if(sc & SC_TitleBarLabel)
 	    rect = QRect(66, 3, w->width(), 17);
+	else if(sc & SC_TitleBarSysMenu)
+	    rect = QRect(-666, -666, 0, 23); //ugh, how bogus!
 	break; }
     case CC_ScrollBar:
 	switch(sc) {
