@@ -1665,7 +1665,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             if (tab->shape == QTabBar::RoundedAbove) {
                 p->setPen(tab->palette.light().color());
                 p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
-                if (r2.left() == 0)
+                if (r2.x() == 0 && widget->x() == 0)
                     p->drawPoint(tab->rect.bottomLeft());
 
                 if (!selected)
