@@ -1333,7 +1333,8 @@ public:
 
 
 
-    void joinPoints(const QLineF &nextLine, QPainterPath *stroke, LineJoinMode join) const;
+    void joinPoints(const QPointF &point, const QLineF &nextLine, QPainterPath *stroke,
+                    LineJoinMode join) const;
 
     QPainterPathStroker *q_ptr;
     qreal width;
@@ -1347,12 +1348,25 @@ public:
     QVector<qreal> dashPattern;
 };
 
-void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine, QPainterPath *stroke,
-                                            LineJoinMode join) const
+
+/*******************************************************************************
+ * QLineF::angle gives us the smalles angle between two lines. Here we
+ * want to identify the line's angle direction on the unit circle.
+ */
+static inline qreal adapted_angle_on_x(const QLineF &line)
+{
+    qreal angle = line.angle(QLineF(0, 0, 1, 0));
+    if (line.dy() > 0)
+        angle = 360 - angle;
+    return angle;
+}
+
+void QPainterPathStrokerPrivate::joinPoints(const QPointF &point, const QLineF &nextLine,
+                                            QPainterPath *stroke, LineJoinMode join) const
 {
 #ifdef QPP_STROKE_DEBUG
-    printf(" -----> joinPoints: (%.2f, %.2f) (%.2f, %.2f), mode=%d\n",
-           nextLine.x1(), nextLine.y1(), nextLine.x2(), nextLine.y2(), join);
+    printf(" -----> joinPoints: around=(%.0f, %.0f), next_p1=(%.0f, %.f) next_p2=(%.0f, %.f)\n",
+           point.x(), point.y(), nextLine.x1(), nextLine.y1(), nextLine.x2(), nextLine.y2());
 #endif
     if (join == FlatJoin) {
         stroke->lineTo(nextLine.p1());
@@ -1383,22 +1397,29 @@ void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine, QPainterPath
             }
             stroke->lineTo(nextLine.p1());
 
-        } else { // Round and square
+        } else if (join == SquareJoin) { // Round and square
             QLineF l1(prevLine);
             l1.translate(l1.dx(), l1.dy());
             l1.setLength(offset);
-
             QLineF l2(nextLine.p2(), nextLine.p1());
             l2.translate(l2.dx(), l2.dy());
             l2.setLength(offset);
+            stroke->lineTo(l1.p2());
+            stroke->lineTo(l2.p2());
+            stroke->lineTo(l2.p1());
 
-            if (join == RoundJoin) {
-                stroke->cubicTo(l1.p2(), l2.p2(), l2.p1());
-            } else { //
-                stroke->lineTo(l1.p2());
-                stroke->lineTo(l2.p2());
-                stroke->lineTo(l2.p1());
-            }
+        } else if (join == RoundJoin) {
+            QLineF l1(prevLine);
+            QLineF l2(nextLine);
+            qreal l1_on_x = adapted_angle_on_x(l1);
+            qreal l2_on_x = adapted_angle_on_x(l2);
+
+            qreal sweepLength = qAbs(l2_on_x - l1_on_x);
+
+            stroke->arcTo(point.x() - offset, point.y() - offset, offset * 2, offset * 2,
+                          l1_on_x + 90, -sweepLength);
+
+            stroke->lineTo(nextLine.p1());
         }
     }
 }
@@ -1467,10 +1488,10 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
             if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
                 stroke->moveTo(ml.p1());
             } else if (capFirst) {
-                data->joinPoints(ml, stroke, data->capStyle);
+                data->joinPoints(prev, ml, stroke, data->capStyle);
                 capFirst = false;
             } else {
-                data->joinPoints(ml, stroke, data->joinStyle);
+                data->joinPoints(prev, ml, stroke, data->joinStyle);
             }
 
             // Add the stroke for this line.
@@ -1497,12 +1518,12 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
                 if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
                     stroke->moveTo(offsetCurves[0].pt1());
                 } else if (capFirst) {
-                    data->joinPoints(QLineF(offsetCurves[0].pt1(),
-                                            offsetCurves[0].pt2()), stroke, data->capStyle);
+                    data->joinPoints(prev, QLineF(offsetCurves[0].pt1(),
+                                                offsetCurves[0].pt2()), stroke, data->capStyle);
                     capFirst = 0;
                 } else {
-                    data->joinPoints(QLineF(offsetCurves[0].pt1(),
-                                            offsetCurves[0].pt2()), stroke, data->joinStyle);
+                    data->joinPoints(prev, QLineF(offsetCurves[0].pt1(),
+                                                offsetCurves[0].pt2()), stroke, data->joinStyle);
                 }
                 // Add these beziers
                 for (int i=0; i<count; ++i) {
@@ -1521,7 +1542,7 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
         qDebug(" ---> closed subpath");
 #endif
         QLineF startTangent(stroke->elementAt(startPos), stroke->elementAt(startPos+1));
-        data->joinPoints(startTangent, stroke, data->joinStyle);
+        data->joinPoints(prev, startTangent, stroke, data->joinStyle);
         stroke->moveTo(QPointF()); // start new subpath
         return true;
     } else {
@@ -1560,14 +1581,14 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &path) const
     QSubpathIterator fwit(&input);
     QSubpathReverseIterator bwit(&input);
 
-    QPointF start, prev;
-
     QPainterPath stroke;
     stroke.ensureData();
     stroke.d->elements.reserve(input.elementCount() * 4);
 
     while (fwit.hasSubpath()) {
         Q_ASSERT(bwit.hasSubpath());
+
+        int fwit_index = fwit.index();
 
         int bwStart = stroke.elementCount() - 1;
 
@@ -1576,7 +1597,7 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &path) const
 
         if (!bwclosed) {
             QLineF bwStartTangent(stroke.elementAt(bwStart), stroke.elementAt(bwStart+1));
-            d->joinPoints(bwStartTangent, &stroke, d->capStyle);
+            d->joinPoints(input.elementAt(fwit_index), bwStartTangent, &stroke, d->capStyle);
         }
 
         stroke.closeSubpath();

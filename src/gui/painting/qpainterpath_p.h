@@ -101,6 +101,7 @@ public:
     inline bool hasNext() const;
     inline QPainterPath::Element next();
 
+    inline int index() const { return m_pos; }
 
 private:
     const QPainterPath *m_path;
