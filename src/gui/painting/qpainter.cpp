@@ -547,6 +547,7 @@ bool QPainter::begin(QPaintDevice *pd)
     }
 
     QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
+
     if (rpd) {
         pd = rpd;
     }
@@ -2444,7 +2445,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
     if (sw <= 0 || sh <= 0)
         return;
 
-    if (((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) ||
+    if ((d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) ||
         ((w != sw || h != sh) && !d->engine->hasFeature(QPaintEngine::PixmapScale))) {
         QPixmap source;
         if(sx || sy || sw != pm.width() || sh != pm.height()) {
@@ -2475,6 +2476,10 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         d->engine->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
                               QRect(0, 0, pmx.width(), pmx.height()), mode);
     } else {
+        if (!d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+            x += d->state->matrix.dx();
+            y += d->state->matrix.dy();
+        }
         d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode);
     }
 
