@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#42 $
 **
 ** Implementation of QMetaObject class
 **
@@ -178,12 +178,13 @@ QMetaData *QMetaObject::signal( int index, bool super ) const
 
 QMetaData *QMetaObject::new_metadata( int numEntries )
 {
-    return new QMetaData[numEntries];
+    return numEntries > 0 ? new QMetaData[numEntries] : 0;
 }
 
 void QMetaObject::delete_metadata( QMetaData *ptr )
 {
-    delete [] ptr;
+    if ( ptr )
+	delete [] ptr;
 }
 
 
