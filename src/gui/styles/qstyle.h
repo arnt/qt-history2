@@ -579,7 +579,10 @@ public:
                                        bool upsideDown = false);
     static int sliderValueFromPosition(int min, int max, int pos, int space,
                                        bool upsideDown = false);
-    static Qt::Alignment horizontalAlignment(Qt::LayoutDirection direction, Qt::Alignment align);
+    static Qt::Alignment horizontalAlignment(Qt::LayoutDirection direction, Qt::Alignment alignment);
+    static QRect alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment,
+                             const QSize &size, const QRect &rectangle);
+
 
 private:
     Q_DISABLE_COPY(QStyle)

@@ -996,7 +996,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             QPixmap pix;
             if (!btn->icon.isNull()) {
                 pix = btn->icon.pixmap(Qt::SmallIconSize, btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled);
-                drawItemPixmap(p, btn->rect, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, btn->palette, pix);
+                drawItemPixmap(p, btn->rect, alignment | Qt::AlignVCenter, btn->palette, pix);
             } else {
                 drawItemText(p, btn->rect, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->palette, btn->state & State_Enabled, btn->text);

@@ -420,27 +420,13 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
                             const QPalette &pal, const QPixmap &pixmap,
                             const QColor *penColor) const
 {
-    int x, y, w, h;
-    rect.getRect(&x, &y, &w, &h);
 
     painter->setPen(penColor?*penColor:pal.foreground().color());
-    QPixmap pm(pixmap);
-    if ((alignment & Qt::AlignVCenter) == Qt::AlignVCenter)
-        y += h/2 - pm.height()/2;
-    else if ((alignment & Qt::AlignBottom) == Qt::AlignBottom)
-        y += h - pm.height();
-    if ((alignment & Qt::AlignRight) == Qt::AlignRight)
-        x += w - pm.width();
-    else if ((alignment & Qt::AlignHCenter) == Qt::AlignHCenter)
-        x += w/2 - pm.width()/2;
-    else if (((alignment & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::isRightToLeft()) // Qt::AlignAuto && rightToLeft
-        x += w - pm.width();
 
-    int fillX = qMax(rect.x(), x);
-    int fillY = qMax(rect.y(), y);
-    int fillWidth = qMin(pm.width(), w);
-    int fillHeight = qMin(pm.height(), h);
-    painter->drawPixmap(fillX, fillY, pm, fillX - x, fillY - y, fillWidth, fillHeight);
+    QRect aligned = alignedRect(QApplication::layoutDirection(), QFlag(alignment), pixmap.size(), rect);
+    QRect inter = aligned.intersect(rect);
+
+    painter->drawPixmap(inter.x(), inter.y(), pixmap, inter.x() - aligned.x(), inter.y() - aligned.y(), inter.width(), inter.height());
 }
 
 /*!
@@ -1597,6 +1583,30 @@ QPoint QStyle::visualPos(Qt::LayoutDirection direction, const QRect &boundingRec
     return QPoint(boundingRect.right() - logicalPos.x(), logicalPos.y());
 }
 
+/*!
+     Returns a new rectangle of \a size that is aligned to \a
+     rectangle according to \a alignment.  Qt::AlignAuto is mapped
+     into Qt::AlignLeft or Qt::AlignRight according to
+     the layout \a direction.
+ */
+QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment, const QSize &size, const QRect &rectangle)
+{
+    int x = rectangle.x();
+    int y = rectangle.y();
+    int w = size.width();
+    int h = size.height();
+    if ((alignment & Qt::AlignVCenter) == Qt::AlignVCenter)
+        y += rectangle.size().height()/2 - h/2;
+    else if ((alignment & Qt::AlignBottom) == Qt::AlignBottom)
+        y += rectangle.size().height() - h;
+    if ((alignment & Qt::AlignRight) == Qt::AlignRight)
+        x += rectangle.size().width() - w;
+    else if ((alignment & Qt::AlignHCenter) == Qt::AlignHCenter)
+        x += rectangle.size().width()/2 - w/2;
+    else if (((alignment & Qt::AlignLeft) != Qt::AlignLeft) && (direction == Qt::LeftToRight)) // Qt::AlignAuto && rightToLeft
+        x += rectangle.size().width() - w;
+    return QRect(x, y, w, h);
+}
 
 /*!
 

@@ -426,22 +426,8 @@ void QIcon::paint(QPainter *painter, const QRect &rect,  Qt::Alignment alignment
 {
     if (!d)
         return;
-    int x, y, w, h;
-    rect.getRect(&x, &y, &w, &h);
-    QSize pm = d->engine->sizeUsed(rect.size(), mode, state);
-    if (pm != rect.size()) {
-        if ((alignment & Qt::AlignVCenter) == Qt::AlignVCenter)
-            y += h/2 - pm.height()/2;
-        else if ((alignment & Qt::AlignBottom) == Qt::AlignBottom)
-            y += h - pm.height();
-        if ((alignment & Qt::AlignRight) == Qt::AlignRight)
-            x += w - pm.width();
-        else if ((alignment & Qt::AlignHCenter) == Qt::AlignHCenter)
-            x += w/2 - pm.width()/2;
-        else if (((alignment & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::isRightToLeft()) // Qt::AlignAuto && rightToLeft
-            x += w - pm.width();
-    }
-    d->engine->paint(painter, QRect(QPoint(x, y), pm), mode, state);
+    QRect alignedRect = QStyle::alignedRect(QApplication::layoutDirection(), alignment, d->engine->sizeUsed(rect.size(), mode, state), rect);
+    d->engine->paint(painter, alignedRect, mode, state);
 }
 
 
