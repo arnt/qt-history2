@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#37 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#38 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -621,7 +621,7 @@ void QtFileIconView::newDirectory()
 	QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
 	QtFileIconViewItem *item = new QtFileIconViewItem( this, new QFileInfo( *fi ) );
 	delete fi;
-	repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
+	repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
 	ensureItemVisible( item );
 	item->setSelected( TRUE, TRUE );
 	setCurrentItem( item );
@@ -805,7 +805,7 @@ void QtFileIconView::flowSouth()
 void QtFileIconView::alignInGrid()
 {
     orderItemsInGrid();
-    repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height() );
+    repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
 
 void QtFileIconView::slotItemRightClicked( QIconViewItem *item )

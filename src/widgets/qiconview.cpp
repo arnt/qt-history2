@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#94 $
 **
 ** Definition of QIconView widget class
 **
@@ -1612,7 +1612,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	    d->cachedW = QMAX( d->cachedW, item->x() + item->width() );
 	    d->cachedH= QMAX( d->cachedH, item->y() + item->height() );
 
-	    d->updateTimer->start( 10, TRUE );
+	    d->updateTimer->start( 1, TRUE );
 	} else {
 	    insertInGrid( item );
 	}
