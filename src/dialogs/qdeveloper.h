@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.h#4 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.h#5 $
 **
 ** Definition of QDeveloper class
 **
@@ -13,9 +13,9 @@
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees with valid Qt Professional Edition licenses may distribute and
-** use this file in accordance with the Qt Professional Edition License
-** provided at sale or upon request.
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
 **
 ** See http://www.troll.no/pricing.html or email sales@troll.no for
 ** information about the Professional Edition licensing, or see

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#78 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -11,9 +11,9 @@
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees with valid Qt Professional Edition licenses may distribute and
-** use this file in accordance with the Qt Professional Edition License
-** provided at sale or upon request.
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
 **
 ** See http://www.troll.no/pricing.html or email sales@troll.no for
 ** information about the Professional Edition licensing, or see
@@ -964,7 +964,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.72 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.73 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#79 $
 **
 ** Implementation of QDialog class
 **
@@ -13,9 +13,9 @@
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees with valid Qt Professional Edition licenses may distribute and
-** use this file in accordance with the Qt Professional Edition License
-** provided at sale or upon request.
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
 **
 ** See http://www.troll.no/pricing.html or email sales@troll.no for
 ** information about the Professional Edition licensing, or see
@@ -205,10 +205,11 @@ int QDialog::exec()
   This function is very useful for modal dialogs. It leaves the local
   event loop and returns from the exec() or show() function.
 
-  \warning Although done() will return to the caller if this dialog is
-  modal, the local event loop is then marked for termination. Hence, a
-  program should not try to do anything that depends on event handling
-  before the corresponding exec() or show() has returned.
+  \warning Although done() will return to the caller also if this
+  dialog is modal, the local event loop is then marked for
+  termination. Hence, a program should not try to do anything that
+  depends on event handling before the corresponding exec() or show()
+  has returned.
 
   \sa accept(), reject()
 */

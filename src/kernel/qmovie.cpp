@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#60 $
 **
 ** Implementation of movie classes
 **
@@ -13,9 +13,9 @@
 ** as defined by Troll Tech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees with valid Qt Professional Edition licenses may distribute and
-** use this file in accordance with the Qt Professional Edition License
-** provided at sale or upon request.
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
 **
 ** See http://www.troll.no/pricing.html or email sales@troll.no for
 ** information about the Professional Edition licensing, or see
@@ -897,7 +897,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.59 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.60 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

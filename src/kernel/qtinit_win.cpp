@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtinit_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qtinit_win.cpp#6 $
 **
 ** Implementation of Win32 startup routines.
 **
@@ -9,9 +9,9 @@
 **
 ** This file is part of the Qt GUI Toolkit Professional Edition.
 **
-** Licensees with valid Qt Professional Edition licenses may distribute and
-** use this file in accordance with the Qt Professional Edition License
-** provided at sale or upon request.
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
 **
 ** See http://www.troll.no/pricing.html or email sales@troll.no for
 ** information about the Professional Edition licensing.
