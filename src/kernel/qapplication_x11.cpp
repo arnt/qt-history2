@@ -40,7 +40,7 @@
 
 // Get the system specific includes and defines
 #include "qplatformdefs.h"
- 
+
 // Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.
 #if defined(connect)
@@ -1879,6 +1879,29 @@ void qt_init_internal( int *argcptr, char **argv,
 	QApplication::setFont( f );
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
+    } else {
+	// read some non-GUI settings when not using the X server...
+
+	QSettings settings;
+
+	// read library (ie. plugin) path list
+	QStringList pathlist =
+	    settings.readListEntry("/qt/libraryPath", ':');
+	if (! pathlist.isEmpty()) {
+	    QStringList::ConstIterator it = pathlist.begin();
+	    while (it != pathlist.end())
+		QApplication::addLibraryPath(*it++);
+	}
+
+	QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
+	if (defaultcodec != "none") {
+	    QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
+	    if (codec)
+		qApp->setDefaultCodec(codec);
+	}
+
+	qt_resolve_symlinks =
+	    settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
     }
 
 #if defined (QT_TABLET_SUPPORT)
@@ -5108,7 +5131,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	    chars[0] = 0;
 	    directionKeyEvent = 0;
 	    return TRUE;
-	} else { 
+	} else {
 	    directionKeyEvent = 0;
 	}
     }
@@ -5170,7 +5193,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	    code = Key_Backtab;
 	    chars[0] = 0;
 	}
-	
+
 	if ( type  == QEvent::KeyPress ) {
 	    if ( directionKeyEvent ) {
 		if ( key == XK_Shift_L && directionKeyEvent == XK_Control_L ||
@@ -5185,7 +5208,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	    else if ( directionKeyEvent == Key_Direction_L || directionKeyEvent == Key_Direction_R ) {
 		directionKeyEvent = Key_Space; // invalid
 	    }
-	} 
+	}
     }
 
 #if 0
