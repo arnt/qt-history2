@@ -749,7 +749,9 @@ void QMacStyle::drawControl(ControlElement element,
     }
 
     switch(element) {
-    case CE_ToolBoxTab:
+    case CE_ProgressBarLabel:
+	break; //nothing to be drawn here..
+    case CE_ToolBoxTab: 
 	QCommonStyle::drawControl(element, p, widget, r, pal, how, opt);
 	break;
     case CE_PopupMenuHorizontalExtra:
