@@ -43,6 +43,18 @@ public:
 
 };
 
+class QThreadPrivate {
+    
+public:
+    
+};
+
+class QThreadEventPrivate {
+    
+public:
+    
+};
+
 QMutexPrivate::QMutexPrivate()
 {
     int ret = pthread_mutex_init( &mymutex, 0 );
@@ -58,6 +70,7 @@ QMutexPrivate::~QMutexPrivate()
 	qWarning( "Mutex destroy failure %s", strerror( ret ) );
     }
 }
+
 
 QMutex::QMutex()
 {
@@ -85,13 +98,13 @@ void QMutex::unlock()
     }
 }
 
-int QThread::currentThread()
+bool QMutex::locked()
 {
-    // A pthread_t is an int
-    return pthread_self();
+    return true;
 }
 
-class QThreadEvent {
+
+class QThreadQtEvent {
 
 public:
 
@@ -100,15 +113,15 @@ public:
 
 };
 
-class QThreadPrivate : public QObject {
+class QThreadEventsPrivate : public QObject {
 
     Q_OBJECT
 
 public:
 
-    QThreadPrivate();
+    QThreadEventsPrivate();
 
-    QList<QThreadEvent> myevents;
+    QList<QThreadQtEvent> myevents;
     QMutex myeventmutex;
 
 public slots:
@@ -121,16 +134,16 @@ private:
 
 #include "qthread_unix.moc"
 
-QThreadPrivate::QThreadPrivate()
+QThreadEventsPrivate::QThreadEventsPrivate()
 {
     myevents.setAutoDelete( TRUE );
     connect( qApp, SIGNAL( guiThreadAwake() ), this, SLOT( sendEvents() ) );
 }
 
-void QThreadPrivate::sendEvents()
+void QThreadEventsPrivate::sendEvents()
 {
     myeventmutex.lock();
-    QThreadEvent * qte;
+    QThreadQtEvent * qte;
     for( qte = myevents.first(); qte != 0; qte = myevents.next() ) {
 	qApp->postEvent( qte->o, qte->e );
     }
@@ -139,27 +152,55 @@ void QThreadPrivate::sendEvents()
     myeventmutex.unlock();
 }
 
-static QThreadPrivate * qthreadprivate = 0;
-
-void QThread::postEvent( QObject * o, QEvent * e )
-{
-    if( !qthreadprivate ) {
-	qthreadprivate = new QThreadPrivate();
-    }
-    qthreadprivate->myeventmutex.lock();
-    QThreadEvent * qte = new QThreadEvent;
-    qte->o = o;
-    qte->e = e;
-    qthreadprivate->myevents.append( qte );
-    qthreadprivate->myeventmutex.unlock();
-    qApp->wakeUpGuiThread();
-}
+static QThreadEventsPrivate * qthreadeventsprivate = 0;
 
 extern "C" {
     static void * start_thread(QThread * t) {
 	t->run();
 	return 0;
     }
+}
+
+int QThread::currentThread()
+{
+    // A pthread_t is an int
+    return pthread_self();
+}
+
+void QThread::postEvent( QObject * o, QEvent * e )
+{
+    if( !qthreadeventsprivate ) {
+	qthreadeventsprivate = new QThreadEventsPrivate();
+    }
+    qthreadeventsprivate->myeventmutex.lock();
+    QThreadQtEvent * qte = new QThreadQtEvent;
+    qte->o = o;
+    qte->e = e;
+    qthreadeventsprivate->myevents.append( qte );
+    qthreadeventsprivate->myeventmutex.unlock();
+    qApp->wakeUpGuiThread();
+}
+
+void QThread::wait(const QThread &)
+{
+}
+
+void QThread::yield()
+{
+}
+
+void * QThread::threadData()
+{
+    return 0;
+}
+
+void QThread::setThreadData(void *)
+{
+}
+
+unsigned int QThread::threadId()
+{
+    return 0;
 }
 
 QThread::QThread()
@@ -183,3 +224,26 @@ void QThread::run()
     // Default implementation does nothing
 }
 
+QThreadEvent::QThreadEvent()
+{
+}
+
+QThreadEvent::~QThreadEvent()
+{
+}
+
+void QThreadEvent::wait()
+{
+}
+
+void QThreadEvent::wait(const QTime & t)
+{
+}
+
+void QThreadEvent::wakeOne()
+{
+}
+
+void QThreadEvent::wakeAll()
+{
+}

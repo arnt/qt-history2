@@ -30,33 +30,84 @@
 #include <qglobal.h>
 #include <qobject.h>
 #include <qevent.h>
+#include <qdatetime.h>
 
 class QMutexPrivate;
+class QThreadPrivate;
+class QThreadEventPrivate;
 
-class  Q_EXPORT QMutex {
+class Q_EXPORT QMutex {
 
-  QMutexPrivate * d;
+ public:
 
-public:
+    QMutex();
+    ~QMutex();
+    void lock();
+    void unlock();
+    bool locked();
 
-  QMutex();
-  ~QMutex();
-  void lock();
-  void unlock();
+private:
+
+    QMutexPrivate * d;
+
+#if defined(Q_DISABLE_COPY)
+    QMutex( const QMutex & );
+    QMutex &operator=( const QMutex & );
+#endif
 
 };
 
-class  Q_EXPORT QThread {
+class Q_EXPORT QThread {
 
 public:
 
-  static int currentThread();
-  static void postEvent( QObject *,QEvent * );
+    static int currentThread();
+    static void postEvent( QObject *,QEvent * );
+    static void wait(const QThread &);
+    static void yield();   // Only useful on MacOS
+    static void * threadData();
+    static void setThreadData(void *);
+    static void exit();
 
-  QThread();
-  virtual ~QThread();
-  void start();
-  virtual void run();
+    QThread();
+    virtual ~QThread();
+    void start();
+    virtual void run();
+    unsigned int threadId();
+    bool running();
+
+private:
+
+    QThreadPrivate * d;
+
+#if defined(Q_DISABLE_COPY)
+    QThread( const QThread & );
+    QThread &operator=( const QThread & );
+#endif
+
+};
+
+// Is this the right name?
+
+class Q_EXPORT QThreadEvent {
+
+ public:
+
+    QThreadEvent();
+    ~QThreadEvent();
+    void wait();
+    void wait(const QTime &);
+    void wakeOne();
+    void wakeAll();
+
+ private:
+
+    QThreadEventPrivate * qte;
+
+#if defined(Q_DISABLE_COPY)
+    QThreadEvent( const QThreadEvent & );
+    QThreadEvent &operator=( const QThreadEvent & );
+#endif
 
 };
 
