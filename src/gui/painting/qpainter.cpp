@@ -1091,7 +1091,6 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
 
     if (str.isEmpty())
 	return;
-    int len = str.length();
 
     QTextLayout layout(str, d->state->pfont ? *d->state->pfont : d->state->font);
     QTextEngine *engine = layout.engine();
@@ -1172,7 +1171,6 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 
     // Fallback: rasterize into a pixmap and draw the pixmap
 
-    QFontEngine *fe = ti.fontEngine;
     QPixmap pm(ti.width, ti.ascent+ti.descent);
     pm.fill(white);
 
