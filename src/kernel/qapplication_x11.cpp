@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#592 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#593 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2458,8 +2458,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case EnterNotify: {			// enter window
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
-	curWin = widget->winId();
 	qt_x_clipboardtime = event->xcrossing.time;
+	if ( event->xcrossing.mode != NotifyNormal )
+	    break;
+	if ( event->xcrossing.detail != NotifyAncestor &&
+	     event->xcrossing.detail != NotifyNonlinear &&
+	     event->xcrossing.detail != NotifyInferior &&
+	     event->xcrossing.detail != NotifyAncestor  )
+	    break;
+	curWin = widget->winId();
+// 	qDebug("Enter for %s (%d)", widget->className(), event->xcrossing.detail );
 	QEvent e( QEvent::Enter );
 	QApplication::sendEvent( widget, &e );
 	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
@@ -2469,6 +2477,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	qt_x_clipboardtime = event->xcrossing.time;
+	if ( widget->winId() != curWin )
+	    break;
+	if ( event->xcrossing.mode != NotifyNormal )
+	    break;
+// 	qDebug("Leave for %s (%d)", widget->className(), event->xcrossing.detail  );
 	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
 	QEvent e( QEvent::Leave );
 	QApplication::sendEvent( widget, &e );
