@@ -46,6 +46,7 @@ class MessageEditor;
 
 class PhraseLV;
 class ContextLVI;
+class Statistics;
 
 class TrWindow : public QMainWindow
 {
@@ -67,6 +68,9 @@ protected:
     void writeConfig();
     void closeEvent( QCloseEvent * );
 
+signals:
+    void statsChanged( int w, int c, int cs, int w2, int c2, int cs2 );
+    
 private slots:
     void doneAndNext();
     void prev();
@@ -107,6 +111,8 @@ private slots:
     void focusSourceList();
     void focusPhraseList();
     void updateClosePhraseBook();
+    void toggleStatistics();
+    void updateStatistics();
 
 private:
     typedef QPtrList<PhraseBook> PBL;
@@ -132,7 +138,9 @@ private:
     QListViewItem * indexToItem( QListView * view, int index );
     bool searchItem( const QString & searchWhat, QListViewItem * j,
 		     QListViewItem * k );
-
+    void countStats( QListViewItem * ci, QListViewItem * mi, int& trW, int& trC, int& trCS );
+    void doCharCounting( const QString& text, int& trW, int& trC, int& trCS );
+    
     QListView     * plv;
     QListView     * lv;
     QListView     * slv;
@@ -206,6 +214,11 @@ private:
     Action *doneAndNextAct;
     QAction *doneAndNextAlt;
     Action *doGuessesAct;
+    Action *toggleStats;
+    Statistics * stats;
+    int  srcWords;
+    int  srcChars;
+    int  srcCharsSpc;
 };
 
 #endif

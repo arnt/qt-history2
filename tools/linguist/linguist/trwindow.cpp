@@ -31,6 +31,7 @@
 #include "printout.h"
 #include "about.h"
 #include "phraselv.h"
+#include "statistics.h"
 
 #include <qaccel.h>
 #include <qaction.h>
@@ -322,11 +323,16 @@ TrWindow::TrWindow()
     as -= QSize( 30, 30 );
     resize( QSize( 1000, 800 ).boundedTo( as ) );
     readConfig();
+    stats = 0;
+    srcWords = 0;
+    srcChars = 0;
+    srcCharsSpc = 0;
 }
 
 TrWindow::~TrWindow()
 {
     writeConfig();
+    delete stats;
 }
 
 void TrWindow::openFile( const QString& name )
@@ -355,6 +361,9 @@ void TrWindow::openFile( const QString& name )
 	    TML::Iterator it;
 	    QDict<ContextLVI> contexts( 1009 );
 
+	    srcWords = 0;
+	    srcChars = 0;
+	    srcCharsSpc = 0;
 	    for ( it = all.begin(); it != all.end(); ++it ) {
 		qApp->processEvents();
 		ContextLVI *c = contexts.find( QString((*it).context()) );
@@ -377,11 +386,11 @@ void TrWindow::openFile( const QString& name )
 				    tmp->message().type() ==
 				    MetaTranslatorMessage::Finished );
 		    c->instantiateMessageItem( slv, tmp );
-
 		    if ( (*it).type() != MetaTranslatorMessage::Obsolete ) {
 			numNonobsolete++;
 			if ( (*it).type() == MetaTranslatorMessage::Finished )
 			    numFinished++;
+			doCharCounting( tmp->sourceText(), srcWords, srcChars, srcCharsSpc );
 		    } else {
 			c->incrementObsoleteCount();
 		    }
@@ -421,6 +430,7 @@ void TrWindow::openFile( const QString& name )
 		lv->setCurrentItem( lv->firstChild() );
 	    }
 	    addRecentlyOpenedFile( name, recentFiles );
+	    updateStatistics();
 	} else {
 	    statusBar()->clear();
 	    QMessageBox::warning( this, tr("Qt Linguist"),
@@ -1048,6 +1058,7 @@ void TrWindow::doneAndNext()
 	}
 	qApp->beep();
     }
+    updateStatistics();
 }
 
 void TrWindow::toggleFinished( QListViewItem *item, const QPoint& /* p */,
@@ -1076,6 +1087,7 @@ void TrWindow::toggleFinished( QListViewItem *item, const QPoint& /* p */,
 		updateCaption();
 	    }
 	}
+	updateStatistics();
     }
 }
 
@@ -1527,6 +1539,8 @@ void TrWindow::setupMenuBar()
 			       this, SLOT(toggleGuessing()) );
     doGuessesAct->setToggleAction( TRUE );
     doGuessesAct->setOn( TRUE );
+    toggleStats = new Action( viewp, tr("&Statistics"), this, SLOT(toggleStatistics()) );
+    toggleStats->setToggleAction( TRUE );
     viewp->insertSeparator();
     viewp->insertItem( tr("Vie&ws"), createDockWindowMenu( NoToolBars ) );
     viewp->insertItem( tr("&Toolbars"), createDockWindowMenu( OnlyToolBars ) );
@@ -1974,5 +1988,69 @@ void TrWindow::updateClosePhraseBook()
     if ( dirtyItem != -1 ) {
 	closePhraseBookp->removeItem( closePhraseBookp->idAt(dirtyItem) );
 	dirtyItem = -1;
+    }
+}
+
+void TrWindow::toggleStatistics()
+{
+    if ( toggleStats->isOn() ) {
+	if ( !stats ) {
+	    stats = new Statistics( this, "linguist_stats" );
+	    connect( this, SIGNAL(statsChanged(int,int,int,int,int,int)), stats,
+		     SLOT(updateStats(int,int,int,int,int,int)) );
+	    connect( stats, SIGNAL(closed()), toggleStats, SLOT(toggle()) );
+	}
+	updateStatistics();
+	stats->show();
+    } else if ( stats ) {
+	stats->close();
+    }
+}
+
+void TrWindow::updateStatistics()
+{
+    QListViewItem * ci = lv->firstChild();
+    int trW = 0;
+    int trC = 0;
+    int trCS = 0;
+    while ( ci ) {
+ 	countStats( ci, ((ContextLVI *)ci)->firstMessageItem(), trW, trC, trCS );
+	ci = ci->nextSibling();
+    }
+    // ..and the items in the source list
+    countStats( 0, slv->firstChild(), trW, trC, trCS );
+    emit statsChanged( srcWords, srcChars, srcCharsSpc, trW, trC, trCS );
+}
+
+
+void TrWindow::countStats( QListViewItem* ci, QListViewItem* mi, int& trW, int& trC, int& trCS )
+{
+    MessageLVI * m;
+    while ( mi ) {
+	m = (MessageLVI *) mi;
+	if ( m->finished() && !(m->message().type() == MetaTranslatorMessage::Obsolete) )
+	    doCharCounting( m->translation(), trW, trC, trCS );
+	if ( ci )
+	    mi = ((ContextLVI *)ci)->nextMessageItem();
+	else
+	    mi = mi->nextSibling();
+    }
+}
+
+void TrWindow::doCharCounting( const QString& text, int& trW, int& trC, int& trCS )
+{
+    trCS += text.length();
+    bool inWord = FALSE;
+    for ( int i = 0; i < (int) text.length(); i++ ) {
+	if ( text[i].isLetterOrNumber() || text[i] == QChar('_') ) {
+	    if ( !inWord ) {
+		trW++;
+		inWord = TRUE;
+	    }
+	} else {
+	    inWord = FALSE;
+	}
+	if ( !text[i].isSpace() )
+	    trC++;
     }
 }
