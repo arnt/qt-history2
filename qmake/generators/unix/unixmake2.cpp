@@ -210,7 +210,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(do_incremental && !moc_incremental && !src_incremental)
 	do_incremental = FALSE;
-    t << "DIST	   = " << varList("DISTFILES") << endl;
+    t << "DIST	   = " << valList(fileFixify(project->variables()["DISTFILES"])) << endl;
     t << "QMAKE_TARGET = " << var("QMAKE_ORIG_TARGET") << endl;
     t << "DESTDIR  = " << var("DESTDIR") << endl;
     t << "TARGET   = " << var("TARGET") << endl;
@@ -649,7 +649,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(TAR) " << var("QMAKE_ORIG_TARGET") << ".tar " << ddir << " && "
       << "$(GZIP) " << var("QMAKE_ORIG_TARGET") << ".tar ) && "
       << "$(MOVE) `dirname " << ddir_c << "`" << Option::dir_sep << var("QMAKE_ORIG_TARGET") << ".tar.gz . && "
-      << "$(DEL_DIR) " << ddir_c
+      << "$(DEL_FILE) -r " << ddir_c
       << endl << endl;
 
     QString clean_targets;
