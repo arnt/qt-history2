@@ -1380,7 +1380,10 @@ void QIconViewItem::calcRect( const QString &text_ )
 }
 
 /*!
-  Paints the item using the painter \a p.
+  Paints the item using the painter \a p, the color group \a cg and the font \a font. If you want, that
+  your iconview item is drawn with a different font or color, reimplement this method and 
+  change the values of the color group or the font and call then the paintItem() method of the
+  super class with the changed values.
 */
 
 void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &font )
@@ -1447,7 +1450,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &
 }
 
 /*!
-  Paints the focus rect of the item using the painter \a.
+  Paints the focus rect of the item using the painter \a p and the color group \a cg.
 */
 
 void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
@@ -1765,7 +1768,7 @@ void QIconViewItem::calcTmpText()
 /*! \fn void  QIconView::doubleClicked (QIconViewItem * item)
   This signal is emitted, if the user doubleclicked on the item \a item in double click mode,
   or if the user clicked on the \a item in single click mode.
-  
+
   \sa setSingleClickEnabled()
 */
 
@@ -2643,7 +2646,7 @@ QIconView::SelectionMode QIconView::selectionMode() const
   \a cursor specifies the mouse cursor which should be used of the mouse is over an item and
   \a interval specifies the time in ms, after which an item should get the current, if the mouse
   stays on it (-1 disables this feature).
-  
+
   If you switch to single click mode, the signal doubleClicked() is emitted if the user only
   does a single click on an item (this signal is emitted in the mouse release event then). Using that
   it's transparent for you if you use the class in single click or double click mode.
@@ -2657,7 +2660,7 @@ void QIconView::setSingleClickEnabled( bool enable, bool underline, bool highlig
     d->scHighlighte = highlighte;
     d->scCursor = cursor;
     d->scInterval = interval;
-    
+
     viewport()->repaint( FALSE );
 }
 
@@ -3305,7 +3308,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
     emit mouseButtonPressed( e->button(), item, e->globalPos() );
     emit pressed( item );
     emit pressed( item, e->globalPos() );
-    
+
     if ( e->button() == RightButton ) {
 	emit rightButtonPressed( item, e->globalPos() );
 	if ( item )
@@ -3326,7 +3329,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
     bool emitDblClk = FALSE;
-    
+
     if ( d->rubber ) {
 	QPainter p;
 	p.begin( viewport() );
@@ -3360,7 +3363,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
     emit clicked( item, e->globalPos() );
     if ( emitDblClk )
 	emit doubleClicked( item );
-    
+
     if ( e->button() == RightButton ) {
 	emit rightButtonClicked( item, e->globalPos() );
 	if ( item )
@@ -3990,7 +3993,7 @@ void QIconView::startDrag()
 {
     if ( !d->currentItem )
 	return;
-    
+
     QPoint orig = d->dragStartPos;
     d->dragStart = QPoint( orig.x() - d->currentItem->x(),
 			   orig.y() - d->currentItem->y() );
