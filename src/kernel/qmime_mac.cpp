@@ -272,7 +272,6 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 	    return 0;
 	}
 	if(!mime_registry.contains(mime)) {
-	    qDebug("inserting %s", mime);
 	    QSettings mime_settings;
 	    mime_settings.setPath("MimeRegistry", "qt");
 	    mime_settings.beginGroup("/mimetypes/");
