@@ -1224,19 +1224,16 @@ void QComboBox::paintEvent( QPaintEvent * )
 	QString str = d->popup()->text( this->d->current );
 	if ( !str.isNull() ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );
-	} 
-	QPixmap *pix = d->popup()->pixmap( this->d->current );
-	if ( !pix ) {                                              // try for icon instead 
-	    QIconSet * iconSet = d->popup()->iconSet( this->d->current );
-	    if ( iconSet )
-		pix = &(iconSet->pixmap());
 	}
-	if ( pix ) {
+
+	QPixmap *pix = d->popup()->pixmap( this->d->current );
+	QIconSet *iconSet = d->popup()->iconSet( this->d->current );
+	if (pix || iconSet) {
+	    QPixmap pm = ( pix ? *pix : iconSet->pixmap() );
 	    p.setClipRect( clip );
-	    p.drawPixmap( 4, (height()-pix->height())/2, *pix );
+	    p.drawPixmap( 4, (height()-pm.height())/2, pm );
 	    p.setClipping( FALSE );
 	}
-   
 
 	if ( hasFocus() )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
