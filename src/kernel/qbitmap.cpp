@@ -27,7 +27,7 @@
 #include "qimage.h"
 
 
-// BEING REVISED: paul
+// REVISED: paul
 /*!
   \class QBitmap qbitmap.h
   \brief The QBitmap class provides monochrome (1 bit depth) pixmaps.

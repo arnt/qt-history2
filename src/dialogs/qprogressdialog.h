@@ -72,6 +72,7 @@ public slots:
     void	setCancelButtonText( const QString &);
 
     void	setMinimumDuration( int ms );
+public:
     int		minimumDuration() const;
 
 signals:
