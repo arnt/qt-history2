@@ -1,0 +1,27 @@
+#------------------------
+# make file
+#------------------------
+
+all : drgdrps.exe
+
+OBJS = drgdrps.obj enumfetc.obj 
+COMPILE_OPTS = -c -GA -GEs -Od -W3 -Zipe -AM 
+LINK_OPTS = /CO /MAP /NOD /align:16
+
+drgdrps.res : drgdrps.rc drgdrps.ico drgdrps.h
+     rc  -r drgdrps.rc
+     
+enumfetc.obj : enumfetc.c enumfetc.h
+     cl $(COMPILE_OPTS) enumfetc.c     
+     
+drgdrps.obj : drgdrps.cpp drgdrps.h
+     cl $(COMPILE_OPTS) drgdrps.cpp
+         
+drgdrps.exe :: $(OBJS) drgdrps.def drgdrps.res
+     link $(LINK_OPTS) $(OBJS), drgdrps, drgdrps, mlibcew libw ole2, drgdrps
+     mapsym drgdrps
+     rc drgdrps.res
+     
+drgdrps.exe ::  drgdrps.res
+     rc drgdrps.res
+

@@ -1,0 +1,11 @@
+#include <windows.h>
+#include "drgdrpt.h"
+
+GenericIcon icon drgdrpt.ico
+
+STRINGTABLE
+BEGIN
+   IDS_PROGNAME,       "OLE 2 Drop Target"           // Application name
+END
+
+

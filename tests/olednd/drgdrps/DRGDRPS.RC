@@ -1,0 +1,9 @@
+#include <windows.h>
+#include "drgdrps.h"
+
+GenericIcon icon drgdrps.ico
+
+STRINGTABLE
+BEGIN
+   IDS_PROGNAME,       "OLE 2 Drop Source"           // Application name
+END

@@ -1,0 +1,24 @@
+#------------------------
+# make file
+#------------------------
+
+all : drgdrpt.exe
+
+OBJS = drgdrpt.obj 
+COMPILE_OPTS = -c -GA -GEs -Od -W3 -Zipe -AM 
+LINK_OPTS = /CO /MAP /NOD /align:16
+
+drgdrpt.res : drgdrpt.rc drgdrpt.ico drgdrpt.h
+     rc  -r drgdrpt.rc
+     
+drgdrpt.obj : drgdrpt.cpp drgdrpt.h
+     cl $(COMPILE_OPTS) drgdrpt.cpp
+         
+drgdrpt.exe :: $(OBJS) drgdrpt.def drgdrpt.res
+     link $(LINK_OPTS) $(OBJS), drgdrpt, drgdrpt, mlibcew libw ole2, drgdrpt
+     mapsym drgdrpt
+     rc  drgdrpt.res
+     
+drgdrpt.exe ::  drgdrpt.res
+     rc drgdrpt.res
+
