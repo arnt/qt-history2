@@ -1022,7 +1022,7 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
 	r.setLeft( r.left() + pixw + 2 );
     }
 
-    p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
+    p->drawText ( r, AlignLeft|AlignVCenter|SingleLine, s );
 
     int arrowWidth = orient == Qt::Horizontal ? height() : width();
     arrowWidth -= 6;
@@ -1032,21 +1032,21 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
 	    QPointArray pa( 3 );
 	    int x = fr.x() + fr.width() - ( arrowWidth + 4 );
 	    p->setPen( colorGroup().light() );
-	    pa.setPoint( 0, x + arrowWidth, 4 );
-	    pa.setPoint( 1, x, 4 );
-	    pa.setPoint( 2, x + arrowWidth / 2, fr.height() - 6 );
-	    p->drawPolyline( pa );
+	    p->drawLine( x + arrowWidth, 4, x + arrowWidth / 2, fr.height() - 6 );
 	    p->setPen( colorGroup().dark() );
-	    p->drawLine( x + arrowWidth / 2, fr.height() - 6, x + arrowWidth, 4 );
+	    pa.setPoint( 0, x + arrowWidth / 2, fr.height() - 6 );
+	    pa.setPoint( 1, x, 4 );
+	    pa.setPoint( 2, x + arrowWidth, 4 );
+	    p->drawPolyline( pa );
 	} else {
 	    QPointArray pa( 3 );
 	    int x = fr.x() + fr.width() - ( arrowWidth + 4 );
-	    p->setPen( colorGroup().dark() );
+	    p->setPen( colorGroup().light() );
 	    pa.setPoint( 0, x, fr.height() - 6 );
 	    pa.setPoint( 1, x + arrowWidth, fr.height() - 6 );
 	    pa.setPoint( 2, x + arrowWidth / 2, 4 );
 	    p->drawPolyline( pa );
-	    p->setPen( colorGroup().light() );
+	    p->setPen( colorGroup().dark() );
 	    p->drawLine( x, fr.height() - 6, x + arrowWidth / 2, 4 );
 	}
 	p->restore();
