@@ -3942,7 +3942,11 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 	if ( !last->isText() )
 	    for( int i = 0; i < indent; ++i )
 		s << " ";
-	s << "</" << name << ">" << endl;
+
+	s << "</";
+	if ( !namespaceURI.isNull() )
+	    s << prefix << ":";
+	s << name << ">" << endl;
     } else {
 	s << "/>" << endl;
     }
