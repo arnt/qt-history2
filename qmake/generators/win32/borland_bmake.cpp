@@ -367,12 +367,17 @@ BorlandMakefileGenerator::init()
 	project->variables()["VER_MIN"].append(l[1]);
     }
 
-    QString tdsPostfix;
-    if ( !project->variables()["VERSION"].isEmpty()) {
-	tdsPostfix = QStringList::split('.',project->first("VERSION")).join("") + ".tds";
-    } else {
-	tdsPostfix = ".tds";
+    if ( project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
+	// bcc does not generate a .tds file for static libs
+	QString tdsPostfix;
+	if ( !project->variables()["VERSION"].isEmpty() ) {
+	    tdsPostfix = QStringList::split( '.', project->first("VERSION") ).join("")
+		+ ".tds";
+	} else {
+	    tdsPostfix = ".tds";
+	}
+	project->variables()["QMAKE_CLEAN"].append(
+		project->first("DESTDIR") + project->first("TARGET") + tdsPostfix );
     }
-    project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + tdsPostfix );
 }
 
