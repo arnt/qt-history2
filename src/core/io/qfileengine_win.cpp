@@ -168,14 +168,13 @@ QString QFSFileEnginePrivate::fixToQtSlashes(const QString &path)
 QByteArray QFSFileEnginePrivate::win95Name(const QString &path)
 {
     QString ret(path);
-    if(path[0] == '/' && path[1] == '/') {
+    if(path.length() > 1 && path[0] == '/' && path[1] == '/') {
         // Win95 cannot handle slash-slash needs slosh-slosh.
         ret[0] = '\\';
         ret[1] = '\\';
         int n = ret.indexOf('/');
         if(n >= 0)
             ret[n] = '\\';
-        return ret.toLocal8Bit();
     } else if(path.length() > 3 && path[2] == '/' && path[3] == '/') {
         ret[2] = '\\';
         ret.remove(3, 1);
@@ -1059,14 +1058,14 @@ QFSFileEngine::fileName(FileName file) const
         QString ret;
         if (!(fileFlags(ExistsFlag) & ExistsFlag))
             return ret;
+        QString abs;
+        if (fileFlags(DirectoryType) & DirectoryType)
+            abs = fileName(AbsoluteName);
+        else
+            abs = fileName(AbsolutePathName);
         QT_WA({
             TCHAR cur[PATH_MAX];
             ::_wgetcwd(cur, PATH_MAX);
-            QString abs;
-            if (fileFlags(DirectoryType) & DirectoryType)
-                abs = fileName(AbsoluteName);
-            else
-                abs = fileName(AbsolutePathName);
             if (::_wchdir((TCHAR*)abs.utf16()) >= 0) {
                 TCHAR real[PATH_MAX];
                 if(::_wgetcwd(real, PATH_MAX))
@@ -1076,9 +1075,9 @@ QFSFileEngine::fileName(FileName file) const
         } , {
             char cur[PATH_MAX];
             QT_GETCWD(cur, PATH_MAX);
-            if(QT_CHDIR(QFSFileEnginePrivate::win95Name(d->file)) >= 0) {
+            if(QT_CHDIR(QFSFileEnginePrivate::win95Name(abs)) >= 0) {
                 char real[PATH_MAX];
-                if(QT_GETCWD(real, PATH_MAX))
+                if(QT_GETCWD(real, PATH_MAX) != 0)
                     ret = QString::fromLocal8Bit(real);
             }
             QT_CHDIR(cur);
