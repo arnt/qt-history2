@@ -2051,7 +2051,7 @@ void QTable::swapRows( int row1, int row2, bool swapHeader )
 
     The verticalHeader(), which displays row labels, occupies this
     margin.
-    
+
     In a arabic or hebrew localization, the verticalHeader() will appear on the right side of the table, and
     this call will set the right margin.
 
@@ -5596,16 +5596,20 @@ void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
 	section--;
 	if ( p >= sectionPos( count() - 1 ) + sectionSize( count() - 1 ) )
 	    ++section;
+	while ( sectionSize( section ) == 0 )
+	    section--;
+	if ( section < 0 )
+	    return;
 	if ( orientation() == Horizontal ) {
 	    table->adjustColumn( section );
 	    for ( int i = 0; i < table->numCols(); ++i ) {
-		if ( table->isColumnSelected( i ) )
+		if ( table->isColumnSelected( i ) && sectionSize( i ) != 0 )
 		    table->adjustColumn( i );
 	    }
 	} else {
 	    table->adjustRow( section );
 	    for ( int i = 0; i < table->numRows(); ++i ) {
-		if ( table->isRowSelected( i ) )
+		if ( table->isRowSelected( i )  && sectionSize( i ) != 0 )
 		    table->adjustRow( i );
 	    }
 	}
