@@ -326,7 +326,6 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 //         return true;
     }
 
-    clearRenderHints(QPainter::LineAntialiasing)
     d->penAlphaColor = false;
     d->brushAlphaColor = false;
 
@@ -1556,16 +1555,16 @@ void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, c
     }
 }
 
-void QWin32PaintEngine::setRenderHints(QPainter::RenderHint hints)
+void QWin32PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    QPaintEngine::setRenderHints(hints);
     if (d->tryGdiplus())
-        d->gdiplusEngine->setRenderHints(hints);
+        d->gdiplusEngine->updateRenderHints(hints);
 }
 
 QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
 {
-    // ### Fill in the correct hints..
+    if (qt_gdiplus_support)
+        return QPainter::LineAntialiasing;
     return 0;
 }
 
@@ -1587,10 +1586,6 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     d->gdiplusInUse = true;
     q->setDirty(QPaintEngine::AllDirty);
     q->updateState(q->state);
-    if (q->renderHints() & QPainter::LineAntialiasing)
-	d->gdiplusEngine->setRenderHints(QPainter::LineAntialiasing);
-    else
-	d->gdiplusEngine->clearRenderHints(QPainter::LineAntialiasing);
 }
 
 void QWin32PaintEnginePrivate::endGdiplus()
@@ -2300,20 +2295,9 @@ void QGdiplusPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 }
 #endif
 
-QPainter::RenderHints QGdiplusPaintEngine::supportedRenderHints() const
+void QGdiplusPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    return QPainter::LineAntialiasing;
-}
-
-void QGdiplusPaintEngine::setRenderHints(QPainter::RenderHint hints)
-{
-    QPaintEngine::setRenderHints(hints);
-    if (hints & QPainter::LineAntialiasing) {
-        GdipSetSmoothingMode(d->graphics, enable
-                               ? 2 /* QualityModeHigh */
-                               : 1 /* QualityModeLow */ );
-//         d->graphics->SetPixelOffsetMode(enable ? PixelOffsetModeHalf : PixelOffsetModeNone);
-    }
+    GdipSetSmoothingMode(d->graphics, hints & QPainter::LineAntialiasing ? 2 : 1 );
 }
 
 

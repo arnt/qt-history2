@@ -76,9 +76,10 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             updateBackground(s->bgMode, s->bgBrush);
         if (testDirty(DirtyTransform))
             updateXForm(s->matrix);
-        if (testDirty(DirtyClip)) {
+        if (testDirty(DirtyClip))
             updateClipRegion(s->clipRegion, s->clipEnabled);
-        }
+        if (testDirty(DirtyHints))
+            updateRenderHints(d->renderhints);
         // Same painter, restoring old state.
     } else if (state && s->painter == state->painter) {
         state = s;
@@ -94,6 +95,8 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             updateXForm(s->matrix);
         if ((changeFlag&DirtyClip)!=0 || (changeFlag&DirtyClip) != 0)
             updateClipRegion(s->clipRegion, s->clipEnabled);
+        if (testDirty(DirtyHints))
+            updateRenderHints(d->renderhints);
         changeFlag = 0;
         // Different painter or state == 0 which is true for first time call
     } else {
@@ -105,13 +108,14 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         updateBackground(s->bgMode, s->bgBrush);
         updateXForm(s->matrix);
         updateClipRegion(s->clipRegion, s->clipEnabled);
+        updateRenderHints(d->renderhints);
     }
     dirtyFlag = 0;
 }
 
 /*! Default implementation does nothing...
  */
-void QPaintEngine::drawPath(const QPainterPath &path)
+void QPaintEngine::drawPath(const QPainterPath &)
 {
 
 }
@@ -187,11 +191,17 @@ QPainter::RenderHints QPaintEngine::renderHints() const
 void QPaintEngine::setRenderHints(QPainter::RenderHint hints)
 {
     d->renderhints |= hints;
+    setDirty(DirtyHints);
 }
 
 void QPaintEngine::clearRenderHints(QPainter::RenderHint hints)
 {
     d->renderhints &= ~hints;
+    setDirty(DirtyHints);
+}
+
+void QPaintEngine::updateRenderHints(QPainter::RenderHints)
+{
 }
 
 void QWrapperPaintEngine::updatePen(const QPen &pen) { wrap->updatePen(pen); }

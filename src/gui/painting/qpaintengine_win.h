@@ -41,6 +41,7 @@ public:
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateXForm(const QWMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
+    void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);
@@ -77,7 +78,6 @@ public:
            UsePrivateCx = 0x10000, VolatileDC = 0x20000, Qt2Compat = 0x40000 };
 
     QPainter::RenderHints supportedRenderHints() const;
-    void setRenderHints(QPainter::RenderHint hints);
 
 protected:
     QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target, PaintEngineFeatures caps);
@@ -106,6 +106,7 @@ public:
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateXForm(const QWMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
+    void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);
@@ -123,9 +124,6 @@ public:
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
-
-    QPainter::RenderHints supportedRenderHints() const;
-    void setRenderHints(QPainter::RenderHint hints);
 
     HDC handle() const;
     Type type() const { return Gdiplus; }

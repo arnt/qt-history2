@@ -55,7 +55,7 @@ public:
         cachedSolidBrush(0),
         usesTempDC(false),
         usePen(false),
-        temporaryBrush(false),
+        temporaryBrush(false)
     {
     }
 

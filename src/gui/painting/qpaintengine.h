@@ -70,6 +70,7 @@ public:
         DirtyBackground         = 0x0008,
         DirtyTransform          = 0x0010,
         DirtyClip               = 0x0020,
+        DirtyHints              = 0x0040,
 
         AllDirty                = 0xffff
     };
@@ -89,6 +90,7 @@ public:
     virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush) = 0;
     virtual void updateXForm(const QWMatrix &matrix) = 0;
     virtual void updateClipRegion(const QRegion &region, bool enabled) = 0;
+    virtual void updateRenderHints(QPainter::RenderHints hints);
 
     virtual void drawPath(const QPainterPath &path);
     virtual void drawLine(const QPoint &p1, const QPoint &p2) = 0;
