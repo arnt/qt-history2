@@ -247,7 +247,7 @@ public:
     inline void setAlignment(Qt::Alignment alignment)
     { setProperty(BlockAlignment, int(alignment)); }
     inline Qt::Alignment alignment() const
-    { return intProperty(BlockAlignment); }
+    { return QFlag(intProperty(BlockAlignment)); }
 
     inline void setListFormatIndex(int idx)
     { setFormatReferenceProperty(BlockListFormatIndex, idx); }

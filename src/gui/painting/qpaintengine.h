@@ -267,5 +267,5 @@ inline void QPaintEngine::updateState(QPainterState *newState, bool updateGC)
 	updateInternal(newState, updateGC);
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::Capability);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::GCCaps);
 #endif // QPAINTENGINE_H
