@@ -943,12 +943,12 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	bool copySuccessful = true;
 
 	QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe" );
-	QStringList paths = QStringList::split( ";", QEnvironment::getEnv( "PATH" ) );
+	QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
 	if( !findFileInPaths( makeCmds[ sysID ], paths ) ) {
-		QMessageBox::critical( this, "Environment problems", "The installation program can't find the make command '" + makeCmds[ sysID ] + "'.\nMake sure the path to it "
-														  "is present in the PATH environment variable.\n"
-														  "The installation can't continue.", "Yes", QString::null, QString::null, 0, 1 );
-		return;
+	    QMessageBox::critical( this, "Environment problems", "The installation program can't find the make command '" + makeCmds[ sysID ] + "'.\nMake sure the path to it "
+					 "is present in the PATH environment variable.\n"
+					 "The installation can't continue.", "Yes", QString::null, QString::null, 0, 1 );
+	    return;
 	}
 
 	setInstallStep( 6 );
@@ -1439,24 +1439,28 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( i->rtti() != QCheckListItem::RTTI )
 	return;
 
-	if( ( i == mysqlDirect ) || ( i == mysqlPlugin ) )
-		if( !findFileInPaths( "libmysql.lib", QEnvironment::getEnv( "LIB" ) ) )
-			QMessageBox::warning( this, "Client libraries needed", "The MySQL driver may not build and link properly because\n"
-																   "the client libraries were not found in the LIB environment variable paths." );
-	if( ( i == ociDirect ) || ( i == ociPlugin ) )
-		if( !findFileInPaths( "oci.lib", QEnvironment::getEnv( "LIB" ) ) )
-			QMessageBox::warning( this, "Client libraries needed", "The OCI driver may not build and link properly because\n"
-																   "the client libraries were not found in the LIB environment variable paths." );
-	if( ( i == odbcDirect ) || ( i == odbcPlugin ) )
-		if( !findFileInPaths( "odbc32.lib", QEnvironment::getEnv( "LIB" ) ) )
-			QMessageBox::warning( this, "Client libraries needed", "The ODBC driver may not build and link properly because\n"
-																   "the client libraries were not found in the LIB environment variable paths." );
-	if( ( i == psqlDirect ) || ( i == psqlPlugin ) )
-		if( !findFileInPaths( "libpqdll.lib", QEnvironment::getEnv( "LIB" ) ) )
-			QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
-																	   "the client libraries were not found in the LIB environment variable paths." );
+    if( ( i == mysqlDirect || i == mysqlPlugin ) && 
+	!(findFileInPaths( "libmysql.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+	  findFileInPaths( "mysql.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
+	QMessageBox::warning( this, "Client libraries needed", "The MySQL driver may not build and link properly because\n"
+				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
+    if( ( i == ociDirect || i == ociPlugin ) && 
+	!(findFileInPaths( "oci.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+	  findFileInPaths( "oci.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
+	QMessageBox::warning( this, "Client libraries needed", "The OCI driver may not build and link properly because\n"
+				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
+    if( ( i == odbcDirect || i == odbcPlugin ) && 
+	!(findFileInPaths( "odbc32.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+	  findFileInPaths( "sql.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
+	QMessageBox::warning( this, "Client libraries needed", "The ODBC driver may not build and link properly because\n"
+				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
+    if( ( i == psqlDirect || i == psqlPlugin ) && 
+	!(findFileInPaths( "libpqdll.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+	  findFileInPaths( "libpq-fe.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
+	QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
+				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
     
-	if ( i->text(0) == "Required" ) {
+    if ( i->text(0) == "Required" ) {
 	explainOption->setText( tr("These modules are a necessary part of the Qt library. "
 				   "They can not be disabled.") );
     } else if ( i->parent() && i->parent()->text(0) == "Required" ) {
