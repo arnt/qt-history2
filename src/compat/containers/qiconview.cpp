@@ -5496,13 +5496,13 @@ void QIconView::drawDragShapes( const QPoint &pos )
 
     QStyleOption opt(palette().base());
 
-    if ( d->isIconDrag ) {
-	QPainter p;
-	p.begin( viewport() );
-	p.translate( -contentsX(), -contentsY() );
-	p.setRasterOp( NotROP );
-	p.setPen( QPen( color0 ) );
+    QPainter p;
+    p.begin( viewport() );
+    p.translate( -contentsX(), -contentsY() );
+    p.setRasterOp( NotROP );
+    p.setPen( QPen( color0 ) );
 
+    if ( d->isIconDrag ) {
 	QLinkedList<QIconDragDataItem>::Iterator it = d->iconDragData.begin();
 	for ( ; it != d->iconDragData.end(); ++it ) {
 	    QRect ir = (*it).item.pixmapRect();
@@ -5517,22 +5517,15 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	    style().drawPrimitive(QStyle::PE_FocusRect, &p, tr, palette(),
 				  QStyle::Style_Default, opt);
 	}
-
-	p.end();
     } else if ( d->numDragItems > 0 ) {
-	QPainter p;
-	p.begin( viewport() );
-	p.setRasterOp( NotROP );
-	p.setPen( QPen( color0 ) );
-
 	for ( int i = 0; i < d->numDragItems; ++i ) {
 	    QRect r( pos.x() + i * 40, pos.y(), 35, 35 );
 	    style().drawPrimitive(QStyle::PE_FocusRect, &p, r, palette(),
 				  QStyle::Style_Default, opt);
 	}
 
-	p.end();
     }
+    p.end();
 #endif
 }
 
