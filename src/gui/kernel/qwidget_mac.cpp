@@ -194,7 +194,7 @@ static WindowGroupRef qt_mac_get_stays_on_top_group()
 {
     if(!qt_mac_stays_on_top_group) {
         CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_stays_on_top_group);
-        SetWindowGroupLevel(qt_mac_stays_on_top_group, kCGMaximumWindowLevel);
+        SetWindowGroupLevel(qt_mac_stays_on_top_group, kCGOverlayWindowLevelKey);
         SetWindowGroupParent(qt_mac_stays_on_top_group, GetWindowGroupOfClass(kAllWindowClasses));
     }
     RetainWindowGroup(qt_mac_stays_on_top_group);
