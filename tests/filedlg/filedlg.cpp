@@ -108,12 +108,12 @@ void Main::boom()
 class Preview : public QLabel
 {
     Q_OBJECT
-    
+
 public:
     Preview( QWidget *parent )
 	: QLabel( parent ) {
     }
-    
+
 public slots:
     void showPreview( const QUrl &u ) {
 	if ( u.isLocalFile() ) {
@@ -126,7 +126,7 @@ public slots:
 	} else
 	    setText( "I only shoud local files!" );
     }
-    
+
 };
 
 void Main::platsch()
@@ -134,6 +134,7 @@ void Main::platsch()
     QFileDialog *fd = new QFileDialog( initEd->text(), filtEd->text() );
     fd->setPreviewMode( FALSE, TRUE );
     fd->setContentsPreviewWidget( new Preview( this ) );
+    fd->setViewMode( QFileDialog::DetailView | QFileDialog::PreviewContents );
     fd->show();
 }
 
@@ -161,7 +162,7 @@ main(int argc, char** argv)
 {
     QApplication app(argc, argv);
     qInitNetworkProtocols();
-    
+
     Main m;
     m.show();
 
