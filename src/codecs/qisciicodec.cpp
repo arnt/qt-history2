@@ -1,7 +1,7 @@
 #include "qisciicodec_p.h"
 #ifndef QT_NO_CODECS
 
-#define	QValidChar(u)	   ((u) ? QChar((u)) : QChar::replacement)
+#define	QValidChar(u)	   ((u) ? QChar((u)) : QChar(QChar::replacement))
 
 /*!
     \class QIsciiCodec
