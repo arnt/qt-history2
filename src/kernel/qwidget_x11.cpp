@@ -901,17 +901,16 @@ void QWidget::setIcon( const QPixmap &pixmap )
     } else {
 	createTLExtra();
     }
-    ::Pixmap icon_pixmap;
-    ::Pixmap mask_pixmap;
-    QBitmap mask;
-    if ( pixmap.isNull() ) {
-	icon_pixmap = 0;
-	mask_pixmap = 0;
-    } else {
-	extra->topextra->icon = new QPixmap( pixmap );
-	icon_pixmap = pixmap.handle();
-	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
-	mask_pixmap = mask.handle();
+    ::Pixmap icon_pixmap = 0;
+    ::Pixmap mask_pixmap = 0;
+    if ( !pixmap.isNull() ) {
+	QPixmap* pm = new QPixmap( pixmap );
+	extra->topextra->icon = pm;
+  	if ( !pm->mask() )
+  	    pm->setMask( pm->createHeuristicMask() ); // may do detach()
+	icon_pixmap = pm->handle();
+  	if ( pm->mask() )
+  	    mask_pixmap = pm->mask()->handle();
     }
     XWMHints *h = XGetWMHints( x11Display(), winId() );
     XWMHints  wm_hints;
