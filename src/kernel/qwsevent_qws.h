@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of ???
+** Definition of Qt/Embedded events
 **
 ** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 **
@@ -109,8 +109,8 @@ struct QWSMouseEvent : QWSEvent {
 
 struct QWSFocusEvent : QWSEvent {
     QWSFocusEvent()
-	: QWSEvent( QWSEvent::Focus, sizeof( simpleData ),
-	      (char*)&simpleData ) {}
+	: QWSEvent( QWSEvent::Focus, sizeof( simpleData ), (char*)&simpleData )
+	{ memset((char*)&simpleData,0,sizeof(simpleData)); }
     struct SimpleData {
 	int window;
 	uint get_focus:1;
@@ -197,7 +197,8 @@ struct QWSSelectionNotifyEvent : QWSEvent {
 struct QWSRegionModifiedEvent : QWSEvent {
     QWSRegionModifiedEvent()
 	: QWSEvent( QWSEvent::RegionModified, sizeof( simpleData ),
-		(char*)&simpleData ) {}
+		(char*)&simpleData )
+	{ memset((char*)&simpleData,0,sizeof(simpleData)); }
 
     void setData( char *d, int len, bool allocateMem = TRUE ) {
 	QWSEvent::setData( d, len, allocateMem );
@@ -236,7 +237,8 @@ struct QWSPropertyReplyEvent : QWSEvent {
 struct QWSQCopMessageEvent : QWSEvent {
     QWSQCopMessageEvent()
 	: QWSEvent( QWSEvent::QCopMessage, sizeof( simpleData ),
-		(char*)&simpleData ) {}
+		(char*)&simpleData )
+	{ memset((char*)&simpleData,0,sizeof(simpleData)); }
 
     void setData( char *d, int len, bool allocateMem = TRUE ) {
 	QWSEvent::setData( d, len, allocateMem );
@@ -273,7 +275,6 @@ struct QWSWindowOperationEvent : QWSEvent {
     } simpleData;
 };
 
-
 #ifndef QT_NO_QWS_IM
 struct QWSIMEvent : QWSEvent {
     QWSIMEvent()
@@ -295,5 +296,4 @@ struct QWSIMEvent : QWSEvent {
     QChar *text;
 };
 #endif
-
 #endif
