@@ -1,6 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MulticlipForm</class>
 <include location="global" impldecl="in declaration">qclipboard.h</include>
+<include location="global" impldecl="in implementation">qapplication.h</include>
 <variable>QClipboard *cb;</variable>
 <pixmapinproject/>
 <widget class="QDialog">
@@ -165,21 +166,47 @@
         <receiver>MulticlipForm</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="public" language="C++" returnType="void">copyPrevious()</slot>
+    <connection>
+        <sender>addPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MulticlipForm</receiver>
+        <slot>addClipping()</slot>
+    </connection>
+    <connection>
+        <sender>copyPushButton</sender>
+        <signal>pressed()</signal>
+        <receiver>MulticlipForm</receiver>
+        <slot>copyPrevious()</slot>
+    </connection>
+    <connection>
+        <sender>deletePushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MulticlipForm</receiver>
+        <slot>deleteClipping()</slot>
+    </connection>
+    <slot access="public" language="C++" returnType="void">addClipping()</slot>
     <slot access="public" language="C++" returnType="void">dataChanged()</slot>
     <slot access="public" language="C++" returnType="void">deleteClipping()</slot>
+    <slot access="public" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">init()</slot>
     <slot access="public" language="C++" returnType="void">selectionChanged()</slot>
+    <slot access="public" language="C++" returnType="void">copyPrevious()</slot>
     <slot access="public" language="C++" returnType="void">clippingChanged( const QString &amp; s )</slot>
 </connections>
 <functions>
-    <function name="copyPrevious()" >{ 
-    if ( clippingsListBox-&gt;currentItem() != -1 ) { 
-	cb-&gt;setText( clippingsListBox-&gt;currentText() ); 
-	if ( cb-&gt;supportsSelection() ) { 
-	    cb-&gt;setSelectionMode( TRUE ); 
-	    cb-&gt;setText( clippingsListBox-&gt;currentText() ); 
-	    cb-&gt;setSelectionMode( FALSE ); 
+    <function name="addClipping()" >{ 
+    QString text = currentLineEdit-&gt;text(); 
+    if ( ! text.isEmpty() ) { 
+	lengthLCDNumber-&gt;display( (int)text.length() ); 	 
+	int i = 0; 
+	for ( ; i &lt; (int)clippingsListBox-&gt;count(); i++ ) { 
+	    if ( clippingsListBox-&gt;text( i ) == text ) { 
+		i = -1; // Do not add duplicates 
+		break; 
+	    } 
 	} 
+	if ( i != -1 )  
+	    clippingsListBox-&gt;insertItem( text, 0 );   	     
     } 
 }</function>
     <function name="dataChanged()" >{ 
@@ -193,10 +220,34 @@
     clippingChanged( "" );  
     clippingsListBox-&gt;removeItem( clippingsListBox-&gt;currentItem() ); 
 }</function>
+    <function name="destroy()" >{ 
+    
+}</function>
+    <function name="init()" >{ 
+    lengthLCDNumber-&gt;setBackgroundColor( darkBlue ); 
+    currentLineEdit-&gt;setFocus(); 
+     
+    cb = qApp-&gt;clipboard(); 
+    connect( cb, SIGNAL( dataChanged() ), SLOT( dataChanged() ) ); 
+    if ( cb-&gt;supportsSelection() ) 
+	connect( cb, SIGNAL( selectionChanged() ), SLOT( selectionChanged() ) ); 
+     
+    dataChanged(); 
+}</function>
     <function name="selectionChanged()" >{ 
     cb-&gt;setSelectionMode( TRUE );  
     dataChanged(); 
     cb-&gt;setSelectionMode( FALSE );  
+}</function>
+    <function name="copyPrevious()" >{ 
+    if ( clippingsListBox-&gt;currentItem() != -1 ) { 
+	cb-&gt;setText( clippingsListBox-&gt;currentText() ); 
+	if ( cb-&gt;supportsSelection() ) { 
+	    cb-&gt;setSelectionMode( TRUE ); 
+	    cb-&gt;setText( clippingsListBox-&gt;currentText() ); 
+	    cb-&gt;setSelectionMode( FALSE ); 
+	} 
+    } 
 }</function>
     <function name="clippingChanged(const QString&amp;)" >{ 
     currentLineEdit-&gt;setText( s ); 

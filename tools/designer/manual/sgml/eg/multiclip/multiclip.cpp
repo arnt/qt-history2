@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'multiclip.ui'
 **
-** Created: Wed Feb 14 13:30:42 2001
+** Created: Wed Feb 14 13:43:47 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -9,6 +9,7 @@
 #include "./multiclip.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
+#include <qapplication.h>
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qlcdnumber.h>
@@ -134,6 +135,41 @@ MulticlipForm::MulticlipForm( QWidget* parent,  const char* name, bool modal, WF
 MulticlipForm::~MulticlipForm()
 {
     // no need to delete child widgets, Qt does it all for us
+}
+
+void MulticlipForm::init()
+{ 
+    lengthLCDNumber->setBackgroundColor( darkBlue ); 
+    currentLineEdit->setFocus(); 
+     
+    cb = qApp->clipboard(); 
+    connect( cb, SIGNAL( dataChanged() ), SLOT( dataChanged() ) ); 
+    if ( cb->supportsSelection() ) 
+	connect( cb, SIGNAL( selectionChanged() ), SLOT( selectionChanged() ) ); 
+     
+    dataChanged(); 
+}
+
+void MulticlipForm::destroy()
+{
+    qWarning( "MulticlipForm::destroy(): Not implemented yet!" );
+}
+
+void MulticlipForm::addClipping()
+{ 
+    QString text = currentLineEdit->text(); 
+    if ( ! text.isEmpty() ) { 
+	lengthLCDNumber->display( (int)text.length() ); 	 
+	int i = 0; 
+	for ( ; i < (int)clippingsListBox->count(); i++ ) { 
+	    if ( clippingsListBox->text( i ) == text ) { 
+		i = -1; // Do not add duplicates 
+		break; 
+	    } 
+	} 
+	if ( i != -1 )  
+	    clippingsListBox->insertItem( text, 0 );   	     
+    } 
 }
 
 void MulticlipForm::copyPrevious()

@@ -35,26 +35,42 @@
     now provides. The manual is divided into two parts. The chapters in the
     first part introduce you to \qd by leading you through the development of
     example applications that demonstrate \qd's facilities. The second part is
-    a comprehensive reference. Here's a brief overview of the chapters:
+    a comprehensive reference. 
+    </para>
+    <para>
+    Chapter two covers the basics of building a Qt application with
+    Designer. All the chapters are written to be as self-contained as
+    possible so that you can use them independently; excepting that all
+    the chapters after chapter two assume that you are famililar with
+    the contents of chapter two. Here's a brief overview of the
+    chapters:
     <itemizedlist> 
     <listitem> 
     \p
-    The first chapter will introduce you to \qd and will begin to take
-    you step-by-step through the creation of a simple application. Along
+    Chapter two introduces \qd and takes you step by step through
+    the creation of a small but fully functional application.
+    Along
     the way you will learn how to create a form and add widgets to it.
     In the course of the chapter you will use the form and property
     editors to customize the application, and learn how to lay out a form
-    using the layout tools. In the second chapter we will develop the
-    example further. We will use Qt's signals and slots mechanism and
-    \qd's built-in code editor to create and implement our own custom
-    slots. We will also explain how to use \cmd[qmake] to generate a
-    Makefile so that you can compile and run your applications.
+    using the layout tools. You'll also learn how to use Qt's signals
+    and slots mechanism and \qd's built-in code editor to create and
+    implement our own custom slots. We will also explain how to use
+    \cmd[qmake] to generate a Makefile so that you can compile and run
+    the application. 
     \P
     </listitem>
 
     <listitem> 
+    <para>
+    Chapter three demonstrates how to create an application's main
+    window, including toolbars and menus.     
+    </para>
+    </listitem>
+
+    <listitem> 
     \p
-    Chapter three will show you how to subclass a form; this allows you
+    Chapter four will show you how to subclass a form; this allows you
     to clearly separate the user interface from the underlying code that
     implements its functionality. This chapter will also explain how you
     can create dialogs dynamically directly from
@@ -64,11 +80,9 @@
     \P
     </listitem>
 
-    <listitem> 
+    <listitem>
     <para>
-    Chapter four demonstrates how to create an application's main
-    window, including toolbars and menus. Chapter five introduces some
-    of Qt's more advanced widgets.
+    Chapter five introduces some of Qt's more advanced widgets.
     </para>
     </listitem>
 

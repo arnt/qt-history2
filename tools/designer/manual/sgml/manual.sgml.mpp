@@ -2,12 +2,12 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
 <!ENTITY chapPF SYSTEM "chap-preface.sgml">
 <!ENTITY chapON SYSTEM "chap-one.sgml">
+<!ENTITY chapMW SYSTEM "chap-main-windows.sgml">
 <!ENTITY chapTW SYSTEM "chap-two.sgml">
 <!ENTITY chapAW SYSTEM "chap-advanced-widgets.sgml">
 <!ENTITY chap02 SYSTEM "chap-02.sgml">
 <!ENTITY chap03 SYSTEM "chap-03.sgml">
 <!ENTITY chap04 SYSTEM "chap-04.sgml">
-<!ENTITY chapMW SYSTEM "chap-main-windows.sgml">
 <!ENTITY chapCC SYSTEM "chap-custom-controls.sgml">
 <!ENTITY chapDA SYSTEM "chap-creating-database-applications.sgml">
 <!ENTITY chapCU SYSTEM "chap-customizing.sgml">
@@ -21,8 +21,8 @@
 <book>
 &chapPF;
 &chapON;
-&chapTW;
 &chapMW;
+&chapTW;
 &chapAW;
 &chapCC;
 &chapDA;

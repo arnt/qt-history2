@@ -17,7 +17,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    FormClipping clippingForm;
+    MulticlipForm clippingForm;
     app.setMainWidget( &clippingForm );
     clippingForm.show();
 

@@ -1,6 +1,6 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 <chapter>
-<title>Compiling &amp; Building a Qt Application</title>
+<title>Compiling &amp; Building Qt Applications</title>
 
 <sect1 id="creatingmaincpp">
 <title>Creating main.cpp </title>
@@ -9,8 +9,8 @@
 </para>
 </sect1>
 
-<sect1 id="introducingqmake">
-<title>Introducing qmake </title>
+<sect1 id="qmake">
+<title>qmake </title>
 
     <sect2 id="addingvaluestotheprofile">
     <title>Adding Values to the .pro File </title>
