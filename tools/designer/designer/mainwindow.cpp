@@ -3349,6 +3349,8 @@ void MainWindow::setupActionManager()
 	    continue;
 
 	QString grp = actionPluginManager->group( *it );
+	if ( grp.isEmpty() )
+	    grp = "3rd party actions";
 	QPopupMenu *menu = 0;
 	QToolBar *tb = 0;
 	
