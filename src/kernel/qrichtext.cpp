@@ -4550,7 +4550,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    continue;
 	}
 	if ( isWrapEnabled() && ( lastBreak != -1 || allowBreakInWords() ) &&
-	     ( wrapAtColumn() == -1 && x + ww > w ||
+	     ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
+	       wrapAtColumn() == -1 && x + ww > w - 4 && lastBreak == -1 && allowBreakInWords() ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
 	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
 	    if ( wrapAtColumn() != -1 )
