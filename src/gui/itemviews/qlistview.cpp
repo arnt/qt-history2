@@ -167,8 +167,8 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
 /*!
     \enum QListView::ViewMode
 
-    \value ListMode
-    \value IconMode
+    \value ListMode The items are layed out using TopToBottom flow, with Small size and Static movement
+    \value IconMode The items are layed out using LeftToRight flow, with Large size and Free movement
 */
 
 /*!
