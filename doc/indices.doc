@@ -142,6 +142,7 @@ Overviews
 \i \link component.html  Qt Component Model \endlink
 \endomit
 \i \link pictures.html   Widget Screenshots \endlink
+\i \link accelerators.html   Standard Accelerators \endlink
 \endlist
 
 </td>
@@ -167,18 +168,18 @@ Appendix
 </td>
 <td valign=top>
 \list
-  \i \link tools-list.html All Tools\endlink
-  \i \link designer-manual.book  Qt Designer \endlink
-  \i \link linguist-manual.book  Qt Linguist \endlink
-  \i \link assistant.book  Qt Assistant \endlink
-  \i \link qmake-manual.book  qmake \endlink
+\i \link tools-list.html All Tools\endlink
+\i \link designer-manual.book  Qt Designer \endlink
+\i \link linguist-manual.book  Qt Linguist \endlink
+\i \link assistant.book  Qt Assistant \endlink
+\i \link qmake-manual.book  qmake \endlink
 \endlist
 </td>
 <td valign=top>
 \list
-\i \link accelerators.html   Standard Accelerators \endlink
 \i \link license.html  Q Public License \endlink
 \i \link gpl.html  GNU General Public License \endlink
+\i \link 3rdparty.html  3rd Party Licenses used in Qt  \endlink
 \i \link licenses.html  Other Licenses used in Qt  \endlink
 \i \link credits.html  Credits \endlink
 \endlist

@@ -142,11 +142,9 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
 }
 
 
-void SetDataForm::currentChanged( int row, int col )
+void SetDataForm::currentChanged( int, int col )
 {
     colorPushButton->setEnabled( col == 1 || col == 4 );
-    if ( col == 2 )
-	((QComboBox*)table->cellWidget( row, col ))->popup();
 }
 
 
