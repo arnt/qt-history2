@@ -630,7 +630,7 @@ Q_LLONG QSocketLayer::write(const char *data, Q_LLONG length)
 Q_LLONG QSocketLayer::read(char *data, Q_LLONG maxLength)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::read(), -1);
-    Q_CHECK_STATE(QSocketLayer::read(), Qt::ConnectedState, -1);
+    Q_CHECK_STATES(QSocketLayer::read(), Qt::ConnectedState, Qt::BoundState, -1);
 
     Q_LLONG readBytes = d->nativeRead(data, maxLength);
 
