@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#60 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#59 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#60 $")
 
 
 /*!
@@ -61,6 +61,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#59 $")
 	paint.end();				// painting done
     }
   \endcode
+
+  QPainter is almost never used outside \link QWidget::paintEvent()
+  paintEvent(). \endlink Any widget <em>must</em> be able to repaint
+  itself at any time via paintEvent(), therefore the only sane design
+  is to do the painting in paintEvent() and use either
+  QWidget::update() or QWidget::repaint() force a paint event as
+  necessary.
 
   Note that both painters and some paint devices have attributes such
   as current font, current foreground colors and so on.
