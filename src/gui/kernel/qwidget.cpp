@@ -3852,7 +3852,7 @@ void QWidgetPrivate::hide_helper()
     Widgets are explicitly hidden if they were created as toplevel
     windows, or if hide() or setVisible(false) was called.
 
-    \sa setVisible(), hideI)(
+    \sa setVisible(), hide()
 */
 
 void QWidget::setVisible(bool visible)
