@@ -206,7 +206,7 @@ void QPaintEngine::drawPath(const QPainterPath &)
 
 /*!
   This function draws a the text item at the position ti. The default implementation
-  of this function will render the text to a pixmap and draw the pixmap in steed
+  of this function will render the text to a pixmap and draw the pixmap instead
  */
 
 void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
