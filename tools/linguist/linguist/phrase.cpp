@@ -67,7 +67,7 @@ private:
     QString target;
     QString definition;
 
-    QCString accum;
+    QString accum;
     int ferrorCount;
 };
 
@@ -90,11 +90,11 @@ bool QphHandler::endElement( const QString& /* namespaceURI */,
 			     const QString& qName )
 {
     if ( qName == QString("source") )
-	source = QString::fromUtf8( accum );
+	source = accum;
     else if ( qName == QString("target") )
-	target = QString::fromUtf8( accum );
+	target = accum;
     else if ( qName == QString("definition") )
-	definition = QString::fromUtf8( accum );
+	definition = accum;
     else if ( qName == QString("phrase") )
 	pb->append( Phrase(source, target, definition) );
     return TRUE;
