@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $
+** $Id: indices.doc,v 1.2 1995/08/07 19:24:39 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 1.2 1995/08/07 19:24:39 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -31,11 +31,12 @@ Here are the main index pages: <ul>
 
 <p>
 
-Here are some introductory pages and pages about the central concepts
-in Qt: <ul>
+Here are some introductory pages and pages about some of the central
+concepts in Qt: <ul>
 <li><a href=faq.html>FAQ</a>
 <li><a href=metaobjects.html>Signals, slots and the Meta Object Compiler</a>
 <li><a href=fontmatch.html>Font matching</a>
+<li><a href=debug.html>Some debugging support</a>
 </ul>
 
 <p>
@@ -63,6 +64,12 @@ within a few minutes. */
 
 <ul>
 <li><a href=tools.html>General utility classes</a>
+<li><a href=fonts.html>Classes related to fonts</a>
+<li><a href=colors.html>Colorful classes</a>
+<li><a href=realwidgets.html>Widgets</a>
+<li><a href=abstractwidgets.html>Abstract widget classes</a>
+<li><a href=uiclasses.html>User interface classes (except widgets)</a>
+<li><a href=drawing.html>Low-level drawing classes</a>
 <li><a href=headers.html>Header files</a>
 <li><a href=enums.html>enum types</a>
 <li><a href=examples.html>Example programs</a>
@@ -72,17 +79,69 @@ within a few minutes. */
 
 /*! \defgroup tools.html
 
-  <h1>The Tool Classes</h1>
+<h1>The Tool Classes</h1>
 
-  The tool classes are general-purpose classes that may be used
-  independently of the GUI classes.
+The tool classes are general-purpose classes that may be used
+independently of the GUI classes.
 
-  */
+*/
 
 /*! \defgroup fonts.html
 
-  <h1>Font-related Classes</h1>
+<h1>Font-related Classes</h1>
 
-  See also <a href=fontmatch.html>Font matching.</a>
+These classes are used to manipulate fonts.  See also <a
+href=fontmatch.html>Font matching.</a>
 
-  */
+*/
+
+/*! \defgroup colors.html
+
+<h1>Color handling classes</h1>
+
+These classes are used to select and manipulate colors in a portable
+way.
+
+*/
+
+/*! \defgroup realwidgets.html
+
+<h1>Widgets</h1>
+
+These widgets are meant for direct use.  There are also some <a
+href=abstractwidgets.html>abstract widget classes,</a> meant for
+subclassing.
+
+*/
+
+/*! \defgroup abstractwidgets.html
+
+<h1>Abstract Widget Classes</h1>
+
+These classes are abstract widgets; they are not usable in themselves,
+but provide functionality that can be used by inheriting these
+classes.
+
+*/
+
+/*! \defgroup uiclasses.html
+
+<h1>User Interface Classes</h1>
+
+These classes are related to the user interface, but are not
+themselves widgets.
+
+*/
+
+/*! \defgroup drawing.html
+
+<h1>Low-level Drawing</h1>
+
+These classes are in some way related to doing low-level graphics
+(lower than mere widget use, at any rate.)
+
+In order to access the screen on a lower level than using these
+classes, it is generally necessary to use \link QPaintDevice::handle()
+the underlying window system \endlink.
+
+*/
