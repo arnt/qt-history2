@@ -313,14 +313,12 @@ bool QAccelManager::tryAccelEvent( QWidget* w, QKeyEvent* e )
 	e->ignore();
 	QApplication::sendSpontaneousEvent( w, e );
 	if ( e->isAccepted() )
-	    return FALSE;
+	    return TRUE;
     }
     e->t = QEvent::Accel;
     e->ignore();
     QApplication::sendSpontaneousEvent( w, e );
-    if ( e->isAccepted() )
-	return TRUE;
-    return FALSE;
+    return e->isAccepted();
 }
 
 bool QAccelManager::tryComposeUnicode( QWidget* w, QKeyEvent* e )
