@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#36 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#36 $";
 #endif
 
 
@@ -123,21 +123,20 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#35 $";
 
 /*! \fn bool QObject::disconnect( const char *signal, const QObject *receiver, const char *member )
 
-  I'm tired; tomorrow.
-
-  \todo this */
+  Disconnects \e signal from \e member of \e receiver. */
 
 /*! \fn bool QObject::disconnect( const QObject *receiver, const char *member )
 
-  I'm tired; tomorrow.
+  Disconnects all signals in this object from \e member of \e receiver.
 
   \todo this */
 
 /*! \fn QObject *QObject::sender()
 
-  I'm tired; tomorrow.
+  This functions has not yet been documented; see our <a
+  href=http://www.troll.no/>home page</a> for updates.
 
-  \todo this */
+  */
 
 
 /* Remove white space from SIGNAL and SLOT names */
@@ -409,6 +408,12 @@ void QObject::blockSignals( bool b )
 }
 
 
+//
+// The timer flag hasTimer is set when startTimer is called.
+// It is not reset when killing the timer because more than
+// one timer might be active.
+//
+
 /*! Starts a timer.  A \link QTimerEvent timer event \endlink will
   happen every \e interval milliseconds until killTimer() is called.
 
@@ -418,12 +423,6 @@ void QObject::blockSignals( bool b )
   kill this timer.
 
   \sa QTimerEvent, QWidget::timerEvent(), killTimer(), killTimers(). */
-
-//
-// The timer flag hasTimer is set when startTimer is called.
-// It is not reset when killing the timer because more than
-// one timer might be active.
-//
 int QObject::startTimer( long interval )	// start timer events
 {
     pendTimer = TRUE;				// set timer flag
@@ -665,6 +664,20 @@ bool QObject::connect( QObject *sender,         const char *signal,
     return TRUE;
 }
 
+
+/*! Disconnects \e signal in object \e sender from \e member in object
+  \e receiver.
+
+  If \e signal is null, disconnect() breaks any connections that pass
+  the other tests.
+
+  If \e member is null, disconnect() breaks any connections that pass
+  the other tests.
+
+  If \e receiver is null, disconnect() breaks any connections that pass
+  the other tests.
+
+  \sa connect(). */
 
 bool QObject::disconnect( QObject *sender, const char *signal,
 			  const QObject *receiver, const char *member )
@@ -934,12 +947,12 @@ Qt toolkit - Meta Object Compiler description
 
 Signals and slots are used for communication between objects.  The
 signal/slot mechanism is a central feature of Qt, and is implemented
-using <dfn>moc</dfn> (Meta Object Compiler) and some preprocessor
+using the <dfn>moc</dfn> (Meta Object Compiler) and some preprocessor
 defines.
 
 <h2>Usage</h2>
 
-Syntactically, signals and slots are categories.  An minimal
+Syntactically, signals and slots are categories.  A minimal
 C++ class declaration might read:
 
 <pre>
@@ -961,16 +974,15 @@ that state.  A small Qt class might read:
 <pre>
     class QFoo : public QObject
     {
-        Q_OBKJECT;
+        Q_OBJECT;
     public:
         Foo( QObject *parent=0, const char *name=0);
         ~Foo();
-        void setSomething(int);
         int something();
-    public signals:
-        void setValue(int);
+    protected signals:
+        void somethingChanged(int)
     public slots:
-        void valueChanged(int)
+        void setSomething(int);
     private:
         int internal;
     };
@@ -980,8 +992,8 @@ This class has the same internal state, and also public methods to
 access the state, but in addition it has some support for component
 programming using signals and slots: This class can tell someone that
 its state has changed by emitting a signal,
-<code>valueChanged()</code>, and it has a slot which other objects may
-send signals to.
+<code>somethingChanged()</code>, and it has a slot which other objects
+may send signals to.
 
 <p>
 
@@ -991,7 +1003,7 @@ them initially.
 
 <p>
 
-The preprocessor changes the <code>signals</code> and
+The preprocessor removes the <code>signals</code> and
 <code>slots</code> keywords so the compiler won't see anything it
 can't digest.
 
@@ -1019,63 +1031,69 @@ in some way that might be interesting to the object's client or owner.
 
 <p>
 
-The <code>protected signals:</code> contains signals that subclasses
-may emit, but not anyone.  This is probably the most useful type of
-signal, since subclasses that provide have a different internal
-structure can emit the same signals.
+The <code>protected signals:</code> section contains signals that
+subclasses may emit, but not anyone.  This is probably the most useful
+type of signal, since subclasses that provide have a different
+internal structure can emit the same signals.
 
 <p>
 
-The <code>private signals:</code> contains signals that may only be
-emitted by the same class.
+The <code>private signals:</code> section contains signals that may
+only be emitted by the same class.
 
 <p>
 
-The <code>public signals:</code> contains signals that may be emitted
-by anyone.  Since a signal means that an object's state has changed,
-allowing anyone to emit signals is almost certainly useless, but since
-C++ allows public member variables we've chosen to allow public
-signals too.
+The <code>public signals:</code> section contains signals that may be
+emitted by anyone.  Since a signal means that an object's state has
+changed, allowing anyone to emit signals is almost certainly useless,
+but since C++ allows public member variables we've chosen to allow
+public signals too.
 
 <p>
 
-A scrollbar, for instance, sends out a signal when presses the mouse
-button to move the scrollbar by hand.  It isn't always interesting,
-but sometimes it is.  If the signal is interesting to two different
-objects you just connect the signal to slots in both widgets.
+A scrollbar, for instance, sends out a signal when the user presses
+the mouse button to move the scrollbar by hand.  It isn't always
+interesting, but sometimes it is.  If the signal is interesting to two
+different objects you just connect the signal to slots in both
+widgets.
+
+<p>
+
+Signals are automatically implemented by the moc and must not be
+implemented in the .cpp file
 
 <h2>Slots</h2>
 
-A slot is called when a signal connected to it is emitted.
+A slot is called when a signal connected to it is emitted.  Slots are
+normal C++ functions and can be called normally; their only special
+feature is that signals can be connected to them.
 
 <p>
 
-The <code>public slots:</code> contails slots that anyone can connect
+The <code>public slots:</code> contains slots that anyone can connect
 signals too.  This is very useful for component programming: You
-<code>new</code> objects that know nothing about each other, connect
-their signals and slots so information is passed correctly, and, like
-a model railway, turn it on and leave it running.
+create objects that know nothing about each other, connect their
+signals and slots so information is passed correctly, and, like a
+model railway, turn it on and leave it running.
 
 <p>
 
-The <code>protected slots:</code> contails slots that this class and
+The <code>protected slots:</code> contains slots that this class and
 its subclasses may connect signals too.  This is intended for slots
 that are part of the class' implementation rather than its interface
 towards the rest of the world.
 
 <p>
 
-The <code>private slots:</code> contails slots that only the class
+The <code>private slots:</code> contains slots that only the class
 itself may connect signals too.  This is intended for very tightly
 connected classes, where even subclasses aren't trusted to get the
 connections right.
 
 <p>
 
-Slots take the place of designated callback functions in traditional
-toolkits.  Slots are better than callbacks they are more robust than
-all but the most verbosely written callbacks, and because Qt does
-strict argument type checking.
+Since slots are ordinary functions with a little extra spice, you can
+make them virtual.  We have found this to be very useful.
 
 <p>
 
@@ -1125,26 +1143,26 @@ you have probably forgotten to mention Q_OBJECT and run the moc.
     public:
         QLCDNumber( QWidget *parent=0, const char *name=0 );
         QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
-       ~QLCDNumber();
 </pre>
 
 It's not obviously relevant to to the moc, but if you inherit QWidget
 you almost certainly want to have <em>parent</em> and <em>name</em>
 arguments to your constructors, and pass them to the parent
-constructor.  You have to have a destructor with no arguments since
-QObject has one and it's virtual.
+constructor.
 
 <p>
 
-Some member functions are omitted here, the moc ignores member
-functions.
+Some destructors and member functions are omitted here, the moc
+ignores member functions.
 
 <pre>
-    signals:
+    protected signals:
         void    overflow();
 </pre>
 
-QLCDNumber emits a signal when it is asked to show an impossible value.
+QLCDNumber emits a signal when it is asked to show an impossible
+value.  This signal is protected since random code outside QLCDNumber
+is not supposed to emit it.
 
 <p>
 
@@ -1159,7 +1177,7 @@ overflows."  Then you connect the signal to two different slots.  Qt
 will call both (in arbitrary order).
 
 <pre>
-    slots:
+    public slots:
         void    display( int num );
         void    display( long num );
         void    display( float num );
@@ -1171,9 +1189,14 @@ will call both (in arbitrary order).
 
 A slot is a receiving function, used to get information about state
 changes in other widgets.  QLCDNumber uses it, as you can see, to set
-the displayed number.  Several of the example program connect the
-newValue signal of a QScrollBar to the display slot, so the LCD number
-continuously shows the value of the scroll bar.
+the displayed number.  Since <code>display()</code> is part of the
+class' interface with the rest of the program, the slot is public.
+
+<p>
+
+Several of the example program connect the newValue signal of a
+QScrollBar to the display slot, so the LCD number continuously shows
+the value of the scroll bar.
 
 <p>
 
