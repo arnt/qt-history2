@@ -330,7 +330,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
     QStringList &varlist = place[var]; /* varlist is the list in the symbol table */
     debug_msg(1, "Project Parser: %s:%d :%s: :%s: (%s)", parser.file.latin1(), parser.line_no,
-	      var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
+	var.latin1(), op.latin1(), vallist.isEmpty() ? "" : vallist.join(" :: ").latin1());
 
     /* now do the operation */
     if(op == "~=") {
