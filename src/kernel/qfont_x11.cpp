@@ -314,6 +314,9 @@ void QFontPrivate::load( QFont::Script script )
 	}
     }
 
+    // the cached engineData could have already loaded the engine we want
+    if ( engineData->engines[script] ) return;
+
     // load the font
     QFontEngine *engine = 0;
     //    double scale = 1.0; // ### TODO: fix the scale calculations
@@ -342,45 +345,15 @@ void QFontPrivate::load( QFont::Script script )
     for ( ; ! engine && it != end; ++it ) {
 	req.family = *it;
 
-#ifdef Q_WS_X11
-	QFontCache::Key key( req, script, screen );
-#else
-	QFontCache::Key key( req, QFont::NoScript, screen );
-#endif // Q_WS_X11
-
-	// first, look in the font cache for a font...
-	engine = QFontCache::instance->findEngine( key );
-	if ( engine ) {
-	    if ( engine->type() != QFontEngine::Box ) {
-		// found a real font engine... stop
-		break;
-	    }
-
-	    if ( ! req.family.isEmpty() ) {
-		// don't accept a box font engine... retry with the
-		// next family in the list (if any)
-		engine = 0;
-	    }
-	    continue;
-	}
-
-	// not found in cache, try to load it...
 	engine = QFontDatabase::findFont( script, req, screen );
+	if ( engine ) {
+	    if ( engine->type() != QFontEngine::Box )
+		break;
 
-	if ( ! engine ) {
-	    // couldn't load it, put a box font engine in the cache to
-	    // prevent multiple calls to QFontDatabase::findFont
-	    engine = new QFontEngineBox( px );
-	    QFontCache::instance->insertEngine( key, engine );
-
-	    if ( ! req.family.isEmpty() ) {
-		// don't accept a box font engine... retry with the
-		// next family in the list (if any)
+	    if ( ! req.family.isEmpty() )
 		engine = 0;
-	    }
-	} else {
-	    // insert the new font engine into the font cache
-	    QFontCache::instance->insertEngine( key, engine );
+
+	    continue;
 	}
     }
 
@@ -1014,7 +987,8 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 */
 int QFontMetrics::maxWidth() const
 {
-    if ( ! d->engineData ) return 0;
+    if ( ! d->engineData )
+	d->load( (QFont::Script) fscript );
 
     QFontEngine *engine;
     int w = 0;
@@ -1060,8 +1034,9 @@ int QFontMetrics::strikeOutPos() const
 */
 int QFontMetrics::lineWidth() const
 {
-    // lazy computation of linewidth
-    // d->computeLineWidth();
+    if ( ! d->engineData )
+	d->load( (QFont::Script) fscript );
+
     return d->engineData->lineWidth;
 }
 

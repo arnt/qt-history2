@@ -113,172 +113,205 @@ static const XlfdEncoding xlfd_encoding[] = {
     { 0, 0, 0, 0, 0 }
 };
 
-static const char scripts_for_xlfd_encoding[33][49] = {
+static const char scripts_for_xlfd_encoding[33][54] = {
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 1, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
       1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 1, 0 },
+      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 1, 0 },
+      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+      0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 1 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1 }
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 1 }
 
 };
 
@@ -467,7 +500,10 @@ static const unsigned short sample_chars[QFont::NScripts] =
     // Buhid,
     0x1740,
     // Tagbanwa,
-    0x1770
+    0x1770,
+
+    // KatakanaHalfWidth
+    0xff6f
 };
 
 // returns a sample unicode character for the specified script
@@ -740,7 +776,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 	enc->pitch = *tokens[Spacing];
 	if ( !enc->pitch ) enc->pitch = '*';
 
-	for ( int script = 0; script < QFont::NScripts + 1; script++ ) {
+	for ( int script = 0; script < QFont::NScripts; script++ ) {
 	    if ( scripts_for_xlfd_encoding[encoding_id][script] )
 		family->scripts[script] = QtFontFamily::Supported;
 	    else
@@ -999,7 +1035,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    if ( format != 4 )
 		goto error1;
 
-	    for ( int i = 0; i < QFont::NScripts+1; i++ ) {
+	    for ( int i = 0; i < QFont::NScripts; i++ ) {
 		QChar ch = sampleCharacter( (QFont::Script)i );
 		if ( getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
 		    // 		qDebug("font can render script %d",  i );
@@ -1031,7 +1067,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
     error = FT_New_Face( ft_lib, family->fontFilename, family->fontFileIndex, &face );
     if ( error ) return;
 
-    for ( int i = 0; i < QFont::NScripts+1; i++ ) {
+    for ( int i = 0; i < QFont::NScripts; i++ ) {
 	QChar ch = sampleCharacter( (QFont::Script)i );
 	if ( FT_Get_Char_Index ( face, ch.unicode() ) ) {
 #ifdef QFONTDATABASE_DEBUG
@@ -1085,10 +1121,6 @@ static void load( const QString &family = QString::null, int script = -1 )
 		loadXlfds( family, -1 );
 		f->fullyLoaded = TRUE;
 	    }
-
-	    // set Unknown script status to UnSupported
-	    if ( script != -1 && !(f->scripts[script] & QtFontFamily::Supported) )
-		f->scripts[script] = QtFontFamily::UnSupported;
 	}
     }
 #ifdef QFONTDATABASE_DEBUG
@@ -1231,7 +1263,7 @@ static inline
 QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 			 QtFontFamily *family, QtFontFoundry *foundry,
 			 QtFontStyle *style, QtFontSize *size, QtFontEncoding *encoding,
-			 int x11Screen )
+			 int screen )
 {
 #ifndef QT_NO_XFTFREETYPE
     if ( encoding->encoding == -1 ) {
@@ -1304,7 +1336,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	  convert the pixel size to a point size and request that.
 	*/
 	double size_value = double( request.pixelSize ) * 72.0 /
-			    QPaintDevice::x11AppDpiY( x11Screen );
+			    QPaintDevice::x11AppDpiY( screen );
 #  if 0
 	// ### FIX ME Lars :)
 	if ( size_value > MAXFONTSIZE ) {
@@ -1341,7 +1373,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 
 	XftResult res;
 	XftPattern *result =
-	    XftFontMatch( QPaintDevice::x11AppDisplay(), x11Screen, pattern, &res );
+	    XftFontMatch( QPaintDevice::x11AppDisplay(), screen, pattern, &res );
 	XftPatternDestroy(pattern);
 
 	// We pass a duplicate to XftFontOpenPattern because either xft font
@@ -1421,6 +1453,11 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 			  QtFontFoundry **best_foundry, QtFontStyle **best_style,
 			  QtFontSize **best_size, QtFontEncoding **best_encoding )
 {
+#ifdef FONT_MATCH_DEBUG
+    qDebug( "  REMARK: looking for best foundy for family '%s'",
+	    family->name.latin1() );
+#endif // FONT_MATCH_DEBUG
+
     for ( int x = 0; x < family->count; ++x ) {
 	QtFontFoundry *foundry = family->foundries[x];
 	if ( ! foundry_name.isEmpty() &&
@@ -1428,7 +1465,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    continue;
 
 #ifdef FONT_MATCH_DEBUG
-	qDebug( "  REMARK: looking for matching style in foundry '%s'",
+	qDebug( "          looking for matching style in foundry '%s'",
 		foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1() );
 #endif // FONT_MATCH_DEBUG
 
@@ -1585,10 +1622,14 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
     \internal
 */
 QFontEngine *
-QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11Screen )
+QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int screen )
 {
     if ( !db )
 	initializeDb();
+
+    QFontCache::Key key( request, script, screen );
+    QFontEngine *fe = QFontCache::instance->findEngine( key );
+    if ( fe ) return fe;
 
     QString family_name, foundry_name;
     QtFontStyle::Key styleKey;
@@ -1596,8 +1637,6 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
     styleKey.weight = request.weight;
     styleKey.stretch = request.stretch;
     char pitch = request.fixedPitch ? 'm' : 'p';
-
-    QFontEngine *fe = 0;
 
     parseFontName( request.family, foundry_name, family_name );
 
@@ -1637,9 +1676,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 	    if ( loop == 2 && family_name.isNull() )
 		load( family->name, script );
 
-	    if ( !( family->scripts[script] & QtFontFamily::Supported ||
-		    family->scripts[QFont::UnknownScript] &
-		    QtFontFamily::Supported ) )
+	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) )
 		continue;
 
 	    // as we know the script is supported, we can be sure
@@ -1669,8 +1706,19 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
     }
 
     if ( best_family == 0 || best_foundry == 0 || best_style == 0 ||
-	 best_size == 0 || best_encoding == 0 )
-	return 0;
+	 best_size == 0 || best_encoding == 0 ) {
+#ifdef FONT_MATCH_DEBUG
+	qDebug( "no best match found" );
+#endif
+
+	if ( ! request.family.isEmpty() )
+	    return 0;
+
+	qDebug( "returning box engine" );
+	fe = new QFontEngineBox( request.pixelSize );
+	QFontCache::instance->insertEngine( key, fe );
+	return fe;
+    }
 
 #ifdef FONT_MATCH_DEBUG
     qDebug( "  BEST:\n"
@@ -1686,7 +1734,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 #endif // FONT_MATCH_DEBUG
 
     fe = loadEngine( script, request, best_family, best_foundry, best_style,
-		     best_size, best_encoding, x11Screen );
+		     best_size, best_encoding, screen );
 
     if ( fe ) {
 	QChar sample = sampleCharacter( script );
@@ -1696,7 +1744,14 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 		    sample.unicode() );
 #endif // FONT_MATCH_DEBUG
 	    delete fe;
-	    return 0;
+
+	    if ( ! request.family.isEmpty() )
+		return 0;
+
+	    qDebug( "returning box engine" );
+	    fe = new QFontEngineBox( request.pixelSize );
+	    QFontCache::instance->insertEngine( key, fe );
+	    return fe;
 	}
 
 	fe->fontDef.family = best_family->name;
@@ -1714,7 +1769,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 	    fe->fontDef.pixelSize = request.pixelSize;
 
 	fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
-					 QPaintDevice::x11AppDpiY( x11Screen ) );
+					 QPaintDevice::x11AppDpiY( screen ) );
 
 	fe->fontDef.styleHint     = request.styleHint;
 	fe->fontDef.styleStrategy = request.styleStrategy;
@@ -1725,6 +1780,18 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 	fe->fontDef.strikeOut     = request.strikeOut;
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;
+
+	QFontCache::instance->insertEngine( key, fe );
+
+	for ( int i = 0; i < QFont::NScripts; ++i ) {
+	    if ( i == script ) continue;
+
+	    if ( ! canRender( fe, sampleCharacter( (QFont::Script) i ) ) )
+		continue;
+
+	    key.script = i;
+	    QFontCache::instance->insertEngine( key, fe );
+	}
     }
 
     return fe;
