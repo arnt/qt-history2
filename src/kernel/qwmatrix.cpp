@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#19 $
 **
 ** Implementation of QWMatrix class
 **
@@ -17,7 +17,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#19 $");
 
 
 /*!
@@ -248,13 +248,15 @@ QPoint QWMatrix::map( const QPoint &p ) const
 
 QRect QWMatrix::map( const QRect &r ) const
 {
+    QRect result;
     if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	return QRect( map(r.topLeft()), map(r.bottomRight()) );
+	result = QRect( map(r.topLeft()), map(r.bottomRight()) );
     } else {
 	QPointArray a( r );
 	a = map( a );
-	return a.boundingRect();
+	result = a.boundingRect();
     }
+    return result;
 }
 
 /*!

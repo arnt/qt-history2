@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#53 $
 **
 ** Global functions
 **
@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#53 $");
 
 
 /*!
@@ -346,9 +346,8 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     if ( obsoleteDict.find(s) == 0 ) {
 	obsoleteDict.insert( s, (int*) 666 );	// anything different from 0.
 	return TRUE;
-    } else {
-	return FALSE;
     }
+    return FALSE;
 }
 
 static bool suppressObsolete = FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#101 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#101 $");
 
 
 static const int fontFields = 14;
@@ -1522,6 +1522,6 @@ static int getWeight( const char *weightString, bool adjustScore )
     }
     if ( adjustScore )
 	return (int) QFont::Normal - 2;	   // - 2, we hope it's close to normal
-    else
-	return (int) QFont::Normal;
+
+    return (int) QFont::Normal;
 }

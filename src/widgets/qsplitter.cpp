@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#11 $
 **
 **  Splitter widget
 **
@@ -82,7 +82,7 @@ static QCursor *hSplitterCur = 0;
 class QInternalSplitter : public QWidget
 {
 public:
-    QInternalSplitter( QSplitter::Orientation o, 
+    QInternalSplitter( QSplitter::Orientation o,
 		       QSplitter *parent, const char *name=0 );
     void setOrientation( QSplitter::Orientation o );
     QSplitter::Orientation orientation() const { return orient; }
@@ -100,10 +100,10 @@ private:
     QSplitter *s;
 };
 
-QInternalSplitter::QInternalSplitter( QSplitter::Orientation o, 
+QInternalSplitter::QInternalSplitter( QSplitter::Orientation o,
 				      QSplitter *parent, const char *name )
-    : QWidget( parent, name ) 
-{ 
+    : QWidget( parent, name )
+{
     if ( !hSplitterCur )
 	hSplitterCur = new QCursor( QBitmap( split_width, split_height,
 					     split_bits, TRUE),
@@ -115,7 +115,7 @@ QInternalSplitter::QInternalSplitter( QSplitter::Orientation o,
 				 QBitmap( vsplit_width, vsplit_height,
 					  vsplitm_bits, TRUE) );
     orient = o;
-    s = parent; 
+    s = parent;
     if ( o == QSplitter::Horizontal )
 	setCursor( *hSplitterCur );
     else
@@ -138,7 +138,7 @@ int QSplitter::hit( QPoint pnt )
 
 void QInternalSplitter::setOrientation( QSplitter::Orientation o )
 {
-    orient = o; 
+    orient = o;
     if ( o == QSplitter::Horizontal )
 	setCursor( *hSplitterCur );
     else if ( vSplitterCur )
@@ -163,7 +163,7 @@ void QInternalSplitter::mouseReleaseEvent( QMouseEvent *e )
 void QInternalSplitter::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    s->drawSplitter( &p, 0, 0, width(), height() ); 
+    s->drawSplitter( &p, 0, 0, width(), height() );
 }
 
 
@@ -288,7 +288,7 @@ void QSplitter::setOrientation( Orientation o )
 QCOORD QSplitter::r2p( int r ) const
 {
     int s = pick(contentsRect().size());
-    if ( fixedWidget ) 
+    if ( fixedWidget )
 	return fixedWidget == 1 ? r : s - r;
     else
 	return ( s * r) / 256;
@@ -314,19 +314,17 @@ bool QSplitter::event( QEvent *e )
     switch( e->type() ) {
     case Event_ChildInserted:
 	childInsertEvent( (QChildEvent*) e );
-	return TRUE;
 	break;
     case Event_ChildRemoved:
 	childRemoveEvent( (QChildEvent*) e );
-	return TRUE;
 	break;
     case Event_LayoutHint:
 	layoutHintEvent( e );
-	return TRUE;
 	break;
     default:
 	return QWidget::event( e );
     }
+    return TRUE;
 }
 
 void QSplitter::resizeEvent( QResizeEvent * )
@@ -371,7 +369,7 @@ void QSplitter::childInsertEvent( QChildEvent * )
 
 void QSplitter::layoutHintEvent( QEvent * )
 {
-    recalc();    
+    recalc();
 }
 
 
@@ -488,7 +486,7 @@ int QSplitter::adjustPos( int p )
     max = QMIN( max, p0 + pick( w1->maximumSize() ) );
 
     p -= bord; // measure from prev->right
-    p = QMAX( min, QMIN( p, max - 2*bord ) );    
+    p = QMAX( min, QMIN( p, max - 2*bord ) );
 
     return p;
 }
@@ -509,7 +507,7 @@ void QSplitter::setRubberband( int p )
 
     if ( orient == Horizontal ) {
 	if ( opaqueOldPos >= 0 )
-	    paint.drawRect( opaqueOldPos + bord - rBord , r.y(), 
+	    paint.drawRect( opaqueOldPos + bord - rBord , r.y(),
 			    2*rBord, r.height() );
 	if ( p >= 0 )
 	    paint.drawRect( p  + bord - rBord, r.y(), 2*rBord, r.height() );
@@ -595,7 +593,7 @@ void QSplitter::recalc()
 
 /*!
   Sets the proportion of available space allocated for the first widget to
-  \a f.  A value of 0.5 means equal space for the two widgets, 
+  \a f.  A value of 0.5 means equal space for the two widgets,
   1.0 means the second widget receives all the space.
 
   The user can change the ratio by adjusting  the splitter.
@@ -616,8 +614,8 @@ void QSplitter::setRatio( float f )
 
 
 /*!
-  Sets the size of widget number \a w to \a size. \a w must be 1 or 2. 
-  The specified widget will have a fixed size. 
+  Sets the size of widget number \a w to \a size. \a w must be 1 or 2.
+  The specified widget will have a fixed size.
   The user can change the fixed size by adjusting  the splitter.
 
   The widgets' minimum/maximum sizes, if any, have precedence over the size
@@ -642,8 +640,8 @@ void QSplitter::setFixed( int w, int size )
 
 
 /*!
-  \fn bool QSplitter::opaqueResize() const 
-  
+  \fn bool QSplitter::opaqueResize() const
+
   Returns TRUE if opaque resize is on, FALSE otherwise.
 
   \sa setOpaqueResize()

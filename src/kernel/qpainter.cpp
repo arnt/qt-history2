@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#131 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#130 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#131 $");
 
 
 /*!
@@ -326,9 +326,9 @@ void QPainter::save()
     if ( testf(ExtDev) ) {
 	if ( testf(DirtyFont) )
 	    updateFont();
-	if ( testf(DirtyPen) ) 
+	if ( testf(DirtyPen) )
 	    updatePen();
-	if ( testf(DirtyBrush) ) 
+	if ( testf(DirtyBrush) )
 	    updateBrush();
 	pdev->cmd( PDC_SAVE, this, 0 );
     }
@@ -1316,14 +1316,15 @@ QRect QPainter::xForm( const QRect &rv ) const
 
 QPointArray QPainter::xForm( const QPointArray &av ) const
 {
-    if ( txop == TxNone )
-	return av;
-    QPointArray a = av.copy();
-    int x, y, i;
-    for ( i=0; i<(int)a.size(); i++ ) {
-	a.point( i, &x, &y );
-	map( x, y, &x, &y );
-	a.setPoint( i, x, y );
+    QPointArray a = av;
+    if ( txop != TxNone ) {
+	a = a.copy();
+	int x, y, i;
+	for ( i=0; i<(int)a.size(); i++ ) {
+	    a.point( i, &x, &y );
+	    map( x, y, &x, &y );
+	    a.setPoint( i, x, y );
+	}
     }
     return a;
 }
@@ -1420,14 +1421,15 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 {
-    if ( txop == TxNone )
-	return ad;
-    QPointArray a = ad.copy();
-    int x, y, i;
-    for ( i=0; i<(int)a.size(); i++ ) {
-	a.point( i, &x, &y );
-	mapInv( x, y, &x, &y );
-	a.setPoint( i, x, y );
+    QPointArray a = ad;
+    if ( txop != TxNone ) {
+	a = a.copy();
+	int x, y, i;
+	for ( i=0; i<(int)a.size(); i++ ) {
+	    a.point( i, &x, &y );
+	    mapInv( x, y, &x, &y );
+	    a.setPoint( i, x, y );
+	}
     }
     return a;
 }
@@ -1642,7 +1644,7 @@ void QPainter::drawImage( int x, int y, const QImage & image,
     }
     if ( sh + sy > image.height() )
 	sh = image.height() - sy;
-    
+
     if ( sw <= 0 || sh <= 0 )
 	return;
 
