@@ -45,6 +45,8 @@ int main( int argc, char **argv )
     QMap<QString, QStringList> indexMap;
     int yunique = 1;
 
+    indexCmd.setMinimal( TRUE );
+
     if ( argc != 2 ) {
 	qWarning( "Usage: hackedindex doc-dir" );
 	return -1;
