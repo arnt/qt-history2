@@ -44,7 +44,6 @@
 #include "qstring.h"
 #include "qtimer.h"
 #include "qkernelapplication.h"
-#include "qstrlist.h"
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qsocketdevice.h"
