@@ -429,6 +429,7 @@ private slots:
     void startRename();
 
 private:
+    void contentsMousePressEventEx( QMouseEvent * e );
     void init();
     void updateGeometries();
     void buildDrawableList() const;

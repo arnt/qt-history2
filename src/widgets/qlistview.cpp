@@ -3789,6 +3789,11 @@ void QListViewItem::widthChanged( int c ) const
 */
 void QListView::contentsMousePressEvent( QMouseEvent * e )
 {
+    contentsMousePressEventEx( e );
+}
+
+void QListView::contentsMousePressEventEx( QMouseEvent * e )
+{
     if ( !e )
 	return;
 
@@ -4012,7 +4017,7 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
 	d->context_menu = TRUE;
-	contentsMousePressEvent( &me );
+	contentsMousePressEventEx( &me );
 	d->context_menu = FALSE;
     }
 }
