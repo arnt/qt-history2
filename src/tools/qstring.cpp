@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#240 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#241 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12705,8 +12705,27 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 	s << l;
     }
     else {
-	s.writeBytes( (const char*)str.unicode(),
-		      sizeof(QChar)*str.length() );
+	const char* ub = (const char*)str.unicode();
+	if ( QChar::networkOrdered() ) {
+	    s.writeBytes( ub, sizeof(QChar)*str.length() );
+	} else {
+	    static const int auto_size = 1024;
+	    char t[auto_size];
+	    char* b;
+	    if ( str.length()*2 > auto_size ) {
+		b = new char[str.length()*2];
+	    } else {
+		b = t;
+	    }
+	    int l = str.length();
+	    while ( l-- ) {
+		*b++ = ub[1];
+		*b++ = ub[0];
+		ub+=2;
+	    }
+	    if ( str.length()*2 > auto_size )
+		delete [] b;
+	}
     }
     return s;
 }
@@ -12727,8 +12746,19 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 	Q_UINT32 bytes;
 	s >> bytes;					// read size of string
 	str.setLength( bytes/2 );
-	if ( bytes > 0 )				// not null array
-	    s.readRawBytes( (char*)str.d->unicode, bytes );
+	if ( bytes > 0 ) {				// not null array
+	    char* b = (char*)str.d->unicode;
+	    s.readRawBytes( b, bytes );
+	    if ( !QChar::networkOrdered() ) {
+		bytes /= 2;
+		while ( bytes-- ) {
+		    char c = b[0];
+		    b[0] = b[1];
+		    b[1] = c;
+		    b += 2;
+		}
+	    }
+	}
     }
     return s;
 }
