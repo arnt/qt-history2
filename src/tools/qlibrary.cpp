@@ -516,13 +516,21 @@ void QLibrary::createInstanceInternal()
 	qDebug( "%s has been loaded.", libfile.latin1() );
 #endif
 #ifndef QT_LITE_COMPONENT
-	typedef void(*UCMInitProc)( QApplication *theApp );
+#  ifdef Q_CC_BOR
+	typedef void __stdcall (*UCMInitProc)(QApplication*);
+#  else
+	typedef void (*UCMInitProc)(QApplication*);
+#  endif
 	UCMInitProc ucmInitProc;
 	ucmInitProc = (UCMInitProc) resolve( "ucm_initialize" );
 	if ( ucmInitProc )
 	    ucmInitProc( qApp );
 #endif
+#ifdef Q_CC_BOR
+	typedef QUnknownInterface* __stdcall (*UCMInstanceProc)();
+#else
 	typedef QUnknownInterface* (*UCMInstanceProc)();
+#endif
 	UCMInstanceProc ucmInstanceProc;
 	ucmInstanceProc = (UCMInstanceProc) resolve( "ucm_instantiate" );
 	entry = ucmInstanceProc ? ucmInstanceProc() : 0;
@@ -723,8 +731,9 @@ QString QLibrary::library() const
 */
 QRESULT QLibrary::queryInterface( const QUuid& request, QUnknownInterface** iface )
 {
-    if ( !entry )
+    if ( !entry ) {
 	createInstanceInternal();
+    }
 
     return entry ? entry->queryInterface( request, iface ) : QE_NOINTERFACE;
 }
