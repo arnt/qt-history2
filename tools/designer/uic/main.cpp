@@ -20,7 +20,9 @@
 
 #include "uic.h"
 #include "domtool.h"
+#if defined(UIB)
 #include "ui2uib.h"
+#endif
 #include <qapplication.h>
 #include <qfile.h>
 #include <qstringlist.h>
@@ -39,7 +41,9 @@ int main( int argc, char * argv[] )
     bool impl = FALSE;
     bool subcl = FALSE;
     bool imagecollection = FALSE;
+#if defined(UIB)
     bool binary = FALSE;
+#endif
     QStringList images;
     const char *error = 0;
     const char* fileName = 0;
@@ -84,8 +88,11 @@ int main( int argc, char * argv[] )
 		    projectName = argv[++n];
 		} else
 		    projectName = &opt[1];
+#if defined(UIB)
+
 	    } else if ( opt == "binary" ) {
 		binary = TRUE;
+#endif
 	    } else if ( opt == "nofwd" ) {
 		nofwd = TRUE;
 	    } else if ( opt == "nounload" ) {
@@ -162,7 +169,7 @@ int main( int argc, char * argv[] )
 		 "   %s  [options] -embed <project> <image1> <image2> <image3> ...\n"
 		 "\t<project>       project name\n"
 		 "\t<image[1-N]>    image files\n"
-#if 0
+#if defined(UIB)
 		 "Generate binary UI file:\n"
 		 "   %s  [options] -binary <uifile>\n"
 #endif
@@ -182,16 +189,22 @@ int main( int argc, char * argv[] )
 		 "\t-L path         Additional plugin search path\n"
 		 "\t-version        Display version of uic\n"
 		 "\t-help           Display this information\n"
-		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0], argv[0] );
+		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]
+#if defined(UIB)
+		 , argv[0]
+#endif
+	    );
 	exit( 1 );
     }
 
+#if defined(UIB)
     if ( binary && outputFile.isEmpty() ) {
 	outputFile = fileName;
 	if ( outputFile.mid(outputFile.length() - 3).lower() == ".ui" )
 	    outputFile.truncate( outputFile.length() - 3 );
 	outputFile += ".uib";
     }
+#endif
 
     QFile fileOut;
     if ( !outputFile.isEmpty() ) {
@@ -232,11 +245,13 @@ int main( int argc, char * argv[] )
     if ( fix ) {
 	out << doc.toString();
 	return 0;
+#if defined(UIB)
     } else if ( binary ) {
 	out.unsetDevice();
 	QDataStream binaryOut( &fileOut );
 	convertUiToUib( doc, binaryOut );
 	return 0;
+#endif
     }
 
     if ( !subcl ) {
