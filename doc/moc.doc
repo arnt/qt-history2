@@ -33,6 +33,9 @@
 **
 **********************************************************************/
 
+// Note: Text in this file must also be copied to the moc man page:
+// src/moc/moc.1
+
 /*! \page moc.html
 
 \title Using the Meta Object Compiler
@@ -300,8 +303,8 @@ templates cannot have signals or slots. Here is an example:
 \endcode
 
 Less importantly, the following constructs are illegal.  All of them
-have workarounds which we think are better alternatives, so removing
-these limitations is not a high priority for us.
+have alternatives which we think are usually better, so removing these
+limitations is not a high priority for us.
 
 <h4>Multiple inheritance requires QObject to be first</h4>
 
@@ -319,13 +322,31 @@ the first inherited class is a QObject.
 #include or #define, it cannot find out which one of the base classes
 is a QObject.)
 
+
+<h4>QObject may not be virtually inherited</h4>
+
+You can not use virtual inheritance in the QObject branch of the
+inheritance tree. The following example shows one wrong and one
+correct class declaration:
+
+\code
+    class Wrong : virtual public QObject, virtual public OtherClass {
+    [...]
+    };
+
+    class Right : public QObject, virtual public OtherClass {
+    [...]
+    };
+\endcode
+
+
 <h4>Virtual functions cannot be slots when using multiple inheritance</h4>
 
 This problem occurs if you are using multiple inheritance. If you
 reimplement a virtual function as a slot <strong>and</strong> that
 function was originally declared in a class that does not inherit
-QObject, your program will crash when a signal triggers the slot.
-(This may not happen on all platforms.)
+QObject, your program may crash when a signal triggers the slot.
+(This only happens with some compilers.)
 
 The following example shows one wrong and two correct slot definitions.
 \code
