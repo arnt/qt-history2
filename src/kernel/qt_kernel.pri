@@ -102,6 +102,7 @@ kernel {
 		  $$KERNEL_CPP/qdesktopwidget_win.cpp \
 		  $$KERNEL_CPP/qdnd_win.cpp \
 		  $$KERNEL_CPP/qfont_win.cpp \
+		  $$KERNEL_CPP/qinputcontext_win.cpp \
 		  $$KERNEL_CPP/qmime_win.cpp \
 		  $$KERNEL_CPP/qpixmap_win.cpp \
 		  $$KERNEL_CPP/qprinter_win.cpp \
