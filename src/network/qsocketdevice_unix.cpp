@@ -115,8 +115,6 @@ QSocketDevice::Protocol QSocketDevice::getProtocol() const
 	    switch ( sa.sa_family ) {
 		case AF_INET:
 		    return IPv4;
-		case AF_INET6:
-		    return IPv6;
 		default:
 		    return Unknown;
 	    }

@@ -118,16 +118,23 @@ QSocketDevice::Protocol QSocketDevice::getProtocol() const
 	memset( &sa, 0, sizeof(sa) );
 	SOCKLEN_T sz = sizeof( sa );
 	if ( !::getsockname(fd, (struct sockaddr *)&sa, &sz) ) {
+#if !defined (QT_NO_IPV6)
 	    switch ( sa.ss_family ) {
 		case AF_INET:
 		    return IPv4;
-#if !defined (QT_NO_IPV6)
 		case AF_INET6:
 		    return IPv6;
-#endif
 		default:
 		    return Unknown;
 	    }
+#else
+	    switch ( sa.sin_family ) {
+		case AF_INET:
+		    return IPv4;
+		default:
+		    return Unknown;
+	    }
+#endif
 	}
     }
     return Unknown;
@@ -804,12 +811,11 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 	qWarning( "QSocketDevice::sendBlock: Write operation not permitted" );
 	return -1;
     }
-#if !defined(QT_NO_IPV6)
     struct sockaddr_in a4;
-    qt_sockaddr_in6 a6;
     struct sockaddr *aa;
     SOCKLEN_T slen;
-
+#if !defined(QT_NO_IPV6)
+    qt_sockaddr_in6 a6;
     if ( initialized >= 0x20 && host.isIPv6Address() ) {
 	memset( &a6, 0, sizeof(a6) );
 	a6.sin6_family = AF_INET6;
