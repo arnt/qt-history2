@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#129 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -968,7 +968,7 @@ QCString QFont_Private::bestFamilyMember( const char *family, int *score )
 
 QCString QFont_Private::findFont( bool *exact )
 {
-    QString familyName = substitute( family() );
+    QString familyName = family();
     *exact = TRUE;				// assume exact match
     if ( familyName.isEmpty() ) {
 	familyName = defaultFamily();
@@ -1012,6 +1012,14 @@ debug("Font set: %s",s.data());
 	if ( score != exactScore )
 	    *exact = FALSE;
 
+    if( score == 0 )
+    {
+       QString f = substitute( family() );
+       if( familyName != f ) {
+           familyName = f;                     // try substitution
+           bestName = bestFamilyMember( familyName, &score );
+       }
+    }
 	if ( score == 0 ) {
 	    QString f = defaultFamily();
 	    if( familyName != f ) {
