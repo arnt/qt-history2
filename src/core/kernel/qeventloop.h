@@ -24,6 +24,9 @@ class QTimer;
 
 class QEventLoopPrivate;
 
+#ifdef Q_WS_WIN
+# include <windows.h>
+#endif
 class Q_CORE_EXPORT QEventLoop : public QObject
 {
     Q_OBJECT
@@ -37,10 +40,10 @@ public:
     static QEventLoop *instance(Qt::HANDLE thread = 0);
 
     enum ProcessEvents {
-        AllEvents                = 0x00,
-        ExcludeUserInput        = 0x01,
-        ExcludeSocketNotifiers        = 0x02,
-        WaitForMore                = 0x04
+        AllEvents = 0x00,
+        ExcludeUserInput = 0x01,
+        ExcludeSocketNotifiers = 0x02,
+        WaitForMore = 0x04
     };
     typedef uint ProcessEventsFlags;
 
