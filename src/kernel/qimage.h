@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#8 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#9 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -29,7 +29,7 @@ public:
 	    int bitOrder=IgnoreEndian );
     QImage( const QImage & );
     QImage( const QPixmap & );
-   ~QImage();
+    virtual ~QImage();
 
     QImage     &operator=( const QImage & );
     QImage     &operator=( const QPixmap & );
@@ -49,7 +49,6 @@ public:
     ulong	color( int i )	const;
     void	setColor( int i, ulong c );
     void	setNumColors( int );
-    void	setBitOrder( int );
 
     uchar      *bits()		const;
     uchar      *scanline( int )	const;
@@ -63,8 +62,8 @@ public:
 			int bitOrder=IgnoreEndian );
     void	reset();
 
-    void	convertDepth( int );
-    void	convertBitOrder( int );
+    QImage	convertDepth( int )	const;
+    QImage	convertBitOrder( int )	const;
 
     static int	systemBitOrder();
     static int	systemByteOrder();
@@ -83,7 +82,7 @@ public:
 	ulong  *ctbl;				// color table
 	uchar **bits;				// image data
 #if defined(_WS_WIN16_)
-	bool    contig;
+	bool	contig;
 #endif
     };
 
@@ -183,7 +182,7 @@ inline uchar *QImage::bits() const
 inline bool QImage::contiguousBits() const
 {
 #if defined(_WS_WIN16)
-    return data && data->contig;
+    return data->contig;
 #else
     return TRUE;
 #endif
