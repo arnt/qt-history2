@@ -981,8 +981,8 @@ int QPicture::metric( int m ) const
 }
 
 /*!
-    \internal
     \fn void QPicture::detach()
+    \internal
     Detaches from shared picture data and makes sure that this picture
     is the only one referring to the data.
 
@@ -991,6 +991,9 @@ int QPicture::metric( int m ) const
     Nothing is done if there is just a single reference.
 */
 
+/*! \fn bool QPicture::isDetached() const
+    \internal
+*/
 void QPicture::detach_helper()
 {
     QPicturePrivate *x = new QPicturePrivate;

@@ -80,6 +80,7 @@ private:
     friend class QPicturePaintEngine;
 };
 
+Q_DECLARE_SHARED(QPicture);
 
 inline bool QPicture::isNull() const
 {
