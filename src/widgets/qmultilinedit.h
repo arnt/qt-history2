@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#48 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#49 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -122,12 +122,14 @@ protected:
     virtual void home( bool mark=FALSE );
     virtual void end( bool mark=FALSE );
 
-
     bool	getMarkedRegion( int *line1, int *col1,
 				 int *line2, int *col2 ) const;
     int		lineLength( int row ) const;
     QString	*getString( int row ) const;
 
+protected:    
+    bool	cursorOn;	
+    
 private slots:
     void	clipboardChanged();
 
@@ -137,7 +139,6 @@ private:
     void insertChar( char );
 
     bool	readOnly;
-    bool	cursorOn;
     bool	dummy;
     bool	markIsOn;
     bool	dragScrolling ;
