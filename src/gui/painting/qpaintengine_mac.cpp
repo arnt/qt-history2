@@ -49,7 +49,7 @@ extern QPoint posInWindow(const QWidget *w); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
-extern CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode); //qpixmap_mac.cpp
+extern CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode, bool); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern const uchar *qt_patternForBrush(int, bool); //qbrush.cpp
 extern QPixmap qt_pixmapForBrush(int, bool); //qbrush.cpp
@@ -854,7 +854,8 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         } else {
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
-            pat->image = qt_mac_create_cgimage(pat->data.pixmap, Qt::ComposePixmap);
+            pat->image = qt_mac_create_cgimage(pat->data.pixmap, Qt::ComposePixmap, 
+                                               pat->data.pixmap.isQBitmap());
         }
     }
     CGRect rect = CGRectMake(0, 0, w, h);
@@ -1349,12 +1350,17 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     CGContextSaveGState(d->hd);
 
     //setup
-    if(pm.isQBitmap() || pm.depth() == 1) {     //set colour
-        const QColor &col = d->current.pen.color();
-        CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
-                                 qt_mac_convert_color_to_cg(col.green()),
-                                 qt_mac_convert_color_to_cg(col.blue()),
-                                 qt_mac_convert_color_to_cg(col.alpha()));
+    bool asMask = pm.isQBitmap() || pm.depth() == 1;
+    if(asMask) {     //set colour
+        if(d->pdev->devType() == QInternal::Pixmap && static_cast<QPixmap*>(d->pdev)->isQBitmap()) {
+            asMask = false;
+        } else {
+            const QColor &col = d->current.pen.color();
+            CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
+                                     qt_mac_convert_color_to_cg(col.green()),
+                                     qt_mac_convert_color_to_cg(col.blue()),
+                                     qt_mac_convert_color_to_cg(col.alpha()));
+        }
     }
     //set clip
     QRegion rgn(r);
@@ -1363,7 +1369,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     //draw
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
-    CGImageRef image = qt_mac_create_cgimage(pm, mode);
+    CGImageRef image = qt_mac_create_cgimage(pm, mode, asMask);
     HIViewDrawCGImage(d->hd, &rect, image); //top left
     CGImageRelease(image);
 

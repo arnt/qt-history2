@@ -774,7 +774,7 @@ static void qt_mac_cgimage_data_free(void *, const void *data, size_t)
     free(const_cast<void *>(data));
 }
 
-CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
+CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode, bool mask)
 {
     if(px.isNull())
         return 0;
@@ -787,7 +787,8 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
     char *addr = GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(&px)));
     CGDataProviderRef provider = 0;
     CGImageRef image = 0;
-    if(px.isQBitmap()) {
+    if(mask) {
+        Q_ASSERT(px.isQBitmap());
         const int w = px.width(), h = px.height();
         char *out_addr = (char*)malloc(w*h);
         provider = CGDataProviderCreateWithData(0, out_addr, w*h, qt_mac_cgimage_data_free);
@@ -824,7 +825,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
                 for(int yy=0; yy<h; yy++) {
                     ulong *mrow = reinterpret_cast<ulong*>(mptr + (yy * mbpr));
                     char *drow = out_addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++)
+                    for(int xx=0;xx<w;xx++) 
                         *(drow + (xx*4)) = ((*(mrow + xx) & c0) == c0) ? 0 : 255;
                 }
             } else {
