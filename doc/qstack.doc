@@ -87,7 +87,7 @@
   \sa remove()
 */
 
-/*! \fn int QStack::count()
+/*! \fn uint QStack::count()
   Returns the number of items in the stack.
 
   \sa isEmpty()
