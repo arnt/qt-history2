@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#21 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#22 $
 **
 ** Definition of QApplication class
 **
@@ -41,6 +41,8 @@ public:
     static void	    setFont( const QFont &, bool forceAllWidgets=FALSE );
 
     int		    exec( QWidget *mainWidget );// start event handing
+    int		    enter_loop();
+    void	    exit_loop();
     static void	    quit( int retcode = 0 );	// quit application
 
     static bool	    sendEvent( QObject *receiver, QEvent *event )
@@ -55,8 +57,8 @@ public:
     static bool	    startingUp();		// is application starting up?
     static bool	    closingDown();		// is application closing down?
 
-    static void     flushX();			// flush X output buffer
-    static void     syncX();			// syncronize with X server
+    static void	    flushX();			// flush X output buffer
+    static void	    syncX();			// syncronize with X server
 
     static void	    cleanup();			// cleanup application
 
@@ -64,8 +66,8 @@ protected:
     static QWidget *main_widget;		// main application widget
 
 private:
-    bool     	    quit_now;			// quit flags
-    int	     	    quit_code;
+    bool	    quit_now;			// quit flags
+    int		    quit_code;
     static GUIStyle appStyle;			// application GUI style
     static QPalette *appPal;			// application palette
     static QFont   *appFont;			// application font
