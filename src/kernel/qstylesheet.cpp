@@ -996,6 +996,20 @@ void QStyleSheet::init()
     style-> setMargin(QStyleSheetItem::MarginTop, 8);
     style-> setMargin(QStyleSheetItem::MarginBottom, 4);
 
+    style = new QStyleSheetItem( this, QString::fromLatin1("h4") );
+    style->setFontWeight( QFont::Bold);
+    style->setLogicalFontSize(3);
+    style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+    style-> setMargin(QStyleSheetItem::MarginTop, 8);
+    style-> setMargin(QStyleSheetItem::MarginBottom, 4);
+
+    style = new QStyleSheetItem( this, QString::fromLatin1("h5") );
+    style->setFontWeight( QFont::Bold);
+    style->setLogicalFontSize(2);
+    style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+    style-> setMargin(QStyleSheetItem::MarginTop, 8);
+    style-> setMargin(QStyleSheetItem::MarginBottom, 4);
+
     style = new QStyleSheetItem( this, QString::fromLatin1("p") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 4);
