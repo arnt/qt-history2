@@ -32,6 +32,7 @@
 #include <qlistview.h>
 #include <qptrlist.h>
 #include <qmap.h>
+#include <qiconset.h>
 
 class QWizard;
 class QTabWidget;
@@ -52,6 +53,7 @@ class MenuBarEditor;
 class MenuBarEditorItem;
 class PopupMenuEditor;
 class PopupMenuEditorItem;
+class ActionEditor;
 
 class Command : public Qt
 {
@@ -111,6 +113,7 @@ public:
 	RemoveActionFromPopup,
 	ExchangeActionInPopup,
 	RenameAction,
+	SetActionIcons,
 	AddMenu,
 	RemoveMenu,
 	ExchangeMenu,
@@ -1043,7 +1046,22 @@ private:
     int d;
 };
 
-class RenameActionCommand : public Command
+class ActionCommand : public Command
+{
+public:
+    ActionCommand( const QString &n,
+		   FormWindow *fw,
+		   PopupMenuEditor *m,
+		   QAction *a )
+	: Command( n, fw ), menu( m ), action( a ) { }
+    virtual Type type() const = 0;
+protected:
+    ActionEditor *actionEditor();
+    PopupMenuEditor *menu;
+    QAction *action;
+};
+
+class RenameActionCommand : public ActionCommand
 {
 public:
     RenameActionCommand( const QString &n,
@@ -1055,11 +1073,28 @@ public:
     void unexecute();
     Type type() const { return RenameAction; }
 protected:
+    QString mangle( QString name );
 private:
-    PopupMenuEditor *menu;
-    QAction *action;
     QString newName;
     QString oldName;
+};
+
+class SetActionIconsCommand : public ActionCommand
+{
+public:
+    SetActionIconsCommand( const QString &n,
+			   FormWindow *fw,
+			   PopupMenuEditor *m,
+			   QAction *a,
+			   QIconSet &icons );
+    void execute();
+    void unexecute();
+    Type type() const { return SetActionIcons; }
+protected:
+    void updateActionEditorItem();
+private:
+    QIconSet newIcons;
+    QIconSet oldIcons;
 };
 
 class AddMenuCommand : public Command

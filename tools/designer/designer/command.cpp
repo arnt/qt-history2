@@ -2061,35 +2061,80 @@ void ExchangeActionInPopupCommand::unexecute()
 
 // ------------------------------------------------------------
 
+ActionEditor *ActionCommand::actionEditor()
+{
+    // FIXME: handle multiple action editors
+    return (ActionEditor *) formWindow()->mainWindow()->child( 0, "ActionEditor" );    
+}
+
+// ------------------------------------------------------------
+
 RenameActionCommand::RenameActionCommand( const QString &n,
 					  FormWindow *fw,
 					  PopupMenuEditor *m,
 					  QAction *a,
 					  QString nm )
-    : Command( n, fw ), menu( m ), action( a ), newName( nm )
+    : ActionCommand( n, fw, m, a ), newName( nm )
 {
     oldName = action->menuText();
 }
 
-void RenameActionCommand::execute()
+QString RenameActionCommand::mangle( QString name )
 {
-    QString n = newName;
-    action->setMenuText( n );
-    action->setText( n );
-
     QObject * o = menu->parent();
-    qDebug( "QObject %p %s %s", o, o->name(), o->className() );
-    MenuBarEditor * e = ( o ? (MenuBarEditor *)o->child( 0, "MenuBarEditor" ) : 0 );
+    MenuBarEditor * e = ( o ? ( MenuBarEditor * ) o->child( 0, "MenuBarEditor" ) : 0 );
     int idx = ( e ? e->findItem( menu ) : - 1 );
     MenuBarEditorItem * i = ( idx > -1 ? e->item( idx ) : 0 );
     QString m = ( ( !!i ) ? i->menuText() : QString("unknown") );
-    action->setName( m.remove( "&" ).lower() + n.remove( "&" ) + "Action" );
+    return m.remove( "&" ).lower() + name.remove( "&" ) + "Action";
+}
+
+void RenameActionCommand::execute()
+{
+    action->setMenuText( newName );
+    action->setText( newName );
+    action->setName( mangle( newName ) );
+    ActionEditor *ae = actionEditor();
+    if ( ae )
+	ae->updateActionName( action );
 }
 
 void RenameActionCommand::unexecute()
 {
     action->setMenuText( oldName );
-    // FIXME: setName to old name ?
+    action->setText( oldName );
+    action->setName( mangle( oldName ) );
+    ActionEditor *ae = actionEditor();
+    if ( ae )
+	ae->updateActionName( action );
+}
+
+// ------------------------------------------------------------
+
+SetActionIconsCommand::SetActionIconsCommand( const QString &n,
+					      FormWindow *fw,
+					      PopupMenuEditor *m,
+					      QAction *a,
+					      QIconSet &icons )
+    : ActionCommand( n, fw, m, a ), newIcons( icons )
+{
+    oldIcons = a->iconSet();
+}
+
+void SetActionIconsCommand::execute()
+{
+    action->setIconSet( newIcons );
+    ActionEditor *ae = actionEditor();
+    if ( ae )
+	ae->updateActionIcon( action );
+}
+
+void SetActionIconsCommand::unexecute()
+{
+    action->setIconSet( oldIcons );
+    ActionEditor *ae = actionEditor();
+    if ( ae )
+	ae->updateActionIcon( action );
 }
 
 // ------------------------------------------------------------

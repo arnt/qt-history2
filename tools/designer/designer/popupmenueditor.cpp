@@ -608,8 +608,10 @@ void PopupMenuEditor::loadIconPixmap( int index )
 	cmd->execute();
     }
 
-    a->setIconSet( QIconSet( qChoosePixmap( 0, formWnd, 0, 0 ) ) ); // FIXME: old pixmap
-    // FIXME: update action editor
+    QIconSet icons( qChoosePixmap( 0, formWnd, 0, 0 ) );
+    SetActionIconsCommand * cmd = new SetActionIconsCommand( "Set icon", formWnd, this, a, icons );
+    formWnd->commandHistory()->addCommand( cmd );
+    cmd->execute();
 }
 
 void PopupMenuEditor::showLineEdit( int index )
