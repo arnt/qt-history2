@@ -241,7 +241,7 @@ void QGfxSNAP<depth,type>::fillRect(
     if (mixTable[myrop] != cntState->mix)
         state2d.SetMix(cntState->mix = mixTable[myrop]);
 #endif
-    useBrush();
+    pixel = brushPixel;
     if (pixel != cntState->foreColor)
         state2d.SetForeColor(cntState->foreColor = pixel);
 
@@ -621,7 +621,7 @@ void QGfxSNAP<depth,type>::drawLine(
     if (mixTable[myrop] != cntState->mix)
         state2d.SetMix(cntState->mix = mixTable[myrop]);
 #endif
-    usePen();
+    pixel=penPixel;
     if (pixel != cntState->foreColor)
         state2d.SetForeColor(cntState->foreColor = pixel);
 
