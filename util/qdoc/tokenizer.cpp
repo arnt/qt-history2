@@ -15,13 +15,6 @@
 /* tmake ignore Q_OBJECT */
 
 /*
-  This limit on the length of a lexeme seems fairly high, but a doc
-  comment can be arbitrarily long. The previous 65536 limit was
-  reached by some of Mark Summerfield's documentation.
-*/
-static const int yyLexBufSize = 524288;
-
-/*
   If you change this, make sure to change tokenizer.h as well.
 */
 static const char kwords[][16] = {
