@@ -145,6 +145,8 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::Style_Enabled;
     if (widget->hasFocus())
         state |= QStyle::Style_HasFocus;
+    if (widget->topLevelWidget()->isActiveWindow())
+        state |= QStyle::Style_Active;
     rect = widget->rect();
     palette = widget->palette();
 }

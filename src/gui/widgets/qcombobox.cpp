@@ -489,9 +489,8 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
     opt.state = QStyle::Style_None;
     opt.rect = q->rect();
     opt.palette = q->palette();
-    if (q->isEnabled())
-        opt.state |= QStyle::Style_Enabled;
-    if (q->hasFocus() || (q->isEditable() && q->lineEdit()->hasFocus()))
+    opt.init(q);
+    if (q->isEditable() && q->lineEdit()->hasFocus())
         opt.state |= QStyle::Style_HasFocus;
     opt.subControls = QStyle::SC_All;
     if (arrowDown)

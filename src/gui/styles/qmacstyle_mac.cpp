@@ -303,7 +303,7 @@ public:
     bool animatable(Animates, const QWidget *) const;
     void stopAnimate(Animates, QWidget *);
     void startAnimate(Animates, QWidget *);
-    static ThemeDrawState getDrawState(QStyle::StyleFlags flags, const QPalette &pal);
+    static ThemeDrawState getDrawState(QStyle::StyleFlags flags);
 
     bool focusable(const QWidget *) const;
 
@@ -432,15 +432,6 @@ static inline int qt_mac_hitheme_tab_version()
         return 1;
 #endif
     return 0;
-}
-
-/*
-  Hackish method of finding out whether the window is active or not
- */
-
-static inline bool qAquaActive(const QPalette &pal)
-{
-    return (pal.currentColorGroup() == QPalette::Active);
 }
 
 static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0,
@@ -887,9 +878,9 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
         tdi->attributes |= kThemeTrackHorizontal;
     if (slider->useRightToLeft)
         tdi->attributes |= kThemeTrackRightToLeft;
-    tdi->enableState = slider->state & QStyle::QStyle::Style_Enabled ? kThemeTrackActive
+    tdi->enableState = slider->state & QStyle::Style_Enabled ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
-    if(!qAquaActive(slider->palette))
+    if (!(slider->state & QStyle::Style_Active))
         tdi->enableState = kThemeTrackInactive;
     if (!isScrollbar) {
         if (slider->state & QStyle::QStyle::Style_HasFocus)
@@ -955,7 +946,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
         tdi->attributes |= kThemeTrackRightToLeft;
     tdi->enableState = slider->state & QStyle::Style_Enabled ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
-    if (!qAquaActive(slider->palette))
+    if (!(slider->state & QStyle::Style_Active))
         tdi->enableState = kThemeTrackDisabled;
     if (!isScrollbar) {
         if (slider->tickmarks == QSlider::NoMarks || slider->tickmarks == QSlider::Both)
@@ -1121,12 +1112,12 @@ void QMacStylePrivate::removeWidget(QWidget *w)
     }
 }
 
-ThemeDrawState QMacStylePrivate::getDrawState(QStyle::StyleFlags flags, const QPalette &pal)
+ThemeDrawState QMacStylePrivate::getDrawState(QStyle::StyleFlags flags)
 {
     ThemeDrawState tds = kThemeStateActive;
     if (flags & QStyle::Style_Down) {
         tds = kThemeStatePressed;
-    } else if (qAquaActive(pal)) {
+    } else if (flags & QStyle::Style_Active) {
         if (!(flags & QStyle::Style_Enabled))
             tds = kThemeStateUnavailable;
     } else {
@@ -1376,7 +1367,8 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                                             QPainter *p, const QWidget *w) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    ThemeDrawState tds = getDrawState(opt->state, opt->palette);
+
+    ThemeDrawState tds = getDrawState(opt->state);
     QMacCGContext cg(p);
     switch (pe) {
     case QStyle::PE_CheckListExclusiveIndicator:
@@ -1658,7 +1650,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                           QPainter *p, const QWidget *w) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    ThemeDrawState tds = getDrawState(opt->state, opt->palette);
+    ThemeDrawState tds = getDrawState(opt->state);
     QMacCGContext cg(p);
     switch (ce) {
     case QStyle::CE_PushButton:
@@ -1935,7 +1927,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             tdi.value = pb->progress;
             tdi.attributes = kThemeTrackHorizontal;
             tdi.trackInfo.progress.phase = progressFrame;
-            if (!qAquaActive(pb->palette))
+            if (!(pb->state & QStyle::Style_Active))
                 tdi.enableState = kThemeTrackInactive;
             else if (!(pb->state & QStyle::Style_Enabled))
                 tdi.enableState = kThemeTrackDisabled;
@@ -1953,15 +1945,15 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             tdi.version = qt_mac_hitheme_tab_version();
             tdi.style = kThemeTabNonFront;
             if (tabOpt->state & QStyle::Style_Selected) {
-                if(!qAquaActive(tabOpt->palette))
+                if (!(tabOpt->state & QStyle::Style_Active))
                     tdi.style = kThemeTabFrontUnavailable;
-                else if(!(tabOpt->state & QStyle::Style_Enabled))
+                else if (!(tabOpt->state & QStyle::Style_Enabled))
                     tdi.style = kThemeTabFrontInactive;
                 else
                     tdi.style = kThemeTabFront;
-            } else if (!qAquaActive(tabOpt->palette)) {
+            } else if (!(tabOpt->state & QStyle::Style_Active)) {
                 tdi.style = kThemeTabNonFrontUnavailable;
-            } else if( !(tabOpt->state & QStyle::Style_Enabled)) {
+            } else if (!(tabOpt->state & QStyle::Style_Enabled)) {
                 tdi.style = kThemeTabNonFrontInactive;
             } else if ((tabOpt->state & (QStyle::Style_Sunken | QStyle::Style_MouseOver))
                        == (QStyle::Style_Sunken | QStyle::Style_MouseOver)) {
@@ -2143,7 +2135,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                                                  QPainter *p, const QWidget *widget) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    ThemeDrawState tds = getDrawState(opt->state, opt->palette);
+    ThemeDrawState tds = getDrawState(opt->state);
     QMacCGContext cg(p);
     switch (cc) {
     case QStyle::CC_Slider:
@@ -2433,7 +2425,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 ThemeDrawState savedControlState = wwdi.widgetState;
                 uint sc = QStyle::SC_TitleBarMinButton;
                 ThemeTitleBarWidget tbw = kThemeWidgetCollapseBox;
-                bool active = qAquaActive(titlebar->palette);
+                bool active = titlebar->state & QStyle::Style_Active;
                 while (sc <= QStyle::SC_TitleBarCloseButton) {
                     uint tmp = sc;
                     wwdi.widgetState = savedControlState;
@@ -2573,7 +2565,7 @@ QStyle::SubControl QMacStylePrivate::HIThemeQuerySubControl(QStyle::ComplexContr
         if (const QStyleOptionSlider *sb = qt_cast<const QStyleOptionSlider *>(opt)) {
             HIScrollBarTrackInfo sbi;
             sbi.version = qt_mac_hitheme_version;
-            if (!qAquaActive(sb->palette))
+            if (!(sb->state & QStyle::Style_Active))
                 sbi.enableState = kThemeTrackInactive;
             else if (sb->state & QStyle::Style_Enabled)
                 sbi.enableState = kThemeTrackDisabled;
@@ -2964,7 +2956,7 @@ void QMacStylePrivate::AppManPolish(QApplication *app)
 void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QStyleOption *opt,
                                            QPainter *p, const QWidget *w) const
 {
-    ThemeDrawState tds = getDrawState(opt->state, opt->palette);
+    ThemeDrawState tds = getDrawState(opt->state);
     switch (pe) {
     case QStyle::PE_CheckListExclusiveIndicator:
     case QStyle::PE_ExclusiveIndicatorMask:
@@ -3100,7 +3092,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
             if (flags & QStyle::Style_HasFocus
                     && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 info.adornment |= kThemeAdornmentFocus;
-            if (qAquaActive(header->palette)) {
+            if (flags & QStyle::Style_Active) {
                 if (!(flags & QStyle::Style_Enabled))
                     info.state = kThemeStateUnavailable;
                 else if (flags & QStyle::Style_Down)
@@ -3232,7 +3224,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
 void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyleOption *opt,
                                          QPainter *p, const QWidget *widget) const
 {
-    ThemeDrawState tds = getDrawState(opt->state, opt->palette);
+    ThemeDrawState tds = getDrawState(opt->state);
     switch (ce) {
     case QStyle::CE_PushButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
@@ -3252,7 +3244,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 darken = false;
                 frame = 0;
             }
-            if (darken && qAquaActive(btn->palette)) {
+            if (darken && (btn->state & QStyle::Style_Active)) {
                 QTextOStream os(&pmkey);
                 os << "$qt_mac_pshbtn_" << opt->rect.width() << "x" << opt->rect.height() << "_"
                    << opt->state << "_" << frame;
@@ -3534,7 +3526,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             tdi.value = pb->progress;
             tdi.attributes = kThemeTrackHorizontal;
             tdi.trackInfo.progress.phase = progressFrame;
-            if (!qAquaActive(pb->palette))
+            if (!(pb->state & QStyle::Style_Active))
                 tdi.enableState = kThemeTrackInactive;
             else if (!(pb->state & QStyle::Style_Enabled))
                 tdi.enableState = kThemeTrackDisabled;
@@ -3548,13 +3540,13 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             ThemeTabStyle tts = kThemeTabNonFront;
             if (tab->state & QStyle::Style_Selected) {
-                if (!qAquaActive(tab->palette))
+                if (!(tab->state & QStyle::Style_Active))
                     tts = kThemeTabFrontUnavailable;
                 else if (!(tab->state & QStyle::Style_Enabled))
                     tts = kThemeTabFrontInactive;
                 else
                     tts = kThemeTabFront;
-            } else if (!qAquaActive(tab->palette)) {
+            } else if (!(tab->state  &QStyle::Style_Active)) {
                 tts = kThemeTabNonFrontUnavailable;
             } else if (!(tab->state & QStyle::Style_Enabled)) {
                 tts = kThemeTabNonFrontInactive;
@@ -3658,7 +3650,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                                                 const QStyleOptionComplex *opt, QPainter *p,
                                                 const QWidget *widget) const
 {
-    ThemeDrawState tds = getDrawState(opt->state, opt->palette);
+    ThemeDrawState tds = getDrawState(opt->state);
     switch (cc) {
     case QStyle::CC_Slider:
     case QStyle::CC_ScrollBar:
@@ -4030,7 +4022,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             ThemeWindowMetrics tm;
             tm.metricSize = sizeof(tm);
             const Rect *wm_rect = qt_glb_mac_rect(newr, p, false);
-            bool active = qAquaActive(tbar->palette);
+            bool active = tbar->state & QStyle::Style_Active;
             qt_mac_set_port(p);
             for (int i = 0; types[i].qt_type; ++i) {
                 ThemeDrawState ctrl_tds = wtds;
