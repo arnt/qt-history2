@@ -474,6 +474,9 @@ Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
 QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 
+
+QString *QApplication::session_key = 0;		// ## session key. Should be a member in 4.0
+
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 QDesktopWidget *qt_desktopWidget = 0;		// root window widgets
@@ -586,7 +589,9 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 		session_id = QString::fromLatin1( s );
 		int p = session_id.find( '_' );
 		if ( p >= 0 ) {
-		    session_key = session_id.mid( p +1 );
+		    if ( !session_key )
+			session_key = new QString;
+		    *session_key = session_id.mid( p +1 );
 		    session_id = session_id.left( p );
 		}
 		is_session_restored = TRUE;
@@ -883,9 +888,10 @@ void QApplication::initialize( int argc, char **argv )
 
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
-    session_manager = new QSessionManager( qApp, session_id, session_key );
+    if ( !session_key )
+	session_key = new QString;
+    session_manager = new QSessionManager( qApp, session_id, *session_key );
 #endif
-
 
 }
 
@@ -1012,7 +1018,12 @@ QApplication::~QApplication()
     if ( widgetCount ) {
 	qDebug( "Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances );
     }
-    // Cannot delete codecs until after QDict destructors
+    delete session_manager;
+    session_manager = 0;
+    delete session_key;
+    session_key = 0;
+
+// Cannot delete codecs until after QDict destructors
     // QTextCodec::deleteAllCodecs()
 }
 

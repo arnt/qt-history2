@@ -351,7 +351,8 @@ private:
     QValueList<QTranslator*> *translators;
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;
-    QString	     session_id, session_key;
+    QString	     session_id;
+    static QString* session_key;
     bool	     is_session_restored;
 #endif
 #if defined(Q_WS_X11) && !defined (QT_NO_STYLE )
@@ -459,7 +460,7 @@ inline QString QApplication::sessionId() const
 
 inline QString QApplication::sessionKey() const
 {
-    return session_key;
+    return session_key ? *session_key : QString::null;
 }
 #endif
 inline QSize QApplication::globalStrut()
