@@ -148,7 +148,8 @@ static uint isCommand(QString t)
 	return kHICommandAbout;
     }
 #endif
-    if(t.find("config") != -1 || t.find("preference") != -1 || t.find("options") != -1) {
+    if(t.find("config") != -1 || t.find("preference") != -1 || 
+       t.find("options") != -1 || t.find("setting") != -1) {
 	EnableMenuCommand(NULL, kHICommandPreferences);
 	return kHICommandPreferences;
     }
