@@ -1456,7 +1456,7 @@ void QSqlCursor::insert( int pos, const QSqlField& field )
 /*!
     Returns TRUE if the field \a i is NULL or if there is no field at
     position \a i; otherwise returns FALSE.
-    
+
     This is the same as calling QSqlRecord::isNull( \a i )
 */
 bool QSqlCursor::isNull( int i ) const
@@ -1464,6 +1464,8 @@ bool QSqlCursor::isNull( int i ) const
     return QSqlRecord::isNull( i );
 }
 /*!
+    \overload
+
     Returns TRUE if the field called \a name is NULL or if there is no
     field called \a name; otherwise returns FALSE.
 
