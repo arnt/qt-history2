@@ -26,7 +26,7 @@
 
 class FormWindow;
 class QCloseEvent;
-class LanguageInterface;
+struct LanguageInterface;
 
 class SourceEditor : public QVBox
 {

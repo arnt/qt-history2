@@ -36,7 +36,7 @@
 #include <widgetdatabase.h>
 
 class QObject;
-class LanguageInterface;
+struct LanguageInterface;
 
 class MetaDataBase
 {
