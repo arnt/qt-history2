@@ -26,6 +26,9 @@
 # include "qwidget.h"
 # include "qpalette.h"
 #endif
+#ifdef Q_WS_QWS
+# include "qrgb.h"
+#endif
 #endif // QT_H
 
 class QSessionManager;
