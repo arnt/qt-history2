@@ -627,12 +627,13 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	char path[MAX_PATH];
 	char initPath[MAX_PATH];
+	QCString ctitle = title.local8Bit();
 	initPath[0]=0;
 	path[0]=0;
 	BROWSEINFOA bi;
 	bi.hwndOwner = (parent ? parent->winId() : 0);
 	bi.pidlRoot = NULL;
-	bi.lpszTitle = title.local8Bit();
+	bi.lpszTitle = ctitle;
 	bi.pszDisplayName = initPath;
 	bi.ulFlags = BIF_RETURNONLYFSDIRS;
 	bi.lpfn = winGetExistDirCallbackProc;
