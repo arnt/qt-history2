@@ -468,12 +468,14 @@ void QTextHTMLImporter::import()
 
         if (node->isBlock) {
             QTextBlockFormat block;
+            QTextCharFormat charFmt;
 
             QChar separator = QChar::ParagraphSeparator;
 
             if (hasBlock) {
                 Q_ASSERT(d->fragments.last().blockFormat >= 0);
                 block = d->formatCollection.blockFormat(d->fragments.last().blockFormat);
+                charFmt = d->formatCollection.charFormat(d->fragments.last().charFormat);
             }
 
             block.setTopMargin(topMargin(i));
@@ -493,7 +495,7 @@ void QTextHTMLImporter::import()
             }
             block.setAlignment(node->alignment);
 
-            QTextCharFormat charFmt = node->charFormat();
+            charFmt.merge(node->charFormat());
 
             if (node->isTableCell) {
                 Q_ASSERT(!tables.isEmpty());
@@ -530,8 +532,6 @@ void QTextHTMLImporter::import()
                 appendBlock(block, charFmt, separator);
             }
 
-            // don't merge the next block with our table cell
-            if (!node->isTableCell)
             hasBlock = true;
         } else if (node->id == Html_img) {
             QTextImageFormat fmt;
