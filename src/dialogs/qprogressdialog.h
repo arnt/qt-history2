@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#8 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#9 $
 **
 ** Definition of QProgressDialog class
 **
@@ -43,6 +43,7 @@ public:
     QSize	sizeHint() const;
 
 public slots:
+    void	cancel();
     void	reset();
     void	setTotalSteps( int totalSteps );
     void	setProgress( int progress );
@@ -57,10 +58,11 @@ protected:
     void	styleChange(GUIStyle);
 
 private:
+    void	   init( QWidget *creator, const char* lbl, const char* canc,
+		         int totstps);
     void	   center();
     void	   layout();
     QLabel	  *label()  const;
-    QPushButton	  *cancel() const;
     QProgressBar  *bar()    const;
     QProgressData *d;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#15 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#16 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#16 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -34,14 +34,14 @@ static const int spacing     = 4;
 struct QProgressData
 {
     QProgressData( QProgressDialog* that, QWidget* parent,
-		   const char* labelText, const char *buttonText,
+		   const char* labelText,
 		   int totalSteps ) :
 	creator( parent ),
 	label( new QLabel(labelText,that,"label") ),
-	cancel( new QPushButton(buttonText,that,"cancel") ),
+	cancel( 0 ),
 	bar( new QProgressBar(totalSteps,that,"bar") ),
 	shown_once( FALSE ),
-	cancellation_flag( TRUE )
+	cancellation_flag( FALSE )
     {
 	label->setAlignment( that->style() != WindowsStyle ?
 			     AlignCenter : AlignLeft|AlignVCenter );
@@ -91,20 +91,12 @@ struct QProgressData
 
 QLabel *QProgressDialog::label() const
 {
-    QProgressDialog *that = (QProgressDialog *)this;
-    return that->d->label;
-}
-
-QPushButton *QProgressDialog::cancel() const
-{
-    QProgressDialog *that = (QProgressDialog *)this;
-    return that->d->cancel;
+    return d->label;
 }
 
 QProgressBar *QProgressDialog::bar() const
 {
-    QProgressDialog *that = (QProgressDialog *)this;
-    return that->d->bar;
+    return d->bar;
 }
 
 
@@ -132,21 +124,15 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
 				  bool modal, WFlags f )
     : QSemiModal( 0, name, modal, f)
 {
-    d = new QProgressData(this, creator, "", "Cancel", 100);
-    connect( cancel(), SIGNAL(clicked()), this, SIGNAL(cancelled()) );
-    connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
-    QAccel *accel = new QAccel( this );
-    accel->connectItem( accel->insertItem(Key_Escape),
-			cancel(), SIGNAL(clicked()) );
-    layout();
+    init( creator, "", "Cancel", 100 );
 }
-
 
 /*!
   Constructs a progress dialog.
 
   \arg \e labelText is text telling the user what is progressing.
-  \arg \e cancelButtonText is the text on the cancel button.
+  \arg \e cancelButtonText is the text on the cancel button,
+	    or 0 if no cancel button is to be shown.
   \arg \e totalSteps is the total number of steps in the operation of which
     this progress dialog shows the progress.  For example, if the operation
     is to examine 50 files, this value would be 50, then before examining
@@ -169,16 +155,7 @@ QProgressDialog::QProgressDialog( const char *labelText,
 				  bool modal, WFlags f )
     : QSemiModal( 0, name, modal, f)
 {
-    d = new QProgressData(this, creator, labelText, cancelButtonText,
-			  totalSteps);
-    if ( strlen(cancelButtonText) == 0 )
-	cancel()->hide();
-    connect( cancel(), SIGNAL(clicked()), this, SIGNAL(cancelled()) );
-    connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
-    QAccel *accel = new QAccel( this );
-    accel->connectItem( accel->insertItem(Key_Escape),
-			cancel(), SIGNAL(clicked()) );
-    layout();
+    init( creator, labelText, cancelButtonText, totalSteps );
 }
 
 
@@ -191,11 +168,21 @@ QProgressDialog::~QProgressDialog()
     delete d;
 }
 
+void QProgressDialog::init( QWidget *creator,
+			    const char* lbl, const char* canc,
+			    int totstps)
+{
+    d = new QProgressData(this, creator, lbl, totstps);
+    setCancelButtonText( canc );
+    connect( this, SIGNAL(cancelled()), this, SLOT(cancel()) );
+    layout();
+}
 
 /*!
   \fn void QProgressDialog::cancelled()
 
   This signal is emitted when the cancel button is clicked.
+  It is connected to the cancel() slot by default.
 
   \sa wasCancelled()
 */
@@ -203,6 +190,8 @@ QProgressDialog::~QProgressDialog()
 
 /*!
   Sets the label. The progress dialog resizes to fit.
+  The label becomes owned by the
+  progress dialog and will be deleted when necessary.
   \sa setLabelText()
 */
 
@@ -229,7 +218,8 @@ void QProgressDialog::setLabelText( const char *text )
 
 
 /*!
-  Sets the cancellation button.
+  Sets the cancellation button.  The button becomes owned by the
+  progress dialog and will be deleted when necessary.
   \sa setCancelButtonText()
 */
 
@@ -237,10 +227,14 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 {
     delete d->cancel;
     d->cancel = cancelButton;
-    connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
+    if (d->cancel) {
+	connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
+	QAccel *accel = new QAccel( this );
+	accel->connectItem( accel->insertItem(Key_Escape),
+			    d->cancel, SIGNAL(clicked()) );
+    }
     resize(sizeHint());
 }
-
 
 /*!
   Sets the cancellation button text.
@@ -249,20 +243,21 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 
 void QProgressDialog::setCancelButtonText( const char *cancelButtonText )
 {
-    if ( cancel() ) {
-	cancel()->setText(cancelButtonText);
-	if ( strlen(cancelButtonText) == 0 )
-	    cancel()->hide();
+    if ( cancelButtonText ) {
+	if ( d->cancel )
+	    d->cancel->setText(cancelButtonText);
 	else
-	    cancel()->show();
-	resize(sizeHint());
+	    setCancelButton(new QPushButton(cancelButtonText, this, "cancel"));
+    } else {
+	setCancelButton(0);
     }
+    resize(sizeHint());
 }
 
 
 /*!
   Returns the TRUE if the dialog was cancelled, otherwise FALSE.
-  \sa setProgress(), cancelled()
+  \sa setProgress(), cancel(), cancelled()
 */
 
 bool QProgressDialog::wasCancelled() const
@@ -307,8 +302,20 @@ void QProgressDialog::reset()
     if ( isVisible() )
 	hide();
     bar()->reset();
-    d->cancellation_flag = TRUE;
+    d->cancellation_flag = FALSE;
     d->shown_once = FALSE;
+}
+
+/*!
+  Reset the progress dialog.  wasCancelled() becomes TRUE until
+  the progress dialog is reset.
+  The progress dialog becomes hidden.
+*/
+
+void QProgressDialog::cancel()
+{
+    reset();
+    d->cancellation_flag = TRUE;
 }
 
 
@@ -336,7 +343,6 @@ int QProgressDialog::progress() const
 void QProgressDialog::setProgress( int progress )
 {
     int old_progress = bar()->progress();
-    d->cancellation_flag = FALSE;
 
     if ( progress <= old_progress ||
 	 progress == 0 && old_progress > 0 ||
@@ -405,8 +411,8 @@ QSize QProgressDialog::sizeHint() const
     QSize sh = label()->sizeHint();
     QSize bh = bar()->sizeHint();
     int h = margin_tb*2 + bh.height() + sh.height() + spacing;
-    if ( strlen(cancel()->text()) != 0 )
-	h += cancel()->sizeHint().height() + spacing;
+    if ( d->cancel )
+	h += d->cancel->sizeHint().height() + spacing;
     return QSize( QMAX(200, sh.width()), h );
 }
 
@@ -435,8 +441,7 @@ void QProgressDialog::layout()
     int mlr = QMIN(width()/10, margin_lr);
     const bool centered = (style() != WindowsStyle);
 
-    bool has_cancel = strlen(cancel()->text()) != 0;
-    QSize cs = cancel()->sizeHint();
+    QSize cs = d->cancel ? d->cancel->sizeHint() : QSize(0,0);
     QSize bh = bar()->sizeHint();
     int cspc;
     int lh = 0;
@@ -444,14 +449,14 @@ void QProgressDialog::layout()
     // Find spacing and sizes that fit.  It is important that a progress
     // dialog can be made very small if the user demands it so.
     for (int attempt=5; attempt--; ) {
-	cspc = has_cancel ? cs.height() + sp : 0;
+	cspc = d->cancel ? cs.height() + sp : 0;
 	lh = QMAX(0, height() - mtb - bh.height() - sp - cspc);
 
 	if ( lh < height()/4 ) {
 	    // Getting cramped
 	    sp /= 2;
 	    mtb /= 2;
-	    if ( has_cancel ) {
+	    if ( d->cancel ) {
 		cs.setHeight(QMAX(4,cs.height()-sp-2));
 	    }
 	    bh.setHeight(QMAX(4,bh.height()-sp-1));
@@ -460,8 +465,8 @@ void QProgressDialog::layout()
 	}
     }
 
-    if ( has_cancel ) {
-	cancel()->setGeometry(
+    if ( d->cancel ) {
+	d->cancel->setGeometry(
 	    centered ? width()/2 - cs.width()/2 : width() - mlr - cs.width(),
 	    height() - mtb - cs.height() + sp,
 	    cs.width(), cs.height() );
