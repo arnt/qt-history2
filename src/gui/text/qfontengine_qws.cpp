@@ -87,9 +87,9 @@ static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
         if (!smooth)
             render_mode = FT_RENDER_MODE_MONO;
         err = FT_Render_Glyph(face->glyph, render_mode);
-        if (err) {
+        if (err && err != -1 && face->glyph->bitmap.width != 0 && face->glyph->bitmap.rows != 0) {
             qDebug("failed rendering glyph %d from font", index);
-            Q_ASSERT(!err);
+            Q_ASSERT(!err );
         }
     }
 
