@@ -16,15 +16,16 @@ public:
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
     appScreen = 0;
-    screenCount = 1;
 
-    rects.resize( screenCount );
-    QRect wiggle(0, 0, 1024, 768);
-    GDHandle g = GetMainDevice();
-	if(g) 
-		wiggle = QRect(0, 0,(*g)->gdRect.right,(*g)->gdRect.bottom);
-    rects[0] = wiggle;
-    //### Get the rects for the different screens and put them into rects
+    QList<QRect> rs;
+    rs.setAutoDelete(TRUE);
+    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g))
+	rs.append(new QRect(0, 0,(*g)->gdRect.right,(*g)->gdRect.bottom));
+
+    int i = 0;
+    rects.resize( screenCount = rs.count() );
+    for(QListIterator<QRect> it(rs); it.current(); ++it) 
+	rects[i++] = *(*it);
 }
 
 QDesktopWidget::QDesktopWidget()
