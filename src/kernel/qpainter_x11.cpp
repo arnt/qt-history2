@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#138 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#137 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#138 $")
 
 
 // --------------------------------------------------------------------------
@@ -500,7 +500,7 @@ void QPainter::setFont( const QFont &font )
 }
 
 
-void QPainter::updateFont()			// update after changed font
+void QPainter::updateFont()
 {
     clearf(DirtyFont);
     if ( testf(ExtDev) ) {
@@ -515,7 +515,8 @@ void QPainter::updateFont()			// update after changed font
     XSetFont( dpy, gc, cfont.handle() );
 }
 
-void QPainter::updatePen()			// update after changed pen
+
+void QPainter::updatePen()
 {
     static char dash_line[]	    = { 7, 3 };
     static char dot_line[]	    = { 1, 3 };
@@ -597,7 +598,7 @@ void QPainter::updatePen()			// update after changed pen
 }
 
 
-void QPainter::updateBrush()			// update after changed brush
+void QPainter::updateBrush()
 {
 static uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
 static uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
@@ -739,7 +740,7 @@ static uchar *pat_tbl[] = {
   \sa QPaintDevice, end()
 */
 
-bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
+bool QPainter::begin( const QPaintDevice *pd )
 {
     if ( isActive() ) {				// already active painting
 #if defined(CHECK_STATE)
@@ -750,13 +751,14 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else if ( pd == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QPainter::begin: Invalid NULL argument" );
+	warning( "QPainter::begin:  Paint device cannot be null" );
 #endif
 	return FALSE;
     }
 
     bool reinit = flags != IsStartingUp;	// 2nd or 3rd etc. time called
-    flags = DirtyFont;				// init flags
+    flags = IsActive | DirtyFont;		// init flags
+
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
 	if ( !pdev )				// no
@@ -771,7 +773,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	setf(ExtDev);
     else if ( dt == PDT_PIXMAP )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify pixmap
-
     
     dpy = pdev->dpy;				// get display variable
     hd  = pdev->hd;				// get handle to drawable
@@ -787,7 +788,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    setTabArray( tabarray );
     }
 
-    setf( IsActive );				// painter becomes active
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
     bro = curPt = QPoint( 0, 0 );
     if ( reinit ) {
@@ -849,15 +849,15 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else
 	ww = wh = vw = vh = 1024;
+
     if ( testf(ExtDev) ) {			// external device
 	setBackgroundColor( bg_col );		// default background color
 	setBackgroundMode( TransparentMode );	// default background mode
 	setRasterOp( CopyROP );			// default raster operation
+	updateFont();
     }
-    else {					// widget or pixmap
-	updatePen();
-	updateBrush();
-    }
+    updatePen();
+    updateBrush();
     return TRUE;
 }
 
@@ -906,6 +906,7 @@ bool QPainter::end()				// end painting
     return TRUE;
 }
 
+
 /*!
   Sets the background color of the painter to \e c.
 
@@ -948,7 +949,7 @@ void QPainter::setBackgroundColor( const QColor &c )
   \sa backgroundMode(), setBackgroundColor()
 */
 
-void QPainter::setBackgroundMode( BGMode m )	// set background mode
+void QPainter::setBackgroundMode( BGMode m )
 {
     if ( !isActive() )
 	return;
@@ -990,7 +991,7 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
   \sa rasterOp()
 */
 
-void QPainter::setRasterOp( RasterOp r )	// set raster operation
+void QPainter::setRasterOp( RasterOp r )
 {
     if ( !isActive() )
 	return;
@@ -1277,7 +1278,7 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
   \sa hasClipping(), setClipRect(), setClipRegion()
 */
 
-void QPainter::setClipping( bool enable )	// set clipping
+void QPainter::setClipping( bool enable )
 {
     if ( !isActive() || enable == testf(ClipOn) )
 	return;
@@ -1307,7 +1308,7 @@ void QPainter::setClipping( bool enable )	// set clipping
   Overloaded setClipRect; takes a QRect instead of \e (x,y,w,h).
 */
 
-void QPainter::setClipRect( const QRect &r )	// set clip rectangle
+void QPainter::setClipRect( const QRect &r )
 {
     QRegion rgn( r );
     setClipRegion( rgn );
@@ -1318,7 +1319,7 @@ void QPainter::setClipRect( const QRect &r )	// set clip rectangle
   \sa setClipRect(), setClipping()
 */
 
-void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
+void QPainter::setClipRegion( const QRegion &rgn )
 {
     crgn = rgn;
     if ( testf(ExtDev) ) {
@@ -1336,7 +1337,7 @@ void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
   Draws/plots a single point at \e (x,y) using the current pen.
 */
 
-void QPainter::drawPoint( int x, int y )	// draw a single point
+void QPainter::drawPoint( int x, int y )
 {
     if ( !isActive() )
 	return;
@@ -1363,7 +1364,7 @@ void QPainter::drawPoint( int x, int y )	// draw a single point
   \sa lineTo()
 */
 
-void QPainter::moveTo( int x, int y )		// set current point for lineTo
+void QPainter::moveTo( int x, int y )
 {
     if ( !isActive() )
 	return;
@@ -1392,7 +1393,7 @@ void QPainter::moveTo( int x, int y )		// set current point for lineTo
   \sa moveTo() drawLine()
 */
 
-void QPainter::lineTo( int x, int y )		// draw line from current point
+void QPainter::lineTo( int x, int y )
 {
     if ( !isActive() )
 	return;
@@ -1423,7 +1424,7 @@ void QPainter::lineTo( int x, int y )		// draw line from current point
 */
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
-{						// draw line
+{
     if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1472,7 +1473,7 @@ static void fix_neg_rect( int *x, int *y, int *w, int *h )
 */
 
 void QPainter::drawRect( int x, int y, int w, int h )
-{						// draw rectangle
+{
     if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1529,7 +1530,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 */
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
-{						// draw round rectangle
+{
     if ( !isActive() )
 	return;
     if ( xRnd <= 0 || yRnd <= 0 ) {
@@ -1668,7 +1669,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 */
 
 void QPainter::drawEllipse( int x, int y, int w, int h )
-{						// draw ellipse
+{
     if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1731,7 +1732,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 */
 
 void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
-{						// draw arc
+{
     if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1789,7 +1790,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 */
 
 void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
-{						// draw arc
+{
     if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1864,10 +1865,11 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
   counter-clockwise while negative values mean clockwise direction.
   Zero degrees is at the 3'o clock position.
 
-  \sa drawArc(), drawPie() */
+  \sa drawArc(), drawPie()
+*/
 
 void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
-{						// draw chord
+{
     if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1937,7 +1939,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 */
 
 void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
-{						// draw line segments
+{
     if ( nlines < 0 )
 	nlines = a.size()/2 - index/2;
     if ( index + nlines*2 > (int)a.size() )
@@ -1980,7 +1982,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 */
 
 void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
-{						// draw connected lines
+{
     if ( npoints < 0 )
 	npoints = a.size() - index;
     if ( index + npoints > (int)a.size() )
@@ -2033,7 +2035,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 
 void QPainter::drawPolygon( const QPointArray &a, bool winding,
 			    int index, int npoints )
-{						// draw polygon
+{
     if ( npoints < 0 )
 	npoints = a.size() - index;
     if ( index + npoints > (int)a.size() )
@@ -2113,7 +2115,7 @@ typedef declare(QListM,QBezData) QBezList;	// list of Bezier curves
 */
 
 void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
-{						// draw Bezier curve
+{
 #if defined(BEZIER_CACHE)
     static QBezList *bezlist = 0;
     if ( !bezlist ) {				// create Bezier cache
@@ -2197,7 +2199,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 
 void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 			   int sx, int sy, int sw, int sh )
-{						// draw pixmap
+{
     if ( !isActive() || pixmap.isNull() )
 	return;
     if ( sw < 0 )
