@@ -893,7 +893,6 @@ void
 QQuickDrawGC::setupQDFont()
 {
     setupQDPen();
-    d->current.font.macSetFont(d->pdev);
 }
 
 /*!
