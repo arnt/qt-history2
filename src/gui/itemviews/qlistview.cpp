@@ -624,10 +624,7 @@ void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
     // FIXME: if the parent is above root() in the tree, nothing will happen
-    if (parent == root() && isVisible())
-        doItemsLayout();
-    else
-        d->doDelayedItemsLayout();
+    d->doDelayedItemsLayout();
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
@@ -1057,6 +1054,7 @@ QModelIndexList QListView::selectedIndexes() const
 */
 void QListView::doItemsLayout()
 {
+    QDebug() << "doItemsLayout";
     d->layoutStart = 0;
     d->layoutWraps = 0;
     d->translate = 0;
