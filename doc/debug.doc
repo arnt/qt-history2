@@ -46,7 +46,7 @@ When you run a Qt program you can specify several command line options
 that can help with debugging.
 <p>
 <ul>
-<li>-nograb The application should never grab \link QWidget::grabMouse the
+<li>-nograb The application should never grab \link QWidget::grabMouse() the
 mouse\endlink or \link QWidget::grabKeyboard() the keyboard \endlink.
 This option is set by default when the program is running in the \c
 gdb debugger under Linux.
@@ -89,7 +89,7 @@ The header file qglobal.h contains many debugging macros and #defines.
 
 Two important macros are:
 <ul>
-<li>\link ::Q_ASSERT Q_ASSERT(b)\endlink where b is a boolean expression, writes
+<li>\link ::Q_ASSERT() Q_ASSERT(b)\endlink where b is a boolean expression, writes
 the warning: "ASSERT: 'b' in file file.cpp (234)" if b is FALSE.
 <li>\link ::Q_CHECK_PTR() Q_CHECK_PTR(p)\endlink where p is a pointer.
 Writes the warning "In file file.cpp, line 234: Out of memory" if p is null.

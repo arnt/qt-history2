@@ -63,7 +63,7 @@ with Other Applications</a></li>
 
   <h3><a name="dragging">Dragging</a></h3>
 
-  To start a drag, for example in a \link QWidget::mouseMoveEvent
+  To start a drag, for example in a \link QWidget::mouseMoveEvent()
   mouse motion event\endlink, create an object of the
   QDragObject subclass appropriate for your media, such as
   QTextDrag for text and QImageDrag for images. Then call

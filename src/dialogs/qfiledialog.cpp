@@ -5010,6 +5010,9 @@ void QFileDialog::modeButtonsDestroyed()
   are shown.  The filter selected is set to \a selectedFilter. The parameters 
   \a dir, \a selectedFilter and \a filter may be QString::null.
 
+    The dialog's caption is set to \a caption. If \a caption is not
+    specified then a default caption will be used.
+
   Note: In the Windows version of Qt, this static function will use the native Windows file
   dialog and not a QFileDialog, unless the style of the application is set to something other
   than Windows style.  In the Mac OS X version of Qt, this static function will use the native Mac

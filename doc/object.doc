@@ -264,7 +264,7 @@ Equivalent, that is, except that the first is faster, and that the
 first gives much better diagnostics at compile time.  When practical,
 the first is better.  However, since you can get a list of all
 available properties for any QObject through its \l QMetaObject, \l
-setProperty() can give you control over classes that weren't available
+QObject::setProperty() can give you control over classes that weren't available
 at compile time.
 
 As well as QObject::setProperty(), there is a \l QObject::property().

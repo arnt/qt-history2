@@ -410,7 +410,7 @@ Code using this to truncate a string should use
     \link QString::truncate() truncate(size-1)\endlink.
 Code using qstr.resize(0) should use qstr = QString::null.
 Code calling resize(n) prior to using
-    \link QString::operator[] operator[]\endlink up to n just remove
+    \link QString::operator[]() operator[]\endlink up to n just remove
 the resize(n) completely.
 
 <dt><b>QString::size() is obsolete and removed</b></dt>
@@ -826,7 +826,7 @@ of another widget (as is the usual way to intercept foreign events).
 The parameters in the signal
 \link QScrollView::contentsMoving() contentsMoving(int,int)\endlink
 are now positive rather than negative values, coinciding with
-\link QScrollView::setContentsPos setContentsPos()\endlink.  Search for
+\link QScrollView::setContentsPos() setContentsPos()\endlink.  Search for
 connections you make to this signal, and either change the slot they are
 connected to such that it also expects positive rather than negative
 values, or introduce an intermediate slot and signal that negates them.
