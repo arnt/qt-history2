@@ -98,7 +98,7 @@ const char *SourceFiles::key(const char *file)
 {
     const char *ret = file;
     for( ; (*file); ++file) {
-	if((*file) == '/' && *(file+1))
+	if(((*file) == '/' || (*file) == '\\') && *(file+1))
 	    ret = file+1;
     }
     return ret;
@@ -223,7 +223,7 @@ void QMakeSourceFileInfo::setFileMocable(const QMakeLocalFileName &)
 }
 
 #ifdef Q_WS_WIN
-#define S_ISDIR(x) (x == _S_IFDIR)
+#define S_ISDIR(x) (x & _S_IFDIR)
 #endif
 
 QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &file)
