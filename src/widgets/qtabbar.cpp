@@ -532,7 +532,7 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
 	return;
     }
     QTab * t = selectTab( e->pos() );
-    if ( t != 0 && t == selectTab( e->pos() ) && t->enabled ) {
+    if ( t != 0 && t->enabled ) {
 	setCurrentTab( t );
     }
 }
