@@ -38,6 +38,7 @@
 #include "qpocketpcstyle_wce.h"
 
 #ifndef QT_NO_STYLE_POCKETPC
+#ifndef Q_QDOC
 
 #include "qpopupmenu.h"
 #include "qapplication.h"
@@ -161,7 +162,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 {
     static const QCOORD radioOutline[] = { 1,3, 3,1, 4,1, 5,0, 9,0, 10,1, 11,1, 13,3, 13,4, 14,5,
 	14,9, 13,10, 13,11, 11,13, 10,13, 9,14, 5,14, 4,13, 3,13, 1,11, 1,10, 0,9, 0,5, 1,4, 1,3 };
-    static const QCOORD radioDot[]     = { 6,3,  8,3,  4,4, 10,4,  4,5, 10,5,  3,6,  11,6, 3,7, 
+    static const QCOORD radioDot[]     = { 6,3,  8,3,  4,4, 10,4,  4,5, 10,5,  3,6,  11,6, 3,7,
 					   11,7, 3,8, 11,8,  4,9, 10,9, 4,10, 10,10, 6,11, 8,11 };
     static const QCOORD tick[18]       = { 3,6, 6,9, 11,4, 11,5, 6,10, 3,7, 3,8, 6,11, 11,6  };
     static const QCOORD arrowUp[16]    = { -3, 1,  3, 1, -2, 0,  2, 0, -1,-1,  1,-1,  0,-2,  0,-2 };
@@ -1457,7 +1458,7 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 		{
 		    const QTitleBar *titlebar = (QTitleBar*)widget;
 		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
-		    if( titlebar->window() ) { 
+		    if( titlebar->window() ) {
 			if ( titlebar->window()->testWFlags( WStyle_Tool ) ) {
 			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
@@ -1465,7 +1466,7 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 			} else {
 			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
-				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0, 
+				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0,
 					     -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
 			    if ( titlebar->window()->testWFlags( WStyle_Minimize ) )
 				ir.addCoords( 0, 0, -2*TITLEBAR_CONTROL_WIDTH-2, 0 );
@@ -2278,4 +2279,5 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     }
 }
 
+#endif
 #endif

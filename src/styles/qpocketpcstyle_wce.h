@@ -51,6 +51,7 @@
 #endif
 
 
+#ifndef Q_QDOC
 class Q_EXPORT_STYLE_POCKETPC QPocketPCStyle : public QWindowsStyle
 {
     Q_OBJECT
@@ -113,6 +114,7 @@ private:
     QPocketPCStyle& operator=( const QPocketPCStyle & );
 #endif
 };
+#endif // Q_QDOC
 
 #endif // QT_NO_STYLE_POCKETPC
 
