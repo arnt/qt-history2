@@ -414,6 +414,12 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 	{
 	    const QWidget *widget = static_cast<const QWidget *>(pd);
 	    Q_ASSERT(widget);
+
+	    if(!widget->testWState(WState_InPaintEvent)) {
+		qWarning("QPainter::begin: Widget painting can only begin as a "
+			 "result of a paintEvent");
+		return false;
+	    }
 	    d->state->font = widget->font();
 	    d->state->pen = widget->palette().color(widget->foregroundRole());
 	    d->state->bgBrush = widget->palette().brush(widget->backgroundRole());
@@ -2000,7 +2006,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
     Currently the mask of the pixmap or it's alpha channel are ignored
     when painting on a QPrinter.
 
-    \sa bitBlt(), QPixmap::setMask()
+    \sa QPixmap::setMask()
 */
 
 /*!
@@ -2066,13 +2072,14 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
     if (sw <= 0 || sh <= 0)
 	return;
 
-    bool stretch = (r.width() == sr.width() && sr.width() != pm.width())
-		   || (r.height() == sr.height() && sr.height() != pm.height());
-
-    if ((d->state->VxF || d->state->WxF || stretch)
+    if ((d->state->VxF || d->state->WxF || 
+	 (r.width() != sr.width() && r.height() != sr.height()))
 	&& !d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
 	QPixmap source(sw, sh);
-	bitBlt(&source, 0, 0, &pm, sx, sy, sw, sh, CopyROP);
+	{
+	    QPainter p(&source);
+	    p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh));
+	}
 
 	QWMatrix mat(d->state->matrix);
 	double scalex = w / (double)sw;
@@ -2084,11 +2091,16 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 	    sw == pm.width() && sh == pm.height()) {
 	    pmx = pm;			// xform the whole pixmap
 	} else {
+	    QPainter p;
 	    pmx = QPixmap(sw, sh);		// xform subpixmap
-	    bitBlt(&pmx, 0, 0, &pm, sx, sy, sw, sh);
+	    p.begin(&pmx);
+	    p.drawPixmap(QRect(0, 0, sw, sh), pm, sr);
+	    p.end();
 	    if (pm.mask()) {
 		QBitmap mask(sw, sh);
-		bitBlt(&mask, 0, 0, pm.mask(), sx, sy, sw, sh);
+		p.begin(&mask);
+		p.drawPixmap(QRect(0, 0, sw, sh), *pm.mask(), sr);
+		p.end();
 		pmx.setMask(mask);
 	    }
 	}

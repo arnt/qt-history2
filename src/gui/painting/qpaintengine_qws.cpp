@@ -135,12 +135,6 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped
 		  "\n\tYou must end() the painter before a second begin()" );
 	return true;
     }
-    if(0 && pdev->devType() == QInternal::Widget &&
-       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
-	qWarning("QPainter::begin: Widget painting can only begin as a "
-		 "result of a paintEvent");
-//	return false;
-    }
 
     Q_ASSERT(d->gfx == 0);
 
@@ -675,7 +669,6 @@ void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRe
     if ((w != sw || h != sh) && (sx != 0) && (sy != 0))
 	qDebug( "QWSPaintEngine::drawPixmap offset stretch notimplemented" );
 
-    //bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, CopyROP );
     d->gfx->setSource(&pixmap);
     if(pixmap.mask()) {
 	QBitmap * mymask=( (QBitmap *)pixmap.mask() );

@@ -315,12 +315,6 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unc
 	       "\n\tYou must end() the painter before a second begin()\n");
 // 	return true;
     }
-    if(pdev->devType() == QInternal::Widget &&
-       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
-	qWarning("QPainter::begin: Widget painting can only begin as a "
-		 "result of a paintEvent");
-//	return false;
-    }
 
     setActive(true);
     d->pdev = pdev;
@@ -922,7 +916,10 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
 	    QImage imask = imageData.createAlphaMask();
 	    QBitmap tmpbm = imask;
 	    QBitmap bm(sr.width(), sr.height());
-	    bitBlt(&bm, 0, 0, &tmpbm, sr.x(), sr.y(), sr.width(), sr.height());
+	    {
+		QPainter p(&bm);
+		p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr);
+	    }
 	    QWMatrix xform = QWMatrix(r.width()/(double)sr.width(), 0,
 				      0, r.height()/(double)sr.height(),
 				      0, 0 );

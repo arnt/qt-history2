@@ -525,12 +525,6 @@ void QX11PaintEngine::cleanup()
 
 bool QX11PaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
-    if(pdev->devType() == QInternal::Widget &&
-       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
-	qWarning("QPainter::begin: Widget painting can only begin as a "
-		 "result of a paintEvent");
-//	return false;
-    }
     d->pdev = pdev;
     if (d->pdev->devType() == QInternal::Widget)
 	d->xinfo = static_cast<QWidget *>(d->pdev)->x11Info();
@@ -1345,7 +1339,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     QBitmap *mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
 
-    if ( mask && !hasClipping() && d->pdev != paintEventDevice ) {
+    if ( mask && !hasClipping() && d->pdev != paintEventDevice && mono ) {
         if ( mono ) {                           // needs GCs pen // color
             bool selfmask = pixmap.data->selfmask;
             if ( selfmask ) {

@@ -248,18 +248,16 @@ private:
 				  const QPixmap *src, int sx, int sy,
 				  int sw, int sh );
 
-#if defined(Q_WS_MAC)
-    friend void unclippedScaledBitBlt(QPaintDevice *, int, int, int, int,
-				      const QPaintDevice *, int, int, int, int,
-				      Qt::RasterOp, bool, bool);
-#endif
-
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
     friend class QGLWidget;
 #if defined(Q_WS_X11)
     friend class QX11PaintEngine;
+#endif
+#if defined(Q_WS_MAC)
+    friend class QQuickDrawPaintEngine;
+    friend class QCoreGraphicsPaintEngine;
 #endif
 #if defined(Q_WS_QWS)
     friend class QWSPaintEngine;

@@ -55,12 +55,12 @@
     \i Create a pixmap with the same size as the widget.
     \i Fill the pixmap with the widget background color.
     \i Paint the pixmap.
-    \i bitBlt() the pixmap contents onto the widget.
+    \i QPainter::drawPixmap() the pixmap contents onto the widget.
     \endlist
 
     Pixel data in a pixmap is internal and is managed by the
     underlying window system. Pixels can be accessed only through
-    QPainter functions, through bitBlt(), and by converting the
+    QPainter functions and by converting the
     QPixmap to a QImage.
 
     You can easily display a QPixmap on the screen using
@@ -393,11 +393,11 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
     QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
 
     if ( !pm.isNull() ) {			// copy the bitmap
-
-	if ( ignoreMask )
+	if ( ignoreMask ) {
 	    bitBlt( &pm, 0, 0, this, 0, 0, data->w, data->h, Qt::CopyROP, TRUE );
-	else
+	} else {
 	    copyBlt( &pm, 0, 0, this, 0, 0, data->w, data->h );
+	}
     }
 
 #if defined(Q_WS_X11)

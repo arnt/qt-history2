@@ -390,10 +390,9 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
     shared pixmap data.
 
     A pixmap is automatically detached by Qt whenever its contents is
-    about to change. This is done in all QPixmap member functions
-    that modify the pixmap (fill(), resize(), convertFromImage(),
-    load(), etc.), in bitBlt() for the destination pixmap and in
-    QPainter::begin() on a pixmap.
+    about to change. This is done in all QPixmap member functions that
+    modify the pixmap (fill(), resize(), convertFromImage(), load(),
+    etc.), and in QPainter::begin() on a pixmap.
 
     It is possible to modify a pixmap without letting Qt know. You can
     first obtain the system-dependent handle() and then call
@@ -463,9 +462,9 @@ int QPixmap::defaultDepth()
     a mask set) and pixmap transformations (the xForm() function).
 
     Pixmap optimization involves keeping intermediate results in a
-    cache buffer and using the cache to speed up bitBlt() and xForm().
-    The cost is more memory consumption, up to twice as much as an
-    unoptimized pixmap.
+    cache buffer and using the cache to speed up
+    QPainter::drawPixmap() and xForm().  The cost is more memory
+    consumption, up to twice as much as an unoptimized pixmap.
 
     Use the setDefaultOptimization() to change the default
     optimization for all new pixmaps.
@@ -1957,7 +1956,7 @@ QX11Info *QPixmap::x11Info() const
     Copies a block of pixels from \a src to \a dst.  The alpha channel
     and mask data (if any) is also copied from \a src.  NOTE: \a src
     is \e not alpha blended or masked when copied to \a dst.  Use
-    bitBlt() or QPainter::drawPixmap() to perform alpha blending or
+    QPainter::drawPixmap() to perform alpha blending or
     masked drawing.
 
     \a sx, \a sy is the top-left pixel in \a src (0, 0 by default), \a

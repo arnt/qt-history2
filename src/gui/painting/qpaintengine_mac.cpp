@@ -38,7 +38,6 @@
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-QPaintEngine *qt_mac_current_engine = 0; //Current "active" QPaintEngine
 
 /*****************************************************************************
   External functions
@@ -119,12 +118,6 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipp
                   "\n\tYou must end() the painter before a second begin()" );
 	return false;
     }
-    if(pdev->devType() == QInternal::Widget &&
-       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
-	qWarning("QQuickDrawPaintEngine::begin: Widget painting can only begin as a "
-		 "result of a paintEvent");
-	return false;
-    }
 
     //save the gworld now, we'll reset it in end()
     d->saved = new QMacSavedPortInfo;
@@ -195,9 +188,6 @@ QQuickDrawPaintEngine::end()
 
     delete d->saved;
     d->saved = 0;
-    if(qt_mac_current_engine == this)
-	qt_mac_current_engine = 0;
-
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
 	HideWindow(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
 
@@ -714,7 +704,80 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
-    unclippedBitBlt(d->pdev, r.x(), r.y(), &pixmap, sr.x(), sr.y(), sr.width(), sr.height(), (RasterOp)d->current.rop, false, false);
+
+    //setup port
+    ::RGBColor f;
+    if(pixmap.depth() > 1) {
+	f.red = f.green = f.blue = 0;
+    } else {
+	f.red = d->current.bg.brush.color().red()*256;
+	f.green = d->current.bg.brush.color().green()*256;
+	f.blue = d->current.bg.brush.color().blue()*256;
+    }
+    RGBForeColor(&f);
+    f.red = f.green = f.blue = ~0;
+    RGBBackColor(&f);
+
+    //get pixmap bits
+    const BitMap *srcbitmap = GetPortBitMapForCopyBits((GWorldPtr)pixmap.handle());
+    const QPixmap *srcmask=NULL;
+    if(pixmap.data->alphapm)
+	srcmask = pixmap.data->alphapm;
+    else
+	srcmask = pixmap.mask();
+
+    //get pdev bits
+    const BitMap *dstbitmap=NULL;
+    switch(d->pdev->devType()) {
+    case QInternal::Widget: {
+	QWidget *w = (QWidget *)d->pdev;
+	dstbitmap = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
+	break; }
+    case QInternal::Printer:
+    case QInternal::Pixmap: {
+	dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)d->pdev->handle());
+	break; }
+    }
+
+    short copymode = srcCopy;
+    switch(d->current.rop) {
+    default:
+    case Qt::CopyROP:   copymode = srcCopy; break;
+    case Qt::OrROP:     copymode = notSrcBic; break;
+    case Qt::XorROP:    copymode = srcXor; break;
+    case Qt::NotAndROP: copymode = srcBic; break;
+    case Qt::NotCopyROP:copymode = notSrcCopy; break;
+    case Qt::NotOrROP:  copymode = notSrcOr; break;
+    case Qt::NotXorROP: copymode = notSrcXor; break;
+    case Qt::AndROP:    copymode = notSrcBic; break;
+    }
+
+    Rect srcr;
+    SetRect(&srcr, sr.x(), sr.y(), sr.x()+sr.width()+1, sr.y()+sr.height()+1);
+    Rect dstr;
+    SetRect(&dstr, d->offx+r.x(), d->offy+r.y(), d->offx+r.x()+r.width()+1, d->offy+r.y()+r.height()+1);
+    if(srcmask) {
+	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcmask->handle());
+	if(copymode == srcCopy && srcmask->depth() > 1)
+	    copymode = ditherCopy;
+	if(d->pdev->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
+	    QPixmap tmppix(r.width(), r.height(), pixmap.depth());
+	    Rect pixr;
+	    SetRect(&pixr, 0, 0, r.width()+1, r.height()+1);
+	    const BitMap *pixbits = GetPortBitMapForCopyBits((GWorldPtr)tmppix.handle());
+	    {
+		QMacSavedPortInfo pi(&tmppix);
+		EraseRect(&pixr);
+		CopyDeepMask(srcbitmap, maskbits, pixbits, &srcr, &srcr, &pixr, copymode, 0);
+	    }
+	    setupQDPort(true);
+	    CopyBits(pixbits, dstbitmap, &pixr, &dstr, srcOr, 0); //use srcOr transfer, to "emulate" the mask
+	} else {
+	    CopyDeepMask(srcbitmap, maskbits, dstbitmap, &srcr, &srcr, &dstr, copymode, 0);
+	}
+    } else {
+	CopyBits(srcbitmap, dstbitmap, &srcr, &dstr, copymode, 0);
+    }
 }
 
 Qt::HANDLE
@@ -955,13 +1018,12 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 	}
 	d->clip.dirty = false;
     }
-    if(remade_clip || qt_mac_current_engine != this) {
+    { //setup the port
 	QMacSavedPortInfo::setPaintDevice(d->pdev);
 #ifndef USE_CORE_GRAPHICS
 	if(type() != CoreGraphics)
 	    QMacSavedPortInfo::setClipRegion(d->clip.paintable);
 #endif
-	qt_mac_current_engine = this;
     }
     if(off)
 	*off = QPoint(d->offx, d->offy);
@@ -1063,12 +1125,6 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
     if(isActive()) {                         // already active painting
         qWarning( "QCoreGraphicsPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()" );
-	return false;
-    }
-    if(pdev->devType() == QInternal::Widget &&
-       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
-	qWarning("QCoreGraphicsPaintEngine::begin: Widget painting can only begin as a "
-		 "result of a paintEvent");
 	return false;
     }
 
