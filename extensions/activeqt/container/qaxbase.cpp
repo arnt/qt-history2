@@ -769,17 +769,53 @@ long QAxBase::queryInterface( const QUuid &uuid, void **iface ) const
 
 #define UNSUPPORTED(x) x == "UNSUPPORTED" || x == "IDispatch*" || x == "IUnknown*" || x == "USERDEFINED" || x == "USERDEFINED*";
 
-static QString guessTypes( const QString &type, const QString &function )
+static QString usertypeToQString( TYPEDESC tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist )
 {
+    HREFTYPE usertype = tdesc.hreftype;
+    if ( tdesc.vt != VT_USERDEFINED || !usertype )
+	return QString::null;
+
+    CComPtr<ITypeInfo> usertypeinfo;
+    info->GetRefTypeInfo( usertype, &usertypeinfo );
+    if ( usertypeinfo ) {
+	CComPtr<ITypeLib> usertypelib;
+	UINT index;
+	usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
+	if ( usertypelib ) {
+	    // get type name
+	    BSTR usertypename;
+	    usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
+	    QString userTypeName = BSTRToQString( usertypename );
+	    SysFreeString( usertypename );
+	    // known enum?
+	    QMetaEnum *metaEnum = enumlist.find( userTypeName );				    
+	    if ( metaEnum )
+		return userTypeName;
+	    if ( userTypeName == "OLE_COLOR" )
+		return "QColor";
+	    if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" )
+		return "QFont";
+	    qDebug( "%s: Control uses unknown usertype", userTypeName.latin1() );
+	    return userTypeName;	    
+	}
+    }
+    return QString::null;
+}
+
+static inline QString guessTypes( TYPEDESC tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist, const QString &function )
+{
+    QString type = usertypeToQString( tdesc, info, enumlist );
+    if ( type.isEmpty() )
+	type = typedescToQString( tdesc );
+
     if ( type == "USERDEFINED" ) {
 	if ( function.contains( "Color" ) || function.contains( "color" ) )
 	    return "QColor";
-	return "int"; //###
     } else if ( type == "USERDEFINED*" ) {
 	if ( function.contains( "Font" ) || function.contains( "font" ) )
 	    return "QFont";
-	return "IUnknown*"; //###
     }
+
     return type;
 }
 
@@ -793,6 +829,10 @@ static inline QString constRefify( const QString& type )
 	crtype = "const QDateTime&";
     else if ( type == "QVariant" )
 	crtype = "const QVariant&";
+    else if ( type == "QColor" )
+	crtype = "const QColor&";
+    else if ( type == "QFont" )
+	crtype = "const QFont&";
     else 
 	crtype = type;
 
@@ -840,33 +880,6 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
 	param->typeExtra = new char[ ptype.length() + 1 ];
 	param->typeExtra = qstrcpy( (char*)param->typeExtra, ptype );
     }
-}
-
-static QString usertypeToQString( TYPEDESC tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist )
-{
-    if ( tdesc.vt != VT_USERDEFINED )
-	return QString::null;
-
-    HREFTYPE usertype = tdesc.hreftype;
-    CComPtr<ITypeInfo> usertypeinfo;
-    info->GetRefTypeInfo( usertype, &usertypeinfo );
-    if ( usertypeinfo ) {
-	CComPtr<ITypeLib> usertypelib;
-	UINT index;
-	usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
-	if ( usertypelib ) {
-	    // get type name
-	    BSTR usertypename;
-	    usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
-	    QString userTypeName = BSTRToQString( usertypename );
-	    SysFreeString( usertypename );
-	    // known enum?
-	    QMetaEnum *metaEnum = enumlist.find( userTypeName );				    
-	    if ( metaEnum )
-		return userTypeName;
-	}
-    }
-    return QString::null;
 }
 
 /*!
@@ -1126,11 +1139,7 @@ QMetaObject *QAxBase::metaObject() const
 			prototype = function + "(";
 
 			// get return value
-			if ( typedesc.vt == VT_USERDEFINED )
-			    returnType = usertypeToQString( typedesc, info, enumDict );
-			if ( returnType.isEmpty() )
-			    returnType = typedescToQString( typedesc );
-			returnType = guessTypes( returnType, function );
+			returnType = guessTypes( typedesc, info, enumDict, function );
 			unsupported = unsupported || UNSUPPORTED(returnType)
 
 			if ( funcdesc->invkind == INVOKE_FUNC && returnType != "void" ) {
@@ -1144,13 +1153,7 @@ QMetaObject *QAxBase::metaObject() const
 		    // parameter
 		    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
 		    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
-		    QString ptype;
-		    // userdefined type
-		    if ( tdesc.vt == VT_USERDEFINED )
-			ptype = usertypeToQString( tdesc, info, enumDict );
-		    if ( ptype.isEmpty() )
-			ptype = typedescToQString( tdesc );
-		    ptype = guessTypes( ptype, function );
+		    QString ptype = guessTypes( tdesc, info, enumDict, function );
 		    unsupported = unsupported || UNSUPPORTED(ptype)
 
 		    if ( funcdesc->invkind == INVOKE_FUNC )
@@ -1174,22 +1177,23 @@ QMetaObject *QAxBase::metaObject() const
 		case INVOKE_PROPERTYGET: // property
 		case INVOKE_PROPERTYPUT:
 		    {
-			if ( unsupported ) {
-#ifndef QT_NO_DEBUG
-			    qWarning( "%s: Property is of unsupported type: ", QString( returnType + " " + prototype ).latin1() );
-#endif
-			    debugInfo += QString( "%1: Property is of unsupported type.\n" ).arg( returnType + " "+ function );
-			    break;
-			}
-			if ( funcdesc->cParams > 1 ) {
-#ifndef QT_NO_DEBUG
-			    qWarning( "%s: Too many parameters in property.", function.latin1() );
-#endif
-			    debugInfo += QString( "%1: Too many parameters in property.\n").arg( function );
-			    break;
-			}
 			prop = proplist[function];
 			if ( !prop ) {
+			    if ( unsupported ) {
+#ifndef QT_NO_DEBUG
+				qWarning( "%s: Property is of unsupported type: ", QString( returnType + " " + prototype ).latin1() );
+#endif
+				debugInfo += QString( "%1: Property is of unsupported type.\n" ).arg( returnType + " "+ function );
+				break;
+			    }
+			    if ( funcdesc->cParams > 1 ) {
+#ifndef QT_NO_DEBUG
+				qWarning( "%s: Too many parameters in property.", function.latin1() );
+#endif
+				debugInfo += QString( "%1: Too many parameters in property.\n").arg( function );
+				break;
+			    }
+
 			    QString ptype = paramTypes[0];
 			    if ( ptype.isEmpty() )
 				ptype = returnType;
@@ -1389,14 +1393,6 @@ QMetaObject *QAxBase::metaObject() const
 		    continue;
 		}
 
-		// get variable type
-		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
-		QString variableType;
-		if ( typedesc.vt == VT_USERDEFINED )
-		    usertypeToQString( typedesc, info, enumlist );
-		if ( variableType.isEmpty() ) 
-		    variableType = typedescToQString( typedesc );
-
 		// get variable name
 		QString variableName;
 
@@ -1413,7 +1409,10 @@ QMetaObject *QAxBase::metaObject() const
 			continue;
 		    }
 		}
-		variableType = guessTypes( variableType, variableName );
+		// get variable type
+		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
+		QString variableType = guessTypes( typedesc, info, enumDict, variableName );
+
 		bool unsupported = UNSUPPORTED(variableType);
 
 		if ( unsupported ) {
@@ -1651,9 +1650,9 @@ QMetaObject *QAxBase::metaObject() const
 			    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
 			    
 			    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
-			    QString ptype = typedescToQString( tdesc );
-			    ptype = guessTypes( ptype, function );
+			    QString ptype = guessTypes( tdesc, info, enumDict, function );
 			    unsupported = unsupported || UNSUPPORTED(ptype);
+
 			    if ( funcdesc->invkind == INVOKE_FUNC )
 				ptype = constRefify( ptype );
 
