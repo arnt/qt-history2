@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#115 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -813,6 +813,8 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
     if ( e->text().length() &&
+	 e->key() != Key_Return &&
+	 e->key() != Key_Enter &&
 	 e->key() != Key_Delete &&
 	 e->key() != Key_Backspace ) {
 	insert( e->text() );
@@ -2200,7 +2202,7 @@ QSize QMultiLineEdit::sizeHint() const
     int w = fm.width( "This should be about 30-40 chars." );
 
     int maxh = maximumSize().height();
-    if ( maxh < QLayout::unlimited )
+    if ( maxh < QCOORD_MAX )
 	h = maxh;
 
     return QSize( w, h );
