@@ -549,7 +549,7 @@ void QFontDialog::updateFamilies()
     QStringList newList;
     QString s;
     QStringList::Iterator it = d->familyNames.begin();
-    for( int idx = 0; it != d->familyNames.end() ; it++ ) {
+    for( ; it != d->familyNames.end() ; it++ ) {
 	s = *it;
 	if ( s.contains('-') ) {
 	    int i = s.find('-');
