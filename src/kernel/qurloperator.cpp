@@ -19,6 +19,7 @@
 #include "qurlinfo.h"
 #include "qnetworkprotocol.h"
 #include "qmap.h"
+#include "../tools/qhash.h"
 #include "qdir.h"
 #include "qptrdict.h"
 #include "qguardedptr.h"
@@ -39,9 +40,9 @@ public:
     ~QUrlOperatorPrivate()
     {
 	delete networkProtocol;
-	while ( oldOps.first() ) {
+	while (!oldOps.isEmpty()) {
 	    oldOps.first()->free();
-	    oldOps.removeFirst();
+	    oldOps.takeAt(0);
 	}
     }
 
@@ -51,15 +52,15 @@ public:
     QDir dir;
 
     // maps needed for copy/move operations
-    QPtrDict<QNetworkOperation> getOpPutOpMap;
-    QPtrDict<QNetworkProtocol> getOpPutProtMap;
-    QPtrDict<QNetworkProtocol> getOpGetProtMap;
-    QPtrDict<QNetworkOperation> getOpRemoveOpMap;
+    QHash<void *, QNetworkOperation *> getOpPutOpMap;
+    QHash<void *, QNetworkProtocol *> getOpPutProtMap;
+    QHash<void *, QNetworkProtocol *> getOpGetProtMap;
+    QHash<void *, QNetworkOperation *> getOpRemoveOpMap;
     QGuardedPtr<QNetworkProtocol> currPut;
     QStringList waitingCopies;
     QString waitingCopiesDest;
     bool waitingCopiesMove;
-    QPtrList< QNetworkOperation > oldOps;
+    QList<QNetworkOperation *> oldOps;
 };
 
 /*!
@@ -597,9 +598,9 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
 	QNetworkOperation *opPut = new QNetworkOperation( QNetworkProtocol::OpPut, toFile, QString::null, QString::null );
 	ops.append( opPut );
 
-	d->getOpPutProtMap.insert( (void*)opGet, pProt );
-	d->getOpGetProtMap.insert( (void*)opGet, gProt );
-	d->getOpPutOpMap.insert( (void*)opGet, opPut );
+	d->getOpPutProtMap.insertMulti((void*)opGet, pProt);
+	d->getOpGetProtMap.insertMulti((void*)opGet, gProt);
+	d->getOpPutOpMap.insertMulti((void *)opGet, opPut);
 
 	if ( move && (gProt->supportedOperations()&QNetworkProtocol::OpRemove) ) {
 	    gProt->setAutoDelete( FALSE );
@@ -963,10 +964,10 @@ QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
     deleteNetworkProtocol();
     QUrl::operator=( url );
 
-    QPtrDict<QNetworkOperation> getOpPutOpMap = d->getOpPutOpMap;
-    QPtrDict<QNetworkProtocol> getOpPutProtMap = d->getOpPutProtMap;
-    QPtrDict<QNetworkProtocol> getOpGetProtMap = d->getOpGetProtMap;
-    QPtrDict<QNetworkOperation> getOpRemoveOpMap = d->getOpRemoveOpMap;
+    QHash<void *, QNetworkOperation *> getOpPutOpMap = d->getOpPutOpMap;
+    QHash<void *, QNetworkProtocol *> getOpPutProtMap = d->getOpPutProtMap;
+    QHash<void *, QNetworkProtocol *> getOpGetProtMap = d->getOpGetProtMap;
+    QHash<void *, QNetworkOperation *> getOpRemoveOpMap = d->getOpRemoveOpMap;
 
     *d = *url.d;
 
@@ -1122,14 +1123,16 @@ void QUrlOperator::stop()
     d->getOpRemoveOpMap.clear();
     d->getOpGetProtMap.setAutoDelete( TRUE );
     d->getOpPutProtMap.setAutoDelete( TRUE );
-    QPtrDictIterator<QNetworkProtocol> it( d->getOpPutProtMap );
-    for ( ; it.current(); ++it )
-	it.current()->stop();
+    QHash<void *, QNetworkProtocol *>::Iterator it = d->getOpPutProtMap.begin();
+    for (; it != d->getOpPutProtMap.end(); ++it)
+	(*it)->stop();
     d->getOpPutProtMap.clear();
-    it = QPtrDictIterator<QNetworkProtocol>( d->getOpGetProtMap );
-    for ( ; it.current(); ++it )
-	it.current()->stop();
+    
+    it = d->getOpGetProtMap.begin();
+    for (; it != d->getOpGetProtMap.end(); ++it)
+	(*it)->stop();
     d->getOpGetProtMap.clear();
+    
     if ( d->currPut ) {
 	d->currPut->stop();
 	delete (QNetworkProtocol *) d->currPut;

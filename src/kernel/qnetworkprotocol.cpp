@@ -50,15 +50,15 @@ public:
     {
 	removeTimer->stop();
 	if ( opInProgress ) {
-	    if ( opInProgress == operationQueue.head() )
-		operationQueue.dequeue();
+	    if (!operationQueue.isEmpty() && opInProgress == operationQueue.first())
+		operationQueue.takeAt(0);
 	    opInProgress->free();
 	}
-	while ( operationQueue.head() ) {
-	    operationQueue.head()->free();
-	    operationQueue.dequeue();
+	while (!operationQueue.isEmpty()) {
+	    operationQueue.first()->free();
+	    operationQueue.takeAt(0);
 	}
-	while ( oldOps.first() ) {
+	while (!oldOps.isEmpty()) {
 	    oldOps.first()->free();
 	    oldOps.removeFirst();
 	}
@@ -66,12 +66,12 @@ public:
     }
 
     QUrlOperator *url;
-    QPtrQueue< QNetworkOperation > operationQueue;
+    QList<QNetworkOperation *> operationQueue;    
     QNetworkOperation *opInProgress;
     QTimer *opStartTimer, *removeTimer;
     int removeInterval;
     bool autoDelete;
-    QPtrList< QNetworkOperation > oldOps;
+    QList<QNetworkOperation *> oldOps;
 };
 
 /*!
@@ -523,7 +523,7 @@ void QNetworkProtocol::addOperation( QNetworkOperation *op )
 #ifdef QNETWORKPROTOCOL_DEBUG
     qDebug( "QNetworkOperation: addOperation: %p %d", op, op->operation() );
 #endif
-    d->operationQueue.enqueue( op );
+    d->operationQueue.append(op);
     if ( !d->opInProgress )
 	d->opStartTimer->start( 0, TRUE );
 }
@@ -821,7 +821,7 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 	return;
     }
 
-    QNetworkOperation *op = d->operationQueue.head();
+    QNetworkOperation *op = d->operationQueue.isEmpty() ? 0 : d->operationQueue.first();
 
     d->opInProgress = op;
 
@@ -829,7 +829,8 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 	if ( op->state() != QNetworkProtocol::StFailed ) {
 	    d->opStartTimer->start( 0, TRUE );
 	} else {
-	    d->operationQueue.dequeue();
+	    if (!d->operationQueue.isEmpty())
+		d->operationQueue.takeAt(0);
 	    clearOperationQueue();
 	    emit finished( op );
 	}
@@ -838,7 +839,8 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
     }
 
     d->opInProgress = op;
-    d->operationQueue.dequeue();
+    if (!d->operationQueue.isEmpty())
+	d->operationQueue.takeAt(0);
     processOperation( op );
 }
 
@@ -867,7 +869,8 @@ QNetworkOperation *QNetworkProtocol::operationInProgress() const
 
 void QNetworkProtocol::clearOperationQueue()
 {
-    d->operationQueue.dequeue();
+    if (!d->operationQueue.isEmpty())
+	d->operationQueue.takeAt(0);
     d->operationQueue.setAutoDelete( TRUE );
     d->operationQueue.clear();
 }
