@@ -239,7 +239,6 @@ Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i )
 	s = w->layout()->totalMinimumSize();
     } else {
 	QSize sh;
-	QSizePolicy::SizeType data;
 
 	if ( w->sizePolicy().horData() != QSizePolicy::Ignored ) {
 	    if ( w->sizePolicy().mayShrinkHorizontally() ) {
