@@ -1634,6 +1634,14 @@ QSize LightStyleV3::sizeFromContents( ContentsType contents,
     QSize ret;
 
     switch (contents) {
+    case CT_DockWindow:
+	{
+	    int sw = pixelMetric( PM_SplitterWidth );
+	    ret = QSize( QMAX( sw, contentsSize.width() ),
+			 QMAX( sw, contentsSize.height() ) );
+	    break;
+	}
+
     case CT_ComboBox:
 	{
 	    int fw = pixelMetric( PM_DefaultFrameWidth, widget ) * 2;
