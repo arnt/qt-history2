@@ -297,6 +297,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
             HIShapeRef shape;
             HIThemeGetButtonShape(mac_r, &info, &shape);
             p->setClipRegion(qt_mac_convert_mac_region(shape));
+            CFRelease(shape);
             p->fillRect(r, color1);
             p->setClipRegion(saveRegion);
         } else {
@@ -325,6 +326,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
             HIShapeRef shape;
             HIThemeGetButtonShape(mac_r, &info, &shape);
             p->setClipRegion(qt_mac_convert_mac_region(shape));
+            CFRelease(shape);
             p->fillRect(r, color1);
             p->setClipRegion(saveRegion);
         } else {
@@ -726,7 +728,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             tpdi.version = qt_mac_hitheme_version;
             tpdi.state = tds;
             tpdi.direction = tdi.direction;
-            tpdi.size = tdi.direction;
+            tpdi.size = tdi.size;
             // This fudge is used to so we don't draw the edges of the pane in the middle.
             // So draw a little bit more and clip it.
             const int FUDGE = 20;
