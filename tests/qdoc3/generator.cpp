@@ -176,6 +176,10 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	    generateOverload( node, marker );
     }
 
+    if ( node->doc().isEmpty() ) {
+	QString name = plainCode( marker->markedUpFullName(node, 0) );
+	node->location().warning( tr("No documentation for '%1'").arg(name) );
+    }
     generateText( node->doc().body(), node, marker );
 
     if ( node->type() == Node::Function ) {

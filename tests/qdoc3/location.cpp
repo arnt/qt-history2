@@ -266,8 +266,10 @@ QString Location::top() const
     QString str = filePath();
     if ( lineNo() >= 1 ) {
 	str += ":" + QString::number( lineNo() );
+#if 0
 	if ( columnNo() >= 1 )
 	    str += ":" + QString::number( columnNo() );
+#endif
     }
     if ( etc() )
 	str += " (etc.)";

@@ -145,8 +145,8 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 
 	if ( (wrapperClass = tryClass("Quick" + bare + "Interface")) != 0 ) {
 	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
-		doc.location().warning( tr("Cannot find Qt class '%1'"
-					   " corresponding to '%2'")
+		doc.location().warning( tr("Cannot find Qt class '%1' wrapped"
+					   " by '%2'")
 					.arg(qtClassName)
 					.arg(wrapperClass->name()) );
 		return 0;
@@ -166,16 +166,16 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 		qtClassName = ptrToQtType.cap( 1 );
 
 	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
-		doc.location().warning( tr("Cannot find Qt class '%1'"
-					   " corresponding to '%2'")
+		doc.location().warning( tr("Cannot find Qt class '%1' wrapped"
+					   " by '%2'")
 					.arg(qtClassName)
 					.arg(wrapperClass->name()) );
 		return 0;
 	    }
 	} else if ( (wrapperClass = tryClass("Q" + bare + "Ptr")) != 0 ) {
 	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
-		doc.location().warning( tr("Cannot find Qt class '%1'"
-					   " corresponding to '%2'")
+		doc.location().warning( tr("Cannot find Qt class '%1' wrapped"
+					   " by '%2'")
 					.arg(qtClassName)
 					.arg(wrapperClass->name()) );
 		return 0;

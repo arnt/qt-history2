@@ -22,6 +22,7 @@ public:
     Text& operator<<( const QString& string );
     Text& operator<<( const Atom& atom );
     Text& operator<<( const Text& text );
+    void stripFirstAtom();
 
     bool isEmpty() const { return first == 0; }
     QString toString() const;

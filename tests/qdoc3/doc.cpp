@@ -754,6 +754,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     if ( priv->extra != 0 &&
 	 priv->extra->granularity < priv->extra->sectioningUnit )
 	priv->extra->granularity = priv->extra->sectioningUnit;
+    priv->text.stripFirstAtom();
 }
 
 Location& DocParser::location()
@@ -1668,7 +1669,8 @@ const QString& Doc::source() const
 
 bool Doc::isEmpty() const
 {
-    return body().firstAtom() == body().lastAtom();
+    // ### is that all?
+    return body().isEmpty();
 }
 
 const Text& Doc::body() const

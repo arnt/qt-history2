@@ -63,6 +63,17 @@ Text& Text::operator<<( const Text& text )
     return *this;
 }
 
+void Text::stripFirstAtom()
+{
+    if ( first != 0 ) {
+	if ( first == last )
+	    last = 0;
+	Atom *oldFirst = first;
+	first = first->next();
+	delete oldFirst;
+    }
+}
+
 QString Text::toString() const
 {
     QString str;

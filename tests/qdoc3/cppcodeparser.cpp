@@ -126,6 +126,9 @@ Set<QString> CppCodeParser::topicCommands()
 {
     return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_FILE
 			  << COMMAND_FN << COMMAND_GROUP << COMMAND_MODULE
+#ifdef QDOC2_COMPAT
+			  << COMMAND_OVERLOAD
+#endif
 			  << COMMAND_PAGE << COMMAND_PROPERTY
 			  << COMMAND_TYPEDEF;
 }
@@ -134,7 +137,11 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 					  const QString& command,
 					  const QString& arg )
 {
+#ifdef QDOC2_COMPAT
+    if ( command == COMMAND_FN || (command == COMMAND_OVERLOAD && !arg.isEmpty()) ) {
+#else
     if ( command == COMMAND_FN ) {
+#endif
 	QStringList path;
 	FunctionNode *func = 0;
 	FunctionNode *clone;

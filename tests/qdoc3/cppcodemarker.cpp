@@ -163,7 +163,7 @@ QString CppCodeMarker::markedUpFullName( const Node *node,
 {
     QString fullName;
     for ( ;; ) {
-	fullName += markedUpName( node );
+	fullName.prepend( markedUpName(node) );
 	if ( node->parent()->name().isEmpty() )
 	    break;
 	node = node->parent();
