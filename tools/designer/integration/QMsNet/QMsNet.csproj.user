@@ -17,7 +17,13 @@
                     StartURL = ""
                     StartWorkingDirectory = "C:\Program Files\Microsoft Visual Studio .NET\Common7\IDE\"
                     StartWithIE = "true"
-                />
+                >
+                    <InteropRegistration
+                        RegisteredComClassic = "true"
+                        RegisteredOutput = "QMsNet.dll"
+                        RegisteredTypeLib = "QMsNet.tlb"
+                    />
+                </Config>
                 <Config
                     Name = "Release"
                     EnableASPDebugging = "false"

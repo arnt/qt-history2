@@ -85,7 +85,7 @@ namespace QMsNet
 			(commandName == Resource.AddMocStepFullCommand) ||
 			(commandName == Resource.mntEventsFullCommand) ||
 			(commandName == Resource.unmntEventsFullCommand) ) {
-			    status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported 
+			status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported 
 			    | vsCommandStatus.vsCommandStatusEnabled;
 		    }
 		}
@@ -127,7 +127,7 @@ namespace QMsNet
 			MessageBox.Show( "DLL Project", "Command" );
 		    } else if ( commandName == Resource.AddMocStepFullCommand ) {
 			handled = true;
-			MessageBox.Show( "Add Moc step", "Command" );
+			QMNCommands.addMocStep();
 		    } else if ( commandName == Resource.mntEventsFullCommand ) {
 			MonitorEvents();
 		    } else if ( commandName == Resource.unmntEventsFullCommand ) {
