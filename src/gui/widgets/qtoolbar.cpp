@@ -596,7 +596,8 @@ void QToolBar::actionEvent(QActionEvent *event)
             Q_ASSERT_X(index >= 0 && index < d->items.size(),
                        "QToolBar::actionEvent", "internal error");
             const QToolBarItem &item = d->items.at(index);
-            item.widget->setShown(item.action->isVisible());
+            if (!item.hidden)
+                item.widget->setShown(item.action->isVisible());
 
             // reconnect the action
             action->disconnect(this, SLOT(actionTriggered()));
@@ -699,7 +700,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             d->items[i - 1].hidden = true;
             ++hidden_count;
         } else {
-	    w->show();
+            w->setShown(d->items[i - 1].action->isVisible());
             d->items[i - 1].hidden = false;
 	}
 	++i;
