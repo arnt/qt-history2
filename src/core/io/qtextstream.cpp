@@ -1072,7 +1072,18 @@ QTextStream &QTextStream::writeBlock(const char* p, uint len)
             u[i] = p[i];
         dev->writeBlock((char*)u, len * sizeof(QChar));
         delete [] u;
-    } else {
+    }
+#ifndef QT_NO_TEXTCODEC
+    else if (d->mapper) {
+        if (!d->encoder)
+            d->encoder = d->mapper->makeEncoder();
+        QString s = QString::fromLatin1(p, len);
+        int l = len;
+        QByteArray block = d->encoder->fromUnicode(s, l);
+        dev->writeBlock(block, l);
+    }
+#endif
+    else {
         for (uint i = 0; i < len; i++)
             ts_putc((uchar)p[i]);
     }
