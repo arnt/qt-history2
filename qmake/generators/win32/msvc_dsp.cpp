@@ -508,6 +508,8 @@ DspMakefileGenerator::init()
     QStringList::Iterator it;
     init_flag = TRUE;
 
+    const bool thread = project->isActiveConfig("thread");
+
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "vcapp" )
 	project->variables()["QMAKE_APP_FLAG"].append("1");
@@ -568,17 +570,15 @@ DspMakefileGenerator::init()
 		project->variables()["QMAKE_LFLAGS"].append("/base:\"0x39D00000\"");
 	    }
 	} else {
-	    if(project->isActiveConfig("thread"))
+	    if( thread )
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
 	    else
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-		if ( hver == -1 )
-		    hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt-mt");
+		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), thread ? "qt-mt" : "qt" );
 		if(hver != -1) {
 		    QString ver;
-		    ver.sprintf("qt%s" QTDLL_POSTFIX "%d.lib", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
+		    ver.sprintf("qt%s" QTDLL_POSTFIX "%d.lib", (thread ? "-mt" : ""), hver);
 		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
@@ -622,7 +622,7 @@ DspMakefileGenerator::init()
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_OPENGL"];
     }
-    if ( project->isActiveConfig("thread") ) {
+    if ( thread ) {
 	if(project->isActiveConfig("qt"))
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT" );
         if ( project->isActiveConfig("dll") || project->first("TARGET") == "qtmain"
