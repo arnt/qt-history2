@@ -1853,12 +1853,17 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
     if ( len <0 || len > (int)uc.length() )
         len = uc.length();
     QCString r( len+1 );
-    int i;
+    int i = len;
     int u;
-    for( i=0; i<len; i++ ) {
-        u = uc[i].cell() + 256* uc[i].row();
-        r[i] = u < 128 ? u : (
-            ( u < (int)reverseMap->size() ) ? (*reverseMap)[u] :  '?' );
+    const QChar* ucp = uc.unicode();
+    char* rp = r.data();
+    char* rmp = reverseMap->data();
+    int rmsize = (int) reverseMap->size();
+    while( i-- )
+    {
+        u = ucp->unicode();
+        *rp++ = u < 128 ? u : (( u < rmsize ) ? (*(rmp+u)) : '?' );
+        ucp++;
     }
     r[len] = 0;
     return r;

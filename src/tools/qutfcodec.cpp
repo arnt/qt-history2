@@ -127,7 +127,7 @@ public:
 
     QString toUnicode(const char* chars, int len)
     {
-	QString result;
+	QString result = "";
 	for (int i=0; i<len; i++) {
 	    uchar ch = chars[i];
 	    if (need) {
