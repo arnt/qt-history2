@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#502 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#503 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -687,8 +687,10 @@ void qt_cleanup()
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
-    if ( displayDC )
+    if ( displayDC ) {
 	ReleaseDC( 0, displayDC );
+	displayDC = 0;
+    }
 
   // Deinitialize OLE/COM
     OleUninitialize();

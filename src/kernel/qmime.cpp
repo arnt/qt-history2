@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#51 $
 **
 ** Implementation of MIME support
 **
@@ -63,6 +63,7 @@ static QMimeSourceFactory* defaultfactory = 0;
 void qt_cleanup_defaultfactory()
 {
     delete defaultfactory;
+    defaultfactory = 0;
 }
 
 /*! Constructs a mime source and assigns a globally unique serial

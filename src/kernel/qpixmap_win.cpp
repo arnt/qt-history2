@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#129 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -1076,8 +1076,10 @@ static void cleanup_mcp()
     if ( mcp_lists_init ) {
 	mcp_system_unstable = TRUE;		// tell QPixmap::deref()
 	mcp_lists_init = FALSE;
-	for ( int i=0; i<mcp_num_lists; i++ )
+	for ( int i=0; i<mcp_num_lists; i++ ) {
 	    delete mcp_lists[i];
+	    mcp_lists[i] = 0;
+	}	
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#17 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#18 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -43,17 +43,18 @@
 
 #define SOCKLEN_T int // #### Winsock 1.1
 
+static bool initialized = FALSE;
 
 static void cleanupWinSock() // post-routine
 {
     WSACleanup();
+    initialized = FALSE;
 }
 
 
 void QSocketDevice::init()
 {
-    static bool init = FALSE;
-    if ( !init ) {
+    if ( !initialized ) {
 	WSAData wsadata;
 	if ( WSAStartup( MAKEWORD(1,1), &wsadata ) != 0 ) {
 #if defined(QT_CHECK_NULL)
@@ -68,7 +69,7 @@ void QSocketDevice::init()
 #if defined(QSOCKETDEVICE_DEBUG)
 	qDebug( "QSocketDevice: WinSock initialization OK" );
 #endif
-	init = TRUE;
+	initialized = TRUE;
     }
 }
 
