@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#126 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#127 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1117,13 +1117,18 @@ sub readc {
 	$def =~ s/\s:\s*\b.*//s; # strip away constructor inheritance
 	$def =~ s/\s+/ /gs;
 
-	if ($doc =~ m@^\\class\s+(\w+)\s+([\.\w]+)\s+(.*?)\s*$@s) {
+	if ($doc =~ m@^\\class\s+(\w+)\s+(?:([\.\w]+)\s+)?(.*?)\s*$@s) {
 	    # it's a \class
 	    my ($class, $hfile, $rfile, $doc);
 	    my ($url);
 	    $class = $1;
-	    $hfile = $rfile = $2;
+	    $hfile = $2;
 	    $doc = $3;
+	    if ( $hfile eq "" ) {
+		$hfile = $filename;
+		s/\..*/.h/;
+	    }
+	    $rfile = $hfile;
 	    $hfile =~ s/\.doc/.h/;
 	    die if ( $hfile eq "" );
 	    if (!defined($cfiles{$hfile})) {
