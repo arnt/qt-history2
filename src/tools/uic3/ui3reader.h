@@ -74,7 +74,7 @@ public:
     bool isObjectRegistered(const QString& name);
     QStringList unique(const QStringList&);
 
-    QString trcall(const QString& sourceText, const QString& comment = "");
+    QString trcall(const QString& sourceText, const QString& comment = QString());
 
     QDomElement parse(const QDomDocument &doc);
 

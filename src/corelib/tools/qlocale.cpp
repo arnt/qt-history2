@@ -1898,7 +1898,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     QString s2 = egyptian.toString(10);
 
     double d = egyptian.toDouble(s1);
-    int s2 = egyptian.toInt(s2);
+    int i = egyptian.toInt(s2);
     \endcode
 
     QLocale supports the concept of a default locale, which is
