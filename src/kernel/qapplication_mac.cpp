@@ -1042,26 +1042,23 @@ static int sn_activate()
 bool QApplication::processNextEvent( bool canWait )
 {
   //  qDebug( "QApplication::processNextEvent" );
-  EventRecord event;
   int	   nevents = 0;
 
   if(qt_is_gui_used) {
     sendPostedEvents();
+    EventRecord event;    
+    do {
+      if(app_exit_loop)
+	return FALSE;
 
-    while(EventAvail(everyEvent, &event)) {
-      while(EventAvail(everyEvent, &event)) {
-	if(app_exit_loop)
-	  return FALSE;
+      WaitNextEvent(everyEvent, &event, 15L, nil);
+      nevents++;
 
-	GetNextEvent(everyEvent, &event);
-	nevents++;
-
-	if(macProcessEvent( (MSG *)(&event) ) == 1)
-	  return TRUE;
-      }
-      sendPostedEvents(); //let them accumulate
-    } 
-  }
+      if(macProcessEvent( (MSG *)(&event) ) == 1)
+	return TRUE;
+    } while(event.what == nullEvent);
+    sendPostedEvents(); //let them accumulate
+  } 
 
   if ( quit_now || app_exit_loop )
     return FALSE;
@@ -1276,12 +1273,14 @@ bool ignorecliprgn=true;
 
 int QApplication::macProcessEvent(MSG * m)
 {
+
   WindowPtr wp;
   EventRecord *er = (EventRecord *)m;
-  Point p2 = er->where;
-  QWidget * widget = QApplication::widgetAt(p2.h,p2.v,true);
   if(!er->what)
     return 0;
+
+  Point p2 = er->where;
+  QWidget * widget = QApplication::widgetAt(p2.h,p2.v,true);
 
   if ( er->what == updateEvt ) {
     QWidget *twidget = QWidget::find( (WId)er->message );
@@ -1387,8 +1386,8 @@ int QApplication::macProcessEvent(MSG * m)
 	  QPoint plocal(widget->mapFromGlobal( p ));
 	  QMouseEvent qme( QEvent::MouseMove, plocal, p, QMouseEvent::LeftButton, 0);
 	  QApplication::sendEvent( widget, &qme );
-	  qDebug("Mouse has Moved..");
-	} else qDebug("oops..");
+	  qDebug("Mouse has Moved %d %d", plocal.x(), plocal.y());
+	}
       }
     }
     else

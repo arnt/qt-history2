@@ -90,39 +90,6 @@ const unsigned char * p_str(const char * c)
 WId parentw, destroyw = 0;
 WId myactive = -1;
 
-QWidget * get_top( QWidget * widg )
-{
-    // Return top-level window
-    if ( !widg )
-	return 0;
-    QWidget *ret = widg;
-    while ( ret->parentWidget() != 0 ) {
-	ret = ret->parentWidget();
-    }
-    return ret;
-}
-
-//FIXME why not call this something mapLocalToGlobal?
-void make_top( QWidget *widg, int &x, int &y )
-{
-    // Convert from local window to global coords
-    // First get top left of actual window
-    int xOffset = 0;
-    int yOffset = 0;
-
-    if ( !widg || !widg->parentWidget() )
-	return;
-    QWidget *ret = widg;
-    while ( ret->parentWidget() ) {
-	xOffset += ret->x();
-	yOffset += ret->y();
-	ret = ret->parentWidget();
-    }
-    x = x + xOffset;
-    y = y + yOffset;
-}
-
-
 //FIXME How can I create translucent windows? (Need them for pull down menus)
 //FIXME Is this even possible with the Carbon API? (You can't do it on OS9)
 //FIXME Perhaps we need to access the lower level Quartz API?
@@ -199,7 +166,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
 			      visible, procid, behind, goaway, 0);
 	hd = (void *)id;
     } else {
-	mytop = get_top( this );
+	mytop = topLevelWidget( );
 	id = (WId)mytop->hd;
 	hd = mytop->hd;
     }
@@ -659,8 +626,8 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
+    qDebug( "QWidget::update no parameters" );
     update( 0, 0, width(), height() );    
-    qDebug( "QWidget::update" );
 }
 
 /*!
@@ -691,13 +658,9 @@ void QWidget::update( int x, int y, int w, int h )
 	    return;
 	erase( x, y, w, h );
 	Rect r;
-	int x1 = x;
-	int y1 = y;
-	int x2 = x + w;
-	int y2 = y + h;
-	make_top( this, x1, y1 );
-	make_top( this, x2, y2);
-	SetRect( &r, x1, y1, x2, y2 );
+	QPoint p = mapToGlobal(QPoint(x, y));
+	SetRect( &r, p.x(), p.y(), p.x()+w, p.y()+h );
+        qDebug( "QWidget::update( %d %d %d %d )", p.x(), p.y(), w, h );
 	InvalWindowRect( (WindowRef)winId(), &r );
     }
 }
@@ -801,7 +764,7 @@ void QWidget::showWindow()
     setActiveWindow();
     //QApplication::postEvent( this, new QPaintEvent( rect() ) );
     if ( parentWidget() )
-	parentWidget()->update();
+      parentWidget()->update();
     erase( 0, 0, width(), height() );
     show_children( this, 1 );
 }
@@ -1115,42 +1078,44 @@ void QWidget::setBaseSize( int, int )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    qDebug( QString( "QWidget::erase %1 %2 %3 %4" ).arg( x ).arg( y ).arg( w ).arg( h ) );
-    if ( back_type == 1 ) {
-	// solid background
-	Rect r;
-	RGBColor rc;
-	rc.red = bg_col.red()*256;
-	rc.green = bg_col.green()*256;
-	rc.blue = bg_col.blue()*256;
-	this->lockPort();
-	RGBForeColor( &rc );
-	x--;
-	y--;
-	w += 2;
-	h += 2;
-	if ( x < 0 )
-	    x = 0;
-	if ( y < 0 )
-	    y = 0;
-	if ( w > width() )
-	    w = width();
-	if ( h > height() )
-	    h = height();
-	SetRect( &r, x, y, x + w, y + h );
-	PaintRect( &r );
-	this->unlockPort();
-    } else if ( back_type == 2 ) {
-	// pixmap
-	if ( bg_pix ) {
-	    QPainter p;
-	    p.begin( this );
-	    p.drawTiledPixmap( x, y, w, h, *bg_pix, 0, 0 );
-	    p.end();
-	}
-    } else {
-	// nothing
+  qDebug( QString( "QWidget::erase %1 %2 %3 %4" ).arg( x ).arg( y ).arg( w ).arg( h ) );
+  if ( back_type == 1 ) {
+    qDebug("it is a solid background: %s %s", name(), className());
+    // solid background
+    Rect r;
+    RGBColor rc;
+    rc.red = bg_col.red()*256;
+    rc.green = bg_col.green()*256;
+    rc.blue = bg_col.blue()*256;
+    this->lockPort();
+    RGBForeColor( &rc );
+    x--;
+    y--;
+    w += 2;
+    h += 2;
+    if ( x < 0 )
+      x = 0;
+    if ( y < 0 )
+      y = 0;
+    if ( w > width() )
+      w = width();
+    if ( h > height() )
+      h = height();
+    SetRect( &r, x, y, x + w, y + h );
+    PaintRect( &r );
+    this->unlockPort();
+  } else if ( back_type == 2 ) {
+    // pixmap
+    if ( bg_pix ) {
+      QPainter p;
+      p.begin( this );
+      p.drawTiledPixmap( x, y, w, h, *bg_pix, 0, 0 );
+      p.end();
     }
+  } else {
+    qDebug("foooooooo");
+    // nothing
+  }
 }
 
 /*!
@@ -1376,13 +1341,13 @@ void QWidget::setName( const char * )
 
 
 //FIXME: untested
-void QWidget::propagateUpdates(int x, int y, int x2, int y2)
+void QWidget::propagateUpdates(int x, int y, int w, int h)
 {
-  qDebug( "QWidget::propagateUpdates %d %d %dx%d %s %s %d", x, y, x2, y2, name(), className(), isVisible());
+  qDebug( "QWidget::propagateUpdates %d %d %dx%d %s %s %d", x, y, w, h, name(), className(), isVisible());
 
   lockPort();
-  erase( x, y, x2, y2 );
-  QRect paintRect( x, y, x2, y2 );
+  erase( 0, 0, w, h );
+  QRect paintRect( 0, 0, w, h );
   QRegion paintRegion( paintRect );
   QPaintEvent e( paintRegion );
   setWState( WState_InPaintEvent );
@@ -1391,18 +1356,13 @@ void QWidget::propagateUpdates(int x, int y, int x2, int y2)
   unlockPort();
 
   QWidget *childWidget;
-  int a, b, c, d;
   const QObjectList *childList = children();
   if ( childList ) {
     QObjectListIt it(*childList);
     for(QObject *child = it.toLast(); child; child = --it) {
       if ( child->isWidgetType() ) {
 	childWidget = (QWidget *)child;
-	a = x + childWidget->x();
-	b = y + childWidget->y();
-	c = x2 + childWidget->x();
-	d = y2 + childWidget->y();
-	childWidget->propagateUpdates( a, b, c, d );
+	childWidget->propagateUpdates( 0, 0, childWidget->width(), childWidget->height() );
       }
     }	
   }
@@ -1419,13 +1379,23 @@ void QWidget::lockPort()
 
     int x = 0;
     int y = 0;
+    qDebug("lockport: %s %s", name(), className());
+    qDebug("lockport: %d %d", x, y);
+    for(QWidget *p = this; p && p->parentWidget(); p = p->parentWidget()) {
+      x += p->x();
+      y += p->y();
+    }
+    qDebug("lockport: finally %d %d", x, y);
     SetPortWindowPort( (WindowPtr)hd );
-    SetOrigin( 0, 0 );
-    make_top( this, x, y );
+    SetOrigin( -x, -y );
+    
     return; //FIXME: NO CLIPPING
 }
 
-void QWidget::unlockPort() { } //does nothing
+void QWidget::unlockPort() 
+{ 
+  SetOrigin(0, 0);
+} 
 
 BitMap
 *QWidget::portBitMap() const

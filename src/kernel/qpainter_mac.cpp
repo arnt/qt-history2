@@ -644,21 +644,29 @@ void QPainter::drawPoints( const QPointArray&, int, int )
 
 void QPainter::moveTo( int x, int y )
 {
-    qDebug( "QPainter::moveTo implemented untested" );
-    if ( !isActive() )
-        return;
-    if ( testf(ExtDev|VxF|WxF) ) {
-        if ( testf(ExtDev) ) {
-            QPDevCmdParam param[1];
-            QPoint p( x, y );
-            param[0].point = &p;
-            if ( !pdev->cmd(QPaintDevice::PdcMoveTo,this,param) /*|| !hdc*/ )
-                return;
-        }
-        map( x, y, &x, &y );
+  qDebug( "QPainter::moveTo implemented untested" );
+  if ( !isActive() )
+    return;
+  if ( testf(ExtDev|VxF|WxF) ) {
+    if ( testf(ExtDev) ) {
+      QPDevCmdParam param[1];
+      QPoint p( x, y );
+      param[0].point = &p;
+      if ( !pdev->cmd(QPaintDevice::PdcMoveTo,this,param) /*|| !hdc*/ )
+	return;
     }
-    penx = x;
-    peny = y;
+    map( x, y, &x, &y );
+  }
+
+  if(pdev->devType() == QInternal::Widget) {
+    QWidget *foo =  static_cast<QWidget *>(pdev);
+    if(!strcmp(foo->name(), "lcd"))
+      qDebug( "lcdhack: moveTo %d %d", x, y );
+  }
+
+
+  penx = x;
+  peny = y;
 }
 
 /*!
@@ -670,27 +678,33 @@ void QPainter::moveTo( int x, int y )
 
 void QPainter::lineTo( int x, int y )
 {
-    qDebug( "QPainter::lineTo implemented untested" );
-    if ( !isActive() )
-        return;
-    if ( testf(ExtDev|VxF|WxF) ) {
-        if ( testf(ExtDev) ) {
-            QPDevCmdParam param[1];
-            QPoint p( x, y );
-            param[0].point = &p;
-            if ( !pdev->cmd( QPaintDevice::PdcLineTo, this, param ) /*|| !hdc*/ )
-                return;
-        }
-        map( x, y, &x, &y );
+  if ( !isActive() )
+    return;
+  if ( testf(ExtDev|VxF|WxF) ) {
+    if ( testf(ExtDev) ) {
+      QPDevCmdParam param[1];
+      QPoint p( x, y );
+      param[0].point = &p;
+      if ( !pdev->cmd( QPaintDevice::PdcLineTo, this, param ) /*|| !hdc*/ )
+	return;
     }
-    pdev->lockPort();
-    updateBrush();
-    updatePen();
-    MoveTo(penx,peny);
-    LineTo(x,y);
-    penx = x;
-    peny = y;
-    pdev->unlockPort();
+    map( x, y, &x, &y );
+  }
+
+  if(pdev->devType() == QInternal::Widget) {
+    QWidget *foo =  static_cast<QWidget *>(pdev);
+    if(!strcmp(foo->name(), "lcd"))
+      qDebug( "lcdhack: lineTo %d %d", x, y );
+  }
+
+  pdev->lockPort();
+  updateBrush();
+  updatePen();
+  MoveTo(penx,peny);
+  LineTo(x,y);
+  penx = x;
+  peny = y;
+  pdev->unlockPort();
 }
 
 /*!
@@ -702,26 +716,25 @@ void QPainter::lineTo( int x, int y )
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 {
-    qDebug( "QPainter::drawLine implemented untested" );
-    if ( !isActive() )
-        return;
-    if ( testf(ExtDev|VxF|WxF) ) {
-        if ( testf(ExtDev) ) {
-            QPDevCmdParam param[2];
-            QPoint p1(x1, y1), p2(x2, y2);
-            param[0].point = &p1;
-            param[1].point = &p2;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawLine, this, param ) /*|| !hdc*/ )
-                return;
-        }
-        map( x1, y1, &x1, &y1 );
-        map( x2, y2, &x2, &y2 );
+  if ( !isActive() )
+    return;
+  if ( testf(ExtDev|VxF|WxF) ) {
+    if ( testf(ExtDev) ) {
+      QPDevCmdParam param[2];
+      QPoint p1(x1, y1), p2(x2, y2);
+      param[0].point = &p1;
+      param[1].point = &p2;
+      if ( !pdev->cmd( QPaintDevice::PdcDrawLine, this, param ) /*|| !hdc*/ )
+	return;
     }
-    pdev->lockPort();
-    updatePen();
-    MoveTo(x1,y1);
-    LineTo(x2,y2);
-    pdev->unlockPort();
+    map( x1, y1, &x1, &y1 );
+    map( x2, y2, &x2, &y2 );
+  }
+  pdev->lockPort();
+  updatePen();
+  MoveTo(x1,y1);
+  LineTo(x2,y2);
+  pdev->unlockPort();
 }
 
 
