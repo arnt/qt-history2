@@ -775,7 +775,7 @@ void QTranslator::squeeze( SaveMode mode )
 		hTable[i] = (Q_UINT16) ( upto >> 1 );
 		do {
 		    uint len = (uint) qstrlen( con );
-		    len = QMIN( len, 255 );
+		    len = QMIN( len, 255u );
 		    t << (Q_UINT8) len;
 		    t.writeRawBytes( con, len );
 		    upto += 1 + len;
