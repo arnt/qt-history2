@@ -113,6 +113,8 @@ public:
     void setMaximum(double max);
     void clearMaximum();
 
+    void setRange(double min, double max);
+
     int precision() const;
     void setPrecision(int prec);
     void clearPrecision();

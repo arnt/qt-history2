@@ -826,6 +826,27 @@ void QDoubleSpinBox::clearMaximum()
 }
 
 /*!
+    Convenience function to set minimum and maximum values with one
+    function call.
+
+    setRange(min, max);
+
+       is analogous to:
+
+    setMinimum(min);
+    setMaximum(max);
+
+    \sa setMinimum(), maximum(), setMaximum(), clearMinimum(),
+    setMinimum(), maximum(), setMaximum(), clearMinimum()
+*/
+
+void QDoubleSpinBox::setRange(double min, double max)
+{
+    d->setBoundary(Minimum, QCoreVariant(qMin(min,max)));
+    d->setBoundary(Maximum, QCoreVariant(qMax(min,max)));
+}
+
+/*!
      \property QDoubleSpinBox::precision
 
      \brief the precision of the spin box

@@ -227,13 +227,14 @@ void QDateTimeEdit::setTime(const QTime &time)
     \brief the minimum date of the date time edit
 
     When setting this property the \l QDateTimeEdit::maximumDate is
-    adjusted if necessary, to ensure that the range remains valid.
+    adjusted if necessary, to ensure that the range remains valid. If \a min is
+    not a valid QDate object this function does nothing.
 
     The default minimum value can be restored with clearMinimum()
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(), setMaximumTime(),
-    clearMinimum(), setTimeRange(), setDateRange()
+    clearMinimum(), setTimeRange(), setDateRange(), QDate::isValid()
 */
 
 QDate QDateTimeEdit::minimumDate() const
@@ -258,13 +259,14 @@ void QDateTimeEdit::clearMinimumDate()
     \brief the maximum date of the date time edit
 
     When setting this property the \l QDateTimeEdit::minimumDate is
-    adjusted if necessary to ensure that the range remains valid.
+    adjusted if necessary to ensure that the range remains valid. If \a max is
+    not a valid QDate object this function does nothing.
 
     The default minimum value can be restored with clearMinimumDate()
 
-    \sa setMinimumDate(), maximumDate(), setMaximumDate(),
-    clearMinimumDate(), setMinimumTime(), maximumTime(),
-    setMaximumTime(), clearMinimumTime(), setTimeRange(), setDateRange()
+    \sa setMinimumDate(), maximumDate(), setMaximumDate(), clearMinimumDate(),
+    setMinimumTime(), maximumTime(), setMaximumTime(), clearMinimumTime(),
+    setTimeRange(), setDateRange(), QDate::isValid()
 */
 
 QDate QDateTimeEdit::maximumDate() const
@@ -289,13 +291,14 @@ void QDateTimeEdit::clearMaximumDate()
     \brief the minimum time of the date time edit
 
     When setting this property the \l QDateTimeEdit::maximumTime is
-    adjusted if necessary, to ensure that the range remains valid.
+    adjusted if necessary, to ensure that the range remains valid. If \a min is
+    not a valid QTime object this function does nothing.
 
     The default minimum value can be restored with clearMinimumTime()
 
     \sa setMinimumTime(), maximumTime(), setMaximumTime(),
     clearMinimumTime(), setMinimumDate(), maximumDate(), setMaximumDate(),
-    clearMinimumDate(), setTimeRange(), setDateRange()
+    clearMinimumDate(), setTimeRange(), setDateRange(), QTime::isValid()
 */
 
 QTime QDateTimeEdit::minimumTime() const
@@ -319,15 +322,16 @@ void QDateTimeEdit::clearMinimumTime()
 
     \brief the maximum time of the date time edit
 
-    When setting this property the \l QDateTimeEdit::maximumTime is
-    adjusted if necessary to ensure that the range remains valid.
+    When setting this property the \l QDateTimeEdit::maximumTime is adjusted if
+    necessary to ensure that the range remains valid. If \a max is not a valid
+    QTime object this function does nothing.
 
     The default minimum value can be restored with clearMinimumDate()
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(),
     setMaximumTime(), clearMinimumTime(), setTimeRange(),
-    setDateRange()
+    setDateRange(), QTime::isValid()
 */
 
 QTime QDateTimeEdit::maximumTime() const
@@ -352,20 +356,24 @@ void QDateTimeEdit::clearMaximumTime()
 
     setDateRange(min, max);
 
-       is equivalent to:
+       is analogous to:
 
     setMinimumDate(min);
     setMaximumDate(max);
 
+    If either \a min or \a max are not valid this function does nothing.
+
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(),
-    setMaximumTime(), clearMinimumTime()
+    setMaximumTime(), clearMinimumTime(), QDate::isValid()
 */
 
 void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
 {
-    setMinimumDate(min);
-    setMaximumDate(max);
+    if (min.isValid() && max.isValid()) {
+        d->setBoundary(Minimum, QCoreVariant(QDateTime(qMin(min, max), d->minimum.toTime())));
+        d->setBoundary(Maximum, QCoreVariant(QDateTime(qMax(min, max), d->maximum.toTime())));
+    }
 }
 
 /*!
@@ -374,20 +382,24 @@ void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
 
     setTimeRange(min, max);
 
-       is equivalent to:
+       is analogous to:
 
     setMinimumTime(min);
     setMaximumTime(max);
 
+    If either \a min or \a max are not valid this function does nothing.
+
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(),
-    setMaximumTime(), clearMinimumTime()
+    setMaximumTime(), clearMinimumTime(), QTime::isValid()
 */
 
 void QDateTimeEdit::setTimeRange(const QTime &min, const QTime &max)
 {
-    setMinimumTime(min);
-    setMaximumTime(max);
+    if (min.isValid() && max.isValid()) {
+        d->setBoundary(Minimum, QCoreVariant(QDateTime(d->maximum.toDate(), qMin(min, max))));
+        d->setBoundary(Maximum, QCoreVariant(QDateTime(d->maximum.toDate(), qMax(min, max))));
+    }
 }
 
 /*!
