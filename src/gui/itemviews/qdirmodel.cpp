@@ -43,8 +43,10 @@ public:
     QIcon harddisk;
     QIcon floppy;
     QIcon cdrom;
+    QIcon ram;
     QIcon network;
     QIcon computer;
+    QIcon generic;
 
     QFileIconProvider *q_ptr;
 };
@@ -63,6 +65,7 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
     harddisk = QIcon(style->standardPixmap(QStyle::SP_DriveHDIcon));
     floppy = QIcon(style->standardPixmap(QStyle::SP_DriveFDIcon));
     cdrom = QIcon(style->standardPixmap(QStyle::SP_DriveCDIcon));
+    generic = ram = harddisk; // FIXME
     network = QIcon(style->standardPixmap(QStyle::SP_DriveNetIcon));
     computer = QIcon(style->standardPixmap(QStyle::SP_ComputerIcon));
 }
@@ -106,24 +109,26 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
     {
         uint type = DRIVE_UNKNOWN;
 	QT_WA({ type = GetDriveTypeW(info.absoluteFilePath().utf16()); },
-	      { type = GetDriveTypeA(info.absoluteFilePath().toLocal8Bit()); });
+        { type = GetDriveTypeA(info.absoluteFilePath().toLocal8Bit()); });
 	switch (type) {
 	case DRIVE_REMOVABLE:
-	  return d_ptr->floppy;
+            return d_ptr->floppy;
 	case DRIVE_FIXED:
-	  return d_ptr->harddisk;
+            return d_ptr->harddisk;
 	case DRIVE_REMOTE:
-	  return d_ptr->network;
+            return d_ptr->network;
 	case DRIVE_CDROM:
-	  return d_ptr->cdrom;
-	case DRIVE_RAMDISK: // FIXME: we should have a "ram" icon
+            return d_ptr->cdrom;
+	case DRIVE_RAMDISK:
+            return d_ptr->ram;
 	case DRIVE_UNKNOWN:
+            return d_ptr->generic;
 	case DRIVE_NO_ROOT_DIR:
-	  return QIcon(); // FIXME: should we have a "generic" or "unknown" drive icon ?
+            return QIcon();
 	}
     }
 #else
-  return d_ptr->harddisk;
+  return d_ptr->generic;
 #endif
   if (info.isFile())
     if (info.isSymLink())
