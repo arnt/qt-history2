@@ -261,6 +261,7 @@ CFG_QWS_FREETYPE=yes
 CFG_SQL_AVAILABLE=
 CFG_SQL_AUTODETECTED=
 CFG_GFX_AVAILABLE=
+CFG_STYLE_AVAILABLE=
 CFG_TABLET=auto
 CFG_XKB=auto
 CFG_NIS=auto
@@ -298,15 +299,16 @@ QT_INSTALL_DATA=
 
 
 #-------------------------------------------------------------------------------
-# check SQL drivers available in this package
+# check SQL drivers and styles available in this package
 #-------------------------------------------------------------------------------
 
-if echo $MODULES | grep sql >/dev/null; then
-    CFG_SQL_AVAILABLE=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
-    # normalize whitespace
-    CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
-fi
+CFG_SQL_AVAILABLE=`find $relpath/plugins/src/sqldrivers/* -prune -type d -exec basename {} \;`
+# normalize whitespace
+CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
 
+CFG_STYLE_AVAILABLE=`find $relpath/plugins/src/styles/* -prune -type d -exec basename {} \;`
+# normalize whitespace
+CFG_STYLE_AVAILABLE=`echo $CFG_STYLE_AVAILABLE`
 
 #-------------------------------------------------------------------------------
 # parse command line arguments
@@ -858,10 +860,13 @@ while [ "$#" -gt 0 ]; do
 	    esac
 	else
 	    if [ "$VAR" = "style" ]; then
-		case "$VAL" in
-		mac|aqua|cde|motifplus|interlace|platinum|windowsxp|sgi|compact|windows|motif) ;;
-		*) ERROR=yes ;;
-		esac
+		ERROR=yes
+		for d in $CFG_STYLE_AVAILABLE; do
+		    if [ "$VAL" == "$d" ]; then
+			ERROR=no
+			break
+		    fi
+		done
 	    elif [ "$VAR" = "sql" ]; then
 		ERROR=yes
 		for d in $CFG_SQL_AVAILABLE; do
