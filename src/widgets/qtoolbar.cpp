@@ -115,6 +115,10 @@ public slots:
 protected:
     void styleChange( QStyle& );
     void paintEvent( QPaintEvent * );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
 private:
     Orientation orient;
 };
@@ -200,6 +204,14 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
     style().drawToolBarSeparator( &p, x(), y(), width(), height(),
 				  colorGroup(), orient );
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QToolBarSeparator::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Separator );
+}
+#endif
+
 
 #include "qtoolbar.moc"
 
@@ -633,7 +645,7 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 */
 QAccessibleInterface *QToolBar::accessibleInterface()
 {
-    return new QAccessibleWidget( this, QAccessible::ToolBar );
+    return new QAccessibleWidget( this, QAccessible::ToolBar, label() );
 }
 #endif
 
