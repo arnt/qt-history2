@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xembed/qxembed.h#3 $
+** $Id: //depot/qt/main/extensions/xembed/qxembed.h#4 $
 **
 ** Definition of QXEmbed class
 **
@@ -27,35 +27,56 @@
 #define QXEMBED_H
 
 #include <qwidget.h>
+#include <qvaluelist.h>
 
+/*
+  Documentation for this class is in the cpp-file!
+ */
+
+
+class QXEmbedData;
 class QXEmbed : public QWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  QXEmbed(QWidget *parent=0, const char *name=0);
-  ~QXEmbed();
+    QXEmbed( QWidget *parent=0, const char *name=0, WFlags f = 0 );
+    ~QXEmbed();
 
-  void embed(WId w);
+    void embed( WId w );
+    WId embeddedWinId() const;
+
+    static void embedClientIntoWindow( QWidget* client, WId window );
+    static bool processClientCmdline( QWidget* client, int& argc, char ** argc );
+
+
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
+    QSizePolicy sizePolicy() const;
+
 
 protected:
-  void keyPressEvent( QKeyEvent * );
-  void keyReleaseEvent( QKeyEvent * );
-  void focusInEvent( QFocusEvent * );
-  void focusOutEvent( QFocusEvent * );
-  void resizeEvent(QResizeEvent *);
-  void showEvent( QShowEvent * );
+    void keyPressEvent( QKeyEvent * );
+    void keyReleaseEvent( QKeyEvent * );
+    void focusInEvent( QFocusEvent * );
+    void focusOutEvent( QFocusEvent * );
+    void resizeEvent(QResizeEvent *);
+    void showEvent( QShowEvent * );
+    void wheelEvent( QWheelEvent * );
+    bool x11Event( XEvent* );
 
-  bool focusNextPrevChild( bool next );
+    virtual void windowChanged( WId );
+
+    bool focusNextPrevChild( bool next );
 
 private:
 
- void sendFocusIn();
- void sendFocusOut();
-
-  WId  window;
-
+    void sendFocusIn();
+    void sendFocusOut();
+    WId window;
+    bool window_supports_tab_focus;
+    QXEmbedData* d;
 };
 
 
