@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#140 $
+** $Id: //depot/qt/main/src/tools/qstring.h#141 $
 **
 ** Definition of the QString class, and related Unicode
 ** functions.
@@ -127,6 +127,7 @@ public:
     bool isMark() const;
     bool isLetter() const;
     bool isNumber() const;
+    bool isLetterOrNumber() const;
     bool isDigit() const;
 
     int digitValue() const;
@@ -488,6 +489,7 @@ public:
     bool isMark() const { return s.constref(p).isMark(); }
     bool isLetter() const { return s.constref(p).isLetter(); }
     bool isNumber() const { return s.constref(p).isNumber(); }
+    bool isLetterOrNumber() { return s.constref(p).isLetterOrNumber(); }
     bool isDigit() const { return s.constref(p).isDigit(); }
 
     int digitValue() const { return s.constref(p).digitValue(); }

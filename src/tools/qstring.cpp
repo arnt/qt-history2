@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#284 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#285 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9619,9 +9619,9 @@ These fuctions are: isNull() (returns TRUE if the character is
 U+0000), isPrint() (TRUE if the character is any sort of printable
 character, including whitespace), isPunct() (any sort of punctation),
 isMark() (Unicode Marks), isLetter (letters), isNumber() (any sort of
-numeric characters) and isDigit() (decimal digits).  All of these are
-wrappers around category(), which returns the unicode-defined category
-of each character.
+numeric characters), isLetterOrNumber(),  and isDigit() (decimal digits).
+All of these are wrappers around category(), which returns the
+unicode-defined category of each character.
 
 QChar further provides direction(), which indicates the "natural"
 writing direction of this character, joining(), which indicates how
@@ -9929,6 +9929,17 @@ bool QChar::isNumber() const
     Category c = category();
     return c >= Number_DecimalDigit && c <= Number_Other;
 }
+
+/*!
+  Returns whether the character is a letter or number (Letter_* or Number_* categories).
+*/
+bool QChar::isLetterOrNumber() const
+{
+    Category c = category();
+    return (c >= Letter_Uppercase && c <= Letter_Other)
+	|| (c >= Number_DecimalDigit && c <= Number_Other);
+}
+
 
 /*!
   Returns whether the character is a decimal digit (Number_DecimalDigit).
