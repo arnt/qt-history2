@@ -283,6 +283,9 @@ private:
 
     void editWidgets();
 
+    void updateWidgets();
+    void bfs(QWidget *widget);
+
 private:
     Feature m_feature;
     FormEditor *m_core;

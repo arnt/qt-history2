@@ -44,6 +44,8 @@ bool FormWindowCursor::movePosition(MoveOperation op, MoveMode mode)
     if (widgetCount() == 0)
         return false;
 
+    m_iterator = m_formWindow->widgets().indexOf(selectedWidget(0));
+
     if (mode == MoveAnchor)
         m_formWindow->clearSelection(false);
 
