@@ -135,24 +135,76 @@ public:
   \brief The QHeader class provides a table header.
   \ingroup advanced
 
-  This class provides a table header as used in many spreadsheets. QHeader
-  can be used vertically or horizontally (see setOrientation()).
+  This class provides a table header, e.g. a vertical header to display
+  row labels, or a horizontal header to display column labels. The
+  orientation of the header is set with setOrientation().
 
-  With addLabel() you can add sections, and with removeLabel() you can remove
-  them. If you enabled clicking for one or all sections (see setClickEnabled()),
-  the user can reorder the sections and click on them, which may be used for
-  sorting (see also setSortIndicator()). This feature is turned on by default.
+  A header is composed of one or more \e sections, each of which may
+  display a text label and an iconset. 
 
-  So if the user reorders the sections by clicking and moving them with the mouse, the index
-  of a section may change. This means that the section you inserted at the first
-  position might then be displayed at a different index. To get the index at which e.g
-  the first section is displayed, use mapToIndex() with 0 as argument for our example.
+  Sections are added with addLabel() and removed with removeLabel(). The
+  label and iconset can be set with setLabel().
 
-  If you want to know which section is displayed at index 3, for example, use
-  mapToSection(3).
+  If setMovingEnabled() is TRUE the user may drag a section from one
+  position to another. If the user moves a section the positions at
+  which sections were added (with addLabel()) may not be the same after
+  the user has moved a section. You don't have to worry about this in
+  practice because the QHeader API works in terms of section numbers, so
+  it doesn't matter where a particular section has been moved to. If you
+  want the current index position of a section call mapToIndex() giving
+  it the section number. (This is the number returned by the addLabel()
+  call which created the section.) If you want to get the section number
+  of a section at a particular index position call mapToSection() giving
+  it the index number. 
+
+  <table border="1" cellspacing="0" cellpadding="1">
+  <tr><th colspan="4">Original section ordering</th></tr>
+  <tr><td align="center">Sect 0</td><td align="center">Sect 1</td>
+  <td align="center">Sect 2</td><td align="center">Sect 3</td></tr>
+  <tr><th colspan="4">Ordering after the user moves a section</th></tr>
+  <tr><td align="center">Sect 0</td><td align="center">Sect 2</td>
+  <td align="center">Sect 3</td><td align="center">Sect 1</td></tr>
+  <tr><th colspan="4">The map functions</th></tr>
+  <tr><td align="center">Call with<br>index <i>i</i></td>
+  <td align="center">Returns<br>Section</td>
+  <td align="center">Call with<br>section <i>s</i></td>
+  <td align="center">Returns<br>Index</td></tr>
+  <tr><td>mapToSection(0)</td><td align="center">0</td>
+  <td>mapToIndex(0)</td><td align="center">0</td></tr>
+  <tr><td>mapToSection(1)</td><td align="center">2</td>
+  <td>mapToIndex(1)</td><td align="center">3</td></tr>
+  <tr><td>mapToSection(2)</td><td align="center">3</td>
+  <td>mapToIndex(2)</td><td align="center">1</td></tr>
+  <tr><td>mapToSection(3)</td><td align="center">1</td>
+  <td>mapToIndex(3)</td><td align="center">2</td></tr>
+  </table>
+  In the example above, if we wanted to find out which section is at
+  index 3 we'd call mapToSection(3) and get a section number of 1 since
+  section 1 was moved. Similarly, if we wanted to know which index
+  position section 2 occupied we'd call mapToIndex(2) and get an index
+  of 1.
+
+  This means that a specific column index (for a
+  horizontal header) may not be the index of the original column.
+
+  With addLabel() you can add sections, and with removeLabel() you can
+  remove them. If you enabled clicking for one or all sections (see
+  setClickEnabled()), the user can reorder the sections and click on
+  them, which may be used for sorting (see also setSortIndicator()).
+  This feature is turned on by default.
+
+  So if the user reorders the sections by clicking and moving them with
+  the mouse, the index of a section may change. This means that the
+  section you inserted at the first position might then be displayed at
+  a different index. To get the index at which e.g the first section is
+  displayed, use mapToIndex() with 0 as argument for our example.
+
+  If you want to know which section is displayed at index 3, for
+  example, use mapToSection(3).
 
   You can always work with the section numbers as you inserted them
-  without caring about the index at which they are displayed at the moment. The API of QHeader also works with the section numbers.
+  without caring about the index at which they are displayed at the
+  moment. The API of QHeader also works with the section numbers.
 
   <img src=qheader-m.png> <img src=qheader-w.png>
 
