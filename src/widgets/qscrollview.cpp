@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#91 $
 **
 ** Implementation of QScrollView class
 **
@@ -444,20 +444,21 @@ void QScrollView::setVBarGeometry( QScrollBar& vbar,
 }
 
 
-/*! Returns the viewport size for \a size.
+/*! Returns the viewport size for size (\a x, \a y).
 
-  The viewport size depends on \a size (the size of the contents), the
+  The viewport size depends on \a x,y (the size of the contents), the
   size of this widget, the modes of the horizontal and vertical scroll
   bars.
 
   This function permits widgets that can trade vertical and horizontal
   space for each other to control scroll bar appearance better.  For
-  example, a word processor or web browser can avoid a vertical scroll
-  bar and still use the last few pixels of each line.
+  example, a word processor or web browser can control the width of
+  the right margin accurately, whether there needs to be a vertical
+  scroll bar or not.
 */
 
 
-QSize QScrollView::viewportSize( const QSize & size ) const
+QSize QScrollView::viewportSize( int x, int y ) const
 {
     int fw = frameWidth();
     int lmarg = fw+d->l_marg;
@@ -473,8 +474,8 @@ QSize QScrollView::viewportSize( const QSize & size ) const
 
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
-	needh = w-lmarg-rmarg < size.width();
-	needv = h-tmarg-bmarg < size.height();
+	needh = w-lmarg-rmarg < x;
+	needv = h-tmarg-bmarg < y;
 
 	// Do we intend to show the scrollbar?
 	if (d->hMode == AlwaysOn)
@@ -492,12 +493,12 @@ QSize QScrollView::viewportSize( const QSize & size ) const
 	    showv = needv;
 
 	// Given other scrollbar will be shown, NOW do we need one?
-	if ( showh && h-sbDim-tmarg-bmarg < size.height() ) {
+	if ( showh && h-sbDim-tmarg-bmarg < y ) {
 	    needv=TRUE;
 	    if (d->vMode == Auto)
 		showv=TRUE;
 	}
-	if ( showv && w-sbDim-lmarg-rmarg < size.width() ) {
+	if ( showv && w-sbDim-lmarg-rmarg < x ) {
 	    needh=TRUE;
 	    if (d->hMode == Auto)
 		showh=TRUE;
@@ -520,7 +521,7 @@ QSize QScrollView::viewportSize( const QSize & size ) const
 */
 void QScrollView::updateScrollBars()
 {
-    // I support this should use viewportSize()... but it needs 
+    // I support this should use viewportSize()... but it needs
     // so many of the temporary variables from viewportSize.  hm.
     int fw = frameWidth();
     int lmarg = fw+d->l_marg;

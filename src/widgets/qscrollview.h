@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#36 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#37 $
 **
 ** Definition of QScrollView class
 **
@@ -86,7 +86,7 @@ public:
     void	viewportToContent(int vx, int vy, int& x, int& y);
     void	enableClipper(bool y);
 
-    QSize	viewportSize( const QSize & ) const;
+    QSize	viewportSize( int, int ) const;
 
 signals:
     void	contentsMoving(int x, int y);
