@@ -51,7 +51,7 @@ clean::
 	rm -f $(OBJS) $(QOBJS)
 
 distclean:: clean
-	rm -rf qmake .deps
+	rm -rf @BUILD_PATH/bin/qmake .deps
 
 depend:
 	makedepend $(CXXFLAGS) -D__MAKEDEPEND__ $(DEPEND_SRC)
