@@ -2102,6 +2102,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	// I guess we may as well always respect vertical alignment.
         if ( align & AlignBottom )
     	    yo = height() - icon->height();
+	else if ( align & AlignTop )
+	    yo = 0;
 
 	// respect horizontal alignment when there is no text for an item.
 	if ( text(column).isEmpty() ) {
