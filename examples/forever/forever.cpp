@@ -1,4 +1,3 @@
-//depot/qt/main/examples/forever/forever.cpp#18 - integrate change 112192 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.

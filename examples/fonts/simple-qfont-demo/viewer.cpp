@@ -1,5 +1,3 @@
-/* $Id$ */
-
 #include "viewer.h"
 #include <qstring.h>
 #include <qstringlist.h>

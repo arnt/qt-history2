@@ -1,7 +1,3 @@
-/*
-$Id$
-*/
-
 #include "structureparser.h"
 
 #include <qstring.h>
