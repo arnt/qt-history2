@@ -18,6 +18,10 @@
 #include "qfiledefs_p.h"
 #include <limits.h>
 
+#ifndef LLONG_MAX
+#define LLONG_MAX Q_INT64_C(9223372036854775807)
+#endif
+
 bool qt_file_access( const QString& fn, int t )
 {
     if ( fn.isEmpty() )

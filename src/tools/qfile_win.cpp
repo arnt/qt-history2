@@ -18,6 +18,10 @@
 #include "qfiledefs_p.h"
 #include <limits.h>
 
+#ifndef LLONG_MAX
+#define LLONG_MAX Q_INT64_C(9223372036854775807)
+#endif
+
 extern const char* qt_fileerr_read;
 
 QByteArray qt_win95Name(const QString s)
@@ -245,7 +249,7 @@ bool QFile::open( int m, FILE *f )
     if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
-	length = _I64_MAX;
+	length = LLONG_MAX;
     } else {
 	length = (int)st.st_size;
     }
@@ -270,7 +274,7 @@ bool QFile::open( int m, int f )
     if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
-	length = _I64_MAX;
+	length = LLONG_MAX;
     } else {
 	length = (int)st.st_size;
     }

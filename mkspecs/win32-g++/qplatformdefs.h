@@ -37,11 +37,6 @@ typedef enum {
 } EXTENDED_NAME_FORMAT, *PEXTENDED_NAME_FORMAT;
 #endif
 
-// these are not defined on windows and the _I64XX are not in mingw
-#define _I64_MAX	LLONG_MAX    
-#define _I64_MIN	LLONG_MIN
-#define _UI64_MAX	ULLONG_MAX
-
 #define Q_FS_FAT
 #ifdef QT_LARGEFILE_SUPPORT
 #define QT_STATBUF		struct _stati64		// non-ANSI defs

@@ -31,7 +31,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include <limits.h>
 
 #ifndef LLONG_MAX
-# define LLONG_MAX LONG_LONG_MAX
+#define LLONG_MAX Q_INT64_C(9223372036854775807)
 #endif
 
 extern const char* qt_fileerr_read;
