@@ -248,7 +248,8 @@ inline int QString::grow (int size)
     \sa isEmpty()
 */
 
-/*!
+/*! \fn QString::QString(const char *s)
+
     Constructs a string that is a deep copy of \a s, interpreted as
     a classic C string.
 
@@ -262,33 +263,6 @@ inline int QString::grow (int size)
     fromLocal8Bit(), and fromUtf8(). Or whatever encoding is
     appropriate for the 8-bit data you have.
 */
-QString::QString(const char *s)
-{
-    if (!s) {
-	d = &shared_null;
-	++d->ref;
-    } else if (!*s) {
-	d = &shared_empty;
-	++d->ref;
-#ifndef QT_NO_TEXTCODEC
-    } else if (codecForCStrings) {
-	d = &shared_null;
-	++d->ref;
-	*this = fromAscii(s);
-#endif
-    } else {
-	int len = strlen(s);
-	d = (Data*) qMalloc(sizeof(Data)+len*sizeof(QChar));
-	d->ref = 1;
-	d->alloc = d->size = len;
-	d->c = 0;
-	d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
-	d->data = d->array;
-	ushort *i = d->array;
-	while ((*i++ = (uchar) *s++))
-	    ;
-    }
-}
 
 /*! \fn QString::QString(const QString &s) :
 
@@ -585,6 +559,23 @@ QString& QString::insert(int i, const QChar *str, int len)
     return *this;
 }
 
+QString& QString::insert(int i, const QLatin1String &str)
+{
+    unsigned char *s = (unsigned char *)str.latin1();
+    if (i < 0 || !s || !(*s))
+	return *this;
+    d->cache = 0;
+
+    int len = strlen(str.latin1());
+    expand(qMax(d->size, i) + len - 1);
+
+    ::memmove(d->data + i + len, d->data + i, (d->size - i - len) * sizeof(QChar));
+    for (int j = i; j < i+len; ++j)
+	d->data[j] = s[j];
+    return *this;
+}
+
+
 /*!
     Appends \a c to the string and returns a reference to the string.
 */
@@ -607,7 +598,7 @@ QString& QString::append(const QLatin1String &str)
     if (s) {
 #ifndef QT_NO_TEXTCODEC
 	if (codecForCStrings)
-	    return append(QString(s));
+	    return append(QString::fromAscii(s));
 #endif
 	d->cache = 0;
 	int len = strlen(s);
@@ -636,15 +627,16 @@ QString& QString::append(const QString& s)
     return *this;
 }
 
-/*!
+/*! \fn QString& QString::prepend(QChar c)
+
     Prepends \a c to the string and returns a reference to the string.
 */
-QString& QString::prepend(QChar c) { return insert(0, c); }
 
-/*! \overload
+/*!\fn QString& QString::prepend(const QString& s)
+  \overload
     Prependsd \a s to the string and returns a reference to the string.
 */
-QString& QString::prepend(const QString& s) { return insert(0, s); }
+
 
 
 
@@ -806,18 +798,23 @@ QString& QString::replace(QChar before, QChar after, QString::CaseSensitivity cs
     return *this;
 }
 
-bool operator==(const QString &s1, const QString &s2)
+bool QString::operator==(const QString &s) const
 {
-    return (s1.size() == s2.size()) &&
-	(memcmp((char*)s1.unicode(),(char*)s2.unicode(),
-		s1.size()*sizeof(QChar))==0);
+    return (size() == s.size()) &&
+	(memcmp((char*)unicode(),(char*)s.unicode(), size()*sizeof(QChar))==0);
 }
 
+bool QString::operator<(const QString &s) const
+{ return ucstrcmp(*this,s) < 0; }
 
-bool operator==(const QString &a, const QLatin1String &b)
+bool QString::operator>(const QString &s) const
+{ return ucstrcmp(*this,s) > 0; }
+
+
+bool QString::operator==(const QLatin1String &s) const
 {
-    const unsigned short *uc = a.ucs2();
-    const unsigned char *c = (unsigned char *) b.latin1();
+    const unsigned short *uc = ucs2();
+    const unsigned char *c = (unsigned char *) s.latin1();
 
     while (*uc == *c) {
 	if (!*uc)
@@ -828,25 +825,10 @@ bool operator==(const QString &a, const QLatin1String &b)
     return false;
 }
 
-bool operator>(const QString &a, const QLatin1String &b)
+bool QString::operator<(const QLatin1String &s) const
 {
-    const unsigned short *uc = a.ucs2();
-    const unsigned char *c = (unsigned char *) b.latin1();
-
-    while (*uc == *c) {
-	if (!*uc)
-	    return false;
-	++uc;
-	++c;
-    }
-    return *uc > *c;
-
-}
-
-bool operator<(const QString &a, const QLatin1String &b)
-{
-    const unsigned short *uc = a.ucs2();
-    const unsigned char *c = (unsigned char *) b.latin1();
+    const unsigned short *uc = ucs2();
+    const unsigned char *c = (unsigned char *) s.latin1();
 
     while (*uc == *c) {
 	if (!*uc)
@@ -855,6 +837,21 @@ bool operator<(const QString &a, const QLatin1String &b)
 	++c;
     }
     return *uc < *c;
+
+}
+
+bool QString::operator>(const QLatin1String &s) const
+{
+    const unsigned short *uc = ucs2();
+    const unsigned char *c = (unsigned char *) s.latin1();
+
+    while (*uc == *c) {
+	if (!*uc)
+	    return false;
+	++uc;
+	++c;
+    }
+    return *uc > *c;
 
 }
 
@@ -2039,68 +2036,6 @@ bool QString::endsWith(const QString& s, QString::CaseSensitivity cs) const
     return true;
 }
 
-bool operator!=(const QString &s1, const QString &s2)
-{ return !(s1==s2); }
-
-bool operator<(const QString &s1, const QString &s2)
-{ return ucstrcmp(s1,s2) < 0; }
-
-bool operator<=(const QString &s1, const QString &s2)
-{ return ucstrcmp(s1,s2) <= 0; }
-
-bool operator>(const QString &s1, const QString &s2)
-{ return ucstrcmp(s1,s2) > 0; }
-
-bool operator>=(const QString &s1, const QString &s2)
-{ return ucstrcmp(s1,s2) >= 0; }
-
-bool operator==(const QString &s1, const char *s2)
-{
-    if (!s2)
-	return (s1 == QString());
-
-#ifndef QT_NO_TEXTCODEC
-    if ( QTextCodec::codecForCStrings() )
-	return (s1 == QString::fromAscii(s2));
-#endif
-
-    int len = s1.length();
-    const QChar *uc = s1.unicode();
-    while (len) {
-	if (!(*s2) || uc->unicode() != (uchar) *s2)
-	    return false;
-	++uc;
-	++s2;
-	--len;
-    }
-    return !*s2;
-}
-
-
-bool operator<(const QString &s1, const char *s2)
-{ return ucstrcmp(s1,s2) < 0; }
-
-bool operator<(const char *s1, const QString &s2)
-{ return ucstrcmp(s1,s2) < 0; }
-
-bool operator<=(const QString &s1, const char *s2)
-{ return ucstrcmp(s1,s2) <= 0; }
-
-bool operator<=(const char *s1, const QString &s2)
-{ return ucstrcmp(s1,s2) <= 0; }
-
-bool operator>(const QString &s1, const char *s2)
-{ return ucstrcmp(s1,s2) > 0; }
-
-bool operator>(const char *s1, const QString &s2)
-{ return ucstrcmp(s1,s2) > 0; }
-
-bool operator>=(const QString &s1, const char *s2)
-{ return ucstrcmp(s1,s2) >= 0; }
-
-bool operator>=(const char *s1, const QString &s2)
-{ return ucstrcmp(s1,s2) >= 0; }
-
 
 /*! \fn const char *QString::latin1() const
 
@@ -2686,8 +2621,10 @@ QString QString::trimmed() const
 	    end--;
     }
     int l = end - start + 1;
-    if (l <= 0)
-    	return QString("");
+    if (l <= 0) {
+	++shared_empty.ref;
+    	return QString(&shared_empty);
+    }
     return QString(s+start, l);
 }
 
@@ -3432,8 +3369,8 @@ QString &QString::sprintf( const char* cformat, ... )
 	    	++c;
 	} while (!no_more_flags);
 
-	if (*c == '\0') {
-	    result.append(escape_start); // incomplete escape, treat as non-escape text
+	if (*c == QLatin1Char('\0')) {
+	    result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
 	    break;
 	}
 
@@ -3456,7 +3393,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	}
 
 	if (*c == '\0') {
-	    result.append(escape_start); // incomplete escape, treat as non-escape text
+	    result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
 	    break;
 	}
 
@@ -3482,7 +3419,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	}
 
 	if (*c == '\0') {
-	    result.append(escape_start); // incomplete escape, treat as non-escape text
+	    result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
 	    break;
 	}
 
@@ -3535,7 +3472,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	}
 
 	if (*c == '\0') {
-	    result.append(escape_start); // incomplete escape, treat as non-escape text
+	    result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
 	    break;
 	}
 
@@ -3636,7 +3573,7 @@ QString &QString::sprintf( const char* cformat, ... )
 		    	++ch;
 		    subst.setUnicodeCodes(buff, ch - buff);
 		} else
-	    	    subst = va_arg(ap, const char*);
+	    	    subst = QLatin1String(va_arg(ap, const char*));
 		if (precision != -1)
 		    subst.truncate(precision);
 		++c;
@@ -5022,7 +4959,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
     if ( s.version() == 1 ) {
 	QByteArray l;
 	s >> l;
-	str = QString( l );
+	str = QString::fromAscii( l );
     }
     else {
 	Q_UINT32 bytes;
@@ -5054,7 +4991,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 	    if ( bytes > auto_size )
 		delete [] oldb;
 	} else {
-	    str = "";
+	    str = QLatin1String("");
 	}
     }
     return s;
