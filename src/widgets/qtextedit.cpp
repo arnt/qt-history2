@@ -805,10 +805,7 @@ static bool block_set_alignment = FALSE;
 /*!
     \fn void QTextEdit::cursorPositionChanged( QTextCursor *c )
 
-    This signal is emitted if the position of the cursor has changed.
-    \a c points to the text cursor object.
-
-    \sa setCursorPosition()
+    \internal
 */
 
 /*!
