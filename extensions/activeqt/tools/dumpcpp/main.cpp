@@ -116,6 +116,19 @@ static QByteArray joinParameterNames(const QList<QByteArray> &parameterNames)
     return slotParameters;
 }
 
+QByteArray constRefify(const QByteArray &type)
+{
+    QByteArray ctype(type);
+    if (type == "QString" || type == "QPixmap" 
+        || type == "QVariant" || type == "QDateTime"
+        || type == "QColor" || type == "QFont"
+        || type == "QByteArray" || type == "QValueList<QVariant>"
+        || type == "QStringList")
+        ctype = "const " + ctype + "&";
+
+    return ctype;
+}
+
 void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaObject *mo, const QByteArray &className, const QByteArray &nameSpace, ObjectCategory category)
 {
     QList<QByteArray> functions;
@@ -190,11 +203,12 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         out << "        QVariant qax_result = property(\"" << propertyName << "\");" << endl;
         if (propertyType.at(propertyType.length()-1) == '*')
             out << "        if (!qax_result.constData()) return 0;" << endl;
+        out << "        Q_ASSERT(qax_result.isValid());" << endl;
         out << "        return *(" << propertyType << "*)qax_result.constData();" << endl;
         out << "    }" << endl;
 
         functions << propertyName;
-
+        
         if (property.isWritable()) {
             QByteArray setter(propertyName);
             QChar firstChar = setter.at(0);
@@ -204,7 +218,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
                 setter[0] = toupper(setter[0]);
                 setter = "set" + setter;
             }
-            out << "    inline void " << setter << "(" << propertyType << " value) { setProperty(\"" << propertyName << "\", QVariant(value)); }" << endl;
+            out << "    inline void " << setter << "(" << constRefify(propertyType) << " value) { setProperty(\"" << propertyName << "\", QVariant(value)); }" << endl;
             functions << setter;
         }
 
@@ -252,7 +266,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             }
             
             for (int i = 0; i < signatureSplit.count(); ++i) {
-                slotNamedSignature += signatureSplit.at(i);
+                slotNamedSignature += constRefify(signatureSplit.at(i));
                 slotNamedSignature += " ";
                 slotNamedSignature += parameterSplit.at(i);
                 if (defaultArguments >= signatureSplit.count() - i) {
@@ -288,6 +302,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         if (!slotType.isEmpty()) {
             if (slotType.at(slotType.length() - 1) == '*')
                 out << "        if (!qax_result.constData()) return 0;" << endl;
+            out << "        Q_ASSERT(qax_result.isValid());" << endl;
             out << "        return *(" << slotType << "*)qax_result.constData();" << endl;
         }
         out << "    }" << endl;
