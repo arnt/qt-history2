@@ -1044,8 +1044,49 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-  \fn QContextMenuEvent::QContextMenuEvent()
+  \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos )
+
   Constructs a context event object with the accept parameter flag set to FALSE.
+
+  The \a reason parameter must be \c QContextMenuEvent::Mouse
+  or \c QContextMenuEvent::Keyboard.
+
+  The \a pos parameter specifies the position relative to the
+  receiving widget. \a globalPos is the position in absolute
+  coordinates.
+*/
+
+
+/*!
+  \fn int QContextMenuEvent::x() const
+
+  Returns the X position of the mouse pointer, relative to the widget that
+  received the event.
+
+  \sa y(), pos()
+*/
+
+/*!
+  \fn int QContextMenuEvent::y() const
+
+  Returns the Y position of the mouse pointer, relative to the widget that
+  received the event.
+
+  \sa x(), pos()
+*/
+
+/*!
+  \fn int QContextMenuEvent::globalX() const
+
+  Returns the global X position of the mouse pointer at the time of the event.
+  \sa globalY(), globalPos()
+*/
+
+/*!
+  \fn int QContextMenuEvent::globalY() const
+
+  Returns the global Y position of the mouse pointer at the time of the event.
+  \sa globalX(), globalPos()
 */
 
 /*!
@@ -1080,9 +1121,9 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-  \enum QContextMenuEvent::Cause
+  \enum QContextMenuEvent::Reason
 
-  This type describes the action caused the ContextMenuEvent to be sent. 
+  This type describes the reason the ContextMenuEvent was sent. 
   The values are:
 
    \value Mouse     The mouse caused the event to be sent, normally this means
@@ -1093,10 +1134,10 @@ void QFocusEvent::resetReason()
 
 
 /*!
-  \fn void QContextMenuEvent::cause()
-  Returns the cause for this context event.
+  \fn void QContextMenuEvent::reason()
+  Returns the reason for this context event.
+*/
 
- */
 
 /*!
   \class QChildEvent qevent.h

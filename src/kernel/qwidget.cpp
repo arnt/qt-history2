@@ -4717,7 +4717,7 @@ void QWidget::closeEvent( QCloseEvent *e )
   This event handler can be reimplemented in a subclass to receive
   widget context menu events.
 
-  The default implementation calls e->accept(), which rejects the context
+  The default implementation calls e->ignore(), which rejects the context
   event.
   See the QContextMenuEvent documentation for more details.
 
@@ -4726,7 +4726,7 @@ void QWidget::closeEvent( QCloseEvent *e )
 
 void QWidget::contextMenuEvent( QContextMenuEvent *e )
 {
-    e->accept();
+    e->ignore();
 }
 
 #ifndef QT_NO_DRAGANDDROP
