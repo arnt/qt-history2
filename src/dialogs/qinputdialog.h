@@ -82,7 +82,7 @@ public:
 			   int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
     static double getDouble( const QString &caption, const QString &label, double num = 0,
 			     double from = -2147483647, double to = 2147483647,
-			     int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
+			     int decimals = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
     static QString getItem( const QString &caption, const QString &label, const QStringList &list,
 			    int current = 0, bool editable = TRUE,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
