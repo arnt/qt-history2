@@ -118,6 +118,8 @@ protected slots:
     void viewRight();
     void flowEast();
     void flowSouth();
+    void itemTextTruncate();
+    void itemTextWordWrap();
     void sortAscending();
     void sortDescending();
     void alignItemsInGrid() {

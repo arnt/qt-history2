@@ -1360,10 +1360,21 @@ void QIconViewItem::calcRect( const QString &text_ )
     int tw = 0;
     int th = 0;
     int bearing = - view->d->minLeftBearing - view->d->minRightBearing;
-    QRect r( view->d->fm->boundingRect( 0, 0, iconView()->maxItemWidth() -
-			       ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
-				 iconRect().width() ) - bearing,
-			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
+    QRect r;
+    if ( view->d->wordWrapIconText ) {
+	r = QRect( view->d->fm->boundingRect( 0, 0, iconView()->maxItemWidth() -
+					      ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
+						iconRect().width() ) - bearing,
+					      0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
+    } else {
+	r = QRect( 0, 0, view->d->fm->width( t ), view->d->fm->height() );
+	if ( r.width() > iconView()->maxItemWidth() -
+	     ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
+	       iconRect().width() ) - bearing )
+	    r.setWidth( iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
+						       iconRect().width() ) - bearing );
+    }
+    
     tw = r.width() + bearing;
     th = r.height();
     if ( tw < view->d->fm->width( "X" ) )
@@ -1435,8 +1446,10 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &
 	} else if ( view->d->itemTextBrush != Qt::NoBrush )
 	    p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
 
-	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak,
-		     view->d->wordWrapIconText ? itemText : tmpText );
+	int align = Qt::AlignCenter;
+	if ( view->d->wordWrapIconText )
+	    align |= Qt::WordBreak;
+	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );
 
 	p->restore();
     } else {
@@ -1453,8 +1466,10 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &
 	} else if ( view->d->itemTextBrush != Qt::NoBrush )
 	    p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
 
-	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak,
-		     view->d->wordWrapIconText ? itemText : tmpText );
+	int align = Qt::AlignCenter;
+	if ( view->d->wordWrapIconText )
+	    align |= Qt::WordBreak;
+	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );
 
 	p->restore();
     }

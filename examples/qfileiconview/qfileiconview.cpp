@@ -872,6 +872,16 @@ void QtFileIconView::sortDescending()
     sort( FALSE );
 }
 
+void QtFileIconView::itemTextTruncate()
+{
+    setWordWrapIconText( FALSE );
+}
+
+void QtFileIconView::itemTextWordWrap()
+{
+    setWordWrapIconText( TRUE );
+}
+
 void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
 {
     if ( !item )
@@ -905,7 +915,10 @@ void QtFileIconView::slotViewportRightClicked()
     menu->insertItem( "Text at the &right", this, SLOT( viewRight() ) );
     menu->insertSeparator();
     menu->insertItem( "Items flow to the &East", this, SLOT( flowEast() ) );
-    menu->insertItem( "Items flor to the &South", this, SLOT( flowSouth() ) );
+    menu->insertItem( "Items flow to the &South", this, SLOT( flowSouth() ) );
+    menu->insertSeparator();
+    menu->insertItem( "&Truncate Item Text", this, SLOT( itemTextTruncate() ) );
+    menu->insertItem( "&Wordwrap Item Text", this, SLOT( itemTextWordWrap() ) );
     menu->insertSeparator();
     menu->insertItem( "Align Items in &Grid", this, SLOT( alignItemsInGrid() ) );
     menu->insertSeparator();
