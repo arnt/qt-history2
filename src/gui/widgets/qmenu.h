@@ -83,6 +83,8 @@ signals:
 
 protected:
     int columnCount() const;
+
+    void contextMenuEvent(QContextMenuEvent *);
     void changeEvent(QEvent *);
     void keyPressEvent(QKeyEvent *);
     void mouseReleaseEvent(QMouseEvent *);
@@ -138,39 +140,81 @@ public:
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
     QT_COMPAT int insertSeparator(int index=-1);
-    inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
-    inline QT_COMPAT void removeItemAt(int index) { removeAction(actions().value(index)); }
+    inline QT_COMPAT void removeItem(int id) {
+        if(QAction *act = findActionForId(id)) 
+            removeAction(act); }
+    inline QT_COMPAT void removeItemAt(int index) { 
+        if(QAction *act = actions().value(index))
+            removeAction(act); }
 #ifndef QT_NO_ACCEL
-    inline QT_COMPAT QKeySequence accel(int id) const { return findActionForId(id)->accel(); }
-    inline QT_COMPAT void setAccel(const QKeySequence& key, int id) { findActionForId(id)->setAccel(key); }
+    inline QT_COMPAT QKeySequence accel(int id) const { 
+        if(QAction *act = findActionForId(id))
+            return act->accel();
+        return QKeySequence(); }
+    inline QT_COMPAT void setAccel(const QKeySequence& key, int id) { 
+        if(QAction *act = findActionForId(id))
+            act->setAccel(key);
+    }
 #endif
-    inline QT_COMPAT QIconSet iconSet(int id) const { return findActionForId(id)->icon(); }
-    inline QT_COMPAT QString text(int id) const { return findActionForId(id)->text(); }
-    inline QT_COMPAT QPixmap pixmap(int id) const { return findActionForId(id)->icon().pixmap(); }
-    inline QT_COMPAT void setWhatsThis(int id, const QString &w) { findActionForId(id)->setWhatsThis(w); }
-    inline QT_COMPAT QString whatsThis(int id) const { return findActionForId(id)->whatsThis(); }
+    inline QT_COMPAT QIconSet iconSet(int id) const { 
+        if(QAction *act = findActionForId(id))
+            return act->icon();
+        return QIconSet(); }
+    inline QT_COMPAT QString text(int id) const { 
+        if(QAction *act = findActionForId(id))
+            return act->text();
+        return QString(); }
+    inline QT_COMPAT QPixmap pixmap(int id) const { 
+        if(QAction *act = findActionForId(id))
+            return act->icon().pixmap();
+        return QString(); }
+    inline QT_COMPAT void setWhatsThis(int id, const QString &w) { 
+        if(QAction *act = findActionForId(id))
+            act->setWhatsThis(w); }
+    inline QT_COMPAT QString whatsThis(int id) const { 
+        if(QAction *act = findActionForId(id))
+            return act->whatsThis(); 
+        return QString(); }
 
-    inline QT_COMPAT void changeItem(int id, const QString &text) { findActionForId(id)->setText(text); }
-    inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) { findActionForId(id)->setIcon(QIconSet(pixmap)); }
+    inline QT_COMPAT void changeItem(int id, const QString &text) { 
+        if(QAction *act = findActionForId(id))
+            return act->setText(text); }
+    inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) { 
+        if(QAction *act = findActionForId(id))
+            act->setIcon(QIconSet(pixmap)); }
     inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QString &text) {
-        QAction *act = findActionForId(id);
-        act->setIcon(icon);
-        act->setText(text);
+        if(QAction *act = findActionForId(id)) {
+            act->setIcon(icon);
+            act->setText(text);
+        }
     }
     inline QT_COMPAT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
-    inline QT_COMPAT bool isItemEnabled(int id) const { return findActionForId(id)->isEnabled(); }
-    inline QT_COMPAT void setItemEnabled(int id, bool enable) { findActionForId(id)->setEnabled(enable); }
-    inline QT_COMPAT bool isItemChecked(int id) const { return findActionForId(id)->isChecked(); }
-    inline QT_COMPAT void setItemChecked(int id, bool check) { findActionForId(id)->setCheckable(check); }
-    inline QT_COMPAT bool isItemVisible(int id) const { return findActionForId(id)->isVisible(); }
-    inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
+    inline QT_COMPAT bool isItemEnabled(int id) const { 
+        if(QAction *act = findActionForId(id)) 
+            return act->isEnabled(); 
+        return false; }
+    inline QT_COMPAT void setItemEnabled(int id, bool enable) { 
+        if(QAction *act = findActionForId(id)) 
+            return act->setEnabled(enable); }
+    inline QT_COMPAT bool isItemChecked(int id) const { 
+        if(QAction *act = findActionForId(id)) 
+            return act->isChecked(); 
+        return false; }
+    inline QT_COMPAT void setItemChecked(int id, bool check) { 
+        if(QAction *act = findActionForId(id)) 
+            act->setChecked(check); }
+    inline QT_COMPAT bool isItemVisible(int id) const { 
+        if(QAction *act = findActionForId(id)) 
+            return act->isVisible();
+        return false; }
+    inline QT_COMPAT void setItemVisible(int id, bool visible) { 
+        if(QAction *act = findActionForId(id)) 
+            return act->setVisible(visible); }
     inline QT_COMPAT QRect itemGeometry(int index) {
-        return actionGeometry(actions().value(index));
+        if(QAction *act = actions().value(index)) 
+            return actionGeometry(act);
+        return QRect();
     }
-    inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {
-        return findIdForAction(actionAtPos(p, ignoreSeparator));
-    }
-
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const {
         return findIdForAction(actions().value(index));
@@ -180,12 +224,18 @@ public:
             ret->activate(QAction::Trigger);
     }
     inline QT_COMPAT bool connectItem(int id, const QObject *receiver, const char* member) {
-        QObject::connect(findActionForId(id), SIGNAL(triggered()), receiver, member);
-        return true;
+        if(QAction *act = findActionForId(id)) {
+            QObject::connect(act, SIGNAL(triggered()), receiver, member);
+            return true;
+        }
+        return false;
     }
     inline QT_COMPAT bool disconnectItem(int id,const QObject *receiver, const char* member) {
-        QObject::disconnect(findActionForId(id), SIGNAL(triggered()), receiver, member);
-        return true;
+        if(QAction *act = findActionForId(id)) {
+            QObject::disconnect(act, SIGNAL(triggered()), receiver, member);
+            return true;
+        } 
+        return false;
     }
     inline QT_COMPAT QMenuItem *findItem(int id) const {
         return (QMenuItem*)findActionForId(id);
@@ -207,6 +257,9 @@ public:
     }
 
 protected:
+    inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {
+        return findIdForAction(actionAtPos(p, ignoreSeparator));
+    }
     inline QT_COMPAT int columns() const { return columnCount(); }
     inline QT_COMPAT int itemHeight(int index) {
         return actionGeometry(actions().value(index)).height();
