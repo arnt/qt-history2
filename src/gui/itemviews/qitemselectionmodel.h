@@ -62,6 +62,7 @@ public:
 private:
     QPersistentModelIndex tl, br;
 };
+Q_DECLARE_TYPEINFO(QItemSelectionRange, Q_MOVABLE_TYPE);
 
 class QItemSelection;
 class QItemSelectionModelPrivate;

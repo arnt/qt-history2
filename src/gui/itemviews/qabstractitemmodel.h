@@ -19,6 +19,7 @@
 #include <qdrag.h>
 
 class QAbstractItemModel;
+class QPersistentModelIndex;
 
 class Q_GUI_EXPORT QModelIndex
 {
@@ -39,6 +40,8 @@ public:
         { return (other.r == r && other.c == c && other.d == d && other.m == m); }
     inline bool operator!=(const QModelIndex &other) const
         { return !(*this == other); }
+    inline bool operator==(const QPersistentModelIndex &other) const;
+    inline bool operator!=(const QPersistentModelIndex &other) const;
 private:
     inline QModelIndex(int row, int column, void *data, const QAbstractItemModel *model)
         : r(row), c(column), d(data), m(model) {}
@@ -46,6 +49,7 @@ private:
     void *d;
     const QAbstractItemModel *m;
 };
+Q_DECLARE_TYPEINFO(QModelIndex, Q_MOVABLE_TYPE);
 
 #ifndef QT_NO_DEBUG
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
@@ -78,20 +82,24 @@ private:
     friend Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
 #endif
 };
+Q_DECLARE_TYPEINFO(QPersistentModelIndex, Q_MOVABLE_TYPE);
+
+inline bool QModelIndex::operator==(const QPersistentModelIndex &o) const
+{ return o.operator==(*this); }
+inline bool QModelIndex::operator!=(const QPersistentModelIndex &o) const
+{ return o.operator!=(*this); }
 
 #ifndef QT_NO_DEBUG
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
 #endif
 
-template<typename T>
-class QList;
+template<typename T> class QList;
 typedef QList<QModelIndex> QModelIndexList;
 
 class QVariant;
 class QMimeData;
 class QAbstractItemModelPrivate;
-template <class Key, class T>
-class QMap;
+template <class Key, class T> class QMap;
 
 
 class Q_GUI_EXPORT QAbstractItemModel : public QObject
@@ -318,7 +326,7 @@ private:
     int columnCount(const QModelIndex &parent) const;
 };
 
-// inline implementations 
+// inline implementations
 
 inline QModelIndex QModelIndex::parent() const
 { return m ? m->parent(*this) : QModelIndex::Null; }
