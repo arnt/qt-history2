@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#86 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#87 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -286,6 +286,36 @@ QGDict &QGDict::operator=( const QGDict &dict )
     }
     return *this;
 }
+
+
+/*! \fn QCollection::Item QGDictIterator::get() const
+
+  \internal
+*/
+
+
+/*! \fn QString QGDictIterator::getKeyString() const
+
+  \internal
+*/
+
+
+/*! \fn const char * QGDictIterator::getKeyAscii() const
+
+  \internal
+*/
+
+
+/*! \fn void * QGDictIterator::getKeyPtr() const
+
+  \internal
+*/
+
+
+/*! \fn long QGDictIterator::getKeyInt() const
+
+  \internal
+*/
 
 
 /*!
