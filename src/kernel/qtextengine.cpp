@@ -200,10 +200,18 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
     // ### should get rid of this!
     bool first = TRUE;
 
-    BidiStatus status;
     int length = text.length();
     const QChar *unicode = text.unicode();
     int current = 0;
+
+    BidiStatus status;
+    QChar::Direction sdir = direction( *unicode );
+    if ( sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN )
+	sdir = QChar::DirON;
+    status.eor = sdir;
+    status.lastStrong = sdir;
+    status.last = sdir;
+    status.dir = sdir;
 
     while ( current <= length ) {
 
