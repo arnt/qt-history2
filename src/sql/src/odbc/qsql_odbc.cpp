@@ -780,7 +780,7 @@ bool QODBCDriver::endTrans()
     return TRUE;
 }
 
-QStringList QODBCDriver::tables( const QString& user ) const
+QStringList QODBCDriver::tables( const QString& /* user */ ) const
 {
     QStringList tl;
     if ( !isOpen() )
