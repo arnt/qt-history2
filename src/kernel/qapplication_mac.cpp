@@ -2134,6 +2134,17 @@ bool QApplication::hasPendingEvents()
     return qGlobalPostedEventsCount() || GetNumEventsInQueue(GetCurrentEventQueue());
 }
 
+/*!
+  This virtual function is only implemented under Macintosh.
+
+  If you create an application that inherits QApplication and
+  reimplement this function, you get direct access to all Carbon Events
+  that the are received from the MacOS.
+
+  Return TRUE if you want to stop the event from being processed, or
+  return FALSE for normal event dispatching.
+*/
+
 bool QApplication::macEventFilter( EventRef )
 {
     return 0;

@@ -2935,8 +2935,8 @@ QPen QPen::copy() const
 
   See the \l Qt::PenStyle documentation for a list of all the styles.
 
-  \warning On Windows 95/98, the style setting (other than NoPen and
-  SolidLine) has no effect for lines with width greater than 1.
+  \warning On Windows 95/98 and Macintosh, the style setting (other than
+  NoPen and SolidLine) has no effect for lines with width greater than 1.
 
   \sa style()
 */
@@ -2994,8 +2994,8 @@ Qt::PenCapStyle QPen::capStyle() const
 
   The default value is FlatCap. The cap style has no effect on 0-width pens.
 
-  \warning On Windows 95/98, the cap style setting has no effect. Wide
-  lines are rendered as if the cap style was SquareCap.
+  \warning On Windows 95/98 and Macintosh, the cap style setting has no
+  effect. Wide lines are rendered as if the cap style was SquareCap.
 
   \sa capStyle()
 */
@@ -3023,8 +3023,8 @@ Qt::PenJoinStyle QPen::joinStyle() const
 
   The default value is MiterJoin. The join style has no effect on 0-width pens.
 
-  \warning On Windows 95/98, the join style setting has no effect. Wide
-  lines are rendered as if the join style was BevelJoin.
+  \warning On Windows 95/98 and Macintosh, the join style setting has no
+  effect. Wide lines are rendered as if the join style was BevelJoin.
 
   \sa joinStyle()
 */
