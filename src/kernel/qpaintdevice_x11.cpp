@@ -277,14 +277,6 @@ Qt::HANDLE QPaintDevice::handle() const
 }
 
 
-/*!
-    Returns the window system handle of the paint device for XRender
-    support. Use of this function is not portable. This function will
-    return 0 if XRender support is not compiled into Qt, if the
-    XRender extension is not supported on the X11 display, or if the
-    handle could not be created.
-*/
-
 #ifndef QT_NO_XFTFREETYPE
 #ifndef QT_XFT2
 // Xft1 doesn't have XftDrawPicture, so we fake it in qtaddons_x11.cpp
@@ -292,6 +284,13 @@ extern "C" Qt::HANDLE XftDrawPicture( XftDraw * );
 #endif // QT_XFT2
 #endif // QT_NO_XFTFREETYPE
 
+/*!
+    Returns the window system handle of the paint device for XRender
+    support. Use of this function is not portable. This function will
+    return 0 if XRender support is not compiled into Qt, if the
+    XRender extension is not supported on the X11 display, or if the
+    handle could not be created.
+*/
 Qt::HANDLE QPaintDevice::x11RenderHandle() const
 {
 #ifndef QT_NO_XFTFREETYPE
