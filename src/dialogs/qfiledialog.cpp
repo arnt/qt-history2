@@ -1205,7 +1205,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     QUrlDrag::decode( e, l );
 
     bool move = e->action() == QDropEvent::Move;
-    bool supportAction = move || e->action() == QDropEvent::Copy;
+//     bool supportAction = move || e->action() == QDropEvent::Copy;
 
     QUrlOperator dest;
     if ( currDropItem )
@@ -1586,7 +1586,7 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     QUrlDrag::decodeToUnicodeUris( e, l );
 
     bool move = e->action() == QDropEvent::Move;
-    bool supportAction = move || e->action() == QDropEvent::Copy;
+//     bool supportAction = move || e->action() == QDropEvent::Copy;
 
     QUrlOperator dest;
     if ( currDropItem )
@@ -2896,7 +2896,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     delete dlg;
 
 #if defined(_OS_VMS_)
-    return QFile::encodeName( *workingDirectory + result ); 
+    return QFile::encodeName( *workingDirectory + result );
 #endif
     return result;
 }
