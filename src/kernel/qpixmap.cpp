@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#115 $
 **
 ** Implementation of QPixmap class
 **
@@ -735,8 +735,10 @@ bool QPixmap::save( const QString &fileName, const char *format ) const
 /*!
   \fn int QPixmap::serialNumber() const
 
-  Returns a number that uniquely identifies this QPixmap object. The
-  serial number is very useful for caching.
+  Returns a number that uniquely identifies the contents of this QPixmap object. 
+  This means that multiple QPixmaps objects can have the same serial number
+  as long as they refere to the same contents.
+  The serial number is for example very useful for caching. 
 
   \sa QPixmapCache
 */
