@@ -463,6 +463,8 @@ void QFontEngineMultiXft::loadEngine(int at)
 QFontEngineXft::QFontEngineXft(XftFont *font)
     : _font(font), _openType(0), _cmap(-1), transformed_fonts(0)
 {
+    qDebug("ascent %d descent %d height %d", font->ascent, font->descent, font->height);
+
     _face = XftLockFace(_font);
 
     // Xft maps Unicode and adobe roman for us.
@@ -847,12 +849,12 @@ void QFontEngineXft::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
 qreal QFontEngineXft::ascent() const
 {
-    return (_font->ascent)*_scale;
+    return (_font->height - _font->descent)*_scale;
 }
 
 qreal QFontEngineXft::descent() const
 {
-    return (_font->descent-1)*_scale;
+    return (_font->descent)*_scale;
 }
 
 // #### use Freetype to determine this
