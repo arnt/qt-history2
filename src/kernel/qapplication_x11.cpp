@@ -220,7 +220,7 @@ Q_EXPORT Atom	qt_wm_protocols		= 0;	// window manager protocols
 Q_EXPORT Atom	qt_wm_delete_window	= 0;	// delete window protocol
 Q_EXPORT Atom	qt_wm_take_focus	= 0;	// take focus window protocol
 
-static Atom	qt_qt_scrolldone	= 0;	// scroll synchronization
+Atom		qt_qt_scrolldone	= 0;	// scroll synchronization
 Atom		qt_net_wm_context_help	= 0;	// context help
 Atom		qt_net_wm_ping		= 0;	// _NET_WM_PING protocol
 
