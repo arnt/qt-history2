@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#99 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#100 $
 **
 ** Implementation of QFile class
 **
@@ -381,8 +381,13 @@ bool QFile::open( int m )
 	if ( fd != -1 ) {			// open successful
 	    STATBUF st;
 	    FSTAT( fd, &st );
-	    length = (int)st.st_size;
-	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	    if ( S_ISDIR( st.st_mode ) ) {
+		ok = FALSE;
+	    }
+	    else {
+		length = (int)st.st_size;
+		ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	    }
 	} else {
 	    ok = FALSE;
 	}
@@ -440,8 +445,13 @@ bool QFile::open( int m )
 	if ( fh ) {
 	    STATBUF st;
 	    FSTAT( FILENO(fh), &st );
-	    length = (int)st.st_size;
-	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	    if ( S_ISDIR( st.st_mode ) ) {
+		ok = FALSE;
+	    }
+	    else {
+		length = (int)st.st_size;
+		ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	    }
 	} else {
 	    ok = FALSE;
 	}
