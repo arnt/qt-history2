@@ -5,5 +5,6 @@
 TEMPLATE = app
 
 # Input
+CONFIG += console
 HEADERS += packageserver.h
 SOURCES += main.cpp packageserver.cpp
