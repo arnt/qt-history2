@@ -61,10 +61,11 @@ SUBDIRS	=	aclock \
 		widgets \
 		wizard \
 		launcher \
-		kiosk \
+		compact \
 		dumbterm \
 		canvas \
-		xform
+		xform \
+		kiosk
 
 all: $(SUBDIRS)
 
