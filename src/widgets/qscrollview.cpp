@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#224 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#225 $
 **
 ** Implementation of QScrollView class
 **
@@ -994,12 +994,10 @@ void QScrollView::wheelEvent( QWheelEvent *e ){
                     e->globalPos(), e->delta(), e->state());
     viewportWheelEvent(&ce);
     if ( !ce.isAccepted() ) {
-        if ( e->state() & AltButton ) {
-            if ( horizontalScrollBar() )
-                QApplication::sendEvent( horizontalScrollBar(), e);
-        } else  if (verticalScrollBar() ) {
-            QApplication::sendEvent( verticalScrollBar(), e);
-        }
+	if ( e->orientation() == Horizontal && horizontalScrollBar() )
+	    QApplication::sendEvent( horizontalScrollBar(), e);
+	else  if (e->orientation() == Vertical && verticalScrollBar() )
+	    QApplication::sendEvent( verticalScrollBar(), e);
     }
 }
 

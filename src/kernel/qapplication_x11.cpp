@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#813 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#814 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -443,7 +443,7 @@ public:
     bool translateConfigEvent( const XEvent * );
     bool translateCloseEvent( const XEvent * );
     bool translateScrollDoneEvent( const XEvent * );
-    bool translateWheelEvent( int global_x, int global_y, int delta, int state );
+    bool translateWheelEvent( int global_x, int global_y, int delta, int state, Orientation orient );
 };
 
 
@@ -4302,9 +4302,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		// may offer a finer-resolution.  A positive delta
 		// indicates forward rotation, a negative one
 		// backward rotation respectively.
-		delta *= 120*(event->xbutton.button == Button4?1:-1);
-
-		translateWheelEvent( globalPos.x(), globalPos.y(), delta, state );
+		int btn = event->xbutton.button;
+		delta *= 120 * ( (btn == Button4) ? 1 : -1 );
+		translateWheelEvent( globalPos.x(), globalPos.y(), delta, state, (state&AltButton)?Horizontal:Vertical );
 	    }
 	    return TRUE;
 	}
@@ -4472,7 +4472,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 //
 // Wheel event translation
 //
-bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int state )
+bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int state, Orientation orient )
 {
     QWidget* w = this;
 
@@ -4490,7 +4490,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 	if ( popup && w != popup )
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
-		       QPoint(global_x, global_y), delta, state );
+		       QPoint(global_x, global_y), delta, state, orient );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
@@ -4501,7 +4501,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 	if ( popup && w != popup )
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
-		       QPoint(global_x, global_y), delta, state );
+		       QPoint(global_x, global_y), delta, state, orient );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
