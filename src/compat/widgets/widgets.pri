@@ -19,4 +19,5 @@ SOURCES +=      widgets/q3whatsthis.cpp \
                 widgets/q3menubar.cpp \
                 widgets/q3popupmenu.cpp \
 	 	../gui/widgets/qdatetimeedit.cpp
+
 mac:SOURCES += widgets/q3menubar_mac.cpp

@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_DATETIMEEDIT
 
-class Q_GUI_EXPORT QDateTimeEditBase : public QWidget
+class Q_COMPAT_EXPORT QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
 public:
@@ -48,7 +48,7 @@ private:
 
 class QDateEditPrivate;
 
-class Q_GUI_EXPORT QDateEdit : public QDateTimeEditBase
+class Q_COMPAT_EXPORT QDateEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_ENUMS(Order)
@@ -128,7 +128,7 @@ private:
 
 class QTimeEditPrivate;
 
-class Q_GUI_EXPORT QTimeEdit : public QDateTimeEditBase
+class Q_COMPAT_EXPORT QTimeEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_FLAGS(Display)
@@ -212,7 +212,7 @@ private:
 
 class QDateTimeEditPrivate;
 
-class Q_GUI_EXPORT QDateTimeEdit : public QWidget
+class Q_COMPAT_EXPORT QDateTimeEdit : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)

@@ -315,7 +315,7 @@ class QFontPrivate;
 class QTextFormatCollection;
 class QPalette;
 
-class QTextEngine {
+class Q_GUI_EXPORT QTextEngine {
 public:
     QTextEngine();
     QTextEngine(const QString &str, QFontPrivate *f);
