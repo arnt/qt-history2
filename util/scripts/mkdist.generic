@@ -84,7 +84,7 @@ echo "Auto-detected the Qt version number -- " $VERSION >&2
 
 echo "Removing beta code..." >&2
 cd ${DISTDIR}/qt/src
-for d in `make showdirs`; do cd $d ; rm -f `make showbeta`; cd .. ; done
+for d in `make showdirs`; do cd $d ; rm -fv `make showbeta`; cd .. ; done
 
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
