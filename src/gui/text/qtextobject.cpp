@@ -148,7 +148,6 @@ QTextBlockGroup::QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc)
 {
 }
 
-// ### DOC: Is this true?
 /*!
     Destroys this block group; the blocks are not deleted, they simply
     don't belong to this block anymore.
@@ -180,7 +179,6 @@ void QTextBlockGroup::blockRemoved(const QTextBlock &block)
     d->blocks.removeAll(block);
 }
 
-// ### DOC: Is this true?
 /*!
     This function is called whenever the specified \a block of text
     (which is part of this group), is changed. The base class
@@ -935,7 +933,6 @@ QTextBlock::iterator QTextBlock::iterator::operator--()
 }
 
 
-// ### DOC: Is this true?
 /*!
     \class QTextFragment
     \brief The QTextFragment class holds a piece of text in a
