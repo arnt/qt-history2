@@ -174,6 +174,7 @@ static void qt_create_pipes(QProcessPrivate *that)
 void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
 {
     if (pipe[0] == writePipe[0] && pipe[1] == writePipe[1] && pipeWriter) {
+        pipeWriter->waitForWrite(ULONG_MAX);
         delete pipeWriter;
         pipeWriter = 0;
     }
