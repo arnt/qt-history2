@@ -18,7 +18,6 @@
 #include "qsqldriver.h"
 #include "private/qsqlcachedresult_p.h"
 
-
 class QIBaseDriverPrivate;
 class QIBaseResultPrivate;
 class QIBaseDriver;
@@ -80,7 +79,6 @@ public:
 private:
     QIBaseDriverPrivate* d;
 };
-
 
 #endif
 
