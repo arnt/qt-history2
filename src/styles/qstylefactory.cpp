@@ -124,6 +124,9 @@ QStringList QStyleFactory::styles()
 #ifndef QT_NO_STYLE_SGI
     list << "SGI";
 #endif
+#ifndef QT_NO_STYLE_COMPACT
+    list << "Compact";
+#endif
 
     return list;
 }
