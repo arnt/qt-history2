@@ -590,7 +590,7 @@ bool QProcess::waitForReadyRead(int msecs)
     } else if (d->processState != Running)
         return (bytesAvailable() > 0);
 
-    if (d->waitForReadyRead(msecs))
+    if (d->waitForReadyRead(msecs) || (bytesAvailable() > 0))
         return true;
 
     emit error(d->processError);
