@@ -1883,10 +1883,12 @@ void QTextView::selectAll( bool select )
 void QTextView::UndoRedoInfo::clear()
 {
     if ( valid() ) {
+	QTextString s;
+	s.insert( 0, text, 0 );
 	if ( type == Insert || type == Return )
-	    doc->addCommand( new QTextInsertCommand( doc, id, index, text ) );
+	    doc->addCommand( new QTextInsertCommand( doc, id, index, s.rawData() ) );
 	else if ( type != Invalid )
-	    doc->addCommand( new QTextDeleteCommand( doc, id, index, text ) );
+	    doc->addCommand( new QTextDeleteCommand( doc, id, index, s.rawData() ) );
     }
     text = QString::null;
     id = -1;

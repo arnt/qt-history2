@@ -60,10 +60,12 @@ struct UndoRedoInfo {
     }
     void clear() {
 	if ( valid() ) {
+	    QTextString s;
+	    s.insert( 0, text, 0 );
 	    if ( type == Insert )
-		parag->addCommand( new QTextInsertCommand( parag, index, text ) );
+		parag->addCommand( new QTextInsertCommand( parag, index, s.rawData() ) );
 	    else if ( type != Invalid )
-		parag->addCommand( new QTextDeleteCommand( parag, index, text ) );
+		parag->addCommand( new QTextDeleteCommand( parag, index, s.rawData() ) );
 	}
 	text = QString::null;
 	index = -1;
@@ -346,7 +348,7 @@ void QLineEdit::setText( const QString &text )
   end. This is useful when a default value has been inserted
   because if the user types before clicking on the widget, the
   selected text will be erased.
-  
+
   \sa setSelection() deselect()
 */
 
@@ -1038,7 +1040,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 /*!
   \fn void QLineEdit::cursorRight( bool, int )
   \obsolete
-  
+
   Use cursorForward instead.
 
   \sa cursorForward()

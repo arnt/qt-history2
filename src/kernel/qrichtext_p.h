@@ -262,58 +262,6 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextDeleteCommand : public QTextCommand
-{
-public:
-    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QString &str )
-	: QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str ) {}
-    QTextDeleteCommand( QTextParag *p, int idx, const QString &str )
-	: QTextCommand( 0 ), id( -1 ), index( idx ), parag( p ), text( str ) {}
-    virtual Commands type() const { return Delete; };
-
-    virtual QTextCursor *execute( QTextCursor *c );
-    virtual QTextCursor *unexecute( QTextCursor *c );
-
-protected:
-    int id, index;
-    QTextParag *parag;
-    QString text;
-
-};
-
-class Q_EXPORT QTextInsertCommand : public QTextDeleteCommand
-{
-public:
-    QTextInsertCommand( QTextDocument *d, int i, int idx, const QString &str )
-	: QTextDeleteCommand( d, i, idx, str ) {}
-    QTextInsertCommand( QTextParag *p, int idx, const QString &str )
-	: QTextDeleteCommand( p, idx, str ) {}
-    Commands type() const { return Insert; };
-
-    virtual QTextCursor *execute( QTextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
-    virtual QTextCursor *unexecute( QTextCursor *c ) { return QTextDeleteCommand::execute( c ); }
-
-};
-
-class Q_EXPORT QTextFormatCommand : public QTextCommand
-{
-public:
-    QTextFormatCommand( QTextDocument *d, int selId, QTextFormat *f, int flags );
-    ~QTextFormatCommand();
-    Commands type() const { return Format; }
-
-    virtual QTextCursor *execute( QTextCursor *c );
-    virtual QTextCursor *unexecute( QTextCursor *c );
-
-protected:
-    int selection;
-    QTextFormat *format;
-    int flags;
-
-};
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 class Q_EXPORT QTextCustomItem
 {
 public:
@@ -863,6 +811,7 @@ public:
 	QTextCustomItem *customItem() const;
 	void setFormat( QTextFormat *f );
 	void setCustomItem( QTextCustomItem *i );
+	Char *clone() const;
 	
     private:
 	struct CustomData
@@ -911,6 +860,7 @@ public:
     ~QTextString();
 
     QString toString() const;
+    static QString toString( const QArray<Char> &data );
     QString toReverseString() const;
 
     Char &at( int i ) const;
@@ -930,6 +880,9 @@ public:
     bool isTextChanged() const { return textChanged; }
     bool isBidi() const;
     bool isRightToLeft() const;
+
+    QArray<Char> subString( int start = 0, int len = 0xFFFFFF ) const;
+    QArray<Char> rawData() const { return data; }
 
 private:
     void checkBidi() const;
@@ -954,6 +907,58 @@ inline bool QTextString::isRightToLeft() const
 	checkBidi();
     return rightToLeft;
 }
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+class Q_EXPORT QTextDeleteCommand : public QTextCommand
+{
+public:
+    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str )
+	: QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str ) {}
+    QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextString::Char> &str )
+	: QTextCommand( 0 ), id( -1 ), index( idx ), parag( p ), text( str ) {}
+    virtual Commands type() const { return Delete; };
+
+    virtual QTextCursor *execute( QTextCursor *c );
+    virtual QTextCursor *unexecute( QTextCursor *c );
+
+protected:
+    int id, index;
+    QTextParag *parag;
+    QArray<QTextString::Char> text;
+
+};
+
+class Q_EXPORT QTextInsertCommand : public QTextDeleteCommand
+{
+public:
+    QTextInsertCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str )
+	: QTextDeleteCommand( d, i, idx, str ) {}
+    QTextInsertCommand( QTextParag *p, int idx, const QArray<QTextString::Char> &str )
+	: QTextDeleteCommand( p, idx, str ) {}
+    Commands type() const { return Insert; };
+
+    virtual QTextCursor *execute( QTextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
+    virtual QTextCursor *unexecute( QTextCursor *c ) { return QTextDeleteCommand::execute( c ); }
+
+};
+
+class Q_EXPORT QTextFormatCommand : public QTextCommand
+{
+public:
+    QTextFormatCommand( QTextDocument *d, int selId, QTextFormat *f, int flags );
+    ~QTextFormatCommand();
+    Commands type() const { return Format; }
+
+    virtual QTextCursor *execute( QTextCursor *c );
+    virtual QTextCursor *unexecute( QTextCursor *c );
+
+protected:
+    int selection;
+    QTextFormat *format;
+    int flags;
+
+};
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -1954,11 +1959,11 @@ inline QTextString::Char &QTextString::at( int i ) const
     return data[ i ];
 }
 
-inline QString QTextString::toString() const
+inline QString QTextString::toString( const QArray<QTextString::Char> &data )
 {
     QString s;
-    int l = length();
-    s.setUnicode(0, l);
+    int l = data.size();
+    s.setUnicode( 0, l );
     Char *c = data.data();
     QChar *uc = (QChar *)s.unicode();
     while ( l-- ) {
@@ -1968,6 +1973,11 @@ inline QString QTextString::toString() const
     }
 	
     return s;
+}
+
+inline QString QTextString::toString() const
+{
+    return toString( data );
 }
 
 inline QString QTextString::toReverseString() const

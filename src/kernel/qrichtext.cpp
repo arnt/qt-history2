@@ -156,7 +156,7 @@ QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
 
     cursor.setParag( s );
     cursor.setIndex( index );
-    int len = text.length();
+    int len = text.size();
     if ( doc ) {
 	doc->setSelectionStart( QTextDocument::Temp, &cursor );
 	for ( int i = 0; i < len; ++i )
@@ -185,13 +185,21 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 
     cursor.setParag( s );
     cursor.setIndex( index );
-    cursor.insert( text, TRUE );
+    QTextCursor c2 = cursor;
+    QString str = QTextString::toString( text );
+    cursor.insert( str, TRUE );
+    // ##### do custom item stuff
+    for ( int i = 0; i < (int)text.size(); ++i ) {
+	if ( text[ i ].format() )
+	    c2.parag()->setFormat( c2.index(), 1, text[ i ].format() );
+	c2.gotoRight();
+    }
     cursor.setParag( s );
     cursor.setIndex( index );
     if ( c ) {
 	c->setParag( s );
 	c->setIndex( index );
-	for ( int i = 0; i < (int)text.length(); ++i )
+	for ( int i = 0; i < (int)text.size(); ++i )
 	    c->gotoRight();
     }
 
@@ -360,7 +368,9 @@ void QTextCursor::insert( const QString &s, bool checkNewLine )
 	}
 	string->format( -1, FALSE );
 	int dy = string->rect().y() + string->rect().height() - y;
-	QTextParag *p = string->next();
+	QTextParag *p = string;
+	p->setParagId( p->prev()->paragId() + 1 );
+	p = p->next();
 	while ( p ) {
 	    p->setParagId( p->prev()->paragId() + 1 );
 	    p->move( dy );
@@ -2537,6 +2547,40 @@ int QTextString::width(int idx) const
      return w;
 }
 
+QArray<QTextString::Char> QTextString::subString( int start, int len ) const
+{
+    if ( len == 0xFFFFFF )
+	len = data.size();
+    QArray<Char> a;
+    a.resize( len );
+    for ( int i = 0; i < len; ++i ) {
+	Char *c = &data[ i + start ];
+	a[ i ].c = c->c;
+	a[ i ].x = 0;
+	a[ i ].lineStart = 0;
+	a[ i ].rightToLeft = 0;
+	a[ i ].d.format = 0;
+	a[ i ].type = Char::Regular;
+	a[ i ].setFormat( c->format() );
+    }
+    return a;
+}
+
+QTextString::Char *QTextString::Char::clone() const
+{
+    Char *chr = new Char;
+    chr->c = c;
+    chr->x = 0;
+    chr->lineStart = 0;
+    chr->rightToLeft = 0;
+    chr->d.format = 0;
+    chr->type = Char::Regular;
+    chr->setFormat( format() );
+    if ( chr->format() )
+	chr->format()->addRef();
+    return chr;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
@@ -2686,7 +2730,7 @@ void QTextParag::join( QTextParag *s )
 	doc->setLastParag( this );
 
     int start = str->length();
-    if ( at( length() - 1 )->c == ' ' ) {
+    if ( length() > 0 && at( length() - 1 )->c == ' ' ) {
 	remove( length() - 1, 1 );
 	--start;
     }
