@@ -88,7 +88,8 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
     { "iso8859-5",
       "koi8-r",
       "koi8-ru"          , 0 }, // CYRILLIC
-    { "iso8859-6.8x"        , 0 }, // ARABIC
+    { "iso8859-6.8x",
+      "iso8859-6"	, 0 }, // ARABIC
     { "iso8859-7"        , 0 }, // GREEK
     { "iso8859-8"        , 0 }, // HEBREW
 
