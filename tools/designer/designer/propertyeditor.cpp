@@ -281,11 +281,8 @@ void PropertyItem::paintBranches( QPainter * p, const QColorGroup & cg,
 void PropertyItem::paintFocus( QPainter *p, const QColorGroup &cg, const QRect &r )
 {
     p->save();
-    int lw = 1;
-    void *data[1];
-    data[0] = &lw;
     QApplication::style().drawPrimitive(QStyle::PE_Panel, p, r, cg,
-					QStyle::Style_Sunken, data);
+					QStyle::Style_Sunken, QStyleOption(1) );
     p->restore();
 }
 
