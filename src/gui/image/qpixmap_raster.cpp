@@ -416,10 +416,22 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
     Q_UNUSED(flags);
     // ### This will create a temporary image.
     QPixmap pixmap(image.width(), image.height());
-    pixmap.data->image = image.format() == QImage::Format_RGB32
-                         ? image
-                         : image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    pixmap.data->bitmap = image.depth() == 1;
+
+    switch (image.format()) {
+    case QImage::Format_Mono:
+    case QImage::Format_MonoLSB:
+        pixmap.data->image = image.convertToFormat(QImage::Format_MonoLSB);
+        pixmap.data->bitmap = true;
+        break;
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+        pixmap.data->image = image;
+        break;
+    default:
+        pixmap.data->image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        break;
+    }
+
     return pixmap;
 }
 
