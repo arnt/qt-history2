@@ -197,9 +197,9 @@ QCString uTypeExtra( QCString ctype )
     }
     if ( ctype.left(6) == "const " )
 	ctype = ctype.mid( 6, ctype.length() - 6 );
-    if ( ctype.right(1) == "&" ) {
+    if ( ctype.right(1) == "&" )
 	ctype = ctype.left( ctype.length() - 1 );
-    } else if ( ctype.right(1) == "*" ) {
+    if ( ctype.right(1) == "*" ) {
 	QCString raw = ctype.left( ctype.length() - 1 );
 	ctype = "ptr";
 	if ( raw == "char" )
@@ -3080,7 +3080,11 @@ void generateClass()		      // generate C++ source code for a class
 		    type = type.simplifyWhiteSpace();
 		    if ( validUType( type ) && isInOut( type ) ) {
 			QCString utype = uType( type );
-			fprintf( out, "    t%d = static_QUType_%s.get(o+%d);\n", offset, utype.data(), offset+1 );
+			if ( utype == "enum" ) {
+			    fprintf( out, "    t%d = (%s)static_QUType_%s.get(o+%d);\n", offset, type.data(), utype.data(), offset+1 );
+			} else {
+			    fprintf( out, "    t%d = static_QUType_%s.get(o+%d);\n", offset, utype.data(), offset+1 );
+			}
 		    }
 		    a = f->args->next();
 		    offset++;
