@@ -15,6 +15,7 @@
 #include "qprocess_p.h"
 
 #include <qdatetime.h>
+#include <qdir.h>
 #include <qfileinfo.h>
 #include <qtimer.h>
 #include <qthread.h>
@@ -347,7 +348,8 @@ void QProcessPrivate::startProcess()
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
                                  0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
                                  environment.isEmpty() ? 0 : envlist.data(),
-                                 workingDirectory.isEmpty() ? 0 : (WCHAR*)workingDirectory.utf16(),
+                                 workingDirectory.isEmpty() ? 0 
+                                    : (WCHAR*)QDir::convertSeparators(workingDirectory).utf16(),
                                  &startupInfo, pid);
     } else
 #endif // UNICODE
@@ -364,7 +366,9 @@ void QProcessPrivate::startProcess()
 
 	success = CreateProcessA(0, args.toLocal8Bit().data(),
                                  0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
-                                 workingDirectory.toLocal8Bit(), &startupInfo, pid);
+                                 workingDirectory.isEmpty() ? 0 
+                                    : QDir::convertSeparators(workingDirectory).toLocal8Bit(), 
+                                 &startupInfo, pid);
 #endif // Q_OS_TEMP
     }
 
