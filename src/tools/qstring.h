@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#105 $
+** $Id: //depot/qt/main/src/tools/qstring.h#106 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -351,7 +351,7 @@ public:
     // new functions for BiDi
     void compose();
     QChar::Direction basicDirection();
-    QString &visual(int index = 0, int len = -1);                              
+    QString visual(int index = 0, int len = -1);                              
 
 #ifndef QT_NO_COMPAT
     const char* data() const { return ascii(); }

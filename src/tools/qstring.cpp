@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#195 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#196 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -1512,6 +1512,7 @@ static const Q_UINT8 *category_info [256] = {
     ct_d8, ct_4e, ct_fa, ct_fb, ct_4e, ct_fd, ct_fe, ct_ff,
 };
 
+#if 0 // Not used yet.
 static const Q_UINT16 cb_0 [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -2072,7 +2073,6 @@ static const Q_UINT16 cb_fe [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-#if 0 // Not used yet.
 static const Q_UINT16 *combining_info [256] = {
      cb_0, cb_0, cb_0, cb_3, cb_4, cb_5, cb_6, cb_0,
      cb_0, cb_9, cb_a, cb_b, cb_c, cb_d, cb_e, cb_f,
@@ -9049,8 +9049,8 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 bool QChar::isSpace() const
 {
     if( !row )
-	if( cell >= 9 && cell <=13 ) return true;
-    return (category() == Zs) ? true : false;
+	if( cell >= 9 && cell <=13 ) return TRUE;
+    return category() == Zs;
 }
 
 /*!
@@ -9133,8 +9133,8 @@ QChar::Joining QChar::joining() const
 bool QChar::mirrored() const
 {
   const Q_UINT8 *rowp = direction_info[row];
-  if(!rowp) return false;
-  return *(rowp+cell)>128 ? true : false;
+  if(!rowp) return FALSE;
+  return *(rowp+cell)>128;
 }
 
 /*!
@@ -9151,8 +9151,8 @@ QString QChar::decomposition() const
     pos+=2;
 
     QString s;
-    QChar c;
-    while((c = decomp_map[pos++]) != (char)0) s += c;
+    Q_UINT16 c;
+    while((c = decomp_map[pos++]) != 0) s += QChar(c);
 
     return s;
 }
@@ -9297,7 +9297,7 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
     unsigned int l = index + len;
     unsigned int r = index;
 
-    bool left = false, right = false;
+    bool left = FALSE, right = FALSE;
 
     switch (ch.joining()) {
     case QChar::Dual:
@@ -9417,6 +9417,9 @@ QChar::Direction QString::basicDirection()
 
 // reverses part of the QChar array to get visual ordering
 // called from QString::visual()
+//
+// ###### Test efficiency - why use QChar* rather than QString?
+// ######    The call to this end up making a copy because of it.
 static unsigned int reverse(QChar *chars, unsigned char *level,
 		     unsigned int a, unsigned int b) {
 
@@ -9461,7 +9464,7 @@ public:
   painting the string or when transforming to a visually ordered
   encoding.
   */
-QString & QString::visual(int index, int len)
+QString QString::visual(int index, int len)
 {
     unsigned char *level;
     QChar::Direction *dir;
@@ -9473,7 +9476,7 @@ QString & QString::visual(int index, int len)
     if (len == -1)
 	len = length()-index;
     if ((uint)index > l)
-	return *(new QString());
+	return QString::null;
 
     level = new uchar[l];
     dir   = new QChar::Direction[l];
@@ -9494,12 +9497,13 @@ QString & QString::visual(int index, int len)
 	base = 1;
 
     // is there any BiDi char at all?
-    if( base == 0 && pos == l ) return *(new QString(mid(index, len)));
+    if( base == 0 && pos == l ) return mid(index, len);
 
     // explicit override pass
     unsigned int code_count = 0;
 	
     QStack<QBidiState> stack;
+    stack.setAutoDelete(TRUE);
 
     unsigned char    clevel   = base;
     signed char      override = -1;
@@ -9669,8 +9673,13 @@ QString & QString::visual(int index, int len)
 	chars[i] = at(pos);
 
     reverse(chars, level, index, index+len);
-	
-    return *(new QString(chars, len));
+
+    delete [] level;
+    delete [] dir;
+    
+    QString ret(chars, len);
+    delete chars;
+    return ret;
 }
 
 
@@ -9864,7 +9873,7 @@ QString::QString( const QString &s ) :
 
   The string is empty.
 
-  \sa resize(), isNull()
+  \sa isNull()
 */
 
 QString::QString( int size )
