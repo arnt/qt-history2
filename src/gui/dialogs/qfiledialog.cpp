@@ -962,7 +962,7 @@ void QFileDialog::mkdir()
 {
     QModelIndex parent = d->root();
     QString path = d->model->path(parent);
-    d->lview->clearSelections(); // FIXME: the selection model doesn't use persistent indices yet
+    d->lview->clearSelection(); // FIXME: the selection model doesn't use persistent indices yet
 
     QModelIndex index = d->model->mkdir(parent, "New Folder");
     if (!index.isValid())

@@ -36,6 +36,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_FLAGS(BeginEditActions)
 public:
     enum SelectionMode {
+        NoSelection,
         SingleSelection,
         MultiSelection,
         ExtendedSelection
@@ -108,7 +109,7 @@ public slots:
     virtual void setRoot(const QModelIndex &index);
     virtual void doItemsLayout();
     void edit(const QModelIndex &index);
-    void clearSelections();
+    void clearSelection();
     void setCurrentIndex(const QModelIndex &index);
 
 protected slots:

@@ -145,6 +145,7 @@ void QAbstractItemViewPrivate::init()
 /*!
     \enum QAbstractItemView::SelectionMode
 
+    \value NoSelection
     \value SingleSelection
     \value MultiSelection
     \value ExtendedSelection
@@ -408,7 +409,7 @@ QAbstractItemModel *QAbstractItemView::model() const
 /*!
     Sets the current selection to the given \a selectionModel.
 
-    \sa selectionModel() clearSelections()
+    \sa selectionModel() clearSelection()
 */
 void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
@@ -452,7 +453,7 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 /*!
     Returns the current selection.
 
-    \sa setSelectionModel() clearSelections()
+    \sa setSelectionModel() clearSelection()
 */
 QItemSelectionModel* QAbstractItemView::selectionModel() const
 {
@@ -616,9 +617,9 @@ void QAbstractItemView::edit(const QModelIndex &index)
 }
 
 /*!
-    Clears the selection.
+    Clears all selected items.
 */
-void QAbstractItemView::clearSelections()
+void QAbstractItemView::clearSelection()
 {
     selectionModel()->clear();
 }
@@ -1675,6 +1676,10 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
         behavior = QItemSelectionModel::Columns;
         break;
     }
+
+    //NoSelection: Never update selection model
+    if (selectionMode() == NoSelection)
+        return QItemSelectionModel::NoUpdate;
 
     // SingleSelection: ClearAndSelect on valid index otherwise NoUpdate
     if (selectionMode() == SingleSelection)
