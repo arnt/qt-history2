@@ -28,7 +28,7 @@ struct Term {
     QString term;
     int frequency;
     QList<Document>documents;
-    bool operator<( const Term &i2 ) { return frequency < i2.frequency; }
+    bool operator<( const Term &i2 ) const { return frequency < i2.frequency; }
 };
 
 QDataStream &operator>>( QDataStream &s, Document &l )
