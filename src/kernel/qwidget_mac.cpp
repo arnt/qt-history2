@@ -164,11 +164,14 @@ static WId qt_root_win() {
 
 OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, RgnHandle, void *w)
 {
+
     QWidget *widget = (QWidget *)w;
     if(!widget)
 	widget = QWidget::find( (WId)window );
+
+    //I shouldn't be painting the whole region, but instead just what I'm told to paint, FIXME!
     if ( widget ) 
-	widget->repaint();
+	paint_children(widget, QRegion(0, 0, widget->width(), widget->height()), TRUE );
     return 0;
 }
 
@@ -750,9 +753,6 @@ void QWidget::showWindow()
 	//the newly shown dialog. This fixes problems like weirdnesses when showing
 	//a dialog with a child that has been reparented (ala qdockareas) FIXME?
 	qApp->sendPostedEvents();
-
-	//forces a paint event before the window is shown
-	paint_children(this, QRegion(0, 0, width(), height()), TRUE );
 
 	//handle transition
 	if(parentWidget()) {
