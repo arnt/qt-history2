@@ -28,20 +28,12 @@
 SyntaxHighlighter_HTML::SyntaxHighlighter_HTML()
     : QTextPreProcessor(), lastFormat( 0 ), lastFormatId( -1 )
 {
-    int normalSize =  qApp->font().pointSize();
-    QString normalFamily = qApp->font().family();
-    QString commentFamily = "times";
-    int normalWeight = qApp->font().weight();
+    QFont f( qApp->font() );
 
-    addFormat( Standard,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::black ) );
-    addFormat( Keyword,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkRed ) );
-    addFormat( Attribute,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkGreen ) );
-    addFormat( AttribValue,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkYellow ) );
-
+    addFormat( Standard, new QTextFormat( f, Qt::black ) );
+    addFormat( Keyword, new QTextFormat( f, Qt::darkRed ) );
+    addFormat( Attribute, new QTextFormat( f, Qt::darkGreen ) );
+    addFormat( AttribValue, new QTextFormat( f, Qt::darkYellow ) );
 }
 
 SyntaxHighlighter_HTML::~SyntaxHighlighter_HTML()

@@ -121,26 +121,17 @@ static QMap<int, QMap<QString, int > > *wordMap = 0;
 SyntaxHighlighter_CPP::SyntaxHighlighter_CPP()
     : QTextPreProcessor(), lastFormat( 0 ), lastFormatId( -1 )
 {
-    int normalSize =  qApp->font().pointSize();
-    QString normalFamily = qApp->font().family();
-    QString commentFamily = "times";
-    int normalWeight = qApp->font().weight();
-    addFormat( Standard,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::black ) );
-    addFormat( Comment,
-	       new QTextFormat( QFont( commentFamily, normalSize, normalWeight, TRUE ), Qt::red ) );
-    addFormat( Number,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
-    addFormat( String,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkGreen ) );
-    addFormat( Type,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkMagenta ) );
-    addFormat( Keyword,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkYellow ) );
-    addFormat( PreProcessor,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
-    addFormat( Label,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkRed ) );
+    QFont f( qApp->font() );
+
+    addFormat( Standard, new QTextFormat( f, Qt::black ) );
+    addFormat( Number, new QTextFormat( f, Qt::darkBlue ) );
+    addFormat( String, new QTextFormat( f, Qt::darkGreen ) );
+    addFormat( Type, new QTextFormat( f, Qt::darkMagenta ) );
+    addFormat( Keyword, new QTextFormat( f, Qt::darkYellow ) );
+    addFormat( PreProcessor, new QTextFormat( f, Qt::darkBlue ) );
+    addFormat( Label, new QTextFormat( f, Qt::darkRed ) );
+    f.setFamily( "times" );
+    addFormat( Comment, new QTextFormat( f, Qt::red ) );
 
     if ( wordMap )
 	return;
