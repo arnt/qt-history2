@@ -46,6 +46,32 @@
         with \c true).
     \endlist
 
+    \section2 Location of the qt3porting.xml File
+
+    You can now specify the location of the \c qt3porting.xml file with the
+    \c{-f} command line option. This is useful if you want to use a modified
+    file with your own rules. 
+
+    If you you don't want to maintain a modified \c qt3porting.xml it is
+    possible to create a "patch" file that includes the original file and adds
+    or disables rules. The syntax for this file looks like this:
+
+    \code
+    <Rules>
+        <Include>/path/to/q3porting.xml</Include>
+
+        <item Type="RenamedHeader" Disable="True" >
+            <Qt4>q3sqlselectcursor.h</Qt4>
+            <Qt3>qsqlselectcursor.h</Qt3>
+        </item>
+
+        <item Type="RenamedHeader" >
+            <Qt4>newclass.h</Qt4>
+            <Qt3>oldclass.h</Qt3>
+        </item>
+    </Rules>
+    \endcode
+
     \section1 Logging
 
     The porting tool logs all changes to a file called \c
