@@ -178,7 +178,7 @@ static QStyleOption getStyleOption(const Q3ToolBarSeparator *tbs)
 QSize Q3ToolBarSeparator::sizeHint() const
 {
     QStyleOption opt = getStyleOption(this);
-    int extent = style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent, &opt, this);
+    int extent = style()->pixelMetric(QStyle::PM_ToolBarSeparatorExtent, &opt, this);
     if (orient == Qt::Horizontal)
         return QSize(extent, 0);
     else

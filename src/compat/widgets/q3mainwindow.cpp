@@ -219,7 +219,7 @@ class QHideDock : public QWidget
 public:
     QHideDock(Q3MainWindow *parent) : QWidget(parent, "qt_hide_dock") {
         hide();
-        setFixedHeight(style()->pixelMetric(QStyle::PM_DockWindowHandleExtent, 0, this) + 3);
+        setFixedHeight(style()->pixelMetric(QStyle::PM_DockWidgetHandleExtent, 0, this) + 3);
         pressedHandle = -1;
         pressed = false;
         setMouseTracking(true);

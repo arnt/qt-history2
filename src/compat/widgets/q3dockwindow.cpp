@@ -92,7 +92,7 @@ QSize Q3DockWindowResizeHandle::sizeHint() const
     opt.docked = dockWindow->area();
     opt.closeEnabled = dockWindow->isCloseEnabled();
     int sw = 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, &opt, this) / 3;
-    return (style()->sizeFromContents(QStyle::CT_DockWindow, &opt, QSize(sw, sw), this).expandedTo(QApplication::globalStrut()));
+    return (style()->sizeFromContents(QStyle::CT_Q3DockWindow, &opt, QSize(sw, sw), this).expandedTo(QApplication::globalStrut()));
 }
 
 void Q3DockWindowResizeHandle::setOrientation(Qt::Orientation o)
@@ -231,7 +231,7 @@ void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
         opt.state |= QStyle::State_Enabled;
     if (orientation() == Qt::Horizontal)
         opt.state |= QStyle::State_Horizontal;
-    style()->drawPrimitive(QStyle::PE_IndicatorDockWindowResizeHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_IndicatorDockWidgetResizeHandle, &opt, &p, this);
 }
 
 void Q3DockWindowResizeHandle::startLineDraw()
@@ -478,7 +478,7 @@ void Q3DockWindowHandle::updateGui()
 #endif
         QStyleOption opt(0);
         opt.init(closeButton);
-        closeButton->setIcon(style()->standardPixmap(QStyle::SP_DockWindowCloseButton, &opt,
+        closeButton->setIcon(style()->standardPixmap(QStyle::SP_DockWidgetCloseButton, &opt,
                                                     closeButton));
         closeButton->setFixedSize(12, 12);
         connect(closeButton, SIGNAL(clicked()),
@@ -509,7 +509,7 @@ void Q3DockWindowHandle::changeEvent(QEvent *ev)
         if (closeButton) {
             QStyleOption opt(0);
             opt.init(closeButton);
-            closeButton->setIcon(style()->standardPixmap(QStyle::SP_DockWindowCloseButton,
+            closeButton->setIcon(style()->standardPixmap(QStyle::SP_DockWidgetCloseButton,
                                                         &opt, closeButton));
         }
     }
@@ -520,7 +520,7 @@ QSize Q3DockWindowHandle::minimumSizeHint() const
 {
     if (!dockWindow->dockArea)
         return QSize(0, 0);
-    int wh = dockWindow->isCloseEnabled() ? 17 : style()->pixelMetric(QStyle::PM_DockWindowHandleExtent, 0, this);
+    int wh = dockWindow->isCloseEnabled() ? 17 : style()->pixelMetric(QStyle::PM_DockWidgetHandleExtent, 0, this);
     if (dockWindow->orientation() == Qt::Horizontal)
         return QSize(wh, 0);
     return QSize(0, wh);
@@ -1471,7 +1471,7 @@ void Q3DockWindow::drawContents(QPainter *p)
     opt.init(this);
     if (titleBar->isActive())
         opt.state |= QStyle::State_Active;
-    style()->drawControl(QStyle::CE_DockWindowEmptyArea, &opt, p, this);
+    style()->drawControl(QStyle::CE_Q3DockWindowEmptyArea, &opt, p, this);
 }
 
 /*!
