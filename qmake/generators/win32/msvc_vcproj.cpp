@@ -1155,11 +1155,11 @@ QString VcprojGenerator::fixFilename(QString ofile) const
 {
     int slashfind = ofile.findRev('\\');
     if (slashfind == -1) {
-	ofile = ofile.replace("-", "_");
+	ofile = ofile.replace('-', '_');
     } else {
 	int hypenfind = ofile.find('-', slashfind);
 	while (hypenfind != -1 && slashfind < hypenfind) {
-	    ofile = ofile.replace(hypenfind, 1, "_");
+	    ofile = ofile.replace(hypenfind, 1, '_');
 	    hypenfind = ofile.find('-', hypenfind + 1);
 	}
     }
