@@ -150,8 +150,8 @@ QFile::~QFile()
 
 void QFile::init()
 {
-    delete d;
-    d = new QFilePrivate;
+    if (!d)
+        d = new QFilePrivate;
     setFlags(IO_Direct);
     setStatus(IO_Ok);
     d->fh = 0;
