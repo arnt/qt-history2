@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.h#2 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.h#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -71,6 +71,13 @@ public:
     bool isReadable() const;
     bool isExecutable() const;
 
+    static bool greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
+			     int sortBy );
+    static bool lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
+			  int sortBy );
+    static bool equal( const QUrlInfo &i1, const QUrlInfo &i2,
+		       int sortBy );
+    
 private:
     QUrlInfoPrivate *d;
 

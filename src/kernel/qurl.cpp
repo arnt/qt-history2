@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#23 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1329,8 +1329,7 @@ void QUrl::decode( QString& url )
   a newtwork protocol.
 */
 
-void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
-			int sortSpec   = QDir::DefaultSort )
+void QUrl::listEntries( int filterSpec,	int sortSpec )
 {
     listEntries( d->nameFilter, filterSpec, sortSpec );
 }
@@ -1346,8 +1345,7 @@ void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
   using a newtwork protocol.
 */
 
-void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
-			int sortSpec = QDir::DefaultSort )
+void QUrl::listEntries( const QString &nameFilter, int filterSpec, int sortSpec )
 {
     clearEntries();
     if ( isLocalFile() ) {
