@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#3 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -58,17 +58,16 @@ void splitFilter( const QString& rawFilter, QString* filterName,
 
 void addFilterA( QBuffer* buf, const QString& rawFilter )
 {
-    QString semiRawFilter = QString::fromLatin1( rawFilter.latin1() );
-    if ( !semiRawFilter.isEmpty() ) {
+    if ( !rawFilter.isEmpty() ) {
 	QString filterName;
 	QString filterExp;
-	splitFilter( semiRawFilter, &filterName, &filterExp );
-	QCString fName = filterName.latin1();
+	splitFilter( rawFilter, &filterName, &filterExp );
+	QCString fName = filterName.local8Bit();
 	buf->writeBlock( fName.data(), fName.length() + 1 );
-	QCString fExp = filterExp.latin1();
+	QCString fExp = filterExp.local8Bit();
 	buf->writeBlock( fExp.data(), fExp.length() + 1 );
     }
-}    
+}
 
 
 void addFilter( QBuffer* buf, const QString& rawFilter )
@@ -103,12 +102,12 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
     else
 	parent = qApp->mainWidget();
 
-    aTitle = qApp->translate( "QFileDialog", rawTitle ).latin1();
-    aInitDir = QDir::convertSeparators( initialDirectory ).latin1();
+    aTitle = qApp->translate( "QFileDialog", rawTitle ).local8Bit();
+    aInitDir = QDir::convertSeparators( initialDirectory ).local8Bit();
     if ( initialSelection.isEmpty() )
 	aInitSel = "";
     else
-	aInitSel = QDir::convertSeparators( initialSelection ).latin1();
+	aInitSel = QDir::convertSeparators( initialSelection ).local8Bit();
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     aInitSel.resize( maxLen + 1 );		// make room for return value
     
@@ -236,7 +235,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 				       *initialDirectory, "Open",
 				       filter, ExistingFile );
 	if ( GetOpenFileNameA( ofn ) )
-	    result = QString::fromLatin1( ofn->lpstrFile );
+	    result = QString::fromLocal8Bit( ofn->lpstrFile );
 	cleanUpOFNA( &ofn );
     }
     else {
@@ -273,7 +272,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 				       *initialDirectory, "Save As",
 				       filter, AnyFile );
 	if ( GetSaveFileNameA( ofn ) )
-	    result = QString::fromLatin1( ofn->lpstrFile );
+	    result = QString::fromLocal8Bit( ofn->lpstrFile );
 	cleanUpOFNA( &ofn );
     }
     else {
@@ -317,17 +316,17 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	    int offset = fileOrDir.length() + 1;
 	    if ( ofn->lpstrFile[offset] == '\0' ) {
 		// Only one file selected; has full path
-		fi.setFile( QString::fromLatin1( fileOrDir ) );
+		fi.setFile( QString::fromLocal8Bit( fileOrDir ) );
 		QString res = fi.absFilePath();
 		if ( !res.isEmpty() )
 		    result.append( res );
 	    }
 	    else {
 		// Several files selected; first string is path
-		dir.setPath( QString::fromLatin1( fileOrDir ) );
+		dir.setPath( QString::fromLocal8Bit( fileOrDir ) );
 		QCString f;
 		while( !( f = ofn->lpstrFile + offset).isEmpty() ) {
-		    fi.setFile( dir, QString::fromLatin1( f ) );
+		    fi.setFile( dir, QString::fromLocal8Bit( f ) );
 		    QString res = fi.absFilePath();
 		    if ( !res.isEmpty() )
 			result.append( res );
