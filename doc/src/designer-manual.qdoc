@@ -30,6 +30,12 @@ that they will look and feel exactly as you intended.
  \tableofcontents{1 Using Containers in Qt Designer}
 \i \l{Qt Designer's Connection Editing Mode}
  \tableofcontents{1 Qt Designer's Connection Editing Mode}
+\i \l{Qt Designer's Buddy Editing Mode}
+ \tableofcontents{1 Qt Designer's Buddy Editing Mode}
+\i \l{Qt Designer's Tab Order Mode}
+ \tableofcontents{1 Qt Designer's Tab Order Mode}
+\i \l{Editing Resources with Qt Designer}
+ \tableofcontents{1 Editing Resources with Qt Designer}
 \endlist
 
 \section1 Figures and Hints
@@ -91,13 +97,18 @@ enter \c{designer} in a terminal window.
 \target TheUserInterface
 \section1 The User Interface
 
-\QD provides a multi-window user interface that can be used natively, or
-from within an integrated development environment (IDE). You can arrange
-each of the tool panels to suit your working style. The main window
-consists of a menu bar, a tool bar, and a toolbox that contains the
-widgets you can use to create your user interface.
+When used as a standalone application, \QD's user interface can be
+configured to provide either a multi-window user interface (the default
+mode), or it can be used in workbench mode. When used from within an
+integrated development environment (IDE) only the multi-window user
+interface is available.
 
-\target DesignerMainWindow
+In multi-window mode, you can arrange each of the tool panels to suit
+your working style. The main window consists of a menu bar, a tool bar,
+and a toolbox (the \l{WidgetBox}{widget box}) that contains the widgets you can use
+to create your user interface.
+
+\target MainWindow
 \table
 \row
 \i \inlineimage designer-main-window.png
@@ -121,13 +132,13 @@ toolbox. Some features are also available through context menus that can
 opened over the form windows. On most platforms, the right mouse button is
 used to open context menus.
 
-\target DesignerToolbox
+\target WidgetBox
 \table
 \row
-\i \inlineimage designer-toolbox.png
-\i \bold{\QD's toolbox}
+\i \inlineimage designer-widget-box.png
+\i \bold{\QD's widget box}
 
-The toolbox provides a selection of standard Qt widgets, layouts, and other
+The widget box provides a selection of standard Qt widgets, layouts, and other
 objects that can be used to create user interfaces on forms. Each of the
 categories in the toolbox contains widgets that have similar uses, or that
 provide related features.
@@ -135,7 +146,7 @@ provide related features.
 You can display all of the available objects in a category by clicking on
 the "+" handle next to the category label. When in
 \l{designer-editing-mode.html}{Form Editing Mode}, you can add objects to a
-form by dragging the appropriate items from the toolbox onto the form, and
+form by dragging the appropriate items from the widget box onto the form, and
 dropping them in the required locations.
 \endtable
 
@@ -902,6 +913,7 @@ used in an application.
 \page designer-connection-mode.html
 \contentspage designer-manual.html Contents
 \previouspage Using Containers in Qt Designer
+\nextpage Qt Designer's Buddy Editing Mode
 
 \title Qt Designer's Connection Editing Mode
 
@@ -947,7 +959,7 @@ mouse button.
 \target MakingAConnection
 \table
 \row
-\i \inlineimage designer-making-connection.png
+\i \inlineimage designer-connection-making.png
 \i \bold{Making a connection}
 
 The connection path changes shape as the cursor moves around the form.
@@ -966,12 +978,16 @@ can be used to connect the two objects.
 \i \inlineimage designer-connection-dialog.png
 \i \bold{Choosing signals and slots}
 
-The Configure Connection dialog presents the signals that can be emitted
-by the source object alongside a list of compatible slots in the
+The \bold{Configure Connection} dialog presents the signals that can be
+emitted by the source object alongside a list of compatible slots in the
 destination object. When you select a signal, the dialog automatically
 updates the list of compatible slots to ensure that a valid connection
 is made.
 
+If the \bold{Show all signals and slots} checkbox is selected, all
+available signals from the source object are shown. The list of available
+slots in the destination object is updated to show all the slots that
+are compatible with the currently selected signal.
 \endtable
 
 To complete the connection, select a signal from the source object and a
@@ -988,44 +1004,20 @@ application is deployed.
 \target EditingConnections
 \section1 Editing Connections
 
-If many connections are made between objects on a form, it can appear a
-little crowded when viewed in connection editing mode. To help with this
-problem, \QD's connection editor allows the paths taken by the
-connections to be adjusted by allowing the user to re-route the paths
-between objects. This is purely a cosmetic concern: The .ui files
-created by \QD will contain the same basic information about the
-connections, and this will result in the same code being generated.
+By default, connection paths are created with two labels that show
+the signal and slot involved in the connection. These labels are usually
+oriented along the line of the connection, and they can be moved around
+inside their host widgets by dragging the red connection end point.
 
-\target EditingConnectionPaths
-\table
-\row
-\i \inlineimage designer-editing-connection.png
-\i \bold{Editing connection paths}
-
-The route taken by connection paths can be adjusted by moving nodes around
-on the form.
-
-Extra nodes can be added by holding down \key Ctrl and
-clicking on a path segment. Extra nodes help keep connection paths tidy,
-and make the form more maintainable.
-
-The labels that show the signal and slot for each connection can also be
-repositioned to make the form tidier.
-\endtable
-
-By default, connection paths are created with two nodes that can be
-freely positioned on the form. The first node is initially placed on the
-form outside the source object, but it can be dragged inside the source
-object to control where the connection path begins.
-The second node is usually located inside the destination object, and it
-determines where the connection path ends. This node can be accessed by
-clicking the last path segment. It can either be repositioned within the
-destination object, or dragged outside.
+The signal and slot used in a connection can be changed after it has
+been set up. To do this, simply double click on the connection path
+or one of its labels, and select the signal and slot to be used in
+the connection dialog.
 
 \target DeletingConnections
 \table
 \row
-\i \inlineimage designer-selecting-connection.png
+\i \inlineimage designer-connection-editing.png
 \i \bold{Deleting connections}
 
 The whole connection can be selected by clicking on any of the path
@@ -1170,4 +1162,50 @@ Each page in the toolbox can be given its own layout, and this is
 necessary if it contains other objects. To add a layout to a page,
 click inside it and apply the layout as usual.
 
+*/
+
+/*!
+\page designer-buddy-mode.html
+\contentspage designer-manual.html Contents
+\previouspage Qt Designer's Connection Editing Mode
+\nextpage Qt Designer's Tab Order Mode
+
+\title Qt Designer's Buddy Editing Mode
+
+\image designer-buddy-mode.png
+
+\tableofcontents
+*/
+
+/*!
+\page designer-tab-order.html
+\contentspage designer-manual.html Contents
+\previouspage Qt Designer's Buddy Editing Mode
+\nextpage Editing Resources with Qt Designer
+
+\title Qt Designer's Tab Order Mode
+
+\image designer-tab-order.png
+
+\tableofcontents
+
+Many users of form-based graphical user interfaces expect to be able to navigate
+between widgets and controls using only the keyboard. Qt lets the user navigate
+between input widgets using the \key Tab and \key{Shift-Tab} key combinations,
+using a default \e{tab order} based on the order in which widgets are constructed.
+Although the default tab order may be sufficient for some users, it is often
+better to explictly specify it to make the user interface easier to use.
+
+*/
+
+/*!
+\page designer-editing-resources.html
+\contentspage designer-manual.html Contents
+\previouspage Qt Designer's Tab Order Mode
+
+\title Editing Resources with Qt Designer
+
+\image designer-editing-resources.png
+
+\tableofcontents
 */
