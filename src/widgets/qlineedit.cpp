@@ -851,6 +851,8 @@ bool QLineEdit::isModified() const
 void QLineEdit::clearModified()
 {
     d->modified = FALSE;
+    d->history.clear();
+    d->undoState = 0;
 }
 
 /*!
