@@ -263,6 +263,10 @@ bool Option::postProcessProject(QMakeProject *project)
 	Option::h_ext = project->first("QMAKE_EXT_H");
     if(!project->isEmpty("QMAKE_EXT_MOC"))
 	Option::moc_ext = project->first("QMAKE_EXT_MOC");
+    if(!project->isEmpty("QMAKE_EXT_LEX"))
+	Option::lex_ext = project->first("QMAKE_EXT_LEX");
+    if(!project->isEmpty("QMAKE_EXT_YACC"))
+	Option::yacc_ext = project->first("QMAKE_EXT_YACC");
     if(!project->isEmpty("QMAKE_EXT_CPP"))
 	Option::cpp_ext = project->first("QMAKE_EXT_CPP");
     if(!project->isEmpty("QMAKE_EXT_OBJ"))
