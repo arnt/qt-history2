@@ -1254,6 +1254,17 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
     else
 	sy = sy % sh;
 
+    if ((d->state->VxF || d->state->WxF)
+	&& !d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
+	QPixmap pm(w, h);
+	QPainter p(&pm);
+	// Recursive call ok, since the pixmap is not transformed...
+	p.drawTiledPixmap(0, 0, w, h, pixmap, sx, sy);
+	p.end();
+	drawPixmap(x, y, pm);
+	return;
+    }
+
     bool optim = (pixmap.mask() && pixmap.depth() > 1 && d->state->txop <= TxTranslate);
     d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), optim);
 }
