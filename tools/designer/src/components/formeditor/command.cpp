@@ -157,7 +157,6 @@ void SetPropertyCommand::redo()
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
-        formWindow()->emitGeometryChanged(m_widget);
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
@@ -179,7 +178,6 @@ void SetPropertyCommand::undo()
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
-        formWindow()->emitGeometryChanged(m_widget);
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
@@ -244,7 +242,6 @@ void InsertWidgetCommand::undo()
 
     if (deco) {
         deco->removeWidget(m_widget);
-        formWindow()->emitGeometryChanged(parentWidget);
     }
 
     formWindow()->unmanageWidget(m_widget);
@@ -349,7 +346,6 @@ void DeleteWidgetCommand::redo()
     m_widget->hide();
     m_widget->setParent(formWindow());
 
-    formWindow()->emitGeometryChanged(m_parentWidget);
     formWindow()->emitSelectionChanged();
 }
 
@@ -375,7 +371,6 @@ void DeleteWidgetCommand::undo()
     } // end switch
 
     m_widget->show();
-    formWindow()->emitGeometryChanged(m_parentWidget);
     formWindow()->emitSelectionChanged();
 }
 
@@ -456,8 +451,6 @@ void LayoutCommand::redo()
 {
     m_layout->doLayout();
     checkSelection(m_parentWidget);
-    foreach (QWidget *widget, m_widgets)
-        formWindow()->emitGeometryChanged(widget);
 }
 
 void LayoutCommand::undo()
@@ -470,8 +463,6 @@ void LayoutCommand::undo()
     delete deco; // release the extension
 
     checkSelection(m_parentWidget);
-    foreach (QWidget *widget, m_widgets)
-        formWindow()->emitGeometryChanged(widget);
 }
 
 // ---- BreakLayoutCommand ----

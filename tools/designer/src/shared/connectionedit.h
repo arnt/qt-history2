@@ -152,7 +152,7 @@ public:
 
     virtual Type type() const;
 
-    void updateGeometry();
+    bool updateGeometry();
 
 private:
     QRect widgetRect() const;
@@ -276,12 +276,11 @@ public:
 
     void clear();
     void dumpItems() const;
-    void updateLines();
+    void updateAllItems();
 
 public slots:
     void updateBackground();
     void deleteWidgetItem(QWidget *w);
-    void geometryChanged(QWidget *w);
 
     void deleteItems();
 

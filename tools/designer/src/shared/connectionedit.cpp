@@ -505,20 +505,22 @@ QRect CEWidgetItem::widgetRect() const
     return r;
 }
 
-void CEWidgetItem::updateGeometry()
+bool CEWidgetItem::updateGeometry()
 {
     QRect new_rect = widgetRect();
 
     qDebug() << "CEWidgetItem::updateGeometry():" << new_rect << rect();
 
     if (rect() == new_rect)
-        return;
+        return false;
 
     update();
     m_rect = new_rect;
     update();
 
     emit moved();
+    
+    return true;
 }
 
 
@@ -1453,19 +1455,8 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
 void ConnectionEdit::resizeEvent(QResizeEvent *)
 {
     updateBackground();
-    if (m_bg_widget != 0 && m_bg_widget->layout() != 0) {
-        foreach (CEItem *item, m_item_list) {
-            if (CEWidgetItem *widget_item = qt_cast<CEWidgetItem*>(item)) {
-                widget_item->updateGeometry();
-            }
-        }
-        foreach (CEItem *item, m_item_list) {
-            if (item->type() == CEItem::EndPointItem) {
-                qt_cast<CEEndPointItem*>(item)->adjustPos();
-            }
-        }
-    }
-    updateLines();
+    if (m_bg_widget != 0 && m_bg_widget->layout() != 0)
+        updateAllItems();
 }
 
 void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
@@ -1654,20 +1645,15 @@ void ConnectionEdit::deleteWidgetItem(QWidget *w)
         deleteWidgetItem(widget_item);
 }
 
-void ConnectionEdit::geometryChanged(QWidget *w)
+void ConnectionEdit::updateAllItems()
 {
-    // find all affected widget items (the moved widget and it's children)
-    QList<CEWidgetItem*> widget_item_list;
     for (int i = 0; i < m_item_list.size(); ++i) {
         CEWidgetItem *widget_item = qt_cast<CEWidgetItem*>(m_item_list.at(i));
         if (widget_item == 0)
             continue;
-        if (isDescendant(widget_item->widget(), w))
-            widget_item_list.append(widget_item);
-    }
 
-    foreach (CEWidgetItem *widget_item, widget_item_list) {
-        widget_item->updateGeometry();
+        if (!widget_item->updateGeometry())
+            continue;
 
         QList<Connection*> con_list = m_connection_map.values(widget_item);
         foreach (Connection *con, con_list) {
@@ -1815,12 +1801,6 @@ CEEndPointItem *ConnectionEdit::lastEndPoint() const
     CEEndPointItem *ep = qt_cast<CEEndPointItem*>(m_new_item_list.last());
     Q_ASSERT(ep != 0);
     return ep;
-}
-
-void ConnectionEdit::updateLines()
-{
-    foreach (Connection *con, m_connection_list)
-        updateLine(con);
 }
 
 static QWidget *otherWidget(Connection *con, QWidget *w)

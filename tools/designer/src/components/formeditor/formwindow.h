@@ -183,14 +183,10 @@ public:
     DomConnections *saveConnections();
     void createConnections(DomConnections *connections, QWidget *parent);
 
-    inline void emitGeometryChanged(QWidget *w)
-    { emit geometryChanged(w); }
-
     void updateOrderIndicators();
 
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
-    void geometryChanged(QWidget *w);
     void editModeChanged(EditMode);
 
 public slots:

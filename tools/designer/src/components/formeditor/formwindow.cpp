@@ -305,8 +305,6 @@ void FormWindow::init()
     m_signalSlotEditor = new SignalSlotEditor(this, this);
     connect(this, SIGNAL(widgetUnmanaged(QWidget*)),
                 m_signalSlotEditor, SLOT(deleteWidgetItem(QWidget*)));
-    connect(this, SIGNAL(geometryChanged(QWidget*)),
-                m_signalSlotEditor, SLOT(geometryChanged(QWidget*)));
     m_signalSlotEditor->setGeometry(rect());
     m_signalSlotEditor->show();
 }
@@ -2047,7 +2045,7 @@ void FormWindow::setEditMode(EditMode mode)
         case ConnectionEditMode:
             m_signalSlotEditor->updateBackground();
             m_signalSlotEditor->raise();
-            m_signalSlotEditor->updateLines();
+            m_signalSlotEditor->updateAllItems();
             break;
 
         case TabOrderEditMode:
