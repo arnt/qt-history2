@@ -149,6 +149,7 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     installEventFilter( this );
     widgetInserting = FALSE;
     findFormWindow();
+    mw->setDockEnabled( TornOff, FALSE );
 }
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
@@ -163,6 +164,7 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
     installEventFilter( this );
     widgetInserting = FALSE;
     findFormWindow();
+    mw->setDockEnabled( TornOff, FALSE );
 }
 
 void QDesignerToolBar::findFormWindow()
@@ -195,13 +197,13 @@ void QDesignerToolBar::addAction( QAction *a )
 
 static void fixObject( QObject *&o )
 {
-    while ( o && !o->parent()->inherits( "QDesignerToolBar" ) )
+    while ( o && o->parent() && !o->parent()->inherits( "QDesignerToolBar" ) )
 	o = o->parent();
 }
 
 bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o || !e || o->inherits( "QDockWindowHandle" ) )
+    if ( !o || !e || o->inherits( "QDockWindowHandle" ) || o->inherits( "QDockWindowTitleBar" ) )
 	return QToolBar::eventFilter( o, e );
 
     if ( o == this && e->type() == QEvent::MouseButtonPress &&
@@ -216,16 +218,22 @@ bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
     if ( e->type() == QEvent::MouseButtonPress ) {
 	QMouseEvent *ke = (QMouseEvent*)e;
 	fixObject( o );
+	if ( !o )
+	    return FALSE;
 	buttonMousePressEvent( ke, o );
 	return TRUE;
     } else if ( e->type() == QEvent::MouseMove ) {
 	QMouseEvent *ke = (QMouseEvent*)e;
 	fixObject( o );
+	if ( !o )
+	    return FALSE;
 	buttonMouseMoveEvent( ke, o );
 	return TRUE;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	QMouseEvent *ke = (QMouseEvent*)e;
 	fixObject( o );
+	if ( !o )
+	    return FALSE;
 	buttonMouseReleaseEvent( ke, o );
 	return TRUE;
     } else if ( e->type() == QEvent::DragEnter ) {
