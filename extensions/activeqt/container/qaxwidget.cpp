@@ -995,20 +995,24 @@ QMenu *QAxHostWindow::generatePopup(HMENU subMenu, QWidget *parent)
             switch (res) {
 	    case MFT_STRING:
                 if (popupMenu)
-                    action = popup->addMenu(text, popupMenu);
+                    action = popup->addMenu(popupMenu);
                 else
 		    action = popup->addAction(text);
 		break;
 	    case MFT_BITMAP:
 		if (popupMenu)
-		    action = popup->addMenu(text, popupMenu);
+		    action = popup->addMenu(popupMenu);
 		else
 		    action = popup->addAction(icon, text);
 		break;
 	    }
 
-	    if ((int)accel && action)
-		action->setShortcut(accel);
+            if (action) {
+                if (int(accel))
+                    action->setShortcut(accel);
+                if (!icon.isNull())
+                    action->setIcon(icon);
+            }
 	}
 
 	if (action) {
@@ -1041,7 +1045,7 @@ HRESULT WINAPI QAxHostWindow::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 	    QAction *action = 0;
 	    QMenu *popupMenu = 0;
 	    if (item.fType == MFT_SEPARATOR) {
-//		action = menuBar->addSeparator();
+		action = menuBar->addSeparator();
 	    } else {
 		QString text;
 		QPixmap icon;
@@ -1050,19 +1054,21 @@ HRESULT WINAPI QAxHostWindow::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 		switch(menuItemEntry(hmenuShared, i, item, text, icon)) {
 		case MFT_STRING:
 		    if (popupMenu)
-			action = menuBar->addMenu(text, popupMenu);
-/*		    else
-			action = menuBar->addAction(text);*/
+			action = menuBar->addMenu(popupMenu);
+		    else
+			action = menuBar->addAction(text);
 		    break;
 		case MFT_BITMAP:
-		    if (popupMenu)
-			action = menuBar->addMenu(text, popupMenu);
-/*		    else
-			action = menuBar->addAction(icon, text);*/
+                    if (popupMenu)
+			action = menuBar->addMenu(popupMenu);
+                    else
+			action = menuBar->addAction(text);
 		    break;
 		default:
 		    break;
 		}
+                if (action && !icon.isNull())
+                    action->setIcon(icon);
 	    }
 
 	    if (action) {
