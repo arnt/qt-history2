@@ -103,6 +103,7 @@ kernel {
 		  $$KERNEL_CPP/qcursor_win.cpp \
 		  $$KERNEL_CPP/qdesktopwidget_win.cpp \
 		  $$KERNEL_CPP/qdnd_win.cpp \
+		  $$KERNEL_CPP/qeventloop_win.cpp \
 		  $$KERNEL_CPP/qfont_win.cpp \
 		  $$KERNEL_CPP/qinputcontext_win.cpp \
 		  $$KERNEL_CPP/qmime_win.cpp \
@@ -116,7 +117,7 @@ kernel {
 		  $$KERNEL_CPP/qthread_win.cpp \
 		  $$KERNEL_CPP/qwidget_win.cpp \
 		  $$KERNEL_CPP/qole_win.c
-	
+
 	unix:x11 {
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
 		          $$KERNEL_CPP/qclipboard_x11.cpp \
@@ -137,7 +138,7 @@ kernel {
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	}
 
-	mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp 
+	mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp
         !embedded:mac {
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
@@ -239,7 +240,7 @@ kernel {
 	accessibility {
 	      HEADERS += $$KERNEL_H/qaccessible.h
 	      SOURCES += $$KERNEL_CPP/qaccessible.cpp
-	
+
 	      win32:SOURCES += $$KERNEL_CPP/qaccessible_win.cpp
 	}
 }

@@ -104,6 +104,10 @@ static UINT prsAdjust(PACKET p, HCTX hTab);
 static void initWinTabFunctions();	// resolve the WINTAB api functions
 #endif
 
+extern bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+			    UINT wMsgFilterMax, UINT wRemoveMsg );
+extern bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
 #include <mywinsock.h>
@@ -237,13 +241,8 @@ static char	 appName[120];			// application name
 static HINSTANCE appInst	= 0;		// handle to app instance
 static HINSTANCE appPrevInst	= 0;		// handle to prev app instance
 static int	 appCmdShow	= 0;		// main window show command
-static int	 numZeroTimers	= 0;		// number of full-speed timers
 static HWND	 curWin		= 0;		// current window
 static HDC	 displayDC	= 0;		// display device context
-//#define USE_HEARTBEAT
-#if defined(USE_HEARTBEAT)
-static int	 heartBeat	= 0;		// heatbeat timer
-#endif
 
 // Session management
 static bool	sm_blockUserInput    = FALSE;
@@ -268,14 +267,13 @@ static QWidget *popupButtonFocus   = 0;
 static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG *, int& ret );
 
-static DWORD qt_gui_thread = 0;
-
 QWidget	       *qt_button_down = 0;		// widget got last button-down
 
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
 static void	releaseAutoCapture();
 
+// ### Remove 4.0 [start] -------------------
 typedef void (*VFPTR)();
 // VFPTR qt_set_preselect_handler( VFPTR );
 static VFPTR qt_preselect_handler = 0;
@@ -304,7 +302,9 @@ QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
     qt_win_event_filter = filter;
     return old_filter;
 }
-static bool qt_winEventFilter( MSG* msg )
+// ### Remove 4.0 [end] --------------------
+
+bool qt_winEventFilter( MSG* msg )
 {
     if ( qt_win_event_filter && qt_win_event_filter( msg )  )
 	return TRUE;
@@ -313,17 +313,6 @@ static bool qt_winEventFilter( MSG* msg )
 
 static void	msgHandler( QtMsgType, const char* );
 static void     unregWinClasses();
-
-// Simpler timers are needed when Qt does not have the event loop,
-// such as for plugins.
-Q_EXPORT bool	qt_win_use_simple_timers = FALSE;
-void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
-
-static void	initTimers();
-static void	cleanupTimers();
-static bool	dispatchTimer( uint, MSG * );
-static bool	activateTimer( uint );
-static void	activateZeroTimers();
 
 static int	translateKeyCode( int );
 
@@ -784,18 +773,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 	QApplication::setFont( f );
     }
 
-#if defined(USE_HEARTBEAT)
-    /*
-      ########
-      The heartbeat timer should be slowed down if we get no user input
-      for some time and we should wake it up immediately when we get the
-      first user event (any mouse or keyboard event).
-      ########
-    */
-    heartBeat = SetTimer( 0, 0, 200,
-	qt_win_use_simple_timers ?
-	(TIMERPROC)qt_simple_timer_func : 0 );
-#endif
     // QFont::locale_init();  ### Uncomment when it does something on Windows
 
     if ( !qt_std_pal )
@@ -888,7 +865,6 @@ void qt_cleanup()
 #if defined(USE_HEARTBEAT)
     KillTimer( 0, heartBeat );
 #endif
-    cleanupTimers();
     unregWinClasses();
     QPixmapCache::clear();
     QPainter::cleanup();
@@ -1272,198 +1248,6 @@ void QApplication::beep()
     MessageBeep( MB_OK );
 }
 
-
-/*****************************************************************************
-  Safe configuration (move,resize,setGeometry) mechanism to avoid
-  recursion when processing messages.
- *****************************************************************************/
-
-#include "qptrqueue.h"
-
-struct QWinConfigRequest {
-    WId	 id;					// widget to be configured
-    int	 req;					// 0=move, 1=resize, 2=setGeo
-    int	 x, y, w, h;				// request parameters
-};
-
-static QPtrQueue<QWinConfigRequest> *configRequests = 0;
-
-void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
-{
-    if ( !configRequests )			// create queue
-	configRequests = new QPtrQueue<QWinConfigRequest>;
-    QWinConfigRequest *r = new QWinConfigRequest;
-    r->id = id;					// create new request
-    r->req = req;
-    r->x = x;
-    r->y = y;
-    r->w = w;
-    r->h = h;
-    configRequests->enqueue( r );		// store request in queue
-}
-
-static void qWinProcessConfigRequests()		// perform requests in queue
-{
-    if ( !configRequests )
-	return;
-    QWinConfigRequest *r;
-    for ( ;; ) {
-	if ( configRequests->isEmpty() )
-	    break;
-	r = configRequests->dequeue();
-	QWidget *w = QWidget::find( r->id );
-	if ( w ) {				// widget exists
-	    if ( w->testWState(Qt::WState_ConfigPending) )
-		return;				// biting our tail
-	    if ( r->req == 0 )
-		w->move( r->x, r->y );
-	    else if ( r->req == 1 )
-		w->resize( r->w, r->h );
-	    else
-		w->setGeometry( r->x, r->y, r->w, r->h );
-	}
-	delete r;
-    }
-    delete configRequests;
-    configRequests = 0;
-}
-
-
-/*****************************************************************************
-  Socket notifier (type: 0=read, 1=write, 2=exception)
-
-  The QSocketNotifier class (qsocketnotifier.h) provides installable callbacks
-  for select() through the internal function qt_set_socket_handler().
- *****************************************************************************/
-
-struct QSockNot {
-    QObject *obj;
-    int	     fd;
-};
-
-typedef QIntDict<QSockNot> QSNDict;
-
-static QSNDict *sn_read	  = 0;
-static QSNDict *sn_write  = 0;
-static QSNDict *sn_except = 0;
-
-static QSNDict**sn_vec[3] = { &sn_read, &sn_write, &sn_except };
-
-static uint	sn_msg	  = 0;			// socket notifier message
-static QWidget *sn_win	  = 0;			// win msg via this window
-
-
-static void sn_cleanup()
-{
-    for ( int i=0; i<3; i++ ) {
-	delete *sn_vec[i];
-	*sn_vec[i] = 0;
-    }
-}
-
-static void sn_init()
-{
-    if ( sn_win )
-	return;
-    qAddPostRoutine( sn_cleanup );
-#ifdef Q_OS_TEMP
-    sn_msg = RegisterWindowMessage(L"QtSNEvent");
-#else
-    sn_msg = RegisterWindowMessageA( "QtSNEvent" );
-#endif
-    sn_win = qApp->mainWidget();		// use main widget, if any
-    if ( !sn_win ) {				// create internal widget
-	sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
-	Q_CHECK_PTR( sn_win );
-    }
-    for ( int i=0; i<3; i++ ) {
-	*sn_vec[i] = new QSNDict;
-	Q_CHECK_PTR( *sn_vec[i] );
-	(*sn_vec[i])->setAutoDelete( TRUE );
-    }
-}
-
-
-bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
-{
-    if ( sockfd < 0 || type < 0 || type > 2 || obj == 0 ) {
-#if defined(QT_CHECK_RANGE)
-	qWarning( "QSocketNotifier: Internal error" );
-#endif
-	return FALSE;
-    }
-
-    QSNDict  *dict = *sn_vec[type];
-
-    if ( !dict && QApplication::closingDown() )
-	return FALSE; // after sn_cleanup, don't reinitialize.
-
-    QSockNot *sn;
-
-    if ( enable ) {				// enable notifier
-	if ( sn_win == 0 ) {
-	    sn_init();
-	    dict = *sn_vec[type];
-	}
-	sn = new QSockNot;
-	Q_CHECK_PTR( sn );
-	sn->obj = obj;
-	sn->fd	= sockfd;
-#if defined(QT_CHECK_STATE)
-	if ( dict->find(sockfd) ) {
-	    static const char *t[] = { "read", "write", "exception" };
-	    qWarning( "QSocketNotifier: Multiple socket notifiers for "
-		     "same socket %d and type %s", sockfd, t[type] );
-	}
-#endif
-	dict->insert( sockfd, sn );
-    } else {					// disable notifier
-	if ( dict == 0 )
-	    return FALSE;
-	if ( !dict->remove(sockfd) )		// did not find sockfd
-	    return FALSE;
-    }
-#ifndef Q_OS_TEMP // ### This probably needs fixing
-    int sn_event = 0;
-    if ( sn_read && sn_read->find(sockfd) )
-	sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
-    if ( sn_write && sn_write->find(sockfd) )
-	sn_event |= FD_WRITE | FD_CONNECT;
-    if ( sn_except && sn_except->find(sockfd) )
-	sn_event |= FD_OOB;
-  // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
-  // This is a BoundsChecker bug and not a Qt bug
-    WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? sn_msg : 0, sn_event );
-#else
-/*
-	fd_set	rd,wt,ex;
-	FD_ZERO(&rd);
-	FD_ZERO(&wt);
-	FD_ZERO(&ex);
-    if ( sn_read && sn_read->find(sockfd) )
-		FD_SET( sockfd, &rd );
-    if ( sn_write && sn_write->find(sockfd) )
-		FD_SET( sockfd, &wt );
-    if ( sn_except && sn_except->find(sockfd) )
-		FD_SET( sockfd, &ex );
-//	select( 1, &rd, &wt, &ex, NULL );
-*/
-#endif
-	return TRUE;
-}
-
-
-static void sn_activate_fd( int sockfd, int type )
-{
-    QSNDict  *dict = *sn_vec[type];
-    QSockNot *sn   = dict ? dict->find(sockfd) : 0;
-    if ( sn ) {
-	QEvent event( QEvent::SockAct );
-	QApplication::sendEvent( sn->obj, &event );
-    }
-}
-
-
 /*****************************************************************************
   Windows-specific drawing used here
  *****************************************************************************/
@@ -1568,154 +1352,6 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
   Main event loop
  *****************************************************************************/
 
-int QApplication::exec()
-{
-    quit_now = FALSE;
-    quit_code = 0;
-    qt_gui_thread = GetCurrentThreadId();
-    enter_loop();
-
-    return quit_code;
-}
-
-static bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
-		     UINT wMsgFilterMax, UINT wRemoveMsg )
-{
-#ifdef Q_OS_TEMP
-	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
-    else
-#endif
-	return PeekMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
-#endif
-}
-
-static bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
-		     UINT wMsgFilterMax )
-{
-#ifdef Q_OS_TEMP
-	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
-    else
-#endif
-	return GetMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
-#endif
-}
-
-static bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
-{
-#ifdef Q_OS_TEMP
-	return PostMessage( hWnd, msg, wParam, lParam );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	return PostMessage( hWnd, msg, wParam, lParam );
-    else
-#endif
-	return PostMessageA( hWnd, msg, wParam, lParam );
-#endif
-}
-
-bool QApplication::processNextEvent( bool canWait )
-{
-    MSG	 msg;
-
-#if defined(QT_THREAD_SUPPORT)
-    qApp->lock();
-#endif
-    emit guiThreadAwake();
-
-    sendPostedEvents();
-#if defined(QT_THREAD_SUPPORT)
-    qApp->unlock( FALSE );
-#endif
-
-    if ( canWait ) {				// can wait if necessary
-	if ( numZeroTimers ) {			// activate full-speed timers
-	    int ok = FALSE;
-	    while ( numZeroTimers &&
-		!(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) ) {
-#if defined(QT_THREAD_SUPPORT)
-		qApp->lock();
-#endif
-		activateZeroTimers();
-#if defined(QT_THREAD_SUPPORT)
-		qApp->unlock( FALSE );
-#endif
-	    }
-	    if ( !ok )	{			// no event
-		return FALSE;
-	    }
-	} else {
-	    if ( !winGetMessage(&msg,0,0,0) ) {
-#if defined(QT_THREAD_SUPPORT)
-		qApp->lock();
-#endif
-		quit();				// WM_QUIT received
-#if defined(QT_THREAD_SUPPORT)
-		qApp->unlock( FALSE );
-#endif
-		return FALSE;
-	    }
-	}
-    } else {					// no-wait mode
-	if ( !winPeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
-	    if ( numZeroTimers > 0 ) {		// there are 0-timers
-#if defined(QT_THREAD_SUPPORT)
-		qApp->lock();
-#endif
-		activateZeroTimers();
-#if defined(QT_THREAD_SUPPORT)
-		qApp->unlock( FALSE );
-#endif
-	    }
-	    return FALSE;
-	}
-    }
-
-    if ( msg.message == WM_TIMER ) {		// timer message received
-#if defined(QT_THREAD_SUPPORT)
-	qApp->lock();
-#endif
-	const bool handled = dispatchTimer( msg.wParam, &msg );
-#if defined(QT_THREAD_SUPPORT)
-	qApp->unlock( FALSE );
-#endif
-	if ( handled )
-	    return TRUE;
-    }
-
-    QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR
-
-#if defined(QT_THREAD_SUPPORT)
-    qApp->lock();
-#endif
-#ifdef Q_OS_TEMP
-	DispatchMessage( &msg );		// send to QtWndProc
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	DispatchMessage( &msg );		// send to QtWndProc
-    else
-#endif
-	DispatchMessageA( &msg );		// send to QtWndProc
-#endif
-    if ( configRequests )			// any pending configs?
-	qWinProcessConfigRequests();
-    sendPostedEvents();
-#if defined(QT_THREAD_SUPPORT)
-    qApp->unlock( FALSE );
-#endif
-
-    return TRUE;
-}
-
 
 void QApplication::processEvents( int maxtime )
 {
@@ -1727,17 +1363,6 @@ void QApplication::processEvents( int maxtime )
 }
 
 extern uint qGlobalPostedEventsCount();
-
-bool QApplication::hasPendingEvents()
-{
-    MSG msg;
-    return qGlobalPostedEventsCount() || winPeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE );
-}
-
-void QApplication::wakeUpGuiThread()
-{
-    PostThreadMessageA( qt_gui_thread, WM_NULL, 0, 0 );
-}
 
 /*!
     The message procedure calls this function for every message
@@ -1911,549 +1536,527 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( widget->winEvent(&msg) )		// send through widget filter
 	RETURN(0);
 
-    if ( sn_msg && message == sn_msg ) {	// socket notifier message
-	int type = -1;
+    if ( ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ||
+	    message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK )
+	    && message != WM_MOUSEWHEEL ) {
+	if ( qApp->activePopupWidget() != 0) { // in popup mode
+	    POINT curPos;
+	    DWORD ol_pos = GetMessagePos();
 #ifndef Q_OS_TEMP
-	switch ( WSAGETSELECTEVENT(lParam) ) {
-	case FD_READ:
-	case FD_CLOSE:
-	case FD_ACCEPT:
-	    type = 0;
-	    break;
-	case FD_WRITE:
-	case FD_CONNECT:
-	    type = 1;
-	    break;
-	case FD_OOB:
-	    type = 2;
+	    curPos.x = GET_X_LPARAM(ol_pos);
+	    curPos.y = GET_Y_LPARAM(ol_pos);
+#else
+	    curPos.x = LOWORD(ol_pos);
+	    curPos.y = HIWORD(ol_pos);
+#endif
+	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y, TRUE );
+	    if ( w )
+		widget = (QETWidget*)w;
+	}
+	if ( widget->isEnabled() &&
+		(message == WM_LBUTTONDOWN ||
+		message == WM_MBUTTONDOWN ||
+		message == WM_RBUTTONDOWN ||
+		message == WM_XBUTTONDOWN ) ) {
+	    QWidget* w = widget;
+	    while ( w->focusProxy() )
+		w = w->focusProxy();
+	    if ( w->focusPolicy() & QWidget::ClickFocus ) {
+		QFocusEvent::setReason( QFocusEvent::Mouse);
+		w->setFocus();
+		QFocusEvent::resetReason();
+	    }
+	}
+#if defined(QT_TABLET_SUPPORT)
+	if ( !chokeMouse )
+#endif
+	    widget->translateMouseEvent( msg );	// mouse event
+#if defined(QT_TABLET_SUPPORT)
+	else
+	    chokeMouse = FALSE;
+#endif
+    } else if ( message == WM95_MOUSEWHEEL ) {
+	result = widget->translateWheelEvent( msg );
+    } else {
+	switch ( message ) {
+	case WM_KEYDOWN:			// keyboard event
+	case WM_KEYUP:
+	case WM_SYSKEYDOWN:
+	case WM_SYSKEYUP:
+	case WM_IME_CHAR:
+	case WM_IME_KEYDOWN:
+	case WM_CHAR: {
+	    QWidget *g = QWidget::keyboardGrabber();
+	    if ( g )
+		widget = (QETWidget*)g;
+	    else if ( qApp->focusWidget() )
+		widget = (QETWidget*)qApp->focusWidget();
+	    else if ( !widget || widget->winId() == GetFocus() ) // We faked the message to go to exactly that widget.
+		widget = (QETWidget*)widget->topLevelWidget();
+	    if ( widget->isEnabled() )
+		result = widget->translateKeyEvent( msg, g != 0 );
 	    break;
 	}
-#endif
-	if ( type >= 0 )
-	    sn_activate_fd( wParam, type );
-    } else {
-	if ( ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ||
-	       message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK )
-	     && message != WM_MOUSEWHEEL ) {
-	    if ( qApp->activePopupWidget() != 0) { // in popup mode
-		POINT curPos;
-		DWORD ol_pos = GetMessagePos();
-#ifndef Q_OS_TEMP
-		curPos.x = GET_X_LPARAM(ol_pos);
-		curPos.y = GET_Y_LPARAM(ol_pos);
-#else
-		curPos.x = LOWORD(ol_pos);
-		curPos.y = HIWORD(ol_pos);
-#endif
-		QWidget* w = QApplication::widgetAt(curPos.x, curPos.y, TRUE );
-		if ( w )
-		    widget = (QETWidget*)w;
-	    }
-	    if ( widget->isEnabled() &&
-		 (message == WM_LBUTTONDOWN ||
-		  message == WM_MBUTTONDOWN ||
-		  message == WM_RBUTTONDOWN ||
-		  message == WM_XBUTTONDOWN ) ) {
-		QWidget* w = widget;
-		while ( w->focusProxy() )
-		    w = w->focusProxy();
-		if ( w->focusPolicy() & QWidget::ClickFocus ) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    w->setFocus();
-		    QFocusEvent::resetReason();
-		}
-	    }
-#if defined(QT_TABLET_SUPPORT)
-	    if ( !chokeMouse )
-#endif
-		widget->translateMouseEvent( msg );	// mouse event
-#if defined(QT_TABLET_SUPPORT)
-	    else
-		chokeMouse = FALSE;
-#endif
-	} else if ( message == WM95_MOUSEWHEEL ) {
+	case WM_SYSCHAR:
+	    result = TRUE;			// consume event
+	    break;
+
+	case WM_MOUSEWHEEL:
 	    result = widget->translateWheelEvent( msg );
-	} else {
-	    switch ( message ) {
-	    case WM_KEYDOWN:			// keyboard event
-	    case WM_KEYUP:
-	    case WM_SYSKEYDOWN:
-	    case WM_SYSKEYUP:
-	    case WM_IME_CHAR:
-	    case WM_IME_KEYDOWN:
-	    case WM_CHAR: {
-		QWidget *g = QWidget::keyboardGrabber();
-		if ( g )
-		    widget = (QETWidget*)g;
-		else if ( qApp->focusWidget() )
-		    widget = (QETWidget*)qApp->focusWidget();
-		else if ( !widget || widget->winId() == GetFocus() ) // We faked the message to go to exactly that widget.
-		    widget = (QETWidget*)widget->topLevelWidget();
-		if ( widget->isEnabled() )
-		    result = widget->translateKeyEvent( msg, g != 0 );
-		break;
-	    }
-	    case WM_SYSCHAR:
-		result = TRUE;			// consume event
-		break;
+	    break;
 
-	    case WM_MOUSEWHEEL:
-		result = widget->translateWheelEvent( msg );
-		break;
+	case WM_APPCOMMAND:
+	    {
+		uint cmd = GET_APPCOMMAND_LPARAM(lParam);
+		uint uDevice = GET_DEVICE_LPARAM(lParam);
+		uint dwKeys = GET_KEYSTATE_LPARAM(lParam);
 
-	    case WM_APPCOMMAND:
-		{
-		    uint cmd = GET_APPCOMMAND_LPARAM(lParam);
-		    uint uDevice = GET_DEVICE_LPARAM(lParam);
-		    uint dwKeys = GET_KEYSTATE_LPARAM(lParam);
+		int state = translateButtonState( dwKeys, QEvent::KeyPress, 0 );
 
-		    int state = translateButtonState( dwKeys, QEvent::KeyPress, 0 );
+		switch ( uDevice ) {
+		case FAPPCOMMAND_KEY:
+		    {
+			int key = 0;
 
-		    switch ( uDevice ) {
-		    case FAPPCOMMAND_KEY:
-			{
-			    int key = 0;
-
-			    switch( cmd ) {
-			    case APPCOMMAND_BASS_BOOST:
-				key = Qt::Key_BassBoost;
-				break;
-			    case APPCOMMAND_BASS_DOWN:
-				key = Qt::Key_BassDown;
-				break;
-			    case APPCOMMAND_BASS_UP:
-				key = Qt::Key_BassUp;
-				break;
-			    case APPCOMMAND_BROWSER_BACKWARD:
-				key = Qt::Key_Back;
-				break;
-			    case APPCOMMAND_BROWSER_FAVORITES:
-				key = Qt::Key_Favorites;
-				break;
-			    case APPCOMMAND_BROWSER_FORWARD:
-				key = Qt::Key_Forward;
-				break;
-			    case APPCOMMAND_BROWSER_HOME:
-				key = Qt::Key_HomePage;
-				break;
-			    case APPCOMMAND_BROWSER_REFRESH:
-				key = Qt::Key_Refresh;
-				break;
-			    case APPCOMMAND_BROWSER_SEARCH:
-				key = Qt::Key_Search;
-				break;
-			    case APPCOMMAND_BROWSER_STOP:
-				key = Qt::Key_Stop;
-				break;
-			    case APPCOMMAND_LAUNCH_APP1:
-				key = Qt::Key_Launch0;
-				break;
-			    case APPCOMMAND_LAUNCH_APP2:
-				key = Qt::Key_Launch1;
-				break;
-			    case APPCOMMAND_LAUNCH_MAIL:
-				key = Qt::Key_LaunchMail;
-				break;
-			    case APPCOMMAND_LAUNCH_MEDIA_SELECT:
-				key = Qt::Key_LaunchMedia;
-				break;
-			    case APPCOMMAND_MEDIA_NEXTTRACK:
-				key = Qt::Key_MediaNext;
-				break;
-			    case APPCOMMAND_MEDIA_PLAY_PAUSE:
-				key = Qt::Key_MediaPlay;
-				break;
-			    case APPCOMMAND_MEDIA_PREVIOUSTRACK:
-				key = Qt::Key_MediaPrev;
-				break;
-			    case APPCOMMAND_MEDIA_STOP:
-				key = Qt::Key_MediaStop;
-				break;
-			    case APPCOMMAND_TREBLE_DOWN:
-				key = Qt::Key_TrebleDown;
-				break;
-			    case APPCOMMAND_TREBLE_UP:
-				key = Qt::Key_TrebleUp;
-				break;
-			    case APPCOMMAND_VOLUME_DOWN:
-				key = Qt::Key_VolumeDown;
-				break;
-			    case APPCOMMAND_VOLUME_MUTE:
-				key = Qt::Key_VolumeMute;
-				break;
-			    case APPCOMMAND_VOLUME_UP:
-				key = Qt::Key_VolumeUp;
-				break;
-			    default:
-				break;
-			    }
-			    if ( key ) {
-				bool res = FALSE;
-				QWidget *g = QWidget::keyboardGrabber();
-				if ( g )
-				    widget = (QETWidget*)g;
-				else if ( qApp->focusWidget() )
-				    widget = (QETWidget*)qApp->focusWidget();
-				else
-				    widget = (QETWidget*)widget->topLevelWidget();
-				if ( widget->isEnabled() )
-				    res = ((QETWidget*)widget)->sendKeyEvent( QEvent::KeyPress, key, 0, state, FALSE, QString::null, g != 0 );
-				if ( res )
-				    return TRUE;
-			    }
-			}
-			break;
-
-		    default:
-			break;
-		    }
-
-		    result = FALSE;
-		}
-		break;
-
-#ifndef Q_OS_TEMP
-	    case WM_NCMOUSEMOVE:
-		{
-		    // span the application wide cursor over the
-		    // non-client area.
-		    QCursor *c = qt_grab_cursor();
-		    if ( !c )
-			c = QApplication::overrideCursor();
-		    if ( c )	// application cursor defined
-			SetCursor( c->handle() );
-		    else
-			result = FALSE;
-		    // generate leave event also when the caret enters
-		    // the non-client area.
-		    qt_dispatchEnterLeave( 0, QWidget::find(curWin) );
-		    curWin = 0;
-		}
-		break;
-#endif
-
-	    case WM_SYSCOMMAND:
-#ifndef Q_OS_TEMP
-		switch( wParam ) {
-		case SC_CONTEXTHELP:
-		    QWhatsThis::enterWhatsThisMode();
-#if defined(UNICODE)
-		    if ( qt_winver & Qt::WV_NT_based )
-			DefWindowProc( hwnd, WM_NCPAINT, 1, 0 );
-		    else
-#endif
-			DefWindowProcA( hwnd, WM_NCPAINT, 1, 0 );
-		    break;
-#if defined(QT_NON_COMMERCIAL)
-		    QT_NC_SYSCOMMAND
-#endif
-		case SC_MAXIMIZE:
-		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
-		    result = FALSE;
-		    break;
-		case SC_MINIMIZE:
-		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMinimized ) );
-		    result = FALSE;
-		    break;
-		case SC_RESTORE:
-		    QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
-		    result = FALSE;
-		    break;
-		default:
-		    result = FALSE;
-		    break;
-		}
-#endif
-		break;
-
-	    case WM_SETTINGCHANGE:
-		if ( !msg.wParam ) {
-		    QString area =
-	#if defined(UNICODE)
-			( qt_winver & Qt::WV_NT_based ) ? qt_winQString( (void*)msg.lParam ) :
-	#endif
-			QString::fromLocal8Bit( (char*)msg.lParam );
-		    if ( area == "intl" )
-			QApplication::postEvent( widget, new QEvent( QEvent::LocaleChange ) );
-		}
-		break;
-
-#ifndef Q_OS_TEMP
-	    case WM_NCLBUTTONDBLCLK:
-		if ( wParam == HTCAPTION ) {
-		    if ( widget->isMaximized() )
-			QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
-		    else
-			QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
-		}
-		result = FALSE;
-		break;
-#endif
-		case WM_PAINT:				// paint event
-		result = widget->translatePaintEvent( msg );
-		break;
-
-	    case WM_ERASEBKGND:			// erase window background
-		{
-		    RECT r;
-		    QPoint offset = widget->backgroundOffset();
-		    int ox = offset.x();
-		    int oy = offset.y();
-		    GetClientRect( hwnd, &r );
-		    qt_erase_background
-			( (HDC)wParam, r.left, r.top,
-			  r.right-r.left, r.bottom-r.top,
-			  widget->backgroundColor(),
-			  widget->backgroundPixmap(), ox, oy );
-		    RETURN(TRUE);
-		}
-		break;
-
-	    case WM_MOVE:				// move window
-	    case WM_SIZE:				// resize window
-		result = widget->translateConfigEvent( msg );
-		if ( widget->isMaximized() )
-		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
-		break;
-
-	    case WM_ACTIVATE:
-#if defined (QT_TABLET_SUPPORT)
-		if ( ptrWTOverlap && ptrWTEnable ) {
-		    // cooperate with other tablet applications, but when
-		    // we get focus, I want to use the tablet...
-		    if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
-			if ( ptrWTEnable(hTab, TRUE) ) {
-			    bool present = !ptrWTOverlap(hTab, TRUE);
-#if defined(QT_CHECK_STATE)
-			    if ( !present )
-				qWarning( "Failed to re-enable tablet context" );
-#endif
-			}
-		    }
-		}
-#endif
-		if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
-		    QWidget::find((HWND)lParam) == 0 ) {
-		    // Another application was activated while our popups are open,
-		    // then close all popups.  In case some popup refuses to close,
-		    // we give up after 1024 attempts (to avoid an infinite loop).
-		    int maxiter = 1024;
-		    QWidget *popup;
-		    while ( (popup=QApplication::activePopupWidget()) && maxiter-- )
-			popup->close();
-		}
-		qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
-		break;
-
-#ifndef Q_OS_TEMP
-	    case WM_MOUSEACTIVATE:
-		{
-		    const QWidget *tlw = widget->topLevelWidget();
-		    // Do not change activation if the clicked widget is inside a floating dock window
-		    if ( tlw->inherits( "QDockWindow" ) ) {
-			if ( tlw->focusWidget() )
-			    RETURN(MA_ACTIVATE);
-			if ( tlw->parentWidget() && !tlw->parentWidget()->isActiveWindow() )
-			    tlw->parentWidget()->setActiveWindow();
-			RETURN(MA_NOACTIVATE);
-		    }
-		}
-		result = FALSE;
-		break;
-#endif
-
-	    case WM_PALETTECHANGED:			// our window changed palette
-		if ( QColor::hPal() && (WId)wParam == widget->winId() )
-		    RETURN(0);			// otherwise: FALL THROUGH!
-		// FALL THROUGH
-	    case WM_QUERYNEWPALETTE:		// realize own palette
-		if ( QColor::hPal() ) {
-		    HDC hdc = GetDC( widget->winId() );
-		    HPALETTE hpalOld = SelectPalette( hdc, QColor::hPal(), FALSE );
-		    uint n = RealizePalette( hdc );
-		    if ( n )
-			InvalidateRect( widget->winId(), 0, TRUE );
-		    SelectPalette( hdc, hpalOld, TRUE );
-		    RealizePalette( hdc );
-		    ReleaseDC( widget->winId(), hdc );
-		    RETURN(n);
-		}
-		break;
-
-	    case WM_CLOSE:				// close window
-		widget->translateCloseEvent( msg );
-		RETURN(0);				// always handled
-
-	    case WM_DESTROY:			// destroy window
-		if ( hwnd == curWin ) {
-		    QEvent leave( QEvent::Leave );
-		    QApplication::sendEvent( widget, &leave );
-		    curWin = 0;
-		}
-		if ( widget == popupButtonFocus )
-		    popupButtonFocus = 0;
-		result = FALSE;
-		break;
-
-#ifndef Q_OS_TEMP
-	    case WM_GETMINMAXINFO:
-		if ( widget->xtra() ) {
-		    MINMAXINFO *mmi = (MINMAXINFO *)lParam;
-		    QWExtra	   *x = widget->xtra();
-		    QRect	   f  = widget->frameGeometry();
-		    QSize	   s  = widget->size();
-		    if ( x->minw > 0 )
-			mmi->ptMinTrackSize.x = x->minw + f.width()	 - s.width();
-		    if ( x->minh > 0 )
-			mmi->ptMinTrackSize.y = x->minh + f.height() - s.height();
-		    if ( x->maxw < QWIDGETSIZE_MAX )
-			mmi->ptMaxTrackSize.x = x->maxw + f.width()	 - s.width();
-		    if ( x->maxh < QWIDGETSIZE_MAX )
-			mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
-		    RETURN(0);
-		}
-		break;
-
-		case WM_CONTEXTMENU:
-		{
-		    // it's not VK_APPS or Shift+F10, but a click in the NC area
-		    if ( lParam != (int)0xffffffff ) {
-			result = FALSE;
-			break;
-		    }
-		    QWidget *fw = qApp->focusWidget();
-		    if ( fw ) {
-			QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), fw->mapToGlobal( QPoint( 5, 5 ) ), 0 );
-			result = qt_sendSpontaneousEvent( fw, &e );
-		    }
-		}
-		break;
-#endif
-
-	    case WM_IME_STARTCOMPOSITION:
-    		result = QInputContext::startComposition();
-		break;
-	    case WM_IME_ENDCOMPOSITION:
-		result = QInputContext::endComposition();
-		break;
-	    case WM_IME_COMPOSITION:
-		result = QInputContext::composition( lParam );
-		break;
-
-#ifndef Q_OS_TEMP
-	    case WM_CHANGECBCHAIN:
-	    case WM_DRAWCLIPBOARD:
-	    case WM_RENDERFORMAT:
-	    case WM_RENDERALLFORMATS:
-		if ( qt_clipboard ) {
-		    QCustomEvent e( QEvent::Clipboard, &msg );
-		    qt_sendSpontaneousEvent( qt_clipboard, &e );
-		    RETURN(0);
-		}
-		result = FALSE;
-		break;
-#endif
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-	    case WM_GETOBJECT:
-		{
-		    // Ignoring all requests while starting up
-		    if ( qApp->startingUp() || !qApp->loopLevel() || lParam != OBJID_CLIENT ) {
-			result = FALSE;
-			break;
-		    }
-
-		    typedef LRESULT (WINAPI *PtrLresultFromObject)(REFIID, WPARAM, LPUNKNOWN );
-		    static PtrLresultFromObject ptrLresultFromObject = 0;
-		    static bool oleaccChecked = FALSE;
-
-		    if ( !oleaccChecked ) {
-			oleaccChecked = TRUE;
-			ptrLresultFromObject = (PtrLresultFromObject)QLibrary::resolve( "oleacc.dll", "LresultFromObject" );
-		    }
-		    if ( ptrLresultFromObject ) {
-			QAccessibleInterface *acc = 0;
-			QAccessible::queryAccessibleInterface( widget, &acc );
-			if ( !acc ) {
-			    result = FALSE;
+			switch( cmd ) {
+			case APPCOMMAND_BASS_BOOST:
+			    key = Qt::Key_BassBoost;
+			    break;
+			case APPCOMMAND_BASS_DOWN:
+			    key = Qt::Key_BassDown;
+			    break;
+			case APPCOMMAND_BASS_UP:
+			    key = Qt::Key_BassUp;
+			    break;
+			case APPCOMMAND_BROWSER_BACKWARD:
+			    key = Qt::Key_Back;
+			    break;
+			case APPCOMMAND_BROWSER_FAVORITES:
+			    key = Qt::Key_Favorites;
+			    break;
+			case APPCOMMAND_BROWSER_FORWARD:
+			    key = Qt::Key_Forward;
+			    break;
+			case APPCOMMAND_BROWSER_HOME:
+			    key = Qt::Key_HomePage;
+			    break;
+			case APPCOMMAND_BROWSER_REFRESH:
+			    key = Qt::Key_Refresh;
+			    break;
+			case APPCOMMAND_BROWSER_SEARCH:
+			    key = Qt::Key_Search;
+			    break;
+			case APPCOMMAND_BROWSER_STOP:
+			    key = Qt::Key_Stop;
+			    break;
+			case APPCOMMAND_LAUNCH_APP1:
+			    key = Qt::Key_Launch0;
+			    break;
+			case APPCOMMAND_LAUNCH_APP2:
+			    key = Qt::Key_Launch1;
+			    break;
+			case APPCOMMAND_LAUNCH_MAIL:
+			    key = Qt::Key_LaunchMail;
+			    break;
+			case APPCOMMAND_LAUNCH_MEDIA_SELECT:
+			    key = Qt::Key_LaunchMedia;
+			    break;
+			case APPCOMMAND_MEDIA_NEXTTRACK:
+			    key = Qt::Key_MediaNext;
+			    break;
+			case APPCOMMAND_MEDIA_PLAY_PAUSE:
+			    key = Qt::Key_MediaPlay;
+			    break;
+			case APPCOMMAND_MEDIA_PREVIOUSTRACK:
+			    key = Qt::Key_MediaPrev;
+			    break;
+			case APPCOMMAND_MEDIA_STOP:
+			    key = Qt::Key_MediaStop;
+			    break;
+			case APPCOMMAND_TREBLE_DOWN:
+			    key = Qt::Key_TrebleDown;
+			    break;
+			case APPCOMMAND_TREBLE_UP:
+			    key = Qt::Key_TrebleUp;
+			    break;
+			case APPCOMMAND_VOLUME_DOWN:
+			    key = Qt::Key_VolumeDown;
+			    break;
+			case APPCOMMAND_VOLUME_MUTE:
+			    key = Qt::Key_VolumeMute;
+			    break;
+			case APPCOMMAND_VOLUME_UP:
+			    key = Qt::Key_VolumeUp;
+			    break;
+			default:
 			    break;
 			}
-
-			QCustomEvent e( QEvent::Accessibility, acc );
-			QApplication::sendEvent( widget, &e );
-
-			// and get an instance of the IAccessibile implementation
-			IAccessible *iface = qt_createWindowsAccessible( acc );
-			acc->release();
-			LRESULT res = ptrLresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
-			iface->Release(); // the client will release the object again, and then it will destroy itself
-
-			if ( res > 0 )
-			    RETURN(res);
+			if ( key ) {
+			    bool res = FALSE;
+			    QWidget *g = QWidget::keyboardGrabber();
+			    if ( g )
+				widget = (QETWidget*)g;
+			    else if ( qApp->focusWidget() )
+				widget = (QETWidget*)qApp->focusWidget();
+			    else
+				widget = (QETWidget*)widget->topLevelWidget();
+			    if ( widget->isEnabled() )
+				res = ((QETWidget*)widget)->sendKeyEvent( QEvent::KeyPress, key, 0, state, FALSE, QString::null, g != 0 );
+			    if ( res )
+				return TRUE;
+			}
 		    }
-		}
-		result = FALSE;
-		break;
-#endif
-#if defined (QT_TABLET_SUPPORT)
-	    case WT_PACKET:
-		// Get the packets and also don't link against the actual library...
-		if ( ptrWTPacketsGet ) {
-		    if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
-			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
-		    }
-		}
-		break;
-	    case WT_PROXIMITY:		
-		// flush the QUEUE
-		if ( ptrWTPacketsGet )
-		    ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
-		break;
-#endif
-
-	    case WM_SETFOCUS:
-		if ( !QWidget::find( (HWND)wParam ) ) // we didn't set focus, so set it now
-		    widget->setFocus();
-		result = FALSE;
-		break;
-
-	    case WM_KILLFOCUS:
-		if ( !QWidget::find( (HWND)wParam ) ) // we don't get focus, so unset it now
-		    widget->clearFocus();
-		result = FALSE;
-		break;
-
-	    case WM_THEMECHANGED:
-		if ( widget->testWFlags( Qt::WType_Desktop ) || !qApp || qApp->closingDown() )
 		    break;
 
-		qApp->style().unPolish( qApp );
-
-		if ( widget->testWState(Qt::WState_Polished) )
-		    qApp->style().unPolish(widget);
-
-		qApp->style().polish( qApp );
-
-		if ( widget->testWState(Qt::WState_Polished) )
-		    qApp->style().polish(widget);
-		widget->repolishStyle( qApp->style() );
-		if ( widget->isVisible() )
-		    widget->update();
-		break;
-
-	    case WM_INPUTLANGCHANGE: {
-		char info[7];
-		if ( !GetLocaleInfoA( MAKELCID(lParam, SORT_DEFAULT), LOCALE_IDEFAULTANSICODEPAGE, info, 6 ) ) {
-		    qDebug("GetLocaleInfo failed, msg= %d", GetLastError() );
-		    inputcharset = CP_ACP;
-		} else {
-		    inputcharset = QString( info ).toInt();
+		default:
+		    break;
 		}
-		break;
+
+		result = FALSE;
 	    }
+	    break;
+
+#ifndef Q_OS_TEMP
+	case WM_NCMOUSEMOVE:
+	    {
+		// span the application wide cursor over the
+		// non-client area.
+		QCursor *c = qt_grab_cursor();
+		if ( !c )
+		    c = QApplication::overrideCursor();
+		if ( c )	// application cursor defined
+		    SetCursor( c->handle() );
+		else
+		    result = FALSE;
+		// generate leave event also when the caret enters
+		// the non-client area.
+		qt_dispatchEnterLeave( 0, QWidget::find(curWin) );
+		curWin = 0;
+	    }
+	    break;
+#endif
+
+	case WM_SYSCOMMAND:
+#ifndef Q_OS_TEMP
+	    switch( wParam ) {
+	    case SC_CONTEXTHELP:
+		QWhatsThis::enterWhatsThisMode();
+#if defined(UNICODE)
+		if ( qt_winver & Qt::WV_NT_based )
+		    DefWindowProc( hwnd, WM_NCPAINT, 1, 0 );
+		else
+#endif
+		    DefWindowProcA( hwnd, WM_NCPAINT, 1, 0 );
+		break;
+#if defined(QT_NON_COMMERCIAL)
+		QT_NC_SYSCOMMAND
+#endif
+	    case SC_MAXIMIZE:
+		QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+		result = FALSE;
+		break;
+	    case SC_MINIMIZE:
+		QApplication::postEvent( widget, new QEvent( QEvent::ShowMinimized ) );
+		result = FALSE;
+		break;
+	    case SC_RESTORE:
+		QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
+		result = FALSE;
+		break;
 	    default:
-		result = FALSE;			// event was not processed
+		result = FALSE;
 		break;
 	    }
+#endif
+	    break;
+
+	case WM_SETTINGCHANGE:
+	    if ( !msg.wParam ) {
+		QString area =
+    #if defined(UNICODE)
+		    ( qt_winver & Qt::WV_NT_based ) ? qt_winQString( (void*)msg.lParam ) :
+    #endif
+		    QString::fromLocal8Bit( (char*)msg.lParam );
+		if ( area == "intl" )
+		    QApplication::postEvent( widget, new QEvent( QEvent::LocaleChange ) );
+	    }
+	    break;
+
+#ifndef Q_OS_TEMP
+	case WM_NCLBUTTONDBLCLK:
+	    if ( wParam == HTCAPTION ) {
+		if ( widget->isMaximized() )
+		    QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
+		else
+		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+	    }
+	    result = FALSE;
+	    break;
+#endif
+	    case WM_PAINT:				// paint event
+	    result = widget->translatePaintEvent( msg );
+	    break;
+
+	case WM_ERASEBKGND:			// erase window background
+	    {
+		RECT r;
+		QPoint offset = widget->backgroundOffset();
+		int ox = offset.x();
+		int oy = offset.y();
+		GetClientRect( hwnd, &r );
+		qt_erase_background
+		    ( (HDC)wParam, r.left, r.top,
+			r.right-r.left, r.bottom-r.top,
+			widget->backgroundColor(),
+			widget->backgroundPixmap(), ox, oy );
+		RETURN(TRUE);
+	    }
+	    break;
+
+	case WM_MOVE:				// move window
+	case WM_SIZE:				// resize window
+	    result = widget->translateConfigEvent( msg );
+	    if ( widget->isMaximized() )
+		QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+	    break;
+
+	case WM_ACTIVATE:
+#if defined (QT_TABLET_SUPPORT)
+	    if ( ptrWTOverlap && ptrWTEnable ) {
+		// cooperate with other tablet applications, but when
+		// we get focus, I want to use the tablet...
+		if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
+		    if ( ptrWTEnable(hTab, TRUE) ) {
+			bool present = !ptrWTOverlap(hTab, TRUE);
+#if defined(QT_CHECK_STATE)
+			if ( !present )
+			    qWarning( "Failed to re-enable tablet context" );
+#endif
+		    }
+		}
+	    }
+#endif
+	    if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
+		QWidget::find((HWND)lParam) == 0 ) {
+		// Another application was activated while our popups are open,
+		// then close all popups.  In case some popup refuses to close,
+		// we give up after 1024 attempts (to avoid an infinite loop).
+		int maxiter = 1024;
+		QWidget *popup;
+		while ( (popup=QApplication::activePopupWidget()) && maxiter-- )
+		    popup->close();
+	    }
+	    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
+	    break;
+
+#ifndef Q_OS_TEMP
+	case WM_MOUSEACTIVATE:
+	    {
+		const QWidget *tlw = widget->topLevelWidget();
+		// Do not change activation if the clicked widget is inside a floating dock window
+		if ( tlw->inherits( "QDockWindow" ) ) {
+		    if ( tlw->focusWidget() )
+			RETURN(MA_ACTIVATE);
+		    if ( tlw->parentWidget() && !tlw->parentWidget()->isActiveWindow() )
+			tlw->parentWidget()->setActiveWindow();
+		    RETURN(MA_NOACTIVATE);
+		}
+	    }
+	    result = FALSE;
+	    break;
+#endif
+
+	case WM_PALETTECHANGED:			// our window changed palette
+	    if ( QColor::hPal() && (WId)wParam == widget->winId() )
+		RETURN(0);			// otherwise: FALL THROUGH!
+	    // FALL THROUGH
+	case WM_QUERYNEWPALETTE:		// realize own palette
+	    if ( QColor::hPal() ) {
+		HDC hdc = GetDC( widget->winId() );
+		HPALETTE hpalOld = SelectPalette( hdc, QColor::hPal(), FALSE );
+		uint n = RealizePalette( hdc );
+		if ( n )
+		    InvalidateRect( widget->winId(), 0, TRUE );
+		SelectPalette( hdc, hpalOld, TRUE );
+		RealizePalette( hdc );
+		ReleaseDC( widget->winId(), hdc );
+		RETURN(n);
+	    }
+	    break;
+
+	case WM_CLOSE:				// close window
+	    widget->translateCloseEvent( msg );
+	    RETURN(0);				// always handled
+
+	case WM_DESTROY:			// destroy window
+	    if ( hwnd == curWin ) {
+		QEvent leave( QEvent::Leave );
+		QApplication::sendEvent( widget, &leave );
+		curWin = 0;
+	    }
+	    if ( widget == popupButtonFocus )
+		popupButtonFocus = 0;
+	    result = FALSE;
+	    break;
+
+#ifndef Q_OS_TEMP
+	case WM_GETMINMAXINFO:
+	    if ( widget->xtra() ) {
+		MINMAXINFO *mmi = (MINMAXINFO *)lParam;
+		QWExtra	   *x = widget->xtra();
+		QRect	   f  = widget->frameGeometry();
+		QSize	   s  = widget->size();
+		if ( x->minw > 0 )
+		    mmi->ptMinTrackSize.x = x->minw + f.width()	 - s.width();
+		if ( x->minh > 0 )
+		    mmi->ptMinTrackSize.y = x->minh + f.height() - s.height();
+		if ( x->maxw < QWIDGETSIZE_MAX )
+		    mmi->ptMaxTrackSize.x = x->maxw + f.width()	 - s.width();
+		if ( x->maxh < QWIDGETSIZE_MAX )
+		    mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
+		RETURN(0);
+	    }
+	    break;
+
+	    case WM_CONTEXTMENU:
+	    {
+		// it's not VK_APPS or Shift+F10, but a click in the NC area
+		if ( lParam != (int)0xffffffff ) {
+		    result = FALSE;
+		    break;
+		}
+		QWidget *fw = qApp->focusWidget();
+		if ( fw ) {
+		    QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), fw->mapToGlobal( QPoint( 5, 5 ) ), 0 );
+		    result = qt_sendSpontaneousEvent( fw, &e );
+		}
+	    }
+	    break;
+#endif
+
+	case WM_IME_STARTCOMPOSITION:
+    	    result = QInputContext::startComposition();
+	    break;
+	case WM_IME_ENDCOMPOSITION:
+	    result = QInputContext::endComposition();
+	    break;
+	case WM_IME_COMPOSITION:
+	    result = QInputContext::composition( lParam );
+	    break;
+
+#ifndef Q_OS_TEMP
+	case WM_CHANGECBCHAIN:
+	case WM_DRAWCLIPBOARD:
+	case WM_RENDERFORMAT:
+	case WM_RENDERALLFORMATS:
+	    if ( qt_clipboard ) {
+		QCustomEvent e( QEvent::Clipboard, &msg );
+		qt_sendSpontaneousEvent( qt_clipboard, &e );
+		RETURN(0);
+	    }
+	    result = FALSE;
+	    break;
+#endif
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	case WM_GETOBJECT:
+	    {
+		// Ignoring all requests while starting up
+		if ( qApp->startingUp() || !qApp->loopLevel() || lParam != OBJID_CLIENT ) {
+		    result = FALSE;
+		    break;
+		}
+
+		typedef LRESULT (WINAPI *PtrLresultFromObject)(REFIID, WPARAM, LPUNKNOWN );
+		static PtrLresultFromObject ptrLresultFromObject = 0;
+		static bool oleaccChecked = FALSE;
+
+		if ( !oleaccChecked ) {
+		    oleaccChecked = TRUE;
+		    ptrLresultFromObject = (PtrLresultFromObject)QLibrary::resolve( "oleacc.dll", "LresultFromObject" );
+		}
+		if ( ptrLresultFromObject ) {
+		    QAccessibleInterface *acc = 0;
+		    QAccessible::queryAccessibleInterface( widget, &acc );
+		    if ( !acc ) {
+			result = FALSE;
+			break;
+		    }
+
+		    QCustomEvent e( QEvent::Accessibility, acc );
+		    QApplication::sendEvent( widget, &e );
+
+		    // and get an instance of the IAccessibile implementation
+		    IAccessible *iface = qt_createWindowsAccessible( acc );
+		    acc->release();
+		    LRESULT res = ptrLresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
+		    iface->Release(); // the client will release the object again, and then it will destroy itself
+
+		    if ( res > 0 )
+			RETURN(res);
+		}
+	    }
+	    result = FALSE;
+	    break;
+#endif
+#if defined (QT_TABLET_SUPPORT)
+	case WT_PACKET:
+	    // Get the packets and also don't link against the actual library...
+	    if ( ptrWTPacketsGet ) {
+		if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
+		    result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
+		}
+	    }
+	    break;
+	case WT_PROXIMITY:		
+	    // flush the QUEUE
+	    if ( ptrWTPacketsGet )
+		ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+	    break;
+#endif
+
+	case WM_SETFOCUS:
+	    if ( !QWidget::find( (HWND)wParam ) ) // we didn't set focus, so set it now
+		widget->setFocus();
+	    result = FALSE;
+	    break;
+
+	case WM_KILLFOCUS:
+	    if ( !QWidget::find( (HWND)wParam ) ) // we don't get focus, so unset it now
+		widget->clearFocus();
+	    result = FALSE;
+	    break;
+
+	case WM_THEMECHANGED:
+	    if ( widget->testWFlags( Qt::WType_Desktop ) || !qApp || qApp->closingDown() )
+		break;
+
+	    qApp->style().unPolish( qApp );
+
+	    if ( widget->testWState(Qt::WState_Polished) )
+		qApp->style().unPolish(widget);
+
+	    qApp->style().polish( qApp );
+
+	    if ( widget->testWState(Qt::WState_Polished) )
+		qApp->style().polish(widget);
+	    widget->repolishStyle( qApp->style() );
+	    if ( widget->isVisible() )
+		widget->update();
+	    break;
+
+	case WM_INPUTLANGCHANGE: {
+	    char info[7];
+	    if ( !GetLocaleInfoA( MAKELCID(lParam, SORT_DEFAULT), LOCALE_IDEFAULTANSICODEPAGE, info, 6 ) ) {
+		qDebug("GetLocaleInfo failed, msg= %d", GetLastError() );
+		inputcharset = CP_ACP;
+	    } else {
+		inputcharset = QString( info ).toInt();
+	    }
+	    break;
+	}
+	default:
+	    result = FALSE;			// event was not processed
+	    break;
 	}
     }
 
@@ -2707,247 +2310,6 @@ void QApplication::closePopup( QWidget *popup )
 }
 
 
-/*****************************************************************************
-  Timer handling; Our routines depend on Windows timer functions, but we
-  need some extra handling to activate objects at timeout.
-
-  Implementation note: There are two types of timer identifiers. Windows
-  timer ids (internal use) are stored in TimerInfo.  Qt timer ids are
-  indexes (+1) into the timerVec vector.
-
-  NOTE: These functions are for internal use. QObject::startTimer() and
-	QObject::killTimer() are for public use.
-	The QTimer class provides a high-level interface which translates
-	timer events into signals.
-
-  qStartTimer( interval, obj )
-	Starts a timer which will run until it is killed with qKillTimer()
-	Arguments:
-	    int interval	timer interval in milliseconds
-	    QObject *obj	where to send the timer event
-	Returns:
-	    int			timer identifier, or zero if not successful
-
-  qKillTimer( timerId )
-	Stops a timer specified by a timer identifier.
-	Arguments:
-	    int timerId		timer identifier
-	Returns:
-	    bool		TRUE if successful
-
-  qKillTimer( obj )
-	Stops all timers that are sent to the specified object.
-	Arguments:
-	    QObject *obj	object receiving timer events
-	Returns:
-	    bool		TRUE if successful
- *****************************************************************************/
-
-//
-// Internal data structure for timers
-//
-
-#include "qptrvector.h"
-#include "qintdict.h"
-
-struct TimerInfo {				// internal timer info
-    uint     ind;				// - Qt timer identifier - 1
-    uint     id;				// - Windows timer identifier
-    bool     zero;				// - zero timing
-    QObject *obj;				// - object to receive events
-};
-typedef QPtrVector<TimerInfo>  TimerVec;		// vector of TimerInfo structs
-typedef QIntDict<TimerInfo> TimerDict;		// fast dict of timers
-
-static TimerVec  *timerVec  = 0;		// timer vector
-static TimerDict *timerDict = 0;		// timer dict
-
-
-void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
-{
-    dispatchTimer( idEvent, 0 );
-}
-
-
-// Activate a timer, used by both event-loop based and simple timers.
-
-static bool dispatchTimer( uint timerId, MSG *msg )
-{
-#if defined(USE_HEARTBEAT)
-    if ( timerId != (WPARAM)heartBeat ) {
-	if ( !msg || !qApp || !qt_winEventFilter(msg) )
-	    return activateTimer( timerId );
-    } else if ( curWin && qApp ) {		// process heartbeat
-	POINT p;
-	GetCursorPos( &p );
-	HWND newWin = WindowFromPoint(p);
-	if ( newWin != curWin && QWidget::find(newWin) == 0 ) {
-	    qt_dispatchEnterLeave( 0, QWidget::find(curWin) );
-	    curWin = 0;
-	}
-    }
-#else
-    if ( !msg || !qApp || !qt_winEventFilter(msg) )
-	return activateTimer( timerId );
-#endif
-    return TRUE;
-}
-
-
-//
-// Timer activation (called from the event loop when WM_TIMER arrives)
-//
-
-static bool activateTimer( uint id )		// activate timer
-{
-    if ( !timerVec )				// should never happen
-	return FALSE;
-    register TimerInfo *t = timerDict->find( id );
-    if ( !t )					// no such timer id
-	return FALSE;
-    QTimerEvent e( t->ind + 1 );
-    QApplication::sendEvent( t->obj, &e );	// send event
-    return TRUE;				// timer event was processed
-}
-
-static void activateZeroTimers()		// activate full-speed timers
-{
-    if ( !timerVec )
-	return;
-    uint i=0;
-    register TimerInfo *t = 0;
-    int n = numZeroTimers;
-    while ( n-- ) {
-	for ( ;; ) {
-	    t = timerVec->at(i++);
-	    if ( t && t->zero )
-		break;
-	    else if ( i == timerVec->size() )		// should not happen
-		return;
-	}
-	QTimerEvent e( t->ind + 1 );
-	QApplication::sendEvent( t->obj, &e );
-    }
-}
-
-
-//
-// Timer initialization and cleanup routines
-//
-
-static void initTimers()			// initialize timers
-{
-    timerVec = new TimerVec( 128 );
-    Q_CHECK_PTR( timerVec );
-    timerVec->setAutoDelete( TRUE );
-    timerDict = new TimerDict( 29 );
-    Q_CHECK_PTR( timerDict );
-}
-
-static void cleanupTimers()			// remove pending timers
-{
-    register TimerInfo *t;
-    if ( !timerVec )				// no timers were used
-	return;
-    for ( uint i=0; i<timerVec->size(); i++ ) {		// kill all pending timers
-	t = timerVec->at( i );
-	if ( t && !t->zero )
-	    KillTimer( 0, t->id );
-    }
-    delete timerDict;
-    timerDict = 0;
-    delete timerVec;
-    timerVec  = 0;
-
-    if ( qt_win_use_simple_timers ) {
-	// Dangerous to leave WM_TIMER events in the queue if they have our
-	// timerproc (eg. Qt-based DLL plugins may be unloaded)
-	MSG msg;
-	while (winPeekMessage( &msg, (HWND)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
-	    continue;
-    }
-}
-
-
-//
-// Main timer functions for starting and killing timers
-//
-
-
-int qStartTimer( int interval, QObject *obj )
-{
-    register TimerInfo *t;
-    if ( !timerVec )				// initialize timer data
-	initTimers();
-    int ind = timerVec->findRef( 0 );		// get free timer
-    if ( ind == -1 || !obj ) {
-	ind = timerVec->size();			// increase the size
-	timerVec->resize( ind * 4 );
-    }
-    t = new TimerInfo;				// create timer entry
-    Q_CHECK_PTR( t );
-    t->ind  = ind;
-    t->obj  = obj;
-
-    if ( qt_win_use_simple_timers ) {
-	t->zero = FALSE;
-	t->id = SetTimer( 0, 0, (uint)interval,
-			  (TIMERPROC)qt_simple_timer_func );
-    } else {
-	t->zero = interval == 0;
-	if ( t->zero ) {			// add zero timer
-	    t->id = (uint)50000 + ind;		// unique, high id ##########
-	    numZeroTimers++;
-	} else {
-	    t->id = SetTimer( 0, 0, (uint)interval, 0 );
-	}
-    }
-    if ( t->id == 0 ) {
-#if defined(QT_CHECK_STATE)
-	qSystemWarning( "qStartTimer: Failed to create a timer." );
-#endif
-	delete t;				// could not set timer
-	return 0;
-    }
-    timerVec->insert( ind, t );			// store in timer vector
-    timerDict->insert( t->id, t );		// store in dict
-    return ind + 1;				// return index in vector
-}
-
-bool qKillTimer( int ind )
-{
-    if ( !timerVec || ind <= 0 || (uint)ind > timerVec->size() )
-	return FALSE;
-    register TimerInfo *t = timerVec->at(ind-1);
-    if ( !t )
-	return FALSE;
-    if ( t->zero )
-	numZeroTimers--;
-    else
-	KillTimer( 0, t->id );
-    timerDict->remove( t->id );
-    timerVec->remove( ind-1 );
-    return TRUE;
-}
-
-bool qKillTimer( QObject *obj )
-{
-    if ( !timerVec )
-	return FALSE;
-    register TimerInfo *t;
-    for ( uint i=0; i<timerVec->size(); i++ ) {
-	t = timerVec->at( i );
-	if ( t && t->obj == obj ) {		// object found
-	    if ( t->zero )
-		numZeroTimers--;
-	    else
-		KillTimer( 0, t->id );
-	    timerDict->remove( t->id );
-	    timerVec->remove( i );
-	}
-    }
-    return TRUE;
-}
 
 
 /*****************************************************************************
