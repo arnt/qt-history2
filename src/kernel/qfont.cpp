@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#84 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#84 $");
 
 
 /*!
@@ -181,7 +181,7 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.italic    = italic;
     if ( defFont )
 	d->req.charSet   = defFont->d->req.charSet;
-    debug( "requested font %d", (int) d->req.charSet );
+    //debug( "requested font %d", (int) d->req.charSet );
 }
 
 
