@@ -1871,6 +1871,11 @@ void QTable::fixCol( int &col, int x )
     }
 }
 
+struct SortableTableItem
+{
+    QTableItem *item;
+};
+
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
@@ -1880,8 +1885,8 @@ static int cmpTableItems( const void *n1, const void *n2 )
     if ( !n1 || !n2 )
 	return 0;
 
-    QTable::SortableItem *i1 = (QTable::SortableItem *)n1;
-    QTable::SortableItem *i2 = (QTable::SortableItem *)n2;
+    SortableTableItem *i1 = (SortableTableItem *)n1;
+    SortableTableItem *i2 = (SortableTableItem *)n2;
 
     return i1->item->key().compare( i2->item->key() );
 }
@@ -1915,7 +1920,7 @@ void QTable::sortColumn( int col, bool ascending )
     if ( !filledRows )
 	return;
 
-    QTable::SortableItem *items = new QTable::SortableItem[ filledRows ];
+    SortableTableItem *items = new SortableTableItem[ filledRows ];
     int j = 0;
     for ( i = 0; i < rows(); ++i ) {
 	QTableItem *item = cellContent( i, col );
@@ -1924,7 +1929,7 @@ void QTable::sortColumn( int col, bool ascending )
 	items[ j++ ].item = item;
     }
 
-    qsort( items, filledRows, sizeof( QTable::SortableItem ), cmpTableItems );
+    qsort( items, filledRows, sizeof( SortableTableItem ), cmpTableItems );
 
     contents.setAutoDelete( FALSE );
     for ( i = 0; i < rows(); ++i ) {
@@ -2016,7 +2021,7 @@ QTableHeader::QTableHeader( int i, QTable *t, QWidget *parent, const char *name 
 void QTableHeader::addLabel( const QString &s )
 {
     states.resize( states.count() + 1 );
-    states[ states.count() - 1 ] = Normal;
+    states[ (int)states.count() - 1 ] = Normal;
     QHeader::addLabel( s );
 }
 

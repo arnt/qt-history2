@@ -89,7 +89,7 @@ class QTable : public QScrollView
     Q_OBJECT
     friend class QTableItem;
     friend class QTableHeader;
-
+    
 public:
     enum EditMode { NotEditing, Editing, Replacing };
 
@@ -201,11 +201,6 @@ private:
 	bool active;
 	int topRow, leftCol, bottomRow, rightCol;
 	int anchorRow, anchorCol;
-    };
-
-    struct SortableItem
-    {
-	QTableItem *item;
     };
 
     void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
