@@ -399,6 +399,10 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 	qWarning("Invalue window handle %08x",cmd->simpleData.windowid);
 	return;
     }
+    if ( !changingw->forClient(client) ) {
+       qWarning("Disabled: clients changing other client's window region");
+        return;
+     }
     setWindowRegion( changingw, region );
 }
 
@@ -496,17 +500,18 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
     
 void QWSWindow::addAllocation(QRegion r)
 {
-    allocated_region |= r & requested_region;
+    QRegion added = r & requested_region;
+    allocated_region |= added;
 
     QWSRegionAddEvent event;
     event.type = QWSEvent::RegionAdd;
     event.window = id;
-    event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
+    event.nrectangles = added.rects().count(); // XXX MAJOR WASTAGE
     c->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
 #if 1//DEBUG
-qDebug("Add region (%d rects) to %p",event.nrectangles, c);
+qDebug("Add region (%d rects) to %p/%d",event.nrectangles, c,id);
 #endif
-    c->writeRegion( r );
+    c->writeRegion( added );
 }
 
 bool QWSWindow::removeAllocation(QRegion r)
@@ -525,7 +530,7 @@ bool QWSWindow::removeAllocation(QRegion r)
 	c->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
 
 #if 1 //DEBUG
-qDebug("Remove region (%d rects) from %p", event.nrectangles, c);
+qDebug("Remove region (%d rects) from %p/%d", event.nrectangles, c, id);
 
 #endif 
 	
@@ -600,11 +605,9 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
     // otherwise do it straight away.
     
     pendingWindex = windex;
-    changingw->addAllocation(allocation); 
     
     if ( pending_region_acks == 0 ) {
-	pendingRegion = QRegion();
-	givePendingRegion(); //slightly slower, but easier to maintain.
+	changingw->addAllocation(allocation); 
     } else {
 	pendingRegion = exposed;
     }
@@ -616,7 +619,8 @@ void QWSServer::givePendingRegion()
     // Finally, give anything exposed...
     
     QWSWindow* changingw = windows.at( pendingWindex );
-    changingw->addAllocation(pendingAllocation); 
+    if ( changingw )
+	changingw->addAllocation(pendingAllocation); 
     
     for (uint i=pendingWindex+1; i<windows.count(); i++) {
 	if ( exposed.isEmpty() )
