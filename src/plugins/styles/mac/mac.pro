@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET	 = qmacstyle
 
-CONFIG  += qt warn_off release plugin
+CONFIG  += qt warn_off plugin
 DESTDIR	 = $$QT_BUILD_TREE/plugins/styles
 
 HEADERS		= ../../../gui/styles/qmacstyle_mac.h \
