@@ -45,7 +45,8 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 #if defined (USE_ARCHIVES)
     readArchive( "sys.arq", tmpPath );
 #endif
-    
+    triedToIntegrate = false;
+
     connect( &autoContTimer, SIGNAL( timeout() ), this, SLOT( timerFired() ) );
 }
 
@@ -288,7 +289,7 @@ void SetupWizardImpl::doFinalIntegration()
 
 void SetupWizardImpl::integratorDone()
 {
-    if( !integrator.normalExit() )
+    if( ( !integrator.normalExit() ) && ( triedToIntegrate ) )
 	logOutput( "The integration process failed.\n", true );
     else {
 	setNextEnabled( buildPage, true );
@@ -326,6 +327,7 @@ void SetupWizardImpl::makeDone()
 
 	    integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) + "\\Tools\\Designer\\Integration\\QMsDev" );
 	    integrator.setArguments( args );
+	    triedToIntegrate = true;
 	    if( !integrator.start() )
 		logOutput( "Could not start integrator process" );
 	}
@@ -723,7 +725,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		args += QString( "-sql-" ) + entry;
 	    }
 
-	    args += "-no-qmake";
+// When we change our minds again, uncomment this line....
+//	    args += "-no-qmake";
 
 	    outputDisplay->append( args.join( " " ) + "\n" );
 	    configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );

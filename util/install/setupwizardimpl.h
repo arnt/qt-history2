@@ -97,6 +97,7 @@ private:
     QMap<QString,QString> licenseInfo;
     QTimer autoContTimer;
     int timeCounter;
+    bool triedToIntegrate;
 
 public:
     void stopProcesses();
