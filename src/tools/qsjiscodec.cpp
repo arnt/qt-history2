@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsjiscodec.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qsjiscodec.cpp#3 $
 **
 ** Implementation of QSjisCodec class
 **
@@ -100,8 +100,8 @@ QCString QSjisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
     int rlen = l*2+1;
-    QCString rstr(lren);
-    uchar* cursor = rsts.data();
+    QCString rstr(rlen);
+    uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
 	uint j, s;
@@ -125,7 +125,7 @@ QCString QSjisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 	    *cursor++ = '?';	// unknown char
 	}
     }
-    len_in_out = cursor - result;
+    len_in_out = cursor - (uchar*)rstr.data();
     *cursor = 0;
     return rstr;
 }

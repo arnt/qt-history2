@@ -120,7 +120,9 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qdatetime.h \
 		  $$TOOLS_H/qdict.h \
 		  $$TOOLS_H/qdir.h \
-		  $$TOOLS_H/qeuccodec.h \
+		  $$TOOLS_H/qeucjpcodec.h \
+		  $$TOOLS_H/qjiscodec.h \
+		  $$TOOLS_H/qsjiscodec.h \
 		  $$TOOLS_H/qfile.h \
 		  $$TOOLS_H/qfiledefs.h \
 		  $$TOOLS_H/qfileinfo.h \
@@ -239,7 +241,9 @@ SOURCES	       += tools/qbitarray.cpp \
 		  tools/qdatastream.cpp \
 		  tools/qdatetime.cpp \
 		  tools/qdir.cpp \
-		  tools/qeuccodec.cpp \
+		  tools/qeucjpcodec.cpp \
+		  tools/qjiscodec.cpp \
+		  tools/qsjiscodec.cpp \
 		  tools/qfile.cpp \
 		  tools/qfileinfo.cpp \
 		  tools/qgarray.cpp \
