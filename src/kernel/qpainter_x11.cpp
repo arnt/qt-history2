@@ -2926,6 +2926,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
             cfont.d->textWidth( shaped, 0, len, cache ); // create cache
             bool retval = FALSE;
+	    QFontPrivate::TextRun *runs = cache;
             while ( cache ) {
                 QPoint p( x + cache->xoff, y + cache->yoff );
                 QString s =
@@ -2936,7 +2937,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
                 retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
                 cache = cache->next;
             }
-            delete cache;
+            delete runs;
             if ( !retval || !hd )
                 return;
         }
