@@ -20,14 +20,140 @@
 #include <qhash.h>
 #include <quuid.h>
 #include <stdlib.h>
-#include <qcoresettings.h>
+#include <qt_windows.h>
 
 //#define DEBUG_SOLUTION_GEN
 //#define DEBUG_PROJECT_GEN
 
 // Registry keys for .NET version detection -------------------------
-const char* _regNet2002                = "Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
-const char* _regNet2003                = "Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir";
+const char* _regNet2002                = "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
+const char* _regNet2003                = "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir";
+
+static QString keyPath(const QString &rKey)
+{
+    int idx = rKey.lastIndexOf(QLatin1Char('\\'));
+    if (idx == -1)
+        return QString();
+    return rKey.left(idx + 1);
+}
+
+static QString keyName(const QString &rKey)
+{
+    int idx = rKey.lastIndexOf(QLatin1Char('\\'));
+    if (idx == -1)
+        return rKey;
+
+    QString res(rKey.mid(idx + 1));
+    if (res == "Default" || res == ".")
+        res = "";
+    return res;
+}
+
+static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
+{
+
+    QString rSubkeyName = keyName(rSubkey);
+    QString rSubkeyPath = keyPath(rSubkey);
+
+    HKEY handle = 0;
+    LONG res;
+    QT_WA( {
+        res = RegOpenKeyExW(parentHandle, rSubkeyPath.utf16(),
+                            0, KEY_READ, &handle);
+    } , {
+        res = RegOpenKeyExA(parentHandle, rSubkeyPath.local8Bit(),
+                            0, KEY_READ, &handle);
+    } );
+
+    if (res != ERROR_SUCCESS)
+        return QString();
+
+    // get the size and type of the value
+    DWORD dataType;
+    DWORD dataSize;
+    QT_WA( {
+        res = RegQueryValueExW(handle, rSubkeyName.utf16(), 0, &dataType, 0, &dataSize);
+    }, {
+        res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, &dataType, 0, &dataSize);
+    } );
+    if (res != ERROR_SUCCESS) {
+        RegCloseKey(handle);
+        return QString();
+    }
+
+    // get the value
+    QByteArray data(dataSize, 0);
+    QT_WA( {
+        res = RegQueryValueExW(handle, rSubkeyName.utf16(), 0, 0,
+                               reinterpret_cast<unsigned char*>(data.data()), &dataSize);
+    }, {
+        res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, 0,
+                               reinterpret_cast<unsigned char*>(data.data()), &dataSize);
+    } );
+    if (res != ERROR_SUCCESS) {
+        RegCloseKey(handle);
+        return QString();
+    }
+
+    QString result;
+    switch (dataType) {
+        case REG_EXPAND_SZ:
+        case REG_SZ: {
+            QT_WA( {
+                result = QString::fromUtf16(((const ushort*)data.constData()));
+            }, {
+                result = QString::fromLatin1(data.constData());
+            } );
+            break;
+        }
+
+        case REG_MULTI_SZ: {
+            QStringList l;
+            int i = 0;
+            for (;;) {
+                QString s;
+                QT_WA( {
+                    s = QString::fromUtf16((const ushort*)data.constData() + i);
+                }, {
+                    s = QString::fromLatin1(data.constData() + i);
+                } );
+                i += s.length() + 1;
+
+                if (s.isEmpty())
+                    break;
+                l.append(s);
+            }
+	    result = l.join(", ");
+            break;
+        }
+
+        case REG_NONE:
+        case REG_BINARY: {
+            QT_WA( {
+                result = QString::fromUtf16((const ushort*)data.constData(), data.size()/2);
+            }, {
+                result = QString::fromLatin1(data.constData(), data.size());
+            } );
+            break;
+        }
+
+        case REG_DWORD_BIG_ENDIAN:
+        case REG_DWORD: {
+            Q_ASSERT(data.size() == sizeof(int));
+            int i;
+            memcpy((char*)&i, data.constData(), sizeof(int));
+	    result = QString::number(i);
+            break;
+        }
+
+        default:
+            qWarning("QSettings: unknown data %d type in windows registry", dataType);
+            break;
+    }
+
+    RegCloseKey(handle);
+    return result;
+}
 
 bool use_net2003_version()
 {
@@ -43,9 +169,8 @@ bool use_net2003_version()
     current_version = 70;
 
     // Get registry entries for both versions
-    QCoreSettings setting("\\HKEY_LOCAL_MACHINE\\Software", Qt::NativeFormat);
-    QString path2002 = setting.value(_regNet2002).toString();
-    QString path2003 = setting.value(_regNet2003).toString();
+    QString path2002 = readRegistryKey(HKEY_LOCAL_MACHINE, _regNet2002);
+    QString path2003 = readRegistryKey(HKEY_LOCAL_MACHINE, _regNet2003);
 
     if(path2002.isNull() || path2003.isNull()) {
         // Only have one MSVC, so use that one

@@ -72,9 +72,6 @@ QTOBJS= \
 	qunicodetables.obj \
 	quuid.obj \
 	qvector.obj \
-        qcorevariant.obj \
-	qcoresettings.obj \
-	qcoresettings_win.obj \
         qmetatype.obj
 
 first all: qmake.exe
@@ -169,15 +166,6 @@ qbitarray.obj: ..\src\core\tools\qbitarray.cpp
 
 qdir.obj: ..\src\core\io\qdir.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir.cpp
-
-qcorevariant.obj: ..\src\core\kernel\qcorevariant.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
-
-qcoresettings.obj: ..\src\core\io\qcoresettings.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings.cpp
-
-qcoresettings_win.obj: ..\src\core\io\qcoresettings_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings_win.cpp
 
 qmetatype.obj: ..\src\core\kernel\qmetatype.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qmetatype.cpp

@@ -51,7 +51,6 @@ QTOBJS= \
 	qunicodetables.o \
 	quuid.o \
 	qvector.o \
-        qcorevariant.o \
         qmetatype.o
 
 qmake.exe: $(OBJS) $(QTOBJS)
@@ -141,9 +140,6 @@ qbitarray.o: ..\src\core\tools\qbitarray.cpp
 
 qdir.o: ..\src\core\io\qdir.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir.cpp
-
-qcorevariant.o: ..\src\core\kernel\qcorevariant.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
 
 qmetatype.o: ..\src\core\kernel\qmetatype.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qmetatype.cpp

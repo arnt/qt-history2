@@ -72,21 +72,6 @@ protected:
     QCoreSettings(QCoreSettingsPrivate *p, QObject *parent = 0);
     bool event(QEvent *event);
 
-#ifdef QSETTINGS_EXPORT_PARSER_FUNCTIONS_FOR_TESTING
-public:
-#else
-    friend class QConfFileSettingsPrivate;
-#endif
-    static QString variantToStringCoreImpl(const QCoreVariant &v);
-    static QCoreVariant stringToVariantCoreImpl(const QString &s);
-    static void iniEscapedKey(const QString &key, QByteArray &result);
-    static bool iniUnescapedKey(const QByteArray &key, int from, int to, QString &result);
-    static void iniEscapedString(const QString &str, QByteArray &result);
-    static void iniChopTrailingSpaces(QString *str);
-    static void iniEscapedStringList(const QStringList &strs, QByteArray &result);
-    static QStringList *iniUnescapedStringList(const QByteArray &str, int from, int to,
-                                                QString &result);
-
 private:
 #ifdef Q_DISABLE_COPY
     QCoreSettings(const QCoreSettings &);

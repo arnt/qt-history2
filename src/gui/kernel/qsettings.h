@@ -129,12 +129,6 @@ private:
     QSettings(const QSettings &);
     QSettings &operator=(const QSettings &);
 #endif
-
-#ifdef QSETTINGS_EXPORT_PARSER_FUNCTIONS_FOR_TESTING
-public:
-#endif
-    static QString variantToStringGuiImpl(const QCoreVariant &v);
-    static QCoreVariant stringToVariantGuiImpl(const QString &s);
 };
 
 #endif // QSETTINGS_H

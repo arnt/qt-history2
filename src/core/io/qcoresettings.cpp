@@ -27,310 +27,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #define d d_func()
 #define q q_func()
 
-// ************************************************************************
-// Parsing functions
-
-
-static const char hexDigits[] = "0123456789ABCDEF";
-
-void QCoreSettings::iniEscapedKey(const QString &key, QByteArray &result)
-{
-    for (int i = 0; i < key.size(); ++i) {
-        uint ch = key.at(i).unicode();
-
-        if (ch == '/') {
-            result += '\\';
-        } else if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9'
-                || ch == '_' || ch == '-' || ch == '.') {
-            result += (char)ch;
-        } else if (ch <= 0xFF) {
-            result += '%';
-            result += hexDigits[ch / 16];
-            result += hexDigits[ch % 16];
-        } else {
-            result += "%U";
-            QByteArray hexCode;
-            for (int i = 0; i < 4; ++i) {
-                hexCode.prepend(hexDigits[ch % 16]);
-                ch >>= 4;
-            }
-            result += hexCode;
-        }
-    }
-}
-
-bool QCoreSettings::iniUnescapedKey(const QByteArray &key, int from, int to, QString &result)
-{
-    bool lowerCaseOnly = true;
-    int i = from;
-    while (i < to) {
-        int ch = (uchar)key.at(i);
-
-        if (ch == '\\') {
-            result += QLatin1Char('/');
-            ++i;
-            continue;
-        }
-
-        if (ch != '%' || i == to - 1) {
-            if (isupper((uchar)ch))
-                lowerCaseOnly = false;
-            result += QLatin1Char(ch);
-            ++i;
-            continue;
-        }
-
-        int numDigits = 2;
-        int firstDigitPos = i + 1;
-
-        ch = key.at(i + 1);
-        if (ch == 'U') {
-            ++firstDigitPos;
-            numDigits = 4;
-        }
-
-        if (firstDigitPos + numDigits > to) {
-            result += QLatin1Char('%');
-            ++i;
-            continue;
-        }
-
-        bool ok;
-        ch = key.mid(firstDigitPos, numDigits).toInt(&ok, 16);
-        if (!ok) {
-            result += QLatin1Char('%');
-            ++i;
-            continue;
-        }
-
-        QChar qch(ch);
-        if (qch.toLower() != qch)
-            lowerCaseOnly = false;
-        result += qch;
-        i = firstDigitPos + numDigits;
-    }
-    return lowerCaseOnly;
-}
-
-void QCoreSettings::iniEscapedString(const QString &str, QByteArray &result)
-{
-    bool needsQuotes = false;
-    bool escapeNextIfDigit = false;
-    int i;
-    int startPos = result.size();
-
-    for (i = 0; i < str.size(); ++i) {
-        uint ch = str.at(i).unicode();
-        if (ch == ';' || ch == ',' || ch == '=')
-            needsQuotes = true;
-
-        if (escapeNextIfDigit
-                && ((ch >= '0' && ch <= '9')
-                    || (ch >= 'a' && ch <= 'f')
-                    || (ch >= 'A' && ch <= 'F'))) {
-            result += "\\x";
-            result += QByteArray::number(ch, 16);
-            continue;
-        }
-
-        escapeNextIfDigit = false;
-
-        switch (ch) {
-        case '\0':
-            result += "\\0";
-            break;
-        case '\a':
-            result += "\\a";
-            break;
-        case '\b':
-            result += "\\b";
-            break;
-        case '\f':
-            result += "\\f";
-            break;
-        case '\n':
-            result += "\\n";
-            break;
-        case '\r':
-            result += "\\r";
-            break;
-        case '\t':
-            result += "\\t";
-            break;
-        case '\v':
-            result += "\\v";
-            break;
-        case '"':
-        case '\\':
-            result += '\\';
-            result += (char)ch;
-            break;
-        default:
-            if (ch <= 0x1F || ch >= 0x7F) {
-                result += "\\x";
-                result += QByteArray::number(ch, 16);
-                escapeNextIfDigit = true;
-            } else {
-                result += (char)ch;
-            }
-        }
-    }
-
-    if (needsQuotes
-            || (startPos < result.size() && (result.at(startPos) == ' '
-                                                || result.at(result.size() - 1) == ' '))) {
-        result.insert(startPos, '"');
-        result += '"';
-    }
-}
-
-void QCoreSettings::iniChopTrailingSpaces(QString *str)
-{
-    int n = str->size();
-    while (n > 0
-            && (str->at(n - 1) == QLatin1Char(' ') || str->at(n - 1) == QLatin1Char('\t')))
-        str->truncate(--n);
-}
-
-void QCoreSettings::iniEscapedStringList(const QStringList &strs, QByteArray &result)
-{
-    for (int i = 0; i < strs.size(); ++i) {
-        if (i != 0)
-            result += ", ";
-        iniEscapedString(strs.at(i), result);
-    }
-}
-
-QStringList *QCoreSettings::iniUnescapedStringList(const QByteArray &str, int from, int to,
-                                            QString &result)
-{
-    static const char escapeCodes[][2] =
-    {
-        { 'a', '\a' },
-        { 'b', '\b' },
-        { 'f', '\f' },
-        { 'n', '\n' },
-        { 'r', '\r' },
-        { 't', '\t' },
-        { 'v', '\v' },
-        { '"', '"' },
-        { '?', '?' },
-        { '\'', '\'' },
-        { '\\', '\\' }
-    };
-    static const int numEscapeCodes = sizeof(escapeCodes) / sizeof(escapeCodes[0]);
-
-    QStringList *strList = 0;
-    int i = from;
-
-    enum State { StNormal, StSkipSpaces, StEscape, StHexEscapeFirstChar, StHexEscape,
-                    StOctEscape };
-    State state = StSkipSpaces;
-    int escapeVal = 0;
-    bool inQuotedString = false;
-    bool currentValueIsQuoted = false;
-
-    while (i < to) {
-        char ch = str.at(i);
-
-        switch (state) {
-        case StNormal:
-            switch (ch) {
-            case '\\':
-                state = StEscape;
-                break;
-            case '"':
-                currentValueIsQuoted = true;
-                inQuotedString = !inQuotedString;
-                if (!inQuotedString)
-                    state = StSkipSpaces;
-                break;
-            case ',':
-                if (!inQuotedString) {
-                    if (!currentValueIsQuoted)
-                        iniChopTrailingSpaces(&result);
-                    if (!strList)
-                        strList = new QStringList;
-                    strList->append(result);
-                    result.clear();
-                    currentValueIsQuoted = false;
-                    state = StSkipSpaces;
-                    break;
-                }
-                /* fallthrough */
-            default:
-                result += QLatin1Char(ch);
-            }
-            ++i;
-            break;
-        case StSkipSpaces:
-            if (ch == ' ' || ch == '\t')
-                ++i;
-            else
-                state = StNormal;
-            break;
-        case StEscape:
-            for (int j = 0; j < numEscapeCodes; ++j) {
-                if (ch == escapeCodes[j][0]) {
-                    result += QLatin1Char(escapeCodes[j][1]);
-                    ++i;
-                    state = StNormal;
-                    goto end_of_switch;
-                }
-            }
-
-            if (ch == 'x') {
-                escapeVal = 0;
-                state = StHexEscapeFirstChar;
-            } else if (ch >= '0' && ch <= '7') {
-                escapeVal = ch - '0';
-                state = StOctEscape;
-            } else {
-                state = StNormal;
-            }
-            ++i;
-            break;
-        case StHexEscapeFirstChar:
-            if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F')
-                    || (ch >= 'a' && ch <= 'f'))
-                state = StHexEscape;
-            else
-                state = StNormal;
-            break;
-        case StHexEscape:
-            if (ch >= 'a')
-                ch -= 'a' - 'A';
-            if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F')) {
-                escapeVal <<= 4;
-                escapeVal += strchr(hexDigits, ch) - hexDigits;
-                ++i;
-            } else {
-                result += QChar(escapeVal);
-                state = StNormal;
-            }
-            break;
-        case StOctEscape:
-            if (ch >= '0' && ch <= '7') {
-                escapeVal <<= 3;
-                escapeVal += ch - '0';
-                ++i;
-            } else {
-                result += QChar(escapeVal);
-                state = StNormal;
-            }
-        }
-end_of_switch:
-        ;
-    }
-
-    if (state == StHexEscape || state == StOctEscape)
-        result += QChar(escapeVal);
-    if (!currentValueIsQuoted)
-        iniChopTrailingSpaces(&result);
-    if (strList)
-        strList->append(result);
-    return strList;
-}
+QSETTINGS_DEFINE_CORE_PARSER_FUNCTIONS
 
 // ************************************************************************
 // QConfFile
@@ -1154,7 +851,7 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
             } else {
                 currentSection.clear();
                 currentSectionIsLowerCase
-                    = QCoreSettings::iniUnescapedKey(iniSection, 0, iniSection.size(),
+                    = iniUnescapedKey(iniSection, 0, iniSection.size(),
                                                             currentSection);
                 currentSection += QLatin1Char('/');
             }
@@ -1166,13 +863,13 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
 
             QString key = currentSection;
             bool keyIsLowerCase
-                    = (QCoreSettings::iniUnescapedKey(line, 0, equalsCharPos, key)
+                    = (iniUnescapedKey(line, 0, equalsCharPos, key)
                                    && currentSectionIsLowerCase);
 
             QString strValue;
             strValue.reserve(len - equalsCharPos);
             QStringList *strListValue
-                    = QCoreSettings::iniUnescapedStringList(line, equalsCharPos + 1, len,
+                    = iniUnescapedStringList(line, equalsCharPos + 1, len,
                                                                strValue);
             QCoreVariant variant;
             if (strListValue) {
@@ -1216,7 +913,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     for (i = iniMap.constBegin(); i != iniMap.constEnd(); ++i) {
         QByteArray realSection;
 
-        QCoreSettings::iniEscapedKey(i.key(), realSection);
+        iniEscapedKey(i.key(), realSection);
 
         if (realSection.isEmpty()) {
             realSection = "[General]";
@@ -1236,14 +933,14 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         const QCoreVariantMap &ents = i.value();
         for (QCoreVariantMap::const_iterator j = ents.constBegin(); j != ents.constEnd(); ++j) {
             QByteArray block;
-            QCoreSettings::iniEscapedKey(j.key(), block);
+            iniEscapedKey(j.key(), block);
             block += '=';
 
             const QCoreVariant &value = j.value();
             if (value.type() == QCoreVariant::StringList || value.type() == QCoreVariant::List) {
-                QCoreSettings::iniEscapedStringList(variantListToStringList(value.toList()), block);
+                iniEscapedStringList(variantListToStringList(value.toList()), block);
             } else {
-                QCoreSettings::iniEscapedString(variantToString(value), block);
+                iniEscapedString(variantToString(value), block);
             }
             block += '\n';
             device.write(block);
@@ -1970,89 +1667,6 @@ QCoreVariant QCoreSettings::value(const QString &key, const QCoreVariant &defaul
     QString k = d->actualKey(key);
     d->get(k, &result);
     return result;
-}
-
-
-static QString &escapedLeadingAt(QString &s)
-{
-    if (s.length() > 0 && s.at(0) == QLatin1Char('@'))
-        s.prepend(QLatin1Char('@'));
-    return s;
-}
-
-static QString &unescapedLeadingAt(QString &s)
-{
-    if (s.length() >= 2
-        && s.at(0) == QLatin1Char('@')
-        && s.at(1) == QLatin1Char('@'))
-        s.remove(0, 1);
-    return s;
-}
-
-QString QCoreSettings::variantToStringCoreImpl(const QCoreVariant &v)
-{
-    QString result;
-
-    switch (v.type()) {
-        case QCoreVariant::Invalid:
-            break;
-
-        case QCoreVariant::ByteArray: {
-            QByteArray a = v.toByteArray();
-            result = QLatin1String("@ByteArray(");
-            result += QString::fromLatin1(a.constData(), a.size());
-            result += QLatin1Char(')');
-            break;
-        }
-
-        case QCoreVariant::String:
-        case QCoreVariant::LongLong:
-        case QCoreVariant::ULongLong:
-        case QCoreVariant::Int:
-        case QCoreVariant::UInt:
-        case QCoreVariant::Bool:
-        case QCoreVariant::Double: {
-            result = v.toString();
-            result = escapedLeadingAt(result);
-            break;
-        }
-
-        default: {
-            QByteArray a;
-            {
-                QDataStream s(&a, QIODevice::WriteOnly);
-                s << v;
-            }
-
-            result = QLatin1String("@Variant(");
-            result += QString::fromLatin1(a.constData(), a.size());
-            result += QLatin1Char(')');
-            break;
-        }
-    }
-
-    return result;
-}
-
-QCoreVariant QCoreSettings::stringToVariantCoreImpl(const QString &s)
-{
-    if (s.length() > 3
-            && s.at(0) == QLatin1Char('@')
-            && s.at(s.length() - 1) == QLatin1Char(')')) {
-
-        if (s.startsWith(QLatin1String("@ByteArray("))) {
-            return QCoreVariant(QByteArray(s.latin1() + 11, s.length() - 12));
-        } else if (s.startsWith(QLatin1String("@Variant("))) {
-            QByteArray a(s.latin1() + 9, s.length() - 10);
-            QDataStream stream(&a, QIODevice::ReadOnly);
-            QCoreVariant result;
-            stream >> result;
-            return result;
-        }
-    }
-
-    QString tmp = s;
-    return QCoreVariant(unescapedLeadingAt(tmp));
 }
 
 #endif // QT_NO_SETTINGS

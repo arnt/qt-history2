@@ -187,7 +187,7 @@ static HKEY createOrOpenKey(HKEY parentHandle, const QString &rSubKey, bool *rea
     }
 
     // try to open it read/only
-    resultHandle = openKey(parentHandle, KEY_ALL_ACCESS, rSubKey);
+    resultHandle = openKey(parentHandle, KEY_READ, rSubKey);
     if (resultHandle != 0) {
         if (readOnly != 0)
             *readOnly = true;

@@ -9,7 +9,7 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfile.o \
       qfileengine_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qtemporaryfile.o \
-      qmap.o qconfig.o qunicodetables.o qcorevariant.o qmetatype.o \
+      qmap.o qconfig.o qunicodetables.o qmetatype.o \
       qlocale.o qlinkedlist.o @QMAKE_QTOBJS@
 
 #all sources, used for the depend target
@@ -32,7 +32,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/core/tools/qlocale.cpp @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp \
 	   @SOURCE_PATH@/src/core/tools/qhash.cpp @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp \
 	   @SOURCE_PATH@/src/core/io/qtemporaryfile.cpp \
-           @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
+           @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
 
 CXXFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -80,9 +80,6 @@ qbytearray.o: @SOURCE_PATH@/src/core/tools/qbytearray.cpp
 
 qbytearraymatcher.o: @SOURCE_PATH@/src/core/tools/qbytearraymatcher.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $<
-
-qcorevariant.o: @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp
 
 qmetatype.o: @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
