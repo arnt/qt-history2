@@ -76,7 +76,7 @@ ApplicationWindow::ApplicationWindow()
 	"file2 operations",
 	"file3 operations",
 	"file4 operations"
-    };			
+    };
 
     if ( tbconfig ) {
 	QMap< QString, int >::Iterator dit, iit;
@@ -130,7 +130,7 @@ ApplicationWindow::ApplicationWindow()
 				    SLOT(toggleBigpix()), CTRL+Key_B );
     textlabelid = appMenu->insertItem( "&Text Labels", this,
 				    SLOT(toggleTextLabel()), CTRL+Key_T );
-    
+
     appMenu->insertSeparator();
     fullScreenId = appMenu->insertItem( "&Full Screen", this,
 					  SLOT(toggleFullScreen()), CTRL+Key_F );
@@ -167,7 +167,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	QToolBar* fileTools = new QToolBar( this, "file operations" );
 
 	openIcon = QPixmap( fileopen );
-	
+
  	QPushButton* tmp = new QPushButton( fileTools );
  	tmp->setText("Hallo");
 	QPopupMenu* popup = new QPopupMenu( this );
@@ -176,7 +176,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	popup->insertItem("Drei");
 	popup->insertItem("Vier");
  	tmp->setPopup( popup );
-	
+
 	QToolButton * fileOpen
 	    = new QToolButton( openIcon, "Open File", QString::null,
 			       this, SLOT(load()), fileTools, "open file" );
@@ -446,14 +446,16 @@ void ApplicationWindow::toggleFullScreen()
     menuBar()->setItemChecked( fullScreenId, full );
     if ( full ) {
 	storeGeometry = geometry();
-	reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop, 
+	reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop,
 		  QPoint(0,0) );
 	resize( qApp->desktop()->size() );
+	raise();
 	show();
 	setActiveWindow();
     } else {
 	reparent( 0, WType_TopLevel, storeGeometry.topLeft() );
 	resize( storeGeometry.size() );
 	show();
+	setActiveWindow();
     }
 }
