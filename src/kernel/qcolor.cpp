@@ -70,7 +70,7 @@
     red, \c darkRed, \c green, \c darkGreen, \c blue, \c darkBlue, \c
     cyan, \c darkCyan, \c magenta, \c darkMagenta, \c yellow, \c
     darkYellow, \c gray, \c darkGray, \c lightGray, \c color0 and \c
-    color1.
+    color1, accessible as members of the Qt namespace (ie. \c Qt::red).
 
     \img qt-colors.png Qt Colors
 
