@@ -303,7 +303,7 @@ void QFontPrivate::initFontInfo()
 	    actual.pointSize = actual.pixelSize * 720 / QPaintDeviceMetrics( paintdevice ).logicalDpiY();
 	else 
 	    actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps( GetDC( 0 ), LOGPIXELSY );
-    } else if ( request.pixelSize == -1 ) {
+    } else if ( actual.pixelSize == -1 ) {
 	if ( paintdevice )
 	    actual.pixelSize = actual.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720;
 	else
