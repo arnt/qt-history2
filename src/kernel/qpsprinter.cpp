@@ -102,7 +102,10 @@
 #endif
 #endif
 
+#ifdef Q_WS_X11
+#include "qfontdata_p.h"
 extern bool qt_has_xft;
+#endif
 
 static bool qt_gen_epsf = false;
 
@@ -697,7 +700,7 @@ static const char * const ps_header[] = {
 "    PCol SC", // really need to kill these SCs
 "    ty MT",
 "    1 index", // string cwidth string
-"    dup length exch", // string cwidth length string
+"    dup length 2 div exch", // string cwidth length string 	!have to divide by 2 since we use unicode!
 "    stringwidth pop", // string cwidth length pwidth
 "    3 -1 roll", // string length pwidth cwidth
 "    exch sub exch div", // string extraperchar
@@ -5032,22 +5035,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     QString fontname;
 
     // ### implement similar code for QWS and WIN
-#ifdef Q_WS_X11
-    int npaths;
-
-    bool xlfd = FALSE;
-    
-    int index = f.rawName().find('-');
-    if (index == 0) { 
-	// this is an XLFD font name 
-	for (int i=0; i < 6; i++) {
-	    index = f.rawName().find('-',index+1);
-	}
-	xfontname = f.rawName().mid(0,index);
-	xlfd = TRUE;
-    } else
-#endif
-	xfontname = makePSFontName( f );
+    xfontname = makePSFontName( f );
 
     // ### somehow the font dict doesn't seem to work without this. Don't ask me why...
     priv->fonts.size();
@@ -5074,20 +5062,40 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	{
 	    //qDebug("didnt find font for %s", xfontname.latin1());
 #ifdef Q_WS_X11
+	    f.d->load( (QFont::Script)script );
+	    QFontStruct *fs = f.d->x11data.fontstruct[script];
+	    qDebug("fs = %p, script=%d", fs, script);
+	    bool xlfd = FALSE;
+    
 #ifndef QT_NO_XFTFREETYPE
-	    // ###
-// 	    if ( qt_has_xft ) {
-// 		XftFont *font = (XftFont *) qt_ft_font( &f );
-// 		char *filename;
-// 		XftPatternGetString (font->pattern, XFT_FILE, 0, &filename);
-// 		qDebug("filename for font is '%s'", filename);
-// 		fontfilename = QString::fromLatin1( filename );
-// 	    } else
+	    if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle && fs->xftpattern ) {
+		XftPattern *font = (XftPattern *) fs->xftpattern;
+		qDebug("xfthandle=%p", font);
+		char *filename;
+		XftPatternGetString (font, XFT_FILE, 0, &filename);
+		qDebug("filename for font is '%s'", filename);
+		fontfilename = QString::fromLatin1( filename );
+	    } else
 #endif
-	    if ( xlfd ) {
-		char** font_path; 
-		font_path = XGetFontPath( qt_xdisplay(), &npaths);
-		for (int i=0; i<npaths && fontfilename.length()==0; i++) {
+	    {
+		QString rawName;
+		if ( fs && fs != (QFontStruct *)-1 )
+		    rawName = fs->name;
+		int index = rawName.find('-');
+		if (index == 0) { 
+		    // this is an XLFD font name 
+		    for (int i=0; i < 6; i++) {
+			index = rawName.find('-',index+1);
+		    }
+		    xfontname = rawName.mid(0,index);
+		    xlfd = TRUE;
+		}
+		if ( xlfd ) {
+		    char** font_path; 
+		    int npaths;
+    
+		    font_path = XGetFontPath( qt_xdisplay(), &npaths);
+		    for (int i=0; i<npaths && fontfilename.length()==0; i++) {
 		    if ((font_path[i])[0] != '/') continue; // not a path name, a font server
 		    QString fontmapname;
 		    int num = 0;
@@ -5129,6 +5137,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 		XFreeFontPath(font_path);
 	    }
 
+    }
 	    // memory mapping would be better here
 	    if (fontfilename.length() > 0) { // maybe there is no file name
 		QFile fontfile(fontfilename);
