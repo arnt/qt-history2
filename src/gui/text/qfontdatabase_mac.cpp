@@ -80,6 +80,7 @@ static void initializeDb()
                     QtFontStyle *style = foundry->style(styleKey, true);
                     style->pixelSize(font_size, true);
                     style->smoothScalable = true;
+#if 0
                     if(!italic) {
                         styleKey.oblique = true;
                         style = foundry->style(styleKey, true);
@@ -98,6 +99,7 @@ static void initializeDb()
                             style->smoothScalable = true;
                         }
                     }
+#endif
                 }
                 FMDisposeFontFamilyInstanceIterator(&fit);
             }
