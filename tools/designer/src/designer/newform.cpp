@@ -91,6 +91,9 @@ void NewForm::on_createButton_clicked()
             } else {
                 editor->setContents(QString());
             }
+
+            if (QWidget *container = editor->mainContainer())
+                formWindow->resize(container->size());
         }
         QString newTitle = QString::fromLatin1("Untitled");
         if (maxUntitled)
