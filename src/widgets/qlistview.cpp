@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#177 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#178 $
 **
 ** Implementation of QListView widget class
 **
@@ -217,6 +217,13 @@ struct QListViewPrivate
     }
   \endcode
 
+  (No iterator class is provided for QListViewItem, as a simple
+  iterator does not adequately express the choices QListViewItem
+  necessitates: Would <code>++it</code> mean "next sibling", "child if
+  any, else next sibling", "child if this object is open and has
+  children, else next subling" or any of a few other possible
+  meanings?)
+
   Note that the order of the children will change when the sorting
   order changes, and is undefined if the items are not visible.  You
   can however call enforceSortOrder() at any time, and QListView will
@@ -233,10 +240,10 @@ struct QListViewPrivate
   is the currently highlighted item.</ul>
 
   Some subclasses call setExpandable( TRUE ) even when they have no
-  children, and populate themselves when setup() is called.  The
-  dirview/dirview.cpp example program uses precisely this technique to
-  start up quickly: The files and subdirectories in a directory aren't
-  entered into the tree until they need to.
+  children, and populate themselves when setup() or setOpen( TRUE ) is
+  called.  The dirview/dirview.cpp example program uses precisely this
+  technique to start up quickly: The files and subdirectories in a
+  directory aren't entered into the tree until they need to.
 
   This example shows a number of root items in a QListView.  These
   items are actually subclassed from QListViewItem: The file size,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#11 $
 **
 ** Localization database support.
 **
@@ -124,6 +124,50 @@ static inline uint readhash( const char * c, int o, uint base ) {
 	    base);
 }
 
+
+
+/*! \class QMessageFile qmessagefile.h
+
+  \brief The QMessageFile class provides internationalization support for text output.
+
+  The class is conceptually very simple: An object of this class
+  contains a set of translations from the reference language to a
+  target language, and provides functions to add, look up and remove
+  such translations as well as the ability to load and save the object
+  to a file.
+
+  The most common use of QMessageFile is expected to be loading one
+  from a file, installing it using QApplication::installMessageFile(),
+  and using it via QObject::tr().
+
+  Slightly more advanced usage of QMessageFile includes direct lookup
+  using find() (with input almost invariably provided by hash()),
+  adding new translations using insert() and removing existing ones
+  using remove() or even clear(), and testing whether the QMessageFile
+  contains a translation using contains().
+
+  The hash() function mentioned is a variant on the standard ELF hash,
+  modified to work well with Unicode strings in UCS-2 format.  Its
+  algorithm is not specified beyond the fact that it will remain
+  unchanged in future versions of Qt.
+
+  Since QMessageFile offers functionality (insert(), remove()) that is
+  hard to implement such that the most common way of using
+  QMessageFile (load from file and never change), QMessageFile has two
+  entirely different internal representations.  It converts its
+  contents transparently between the two as required, using two
+  functions that are present in the API: squeeze() and unsqueeze().
+  squeeze() converts to a format that is well suited to on-disk
+  storage and read-only operations, unsqueeze() to one that takes more
+  space but can be changed easily.  You should never need to cal these
+  two functions; they are present in the API mostly because our
+  regression testing needs them.
+  
+  QMessageFile itself provides no way to list its contents, but the
+  QMessageFileIterator does.
+
+  \sa QMessageFileIterator QApplication::installMessageFile QApplication::removeMessageFile() QObject::tr() QApplication::translate()
+*/
 
 
 /*!  Constructs an empty message file, not connected to any file.
@@ -256,9 +300,9 @@ void QMessageFile::save( const QString & filename )
   Returns the string matching hash code \a h, or QString::null in
   case there is no string for \a h.
 
-  The \a scope and \a key arguments are not used in the default implementation,
-  but are available for QMessageFile subclasses to use
-  alternative translation techniques.
+  The \a scope and \a key arguments are not used in the default
+  implementation, but are available for QMessageFile subclasses to use
+  in alternative translation techniques.
 */
 
 QString QMessageFile::find( uint h, const char*, const char* ) const
@@ -306,7 +350,7 @@ QString QMessageFile::find( uint h, const char*, const char* ) const
 
 
 /*!  Returns a hash og \a scope and \a name.  Neither of the two may
-  be null (though hash() does not crash if they are).  The result of
+  be null (in which case the return value is unspecified).  The result of
   the hash function is never 0.
 
   This function will not change; you may rely on its output to remain
@@ -422,8 +466,8 @@ static int cmp( const void *n1, const void *n2 )
 
 
 /*!  Converts this message file to the compact format used to store
-  message files on disk.  This causes all string keys to be forgotten
-  (the compact format keeps only the hash code and result strings).
+  message files on disk.  You should never need to call this directly;
+  save() and other functions call it as necessary.
 */
 
 void QMessageFile::squeeze()
@@ -578,7 +622,18 @@ void QMessageFile::remove( uint h )
 
   \brief The QMessageFileIterator class provides the ability to list QMessageFile contents etc.
 
-  Normally not needed, and still not documented.
+  This class is a standard iterator, with a few peculiarities due to
+  the dual nature of QMessageFile.
+
+  Since it is not easily possible to keep iterators that point to the
+  squeezed format of QMessageFile and have the same iteration order as
+  for the unsqueezed format, calling QMessageFile::save() or
+  QMessageFile::squeeze() sets all iterators to 0, as if the
+  QMessageFile were cleared.
+
+  For other information about iterators, see e.g. QDictIterator.
+  
+  \sa QMessageFile
 */
 
 /*!  Constructs a QMessageFileIterator that operates on \a m */
