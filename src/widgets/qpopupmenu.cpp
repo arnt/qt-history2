@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#194 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#195 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -98,9 +98,6 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
   \brief The QPopupMenu class provides a popup menu widget.
 
   \ingroup realwidgets
-
-  The popup widget is different from other widgets in the way it
-  relates to the parent widget.
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
@@ -326,9 +323,10 @@ QString QPopupMenu::accelString( int k )
 /*!
   Constructs a popup menu with a parent and a widget name.
 
-  A popup menu is always a top level widget. The parent, however, will
-  know about this child and also delete it on destruction.
-
+  Although a popup menu is always a top level widget, if a parent is
+  passed, the popup menu will be deleted on destruction of that parent
+  (as with any other QObject).
+  
 */
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
@@ -1083,7 +1081,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( mi->iconSet() ) {		// draw iconset
 	    QIconSet::Mode mode = dis?QIconSet::Disabled:QIconSet::Normal;
 	    if ( style() == MotifStyle )
-		mode = QIconSet::Normal; // no disabled icons in Motif 
+		mode = QIconSet::Normal; // no disabled icons in Motif
 	    if (act && !dis )
 		mode = QIconSet::Active;
 	    QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
