@@ -1445,7 +1445,7 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
 }
 
 /*!
-    \class Q3ActionGroup qaction.h
+    \class Q3ActionGroup q3action.h
     \brief The Q3ActionGroup class groups actions together.
 
     \ingroup basic
