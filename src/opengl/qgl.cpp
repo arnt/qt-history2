@@ -1795,7 +1795,7 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
     bool wasCurrent = (QGLContext::currentContext() == ocx );
     ocx->doneCurrent();
     glcx = new QGLContext( fmt, &pm );
-    glcx->create( ocx );
+    glcx->create();
 
     if ( glcx->isValid() )
 	updateGL();
