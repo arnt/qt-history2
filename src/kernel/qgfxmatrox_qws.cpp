@@ -157,7 +157,6 @@ inline unsigned int QGfxMatrox<depth,type>::getRop(RasterOp r)
 template<const int depth,const int type>
 inline void QGfxMatrox<depth,type>::do_scissors(QRect & r)
 {
-    QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
     int t=linestep();
     t=(t*8)/depth;
 
@@ -395,7 +394,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     if(x2<x1) {
 	sgn |= 0x2;
     }
-    if(y2<y1) {	    
+    if(y2<y1) {	
 	sgn |= 0x4;
     }
 

@@ -45,7 +45,7 @@ public:
     volatile int fifomax;
     volatile unsigned int forecol;     // Foreground colour cacheing
     volatile unsigned int buffer_offset;   // Destination
-    volatile unsigned int linestep;
+    volatile int linestep;
     volatile unsigned int cliptop;    // Clip rectangle
     volatile unsigned int clipleft;
     volatile unsigned int clipright;
@@ -77,7 +77,7 @@ public:
     virtual int sharedRamSize(void *);
 
     QLinuxFb_Shared * shared;
-    
+
 protected:
 
     bool canaccel;
