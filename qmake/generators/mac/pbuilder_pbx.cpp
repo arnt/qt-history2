@@ -779,12 +779,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "\t\t\t" << "productInstallPath = \"" << project->first("DESTDIR") << "\";" << "\n";
     t << "\t\t" << "};" << "\n";
     //DEBUG/RELEASE
-    for(i = 0; i < 2; i++) {
-	bool as_release = !i;
-	if(project->isActiveConfig("debug")) 
-	    as_release = i;
-	QString key = "QMAKE_PBX_" + QString(as_release ? "RELEASE" : "DEBUG");
-	key = keyFor(key);
+    QString active_buildstyle;
+#if 0
+    for(int as_release = 0; as_release < 2; as_release++) 
+#else
+	bool as_release = !project->isActiveConfig("debug");
+#endif
+    {
+	QString key = keyFor("QMAKE_PBX_" + QString(as_release ? "RELEASE" : "DEBUG"));
+	if(project->isActiveConfig("debug") != as_release) 
+	    active_buildstyle = key;
 	project->variables()["QMAKE_PBX_BUILDSTYLES"].append(key);
 	t << "\t\t" << key << " = {" << "\n"
 	  << "\t\t\t" << "buildRules = (" << "\n"
@@ -868,8 +872,9 @@ ProjectBuilderMakefileGenerator::fixEnvsList(const QString &where)
 QString
 ProjectBuilderMakefileGenerator::keyFor(const QString &block)
 {
-#if 0 //This make this code much easier to debug..
-    return block;
+#if 1 //This make this code much easier to debug..
+    if(project->isActiveConfig("pbx_no_munge_key"))
+       return block;
 #endif
 
     QString ret;
