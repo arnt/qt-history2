@@ -407,6 +407,8 @@ ProjectGenerator::addFile(QString file)
     }
 
     QString newfile = fileFixify(file);
+    if(Option::dir_sep != QLatin1String("/"))
+        newfile = newfile.replace(Option::dir_sep, QLatin1String("/"));
     if(!where.isEmpty() && !project->variables()[where].contains(file)) {
         project->variables()[where] += newfile;
         return true;
