@@ -60,7 +60,7 @@ QFSFileEngine::size() const
         ret = QT_FSTAT(d->fd, &st);
     else
         ret = QT_STAT(QFile::encodeName(d->file), &st);
-    if (ret == -1)
+    if(ret == -1)
         return 0;
     return st.st_size;
 }
@@ -92,7 +92,7 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
         return true;
     }
 #if defined(Q_OS_DARWIN)  // Mac X doesn't support trailing /'s
-    if (dirName[dirName.length() - 1] == '/')
+    if(dirName[dirName.length() - 1] == '/')
         dirName = dirName.left(dirName.length() - 1);
 #endif
     return (::mkdir(QFile::encodeName(dirName), 0777) == 0);
@@ -136,7 +136,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
 
     QStringList ret;
     DIR *dir = opendir(QFile::encodeName(d->file));
-    if (!dir)
+    if(!dir)
         return ret; // cannot read the directory
 
     QFileInfo fi;
@@ -158,7 +158,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
                 QRegExp rx(*sit, Qt::CaseSensitive, QRegExp::Wildcard);
-                if (rx.exactMatch(fn))
+                if(rx.exactMatch(fn))
                     matched = true;
             }
             if(!matched)
@@ -169,21 +169,21 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
 #endif
         if  ((doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
               (doSystem && (!fi.isFile() && !fi.isDir()))) {
-            if (noSymLinks && fi.isSymLink())
+            if(noSymLinks && fi.isSymLink())
                 continue;
-            if ((filterSpec & QDir::RWEMask) != 0)
-                if ((doReadable && !fi.isReadable()) ||
+            if((filterSpec & QDir::RWEMask) != 0)
+                if((doReadable && !fi.isReadable()) ||
                      (doWritable && !fi.isWritable()) ||
                      (doExecable && !fi.isExecutable()))
                     continue;
-            if (!doHidden && fn[0] == '.' &&
+            if(!doHidden && fn[0] == '.' &&
                  fn != QString::fromLatin1(".")
                  && fn != QString::fromLatin1(".."))
                 continue;
             ret.append(fn);
         }
     }
-    if (closedir(dir) != 0) {
+    if(closedir(dir) != 0) {
         qWarning("QDir::readDirEntries: Cannot close the directory: %s",
                   d->file.local8Bit());
     }
@@ -215,12 +215,12 @@ QFSFileEngine::currentPath(const QString &)
 {
     QString result;
     struct stat st;
-    if (::stat(".", &st) == 0) {
+    if(::stat(".", &st) == 0) {
         char currentName[PATH_MAX+1];
-        if (::getcwd(currentName, PATH_MAX))
+        if(::getcwd(currentName, PATH_MAX))
             result = QFile::decodeName(QByteArray(currentName));
 #if defined(QT_DEBUG)
-        if (result.isNull())
+        if(result.isNull())
             qWarning("QDir::currentPath: getcwd() failed");
 #endif
     } else {
@@ -235,7 +235,7 @@ QString
 QFSFileEngine::homePath()
 {
     QString home = QFile::decodeName(QByteArray(getenv("HOME")));
-    if (home.isNull())
+    if(home.isNull())
         home = rootPath();
     return home;
 }
@@ -250,7 +250,7 @@ QString
 QFSFileEngine::tempPath()
 {
     QString temp = QFile::decodeName(QByteArray(getenv("TMPDIR")));
-    if (temp.isNull())
+    if(temp.isNull())
         temp = QString::fromLatin1("/tmp");
     return temp;
 }
@@ -270,10 +270,15 @@ QFSFileEnginePrivate::doStat() const
         QFSFileEnginePrivate *that = const_cast<QFSFileEnginePrivate*>(this);
 	that->tried_stat = true;
 	that->could_stat = true;
-        if(d->fd != -1)
+        if(d->fd != -1) {
             that->could_stat = !QT_FSTAT(d->fd, &st);
-        else
-            that->could_stat = !QT_STAT(QFile::encodeName(d->file), &st);
+        } else {
+            QString file = QFile::encodeName(d->file);
+            if(::lstat(file, &st) == 0) 
+                that->could_stat = true;
+            else
+                that->could_stat = !QT_STAT(file, &st);
+        }
     }
     return could_stat;
 }
@@ -285,37 +290,37 @@ QFSFileEngine::fileFlags(uint type) const
     if(!d->doStat())
         return ret;
     if(type & PermsMask) {
-        if (d->st.st_mode & S_IRUSR)
+        if(d->st.st_mode & S_IRUSR)
             ret |= ReadOwnerPerm;
-        if (d->st.st_mode & S_IWUSR)
+        if(d->st.st_mode & S_IWUSR)
             ret |= WriteOwnerPerm;
-        if (d->st.st_mode & S_IXUSR)
+        if(d->st.st_mode & S_IXUSR)
             ret |= ExeOwnerPerm;
-        if (d->st.st_mode & S_IRUSR)
+        if(d->st.st_mode & S_IRUSR)
             ret |= ReadUserPerm;
-        if (d->st.st_mode & S_IWUSR)
+        if(d->st.st_mode & S_IWUSR)
             ret |= WriteUserPerm;
-        if (d->st.st_mode & S_IXUSR)
+        if(d->st.st_mode & S_IXUSR)
             ret |= ExeUserPerm;
-        if (d->st.st_mode & S_IRGRP)
+        if(d->st.st_mode & S_IRGRP)
             ret |= ReadGroupPerm;
-        if (d->st.st_mode & S_IWGRP)
+        if(d->st.st_mode & S_IWGRP)
             ret |= WriteGroupPerm;
-        if (d->st.st_mode & S_IXGRP)
+        if(d->st.st_mode & S_IXGRP)
             ret |= ExeGroupPerm;
-        if (d->st.st_mode & S_IROTH)
+        if(d->st.st_mode & S_IROTH)
             ret |= ReadOtherPerm;
-        if (d->st.st_mode & S_IWOTH)
+        if(d->st.st_mode & S_IWOTH)
             ret |= WriteOtherPerm;
-        if (d->st.st_mode & S_IXOTH)
+        if(d->st.st_mode & S_IXOTH)
             ret |= ExeOtherPerm;
     }
     if(type & TypesMask) {
-        if((d->st.st_mode & S_IFMT) == S_IFREG)
-            ret |= FileType;
         if((d->st.st_mode & S_IFMT) == S_IFLNK)
             ret |= LinkType;
-        if((d->st.st_mode & S_IFMT) == S_IFDIR)
+        else if((d->st.st_mode & S_IFMT) == S_IFREG)
+            ret |= FileType;
+        else if((d->st.st_mode & S_IFMT) == S_IFDIR)
             ret |= DirectoryType;
     }
     if(type & FlagsMask) {
@@ -331,13 +336,13 @@ QFSFileEngine::fileName(FileName file) const
 {
     if(file == BaseName) {
         int slash = d->file.lastIndexOf('/');
-        if (slash != -1)
+        if(slash != -1)
             return d->file.mid(slash + 1);
     } else if(file == PathName) {
         int slash = d->file.lastIndexOf('/');
-        if (slash == -1)
+        if(slash == -1)
             return QString::fromLatin1(".");
-        else if (!slash)
+        else if(!slash)
             return QString::fromLatin1("/");
         return d->file.left(slash);
     } else if(file == AbsoluteName || file == AbsolutePathName) {
@@ -345,22 +350,22 @@ QFSFileEngine::fileName(FileName file) const
         if(!d->file.length() || d->file[0] != '/')
             ret = QDir::currentPath();
         if(!d->file.isEmpty() && d->file != ".") {
-            if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
+            if(!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
                 ret += '/';
             ret += d->file;
         }
         if(file == AbsolutePathName) {
             int slash = ret.lastIndexOf('/');
-            if (slash == -1)
+            if(slash == -1)
                 return QDir::currentPath();
-            else if (!slash)
+            else if(!slash)
                 return QString::fromLatin1("/");
             return ret.left(slash);
         }
         return ret;
     } else if(file == CanonicalName) {
         char cur[PATH_MAX+1];
-        if (::getcwd(cur, PATH_MAX)) {
+        if(::getcwd(cur, PATH_MAX)) {
             QString ret;
             char real[PATH_MAX+1];
             // need the cast for old solaris versions of realpath that doesn't take
@@ -371,7 +376,7 @@ QFSFileEngine::fileName(FileName file) const
             ::chdir(cur);
             //check it
             struct stat st;
-            if (::stat(QFile::encodeName(ret), &st) != 0)
+            if(::stat(QFile::encodeName(ret), &st) != 0)
                 ret = QString();
             return ret;
         }
@@ -380,7 +385,7 @@ QFSFileEngine::fileName(FileName file) const
         if(d->doStat() && (d->st.st_mode & S_IFMT) == S_IFLNK) {
             char s[PATH_MAX+1];
             int len = readlink(QFile::encodeName(d->file), s, PATH_MAX);
-            if (len >= 0) {
+            if(len >= 0) {
                 s[len] = '\0';
                 return QFile::decodeName(QByteArray(s));
             }
@@ -394,7 +399,7 @@ bool
 QFSFileEngine::isRelativePath() const
 {
     int len = d->file.length();
-    if (len == 0)
+    if(len == 0)
         return true;
     return d->file[0] != '/';
 }
@@ -417,11 +422,11 @@ QFSFileEngine::owner(FileOwner own) const
 {
     if(own == OwnerUser) {
         passwd *pw = getpwuid(ownerId(own));
-        if (pw)
+        if(pw)
             return QFile::decodeName(QByteArray(pw->pw_name));
     } else if(own == OwnerGroup) {
         struct group *gr = getgrgid(ownerId(own));
-        if (gr)
+        if(gr)
             return QFile::decodeName(QByteArray(gr->gr_name));
     }
     return QString::null;
