@@ -676,7 +676,8 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 {
     if ( d->maxWindow ) {
 	d->maxWindow->adjustToFullscreen();
-	((QWorkspace*)d->maxWindow->windowWidget())->setWState( WState_Maximized );
+	if (d->maxWindow->windowWidget())
+	    ((QWorkspace*)d->maxWindow->windowWidget())->setWState( WState_Maximized );
     }
 
     QRect cr = updateWorkspace();
