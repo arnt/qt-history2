@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#10 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#10 $";
 #endif
 
 
@@ -65,16 +65,13 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
     GC gc;
     bool new_gc = FALSE;
     bool copy_plane = FALSE;
-    if ( td == PDT_WIDGET )			// borrow dest widget's gc
-	gc = ((QWidget*)dest)->getGC();
-    else if ( ts == PDT_WIDGET )		// borrow source widget's gc
-	gc = ((QWidget*)this)->getGC();
+    if ( rop == CopyROP )			// can use common GC
+	gc = qXGetReadOnlyGC();
     else {					// create dedicated GC
 	gc = XCreateGC( dpy, hd, 0, 0 );
 	new_gc = TRUE;
-    }
-    if ( rop != CopyROP )
 	XSetFunction( dpy, gc, ropCodes[rop] );
+    }
     if ( ts == PDT_PIXMAP )
 	copy_plane = ((QPixMap*)this)->depth() == 1;
     if ( td == PDT_PIXMAP ) {
@@ -93,8 +90,6 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 	XCopyArea( dpy, hd, dest->hd, gc, sx, sy, sw, sh, dx, dy );
     if ( new_gc )
 	XFreeGC( dpy, gc );
-    else if ( rop != CopyROP )			// restore ROP for borrowed gc
-	XSetFunction( dpy, gc, ropCodes[CopyROP] );
 }
 
 
