@@ -44,10 +44,14 @@ public:
 
     void reset() { siz = 0; }
 
+    bool isEmpty() const { return siz==0; }
+
     int size() const { return siz; }
     Type *data() const { return buffer; }
 
     const Type &at(int i) const { Q_ASSERT(i >= 0 && i < siz); return buffer[i]; }
+    const Type &last() const { Q_ASSERT(!isEmpty()); return buffer[siz-1]; }
+    const Type &first() const { Q_ASSERT(!isEmpty()); return buffer[0]; }
 
     void add(const Type &t) {
         if (siz >= capacity) {
