@@ -208,4 +208,5 @@ bool GLWorkspace::filePrintSetup()
 
 void GLWorkspace::fileClose()
 {
+    workspace->closeActiveWindow();
 }
