@@ -599,33 +599,12 @@ Plugin".
 	    interface has a unique uuid 
 	    (\i[universal unique identifier], also known as a
 	    \i[globally unique identifier]), which is passed to the
-	    function as \c[uuid]. The function creates a pointer to a
-	    \class[QUnknownInterface] object, \c[iface], and then tries
+	    function as \c[uuid]. The function also takes a pointer to a
+	    pointer to an
+	    \class[QUnknownInterface] object, \c[iface], and tries
 	    to assign a matching interface to it. If the interface
 	    implementation supports the requested interface the
-	    interface's reference count is incremented. The \c[iface]
-	    pointer is returned to the caller. 	    
-	    \P
-
-	    \p
-	    The <function>addRef()</function> function.
-<programlisting>
-\scan eg/filechooser/plugin/plugin.cpp /::addRef/ /^}/
-</programlisting>
-	    This function increments the reference count. Usually you
-	    just need to copy this code and change the class name to
-	    the class name of your widget interface implementation.
-	    \P
-
-	    \p
-	    The <function>release()</function> function.
-<programlisting>
-\scan eg/filechooser/plugin/plugin.cpp /::release/ /^}/
-</programlisting>
-	    This function decrements the reference count and deletes the
-	    object if no more references exist. Usually you just need
-	    to copy this code and change the class name to the class
-	    name of your widget interface implementation.
+	    interface's reference count is incremented. 
 	    \P
 
 	    <sidebar><title>Why we need \fn[addRef()] and \fn[release()]</title>
@@ -653,8 +632,37 @@ Plugin".
 	    our plugin) is responsible for calling these functions when
 	    appropriate.
 	    \P
-	    </sidebar>
 
+	    <para>
+	    You don't have to implement these functions yourself. Just
+	    add the <literal>Q_REFCOUNT</literal> macro to your
+	    <filename>.h</filename> file and they will be
+	    created for you.
+	    </para>
+	    </sidebar>
+<!--
+
+	    \p
+	    The <function>addRef()</function> function.
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::addRef/ /^}/
+</programlisting>
+	    This function increments the reference count. Usually you
+	    just need to copy this code and change the class name to
+	    the class name of your widget interface implementation.
+	    \P
+
+	    \p
+	    The <function>release()</function> function.
+<programlisting>
+\scan eg/filechooser/plugin/plugin.cpp /::release/ /^}/
+</programlisting>
+	    This function decrements the reference count and deletes the
+	    object if no more references exist. Usually you just need
+	    to copy this code and change the class name to the class
+	    name of your widget interface implementation.
+	    \P
+-->
 	    \p
 	    The \fn[Q_EXPORT_INTERFACE] Macro
 <programlisting>
