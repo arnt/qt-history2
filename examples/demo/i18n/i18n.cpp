@@ -230,7 +230,7 @@ void I18nDemo::wrapperDead()
 void I18nDemo::showEvent(QShowEvent *)
 {
     if (firstShow) {
-	newSlot(2);
+	newSlot(1);
 	firstShow = FALSE;
 	return;
     }
