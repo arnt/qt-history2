@@ -22,11 +22,11 @@ dll:unix {
 }
 
 #exported symbol table (for linux only now)
-sam_version_map:dll:linux-g++:!isEmpty(QPRO_PWD) {
+sam_version_map:dll:linux-g++ {
    0:exists($(QTDIR)/src/libqt.map) {
        QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
        TARGETDEPS += $(QTDIR)/src/libqt.map
-   } else { 
+   } else:!isEmpty(QPRO_PWD) { 
        TARGET_MAP = lib$${TARGET}.map
        exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
            QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
