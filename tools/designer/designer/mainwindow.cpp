@@ -992,6 +992,17 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
+    case QEvent::Accel:
+	if ( ( ( (QKeyEvent*)e )->key() == Key_A ||
+	       ( (QKeyEvent*)e )->key() == Key_E ) &&
+	     ( (QKeyEvent*)e )->state() & ControlButton ) {
+	    if ( qWorkspace()->activeWindow() &&
+		 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+		( (QKeyEvent*)e )->ignore();
+		return TRUE;
+	    }
+	}
+	break;
     case QEvent::MouseButtonPress:
 	if ( o->inherits( "QDesignerPopupMenu" ) )
 	    break;
