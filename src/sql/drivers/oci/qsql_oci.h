@@ -28,7 +28,8 @@
 
 #ifdef OCI_STMT_SCROLLABLE_READONLY
 // Switch this on if you want scrollable server-side cursors (Oracle version >= 9)
-//#define QOCI_USES_VERSION_9
+#define QOCI_USES_VERSION_9
+//#define QOCI_USE_SCROLLABLE_CURSORS
 #endif
 
 class QOCIPrivate;
@@ -58,7 +59,7 @@ private:
     QOCIResultPrivate*  cols;
 };
 
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_USE_SCROLLABLE_CURSORS
 class QOCI9Result : public QSqlResult
 {
     friend class QOCIPrivate;
@@ -88,7 +89,7 @@ private:
     QOCIResultPrivate*  cols;
     bool                cacheNext(int r);
 };
-#endif //QOCI_USES_VERSION_9
+#endif //QOCI_USE_SCROLLABLE_CURSORS
 
 class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
 {

@@ -135,7 +135,7 @@ void QOCIPrivate::setCharset(OCIBind* hbnd)
 
 bool QOCIPrivate::isOutValue(int i) const
 {
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_USE_SCROLLABLE_CURSORS
     if (serverVersion >= 9) {
         if (((QOCI9Result*)q)->bindValueType(i) & QSql::Out)
             return true;
@@ -1227,7 +1227,7 @@ QSqlRecord QOCIResult::record() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_USE_SCROLLABLE_CURSORS
 QOCI9Result::QOCI9Result(const QOCIDriver * db, QOCIPrivate* p)
 : QSqlResult(db),
   cols(0)
@@ -1545,7 +1545,7 @@ QSqlRecord QOCI9Result::record() const
     return inf;
 }
 
-#endif //QOCI_USES_VERSION_9
+#endif //QOCI_USE_SCROLLABLE_CURSORS
 ////////////////////////////////////////////////////////////////////////////
 
 
@@ -1750,7 +1750,7 @@ void QOCIDriver::cleanup()
 
 QSqlResult *QOCIDriver::createResult() const
 {
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_USE_SCROLLABLE_CURSORS
     if (d->serverVersion >= 9)
         return new QOCI9Result(this, d);
 #endif
