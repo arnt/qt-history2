@@ -20,6 +20,7 @@
 #include <direct.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/stat.h>
 
 #define Q_FS_FAT
