@@ -201,10 +201,10 @@ void WorkspaceItem::fillCompletionList( QStringList& completion )
 	completion += formFile->fileName();
 	break;
     case FormSourceType:
-	completion += formFile->fileName();
+	completion += formFile->codeFile();
 	break;
     case SourceFileType:
-	completion += sourceFile->codeFile();
+	completion += sourceFile->fileName();
 	break;
     }
 }
