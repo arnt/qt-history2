@@ -4832,63 +4832,63 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
 // ----------- Japanese --------------
 
 static const psfont Japanese1 [] = {
-    { "Ryumin-Light-EUC-H", 0, 100. },
-    { "Ryumin-Light-EUC-H", 0.2, 100. },
-    { "GothicBBB-Medium-EUC-H", 0, 100. },
-    { "GothicBBB-Medium-EUC-H", 0.2, 100. }
+    { "Ryumin-Light-H", 0, 100. },
+    { "Ryumin-Light-H", 0.2, 100. },
+    { "GothicBBB-Medium-H", 0, 100. },
+    { "GothicBBB-Medium-H", 0.2, 100. }
 };
 
 static const psfont Japanese1a [] = {
-    { "GothicBBB-Medium-EUC-H", 0, 100. },
-    { "GothicBBB-Medium-EUC-H", 0.2, 100. },
-    { "Ryumin-Light-EUC-H", 0, 100. },
-    { "Ryumin-Light-EUC-H", 0.2, 100. }
+    { "GothicBBB-Medium-H", 0, 100. },
+    { "GothicBBB-Medium-H", 0.2, 100. },
+    { "Ryumin-Light-H", 0, 100. },
+    { "Ryumin-Light-H", 0.2, 100. }
 };
 
 static const psfont Japanese2 [] = {
-    { "GothicBBB-Medium-EUC-H", 0, 100. },
-    { "GothicBBB-Medium-EUC-H", 0.2, 100. },
-    { "GothicBBB-Medium-EUC-H", 0, 100. },
-    { "GothicBBB-Medium-EUC-H", 0.2, 100. }
+    { "GothicBBB-Medium-H", 0, 100. },
+    { "GothicBBB-Medium-H", 0.2, 100. },
+    { "GothicBBB-Medium-H", 0, 100. },
+    { "GothicBBB-Medium-H", 0.2, 100. }
 };
 
 static const psfont Japanese2a [] = {
-    { "Ryumin-Light-EUC-H", 0, 100. },
-    { "Ryumin-Light-EUC-H", 0.2, 100. },
-    { "Ryumin-Light-EUC-H", 0, 100. },
-    { "Ryumin-Light-EUC-H", 0.2, 100. }
+    { "Ryumin-Light-H", 0, 100. },
+    { "Ryumin-Light-H", 0.2, 100. },
+    { "Ryumin-Light-H", 0, 100. },
+    { "Ryumin-Light-H", 0.2, 100. }
 };
 
 
 // Wadalab fonts
 
 static const psfont WadaMin [] = {
-    { "WadaMin-Regular-EUC-H", 0, 100. },
-    { "WadaMin-Regular-EUC-H", 0.2, 100. },
-    { "WadaMin-Bold-EUC-H", 0, 100. },
-    { "WadaMin-Bold-EUC-H", 0.2, 100. }
+    { "WadaMin-Regular-H", 0, 100. },
+    { "WadaMin-Regular-H", 0.2, 100. },
+    { "WadaMin-Bold-H", 0, 100. },
+    { "WadaMin-Bold-H", 0.2, 100. }
 };
 
 static const psfont WadaGo [] = {
-    { "WadaMaruGo-Regular-EUC-H", 0, 100. },
-    { "WadaMaruGo-Regular-EUC-H", 0.2, 100. },
-    { "WadaGo-Bold-EUC-H", 0, 100. },
-    { "WadaGo-Bold-EUC-H", 0.2, 100. }
+    { "WadaMaruGo-Regular-H", 0, 100. },
+    { "WadaMaruGo-Regular-H", 0.2, 100. },
+    { "WadaGo-Bold-H", 0, 100. },
+    { "WadaGo-Bold-H", 0.2, 100. }
 };
 
 // Adobe Wadalab
 
 static const psfont WadaGoAdobe [] = {
-    { "WadaMaruGo-RegularH-Hojo-EUC-H", 0, 100. },
-    { "WadaMaruGo-RegularH-Hojo-EUC-H", 0.2, 100. },
-    { "WadaMaruGo-RegularH-Hojo-EUC-H", 0, 100. },
-    { "WadaMaruGo-RegularH-Hojo-EUC-H", 0.2, 100. },
+    { "WadaMaruGo-RegularH-Hojo-H", 0, 100. },
+    { "WadaMaruGo-RegularH-Hojo-H", 0.2, 100. },
+    { "WadaMaruGo-RegularH-Hojo-H", 0, 100. },
+    { "WadaMaruGo-RegularH-Hojo-H", 0.2, 100. },
 };
 static const psfont WadaMinAdobe [] = {
-    { "WadaMin-RegularH-Hojo-EUC-H", 0, 100. },
-    { "WadaMin-RegularH-Hojo-EUC-H", 0.2, 100. },
-    { "WadaMin-RegularH-Hojo-EUC-H", 0, 100. },
-    { "WadaMin-RegularH-Hojo-EUC-H", 0.2, 100. },
+    { "WadaMin-RegularH-Hojo-H", 0, 100. },
+    { "WadaMin-RegularH-Hojo-H", 0.2, 100. },
+    { "WadaMin-RegularH-Hojo-H", 0, 100. },
+    { "WadaMin-RegularH-Hojo-H", 0.2, 100. },
 };
 
 
@@ -4908,7 +4908,7 @@ public:
 
 QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
 {
-    codec = QTextCodec::codecForMib( 18 ); // eucjp
+    codec = QTextCodec::codecForMib( 63 ); // jisx0208.1983-0
 
     int type = getPsFontType( f );
     psname = makePSFontName( f, type );
@@ -4921,7 +4921,7 @@ QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
 
 QString QPSPrinterFontJapanese::extension() const
 {
-    return "-EUC-H";
+    return "-H";
 }
 
 // ----------- Korean --------------
