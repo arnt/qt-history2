@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#94 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#94 $");
 
 
 /*****************************************************************************
@@ -1403,6 +1403,14 @@ static void cleanupTimers()			// remove pending timers
     timerDict = 0;
     delete timerVec;
     timerVec  = 0;
+
+    if ( qt_win_use_simple_timers ) {
+	// Dangerous to leave WM_TIMER events in the queue if they have our
+	// timerproc (eg. Qt-based DLL plugins may be unloaded) 
+	MSG msg;
+	while (PeekMessage( &msg, (void*)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
+	    continue;
+    }
 }
 
 
