@@ -829,8 +829,6 @@ int QSqlCursor::insert( bool invalidate )
 	}
     }
     str += vals + ");";
-    if ( invalidate )
-	QSqlRecord::operator=( d->editBuffer );
     return apply( str, invalidate );
 }
 
@@ -960,8 +958,6 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     if ( filter.length() )
 	str+= " where " + filter;
     str += ";";
-    if ( invalidate )
-	QSqlRecord::operator=( d->editBuffer );
     return apply( str, invalidate );
 }
 
@@ -1022,8 +1018,6 @@ int QSqlCursor::del( const QString & filter, bool invalidate )
     if ( filter.length() )
 	str+= " where " + filter;
     str += ";";
-    if ( invalidate )
-	clearValues();
     return apply( str, invalidate );
 }
 
