@@ -341,10 +341,12 @@ class FakeSpacer: public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(Qt::Orientation orientation READ fakeOrientation)
+    Q_PROPERTY(QSizePolicy::Policy sizeType READ fakeSizeType)
 public:
     FakeSpacer() { Q_ASSERT(0); }
 
     Qt::Orientation fakeOrientation() const { Q_ASSERT(0); return Qt::Horizontal; }
+    QSizePolicy::Policy fakeSizeType() const { Q_ASSERT(0); return QSizePolicy::Expanding; }
 };
 
 QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
