@@ -51,10 +51,20 @@ private:
 class Q_CORE_EXPORT QMutexLocker
 {
 public:
-    QMutexLocker( QMutex * );
-    ~QMutexLocker();
+    inline QMutexLocker(QMutex *m)
+	: mtx(m)
+    { relock(); }
+    inline ~QMutexLocker()
+    { unlock(); }
 
-    QMutex *mutex() const;
+    inline void unlock()
+    { if (mtx) mtx->unlock(); }
+
+    inline void relock()
+    { if (mtx) mtx->lock(); }
+
+    inline QMutex *mutex() const
+    { return mtx; }
 
 private:
     QMutex *mtx;
@@ -64,22 +74,6 @@ private:
     QMutexLocker &operator=( const QMutexLocker & );
 #endif
 };
-
-inline QMutexLocker::QMutexLocker( QMutex *m )
-    : mtx( m )
-{
-    if ( mtx ) mtx->lock();
-}
-
-inline QMutexLocker::~QMutexLocker()
-{
-    if ( mtx ) mtx->unlock();
-}
-
-inline QMutex *QMutexLocker::mutex() const
-{
-    return mtx;
-}
 
 #endif // QT_THREAD_SUPPORT
 
