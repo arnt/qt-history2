@@ -438,7 +438,9 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	setWinId( 0 );
     }
 
+#ifdef Q_Q4PAINTER
     delete deviceGC;
+#endif
 }
 
 

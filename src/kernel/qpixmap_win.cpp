@@ -260,8 +260,10 @@ void QPixmap::deref()
 	    hdc = 0;
 	}
 	delete data;
+#ifdef Q_Q4PAINTER
 	delete deviceGC;
 	deviceGC = 0;
+#endif
     }
 }
 
