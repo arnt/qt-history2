@@ -2239,7 +2239,7 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
             }
             continue;
         }
-        if(c == QLatin1Char('$')) {
+        if(c == QLatin1Char('$') && str.length() > i+2) {
             c = str.at(++i);
             if(c == QLatin1Char('$')) {
                 QChar term;
