@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#116 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -866,6 +866,10 @@ static void initFontSubst()			// create substitution dict
 	"arial",	"helvetica",
 	"helv",		"helvetica",
 	"tms rmn",	"times",
+#elif defined(_WS_WIN_)
+	"times",	"Times New Roman",
+	"courier",	"Courier New",
+	"helvetica",	"Arial",
 #endif
 	0,		0
     };
@@ -882,8 +886,7 @@ static void initFontSubst()			// create substitution dict
 
 /*!
   Returns the font family name to be used whenever \e familyName is
-  specified, and not found by the \link fontmatch.html font matching
-  algorithm \endlink.  The lookup is case insensitive.
+  specified. The lookup is case insensitive.
 
   If there is no substitution for \e familyName, then \e familyName is
   returned.

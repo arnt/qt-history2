@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#91 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -283,15 +283,16 @@ QString QFont::defaultFamily() const
 {
     switch( d->req.styleHint ) {
 	case Times:
-	    return "times";
+	    return "Times New Roman";
 	case Courier:
-	    return "courier";
+	    return "Courier New";
 	case Decorative:
-	    return "old english";
+	    return "Bookman Old Style";
 	case Helvetica:
+	    return "Arial";
 	case System:
 	default:
-	    return "helvetica";
+	    return "MS Sans Serif";
     }
 }
 
@@ -425,15 +426,14 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	else
 	    lf.lfHeight = -(d->req.pointSize/10);
     } else {
-	if ( !VxF )
-	    lf.lfHeight = -(d->req.pointSize/10);
+	lf.lfHeight = -(d->req.pointSize/10);
 	/*
-	  This code should adjust the font size on-screen, but it will be re-
-	  introduced in Qt 2.0, maybe with some special API (aavit) to enable it.
+	  To get the same size as Word etc. uses, we should use the below
+	  instead. But that is incompatible with the sizes in the Unix version.
+	  Needs a option in the API to let the user choose.
+	  lf.lfHeight = -int((float)d->req.pointSize*
+	                GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
 	*/
-	else
-	    lf.lfHeight = -int((float)d->req.pointSize*
-			       GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
     }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
@@ -753,13 +753,13 @@ int QFontMetrics::maxWidth() const
 int QFontMetrics::underlinePos() const
 {
     int pos = (lineWidth()*2 + 3)/6;
-    return QMIN(pos,1);
+    return QMAX(pos,1);
 }
 
 int QFontMetrics::strikeOutPos() const
 {
     int pos = TMX->tmAscent/3;
-    return QMIN(pos,1);
+    return QMAX(pos,1);
 }
 
 int QFontMetrics::lineWidth() const
