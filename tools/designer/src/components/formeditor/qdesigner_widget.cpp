@@ -508,16 +508,30 @@ int QLayoutSupport::indexOf(QWidget *widget) const
     return -1;
 }
 
+AbstractFormEditor *QLayoutSupport::core() const
+{
+    return formWindow()->core();
+}
+
 void QLayoutSupport::removeWidget(QWidget *widget)
 {
     int index = indexOf(widget);
     if (index != -1) {
-        // ### take the item
-        if (QGridLayout *grid = qt_cast<QGridLayout*>(layout())) {
-            int row, column, rowspan, colspan;
-            grid->getItemPosition(index, &row, &column, &rowspan, &colspan);
-            QSpacerItem *spacer = new QSpacerItem(20, 20);
-            grid->addItem(spacer, row, column, rowspan, colspan);
+        LayoutInfo::Type layoutType = LayoutInfo::layoutType(core(), m_widget);
+
+        switch (layoutType) {
+            case LayoutInfo::Grid: {
+                QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+                Q_ASSERT(gridLayout);
+                int row, column, rowspan, colspan;
+                gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
+                gridLayout->takeAt(index);
+                QSpacerItem *spacer = new QSpacerItem(20, 20);
+                gridLayout->addItem(spacer, row, column, rowspan, colspan);
+            } break;
+
+            default:
+                break;
         }
     }
 }

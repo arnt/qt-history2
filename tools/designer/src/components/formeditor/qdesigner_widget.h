@@ -68,6 +68,8 @@ public:
     inline FormWindow *formWindow() const
     { return m_formWindow; }
 
+    AbstractFormEditor *core() const;
+
     inline int currentIndex() const
     { return m_currentIndex; }
 
@@ -97,6 +99,7 @@ private:
     QPointer<QWidget> m_indicatorRight;
     QPointer<QWidget> m_indicatorBottom;
     int m_currentIndex;
+
 };
 
 class QT_FORMEDITOR_EXPORT QLayoutWidget : public QWidget
