@@ -23,7 +23,7 @@
 
 struct MetaDataBaseItem: public AbstractMetaDataBaseItem
 {
-    MetaDataBaseItem();
+    MetaDataBaseItem(QObject *object);
     virtual ~MetaDataBaseItem();
 
     virtual QString name() const;
@@ -46,12 +46,12 @@ struct MetaDataBaseItem: public AbstractMetaDataBaseItem
 
     virtual int margin() const;
     virtual void setMargin(int margin);
-    
+
     virtual bool enabled() const;
     virtual void setEnabled(bool b);
 
 private:
-    QString m_name;
+    QObject *m_object;
     QString m_author;
     QString m_comment;
     QCursor m_cursor;

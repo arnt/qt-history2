@@ -21,8 +21,9 @@
 #include <qalgorithms.h>
 #include <qdebug.h>
 
-MetaDataBaseItem::MetaDataBaseItem()
-    : m_spacing(0),
+MetaDataBaseItem::MetaDataBaseItem(QObject *object)
+    : m_object(object),
+      m_spacing(0),
       m_margin(0),
       m_enabled(true)
 {
@@ -34,12 +35,14 @@ MetaDataBaseItem::~MetaDataBaseItem()
 
 QString MetaDataBaseItem::name() const
 {
-    return m_name;
+    Q_ASSERT(m_object);
+    return m_object->objectName();
 }
 
 void MetaDataBaseItem::setName(const QString &name)
 {
-    m_name = name;
+    Q_ASSERT(m_object);
+    m_object->setObjectName(name);
 }
 
 QString MetaDataBaseItem::author() const
@@ -138,9 +141,9 @@ void MetaDataBase::add(QObject *object)
     if (i != 0 && !i->enabled()) {
         i->setEnabled(true);
         return;
-    }    
+    }
 
-    m_items.insert(object, new MetaDataBaseItem());
+    m_items.insert(object, new MetaDataBaseItem(object));
     connect(object, SIGNAL(destroyed(QObject*)),
         this, SLOT(slotDestroyed(QObject*)));
 
@@ -162,7 +165,7 @@ void MetaDataBase::remove(QObject *object)
 QList<QObject*> MetaDataBase::objects() const
 {
     QList<QObject*> result;
-    
+
     ItemMap::const_iterator it = m_items.begin();
     for (; it != m_items.end(); ++it) {
         if (it.value()->enabled())

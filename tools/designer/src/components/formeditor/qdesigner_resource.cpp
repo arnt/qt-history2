@@ -103,13 +103,6 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
     ui_widget->setAttributeClass(className); // fix the class name
 
-    // update the metainfo
-    if (ui_widget->hasAttributeName()) {
-        AbstractMetaDataBaseItem *item = m_core->metaDataBase()->item(w);
-        Q_ASSERT(item);
-        item->setName(ui_widget->attributeName());
-    }
-    
     if (QMainWindow *mainWindow = qt_cast<QMainWindow*>(w)) {
         QWidget *central_widget = createWidget(QLatin1String("QWidget"), mainWindow, "__qt_central_widget");
         Q_ASSERT(qt_cast<QDesignerWidget*>(central_widget));
@@ -122,10 +115,10 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
     QLayout *l = Resource::create(ui_layout, layout, parentWidget);
-    
+
     if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(l))
         QLayoutSupport::createEmptyCells(gridLayout);
-    
+
     return l;
 }
 
@@ -180,7 +173,7 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
 {
     if (m_formWindow)
         m_formWindow->unify(o, objName, true);
-        
+
     o->setObjectName(objName);
 }
 
@@ -195,7 +188,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                 sheet->setProperty(index, toVariant(o->metaObject(), p));
                 sheet->setChanged(index, true);
             }
-            
+
             if (propertyName == QLatin1String("objectName"))
                 changeObjectName(o, o->objectName());
         }
@@ -228,7 +221,7 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
 
     if (qt_cast<QDialog*>(w))
         w->setParent(parentWidget);
-    
+
     return w;
 }
 
@@ -243,7 +236,7 @@ QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *par
         Q_ASSERT( layout != 0 );
         layoutBase = layout->parentWidget();
     }
-    
+
     LayoutInfo::Type layoutType = LayoutInfo::Grid;
     if (layoutName == QLatin1String("QVBoxLayout"))
         layoutType = LayoutInfo::VBox;
@@ -295,10 +288,6 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     } else if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
-    // save the metainfo
-    if (!item->name().isEmpty())
-        w->setAttributeName(item->name());
-
     return w;
 }
 
@@ -330,9 +319,9 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
 
         DomSpacer *spacer = new DomSpacer();
         QList<DomProperty*> properties = computeProperties(item->widget());
-        
+
         spacer->setElementProperty(properties); // ### filter the properties
-                
+
         ui_item = new DomLayoutItem();
         ui_item->setElementSpacer(spacer);
         m_laidout.insert(item->widget(), true);
@@ -349,7 +338,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
     if (m_chain.size() && item->widget()) {
         if (QGridLayout *grid = qt_cast<QGridLayout*>(m_chain.top())) {
             int index = Utils::indexOfWidget(grid, item->widget());
-            
+
             int row, column, rowspan, colspan;
             grid->getItemPosition(index, &row, &column, &rowspan, &colspan);
             ui_item->setAttributeRow(row);
@@ -357,7 +346,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
 
             if (colspan != 1)
                 ui_item->setAttributeColSpan(colspan);
-                
+
             if (rowspan != 1)
                 ui_item->setAttributeRowSpan(rowspan);
         }
@@ -381,17 +370,17 @@ DomTabStops *QDesignerResource::saveTabStops()
 {
     AbstractMetaDataBaseItem *item = m_core->metaDataBase()->item(m_formWindow);
     Q_ASSERT(item);
-    
+
     QStringList tabStops;
     foreach (QWidget *widget, item->tabOrder())
         tabStops.append(widget->objectName());
-    
+
     if (tabStops.count()) {
         DomTabStops *dom = new DomTabStops;
         dom->setElementTabStop(tabStops);
         return dom;
     }
-    
+
     return 0;
 }
 
@@ -399,7 +388,7 @@ void QDesignerResource::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 {
     if (!tabStops)
         return;
-        
+
     QList<QWidget*> tabOrder;
     foreach (QString widgetName, tabStops->elementTabStop()) {
         if (QWidget *w = qFindChild<QWidget*>(widget, widgetName)) {
@@ -416,17 +405,17 @@ DomWidget *QDesignerResource::saveWidget(QWidget *widget, IContainer *container,
 {
     DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
-    
+
     for (int i=0; i<container->count(); ++i) {
         QWidget *page = container->widget(i);
         Q_ASSERT(page);
-            
+
         DomWidget *ui_page = createDom(page, ui_widget);
         Q_ASSERT( ui_page != 0 );
-            
+
         ui_widget_list.append(ui_page);
     }
-    
+
     ui_widget->setElementWidget(ui_widget_list);
 
     return ui_widget;
@@ -440,14 +429,14 @@ DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidg
         for (int i=0; i<container->count(); ++i) {
             QWidget *page = container->widget(i);
             Q_ASSERT(page);
-            
+
             DomWidget *ui_page = createDom(page, ui_widget);
             Q_ASSERT( ui_page != 0 );
-            
+
             ui_widget_list.append(ui_page);
         }
     }
-    
+
     ui_widget->setElementWidget(ui_widget_list);
 
     return ui_widget;
@@ -462,7 +451,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *
         for (int i=0; i<container->count(); ++i) {
             QWidget *page = container->widget(i);
             Q_ASSERT(page);
-            
+
             DomWidget *ui_page = createDom(page, ui_widget);
             Q_ASSERT( ui_page != 0 );
 
@@ -472,12 +461,12 @@ DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *
             DomString *str = new DomString();
             str->setText(widget->tabText(i));
             p->setElementString(str);
-    
+
             QList<DomProperty*> ui_attribute_list;
             ui_attribute_list.append(p);
-    
+
             ui_page->setElementAttribute(ui_attribute_list);
-            
+
             ui_widget_list.append(ui_page);
         }
     }
@@ -496,7 +485,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
         for (int i=0; i<container->count(); ++i) {
             QWidget *page = container->widget(i);
             Q_ASSERT(page);
-            
+
             DomWidget *ui_page = createDom(page, ui_widget);
             Q_ASSERT( ui_page != 0 );
 
@@ -506,12 +495,12 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
             DomString *str = new DomString();
             str->setText(widget->itemText(i));
             p->setElementString(str); // ### check f tb->indexOf(page) == i ??
-    
+
             QList<DomProperty*> ui_attribute_list;
             ui_attribute_list.append(p);
-    
+
             ui_page->setElementAttribute(ui_attribute_list);
-            
+
             ui_widget_list.append(ui_page);
         }
     }
@@ -577,8 +566,8 @@ bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayo
         grid->addWidget(item->widget(), ui_item->attributeRow(), ui_item->attributeColumn(),
                         rowSpan, colSpan, item->alignment());
         return true;
-    } 
-    
+    }
+
     return Resource::addItem(ui_item, item, layout);
 }
 
@@ -586,12 +575,12 @@ bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *
 {
     if (Resource::addItem(ui_widget, widget, parentWidget))
         return true;
-        
+
     if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), parentWidget)) {
         container->addWidget(widget);
         return true;
     }
-    
+
     return false;
 }
 
@@ -629,7 +618,7 @@ DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
     ui->setElementWidget(ui_widget);
 
     m_laidout.clear();
-    
+
     return ui;
 }
 
@@ -697,23 +686,23 @@ QString QDesignerResource::qtify(const QString &name)
 }
 
 DomCustomWidgets *QDesignerResource::saveCustomWidgets()
-{    
+{
     if (m_usedCustomWidgets.isEmpty())
         return 0;
 
-    QList<DomCustomWidget*> custom_widget_list;    
+    QList<DomCustomWidget*> custom_widget_list;
     foreach (AbstractWidgetDataBaseItem *item, m_usedCustomWidgets.keys()) {
         DomCustomWidget *custom_widget = new DomCustomWidget;
         custom_widget->setElementClass(item->name());
         custom_widget->setElementContainer(item->isContainer());
-        
+
         DomHeader *header = new DomHeader;
         header->setText(item->includeFile());
         custom_widget->setElementHeader(header);
-        
+
         custom_widget_list.append(custom_widget);
     }
-    
+
     DomCustomWidgets *customWidgets = new DomCustomWidgets;
     customWidgets->setElementCustomWidget(custom_widget_list);
     return customWidgets;
@@ -748,10 +737,10 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
         for (int index = 0; index < sheet->count(); ++index) {
             QString propertyName = sheet->propertyName(index);
             QVariant value = sheet->property(index);
-            
+
             if (!sheet->isChanged(index))
                 continue;
-                
+
             if (DomProperty *p = createProperty(object, propertyName, value)) {
                 properties.append(p);
             }
@@ -764,30 +753,30 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
 {
     EnumType e;
     FlagType f;
-    
+
     if (qVariantGet(value, e, "EnumType")) {
         int v = e.value.toInt();
         QMapIterator<QString, QVariant> it(e.items);
         while (it.hasNext()) {
             if (it.next().value().toInt() != v)
                 continue;
-                
+
             DomProperty *p = new DomProperty;
             p->setAttributeName(propertyName);
             p->setElementEnum(it.key());
             return p;
         }
-        
+
         return 0;
     } else if (qVariantGet(value, f, "FlagType")) {
-#if 0
+#if 0 // ### implement me
         int v = f.value.toInt();
-        
+
         QMapIterator<QString, QVariant> it(e.items);
         while (it.hasNext()) {
             if (it.next().value().toInt() != v)
                 continue;
-                
+
             DomProperty *p = new DomProperty;
             p->setAttributeName(propertyName);
             p->setElementEnum(it.key());
@@ -797,6 +786,6 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         qWarning("createProperty for flags not implemented yet!");
         return 0;
     }
-    
+
     return Resource::createProperty(object, propertyName, value);
 }
