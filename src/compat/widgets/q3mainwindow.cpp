@@ -1498,7 +1498,7 @@ void Q3MainWindow::paintEvent(QPaintEvent *)
         style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this)) {
         QPainter p(this);
         int y = d->mb->height() + 1;
-        QStyleOption opt(0, QStyleOption::Default);
+        QStyleOption opt(0, QStyleOption::SO_Default);
         opt.rect.setRect(0, y, width(), 1);
         opt.palette = palette();
         opt.state = QStyle::Style_Sunken;

@@ -225,7 +225,7 @@ void Q3DockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
 void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOption opt(0, QStyleOption::Default);
+    QStyleOption opt(0, QStyleOption::SO_Default);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -1526,7 +1526,7 @@ void Q3DockWindow::drawFrame(QPainter *p)
 void Q3DockWindow::drawContents(QPainter *p)
 {
     // This is only used by the PocketPC style. We probably need to revist later.
-    QStyleOption opt(0, QStyleOption::Default);
+    QStyleOption opt(0, QStyleOption::SO_Default);
     opt.init(this);
     if (titleBar->isActive())
         opt.state |= QStyle::Style_Active;

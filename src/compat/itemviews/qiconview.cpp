@@ -5298,7 +5298,7 @@ void QIconView::drawRubber(QPainter *p)
     QPoint pnt(d->rubber->x(), d->rubber->y());
     pnt = contentsToViewport(pnt);
     // ### this needs qrubberband too.
-    QStyleOption opt(0, QStyleOption::Default);
+    QStyleOption opt(0, QStyleOption::SO_Default);
     opt.rect.setRect(pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height());
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
