@@ -788,9 +788,15 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
     return ret;
 }
 
-static void qt_mac_mask_data_free(void *data, const void *, size_t)
+static void qt_mac_mask_data_free(void *, const void *data, size_t)
 {
-    free(data);
+    free(const_cast<void *>(data));
+}
+
+static void qt_mac_pixmap_data_free(void *info, const void *, size_t)
+{
+    QPixmap *pix = static_cast<QPixmap *>(info);
+    delete pix;
 }
 
 CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
@@ -820,7 +826,8 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
         }
         image = CGImageMaskCreate(px.width(), px.height(), 8, 8, px.width(), provider, 0, true);
     } else {
-        provider = CGDataProviderCreateWithData(0, addr, bpl*px.height(), 0);
+        provider = CGDataProviderCreateWithData(new QPixmap(px), addr, bpl*px.height(),
+                                                qt_mac_pixmap_data_free);
         if(mode == Qt::ComposePixmap) {
             if(const QPixmap *alpha = px.data->alphapm) {
                 char *drow;
