@@ -46,6 +46,7 @@ void ABCentralWidget::save( const QString &filename )
         return;
 
     QTextStream t( &f );
+    t.setEncoding(QTextStream::UnicodeUTF8);
 
     QListViewItemIterator it( listView );
 
@@ -65,6 +66,7 @@ void ABCentralWidget::load( const QString &filename )
         return;
 
     QTextStream t( &f );
+    t.setEncoding(QTextStream::UnicodeUTF8);
 
     while ( !t.atEnd() ) {
         QListViewItem *item = new QListViewItem( listView );
