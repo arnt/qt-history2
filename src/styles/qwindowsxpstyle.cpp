@@ -1723,68 +1723,59 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
     if ( !use_xp )
 	return QWindowsStyle::querySubControlMetrics( control, widget, sc, option );
 
-    QRect rect;
     switch ( control ) {
-    case CC_TitleBar:
-	{
-	    const QTitleBar *titlebar = (const QTitleBar *) widget;
-	    const int controlTop = widget->testWFlags( WStyle_Tool ) ? 4 : 6;
-	    const int controlHeight = widget->height() - controlTop - 3;
+    case CC_TitleBar: {
+	const QTitleBar *titlebar = (const QTitleBar *) widget;
+	const int controlTop = widget->testWFlags( WStyle_Tool ) ? 4 : 6;
+	const int controlHeight = widget->height() - controlTop - 3;
 
-	    switch (sc) {
-	    case SC_TitleBarLabel:
-		{
-		    const QTitleBar *titlebar = (QTitleBar*)widget;
-		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
-		    if ( titlebar->testWFlags( WStyle_Tool ) ) {
-			if ( titlebar->testWFlags( WStyle_SysMenu ) )
-			    ir.addCoords( 0, 0, -controlHeight-3, 0 );
-			if ( titlebar->testWFlags( WStyle_MinMax ) )
-			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
-		    } else {
-			if ( titlebar->testWFlags( WStyle_SysMenu ) )
-			    ir.addCoords( controlHeight+3, 0, -controlHeight-3, 0 );
-			if ( titlebar->testWFlags( WStyle_Minimize ) )
-			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
-			if ( titlebar->testWFlags( WStyle_Maximize ) )
-			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
-		    }
-		    rect = ir;
-		}
-		break;
-
-	    case SC_TitleBarCloseButton:
-		rect.setRect(titlebar->width()-( controlHeight + 1 )-controlTop, controlTop, controlHeight, controlHeight);
-		break;
-
-	    case SC_TitleBarMaxButton:
-	    case SC_TitleBarShadeButton:
-	    case SC_TitleBarUnshadeButton:
-		rect.setRect(titlebar->width()-((controlHeight + 1 ) * 2)-controlTop, controlTop, controlHeight, controlHeight);
-		break;
-
-	    case SC_TitleBarMinButton:
-	    case SC_TitleBarNormalButton:
-		{
-		    int offset = controlHeight + 1;
-		    if ( !titlebar->testWFlags( WStyle_Maximize ) )
-			offset *= 2;
-		    else
-			offset *= 3;
-		    rect.setRect(titlebar->width() - offset-controlTop, controlTop, controlHeight, controlHeight);
-		}
-		break;
-
-	    case SC_TitleBarSysMenu:
-		rect.setRect( 3, controlTop, controlHeight, controlHeight);
-		break;
-
-	    default:
-		break;
+	switch (sc) {
+	case SC_TitleBarLabel: {
+	    const QTitleBar *titlebar = (QTitleBar*)widget;
+	    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
+	    if ( titlebar->testWFlags( WStyle_Tool ) ) {
+		if ( titlebar->testWFlags( WStyle_SysMenu ) )
+		    ir.addCoords( 0, 0, -controlHeight-3, 0 );
+		if ( titlebar->testWFlags( WStyle_MinMax ) )
+		    ir.addCoords( 0, 0, -controlHeight-2, 0 );
+	    } else {
+		if ( titlebar->testWFlags( WStyle_SysMenu ) )
+		    ir.addCoords( controlHeight+3, 0, -controlHeight-3, 0 );
+		if ( titlebar->testWFlags( WStyle_Minimize ) )
+		    ir.addCoords( 0, 0, -controlHeight-2, 0 );
+		if ( titlebar->testWFlags( WStyle_Maximize ) )
+		    ir.addCoords( 0, 0, -controlHeight-2, 0 );
 	    }
-	}
-	return rect;
+	    return ir; }
 
+	case SC_TitleBarCloseButton:
+	    return QRect(titlebar->width()-( controlHeight + 1 )-controlTop, 
+			 controlTop, controlHeight, controlHeight);
+
+	case SC_TitleBarMaxButton:
+	case SC_TitleBarShadeButton:
+	case SC_TitleBarUnshadeButton:
+	    return QRect(titlebar->width()-((controlHeight + 1 ) * 2)-controlTop, 
+			 controlTop, controlHeight, controlHeight);
+	    break;
+
+	case SC_TitleBarMinButton:
+	case SC_TitleBarNormalButton: {
+	    int offset = controlHeight + 1;
+	    if ( !titlebar->testWFlags( WStyle_Maximize ) )
+		offset *= 2;
+	    else
+		offset *= 3;
+	    return QRect(titlebar->width() - offset-controlTop, 
+			 controlTop, controlHeight, controlHeight); }
+
+	case SC_TitleBarSysMenu:
+	    return QRect( 3, controlTop, controlHeight, controlHeight);
+
+	default:
+	    break;
+	}
+	return QRect(); } //are you sure you want to do this? ###
     default:
 	break;
     }

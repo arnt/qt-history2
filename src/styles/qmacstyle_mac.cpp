@@ -1328,33 +1328,28 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 					    SubControl sc,
 					    const QStyleOption& opt) const
 {
-    QRect ret;
     switch(control) {
     case CC_SpinWidget: {
 	const int spinner_w = 20, spinner_h = 10; //isn't there some way to get this from the AppMan?
 	int fw = pixelMetric(PM_SpinBoxFrameWidth, w), y = fw, x = w->width() - fw - spinner_w;
 	switch ( sc ) {
 	case SC_SpinWidgetUp:
-	    ret.setRect(x, y + ((w->height() / 2) - spinner_h), spinner_w, spinner_h);
-	    break;
+	    return QRect(x, y + ((w->height() / 2) - spinner_h), spinner_w, spinner_h);
 	case SC_SpinWidgetDown:
-	    ret.setRect(x, y + (w->height() / 2), spinner_w, spinner_h);
-	    break;
+	    return QRect(x, y + (w->height() / 2), spinner_w, spinner_h);
 	case SC_SpinWidgetButtonField:
-	    ret.setRect(x, y, spinner_w, w->height() - (fw*2));
-	    break;
+	    return QRect(x, y, spinner_w, w->height() - (fw*2));
 	case SC_SpinWidgetEditField: 
-	    ret.setRect(fw, fw, w->width() - spinner_w - (fw*3) - 3, w->height() - (fw*2));
-	    break;
+	    return QRect(fw, fw, w->width() - spinner_w - (fw*3) - 3, w->height() - (fw*2));
 	case SC_SpinWidgetFrame:
-	    ret = QRect(0, 0, w->width() - spinner_w - fw - 3, w->height());
+	    return QRect(0, 0, w->width() - spinner_w - fw - 3, w->height());
 	default:
 	    break;
 	}
 	break; }
     case CC_TitleBar: {
 	if(!w)
-	    break;
+	    return QRect();
 	QTitleBar *tbar = (QTitleBar*)w;
 	ThemeWindowMetrics twm;
 	memset(&twm, '\0', sizeof(twm));
@@ -1387,17 +1382,19 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	    r.moveBy(r.x() - br.x(), r.y() - br.y());
 	    GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r),
 				 kThemeStateActive, &twm, twa, wrc, treg.handle(TRUE));
-	    ret = treg.boundingRect();
+	    return treg.boundingRect();
 	}
 	break; }
     case CC_ComboBox: {
-	ret = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
-	if(sc == SC_ComboBoxEditField)
+	if(sc == SC_ComboBoxEditField) {
+	    QRect ret = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 	    ret.setWidth(ret.width() - 5);
+	    return ret;
+	}
 	break; }
     case CC_ScrollBar: {
 	if(!w)
-	    break;
+	    return QRect();
 	QScrollBar *scrollbar = (QScrollBar *) w;
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
@@ -1420,13 +1417,12 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	case SC_ScrollBarGroove: {
 	    Rect mrect;
 	    GetThemeTrackBounds(&ttdi, &mrect);
-	    ret = QRect(mrect.left, mrect.top,
-			mrect.right - mrect.left, mrect.bottom - mrect.top);
+	    return QRect(mrect.left, mrect.top, mrect.right - mrect.left, mrect.bottom - mrect.top);
 	    break; }
 	case SC_ScrollBarSlider: {
 	    QRegion rgn;
 	    GetThemeTrackThumbRgn(&ttdi, rgn.handle(TRUE));
-	    ret = rgn.boundingRect();
+	    return rgn.boundingRect();
 	    break; }
 	default:
 	    break;
@@ -1434,7 +1430,7 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	break; }
     case CC_Slider: {
 	if(!w)
-	    break;
+	    return QRect();
 	QSlider *sldr = (QSlider *)w;
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
@@ -1460,23 +1456,22 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	case SC_SliderGroove: {
 	    Rect mrect;
 	    GetThemeTrackBounds(&ttdi, &mrect);
-	    ret = QRect(mrect.left, mrect.top,
+	    return QRect(mrect.left, mrect.top,
 			mrect.right - mrect.left, mrect.bottom - mrect.top);
 	    break; }
 	case SC_SliderHandle: {
 	    QRegion rgn;
 	    GetThemeTrackThumbRgn(&ttdi, rgn.handle(TRUE));
-	    ret = rgn.boundingRect();
+	    return rgn.boundingRect();
 	    break; }
 	default:
 	    break;
 	}
 	break; }
     default:
-	ret = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 	break;
     }
-    return ret;
+    return QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 }
 
 /*! \reimp */
