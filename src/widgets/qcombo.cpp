@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#22 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#22 $";
 #endif
 
 /*!
@@ -57,7 +57,7 @@ struct QComboData
     uint	autoresize : 1;
 };
 
-
+// ### dereferences buttonW without checking
 static bool getMetrics( int width, int height,
 			int *dist, int *buttonW, int *buttonH )
 {
@@ -532,7 +532,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    QPixmap *pix = d->popup->pixmap( d->current );
 	    if ( pix ) {
 		p.setClipRect( clip );
-		p.drawPixmap( 2, 2, *pix );
+		p.drawPixmap( 2, (height()-pix->height())/2, *pix );
 		p.setClipping( FALSE );
 	    }
 	}
