@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#214 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#215 $
 **
 ** Definition of QWidget class
 **
@@ -492,10 +492,10 @@ inline int QWidget::minimumHeight() const
 { return minimumSize().height(); }
 
 inline int QWidget::maximumWidth() const
-{ return minimumSize().width(); }
+{ return maximumSize().width(); }
 
 inline int QWidget::maximumHeight() const
-{ return minimumSize().height(); }
+{ return maximumSize().height(); }
 
 inline void QWidget::setMinimumSize( const QSize &s )
 { setMinimumSize(s.width(),s.height()); }
