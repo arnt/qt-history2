@@ -1043,7 +1043,7 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 	if ( !d->mapper && !d->latin1 )
 	    ts_putc( QChar::byteOrderMark );
     }
-    // QByteArray and const char * are treated as Latin-1
+    // QByteArray and const char * are treated as Latin1
     if ( !d->mapper && d->latin1 ) {
 	dev->writeBlock( p, len );
     } else if ( !d->mapper && d->internalOrder ) {
@@ -2440,10 +2440,10 @@ void QTextStream::setEncoding( Encoding e )
 	d->networkOrder = QChar::networkOrdered();
 	break;
     case Locale:
-	d->latin1 = TRUE; // fallback to Latin-1
+	d->latin1 = TRUE; // fallback to Latin1
 #ifndef QT_NO_TEXTCODEC
 	d->mapper = QTextCodec::codecForLocale();
-	// optimized Latin-1 processing
+	// optimized Latin1 processing
 #if defined(Q_OS_WIN32)
 	if ( GetACP() == 1252 )
 	    d->mapper = 0;

@@ -259,8 +259,8 @@ where
 	for 12pt)
 \row \i \e flags \i \list
 		    \i \c s: smooth (anti-aliased)
-		    \i \c u: Unicode range when saving (default is Latin-1)
-		    \i \c a: ASCII range when saving (default is Latin-1)
+		    \i \c u: Unicode range when saving (default is Latin1)
+		    \i \c a: ASCII range when saving (default is Latin1)
 		    \endlist
 \endtable
 

@@ -2258,7 +2258,7 @@ QTextCodec* QApplication::defaultCodec() const
   arguments to translate():
 
   \value DefaultCodec - the encoding specified by
-  QTextCodec::codecForTr() (Latin-1 if none has been set)
+  QTextCodec::codecForTr() (Latin1 if none has been set)
   \value UnicodeUTF8 - UTF-8
 
   \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()

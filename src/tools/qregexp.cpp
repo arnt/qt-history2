@@ -230,7 +230,7 @@
     \row \i <b>\\xhhhh</b>
 	 \i This matches the Unicode character corresponding to the
 	 hexadecimal number hhhh (between 0x0000 and 0xFFFF). \0ooo
-	 (i.e., \zero ooo) matches the ASCII/Latin-1 character
+	 (i.e., \zero ooo) matches the ASCII/Latin1 character
 	 corresponding to the octal number ooo (between 0 and 0377).
     \row \i <b>. (dot)</b>
 	 \i This matches any character (including newline).

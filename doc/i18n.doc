@@ -136,7 +136,7 @@ defined, you'll be very likely to catch any strings you are
 missing. See QString::fromLatin1() for more information.
 Disabling the conversion makes programming cumbersome.
 
-If your source language uses characters outside Latin-1, you
+If your source language uses characters outside Latin1, you
 might find QObject::trUtf8() more convenient than
 QObject::tr(), as tr() depends on the
 QApplication::defaultCodec(), which makes it more fragile than
@@ -417,7 +417,7 @@ with the actual limitations.
 \list
 \i Qt provides full Unicode support, including input methods, fonts,
     clipboard, drag-and-drop and file names.
-\i File I/O defaults to Latin-1, with Unicode options in QTextStream.
+\i File I/O defaults to Latin1, with Unicode options in QTextStream.
     Note that some Windows programs do not understand big-endian
     Unicode text files even though that is the order prescribed by
     the Unicode Standard in the absence of higher-level protocols.
@@ -435,7 +435,7 @@ few minor version numbers, we hope to add support for your language of
 choice, until everyone can use Qt and all the programs developed with
 Qt, regardless of their language.
 
-Languages with single-byte encodings (European Latin-1 and KOI8-R,
+Languages with single-byte encodings (European Latin1 and KOI8-R,
 etc.) and multi-byte encodings (East Asian EUC-JP, etc.) are
 supported. Support for the "complex" encodings: those requiring
 right-to-left input or complex character composition (e.g. Arabic,

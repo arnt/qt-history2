@@ -5482,10 +5482,10 @@ void QListView::setSorting( int column, bool ascending )
     This enum describes how the items in a widget are sorted.
 
     \value Ascending The items are sorted ascending e.g. starts with
-    'AAA' ends with 'ZZZ' in Latin-1 locales
+    'AAA' ends with 'ZZZ' in Latin1 locales
 
     \value Descending The items are sorted descending e.g. starts with
-    'ZZZ' ends with 'AAA' in Latin-1 locales
+    'ZZZ' ends with 'AAA' in Latin1 locales
 */
 
 /*!

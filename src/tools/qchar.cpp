@@ -86,7 +86,7 @@
     QString::localeAwareCompare() though.)
 
     The conversion functions include unicode() (to a scalar), latin1()
-    (to scalar, but converts all non-Latin-1 characters to 0), row()
+    (to scalar, but converts all non-Latin1 characters to 0), row()
     (gives the Unicode row), cell() (gives the Unicode cell),
     digitValue() (gives the integer value of any of the numerous digit
     characters), and a host of constructors.
@@ -231,7 +231,7 @@
 
 
 /*!
-    Constructs a QChar corresponding to ASCII/Latin-1 character \a c.
+    Constructs a QChar corresponding to ASCII/Latin1 character \a c.
 */
 QChar::QChar(char c)
 {
@@ -245,7 +245,7 @@ QChar::QChar(char c)
 }
 
 /*!
-    Constructs a QChar corresponding to ASCII/Latin-1 character \a c.
+    Constructs a QChar corresponding to ASCII/Latin1 character \a c.
 */
 QChar::QChar(uchar c)
 {
@@ -648,7 +648,7 @@ QChar QChar::fromAscii(char c)
     \overload
     \relates QChar
 
-    Returns TRUE if \a c is the ASCII/Latin-1 character \a ch;
+    Returns TRUE if \a c is the ASCII/Latin1 character \a ch;
     otherwise returns FALSE.
 */
 
@@ -658,7 +658,7 @@ QChar QChar::fromAscii(char c)
     \overload
     \relates QChar
 
-    Returns TRUE if \a c is the ASCII/Latin-1 character \a ch;
+    Returns TRUE if \a c is the ASCII/Latin1 character \a ch;
     otherwise returns FALSE.
 */
 
@@ -677,7 +677,7 @@ QChar QChar::fromAscii(char c)
     \overload
     \relates QChar
 
-    Returns TRUE if \a c is not the ASCII/Latin-1 character \a ch;
+    Returns TRUE if \a c is not the ASCII/Latin1 character \a ch;
     otherwise returns FALSE.
 */
 
@@ -687,7 +687,7 @@ QChar QChar::fromAscii(char c)
     \overload
     \relates QChar
 
-    Returns TRUE if \a c is not the ASCII/Latin-1 character \a ch;
+    Returns TRUE if \a c is not the ASCII/Latin1 character \a ch;
     otherwise returns FALSE.
 */
 
@@ -708,7 +708,7 @@ QChar QChar::fromAscii(char c)
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c is less than or
-    equal to that of the ASCII/Latin-1 character \a ch; otherwise
+    equal to that of the ASCII/Latin1 character \a ch; otherwise
     returns FALSE.
 */
 
@@ -718,7 +718,7 @@ QChar QChar::fromAscii(char c)
     \overload
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin-1
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
     character \a ch is less than or equal to that of \a c; otherwise
     returns FALSE.
 */
@@ -740,7 +740,7 @@ QChar QChar::fromAscii(char c)
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c is greater than
-    or equal to that of the ASCII/Latin-1 character \a ch; otherwise
+    or equal to that of the ASCII/Latin1 character \a ch; otherwise
     returns FALSE.
 */
 
@@ -750,7 +750,7 @@ QChar QChar::fromAscii(char c)
     \overload
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin-1
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
     character \a ch is greater than or equal to that of \a c;
     otherwise returns FALSE.
 */
@@ -771,7 +771,7 @@ QChar QChar::fromAscii(char c)
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c is less than that
-    of the ASCII/Latin-1 character \a ch; otherwise returns FALSE.
+    of the ASCII/Latin1 character \a ch; otherwise returns FALSE.
 */
 
 /*!
@@ -780,7 +780,7 @@ QChar QChar::fromAscii(char c)
     \overload
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin-1
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
     character \a ch is less than that of \a c; otherwise returns
     FALSE.
 */
@@ -801,7 +801,7 @@ QChar QChar::fromAscii(char c)
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c is greater than
-    that of the ASCII/Latin-1 character \a ch; otherwise returns FALSE.
+    that of the ASCII/Latin1 character \a ch; otherwise returns FALSE.
 */
 
 /*!
@@ -810,7 +810,7 @@ QChar QChar::fromAscii(char c)
     \overload
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin-1
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
     character \a ch is greater than that of \a c; otherwise returns
     FALSE.
 */

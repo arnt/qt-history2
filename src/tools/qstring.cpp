@@ -238,7 +238,7 @@ inline int QString::grow (int size)
     If \a s is 0, then an empty string is created.
 
     This is a cast constructor, but it is perfectly safe: converting a
-    Latin-1 \c{const char *} to QString preserves all the
+    Latin1 \c{const char *} to QString preserves all the
     information. You can disable this constructor by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. You can
     also make QString objects by using fromAscii(), fromLatin1(),
@@ -2107,8 +2107,8 @@ bool operator>=(const char *s1, const QString &s2)
 
 /*! \fn const char *QString::latin1() const
 
-    Returns a Latin-1 representation of the string. The
-    returned value is undefined if the string contains non-Latin-1
+    Returns a Latin11 representation of the string. The
+    returned value is undefined if the string contains non-Latin1
     characters. If you want to convert strings into formats other than
     Unicode, see the QTextCodec classes.
 
@@ -2130,8 +2130,8 @@ bool operator>=(const char *s1, const QString &s2)
 */
 
 /*!
-    Returns a Latin-1 representation of the string in a QByteArray.
-    The returned value is undefined if the string contains non-Latin-1
+    Returns a Latin1 representation of the string in a QByteArray.
+    The returned value is undefined if the string contains non-Latin1
     characters. If you want to convert strings into formats other than
     Unicode, see the QTextCodec classes.
 
@@ -4388,7 +4388,7 @@ QString QString::arg(Q_ULLONG a, int fieldWidth, int base) const
 /*!
     \overload
 
-    \a a is assumed to be in the Latin-1 character set.
+    \a a is assumed to be in the Latin1 character set.
 */
 QString QString::arg(char a, int fieldWidth) const
 {

@@ -131,7 +131,7 @@
 /*!
     \fn QStringList::QStringList (const char *i)
 
-    Constructs a string list consisting of the single Latin-1 string \a i.
+    Constructs a string list consisting of the single Latin1 string \a i.
 */
 
 /*!

@@ -822,7 +822,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
     \i	On X11, heuristicNameMatch( const char * hint )
 	is used to test if a the QTextCodec
 	can convert between Unicode and the encoding of a font
-	with encoding \e hint, such as "iso8859-1" for Latin-1 fonts,
+	with encoding \e hint, such as "iso8859-1" for Latin1 fonts,
 	"koi8-r" for Russian KOI8 fonts.
 	The default algorithm of heuristicNameMatch() uses name().
     \i	Some applications may use this function to present
@@ -2954,7 +2954,7 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     \fn QTextCodec* QTextCodec::codecForTr()
 
     Returns the codec used by QObject::tr() on its argument. If this
-    function returns 0 (the default), tr() assumes Latin-1.
+    function returns 0 (the default), tr() assumes Latin1.
 
     \sa setCodecForTr()
 */
@@ -2964,9 +2964,9 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     \nonreentrant
 
     Sets the codec used by QObject::tr() on its argument to \a c. If
-    \a c is 0 (the default), tr() assumes Latin-1.
+    \a c is 0 (the default), tr() assumes Latin1.
 
-    If the literal quoted text in the program is not in the Latin-1
+    If the literal quoted text in the program is not in the Latin1
     encoding, this function can be used to set the appropriate
     encoding. For example, software developed by Korean programmers
     might use eucKR for all the text in the program, in which case the
@@ -2998,7 +2998,7 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
 
     Returns the codec used by QString to convert to and from const
     char* and QByteArrays. If this function returns 0 (the default),
-    QString assumes Latin-1.
+    QString assumes Latin1.
 
     \sa setCodecForCStrings()
 */
@@ -3008,7 +3008,7 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     \nonreentrant
 
     Sets the codec used by QString to convert to and from const char*
-    and QByteArrays. If \a c is 0 (the default), QString assumes Latin-1.
+    and QByteArrays. If \a c is 0 (the default), QString assumes Latin1.
 
     \warning Some codecs do not preserve the characters in the ascii
     range (0x00 to 0x7f).  For example, the Japanese Shift-JIS
