@@ -2420,22 +2420,22 @@ void QWSServer::openMouse()
 	    mice = defaultMouse;
     }
     closeMouse();
-    if ( mice == "None" )
-	return;
     bool needviscurs = TRUE;
+    if ( mice != "None" ) {
 #ifndef QT_NO_STRINGLIST
-    QStringList mouse = QStringList::split(" ",mice);
-    for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
-	QString ms = *m;
+	QStringList mouse = QStringList::split(" ",mice);
+	for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
+	    QString ms = *m;
 #else
-    QString ms = mice; // } Assume only one
-    {
+	    QString ms = mice; // Assume only one
+	    {
 #endif
-	QWSMouseHandler* h = newMouseHandler(ms);
-	/* XXX handle mouse cursor visibility sensibly
-	if ( !h->inherits("QCalibratedMouseHandler") )
-	    needviscurs = TRUE;
-	*/
+		QWSMouseHandler* h = newMouseHandler(ms);
+		/* XXX handle mouse cursor visibility sensibly
+		   if ( !h->inherits("QCalibratedMouseHandler") )
+		   needviscurs = TRUE;
+		 */
+	    }
     }
 #ifndef QT_NO_QWS_CURSOR
     if ( needviscurs != haveviscurs ) {
