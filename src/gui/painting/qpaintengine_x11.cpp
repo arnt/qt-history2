@@ -1463,7 +1463,7 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
     if (d->cpen.style() != Qt::NoPen) {
         if (!clippedPoints) // already clipped?
             d->polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
-                                          &clippedPoints, &clippedCount, false);
+                                          &clippedPoints, &clippedCount, mode != PolylineMode);
         if (clippedCount > 0)
             XDrawLines(d->dpy, d->hd, d->gc, (XPoint *) clippedPoints, clippedCount, CoordModeOrigin);
     }
