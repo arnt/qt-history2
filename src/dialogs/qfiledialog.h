@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#55 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#56 $
 **
 ** Definition of QFileDialog class
 **
@@ -230,6 +230,18 @@ protected:
     void keyPressEvent( QKeyEvent * );
 
     void addWidgets( QLabel *, QWidget *, QPushButton * );
+
+    void listBoxMouseMoveEvent( QMouseEvent *e );
+    void listBoxDragEnterEvent( QDragEnterEvent *e );
+    void listBoxDragMoveEvent( QDragMoveEvent *e );
+    void listBoxDragLeaveEvent( QDragLeaveEvent *e );
+    void listBoxDropEvent( QDropEvent *e );
+    bool listBoxAcceptDrop( const QPoint &pnt, QWidget *source );
+    void drawDragShapes( const QPoint &pnt, bool multRow, int num );
+    void setCurrentDropItem( const QPoint &pnt );
+
+protected slots:
+    void changeDirDuringDrag();
 
 private slots:
     void updateGeometries();
