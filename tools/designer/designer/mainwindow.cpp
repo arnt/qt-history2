@@ -1580,7 +1580,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	QString text;
 	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) || w->inherits( "QButton" ) ) {
 	    text = MultiLineEditor::getText( this, w->property("text").toString(), !w->inherits( "QButton" ) );
-	    ok = !text.isEmpty();
+	    ok = !text.isNull();
 	} else {
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
 	}
