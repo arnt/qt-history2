@@ -1590,12 +1590,13 @@ int QHttp::supportedOperations() const
 
 /*! \reimp
 */
-void QHttp::operationGet( QNetworkOperation * )
+void QHttp::operationGet( QNetworkOperation *op )
 {
     int cstate = client->state();
     if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Idle )
 	return; // ### store the request for later?
 
+    op->setState( StInProgress );
     QHttpRequestHeader header( "GET", url()->encodedPathAndQuery() );
     client->request( url()->host(), url()->port() != -1 ? url()->port() : 80, header );
 }
@@ -1608,6 +1609,7 @@ void QHttp::operationPut( QNetworkOperation *op )
     if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Idle )
 	return; // ### store the request for later?
 
+    op->setState( StInProgress );
     QHttpRequestHeader header( "POST", url()->encodedPathAndQuery() );
     //header.setContentType( "text/plain" );
     client->request( url()->host(), url()->port() != -1 ? url()->port() : 80,
