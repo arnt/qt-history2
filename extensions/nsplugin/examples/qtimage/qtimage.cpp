@@ -16,10 +16,10 @@ public:
     ImageView()
     {
 	popup = new QPopupMenu;
-	popup->insertItem("Test 1");
-	popup->insertItem("Test 2");
-	popup->insertItem("Test 3");
-	popup->insertItem("Test 4");
+	popup->insertItem("Left as");
+	popup->insertItem("An exercise");
+	popup->insertItem("For the");
+	popup->insertItem("Reader!");
     }
 
     void paintEvent(QPaintEvent* event)
