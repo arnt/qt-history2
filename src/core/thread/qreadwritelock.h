@@ -25,5 +25,28 @@ private:
     QReadWriteLockPrivate * d;
 };
 
+class Q_CORE_EXPORT QReadWriteLockLocker
+{
+public:
+    inline QReadWriteLockLocker(QReadWriteLock *readWriteLock,
+                                QReadWriteLock::AccessMode accessMode)
+        : lock(readWriteLock), access(accessMode)
+    { relock(); }
+    inline ~QReadWriteLockLocker()
+    { unlock(); }
+
+    inline void unlock()
+    { if (lock) lock->unlock(); }
+
+    inline void relock()
+    { if (lock) lock->lock(access); }
+
+private:
+    Q_DISABLE_COPY(QReadWriteLockLocker)
+
+    QReadWriteLock *lock;
+    QReadWriteLock::AccessMode access;
+};
+
 #endif
 
