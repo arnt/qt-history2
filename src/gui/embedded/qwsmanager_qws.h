@@ -46,8 +46,7 @@ public:
     void startResize();
 
     QRegion region();
-    QRegion &cachedRegion()
-    { return cached_region.region; }
+    QRegion &cachedRegion();
 
 protected slots:
     void menuTriggered(QAction *action);
@@ -64,20 +63,6 @@ protected:
     bool repaintRegion(int region, QDecoration::DecorationState state);
 
     void menu(const QPoint &);
-
-private:
-    int previousRegionType;
-    bool previousRegionRepainted; // Hover/Press handled
-    struct RegionCaching {
-        int regionType;
-        QRegion region;
-        Qt::WFlags windowFlags;
-        QRect windowGeometry;
-    } cached_region;
-
-    bool newCachedRegion(const QPoint &pos);
-    int cachedRegionAt()
-    { return cached_region.regionType; }
 };
 
 #include "qdecorationdefault_qws.h"

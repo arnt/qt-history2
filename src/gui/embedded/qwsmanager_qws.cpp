@@ -64,15 +64,39 @@ public:
 
     static QWidget *active;
     static QPoint mousePos;
+
+    // Region caching to avoid getting a regiontype's
+    // QRegion for each mouse move event
+    int previousRegionType;
+    bool previousRegionRepainted; // Hover/Press handled
+    struct RegionCaching {
+        int regionType;
+        QRegion region;
+        Qt::WFlags windowFlags;
+        QRect windowGeometry;
+    } cached_region;
+
+    bool newCachedRegion(const QPoint &pos);
+    int cachedRegionAt()
+    { return cached_region.regionType; }
 };
+
 QWidget *QWSManagerPrivate::active = 0;
 QPoint QWSManagerPrivate::mousePos;
 
 
 QWSManagerPrivate::QWSManagerPrivate()
-    : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0)
+    : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0),
+      previousRegionType(0), previousRegionRepainted(false)
 {
+    cached_region.regionType = 0;
 }
+
+QRegion &QWSManager::cachedRegion()
+{
+    return d->cached_region.region;
+}
+
 
 #define d d_func()
 #define q q_func()
@@ -83,8 +107,6 @@ QWSManager::QWSManager(QWidget *w)
 {
     d->managed = w;
 
-    previousRegionRepainted = false;
-    cached_region.regionType = 0;
 }
 
 QWSManager::~QWSManager()
@@ -150,8 +172,8 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 {
     d->mousePos = e->globalPos();
     d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePos);
-    if(cached_region.regionType)
-        previousRegionRepainted |= repaintRegion(cached_region.regionType, QDecoration::Pressed);
+    if(d->cached_region.regionType)
+        d->previousRegionRepainted |= repaintRegion(d->cached_region.regionType, QDecoration::Pressed);
 
     if (d->activeRegion == QDecoration::Menu)
         menu(d->managed->geometry().topLeft());
@@ -175,11 +197,11 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 {
     d->managed->releaseMouse();
-    if (cached_region.regionType && previousRegionRepainted && QApplication::mouseButtons() == 0) {
-        bool doesHover = repaintRegion(cached_region.regionType, QDecoration::Hover);
+    if (d->cached_region.regionType && d->previousRegionRepainted && QApplication::mouseButtons() == 0) {
+        bool doesHover = repaintRegion(d->cached_region.regionType, QDecoration::Hover);
         if (!doesHover) {
-            repaintRegion(cached_region.regionType, QDecoration::Normal);
-            previousRegionRepainted = false;
+            repaintRegion(d->cached_region.regionType, QDecoration::Normal);
+            d->previousRegionRepainted = false;
         }
     }
 
@@ -231,18 +253,18 @@ static inline Qt::CursorShape regionToShape(int region)
 
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
-    if (newCachedRegion(e->globalPos())) {
-        if(previousRegionType && previousRegionRepainted)
-            repaintRegion(previousRegionType, QDecoration::Normal);
-        if(cached_region.regionType) {
-            previousRegionRepainted = repaintRegion(cached_region.regionType, QDecoration::Hover);
+    if (d->newCachedRegion(e->globalPos())) {
+        if(d->previousRegionType && d->previousRegionRepainted)
+            repaintRegion(d->previousRegionType, QDecoration::Normal);
+        if(d->cached_region.regionType) {
+            d->previousRegionRepainted = repaintRegion(d->cached_region.regionType, QDecoration::Hover);
         }
     }
 
 
 #ifndef QT_NO_CURSOR
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
-    qwsd->selectCursor(d->managed, regionToShape(cachedRegionAt()));
+    qwsd->selectCursor(d->managed, regionToShape(d->cachedRegionAt()));
 #endif //QT_NO_CURSOR
 
     if (d->activeRegion)
@@ -454,11 +476,11 @@ void QWSManager::maximize()
     d->managed->setGeometry(nr);
 }
 
-bool QWSManager::newCachedRegion(const QPoint &pos)
+bool QWSManagerPrivate::newCachedRegion(const QPoint &pos)
 {
     // Check if anything has changed that would affect the region caching
-    if (d->managed->getWFlags() == cached_region.windowFlags
-        && d->managed->geometry() == cached_region.windowGeometry
+    if (managed->getWFlags() == cached_region.windowFlags
+        && managed->geometry() == cached_region.windowGeometry
         && cached_region.region.contains(pos))
         return false;
 
@@ -471,9 +493,9 @@ bool QWSManager::newCachedRegion(const QPoint &pos)
     cached_region.regionType = reg;
     cached_region.region = QApplication::qwsDecoration().region(d->managed, d->managed->geometry(),
                                                                 reg);
-    cached_region.windowFlags = d->managed->getWFlags();
-    cached_region.windowGeometry = d->managed->geometry();
-//    QRect rec = cached_region.region.boundingRect();
+    cached_region.windowFlags = managed->getWFlags();
+    cached_region.windowGeometry = managed->geometry();
+//    QRect rec = d->cached_region.region.boundingRect();
 //    qDebug("Updated cached region: 0x%04x (%d, %d)  (%d, %d,  %d, %d)",
 //           reg, pos.x(), pos.y(), rec.x(), rec.y(), rec.right(), rec.bottom());
     return true;
