@@ -337,8 +337,7 @@ static HANDLE openlock( const QString &name, int /*type*/ )
     return fd;
 }
 
-// ### make this function static?
-void closelock( HANDLE fd )
+static void closelock( HANDLE fd )
 {
     if ( !fd )
 	return;
