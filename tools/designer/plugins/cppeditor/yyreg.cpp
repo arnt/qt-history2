@@ -28,10 +28,24 @@
 
 /*
   First comes the tokenizer. We don't need something that knows much
-  about C++. However, we need something that give tokens from the end
-  of the file to the start, which is a bit tricky.
+  about C++. However, we need something that gives tokens from the
+  end of the file to the start, which is tricky.
+
+  If you are not familiar with hand-written tokenizers and parsers,
+  you might want to read other simpler parsers written in the same
+  style:
+
+	$(QTDIR)/src/tools/qregexp.cpp
+	$(QTDIR)/tools/inspector/cppparser.cpp
+  
+  You might also want to read Section 2 in the Dragon Book.
 */
 
+/*
+  Those are the tokens we are interested in. Tok_Something represents
+  any C++ token that does not interest us, but it's dangerous to
+  ignore tokens completely.
+*/
 enum { Tok_Boi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_Equal, Tok_LeftBrace, Tok_RightBrace, Tok_Semicolon, Tok_Colon,
        Tok_LeftAngle, Tok_RightAngle, Tok_Comma, Tok_Ellipsis, Tok_Gulbrandsen,
@@ -41,18 +55,26 @@ enum { Tok_Boi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_char, Tok_const, Tok_double, Tok_int, Tok_long, Tok_operator,
        Tok_short, Tok_signed, Tok_unsigned };
 
-static QString yyIn;
-static int yyPos;
-static int yyCurPos;
-static char yyLexBuf[65536]; // big enough for long comments (unlike this one)
-static char *yyLex;
-static int yyCh;
+/*
+  The following variables store the lexical analyzer state. The best way
+  to understand them is to implement a function myGetToken() that calls
+  getToken(), to add some qDebug() statements in there and then to
+  #define getToken() myGetToken().
+*/
+static QString yyIn; // the input stream
+static int yyPos; // the position of the current token in yyIn
+static int yyCurPos; // the position of the next lookahead character
+static char yyLexBuf[65536]; // the lexeme buffer (big enough for long comments)
+static char *yyLex; // the lexeme itself (a pointer into yyLexBuf)
+static int yyCh; // the lookbehind character
 
+/*
+  Moves back to the previous character in the input stream and
+  updates the tokenizer state. This function is to be used only by
+  getToken(), which provides the right abstraction.
+*/
 static inline void readChar()
 {
-    /*
-      Everything is backwards here.
-    */
     if ( yyCh == EOF )
 	return;
 
@@ -66,6 +88,9 @@ static inline void readChar()
     yyCurPos--;
 }
 
+/*
+  Sets up the tokenizer.
+*/
 static void startTokenizer( const QString& in )
 {
     yyIn = in;
@@ -77,16 +102,31 @@ static void startTokenizer( const QString& in )
     readChar();
 }
 
+/*
+  These two macros implement quick-and-dirty hashing for telling
+  apart keywords fast.
+*/
 #define HASH( ch, len ) ( (ch) | ((len) << 8) )
 #define CHECK( target ) \
     if ( strcmp((target), yyLex) != 0 ) \
 	break;
 
+/*
+  Returns the previous token in the abstract token stream. The parser
+  deals only with tokens, not with characters.
+*/
 static int getToken()
 {
+    // why "+ 2"? try putting some qDebug()'s and see
     yyPos = yyCurPos + 2;
 
     while ( TRUE ) {
+	/*
+	  See if the previous token is interesting. If it isn't, we
+	  will loop anyway an go to the token before the previous
+	  token, and so on.
+	*/
+
 	yyLex = yyLexBuf + sizeof(yyLexBuf) - 1;
 	*yyLex = '\0';
 
@@ -100,6 +140,19 @@ static int getToken()
 	    } while ( isspace(yyCh) );
 
 	    if ( metNL ) {
+		/*
+		  C++ style comments are tricky. In left-to-right
+		  thinking, C++ comments start with "//" and end with
+		  '\n'. In right-to-left thinking, they start with a
+		  '\n'; but of course not every '\n' starts a comment.
+
+		  When we meet the '\n', we look behind, on the same
+		  line, for a "//", and if there is one we mess
+		  around with the tokenizer state to effectively
+		  ignore the comment. Beware of off-by-one and
+		  off-by-two bugs when you modify this code by adding
+		  qDebug()'s here and there.
+		*/
 		int lineStart = yyIn.findRev( QChar('\n'), yyCurPos ) + 1;
 		QString line = yyIn.mid( lineStart, yyCurPos - lineStart + 2 );
 		int commentStart = line.find( QString("//") );
@@ -206,7 +259,10 @@ static int getToken()
 		    return Tok_Something;
 		}
 	    case '/':
-		// we don't treat C++-style comments specially
+		/*
+		  C-style comments are symmetric. C++-style comments
+		  are handled elsewhere.
+		*/
 		readChar();
 		if ( yyCh == '*' ) {
 		    bool metAster = FALSE;
@@ -277,6 +333,9 @@ static int getToken()
   Follow the member function(s) of CppFunction.
 */
 
+/*
+  Returns the prototype for the C++ function, without the semicolon.
+*/
 QString CppFunction::prototype() const
 {
     QString proto;
@@ -305,12 +364,21 @@ QString CppFunction::prototype() const
   The parser follows. We are not really parsing C++, just trying to
   find the start and end of function definitions.
 
-  One pitfall is that the parsed code needs not be valid. Parsing
-  from right to left helps cope with that.
+  One important pitfall is that the parsed code needs not be valid.
+  Parsing from right to left helps cope with that, as explained in
+  comments below.
+
+  In the examples, we will use the symbol @ to stand for the position
+  in the token stream. In "int @ x ;", the lookahead token (yyTok) is
+  'int'.
 */
 
-static int yyTok;
+static int yyTok; // the current token
 
+/*
+  Returns TRUE if thingy is a constructor or a destructor; otherwise
+  returns FALSE.
+*/
 static bool isCtorOrDtor( const QString& thingy )
 {
     // e.g., Alpha<a>::Beta<Bar<b, c> >::~Beta
@@ -323,6 +391,13 @@ static bool isCtorOrDtor( const QString& thingy )
     return xtor.exactMatch( thingy );
 }
 
+/*
+  Skips over any template arguments with balanced angle brackets, and
+  returns the skipped material as a string.
+
+  Before: QMap < QString , QValueList < QString > > @ m ;
+  After: QMap @ < QString , QValueList < QString > > m ;
+*/
 static QString matchTemplateAngles()
 {
     QString t;
@@ -341,6 +416,10 @@ static QString matchTemplateAngles()
     return t;
 }
 
+/*
+  Similar to matchTemplateAngles(), but for array brackets in parameter
+  data types (as in "int *argv[]").
+*/
 static QString matchArrayBrackets()
 {
     QString t;
@@ -360,13 +439,17 @@ static QString matchArrayBrackets()
     return t;
 }
 
+/*
+  Prepends prefix to *type. This operation is in theory trivial, but
+  for the spacing to look good, we have to do something. The original
+  spacing is lost as the input is tokenized.
+*/
 static void prependToType( QString *type, const QString& prefix )
 {
     if ( !type->isEmpty() && !prefix.isEmpty() ) {
 	QChar left = prefix[(int) prefix.length() - 1];
 	QChar right = (*type)[0];
 
-	// style can be enforced here
 	if ( left.isLetter() &&
 	     (right.isLetter() || right == QChar('*') || right == QChar('&')) )
 	    type->prepend( QChar(' ') );
@@ -374,6 +457,10 @@ static void prependToType( QString *type, const QString& prefix )
     type->prepend( prefix );
 }
 
+/*
+  Parses a data type (backwards as usual) and returns a textual
+  representation of it.
+*/
 static QString matchDataType()
 {
     QString type;
@@ -385,7 +472,7 @@ static QString matchDataType()
     }
 
     /*
-      This code is really hard to follow... sorry. The loop is there to match
+      This code is really hard to follow... sorry. The loop matches
       Alpha::Beta::Gamma::...::Omega.
     */
     while ( TRUE ) {
@@ -443,6 +530,10 @@ static QString matchDataType()
     return type;
 }
 
+/*
+  Parses a function prototype (without the semicolon) and returns an
+  object that stores information about this function.
+*/
 static CppFunction matchFunctionPrototype( bool stripParamNames )
 {
     CppFunction func;
@@ -534,6 +625,31 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
     return func;
 }
 
+/*
+  Try to set the body. It's not sufficient to call
+  func->setBody(somewhatBody), as the somewhatBody might be too large.
+  Case in point:
+
+    void foo()
+    {
+	printf( "Hello" );
+    }
+
+    int n;
+
+    void bar()
+    {
+	printf( " world!\n" );
+    }
+
+  The parser first finds bar(). Then it finds "void foo() {" and
+  naively expects the body to extend up to "void bar()". This
+  function's job is to count braces and make sure "int n;" is not
+  counted as part of the body.
+
+  Cases where the closing brace of the body is missing require no
+  special processing.
+*/
 static void setBody( CppFunction *func, const QString& somewhatBody )
 {
     QString body = somewhatBody;
@@ -556,6 +672,23 @@ static void setBody( CppFunction *func, const QString& somewhatBody )
     func->setBody( body );
 }
 
+/*
+  Parses a whole C++ file, looking for function definitions. Case in
+  point:
+
+    void foo()
+    {
+	printf( "Hello" );
+
+    void bar()
+    {
+	printf( " world!\n" );
+    }
+
+  The parser looks for left braces and tries to parse a function
+  prototype backwards. First it finds "void bar() {". Then it works
+  up and finds "void foo() {".
+*/
 static void matchTranslationUnit( QValueList<CppFunction> *flist )
 {
     int endBody = -1;
@@ -570,6 +703,7 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 	if ( yyTok == Tok_Boi )
 	    break;
 
+	// found a left brace
 	yyTok = getToken();
 	startBody = yyPos;
 	CppFunction func = matchFunctionPrototype( FALSE );
@@ -578,6 +712,9 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 	    setBody( &func, body );
 	    body = func.body(); // setBody() can change the body
 
+	    /*
+	      Compute important line numbers.
+	    */
 	    int functionStartLineNo = 1 + QConstString( yyIn.unicode(), yyPos )
 					  .string().contains( QChar('\n') );
 	    int startLineNo = functionStartLineNo +
