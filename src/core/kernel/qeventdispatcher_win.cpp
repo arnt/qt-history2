@@ -228,9 +228,9 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     emit awake();
 
     QCoreApplication::sendPostedEvents();
-
+    bool retVal = false;
+    DWORD waitRet = 0;
     QThreadData *data = QThreadData::current();
-    bool haveMessage;
     HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
     do {
         DWORD nCount = d->winEventNotifierList.count();
@@ -238,18 +238,14 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 
         for (int i=0; i<(int)nCount; i++)
             pHandles[i] = d->winEventNotifierList.at(i)->handle();
-        DWORD waitRet = WAIT_OBJECT_0 + nCount;
         MSG msg;
 
-        haveMessage = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);        
+        bool haveMessage = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);        
         if (!haveMessage) {
             // no message - check for signalled objects
             waitRet = MsgWaitForMultipleObjectsEx(nCount, pHandles, 0, QS_ALLINPUT, MWMO_ALERTABLE);
-            haveMessage = waitRet == WAIT_OBJECT_0 + nCount;
-            if (!haveMessage) 
-                break;
+            haveMessage = waitRet == WAIT_OBJECT_0 + nCount; 
         }
-
         if (haveMessage) {
             if (!filterEvent(&msg)) {
                 TranslateMessage(&msg);
@@ -261,8 +257,12 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
             }
         } else if (waitRet >= WAIT_OBJECT_0 && waitRet < WAIT_OBJECT_0 + nCount) {
             d->activateEventNotifier(d->winEventNotifierList.at(waitRet - WAIT_OBJECT_0));        
+        } else {
+            // nothing todo so break
+            break;
         }
-    } while (!d->interrupt && haveMessage);
+        retVal = true;
+    } while (!d->interrupt);
 
     // still nothing - wait for message or signalled objects
     bool canWait = (data->postEventList.size() == 0
@@ -275,14 +275,16 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
             pHandles[i] = d->winEventNotifierList.at(i)->handle();
 
         emit aboutToBlock();
-        (void) MsgWaitForMultipleObjectsEx(nCount, pHandles, INFINITE, QS_ALLINPUT, MWMO_ALERTABLE);
+        waitRet = MsgWaitForMultipleObjectsEx(nCount, pHandles, INFINITE, QS_ALLINPUT, MWMO_ALERTABLE);
+        if (waitRet >= WAIT_OBJECT_0 && waitRet < WAIT_OBJECT_0 + nCount) {
+            d->activateEventNotifier(d->winEventNotifierList.at(waitRet - WAIT_OBJECT_0));
+            retVal = true;
+        }
     }
 
-    if (d->interrupt) {
+    if (d->interrupt)
         d->interrupt = false;
-        return false;
-    }
-    return true;
+    return retVal;
 }
 
 bool QEventDispatcherWin32::hasPendingEvents()
