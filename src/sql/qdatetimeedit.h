@@ -63,6 +63,9 @@ public slots:
     void stepUp();
     void stepDown();
 
+signals: 
+    void valueChanged();
+    
 protected:
     void init();
     bool eventFilter( QObject *, QEvent * );
@@ -91,12 +94,15 @@ public:
 
 signals:
     void valueChanged( const QDate& );
+
+protected slots:
+    void someValueChanged();
     
 protected:
     void init();
     void fixup();
     void resizeEvent( QResizeEvent * );
-    bool event( QEvent * );    
+    bool event( QEvent * );
     int yearPos, monthPos, dayPos;
     QDate oldDate;
     QString format;
@@ -114,11 +120,14 @@ public:
 
 signals:
     void valueChanged( const QTime& );
-    
+
+protected slots:
+    void someValueChanged();
+
 protected:
     void init();
     void resizeEvent( QResizeEvent * );
-    bool event( QEvent * );    
+    bool event( QEvent * );
     QTime oldTime;
 };
 
@@ -134,14 +143,14 @@ public:
 
 signals:
     void valueChanged( const QDateTime& );
-    
+
 protected:
     void init();
-    
+
 protected slots:
     void newValue( const QDate& d );
     void newValue( const QTime& t );
-    
+
 private:
     QDateEdit* de;
     QTimeEdit* te;

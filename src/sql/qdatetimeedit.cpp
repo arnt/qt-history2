@@ -114,6 +114,13 @@ void QDateTimeEditBase::init()
     ed[1] = new NumEdit( this, "Ed_2" );
     ed[2] = new NumEdit( this, "Ed_3" );
 
+    connect( ed[0], SIGNAL( textChanged( const QString & ) ),
+	     this, SIGNAL( valueChanged() ) );
+    connect( ed[1], SIGNAL( textChanged( const QString & ) ),
+	     this, SIGNAL( valueChanged() ) );
+    connect( ed[2], SIGNAL( textChanged( const QString & ) ),
+	     this, SIGNAL( valueChanged() ) );
+    
     sep[0] = new QDateTimeEditLabel( this );
     sep[1] = new QDateTimeEditLabel( this );
 
@@ -422,6 +429,12 @@ void QDateEdit::init()
     sep[0]->setText( "-" );
     sep[1]->setText( "-" );
     setOrder( "YMD" ); // ## ISO default?
+    connect( this, SIGNAL( valueChanged() ), this, SLOT( someValueChanged() ) );
+}
+
+void QDateEdit::someValueChanged()
+{
+    emit valueChanged( date() );
 }
 
 
@@ -647,6 +660,10 @@ QTimeEdit::QTimeEdit( const QTime & t, QWidget * parent, const char * name )
     setTime( t );
 }
 
+void QTimeEdit::someValueChanged()
+{
+    emit valueChanged( time() );
+}
 
 /*!
 
@@ -659,6 +676,7 @@ void QTimeEdit::init()
     ed[2]->setRange( 0, 59 );
     sep[0]->setText( ":" );
     sep[1]->setText( ":" );
+    connect( this, SIGNAL( valueChanged() ), this, SLOT( someValueChanged() ) );
 }
 
 /*!
