@@ -131,7 +131,6 @@ int QTextObject::objectIndex() const
 */
 QTextDocument *QTextObject::document() const
 {
-    Q_D(const QTextObject);
     return qobject_cast<QTextDocument *>(parent());
 }
 
@@ -140,7 +139,6 @@ QTextDocument *QTextObject::document() const
 */
 QTextDocumentPrivate *QTextObject::docHandle() const
 {
-    Q_D(const QTextObject);
     return qobject_cast<const QTextDocument *>(parent())->docHandle();
 }
 

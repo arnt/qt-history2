@@ -222,6 +222,7 @@ void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, c
 void QAbstractTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                                                    const QTextFormat &format)
 {
+    Q_UNUSED(item);
     Q_D(QAbstractTextDocumentLayout);
 
     QTextCharFormat f = format.toCharFormat();
