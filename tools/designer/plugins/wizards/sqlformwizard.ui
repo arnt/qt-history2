@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>619</width>
-            <height>400</height>
+            <width>615</width>
+            <height>402</height>
         </rect>
     </property>
     <property name="caption">
@@ -3012,7 +3012,32 @@
         <receiver>SqlFormWizardBase</receiver>
         <slot>tableSelected(const QString&amp;)</slot>
     </connection>
+    <connection>
+        <sender>buttonAddField_2</sender>
+        <signal>released()</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>addField()</slot>
+    </connection>
+    <connection>
+        <sender>buttonRemoveField_2</sender>
+        <signal>clicked()</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>removeField()</slot>
+    </connection>
+    <connection>
+        <sender>buttonFieldUp_2</sender>
+        <signal>clicked()</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>fieldUp()</slot>
+    </connection>
+    <connection>
+        <sender>buttonFieldDown_2</sender>
+        <signal>clicked()</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>fieldDown()</slot>
+    </connection>
     <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">addField()</slot>
     <slot access="protected" language="C++">addSortField()</slot>
     <slot access="protected" language="C++">connectionSelected( const QString &amp; )</slot>
