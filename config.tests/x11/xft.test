@@ -69,7 +69,7 @@ if [ "$XFT" = "yes" ]; then
     XFT_MINOR=`grep XFT_MINOR $XFT_H | head -n 1 | awk '{ print \$3 }'`
     XFT_REVISION=`grep XFT_REVISION $XFT_H | head -n 1 | awk '{ print \$3 }'`
     [ "$VERBOSE" = "yes" ] && echo "  Found Xft version $XFT_MAJOR.$XFT_MINOR.$XFT_REVISION"
-    if [ "$XFT_MAJOR" -ne "2" ]; then
+    if [ -z "$XFT_MAJOR" ] || [ "$XFT_MAJOR" -ne "2" ]; then
         XFT=no
         [ "$VERBOSE" = "yes" ] && echo "  Version >= 2.0.0 required."
     fi
