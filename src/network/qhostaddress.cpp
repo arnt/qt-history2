@@ -335,6 +335,25 @@ QString QHostAddress::toString() const
 */
 bool QHostAddress::operator==( const QHostAddress & other ) const
 {
-    return  d->a == other.d->a;
+    return d->a == other.d->a;
 }
+
+
+/*!
+    Returns TRUE if this host address is null (INADDR_ANY or in6addr_any). The
+    default constructor creates a null address, and that address isn't valid
+    for any particular host or interface.
+*/
+bool QHostAddress::isNull() const
+{
+    if ( d->isIp4 )
+	return d->a == 0;
+    int i = 0;
+    while( i < 16 ) {
+	if ( d->a6[i++] != 0 )
+	    return FALSE;
+    }
+    return TRUE;
+}
+
 #endif //QT_NO_NETWORK

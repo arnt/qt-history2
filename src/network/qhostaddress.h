@@ -74,6 +74,7 @@ public:
 #endif
 
     bool	 operator==( const QHostAddress & ) const;
+    bool	 isNull() const;
 
 private:
     QHostAddressPrivate* d;
