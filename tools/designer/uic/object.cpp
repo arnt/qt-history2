@@ -182,16 +182,13 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		call += "setProperty( \"" + prop + "\", ";
 	    }
 	    if ( prop == "accel" )
-		call += "QKeySequence( \"" + value + "\" ) );";
+		call += "QKeySequence( " + value + " ) );";
 	    else
 		call += value + " );";
 
 	    if ( n.firstChild().toElement().tagName() == "string" ||
 		 prop == "currentItem" ) {
-		if ( prop == "accel" )
-		    out << indent << call << endl;
-		else
-		    trout << indent << call << endl;
+		trout << indent << call << endl;
 	    } else {
 		out << indent << call << endl;
 	    }
@@ -440,8 +437,6 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    else
 		trout << indent << "QWhatsThis::add( this, "
 		      << trcall( txt, com ) << " );" << endl;
-	} else if ( prop == "accel" ) {
-	    v = txt;
 	} else {
 	    v = trcall( txt, com );
 	}
