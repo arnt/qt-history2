@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#22 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#22 $";
 #endif
 
 
@@ -28,15 +28,15 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#21 $";
 commands.
 
 A picture serializes painter commands to an IO device in a
-platform-independent format.  A picture that was created under OS/2
+platform-independent format.  A picture created under OS/2
 Presentation Manager can easily be read on a Sun SPARC.
 
-Pictures are also called a meta-files on some platforms.
+Pictures are called meta-files on some platforms.
 
 Qt pictures use a proprietary binary format.  Unlike native picture (meta-file)
 formats on many window systems, Qt pictures have no limitations regarding
-the contents.  Everything that can be painted can also be stored in a
-picture (fonts, pixmaps, regions, transformed graphics etc.)
+the contents.  Everything that can be painted can also be stored in 
+a picture (fonts, pixmaps, regions, transformed graphics etc.)
 
 Example of how to record a picture:
 \code
@@ -58,8 +58,7 @@ Example of how to replay a picture:
   p.begin( &w );			\/ paint in widget
   p.drawPicture( pic );			\/ draw the picture
   p.end();				\/ painting done
-\endcode
-*/
+\endcode */
 
 
 static const char  *mfhdr_tag = "QPIC";		// header tag
