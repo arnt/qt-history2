@@ -81,7 +81,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	return FALSE;
 
     struct stat fst;
-    if(fstat(file, &fst))
+    if(fstat(file, &fst) || S_ISDIR(fst.st_mode))
 	return FALSE; //shouldn't happen
     char *big_buffer = gimme_buffer(fst.st_size);
 
@@ -221,6 +221,10 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
     int file = open(fix_env_fn.latin1(), O_RDONLY);
     if(file == -1) 
 	return FALSE;
+    struct stat fst;
+    if(fstat(file, &fst) || S_ISDIR(fst.st_mode))
+	return FALSE; //shouldn't happen
+
     QString fndir, fix_env_fndir;
     int dl = fn.findRev(Option::dir_sep);
     if(dl != -1) 
@@ -229,11 +233,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
     if(dl != -1)
 	fix_env_fndir = fix_env_fn.left(dl + 1);
 
-
-    struct stat fst;
     int line_count = 1;
-    if(fstat(file, &fst))
-	return FALSE; //shouldn't happen
     char *big_buffer = gimme_buffer(fst.st_size);
 
     int total_size_read;
@@ -350,7 +350,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	    }
 
 	    QString fqn;
-	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") && !stat(fix_env_fndir + inc, &fst)) {
+	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") && 
+	       !stat(fix_env_fndir + inc, &fst) && !S_ISDIR(fst.st_mode)) {
 		fqn = fndir + inc;
 	    } else {
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
@@ -360,7 +361,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		     Option::target_mode == Option::TARG_MACX_MODE) &&
 		    inc[0] != '/')) {
 		    for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
-			if(QFile::exists(mdd->local_dir + QDir::separator() + inc)) {
+			if(!stat(mdd->local_dir + QDir::separator() + inc, &fst) && 
+			   !S_ISDIR(fst.st_mode)) {
 			    fqn = mdd->real_dir + QDir::separator() + inc;
 			    break;
 			}
