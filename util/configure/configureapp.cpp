@@ -5,24 +5,16 @@
 #include <qhash.h>
 #include "configureapp.h"
 
-// iostream.h is deprecated on .net compilers, so we don't use it.
-
-#ifdef Q_CC_MSVC_NET
-#  include <iostream>
-#else
-#  include <iostream.h>
-#endif
+#include <iostream>
 
 #include <windows.h>
 
-// iostream.h is deprecated on .net compilers, so we use std::xxx instead
-#if defined (Q_CC_MSVC_NET)
-using namespace std;
 std::ostream &operator<<( std::ostream &s, const QString &val ) {
-    s << val.latin1();
+    s << val.local8Bit();
     return s;
 }
-#endif
+
+using namespace std;
 
 // Macros to simplify options marking, and WinCE only code
 #define MARK_OPTION(x,y) ( dictionary[ #x ] == #y ? "*" : " " )
