@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#7 $
 **
 ** Implementation of QFileDialog class
 **
@@ -121,9 +121,12 @@ QUrlInfo::QUrlInfo()
 
 QUrlInfo::QUrlInfo( const QUrl &path, const QString &file )
 {
+    QString file_ = file;
+    if ( file_.isEmpty() )
+	file_ = ".";
     d = new QUrlInfoPrivate;
-    QUrl u( path, file );
-    QUrlInfo inf = path.info( file );
+    QUrl u( path, file_ );
+    QUrlInfo inf = path.info( file_ );
     *d = *inf.d;
 }
 
@@ -353,7 +356,7 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
     default:
 	return FALSE;
     }
-    
+
     return FALSE;
 }
 
@@ -374,7 +377,7 @@ bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
     default:
 	return FALSE;
     }
-    
+
     return FALSE;
 }
 
@@ -395,6 +398,6 @@ bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
     default:
 	return FALSE;
     }
-    
+
     return FALSE;
 }

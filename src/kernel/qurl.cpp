@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#24 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1697,7 +1697,11 @@ void QUrl::addEntry( const QUrlInfo &i )
 
 QUrlInfo QUrl::info( const QString &entry ) const
 {
-    return d->entryMap[ entry ];
+    if ( d->entryMap.contains( entry ) ) {
+	return d->entryMap[ entry ];
+    } else {
+	return QUrlInfo();
+    }
 }
 
 /*!
