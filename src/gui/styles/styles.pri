@@ -27,8 +27,8 @@ contains( styles, mac ) {
 		styles/qmacstyle_mac.cpp \
 		styles/qmacstyleqd_mac.cpp \
 		styles/qmacstylecg_mac.cpp
-	HEADERS *= styles/qaquastyle_p.h 
-	SOURCES *= styles/qaquastyle_p.cpp 
+	HEADERS *= styles/qaquastyle_mac.h 
+	SOURCES *= styles/qaquastyle_mac.cpp 
 
 	!contains( styles, windows ) {
 		message( mac requires windows )

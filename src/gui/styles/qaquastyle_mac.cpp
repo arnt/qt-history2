@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include <private/qaquastyle_p.h>
+#include <qaquastyle_mac.h>
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>

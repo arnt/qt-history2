@@ -21,8 +21,8 @@
 #include <qrangecontrol.h>
 #include <qt_mac.h>
 #include <qtabbar.h>
+#include <qaquastyle_mac.h>
 
-#include <private/qaquastyle_p.h>
 #include <private/qtitlebar_p.h>
 
 QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp

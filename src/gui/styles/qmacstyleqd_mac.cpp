@@ -50,9 +50,7 @@ void QMacStyleQDPainter::setport()
 }
 
 #include <qt_mac.h>
-#include <private/qaquastyle_p.h>
-#include <private/qdialogbuttons_p.h>
-#include <private/qtitlebar_p.h>
+#include <qaquastyle_mac.h>
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qbuttongroup.h>
@@ -77,6 +75,9 @@ void QMacStyleQDPainter::setport()
 #include <qtabbar.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
+
+#include <private/qdialogbuttons_p.h>
+#include <private/qtitlebar_p.h>
 
 /* I need these to simulate the pushbutton pulse */
 #include <qpixmapcache.h>
