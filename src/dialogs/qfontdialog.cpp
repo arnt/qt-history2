@@ -640,7 +640,7 @@ void QFontDialog::updateScripts()
 
     if ( d->scriptNames.isEmpty() ) {
 #ifndef QT_NO_DEBUG
-	qWarning( "QFontDialog::updateFamilies: Internal error, "
+	qWarning( "QFontDialog::updateScripts: Internal error, "
 		  "no scripts for family \"%s\"",
 		  (const char *) d->family );
 #endif
@@ -664,7 +664,7 @@ void QFontDialog::updateStyles()
 
     if ( styles.isEmpty() ) {
 #ifndef QT_NO_DEBUG
-	qWarning( "QFontDialog::updateFamilies: Internal error, "
+	qWarning( "QFontDialog::updateStyles: Internal error, "
 		  "no styles for family \"%s\" with script \"%s\"",
 		  (const char *) d->family, (const char *) d->script );
 #endif
@@ -686,7 +686,7 @@ void QFontDialog::updateSizes()
 
     if ( sizes.isEmpty() ) {
 #ifndef QT_NO_DEBUG
-	qWarning( "QFontDialog::updateFamilies: Internal error, "
+	qWarning( "QFontDialog::updateSizes: Internal error, "
 		  "no pointsizes for family \"%s\" with script \"%s\"\n"
 		  "and style \"%s\"",
 		  (const char *) d->family, (const char *) d->script,
