@@ -16,6 +16,7 @@
 /* Only requires Xlib layer - not MT safe */
 /* Author: Daniel Dardailler, daniel@x.org */
 /* Adapted by : Matt Koss, koss@napri.sk */
+/* Further adaptions by : Troll Tech AS */
 /***********************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -258,9 +259,6 @@ typedef struct {
 } DndTargetsTableRec, * DndTargetsTable;
 
 
-static int _DndTargetsToIndex(Display * display, Atom * targets,
-			      int num_targets);
-
 static int _DndIndexToTargets(Display * display,
 			      int index,
 			      Atom ** targets);
@@ -288,9 +286,6 @@ static void InitAtoms(Display * dpy)
 
 }
 
-
-
-
 static unsigned char DndByteOrder (void)
 {
     static unsigned char byte_order = 0;
@@ -303,37 +298,10 @@ static unsigned char DndByteOrder (void)
 }
 
 
-/* Position the _MOTIF_DRAG_INITIATOR_INFO property on the source window.
-   Called by the source of the drag to indicate the
-   supported target list (thru the index scheme) */
-static void DndWriteSourceProperty(Display * dpy,
-				   Window window, Atom dnd_selection,
-				   Atom * targets, unsigned short num_targets)
-{
-    DndSrcProp src_prop ;
 
-    InitAtoms(dpy);
-
-    src_prop.byte_order = DndByteOrder() ;
-    src_prop.protocol_version = DND_PROTOCOL_VERSION;
-
-    int tmp = _DndTargetsToIndex(dpy, targets, num_targets);
-    src_prop.target_index = tmp;
-
-    if ( tmp == -1 ) return;
-
-    src_prop.selection = dnd_selection ;
-
-    /* write the buffer to the property */
-    XChangeProperty (dpy, window, dnd_selection, atom_src_property_type,
-		     8, PropModeReplace, (unsigned char *)&src_prop,
-		     sizeof(DndSrcProp));
-}
-
-static void
-DndReadSourceProperty(Display * dpy,
-		      Window window, Atom dnd_selection,
-		      Atom ** targets, unsigned short * num_targets)
+static void DndReadSourceProperty(Display * dpy,
+				  Window window, Atom dnd_selection,
+				  Atom ** targets, unsigned short * num_targets)
 {
     DndSrcProp * src_prop = NULL;
     Atom type ;
@@ -392,42 +360,6 @@ static void DndWriteReceiverProperty(Display * dpy, Window window,
 #define DND_DRAG_DYNAMIC_EQUIV1  2
 #define DND_DRAG_DYNAMIC_EQUIV2  4
 
-static void DndReadReceiverProperty(Display * dpy, Window window,
-				    unsigned char * protocol_style)
-{
-    DndReceiverProp *receiver_prop = NULL ;
-    Atom type ;
-    int format ;
-    unsigned long bytesafter, lengthRtn;
-
-    InitAtoms(dpy);
-
-    if ((XGetWindowProperty (dpy, window,
-			     atom_receiver_info, /* _MOTIF_DRAG_RECEIVER_INFO */
-			     0L, 100000L, False, atom_receiver_info,
-			     &type, &format, &lengthRtn, &bytesafter,
-			     (unsigned char **) &receiver_prop) != Success)
-	|| (type == None)) {
-	/* no property => no d&d */
-	*protocol_style = DND_DRAG_NONE ;
-	return ;
-    }
-
-    /* in dynamic we don't really care about byte swapping since
-       the pertinent info is all expressed in one byte quantities */
-    *protocol_style = receiver_prop->protocol_style;
-
-    /* do the equiv stuff for Motif pre-register */
-    if (*protocol_style == DND_DRAG_DROP_ONLY_EQUIV)
-	*protocol_style = DND_DRAG_DROP_ONLY ;
-    else
-	if (*protocol_style == DND_DRAG_DYNAMIC_EQUIV1 ||
-	    *protocol_style == DND_DRAG_DYNAMIC_EQUIV2)
-	    *protocol_style = DND_DRAG_DYNAMIC ;
-
-    XFree((void *)receiver_prop) ;
-
-}
 
 /* Produce a client message to be sent by the caller */
 static void DndFillClientMessage(Display * dpy, Window window,
@@ -679,67 +611,9 @@ static DndTargetsTable TargetsTable(Display *display)
 }
 
 
-static int AtomCompare(const void *atom1, const void *atom2 )
-{
-    return (*((Atom *) atom1) - *((Atom *) atom2));
-}
-
-
-static int _DndTargetsToIndex(Display * display,
-		   Atom * targets, int num_targets)
-{
-    int		i, j;
-    Atom		*sorted_targets;
-    DndTargetsTable	targets_table;
-    int index = -1 ;
-
-    InitAtoms(display) ;
-
-    if (!(targets_table = TargetsTable (display))) {
-	qWarning("QMotifDND: cannot find the target table");
-	return -1 ;
-    }
-
-    /* sort the given target list */
-    sorted_targets = (Atom *) malloc(sizeof(Atom) * num_targets);
-    memcpy (sorted_targets, targets, sizeof(Atom) * num_targets);
-    qsort ((void *)sorted_targets, (size_t)num_targets, (size_t)sizeof(Atom),
-	   AtomCompare);
-
-    /* look for a match */
-
-    for (i = 0; i < targets_table->num_entries; i++) {
-	if (num_targets == targets_table->entries[i].num_targets) {
-	    for (j = 0; j < num_targets; j++) {
-		if (sorted_targets[j] !=
-		    targets_table->entries[i].targets[j]) {
-		    break;
-		}
-	    }
-	    if (j == num_targets) {
-		index = i ;
-		break ;
-	    }
-	}
-    }
-
-    XFree ((char *)sorted_targets);
-    /* free the target table and its guts */
-    for (i=0 ; i < targets_table->num_entries; i++)
-	XFree((char*)targets_table->entries[i].targets);
-    XFree((char*)targets_table);
-
-  if (index == -1 )
-      qWarning("QMotifDND: TargetsToIndex: non existing target list: unsupported");
-    /* to support: need to grab the server, add our target list
-       to the property, return index = num_entries++, and ungrab */
-    return index ;
-}
-
-
-int _DndIndexToTargets(Display * display,
-		       int index,
-		       Atom ** targets)
+static int _DndIndexToTargets(Display * display,
+			      int index,
+			      Atom ** targets)
 {
     DndTargetsTable	targets_table;
     int i ;
