@@ -80,6 +80,7 @@ static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
 static QColor highlightColor = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
 static bool scrollbar_arrows_together = FALSE; //whether scroll arrows go together
+QCString p2qstring(const unsigned char *c); //qglobal.cpp
 
 class QAquaFocusWidget : public QWidget
 {
@@ -349,6 +350,31 @@ void QAquaStyle::polish( QWidget * w )
 	w->installEventFilter( this );
     }
 
+#ifdef Q_WS_MAC
+    if( !w->ownFont() && w->font() == qApp->font() ) {
+	bool set_font = TRUE;
+	short key = kThemeApplicationFont;
+	if(w->inherits("QPushButton"))
+	    key = kThemePushButtonFont;
+	else if(w->inherits("QListView") || w->inherits("QListBox"))
+	    key = kThemeViewsFont;
+	else if(w->inherits("QPopupMenu"))
+	    key = kThemeMenuItemFont;
+	else if(w->inherits("QLabel"))
+	    key = kThemeLabelFont;
+	else
+	    set_font = FALSE;
+	if(set_font) {
+	    Str255 f_name;
+	    SInt16 f_size;
+	    Style f_style;
+	    GetThemeFont(key, smSystemScript, f_name, &f_size, &f_style);
+	    w->setFont(QFont(p2qstring(f_name), f_size, 
+			     (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+			     (bool)(f_style & ::italic)));
+	}
+    }
+#endif
     if( w->inherits("QTitleBar") ) {
 	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
@@ -800,25 +826,26 @@ void QAquaStyle::drawControl( ControlElement element,
 	else
 	    pos = "b";
 
+	QString hstr = QString::number( r.height() );
 	if( qAquaActive( tb->colorGroup() ) ){
 	    if( selected ){
-		qAquaPixmap( "tab_"+ pos +"_act_left", left );
-		qAquaPixmap( "tab_"+ pos +"_act_mid", mid );
-		qAquaPixmap( "tab_"+ pos +"_act_right", right );
+		qAquaPixmap( "tab_"+ pos +"_act_left_" + hstr, left );
+		qAquaPixmap( "tab_"+ pos +"_act_mid_" + hstr, mid );
+		qAquaPixmap( "tab_"+ pos +"_act_right_" + hstr, right );
 	    } else {
-		qAquaPixmap( "tab_"+ pos +"_dis_left", left );
-		qAquaPixmap( "tab_"+ pos +"_dis_mid", mid );
-		qAquaPixmap( "tab_"+ pos +"_dis_right", right );
+		qAquaPixmap( "tab_"+ pos +"_dis_left_" + hstr, left );
+		qAquaPixmap( "tab_"+ pos +"_dis_mid_" + hstr, mid );
+		qAquaPixmap( "tab_"+ pos +"_dis_right_" + hstr , right );
 	    }
 	} else {
 	    if( selected ){
-		qAquaPixmap( "tab_"+ pos +"_sel_dis_left", left );
-		qAquaPixmap( "tab_"+ pos +"_sel_dis_mid", mid );
-		qAquaPixmap( "tab_"+ pos +"_sel_dis_right", right );
+		qAquaPixmap( "tab_"+ pos +"_sel_dis_left_" + hstr, left );
+		qAquaPixmap( "tab_"+ pos +"_sel_dis_mid_" + hstr, mid );
+		qAquaPixmap( "tab_"+ pos +"_sel_dis_right_" + hstr, right );
 	    } else {
-		qAquaPixmap( "tab_"+ pos +"_usel_dis_left", left );
-		qAquaPixmap( "tab_"+ pos +"_usel_dis_mid", mid );
-		qAquaPixmap( "tab_"+ pos +"_usel_dis_right", right );
+		qAquaPixmap( "tab_"+ pos +"_usel_dis_left_" + hstr, left );
+		qAquaPixmap( "tab_"+ pos +"_usel_dis_mid_" + hstr, mid );
+		qAquaPixmap( "tab_"+ pos +"_usel_dis_right_" + hstr, right );
 	    }
 	}
 
@@ -1856,10 +1883,8 @@ void QAquaStyle::appearanceChanged()
 	//cleanup
 	DisposeCollection(c);
     }
-#if 0
-    if(changed && qApp && qApp->style().inherits("QAquaStyle"))
+    if(changed && qApp && !qApp->startingUp() && qApp->style().inherits("QAquaStyle"))
 	qApp->setStyle(new QAquaStyle);
-#endif
 }
 #endif
 #endif /* QT_NO_STYLE_AQUA */

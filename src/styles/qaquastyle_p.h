@@ -12350,34 +12350,49 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     // Tabs - top position
     if( s.contains("tab_t_") ){
-        QPixmapCache::insert( "$qt_aqua_tab_t_act_left",
-                              (const char **) aqua_tab_act_left_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_act_mid",
-                              (const char **) aqua_tab_act_mid_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_act_right",
-                              (const char **) aqua_tab_act_right_xpm );
+	size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
 
-        QPixmapCache::insert( "$qt_aqua_tab_t_dis_left",
-                              (const char **) aqua_tab_dis_left_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_dis_mid",
-                              (const char **) aqua_tab_dis_mid_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_dis_right",
-                              (const char **) aqua_tab_dis_right_xpm );
+	im = QPixmap((const char **) aqua_tab_act_left_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_act_left_" + sizestr, px);
+	im = QPixmap((const char **) aqua_tab_act_mid_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_act_mid_" + sizestr, px);
+	im = QPixmap((const char **) aqua_tab_act_right_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_act_right_" + sizestr, px);
+
+	im = QPixmap((const char **) aqua_tab_dis_left_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_dis_left_" + sizestr, px );
+	im = QPixmap((const char **) aqua_tab_dis_mid_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_dis_mid_" + sizestr, px );
+	im = QPixmap((const char **) aqua_tab_dis_right_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_dis_right_" + sizestr, px );
 
         // Pixmaps for the inactive state
-        QPixmapCache::insert( "$qt_aqua_tab_t_usel_dis_left",
-                              (const char **) aqua_tab_usel_dis_left_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_usel_dis_mid",
-                              (const char **) aqua_tab_usel_dis_mid_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_usel_dis_right",
-                              (const char **) aqua_tab_usel_dis_right_xpm );
+	im = QPixmap((const char **) aqua_tab_usel_dis_left_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_usel_dis_left_" + sizestr, px );
+	im = QPixmap((const char **) aqua_tab_usel_dis_mid_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_usel_dis_mid_" + sizestr, px );
+	im = QPixmap((const char **) aqua_tab_usel_dis_right_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_usel_dis_right_" + sizestr, px );
 
-        QPixmapCache::insert( "$qt_aqua_tab_t_sel_dis_left",
-                              (const char **) aqua_tab_sel_dis_left_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_sel_dis_mid",
-                              (const char **) aqua_tab_sel_dis_mid_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_sel_dis_right",
-                              (const char **) aqua_tab_sel_dis_right_xpm );
+	im = QPixmap((const char **) aqua_tab_sel_dis_left_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_sel_dis_left_" + sizestr, px );
+	im = QPixmap((const char **) aqua_tab_sel_dis_mid_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_sel_dis_mid_" + sizestr, px );
+	im = QPixmap((const char **) aqua_tab_sel_dis_right_xpm);
+	px = im.smoothScale(im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_tab_t_sel_dis_right_" + sizestr, px );
 
         QPixmapCache::insert( "$qt_aqua_tab_t_top_act",
                               (const char **) aqua_tab_top_act_xpm );

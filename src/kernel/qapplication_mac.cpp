@@ -373,6 +373,14 @@ static EventTypeSpec events[] = {
 /* platform specific implementations */
 void qt_init( int* argcptr, char **argv, QApplication::Type )
 {
+#ifdef Q_WS_MACX
+    if ( qt_is_gui_used ) {
+	ProcessSerialNumber psn;
+	GetCurrentProcess(&psn);
+	SetFrontProcess(&psn);
+    }
+#endif
+
     // Get command line params
     int argc = *argcptr;
     int i, j = 1;
@@ -411,11 +419,6 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 
     qApp->setName( appName );
     if ( qt_is_gui_used ) {
-#ifdef Q_WS_MACX
-	ProcessSerialNumber psn;
-	GetCurrentProcess(&psn);
-	SetFrontProcess(&psn);
-#endif
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
 #endif

@@ -41,6 +41,7 @@
 #include <qpainter.h>
 
 /* utility functions */
+QCString p2qstring(const unsigned char *c); //qglobal.cpp
 static inline void qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
 {
     UnicodeMapping mapping;
@@ -567,8 +568,15 @@ void QFont::initialize()
     if(!QFontPrivate::fontCache)
 	QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR( QFontPrivate::fontCache );
-    if(qApp)
-	qApp->setFont(QFont("Helvetica", 14));
+    if(qApp) {
+	Str255 f_name;
+	SInt16 f_size;
+	Style f_style;
+	GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
+	qApp->setFont(QFont(p2qstring(f_name), f_size, 
+			    (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+			    (bool)(f_style & ::italic)));
+    }
 }
 
 QString QFontPrivate::defaultFamily() const
@@ -581,10 +589,9 @@ QString QFontPrivate::defaultFamily() const
 	case QFont::Decorative:
 	    return QString::fromLatin1("Bookman Old Style");
 	case QFont::Helvetica:
-	    return QString::fromLatin1("Arial");
 	case QFont::System:
 	default:
-	    return QString::fromLatin1("MS Sans Serif");
+	    return QString::fromLatin1("Helvetica");
     }
 }
 
