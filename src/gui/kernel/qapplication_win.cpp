@@ -303,10 +303,11 @@ extern "C" LRESULT CALLBACK QtWndProc(HWND, UINT, WPARAM, LPARAM);
 class QETWidget : public QWidget                // event translator widget
 {
 public:
-    void        setWFlags(Qt::WFlags f)        { QWidget::setWFlags(f); }
+    void        setWFlags(Qt::WFlags f) { QWidget::setWFlags(f); }
     void        clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
-    QWExtra    *xtra()                        { return d->extraData(); }
-    QTLWExtra  *topData()                     { return d->topData(); }
+    QWExtra    *xtra() { return d->extraData(); }
+    QTLWExtra  *topData() { return d->topData(); }
+    QWidgetData *dataPtr() { return data; }
     bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
     void        markFrameStrutDirty()        { data->fstrut_dirty = 1; }
     bool        translateMouseEvent(const MSG &msg);
@@ -1624,13 +1625,13 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 #endif
             case SC_MAXIMIZE:
                 window_state_change = true;
-                widget->setWindowState(widget->windowState() &= ~Qt::WindowMinimized);
-                widget->setWindowState(widget->windowState() |= Qt::WindowMaximized);
+                widget->dataPtr()->window_state &= ~Qt::WindowMinimized;
+                widget->dataPtr()->window_state |= Qt::WindowMaximized;
                 result = false;
                 break;
             case SC_MINIMIZE:
                 window_state_change = true;
-                widget->setWindowState(widget->windowState() |= Qt::WindowMinimized);
+                widget->dataPtr()->window_state |= Qt::WindowMinimized;
                 if (widget->isVisible()) {
                     QHideEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
@@ -1641,12 +1642,12 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             case SC_RESTORE:
                 window_state_change = true;
                 if (widget->isMinimized()) {
-                    widget->setWindowState(widget->windowState() &= ~Qt::WindowMinimized);
+                    widget->dataPtr()->window_state &= ~Qt::WindowMinimized;
                     widget->showChildren(true);
                     QShowEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
                 } else {
-                    widget->setWindowState(widget->windowState() &= ~Qt::WindowMaximized);
+                    widget->dataPtr()->window_state &= ~Qt::WindowMaximized;
                 }
                 result = false;
                 break;
