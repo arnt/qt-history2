@@ -251,7 +251,7 @@ struct QScriptLine
     qreal width;
     qreal textWidth;
     int from;
-    int length : 30;
+    signed int length : 30;
     mutable uint justified : 1;
     mutable uint gridfitted : 1;
     qreal height() const { return ascent + descent + 1.; }
