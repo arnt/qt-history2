@@ -851,7 +851,11 @@ void QAquaStyle::drawControl( ControlElement element,
 
 	QString hstr = QString::number( r.height() );
 	if( qAquaActive( tb->colorGroup() ) ){
-	    if( selected ){
+	    if( (how & Style_Sunken) && (how & Style_MouseOver) ) {
+		qAquaPixmap( "tab_"+ pos +"_prs_left_" + hstr, left );
+		qAquaPixmap( "tab_"+ pos +"_prs_mid_" + hstr, mid );
+		qAquaPixmap( "tab_"+ pos +"_prs_right_" + hstr, right );
+	    } else if( selected ){
 		qAquaPixmap( "tab_"+ pos +"_act_left_" + hstr, left );
 		qAquaPixmap( "tab_"+ pos +"_act_mid_" + hstr, mid );
 		qAquaPixmap( "tab_"+ pos +"_act_right_" + hstr, right );

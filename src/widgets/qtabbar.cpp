@@ -44,6 +44,7 @@
 #include "qpainter.h"
 #include "qiconset.h"
 #include "qcursor.h"
+#include "../kernel/qinternal_p.h"
 
 #include <ctype.h>
 
@@ -549,11 +550,11 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	flags |= QStyle::Style_Enabled;
     if ( selected )
 	flags |= QStyle::Style_Selected;
+    else if(t == d->pressed)
+	flags |= QStyle::Style_Sunken;
     //selection flags
     if(t->rect().contains(mapFromGlobal(QCursor::pos())))
 	flags |= QStyle::Style_MouseOver;
-    if(t == d->pressed)
-	flags |= QStyle::Style_Sunken;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
 			 colorGroup(), flags, QStyleOption(t) );
 
@@ -621,13 +622,13 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
 void QTabBar::paintEvent( QPaintEvent * e )
 {
-    QPainter p( this );
+    QSharedDoubleBuffer buffer( this );
 
     if ( backgroundMode() == X11ParentRelative ) {
 	erase();
     } else {
-	p.setBrushOrigin( rect().bottomLeft() );
-	p.fillRect( 0, 0, width(), height(),
+	buffer.painter()->setBrushOrigin( rect().bottomLeft() );
+	buffer.painter()->fillRect( 0, 0, width(), height(),
 		    QBrush( colorGroup().brush( QColorGroup::Background ) ));
     }
 
@@ -636,7 +637,7 @@ void QTabBar::paintEvent( QPaintEvent * e )
     do {
 	QTab * n = l->next();
 	if ( t && t->r.intersects( e->rect() ) )
-	    paint( &p, t, n == 0 );
+	    paint( buffer.painter(), t, n == 0 );
 	t = n;
     } while ( t != 0 );
 
@@ -644,21 +645,21 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	QPointArray a;
 	int h = height();
 	if ( d->s == RoundedAbove ) {
-	    p.fillRect( 0, 3, 4, h-5,
+	    buffer.painter()->fillRect( 0, 3, 4, h-5,
 			QBrush( colorGroup().brush( QColorGroup::Background ) ));
 	    a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
 	} else if ( d->s == RoundedBelow ) {
-	    p.fillRect( 0, 2, 4, h-5,
+	    buffer.painter()->fillRect( 0, 2, 4, h-5,
 			QBrush( colorGroup().brush( QColorGroup::Background ) ));
 	    a.setPoints( 5,  0,0,  3,h/4, 0,h/2, 3,3*h/4, 0,h-3 );
 	}
 
 	if ( !a.isEmpty() ) {
-	    p.setPen( colorGroup().light() );
-	    p.drawPolyline( a );
+	    buffer.painter()->setPen( colorGroup().light() );
+	    buffer.painter()->drawPolyline( a );
 	    a.translate( 1, 0 );
-	    p.setPen( colorGroup().midlight() );
-	    p.drawPolyline( a );
+	    buffer.painter()->setPen( colorGroup().midlight() );
+	    buffer.painter()->drawPolyline( a );
 	}
     }
 }
@@ -706,8 +707,10 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
     QTab *t = selectTab( e->pos() );
     if ( t && t->enabled ) {
 	d->pressed = t;
-	if(e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
+	if(e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this )) 
 	    setCurrentTab( t );
+	else
+	    repaint(t->rect(), FALSE);
     }
 }
 
@@ -719,12 +722,8 @@ void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	e->ignore();
-    /* ### I do not known which style this needs, but it flickers
-      horrible with standard styles. Fix this properly.
-      
     if(d->pressed)
 	repaint(d->pressed->rect(), FALSE);
-    */
 }
 
 /*!\reimp
