@@ -234,7 +234,7 @@ private:
     Q_PRIVATE_SLOT(d, void complete())
     Q_PRIVATE_SLOT(d, void resetButton())
     Q_PRIVATE_SLOT(d, void dataChanged(const QModelIndex &, const QModelIndex &))
-    Q_PRIVATE_SLOT(d, void rowsChanged(const QModelIndex & parent, int start, int end));
+    Q_PRIVATE_SLOT(d, void rowsChanged(const QModelIndex & parent, int start, int end))
 };
 
 #endif // QCOMBOBOX_H
