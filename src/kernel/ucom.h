@@ -78,7 +78,7 @@ struct UCOM_EXPORT UType
 };
 
 
-// {261D70EB-047D-40B1-BEDE-DAF1EEC273BF}
+// {DE56510E-4E9F-4b76-A3C2-D1E2EF42F1AC}
 extern UCOM_EXPORT const UUid TID_UType_Null;
 extern UCOM_EXPORT UType *pUType_Null;
 
@@ -225,7 +225,7 @@ inline bool UType::check( UObject* o, UType* t ) {
 
 
 
-// {261D70EB-047D-40B1-BEDE-DAF1EEC273BF}
+// {7EE17B08-5419-47e2-9776-8EEA112DCAEC}
 extern UCOM_EXPORT const UUid TID_UType_enum;
 struct UCOM_EXPORT UType_enum : public UType
 {
@@ -240,7 +240,7 @@ struct UCOM_EXPORT UType_enum : public UType
 extern UCOM_EXPORT UType_enum *pUType_enum;
 
 
-// {F1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+// {8AC26448-5AB4-49eb-968C-8F30AB13D732}
 extern UCOM_EXPORT const UUid TID_UType_ptr;
 struct UCOM_EXPORT UType_ptr : public UType
 {
@@ -254,7 +254,7 @@ struct UCOM_EXPORT UType_ptr : public UType
 };
 extern UCOM_EXPORT UType_ptr * pUType_ptr;
 
-// {F2D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+// {97A2594D-6496-4402-A11E-55AEF2D4D25C}
 extern UCOM_EXPORT const UUid TID_UType_iface;
 struct UCOM_EXPORT UType_iface : public UType
 {
@@ -268,7 +268,7 @@ struct UCOM_EXPORT UType_iface : public UType
 };
 extern UCOM_EXPORT UType_iface * pUType_iface;
 
-// {F3D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+// {2F358164-E28F-4bf4-9FA9-4E0CDCABA50B}
 extern UCOM_EXPORT const UUid TID_UType_idisp;
 struct UCOM_EXPORT UType_idisp : public UType
 {
@@ -282,7 +282,7 @@ struct UCOM_EXPORT UType_idisp : public UType
 };
 extern UCOM_EXPORT UType_idisp * pUType_idisp;
 
-// {E1D3BE80-2F2F-45F7-AB11-E8A0CEC84B82}
+// {CA42115D-13D0-456c-82B5-FC10187F313E}
 extern UCOM_EXPORT const UUid TID_UType_bool;
 struct UCOM_EXPORT UType_bool : public UType
 {
@@ -297,7 +297,7 @@ struct UCOM_EXPORT UType_bool : public UType
 extern UCOM_EXPORT UType_bool * pUType_bool;
 
 
-// {E1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+// {53C1F3BE-73C3-4c7d-9E05-CCF09EB676B5}
 extern UCOM_EXPORT const UUid TID_UType_int;
 struct UCOM_EXPORT UType_int : public UType
 {
@@ -312,7 +312,7 @@ struct UCOM_EXPORT UType_int : public UType
 extern UCOM_EXPORT UType_int * pUType_int;
 
 
-// {A1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+// {2D0974E5-0BA6-4ec2-8837-C198972CB48C}
 extern UCOM_EXPORT const UUid TID_UType_double;
 struct UCOM_EXPORT UType_double : public UType
 {
@@ -327,7 +327,7 @@ struct UCOM_EXPORT UType_double : public UType
 extern UCOM_EXPORT UType_double * pUType_double;
 
 
-// {C1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+// {EFCDD1D4-77A3-4b8e-8D46-DC14B8D393E9}
 extern UCOM_EXPORT const UUid TID_UType_charstar;
 struct UCOM_EXPORT UType_charstar : public UType
 {

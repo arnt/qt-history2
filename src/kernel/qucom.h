@@ -9,7 +9,7 @@
 #include <ucom.h>
 
 
-// {B1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+// {44C2A547-01E7-4e56-8559-35AF9D2F42B7}
 extern const UUid TID_UType_QString;
 
 struct Q_EXPORT UType_QString : public UType

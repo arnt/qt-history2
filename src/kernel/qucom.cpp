@@ -1,7 +1,8 @@
 #include "qucom.h"
 
-// {B1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_QString = { 0xb1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+// {44C2A547-01E7-4e56-8559-35AF9D2F42B7}
+const UUid TID_UType_QString = 
+{ 0x44c2a547, 0x1e7, 0x4e56, { 0x85, 0x59, 0x35, 0xaf, 0x9d, 0x2f, 0x42, 0xb7 } };
 static UType_QString static_UType_QString;
 UType_QString *pUType_QString = &static_UType_QString;
 const UUid *UType_QString::uuid() const { return &TID_UType_QString; }
@@ -57,3 +58,4 @@ void UType_QString::clear( UObject *o )
     o->payload.ptr = 0;
 }
 
+#include "ucom.cpp"

@@ -1,5 +1,5 @@
-#include <qglobal.h>
-#define UCOM_EXPORT Q_EXPORT
+#ifndef UCOM_CPP
+#define UCOM_CPP
 
 #include "ucom.h"
 #include <string.h>
@@ -8,8 +8,9 @@ void UType::clear( UObject* )
 {
 }
 
-// {261D70EB-047D-40B1-BEDE-DAF1EEC273BF}
-const UUid TID_UType_Null = { 0x261d70eb, 0x047d, 0x40b1, { 0xbe, 0xde, 0xda, 0xf1, 0xee, 0xc2, 0x73, 0xbf } };
+// {DE56510E-4E9F-4b76-A3C2-D1E2EF42F1AC}
+const UUid TID_UType_Null = 
+{ 0xde56510e, 0x4e9f, 0x4b76, { 0xa3, 0xc2, 0xd1, 0xe2, 0xef, 0x42, 0xf1, 0xac } };
 struct UType_Null : public UType
 {
     const UUid *uuid() const { return &TID_UType_Null; }
@@ -22,8 +23,9 @@ static UType_Null static_UType_Null;
 UType *pUType_Null = &static_UType_Null;
 
 
-// {261D70EB-047D-40B1-BEDE-DAF1EEC273BF}
-const UUid TID_UType_enum = { 0x261d70eb, 0x047d, 0x40b1, {0xbe, 0xde, 0xda, 0xf1, 0xee, 0xc2, 0x73, 0xbf } };
+// {7EE17B08-5419-47e2-9776-8EEA112DCAEC}
+const UUid TID_UType_enum = 
+{ 0x7ee17b08, 0x5419, 0x47e2, { 0x97, 0x76, 0x8e, 0xea, 0x11, 0x2d, 0xca, 0xec } };
 static UType_enum static_UType_enum;
 UType_enum *pUType_enum = &static_UType_enum;
 const UUid *UType_enum::uuid() const { return &TID_UType_enum; }
@@ -55,8 +57,9 @@ bool UType_enum::convertTo( UObject *o, UType *t )
 }
 
 
-// {F1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_ptr = { 0xf1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+// {8AC26448-5AB4-49eb-968C-8F30AB13D732}
+const UUid TID_UType_ptr = 
+{ 0x8ac26448, 0x5ab4, 0x49eb, { 0x96, 0x8c, 0x8f, 0x30, 0xab, 0x13, 0xd7, 0x32 } };
 static UType_ptr static_UType_ptr;
 UType_ptr *pUType_ptr = &static_UType_ptr;
 const UUid *UType_ptr::uuid() const  { return &TID_UType_ptr; }
@@ -78,8 +81,9 @@ bool UType_ptr::convertTo( UObject *, UType * )
     return false;
 }
 
-// {F2D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_iface = { 0xf2d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+// {97A2594D-6496-4402-A11E-55AEF2D4D25C}
+const UUid TID_UType_iface = 
+{ 0x97a2594d, 0x6496, 0x4402, { 0xa1, 0x1e, 0x55, 0xae, 0xf2, 0xd4, 0xd2, 0x5c } };
 static UType_iface static_UType_iface;
 UType_iface *pUType_iface = &static_UType_iface;
 const UUid *UType_iface::uuid() const  { return &TID_UType_iface; }
@@ -101,8 +105,9 @@ bool UType_iface::convertTo( UObject *, UType * )
     return false;
 }
 
-// {F3D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_idisp = { 0xf3d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+// {2F358164-E28F-4bf4-9FA9-4E0CDCABA50B}
+const UUid TID_UType_idisp = 
+{ 0x2f358164, 0xe28f, 0x4bf4, { 0x9f, 0xa9, 0x4e, 0xc, 0xdc, 0xab, 0xa5, 0xb } };
 static UType_idisp static_UType_idisp;
 UType_idisp *pUType_idisp = &static_UType_idisp;
 const UUid *UType_idisp::uuid() const  { return &TID_UType_idisp; }
@@ -129,8 +134,9 @@ bool UType_idisp::convertTo( UObject *o, UType *t )
     return false;
 }
 
-// {E1D3BE80-2F2F-45F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_bool = { 0xe1d3be80, 0x2f2f, 0x45f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+// {CA42115D-13D0-456c-82B5-FC10187F313E}
+const UUid TID_UType_bool = 
+{ 0xca42115d, 0x13d0, 0x456c, { 0x82, 0xb5, 0xfc, 0x10, 0x18, 0x7f, 0x31, 0x3e } };
 static UType_bool static_UType_bool;
 UType_bool *pUType_bool = &static_UType_bool;
 const UUid *UType_bool::uuid() const  { return &TID_UType_bool; }
@@ -153,8 +159,9 @@ bool UType_bool::convertTo( UObject *o, UType *t )
 }
 
 
-// {E1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_int = { 0xe1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+// {53C1F3BE-73C3-4c7d-9E05-CCF09EB676B5}
+const UUid TID_UType_int = 
+{ 0x53c1f3be, 0x73c3, 0x4c7d, { 0x9e, 0x5, 0xcc, 0xf0, 0x9e, 0xb6, 0x76, 0xb5 } };
 static UType_int static_UType_int;
 UType_int *pUType_int = &static_UType_int;
 const UUid *UType_int::uuid() const  { return &TID_UType_int; }
@@ -187,8 +194,9 @@ bool UType_int::convertTo( UObject *o, UType *t )
     return false;
 }
 
-// {A1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_double = { 0xa1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+// {2D0974E5-0BA6-4ec2-8837-C198972CB48C}
+const UUid TID_UType_double = 
+{ 0x2d0974e5, 0xba6, 0x4ec2, { 0x88, 0x37, 0xc1, 0x98, 0x97, 0x2c, 0xb4, 0x8c } };
 static UType_double static_UType_double;
 UType_double *pUType_double = &static_UType_double;
 const UUid *UType_double::uuid() const { return &TID_UType_double; }
@@ -221,8 +229,9 @@ bool UType_double::convertTo( UObject *o, UType *t )
     return false;
 }
 
-// {C1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_charstar = { 0xc1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+// {EFCDD1D4-77A3-4b8e-8D46-DC14B8D393E9}
+const UUid TID_UType_charstar = 
+{ 0xefcdd1d4, 0x77a3, 0x4b8e, { 0x8d, 0x46, 0xdc, 0x14, 0xb8, 0xd3, 0x93, 0xe9 } };
 static UType_charstar static_UType_charstar;
 UType_charstar *pUType_charstar = &static_UType_charstar;
 const UUid *UType_charstar::uuid() const { return &TID_UType_charstar; }
@@ -261,3 +270,5 @@ void UType_charstar::clear( UObject *o )
 	delete [] o->payload.charstar.ptr;
     o->payload.charstar.ptr = 0;
 }
+
+#endif //UCOM_CPP
