@@ -1341,8 +1341,10 @@ const QByteArray & QUrlPrivate::normalized()
     int qLen = tmp.query.length();
     for (int i = 0; i < qLen; i++) {
         if (qLen - i > 2 && tmp.query.at(i) == '%') {
-            tmp.query[++i] = qToLower(tmp.query.at(i));
-            tmp.query[++i] = qToLower(tmp.query.at(i));
+            ++i;
+            tmp.query[i] = qToLower(tmp.query.at(i));
+            ++i;
+            tmp.query[i] = qToLower(tmp.query.at(i));
         }
     }
     encodedNormalized = tmp.toEncoded();
