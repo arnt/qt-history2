@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#52 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#52 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -671,7 +671,7 @@ void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
     {
 	// This never happens in practice.
 
-	if ( accsize >= maxsize )
+	if ( accsize >= maxsize-4 )
 	    return;
 	// Running out of space - approximate by a line.
         acc[accsize++] = ctrl[0];
@@ -774,7 +774,7 @@ QPointArray QPointArray::quadBezier() const
 	return pa;
     } else {
 	QRect r = boundingRect();
-	int m = QMAX(r.width(),r.height());
+	int m = 4+2*QMAX(r.width(),r.height());
 	double *p = new double[m];
 	double *ctrl = new double[8];
 	int i;
