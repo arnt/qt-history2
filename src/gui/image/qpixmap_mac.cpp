@@ -200,27 +200,6 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             break;
         }
     }
-    if(image.hasAlphaBuffer()) {
-        { //setup mask
-            QBitmap m;
-            m = img.createAlphaMask(flags);
-            pixmap.setMask(m);
-        }
-
-        //setup the alpha
-        bool alphamap = img.depth() == 32;
-        if (img.depth() == 8) {
-            const QRgb * const rgb = img.colorTable();
-            for (int i = 0, count = img.numColors(); i < count; ++i) {
-                const int alpha = qAlpha(rgb[i]);
-                if (alpha != 0 && alpha != 0xff) {
-                    alphamap = true;
-                    break;
-                }
-            }
-        }
-        pixmap.data->macSetHasAlpha(alphamap);
-    }
     pixmap.data->uninit = false;
     return pixmap;
 }
