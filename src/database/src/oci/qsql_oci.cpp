@@ -96,7 +96,6 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
-    qDebug( stmt.arg( tablename ).arg( fieldname ) );
     t.setQuery( stmt.arg( tablename ).arg( fieldname ) );
     if ( t.next() && (t.value(0).toInt() == 1) )
 	return TRUE;
@@ -393,7 +392,8 @@ bool QOCIResult::cacheNext()
 	    fl.append( qMakeField( d, i+1 ) );
     }
     int currentRecord = at() + 1;
-    int r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
+    int r = 0;
+    r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
     //     if( r==OCI_ERROR)
     // 	qDebug("next error" + qOraWarn(d));
     //     if ( r==OCI_SUCCESS_WITH_INFO)
@@ -421,6 +421,7 @@ bool QOCIResult::cacheNext()
 	}
     } else {
 	cached = TRUE;
+	setAt( AfterLast );
     }
     return r == 0;
 }
@@ -449,7 +450,7 @@ bool QOCIResult::fetch( int i )
 	    return FALSE;
 	setAt( at() + 1 );
     }
-    return TRUE;
+    return FALSE;
 }
 
 bool QOCIResult::fetchFirst()
@@ -467,9 +468,16 @@ bool QOCIResult::fetchFirst()
 
 bool QOCIResult::fetchLast()
 {
-    while ( fetchNext() )
-	; // brute force
-    return fetch( rowCache.count() - 1 );
+    if ( at() == AfterLast && rowCache.count() > 0 ) {
+	setAt( rowCache.count() - 1 );
+	return TRUE;
+    }
+    if ( at() >= BeforeFirst ) {
+	while ( fetchNext() )
+	    ; // brute force
+	return fetch( rowCache.count() - 1 );
+    }
+    return FALSE;
 }
 
 QVariant QOCIResult::data( int field )
@@ -534,7 +542,7 @@ QOCIDriver::QOCIDriver( QObject * parent, const char * name )
 
 void QOCIDriver::init()
 {
-    //    setTransactionSupport( );
+    setTransactionSupport( TRUE );
     setQuerySizeSupport( FALSE );
     d = new QOCIPrivate();
     int r = OCIEnvCreate( &d->env,
@@ -626,22 +634,45 @@ QSql QOCIDriver::createResult() const
 
 bool QOCIDriver::beginTransaction()
 {
-    return FALSE;
+    int r = OCITransStart ( d->svc, 
+			    d->err, 
+			    60,
+			    OCI_TRANS_NEW );
+    if ( r == OCI_ERROR ) {    
+#ifdef CHECK_RANGE
+	qWarning( "QOCIDriver::beginTransaction: " + QString::number(r) + qOraWarn( d ) );
+#endif
+	return FALSE;
+    }
+    return TRUE;
 }
 
 bool QOCIDriver::commitTransaction()
 {
-    return FALSE;
+    int r = OCITransCommit ( d->svc,
+			     d->err,
+			     OCI_DEFAULT );
+    if ( r == OCI_ERROR ) {    
+#ifdef CHECK_RANGE
+	qWarning( "QOCIDriver::commitTransaction: " + qOraWarn( d ) );
+#endif
+	return FALSE;
+    }
+    return TRUE;
 }
 
 bool QOCIDriver::rollbackTransaction()
 {
-    return FALSE;
-}
-
-bool QOCIDriver::endTrans()
-{
-    return FALSE;
+    int r = OCITransRollback ( d->svc,
+			       d->err,
+			       OCI_DEFAULT );
+    if ( r == OCI_ERROR ) {    
+#ifdef CHECK_RANGE
+	qWarning( "QOCIDriver::commitTransaction: " + qOraWarn( d ) );
+#endif
+	return FALSE;
+    }
+    return TRUE;
 }
 
 QStringList QOCIDriver::tables( const QString& user ) const
@@ -681,7 +712,6 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
-    qDebug( stmt.arg( tablename ) );
     t.setQuery( stmt.arg( tablename ) );
     QSqlIndex idx( tablename );
     if ( t.next() ) {

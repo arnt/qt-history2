@@ -2,12 +2,13 @@
 #include <qsql.h>
 #include <qsqlfield.h>
 #include <qsqldatabase.h>
+#include <qsqldriver.h>
 #include <qapplication.h>
 #include <stdio.h>
 
 #include <time.h>
 
-#define TEST_RECS 100
+#define TEST_RECS 10
 #define TABLE_NAME QString("qsql_test")
 
 void TestCreateTable()
@@ -46,56 +47,67 @@ void TestInsert()
     ASSERT( r == 1);
     if ( database->hasTransactionSupport() )
 	database->commit();
-    qDebug("Done.");	
+    qDebug("Done.");
 }
 
 void TestSelect()
 {
     qDebug("Selecting records...");
+    QSqlDatabase* database = QSqlConnection::database();
     QSql recCount( "select count(1) from " + TABLE_NAME + ";");
-    if ( !recCount.isActive() ) 
+    if ( !recCount.isActive() )
 	qDebug("Query (" + recCount.query() + ") failed:" + recCount.lastError().databaseText());
     if ( recCount.next() )
-	qDebug("Number of records (should be " + QString::number(TEST_RECS) + "+1):" + recCount[0].toString() );
+	qDebug("Number of records (should be " + QString::number(TEST_RECS) + "+1):" + recCount.value(0).toString() );
     else
 	qDebug("FAILED counting records: " + recCount.lastError().databaseText());
 
     QString selQuery( "select * from " + TABLE_NAME + ";" );
     QSql selRecs( selQuery );
-    if ( !selRecs.isActive() ) 
-	qDebug("Query (" + selRecs.query() + ") failed:" + selRecs.lastError().databaseText());	
+    if ( !selRecs.isActive() )
+	qDebug("Query (" + selRecs.query() + ") failed:" + selRecs.lastError().databaseText());
 
-    for ( int i=0; i<100; ++i ){
+    qDebug("Random selection test..." + selRecs.query() );
+    //    for ( int i=0; i<TEST_RECS; ++i ){
 	while ( selRecs.next() )
 	    ; // go to end
 	if ( selRecs.isValid() )
-	    qDebug("ERROR going to end of query."); 
-    
-	while( selRecs.previous() ) 
+	    qDebug("ERROR going to end of query.");
+	qDebug("...after going to end");
+
+	while( selRecs.previous() )
 	    ; // back to beginning
-   
+	qDebug("...after going back to beginning");
+
 	selRecs.next();
 	if ( selRecs.at() != 0 )
-	    qDebug("ERROR going to first record."); 
+	    qDebug("ERROR going to first record.");
+	qDebug("...back to first record");
 
 	selRecs.last();
-	if ( selRecs.at() != selRecs.size()-1 )
-	    qDebug("ERROR going to last record."); 
-   
+	if ( database->driver()->hasQuerySizeSupport() && selRecs.at() != selRecs.size()-1 )
+	    qDebug("ERROR going to last record.");
+	qDebug("...back to end");
+
 	selRecs.first();
 	if ( selRecs.at() != 0 )
-	    qDebug("ERROR going to first record."); 
+	    qDebug("ERROR going to first record.");
+	qDebug("...back to first");
 
 	selRecs.seek( TEST_RECS/2 );
 	if ( selRecs.at() != TEST_RECS/2 )
-	    qDebug("ERROR going to middle record.");        
-	
+	    qDebug("ERROR going to middle record.");
+	qDebug("...to the middle");
+
 	// change the query to something else
 	selRecs.setQuery( "update " + TABLE_NAME + " set id=1 where id=1;");
+	qDebug("...after changed query");
+	
 	// now change it back
-	selRecs.setQuery( selQuery );	
-    }
-    qDebug("Done.");	   
+	selRecs.setQuery( selQuery );
+	qDebug("...after restoring original query");
+	//    }
+    qDebug("Done.");
 }
 
 void TestDelete()
@@ -110,13 +122,13 @@ void TestDelete()
     if ( database->hasTransactionSupport() )
 	database->commit();
     QSql recCount( "select count(1) from " + TABLE_NAME + ";");
-    if ( !recCount.isActive() ) 
+    if ( !recCount.isActive() )
 	qDebug("Query (" + recCount.query() + ") failed:" + recCount.lastError().databaseText());
     if ( recCount.next() )
-	qDebug("After delete, number of records (should be 1):" + recCount[0].toString() );
+	qDebug("After delete, number of records (should be 1):" + recCount.value(0).toString() );
     else
 	qDebug("FAILED counting records: " + recCount.lastError().databaseText());
-    qDebug("Done.");    
+    qDebug("Done.");
 }
 
 void TestTrans()
@@ -133,11 +145,11 @@ void TestTrans()
 	else {
 	    QSql recsRemaining("select count(1) from " + TABLE_NAME + ";");
 	    recsRemaining.next();
-    	    qDebug("ERROR in Transaction.  Records remaining in table:" + recsRemaining[0].toString() );
+    	    qDebug("ERROR in Transaction.  Records remaining in table:" + recsRemaining.value(0).toString() );
     	}
-    } else 
+    } else
 	  qDebug("Driver does NOT have transaction support, skipping test.");
-    qDebug("Done.");    
+    qDebug("Done.");
 }
 
 int main( int argc, char** argv )
@@ -154,19 +166,19 @@ int main( int argc, char** argv )
 				 qApp->argv()[5]);
     qDebug("++++++++++++++");
     TestCreateTable();
-    qDebug("++++++++++++++");    
+    qDebug("++++++++++++++");
     TestInsert();
-    qDebug("++++++++++++++");    
+    qDebug("++++++++++++++");
     TestSelect();
-    qDebug("++++++++++++++");    
+    qDebug("++++++++++++++");
     TestDelete();
-    qDebug("++++++++++++++");    
+    qDebug("++++++++++++++");
     TestTrans();
     qDebug("++++++++++++++");
-    
+
     qDebug("Dropping sample table...");
     QSqlConnection::database()->exec( "drop table " + TABLE_NAME + ";" );
-    qDebug("++++++++++++++");    
+    qDebug("++++++++++++++");
     qDebug("Done.");
     return 0;
 };

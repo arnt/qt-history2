@@ -56,7 +56,6 @@ protected:
     bool    	        rollbackTransaction();
 private:
     void 	        init();
-    bool 	        endTrans();
     void 	        cleanup();
     QOCIPrivate*        d;
 };
