@@ -225,7 +225,7 @@ void QLabel::init()
     doc = 0;
 #endif
 
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     d = new QLabelPrivate;
 }
 
@@ -630,6 +630,8 @@ QSize QLabel::minimumSizeHint() const
     if ( doc )
 	return QSize( d->minimumWidth, -1 );
 #endif
+    if ( (align & WordBreak) == 0 )
+	return sizeHint();
     return QSize( -1, -1 );
 }
 
@@ -700,6 +702,7 @@ void QLabel::drawContents( QPainter *p )
 {
     QRect cr = contentsRect();
 
+    QPixmap *pix = pixmap();
 #ifndef QT_NO_MOVIE
     QMovie *mov = movie();
 #else
@@ -707,7 +710,7 @@ void QLabel::drawContents( QPainter *p )
 #endif
 
     int m = indent();
-    if ( m < 0 && !mov ) {
+    if ( m < 0 && !mov && !pix ) {
 	if ( frameWidth() > 0 )
 	    m = p->fontMetrics().width('x')/2;
 	else
@@ -783,9 +786,8 @@ void QLabel::drawContents( QPainter *p )
     } else
 #endif
     {
-	QPixmap* pix = lpixmap;
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-	if ( scaledcontents && lpixmap ) {
+	if ( scaledcontents && pix ) {
 	    if ( !d->img )
 		d->img = new QImage( lpixmap->convertToImage() );
 	    if ( !d->pix )
@@ -809,13 +811,8 @@ void QLabel::drawContents( QPainter *p )
 void QLabel::updateLabel( QSize oldSizeHint )
 {
     QSizePolicy policy = sizePolicy();
-    if ( align & WordBreak ) {
-	if ( policy == QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) )
-	    policy = QSizePolicy( QSizePolicy::Preferred,  QSizePolicy::Preferred, TRUE );
-    } else {
-	if ( policy == QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE ) )
-	    policy = QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
-    }
+    bool wordBreak = align & WordBreak;
+    policy.setHeightForWidth( wordBreak );
     if ( policy != sizePolicy() )
 	setSizePolicy( policy );
     if ( sizeHint() != oldSizeHint )
