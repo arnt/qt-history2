@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#24 $
+** $Id: //depot/qt/main/src/xml/qxml.h#25 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -359,6 +359,7 @@ private:
 
     typedef bool (QXmlSimpleReader::*parseFunction) ();
     void unexpectedEof( parseFunction where, int state );
+    void parseFailed( parseFunction where, int state );
     void pushParseState( parseFunction function, int state );
 
     friend class QXmlSimpleReaderPrivate;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#47 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#48 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2333,10 +2333,9 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
     // parse prolog
     if ( !parseProlog() ) {
 	if ( incremental && d->error.isNull() ) {
-	    // ### incremental parsing stuff
+	    pushParseState( 0, 0 );
 	    return TRUE;
 	} else {
-	    reportParseError( XMLERR_ERRORPARSINGPROLOG );
 	    d->tags.clear();
 	    return FALSE;
 	}
@@ -2344,10 +2343,9 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
     // parse element
     if ( !parseElement() ) {
 	if ( incremental && d->error.isNull() ) {
-	    // ### incremental parsing stuff
+	    pushParseState( 0, 1 );
 	    return TRUE;
 	} else {
-	    reportParseError( XMLERR_ERRORPARSINGMAINELEMENT );
 	    d->tags.clear();
 	    return FALSE;
 	}
@@ -2356,10 +2354,9 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
     while ( !atEnd() ) {
 	if ( !parseMisc() ) {
 	    if ( incremental && d->error.isNull() ) {
-		// ### incremental parsing stuff
+		pushParseState( 0, 2 );
 		return TRUE;
 	    } else {
-		reportParseError( XMLERR_ERRORPARSINGMISC );
 		d->tags.clear();
 		return FALSE;
 	    }
@@ -2367,6 +2364,7 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
     }
     // is stack empty?
     if ( !d->tags.isEmpty() && !d->error.isNull() ) {
+	// ### can this case happen at all?
 	reportParseError( XMLERR_UNEXPECTEDEOF );
 	d->tags.clear();
 	return FALSE;
@@ -2375,7 +2373,6 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
     if ( contentHnd ) {
 	if ( !contentHnd->endDocument() ) {
 	    reportParseError( contentHnd->errorString() );
-	    d->tags.clear();
 	    return FALSE;
 	}
     }
@@ -2449,7 +2446,6 @@ bool QXmlSimpleReader::parseProlog()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	xmldecl_possible = TRUE;
@@ -2503,23 +2499,28 @@ bool QXmlSimpleReader::parseProlog()
 		next();
 		break;
 	    case DocType:
-		parseOk = parseDoctype();
+		if ( !parseDoctype() ) {
+		    parseFailed( &QXmlSimpleReader::parseProlog, state );
+		    return FALSE;
+		}
 		break;
 	    case Comment:
-		parseOk = parseComment();
+		if ( !parseComment() ) {
+		    parseFailed( &QXmlSimpleReader::parseProlog, state );
+		    return FALSE;
+		}
 		break;
 	    case PI:
 		d->parsePI_xmldecl = xmldecl_possible;
-		parseOk = parsePI();
+		if ( !parsePI() ) {
+		    parseFailed( &QXmlSimpleReader::parseProlog, state );
+		    return FALSE;
+		}
 		break;
 	}
 	// no input is read after this
 	switch ( state ) {
 	    case DocType:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGPROLOG );
-		    return FALSE;
-		}
 		if ( doctype_read ) {
 		    reportParseError( XMLERR_MORETHANONEDOCTYPE );
 		    return FALSE;
@@ -2528,10 +2529,6 @@ bool QXmlSimpleReader::parseProlog()
 		}
 		break;
 	    case Comment:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGPROLOG );
-		    return FALSE;
-		}
 		if ( lexicalHnd ) {
 		    if ( !lexicalHnd->comment( string() ) ) {
 			reportParseError( lexicalHnd->errorString() );
@@ -2540,10 +2537,6 @@ bool QXmlSimpleReader::parseProlog()
 		}
 		break;
 	    case PI:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGPROLOG );
-		    return FALSE;
-		}
 		// call the handler
 		if ( contentHnd ) {
 		    if ( xmldecl_possible && !d->xmlVersion.isEmpty() ) {
@@ -2627,7 +2620,6 @@ bool QXmlSimpleReader::parseElement()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -2660,7 +2652,10 @@ bool QXmlSimpleReader::parseElement()
 	switch ( state ) {
 	    case ReadName:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseElement, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws1:
 	    case Ws2:
@@ -2687,7 +2682,10 @@ bool QXmlSimpleReader::parseElement()
 		next();
 		break;
 	    case STagEnd2:
-		parseOk = parseContent();
+		if ( !parseContent() ) {
+		    parseFailed( &QXmlSimpleReader::parseElement, state );
+		    return FALSE;
+		}
 		break;
 	    case ETagBegin:
 		next();
@@ -2695,7 +2693,10 @@ bool QXmlSimpleReader::parseElement()
 	    case ETagBegin2:
 		// get the name of the tag
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseElement, state );
+		    return FALSE;
+		}
 		break;
 	    case EmptyTag:
 		if  ( d->tags.isEmpty() ) {
@@ -2709,7 +2710,10 @@ bool QXmlSimpleReader::parseElement()
 		break;
 	    case Attribute:
 		// get name and value of attribute
-		parseOk = parseAttribute();
+		if ( !parseAttribute() ) {
+		    parseFailed( &QXmlSimpleReader::parseElement, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		next();
@@ -2718,10 +2722,6 @@ bool QXmlSimpleReader::parseElement()
 	// no input is read after this
 	switch ( state ) {
 	    case ReadName:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
 		// store it on the stack
 		d->tags.push( name() );
 		// empty the attributes
@@ -2733,25 +2733,11 @@ bool QXmlSimpleReader::parseElement()
 		    d->namespaceSupport.pushContext();
 		}
 		break;
-	    case STagEnd2:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGCONTENT );
-		    return FALSE;
-		}
-		break;
 	    case ETagBegin2:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
 		if ( !processElementETagBegin2() )
 		    return FALSE;
 		break;
 	    case Attribute:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGATTRIBUTE );
-		    return FALSE;
-		}
 		if ( !processElementAttribute() )
 		    return FALSE;
 		break;
@@ -2987,7 +2973,6 @@ bool QXmlSimpleReader::parseContent()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	charDataRead = FALSE;
@@ -3042,11 +3027,17 @@ bool QXmlSimpleReader::parseContent()
 		    // reference may be CharData; so clear string to be safe
 		    stringClear();
 		    d->parseReference_context = InContent;
-		    parseOk = parseReference();
+		    if ( !parseReference() ) {
+			parseFailed( &QXmlSimpleReader::parseContent, state );
+			return FALSE;
+		    }
 		    charDataRead = d->parseReference_charDataRead;
 		} else {
 		    d->parseReference_context = InContent;
-		    parseOk = parseReference();
+		    if ( !parseReference() ) {
+			parseFailed( &QXmlSimpleReader::parseContent, state );
+			return FALSE;
+		    }
 		}
 		break;
 	    case Lt:
@@ -3067,21 +3058,33 @@ bool QXmlSimpleReader::parseContent()
 		break;
 	    case PI:
 		d->parsePI_xmldecl = FALSE;
-		parseOk = parsePI();
+		if ( !parsePI() ) {
+		    parseFailed( &QXmlSimpleReader::parseContent, state );
+		    return FALSE;
+		}
 		break;
 	    case Elem:
-		parseOk = parseElement();
+		if ( !parseElement() ) {
+		    parseFailed( &QXmlSimpleReader::parseContent, state );
+		    return FALSE;
+		}
 		break;
 	    case Em:
 		// next character
 		next();
 		break;
 	    case Com:
-		parseOk = parseComment();
+		if ( !parseComment() ) {
+		    parseFailed( &QXmlSimpleReader::parseContent, state );
+		    return FALSE;
+		}
 		break;
 	    case CDS:
 		d->parseString_s = "[CDATA[";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseContent, state );
+		    return FALSE;
+		}
 		break;
 	    case CDS1:
 		// read one character and add it
@@ -3099,17 +3102,7 @@ bool QXmlSimpleReader::parseContent()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case Ref:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGREFERENCE );
-		    return FALSE;
-		}
-		break;
 	    case PI:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGPI );
-		    return FALSE;
-		}
 		if ( contentHnd ) {
 		    if ( !contentHnd->processingInstruction(name(),string()) ) {
 			reportParseError( contentHnd->errorString() );
@@ -3117,17 +3110,7 @@ bool QXmlSimpleReader::parseContent()
 		    }
 		}
 		break;
-	    case Elem:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGELEMENT );
-		    return FALSE;
-		}
-		break;
 	    case Com:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGCOMMENT );
-		    return FALSE;
-		}
 		if ( lexicalHnd ) {
 		    if ( !lexicalHnd->comment( string() ) ) {
 			reportParseError( lexicalHnd->errorString() );
@@ -3136,10 +3119,6 @@ bool QXmlSimpleReader::parseContent()
 		}
 		break;
 	    case CDS:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_CDSECTHEADEREXPECTED );
-		    return FALSE;
-		}
 		// empty string
 		stringClear();
 		break;
@@ -3229,7 +3208,6 @@ bool QXmlSimpleReader::parseMisc()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -3269,13 +3247,19 @@ bool QXmlSimpleReader::parseMisc()
 		break;
 	    case PI:
 		d->parsePI_xmldecl = FALSE;
-		parseOk = parsePI();
+		if ( !parsePI() ) {
+		    parseFailed( &QXmlSimpleReader::parseMisc, state );
+		    return FALSE;
+		}
 		break;
 	    case Comment:
 		next();
 		break;
 	    case Comment2:
-		parseOk = parseComment();
+		if ( !parseComment() ) {
+		    parseFailed( &QXmlSimpleReader::parseMisc, state );
+		    return FALSE;
+		}
 		break;
 	}
 	// no input is read after this
@@ -3283,10 +3267,6 @@ bool QXmlSimpleReader::parseMisc()
 	    case eatWS:
 		return TRUE;
 	    case PI:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGPI );
-		    return FALSE;
-		}
 		if ( contentHnd ) {
 		    if ( !contentHnd->processingInstruction(name(),string()) ) {
 			reportParseError( contentHnd->errorString() );
@@ -3295,10 +3275,6 @@ bool QXmlSimpleReader::parseMisc()
 		}
 		return TRUE;
 	    case Comment2:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGCOMMENT );
-		    return FALSE;
-		}
 		if ( lexicalHnd ) {
 		    if ( !lexicalHnd->comment( string() ) ) {
 			reportParseError( lexicalHnd->errorString() );
@@ -3374,7 +3350,6 @@ bool QXmlSimpleReader::parsePI()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -3411,7 +3386,10 @@ bool QXmlSimpleReader::parsePI()
 		break;
 	    case Name:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws1:
 	    case Ws2:
@@ -3421,10 +3399,16 @@ bool QXmlSimpleReader::parsePI()
 		eat_ws();
 		break;
 	    case Version:
-		parseOk = parseAttribute();
+		if ( !parseAttribute() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
 		break;
 	    case EorSD:
-		parseOk = parseAttribute();
+		if ( !parseAttribute() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
 		break;
 	    case SD:
 		// get the SDDecl (syntax like an attribute)
@@ -3433,7 +3417,10 @@ bool QXmlSimpleReader::parsePI()
 		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
 		    return FALSE;
 		}
-		parseOk = parseAttribute();
+		if ( !parseAttribute() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
 		break;
 	    case ADone:
 		next();
@@ -3453,10 +3440,6 @@ bool QXmlSimpleReader::parsePI()
 	// no input is read after this
 	switch ( state ) {
 	    case Name:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
 		// test what name was read and determine the next state
 		// (not very beautiful, I admit)
 		if ( name().lower() == "xml" ) {
@@ -3473,10 +3456,6 @@ bool QXmlSimpleReader::parsePI()
 		break;
 	    case Version:
 		// get version (syntax like an attribute)
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_VERSIONEXPECTED );
-		    return FALSE;
-		}
 		if ( name() != "version" ) {
 		    reportParseError( XMLERR_VERSIONEXPECTED );
 		    return FALSE;
@@ -3485,10 +3464,6 @@ bool QXmlSimpleReader::parsePI()
 		break;
 	    case EorSD:
 		// get the EDecl or SDDecl (syntax like an attribute)
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_EDECLORSDDECLEXPECTED );
-		    return FALSE;
-		}
 		if        ( name() == "standalone" ) {
 		    if ( string()=="yes" ) {
 			d->standalone = QXmlSimpleReaderPrivate::Yes;
@@ -3508,10 +3483,6 @@ bool QXmlSimpleReader::parsePI()
 		}
 		break;
 	    case SD:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_SDDECLEXPECTED );
-		    return FALSE;
-		}
 		if ( name() != "standalone" ) {
 		    reportParseError( XMLERR_SDDECLEXPECTED );
 		    return FALSE;
@@ -3596,7 +3567,6 @@ bool QXmlSimpleReader::parseDoctype()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	startDTDwasReported = FALSE;
@@ -3641,7 +3611,10 @@ bool QXmlSimpleReader::parseDoctype()
 	switch ( state ) {
 	    case Doctype:
 		d->parseString_s = "DOCTYPE";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws1:
 	    case Ws2:
@@ -3655,17 +3628,26 @@ bool QXmlSimpleReader::parseDoctype()
 		break;
 	    case Sys:
 		d->parseExternalID_allowPublicID = FALSE;
-		parseOk = parseExternalID();
+		if ( !parseExternalID() ) {
+		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		    return FALSE;
+		}
 		break;
 	    case MP:
 		next_eat_ws();
 		break;
 	    case PER:
 		d->parsePEReference_context = InDTD;
-		parseOk = parsePEReference();
+		if ( !parsePEReference() ) {
+		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		    return FALSE;
+		}
 		break;
 	    case Mup:
-		parseOk = parseMarkupdecl();
+		if ( !parseMarkupdecl() ) {
+		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		    return FALSE;
+		}
 		break;
 	    case MPE:
 		next_eat_ws();
@@ -3690,10 +3672,6 @@ bool QXmlSimpleReader::parseDoctype()
 	// no input is read after this
 	switch ( state ) {
 	    case Doctype:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
-		    return FALSE;
-		}
 		if ( !is_S(c) ) {
 		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
 		    return FALSE;
@@ -3701,24 +3679,6 @@ bool QXmlSimpleReader::parseDoctype()
 		break;
 	    case Doctype2:
 		d->doctype = name();
-		break;
-	    case Sys:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
-		    return FALSE;
-		}
-		break;
-	    case PER:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
-		    return FALSE;
-		}
-		break;
-	    case Mup:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
-		    return FALSE;
-		}
 		break;
 	    case MP:
 		if ( !startDTDwasReported && lexicalHnd  ) {
@@ -3793,7 +3753,6 @@ bool QXmlSimpleReader::parseExternalID()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	d->systemId = QString::null;
@@ -3831,7 +3790,10 @@ bool QXmlSimpleReader::parseExternalID()
 	switch ( state ) {
 	    case Sys:
 		d->parseString_s = "SYSTEM";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseExternalID, state );
+		    return FALSE;
+		}
 		break;
 	    case SysWS:
 		eat_ws();
@@ -3848,7 +3810,10 @@ bool QXmlSimpleReader::parseExternalID()
 		break;
 	    case Pub:
 		d->parseString_s = "PUBLIC";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseExternalID, state );
+		    return FALSE;
+		}
 		break;
 	    case PubWS:
 		eat_ws();
@@ -3877,18 +3842,6 @@ bool QXmlSimpleReader::parseExternalID()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case Sys:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case Pub:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
 	    case PDone:
 		if ( d->parseExternalID_allowPublicID ) {
 		    d->publicId = string();
@@ -3945,7 +3898,6 @@ bool QXmlSimpleReader::parseMarkupdecl()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -3996,31 +3948,45 @@ bool QXmlSimpleReader::parseMarkupdecl()
 		break;
 	    case Qm:
 		d->parsePI_xmldecl = FALSE;
-		parseOk = parsePI();
+		if ( !parsePI() ) {
+		    parseFailed( &QXmlSimpleReader::parseMarkupdecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Dash:
-		parseOk = parseComment();
+		if ( !parseComment() ) {
+		    parseFailed( &QXmlSimpleReader::parseMarkupdecl, state );
+		    return FALSE;
+		}
 		break;
 	    case CA:
-		parseOk = parseAttlistDecl();
+		if ( !parseAttlistDecl() ) {
+		    parseFailed( &QXmlSimpleReader::parseMarkupdecl, state );
+		    return FALSE;
+		}
 		break;
 	    case CEL:
-		parseOk = parseElementDecl();
+		if ( !parseElementDecl() ) {
+		    parseFailed( &QXmlSimpleReader::parseMarkupdecl, state );
+		    return FALSE;
+		}
 		break;
 	    case CEN:
-		parseOk = parseEntityDecl();
+		if ( !parseEntityDecl() ) {
+		    parseFailed( &QXmlSimpleReader::parseMarkupdecl, state );
+		    return FALSE;
+		}
 		break;
 	    case CN:
-		parseOk = parseNotationDecl();
+		if ( !parseNotationDecl() ) {
+		    parseFailed( &QXmlSimpleReader::parseMarkupdecl, state );
+		    return FALSE;
+		}
 		break;
 	}
 	// no input is read after this
 	switch ( state ) {
 	    case Qm:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGPI );
-		    return FALSE;
-		}
 		if ( contentHnd ) {
 		    if ( !contentHnd->processingInstruction(name(),string()) ) {
 			reportParseError( contentHnd->errorString() );
@@ -4029,10 +3995,6 @@ bool QXmlSimpleReader::parseMarkupdecl()
 		}
 		return TRUE;
 	    case Dash:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGCOMMENT );
-		    return FALSE;
-		}
 		if ( lexicalHnd ) {
 		    if ( !lexicalHnd->comment( string() ) ) {
 			reportParseError( lexicalHnd->errorString() );
@@ -4041,28 +4003,12 @@ bool QXmlSimpleReader::parseMarkupdecl()
 		}
 		return TRUE;
 	    case CA:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGATTLISTDECL );
-		    return FALSE;
-		}
 		return TRUE;
 	    case CEL:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGELEMENTDECL );
-		    return FALSE;
-		}
 		return TRUE;
 	    case CEN:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGENTITYDECL );
-		    return FALSE;
-		}
 		return TRUE;
 	    case CN:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNOTATIONDECL );
-		    return FALSE;
-		}
 		return TRUE;
 	    case Done:
 		return TRUE;
@@ -4098,7 +4044,6 @@ bool QXmlSimpleReader::parsePEReference()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -4131,7 +4076,10 @@ bool QXmlSimpleReader::parsePEReference()
 		break;
 	    case Name:
 		d->parseName_useRef = TRUE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parsePEReference, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		next();
@@ -4140,10 +4088,6 @@ bool QXmlSimpleReader::parsePEReference()
 	// no input is read after this
 	switch ( state ) {
 	    case Name:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
 		if ( d->parameterEntities.find( ref() ) == d->parameterEntities.end() ) {
 		    // ### skip it???
 		    if ( contentHnd ) {
@@ -4232,7 +4176,6 @@ bool QXmlSimpleReader::parseAttlistDecl()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -4272,7 +4215,10 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	switch ( state ) {
 	    case Attlist:
 		d->parseString_s = "ATTLIST";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws:
 	    case Ws1:
@@ -4282,32 +4228,53 @@ bool QXmlSimpleReader::parseAttlistDecl()
 		break;
 	    case Name:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Attdef:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Atttype:
-		parseOk = parseAttType();
+		if ( !parseAttType() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case DDecH:
 		next();
 		break;
 	    case DefReq:
 		d->parseString_s = "REQUIRED";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case DefImp:
 		d->parseString_s = "IMPLIED";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case DefFix:
 		d->parseString_s = "FIXED";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Attval:
-		parseOk = parseAttValue();
+		if ( !parseAttValue() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws4:
 		if ( declHnd ) {
@@ -4325,55 +4292,11 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case Attlist:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
 	    case Name:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
 		d->attDeclEName = name();
 		break;
 	    case Attdef:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
 		d->attDeclAName = name();
-		break;
-	    case Atttype:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGATTTYPE );
-		    return FALSE;
-		}
-		break;
-	    case DefReq:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case DefImp:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case DefFix:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case Attval:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGATTVALUE );
-		    return FALSE;
-		}
 		break;
 	    case Done:
 		return TRUE;
@@ -4453,7 +4376,6 @@ bool QXmlSimpleReader::parseAttType()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -4505,43 +4427,64 @@ bool QXmlSimpleReader::parseAttType()
 	switch ( state ) {
 	    case ST:
 		d->parseString_s = "CDATA";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case TTI:
 		d->parseString_s = "ID";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case TTI2:
 		d->parseString_s = "REF";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case TTI3:
 		next(); // S
 		break;
 	    case TTE:
 		d->parseString_s = "ENTIT";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case TTEY:
 		next(); // Y
 		break;
 	    case TTEI:
 		d->parseString_s = "IES";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case N:
 		next(); // N
 		break;
 	    case TTNM:
 		d->parseString_s = "MTOKEN";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case TTNM2:
 		next(); // S
 		break;
 	    case NO:
 		d->parseString_s = "OTATION";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case NO2:
 		eat_ws();
@@ -4551,7 +4494,10 @@ bool QXmlSimpleReader::parseAttType()
 		break;
 	    case NOName:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case NO4:
 		eat_ws();
@@ -4560,7 +4506,10 @@ bool QXmlSimpleReader::parseAttType()
 		next_eat_ws();
 		break;
 	    case ENNmt:
-		parseOk = parseNmtoken();
+		if ( !parseNmtoken() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case EN2:
 		eat_ws();
@@ -4571,60 +4520,6 @@ bool QXmlSimpleReader::parseAttType()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case ST:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case TTI:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case TTI2:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case TTE:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case TTEI:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case TTNM:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case NO:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case NOName:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
-		break;
-	    case ENNmt:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNMTOKEN );
-		    return FALSE;
-		}
-		break;
 	    case ADone:
 		return TRUE;
 	    case Done:
@@ -4677,7 +4572,6 @@ bool QXmlSimpleReader::parseAttValue()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -4717,7 +4611,10 @@ bool QXmlSimpleReader::parseAttValue()
 	    case DqRef:
 	    case SqRef:
 		d->parseReference_context = InAttributeValue;
-		parseOk = parseReference();
+		if ( !parseReference() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttValue, state );
+		    return FALSE;
+		}
 		break;
 	    case DqC:
 	    case SqC:
@@ -4730,13 +4627,6 @@ bool QXmlSimpleReader::parseAttValue()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case DqRef:
-	    case SqRef:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGREFERENCE );
-		    return FALSE;
-		}
-		break;
 	    case Done:
 		return TRUE;
 	    case -1:
@@ -4814,7 +4704,6 @@ bool QXmlSimpleReader::parseElementDecl()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -4863,32 +4752,47 @@ bool QXmlSimpleReader::parseElementDecl()
 	switch ( state ) {
 	    case Elem:
 		d->parseString_s = "LEMENT";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws1:
 		eat_ws();
 		break;
 	    case Nam:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws2:
 		eat_ws();
 		break;
 	    case Empty:
 		d->parseString_s = "EMPTY";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Any:
 		d->parseString_s = "ANY";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Cont:
 		next_eat_ws();
 		break;
 	    case Mix:
 		d->parseString_s = "#PCDATA";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Mix2:
 		eat_ws();
@@ -4901,7 +4805,10 @@ bool QXmlSimpleReader::parseElementDecl()
 		break;
 	    case MixN2:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case MixN3:
 		eat_ws();
@@ -4910,7 +4817,10 @@ bool QXmlSimpleReader::parseElementDecl()
 		next();
 		break;
 	    case Cp:
-		parseOk = parseChoiceSeq();
+		if ( !parseChoiceSeq() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Cp2:
 		next();
@@ -4924,48 +4834,6 @@ bool QXmlSimpleReader::parseElementDecl()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case Elem:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case Nam:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
-		break;
-	    case Empty:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case Any:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case Mix:
-		if( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case MixN2:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
-		break;
-	    case Cp:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGCHOICE );
-		    return FALSE;
-		}
-		break;
 	    case Done:
 		return TRUE;
 	    case -1:
@@ -5011,7 +4879,6 @@ bool QXmlSimpleReader::parseNotationDecl()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -5043,21 +4910,30 @@ bool QXmlSimpleReader::parseNotationDecl()
 	switch ( state ) {
 	    case Not:
 		d->parseString_s = "NOTATION";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws1:
 		eat_ws();
 		break;
 	    case Nam:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws2:
 		eat_ws();
 		break;
 	    case ExtID:
 		d->parseExternalID_allowPublicID = TRUE;
-		parseOk = parseExternalID();
+		if ( !parseExternalID() ) {
+		    parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws3:
 		eat_ws();
@@ -5068,23 +4944,7 @@ bool QXmlSimpleReader::parseNotationDecl()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case Not:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case Nam:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
-		break;
 	    case ExtID:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGEXTERNALID );
-		    return FALSE;
-		}
 		// call the handler
 		if ( dtdHnd ) {
 		    if ( !dtdHnd->notationDecl( name(), d->publicId, d->systemId ) ) {
@@ -5142,7 +5002,6 @@ bool QXmlSimpleReader::parseChoiceSeq()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -5186,7 +5045,10 @@ bool QXmlSimpleReader::parseChoiceSeq()
 		next_eat_ws();
 		break;
 	    case CS:
-		parseOk = parseChoiceSeq();
+		if ( !parseChoiceSeq() ) {
+		    parseFailed( &QXmlSimpleReader::parseChoiceSeq, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws2:
 		next_eat_ws();
@@ -5196,7 +5058,10 @@ bool QXmlSimpleReader::parseChoiceSeq()
 		break;
 	    case Name:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseChoiceSeq, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		next();
@@ -5204,18 +5069,6 @@ bool QXmlSimpleReader::parseChoiceSeq()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case CS:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGCHOICE );
-		    return FALSE;
-		}
-		break;
-	    case Name:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
-		break;
 	    case Done:
 		return TRUE;
 	    case -1:
@@ -5287,7 +5140,6 @@ bool QXmlSimpleReader::parseEntityDecl()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -5323,38 +5175,56 @@ bool QXmlSimpleReader::parseEntityDecl()
 	switch ( state ) {
 	    case Ent:
 		d->parseString_s = "NTITY";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws1:
 		eat_ws();
 		break;
 	    case Name:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws2:
 		eat_ws();
 		break;
 	    case EValue:
-		parseOk = parseEntityValue();
+		if ( !parseEntityValue() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case ExtID:
 		d->parseExternalID_allowPublicID = FALSE;
-		parseOk = parseExternalID();
+		if ( !parseExternalID() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws3:
 		eat_ws();
 		break;
 	    case Ndata:
 		d->parseString_s = "NDATA";
-		parseOk = parseString();
+		if ( !parseString() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws4:
 		eat_ws();
 		break;
 	    case NNam:
 		d->parseName_useRef = TRUE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case PEDec:
 		next();
@@ -5364,17 +5234,26 @@ bool QXmlSimpleReader::parseEntityDecl()
 		break;
 	    case PENam:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws7:
 		eat_ws();
 		break;
 	    case PEVal:
-		parseOk = parseEntityValue();
+		if ( !parseEntityValue() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case PEEID:
 		d->parseExternalID_allowPublicID = FALSE;
-		parseOk = parseExternalID();
+		if ( !parseExternalID() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case WsE:
 		eat_ws();
@@ -5388,23 +5267,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case Ent:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
-	    case Name:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
-		break;
 	    case EValue:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGENTITYVALUE );
-		    return FALSE;
-		}
 		if (  !entityExist( name() ) ) {
 		    d->entities.insert( name(), string() );
 		    if ( declHnd ) {
@@ -5415,23 +5278,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		    }
 		}
 		break;
-	    case ExtID:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGEXTERNALID );
-		    return FALSE;
-		}
-		break;
-	    case Ndata:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		break;
 	    case NNam:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
 		if (  !entityExist( name() ) ) {
 		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, ref() ) );
 		    if ( dtdHnd ) {
@@ -5442,17 +5289,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		    }
 		}
 		break;
-	    case PENam:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
-		break;
 	    case PEVal:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGENTITYVALUE );
-		    return FALSE;
-		}
 		if (  !entityExist( name() ) ) {
 		    d->parameterEntities.insert( name(), string() );
 		    if ( declHnd ) {
@@ -5464,10 +5301,6 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case PEEID:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGEXTERNALID );
-		    return FALSE;
-		}
 		if (  !entityExist( name() ) ) {
 		    d->externParameterEntities.insert( name(), QXmlSimpleReaderPrivate::ExternParameterEntity( d->publicId, d->systemId ) );
 		    if ( declHnd ) {
@@ -5537,7 +5370,6 @@ bool QXmlSimpleReader::parseEntityValue()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -5582,12 +5414,18 @@ bool QXmlSimpleReader::parseEntityValue()
 	    case DqPER:
 	    case SqPER:
 		d->parsePEReference_context = InEntityValue;
-		parseOk = parsePEReference();
+		if ( !parsePEReference() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityValue, state );
+		    return FALSE;
+		}
 		break;
 	    case DqRef:
 	    case SqRef:
 		d->parseReference_context = InEntityValue;
-		parseOk = parseReference();
+		if ( !parseReference() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityValue, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		next();
@@ -5595,20 +5433,6 @@ bool QXmlSimpleReader::parseEntityValue()
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case DqPER:
-	    case SqPER:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
-		    return FALSE;
-		}
-		break;
-	    case DqRef:
-	    case SqRef:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGREFERENCE );
-		    return FALSE;
-		}
-		break;
 	    case Done:
 		return TRUE;
 	    case -1:
@@ -5758,7 +5582,6 @@ bool QXmlSimpleReader::parseAttribute()
     };
     signed char state;
     signed char input;
-    bool parseOk = TRUE;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
 	state = Init;
@@ -5792,7 +5615,10 @@ bool QXmlSimpleReader::parseAttribute()
 	switch ( state ) {
 	    case PName:
 		d->parseName_useRef = FALSE;
-		parseOk = parseName();
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttribute, state );
+		    return FALSE;
+		}
 		break;
 	    case Ws:
 		eat_ws();
@@ -5801,22 +5627,15 @@ bool QXmlSimpleReader::parseAttribute()
 		next_eat_ws();
 		break;
 	    case Quotes:
-		parseOk = parseAttValue();
+		if ( !parseAttValue() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttribute, state );
+		    return FALSE;
+		}
 		break;
 	}
 	// no input is read after this
 	switch ( state ) {
-	    case PName:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGNAME );
-		    return FALSE;
-		}
-		break;
 	    case Quotes:
-		if ( !parseOk ) {
-		    reportParseError( XMLERR_ERRORPARSINGATTVALUE );
-		    return FALSE;
-		}
 		// Done
 		return TRUE;
 	    case -1:
@@ -6420,9 +6239,25 @@ void QXmlSimpleReader::unexpectedEof( parseFunction where, int state )
 }
 
 /*
+  This private function is called when a parse...() function returned FALSE. It
+  determines if there was an error or if incremental parsing simply went out of
+  data and does the right thing for the case. \a where is a pointer to the
+  function where the error occured and \a state is the parsing state in this
+  function.
+*/
+void QXmlSimpleReader::parseFailed( parseFunction where, int state )
+{
+    if ( d->parseStack!=0 && d->error.isNull() ) {
+	pushParseState( where, state );
+    }
+}
+
+/*
   This private function pushes the function pointer \a function and state \a
   state to the parse stack. This is used when you are doing an incremental
   parsing and reach the end of file too early.
+
+  Only call this function when d->parseStack!=0.
 */
 void QXmlSimpleReader::pushParseState( parseFunction function, int state )
 {
