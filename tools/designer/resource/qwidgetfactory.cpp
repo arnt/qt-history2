@@ -362,6 +362,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
     delete widgetFactory;
 
+    QApplication::sendPostedEvents();
+
     return w;
 }
 
