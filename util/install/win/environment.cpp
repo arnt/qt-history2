@@ -129,6 +129,8 @@ void QEnvironment::putEnv( const QString &varName, const QString &varValue, int 
 		RegSetValueExW( env, (const wchar_t*) varName.ucs2(), 0, REG_EXPAND_SZ, (const unsigned char*)buffer.data(), buffer.size() );
 		RegCloseKey( env );
 	    }
+	    DWORD res;
+	    SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, LPARAM("Environment"), SMTO_ABORTIFHUNG | SMTO_BLOCK, 1, &res);
 	}
 	else { // Win 9x
 	    QFile autoexec( "c:\\autoexec.bat" );
