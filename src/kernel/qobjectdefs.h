@@ -86,7 +86,9 @@ struct QUObject;
 #else
 #define slots					// slots: in class
 #define signals protected			// signals: in class
+#ifndef QT_NO_EMIT
 #define emit					// emit signal
+#endif
 #define Q_CLASSINFO( name, value )		// class info
 #define Q_PROPERTY( text )			// property
 #define Q_OVERRIDE( text )			// override property
@@ -115,6 +117,16 @@ private:								\
 #endif
 
 // macro for naming members
+#ifdef METHOD
+#undef METHOD
+#endif
+#ifdef SLOT
+#undef SLOT
+#endif
+#ifdef SIGNAL
+#undef SIGNAL
+#endif
+
 #if defined(_OLD_CPP_)
 #define METHOD(a)	"0""a"
 #define SLOT(a)		"1""a"
@@ -125,9 +137,15 @@ private:								\
 #define SIGNAL(a)	"2"#a
 #endif
 
+#ifndef QT_CLEAN_NAMESPACE
 #define METHOD_CODE	0			// member type codes
 #define SLOT_CODE	1
 #define SIGNAL_CODE	2
+#endif
+
+#define QMETHOD_CODE	0			// member type codes
+#define QSLOT_CODE	1
+#define QSIGNAL_CODE	2
 
 class QObject;
 class QMetaObject;

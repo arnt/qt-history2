@@ -1247,8 +1247,8 @@ static bool check_signal_macro( const QObject *sender, const char *signal,
 				const char *func, const char *op )
 {
     int sigcode = (int)(*signal) - '0';
-    if ( sigcode != SIGNAL_CODE ) {
-	if ( sigcode == SLOT_CODE )
+    if ( sigcode != QSIGNAL_CODE ) {
+	if ( sigcode == QSLOT_CODE )
 	    qWarning( "QObject::%s: Attempt to %s non-signal %s::%s",
 		     func, op, sender->className(), signal+1 );
 	else
@@ -1262,7 +1262,7 @@ static bool check_signal_macro( const QObject *sender, const char *signal,
 static bool check_member_code( int code, const QObject *object,
 			       const char *member, const char *func )
 {
-    if ( code != SLOT_CODE && code != SIGNAL_CODE ) {
+    if ( code != QSLOT_CODE && code != QSIGNAL_CODE ) {
 	qWarning( "QObject::%s: Use the SLOT or SIGNAL macro to "
 		 "%s %s::%s", func, func, object->className(), member );
 	return FALSE;
@@ -1275,8 +1275,8 @@ static void err_member_notfound( int code, const QObject *object,
 {
     const char *type = 0;
     switch ( code ) {
-	case SLOT_CODE:	  type = "slot";   break;
-	case SIGNAL_CODE: type = "signal"; break;
+	case QSLOT_CODE:   type = "slot";   break;
+	case QSIGNAL_CODE: type = "signal"; break;
     }
     if ( strchr(member,')') == 0 )		// common typing mistake
 	qWarning( "QObject::%s: Parentheses expected, %s %s::%s",
@@ -1312,10 +1312,10 @@ static void err_info_about_candidates( int code,
 	}
 	const QMetaData *rm = 0;
 	switch ( code ) {
-	case SLOT_CODE:
+	case QSLOT_CODE:
 	    rm = mo->slot( mo->findSlot( newname, TRUE ), TRUE );
 	    break;
-	case SIGNAL_CODE:
+	case QSIGNAL_CODE:
 	    rm = mo->signal( mo->findSignal( newname, TRUE ), TRUE );
 	    break;
 	}
@@ -1535,8 +1535,8 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 
     if ( signal_index < 0  ) {	// no such signal
 #if defined(QT_CHECK_RANGE)
-	err_member_notfound( SIGNAL_CODE, sender, signal, "connect" );
-	err_info_about_candidates( SIGNAL_CODE, smeta, signal, "connect" );
+	err_member_notfound( QSIGNAL_CODE, sender, signal, "connect" );
+	err_info_about_candidates( QSIGNAL_CODE, smeta, signal, "connect" );
 	err_info_about_objects( "connect", sender, receiver );
 #endif
 	return FALSE;
@@ -1559,10 +1559,10 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     const QMetaData   *rm = 0;
 
     switch ( membcode ) {			// get receiver member
-	case SLOT_CODE:
+	case QSLOT_CODE:
 	    rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );
 	    break;
-	case SIGNAL_CODE:
+	case QSIGNAL_CODE:
 	    rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );
 	    break;
     }
@@ -1612,10 +1612,10 @@ void QObject::connectInternal( const QObject *sender, int signal_index, const QO
     const QMetaData *rm = 0;
 
     switch ( membcode ) {			// get receiver member
-	case SLOT_CODE:
+	case QSLOT_CODE:
 	    rm = rmeta->slot( member_index, TRUE );
 	    break;
-	case SIGNAL_CODE:
+	case QSIGNAL_CODE:
 	    rm = rmeta->signal( member_index, TRUE );
 	    break;
     }
@@ -1734,10 +1734,10 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	QMetaObject *rmeta = r->metaObject();
 
 	switch ( membcode ) {			// get receiver member
-	    case SLOT_CODE:
+	    case QSLOT_CODE:
 		rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );
 		break;
-	    case SIGNAL_CODE:
+	    case QSIGNAL_CODE:
 		rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );
 		break;
 	}
@@ -1999,7 +1999,7 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 	c = clist->first();
 	object = c->object();
 	sigSender = this;
-	if ( c->memberType() == SIGNAL_CODE )
+	if ( c->memberType() == QSIGNAL_CODE )
 	    object->qt_emit( c->member(), o );
 	else
 	    object->qt_invoke( c->member(), o );
@@ -2009,7 +2009,7 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 	    ++it;
 	    object = c->object();
 	    sigSender = this;
-	    if ( c->memberType() == SIGNAL_CODE )
+	    if ( c->memberType() == QSIGNAL_CODE )
 		object->qt_emit( c->member(), o );
 	    else
 		object->qt_invoke( c->member(), o );
