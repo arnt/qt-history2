@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#38 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#38 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.32 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.33 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -384,7 +384,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	    if ( currentTip && !currentTip->rect.contains( mousePos ) ) {
 		hideTip();
 		if ( m->state() == 0 )
-		    return TRUE;
+		    return FALSE;
 	    }
 
 	    wakeUp.stop();
@@ -399,7 +399,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 		}
 		widget = w;
 		pos = mousePos;
-		return TRUE;
+		return FALSE;
 	    } else {
 		hideTip();
 	    }
