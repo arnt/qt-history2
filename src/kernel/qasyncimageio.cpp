@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#46 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -23,10 +23,27 @@
 **
 *****************************************************************************/
 
+#include "qasyncimageio.h"
 #include "qpainter.h"
 #include "qlist.h"
-#include "qasyncimageio.h"
+#include "qt_gif.h"
 #include <stdlib.h>
+
+
+/*!
+  Returns TRUE if Qt was compiled with built-in GIF reading support,
+  otherwise FALSE.
+*/
+
+bool qt_builtin_gif_reader()
+{
+#if defined(QT_BUILTIN_GIF_READER)
+    return TRUE;
+#else
+    return FALSE;
+#endif
+}
+
 
 /*!
   \class QImageConsumer qasyncimageio.h
