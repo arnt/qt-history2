@@ -1928,6 +1928,7 @@ void QComboBox::setListBox( QListBox * newListBox )
     newListBox->reparent( this, WType_Popup, QPoint(0,0), FALSE );
     d->setListBox( newListBox );
     d->listBox()->setFont( font() );
+    d->listBox()->setPalette( palette() );
     d->listBox()->setVScrollBarMode(QScrollView::AlwaysOff);
     d->listBox()->setHScrollBarMode(QScrollView::AlwaysOff);
     d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
