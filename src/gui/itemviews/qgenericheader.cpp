@@ -647,7 +647,7 @@ void QGenericHeader::resizeSection(int section, int size)
     }
 
     bool reverse = QApplication::reverseLayout();
-    int pos = sectionPosition(section) + offset() - (reverse ? size : 0);
+    int pos = sectionPosition(section) - offset() - (reverse ? size : 0);
     QRect r;
     if (orientation() == Horizontal)
         r = QRect(pos, 0, width() - pos, height());
