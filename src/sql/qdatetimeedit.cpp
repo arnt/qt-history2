@@ -323,7 +323,7 @@ void QDateEdit::setDate( const QDate & d )
  */
 QDate QDateEdit::date() const
 {
-    fixup();
+    ((QDateEdit *) this)->fixup(); // Fix invalid dates
     return QDate( ed[0]->text().toInt(), ed[1]->text().toInt(),
 		  ed[2]->text().toInt() );
 }
@@ -335,7 +335,6 @@ QDate QDateEdit::date() const
 */
 void QDateEdit::fixup()
 {
-    int i = 1;
     int yy, mm, dd;
 
     yy = ed[0]->text().toInt();
