@@ -484,6 +484,12 @@ QCString QFile::encodeName( const QString &fileName )
 }
 
 /*!
+  \enum QFile::EncoderFn
+
+  This typedef is used by QFile::setEncodingFunction().
+*/
+
+/*!
   Sets the function for encoding Unicode filenames.
   The default encodes in the locale-specific 8-bit encoding.
 
@@ -511,6 +517,12 @@ QString QFile::decodeName( const QCString &localFileName )
 {
     return (*decoder)(localFileName);
 }
+
+/*!
+  \enum QFile::DecoderFn
+
+  This typedef is used by QFile::setDecodingFunction().
+*/
 
 /*!
   Sets the function for decoding 8-bit filenames.
