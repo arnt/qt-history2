@@ -49,9 +49,9 @@ void Table::initTable()
     // read all the Qt source and header files into a list
     QStringList all;
     int i = 0;
-    QString qtdir( qInstallPath() );
+    QString srcdir( "../../../src/" );
     while ( dirs[ i ] ) {
-	QDir dir( qtdir + "/src/" + dirs[ i ] );
+	QDir dir( srcdir + dirs[ i ] );
 	QStringList lst = dir.entryList( "*.cpp; *.h" );
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    if ( ( *it ).contains( "moc" ) )
@@ -69,7 +69,7 @@ void Table::initTable()
     // insert the data into the table
     for ( QStringList::Iterator it = all.begin(); it != all.end(); ++it ) {
 	setText( i, 0, *it );
-	QFile f( qtdir + "/src/" + *it );
+	QFile f( srcdir + *it );
 	setText( i, 1, QString::number( (ulong)f.size() ) );
 	ComboItem *ci = new ComboItem( this, QTableItem::WhenCurrent );
 	setItem( i++, 2, ci );
