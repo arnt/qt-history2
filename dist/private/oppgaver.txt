@@ -7,6 +7,8 @@ Dokumentasjon:
     riktig bruk av X windows, eller hva som naa var riktig...
     brushe opp websidene
     dokumenter de siste noen-og-70-funksjonene
+    dokumenter eksakt hva som tegnes av f.eks. drawLine (begge endepunkter)
+    dok hvilke events som garanteres nå og da (f.eks. ved show()).
 
 Støttefunksjoner:
 -----------------
