@@ -70,9 +70,10 @@ public:
     virtual void wakeUp();
     virtual void flush();
 
-#ifdef Q_WS_WIN
     typedef bool(*ProcessEventHandler)(void *message);
     typedef bool(*EventFilter)(void *message, long *result);
+
+#ifdef Q_WS_WIN
     virtual void winProcessEvent(void *message);
     virtual bool winEventFilter(void *message, long *result);
 #endif
