@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#99 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -448,7 +448,8 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
 	killTimer( scrollTimer );
 	dragScrolling = FALSE;
     }
-    blinkTimer = startTimer( blinkTime );
+    if ( !blinkTimer )
+	blinkTimer = startTimer( blinkTime );
     cursorOn = TRUE;
     updateCell( cursorY, 0, FALSE );
 }
