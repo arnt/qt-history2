@@ -963,13 +963,6 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 */
 
 /*!
-    \fn QRectF::QRectF(const QPointF &topLeft, const QPointF &bottomRight)
-
-    Constructs a rectangle with \a topLeft as the top-left corner and
-    \a bottomRight as the bottom-right corner.
-*/
-
-/*!
     \fn QRectF::QRectF(const QPointF &topLeft, const QSizeF &size)
 
     Constructs a rectangle with \a topLeft as the top-left corner and

@@ -976,17 +976,24 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
-    \fn void QTableWidget::clicked(QTableWidgetItem *item, QMouseEvent* event)
+    \fn void QTableWidget::clicked(QTableWidgetItem *item, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
-    This signal is emitted when a mouse button is clicked. The \a item
-    may be 0 if the mouse was not clicked on an item.
+    This signal is emitted when a mouse button is clicked over an
+    \a item. The state of the mouse buttons is specified by \a button; the
+    \a modifiers reflect the state of the keyboard's modifier keys.
+
+    The item may be 0 if the mouse was not clicked on an item.
 */
 
 /*!
-    \fn void QTableWidget::doubleClicked(QTableWidgetItem *item, QMouseEvent *event);
+    \fn void QTableWidget::doubleClicked(QTableWidgetItem *item, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 
-    This signal is emitted when a mouse button is double clicked. The
-    \a item may be 0 if the mouse was not clicked on an item.
+    This signal is emitted when a mouse button is double clicked over an
+    specified \a item. The state of the mouse buttons is specified by
+    \a button; the \a modifiers reflect the state of the keyboard's
+    modifier keys.
+
+    The item may be 0 if the mouse was not clicked on an item.
 */
 
 /*!
@@ -1019,12 +1026,15 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
-    \fn void QTableWidget::itemEntered(QTableWidgetItem *item, QMouseEvent *event)
+    \fn void QTableWidget::itemEntered(QTableWidgetItem *item, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
     This signal is emitted when the mouse cursor enters an item. The
-    \a item is the item entered. This signal is only emitted when
-    mouseTracking is turned on, or when a mouse button is pressed
-    while moving into an item.
+    \a item is the item entered. The state of the mouse buttons is specified
+    by \a button; the \a modifiers reflect the state of the keyboard's
+    modifier keys.
+
+    This signal is only emitted when mouseTracking is turned on, or when a
+    mouse button is pressed while moving into an item.
 */
 
 /*!

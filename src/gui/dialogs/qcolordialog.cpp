@@ -1460,10 +1460,10 @@ QColorDialog::QColorDialog(QWidget* parent, bool modal) :
 /*!
     Pops up a modal color dialog, lets the user choose a color, and
     returns that color. The color is initially set to \a initial. The
-    dialog is a child of \a parent and is called \a name. It returns
-    an invalid (see QColor::isValid()) color if the user cancels the
-    dialog. All colors allocated by the dialog will be deallocated
-    before this function returns.
+    dialog is a child of \a parent. It returns an invalid (see
+    QColor::isValid()) color if the user cancels the dialog. All
+    colors allocated by the dialog will be deallocated before this
+    function returns.
 */
 
 QColor QColorDialog::getColor(const QColor& initial, QWidget *parent)
@@ -1488,8 +1488,7 @@ QColor QColorDialog::getColor(const QColor& initial, QWidget *parent)
 /*!
     Pops up a modal color dialog to allow the user to choose a color
     and an alpha channel (transparency) value. The color+alpha is
-    initially set to \a initial. The dialog is a child of \a parent
-    and called \a name.
+    initially set to \a initial. The dialog is a child of \a parent.
 
     If \a ok is non-null, \e *\a ok is set to true if the user clicked
     OK, and to false if the user clicked Cancel.

@@ -1015,8 +1015,7 @@ void QTableView::columnMoved(int, int oldIndex, int newIndex)
 }
 
 /*!
-    This slot is called to select the given \a row in accordance with
-    the given \a event.
+    Selects the given \a row in the table view.
 
     \sa selectColumn()
 */
@@ -1040,8 +1039,7 @@ void QTableView::selectRow(int row)
 }
 
 /*!
-    This slot is called to select the given \a column in accordance with
-    the given \a event.
+    Selects the given \a column in the table view.
 
     \sa selectRow()
 */

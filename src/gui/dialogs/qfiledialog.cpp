@@ -526,8 +526,8 @@ public:
 /*!
     \enum QFileDialog::AcceptMode
 
-    \value Open
-    \value Save
+    \value AcceptOpen
+    \value AcceptSave
 */
 
 /*!

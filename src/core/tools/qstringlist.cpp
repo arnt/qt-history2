@@ -158,12 +158,6 @@
 */
 
 /*!
-    \fn QStringList::QStringList(const char *str)
-
-    Constructs a string list that contains one string, \a str.
-*/
-
-/*!
     \fn QStringList::QStringList(const QStringList &other)
 
     Constructs a copy of \a other.

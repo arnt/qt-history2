@@ -814,8 +814,8 @@ QPixmap QMessageBox::standardIcon(Icon icon)
     \brief the current icon
 
     The icon currently used by the message box. Note that it's often
-    hard to draw one pixmap that looks appropriate in both Motif and
-    Windows GUI styles; you may want to draw two pixmaps.
+    hard to draw one pixmap that looks appropriate in all GUI styles;
+    you may want to supply a different pixmap for each platform.
 
     \sa icon
 */

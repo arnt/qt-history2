@@ -466,8 +466,8 @@ bool QProgressDialog::wasCanceled() const
 
 
 /*!
-  \property QProgressDialog::totalSteps
-  \brief the total number of steps
+  \property QProgressDialog::maximum
+  \brief the highest value represented by the progress bar
 
   The default is 0.
 */
@@ -483,8 +483,8 @@ void QProgressDialog::setMaximum(int maximum)
 }
 
 /*!
-  \property QProgressDialog::totalSteps
-  \brief the total number of steps
+  \property QProgressDialog::minimum
+  \brief the lowest value represented by the progress bar
 
   The default is 0.
 */
@@ -555,6 +555,10 @@ void QProgressDialog::cancel()
   \sa totalSteps
 */
 
+/*!
+    \property QProgressDialog::value
+    \brief the current value of the dialog's progress bar
+*/
 int QProgressDialog::value() const
 {
     return d->bar->value();
