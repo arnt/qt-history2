@@ -64,6 +64,8 @@ QAxObject::QAxObject( QObject *parent, const char *name )
 /*!
     Creates a QAxObject that wraps the COM object \a c. \a parent and
     \a name are propagated to the QWidget contructor.
+
+    \sa setControl()
 */
 QAxObject::QAxObject( const QString &c, QObject *parent, const char *name )
 : QObject( parent, name ? name : c.latin1() )
@@ -102,12 +104,18 @@ const char *QAxObject::className() const
 */
 bool QAxObject::initialize( IUnknown **ptr )
 {
-    QUuid uuid( control() );
-    if ( *ptr || uuid.isNull() )
+    if ( *ptr || control().isEmpty() )
 	return FALSE;
 
     *ptr = 0;
-    CoCreateInstance( uuid, 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
+
+    if (control().contains("/{")) {
+	HRESULT hres = initializeRemote(ptr);
+	if ( !SUCCEEDED(hres) )
+	    return FALSE;
+    } else {
+	CoCreateInstance( QUuid(control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
+    }
 
     return ptr != 0;
 }

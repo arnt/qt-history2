@@ -802,6 +802,12 @@ QAxBase::~QAxBase()
     ctrl->setControl( "Calendar Control 9.0" );
     \endcode
 
+    To initialize the control on a different machine use the following
+    syntax for \a c:
+    \code
+    <username>:<password>@server/{8E27C92B-1264-101C-8A2F-040224009C02}
+    \endcode
+
     The control's read function always returns the control's UUID.
 */
 bool QAxBase::setControl( const QString &c )
@@ -811,27 +817,30 @@ bool QAxBase::setControl( const QString &c )
 
     clear();
     ctrl = c;
-    QUuid uuid( ctrl );
-    if ( uuid.isNull() ) {
-	QSettings controls;
-	ctrl = controls.readEntry( "/Classes/" + c + "/CLSID/Default" );
-	if ( ctrl.isEmpty() ) {
-	    QStringList clsids = controls.subkeyList( "/Classes/CLSID" );
-	    for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
-		QString clsid = *it;
-		QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
-		if ( name == c ) {
-		    QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
-		    if ( subkeys.contains( "Control" ) || subkeys.contains( "Insertable" ) ) {
-			ctrl = clsid;
-			break;
+    // don't waste time for DCOM requests
+    if (ctrl.find("/{") != ctrl.length()-39) {
+	QUuid uuid( ctrl );
+	if ( uuid.isNull() ) {
+	    QSettings controls;
+	    ctrl = controls.readEntry( "/Classes/" + c + "/CLSID/Default" );
+	    if ( ctrl.isEmpty() ) {
+		QStringList clsids = controls.subkeyList( "/Classes/CLSID" );
+		for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
+		    QString clsid = *it;
+		    QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
+		    if ( name == c ) {
+			QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
+			if ( subkeys.contains( "Control" ) || subkeys.contains( "Insertable" ) ) {
+			    ctrl = clsid;
+			    break;
+			}
 		    }
 		}
 	    }
 	}
+	if ( ctrl.isEmpty() )
+	    ctrl = c;
     }
-    if ( ctrl.isEmpty() )
-	ctrl = c;
     moduleLock();
     if ( !initialize( &d->ptr ) )
 	moduleUnlock();
@@ -953,6 +962,82 @@ void QAxBase::clear()
     reference it again.
 */
 
+/*!
+    \internal
+
+    Creates the instance on a remote server, and returns the IUnknown interface
+    to the object in \a ptr.
+
+    The syntax expected in the control property is:
+
+    <username>:<password>@server/{12345678-1234-1234-1234-123412345678}
+    <username> can be domain/user, or only user
+*/
+int QAxBase::initializeRemote(IUnknown** ptr)
+{
+    int at = control().findRev('/');
+
+    QString server = control().left(at);
+    QString clsid = control().mid(at+1);
+
+    QString user;
+    QString domain;
+    QString passwd;
+
+    at = server.find('@');
+    if (at != -1) {
+	user = server.left(at);
+	server = server.mid(at+1);
+
+	at = user.find(':');
+	if (at != -1 ) {
+	    passwd = user.mid(at+1);
+	    user = user.left(at);
+	}
+	at = user.find('/');
+	if (at != -1 ) {
+	    domain = user.left(at);
+	    user = user.mid(at+1);
+	}
+    }
+    COAUTHIDENTITY authIdentity;
+    authIdentity.User = (ushort*)user.ucs2();
+    authIdentity.UserLength = user.length();
+    authIdentity.Domain = (ushort*)domain.ucs2();
+    authIdentity.DomainLength = domain.length();
+    authIdentity.Password = (ushort*)passwd.ucs2();
+    authIdentity.PasswordLength = passwd.length();
+    authIdentity.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
+
+    COAUTHINFO authInfo;
+    authInfo.dwAuthnSvc = RPC_C_AUTHN_WINNT;
+    authInfo.dwAuthzSvc = RPC_C_AUTHZ_NONE;
+    authInfo.pwszServerPrincName = 0;
+    authInfo.dwAuthnLevel = RPC_C_AUTHN_LEVEL_DEFAULT;
+    authInfo.dwImpersonationLevel = RPC_C_IMP_LEVEL_IMPERSONATE;
+    authInfo.pAuthIdentityData = &authIdentity;
+    authInfo.dwCapabilities = 0;
+
+    COSERVERINFO serverInfo;
+    serverInfo.dwReserved1 = 0;
+    serverInfo.dwReserved2 = 0;
+    serverInfo.pAuthInfo = &authInfo;
+    serverInfo.pwszName = (ushort*)server.ucs2();
+
+    IClassFactory *factory = 0;
+    HRESULT res = CoGetClassObject(QUuid(clsid), CLSCTX_REMOTE_SERVER, &serverInfo, IID_IClassFactory, (void**)&factory);
+    if (factory) {
+	factory->CreateInstance(0, IID_IUnknown, (void**)ptr);
+	factory->Release();
+    }
+#ifndef QT_NO_DEBUG
+      else {
+	qSystemWarning("initializeRemote Failed", res);
+    }
+#endif
+
+    return res;
+}
 
 /*!
     Requests the interface \a uuid from the COM object and sets the

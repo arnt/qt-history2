@@ -1349,6 +1349,8 @@ QAxWidget::QAxWidget( QWidget *parent, const char *name, WFlags f )
 /*!
     Creates an QAxWidget widget and initializes the ActiveX control \a c.
     \a parent, \a name and \a f are propagated to the QWidget contructor.
+
+    \sa setControl()
 */
 QAxWidget::QAxWidget( const QString &c, QWidget *parent, const char *name, WFlags f )
 : QWidget( parent, name ? name : c.latin1(), f ), container( 0 )
@@ -1385,10 +1387,17 @@ bool QAxWidget::initialize( IUnknown **ptr )
 	return FALSE;
 
     *ptr = 0;
+    HRESULT hres = S_FALSE;
 
-    HRESULT hres = CoCreateInstance( QUuid(control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
-    if ( !SUCCEEDED(hres) )
-	return FALSE;
+    if (control().contains("/{")) {
+	hres = initializeRemote(ptr);
+	if ( !SUCCEEDED(hres) )
+	    return FALSE;
+    } else {
+	hres = CoCreateInstance( QUuid(control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
+	if ( !SUCCEEDED(hres) )
+	    return FALSE;
+    }
 
     return createHostWindow( hres == S_FALSE );
 }

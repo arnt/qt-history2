@@ -97,6 +97,7 @@ public:
 
 protected:
     virtual bool initialize( IUnknown** ptr ) = 0;
+    int initializeRemote(IUnknown** ptr);
 
 private:
     QAxBasePrivate *d;
