@@ -250,7 +250,7 @@ void QAlphaWidget::render()
 		widget->hide();
 		widget->setWState( WState_ForceHide );
 		widget->clearWState( WState_Visible );
-	    } else {
+	    } else if ( duration ) {
 		BackgroundMode bgm = widget->backgroundMode();
 		QColor erc = widget->eraseColor();
 		const QPixmap *erp = widget->erasePixmap();
@@ -268,6 +268,9 @@ void QAlphaWidget::render()
 		} else if ( erp ) {
 		    widget->setErasePixmap( *erp );
 		}
+	    } else {
+		widget->clearWState( WState_Visible );
+		widget->show();
 	    }
 	}
 	q_blend = 0;
