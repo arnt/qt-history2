@@ -120,7 +120,7 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
 	offx = mp.x();
 	offy = mp.y();
     }
-    for(int i = 0; i < (int)rs.size(); i++) {
+    for(uint i = 0; i < rs.count(); i++) {
 	QRect srect(rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
 	// * == Completely inside the widget, - == intersects, ? == completely unrelated
 	qDebug("%c(%c) %d %d %d %d",
@@ -129,6 +129,7 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
 	       (!QRegion(w->clippedRegion() ^ srect).isEmpty() ? '*' : '-'),
 	       srect.x(), srect.y(), srect.width(), srect.height());
     }
+    qDebug("*****End debug..");
 }
 static inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool clean=FALSE) {
     debug_wndw_rgn(where + QString(" (rect)"), w,
@@ -227,14 +228,14 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 	if(ops & PC_Later)
 	   qDebug("Cannot use PC_NoPaint with PC_Later!");
 	if(erase) {
-#ifdef DEBUG_WNDW_RGN
+#ifdef DEBUG_WINDOW_RGN
 	    debug_wndw_rgn("**paint_children1", p, r, TRUE, TRUE);
 #endif
 	    p->erase(r);
 	}
     } else {
 	if(ops & PC_Now) {
-#ifdef DEBUG_WNDW_RGN
+#ifdef DEBUG_WINDOW_RGN
 	    debug_wndw_rgn("**paint_children2", p, r, TRUE, TRUE);
 #endif
 	    p->repaint(r, erase);
@@ -243,7 +244,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 	    if(ops & PC_Later); //do nothing
             else if(!p->testWState(QWidget::WState_BlockUpdates)) {
 		painted = TRUE;
-#ifdef DEBUG_WNDW_RGN
+#ifdef DEBUG_WINDOW_RGN
                 debug_wndw_rgn("**paint_children3", p, r, TRUE, TRUE);
 #endif
 		p->repaint(r, erase);
@@ -252,12 +253,12 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 		p->erase(r);
 	    }
 	    if(!painted) {
-#ifdef DEBUG_WNDW_RGN
+#ifdef DEBUG_WINDOW_RGN
                 debug_wndw_rgn("**paint_children4", p, r, TRUE, TRUE);
 #endif
 		p->update(r); //last try
 	    } else if(p->extra && p->extra->has_dirty_area) {
-#ifdef DEBUG_WNDW_RGN
+#ifdef DEBUG_WINDOW_RGN
                 debug_wndw_rgn("**paint_children5", p, r, TRUE, TRUE);
 #endif
 		qt_event_request_updates(p, r, TRUE);
@@ -1302,7 +1303,7 @@ void QWidget::update(int x, int y, int w, int h)
 	if(w && h) {
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
-#ifdef DEBUG_WNDW_RGN
+#ifdef DEBUG_WINDOW_RGN
 	    debug_wndw_rgn("update1", this, r, FALSE, TRUE);
 #endif
 	}
@@ -1313,7 +1314,7 @@ void QWidget::update(const QRegion &rgn)
 {
     if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isNull()) {
 	qt_event_request_updates(this, rgn);
-#ifdef DEBUG_WNDW_RGN
+#ifdef DEBUG_WINDOW_RGN
 	debug_wndw_rgn("update2", this, rgn, FALSE, TRUE);
 #endif
     }
@@ -2088,13 +2089,13 @@ void QWidget::propagateUpdates(bool update_rgn)
 	    return;
 	rgn.translate(-topLevelWidget()->geometry().x(),
 		      -topLevelWidget()->geometry().y());
-#ifdef DEBUG_WINDOW_RGNS
-	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn, TRUE);
-#endif
 	BeginUpdate((WindowPtr)hd);
     } else {
 	rgn = QRegion(rect());
     }
+#ifdef DEBUG_WINDOW_RGNS
+    debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn, TRUE);
+#endif
     qt_paint_children(this, rgn);
     if(update_rgn)
 	EndUpdate((WindowPtr)hd);
@@ -2123,16 +2124,6 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
     if(qApp->closingDown())
 	return;
-    if(!isTopLevel()) { //short circuit, there is nothing to dirty here..
-	int ox = x(), oy = y(), ow = width(), oh = height();
-	for(QWidget *par=this; (par = par->parentWidget(TRUE)); ) {
-	    if(ox + ow < 0 || oy + oh < 0 || ox > par->width() || oy > par->height())
-		return;
-	    ox += par->x();
-	    oy += par->y();
-	}
-    }
-
     if(dirty_myself && !wasDeleted) {
 	//dirty myself
 	if(extra) {
@@ -2153,6 +2144,15 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	}
     }
 
+    if(!isTopLevel()) { //short circuit, there is nothing to dirty here..
+	int ox = x(), oy = y(), ow = width(), oh = height();
+	for(QWidget *par=this; (par = par->parentWidget(TRUE)); ) {
+	    if(ox + ow < 0 || oy + oh < 0 || ox > par->width() || oy > par->height())
+		return;
+	    ox += par->x();
+	    oy += par->y();
+	}
+    }
     //handle the rest of the widgets
     const QPoint myp(posInWindow(this));
     QRect myr(myp.x(), myp.y(), width(), height());
