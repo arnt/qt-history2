@@ -790,7 +790,8 @@ function execute(command, stdin) {
     var runTime = Math.floor((Date().getTime() - start)/1000);
     if (runTime > 0)
 	print("...took %1 second(s)".arg(runTime));
-    if (Process.stderr.length > 0)
-	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(40)))
+    if (Process.stderr.length > 0 &&
+	Process.stderr.left(80).toLowerCase().find(/warning|error/) != -1)
+	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(80)))
     return error;
 }
