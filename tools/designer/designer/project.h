@@ -191,6 +191,7 @@ public:
     void removeObject( QObject *o );
     QObjectList objects() const;
     FormWindow *fakeFormFor( QObject *o ) const;
+    QObject *objectForFakeForm( FormWindow *fw ) const;
 
 signals:
     void projectModified();

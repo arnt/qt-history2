@@ -73,6 +73,8 @@ public:
 
     static void saveImageData( const QImage &img, QTextStream &ts, int indent );
     static void loadCustomWidgets( const QDomElement &e, Resource *r );
+    static void loadExtraSource( FormWindow *formwindow, const QString &currFileName,
+				 LanguageInterface *langIface, bool hasFunctions );
 
 private:
     void saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream &ts, int indent );
@@ -119,7 +121,6 @@ private:
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e, const QString &tagname = "pixmap" );
     void loadFunctions( const QDomElement &e ); // compatibility with early 3.0 betas
-    void loadExtraSource();
 
 private:
     MainWindow *mainwindow;

@@ -390,7 +390,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	MetaDataBase::setExportMacro( formwindow->mainContainer(), exportMacro );
     }
 
-    loadExtraSource();
+    loadExtraSource( formwindow, currFileName, langIface, hasFunctions );
 
     if ( mainwindow && formwindow )
 	mainwindow->insertFormWindow( formwindow );
@@ -1910,7 +1910,10 @@ void Resource::saveConnections( QTextStream &ts, int indent )
     LanguageInterface *iface = langIface;
     if ( iface && MetaDataBase::hasEvents( lang ) ) {
 	QObjectList *l = formwindow->queryList( "QWidget" );
-	l->append( formwindow );
+	if ( !formwindow->isFake() )
+	    l->append( formwindow );
+	else
+	    l->append( MainWindow::self->currProject()->objectForFakeForm( formwindow ) );
 	QPtrList<QAction> lst = formwindow->actionList();
 	for ( QAction *a = lst.first(); a; a = lst.next() )
 	    l->append( a );
@@ -2699,7 +2702,8 @@ void Resource::loadFunctions( const QDomElement &e )
 	
 }
 
-void Resource::loadExtraSource()
+void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileName,
+				LanguageInterface *langIface, bool hasFunctions )
 {
     QString lang = MainWindow::self->currProject()->language();
     LanguageInterface *iface = langIface;
@@ -2729,21 +2733,28 @@ void Resource::loadExtraSource()
 	  cit != connections.end(); ++cit ) {
 	QObject *sender  = 0;
 	QString name = (*cit).sender;
-	if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
-	    sender = ( (FormWindow*)toplevel )->mainContainer();
+	QObject *o = formwindow;
+	if ( formwindow->isFake() ) {
+	    o = MainWindow::self->currProject()->objectForFakeForm( formwindow );
+	    sender = o;
 	} else {
-	    if ( name == "this" )
-		name = toplevel->name();
-	    QObjectList *l = toplevel->queryList( 0, name, FALSE );
-	    if ( l ) {
-		if ( l->first() )
-		    sender = l->first();
-		delete l;
+	    if ( name == "this" || qstrcmp( formwindow->name(), name ) == 0 ) {
+		sender = ( (FormWindow*)formwindow )->mainContainer();
+	    } else {
+		if ( name == "this" )
+		    name = formwindow->name();
+		QObjectList *l = formwindow->queryList( 0, name, FALSE );
+		if ( l ) {
+		    if ( l->first() )
+			sender = l->first();
+		    delete l;
+		}
+		if ( !sender )
+		    sender = formwindow->findAction(  name );
 	    }
-	    if ( !sender )
-		sender = formwindow->findAction(  name );
 	}
-	MetaDataBase::setEventFunctions( sender, formwindow, lang, (*cit).signal,
+	
+	MetaDataBase::setEventFunctions( sender, o, lang, (*cit).signal,
 					 QStringList::split( ',', (*cit).slot ), FALSE );
     }
 

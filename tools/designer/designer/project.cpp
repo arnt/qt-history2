@@ -27,6 +27,7 @@
 #ifndef QT_NO_SQL
 #include "dbconnectionimpl.h"
 #endif
+#include "resource.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -383,8 +384,11 @@ void Project::parse()
 
     QStringList uifiles = parse_multiline_part( contents, "FORMS" );
     uifiles += parse_multiline_part( contents, "INTERFACES" ); // compatibility
-    for ( it = uifiles.begin(); it != uifiles.end(); ++it )
+    for ( it = uifiles.begin(); it != uifiles.end(); ++it ) {
+	if ( (*it).startsWith( "__APPOBJ" ) )
+	    continue;
 	(void) new FormFile( *it, FALSE, this );
+    }
 
 
     i = contents.find( "TEMPLATE" );
@@ -1174,14 +1178,17 @@ void Project::addObject( QObject *o )
     objs.append( o );
     MetaDataBase::addEntry( o );
     FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
-    ff->setFileName( "APPOBJ" + QString( o->name() ) + ".ui" );
+    ff->setFileName( "__APPOBJ" + QString( o->name() ) + ".ui" );
     FormWindow *fw = new FormWindow( ff, MainWindow::self,
 				     MainWindow::self->qWorkspace(), "qt_fakewindow" );
+    fakeForms.insert( (void*)o, fw );
+    if ( QFile::exists( ff->absFileName() ) )
+	Resource::loadExtraSource( fw, ff->absFileName(),
+				   MetaDataBase::languageInterface( language() ), FALSE );
     fw->setMainWindow( MainWindow::self );
     fw->setProject( this );
     fw->setGeometry( -100, -100, 50, 50 );
     fw->show();
-    fakeForms.insert( (void*)o, fw );
     connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 	     MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
     emit objectAdded( o );
@@ -1209,4 +1216,13 @@ QObjectList Project::objects() const
 FormWindow *Project::fakeFormFor( QObject *o ) const
 {
     return fakeForms.find( (void*)o );
+}
+
+QObject *Project::objectForFakeForm( FormWindow *fw ) const
+{
+    for ( QPtrDictIterator<FormWindow> it( fakeForms ); it.current(); ++it ) {
+	if ( it.current() == fw )
+	    return (QObject*)it.currentKey();
+    }
+    return 0;
 }
