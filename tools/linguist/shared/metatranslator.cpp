@@ -65,6 +65,8 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
 	source.truncate( 0 );
 	comment.truncate( 0 );
 	translation.truncate( 0 );
+
+	contextIsUtf8 = FALSE;
 	for ( int i = 0; i < atts.length(); i++ ) {
 	    if ( atts.qName(i) == QString("utf8") )
 		contextIsUtf8 = ( atts.value(i) == QString("true") );
@@ -76,7 +78,7 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
 	comment.truncate( 0 );
 	translation.truncate( 0 );
 
-	messageIsUtf8 = contextIsUtf8;
+	messageIsUtf8 = FALSE;
 	for ( int i = 0; i < atts.length(); i++ ) {
 	    if ( atts.qName(i) == QString("utf8") )
 		messageIsUtf8 = ( atts.value(i) == QString("true") );
