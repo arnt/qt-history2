@@ -1130,8 +1130,14 @@ HRESULT WINAPI QAxHostWindow::SetActiveObject( IOleInPlaceActiveObject *pActiveO
 
 void QAxHostWidget::show()
 {
-    if ( axhost && axhost->invisibleAtRuntime() )
+    if ( axhost && axhost->invisibleAtRuntime() ) {
 	QWidget::show();
+	QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
+	int w = width();
+	int h = height();
+	resize( w-1, h-1 );
+	resize( w, h );
+    }
 }
 
 bool QAxHostWindow::invisibleAtRuntime() const
@@ -1207,7 +1213,7 @@ bool QAxHostWidget::event( QEvent *e )
 {
     switch ( e->type() ) {
     case QEvent::Timer:
-	if ( ((QTimerEvent*)e)->timerId() == setFocusTimer ) {
+	if ( axhost && ((QTimerEvent*)e)->timerId() == setFocusTimer ) {
 	    killTimer( setFocusTimer );
 	    setFocusTimer = 0;
 	    RECT rcPos = { x(), y(), x()+sizeHint().width(), y()+sizeHint().height() };
