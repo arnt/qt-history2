@@ -56,7 +56,7 @@ static inline HFONT systemFont()
     return stock_sysfont;
 }
 
-QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool scale)
+QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
 {
     QString family =
 	(qt_winver & Qt::WV_NT_based)
@@ -549,6 +549,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 // returned TCHAR when !(defined(UNICODE) && !defined(Q_OS_WIN32BYTESWAP_))
 static inline TCHAR* tchar(const QChar *uc, int len)
 {
+    Q_UNUSED(len)
 #ifdef UNICODE
 
 #if defined(Q_OS_WIN32BYTESWAP_)
