@@ -4,10 +4,7 @@ The following classes are new:
     QChar
     QConstString
     QEucJpCodec
-    QFontCharSet
-    QFontDatabase
-    QFontFamily
-    QFontStyle
+    QFontDialog
     QGLayoutIterator
     QGrid
     QHBox
@@ -53,6 +50,7 @@ The following classes are new:
 Scheduled for 2.1:
     QDns
     QDial
+    QFontDatabase
     QSocket
     QWorkspace
     QColorDialog
