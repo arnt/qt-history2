@@ -924,7 +924,8 @@ void QAbstractButton::focusInEvent(QFocusEvent *e)
 void QAbstractButton::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QAbstractButton);
-    d->down = false;
+    if (e->reason() != QFocusEvent::Popup)
+        d->down = false;
     QWidget::focusOutEvent(e);
 }
 

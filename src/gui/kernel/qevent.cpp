@@ -636,7 +636,8 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
                          active or inactive.
     \value Popup         The application opened/closed a popup that
                          grabbed/released the keyboard focus.
-    \value Shortcut      A keyboard shortcut was input.
+    \value Shortcut           The user typed a label's buddy shortcut
+    \value MenuBar         The menu bar took focus.
     \value Other         Another reason, usually application-specific.
 
     See the \link focus.html keyboard focus overview \endlink for more

@@ -2571,15 +2571,13 @@ int QApplication::x11ProcessEvent(XEvent* event)
         keywidget = (QETWidget*)QWidget::keyboardGrabber();
         if (keywidget) {
             grabbed = true;
-        } else {
-            if (QApplicationPrivate::focus_widget)
+        } else if (!keywidget) {
+            if (inPopupMode()) // no focus widget, see if we have a popup
+                keywidget = (QETWidget*) (activePopupWidget()->focusWidget() ? activePopupWidget()->focusWidget() : activePopupWidget());
+            else if (QApplicationPrivate::focus_widget)
                 keywidget = (QETWidget*)QApplicationPrivate::focus_widget;
-            if (!keywidget) {
-                if (inPopupMode()) // no focus widget, see if we have a popup
-                    keywidget = (QETWidget*) activePopupWidget();
-                else if (widget)
-                    keywidget = (QETWidget*)widget->topLevelWidget();
-            }
+            else if (widget)
+                keywidget = (QETWidget*)widget->topLevelWidget();
         }
     }
 
@@ -3184,10 +3182,14 @@ void QApplication::openPopup(QWidget *popup)
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
     QFocusEvent::setReason(QFocusEvent::Popup);
-    if (popup->focusWidget())
+    if (popup->focusWidget()) {
         popup->focusWidget()->setFocus();
-    else
-        popup->setFocus();
+    } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
+        if (QWidget *fw = focusWidget()) {
+            QFocusEvent e(QEvent::FocusOut);
+            sendEvent(fw, &e);
+        }
+    }
     QFocusEvent::resetReason();
 }
 
@@ -3219,10 +3221,14 @@ void QApplication::closePopup(QWidget *popup)
         }
         if (QApplicationPrivate::active_window) {
             QFocusEvent::setReason(QFocusEvent::Popup);
-            if (QApplicationPrivate::active_window->focusWidget())
-                QApplicationPrivate::active_window->focusWidget()->setFocus();
-            else
-                QApplicationPrivate::active_window->setFocus();
+            if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
+                if (fw != focusWidget()) {
+                    fw->setFocus();
+                } else {
+                    QFocusEvent e(QEvent::FocusIn);
+                    sendEvent(fw, &e);
+                }
+            }
             QFocusEvent::resetReason();
         }
     } else {
@@ -3232,10 +3238,8 @@ void QApplication::closePopup(QWidget *popup)
         // the focus.
         QFocusEvent::setReason(QFocusEvent::Popup);
         QWidget* aw = QApplicationPrivate::popupWidgets->last();
-        if (aw->focusWidget())
-            aw->focusWidget()->setFocus();
-        else
-            aw->setFocus();
+        if (QWidget *fw = aw->focusWidget())
+            fw->setFocus();
         QFocusEvent::resetReason();
 
         // regrab the keyboard and mouse in case 'popup' lost the grab

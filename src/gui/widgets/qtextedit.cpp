@@ -364,7 +364,6 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
         viewport->setBackgroundRole(QPalette::Base);
         viewport->setAcceptDrops(true);
-        viewport->setFocusProxy(q);
         q->setFocusPolicy(Qt::WheelFocus);
     }
 
@@ -1548,7 +1547,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     p.setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
-    ctx.showCursor = (d->cursorOn && d->viewport->hasFocus() && isEnabled());
+    ctx.showCursor = (d->cursorOn && isEnabled());
     ctx.cursor = d->cursor;
     ctx.palette = palette();
     ctx.rect = r;
@@ -1902,36 +1901,22 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 void QTextEdit::focusInEvent(QFocusEvent *ev)
 {
     Q_D(QTextEdit);
-    if (QFocusEvent::reason() == QFocusEvent::ActiveWindow) {
-        // if we have a selection then we need to repaint, because (on windows)
-        // the palette for active and inactive windows can have different colors
-        // for selections
-        if (d->cursor.hasSelection())
-            d->viewport->update();
-
-        if (!d->readOnly)
-            d->setBlinkingCursorEnabled(true);
-    }
+    if (!d->readOnly)
+        d->setBlinkingCursorEnabled(true);
 
     QViewport::focusInEvent(ev);
 }
 
 /*! \reimp
 */
-void QTextEdit::focusOutEvent(QFocusEvent *ev)
+void QTextEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
-    if (QFocusEvent::reason() == QFocusEvent::ActiveWindow) {
-        // if we have a selection then we need to repaint, because (on windows)
-        // the palette for active and inactive windows can have different colors
-        // for selections
-        if (d->cursor.hasSelection())
-            d->viewport->update();
-
-        if (d->cursorBlinkTimer.isActive())
-            d->setBlinkingCursorEnabled(false);
-    }
-    QViewport::focusOutEvent(ev);
+    if (d->cursorBlinkTimer.isActive())
+        d->setBlinkingCursorEnabled(false);
+    if (e->reason() != QFocusEvent::Popup)
+        d->cursorOn = false;
+    QViewport::focusOutEvent(e);
 }
 
 /*! \reimp
@@ -1959,6 +1944,9 @@ void QTextEdit::changeEvent(QEvent *ev)
              !it.atEnd(); ++it)
             it.value()->invalidate();
         resizeEvent(0);
+    }  else if(ev->type() == QEvent::ActivationChange) {
+        if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
+            update();
     }
 }
 

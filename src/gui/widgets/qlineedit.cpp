@@ -1728,11 +1728,11 @@ QVariant QLineEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 /*!\reimp
 */
 
-void QLineEdit::focusInEvent(QFocusEvent*)
+void QLineEdit::focusInEvent(QFocusEvent *e)
 {
-    if (QFocusEvent::reason() == QFocusEvent::Tab ||
-         QFocusEvent::reason() == QFocusEvent::Backtab  ||
-         QFocusEvent::reason() == QFocusEvent::Shortcut)
+    if (e->reason() == QFocusEvent::Tab ||
+         e->reason() == QFocusEvent::Backtab  ||
+         e->reason() == QFocusEvent::Shortcut)
         d->maskData ? d->moveCursor(d->nextMaskBlank(0)) : selectAll();
     if (!d->cursorTimer) {
         int cft = QApplication::cursorFlashTime();
@@ -1752,16 +1752,16 @@ void QLineEdit::focusInEvent(QFocusEvent*)
 /*!\reimp
 */
 
-void QLineEdit::focusOutEvent(QFocusEvent*)
+void QLineEdit::focusOutEvent(QFocusEvent *e)
 {
-    if (QFocusEvent::reason() != QFocusEvent::ActiveWindow &&
-         QFocusEvent::reason() != QFocusEvent::Popup)
+    if (e->reason() != QFocusEvent::ActiveWindow &&
+         e->reason() != QFocusEvent::Popup)
         deselect();
     d->setCursorVisible(false);
     if (d->cursorTimer > 0)
         killTimer(d->cursorTimer);
     d->cursorTimer = 0;
-    if (QFocusEvent::reason() != QFocusEvent::Popup)
+    if (e->reason() != QFocusEvent::Popup)
         emit lostFocus();
 #ifdef Q_WS_MAC
     if(d->echoMode == Password || d->echoMode == NoEcho)
@@ -2036,7 +2036,6 @@ QMenu *QLineEdit::createPopupMenu()
 void QLineEdit::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::ActivationChange) {
-        //### remove me with WHighlightSelection attribute
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             update();
     } else if (ev->type() == QEvent::FontChange) {
