@@ -1222,7 +1222,8 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 	    else
 		mouseMoveEvent( &ne );
 	}
-	else if ( ((QMouseEvent*)e)->button() == LeftButton && e->type() == QEvent::MouseButtonDblClick ) {
+	else if ( (e->type() == QEvent::MouseButtonDblClick) &&
+		  ((QMouseEvent*)e)->button() == LeftButton ) {
 	    if ( imode )
 		emit doNormal();
 	    else
