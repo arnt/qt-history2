@@ -38,6 +38,7 @@
 #include "option.h"
 #include <stdlib.h>
 #include <qdir.h>
+#include <qglobal.h>
 
 QString Option::ui_ext;
 QString Option::h_ext;
@@ -48,7 +49,7 @@ QString Option::dir_sep;
 QString Option::moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
-#ifdef WIN32
+#if defined(_OS_WIN32_)
 Option::QMODE Option::mode = Option::WIN_MODE;
 #else
 Option::QMODE Option::mode = Option::UNIX_MODE;
@@ -57,6 +58,7 @@ bool Option::do_deps = TRUE;
 bool Option::do_cache = TRUE;
 int Option::debug_level = 0;
 
+QString Option::user_template;
 QString Option::specfile;
 QString Option::cachefile;
 QStringList Option::user_vars;
@@ -94,13 +96,15 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::do_cache = FALSE;
 	    } else if(opt == "mkcache") {
 		Option::cachefile = argv[++x];
+	    } else if(opt == "t" || opt == "template") {
+		Option::user_template = argv[++x];
 	    } else if(opt == "o" || opt == "output") {
 		QString var = argv[++x];
 		if(var == "-")
 		    continue;
 
 		Option::output.setName(var);
-		if(!Option::output.open(IO_WriteOnly)) {
+		if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
 		    fprintf(stderr, "Failure to open file: %s\n", var.latin1());
 		    return FALSE;
 		}
@@ -126,7 +130,7 @@ Option::parseCommandLine(int argc, char **argv)
 	}
     }
     if(!(Option::output.state() & IO_Open))
-	Option::output.open(IO_WriteOnly, stdout);
+	Option::output.open(IO_WriteOnly | IO_Translate, stdout);
     if(Option::cachefile.isNull() || Option::cachefile.isEmpty()) 
 	Option::cachefile = ".qmake.cache";
 

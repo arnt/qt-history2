@@ -58,6 +58,7 @@ struct Option
     static QMODE mode;
     static bool do_cache;
     static bool do_deps;
+    static QString user_template;
     static QStringList user_vars;
     static QString cachefile;
     static QString specfile;

@@ -48,6 +48,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "option.h"
+#include <qnamespace.h>
+
+#if defined(_OS_WIN32_)
+Qt::WindowsVersion qt_winver;
+#endif
 
 extern int line_count;
 extern "C" void yyerror(const char *foo)
@@ -81,20 +86,18 @@ main(int argc, char **argv)
 	else if(gen == "UNIX") {
 	    UnixMakefileGenerator mkfile(&proj);
 	    made = mkfile.write();
-	}
-	else if(gen == "DSP") {
-	    DspMakefileGenerator mkfile(&proj);
-	    made = mkfile.write();
-	}
-	else if(gen == "BMAKE") {
+	} else if(gen == "MSVC") {
+	    if(proj.variables()["TEMPLATE"].first().find(QRegExp("^vc.*")) != -1) {
+		DspMakefileGenerator mkfile(&proj);
+		made = mkfile.write();
+	    } else {
+		NmakeMakefileGenerator mkfile(&proj);
+		made = mkfile.write();
+	    }
+	} else if(gen == "BMAKE") {
 	    BorlandMakefileGenerator mkfile(&proj);
 	    made = mkfile.write();
-	}
-	else if(gen == "NMAKE") {
-	    NmakeMakefileGenerator mkfile(&proj);
-	    made = mkfile.write();
-	}
-	else {
+	} else {
 	    fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
 	    return 666;
 	}

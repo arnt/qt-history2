@@ -129,7 +129,7 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
     QStringList &varlist = place[var = var.stripWhiteSpace()]; /* varlist is the list in the symbol table */
     QStringList vallist = QStringList::split(' ', vals);  /* vallist is the broken up list of values */
     if(Option::debug_level)
-	printf("Project Parser: :%s: :%s: (%s)\n", var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
+	printf("Project Parser: %d :%s: :%s: (%s)\n", line_count, var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
 
     /* now do the operation */
     if(op == "=")
@@ -186,10 +186,10 @@ QMakeProject::read(const char *project)
 	    QString cachefile = Option::cachefile;
 	    if(cachefile.find(QDir::separator()) == -1) {
 		/* find the cache file, otherwise return false */
-		QString dir = QDir::currentDirPath();
+			QString dir = QDir::convertSeparators(QDir::currentDirPath());
 		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::cachefile))) {
 		    dir = dir.left(dir.findRev(QDir::separator()));
-		    if(dir.isEmpty()) {
+			if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
 			cachefile = "";
 			break;
 		    }
@@ -248,6 +248,14 @@ QMakeProject::read(const char *project)
 
     if(!read(pfile, vars))
 	return FALSE;
+
+    /* now let the user override the template from an option.. */
+    if(!Option::user_template.isEmpty()) {
+	if(Option::debug_level)
+	    fprintf(stderr, "Overriding TEMPLATE (%s) with: %s\n", vars["TEMPLATE"].first().latin1(),
+	    Option::user_template.latin1());
+	vars["TEMPLATE"].first() = Option::user_template;
+    }
 
     return TRUE;
 }

@@ -4,7 +4,7 @@
 # tmake configuration for Win32/Microsoft C++
 #
 
-MAKEFILE_GENERATOR      = DSP
+MAKEFILE_GENERATOR      = MSVC
 TEMPLATE		= app
 CONFIG			= qt warn_on release
 

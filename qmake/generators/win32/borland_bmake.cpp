@@ -162,8 +162,9 @@ BorlandMakefileGenerator::writeSubdirs(QTextStream &t)
     t << "all: $(SUBDIRS)" << endl << endl;
 
     QStringList &sdirs = project->variables()["SUBDIRS]"];
+	QStringList::Iterator sdirit;
 
-    for(QStringList::Iterator sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	t << (*sdirit) << ":";
 	if(project->variables()["TMAKE_NOFORCE"].isEmpty())
 	    t << " FORCE";
@@ -180,7 +181,7 @@ BorlandMakefileGenerator::writeSubdirs(QTextStream &t)
     t << endl << endl;
 
     t << "tmake_all:";
-    for(QStringList::Iterator sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) { 
+    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) { 
 	t << "\n\t" 
 	  << "cd " << (*sdirit) << "\n\t"
 	  << "$(TMAKE) " << (*sdirit) << ".pro -o $(MAKEFILE)" << "\n\t"
@@ -189,7 +190,7 @@ BorlandMakefileGenerator::writeSubdirs(QTextStream &t)
     t << endl << endl;
 
     t << "clean:";
-    for(QStringList::Iterator sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) { 
+    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) { 
 	t << "\n\t"
 	  << "cd " << (*sdirit) << "\n\t"
 	  << "$(MAKE) clean" << "\n\t"

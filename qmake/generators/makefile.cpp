@@ -494,6 +494,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeMocSrc(t, "UICDECLS");
     writeYaccSrc(t, "YACCSOURCES");
     writeLexSrc(t, "LEXSOURCES");
+	return TRUE;
 }
 
 
@@ -508,4 +509,5 @@ MakefileGenerator::writeHeader(QTextStream &t)
     t << "# Template: " << var("TEMPLATE") << endl;
     t << "#############################################################################" << endl;
     t << endl;
+	return TRUE;
 }
