@@ -305,12 +305,37 @@ QRect QRegion::boundingRect() const
     return QRect(r.left, r.top, (r.right - r.left), (r.bottom - r.top)); 
 }
 
+typedef QValueList<QRect> RectList;
+static OSStatus mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, void *myd)
+{
+    if(msg == kQDRegionToRectsMsgParse) {
+	RectList *rl = (RectList *)myd;
+	rl->append(QRect(rect->left, rect->top, rect->right - rect->left, 
+			 rect->bottom - rect->top));
+    }
+    return noErr;
+}
 
 QArray<QRect> QRegion::rects() const
 {
-    qDebug("I need to do this %s:%d", __FILE__, __LINE__);
-    QArray<QRect> a( (int)1 );
-    return a;
+    //get list
+    RectList rl;
+    OSStatus oss;
+    RegionToRectsUPP cbk = NewRegionToRectsUPP(mac_get_rgn_rect);
+    oss = QDRegionToRects(data->rgn, kQDParseRegionFromTopLeft, cbk, (void *)&rl);
+    DisposeRegionToRectsUPP(cbk);
+
+    //check for error
+    if(oss != noErr) 
+	return QArray<QRect>(0);
+
+    //turn list into array
+    QArray<QRect> ret(rl.count());
+    int cnt = 0;
+    for(RectList::Iterator it = rl.begin(); it != rl.end(); ++it) 
+	ret[cnt++] = (*it);
+
+    return ret; //done
 }
 
 void QRegion::setRects( const QRect *rects, int num )
