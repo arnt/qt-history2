@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#18 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#19 $
 **
 ** Definition of QFontMetrics class
 **
@@ -20,7 +20,6 @@
 class QFontMetrics
 {
 public:
-    QFontMetrics( const QPaintDevice * );
    ~QFontMetrics();
 
     int		ascent()	const;
@@ -39,14 +38,20 @@ public:
     int		strikeOutPos()	const;
     int		lineWidth()	const;
 
-    const QFont &font()		const	{ return f; }
+    const QFont &font()		const;
 
 private:
+    QFontMetrics( const QWidget * );
     QFontMetrics( const QPainter * );
-    static void reset( const QPaintDevice * );
-    QFont	f;
-    QPaintDevice *pdev;
-    friend class QPaintDevice;
+    static void reset( const void * );
+    struct {
+	bool widget;
+	union {
+	    QWidget  *w;
+	    QPainter *p;
+	};
+    }		data;
+    friend class QWidget;
     friend class QPainter;
 };
 
