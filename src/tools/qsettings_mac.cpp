@@ -54,21 +54,38 @@ QString cfstring2qstring(CFStringRef); //qglobal.cpp
   QSettings utility functions
  *****************************************************************************/
 #if 1
+#include "qurl.h"
 #define MACKEY_SEP '.'
 static void qt_mac_fix_key(QString &k) {
-    k.replace("//", "/");
-    if(k.length() && k[0] == '/')
+#ifdef DEBUG_SETTINGS_KEYS
+    QString old_k = k;
+#endif
+    while(k.length() && k[0] == '/')
 	k = k.mid(1);
+    k.replace("//", "/");
     for(int i=0; i<(int)k.length(); i++) {
 	if(k[i] == '/')
 	    k[i] = MACKEY_SEP;
-	else if(k[i] == MACKEY_SEP || k[i].isSpace())
-	    k[i] = '_';
     }
+    QUrl::encode(k);
+#ifdef DEBUG_SETTINGS_KEYS
+    qDebug("QSettings::fixed : %s -> %s", old_k.latin1(), k.latin1());
+#endif
+}
+static void qt_mac_unfix_key(QString &k) {
+#ifdef DEBUG_SETTINGS_KEYS
+    QString old_k = k;
+#endif
+    k.replace(".", "/");
+    QUrl::decode(k);
+#ifdef DEBUG_SETTINGS_KEYS
+    qDebug("QSettings::unFixed : %s -> %s", old_k.latin1(), k.latin1());
+#endif
 }
 #else
 #define qt_mac_fix_key(k) 
-#define MACKEY_SEP '/'
+#define qt_mac_unfix_key(k)
+#define MACKEY_SEP '.'
 #endif
 
 static void cleanup_qsettings()
@@ -183,7 +200,8 @@ CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
 	search_keys k((*it), key, "readEntry");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
-	    if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(), scopes[scope], kCFPreferencesAnyHost)) 
+	    if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(), 
+							      scopes[scope], kCFPreferencesAnyHost)) 
 		return ret;
 	}
     }
@@ -194,7 +212,7 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
 {
     QStringList ret;
     for(QStringList::Iterator it = searchPaths.fromLast();  it != searchPaths.end(); --it) {
-	search_keys k((*it), key, "subkeyList");
+	search_keys k((*it), key, "entryList");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
 	    if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope],
@@ -204,15 +222,22 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
 		    QString s = cfstring2qstring((CFStringRef)CFArrayGetValueAtIndex(cfa, i));
 		    if(s.left(qk.length()) == qk) {
 			s = s.mid(qk.length());
+			while(s[0] == MACKEY_SEP)
+			    s = s.mid(1);
 			int sep = s.find(MACKEY_SEP);
 			if(sep != -1) {
 			    if(subkey) {
 				s = s.left(sep);
-				if(!s.isEmpty() && ret.findIndex(s) == -1)
-				    ret << s;
+				if(!s.isEmpty() && ret.findIndex(s) == -1) {
+				    QString fix_s = s;
+				    qt_mac_unfix_key(fix_s);
+				    ret << fix_s;
+				}
 			    }
 			} else if(!subkey) {
-			    ret << s;
+			    QString fix_s = s;
+			    qt_mac_unfix_key(fix_s);
+			    ret << fix_s;
 			}
 		    }
 		}
