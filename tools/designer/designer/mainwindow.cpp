@@ -132,7 +132,6 @@ MainWindow::MainWindow( bool asClient )
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
     init_colors();
-    initScriptEngine();
 
     desInterface = new DesignerInterfaceImpl( this );
     desInterface->addRef();
@@ -3348,18 +3347,11 @@ QString MainWindow::whatsThisFrom( const QString &key )
     return menuHelpFile.mid( start, end - start + 1 );
 }
 
-void MainWindow::initScriptEngine()
-{
-#if defined(APP_SCRIPTING)
-    scriptEngine = new QuickEngine;
-    // #### add initial objects
-#endif
-}
-
 void MainWindow::addScriptObject( QObject *obj )
 {
 #if defined(APP_SCRIPTING)
-    scriptEngine->addObject( obj );
+    QuickEngine e;
+    e.addObject( obj );
 #else
     Q_UNUSED( obj )
 #endif

@@ -66,9 +66,6 @@ class ReplaceDialog;
 class GotoLineDialog;
 class SourceFile;
 class FormFile;
-#if defined(APP_SCRIPTING)
-class QuickEngine;
-#endif
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -174,9 +171,6 @@ public:
     QObject *findRealObject( QObject *o );
 
     void addScriptObject( QObject *obj );
-#if defined(APP_SCRIPTING)
-    QuickEngine *scriptInterpreter() const { return scriptEngine; }
-#endif
 
 public slots:
     void showProperties( QObject *w );
@@ -343,8 +337,6 @@ private:
 
     QString whatsThisFrom( const QString &key );
 
-    void initScriptEngine();
-
 private slots:
     void doSlotsChanged();
     bool openProjectSettings( Project *pro );
@@ -445,10 +437,6 @@ private:
     QGuardedPtr<QWidget> previewedForm;
     QPopupMenu *projectMenu;
     QString menuHelpFile;
-
-#if defined(APP_SCRIPTING)
-    QuickEngine *scriptEngine;
-#endif
 
 public:
     QString lastSaveFilter;
