@@ -48,7 +48,7 @@ class QWSVr41xxKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h );
+    QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h, const QString& );
     virtual ~QWSVr41xxKbPrivate();
 
     bool isOpen() { return buttonFD > 0; }
@@ -66,9 +66,9 @@ private:
     QWSVr41xxKeyboardHandler *handler;
 };
 
-QWSVr41xxKeyboardHandler::QWSVr41xxKeyboardHandler()
+QWSVr41xxKeyboardHandler::QWSVr41xxKeyboardHandler(const QString &device)
 {
-    d = new QWSVr41xxKbPrivate( this );
+    d = new QWSVr41xxKbPrivate( this, device );
 }
 
 QWSVr41xxKeyboardHandler::~QWSVr41xxKeyboardHandler()
@@ -76,9 +76,9 @@ QWSVr41xxKeyboardHandler::~QWSVr41xxKeyboardHandler()
     delete d;
 }
 
-QWSVr41xxKbPrivate::QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h ) : handler(h)
+QWSVr41xxKbPrivate::QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h, const QString &device ) : handler(h)
 {
-    terminalName = "/dev/buttons";
+    terminalName = device.isEmpty()?"/dev/buttons":device.latin1();
     buttonFD = -1;
     notifier = 0;
 

@@ -1,9 +1,7 @@
 /*****************************************************************************
 ** $Id$
 **
-** Implementation of QGfxRaster (unaccelerated graphics context) class for
-** Embedded Qt
-** Created : 940721
+** Implementation of transformed gfx raster.
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -200,6 +198,61 @@ QRect QTransformedScreen::mapFromDevice( const QRect &r, const QSize &s ) const
     return tr.normalize();
 }
 
+template<class T>
+static inline void rotateLoopTemplate(
+	uchar *src, int srcBytesPerLine,
+	uchar *dst, int dstBytesPerLine, 
+	int width, int height,
+	QTransformedScreen::Transformation trans, bool mapToDevice )
+{
+    int dstXAdd = 0;
+    int dstYAdd = 0;
+    int dstXOfs = 0;
+    int dstYOfs = 0;
+    int srcYAdd = srcBytesPerLine - width * sizeof(T);
+
+    //static int times = 0;
+    //printf("called %i times\n", times++ );
+
+    if ( !mapToDevice ) {
+	if ( trans == QTransformedScreen::Rot90 )
+	    trans = QTransformedScreen::Rot270;
+	else if ( trans == QTransformedScreen::Rot270 )
+	    trans = QTransformedScreen::Rot90;
+    }
+
+    switch ( trans ) {
+	case QTransformedScreen::Rot90:
+	    dstXOfs = 0;
+	    dstYOfs = width - 1;
+	    dstXAdd = -dstBytesPerLine;
+	    dstYAdd = 1 * sizeof(T) + width * dstBytesPerLine;
+	    break;
+	case QTransformedScreen::Rot270:
+	    dstXOfs = height - 1;
+	    dstYOfs = 0;
+	    dstXAdd = dstBytesPerLine;
+	    dstYAdd = -1 * sizeof(T) - width * dstBytesPerLine;
+	    break;
+	default:
+	    dstXOfs = width - 1;
+	    dstYOfs = height - 1;
+	    dstXAdd = -1 * sizeof(T);
+	    dstYAdd = -dstBytesPerLine + width * sizeof(T);
+	    break;
+    };
+
+    T *dstPtr = (T *)(dst + dstYOfs * dstBytesPerLine) + dstXOfs;
+    T *srcPtr = (T *)src;
+    for ( int y = 0; y < height; y++ ) {
+	for ( int x = 0; x < width; x++ ) {
+	    *dstPtr = *srcPtr++;
+	    dstPtr = (T *)((uchar*)dstPtr + dstXAdd); // add dstXAdd number of bytes
+	}
+	srcPtr = (T *)((uchar*)srcPtr + srcYAdd); // add srcYAdd number of bytes
+	dstPtr = (T *)((uchar*)dstPtr + dstYAdd); // add dstYAdd number of bytes
+    }
+}
 
 QImage QTransformedScreen::mapToDevice( const QImage &img ) const
 {
@@ -221,59 +274,59 @@ QImage QTransformedScreen::mapToDevice( const QImage &img ) const
 	rimg.colorTable()[i] = img.colorTable()[i];
     }
 
-    #define START_LOOP for ( int y = 0; y < ih; y++ ) { \
-			   for ( int x = 0; x < iw; x++ ) {
-    #define END_LOOP } }
+    // Optimized image rotation code for nice bit depths
+    int d = img.depth();
+    if ( d == 8 || d == 16 || d == 32 ) {
+	int srcBytesPerLine = img.bytesPerLine();
+	int dstBytesPerLine = rimg.bytesPerLine();
+	uchar *srcBits = img.bits();
+	uchar *dstBits = rimg.bits();
+	switch ( d ) {
+	    case 8:
+		rotateLoopTemplate<uchar>( srcBits, srcBytesPerLine, dstBits, dstBytesPerLine, iw, ih, trans, TRUE );
+		break;
+	    case 16:
+		rotateLoopTemplate<ushort>( srcBits, srcBytesPerLine, dstBits, dstBytesPerLine, iw, ih, trans, TRUE );
+		break;
+	    case 32:
+		rotateLoopTemplate<uint>( srcBits, srcBytesPerLine, dstBits, dstBytesPerLine, iw, ih, trans, TRUE );
+		break;
+	}
+	rimg.setAlphaBuffer( img.hasAlphaBuffer() );
+	rimg.setOffset( img.offset() );
+	return rimg;
+    }
 
-    int pixel;
+    // Slower fall back code for image rotation for 1-bit and other depths
+    #define ROTATE_LOOP( X, Y, VAL ) \
+		    for ( int y = 0; y < ih; y++ ) { \
+			for ( int x = 0; x < iw; x++ ) { \
+			    rimg.setPixel( X, Y, VAL ); \
+			} \
+		    } \
+		    break;
+
     if ( img.depth() > 8 ) {
 	switch ( trans ) {
 	    case Rot90:
-		START_LOOP
-		    pixel = img.pixel(x, y);
-		    rimg.setPixel( y, iw - x - 1, pixel );
-		END_LOOP
-		break;
-
+		ROTATE_LOOP( y, iw - x - 1, img.pixel(x, y) )
 	    case Rot270:
-		START_LOOP
-		    pixel = img.pixel(x, y);
-		    rimg.setPixel( ih - y - 1, x, pixel );
-		END_LOOP
-		break;
-
+		ROTATE_LOOP( ih - y - 1, x, img.pixel(x, y) );
 	    default:
-		START_LOOP
-		    pixel = img.pixel(x, y);
-		    rimg.setPixel( iw - x - 1, ih - y - 1, pixel );
-		END_LOOP
+		ROTATE_LOOP( iw - x - 1, ih - y - 1, img.pixel(x, y) );
 	}
     } else {
 	switch ( trans ) {
 	    case Rot90:
-		START_LOOP
-		    pixel = img.pixelIndex(x, y);
-		    rimg.setPixel( y, iw - x - 1, pixel );
-		END_LOOP
-		break;
-
+		ROTATE_LOOP( y, iw - x - 1, img.pixelIndex(x, y) );
 	    case Rot270:
-		START_LOOP
-		    pixel = img.pixelIndex(x, y);
-		    rimg.setPixel( ih - y - 1, x, pixel );
-		END_LOOP
-		break;
-
+		ROTATE_LOOP( ih - y - 1, x, img.pixelIndex(x, y) );
 	    default:
-		START_LOOP
-		    pixel = img.pixelIndex(x, y);
-		    rimg.setPixel( iw - x - 1, ih - y - 1, pixel );
-		END_LOOP
+		ROTATE_LOOP( iw - x - 1, ih - y - 1, img.pixelIndex(x, y) );
 	}
     }
 
-    #undef START_LOOP
-    #undef END_LOOP
+    #undef ROTATE_LOOP
 
     rimg.setAlphaBuffer( img.hasAlphaBuffer() );
     rimg.setOffset( img.offset() );
@@ -291,8 +344,8 @@ QImage QTransformedScreen::mapFromDevice( const QImage &img ) const
     int w = iw;
     int h = ih;
     if ( trans == Rot90 || trans == Rot270 ) {
-	w = img.height();
-	h = img.width();
+	w = ih;
+	h = iw;
     }
 
     QImage rimg( w, h, img.depth(), img.numColors(), img.bitOrder() );
@@ -301,55 +354,59 @@ QImage QTransformedScreen::mapFromDevice( const QImage &img ) const
 	rimg.colorTable()[i] = img.colorTable()[i];
     }
 
-    #define START_LOOP for ( int y = 0; y < ih; y++ ) { \
-			   for ( int x = 0; x < iw; x++ ) {
-    #define END_LOOP } }
+    // Optimized image rotation code for nice bit depths
+    int d = img.depth();
+    if ( d == 8 || d == 16 || d == 32 ) {
+	int srcBytesPerLine = img.bytesPerLine();
+	int dstBytesPerLine = rimg.bytesPerLine();
+	uchar *srcBits = img.bits();
+	uchar *dstBits = rimg.bits();
+	switch ( d ) {
+	    case 8:
+		rotateLoopTemplate<uchar>( srcBits, srcBytesPerLine, dstBits, dstBytesPerLine, iw, ih, trans, FALSE );
+		break;
+	    case 16:
+		rotateLoopTemplate<ushort>( srcBits, srcBytesPerLine, dstBits, dstBytesPerLine, iw, ih, trans, FALSE );
+		break;
+	    case 32:
+		rotateLoopTemplate<uint>( srcBits, srcBytesPerLine, dstBits, dstBytesPerLine, iw, ih, trans, FALSE );
+		break;
+	}
+	rimg.setAlphaBuffer( img.hasAlphaBuffer() );
+	rimg.setOffset( img.offset() );
+	return rimg;
+    }
 
-    int pixel;
+    // Slower fall back code for image rotation for 1-bit and other depths
+    #define ROTATE_LOOP( X, Y, VAL ) \
+		    for ( int y = 0; y < ih; y++ ) { \
+			for ( int x = 0; x < iw; x++ ) { \
+			    rimg.setPixel( X, Y, VAL ); \
+			} \
+		    } \
+		    break;
+
     if ( img.depth() > 8 ) {
 	switch ( trans ) {
 	    case Rot90:
-		START_LOOP
-		    pixel = img.pixel(x, y);
-		    rimg.setPixel( ih - y - 1, x, pixel );
-		END_LOOP
-		break;
+		ROTATE_LOOP( ih - y - 1, x, img.pixel(x, y) );
 	    case Rot270:
-		START_LOOP
-		    pixel = img.pixel(x, y);
-		    rimg.setPixel( y, iw - x - 1, pixel );
-		END_LOOP
-		break;
+		ROTATE_LOOP( y, iw - x - 1, img.pixel(x, y) )
 	    default:
-		START_LOOP
-		    pixel = img.pixel(x, y);
-		    rimg.setPixel( iw - x - 1, ih - y - 1, pixel );
-		END_LOOP
+		ROTATE_LOOP( iw - x - 1, ih - y - 1, img.pixel(x, y) );
 	}
     } else {
 	switch ( trans ) {
 	    case Rot90:
-		START_LOOP
-		    pixel = img.pixelIndex(x, y);
-		    rimg.setPixel( ih - y - 1, x, pixel );
-		END_LOOP
-		break;
+		ROTATE_LOOP( ih - y - 1, x, img.pixelIndex(x, y) );
 	    case Rot270:
-		START_LOOP
-		    pixel = img.pixelIndex(x, y);
-		    rimg.setPixel( y, iw - x - 1, pixel );
-		END_LOOP
-		break;
+		ROTATE_LOOP( y, iw - x - 1, img.pixelIndex(x, y) );
 	    default:
-		START_LOOP
-		    pixel = img.pixelIndex(x, y);
-		    rimg.setPixel( iw - x - 1, ih - y - 1, pixel );
-		END_LOOP
+		ROTATE_LOOP( iw - x - 1, ih - y - 1, img.pixelIndex(x, y) );
 	}
     }
 
-    #undef START_LOOP
-    #undef END_LOOP
+    #undef ROTATE_LOOP
 
     rimg.setAlphaBuffer( img.hasAlphaBuffer() );
     rimg.setOffset( img.offset() );

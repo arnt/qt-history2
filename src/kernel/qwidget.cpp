@@ -4506,6 +4506,12 @@ bool QWidget::event( QEvent *e )
 		own_palette = TRUE;
 		unsetPalette();
 	    }
+# ifdef Q_WS_QWS
+	    if ( isTopLevel() && topData()->qwsManager ) {
+		QRegion r( topData()->qwsManager->region() );
+		QApplication::postEvent(topData()->qwsManager, new QPaintEvent(r, FALSE) );
+	    }
+# endif
 	    break;
 #endif
 

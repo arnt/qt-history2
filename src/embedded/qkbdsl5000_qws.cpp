@@ -184,15 +184,16 @@ static const QWSKeyMap sl5000KeyMap[] = {
 
 static const int keyMSize = sizeof(sl5000KeyMap)/sizeof(QWSKeyMap)-1;
 
-QWSSL5000KeyboardHandler::QWSSL5000KeyboardHandler()
+QWSSL5000KeyboardHandler::QWSSL5000KeyboardHandler( const QString &device )
+    : QWSTtyKeyboardHandler( device )
 {
     meta = FALSE;
     fn = FALSE;
     numLock = FALSE;
 
     sharp_kbdctl_modifstat  st;
-    int dev = ::open("/dev/sharp_kbdctl", O_RDWR);
-    if( dev >= 0 ) {
+    int dev = ::open(device.isEmpty()?"/dev/sharp_kbdctl":device.latin1(), O_RDWR);
+    if (dev >= 0) {
 	memset(&st, 0, sizeof(st));
 	st.which = 3;
 	int ret = ioctl(dev, SHARP_KBDCTL_GETMODIFSTAT, (char*)&st);

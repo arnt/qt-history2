@@ -51,13 +51,19 @@ public:
     Q_UINT8 linestep;
     Q_UINT8 width;
     Q_UINT8 height;
-    Q_UINT8 padding;
+    Q_UINT8 flags;
 
     Q_INT8 bearingx;      // Difference from pen position to glyph's left bbox
     Q_UINT8 advance;       // Difference between pen positions
     Q_INT8 bearingy;      // Used for putting characters on baseline
 
     Q_INT8 reserved;      // Do not use
+
+    // Flags:
+    // RendererOwnsData - the renderer is responsible for glyph data
+    //                    memory deletion otherwise QGlyphTree must
+    //                    delete [] the data when the glyph is deleted.
+    enum Flags { RendererOwnsData=0x01 };
 };
 
 class QGlyph {

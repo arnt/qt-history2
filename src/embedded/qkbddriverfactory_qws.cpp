@@ -96,33 +96,33 @@ QKbdDriverFactoryPrivate::~QKbdDriverFactoryPrivate()
 
     \sa keys()
 */
-QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key )
+QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key, const QString& device )
 {
     QString driver = key.lower();
 #ifdef Q_OS_QNX6
     if ( driver == "qnx" || driver.isEmpty() )
-	return new QWSQnxKeyboardHandler();
+	return new QWSQnxKeyboardHandler( device );
 #endif
 #ifdef QT_QWS_SHARP
     if ( driver == "sl5000" || driver.isEmpty() )
-	return new QWSSL5000KeyboardHandler();
+	return new QWSSL5000KeyboardHandler( device );
 #endif
 #ifdef QT_QWS_YOPY
     if ( driver == "yopy" || driver.isEmpty() )
-	return new QWSYopyKeyboardHandler();
+	return new QWSYopyKeyboardHandler( device );
 #endif
 #ifdef QT_QWS_CASSIOPEIA
     if ( driver == "vr41xx" || driver.isEmpty() )
-	return new QWSVr41xxKeyboardHandler();
+	return new QWSVr41xxKeyboardHandler( device );
 #endif
 #ifndef QT_NO_QWS_KEYBOARD
 # ifndef QT_NO_QWS_KBDTTY
     if ( driver =="tty" || driver.isEmpty() )
-	return new QWSTtyKeyboardHandler();
+	return new QWSTtyKeyboardHandler( device );
 # endif
 # ifndef QT_NO_QWS_KBDUSB
     if ( driver == "usb" )
-	return new QWSUsbKeyboardHandler();
+	return new QWSUsbKeyboardHandler( device );
 # endif
 #endif
 
@@ -135,7 +135,7 @@ QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key )
     QKbdDriverFactoryPrivate::manager->queryInterface( driver, &iface );
 
     if ( iface )
-	return iface->create( driver );
+	return iface->create( driver, driver );
 #endif
 #endif
     return 0;

@@ -725,7 +725,6 @@ void QPainter::setClipRect( const QRect &r, CoordinateMode m )
     setClipRegion( rgn, m );
 }
 
-
 void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 {
 #if defined(QT_CHECK_STATE)

@@ -209,9 +209,10 @@ public:
 	if ( more ) more->clear();
 	int n = max.unicode()-min.unicode()+1;
 	for (int i=0; i<n; i++) {
-	    delete glyph[i].metrics;
-	    if ( glyph[i].data )
+	    if ( glyph[i].data && !(glyph[i].metrics->flags & QGlyphMetrics::RendererOwnsData) ) {
 		delete [] glyph[i].data;
+	    }
+	    delete glyph[i].metrics;
 	}
     }
 
@@ -576,12 +577,11 @@ public:
 	    memset(d+m->linestep*(m->height-1),255,m->linestep);
 	    for (int i=1; i<m->height-1; i++) {
 		int j=m->linestep*i;
+		memset(d+j,0,m->linestep);
 		if ( fm.flags & FM_SMOOTH ) {
-		    memset(d+j,31,m->linestep); // semi-transparent
 		    d[j]=255;
 		    d[j+m->linestep-1]=255;
 		} else {
-		    memset(d+j,0,m->linestep);
 		    d[j]=128;
 		    d[j+m->linestep-1]|=128>>((m->width+7)%8);
 		}
@@ -972,10 +972,7 @@ void QMemoryManager::savePrerenderedFont(FontID id, bool all)
 	    //qDebug("Rendering %s",fontFilename(mmf->def).ascii());
 	    for (int i=0; i<=mmf->renderer->maxchar; i++) {
 		QChar ch((ushort)i);
-		if (
-			/* XXX BUG IN CYBERBIT OR FREETYPE ??? */i!=9660&&/*XXX*/
-
-			mmf->renderer->inFont(ch) ) {
+		if ( mmf->renderer->inFont(ch) ) {
 		    mmf->tree->get(ch,mmf->renderer);
 		    if ( !(j++ & 0x3f)  ) {
 			// XXX keep it from becoming degenerate - should be in QGlyphTree

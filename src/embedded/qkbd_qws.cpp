@@ -38,6 +38,7 @@
 #include "qgfx_qws.h"
 #include "qtimer.h"
 
+
 class QWSKbPrivate : public QObject
 {
     Q_OBJECT
@@ -143,10 +144,27 @@ void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, int modifiers
 /*!
     Transforms an arrow key (\c Key_Left, \c Key_Up, \c Key_Right, \c
     Key_Down) to the orientation of the display.
-*/
+ */
 int QWSKeyboardHandler::transformDirKey(int key)
 {
-    int xf = qt_screen->transformOrientation();
+    static int dir_keyrot = -1;
+    if (dir_keyrot < 0) {
+	// get the rotation
+	char *kerot = getenv("QWS_CURSOR_ROTATION");
+	if (kerot) {
+	    if (strcmp(kerot, "90") == 0)
+		dir_keyrot = 1;
+	    else if (strcmp(kerot, "180") == 0)
+		dir_keyrot = 2;
+	    else if (strcmp(kerot, "270") == 0)
+		dir_keyrot = 3;
+	    else
+		dir_keyrot = 0;
+	} else {
+	    dir_keyrot = 0;
+	}
+    }
+    int xf = qt_screen->transformOrientation() + dir_keyrot;
     return (key-Qt::Key_Left+xf)%4+Qt::Key_Left;
 }
 

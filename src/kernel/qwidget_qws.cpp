@@ -53,6 +53,7 @@
 #include "qgfx_qws.h"
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"
+#include "qinputcontext_p.h"
 
 void qt_insert_sip( QWidget*, int, int );	// defined in qapplication_x11.cpp
 int  qt_sip_count( QWidget* );			// --- "" ---
@@ -151,8 +152,6 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     isSettingGeometry = FALSE;
     overlapping_children = -1;
 
-    static int sw = -1, sh = -1;		// screen size
-
     bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
     bool dialog = testWFlags(WType_Dialog);
@@ -175,10 +174,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    setWFlags(WStyle_StaysOnTop);
     }
 
-    if ( sw < 0 ) {				// get the screen size
-	sw = dpy->width();
-	sh = dpy->height();
-    }
+    int sw = dpy->width();
+    int sh = dpy->height();
 
     if ( dialog || popup || desktop ) {		// these are top-level, too
 	topLevel = TRUE;
@@ -455,11 +452,11 @@ void QWidget::setMicroFocusHint( int x, int y, int width, int height,
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 
-#ifndef QT_NO_QWS_IM
     if ( text ) {
-	qwsDisplay()->setMicroFocus( x, y + height );
+	QPoint p( x, y + height );
+	QPoint gp = mapToGlobal( p );
+	qwsDisplay()->setMicroFocus( gp.x(), gp.y());
     }
-#endif
 }
 
 
@@ -1739,6 +1736,13 @@ bool QWidget::isMaximized() const
     return testWState(WState_Maximized);
 }
 
+void QWidget::resetInputContext()
+{
+#ifndef QT_NO_QWS_IM
+    QInputContext::reset();
+#endif
+}
+
 void QWidget::updateFrameStrut() const
 {
     QWidget *that = (QWidget *) this;
@@ -1752,7 +1756,3 @@ void QWidget::updateFrameStrut() const
 }
 
 
-void QWidget::resetInputContext()
-{
-    QInputContext::reset();
-}

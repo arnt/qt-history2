@@ -5,7 +5,7 @@
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -283,6 +283,7 @@ public:
 #endif
     void repaintHierarchy(QRegion r);
     void repaintDecoration(QRegion r);
+    void updateDecoration();
 
     bool raiseOnClick()
     {
@@ -757,6 +758,8 @@ void QWSDisplay::Data::waitForRegionAck()
 	if ( csocket ) {
 	    csocket->flush();
 	    csocket->waitForMore(1000);
+	    if ( csocket->state() != QSocket::Connection )
+		return;
 	}
 #endif
     }
@@ -811,6 +814,7 @@ QWSDisplay::QWSDisplay()
 QWSDisplay::~QWSDisplay()
 {
     delete d;
+    delete lock;
 }
 
 QGfx * QWSDisplay::screenGfx()
@@ -1302,6 +1306,9 @@ static void init_display()
 {
     if ( qt_fbdpy ) return; // workaround server==client case
 
+    setlocale( LC_ALL, "" );		// use correct char set mapping
+    setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
+
     // Connect to FB server
 
     qt_fbdpy = new QWSDisplay();
@@ -1357,7 +1364,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 
     const char *display = getenv("QWS_DISPLAY");
     if ( display )
-	qws_display_spec = display;
+	qws_display_spec = strdup(display); // since we setenv later!
 
     //qws_savefonts = getenv("QWS_SAVEFONTS") != 0;
     //qws_shared_memory = getenv("QWS_NOSHARED") == 0;
@@ -1451,17 +1458,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	qt_appType = type;
 	qws_single_process = TRUE;
 	QWSServer::startup(flags);
-#if !defined (Q_OS_SOLARIS)
-	setenv( "QWS_DISPLAY", qws_display_spec, 0 );
-#else
-	// Solaris uses putenv (of course)
-	QString strEnv( "QWS_DISPLAY=" );
-	strEnv += qws_display_spec;
-	char p[strEnv.length() + 1];
-	strncpy( p, strEnv.latin1(), strEnv.length() );
-	putenv( p );
-#endif
-
+	setenv("QWS_DISPLAY", qws_display_spec, 0);
     }
 
     if( qt_is_gui_used )
@@ -1908,6 +1905,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     if ( event->type == QWSEvent::QCopMessage ) {
 	QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)event;
 	QCopChannel::sendLocally( e->channel, e->message, e->data );
+	return 0;
     }
 #endif
 
@@ -2217,6 +2215,19 @@ void QApplication::qwsSetDecoration( QWSDecoration *d )
     if ( d ) {
 	delete qws_decoration;
 	qws_decoration = d;
+	QWidgetList *widgets = topLevelWidgets();
+	QWidgetListIt it( *widgets );
+	QWidget *w;
+	while ( (w=it.current()) != 0 ) {
+	    ++it;
+	    if ( w->isVisible() && w != desktop() ) {
+		((QETWidget *)w)->updateDecoration();
+		((QETWidget *)w)->repaintDecoration(desktop()->rect());
+		if ( w->isMaximized() )
+		    w->showMaximized();
+	    }
+	}
+	delete widgets;
     }
 }
 #endif
@@ -2733,6 +2744,19 @@ void QETWidget::repaintDecoration(QRegion r)
 #endif
 }
 
+void QETWidget::updateDecoration()
+{
+#ifndef QT_NO_QWS_MANAGER
+    updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
+    QRegion r( req_region );
+    if ( extra && extra->topextra && extra->topextra->qwsManager ) {
+	QRegion wmr = extra->topextra->qwsManager->region();
+	wmr = qt_screen->mapToDevice( wmr, QSize(qt_screen->width(), qt_screen->height()) );
+	r += wmr;
+    }
+    qwsDisplay()->requestRegion(winId(), r);
+#endif
+}
 
 bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *event )
 {
@@ -2742,7 +2766,7 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	alloc_region_index = rgnMan->find( winId() );
 
 	if ( alloc_region_index < 0 ) {
-	    qFatal( "Cannot find region for window %ld", winId() );
+	    return FALSE;
 	}
     }
 

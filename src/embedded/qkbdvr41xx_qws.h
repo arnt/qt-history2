@@ -42,7 +42,7 @@ class QWSVr41xxKbPrivate;
 class QWSVr41xxKeyboardHandler : public QWSKeyboardHandler
 {
 public:
-    QWSVr41xxKeyboardHandler();
+    QWSVr41xxKeyboardHandler(const QString&);
     virtual ~QWSVr41xxKeyboardHandler();
 
 private:

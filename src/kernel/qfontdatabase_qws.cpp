@@ -95,7 +95,7 @@ void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf )
 	mystyle->weightDirty=FALSE;
 	family->addStyle(mystyle);
     }
-    if ( qdf->factory->name() == "FT" )
+    if ( qdf->factory->name() == "FT" || qdf->size == 0 )
 	mystyle->setSmoothlyScalable();
     else
 	mystyle->addPointSize( qdf->size/10 );

@@ -280,6 +280,22 @@ int QScreen::memoryNeeded(const QString&)
     return 0;
 }
 
+#ifndef QT_NO_QWS_SHADOWFB
+/*!
+    \internal
+*/
+void QScreen::haltUpdates()
+{
+}
+
+/*!
+    \internal
+*/
+void QScreen::resumeUpdates()
+{
+}
+#endif
+
 #ifdef QT_LOADABLE_MODULES
 
 // ### needs update after driver init changes

@@ -79,7 +79,7 @@ public:
     QStringList featureList() const;
 #endif
 
-    QWSKeyboardHandler* create( const QString& driver );
+    QWSKeyboardHandler* create( const QString& driver, const QString &device );
 
 private:
     QKbdDriverPlugin *plugin;
@@ -114,10 +114,9 @@ QStringList QKbdDriverPluginPrivate::featureList() const
 }
 #endif
 
-QWSKeyboardHandler* QKbdDriverPluginPrivate::create( const QString& driver )
+QWSKeyboardHandler* QKbdDriverPluginPrivate::create( const QString& driver, const QString &device )
 {
-    qDebug( "Loading plugin: %s", driver.latin1() );
-    return plugin->create( driver );
+    return plugin->create( driver, device );
 }
 
 /*!
@@ -148,9 +147,10 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
     \sa keys()
 */
 
-QWSKeyboardHandler* QKbdDriverPlugin::create( const QString& driver )
+QWSKeyboardHandler* QKbdDriverPlugin::create( const QString& driver, const QString &device )
 {
     Q_UNUSED( driver )
+    Q_UNUSED( device )
     return 0;
 }
 

@@ -14,7 +14,7 @@ public:
 #ifndef QT_NO_STRINGLIST
     static QStringList keys();
 #endif
-    static QWSKeyboardHandler *create( const QString& );
+    static QWSKeyboardHandler *create( const QString&, const QString& );
 };
 
 #endif //QKBDDRIVERFACTORY_H

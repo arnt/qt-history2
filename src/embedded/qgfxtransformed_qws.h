@@ -46,10 +46,13 @@
 #include "qwsgfx_qnx.h"
 #endif
 
-#define QT_TRANS_CURSOR_BASE    QScreenCursor
-#define QT_TRANS_GFX_BASE       QGfxRaster
-//#define QT_TRANS_CURSOR_BASE  QVFbScreenCursor
-//#define QT_TRANS_GFX_BASE     QGfxVFb
+#if QT_TRANS_SCREEN_BASE == QVFbScreen
+# define QT_TRANS_CURSOR_BASE   QVFbScreenCursor
+# define QT_TRANS_GFX_BASE      QGfxVFb
+#else
+# define QT_TRANS_CURSOR_BASE   QScreenCursor
+# define QT_TRANS_GFX_BASE      QGfxRaster
+#endif
 
 class QTransformedScreen : public QT_TRANS_SCREEN_BASE
 {

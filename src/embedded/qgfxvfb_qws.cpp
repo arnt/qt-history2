@@ -377,6 +377,11 @@ void QGfxVFb<depth,type>::tiledBlt( int x,int y,int w,int h )
 
 QVFbScreen::QVFbScreen( int display_id ) : QScreen( display_id )
 {
+    mouseHandler = 0;
+    keyboardHandler = 0;
+    shmrgn = 0;
+    hdr = 0;
+    data = 0;
 }
 
 QVFbScreen::~QVFbScreen()
@@ -425,9 +430,6 @@ bool QVFbScreen::connect( const QString &displaySpec )
     screencols = hdr->numcols;
     memcpy( screenclut, hdr->clut, sizeof( QRgb ) * screencols );
 
-    mouseHandler = 0;
-    keyboardHandler = 0;
-
     if ( qApp->type() == QApplication::GuiServer ) {
 	// We handle mouse and keyboard here
 	QWSServer::setDefaultMouse( "None" );
@@ -441,7 +443,8 @@ bool QVFbScreen::connect( const QString &displaySpec )
 
 void QVFbScreen::disconnect()
 {
-    shmdt( (char*)shmrgn );
+    if ( (int)shmrgn != -1 && shmrgn )
+	shmdt( (char*)shmrgn );
     if ( qApp->type() == QApplication::GuiServer ) {
 	delete mouseHandler;
 	mouseHandler = 0;

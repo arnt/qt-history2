@@ -268,6 +268,26 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg,
     return TRUE;
 }
 
+class QWSServerSignalBridge : public QObject {
+  Q_OBJECT
+
+public:
+  void emitNewChannel(const QString& channel);
+  void emitRemovedChannel(const QString& channel);
+
+  signals:
+  void newChannel(const QString& channel);
+  void removedChannel(const QString& channel);
+};
+
+void QWSServerSignalBridge::emitNewChannel(const QString& channel){
+  emit newChannel(channel);
+}
+
+void QWSServerSignalBridge::emitRemovedChannel(const QString& channel) {
+  emit removedChannel(channel);
+}
+
 /*!
     \internal
     Server side: subscribe client \a cl on channel \a ch.
@@ -281,7 +301,15 @@ void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
     // do we need a new channel list ?
     QCopServerMap::Iterator it = qcopServerMap->find( ch );
     if ( it == qcopServerMap->end() )
-	it = qcopServerMap->insert( ch, QPtrList<QWSClient>() );
+      it = qcopServerMap->insert( ch, QList<QWSClient>() );
+    
+    // If this is the first client in the channel, announce the channel as being created.
+    if (it.data().count() == 0) {
+      QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
+      connect(qwsBridge, SIGNAL(newChannel(const QString&)), qwsServer, SIGNAL(newChannel(const QString&)));
+      qwsBridge->emitNewChannel(ch);
+      delete qwsBridge;
+    }
 
     it.data().append( cl );
 }
@@ -297,8 +325,18 @@ void QCopChannel::detach( const QWSClient *cl )
 	return;
 
     QCopServerMap::Iterator it = qcopServerMap->begin();
-    for ( ; it != qcopServerMap->end(); it++ )
+    for ( ; it != qcopServerMap->end(); it++ ) {
+      if (it.data().containsRef(cl)) {
 	it.data().removeRef( cl );
+	// If this was the last client in the channel, announce the channel as dead.
+	if (it.data().count() == 0) {
+	  QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
+	  connect(qwsBridge, SIGNAL(removedChannel(const QString&)), qwsServer, SIGNAL(removedChannel(const QString&)));
+	  qwsBridge->emitRemovedChannel(it.key());
+	  delete qwsBridge;
+	}
+      }
+    }
 }
 
 /*!
@@ -330,8 +368,14 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 	    if ( it != qcopServerMap->end() ) {
 		Q_ASSERT( it.data().contains( cl ) );
 		it.data().remove( cl );
-		if ( it.data().isEmpty() )
-		    qcopServerMap->remove( it );
+		if ( it.data().isEmpty() ) {
+		  // If this was the last client in the channel, announce the channel as dead
+		  QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
+		  connect(qwsBridge, SIGNAL(removedChannel(const QString&)), qwsServer, SIGNAL(removedChannel(const QString&)));
+		  qwsBridge->emitRemovedChannel(it.key());
+		  delete qwsBridge;
+		  qcopServerMap->remove( it );
+		}
 	    }
 	    return;
 	}
@@ -373,3 +417,6 @@ void QCopChannel::sendLocally( const QCString &ch, const QCString &msg,
 }
 
 #endif
+
+#include "qcopchannel_qws.moc"
+

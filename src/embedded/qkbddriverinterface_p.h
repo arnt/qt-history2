@@ -48,7 +48,7 @@ class QWSKeyboardHandler;
 
 struct Q_EXPORT QKbdDriverInterface : public QFeatureListInterface
 {
-    virtual QWSKeyboardHandler* create( const QString& driver ) = 0;
+    virtual QWSKeyboardHandler* create( const QString& driver, const QString& device ) = 0;
 };
 
 #endif // QT_NO_COMPONENT

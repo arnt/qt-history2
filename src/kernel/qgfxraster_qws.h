@@ -88,16 +88,7 @@
 #define QWS_NO_WRITE_PACKING
 #endif
 
-#if !defined(__i386__)
-#define QWS_PACKING_4BYTE
-#endif
-
-# ifdef QWS_PACKING_4BYTE
 typedef unsigned int PackType;
-# else
-typedef long long PackType;
-# endif
-
 
 
 #define GET_MASKED(rev) \

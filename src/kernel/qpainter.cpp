@@ -320,6 +320,8 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     On Qt/Mac, only \c CopyROP, \c OrROP, \c XorROP, \c NotAndROP,
     \c NotCopyROP, \c NotOrROP, \c NotXorROP, and \c AndROP are
     supported.
+
+    On Qt/Embedded, only \c CopyROP, \c XorROP, and \c NotROP are supported.
 */
 
 /*!

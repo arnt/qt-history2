@@ -62,7 +62,7 @@ class QWSYopyKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSYopyKbPrivate( QWSYopyKeyboardHandler *h );
+    QWSYopyKbPrivate( QWSYopyKeyboardHandler *h, const QString& );
     virtual ~QWSYopyKbPrivate();
 
     bool isOpen() { return buttonFD > 0; }
@@ -78,9 +78,9 @@ private:
     QWSYopyKeyboardHandler *handler;
 };
 
-QWSYopyKeyboardHandler::QWSYopyKeyboardHandler()
+QWSYopyKeyboardHandler::QWSYopyKeyboardHandler(const QString &device)
 {
-    d = new QWSYopyKbPrivate( this );
+    d = new QWSYopyKbPrivate( this, device );
 }
 
 QWSYopyKeyboardHandler::~QWSYopyKeyboardHandler()
@@ -88,9 +88,9 @@ QWSYopyKeyboardHandler::~QWSYopyKeyboardHandler()
     delete d;
 }
 
-QWSYopyKbPrivate::QWSYopyKbPrivate( QWSYopyKeyboardHandler *h ) : handler(h)
+QWSYopyKbPrivate::QWSYopyKbPrivate( QWSYopyKeyboardHandler *h, const QString &device ) : handler(h)
 {
-    terminalName = "/dev/tty1";
+    terminalName = device.isEmpty()?"/dev/tty1":device.latin1();
     buttonFD = -1;
     notifier = 0;
 

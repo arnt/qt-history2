@@ -113,7 +113,7 @@ class QWSTtyKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSTtyKbPrivate( QWSPC101KeyboardHandler * );
+    QWSTtyKbPrivate( QWSPC101KeyboardHandler *, const QString &device );
     ~QWSTtyKbPrivate();
 
 private slots:
@@ -124,9 +124,10 @@ private:
     struct termios origTermData;
 };
 
-QWSTtyKeyboardHandler::QWSTtyKeyboardHandler()
+QWSTtyKeyboardHandler::QWSTtyKeyboardHandler( const QString &device )
+    : QWSPC101KeyboardHandler( device )
 {
-    d = new QWSTtyKbPrivate( this );
+    d = new QWSTtyKbPrivate( this, device );
 }
 
 QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
@@ -159,9 +160,9 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
 }
 
 
-QWSTtyKbPrivate::QWSTtyKbPrivate( QWSPC101KeyboardHandler *h ) : handler(h)
+QWSTtyKbPrivate::QWSTtyKbPrivate( QWSPC101KeyboardHandler *h, const QString &device ) : handler(h)
 {
-    kbdFD = ::open("/dev/tty0", O_RDWR | O_NDELAY, 0);
+    kbdFD = ::open(device.isEmpty()?"/dev/tty0":device.latin1(), O_RDWR|O_NDELAY, 0);
 
     if ( kbdFD >= 0 ) {
 	QSocketNotifier *notifier;

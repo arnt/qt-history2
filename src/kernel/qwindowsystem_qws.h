@@ -195,13 +195,30 @@ public:
 			     bool autoRepeat);
     static void processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
 				bool autoRepeat);
+
 #ifndef QT_NO_QWS_IM
     enum IMState { IMStart, IMCompose, IMEnd };
 
-    void sendIMEvent( IMState state, QString txt, int cpos, int selLen );
+    void sendIMEvent( IMState state, const QString& txt, int cpos, int selLen );
 #endif
 
 #ifndef QT_NO_QWS_KEYBOARD    
+    typedef struct KeyMap {
+	int  key_code;
+	ushort unicode;
+	ushort shift_unicode;
+	ushort ctrl_unicode;
+    };
+
+    typedef struct KeyOverride {
+	ushort scan_code;
+	KeyMap map;
+    };
+
+    static const KeyMap *keyMap();
+
+    static void setOverrideKeys( const KeyOverride* );
+
     class KeyboardFilter
     {
     public:
@@ -210,12 +227,13 @@ public:
     };
 
     static void setKeyboardFilter( KeyboardFilter *f );
-#endif
+#endif    
 #ifndef QT_NO_QWS_IM
     static void setCurrentInputMethod( QWSInputMethod *im );
     static void resetInputMethod();
     static void setMicroFocus( int x, int y );
 #endif
+
     static void setDefaultMouse( const char * );
     static void setDefaultKeyboard( const char * );
     static void setMaxWindowRect(const QRect&);
@@ -274,9 +292,10 @@ signals:
     void windowEvent( QWSWindow *w, QWSServer::WindowEvent e );
 
 #ifndef QT_NO_COP
-    void newChannel( const QString& );
-#endif
+    void newChannel( const QString& channel);
+    void removedChannel(const QString& channel);
 
+#endif    
 private:
 #ifndef QT_NO_COP
     static void sendQCopEvent( QWSClient *c, const QCString &ch,
@@ -342,10 +361,10 @@ private:
     void invokeRepaintRegion( QWSRepaintRegionCommand *cmd, 
 			      QWSClient *client );
 #ifndef QT_NO_QWS_IM
-        void invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd, 
-				  QWSClient *client );
-        void invokeResetIM( const QWSResetIMCommand *cmd, 
-				  QWSClient *client );
+        void invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
+                                QWSClient *client );
+        void invokeResetIM( const QWSResetIMCommand *cmd,
+                                QWSClient *client );
 #endif
 
     QWSMouseHandler* newMouseHandler(const QString& spec);
@@ -371,6 +390,7 @@ private slots:
     void screenSaverTimeout();
 
 private:
+    void disconnectClient( QWSClient * );
     void screenSave(int level);
     void doClient( QWSClient * );
     typedef QMapIterator<int,QWSClient*> ClientIterator;
@@ -405,7 +425,7 @@ private:
     bool mouseGrabbing;
     int swidth, sheight, sdepth;
 #ifndef QT_NO_QWS_CURSOR
-    bool cursorNeedsUpdate;
+    bool haveviscurs;
     QWSCursor *cursor;	    // cursor currently shown
     QWSCursor *nextCursor;  // cursor to show once grabbing is off
 #endif
@@ -442,10 +462,14 @@ private:
 #ifndef QT_NO_COP
     QMap<QString, QPtrList<QWSClient> > channels;
 #endif
+#ifndef QT_NO_QWS_IM
+    bool microF;
+    int microX;
+    int microY;
+#endif
 };
 
 extern QWSServer *qwsServer; //there can be only one
-
 
 
 #ifndef QT_NO_QWS_IM
@@ -460,10 +484,18 @@ extern QWSServer *qwsServer; //there can be only one
 	virtual void setMicroFocus( int x, int y );
 	virtual void setFont( const QFont& );
     protected:
-	void sendIMEvent( QWSServer::IMState, QString txt, int cpos, int selLen = 0 );
-	void sendKeyEvent( int unicode, int keycode, int modifiers, 
-			    bool isPress, bool autoRepeat);
+	void sendIMEvent( QWSServer::IMState, const QString& txt, int cpos, int selLen = 0 );
+	//void sendKeyEvent( int unicode, int keycode, int modifiers, 
+	//		    bool isPress, bool autoRepeat);
     };
+
+inline void QWSInputMethod::sendIMEvent( QWSServer::IMState state, const QString &txt, int cpos, int selLen )
+{
+    qwsServer->sendIMEvent( state, txt, cpos, selLen );
+
+}
+
+
 #endif
 
 

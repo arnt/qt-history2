@@ -396,7 +396,8 @@ void QFontPrivate::load()
     QFontStruct* qfs = fontCache->find(k);
     if ( !qfs ) {
 	qfs = new QFontStruct(request);
-	fontCache->insert( k, qfs, 1 );
+	// make larger fonts cost a little more
+	fontCache->insert(k, qfs, 1+request.pointSize/80);
     }
     qfs->ref();
     if ( fin )

@@ -152,8 +152,13 @@ QLock::~QLock()
 #ifdef Q_NO_SEMAPHORE
     if(isValid()) {
 	close(data->id);
-	if( data->created )
+	if( data->created ) {
+	    if (data->id >= 0) {
+		semun arg; arg.val = 0;
+		semctl( data->id, 0, IPC_RMID, arg );
+	    }
 	    unlink( data->file );
+	}
     }
 #endif
     delete data;

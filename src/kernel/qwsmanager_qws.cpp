@@ -155,7 +155,7 @@ QWSDecoration::Region QWSManager::pointInRegion(const QPoint &p)
     QWSDecoration &dec = QApplication::qwsDecoration();
     QRect rect(managed->geometry());
 
-    for (int i = QWSDecoration::Title; i <= QWSDecoration::LastRegion; i++) {
+    for (int i = QWSDecoration::LastRegion; i >= QWSDecoration::Title; i--) {
 	if (dec.region(managed, rect, (QWSDecoration::Region)i).contains(p))
 	    return (QWSDecoration::Region)i;
     }
@@ -516,7 +516,10 @@ void QWSManager::minimize()
 
 void QWSManager::maximize()
 {
+    if ( normalSize.isNull() )
+	normalSize = managed->geometry();
     QApplication::qwsDecoration().maximize(managed);
+    maximizeBtn->setOn(TRUE);
 }
 
 void QWSManager::toggleMaximize()

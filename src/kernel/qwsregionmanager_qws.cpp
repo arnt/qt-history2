@@ -164,7 +164,8 @@ int QWSRegionManager::add( int id, QRegion region )
 	regHdr->maxRegions++;
 	if ( regHdr->maxRegions > QT_MAX_REGIONS ) {
 	    // What do we do?  Resize the shared memory?
-	    qFatal( "Too many client regions." );
+	    regHdr->maxRegions = QT_MAX_REGIONS;
+	    return -1;
 	}
 	regions.resize( regHdr->maxRegions );
     }

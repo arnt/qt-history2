@@ -49,7 +49,7 @@ typedef struct QWSKeyMap {
 class QWSPC101KeyboardHandler : public QWSKeyboardHandler
 {
 public:
-    QWSPC101KeyboardHandler();
+    QWSPC101KeyboardHandler(const QString&);
     virtual ~QWSPC101KeyboardHandler();
 
     virtual void doKey(uchar scancode);

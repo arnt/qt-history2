@@ -123,7 +123,16 @@ typedef void SetAltitudeF( const QWSChangeAltitudeCommand* );
 extern QPtrQueue<QWSCommand> *qt_get_server_queue();
 
 static QRect maxwindow_rect;
-static const char *defaultMouse = "Auto";
+static const char *defaultMouse =
+#if defined(QT_QWS_CASSIOPEIA) || defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX) || defined(QT_QWS_YOPY) || defined(QWS_CUSTOMTOUCHPANEL)
+    "TPanel"
+#else
+    "Auto"
+#endif
+#if defined(QT_QWS_CASSIOPEIA)
+    "/dev/tpanel"
+#endif
+    ;
 static const char *defaultKeyboard = "TTY";
 static int qws_keyModifiers = 0;
 
@@ -887,8 +896,20 @@ static void ignoreSignal( int )
 */
 
 /*!
-    Construct a QWSServer class with parent \a parent, called \a name
-    and flags \a flags.
+ \fn void QWSServer::newChannel(const QString& channel)
+
+  This signal is emitted when QCopChannel \a channel is created.
+*/
+
+/*!
+ \fn void QWSServer::removedChannel(const QString& channel)
+
+ This signal is emitted immediately after the QCopChannel \a channel is destroyed.
+ Note that a channel is not destroyed until all listeners have unregistered.
+*/
+
+/*!
+  Construct a QWSServer class.
 
     \warning This class is instantiated by QApplication for
     Qt/Embedded server processes. You should never construct this
@@ -928,7 +949,8 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
     keyboardGrabber = 0;
     keyboardGrabbing = FALSE;
 #ifndef QT_NO_QWS_CURSOR
-    cursorNeedsUpdate=FALSE;
+    haveviscurs = FALSE;
+    cursor = 0;
     nextCursor = 0;
 #endif
 
@@ -976,6 +998,9 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 
 #if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
     soundserver = new QWSSoundServer(this);
+#endif
+#ifndef QT_NO_QWS_IM
+    microF = FALSE;
 #endif
 }
 
@@ -1171,6 +1196,17 @@ void QWSServer::doClient()
     QWSClient* client = (QWSClient*)sender();
     doClient( client );
     active = FALSE;
+
+#ifndef QT_NO_QWS_IM
+    //### Avoid reentrancy problems when the IM tries to
+    //do top-level widget operations (eg. move()) as a response to 
+    // setMicroFocus()
+    //### I hope we can find a cleaner way to do this.
+    if ( microF && current_IM ) {
+      current_IM->setMicroFocus( microX, microY );
+      microF = FALSE;
+    }
+#endif
 }
 #endif
 
@@ -1265,7 +1301,13 @@ void QWSServer::doClient( QWSClient *client )
 	    invokeResetIM( (QWSResetIMCommand*)cs->command, cs->client );
 	    break;
 	case QWSCommand::SetMicroFocus:
-	    invokeSetMicroFocus( (QWSSetMicroFocusCommand*)cs->command, cs->client );
+	    //invokeSetMicroFocus( (QWSSetMicroFocusCommand*)cs->command, cs->client );
+	    {
+		QWSSetMicroFocusCommand *cmd = (QWSSetMicroFocusCommand*)cs->command;
+		microF = TRUE;
+		microX = cmd->simpleData.x;
+		microY = cmd->simpleData.y;
+	    }
 	    break;
 #endif
 	case QWSCommand::RepaintRegion:
@@ -1275,10 +1317,6 @@ void QWSServer::doClient( QWSClient *client )
 	}
 	delete cs->command;
 	delete cs;
-#ifndef QT_NO_QWS_CURSOR
-	if (cursorNeedsUpdate)
-	    showCursor();
-#endif
     }
 }
 
@@ -1619,15 +1657,7 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
 
 #ifndef QT_NO_QWS_IM
 
-/*!
-    \internal
-
-    Sends an input method event to the current client application.
-
-    The input method is in \a state, the input text in \a txt, the
-    cursor position in \a cpos and the selection length in \a selLen.
-*/
-void QWSServer::sendIMEvent( IMState state, QString txt, int cpos, int selLen )
+void QWSServer::sendIMEvent( IMState state, const QString& txt, int cpos, int selLen )
 {
     QWSIMEvent event;
 
@@ -1651,11 +1681,6 @@ void QWSServer::sendIMEvent( IMState state, QString txt, int cpos, int selLen )
 }
 
 
-/*!
-    \internal
-
-    Sets the current input method to \a im.
-*/
 void QWSServer::setCurrentInputMethod( QWSInputMethod *im )
 {
     current_IM = im;
@@ -1703,7 +1728,8 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, 0);
     if ( !changingw ) {
-	qWarning("Invalue window handle %08x",cmd->simpleData.windowid);
+	qWarning("Invalid window handle %08x",cmd->simpleData.windowid);
+	client->sendRegionModifyEvent( cmd->simpleData.windowid, QRegion(), TRUE );
 	return;
     }
     if ( !changingw->forClient(client) ) {
@@ -1734,6 +1760,7 @@ void QWSServer::invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *cl
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, 0);
     if ( !changingw ) {
 	qWarning("invokeRegionMove: Invalid window handle %d",cmd->simpleData.windowid);
+	client->sendRegionModifyEvent( cmd->simpleData.windowid, QRegion(), TRUE );
 	return;
     }
     if ( !changingw->forClient(client) ) {
@@ -1849,6 +1876,7 @@ void QWSServer::invokeSetAltitude( const QWSChangeAltitudeCommand *cmd,
     QWSWindow* changingw = findWindow(winId, 0);
     if ( !changingw ) {
 	qWarning("invokeSetAltitude: Invalid window handle %d", winId);
+	client->sendRegionModifyEvent( winId, QRegion(), TRUE );
 	return;
     }
 
@@ -1989,14 +2017,14 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
     }
     else
 	setCursor(curs);
-
-    cursorNeedsUpdate = TRUE;
 }
 #endif
 
 void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 {
     QWSWindow* win = findWindow(cmd->simpleData.windowid, 0);
+    if ( !win )
+	return;
 
     if ( cmd->simpleData.grab ) {
 	if ( !mouseGrabber || ( mouseGrabber->client() == client ) ) {
@@ -2011,6 +2039,8 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 void QWSServer::invokeGrabKeyboard( QWSGrabKeyboardCommand *cmd, QWSClient *client )
 {
     QWSWindow* win = findWindow(cmd->simpleData.windowid, 0);
+    if ( !win )
+	return;
 
     if ( cmd->simpleData.grab ) {
 	if ( !keyboardGrabber || ( keyboardGrabber->client() == client ) ) {
@@ -2035,8 +2065,9 @@ void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient * )
 void QWSServer::invokeRegisterChannel( QWSQCopRegisterChannelCommand *cmd,
 				       QWSClient *client )
 {
-    QCopChannel::registerChannel( cmd->channel, client );
-    emit newChannel( cmd->channel );
+  // QCopChannel will force us to emit the newChannel signal if this channel
+  // didn't already exist.
+  QCopChannel::registerChannel( cmd->channel, client );
 }
 
 void QWSServer::invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client )
@@ -2045,6 +2076,25 @@ void QWSServer::invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client )
 }
 
 #endif
+
+
+#ifndef QT_NO_QWS_IM
+void QWSServer::invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
+                                  QWSClient * )
+{
+    if ( current_IM )
+      current_IM->setMicroFocus( cmd->simpleData.x, cmd->simpleData.y );
+
+}
+
+void QWSServer::invokeResetIM( const QWSResetIMCommand *cmd,
+                             QWSClient * )
+{
+    if ( current_IM )
+      current_IM->reset();
+}
+#endif
+
 
 void QWSServer::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
 				    QWSClient * )
@@ -2055,29 +2105,16 @@ void QWSServer::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
 }
 
 
-#ifndef QT_NO_QWS_IM
-void QWSServer::invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
-				    QWSClient * )
-{
-    if ( current_IM )
-	current_IM->setMicroFocus( cmd->simpleData.x, cmd->simpleData.y );
-
-}
-
-void QWSServer::invokeResetIM( const QWSResetIMCommand *cmd,
-			       QWSClient * )
-{
-    if ( current_IM )
-	current_IM->reset(); 
-}
-#endif
-
-
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 {
     // Make a new window, put it on top.
     QWSWindow* w = new QWSWindow(id,client);
     int idx = rgnMan->add( id, QRegion() );
+    if ( idx < 0 ) {
+	qWarning( "Exceeded maximum top-level windows" );
+	disconnectClient( client );
+	return 0;
+    }
     w->setAllocationIndex( idx );
     // insert after "stays on top" windows
     QWSWindow *win = windows.first();
@@ -2385,13 +2422,28 @@ void QWSServer::openMouse()
     closeMouse();
     if ( mice == "None" )
 	return;
+    bool needviscurs = TRUE;
 #ifndef QT_NO_STRINGLIST
     QStringList mouse = QStringList::split(" ",mice);
     for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
-	(void)newMouseHandler(*m);
-    }
+	QString ms = *m;
 #else
-    (void)newMouseHandler(mice); //Assume only one
+    QString ms = mice; // } Assume only one
+    {
+#endif
+	QWSMouseHandler* h = newMouseHandler(ms);
+	/* XXX handle mouse cursor visibility sensibly
+	if ( !h->inherits("QCalibratedMouseHandler") )
+	    needviscurs = TRUE;
+	*/
+    }
+#ifndef QT_NO_QWS_CURSOR
+    if ( needviscurs != haveviscurs ) {
+	QWSCursor* c = cursor;
+	setCursor(QWSCursor::systemCursor(BlankCursor));
+	haveviscurs = needviscurs;
+	setCursor(c);
+    }
 #endif
 }
 
@@ -2464,7 +2516,17 @@ void QWSServer::openKeyboard()
 #ifndef QT_NO_STRINGLIST
     QStringList keyboard = QStringList::split(" ",keyboards);
     for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
-	QWSKeyboardHandler* kh = QKbdDriverFactory::create( *k );
+	QString spec = *k;
+	QString device;
+	QString type;
+	int colon=spec.find(':');
+	if ( colon>=0 ) {
+	    type = spec.left(colon-1);
+	    device = spec.mid(colon);
+	} else {
+	    type = spec;
+	}
+	QWSKeyboardHandler* kh = QKbdDriverFactory::create( type, device );
 	keyboardhandlers.append(kh);
     }
 #else
@@ -2499,7 +2561,13 @@ void QWSServer::request_focus( const QWSRequestFocusCommand *cmd )
 
 void QWSServer::request_region( int wid, QRegion region )
 {
+    QWSClient *serverClient = client[-1];
     QWSWindow* changingw = findWindow( wid, 0 );
+    if ( !changingw ) {
+	if ( !region.isEmpty() )
+	    serverClient->sendRegionModifyEvent( wid, QRegion(), TRUE );
+	return;
+    }
     if ( !region.isEmpty() )
 	changingw->setNeedAck( TRUE );
     bool isShow = !changingw->isVisible() && !region.isEmpty();
@@ -2856,6 +2924,126 @@ void QWSServer::screenSaverActivate(bool activate)
 	qwsServer->screenSaverWake();
 }
 
+void QWSServer::disconnectClient( QWSClient *c )
+{
+    QTimer::singleShot( 0, c, SLOT(closeHandler()) );
+}
+
+
+
+/*!
+  \class QWSInputMethod
+  \brief International input methods for Qt/Embedded
+
+  Subclass this to implement your own input method
+
+  An input methods consists of a keyboard filter and optionally a
+  graphical interface. The keyboard filter intercepts key events
+  from physical or virtual keyboards by implementing the filter()
+  function.
+
+  Use sendIMEvent() to send composition events. Composition starts
+  with the input method sending an \c IMStart event, followed by a number
+  of \c IMCompose events and ending with an \c IMEnd event or when the
+  virtual reset() function is called.
+
+  The functions setMicroFocus() and setFont() can be reimplemented to
+  receive more information about the state of the focus widget.
+
+
+  Use QWSServer::setCurrentInputMethod() to install an input method.
+
+ */
+
+/*!
+  Constructs a new input method
+*/
+
+QWSInputMethod::QWSInputMethod()
+{
+    
+}
+
+/*!
+  Destructs the input method uninstalling it if it is currently installed.
+ */
+QWSInputMethod::~QWSInputMethod()
+{
+    if ( current_IM == this )
+	current_IM = 0;
+}
+
+
+
+/*!
+  \fn bool filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
+
+  Must be implemented in subclasses to handle key input from physical
+  or virtual keyboards. Returning TRUE will block the event from
+  further processing.
+
+  All normal key events should be blocked while in compose mode
+  (between \c IMStart and \c IMEnd).
+
+  
+
+*/
+
+
+/*!
+  Implemented in subclasses to reset the state of the input method.
+*/
+
+void QWSInputMethod::reset()
+{
+    
+}
+
+
+/*!
+  \fn void QWSInputMethod::setMicroFocus( int x, int y )
+
+  Implemented in subclasses to handle microFocusHint changes in the
+  focus widget. \a x and \a y are the global coordinates of the 
+  
+*/
+
+void QWSInputMethod::setMicroFocus( int, int )
+{
+    
+}
+
+
+/*!
+  Implemented in subclasses to handle font changes in the focus widget.
+
+  This functionality is provided for future expansion; it is
+  not used in this version of Qt/Embedded.
+*/
+
+void QWSInputMethod::setFont( const QFont& )
+{
+    
+}
+
+
+/*!
+  \fn QWSInputMethod::sendIMEvent( QWSServer::IMState state, const QString &txt, int cpos, int selLen )
+
+  Causes a QIMEvent to be sent to the focus widget. \a state may be one of
+  \c QWSServer::IMStart, \c QWSServer::IMCompose and \c QWSServer::IMEnd.
+
+  \a txt is the text being composed (or the finished text if state is
+  \c IMEnd). \a cpos is the current cursor position.
+
+  If state is \c IMCompose,
+  \a selLen is the number of characters in the composition string (
+  starting at \a cpos ) that should be marked as selected by the
+  input widget receiving the event.
+*/
+
+
+
 /*!
     \fn  QWSWindow::QWSWindow(int i, QWSClient * client)
 
@@ -2942,77 +3130,3 @@ void QWSServer::screenSaverActivate(bool activate)
     \value Geometry The window has changed size or position.
 */
 
-
-
-/*!
-    \class QWSInputMethod
-    \brief The QWSInputMethod class provides international input
-    methods for Qt/Embedded.
-
-    Subclass this to implement your own input method.
-*/
-
-/*!
-    \internal
-*/
-
-QWSInputMethod::QWSInputMethod()
-{
-    
-}
-
-/*!
-    \internal
-*/
-
-QWSInputMethod::~QWSInputMethod()
-{
-    if ( current_IM == this )
-	current_IM = 0;
-}
-
-
-/*!
-
-*/
-
-void QWSInputMethod::reset()
-{
-    
-}
-
-
-/*!
-    \internal
-*/
-
-void QWSInputMethod::setMicroFocus( int, int )
-{
-    
-}
-
-
-/*!
-    \internal
-*/
-
-void QWSInputMethod::setFont( const QFont& )
-{
-    
-}
-
-
-/*!
-    \internal
-
-    Sends an input method event to the current client application.
-
-    The input method is in \a state, the input text in \a txt, the
-    cursor position in \a cpos and the selection length in \a selLen.
-*/
-
-void QWSInputMethod::sendIMEvent( QWSServer::IMState state, QString txt, int cpos, int selLen )
-{
-    qwsServer->sendIMEvent( state, txt, cpos, selLen );
-
-}

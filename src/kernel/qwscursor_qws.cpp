@@ -288,9 +288,8 @@ void QWSServer::initializeCursor()
 	systemCursorTable[i] = 0;
 
     // default cursor
-    cursor = QWSCursor::systemCursor(ArrowCursor);
-
-    setCursor(cursor);
+    cursor = 0;
+    setCursor(QWSCursor::systemCursor(ArrowCursor));
 #endif
     sendMouseEvent( QPoint(swidth/2, sheight/2), 0 );
 }
@@ -298,14 +297,18 @@ void QWSServer::initializeCursor()
 void QWSServer::setCursor(QWSCursor *curs)
 {
 #ifndef QT_NO_QWS_CURSOR
-    //if (cursor == curs)
-    //	return;
+    if (cursor == curs)
+    	return;
 
     cursor = curs;
 
-    qt_screencursor->set(cursor->image(),
-			 cursor->hotSpot().x(),
-			 cursor->hotSpot().y());
+    if ( !haveviscurs || !curs )
+	curs = QWSCursor::systemCursor(BlankCursor);
+
+    qt_screencursor->hide();
+    qt_screencursor->set(curs->image(),
+			 curs->hotSpot().x(),
+			 curs->hotSpot().y());
     qt_screencursor->show();
 #endif
 }
@@ -357,7 +360,7 @@ void QWSCursor::createSystemCursor( int id )
 	
 	case BlankCursor:
 	    systemCursorTable[BlankCursor] =
-		new QWSCursor(cur_blank_bits, cur_blank_bits, 16, 16, 0, 0);
+		new QWSCursor(0, 0, 0, 0, 0, 0);
 	    break;
 
 	// 20x20 cursors

@@ -158,7 +158,7 @@ static const int keyMSize = sizeof(pc101KeyM)/sizeof(QWSKeyMap)-1;
 // PC-101 type keyboards
 //
 
-QWSPC101KeyboardHandler::QWSPC101KeyboardHandler()
+QWSPC101KeyboardHandler::QWSPC101KeyboardHandler(const QString&)
 {
     shift = false;
     alt   = false;

@@ -44,7 +44,7 @@ class QWSUsbKbPrivate;
 class QWSUsbKeyboardHandler : public QWSPC101KeyboardHandler
 {
 public:
-    QWSUsbKeyboardHandler();
+    QWSUsbKeyboardHandler( const QString& );
     virtual ~QWSUsbKeyboardHandler();
 
 private:

@@ -59,6 +59,21 @@ typedef unsigned int __u32;
 // Pull this private function in from qglobal.cpp
 extern unsigned int qt_int_sqrt( unsigned int n );
 
+// VGA16 code does not compile on sparc
+#if defined(__sparc__) && !defined(QT_NO_QWS_VGA_16)
+#define QT_NO_QWS_VGA_16
+#endif
+
+#ifndef QT_NO_QWS_GFX_SPEED
+# define QWS_EXPERIMENTAL_FASTPATH
+# define GFX_INLINE inline
+#else
+# define GFX_INLINE
+#endif
+
+#if defined(QT_NO_QWS_GFX_SPEED)
+#define QWS_NO_WRITE_PACKING
+#endif
 
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
@@ -2266,7 +2281,6 @@ GFX_INLINE void QGfxRaster<depth,type>::calcPacking(
     int w = x2-x1+1;
 
 #ifndef QWS_NO_WRITE_PACKING
-# if defined(QWS_PACKING_4BYTE)
     if ( depth == 16 ) {
 	if ( w < 2 )
 	    goto unpacked;
@@ -2294,51 +2308,6 @@ GFX_INLINE void QGfxRaster<depth,type>::calcPacking(
     } else {
 	goto unpacked;
     }
-# else
-    if(depth==32) {
-	goto unpacked; // ### 32bpp packing doesn't work
-
-	if ( w < 2 )
-	    goto unpacked;
-
-	unsigned int * myptr=(unsigned int *)m;
-	frontadd=(((unsigned long)myptr)+(x1*4)) & 0x7;
-	backadd=(((unsigned long)myptr)+((x2+1)*4)) & 0x7;
-	if(frontadd)
-	    frontadd=(8-frontadd);
-	frontadd >>= 2;
-	backadd >>= 2;
-	count=( w-(frontadd+backadd) );
-	count >>= 1;
-    } else if ( depth == 16 ) {
-	if ( w < 4 )
-	    goto unpacked;
-
-	unsigned short int * myptr=(unsigned short int *)m;
-	frontadd=(((unsigned long)myptr)+(x1*2)) & 0x7;
-	backadd=(((unsigned long)myptr)+((x2+1)*2)) & 0x7;
-	if(frontadd)
-	    frontadd=(8-frontadd);
-	frontadd >>= 1;
-	backadd >>= 1;
-	count=( w-(frontadd+backadd) );
-	count >>= 2;
-    } else if(depth==8) {
-	// ### 8bpp packing doesn't work
-	unsigned char * myptr=(unsigned char *)m;
-	if (  w < 8 )
-	    goto unpacked;
-
-	frontadd=(((unsigned long)myptr)+(x1)) & 0x7;
-	backadd=(((unsigned long)myptr)+((x2+1))) & 0x7;
-	if(frontadd)
-	    frontadd=(8-frontadd);
-	count=( w-(frontadd+backadd) );
-	count >>= 3;
-    } else {
-	qDebug("Need packing for depth %d",depth);
-	goto unpacked;
-    }
 
     if(count<0)
 	count=0;
@@ -2347,7 +2316,6 @@ GFX_INLINE void QGfxRaster<depth,type>::calcPacking(
     if(backadd<0)
 	backadd=0;
     return;
-# endif
 #endif
 
 unpacked:
@@ -3225,27 +3193,24 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 
 	    myptr+=x1;
 
-	    PackType put;
-
-# ifdef QWS_PACKING_4BYTE
-	    put = pixel | ( pixel << 16 );
-# else
-	    unsigned short int * tmp=(unsigned short int *)&put;
-	    *tmp=pixel;
-	    *(tmp+1)=pixel;
-	    *(tmp+2)=pixel;
-	    *(tmp+3)=pixel;
-# endif
+	    PackType put = pixel | ( pixel << 16 );
 
 	    while ( frontadd-- )
 		*(myptr++)=pixel;
-	    while ( count-- ) {
-		*((PackType *)myptr) = put;
-# ifdef QWS_PACKING_4BYTE
-		myptr += 2;
-# else
-		myptr += 4;
-# endif
+	    // Duffs device.
+	    unsigned short *end = myptr + count*2;
+	    switch(count%8){
+		case 0:
+		    while ( myptr != end ) {
+			*((PackType *)myptr) = put; ((PackType *)myptr)++;
+		case 7: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		case 6: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		case 5: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		case 4: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		case 3: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		case 2: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		case 1: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    }
 	    }
 	    while ( backadd-- )
 		*(myptr++)=pixel;
@@ -3476,19 +3441,19 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	}
 	if(!ismasking) {
 #ifdef QWS_NO_WRITE_PACKING
-	  while ( w-- ) {
-	    if(myrop==XorROP) {
-	      *(myptr)^=get_value_16(srcdepth,&srcdata);
-	      myptr++;
-	    } else if(myrop==NotROP) {
-	      *(myptr)=~(*myptr);
-	      myptr++;
-	    } else {
-	      *(myptr++)=get_value_16(srcdepth,&srcdata);
+	    while ( w-- ) {
+		if(myrop==XorROP) {
+		    *(myptr)^=get_value_16(srcdepth,&srcdata);
+		    myptr++;
+		} else if(myrop==NotROP) {
+		    *(myptr)=~(*myptr);
+		    myptr++;
+		} else {
+		    *(myptr++)=get_value_16(srcdepth,&srcdata);
+		}
 	    }
-	  }
 #else
-	    // 64-bit writes
+	    // 32-bit writes
 	    int frontadd;
 	    int backadd;
 	    int count;
@@ -3497,170 +3462,160 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 
 	    PackType dput;
-# ifndef QWS_PACKING_4BYTE
-	    unsigned short int * fun;
-	    fun=(unsigned short int *)&dput;
-# endif
-
-	    while ( frontadd-- ) {
-	      if(myrop==XorROP) {
+	    if(myrop==XorROP) {
+		while ( frontadd-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(is_screen_gfx) {
-		      *((((unsigned long)myptr) & 0x1) ?
-			myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
-		  } else {
-#else
-		*(myptr)^=get_value_16(srcdepth,&srcdata);
+		    if(is_screen_gfx)
+			*((((unsigned long)myptr) & 0x1) ?
+			    myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
+		    else
 #endif
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  }
-#endif
-		myptr++;
-	      } else if(myrop==NotROP) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(is_screen_gfx) {
-		      *((((unsigned long)myptr) & 0x1) ?
-			myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
-		  } else {
-#else
-		*(myptr)=~get_value_16(srcdepth,&srcdata);
-#endif
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  }
-#endif
-		myptr++;
-	      } else {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(is_screen_gfx) {
-		      *((((unsigned long)myptr) & 0x1) ?
-			myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
-		  } else {
-#else
-		*(myptr)=get_value_16(srcdepth,&srcdata);
-#endif
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  }
-#endif
-		myptr++;
-	      }
-	    }
-	    while ( count-- ) {
-# ifdef QWS_PACKING_4BYTE
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		if(is_screen_gfx) {
-		    dput = (get_value_16(srcdepth,&srcdata) << 16);
-		    dput |= get_value_16(srcdepth,&srcdata);
-		} else {
-#else
-		dput = get_value_16(srcdepth,&srcdata);
-		dput |= (get_value_16(srcdepth,&srcdata) << 16);
-#endif
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+			*(myptr)^=get_value_16(srcdepth,&srcdata);
+		    myptr++;
 		}
+		while ( count-- ) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		    if(is_screen_gfx) {
+			dput = (get_value_16(srcdepth,&srcdata) << 16);
+			dput |= get_value_16(srcdepth,&srcdata);
+		    } else
 #endif
-		if(myrop==XorROP) {
-		  *((PackType*)myptr) ^= dput;
-		} else if(myrop==NotROP) {
-                  *((PackType*)myptr) = ~*((PackType*)myptr);
-		} else {
-		  *((PackType*)myptr) = dput;
+		    {
+			dput = get_value_16(srcdepth,&srcdata);
+			dput |= (get_value_16(srcdepth,&srcdata) << 16);
+		    }
+		    *((PackType*)myptr) ^= dput;
+		    ((PackType*)myptr)++;
 		}
-		myptr += 2;
-# else
-		*fun = get_value_16(srcdepth,&srcdata);
-		*(fun+1) = get_value_16(srcdepth,&srcdata);
-		*(fun+2) = get_value_16(srcdepth,&srcdata);
-		*(fun+3) = get_value_16(srcdepth,&srcdata);
-		if(myrop==XorROP) {
-		  *((PackType*)myptr) ^= dput;
-		} else if(myrop==NotROP) {
-                  *((PackType*)myptr) = ~*((PackType*)myptr);
-		} else {
-		  *((PackType*)myptr) = dput;
+		while ( backadd-- ) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		    if(is_screen_gfx)
+			*((((unsigned long)myptr) & 0x1) ?
+			    myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
+		    else
+#endif
+			*(myptr)^=get_value_16(srcdepth,&srcdata);
+		    myptr++;
 		}
-		myptr += 4;
-# endif
-	    }
-	    while ( backadd-- ) {
-	      if(myrop==XorROP) {
+	    } else if(myrop==NotROP) {
+		while ( frontadd-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(is_screen_gfx) {
-		      *((((unsigned long)myptr) & 0x1) ?
-			myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
-		  } else {
-#else
-		*(myptr)^=get_value_16(srcdepth,&srcdata);
+		    if(is_screen_gfx)
+			*((((unsigned long)myptr) & 0x1) ?
+			    myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
+		    else
 #endif
+			*(myptr)=~get_value_16(srcdepth,&srcdata);
+		    myptr++;
+		}
+		while ( count-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  }
+		    if(is_screen_gfx) {
+			dput = (get_value_16(srcdepth,&srcdata) << 16);
+			dput |= get_value_16(srcdepth,&srcdata);
+		    } else
 #endif
-		myptr++;
-	      } else if(myrop==NotROP) {
+		    {
+			dput = get_value_16(srcdepth,&srcdata);
+			dput |= (get_value_16(srcdepth,&srcdata) << 16);
+		    }
+		    *((PackType*)myptr) = ~*((PackType*)myptr);
+		    ((PackType*)myptr)++;
+		}
+		while ( backadd-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(is_screen_gfx) {
-		      *((((unsigned long)myptr) & 0x1) ?
-			myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
-		  } else {
-#else
-		*(myptr)=~get_value_16(srcdepth,&srcdata);
+		    if (is_screen_gfx)
+			*((((unsigned long)myptr) & 0x1) ?
+			    myptr-1 : myptr+1)~=get_value_16(srcdepth,&srcdata);
+		    else
 #endif
+			*(myptr)=~get_value_16(srcdepth,&srcdata);
+		    myptr++;
+		}
+	    } else {
+		while ( frontadd-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  }
+		    if (is_screen_gfx)
+			*((((unsigned long)myptr) & 0x1) ?
+				myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
+		    else
 #endif
-		myptr++;
-	      } else {
+			*(myptr)=get_value_16(srcdepth,&srcdata);
+			myptr++;
+		}
+		while ( count-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(is_screen_gfx) {
-		      *((((unsigned long)myptr) & 0x1) ?
-			myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
-		  } else {
-#else
-		*(myptr)=get_value_16(srcdepth,&srcdata);
+		    if(is_screen_gfx) {
+			dput = (get_value_16(srcdepth,&srcdata) << 16);
+			dput |= get_value_16(srcdepth,&srcdata);
+		    } else
 #endif
+		    {
+			dput = get_value_16(srcdepth,&srcdata);
+			dput |= (get_value_16(srcdepth,&srcdata) << 16);
+		    }
+		    *((PackType*)myptr) = dput;
+		    ((PackType*)myptr)++;
+		}
+		while ( backadd-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  }
+		    if (is_screen_gfx)
+			*((((unsigned long)myptr) & 0x1) ?
+			    myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
+		    else
 #endif
-		myptr++;
-	      }
+			*(myptr)=get_value_16(srcdepth,&srcdata);
+		    myptr++;
+		}
 	    }
 #endif
 	} else {
 	    // Probably not worth trying to pack writes if there's a mask
 	    unsigned short int gv = srccol;
-	    while ( w-- ) {
-		if ( srctype==SourceImage )
-		    gv = get_value_16( srcdepth, &srcdata, reverse );
-		bool masked = TRUE;
-		GET_MASKED(reverse);
-		if ( !masked ) {
+	    if (myrop == XorROP || myrop == NotROP) {
+		while ( w-- ) {
+		    if ( srctype==SourceImage )
+			gv = get_value_16( srcdepth, &srcdata, reverse );
+		    bool masked = TRUE;
+		    GET_MASKED(reverse);
+		    if ( !masked ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if(is_screen_gfx) {
-			if(myrop==XorROP) {
-			    *((((unsigned long)myptr) & 0x1) ?
-			      myptr-1 : myptr+1)^=gv;
-			} else if(myrop==NotROP) {
-			    *((((unsigned long)myptr) & 0x1) ?
-			      myptr-1 : myptr+1)= ~(*((((unsigned long)myptr)
-	      			& 0x1) ? myptr-1 : myptr+1));
-			} else {
-			    *((((unsigned long)myptr) & 0x1) ?
-			      myptr-1 : myptr+1)=gv;
+			if(is_screen_gfx) {
+			    if(myrop==XorROP) {
+				*((((unsigned long)myptr) & 0x1) ?
+					myptr-1 : myptr+1)^=gv;
+			    } else {
+				*((((unsigned long)myptr) & 0x1) ?
+				    myptr-1 : myptr+1)= ~(*((((unsigned long)myptr)
+					& 0x1) ? myptr-1 : myptr+1));
+			    }
+			} else
+#endif
+			{
+			    if (myrop == XorROP)
+				*(myptr) ^= gv;
+			    else
+				*(myptr) = ~(*myptr);
 			}
-		    } else {
-#else
-		  if(myrop==XorROP) {
-		    *(myptr) ^= gv;
-		  } else if(myrop==NotROP) {
-		    *(myptr) = ~(*myptr);
-		  } else {
-		    *(myptr) = gv;
-		  }
-#endif
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		    }
-#endif
+		    myptr += inc;
 		}
-		myptr += inc;
+	    } else {
+		while ( w-- ) {
+		    if ( srctype==SourceImage )
+			gv = get_value_16( srcdepth, &srcdata, reverse );
+		    bool masked = TRUE;
+		    GET_MASKED(reverse);
+		    if ( !masked ) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+			if (is_screen_gfx)
+			    *((((unsigned long)myptr) & 0x1) ?  myptr-1 : myptr+1)=gv;
+			else
+#endif
+			    *(myptr) = gv;
+		    }
+		    myptr += inc;
+		}
 	    }
 	}
     } else if ( depth == 8 ) {
@@ -3686,7 +3641,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    }
 	  }
 #else
-	    // 64-bit writes
+	    // 32-bit writes
 	    int frontadd;
 	    int backadd;
 	    int count;
@@ -3694,9 +3649,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
 	    PackType dput;
-# ifndef QWS_PACKING_4BYTE
-	    unsigned char *fun = (unsigned char *)&dput;
-# endif
 	    while ( frontadd-- ) {
 	      if(myrop==XorROP) {
 		*(myptr)^=get_value_8(srcdepth,&srcdata);
@@ -3709,7 +3661,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	      }
 	    }
 	    while ( count-- ) {
-# ifdef QWS_PACKING_4BYTE
 		dput = get_value_8(srcdepth,&srcdata);
 		dput |= (get_value_8(srcdepth,&srcdata) << 8);
 		dput |= (get_value_8(srcdepth,&srcdata) << 16);
@@ -3722,24 +3673,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		  *((PackType*)myptr) = dput;
 		}
 		myptr += 4;
-# else
-		*(fun+0) = get_value_8(srcdepth,&srcdata);
-		*(fun+1) = get_value_8(srcdepth,&srcdata);
-		*(fun+2) = get_value_8(srcdepth,&srcdata);
-		*(fun+3) = get_value_8(srcdepth,&srcdata);
-		*(fun+4) = get_value_8(srcdepth,&srcdata);
-		*(fun+5) = get_value_8(srcdepth,&srcdata);
-		*(fun+6) = get_value_8(srcdepth,&srcdata);
-		*(fun+7) = get_value_8(srcdepth,&srcdata);
-		if(myrop==XorROP) {
-		  *((PackType*)myptr) ^= dput;
-		} else if(myrop==NotROP) {
-                  *((PackType*)myptr) = ~*((PackType*)myptr);
-		} else {
-		  *((PackType*)myptr) = dput;
-		}
-		myptr += 8;
-# endif
 	    }
 	    while ( backadd-- ) {
 	      if(myrop==XorROP) {
@@ -3911,45 +3844,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	unsigned char * avp=alphas;
 	int loopc;
 
-#ifdef QWS_NO_WRITE_PACKING
 	unsigned int *temppos = myptr+x1;
 	for ( int i = 0; i < w; i++ )
 	    *(alphaptr++) = *(temppos++);
-#else
-	int frontadd;
-	int backadd;
-	int count;
-	int loopc2;
-
-	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-
-	myptr+=x1;
-
-	unsigned int * temppos=myptr;
-	int myp=0;
-
-	PackType temp2;
-
-	unsigned int * cp;
-
-	for( loopc2=0;loopc2<frontadd;loopc2++ ) {
-	    alphabuf[myp++]=*temppos;
-	    temppos++;
-	}
-
-	for( loopc2=0;loopc2<count;loopc2++ ) {
-	    temp2=*((PackType *)temppos);
-	    cp=(unsigned int *)&temp2;
-	    alphabuf[myp++]=*cp;
-	    alphabuf[myp++]=*(cp+1);
-	    temppos+=2;
-	}
-
-	for( loopc2=0;loopc2<backadd;loopc2++ ) {
-	    alphabuf[myp++]=*temppos;
-	    temppos++;
-	}
-#endif
 
 	// Now blend with source data
 	unsigned char * srcptr=srcdata;
@@ -4000,7 +3897,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	// Now write it all out
 	alphaptr = (unsigned int *)alphabuf;
 
-#ifdef QWS_NO_WRITE_PACKING
 	myptr += x1;
 	while ( w-- ) {
 	    // NotROP really doesn't make sense for an alpha blt
@@ -4010,43 +3906,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    *(myptr++)=*(alphaptr++);
 	  }
 	}
-#else
-	PackType put;
-	unsigned int *fun = (unsigned int*)&put;
-
-	myptr=(unsigned int *)l;
-
-	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-
-	myptr+=x1;
-
-	for ( loopc2=0;loopc2<frontadd;loopc2++ ) {
-	  if(myrop==XorROP) {
-	    *(myptr++)^=(*(alphaptr++));
-	  } else {
-	    *(myptr++)=*(alphaptr++);
-	  }
-	}
-
-	for ( loopc2=0;loopc2<count;loopc2++ ) {
-	    *(fun) = *(alphaptr++);
-	    *(fun+1) = *(alphaptr++);
-	    if(myrop==XorROP) {
-	      *((PackType*)myptr) ^= put;
-	    } else {
-	      *((PackType*)myptr) = put;
-	    }
-	    myptr += 2;
-	}
-
-	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
-	  if(myrop==XorROP) {
-	    *(myptr++)^=(*(alphaptr++));
-	  } else {
-	    *(myptr++)=*(alphaptr++);
-	  }
-	}
-#endif
     } else if ( depth == 24 ) {
 	// First read in the destination line
 	unsigned char *myptr = l;
@@ -4110,7 +3969,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
         // First read in the destination line
 	unsigned short int *myptr = (unsigned short int *)l;
 	unsigned int *alphaptr = (unsigned int *)alphabuf;
-	unsigned char * avp=alphas;
 	int loopc;
 
 #ifdef QWS_NO_WRITE_PACKING
@@ -4118,47 +3976,32 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	for ( int i = 0; i < w; i++ )
 	    *(alphaptr++) = get_value_32(16,(unsigned char **)&temppos);
 #else
-	int frontadd;
-	int backadd;
-	int count;
-	int loopc2;
-
+	int frontadd, backadd, count;
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-
 	myptr+=x1;
 
-	int myp=0;
-	unsigned short int * temppos=myptr;
+	unsigned short int *temppos = myptr;
+
+	int loopc2;
+	for( loopc2=0;loopc2<frontadd;loopc2++ )
+	    *(alphaptr++)=get_value_32(16,(unsigned char **)&temppos);
 
 	PackType temp2;
-
 	unsigned char * cp;
-
-	for( loopc2=0;loopc2<frontadd;loopc2++ ) {
-	    alphabuf[myp++]=get_value_32(16,(unsigned char **)&temppos);
-	}
-
 	for( loopc2=0;loopc2<count;loopc2++ ) {
 	    temp2=*((PackType *)temppos);
 	    cp=(unsigned char *)&temp2;
-	    alphabuf[myp++]=get_value_32(16,&cp);
-	    alphabuf[myp++]=get_value_32(16,&cp);
-# ifdef QWS_PACKING_4BYTE
-	    temppos+=2;
-# else
-	    alphabuf[myp++]=get_value_32(16,&cp);
-	    alphabuf[myp++]=get_value_32(16,&cp);
-	    temppos+=4;
-#endif
+	    *(alphaptr++)=get_value_32(16,&cp);
+	    *(alphaptr++)=get_value_32(16,&cp);
+	    ((PackType *)temppos)++;
 	}
 
-	for( loopc2=0;loopc2<backadd;loopc2++ ) {
-	    alphabuf[myp++]=get_value_32(16,(unsigned char **)&temppos);
-	}
+	for( loopc2=0;loopc2<backadd;loopc2++ )
+	    *(alphaptr++)=get_value_32(16,(unsigned char **)&temppos);
 #endif
 
 	// Now blend with source data
-	unsigned char * srcptr=srcdata;
+	unsigned char *srcptr=srcdata;
 	unsigned int srcval;
 
 	if(srctype==SourceImage) {
@@ -4168,42 +4011,54 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    // SourcePen
 	    srcval=qt_conv16ToRgb(srccol);
 	}
-	alphaptr = (unsigned int *)alphabuf;
-	for(loopc=0;loopc<w;loopc++) {
-	    int r,g,b;
-	    if(srctype==SourceImage)
-		srcval=get_value_32(srcdepth,&srcptr);
 
-	    int av;
-	    if(alphatype==InlineAlpha) {
-		av = srcval >> 24;
-	    } else if(alphatype==SolidAlpha) {
-		av=calpha;
-	    } else {
-		av=*(avp++);
+	int astype = 3;
+	if ( srctype==SourceImage && alphatype==InlineAlpha )
+	    astype = 0;
+	else if ( srctype==SourceImage && alphatype != SolidAlpha )
+	    astype = 1;
+	else if ( alphatype != SolidAlpha )
+	    astype = 2;
+
+	int av = calpha;
+	alphaptr = (unsigned int *)alphabuf;
+	unsigned char *avp = alphas;
+	for (loopc=0;loopc<w;loopc++) {
+	    switch ( astype ) {
+		case 0:
+		    srcval=get_value_32(srcdepth,&srcptr);
+		    av = srcval >> 24;
+		    break;
+		case 1:
+		    srcval=get_value_32(srcdepth,&srcptr);
+		    // FALLTHROUGH
+		case 2:
+		    av=*(avp++);
+		    break;
 	    }
 
-	    r = (srcval & 0xff0000) >> 16;
-	    g = (srcval & 0xff00) >> 8;
-	    b = srcval & 0xff;
-
-	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
-	    if(av==255) {
-	        // Do nothing - we already have source values in r,g,b
-	    } else if(av==0) {
-	        r=*(tmp+2);
-	        g=*(tmp+1);
-	        b=*(tmp+0);
+	    int r,g,b;
+	    if (av == 255) {
+		unsigned char *stmp = (unsigned char *)&srcval;
+		b = *stmp++;
+		g = *stmp++;
+		r = *stmp;
 	    } else {
-		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+		unsigned char *tmp=(unsigned char *)alphaptr;
+		b = *tmp++;
+		g = *tmp++;
+		r = *tmp;
+		if (av) {
+		    unsigned char *stmp = (unsigned char *)&srcval;
+		    b += (((*stmp++)-b) * av) >> 8;
+		    g += (((*stmp++)-g) * av) >> 8;
+		    r += ((*stmp-r) * av) >> 8;
+		}
 	    }
 	    *(alphaptr++) = qt_convRgbTo16(r,g,b);
 	}
 
 	// Now write it all out
-
 	alphaptr = (unsigned int *)alphabuf;
 
 #ifdef QWS_NO_WRITE_PACKING
@@ -4216,62 +4071,51 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	  }
 	}
 #else
-
-# ifdef QWS_PACKING_4BYTE
-	PackType put;
-# endif
-
 	myptr=(unsigned short int *)l;
-
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-
 	myptr+=x1;
 
 	for ( loopc2=0;loopc2<frontadd;loopc2++ ) {
-	  if(myrop==XorROP) {
-	    *(myptr++)^=(*(alphaptr++));
-	  } else {
-	    *(myptr++)=*(alphaptr++);
-	  }
+	    if (myrop==XorROP)
+		*(myptr++)^=(*(alphaptr++));
+	    else
+		*(myptr++)=*(alphaptr++);
 	}
 
-	for ( loopc2=0;loopc2<count;loopc2++ ) {
-# ifdef QWS_PACKING_4BYTE
-	    put = *(alphaptr++);
-	    put |= (*(alphaptr++) << 16);
-	    if(myrop==XorROP) {
-	      *((PackType*)myptr) ^= put;
-	    } else {
-	      *((PackType*)myptr) = put;
+	PackType put;
+	if ( myrop==XorROP ) {
+	    for ( loopc2=0;loopc2<count;loopc2++ ) {
+		put = *(alphaptr++);
+		put |= (*(alphaptr++) << 16);
+		*((PackType*)myptr) ^= put;
+		((PackType*)myptr)++;
 	    }
-	    myptr += 2;
-# else
-	    // ### temporary unoptimized fix for the problem code below
-	    *(myptr++)=*(alphaptr++);
-	    *(myptr++)=*(alphaptr++);
-	    *(myptr++)=*(alphaptr++);
-	    *(myptr++)=*(alphaptr++);
-/*
-	    // ###
-	    // It looks right, it packs 8 bytes in to a double
-	    // and copies a double of data each time. Looks like some
-	    // subtle byte ordering problem
-	    *(fun) = *(alphaptr++);
-	    *(fun+1) = *(alphaptr++);
-	    *(fun+2) = *(alphaptr++);
-	    *(fun+3) =  *(alphaptr++);
-	    *((PackType*)myptr) = put;
-	    myptr += 4;
-*/
-# endif
+	} else {
+	    // Duffs device.
+	    #define DUFF_WRITE_WORD put=*(alphaptr++); put|=(*(alphaptr++) << 16); \
+	                       *((PackType *)myptr)=put; ((PackType *)myptr)++;
+	    unsigned short *end = myptr + count*2;
+	    switch(count%8){
+		case 0:
+		    while ( myptr != end ) {
+			DUFF_WRITE_WORD
+		case 7: DUFF_WRITE_WORD
+		case 6: DUFF_WRITE_WORD
+		case 5: DUFF_WRITE_WORD
+		case 4: DUFF_WRITE_WORD
+		case 3: DUFF_WRITE_WORD
+		case 2: DUFF_WRITE_WORD
+		case 1: DUFF_WRITE_WORD
+		    }
+	    }
+	    #undef DUFF_WRITE_WORD
 	}
 
 	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
-	  if(myrop==XorROP) {
-	    *(myptr++)^=(*(alphaptr++));
-	  } else {
-	    *(myptr++)=*(alphaptr++);
-	  }
+	    if (myrop==XorROP)
+		*(myptr++)^=(*(alphaptr++));
+	    else
+		*(myptr++)=*(alphaptr++);
 	}
 #endif
 #endif
@@ -4518,20 +4362,9 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	    int loopc,loopc2;
 
 	    PackType put;
-# ifdef QWS_PACKING_4BYTE
 	    put = pixel | (pixel << 16);
 	    int add=linestep()/2;
 	    add-=(frontadd+(count * 2)+backadd);
-# else
-	    unsigned short int * sp=(unsigned short int *)&put;
-	    *sp=pixel;
-	    *(sp+1)=pixel;
-	    *(sp+2)=pixel;
-	    *(sp+3)=pixel;
-
-	    int add=linestep()/2;
-	    add-=(frontadd+(count * 4)+backadd);
-# endif
 
 	    myptr=((unsigned short int *)scanLine(y1))+x1;
 
@@ -4543,11 +4376,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		}
 		for(loopc2=0;loopc2<count;loopc2++) {
 		  *((PackType *)myptr)^=put;
-# ifdef QWS_PACKING_4BYTE
 		  myptr+=2;
-# else
-		  myptr+=4;
-# endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++) {
 		  *(myptr)^=pixel;
@@ -4563,11 +4392,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		}
 		for(loopc2=0;loopc2<count;loopc2++) {
 		  *((PackType *)myptr)=~*((PackType *)myptr);
-# ifdef QWS_PACKING_4BYTE
 		  myptr+=2;
-# else
-		  myptr+=4;
-# endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++) {
 		  *(myptr++)=~(*myptr);
@@ -4579,13 +4404,20 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	      for(loopc=0;loopc<h;loopc++) {
 		for(loopc2=0;loopc2<frontadd;loopc2++)
 		  *(myptr++)=pixel;
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)=put;
-# ifdef QWS_PACKING_4BYTE
-		  myptr+=2;
-# else
-		  myptr+=4;
-# endif
+		// Duffs device.
+		unsigned short *end = myptr + count*2;
+		switch(count%8){
+		    case 0:
+			while ( myptr != end ) {
+			    *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    case 7: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    case 6: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    case 5: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    case 4: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    case 3: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    case 2: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    case 1: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+			}
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
 		  *(myptr++)=pixel;
@@ -4629,9 +4461,6 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	    PackType put;
 	    unsigned int * sp=(unsigned int *)&put;
 	    *sp=pixel;
-# ifndef QWS_PACKING_4BYTE
-	    *(sp+1)=pixel;
-# endif
 	    int add=linestep()/4;
 	    add-=(frontadd+(count * 2)+backadd);
 
@@ -4712,28 +4541,11 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 
 	    int loopc,loopc2;
 	    PackType put;
-# ifdef QWS_PACKING_4BYTE
 	    if ( count )
 		put = pixel | (pixel<<8) | (pixel<<16) | (pixel<<24);
 
 	    int add=linestep();
 	    add-=(frontadd+(count * 4)+backadd);
-# else
-	    if ( count ) {
-		unsigned char * sp=(unsigned char *)&put;
-		*sp=pixel;
-		*(sp+1)=pixel;
-		*(sp+2)=pixel;
-		*(sp+3)=pixel;
-		*(sp+4)=pixel;
-		*(sp+5)=pixel;
-		*(sp+6)=pixel;
-		*(sp+7)=pixel;
-	    }
-
-	    int add=linestep();
-	    add-=(frontadd+(count * 8)+backadd);
-# endif
 
 	    myptr=((unsigned char *)scanLine(y1))+x1;
 
@@ -4744,11 +4556,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		  *(myptr++)^=pixel;
 		for(loopc2=0;loopc2<count;loopc2++) {
 		  *((PackType *)myptr)^=put;
-# ifdef QWS_PACKING_4BYTE
 		    myptr+=4;
-# else
-		    myptr+=8;
-# endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
 		  *(myptr++)^=pixel;
@@ -4762,11 +4570,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		  myptr++;
 		for(loopc2=0;loopc2<count;loopc2++) {
 		  *((PackType *)myptr)=~( *((PackType *)myptr));
-# ifdef QWS_PACKING_4BYTE
 		    myptr+=4;
-# else
-		    myptr+=8;
-# endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++) {
 		  *(myptr)=~(*myptr);
@@ -4779,11 +4583,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		  *(myptr++)=pixel;
 		for(loopc2=0;loopc2<count;loopc2++) {
 		  *((PackType *)myptr)=put;
-# ifdef QWS_PACKING_4BYTE
 		    myptr+=4;
-# else
-		    myptr+=8;
-# endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
 		  *(myptr++)=pixel;

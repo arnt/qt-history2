@@ -68,7 +68,7 @@ class QWSUsbKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSUsbKbPrivate( QWSPC101KeyboardHandler * );
+    QWSUsbKbPrivate( QWSPC101KeyboardHandler *, const QString & );
     ~QWSUsbKbPrivate();
 
 private slots:
@@ -79,9 +79,10 @@ private:
     int fd;
 };
 
-QWSUsbKeyboardHandler::QWSUsbKeyboardHandler()
+QWSUsbKeyboardHandler::QWSUsbKeyboardHandler(const QString &device)
+    QWSPC101KeyboardHandler( device )
 {
-    d = new QWSUsbKbPrivate( this );
+    d = new QWSUsbKbPrivate( this, device );
 }
 
 QWSUsbKeyboardHandler::~QWSUsbKeyboardHandler()
@@ -89,9 +90,9 @@ QWSUsbKeyboardHandler::~QWSUsbKeyboardHandler()
     delete d;
 }
 
-QWSUsbKbPrivate::QWSUsbKbPrivate( QWSPC101KeyboardHandler *h ) : handler(h)
+QWSUsbKbPrivate::QWSUsbKbPrivate( QWSPC101KeyboardHandler *h, const QString &device ) : handler(h)
 {
-    fd = ::open(getenv("QWS_USB_KEYBOARD"),O_RDONLY, 0);
+    fd = ::open(device.isEmpty()?"/dev/input/event0":device.latin1(),O_RDONLY, 0);
     if ( fd >= 0 ) {
 	QSocketNotifier *notifier;
 	notifier = new QSocketNotifier( fd, QSocketNotifier::Read, this );

@@ -41,24 +41,9 @@
 #include "qdragobject.h"
 #include "qobjectlist.h"
 #include "qbitmap.h"
+#include "qcursor.h"
 
-#if 0
 static QPixmap *defaultPm = 0;
-
-#define noDropCursorWidth 20
-#define noDropCursorHeight 20
-static unsigned char noDropCutBits[] = {
- 0x00,0x00,0x00,0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xf0,0x00,0x38,0xc0,0x01,
- 0x7c,0x80,0x03,0xec,0x00,0x03,0xce,0x01,0x07,0x86,0x03,0x06,0x06,0x07,0x06,
- 0x06,0x0e,0x06,0x06,0x1c,0x06,0x0e,0x38,0x07,0x0c,0x70,0x03,0x1c,0xe0,0x03,
- 0x38,0xc0,0x01,0xf0,0xe0,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00,0x00,0x00,0x00};
-
-static unsigned char noDropCutMask[] = {
- 0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xff,0x00,0xf8,0xff,0x01,0xfc,0xf0,0x03,
- 0xfe,0xc0,0x07,0xfe,0x81,0x07,0xff,0x83,0x0f,0xcf,0x07,0x0f,0x8f,0x0f,0x0f,
- 0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
- 0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
-
 static const int default_pm_hotx = -2;
 static const int default_pm_hoty = -16;
 static const char* default_pm[] = {
@@ -76,62 +61,317 @@ static const char* default_pm[] = {
 " X X X X X X ",
 "X X X X X X X",
 };
+
+// Shift/Ctrl handling, and final drop status
+static QDragObject::DragMode drag_mode;
+static QDropEvent::Action global_requested_action = QDropEvent::Copy;
+static QDropEvent::Action global_accepted_action = QDropEvent::Copy;
+static QDragObject *drag_object;
+
+static Qt::ButtonState oldstate;
+
+class QShapedPixmapWidget : public QWidget {
+    QPixmap pixmap;
+public:
+    QShapedPixmapWidget() :
+	QWidget(0,0,WStyle_Customize | WStyle_Tool | WStyle_NoBorder | WX11BypassWM )
+    {
+    }
+
+    void setPixmap(QPixmap pm)
+    {
+	pixmap = pm;
+	if ( pixmap.mask() ) {
+	    setMask( *pixmap.mask() );
+	} else {
+	    clearMask();
+	}
+	resize(pm.width(),pm.height());
+    }
+
+    void paintEvent(QPaintEvent*)
+    {
+	bitBlt(this,0,0,&pixmap);
+    }
+};
+
+QShapedPixmapWidget *qt_qws_dnd_deco = 0;
+
+void QDragManager::updatePixmap()
+{
+    if ( qt_qws_dnd_deco ) {
+	QPixmap pm;
+	QPoint pm_hot(default_pm_hotx,default_pm_hoty);
+	if ( drag_object ) {
+	    pm = drag_object->pixmap();
+	    if ( !pm.isNull() )
+		pm_hot = drag_object->pixmapHotSpot();
+	}
+	if ( pm.isNull() ) {
+	    if ( !defaultPm )
+		defaultPm = new QPixmap(default_pm);
+	    pm = *defaultPm;
+	}
+	qt_qws_dnd_deco->setPixmap(pm);
+	qt_qws_dnd_deco->move(QCursor::pos()-pm_hot);
+	if ( willDrop ) {
+	    qt_qws_dnd_deco->show();
+	} else {
+	    qt_qws_dnd_deco->hide();
+	}
+    }
+}
+
+void QDragManager::timerEvent( QTimerEvent * ) { }
+
+void QDragManager::move( const QPoint & ) { }
+
+bool QDropEvent::provides( const char *mimeType ) const
+{
+    int n = 0;
+    const char* f;
+    do {
+	f = format( n );
+	if ( !f )
+	    return FALSE;
+	n++;
+    } while( qstricmp( mimeType, f ) );
+    return TRUE;
+}
+
+QByteArray QDropEvent::encodedData( const char *format ) const
+{
+    // ### multi-process drag'n'drop support is the next step
+    if ( drag_object )
+        return drag_object->encodedData( format );
+    return QByteArray();
+}
+
+const char* QDropEvent::format( int n ) const
+{
+    // ### multi-process drag'n'drop support is the next step
+    if ( drag_object )
+        return drag_object->format( n );
+    return 0;
+}
+
+void myOverrideCursor( QCursor cursor, bool replace ) {
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor( cursor, replace );
+    // ### Cludge to work around bug in Qt/Embedded where it doesn't update the cursor straight away
+    if ( replace )
+        QApplication::desktop()->releaseMouse();
+    QApplication::desktop()->grabMouse();
+    QApplication::desktop()->releaseMouse();
+    QApplication::desktop()->grabMouse();
 #endif
-void QDragManager::timerEvent( QTimerEvent*  )
-{
 }
 
-bool QDragManager::eventFilter( QObject * , QEvent * )
-{
-    return FALSE;
+void myRestoreOverrideCursor() {
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+    // ### Cludge to work around bug in Qt/Embedded where it doesn't update the cursor straight away
+    QApplication::desktop()->releaseMouse();
+#endif
 }
-
-
-void QDragManager::updateMode( ButtonState /*newstate*/ )
-{
-}
-
 
 void QDragManager::updateCursor()
 {
+#ifndef QT_NO_CURSOR
+    if ( willDrop ) {
+	int cursorIndex = 0; // default is copy_cursor
+	if ( global_accepted_action == QDropEvent::Copy ) {
+	    if ( global_requested_action != QDropEvent::Move ) 
+		cursorIndex = 1; // move_cursor
+	} else if ( global_accepted_action == QDropEvent::Link ) 
+	    cursorIndex = 2; // link_cursor
+	if ( qt_qws_dnd_deco )
+	    qt_qws_dnd_deco->show();
+	myOverrideCursor( QCursor( pm_cursor[cursorIndex], 0, 0 ), TRUE );
+    } else {
+	myOverrideCursor( QCursor(ForbiddenCursor), TRUE );
+	if ( qt_qws_dnd_deco )
+	    qt_qws_dnd_deco->hide();
+    }
+#endif
 }
 
 
-void QDragManager::cancel( bool /*deleteSource*/ )
+bool QDragManager::eventFilter( QObject *o, QEvent *e )
 {
+    if ( !o->isWidgetType() )
+        return FALSE;
+
+    switch( e->type() ) {
+
+	case QEvent::KeyPress:
+	case QEvent::KeyRelease:
+	{
+	    QKeyEvent *ke = ((QKeyEvent*)e);
+	    if ( ke->key() == Key_Escape && e->type() == QEvent::KeyPress ) {
+		cancel();
+		qApp->removeEventFilter( this );
+		dragSource = 0;
+	    } else {
+		updateMode(ke->stateAfter());
+		updateCursor();
+	    }
+	    return TRUE; // Eat all key events
+	}
+
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseMove:
+        {
+            QMouseEvent *me = (QMouseEvent *)e;
+            if ( me->state() & ( QMouseEvent::LeftButton | QMouseEvent::MidButton | QMouseEvent::RightButton ) ) {
+
+                QWidget *cw = QApplication::widgetAt( me->globalPos(), TRUE );
+
+		// Fix for when we move mouse on to the deco widget
+		if ( qt_qws_dnd_deco && cw == qt_qws_dnd_deco ) 
+		    cw = dropWidget;
+
+                if ( dropWidget != cw ) {
+                    if ( dropWidget ) {
+                        QDragLeaveEvent dle;
+                        QApplication::sendEvent( dropWidget, &dle );
+			willDrop = FALSE;
+			updateCursor();
+                        restoreCursor = TRUE;
+                        dropWidget = NULL;
+                    }
+                    if ( cw && cw->acceptDrops() ) {
+                        dropWidget = cw;
+                        QDragEnterEvent dee( me->pos() );
+                        QApplication::sendEvent( dropWidget, &dee );
+			willDrop = dee.isAccepted();
+			updateCursor();
+                        restoreCursor = TRUE;
+                    }
+                } else if ( cw ) {
+                    QDragMoveEvent dme( me->pos() );
+                    QApplication::sendEvent( cw, &dme );
+		    updatePixmap();
+                }
+            }
+	    return TRUE; // Eat all mouse events
+        }
+
+        case QEvent::MouseButtonRelease:
+        {
+	    qApp->removeEventFilter( this );
+	    if ( qt_qws_dnd_deco )
+	        delete qt_qws_dnd_deco;
+	    qt_qws_dnd_deco = 0;
+            if ( restoreCursor ) {
+		willDrop = FALSE;
+                myRestoreOverrideCursor();
+                restoreCursor = FALSE;
+            }
+            if ( dropWidget ) {
+                QMouseEvent *me = (QMouseEvent *)e;
+                QDropEvent de( me->pos() );
+		QApplication::sendEvent( dropWidget, &de );
+                dropWidget = NULL;
+            }
+	    return TRUE; // Eat all mouse events
+        }
+
+        default:
+             break;
+    }
+
+    return FALSE;
 }
 
-void QDragManager::move( const QPoint & /*globalPos*/ )
+bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
 {
+    object = drag_object = o;
+    qt_qws_dnd_deco = new QShapedPixmapWidget();
+    dragSource = (QWidget *)(drag_object->parent());
+    oldstate = ButtonState(-1); // #### Should use state that caused the drag
+    drag_mode = mode;
+    global_accepted_action = QDropEvent::Copy; // #####
+    willDrop = FALSE;
+    updateMode(ButtonState(0));
+    updatePixmap();
+    updateCursor();
+    restoreCursor = TRUE;
+    dropWidget = NULL;
+    qApp->installEventFilter( this );
+    return TRUE;
+}
+
+void QDragManager::updateMode( ButtonState newstate )
+{
+    if ( newstate == oldstate )
+	return;
+    const int both = ShiftButton|ControlButton;
+    if ( (newstate & both) == both ) {
+	global_requested_action = QDropEvent::Link;
+    } else {
+	bool local = drag_object != 0;
+	if ( drag_mode == QDragObject::DragMove )
+	    global_requested_action = QDropEvent::Move;
+	else if ( drag_mode == QDragObject::DragCopy )
+	    global_requested_action = QDropEvent::Copy;
+	else {
+	    if ( drag_mode == QDragObject::DragDefault && local )
+		global_requested_action = QDropEvent::Move;
+	    else
+		global_requested_action = QDropEvent::Copy;
+	    if ( newstate & ShiftButton )
+		global_requested_action = QDropEvent::Move;
+	    else if ( newstate & ControlButton )
+		global_requested_action = QDropEvent::Copy;
+	}
+    }
+    oldstate = newstate;
+}
+
+void QDragManager::cancel( bool deleteSource )
+{
+    if ( dropWidget ) {
+	QDragLeaveEvent dle;
+	QApplication::sendEvent( dropWidget, &dle );
+    }
+
+#ifndef QT_NO_CURSOR
+    if ( restoreCursor ) {
+	myRestoreOverrideCursor();
+	restoreCursor = FALSE;
+    }
+#endif
+
+    if ( drag_object ) {
+	if ( deleteSource )
+	    delete object;
+	drag_object = object = 0;
+    }
+
+    delete qt_qws_dnd_deco;
+    qt_qws_dnd_deco = 0;
 }
 
 
 void QDragManager::drop()
 {
-}
+    if ( !dropWidget )
+	return;
 
-bool QDropEvent::provides( const char */*mimeType*/ ) const
-{
-    return FALSE;
-}
+    delete qt_qws_dnd_deco;
+    qt_qws_dnd_deco = 0;
 
-QByteArray QDropEvent::encodedData( const char */*format*/ ) const
-{
-    return QByteArray();
-}
+    QDropEvent de( QCursor::pos() );
+    QApplication::sendEvent( dropWidget, &de );
 
-const char* QDropEvent::format( int ) const
-{
-    return 0;
-}
-
-bool QDragManager::drag( QDragObject *, QDragObject::DragMode )
-{
-    return FALSE;
-}
-
-void QDragManager::updatePixmap()
-{
+#ifndef QT_NO_CURSOR
+    if ( restoreCursor ) {
+	myRestoreOverrideCursor();
+	restoreCursor = FALSE;
+    }
+#endif
 }
 
 #endif // QT_NO_DRAGANDDROP
+
