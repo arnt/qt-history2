@@ -4733,8 +4733,8 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 	    selEnd = QMIN(selEnd, start+len);
 	    bool extendRight = FALSE;
 	    bool extendLeft = FALSE;
- 	    if ((real_selEnd == length()-1 && n && n->hasSelection(it.key()))
-		|| this->str->at(real_selEnd).lineStart) {
+	    bool selWrap = (real_selEnd == length()-1 && n && n->hasSelection(it.key()));
+ 	    if (selWrap || this->str->at(real_selEnd).lineStart) {
 		extendRight = (fullSelectionWidth != 0);
  		if (!extendRight && !rightToLeft)
 		    tmpw += painter.fontMetrics().width(' ');
@@ -4751,14 +4751,14 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 		extendRight = tmp;
 	    }
 
-	    if ((selStart < real_selEnd ||
-		 (fullSelected(0) && fullSelectionWidth && extendRight)) &&
+	    if (selStart < real_selEnd ||
+		selWrap && fullSelectionWidth && extendRight &&
 		// don't draw the standard selection on a printer=
 		(it.key() != QTextDocument::Standard || !is_printer( &painter))) {
 		int selection = it.key();
 		QColor color;
 		setColorForSelection( color, painter, cg, selection );
-		if (selStart != start || selEnd != start + len) {
+		if (selStart != start || selEnd != start + len || selWrap) {
 		    // have to clip
 		    painter.save();
 		    int cs, ce;
@@ -4790,7 +4790,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 		    tmpw = fullSelectionWidth - xleft;
 		painter.fillRect( xleft, y, tmpw, h, color );
 		painter.drawText( xstart, y + baseLine, str, start, len, dir );
-		if (selStart != start || selEnd != start + len)
+		if (selStart != start || selEnd != start + len || selWrap)
 		    painter.restore();
 	    }
 	}
