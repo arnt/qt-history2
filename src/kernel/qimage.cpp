@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#143 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#142 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#143 $");
 
 
 /*!
@@ -1381,6 +1381,9 @@ static bool dither_to_1( const QImage *src, QImage *dst,
   converted image.  The original image is left undisturbed.
 
   The \e depth argument must be 1, 8 or 32.
+
+  See QPixmap::convertFromImage for a description of the \a
+  conversion_flags argument.
 
   Returns \c *this if \e depth is equal to the image depth, or a null
   image if this image cannot be converted.
