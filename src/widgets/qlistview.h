@@ -192,6 +192,7 @@ protected:
     virtual void okRename( int col );
     virtual void cancelRename( int col );
 
+    void ignoreDoubleClick(); 
 private:
     void init();
     void moveToJustAfter( QListViewItem * );

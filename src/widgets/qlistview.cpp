@@ -1992,6 +1992,21 @@ void QListViewPrivate::Root::setup()
 }
 
 
+
+/*!
+\internal
+If called after a mouse click, tells the list view to ignore a 
+following double click. This state is reset after the next mouse click. 
+*/
+
+void QListViewItem::ignoreDoubleClick()
+{
+    QListView *lv = (QListView*)listView();
+    lv->d->ignoreDoubleClick = TRUE;
+}
+
+
+
 /*! \fn void  QListView::onItem( QListViewItem *i )
 
   This signal is emitted when the user moves the mouse cursor onto the
@@ -5406,9 +5421,12 @@ void QCheckListItem::activate()
     }
     if ( myType == CheckBox ) {
 	setOn( !on );
+	ignoreDoubleClick();
     } else if ( myType == RadioButton ) {
 	setOn( TRUE );
+	ignoreDoubleClick();
     }
+    
 }
 
 /*!
@@ -6635,3 +6653,4 @@ void QListView::windowActivationChange( bool )
 }
 
 #endif // QT_NO_LISTVIEW
+
