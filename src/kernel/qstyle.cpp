@@ -1043,4 +1043,43 @@ const QWidget *QStyle::contextWidget()
     return qt_style_global_context;
 }
 
+
+
+/*!
+  \fn QPixmap titleBarPixmap( const QTitleBar *tb, TitleControl ctrl)
+
+  Returns the pixmap representing the action in ctrl.
+
+*/
+
+/*!
+  \fn void titleBarMetrics( const QTitleBar*tb, int& ctrlW, int& ctrlH, int& titleW, int& titleH)
+
+  Retrieves metrics about the titlebar tb. On return ctrlW, ctrlH, titleW, and titleH will contains
+  the width and height of all controls on a title bar, and the width and height of the title label
+  itself.
+
+*/
+
+/*!
+  \fn void drawTitleBarControls( QPainter*p,  const QTitleBar*tb, uint controls, uint activeControl )
+
+  Paints parts of the titlebar tb with painter p. The parts painted must be OR'd into controls, and all
+  active (or pressed controls) will be OR'd into activeControl.
+*/
+
+/*!
+   \fn TitleControl titleBarPointOver( const QTitleBar*tb, const QPoint& pos)
+
+   Returns the control of titlebar tb under point pos, if none are available TitleNone will be returned.
+*/
+
+/*!
+   \fn void drawListViewItem( QPainter *p, int x, int y, int w, int h, const QColorGroup & cg, QListViewItem *i, uint parts)
+
+   Paints the branches (and possibly expand box) of QListViewItem i as enumerated by parts (which is an OR'd together 
+   combination of ListViewItemControl).
+				  
+*/
+
 #endif // QT_NO_STYLE
