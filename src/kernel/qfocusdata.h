@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.h#10 $
+** $Id: //depot/qt/main/src/kernel/qfocusdata.h#16 $
 **
 ** Definition of internal QFocusData class
 **

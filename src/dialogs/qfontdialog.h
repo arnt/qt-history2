@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#16 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#31 $
 **
 ** Definition of QFontDialog
 **

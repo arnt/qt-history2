@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontencodings_p.h#1 $
+** $Id: //depot/qt/main/src/codecs/qfontcodecs_p.h#6 $
 **
 ** Font utilities for X11
 **

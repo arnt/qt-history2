@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qdockarea.h#24 $
 **
 ** Definition of the QDockArea class
 **

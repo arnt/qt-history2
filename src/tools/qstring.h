@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#141 $
+** $Id: //depot/qt/main/src/tools/qstring.h#199 $
 **
 ** Definition of the QString class, and related Unicode
 ** functions.

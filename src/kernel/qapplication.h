@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#138 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#234 $
 **
 ** Definition of QApplication class
 **

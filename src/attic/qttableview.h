@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/attic/qttableview.h#31 $
+** $Id: //depot/qt/main/src/attic/qttableview.h#2 $
 **
 ** Definition of QtTableView class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsdefaultdecoration_qws.h $
+** $Id: //depot/qt/main/src/kernel/qwsdefaultdecoration_qws.h#4 $
 **
 ** Declaration of Qt/Embedded window manager decorations
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#48 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#72 $
 **
 ** Definition of layout classes
 **

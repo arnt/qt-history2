@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwswindowsdecoration_qws.h $
+** $Id: //depot/qt/main/src/kernel/qwswindowsdecoration_qws.h#4 $
 **
 ** Delcaration of Windows style window manager decorations
 **

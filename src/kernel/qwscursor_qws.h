@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.h#16 $
+** $Id: //depot/qt/main/src/kernel/qwscursor_qws.h#7 $
 **
 ** Definition of QWSCursor class
 **

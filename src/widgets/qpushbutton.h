@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#54 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#88 $
 **
 ** Definition of QPushButton class
 **

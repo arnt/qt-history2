@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/q1xcompatibility.h#9 $
+** $Id: //depot/qt/main/src/kernel/qsoundqss_qws.h#4 $
 **
 ** Definition of Qt Sound System
 **

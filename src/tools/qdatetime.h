@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#33 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#47 $
 **
 ** Definition of date and time classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsgistyle.h#1 $
+** $Id: //depot/qt/main/src/styles/qsgistyle.h#7 $
 **
 ** Definition of SGI-like style class
 **

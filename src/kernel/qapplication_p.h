@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_p.h#1 $
+** $Id: //depot/qt/main/src/kernel/qapplication_p.h#13 $
 **
 ** Definition of some Qt private functions.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#10 $
+** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#17 $
 **
 ** Definition of QWidgetList
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#43 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#55 $
 **
 ** Definition of QRect class
 **

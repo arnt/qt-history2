@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.h#5 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#14 $
 **
 ** Definition of Windows-like style class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/qws/util/qws/qws.h#4 $
+** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.h#32 $
 **
 ** Definition of Qt/FB central server classes
 **

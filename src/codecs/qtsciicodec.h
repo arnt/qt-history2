@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id:$
+** $Id: //depot/qt/main/src/codecs/qtsciicodec.h#2 $
 **
 ** Definition of QTSCIICodec class
 **

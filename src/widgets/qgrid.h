@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.h#15 $
+** $Id: //depot/qt/main/src/widgets/qgrid.h#29 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

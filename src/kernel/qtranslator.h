@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.h#9 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.h#29 $
 **
 ** Definition of the translator class
 **

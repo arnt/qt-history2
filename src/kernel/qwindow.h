@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.h#16 $
+** $Id: //depot/qt/main/src/kernel/qwindow.h#22 $
 **
 ** Definition of QWindow class
 **

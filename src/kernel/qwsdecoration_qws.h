@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmanager_qws.h $
+** $Id: //depot/qt/main/src/kernel/qwsdecoration_qws.h#2 $
 **
 ** Definition of QWSDecoration class.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#134 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#177 $
 **
 ** Definition of QPainter class
 **

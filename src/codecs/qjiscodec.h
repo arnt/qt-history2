@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.h#6 $
+** $Id: //depot/qt/main/src/codecs/qjiscodec.h#5 $
 **
 ** Definition of QJisCodec class
 **

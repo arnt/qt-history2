@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxmach64defs_qws.h#73 $
+** $Id: //depot/qt/main/src/kernel/qgfxmach64defs_qws.h#6 $
 **
 ** Mach64 defines
 **

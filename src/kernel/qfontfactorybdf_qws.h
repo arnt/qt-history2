@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
+** $Id: //depot/qt/main/src/kernel/qfontfactorybdf_qws.h#8 $
 **
 ** Definition of QFontFactory for Truetype class for QWS
 **

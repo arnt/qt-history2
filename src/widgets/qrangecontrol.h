@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#27 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#45 $
 **
 ** Definition of QRangeControl class
 **

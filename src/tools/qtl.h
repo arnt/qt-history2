@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtl.h#15 $
+** $Id: //depot/qt/main/src/tools/qtl.h#26 $
 **
 ** Definition of Qt template library classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwskde2decoration_qws.h $
+** $Id: //depot/qt/main/src/kernel/qwskde2decoration_qws.h#4 $
 **
 ** Declaration of Qt/Embedded KDE2 decorations
 **

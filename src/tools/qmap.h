@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#26 $
+** $Id: //depot/qt/main/src/tools/qmap.h#55 $
 **
 ** Definition of QMap class
 **

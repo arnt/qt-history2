@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#58 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#88 $
 **
 ** Definition of QLabel widget class
 **

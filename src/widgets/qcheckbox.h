@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#33 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#55 $
 **
 ** Definition of QCheckBox class
 **

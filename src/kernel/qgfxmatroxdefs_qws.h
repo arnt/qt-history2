@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
+** $Id: //depot/qt/main/src/kernel/qgfxmatroxdefs_qws.h#4 $
 **
 ** Matrox defines
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qasciicache.h#1 $
+** $Id: //depot/qt/main/src/tools/qasciicache.h#7 $
 **
 ** Definition of QAsciiCache template/macro class
 **

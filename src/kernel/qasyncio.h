@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.h#10 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.h#20 $
 **
 ** Definition of asynchronous I/O classes
 **

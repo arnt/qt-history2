@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_p.h#1 $
+** $Id: //depot/qt/main/src/kernel/qwidget_p.h#4 $
 **
 ** Definition of some Qt private functions.
 **

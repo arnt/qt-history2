@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#25 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#44 $
 **
 ** Definition of QClipboard class
 **

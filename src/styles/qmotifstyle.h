@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.h#5 $
+** $Id: //depot/qt/main/src/styles/qmotifstyle.h#11 $
 **
 ** Definition of Motif-like style class
 **

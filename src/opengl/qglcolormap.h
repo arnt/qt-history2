@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qglcolormap.h#0 $
+** $Id: //depot/qt/main/src/opengl/qglcolormap.h#3 $
 **
 ** Definition of QGLColormap class
 **

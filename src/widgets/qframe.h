@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#39 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#64 $
 **
 ** Definition of QFrame widget class
 **

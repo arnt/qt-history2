@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#20 $
+** $Id: //depot/qt/main/src/tools/qcache.h#26 $
 **
 ** Definition of QCache template class
 **

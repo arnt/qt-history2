@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qinputialog.h#5 $
+** $Id: //depot/qt/main/src/dialogs/qinputdialog.h#16 $
 **
 ** Definition of QInputDialog class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#36 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#70 $
 **
 ** Definition of QHeader widget class (table header)
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#24 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#40 $
 **
 ** Definition of movie classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#12 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#32 $
 **
 ** Definition of the QStyleSheet class
 **

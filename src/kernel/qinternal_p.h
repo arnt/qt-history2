@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#251 $
+** $Id: //depot/qt/main/src/kernel/qinternal_p.h#8 $
 **
 ** Definition of some shared interal classes
 **

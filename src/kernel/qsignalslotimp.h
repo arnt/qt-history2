@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalslotimp.h#9 $
+** $Id: //depot/qt/main/src/kernel/qsignalslotimp.h#18 $
 **
 ** Definition of signal/slot collections etc.
 **

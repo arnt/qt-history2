@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
+** $Id: //depot/qt/main/src/kernel/qgfx_qws.h#22 $
 **
 ** Definition of QGfx (graphics context) class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.h#9 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.h#26 $
 **
 ** Definition of QStatusBar class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#27 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#84 $
 **
 ** Definition of QMetaObject class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#51 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#74 $
 **
 ** Definition of QMessageBox class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#24 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#40 $
 **
 ** Definition of QUrl class
 **

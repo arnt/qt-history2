@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmngio.h#9 $
+** $Id: //depot/qt/main/src/kernel/qmngio.h#6 $
 **
 ** Definition of MNG QImage IOHandler
 **

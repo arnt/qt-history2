@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#39 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#102 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **

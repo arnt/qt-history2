@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrqueue.h#15 $
+** $Id: //depot/qt/main/src/tools/qptrqueue.h#2 $
 **
 ** Definition of QPtrQueue template/macro class
 **

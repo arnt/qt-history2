@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#28 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#52 $
 **
 ** Definition of QValueList class
 **

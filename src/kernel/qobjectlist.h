@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectlist.h#9 $
+** $Id: //depot/qt/main/src/kernel/qobjectlist.h#16 $
 **
 ** Definition of QObjectList
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#23 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#38 $
 **
 ** Definition of print dialog.
 **

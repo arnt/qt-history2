@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#44 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#61 $
 **
 ** Definition of QColorGroup and QPalette classes
 **

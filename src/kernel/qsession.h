@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsession.h#1 $
+** $Id: //depot/qt/main/src/kernel/qsession.h#8 $
 **
 ** Definition of QSession class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#32 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#58 $
 **
 ** Definition of QNetworkProtocol class
 **

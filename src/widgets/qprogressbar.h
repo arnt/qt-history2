@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#23 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#40 $
 **
 ** Definition of QProgressBar class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#30 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#41 $
 **
 ** Definition of QFontInfo class
 **

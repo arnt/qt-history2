@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id:  qt/qfeatures.h   3.0.0-beta1-beta1   edited Apr 12 10:52 $
+** $Id: //depot/qt/main/src/tools/qfeatures.h#87 $
 **
 ** Global feature selection
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/qws/util/qws/qws.h#4 $
+** $Id: //depot/qt/main/src/kernel/qkeyboard_qws.h#2 $
 **
 ** Definition of Qt/Embedded keyboards
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.h#10 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.h#19 $
 **
 ** Definition of QSignalMapper class
 **

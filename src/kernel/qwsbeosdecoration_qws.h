@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsbeosdecoration_qws.h $
+** $Id: //depot/qt/main/src/kernel/qwsbeosdecoration_qws.h#4 $
 **
 ** Delcaration of BeOS window manager decorations
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#7 $
+** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#23 $
 **
 ** Definition of QSessionManager class
 **

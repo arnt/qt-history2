@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#47 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#64 $
 **
 ** Definition of QTabDialog class
 **

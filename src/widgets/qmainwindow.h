@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#35 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#100 $
 **
 ** Definition of QMainWindow class
 **

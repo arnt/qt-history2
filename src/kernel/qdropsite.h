@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.h#9 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.h#15 $
 **
 ** Definitation of Drag and Drop support
 **

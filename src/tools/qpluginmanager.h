@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qinterfacemanager.h#1 $
+** $Id: //depot/qt/main/src/tools/qpluginmanager.h#8 $
 **
 ** Definition of QPluginManager class
 **

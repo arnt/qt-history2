@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.h#3 $
+** $Id: //depot/qt/main/src/kernel/qjpegio.h#7 $
 **
 ** Definition of JPEG QImage IOHandler
 **

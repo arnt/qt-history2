@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#106 $
+** $Id: //depot/qt/main/src/dialogs/qerrormessage.h#6 $
 **
 ** Definition of a nice qInstallErrorMessage() handler
 **

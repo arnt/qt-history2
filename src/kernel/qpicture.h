@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#30 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#46 $
 **
 ** Definition of QPicture class
 **

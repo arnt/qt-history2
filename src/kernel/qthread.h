@@ -1,6 +1,6 @@
 //depot/qt/main/src/kernel/qthread.h#38 - edit change 33249 (text)
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.h#16 $
+** $Id: //depot/qt/main/src/kernel/qthread.h#42 $
 **
 ** Definition of QThread class
 **
