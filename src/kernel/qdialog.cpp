@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#88 $
 **
 ** Implementation of QDialog class
 **
@@ -297,12 +297,24 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_Up:
 	case Key_Left:
+	    if ( focusWidget() && 
+		 ( focusWidget()->focusPolicy() == QWidget::StrongFocus ||
+		   focusWidget()->focusPolicy() == QWidget::WheelFocus ) ) {
+		e->ignore();
+		break;
+	    }
 	    // call ours, since c++ blocks us from calling the one
 	    // belonging to focusWidget().
 	    focusNextPrevChild( FALSE );
 	    break;
 	case Key_Down:
 	case Key_Right:
+	    if ( focusWidget() && 
+		 ( focusWidget()->focusPolicy() == QWidget::StrongFocus ||
+		   focusWidget()->focusPolicy() == QWidget::WheelFocus ) ) {
+		e->ignore();
+		break;
+	    }
 	    focusNextPrevChild( TRUE );
 	    break;
 	default:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#154 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#155 $
 **
 ** Definition of QIconView widget class
 **
