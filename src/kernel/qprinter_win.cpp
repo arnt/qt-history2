@@ -1317,6 +1317,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 
 	    if ( paint && image.hasAlphaBuffer() ) {
+		QWMatrix::TransformationMode tmpMode = QWMatrix::transformationMode();
+		QWMatrix::setTransformationMode( QWMatrix::Areas );
 		QImage mask = image.createAlphaMask();
 		QBitmap bm;
 		bm = mask;
@@ -1328,6 +1330,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    r &= paint->clipRegion();
 		paint->save();
  		paint->setClipRegion( r );
+		QWMatrix::setTransformationMode( tmpMode );
 	    }
 
 	    bits = new uchar[bmh->biSizeImage];
