@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include <qstyleinterface.h>
 #include <qplatinumstyle.h>
 
@@ -7,7 +7,7 @@ class PlatinumStyle : public QStyleInterface
 public:
     PlatinumStyle();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -23,12 +23,12 @@ PlatinumStyle::PlatinumStyle()
 {
 }
 
-QUnknownInterface *PlatinumStyle::queryInterface( const QGuid &guid )
+QUnknownInterface *PlatinumStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    else if ( guid == IID_QStyleInterface )
+    else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
 
     if ( iface )

@@ -60,7 +60,7 @@ void SourceEditor::setForm( FormWindow *fw )
 	else
 	    txt += "\n{\n    \n}\n\n";
     }
-    iFace->setText( txt );
+//    iFace->setText( txt );
     if ( fw->project() )
 	iFace->setContext( fw->project()->formList(), fw );
 }

@@ -46,7 +46,7 @@
 #ifndef QT_NO_COMPONENT
 
 struct QUnknownInterface;
-struct QGuid;
+struct QUuid;
 
 class Q_EXPORT QLibrary
 {
@@ -70,7 +70,7 @@ public:
 
     QString library() const;
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
 
 private:
 #ifdef Q_WS_WIN

@@ -45,15 +45,15 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-//#define QT_DEBUG_COMPONENT
-
 #ifndef QT_NO_COMPONENT
+
+#define QT_DEBUG_COMPONENT
 
 template<class Type>
 class Q_EXPORT QInterfaceManager
 {
 public:
-    QInterfaceManager( const QGuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+    QInterfaceManager( const QUuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 	: interfaceId( id ), defPol( pol ), casesens( cs )
     {
 	// Every library is unloaded on destruction of the manager
@@ -210,7 +210,7 @@ public:
     }
 
 private:
-    QGuid interfaceId;
+    const QUuid &interfaceId;
     QDict<QLibrary> plugDict;	    // Dict to match feature with library
     QDict<QLibrary> libDict;	    // Dict to match library file with library
 

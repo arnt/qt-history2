@@ -38,7 +38,7 @@
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
-//#define QT_DEBUG_COMPONENT
+#define QT_DEBUG_COMPONENT
 
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion
@@ -58,7 +58,7 @@ static HINSTANCE qt_load_library( const QString& lib )
 	handle = LoadLibraryW( (TCHAR*)qt_winTchar(lib, TRUE) );
     else
 	handle = LoadLibraryA( (const char*)lib.local8Bit() );
-#if defined(QT_DEBUG)
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !handle )
 	qSystemWarning( "Failed to load library!" );
 #endif
@@ -69,7 +69,7 @@ static HINSTANCE qt_load_library( const QString& lib )
 static bool qt_free_library( HINSTANCE handle )
 {
     bool ok = FreeLibrary( handle );
-#if defined(QT_DEBUG)
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !ok )
 	qSystemWarning( "Failed to unload library!" );
 #endif
@@ -80,7 +80,7 @@ static bool qt_free_library( HINSTANCE handle )
 static void* qt_resolve_symbol( HINSTANCE handle, const char* f )
 {
     void* address = GetProcAddress( handle, f );
-#if defined(QT_DEBUG)
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !address )
 	qSystemWarning( QString("Couldn't resolve symbol \"%1\"").arg( f ) );
 #endif
@@ -173,7 +173,7 @@ static void* qt_resolve_symbol( void *, const char *symbol)
 static void* qt_load_library( const QString& lib )
 {
     void* handle = dlopen( lib, RTLD_LAZY );
-#if defined(QT_DEBUG)
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !handle )
 	qWarning( dlerror() );
 #endif
@@ -183,7 +183,7 @@ static void* qt_load_library( const QString& lib )
 static bool qt_free_library( void* handle )
 {
     int ok = dlclose( handle );
-#if defined(QT_DEBUG)
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     const char* error = dlerror();
     if ( error )
 	qWarning( error );
@@ -194,7 +194,7 @@ static bool qt_free_library( void* handle )
 static void* qt_resolve_symbol( void* handle, const char* f )
 {
     void* address = dlsym( handle, f );
-#if defined(QT_DEBUG)
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     const char* error = dlerror();
     if ( error )
 	qWarning( error );
@@ -421,7 +421,7 @@ QString QLibrary::library() const
 
   \sa QUnknownInterface::queryInterface
 */
-QUnknownInterface* QLibrary::queryInterface( const QGuid& request )
+QUnknownInterface* QLibrary::queryInterface( const QUuid& request )
 {
     if ( !info ) {
 	if ( libPol != Manual )

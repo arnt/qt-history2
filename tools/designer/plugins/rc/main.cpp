@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "../designerinterface.h"
 
 #include <qapplication.h>
@@ -10,7 +10,7 @@ class RCFilter : public ImportFilterInterface
 public:
     RCFilter();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -27,13 +27,13 @@ RCFilter::RCFilter()
 {
 }
 
-QUnknownInterface *RCFilter::queryInterface( const QGuid &guid )
+QUnknownInterface *RCFilter::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
 
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    if ( guid == IID_ImportFilterInterface )
+    if ( uuid == IID_ImportFilterInterface )
 	iface = (ImportFilterInterface*)this;
 
     if ( iface )

@@ -3,14 +3,14 @@
 
 #ifndef QT_H
 #include <qstring.h>
-#include <qguiddefs.h>
+#include <quuiddefs.h>
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT
 
 struct Q_EXPORT QUnknownInterface
 {
-    virtual QUnknownInterface* queryInterface( const QGuid& ) = 0;
+    virtual QUnknownInterface* queryInterface( const QUuid& ) = 0;
     virtual unsigned long addRef() = 0;
     virtual unsigned long release() = 0;
 };
@@ -48,8 +48,8 @@ struct Q_EXPORT QComponentInterface : public QUnknownInterface
     #endif
 #endif
 
-Q_EXTERN_C Q_EXPORT const QGuid IID_QUnknownInterface;
-Q_EXTERN_C Q_EXPORT const QGuid IID_QComponentInterface;
+Q_EXTERN_C Q_EXPORT const QUuid IID_QUnknownInterface;
+Q_EXTERN_C Q_EXPORT const QUuid IID_QComponentInterface;
 
 #endif //QT_NO_COMPONENT
 

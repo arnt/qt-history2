@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "designerappiface.h"
 #include "mainwindow.h"
 #include "formwindow.h"
@@ -20,30 +20,30 @@ DesignerApplicationInterfaceImpl::DesignerApplicationInterfaceImpl()
 {
 }
 
-QUnknownInterface *DesignerApplicationInterfaceImpl::queryInterface( const QGuid &guid )
+QUnknownInterface *DesignerApplicationInterfaceImpl::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)(QComponentInterface*)this;
-    else if ( guid == IID_QComponentInterface )
+    else if ( uuid == IID_QComponentInterface )
 	iface = (QComponentInterface*)this;
-    else if ( guid == IID_DesignerStatusBarInterface )
+    else if ( uuid == IID_DesignerStatusBarInterface )
 	iface = new DesignerStatusBarInterfaceImpl( this );
-    else if ( guid == IID_DesignerFormListInterface )
+    else if ( uuid == IID_DesignerFormListInterface )
 	iface = new DesignerFormListInterfaceImpl( this );
-    else if ( guid == IID_DesignerFormInterface )
+    else if ( uuid == IID_DesignerFormInterface )
 	iface = new DesignerFormInterfaceImpl( 0, this );
-    else if ( guid == IID_DesignerWidgetListInterface )
+    else if ( uuid == IID_DesignerWidgetListInterface )
 	iface = new DesignerWidgetListInterfaceImpl( this );
-    else if ( guid == IID_DesignerWidgetInterface )
+    else if ( uuid == IID_DesignerWidgetInterface )
 	iface = new DesignerWidgetInterfaceImpl( 0, this );
-    else if ( guid == IID_DesignerMainWindowInterface )
+    else if ( uuid == IID_DesignerMainWindowInterface )
 	iface = new DesignerMainWindowInterfaceImpl( this );
-    else if ( guid == IID_DesignerProjectInterface )
+    else if ( uuid == IID_DesignerProjectInterface )
 	iface = new DesignerProjectInterfaceImpl( this );
-    else if ( guid == IID_DesignerMetaDatabaseInterface )
+    else if ( uuid == IID_DesignerMetaDatabaseInterface )
 	iface = new DesignerMetaDatabaseInterfaceImpl( this );
-    else if ( guid == IID_DesignerWidgetFactoryInteface )
+    else if ( uuid == IID_DesignerWidgetFactoryInteface )
 	iface = new DesignerWidgetFactoryInterfaceImpl( this );
 
     if ( iface )
@@ -106,9 +106,9 @@ DesignerMainWindowInterfaceImpl::~DesignerMainWindowInterfaceImpl()
 {
 }
 
-QUnknownInterface *DesignerMainWindowInterfaceImpl::queryInterface( const QGuid &guid )
+QUnknownInterface *DesignerMainWindowInterfaceImpl::queryInterface( const QUuid &uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerMainWindowInterfaceImpl::addRef()
@@ -460,9 +460,9 @@ DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QUnknownInterfac
     appIface->addRef();
 }
 
-QUnknownInterface *DesignerStatusBarInterfaceImpl::queryInterface( const QGuid& guid )
+QUnknownInterface *DesignerStatusBarInterfaceImpl::queryInterface( const QUuid& uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerStatusBarInterfaceImpl::addRef()
@@ -511,9 +511,9 @@ DesignerFormListInterfaceImpl::~DesignerFormListInterfaceImpl()
     delete listIterator;
 }
 
-QUnknownInterface *DesignerFormListInterfaceImpl::queryInterface( const QGuid& guid )
+QUnknownInterface *DesignerFormListInterfaceImpl::queryInterface( const QUuid& uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerFormListInterfaceImpl::addRef()
@@ -701,9 +701,9 @@ DesignerFormInterfaceImpl::DesignerFormInterfaceImpl( FormListItem *fw, QUnknown
     }
 }
 
-QUnknownInterface *DesignerFormInterfaceImpl::queryInterface( const QGuid& guid )
+QUnknownInterface *DesignerFormInterfaceImpl::queryInterface( const QUuid& uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerFormInterfaceImpl::addRef()
@@ -806,9 +806,9 @@ DesignerWidgetListInterfaceImpl::~DesignerWidgetListInterfaceImpl()
     delete listIterator;
 }
 
-QUnknownInterface *DesignerWidgetListInterfaceImpl::queryInterface( const QGuid& guid )
+QUnknownInterface *DesignerWidgetListInterfaceImpl::queryInterface( const QUuid& uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerWidgetListInterfaceImpl::addRef()
@@ -911,9 +911,9 @@ DesignerWidgetInterfaceImpl::DesignerWidgetInterfaceImpl( HierarchyItem *i, QUnk
     }
 }
 
-QUnknownInterface *DesignerWidgetInterfaceImpl::queryInterface( const QGuid& guid )
+QUnknownInterface *DesignerWidgetInterfaceImpl::queryInterface( const QUuid& uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerWidgetInterfaceImpl::addRef()
@@ -981,9 +981,9 @@ DesignerProjectInterfaceImpl::DesignerProjectInterfaceImpl( QUnknownInterface *i
     appIface->addRef();
 }
 
-QUnknownInterface *DesignerProjectInterfaceImpl::queryInterface( const QGuid &guid )
+QUnknownInterface *DesignerProjectInterfaceImpl::queryInterface( const QUuid &uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerProjectInterfaceImpl::addRef()
@@ -1075,9 +1075,9 @@ DesignerMetaDatabaseInterfaceImpl::DesignerMetaDatabaseInterfaceImpl( QUnknownIn
     appIface->addRef();
 }
 
-QUnknownInterface *DesignerMetaDatabaseInterfaceImpl::queryInterface( const QGuid &guid )
+QUnknownInterface *DesignerMetaDatabaseInterfaceImpl::queryInterface( const QUuid &uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerMetaDatabaseInterfaceImpl::addRef()
@@ -1130,9 +1130,9 @@ DesignerWidgetFactoryInterfaceImpl::DesignerWidgetFactoryInterfaceImpl( QUnknown
     appIface->addRef();
 }
 
-QUnknownInterface *DesignerWidgetFactoryInterfaceImpl::queryInterface( const QGuid &guid )
+QUnknownInterface *DesignerWidgetFactoryInterfaceImpl::queryInterface( const QUuid &uuid )
 {
-    return appIface->queryInterface( guid );
+    return appIface->queryInterface( uuid );
 }
 
 unsigned long DesignerWidgetFactoryInterfaceImpl::addRef()

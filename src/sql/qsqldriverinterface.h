@@ -46,7 +46,7 @@
 #ifndef QT_NO_COMPONENT
 
 // {EDDD5AD5-DF3C-400c-A711-163B72FE5F61}
-Q_GUID( IID_QSqlDriverInterface, 
+Q_UUID( IID_QSqlDriverInterface, 
 0xeddd5ad5, 0xdf3c, 0x400c, 0xa7, 0x11, 0x16, 0x3b, 0x72, 0xfe, 0x5f, 0x61);
 
 class QSqlDriver;

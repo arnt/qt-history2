@@ -8,7 +8,6 @@
 
 #include <qcomponentinterface.h>
 #include <qvariant.h>
-#include <qobject.h>
 #include "../designer/actioninterface.h"
 #include "../shared/widgetinterface.h"
 #include "../designer/filterinterface.h"
@@ -16,11 +15,13 @@
 #include "../shared/templatewizardiface.h"
 #include "../shared/eventinterface.h"
 
+class QObject;
+
 /*
  * Interfaces for MainWindow access
  */
 // {A0E661DA-F45C-4830-AF47-03EC53EB1633}
-Q_GUID(IID_DesignerMainWindowInterface,
+Q_UUID(IID_DesignerMainWindowInterface,
 0xa0e661da, 0xf45c, 0x4830, 0xaf, 0x47, 0x3, 0xec, 0x53, 0xeb, 0x16, 0x33);
 
 struct DesignerMainWindowInterface : public QUnknownInterface
@@ -78,7 +79,7 @@ struct DesignerMainWindowInterface : public QUnknownInterface
 };
 
 // {C797C970-36E5-463b-AEAE-54AF3F05588F}
-Q_GUID(IID_DesignerStatusBarInterface,
+Q_UUID(IID_DesignerStatusBarInterface,
 0xc797c970, 0x36e5, 0x463b, 0xae, 0xae, 0x54, 0xaf, 0x3f, 0x5, 0x58, 0x8f);
 
 struct DesignerStatusBarInterface : public QUnknownInterface
@@ -91,7 +92,7 @@ struct DesignerStatusBarInterface : public QUnknownInterface
  * Interfaces for Widget access
  */
 // {B7A60C5D-6476-4978-8C05-CCE5CE706D2B}
-Q_GUID(IID_DesignerWidgetInterface,
+Q_UUID(IID_DesignerWidgetInterface,
 0xb7a60c5d, 0x6476, 0x4978, 0x8c, 0x5, 0xcc, 0xe5, 0xce, 0x70, 0x6d, 0x2b);
 
 struct DesignerWidgetInterface : public QUnknownInterface
@@ -106,7 +107,7 @@ struct DesignerWidgetInterface : public QUnknownInterface
 };
 
 // {5F8283D7-311D-4bfb-AD6A-476B77E8C288}
-Q_GUID(IID_DesignerWidgetListInterface,
+Q_UUID(IID_DesignerWidgetListInterface,
 0x5f8283d7, 0x311d, 0x4bfb, 0xad, 0x6a, 0x47, 0x6b, 0x77, 0xe8, 0xc2, 0x88);
 
 struct DesignerWidgetListInterface : public QUnknownInterface
@@ -125,10 +126,10 @@ struct DesignerWidgetListInterface : public QUnknownInterface
  * Interfaces for FormWindow access
  */
 // {A76C2285-3A5C-468b-B72F-509447034D7C}
-Q_GUID(IID_DesignerFormInterface,
+Q_UUID(IID_DesignerFormInterface,
 0xa76c2285, 0x3a5c, 0x468b, 0xb7, 0x2f, 0x50, 0x94, 0x47, 0x3, 0x4d, 0x7c);
 /* {1615FA5A-AA58-40c0-8613-5ECD71FCC8E8}
-Q_GUID(IID_DesignerActiveFormInterface,
+Q_UUID(IID_DesignerActiveFormInterface,
 0x1615fa5a, 0xaa58, 0x40c0, 0x86, 0x13, 0x5e, 0xcd, 0x71, 0xfc, 0xc8, 0xe8);
 */
 struct DesignerFormInterface : public QUnknownInterface
@@ -146,7 +147,7 @@ struct DesignerFormInterface : public QUnknownInterface
 };
 
 // {2002DD2F-9B9F-48c3-821C-619EE0375D27}
-Q_GUID(IID_DesignerFormListInterface,
+Q_UUID(IID_DesignerFormListInterface,
 0x2002dd2f, 0x9b9f, 0x48c3, 0x82, 0x1c, 0x61, 0x9e, 0xe0, 0x37, 0x5d, 0x27);
 
 struct DesignerFormListInterface : public QUnknownInterface
@@ -171,7 +172,7 @@ struct DesignerFormListInterface : public QUnknownInterface
 };
 
 // {93f93c71-a37e-4785-928c-c367ea7fefeb}
-Q_GUID(IID_DesignerProjectInterface,
+Q_UUID(IID_DesignerProjectInterface,
        0x93f93c71, 0xa37e, 0x4785, 0x92, 0x8c, 0xc3, 0x67, 0xea, 0x7f, 0xef, 0xeb);
 
 struct DesignerProjectInterface : public QUnknownInterface
@@ -194,25 +195,25 @@ struct DesignerProjectInterface : public QUnknownInterface
  * Interfaces for PropertyEditor access
  */
 // {834330A1-8542-4c1e-948A-58D68CE97BFD}
-Q_GUID(IID_DesignerPropertyEditorInterface,
+Q_UUID(IID_DesignerPropertyEditorInterface,
 0x834330a1, 0x8542, 0x4c1e, 0x94, 0x8a, 0x58, 0xd6, 0x8c, 0xe9, 0x7b, 0xfd);
 
 /*
  * Interfaces for HierarchyView access
  */
 // {13BB1270-2A4C-4d7f-A4D0-B49834DB2774}
-Q_GUID(IID_DesignerHierarchyViewInterface,
+Q_UUID(IID_DesignerHierarchyViewInterface,
 0x13bb1270, 0x2a4c, 0x4d7f, 0xa4, 0xd0, 0xb4, 0x98, 0x34, 0xdb, 0x27, 0x74);
 
 /*
  * Interfaces for Configuration access
  */
 // {4F5BA81F-520D-4a59-95DD-BDB8B5B24190}
-Q_GUID(IID_DesignerConfigurationInterface,
+Q_UUID(IID_DesignerConfigurationInterface,
 0x4f5ba81f, 0x520d, 0x4a59, 0x95, 0xdd, 0xbd, 0xb8, 0xb5, 0xb2, 0x41, 0x90);
 
 // {41ed19be-efca-42ed-aaad-1f2e502ca5fa}
-Q_GUID( IID_DesignerMetaDatabaseInterface,
+Q_UUID( IID_DesignerMetaDatabaseInterface,
 	0x41ed19be, 0xefca, 0x42ed, 0xaa, 0xad, 0x1f, 0x2e, 0x50, 0x2c, 0xa5, 0xfa );
 
 struct DesignerMetaDatabaseInterface : public QUnknownInterface
@@ -228,7 +229,7 @@ struct DesignerMetaDatabaseInterface : public QUnknownInterface
 
 // {e61b28ef-63af-4b4f-9382-dd9c5a4ac277}
 
-Q_GUID( IID_DesignerWidgetFactoryInteface,
+Q_UUID( IID_DesignerWidgetFactoryInteface,
 	0xe61b28ef, 0x63af, 0x4b4f, 0x93, 0x82, 0xdd, 0x9c, 0x5a, 0x4a, 0xc2, 0x77 );
 
 struct DesignerWidgetFactoryInterface : public QUnknownInterface

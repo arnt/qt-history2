@@ -1,3 +1,3 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "../plugins/designerinterface.h"
 

@@ -34,7 +34,7 @@
 **
 **********************************************************************/
 
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "../../qsqldriverinterface.h"
 #include "qsql_odbc.h"
 
@@ -43,7 +43,7 @@ class QODBCDriverPlugin : public QSqlDriverInterface
 public:
     QODBCDriverPlugin();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -59,12 +59,12 @@ QODBCDriverPlugin::QODBCDriverPlugin()
 {
 }
 
-QUnknownInterface *QODBCDriverPlugin::queryInterface( const QGuid &guid )
+QUnknownInterface *QODBCDriverPlugin::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    else if ( guid == IID_QSqlDriverInterface )
+    else if ( uuid == IID_QSqlDriverInterface )
 	iface = (QSqlDriverInterface*)this;
 
     if ( iface )

@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include <qstyleinterface.h>
 #include <qcompactstyle.h>
 
@@ -7,7 +7,7 @@ class CompactStyle : public QStyleInterface
 public:
     CompactStyle();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -23,12 +23,12 @@ CompactStyle::CompactStyle()
 {
 }
 
-QUnknownInterface *CompactStyle::queryInterface( const QGuid &guid )
+QUnknownInterface *CompactStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    else if ( guid == IID_QStyleInterface )
+    else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
 
     if ( iface )

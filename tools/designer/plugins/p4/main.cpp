@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "../designerinterface.h"
 #include "p4.h"
 
@@ -277,7 +277,7 @@ class P4Interface : public QObject, public ActionInterface
 public:
     P4Interface();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -714,13 +714,13 @@ void P4Interface::statusMessage( const QString &text )
     sbIface->release();
 }
 
-QUnknownInterface *P4Interface::queryInterface( const QGuid &guid )
+QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
 
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    else if ( guid == IID_ActionInterface )
+    else if ( uuid == IID_ActionInterface )
 	iface = (ActionInterface*)this;
 
     if ( iface )

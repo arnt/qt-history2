@@ -6,7 +6,7 @@
 #include <qobject.h>
 
 // {9958cfbc-64f9-44ce-a65e-2c6c11969a7b}
-Q_GUID( IID_EventInterface,
+Q_UUID( IID_EventInterface,
 	0x9958cfbc, 0x64f9, 0x44ce, 0xa6, 0x5e, 0x2c, 0x6c, 0x11, 0x96, 0x9a, 0x7b );
 
 class EventInterface : public QUnknownInterface

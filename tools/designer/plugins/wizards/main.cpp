@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include <qcleanuphandler.h>
 #include "../designerinterface.h"
 #include <qwidget.h>
@@ -9,7 +9,7 @@ class StandardTemplateWizardInterface : public TemplateWizardInterface
 public:
     StandardTemplateWizardInterface();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -50,13 +50,13 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
     }
 }
 
-QUnknownInterface *StandardTemplateWizardInterface::queryInterface( const QGuid& guid )
+QUnknownInterface *StandardTemplateWizardInterface::queryInterface( const QUuid& uuid )
 {
     QUnknownInterface *iface = 0;
 
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    else if ( guid == IID_TemplateWizardInterface )
+    else if ( uuid == IID_TemplateWizardInterface )
 	iface = (TemplateWizardInterface*)this;
 
     if ( iface )

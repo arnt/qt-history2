@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "../designerinterface.h"
 
 #include <qcleanuphandler.h>
@@ -10,7 +10,7 @@ class OpenGLWidgetInterface : public WidgetInterface
 public:
     OpenGLWidgetInterface();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -101,13 +101,13 @@ bool OpenGLWidgetInterface::isContainer( const QString& ) const
     return FALSE;
 }
 
-QUnknownInterface *OpenGLWidgetInterface::queryInterface( const QGuid& guid )
+QUnknownInterface *OpenGLWidgetInterface::queryInterface( const QUuid& uuid )
 {
     QUnknownInterface *iface = 0;
 
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    else if ( guid == IID_WidgetInterface )
+    else if ( uuid == IID_WidgetInterface )
 	iface = (WidgetInterface*)this;
 
     if ( iface )

@@ -12,7 +12,7 @@
 class QStyle;
 
 // {FC1B6EBE-053C-49c1-A483-C377739AB9A5}
-Q_GUID( IID_QStyleInterface, 
+Q_UUID( IID_QStyleInterface, 
 0xfc1b6ebe, 0x53c, 0x49c1, 0xa4, 0x83, 0xc3, 0x77, 0x73, 0x9a, 0xb9, 0xa5);
 
 struct Q_EXPORT QStyleInterface : public QUnknownInterface

@@ -27,7 +27,7 @@ public:
     virtual ~DesignerApplicationInterfaceImpl() {}
 
     // QUnknownInterface
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
     // QComponentInterface
@@ -46,7 +46,7 @@ public:
     DesignerMainWindowInterfaceImpl( QUnknownInterface *);
     virtual ~DesignerMainWindowInterfaceImpl();
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 
@@ -113,7 +113,7 @@ public:
     DesignerStatusBarInterfaceImpl( QUnknownInterface* );
     virtual ~DesignerStatusBarInterfaceImpl() {}
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 
@@ -132,7 +132,7 @@ public:
     DesignerFormListInterfaceImpl( QUnknownInterface* );
     virtual ~DesignerFormListInterfaceImpl();
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 
@@ -167,7 +167,7 @@ public:
     DesignerFormInterfaceImpl( FormListItem *fw, QUnknownInterface *ai );
     virtual ~DesignerFormInterfaceImpl() {}
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 
@@ -195,7 +195,7 @@ public:
     DesignerWidgetListInterfaceImpl( QUnknownInterface * );
     virtual ~DesignerWidgetListInterfaceImpl();
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 
@@ -222,7 +222,7 @@ public:
     DesignerWidgetInterfaceImpl( HierarchyItem *, QUnknownInterface * );
     virtual ~DesignerWidgetInterfaceImpl() {}
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 
@@ -246,7 +246,7 @@ class DesignerProjectInterfaceImpl : public DesignerProjectInterface
 public:
     DesignerProjectInterfaceImpl( QUnknownInterface *i );
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 
@@ -274,7 +274,7 @@ class DesignerMetaDatabaseInterfaceImpl : public DesignerMetaDatabaseInterface
 public:
     DesignerMetaDatabaseInterfaceImpl( QUnknownInterface *i );
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 
@@ -296,7 +296,7 @@ class DesignerWidgetFactoryInterfaceImpl : public DesignerWidgetFactoryInterface
 public:
     DesignerWidgetFactoryInterfaceImpl( QUnknownInterface *i );
 
-    QUnknownInterface *queryInterface( const QGuid & );
+    QUnknownInterface *queryInterface( const QUuid & );
     unsigned long addRef();
     unsigned long release();
 

@@ -34,7 +34,7 @@
 **
 **********************************************************************/
 
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "../../qsqldriverinterface.h"
 #include "qsql_mysql.h"
 
@@ -43,7 +43,7 @@ class QMYSQLDriverPlugin : public QSqlDriverInterface
 public:
     QMYSQLDriverPlugin();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -59,12 +59,12 @@ QMYSQLDriverPlugin::QMYSQLDriverPlugin()
 {
 }
 
-QUnknownInterface *QMYSQLDriverPlugin::queryInterface( const QGuid &guid )
+QUnknownInterface *QMYSQLDriverPlugin::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    else if ( guid == IID_QSqlDriverInterface )
+    else if ( uuid == IID_QSqlDriverInterface )
 	iface = (QSqlDriverInterface*)this;
 
     if ( iface )

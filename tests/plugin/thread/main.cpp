@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "../tools/designer/plugins/designerinterface.h"
 
 #include <qaction.h>
@@ -45,7 +45,7 @@ public:
     TestComponent();
     ~TestComponent();
 
-    QUnknownInterface *queryInterface( const QGuid& );
+    QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
@@ -91,12 +91,12 @@ TestComponent::~TestComponent()
     delete dialog;
 }
 
-QUnknownInterface *TestComponent::queryInterface( const QGuid &guid )
+QUnknownInterface *TestComponent::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
-    if ( guid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    else if ( guid == IID_ActionInterface )
+    else if ( uuid == IID_ActionInterface )
 	iface = (ActionInterface*)this;
 
     if ( iface )

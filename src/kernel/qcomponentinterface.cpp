@@ -1,4 +1,4 @@
-#define Q_GUIDIMPL
+#define Q_UUIDIMPL
 #include "qcomponentinterface.h"
 #ifndef QT_NO_STYLE
 #include "qstyleinterface.h"
@@ -10,23 +10,26 @@
 #ifndef QT_NO_COMPONENT
 
 // {1D8518CD-E8F5-4366-99E8-879FD7E482DE}
-Q_GUID(IID_QUnknownInterface, 
+Q_UUID(IID_QUnknownInterface, 
 0x1d8518cd, 0xe8f5, 0x4366, 0x99, 0xe8, 0x87, 0x9f, 0xd7, 0xe4, 0x82, 0xde);
 
 // {5F3968A5-F451-45b1-96FB-061AD98F926E}
-Q_GUID(IID_QComponentInterface, 
+Q_UUID(IID_QComponentInterface, 
 0x5f3968a5, 0xf451, 0x45b1, 0x96, 0xfb, 0x6, 0x1a, 0xd9, 0x8f, 0x92, 0x6e);
 
 /*!
-  \class QUnknownInterface qcomponentinterface.h
+  \interface QUnknownInterface qcomponentinterface.h
   \brief This class serves as a base class for interfaces.
 */
 
 /*!
-  \fn QUnknownInterface* QUnknownInterface::queryInterface( const QGuid& request )
+  \fn QUnknownInterface* QUnknownInterface::queryInterface( const QUuid& request )
 
   Returns an interface that matches \a request, or NULL if this interface 
   can't provide the requested interface.
+
+  Every component implementing this interface has to provide a proper implementation 
+  of this function. 
 */
 
 /*!
@@ -52,7 +55,7 @@ Q_GUID(IID_QComponentInterface,
 */
 
 /*!
-  \class QComponentInterface qcomponentinterface.h
+  \interface QComponentInterface qcomponentinterface.h
 
   \brief This interface provides functions to get information about components.
 */
