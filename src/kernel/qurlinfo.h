@@ -76,6 +76,8 @@ public:
     virtual void setPermissions( int p );
     virtual void setLastModified( const QDateTime &dt );
 
+    bool isValid() const;
+
     QString name() const;
     int permissions() const;
     QString owner() const;

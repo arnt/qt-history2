@@ -94,7 +94,7 @@ public:
 
 QUrlInfo::QUrlInfo()
 {
-    d = new QUrlInfoPrivate;
+    d = 0;
 }
 
 /*!
@@ -109,9 +109,14 @@ QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
     QString file_ = file;
     if ( file_.isEmpty() )
 	file_ = ".";
-    d = new QUrlInfoPrivate;
+
     QUrlInfo inf = path.info( file_ );
-    *d = *inf.d;
+    if ( inf.d ) {
+	d = new QUrlInfoPrivate;
+	*d = *inf.d;
+    } else {
+	d = 0;
+    }
 }
 
 /*!
@@ -120,8 +125,12 @@ QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
 
 QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 {
-    d = new QUrlInfoPrivate;
-    *d = *ui.d;
+    if ( ui.d ) {
+	d = new QUrlInfoPrivate;
+	*d = *ui.d;
+    } else {
+	d = 0;
+    }
 }
 
 /*!
@@ -192,6 +201,8 @@ example, "http://doc.trolltech.com/qurlinfo.html".
 
 void QUrlInfo::setName( const QString &name )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->name = name;
 }
 
@@ -205,6 +216,8 @@ though most file systems do not support this duality.)
 
 void QUrlInfo::setDir( bool b )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->isDir = b;
 }
 
@@ -217,6 +230,8 @@ though most file systems do not support this duality.)
 */
 void QUrlInfo::setFile( bool b )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->isFile = b;
 }
 
@@ -226,6 +241,8 @@ that it does not if \a b is FALSE.  */
 
 void QUrlInfo::setSymLink( bool b )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->isSymLink = b;
 }
 
@@ -235,6 +252,8 @@ void QUrlInfo::setSymLink( bool b )
 
 void QUrlInfo::setWritable( bool b )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->isWritable = b;
 }
 
@@ -244,6 +263,8 @@ void QUrlInfo::setWritable( bool b )
 
 void QUrlInfo::setReadable( bool b )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->isReadable = b;
 }
 
@@ -251,6 +272,8 @@ void QUrlInfo::setReadable( bool b )
 
 void QUrlInfo::setOwner( const QString &s )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->owner = s;
 }
 
@@ -258,6 +281,8 @@ void QUrlInfo::setOwner( const QString &s )
 
 void QUrlInfo::setGroup( const QString &s )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->group = s;
 }
 
@@ -265,6 +290,8 @@ void QUrlInfo::setGroup( const QString &s )
 
 void QUrlInfo::setSize( uint s )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->size = s;
 }
 
@@ -277,6 +304,8 @@ void QUrlInfo::setSize( uint s )
 
 void QUrlInfo::setPermissions( int p )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->permissions = p;
 }
 
@@ -285,6 +314,8 @@ void QUrlInfo::setPermissions( int p )
 
 void QUrlInfo::setLastModified( const QDateTime &dt )
 {
+    if ( !d )
+	d = new QUrlInfoPrivate;
     d->lastModified = dt;
 }
 
@@ -302,7 +333,14 @@ QUrlInfo::~QUrlInfo()
 
 QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
 {
-    *d = *ui.d;
+    if ( ui.d ) {
+	if ( !d )
+	    d= new QUrlInfoPrivate;
+	*d = *ui.d;
+    } else {
+	delete d;
+	d = 0;
+    }
     return *this;
 }
 
@@ -312,6 +350,8 @@ QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
 
 QString QUrlInfo::name() const
 {
+    if ( !d )
+	return QString::null;
     return d->name;
 }
 
@@ -321,6 +361,8 @@ QString QUrlInfo::name() const
 
 int QUrlInfo::permissions() const
 {
+    if ( !d )
+	return 0;
     return d->permissions;
 }
 
@@ -330,6 +372,8 @@ int QUrlInfo::permissions() const
 
 QString QUrlInfo::owner() const
 {
+    if ( !d )
+	return QString::null;
     return d->owner;
 }
 
@@ -339,6 +383,8 @@ QString QUrlInfo::owner() const
 
 QString QUrlInfo::group() const
 {
+    if ( !d )
+	return QString::null;
     return d->group;
 }
 
@@ -348,6 +394,8 @@ QString QUrlInfo::group() const
 
 uint QUrlInfo::size() const
 {
+    if ( !d )
+	return 0;
     return d->size;
 }
 
@@ -357,6 +405,8 @@ uint QUrlInfo::size() const
 
 QDateTime QUrlInfo::lastModified() const
 {
+    if ( !d )
+	return QDateTime();
     return d->lastModified;
 }
 
@@ -366,6 +416,8 @@ QDateTime QUrlInfo::lastModified() const
 
 QDateTime QUrlInfo::lastRead() const
 {
+    if ( !d )
+	return QDateTime();
     return d->lastRead;
 }
 
@@ -375,6 +427,8 @@ QDateTime QUrlInfo::lastRead() const
 
 bool QUrlInfo::isDir() const
 {
+    if ( !d )
+	return FALSE;
     return d->isDir;
 }
 
@@ -384,6 +438,8 @@ bool QUrlInfo::isDir() const
 
 bool QUrlInfo::isFile() const
 {
+    if ( !d )
+	return FALSE;
     return d->isFile;
 }
 
@@ -393,6 +449,8 @@ bool QUrlInfo::isFile() const
 
 bool QUrlInfo::isSymLink() const
 {
+    if ( !d )
+	return FALSE;
     return d->isSymLink;
 }
 
@@ -402,6 +460,8 @@ bool QUrlInfo::isSymLink() const
 
 bool QUrlInfo::isWritable() const
 {
+    if ( !d )
+	return FALSE;
     return d->isWritable;
 }
 
@@ -411,6 +471,8 @@ bool QUrlInfo::isWritable() const
 
 bool QUrlInfo::isReadable() const
 {
+    if ( !d )
+	return FALSE;
     return d->isReadable;
 }
 
@@ -420,6 +482,8 @@ bool QUrlInfo::isReadable() const
 
 bool QUrlInfo::isExecutable() const
 {
+    if ( !d )
+	return FALSE;
     return d->isExecutable;
 }
 
@@ -485,6 +549,11 @@ bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
 
 bool QUrlInfo::operator==( const QUrlInfo &i ) const
 {
+    if ( !d )
+	return i.d == 0;
+    if ( !i.d )
+	return FALSE;
+
     return ( d->name == i.d->name &&
 	     d->permissions == i.d->permissions &&
 	     d->owner == i.d->owner &&
@@ -498,6 +567,20 @@ bool QUrlInfo::operator==( const QUrlInfo &i ) const
 	     d->isWritable == i.d->isWritable &&
 	     d->isReadable == i.d->isReadable &&
 	     d->isExecutable == i.d->isExecutable );
+}
+
+/*!
+  Returns TRUE if the URL info is valid; otherwise returns FALSE. Valid means
+  that the QUrlInfo contains real information. E.g., a call to
+  QUrlOperator::info() might return a an invalid QUrlInfo, if no information
+  about the requested entry is available.
+
+  You should always check if the URL info is valid before relying on the
+  values.
+*/
+bool QUrlInfo::isValid() const
+{
+    return d != 0;
 }
 
 #endif // QT_NO_NETWORKPROTOCOL
