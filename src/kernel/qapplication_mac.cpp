@@ -160,9 +160,9 @@ public:
 };
 static QHash<int, QTSMDocumentWrapper> *qt_mac_tsm_dict=NULL;
 void qt_mac_unicode_init(QWidget *w) {
-    if(!qt_mac_tsm_dict) 
+    if(!qt_mac_tsm_dict)
 	qt_mac_tsm_dict = new QHash<int, QTSMDocumentWrapper>();
-    else if(qt_mac_tsm_dict->contains((int)w->handle())) 
+    else if(qt_mac_tsm_dict->contains((int)w->handle()))
 	return;
     qt_mac_tsm_dict->insert((int)w->handle(), QTSMDocumentWrapper());
 }
@@ -172,7 +172,7 @@ void qt_mac_unicode_cleanup(QWidget *w) {
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
-    if(!w || !qt_mac_tsm_dict || 
+    if(!w || !qt_mac_tsm_dict ||
        !qt_mac_tsm_dict->contains((int)w->handle()))
 	return 0;
     return &(*qt_mac_tsm_dict)[(int)w->handle()];
@@ -420,7 +420,7 @@ void qt_mac_update_os_settings()
 		GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
 		pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
-		pal.setBrush(QPalette::Disabled, QColorGroup::Text, 
+		pal.setBrush(QPalette::Disabled, QColorGroup::Text,
 			     QColor(c.red / 256, c.green / 256, c.blue / 256));
 	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton") ||
 		      !strcmp(mac_widget_colours[i].qt_class, "QHeader")) { //special
@@ -1989,7 +1989,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       key, modifiers);
 #endif
-		QKeyEvent ke(etype, key, 0, modifiers, "", FALSE);
+		QKeyEvent ke(etype, key, modifiers, "", FALSE);
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	    break;
@@ -2076,7 +2076,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			c = QTextCodec::codecForName("Apple Roman");
 		    accel_str = c->toUnicode(&chr, 1);
 		}
-		QKeyEvent accel_ev(QEvent::AccelOverride, mychar, chr, modifiers,
+		QKeyEvent accel_ev(QEvent::AccelOverride, mychar, modifiers,
 				   accel_str, ekind == kEventRawKeyRepeat,
 				   QMAX(1, accel_str.length()));
 		if(qt_tryAccelEvent(widget, &accel_ev)) {
@@ -2144,7 +2144,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    chr = 0;
 		    mystr = "";
 		}
-		QKeyEvent ke(etype,mychar, chr, modifiers,
+		QKeyEvent ke(etype, mychar, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat,
 			     QMAX(1, mystr.length()));
 		QApplication::sendSpontaneousEvent(widget,&ke);

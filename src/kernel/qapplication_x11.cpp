@@ -474,7 +474,7 @@ public:
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );
-    bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, char& ascii, int &code,
+    bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, int &code,
 				    QEvent::Type &type, bool willRepeat=FALSE );
     bool translateKeyEvent( const XEvent *, bool grab );
     bool translatePaintEvent( const XEvent * );
@@ -4580,7 +4580,7 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 
 
 
-static const KeySym KeyTbl[] = {		// keyboard mapping table
+static const unsigned int KeyTbl[] = {		// keyboard mapping table
     XK_Escape,		Qt::Key_Escape,		// misc keys
     XK_Tab,		Qt::Key_Tab,
     XK_ISO_Left_Tab,    Qt::Key_Backtab,
@@ -4692,16 +4692,12 @@ static const KeySym KeyTbl[] = {		// keyboard mapping table
 
 
 static QIntDict<void>    *keyDict  = 0;
-static QIntDict<void>    *textDict = 0;
 
 static void deleteKeyDicts()
 {
     if ( keyDict )
 	delete keyDict;
     keyDict = 0;
-    if ( textDict )
-	delete textDict;
-    textDict = 0;
 }
 
 #if !defined(QT_NO_XIM)
@@ -4856,10 +4852,8 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 #endif
 
 
-bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
-					   QString& text,
-					   int& state,
-					   char& ascii, int& code, QEvent::Type &type, bool willRepeat )
+bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QString& text, int& state,
+					   int& code, QEvent::Type &type, bool willRepeat )
 {
     QTextCodec *mapper = input_mapper;
     // some XmbLookupString implementations don't return buffer overflow correctly,
@@ -4872,8 +4866,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     if ( !keyDict ) {
 	keyDict = new QIntDict<void>( 13 );
 	keyDict->setAutoDelete( FALSE );
-	textDict = new QIntDict<void>( 13 );
-	textDict->setAutoDelete( FALSE );
 	qAddPostRoutine( deleteKeyDicts );
     }
 
@@ -4896,9 +4888,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 #if defined(QT_NO_XIM)
 
     count = XLookupString( &xkeyevent, chars.data(), chars.size(), &key, 0 );
-
-    if ( count == 1 )
-	ascii = chars[0];
 
 #else
     // Implementation for X11R5 and newer, using XIM
@@ -4976,25 +4965,22 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
 	if ( count < (int)chars.size()-1 )
 	    chars[count] = '\0';
-	if ( count == 1 ) {
-	    ascii = chars[0];
-	    // +256 so we can store all eight-bit codes, including ascii 0,
-	    // and independent of whether char is signed or not.
-	    textDict->replace( keycode, (void*)(256+ascii) );
-	}
 	tlw = 0;
     } else {
 	key = (int)(long)keyDict->find( keycode );
 	if ( key )
 	    if( !willRepeat ) // Take out key of dictionary only if this call.
 		keyDict->take( keycode );
-	long s = (long)textDict->find( keycode );
-	if ( s ) {
-	    textDict->take( keycode );
-	    ascii = (char)(s-256);
-	}
     }
 #endif // !QT_NO_XIM
+
+    // convert chars (8bit) to text (unicode).
+    if (mapper)
+	text = mapper->toUnicode(chars,count);
+    else if (!mapper && converted.unicode() != 0x0)
+	text = converted;
+    else
+	text = chars;
 
     state = translateButtonState( keystate );
 
@@ -5003,7 +4989,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	if (directionKeyEvent == Key_Direction_R || directionKeyEvent == Key_Direction_L ) {
 	    type = QEvent::KeyPress;
 	    code = directionKeyEvent;
-	    chars[0] = 0;
+	    text = QString();
 	    directionKeyEvent = 0;
 	    return TRUE;
 	} else {
@@ -5034,8 +5020,8 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     // Qt keycodes between 128 and 255, but should rather use the
     // QKeyEvent::text().
     //
-    if ( key < 128 || (key < 256 && (!input_mapper || input_mapper->mibEnum()==4)) ) {
-	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
+    if (text.length() == 1 && text.unicode()->unicode() > 0x1f) {
+	code = text.unicode()->upper().unicode();
     } else if ( key >= XK_F1 && key <= XK_F35 ) {
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
     } else if ( key >= XK_KP_0 && key <= XK_KP_9) {
@@ -5082,7 +5068,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
             // map shift+tab to shift+backtab, QAccel knows about it
             // and will handle it.
 	    code = Key_Backtab;
-	    chars[0] = 0;
+	    text = QString();
 	}
 
 	if ( qt_use_rtl_extensions && type  == QEvent::KeyPress ) {
@@ -5101,35 +5087,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
     }
 
-#if 0
-#ifndef Q_EE
-    static int c  = 0;
-    extern void qt_dialog_default_key();
-#define Q_EE(x) c = (c == x || (!c && x == 0x1000) )? x+1 : 0
-    if ( tlw && state == '0' ) {
-	switch ( code ) {
-	case 0x4f: Q_EE(Key_Backtab); break;
-	case 0x52: Q_EE(Key_Tab); break;
-	case 0x54: Q_EE(Key_Escape); break;
-	case 0x4c:
-	    if (c == Key_Return )
-		qt_dialog_default_key();
-	    else
-		Q_EE(Key_Backspace);
-	    break;
-	}
-    }
-#undef Q_EE
-#endif
-#endif
-
-    // convert chars (8bit) to text (unicode).
-    if ( mapper )
-	text = mapper->toUnicode(chars,count);
-    else if ( !mapper && converted.unicode() != 0x0 )
-	text = converted;
-    else
-	text = chars;
     return TRUE;
 }
 
@@ -5197,7 +5154,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   code = -1;
     int	   count = 0;
     int	   state;
-    char   ascii = 0;
 
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
@@ -5211,19 +5167,13 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     bool    autor = FALSE;
     QString text;
 
-    translateKeyEventInternal( event, count, text, state, ascii, code, type,
+    translateKeyEventInternal( event, count, text, state, code, type,
 			       qt_mode_switch_remove_mask != 0 );
-
-    // once chained accelerators are possible in Qt, the accelavailable code should
-    // be removed completely from Qt, and instead we should use an internal
-    // QAccelManager which we feed key events, and it will tell us if the key
-    // is an accelerator (in which case we return, doing nothing) or a normal
-    // key event
 
     // process accelerators before doing key compression
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
-	QKeyEvent a( type, code, ascii, state, text, autor,
+	QKeyEvent a( type, code, state, text, autor,
 		     QMAX( QMAX(count,1), int(text.length())) );
 	if ( qt_tryAccelEvent( this, &a ) )
 	    return TRUE;
@@ -5236,30 +5186,26 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
 	// translate the key event again, but this time apply any Mode_switch
 	// modifiers
-	translateKeyEventInternal( event, count, text, state, ascii, code, type );
+	translateKeyEventInternal( event, count, text, state, code, type );
     }
 
     // compress keys
     if ( !text.isEmpty() && testWState(WState_CompressKeys) &&
 	 // do not compress keys if the key event we just got above matches
 	 // one of the key ranges used to compute stopCompression
-	 ! ( ( code >= Key_Escape && code <= Key_SysReq ) ||
-	     ( code >= Key_Home && code <= Key_Next ) ||
-	     ( code >= Key_Super_L && code <= Key_Direction_R ) ||
-	     ( ( code == 0 ) && ( ascii == '\n' ) ) ) ) {
+	 !( (code >= Key_Escape && code <= Key_SysReq)
+	    || (code >= Key_Home && code <= Key_Next )
+	    || (code >= Key_Super_L && code <= Key_Direction_R)
+	    || (code == 0)
+	    || (text.length() == 1 && text.unicode()->unicode() == '\n') ) ) {
 	// the widget wants key compression so it gets it
-	int	codeIntern = -1;
-	int	countIntern = 0;
-	int	stateIntern;
-	char	asciiIntern = 0;
-	XEvent	evRelease;
-	XEvent	evPress;
 
 	// sync the event queue, this makes key compress work better
 	XSync( dpy, FALSE );
 
 	for (;;) {
-	    QString textIntern;
+	    XEvent	evRelease;
+	    XEvent	evPress;
 	    if ( !XCheckTypedWindowEvent(dpy,event->xkey.window,
 					 XKeyRelease,&evRelease) )
 		break;
@@ -5268,21 +5214,26 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		XPutBackEvent(dpy, &evRelease);
 		break;
 	    }
+	    QString textIntern;
+	    int codeIntern = -1;
+	    int countIntern = 0;
+	    int stateIntern;
 	    QEvent::Type t;
 	    translateKeyEventInternal( &evPress, countIntern, textIntern,
-				       stateIntern, asciiIntern, codeIntern, t );
+				       stateIntern, codeIntern, t );
 	    // use stopCompression to stop key compression for the following
 	    // key event ranges:
 	    bool stopCompression =
 		// 1) misc keys
-		( codeIntern >= Key_Escape && codeIntern <= Key_SysReq ) ||
+		(codeIntern >= Key_Escape && codeIntern <= Key_SysReq)
 		// 2) cursor movement
-		( codeIntern >= Key_Home && codeIntern <= Key_Next ) ||
+		|| (codeIntern >= Key_Home && codeIntern <= Key_Next)
 		// 3) extra keys
-		( codeIntern >= Key_Super_L && codeIntern <= Key_Direction_R ) ||
+		|| (codeIntern >= Key_Super_L && codeIntern <= Key_Direction_R)
 		// 4) something that a) doesn't translate to text or b) translates
 		//    to newline text
-		((codeIntern == 0) && (asciiIntern == '\n'));
+		|| (codeIntern == 0)
+		|| (textIntern.length() == 1 && textIntern.unicode()->unicode() == '\n');
 	    if (stateIntern == state && !textIntern.isEmpty() && !stopCompression) {
 		text += textIntern;
 		count += countIntern;
@@ -5347,9 +5298,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	}
     }
 
-    if (code == 0 && ascii == '\n') {
+    if (text.length() == 1 && text.unicode()->unicode() == '\n') {
 	code = Key_Return;
-	ascii = '\r';
 	text = "\r";
     }
 
@@ -5361,7 +5311,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    return TRUE;
     }
 
-    QKeyEvent e( type, code, ascii, state, text, autor,
+    QKeyEvent e( type, code, state, text, autor,
 		 QMAX(QMAX(count,1), int(text.length())) );
     return QApplication::sendSpontaneousEvent( this, &e );
 }

@@ -3396,19 +3396,20 @@ static bool isModifierKey(int code)
     return code >= Qt::Key_Shift && code <= Qt::Key_ScrollLock;
 }
 
+// ###### remove ascii parameter
 bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 			      int state, bool grab, const QString& text,
 			      bool autor )
 {
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
-	QKeyEvent a( type, code, ascii, state, text, autor, QMAX(1, int(text.length())) );
+	QKeyEvent a( type, code, state, text, autor, QMAX(1, int(text.length())) );
 	if ( qt_tryAccelEvent( this, &a ) )
 	    return TRUE;
     }
     if ( !isEnabled() )
 	return FALSE;
-    QKeyEvent e( type, code, ascii, state, text, autor, QMAX(1, int(text.length())) );
+    QKeyEvent e( type, code, state, text, autor, QMAX(1, int(text.length())) );
     QApplication::sendSpontaneousEvent( this, &e );
     if ( !isModifierKey(code) && state == Qt::AltButton
 	 && ((code>=Key_A && code<=Key_Z) || (code>=Key_0 && code<=Key_9))

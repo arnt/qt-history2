@@ -50,23 +50,20 @@ public:
     bool connectItem( int id,  const QObject *receiver, const char* member );
     bool disconnectItem( int id,  const QObject *receiver, const char* member );
 
-    void repairEventFilter();
-
     void setWhatsThis( int id, const QString& );
     QString whatsThis( int id ) const;
     void setIgnoreWhatsThis( bool );
     bool ignoreWhatsThis() const;
 
     static QKeySequence shortcutKey( const QString & );
-    static QString keyToString(QKeySequence k );
+#ifndef QT_NO_COMPAT
+    static QString keyToString(const QKeySequence &k );
     static QKeySequence stringToKey( const QString & );
+#endif
 
 signals:
     void activated( int id );
     void activatedAmbiguously( int id );
-
-protected:
-    bool eventFilter( QObject *, QEvent * );
 
 private:
     QAccelPrivate * d;
@@ -79,6 +76,18 @@ private:
     friend class QAccelPrivate;
     friend class QAccelManager;
 };
+
+#ifndef QT_NO_COMPAT
+inline QString QAccel::keyToString( const QKeySequence &k )
+{
+    return (QString) k;
+}
+
+inline QKeySequence QAccel::stringToKey( const QString & s )
+{
+    return QKeySequence( s );
+}
+#endif
 
 #endif // QT_NO_ACCEL
 #endif // QACCEL_H

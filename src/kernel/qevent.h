@@ -244,16 +244,26 @@ protected:
 class Q_EXPORT QKeyEvent : public QEvent
 {
 public:
-    QKeyEvent( Type type, int key, int ascii, int state,
-		const QString& text=QString::null, bool autorep=FALSE, ushort count=1 )
-	: QEvent(type), txt(text), k((ushort)key), s((ushort)state),
-	    a((uchar)ascii), accpt(TRUE), autor(autorep), c(count)
+    QKeyEvent( Type type, int key, int state, const QString& text=QString::null,
+	       bool autorep=FALSE, ushort count=1 )
+	: QEvent(type), txt(text), k(key), s((ushort)state), c(count),
+	  accpt(TRUE), autor(autorep)
     {
 	if ( key >= Key_Back && key <= Key_MediaLast )
 	    accpt = FALSE;
     }
     int	   key()	const	{ return k; }
-    int	   ascii()	const	{ return a; }
+#ifndef QT_NO_COMPAT
+    QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text=QString::null,
+	       bool autorep=FALSE, ushort count=1 )
+	: QEvent(type), txt(text), k(key), s((ushort)state), c(count),
+	  accpt(TRUE), autor(autorep)
+    {
+	if ( key >= Key_Back && key <= Key_MediaLast )
+	    accpt = FALSE;
+    }
+    int	   ascii()	const	{ return k > 255 ? 0 : k; }
+#endif
     ButtonState state()	const	{ return ButtonState(s); }
     ButtonState stateAfter() const;
     bool   isAccepted() const	{ return accpt; }
@@ -265,11 +275,11 @@ public:
 
 protected:
     QString txt;
-    ushort k, s;
-    uchar  a;
+    int k;
+    ushort s;
+    ushort c;
     uint   accpt:1;
     uint   autor:1;
-    ushort c;
 };
 
 

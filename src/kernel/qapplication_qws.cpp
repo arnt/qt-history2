@@ -1860,7 +1860,7 @@ QWidget *QApplication::findWidget( const QObjectList& list,
 				   const QPoint &pos, bool rec )
 {
     QWidget *w;
-    
+
     for ( int i = list.size()-1; i >= 0; --i ) {
 	if ( list.at(i)->isWidgetType() ) {
 	  w = static_cast<QWidget*>(list.at(i));
@@ -2680,7 +2680,7 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
 #ifndef QT_NO_ACCEL
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
-	QKeyEvent a( type, code, ascii, state, text, autor, int(text.length()) );
+	QKeyEvent a( type, code, state, text, autor, int(text.length()) );
 	if ( qt_tryAccelEvent( this, &a ) )
 	    return TRUE;
     }
@@ -2691,7 +2691,7 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
 	// XXX not implemented
     }
 
-    QKeyEvent e( type, code, ascii, state, text, autor, int(text.length()) );
+    QKeyEvent e( type, code, state, text, autor, int(text.length()) );
     return QApplication::sendSpontaneousEvent( this, &e );
 }
 

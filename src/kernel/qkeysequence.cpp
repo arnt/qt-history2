@@ -39,11 +39,11 @@
 
     A key sequence consists of up to four keyboard codes, each
     optionally combined with modifiers, e.g. \c SHIFT, \c CTRL, \c
-    ALT, \c META, or \c UNICODE_ACCEL. For example, \c{CTRL + Key_P}
+    ALT or \c META. For example, \c{CTRL + Key_P}
     might be a sequence used as a shortcut for printing a document.
     The key codes are listed in \c{qnamespace.h}. As an alternative,
-    use \c UNICODE_ACCEL with the unicode code point of the character.
-    For example, \c{UNICODE_ACCEL + 'A'} gives the same key sequence
+    use the unicode code point of the character.
+    For example, \c{'A'} gives the same key sequence
     as \c Key_A.
 
     Key sequences can be constructed either from an integer key code,
@@ -67,87 +67,87 @@ static struct {
     int key;
     const char* name;
 } keyname[] = {
-    { Qt::Key_Space,	    QT_TRANSLATE_NOOP( "QAccel", "Space" ) },
-    { Qt::Key_Escape,	    QT_TRANSLATE_NOOP( "QAccel", "Esc" ) },
-    { Qt::Key_Tab,	    QT_TRANSLATE_NOOP( "QAccel", "Tab" ) },
-    { Qt::Key_Backtab,	    QT_TRANSLATE_NOOP( "QAccel", "Backtab" ) },
-    { Qt::Key_Backspace,    QT_TRANSLATE_NOOP( "QAccel", "Backspace" ) },
-    { Qt::Key_Return,	    QT_TRANSLATE_NOOP( "QAccel", "Return" ) },
-    { Qt::Key_Enter,	    QT_TRANSLATE_NOOP( "QAccel", "Enter" ) },
-    { Qt::Key_Insert,	    QT_TRANSLATE_NOOP( "QAccel", "Ins" ) },
-    { Qt::Key_Delete,	    QT_TRANSLATE_NOOP( "QAccel", "Del" ) },
-    { Qt::Key_Pause,	    QT_TRANSLATE_NOOP( "QAccel", "Pause" ) },
-    { Qt::Key_Print,	    QT_TRANSLATE_NOOP( "QAccel", "Print" ) },
-    { Qt::Key_SysReq,	    QT_TRANSLATE_NOOP( "QAccel", "SysReq" ) },
-    { Qt::Key_Home,	    QT_TRANSLATE_NOOP( "QAccel", "Home" ) },
-    { Qt::Key_End,	    QT_TRANSLATE_NOOP( "QAccel", "End" ) },
-    { Qt::Key_Left,	    QT_TRANSLATE_NOOP( "QAccel", "Left" ) },
-    { Qt::Key_Up,	    QT_TRANSLATE_NOOP( "QAccel", "Up" ) },
-    { Qt::Key_Right,	    QT_TRANSLATE_NOOP( "QAccel", "Right" ) },
-    { Qt::Key_Down,	    QT_TRANSLATE_NOOP( "QAccel", "Down" ) },
-    { Qt::Key_Prior,	    QT_TRANSLATE_NOOP( "QAccel", "PgUp" ) },
-    { Qt::Key_Next,	    QT_TRANSLATE_NOOP( "QAccel", "PgDown" ) },
-    { Qt::Key_CapsLock,	    QT_TRANSLATE_NOOP( "QAccel", "CapsLock" ) },
-    { Qt::Key_NumLock,	    QT_TRANSLATE_NOOP( "QAccel", "NumLock" ) },
-    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP( "QAccel", "ScrollLock" ) },
-    { Qt::Key_Menu,	    QT_TRANSLATE_NOOP( "QAccel", "Menu" ) },
-    { Qt::Key_Help,	    QT_TRANSLATE_NOOP( "QAccel", "Help" ) },
+    { Qt::Key_Space,	    QT_TRANSLATE_NOOP("QAccel", "Space") },
+    { Qt::Key_Escape,	    QT_TRANSLATE_NOOP("QAccel", "Esc") },
+    { Qt::Key_Tab,	    QT_TRANSLATE_NOOP("QAccel", "Tab") },
+    { Qt::Key_Backtab,	    QT_TRANSLATE_NOOP("QAccel", "Backtab") },
+    { Qt::Key_Backspace,    QT_TRANSLATE_NOOP("QAccel", "Backspace") },
+    { Qt::Key_Return,	    QT_TRANSLATE_NOOP("QAccel", "Return") },
+    { Qt::Key_Enter,	    QT_TRANSLATE_NOOP("QAccel", "Enter") },
+    { Qt::Key_Insert,	    QT_TRANSLATE_NOOP("QAccel", "Ins") },
+    { Qt::Key_Delete,	    QT_TRANSLATE_NOOP("QAccel", "Del") },
+    { Qt::Key_Pause,	    QT_TRANSLATE_NOOP("QAccel", "Pause") },
+    { Qt::Key_Print,	    QT_TRANSLATE_NOOP("QAccel", "Print") },
+    { Qt::Key_SysReq,	    QT_TRANSLATE_NOOP("QAccel", "SysReq") },
+    { Qt::Key_Home,	    QT_TRANSLATE_NOOP("QAccel", "Home") },
+    { Qt::Key_End,	    QT_TRANSLATE_NOOP("QAccel", "End") },
+    { Qt::Key_Left,	    QT_TRANSLATE_NOOP("QAccel", "Left") },
+    { Qt::Key_Up,	    QT_TRANSLATE_NOOP("QAccel", "Up") },
+    { Qt::Key_Right,	    QT_TRANSLATE_NOOP("QAccel", "Right") },
+    { Qt::Key_Down,	    QT_TRANSLATE_NOOP("QAccel", "Down") },
+    { Qt::Key_Prior,	    QT_TRANSLATE_NOOP("QAccel", "PgUp") },
+    { Qt::Key_Next,	    QT_TRANSLATE_NOOP("QAccel", "PgDown") },
+    { Qt::Key_CapsLock,	    QT_TRANSLATE_NOOP("QAccel", "CapsLock") },
+    { Qt::Key_NumLock,	    QT_TRANSLATE_NOOP("QAccel", "NumLock") },
+    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QAccel", "ScrollLock") },
+    { Qt::Key_Menu,	    QT_TRANSLATE_NOOP("QAccel", "Menu") },
+    { Qt::Key_Help,	    QT_TRANSLATE_NOOP("QAccel", "Help") },
 
     // Multimedia keys
-    { Qt::Key_Back,	    QT_TRANSLATE_NOOP( "QAccel", "Back" ) },
-    { Qt::Key_Forward,	    QT_TRANSLATE_NOOP( "QAccel", "Forward" ) },
-    { Qt::Key_Stop,	    QT_TRANSLATE_NOOP( "QAccel", "Stop" ) },
-    { Qt::Key_Refresh,	    QT_TRANSLATE_NOOP( "QAccel", "Refresh" ) },
-    { Qt::Key_VolumeDown,   QT_TRANSLATE_NOOP( "QAccel", "Volume Down" ) },
-    { Qt::Key_VolumeMute,   QT_TRANSLATE_NOOP( "QAccel", "Volume Mute" ) },
-    { Qt::Key_VolumeUp,	    QT_TRANSLATE_NOOP( "QAccel", "Volume Up" ) },
-    { Qt::Key_BassBoost,    QT_TRANSLATE_NOOP( "QAccel", "Bass Boost" ) },
-    { Qt::Key_BassUp,	    QT_TRANSLATE_NOOP( "QAccel", "Bass Up" ) },
-    { Qt::Key_BassDown,	    QT_TRANSLATE_NOOP( "QAccel", "Bass Down" ) },
-    { Qt::Key_TrebleUp,	    QT_TRANSLATE_NOOP( "QAccel", "Treble Up" ) },
-    { Qt::Key_TrebleDown,   QT_TRANSLATE_NOOP( "QAccel", "Treble Down" ) },
-    { Qt::Key_MediaPlay,    QT_TRANSLATE_NOOP( "QAccel", "Media Play" ) },
-    { Qt::Key_MediaStop,    QT_TRANSLATE_NOOP( "QAccel", "Media Stop" ) },
-    { Qt::Key_MediaPrev,    QT_TRANSLATE_NOOP( "QAccel", "Media Previous" ) },
-    { Qt::Key_MediaNext,    QT_TRANSLATE_NOOP( "QAccel", "Media Next" ) },
-    { Qt::Key_MediaRecord,  QT_TRANSLATE_NOOP( "QAccel", "Media Record" ) },
-    { Qt::Key_HomePage,	    QT_TRANSLATE_NOOP( "QAccel", "Home" ) },
-    { Qt::Key_Favorites,    QT_TRANSLATE_NOOP( "QAccel", "Favorites" ) },
-    { Qt::Key_Search,	    QT_TRANSLATE_NOOP( "QAccel", "Search" ) },
-    { Qt::Key_Standby,	    QT_TRANSLATE_NOOP( "QAccel", "Standby" ) },
-    { Qt::Key_OpenUrl,	    QT_TRANSLATE_NOOP( "QAccel", "Open URL" ) },
-    { Qt::Key_LaunchMail,   QT_TRANSLATE_NOOP( "QAccel", "Launch Mail" ) },
-    { Qt::Key_LaunchMedia,  QT_TRANSLATE_NOOP( "QAccel", "Launch Media" ) },
-    { Qt::Key_Launch0,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (0)" ) },
-    { Qt::Key_Launch1,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (1)" ) },
-    { Qt::Key_Launch2,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (2)" ) },
-    { Qt::Key_Launch3,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (3)" ) },
-    { Qt::Key_Launch4,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (4)" ) },
-    { Qt::Key_Launch5,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (5)" ) },
-    { Qt::Key_Launch6,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (6)" ) },
-    { Qt::Key_Launch7,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (7)" ) },
-    { Qt::Key_Launch8,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (8)" ) },
-    { Qt::Key_Launch9,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (9)" ) },
-    { Qt::Key_LaunchA,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (A)" ) },
-    { Qt::Key_LaunchB,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (B)" ) },
-    { Qt::Key_LaunchC,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (C)" ) },
-    { Qt::Key_LaunchD,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (D)" ) },
-    { Qt::Key_LaunchE,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (E)" ) },
-    { Qt::Key_LaunchF,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (F)" ) },
+    { Qt::Key_Back,	    QT_TRANSLATE_NOOP("QAccel", "Back") },
+    { Qt::Key_Forward,	    QT_TRANSLATE_NOOP("QAccel", "Forward") },
+    { Qt::Key_Stop,	    QT_TRANSLATE_NOOP("QAccel", "Stop") },
+    { Qt::Key_Refresh,	    QT_TRANSLATE_NOOP("QAccel", "Refresh") },
+    { Qt::Key_VolumeDown,   QT_TRANSLATE_NOOP("QAccel", "Volume Down") },
+    { Qt::Key_VolumeMute,   QT_TRANSLATE_NOOP("QAccel", "Volume Mute") },
+    { Qt::Key_VolumeUp,	    QT_TRANSLATE_NOOP("QAccel", "Volume Up") },
+    { Qt::Key_BassBoost,    QT_TRANSLATE_NOOP("QAccel", "Bass Boost") },
+    { Qt::Key_BassUp,	    QT_TRANSLATE_NOOP("QAccel", "Bass Up") },
+    { Qt::Key_BassDown,	    QT_TRANSLATE_NOOP("QAccel", "Bass Down") },
+    { Qt::Key_TrebleUp,	    QT_TRANSLATE_NOOP("QAccel", "Treble Up") },
+    { Qt::Key_TrebleDown,   QT_TRANSLATE_NOOP("QAccel", "Treble Down") },
+    { Qt::Key_MediaPlay,    QT_TRANSLATE_NOOP("QAccel", "Media Play") },
+    { Qt::Key_MediaStop,    QT_TRANSLATE_NOOP("QAccel", "Media Stop") },
+    { Qt::Key_MediaPrev,    QT_TRANSLATE_NOOP("QAccel", "Media Previous") },
+    { Qt::Key_MediaNext,    QT_TRANSLATE_NOOP("QAccel", "Media Next") },
+    { Qt::Key_MediaRecord,  QT_TRANSLATE_NOOP("QAccel", "Media Record") },
+    { Qt::Key_HomePage,	    QT_TRANSLATE_NOOP("QAccel", "Home") },
+    { Qt::Key_Favorites,    QT_TRANSLATE_NOOP("QAccel", "Favorites") },
+    { Qt::Key_Search,	    QT_TRANSLATE_NOOP("QAccel", "Search") },
+    { Qt::Key_Standby,	    QT_TRANSLATE_NOOP("QAccel", "Standby") },
+    { Qt::Key_OpenUrl,	    QT_TRANSLATE_NOOP("QAccel", "Open URL") },
+    { Qt::Key_LaunchMail,   QT_TRANSLATE_NOOP("QAccel", "Launch Mail") },
+    { Qt::Key_LaunchMedia,  QT_TRANSLATE_NOOP("QAccel", "Launch Media") },
+    { Qt::Key_Launch0,	    QT_TRANSLATE_NOOP("QAccel", "Launch (0)") },
+    { Qt::Key_Launch1,	    QT_TRANSLATE_NOOP("QAccel", "Launch (1)") },
+    { Qt::Key_Launch2,	    QT_TRANSLATE_NOOP("QAccel", "Launch (2)") },
+    { Qt::Key_Launch3,	    QT_TRANSLATE_NOOP("QAccel", "Launch (3)") },
+    { Qt::Key_Launch4,	    QT_TRANSLATE_NOOP("QAccel", "Launch (4)") },
+    { Qt::Key_Launch5,	    QT_TRANSLATE_NOOP("QAccel", "Launch (5)") },
+    { Qt::Key_Launch6,	    QT_TRANSLATE_NOOP("QAccel", "Launch (6)") },
+    { Qt::Key_Launch7,	    QT_TRANSLATE_NOOP("QAccel", "Launch (7)") },
+    { Qt::Key_Launch8,	    QT_TRANSLATE_NOOP("QAccel", "Launch (8)") },
+    { Qt::Key_Launch9,	    QT_TRANSLATE_NOOP("QAccel", "Launch (9)") },
+    { Qt::Key_LaunchA,	    QT_TRANSLATE_NOOP("QAccel", "Launch (A)") },
+    { Qt::Key_LaunchB,	    QT_TRANSLATE_NOOP("QAccel", "Launch (B)") },
+    { Qt::Key_LaunchC,	    QT_TRANSLATE_NOOP("QAccel", "Launch (C)") },
+    { Qt::Key_LaunchD,	    QT_TRANSLATE_NOOP("QAccel", "Launch (D)") },
+    { Qt::Key_LaunchE,	    QT_TRANSLATE_NOOP("QAccel", "Launch (E)") },
+    { Qt::Key_LaunchF,	    QT_TRANSLATE_NOOP("QAccel", "Launch (F)") },
 
     // --------------------------------------------------------------
     // More consistent namings
-    { Qt::Key_Print,	    QT_TRANSLATE_NOOP( "QAccel", "Print Screen" ) },
-    { Qt::Key_Prior,	    QT_TRANSLATE_NOOP( "QAccel", "Page Up" ) },
-    { Qt::Key_Next,	    QT_TRANSLATE_NOOP( "QAccel", "Page Down" ) },
-    { Qt::Key_CapsLock,	    QT_TRANSLATE_NOOP( "QAccel", "Caps Lock" ) },
-    { Qt::Key_NumLock,	    QT_TRANSLATE_NOOP( "QAccel", "Num Lock" ) },
-    { Qt::Key_NumLock,	    QT_TRANSLATE_NOOP( "QAccel", "Number Lock" ) },
-    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP( "QAccel", "Scroll Lock" ) },
-    { Qt::Key_Insert,	    QT_TRANSLATE_NOOP( "QAccel", "Insert" ) },
-    { Qt::Key_Delete,	    QT_TRANSLATE_NOOP( "QAccel", "Delete" ) },
-    { Qt::Key_Escape,	    QT_TRANSLATE_NOOP( "QAccel", "Escape" ) },
-    { Qt::Key_SysReq,	    QT_TRANSLATE_NOOP( "QAccel", "System Request" ) },
+    { Qt::Key_Print,	    QT_TRANSLATE_NOOP("QAccel", "Print Screen") },
+    { Qt::Key_Prior,	    QT_TRANSLATE_NOOP("QAccel", "Page Up") },
+    { Qt::Key_Next,	    QT_TRANSLATE_NOOP("QAccel", "Page Down") },
+    { Qt::Key_CapsLock,	    QT_TRANSLATE_NOOP("QAccel", "Caps Lock") },
+    { Qt::Key_NumLock,	    QT_TRANSLATE_NOOP("QAccel", "Num Lock") },
+    { Qt::Key_NumLock,	    QT_TRANSLATE_NOOP("QAccel", "Number Lock") },
+    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QAccel", "Scroll Lock") },
+    { Qt::Key_Insert,	    QT_TRANSLATE_NOOP("QAccel", "Insert") },
+    { Qt::Key_Delete,	    QT_TRANSLATE_NOOP("QAccel", "Delete") },
+    { Qt::Key_Escape,	    QT_TRANSLATE_NOOP("QAccel", "Escape") },
+    { Qt::Key_SysReq,	    QT_TRANSLATE_NOOP("QAccel", "System Request") },
 
     { 0, 0 }
 };
@@ -160,7 +160,7 @@ public:
     {
 	key[0] = key[1] = key[2] = key[3] =  0;
     }
-    inline QKeySequencePrivate( QKeySequencePrivate *copy )
+    inline QKeySequencePrivate(QKeySequencePrivate *copy)
     {
 	key[0] = copy->key[0];
 	key[1] = copy->key[1];
@@ -177,12 +177,12 @@ public:
 QKeySequence::QKeySequence()
 {
     d = new QKeySequencePrivate();
-    Q_CHECK_PTR( d );
+    Q_CHECK_PTR(d);
 }
 
 /*!
     Creates a key sequence from the string \a key. For example
-    "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'. The strings "Ctrl",
+    "Ctrl+O" gives CTRL+'O'. The strings "Ctrl",
     "Shift", "Alt" and "Meta" are recognized, as well as their
     translated equivalents in the "QAccel" context (using
     QObject::tr()).
@@ -195,34 +195,32 @@ QKeySequence::QKeySequence()
     translations:
 
     \code
-	QPopupMenu *file = new QPopupMenu( this );
-	file->insertItem( tr("&Open..."), this, SLOT(open()),
-			  QKeySequence( tr("Ctrl+O", "File|Open") ) );
+	QPopupMenu *file = new QPopupMenu(this);
+	file->insertItem(tr("&Open..."), this, SLOT(open()),
+			  QKeySequence(tr("Ctrl+O", "File|Open")));
     \endcode
 
     Note the \c "File|Open" translator comment. It is by no means
     necessary, but it provides some context for the human translator.
 */
-QKeySequence::QKeySequence( const QString& key )
+QKeySequence::QKeySequence(const QString& key)
 {
     d = new QKeySequencePrivate();
-    Q_CHECK_PTR( d );
-    assign( key );
+    Q_CHECK_PTR(d);
+    assign(key);
 }
 
-
-// ### BCI: Merge with constructor below for 4.0
 /*!
     Constructs a key sequence that has a single \a key.
 
     The key codes are listed in \c{qnamespace.h} and can be
     combined with modifiers, e.g. with \c SHIFT, \c CTRL, \c
-    ALT, \c META or \c UNICODE_ACCEL.
+    ALT or \c META.
 */
-QKeySequence::QKeySequence( int key )
+QKeySequence::QKeySequence(int key)
 {
     d = new QKeySequencePrivate();
-    Q_CHECK_PTR( d );
+    Q_CHECK_PTR(d);
     d->key[0] = key;
 }
 
@@ -232,12 +230,12 @@ QKeySequence::QKeySequence( int key )
 
     The key codes are listed in \c{qnamespace.h} and can be
     combined with modifiers, e.g. with \c SHIFT, \c CTRL, \c
-    ALT, \c META or \c UNICODE_ACCEL.
+    ALT or \c META.
 */
-QKeySequence::QKeySequence( int k1, int k2, int k3, int k4 )
+QKeySequence::QKeySequence(int k1, int k2, int k3, int k4)
 {
     d = new QKeySequencePrivate();
-    Q_CHECK_PTR( d );
+    Q_CHECK_PTR(d);
     d->key[0] = k1;
     d->key[1] = k2;
     d->key[2] = k3;
@@ -247,8 +245,8 @@ QKeySequence::QKeySequence( int k1, int k2, int k3, int k4 )
 /*!
     Copy constructor. Makes a copy of \a keysequence.
  */
-QKeySequence::QKeySequence( const QKeySequence& keysequence )
-    : d( keysequence.d )
+QKeySequence::QKeySequence(const QKeySequence& keysequence)
+    : d(keysequence.d)
 {
     d->ref();
 }
@@ -259,7 +257,7 @@ QKeySequence::QKeySequence( const QKeySequence& keysequence )
  */
 QKeySequence::~QKeySequence()
 {
-    if ( d->deref() )
+    if (d->deref())
 	delete d;
 }
 
@@ -270,17 +268,17 @@ QKeySequence::~QKeySequence()
     delivery.
 */
 
-void QKeySequence::setKey( int key, int index )
+void QKeySequence::setKey(int key, int index)
 {
 #ifdef QT_CHECK_STATE
-    if ( 0 > index && 4 < index ) {
-	qWarning( "QKeySequence::setKey: index %u out of range", index );
+    if (0 > index && 4 < index) {
+	qWarning("QKeySequence::setKey: index %u out of range", index);
 	return;
     }
 #endif // QT_CHECK_STATE
 
-    if ( 1 < d->count ) {
-	QKeySequencePrivate *newd = new QKeySequencePrivate( d );
+    if (1 < d->count) {
+	QKeySequencePrivate *newd = new QKeySequencePrivate(d);
 	d->deref();
 	d = newd;
     }
@@ -293,21 +291,21 @@ void QKeySequence::setKey( int key, int index )
  */
 uint QKeySequence::count() const
 {
-    if ( ! d->key[0] )
+    if (! d->key[0])
 	return 0;
-    if ( ! d->key[1] )
+    if (! d->key[1])
 	return 1;
-    if ( ! d->key[2] )
+    if (! d->key[2])
 	return 2;
-    if ( ! d->key[3] )
+    if (! d->key[3])
 	return 3;
     return 4;
 }
 
 
 /*!
-    Returns TRUE if the key sequence is empty; otherwise returns
-    FALSE.
+    Returns true if the key sequence is empty; otherwise returns
+    false.
 */
 bool QKeySequence::isEmpty() const
 {
@@ -321,7 +319,7 @@ bool QKeySequence::isEmpty() const
     comma, e.g. "Alt+X,Ctrl+S,Z"). Returns the number of key codes
     added.
 */
-int QKeySequence::assign( QString keyseq )
+int QKeySequence::assign(QString keyseq)
 {
     QString part;
     int n = 0;
@@ -329,24 +327,24 @@ int QKeySequence::assign( QString keyseq )
 
     // Run through the whole string, but stop
     // if we have 4 keys before the end.
-    while ( keyseq.length() && n < 4 ) {
+    while (keyseq.length() && n < 4) {
 	// We MUST use something to seperate each sequence, and space
 	// does not cut it, since some of the key names have space
 	// in them.. (Let's hope no one translate with a comma in it:)
-	p = keyseq.find( ',' );
-	if ( -1 != p ) {
-	    if ( ',' == keyseq[p+1] ) // e.g. 'Ctrl+,, Shift+,,'
+	p = keyseq.find(',');
+	if (-1 != p) {
+	    if (',' == keyseq[p+1]) // e.g. 'Ctrl+,, Shift+,,'
 		p++;
-	    if ( ' ' == keyseq[p+1] ) { // Space after comma
+	    if (' ' == keyseq[p+1]) { // Space after comma
 		diff = 1;
 		p++;
 	    } else {
 		diff = 0;
 	    }
 	}
-	part = keyseq.left( -1==p?keyseq.length():p-diff );
-	keyseq = keyseq.right( -1==p?0:keyseq.length() - ( p + 1 ) );
-	d->key[n] = decodeString( part );
+	part = keyseq.left(-1==p?keyseq.length():p-diff);
+	keyseq = keyseq.right(-1==p?0:keyseq.length() - (p + 1));
+	d->key[n] = decodeString(part);
 	n++;
     }
     return n;
@@ -362,66 +360,58 @@ struct ModifKeyName {
 /*!
     Constructs a single key from the string \str.
  */
-int QKeySequence::decodeString( const QString& str )
+int QKeySequence::decodeString(const QString& str)
 {
     int ret = 0;
-    QString accel = str;
+    QString accel = str.lower();
 
+    // ############ FIXME: We should not need to construct a valuelist with 20 entries for every
+    // key decode operation. There _is_ a way to do this more intelligent.
     QValueList<ModifKeyName> modifs;
 #ifdef QMAC_CTRL
-    modifs << ModifKeyName( CTRL, QMAC_CTRL );
+    modifs << ModifKeyName(CTRL, QMAC_CTRL);
 #endif
 #ifdef QMAC_ALT
-    modifs << ModifKeyName( ALT, QMAC_ALT );
+    modifs << ModifKeyName(ALT, QMAC_ALT);
 #endif
 #ifdef QMAC_META
-    modifs << ModifKeyName( META, QMAC_META );
+    modifs << ModifKeyName(META, QMAC_META);
 #endif
 #ifdef QMAC_SHIFT
-    modifs << ModifKeyName( SHIFT, QMAC_SHIFT );
+    modifs << ModifKeyName(SHIFT, QMAC_SHIFT);
 #endif
-    modifs << ModifKeyName( CTRL, "ctrl+" ) << ModifKeyName( CTRL, QAccel::tr("Ctrl").lower().append('+') );
-    modifs << ModifKeyName( SHIFT, "shift+" ) << ModifKeyName( SHIFT, QAccel::tr("Shift").lower().append('+') );
-    modifs << ModifKeyName( ALT, "alt+" ) << ModifKeyName( ALT, QAccel::tr("Alt").lower().append('+') );
-    modifs << ModifKeyName( META, "meta+" ) << ModifKeyName( ALT, QAccel::tr("Meta").lower().append('+') );
-    QString sl = accel.lower();
-    for( QValueList<ModifKeyName>::iterator it = modifs.begin(); it != modifs.end(); ++it ) {
-	if ( sl.contains( (*it).name ) ) {
+    modifs << ModifKeyName(CTRL, "ctrl+") << ModifKeyName(CTRL, QAccel::tr("Ctrl").lower().append('+'));
+    modifs << ModifKeyName(SHIFT, "shift+") << ModifKeyName(SHIFT, QAccel::tr("Shift").lower().append('+'));
+    modifs << ModifKeyName(ALT, "alt+") << ModifKeyName(ALT, QAccel::tr("Alt").lower().append('+'));
+    modifs << ModifKeyName(META, "meta+") << ModifKeyName(ALT, QAccel::tr("Meta").lower().append('+'));
+    QString sl = accel;
+    for(QValueList<ModifKeyName>::iterator it = modifs.begin(); it != modifs.end(); ++it) {
+	if (sl.contains((*it).name)) {
 	    ret |= (*it).qt_key;
-#ifndef QT_NO_REGEXP
-	    accel.remove( QRegExp(QRegExp::escape((*it).name), FALSE) );
-#else
-	    accel.remove( (*it).name );
-#endif
-	    sl = accel.lower();
+	    accel.remove((*it).name);
+	    sl = accel;
 	}
     }
 
-    int p = accel.findRev( '+', str.length() - 2 ); // -2 so that Ctrl++ works
-    if( p > 0 )
-	accel = accel.mid( p + 1 );
+    int p = accel.findRev('+', str.length() - 2); // -2 so that Ctrl++ works
+    if(p > 0)
+	accel = accel.mid(p + 1);
 
     int fnum = 0;
-    if ( accel.length() == 1 ) {
-	char ltr = accel[0].upper().latin1();
-	// We can only upper A-Z without problems.
-	if ( ltr < (char)Key_A || ltr > (char)Key_Z )
-	    ret |= accel[0].unicode();
-	else
-	    ret |= accel[0].upper().unicode();
-	ret |= UNICODE_ACCEL;
-    } else if ( accel[0] == 'F' && (fnum = accel.mid(1).toInt()) ) {
+    if (accel.length() == 1) {
+	ret |= accel[0].upper().unicode();
+    } else if (accel[0] == 'f' && (fnum = accel.mid(1).toInt())) {
         ret |= Key_F1 + fnum - 1;
     } else {
 	// Check through translation table for the correct key name
 	// ...or fall back on english table.
-	bool found = FALSE;
-	for ( int tran = 0; tran < 2; tran++ ) {
-	    for ( int i = 0; keyname[i].name; i++ ) {
-		if ( tran ? accel == QAccel::tr(keyname[i].name)
-			  : accel == keyname[i].name ) {
+	bool found = false;
+	for (int tran = 0; tran < 2; tran++) {
+	    for (int i = 0; keyname[i].name; i++) {
+		if (tran ? accel == QAccel::tr(keyname[i].name)
+			  : accel == keyname[i].name) {
 		    ret |= keyname[i].key;
-		    found = TRUE;
+		    found = true;
 		    break;
 		}
 	    }
@@ -438,77 +428,78 @@ int QKeySequence::decodeString( const QString& str )
     CTRL+Key_O gives "Ctrl+O". The strings, "Ctrl", "Shift", etc. are
     translated (using QObject::tr()) in the "QAccel" context.
  */
-QString QKeySequence::encodeString( int key )
+QString QKeySequence::encodeString(int key)
 {
-    bool plus_next = TRUE;
+    bool plus_next = true;
     QString s;
-    if ( (key & CTRL) == CTRL ) {
-	plus_next = TRUE;
-	QString ctrl = QAccel::tr( "Ctrl" );
+    if ((key & CTRL) == CTRL) {
+	plus_next = true;
+	QString ctrl = QAccel::tr("Ctrl");
 #ifdef QMAC_CTRL
 	if(ctrl == "Ctrl") {
-	    plus_next = FALSE;
+	    plus_next = false;
 	    ctrl = QMAC_CTRL;
 	}
 #endif
 	s += ctrl;
     }
-    if ( (key & ALT) == ALT ) {
-	if ( plus_next && !s.isEmpty() )
-	    s += QAccel::tr( "+" );
-	plus_next = TRUE;
-	QString alt = QAccel::tr( "Alt" );
+    if ((key & ALT) == ALT) {
+	if (plus_next && !s.isEmpty())
+	    s += QAccel::tr("+");
+	plus_next = true;
+	QString alt = QAccel::tr("Alt");
 #ifdef QMAC_ALT
 	if(alt == "Alt") {
-	    plus_next = FALSE;
+	    plus_next = false;
 	    alt = QMAC_ALT;
 	}
 #endif
 	s += alt;
     }
-    if ( (key & META) == META ) {
-	if ( plus_next && !s.isEmpty() )
-	    s += QAccel::tr( "+" );
-	plus_next = TRUE;
-	QString meta = QAccel::tr( "Meta" ); 
+    if ((key & META) == META) {
+	if (plus_next && !s.isEmpty())
+	    s += QAccel::tr("+");
+	plus_next = true;
+	QString meta = QAccel::tr("Meta");
 #ifdef QMAC_META
 	if(meta == "Meta") {
-	    plus_next = FALSE;
+	    plus_next = false;
 	    meta = QMAC_META;
 	}
 #endif
 	s += meta;
     }
-    if ( (key & SHIFT) == SHIFT ) {
-	if ( plus_next && !s.isEmpty() )
-	    s += QAccel::tr( "+" );
-	plus_next = TRUE;
-	QString shift = QAccel::tr( "Shift" );
+    if ((key & SHIFT) == SHIFT) {
+	if (plus_next && !s.isEmpty())
+	    s += QAccel::tr("+");
+	plus_next = true;
+	QString shift = QAccel::tr("Shift");
 #ifdef QMAC_SHIFT
 	if(shift == "Shift") {
-	    plus_next = FALSE;
+	    plus_next = false;
 	    shift = QMAC_SHIFT;
 	}
 #endif
 	s += shift;
     }
-    key &= ~(SHIFT | CTRL | ALT | META );
+    key &= ~(SHIFT | CTRL | ALT | META);
     QString p;
 
-    if ( (key & UNICODE_ACCEL) == UNICODE_ACCEL ) {
-	// Note: This character should NOT be upper()'ed, since
-	// the encoded string should indicate EXACTLY what the
-	// key represents! Hence a 'Ctrl+Shift+c' is posible to
-	// represent, but is clearly impossible to trigger...
-	p = QChar(key & 0xffff);
-    } else if ( key >= Key_F1 && key <= Key_F35 ) {
-	p = QAccel::tr( "F%1" ).arg(key - Key_F1 + 1);
-    } else if ( key > Key_Space && key <= Key_AsciiTilde ) {
-	p.sprintf( "%c", key );
+    if (key < Key_Escape) {
+	if (key < 0x10000) {
+	    p = QChar(key & 0xffff).upper();
+	} else {
+	    p = QChar((key-0x10000)/0x400+0xd800);
+	    p += QChar((key-0x10000)%400+0xdc00);
+	}
+    } else if (key >= Key_F1 && key <= Key_F35) {
+	p = QAccel::tr("F%1").arg(key - Key_F1 + 1);
+    } else if (key > Key_Space && key <= Key_AsciiTilde) {
+	p.sprintf("%c", key);
     } else {
 	int i=0;
 	while (keyname[i].name) {
-	    if ( key == keyname[i].key ) {
+	    if (key == keyname[i].key) {
 		p = QAccel::tr(keyname[i].name);
 		break;
 	    }
@@ -517,16 +508,21 @@ QString QKeySequence::encodeString( int key )
 	// If we can't find the actual translatable keyname,
 	// fall back on the unicode representation of it...
 	// Or else characters like Key_aring may not get displayed
-	// ( Really depends on you locale )
-	if ( !keyname[i].name )
-	    // Note: This character should NOT be upper()'ed, see above!
-	    p = QChar(key & 0xffff);
+	// (Really depends on you locale)
+	if (!keyname[i].name) {
+	    if (key < 0x10000) {
+		p = QChar(key & 0xffff).upper();
+	    } else {
+		p = QChar((key-0x10000)/0x400+0xd800);
+		p += QChar((key-0x10000)%400+0xdc00);
+	    }
+	}
     }
-    if ( s.isEmpty() ) {
+    if (s.isEmpty()) {
 	s = p;
     } else {
 	if(plus_next)
-	    s += QAccel::tr( "+" );
+	    s += QAccel::tr("+");
 	s += p;
     }
     return s;
@@ -538,24 +534,23 @@ QString QKeySequence::encodeString( int key )
     and \c Qt::NoMatch if the sequences have nothing in common.
     Returns \c Qt::NoMatch if \a seq is shorter.
 */
-Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
+Qt::SequenceMatch QKeySequence::matches(const QKeySequence& seq) const
 {
     uint userN = count(),
 	  seqN = seq.count();
 
-    if ( userN > seqN )
+    if (userN > seqN)
 	return NoMatch;
 
     // If equal in length, we have a potential Identical sequence,
     // else we already know it can only be partial.
-    SequenceMatch match = ( userN == seqN ? Identical : PartialMatch );
+    SequenceMatch match = (userN == seqN ? Identical : PartialMatch);
 
-    for ( uint i = 0; i < userN; i++ ) {
+    for (uint i = 0; i < userN; i++) {
 	int userKey      = (*this)[i],
 	    sequenceKey  = seq[i];
 
-	if ( (userKey & ~Qt::UNICODE_ACCEL) != 
-	     (sequenceKey & ~Qt::UNICODE_ACCEL) )
+	if (userKey != sequenceKey)
 	    return NoMatch;
     }
     return match;
@@ -573,14 +568,14 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 QKeySequence::operator QString() const
 {
     int end = count();
-    if ( !end ) return QString::null;
+    if (!end) return QString::null;
 
     QString complete;
     int i = 0;
-    while ( i < end ) {
-	complete += encodeString( d->key[i] );
+    while (i < end) {
+	complete += encodeString(d->key[i]);
 	i++;
-	if ( i != end)
+	if (i != end)
 	    complete += ", ";
     }
     return complete;
@@ -594,7 +589,7 @@ QKeySequence::operator QString() const
  */
 QKeySequence::operator int () const
 {
-    if ( 1 <= count() )
+    if (1 <= count())
 	return d->key[0];
     return 0;
 }
@@ -604,11 +599,11 @@ QKeySequence::operator int () const
     Returns a reference to the element at position \a index in the key
     sequence. This can only be used to read an element.
  */
-int QKeySequence::operator[]( uint index ) const
+int QKeySequence::operator[](uint index) const
 {
 #ifdef QT_CHECK_STATE
-    if ( index > 4 ) {
-	qWarning( "QKeySequence::operator[]: index %u out of range", index );
+    if (index > 4) {
+	qWarning("QKeySequence::operator[]: index %u out of range", index);
 	return 0;
     }
 #endif // QT_CHECK_STATE
@@ -620,10 +615,10 @@ int QKeySequence::operator[]( uint index ) const
     Assignment operator. Assigns \a keysequence to this
     object.
  */
-QKeySequence &QKeySequence::operator=( const QKeySequence & keysequence )
+QKeySequence &QKeySequence::operator=(const QKeySequence & keysequence)
 {
     keysequence.d->ref();
-    if ( d->deref() )
+    if (d->deref())
 	delete d;
     d = keysequence.d;
     return *this;
@@ -631,28 +626,28 @@ QKeySequence &QKeySequence::operator=( const QKeySequence & keysequence )
 
 
 /*!
-    Returns TRUE if \a keysequence is equal to this key
-    sequence; otherwise returns FALSE.
+    Returns true if \a keysequence is equal to this key
+    sequence; otherwise returns false.
  */
 
 
-bool QKeySequence::operator==( const QKeySequence& keysequence ) const
+bool QKeySequence::operator==(const QKeySequence& keysequence) const
 {
-    return ( (d->key[0]&~UNICODE_ACCEL) == (keysequence.d->key[0]&~UNICODE_ACCEL) &&
-	     (d->key[1]&~UNICODE_ACCEL) == (keysequence.d->key[1]&~UNICODE_ACCEL) &&
-	     (d->key[2]&~UNICODE_ACCEL) == (keysequence.d->key[2]&~UNICODE_ACCEL) &&
-	     (d->key[3]&~UNICODE_ACCEL) == (keysequence.d->key[3]&~UNICODE_ACCEL) );
+    return (d->key[0] == keysequence.d->key[0] &&
+	    d->key[1] == keysequence.d->key[1] &&
+	    d->key[2] == keysequence.d->key[2] &&
+	    d->key[3] == keysequence.d->key[3]);
 }
 
 
 /*!
-    Returns TRUE if \a keysequence is not equal to this key sequence;
-    otherwise returns FALSE.
+    Returns true if \a keysequence is not equal to this key sequence;
+    otherwise returns false.
 */
-bool QKeySequence::operator!= ( const QKeySequence& keysequence ) const
+bool QKeySequence::operator!= (const QKeySequence& keysequence) const
 {
     QKeySequence *that = (QKeySequence*)this;
-    return !( (*that) == keysequence );
+    return !((*that) == keysequence);
 }
 
 
@@ -667,7 +662,7 @@ bool QKeySequence::operator!= ( const QKeySequence& keysequence ) const
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
-QDataStream &operator<<( QDataStream &s, const QKeySequence &keysequence )
+QDataStream &operator<<(QDataStream &s, const QKeySequence &keysequence)
 {
     QValueList<int> list;
     list += keysequence.d->key[0];
@@ -688,28 +683,28 @@ QDataStream &operator<<( QDataStream &s, const QKeySequence &keysequence )
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
-QDataStream &operator>>( QDataStream &s, QKeySequence &keysequence )
+QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 {
     QValueList<int> list;
     s >> list;
 
 #ifdef QT_CHECK_STATE
-    if ( 1 != list.count() && 4 != list.count() ) {
-	qWarning( "Invalid QKeySequence data in the datastream." );
+    if (1 != list.count() && 4 != list.count()) {
+	qWarning("Invalid QKeySequence data in the datastream.");
 	return s;
     }
 #endif
 
-    if ( 1 == list.count() ) {
-	keysequence.d->key[0] = *list.at( 0 );
+    if (1 == list.count()) {
+	keysequence.d->key[0] = *list.at(0);
 	keysequence.d->key[1] =
 	    keysequence.d->key[2] =
 	    keysequence.d->key[3] = 0;
     } else {
-	keysequence.d->key[0] = *list.at( 0 );
-	keysequence.d->key[1] = *list.at( 1 );
-	keysequence.d->key[2] = *list.at( 2 );
-	keysequence.d->key[3] = *list.at( 3 );
+	keysequence.d->key[0] = *list.at(0);
+	keysequence.d->key[1] = *list.at(1);
+	keysequence.d->key[2] = *list.at(2);
+	keysequence.d->key[3] = *list.at(3);
     }
     return s;
 }
