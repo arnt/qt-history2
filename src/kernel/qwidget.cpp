@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#372 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#373 $
 **
 ** Implementation of QWidget class
 **
@@ -1123,7 +1123,7 @@ QRegion QWidget::childrenRegion() const
 
   If the returned minimum size equals (0,0) then it means that there are
   no constraints on the minimum size. However, Qt does nevertheless not
-  allow to shrink widgets smaller than 1.
+  allow you to shrink widgets to less than 1 pixel width/height.
 
   \sa maximumWidth(), maximumHeight(), setMinimumSize(),
   maximumSize(), sizeIncrement()
@@ -4024,10 +4024,8 @@ QSizePolicy QWidget::sizePolicy() const
 
 
 /*!
-  Returns the preferred height for this widget, given the width  \a w.
-
-  The default implementation returns -1, indicating that the preferred
-  height is independent of the width of the widget.
+  Returns the preferred height for this widget, given the width \a w.
+  The default implementation returns 0.
 
   \warning Does not look at the widget's layout
 */
@@ -4035,7 +4033,7 @@ QSizePolicy QWidget::sizePolicy() const
 int QWidget::heightForWidth( int w ) const
 {
     (void)w;
-    return -1;
+    return 0;
 }
 
 
