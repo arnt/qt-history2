@@ -16,7 +16,7 @@
 #include <qheaderview.h>
 #include "plasmamodel.h"
 #include "plasmadelegate.h"
-#include "colorfilter.h"
+//|#include "colorfilter.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,11 +33,11 @@ int main(int argc, char *argv[])
     QTableView *view = new QTableView(&splitter);
     QAbstractItemDelegate *delegate = new PlasmaDelegate(view);
 
-    ColorFilter *filter = new ColorFilter(&splitter);
-    filter->setModel(data);
-    filter->setFilter(0x00f0f0f0);
+    //ColorFilter *filter = new ColorFilter(&splitter);
+    //filter->setModel(data);
+    //filter->setFilter(0x00f0f0f0);
 
-    view->setModel(filter);
+    view->setModel(/*filter*/data);
     view->setItemDelegate(delegate);
     view->setShowGrid(false);
     view->horizontalHeader()->hide();
