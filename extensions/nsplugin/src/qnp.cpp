@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#33 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#34 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -63,7 +63,7 @@
 #endif
 #include <qfile.h>
 #include <qpainter.h>
-#include <qpaintdevicedefs.h>
+#include <q1xcompatibility.h>
 
 #include "qnp.h"
 
