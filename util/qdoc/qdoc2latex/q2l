@@ -9,6 +9,7 @@ sub usage {
     print "usage: q2l [-d] [-y] [-c|-C] [-u] file1.q2l file2.q2l ...\n",
 	  "-d is debug, i.e. show don't do\n",
 	  "-y is produce postscript and don't ask about intermediate steps\n",
+	  "-Y as -y but cleanup after\n",
 	  "-c is clear intermediate files and quit\n",
 	  "-C is clear intermediate, log and postscript files and quit\n",
 	  "-u is output US letter size (default is A4)\n",
@@ -20,6 +21,7 @@ usage() unless @ARGV;
 
 my $DEBUG = 0;
 my $YES = 0;
+my $CLEANYES = 0;
 my $SIZE = 'a4';
 my $CLEANUP1 = '';
 my $CLEANUP2 = '';
@@ -28,6 +30,7 @@ Getopt::Long::Configure('no_ignore_case');
 GetOptions('help|h' => \&usage,
 	   'debug|d' => \$DEBUG,
 	   'yes|y' => \$YES,
+	   'Yes|YES|Y' => \$CLEANYES,
 	   'c' => \$CLEANUP1,
 	   'C' => \$CLEANUP2,
 	   'u' => \$SIZE,
@@ -43,7 +46,7 @@ if ( $CLEANUP1 or $CLEANUP2 ) {
     }
     exit;
 }
-my $YESTOPS = $YES;
+my $YESTOPS = $YES or $CLEANYES;
 $SIZE = 'letter' if $SIZE eq '1';
 
 my $QTDIR = $ENV{'QTDIR'};
@@ -118,7 +121,7 @@ sub perform {
 
 
 sub ask {
-    return 1 if $YES;
+    return 1 if $YES or $CLEANYES;
     my $prog = shift;
     return 1 if $YESTOPS and $prog !~ /(?:pdflatex|ps2pdf)/;
     if ( $prog !~ /(?:pdflatex|ps2pdf)/ ) {
@@ -128,7 +131,10 @@ sub ask {
 	print "\n[Enter] run $prog  [n] no don't run it  [q] quit? ";
     }
     my $ans = <STDIN>;
-    cleanup() and exit if $ans =~ /^q/i;
+    if ( $ans =~ /^q/i ) {
+	cleanup() if $CLEANYES;
+	exit;
+    }
     $YESTOPS = 1 if $ans =~ /^y/i;
     $ans =~ /^n/i ? 0 : 1;
 }
