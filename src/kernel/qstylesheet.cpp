@@ -1166,6 +1166,7 @@ QTextOldCustomItem* QStyleSheet::tag( const QString& name,
 				   const QMimeSourceFactory& factory,
 				   bool /*emptyTag */ ) const
 {
+#if !defined(QT_NEW_RICHTEXT)
     static QString s_img = QString::fromLatin1("img");
     static QString s_hr = QString::fromLatin1("hr");
     static QString s_br = QString::fromLatin1("br");
@@ -1180,6 +1181,7 @@ QTextOldCustomItem* QStyleSheet::tag( const QString& name,
 	return new QTextOldImage(attr, context, factory);
     if ( style->name() == s_hr )
 	return new QTextOldHorizontalLine();
+#endif
    return 0;
 }
 

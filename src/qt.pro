@@ -4,6 +4,9 @@ CONFIG		+= qt warn_on release
 unix:CONFIG += x11
 embedded:CONFIG -= x11
 
+CONFIG += newrichtext
+# CONFIG += oldrichtext
+
 TARGET		= qt
 VERSION		= 3.0.0
 DESTDIR		= ../lib
@@ -203,7 +206,6 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsignalslotimp.h \
-		  $$KERNEL_H/qsimplerichtext.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
@@ -223,6 +225,8 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h
+
+
 
 tools:HEADERS +=  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
@@ -317,8 +321,6 @@ widgets:HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qtabbar.h \
 		  $$WIDGETS_H/qtabwidget.h \
 		  $$WIDGETS_H/qtableview.h \
-		  $$WIDGETS_H/qtextbrowser.h \
-		  $$WIDGETS_H/qtextview.h \
 		  $$WIDGETS_H/qtoolbar.h \
 		  $$WIDGETS_H/qtoolbutton.h \
 		  $$WIDGETS_H/qtooltip.h \
@@ -504,11 +506,9 @@ kernel:SOURCES += kernel/qabstractlayout.cpp \
 		  kernel/qprocess.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \
-		  kernel/qrichtext.cpp \
 		  kernel/qsemimodal.cpp \
 		  kernel/qsignal.cpp \
 		  kernel/qsignalmapper.cpp \
-		  kernel/qsimplerichtext.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsizegrip.cpp \
 		  kernel/qstyle.cpp \
@@ -565,8 +565,6 @@ widgets:SOURCES += widgets/qbuttongroup.cpp \
 		  widgets/qtabbar.cpp \
 		  widgets/qtabwidget.cpp \
 		  widgets/qtableview.cpp \
-		  widgets/qtextbrowser.cpp \
-		  widgets/qtextview.cpp \
 		  widgets/qtoolbar.cpp \
 		  widgets/qtoolbutton.cpp \
 		  widgets/qtooltip.cpp \
@@ -708,6 +706,25 @@ unix:NETWORK_SOURCES += network/qsocketdevice_unix.cpp
 win32:NETWORK_SOURCES += network/qsocketdevice_win.cpp
 network:SOURCES    += $$NETWORK_SOURCES
 
+oldrichtext:SOURCES += $$KERNEL_H/qrichtext.cpp \
+			$$KERNEL_H/qsimplerichtext.cpp \
+			$$WIDGETS_H/qtextview.cpp \
+			$$WIDGETS_H/qtextbrowser.cpp
+newrichtext:SOURCES += ../tests/qtextedit/qrichtext.cpp \
+			../tests/qtextedit/qsimplerichtext.cpp \
+			../tests/qtextedit/qtextedit.cpp \
+			../tests/qtextedit/qtextbrowser.cpp \
+			../tests/qtextedit/qtextview.cpp
+oldrichtext:HEADERS += kernel/qrichtext_p.h \
+			kernel/qsimplerichtext.h \
+			widgets/qtextview.h \
+			widgets/qtextbrowser.h
+newrichtext:HEADERS += ../tests/qtextedit/qrichtext_p.h \
+			../tests/qtextedit/qsimplerichtext.h \
+			../tests/qtextedit/qtextedit.h \
+			../tests/qtextedit/qtextbrowser.h \
+			../tests/qtextedit/qtextview.h
+newrichtext:DEFINES += QT_NEW_RICHTEXT
 
 # Qt/Embedded
 embedded:PRECOMPH=kernel/qt.h
