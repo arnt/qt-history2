@@ -717,6 +717,7 @@ void QLineEdit::paintEvent( QPaintEvent * )
     updateOffset();
     const QColorGroup & g = colorGroup();
     QPainter p( d->pm );
+    p.setPen( colorGroup().text() );
     QBrush bg = g.brush((isEnabled()) ? QColorGroup::Base :
 			QColorGroup::Background);
     p.fillRect( 0, 0, width(), height(), bg );
