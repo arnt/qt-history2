@@ -479,16 +479,16 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
     case Qt::AlignRight:
         rect->moveRight(boundingRect.right());
         break;
-    case Qt::AlignAuto: {
+    case Qt::AlignAuto:
         if (QApplication::reverseLayout())
             rect->moveRight(boundingRect.right());
         else
             rect->moveLeft(boundingRect.left());
-        break;}
+        break;
     case Qt::AlignJustify:
-    case Qt::AlignHCenter: {
+    case Qt::AlignHCenter:
         rect->moveBy(boundingRect.center().x() - rect->center().x(), 0);
-        break;}
+        break;
     default:
         break;
     }
