@@ -13,7 +13,7 @@ q_atomic_test_and_set_int:
 	cmpw   0,4
 	bne-   $+20
 	stwcx. 5,0,3
-	bne-   $+12
+	bne-   $-20
 	li     9,1
 	b      $+8
 	li     9,0
@@ -39,7 +39,7 @@ q_atomic_test_and_set_ptr:
 	cmpd   0,4
 	bne-   $+20
 	stdcx.  5,0,3
-	bne-   $+12
+	bne-   $-20
 	li     9,1
 	b      $+8
 	li     9,0
