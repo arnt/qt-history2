@@ -37,12 +37,12 @@ public:
 
     inline bool operator==(const QPointer<T> &p) const
         { return o == p.o; }
-    inline bool operator==(const T *p) const
-        { return o == static_cast<const QObject*>(p); }
+    inline bool operator==(T *p) const
+        { return o == static_cast<QObject*>(p); }
     inline bool operator!= (const QPointer<T> &p) const
         { return o != p.o; }
-    inline bool operator!= (const T *p) const
-        { return o != static_cast<const QObject*>(p); }
+    inline bool operator!= (T *p) const
+        { return o != static_cast<QObject*>(p); }
 
     inline bool isNull() const
         { return !o; }
