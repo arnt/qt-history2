@@ -623,8 +623,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     bg_col = pal.normal().background();
     setWState( WState_MouseTracking );
     setMouseTracking( FALSE );                  // also sets event mask
-    if(desktop) { //immediatly show a "desktop"
-	ShowWindow((WindowPtr)hd);
+    if(desktop) { //immediatly "show" a "desktop"
 	setWState(WState_Visible);
     } else {
 	clearWState(WState_Visible);

@@ -509,8 +509,11 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	if(!d->unclipped)
 	    d->unclipped = w->testWFlags(WPaintUnclipped);
 #ifdef Q_WS_MACX
-	if(w->isDesktop() && !d->unclipped)
-	    warning( "QPainter::begin: Does not support clipped desktop on MacOSX");
+	if(w->isDesktop()) {
+	    if(!d->unclipped)
+		warning( "QPainter::begin: Does not support clipped desktop on MacOSX");
+	    ShowWindow((WindowPtr)w->handle());
+	}
 #endif
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
@@ -581,6 +584,11 @@ bool QPainter::end()				// end painting
 //FIXME
 #endif
 
+#ifdef Q_WS_MACX
+    if(pdev->painters == 1 && 
+       pdev->devType() == QInternal::Widget && ((QWidget*)pdev)->isDesktop())
+	HideWindow((WindowPtr)pdev->handle());
+#endif
     flags = 0;
     pdev->painters--;
     pdev = 0;
@@ -1333,16 +1341,14 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {
     if ( !isActive() )
 	return;
-    if ( testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QRect r( x, y, w, h );
-	    param[0].rect = &r;
-	    param[1].ival = a;
-	    param[2].ival = alen;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawArc, this, param ) || !pdev->handle())
-		return;
-	}
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[3];
+	QRect r( x, y, w, h );
+	param[0].rect = &r;
+	param[1].ival = a;
+	param[2].ival = alen;
+	if ( !pdev->cmd( QPaintDevice::PdcDrawArc, this, param ) || !pdev->handle())
+	    return;
     }
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
@@ -1600,15 +1606,13 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
         for ( int i=0; i<4; i++ )
             pa.setPoint( i, a.point(index+i) );
     }
-    if ( testf(ExtDev|VxF|WxF) ) {
+    if ( testf(ExtDev) ) {
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[1];
             param[0].ptarr = (QPointArray*)&pa;
             if ( !pdev->cmd(QPaintDevice::PdcDrawCubicBezier, this, param) || !pdev->handle())
                 return;
         }
-        if ( txop != TxNone )
-            pa = xForm( pa );
     }
     drawPolyline(pa.cubicBezier());
 }
