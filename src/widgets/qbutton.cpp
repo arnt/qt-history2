@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#106 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#106 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -54,22 +54,24 @@ struct QButtonData
 {
     QButtonData() : group(0) {}
     QButtonGroup *group;
-    QTimer	  timer;
+    QTimer * timer;
 };
+
 
 void QButton::ensureData()
 {
     if ( !d ) {
 	d = new QButtonData;
 	CHECK_PTR( d );
-	connect(&d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatTimeout()));
     }
 }
+
 
 QButtonGroup *QButton::group() const
 {
     return d ? d->group : 0;
 }
+
 
 void QButton::setGroup( QButtonGroup* g )
 {
@@ -77,10 +79,15 @@ void QButton::setGroup( QButtonGroup* g )
     d->group = g;
 }
 
+
 QTimer *QButton::timer()
 {
-    ensureData();
-    return &d->timer;
+    if ( !d || !d->timer ) {
+	ensureData();
+	d->timer = new QTimer( this, "temporary automatic timer" );
+	connect(d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatTimeout()));
+    }
+    return d->timer;
 }
 
 
@@ -665,8 +672,10 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
     if ( e->button() != LeftButton )
 	return;
-    if ( d )
-	timer()->stop();
+    if ( d && d->timer ) {
+	delete d->timer;
+	d->timer = 0;
+    }
     mlbDown = FALSE;				// left mouse button up
     bool hit;
     hit = (isToggleButton() && isOn() && group() && group()->isExclusive())
