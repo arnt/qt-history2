@@ -1018,6 +1018,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame)
 {
     QTextFrame *parent = frame->parentFrame();
+    Q_ASSERT(parent);
     QTextFrameData *pd = data(parent);
     Q_ASSERT(pd && pd->currentLayoutStruct);
 
@@ -1395,6 +1396,8 @@ static void markFrames(QTextFrame *current, int start, int end)
 
 void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
+    if (d->pageSize.isNull() || !d->pageSize.isValid())
+        return;
     Q_UNUSED(oldLength);
 
     const QSize oldSize = sizeUsed();
