@@ -78,6 +78,13 @@ protected:
     bool eventFilter( QObject* o, QEvent* e );
     void alphaBlend();
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface()
+    {
+	return 0;
+    }
+#endif
+
 protected slots:
     void render();
     void goodBye();
@@ -308,6 +315,13 @@ protected:
     void paintEvent( QPaintEvent* );
     bool eventFilter( QObject*, QEvent* );
     void closeEvent( QCloseEvent* );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface()
+    {
+	return 0;
+    }
+#endif
 
 private slots:
     void scroll();
