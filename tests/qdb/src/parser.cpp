@@ -1942,6 +1942,7 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	default:
 	    error( "Expected 'between', 'in' or 'like' after 'not'" );
 	}
+	break;
     default:
 	error( "Unexpected '%s' in predicate", yyLex );
     }
