@@ -1532,9 +1532,9 @@ static QString resolveSymlinks( const QString& path, int depth = 0 )
     directory, and you run the \c{demo} example, this function will
     return "C:/Trolltech/Qt/examples/demo".
 
-    \warning This function assumes that argv[0] contains the file
-    name of the executable (which it normally does). On Unix and Mac
-    OS X, it also assumes that the current directory hasn't been
+    \warning On Unix and Mac OS X, this function assumes that argv[0]
+    contains the file name of the executable (which it normally
+    does). It also assumes that the current directory hasn't been
     changed by the application.
 
     \sa applicationFilePath()
@@ -1551,9 +1551,9 @@ QString QApplication::applicationDirPath()
     directory, and you run the \c{demo} example, this function will
     return "C:/Trolltech/Qt/examples/demo/demo.exe".
 
-    \warning This function assumes that argv[0] contains the file
-    name of the executable (which it normally does). On Unix and Mac
-    OS X, it also assumes that the current directory hasn't been
+    \warning On Unix and Mac OS X, this function assumes that argv[0]
+    contains the file name of the executable (which it normally
+    does). It also assumes that the current directory hasn't been
     changed by the application.
 
     \sa applicationDirPath()
