@@ -7,4 +7,5 @@
                    "MSL RuntimePPC.Lib" "MSL C.Carbon.Lib" 
      #INCLUDEPATH += "MacOS 9:CarbonLib_1.2_SDK:Carbon Support:Universal Interfaces:CIncludes" 
    }
+   DEFINES += QMAC_ONE_PIXEL_LOCK
 }
