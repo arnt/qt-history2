@@ -83,8 +83,13 @@ void warning( int level, const Location& loc, const char *message, ... )
 
     QString fileName = loc.shortFilePath();
     QString fileNameBase = loc.filePath();
-    fileNameBase =
-	    fileNameBase.left( fileNameBase.length() - fileName.length() - 1 );
+    if ( fileName == fileNameBase ) {
+	fileNameBase = QString::null;
+    } else {
+	fileNameBase = fileNameBase.left( fileNameBase.length() -
+					  fileName.length() - 1 );
+    }
+
     if ( !fileNameBase.isEmpty() && currentDirectory != fileNameBase ) {
 	// we changed directory; find the longest shared prefix
 	int i = 0;
@@ -114,7 +119,7 @@ void warning( int level, const Location& loc, const char *message, ... )
     }
     if ( !fileNameBase.isEmpty() &&
 	 currentDirectory != fileNameBase ) {
-	if ( currentDirectory.length() )
+	if ( currentDirectory.length() > 0 )
 	    fprintf( stderr, "qdoc: Leaving directory `%s'\n",
 		     currentDirectory.latin1() );
 	currentDirectory = fileNameBase;
