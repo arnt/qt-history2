@@ -781,7 +781,7 @@ int QListBoxPixmap::rtti() const
     QListBox::SelectionMode documentation. The default is \c Single
     selection mode, but you can change it using setSelectionMode().
     (setMultiSelection() is still provided for compatibility with Qt
-    1.x. We recomment using setSelectionMode() in all code.)
+    1.x. We recommend using setSelectionMode() in all code.)
 
     Because QListBox offers multiple selection it must display
     keyboard focus and selection state separately. Therefore there are
