@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#13 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#14 $
 **
 ** Definition of QBitmap class
 **
@@ -30,12 +30,6 @@ public:
     QBitmap &operator=( const QPixmap & );
     QBitmap &operator=( const QImage  & );
 };
-
-
-inline QBitmap &QBitmap::operator=( const QBitmap &bitmap )
-{
-    return (QBitmap&)QPixmap::operator=(bitmap);
-}
 
 
 #endif // QBITMAP_H
