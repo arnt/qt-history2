@@ -56,11 +56,20 @@ static const char * const checked_xpm[] = {
 /*!
     \class QItemDelegate
 
-    \brief The QItemDelegate class provides display and editing facilities for item views.
+    \brief The QItemDelegate class provides display and editing facilities for
+    data items from a model.
 
     \ingroup model-view
 
-    A QItemDelegate 
+    A QItemDelegate can be used to provide an editor for an item view class
+    that is subclassed from QAbstractItemView. Using a delegate for this
+    purpose allows the editing mechanism to be customized and developed
+    independently.
+
+    Delegates can be used to manipulate data in two complementary ways:
+    by processing events in the normal manner, or by implementing a
+    custom editor widget.
+
 
     \sa \link model-view-programming.html Model/View Programming\endlink
         QAbstractItemDelegate
