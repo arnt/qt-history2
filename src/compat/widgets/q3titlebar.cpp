@@ -420,24 +420,23 @@ void Q3TitleBar::mouseMoveEvent(QMouseEvent *e)
         if (d->buttonDown == QStyle::SC_TitleBarLabel && d->movable && d->pressed) {
             if ((d->moveOffset - mapToParent(e->pos())).manhattanLength() >= 4) {
                 QPoint p = mapFromGlobal(e->globalPos());
-#if 0 //#ifndef QT_NO_WORKSPACE
-                if(d->window && d->window->parentWidget()->inherits("QWorkspaceChild")) {
-                    QWorkspace *workspace = qt_cast<QWorkspace*>(d->window->parentWidget()->parentWidget());
-                    if(workspace) {
-                        p = workspace->mapFromGlobal(e->globalPos());
-                        if (!workspace->rect().contains(p)) {
-                            if (p.x() < 0)
-                                p.rx() = 0;
-                            if (p.y() < 0)
-                                p.ry() = 0;
-                            if (p.x() > workspace->width())
-                                p.rx() = workspace->width();
-                            if (p.y() > workspace->height())
-                                p.ry() = workspace->height();
-                        }
+
+                QWidget *parent = d->window ? d->window->parentWidget() : 0;
+                if(parent && parent->inherits("Q3WorkspaceChild")) {
+                    QWidget *workspace = parent->parentWidget();
+                    p = workspace->mapFromGlobal(e->globalPos());
+                    if (!workspace->rect().contains(p)) {
+                        if (p.x() < 0)
+                            p.rx() = 0;
+                        if (p.y() < 0)
+                            p.ry() = 0;
+                        if (p.x() > workspace->width())
+                            p.rx() = workspace->width();
+                        if (p.y() > workspace->height())
+                            p.ry() = workspace->height();
                     }
                 }
-#endif
+
                 QPoint pp = p - d->moveOffset;
                 if (!parentWidget()->isMaximized())
                     parentWidget()->move(pp);
