@@ -1622,8 +1622,15 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	}
     }
 #ifndef Q_OS_TEMP
-    Arc( hdc, x, y, x+w, y+h, xS, yS, xE, yE );
+    if ( rop == CopyROP ) {
+        Arc( hdc, x, y, x+w, y+h, xS, yS, xE, yE );
+    } else 
 #endif
+    {
+	QPointArray pa;
+	pa.makeArc( x, y, w, h, a, alen, xmat );	// arc polyline
+	drawPolyInternal( pa, FALSE );
+    }
 }
 
 
