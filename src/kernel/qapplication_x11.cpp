@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#514 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#515 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4231,6 +4231,26 @@ static void sm_setProperty( const char* name, const char* type,
     }
 }
 
+static void sm_setProperty( const QString& name, const QString& value)
+{
+    SmPropValue prop;
+    prop.length = value.length();
+    prop.value = (SmPointer) value.latin1();
+    sm_setProperty( name.latin1(), SmARRAY8, 1, &prop );
+}
+
+static void sm_setProperty( const QString& name, const QStringList& value)
+{
+    SmPropValue *prop = new SmPropValue[ value.count() ];
+    int count = 0;
+    for ( QStringList::ConstIterator it = value.begin(); it != value.end(); ++it ) {
+      prop[ count ].length = it->length();
+      prop[ count ].value = (char*)it->latin1();
+      ++count;
+    }
+    sm_setProperty( name.latin1(), SmLISTofARRAY8, count, prop );
+    delete [] prop;
+}
 
 
 static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
@@ -4254,9 +4274,9 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
 static void sm_performSaveYourself( QSessionManager* sm )
 {
     // tell the session manager about our program in best POSIX style
-    sm->setProperty( SmProgram, qApp->argv()[0] );
+    sm_setProperty( SmProgram, qApp->argv()[0] );
     // tell the session manager about our user as well.
-    sm->setProperty( SmUserID, QString::fromLatin1( getlogin() ) );
+    sm_setProperty( SmUserID, QString::fromLatin1( getlogin() ) );
 
     // generate a restart and discard command that makes sense
     QStringList restart;
@@ -4298,8 +4318,8 @@ static void sm_performSaveYourself( QSessionManager* sm )
 	}
 
 	// set restart and discard command in session manager
-	sm->setProperty( SmRestartCommand, sm->restartCommand() );
-	sm->setProperty( SmDiscardCommand, sm->discardCommand() );
+	sm_setProperty( SmRestartCommand, sm->restartCommand() );
+	sm_setProperty( SmDiscardCommand, sm->discardCommand() );
 
 	// set the restart hint
 	SmPropValue prop;
@@ -4566,7 +4586,7 @@ void QSessionManager::setProperty( const QString& name, const QString& value)
 {
     SmPropValue prop;
     prop.length = value.length();
-    prop.value = (SmPointer) value.latin1();
+    prop.value = (SmPointer) value.utf8();
     sm_setProperty( name.latin1(), SmARRAY8, 1, &prop );
 }
 
@@ -4576,7 +4596,7 @@ void QSessionManager::setProperty( const QString& name, const QStringList& value
     int count = 0;
     for ( QStringList::ConstIterator it = value.begin(); it != value.end(); ++it ) {
       prop[ count ].length = it->length();
-      prop[ count ].value = (char*)it->latin1();
+      prop[ count ].value = (char*)it->utf8();
       ++count;
     }
     sm_setProperty( name.latin1(), SmLISTofARRAY8, count, prop );
