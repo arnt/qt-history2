@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#5 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#6 $
 **
 ** Definition of QProgressDialog class
 **
@@ -60,8 +60,7 @@ private:	// Disabled copy constructor and operator=
     QProgressDialog( const QProgressDialog & ) {}
     QProgressDialog &operator=( const QProgressDialog & ) { return *this; }
     void center();
-    const QProgressBar& bar() const;
-    QProgressBar& bar();
+    QProgressBar& bar() const;
     const QWidget& label() const;
     QWidget& label();
 };

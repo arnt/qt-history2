@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#8 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#8 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -382,19 +382,13 @@ QWidget* QProgressDialog::labelWidget(const QString& str)
 /*!
  Ensures bar exists.
 */
-QProgressBar& QProgressDialog::bar()
+QProgressBar& QProgressDialog::bar() const
 {
-    if (!the_bar) the_bar = progressBar(totalsteps);
-    return *the_bar;
-}
-
-/*!
- Ensures bar exists.
-*/
-const QProgressBar& QProgressDialog::bar() const
-{
+    // Caching behaviour.  Safe to cast.
     QProgressDialog* non_const_this = (QProgressDialog*)this;
-    return non_const_this->bar();
+    if (!the_bar) non_const_this->the_bar =
+	non_const_this->progressBar(totalsteps);
+    return *the_bar;
 }
 
 /*!
