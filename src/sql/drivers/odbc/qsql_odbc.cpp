@@ -146,13 +146,13 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype, const QODBCPrivate* p )
     case SQL_REAL:
     case SQL_FLOAT:
     case SQL_DOUBLE:
+    case SQL_BIGINT: //use high precision binding
 	type = QVariant::Double;
 	break;
     case SQL_SMALLINT:
     case SQL_INTEGER:
     case SQL_BIT:
     case SQL_TINYINT:
-    case SQL_BIGINT:
 	type = QVariant::Int;
 	break;
     case SQL_BINARY:
@@ -645,22 +645,6 @@ QVariant QODBCResult::data( int field )
 	    fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
 	    break;
-	case QVariant::Double:
-	    SQLDOUBLE dblbuf;
-	    r = SQLGetData( d->hStmt,
-			    current+1,
-			    SQL_C_DOUBLE,
-			    (SQLPOINTER)&dblbuf,
-			    0,
-			    &lengthIndicator );
-	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
-		fieldCache[ current ] = QVariant( dblbuf );
-		nullCache[ current ] = FALSE;	
-	    } else {
-		fieldCache[ current ] = QVariant();
-		nullCache[ current ] = TRUE;	
-	    }
-	    break;
 	case QVariant::Date:
 	    DATE_STRUCT dbuf;
 	    r = SQLGetData( d->hStmt,
@@ -721,8 +705,10 @@ QVariant QODBCResult::data( int field )
 					      info.length(), isNull, TRUE ) );
 	    nullCache[ current ] = isNull;
 	    break;
-	default:
+	case QVariant::Double:
+	    // bind Double values as string to prevent loss of precision
 	case QVariant::CString:
+	default:
 	    isNull = FALSE;
 	    fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current, 
 					      info.length(), isNull, FALSE ) );
