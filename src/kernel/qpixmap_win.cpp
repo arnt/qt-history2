@@ -171,7 +171,12 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	bmh->biHeight	      = -h; // top-down bitmap
 	bmh->biPlanes	      = 1;
 	bmh->biBitCount	      = data->d;
+#if defined(_WIN32_WCE_EMULATION) && defined(WIN32_PLATFORM_PSPC) && (WIN32_PLATFORM_PSPC < 310)
+	// Old CE 30 emulator doesn't handle BI_BITFIELDS correctly
+	bmh->biCompression    = BI_RGB;
+#else
 	bmh->biCompression    = (data->d > 8 ? BI_BITFIELDS : BI_RGB);
+#endif
 	bmh->biSizeImage      = 0;
 	bmh->biClrUsed	      = ncols;
 	bmh->biClrImportant   = 0;
