@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#15 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,14 +15,9 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 #include <stdarg.h>
-#if !defined(_WS_X11_)
-#include <math.h>
-#else
-double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
-#endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#15 $";
 #endif
 
 
@@ -191,9 +186,11 @@ QRect QPointArray::boundingRect() const		// get bounding rect
 
 
 #if defined(_WS_X11_)
+double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 inline double qsin( double d ) { return qsincos(d,TRUE); }
 inline double qcos( double d ) { return qsincos(d,FALSE); }
 #else
+#include <math.h>
 #define qsin sin
 #define qcos cos
 #endif
