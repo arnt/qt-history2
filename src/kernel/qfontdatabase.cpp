@@ -560,12 +560,7 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
 {
     if ( !fe ) return FALSE;
 
-    QChar chs[2] = { QChar(0xfffe), sample };
-    bool hasChar =
-#ifndef Q_OS_TEMP
-	!fe->canRender( chs, 1 ) &&
-#endif
-	fe->canRender( chs+1, 1 );
+    bool hasChar = fe->canRender( &sample, 1 );
 
 #ifdef FONT_MATCH_DEBUG
     if (hasChar) {

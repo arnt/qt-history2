@@ -87,7 +87,7 @@ static const XlfdEncoding xlfd_encoding[] = {
     { "koi8-u", 13, 2088, make_tag('k','o','i','8'), make_tag('i','8','-','u') },
     { "koi8-r", 14, 2084, make_tag('k','o','i','8'), make_tag('i','8','-','r') },
     { "iso8859-7", 15, 10, make_tag('i','s','o','8'), make_tag('5','9','-','7') },
-    { "iso8859-6", 16, 82, make_tag('i','s','o','8'), make_tag('5','9','-','6') },
+    { "iso10646-1", 16, 0, make_tag('i','s','o','1'), make_tag('4','6','-','1') },
     { "iso8859-8", 17, 85, make_tag('i','s','o','8'), make_tag('5','9','-','8') },
     { "gb18030-0", 18, -114, make_tag('g','b','1','8'), make_tag('3','0','-','0') },
     { "gb18030.2000-0", 19, -113, make_tag('g','b','1','8'), make_tag('0','0','-','0') },
@@ -343,6 +343,7 @@ static const char scripts_for_xlfd_encoding[38][58] = {
       0, 0, 0, 1, 0, 0, 0, 0 }
 
 };
+
 
 // ----- end of generated code -----
 
