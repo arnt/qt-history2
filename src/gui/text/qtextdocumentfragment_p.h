@@ -31,14 +31,10 @@ public:
 };
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextFormatCollectionState &state)
-{
-    return stream << state.formats << state.groups;
-}
+{ return stream << state.formats << state.groups; }
 
 inline QDataStream &operator>>(QDataStream &stream, QTextFormatCollectionState &state)
-{
-    return stream >> state.formats >> state.groups;
-}
+{ return stream >> state.formats >> state.groups; }
 
 class QTextDocumentFragmentPrivate
 {
@@ -71,18 +67,18 @@ public:
 
     struct TextFragment
     {
-        int position;
+        Q_INT32 position;
         Q_UINT32 size;
-        int format;
+        Q_INT32 format;
     };
     typedef QVector<TextFragment> FragmentVector;
 
     struct Block
     {
         Block() : createBlockUponInsertion(true), blockFormat(-1), charFormat(-1) {}
-        bool createBlockUponInsertion;
-        int blockFormat;
-        int charFormat;
+        Q_INT8 createBlockUponInsertion;
+        Q_INT32 blockFormat;
+        Q_INT32 charFormat;
         FragmentVector fragments;
     };
     typedef QVector<Block> BlockVector;
@@ -94,6 +90,16 @@ public:
 
     QPointer<QTextPieceTable> pieceTable;
 };
+
+inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::TextFragment &fragment)
+{ return stream << fragment.position << fragment.size << fragment.format; }
+inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate::TextFragment &fragment)
+{ return stream >> fragment.position >> fragment.size >> fragment.format; }
+
+inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::Block &block)
+{ return stream << block.createBlockUponInsertion << block.blockFormat << block.charFormat << block.fragments; }
+inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate::Block &block)
+{ return stream >> block.createBlockUponInsertion >> block.blockFormat >> block.charFormat >> block.fragments; }
 
 class QTextHTMLImporter : public QTextHtmlParser
 {

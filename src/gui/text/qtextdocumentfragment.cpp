@@ -399,22 +399,7 @@ QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragme
 
     const QTextDocumentFragmentPrivate *d = fragment.d;
 
-    stream << d->formatCollectionState();
-
-    stream << d->blocks.count();
-
-    Q_FOREACH(const QTextDocumentFragmentPrivate::Block &block, d->blocks) {
-
-        stream << block.blockFormat << block.charFormat;
-
-        stream << block.fragments.count();
-        Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &fragment, block.fragments) {
-            stream << fragment.format;
-            stream << QString::fromRawData(d->localBuffer.constData() + fragment.position, fragment.size);
-        }
-    }
-
-    return stream;
+    return stream << d->formatCollectionState() << d->localBuffer << d->blocks;
 }
 
 /*!
@@ -428,26 +413,16 @@ QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
     stream >> collState;
     QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(d->localFormatCollection);
 
-    int blockCount;
-    stream >> blockCount;
+    stream >> d->localBuffer >> d->blocks;
 
-    for (; blockCount > 0; --blockCount) {
-        QTextDocumentFragmentPrivate::Block b;
+    for (int i = 0; i < d->blocks.count(); ++i) {
+        QTextDocumentFragmentPrivate::Block &block = d->blocks[i];
+        block.blockFormat = formatIndexMap.value(block.blockFormat, -1);
+        block.charFormat = formatIndexMap.value(block.charFormat, -1);
 
-        stream >> b.blockFormat >> b.charFormat;
-
-        if (b.blockFormat != -1)
-            d->blocks.append(b);
-
-        int fragmentCount;
-        stream >> fragmentCount;
-
-        for (; fragmentCount > 0; --fragmentCount) {
-            int format;
-            QString text;
-            stream >> format >> text;
-
-            d->appendText(text, formatIndexMap.value(format, -1));
+        for (int i = 0; i < block.fragments.count(); ++i) {
+            QTextDocumentFragmentPrivate::TextFragment &fragment = block.fragments[i];
+            fragment.format = formatIndexMap.value(fragment.format, -1);
         }
     }
 
@@ -669,5 +644,6 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
     QString unicode = codec->toUnicode(html);
     return fromHTML(unicode);
 }
+
 
 
