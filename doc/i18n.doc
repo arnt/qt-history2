@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.23 1999/06/15 21:24:41 warwick Exp $
+** $Id: i18n.doc,v 1.24 1999/06/16 01:17:37 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -34,7 +34,7 @@ Qt toolkit - Internationalization
 Internationalization of software is the process of allowing the
 software to be used efficiently by all people of the world.  This
 means adapting to user and locality preferences such as language,
-input techniques, character sets, and presentation conventions.
+input techniques, character encodings, and presentation conventions.
 
 
 <h2>Step by Step</h2>
@@ -57,18 +57,18 @@ in the following stages:
 	traditional char*, or the QCString class will suffice.
 	<p>
 	You're unlikely to notice that you are using unicode - QString,
-	and QChar are just like easy versions of the clumsy const char*
+	and QChar are just like easier versions of the clumsy const char*
 	and char from traditional C.
 	</p>
  <li><b>Use \link QObject::tr() tr()\endlink for all literal text.</b>
 	<p>
-	Where you use <tt>"quoted text"</tt> in the program for text
+	Where your program uses <tt>"quoted text"</tt> for text
 	that will be presented to the user, ensure it goes through
 	the
 	\link QApplication::translate() QApplication::translate()\endlink
        	function, usually this simply means using
-	\link QObject::tr() tr()\endlink
-	eg. assuming
+	\link QObject::tr() tr()\endlink.
+	For example, assuming
 	<tt>LoginWidget</tt> is a subclass of QWidget:
 	\code
 	LoginWidget::LoginWidget()
@@ -97,9 +97,11 @@ in the following stages:
 	\endcode
 
 	Finally, if you need to have translatable text completely
-	outside a funciton, 
-	two macros assist this: QT_TR_NOOP() and QT_TRANSLATE_NOOP(),
-	as in the code below.
+	outside a funciton, there are
+	two macros to help: QT_TR_NOOP() and QT_TRANSLATE_NOOP().
+	They merely mark the text for extraction by the <tt>findtr</tt>
+	utility described below - the macros expand to just the text (without
+	the scope). Example usages are shown below.
 
 	\code
 	QString FriendlyConversation::greeting(int greet_type)
@@ -124,18 +126,18 @@ in the following stages:
 	If you disable the const char* to QString automatic conversion by
 	compiling your software with the macro QT_NO_CAST_ASCII defined,
 	you'll be very likely to catch any strings you are missing. See
-	QString::fromLatin1() for more details. Doing this can make
-        programming uncomfortable though.
+	QString::fromLatin1() for more details. Disabling the conversion
+	can make programming cumbersome.
 	</p>
  <li><b>Use QString::arg() for simple arguments.</b>
 	<p>
 	The printf() style of inserting arguments in strings
-	is a poor choice for internationalized text, as it is often
+	is a poor choice for internationalized text, as it is sometimes
 	necessary to change the order of arguments when translating.
 	The
 	\link QString::arg() QString::arg()\endlink
-       	functions offer simple
-	means for numbered arguments:
+       	functions offer a simple
+	means for substituting arguments:
 	\code
 	void FileCopier::showProgress(int done, int total,
 				      const QString& current_file )
@@ -155,41 +157,43 @@ in the following stages:
 	<p>
 	Provided with Qt are three utility programs that assist
 	in the management of translations:
+	</p>
 	<dl>
 	  <dt><tt>findtr</tt>
 	  <dd>Extracts information about text to be translated.
 	    It recognizes the tr() constructs described above and
 	    produces a file in ".po" format, a simple text format
-	    that translation team will copy and edit, such that
-	    the <em>base</em> .po file will be say <tt>myapp.po</tt> and
-	    translated versions of the file will be <tt>myapp_de.po</tt>,
-	    <tt>myapp_fr.po</tt>, and <tt>myapp_ja.po</tt> for German,
-	    French and Japanese respectively.
+	    that your translation team will copy and edit.  For example,
+	    the <em>base</em> .po file might be <tt>myapp.po</tt> and
+	    translated versions of the file would then be <tt>myapp_de.po</tt>,
+	    <tt>myapp_fr.po</tt>, and <tt>myapp_ja.po</tt> for translations
+	    in German, French and Japanese respectively.
 	    \code
 		findtr *.cpp *.h >myapp.po
 		copy myapp.po myapp_de.po
 		edit myapp_de.po
 	    \endcode
 	  <dt><tt>msg2qm</tt>
-	  <dd>Convert translated .po files to the Qt-specific
-	    Qt Message (".qm") binary format.  The Qt Message
+	  <dd>Converts translated .po files to a Qt-specific
+	    binary format (".qm" Qt message files).  The Qt message
 	    files are platform and locale independent, containing
 	    translations in Unicode and various hash tables to
-	    provide fast look-up.  In that application, use
-	    \link QTranslator::load() QTranslator::load()\endlink
-	    to load a translation file appropriate for the user's
-	    language.
+	    provide fast look-up.
 	    \code
 		msg2qm myapp_de.po myapp_de.qm
 		msg2qm myapp_fr.po myapp_fr.qm
 		msg2qm myapp_ja.po myapp_ja.qm
 	    \endcode
+	    In your application, use
+	    \link QTranslator::load() QTranslator::load()\endlink
+	    to load translation files appropriate for the
+	    user's language.
+
 	  <dt><tt>mergetr</tt>
-	  <dd>When the original literal texts change as your application
-	    is enhanced, a the <em>base</em> .po file can be regenerated
-	    using <tt>findtr</tt>, then <tt>mergetr</tt> cn be used to
-	    merge the changes to the <em>base</em> .po file into the
-	    other .po files:
+	  <dd>When the texts in your program change as it
+	    is developed, a the <em>base</em> .po file can be regenerated
+	    using <tt>findtr</tt>, then <tt>mergetr</tt> can be used to
+	    merge the changes into the other .po files:
 	    \code
 		mergetr myapp_de.po myapp.po
 		mergetr myapp_fr.po myapp.po
@@ -206,12 +210,13 @@ in the following stages:
 	also need to be translated to the languages which you are targetting.
 	In the near future Qt will ship with translations for some languages.
 	We recommend that if you need to translate the Qt strings now
-	that you put the translations in separate .po and .pm files.  This
+	that you put the translations in separate .po and .qm files.  This
 	will simplify transition to the official Qt translations.
 	</em>
 	<p>
 	The <tt>findtr</tt> ships in <tt>qt/bin</tt>, while the other
-	utilities are under the <tt>qt/src/util</tt> and must be compiled.
+	utilities are under the <tt>qt/src/util</tt> directory
+	and need to be compiled.
 	</p>
  <li><b>Support encodings.</b>
 	<p>
@@ -258,7 +263,7 @@ in the following stages:
 <h2>System Support</h2>
 
 Operating systems and window systems supporting Unicode are still in
-the early stages.  The level of support
+the early stages of development.  The level of support
 available in the underlying system influences the support Qt provides
 on that platform, but applications written with Qt need not generally
 be too concerned with the actual limitations.
@@ -274,27 +279,19 @@ be too concerned with the actual limitations.
 	    but currently converts all filenames to Latin-1.
      <li>File I/O defaults to Latin-1, with Unicode options in QTextStream.
      </ul>
-  <dt>Windows NT
+  <dt>Windows 95/98/NT
     <dd><ul>
      <li>Qt provides full Unicode support, including input methods, fonts,
-	    drag-and-drop, file names.
+	  clipboard, drag-and-drop, and file names.
      <li>File I/O defaults to Latin-1, with Unicode options in QTextStream.
 	  Note that some Windows programs do not understand big-endian
 	  Unicode text files even though that is the order prescribed by
 	  the Unicode Standard in the absence of higher-level protocols.
-    </ul>
-  <dt>Windows 95/98
-    <dd><ul>
-     <li>Qt provides Unicode internally, but no Windows internationalization
-	    is used as it is greatly different from Unicode.
-     <li>File I/O defaults to Latin-1, with Unicode options in QTextStream.
+     <li>Note that unlike programs written with MFC or plain winlib, Qt programs
+	  are portable between Windows 95/98 and Windows NT - 
+	  <em>you do not need different binaries to support Unicode</em>.
     </ul>
 </dl>
-
-Note that unlike many toolkits for Windows (eg. MFC), with Qt you \e can
-have \e one program compiled with Unicode support and that program will
-also run on Windows 95/98 in Latin-1 locales.  You do \e not need two
-differen binaries for Windows NT and 95/98.
 
 <h2>Note about Kinput2 on X11</h2>
 
