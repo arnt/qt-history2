@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#157 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1377,8 +1377,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
-    if ( !x11AppDefaultVisual() )		// incompatible depth
-	return QPixmap(0, 0);
     Display *dpy = x11AppDisplay();
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 ) {
