@@ -567,7 +567,7 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
     if ( strt )
 	*strt = i;
     int start = i;
-    bool lastWasBackspash = FALSE;
+    bool lastWasBackspash = TRUE;
     if ( i != -1 && ( i == 0 || contents[ i - 1 ] != '{' || contents[ i - 1 ] != ':' ) ) {
 	for ( ; i < (int)contents.length(); ++i ) {
 	    if ( contents[ i ] == '\n' && !lastWasBackspash )
