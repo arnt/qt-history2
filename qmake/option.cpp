@@ -20,6 +20,8 @@
 #include <qhash.h>
 #include <qsettings.h>
 
+extern void qt_set_library_config_file(const QString &); //qlibraryinfo.cpp
+
 //convenience
 QString Option::prf_ext;
 QString Option::prl_ext;
@@ -211,7 +213,6 @@ Option::parseCommandLine(int argc, char **argv, int skip)
 #endif
                 return Option::QMAKE_CMDLINE_BAIL;
             } else if(opt == "qtconfig") {
-                extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
                 qt_set_library_config_file(Option::qtconfig_commandline = argv[++x]);
             } else if(opt == "show_qtconfig") {
                 show_qtconfig = true;
@@ -325,7 +326,6 @@ Option::parseCommandLine(int argc, char **argv, int skip)
             QDir pwd(QFileInfo(exe).path());
             while(1) {
                 if(pwd.exists("qt.conf")) {
-                    extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
                     qt_set_library_config_file(pwd.filePath("qt.conf"));
                     break;
                 }
