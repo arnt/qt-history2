@@ -358,26 +358,6 @@
     \endcode
 */
 
-/*! \fn bool qLess(const T &t1, const T &t2)
-    \relates <QtAlgorithms>
-
-    Returns true if \a t1 < \a t2; otherwise returns false.
-
-    This function requires the item type to implement \c operator<().
-
-    \sa qGreater(), qHeapSort()
-*/
-
-/*! \fn bool qGreater(const T &t1, const T &t2)
-    \relates <QtAlgorithms>
-
-    Returns true if \a t1 > \a t2; otherwise returns false.
-
-    This function requires the item type to implement \c operator>().
-
-    \sa qLess(), qHeapSort()
-*/
-
 /*! \fn void qBubbleSort(BiIterator begin, BiIterator end)
     \relates <QtAlgorithms>
 
@@ -430,17 +410,15 @@
         }
     \endcode
 
-    To sort values in reverse order, pass qGreater<T> as the \a
+    To sort values in reverse order, pass \c qGreater<T>() as the \a
     lessThan parameter. For example:
 
     \code
 	QList<int> list;
         list << 33 << 12 << 68 << 6 << 12;
-	qBubbleSort(list.begin(), list.end(), qGreater<int>);
+	qBubbleSort(list.begin(), list.end(), qGreater<int>());
         // list: [ 68, 33, 12, 12, 6 ]
     \endcode
-
-    \sa qLess(), qGreater()
 */
 
 /*! \fn void qBubbleSort(Container &c)
@@ -523,27 +501,15 @@
         }
     \endcode
 
-    To sort values in reverse order, pass qGreater<T> as the \a
+    To sort values in reverse order, pass \c qGreater<T>() as the \a
     lessThan parameter. For example:
 
     \code
 	QList<int> list;
         list << 33 << 12 << 68 << 6 << 12;
-	qHeapSort(list.begin(), list.end(), qGreater<int>);
+	qHeapSort(list.begin(), list.end(), qGreater<int>());
         // list: [ 68, 33, 12, 12, 6 ]
     \endcode
-
-    \warning Microsoft Visual C++ 6.0 and IBM xlC 6 have a bug that might
-    prevent the above code snippets from compiling. To work around this bug,
-    assign the function pointer to a variable and pass that variable
-    to qHeapSort() like this:
-
-    \code
-        bool (*lessThan)(const QString &, const QString &) = qGreater<QString>;
-        qHeapSort(vect.begin(), vect.end(), lessThan);
-    \endcode
-
-    \sa qLess(), qGreater()
 */
 
 /*! \fn void qHeapSort(Container &c)

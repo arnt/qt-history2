@@ -73,13 +73,24 @@ inline void qSwap(T &value1, T &value2)
 }
 
 template <typename T>
-inline bool qLess(const T &t1, const T &t2)
-{ return t1 < t2; }
+class qLess
+{
+public:
+    inline bool operator()(const T &t1, const T &t2) const
+    {
+        return (t1 < t2);
+    }
+};
 
 template <typename T>
-inline bool qGreater(const T &t1, const T &t2)
-{ return t1 > t2; }
-
+class qGreater
+{
+public:
+    inline bool operator()(const T &t1, const T &t2) const
+    {
+        return (t1 > t2);
+    }
+};
 
 template <typename BiIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
@@ -125,9 +136,7 @@ Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T 
 template <typename Container, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qSortHelper(Container c, const T &t, LessThan lessThan)
 {
-    // Don't pass qLess<T> directly (workaround for MSVC)
-    bool (*qLessFunc)(const T &a, const T &b) = qLess<T>;
-    qSortHelper(c.begin(), c.end(), t, qLessFunc);
+    qSortHelper(c.begin(), c.end(), t, lessThan);
 }
 
 template <typename BiIterator, typename LessThan>
@@ -217,9 +226,7 @@ Q_OUTOFLINE_TEMPLATE void qHeapSortHelper(BiIterator begin, BiIterator end, cons
 template <typename BiIterator, typename T>
 inline void qHeapSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 {
-    // Don't pass qLess<T> directly (workaround for MSVC)
-    bool (*qLessFunc)(const T &a, const T &b) = qLess<T>;
-    qHeapSortHelper(begin, end, dummy, qLessFunc);
+    qHeapSortHelper(begin, end, dummy, qLess<T>());
 }
 
 template <typename BiIterator, typename LessThan>
