@@ -35,7 +35,7 @@ Window::Window()
     mainLayout->addSpacing(12);
     mainLayout->addLayout(buttonsLayout);
 
-    setWindowTitle(tr("Stacked widget"));
+    setWindowTitle(tr("Configuration Widget"));
 }
 
 void Window::createIcons()
