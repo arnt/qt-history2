@@ -262,7 +262,7 @@ Atom		*qt_net_supported_list	= 0;
 Window		*qt_net_virtual_root_list	= 0;
 
 // function to update the workarea of the screen - in qdesktopwidget_x11.cpp
-extern void qt_desktopwidget_update_workarea(void);
+extern void qt_desktopwidget_update_workarea();
 
 // current focus model
 static const int FocusModel_Unknown = -1;

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
 ** Created : 940515
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -71,7 +71,7 @@
 // Assume XFree86 4.0.3 implementation which is missing XftInitFtLibrary and
 // XftNameUnparse
 extern "C" {
-Bool XftInitFtLibrary(void);
+Bool XftInitFtLibrary();
 Bool XftNameUnparse (XftPattern *, char *, int);
 }
 #endif

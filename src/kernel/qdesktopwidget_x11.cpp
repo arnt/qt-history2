@@ -5,7 +5,7 @@
 **
 ** Created :
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -47,7 +47,7 @@ extern bool qt_net_supports(Atom atom);
 
 // function to update the workarea of the screen
 static bool qt_desktopwidget_workarea_dirty = TRUE;
-void qt_desktopwidget_update_workarea(void)
+void qt_desktopwidget_update_workarea()
 {
     qt_desktopwidget_workarea_dirty = TRUE;
 }
