@@ -190,7 +190,8 @@ int QX11Info::appDpiY(int screen)
 }
 
 /*!
-*/
+        Sets the vertical resolution of the given \a screen to the number of
+        dots per inch specified by \a ydpi.*/
 
 void QX11Info::setAppDpiY(int screen, int ydpi)
 {
