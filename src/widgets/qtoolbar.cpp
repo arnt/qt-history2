@@ -326,6 +326,10 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
     mw = mainWindow;
     init();
 
+    clearWFlags( WType_Dialog | WStyle_Customize | WStyle_NoBorder );
+    reparent( parent, QPoint( 0, 0 ), FALSE );
+
+
     if ( mainWindow )
 	mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
 }

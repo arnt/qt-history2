@@ -837,7 +837,8 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder ),
       wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), curPlace( p ), resizeEnabled( FALSE ),
-      moveEnabled( TRUE ), nl( FALSE ), opaque( FALSE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), dockWindowData( 0 ),
+      moveEnabled( TRUE ), nl( FALSE ), opaque( FALSE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ),
+      dockWindowData( 0 ),
       lastPos( -1, -1 )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this );
@@ -878,8 +879,6 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 	if ( p == InDock )
 	    da->moveDockWindow( this );
 	mw = da->parentWidget();
-    } else if ( p == InDock ) {
-	p = OutsideDock;
     }
     if ( mw && mw->inherits( "QMainWindow" ) ) {
 	moveEnabled = ((QMainWindow*)mw)->dockWindowsMovable();
