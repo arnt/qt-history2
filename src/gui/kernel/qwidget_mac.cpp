@@ -1400,8 +1400,7 @@ void QWidget::hideWindow()
         else if(qt_mac_is_macdrawer(this))
             CloseDrawer(window, true);
         else
-            ShowHide(window, false); //now we hide
-        SizeWindow(window, 0, 0, true);
+            ShowHide(window, false);
         if(isActiveWindow()) {
             QWidget *w = 0;
             if(parentWidget())
@@ -1416,7 +1415,7 @@ void QWidget::hideWindow()
             if(w && w->isVisible())
                 qt_event_request_activate(w);
         }
-    } else if(!parentWidget() || parentWidget()->isVisible()) { //strange!! ###
+    } else { 
         HIViewSetVisible((HIViewRef)winId(), false);
     }
     deactivateWidgetCleanup();
