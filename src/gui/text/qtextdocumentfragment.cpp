@@ -107,7 +107,7 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollecti
 	    if (format.propertyType(propId) == QTextFormat::FormatReference) {
 		int ref = format.formatReferenceProperty(propId);
 
-		if (references.contains(ref))
+		if (ref == -1 || references.contains(ref))
 		    continue;
 
 		QTextFormat referencedFormat = collection->format(ref);
@@ -485,7 +485,7 @@ QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QSt
     : d(_d), indent(0)
 {
     parse(html);
-    dumpHtml();
+    //dumpHtml();
 }
 
 void QTextHTMLImporter::import()
