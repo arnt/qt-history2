@@ -643,7 +643,7 @@ static const char * const iso8859_3locales[] = {
     "eo", 0 };
 
 static const char * const iso8859_4locales[] = {
-    "ee", "ee_EE", "lv", "lv_LV", 0 };
+    "ee", "ee_EE", 0 };
 
 static const char * const iso8859_5locales[] = {
     "mk", "mk_MK", "sp", "sp_YU", 0 };
@@ -667,7 +667,7 @@ static const char * const iso8859_9locales[] = {
     "tr", "tr_TR", "turkish", 0 };
 
 static const char * const iso8859_13locales[] = {
-    "lt", "lt_LT", 0 };
+    "lt", "lt_LT", "lv", "lv_LV", 0 };
 
 static const char * const iso8859_15locales[] = {
     "et", "et_EE",
