@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#445 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#446 $
 **
 ** Implementation of QWidget class
 **
@@ -112,7 +112,6 @@
 	sizeHint(),
 	updateGeometry(),
 	layout(),
-	setLayout()
 	move(),
 	resize(),
 	setGeometry(),
@@ -4145,7 +4144,7 @@ void QWidget::updateMask()
 
   If the widget does not have a layout, layout() returns a null pointer.
 
-  \sa setLayout() sizePolicy()
+  \sa  sizePolicy()
 */
 
 
