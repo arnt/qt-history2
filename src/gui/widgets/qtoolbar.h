@@ -80,6 +80,8 @@ public:
     inline QAction *actionAt(const QPoint &p) const
     { return actionAt(p.x(), p.y()); }
 
+    QAction *toggleViewAction() const;
+
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QToolBar(QMainWindow *parent, const char *name);
     inline QT_COMPAT void setLabel(const QString &label)
@@ -93,11 +95,14 @@ signals:
 
 protected:
     void actionEvent(QActionEvent *event);
+    void changeEvent(QEvent *event);
     void childEvent(QChildEvent *event);
     void resizeEvent(QResizeEvent *event);
+    bool event(QEvent *event);
 
 private:
     Q_PRIVATE_SLOT(d, void actionTriggered())
+    Q_PRIVATE_SLOT(d, void toggleView(bool))
 };
 
 #endif // QTOOLBAR_H

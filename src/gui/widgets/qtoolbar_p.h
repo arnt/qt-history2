@@ -74,6 +74,7 @@ public:
 
     void init();
     void actionTriggered();
+    void toggleView(bool b);
     QToolBarItem createItem(QAction *action);
     int indexOf(QAction *action) const;
 
@@ -86,6 +87,8 @@ public:
 
     QList<QToolBarItem> items;
     bool ignoreActionAddedEvent;
+
+    QAction *toggleViewAction;
 };
 
 static inline QCOORD pick(Qt::Orientation o, const QPoint &p)

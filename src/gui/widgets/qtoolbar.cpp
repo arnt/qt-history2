@@ -63,6 +63,10 @@ void QToolBarPrivate::init()
     ChangeWindowAttributes(qt_mac_window_for(q->parentWidget()), kWindowToolbarButtonAttribute,
                            kWindowNoAttributes);
 #endif
+
+    toggleViewAction = new QAction(q);
+    toggleViewAction->setCheckable(true);
+    QObject::connect(toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
 }
 
 void QToolBarPrivate::actionTriggered()
@@ -70,6 +74,16 @@ void QToolBarPrivate::actionTriggered()
     QAction *action = qt_cast<QAction *>(q->sender());
     Q_ASSERT_X(action != 0, "QToolBar::actionTriggered", "internal error");
     emit q->actionTriggered(action);
+}
+
+void QToolBarPrivate::toggleView(bool b)
+{
+    if (b != q->isShown()) {
+        if (b)
+            q->show();
+        else
+            q->close();
+    }
 }
 
 QToolBarItem QToolBarPrivate::createItem(QAction *action)
@@ -633,6 +647,18 @@ void QToolBar::actionEvent(QActionEvent *event)
     }
 }
 
+ /*! \reimp */
+void QToolBar::changeEvent(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::WindowTitleChange:
+        d->toggleViewAction->setText(windowTitle());
+        break;
+    default:
+        break;
+    }
+}
+
 /*! \reimp */
 void QToolBar::childEvent(QChildEvent *event)
 {
@@ -748,6 +774,30 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 
     QFrame::resizeEvent(event);
 }
+
+/*! \reimp */
+bool QToolBar::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::Show:
+    case QEvent::Hide:
+        if (!event->spontaneous())
+            d->toggleViewAction->setChecked(event->type() == QEvent::Show);
+        break;
+    }
+    return QFrame::event(event);
+}
+
+/*!
+    Returns a checkable action that can be used to show or hide this
+    tool bar.
+
+    The action's text is set to the tool bar's window title.
+
+    \sa QAction::text QWidget::windowTitle
+*/
+QAction *QToolBar::toggleViewAction() const
+{ return d->toggleViewAction; }
 
 /*!
     \fn void QToolBar::setLabel(const QString &label)
