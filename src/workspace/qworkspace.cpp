@@ -1737,7 +1737,7 @@ QWorkspaceChild::~QWorkspaceChild()
     QWorkspace *workspace = qt_cast<QWorkspace*>(parentWidget());
     if ( workspace ) {
 	if ( workspace->d->active == this )
-	    workspace->activateWindow(0);
+	    workspace->activatePrevWindow();
 	if ( workspace->d->maxWindow == this ) {
 	    workspace->hideMaximizeControls();
 	    workspace->d->maxWindow = 0;
