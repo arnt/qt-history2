@@ -1370,7 +1370,7 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
     clearWState(WState_Maximized);
     clearWState(WState_FullScreen);
     if (isTopLevel())
-	topData()->normalGeometry = QRect(0, 0, -1, -1);
+	d->topData()->normalGeometry = QRect(0, 0, -1, -1);
     if ( testWState(WState_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), isMove ? 2 : 1, x, y, w, h );
     } else {
