@@ -31,6 +31,8 @@
 #include "qobjectdefs.h"
 #include "private/qiodevice_p.h"
 
+class QSocketDeviceEngine;
+
 class QSocketDevicePrivate : public QIODevicePrivate
 {
     Q_DECLARE_PUBLIC(QSocketDevice)
