@@ -1327,7 +1327,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 #endif
 		}
 	    }
-	    if(!isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
+	    if(isResize || !isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
 		//finally issue "expose" event
 		QRegion upd((oldregion + clpreg) - bltregion);
 		if(isResize && !testWFlags(WStaticContents))
