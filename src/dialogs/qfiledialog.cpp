@@ -1068,6 +1068,9 @@ public:
 	return newStr;
     }
 
+#ifndef Q_NO_CURSOR
+    bool cursorOverride; // Remember if the cursor was overridden or not.
+#endif
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -2316,6 +2319,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
     init();
     d->mode = ExistingFile;
     d->types->insertItem( tr( "All Files (*)" ) );
+    d->cursorOverride = FALSE;
     emit dirEntered( d->url.dirPath() );
     rereadDir();
 }
@@ -2839,10 +2843,12 @@ QFileDialog::~QFileDialog()
     d->moreFiles->clear();
     d->moreFiles->blockSignals( FALSE );
     files->blockSignals( FALSE );
+    
 #ifndef QT_NO_CURSOR
-    if ( QApplication::overrideCursor() )
+    if ( d->cursorOverride )
 	QApplication::restoreOverrideCursor();
 #endif
+    
     delete d;
     d = 0;
 }
@@ -3235,13 +3241,21 @@ bool QFileDialog::showHiddenFiles() const
 void QFileDialog::rereadDir()
 {
 #ifndef QT_NO_CURSOR
-    if ( !QApplication::overrideCursor() )
+    if ( !d->cursorOverride ) {
 	QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
+	d->cursorOverride = TRUE;
+    }
 #endif
     d->pendingItems.clear();
     if ( d->mimeTypeTimer->isActive() )
 	d->mimeTypeTimer->stop();
     d->currListChildren = d->url.listChildren();
+#ifndef QT_NO_CURSOR
+    if ( d->cursorOverride ) {
+	QApplication::restoreOverrideCursor();
+	d->cursorOverride = FALSE;
+    }
+#endif
 }
 
 
@@ -5621,6 +5635,12 @@ void QFileDialog::urlStart( QNetworkOperation *op )
     qt_ntfs_permission_lookup = FALSE;
 #endif
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+#ifndef QT_NO_CURSOR
+	if ( !d->cursorOverride ) {
+	    QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
+	    d->cursorOverride = TRUE;
+	}
+#endif
 	if ( isRoot( d->url ) )
 	    d->cdToParent->setEnabled( FALSE );
 	else
@@ -5668,11 +5688,13 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	return;
 
 #ifndef QT_NO_CURSOR
-    if ( op->operation() == QNetworkProtocol::OpListChildren ) {
-	if ( QApplication::overrideCursor() )
-	    QApplication::restoreOverrideCursor();
+    if ( op->operation() == QNetworkProtocol::OpListChildren &&
+	 d->cursorOverride ) {
+	QApplication::restoreOverrideCursor();
+	d->cursorOverride = FALSE;
     }
 #endif
+
     if ( op->state() == QNetworkProtocol::StFailed ) {
 	if ( d->paths->hasFocus() )
 	    d->ignoreNextKeyPress = TRUE;
