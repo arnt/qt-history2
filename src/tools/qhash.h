@@ -276,11 +276,12 @@ inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(uint h, const Ke
 template <class Key, class T>
 void QHash<Key, T>::free(QHashData *x)
 {
+    Node *e_for_x = (Node *)x;
     Node **bucket = (Node **) x->buckets;
     int n = x->numBuckets;
     while (n--) {
 	Node *cur = *bucket++;
-	while (cur != e) {
+	while (cur != e_for_x) {
 	    Node *next = cur->next;
 	    delete cur;
 	    cur = next;
@@ -310,7 +311,7 @@ inline QHash<Key, T> &QHash<Key, T>::operator=(const QHash &h)
     if (d != h.d) {
 	QHashData *x = h.d;
 	++x->ref;
-	x = qAtomicSetPtr( &d, x );
+	x = qAtomicSetPtr(&d, x);
 	if (!--x->ref)
 	    free(x);
     }

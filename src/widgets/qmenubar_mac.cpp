@@ -123,18 +123,23 @@ public:
 	    DisposeMenu(apple_menu);
 	}
 	if (popups) {
-	    // ### revisit when qhash gets autodelete
-	    QHash<int, PopupBinding*>::Iterator it = popups->begin();
-	    for (; it != popups->end(); ++it)
-		delete it.value(); // since we are clearing them, it's okay to leave them dangling.
-	    popups->clear();
+	    // ### revisit when QHash gets autodelete
+	    while (!popups->isEmpty()) {
+		QHash<int, PopupBinding*>::Iterator it = popups->begin();
+		PopupBinding *trash = it.value();
+		popups->remove(it.key());
+		delete trash;
+	    }
 	}
 	if (commands) {
-	    // ### revisit when qhash gets autodelete
-	    QHash<int, CommandBinding*>::Iterator it = commands->begin();
-	    for (; it != commands->end(); ++it)
-		delete it.value();
-	    commands->clear();
+	    // ### revisit when QHash gets autodelete
+	    QHash<int, CommandBinding*>::Iterator removeMe;
+	    while (!commands->isEmpty()) {
+		QHash<int, CommandBinding*>::Iterator it = commands->begin();
+		CommandBinding *trash = it.value();
+		commands->remove(it.key());
+		delete trash;
+	    }
 	}
 	if (mac_menubar) {
 	    DisposeMenuBar(mac_menubar);
