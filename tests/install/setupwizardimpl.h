@@ -1,5 +1,6 @@
 #include <qprocess.h>
 #include <qtimer.h>
+#include <qmap.h>
 
 #include "setupwizard.h"
 #include "shell.h"
@@ -93,7 +94,7 @@ private:
     void writeLicense( QString filePath );
     QFile fileLog;
     QFile outputLog;
-
+    QMap<QString,QString> licenseInfo;
     QTimer autoContTimer;
     int timeCounter;
 

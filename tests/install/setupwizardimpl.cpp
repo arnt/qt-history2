@@ -18,6 +18,7 @@
 #include <qcombobox.h>
 #include <qmessagebox.h>
 #include <qregexp.h>
+#include <qtabwidget.h>
 
 #define BUFFERSIZE 64 * 1024
 
@@ -500,6 +501,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	setInstallStep( 4 );
     }
     else if( newPage == configPage ) {
+	// First make sure that the current license information is saved
+	createDir( installPath->text() );
+	writeLicense( installPath->text() + "/.qt-license" );
+
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
 	QByteArray pathBuffer;
 	QStringList path;
@@ -541,31 +546,27 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
 	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
 
-	QString fromdir = QDir::currentDirPath();
-
-	QString mkspecdir = fromdir + "/mkspecs";
-//	QString mkspecenv = QEnvironment::getEnv( "QMAKESPEC" );
-//	QFileInfo mkspecenvdirinfo( mkspecenv );
-	QString srcdir = fromdir + "/src";
-	QFileInfo* fi;
-
 	// general
 	modules = new QCheckListItem ( configList, "Modules" );
 	modules->setOpen( TRUE );
-	QDir srcDir( srcdir, QString::null, QDir::Name | QDir::IgnoreCase, QDir::Dirs );
-	const QFileInfoList* srcdirs = srcDir.entryInfoList();
-	QFileInfoListIterator srcDirIterator( *srcdirs );
-	srcDirIterator.toLast();
-	while ( ( fi = srcDirIterator.current() ) ) {
-	    if ( fi->fileName()[0] != '.' && // fi->fileName() != ".." &&
-		 fi->fileName() != "tmp" &&
-		 fi->fileName() != "compat" &&
-		 fi->fileName() != "3rdparty" &&
-		 fi->fileName() != "moc" ) {
-		item = new QCheckListItem( modules, fi->fileName(), QCheckListItem::CheckBox );
-		item->setOn( TRUE );
+	QStringList licensedModules = QStringList::split( " ", "styles tools kernel widgets dialogs iconview workspace" );
+	if( ( licenseInfo[ "PRODUCTS" ].length() ) && ( licenseInfo[ "PRODUCTS" ] != "qt-professional" ) ) {
+	    licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
+	    // advanced
+	    sqldrivers = new QCheckListItem ( advancedList, "SQL Drivers" );
+	    sqldrivers->setOpen( true );
+	    QStringList sqlList = QStringList::split( " ", "mysql oci odbc psql" );
+	    for( QStringList::Iterator it2 = sqlList.begin(); it2 != sqlList.end(); ++it2 ) {
+		item = new QCheckListItem( sqldrivers, (*it2), QCheckListItem::CheckBox );
+		item->setOn( true );
 	    }
-	    --srcDirIterator;
+	}
+	else
+	    configTabs->removePage( advancedTab );
+
+	for( QStringList::Iterator it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
+	    item = new QCheckListItem( modules, (*it), QCheckListItem::CheckBox );
+	    item->setOn( true );
 	}
 	threadModel = new QCheckListItem ( configList, "Threading" );
 	threadModel->setOpen( TRUE );
@@ -585,20 +586,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	item = new QCheckListItem( debugMode, "Release", QCheckListItem::RadioButton );
 	item->setOn( TRUE );
 
-	// advanced
-	sqldrivers = new QCheckListItem ( advancedList, "SQL Drivers" );
-	sqldrivers->setOpen( true );
-	QDir sqlsrcDir( srcdir + "/sql/src", QString::null, QDir::Name | QDir::IgnoreCase, QDir::Dirs );
-	const QFileInfoList* sqlsrcdirs = sqlsrcDir.entryInfoList();
-	QFileInfoListIterator sqlsrcDirIterator( *sqlsrcdirs );
-	sqlsrcDirIterator.toLast();
-	while ( ( fi = sqlsrcDirIterator.current() ) ) {
-	    if ( fi->fileName() != "." && fi->fileName() != ".." && fi->fileName() != "tmp" ) {
-		item = new QCheckListItem( sqldrivers, fi->fileName(), QCheckListItem::CheckBox );
-		item->setOn( false );
-	    }
-	    --sqlsrcDirIterator;
-	}
 	setInstallStep( 5 );
     }
     else if( newPage == progressPage ) {
@@ -690,9 +677,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    else
 		logFiles( "One or more errors occurred during file copying,\nplease review the log and try to amend the situation.\n", true );
 
-	    // Now make sure that the current license information is saved
-	    writeLicense( installPath->text() + "/.qt-license" );
-
 	}
 	setNextEnabled( progressPage, copySuccessful );
     }
@@ -706,6 +690,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QTextStream tmpStream;
 	bool settingsOK;
 
+	autoContTimer.stop();
+	nextButton()->setText( "Next >" );
 	saveSettings();
 	if( int( qWinVersion() ) & int( WV_NT_based ) ) {
 	    outputDisplay->append( "Execute configure...\n" );
@@ -796,6 +782,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	setInstallStep( 7 );
     }
     else if( newPage == finishPage ) {
+	autoContTimer.stop();
+	nextButton()->setText( "Next >" );
 	QString finishMsg;
 	if( int( qWinVersion() ) & int( WV_NT_based ) ) {
 	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.";
@@ -1031,6 +1019,17 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 			    return false;
 		    }
 		    inFile.close();
+
+		    HANDLE inFile, outFile;
+		    if( inFile = ::CreateFileA( entryName.latin1(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
+			if( outFile = ::CreateFileA( targetName.latin1(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
+			    FILETIME createTime, accessTime, writeTime;
+			    ::GetFileTime( inFile, &createTime, &accessTime, &writeTime );
+			    ::SetFileTime( outFile, &createTime, &accessTime, &writeTime );
+			    ::CloseHandle( outFile );
+			}
+			::CloseHandle( inFile );
+		    }
 		}
 		else {
 		    QString error = QEnvironment::getLastError();
@@ -1068,7 +1067,6 @@ void SetupWizardImpl::timerFired()
 void SetupWizardImpl::readLicense( QString filePath)
 {
     QFile licenseFile( filePath );
-    QMap<QString,QString> licenseInfo;
 
     if( licenseFile.open( IO_ReadOnly ) ) {
 	QString buffer;
@@ -1100,12 +1098,18 @@ void SetupWizardImpl::writeLicense( QString filePath )
     if( licenseFile.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream licStream( &licenseFile );
 	
+	licenseInfo[ "CUSTOMERID" ] = customerID->text();
+	licenseInfo[ "LICENSEID" ] = licenseID->text();
+	licenseInfo[ "LICENSEE" ] = licenseeName->text();
+	licenseInfo[ "PRODUCTS" ] = productsString->text();
+	licenseInfo[ "EXPIRYDATE" ] = expiryDate->text();
+
 	licStream << "# Toolkit license file" << endl;
-	licStream << "CustomerID=\"" << customerID->text().latin1() << "\"" << endl;
-	licStream << "LicenseID=\"" << licenseID->text().latin1() << "\"" << endl;
-	licStream << "Licensee=\"" << licenseeName->text().latin1() << "\"" << endl;
-	licStream << "Products=\"" << productsString->text().latin1() << "\"" << endl;
-	licStream << "ExpiryDate=" << expiryDate->text().latin1() << endl;
+	licStream << "CustomerID=\"" << licenseInfo[ "CUSTOMERID" ].latin1() << "\"" << endl;
+	licStream << "LicenseID=\"" << licenseInfo[ "LICENSEID" ].latin1() << "\"" << endl;
+	licStream << "Licensee=\"" << licenseInfo[ "LICENSEE" ].latin1() << "\"" << endl;
+	licStream << "Products=\"" << licenseInfo[ "PRODUCTS" ].latin1() << "\"" << endl;
+	licStream << "ExpiryDate=" << licenseInfo[ "EXPIRYDATE" ].latin1() << endl;
 
 	licenseFile.close();
     }
