@@ -83,7 +83,7 @@ void HelpDemo::setAssistantArguments()
 	cmdLst << "-hideSidebar";
     if ( checkOnlyExampleDoc->isChecked() )
         cmdLst << "-profile"
-	       << QString("doc") + QDir::separator() + QString("helpdemo.dcf");
+	       << QString("doc") + QDir::separator() + QString("helpdemo.adp");
     assistant->setArguments( cmdLst );
 }
 
