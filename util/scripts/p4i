@@ -22,19 +22,25 @@ if ( $line !~ /^Perforce/ ) {
     die "$0: $P4 -V isn't p4? Returned: \"$line\"\n";
 }
 
-for $arg ( @ARGV ) {
-  if ( $arg eq "--help" ) {
+sub usage {
     printf "$0 [--all] [change]\n";
     printf "     default change is last change\n";
     exit( 0 );
+}
+
+for $arg ( @ARGV ) {
+  if ( $arg eq "--help" ) {
+    usage;
   } elsif ( $arg eq "--all" ) {
     $all = 1;
     $ask = 0;
     $force = 1;
   } elsif ( $arg eq "--force" ) {
     $force = 1;
-  } else {
+  } elsif ( $arg =~ /^\d+$/ ) {
     $change = $arg;
+  } else {
+    usage;
   }
 }
 
