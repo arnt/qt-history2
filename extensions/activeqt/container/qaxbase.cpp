@@ -1845,7 +1845,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         typeinfo->GetNames(funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut);
         QList<QByteArray> names;
         int p;
-        for (p = 0; p < maxNamesOut; ++p) {
+        for (p = 0; p < (int)maxNamesOut; ++p) {
             names << BSTRToQString(bstrNames[p]).latin1();
             SysFreeString(bstrNames[p]);
         }
@@ -2175,7 +2175,6 @@ void MetaObjectGenerator::readEventInfo()
                         QByteArray function;
                         QByteArray prototype;
                         QList<QByteArray> parameters;
-                        int flags = 0;
                         
                         // parse event function description
                         BSTR bstrNames[256];
@@ -2311,7 +2310,6 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     QByteArray stringdata = that->className();
     stringdata += null;
     stringdata.reserve(8192);
-    int string_data_size = stringdata.length();
     
     int offset = int_data[3]; //idx_classinfo
     
@@ -2785,7 +2783,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     }
     
     int p;
-    for (p = 0; p < params.cArgs; ++p) {
+    for (p = 0; p < (int)params.cArgs; ++p) {
         bool out;
         QByteArray type = d->metaobj->paramType(signature, p, &out);
         QVariant qvar(QVariant::nameToType(type), v[p + 1]);
@@ -2821,14 +2819,14 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     }
     
     // update out parameters
-    for (p = 0; p < params.cArgs; ++p) {
+    for (p = 0; p < (int)params.cArgs; ++p) {
         bool out;
         QByteArray ptype = d->metaobj->paramType(signature, p, &out);
         if (out)
             QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype), v[p+1], ptype);
     }
     // clean up
-    for (p = 0; p < params.cArgs; ++p)
+    for (p = 0; p < (int)params.cArgs; ++p)
         clearVARIANT(params.rgvarg+p);
     if (params.rgvarg != static_rgvarg)
         delete [] params.rgvarg;
@@ -3197,7 +3195,7 @@ QVariant QAxBase::dynamicCall(const QString &function, QList<QVariant> &vars)
     res.vt = VT_EMPTY;
     
     QByteArray rettype;
-    bool ok = dynamicCallHelper(QMetaObject::normalizedSignature(function.latin1()), &res, vars, rettype);
+    dynamicCallHelper(QMetaObject::normalizedSignature(function.latin1()), &res, vars, rettype);
     
     QVariant qvar = VARIANTToQVariant(res, rettype);
     clearVARIANT(&res);
@@ -3285,13 +3283,13 @@ QAxObject *QAxBase::querySubObject(const QString &name, QList<QVariant> &vars)
     switch (res.vt) {
     case VT_DISPATCH:
         if (res.pdispVal) {
-            object = new QAxObject(res.pdispVal, qObject(), (QString(qObject()->objectName()) + "/" + name).latin1());
+            object = new QAxObject(res.pdispVal, qObject());
             ((QAxBase*)object)->d->tryCache = true;
         }
         break;
     case VT_UNKNOWN:
         if (res.punkVal) {
-            object = new QAxObject(res.punkVal, qObject(), (QString(qObject()->objectName()) + "/" + name).latin1());
+            object = new QAxObject(res.punkVal, qObject());
             ((QAxBase*)object)->d->tryCache = true;
         }
         break;

@@ -913,7 +913,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
 	            for ( long i = lBound; i <= uBound; ++i ) {
 		        VARIANT var;
 		        VariantInit( &var );
-		        HRESULT hres = SafeArrayGetElement( array, &i, &var );
+		        SafeArrayGetElement( array, &i, &var );
 
 		        QVariant qvar = VARIANTToQVariant( var, 0 );
 		        clearVARIANT( &var );

@@ -377,7 +377,7 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
     script.
 */
 QAxScriptEngine::QAxScriptEngine(const QString &language, QAxScript *script)
-: QAxObject(script, language.latin1()), script_code(script), engine(0), 
+: QAxObject(script), script_code(script), engine(0), 
 script_language(language)
 {
 #ifdef QT_CHECK_STATE
@@ -608,7 +608,7 @@ void QAxScriptEngine::addItem(const QString &name)
     takes ownership of the object.
 */
 QAxScript::QAxScript(const QString &name, QAxScriptManager *manager)
-: QObject(manager, name.latin1()), script_name(name), script_manager(manager),
+: QObject(manager), script_name(name), script_manager(manager),
 script_engine(0)
 {
     if (manager) {
@@ -870,8 +870,8 @@ QAxBase *QAxScript::findObject(const QString &name)
     It is usual to create one QAxScriptManager for each document in an
     application.
 */
-QAxScriptManager::QAxScriptManager(QObject *parent, const char *name)
-: QObject(parent, name)
+QAxScriptManager::QAxScriptManager(QObject *parent)
+: QObject(parent)
 {
     d = new QAxScriptManagerPrivate;
 }

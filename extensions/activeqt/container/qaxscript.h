@@ -120,7 +120,7 @@ class QAxScriptManager : public QObject
     Q_OBJECT
         
 public:
-    QAxScriptManager(QObject *parent = 0, const char *name = 0);
+    QAxScriptManager(QObject *parent = 0);
     ~QAxScriptManager();
     
     void addObject(QAxBase *object);

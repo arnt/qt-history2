@@ -28,9 +28,9 @@ public:
     QObject* qObject() const { return (QWidget*)this; }
     const char *className() const;
     
-    QAxWidget(QWidget* parent = 0, const char* name = 0, Qt::WFlags f = 0);
-    QAxWidget(const QString &c, QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0);
-    QAxWidget(IUnknown *iface, QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0);
+    QAxWidget(QWidget* parent = 0, Qt::WFlags f = 0);
+    QAxWidget(const QString &c, QWidget *parent = 0, Qt::WFlags f = 0);
+    QAxWidget(IUnknown *iface, QWidget *parent = 0, Qt::WFlags f = 0);
     ~QAxWidget();
     
     void clear();

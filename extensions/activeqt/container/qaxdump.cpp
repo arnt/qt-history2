@@ -84,7 +84,6 @@ static QString namedPrototype(const QString &signature, const QString &names, in
     if (!numDefArgs)
         return prototype;
 
-    int numArgs = prototype.count(',') + 1;
     // default arguments
     int comma = -1;
     while (numDefArgs > 1) {
@@ -346,11 +345,11 @@ QString qax_generateDocumentation(QAxBase *that)
     const int enumCount = mo->enumeratorCount();
     if (enumCount) {
 	stream << "<hr><h2>Member Type Documentation</h2>" << endl;
-	for (uint i = 0; i < enumCount; ++i) {
+	for (int i = 0; i < enumCount; ++i) {
 	    const QMetaEnum enumdata = mo->enumerator(i);
 	    stream << "<h3><a name=" << enumdata.name() << "></a>" << enumdata.name() << "</h3>" << endl;
 	    stream << "<ul>" << endl;
-	    for (uint e = 0; e < enumdata.keyCount(); ++e) {
+	    for (int e = 0; e < enumdata.keyCount(); ++e) {
 		stream << "<li>" << enumdata.key(e) << "\t=" << enumdata.value(e) << "</li>" << endl;
 	    }
 	    stream << "</ul>" << endl;

@@ -55,8 +55,8 @@
     to the QObject constructor. To initialize the object, call \link
     QAxBase::setControl() setControl \endlink.
 */
-QAxObject::QAxObject(QObject *parent, const char *name)
-: QObject(parent, name)
+QAxObject::QAxObject(QObject *parent)
+: QObject(parent)
 {
 }
 
@@ -66,8 +66,8 @@ QAxObject::QAxObject(QObject *parent, const char *name)
 
     \sa setControl()
 */
-QAxObject::QAxObject(const QString &c, QObject *parent, const char *name)
-: QObject(parent, name)
+QAxObject::QAxObject(const QString &c, QObject *parent)
+: QObject(parent)
 {
     setControl(c);
 }
@@ -77,8 +77,8 @@ QAxObject::QAxObject(const QString &c, QObject *parent, const char *name)
     iface. \a parent and \a name are propagated to the QObject
     contructor.
 */
-QAxObject::QAxObject(IUnknown *iface, QObject *parent, const char *name)
-: QObject(parent, name), QAxBase(iface)
+QAxObject::QAxObject(IUnknown *iface, QObject *parent)
+: QObject(parent), QAxBase(iface)
 {
 }
 

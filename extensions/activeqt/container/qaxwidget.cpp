@@ -121,8 +121,9 @@ private:
 };
 
 QAxHostWidget::QAxHostWidget(QWidget *parent, QAxHostWindow *ax)
-: QWidget(parent, "QAxHostWidget"), axhost(ax)
+: QWidget(parent), axhost(ax)
 {
+    setObjectName("QAxHostWidget");
     setFocusTimer = 0;
 }
 
@@ -1429,8 +1430,8 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     name and \a f to the QWidget constructor. To initialize a control,
     call \link QAxBase::setControl() setControl \endlink.
 */
-QAxWidget::QAxWidget(QWidget *parent, const char *name, Qt::WFlags f)
-: QWidget(parent, name, f), container(0)
+QAxWidget::QAxWidget(QWidget *parent, Qt::WFlags f)
+: QWidget(parent, f), container(0)
 {
 }
 
@@ -1440,8 +1441,8 @@ QAxWidget::QAxWidget(QWidget *parent, const char *name, Qt::WFlags f)
 
     \sa setControl()
 */
-QAxWidget::QAxWidget(const QString &c, QWidget *parent, const char *name, Qt::WFlags f)
-: QWidget(parent, name, f), container(0)
+QAxWidget::QAxWidget(const QString &c, QWidget *parent, Qt::WFlags f)
+: QWidget(parent, f), container(0)
 {
     setControl(c);
 }
@@ -1450,8 +1451,8 @@ QAxWidget::QAxWidget(const QString &c, QWidget *parent, const char *name, Qt::WF
     Creates a QAxWidget that wraps the COM object referenced by \a iface.
     \a parent, \a name and \a f are propagated to the QWidget contructor.
 */
-QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, const char *name, Qt::WFlags f)
-: QWidget(parent, name, f), QAxBase(iface), container(0)
+QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, Qt::WFlags f)
+: QWidget(parent, f), QAxBase(iface), container(0)
 {
 }
 
