@@ -727,7 +727,7 @@ QTextLayout *QTextBlock::layout() const
     }
     if (b->textDirty) {
         QString text = this->text();
-        b->layout->setText(text);
+        b->layout->setText(text, charFormat().font());
 
         if (!text.isEmpty()) {
             int lastTextPosition = 0;

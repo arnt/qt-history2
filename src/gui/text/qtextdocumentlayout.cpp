@@ -449,22 +449,6 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, s);
 
-    // QTextLayout even for empty blocks creates at least one line (per QTextLayout::createLine),
-    // so we need the second check, too
-    const int lines = tl->numLines();
-    if (lines == 0 || (lines == 1 && tl->lineAt(0).length() == 0)) {
-
-        QPoint pos = tl->rect().topLeft() + offset;
-
-        pos.rx() += blockFormat.leftMargin() + indent(bl);
-        pos.ry() += blockFormat.topMargin();
-
-        if (cursor != -1)
-            painter->drawLine(pos.x(), pos.y(),
-                              pos.x(), pos.y() + QFontMetrics(bl.charFormat().font()).height());
-        return;
-    }
-
     const_cast<QTextLayout *>(tl)->setPalette(context.palette,
                                               context.textColorFromPalette ? QTextLayout::UseTextColor : QTextLayout::None);
 
@@ -865,11 +849,6 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
         line.setPosition(QPoint(left - layoutStruct->x_left, layoutStruct->y - cy));
         layoutStruct->y += line.ascent() + line.descent() + 1;
         layoutStruct->maxWidthUsed = qMax(layoutStruct->maxWidthUsed, left + line.textWidth());
-    }
-    if (tl->numLines() == 0) {
-        QTextCharFormat fmt = bl.charFormat();
-        QFontMetrics fm(fmt.font());
-        layoutStruct->y += fm.ascent() + fm.descent() + 1;
     }
     layoutStruct->y += blockFormat.bottomMargin();
 }
