@@ -529,16 +529,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
     } else {
 	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << "\n\n"
-	  << "staticlib: $(TARGET)" << "\n\n"
-	  << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(TARGETDEPS) " 
-	  << varList("QMAKE_AR_SUBLIBS") << "\n\t";
-	if(!project->isEmpty("DESTDIR")) {
-	    QString destdir = project->first("DESTDIR");
-	    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
-	}
-	t << "-rm -f $(TARGET)" << "\n\t";
+	  << "staticlib: $(TARGET)" << "\n\n";
 	if(project->isEmpty("QMAKE_AR_SUBLIBS")) {
-	    t << var("QMAKE_AR_CMD") << "\n";
+	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(TARGETDEPS) " << "\n\t";
+	    if(!project->isEmpty("DESTDIR")) {
+		QString destdir = project->first("DESTDIR");
+		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+	    }
+	    t << "-rm -f $(TARGET)" << "\n\t"
+	      << var("QMAKE_AR_CMD") << "\n";
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\t" << var("QMAKE_POST_LINK") << "\n";
 	    if(!project->isEmpty("QMAKE_RANLIB"))
@@ -550,25 +549,26 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    libs.prepend("$(TARGET)");
 	    for(QStringList::Iterator libit = libs.begin(), objit = objs.begin(); 
 		libit != libs.end(); ++libit) {
-		QString build;
-		for(int cnt = 0; cnt < max_files && objit != objs.end(); ++objit, cnt++) {
-		    if(!build.isEmpty())
-			build += " ";
-		    build += (*objit);
-		}
+		QStringList build;
+		for(int cnt = 0; cnt < max_files && objit != objs.end(); ++objit, cnt++) 
+		    build << (*objit);
 		QString ar;
 		if((*libit) == "$(TARGET)") {
+		    t << "$(TARGET): $(UICDECLS) " << " $(TARGETDEPS) " 
+		      << varList("QMAKE_AR_SUBLIBS") << " " << valList(build) << "\n\t";
 		    ar = project->variables()["QMAKE_AR_CMD"].first();
-		    ar = ar.replace(QRegExp("\\$\\(OBJMOC\\)"), "").replace(QRegExp("\\$\\(OBJECTS\\)"), build);
+		    ar = ar.replace(QRegExp("\\$\\(OBJMOC\\)"), "").replace(QRegExp("\\$\\(OBJECTS\\)"), 
+									    build.join(" "));
 		} else {
-		    t << (*libit) << ":" << "\n\t";
-		    if(!project->isEmpty("DESTDIR")) {
-			QString destdir = project->first("DESTDIR");
-			t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
-		    }
-		    ar = "$(AR) " + (*libit) + " " + build;
+		    t << (*libit) << ": " << valList(build) << "\n\t";
+		    ar = "$(AR) " + (*libit) + " " + build.join(" ");
 		}
-		t << ar << "\n";
+		if(!project->isEmpty("DESTDIR")) {
+		    QString destdir = project->first("DESTDIR");
+		    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+		}
+		t << "-rm -f $(TARGET)" << "\n\t"
+		  << ar << "\n";
 		if(!project->isEmpty("QMAKE_POST_LINK"))
 		    t << "\t" << var("QMAKE_POST_LINK") << "\n";
 		if(!project->isEmpty("QMAKE_RANLIB"))
