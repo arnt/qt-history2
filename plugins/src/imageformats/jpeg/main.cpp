@@ -3,6 +3,8 @@
 #endif
 #include <qimageformatplugin.h>
 
+#ifndef QT_NO_IMAGEFORMATPLUGIN
+
 #ifdef QT_NO_IMAGEIO_JPEG
 #undef QT_NO_IMAGEIO_JPEG
 #endif
@@ -70,3 +72,5 @@ bool JPEGFormat::installIOHandler( const QString &name )
 }
 
 Q_EXPORT_PLUGIN( JPEGFormat )
+
+#endif // QT_NO_IMAGEFORMATPLUGIN

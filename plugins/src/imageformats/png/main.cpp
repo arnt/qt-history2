@@ -3,6 +3,8 @@
 #endif
 #include <qimageformatplugin.h>
 
+#ifndef QT_NO_IMAGEFORMATPLUGIN
+
 #ifdef QT_NO_IMAGEIO_PNG
 #undef QT_NO_IMAGEIO_PNG
 #endif
@@ -70,3 +72,5 @@ bool PNGFormat::installIOHandler( const QString &name )
 }
 
 Q_EXPORT_PLUGIN( PNGFormat )
+
+#endif // QT_NO_IMAGEFORMATPLUGIN

@@ -4,6 +4,8 @@
 
 #include <qimageformatplugin.h>
 
+#ifndef QT_NO_IMAGEFORMATPLUGIN
+
 #ifdef QT_NO_IMAGEIO_MNG
 #undef QT_NO_IMAGEIO_MNG
 #endif
@@ -53,3 +55,5 @@ bool MNGFormat::installIOHandler( const QString &name )
 }
 
 Q_EXPORT_PLUGIN( MNGFormat )
+
+#endif // QT_NO_IMAGEFORMATPLUGIN
