@@ -62,6 +62,7 @@
     \i \link buyhowto.html How to Buy Qt \endlink
     \i \link bughowto.html How to Report A Bug \endlink
     \i \link focus.html Keyboard Focus Overview \endlink
+    \i \link accelerators.html   Standard Accelerators \endlink
     \i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
     \i \link activeqt.html ActiveX support \endlink
     \i \link mailinglists.html Mailing Lists \endlink

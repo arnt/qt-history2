@@ -234,21 +234,50 @@ Connecting to multiple databases is achieved using the two argument form
 of \l QSqlDatabase::addDatabase() where the second argument is a unique
 identifier distinguishing the connection.
 
+In the example below we have moved the connections into their own
+function, \c createConnections(), and added some basic error handling. 
+
+\code
+#define DB_SALES_DRIVER	    "QPSQL7"
+#define DB_SALES_DBNAME	    "sales"
+#define DB_SALES_USER	    "salesperson"
+#define DB_SALES_PASSWD	    "salesperson"
+#define DB_SALES_HOST	    "database.domain.no"
+
+#define DB_ORDERS_DRIVER    "QOCI8"
+#define DB_ORDERS_DBNAME    "orders"
+#define DB_ORDERS_USER	    "orderperson"
+#define DB_ORDERS_PASSWD    "orderperson"
+#define DB_ORDERS_HOST	    "database.domain.no"
+
+bool createConnections();
+\endcode
+
+We set up some constants and also declare the \c createConnections()
+function in \c connection.h.
+
+\quotefile sql/overview/connection.cpp
+\skipto #include
+\printuntil return TRUE
+\printuntil }
+\caption From \l sql/overview/connection.cpp
+
+We've chosen to isolate database connection in our \c
+createConnections() function.cpp.
+
 \target create_connections
 \quotefile sql/overview/create_connections/main.cpp
 \skipto include
 \printline include
-\printuntil return TRUE 
+\printuntil return 0 
 \printline
 \caption From \l sql/overview/create_connections/main.cpp
 
-In the example above we have moved the connections into their own
-function, createConnections(), and added some basic error handling. The
-static function \l QSqlDatabase::database() can be called from anywhere
-to provide a pointer to a database connection. If we call it without any
-parameter it will return the default connection. If called with the
-identifier we've used for a connection, e.g. "ORACLE", in the above
-example, it will return a pointer to the specified connection.
+The static function \l QSqlDatabase::database() can be called from
+anywhere to provide a pointer to a database connection. If we call it
+without any parameter it will return the default connection. If called
+with the identifier we've used for a connection, e.g. "ORACLE", in the
+above example, it will return a pointer to the specified connection.
 
 If you create a \c main.cpp using \e{Qt Designer}, it will \e not
 include our example createConnections() function. This means that
