@@ -1313,8 +1313,6 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
 	}
     }
 
-    qDebug("last resort: %p %s", match, familyName.latin1());
-
     return match;
 }
 
