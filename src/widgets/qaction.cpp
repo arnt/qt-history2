@@ -1204,7 +1204,7 @@ void QActionGroup::addSeparator()
 }
 
 
-/*! \fn void insert( QAction* a )
+/*! \fn void QActionGroup::insert( QAction* a )
 
   \obsolete
 
