@@ -271,7 +271,6 @@ QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
             parent->installEventFilter(this); //handle resizes
     }
     setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
-    setGeometry(QRect(QPoint(0, 0), sizeHint()));
 }
 
 QMenuBar::~QMenuBar()
