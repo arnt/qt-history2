@@ -536,7 +536,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    releaseMouse();
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
-	if ( testWState( WType_TopLevel ) )
+	if ( isTopLevel() )
 	    qt_deferred_map_take( this );
 	if ( testWFlags(WShowModal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
@@ -1511,6 +1511,8 @@ void qt_wait_for_window_manager( QWidget* w )
 	    break;
     }
     qApp->x11ProcessEvent( &ev );
+    if ( XCheckTypedWindowEvent( w->x11Display(), w->winId(), ConfigureNotify, &ev ) )
+	qApp->x11ProcessEvent( &ev );
 }
 
 /*!
@@ -1528,10 +1530,10 @@ void qt_wait_for_window_manager( QWidget* w )
 
 void QWidget::showMaximized()
 {
-    if ( testWFlags(WType_TopLevel) ) {
+    if ( isTopLevel() ) {
 	Display *dpy = x11Display();
 
-	if (qt_net_supports(qt_net_wm_state_max_h) &&
+	if ( qt_net_supports(qt_net_wm_state_max_h) &&
 	    qt_net_supports(qt_net_wm_state_max_v)) {
 	    // we have a NET supporting window manager
 	    long net_winstates[3] = { 0, 0, 0 };
@@ -1557,10 +1559,14 @@ void QWidget::showMaximized()
 		setGeometry(0, 0, sw, sh );
 		show();
 		qt_wait_for_window_manager( this );
+		updateFrameStrut();
 	    }
-	    sw -= frameGeometry().width() - width();
-	    sh -= frameGeometry().height() - height();
-	    resize( sw, sh );
+	    if ( width() == sw && height() == sh ) {
+		// the wm was not smart enough to adjust our size, do that manually
+		sw -= frameGeometry().width() - width();
+		sh -= frameGeometry().height() - height();
+		resize( sw, sh );
+	    }
 	}
     }
     show();

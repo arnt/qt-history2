@@ -1615,9 +1615,9 @@ void qt_init_internal( int *argcptr, char **argv,
 	Visual *vis;
 	if (! visual) {
 	    // use the default visual
-	    vis = DefaultVisual(appDpy,appScreen);	    
+	    vis = DefaultVisual(appDpy,appScreen);	
 	    QPaintDevice::x_appdefvisual = TRUE;
-	    
+	
 	    if ( qt_visual_option == TrueColor ||
 		 QApplication::colorSpec() == QApplication::ManyColor ) {
 		// find custom visual
@@ -1634,7 +1634,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    // If we are using OpenGL widgets we HAVE to make sure that
 	    // the default visual is GL enabled, otherwise it will wreck
 	    // havock when e.g trying to render to GLXPixmaps via QPixmap.
-	    // This is because QPixmap is always created with a 
+	    // This is because QPixmap is always created with a
 	    // QPaintDevice that uses x_appvisual per default.
 	    int useGL;
 	    int nvis;
@@ -1655,9 +1655,9 @@ void qt_init_internal( int *argcptr, char **argv,
 		    visInfo.screen = appScreen;
 		    visInfo.c_class = vi->c_class;
 		    visInfo.depth = vi->depth;
-		    visuals = XGetVisualInfo( appDpy, VisualClassMask | 
+		    visuals = XGetVisualInfo( appDpy, VisualClassMask |
 					      VisualDepthMask |
-					      VisualScreenMask, &visInfo, 
+					      VisualScreenMask, &visInfo,
 					      &nvis );
 		    if ( visuals ) {
 			for ( i = 0; i < nvis; i++ ) {
@@ -1752,7 +1752,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_x11_intern_atom( "_NET_WM_STATE", &qt_net_wm_state );
 	qt_x11_intern_atom( "_NET_WM_STATE_MODAL", &qt_net_wm_state_modal );
 	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_VERT", &qt_net_wm_state_max_v );
-	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_HORIZ", &qt_net_wm_state_max_h );
+	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_HORZ", &qt_net_wm_state_max_h );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE", &qt_net_wm_window_type );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_NORMAL",
 			    &qt_net_wm_window_type_normal );
