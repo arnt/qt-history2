@@ -1577,7 +1577,7 @@ static QLocale::Language codeToLanguage(const QString &code)
     	if (uc1 == (unsigned char)c[0] && uc2 == (unsigned char)c[1])
 	    return (QLocale::Language) ((c - language_code_list)/2);
     }
-    
+
     return QLocale::C;
 }
 
@@ -1594,7 +1594,7 @@ static QLocale::Country codeToCountry(const QString &code)
     	if (uc1 == (unsigned char)c[0] && uc2 == (unsigned char)c[1])
 	    return (QLocale::Country) ((c - country_code_list)/2);
     }
-    
+
     return QLocale::DefaultCountry;
 }
 
@@ -1602,7 +1602,7 @@ static QString languageToCode(QLocale::Language language)
 {
     if (language == QLocale::DefaultLanguage)
     	return QString::null;
-    
+
     if (language == QLocale::C)
     	return "C";
 
@@ -1611,7 +1611,7 @@ static QString languageToCode(QLocale::Language language)
     const char *c = language_code_list + 2*(uint)language;
     code[0] = c[0];
     code[1] = c[1];
-    return code;    
+    return code;
 }
 
 static QString countryToCode(QLocale::Country country)
@@ -1624,7 +1624,7 @@ static QString countryToCode(QLocale::Country country)
     const char *c = country_code_list + 2*(uint)country;
     code[0] = c[0];
     code[1] = c[1];
-    return code;    
+    return code;
 }
 
 const QLocalePrivate *QLocale::default_d = 0;
@@ -2161,37 +2161,37 @@ QLocale::QLocale(const QString &unixLocale)
 {
     Language lang = C;
     Country cntry = DefaultCountry;
-    
+
     uint l = unixLocale.length();
-    
+
     do {
 	if (l < 2)
     	    break;
-	
+
 	const QChar *uc = unixLocale.unicode();
-	if (l > 2 
-	    	&& uc[2] != '_' 
-		&& uc[2] != '.' 
+	if (l > 2
+	    	&& uc[2] != '_'
+		&& uc[2] != '.'
 		&& uc[2] != '@')
 	    break;
-    
+
     	lang = codeToLanguage(unixLocale.mid(0, 2));
 	if (lang == C)
 	    break;
-	
+
 	if (l == 2 || uc[2] == '.' || uc[2] == '@')
 	    break;
-    		
+
     	// we have uc[2] == '_'
 	if (l < 5)
 	    break;
-	
+
 	if (l > 5 && uc[5] != '.' && uc[5] != '@')
 	    break;
-	
+
 	cntry = codeToCountry(unixLocale.mid(3, 2));
     } while (false);
-    
+
     d = findLocale(lang, cntry);
 }
 
@@ -2276,19 +2276,19 @@ QLocale::Country QLocale::country() const
 QString QLocale::unixLocaleName() const
 {
     Language l = language();
-    
+
     QString result = languageToCode(l);
 
     if (l == C)
     	return result;
-    
+
     Country c = country();
     if (c == DefaultCountry)
     	return result;
-    
+
     result.append('_');
     result.append(countryToCode(c));
-    
+
     return result;
 }
 
@@ -2644,7 +2644,7 @@ static char digitToCLocale(QChar zero, QChar d)
 	return '0' + d.unicode() - zero.unicode();
 
     qWarning("QLocalePrivate::digitToCLocale(): bad digit: row=%d, cell=%d", d.row(), d.cell());
-    return QChar(0);
+    return 0;
 }
 
 static QString qulltoa(Q_ULLONG l, int base, const QLocalePrivate &locale)
