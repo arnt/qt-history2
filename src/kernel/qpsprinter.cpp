@@ -5371,12 +5371,10 @@ QByteArray compress( const QImage & image, bool gray ) {
             uchar * s = image.scanLine( y );
             for( int x=0; x < image.width(); x++ ) {
                 pixel[i] = image.color( s[x] );
-#if 0
 		// commented out, as it doesn't seem to work correctly with 8bit images.
                if ( qAlpha( pixel[i] )< 0x40 ) // 25% alpha, convert to white
                    pixel[i] = qRgb( 0xff, 0xff, 0xff );
                else
-#endif 	   
                     pixel[i] &= RGB_MASK;
                 i++;
             }
