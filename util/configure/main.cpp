@@ -20,7 +20,8 @@ int main( int argc, char** argv )
 	app.displayConfig();
 	app.buildQmake();
 
-	app.exec();
+	if( !app.isDone() )
+	    app.exec();
 
 	app.showSummary();
     }

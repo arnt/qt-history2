@@ -26,6 +26,7 @@ public:
     void readLicense();
 
     bool isProjectLibrary( const QString& proFileName );
+    bool isDone();
 private:
     QProcess qmakeBuilder;
     QProcess qmake;

@@ -1156,3 +1156,8 @@ void ConfigureApp::saveCmdLine()
 	}
     }
 }
+
+bool ConfigureApp::isDone()
+{
+    return( dictionary[ "NOPROCESS" ] == "yes" );
+}
