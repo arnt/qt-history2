@@ -131,7 +131,7 @@ public:
   <li> \c Insert
   <li> \c Update
   <li> \c Delete
-  </ul>	
+  </ul>
 */
 
 /*!
@@ -1045,8 +1045,8 @@ void QSqlTable::refresh( QSqlCursor* cursor, QSqlIndex idx )
     QApplication::restoreOverrideCursor();
 }
 
-/*! Search the current result set for the string \a str. If the string
- is found, it will be marked as the current cell.
+/*! Searches the current result set for the string \a str. If the
+ string is found, it will be selected as the current cell.
 */
 
 void QSqlTable::find( const QString & str, bool caseSensitive,
@@ -1666,34 +1666,68 @@ QSqlRecord QSqlTable::currentFieldSelection() const
     return fil;
 }
 
+/*! Sorts column \a col in ascending order.
+  
+  \sa setSorting()
+*/
+
+void QSqlTable::sortAscending( int col )
+{
+    sortColumn( col, TRUE );    
+}
+
+/*! Sorts column \a col in descending order.
+  
+  \sa setSorting()
+*/
+
+void QSqlTable::sortDescending( int col )
+{
+    sortColumn( col, FALSE );
+}
+
+/*! Refreshes the table using the current cursor
+*/
+
+void QSqlTable::refresh()
+{
+    refresh( QSqlIndex() );
+}
+
 /*! \fn void QSqlTable::currentChanged( const QSqlRecord* record )
   This signal is emitted whenever a new row is selected in the table.
-  The \a record parameter is the contents of the newly selected
+  The \a record parameter points to the contents of the newly selected
   record.
 */
 
 /*! \fn void QSqlTable::beginInsert( QSqlRecord* buf )
   This signal is emitted when an insert is beginning on the cursor's edit buffer.
+  The \a buf parameter points to the record buffer being inserted.
 */
 
 /*! \fn void QSqlTable::beginUpdate( QSqlRecord* buf )
   This signal is emitted when an update is beginning on the cursor's edit buffer.
+  The \a buf parameter points to the record buffer being updated.
 */
 
 /*! \fn void QSqlTable::beforeInsert( QSqlRecord* buf )
   This signal is emitted just before the cursor's edit buffer is inserted into the database.
+  The \a buf parameter points to the record buffer being inserted.  
 */
 
 /*! \fn void QSqlTable::beforeUpdate( QSqlRecord* buf )
   This signal is emitted just before the cursor's edit buffer is updated in the database.
+  The \a buf parameter points to the record buffer being updated.  
 */
 
 /*! \fn void QSqlTable::beforeDelete( QSqlRecord* buf )
   This signal is emitted just before the currently selected record is deleted from the database.
+  The \a buf parameter points to the record buffer being deleted.  
 */
 
 /*! \fn void QSqlTable::cursorChanged( QSqlCursor::Mode mode )
   This signal is emitted whenever the cursor record was changed due to an edit.
+  The \a mode parameter is the edit that just took place.
 */
 
 #endif

@@ -59,13 +59,13 @@ class Q_EXPORT QSqlTable : public QTable
     Q_OBJECT
 public:
     QSqlTable ( QWidget * parent = 0, const char * name = 0 );
-    QSqlTable ( QSqlCursor* cursor, bool autoPopulate = TRUE, QWidget * parent = 0, const char * name = 0 );    
+    QSqlTable ( QSqlCursor* cursor, bool autoPopulate = TRUE, QWidget * parent = 0, const char * name = 0 );
     ~QSqlTable();
 
-    void         addColumn( const QSqlField* field );
-    void         removeColumn( uint col );
-    void         setColumn( uint col, const QSqlField* field );
-    void         addColumns( const QSqlRecord& fieldList );
+    virtual void addColumn( const QSqlField* field );
+    virtual void removeColumn( uint col );
+    virtual void setColumn( uint col, const QSqlField* field );
+    virtual void addColumns( const QSqlRecord& fieldList );
 
     QString      nullText() const;
     QString      trueText() const;
@@ -90,7 +90,7 @@ public:
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
-    void         refresh( QSqlIndex idx = QSqlIndex() );
+    void         refresh( QSqlIndex idx );
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
     QSqlRecord   currentFieldSelection() const;
@@ -108,8 +108,11 @@ signals:
     void         cursorChanged( QSqlCursor::Mode mode );
 
 public slots:
-    void 	 find( const QString & str, bool caseSensitive,
+    virtual void find( const QString & str, bool caseSensitive,
 			     bool backwards );
+    virtual void sortAscending( int col );
+    virtual void sortDescending( int col );
+    virtual void refresh();   
 
 protected slots:
     virtual void insertCurrent();
@@ -143,7 +146,6 @@ protected:
     void         contentsMousePressEvent( QMouseEvent* e );
     void         endEdit( int row, int col, bool accept, bool replace );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
-    //    void         setCurrentCell( int row, int col );
     void         activateNextCell();
     int          indexOf( uint i ) const;
     void         reset();
@@ -154,7 +156,7 @@ protected:
 			     bool selected );
     void         paintField( QPainter * p, const QSqlField* field, const QRect & cr,
 			     bool selected );
-    int          fieldAlignment( const QSqlField* field );
+    virtual int  fieldAlignment( const QSqlField* field );
     void         columnClicked ( int col );
     void         resizeData ( int len );
 
