@@ -15,14 +15,12 @@ Supported platforms and compilers:
   irix-cc
   irix-cc-64
   irix-g++
-  linux-ecc-64
   linux-g++
   linux-icc
   solaris-cc
   solaris-cc-64
   solaris-g++
   solaris-g++-64
-  tru64-g++
 
 Compilation problems:
 
