@@ -452,9 +452,9 @@ We have two recommendations that you should consider when creating a
 \printuntil }
 
 	    For each widget class that you want to wrap in the plugin
-	    implementation you should supply a key, (often the
-	    class name), by which the class can be identified. In our
-	    example we add a single key, 'FileChooser'.
+	    implementation you should supply a key by which the class
+	    can be identified. This key should be the class name, so
+	    in our example we add a single key, 'FileChooser'.
 
 	    \index create()
 	    The \Func create() function.

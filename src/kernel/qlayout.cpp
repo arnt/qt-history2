@@ -1486,12 +1486,14 @@ private:
   the mainWidget()), divides it up into a row of boxes, and makes each
   managed widget fill one box.
 
+    \img qhbox-m.png Horizontal box with five child widgets
   If the QBoxLayout's orientation is \c Horizontal the boxes are
   placed in a row, with suitable sizes. Each widget (or other
   box) will get at least its minimum size and at most its maximum
   size. Any excess space is shared according to the stretch factors
   (more about that below).
 
+    \img qvbox-m.png Vertical box with five child widgets
   If the QBoxLayout's orientation is \c Vertical, the boxes are placed
   in a column, again with suitable sizes.
 

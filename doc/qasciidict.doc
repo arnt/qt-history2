@@ -67,7 +67,7 @@
     fields["forename"]->setText( "Homer" );
     fields["surname"]->setText( "Simpson" );
 
-    QAsciiDictIterator<char> it( extra ); // See QAsciiDictIterator
+    QAsciiDictIterator<QLineEdit> it( fields ); // See QAsciiDictIterator
     for( ; it.current(); ++it )
 	cout << it.currentKey() << ": " << it.current()->text() << endl;
     cout << endl;
@@ -342,7 +342,7 @@
     fields["surname"]->setText( "Simpson" );
     fields["age"]->setText( "45" );
 
-    QAsciiDictIterator<char> it( extra );
+    QAsciiDictIterator<QLineEdit> it( fields );
     for( ; it.current(); ++it )
 	cout << it.currentKey() << ": " << it.current()->text() << endl;
     cout << endl;

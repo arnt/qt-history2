@@ -1320,7 +1320,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 	param[1].ival = combine;
 	pdev->cmd( QPaintDevice::PdcSetWMatrix, this, param );
     }
-    if ( identity )
+    if ( identity && pdev->devType() != QInternal::Picture )
 	setWorldXForm( FALSE );
     else if ( !testf(WxF) )
 	setWorldXForm( TRUE );
@@ -3326,6 +3326,8 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
   \endcode
 
   See the setStyle() function for a complete list of brush styles.
+
+  \img brush-styles.png Brush Styles
 
   \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
 */
