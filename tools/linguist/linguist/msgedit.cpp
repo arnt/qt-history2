@@ -67,7 +67,7 @@ void MessageEditor::visualizeBackTabs(const QString &text, QTextEdit *te)
     blueFormat.setFontItalic(true);
     blueFormat.setProperty(QTextFormat::UserProperty, -1);
 
-    QString plainText = "";
+    QString plainText;
     for (int i = 0; i < (int) text.length(); ++i)
     {
         int ch = text[i].unicode();
@@ -122,6 +122,7 @@ void MessageEditor::visualizeBackTabs(const QString &text, QTextEdit *te)
 
 SourceTextEdit::SourceTextEdit(QWidget *parent) : QTextEdit(parent)
 {
+    srcmenu = 0;
     actCopy = new QAction(tr("&Copy"), this);
     actCopy->setShortcut(QKeySequence(tr("Ctrl+C")));
     actSelect = new QAction(tr("Select &All"), this);
@@ -155,14 +156,19 @@ void SourceTextEdit::copySelection()
     QApplication::clipboard()->setText(td.toPlainText());
 }
 
-QMenu *SourceTextEdit::createPopupMenu(const QPoint &/*pos*/)
+void SourceTextEdit::contextMenuEvent(QContextMenuEvent *e)
 {
-    QMenu *pMenu = new QMenu(this);
+    if (!srcmenu)
+    {
+        srcmenu = new QMenu(this);
+        srcmenu->addAction(actCopy);
+        srcmenu->addAction(actSelect);
+    }
+
     actCopy->setEnabled(textCursor().hasSelection());
     actSelect->setEnabled(!document()->isEmpty());
-    pMenu->addAction(actCopy);
-    pMenu->addAction(actSelect);
-    return pMenu;
+    
+    srcmenu->popup(e->globalPos());
 }
 
 /*
@@ -457,8 +463,9 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
 
     QFontMetrics fm(font());
     srcTextView->header()->setResizeMode(QHeaderView::Stretch, 1);
-    srcTextView->header()->resizeSection(0, fm.width(MessageModel::tr("Done")) + 10);
+    srcTextView->header()->resizeSection(0, fm.width(MessageModel::tr("Done")) + 20);
     srcTextView->header()->resizeSection(2, 300);
+    srcTextView->header()->setClickable(true);
 
     topDockWnd->setWidget(srcTextView);
     parent->addDockWidget(Qt::TopDockWidgetArea, topDockWnd);
@@ -486,6 +493,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     phraseTv->setRootIsDecorated(false);
 
     phraseTv->header()->setResizeMode(QHeaderView::Stretch);
+    phraseTv->header()->setClickable(true);
 
     vl->addWidget(phraseLbl);
     vl->addWidget(phraseTv);
@@ -533,10 +541,10 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
         this, SIGNAL(copyAvailable(bool)));
     connect(qApp->clipboard(), SIGNAL(dataChanged()),
         this, SLOT(updateCanPaste()));
-    connect(phraseTv, SIGNAL(doubleClicked(const QModelIndex &, Qt::MouseButton, Qt::KeyboardModifiers)),
-        this, SLOT(insertPhraseInTranslation(const QModelIndex &, Qt::MouseButton)));
-    connect(phraseTv, SIGNAL(returnPressed(const QModelIndex &)),
-        this, SLOT(insertPhraseInTranslationAndLeave(const QModelIndex &)));
+    connect(phraseTv, SIGNAL(doubleClicked(const QModelIndex &)),
+        this, SLOT(insertPhraseInTranslation(const QModelIndex &)));
+    
+    phraseTv->installEventFilter(this);
 
     connect(srcTextView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
              parent, SLOT(showNewCurrent(const QModelIndex &, const QModelIndex &)));
@@ -561,6 +569,18 @@ bool MessageEditor::eventFilter(QObject *o, QEvent *e)
         (e->type() == QEvent::ShortcutOverride))
     {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+
+        // handle return key in phrase list
+        if (o == phraseTv 
+            && e->type() == QEvent::KeyPress
+            && ke->modifiers() == Qt::NoModifier
+            && ke->key() == Qt::Key_Return
+            && phraseTv->currentIndex().isValid())
+        {
+            insertPhraseInTranslationAndLeave(phraseTv->currentIndex());
+            return false;
+        }
+
         if (ke->modifiers() & Qt::ControlModifier)
         {
             if ((ke->key() == Qt::Key_A) &&
@@ -757,9 +777,10 @@ void MessageEditor::guessActivated(int key)
     }
 }
 
-void MessageEditor::insertPhraseInTranslation(const QModelIndex &index, Qt::MouseButton button)
+void MessageEditor::insertPhraseInTranslation(const QModelIndex &index)
 {
-    if (button == Qt::LeftButton && !editorPage->transText->isReadOnly()) {
+    if (!editorPage->transText->isReadOnly())
+    {
         editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
         emit translationChanged(editorPage->transText->toPlainText());
     }
@@ -767,9 +788,12 @@ void MessageEditor::insertPhraseInTranslation(const QModelIndex &index, Qt::Mous
 
 void MessageEditor::insertPhraseInTranslationAndLeave(const QModelIndex &index)
 {
-    editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
-    emit translationChanged(editorPage->transText->toPlainText());
-    editorPage->transText->setFocus();
+    if (!editorPage->transText->isReadOnly())
+    {
+        editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
+        emit translationChanged(editorPage->transText->toPlainText());
+        editorPage->transText->setFocus();
+    }
 }
 
 void MessageEditor::updateButtons()

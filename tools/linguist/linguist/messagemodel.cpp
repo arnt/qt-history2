@@ -158,13 +158,11 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void MessageModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+void MessageModel::sort(int column, Qt::SortOrder order)
 {
     if (cntxtItem != 0) {
         cntxtItem->sortMessages(column, order);
         emit dataChanged(index(0,0),
             index(cntxtItem->messageItemsInList()-1, 2));
     }
-
-    Q_UNUSED(parent);
 }

@@ -77,7 +77,7 @@ void PhraseModel::resort()
     if (sortColumn == -1)
         return;
 
-    sort(sortColumn, QModelIndex(), sortOrder);
+    sort(sortColumn, sortOrder);
 }
 
 QModelIndex PhraseModel::index(const Phrase phr) const
@@ -139,7 +139,7 @@ QVariant PhraseModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void PhraseModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+void PhraseModel::sort(int column, Qt::SortOrder order)
 {
     if (plist.count() <= 0)
         return;
@@ -150,8 +150,6 @@ void PhraseModel::sort(int column, const QModelIndex &parent, Qt::SortOrder orde
     qSort(plist.begin(), plist.end(), PhraseModel::compare);
     emit dataChanged(QAbstractTableModel::index(0,0),
         QAbstractTableModel::index(plist.count()-1, 2));
-
-    Q_UNUSED(parent);
 }
 
 bool PhraseModel::compare(const Phrase left, const Phrase right)

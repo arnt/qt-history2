@@ -35,6 +35,7 @@ class QTreeView;
 class QVBoxLayout;
 class EditorPage;
 class MetaTranslator;
+class QMenu;
 
 class SourceTextEdit : public QTextEdit
 {
@@ -46,11 +47,12 @@ public slots:
     void copySelection();
 
 protected:
-    QMenu *createPopupMenu (const QPoint &pos);
+    void contextMenuEvent(QContextMenuEvent *e);
 
 private:
     QAction *actCopy;
     QAction *actSelect;
+    QMenu *srcmenu;
 };
 
 class GuessShortcut : public QShortcut
@@ -237,7 +239,7 @@ public slots:
 private slots:
     void emitTranslationChanged();
     void guessActivated(int key);
-    void insertPhraseInTranslation(const QModelIndex &index, Qt::MouseButton button = Qt::LeftButton);
+    void insertPhraseInTranslation(const QModelIndex &index);
     void insertPhraseInTranslationAndLeave(const QModelIndex &index);
     void updateButtons();
     void updateCanPaste();

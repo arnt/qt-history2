@@ -47,6 +47,7 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
     phraseList->setSelectionMode(QAbstractItemView::SingleSelection);
     phraseList->setRootIsDecorated(false);
     phraseList->header()->setResizeMode(QHeaderView::Stretch);
+    phraseList->header()->setClickable(true);
 
     connect(sourceLed, SIGNAL(textChanged(const QString&)),
         this, SLOT(sourceChanged(const QString&)));
@@ -61,39 +62,13 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
     connect(saveBut, SIGNAL(clicked()), this, SLOT(save()));
     connect(closeBut, SIGNAL(clicked()), this, SLOT(accept()));
 
-    connect(phraseList->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
-        this, SLOT(sortPhrases(int, Qt::MouseButton)));
-
     foreach(Phrase p, phraseBook) {
         phrMdl->addPhrase(p);
     }
 
-    sortPhrases(0, Qt::LeftButton);
+    phrMdl->sort(0, Qt::AscendingOrder);
+
     enableDisable();
-}
-
-void PhraseBookBox::sortPhrases(int section, Qt::MouseButton state)
-{
-    if ((state == Qt::LeftButton) &&
-        ((section >= 0) && (section <= 2))) {
-        phraseList->clearSelection();
-        Qt::SortOrder order;
-        int column;
-
-        if ((phrMdl->sortParameters(order, column))) {
-            if ((order == Qt::AscendingOrder) && (column == section))
-                order = Qt::DescendingOrder;
-            else
-                order = Qt::AscendingOrder;
-        }
-        else {
-            order = Qt::AscendingOrder;
-        }
-
-        phraseList->header()->setSortIndicator(section, order);
-        phraseList->header()->setSortIndicatorShown(true);
-        phrMdl->sort(section, QModelIndex(), order);
-    }
 }
 
 void PhraseBookBox::keyPressEvent(QKeyEvent *ev)

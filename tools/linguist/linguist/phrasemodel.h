@@ -47,9 +47,7 @@ public:
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
 
-    virtual bool isSortable() const {return true;}
-    void sort(int column, const QModelIndex &parent = QModelIndex(),
-        Qt::SortOrder order = Qt::AscendingOrder);
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
 private:
     Qt::SortOrder sortOrder;

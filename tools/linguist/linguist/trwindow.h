@@ -73,9 +73,6 @@ signals:
     void statsChanged(int w, int c, int cs, int w2, int c2, int cs2);
 
 private slots:
-    void sortContexts(int section, Qt::MouseButton state);
-    void sortMessages(int section, Qt::MouseButton state);
-    void sortPhrases(int section, Qt::MouseButton state);
     void doneAndNext();
     void prev();
     void next();
@@ -106,7 +103,7 @@ private slots:
     void showNewCurrent(const QModelIndex &current, const QModelIndex &old);
     void updateTranslation(const QString &translation);
     void updateFinished(bool finished);
-    void toggleFinished(const QModelIndex &index, Qt::MouseButton);
+    void toggleFinished(const QModelIndex &index);
     void prevUnfinished();
     void nextUnfinished();
     void findNext(const QString &text, int where, bool matchCase);

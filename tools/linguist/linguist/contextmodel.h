@@ -86,9 +86,7 @@ public:
     bool sortParameters(Qt::SortOrder &so, int &sc) const;
 
     // from abstracttablemodel
-    virtual bool isSortable() const {return true;}
-    void sort(int column, const QModelIndex &parent = QModelIndex(),
-        Qt::SortOrder order = Qt::AscendingOrder);
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
     int rowCount(const QModelIndex &) const;
     int columnCount(const QModelIndex &) const;

@@ -200,8 +200,9 @@ TrWindow::TrWindow()
 
     QFontMetrics fm(font());
     tv->header()->setResizeMode(QHeaderView::Stretch, 1);
-    tv->header()->resizeSection(0, fm.width(ContextModel::tr("Done")) + 10);
+    tv->header()->resizeSection(0, fm.width(ContextModel::tr("Done")) + 20);
     tv->header()->resizeSection(2, 55);
+    tv->header()->setClickable(true);
 
     me = new MessageEditor(&tor, this);
     setCentralWidget(me);
@@ -234,8 +235,8 @@ TrWindow::TrWindow()
 
     connect(tv->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
         this, SLOT(showNewScope(const QModelIndex &, const QModelIndex &)));
-    connect(stv, SIGNAL(clicked(const QModelIndex &, Qt::MouseButton, Qt::KeyboardModifiers)),
-        this, SLOT(toggleFinished(const QModelIndex &, Qt::MouseButton)));
+    connect(stv, SIGNAL(clicked(const QModelIndex &)),
+        this, SLOT(toggleFinished(const QModelIndex &)));
     connect(me, SIGNAL(translationChanged(const QString&)),
         this, SLOT(updateTranslation(const QString&)));
     connect(me, SIGNAL(finished(bool)), this, SLOT(updateFinished(bool)));
@@ -245,12 +246,11 @@ TrWindow::TrWindow()
     connect(me, SIGNAL(focusPhraseList()), this, SLOT(focusPhraseList()));
     connect(finddlg, SIGNAL(findNext(const QString&, int, bool)),
         this, SLOT(findNext(const QString&, int, bool)));
-    connect(tv->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
-        this, SLOT(sortContexts(int, Qt::MouseButton)));
-    connect(stv->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
-        this, SLOT(sortMessages(int, Qt::MouseButton)));
-    connect(ptv->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
-        this, SLOT(sortPhrases(int, Qt::MouseButton)));
+
+    connect(tv->header(), SIGNAL(sectionClicked(int)),
+        tv, SLOT(clearSelection()));
+    connect(stv->header(), SIGNAL(sectionClicked(int)),
+        stv, SLOT(clearSelection()));
 
     tv->setWhatsThis(tr("This panel lists the source contexts."));
     stv->setWhatsThis(tr("This panel lists the source texts. "
@@ -272,84 +272,6 @@ TrWindow::~TrWindow()
     writeConfig();
     cmdl->clearContextList();
     delete stats;
-}
-
-void TrWindow::sortContexts(int section, Qt::MouseButton state)
-{
-    if ((state == Qt::LeftButton) && (section == 1)) {
-        Qt::SortOrder order;
-        int column;
-
-        if (cmdl->sortParameters(order, column)) {
-            if ((order == Qt::AscendingOrder) && (column == section))
-                order = Qt::DescendingOrder;
-            else
-                order = Qt::AscendingOrder;
-        }
-        else {
-            order = Qt::AscendingOrder;
-        }
-
-        if (cmdl->contextsInList() > 0) {
-            tv->clearSelection();
-            tv->header()->setSortIndicator(section, order);
-            tv->header()->setSortIndicatorShown(true);
-            cmdl->sort(section, QModelIndex(), order);
-            mmdl->setContextItem(0);
-        }
-    }
-}
-
-void TrWindow::sortMessages(int section, Qt::MouseButton state)
-{
-    if ((state == Qt::LeftButton) &&
-        ((section == 1) || (section == 2))) {
-        ContextItem *c = mmdl->contextItem();
-        Qt::SortOrder order;
-        int column;
-
-        if ((c != 0) && (c->sortParameters(order, column))) {
-            if ((order == Qt::AscendingOrder) && (column == section))
-                order = Qt::DescendingOrder;
-            else
-                order = Qt::AscendingOrder;
-        }
-        else {
-            order = Qt::AscendingOrder;
-        }
-
-        if (c != 0) {
-            stv->clearSelection();
-            stv->header()->setSortIndicator(section, order);
-            stv->header()->setSortIndicatorShown(true);
-            mmdl->sort(section, QModelIndex(), order);
-        }
-    }
-}
-
-void TrWindow::sortPhrases(int section, Qt::MouseButton state)
-{
-    if ((state == Qt::LeftButton) &&
-        ((section >= 0) && (section <= 2))) {
-        ptv->clearSelection();
-
-        Qt::SortOrder order;
-        int column;
-
-        if ((pmdl->sortParameters(order, column))) {
-            if ((order == Qt::AscendingOrder) && (column == section))
-                order = Qt::DescendingOrder;
-            else
-                order = Qt::AscendingOrder;
-        }
-        else {
-            order = Qt::AscendingOrder;
-        }
-
-        ptv->header()->setSortIndicator(section, order);
-        ptv->header()->setSortIndicatorShown(true);
-        pmdl->sort(section, QModelIndex(), order);
-    }
 }
 
 void TrWindow::openFile( const QString& name )
@@ -822,7 +744,7 @@ void TrWindow::revertSorting()
     tv->clearSelection();
     tv->header()->setSortIndicator(1, Qt::AscendingOrder);
     tv->header()->setSortIndicatorShown(true);
-    cmdl->sort(1, QModelIndex(), Qt::AscendingOrder);
+    cmdl->sort(1, Qt::AscendingOrder);
     mmdl->setContextItem(0);
 
     foreach(ContextItem *c, cmdl->contextList()) {
@@ -1036,7 +958,7 @@ void TrWindow::doneAndNext()
     }
 }
 
-void TrWindow::toggleFinished(const QModelIndex &index, Qt::MouseButton button)
+void TrWindow::toggleFinished(const QModelIndex &index)
 {
     if (!index.isValid() || (index.column() != 0))
         return;
@@ -1054,8 +976,6 @@ void TrWindow::toggleFinished(const QModelIndex &index, Qt::MouseButton button)
         updateFinished(true);
     else if (m->finished())
         updateFinished(false);
-
-    Q_UNUSED(button);
 }
 
 int TrWindow::findCurrentContextRow()

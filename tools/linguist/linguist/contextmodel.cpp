@@ -73,8 +73,14 @@ void ContextItem::sortMessages(int column, Qt::SortOrder order)
 
 bool ContextItem::compare(const MessageItem *left, const MessageItem *right)
 {
-    int res;
-    if (sSortColumn == 1) {
+    int res, nleft, nright;
+    if (sSortColumn == 0) {
+        nleft = left->danger() + left->finished() + left->translation().isEmpty();
+        nright = right->danger() + right->finished() + right->translation().isEmpty();
+        if ((sSortOrder == Qt::AscendingOrder) ? (nleft < nright) : !(nleft < nright))
+            return true;
+    }
+    else if (sSortColumn == 1) {
         res = QString::localeAwareCompare(left->sourceText().remove('&'),
             right->sourceText().remove('&'));
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
@@ -209,7 +215,7 @@ QVariant ContextModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void ContextModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+void ContextModel::sort(int column, Qt::SortOrder order)
 {
     if (cntxtList.count() <= 0)
         return;
@@ -219,17 +225,32 @@ void ContextModel::sort(int column, const QModelIndex &parent, Qt::SortOrder ord
 
     qSort(cntxtList.begin(), cntxtList.end(), ContextModel::compare);
     emit dataChanged(index(0,0), index(cntxtList.count()-1, 2));
-
-    Q_UNUSED(parent);
 }
 
 bool ContextModel::compare(const ContextItem *left, const ContextItem *right)
 {
     int res;
-    if (sSortColumn == 1) {
+    int nleft, nright;
+    switch (sSortColumn)
+    {
+    case 0:
+        nleft = left->isContextObsolete() + left->finished();
+        nright = right->isContextObsolete() + right->finished();
+
+        if ((sSortOrder == Qt::AscendingOrder) ? (nleft < nright) : !(nleft < nright))
+            return true;
+        break;
+    case 1:
         res = QString::localeAwareCompare(left->context(), right->context());
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
+        break;
+    case 2:
+        nleft = left->messageItemsInList() - left->unfinished() - left->obsolete();
+        nright = right->messageItemsInList() - right->unfinished() - right->obsolete();
+        if ((sSortOrder == Qt::AscendingOrder) ? (nleft < nright) : !(nleft < nright))
+            return true;
+        break;
     }
 
     return false;
