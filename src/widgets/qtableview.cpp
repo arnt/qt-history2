@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#105 $
 **
 ** Implementation of QTableView class
 **
@@ -510,7 +510,6 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	    xn += xcd;
 	    col++;
 	}
-	x = QMIN( x, xn + xcd );
 	xCellOffs = col;
 	if ( testTableFlags(Tbl_snapToHGrid) ) {
 	    xCellDelta = 0;
@@ -536,7 +535,6 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	    yn += yrd;
 	    row++;
 	}
-	y = QMIN( y, yn + yrd );
 	yCellOffs = row;
 	if ( testTableFlags(Tbl_snapToVGrid) ) {
 	    yCellDelta = 0;
