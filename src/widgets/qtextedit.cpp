@@ -40,7 +40,7 @@
 #include "qcursor.h"
 #include "qregexp.h"
 #include "qpopupmenu.h"
-#include "qptrstack.h"
+#include "qstack.h"
 #include "qmetaobject.h"
 #include "qtextbrowser.h"
 
@@ -6107,7 +6107,7 @@ void QTextEdit::optimParseTags( QString * line, int lineNo, int indexOffset )
     bool tagOpen, tagClose;
     int bold = 0, italic = 0, underline = 0;
     QString tagStr;
-    QPtrStack<QTextEditOptimPrivate::Tag> tagStack;
+    QStack<QTextEditOptimPrivate::Tag *> tagStack;
 
     for ( i = 0; i < len; i++ ) {
 	tagOpen = (*line)[i] == '<';
@@ -7059,7 +7059,7 @@ void QTextEdit::optimCheckLimit( const QString& str )
 	// destroy the structure holding the formatting tags - if line
 	// spanning tags are used.
 	QTextEditOptimPrivate::Tag *t = d->od->tags, *tmp, *itr;
-	QPtrList<QTextEditOptimPrivate::Tag> lst;
+	QList<QTextEditOptimPrivate::Tag *> lst;
 	while ( t ) {
 	    t->line -= 1;
 	    // unhook the ptr from the tag structure
@@ -7089,8 +7089,9 @@ void QTextEdit::optimCheckLimit( const QString& str )
 	}
 	// Remove all references to the ptrs we just deleted
 	itr = d->od->tags;
-	while ( itr ){
-	    for ( tmp = lst.first(); tmp; tmp = lst.next() ) {
+	while ( itr ) {
+	    for (int i = 0; i < lst.size(); ++i) {
+		tmp = lst.at(i);
 		if ( itr->parent == tmp )
 		    itr->parent = 0;
 		if ( itr->leftTag == tmp )

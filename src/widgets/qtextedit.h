@@ -18,8 +18,6 @@
 #ifndef QT_H
 #include "qscrollview.h"
 #include "qstylesheet.h"
-#include "qptrvector.h"
-#include "qptrlist.h"
 #include "qmap.h"
 #endif // QT_H
 
