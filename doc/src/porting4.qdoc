@@ -572,8 +572,8 @@
 
     \list
     \o QMultiHash<QByteArray, T *>
-    \o QMultiHash<QByteArray, T *>
-    \o QHash<QByteArray, T>
+    \o QMultiHash<QByteArray, T>
+    \o QHash<QByteArray, T *>
     \o QHash<QByteArray, T>
     \endlist
 
@@ -1793,8 +1793,8 @@
 
     \list
     \o QMultiHash<int, T *>
-    \o QMultiHash<int, T *>
-    \o QHash<int, T>
+    \o QMultiHash<int, T>
+    \o QHash<int, T *>
     \o QHash<int, T>
     \endlist
 
@@ -2240,8 +2240,8 @@
 
     \list
     \o QMultiHash<void *, T *>
-    \o QMultiHash<void *, T *>
-    \o QHash<void *, T>
+    \o QMultiHash<void *, T>
+    \o QHash<void *, T *>
     \o QHash<void *, T>
     \endlist
 
