@@ -3977,27 +3977,21 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	i = 0;
     d->pressedItem = i;
 
+    int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
     if ( i && i->isEnabled() ) {
 	emit pressed( i );
-	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
     }
 
-    emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ),
-			     i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1 );
+    emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
 
     if ( e->button() == RightButton && i == d->pressedItem ) {
-	if ( !i ) {
+	if ( !i )
 	    clearSelection();
-	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
-	    if ( d->context_menu )
-		emit contextMenuRequested( 0, viewport()->mapToGlobal( vp ), -1 );
-	    return;
-	}
 
-	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
 	if ( d->context_menu )
-	    emit contextMenuRequested( i, viewport()->mapToGlobal( vp ), -1 );
+	    emit contextMenuRequested( i, viewport()->mapToGlobal( vp ), c );
     }
 }
 
