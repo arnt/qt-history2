@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#93 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -128,6 +128,15 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	DATA_HBM = CreateCompatibleBitmap( qt_display_dc(), w, h );
     else					// monocrome bitmap
 	DATA_HBM = CreateBitmap( w, h, 1, 1, 0 );
+    if ( !DATA_HBM ) {
+	data->w = 0;
+	data->h = 0;
+	hdc = 0;
+#if defined(CHECK_NULL)
+	qWarning( "QPixmap: Pixmap allocation failed" );
+#endif
+	return;
+    }
     hdc = alloc_mem_dc( DATA_HBM );
 }
 
