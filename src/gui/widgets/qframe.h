@@ -50,7 +50,7 @@ public:
         VLine = 0x0005, // vertical line
         StyledPanel = 0x0006, // rectangular panel depending on the GUI style
 
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         PopupPanel = StyledPanel, // rectangular panel depending on the GUI style
         MenuBarPanel = StyledPanel,
         ToolBarPanel = StyledPanel,

@@ -62,7 +62,7 @@ public:
     int count() const;
 
     enum TabPosition { North, South, West, East
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         , Top = North, Bottom = South
 #endif
     };

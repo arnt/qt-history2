@@ -39,7 +39,7 @@ public:
 
     enum Mode {
         Hex, Dec, Oct, Bin
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         , HEX = Hex, DEC = Dec, OCT = Oct, BIN = Bin
 #endif
     };

@@ -34,7 +34,7 @@ public:
 
     enum Shape { RoundedNorth, RoundedSouth, RoundedWest, RoundedEast,
                  TriangularNorth, TriangularSouth, TriangularWest, TriangularEast
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
                 , RoundedAbove = RoundedNorth, RoundedBelow = RoundedSouth,
                 TriangularAbove = TriangularNorth, TriangularBelow = TriangularSouth
 #endif

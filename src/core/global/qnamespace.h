@@ -115,7 +115,7 @@ public:
     enum SortOrder {
         AscendingOrder,
         DescendingOrder
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,Ascending = AscendingOrder,
         Descending = DescendingOrder
 #endif
@@ -160,7 +160,7 @@ public:
         TextIncludeTrailingSpaces = 0x08000000,
         TextHideMnemonic = 0x4000
 
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,SingleLine = TextSingleLine,
         DontClip = TextDontClip,
         ExpandTabs = TextExpandTabs,
@@ -314,7 +314,7 @@ public:
 #else
         WStyle_ToolTip          = WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM
 #endif
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,
         WDestructiveClose      = 0x00010000,
         WStaticContents        = 0x00400000,
@@ -468,11 +468,11 @@ public:
         Key_Escape = 0x01000000,                // misc keys
         Key_Tab = 0x01000001,
         Key_Backtab = 0x01000002,
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         Key_BackTab = Key_Backtab,
 #endif
         Key_Backspace = 0x01000003,
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         Key_BackSpace = Key_Backspace,
 #endif
         Key_Return = 0x01000004,
@@ -490,11 +490,11 @@ public:
         Key_Right = 0x01000014,
         Key_Down = 0x01000015,
         Key_PageUp = 0x01000016,
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         Key_Prior = Key_PageUp,
 #endif
         Key_PageDown = 0x01000017,
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         Key_Next = Key_PageDown,
 #endif
         Key_Shift = 0x01000020,                // modifiers
@@ -682,7 +682,7 @@ public:
         Key_Yacute = 0x0dd,
         Key_THORN = 0x0de,
         Key_ssharp = 0x0df,
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         Key_agrave = Key_Agrave,
         Key_aacute = Key_Aacute,
         Key_acircumflex = Key_Acircumflex,
@@ -708,7 +708,7 @@ public:
         Key_odiaeresis = Key_Odiaeresis,
 #endif
         Key_division = 0x0f7,
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         Key_oslash = Key_Ooblique,
         Key_ugrave = Key_Ugrave,
         Key_uacute = Key_Uacute,
@@ -818,7 +818,7 @@ public:
         Key_MediaPlay  = 0x01000080,
         Key_MediaStop  = 0x01000081,
         Key_MediaPrevious  = 0x01000082,
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         Key_MediaPrev  = Key_MediaPrevious,
 #endif
         Key_MediaNext  = 0x01000083,
@@ -905,7 +905,7 @@ public:
         DiagCrossPattern,
         LinearGradientPattern,
         TexturePattern = 24
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         , CustomPattern = TexturePattern
 #endif
     };
@@ -990,7 +990,7 @@ public:
         LastCursor = BusyCursor,
         BitmapCursor = 24
 
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,
         arrowCursor = ArrowCursor,
         upArrowCursor = UpArrowCursor,
@@ -1022,7 +1022,7 @@ public:
         IgnoreAspectRatio,
         KeepAspectRatio,
         KeepAspectRatioByExpanding
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         , ScaleFree = IgnoreAspectRatio,
         ScaleMin = KeepAspectRatio,
         ScaleMax = KeepAspectRatioByExpanding
@@ -1159,7 +1159,7 @@ public:
         TopRightCorner = 0x00001,
         BottomLeftCorner = 0x00002,
         BottomRightCorner = 0x00003
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,TopLeft = TopLeftCorner,
         TopRight = TopRightCorner,
         BottomLeft = BottomLeftCorner,

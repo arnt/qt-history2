@@ -75,7 +75,7 @@ public:
         MoveEnd,
         MovePageUp,
         MovePageDown
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,
         MovePgUp = MovePageUp,
         MovePgDown = MovePageDown

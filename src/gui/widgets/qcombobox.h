@@ -72,7 +72,7 @@ public:
         InsertAtBottom,
         InsertAfterCurrent,
         InsertBeforeCurrent
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,
         NoInsertion = NoInsert,
         AtTop = InsertAtTop,

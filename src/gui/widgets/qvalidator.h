@@ -31,7 +31,7 @@ public:
     enum State {
         Invalid,
         Intermediate,
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         Valid = Intermediate,
 #endif
         Acceptable
