@@ -39,15 +39,27 @@
 
 #ifndef QT_NO_STYLE
 
+// ### for beta2, hopefully done before next beta
+#define QT_NO_STYLE_CDE
+#define QT_NO_STYLE_MOTIFPLUS
+#define QT_NO_STYLE_PLATINUM
+#define QT_NO_STYLE_SGI
+#define QT_NO_STYLE_COMPACT
+#ifndef QT_NO_STYLE_AQUA
+#define QT_NO_STYLE_AQUA
+#endif
+
 #include "qapplication.h"
 #include "qpluginmanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
-// #include "qcdestyle.h"
-// #include "qmotifplusstyle.h"
-// #include "qplatinumstyle.h"
-// #include "qsgistyle.h"
-// #include "qcompactstyle.h"
+/* ### for beta2 ...
+#include "qcdestyle.h"
+#include "qmotifplusstyle.h"
+#include "qplatinumstyle.h"
+#include "qsgistyle.h"
+#include "qcompactstyle.h"
+*/
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
