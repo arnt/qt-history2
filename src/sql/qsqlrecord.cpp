@@ -580,7 +580,7 @@ QStringList QSqlRecord::toStringList( const QString& prefix ) const
 QString QSqlRecord::createField( int i, const QString& prefix ) const
 {
     QString f;
-    if ( prefix.isNull() )
+    if ( !prefix.isEmpty() )
 	f = prefix + ".";
     f += field( i )->name();
     return f;
