@@ -28,6 +28,7 @@ QDomDocument *XmlWriter::toXml()
         readFragment(currentBlock, blockElement, document);
         /* Include some text here for easy quoting:
         processBlock(currentBlock);
+        ...
         */
         currentBlock = currentBlock.next();
     }
