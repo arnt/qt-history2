@@ -448,9 +448,12 @@ int QWindowsLocalCodec::heuristicContentMatch(const char* chars, int len) const
     int l = t.length();
     QCString mb = fromUnicode(t,l);
     int i=0;
-    while ( i < len )
+    while ( i < len ) {
         if ( chars[i] == mb[i] )
             i++;
+       else
+           break;
+    }
     return i;
 }
 
