@@ -1876,15 +1876,8 @@ void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
 
 /*! \internal
  */
-void* QCoreVariant::data() const
+const void *QCoreVariant::constData() const
 {
-    // if you're requesting the low-level data,
-    // you probably plan something fishy, so clear the cache.
-    if (d->str_cache) {
-        reinterpret_cast<QString *>(&d->str_cache)->~QString();
-        d->str_cache = 0;
-    }
-
     switch(d->type) {
     case Int:
     case UInt:
@@ -1892,30 +1885,44 @@ void* QCoreVariant::data() const
     case ULongLong:
     case Double:
     case Bool:
-	return &d->value;
+        return &d->value;
     case String:
         QDATA(QString);
     case StringList:
         QDATA(QStringList);
 #ifndef QT_NO_TEMPLATE_VARIANT
     case Map:
-	QDATA(QCoreVariantMap);
+        QDATA(QCoreVariantMap);
     case List:
-	QDATA(QCoreVariantList);
+        QDATA(QCoreVariantList);
 #endif
     case Date:
-	QDATA(QDate);
+        QDATA(QDate);
     case Time:
-	QDATA(QTime);
+        QDATA(QTime);
     case QCoreVariant::DateTime:
-	QDATA(QDateTime);
+        QDATA(QDateTime);
     case QCoreVariant::ByteArray:
-	QDATA(QByteArray);
+        QDATA(QByteArray);
     case QCoreVariant::BitArray:
-	QDATA(QBitArray);
+        QDATA(QBitArray);
     default:
-	return d->value.ptr;
+        return d->value.ptr;
     }
+}
+
+/*! \internal
+ */
+void* QCoreVariant::data()
+{
+    detach();
+    // if you're requesting the low-level data,
+    // you probably plan something fishy, so clear the cache.
+    if (d->str_cache) {
+        reinterpret_cast<QString *>(&d->str_cache)->~QString();
+        d->str_cache = 0;
+    }
+    return const_cast<void*>(constData());
 }
 
 
