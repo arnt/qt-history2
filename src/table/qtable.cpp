@@ -133,21 +133,21 @@ struct QTableHeaderPrivate
 
 /*! \class QTableSelection qtable.h
 
-  \brief The QTableSelection class provides access to the selected area in a
+  \brief The QTableSelection class provides access to a selected area in a
   QTable.
 
   \module table
 
   The selection is a rectangular set of cells.  One of the rectangle's
-  cells is called the anchor cell; that cell is the first selected.
-  The init() function sets the anchor and sets the selection rectangle
-  to just that cell; the expandTo() function expands the selection
+  cells is called the anchor cell; this is the cell that was selected first.
+  The init() function sets the anchor and the selection rectangle
+  to exactly this cell; the expandTo() function expands the selection
   rectangle.
 
-  There are various access functions to get the area: anchorRow() and
-  anchorCol() return the achor's position, and leftCol(), rightCol(),
-  topRow() and bottomRow() return the rectangle's four edges.  All
-  four are in the selection.
+  There are various access functions to find out about the area: 
+  anchorRow() and anchorCol() return the anchor's position; leftCol(), rightCol(),
+  topRow() and bottomRow() return the rectangle's four edges. All
+  four are part of the selection.
 
   A newly created QTableSelection is inactive -- isActive() returns
   FALSE.  You must use init() and expandTo() to activate it.
@@ -155,7 +155,7 @@ struct QTableHeaderPrivate
   \sa QTable QTable::addSelection() QTable::selection().
 */
 
-/*!  Creates an inactive selection. Use init() and expandTo() to
+/*! Creates an inactive selection. Use init() and expandTo() to
   activate it.
 */
 
@@ -165,10 +165,12 @@ QTableSelection::QTableSelection()
 {
 }
 
-/*!  Sets the selection anchor to row \a row and column \a col and
-  sets the selection to just that cell.
+/*! Sets the selection anchor to row \a row and column \a col and
+  the selection to exactly this cell.
 
-  \sa expandTo() isActive()
+  To activate the selection you have to call expandTo(). 
+
+  \sa isActive()
 */
 
 void QTableSelection::init( int row, int col )
@@ -179,12 +181,12 @@ void QTableSelection::init( int row, int col )
     inited = TRUE;
 }
 
-/*!  Expands the selection to \a row, \a col. The new selection
+/*! Expands the selection to \a row, \a col. The new selection
   rectangle is the bounding rectangle of \a row, \a col and the old
-  selection rectangle. After calling that function, the selections is
+  selection rectangle. After calling this function the selection is
   active.
 
-  If you didn't call init() yet, this function does nothing.
+  If you haven't called init() yet, this function does nothing.
 
   \sa init() isActive()
 */
@@ -212,7 +214,7 @@ void QTableSelection::expandTo( int row, int col )
     }
 }
 
-/*! Returns TRUE if \a s includes the same cells as this selection, or
+/*! Returns TRUE if \a s includes the same cells as \e this selection, or
   else FALSE.
 */
 
@@ -224,32 +226,51 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 }
 
 /*! \fn int QTableSelection::topRow() const
+
   Returns the top row of the selection.
+
+  \sa bottomRow() leftCol() rightCol()
 */
 
 /*! \fn int QTableSelection::bottomRow() const
-  Returns the bottom row of the selection.
+
+  Returns the bottom row of \e this selection.
+
+  \sa topRow() leftCol() rightCol()
 */
 
 /*! \fn int QTableSelection::leftCol() const
-  Returns the left column of the selection.
+
+  Returns the left column of \e this selection.
+
+  \sa topRow() bottomRow() rightCol()
 */
 
 /*! \fn int QTableSelection::rightCol() const
+
   Returns the right column of the selection.
+
+  \sa topRow() bottomRow() leftCol()
 */
 
 /*! \fn int QTableSelection::anchorRow() const
+
   Returns the anchor row of the selection.
+
+  \sa anchorCol() expandTo()
 */
 
 /*! \fn int QTableSelection::anchorCol() const
-  Returns the anchor column of the selection.
+
+  Returns the anchor column of \e this selection.
+
+  \sa anchorRow() expandTo()
 */
 
 /*! \fn bool QTableSelection::isActive() const
+
   Returns whether the selection is active or not. A selection is
-  active after init() and expandTo() has beem called.
+  active after init() and expandTo() have been called.
 */
 
 
@@ -4451,7 +4472,7 @@ bool QTable::dragEnabled() const
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*! Inserts \count empty rows at the index \a row.
+/*! Inserts \a count empty rows at the index \a row.
 
   \sa insertColumns() removeRow()
 */
@@ -4473,7 +4494,7 @@ void QTable::insertRows( int row, int count )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
-/*! Inserts an empty column at the index \a col.
+/*! Inserts \a count empty columns at the index \a col.
 
   \sa insertRows() removeColumn()
 */
@@ -4616,7 +4637,8 @@ void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
 }
 
 /*! This event handler is called when the user ends a drag-and-drop
-  activity by dropping something onto \e this QTable.
+  activity by dropping something onto \e this QTable and thus
+  triggers \a e.
 */
 
 void QTable::contentsDropEvent( QDropEvent *e )
