@@ -105,7 +105,8 @@ private slots:
     void toggleGuessing();
     void focusSourceList();
     void focusPhraseList();
-
+    void updateClosePhraseBook();
+    
 private:
     typedef QPtrList<PhraseBook> PBL;
     typedef QDict<PhraseBook> PBD;
@@ -144,6 +145,7 @@ private:
     int  numFinished;
     int  numNonobsolete;
     int  numMessages;
+    int  dirtyItem;
     QStringList recentFiles;
     QString     filename;
 

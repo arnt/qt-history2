@@ -1132,6 +1132,7 @@ TrWindow::TrWindow()
 			   "modified?" );
     statusBar()->addWidget( modified, 0, TRUE );
 
+    dirtyItem = -1;
     numFinished = 0;
     numNonobsolete = 0;
     numMessages = 0;
@@ -1632,7 +1633,7 @@ void TrWindow::closePhraseBook( int id )
     phraseBookNames.remove( phraseBookNames.at(index) );
     updatePhraseDict();
 
-    closePhraseBookp->removeItem( id );
+    dirtyItem = index; // remove the item next time the menu is opened
     editPhraseBookp->removeItem( editPhraseBookp->idAt(index) );
     printPhraseBookp->removeItem( printPhraseBookp->idAt(index) );
 }
@@ -2313,6 +2314,8 @@ void TrWindow::setupMenuBar()
 
     connect( closePhraseBookp, SIGNAL(activated(int)),
 	     this, SLOT(closePhraseBook(int)) );
+    connect( closePhraseBookp, SIGNAL(aboutToShow()),
+	     this, SLOT(updateClosePhraseBook()) );
     connect( editPhraseBookp, SIGNAL(activated(int)),
 	     this, SLOT(editPhraseBook(int)) );
     connect( printPhraseBookp, SIGNAL(activated(int)),
@@ -2882,4 +2885,12 @@ void TrWindow::focusSourceList()
 void TrWindow::focusPhraseList()
 {
     plv->setFocus();
+}
+
+void TrWindow::updateClosePhraseBook()
+{
+    if ( dirtyItem != -1 ) {
+	closePhraseBookp->removeItem( closePhraseBookp->idAt(dirtyItem) );
+	dirtyItem = -1;
+    }
 }
