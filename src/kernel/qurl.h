@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#10 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#11 $
 **
 ** Implementation of QFileDialog class
 **
@@ -47,7 +47,8 @@ public:
 	ErrCreateDir = -5,
 	ErrUnknownProtocol = -6,
 	ErrParse = -7,
-	ErrLoginIncorrect = -8
+	ErrLoginIncorrect = -8,
+	ErrHostNotFound = -9
     };
 
     enum Action {
