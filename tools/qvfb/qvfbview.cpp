@@ -62,14 +62,14 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
     keyboardPipe = QString(QT_VFB_KEYBOARD_PIPE).arg(display_id);
 
     unlink( mousePipe.latin1() );
-    mknod( mousePipe.latin1(), S_IFIFO | 0666, 0 );
+    mkfifo( mousePipe.latin1(), 0666 );
     mouseFd = open( mousePipe.latin1(), O_RDWR | O_NDELAY );
     if ( mouseFd == -1 ) {
 	qFatal( "Cannot open mouse pipe" );
     }
 
     unlink( keyboardPipe );
-    mknod( keyboardPipe, S_IFIFO | 0666, 0 );
+    mkfifo( keyboardPipe, 0666 );
     keyboardFd = open( keyboardPipe, O_RDWR | O_NDELAY );
     if ( keyboardFd == -1 ) {
 	qFatal( "Cannot open keyboard pipe" );
