@@ -6,7 +6,8 @@ have been removed:
     libjpeg - some source files, images, Makefiles, manual pages
     libpng/contrib - a collection of examples and test-suite
     zlib/contrib - a collection of non-zlib code
-    zlib/msdos   - Zlib for a platform never supported by Qt ;-)
+    zlib/msdos - Zlib for a platform never supported by Qt ;-)
+    zlib/old - Zlib for other platforms not supported by Qt ;-)
     libmng/contrib - ?
     libmng/special - ?
 
