@@ -452,7 +452,130 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
     }
 }
 
+#if 0
 
+static const int CF_HTML = 0xc082; // the one MS apps use....
+
+class QWindowsMimeHtml : public QWindowsMime {
+public:
+    int		countCf();
+    const char* convertorName();
+    int		cf(int index);
+    int		cfFor(const char* mime);
+    const char* mimeFor(int cf);
+    bool	canConvert( const char* mime, int cf );
+    QByteArray	convertToMime( QByteArray data, const char* mime, int cf );
+    QByteArray	convertFromMime( QByteArray data, const char* mime, int cf );
+};
+
+
+int QWindowsMimeHtml::countCf()
+{
+    return 1;
+}
+
+const char* QWindowsMimeHtml::convertorName()
+{
+    return "Html";
+}
+
+int QWindowsMimeHtml::cf(int index)
+{
+    if ( index == 0 )
+	return CF_HTML;
+    else
+	return 0;
+}
+
+int QWindowsMimeHtml::cfFor(const char* mime)
+{
+    if ( 0==qstricmp( mime, "text/html" ) )
+	return CF_HTML;
+    return 0;
+}
+
+const char* QWindowsMimeHtml::mimeFor(int cf)
+{
+    if ( cf == CF_HTML )
+	return "text/html";
+    return 0;
+}
+
+bool QWindowsMimeHtml::canConvert( const char* mime, int cf )
+{
+    return cfFor(mime) == cf;
+}
+
+#include <qregexp.h>
+
+/*
+    The windows HTML clipboard format is as follows (xxxxxxxxxx is a 10 integer number giving the positions
+    in bytes). Charset used is mostly utf8, but can be different, ie. we have to look for the <meta> charset tag
+
+Version: 1.0
+StartHTML:xxxxxxxxxx
+EndHTML:xxxxxxxxxx
+StartFragment:xxxxxxxxxx
+EndFragment:xxxxxxxxxx
+...html...
+
+*/
+QByteArray QWindowsMimeHtml::convertToMime( QByteArray _data, const char* /*mime*/, int cf )
+{
+    QCString data( _data );
+    int ms = data.size();
+    QCString result;
+    qDebug("fragment = \n%s\n", data.data() );
+#if 1
+    int start = data.find("StartFragment:");
+    int end = data.find("EndFragment:");
+    if( start != -1 )
+	start = data.mid( start+14, 10 ).toInt();
+    if( end != -1 )
+	end = data.mid( end+12, 10 ).toInt();
+    if ( end > start && start > 0 ) {
+	result = "<!--StartFragment-->" + data.mid( start, end - start );
+	result += "<!--EndFragment-->";
+	result.replace( "\r", "" );
+	result.replace("<o:p>", "" );
+	result.replace("</o:p>", "" );
+    }
+#endif
+    return result;
+}
+
+extern QTextCodec* findcharset(const QCString& mimetype);
+
+QByteArray QWindowsMimeHtml::convertFromMime( QByteArray _data, const char* mime, int cf )
+{
+    QCString data( _data );
+    QCString result = 
+	"Version 1.0\r\n"		    // 0-12
+	"StartHTML:0000000105\r\n"	    // 13-35
+	"EndHTML:0000000000\r\n"	    // 36-55
+	"StartFragment:0000000000\r\n"	    // 58-86
+	"EndFragment:0000000000\r\n\r\n";   // 87-105
+	
+    if ( data.find( "<!--StartFragment-->" ) == -1 )
+	result += "<!--StartFragment-->";
+    result += data.data();
+    if ( data.find( "<!--EndFragment-->" ) == -1 )
+	result += "<!--EndFragment-->";
+
+    // set the correct number for EndHTML
+    QCString pos = QString::number( result.size() ).latin1();
+    memcpy( (char *)(result.data() + 53 - pos.length()), pos.data(), pos.length() );
+
+    // set correct numbers for StartFragment and EndFragment
+    pos = QString::number( result.find( "<!--StartFragment-->" ) + 20 ).latin1();
+    memcpy( (char *)(result.data() + 79 - pos.length()), pos.data(), pos.length() );
+    pos = QString::number( result.find( "<!--EndFragment-->" ) ).latin1();
+    memcpy( (char *)(result.data() + 103 - pos.length()), pos.data(), pos.length() );
+    qDebug("text is:\n%s\n", result.data() );
+    return result;
+}
+
+#endif
 
 class QWindowsMimeImage : public QWindowsMime {
 public:
@@ -721,6 +844,9 @@ void QWindowsMime::initialize()
     if ( mimes.isEmpty() ) {
 	new QWindowsMimeImage;
 	new QWindowsMimeText;
+#if 0
+	new QWindowsMimeHtml;
+#endif
 	new QWindowsMimeUri;
 	new QWindowsMimeAnyMime;
 	qAddPostRoutine(cleanup_mimes);
