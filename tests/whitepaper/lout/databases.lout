@@ -11,8 +11,9 @@ use database-specific widgets, and make any widget data aware.
 The Qt SQL module provides a cross-platform interface for accessing
 SQL databases. Qt includes native drivers for Oracle, Microsoft SQL
 Server, Sybase Adaptive Server, PostgreSQL, MySQL and ODBC. The
-drivers work on all platforms supported by Qt, and programs can
-access multiple databases using multiple drivers simultaneously.
+drivers work on all platforms supported by Qt and for which client
+libraries are available. Programs can access multiple databases using
+multiple drivers simultaneously.
   database @Index { Database }
   microsoftsqlserver @Index { Microsoft SQL Server }
   mysql @Index { MySQL }
@@ -56,8 +57,8 @@ lookups, present master-detail relationships, and support drill-down.
     @Tag { executing.sql.commands }
 @Begin
 @PP
-The @Class QSqlQuery class is used to directly execute SQL DDL and
-DML statements. It is also used to navigate the result sets produced
+The @Class QSqlQuery class is used to directly execute @I any SQL 
+statement. It is also used to navigate the result sets produced
 by @F SELECT statements.
   ddl @Index { DDL }
   dml @Index { DML }

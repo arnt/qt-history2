@@ -60,7 +60,7 @@ lookups, present master-detail relationships, and support drill-down.
   \index SELECT
 
 The \Class QSqlQuery class is used to directly execute \e any SQL
-statements. It is also used to navigate the result sets produced by \c
+statement. It is also used to navigate the result sets produced by \c
 SELECT statements.
 
 In the example below, a query is executed, and the result set
