@@ -2914,7 +2914,7 @@ void QFileDialog::okClicked()
 	    if ( c && files->isVisible() )
 		f = c->info;
 	    else
-		f = ( (QFileDialogPrivate::File*)m->i )->info; 
+		f = ( (QFileDialogPrivate::File*)m->i )->info;
 	} else {
 	    f = QUrlInfo( d->url, nameEdit->text() );
 	}

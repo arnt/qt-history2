@@ -638,9 +638,9 @@ bool QUrlOperator::isDir( bool *ok )
 	    return FALSE;
     }
 
-    if ( d->entryMap.contains( "." ) )
+    if ( d->entryMap.contains( "." ) ) {
 	return d->entryMap[ "." ].isDir();
-    else {
+    } else {
 	// #### can assume that we are a directory?
 	if ( ok )
 	    *ok = FALSE;
@@ -846,14 +846,30 @@ void QUrlOperator::addEntry( const QUrlInfo &i )
 }
 
 /*!
-  Returns the URL information for the child \a entry.
+  Returns the URL information for the child \a entry or en
+  empty QUrlInfo object of there is no information available
+  about \a entry.
 */
 
 QUrlInfo QUrlOperator::info( const QString &entry ) const
 {
-    if ( d->entryMap.contains( entry.stripWhiteSpace() ) )
+    if ( d->entryMap.contains( entry.stripWhiteSpace() ) ) {
 	return d->entryMap[ entry.stripWhiteSpace() ];
-
+     } else if ( entry == "." || entry == ".." ) {
+	 // return a faked QUrlInfo
+	 QUrlInfo inf;
+	 inf.setName( entry );
+	 inf.setDir( TRUE );
+	 inf.setFile( FALSE );
+	 inf.setSymLink( FALSE );
+	 inf.setOwner( tr( "(unknown)" ) );
+	 inf.setGroup( tr( "(unknown)" ) );
+	 inf.setSize( 0 );
+	 inf.setWritable( FALSE );
+	 inf.setReadable( TRUE );
+	 return inf;
+     }
+	
     return QUrlInfo();
 }
 
