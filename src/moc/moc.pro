@@ -1,6 +1,5 @@
 TEMPLATE    =	moc.t
 CONFIG	    =   console release
-OBJECTS_DIR =	.
 LEXINPUT    =	moc.l
 YACCINPUT   =	moc.y
 INCLUDEPATH =	.;../../include

@@ -22,7 +22,7 @@ MOCGEN  =	#$ Expand("MOCGEN");
 $(LEXOUT): $(LEXIN)
 	$(LEX) $(LEXIN)
 
-$(MOCGEN): moc.y $(LEXOUT)
-	$(YACC) moc.y
+$(MOCGEN): $(YACCIN) $(LEXOUT)
+	$(YACC) $(YACCIN)
 	#$ $text = ($is_unix ? "-rm -f " : "-del ") . '$(MOCGEN)';
 	#$ $text = ($is_unix ? "-mv " : "-ren ") . '$(YACCOUT) $(MOCGEN)'; 
