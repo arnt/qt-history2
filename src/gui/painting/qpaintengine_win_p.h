@@ -201,8 +201,6 @@ public:
         hbrushbm(0),
         holdpal(0),
         flags(0),
-        penRef(0),
-        brushRef(0),
         nocolBrush(false),
         pixmapBrush(false),
         usesWidgetDC(false),
@@ -228,9 +226,6 @@ public:
     HBITMAP hbrushbm;
     HPALETTE holdpal;
     uint flags;
-
-    void *penRef;
-    void *brushRef;
 
     uint nocolBrush:1;
     uint pixmapBrush:1;

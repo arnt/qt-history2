@@ -80,33 +80,7 @@ static bool qt_resolved_gdiplus = false;
 static void qt_resolve_gdiplus();
 static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features();
 
-static QSysInfo::WinVersion qt_winver = QSysInfo::WV_NT;
-
 #define COLOR_VALUE(c) RGB(c.red(),c.green(),c.blue())
-
-/*****************************************************************************
-  QPainter internal pen and brush cache
-
-  The cache makes a significant contribution to speeding up drawing.
-  Setting a new pen or brush specification will make the painter look for
-  an existing pen or brush with the same attributes instead of creating
-  a new pen or brush. The cache structure is optimized for fast lookup.
-  Only solid line pens with line width 0 and solid brushes are cached.
- *****************************************************************************/
-struct QHDCObj                                        // cached pen or brush
-{
-    HANDLE  obj;
-    uint    pix;
-    int            count;
-    int            hits;
-};
-
-const int        cache_size = 29;                // multiply by 4
-static QHDCObj *pen_cache_buf;
-static QHDCObj *pen_cache[4*cache_size];
-static QHDCObj *brush_cache_buf;
-static QHDCObj *brush_cache[4*cache_size];
-static bool        cache_init = false;
 
 static HPEN stock_nullPen;
 static HPEN stock_blackPen;
@@ -115,26 +89,6 @@ static HBRUSH stock_nullBrush;
 static HBRUSH stock_blackBrush;
 static HBRUSH stock_whiteBrush;
 static HFONT  stock_sysfont;
-
-static QHDCObj stock_dummy;
-static void  *stock_ptr = (void *)&stock_dummy;
-
-static void init_cache()
-{
-    if (cache_init)
-        return;
-    int i;
-    QHDCObj *h;
-    cache_init = true;
-    h = pen_cache_buf = new QHDCObj[4*cache_size];
-    memset(h, 0, 4*cache_size*sizeof(QHDCObj));
-    for (i=0; i<4*cache_size; i++)
-        pen_cache[i] = h++;
-    h = brush_cache_buf = new QHDCObj[4*cache_size];
-    memset(h, 0, 4*cache_size*sizeof(QHDCObj));
-    for (i=0; i<4*cache_size; i++)
-        brush_cache[i] = h++;
-}
 
 QRegion* paintEventClipRegion = 0;
 QPaintDevice* paintEventDevice = 0;
@@ -154,163 +108,6 @@ void qt_clear_paintevent_clipping()
     paintEventClipRegion = 0;
     paintEventDevice = 0;
 }
-
-// #define CACHE_STAT
-#if defined(CACHE_STAT)
-#include "qtextstream.h"
-
-static int c_numhits        = 0;
-static int c_numcreates = 0;
-static int c_numfaults        = 0;
-#endif
-
-static void cleanup_cache()
-{
-    if (!cache_init)
-        return;
-    int i;
-#if defined(CACHE_STAT)
-    qDebug("Number of cache hits = %d", c_numhits);
-    qDebug("Number of cache creates = %d", c_numcreates);
-    qDebug("Number of cache faults = %d", c_numfaults);
-    qDebug("PEN CACHE");
-    for (i=0; i<cache_size; i++) {
-        QString            str;
-        QTextStream s(str,QIODevice::WriteOnly);
-        s << i << ": ";
-        for (int j=0; j<4; j++) {
-            QHDCObj *h = pen_cache[i*4+j];
-            s << (h->obj ? 'X' : '-') << ',' << h->hits << ','
-              << h->count << '\t';
-        }
-        s << '\0';
-        qDebug(str);
-    }
-    qDebug("BRUSH CACHE");
-    for (i=0; i<cache_size; i++) {
-        QString            str;
-        QTextStream s(str,QIODevice::WriteOnly);
-        s << i << ": ";
-        for (int j=0; j<4; j++) {
-            QHDCObj *h = brush_cache[i*4+j];
-            s << (h->obj ? 'X' : '-') << ',' << h->hits << ','
-              << h->count << '\t';
-        }
-        s << '\0';
-        qDebug(str);
-    }
-#endif
-    for (i=0; i<4*cache_size; i++) {
-        if (pen_cache[i]->obj)
-            DeleteObject(pen_cache[i]->obj);
-        if (brush_cache[i]->obj)
-            DeleteObject(brush_cache[i]->obj);
-    }
-    delete [] pen_cache_buf;
-    delete [] brush_cache_buf;
-    cache_init = false;
-}
-
-
-static bool obtain_obj(void **ref, HANDLE *obj, uint pix, QHDCObj **cache,
-                        bool is_pen)
-{
-    if (!cache_init)
-        init_cache();
-
-    int             k = (pix % cache_size) * 4;
-    QHDCObj *h = cache[k];
-    QHDCObj *prev = 0;
-
-#define NOMATCH (h->obj && h->pix != pix)
-
-    if (NOMATCH) {
-        prev = h;
-        h = cache[++k];
-        if (NOMATCH) {
-            prev = h;
-            h = cache[++k];
-            if (NOMATCH) {
-                prev = h;
-                h = cache[++k];
-                if (NOMATCH) {
-                    if (h->count == 0) {        // steal this pen/brush
-#if defined(CACHE_STAT)
-                        c_numcreates++;
-#endif
-                        h->pix         = pix;
-                        h->count = 1;
-                        h->hits         = 1;
-                        DeleteObject(h->obj);
-                        if (is_pen)
-                            h->obj = CreatePen(PS_SOLID, 0, pix);
-                        else
-                            h->obj = CreateSolidBrush(pix);
-                        cache[k]   = prev;
-                        cache[k-1] = h;
-                        *ref = (void *)h;
-                        *obj = h->obj;
-                        return true;
-                    } else {                        // all objects in use
-#if defined(CACHE_STAT)
-                        c_numfaults++;
-#endif
-                        *ref = 0;
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-
-#undef NOMATCH
-
-    *ref = (void *)h;
-
-    if (h->obj) {                                // reuse existing pen/brush
-#if defined(CACHE_STAT)
-        c_numhits++;
-#endif
-        *obj = h->obj;
-        h->count++;
-        h->hits++;
-        if (prev && h->hits > prev->hits) {        // maintain LRU order
-            cache[k]   = prev;
-            cache[k-1] = h;
-        }
-    } else {                                        // create new pen/brush
-#if defined(CACHE_STAT)
-        c_numcreates++;
-#endif
-        if (is_pen)
-            h->obj = CreatePen(PS_SOLID, 0, pix);
-        else
-            h->obj = CreateSolidBrush(pix);
-        h->pix         = pix;
-        h->count = 1;
-        h->hits         = 1;
-        *obj = h->obj;
-    }
-    return true;
-}
-
-static inline void release_obj(void *ref)
-{
-    ((QHDCObj*)ref)->count--;
-}
-
-static inline bool obtain_pen(void **ref, HPEN *pen, uint pix)
-{
-    return obtain_obj(ref, (HANDLE*)pen, pix, pen_cache, true);
-}
-
-static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
-{
-    return obtain_obj(ref, (HANDLE*)brush, pix, brush_cache, false);
-}
-
-#define release_pen        release_obj
-#define release_brush        release_obj
 
 /********************************************************************************
  * GDI functions we need to dynamically resolve due for 9x based.
@@ -477,24 +274,14 @@ bool QWin32PaintEngine::end()
 
     if (d->hpen) {
         SelectObject(d->hdc, stock_blackPen);
-        if (d->penRef) {
-            release_pen(d->penRef);
-            d->penRef = 0;
-        } else {
-            DeleteObject(d->hpen);
-        }
+        DeleteObject(d->hpen);
         d->hpen = 0;
     }
     if (d->hbrush) {
         SelectObject(d->hdc, stock_nullBrush);
-        if (d->brushRef) {
-            release_brush(d->brushRef);
-            d->brushRef = 0;
-        } else {
-            DeleteObject(d->hbrush);
-            if (d->hbrushbm && !d->pixmapBrush)
-                DeleteObject(d->hbrushbm);
-        }
+        DeleteObject(d->hbrush);
+        if (d->hbrushbm && !d->pixmapBrush)
+            DeleteObject(d->hbrushbm);
         d->hbrush = 0;
         d->hbrushbm = 0;
         d->pixmapBrush = d->nocolBrush = false;
@@ -871,13 +658,11 @@ void QWin32PaintEngine::initialize()
     stock_blackBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
     stock_whiteBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
     stock_sysfont    = (HFONT)GetStockObject(SYSTEM_FONT);
-    init_cache();
 }
 
 
 void QWin32PaintEngine::cleanup()
 {
-    cleanup_cache();
     if (qt_gdiplus_support) {
         QGdiplusPaintEngine::cleanup();
     }
@@ -1220,25 +1005,9 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
 
     d->pColor = COLOR_VALUE(pen.color());
     d->pWidth = pen.width();
-    bool cacheIt = (d->penStyle == PS_NULL || (d->penStyle == PS_SOLID && pen.width() == 0));
-    HANDLE hpen_old;
+    HANDLE oldPen = d->hpen;
 
-    if (d->penRef) {
-        release_pen(d->penRef);
-        d->penRef = 0;
-        hpen_old = 0;
-    } else {
-        hpen_old = d->hpen;
-    }
-    if (cacheIt) {
-        if (d->penStyle == Qt::NoPen) {
-            d->hpen = stock_nullPen;
-            d->penRef = stock_ptr;
-            goto set;
-        }
-        if (obtain_pen(&d->penRef, &d->hpen, d->pColor))
-            goto set;
-    }
+
 
     int s;
 
@@ -1257,7 +1026,7 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
     }
 #ifndef Q_OS_TEMP
     if (((pen.width() != 0) || pen.width() > 1) &&
-         (qt_winver & QSysInfo::WV_NT_based || d->penStyle == Qt::SolidLine)) {
+         (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based || d->penStyle == Qt::SolidLine)) {
         LOGBRUSH lb;
         lb.lbStyle = 0;
         lb.lbColor = d->pColor;
@@ -1299,11 +1068,12 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
         d->hpen = CreatePen(s, qRound(pen.width()), d->pColor);
     }
 
-set:
     SetTextColor(d->hdc, d->pColor);
     SelectObject(d->hdc, d->hpen);
-    if (hpen_old)
-        DeleteObject(hpen_old);
+
+    if (oldPen)
+        DeleteObject(oldPen);
+
     return;
 }
 
@@ -1354,50 +1124,16 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
 #endif
 
     d->bColor           = COLOR_VALUE(brush.color());
-    bool   cacheIt = d->brushStyle == Qt::NoBrush || d->brushStyle == Qt::SolidPattern;
-    HBRUSH hbrush_old;
-
-    if (d->brushRef) {
-        release_brush(d->brushRef);
-        d->brushRef = 0;
-        hbrush_old = 0;
-    } else {
-        hbrush_old = d->hbrush;
-    }
-    if (cacheIt) {
-        if (d->brushStyle == Qt::NoBrush) {
-            d->hbrush = stock_nullBrush;
-            d->brushRef = stock_ptr;
-            SelectObject(d->hdc, d->hbrush);
-            if (hbrush_old) {
-                if (d->hbrushbm && !d->pixmapBrush)
-                    DeleteObject(d->hbrushbm);
-                DeleteObject(hbrush_old);
-                d->hbrushbm = 0;
-                d->pixmapBrush = d->nocolBrush = false;
-            }
-            return;
-        }
-        if (obtain_brush(&d->brushRef, &d->hbrush, d->bColor)) {
-            SelectObject(d->hdc, d->hbrush);
-            if (hbrush_old) {
-                if (d->hbrushbm && !d->pixmapBrush)
-                    DeleteObject(d->hbrushbm);
-                DeleteObject(hbrush_old);
-                d->hbrushbm = 0;
-                d->pixmapBrush = d->nocolBrush = false;
-            }
-            return;
-        }
-    }
-
+    HBRUSH oldBrush = d->hbrush;
     HBITMAP hbrushbm_old    = d->hbrushbm;
     bool    pixmapBrush_old = d->pixmapBrush;
 
     d->pixmapBrush = d->nocolBrush = false;
     d->hbrushbm = 0;
 
-    if (d->brushStyle == Qt::SolidPattern) {                        // create solid brush
+    if (d->brushStyle == Qt::NoBrush) {
+        d->hbrush = stock_nullBrush;
+    } else if (d->brushStyle == Qt::SolidPattern) {                        // create solid brush
         d->hbrush = CreateSolidBrush(d->bColor);
 #ifndef Q_OS_TEMP
     } else if ((d->brushStyle >= Qt::Dense1Pattern && d->brushStyle <= Qt::Dense7Pattern) ||
@@ -1416,6 +1152,8 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
         if (!d->pixmapBrush) // hbm is owned by the pixmap, and will be deleted by it later.
             DeleteObject(d->hbrushbm);
         d->hbrushbm = 0;
+    } else if (d->brushStyle == Qt::LinearGradientPattern) {
+        d->hbrush = stock_nullBrush;
     } else {                                        // one of the hatch brushes
         int s;
         switch (d->brushStyle) {
@@ -1486,10 +1224,10 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
     SetBrushOrgEx(d->hdc, qRound(bgOrigin.x()), qRound(bgOrigin.y()), 0);
     SelectObject(d->hdc, d->hbrush);
 
-    if (hbrush_old) {
+    if (oldBrush && oldBrush != stock_nullBrush) {
         if (hbrushbm_old && !pixmapBrush_old)
             DeleteObject(hbrushbm_old);        // delete last brush pixmap
-        DeleteObject(hbrush_old);              // delete last brush
+        DeleteObject(oldBrush);              // delete last brush
     }
 }
 
@@ -1836,6 +1574,9 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
 #endif
     Q_ASSERT(qAlphaBlend);
 
+    if (r.isEmpty())
+        return;
+
     HDC memdc = CreateCompatibleDC(hdc);
     HBITMAP bitmap = CreateCompatibleBitmap(hdc, r.width(), r.height());
     SelectObject(memdc, bitmap);
@@ -2098,6 +1839,7 @@ typedef int (__stdcall *PtrGdipDisposeImage)(QtGpImage *);
 
 typedef int (__stdcall *PtrGdipCreateFontFromDC)(HDC hdc, QtGpFont **);
 typedef int (__stdcall *PtrGdipCreateFontFromLogfontW) (HDC, const LOGFONTW *, QtGpFont **);
+typedef int (__stdcall *PtrGdipCreateFontFromLogfontA) (HDC, const LOGFONTW *, QtGpFont **);
 typedef int (__stdcall *PtrGdipDeleteFont)(QtGpFont *);
 }
 
@@ -2163,6 +1905,7 @@ static PtrGdipDisposeImage GdipDisposeImage = 0;             // Image::~Image()
 
 static PtrGdipCreateFontFromDC GdipCreateFontFromDC = 0;     // Font::Font(HDC);
 static PtrGdipCreateFontFromLogfontW GdipCreateFontFromLogfontW = 0;    // Font::Font(HDC, HFONT)
+static PtrGdipCreateFontFromLogfontA GdipCreateFontFromLogfontA = 0;    // Font::Font(HDC, HFONT)
 static PtrGdipDeleteFont GdipDeleteFont = 0;                 // Font::~Font();
 
 static void qt_resolve_gdiplus()
@@ -2255,6 +1998,8 @@ static void qt_resolve_gdiplus()
     GdipCreateFontFromDC         = (PtrGdipCreateFontFromDC)   lib.resolve("GdipCreateFontFromDC");
     GdipCreateFontFromLogfontW   = (PtrGdipCreateFontFromLogfontW)
                                    lib.resolve("GdipCreateFontFromLogfontW");
+    GdipCreateFontFromLogfontA   = (PtrGdipCreateFontFromLogfontA)
+                                   lib.resolve("GdipCreateFontFromLogfontA");
     GdipDeleteFont               = (PtrGdipDeleteFont)         lib.resolve("GdipDeleteFont");
 
     Q_ASSERT(GdiplusStartup);
@@ -2309,6 +2054,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipDisposeImage);
     Q_ASSERT(GdipCreateFontFromDC);
     Q_ASSERT(GdipCreateFontFromLogfontW);
+    Q_ASSERT(GdipCreateFontFromLogfontA);
     Q_ASSERT(GdipDeleteFont);
 
     QGdiplusPaintEngine::initialize();
@@ -2749,7 +2495,11 @@ void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     HDC hdc;
     GdipGetDC(d->graphics, &hdc);
     QtGpFont *font;
-    GdipCreateFontFromLogfontW(hdc, &ti.fontEngine->logfont, &font);
+    QT_WA( {
+        GdipCreateFontFromLogfontW(hdc, &ti.fontEngine->logfont, &font);
+    }, {
+        GdipCreateFontFromLogfontA(hdc, &ti.fontEngine->logfont, &font);
+    } );
     GdipReleaseDC(d->graphics, &hdc);
 
     GdipSetSolidFillColor(d->cachedSolidBrush, d->penColor.rgba());
