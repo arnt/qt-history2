@@ -445,7 +445,6 @@ void MainWindow::showSettingsDialog( int page )
     if ( ret != QDialog::Accepted )
 	return;
 
-    goMenu->removeItemAt( goMenu->count() - 1 );
     QObjectList lst = Toolbar->children();
     for (int i = 0; i < lst.size(); ++i) {
 	QObject *obj = lst.at(i);
