@@ -47,6 +47,9 @@
 
 #include <stdlib.h>
 
+#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
+#  define for if(0){}else for
+#endif
 
 static int ucstricmp( const QString &as, const QString &bs )
 {
@@ -114,8 +117,8 @@ struct QtFontStyle
 	Key() : italic( FALSE ), oblique( FALSE ), weight( QFont::Normal ) {}
 	Key( const Key &o ) : italic( o.italic ), oblique( o.oblique ),
 			      weight( o.weight ) {}
-	bool italic : 1;
-	bool oblique : 1;
+	uint italic : 1;
+	uint oblique : 1;
 	int  weight : 30;
 	bool operator == ( const Key & other ) {
 	    return ( italic == other.italic &&
@@ -165,8 +168,10 @@ QtFontSize *QtFontStyle::pixelSize( unsigned short size, bool add )
 		     realloc( pixelSizes,
 			      (((count+8) >> 3 ) << 3) * sizeof(QtFontSize) );
     pixelSizes[count].pixelSize = size;
+#ifdef Q_WS_X11
     pixelSizes[count].count = 0;
     pixelSizes[count].encodings = 0;
+#endif
     return pixelSizes + (count++);
 }
 
@@ -722,6 +727,9 @@ bool  QFontDatabase::isScalable( const QString &family,
 QValueList<int> QFontDatabase::pointSizes( const QString &family,
 					   const QString &style)
 {
+#ifdef Q_WS_WIN
+    return standardSizes();
+#else
     bool smoothScalable = FALSE;
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
@@ -761,13 +769,14 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
     }
  end:
     if ( smoothScalable )
-	return QValueList<int>();
+	return standardSizes();
 
     qHeapSort( sizes );
 
     // ### convert to point sizes
 
     return sizes;
+#endif
 }
 
 /*!
@@ -823,6 +832,9 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 					    const QString &style)
 {
+#ifdef Q_WS_WIN
+    return QFontDatabase::standardSizes();
+#else
     bool smoothScalable = FALSE;
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
@@ -869,6 +881,7 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
     // ### convert to point sizes
 
     return sizes;
+#endif
 }
 
 
