@@ -233,13 +233,16 @@ public:
     }
     inline int size() const { return d ? d->size : 0; }
     void split( int item, int pos );
-    QScriptItemArray( const QScriptItemArray & ) {}
-    QScriptItemArray &operator = ( const QScriptItemArray & ) { return *this; }
 
     void resize( int s );
     void clear();
 
     QScriptItemArrayPrivate *d;
+private:
+#ifdef Q_DISABLE_COPY
+    QScriptItemArray( const QScriptItemArray & );
+    QScriptItemArray &operator = ( const QScriptItemArray & );
+#endif
 };
 
 class QFontPrivate;
