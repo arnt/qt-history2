@@ -173,7 +173,7 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 {
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
-    
+
     // Create headers
     leftHeader = new QTableHeader( numRows, this );
     leftHeader->setOrientation( Vertical );
@@ -226,7 +226,6 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     editorWidget = 0;
 
     installEventFilter( this );
-    viewport()->installEventFilter( this );
     
     // Initial size
     resize( 640, 480 );
@@ -468,7 +467,7 @@ void QTable::setCurrentCell( int row, int col )
 	updateCell( curRow, curCol );
 	ensureCellVisible( curRow, curCol );
 	emit currentChanged( row, col );
-	if ( !isSelected( oldRow, oldCol ) ) {
+	if ( !isColSelected( oldCol ) && !isRowSelected( oldRow ) ) {
 	    topHeader->setSectionState( oldCol, QTableHeader::Normal );
 	    leftHeader->setSectionState( oldRow, QTableHeader::Normal );
 	}
@@ -547,18 +546,26 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     fixCol( curCol, e->pos().x() );
 
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
+	if ( !currentSelection ) {
+	    currentSelection = new SelectionRange();
+	    selections.append( currentSelection );
+	    currentSelection->init( curRow, curCol );
+	}
+	SelectionRange oldSelection = *currentSelection;
+	currentSelection->expandTo( curRow, curCol );
+	repaintSelections( &oldSelection, currentSelection );
     } else if ( ( e->state() & ControlButton ) == ControlButton ) {
 	currentSelection = new SelectionRange();
 	selections.append( currentSelection );
 	currentSelection->init( curRow, curCol );
+	setCurrentCell( curRow, curCol );
     } else {
 	clearSelections();
 	currentSelection = new SelectionRange();
 	selections.append( currentSelection );
 	currentSelection->init( curRow, curCol );
+	setCurrentCell( curRow, curCol );
     }
-    
-    setCurrentCell( curRow, curCol );
 }
 
 /*!  \reimp
@@ -607,7 +614,7 @@ void QTable::doAutoScroll()
 
     if ( !currentSelection )
 	return;
-    
+
     SelectionRange oldSelection = *currentSelection;
     currentSelection->expandTo( curRow, curCol );
     repaintSelections( &oldSelection, currentSelection );
@@ -632,33 +639,46 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     if ( !o || !e )
 	return QScrollView::eventFilter( o, e );
 
-    if ( e->type() == QEvent::KeyPress && isEditing() && editorWidget && o == editorWidget ) {
-	QKeyEvent *ke = (QKeyEvent*)e;
+    switch ( e->type() ) {
+    case QEvent::KeyPress: {
+	if ( isEditing() && editorWidget && o == editorWidget ) {
+	    QKeyEvent *ke = (QKeyEvent*)e;
 
-	if ( ke->key() == Key_Escape ) {
-	    endEdit( editRow, editCol, FALSE, editorWidget );
-	    return TRUE;
+	    if ( ke->key() == Key_Escape ) {
+		endEdit( editRow, editCol, FALSE, editorWidget );
+		return TRUE;
+	    }
+
+	    if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+		endEdit( editRow, editCol, TRUE, editorWidget );
+		activateNextCell();
+		return TRUE;
+	    }
+
+	    if ( edMode == Replacing &&
+		 ( ke->key() == Key_Up || ke->key() == Key_Prior || ke->key() == Key_Home ||
+		   ke->key() == Key_Down || ke->key() == Key_Next || ke->key() == Key_End ||
+		   ke->key() == Key_Left || ke->key() == Key_Right ) ) {
+		endEdit( editRow, editCol, TRUE, editorWidget );
+		keyPressEvent( ke );
+		return TRUE;
+	    }
 	}
-
-	if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+	} break;
+    case QEvent::FocusOut:
+	if ( o == this || o == viewport() )
+	    return TRUE;
+	if ( isEditing() && editorWidget && o == editorWidget )
 	    endEdit( editRow, editCol, TRUE, editorWidget );
-	    activateNextCell();
+	break;
+    case QEvent::FocusIn:
+	if ( o == this || o == viewport() )
 	    return TRUE;
-	}
-
-	if ( edMode == Replacing &&
-	     ( ke->key() == Key_Up || ke->key() == Key_Prior || ke->key() == Key_Home ||
-	       ke->key() == Key_Down || ke->key() == Key_Next || ke->key() == Key_End ||
-	       ke->key() == Key_Left || ke->key() == Key_Right ) ) {
-	    endEdit( editRow, editCol, TRUE, editorWidget );
-	    keyPressEvent( ke );
-	    return TRUE;
-	}
-    } else if ( (o == this || o == viewport() ) &&
-		( e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut ) ) {
-	return TRUE;
+	break;
+    default:
+	break;
     }
-    
+
     return QScrollView::eventFilter( o, e );
 }
 
@@ -1005,12 +1025,13 @@ void QTable::endEdit( int row, int col, bool accept, QWidget *editor )
 {
     editRow = -1;
     editCol = -1;
-    editor->removeEventFilter( this );
-    viewport()->setFocus();
     if ( !accept ) {
+	editor->removeEventFilter( this );
 	delete editor;
 	editorWidget = 0;
+	updateCell( row, col );
 	edMode = NotEditing;
+	viewport()->setFocus();
 	return;
     }
 
@@ -1024,9 +1045,10 @@ void QTable::endEdit( int row, int col, bool accept, QWidget *editor )
 	setCellContentFromEditor( row, col, editor );
     else
 	i->setContentFromEditor( editor );
+    editor->removeEventFilter( this );
     delete editor;
     editorWidget = 0;
-
+    viewport()->setFocus();
     updateCell( row, col );
     edMode = NotEditing;
 }
@@ -1107,7 +1129,7 @@ void QTable::clearSelections()
 {
     if ( selections.isEmpty() )
 	return;
-    
+
     QRect r;
     for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
 	r = r.unite( rangeGeometry( s->topRow,
@@ -1115,7 +1137,7 @@ void QTable::clearSelections()
 				    s->bottomRow,
 				    s->rightCol ) );
     }
-    
+
     currentSelection = 0;
     selections.clear();
     for ( int i = 0; i <= cols(); ++i ) {
