@@ -770,7 +770,7 @@
   and previous list items. It doesn't modifies the list in any way.
 
   When an item is removed from the list, all iterator that points
-  to that item are updated to point to QPtrList::currentItem()
+  to that item are updated to point to QPtrList::current()
   instead to avoid dangling references.
 
   \sa QPtrList
