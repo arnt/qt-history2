@@ -21,7 +21,7 @@
 
 class QWidgetViewPrivate;
 
-class QWidgetView : public QViewport
+class Q_GUI_EXPORT QWidgetView : public QViewport
 {
     Q_OBJECT
     Q_PROPERTY(bool widgetResizable READ widgetResizable WRITE setWidgetResizable)
