@@ -3218,7 +3218,8 @@ HRESULT WINAPI QAxServerBase::EnableModeless( BOOL fEnable )
     if (!isWidget)
 	return S_OK;
 
-    EnableModeless(qt.widget->winId(), fEnable);
+    EnableWindow(qt.widget->winId(), fEnable);
+    return S_OK;
 }
 
 //**** IOleObject
