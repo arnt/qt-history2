@@ -153,7 +153,7 @@ bool QLibraryPrivate::loadLibrary()
     }
     if(filename.isEmpty()) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	qDebug("Could not find %s in '%s'", filename.latin1(), places.join("::").latin1());
+	qDebug("Could not find %s in '%s'", library->library().latin1(), places.join("::").latin1());
 #endif
 	return FALSE;
     }
