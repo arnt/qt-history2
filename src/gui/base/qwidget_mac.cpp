@@ -1874,14 +1874,6 @@ void QWidget::clearMask()
     setMask(QRegion());
 }
 
-/*!
-    \internal
-*/
-Qt::HANDLE QWidget::macCGHandle()
-{
-    return q->cg_hd;
-}
-
 void QWidget::resetInputContext()
 {
     qt_mac_unicode_reset_input(this);

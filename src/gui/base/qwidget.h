@@ -448,9 +448,6 @@ public:
 #if defined(Q_WS_QWS)
     virtual QGfx * graphicsContext(bool clip_children=true) const;
 #endif
-#ifdef Q_WS_MAC
-    Qt::HANDLE macCGHandle();
-#endif
 #if defined(Q_WS_X11)
     QX11Info *x11Info() const;
 #endif
