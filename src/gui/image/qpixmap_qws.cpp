@@ -364,11 +364,11 @@ void QPixmap::fill(const QColor &fillColor)
         QImage im = toImage().convertDepth(32);
         im.fill(fillColor.rgba());
         im.setAlphaBuffer(true);
-        *this = im;
+        fromImage(im);
         return;
-    } else {
-        detach();
     }
+
+    detach();
     QPainter p(this);
     p.fillRect(rect(),fillColor);
 }
@@ -805,14 +805,11 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     if (depth1)
         memset(dptr, 0x00, dbytes);
     else if (bpp == 8)
-        memset(dptr, QColormap::instance().pixel(QColor(Qt::white)), dbytes);
-    else if (bpp == 32) {
-        if (qt_screen->isTransformed())
-            destImg.fill(0x00FFFFFF);
-        else
-            pm.fill(QColor(0xFF, 0xFF, 0xFF, 0x00));
-    } else
-        memset(dptr, 0xff, dbytes);
+        memset(dptr, QColormap::instance().pixel(QColor(Qt::black)), dbytes);
+    else if (bpp == 32)
+        memset(dptr, 0x00, dbytes);
+    else
+        memset(dptr, 0x00, dbytes);
 
     int xbpl, p_inc;
     if (depth1) {
