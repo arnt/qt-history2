@@ -15,6 +15,7 @@
 #include "qt_windows.h"
 #include "qvector.h"
 #include "qmutex.h"
+#include <ctype.h>
 
 
 // ############### DON'T EXPORT HERE!!!
