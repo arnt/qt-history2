@@ -149,7 +149,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     return TRUE;
 }
 
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
 
 #include "qt_mac.h"
 

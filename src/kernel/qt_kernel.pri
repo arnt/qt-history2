@@ -136,7 +136,7 @@ kernel {
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	}
 
-	mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp
+	exists($$KERNEL_CPP/qsound_mac.cpp):mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp
         !embedded:mac {
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \

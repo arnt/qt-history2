@@ -86,7 +86,7 @@ tools {
 		  $$TOOLS_CPP/qwaitcondition_unix.cpp
 
 	mac {
-	  SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 
+	  exists($$TOOLS_CPP/qlibrary_mac.cpp):SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 
 	  !embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp
         }
 	else:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp

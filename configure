@@ -49,17 +49,15 @@ PLATFORM_MAC=no
 PLATFORM_QWS=no
 PLATFORM_QNX=no
 
-if [ -d /System/Library/Frameworks/Carbon.framework ]; then
+if [ -f $relpath/src/tools/qdir_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
     # Qt/Mac
     # ~ the Carbon SDK exists
-    # ~ this is the commercial edition and Qt/Mac sources exist
+    # ~ src/kernel/qapplication_mac.cpp is present
     # ~ this is the internal edition and Qt/Mac sources exist
-    if [ -f $relpath/src/tools/qdir_mac.cpp ]; then
-	PLATFORM_MAC=maybe
-    fi
-elif [ -d $relpath/mkspecs/qws ]; then
+    PLATFORM_MAC=maybe
+elif [ -f $relpath/src/kernel/qapplication_qws.cpp ]; then
     # Qt/Embedded
-    # ~ mkspecs/qws is present
+    # ~ src/kernel/qapplication_qws.cpp is present
     # ~ this is the free or commercial edition
     # ~ this is the internal edition and Qt/Embedded is explicitly enabled
     # ~ this is the internal edition and the OS is QNX
@@ -971,7 +969,7 @@ fi
 
 #detect how jpeg should be built
 if [ "$CFG_JPEG" = "auto" ]; then
-    if [ "$EMBEDDED" = "yes" ]; then
+    if [ "$CFG_EMBEDDED" = "yes" ]; then
 	CFG_JPEG=no
     elif [ "$CFG_SHARED" = "yes" ]; then
 	CFG_JPEG=plugin
@@ -982,7 +980,7 @@ fi
 
 #detect how mng should be built
 if [ "$CFG_MNG" = "auto" ]; then
-    if [ "$EMBEDDED" = "yes" ]; then
+    if [ "$CFG_EMBEDDED" = "yes" ]; then
 	CFG_MNG=no
     elif [ "$CFG_SHARED" = "yes" ]; then
 	CFG_MNG=plugin
@@ -1112,10 +1110,12 @@ fi ### help
 if [ "$CFG_EMBEDDED" != "no" ]; then
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
     QNX:*)
-        PLATFORM_QNX=qws/qnx-rtp-g++
-	[ "$CFG_EMBEDDED" = "qnx4" ] && PLATFORM_QNX=qws/qnx4-cc
-	[ -z "$PLATFORM" ] && PLATFORM="$PLATFORM_QNX"
-        [ -z "$XPLATFORM" ] && XPLATFORM="$PLATFORM_QNX"
+        [ -z "$PLATFORM" ] && PLATFORM=qws/qnx-rtp-g++
+#	[ "$CFG_EMBEDDED" = "qnx4" ] && PLATFORM_QNX=qws/qnx4-cc
+	if [ -z "$XPLATFORM" ]; then
+	    [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
+	    XPLATFORM="$PLATFORM"
+        fi
 	CFG_STL=no
 	CFG_QWS_QVFB=no
 	;;
@@ -2160,12 +2160,13 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    echo "CARBON_LFLAGS +=-framework CoreServices" >>$mkfile
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
-        elif [ "$EMBEDDED" = "qnx6" ]; then
+        elif [ "$PLATFORM_QNX" = "yes" ]; then
 	  echo "QNX_LFLAGS += -fhonor-std -fno-builtins -pipe" >>$mkfile
 	  echo "QNX_CFLAGS += -lcpp" >>$mkfile
 	  EXTRA_LFLAGS="$EXTRA_CFLAGS \$(QNX_LFLAGS)"
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QNX_CFLAGS)"
 	fi
+	[ "$CFG_EMBEDDED" != "no" ] && EXTRA_CFLAGS="$EXTRA_CFLAGS -DQWS"
 	if [ '!' -z "$D_FLAGS" ]; then
 	    for DEF in $D_FLAGS; do
 		EXTRA_CFLAGS="$EXTRA_CFLAGS -D${DEF}"
