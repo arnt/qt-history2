@@ -226,6 +226,8 @@ void QStatusBar::reformat()
 	item = d->items.next();
     }
 
+    l->addStretch( 0 );
+
 
     while ( item ) {
 	l->addWidget( item->w, item->s );
@@ -234,8 +236,6 @@ void QStatusBar::reformat()
 	maxH = QMAX( maxH, itemH );
 	item = d->items.next();
     }
-
-    l->addStretch( 0 );
 
     maxH = QMAX( maxH, d->resizer->sizeHint().height() );
     l->addStrut( maxH );
