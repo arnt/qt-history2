@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#36 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#37 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#37 $");
 
 
 /*!
@@ -134,7 +134,7 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#36 $");
   <img src=qtabdlg-m.gif> <img src=qtabdlg-w.gif>
 */
 
-/*! \fn void selected( const char * tabLabel );
+/*! \fn void QTabDialog::selected( const char * tabLabel );
 
   This signal is emitted whenever a tab is selected (raised),
   including during the first show().
