@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#15 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#16 $
 **
 ** Definition of QPainter class
 **
@@ -219,6 +219,7 @@ private:
     QRegion	crgn;				// current region
     int		tabstops;			// tab stops
     int	       *tabarray;			// array of tab positions
+    int		tabarraylen;			// len of tab array
     QCOOT	sx, sy, sw, sh;			// source rect
     QCOOT	tx, ty, tw, th;			// target rect
     QWorldMatrix wxmat;				// world xform matrix
