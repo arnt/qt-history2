@@ -1576,11 +1576,24 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	fix_neg_rect( &x, &y, &w, &h );
     }
 
+    // Workaround for Windows GDI
+    QPen oldPen = cpen;
+    if ( cpen == NoPen ) {
+	setPen( cbrush.color() );
+	updatePen();
+    }
+
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
-    Ellipse( hdc, x, y, x+w-1, y+h-1 );
+    if ( w == 1 && h == 1 )
+	drawPoint( x, y );
+    else
+	Ellipse( hdc, x, y, x+w, y+h );
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+
+    if ( oldPen == NoPen )
+	setPen( oldPen );
 }
 
 

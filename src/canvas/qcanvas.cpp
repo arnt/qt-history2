@@ -4710,8 +4710,7 @@ QPointArray QCanvasEllipse::areaPoints() const
 {
     QPointArray r;
     // makeArc at 0,0, then translate so that fixed point math doesn't overflow
-    r.makeArc(int(-w/2.0)-1,int(-h/2.0)-1,w+3,h+3,a1,a2);
-    r.translate(int(x()),int(y()));
+    r.makeArc(int(x()-w/2.0+0.5)-1, int(y()-h/2.0+0.5)-1, w+3, h+3, a1, a2);
     r.resize(r.size()+1);
     r.setPoint(r.size()-1,int(x()),int(y()));
     return r;
@@ -4727,10 +4726,7 @@ QPointArray QCanvasEllipse::areaPoints() const
 */
 void QCanvasEllipse::drawShape(QPainter & p)
 {
-#ifdef Q_WS_WIN
-    if ( w != 2 && h != 2 ) // Windows cannot paint a such an ellipse without a pen
-#endif
-	p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
+    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
     if ( !a1 && a2 == 360*16 ) {
 	p.drawEllipse(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h);
     } else {
