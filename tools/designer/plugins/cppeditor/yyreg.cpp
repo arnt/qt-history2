@@ -551,7 +551,9 @@ static QString matchDataType()
 static CppFunction matchFunctionPrototype( bool stripParamNames )
 {
     CppFunction func;
+#if 0
     QString documentation;
+#endif
     QString returnType;
     QString scopedName;
     QStringList params;
@@ -626,12 +628,23 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
 	    return func;
     }
 
+    /*
+      The documentation feature is unused so far, since we cannot
+      really distinguist between a normal comment between two
+      functions and one that relates to the following function. One
+      good heuristic is to assume that a comment immediately followed
+      by a function with no blank line in between relates to the
+      function, but there's no easy way to find that out with a
+      tokenizer.
+    */
+#if 0
     if ( yyTok == Tok_Comment ) {
 	documentation = yyLex;
 	yyTok = getToken();
     }
 
     func.setDocumentation( documentation );
+#endif
     func.setReturnType( returnType );
     func.setScopedName( scopedName );
     func.setParameterList( params );
