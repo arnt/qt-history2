@@ -1031,9 +1031,7 @@ void QTextView::resizeEvent( QResizeEvent *e )
 void QTextView::viewportResizeEvent( QResizeEvent *e )
 {
     QScrollView::viewportResizeEvent( e );
-#if defined(Q_WS_X11)
     if ( e->oldSize().width() != e->size().width() )
-#endif
 	doResize();
 }
 
