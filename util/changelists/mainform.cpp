@@ -121,8 +121,10 @@ void MainForm::go()
 
 void MainForm::currentChanged( QListViewItem *li )
 {
-    if(li->rtti() != ChangeItem::changeRTTI())
+    if(li->rtti() != ChangeItem::changeRTTI()) {
+	setDescFilesDiff("","","");
 	return;
+    }
 
     if ( li == 0 ) {
 	parseDescribe( "" );
@@ -249,7 +251,7 @@ void MainForm::processExited()
 				QListViewItem *root = roots[who];
 				if(!root) {
 				    roots.insert(who, root = new QListViewItem(changes, who));
-				    root->setOpen(TRUE);
+//				    root->setOpen(TRUE);
 				}
 				if(root) {
 				    added = TRUE;
@@ -269,7 +271,7 @@ void MainForm::processExited()
 			    QListViewItem *root = roots[who];
 			    if(!root) {
 				roots.insert(who, root = new QListViewItem(changes, who));
-				root->setOpen(TRUE);
+//				root->setOpen(TRUE);
 			    }
 			    if(root) {
 				added = TRUE;
@@ -289,7 +291,18 @@ void MainForm::processExited()
 			itFrom++;
 		    }
 		}
-		errorView->append( QString("%1 changes found\n").arg(changes->childCount()) );
+		if(roots.isEmpty()) {
+		    errorView->append( QString("%1 changes found\n").arg(changes->childCount()) );
+		} else {
+		    int cnt = 0;
+		    for(QDictIterator<QListViewItem> it(roots); it.current(); ++it) {
+			int t = it.current()->childCount();
+			it.current()->setText(1, QString::number(t));
+			cnt += t;
+		    }
+		    errorView->append( QString("%1 changes found\n").arg(cnt) );
+		}
+
 		delete changeListFrom;
 		delete changeListTo;
 		delete changeDateTo;
