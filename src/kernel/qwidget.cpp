@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#40 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#40 $";
 #endif
 
 /*! \class QWidget qwidget.h
@@ -604,10 +604,11 @@ public:
   event() returns TRUE if it's able to pass the event over to someone,
   FALSE if nobody wanted the event.
 
-  \sa closeEvent(), focusChangeEvent(), hideEvent(), keyPressEvent(),
-  keyReleaseEvent(), mouseDoubleClickEvent(), mouseMoveEvent(),
-  mousePressEvent(), mouseReleaseEvent(), moveEvent(), paintEvent(),
-  resizeEvent(), showEvent(), timerEvent(). */
+  \sa QObject::event(), installEventFilter(), closeEvent(),
+  focusChangeEvent(), hideEvent(), keyPressEvent(), keyReleaseEvent(),
+  mouseDoubleClickEvent(), mouseMoveEvent(), mousePressEvent(),
+  mouseReleaseEvent(), moveEvent(), paintEvent(), resizeEvent(),
+  showEvent(), timerEvent(). */
 
 bool QWidget::event( QEvent *e )		// receive event(), 
 {
