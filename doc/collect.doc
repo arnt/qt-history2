@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 1.9 1995/12/18 19:06:55 hanord Exp $
+** $Id: collect.doc,v 1.10 1995/12/20 22:02:09 hanord Exp $
 **
 ** Qt collection classes documentation
 **
@@ -23,26 +23,30 @@ insert, remove, find etc.
 
 Qt has many collection classes:
 <ul>
-<li> QCache and QIntCache; LRU (least recently used) cache structures.
-<li> QDict and QIntDict; dictionary structures.
-<li> QList; a doubly linked list structure.
-<li> QQueue; a FIFO (first in, first out) queue structure.
-<li> QStack; a LIFO (last in, first out) stack structure.
-<li> QVector; a vector structure.
+<li> \link QCache QCache\endlink and \link QIntCache QIntCache\endlink;
+	LRU (least recently used) cache structures.
+<li> \link QDict QDict\endlink and \link QIntDict QIntDict\endlink;
+	dictionary structures.
+<li> \link QList QList\endlink; a doubly linked list structure.
+<li> \link QQueue QQueue\endlink; a FIFO (first in, first out) queue structure.
+<li> \link QStack QStack\endlink; a LIFO (last in, first out) stack structure.
+<li> \link QVector QVector\endlink; a vector structure.
 </ul>
 
 Some of these classes have corresponding iterators.  An iterator
 is a class for safely traversing the items in a collection:
 <ul>
-<li> QCacheIterator and QIntCacheIterator
-<li> QDictIterator and QIntDictIterator
-<li> QListIterator
+<li> \link QCacheIterator QCacheIterator\endlink and
+	\link QIntCacheIterator QIntCacheIterator\endlink 
+<li> \link QDictIterator QDictIterator\endlink and
+	\link QIntDictIterator QIntDictIterator\endlink 
+<li> \link QListIterator QListIterator\endlink 
 </ul>
 
 The collection classes work with pointers to items.  Qt has an array
-template class, QArray, which stores the items directly in the array.
-QArray only works for classes that do not have a constructor, a
-destructor or any virtual functions.
+template class, \link QArray QArray\endlink, which stores the items
+directly in the array.  QArray only works for classes that do not have a
+constructor, a destructor or any virtual functions.
 
 
 <h2>Architecture</h2>
@@ -57,12 +61,13 @@ collection classes.
     This allows any object to be stored in a collection.
 </ol>
 
-In Qt, we have chosen the second approach.  There are three internal
-base classes; QGCache, QGDict and QGList that operate on \c void*
-pointers.  A thin template layer implements the actual collections
-by casting item pointers to and from \c void*.
+In Qt, we have chosen the second approach.  There are three internal base
+classes; \link QGCache QGCache\endlink, \link QGDict QGDict\endlink and
+\link QGList QGList\endlink that operate on \c void* pointers.  A thin
+template layer implements the actual collections by casting item pointers
+to and from \c void*.
 
-Some compilers do not support C++ templates. For those compilers,
+Some compilers do not support C++ templates. For these compilers,
 we have implemented macro expansions that emulate templates.
 
 
@@ -114,25 +119,29 @@ Program output:
 
 <h2>Managing Collection Items</h2>
 
-All collections inherit the QCollection base class.  This class knows
-only the number of items in the collection and the delete strategy.
+All collections inherit the \link QCollection QCollection\endlink base
+class.  This class knows only the number of items in the collection and
+the delete strategy.
 
 Items in a collection are by default not deleted when they are removed
-from the collection. The QCollection::setAutoDelete() function specifies
-the delete strategy. In the list example, we enable auto-deletion to make
-the list delete the items when they are removed from the list.
+from the collection. The \link QCollection::setAutoDelete()
+QCollection::setAutoDelete()\endlink function specifies the delete
+strategy. In the list example, we enable auto-deletion to make the list
+delete the items when they are removed from the list.
 
-When inserting an item into a collection, only the pointer is copied, not the
-item itself. This is called a shallow copy. It is possible to make the
-collection copy all of the item's data (known as a deep copy) when an item is
-inserted.  All collection functions that insert an item call the virtual
-function QCollection::newItem() for the item to be inserted.
-Inherit a collection and reimplement it if you want to have deep copies in
-your collection.
+When inserting an item into a collection, only the pointer is copied, not
+the item itself. This is called a shallow copy. It is possible to make the
+collection copy all of the item's data (known as a deep copy) when an item
+is inserted.  All collection functions that insert an item call the
+virtual function \link QCollection::newItem()
+QCollection::newItem()\endlink for the item to be inserted.  Inherit a
+collection and reimplement it if you want to have deep copies in your
+collection.
 
-When removing an item from a list, the virtual function
-QCollection::deleteItem() is called.  The default implementation in all
-collection classes is to delete the item if auto-deletion is enabled.
+When removing an item from a list, the virtual function \link
+QCollection::deleteItem() QCollection::deleteItem()\endlink is called.
+The default implementation in all collection classes is to delete the item
+if auto-deletion is enabled.
 
 
 <h2>Templates and Macros</h2>
@@ -141,8 +150,8 @@ A template-based collection, for instance QList\<type\>, defines a
 collection of \e pointers to \e type objects.  The pointer (*) is
 implicit.
 
-We discuss QList here, but the same applies for all collection classes
-and collection class iterators.
+We discuss \link QList QList\endlink here, but the same applies for all
+collection classes and all collection class iterators.
 
 Template instantiation:
 \code
@@ -203,25 +212,30 @@ debug.  C++ debuggers understand templates but not macros.
 
 <h2>Iterators</h2>
 
-Although QList has member functions to traverse the list, it can often be
-better to make use of an iterator.  List iterators are very safe and can
-traverse lists that are being modified at the same time.  Multiple
-iterators can work independently on the same list.
+Although \link QList QList\endlink has member functions to traverse the
+list, it can often be better to make use of an iterator. \link
+QListIterator QListIterator\endlink is very safe and can traverse lists
+that are being modified at the same time.  Multiple iterators can work
+independently on the same collection.
 
 A QList has an internal list of all iterators that are currently operating
 on the list.  When a list entry is removed, the list updates all iterators
 to point to this entry.
 
-The QDict and QCache collections have no traversal functions. To traverse
-the these collections, you must use QDictIterator or QCacheIterator.
+The \link QDict QDict\endlink and \link QCache QCache\endlink collections
+have no traversal functions. To traverse the these collections, you must
+use \link QDictIterator QDictIterator\endlink or \link QCacheIterator
+QCacheIterator\endlink .
 
 
 <h2>Predefined Collections</h2>
 
 Qt has the following predefined collection classes:
 <ul>
-<li> String lists; QStrList and QStrIList (qstrlist.h)
-<li> String vectors; QStrVec and QStrIVec (qstrvec.h)
+<li> String lists; \link QStrList QStrList\endlink and
+	\link QStrIList QStrIList\endlink (\link qstrlist.h qstrlist.h\endlink)
+<li> String vectors; \link QStrVec QStrVec\endlink and
+	\link QStrIVec QStrIVec\endlink (\link qstrvec.h qstrvec.h\endlink)
 </ul>
 
 */
