@@ -143,7 +143,6 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	// static const QCOORD pts5[] = {		// inner fill
 	//    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
 	//QPointArray a;
-	//	p->eraseRect( x, y, w, h );
 
 	if ( flags & Style_Enabled )
 	    p->setPen( pal.text() );

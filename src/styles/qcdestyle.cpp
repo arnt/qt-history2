@@ -167,7 +167,6 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 		4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
 	    bool down = flags & Style_Down;
 	    bool on = flags & Style_On;
-	    p->eraseRect( r );
 	    QPointArray a( QCOORDARRLEN(pts1), pts1 );
 	    a.translate( r.x(), r.y() );
 	    p->setPen( ( down || on ) ? pal.dark() : pal.light() );

@@ -585,7 +585,7 @@ void QGLWidget::macInternalRecreateContext(QGLContext *ctx, const QGLContext *sh
     glcx_dblbuf = dblbuf;
     pending_fix = FALSE;
     if(dblbuf) {
-	setAttribute(WA_NoErase, true);
+	setAttribute(WA_NoSystemBackground, true);
 	if(gl_pix && glcx_dblbuf == dblbuf) { //currently double buffered, just resize
 	    int w = width(), h = height();
 	    if(gl_pix->size() != size()) {

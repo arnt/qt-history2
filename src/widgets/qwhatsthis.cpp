@@ -221,7 +221,7 @@ void qWhatsThisBDH()
 QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const char* name )
     : QWidget( parent, name, WType_Popup ), text( txt ), pressed( FALSE ), widget( w )
 {
-    setAttribute(WA_NoErase, true);
+    setAttribute(WA_NoSystemBackground, true);
     setPalette( QToolTip::palette() );
     setMouseTracking( TRUE );
 #ifndef QT_NO_CURSOR

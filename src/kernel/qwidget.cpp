@@ -706,7 +706,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     widget_attributes = 0;
 #ifndef QT_NO_COMPAT
     if (f & WNoAutoErase)
-	setAttribute(WA_NoAutoErase);
+	setAttribute(WA_NoBackground);
     if (f & WStaticContents)
 	setAttribute(WA_StaticContents);
 #endif
@@ -779,7 +779,7 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
     widget_attributes = 0;
 #ifndef QT_NO_COMPAT
     if (f & WNoAutoErase)
-	setAttribute(WA_NoAutoErase);
+	setAttribute(WA_NoBackground);
     if (f & WStaticContents)
 	setAttribute(WA_StaticContents);
 #endif
@@ -1108,17 +1108,17 @@ void QWidgetPrivate::propagatePaletteChange()
 
 
 /*!
-    \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
+    \overload void QPixmap::fill( const QWidget *widget, const QPoint &offset )
 
     Fills the pixmap with the \a widget's background color or pixmap.
 
-    The \a ofs point is an offset in the widget.
+    The \a offset point is an offset in the widget.
 
-    The point \a ofs is a point in the widget's coordinate system. The
-    pixmap's top-left pixel will be mapped to the point \a ofs in the
-    widget. This is significant if the widget has a background pixmap;
-    otherwise the pixmap will simply be filled with the background
-    color of the widget.
+    The point \a offset is a point in the widget's coordinate
+    system. The pixmap's top-left pixel will be mapped to the point \a
+    offset in the widget. This is significant if the widget has a
+    background pixmap; otherwise the pixmap will simply be filled with
+    the background color of the widget.
 
     Example:
     \code
@@ -1140,16 +1140,15 @@ void QWidgetPrivate::propagatePaletteChange()
     \endcode
 */
 
-/*!
-    \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+/*! \overload
 
     Fills the pixmap with the \a widget's background color or pixmap.
-    \a xofs, \a yofs is an offset in the widget.
+    \a xoff, \a yoff is an offset in the widget.
 */
 
-void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 {
-    QPoint offset(xofs, yofs);
+    QPoint offset(xoff, yoff);
     QStack<QWidget*> parents;
     QWidget *w = const_cast<QWidget *>(widget);
     while (w->d->isBackgroundInherited()) {
@@ -1158,6 +1157,9 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 	parents += w;
     }
     QBrush brush = widget->palette().brush(w->d->bg_role);
+
+
+#if 0
     fill(brush.color());
     if (brush.pixmap()) {
 	QPainter p;
@@ -1166,6 +1168,20 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 	p.drawTiledPixmap(rect(), *brush.pixmap(), offset);
 	p.end();
     }
+#else
+
+#if defined(Q_WS_WIN)
+    extern void qt_erase_background(HDC, int int, int int, const QBrush &, int, int);
+    qt_erase_background(hd, 0, 0, width(), height(), brush, offset.x(), offset.y());
+#elif defined(Q_WS_X11)
+    extern void qt_erase_background(Qt::HANDLE, int screen, int x, int y, int width, int height,
+				    const QBrush &brush, int offx, int offy);
+    qt_erase_background(hd, x11Screen(), 0, 0, width(), height(), brush, offset.x(), offset.y());
+#endif
+
+
+#endif
+
     if (!parents)
 	return;
 
@@ -1193,10 +1209,12 @@ void QPainter::copyFrom(const QWidget* w)
     cfont = w->font();
     cpen = w->palette().color(w->foregroundRole());
     const QWidget *p = w;
+    QPoint offset;
     while (p->d->isBackgroundInherited()) {
-	bg_origin -= p->pos();
+	offset -= p->pos();
 	p = p->parentWidget();
     }
+    bg_origin = offset;
     bg_brush = w->palette().brush(p->d->bg_role);
 }
 
@@ -1628,7 +1646,7 @@ void QWidget::windowActivationChange( bool )
 	if(pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
 	   pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
 	    QPalette::ColorRole bg_role = backgroundRole();
-	    if ( !testAttribute(WA_NoErase) && bg_role < QPalette::NColorRoles &&
+	    if ( !testAttribute(WA_NoSystemBackground) && bg_role < QPalette::NColorRoles &&
 		 (role == bg_role || (role < bg_role && pal.brush(QPalette::Active, bg_role) !=
 					 pal.brush(QPalette::Inactive, bg_role ))))
 		d->updateSystemBackground();
@@ -2177,7 +2195,7 @@ QWidget *QWidget::topLevelWidget() const
 #ifndef QT_NO_COMPAT
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
-    if (testAttribute(WA_NoErase))
+    if (testAttribute(WA_NoSystemBackground))
 	return NoBackground;
     switch(backgroundRole()) {
     case QPalette::Foreground:
@@ -2221,11 +2239,11 @@ Qt::BackgroundMode QWidget::backgroundMode() const
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
     if(m == NoBackground) {
-	setAttribute(WA_NoErase, true);
+	setAttribute(WA_NoSystemBackground, true);
 	d->updateSystemBackground();
 	return;
     }
-    setAttribute(WA_NoErase, false);
+    setAttribute(WA_NoSystemBackground, false);
     setAttribute(WA_SetForegroundRole, false);
 
     QPalette::ColorRole role;
@@ -2237,7 +2255,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 	role = QPalette::Foreground;
 	break;
     case PaletteButton:
-	role = QPalette::ButtonText;
+	role = QPalette::Button;
 	break;
     case PaletteLight:
 	role = QPalette::Light;
@@ -3171,7 +3189,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     setGeometry_helper( x, y, w, h, TRUE );
     setWState( WState_Resized );
 
-    if (testAttribute(WA_ContentsPropagated) &&  olds != size())
+    if (testAttribute(WA_ContentsPropagated) && olds != size())
 	d->updatePropagatedBackground();
     else if (oldp != pos())
 	d->updateInheritedBackground();
@@ -5245,8 +5263,7 @@ void QWidget::repaint()
     repaint(visibleRect());
 }
 
-/*! \fn void QWidget::repaint( int x, int y, int w, int h)
-    \overload
+/*! \overload
 
     This version repaints a rectangle (\a x, \a y, \a w, \a h) inside
     the widget.
@@ -5254,7 +5271,31 @@ void QWidget::repaint()
     If \a w is negative, it is replaced with \c{width() - x}, and if
     \a h is negative, it is replaced width \c{height() - y}.
 */
+void QWidget::repaint(int x, int y, int w, int h)
+{
+    if ( x > crect.width() || y > crect.height() )
+	return;
+    if ( w < 0 )
+	w = crect.width()  - x;
+    if ( h < 0 )
+	h = crect.height() - y;
+    repaint(QRegion(QRect(x, y, w, h)));
+}
 
+/*! \overload
+
+    This version repaints a rectangle \a r inside the widget.
+*/
+void QWidget::repaint(const QRect &r)
+{
+    repaint(QRegion(r));
+}
+
+/*! \fn void QWidget::repaint( const QRegion &rgn )
+    \overload
+
+    This version repaints a region \a rgn inside the widget.
+*/
 
 /*! \fn void QWidget::update()
     Updates the widget unless updates are disabled or the widget is
@@ -5296,8 +5337,9 @@ void QWidget::repaint()
     This version repaints a region \a rgn inside the widget.
 */
 
-/*!
-    void QWidget::erase()
+#ifndef QT_NO_COMPAT
+/*! \obsolete
+    \fn void QWidget::erase()
 
     Erases the widget without generating a \link paintEvent() paint
     event\endlink.
@@ -5305,13 +5347,15 @@ void QWidget::repaint()
     Child widgets are not affected.
 */
 
-/*!
-  \overload void QWidget::erase( const QRect &r )
+/*! \obsolete
+    \overload
+    \fn void QWidget::erase( const QRect &r )
 
-  Erases the specified area \a r in the widget.
+    Erases the specified area \a r in the widget.
 */
 
-/*! \overload
+/*! \obsolete
+    \overload
 
     Erases the specified area \a (x, y, w, h) in the widget.
 
@@ -5323,31 +5367,45 @@ void QWidget::repaint()
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    if (QPainter::redirected(this))
-	return;
-    if (testAttribute(WA_NoErase))
+    if (testAttribute(WA_NoSystemBackground))
 	return;
     if ( w < 0 )
 	w = crect.width()  - x;
     if ( h < 0 )
 	h = crect.height() - y;
-    if ( w != 0 && h != 0 )
-	d->erase_helper(QRect(x, y, w, h));
+    if ( w != 0 && h != 0 ) {
+#ifdef Q_WS_X11
+	QPainter p(this);
+	p.eraseRect(QRect(x, y, w, h));
+#else
+	// ### fix me matthias :)
+	if (! QPainter::redirected(this))
+	    d->erase_helper(QRect(x, y, w, h));
+#endif
+    }
 }
 
-/*!
+/*! \obsolete
     \overload
 
     Erases the area defined by \a rgn in the widget.
 */
 void QWidget::erase( const QRegion& rgn )
 {
-    if (QPainter::redirected(this))
+    if (testAttribute(WA_NoSystemBackground))
 	return;
-    if (testAttribute(WA_NoErase))
-	return;
-    d->erase_helper(rgn);
+
+#ifdef Q_WS_X11
+    QPainter p(this);
+    p.setClipRegion(rgn);
+    p.eraseRect(rgn.boundingRect());
+#else
+    // ### fix me matthias :)
+    if (! QPainter::redirected(this))
+	d->erase_helper(rgn);
+#endif
 }
+#endif // QT_NO_COMPAT
 
 /*!
     \overload void QWidget::drawText( int x, int y, const QString& str )
@@ -5455,22 +5513,32 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     \row \i WA_SetBackgroundRole \i Indicates that the widgets has an
     explicit background role\i Function QWidget::setBackgroundRole()
 
-    \row \i WA_NoAutoErase \ i indicates that the widget paints all
+    \row \i WA_NoBackground \ i indicates that the widget paints all
     its pixels when it receives a paint event. It is thus not required
     for operations like updating, resizing, scrolling and focus
     changes to call erase the widget before generating paint
-    events. Using WA_NoAutoErase is a small optimization. It can help
+    events. Using WA_NoBackground is a small optimization. It can help
     to reduce flicker on systems that do not provide double buffer
     support, and it avoids the computational cycles necessary to erase
-    the background prior to paint.\i Widget author
+    the background prior to paint. NOTE: Unlike WA_NoSystemBackground,
+    newly exposed areas are automatically filled with the background
+    (e.g. when showing a window for the first time). \i Widget author
 
-    \row \i WA_NoErase \i Makes QWidget::erase() a null operation. \i
-    Widget author
+    \row \i WA_NoSystemBackground \i Indicates that the widget has no
+    background, i.e. when the widget receives paint events, the
+    background is not automatically repainted. NOTE: Unlike
+    WA_NoBackground, newly exposed areas are \e not automtically
+    filled with the background (e.g after showing a window for the
+    first time). \i Widget author
 
     \row \i WA_StaticContents \i Indicates that the widget contents
     are north-west aligned and static. On resize, such a widget will
     receive paint events only for the newly visible part of itself. \i
     Widget author.
+
+    \row \i WA_PaintOnScreen \i Indicates that the widget wants to
+    draw directly onto the screen. This is not supported on all
+    platforms. \i Widget author.
 
     \endtable
 */

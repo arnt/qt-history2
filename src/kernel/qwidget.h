@@ -360,10 +360,6 @@ public:
     void reparent(QWidget *parent, WFlags f);
     void reparent(QWidget *parent);
 
-    void		erase();
-    void		erase( int x, int y, int w, int h );
-    void		erase( const QRect & );
-    void		erase( const QRegion & );
     void		scroll( int dx, int dy );
     void		scroll( int dx, int dy, const QRect& );
 
@@ -414,8 +410,7 @@ public:
 	WA_UnderMouse,
 	WA_MouseTracking,
 	WA_ContentsPropagated,
-	WA_NoAutoErase,
-	WA_NoErase,
+	WA_NoBackground,
 	WA_StaticContents,
 	WA_ForegroundInherited,
 	WA_BackgroundInherited,
@@ -428,7 +423,9 @@ public:
 	WA_SetFont,
 	WA_SetCursor,
 	WA_SetForegroundRole,
-	WA_SetBackgroundRole
+	WA_SetBackgroundRole,
+	WA_PaintOnScreen,
+	WA_NoSystemBackground
     };
     void setAttribute(WidgetAttribute, bool = true);
     bool testAttribute(WidgetAttribute) const;
@@ -681,6 +678,10 @@ public:
     void repaint(int x, int y, int w, int h, bool) { repaint(x,y,w,h); }
     void repaint(const QRect &r, bool) { repaint(r); }
     void repaint(const QRegion &rgn, bool) { repaint(rgn); }
+    void erase();
+    void erase(int x, int y, int w, int h);
+    void erase(const QRect &);
+    void erase(const QRegion &);
 #endif
 };
 
@@ -787,15 +788,6 @@ inline bool QWidget::isUpdatesEnabled() const
 inline void QWidget::update( const QRect &r )
 { update(r.x(), r.y(), r.width(), r.height()); }
 
-inline void QWidget::repaint( const QRect &r)
-{ repaint(r.x(), r.y(), r.width(), r.height()); }
-
-inline void QWidget::erase()
-{ erase( 0, 0, crect.width(), crect.height() ); }
-
-inline void QWidget::erase( const QRect &r )
-{ erase( r.x(), r.y(), r.width(), r.height() ); }
-
 inline bool QWidget::close()
 { return close( FALSE ); }
 
@@ -890,6 +882,8 @@ inline const QColor &QWidget::paletteBackgroundColor() const { return background
 inline void QWidget::setPaletteBackgroundColor(const QColor &c) { setBackgroundColor(c); }
 inline const QPixmap *QWidget::paletteBackgroundPixmap() const { return backgroundPixmap(); }
 inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &p) { setBackgroundPixmap(p); }
+inline void QWidget::erase() { erase(0, 0, crect.width(), crect.height()); }
+inline void QWidget::erase(const QRect &r) { erase(r.x(), r.y(), r.width(), r.height()); }
 #endif
 
 #define QWIDGETSIZE_MAX 32767

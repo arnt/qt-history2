@@ -770,7 +770,7 @@ QColorPicker::QColorPicker(QWidget* parent, const char* name )
 	}
     pix = new QPixmap;
     pix->convertFromImage(img);
-    setAttribute(WA_NoErase, true);
+    setAttribute(WA_NoSystemBackground);
     setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed )  );
 }
 

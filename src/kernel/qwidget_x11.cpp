@@ -857,7 +857,7 @@ void QWidget::setFontSys( QFont * )
 void QWidgetPrivate::updateSystemBackground()
 {
     QBrush brush = q->palette().brush(q->backgroundRole());
-    if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoErase))
+    if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoSystemBackground))
 	XSetWindowBackgroundPixmap(q->x11Display(), q->winId(), None);
     else if (brush.pixmap())
 	XSetWindowBackgroundPixmap(q->x11Display(), q->winId(),
@@ -1253,42 +1253,130 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
-void QWidget::repaint(int x, int y, int w, int h)
-{
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	if ( x > crect.width() || y > crect.height() )
-	    return;
-	if ( w < 0 )
-	    w = crect.width()  - x;
-	if ( h < 0 )
-	    h = crect.height() - y;
-	QRect r(x,y,w,h);
-	if ( r.isEmpty() )
-	    return; // nothing to do
-	QPaintEvent e(r);
-	if ( r != rect() )
-	    qt_set_paintevent_clipping( this, r );
-	if (!testAttribute(WA_NoAutoErase)) {
-	    if (d->isTransparent())
-		erase( x, y, w, h);
-	    else
-		XClearArea( x11Display(), winId(), x, y, w, h, False );
-	}
-	QApplication::sendSpontaneousEvent( this, &e );
-	qt_clear_paintevent_clipping();
-    }
-}
-
 void QWidget::repaint(const QRegion& rgn)
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	QPaintEvent e(rgn);
-	qt_set_paintevent_clipping( this, rgn );
-	if (!testAttribute(WA_NoAutoErase))
-	    erase(rgn);
-	QApplication::sendSpontaneousEvent( this, &e );
-	qt_clear_paintevent_clipping();
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
+	return;
+    if (rgn.isEmpty())
+	return;
+    if (testWState(WState_InPaintEvent)) {
+	qWarning("QWidget::repaint: recursive repaint detected.");
+       	return;
     }
+
+    setWState(WState_InPaintEvent);
+
+    QRect br = rgn.boundingRect();
+
+    QPoint dboff;
+    bool double_buffer = !testAttribute(WA_PaintOnScreen);
+
+    HANDLE old_hd = hd;
+    HANDLE old_rendhd = rendhd;
+
+    if (double_buffer) {
+	hd = XCreatePixmap(x11Display(), winId(), br.width(), br.height(), x11Depth());
+
+#ifndef QT_NO_XFTFREETYPE
+	if (qt_use_xrender && qt_has_xft) {
+	    rendhd =
+		(HANDLE) XftDrawCreate(x11Display(), hd, (Visual *) x11Visual(), x11Colormap());
+	}
+#endif
+
+	dboff = br.topLeft();
+	QPainter::setRedirected(this, this, dboff);
+
+	QRegion region_in_pm(rgn);
+	region_in_pm.translate(-dboff);
+	qt_set_paintevent_clipping(this, region_in_pm);
+
+    } else {
+	qt_set_paintevent_clipping(this, rgn);
+    }
+
+
+    if (testAttribute(WA_NoSystemBackground)) {
+	if (double_buffer) {
+	    GC gc = qt_xget_temp_gc(x11Screen(), false);
+	    XCopyArea(x11Display(), winId(), hd, gc,
+		      br.x(), br.y(), br.width(), br.height(), 0, 0);
+	}
+    } else if (!testAttribute(WA_NoBackground)) {
+	QPoint offset;
+	QStack<QWidget*> parents;
+	QWidget *w = q;
+	while (w->d->isBackgroundInherited()) {
+	    offset += w->pos();
+	    w = w->parentWidget();
+	    parents += w;
+	}
+
+	if (double_buffer) {
+	    extern void qt_erase_background(Qt::HANDLE, int screen,
+					    int x, int y, int width, int height,
+					    const QBrush &brush, int offx, int offy);
+	    qt_erase_background(q->hd, q->x11Screen(),
+				br.x() - dboff.x(), br.y() - dboff.y(),
+				br.width(), br.height(), q->pal.brush(w->d->bg_role),
+				br.x() + offset.x(), br.y() + offset.y());
+	} else {
+	    QVector<QRect> rects = rgn.rects();
+	    for (int i = 0; i < rects.size(); ++i) {
+		const QRect &rr = rects[i];
+		XClearArea( q->x11Display(), q->winId(),
+			    rr.x(), rr.y(), rr.width(), rr.height(), False );
+	    }
+	}
+
+	if (!!parents) {
+	    w = parents.pop();
+	    for (;;) {
+		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+		    QPainter::setRedirected(w, q, offset + dboff);
+		    QRect rr = q->visibleRect();
+		    rr.moveBy(offset);
+		    QPaintEvent e(rr);
+		    QApplication::sendEvent(w, &e);
+		    QPainter::restoreRedirected(w);
+		}
+		if (!parents)
+		    break;
+		w = parents.pop();
+		offset -= w->pos();
+	    }
+	}
+    }
+
+    QPaintEvent e(rgn);
+    QApplication::sendSpontaneousEvent( this, &e );
+
+    qt_clear_paintevent_clipping();
+
+    if (double_buffer) {
+	QPainter::restoreRedirected(this);
+
+	GC gc = qt_xget_temp_gc(x11Screen(), false);
+	QVector<QRect> rects = rgn.rects();
+	for (int i = 0; i < rects.size(); ++i) {
+	    const QRect &rr = rects[i];
+	    XCopyArea(x11Display(), hd, winId(), gc,
+		      rr.x() - br.x(), rr.y() - br.y(),
+		      rr.width(), rr.height(),
+		      rr.x(), rr.y());
+	}
+
+#ifndef QT_NO_XFTFREETYPE
+	if (qt_use_xrender && qt_has_xft)
+	    XftDrawDestroy((XftDraw *) rendhd);
+#endif
+	XFreePixmap(x11Display(), hd);
+
+	hd = old_hd;
+	rendhd = old_rendhd;
+    }
+
+    clearWState(WState_InPaintEvent);
 }
 
 
@@ -2268,45 +2356,3 @@ void QWidgetPrivate::focusInputContext()
     }
 #endif // QT_NO_XIM
 }
-
-void QWidgetPrivate::erase_helper(const QRegion &rgn)
-{
-    QRegion r = rgn;
-    extern void qt_intersect_paintevent_clipping(QPaintDevice *, QRegion &);
-    qt_intersect_paintevent_clipping(q, r);
-
-    QVector<QRect> rects = r.rects();
-    for (int i = 0; i < rects.size(); ++i) {
-	const QRect &rr = rects[i];
-	XClearArea( q->x11Display(), q->winId(),
-		    rr.x(), rr.y(), rr.width(), rr.height(), False );
-    }
-
-    QPoint offset;
-    QStack<QWidget*> parents;
-    QWidget *w = q;
-    while (w->d->isBackgroundInherited()) {
-	offset += w->pos();
-	w = w->parentWidget();
-	parents += w;
-    }
-    if (!parents)
-	return;
-
-    w = parents.pop();
-    for (;;) {
-	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-	    QPainter::setRedirected(w, q, offset);
-  	    QRect rr = q->rect();
- 	    rr.moveBy(offset);
-	    QPaintEvent e(rr);
-	    QApplication::sendEvent(w, &e);
-	    QPainter::restoreRedirected(w);
-	}
-	if (!parents)
-	    break;
-	w = parents.pop();
-	offset -= w->pos();
-    }
-}
-

@@ -1057,8 +1057,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     clip_serial = gc_cache_clip_serial++;
     updateBrush();
     updatePen();
-    if (!redirection_offset.isNull())
-	translate(-redirection_offset.x(), -redirection_offset.y());
+
+    if (!redirection_offset.isNull()) {
+	txop = TxTranslate;
+	setf(WxF, true);
+    }
+
     return TRUE;
 }
 
@@ -1352,6 +1356,7 @@ void QPainter::setClipping( bool enable )
     }
     if ( enable ) {
         QRegion rgn = crgn;
+	rgn.translate(-redirection_offset);
         if ( pdev == paintEventDevice && paintEventClipRegion )
             rgn = rgn.intersect( *paintEventClipRegion );
         if ( penRef )
@@ -1410,11 +1415,9 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
         qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
     if ( m == CoordDevice ) {
 	crgn = rgn;
-	if (!redirection_offset.isNull())
-	    crgn.translate(-redirection_offset);
-    }
-    else
+    } else {
 	crgn = xmat * rgn;
+    }
 
     if ( testf(ExtDev) ) {
 	if ( block_ext )
@@ -1526,6 +1529,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
                 index = 0;
                 npoints = pa.size();
             }
+	    pa.translate(-redirection_offset);
         }
     }
     if ( cpen.style() != NoPen )
@@ -2204,6 +2208,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
                 index  = 0;
                 nlines = pa.size()/2;
             }
+	    pa.translate(-redirection_offset);
         }
     }
     if ( cpen.style() != NoPen )
@@ -2250,6 +2255,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
                 index   = 0;
                 npoints = pa.size();
             }
+	    pa.translate(-redirection_offset);
         }
     }
     if ( cpen.style() != NoPen ) {
@@ -2314,6 +2320,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
                 index   = 0;
                 npoints = pa.size();
             }
+	    pa.translate(-redirection_offset);
         }
     }
     if ( winding )                              // set to winding fill rule
@@ -2389,8 +2396,10 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
                  !hd )
                 return;
         }
-        if ( txop != TxNone )
+        if ( txop != TxNone ) {
             pa = xForm( pa );
+	    pa.translate(-redirection_offset);
+	}
     }
     if ( cpen.style() != NoPen ) {
         pa = pa.cubicBezier();
@@ -2536,6 +2545,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
 
     QRegion rgn = crgn;
+    rgn.translate(-redirection_offset);
 
     if ( mask ) {                               // pixmap has clip mask
         // Implies that clipping is on, either explicit or implicit
@@ -3014,4 +3024,40 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 QPoint QPainter::pos() const
 {
     return curPt;
+}
+
+void qt_erase_background(Qt::HANDLE hd, int screen,
+			 int x, int y, int w, int h,
+			 const QBrush &brush, int xoff, int yoff)
+{
+    Display *dpy = QPaintDevice::x11AppDisplay();
+    GC gc;
+    void *penref = 0;
+    bool obtained = false;
+
+    // ### why doesn't this work when using the GC cache?
+//     obtained = obtain_gc(&penref, &gc, brush.color().pixel(screen), dpy, screen, hd,
+// 			 ++gc_cache_clip_serial);
+
+    if (!obtained) {
+	gc = alloc_gc(dpy, screen, hd, false);
+	XSetForeground(dpy, gc, brush.color().pixel(screen));
+    }
+
+    if (brush.pixmap()) {
+	XSetTile(dpy, gc, brush.pixmap()->handle());
+	XSetFillStyle(dpy, gc, FillTiled);
+	XSetTSOrigin(dpy, gc, x-xoff, y-yoff);
+	XFillRectangle(dpy, hd, gc, x, y, w, h);
+	XSetTSOrigin(dpy, gc, 0, 0);
+	XSetFillStyle(dpy, gc, FillSolid);
+    } else {
+	XFillRectangle(dpy, hd, gc, x, y, w, h);
+    }
+
+    if (obtained) {
+	release_gc(penref);
+    } else {
+	free_gc(dpy, gc);
+    }
 }

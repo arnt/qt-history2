@@ -703,7 +703,7 @@ void QGLWidget::init( QGLContext *context, const QGLWidget *shareWidget )
 	setContext( context, shareWidget->context() );
     else
 	setContext( context );
-    setAttribute(WA_NoErase, true);
+    setAttribute(WA_NoSystemBackground, true);
 
     if ( isValid() && context->format().hasOverlay() ) {
 	QByteArray olwName( name() );

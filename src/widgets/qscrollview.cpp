@@ -2523,7 +2523,7 @@ void QScrollView::enableClipper(bool y)
 	d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
 					 coord_limit,coord_limit);
 	d->clipped_viewport->setBackgroundMode( d->viewport->backgroundMode() );
-	d->viewport->setAttribute(WA_NoErase, true); // no exposures for this
+	d->viewport->setAttribute(WA_NoSystemBackground, true); // no exposures for this
 	d->viewport->removeEventFilter( this );
 	d->clipped_viewport->installEventFilter( this );
 	d->clipped_viewport->show();

@@ -1055,7 +1055,7 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 #else
 	QPointArray a( QRect(all.x(),all.y(),all.width()+1,all.height()+1) );
 #endif
-	if ( view->viewport()->testAttribute(QWidget::WA_NoErase )) {
+	if ( view->viewport()->testAttribute(QWidget::WA_NoSystemBackground)) {
 	    QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
 	    p->setClipRegion(QRegion(cvr)-QRegion(a));
 	    p->fillRect(vr,view->viewport()->palette()
@@ -1694,7 +1694,7 @@ void QCanvas::setDoubleBuffering(bool y)
     The width and height of \a p must be a multiple of \a tilewidth
     and \a tileheight. If they are not the function will do nothing.
 
-    If you want to unset any tiling set, then just pass in a null 
+    If you want to unset any tiling set, then just pass in a null
     pixmap and 0 for \a h, \a v, \a tilewidth, and
     \a tileheight.
 */

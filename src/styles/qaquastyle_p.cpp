@@ -45,7 +45,7 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
     : QWidget(w, "magicFocusWidget", (noerase ? (WResizeNoErase | WRepaintNoErase) : 0)), d(NULL)
 {
     if(noerase)
-	setAttribute(WA_NoErase, true);
+	setAttribute(WA_NoSystemBackground, true);
     if(w)
 	setFocusWidget(w);
 }
@@ -72,7 +72,7 @@ void QAquaFocusWidget::setFocusWidget(QWidget * widget)
 	d->installEventFilter(this);
 	d->parentWidget()->installEventFilter(this); //we do this so we can trap the ChildAdded event
 	QPoint p(widget->mapTo(parentWidget(), QPoint(0, 0)));
-	setGeometry(p.x() - focusOutset(), p.y() - focusOutset(), 
+	setGeometry(p.x() - focusOutset(), p.y() - focusOutset(),
 		    widget->width() + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
 	setPalette(widget->palette());
 	setMask(QRegion(rect()) - focusRegion());
@@ -92,7 +92,7 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
 	case QEvent::PaletteChange:
 	    setPalette(d->palette());
 	    break;
-	case QEvent::Hide: 
+	case QEvent::Hide:
 	    hide();
 	    break;
 	case QEvent::Show:
@@ -105,7 +105,7 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
 	}
 	case QEvent::Resize: {
 	    QResizeEvent *re = (QResizeEvent*)e;
-	    resize(re->size().width() + (focusOutset() * 2), 
+	    resize(re->size().width() + (focusOutset() * 2),
 		    re->size().height() + (focusOutset() * 2));
 	    setMask(QRegion(rect()) - focusRegion());
 	    break;
@@ -124,7 +124,7 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
     return FALSE;
 }
 
-struct QAquaAnimatePrivate 
+struct QAquaAnimatePrivate
 {
     QWidget *focus; //the focus widget
     QGuardedPtr<QPushButton> defaultButton, noPulse; //default pushbuttons
@@ -134,20 +134,20 @@ struct QAquaAnimatePrivate
     QPtrList<QListViewItem> lvis;
     int lviTimerID;
 };
-QAquaAnimate::QAquaAnimate() 
+QAquaAnimate::QAquaAnimate()
 {
     d = new QAquaAnimatePrivate;
     d->focus = d->defaultButton = d->noPulse = NULL;
     d->lviTimerID = d->progressTimerId = d->buttonTimerId = -1;
 }
 QAquaAnimate::~QAquaAnimate()
-{ 
-    delete d; 
+{
+    delete d;
 }
-bool QAquaAnimate::addWidget(QWidget *w) 
+bool QAquaAnimate::addWidget(QWidget *w)
 {
     if(focusable(w)) {
-	if(w->hasFocus()) 
+	if(w->hasFocus())
 	    setFocusWidget(w);
 	w->installEventFilter(this);
     }
@@ -159,7 +159,7 @@ bool QAquaAnimate::addWidget(QWidget *w)
         if(btn->isDefault() || (btn->autoDefault() && btn->hasFocus())){
 	    d->defaultButton = btn;
             btn->installEventFilter(this);
-            if(btn->isVisible() && d->buttonTimerId == -1) 
+            if(btn->isVisible() && d->buttonTimerId == -1)
                 d->buttonTimerId = startTimer(50);
         }
 	return TRUE;
@@ -179,9 +179,9 @@ bool QAquaAnimate::addWidget(QWidget *w)
     }
     return FALSE;
 }
-void QAquaAnimate::removeWidget(QWidget *w) 
+void QAquaAnimate::removeWidget(QWidget *w)
 {
-    if(focusWidget() == w) 
+    if(focusWidget() == w)
 	setFocusWidget(NULL);
 
     if(w->inherits("QPushButton")) {
@@ -205,14 +205,14 @@ void QAquaAnimate::removeWidget(QWidget *w)
 }
 void QAquaAnimate::lvi(QListViewItem *l)
 {
-    if(d->lvis.find(l) == -1) 
+    if(d->lvis.find(l) == -1)
 	d->lvis.append(l);
-    if(d->lviTimerID == -1) 
+    if(d->lviTimerID == -1)
 	d->lviTimerID = startTimer(50);
 }
 void QAquaAnimate::objDestroyed(QObject *o)
 {
-    if(o == d->focus) 
+    if(o == d->focus)
 	setFocusWidget(NULL);
     while(d->progressBars.remove((QProgressBar*)o));
 }
@@ -227,7 +227,7 @@ bool QAquaAnimate::animatable(QAquaAnimate::Animates as, QWidget *w)
     if(as == AquaPushButton && w->inherits("QPushButton")) {
 	QPushButton *btn = (QPushButton *)w;
 	if((!d->noPulse || (QPushButton*)d->noPulse == btn || !d->noPulse->isDown()) &&
-	   btn->isEnabled() && (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) && 
+	   btn->isEnabled() && (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) &&
 	   ((QPushButton*)d->defaultButton == btn) && w == d->defaultButton)
 	    return TRUE;
     } else if(as == AquaProgressBar && d->progressBars.find((QProgressBar*)w) != -1) {
@@ -268,7 +268,7 @@ void QAquaAnimate::timerEvent(QTimerEvent * te)
     if(te->timerId() == d->buttonTimerId) {
 	if(d->defaultButton && d->defaultButton->isEnabled() && d->defaultButton->isVisibleTo(0) &&
 	    (d->defaultButton->isDefault() || (d->defaultButton->autoDefault() && d->defaultButton->hasFocus()) )) {
-	    if(doAnimate(AquaPushButton)) 
+	    if(doAnimate(AquaPushButton))
 		d->defaultButton->repaint(FALSE);
 	}
     } else if(te->timerId() == d->lviTimerID && !d->lvis.isEmpty()) {
@@ -276,7 +276,7 @@ void QAquaAnimate::timerEvent(QTimerEvent * te)
 	    if(d->lvis.count() == 1) {
 		d->lvis.first()->repaint();
 	    } else {
-		for(QPtrListIterator<QListViewItem> it(d->lvis); it.current(); ++it) 
+		for(QPtrListIterator<QListViewItem> it(d->lvis); it.current(); ++it)
 		    (*it)->repaint();
 	    }
 	}
@@ -301,12 +301,12 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
     if(o->isWidgetType() && focusWidget() && focusable((QWidget *)o) &&
        ((e->type() == QEvent::FocusOut && focusWidget() == o) ||
 	(e->type() == QEvent::FocusIn && focusWidget() != o)))  { //restore it
-	if(((QFocusEvent *)e)->reason() != QFocusEvent::Popup) 
+	if(((QFocusEvent *)e)->reason() != QFocusEvent::Popup)
 	    setFocusWidget(NULL);
     }
     if(o && o->isWidgetType() && e->type() == QEvent::FocusIn) {
 	QWidget *w = (QWidget *)o;
-	if(focusable(w)) 
+	if(focusable(w))
 	    setFocusWidget(w);
     }
     //animate
@@ -354,7 +354,7 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
 		d->defaultButton = 0;
 		if(tmp)
 		    tmp->repaint(FALSE);
-		if(pb->topLevelWidget()->isActiveWindow()) 
+		if(pb->topLevelWidget()->isActiveWindow())
 		    d->defaultButton = pb;
 		break;
 	    }
@@ -373,7 +373,7 @@ QWidget *QAquaAnimate::focusWidget() const
 {
     return d->focus;
 }
-void QAquaAnimate::setFocusWidget(QWidget *w) 
+void QAquaAnimate::setFocusWidget(QWidget *w)
 {
     if(w) {
 	QWidget *top = w->parentWidget();
@@ -400,7 +400,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
     if(w == d->focus)
 	return;
     doFocus(w);
-    if(d->focus) 
+    if(d->focus)
 	QObject::disconnect(d->focus, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
     if((d->focus = w))
 	QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
@@ -417,11 +417,11 @@ bool QAquaAnimate::focusable(QWidget *w)
 	    return true;
     }
 #endif
-    return (w && w->parentWidget(TRUE) && 
-	    (w->inherits("QSpinWidget") || w->inherits("QDateTimeEditor") || w->inherits("QComboBox") || 
+    return (w && w->parentWidget(TRUE) &&
+	    (w->inherits("QSpinWidget") || w->inherits("QDateTimeEditor") || w->inherits("QComboBox") ||
 	     (w->inherits("QLineEdit") && w->parentWidget()->inherits("QSpinWidget")) ||
 	     (w->inherits("QFrame") && w->inherits("QLineEdit") &&
-	      (((QFrame*)w)->frameStyle() != QFrame::NoFrame || w->parentWidget()->inherits("QComboBox"))) || 
+	      (((QFrame*)w)->frameStyle() != QFrame::NoFrame || w->parentWidget()->inherits("QComboBox"))) ||
 	      (w->inherits("QTextEdit") && !((QTextEdit*)w)->isReadOnly()) ||
 	      w->inherits("QListBox") || w->inherits("QListView")));
 }
@@ -464,7 +464,7 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
 	int delta = small.height() - widg->height();
 	small_delta += delta * delta;
     }
-    if(small_delta < large_delta) 
+    if(small_delta < large_delta)
 	return QAquaSizeSmall;
 #endif
     return QAquaSizeLarge;
@@ -487,21 +487,21 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     if(ct == QStyle::CT_CustomBase && widg) {
 	if(widg->inherits("QPushButton"))
 	    ct = QStyle::CT_PushButton;
-	else if(widg->inherits("QRadioButton")) 
+	else if(widg->inherits("QRadioButton"))
 	    ct = QStyle::CT_RadioButton;
-	else if(widg->inherits("QCheckBox")) 
+	else if(widg->inherits("QCheckBox"))
 	    ct = QStyle::CT_CheckBox;
-	else if(widg->inherits("QComboBox")) 
+	else if(widg->inherits("QComboBox"))
 	    ct = QStyle::CT_ComboBox;
 	else if(widg->inherits("QToolButton"))
 	    ct = QStyle::CT_ToolButton;
 	else if(widg->inherits("QSlider"))
 	    ct = QStyle::CT_Slider;
-	else if(widg->inherits("QProgressBar")) 
+	else if(widg->inherits("QProgressBar"))
 	    ct = QStyle::CT_ProgressBar;
-	else if(widg->inherits("QLineEdit")) 
+	else if(widg->inherits("QLineEdit"))
 	    ct = QStyle::CT_LineEdit;
-	else if(widg->inherits("QHeader")) 
+	else if(widg->inherits("QHeader"))
 	    ct = QStyle::CT_Header;
 	else if(widg->inherits("QMenuBar"))
 	    ct = QStyle::CT_MenuBar;
@@ -514,7 +514,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     if(ct == QStyle::CT_PushButton) {
 	QPushButton *psh = (QPushButton*)widg;
 	int minw = -1;
-	if(psh->text() == qApp->translate("QAquaStyle", "OK") || 
+	if(psh->text() == qApp->translate("QAquaStyle", "OK") ||
 	   psh->text() == qApp->translate("QAquaStyle", "Cancel"))
 	    minw = 69;
 #ifdef Q_WS_MAC
@@ -532,29 +532,29 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     } else if(ct == QStyle::CT_RadioButton) {
 	QRadioButton *rdo = (QRadioButton*)widg;
         // Exception for case where multiline radiobutton text requires no size constrainment
-	if(rdo->text().find('\n') != -1) 
+	if(rdo->text().find('\n') != -1)
 	    return QSize(-1, -1);
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricRadioButtonHeight));
-	else 
+	else
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallRadioButtonHeight));
 #else
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, 18);
-	else 
+	else
 	    ret = QSize(-1, 15);
 #endif
     } else if(ct == QStyle::CT_CheckBox) {
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricCheckBoxHeight));
-	else 
+	else
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallCheckBoxHeight));
 #else
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, 18);
-	else 
+	else
 	    ret = QSize(-1, 16);
 #endif
 #endif
@@ -565,7 +565,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
 	if(QApplication::reverseLayout())
 	    dir = kThemeGrowLeft | kThemeGrowDown;
-	if(GetThemeStandaloneGrowBoxBounds(p, dir, sz != QAquaSizeSmall, &r) == noErr) 
+	if(GetThemeStandaloneGrowBoxBounds(p, dir, sz != QAquaSizeSmall, &r) == noErr)
 	    ret = QSize(r.right - r.left, r.bottom - r.top);
 #else
 	if(sz == QAquaSizeLarge)
@@ -577,12 +577,12 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight)+1);
-	else 
+	else
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight)+1);
 #else
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, 20);
-	else 
+	else
 	    ret = QSize(-1, 17);
 #endif
     } else if(ct == QStyle::CT_ToolButton && sz == QAquaSizeSmall) {
@@ -591,7 +591,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    QToolButton *bt = (QToolButton*)widg;
 	    if(!bt->iconSet().isNull()) {
 		QIconSet::Size sz = QIconSet::Small;
-		if(bt->usesBigPixmap()) 
+		if(bt->usesBigPixmap())
 		    sz = QIconSet::Large;
 		QSize iconSize = QIconSet::iconSize(sz);
 		QPixmap pm = bt->iconSet().pixmap(sz, QIconSet::Normal);
@@ -623,21 +623,21 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	if(sz == QAquaSizeLarge) {
 	    if(sld->orientation() == Qt::Horizontal) {
 		w = qt_mac_aqua_get_metric(kThemeMetricHSliderHeight);
-		if(sld->tickmarks() != QSlider::NoMarks) 
+		if(sld->tickmarks() != QSlider::NoMarks)
 		    w += qt_mac_aqua_get_metric(kThemeMetricHSliderTickHeight);
 	    } else {
 		w = qt_mac_aqua_get_metric(kThemeMetricVSliderWidth);
-		if(sld->tickmarks() != QSlider::NoMarks) 
+		if(sld->tickmarks() != QSlider::NoMarks)
 		    w += qt_mac_aqua_get_metric(kThemeMetricVSliderTickWidth);
 	    }
 	} else {
 	    if(sld->orientation() == Qt::Horizontal) {
 		w = qt_mac_aqua_get_metric(kThemeMetricSmallHSliderHeight);
-		if(sld->tickmarks() != QSlider::NoMarks) 
+		if(sld->tickmarks() != QSlider::NoMarks)
 		    w += qt_mac_aqua_get_metric(kThemeMetricSmallHSliderTickHeight);
 	    } else {
 		w = qt_mac_aqua_get_metric(kThemeMetricSmallVSliderWidth);
-		if(sld->tickmarks() != QSlider::NoMarks) 
+		if(sld->tickmarks() != QSlider::NoMarks)
 		    w += qt_mac_aqua_get_metric(kThemeMetricSmallVSliderTickWidth);
 	    }
 	}
@@ -645,16 +645,16 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	if(sld->tickmarks() == QSlider::NoMarks) {
 	    if(sz == QAquaSizeLarge)
 		w = 18;
-	    else 
+	    else
 		w = 16;
 	} else {
 	    if(sz == QAquaSizeLarge)
 		w = 25;
-	    else 
+	    else
 		w = 18;
 	}
 #endif
-	if(sld->orientation() == Qt::Horizontal) 
+	if(sld->orientation() == Qt::Horizontal)
 	    ret.setHeight(w);
 	else
 	    ret.setWidth(w);
@@ -662,12 +662,12 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricLargeProgressBarThickness));
-	else 
+	else
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricNormalProgressBarThickness));
 #else
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, 16);
-	else 
+	else
 	    ret = QSize(-1, 10);
 #endif
     } else if(ct == QStyle::CT_LineEdit) {
@@ -675,7 +675,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    //should I take into account the font dimentions of the lineedit? -Sam
 	    if(sz == QAquaSizeLarge)
 		ret = QSize(-1, 22);
-	    else 
+	    else
 		ret = QSize(-1, 19);
 	}
     }
@@ -694,14 +694,14 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     return ret;
 }
 #endif
-QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType ct, 
+QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType ct,
 				       QSize szHint, QSize *insz)
 {
 #if defined(QMAC_QAQUASTYLE_SIZE_CONSTRAIN) || defined(DEBUG_SIZE_CONSTRAINT)
     if(!widg) {
 	if(insz)
 	    *insz = QSize();
-	if(getenv("QWIDGET_ALL_SMALL")) 
+	if(getenv("QWIDGET_ALL_SMALL"))
 	    return QAquaSizeSmall;
 	return QAquaSizeUnknown;
     }
@@ -738,8 +738,8 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
 	    size_desc = "Small";
 	else if(sz == &large)
 	    size_desc = "Large";
-	qDebug("%s - %s: %s taken (%d, %d) [ %d, %d ]", widg ? widg->name() : "*Unknown*", 
-	       widg ? widg->className() : "*Unknown*", size_desc, widg->width(), widg->height(), 
+	qDebug("%s - %s: %s taken (%d, %d) [ %d, %d ]", widg ? widg->name() : "*Unknown*",
+	       widg ? widg->className() : "*Unknown*", size_desc, widg->width(), widg->height(),
 	       sz->width(), sz->height());
     }
 #endif

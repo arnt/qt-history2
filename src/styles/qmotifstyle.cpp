@@ -286,7 +286,6 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    bool down = flags & Style_Down;
 	    bool showUp = !(down ^ on );
 	    QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
-	    p->eraseRect( r );
 	    p->setPen( NoPen );
 	    p->setBrush( showUp ? pal.brush( QPalette::Button ) :
 			 pal.brush( QPalette::Mid ) );

@@ -133,7 +133,7 @@ public:
 #endif
 	fg_role(QPalette::Foreground),
 	bg_role(QPalette::Background)
-	{high_attributes[0] = 0;}
+    {high_attributes[0] = 0;}
     ~QWidgetPrivate();
 
     QWExtra	*extraData() const;
@@ -155,7 +155,10 @@ public:
     void updateInheritedBackground(bool force = false);
     void updatePropagatedBackground();
 
+#if !defined(Q_WS_X11)
+    // ### remove on other platforms
     void erase_helper(const QRegion &);
+#endif
 
 #if defined(Q_WS_X11)
     void createInputContext();

@@ -616,29 +616,10 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
-void QWidget::repaint(int x, int y, int w, int h)
-{
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible && isVisible() ) {
-	if ( w < 0 )
-	    w = crect.width()  - x;
-	if ( h < 0 )
-	    h = crect.height() - y;
-	QRect r(x,y,w,h);
-	if ( r.isEmpty() )
-	    return; // nothing to do
-	if (!testAttribute(WA_NoAutoErase))
-	    erase(x,y,w,h);
-	QPaintEvent e( r );
-	qt_set_paintevent_clipping( this, r );
-	QApplication::sendSpontaneousEvent( this, &e );
-	qt_clear_paintevent_clipping();
-    }
-}
-
 void QWidget::repaint( const QRegion& reg )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible && isVisible() ) {
-	if (!testAttribute(WA_NoAutoErase))
+	if (!testAttribute(WA_NoBackground))
 	    erase(reg);
 	QPaintEvent e( reg );
 	qt_set_paintevent_clipping( this, reg );
@@ -1107,7 +1088,7 @@ void QWidget::setBaseSize( int basew, int baseh )
     }
 }
 
-void QWidgetPrivate::erase_helper( const QRegion& rgn )
+void QWidgetPrivate::erase_helper(const QRegion &rgn, const QPoint &dboff)
 {
     QPoint offset;
     QStack<QWidget*> parents;

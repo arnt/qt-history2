@@ -235,7 +235,7 @@ void QToolBoxButton::drawButton( QPainter *p )
     const QColor* fill = 0;
     if ( selected &&
 	 style().styleHint( QStyle::SH_ToolBox_SelectedPageTitleBold ) &&
-	 !tb->testAttribute(WA_NoErase))
+	 !tb->testAttribute(WA_NoSystemBackground))
 	fill = &pal.color( foregroundRole() );
 
     style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, pal,

@@ -125,34 +125,34 @@ QSGIStyle::polish( QApplication* app)
     // darker basecolor in list-widgets
     pal.setColor( QPalette::Base, pal.color(QPalette::Active, QPalette::Base).dark(130) );
     if (! useHighlightColors() ) {
-        pal.setColor( QPalette::Active, QPalette::Highlight, 
+        pal.setColor( QPalette::Active, QPalette::Highlight,
 		      pal.color(QPalette::Active, QPalette::Text));
-        pal.setColor( QPalette::Active, QPalette::HighlightedText, 
+        pal.setColor( QPalette::Active, QPalette::HighlightedText,
 		      pal.color(QPalette::Active, QPalette::Base));
-        pal.setColor( QPalette::Inactive, QPalette::Highlight, 
+        pal.setColor( QPalette::Inactive, QPalette::Highlight,
 		      pal.color(QPalette::Inactive, QPalette::Text));
-        pal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+        pal.setColor( QPalette::Inactive, QPalette::HighlightedText,
 		      pal.color(QPalette::Inactive, QPalette::Base));
-        pal.setColor( QPalette::Disabled, QPalette::Highlight, 
+        pal.setColor( QPalette::Disabled, QPalette::Highlight,
 		      pal.color(QPalette::Disabled, QPalette::Text));
-        pal.setColor( QPalette::Disabled, QPalette::HighlightedText, 
+        pal.setColor( QPalette::Disabled, QPalette::HighlightedText,
 		      pal.color(QPalette::Disabled, QPalette::Base));
     }
     QApplication::setPalette( pal, TRUE );
 
     // different basecolor and highlighting in Q(Multi)LineEdit
     pal.setColor( QPalette::Base, QColor(211,181,181) );
-    pal.setColor( QPalette::Active, QPalette::Highlight, 
+    pal.setColor( QPalette::Active, QPalette::Highlight,
 		  pal.color(QPalette::Active, QPalette::Midlight));
-    pal.setColor( QPalette::Active, QPalette::HighlightedText, 
+    pal.setColor( QPalette::Active, QPalette::HighlightedText,
 		  pal.color(QPalette::Active, QPalette::Text));
-    pal.setColor( QPalette::Inactive, QPalette::Highlight, 
+    pal.setColor( QPalette::Inactive, QPalette::Highlight,
 		  pal.color(QPalette::Inactive, QPalette::Midlight));
-    pal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+    pal.setColor( QPalette::Inactive, QPalette::HighlightedText,
 		  pal.color(QPalette::Inactive, QPalette::Text));
-    pal.setColor( QPalette::Disabled, QPalette::Highlight, 
+    pal.setColor( QPalette::Disabled, QPalette::Highlight,
 		  pal.color(QPalette::Disabled, QPalette::Midlight));
-    pal.setColor( QPalette::Disabled, QPalette::HighlightedText, 
+    pal.setColor( QPalette::Disabled, QPalette::HighlightedText,
 		  pal.color(QPalette::Disabled, QPalette::Text));
 
     QApplication::setPalette( pal, TRUE, "QLineEdit" );
@@ -190,39 +190,39 @@ QSGIStyle::polish( QWidget* w )
         QPalette sgiPal = QApplication::palette();
 
         sgiPal.setColor( QPalette::Background, sgiPal.color(QPalette::Active, QPalette::Midlight ));
-        if (sgiPal.brush(QPalette::Active, QPalette::Button) == 
+        if (sgiPal.brush(QPalette::Active, QPalette::Button) ==
 	    sgiPal.brush(QPalette::Active, QPalette::Background))
             sgiPal.setColor( QPalette::Button, sgiPal.color(QPalette::Active, QPalette::Button).dark(110) );
         sgiPal.setColor( QPalette::Base, sgiPal.color(QPalette::Active, QPalette::Base).dark(130) );
         if (! useHighlightColors() ) {
-            sgiPal.setColor( QPalette::Active, QPalette::Highlight, 
+            sgiPal.setColor( QPalette::Active, QPalette::Highlight,
 			     sgiPal.color(QPalette::Active, QPalette::Text));
-            sgiPal.setColor( QPalette::Active, QPalette::HighlightedText, 
+            sgiPal.setColor( QPalette::Active, QPalette::HighlightedText,
 			     sgiPal.color(QPalette::Active, QPalette::Base));
-            sgiPal.setColor( QPalette::Inactive, QPalette::Highlight, 
+            sgiPal.setColor( QPalette::Inactive, QPalette::Highlight,
 			     sgiPal.color(QPalette::Inactive, QPalette::Text));
-            sgiPal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+            sgiPal.setColor( QPalette::Inactive, QPalette::HighlightedText,
 			     sgiPal.color(QPalette::Inactive, QPalette::Base));
-            sgiPal.setColor( QPalette::Disabled, QPalette::Highlight, 
+            sgiPal.setColor( QPalette::Disabled, QPalette::Highlight,
 			     sgiPal.color(QPalette::Disabled, QPalette::Text));
-            sgiPal.setColor( QPalette::Disabled, QPalette::HighlightedText, 
+            sgiPal.setColor( QPalette::Disabled, QPalette::HighlightedText,
 			     sgiPal.color(QPalette::Disabled, QPalette::Base));
         }
 
         if ( qt_cast<QLineEdit*>(w) || qt_cast<QTextEdit*>(w) ) {
             // different basecolor and highlighting in Q(Multi)LineEdit
             sgiPal.setColor( QPalette::Base, QColor(211,181,181) );
-            sgiPal.setColor( QPalette::Active, QPalette::Highlight, 
+            sgiPal.setColor( QPalette::Active, QPalette::Highlight,
 			     sgiPal.color(QPalette::Active, QPalette::Midlight));
-            sgiPal.setColor( QPalette::Active, QPalette::HighlightedText, 
+            sgiPal.setColor( QPalette::Active, QPalette::HighlightedText,
 			     sgiPal.color(QPalette::Active, QPalette::Text));
-            sgiPal.setColor( QPalette::Inactive, QPalette::Highlight, 
+            sgiPal.setColor( QPalette::Inactive, QPalette::Highlight,
 			     sgiPal.color(QPalette::Inactive, QPalette::Midlight));
-            sgiPal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+            sgiPal.setColor( QPalette::Inactive, QPalette::HighlightedText,
 			     sgiPal.color(QPalette::Inactive, QPalette::Text));
-            sgiPal.setColor( QPalette::Disabled, QPalette::Highlight, 
+            sgiPal.setColor( QPalette::Disabled, QPalette::Highlight,
 			     sgiPal.color(QPalette::Disabled, QPalette::Midlight));
-            sgiPal.setColor( QPalette::Disabled, QPalette::HighlightedText, 
+            sgiPal.setColor( QPalette::Disabled, QPalette::HighlightedText,
 			     sgiPal.color(QPalette::Disabled, QPalette::Text));
         } else if ( qt_cast<QMenuBar*>(w) || qt_cast<QToolBar*>(w) ) {
             sgiPal.setColor( QPalette::Button, sgiPal.color(QPalette::Active, QPalette::Midlight));
@@ -236,7 +236,7 @@ QSGIStyle::polish( QWidget* w )
         w->setMouseTracking( TRUE );
 #ifndef QT_NO_SCROLLBAR
         if ( qt_cast<QScrollBar*>(w) )
-            w->setAttribute(QWidget::WA_NoErase, true);
+            w->setAttribute(QWidget::WA_NoSystemBackground, true);
 #endif
     } else if ( qt_cast<QComboBox*>(w) ) {
 	QFont f = QApplication::font();
@@ -715,7 +715,6 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ExclusiveIndicator:
 	{
 	    p->save();
-	    p->eraseRect( x, y, w, h );
 	    p->translate( x, y );
 
 	    p->setPen( pal.button() );

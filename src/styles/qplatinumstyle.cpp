@@ -516,7 +516,6 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    int x, y;
 	    x = r.x();
 	    y = r.y();
-	    p->eraseRect( r );
 	    p->setBrush( (down||on) ? pal.brush( QPalette::Dark )
 			 : pal.brush( QPalette::Button) );
 	    p->setPen( NoPen );

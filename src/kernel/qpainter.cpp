@@ -1512,8 +1512,11 @@ void QPainter::resetXForm()
     wxmat = QWMatrix();
     setWorldXForm( FALSE );
     setViewXForm( FALSE );
-    if (!redirection_offset.isNull())
-	translate(-redirection_offset.x(), -redirection_offset.y());
+
+    if (!redirection_offset.isNull()) {
+	txop = TxTranslate;
+	setf(WxF, true);
+    }
 }
 
 /*!
@@ -1556,6 +1559,11 @@ void QPainter::updateXForm()
 #endif
     }
     setBrushOrigin( bro.x(), bro.y() );
+
+    if (!redirection_offset.isNull()) {
+	txop |= TxTranslate;
+	setf(WxF, true);
+    }
 }
 
 
@@ -1590,8 +1598,11 @@ void QPainter::resetXForm()
     xlatex = 0;
     xlatey = 0;
     clearf( VxF );
-    if (!redirection_offset.isNull())
-	translate(-redirection_offset.x(), -redirection_offset.y());
+
+    if (!redirection_offset.isNull()) {
+	txop = TxTranslate;
+	setf(WxF, true);
+    }
 }
 #endif // QT_NO_TRANSFORMATIONS
 
@@ -1653,6 +1664,9 @@ void QPainter::map( int x, int y, int *rx, int *ry ) const
     *rx = x + xlatex;
     *ry = y + xlatey;
 #endif
+
+    *rx -= redirection_offset.x();
+    *ry -= redirection_offset.y();
 }
 
 /*!
@@ -1718,6 +1732,9 @@ void QPainter::map( int x, int y, int w, int h,
     *ry = y + xlatey;
     *rw = w;  *rh = h;
 #endif
+
+    *rx -= redirection_offset.x();
+    *ry -= redirection_offset.y();
 }
 
 /*!
@@ -1795,7 +1812,7 @@ QPoint QPainter::xForm( const QPoint &pv ) const
 	return pv;
     int x=pv.x(), y=pv.y();
     map( x, y, &x, &y );
-    return QPoint( x, y );
+    return QPoint( x, y ) + redirection_offset;
 #else
     return QPoint( pv.x()+xlatex, pv.y()+xlatey );
 #endif
@@ -1825,7 +1842,7 @@ QRect QPainter::xForm( const QRect &rv ) const
     int x, y, w, h;
     rv.rect( &x, &y, &w, &h );
     map( x, y, w, h, &x, &y, &w, &h );
-    return QRect( x, y, w, h );
+    return QRect( x + redirection_offset.x(), y + redirection_offset.y(), w, h );
 #else
     return QRect( rv.x()+xlatex, rv.y()+xlatey, rv.width(), rv.height() );
 #endif

@@ -767,36 +767,6 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
-
-void QWidget::repaint( int x, int y, int w, int h)
-{
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	if ( w < 0 )
-	    w = crect.width()  - x;
-	if ( h < 0 )
-	    h = crect.height() - y;
-	QRect r(x,y,w,h);
-	if ( r.isEmpty() )
-	    return; // nothing to do
-	QRegion reg = r;
-	if ( reg.handle() ) {
-#ifndef Q_OS_TEMP
-	    ValidateRgn( winId(), reg.handle() );
-#else
-	    RECT r = { x, y, w, h };
-	    ValidateRect( winId(), &r );
-#endif
-	}
-	QPaintEvent e( r );
-	if ( r != rect() )
-	    qt_set_paintevent_clipping( this, r );
-	if (!testAttribute(WA_NoAutoErase))
-	    erase( x, y, w, h );
-	QApplication::sendSpontaneousEvent( this, &e );
-	qt_clear_paintevent_clipping();
-    }
-}
-
 void QWidget::repaint( const QRegion& rgn )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
@@ -814,7 +784,7 @@ void QWidget::repaint( const QRegion& rgn )
 #endif
 	QPaintEvent e( rgn );
 	qt_set_paintevent_clipping( this, rgn );
-	if (!testAttribute(WA_NoAutoErase))
+	if (!testAttribute(WA_NoBackground))
 	    erase( rgn );
 	QApplication::sendSpontaneousEvent( this, &e );
 	qt_clear_paintevent_clipping();
@@ -1280,7 +1250,7 @@ void QWidget::setBaseSize( int w, int h )
 
 extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, int );
 
-void QWidgetPrivate::erase_helper( const QRegion& rgn )
+void QWidgetPrivate::erase_helper(const QRegion &rgn, const QPoint &dboff)
 {
     bool tmphdc = !q->hdc;
     HDC lhdc = tmphdc ? GetDC(q->winId()) : q->hdc;
@@ -1333,7 +1303,7 @@ void QWidget::scroll( int dx, int dy )
     if ( testWState( WState_BlockUpdates ) && !children() )
 	return;
     UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
-    if (!testAttribute(WA_NoAutoErase))
+    if (!testAttribute(WA_NoBackground))
 	flags |= SW_ERASE;
 
     ScrollWindowEx( winId(), dx, dy, 0, 0, 0, 0, flags );
@@ -1345,7 +1315,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     if ( testWState( WState_BlockUpdates ) )
 	return;
     UINT flags = SW_INVALIDATE;
-    if (!testAttribute(WA_NoAutoErase))
+    if (!testAttribute(WA_NoBackground))
 	flags |= SW_ERASE;
 
     RECT wr;

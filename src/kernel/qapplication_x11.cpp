@@ -5384,14 +5384,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	    return TRUE;
     }
 
-    if (d->isTransparent())
-	erase(paintRegion);
-    QPaintEvent e( paintRegion );
-    setWState( WState_InPaintEvent );
-    qt_set_paintevent_clipping( this, paintRegion );
-    QApplication::sendSpontaneousEvent( this, &e );
-    qt_clear_paintevent_clipping();
-    clearWState( WState_InPaintEvent );
+    repaint(paintRegion);
     return TRUE;
 }
 
@@ -5504,12 +5497,11 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    ;
     }
 
-    bool transbg = d->isTransparent();
     // we ignore NorthWestGravity at the moment for reversed layout
-    if ( transbg ||
-	 (!testAttribute(WA_StaticContents) &&
-	  testWState( WState_Exposed ) && was_resize ) ||
-	 QApplication::reverseLayout() ) {
+    if (testWState(WState_Exposed) &&
+	(d->isTransparent()
+	 || (!testAttribute(WA_StaticContents) && was_resize)
+	 || QApplication::reverseLayout())) {
 	// remove unnecessary paint events from the queue
 	XEvent xevent;
 	while ( XCheckTypedWindowEvent( x11Display(), winId(), Expose, &xevent ) &&

@@ -560,7 +560,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	    reg.translate(-px.h, -px.v);
 	}
 	//Clear a nobackground widget to make it transparent
-	if(!widget->testAttribute(QWidget::WA_NoErase)) {
+	if(!widget->testAttribute(QWidget::WA_NoSystemBackground)) {
 	    CGContextRef ctx;
 	    CGRect r2 = CGRectMake(0, 0, widget->width(), widget->height());
 	    CreateCGContextForPort(GetWindowPort((WindowPtr)widget->handle()), &ctx);
@@ -1331,24 +1331,12 @@ void QWidget::update(const QRegion &rgn)
     }
 }
 
-void QWidget::repaint(int x, int y, int w, int h)
-{
-    if(w < 0)
-	w = crect.width()  - x;
-    if(h < 0)
-	h = crect.height() - y;
-    QRect r(x,y,w,h);
-    if(r.isEmpty())
-	return; // nothing to do
-    repaint(QRegion(r)); //general function..
-}
-
 void QWidget::repaint(const QRegion &reg)
 {
     if(!testWState(WState_BlockUpdates) && isVisible()) {
 	setWState(WState_InPaintEvent);
 	qt_set_paintevent_clipping(this, reg, NULL);
-	if (!testAttribute(WA_NoAutoErase))
+	if (!testAttribute(WA_NoBackground))
 	    erase(reg);
 	QPaintEvent e(reg);
 	QApplication::sendSpontaneousEvent(this, &e);
@@ -1803,7 +1791,7 @@ void QWidget::setBaseSize(int w, int h)
     d->topData()->baseh = h;
 }
 
-void QWidgetPrivate::erase_helper(const QRegion& rgn)
+void QWidgetPrivate::erase_helper(const QRegion &rgn, const QPoint &dboff)
 {
     QPoint offset;
     QStack<QWidget*> parents;

@@ -277,7 +277,6 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		ir.setWidth(r.height());
 	    }
 
-	    p->eraseRect(ir);
 	    bool down = flags & Style_Down;
 	    bool enabled = flags & Style_Enabled;
 	    bool on = flags & Style_On;

@@ -2545,10 +2545,10 @@ void QListViewItem::ignoreDoubleClick()
     parent.
 
     Performance is boosted by setting both the \c WA_StaticContent and
-    the \c WA_NoAutoErase attribute so that only part of the
+    the \c WA_NoBackground attribute so that only part of the
     QListViewItem children is redrawn. This may be unsuitable for
     custom QListViewItem classes, in which case \c WA_StaticContents
-    and \c WA_NoAutoErase should be cleared on the viewport() after
+    and \c WA_NoBackground should be cleared on the viewport() after
     construction.
 
     \sa QWidget::setAttribute()

@@ -146,8 +146,6 @@ QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
     connect( parent, SIGNAL(orientationChanged(Orientation)),
 	     this, SLOT(setOrientation(Orientation)) );
     setOrientation( o );
-    setBackgroundMode( parent->backgroundMode() );
-    setBackgroundOrigin( ParentOrigin );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 }
 

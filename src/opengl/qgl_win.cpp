@@ -891,7 +891,7 @@ void QGLWidget::init( QGLContext *ctx, const QGLWidget* shareWidget )
     } else {
 	setContext( ctx );
     }
-    setAttribute(WA_NoErase, true);
+    setAttribute(WA_NoSystemBackground, true);
 
     if ( isValid() && context()->format().hasOverlay() ) {
 	olcx = new QGLContext( QGLFormat::defaultOverlayFormat(), this );
