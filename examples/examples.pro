@@ -18,6 +18,7 @@ SUBDIRS     =	aclock \
 		life \
 		lineedits \
 		listbox_combo \
+        listbox \
 		listviews \
 		menu \
 		movies \

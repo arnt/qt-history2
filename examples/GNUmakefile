@@ -27,6 +27,7 @@ SUBDIRS =	aclock \
 		layout \
 		life \
 		lineedits \
+		listbox \
 		listbox_combo \
 		listviews \
 		menu \
@@ -47,7 +48,6 @@ SUBDIRS =	aclock \
 		rot13 \
 		scribble \
 		scrollview \
-		sheet \
 		showimg \
 		splitter \
 		tabdialog \
