@@ -3177,9 +3177,8 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 				 QTextString::Char *startChar, QTextString::Char *lastChar )
 {
     int start = (startChar - &text->at(0));
-    int last = (lastChar - &text->at(0) - 2);
+    int last = (lastChar - &text->at(0) );
     //printf("doing BiDi reordering from %d to %d!\n", start, last);
-    int len = last - start -1;
 
     QList<QTextBidiRun> runs;
     runs.setAutoDelete(TRUE);
@@ -3203,7 +3202,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
     int eor = start;
 
     int current = start;
-    while(current < start + len - 1) {
+    while(current < last) {
 	QChar::Direction dirCurrent;
 	if(current == text->length()) {
 	    QTextBidiContext *c = context;
@@ -3932,7 +3931,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		y += h;
 		tmph = c->height();
 		h = tmph;
-		lineStart = formatLine( parag->string(), lineStart, firstChar, c-1 );
+		lineStart = formatLine( parag->string(), lineStart, firstChar, parag->at( lastSpace ) );
 		lineStart->y = y;
 		parag->lineStartList().insert( i + 1, lineStart );
 		lineStart->baseLine = c->ascent();
