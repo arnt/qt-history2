@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qintdict.doc,v 1.1 1995/12/20 22:01:55 hanord Exp $
+** $Id: qintdict.doc,v 1.2 1995/12/21 21:12:19 hanord Exp $
 **
 ** QIntDict and QIntDictIterator class documentation
 **
@@ -82,9 +82,9 @@
   into a dictionary.
 
   The size of the hash array is very important. In order to get good
-  performance, you should use a suitably large prime number.
-  Suitable means equal to or larger than the maximum expected number
-  of dictionary items.
+  performance, you should use a suitably large \link primes.html prime
+  number\endlink.  Suitable means equal to or larger than the maximum
+  expected number of dictionary items.
 
   Items with equal keys are allowed.  When inserting two items with the
   same key, only the last inserted item will be visible (last in, first out)
@@ -143,9 +143,9 @@
   Constructs a dictionary using an internal hash array with the size
   \e size.
 
-  Setting \e size to a suitably large prime number (equal to or greater than
-  the expected number of entries) makes the hash distribution better and hence
-  the loopup faster.
+  Setting \e size to a suitably large \link primes.html prime number\endlink
+  (equal to or greater than the expected number of entries) makes the hash
+  distribution better and hence the loopup faster.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
