@@ -791,8 +791,7 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
         return;
     }
 
-    QTextStream t( &f );
-    QXmlInputSource in( t );
+    QXmlInputSource in( &f );
     QXmlSimpleReader reader;
     reader.setFeature( "http://xml.org/sax/features/namespaces", false );
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
