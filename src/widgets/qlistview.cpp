@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#260 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#261 $
 **
 ** Implementation of QListView widget class
 **
@@ -960,7 +960,7 @@ void QListViewItem::setSelected( bool s )
   children.  This height is recomputed lazily and cached for as long
   as possible.
 
-  setOwnHeight() can be used to set the item's own height, setOpen()
+  setHeight() can be used to set the item's own height, setOpen()
   to show or hide its children, and invalidateHeight() to invalidate
   the cached height.
 
