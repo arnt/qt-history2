@@ -26,13 +26,13 @@ public:
     QTextTableManager(QTextPieceTable *table);
     ~QTextTableManager();
 
-    QTextTable *table(int tableIdx) const;
+    QTextTable *table(QTextFormatGroup *group) const;
     QTextTable *tableAt(int) const;
     QTextTable *createTable(const QTextCursor &cursor, int rows, int cols, const QTextTableFormat &format);
 
     QTextPieceTable *pieceTable() { return pt; }
 
-    QVector<QTextPieceTable::BlockIterator> blocksForObject(int tableIdx) const;
+    QVector<QTextPieceTable::BlockIterator> blocksForObject(QTextFormatGroup *group) const;
 
 private slots:
     void blockChanged(int blockPosition, QText::ChangeOperation op);
@@ -40,7 +40,7 @@ private slots:
 
 private:
     QTextPieceTable *pt;
-    typedef QHash<int, QTextTable *> TableHash;
+    typedef QHash<QTextFormatGroup *, QTextTable *> TableHash;
     TableHash tables;
 
 #if defined(Q_DISABLE_COPY)

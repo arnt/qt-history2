@@ -18,7 +18,7 @@ public:
 
     void appendBlock(const QTextPieceTable::BlockIterator &block);
 
-    int listFormatIndex() const;
+    QTextFormatGroup *group() const;
 
     void removeAllFormatIndicesFromBlocks();
 
@@ -43,11 +43,11 @@ private:
 };
 
 template <class Manager>
-class QTextFormatReferenceChangeCommand : public QAbstractUndoItem
+class QTextFormatGroupChangeCommand : public QAbstractUndoItem
 {
 public:
-    QTextFormatReferenceChangeCommand(Manager *_manager, int _objectId, int _reference, const QTextFormat &newFormat)
-	: manager(_manager), objectId(_objectId), reference(_reference), format(newFormat)
+    QTextFormatGroupChangeCommand(Manager *_manager, QTextFormatGroup *g, const QTextFormat &newFormat)
+	: manager(_manager), group(g), format(newFormat)
     {}
 
     virtual void undo()
@@ -57,11 +57,13 @@ public:
 
 	QTextPieceTable *pt = manager->pieceTable();
 
-	format = pt->formatCollection()->updateReferenceIndex(reference, format);
+	QTextFormat oldFormat = group->commonFormat();
+	group->setCommonFormat(format);
+	format = oldFormat;
 
 	QAbstractTextDocumentLayout *layout = pt->layout();
 
-	QVector<QTextPieceTable::BlockIterator> affectedBlocks = manager->blocksForObject(objectId);
+	QVector<QTextPieceTable::BlockIterator> affectedBlocks = manager->blocksForObject(group);
 	for (int i = 0; i < affectedBlocks.size(); ++i) {
 	    const QTextPieceTable::BlockIterator &block = affectedBlocks.at(i);
 	    int start = block.start();
@@ -76,7 +78,7 @@ public:
 private:
     QPointer<Manager> manager;
     int objectId;
-    int reference;
+    QTextFormatGroup *group;
     QTextFormat format;
 };
 

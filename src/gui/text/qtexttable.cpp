@@ -401,12 +401,11 @@ void QTextTable::setFormat(const QTextTableFormat &format)
 {
     if (d->isEmpty())
 	return;
-    int ref = cellAt(0, 0).start().blockFormat().tableFormatIndex();
-    Q_ASSERT(ref != -1);
+    QTextFormatGroup *group = cellAt(0, 0).start().blockFormat().group();
+    Q_ASSERT(group);
 
-    int tblIdx = cellAt(0, 0).start().blockFormat().tableFormatIndex();
     QAbstractUndoItem *cmd =
-	new QTextFormatReferenceChangeCommand<QTextTableManager>(d->pieceTable->tableManager(), tblIdx, ref, format);
+	new QTextFormatGroupChangeCommand<QTextTableManager>(d->pieceTable->tableManager(), group, format);
     cmd->redo();
     d->pieceTable->appendUndoItem(cmd);
 }
@@ -418,6 +417,6 @@ QTextTableFormat QTextTable::format() const
 {
     if (d->isEmpty())
 	return QTextTableFormat();
-    return d->pieceTable->formatCollection()->tableFormat(cellAt(0, 0).start().blockFormat().tableFormatIndex());
+    return cellAt(0, 0).start().blockFormat().tableFormat();
 }
 

@@ -22,14 +22,14 @@ int QTextListPrivate::itemNumber(const QTextPieceTable::BlockIterator &block) co
     return res + 1;
 }
 
-int QTextListPrivate::listFormatIndex() const
+QTextFormatGroup *QTextListPrivate::group() const
 {
     if (blocks.isEmpty())
-	return -1;
+	return 0;
 
     QTextPieceTable::BlockIterator block = blocks.first();
     Q_ASSERT(!block.atEnd());
-    return block.blockFormat().listFormatIndex();
+    return block.blockFormat().group();
 }
 
 void QTextListPrivate::removeAllFormatIndicesFromBlocks()
@@ -49,7 +49,7 @@ void QTextListPrivate::removeAllFormatIndicesFromBlocks()
 	Q_ASSERT(!it.atEnd());
 
 	QTextBlockFormat fmt = it.blockFormat();
-	fmt.setListFormatIndex(-1);
+	fmt.setGroup(0);
 	it.setBlockFormat(fmt);
     }
 
@@ -107,11 +107,11 @@ QTextCursor QTextList::item(int i) const
 */
 void QTextList::setFormat(const QTextListFormat &format)
 {
-    int ref = d->listFormatIndex();
-    if (ref == -1)
+    QTextFormatGroup *group = d->group();
+    if (!group)
 	return;
 
-    QAbstractUndoItem *cmd = new QTextFormatReferenceChangeCommand<QTextListManager>(tbl->listManager(), d->listFormatIndex(), ref, format);
+    QAbstractUndoItem *cmd = new QTextFormatGroupChangeCommand<QTextListManager>(tbl->listManager(), group, format);
     cmd->redo();
     tbl->appendUndoItem(cmd);
 }
@@ -121,7 +121,7 @@ void QTextList::setFormat(const QTextListFormat &format)
 */
 QTextListFormat QTextList::format() const
 {
-    return tbl->formatCollection()->listFormat(d->listFormatIndex());
+    return d->group()->commonFormat().toListFormat();
 }
 
 QTextListItem::QTextListItem(QTextList *_list, int _item)
@@ -138,11 +138,9 @@ QTextListItem::QTextListItem(const QTextPieceTable::BlockIterator &block)
     const QTextPieceTable *table = block.pieceTable();
     Q_ASSERT(table);
 
-    int listIdx = block.blockFormat().listFormatIndex();
-    if (listIdx == -1)
-	return;
+    QTextFormatGroup *group = block.blockFormat().group();
 
-    list = table->listManager()->list(listIdx);
+    list = table->listManager()->list(group);
     Q_ASSERT(list);
     item = list->d->itemNumber(block);
 }
@@ -157,14 +155,9 @@ QString QTextListItem::text() const
 	return QString::null;
 
     QTextBlockFormat blockFormat = block.blockFormat();
-    int listIdx = blockFormat.listFormatIndex();
-    if (listIdx == -1)
+    QTextListFormat listFmt = blockFormat.listFormat();
+    if (!listFmt.isValid())
 	return QString::null;
-
-    const QTextPieceTable *table = block.pieceTable();
-    Q_ASSERT(table);
-
-    QTextListFormat listFmt = table->formatCollection()->listFormat(listIdx);
 
     QString result;
 

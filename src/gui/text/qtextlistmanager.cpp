@@ -19,15 +19,15 @@ QTextListManager::~QTextListManager()
 {
 }
 
-QTextList *QTextListManager::list(int listIdx) const
+QTextList *QTextListManager::list(QTextFormatGroup *group) const
 {
-    return lists.value(listIdx);
+    return lists.value(group);
 }
 
-QVector<QTextPieceTable::BlockIterator> QTextListManager::blocksForObject(int listIdx) const
+QVector<QTextPieceTable::BlockIterator> QTextListManager::blocksForObject(QTextFormatGroup *group) const
 {
     QVector<QTextPieceTable::BlockIterator> blocks;
-    QTextList *l = list(listIdx);
+    QTextList *l = list(group);
     if (l)
 	blocks = l->d_func()->blocks;
     return blocks;
@@ -50,14 +50,14 @@ void QTextListManager::blockChanged(int blockPosition, QText::ChangeOperation op
     Q_ASSERT(table->formatCollection()->format(formatIdx).isBlockFormat());
 
     QTextBlockFormat blockFmt = table->formatCollection()->blockFormat(formatIdx);
-    int listIdx = blockFmt.listFormatIndex();
-    if (listIdx == -1)
+    QTextFormatGroup *group = blockFmt.group();
+    if (!group)
 	return;
 
     if (op == QText::Insert)
-	addListEntry(listIdx, blockIt);
+	addListEntry(group, blockIt);
     else
-	removeListEntry(listIdx, blockIt);
+	removeListEntry(group, blockIt);
 }
 
 void QTextListManager::formatChanged(int position, int length)
@@ -76,7 +76,7 @@ void QTextListManager::formatChanged(int position, int length)
     for (; blockIt != end; ++blockIt) {
 	// -1 for idx as we don't know the index anymore, as the old block format is
 	// already gone
-	removeListEntry(-1, blockIt);
+	removeListEntry(0, blockIt);
 
 	blockChanged(blockIt.key(), QText::Insert);
     }
@@ -98,19 +98,19 @@ void QTextListManager::listDestroyed(QObject *obj)
     }
 }
 
-void QTextListManager::removeListEntry(int listIdx, const QTextPieceTable::BlockIterator &blockIt)
+void QTextListManager::removeListEntry(QTextFormatGroup *group, const QTextPieceTable::BlockIterator &blockIt)
 {
-    if (listIdx == -1) {
+    if (!group) {
 	for (ListMap::ConstIterator it = lists.begin(); it != lists.end(); ++it)
 	    if (it.value()->d_func()->blocks.contains(blockIt)) {
-		listIdx = it.key();
+		group = it.key();
 		break;
 	    }
-	if (listIdx == -1)
+	if (!group)
 	    return;
     }
 
-    QTextList *list = lists.value(listIdx);
+    QTextList *list = lists.value(group);
     if (!list)
 	return;
     QTextListPrivate *d = list->d_func();
@@ -123,17 +123,17 @@ void QTextListManager::removeListEntry(int listIdx, const QTextPieceTable::Block
     }
 
     if (d->blocks.isEmpty()) {
-	lists.remove(listIdx);
+	lists.remove(group);
 	delete list;
     }
 }
 
-void QTextListManager::addListEntry(int listIdx, const QTextPieceTable::BlockIterator &blockIt)
+void QTextListManager::addListEntry(QTextFormatGroup *group, const QTextPieceTable::BlockIterator &blockIt)
 {
-    QTextList *list = lists.value(listIdx);
+    QTextList *list = lists.value(group);
     if (!list) {
 	list = new QTextList(table, this);
-	lists.insert(listIdx, list);
+	lists.insert(group, list);
 	connect(list, SIGNAL(destroyed(QObject*)), this, SLOT(listDestroyed(QObject*)));
     }
 

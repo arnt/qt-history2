@@ -809,8 +809,11 @@ void QTextCursor::insertBlock()
 	return;
 
     QTextBlockFormat bfmt = blockFormat();
-    bfmt.setTableFormatIndex(-1);
-    bfmt.setTableCellEndOfRow(false);
+    QTextTableFormat table = bfmt.tableFormat();
+    if (table.isValid()) {
+	bfmt.setGroup(0);
+	bfmt.setTableCellEndOfRow(false);
+    }
     d->insertBlock(bfmt);
 }
 
@@ -869,12 +872,13 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
     if (!d)
 	return 0;
 
-    int listIdx = d->pieceTable->formatCollection()->createReferenceIndex(format);
+    QTextFormatCollection *c = d->pieceTable->formatCollection();
+    QTextFormatGroup *group = c->createGroup(format);
     QTextBlockFormat modifier;
-    modifier.setListFormatIndex(listIdx);
+    modifier.setGroup(group);
     applyBlockFormatModifier(modifier);
 
-    QTextList *list = d->pieceTable->listManager()->list(listIdx);
+    QTextList *list = d->pieceTable->listManager()->list(group);
     Q_ASSERT(list);
     return list;
 }
@@ -905,7 +909,7 @@ QTextList *QTextCursor::currentList() const
     if (!d)
 	return 0;
 
-    return d->pieceTable->listManager()->list(blockFormat().listFormatIndex());
+    return d->pieceTable->listManager()->list(blockFormat().group());
 }
 
 int QTextCursor::listItemNumber() const

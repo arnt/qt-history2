@@ -41,8 +41,8 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextHtmlParser &pa
 
 	    const QTextHtmlParserNode &node = parser.at(propertyNode);
 	    int propId = node.propertyId;
-	    if (propId <= 0)
-		return;
+	    if (propId < 0)
+		continue;
 
 	    QString text = node.text;
 
@@ -61,8 +61,9 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextHtmlParser &pa
 		case QTextFormat::String:
 		    format.setProperty(propId, text);
 		    break;
-		case QTextFormat::FormatReference:
-		    format.setFormatReferenceProperty(propId, text.toInt());
+		case QTextFormat::FormatGroup:
+		    Q_ASSERT(propId == QTextFormat::GroupIndex);
+		    format.setGroupIndex(text.toInt());
 		    break;
 		default:
 		    Q_ASSERT(false);
@@ -103,20 +104,15 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollecti
     Q_FOREACH(int formatIdx, formatIndices) {
 	QTextFormat format = collection->format(formatIdx);
 
-	Q_FOREACH(int propId, format.allPropertyIds())
-	    if (format.propertyType(propId) == QTextFormat::FormatReference) {
-		int ref = format.formatReferenceProperty(propId);
+	QTextFormatGroup *group = format.group();
+	if (group) {
+	    QTextFormat groupFormat = group->commonFormat();
+	    Q_ASSERT(collection->hasFormatCached(groupFormat));
+	    int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(groupFormat);
 
-		if (ref == -1 || references.contains(ref))
-		    continue;
-
-		QTextFormat referencedFormat = collection->format(ref);
-		Q_ASSERT(collection->hasFormatCached(referencedFormat));
-		int referenceFormatIdx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(referencedFormat);
-
-		formats[referenceFormatIdx] = referencedFormat;
-		references[ref] = referenceFormatIdx;
-	    }
+	    formats[idx] = groupFormat;
+	    references[format.groupIndex()] = idx;
+	}
 
 	formats[formatIdx] = format;
     }
@@ -132,18 +128,17 @@ QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormat
     for (ReferenceMap::ConstIterator it = references.begin(); it != references.end(); ++it) {
 	QTextFormat format = formats[it.value()];
 
-	insertedReferences[it.key()] = collection->createReferenceIndex(format);
+	insertedReferences[it.key()] = collection->indexForGroup(collection->createGroup(format));
     }
 
     for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
 	QTextFormat format = it.value();
 
-	Q_FOREACH(int propId, format.allPropertyIds())
-	    if (format.propertyType(propId) == QTextFormat::FormatReference) {
-		int ref = format.formatReferenceProperty(propId);
-		ref = insertedReferences.value(ref, -1);
-		format.setFormatReferenceProperty(propId, ref);
-	    }
+	int groupIndex = format.groupIndex();
+	if (groupIndex != -1) {
+	    groupIndex = insertedReferences.value(groupIndex, -1);
+	    format.setGroupIndex(groupIndex);
+	}
 
 	formatIndexMap[it.key()] = collection->indexForFormat(format);
     }
@@ -182,8 +177,9 @@ void QTextFormatCollectionState::save(QTextStream &stream) const
 		    case QTextFormat::String:
 			stream << "String\">" << QStyleSheet::escape(format.stringProperty(propId));
 			break;
-		    case QTextFormat::FormatReference:
-			stream << "FormatReference\">" << format.formatReferenceProperty(propId);
+		    case QTextFormat::FormatGroup:
+			Q_ASSERT(propId == QTextFormat::GroupIndex);
+			stream << "FormatReference\">" << format.groupIndex();
 			break;
 		}
 
@@ -211,7 +207,7 @@ QTextFormat::PropertyType QTextFormatCollectionState::stringToPropertyType(const
     else if (type == QLatin1String("string"))
 	return QTextFormat::String;
     else if (type == QLatin1String("formatreference"))
-	return QTextFormat::FormatReference;
+	return QTextFormat::FormatGroup;
 
     return QTextFormat::Undefined;
 }
@@ -219,7 +215,7 @@ QTextFormat::PropertyType QTextFormatCollectionState::stringToPropertyType(const
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
 {
     localFormatCollection = new QTextFormatCollection;
-    ++localFormatCollection->ref;
+    localFormatCollection->ref = 1;
 
     if (!cursor.hasSelection())
 	return;
@@ -274,7 +270,6 @@ QTextDocumentFragmentPrivate &QTextDocumentFragmentPrivate::operator=(const QTex
     x = qAtomicSetPtr(&localFormatCollection, x);
     if (x && !--x->ref)
 	delete x;
-    *localFormatCollection = *rhs.localFormatCollection;
 
     pieceTable = rhs.pieceTable;
 
@@ -599,17 +594,17 @@ void QTextHTMLImporter::import()
 
 	    const int idx = listReferences.size();
 	    listReferences.resize(idx + 1);
-	    listReferences[idx] = d->localFormatCollection->createReferenceIndex(listFmt);
+	    listReferences[idx] = d->localFormatCollection->indexForGroup(d->localFormatCollection->createGroup(listFmt));
 	} else if (node->tag == QLatin1String("table")) {
 	    const int idx = tableIndices.size();
 	    tableIndices.resize(tableIndices.size() + 1);
-	    tableIndices[idx] = d->localFormatCollection->createReferenceIndex(QTextTableFormat());
+	    tableIndices[idx] = d->localFormatCollection->indexForGroup(d->localFormatCollection->createGroup(QTextTableFormat()));
 	} else if (node->isTableCell) {
 	    Q_ASSERT(!tableIndices.isEmpty());
 
 	    QTextBlockFormat fmt;
 	    fmt.setNonDeletable(true);
-	    fmt.setTableFormatIndex(tableIndices[tableIndices.size() - 1]);
+	    fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
 	    if (node->bgColor.isValid())
 		fmt.setBackgroundColor(node->bgColor);
 	    d->appendBlock(fmt);
@@ -629,7 +624,7 @@ void QTextHTMLImporter::import()
 
 		if (node->isListItem) {
 		    Q_ASSERT(!listReferences.isEmpty());
-		    block.setListFormatIndex(listReferences[listReferences.size() - 1]);
+		    block.setGroupIndex(listReferences[listReferences.size() - 1]);
 		} else if (indent)
 		    block.setIndent(indent);
 
@@ -702,7 +697,7 @@ void QTextHTMLImporter::closeTag(int i)
 	    Q_ASSERT(!tableIndices.isEmpty());
 	    QTextBlockFormat fmt;
 	    fmt.setNonDeletable(true);
-	    fmt.setTableFormatIndex(tableIndices[tableIndices.size() - 1]);
+	    fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
 	    fmt.setTableCellEndOfRow(true);
 	    d->appendBlock(fmt);
 	} else if (closedNode->tag == QLatin1String("table")) {

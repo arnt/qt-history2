@@ -70,9 +70,15 @@ class Q_GUI_EXPORT QTextFormatCollection
 {
 public:
     QTextFormatCollection() { ref = 0; }
+    ~QTextFormatCollection();
 
-    int createReferenceIndex(const QTextFormat &newFormat);
-    QTextFormat updateReferenceIndex(int index, const QTextFormat &newFormat);
+    QTextFormatCollection(const QTextFormatCollection &rhs);
+    QTextFormatCollection &operator=(const QTextFormatCollection &rhs);
+
+
+    QTextFormatGroup *createGroup(const QTextFormat &newFormat);
+    QTextFormatGroup *group(int groupIndex) const;
+    int indexForGroup(QTextFormatGroup *group);
 
     int indexForFormat(const QTextFormat &f);
     bool hasFormatCached(const QTextFormat &format) const;
@@ -94,11 +100,9 @@ public:
 
     mutable QAtomic ref;
 private:
-    int indexToReference(int idx) const;
-    int referenceToIndex(int ref) const;
 
     mutable QVector<QSharedDataPointer<QTextFormatPrivate> > formats;
-    QVector<int> formatReferences;
+    QVector<QTextFormatGroup *> groups;
 };
 
 

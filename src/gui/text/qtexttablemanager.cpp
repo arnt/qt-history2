@@ -27,9 +27,9 @@ QTextTableManager::~QTextTableManager()
 {
 }
 
-QTextTable *QTextTableManager::table(int tableIdx) const
+QTextTable *QTextTableManager::table(QTextFormatGroup *group) const
 {
-    return tables.value(tableIdx);
+    return tables.value(group);
 }
 
 QTextTable *QTextTableManager::tableAt(int docPos) const
@@ -55,8 +55,8 @@ QTextTable *QTextTableManager::tableAt(int docPos) const
 QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, int cols,
 						  const QTextTableFormat &tableFormat)
 {
-    QTextFormatCollection *formats = pt->formatCollection();
-    int tableIdx = formats->createReferenceIndex(tableFormat);
+    QTextFormatCollection *collection = pt->formatCollection();
+    QTextFormatGroup *group = collection->createGroup(tableFormat);
 
     int pos = cursor.position();
 
@@ -71,10 +71,10 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
     pt->insertBlockSeparator(pos, idx);
 
     // create table formats
-    fmt.setTableFormatIndex(tableIdx);
-    int cellIdx = formats->indexForFormat(fmt);
+    fmt.setGroup(group);
+    int cellIdx = collection->indexForFormat(fmt);
     fmt.setTableCellEndOfRow(true);
-    int eorIdx = formats->indexForFormat(fmt);
+    int eorIdx = collection->indexForFormat(fmt);
 
     for (int i = 0; i < rows; ++i) {
 	for (int j = 0; j < cols; ++j) {
@@ -87,13 +87,13 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
 
     pt->endEditBlock();
 
-    return tables.value(tableIdx);
+    return tables.value(group);
 }
 
-QVector<QTextPieceTable::BlockIterator> QTextTableManager::blocksForObject(int tableIdx) const
+QVector<QTextPieceTable::BlockIterator> QTextTableManager::blocksForObject(QTextFormatGroup *group) const
 {
     QVector<QTextPieceTable::BlockIterator> blocks;
-    QTextTable *tab = table(tableIdx);
+    QTextTable *tab = table(group);
     if (tab) {
 	QTextTablePrivate *tp = tab->d_func();
 	blocks.reserve(tp->rows() * tp->cols());
@@ -114,14 +114,17 @@ void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation o
 
     QTextBlockFormat fmt = blockIt.blockFormat();
 
-    int tableIdx = fmt.tableFormatIndex();
-    if (tableIdx == -1)
+    QTextFormatGroup *group = fmt.group();
+    if (!group)
+	return;
+    const QTextTableFormat tablefmt = group->commonFormat().toTableFormat();
+    if (!tablefmt.isValid())
 	return;
 
-    QTextTable *table = tables.value(tableIdx);
+    QTextTable *table = tables.value(group);
     if (!table) {
 	table = new QTextTable(pt, this);
-	tables.insert(tableIdx, table);
+	tables.insert(group, table);
     }
 
     if (op == QText::Insert) {
@@ -130,7 +133,7 @@ void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation o
 	table->d->removeCell(blockIt);
 	if (table->d->isEmpty()) {
 	    delete table;
-	    tables.remove(tableIdx);
+	    tables.remove(group);
 	}
     }
 }
@@ -149,13 +152,10 @@ void QTextTableManager::formatChanged(int position, int length)
     // in the area of change and re-scan manually.
 
     for (; blockIt != end; ++blockIt) {
-	QTextBlockFormat fmt = blockIt.blockFormat();
-	int tableIdx = fmt.tableFormatIndex();
-	if (tableIdx != -1) {
-	    QTextTable *t = tables.value(tableIdx);
-	    Q_ASSERT(t != 0);
+	QTextFormatGroup *group = blockIt.blockFormat().group();
+	QTextTable *t = tables.value(group);
+	if (t)
 	    t->d->setDirty();
-	}
     }
 }
 
@@ -342,7 +342,7 @@ void QTextTablePrivate::updateGrid() const
 static void checkRowList(const QList<QTextTablePrivate::Row> &rowList)
 {
     int pos = 0;
-    int tableIdx = -1;
+    QTextTableFormat table;
     for (int i = 0; i < rowList.size(); ++i) {
 	const QTextTablePrivate::Row &r = rowList.at(i);
 	for (int j = 0; j < r.size(); ++j) {
@@ -350,9 +350,9 @@ static void checkRowList(const QList<QTextTablePrivate::Row> &rowList)
 	    Q_ASSERT(bi.key() > pos);
 	    pos = bi.key();
 	    QTextBlockFormat fmt = bi.blockFormat();
-	    if (tableIdx == -1)
-		tableIdx = fmt.tableFormatIndex();
-	    Q_ASSERT(tableIdx == fmt.tableFormatIndex());
+	    if (table.isValid())
+		table = fmt.tableFormat();
+	    Q_ASSERT(table == fmt.tableFormat());
 	    if (fmt.tableCellEndOfRow())
 		Q_ASSERT(j == r.size()-1);
 	}

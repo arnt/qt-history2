@@ -56,20 +56,13 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
 
 QTextListFormat QTextDocumentLayout::listFormat(QTextPieceTable::BlockIterator bl) const
 {
-    QTextBlockFormat blockFmt = bl.blockFormat();
-
-    int idx = blockFmt.listFormatIndex();
-
-    return pieceTable()->formatCollection()->listFormat(idx);
+    return bl.blockFormat().listFormat();
 }
 
 int QTextDocumentLayout::indent(QTextPieceTable::BlockIterator bl) const
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
-    int listIdx = blockFormat.listFormatIndex();
-
-    int indent = pieceTable()->formatCollection()->listFormat(listIdx).indent() +
-	         blockFormat.indent();
+    int indent = blockFormat.listFormat().indent() + blockFormat.indent();
 
     return indent * pieceTable()->config()->indentValue;
 }
@@ -212,8 +205,8 @@ void QTextDocumentLayout::recreateAllBlocks()
 	(*it)->layoutDirty = true;
 
 	// check if we are at a table
-	QTextBlockFormat fmt = it.blockFormat();
-	if (fmt.tableFormatIndex() != -1) {
+	QTextTableFormat fmt = it.blockFormat().tableFormat();
+	if (fmt.isValid()) {
 	    it = layoutTable(it, &pos, width);
 	} else {
 	    layoutBlock(it, pos, width);
@@ -225,8 +218,7 @@ void QTextDocumentLayout::recreateAllBlocks()
 
 QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::BlockIterator it, QPoint *pos, int width)
 {
-    const int tableIdx = it.blockFormat().tableFormatIndex();
-//     qDebug() << "layoutCell at" << it.key() << "tableIdx" << tableIdx;
+    QTextFormatGroup *group = it.blockFormat().group();
 
     (*it)->layoutDirty = true;
     layoutBlock(it, *pos, width);
@@ -239,13 +231,13 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::
 
 	// check if we are at a table
 	QTextBlockFormat fmt = it.blockFormat();
-	int ti = fmt.tableFormatIndex();
-	if (ti == tableIdx) {
+	QTextFormatGroup *g = fmt.group();
+	if (g == group) {
 // 	    qDebug() << "end layoutCell";
 	    return it;
 	}
 
-	if (fmt.tableFormatIndex() != -1) {
+	if (g && g->commonFormat().toTableFormat().isValid()) {
 	    it = layoutTable(it, pos, width);
 	} else {
 	    layoutBlock(it, *pos, width);
@@ -257,11 +249,10 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::
 
 QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable::BlockIterator it, QPoint *pos, int width)
 {
-    const int tableIdx = it.blockFormat().tableFormatIndex();
-    Q_ASSERT(tableIdx != -1);
 
-    QTextTableFormat format = pieceTable()->formatCollection()->tableFormat(tableIdx);
-    QTextTable *table = pieceTable()->tableManager()->table(tableIdx);
+    QTextFormatGroup *group = it.blockFormat().group();
+    Q_ASSERT(group && group->commonFormat().toTableFormat().isValid());
+    QTextTable *table = pieceTable()->tableManager()->table(group);
 
     int rows = table->rows();
     int cols = table->cols();
@@ -276,8 +267,7 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
 	int rowHeight = 0;
 	for (int j = 0; j < cols; ++j) {
 	    QTextBlockFormat fmt = it.blockFormat();
-	    int ti = fmt.tableFormatIndex();
-	    Q_ASSERT(ti == tableIdx);
+	    Q_ASSERT(fmt.group() == group);
 	    Q_ASSERT(!fmt.tableCellEndOfRow());
 
 	    QPoint point = QPoint(j*width, y) + *pos;
@@ -287,10 +277,8 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
 	    rowHeight = qMax(rowHeight, QFontMetrics(fmt.font()).height());
 // 	    qDebug() << "rowHeight" << rowHeight;
 	}
-	QTextBlockFormat fmt = it.blockFormat();
-	int ti = fmt.tableFormatIndex();
-	Q_ASSERT(ti == tableIdx);
-	Q_ASSERT(fmt.tableCellEndOfRow());
+	Q_ASSERT(it.blockFormat().group() == group);
+	Q_ASSERT(it.blockFormat().tableCellEndOfRow());
 
 	(*it)->layoutDirty = true;
 	QPoint point = QPoint(cols*width, y) + *pos;

@@ -18,11 +18,11 @@ public:
     QTextListManager(QTextPieceTable *table);
     ~QTextListManager();
 
-    QTextList *list(int listIdx) const;
+    QTextList *list(QTextFormatGroup *group) const;
 
     QTextPieceTable *pieceTable() { return table; }
 
-    QVector<QTextPieceTable::BlockIterator> blocksForObject(int listIdx) const;
+    QVector<QTextPieceTable::BlockIterator> blocksForObject(QTextFormatGroup *group) const;
 
 private slots:
     void blockChanged(int blockPosition, QText::ChangeOperation);
@@ -30,11 +30,11 @@ private slots:
     void listDestroyed(QObject *obj);
 
 private:
-    void removeListEntry(int listIdx, const QTextPieceTable::BlockIterator &blockIt);
-    void addListEntry(int listIdx, const QTextPieceTable::BlockIterator &blockIt);
+    void removeListEntry(QTextFormatGroup *group, const QTextPieceTable::BlockIterator &blockIt);
+    void addListEntry(QTextFormatGroup *group, const QTextPieceTable::BlockIterator &blockIt);
 
     // map from list index to list of blocks
-    typedef QMap<int, QTextList *> ListMap;
+    typedef QMap<QTextFormatGroup *, QTextList *> ListMap;
     ListMap lists;
 
     QTextPieceTable *table;

@@ -17,6 +17,22 @@ class QTextCharFormat;
 class QTextListFormat;
 class QTextTableFormat;
 class QTextImageFormat;
+class QTextFormat;
+
+class QTextFormatGroup
+{
+public:
+    int commonFormatType() const;
+    QTextFormat commonFormat() const;
+    void setCommonFormat(const QTextFormat &format);
+private:
+    friend class QTextFormatCollection;
+    friend class QTextFormat;
+    QTextFormatGroup(QTextFormatCollection *c, int index) : collection(c), idx(index) {}
+
+    QTextFormatCollection *collection;
+    int idx;
+};
 
 class Q_GUI_EXPORT QTextFormat
 {
@@ -34,11 +50,11 @@ public:
     };
 
     enum Property {
+	GroupIndex = 0x0,
+
 	// paragraph
 	BlockDirection = 0x1000,
 	BlockAlignment = 0x1010,
-	BlockListFormatIndex = 0x1020,
-	BlockTableFormatIndex = 0x1021,
 	BlockTopMargin = 0x1030,
 	BlockBottomMargin = 0x1031,
 	BlockLeftMargin = 0x1032,
@@ -94,7 +110,7 @@ public:
 	Integer,
 	Float,
 	String,
-	FormatReference
+	FormatGroup
     };
 
     QTextFormat();
@@ -109,7 +125,7 @@ public:
     inline QTextFormat operator+(const QTextFormat &other) const
     { QTextFormat result(*this); result += other; return result; }
 
-    inline bool isValid() const { return d && type() != -1; }
+    inline bool isValid() const { return type() != InvalidFormat; }
 
     int type() const;
     int inheritedType() const;
@@ -132,13 +148,17 @@ public:
     int intProperty(int propertyId, int defaultValue = 0) const;
     float floatProperty(int propertyId, float defaultValue = 0.0) const;
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
-    int formatReferenceProperty(int propertyId, int defaultValue = -1) const;
 
     void setProperty(int propertyId, bool value);
     void setProperty(int propertyId, int value);
     void setProperty(int propertyId, float value);
     void setProperty(int propertyId, const QString &value);
-    void setFormatReferenceProperty(int propertyId, int value);
+
+    QTextFormatGroup *group() const;
+    void setGroup(QTextFormatGroup *group);
+
+    int groupIndex() const;
+    void setGroupIndex(int group);
 
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;
@@ -159,6 +179,7 @@ class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 public:
     inline QTextCharFormat() : QTextFormat(CharFormat) {}
 
+    bool isValid() const { return inheritsFormatType(CharFormat); }
     void setFont(const QFont &font);
     QFont font() const;
 
@@ -238,6 +259,8 @@ public:
 
     inline QTextBlockFormat() : QTextCharFormat(BlockFormat) {}
 
+    bool isValid() const { return inheritsFormatType(BlockFormat); }
+
     inline void setDirection(Direction dir)
     { setProperty(BlockDirection, dir); }
     inline Direction direction() const
@@ -248,17 +271,20 @@ public:
     inline Qt::Alignment alignment() const
     { return QFlag(intProperty(BlockAlignment)); }
 
-    inline void setListFormatIndex(int idx)
-    { setFormatReferenceProperty(BlockListFormatIndex, idx); }
-    inline int listFormatIndex() const
-    { return formatReferenceProperty(BlockListFormatIndex); }
+//     inline void setListFormatIndex(int idx)
+//     { setGroupIndex(idx); }
+//     inline int listFormatIndex() const
+//     { return groupIndex(); }
 
-    // ################# shouldn't we ensure you can only set one reference?
-    // both a table and a list reference don't make sense
-    inline void setTableFormatIndex(int idx)
-    { setFormatReferenceProperty(BlockTableFormatIndex, idx); }
-    inline int tableFormatIndex() const
-    { return formatReferenceProperty(BlockTableFormatIndex); }
+//     // ################# shouldn't we ensure you can only set one reference?
+//     // both a table and a list reference don't make sense
+//     inline void setTableFormatIndex(int idx)
+//     { setGroupIndex(idx); }
+//     inline int tableFormatIndex() const
+//     { return groupIndex(); }
+
+    QTextListFormat listFormat() const;
+    QTextTableFormat tableFormat() const;
 
     inline void setTopMargin(int margin)
     { setProperty(BlockTopMargin, margin); }
@@ -319,6 +345,8 @@ class Q_GUI_EXPORT QTextListFormat : public QTextFormat
 public:
     inline QTextListFormat() : QTextFormat(ListFormat) {}
 
+    bool isValid() const { return inheritsFormatType(ListFormat); }
+
     enum Style {
 	ListDisc = -1,
 	ListCircle = -2,
@@ -348,6 +376,8 @@ class Q_GUI_EXPORT QTextTableFormat : public QTextFormat
 public:
     inline QTextTableFormat() : QTextFormat(TableFormat) {}
 
+    bool isValid() const { return inheritsFormatType(TableFormat); }
+
     inline void setBorder(int border)
     { setProperty(TableBorder, border); }
     inline int border() const
@@ -358,6 +388,8 @@ class Q_GUI_EXPORT QTextImageFormat : public QTextCharFormat
 {
 public:
     inline QTextImageFormat() : QTextCharFormat(ImageFormat) {}
+
+    bool isValid() const { return inheritsFormatType(ImageFormat); }
 
     inline void setName(const QString &name)
     { setProperty(ImageName, name); }

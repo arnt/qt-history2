@@ -61,8 +61,8 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
     switch (type) {
 	case QTextFormat::Undefined: return true;
 	case QTextFormat::Bool: return data.boolValue == rhs.data.boolValue;
-	case QTextFormat::FormatReference:
-	case QTextFormat::Integer: return data.intValue == rhs.data.intValue;
+        case QTextFormat::FormatGroup:
+        case QTextFormat::Integer: return data.intValue == rhs.data.intValue;
 	case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
 	case QTextFormat::String: return stringValue() == rhs.stringValue();
     }
@@ -127,8 +127,10 @@ QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
 
 QTextFormat::~QTextFormat()
 {
-    if (collection && !--collection->ref)
+    if (collection && !--collection->ref) {
+	qDebug("deleting collection %p", collection);
 	delete collection;
+    }
 }
 
 QTextFormat &QTextFormat::operator+=(const QTextFormat &other)
@@ -161,8 +163,6 @@ bool QTextFormat::inheritsFormatType(int otherType) const
 QTextBlockFormat QTextFormat::toBlockFormat() const
 {
     QTextBlockFormat f;
-    if (!isBlockFormat())
-	return f;
     f.QTextFormat::operator=(*this);
     return f;
 }
@@ -170,8 +170,6 @@ QTextBlockFormat QTextFormat::toBlockFormat() const
 QTextCharFormat QTextFormat::toCharFormat() const
 {
     QTextCharFormat f;
-    if (!isCharFormat())
-	return f;
     f.QTextFormat::operator=(*this);
     return f;
 }
@@ -179,8 +177,6 @@ QTextCharFormat QTextFormat::toCharFormat() const
 QTextListFormat QTextFormat::toListFormat() const
 {
     QTextListFormat f;
-    if (!isListFormat())
-	return f;
     f.QTextFormat::operator=(*this);
     return f;
 }
@@ -188,8 +184,6 @@ QTextListFormat QTextFormat::toListFormat() const
 QTextTableFormat QTextFormat::toTableFormat() const
 {
     QTextTableFormat f;
-    if (!isTableFormat())
-	return f;
     f.QTextFormat::operator=(*this);
     return f;
 }
@@ -197,8 +191,6 @@ QTextTableFormat QTextFormat::toTableFormat() const
 QTextImageFormat QTextFormat::toImageFormat() const
 {
     QTextImageFormat f;
-    if (!isImageFormat())
-	return f;
     f.QTextFormat::operator=(*this);
     return f;
 }
@@ -235,14 +227,6 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
     return prop.stringValue();
 }
 
-int QTextFormat::formatReferenceProperty(int propertyId, int defaultValue) const
-{
-    const QTextFormatProperty prop = d->properties.value(propertyId);
-    if (prop.type != QTextFormat::FormatReference)
-	return defaultValue;
-    return prop.data.intValue;
-}
-
 void QTextFormat::setProperty(int propertyId, bool value)
 {
     d->properties.insert(propertyId, value);
@@ -263,12 +247,48 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
     d->properties.insert(propertyId, value);
 }
 
-void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
+QTextFormatGroup *QTextFormat::group() const
+{
+    const QTextFormatProperty prop = d->properties.value(GroupIndex);
+    if (!collection || prop.type != QTextFormat::FormatGroup)
+	return 0;
+    return collection->group(prop.data.intValue);
+}
+
+void QTextFormat::setGroup(QTextFormatGroup *group)
+{
+    if (!group) {
+	setGroupIndex(-1);
+	return;
+    }
+
+    QTextFormatCollection *c = group->collection;
+    Q_ASSERT(group->collection);
+    ++c->ref;
+    c = qAtomicSetPtr(&collection, c);
+    if (c && !--c->ref)
+	delete c;
+
+    QTextFormatProperty prop;
+    prop.type = FormatGroup;
+    prop.data.intValue = collection->indexForGroup(group);
+    d->properties.insert(GroupIndex, prop);
+}
+
+int QTextFormat::groupIndex() const
+{
+    const QTextFormatProperty prop = d->properties.value(GroupIndex);
+    if (prop.type != QTextFormat::FormatGroup)
+	return -1;
+    return prop.data.intValue;
+}
+
+void QTextFormat::setGroupIndex(int group)
 {
     QTextFormatProperty prop;
-    prop.type = FormatReference;
-    prop.data.intValue = value;
-    d->properties.insert(propertyId, prop);
+    prop.type = FormatGroup;
+    prop.data.intValue = group;
+    d->properties.insert(GroupIndex, prop);
 }
 
 bool QTextFormat::hasProperty(int propertyId) const
@@ -369,6 +389,19 @@ QFont QTextCharFormat::font() const
     indentation and possibly references to list and table formats.
 */
 
+QTextListFormat QTextBlockFormat::listFormat() const
+{
+    QTextFormatGroup *g = group();
+    return (g ? g->commonFormat() : QTextFormat()).toListFormat();
+}
+
+QTextTableFormat QTextBlockFormat::tableFormat() const
+{
+    QTextFormatGroup *g = group();
+    return (g ? g->commonFormat() : QTextFormat()).toTableFormat();
+}
+
+
 /*!
     \class QTextListFormat qtextformat.h
     \brief The format of a list in a QTextDocument
@@ -406,32 +439,42 @@ QFont QTextCharFormat::font() const
 
 // ------------------------------------------------------
 
-int QTextFormatCollection::indexToReference(int idx) const
+QTextFormatCollection::QTextFormatCollection(const QTextFormatCollection &rhs)
 {
-    if (idx >= -1)
-	return -1;
+    ref = 0;
+    formats = rhs.formats;
+    for (int i = 0; i < rhs.groups.size(); ++i) {
+	QTextFormatGroup *g = rhs.groups.at(i);
+	groups.append(new QTextFormatGroup(this, g->idx));
+    }
+}
+QTextFormatCollection &QTextFormatCollection::operator=(const QTextFormatCollection &rhs)
+{
+    qDeleteAll(groups);
+    groups.clear();
 
-    idx = -(idx + 2);
-    if (idx >= formatReferences.count())
-	return -1;
-
-    return idx;
+    formats = rhs.formats;
+    for (int i = 0; i < rhs.groups.size(); ++i) {
+	QTextFormatGroup *g = rhs.groups.at(i);
+	groups.append(new QTextFormatGroup(this, g->idx));
+    }
+    return *this;
 }
 
-int QTextFormatCollection::referenceToIndex(int ref) const
+QTextFormatCollection::~QTextFormatCollection()
 {
-    if (ref < 0 || ref >= formatReferences.count())
-	return -1;
-
-    return -(ref + 2);
+    qDeleteAll(groups);
 }
 
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
+    Q_ASSERT(format.d);
     // certainly need speedup
-    for (int i = 0; i < formats.size(); ++i)
+    for (int i = 0; i < formats.size(); ++i) {
+	Q_ASSERT(formats.at(i));
 	if (formats.at(i) == format.d || (*formats.at(i)) == (*format.d))
 	    return i;
+    }
 
     int idx = formats.size();
     formats.append(format.d);
@@ -446,27 +489,30 @@ bool QTextFormatCollection::hasFormatCached(const QTextFormat &format) const
     return false;
 }
 
-int QTextFormatCollection::createReferenceIndex(const QTextFormat &format)
+QTextFormatGroup *QTextFormatCollection::createGroup(const QTextFormat &format)
 {
     int formatIdx = indexForFormat(format);
 
-    int ref = formatReferences.size();
-    formatReferences.append(formatIdx);
-    return referenceToIndex(ref);
+    QTextFormatGroup *g = new QTextFormatGroup(this, formatIdx);
+    groups.append(g);
+    return g;
 }
 
-QTextFormat QTextFormatCollection::updateReferenceIndex(int index, const QTextFormat &newFormat)
+QTextFormatGroup *QTextFormatCollection::group(int groupIndex) const
 {
-    int ref = indexToReference(index);
-    if (ref == -1)
-	return QTextFormat();
+    if (groupIndex == -1)
+	return 0;
+    return groups.at(groupIndex);
+}
 
-    int oldIdx = formatReferences[ref];
-    formatReferences[ref] = indexForFormat(newFormat);
-
-    Q_ASSERT(referenceToIndex(ref) == index);
-
-    return format(oldIdx);
+int QTextFormatCollection::indexForGroup(QTextFormatGroup *group)
+{
+    Q_ASSERT(group->collection == this);
+    for (int i = 0; i < groups.size(); ++i)
+	if (groups.at(i) == group)
+	    return i;
+    Q_ASSERT(false);
+    return -1;
 }
 
 QTextFormat QTextFormatCollection::format(int idx, int defaultFormatType) const
@@ -474,15 +520,20 @@ QTextFormat QTextFormatCollection::format(int idx, int defaultFormatType) const
     if (idx == -1 || idx > formats.count())
 	return QTextFormat(defaultFormatType);
 
-    if (idx < 0) {
-	int ref = indexToReference(idx);
-	if (ref == -1)
-	    return QTextFormat(defaultFormatType);
-
-	idx = formatReferences[ref];
-	Q_ASSERT(idx >= 0 && idx < formats.count());
-    }
-
+    Q_ASSERT(formats.at(idx));
+    // ##### does this detach the formatprivate?
     return QTextFormat(const_cast<QTextFormatCollection *>(this), formats[idx]);
+}
+
+
+QTextFormat QTextFormatGroup::commonFormat() const
+{
+    return collection->format(idx);
+}
+
+void QTextFormatGroup::setCommonFormat(const QTextFormat &format)
+{
+    idx = collection->indexForFormat(format);
+    // ####### undo/redo
 }
 
