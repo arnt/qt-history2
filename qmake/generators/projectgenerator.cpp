@@ -100,37 +100,48 @@ ProjectGenerator::init()
 	    v["DEPENDPATH"] += dir;
     }
 
-    QStringList &l = v["SOURCES"], &d = v["DEPENDPATH"], &h = v["HEADERS"];
-    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-	if(generateDependancies(d, (*val_it))) {
-	    QStringList &tmp = depends[(*val_it)];
-	    if(!tmp.isEmpty()) {
-		for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
-		    QString file_no_path = (*dep_it).right(
-			(*dep_it).length() - ((*dep_it).findRev(Option::dir_sep)+1));
-		    if((*dep_it).right(Option::h_ext.length()) == Option::h_ext) {
-			if((*dep_it).left(1).lower() == "q") {
-			    QString qhdr = (*dep_it).lower();
-			    if(file_no_path == "qthread.h")
-				addConfig("thread");
+    bool no_qt_files = TRUE;
+    QStringList &d = v["DEPENDPATH"], &h = v["HEADERS"];
+    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "INTERFACES", QString::null };
+    for(int i = 0; !srcs[i].isNull(); i++) {
+	QStringList &l = v[srcs[i]];
+	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+	    if(generateDependancies(d, (*val_it))) {
+		QStringList &tmp = depends[(*val_it)];
+		if(!tmp.isEmpty()) {
+		    for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
+			QString file_no_path = (*dep_it).right(
+			    (*dep_it).length() - ((*dep_it).findRev(Option::dir_sep)+1));
+			if(no_qt_files && file_no_path.find(QRegExp("^q[a-z_0-9].h$")) != -1)
+			    no_qt_files = FALSE;
+			if((*dep_it).right(Option::h_ext.length()) == Option::h_ext) {
+			    if((*dep_it).left(1).lower() == "q") {
+				QString qhdr = (*dep_it).lower();
+				if(file_no_path == "qthread.h")
+				    addConfig("thread");
+			    }
+			    QString src((*dep_it).left((*dep_it).length() - Option::h_ext.length()) + Option::cpp_ext);
+			    if(QFile::exists(src)) {
+				if(!l.contains(src))
+				    l.append(src);
+			    }
+			} else if((*dep_it).right(2) == ".l" && 
+				  file_no_path.left(Option::lex_mod.length()) == Option::lex_mod) {
+			    addConfig("lex_included");
+			} 
+			if(!h.contains((*dep_it))) {
+			    if(generateMocList((*dep_it)) && !findMocDestination((*dep_it)).isEmpty())	
+				h += (*dep_it);
 			}
-			QString src((*dep_it).left((*dep_it).length() - Option::h_ext.length()) + Option::cpp_ext);
-			if(QFile::exists(src)) {
-			    if(!l.contains(src))
-				l.append(src);
-			}
-		    } else if((*dep_it).right(2) == ".l" && 
-			      file_no_path.left(Option::lex_mod.length()) == Option::lex_mod) {
-			addConfig("lex_included");
-		    } 
-		    if(!h.contains((*dep_it))) {
-			if(generateMocList((*dep_it)) && !findMocDestination((*dep_it)).isEmpty())	
-			    h += (*dep_it);
 		    }
 		}
 	    }
 	}
     }
+    if(h.isEmpty()) 
+	addConfig("moc", FALSE);
+    if(no_qt_files)
+	addConfig("qt", FALSE);
 }
 
 
@@ -144,6 +155,7 @@ ProjectGenerator::writeMakefile(QTextStream &t)
     WRITE_VAR("TEMPLATE");
     WRITE_VAR("TARGET");
     WRITE_VAR("CONFIG");
+    WRITE_VAR("CONFIG_REMOVE"); //-= rule
     WRITE_VAR("DEPENDPATH");
 
     t << endl << "# Input" << endl;
@@ -159,10 +171,13 @@ ProjectGenerator::writeMakefile(QTextStream &t)
 }
 
 bool
-ProjectGenerator::addConfig(const QString &cfg)
+ProjectGenerator::addConfig(const QString &cfg, bool add)
 {
-    if(!project->variables()["CONFIG"].contains(cfg)) {
-	project->variables()["CONFIG"] += cfg;
+    QString where = "CONFIG";
+    if(!add)
+	where = "CONFIG_REMOVE";
+    if(!project->variables()[where].contains(cfg)) {
+	project->variables()[where] += cfg;
 	return TRUE;
     }
     return FALSE;
@@ -209,7 +224,11 @@ ProjectGenerator::getWritableVar(const QString &v)
     if(vals.isEmpty())
 	return "";
 
-    QString ret = v + " = ";
+    QString ret;
+    if(v.right(7) == "_REMOVE") 
+	ret = v.left(v.length() - 7) + " -= ";
+    else
+	ret = v + " += ";
     if(vals.count() > 5) {
 	QString spaces;
 	for(int i = 0; i < ret.length(); i++)
