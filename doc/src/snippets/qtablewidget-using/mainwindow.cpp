@@ -25,10 +25,10 @@ MainWindow::MainWindow()
     tableWidget->setHorizontalHeaderItem(0, valuesHeaderItem);
     valuesHeaderItem->setTextAlignment(Qt::AlignVCenter);
     QTableWidgetItem *squaresHeaderItem = new QTableWidgetItem(tr("Squares"));
-    squaresHeaderItem->setIcon(QIcon(QPixmap("squared.png")));
+    squaresHeaderItem->setIcon(QIcon(QPixmap(":/Images/squared.png")));
     squaresHeaderItem->setTextAlignment(Qt::AlignVCenter);
     QTableWidgetItem *cubesHeaderItem = new QTableWidgetItem(tr("Cubes"));
-    cubesHeaderItem->setIcon(QIcon(QPixmap("cubed.png")));
+    cubesHeaderItem->setIcon(QIcon(QPixmap(":/Images/cubed.png")));
     cubesHeaderItem->setTextAlignment(Qt::AlignVCenter);
     tableWidget->setHorizontalHeaderItem(1, squaresHeaderItem);
     tableWidget->setHorizontalHeaderItem(2, cubesHeaderItem);
