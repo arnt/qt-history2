@@ -26,10 +26,10 @@ int main(int argc, char *argv[])
 
     QDirModel *model = new QDirModel;
     QTreeView *tree = new QTreeView(splitter);
-    QListView *list = new QListView(splitter);
-
     tree->setModel(model);
     tree->setRootIndex(model->index(QDir::currentPath()));
+
+    QListView *list = new QListView(splitter);
     list->setModel(model);
     list->setRootIndex(model->index(QDir::currentPath()));
 
