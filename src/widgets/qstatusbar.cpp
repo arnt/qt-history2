@@ -373,8 +373,13 @@ void QStatusBar::message( const QString &message, int ms )
 	d->timer = new QTimer( this );
 	connect( d->timer, SIGNAL(timeout()), this, SLOT(clear()) );
     }
-    if ( ms > 0 )
+    if ( ms > 0 ) {
 	d->timer->start( ms );
+    } else if ( d->timer ) {
+	delete d->timer;
+	d->timer = 0;
+    }
+
     hideOrShow();
 }
 
