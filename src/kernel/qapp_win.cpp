@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#112 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#111 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#112 $");
 
 
 /*****************************************************************************
@@ -346,6 +346,7 @@ bool qt_nograb()				// application no-grab option
     return appNoGrab;
 }
 
+
 static bool widget_class_registered = FALSE;
 static bool popup_class_registered = FALSE;
 
@@ -388,7 +389,7 @@ const char *qt_reg_winclass( int type )		// register window class
     return className;
 }
 
-void unregWinClasses()
+static void unregWinClasses()
 {
     if ( widget_class_registered ) {
 	widget_class_registered = FALSE;
@@ -1021,6 +1022,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    widget->translateKeyEvent( msg, g != 0 );
 	    break;
 	  }
+
 	case WM_PAINT:				// paint event
 	    result = widget->translatePaintEvent( msg );
 	    break;
@@ -1790,10 +1792,12 @@ struct KeyRec {
     KeyRec() { }
     int code, ascii;
 };
+
 static const int maxrecs=64; // User has LOTS of fingers...
 static KeyRec key_rec[maxrecs];
 static int nrecs=0;
-KeyRec* find_key_rec( int code, bool remove )
+
+static KeyRec* find_key_rec( int code, bool remove )
 {
     KeyRec *result = 0;
     for (int i=0; i<nrecs; i++) {
@@ -1815,11 +1819,12 @@ KeyRec* find_key_rec( int code, bool remove )
     }
     return result;
 }
-void store_key_rec( int code, int ascii )
+
+static void store_key_rec( int code, int ascii )
 {
     if ( nrecs == maxrecs ) {
 #if defined(CHECK_RANGE)
-	warning("Too many keys pressed");
+	warning( "Qt: Internal keyboard buffer overflow" );
 #endif
 	return;
     }
@@ -1841,7 +1846,6 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key
-	debug("Got extra WM_CHAR");
 	sendKeyEvent( Event_KeyPress, 0, msg.wParam, state, grab );
 	sendKeyEvent( Event_KeyRelease, 0, msg.wParam, state, grab );
     } else {
@@ -1849,18 +1853,13 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
         if ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ) {
 	    KeyRec* rec = find_key_rec( msg.wParam, FALSE );
 	    MSG wm_char;
-	    if (!PeekMessage( &wm_char, 0,
-		    WM_CHAR, WM_CHAR, PM_REMOVE ))
-	    {
+	    if ( !PeekMessage(&wm_char, 0, WM_CHAR, WM_CHAR, PM_REMOVE) )
 		wm_char.wParam = 0;
-	    }
 	    if ( rec ) {
-		debug("Auto-repeating");
 		// it is already down (so it is auto-repeating)
-		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab );
+		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
 		sendKeyEvent( Event_KeyPress, code, rec->ascii, state, grab );
 	    } else {
-		debug("Key down");
 		store_key_rec( msg.wParam, wm_char.wParam );
 		sendKeyEvent( Event_KeyPress, code,
 			      wm_char.wParam, state, grab );
@@ -1868,11 +1867,12 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
         } else {
 	    // KEYUP
 	    KeyRec* rec = find_key_rec( msg.wParam, TRUE );
-	    if ( !rec ) { 
-		warning("KEYUP without KEYDOWN");
+	    if ( !rec ) {
+#if defined(DEBUG)
+		warning( "Qt: Got KEYUP without KEYDOWN" );
+#endif
 	    } else {
-		debug("Key up");
-		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab );
+		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
 	    }
         }
     }
