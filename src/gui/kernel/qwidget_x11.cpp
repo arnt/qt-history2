@@ -405,7 +405,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         xd->x_cells = DisplayCells(dpy, xd->x_screen);
         xd->x_visual = a.visual;
         xd->x_defvisual = (XVisualIDFromVisual((Visual *) a.visual) ==
-                            XVisualIDFromVisual((Visual *) QX11Info::appVisual(d->xinfo->screen())));
+                           XVisualIDFromVisual((Visual *) QX11Info::appVisual(d->xinfo->screen())));
         xd->x_colormap = a.colormap;
         xd->x_defcolormap = (a.colormap == QX11Info::appColormap(d->xinfo->screen()));
         d->xinfo->setX11Data(xd);
@@ -422,22 +422,22 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     } else {
         if (d->xinfo->defaultVisual() && d->xinfo->defaultColormap()) {
             id = (WId)qt_XCreateSimpleWindow(this, dpy, parentw,
-                                              data->crect.left(), data->crect.top(),
-                                              data->crect.width(), data->crect.height(),
-                                              0,
-                                              QColor(Qt::black).pixel(d->xinfo->screen()),
-                                              QColor(Qt::white).pixel(d->xinfo->screen()));
+                                             data->crect.left(), data->crect.top(),
+                                             data->crect.width(), data->crect.height(),
+                                             0,
+                                             QColor(Qt::black).pixel(d->xinfo->screen()),
+                                             QColor(Qt::white).pixel(d->xinfo->screen()));
         } else {
             wsa.background_pixel = QColor(Qt::white).pixel(d->xinfo->screen());
             wsa.border_pixel = QColor(Qt::black).pixel(d->xinfo->screen());
             wsa.colormap = d->xinfo->colormap();
             id = (WId)qt_XCreateWindow(this, dpy, parentw,
-                                        data->crect.left(), data->crect.top(),
-                                        data->crect.width(), data->crect.height(),
-                                        0, d->xinfo->depth(), InputOutput,
-                                        (Visual *) d->xinfo->visual(),
-                                        CWBackPixel|CWBorderPixel|CWColormap,
-                                        &wsa);
+                                       data->crect.left(), data->crect.top(),
+                                       data->crect.width(), data->crect.height(),
+                                       0, d->xinfo->depth(), InputOutput,
+                                       (Visual *) d->xinfo->visual(),
+                                       CWBackPixel|CWBorderPixel|CWColormap,
+                                       &wsa);
         }
 
         setWinId(id);                                // set widget id/handle + hd
@@ -449,8 +449,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         d->xft_hd = 0;
     }
 
-    if (X11->has_xft)
-        d->xft_hd = (HANDLE) XftDrawCreate(dpy, id, (Visual *) d->xinfo->visual(), d->xinfo->colormap());
+    if (X11->has_xft) {
+        d->xft_hd = (Qt::HANDLE)
+                    XftDrawCreate(dpy, id, (Visual *) d->xinfo->visual(), d->xinfo->colormap());
+    }
 #endif // QT_NO_XFT
 
     // NET window types
@@ -546,7 +548,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if (testWFlags(Qt::WStyle_StaysOnTop)) {
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_ABOVE);
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_STAYS_ON_TOP);
-}
+        }
 
         if (testWFlags(Qt::WShowModal)) {
             mwmhints.input_mode = 3L; // MWM_INPUT_FULL_APPLICATION_MODAL
@@ -575,7 +577,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         wsa.override_redirect = True;
         wsa.save_under = True;
         XChangeWindowAttributes(dpy, id, CWOverrideRedirect | CWSaveUnder,
-                                 &wsa);
+                                &wsa);
     } else if (topLevel && !desktop) {        // top-level widget
         QWidget *p = parentWidget();        // real parent
         if (p)
@@ -660,13 +662,13 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
         // declare the widget's object name as window role
         XChangeProperty(dpy, id,
-                         ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
-                         (unsigned char *)objectName().local8Bit(), qstrlen(objectName().local8Bit()));
+                        ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
+                        (unsigned char *)objectName().local8Bit(), qstrlen(objectName().local8Bit()));
 
         // set client leader property
         XChangeProperty(dpy, id, ATOM(WM_CLIENT_LEADER),
-                         XA_WINDOW, 32, PropModeReplace,
-                         (unsigned char *)&X11->wm_client_leader, 1);
+                        XA_WINDOW, 32, PropModeReplace,
+                        (unsigned char *)&X11->wm_client_leader, 1);
     } else {
         // non-toplevel widgets don't have a frame, so no need to
         // update the strut
