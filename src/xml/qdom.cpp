@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#56 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#57 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -127,7 +127,7 @@ public:
     QString nodeValue() const { return value; }
     void setNodeValue( const QString& v ) { value = v; }
 
-    QDomDocumentPrivate*     ownerDocument();
+    QDomDocumentPrivate* ownerDocument();
 
     virtual QDomNamedNodeMapPrivate* attributes();
     virtual bool hasAttributes() { return FALSE; }
@@ -5503,7 +5503,41 @@ QDomEntityReferencePrivate* QDomDocumentPrivate::createEntityReference( const QS
 
 QDomNodePrivate* QDomDocumentPrivate::importNode( const QDomNodePrivate* importedNode, bool deep )
 {
-    return 0;
+    switch ( importedNode->nodeType() ) {
+	case QDomNode::AttributeNode:
+	    return new QDomAttrPrivate(
+		    (QDomAttrPrivate*)importedNode, TRUE );
+	case QDomNode::DocumentFragmentNode:
+	    return new QDomDocumentFragmentPrivate(
+		    (QDomDocumentFragmentPrivate*)importedNode, deep );
+	case QDomNode::ElementNode:
+	    // ### check if attributes are copied as documentation says (especially where specified()==TRUE)
+	    return new QDomElementPrivate(
+		    (QDomElementPrivate*)importedNode, deep );
+	case QDomNode::EntityNode:
+	    return new QDomEntityPrivate(
+		    (QDomEntityPrivate*)importedNode, deep );
+	case QDomNode::EntityReferenceNode:
+	    return new QDomEntityReferencePrivate(
+		    (QDomEntityReferencePrivate*)importedNode, FALSE );
+	case QDomNode::NotationNode:
+	    return new QDomNotationPrivate(
+		    (QDomNotationPrivate*)importedNode, deep );
+	case QDomNode::ProcessingInstructionNode:
+	    return new QDomProcessingInstructionPrivate(
+		    (QDomProcessingInstructionPrivate*)importedNode, deep );
+	case QDomNode::TextNode:
+	    return new QDomTextPrivate(
+		    (QDomTextPrivate*)importedNode, deep );
+	case QDomNode::CDATASectionNode:
+	    return new QDomCDATASectionPrivate(
+		    (QDomCDATASectionPrivate*)importedNode, deep );
+	case QDomNode::CommentNode:
+	    return new QDomCommentPrivate(
+		    (QDomCommentPrivate*)importedNode, deep );
+	default:
+	    return 0;
+    }
 }
 
 void QDomDocumentPrivate::save( QTextStream& s, int ) const
