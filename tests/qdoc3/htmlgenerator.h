@@ -50,6 +50,7 @@ private:
     void generateNavigationBar( const NavigationBar& bar, const Node *node,
     				CodeMarker *marker );
 #endif
+    void generateTableOfContents(const Node *node, CodeMarker *marker);
     QString generateListOfAllMemberFile( const ClassNode *classe,
 					 CodeMarker *marker );
     void generateClassHierarchy(const Node *relative, CodeMarker *marker,
@@ -90,6 +91,7 @@ private:
     bool inTableHeader;
     int numTableRows;
     QString link;
+    QStringList sectionNumber;
     QRegExp funcLeftParen;
     QString style;
     QString postHeader;

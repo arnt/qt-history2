@@ -245,7 +245,8 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	    Set<QString> definedParams;
 	    QList<Parameter>::ConstIterator p = func->parameters().begin();
 	    while (p != func->parameters().end()) {
-	        if ((*p).name().isEmpty() && func->name() != QLatin1String("operator++")
+	        if ((*p).name().isEmpty() && (*p).leftType() != QLatin1String("...")
+			&& func->name() != QLatin1String("operator++")
 			&& func->name() != QLatin1String("operator--")) {
 		    node->doc().location().warning(tr("Missing parameter name"));
 	        } else {

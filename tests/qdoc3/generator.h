@@ -58,6 +58,9 @@ protected:
 				      CodeMarker *marker );
     void generateThreadSafeness( const Node *node, CodeMarker *marker );
     void generateStatus( const Node *node, CodeMarker *marker );
+    const Atom *generateAtomList( const Atom *atom, const Node *relative,
+				  CodeMarker *marker, bool generate,
+				  int& numGeneratedAtoms );
 
     const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );
@@ -68,15 +71,12 @@ protected:
     void setImageFileExtensions( const QStringList& extensions );
     void unknownAtom( const Atom *atom );
     bool matchAhead( const Atom *atom, Atom::Type expectedAtomType );
-    QMap<QString, QString>& formattingLeftMap();
-    QMap<QString, QString>& formattingRightMap();
+    QMap<QString, QString> &formattingLeftMap();
+    QMap<QString, QString> &formattingRightMap();
 
     static QString trimmedTrailing(const QString &string);
 
 private:
-    const Atom *generateAtomList( const Atom *atom, const Node *relative,
-				  CodeMarker *marker, bool generate,
-				  int& numGeneratedAtoms );
     void generateOverload( const Node *node, CodeMarker *marker );
     void generateReimplementedFrom( const FunctionNode *func,
 				    CodeMarker *marker );

@@ -131,12 +131,13 @@ public:
     QString baseName;
     Doc::SectioningUnit granularity;
     Doc::SectioningUnit sectioningUnit; // ###
+    QList<Atom *> tableOfContents;
 
     DocPrivateExtra()
 	: granularity( Doc::Part ) { }
 };
 
-struct Shared
+struct Shared // ### get rid of
 {
     Shared()
 	: count(1) { }
@@ -149,8 +150,7 @@ struct Shared
 class DocPrivate : public Shared
 {
 public:
-    DocPrivate( const Location& location = Location::null,
-		const QString& source = "" );
+    DocPrivate(const Location &location = Location::null, const QString &source = "");
     ~DocPrivate();
 
     void addAlso( const Text& also );
@@ -166,12 +166,13 @@ public:
     Set<QString> omitEnumItemSet;
     Set<QString> metaCommandSet;
     QMap<QString, QStringList> metaCommandMap;
-    bool hasLegalese : 8;
+    bool hasLegalese : 1;
+    bool hasSectioningUnits : 1;
     DocPrivateExtra *extra;
 };
 
 DocPrivate::DocPrivate(const Location &location, const QString &source)
-    : loc(location), src(source), hasLegalese(false), extra(0)
+    : loc(location), src(source), hasLegalese(false), hasSectioningUnits(false), extra(0)
 {
     null_Set_QString.ensure_constructed();
     null_QList_Text.ensure_constructed();
@@ -792,9 +793,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    }
 		    break;
 		case CMD_TABLEOFCONTENTS:
-		    append( Atom::TableOfContents,
-			    QString::number((int) getSectioningUnit()) );
-		    /* ... */
+		    append(Atom::TableOfContents, QString::number((int)getSectioningUnit()));
 		    break;
 		case CMD_TARGET:
 		    insertTarget( getArgument() );
@@ -1087,21 +1086,28 @@ void DocParser::startFormat( const QString& format, int command )
 
 bool DocParser::openCommand( int command )
 {
-    int top = openedCommands.top();
+    int outer = openedCommands.top();
     bool ok = true;
 
-    if ( top != CMD_OMIT && top != CMD_LIST ) {
-	QList<int> ordering;
-	ordering << CMD_ABSTRACT << CMD_SIDEBAR << CMD_QUOTATION << CMD_TABLE
-		 << CMD_FOOTNOTE;
-	ok = ordering.indexOf( top ) < ordering.indexOf( command );
+    if (outer == CMD_LIST) {
+	ok = (command == CMD_FOOTNOTE);
+    } else if (outer == CMD_ABSTRACT) {
+	ok = (command == CMD_LIST || command == CMD_QUOTATION || command == CMD_TABLE);
+    } else if (outer == CMD_SIDEBAR) {
+	ok = (command == CMD_LIST || command == CMD_QUOTATION || command == CMD_SIDEBAR);
+    } else if (outer == CMD_QUOTATION) {
+	ok = (command == CMD_LIST);
+    } else if (outer == CMD_TABLE) {
+	ok = (command == CMD_LIST || command == CMD_FOOTNOTE);
+    } else if (outer == CMD_FOOTNOTE) {
+	ok = false;
     }
 
-    if ( ok ) {
-	openedCommands.push( command );
+    if (ok) {
+	openedCommands.push(command);
     } else {
-	location().warning( tr("Cannot use '\\%1' within '\\%2'")
-			    .arg(commandName(command)).arg(commandName(top)) );
+	location().warning(tr("Cannot use '\\%1' within '\\%2'")
+			   .arg(commandName(command)).arg(commandName(outer)));
     }
     return ok;
 }
@@ -1163,6 +1169,8 @@ void DocParser::startSection( Doc::SectioningUnit unit, int command )
 
 	int delta = unit - priv->extra->sectioningUnit;
 	append( Atom::SectionLeft, QString::number(delta) );
+        priv->constructExtra();
+        priv->extra->tableOfContents.append(priv->text.lastAtom());
 	enterPara( Atom::SectionHeadingLeft, Atom::SectionHeadingRight,
 		   QString::number(delta) );
 	currentSectioningUnit = unit;
@@ -1415,6 +1423,8 @@ Doc::SectioningUnit DocParser::getSectioningUnit()
     } else if ( name == "section3" ) {
 	return Doc::Section3;
     } else if ( name == "section4" ) {
+	return Doc::Section4;
+    } else if (name.isEmpty()) {
 	return Doc::Section4;
     } else {
 	location().warning( tr("Invalid sectioning unit '%1'").arg(name) );
@@ -1784,27 +1794,27 @@ Doc::Doc( const Doc& doc )
 
 Doc::~Doc()
 {
-    if ( priv != 0 && priv->deref() )
+    if (priv && priv->deref())
 	delete priv;
 }
 
-Doc& Doc::operator=( const Doc& doc )
+Doc &Doc::operator=( const Doc& doc )
 {
-    if ( doc.priv != 0 )
+    if (doc.priv)
 	doc.priv->ref();
-    if ( priv != 0 && priv->deref() )
+    if (priv && priv->deref())
 	delete priv;
     priv = doc.priv;
     return *this;
 }
 
-const Location& Doc::location() const
+const Location &Doc::location() const
 {
     static const Location dummy;
     return priv == 0 ? dummy : priv->loc;
 }
 
-const QString& Doc::source() const
+const QString &Doc::source() const
 {
     static QString null;
     return priv == 0 ? null : priv->src;
@@ -1947,6 +1957,17 @@ QStringList Doc::metaCommandArgs( const QString& metaCommand ) const
 const QList<Text> &Doc::alsoList() const
 {
     return priv == 0 ? null_QList_Text : priv->alsoList;
+}
+
+bool Doc::hasTableOfContents() const
+{
+    return priv->extra && !priv->extra->tableOfContents.isEmpty();
+}
+
+const QList<Atom *> &Doc::tableOfContents() const
+{
+    priv->constructExtra();
+    return priv->extra->tableOfContents;
 }
 
 void Doc::initialize( const Config& config )

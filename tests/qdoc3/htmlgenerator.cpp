@@ -82,6 +82,7 @@ void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marke
     inTableHeader = false;
     numTableRows = 0;
     link = "";
+    sectionNumber.clear();
 }
 
 int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMarker *marker)
@@ -316,6 +317,20 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	out() << atom->string();
 	break;
     case Atom::SectionLeft:
+	{
+	    int nextLevel = atom->string().toInt();
+            if (sectionNumber.size() < nextLevel) {
+		do {
+		    sectionNumber.append("1");
+                } while (sectionNumber.size() < nextLevel);
+            } else {
+		while (sectionNumber.size() > nextLevel) {
+		    sectionNumber.removeLast();
+                }
+                sectionNumber.last() = QString::number(sectionNumber.last().toInt() + 1);
+            }
+            out() << "<a name=\"sec-" << sectionNumber.join(".") << "\">\n";
+        }
 	break;
     case Atom::SectionRight:
 	break;
@@ -381,6 +396,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    out() << "</td>";
         break;
     case Atom::TableOfContents:
+	generateTableOfContents(relative, marker);
 	break;
     case Atom::Target:
 	break;
@@ -596,6 +612,43 @@ void HtmlGenerator::generateFooter( const Node * /* node */ )
 	  << QString(address).replace("\\" + COMMAND_VERSION, version)
 	  << "</body>\n"
 	     "</html>\n";
+}
+
+void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker)
+{
+    if (!node->doc().hasTableOfContents())
+	return;
+    QList<Atom *> toc = node->doc().tableOfContents();
+    if (toc.isEmpty())
+	return;
+
+    QStringList sectionNumber;
+
+    foreach (Atom *atom, toc) {
+	int nextLevel = atom->string().toInt();
+	if (sectionNumber.size() < nextLevel) {
+            do {
+	        out() << "<ul>";
+                sectionNumber.append("1");
+            } while (sectionNumber.size() < nextLevel);
+	} else {
+            while (sectionNumber.size() > nextLevel) {
+	        out() << "</ul>\n";
+                sectionNumber.removeLast();
+            }
+            sectionNumber.last() = QString::number(sectionNumber.last().toInt() + 1);
+	}
+	int numAtoms;
+	Text headingText = sectionHeading(atom);
+	out() << "<li>";
+        out() << "<a href=\"#sec-" << sectionNumber.join(".") << "\">";
+	generateAtomList(headingText.firstAtom(), node, marker, true, numAtoms);
+        out() << "</a></li>\n";
+    }
+    while (!sectionNumber.isEmpty()) {
+	out() << "</ul>\n";
+	sectionNumber.removeLast();
+    }
 }
 
 #if 0
