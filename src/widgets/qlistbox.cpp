@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#266 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#267 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2533,6 +2533,9 @@ void QListBox::refreshSlot()
     else
         viewport()->repaint( r, FALSE );
 }
+
+/*!
+  Calls ensureCurrentVisible */
 
 void QListBox::visibleSlot()
 {
