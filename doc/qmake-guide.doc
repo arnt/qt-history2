@@ -528,19 +528,19 @@ modularize different tests. For example:
    }
 \endcode
 
-Because the syntax for qmake is line based it makes the blocking syntax
-very strict, this means: You must have the { on the same line as the scope
-test (you may have 1 assignment after it if you wish). Then the
-following assignments must be one per line, and finally the block is
-terminated with a line containing only a '}' character. There is a
-provision for using only blocked style if you prefer on one line,
-however it is discouraged, and the old style is still preferred for one
-liners. For example:
-
-\code
-  test:VARIABLE = value  #is the same as...
-  test { VARIABLE = value }
-\endcode
+Because the syntax for qmake is line based it makes the blocking
+syntax very strict, this means: You must have the { on the same line
+as the scope test (you may have 1 assignment after it if you
+wish). Then the following assignments must be one per line, and
+finally the block is terminated with a line containing only a '}'
+character. A second block style syntax is supported for one line
+blocks, e.g. For example:
+    
+    \code
+    test { VARIABLE = value }
+    # which has the same effect as:
+    test:VARIABLE = value  
+    \endcode 
 
 <a name="Functions"><h3>Functions</h3></a>
 
