@@ -83,7 +83,36 @@
 #include <limits.h>
 
 #ifdef Q_WS_X11
-#include "qxt.h"
+#include <X11/Intrinsic.h>
+
+class QNPXtPrivate;
+
+class QNPXt : public QEventLoop
+{
+public:
+    QNPXt( const char *applicationClass, XtAppContext context = NULL, XrmOptionDescRec *options = 0, int numOptions = 0);
+    ~QNPXt();
+
+    XtAppContext applicationContext() const;
+
+    void registerSocketNotifier( QSocketNotifier * );
+    void unregisterSocketNotifier( QSocketNotifier * );
+
+    static void registerWidget( QWidget* );
+    static void unregisterWidget( QWidget* );
+    static bool redeliverEvent( XEvent *event );
+    static XEvent* lastEvent();
+
+protected:
+    bool processEvents( ProcessEventsFlags flags );
+
+private:
+    void appStartingUp();
+    void appClosingDown();
+    QNPXtPrivate *d;
+
+};
+
 #define	 GC GC_QQQ
 #endif
 
@@ -387,6 +416,24 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 
     This = (_NPInstance*) instance->pdata;
 
+
+    // take a shortcut if all that was changed is the geometry
+    if ( This->widget && window
+#ifdef Q_WS_X11
+	 && This->window == (Window) window->window
+#endif
+#ifdef Q_WS_WIN
+	 && This->window == (HWND) window->window
+#endif
+	) {
+	This->x = window->x;
+	This->y = window->y;
+	This->width = window->width;
+	This->height = window->height;
+	This->widget->resize( This->width, This->height );
+	return result;
+    }
+
     delete This->widget;
 
     if ( !window )
@@ -410,7 +457,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     if (!qApp) {
 #ifdef Q_WS_X11
 	// We are the first Qt-based plugin to arrive
-	event_loop = new QXt( "qnp", XtDisplayToApplicationContext(This->display) );
+	event_loop = new QNPXt( "qnp", XtDisplayToApplicationContext(This->display) );
 	application = new QApplication(This->display);
 #endif
 #ifdef Q_WS_WIN
@@ -690,7 +737,7 @@ BOOL   WINAPI   DllMain (HANDLE hInst,
     \class QNPWidget qnp.h
     \brief The QNPWidget class provides a QWidget that is a Web-browser plugin window.
 
-    \extension NSPlugin
+    \extension Netscape Plugin
 
     Derive from QNPWidget to create a widget that can be used as a
     Browser plugin window, or create one and add child widgets.
@@ -810,14 +857,15 @@ QNPInstance* QNPWidget::instance()
     \class QNPInstance qnp.h
     \brief The QNPInstance class provides a QObject that is a Web-browser plugin.
 
-    \extension NSPlugin
+    \extension Netscape Plugin
 
     Deriving from QNPInstance creates an object that represents a
     single \c{<EMBED>} tag in an HTML document.
 
-    The QNPInstance is responsible for creating an appropriate window
-    if required (not all plugins have windows), and for interacting
-    with the input/output facilities intrinsic to plugins.
+    The QNPInstance is responsible for creating an appropriate
+    QNPWidget window if required (not all plugins have windows), and
+    for interacting with the input/output facilities intrinsic to
+    plugins.
 
     Note that there is \e{absolutely no guarantee} regarding the order
     in which functions are called. Sometimes the browser will call
@@ -1204,7 +1252,7 @@ void* QNPInstance::getJavaPeer() const
     \class QNPStream qnp.h
     \brief The QNPStream class provides a stream of data provided to a QNPInstance by the browser.
 
-    \extension NSPlugin
+    \extension Netscape Plugin
 
     Note that this is neither a QTextStream nor a QDataStream.
 
@@ -1354,13 +1402,14 @@ int QNPStream::write( int len, void* buffer )
     \class QNPlugin qnp.h
     \brief The QNPlugin class provides the plugin central factory.
 
-    \extension NSPlugin
+    \extension Netscape Plugin
 
     This class is the heart of the plugin. One instance of this object
     is created when the plugin is \e first needed, by calling
     QNPlugin::create(), which must be implemented in your plugin code
     to return some derived class of QNPlugin. The one QNPlugin object
-    creates all instances for a single running Web-browser process.
+    creates all QNPInstance instances for a single running Web-browser
+    process.
 
     Additionally, if Qt is linked to the plugin as a dynamic library,
     only one instance of QApplication will exist \e{across all plugins
@@ -1502,3 +1551,498 @@ void* QNPlugin::getJavaEnv() const
 {
     return NPN_GetJavaEnv();
 }
+
+#ifdef Q_WS_X11
+
+#include <qapplication.h>
+#include <qwidgetintdict.h>
+
+// resolve the conflict between X11's FocusIn and QEvent::FocusIn
+const int XFocusOut = FocusOut;
+const int XFocusIn = FocusIn;
+#undef FocusOut
+#undef FocusIn
+
+const int XKeyPress = KeyPress;
+const int XKeyRelease = KeyRelease;
+#undef KeyPress
+#undef KeyRelease
+
+Boolean qnpxt_event_dispatcher( XEvent *event );
+static void qnpxt_keep_alive();
+void qnpxt_timeout_handler( XtPointer, XtIntervalId * );
+
+class QNPXtPrivate
+{
+public:
+    QNPXtPrivate();
+
+    void hookMeUp();
+    void unhook();
+
+    XtAppContext appContext, ownContext;
+    QMemArray<XtEventDispatchProc> dispatchers;
+    QWidgetIntDict mapper;
+
+    QIntDict<QSocketNotifier> socknotDict;
+    uint pending_socknots;
+    bool activate_timers;
+    int timerid;
+
+    // arguments for Xt display initialization
+    const char* applicationClass;
+    XrmOptionDescRec* options;
+    int numOptions;
+};
+static QNPXtPrivate *static_d = 0;
+static XEvent* last_xevent = 0;
+
+
+bool QNPXt::redeliverEvent( XEvent *event )
+{
+    // redeliver the event to Xt, NOT through Qt
+    if ( static_d->dispatchers[ event->type ]( event ) ) {
+	// qDebug( "Xt: redelivered event" );
+	return TRUE;
+    }
+    return FALSE;
+};
+
+
+XEvent* QNPXt::lastEvent()
+{
+    return last_xevent;
+}
+
+
+QNPXtPrivate::QNPXtPrivate()
+    : appContext(NULL), ownContext(NULL),
+      pending_socknots(0), activate_timers(FALSE), timerid(-1)
+{
+}
+
+void QNPXtPrivate::hookMeUp()
+{
+    // worker to plug Qt into Xt (event dispatchers)
+    // and Xt into Qt (QNPXtEventLoop)
+
+    // ### TODO extensions?
+    dispatchers.resize( LASTEvent );
+    dispatchers.fill( 0 );
+    int et;
+    for ( et = 2; et < LASTEvent; et++ )
+	dispatchers[ et ] =
+	    XtSetEventDispatcher( QPaintDevice::x11AppDisplay(),
+				  et, ::qnpxt_event_dispatcher );
+}
+
+void QNPXtPrivate::unhook()
+{
+    // unhook Qt from Xt (event dispatchers)
+    // unhook Xt from Qt? (QNPXtEventLoop)
+
+    // ### TODO extensions?
+    int et;
+    for ( et = 2; et < LASTEvent; et++ )
+	(void) XtSetEventDispatcher( QPaintDevice::x11AppDisplay(),
+				     et, dispatchers[ et ] );
+    dispatchers.resize( 0 );
+
+    /*
+      We cannot destroy the app context here because it closes the X
+      display, something QApplication does as well a bit later.
+      if ( ownContext )
+          XtDestroyApplicationContext( ownContext );
+     */
+    appContext = ownContext = 0;
+}
+
+extern bool qt_try_modal( QWidget *, XEvent * ); // defined in qapplication_x11.cpp
+Boolean qnpxt_event_dispatcher( XEvent *event )
+{
+    static bool grabbed = FALSE;
+
+    QApplication::sendPostedEvents();
+
+    QWidgetIntDict *mapper = &static_d->mapper;
+    QWidget* qnpxt = mapper->find( event->xany.window );
+    if ( !qnpxt && QWidget::find( event->xany.window) == 0 ) {
+	// event is not for Qt, try Xt
+	Widget w = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
+				     event->xany.window );
+	while ( w && ! ( qnpxt = mapper->find( XtWindow( w ) ) ) ) {
+	    if ( XtIsShell( w ) ) {
+		break;
+	    }
+	    w = XtParent( w );
+	}
+
+ 	if ( qnpxt && ( event->type == XKeyPress ||
+			 event->type == XKeyRelease ) )  {
+	    // remap key events to keep accelerators working
+ 	    event->xany.window = qnpxt->winId();
+ 	}
+
+	if ( w ) {
+	    if ( !grabbed && ( event->type        == XFocusIn &&
+			       event->xfocus.mode == NotifyGrab ) ) {
+		// qDebug( "Xt: grab started" );
+		grabbed = TRUE;
+	    } else if ( grabbed && ( event->type        == XFocusOut &&
+				     event->xfocus.mode == NotifyUngrab ) ) {
+		// qDebug( "Xt: grab ended" );
+		grabbed = FALSE;
+	    }
+	}
+    }
+
+    /*
+      If the mouse has been grabbed for a window that we don't know
+      about, we shouldn't deliver any pointer events, since this will
+      intercept the event that ends the mouse grab that Xt/Motif
+      started.
+    */
+    bool do_deliver = TRUE;
+    if ( grabbed && ( event->type == ButtonPress   ||
+		      event->type == ButtonRelease ||
+		      event->type == MotionNotify  ||
+		      event->type == EnterNotify   ||
+		      event->type == LeaveNotify ) )
+	do_deliver = FALSE;
+
+    last_xevent = event;
+    bool delivered = do_deliver && ( qApp->x11ProcessEvent( event ) != -1 );
+    last_xevent = 0;
+    if ( qnpxt ) {
+	switch ( event->type ) {
+	case EnterNotify:
+	case LeaveNotify:
+	    event->xcrossing.focus = False;
+	    delivered = FALSE;
+	    break;
+	case XKeyPress:
+	case XKeyRelease:
+	    delivered = TRUE;
+	    break;
+	case XFocusIn:
+	case XFocusOut:
+	    delivered = FALSE;
+	    break;
+	default:
+	    delivered = FALSE;
+	    break;
+	}
+    }
+
+    qnpxt_keep_alive();
+
+    if ( delivered ) {
+	// qDebug( "Qt: delivered event" );
+	return True;
+    }
+
+    // discard user input events when we have an active popup widget
+    if ( QApplication::activePopupWidget() ) {
+	switch ( event->type ) {
+	case ButtonPress:			// disallow mouse/key events
+	case ButtonRelease:
+	case MotionNotify:
+	case XKeyPress:
+	case XKeyRelease:
+	case EnterNotify:
+	case LeaveNotify:
+	case ClientMessage:
+	    // qDebug( "Qt: active popup - discarding event" );
+	    return True;
+
+	default:
+	    break;
+	}
+    }
+
+    if ( QApplication::activeModalWidget() ) {
+	if ( qnpxt ) {
+	    // send event through Qt modality handling...
+	    if ( !qt_try_modal( qnpxt, event ) ) {
+		// qDebug( "Qt: active modal widget discarded event" );
+		return True;
+	    }
+	} else if ( !grabbed ) {
+	    // we could have a pure Xt shell as a child of the active
+	    // modal widget
+	    QWidget *qw = 0;
+	    Widget xw = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
+					  event->xany.window );
+	    while ( xw && !( qw = mapper->find( XtWindow( xw ) ) ) )
+		xw = XtParent( xw );
+
+	    while ( qw && qw != QApplication::activeModalWidget() )
+		qw = qw->parentWidget();
+
+	    if ( !qw ) {
+		// event is destined for an Xt widget, but since Qt has an
+		// active modal widget, we stop here...
+		switch ( event->type ) {
+		case ButtonPress:			// disallow mouse/key events
+		case ButtonRelease:
+		case MotionNotify:
+		case XKeyPress:
+		case XKeyRelease:
+		case EnterNotify:
+		case LeaveNotify:
+		case ClientMessage:
+		    // qDebug( "Qt: active modal widget discarded unknown event" );
+		    return True;
+		default:
+		    break;
+		}
+	    }
+	}
+    }
+
+    if ( static_d->dispatchers[ event->type ]( event ) ) {
+	// qDebug( "Xt: delivered event" );
+	// Xt handled the event.
+	return True;
+    }
+
+    return False;
+}
+
+
+
+QNPXt::QNPXt( const char *applicationClass, XtAppContext context,
+		XrmOptionDescRec *options , int numOptions)
+{
+#if defined(QT_CHECK_STATE)
+    if ( static_d )
+	qWarning( "QNPXt: should only have one QNPXt instance!" );
+#endif
+
+    d = static_d = new QNPXtPrivate;
+    XtToolkitInitialize();
+    if ( context )
+	d->appContext = context;
+    else
+	d->ownContext = d->appContext = XtCreateApplicationContext();
+
+    d->applicationClass = applicationClass;
+    d->options = options;
+    d->numOptions = numOptions;
+}
+
+
+QNPXt::~QNPXt()
+{
+    delete d;
+    static_d = 0;
+}
+
+XtAppContext QNPXt::applicationContext() const
+{
+    return d->appContext;
+}
+
+
+void QNPXt::appStartingUp()
+{
+    /*
+      QApplication could be using a Display from an outside source, so
+      we should only initialize the display if the current application
+      context does not contain the QApplication display
+    */
+
+    bool display_found = FALSE;
+    Display **displays;
+    Cardinal x, count;
+    XtGetDisplays( d->appContext, &displays, &count );
+    for ( x = 0; x < count && ! display_found; ++x ) {
+	if ( displays[x] == QPaintDevice::x11AppDisplay() )
+	    display_found = TRUE;
+    }
+    if ( displays )
+	XtFree( (char *) displays );
+
+    if ( ! display_found ) {
+	int argc = qApp->argc();
+	XtDisplayInitialize( d->appContext,
+			     QPaintDevice::x11AppDisplay(),
+			     qApp->name(),
+			     d->applicationClass,
+			     d->options,
+			     d->numOptions,
+			     &argc,
+			     qApp->argv() );
+    }
+
+    d->hookMeUp();
+
+    // start a zero-timer to get the timer keep-alive working
+    d->timerid = XtAppAddTimeOut( d->appContext, 0, qnpxt_timeout_handler, 0 );
+}
+
+void QNPXt::appClosingDown()
+{
+    if ( d->timerid != -1 )
+	XtRemoveTimeOut( d->timerid );
+    d->timerid = -1;
+
+    d->unhook();
+}
+
+
+void QNPXt::registerWidget( QWidget* w )
+{
+    if ( !static_d )
+	return;
+    static_d->mapper.insert( w->winId(), w );
+}
+
+
+void QNPXt::unregisterWidget( QWidget* w )
+{
+    if ( !static_d )
+	return;
+    static_d->mapper.remove( w->winId() );
+}
+
+
+void qnpxt_socknot_handler( XtPointer pointer, int *, XtInputId *id )
+{
+    QNPXt *eventloop = (QNPXt *) pointer;
+    QSocketNotifier *socknot = static_d->socknotDict.find( *id );
+    if ( ! socknot ) // this shouldn't happen
+	return;
+    eventloop->setSocketNotifierPending( socknot );
+    if ( ++static_d->pending_socknots > static_d->socknotDict.count() ) {
+	/*
+	  We have too many pending socket notifiers.  Since Xt prefers
+	  socket notifiers over X events, we should go ahead and
+	  activate all our pending socket notifiers so that the event
+	  loop doesn't freeze up because of this.
+	*/
+	eventloop->activateSocketNotifiers();
+	static_d->pending_socknots = 0;
+    }
+}
+
+void QNPXt::registerSocketNotifier( QSocketNotifier *notifier )
+{
+    XtInputMask mask;
+    switch ( notifier->type() ) {
+    case QSocketNotifier::Read:
+	mask = XtInputReadMask;
+	break;
+
+    case QSocketNotifier::Write:
+	mask = XtInputWriteMask;
+	break;
+
+    case QSocketNotifier::Exception:
+	mask = XtInputExceptMask;
+	break;
+
+    default:
+	qWarning( "QNPXtEventLoop: socket notifier has invalid type" );
+	return;
+    }
+
+    XtInputId id = XtAppAddInput( d->appContext,
+				  notifier->socket(), (XtPointer) mask,
+				  qnpxt_socknot_handler, this );
+    d->socknotDict.insert( id, notifier );
+
+    QEventLoop::registerSocketNotifier( notifier );
+}
+
+void QNPXt::unregisterSocketNotifier( QSocketNotifier *notifier )
+{
+    QIntDictIterator<QSocketNotifier> it( d->socknotDict );
+    while ( it.current() && notifier != it.current() )
+	++it;
+    if ( ! it.current() ) {
+	// this shouldn't happen
+	qWarning( "QNPXtEventLoop: failed to unregister socket notifier" );
+	return;
+    }
+
+    XtRemoveInput( it.currentKey() );
+    d->socknotDict.remove( it.currentKey() );
+
+    QEventLoop::unregisterSocketNotifier( notifier );
+}
+
+static void qnpxt_keep_alive() {
+    // make sure we fire off Qt's timers
+    int ttw = QApplication::eventLoop()->timeToWait();
+    if ( static_d->timerid != -1 )
+	XtRemoveTimeOut( static_d->timerid );
+    static_d->timerid = -1;
+    if ( ttw != -1 ) {
+	static_d->timerid =
+	    XtAppAddTimeOut( static_d->appContext, ttw, qnpxt_timeout_handler, 0 );
+    }
+}
+
+void qnpxt_timeout_handler( XtPointer, XtIntervalId * )
+{
+    static_d->timerid = -1;
+
+    if ( ! QApplication::eventLoop()->loopLevel() ) {
+	/*
+	  when the Qt eventloop is not running, make sure that Qt
+	  timers still work with an Xt keep-alive timer
+	*/
+	QApplication::eventLoop()->activateTimers();
+	static_d->activate_timers = FALSE;
+
+	qnpxt_keep_alive();
+    } else {
+	static_d->activate_timers = TRUE;
+    }
+}
+
+bool QNPXt::processEvents( ProcessEventsFlags flags )
+{
+    // Qt uses posted events to do lots of delayed operations, like
+    // repaints... these need to be delivered before we go to sleep
+    QApplication::sendPostedEvents();
+
+    bool canWait = ( flags & WaitForMore );
+
+    qnpxt_keep_alive();
+
+    // get the pending event mask from Xt and process the next event
+    XtInputMask pendingmask = XtAppPending( d->appContext );
+    XtInputMask mask = pendingmask;
+    if ( pendingmask & XtIMTimer ) {
+	mask &= ~XtIMTimer;
+	// zero timers will starve the Xt X event dispatcher... so
+	// process something *instead* of a timer first...
+	if ( mask != 0 )
+	    XtAppProcessEvent( d->appContext, mask );
+	// and process a timer afterwards
+	mask = pendingmask & XtIMTimer;
+    }
+
+    if ( canWait )
+	XtAppProcessEvent( d->appContext, XtIMAll );
+    else
+	XtAppProcessEvent( d->appContext, mask );
+
+    int nevents = 0;
+    if ( ! ( flags & ExcludeSocketNotifiers ) ) {
+	nevents += activateSocketNotifiers();
+	d->pending_socknots = 0;
+    }
+
+    if ( d->activate_timers ) {
+	nevents += activateTimers();
+    }
+    d->activate_timers = FALSE;
+
+    return ( canWait || ( pendingmask != 0 ) || nevents > 0 );
+}
+
+
+#endif // Q_WS_X11

@@ -549,7 +549,7 @@ int Grapher::write(QNPStream* /*str*/, int /*offset*/, int len, void* buffer)
 
 void Grapher::aboutPlugin()
 {
-    getURL( "http://doc.trolltech.com/nsplugin-examples.html", "_blank" );
+    getURL( "http://doc.trolltech.com/netscape-plugin.html", "_blank" );
 }
 
 void Grapher::aboutData()
