@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#25 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,7 +12,7 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#25 $");
 
 
 /*!
@@ -156,7 +156,7 @@ void QGroupBox::paintEvent( QPaintEvent * )
 		x = r.width()/2 - tw/2;
 	    else if ( align & AlignRight )	// right alignment
 		x = r.width() - tw - 8;
-	    else				// |eft alignment
+	    else				// left alignment
 		x = 8;
 	    r.setRect( x, 0, tw, h );
 	    QRegion rgn_all( cr );
