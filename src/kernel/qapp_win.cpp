@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#53 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#53 $");
 
 
 /*****************************************************************************
@@ -342,15 +342,13 @@ const char *qt_reg_winclass( int type )		// register window class
 	    widget = TRUE;
 	    style = CS_DBLCLKS;
 	}
-    }
-    else if ( type == 1 ) {
+    } else if ( type == 1 ) {
 	className = "QPopup";
 	if ( !popup ) {
 	    popup = TRUE;
 	    style = CS_DBLCLKS | CS_SAVEBITS;
 	}
-    }
-    else {
+    } else {
 #if defined(DEBUG)
 	warning( "Qt internal error: Invalid window class type", type );
 #endif
