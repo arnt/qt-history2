@@ -206,7 +206,7 @@ int QWidgetStack::addWidget( QWidget * w, int id )
     if ( w->parent() != this )
 	w->reparent( this, 0, contentsRect().topLeft(), FALSE );
     w->setGeometry( contentsRect() );
-
+    updateGeometry();
     return id;
 }
 
@@ -230,6 +230,7 @@ void QWidgetStack::removeWidget( QWidget * w )
 	topWidget = 0;
     if ( dict->isEmpty() )
 	invisible->hide(); // let background shine through again
+    updateGeometry();
 }
 
 
