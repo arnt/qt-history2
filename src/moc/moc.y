@@ -900,6 +900,10 @@ arg_declaration_list_opt:	/* empty */	{ $$ = tmpArgList; }
 			| arg_declaration_list	{ $$ = $1; }
 			;
 
+opt_exception_argument:		/* empty */
+			| argument_declaration
+			;
+
 triple_dot_opt:			/* empty */
 			| TRIPLE_DOT { func_warn("Ellipsis not supported"
 						 " in signals and slots.\n"
@@ -911,6 +915,7 @@ arg_declaration_list:	  arg_declaration_list
 			  ','
 			  argument_declaration	{ $$ = addArg($3); }
 			| argument_declaration	{ $$ = addArg($1); }
+			;
 
 argument_declaration:	  decl_specifiers abstract_decl_opt
 				{ $$ = new Argument(straddSpc($1,$2),""); }
@@ -1084,7 +1089,7 @@ exception_spec_opt:		/* empty */
 			;
 
 /* looser than the real thing */
-exception_spec:		THROW '(' argument_declaration_list ')'
+exception_spec:		THROW '(' opt_exception_argument ')'
 			;
 
 ctor_initializer_opt:		/* empty */
