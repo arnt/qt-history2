@@ -1001,14 +1001,12 @@ bool Uic::isObjectRegistered( const QString& name )
  */
 QStringList Uic::unique( const QStringList& list )
 {
-    QStringList result;
     if ( list.isEmpty() )
-	return result;
-    QStringList l = list;
-    l.sort();
-    result += l.first();
-    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
-	if ( *it != result.last() )
+	return list;
+
+    QStringList result;
+    for ( QStringList::ConstIterator it = list.begin(); it != list.end(); ++it ) {
+	if ( !result.contains(*it) )
 	    result += *it;
     }
     return result;
