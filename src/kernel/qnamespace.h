@@ -24,7 +24,7 @@ class QColor;
 class QCursor;
 
 class Q_EXPORT Qt {
-#if Q_MOC_RUN
+#ifdef Q_MOC_RUN
     Q_OBJECT
     Q_ENUMS( Orientation TextFormat BackgroundMode DateFormat )
     Q_SETS( Alignment )
@@ -99,7 +99,7 @@ public:
 	AlignCenter		= AlignVCenter | AlignHCenter
     };
 
-#if Q_MOC_RUN
+#ifdef Q_MOC_RUN
     enum Alignment { // public text alignment without masks
 	AlignAuto, AlignLeft, AlignRight, AlignHCenter, AlignJustify,
 	AlignTop, AlignBottom, AlignVCenter, AlignCenter

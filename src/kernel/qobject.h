@@ -52,8 +52,16 @@ public:
 #ifdef Q_QDOC
     static QString tr(const char *, const char *);
     static QString trUtf8(const char *, const char *);
-    virtual QMetaObject *metaObject() const;
+    virtual const QMetaObject *metaObject() const;
 #endif
+#ifdef QT_NO_TRANSLATION
+    static QString tr( const char *sourceText, const char * = 0)
+	{ return QString::fromLatin1(sourceText); }
+#ifndef QT_NO_TEXTCODEC
+    static QString trUtf8( const char *sourceText, const char * = 0)
+	{ return QString::fromUtf8(sourceText); }
+#endif
+#endif //QT_NO_TRANSLATION
 
     const char *name() const;
     const char *name(const char *defaultName) const;

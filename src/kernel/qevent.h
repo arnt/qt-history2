@@ -431,8 +431,8 @@ public:
     QChildEvent( Type type, QObject *child )
 	: QEvent(type), c(child) {}
     QObject *child() const	{ return c; }
-    bool inserted() const { return t == ChildInserted; }
-    bool removed() const { return t == ChildRemoved; }
+    bool inserted() const { return type() == ChildInserted; }
+    bool removed() const { return type() == ChildRemoved; }
 protected:
     QObject *c;
 };

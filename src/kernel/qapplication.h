@@ -25,7 +25,7 @@
 #include "qsize.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_INCLUDE_COMPAT
 #include "qdesktopwidget.h"
 #endif
 

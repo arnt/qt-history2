@@ -58,7 +58,7 @@ struct Q_EXPORT QMapData
 	return n;
     }
 
-    static inline Node* QMapData::next(Node *n) {
+    static inline Node* next(Node *n) {
 	if (n->right) {
 	    n = n->right;
 	    while (n->left)
@@ -75,7 +75,7 @@ struct Q_EXPORT QMapData
 	return n;
     }
 
-    static inline Node* QMapData::prev(Node *n) {
+    static inline Node* prev(Node *n) {
 	if (n->root) {
 	    // n == header
 	    n = n->right;
@@ -97,7 +97,7 @@ struct Q_EXPORT QMapData
     void rebalance(Node* x);
     Node* removeAndRebalance(Node* z);
 
-    static QMapData *QMapData::init(QMapData *d)
+    static inline QMapData *init(QMapData *d)
     {
 	d->ref = 1;
 	d->header.color = Red;

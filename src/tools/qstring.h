@@ -11,6 +11,10 @@
 #include <string>
 #endif
 
+#ifdef QT_INCLUDE_COMPAT
+#include <qcstring.h>
+#endif
+
 class QCharRef;
 class QRegExp;
 
@@ -101,7 +105,7 @@ public:
 #ifndef QT_NO_REGEXP
     int indexOf(const QRegExp &, int from = 0) const;
     int lastIndexOf(const QRegExp &, int from = -1) const;
-    inline QBool contains(const QRegExp &rx) const { return QBool(find(rx) != -1); }
+    inline QBool contains(const QRegExp &rx) const { return QBool(indexOf(rx) != -1); }
     int count(const QRegExp &) const;
 #endif
 
@@ -549,9 +553,9 @@ inline QString::ConstIterator QString::end() const
 inline QString::ConstIterator QString::constEnd() const
 { return (const QChar*)d->data + d->size; }
 inline QBool QString::contains(const QString &s, CaseSensitivity cs) const
-{ return QBool(find(s, 0, cs) != -1); }
+{ return QBool(indexOf(s, 0, cs) != -1); }
 inline QBool QString::contains(QChar c, CaseSensitivity cs) const
-{ return QBool(find(c, 0, cs) != -1); }
+{ return QBool(indexOf(c, 0, cs) != -1); }
 
 Q_EXPORT bool operator!=(const QString &s1, const QString &s2);
 Q_EXPORT bool operator<(const QString &s1, const QString &s2);

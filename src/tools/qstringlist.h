@@ -20,6 +20,10 @@
 #include "qstring.h"
 #endif // QT_H
 
+#ifdef QT_INCLUDE_COMPAT
+#include <qvaluelist.h>
+#endif
+
 class QRegExp;
 
 class Q_EXPORT QStringList : public QList<QString>
