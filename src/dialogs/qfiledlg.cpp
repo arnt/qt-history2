@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#38 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#39 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#39 $");
 
 
 /*!
@@ -294,6 +294,14 @@ void QFileDialog::rereadDir()
   This signal is emitted when the user has selected a new directory.
 */
 
+#if defined(_WS_WIN_)
+static char *win_filter[] = {
+    "All Files", "*.*",
+    "" };
+#endif
+
+static QString filedlg_dir;
+
 
 /*!
   Opens a modal file dialog and returns the name of the file to be opened.
@@ -320,14 +328,6 @@ void QFileDialog::rereadDir()
 
   \sa getSaveFileName()
 */
-
-#if defined(_WS_WIN_)
-static char *win_filter[] = {
-    "All Files", "*.*",
-    "" };
-#endif
-
-static QString filedlg_dir;
 
 QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
