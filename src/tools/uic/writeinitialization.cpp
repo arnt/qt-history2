@@ -327,8 +327,11 @@ void WriteInitialization::accept(DomSpacer *node)
     QString sizeType = properties.contains(QLatin1String("sizeType"))
         ? properties.value(QLatin1String("sizeType"))->elementEnum() : QLatin1String("Expanding");
 
-    bool isVspacer = properties.contains(QLatin1String("orientation"))
-        ? properties.value(QLatin1String("orientation"))->elementEnum().toLower() == QLatin1String("vertical") : false;
+    QString orientation = properties.contains(QLatin1String("orientation"))
+        ? properties.value(QLatin1String("orientation"))->elementEnum() : QString::null;
+
+    bool isVspacer = orientation == QLatin1String("Qt::Vertical")
+        || orientation == QLatin1String("Vertical");
 
     output << option.indent << varName << " = new QSpacerItem(";
 
