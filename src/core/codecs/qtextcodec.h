@@ -56,8 +56,7 @@ public:
     enum ConversionFlag {
         DefaultConversion,
         ConvertInvalidToNull = 0x80000000,
-        KeepHeader = 0x1,
-        WriteHeader = 0x2
+        IgnoreHeader = 0x1
     };
     Q_DECLARE_FLAGS(ConversionFlags, ConversionFlag)
 
