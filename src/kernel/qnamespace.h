@@ -93,19 +93,21 @@ public:
 
     // documented in qpainter.cpp
     enum AlignmentFlags {
-	AlignLeft	= 0x0001,		// text alignment
+	AlignAuto = 0x0000, 		// text alignment
+	AlignLeft	= 0x0001,
 	AlignRight	= 0x0002,
 	AlignHCenter	= 0x0004,
-	AlignTop	= 0x0008,
-	AlignBottom	= 0x0010,
-	AlignVCenter	= 0x0020,
+	AlignJustify              = 0x0008
+	AlignTop	= 0x0010,
+	AlignBottom	= 0x0020,
+	AlignVCenter	= 0x0040,
 	AlignCenter	= AlignVCenter | AlignHCenter,
 
-	SingleLine	= 0x0040,		// misc. flags
-	DontClip	= 0x0080,
-	ExpandTabs	= 0x0100,
-	ShowPrefix	= 0x0200,
-	WordBreak	= 0x0400,
+	SingleLine	= 0x0080,		// misc. flags
+	DontClip	= 0x0100,
+	ExpandTabs	= 0x0200,
+	ShowPrefix	= 0x0400,
+	WordBreak	= 0x0800,
 	DontPrint	= 0x1000		// internal
     };
 
