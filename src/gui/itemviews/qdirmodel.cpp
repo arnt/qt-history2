@@ -37,11 +37,14 @@ public:
     QFileIconProviderPrivate();
 
     QIcon file;
-    QIcon dir;
-    QIcon driveHD;
-    QIcon computer;
     QIcon fileLink;
-    QIcon dirLink;
+    QIcon directory;
+    QIcon directoryLink;
+    QIcon harddisk;
+    QIcon floppy;
+    QIcon cdrom;
+    QIcon network;
+    QIcon computer;
 
     QFileIconProvider *q_ptr;
 };
@@ -49,12 +52,18 @@ public:
 QFileIconProviderPrivate::QFileIconProviderPrivate()
 {
     QStyle *style = QApplication::style();
+
     file = QIcon(style->standardPixmap(QStyle::SP_FileIcon));
     fileLink = QIcon(style->standardPixmap(QStyle::SP_FileLinkIcon));
-    dir = QIcon(style->standardPixmap(QStyle::SP_DirClosedIcon));
-    dir.addPixmap(style->standardPixmap(QStyle::SP_DirOpenIcon), QIcon::Normal, QIcon::On);
-    dirLink = QIcon(style->standardPixmap(QStyle::SP_DirLinkIcon));
-    driveHD = QIcon(style->standardPixmap(QStyle::SP_DriveHDIcon));
+
+    directory = QIcon(style->standardPixmap(QStyle::SP_DirClosedIcon));
+    directory.addPixmap(style->standardPixmap(QStyle::SP_DirOpenIcon), QIcon::Normal, QIcon::On);
+    directoryLink = QIcon(style->standardPixmap(QStyle::SP_DirLinkIcon));
+
+    harddisk = QIcon(style->standardPixmap(QStyle::SP_DriveHDIcon));
+    floppy = QIcon(style->standardPixmap(QStyle::SP_DriveFDIcon));
+    cdrom = QIcon(style->standardPixmap(QStyle::SP_DriveCDIcon));
+    network = QIcon(style->standardPixmap(QStyle::SP_DriveNetIcon));
     computer = QIcon(style->standardPixmap(QStyle::SP_ComputerIcon));
 }
 
@@ -93,18 +102,40 @@ QIcon QFileIconProvider::computerIcon() const
 QIcon QFileIconProvider::icon(const QFileInfo &info) const
 {
     if (info.isRoot())
-        return d_ptr->driveHD;
-    if (info.isFile())
-        if (info.isSymLink())
-            return d_ptr->fileLink;
-        else
-            return d_ptr->file;
-    if (info.isDir())
-        if (info.isSymLink())
-            return d_ptr->dirLink;
-        else
-            return d_ptr->dir;
-    return QIcon();
+#ifdef Q_OS_WIN
+    {
+        uint type = DRIVE_UNKNOWN;
+	QT_WA({ type = GetDriveTypeW(info.absoluteFilePath().utf16()); },
+	      { type = GetDriveTypeA(info.absoluteFilePath().toLocal8Bit()); });
+	switch (type) {
+	case DRIVE_REMOVABLE:
+	  return d_ptr->floppy;
+	case DRIVE_FIXED:
+	  return d_ptr->harddisk;
+	case DRIVE_REMOTE:
+	  return d_ptr->network;
+	case DRIVE_CDROM:
+	  return d_ptr->cdrom;
+	case DRIVE_RAMDISK: // FIXME: we should have a "ram" icon
+	case DRIVE_UNKNOWN:
+	case DRIVE_NO_ROOT_DIR:
+	  return QIcon(); // FIXME: should we have a "generic" or "unknown" drive icon ?
+	}
+    }
+#else
+  return d_ptr->harddisk;
+#endif
+  if (info.isFile())
+    if (info.isSymLink())
+      return d_ptr->fileLink;
+    else
+      return d_ptr->file;
+  if (info.isDir())
+    if (info.isSymLink())
+      return d_ptr->directoryLink;
+    else
+      return d_ptr->directory;
+  return QIcon();
 }
 
 /*!
