@@ -732,7 +732,7 @@ QFileDialog::AcceptMode QFileDialog::acceptMode() const
 
 /*!
   \property QFileDialog::readOnly
-  \brief Wether the file dialog is readonly.
+  \brief Wether the filedialog is readonly.
 
   If this property is set to false, the filedialog will allow creating, renaming, copying
   and deleting files and directories.
@@ -746,6 +746,23 @@ void QFileDialog::setReadOnly(bool enabled)
 bool QFileDialog::isReadOnly() const
 {
     return d->model->isReadOnly();
+}
+
+/*
+  \property QFileDialog::resolveSymlinks
+  \brief Whether the filedialog should resolve symbolic links.
+
+  If this property is set to true, the filedialog will resolve symbolic
+  links.
+*/
+void QFileDialog::setResolveSymlinks(bool enabled)
+{
+    d->model->setResolveSymlinks(enabled);
+}
+
+bool QFileDialog::resolveSymlinks() const
+{
+    return d->model->resolveSymlinks();
 }
 
 /*!
@@ -1720,7 +1737,6 @@ QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex
 #include <qapplication.h>
 #include <qstyle.h>
 
-extern Q_CORE_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
 static QString qt_working_dir; // ### ugly! Used this to save cwd
 
 #if defined(Q_WS_WIN)
@@ -1868,9 +1884,6 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
                                      QString *selectedFilter,
                                      QFileDialog::Options options)
 {
-    bool save_qt_resolve_symlinks = qt_resolve_symlinks;
-    qt_resolve_symlinks = !(options & DontResolveSymlinks);
-
     QString initialSelection;
     qt_get_dir_and_selection(dir, &qt_working_dir, &initialSelection);
 
@@ -1897,6 +1910,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
                                        initialSelection,
                                        QFileDialog::ExistingFile);
     dlg->setModal(true);
+    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
@@ -1908,8 +1922,6 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
         qt_working_dir = dlg->directory().absolutePath();
     }
     delete dlg;
-
-    qt_resolve_symlinks = save_qt_resolve_symlinks;
 
 #if defined(Q_WS_MAC)
     return precomposeFileName(result);
@@ -1971,9 +1983,6 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                                      QString *selectedFilter,
                                      Options options)
 {
-    bool save_qt_resolve_symlinks = qt_resolve_symlinks;
-    qt_resolve_symlinks = !(options & DontResolveSymlinks);
-
     QString initialSelection;
     qt_get_dir_and_selection(dir, &qt_working_dir, &initialSelection);
 
@@ -1995,6 +2004,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                                        initialSelection.isEmpty() ? dir : QString(),
                                        QFileDialog::AnyFile);
     dlg->setModal(true);
+    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
     dlg->setAcceptMode(QFileDialog::AcceptSave);
 
     QString result;
@@ -2007,8 +2017,6 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
         qt_working_dir = dlg->directory().absolutePath();
     }
     delete dlg;
-
-    qt_resolve_symlinks = save_qt_resolve_symlinks;
 
 #if defined(Q_WS_MAC)
     return precomposeFileName(result);
@@ -2058,9 +2066,6 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
                                           const QString &dir,
                                           Options options)
 {
-    bool save_qt_resolve_symlinks = qt_resolve_symlinks;
-    qt_resolve_symlinks = !(options & DontResolveSymlinks);
-
 #if defined(Q_WS_WIN)
     QString initialDir;
     if (!dir.isEmpty() && QFileInfo(dir).isDir())
@@ -2084,9 +2089,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
                                        QString(),
                                        options & ShowDirsOnly ? DirectoryOnly : Directory);
     dlg->setModal(true);
-//     dlg->d->fileType->clear();
-//     dlg->d->fileType->insertItem(QFileDialog::tr("Directories"));
-//     dlg->d->fileType->setEnabled(false);
+    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
@@ -2097,8 +2100,6 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 
     if (!result.isEmpty() && result.right(1) != "/")
         result += "/";
-
-    qt_resolve_symlinks = save_qt_resolve_symlinks;
 
 #if defined(Q_WS_MAC)
     return precomposeFileName(result);
@@ -2168,8 +2169,6 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
                                           QString *selectedFilter,
                                           QFileDialog::Options options)
 {
-    bool save_qt_resolve_symlinks = qt_resolve_symlinks;
-    qt_resolve_symlinks = !(options & DontResolveSymlinks);
     qt_get_dir_and_selection(dir, &qt_working_dir, 0);
 
 #if defined(Q_WS_WIN)
@@ -2193,6 +2192,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
                                        QString(),
                                        QFileDialog::ExistingFiles);
     dlg->setModal(true);
+    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
 
     QStringList lst;
     if (dlg->exec() == QDialog::Accepted) {
@@ -2202,8 +2202,6 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
         qt_working_dir = dlg->directory().absolutePath();
     }
     delete dlg;
-
-    qt_resolve_symlinks = save_qt_resolve_symlinks;
 
 #if defined(Q_WS_MAC)
     for (int i = 0; i < lst.count(); ++i)
