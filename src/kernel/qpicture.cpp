@@ -233,7 +233,7 @@ bool QPicture::save( const QString &fileName )
   FALSE if the internal picture data is inconsistent.
 
   This function does exactly the same as QPainter::drawPicture() with
-  (\a x, \a y) = (0, 0).
+  (x, y) = (0, 0).
 */
 
 bool QPicture::play( QPainter *painter )

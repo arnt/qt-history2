@@ -680,7 +680,7 @@ void QObject::timerEvent( QTimerEvent * )
   Child events are sent to objects when children are inserted or removed.
 
   Note that events with QEvent::type() \c QEvent::ChildInserted are
-  \a posted (with QApplication::postEvent()) to make sure that the
+  posted (with QApplication::postEvent()) to make sure that the
   child's construction is completed before this function is called.
 
   If you change state based on \c ChildInserted events, call
@@ -949,7 +949,7 @@ const QObjectList *QObject::objectTrees()
 
 /*!  Searches the children and optinally grandchildren of this object,
   and returns a list of those objects that are named or matches \a
-  objName and inherit \a ineritsClass.  If \a inheritsClass is 0 (the
+  objName and inherit \a inheritsClass.  If \a inheritsClass is 0 (the
   default), all classes match.  If \a objName is 0 (the default), all
   object names match.
 
@@ -2010,19 +2010,7 @@ void QObject::activate_signal( QConnectionList *clist, UObject *o )
 }
 
 /*!
-   \overload void QObject::activate_signal( int signal, short )
-*/
-
-/*!
   \overload void QObject::activate_signal( int signal, int )
-*/
-
-/*!
-   \overload void QObject::activate_signal( int signal, long )
-*/
-
-/*!
-   \overload void QObject::activate_signal( int signal, const char * )
 */
 
 
