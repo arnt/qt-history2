@@ -2151,6 +2151,15 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    break;
 
+	case WM_CANCELMODE: 
+	    if ( qApp->focusWidget() ) {
+		QFocusEvent::setReason( QFocusEvent::ActiveWindow );
+		QFocusEvent e( QEvent::FocusOut );
+		QApplication::sendEvent( qApp->focusWidget(), &e );
+		QFocusEvent::resetReason();
+	    }
+	    break;
+
 	default:
 	    result = FALSE;			// event was not processed
 	    break;
