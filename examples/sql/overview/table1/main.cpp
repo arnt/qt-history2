@@ -12,6 +12,7 @@
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
 #include <qdatatable.h>
+#include "../login.h"
 
 bool createConnections();
 
@@ -36,11 +37,11 @@ int main( int argc, char *argv[] )
 bool createConnections()
 {
     // create the default database connection
-    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
-    defaultDB->setDatabaseName( "sales" );
-    defaultDB->setUserName( "salesuser" );
-    defaultDB->setPassword( "salespw" );
-    defaultDB->setHostName( "saleshost" );
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( DB_SALES_DRIVER );
+    defaultDB->setDatabaseName( DB_SALES_DBNAME );
+    defaultDB->setUserName( DB_SALES_USER );
+    defaultDB->setPassword( DB_SALES_PASSWD );
+    defaultDB->setHostName( DB_SALES_HOST );
     if ( ! defaultDB->open() ) {
 	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
@@ -49,11 +50,11 @@ bool createConnections()
     }
 
     // create a named connection to oracle
-    QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QOCI", "ORACLE" );
-    oracle->setDatabaseName( "orders" );
-    oracle->setUserName( "ordersuser" );
-    oracle->setPassword( "orderspw" );
-    oracle->setHostName( "ordershost" );
+    QSqlDatabase *oracle = QSqlDatabase::addDatabase( DB_ORDERS_DRIVER, "ORACLE" );
+    oracle->setDatabaseName( DB_ORDERS_DBNAME );
+    oracle->setUserName( DB_ORDERS_USER );
+    oracle->setPassword( DB_ORDERS_PASSWD );
+    oracle->setHostName( DB_ORDERS_HOST );
     if ( ! oracle->open() ) {
 	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );

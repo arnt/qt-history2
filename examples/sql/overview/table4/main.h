@@ -17,6 +17,7 @@
 #include <qsqleditorfactory.h>
 #include <qsqlpropertymap.h>
 #include <qdatatable.h>
+#include "../login.h"
 
 bool createConnections();
 

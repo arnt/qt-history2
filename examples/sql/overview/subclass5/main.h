@@ -12,6 +12,7 @@
 #include <qdatetime.h>
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
+#include "../login.h"
 
 class QSqlRecord;
 

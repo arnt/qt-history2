@@ -15,6 +15,7 @@
 #include <qsqlcursor.h>
 #include <qsqleditorfactory.h>
 #include <qsqlpropertymap.h>
+#include "../login.h"
 
 bool createConnections();
 

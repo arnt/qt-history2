@@ -17,6 +17,7 @@
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
 #include <qsqlform.h>
+#include "../login.h"
 
 bool createConnections();
 
