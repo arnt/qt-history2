@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#254 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#255 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#254 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#255 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1904,7 +1904,7 @@ void qt_open_popup( QWidget *popup )
 	    r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 				     ButtonMotionMask | EnterWindowMask |
-				     LeaveWindowMask),
+				     LeaveWindowMask | PointerMotionMask),
 			      GrabModeSync, GrabModeAsync,
 			      None, None, CurrentTime );
 	    if ( (popupGrabOk = (r == GrabSuccess)) ) {
@@ -2417,8 +2417,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		pos = popup->mapFromGlobal( mapToGlobal(pos) );
 	}
 
-	QWidget *popupChild = findChildWidget( popup, pos );
 	bool releaseAfter = FALSE;
+	QWidget *popupChild  = findChildWidget( popup, pos );
+	QWidget *popupTarget = popupChild ? popupChild : popup;
+
+	if ( !popupTarget->isEnabled() )
+	    return FALSE;
+
 	switch ( type ) {
 	    case Event_MouseButtonPress:
 	    case Event_MouseButtonDblClick:
@@ -2430,9 +2435,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    default:
 		break;				// nothing for mouse move
 	}
-
-	if ( !popup->isEnabled() )
-	    return FALSE;
 
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->
