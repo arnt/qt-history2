@@ -468,6 +468,25 @@ static void makeVariables() {
  *
  ******************************************************************/
 
+class QRenameEdit : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    QRenameEdit( QWidget *parent )
+        : QLineEdit( parent )
+    {}
+
+protected:
+    void paintEvent( QPaintEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+    void focusOutEvent( QFocusEvent *e );
+
+signals:
+    void escapePressed();
+
+};
+
 class QFileListBox : public QListBox
 {
     friend class QFileDialog;
@@ -877,6 +896,17 @@ QFileDialogPrivate::~QFileDialogPrivate()
  *
  ************************************************************************/
 
+void QRenameEdit::paintEvent( QPaintEvent *e )
+{
+    QLineEdit::paintEvent( e );
+    QPainter p( this );
+    p.setPen( QPen( colorGroup().text(), 1 ) );
+    p.setBrush( NoBrush );
+    p.drawRect( 0, 0, width(), height() );
+//     p.setPen( QPen( colorGroup().background(), 1 ) );
+//     p.drawRect( 1, 1, width() - 2, height() - 2 );
+}
+
 void QRenameEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Escape )
@@ -1268,7 +1298,7 @@ void QFileListBox::startRename( bool check )
     lined->setText( item( i )->text() );
     lined->selectAll();
     lined->setFrame( FALSE );
-    lined->setGeometry( x, y, w, h );
+    lined->setGeometry( x, y - 3, w + 6, h + 6 );
     lined->show();
     viewport()->setFocusProxy( lined );
     renaming = TRUE;
@@ -1693,7 +1723,7 @@ void QFileListView::startRename( bool check )
     lined->setText( i->text( 0 ) );
     lined->selectAll();
     lined->setFrame( FALSE );
-    lined->setGeometry( x, y, w, h );
+    lined->setGeometry( x, y - 3, w + 6, h + 6 );
     lined->show();
     viewport()->setFocusProxy( lined );
     renaming = TRUE;

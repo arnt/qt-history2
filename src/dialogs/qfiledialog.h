@@ -54,24 +54,6 @@ public:
     virtual const QPixmap * pixmap( const QFileInfo & );
 };
 
-class QRenameEdit : public QLineEdit
-{
-    Q_OBJECT
-
-public:
-    QRenameEdit( QWidget *parent )
-        : QLineEdit( parent )
-    {}
-
-protected:
-    void keyPressEvent( QKeyEvent *e );
-    void focusOutEvent( QFocusEvent *e );
-
-signals:
-    void escapePressed();
-
-};
-
 class Q_EXPORT QFileDialog : public QDialog
 {
     friend class QFileListBox;
