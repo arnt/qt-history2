@@ -136,6 +136,8 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			    newDep->vcprojFile = fileFixify(vcproj);
 			    newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
 			    newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
+			    if(newDep->target.endsWith(".dll"))
+				newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
 			    if(!tmp_proj.isEmpty("FORMS")) 
 				newDep->dependencies << "uic.exe";
 			    {
@@ -163,9 +165,13 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 
     VcsolutionDepend *vc;
     QMap<QString, int> uuids;
+    QRegExp libVersion("[0-9]{3,3}\\.lib$");
     for(vc = solution_depends.first(); vc; vc = solution_depends.next()) {
 	static int uuid = 666;
 	uuids.insert(vc->target, uuid);
+	if(libVersion.match(vc->target) != -1) 
+	    uuids.insert(vc->target.left(vc->target.length() - libVersion.matchedLength()) + ".lib", 
+			 uuid);
 	qDebug("\"%s\" \"%s\" { %d }", vc->orig_target.latin1(), vc->vcprojFile.latin1(), uuid++);
     }
     for(vc = solution_depends.first(); vc; vc = solution_depends.next()) {
