@@ -938,6 +938,7 @@ QSize QComboBox::sizeHint() const
 	sh = 5 + 5 + maxH;
 	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
 	sw += sw - cr.width();
+	sw += sh - cr.height();
     } else {
 	//hardcoded values for motif 1.x style
 	int extraW = 20+5;

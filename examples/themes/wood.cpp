@@ -966,6 +966,20 @@ static void get_combo_parameters( const QRect &r,
 }
 
 
+QRect NorwegianWoodStyle::comboButtonRect( int x, int y, int w, int h) const
+{
+    QRect r = buttonRect( x, y, w, h );
+    int ew = get_combo_extra_width( r.height() );
+    return QRect(r.x()+1, r.y()+1, r.width()-2-ew, r.height()-2);
+}
+
+QRect NorwegianWoodStyle::comboButtonFocusRect( int x, int y, int w, int h) const
+{
+    QRect r = buttonRect( x, y, w, h );
+    int ew = get_combo_extra_width( r.height() );
+    return QRect(r.x()+1, r.y()+1, r.width()-2-ew, r.height()-2);
+}
+
 void NorwegianWoodStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				    const QColorGroup &g,
 				    bool /* sunken */,

@@ -35,6 +35,8 @@ public:
 			  const QBrush *fill = 0 );
     QRect buttonRect( int x, int y, int w, int h) const;
     void drawButtonMask( QPainter *p, int x, int y, int w, int h);
+    QRect comboButtonRect( int x, int y, int w, int h) const;
+    QRect comboButtonFocusRect( int x, int y, int w, int h) const;
     void drawComboButton( QPainter *p, int x, int y, int w, int h,
 				    const QColorGroup &g,
 				    bool /* sunken */,
@@ -48,7 +50,7 @@ public:
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
 private:
-    void drawSemicircleButton(QPainter *p, const QRect &r, int dir, 
+    void drawSemicircleButton(QPainter *p, const QRect &r, int dir,
 			      bool sunken, const QColorGroup &g );
     QPalette oldPalette;
     QPixmap *sunkenDark;

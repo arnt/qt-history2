@@ -202,14 +202,16 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
             tlw->installEventFilter( this );
     }
 
+    setFrameStyle( QFrame::MenuBarPanel );
+    
     QFontMetrics fm = fontMetrics();
     int gs = style();
     int h;
     if ( gs == WindowsStyle ) {
-        h = 2 + fm.height() + motifItemVMargin + 2*style().defaultFrameWidth();
+        h = 2 + fm.height() + motifItemVMargin + 2*frameWidth();
     } else {
         h =  style().defaultFrameWidth() + motifBarVMargin + fm.height()
-            + motifItemVMargin + 2*style().defaultFrameWidth() + 2*motifItemFrame;
+	     + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
     }
 
     move( 0, 0 );
@@ -219,13 +221,9 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
         case WindowsStyle:
             setMouseTracking( TRUE );
             break;
-        case MotifStyle:
-            setLineWidth( style().defaultFrameWidth() );
-            break;
         default:
             break;
     }
-    setFrameStyle( QFrame::MenuBarPanel );
     setBackgroundMode( PaletteButton );
 }
 
@@ -694,137 +692,137 @@ int QMenuBar::calculateRects( int max_width )
     bool update = ( max_width < 0 );
 
     if ( update ) {
-        rightSide = 0;
-        if ( !badSize )                         // size was not changed
-            return 0;
-        if ( irects )                           // Avoid purify complaint.
-            delete [] irects;
-        if ( mitems->isEmpty() ) {
-            irects = 0;
-            return 0;
-        }
-        int i = mitems->count();                // workaround for gcc 2.95.2
-        irects = new QRect[ i ];                // create rectangle array
-        Q_CHECK_PTR( irects );
-        max_width = width();
+	rightSide = 0;
+	if ( !badSize )				// size was not changed
+	    return 0;
+	if ( irects )				// Avoid purify complaint.
+	    delete [] irects;
+	if ( mitems->isEmpty() ) {
+	    irects = 0;
+	    return 0;
+	}
+	int i = mitems->count();		// workaround for gcc 2.95.2
+	irects = new QRect[ i ];		// create rectangle array
+	Q_CHECK_PTR( irects );
+	max_width = width();
     }
     QFontMetrics fm = fontMetrics();
     int max_height = 0;
     int max_item_height = 0;
-    int nlitems = 0;                            // number on items on cur line
+    int nlitems = 0;				// number on items on cur line
     int gs = style();
     bool reverse = QApplication::reverseLayout();
-    int x = style().defaultFrameWidth();
-    int y = style().defaultFrameWidth();
+    int x = frameWidth();
+    int y = frameWidth();
     if ( gs == MotifStyle ) {
-        x += motifBarHMargin;
-        y += motifBarVMargin;
+	x += motifBarHMargin;
+	y += motifBarVMargin;
     }
     if ( reverse )
-        x = max_width - x;
+	x = max_width - x;
 
     int i = 0;
     int separator = -1;
 
-    while ( i < (int)mitems->count() ) {        // for each menu item...
-        QMenuItem *mi = mitems->at(i);
+    while ( i < (int)mitems->count() ) {	// for each menu item...
+	QMenuItem *mi = mitems->at(i);
 
-        int w=0, h=0;
+	int w=0, h=0;
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-        if(mac_eaten_menubar && !mi->custom() && !mi->widget()) {
-            w = 0;
-            h = 0;
-        } else
+	if(mac_eaten_menubar && !mi->custom() && !mi->widget()) {
+	    w = 0;
+	    h = 0;
+	} else
 #endif
-        if ( mi->widget() ) {
-            if ( mi->widget()->parentWidget() != this ) {
-                mi->widget()->reparent( this, QPoint(0,0) );
-            }
-            w = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).width()+2;
-            h = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).height()+2;
-            if ( i && separator < 0 )
-                separator = i;
-        } else if ( mi->pixmap() ) {                    // pixmap item
-            w = QMAX( mi->pixmap()->width() + 4, QApplication::globalStrut().width() );
-            h = QMAX( mi->pixmap()->height() + 4, QApplication::globalStrut().height() );
-        } else if ( !mi->text().isNull() ) {    // text item
-            QString s = mi->text();
-            w = fm.boundingRect( s ).width()
-                + 2*motifItemHMargin;
-            w -= s.contains('&')*fm.width('&');
-            w += s.contains("&&")*fm.width('&');
-            w = QMAX( w, QApplication::globalStrut().width() );
-            h = QMAX( fm.height() + motifItemVMargin, QApplication::globalStrut().height() );
-        } else if ( mi->isSeparator() ) {       // separator item
-            if ( style() == MotifStyle )
-                separator = i; //### only motif?
-        }
-        if ( !mi->isSeparator() || mi->widget() ) {
+	if ( mi->widget() ) {
+	    if ( mi->widget()->parentWidget() != this ) {
+		mi->widget()->reparent( this, QPoint(0,0) );
+	    }
+	    w = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).width()+2;
+	    h = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).height()+2;
+	    if ( i && separator < 0 )
+		separator = i;
+	} else if ( mi->pixmap() ) {			// pixmap item
+	    w = QMAX( mi->pixmap()->width() + 4, QApplication::globalStrut().width() );
+	    h = QMAX( mi->pixmap()->height() + 4, QApplication::globalStrut().height() );
+	} else if ( !mi->text().isNull() ) {	// text item
+	    QString s = mi->text();
+	    w = fm.boundingRect( s ).width()
+		+ 2*motifItemHMargin;
+	    w -= s.contains('&')*fm.width('&');
+	    w += s.contains("&&")*fm.width('&');
+	    w = QMAX( w, QApplication::globalStrut().width() );
+	    h = QMAX( fm.height() + motifItemVMargin, QApplication::globalStrut().height() );
+	} else if ( mi->isSeparator() ) {	// separator item
+	    if ( style() == MotifStyle )
+		separator = i; //### only motif?
+	}
+	if ( !mi->isSeparator() || mi->widget() ) {
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-            if ( !mac_eaten_menubar ) {
+	    if ( !mac_eaten_menubar ) {
 #endif
-                if ( gs == MotifStyle ) {
-                    w += 2*motifItemFrame;
-                    h += 2*motifItemFrame;
-                }
+		if ( gs == MotifStyle ) {
+		    w += 2*motifItemFrame;
+		    h += 2*motifItemFrame;
+		}
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-            }
+	    }
 #endif
 
 
-            if ( ( ( !reverse && x + w + style().defaultFrameWidth() - max_width > 0 ) ||
-                 ( reverse && x - w -style().defaultFrameWidth() < 0 ) )
-                 && nlitems > 0 ) {
-                nlitems = 0;
-                x = style().defaultFrameWidth();
-                y += h;
-                if ( gs == MotifStyle ) {
-                    x += motifBarHMargin;
-                    y += motifBarVMargin;
-                }
-                if ( reverse )
-                    x = max_width - x;
-                separator = -1;
-            }
-            if ( y + h + 2*style().defaultFrameWidth() > max_height )
-                max_height = y + h + 2*style().defaultFrameWidth();
-            if ( h > max_item_height )
-                max_item_height = h;
-        }
-        if( reverse )
-            x -= w;
-        if ( update ) {
-            irects[i].setRect( x, y, w, h );
-        }
-        if ( !reverse )
-            x += w;
-        nlitems++;
-        i++;
+	    if ( ( ( !reverse && x + w + frameWidth() - max_width > 0 ) ||
+		 ( reverse && x - w -frameWidth() < 0 ) )
+		 && nlitems > 0 ) {
+		nlitems = 0;
+		x = frameWidth();
+		y += h;
+		if ( gs == MotifStyle ) {
+		    x += motifBarHMargin;
+		    y += motifBarVMargin;
+		}
+		if ( reverse )
+		    x = max_width - x;
+		separator = -1;
+	    }
+	    if ( y + h + 2*frameWidth() > max_height )
+		max_height = y + h + 2*frameWidth();
+	    if ( h > max_item_height )
+		max_item_height = h;
+	}
+	if( reverse )
+	    x -= w;
+	if ( update ) {
+	    irects[i].setRect( x, y, w, h );
+	}
+	if ( !reverse )
+	    x += w;
+	nlitems++;
+	i++;
     }
     if ( update ) {
-        if ( separator >= 0 ) {
-            int moveBy = max_width - x;
-            rightSide = x;
-            while( --i >= separator ) {
-                irects[i].moveBy( moveBy, 0 );
-            }
-        } else {
-            rightSide = width()-frameWidth();
-        }
-        if ( max_height != height() )
-            resize( max_width, max_height );
-        for ( i = 0; i < (int)mitems->count(); i++ ) {
-            irects[i].setHeight( max_item_height  );
-            QMenuItem *mi = mitems->at(i);
-            if ( mi->widget() ) {
-                QRect r ( QPoint(0,0), mi->widget()->sizeHint() );
-                r.moveCenter( irects[i].center() );
-                mi->widget()->setGeometry( r );
-                if( mi->widget()->isHidden() )
-                    mi->widget()->show();
-            }
-        }
-        badSize = FALSE;
+	if ( separator >= 0 ) {
+	    int moveBy = max_width - x;
+	    rightSide = x;
+	    while( --i >= separator ) {
+		irects[i].moveBy( moveBy, 0 );
+	    }
+	} else {
+	    rightSide = width()-frameWidth();
+	}
+	if ( max_height != height() )
+	    resize( max_width, max_height );
+	for ( i = 0; i < (int)mitems->count(); i++ ) {
+	    irects[i].setHeight( max_item_height  );
+	    QMenuItem *mi = mitems->at(i);
+	    if ( mi->widget() ) {
+		QRect r ( QPoint(0,0), mi->widget()->sizeHint() );
+		r.moveCenter( irects[i].center() );
+		mi->widget()->setGeometry( r );
+		if( mi->widget()->isHidden() )
+		    mi->widget()->show();
+	    }
+	}
+	badSize = FALSE;
     }
 
     return max_height;
@@ -1288,14 +1286,15 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
 
 QSize QMenuBar::sizeHint() const
 {
+    int h = height();
     if ( badSize )
-        ( (QMenuBar*)this )->calculateRects();
-    QSize s( style().defaultFrameWidth(), 0 );
+        h = ( (QMenuBar*)this )->calculateRects();
+    QSize s( 2*frameWidth(),0);
     if ( irects ) {
         for ( int i = 0; i < (int)mitems->count(); ++i )
             s.setWidth( s.width() + irects[ i ].width() + 2 );
     }
-    s.setHeight( height() );
+    s.setHeight( h );
     return s.expandedTo( QApplication::globalStrut() );
 }
 
