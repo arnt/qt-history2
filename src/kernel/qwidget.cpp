@@ -2500,9 +2500,10 @@ void QWidget::setPalette( const QPalette &palette )
 void QWidget::unsetPalette()
 {
     if ( own_palette ) {
-	if ( !isTopLevel() && QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
+        if ( !isTopLevel() && QApplication::palette( this ).isCopyOf( QApplication::palette() ) 
+            && parentWidget() ) {
 	    setPalette( parentWidget()->palette() );
-	else
+        } else
 	    setPalette( QApplication::palette( this ) );
 	own_palette = FALSE;
     }
