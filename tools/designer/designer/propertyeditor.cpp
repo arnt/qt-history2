@@ -35,9 +35,6 @@
 #include "mainwindow.h"
 #include "project.h"
 #include "hierarchyview.h"
-#include "layoutdialogimpl.h"
-
-#include <limits.h>
 
 #include <qpainter.h>
 #include <qpalette.h>
@@ -71,6 +68,8 @@
 #include <qprocess.h>
 #include <qstyle.h>
 #include <qdatetimeedit.h>
+
+#include <limits.h>
 
 #include "../pics/arrow.xbm"
 #include "../pics/uparrow.xbm"
