@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#10 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,19 +14,21 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#10 $";
 #endif
 
 
 QLabel::QLabel( QWidget *parent, const char *name )
 	: QFrame( parent, name )
 {
+    initMetaObject();
     align = AlignLeft | AlignVCenter | ExpandTabs;
 }
 
 QLabel::QLabel( const char *label, QWidget *parent, const char *name )
 	: QFrame( parent, name ), str(label)
 {
+    initMetaObject();
     align = AlignLeft | AlignVCenter | ExpandTabs;
 }
 
