@@ -588,7 +588,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	Gestalt(gestaltSystemVersion, &macos_version);
 	qDebug("%ld", macos_version);
 #endif
-	//wattr |= kWindowLiveResizeAttribute;
+	wattr |= kWindowLiveResizeAttribute;
 	if(popup || testWFlags(WStyle_Tool) || 
 	   (!testWFlags(WShowModal) && dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
 	    wattr |= kWindowNoActivatesAttribute;
