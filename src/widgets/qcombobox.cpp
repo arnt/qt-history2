@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#63 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#63 $");
 
 
 /*!
@@ -48,12 +48,57 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#62 $");
   In Motif 2.0, OSF introduced an improved combo box and
   named that XmComboBox.  QComboBox provides both.
 
-  A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
-  not grab focus if clicked.
+  QComboBox provides two different constructors.  The simplest one
+  creates an old-style combo box in Motif style:
+  \code
+      QComboBox * c = new QCombBox( this, "read-only combo" );
+  \endcode
+
+  The other one creates a new-style combo box in Motif style, and can
+  create both read-only and read-write combo boxes:
+  \code
+      QComboBox * c1 = new QCombBox( FALSE, this, "read-only combo" );
+      QComboBox * c2 = new QCombBox( TRUE, this, "read-write combo" );
+  \endcode
+
+  New-style combo boxes use a list box in both Motif and Windows
+  styles, and both the content size and the on-screen size of the list
+  box can be limited.  Old-style combo boxes use a popup in Motif
+  style, and that popup will happily grow larger than the desktop if
+  you put enough data in it.
+
+  The two constructors create identical-looking combos in Windows
+  style.
+
+  Read-only combo boxes can contain pixmaps as well as texts; the
+  insert() and changeItem() functions are suitably overloaded.  If you
+  try to insert a pixmap in a read-write combo box, QComboBox simply
+  ignores you.
 
   A combo box emits two signals, activated() and highlighted(), when a
   new item has been activated (selected) or highlighted (set to
-  current).
+  current).  Both signals exist in two versions, one with a \c char*
+  argument and one with an \c int argument.  If the user highlights or
+  activates a pixmap, only the \c int signals are emitted.
+
+  QComboBox has no public slots.
+
+  Read-write combo boxes offer four policies for dealing with typed
+  input: <ul> <li> \c NoInsertion means to simply emit the activated()
+  signal, <li> \c AtEnd means to insert the string at the end of the
+  combo box and emit activated(), <li> \c AtBeginning means to insert
+  the string at the beginning of the combo box and emit activated(),
+  and finally <li> \c AtCurrent means to replace the previously
+  selected item with the typed string, and emit activated(). </ul> If
+  inserting the typed string would cause the combo box to breach its
+  content size limit, the item at the other end of the list is
+  deleted.  The default insertion policy is \c AtEnd, you can change
+  it using setInsertionPolicy().
+
+  A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
+  not grab focus if clicked.  This differs from both Windows and Motif.
+
+
 */
 
 
@@ -89,6 +134,7 @@ struct QComboData
 {
     int		current;
     int		maxCount;
+    int		sizeLimit;
     QLineEdit * ed;  // /bin/ed rules!
     QComboBox::Policy p;
     bool	edEmpty;
@@ -187,6 +233,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->ed                    = 0;
     d->current               = 0;
     d->maxCount              = INT_MAX;
+    d->sizeLimit	     = 10;
     d->p = AtEnd;
     d->autoresize            = FALSE;
     d->poppedUp              = FALSE;
@@ -203,8 +250,6 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
   Constructs a combo box with a maximum size and either Motif 2.0 or
   Windows look and feel.
 
-  \a size is the maximum number of lines the list box will show at
-  once.  If the contents are any larger, it will scroll.
 */
 
 
@@ -228,6 +273,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->edEmpty = TRUE;
     d->current = 0;
     d->maxCount = INT_MAX;
+    d->sizeLimit = 10;
     d->p = AtEnd;
     d->autoresize = FALSE;
     d->poppedUp = FALSE;
@@ -932,8 +978,10 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	popup();
 	break;
     case Key_Space:
-	e->accept();
-	popup();
+	if ( d->usingListBox ) {
+	    e->accept();
+	    popup();
+	}
 	break;
     case Key_Left:
 	if ( style() != WindowsStyle ) {
@@ -972,13 +1020,14 @@ c	 = currentItem();
 
 /*!
   \internal
-   Calculates the listbox height needed to contain all items.
+   Calculates the listbox height needed to contain all items, or as
+   many as the list box is supposed to contain.
 */
-static int listHeight( QListBox *l )
+static int listHeight( QListBox *l, int sl )
 {
     int i;
     int sumH = 0;
-    for( i = 0 ; i < (int) l->count() ; i++ ) {
+    for( i = 0 ; i < (int) l->count() && i < sl ; i++ ) {
 	sumH += l->itemHeight( i );
     }
     return sumH;
@@ -995,7 +1044,8 @@ void QComboBox::popup()
 	                // Send all listbox events to eventFilter():
 	d->listBox->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
-	d->listBox->resize( width(), listHeight(d->listBox) + 2 );
+	d->listBox->resize( width(),
+			    listHeight( d->listBox, d->sizeLimit ) + 2 );
 	QWidget *desktop = QApplication::desktop();
 	int sw = desktop->width();			// screen width
 	int sh = desktop->height();			// screen height
@@ -1015,6 +1065,7 @@ void QComboBox::popup()
 	d->listBox->move( x, y );
 	d->listBox->raise();
 	d->listBox->setCurrentItem( d->current );
+	d->listBox->setAutoScrollBar( TRUE );
 	d->listBox->show();
     } else {
 	d->popup->installEventFilter( this );
@@ -1071,11 +1122,11 @@ void QComboBox::currentChanged()
   ways.  In Qt 2.0 it will all change, until then binary compatibility
   lays down the law.
 
-   The event filter steals events from the popup or listbox
-   when they are popped up. It makes the popup stay up after a short click
-   in motif style. In windows style it toggles the arrow button of the
-   combo box field, and activates an item and takes down the listbox when
-   the mouse button is released.
+  The event filter steals events from the popup or listbox when they
+  are popped up. It makes the popup stay up after a short click in
+  motif style. In windows style it toggles the arrow button of the
+  combo box field, and activates an item and takes down the listbox
+  when the mouse button is released.
 */
 
 bool QComboBox::eventFilter( QObject *object, QEvent *event )
@@ -1224,13 +1275,44 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 
 
 /*!
-  Returns the current maximum size of the combo box.  By default,
-  there is no limit, so this function returns UINT_MAX.
+  Returns the current maximum on-screen size of the combo box.  The
+  default is ten lines.
 
-  \sa setSizeLimit() count()
+  \sa setSizeLimit() count() maxCount()
 */
 
 int QComboBox::sizeLimit() const
+{
+    return d ? d->sizeLimit : INT_MAX;
+}
+
+
+/*!
+
+  Sets the maximum on-screen size of the combo box to \a lines.  This
+  is disregarded in Motif 1.x style.  The default limit is ten lines.
+
+  If the number of items in the combo box is/grows larger than
+  \c lines, a list box is added.
+
+  \sa sizeLimit() count() setMaxCount()
+*/
+
+void QComboBox::setSizeLimit( int lines )
+{
+    d->sizeLimit = lines;
+}
+
+
+
+/*!
+  Returns the current maximum size of the combo box.  By default,
+  there is no limit, so this function returns INT_MAX.
+
+  \sa setMaxCount() count()
+*/
+
+int QComboBox::maxCount() const
 {
     return d ? d->maxCount : INT_MAX;
 }
@@ -1242,10 +1324,10 @@ int QComboBox::sizeLimit() const
   If \a count is smaller than the current number of items, the list is
   truncated at the end.  There is no limit by default.
 
-  \sa sizeLimit() count()
+  \sa maxCount() count()
 */
 
-void QComboBox::setSizeLimit( int count )
+void QComboBox::setMaxCount( int count )
 {
     int l = this->count();
     while( --l > count )
@@ -1304,13 +1386,15 @@ void QComboBox::returnPressed()
 	    }
 	    break;
 	case AtBeginning:
-	    if ( count() < d->maxCount )
-		insertItem( s, 0 );
+	    if ( count() == d->maxCount )
+		removeItem( count() - 1 );
+	    insertItem( s, 0 );
 	    emit activated( s );
 	    break;
 	case AtEnd:
-	    if ( count() < d->maxCount )
-		insertItem( s );
+	    if ( count() == d->maxCount )
+		removeItem( 0 );
+	    insertItem( s );
 	    emit activated( s );
 	    break;
 	case NoInsertion:

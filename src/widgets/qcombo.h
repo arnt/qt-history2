@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#32 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#33 $
 **
 ** Definition of QComboBox class
 **
@@ -58,6 +58,9 @@ public:
 
     void	setSizeLimit( int );
     int		sizeLimit() const;
+
+    void	setMaxCount( int );
+    int		maxCount() const;
 
     enum	Policy { NoInsertion, AtBeginning,
 			 AtCurrent, AtEnd };
