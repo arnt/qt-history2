@@ -399,7 +399,9 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	return 0;
     case Child:
 	if (complexWidget) {
-	    return entry;
+	    if (entry > 0 && entry <= childCount())
+		return entry;
+	    return -1;
 	}else {
 	    if (entry > 0 && childList.count() >= entry)
 		targetObject = childList.at(entry - 1);
