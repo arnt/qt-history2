@@ -175,6 +175,7 @@ MakefileGenerator::initOutPaths()
             const QStringList &inputs = project->variables()[(*it2)];
             for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
                 QString path = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+                path = Option::fixPathToLocalOS(path);
                 int slash = path.lastIndexOf(Option::dir_sep);
                 if(slash != -1) {
                     path = path.left(slash);
@@ -1548,7 +1549,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
             QString in = Option::fixPathToTargetOS((*input), false);
             QStringList deps = findDependencies((*input));
-            if(!tmp_dep.isEmpty()) 
+            if(!tmp_dep.isEmpty())
                 deps += fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
             QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
