@@ -40,7 +40,7 @@ DESTDIR                = ../../../bin
 TARGET                = linguist
 
 
-LIBS        += -L$$QT_BUILD_TREE/lib -lqassistantclient
+LIBS        +=  -lqassistantclient
 
 win32:RC_FILE        = linguist.rc
 

@@ -6,21 +6,24 @@
 
 #include "mainwindow.h"
 
-#include <qapplication.h>
-#include <qstring.h>
-#include <qtextcodec.h>
-#include <qtranslator.h>
+#include <QApplication>
+#include <QString>
+#include <QLocale>
+#include <QTranslator>
 
-int main( int argc, char **argv )
+int main(int argc, char **argv)
 {
-    QApplication app( argc, argv );
+    QApplication app(argc, argv);
 
-    QTranslator translator( 0 );
-    translator.load( QString("tt3_") + QTextCodec::locale(), "." );
-    app.installTranslator( &translator );
+    QString locale = QLocale::system().name();
+    locale.chop(3); //remove country
+
+    QTranslator translator(0);
+    translator.load(QString("tt3_") + locale, ".");
+    app.installTranslator(&translator);
 
     MainWindow *mw = new MainWindow;
-    app.setMainWidget( mw );
+    app.setMainWidget(mw);
     mw->show();
     return app.exec();
 }
