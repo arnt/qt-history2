@@ -1223,13 +1223,15 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
 
 void PopupMenuEditor::dropInPlace( QActionGroup * g, int y )
 {
-    QObjectList l = g->children();
-    for (int i = l.size() - 1; i >= 0; --i) {
-	QAction *a = ::qt_cast<QAction *>(l.at(i));
-	QActionGroup *g = ::qt_cast<QActionGroup*>(a);
+    if (!g->children())
+	return;
+    QObjectList l = *g->children();
+    for ( int i = 0; i < l.count(); ++i ) {
+	QAction *a = ::qt_cast<QAction*>(l.at(i));
+	QActionGroup *g = ::qt_cast<QActionGroup*>(l.at(i));
 	if ( g )
 	    dropInPlace( g, y );
-	else
+	else if ( a )
 	    dropInPlace( new PopupMenuEditorItem( a, this ), y );
     }
 }
