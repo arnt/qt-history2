@@ -1700,7 +1700,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             bool firstTab = tab->position == QStyleOptionTab::Beginning;
             bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
             QRect r2(tab->rect);
-            if (tab->shape == QTabBar::RoundedAbove) {
+            if (tab->shape == QTabBar::RoundedNorth) {
                 p->setPen(tab->palette.light().color());
                 p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
                 if (r2.x() == 0 && widget->x() == 0)
@@ -1754,7 +1754,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     x2++;
                     p->drawLine(x2, r2.top() + 2, x2, r2.bottom() - (selected ? 1 : 2));
                 }
-            } else if (tab->shape == QTabBar::RoundedBelow){
+            } else if (tab->shape == QTabBar::RoundedSouth){
                 bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget)== Qt::AlignRight;
                 if (selected) {
                     p->fillRect(QRect(r2.left(), r2.top(), r2.width(), 2),
@@ -1790,6 +1790,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 p->setPen(tab->palette.light().color());
                 p->drawLine(r2.left(), r2.top()+ (selected ? 0 : 2), r2.left(), r2.bottom()- 2);
+            } else if (tab->shape == QTabBar::RoundedEast || tab->shape == QTabBar::RoundedWest) {
+                p->drawRect(tab->rect);
             } else {
                 QCommonStyle::drawControl(ce, tab, p, widget);
             }

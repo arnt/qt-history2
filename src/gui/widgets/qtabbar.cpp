@@ -799,21 +799,17 @@ void QTabBar::paintEvent(QPaintEvent *)
 {
     QStylePainter p(this);
 
-    QStyleOptionTab opt;
-    opt.init(this);
+    QStyleOptionTabWidgetFrame opt1;
+    opt1.init(this);
     if (QTabWidget *tw = qt_cast<QTabWidget *>(parentWidget())) {
         if (tw->cornerWidget(Qt::TopLeftCorner) || tw->cornerWidget(Qt::TopRightCorner)) {
-            opt.rect.setLeft(0 - (x() + tw->x()));
-            opt.rect.setWidth(tw->width());
+            opt1.rect.setLeft(-(x() + tw->x()));
+            opt1.rect.setWidth(tw->width());
         }
 
     }
-    if (d->shape == QTabBar::RoundedNorth)
-        opt.state |= QStyle::Style_Top;
-    else if (d->shape == QTabBar::RoundedSouth)
-        opt.state |= QStyle::Style_Bottom;
-    opt.shape = d->shape;
-    p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt);
+    opt1.shape = d->shape;
+    p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt1);
 
     int selected = -1;
     for (int i = 0; i < d->tabList.count(); ++i) {
@@ -821,16 +817,16 @@ void QTabBar::paintEvent(QPaintEvent *)
             selected = i;
             continue;
         }
-        QStyleOptionTab opt = d->getStyleOption(i);
-        p.drawControl(QStyle::CE_TabBarTab, opt);
-        p.drawControl(QStyle::CE_TabBarLabel, opt);
+        QStyleOptionTab tab = d->getStyleOption(i);
+        p.drawControl(QStyle::CE_TabBarTab, tab);
+        p.drawControl(QStyle::CE_TabBarLabel, tab);
     }
 
     // Draw the selected tab last to get it "on top"
     if (selected >= 0) {
-        QStyleOptionTab opt = d->getStyleOption(selected);
-        p.drawControl(QStyle::CE_TabBarTab, opt);
-        p.drawControl(QStyle::CE_TabBarLabel, opt);
+        QStyleOptionTab tab = d->getStyleOption(selected);
+        p.drawControl(QStyle::CE_TabBarTab, tab);
+        p.drawControl(QStyle::CE_TabBarLabel, tab);
     }
 
 }

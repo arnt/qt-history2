@@ -910,7 +910,7 @@ void QTabWidget::tabRemoved(int index)
 void QTabWidget::paintEvent(QPaintEvent *)
 {
     QStylePainter p(this);
-    QStyleOptionFrame opt;
+    QStyleOptionTabWidgetFrame opt;
     opt.palette = palette();
     opt.fontMetrics = d->tabs->fontMetrics();
     opt.state = QStyle::Style_None;
@@ -918,17 +918,27 @@ void QTabWidget::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Enabled;
     if (isActiveWindow())
         opt.state |= QStyle::Style_Active;
-    if (tabPosition() == QTabWidget::North)
-        opt.state |= QStyle::Style_Top;
-    else if (tabPosition() == QTabWidget::South)
-        opt.state |= QStyle::Style_Bottom;
+    switch (d->pos) {
+    case North:
+        opt.shape = d->shape == Rounded ? QTabBar::RoundedNorth : QTabBar::TriangularNorth;
+        break;
+    case South:
+        opt.shape = d->shape == Rounded ? QTabBar::RoundedSouth : QTabBar::TriangularSouth;
+        break;
+    case West:
+        opt.shape = d->shape == Rounded ? QTabBar::RoundedWest : QTabBar::TriangularWest;
+        break;
+    case East:
+        opt.shape = d->shape == Rounded ? QTabBar::RoundedEast : QTabBar::TriangularEast;
+        break;
+    }
     opt.rect = d->panelRect;
     p.drawPrimitive(QStyle::PE_FrameTabWidget, opt);
     if (d->leftCornerWidget || d->rightCornerWidget) {
-        if (opt.state & QStyle::Style_Top) {
+        if (d->pos == North) {
             opt.rect.setTop(opt.rect.top() - 2);
             opt.rect.setHeight(2);
-        } else {
+        } else if (d->pos == South) {
             opt.rect.setTop(opt.rect.bottom() + 1);
             opt.rect.setHeight(2);
         }

@@ -632,42 +632,90 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         p->setPen(oldPen);
         break; }
-    case PE_FrameTabWidget: {
-        p->save();
-        p->setPen(opt->palette.light().color());
-        if (opt->state & Style_Top) {
-            QRect r2(opt->rect);
-            p->drawLine(opt->rect.topLeft(), opt->rect.bottomLeft() - QPoint(0, 1));
-            p->setPen(opt->palette.shadow().color());
-            p->drawLine(r2.left(), r2.bottom()+ 1, r2.right(), r2.bottom() + 1);
-            p->setPen(opt->palette.dark().color());
-            p->drawLine(r2.left(), r2.bottom(), r2.right() - 1, r2.bottom());
-            p->drawLine(opt->rect.bottomRight() - QPoint(0, 1), opt->rect.topRight());
-        } else if (opt->state & Style_Bottom) {
-            int top = opt->rect.top();
-            p->drawLine(opt->rect.left(), opt->rect.bottom(), opt->rect.left(), top + 1);
-            p->drawLine(opt->rect.left(), top, opt->rect.right(), top);
-            p->drawLine(opt->rect.right(), top + 1, opt->rect.right(), opt->rect.bottom());
-        }
-        p->restore();
-        break; }
-    case PE_FrameTabBarBase: {
-        QPen oldPen = p->pen();
-        QRect r2 = opt->rect;
-        if (opt->state & Style_Top) {
+    case PE_FrameTabWidget:
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            QPen oldPen = p->pen();
             p->setPen(opt->palette.light().color());
-            p->drawLine(r2.left(), r2.bottom() - 1, r2.left(), r2.bottom());
-            p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
-            p->setPen(opt->palette.dark().color());
-            p->drawLine(r2.right(), r2.bottom() - 1, r2.right(), r2.bottom());
-        } else if (opt->state & Style_Bottom) {
-            p->setPen(opt->palette.shadow().color());
-            p->drawLine(r2.left(), r2.top()+ 1, r2.right(), r2.top() + 1);
-            p->setPen(opt->palette.dark().color());
-            p->drawLine(r2.left(), r2.top(), r2.right()- 1, r2.top());
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+                p->drawLine(opt->rect.left(), opt->rect.top(),
+                            opt->rect.left(), opt->rect.bottom() - 1);
+                p->setPen(opt->palette.shadow().color());
+                p->drawLine(opt->rect.left(), opt->rect.bottom() + 1,
+                            opt->rect.right(), opt->rect.bottom() + 1);
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(opt->rect.left(), opt->rect.bottom(),
+                            opt->rect.right() - 1, opt->rect.bottom());
+                p->drawLine(opt->rect.right(), opt->rect.bottom() - 1,
+                            opt->rect.right(), opt->rect.top());
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth: {
+                int top = opt->rect.top();
+                p->drawLine(opt->rect.left(), opt->rect.bottom(), opt->rect.left(), top + 1);
+                p->drawLine(opt->rect.left(), top, opt->rect.right(), top);
+                p->drawLine(opt->rect.right(), top + 1, opt->rect.right(), opt->rect.bottom());
+                break; }
+            case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
+                p->drawLine(opt->rect.left() + 1, opt->rect.top(),
+                            opt->rect.right() - 1, opt->rect.top());
+                p->setPen(opt->palette.shadow().color());
+                p->drawLine(opt->rect.left() + 1, opt->rect.bottom() + 1,
+                            opt->rect.right(), opt->rect.bottom() + 1);
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(opt->rect.left() + 1, opt->rect.bottom(),
+                            opt->rect.right() - 1, opt->rect.bottom());
+                p->drawLine(opt->rect.right(), opt->rect.bottom() - 1,
+                            opt->rect.right(), opt->rect.top());
+                break;
+            case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
+                // Implement...
+                break;
+            }
+            p->setPen(oldPen);
         }
-        p->setPen(oldPen);
-        break; }
+        break;
+    case PE_FrameTabBarBase:
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            QPen oldPen = p->pen();
+            QRect r2 = opt->rect;
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+                p->setPen(opt->palette.light().color());
+                p->drawLine(r2.left(), r2.bottom() - 1, r2.left(), r2.bottom());
+                p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(r2.right(), r2.bottom() - 1, r2.right(), r2.bottom());
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                p->setPen(opt->palette.shadow().color());
+                p->drawLine(r2.left(), r2.top()+ 1, r2.right(), r2.top() + 1);
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(r2.left(), r2.top(), r2.right()- 1, r2.top());
+                break;
+            case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
+                p->setPen(opt->palette.light().color());
+                p->drawLine(r2.left() + 1, r2.bottom(), r2.left(), r2.bottom());
+                p->drawLine(r2.left(), r2.bottom(), r2.left(), r2.top());
+                p->drawLine(r2.left() + 1, r2.top(), r2.left(), r2.top());
+                break;
+            case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
+                p->setPen(opt->palette.light().color());
+                p->drawLine(r2.right() - 1, r2.bottom(), r2.right(), r2.bottom());
+                p->drawLine(r2.right(), r2.bottom(), r2.right(), r2.top());
+                p->drawLine(r2.right() - 1, r2.top(), r2.right(), r2.top());
+                break;
+            }
+            p->setPen(oldPen);
+        }
+        break;
     case PE_FrameLineEdit:
     case PE_FrameWindow:
         drawPrimitive(PE_Frame, opt, p, widget);
@@ -1221,7 +1269,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 for (i = 0; i < 5; ++i)
                     a.setPoint(9 - i, right - a.point(i).x(), a.point(i).y());
 
-                if (tab->shape == QTabBar::TriangularAbove)
+                if (tab->shape == QTabBar::TriangularNorth)
                     for (i = 0; i < 10; ++i)
                         a.setPoint(i, a.point(i).x(), tab->rect.height() - 1 - a.point(i).y());
 
@@ -1235,6 +1283,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 p->drawPolygon(a);
                 p->setPen(oldPen);
                 p->setBrush(oldBrush);
+            } else {
+                p->drawRect(tab->rect);
             }
         }
         break;
