@@ -944,7 +944,7 @@ QDate QDate::currentDate()
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
     GetLocalTime(&st);
-    d.jd = gregorianToJulian(st.wYear, st.wMonth, st.wDay);
+    d.jd = QDate::gregorianToJulian(st.wYear, st.wMonth, st.wDay);
 #else
     // posix compliant system
     time_t ltime;
@@ -2111,7 +2111,7 @@ QString QDateTime::toString(DateFormat f) const
         QT_WA({
             TCHAR out[255];
             GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255);
-            winstr = QString::fromUcs2((ushort*)out);
+            winstr = QString::fromUtf16((ushort*)out);
         } , {
             char out[255];
             GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_ILDATE, (char*)&out, 255);
@@ -2123,7 +2123,7 @@ QString QDateTime::toString(DateFormat f) const
             buf += QLatin1Char(' ');
             buf += QString::number(d->date.day());
             buf += QLatin1String(". ");
-            buf += d.shortMonthName(d->date.month());
+            buf += d->date.shortMonthName(d->date.month());
             break;
         default:
             buf = d->date.shortDayName(d->date.dayOfWeek());
@@ -2446,7 +2446,7 @@ QDateTime QDateTime::currentDateTime()
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
     GetLocalTime(&st);
-    d.jd = gregorianToJulian(st.wYear, st.wMonth, st.wDay);
+    d.jd = QDate::gregorianToJulian(st.wYear, st.wMonth, st.wDay);
     t.ds = (uint)(MSECS_PER_HOUR * st.wHour + MSECS_PER_MIN * st.wMinute + 1000 * st.wSecond
                   + st.wMilliseconds);
     return QDateTime(d, t);
