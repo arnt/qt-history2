@@ -1531,7 +1531,9 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     match = model()->match(start, QAbstractItemModel::DisplayRole, searchString);
     if (!match.isEmpty() && match.at(0).isValid()) {
         selectionModel()->setCurrentIndex(match.at(0),
-            d->selectionMode == SingleSelection ? QItemSelectionModel::ClearAndSelect : QItemSelectionModel::NoUpdate);
+            (d->selectionMode == SingleSelection
+             ? QItemSelectionModel::ClearAndSelect
+             : QItemSelectionModel::NoUpdate));
     }
 }
 
@@ -1552,10 +1554,10 @@ int QAbstractItemView::rowSizeHint(int row) const
     QAbstractItemDelegate *delegate = itemDelegate();
     int height = 0;
     int colCount = d->model->columnCount(root());
-    QModelIndex idx;
+    QModelIndex index;
     for (int c = 0; c < colCount; ++c) {
-        idx = d->model->index(row, c, root());
-        height = qMax(height, delegate->sizeHint(option, d->model, idx).height());
+        index = d->model->index(row, c, root());
+        height = qMax(height, delegate->sizeHint(option, d->model, index).height());
     }
     return height;
 }
@@ -1569,10 +1571,10 @@ int QAbstractItemView::columnSizeHint(int column) const
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = 0;
     int rows = d->model->rowCount(root());
-    QModelIndex idx;
+    QModelIndex index;
     for (int r = 0; r < rows; ++r) {
-        idx = d->model->index(r, column, root());
-        width = qMax(width, delegate->sizeHint(option, d->model, idx).width());
+        index = d->model->index(r, column, root());
+        width = qMax(width, delegate->sizeHint(option, d->model, index).width());
     }
     return width;
 }
@@ -1700,18 +1702,18 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 */
 void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    if (previous.isValid()) {
-//         int behavior = selectionBehavior();
-//         QRect rect = itemViewportRect(previous);
-//         if (behavior & SelectRows) {
-//             rect.setLeft(0);
-//             rect.setRight(d->viewport->width());
-//         }
-//         if (behavior & SelectColumns) {
-//             rect.setTop(0);
-//             rect.setBottom(d->viewport->height());
-//         }
-//         d->viewport->repaint(rect);
+    if (previous.isValid()) { 
+        int behavior = selectionBehavior();
+        QRect rect = itemViewportRect(previous);
+        if (behavior & SelectRows) {
+            rect.setLeft(0);
+            rect.setRight(d->viewport->width());
+        }
+        if (behavior & SelectColumns) {
+            rect.setTop(0);
+            rect.setBottom(d->viewport->height());
+        }
+        d->viewport->repaint(rect);
         if (state() == EditingState) {
             QPersistentModelIndex persistent(previous, model());
             QWidget *editor = d->editors.value(persistent);

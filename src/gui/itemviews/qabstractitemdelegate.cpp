@@ -221,7 +221,6 @@ QString QAbstractItemDelegate::ellipsisText(const QFontMetrics &fontMetrics, int
     int len = org.length();
     int offset = (align & Qt::AlignRight) ? len - 1 : 0;
 
-    // FIXME: slow !!!
     while (i < len && fontMetrics.width(text + org.at(offset)) + ellWidth < width) {
 	if (align & Qt::AlignRight) {
 	    text.prepend(org.at(offset));
