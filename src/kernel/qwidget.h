@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#105 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#106 $
 **
 ** Definition of QWidget class
 **
@@ -256,6 +256,7 @@ private:
     bool	 destroy();
     void	 createExtra();
     void	 deleteExtra();
+    void	 sendDeferredEvents( bool, bool );
     WId		 winid;
     WFlags	 flags;
     QRect	 frect;
@@ -274,6 +275,7 @@ private:
     friend class QPainter;
     friend class QFontMetrics;
     friend class QFontInfo;
+    friend class QETWidget;
 
 private:	// Disabled copy constructor and operator=
     QWidget( const QWidget & ) :QPaintDevice(0) {}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#59 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#59 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -214,10 +214,6 @@ bool QWidget::create()
     setWFlags( WState_Created );		// accept move/resize events
     hdc = 0;					// no display context
 
-    if ( topLevel ) {				// init for resize detection
-	createExtra();
-	extra->resized = FALSE;
-    }
     return TRUE;
 }
 
@@ -610,7 +606,6 @@ void QWidget::move( int x, int y )
 void QWidget::resize( int w, int h )
 {
     if ( extra ) {				// any size restrictions?
-	extra->resized = TRUE;
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
@@ -633,7 +628,6 @@ void QWidget::resize( int w, int h )
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
     if ( extra ) {				// any size restrictions?
-	extra->resized = TRUE;
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);

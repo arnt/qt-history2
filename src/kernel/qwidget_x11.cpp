@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#166 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#165 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#166 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -36,6 +36,9 @@ extern bool qt_nograb();
 
 static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
+
+static QIntDict<int> * deferredMoves = 0;
+static QIntDict<int> * deferredResizes = 0;
 
 
 /*****************************************************************************
@@ -232,10 +235,12 @@ void QWidget::create( WId window )
     }
     if ( destroyw )
 	XDestroyWindow( dpy, destroyw );
-    if ( topLevel ) {				// init for resize detection
-	createExtra();
-	extra->resized = FALSE;
-    }
+    if ( deferredResizes == 0 )
+	deferredResizes = new QIntDict<int>( 71 );
+    deferredResizes->insert( (long)this, (int*)-1 );
+    if ( deferredMoves == 0 )
+	deferredMoves = new QIntDict<int>( 71 );
+    deferredMoves->insert( (long)this, (int*)-1 );
 }
 
 
@@ -260,6 +265,8 @@ bool QWidget::create()
 
 bool QWidget::destroy()
 {
+    deferredMoves->take( (long)this );
+    deferredResizes->take( (long)this );
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;			// reset focus widget
     if ( parentWidget() && parentWidget()->focusChild == this )
@@ -821,13 +828,66 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
     }
 }
 
+
+
+
 /*!
   \overload void QWidget::repaint( const QRect &r, bool erase )
 */
 
 
+static void do_size_hints( Display *, WId, QWExtra *, XSizeHints * );
+
+
+/*! Send deferred or enforced move and resize events for this widget.
+  If \a m is TRUE, X told us that the widget has moved and that's it.
+  If \a r is TRUE, X told us that the widget has been resized and
+  that's it.
+
+*/
+
+void QWidget::sendDeferredEvents( bool m, bool r ) {
+    int i;
+    if ( m || (i=(int)deferredMoves->find( (long)this )) ) {
+	deferredMoves->take( (long)this );
+	QMoveEvent e( pos(), QPoint( (short)(i>>16), (short)i&0xffff ) );
+	if ( testWFlags(WType_TopLevel) ) {
+	    XSizeHints size_hints;
+	    size_hints.flags = PPosition;
+	    size_hints.x = x();
+	    size_hints.y = y();
+	     // ### combine the two do_size_hints() calls?
+	    do_size_hints( dpy, winid, extra, &size_hints ); 
+	}
+	if ( !m )
+	    XMoveWindow( dpy, winid, x(), y() );
+	QApplication::sendEvent( this, &e );
+    }
+    if ( r || (i=(int)deferredResizes->find( (long)this )) ) {
+	deferredResizes->take( (long)this );
+	QResizeEvent e( size(), QSize( (short)(i>>16), (short)i&0xffff ) );
+	if ( testWFlags(WType_TopLevel) ) {
+	    XSizeHints size_hints;
+	    size_hints.flags = PSize;
+	    size_hints.width = width();
+	    size_hints.height = height();
+	    do_size_hints( dpy, winid, extra, &size_hints );
+	}
+	if ( !r )
+	    XResizeWindow( dpy, winid, width(), height() );
+	QApplication::sendEvent( this, &e );
+    }
+}
+
+
+
 /*!
   Shows the widget and its child widgets.
+
+  Qt guarantees that a widget gets move and resize events just before
+  the widget is shown, if its size or position is new.  show() is
+  responsible for sending these events.
+
   \sa hide(), iconify(), isVisible()
 */
 
@@ -835,6 +895,7 @@ void QWidget::show()
 {
     if ( testWFlags(WState_Visible) )
 	return;
+
     if ( extra ) {
 	int w = crect.width();
 	int h = crect.height();
@@ -842,9 +903,12 @@ void QWidget::show()
 	     w > extra->maxw || h > extra->maxh ) {
 	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
 	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
-	    resize( w, h );
+	    resize( w, h ); // may defer resize event :)
 	}
     }
+
+    sendDeferredEvents( FALSE, FALSE );
+
     if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -870,6 +934,7 @@ void QWidget::show()
 	qt_open_popup( this );
 }
 
+
 /*!
   Hides the widget.
   \sa show(), iconify(), isVisible()
@@ -892,7 +957,10 @@ void QWidget::hide()
 	qt_close_popup( this );
     XUnmapWindow( dpy, winid );
     clearWFlags( WState_Visible );
+    deferredMoves->take( (long)this );
+    deferredResizes->take( (long)this );
 }
+
 
 /*!
   Iconifies the widget.
@@ -989,7 +1057,9 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 /*!
   Moves the widget to the position \e (x,y) relative to the parent widget.
 
-  A \link moveEvent() move event\endlink is generated immediately.
+  A \link moveEvent() move event\endlink is generated immediately, if
+  the widget is visible, or when show() is called, if the widget is
+  hidden
 
   This function is virtual, and all other overloaded move()
   implementations call it.
@@ -1009,6 +1079,17 @@ void QWidget::move( int x, int y )
 	return;
     r.moveTopLeft( p );
     setFRect( r );
+
+    if ( !isVisible() ) {
+	if ( !deferredMoves->find( (long)this ) )
+	    deferredMoves->insert( (long)this,(int*)((int)oldp.x()<<16+
+						     (int)oldp.y()) );
+	return;
+    } else {
+	// move();show();move(); can "overlap"
+	deferredMoves->take( (long)this );
+    }
+
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PPosition;
@@ -1029,7 +1110,9 @@ void QWidget::move( int x, int y )
 /*!
   Resizes the widget to size \e w by \e h pixels.
 
-  A \link resizeEvent() resize event\endlink is generated at once.
+  A \link resizeEvent() resize event\endlink is generated at once, if
+  the widget is visible, or when show() is called, if the widget is
+  hidden.
 
   The size is adjusted if it is outside the \link setMinimumSize()
   minimum\endlink or \link setMaximumSize() maximum\endlink widget size.
@@ -1053,7 +1136,6 @@ void QWidget::resize( int w, int h )
     if ( h < 1 )
 	h = 1;
     if ( extra ) {				// any size restrictions?
-	extra->resized = TRUE;
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
@@ -1064,6 +1146,16 @@ void QWidget::resize( int w, int h )
     QSize olds = size();
     r.setSize( s );
     setCRect( r );
+
+    if ( !isVisible() ) {
+	if ( !deferredResizes->find( (long)this ) )
+	    deferredResizes->insert( (long)this, (int*)((int)olds.width()<<16+
+							(int)olds.height()) );
+	return;
+    } else {
+	deferredResizes->take( (long)this );
+    }
+
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PSize;
@@ -1085,8 +1177,9 @@ void QWidget::resize( int w, int h )
   Sets the widget geometry to \e w by \e h, positioned at \e x,y in its
   parent widget.
 
-  A \link resizeEvent() resize event\endlink and a
-  \link moveEvent() move event\endlink is generated immediately.
+  A \link resizeEvent() resize event\endlink and a \link moveEvent()
+  move event\endlink is generated immediately, if the widget is
+  visible, or when show() is called, if the widget is hidden.
 
   The size is adjusted if it is outside the \link setMinimumSize()
   minimum\endlink or \link setMaximumSize() maximum\endlink widget size.
@@ -1108,7 +1201,6 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     if ( h < 1 )
 	h = 1;
     if ( extra ) {				// any size restrictions?
-	extra->resized = TRUE;
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
@@ -1119,7 +1211,23 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QRect  r( x, y, w, h );
     if ( testWFlags(WType_Desktop) )
 	return;
+
     setCRect( r );
+
+    if ( !isVisible() ) {
+	if ( !deferredResizes->find( (long)this ) )
+	    deferredResizes->insert( (long)this, (int*)((int)olds.width()<<16+
+							(int)olds.height()) );
+	if ( !deferredMoves->find( (long)this ) )
+	    deferredMoves->insert( (long)this, (int*)((int)oldp.x()<<16+
+						      (int)oldp.y()) );
+	return;
+    } else {
+	// e.g. move();show();move(); can "overlap"
+	deferredResizes->take( (long)this );
+	deferredMoves->take( (long)this );
+    }
+
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USPosition | USSize;
