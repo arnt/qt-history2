@@ -923,6 +923,9 @@ void QMenuBar::drawContents( QPainter *p )
     if ( !irects )
 	return;
 
+    // Draw the menu bar contents in the current style
+    style().drawMenuBarPanel( p, 0, 0, width(), height(), g );
+
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	if ( !mi->text().isNull() || mi->pixmap() ) {
@@ -947,9 +950,6 @@ void QMenuBar::drawContents( QPainter *p )
 	}
     }
     erase( reg );
-
-    // Draw the menu bar contents in the current style
-    style().drawMenuBarPanel( p, 0, 0, width(), height(), g );
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
 	    if ( !mac_eaten_menubar ) {
