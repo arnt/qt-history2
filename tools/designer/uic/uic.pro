@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt console warn_on release
+CONFIG		+= qt console warn_on release
 HEADERS	= uic.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
@@ -14,6 +14,8 @@ SOURCES	= uic.cpp  \
 
 TARGET		= uic
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
+!zlib:LIBS      += -lz
+
 unix:LIBS	+= -lqutil -L../lib
 win32:LIBS	+= $(QTDIR)/lib/qutil.lib
 DEFINES 	+= UIC
