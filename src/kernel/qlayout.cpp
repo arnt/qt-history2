@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#127 $
 **
 ** Implementation of layout classes
 **
@@ -468,15 +468,13 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 
 static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 				int start, int end,
-				int minSize, int /*sizeHint*/ )
+				int minSize, int sizeHint )
 {
     //distribute the sizes somehow.
-    //### sizeHint calculation disabled, to big a change just before
-    // the release
 
     int i;
     int w = 0;
-    //    int wh = 0;
+    int wh = 0;
     bool exp = FALSE;
     bool stretch = FALSE;
     for ( i = start; i <= end; i++ ) {
@@ -487,7 +485,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 	chain[i].empty = FALSE;
     }
     w += spacing * (end-start);
-    //    wh += spacing * (end-start);
+    wh += spacing * (end-start);
 
     if ( w < minSize ) {
 	//debug( "Big multicell" );
@@ -497,7 +495,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 		chain[i].minimumSize = chain[i].size;
 	}
     }
-    /*
+
     if ( wh < sizeHint ) {
 	qGeomCalc( chain, start, end-start+1, 0, sizeHint, spacing );
 	for ( i = start; i <= end; i++ ) {
@@ -505,7 +503,6 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 		chain[i].sizeHint = chain[i].size;
 	}
     }
-    */
 }
 
 
@@ -1826,7 +1823,7 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 
 
 /*! \enum QBoxLayout::Direction
-  
+
   This type is used to determine the direction of
   a box layout. The possible values are:
 
@@ -1837,7 +1834,7 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
   <li>\c Down - An alias for \c TopToBottom
   <li>\c BottomToTop - Vertical, from bottom to top
   <li>\c Up - An alias for \c BottomToTop
-  </ul>   
+  </ul>
  */
 
 
