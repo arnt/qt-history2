@@ -369,11 +369,22 @@ QLineEdit::~QLineEdit()
     delete d;
 }
 
+/*!
+    Sets the password character to \a c.
+
+    \sa passwordChar()
+*/
+
 void QLineEdit::setPasswordChar( QChar c )
 {
     d->passwordChar = c;
 }
 
+/*!
+    Returns the password character.
+
+    \sa setPasswordChar()
+*/
 QChar QLineEdit::passwordChar() const
 {
     return d->passwordChar;
@@ -464,9 +475,6 @@ void QLineEdit::deselect()
 {
     d->selectionStart = 0;
     d->parag->removeSelection( QTextDocument::Standard );
-#ifndef QT_NO_CURSOR
-    setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
-#endif
     update();
 }
 
@@ -1089,7 +1097,7 @@ void QLineEdit::doDrag()
     if ( tdo->drag() && !isReadOnly() )
 	del();
 #ifndef QT_NO_CURSOR
-    setCursor( ibeamCursor );
+    setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
     d->mousePressed = FALSE;
 }
