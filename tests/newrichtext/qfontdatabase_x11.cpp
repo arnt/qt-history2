@@ -562,30 +562,25 @@ static void loadXlfdEncoding( int encoding_id )
 	    QtFontFoundry *foundry = family->foundry( foundryName,  TRUE );
 	    QtFontStyle *style = foundry->style( styleKey,  TRUE );
 
+	    style->xlfd_uses_regular = ( qstrcmp( tokens[QFontPrivate::Weight],
+						  "regular" ) == 0 );
+
 	    if ( smooth_scalable ) {
 		style->smoothScalable = TRUE;
 		style->bitmapScalable = FALSE;
-		if ( style->pixelSizes ) {
-		    free( style->pixelSizes );
-		    style->pixelSizes = 0;
-		    style->count = 0;
-		}
+		pixelSize = SMOOTH_SCALABLE;
 	    }
-	    if ( !style->smoothScalable ) {
-		if ( bitmap_scalable )
-		    style->bitmapScalable = TRUE;
-		else {
-		    style->pixelSize( pixelSize, TRUE );
-		}
-	    }
+	    if ( !style->smoothScalable && bitmap_scalable )
+		style->bitmapScalable = TRUE;
 	    if ( !fixedPitch )
 		family->fixedPitch = FALSE;
+
+	    QtFontSize *size = style->pixelSize( pixelSize, TRUE );
+	    size->encodingID( encoding_id, TRUE );
 	}
     }
 
     XFreeFontNames( fontList );
-
-
 }
 
 
@@ -614,7 +609,7 @@ static void loadXft()
 	if (XftPatternGetString(fonts->fonts[i],
 				XFT_FAMILY, 0, &value) != XftResultMatch )
 	    continue;
-// 	capitalize( value );
+	// 	capitalize( value );
 	familyName = value;
 
 	slant_value = XFT_SLANT_ROMAN;
@@ -632,11 +627,15 @@ static void loadXft()
 	styleKey.weight = getXftWeight( weight_value );
 
 	QtFontFamily *family = db->scripts[script].family( familyName, TRUE );
-	QtFontFoundry *foundry = family->foundry( QString( QChar(0xfffd) ),  TRUE );
+	QtFontFoundry *foundry = family->foundry( QString::null,  TRUE );
 	QtFontStyle *style = foundry->style( styleKey,  TRUE );
 
 	style->smoothScalable = TRUE;
 	family->fixedPitch = ( spacing_value < XFT_MONO );
+
+	QtFontSize *size = style->pixelSize( SMOOTH_SCALABLE, TRUE );
+	size->encodingID( -1, TRUE );
+
     }
 
     XftFontSetDestroy (fonts);
@@ -700,8 +699,17 @@ void QFontDatabase::createDatabase()
 			qDebug("                   smooth scalable" );
 		    else if ( style->bitmapScalable )
 			qDebug("                   bitmap scalable" );
-		    if ( style->pixelSizes )
+		    if ( style->pixelSizes ) {
 			qDebug("                   %d pixel sizes",  style->count );
+			for ( int z = 0; z < style->count; ++z ) {
+			    QtFontSize *size = style->pixelSizes + z;
+			    for ( int e = 0; e < size->count; ++e ) {
+				qDebug( "                     size %5d encoding %s",
+					size->pixelSize,
+					xlfd_for_id( size->encodings[e] ) );
+			    }
+			}
+		    }
 		}
 	    }
 	}
