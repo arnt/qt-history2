@@ -566,6 +566,8 @@ QSize QLabel::sizeForWidth( int w ) const
 	    br = fm.boundingRect( 0, 0, w/4, 2000, alignment(), text() );
 	// adjust so "Yes" and "yes" will have the same height
 	int h = fm.lineSpacing();
+	if( h <= 0 ) // for broken fonts...
+	    h = 14;
 	br.setHeight( ((br.height() + h-1) / h)*h - fm.leading() );
 	if ( indent() > 0 ) {
 	    int horizAlign = QApplication::horizontalAlignment( align );
