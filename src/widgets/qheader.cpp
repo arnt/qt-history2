@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#32 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -631,6 +631,7 @@ QRect QHeader::sRect( int i )
 /*!
   Sets the text on logical section \a i to \a s. If the section does not exist,
   nothing happens.
+  If \a size is non-negative, the section width is set to \a size.
 */
 
 void QHeader::setLabel( int i, const char *s, int size )
@@ -638,7 +639,7 @@ void QHeader::setLabel( int i, const char *s, int size )
     if ( i >= 0 && i < count() ) {
 	delete [] (char *)labels[i];
 	labels[i] = qstrdup(s);
-	if ( size )
+	if ( size >= 0 )
 	    sizes[i] = size;
     }
     repaint();
@@ -646,7 +647,17 @@ void QHeader::setLabel( int i, const char *s, int size )
 
 
 /*!
+  Returns the text set on logical section \a i.
+*/
+const char* QHeader::label( int i )
+{
+    return labels[i];
+}
+
+/*!
   Adds a new section, with label text \a s. Returns the index.
+  If \a size is non-negative, the section width is set to \a size,
+  otherwise an \e unspecified default value is used.
 */
 
 int QHeader::addLabel( const char *s, int size )
@@ -655,7 +666,7 @@ int QHeader::addLabel( const char *s, int size )
     labels.resize( n + 1 );
     labels[n-1] = qstrdup(s);
     sizes.resize( n + 1 );
-    sizes[n-1] = size ? size : 88; //###
+    sizes[n-1] = size<0 ? size : 88; //####### use font metrics?
     a2l.resize( n + 1 );
     l2a.resize( n + 1 );
     a2l[n-1] = n-1;
