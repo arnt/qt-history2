@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.h#6 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.h#7 $
 **
 ** Definition of something or other
 **
@@ -19,7 +19,7 @@
 class QMessageFilePrivate;
 
 
-class QMessageFile: public QObject
+class Q_EXPORT QMessageFile: public QObject
 {
     Q_OBJECT
 public:
@@ -54,7 +54,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-class QMessageFileIterator
+class Q_EXPORT QMessageFileIterator
 {
 public:
     QMessageFileIterator( QMessageFile & );
@@ -77,6 +77,22 @@ private:	// Disabled copy constructor and operator=
     QMessageFileIterator &operator=( const QMessageFileIterator & );
 #endif
 };
+
+class Q_EXPORT QMessageFileSignaller : public QMessageFile
+{
+    Q_OBJECT
+public:
+    QMessageFileSignaller( QObject *parent, const char *name = 0 );
+    QString find( uint, const char*, const char* ) const;
+signals:
+    void triedToFind( const char*, const char* );
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QMessageFileSignaller( const QMessageFileSignaller & );
+    QMessageFileSignaller &operator=( const QMessageFileSignaller & );
+#endif
+};
+
 
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#187 $
 **
 ** Implementation of QApplication class
 **
@@ -1193,7 +1193,7 @@ void QApplication::noteTopLevel( QWidget* tlw )
   localization.  Message files are searched starting with the most
   recently added file.
 
-  \sa removeMessageFile() translate() QObject::tr() couldNotTranslate()
+  \sa removeMessageFile() translate() QObject::tr() 
 */
 
 void QApplication::installMessageFile( QMessageFile * mf )
@@ -1233,13 +1233,12 @@ void QApplication::removeMessageFile( QMessageFile * mf )
   be very long (as for help texts).
 
   If none of the message files contain a translation for \a key in \a
-  scope, this function returns \a key and emits the couldNotTranslate()
-  signal.
+  scope, this function returns \a key.
 
   This function is not virtual, but you can add alternative translation
   techniques by installing subclasses of QMessageFile.
 
-  \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile couldNotTranslate()
+  \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile
 */
 
 QString QApplication::translate( const char * scope, const char * key ) const
@@ -1260,19 +1259,8 @@ QString QApplication::translate( const char * scope, const char * key ) const
 		return result;
 	}
     }
-    qApp->couldNotTranslate( scope, key ); //avoid const warning
     return key;
 }
-
-/*!
-  \fn void QApplication::couldNotTranslate( const char* scope, const char* key )
-
-  This signal is emitted when a translation is attempted for \a key in \a
-  scope, but there is no translation available.
-
-  \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile
-*/
-
 
 
 /*****************************************************************************

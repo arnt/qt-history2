@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#14 $
 **
 ** Localization database support.
 **
@@ -739,3 +739,52 @@ QString * QMessageFileIterator::operator+=( uint jump )
 {
     return *it += jump;
 }
+
+/*!
+  \class QMessageFileSignaller qmessagefile.h
+  \brief The QMessageFileSignaller class emits a signal for each attempted translation.
+  
+  When an instance of this class is installed with
+  QApplication::installMessageFile(), it will send out a triedToFind()
+  signal for each attempted translation that is not handled by a
+  message file that was installed later.
+  
+  To get a signal for every untranslated message, install a
+  QMessageFileSignaller as the \e first message file. To get a signal
+  for every attempted translation, install a QMessageFileSignaller the
+  \e last message file.
+  
+  
+*/
+
+
+/*!
+  Constructs a QMessageFileSignaller with parent \a parent and name \a name.
+*/
+
+QMessageFileSignaller::QMessageFileSignaller( QObject *parent, const char *name )
+    :QMessageFile( parent, name )
+{
+}
+
+
+
+/*!
+  Overrides QMessageFile::find to send out a triedToFind() signal with the arguments
+  \a scope and \a key. The hash argument is ignored.
+  
+  It returns a null string, to indicate that there was no translation found in this message file.
+*/
+
+QString QMessageFileSignaller::find( uint, const char *scope, const char *key ) const
+{
+    //avoid const warning, emit:
+    QMessageFileSignaller *This = (QMessageFileSignaller*)this;
+    This->triedToFind( scope, key );
+    return QString::null;
+}
+
+/*! \fn QMessageFileSignaller::triedToFind( const char *scope, const char *key )
+  
+  This signal is emitted for every attempted translation.
+*/
