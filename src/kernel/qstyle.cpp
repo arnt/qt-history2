@@ -1475,7 +1475,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_PopupMenuScrollerHeight height of the scroller area in a popupmenu.
     \value PM_CheckListButtonSize area (width/height) of the
 	checkbox/radiobutton in a QCheckListItem
-    \value PM_CheckListButtonSize area (width/height) of the
+    \value PM_CheckListControllerSize area (width/height) of the
 	controller in a QCheckListItem
 
     \value PM_DialogButtonsSeparator distance between buttons in a dialog buttons widget.
