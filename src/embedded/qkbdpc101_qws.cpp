@@ -331,8 +331,8 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	/*
 	  Translate shift+Key_Tab to Key_Backtab
 	*/
-	if (( keyCode == Key_Tab ) && shift )
-	    keyCode = Key_Backtab;
+	if (( keyCode == Qt::Key_Tab ) && shift )
+	    keyCode = Qt::Key_Backtab;
     }
 
     /*

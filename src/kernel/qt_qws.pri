@@ -33,8 +33,6 @@ embedded {
 		    $$KERNEL_H/qwsregionmanager_qws.h \
 		    $$KERNEL_H/qwssocket_qws.h \
 		    $$KERNEL_H/qwsutils_qws.h \
-		    $$KERNEL_H/qyopykeyboard_qws.h \
-		    $$KERNEL_H/qvr41xxkeyboard_qws.h \
 		    $$KERNEL_H/qwswindowsdecoration_qws.h
 
 	 !mac:SOURCES += $$KERNEL_CPP/qsound_qws.cpp $$KERNEL_CPP/qsoundqss_qws.cpp

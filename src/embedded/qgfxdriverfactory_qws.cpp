@@ -48,7 +48,9 @@
 #include "qgfxvga16_qws.h"
 #include "qgfxshadowfb_qws.h"
 #include "qgfxrepeater_qws.h"
-#include "qwsgfx_qnx6.h"
+#ifdef Q_OS_QNX6
+# include "qwsgfx_qnx6.h"
+#endif
 #include <stdlib.h>
 
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)

@@ -174,7 +174,6 @@
 #include <qdockarea.h>
 #include "qregexp.h"
 #include <qclipboard.h>
-#include <qremotefactory.h>
 #include <qrtlcodec.h>
 #include <qlistbox.h>
 #include <qgridview.h>
@@ -285,8 +284,6 @@
 #include <private/qeffects_p.h>
 #include <private/qcomlibrary_p.h>
 #include <private/qinternal_p.h>
-#include <private/qremoteinterface_p.h>
-#include <private/qremotemessage_p.h>
 #include <private/qsqldriverinterface_p.h>
 #include <private/qsqlmanager_p.h>
 #include <private/qcomplextext_p.h>
@@ -304,7 +301,6 @@
 #include <private/qwidgetinterface_p.h>
 #include <private/qwidgetresizehandler_p.h>
 #include <private/qlibrary_p.h>
-#include <private/qtestcontrol_p.h>
 #endif // Private headers
 
 
