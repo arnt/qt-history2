@@ -59,7 +59,18 @@ static QString fixString( const QString &str )
     s = s.replace( QRegExp( "\n" ), "\\n" );
     s = s.replace( QRegExp( "\r" ), "\\r" );
 
-    s = "QString::fromUtf8( \"" + s + "\" )";
+    bool onlyAscii = TRUE;
+    unsigned int i;
+    for ( i = 0; i < s.length(); i++ ) {
+	if ( s.at(i).unicode() >= 0x80 ) {
+	    onlyAscii = FALSE;
+	    break;
+	}
+    }
+    if ( onlyAscii )
+	s = "\"" + s + "\"";
+    else
+	s = "QString::fromUtf8( \"" + s + "\" )";
     return s;
 }
 
@@ -1977,7 +1988,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    else
 		out << indent << "QWhatsThis::add(  this, " << trmacro << "( " << fixString( e.firstChild().toText().data() ) << " ) );" << endl;
 	} else {
-	    v = trmacro + "( %1  )";
+	    v = trmacro + "( %1 )";
 	    v = v.arg( fixString( e.firstChild().toText().data() ) );
 	}
     } else if ( e.tagName() == "cstring" ) {
