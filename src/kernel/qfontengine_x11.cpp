@@ -1271,12 +1271,12 @@ QOpenType::QOpenType( FT_Face _face )
 
 QOpenType::~QOpenType()
 {
-    if ( hasGDef )
-	TT_Done_GDEF_Table( gdef );
-    if ( hasGSub )
-	TT_Done_GSUB_Table( gsub );
-    if ( hasGPos )
+    if ( gpos )
 	TT_Done_GPOS_Table( gpos );
+    if ( gsub )
+	TT_Done_GSUB_Table( gsub );
+    if ( gdef )
+	TT_Done_GDEF_Table( gdef );
 }
 
 bool QOpenType::supportsScript( unsigned int script )
