@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#7 $
 **
 ** Implementation of QFileDialog class
 **
@@ -224,7 +224,7 @@ void QNetworkProtocol::listEntries( const QString &, int, int)
   #### todo
 */
 
-void QNetworkProtocol::mkdir(const QString & )
+void QNetworkProtocol::mkdir( const QString & )
 {
 }
 
