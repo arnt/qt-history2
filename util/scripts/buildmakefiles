@@ -9,13 +9,23 @@
 
 $qtdir = $ENV{"QTDIR"};
 chdir "$qtdir";
-$tmakeargs = "@ARGV";
-($tmakeargs eq "") && ($tmakeargs = " ");
-if ( $tmakeargs =~ /win32/ ) {
-    $is_win32 = 1;
-} else {
-    $is_win32 = 0;
+
+$is_win32 = 0;
+$is_dll = 0;
+$tmakeargs = "";
+$dllargs = "";
+
+while ( @ARGV ) {
+    $_ = shift @ARGV;
+    if ( /^-win32$/ ) {
+	$is_win32 = 1;
+	$tmakeargs .= " -win32";
+    } elsif ( /^-dll$/ ) {
+	$is_dll = 1;
+	$dllargs = "DEFINES+=QT_DLL";
+    }
 }
+
 @projects = find_files('src','\.pro$',1);
 push @projects, find_files('examples','\.pro$',1);
 push @projects, find_files('tutorial','\.pro$',1);
@@ -28,17 +38,22 @@ for $p ( @projects ) {
 	chdir $dir;
 	$m = "Makefile";
 	if ( $is_win32 ) {
-	    if ( $p eq "src/qt.pro" ) {
-		$m = "qtstatic.mak";
-		print STDERR "Building ${dir}$m\n";
-		`tmake $tmakeargs $file -o $m "CONFIG-=dll" "DEFINES/=s/_DLL/_NODLL/"`;
+	    if ( ($p eq "src/qt.pro") && $is_dll ) {
 		$m = "qtdll.mak";
-	    } elsif ( $p eq "src/qtmain.pro" ) {
-		$m = "qtmain.mak";
+	    }
+	    if ( $p eq "src/qtmain.pro" ) {
+		if ( $is_dll ) {
+		    $m = "qtmain.mak";
+		    print STDERR "Building ${dir}$m\n";
+		    `tmake $tmakeargs $file -o $m`;
+		}
+		$m = "";
 	    }
 	}
-	print STDERR "Building ${dir}$m\n";
-	`tmake $tmakeargs $file -o $m`;
+	if ( $m ) {
+	    print STDERR "Building ${dir}$m\n";
+	    `tmake $tmakeargs $dllargs $file -o $m`;
+	}
 	chdir $qtdir;
     }
 }
