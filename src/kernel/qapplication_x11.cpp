@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#318 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#319 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -225,7 +225,7 @@ public:
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
-    
+
 static int qt_x_errhandler( Display *dpy, XErrorEvent *err ) {
     if ( err->request_code == 25 && qt_xdnd_handle_badwindow() )
 	return 0;
@@ -1380,7 +1380,7 @@ void qt_x11SendPostedEvents()			// transmit posted events
   and have the \a event_type.
 
   Some event compression may occur.  Note that events from the
-  server are \e not dispatched by this function.
+  window system are \e not dispatched by this function.
 */
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {

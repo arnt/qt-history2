@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#104 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#105 $
 **
 ** Implementation of QFileDialog class
 **
@@ -684,8 +684,6 @@ void QFileDialogPrivate::MCList::focusOutEvent( QFocusEvent * )
   \endcode
 
   <img src=qfiledlg-m.gif> <img src=qfiledlg-w.gif>
-
-  http://www.iarchitect.com/file95.htm
 
   \sa QPrintDialog
 */
