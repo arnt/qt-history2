@@ -134,7 +134,7 @@ public:
     bool	 isEnabledToTLW() const;
 
 public slots:
-    virtual void setEnabled( bool );
+    void setEnabled( bool );
     void setDisabled( bool );
 
     // Widget coordinates
@@ -160,9 +160,9 @@ public:
     int		 maximumWidth()	 const;
     int		 maximumHeight() const;
     void	 setMinimumSize( const QSize & );
-    virtual void setMinimumSize( int minw, int minh );
+    void setMinimumSize( int minw, int minh );
     void	 setMaximumSize( const QSize & );
-    virtual void setMaximumSize( int maxw, int maxh );
+    void setMaximumSize( int maxw, int maxh );
     void	 setMinimumWidth( int minw );
     void	 setMinimumHeight( int minh );
     void	 setMaximumWidth( int maxw );
@@ -170,7 +170,7 @@ public:
 
     QSize	 sizeIncrement() const;
     void	 setSizeIncrement( const QSize & );
-    virtual void setSizeIncrement( int w, int h );
+    void setSizeIncrement( int w, int h );
     QSize	 baseSize() const;
     void	 setBaseSize( const QSize & );
     void	 setBaseSize( int basew, int baseh );
@@ -194,22 +194,22 @@ public:
     // Widget attribute functions
 
     BackgroundMode	backgroundMode() const;
-    virtual void	setBackgroundMode( BackgroundMode );
+    void setBackgroundMode( BackgroundMode );
     void 		setBackgroundMode( BackgroundMode, BackgroundMode );
 
     const QColor &	foregroundColor() const;
 
     const QColor &	eraseColor() const;
-    virtual void	setEraseColor( const QColor & );
+    void setEraseColor( const QColor & );
 
     const QPixmap *	erasePixmap() const;
-    virtual void	setErasePixmap( const QPixmap & );
+    void setErasePixmap( const QPixmap & );
 
 #ifndef QT_NO_PALETTE
     const QColorGroup & colorGroup() const;
     const QPalette &	palette()    const;
     bool		ownPalette() const;
-    virtual void	setPalette( const QPalette & );
+    void	setPalette( const QPalette & );
     void		unsetPalette();
 #endif
 
@@ -217,16 +217,16 @@ public:
     void		setPaletteForegroundColor( const QColor & );
 
     const QColor &	paletteBackgroundColor() const;
-    virtual void	setPaletteBackgroundColor( const QColor & );
+    void setPaletteBackgroundColor( const QColor & );
 
     const QPixmap *	paletteBackgroundPixmap() const;
-    virtual void 	setPaletteBackgroundPixmap( const QPixmap & );
+    void setPaletteBackgroundPixmap( const QPixmap & );
 
     const QBrush&	backgroundBrush() const;
 
     QFont		font() const;
     bool		ownFont() const;
-    virtual void	setFont( const QFont & );
+    void setFont( const QFont & );
     void		unsetFont();
     QFontMetrics	fontMetrics() const;
     QFontInfo	 	fontInfo() const;
@@ -234,8 +234,8 @@ public:
 #ifndef QT_NO_CURSOR
     const QCursor      &cursor() const;
     bool		ownCursor() const;
-    virtual void	setCursor( const QCursor & );
-    virtual void	unsetCursor();
+    void setCursor( const QCursor & );
+    void unsetCursor();
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString		caption() const;
@@ -245,26 +245,26 @@ public:
     bool		hasMouseTracking() const;
     bool		hasMouse() const;
 
-    virtual void	setMask( const QBitmap & );
-    virtual void	setMask( const QRegion & );
+    void setMask( const QBitmap & );
+    void setMask( const QRegion & );
     void		clearMask();
 
     const QColor &	backgroundColor() const; // obsolete, use eraseColor()
-    virtual void	setBackgroundColor( const QColor & ); // obsolete, use setEraseColor()
+    void setBackgroundColor( const QColor & ); // obsolete, use setEraseColor()
     const QPixmap *	backgroundPixmap() const; // obsolete, use erasePixmap()
-    virtual void	setBackgroundPixmap( const QPixmap & ); // obsolete, use setErasePixmap()
+    void setBackgroundPixmap( const QPixmap & ); // obsolete, use setErasePixmap()
 
 public slots:
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    virtual void	setCaption( const QString &);
-    virtual void	setIcon( const QPixmap & );
-    virtual void	setIconText( const QString &);
+    void setCaption( const QString &); // ### becomes setWidgetTitle
+    void setIcon( const QPixmap & ); // ### becomes setWidgetIcon(const QIconSet &)
+    void setIconText( const QString &); // ### becomes extern qt_x11_setIconText(...)
 #endif
-    virtual void	setMouseTracking( bool enable );
+    void setMouseTracking( bool enable );
 
     // Keyboard input focus functions
 
-    virtual void	setFocus();
+    void setFocus();
     void		clearFocus();
 
 public:
@@ -277,14 +277,14 @@ public:
     };
 
     bool		isActiveWindow() const;
-    virtual void	setActiveWindow();
+    void setActiveWindow();
     bool		isFocusEnabled() const;
 
     FocusPolicy		focusPolicy() const;
-    virtual void	setFocusPolicy( FocusPolicy );
+    void setFocusPolicy( FocusPolicy );
     bool		hasFocus() const;
     static void		setTabOrder( QWidget *, QWidget * );
-    virtual void	setFocusProxy( QWidget * );
+    void setFocusProxy( QWidget * );
     QWidget *		focusProxy() const;
 
     void setInputMethodEnabled( bool b );
@@ -309,7 +309,7 @@ public:
     void		repaintUnclipped( const QRegion &, bool erase = TRUE );
 #endif
 public slots:
-    virtual void	setUpdatesEnabled( bool enable );
+    void setUpdatesEnabled( bool enable );
     void		update();
     void		update( int x, int y, int w, int h );
     void		update( const QRect& );
@@ -328,10 +328,10 @@ public slots:
 #ifndef QT_NO_COMPAT
     void		iconify() { showMinimized(); }
 #endif
-    virtual void	showMinimized();
-    virtual void	showMaximized();
-    virtual void	showFullScreen();
-    virtual void	showNormal();
+    void showMinimized();
+    void showMaximized();
+    void showFullScreen();
+    void showNormal();
     virtual void	polish();
     void 		constPolish() const;
     bool		close();
@@ -339,16 +339,16 @@ public slots:
     void		raise();
     void		lower();
     void		stackUnder( QWidget* );
-    virtual void	move( int x, int y );
+    void move( int x, int y );
     void		move( const QPoint & );
-    virtual void	resize( int w, int h );
+    void resize( int w, int h );
     void		resize( const QSize & );
-    virtual void	setGeometry( int x, int y, int w, int h );
-    virtual void	setGeometry( const QRect & ); // ### make non virtual in Qt 4?
+    void setGeometry( int x, int y, int w, int h );
+    void setGeometry( const QRect & ); // ### make non virtual in Qt 4?
     virtual void  	adjustSize();
 
 public:
-    virtual bool	close( bool alsoDelete );
+    bool close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
     bool		isVisibleToTLW() const; // obsolete
@@ -362,7 +362,7 @@ public:
     virtual QSize	sizeHint() const;
     virtual QSize	minimumSizeHint() const;
     virtual QSizePolicy	sizePolicy() const;
-    virtual void	setSizePolicy( QSizePolicy );
+    void	setSizePolicy( QSizePolicy );
     void 		setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE );
     virtual int heightForWidth(int) const;
 
@@ -373,8 +373,8 @@ public:
     QLayout *		layout() const { return lay_out; }
 #endif
     void		updateGeometry();
-    virtual void 	reparent( QWidget *parent, WFlags, const QPoint &,
-				  bool showIt=FALSE );
+    void reparent( QWidget *parent, WFlags, const QPoint &,
+		   bool showIt=FALSE );
     void		reparent( QWidget *parent, const QPoint &,
 				  bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
@@ -400,16 +400,16 @@ public:
     // drag and drop
 
     bool		acceptDrops() const;
-    virtual void	setAcceptDrops( bool on );
+    void setAcceptDrops( bool on );
 
     // transparency and pseudo transparency
 
-    virtual void	setAutoMask(bool);
+    void setAutoMask(bool);
     bool		autoMask() const;
 
     enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin, AncestorOrigin };
 
-    virtual void setBackgroundOrigin( BackgroundOrigin );
+    void setBackgroundOrigin( BackgroundOrigin );
     BackgroundOrigin backgroundOrigin() const;
     QPoint backgroundOffset() const;
 
@@ -506,15 +506,15 @@ protected:
 
     void	 resetInputContext();
 
-    virtual void create( WId = 0, bool initializeWindow = TRUE,
+    void create( WId = 0, bool initializeWindow = TRUE,
 			 bool destroyOldWindow = TRUE );
-    virtual void destroy( bool destroyWindow = TRUE,
+    void destroy( bool destroyWindow = TRUE,
 			  bool destroySubWindows = TRUE );
     uint	 getWState() const;
-    virtual void setWState( uint );
+    void setWState( uint );
     void	 clearWState( uint n );
     WFlags	 getWFlags() const;
-    virtual void setWFlags( WFlags );
+    void setWFlags( WFlags );
     void	 clearWFlags( WFlags n );
 
     virtual bool focusNextPrevChild( bool next );
@@ -523,8 +523,8 @@ protected:
     QTLWExtra	*topData();
     QFocusData	*focusData();
 
-    virtual void setKeyCompression(bool);
-    virtual void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE, QFont *f = 0);
+    void setKeyCompression(bool);
+    void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE, QFont *f = 0);
 
 #if defined(Q_WS_MAC)
     void dirtyClippedRegion(bool);
