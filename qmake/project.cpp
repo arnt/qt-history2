@@ -93,12 +93,13 @@ struct FunctionBlock : public ParsableBlock
     int scope_level;
     bool cause_return;
 
-    bool exec(QMap<QString, QStringList> &place, const QStringList &args, QString &functionReturn);
+    bool exec(const QStringList &args,
+              QMakeProject *p, QMap<QString, QStringList> &place, QString &functionReturn);
     virtual bool continueBlock() { return !cause_return; }
 };
 
-bool FunctionBlock::exec(QMap<QString, QStringList> &place,
-                         const QStringList &args, QString &functionReturn)
+bool FunctionBlock::exec(const QStringList &args,
+                         QMakeProject *proj, QMap<QString, QStringList> &place, QString &functionReturn)
 {
     //save state
     return_value = "";
@@ -112,10 +113,7 @@ bool FunctionBlock::exec(QMap<QString, QStringList> &place,
         va.append(place[QString::number(i+1)]);
         place[QString::number(i+1)] = QStringList(args[i]);
     }
-    QMakeProject proj;
-    proj.function_blocks.push(this);
-    bool ret = ParsableBlock::eval(&proj, place);
-    Q_ASSERT(proj.function_blocks.pop() == this);
+    bool ret = ParsableBlock::eval(proj, place);
     functionReturn = return_value;
     for(int i = 0; i < va.count(); i++)
         place[QString::number(i+1)] = va[i];
@@ -1876,7 +1874,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
     default: {
         if(FunctionBlock *defined = replaceFunctions[func]) {
             function_blocks.push(defined);
-            defined->exec(place, args, ret);
+            defined->exec(args, this, place, ret);
             Q_ASSERT(function_blocks.pop() == defined);
         } else {
             fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
@@ -2154,18 +2152,25 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
     } else if(FunctionBlock *defined = testFunctions[func]) {
         QString ret;
         function_blocks.push(defined);
-        defined->exec(place, args, ret);
+        defined->exec(args, this, place, ret);
         Q_ASSERT(function_blocks.pop() == defined);
 
         if(ret.isEmpty()) {
             return true;
         } else {
-            bool ok;
-            int val = ret.toInt(&ok);
-            if(ok)
-                return val;
-            else
-                return (ret.toLower() == "true");
+            if(ret == "true") {
+                return true;
+            } else if(ret == "false") {
+                return false;
+            } else {
+                bool ok;
+                int val = ret.toInt(&ok);
+                if(ok)
+                    return val;
+                fprintf(stderr, "%s:%d Unexpected return value from test %s [%s].\n", parser.file.toLatin1().constData(),
+                        parser.line_no, func.toLatin1().constData(), ret.toLatin1().constData());
+            }
+            return false;
         }
         return false;
     } else {
