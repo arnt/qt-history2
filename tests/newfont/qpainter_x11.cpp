@@ -2825,7 +2825,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 
     // step 2
     const QChar *uc = str.unicode();
-    QFontPrivate::Script currs = QFontPrivate::UnknownScript, tmp;
+    QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
     XFontStruct *f;
     int i;
 
@@ -2834,21 +2834,75 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	tmp = QFontPrivate::scriptForChar(*uc++);
 
 	// 2a. encoding boundary
-	if (tmp != currs && tmp != QFontPrivate::UnknownScript) {
-	    // new encoding! time to draw this text
+	if (tmp != currs) {
 	    currs = tmp;
-
+	    
+	    // new encoding! time to draw this text
 	    truples[currt].script = currs;
 
 	    if (currt != 0) {
-		cfont.d->load(truples[currt - 1].script);
-		if (! cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
-		    continue;
-		}
+		if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
+		    cfont.d->load(truples[currt - 1].script);
+		    if (! cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
+			continue;
+		    }
 
+		    f = (XFontStruct *)
+			cfont.d->x11data.fontstruct[truples[currt - 1].script]->handle;
+
+		    // 2b. string width (this is for the PREVIOUS truple)
+		    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
+			truples[currt - 1].mapped =
+			    cfont.d->
+			    x11data.fontstruct[truples[currt - 1].script]->codec->
+			    fromUnicode(str.mid(truples[currt - 1].stroffset,
+						i - truples[currt - 1].stroffset));
+		    }
+
+		    if (truples[currt - 1].mapped.isNull()) {
+			if (f->max_byte1) {
+			    currx +=
+				XTextWidth16(f, (XChar2b *)
+					     (str.unicode() +
+					      truples[currt - 1].stroffset),
+					     i - truples[currt - 1].stroffset);
+			}
+			// STOP: we want to use unicode, but don't have a multi-byte
+			// font?  something is seriously wrong... assume we have text
+			// we know nothing about
+		    } else {
+			if (f->max_byte1) {
+			    currx +=
+				XTextWidth16(f, (XChar2b *)
+					     truples[currt - 1].mapped.data(),
+					     truples[currt - 1].mapped.length() / 2);
+			} else {
+			    currx +=
+				XTextWidth(f, truples[currt - 1].mapped.data(),
+					   truples[currt - 1].mapped.length());
+			}
+		    }
+		} else {
+		    currx += (i - truples[currt - 1].stroffset) *
+			     (cfont.d->request.pointSize * 3 / 40);
+		}
+	    }
+	    
+	    // 2c.
+	    truples[currt].script = currs;
+	    truples[currt].stroffset = i;
+	    truples[currt].xoffset = currx;
+	    currt++;
+	}
+    }
+
+    if (currt != 0) {
+	if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
+	    cfont.d->load(truples[currt - 1].script);
+	    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
 		f = (XFontStruct *)
 		    cfont.d->x11data.fontstruct[truples[currt - 1].script]->handle;
-		
+
 		// 2b. string width (this is for the PREVIOUS truple)
 		if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
 		    truples[currt - 1].mapped =
@@ -2878,124 +2932,127 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		    }
 		}
 	    }
-
-	    // 2c.
-	    truples[currt].script = currs;
-	    truples[currt].stroffset = i;
-	    truples[currt].xoffset = currx;
-	    currt++;
-	}
-    }
-
-    if (currt != 0) {
-	cfont.d->load(truples[currt - 1].script);
-	if (cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
-	    f = (XFontStruct *)
-		cfont.d->x11data.fontstruct[truples[currt - 1].script]->handle;
-
-	    // 2b. string width (this is for the PREVIOUS truple)
-	    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
-		truples[currt - 1].mapped =
-		    cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec->
-		    fromUnicode(str.mid(truples[currt - 1].stroffset,
-					i - truples[currt - 1].stroffset));
-	    }
-
-	    if (truples[currt - 1].mapped.isNull()) {
-		if (f->max_byte1) {
-		    currx +=
-			XTextWidth16(f, (XChar2b *)
-				     (str.unicode() + truples[currt - 1].stroffset),
-				     i - truples[currt - 1].stroffset);
-		}
-		// STOP: we want to use unicode, but don't have a multi-byte
-		// font?  something is seriously wrong... assume we have text
-		// we know nothing about
-	    } else {
-		if (f->max_byte1) {
-		    currx += XTextWidth16(f, (XChar2b *)
-					  truples[currt - 1].mapped.data(),
-					  truples[currt - 1].mapped.length() / 2);
-		} else {
-		    currx += XTextWidth(f, truples[currt - 1].mapped.data(),
-					truples[currt - 1].mapped.length());
-		}
-	    }
+	} else {
+	    currx += (i - truples[currt - 1].stroffset) *
+		     (cfont.d->request.pointSize * 3 / 40);
 	}
     } else {
 	// make sure the last font for the text is at least loaded
 	cfont.d->load(truples[currt].script);
     }
-    
+
     // step 3
     for (i = 0; i < len; i++) {
 	// step 4... if nothing is found, the for-condition will
 	// break us out of the loop
-	if (truples[i].stroffset == -1) continue;
-
+	if (truples[i].stroffset == -1) {
+	    // continue;
+	    break;
+	}
+		    
 	// step 5
 	int j;
 	currs = truples[i].script;
 
-	f = (XFontStruct *) cfont.d->x11data.fontstruct[currs]->handle;
-	XSetFont(dpy, gc, f->fid);
+	if (currs != QFontPrivate::UnknownScript) {
+	    f = (XFontStruct *) cfont.d->x11data.fontstruct[currs]->handle;
+	    XSetFont(dpy, gc, f->fid);
 
-	for (j = i; j < len; j++) {
-	    if (truples[j].script != currs) continue;
-
-	    QString v = str;
+	    for (j = i; j < len; j++) {
+		if (truples[j].stroffset == -1) {
+		    break;
+		}
+		
+		if (truples[j].script != currs) {
+		    continue;
+		}
+		
+		QString v = str;
 #ifdef QT_BIDI
-	    v.compose();  // apply ligatures (for arabic, etc...)
-	    v = v.visual(); // visual ordering
+		v.compose();  // apply ligatures (for arabic, etc...)
+		v = v.visual(); // visual ordering
 
-	    if (v.length < len)
-		len = v.length();
+		if (v.length < len)
+		    len = v.length();
 #endif
 
-	    int l;
-	    if (truples[j + 1].stroffset == -1)
-		l = len - truples[j].stroffset;
-	    else
-		l = truples[j + 1].stroffset - truples[j].stroffset;
-
-	    if (truples[j].mapped.isNull()) {
-		if (f->max_byte1) {
-		    XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
-				  (XChar2b *) (v.unicode() + truples[j].stroffset), l);
-		}
-		// STOP: we want to use unicode, but don't have a multi-byte
-		// font?  something is seriously wrong... assume we have text
-		// we know nothing about
-	    } else {
-		if (f->max_byte1) {
-		    XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
-				  (XChar2b *) truples[j].mapped.data(),
-				  truples[j].mapped.length() / 2);
+		int l;
+		if (truples[j + 1].stroffset == -1) {
+		    l = len - truples[j].stroffset;
 		} else {
-		    XDrawString(dpy, hd, gc, truples[j].xoffset, y,
-				truples[j].mapped.data(),
-				truples[j].mapped.length());
+		    l = truples[j + 1].stroffset - truples[j].stroffset;
+		}
+		
+		if (truples[j].mapped.isNull()) {
+		    if (f->max_byte1) {
+			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
+				      (XChar2b *) (v.unicode() + truples[j].stroffset),
+				      l);
+		    }
+		    // STOP: we want to use unicode, but don't have a multi-byte
+		    // font?  something is seriously wrong... assume we have text
+		    // we know nothing about
+		} else {
+		    if (f->max_byte1) {
+			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
+				      (XChar2b *) truples[j].mapped.data(),
+				      truples[j].mapped.length() / 2);
+		    } else {
+			XDrawString(dpy, hd, gc, truples[j].xoffset, y,
+				    truples[j].mapped.data(),
+				    truples[j].mapped.length());
+		    }
 		}
 	    }
-	}
+	} else {
+	    for (j = i; j < len; j++) {
+		if (truples[j].stroffset == -1) {
+		    break;
+		}
 
+		if (truples[j].script != currs) {
+		    continue;
+		}
+		
+		int inc = cfont.d->request.pointSize * 3 / 40;
+		int l;
+		
+		if (truples[j + 1].stroffset == -1) {
+		    l = len - truples[j].stroffset;
+		} else {
+		    l = truples[j + 1].stroffset - truples[j].stroffset;
+		}
+		
+		XRectangle *rects = new XRectangle[l];
+		
+		for (int k = 0; k < l; k++) {
+		    rects[k].x = truples[j].xoffset + (k * inc) + 1;
+		    rects[k].y = y - inc + 1;
+		    rects[k].width = rects[k].height = inc - 2;
+		}
+		    
+		XDrawRectangles(dpy, hd, gc, rects, l);
+		delete [] rects;
+	    }
+	}
+	
 	// step 6 - gotta love loops
     }
 
     // step 7
     delete [] truples;
-    
+
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();
 	int lw = fm.lineWidth();
 	int tw = fm.width( str, len );
-	
+
 	// draw underline effect
 	if ( cfont.underline() ) {
 	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(),
 			    tw, lw );
 	}
-	
+
 	// draw strikeout effect
 	if ( cfont.strikeOut() ) {
 	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),

@@ -60,8 +60,8 @@ struct QFontDef {
 	  weight(0), italic(FALSE), underline(FALSE), strikeOut(FALSE),
 	  fixedPitch(FALSE), hintSetByUser(FALSE), rawMode(FALSE), dirty(TRUE)
     { ; }
-    
-    
+
+
     QString family;
 
     short pointSize;
@@ -147,7 +147,10 @@ public:
 	// End
 	NScripts,
 	AnyScript = NScripts,
-	UnknownScript = NScripts
+	UnknownScript = NScripts,
+	
+	// No Script
+	NoScript
     };
 
     // stupid stupid egcs - It can't use NScripts below for the x11data.fontstruct
@@ -158,15 +161,15 @@ public:
 
     static Script scriptForChar(const QChar &c);
 
-    
+
     QFontPrivate()
 	: exactMatch(FALSE), lineWidth(1)
     {
-	
+
 #ifndef QT_NO_COMPAT
 	// charset = QFont::AnyCharSet;
 #endif
-	
+
     }
 
     QFontPrivate(const QFontPrivate &fp)
@@ -174,12 +177,10 @@ public:
 	  exactMatch(fp.exactMatch), lineWidth(1)
     {
 	
-	actual.dirty = TRUE;
-	
 #ifndef QT_NO_COMPAT
 	// charset = fp.charset;
 #endif
-	
+
     }
 
     // requested font
@@ -189,7 +190,7 @@ public:
 
     bool exactMatch;
     int lineWidth;
-    
+
     QString defaultFamily() const;
     QString lastResortFamily() const;
     QString lastResortFont() const;
@@ -260,7 +261,7 @@ public:
 		fontstruct[i] = 0;
 	    }
 	}
-	
+
 	~QFontX11Data()
 	{
 	    QFontStruct *qfs;
