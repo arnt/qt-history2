@@ -314,7 +314,7 @@ private:
     QAction *actionDiff;
 
     QGuardedCleanupHandler<QAction> actions;
-    QUnknownInterface *appInterface;
+    DesignerInterface *appInterface;
 
     unsigned long ref;
 };
@@ -335,16 +335,11 @@ QStringList P4Interface::featureList() const
 void P4Interface::connectTo( QUnknownInterface *ai )
 {
     if ( !appInterface && ai ) {
-	DesignerFormListInterface *flIface = 0;
-
-	if ( !( flIface = (DesignerFormListInterface*)ai->queryInterface( IID_DesignerFormListInterface ) ) )
+	appInterface = (DesignerInterface*)ai->queryInterface( IID_DesignerInterface );
+	if ( !appInterface )
 	    return;
 
-	appInterface = ai;
-	appInterface->addRef();
-
-	flIface->connect( SIGNAL( selectionChanged() ), this, SLOT( formChanged() ) );
-	flIface->release();
+	// connect formChanged to some signal
 
 	P4Init* init = new P4Init;
 	init->execute();
@@ -438,6 +433,7 @@ void P4Interface::p4Sync()
 {
     if ( !appInterface )
 	return;
+/*
     DesignerFormInterface *fwIface = 0;
     if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
@@ -448,12 +444,14 @@ void P4Interface::p4Sync()
     connect( sync, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( sync, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     sync->execute();
+*/
 }
 
 void P4Interface::p4Edit()
 {
     if ( !appInterface )
 	return;
+/*
     DesignerFormInterface *fwIface = 0;
     if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
@@ -463,12 +461,14 @@ void P4Interface::p4Edit()
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     edit->execute();
+*/
 }
 
 void P4Interface::p4Submit()
 {
     if ( !appInterface )
 	return;
+/*
     DesignerFormInterface *fwIface = 0;
     if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
@@ -478,13 +478,15 @@ void P4Interface::p4Submit()
 
     connect( submit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( submit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    submit->execute();    
+    submit->execute();
+*/
 }
 
 void P4Interface::p4Revert()
 {
     if ( !appInterface )
 	return;
+/*
     DesignerFormInterface *fwIface = 0;
     if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
@@ -495,12 +497,14 @@ void P4Interface::p4Revert()
     connect( revert, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( revert, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     revert->execute();
+*/
 }
 
 void P4Interface::p4Add()
 {
     if ( !appInterface )
 	return;
+/*
     DesignerFormInterface *fwIface = 0;
     if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
@@ -511,12 +515,14 @@ void P4Interface::p4Add()
     connect( add, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( add, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     add->execute();
+*/
 }
 
 void P4Interface::p4Delete()
 {
     if ( !appInterface )
 	return;
+/*
     DesignerFormInterface *fwIface = 0;
     if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
@@ -527,12 +533,14 @@ void P4Interface::p4Delete()
     connect( del, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( del, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     del->execute();    
+*/
 }
 
 void P4Interface::p4Diff()
 {
     if ( !appInterface )
 	return;
+/*
     DesignerFormInterface *fwIface = 0;
     if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
@@ -542,13 +550,14 @@ void P4Interface::p4Diff()
 
     connect( diff, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( diff, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    diff->execute();    
+    diff->execute();
+*/
 }
 
 void P4Interface::p4Refresh()
 {
     P4Info::files.clear();
-
+/*
     DesignerFormListInterface *flIface = 0;
     if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) ) 
 	return;
@@ -566,9 +575,11 @@ void P4Interface::p4Refresh()
 	delete fw;
 	fw = flIface->next();
     }
-
+*/
     formChanged();
+/*
     flIface->release();
+*/
 }
 
 void P4Interface::p4MightEdit( bool b, const QString &filename )
@@ -584,6 +595,7 @@ void P4Interface::p4MightEdit( bool b, const QString &filename )
 
 void P4Interface::formChanged()
 {
+/*
     DesignerFormInterface *fwIface = 0;
 
     if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
@@ -618,13 +630,14 @@ void P4Interface::formChanged()
 	return;
     }
     p4Info( filename, p4i );
+*/
 }
 
 void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 {
     if ( !p4i )
 	return;
-
+/*
     DesignerFormListInterface *flIface = 0;
     
     if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( IID_DesignerFormListInterface ) ) )
@@ -641,9 +654,13 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 
     if ( !fwIface )
 	return;
-
+*/
+    QPixmap pix;
+/*
+    pix = fwIface->property( "icon" ).toPixmap();
+*/
     if ( p4i->controlled ) {
-	QPixmap pix = fwIface->property( "icon" ).toPixmap();
+
 	if ( pix.isNull() ) {
 	    pix = QPixmap( 22,22,32 );
 	    pix.fill( Qt::color0 );
@@ -690,29 +707,32 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	    actionRevert->setEnabled( FALSE );
 	    actionDiff->setEnabled( FALSE );
 	}
-	flIface->setPixmap( fwIface, 0, pix );
     } else {
-	QPixmap pix = fwIface->property( "icon" ).toPixmap();
 	actionAdd->setEnabled( TRUE );
 	actionDelete->setEnabled( FALSE );
 	actionSubmit->setEnabled( FALSE );
 	actionRevert->setEnabled( FALSE );
 	actionDiff->setEnabled( FALSE );
 	actionEdit->setEnabled( FALSE );
-	flIface->setPixmap( fwIface, 0, pix );
     }
+/*
+    flIface->setPixmap( fwIface, 0, pix );
+
     fwIface->release();
     flIface->release();
+*/
 }
 
 void P4Interface::statusMessage( const QString &text )
 {
+/*
     DesignerStatusBarInterface *sbIface = 0;
     if ( !( sbIface = (DesignerStatusBarInterface*)appInterface->queryInterface( IID_DesignerStatusBarInterface ) ) )
 	return;
 
     sbIface->setMessage( text );
     sbIface->release();
+*/
 }
 
 QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )
@@ -744,6 +764,9 @@ unsigned long P4Interface::release()
     return ref;
 }
 
-Q_EXPORT_INTERFACE( P4Interface )
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( P4Interface );
+}
 
 #include "main.moc"
