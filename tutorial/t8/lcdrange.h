@@ -22,7 +22,7 @@ public:
     int value() const;
 public slots:
     void setValue( int );
-    void setRange( int min, int max );
+    void setRange( int minVal, int maxVal );
 signals:
     void valueChanged( int );
 protected:
