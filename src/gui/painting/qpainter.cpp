@@ -971,6 +971,8 @@ void QPainter::restore()
         && (tmp->changeFlags & (QPaintEngine::DirtyClip | QPaintEngine::DirtyClipPath))) {
         d->state->tmpClipRegion = clipRegion();
         d->state->tmpClipOp = Qt::ReplaceClip;
+        //Since we're updating the clip region anyway, pretend that the clip path hasn't changed:
+        tmp->changeFlags &= ~QPaintEngine::DirtyClipPath;
         d->engine->setDirty(QPaintEngine::DirtyClip);
     }
 
