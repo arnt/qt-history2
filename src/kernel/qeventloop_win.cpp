@@ -514,7 +514,8 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 		return FALSE;
 	    }
 	} else {
-	    emit aboutToBlock();
+	    if (!winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))
+		emit aboutToBlock();
 	    if ( !winGetMessage(&msg,0,0,0) ) {
 		exit( 0 );				// WM_QUIT received
 		return FALSE;
