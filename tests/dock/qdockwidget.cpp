@@ -37,7 +37,7 @@ public:
     QSize minimumSizeHint() const;
     QSize minimumSize() const { return minimumSizeHint(); }
     QSize sizeHint() const { return minimumSize(); }
-    
+
 protected:
     void paintEvent( QPaintEvent *e );
     void resizeEvent( QResizeEvent *e );
@@ -348,6 +348,8 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
     }
     curPlace = state;
     updateGui();
+    if ( state == OutsideDock )
+	adjustSize();
     emit orientationChanged( orientation() );
 }
 
