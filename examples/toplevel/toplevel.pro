@@ -8,7 +8,7 @@ unix {
   OBJECTS_DIR = .obj
 }
 
-REQUIRES = full-config
+REQUIRES = "contains(QT_CONFIG, full-config)"
 
 SOURCES	+= main.cpp
 FORMS	 = options.ui

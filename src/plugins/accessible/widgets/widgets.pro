@@ -5,7 +5,7 @@ CONFIG  += qt dll plugin
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible
 VERSION  = 1.0.0
 
-QTDIR_build:REQUIRES += accessibility
+QTDIR_build:REQUIRES += "contains(QT_CONFIG, accessibility)"
 
 SOURCES  += main.cpp \
 	    simplewidgets.cpp \

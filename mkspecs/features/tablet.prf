@@ -1,4 +1,0 @@
-qt {
-   target_qt:PRL_EXPORT_DEFINES += QT_TABLET_SUPPORT
-   else:DEFINES += QT_TABLET_SUPPORT
-}

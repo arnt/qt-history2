@@ -44,8 +44,8 @@ embedded:SOURCES += image/qpixmap_qws.cpp
 #mng support
 HEADERS += image/qmngio.h
 SOURCES += image/qmngio.cpp
-mng {
-        system-mng {
+contains(QT_CONFIG, mng) {
+        contains(QT_CONFIG, system-mng) {
 	    win32:LIBS += libmng.lib
             unix:LIBS  += -lmng
         } else {
@@ -69,12 +69,9 @@ mng {
 		  ../3rdparty/libmng/libmng_write.c \
 		  ../3rdparty/libmng/libmng_zlib.c
         }
-	no-jpeg {
+	contains(QT_CONFIG, no-jpeg)|!contains(QT_CONFIG, jpeg) {
 		message(Use of mng requires support for jpeg)
-		CONFIG += jpeg
-	} else:!jpeg {
-		message(Use of mng requires support for jpeg)
-		CONFIG += jpeg
+		QT_CONFIG += jpeg
 	}
 }
 else:DEFINES += QT_NO_IMAGEIO_MNG
@@ -82,8 +79,8 @@ else:DEFINES += QT_NO_IMAGEIO_MNG
 #jpeg support..
 HEADERS += image/qjpegio.h
 SOURCES += image/qjpegio.cpp
-jpeg {
-        system-jpeg {
+contains(QT_CONFIG, jpeg) {
+        contains(QT_CONFIG, system-jpeg) {
 	   unix:LIBS += -ljpeg
 	   win32:LIBS += libjpeg.lib
 	} else {
@@ -141,8 +138,8 @@ else:DEFINES += QT_NO_IMAGEIO_JPEG
 #png support
 HEADERS += image/qpngio.h
 SOURCES += image/qpngio.cpp
-png {
-        system-png {
+contains(QT_CONFIG, png) {
+        contains(QT_CONFIG, system-png) {
 	    unix:LIBS  += -lpng
 	    win32:LIBS += libpng.lib
 	} else {

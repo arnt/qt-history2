@@ -1,8 +1,5 @@
-REQUIRES = !qt_one_lib
 TARGET		= qcore
 QT         =
-
-CONFIG -= opengl x11sm
 
 DEFINES += QT_BUILD_CORE_LIB
 

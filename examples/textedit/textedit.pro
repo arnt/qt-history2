@@ -4,7 +4,7 @@ TARGET		= textedit
 CONFIG		+= qt warn_on release
 QT = compat
 
-QTDIR_build:REQUIRES	= full-config nocrosscompiler
+QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
 
 HEADERS		= textedit.h
 SOURCES		= textedit.cpp \

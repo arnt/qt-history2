@@ -4,7 +4,7 @@ TARGET		= remotecontrol
 QT         += network
 CONFIG		+= qt warn_on release
 
-QTDIR_build:REQUIRES        = network full-config nocrosscompiler
+QTDIR_build:REQUIRES        = network "contains(QT_CONFIG, full-config)"
 
 HEADERS		= startup.h \
 		  remotectrlimpl.h \

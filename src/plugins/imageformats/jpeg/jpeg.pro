@@ -5,14 +5,14 @@ CONFIG  += qt plugin
 DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
 
 VERSION = 1.0.0
-QTDIR_build:REQUIRES = !no-jpeg !jpeg
+QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-jpeg)" "!contains(QT_CONFIG, jpeg)"
 
 SOURCES += main.cpp
-system-jpeg {
+contains(QT_CONFIG, system-jpeg) {
         unix:LIBS += -ljpeg
         win32:LIBS += libjpeg.lib
 }
-!system-jpeg {
+!contains(QT_CONFIG, system-jpeg) {
 	INCLUDEPATH += ../../../3rdparty/libjpeg
 	SOURCES  += \
 	    ../../../3rdparty/libjpeg/jcapimin.c \

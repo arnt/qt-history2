@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 CONFIG 	+= ordered
 
-QTDIR_build:REQUIRES = full-config
+QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"
 
 SUBDIRS	 = basicbrowsing \
 	   basicbrowsing2 \

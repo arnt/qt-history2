@@ -5,7 +5,7 @@ CONFIG		+= qt warn_on release no_batch
 QT         += compat
 DEPENDPATH	= ../../include
 
-QTDIR_build:REQUIRES	= full-config
+QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
 
 HEADERS		= themes.h \
 		  ../buttongroups/buttongroups.h \

@@ -3,7 +3,7 @@ TARGET		= outliner
 
 CONFIG		+= qt warn_on release
 
-QTDIR_build:REQUIRES	= xml large-config
+QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 
 HEADERS		= outlinetree.h
 SOURCES		= main.cpp \

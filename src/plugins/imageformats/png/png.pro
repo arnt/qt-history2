@@ -5,15 +5,15 @@ CONFIG += qt plugin
 DESTDIR = $$QT_BUILD_TREE/plugins/imageformats
 VERSION = 1.0.0
 
-QTDIR_build:REQUIRES = !no-png !png
+QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-png)" "!contains(QT_CONFIG, png)"
 
 SOURCES += main.cpp
 
-system-png {
+contains(QT_CONFIG, system-png) {
         unix:LIBS  += -lpng
         win32:LIBS += libpng.lib
 }
-!system-png {
+!contains(QT_CONFIG, system-png) {
 	INCLUDEPATH += ../../../3rdparty/libpng
 	INCLUDEPATH += ../../../3rdparty/zlib
 	SOURCES += \
@@ -34,7 +34,7 @@ system-png {
 	    ../../../3rdparty/libpng/pngwutil.c
 }
 
-!system-zlib:SOURCES += \
+!contains(QT_CONFIG, system-zlib):SOURCES += \
 	../../../3rdparty/zlib/adler32.c \
 	../../../3rdparty/zlib/compress.c \
 	../../../3rdparty/zlib/crc32.c \
@@ -47,8 +47,8 @@ system-png {
 	../../../3rdparty/zlib/uncompr.c \
 	../../../3rdparty/zlib/zutil.c
 
-system-zlib:unix:LIBS += -lz
-system-zlib:mac:LIBS += -lz
+contains(QT_CONFIG, system-zlib):unix:LIBS += -lz
+contains(QT_CONFIG, system-zlib):mac:LIBS += -lz
 
 
 target.path += $$plugins.path/imageformats

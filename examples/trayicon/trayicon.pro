@@ -3,7 +3,7 @@ TARGET		= trayicon
 
 CONFIG		+= qt warn_on release
 
-QTDIR_build:REQUIRES	= large-config
+QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 
 HEADERS		= trayicon.h
 SOURCES		= main.cpp \

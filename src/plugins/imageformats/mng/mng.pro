@@ -5,7 +5,7 @@ CONFIG  += qt plugin
 DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
 
 VERSION = 1.0.0
-QTDIR_build:REQUIRES = !no-mng !mng
+QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-mng)" "!contains(QT_CONFIG, mng)"
 
 SOURCES += main.cpp
 
@@ -13,9 +13,8 @@ win32-borland {
 	QMAKE_CFLAGS_WARN_ON	+= -w-par
 	QMAKE_CXXFLAGS_WARN_ON	+= -w-par
 }
-win32: CONFIG-=zlib system-zlib jpeg system-jpeg
 
-system-mng {
+contains(QT_CONFIG, system-mng) {
         win32:LIBS += libmng.lib
         unix:LIBS  += -lmng
 }
@@ -64,7 +63,7 @@ system-mng {
 	../../../3rdparty/libmng/libmng_zlib.h
 }
 
-!system-zlib {
+!contains(QT_CONFIG, system-zlib) {
 	INCLUDEPATH += ../../../3rdparty/zlib
 	SOURCES+= \
 	../../../3rdparty/zlib/adler32.c \
@@ -79,14 +78,14 @@ system-mng {
 	../../../3rdparty/zlib/uncompr.c \
 	../../../3rdparty/zlib/zutil.c
 }
-!no-zlib:!zlib:unix:LIBS += -lz
-!no-zlib:!zlib:mac:LIBS += -lz
+!contains(QT_CONFIG, no-zlib):!contains(QT_CONFIG, zlib):unix:LIBS += -lz
+!contains(QT_CONFIG, no-zlib):!contains(QT_CONFIG, zlib):mac:LIBS += -lz
 
-system-jpeg {
+contains(QT_CONFIG, system-jpeg) {
         unix:LIBS  += -ljpeg
         win32:LIBS += libjpeg.lib
 }
-!system-jpeg {
+!contains(QT_CONFIG, system-jpeg) {
 	INCLUDEPATH += ../../../3rdparty/libjpeg
 	SOURCES += \
 	    ../../../3rdparty/libjpeg/jcapimin.c \

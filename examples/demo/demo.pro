@@ -12,7 +12,7 @@ DEPENDPATH	= ../../include
 QT += compat
 DEFINES += QT_COMPAT_WARNINGS
 
-QTDIR_build:REQUIRES	= full-config nocrosscompiler
+QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
 
 HEADERS		= frame.h \
 		  categoryinterface.h \
@@ -57,7 +57,7 @@ canvas {
     QT     += canvas
 }
 
-opengl {
+"contains(QT_CONFIG, opengl)" {
     HEADERS 	+=opengl/glworkspace.h \
 		  opengl/glcontrolwidget.h \
 		  opengl/gltexobj.h \

@@ -4,8 +4,8 @@ TARGET		= sound
 CONFIG		+= qt warn_on release
 DEPENDPATH	= ../../include
 
-QTDIR_build:REQUIRES	= full-config
-x11:QTDIR_build:REQUIRES	= nas
+QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
+x11:QTDIR_build:REQUIRES	= "contains(QT_CONFIG, nas)"
 
 HEADERS		= sound.h
 SOURCES		= sound.cpp

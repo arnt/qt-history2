@@ -1,6 +1,6 @@
 # Qt accessibility module
 
-accessibility {
+contains(QT_CONFIG, accessibility) {
       HEADERS += accessible/qaccessible.h \
 		 accessible/qaccessibleobject.h \
 		 accessible/qaccessiblewidget.h \

@@ -6,6 +6,6 @@ SOURCES		= cannon.cpp \
 		  lcdrange.cpp \
 		  main.cpp
 TARGET		= t11
-QTDIR_build:REQUIRES=full-config
+QTDIR_build:REQUIRES="contains(QT_CONFIG, full-config)"
 unix:LIBS += -lm
 

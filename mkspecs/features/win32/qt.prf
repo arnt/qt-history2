@@ -27,25 +27,26 @@ target_qt {
         } 
     }
 }
-for(QCONF, QT) {
+for(QTLIB, QT) {
     qlib =
-    isEqual(QCONF, gui):qlib = qt
-    else:isEqual(QCONF, network):qlib = qnetwork
-    else:isEqual(QCONF, xml):qlib = qxml
-    else:isEqual(QCONF, opengl):qlib = qopengl
-    else:isEqual(QCONF, sql):qlib = qsql
-    else:isEqual(QCONF, core):qlib = qcore
-    else:isEqual(QCONF, canvas):qlib = qcanvas
-    else:isEqual(QCONF, compat):qlib = q3compat
+    isEqual(QTLIB, gui):qlib = qt
+    else:isEqual(QTLIB, network):qlib = qnetwork
+    else:isEqual(QTLIB, xml):qlib = qxml
+    else:isEqual(QTLIB, opengl):qlib = qopengl
+    else:isEqual(QTLIB, sql):qlib = qsql
+    else:isEqual(QTLIB, core):qlib = qcore
+    else:isEqual(QTLIB, canvas):qlib = qcanvas
+    else:isEqual(QTLIB, compat):qlib = q3compat
     else:message("Unknown QT: $$qlib):qlib =
     !isEmpty(qlib) {
         target_qt:isEqual(TARGET, qlib) {
-            warning($$TARGET cannot have a QT of $$QCONF)
+            warning($$TARGET cannot have a QT of $$QTLIB)
         } else {
-	    isEqual(QCONF, compat) {
-	        QTDIR_build:warning(***USE of $$upper($${QCONF}) inside of QTDIR!**)
+	    isEqual(QTLIB, compat) {
+	        QTDIR_build:warning(***USE of $$upper($${QTLIB}) inside of QTDIR!**)
 	        !contains(DEFINES, QT_COMPAT):DEFINES *= QT_COMPAT_WARNINGS
 	    }
+	    isEqual(QTLIB, opengl):CONFIG += opengl
             LIBS   += -l$${qlib}
         }
     }

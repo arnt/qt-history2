@@ -3,7 +3,7 @@ TARGET		= tux
 
 CONFIG		+= qt warn_on release
 
-QTDIR_build:REQUIRES	= small-config
+QTDIR_build:REQUIRES	= "contains(QT_CONFIG, small-config)"
 
 HEADERS		=
 SOURCES		= tux.cpp

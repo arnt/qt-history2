@@ -28,6 +28,7 @@ OPT_CMDLINE=`echo $@ | sed "s,-v ,,g; s,-v$,,g"`
 QMAKE_SWITCHES=
 QMAKE_VARS=
 QMAKE_CONFIG=
+QT_CONFIG=
 
 SUPPORTED=
 
@@ -283,7 +284,6 @@ XPLATFORM=
 PLATFORM=$QMAKESPEC
 QMAKE_PROJECTS=
 QMAKE_IGNORE_PROJECTS=
-OPT_CONCURRENT=0
 OPT_SHADOW=maybe
 OPT_FAST=auto
 OPT_VERBOSE=no
@@ -398,10 +398,6 @@ while [ "$#" -gt 0 ]; do
 	    shift;
 	    VAL=$1
 	fi
-	;;
-    -j?*)
-	VAR="concurrent"
-	VAL="`echo $1 | sed 's,-j,,'`"
 	;;
     -D?*|-D)
 	VAR="define"
@@ -571,11 +567,6 @@ while [ "$#" -gt 0 ]; do
 	    CFG_EXCEPTION_SUPPORT=yes
 	else
 	    UNKNOWN_OPT=yes
-	fi
-	;;
-    version-script)
-	if [ "$VAL" = "yes" ]; then
-	    QMAKE_CONFIG="$QMAKE_CONFIG version_script"
 	fi
 	;;
     platform)
@@ -946,9 +937,6 @@ while [ "$#" -gt 0 ]; do
 	else
 	    UNKNOWN_OPT=yes
 	fi
-	;;
-    concurrent)
-	OPT_CONCURRENT="$VAL"
 	;;
     define)
 	D_FLAGS="$D_FLAGS $VAL"
@@ -1448,10 +1436,6 @@ else
     PLATFORMS=`find $relpath/mkspecs/ -type f | grep -v qws | sed "s,$relpath/mkspecs/qws/,,"`
 fi
 
-##if [ "$OPT_CONCURRENT" = "0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
-#    OPT_CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
-#fi
-
 [ -z "$XPLATFORM" ] && XPLATFORM="$PLATFORM"
 if [ -d "$PLATFORM" ]; then
   QMAKESPEC="$PLATFORM"
@@ -1462,9 +1446,6 @@ if [ -d "$XPLATFORM" ]; then
   XQMAKESPEC="$XPLATFORM"
 else
   XQMAKESPEC="$relpath/mkspecs/${XPLATFORM}"
-fi
-if [ "$QMAKESPEC" = "$XQMAKESPEC" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG nocrosscompiler"
 fi
 
 if [ "$PLATFORM_MAC" = "yes" ]; then
@@ -1604,7 +1585,7 @@ if [ "$PLATFORM_MAC" != "yes" ]; then
 fi
 
 # auto-detect SQL-modules support
-if echo $MODULES | grep sql >/dev/null; then
+if [ "$Products" != "qt-professional" ]; then
     MYSQL_REQ="-lmysqlclient mysql.h"
     OCI_REQ="-lclntsh -lwtc8 oci.h"
     PSQL_REQ="-lpq postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
@@ -1781,7 +1762,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     rm -f $outpath/config.tests/x11/xft.lib
     # add Xft specific config options
     if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.cfg ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG `cat $outpath/config.tests/x11/xft.cfg`"
+	QT_LIBXFT=`cat $outpath/config.tests/x11/xft.cfg` ####SDM
     fi
     rm -f $outpath/config.tests/x11/xft.cfg
     # auto-detect Session Management support
@@ -1931,7 +1912,7 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
 	[-no-gif] [-qt-gif] [-no-sm] [-sm] [-qt-zlib] [-system-zlib]
 	[-qt-libjpeg] [-system-libjpeg] [-qt-libpng] [-system-libpng]
 	[-qt-libmng] [-system-libmng] [-no-nis] [-nis]
-	[-no-cups] [-cups] [-no-largefile] [-largefile] [-version-script]
+	[-no-cups] [-cups] [-no-largefile] [-largefile]
 	[-no-stl] [-stl] [-no-ipv6 ] [-ipv6] [-Istring] [-lstring]
 	[-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
 	[-without-<module setting>] [-fast] [-no-fast]
@@ -2009,13 +1990,6 @@ else
 EOF
 fi
     cat << EOF
-    -version-script .... Use a version script when linking the Qt library.
-			 Internal symbols will be marked as local. Requires
-			 a recent GNU binutils package.
-
-			 WARNING: Experimental, may be removed in future
-			 versions.
-
     -platform target ... The operating system and compiler you are building
 			 on ($PLATFORM).
     -xplatform target .. The target platform when cross-compiling.
@@ -2711,23 +2685,21 @@ fi
 if [ "$CFG_ACCESSIBILITY" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ACCESSIBILITY"
 else
-    QMAKE_CONFIG="$QMAKE_CONFIG accessibility"
+    QT_CONFIG="$QT_CONFIG accessibility"
 fi
 
 # enable opengl
 if [ "$CFG_OPENGL" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG opengl"
+    QT_CONFIG="$QT_CONFIG opengl"
 fi
 
-# update QMAKE_CONFIG to show our current predefined configuration
+# update QT_CONFIG to show our current predefined configuration
 case "$CFG_QCONFIG" in
 minimal|small|medium|large|full)
     # these are a sequence of increasing functionality
     for c in minimal small medium large full; do
-	QMAKE_CONFIG="$QMAKE_CONFIG $c-config"
-	if [ "$CFG_QCONFIG" = $c ]; then
-	    break;
-	fi
+	QT_CONFIG="$QT_CONFIG $c-config"
+	[ "$CFG_QCONFIG" = $c ] && break
     done
     ;;
 *)
@@ -2739,18 +2711,6 @@ minimal|small|medium|large|full)
 esac
 
 # build up the variables for output
-QMAKE_OUTDIR=""
-case $Products in
-qt-enterprise)
-    QMAKE_CONFIG="$QMAKE_CONFIG enterprise"
-    ;;
-qt-internal)
-    # QMAKE_CONFIG="$QMAKE_CONFIG internal"
-    ;;
-*)
-    ;;
-esac
-
 if [ "$CFG_DEBUG" = "yes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}debug"
     QMAKE_CONFIG="$QMAKE_CONFIG debug"
@@ -2775,115 +2735,103 @@ QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_RTLDIR_QT=$QT_INSTALL_LIBS\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 if [ "$CFG_LARGEFILE" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG largefile"
+    QT_CONFIG="$QT_CONFIG largefile"
 fi
 if [ "$CFG_STL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
 else
     QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
-if [ "$CFG_IPV6" = "no" ]; then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6"
-else
-    QMAKE_CONFIG="$QMAKE_CONFIG ipv6"
+if [ "$CFG_IPV6" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG ipv6"
 fi
-# don't add the link line if we build the image formats as a plugin
 if [ "$CFG_LIBMNG" = "system" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
-    if [ "$CFG_MNG" = "yes" ]; then
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lmng\""
-    fi
+    QT_CONFIG="$QT_CONFIG system-mng"
 fi
 if [ "$CFG_MNG" = "no" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG no-mng"
+    QT_CONFIG="$QT_CONFIG no-mng"
 elif [ "$CFG_MNG" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG mng"
+    QT_CONFIG="$QT_CONFIG mng"
 fi
 if [ "$CFG_LIBJPEG" = "system" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
-    if [ "$CFG_JPEG" = "yes" ]; then
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-ljpeg\""
-    fi
+    QT_CONFIG="$QT_CONFIG system-jpeg"
 fi
 if [ "$CFG_JPEG" = "no" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
+    QT_CONFIG="$QT_CONFIG no-jpeg"
 elif [ "$CFG_JPEG" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
+    QT_CONFIG="$QT_CONFIG jpeg"
 fi
 if [ "$CFG_LIBPNG" = "no" ]; then
     CFG_PNG="no"
 fi
 if [ "$CFG_LIBPNG" = "system" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG system-png"
-    if [ "$CFG_PNG" = "yes" ]; then
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lpng\""
-    fi
+    QT_CONFIG="$QT_CONFIG system-png"
 fi
 if [ "$CFG_PNG" = "no" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG no-png"
+    QT_CONFIG="$QT_CONFIG no-png"
 elif [ "$CFG_PNG" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG png"
+    QT_CONFIG="$QT_CONFIG png"
 fi
 if [ "$CFG_GIF" = "no" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG no-gif"
+    QT_CONFIG="$QT_CONFIG no-gif"
 elif [ "$CFG_GIF" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG gif"
+    QT_CONFIG="$QT_CONFIG gif"
 fi
 if [ "x$PLATFORM_MAC" = "xyes" ]; then
     [ "$CFG_ZLIB" = "yes" ] && CFG_ZLIB="system"
 fi
 if [ "$CFG_ZLIB" = "no" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
+    QT_CONFIG="$QT_CONFIG no-zlib"
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_COMPRESS"
 elif [ "$CFG_ZLIB" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG zlib"
+    QT_CONFIG="$QT_CONFIG zlib"
 elif [ "$CFG_ZLIB" = "system" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
+    QT_CONFIG="$QT_CONFIG system-zlib"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lz\""
 fi
-[ "$CFG_NIS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nis"
-[ "$CFG_CUPS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG cups"
-[ "$CFG_NAS" = "system" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
-[ "$CFG_BIG_CODECS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
+[ "$CFG_NIS" = "yes" ] && QT_CONFIG="$QT_CONFIG nis"
+[ "$CFG_CUPS" = "yes" ] && QT_CONFIG="$QT_CONFIG cups"
+[ "$CFG_NAS" = "system" ] && QT_CONFIG="$QT_CONFIG nas"
+[ "$CFG_BIG_CODECS" = "yes" ] && QT_CONFIG="$QT_CONFIG bigcodecs"
 
-[ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
+[ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QT_CONFIG="$QT_CONFIG ft"
 if [ "$PLATFORM_X11" = "yes" ]; then
-    [ "$CFG_SM" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x11sm"
+    [ "$CFG_SM" = "yes" ] && QT_CONFIG="$QT_CONFIG x11sm"
 
-    # for some reason, the following libraries are not always build shared,
+    # for some reason, the following libraries are not always built shared,
     # so *every* program/lib (including Qt) has to link against them
     if [ "$CFG_XSHAPE" = "yes" ]; then
-        QMAKE_CONFIG="$QMAKE_CONFIG xshape"
+        QT_CONFIG="$QT_CONFIG xshape"
     fi
     if [ "$CFG_XINERAMA" = "yes" ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
+	QT_CONFIG="$QT_CONFIG xinerama"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXinerama \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_XCURSOR" = "yes" ]; then
-        QMAKE_CONFIG="$QMAKE_CONFIG xcursor"
+        QT_CONFIG="$QT_CONFIG xcursor"
         QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXcursor \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_XRANDR" = "yes" ]; then
-        QMAKE_CONFIG="$QMAKE_CONFIG xrandr"
+        QT_CONFIG="$QT_CONFIG xrandr"
         QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrandr \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_XRENDER" = "yes" ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG xrender"
+	QT_CONFIG="$QT_CONFIG xrender"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrender \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_XFT" = "yes" ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG xft"
+	QT_CONFIG="$QT_CONFIG xft"
     fi
     if [ "$CFG_TABLET" = "yes" ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG tablet"
+	QT_CONFIG="$QT_CONFIG tablet"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXi \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_XKB" = "yes" ]; then
-        QMAKE_CONFIG="$QMAKE_CONFIG xkb"
+        QT_CONFIG="$QT_CONFIG xkb"
     fi
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     if [ "$CFG_TABLET" = "yes" ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG tablet"
+	QT_CONFIG="$QT_CONFIG tablet"
     fi
 fi
 
@@ -2974,7 +2922,7 @@ g++*)
     ;;
 esac
 
-# QMAKE_CONFIG can contain the following:
+# QT_CONFIG can contain the following:
 #
 # Things that affect the Qt API/ABI:
 #
@@ -3018,7 +2966,7 @@ BUILD_CONFIG=
 BUILD_OPTIONS=
 
 # determine the build options
-for config_option in $QMAKE_CONFIG; do
+for config_option in $QMAKE_CONFIG $QT_CONFIG; do
     SKIP="yes"
     case "$config_option" in
     *-config)
@@ -3195,6 +3143,7 @@ CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
 cat >>$CACHEFILE.tmp <<EOF
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl QTDIR_build
+QT_CONFIG += $QT_CONFIG
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
@@ -3309,9 +3258,8 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
     echo "qmake switches .. $QMAKE_SWITCHES"
 fi
 
-[ "$OPT_CONCURRENT" != "0" ] && echo "Concurrent .......... $OPT_CONCURRENT"
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
-echo "Configuration ....... $QMAKE_CONFIG"
+echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
 echo "STL support ......... $CFG_STL"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
@@ -3588,18 +3536,7 @@ EOF
 	    echo
 
 	    [ -f "${OUTDIR}/Makefile" ] && chmod +w ${OUTDIR}/Makefile
-	    if [ "$OPT_CONCURRENT" = "0" ] || [ "$OPT_CONCURRENT" = "1" ]; then
-		/bin/sh -c "$EXEC"
-	    else
-		/bin/sh -c "$EXEC" &
-		if [ "$PROCS" != "$OPT_CONCURRENT" ]; then
-		    PROCS=`expr $PROCS + 1`
-		else
-		    PROCS=1
-		    [ "$OPT_VERBOSE" = "yes" ] && echo "Waiting.."
-		    wait #wait for the processes to end
-		fi
-	    fi
+	    /bin/sh -c "$EXEC"
        fi
     done
 done

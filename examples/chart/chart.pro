@@ -2,7 +2,7 @@ TEMPLATE = app
 
 CONFIG  += warn_on
 
-QTDIR_build:REQUIRES = full-config
+QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"
 
 
 HEADERS += element.h \

@@ -1,5 +1,4 @@
 TEMPLATE = subdirs
 
-!bigcodecs {
-	SUBDIRS	+= cn jp kr tw
-}
+!contains(QT_CONFIG, bigcodecs):SUBDIRS	+= cn jp kr tw
+

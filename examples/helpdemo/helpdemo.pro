@@ -8,7 +8,7 @@ unix {
   OBJECTS_DIR = .obj
 }
 
-QTDIR_build:REQUIRES = full-config
+QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"
 
 SOURCES += helpdemo.cpp main.cpp
 HEADERS += helpdemo.h

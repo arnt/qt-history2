@@ -5,7 +5,7 @@
 QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h
 CONFIG += console
-CONFIG -= opengl qt shared x11sm
+CONFIG -= qt shared
 DESTDIR = ../bin/
 DEPENDPATH += generators generators/unix generators/win32 \
               generators/mac $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/qmake

@@ -6,4 +6,4 @@ SOURCES		= cannon.cpp \
 		  lcdrange.cpp \
 		  main.cpp
 TARGET		= t8
-QTDIR_build:REQUIRES=large-config
+QTDIR_build:REQUIRES="contains(QT_CONFIG, large-config)"

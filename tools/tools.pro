@@ -10,4 +10,4 @@ no-png {
 }
 
 CONFIG+=ordered
-QTDIR_build:REQUIRES=full-config nocrosscompiler
+QTDIR_build:REQUIRES = "contains(QT_CONFIG, full-config)"

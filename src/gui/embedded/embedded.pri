@@ -1,8 +1,7 @@
 # Qt/Embedded 
 
 embedded {
-	CONFIG -= opengl
-	CONFIG -= x11
+	CONFIG -= opengl x11
 	LIBS -= -dl
 	KERNEL_P        = kernel
 

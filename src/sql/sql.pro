@@ -4,8 +4,6 @@ REQUIRES = !qt_one_lib
 TARGET		= qsql
 QT = core
 
-CONFIG -= opengl x11sm
-
 DEFINES += QT_BUILD_SQL_LIB
 
 PRECOMPILED_HEADER = ../core/global/qt_pch.h

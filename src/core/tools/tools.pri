@@ -50,7 +50,7 @@ SOURCES += \
 
 
 #zlib support
-zlib {
+contains(QT_CONFIG, zlib) {
 INCLUDEPATH += ../3rdparty/zlib
 	SOURCES+= \
 		../3rdparty/zlib/adler32.c \
@@ -65,7 +65,7 @@ INCLUDEPATH += ../3rdparty/zlib
 		../3rdparty/zlib/uncompr.c \
 		../3rdparty/zlib/zutil.c
 }
-!no-zlib:!zlib {
+!contains(QT_CONFIG, no-zlib):contains(QT_CONFIG, zlib) {
 	unix:LIBS += -lz
 	win32:LIBS += libz.lib
 }

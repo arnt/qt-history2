@@ -20,4 +20,4 @@ SOURCES		= qskin.cpp \
 		  rangecontrols.cpp \
 		  ../../examples/richtext/richtext.cpp
 TARGET		= skins
-QTDIR_build:REQUIRES=full-config
+QTDIR_build:REQUIRES="contains(QT_CONFIG, full-config)"

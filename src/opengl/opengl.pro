@@ -1,12 +1,12 @@
 # Qt opengl module
 
-REQUIRES = !qt_one_lib
 TARGET = qopengl
 
 include(../qbase.pri)
 
 QT = core gui
-!win32:!embedded:!mac:CONFIG	   += x11 x11inc
+!win32:!embedded:!mac:CONFIG	   += x11
+contains(QT_CONFIG, opengl):CONFIG += opengl
 
 DEFINES += QT_BUILD_OPENGL_LIB
 

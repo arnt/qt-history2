@@ -69,15 +69,15 @@ thread:SUBDIRS +=   thread/prodcons \
 canvas:SUBDIRS +=   canvas
 canvas:table:SUBDIRS += chart
 
-opengl:SUBDIRS +=   opengl/box \
+contains(QT_CONFIG, opengl):SUBDIRS +=   opengl/box \
 		    opengl/gear \
 		    opengl/glpixmap \
 		    opengl/overlay \
 		    opengl/sharedbox \
 		    opengl/texture
 
-x11:nas:SUBDIRS += 	    sound
-mac|win32:SUBDIRS +=	    sound
+x11:contains(QT_CONFIG, nas):SUBDIRS += sound
+mac|win32:SUBDIRS += sound
 
 iconview:SUBDIRS += fileiconview \
 		    iconview \

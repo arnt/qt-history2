@@ -5,6 +5,9 @@ QMAKE_INTERNAL_CACHE_FILE = .qmake.internal.cache.$${TARGET}
 TEMPLATE	= lib
 VERSION		= 4.0.0
 win32 {
+    #because libnetwork.pro could be qmake'd (qmade?) before libqcore.pro we
+    #need to override the version of libq* in all other libq*'s just to be
+    #sure the same version is used
     QT_LIBS_OVERRIDE = $$VERSION
     QT_LIBS_OVERRIDE ~= s/\.//g
     for(lib, $$list(qcore qt qnetwork qxml qopengl qsql core qcompat)) {
@@ -59,7 +62,7 @@ DEPENDPATH += $$ICONVIEW_H;$$OPENGL_H;$$THREAD_H;$$TOOLS_H;$$CODECS_H;
 DEPENDPATH += $$WORKSPACE_H;$$XML_H;$$CANVAS_H;$$STYLES_H;$$COMPAT_H
 embedded:DEPENDPATH += ;$$EMBEDDED_H
 
-largefile:unix:!darwin:DEFINES += _LARGEFILE_SOURCE _LARGE_FILES _FILE_OFFSET_BITS=64
+contains(QT_CONFIG, largefile):unix:!darwin:DEFINES += _LARGEFILE_SOURCE _LARGE_FILES _FILE_OFFSET_BITS=64
 
 !staticlib:PRL_EXPORT_DEFINES += QT_SHARED
 
