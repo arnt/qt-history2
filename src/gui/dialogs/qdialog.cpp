@@ -591,6 +591,13 @@ void QDialog::show()
     hideSpecial();
 #endif
 
+    if (!testAttribute(Qt::WA_Moved)) {
+        uint state = windowState();
+        adjustPosition(parentWidget());
+        setAttribute(Qt::WA_Moved, false); // not really an explicit position
+        if (state != windowState())
+            setWindowState(state);
+    }
     QWidget::show();
     showExtension(d->doShowExtension);
     QWidget *fw = topLevelWidget()->focusWidget();
@@ -634,18 +641,6 @@ void QDialog::show()
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DialogStart);
 #endif
-}
-
-/*!\reimp */
-void QDialog::showEvent(QShowEvent *)
-{
-    if (!testAttribute(Qt::WA_Moved)) {
-	uint state = windowState();
-        adjustPosition(parentWidget());
-        setAttribute(Qt::WA_Moved, false); // not really an explicit position
-	if (state != windowState())
-	    setWindowState(state);
-    }
 }
 
 /*! \internal */
