@@ -32,8 +32,8 @@ public:
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
 		    const QWidget *widget = 0) const;
 
-    void drawControl(ControlElement element, QPainter *p, const QWidget *w, const QRect &r,
-                      const QPalette &pal, SFlags how = Style_Default /*const Q3StyleOption& = Q3StyleOption::Default*/);
+    void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                     const QWidget *w = 0) const;
 
 private:
     Q_DISABLE_COPY(QCompactStyle)

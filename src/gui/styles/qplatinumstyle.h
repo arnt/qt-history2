@@ -48,7 +48,7 @@ public:
      int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
                      const QWidget *widget = 0) const;
 
-     QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
+     QRect subElementRect(SubElement ce, const QStyleOption *opt, const QWidget *widget = 0) const;
 
 protected:
     QColor mixedColor(const QColor &, const QColor &) const;

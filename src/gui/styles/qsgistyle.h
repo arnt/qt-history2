@@ -57,7 +57,7 @@ public:
     QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
                            const QSize &contentsSize, const QWidget *widget = 0) const;
 
-    QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
+    QRect subElementRect(SubElement r, const QStyleOption *opt, const QWidget *widget = 0) const;
 
     QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
                                  const QWidget *w = 0) const;
