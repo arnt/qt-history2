@@ -131,7 +131,7 @@ QString qax_generateDocumentation(QAxBase *that)
     }
     stream << "</ul>" << endl;
 
-    QList<QByteArray> methodDetails, propDetails;
+    QList<QString> methodDetails, propDetails;
 
     const int slotCount = mo->memberCount();
     if (slotCount) {
@@ -158,7 +158,7 @@ QString qax_generateDocumentation(QAxBase *that)
 	    stream << "<li>" << returntype << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << prototype << ";</li>" << endl;
             
             prototype = namedPrototype(slot.parameterTypes(), slot.parameterNames());
-	    QByteArray detail = "<h3><a name=" + name + "></a>" + returntype + " " + name + " " + prototype + "<tt> [slot]</tt></h3>\n";
+	    QString detail = "<h3><a name=" + name + "></a>" + returntype + " " + name + " " + prototype + "<tt> [slot]</tt></h3>\n";
             prototype = namedPrototype(slot.parameterTypes(), QList<QByteArray>());
 	    detail += docuFromName(typeInfo, name);
 	    detail += "<p>Connect a signal to this slot:<pre>\n";
@@ -219,7 +219,7 @@ QString qax_generateDocumentation(QAxBase *that)
 	    QByteArray name = signature.left(signature.indexOf('('));
 	    stream << "<li>void <a href=\"#" << name << "\"><b>" << name << "</b></a>" << prototype << ";</li>" << endl;
 
-            QByteArray detail = "<h3><a name=" + name + "></a>void " + name + " " + prototype + "<tt> [signal]</tt></h3>\n";
+            QString detail = "<h3><a name=" + name + "></a>void " + name + " " + prototype + "<tt> [signal]</tt></h3>\n";
             if (typeLib) {
                 interCount = 0;
                 do {
@@ -263,7 +263,7 @@ QString qax_generateDocumentation(QAxBase *that)
 	    QByteArray type(prop.typeName());
 
 	    stream << "<li>" << type << " <a href=\"#" << name << "\"><b>" << name << "</b></a>;</li>" << endl;
-	    QByteArray detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
+	    QString detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
 	    detail += docuFromName(typeInfo, name);
 	    QVariant::Type vartype = QVariant::nameToType(type);
 	    if (!prop.isReadable())
