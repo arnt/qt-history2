@@ -112,15 +112,12 @@ void qt_generate_epsf( bool b )
 }
 
 // Note: this is comment-stripped and word-wrapped later.
-// Note: stripHeader() constrains the postscript used in this prolog.
-// only function/variable declarations are currently allowed, and
-// stripHeader knows a bit about the names of some functions.
-
 //
 // #### improve build process and qembed the result, saving RAM and ROM
 //
 
 static const char * const ps_header[] = {
+// basic definitions
 "/d  /def load def",
 "/D  {bind d} bind d",
 "/d2 {dup dup} D",
@@ -141,7 +138,7 @@ static const char * const ps_header[] = {
 "/SM {setmatrix} D",
 "/TR {translate} D",
 "/SC {aload pop setrgbcolor} D",
-"",
+
 "/BSt 0 d",				// brush style
 "/LWi 1 d",				// line width
 "/PSt 1 d",				// pen style
@@ -153,9 +150,9 @@ static const char * const ps_header[] = {
 "/BCol  [ 1 1 1 ] d",			// brush color
 "/PCol  [ 0 0 0 ] d",			// pen color
 "/BkCol [ 1 1 1 ] d",			// background color
-"",
+
 "/nS 0 d",				// number of saved painter states
-"",
+
 "/LArr[",					// Pen styles:
 "    []		     []",			//   solid line
 "    [ 10 3 ]	     [ 3 10 ]",			//   dash line
@@ -163,7 +160,7 @@ static const char * const ps_header[] = {
 "    [ 5 3 3 3 ]	     [ 3 5 3 3 ]",	//   dash dot line
 "    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]",		//   dash dot dot line
 "] d",
-"",
+
 "",//
 "",// Returns the line pattern (from pen style PSt).
 "",//
@@ -180,7 +177,7 @@ static const char * const ps_header[] = {
 "    }",
 "    { [] } ifelse",				// out of range => solid line
 "} D",
-"",
+
 "/QS {",				// stroke command
 "    PSt 0 ne",				// != NO_PEN
 "    { LWi SW",				// set line width
@@ -194,13 +191,12 @@ static const char * const ps_header[] = {
 "      { grestore } ifelse",
 "    } if",
 "} D",
-"",
+
 "/BDArr[",				// Brush dense patterns:
 "    0.06 0.12 0.37 0.50 0.63 0.88 0.94",
 "] d",
-"",
 
-"", // read 28 bits and leave them on tos
+// read 28 bits and leave them on tos
 "/r28 {",
 "  ", // skip past whitespace and read one character
 "  { currentfile read pop ",
@@ -220,12 +216,12 @@ static const char * const ps_header[] = {
 "    add",
 "  } repeat",
 "} D",
-"",
-"", // read some bits and leave them on tos
+
+// read some bits and leave them on tos
 "/rA 0 d ", // accumulator
 "/rL 0 d ", // bits left
-"",
-"", // takes number of bits, leaves number
+
+// takes number of bits, leaves number
 "/rB {",
 "  rL 0 eq {",
 "    ", // if we have nothing, let's get something
@@ -245,10 +241,10 @@ static const char * const ps_header[] = {
 "    neg rA exch bitshift /rA ED",
 "  } ifelse",
 "} D",
-"",
-"", // uncompresses from currentfile until the string on the stack is full;
-"", // leaves the string there.  assumes that nothing could conceivably go
-"", // wrong.
+
+// uncompresses from currentfile until the string on the stack is full;
+// leaves the string there.  assumes that nothing could conceivably go
+// wrong.
 "/rC {",
 "  /rL 0 d",
 "  0",
@@ -298,8 +294,8 @@ static const char * const ps_header[] = {
 "  } loop",
 "  pop",
 "} D",
-"",
-"/sl D0", // slow implementation, but strippable by stripHeader
+
+"/sl D0", // ## What is this supposed to do?
 "/QCIgray D0 /QCIcolor D0 /QCIindex D0",
 "/QCI {", // as colorimage but without the last two arguments
 "  /colorimage where {",
@@ -321,9 +317,9 @@ static const char * const ps_header[] = {
 "    QCIgray image",
 "  } ifelse",
 "} D",
-"",
+
 "/defM matrix d",
-"",
+
 "/BF {",				// brush fill
 "   gsave",
 "   BSt 1 eq",				// solid brush?
@@ -391,14 +387,13 @@ static const char * const ps_header[] = {
 "   } if",
 "   grestore",
 "} D",
-"",
-"",
-"", // for arc
+
+// for arc
 "/mat matrix d",
 "/ang1 D0 /ang2 D0",
 "/w D0 /h D0",
 "/x D0 /y D0",
-"",
+
 "/ARC {",				// Generic ARC function [ X Y W H ang1 ang2 ]
 "    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
 "    mat CM pop",
@@ -409,10 +404,9 @@ static const char * const ps_header[] = {
 "    {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse",
 "    mat SM",
 "} D",
-"",
-"",
+
 "/C D0",
-"",
+
 "/P {",					// PdcDrawPoint [x y]
 "    NP",
 "    MT",
@@ -424,11 +418,11 @@ static const char * const ps_header[] = {
 "    PCol SC",
 "    fill",
 "} D",
-"",
+
 "/M {",					// PdcMoveTo [x y]
 "    /Cy ED /Cx ED",
 "} D",
-"",
+
 "/L {",					// PdcLineTo [x y]
 "    NP",
 "    Cx Cy MT",
@@ -436,22 +430,22 @@ static const char * const ps_header[] = {
 "    Cx Cy LT",
 "    QS",
 "} D",
-"",
+
 "/DL {",				// PdcDrawLine [x1 y1 x0 y0]
 "    NP",
 "    MT",
 "    LT",
 "    QS",
 "} D",
-"",
+
 "/HL {",				// PdcDrawLine [x1 y x0]
 "    1 index DL",
 "} D",
-"",
+
 "/VL {",				// PdcDrawLine [x y1 y0]
 "    2 index exch DL",
 "} D",
-"",
+
 "/R {",					// PdcDrawRect [x y w h]
 "    /h ED /w ED /y ED /x ED",
 "    NP",
@@ -463,7 +457,7 @@ static const char * const ps_header[] = {
 "    BF",
 "    QS",
 "} D",
-"",
+
 "/ACR {",					// add clip rect
 "    /h ED /w ED /y ED /x ED",
 "    x y MT",
@@ -472,28 +466,28 @@ static const char * const ps_header[] = {
 "    0 h neg RL",
 "    CP",
 "} D",
-"",
+
 "/CLSTART {",				// clipping start
 "    /clipTmp matrix CM d",		// save current matrix
 "    defM SM",				// Page default matrix
 "    NP",
 "} D",
-"",
+
 "/CLEND {",				// clipping end
 "    clip",
 "    NP",
 "    clipTmp SM",			// restore the current matrix
 "} D",
-"",
+
 "/CLO {",				// clipping off
 "    grestore",				// restore top of page state
 "    gsave",				// save it back again
 "    defM SM",				// set coordsys (defensive progr.)
 "} D",
-"",
+
 "/xr D0 /yr D0",
 "/rx D0 /ry D0 /rx2 D0 /ry2 D0",
-"",
+
 "/RR {",				// PdcDrawRoundRect [x y w h xr yr]
 "    /yr ED /xr ED /h ED /w ED /y ED /x ED",
 "    xr 0 le yr 0 le or",
@@ -518,8 +512,7 @@ static const char * const ps_header[] = {
 "	} ifelse",
 "    } ifelse",
 "} D",
-"",
-"",
+
 "/E {",				// PdcDrawEllipse [x y w h]
 "    /h ED /w ED /y ED /x ED",
 "    mat CM pop",
@@ -531,16 +524,14 @@ static const char * const ps_header[] = {
 "    BF",
 "    QS",
 "} D",
-"",
-"",
+
 "/A {",				// PdcDrawArc [x y w h ang1 ang2]
 "    16 div exch 16 div exch",
 "    NP",
 "    ARC",
 "    QS",
 "} D",
-"",
-"",
+
 "/PIE {",				// PdcDrawPie [x y w h ang1 ang2]
 "    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
 "    NP",
@@ -550,7 +541,7 @@ static const char * const ps_header[] = {
 "    BF",
 "    QS",
 "} D",
-"",
+
 "/CH {",				// PdcDrawChord [x y w h ang1 ang2]
 "    16 div exch 16 div exch",
 "    NP",
@@ -559,27 +550,24 @@ static const char * const ps_header[] = {
 "    BF",
 "    QS",
 "} D",
-"",
-"",
+
 "/BZ {",				// PdcDrawCubicBezier [4 points]
 "    curveto",
 "    QS",
 "} D",
-"",
-"",
+
 "/CRGB {",				// Compute RGB [R G B] => R/255 G/255 B/255
 "    255 div 3 1 roll",
 "    255 div 3 1 roll",
 "    255 div 3 1 roll",
 "} D",
-"",
-"",
+
 "/SV {",				// Save painter state
 "    BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol",
 "    /nS nS 1 add d",
 "    gsave",
 "} D",
-"",
+
 "/RS {",				// Restore painter state
 "    nS 0 gt",
 "    { grestore",
@@ -587,29 +575,28 @@ static const char * const ps_header[] = {
 "      /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED",
 "      /nS nS 1 sub d",
 "    } if",
-"",
 "} D",
-"",
+
 "/BC {",				// PdcSetBkColor [R G B]
 "    CRGB",
 "    BkCol astore pop",
 "} D",
-"",
+
 "/BR {",				// PdcSetBrush [style R G B]
 "    CRGB",
 "    BCol astore pop",
 "    /BSt ED",
 "} D",
-"",
+
 "/WB {",				// set white solid brush
 "    1 W BR",
 "} D",
-"",
+
 "/NB {",				// set nobrush
 "    0 B BR",
 "} D",
-"",
-"/PE {", // PdcSetPen [style width R G B Cap Join]
+
+"/PE {", 				// PdcSetPen [style width R G B Cap Join]
 "    setlinejoin setlinecap"
 "    CRGB",
 "    PCol astore pop",
@@ -617,17 +604,16 @@ static const char * const ps_header[] = {
 "    /PSt ED",
 "    LWi 0 eq { 0.25 /LWi ED } if", // ### 3.0 remove this line
 "} D",
-"",
+
 "/P1 {",				// PdcSetPen [R G B]
 "    1 0 5 2 roll 0 0 PE",
 "} D",
-"",
+
 "/ST {",				// SET TRANSFORM [matrix]
 "    defM setmatrix",
 "    concat",
 "} D",
-"",
-"",
+
 // this function tries to find a suitable postscript font. We try quite hard not to get courier for a 
 // proportional font. The following takes an array of fonts. The algorithm will take the first one that
 // gives a match (defined as not resulting in a courier font). 
@@ -650,7 +636,7 @@ static const char * const ps_header[] = {
 "  } forall",
 "  exch",				// font fontarray
 "} d",
-"",
+
 "/qtdefinefont {",			// newname encoding font fontarray 	defines a postscript font
 "  dup",
 "  1 get /fxscale exch def",		// define scale, sland and encoding
@@ -673,14 +659,14 @@ static const char * const ps_header[] = {
 "/MF {",				// newname encoding fontlist
 "  qtfindfont qtdefinefont",
 "} D",
-"",
+
 "/MSF {",				// newname slant fontname (this is used for asian fonts, where we don't need an encoding)
 "  findfont exch",			// newname font slant
 "  /slant exch d",			// newname font
 "  [ 1 0 slant 1 0 0 ] makefont",
 "  definefont pop",
 "} D",
-"",
+
 "/MFUni {",				// newname encoding fontname
 "  findfont dup length dict begin",
 "  {",
@@ -690,24 +676,23 @@ static const char * const ps_header[] = {
 "  /Encoding ED currentdict end",
 "  definefont pop",
 "} D",
-"",
+
 "/DF {",				// newname pointsize fontmame
 "  findfont",
 "  /FONTSIZE 3 -1 roll d [ FONTSIZE 0 0 FONTSIZE -1 mul 0 0 ] makefont",
 "  d",
 "} D",
-"",
-"",
+
 "/ty 0 d",
 "/Y {",
 "    /ty ED",
 "} D",
-"",
+
 "/Tl {", // draw underline/strikeout line: () w x y ->Tl-> () w x
 "    NP 1 index exch MT",
 "    1 index 0 rlineto QS",
 "} D",
-"",
+
 "/T {",					// PdcDrawText2 [string fm.width x]
 "    PCol SC", // really need to kill these SCs
 "    ty MT",
@@ -719,7 +704,7 @@ static const char * const ps_header[] = {
 "    exch 0 exch", // extraperchar 0 string
 "    ashow",
 "} D",
-"",
+
 "/QI {",
 "    /C save d",
 "    pageinit",
@@ -727,7 +712,7 @@ static const char * const ps_header[] = {
 "    /Cy  0 d",				// reset current y position
 "    /OMo false d",
 "} D",
-"",
+
 "/QP {",				// show page
 "    C restore",
 "    showpage",
@@ -2954,6 +2939,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
   }
 
   numGlyphs = getUSHORT( post_table + 32 );
+  qDebug("number of glyphs in post table is %d", numGlyphs);
   replacementList = makePSFontNameList( f, psname );
   uni2glyphSetup();
 }
@@ -3631,32 +3617,34 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   for (i=0; i<segcount; i++) {
     USHORT endcode_i    = getUSHORT(endcode   +2*i);
     USHORT startcode_i  = getUSHORT(startcode +2*i);
-    USHORT iddelta_i    = getUSHORT(iddelta   +2*i);
+    SHORT iddelta_i    = getSHORT(iddelta   +2*i);
     USHORT idrangeoff_i = getUSHORT(idrangeoff+2*i);
     
-    fprintf(stderr,"[%d] %04x-%04x (%d %d)\n",
+    fprintf(stderr,"[%d] %04x-%04x (%x %x)\n",
         i,startcode_i,endcode_i,iddelta_i,idrangeoff_i);
     if (endcode_i == 0xffff) break; // last dummy segment
 
     if (idrangeoff_i == 0) {
       for (USHORT c = startcode_i; c <= endcode_i; c++) {
 	USHORT g = c + iddelta_i; // glyph index
-	if (g >= numGlyphs) {
-	  qWarning("incorrect glyph index in cmap");
-	}
-	uni2glyph[g] = c;
-	glyph2uni[c] = g;
+	if (g == 0 || g >= numGlyphs) {
+	  qWarning("incorrect glyph index in cmap %d", g);
+	}// else {
+	    uni2glyph[g] = c;
+	    glyph2uni[c] = g;
+//	}
       }
     } else {
       for (USHORT c = startcode_i; c <= endcode_i; c++) {
 	USHORT g = getUSHORT(idrangeoff+2*i 
 			     + 2*(c - startcode_i)
 			     + idrangeoff_i);
-	if (g >= numGlyphs) {
-	    qWarning("incorrect glyph index in cmap");
-	}
-	uni2glyph[g] = c;
-	glyph2uni[c] = g;
+	if (g == 0 || g >= numGlyphs) {
+	    qWarning("incorrect glyph index %d in cmap for char %x", g, c);
+	}// else {
+	    uni2glyph[g] = c;
+	    glyph2uni[c] = g;
+//	}
       }
     }
   }
@@ -6268,242 +6256,6 @@ void QPSPrinter::orientationSetup()
 }
 
 
-
-static QString stripHeader( const QString & header, const char * data,
-			    int len, bool useFonts )
-{
-    // first pass: find and mark all identifiers
-    QDict<int> ids( 257 );
-    ids.setAutoDelete( TRUE );
-
-    int i=0;
-    int size = header.length();
-    int * used = new int[size];
-    for( i=0; i<size; i++ )
-	used[i] = 0;
-    i=0;
-    used[0] = 0x10000000;
-    while( i < size ) {
-	while( i < size && header[i] != '/' )
-	    i++;
-	if ( header[i] == '/' && isalpha( header[i+1].latin1() ) ) {
-	    i++;
-	    int j=i;
-	    while( j < size && isalnum( header[j].latin1() ) )
-		j++;
-	    char id[10];
-	    strncpy( id, header.ascii() + i, j-i );
-	    id[j-i] = '\0';
-	    while( j < size && isspace( header[j].latin1() ) )
-		j++;
-	    if ( header[j] == '{' ) {
-		j++;
-		int k, l;
-		l = 1;
-		while( l && j < size ) {
-		    while( j < size && !isalpha( header[j].latin1() ) ) {
-			if ( header[j] == '{' )
-			    l++;
-			else if ( header[j] == '}' )
-			    l--;
-			j++;
-		    }
-		    if ( l ) {
-			k = j;
-			while( j < size && isalnum( header[j].latin1() ) )
-			    j++;
-			if( j - k < 10 ) {
-			    char id2[10];
-			    strncpy( id2, header.ascii() + k, j-k );
-			    id2[j-k] = '\0';
-			    int * offs = ids.find( id2 );
-			    if ( offs )
-				used[k] = *offs;
-			}
-		    }
-		}
-	    } else if ( header[j] == '[' ) {
-		// handle array defintions
-		int l=0;
-		do {
-		    if ( header[j] == '[' )
-			l++;
-		    else if ( header[j] == ']' )
-			l--;
-		    j++;
-		} while( j < size && l );
-	    } else if ( header[j] == 'D' && header[j+1] == '0' &&
-			!isalnum( header[j+2].latin1() ) ) {
-		ids.insert( id, new int(i-1) );
-		used[i-1] = 0x20000000;
-		int *tmp = ids.find( "D0" );
-		if ( tmp )
-		    used[j] = *tmp;
-		j = j+2;
-	    } else if ( header[j] == 'E' && header[j+1] == 'D' &&
-			!isalnum( header[j+2].latin1() ) ) {
-		ids.insert( id, new int(i-1) );
-		used[i-1] = 0x20000000;
-		int *tmp = ids.find( "ED" );
-		if ( tmp )
-		    used[j] = *tmp;
-		j = j+2;
-	    } else {
-		// handle other variables.
-		while( j < size && !isspace( header[j].latin1() ) )
-		    j++;
-		while( j < size && isspace( header[j].latin1() ) )
-		    j++;
-		// hack: then skip dict
-		if ( !qstrncmp( header.ascii()+j, "dict", 4 ) &&
-		     !isalnum( header[j+4].latin1() ) )
-		    j += 4;
-		// worse: string
-		if ( !qstrncmp( header.ascii()+j, "string", 6 ) &&
-		     !isalnum( header[j+6].latin1() ) )
-		    j += 6;
-	    }
-	    while( j < size && isspace( header[j].latin1() ) )
-		j++;
-	    if ( header[j] == 'D' && !isalnum( header[j+1].latin1() ) ) {
-		ids.insert( id, new int(i-1) );
-		used[i-1] = 0x20000000;
-		i = j+1;
-	    } else if ( !qstrncmp( header.ascii()+j, "d", 1 ) &&
-			!isalnum( header[j+1].latin1() ) ) {
-		ids.insert( id, new int(i-1) );
-		used[i-1] = 0x20000000;
-		i = j+1;
-	    } else {
-		i = j;
-	    }
-	} else {
-	    i++;
-	}
-    }
-
-    // second pass: mark the identifiers used in the document
-
-    // we know CM, QI and QP are used
-    int * tmp;
-    if ( (tmp = ids.take("CM")) != 0 ) {
-	used[*tmp] = 0x10000000;
-	delete tmp;
-    }
-    if ( (tmp = ids.take("QI")) != 0 ) {
-	used[*tmp] = 0x10000000;
-	delete tmp;
-    }
-    if ( (tmp = ids.take("QP")) != 0 ) {
-	used[*tmp] = 0x10000000;
-	delete tmp;
-    }
-
-    // we speed this up a little by hand-hacking DF/MF/ND support
-    if ( useFonts ) {
-	if ( (tmp = ids.take("DF")) != 0 ) {
-	    used[*tmp] = 0x10000000;
-	    delete tmp;
-	}
-	if ( (tmp = ids.take("MF")) != 0 ) {
-	    used[*tmp] = 0x10000000;
-	    delete tmp;
-	}
-	if ( (tmp = ids.take("MFUni")) != 0 ) {
-	    used[*tmp] = 0x10000000;
-	    delete tmp;
-	}
-	if ( (tmp = ids.take("MSF")) != 0 ) {
-	    used[*tmp] = 0x10000000;
-	    delete tmp;
-	}
-	if ( (tmp = ids.take("ND")) != 0 ) {
-	    used[*tmp] = 0x10000000;
-	    delete tmp;
-	}
-	if ( (tmp = ids.take("qtfindfont")) != 0 ) {
-	    used[*tmp] = 0x10000000;
-	    delete tmp;
-	}
-	if ( (tmp = ids.take("qtdefinefont")) != 0 ) {
-	    used[*tmp] = 0x10000000;
-	    delete tmp;
-	}
-    }
-
-    char id[10];
-    i = 0;
-    while( i < len ) {
-	while( i < len && !isalpha( data[i] ) ) {
-	    if ( data[i++] == '(' ) { // it's a string, skip it
-		int level = 1;
-		do {
-		    if ( data[i] == '(' )
-			level++;
-		    else if ( data[i] == ')' )
-			level--;
-		    else if ( data[i] == '\\' )
-			i++;
-		    i++;
-		} while( i < len && level > 0 );
-	    }
-	}
-	if ( i < len && isalpha( data[i] ) ) {
-	    int j=0;
-	    while( isalnum( data[i+j] ) )
-		j++;
-	    if( j < 9 ) {
-		// all identifiers we care about are <9 chars long
-		strncpy( id, data + i, j );
-		id[j] = '\0';
-		int * offs = ids.take( id );
-		if ( offs )
-		    used[*offs] = 0x10000000;
-		delete offs;
-	    }
-	    i += j;
-	}
-    }
-
-    // third pass: mark the identifiers used in the used parts of the header
-
-    i = size-1;
-    while( i > 0 ) {
-	// find beginning of function
-	int j = i;
-	while( j && used[j] < 0x10000000 )
-	    j--;
-	if ( used[j] == 0x10000000 ) {
-	    // this function is used.
-	    while( i > j ) {
-		if ( used[i] )
-		    used[used[i]] = 0x10000000;
-		i--;
-	    }
-	}
-	i = j-1;
-    }
-
-    // fourth pass: make the new header
-
-    i=0;
-    QString result;
-    while( i < size ) {
-	bool c = used[i] == 0x10000000;
-	if ( c && result.length() )
-	    result += '\n';
-	do {
-	    if ( c )
-		result += header[i];
-	    i++;
-	} while ( i < size && used[i] < 0x10000000 );
-    }
-    delete[] used;
-    result = wordwrap( result );
-    return result;
-}
-
-
 void QPSPrinter::emitHeader( bool finished )
 {
     QString title = printer->docName();
@@ -6578,15 +6330,7 @@ void QPSPrinter::emitHeader( bool finished )
 				 "% see your licensing agreement for Qt.\n";
 
     stream << "%%BeginProlog\n";
-    if ( finished ) {
-	QString r( stripHeader( *fixed_ps_header,
-				d->buffer->buffer().data(),
-				d->buffer->buffer().size(),
-				d->fontBuffer->buffer().size() > 0 ) );
-	stream << prologLicense << r << "\n";
-    } else {
-	stream << prologLicense << *fixed_ps_header << "\n";
-    }
+    stream << prologLicense << *fixed_ps_header << "\n";
     stream << "%%EndProlog\n"
 	   << "%%BeginSetup\n";
 
