@@ -140,7 +140,7 @@ void QProgressBar::reset()
 */
 
 /*!
-  Sets the total number of steps to \a totalSteps. If \a totalSteps is null, 
+  Sets the total number of steps to \a totalSteps. If \a totalSteps is null,
   the progress bar will display a busy indicator.
 
   \sa totalSteps()
@@ -179,14 +179,36 @@ void QProgressBar::setProgress( int progress )
 	 progress < 0 || ( ( progress > total_steps ) && total_steps ) )
 	return;
 
-    bool needClearing = progress < progress_val;
+    bool dirtyVal = progress < progress_val;
     progress_val = progress;
     if ( !isVisible() )
 	return;
 
-    if ( setIndicator( progress_str, progress_val, total_steps ) )
-	needClearing = TRUE;
-    repaint( contentsRect(), needClearing );
+    bool dirtyInd = setIndicator( progress_str, progress_val, total_steps );
+
+    const QRect bar = contentsRect();
+    if ( ( style() != MotifStyle && auto_indicator ) ||
+	 ( !auto_indicator && !center_indicator ) ) {
+	// repaint only regions with changed content to reduce flicker
+	// ### drawContents() code duplication. keep in sync.
+	int textw = 0;
+	if ( percentage_visible && total_steps ) {
+	    QFontMetrics fm = fontMetrics();
+	    textw = fm.width(QString::fromLatin1("100%"));
+	}
+	const int unit_width  = 9;
+	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
+	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
+	QRect r( ox+bar.x()+1, bar.y()+1, u*unit_width, bar.height()-2 );
+	if ( dirtyInd ) {
+	    repaint( r, dirtyVal );		// only the bar itself
+	    repaint( QRect( u*unit_width+2, 0, bar.width(), bar.height() ));
+	} else {
+	    repaint( r, dirtyVal );
+	}
+    } else {
+	repaint( bar, dirtyVal || dirtyInd );
+    }
     if ( autoMask() )
 	updateMask();
 }
@@ -274,7 +296,7 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 
 /*!
   \fn bool QProgressBar::percentageVisible() const
-  
+
   Returns whether the current progress value is displayed or not.
 
   \sa setPercentageVisible, setCenterIndicator
@@ -379,6 +401,7 @@ void QProgressBar::drawContents( QPainter *p )
 	// a rectangle bordered by background color, all in a sunken panel
 	// with a percentage text display at the end.
 
+	// ### a bit code duplication with setProgress() to minimize flicker
 	int textw = 0;
 	if ( percentage_visible && total_steps ) {
 	    QFontMetrics fm = p->fontMetrics();
@@ -417,14 +440,14 @@ void QProgressBar::drawContents( QPainter *p )
 		right = FALSE;
 	    }
 	    x += ox + bar.x();
-	    
+
 	    QRect all( ox + bar.x(), bar.y(), bw-1, bar.height() );
 	    QRect ind( x, bar.y(), 18, bar.height() );
 
 	    p->setClipRegion( QRegion( all ) - QRegion( ind ) );
 	    p->eraseRect( all );
 
-	    if ( progress_val > -1 ) { 
+	    if ( progress_val > -1 ) {
 		p->setClipRegion( QRegion( all ) );
 		QColor base = colorGroup().background();
 		QColor high = palette().active().highlight();
@@ -435,7 +458,7 @@ void QProgressBar::drawContents( QPainter *p )
 		    QColor d;
 		    if ( right )
 			d.setRgb( base.red() - dr*i, base.green() - dg*i, base.blue() - db * i );
-		    else 
+		    else
 			d.setRgb( high.red() + dr*i, high.green() + dg*i, high.blue() + db * i );
 		    p->setPen( d );
 		    p->drawLine( x+i, bar.y(), x+i, bar.height() );
@@ -452,7 +475,6 @@ void QProgressBar::drawContents( QPainter *p )
 	if ( percentage_visible && total_steps ) {
 	    // ### This part changes every percentage change.
 	    p->setPen( colorGroup().foreground() );
-	    erase ( r.x()+r.width(), bar.y(), textw, bar.height() );
 	    p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
 		AlignRight | AlignVCenter, progress_str );
 	}
