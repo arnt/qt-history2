@@ -38,7 +38,10 @@ public:
     QWindowsXPStylePrivate()
 	: hotWidget( 0 ), hotSpot( -1, -1 ), hotTab( 0 ), lastScrollbarRect( 0, -1, 0, -1 ), lastSliderRect( 0, -1, 0, -1 )
     {
-        if ( !init_xp && qWinVersion() == Qt::WV_XP ) {
+	if ( qWinVersion() != Qt::WV_XP )
+	    init_xp = TRUE;
+
+        if ( !init_xp ) {
 	    init_xp = TRUE;
 	    use_xp = IsThemeActive() && IsAppThemed();
 	}
