@@ -1596,23 +1596,43 @@ fi
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$qdir/lib\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
-[ "x$SHARED" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG dll"
-[ "x$SHARED" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
+if [ "x$SHARED" = "xno" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
+elif [ "x$SHARED" = "xyes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG dll"
+fi
+if [ "x$JPEG" = "xno" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
+elif [ "x$JPEG" = "xyes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
+elif [ "x$JPEG" = "xsystem" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
+fi
+if [ "x$MNG" = "xyes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG mng"
+elif [ "x$MNG" = "xsystem" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
+fi
+if [ "x$GIF" = "xno" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG no-gif"
+elif [ "x$GIF" = "xyes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG gif"
+fi
+if [ "x$ZLIB" = "xno" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
+elif [ "x$ZLIB" = "xyes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG zlib"
+elif [ "x$ZLIB" = "xsystem" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
+fi
+if [ "x$LIBPNG" = "xno" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG no-png"
+elif [ "x$LIBPNG" = "xyes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG png"
+elif [ "x$LIBPNG" = "xsystem" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG system-png"
+fi
 [ "x$NAS_SOUND" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
-[ "x$JPEG" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
-[ "x$JPEG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
-[ "x$JPEG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
-[ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
-[ "x$MNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
-[ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
-[ "x$GIF" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-gif"
-[ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
-[ "x$ZLIB" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
-[ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
-[ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
-[ "x$LIBPNG" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-png"
-[ "x$LIBPNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-png"
-
 [ "x$BIG_CODECS" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 
 
