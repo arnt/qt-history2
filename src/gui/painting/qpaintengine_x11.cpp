@@ -2470,7 +2470,7 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si)
         while(i < si.num_glyphs) {
             pos -= glyphs[i].advance;
 
-            QPointF gpos = glyphs[i].offset;
+            QPointF gpos = pos + glyphs[i].offset;
             if (transform)
                 gpos = gpos * state->matrix;
             int xp = qRound(gpos.x());
