@@ -3,25 +3,25 @@
 use strict;
 
 my $EXPORT_OUT = "-";
-my $EXPORT_DIRECTORY = 0;
+my @EXPORT_DIRECTORIES;
 my $EXPORT_SYMBOL = "Q[^ ]*(?:_[^ ]*)?_EXPORT(?:_[^ ]*)?";
 while($#ARGV >= 0) {
     if($ARGV[0] eq "-o") {
 	shift;
 	$EXPORT_OUT = $ARGV[0];
+    } elsif($ARGV[0] eq "-symbol") {
+	shift;
+	$EXPORT_SYMBOL = $ARGV[0];
     } else {
-	last;
+	push @EXPORT_DIRECTORIES, $ARGV[0];
     }
     shift;
 }
-($#ARGV != 0) && die "$0 [options] directory <export_symbol>\n";
-$EXPORT_DIRECTORY = $ARGV[0];
-$EXPORT_SYMBOL = $ARGV[1] if($#ARGV == 1);
+($#EXPORT_DIRECTORIES == -1) && die "$0 [options] directory\n";
 
-
+#symbol lookup
 my %CLASSES=();
 my %GLOBALS=();
-
 sub find_classnames {
     my $ret = 0;
     my ($file) = @_;
@@ -91,15 +91,15 @@ sub find_classnames {
 	    } elsif($definition =~ m/^ *(template<.*> *)?(class|struct) +$EXPORT_SYMBOL +([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
 		my $symbol = $3;
 		$symbol =~ s/[<>+=*!-]/?/g;
-#		print "2) hmm $symbol *********** $definition\n";
+		#print "2) hmm $symbol *********** $definition\n";
 		$CLASSES{$symbol} = "$file" unless(!length "$symbol" || defined $CLASSES{$symbol});
-	    } elsif($definition =~ /$EXPORT_SYMBOL +([a-zA-Z0-9_:\*& ]* +)?[&\*]?([a-zA-Z0-9>=!\*<+_-]+)( *\(.*\)| *(\[.*\] *)?(=.*)?|)? *(;|\{\})$/) {
+	    } elsif($definition =~ /$EXPORT_SYMBOL +([a-zA-Z0-9_:\*&\(\) ]* +)?[&\*]?(([a-zA-Z0-9_]*::)?[a-zA-Z0-9_][a-zA-Z0-9_>=!\*<+_-]+)( *\(.*\)| *(\[.*\] *)?(=.*)?|)? *(;|\{\})$/) {
 		my $symbol = $2;
 		$symbol =~ s/[<>+=*!-]/?/g;
-#		print "1) hmm $symbol *********** $1 -- $2 -- $3 -- $definition\n";
+		#print "1) hmm $symbol *********** $1 -- $2 -- $3 -- $definition [$file]\n";
 		$GLOBALS{$symbol} = "$file" unless(!length "$symbol" || defined $GLOBALS{$symbol});
 	    } else {
-#		print "dammit $definition\n";
+		print "dammit $definition\n";
 	    }
 	}
     }
@@ -130,7 +130,9 @@ sub find_files {
 	closedir(D);
     }
 }
-find_files("$EXPORT_DIRECTORY");
+foreach (@EXPORT_DIRECTORIES) {
+    find_files("$_");
+}
 
 #generate output
 if("$EXPORT_OUT" eq "-") {
