@@ -1,7 +1,8 @@
 TEMPLATE = lib
 TARGET	 = qsqlite
 
-CONFIG	+= qt plugin
+CONFIG	+= plugin
+QCONFIG  = core sql
 DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/sqlite/qsql_sqlite.h

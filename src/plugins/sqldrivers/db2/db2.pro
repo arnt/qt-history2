@@ -1,7 +1,8 @@
 TEMPLATE = lib
 TARGET	 = qsqldb2
 
-CONFIG	+= qt plugin
+CONFIG  += plugin
+QCONFIG	 = core sql
 DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/db2/qsql_db2.h

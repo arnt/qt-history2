@@ -1,7 +1,8 @@
 TEMPLATE = lib
 TARGET	 = qsqlmysql
 
-CONFIG	+= qt plugin
+CONFIG  += plugin
+QCONFIG  = core sql
 DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/mysql/qsql_mysql.h

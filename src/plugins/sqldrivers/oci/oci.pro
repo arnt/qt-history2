@@ -1,7 +1,8 @@
 TEMPLATE = lib
 TARGET	 = qsqloci
 
-CONFIG  += qt warn_on release plugin
+CONFIG  += plugin
+QCONFIG  = core sql
 DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/oci/qsql_oci.h

@@ -1,7 +1,8 @@
 TEMPLATE = lib
 TARGET	 = qsqlpsql
 
-CONFIG	+= qt plugin
+CONFIG	+= plugin
+QCONFIG  = core sql
 DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/psql/qsql_psql.h
