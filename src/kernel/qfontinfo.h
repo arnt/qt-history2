@@ -64,10 +64,7 @@ public:
     bool		rawMode()	const;
 
     bool		exactMatch()	const;
-    
-#ifndef QT_NO_COMPAT
-    QFont::CharSet charSet() const;
-#endif
+
 
 private:
     QFontInfo( const QPainter * );

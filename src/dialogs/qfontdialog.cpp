@@ -103,13 +103,14 @@ public:
 
     QFontDatabase fdb;
     QString       family;
-    QString       charSet;
+    QString       script;
     QString       style;
     QString       size;
 
     QStringList familyNames;
-    QStringList charSetNames;
-    QStringList charSetSamples;
+    QStringList scriptNames;
+    QValueList<int> scriptScripts;
+    QStringList scriptSamples;
     bool usingStandardSizes;
 };
 
@@ -273,6 +274,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     buttonBox->addWidget( d->cancel );
     connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
     d->cancel->setFixedWidth( 80 );
+
+    updateScripts();
 
     resize( 500, 360 );
 
@@ -509,7 +512,7 @@ protected:
     void  paint( QPainter * );
 };
 
-QListBoxFontText::QListBoxFontText( const QString & text ) 
+QListBoxFontText::QListBoxFontText( const QString & text )
     : QListBoxText(text), cfont(text)
 {
 }
@@ -562,7 +565,7 @@ void QFontDialog::updateFamilies()
 #endif
 #ifdef Q_WS_MAC
 	    d->familyList->insertItem(new QListBoxFontText(s), idx++);
-#else       
+#else
 	newList.append( s );
 #endif
     }
@@ -578,19 +581,28 @@ void QFontDialog::updateFamilies()
 void QFontDialog::updateScripts()
 {
     d->scriptCombo->clear();
+    d->scriptNames.clear();
+    d->scriptScripts.clear();
 
-    d->charSetNames = d->fdb.charSets( d->family );
+    QString scriptname;
+    for (int i = 0; i < QFont::NScripts; i++) {
+	scriptname = QFontDatabase::scriptName((QFont::Script) i);
+	if (! scriptname.isEmpty()) {
+	    d->scriptNames += scriptname;
+	    d->scriptScripts += i;
+	}
+    }
 
-    if ( d->charSetNames.isEmpty() ) {
+    if ( d->scriptNames.isEmpty() ) {
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
-		  "no character sets for family \"%s\"",
+		  "no scripts for family \"%s\"",
 		  (const char *) d->family );
 	return;
     }
 
-    QStringList::Iterator it = d->charSetNames.begin();
-    for ( ; it != d->charSetNames.end() ; ++it )
-	d->scriptCombo->insertItem( d->fdb.verboseCharSetName(*it) );
+    QStringList::Iterator it = d->scriptNames.begin();
+    for ( ; it != d->scriptNames.end() ; ++it )
+	d->scriptCombo->insertItem( *it );
 }
 
 /*!  Updates the contents of the "font style" list box.  This
@@ -601,13 +613,12 @@ void QFontDialog::updateStyles()
 {
     d->styleList->clear();
 
-
     QStringList styles = d->fdb.styles( d->family );
-    
+
     if ( styles.isEmpty() ) {
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
 		  "no styles for family \"%s\" with script \"%s\"",
-		  (const char *) d->family, (const char *) d->charSet );
+		  (const char *) d->family, (const char *) d->script );
 	return;
     }
     d->styleList->insertStringList( styles );
@@ -628,7 +639,7 @@ void QFontDialog::updateSizes()
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
 		  "no pointsizes for family \"%s\" with script \"%s\"\n"
 		  "and style \"%s\"",
-		  (const char *) d->family, (const char *) d->charSet,
+		  (const char *) d->family, (const char *) d->script,
 		  (const char *) d->style );
 	return;
     }
@@ -651,9 +662,8 @@ void QFontDialog::familyHighlighted( const QString &s )
 	d->familyEdit->selectAll();
 
     d->family = s;
-    updateScripts();
     if ( d->scriptCombo->count() != 0 )
-	scriptHighlighted( 0 );
+	scriptHighlighted( d->scriptCombo->currentItem() );
 }
 
 void QFontDialog::familyHighlighted( int i )
@@ -668,13 +678,13 @@ void QFontDialog::familyHighlighted( int i )
 
 void QFontDialog::scriptHighlighted( int index )
 {
-    scriptHighlighted( d->charSetNames[index] );
-    d->sampleEdit->setText( d->fdb.charSetSample( d->charSetNames[index] ) );
+    scriptHighlighted( d->scriptNames[index] );
+    d->sampleEdit->setText( d->fdb.scriptSample( (QFont::Script) d->scriptScripts[index] ) );
 }
 
 void QFontDialog::scriptHighlighted( const QString &s )
 {
-    d->charSet = s;
+    d->script = s;
 
     updateStyles();
     if ( d->styleList->count() != 0 )

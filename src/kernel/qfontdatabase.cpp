@@ -125,6 +125,7 @@ public:
 	nm               = n;
 	bitmapScalable   = FALSE;
 	smoothlyScalable = FALSE;
+	fixedPitch       = FALSE;
 	weightDirty      = TRUE;
 	ital             = FALSE;
 	lesserItal       = FALSE;
@@ -149,6 +150,7 @@ public:
 
     bool isBitmapScalable() const { return bitmapScalable; }
     bool isSmoothlyScalable() const { return smoothlyScalable; }
+    bool isFixedPitch() const { return fixedPitch; }
 
 
 private:
@@ -157,13 +159,14 @@ private:
     void addPointSize( int size );
     void setSmoothlyScalable();
     void setBitmapScalable();
-
+    void setFixedPitch();
 
     QtFontFamily *p;
     QString nm;
 
     bool bitmapScalable;
     bool smoothlyScalable;
+    bool fixedPitch;
 
     bool ital;
     bool lesserItal;
@@ -205,6 +208,7 @@ public:
 	namesDirty       = TRUE;
 	bitmapScalable   = FALSE;
 	smoothlyScalable = FALSE;
+	fixedPitch       = FALSE;
 	scalableDirty    = TRUE;
     }
 
@@ -217,6 +221,7 @@ public:
 
     bool isBitmapScalable() const;
     bool isSmoothlyScalable() const;
+    bool isFixedPitch() const;
 
 
 private:
@@ -237,6 +242,7 @@ private:
     bool dirty;
     bool namesDirty;
     bool scalableDirty;
+    bool fixedPitch;
 
     bool bitmapScalable;
     bool smoothlyScalable;
@@ -323,13 +329,17 @@ private:
 
 QFont QtFontStyle::font( const QString & family, int pointSize ) const
 {
-    return QFont( family, pointSize, weight(), italic() );
+    QFont f( family, pointSize, weight(), italic() );
+    f.setFixedPitch(isFixedPitch());
+    return f;
 }
 
 
 QFont QtFontStyle::font( int pointSize ) const
 {
-    return font( parent()->name(), pointSize );
+    QFont f(parent()->name(), pointSize);
+    f.setFixedPitch(isFixedPitch());
+    return f;
 }
 
 
@@ -420,6 +430,12 @@ void QtFontStyle::setBitmapScalable()
 }
 
 
+void QtFontStyle::setFixedPitch()
+{
+    fixedPitch = TRUE;
+}
+
+
 static int styleSortValue( QtFontStyle *style )
 {
     int score = 100000; // so lexical ordering is ok
@@ -434,197 +450,6 @@ static int styleSortValue( QtFontStyle *style )
 
     return score;
 }
-
-
-
-
-
-
-
-/*
-  const QStringList &QtFontCharSet::styles() const
-{
-
-}
-
-const QtFontStyle *QtFontCharSet::style( const QString &s ) const
-{
-    return styleDict.find( s );
-}
-
-bool QtFontCharSet::isLocaleCharSet() const
-{
-    // return charSet() == QFont::charSetForLocale();
-}
-
-bool QtFontCharSet::isUnicode() const
-{
-    // return charSet() == QFont::Unicode;
-}
-
-bool QtFontCharSet::isBitmapScalable() const
-{
-    refresh();
-    return bitmapScalable;
-}
-
-bool QtFontCharSet::isSmoothlyScalable() const
-{
-    refresh();
-    return smoothlyScalable;
-}
-*/
-
-/*!
-  Traverses all styles. If all of them are scalable, scalable is set to
-  TRUE, if all of them are smoothly scalable smoothlyScalable is set to
-  TRUE.
-
-  The styles that most closely resemble a normal, italic, bold and bold
-  italic font are found.
-*/
-/*
-void QtFontCharSet::refresh() const
-{
-    if ( !dirty )
-        return;
-    QtFontCharSet *that = (QtFontCharSet*)this; // mutable function
-    that->smoothlyScalable = FALSE;
-    that->bitmapScalable   = FALSE;
-
-    that->normalStyle       = 0;
-    that->italicStyle       = 0;
-    that->boldStyle         = 0;
-    that->italicBoldStyle   = 0;
-
-    QtFontStyle *lesserItalicStyle     = 0;
-    QtFontStyle *lesserItalicBoldStyle = 0;
-
-    bool smooth = TRUE;
-    bool bitmap = TRUE;
-    // Anything bolder than Normal qualifies as bold:
-    int  bestBoldDiff             = QFont::Bold - QFont::Normal;
-    int  bestItalicBoldDiff       = QFont::Bold - QFont::Normal;
-    //int  bestLesserItalicBoldDiff = QFont::Bold - QFont::Normal; NOT USED
-    int  bestNormal               = 0;
-    int  bestItalicNormal         = 0;
-    int  bestLesserItalicNormal   = 0;
-    int  boldDiff;
-    QtFontStyle *tmp;
-    QDictIterator<QtFontStyle> iter(styleDict);
-    for( ; (tmp = iter.current()) ; ++iter ) {
-        if ( !tmp->isSmoothlyScalable() ) {
-            smooth = FALSE;
-            if ( !tmp->isBitmapScalable() )
-                bitmap = FALSE;
-        }
-        if ( tmp->italic() ) {
-            if ( tmp->weight() < QFont::Normal ) {
-                if ( tmp->weight() > bestItalicNormal ) {
-                    that->italicStyle      = tmp;
-                    bestItalicNormal = tmp->weight();
-                }
-            } else {
-                boldDiff = abs( tmp->weight() - QFont::Bold );
-                if ( boldDiff < bestItalicBoldDiff ) {
-                    that->italicBoldStyle    = tmp;
-                    bestItalicBoldDiff = boldDiff;
-                }
-
-            }
-        } else if ( tmp->lesserItalic() ){
-            if ( tmp->weight() < QFont::Normal ) {
-                if ( tmp->weight() > bestLesserItalicNormal ) {
-                    lesserItalicStyle      = tmp;
-                    bestLesserItalicNormal = tmp->weight();
-                }
-            } else {
-                boldDiff = abs( tmp->weight() - QFont::Bold );
-                if ( boldDiff < bestItalicBoldDiff ) {
-                    lesserItalicBoldStyle    = tmp;
-                    //bestLesserItalicBoldDiff = boldDiff; NOT USED
-                }
-
-            }
-        } else {
-            if ( tmp->weight() < QFont::Normal ) {
-                if ( tmp->weight() > bestNormal ) {
-                    that->normalStyle = tmp;
-                    bestNormal  = tmp->weight();
-                }
-            } else {
-                boldDiff = abs( tmp->weight() - QFont::Bold );
-                if ( boldDiff < bestBoldDiff ) {
-                    that->boldStyle    = tmp;
-                    bestBoldDiff = boldDiff;
-                }
-
-            }
-        }
-    }
-    if ( !that->italicStyle && lesserItalicStyle )
-        that->italicStyle = lesserItalicStyle;
-    if ( !that->italicBoldStyle && lesserItalicBoldStyle )
-        that->italicBoldStyle = lesserItalicBoldStyle;
-    if ( smooth )
-        that->smoothlyScalable = TRUE;
-    else if ( bitmap )
-        that->bitmapScalable = TRUE;
-    that->dirty    = FALSE;
-}
-*/
-
-
-
-
-/*
-  const QStringList &QtFontFamily::charSets( bool onlyForLocale ) const
-{
-    QtFontFamily *that = (QtFontFamily*)this; // mutable function
-    if ( namesDirty ) {
-        QDictIterator<QtFontCharSet> iter( charSetDict );
-        QtFontCharSet *tmp;
-        QString unicode;
-        QString local;
-        for( ; (tmp = iter.current()) ; ++iter ) {
-            if ( tmp->isLocaleCharSet() )
-                local = tmp->name();
-            else if ( tmp->isUnicode() )
-                unicode = tmp->name();
-            else if ( !onlyForLocale )
-                that->charSetNames.append( tmp->name() );
-        }
-        that->charSetNames.sort();
-        if ( !!unicode )
-            that->charSetNames.prepend( unicode ); // preferred second
-        if ( !!local )
-            that->charSetNames.prepend( local ); // preferred first
-        that->namesDirty = FALSE;
-    }
-    return that->charSetNames;
-}
-*/
-
-
-
-/*
-  static
-  QString localCharSet()
-  {
-  return "iso10646-1";
-  }
-*/
-
-
-/*
-  const QtFontCharSet *QtFontFamily::charSet( const QString &n ) const
-  {
-  if ( n.isEmpty() )
-  return charSetDict.find ( localCharSet() );
-  else
-  return charSetDict.find ( n );
-  }
-*/
 
 
 const QStringList &QtFontFamily::styles() const
@@ -664,6 +489,13 @@ const QtFontStyle *QtFontFamily::style(const QString &name) const
 }
 
 
+bool QtFontFamily::isFixedPitch() const
+{
+    refresh();
+    return fixedPitch;
+}
+
+
 bool QtFontFamily::isBitmapScalable() const
 {
     refresh();
@@ -678,68 +510,32 @@ bool QtFontFamily::isSmoothlyScalable() const
 }
 
 
-/*
-  bool QtFontFamily::hasLocaleCharSet() const
-{
-    if ( localeDirty ) {
-        QtFontFamily *that   = (QtFontFamily*)this; // mutable function
-        QDictIterator<QtFontCharSet> iter( charSetDict );
-        QtFontCharSet *tmp;
-        that->supportsLocale = FALSE;
-        for( ; (tmp = iter.current()) ; ++iter ) {
-            if ( tmp->isLocaleCharSet() || tmp->isUnicode() ) {
-                that->supportsLocale = TRUE;
-                break;
-            }
-        }
-        that->localeDirty = FALSE;
-    }
-    return supportsLocale;
-}
-*/
-
-
-/*
-bool QtFontFamily::supportsCharSet( QFont::CharSet chSet ) const
-{
-    QDictIterator<QtFontCharSet> iter( charSetDict );
-    QtFontCharSet *tmp;
-    for( ; (tmp = iter.current()) ; ++iter ) {
-        if ( tmp->charSet() == chSet )
-            return TRUE;
-    }
-    return FALSE;
-}
-*/
-
-
 void QtFontFamily::refresh() const
 {
     if ( !scalableDirty )
         return;
 
-    QtFontFamily *that = (QtFontFamily*) this;   // Mutable function
-    that->scalableDirty    = FALSE;
-    that->smoothlyScalable = FALSE;
-    that->bitmapScalable   = FALSE;
-
-    bool isSmooth = TRUE;
+    bool smooth = TRUE;
+    bool bitmap = TRUE;
+    bool fixed  = TRUE;
     QtFontStyle *tmp;
     QDictIterator<QtFontStyle> iter(styleDict);
 
     for( ; (tmp = iter.current()) ; ++iter ) {
         if ( !tmp->isSmoothlyScalable() ) {
-            isSmooth = FALSE;
-
+            smooth = FALSE;
             if ( !tmp->isBitmapScalable() )
-                return;
+		bitmap = FALSE;
         }
+	if ( !tmp->isFixedPitch() )
+	    fixed = FALSE;
     }
 
-    if ( isSmooth )
-        that->smoothlyScalable = TRUE;
-    else
-        that->bitmapScalable   = TRUE;
+    QtFontFamily *that = (QtFontFamily*) this;   // Mutable function
+    that->scalableDirty    = FALSE;
+    that->smoothlyScalable = smooth;
+    that->bitmapScalable   = bitmap;
+    that->fixedPitch       = fixed;
 }
 
 
@@ -947,7 +743,7 @@ void QFontDatabase::createDatabase()
 		Q_CHECK_PTR(family);
 		foundry->addFamily( family );
 	    }
-	    
+
 	    // get style
 	    bool italic;
 	    bool lesserItalic;
@@ -984,6 +780,9 @@ void QFontDatabase::createDatabase()
 		    style->addPointSize( pSize );
 		}
 	    }
+
+	    if (QFontPrivate::isFixedPitch(tokens))
+		style->setFixedPitch();
 	}
     }
 
@@ -999,8 +798,7 @@ static
 int CALLBACK
 storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int /*type*/, LPARAM /*p*/ )
 {
-    //QFontDatabasePrivate* d = (QFontDatabasePrivate*)p;
-
+    // QFontDatabasePrivate* d = (QFontDatabasePrivate*)p;
     newWinFont( (void*) f );
     return 1; // Keep enumerating.
 }
@@ -1045,7 +843,7 @@ void add_style( QtFontFamily *family, const QString& styleName,
     }
     QtFontStyle *style = family->styleDict.find( sn );
     if ( !style ) {
-        //qWarning( "New style[%s] for [%s][%s][%s]",
+        // qWarning( "New style[%s] for [%s][%s][%s]",
         // (const char*)styleName, (const char*)charSetName,
         // (const char*)familyName, (const char *)foundryName );
         style = new QtFontStyle( family, sn );
@@ -1283,7 +1081,7 @@ void QFontDatabase::createDatabase()
 	    unsigned char *buff = (unsigned char *)malloc(len);
 	    ConvertFromPStringToUnicode(uni_info, n, len, &len, (UniCharArrayPtr)buff);
 	    fam_name = "";
-	    for(unsigned long x = 0; x < len; x+=2) 
+	    for(unsigned long x = 0; x < len; x+=2)
 		fam_name += QChar(buff[x+1], buff[x]);
 
 	    QtFontFamily *family = foundry->familyDict.find( fam_name );
@@ -1327,369 +1125,6 @@ void QFontDatabase::createDatabase()
 }
 
 #endif // Q_WS_MAC
-
-
-#if 0
-
-static QFont::CharSet getCharSet( const char * registry, const char *encoding )
-{
-    if ( qstrcmp( registry, "iso8859" ) == 0 ) {
-        if ( encoding[0] != 0 && encoding[1] == 0 ) {
-            switch( encoding[0] ) {
-            case '1': return QFont::ISO_8859_1;
-            case '2': return QFont::ISO_8859_2;
-            case '3': return QFont::ISO_8859_3;
-            case '4': return QFont::ISO_8859_4;
-            case '5': return QFont::ISO_8859_5;
-            case '6': return QFont::ISO_8859_6;
-            case '7': return QFont::ISO_8859_7;
-            case '8': return QFont::ISO_8859_8;
-            case '9': return QFont::ISO_8859_9;
-            default: break;
-            }
-        } else if ( encoding[0] == '1' && encoding[1] != 0
-                    && encoding[2] == 0 ) {
-            switch( encoding[0] ) {
-            case '0': return QFont::ISO_8859_10;
-            case '1': return QFont::ISO_8859_11;
-            case '2': return QFont::ISO_8859_12;
-            case '3': return QFont::ISO_8859_13;
-            case '4': return QFont::ISO_8859_14;
-            case '5': return QFont::ISO_8859_15;
-            default: break;
-            }
-        }
-        return QFont::AnyCharSet;
-    } else if ( qstrcmp( registry, "koi8" ) == 0 &&
-		(qstrcmp( encoding, "r" ) == 0 ||
-		 qstrcmp( encoding, "1" ) == 0) ) {
-	return QFont::KOI8R;
-    } else if ( strcmp( registry, "koi8" ) == 0 &&
-		qstrcmp( encoding, "u" ) == 0) {
-	return QFont::KOI8U;
-    } else if ( qstrcmp( registry, "tscii" ) == 0 &&
-		qstrcmp( encoding, "0" ) == 0 ) {
-	return QFont::TSCII;
-    } else if ( qstrcmp( registry, "tis620" ) == 0 &&
-		qstrcmp( encoding, "0" ) == 0 ) {
-	return QFont::TIS620;
-    } else if ( qstrcmp( registry, "iso10646" ) == 0 ) {
-	return QFont::Unicode;
-    }
-    return QFont::AnyCharSet;
-}
-
-#endif
-
-
-/*
-  static QFont::CharSet getCharSet( const QString &name )
-{
-    if ( name == "iso8859-1" )
-        return QFont::ISO_8859_1;
-    if ( name == "iso8859-2" )
-        return QFont::ISO_8859_2;
-    if ( name == "iso8859-3" )
-        return QFont::ISO_8859_3;
-    if ( name == "iso8859-4" )
-        return QFont::ISO_8859_4;
-    if ( name == "iso8859-5" )
-        return QFont::ISO_8859_5;
-    if ( name == "iso8859-6" )
-        return QFont::ISO_8859_6;
-    if ( name == "iso8859-7" )
-        return QFont::ISO_8859_7;
-    if ( name == "iso8859-8" )
-        return QFont::ISO_8859_8;
-    if ( name == "iso8859-9" )
-        return QFont::ISO_8859_9;
-    if ( name == "iso8859-10" )
-        return QFont::ISO_8859_10;
-    if ( name == "iso8859-11" )
-        return QFont::ISO_8859_11;
-    if ( name == "iso8859-12" )
-        return QFont::ISO_8859_12;
-    if ( name == "iso8859-13" )
-        return QFont::ISO_8859_13;
-    if ( name == "iso8859-14" )
-        return QFont::ISO_8859_14;
-    if ( name == "iso8859-15" )
-        return QFont::ISO_8859_15;
-    if ( name == "koi8-r" )
-        return QFont::KOI8R;
-    if ( name == "koi8-1" )
-        return QFont::KOI8R;
-    if ( name == "koi8-u" )
-        return QFont::KOI8U;
-    if ( name == "tis620-0" )
-        return QFont::TIS620;
-    if ( name == "tscii-0" )
-	return QFont::TSCII;
-    if ( name == "iso10646-1" )
-        return QFont::Unicode;
-    return QFont::AnyCharSet;
-}
-
-static const QString getCharSet( QFont::CharSet set)
-{
-    switch( set ) {
-    case QFont::ISO_8859_1:
-        return "iso8859-1";
-    case QFont::ISO_8859_2:
-        return "iso8859-2";
-    case QFont::ISO_8859_3:
-        return "iso8859-3";
-    case QFont::ISO_8859_4:
-        return "iso8859-4";
-    case QFont::ISO_8859_5:
-        return "iso8859-5";
-    case QFont::ISO_8859_6:
-        return "iso8859-6";
-    case QFont::ISO_8859_7:
-        return "iso8859-7";
-    case QFont::ISO_8859_8:
-        return "iso8859-8";
-    case QFont::ISO_8859_9:
-        return "iso8859-9";
-    case QFont::ISO_8859_10:
-        return "iso8859-10";
-    case QFont::ISO_8859_11:
-        return "iso8859-11";
-    case QFont::ISO_8859_12:
-        return "iso8859-12";
-    case QFont::ISO_8859_13:
-        return "iso8859-13";
-    case QFont::ISO_8859_14:
-        return "iso8859-14";
-    case QFont::ISO_8859_15:
-        return "iso8859-15";
-    case QFont::KOI8R:
-        return "koi8-r";
-    case QFont::KOI8U:
-        return "koi8-u";
-    case QFont::Unicode:
-        return "iso10646-1";
-    default:
-        break;
-    }
-    return "Unknown";
-}
-
-
-  static QString getCharSetName( QFont::CharSet cs )
-{
-    const char* name;
-    switch( cs ) {
-    case QFont::ISO_8859_1:
-        name = "Western (ISO 8859-1)";
-        break;
-    case QFont::ISO_8859_2:
-        name = "Eastern European (ISO 8859-2)";
-        break;
-    case QFont::ISO_8859_3:
-        name = "Esperanto and more (ISO 8859-3)";
-        break;
-    case QFont::ISO_8859_4:
-        name = "(ISO 8859-4)";
-        break;
-    case QFont::ISO_8859_5:
-        name = "Cyrillic (ISO 8859-5)";
-        break;
-    case QFont::ISO_8859_6:
-        name = "Arabic (ISO 8859-6)";
-        break;
-    case QFont::ISO_8859_7:
-        name = "Greek (ISO 8859-7)";
-        break;
-    case QFont::ISO_8859_8:
-        name = "Hebrew (ISO 8859-8)";
-        break;
-    case QFont::ISO_8859_9:
-        name = "Turkish(ISO 8859-9)";
-        break;
-    case QFont::ISO_8859_10:
-        name = "Nordic(ISO 8859-10)";
-        break;
-    case QFont::ISO_8859_11:
-        name = "Thai(ISO 8859-11)";
-        break;
-    case QFont::ISO_8859_12:
-        name = "Devanagari(Hindi)(ISO 8859-12)";
-        break;
-    case QFont::ISO_8859_13:
-        name = "Baltic(ISO 8859-13)";
-        break;
-    case QFont::ISO_8859_14:
-        name = "Celtic(ISO 8859-14)";
-        break;
-    case QFont::ISO_8859_15:
-        name = "French/Finnish/Euro(ISO 8859-15)";
-        break;
-    case QFont::KOI8R:
-        name = "Cyrillic (KOI8-R)";
-        break;
-    case QFont::KOI8U:
-        name = "Ukrainian (KOI8-U)";
-        break;
-    case QFont::TSCII:
-	name = "Tamil (TSCII)";
-	break;
-    case QFont::Unicode:
-        name = "Unicode (ISO 10646)";
-        break;
-    default:
-        qWarning( "getCharSetName: Internal error, unknown charset (%i).", cs );
-        name = "Unknown";
-        break;
-    }
-    return qApp ? qApp->translate("QFont", name) : QString::fromLatin1(name);
-}
-*/
-
-
-/*!
-  Returns a string that gives a quite detailed description of the \a
-  charSetName (e.g. for displaying in a dialog for the user).
- */
-QString QFontDatabase::verboseCharSetName( const QString &/*charSetName*/ )
-{
-    /*
-      Font::CharSet cs = getCharSet( charSetName );
-
-      if ( cs != QFont::AnyCharSet )
-      return getCharSetName( cs );
-
-      return charSetName;
-    */
-
-    return QString::fromLatin1("Not implemented");
-}
-
-
-/*
-  static QString getCharSetSample( QFont::CharSet cs )
-{
-    // Note that sample is *NOT* translated.
-    QString sample = "AaBb";
-    switch( cs ) {
-    case QFont::ISO_8859_1:
-        sample += QChar(0x00C3);
-        sample += QChar(0x00E1);
-        sample += "Zz";
-        break;
-    case QFont::ISO_8859_2:
-        sample += QChar(0x0104);
-        sample += QChar(0x0105);
-        sample += QChar(0x0141);
-        sample += QChar(0x0142);
-        break;
-    case QFont::ISO_8859_3:
-        sample += QChar(0x00C0);
-        sample += QChar(0x00E1);
-        sample += QChar(0x0126);
-        sample += QChar(0x0127);
-        break;
-    case QFont::ISO_8859_4:
-        sample += QChar(0x00C3);
-        sample += QChar(0x00E1);
-        sample += QChar(0x0100);
-        sample += QChar(0x0101);
-        break;
-    case QFont::ISO_8859_5:
-        sample += QChar(0x0414);
-        sample += QChar(0x0434);
-        sample += QChar(0x0436);
-        sample += QChar(0x0402);
-        break;
-    case QFont::ISO_8859_6:
-        sample += QChar(0x0628);
-        sample += QChar(0x0629);
-        sample += QChar(0x062A);
-        sample += QChar(0x063A);
-        break;
-    case QFont::ISO_8859_7:
-        sample += QChar(0x0393);
-        sample += QChar(0x03B1);
-        sample += QChar(0x03A9);
-        sample += QChar(0x03C9);
-        break;
-    case QFont::ISO_8859_8:
-        sample += QChar(0x05D0);
-        sample += QChar(0x05D1);
-        sample += QChar(0x05D2);
-        sample += QChar(0x05D3);
-        break;
-    case QFont::ISO_8859_9:
-        sample += QChar(0x00C0);
-        sample += QChar(0x00E0);
-        sample += QChar(0x011E);
-        sample += QChar(0x011F);
-        break;
-    case QFont::ISO_8859_10:
-        sample += "YyZz";
-        break;
-    case QFont::ISO_8859_11:
-        sample += "YyZz";
-        break;
-    case QFont::ISO_8859_12:
-        sample += "YyZz";
-        break;
-    case QFont::ISO_8859_13:
-        sample += "YyZz";
-        break;
-    case QFont::ISO_8859_14:
-        sample += "YyZz";
-        break;
-    case QFont::ISO_8859_15:
-        sample += "Zz";
-        sample += QChar(0x00A4);
-        sample += QChar(0x20AC);
-        break;
-    case QFont::KOI8R:
-        sample += QChar(0x0414);
-        sample += QChar(0x0434);
-        sample += QChar(0x0436);
-        sample += QChar(0x2560);
-        break;
-    case QFont::KOI8U:
-        sample += QChar(0x0404);
-        sample += QChar(0x0454);
-        sample += QChar(0x0436);
-        sample += QChar(0x2560);
-        break;
-    case QFont::Unicode:
-        sample = "Aa";
-        sample += QChar(0x01A7); // Latin B
-        sample += QChar(0x0414); // Cyrillic
-        sample += QChar(0x263A); // Symbol :-)
-        sample += QChar(0x6ACB); // G/B/C
-        sample += QChar(0x6B7D); // J
-        sample += QChar(0xACDF); // Hangul
-        break;
-    default:
-        qWarning( "getCharSetSample: Internal error, unknown charset (%i).", cs );
-        sample = "Unknown";
-        break;
-    }
-    return sample;
-}
-*/
-
-
-/*!
-  Returns some sample characters that are in the charset \a charSetName.
-*/
-QString QFontDatabase::charSetSample( const QString &/*charSetName*/ )
-{
-    /*
-	  QFont::CharSet cs = getCharSet( charSetName );
-	  if ( cs == QFont::AnyCharSet )
-	  cs = QFont::ISO_8859_1;
-	  return getCharSetSample( cs );
-    */
-
-    return QString::fromLatin1("Not implemented");
-}
 
 
 /*!
@@ -1805,7 +1240,7 @@ QFontDatabase::QFontDatabase()
 
 /*!
   Returns a list of names of all available font families.
-  
+
   If a family exists in several foundries, the returned name for that font
   is "foundry-family".
 */
@@ -1829,6 +1264,26 @@ QStringList QFontDatabase::styles( const QString &family) const
 
 
 /*!
+  Returns TRUE if the font that matches \a family and \a style
+  is fixed pitch.
+*/
+
+bool QFontDatabase::isFixedPitch(const QString &family,
+				 const QString &style) const
+{
+    const QtFontFamily *fam = d->family(family);
+    if (! fam)
+	return FALSE;
+
+    if (style.isEmpty())
+	return fam->isFixedPitch();
+
+    const QtFontStyle *sty = fam->style(style);
+    return sty && sty->isFixedPitch();
+}
+
+
+/*!
   Returns whether the font that matches \a family and \a style is a
   scalable bitmap font. Scaling a bitmap font produces a bad, often hardly
   readable, result because the pixels of the font are scaled. It's better
@@ -1848,7 +1303,6 @@ bool  QFontDatabase::isBitmapScalable( const QString &family,
         return fam->isBitmapScalable();
 
     const QtFontStyle *sty = fam->style( style );
-
     return sty && sty->isBitmapScalable();
 }
 
@@ -1871,7 +1325,6 @@ bool  QFontDatabase::isSmoothlyScalable( const QString &family,
         return fam->isSmoothlyScalable();
 
     const QtFontStyle *sty = fam->style( style );
-
     return sty && sty->isSmoothlyScalable();
 }
 
@@ -1942,7 +1395,6 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
     if ( !sty ) {
         qWarning( "QFontDatabase::font: Style not found for %s, %s, %d",
 		  family.latin1(), style.latin1(), pointSize);
-
         return QFont();
     }
 
@@ -2018,7 +1470,7 @@ int QFontDatabase::weight( const QString &family,
 
 /*! \obsolete
   In Qt 3.0 and higher, this returns a QStringList containing only "Unicode".
-  
+
   Previous versions returned a list of all character sets in which the
   font \a family was available.
 */
@@ -2031,6 +1483,444 @@ QStringList QFontDatabase::charSets( const QString & ) const
     }
 
     return charSetsList;
+}
+
+
+/*!
+  Returns a string that gives a default description of the \a script
+  (e.g. for display in a dialog for the user).  The name matches the
+  name of the script as indicated by Unicode 3.0.
+*/
+QString QFontDatabase::scriptName(QFont::Script script)
+{
+    const char *name = 0;
+
+    switch (script) {
+    case QFont::BasicLatin:
+	name = "Basic Latin";
+	break;
+    case QFont::LatinExtendedA:
+	name = "Latin Extended-A";
+	break;
+    case QFont::LatinExtendedB:
+	name = "Latin Extended-B";
+	break;
+    case QFont::IPAExtensions:
+	name = "IPA Extentions";
+	break;
+    case QFont::LatinExtendedAdditional:
+	name = "Latin Extended Additional";
+	break;
+    case QFont::Greek:
+	name = "Greek";
+	break;
+    case QFont::GreekExtended:
+	name = "Greek Extended";
+	break;
+    case QFont::Cyrillic:
+	name = "Cyrillic";
+	break;
+    case QFont::CyrillicHistoric:
+	name = "Cyrillic Historic";
+	break;
+    case QFont::CyrillicExtended:
+	name = "Cyrillic Extended";
+	break;
+    case QFont::Armenian:
+	name = "Armenian";
+	break;
+    case QFont::Georgian:
+	name = "Georgian";
+	break;
+    case QFont::Runic:
+	name = "Runic";
+	break;
+    case QFont::Ogham:
+	name = "Ogham";
+	break;
+    case QFont::Hebrew:
+	name = "Hebrew";
+	break;
+	break;
+    case QFont::Arabic:
+	name = "Arabic";
+	break;
+    case QFont::Syriac:
+	name = "Syriac";
+	break;
+    case QFont::Thaana:
+	name = "Thaana";
+	break;
+    case QFont::Devanagari:
+	name = "Devanagari";
+	break;
+    case QFont::Bengali:
+	name = "Bengali";
+	break;
+    case QFont::Gurmukhi:
+	name = "Gurmukhi";
+	break;
+    case QFont::Gujarati:
+	name = "Gujarati";
+	break;
+    case QFont::Oriya:
+	name = "Oriya";
+	break;
+    case QFont::Tamil:
+	name = "Tamil";
+	break;
+    case QFont::Telugu:
+	name = "Telugu";
+	break;
+    case QFont::Kannada:
+	name = "Kannada";
+	break;
+    case QFont::Malayalam:
+	name = "Malayalam";
+	break;
+    case QFont::Sinhala:
+	name = "Sinhala";
+	break;
+    case QFont::Thai:
+	name = "Thai";
+	break;
+    case QFont::Lao:
+	name = "Lao";
+	break;
+    case QFont::Tibetan:
+	name = "Tibetan";
+	break;
+    case QFont::Myanmar:
+	name = "Myanmar";
+	break;
+    case QFont::Khmer:
+	name = "Khmer";
+	break;
+    case QFont::UnifiedHan:
+	name = "Unified Han";
+	break;
+    case QFont::Hiragana:
+	name = "Hiragana";
+	break;
+    case QFont::Katakana:
+	name = "Katakana";
+	break;
+    case QFont::Hangul:
+	name = "Hangul";
+	break;
+    case QFont::Bopomofo:
+	name = "Bopomofo";
+	break;
+    case QFont::Yi:
+	name = "Yi";
+	break;
+    case QFont::Ethiopic:
+	name = "Ethiopic";
+	break;
+    case QFont::Cherokee:
+	name = "Cherokee";
+	break;
+    case QFont::CanadianAboriginal:
+	name = "Canadian Aboriginal";
+	break;
+    case QFont::Mongolian:
+	name = "Mongolian";
+	break;
+    case QFont::Unicode:
+	name = "Unicode";
+	break;
+    default:
+	name = "";
+	break;
+    }
+
+    return qApp ? qApp->translate("QFont", name) : QString::fromLatin1(name);
+}
+
+
+/*!
+  Returns a string with sample characters from \a script.
+*/
+QString QFontDatabase::scriptSample(QFont::Script script)
+{
+    QString sample = "AaBb";
+
+    switch (script) {
+    case QFont::BasicLatin:
+	sample += QChar(0x00C3);
+	sample += QChar(0x00E1);
+	sample += "Zz";
+	break;
+    case QFont::LatinExtendedA:
+	sample += QChar(0x0102);
+	sample += QChar(0x011c);
+	sample += QChar(0x0174);
+	sample += QChar(0x0152);
+	break;
+    case QFont::LatinExtendedB:
+	sample += QChar(0x018f);
+	sample += QChar(0x019b);
+	sample += QChar(0x020f);
+	sample += QChar(0x0233);
+	break;
+    case QFont::IPAExtensions:
+	sample += QChar(0x025f);
+	sample += QChar(0x026f);
+	sample += QChar(0x027f);
+	sample += QChar(0x028f);
+	break;
+    case QFont::LatinExtendedAdditional:
+	sample += QChar(0x1e0f);
+	sample += QChar(0x1e4f);
+	sample += QChar(0x1e8f);
+	sample += QChar(0x1ecf);
+	break;
+    case QFont::Greek:
+	sample += QChar(0x0393);
+	sample += QChar(0x03B1);
+	sample += QChar(0x03A9);
+	sample += QChar(0x03C9);
+	break;
+    case QFont::GreekExtended:
+	sample += QChar(0x1f00);
+	sample += QChar(0x1f10);
+	sample += QChar(0x1f20);
+	sample += QChar(0x1f30);
+	break;
+    case QFont::Cyrillic:
+	sample += QChar(0x0414);
+	sample += QChar(0x0434);
+	sample += QChar(0x0436);
+	sample += QChar(0x0402);
+	break;
+    case QFont::CyrillicHistoric:
+	sample += QChar(0x0464);
+	sample += QChar(0x0474);
+	sample += QChar(0x0466);
+	sample += QChar(0x0472);
+	break;
+    case QFont::CyrillicExtended:
+	sample += QChar(0x04a0);
+	sample += QChar(0x04b0);
+	sample += QChar(0x04c0);
+	sample += QChar(0x04d0);
+	break;
+    case QFont::Armenian:
+	sample += QChar(0x053f);
+	sample += QChar(0x054f);
+	sample += QChar(0x056f);
+	sample += QChar(0x057f);
+	break;
+    case QFont::Georgian:
+	sample += QChar(0x10a0);
+	sample += QChar(0x10b0);
+	sample += QChar(0x10c0);
+	sample += QChar(0x10d0);
+	break;
+    case QFont::Runic:
+	sample += QChar(0x16a0);
+	sample += QChar(0x16b0);
+	sample += QChar(0x16c0);
+	sample += QChar(0x16d0);
+	break;
+    case QFont::Ogham:
+	sample += QChar(0x1681);
+	sample += QChar(0x1687);
+	sample += QChar(0x1693);
+	sample += QChar(0x168d);
+	break;
+    case QFont::Hebrew:
+        sample += QChar(0x05D0);
+        sample += QChar(0x05D1);
+        sample += QChar(0x05D2);
+        sample += QChar(0x05D3);
+	break;
+    case QFont::Arabic:
+	sample += QChar(0x0628);
+	sample += QChar(0x0629);
+        sample += QChar(0x062A);
+        sample += QChar(0x063A);
+	break;
+    case QFont::Syriac:
+	sample += QChar(0x0715);
+	sample += QChar(0x0725);
+	sample += QChar(0x0716);
+	sample += QChar(0x0726);
+	break;
+    case QFont::Thaana:
+	sample += QChar(0x0784);
+	sample += QChar(0x0794);
+	sample += QChar(0x078c);
+	sample += QChar(0x078d);
+	break;
+    case QFont::Devanagari:
+	sample += QChar(0x0905);
+	sample += QChar(0x0915);
+	sample += QChar(0x0925);
+	sample += QChar(0x0935);
+	break;
+    case QFont::Bengali:
+	sample += QChar(0x0986);
+	sample += QChar(0x0996);
+	sample += QChar(0x09a6);
+	sample += QChar(0x09b6);
+	break;
+    case QFont::Gurmukhi:
+	sample += QChar(0x0a05);
+	sample += QChar(0x0a15);
+	sample += QChar(0x0a25);
+	sample += QChar(0x0a35);
+	break;
+    case QFont::Gujarati:
+	sample += QChar(0x0a85);
+	sample += QChar(0x0a95);
+	sample += QChar(0x0aa5);
+	sample += QChar(0x0ab5);
+	break;
+    case QFont::Oriya:
+	sample += QChar(0x0b06);
+	sample += QChar(0x0b16);
+	sample += QChar(0x0b2b);
+	sample += QChar(0x0b36);
+	break;
+    case QFont::Tamil:
+	sample += QChar(0x0b89);
+	sample += QChar(0x0b99);
+	sample += QChar(0x0ba9);
+	sample += QChar(0x0bb9);
+	break;
+    case QFont::Telugu:
+	sample += QChar(0x0c05);
+	sample += QChar(0x0c15);
+	sample += QChar(0x0c25);
+	sample += QChar(0x0c35);
+	break;
+    case QFont::Kannada:
+	sample += QChar(0x0c85);
+	sample += QChar(0x0c95);
+	sample += QChar(0x0ca5);
+	sample += QChar(0x0cb5);
+	break;
+    case QFont::Malayalam:
+	sample += QChar(0x0d05);
+	sample += QChar(0x0d15);
+	sample += QChar(0x0d25);
+	sample += QChar(0x0d35);
+	break;
+    case QFont::Sinhala:
+	sample += QChar(0x0d90);
+	sample += QChar(0x0da0);
+	sample += QChar(0x0db0);
+	sample += QChar(0x0dc0);
+	break;
+    case QFont::Thai:
+	sample += QChar(0x0e02);
+	sample += QChar(0x0e12);
+	sample += QChar(0x0e22);
+	sample += QChar(0x0e32);
+	break;
+    case QFont::Lao:
+	sample += QChar(0x0e8d);
+	sample += QChar(0x0e9d);
+	sample += QChar(0x0ead);
+	sample += QChar(0x0ebd);
+	break;
+    case QFont::Tibetan:
+	sample += QChar(0x0f00);
+	sample += QChar(0x0f01);
+	sample += QChar(0x0f02);
+	sample += QChar(0x0f03);
+	break;
+    case QFont::Myanmar:
+	sample += QChar(0x1000);
+	sample += QChar(0x1001);
+	sample += QChar(0x1002);
+	sample += QChar(0x1003);
+	break;
+    case QFont::Khmer:
+	sample += QChar(0x1780);
+	sample += QChar(0x1790);
+	sample += QChar(0x17b0);
+	sample += QChar(0x17c0);
+	break;
+    case QFont::UnifiedHan:
+	sample += QChar(0x6f84);
+	sample += QChar(0x820a);
+	sample += QChar(0x61a9);
+	sample += QChar(0x9781);
+	break;
+    case QFont::Hiragana:
+	sample += QChar(0x3050);
+	sample += QChar(0x3060);
+	sample += QChar(0x3070);
+	sample += QChar(0x3080);
+	break;
+    case QFont::Katakana:
+	sample += QChar(0x30b0);
+	sample += QChar(0x30c0);
+	sample += QChar(0x30d0);
+	sample += QChar(0x30e0);
+	break;
+    case QFont::Hangul:
+	sample += QChar(0xac00);
+	sample += QChar(0xac11);
+	sample += QChar(0xac1a);
+	sample += QChar(0xac2f);
+	break;
+    case QFont::Bopomofo:
+	sample += QChar(0x3105);
+	sample += QChar(0x3115);
+	sample += QChar(0x3125);
+	sample += QChar(0x3129);
+	break;
+    case QFont::Yi:
+	sample += QChar(0xa1a8);
+	sample += QChar(0xa1a6);
+	sample += QChar(0xa200);
+	sample += QChar(0xa280);
+	break;
+    case QFont::Ethiopic:
+	sample += QChar(0x1200);
+	sample += QChar(0x1240);
+	sample += QChar(0x1280);
+	sample += QChar(0x12c0);
+	break;
+    case QFont::Cherokee:
+	sample += QChar(0x13a0);
+	sample += QChar(0x13b0);
+	sample += QChar(0x13c0);
+	sample += QChar(0x13d0);
+	break;
+    case QFont::CanadianAboriginal:
+	sample += QChar(0x1410);
+	sample += QChar(0x1500);
+	sample += QChar(0x15f0);
+	sample += QChar(0x1650);
+	break;
+    case QFont::Mongolian:
+	sample += QChar(0x1820);
+	sample += QChar(0x1840);
+	sample += QChar(0x1860);
+	sample += QChar(0x1880);
+	break;
+    case QFont::Unicode:
+	sample += QChar(0x0174);
+	sample += QChar(0x0628);
+	sample += QChar(0x0e02);
+	sample += QChar(0x263A);
+	sample += QChar(0x3129);
+	sample += QChar(0x61a9);
+	sample += QChar(0xac2f);
+	break;
+    default:
+	sample += QChar(0xfffd);
+	sample += QChar(0xfffd);
+	sample += QChar(0xfffd);
+	sample += QChar(0xfffd);
+	break;
+    }
+
+    return sample;
 }
 
 

@@ -166,61 +166,95 @@ public:
     void qwsRenderToDisk(bool all=TRUE);
 #endif
 
+    enum Script {
+	// Basic Latin with Latin-1 Supplement
+	BasicLatin,
+
+	LatinExtendedA,
+	LatinExtendedB, // TODO
+	IPAExtensions,
+	LatinExtendedAdditional,
+	LatinLigatures,
+
+	Diacritical,
+
+	Greek,
+	GreekExtended,
+	Cyrillic,
+	CyrillicHistoric,
+	CyrillicExtended,
+	Armenian,
+	Georgian,
+	Runic,
+	Ogham,
+
+	Hebrew,
+	HebrewPresentation,
+	Arabic,
+	ArabicPresentationA,
+	ArabicPresentationB,
+	Syriac,
+	Thaana,
+
+	Devanagari,
+	Bengali,
+	Gurmukhi,
+	Gujarati,
+	Oriya,
+	Tamil,
+	Telugu,
+	Kannada,
+	Malayalam,
+	Sinhala,
+	Thai,
+	Lao,
+	Tibetan,
+	Myanmar,
+	Khmer,
+
+	UnifiedHan,
+	Hiragana,
+	Katakana,
+	Hangul,
+	Bopomofo,
+	Yi,
+
+	Ethiopic,
+	Cherokee,
+	CanadianAboriginal,
+	Mongolian,
+
+	// this one is only used on X11 to get some char displayed for all of
+	// the Han area.
+	UnifiedHanX11,
+
+	// To get Latin Extended-A characters from various ISO-8859-* encodings
+	// Extended Latin from ISO-8859-2
+      	LatinExtendedA_2 = LatinExtendedA,
+	// Extended Latin from ISO-8859-3
+	LatinExtendedA_3 = UnifiedHanX11 + 1,
+	// Extended Latin from ISO-8859-4
+	LatinExtendedA_4,
+	// Extended Latin from ISO-8859-14
+	LatinExtendedA_14,
+	// Extended Latin from ISO-8859-15
+	LatinExtendedA_15,
+
+	Unicode,
+
+	// End
+	NScripts,
+	AnyScript = NScripts,
+	UnknownScript = NScripts,
+
+	NoScript
+    };
+
 
 #ifndef QT_NO_COMPAT
 
     static QFont defaultFont();
     static void setDefaultFont( const QFont & );
-
-    enum CharSet {
-	ISO_8859_1,  Latin1 = ISO_8859_1, AnyCharSet,
-	ISO_8859_2,  Latin2 = ISO_8859_2,
-	ISO_8859_3,  Latin3 = ISO_8859_3,
-	ISO_8859_4,  Latin4 = ISO_8859_4,
-	ISO_8859_5,
-	ISO_8859_6,
-	ISO_8859_7,
-	ISO_8859_8,
-	ISO_8859_9,  Latin5 = ISO_8859_9,
-	ISO_8859_10, Latin6 = ISO_8859_10,
-	ISO_8859_11, TIS620 = ISO_8859_11,
-	ISO_8859_12,
-	ISO_8859_13, Latin7 = ISO_8859_13,
-	ISO_8859_14, Latin8 = ISO_8859_14,
-	ISO_8859_15, Latin9 = ISO_8859_15,
-	KOI8R,
-	Set_Ja, Set_1 = Set_Ja,
-	Set_Ko,
-	Set_Th_TH,
-	Set_Zh,
-	Set_Zh_TW,
-	Set_GBK,
-	Set_Big5,
-	Set_N = Set_Zh_TW,
-
-	/*
-	  The following are font-specific encodings that
-	  we shouldn't need in a perfect world.
-	*/
-	// 8-bit fonts
-	JIS_X_0201 = 0xa0,
-	// 16-bit fonts
-	JIS_X_0208 = 0xc0, Enc16 = JIS_X_0208,
-	KSC_5601,
-	GB_2312,
-	Big5,
-	TSCII,
-	KOI8U,
-
-	Unicode
-    };
-
-    QFont(const QString &, int, int, bool, CharSet);
-
-    CharSet charSet() const;
-    void setCharSet(CharSet);
-    static CharSet charSetForLocale();
-    static QString encodingName(CharSet);
 
 #endif // QT_NO_COMPAT
 

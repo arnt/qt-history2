@@ -211,95 +211,6 @@ private:
 class QFontPrivate : public QShared
 {
 public:
-    enum Script {
-	// Basic Latin with Latin-1 Supplement
-	BasicLatin,
-
-	// To get Latin Extended-A characters from various ISO-8859-* encodings
-	LatinExtA2, // Extended Latin from ISO-8859-2
-	LatinExtA3, // Extended Latin from ISO-8859-3
-	LatinExtA4, // Extended Latin from ISO-8859-4
-	LatinExtA9, // Extended Latin from ISO-8859-9
-	LatinExtA14, // Extended Latin from ISO-8859-14
-	LatinExtA15, // Extended Latin from ISO-8859-15
-
-	// TODO: support for Latin Extended-B characters
-	LatinExtB, // Extended Latin (B)
-	IPAExt, // IPA Extensions
-	LatinExtADDL, // Addition Extended Latin
-	LatinLigatures, // Latin Ligatures
-
-	Diacritical,
-
-	Greek,
-	GreekExt, // Extended Greek
-	Cyrillic,
-	CyrillicHistoric, // *NO* codec exists for this
-	CyrillicExt, // nor for this
-	Armenian,
-	Georgian,
-	Runic,
-	Ogham,
-
-	Hebrew,
-	HebrewPresentation,
-	Arabic,
-	ArabicPresentationA,
-	ArabicPresentationB,
-	Syriac,
-	Thaana,
-
-	// South/Southeast Asian Scripts
-	Devanagari,
-	Bengali,
-	Gurmukhi,
-	Gujarati,
-	Oriya,
-	Tamil,
-	Telugu,
-	Kannada,
-	Malayalam,
-	Sinhala,
-	Thai,
-	Lao,
-	Tibetan,
-	Myanmar,
-	Khmer,
-
-	// East Asian Scripts
-	Han,
-	Hiragana,
-	Katakana,
-	Hangul,
-	Bopomofo,
-	Yi,
-
-	Ethiopic,
-	Cherokee,
-	CanadianAboriginal,
-	Mongolian,
-
-	// this one is only used on X11 to get some char displayed for all of
-	// the Han area.
-	HanHack,
-
-	Unicode,
-
-	// End
-	NScripts,
-	AnyScript = NScripts,
-	UnknownScript = NScripts,
-
-	// No Script
-	NoScript
-    };
-
-    // stupid stupid egcs - It can't use NScripts below for the x11data.fontstruct
-    // array size because it thinks QFontPrivate is still incomplete.  If you change
-    // the above enum you *MUST* update this number to be equal to the new NScripts
-    // value, lest you suffer firey death at the hand of qFatal().
-#define NSCRIPTSEGCSHACK 55
-
     static QFontCache *fontCache;
 
 
@@ -307,8 +218,6 @@ public:
     QFontPrivate()
 	: QShared(), exactMatch(FALSE), lineWidth(1)
     {
-
-	charsetcompat = QFont::Unicode;
 
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
@@ -323,8 +232,6 @@ public:
 	: QShared(fp), request(fp.request), actual(fp.actual),
 	  exactMatch(fp.exactMatch), lineWidth(1)
     {
-
-	charsetcompat = fp.charsetcompat;
 
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
@@ -354,9 +261,24 @@ public:
     QRect boundingRect( const QChar &ch );
 
     struct TextRun {
-	TextRun() { xoff = 0; yoff = 0; script = NoScript; string = 0; length = 0; next = 0; }
-	~TextRun() { if ( next ) delete next; }
-	void setParams( int x, int y, const QChar *s, int len, Script sc = NoScript ) {
+	TextRun()
+	{
+	    xoff = 0;
+	    yoff = 0;
+	    script = QFont::NoScript;
+	    string = 0;
+	    length = 0;
+	    next = 0;
+	}
+
+	~TextRun()
+	{
+	    if ( next )
+		delete next;
+	}
+
+	void setParams( int x, int y, const QChar *s, int len,
+			QFont::Script sc = QFont::NoScript ) {
 	    xoff = x;
 	    yoff = y;
 	    string = s;
@@ -365,7 +287,7 @@ public:
 	}
 	int xoff;
 	int yoff;
-	Script script;
+	QFont::Script script;
 	const QChar *string;
 	int length;
 	TextRun *next;
@@ -375,20 +297,20 @@ public:
     };
 
     /*
-       some replacement functions for native calls. This is needed, because shaping and
-       non spacing marks can change the extents of a string to draw. At the same time
-       drawing needs to take care to correctly position non spacing marks.
+      some replacement functions for native calls. This is needed, because shaping and
+      non spacing marks can change the extents of a string to draw. At the same time
+      drawing needs to take care to correctly position non spacing marks.
     */
     int textWidth( const QString &str, int pos, int len );
-    
+
     /*
      * returns the script a certain character is in. Needed to separate the string into runs of
      * different scripts as required for X11 and opentype.
      */
-    Script scriptForChar(const QChar &c);
-    
+    QFont::Script scriptForChar(const QChar &c);
+
 #ifdef Q_WS_X11
-    Script hanHack( const QChar & c );
+    QFont::Script hanHack( const QChar & c );
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(const QCString &, char **);
@@ -412,6 +334,14 @@ public:
 	return (isZero(tokens[ResolutionX]) && isZero(tokens[ResolutionY]));
     }
 
+    static inline bool isFixedPitch( char **tokens )
+    {
+	return (tokens[Spacing][0] == 'm' ||
+		tokens[Spacing][0] == 'c' ||
+		tokens[Spacing][0] == 'M' ||
+		tokens[Spacing][0] == 'C');
+    }
+
     // XLFD fields
     enum FontFieldNames {
 	Foundry,
@@ -431,29 +361,29 @@ public:
 	NFontFields
     };
 
-    QCString findFont(QFontPrivate::Script, bool *) const;
-    QCString bestFamilyMember(QFontPrivate::Script, const QString &, const QString &,
+    QCString findFont(QFont::Script, bool *) const;
+    QCString bestFamilyMember(QFont::Script, const QString &, const QString &,
 			      int *) const;
-    QCString bestMatch(const char *, int *, Script) const;
+    QCString bestMatch(const char *, int *, QFont::Script) const;
     int fontMatchScore(const char *, QCString &, float *, int *, bool *,
-		       bool *, Script) const;
-    void initFontInfo(QFontPrivate::Script);
-    void load(QFontPrivate::Script = QFontPrivate::NoScript, bool = TRUE);
+		       bool *, QFont::Script) const;
+    void initFontInfo(QFont::Script);
+    void load(QFont::Script = QFont::NoScript, bool = TRUE);
     void computeLineWidth();
 
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
     void textExtents( const QString &str, int pos, int len, XCharStruct *overall );
     void drawText( Display *dpy, WId hd, GC gc, int x, int y, const TextRun *cache );
     bool inFont( const QChar &ch );
-    
+
     class QFontX11Data {
     public:
 	// X fontstruct handles for each character set
-	QFontStruct *fontstruct[NSCRIPTSEGCSHACK];
+	QFontStruct *fontstruct[QFont::NScripts];
 
 	QFontX11Data()
 	{
-	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
+	    for (int i = 0; i < QFont::NScripts; i++) {
 		fontstruct[i] = 0;
 	    }
 	}
@@ -462,7 +392,7 @@ public:
 	{
 	    QFontStruct *qfs;
 
-	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
+	    for (int i = 0; i < QFont::NScripts; i++) {
 		qfs = fontstruct[i];
 		fontstruct[i] = 0;
 
@@ -473,7 +403,7 @@ public:
 	}
     } x11data;
 
-    static QFontPrivate::Script defaultScript;
+    static QFont::Script defaultScript;
 
 #endif // Q_WS_X11
 
@@ -484,7 +414,7 @@ public:
     HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
     QFontStruct *fin;
     HDC currHDC;
-    
+
     int textWidth( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
     void drawText( HDC hdc, int x, int y, TextRun *cache );
 #endif // Q_WS_WIN
@@ -504,9 +434,6 @@ public:
     void load();
     QFontStruct *fin;
 #endif
-
-    // source compatibility for QFont
-    QFont::CharSet charsetcompat;
 
 };
 

@@ -1716,31 +1716,31 @@ static const struct {
 
 
 static const struct {
-    QFont::CharSet cs;
+    uint magic;
     uint mib;
 } unicodevalues[] = {
-    { QFont::ISO_8859_1, 4 },
+    { 0x88591, 4 },
 #ifndef QT_NO_TEXTCODEC
-    { QFont::ISO_8859_2, 5 },
-    { QFont::ISO_8859_3, 6 },
-    { QFont::ISO_8859_4, 7 },
-    { QFont::ISO_8859_5, 8 },
-    { QFont::KOI8U, 2088 },
-    { QFont::KOI8R, 2084 },
-    { QFont::ISO_8859_6, 82 },
-    { QFont::ISO_8859_7, 10 },
-    { QFont::ISO_8859_8, 85 },
-    { QFont::ISO_8859_10, 13 },
-    { QFont::ISO_8859_11, 2259 }, // aka tis620
+    { 0x88592, 5 },
+    { 0x88593, 6 },
+    { 0x88594, 7 },
+    { 0x88595, 8 },
+    { 0x2088f, 2088 },
+    { 0x2084f, 2084 },
+    { 0x88596, 82 },
+    { 0x88597, 10 },
+    { 0x88598, 85 },
+    { 0x8859a, 13 },
+    { 0x8859b, 2259 }, // aka tis620
     // ### don't have any MIB for -12: { QFont::ISO_8859_12, 0 },
-    { QFont::ISO_8859_13, 109 },
-    { QFont::ISO_8859_14, 110 },
-    { QFont::ISO_8859_15, 111 },
+    { 0x8859d, 109 },
+    { 0x8859e, 110 },
+    { 0x8859f, 111 },
     // makeFixedStrings() below assumes that this is last
-    { QFont::ISO_8859_9, 12 }
-#define unicodevalues_LAST QFont::ISO_8859_9
+    { 0x88599, 12 }
+#define unicodevalues_LAST 0x88599
 #else
-#define unicodevalues_LAST QFont::ISO_8859_1
+#define unicodevalues_LAST 0x88591
 #endif
 };
 
@@ -1844,7 +1844,7 @@ static void makeFixedStrings()
     QString glyphname;
     QString unicodestring;
     do {
-	vector.sprintf( "/FE%d [", (int)unicodevalues[i].cs );
+	vector.sprintf( "/FE%d [", (int)unicodevalues[i].magic );
 	glyphname = "";
 	l = 0;
 	// the first 128 positions are the same always
@@ -1888,9 +1888,9 @@ static void makeFixedStrings()
 #endif
 	vector += QString::fromLatin1(" ] d");
 	vector = wordwrap( vector );
-	font_vectors->insert( (int)(unicodevalues[i].cs),
+	font_vectors->insert( (int)(unicodevalues[i].magic),
 			      new QString( vector ) );
-    } while ( unicodevalues[i++].cs != unicodevalues_LAST );
+    } while ( unicodevalues[i++].magic != unicodevalues_LAST );
 }
 
 
@@ -2075,14 +2075,10 @@ void QPSPrinter::setFont( const QFont & f )
     }
 
     QString key;
-    int cs = (int)f.charSet();
-    if ( cs == QFont::AnyCharSet ) {
-	QIntDictIterator<void> it( d->headerEncodings );
-	if ( it.current() )
-	    cs = it.currentKey();
-	else
-	    cs = QFont::Latin1;
-    }
+    int cs = 0;
+    QIntDictIterator<void> it( d->headerEncodings );
+    if ( it.current() )
+	cs = it.currentKey();
 
     key.sprintf( "%s %d %d", ps.ascii(), f.pointSize(), cs );
     QString * tmp;
@@ -2130,7 +2126,7 @@ void QPSPrinter::setFont( const QFont & f )
 		 !d->pageEncodings.find( cs ) ) {
 		QString * vector = font_vectors->find( cs );
 		if ( !vector )
-		    vector = font_vectors->find( QFont::Latin1 );
+		    vector = font_vectors->find( 0 );
 		stream << *vector << "\n";
 		d->pageEncodings.insert( cs, (void*)42 );
 	    }
@@ -2158,13 +2154,16 @@ void QPSPrinter::setFont( const QFont & f )
 	fontsUsed += ps;
 
     QTextCodec * codec = 0;
-#ifndef QT_NO_TEXTCODEC
-    i = 0;
-    do {
-	if ( unicodevalues[i].cs == f.charSet() )
-	    codec = QTextCodec::codecForMib( unicodevalues[i++].mib );
-    } while( codec == 0 && unicodevalues[i++].cs != unicodevalues_LAST );
-#endif
+
+    // ### TODO: reenable this code (Brad)
+    // #ifndef QT_NO_TEXTCODEC
+    // i = 0;
+    // do {
+    // if ( unicodevalues[i].magic == f.charSet() )
+    // codec = QTextCodec::codecForMib( unicodevalues[i++].mib );
+    // } while( codec == 0 && unicodevalues[i++].magic != unicodevalues_LAST );
+    // #endif
+
     d->currentFontCodec = codec;
 }
 
