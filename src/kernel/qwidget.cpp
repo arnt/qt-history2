@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#123 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#122 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#123 $")
 
 
 /*----------------------------------------------------------------------------
@@ -136,10 +136,13 @@ inline bool QWidgetMapper::remove( WId id )
   any of these flags:
 
   <ul>
-  <li> \c WStyle_NormalBorder gives the window a normal border.
+  <li> \c WStyle_NormalBorder gives the window a normal border. Cannot
+    be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
   <li> \c WStyle_DialogBorder gives the window a thin dialog border.
-  <li> \c WStyle_NoBorder gives a borderless window. Remember that the
-  user cannot move or resize a borderless window via the window system.
+    Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
+  <li> \c WStyle_NoBorder gives a borderless window. Note that the
+    user cannot move or resize a borderless window via the window system.
+    Cannot be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder.
   <li> \c WStyle_Title gives the window a title bar.
   <li> \c WStyle_SysMenu adds a window system menu.
   <li> \c WStyle_Minimize adds a minimize button.
@@ -147,8 +150,9 @@ inline bool QWidgetMapper::remove( WId id )
   <li> \c WStyle_MinMax is equal to <code>(WStyle_Minimize | WStyle_Maximize)
   </code>.
   <li> \c WStyle_Tool makes the window a tool window. This is usually
-  combined with \c WStyle_NoBorder. A tool window is a small window that
-  lives for a short time.
+    combined with \c WStyle_NoBorder. A tool window is a small window that
+    lives for a short time and it is typically used for creating popup
+    windows.
   </ul>
 
   Note that X11 does not necessarily support all style flag combinations. X11
