@@ -19,6 +19,7 @@
 #include "qstring.h"
 #include "q3dict.h"
 #include "qobject.h"
+#include "q3valuelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL
