@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#33 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#34 $
 **
 ** Definition of QScrollView class
 **
@@ -121,6 +121,9 @@ protected:
     int bottomMargin() const;
 
     bool focusNextPrevChild( bool next );
+
+    virtual void setHBarGeometry(QScrollBar& hbar, int x, int y, int w, int h);
+    virtual void setVBarGeometry(QScrollBar& vbar, int x, int y, int w, int h);
 
 private:
     void moveContents(int x, int y);

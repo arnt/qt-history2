@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#87 $
 **
 ** Implementation of QScrollView class
 **
@@ -247,6 +247,38 @@ void QScrollView::vslide( int pos )
 }
 
 /*!
+  Called when the horizontal scrollbar geometry changes.  This is provided
+  as a protected function so that subclasses can do interesting things
+  like providing extra buttons in some of the space normally used by the
+  scrollbars.
+
+  The default implementation simply gives all the space to \a hbar.
+
+  \sa setVBarGeometry()
+*/
+void QScrollView::setHBarGeometry(QScrollBar& hbar,
+    int x, int y, int w, int h)
+{
+    hbar.setGeometry( x, y, w, h );
+}
+
+/*!
+  Called when the vertical scrollbar geometry changes.  This is provided
+  as a protected function so that subclasses can do interesting things
+  like providing extra buttons in some of the space normally used by the
+  scrollbars.
+
+  The default implementation simply gives all the space to \a vbar.
+
+  \sa setHBarGeometry()
+*/
+void QScrollView::setVBarGeometry( QScrollBar& vbar,
+    int x, int y, int w, int h)
+{
+    vbar.setGeometry( x, y, w, h );
+}
+
+/*!
   Updates scrollbars - all possibilities considered.  You should never
   need to call this in your code.
 */
@@ -346,7 +378,7 @@ void QScrollView::updateScrollBars()
     int bottom;
     if ( showh ) {
 	int right = ( showv || cornerWidget() ) ? w-sbDim : w;
-	d->hbar.setGeometry( 0, h-sbDim, right, sbDim );
+	setHBarGeometry(d->hbar, 0, h-sbDim, right, sbDim );
 	bottom=h-sbDim;
     } else {
 	bottom=h;
@@ -356,9 +388,9 @@ void QScrollView::updateScrollBars()
 				 w-sbDim-lmarg-rmarg, bottom-tmarg-bmarg );
 	changeFrameRect(QRect(0, 0, w-sbDim, bottom));
 	if (cornerWidget())
-	    d->vbar.setGeometry( w-sbDim, 0, sbDim, h-sbDim );
+	    setVBarGeometry( d->vbar, w-sbDim, 0, sbDim, h-sbDim );
 	else
-	    d->vbar.setGeometry( w-sbDim, 0, sbDim, bottom );
+	    setVBarGeometry( d->vbar, w-sbDim, 0, sbDim, bottom );
     } else {
 	changeFrameRect(QRect(0, 0, w, bottom));
 	d->viewport.setGeometry( lmarg, tmarg,
