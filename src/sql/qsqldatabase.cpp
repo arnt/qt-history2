@@ -53,195 +53,32 @@
 #include "qsqldriverinterface_p.h"
 #include "private/qpluginmanager_p.h"
 #include "private/qsqlnulldriver_p.h"
-#include "qobject.h"
-#include "private/qobject_p.h"
-#include "qpointer.h"
-#include "qcleanuphandler.h"
 #include <stdlib.h>
 
 const char *QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
-typedef QHash<QString, QSqlDriverCreatorBase*> QDriverDict;
+typedef QHash<QString, QSqlDriverCreatorBase*> DriverDict;
+typedef QHash<QString, QSqlDatabase> ConnectionDict;
 
-class QSqlDatabaseManager : public QObject
+class QSqlDatabasePrivate
 {
 public:
-    QSqlDatabaseManager(QObject * parent = 0);
-    ~QSqlDatabaseManager();
-    static QSqlDatabase* database(const QString& name, bool open);
-    static QSqlDatabase* addDatabase(QSqlDatabase* db, const QString & name);
-    static void          removeDatabase(const QString& name);
-    static void          removeDatabase(QSqlDatabase* db);
-    static bool          contains(const QString& name);
-    static QDriverDict &driverDict();
-
-protected:
-    static QSqlDatabaseManager* instance();
-    QHash<QString, QSqlDatabase *> dbDict;
-    QDriverDict drDict;
-};
-
-/*!
-    Constructs an SQL database manager.
-*/
-
-QSqlDatabaseManager::QSqlDatabaseManager(QObject * parent)
-    : QObject(parent)
-{
-}
-
-/*!
-    Destroys the object and frees any allocated resources. All open
-    database connections are closed. All database connections are
-    deleted.
-*/
-
-QSqlDatabaseManager::~QSqlDatabaseManager()
-{
-    qDeleteAll(dbDict);
-    qDeleteAll(drDict);
-}
-
-/*!
-  \internal
-*/
-QDriverDict &QSqlDatabaseManager::driverDict()
-{
-    return instance()->drDict;
-}
-
-
-/*!
-  \internal
-*/
-QSqlDatabaseManager* QSqlDatabaseManager::instance()
-{
-    static QPointer<QSqlDatabaseManager> sqlConnection = 0;
-    if (!sqlConnection) {
-        if(QCoreApplication::instance() == 0){
-            qFatal("QSqlDatabaseManager: A QCoreApplication object has to be "
-                    "instantiated in order to use the SQL module.");
-            return 0;
-        }
-        sqlConnection = new QSqlDatabaseManager(QCoreApplication::instance());
-    }
-    return (QSqlDatabaseManager*)sqlConnection;
-}
-
-/*!
-    Returns the database connection called \a name. If \a open is
-    true, the database connection is opened. If \a name does not exist
-    in the list of managed databases, 0 is returned.
-*/
-
-QSqlDatabase* QSqlDatabaseManager::database(const QString& name, bool open)
-{
-    if (!contains(name))
-        return 0;
-
-    QSqlDatabaseManager* sqlConnection = instance();
-    QSqlDatabase* db = sqlConnection->dbDict.value(name);
-    if (db && !db->isOpen() && open) {
-        db->open();
-        if (!db->isOpen())
-            qWarning("QSqlDatabaseManager::database: unable to open database: %s: %s", db->lastError().databaseText().local8Bit(), db->lastError().driverText().local8Bit());
-
-    }
-    return db;
-}
-
-/*!
-    Returns true if the list of database connections contains \a name;
-    otherwise returns false.
-*/
-
-bool QSqlDatabaseManager::contains(const QString& name)
-{
-   QSqlDatabaseManager* sqlConnection = instance();
-   return sqlConnection->dbDict.contains(name);
-}
-
-
-/*!
-    Adds a database to the SQL connection manager. The database
-    connection is referred to by \a name. The newly added database
-    connection is returned. This function will only return 0 if it is
-    called \e before a QCoreApplication object has been instantiated. Use
-    the output of drivers() to determine whether a particular driver
-    is available or not.
-
-    The returned QSqlDatabase object is owned by the framework and
-    must not be deleted. If you want to explicitly remove the connection,
-    use removeDatabase().
-
-    \sa QSqlDatabase database()
-*/
-
-QSqlDatabase* QSqlDatabaseManager::addDatabase(QSqlDatabase* db, const QString & name)
-{
-    QSqlDatabaseManager* sqlConnection = instance();
-    if (!sqlConnection)
-        return 0;
-    if (contains(name))
-        sqlConnection->removeDatabase(name);
-    sqlConnection->dbDict.insert(name, db);
-    return db;
-}
-
-/*!
-    Removes the database connection \a name from the SQL connection
-    manager.
-
-    \warning There should be no open queries on the database
-    connection when this function is called, otherwise a resource leak
-    will occur.
-*/
-
-void QSqlDatabaseManager::removeDatabase(const QString& name)
-{
-    delete instance()->dbDict.take(name);
-}
-
-/*!
-    Removes the database connection \a db from the SQL connection
-    manager. The QSqlDatabase object is destroyed when it is removed
-    from the manager.
-
-    \warning The \a db pointer is not valid after this function has
-    been called.
-*/
-
-void QSqlDatabaseManager::removeDatabase(QSqlDatabase* db)
-{
-    QSqlDatabaseManager* sqlConnection = instance();
-    if (!sqlConnection)
-        return;
-    for (QHash<QString, QSqlDatabase*>::Iterator it = sqlConnection->dbDict.begin();
-         it != sqlConnection->dbDict.end(); ++it) {
-        if (*it == db) {
-            sqlConnection->dbDict.erase(it);
-            db->close();
-            delete db;
-            break;
-        }
-    }
-}
-
-class QSqlDatabasePrivate: public QObjectPrivate
-{
-public:
-    QSqlDatabasePrivate():
-        QObjectPrivate(),
-        driver(0),
+    QSqlDatabasePrivate(QSqlDriver *dr = 0):
+        driver(dr),
 #ifndef QT_NO_COMPONENT
         plugIns(0),
 #endif
-        port(-1) {}
-    virtual ~QSqlDatabasePrivate()
+        port(-1)
     {
+        ref = 1;
     }
-    void init(const QString& type, const QString& name);
+    QSqlDatabasePrivate(const QSqlDatabasePrivate &other);
+    ~QSqlDatabasePrivate();
+    void init(const QString& type);
     void copy(const QSqlDatabasePrivate *other);
+    void disable();
+
+    QAtomic ref;
     QSqlDriver* driver;
 #ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
@@ -253,7 +90,122 @@ public:
     QString drvName;
     int port;
     QString connOptions;
+
+    static QSqlDatabasePrivate *shared_null();
+    static QSqlDatabase database(const QString& name, bool open);
+    static void addDatabase(const QSqlDatabase &db, const QString & name);
+    static void removeDatabase(const QString& name);
+    static DriverDict &driverDict();
+    static ConnectionDict &dbDict();
+    static void cleanConnections();
 };
+
+QSqlDatabasePrivate::QSqlDatabasePrivate(const QSqlDatabasePrivate &other)
+{
+    ref = 1;
+    dbname = other.dbname;
+    uname = other.uname;
+    pword = other.pword;
+    hname = other.hname;
+    drvName = other.drvName;
+    port = other.port;
+    connOptions = other.connOptions;
+    driver = other.driver;
+#ifndef QT_NO_COMPONENT
+    plugIns = other.plugIns;
+#endif
+}
+
+QSqlDatabasePrivate::~QSqlDatabasePrivate()
+{
+    if (driver != shared_null()->driver) {
+        delete driver;
+#ifndef QT_NO_COMPONENT
+        delete plugIns;
+#endif
+    }
+}
+
+void QSqlDatabasePrivate::cleanConnections()
+{
+    ConnectionDict &dict = dbDict();
+    while (!dict.isEmpty())
+        removeDatabase(dict.constBegin().key());
+}
+
+static bool qDriverDictInit = false;
+static void cleanDriverDict()
+{
+    qDeleteAll(QSqlDatabasePrivate::driverDict());
+    QSqlDatabasePrivate::cleanConnections();
+    qDriverDictInit = false;
+}
+
+DriverDict &QSqlDatabasePrivate::driverDict()
+{
+    static DriverDict dict;
+    if (!qDriverDictInit) {
+        qDriverDictInit = true;
+        qAddPostRoutine(cleanDriverDict);
+    }
+    return dict;
+}
+
+ConnectionDict &QSqlDatabasePrivate::dbDict()
+{
+    static ConnectionDict dict;
+    if (!qDriverDictInit) {
+        qDriverDictInit = true;
+        qAddPostRoutine(cleanDriverDict);
+    }
+    return dict;
+}
+
+QSqlDatabasePrivate *QSqlDatabasePrivate::shared_null()
+{
+    static QSqlNullDriver dr;
+    static QSqlDatabasePrivate n(&dr);
+    return &n;
+}
+
+void QSqlDatabasePrivate::removeDatabase(const QString& name)
+{
+    if (!dbDict().contains(name))
+        return;
+
+    QSqlDatabase db = dbDict().take(name);
+    if (db.d->ref != 1) {
+        qWarning("QSqlDatabasePrivate::removeDatabase: connection '%s' is still in use, "
+                 "all queries will cease to work.", name.local8Bit());
+        db.d->disable();
+    }
+}
+
+void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString & name)
+{
+    if (dbDict().contains(name)) {
+        removeDatabase(name);
+        qWarning("QSqlDatabasePrivate::addDatabase: duplicate connection name '%s', old "
+                 "connection removed.", name.local8Bit());
+    }
+    dbDict().insert(name, db);
+}
+
+/*! \internal
+ */
+QSqlDatabase QSqlDatabasePrivate::database(const QString& name, bool open)
+{
+    QSqlDatabase db = dbDict().value(name);
+    if (!db.isOpen() && open) {
+        db.open();
+        if (!db.isOpen())
+            qWarning("QSqlDatabasePrivate::database: unable to open database: %s",
+                     db.lastError().text().local8Bit());
+
+    }
+    return db;
+}
+
 
 /*! \internal
     Copies the connection data from \a other
@@ -267,6 +219,14 @@ void QSqlDatabasePrivate::copy(const QSqlDatabasePrivate *other)
     drvName = other->drvName;
     port = other->port;
     connOptions = other->connOptions;
+}
+
+void QSqlDatabasePrivate::disable()
+{
+    if (driver != shared_null()->driver) {
+        delete driver;
+        driver = shared_null()->driver;
+    }
 }
 
 /*!
@@ -317,9 +277,11 @@ void QSqlDatabasePrivate::copy(const QSqlDatabasePrivate *other)
 
     \sa database() removeDatabase()
 */
-QSqlDatabase* QSqlDatabase::addDatabase(const QString& type, const QString& connectionName)
+QSqlDatabase QSqlDatabase::addDatabase(const QString& type, const QString& connectionName)
 {
-    return QSqlDatabaseManager::addDatabase(new QSqlDatabase(type, connectionName), connectionName);
+    QSqlDatabase db(type);
+    QSqlDatabasePrivate::addDatabase(db, connectionName);
+    return db;
 }
 
 /*!
@@ -333,9 +295,9 @@ QSqlDatabase* QSqlDatabase::addDatabase(const QString& type, const QString& conn
     \e not be deleted.
 */
 
-QSqlDatabase* QSqlDatabase::database(const QString& connectionName, bool open)
+QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
 {
-    return QSqlDatabaseManager::database(connectionName, open);
+    return QSqlDatabasePrivate::database(connectionName, open);
 }
 
 /*!
@@ -349,25 +311,7 @@ QSqlDatabase* QSqlDatabase::database(const QString& connectionName, bool open)
 
 void QSqlDatabase::removeDatabase(const QString& connectionName)
 {
-    QSqlDatabaseManager::removeDatabase(connectionName);
-}
-
-/*!
-    \overload
-
-    Removes the database connection \a db from the list of database
-    connections. The QSqlDatabase object is destroyed when it is removed
-    from the list.
-
-    \warning The \a db pointer is not valid after this function has
-    been called. There should be no open queries on the database
-    connection when this function is called, otherwise a resource leak
-    will occur.
-*/
-
-void QSqlDatabase::removeDatabase(QSqlDatabase* db)
-{
-    QSqlDatabaseManager::removeDatabase(db);
+    QSqlDatabasePrivate::removeDatabase(connectionName);
 }
 
 /*!
@@ -391,14 +335,15 @@ QStringList QSqlDatabase::drivers()
 
 #ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
-    plugIns = new QPluginManager<QSqlDriverFactoryInterface>(IID_QSqlDriverFactory, QCoreApplication::libraryPaths(), "/sqldrivers");
+    plugIns = new QPluginManager<QSqlDriverFactoryInterface>(IID_QSqlDriverFactory,
+                    QCoreApplication::libraryPaths(), "/sqldrivers");
 
     l = plugIns->featureList();
     delete plugIns;
 #endif
 
-    QDriverDict dict = QSqlDatabaseManager::driverDict();
-    for (QDriverDict::ConstIterator itd = dict.constBegin(); itd != dict.constEnd(); ++itd) {
+    DriverDict dict = QSqlDatabasePrivate::driverDict();
+    for (DriverDict::ConstIterator itd = dict.constBegin(); itd != dict.constEnd(); ++itd) {
         if (!l.contains(itd.key()))
             l << itd.key();
     }
@@ -457,9 +402,9 @@ QStringList QSqlDatabase::drivers()
 */
 void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase* creator)
 {
-    delete QSqlDatabaseManager::driverDict().take(name);
+    delete QSqlDatabasePrivate::driverDict().take(name);
     if (creator)
-        QSqlDatabaseManager::driverDict().insert(name, creator);
+        QSqlDatabasePrivate::driverDict().insert(name, creator);
 }
 
 /*!
@@ -469,10 +414,8 @@ void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase*
 
 bool QSqlDatabase::contains(const QString& connectionName)
 {
-    return QSqlDatabaseManager::contains(connectionName);
+    return QSqlDatabasePrivate::dbDict().contains(connectionName);
 }
-
-#define d d_func()
 
 /*!
     Creates a QSqlDatabase connection called \a name that uses the
@@ -500,10 +443,10 @@ bool QSqlDatabase::contains(const QString& connectionName)
     \sa registerSqlDriver()
 */
 
-QSqlDatabase::QSqlDatabase(const QString &type, const QString &name, QObject *parent)
-    : QObject(*new QSqlDatabasePrivate(), parent)
+QSqlDatabase::QSqlDatabase(const QString &type)
 {
-    d->init(type, name);
+    d = new QSqlDatabasePrivate();
+    d->init(type);
 }
 
 /*!
@@ -516,10 +459,27 @@ QSqlDatabase::QSqlDatabase(const QString &type, const QString &name, QObject *pa
      so it should not be deleted.
 */
 
-QSqlDatabase::QSqlDatabase(QSqlDriver *driver, QObject *parent)
-    : QObject(*new QSqlDatabasePrivate(), parent)
+QSqlDatabase::QSqlDatabase(QSqlDriver *driver)
 {
-    d->driver = driver;
+    d = new QSqlDatabasePrivate(driver);
+}
+
+QSqlDatabase::QSqlDatabase()
+{
+    d = QSqlDatabasePrivate::shared_null();
+    ++d->ref;
+}
+
+QSqlDatabase::QSqlDatabase(const QSqlDatabase &other)
+{
+    d = other.d;
+    ++d->ref;
+}
+
+QSqlDatabase &QSqlDatabase::operator=(const QSqlDatabase &other)
+{
+    qAtomicAssign(d, other.d);
+    return *this;
 }
 
 /*!
@@ -528,7 +488,7 @@ QSqlDatabase::QSqlDatabase(QSqlDriver *driver, QObject *parent)
   Create the actual driver instance \a type.
 */
 
-void QSqlDatabasePrivate::init(const QString& type, const QString&)
+void QSqlDatabasePrivate::init(const QString& type)
 {
     drvName = type;
 
@@ -577,8 +537,8 @@ void QSqlDatabasePrivate::init(const QString& type, const QString&)
     }
 
     if (!driver) {
-        QDriverDict dict = QSqlDatabaseManager::driverDict();
-        for (QDriverDict::ConstIterator it = dict.constBegin();
+        DriverDict dict = QSqlDatabasePrivate::driverDict();
+        for (DriverDict::ConstIterator it = dict.constBegin();
              it != dict.constEnd() && !driver; ++it) {
             if (type == it.key()) {
                 driver = ((QSqlDriverCreatorBase*)(*it))->createObject();
@@ -602,7 +562,7 @@ void QSqlDatabasePrivate::init(const QString& type, const QString&)
 
         qWarning("QSqlDatabase: %s driver not loaded", type.latin1());
         qWarning("QSqlDatabase: available drivers: %s", QSqlDatabase::drivers().join(" ").latin1());
-        driver = new QSqlNullDriver();
+        driver = shared_null()->driver;
     }
 }
 
@@ -612,11 +572,10 @@ void QSqlDatabasePrivate::init(const QString& type, const QString&)
 
 QSqlDatabase::~QSqlDatabase()
 {
-    close();
-    delete d->driver;
-#ifndef QT_NO_COMPONENT
-    delete d->plugIns;
-#endif
+    if (!--d->ref) {
+        close();
+        delete d;
+    }
 }
 
 /*!
@@ -1161,20 +1120,40 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     \sa drivers()
 */
 
-QSqlDatabase* QSqlDatabase::addDatabase(QSqlDriver* driver, const QString& connectionName)
+QSqlDatabase QSqlDatabase::addDatabase(QSqlDriver* driver, const QString& connectionName)
 {
-    return QSqlDatabaseManager::addDatabase(new QSqlDatabase(driver), connectionName);
+    QSqlDatabase db(driver);
+    QSqlDatabasePrivate::addDatabase(db, connectionName);
+    return db;
 }
 
-QSqlDatabase *QSqlDatabase::addDatabase(QSqlDatabase *other, const QString& connectionName)
+bool QSqlDatabase::isValid() const
 {
-    if (!other)
-        other = database();
-    if (!other)
-        return new QSqlDatabase(QString(), connectionName);
+    return d->driver && d->driver != d->shared_null()->driver;
+}
 
-    QSqlDatabase *db = new QSqlDatabase(other->d->drvName, connectionName);
-    db->d->copy(other->d);
+#ifdef QT_COMPAT
+QSqlRecord QSqlDatabase::record(const QSqlQuery& query) const
+{ return query.record(); }
+
+QSqlRecord QSqlDatabase::recordInfo(const QSqlQuery& query) const
+{ return query.record(); }
+#endif
+
+/*!
+   Clones the database connection \a other and and stores it as \a connectionName.
+   Does nothing if \a other is an invalid database.
+   Returns the newly created database connection. Note that the connection is not opened,
+   to use it, it is neccessary to call open() first.
+ */
+QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QString &connectionName)
+{
+    if (!other.isValid())
+        return QSqlDatabase();
+
+    QSqlDatabase db(other.driver());
+    db.d->copy(other.d);
+    QSqlDatabasePrivate::addDatabase(db, connectionName);
     return db;
 }
 #endif // QT_NO_SQL

@@ -18,6 +18,7 @@
 #ifndef QT_H
 #include "qsql.h"
 #include "qsqlerror.h"
+#include "qsqldatabase.h"
 #include "qstring.h"
 #include "qcorevariant.h"
 #endif // QT_H
@@ -26,7 +27,6 @@
 
 class QSqlDriver;
 class QSqlResult;
-class QSqlDatabase;
 class QSqlRecord;
 
 class QSqlQueryPrivate;
@@ -35,8 +35,8 @@ class Q_SQL_EXPORT QSqlQuery
 {
 public:
     QSqlQuery(QSqlResult * r);
-    QSqlQuery(const QString& query = QString(), QSqlDatabase* db = 0);
-    Q_EXPLICIT QSqlQuery(QSqlDatabase* db);
+    QSqlQuery(const QString& query = QString(), QSqlDatabase db = QSqlDatabase());
+    Q_EXPLICIT QSqlQuery(QSqlDatabase db);
     QSqlQuery(const QSqlQuery& other);
     QSqlQuery& operator=(const QSqlQuery& other);
     virtual ~QSqlQuery();
@@ -84,7 +84,7 @@ protected:
     virtual void afterSeek();
 
 private:
-    void init(const QString& query, QSqlDatabase* db);
+    void init(const QString& query, QSqlDatabase db);
 //     void detach();
     QSqlQueryPrivate* d;
 };

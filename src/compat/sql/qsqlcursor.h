@@ -16,6 +16,7 @@
 #define QSQLCURSOR_H
 
 #ifndef QT_H
+#include "qsqldatabase.h"
 #include "qsqlrecord.h"
 #include "qstringlist.h"
 #include "qsqlquery.h"
@@ -24,14 +25,14 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlDatabase;
 class QSqlCursorPrivate;
 class QSqlFieldInfo;
 
 class Q_COMPAT_EXPORT QSqlCursor : public QSqlRecord, public QSqlQuery
 {
 public:
-    QSqlCursor(const QString & name = QString(), bool autopopulate = true, QSqlDatabase* db = 0);
+    QSqlCursor(const QString & name = QString(), bool autopopulate = true,
+               QSqlDatabase db = QSqlDatabase());
     QSqlCursor(const QSqlCursor & other);
     QSqlCursor& operator=(const QSqlCursor& other);
     ~QSqlCursor();

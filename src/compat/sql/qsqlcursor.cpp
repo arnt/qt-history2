@@ -28,7 +28,7 @@ class QSqlCursorPrivate
 {
 public:
 
-    QSqlCursorPrivate(const QString& name, QSqlDatabase* sdb)
+    QSqlCursorPrivate(const QString& name, QSqlDatabase sdb)
         : lastAt(QSql::BeforeFirst), nm(name), srt(name), md(0), db(sdb), q(0)
     {}
     ~QSqlCursorPrivate()
@@ -53,7 +53,7 @@ public:
     // the primary index as it was before the user changed the values in editBuffer
     QString           editIndex;
     QSqlRecordInfo    infoBuffer;
-    QSqlDatabase*     db;
+    QSqlDatabase      db;
     QSqlQuery*        q;
 };
 
@@ -268,7 +268,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     \sa setName() setMode()
 */
 
-QSqlCursor::QSqlCursor(const QString & name, bool autopopulate, QSqlDatabase* db)
+QSqlCursor::QSqlCursor(const QString & name, bool autopopulate, QSqlDatabase db)
     : QSqlRecord(), QSqlQuery(QString(), db)
 {
     d = new QSqlCursorPrivate(name, db);

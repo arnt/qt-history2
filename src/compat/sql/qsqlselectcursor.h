@@ -26,7 +26,7 @@ class QSqlSelectCursorPrivate;
 class Q_COMPAT_EXPORT QSqlSelectCursor : public QSqlCursor
 {
 public:
-    QSqlSelectCursor(const QString& query = QString(), QSqlDatabase* db = 0);
+    QSqlSelectCursor(const QString& query = QString(), QSqlDatabase db = QSqlDatabase());
     QSqlSelectCursor(const QSqlSelectCursor& other);
     ~QSqlSelectCursor();
     bool exec(const QString& query);

@@ -248,7 +248,7 @@ QSqlQuery::QSqlQuery(const QSqlQuery& other)
 
     \sa QSqlDatabase
 */
-QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase* db)
+QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase db)
 {
     init(query, db);
 }
@@ -260,7 +260,7 @@ QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase* db)
     \sa QSqlDatabase
 */
 
-QSqlQuery::QSqlQuery(QSqlDatabase* db)
+QSqlQuery::QSqlQuery(QSqlDatabase db)
 {
     init(QString(), db);
 }
@@ -268,14 +268,14 @@ QSqlQuery::QSqlQuery(QSqlDatabase* db)
 /*! \internal
 */
 
-void QSqlQuery::init(const QString& query, QSqlDatabase* db)
+void QSqlQuery::init(const QString& query, QSqlDatabase db)
 {
     d = QSqlQueryPrivate::shared_null();
-    QSqlDatabase* database = db;
-    if (!database)
+    QSqlDatabase database = db;
+    if (!database.isValid())
         database = QSqlDatabase::database(QSqlDatabase::defaultConnection, false);
-    if (database)
-        *this = database->driver()->createQuery();
+    if (database.isValid())
+        *this = database.driver()->createQuery();
     if (!query.isEmpty())
         exec(query);
 }

@@ -59,7 +59,7 @@ public:
 /*!
     Constructs a read only cursor on database \a db using the query \a query.
  */
-QSqlSelectCursor::QSqlSelectCursor(const QString& query, QSqlDatabase* db)
+QSqlSelectCursor::QSqlSelectCursor(const QString& query, QSqlDatabase db)
     : QSqlCursor(QString(), false, db)
 {
     d = new QSqlSelectCursorPrivate;

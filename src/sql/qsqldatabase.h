@@ -16,9 +16,8 @@
 #define QSQLDATABASE_H
 
 #ifndef QT_H
-#include "qobject.h"
 #include "qstring.h"
-#include "qsqlquery.h"
+#include "qsql.h"
 #ifdef QT_COMPAT
 #include "qsqlrecord.h"
 #endif
@@ -37,6 +36,7 @@ class QSqlDriver;
 class QSqlIndex;
 class QSqlRecord;
 class QSqlRecordInfo;
+class QSqlQuery;
 class QSqlDatabasePrivate;
 
 class QM_EXPORT_SQL QSqlDriverCreatorBase
@@ -52,20 +52,14 @@ public:
     QSqlDriver* createObject() const { return new type; }
 };
 
-class QM_EXPORT_SQL QSqlDatabase : public QObject
+class QM_EXPORT_SQL QSqlDatabase
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QSqlDatabase)
-
-    Q_PROPERTY(QString databaseName  READ databaseName WRITE setDatabaseName)
-    Q_PROPERTY(QString userName  READ userName WRITE setUserName)
-    Q_PROPERTY(QString password  READ password WRITE setPassword)
-    Q_PROPERTY(QString hostName  READ hostName WRITE setHostName)
-    Q_PROPERTY(int port READ port WRITE setPort)
-    Q_PROPERTY(QString connectOptions READ connectOptions WRITE setConnectOptions)
-
 public:
+    QSqlDatabase();
+    QSqlDatabase(const QSqlDatabase &other);
     ~QSqlDatabase();
+
+    QSqlDatabase &operator=(const QSqlDatabase &other);
 
     bool open();
     bool open(const QString& user, const QString& password);
@@ -76,15 +70,14 @@ public:
     QSqlIndex primaryIndex(const QString& tablename) const;
     QSqlRecord record(const QString& tablename) const;
 #ifdef QT_COMPAT
-    inline QT_COMPAT QSqlRecord record(const QSqlQuery& query) const
-    { return query.record(); }
+    QT_COMPAT QSqlRecord record(const QSqlQuery& query) const;
     inline QT_COMPAT QSqlRecord recordInfo(const QString& tablename) const
     { return record(tablename); }
-    inline QT_COMPAT QSqlRecord recordInfo(const QSqlQuery& query) const
-    { return query.record(); }
+    QT_COMPAT QSqlRecord recordInfo(const QSqlQuery& query) const;
 #endif
     QSqlQuery exec(const QString& query = QString()) const;
     QSqlError lastError() const;
+    bool isValid() const;
 
     bool transaction();
     bool commit();
@@ -108,30 +101,28 @@ public:
 
     static const char *defaultConnection;
 
-    static QSqlDatabase *addDatabase(const QString& type,
-                                     const QString& connectionName = defaultConnection);
-    static QSqlDatabase *addDatabase(QSqlDriver* driver,
-                                     const QString& connectionName = defaultConnection);
-    static QSqlDatabase *addDatabase(QSqlDatabase *other, const QString& connectionName);
-    static QSqlDatabase *database(const QString& connectionName = defaultConnection,
-                                  bool open = true);
+    static QSqlDatabase addDatabase(const QString& type,
+                                    const QString& connectionName = QString(defaultConnection));
+    static QSqlDatabase addDatabase(QSqlDriver* driver,
+                                    const QString& connectionName = QString(defaultConnection));
+    static QSqlDatabase cloneDatabase(const QSqlDatabase &other, const QString& connectionName);
+    static QSqlDatabase database(const QString& connectionName = defaultConnection,
+                                 bool open = true);
     static void removeDatabase(const QString& connectionName);
-    static void removeDatabase(QSqlDatabase* db);
     static bool contains(const QString& connectionName = defaultConnection);
     static QStringList drivers();
     static void registerSqlDriver(const QString& name, QSqlDriverCreatorBase* creator);
     static bool isDriverAvailable(const QString& name);
 
 protected:
-    QSqlDatabase(const QString& type, const QString& name, QObject * parent=0);
-    QSqlDatabase(QSqlDriver* driver, QObject * parent=0);
-private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QSqlDatabase(const QSqlDatabase &);
-    QSqlDatabase &operator=(const QSqlDatabase &);
-#endif
+    QSqlDatabase(const QString& type);
+    QSqlDatabase(QSqlDriver* driver);
 
+private:
+    friend class QSqlDatabasePrivate;
+    QSqlDatabasePrivate *d;
 };
 
 #endif // QT_NO_SQL
 #endif
+
