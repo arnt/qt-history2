@@ -27,6 +27,7 @@
 #include "mainwindow.h"
 #include "hierarchyview.h"
 #include "formlist.h"
+#include "actioneditorimpl.h"
 
 #include <qwidget.h>
 #include <qmetaobject.h>
@@ -554,6 +555,11 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 		formWindow()->mainWindow()->formlist()->nameChanged( (FormWindow*)widget );
 		formWindow()->setName( v.toCString() );
 	    }
+	}
+	if ( propName == "name" && widget->inherits( "QAction" ) && 
+	     formWindow()->mainContainer() &&
+	     formWindow()->mainContainer()->inherits( "QMainWindow" ) ) {
+	    formWindow()->mainWindow()->actioneditor()->updateActionName( (QAction*)widget );
 	}
 	if ( propName == "caption" ) {
 	    if ( formWindow()->isMainContainer( widget ) )

@@ -31,6 +31,7 @@
 #include <qarray.h>
 #include <qwidgetlist.h>
 #include <qmap.h>
+#include <qaction.h>
 
 class QPaintEvent;
 class QMouseEvent;
@@ -162,6 +163,8 @@ public:
     void setToolFixed() { toolFixed = TRUE; }
 
     void setActiveObject( QObject *o );
+
+    QList<QAction> &actionList() { return actions; }
     
 public slots:
     virtual void widgetChanged( QObject *w );
@@ -258,7 +261,8 @@ private:
     bool pixInline;
     QString pixLoader;
     bool toolFixed;
-
+    QList<QAction> actions;
+    
 };
 
 #endif

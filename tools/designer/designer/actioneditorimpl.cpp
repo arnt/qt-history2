@@ -39,7 +39,10 @@ public:
     ActionItem( ActionItem *parent )
 	: QListViewItem( parent ),
 	  a( new QAction( parent->action() ) ) {}
-    ~ActionItem() { if ( !a->parent() ) delete a; }
+    ActionItem( QListView *lv, QAction *ac ) 
+	: QListViewItem( lv ), a( ac ) {}
+    ActionItem( ActionItem *parent, QAction *ac ) 
+	: QListViewItem( parent ), a( ac ) {}
 
     QAction *action() const { return a; }
 
@@ -51,6 +54,7 @@ private:
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     : ActionEditorBase( parent, name, fl ), currentAction( 0 ), formWindow( 0 )
 {
+    setEnabled( FALSE );
 }
 
 void ActionEditor::closeEvent( QCloseEvent *e )
@@ -61,6 +65,8 @@ void ActionEditor::closeEvent( QCloseEvent *e )
 
 void ActionEditor::currentActionChanged( QListViewItem *i )
 {
+    if ( !i )
+	return;
     currentAction = ( (ActionItem*)i )->action();
     if ( formWindow )
 	formWindow->setActiveObject( currentAction );
@@ -78,9 +84,32 @@ void ActionEditor::newAction()
     i->action()->setName( tr( "Action" ) );
     i->action()->setText( tr( "Action" ) );
     listActions->setCurrentItem( i );
+    formWindow->actionList().append( i->action() );
 }
 
 void ActionEditor::setFormWindow( FormWindow *fw )
 {
+    listActions->clear();
     formWindow = fw;
+    if ( !formWindow ||
+	 !formWindow->mainContainer() ||
+	 !formWindow->mainContainer()->inherits( "QMainWindow" ) ) {
+	setEnabled( FALSE );
+    } else {
+	setEnabled( TRUE );
+	for ( QAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) { // ### handle action grpups/childs
+	    ActionItem *i = new ActionItem( listActions, a );
+	    i->setText( 0, a->name() );
+	}
+    }
+}
+
+void ActionEditor::updateActionName( QAction *a )
+{
+    QListViewItemIterator it( listActions );
+    while ( it.current() ) {
+	if ( ( (ActionItem*)it.current() )->action() == a )
+	    ( (ActionItem*)it.current() )->setText( 0, a->name() );
+	++it;
+    }
 }

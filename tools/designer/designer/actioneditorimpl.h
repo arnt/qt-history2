@@ -33,6 +33,7 @@ class ActionEditor : public ActionEditorBase
 public:
     ActionEditor( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
     void setFormWindow( FormWindow *fw );
+    void updateActionName( QAction *a );
     
 protected:
     void closeEvent( QCloseEvent *e );
@@ -48,7 +49,7 @@ signals:
 private:
     QAction *currentAction;
     FormWindow *formWindow;
-    
+
 };
 
 #endif // ACTIONEDITOR_H
