@@ -1,0 +1,10 @@
+The important source code:
+	qtrial			- Puts reginfo in a Qt library
+	qapp_trial.cpp		- Included by qapp_win.cpp
+	qapp_win.cpp.patch	- Patch for qapp_win.cpp
+	qapp.cpp.patch		- Patch for qapp.cpp
+
+Test programs:
+	code			- Encodes a key string
+	decode			- Decodes a key string
+	scramble		- Scrambles text/data

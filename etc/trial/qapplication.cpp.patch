@@ -1,0 +1,19 @@
+Index: qapp.cpp
+===================================================================
+RCS file: /local/lib/cvs/qt/src/kernel/qapp.cpp,v
+retrieving revision 2.10
+diff -u -r2.10 qapp.cpp
+--- qapp.cpp	1997/02/26 14:16:33	2.10
++++ qapp.cpp	1997/04/30 13:05:01
+@@ -181,6 +181,11 @@
+     }
+     QWidget::createMapper();			// create widget mapper
+     is_app_running = TRUE;			// no longer starting up
++#if defined(QT_TRIAL)
++    extern int qt_init_usr();
++    if ( qt_init_usr() != 50033 )
++	qApp = 0;
++#endif
+ }
+ 
+ /*!

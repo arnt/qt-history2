@@ -1,0 +1,64 @@
+Index: qapp_win.cpp
+===================================================================
+RCS file: /local/lib/cvs/qt/src/kernel/qapp_win.cpp,v
+retrieving revision 2.26
+diff -u -r2.26 qapp_win.cpp
+--- qapp_win.cpp	1997/03/18 09:54:42	2.26
++++ qapp_win.cpp	1997/04/30 12:55:39
+@@ -103,6 +103,11 @@
+ typedef Q_DECLARE(QArrayM,pchar) ArgV;
+ 
+ 
++#if defined(QT_TRIAL)
++#include "../../etc/trial/qapp_trial.cpp"
++#endif // QT_TRIAL
++
++
+ /*****************************************************************************
+   WinMain() - initializes Windows and calls user's startup function main()
+  *****************************************************************************/
+@@ -811,12 +816,33 @@
+     if ( winEventFilter(&msg) )			// pass through event filter
+ 	return TRUE;				//   the event was eaten up
+ 
++#if defined(QT_TRIAL)
++    static int random_ofs = 0;
++    msg.message += (random_ofs & 0xffff);
++#endif
+     if ( msg.message == WM_TIMER ) {		// timer message received
+ 	activateTimer( msg.wParam );
++#if defined(QT_TRIAL)
++	if ( msg.wParam == (WPARAM)trial_timer ) {
++	    static bool first_time = TRUE;
++	    if ( first_time ) {
++		first_time = FALSE;
++		if ( IsWindowVisible(trial_info->winId()) ) {
++		    delete trial_info;
++		    trial_info = 0;
++		} else {			// punish naughty hacker
++		    random_ofs = QTime::currentTime().secsTo(QTime(0,0,0));
++		}
++	    }
++	}
++#endif
+ 	return TRUE;
+     }
+ 
+     if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
++#if defined(QT_TRIAL)
++	msg.wParam += trial_messup_1 * 7;
++#endif
+ 	if ( translateKeyCode(msg.wParam) == 0 ) {
+ 	    TranslateMessage( &msg );		// translate to WM_CHAR
+ 	    return TRUE;
+@@ -977,6 +1003,10 @@
+ 	    HBRUSH   brush;
+ 	    HPALETTE oldPal;
+ 	    GetClientRect( hwnd, &rect );
++#if defined(QT_TRIAL)
++	    if ( !trial_messup_2 )
++		break;
++#endif
+ 	    if ( QColor::hPal() ) {
+ 		oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
+ 		RealizePalette( hdc );
