@@ -2,7 +2,6 @@
 #define QSQL_OCI_H
 
 #include <qsqlresult.h>
-#include <qsqlresultinfo.h>
 #include <qsqlfield.h>
 #include <qsqldriver.h>
 #include <qstring.h>
@@ -41,7 +40,6 @@ class QOCIResult : public QSqlResult
 public:
     QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
     ~QOCIResult();
-    const QSqlResultInfo* info();
 protected:
     bool	fetchNext();
     bool 	fetchFirst();
@@ -50,18 +48,13 @@ protected:
     bool 	reset ( const QString& query );
     QVariant 	data( int field );
     bool	isNull( int field ) const;
+    QSqlFieldList       fields() const;
+    int                 size() const;
+    int                 affectedRows() const;
 private:
     QOCIPrivate* 	d;
     QOCIResultPrivate*  cols;
-    QSqlResultInfo* 	resultInfo;
     QSqlRowset     	rowCache;
-};
-
-class QOCIResultInfo : public QSqlResultInfo
-{
-public:
-    QOCIResultInfo( const QOCIPrivate* d );
-    ~QOCIResultInfo();
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include "qstring.h"
 #include "qvariant.h"
 #include "qsqlerror.h"
+#include "qsqlfield.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -41,7 +42,9 @@ protected:
     virtual bool    fetchPrevious();
     virtual bool    fetchFirst() = 0;
     virtual bool    fetchLast() = 0;
-    virtual const QSqlResultInfo* info() = 0;
+    virtual QSqlFieldList   fields() const = 0;
+    virtual int             size() const = 0;
+    virtual int             affectedRows() const = 0;
 private:
     const QSqlDriver*   sqldriver;
     int             idx;

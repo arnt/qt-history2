@@ -2,7 +2,6 @@
 #define QSQL_PSQL_H
 
 #include <qsqlresult.h>
-#include <qsqlresultinfo.h>
 #include <qsqlfield.h>
 #include <qsqldriver.h>
 
@@ -14,7 +13,6 @@ class QPSQLResult : public QSqlResult
 public:
     QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p );
     ~QPSQLResult();
-    const QSqlResultInfo* 	info();
 protected:
     void 		cleanup();
     bool 		fetch( int i );
@@ -23,17 +21,12 @@ protected:
     QVariant            data( int i );
     bool		isNull( int field ) const;
     bool 		reset ( const QString& query );
+    QSqlFieldList       fields() const;
+    int                 size() const;
+    int                 affectedRows() const;
 private:
     int			currentSize;
     QPSQLPrivate* 	d;
-    QSqlResultInfo* 	resultInfo;
-};
-
-class QPSQLResultInfo : public QSqlResultInfo
-{
-public:
-    QPSQLResultInfo( QPSQLPrivate* p );
-    ~QPSQLResultInfo();
 };
 
 class QPSQLDriver : public QSqlDriver

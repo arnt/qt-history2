@@ -6,6 +6,7 @@
 #include "qvariant.h"
 #include "qvaluelist.h"
 #include "qsqlerror.h"
+#include "qsqlfield.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -59,8 +60,10 @@ public:
     bool    	    previous();
     bool    	    first();
     bool    	    last();
+    QSqlFieldList   fields() const;
+    int             size() const;
+    int             affectedRows() const;
     QSqlError	    lastError() const;
-    const QSqlResultInfo* info();
 private:
     void deref()
     {

@@ -5,12 +5,10 @@
 #include <qstring.h>
 #include <qsqldriver.h>
 #include <qsqlresult.h>
-#include <qsqlresultinfo.h>
 #include <qsqlindex.h>
 
 class QODBCPrivate;
 class QODBCResult;
-
 class QODBCDriver : public QSqlDriver
 {
 public:
@@ -41,7 +39,6 @@ class QODBCResult : public QSqlResult
 public:
     QODBCResult( const QODBCDriver * db, QODBCPrivate* p );
     ~QODBCResult();
-    const QSqlResultInfo* info();
 protected:
     bool 	fetchFirst();
     bool 	fetchLast();
@@ -49,20 +46,15 @@ protected:
     bool 	reset ( const QString& query );
     QVariant 	data( int field );
     bool	isNull( int field ) const;
+    QSqlFieldList       fields() const;
+    int                 size() const;
+    int                 affectedRows() const;
 private:
     QODBCPrivate* 	d;
-    QSqlResultInfo* 	resultInfo;
     typedef QMap<int,QVariant> FieldCache;
     FieldCache fieldCache;
     typedef QMap<int,bool> NullCache;
     NullCache nullCache;
-};
-
-class QODBCResultInfo : public QSqlResultInfo
-{
-public:
-    QODBCResultInfo( const QODBCPrivate* d );
-    ~QODBCResultInfo();
 };
 
 #endif

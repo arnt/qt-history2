@@ -3,7 +3,6 @@
 
 #include <qsqldriver.h>
 #include <qsqlresult.h>
-#include <qsqlresultinfo.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
 
@@ -24,16 +23,11 @@ protected:
     QVariant 		data( int field );
     bool		isNull( int field ) const;
     bool 		reset ( const QString& query );
+    QSqlFieldList       fields() const;
+    int                 size() const;
+    int                 affectedRows() const;
 private:
     QMySQLPrivate* 	d;
-    QSqlResultInfo* 	resultInfo;
-};
-
-class QMySQLResultInfo : public QSqlResultInfo
-{
-public:
-    QMySQLResultInfo( QMySQLPrivate* p );
-    ~QMySQLResultInfo();
 };
 
 class QMySQLDriver : public QSqlDriver

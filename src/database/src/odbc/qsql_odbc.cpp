@@ -561,65 +561,8 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-QODBCResultInfo::QODBCResultInfo( const QODBCPrivate* p )
-: QSqlResultInfo()
-{
-    SQLRETURN r;
-    SQLSMALLINT count;
-    r = SQLNumResultCols( p->hStmt, &count );
-#ifdef CHECK_RANGE
-    if ( r != SQL_SUCCESS )
-	qSystemWarning( "Unable to count result columns", p );
-#endif
-    if ( count > 0 && r == SQL_SUCCESS ) {
-	for ( int i = 0; i < count; ++i ) {
-            appendField( qMakeFieldInfo( p, i ) );
-        }
-    }
-    SQLINTEGER affectedRowCount(0);
-    r = SQLRowCount( p->hStmt, &affectedRowCount);
-    if ( r == SQL_SUCCESS )
-	setAffectedRows( affectedRowCount );
-#ifdef CHECK_RANGE
-    else
-	qSystemWarning( "Unable to count affected rows", p );
-#endif
-    int at(0);
-    SQLINTEGER currRow(0);
-    r = SQLGetStmtAttr( p->hStmt,
-    			SQL_ROW_NUMBER,
-			&currRow,
-			SQL_IS_INTEGER,
-			0);
-    at = currRow;
-    r = SQLFetchScroll( p->hStmt,
-                        SQL_FETCH_LAST,
-                        0);
-    if ( r == SQL_SUCCESS ) {
-	r = SQLGetStmtAttr( p->hStmt,
-    			SQL_ROW_NUMBER,
-			&currRow,
-			SQL_IS_INTEGER,
-			0);
-	if ( r == SQL_SUCCESS )
-	    setSize( currRow );
-	r = SQLFetchScroll( p->hStmt,
-                        SQL_FETCH_ABSOLUTE,
-                        currRow);
-	if ( r != SQL_SUCCESS )
-	    qSystemWarning("Unable to restore position", p );
-    }
-}
-
-QODBCResultInfo::~QODBCResultInfo()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////
-
 QODBCResult::QODBCResult( const QODBCDriver * db, QODBCPrivate* p )
-: QSqlResult(db),
-  resultInfo(0)
+: QSqlResult(db)
 {
     d = new QODBCPrivate();
     (*d) = (*p);
@@ -641,19 +584,6 @@ QODBCResult::~QODBCResult()
     	}
     }
     delete d;
-    if ( resultInfo )
-        delete resultInfo;
-}
-
-const QSqlResultInfo* QODBCResult::info()
-{
-    if ( resultInfo ) {
-	delete resultInfo;
-	resultInfo = 0;
-    }
-    if ( isActive() )
-	resultInfo = new QODBCResultInfo( d );
-    return resultInfo;
 }
 
 bool QODBCResult::reset ( const QString& query )
@@ -869,5 +799,67 @@ QVariant QODBCResult::data( int field )
 bool QODBCResult::isNull( int field ) const
 {
     return nullCache[ field ];
+}
+
+QSqlFieldList QODBCResult::fields() const
+{
+    QSqlFieldList fil;
+    SQLRETURN r;
+    SQLSMALLINT count;
+    r = SQLNumResultCols( d->hStmt, &count );
+#ifdef CHECK_RANGE
+    if ( r != SQL_SUCCESS )
+	qSystemWarning( "Unable to count result columns", d );
+#endif
+    if ( count > 0 && r == SQL_SUCCESS ) {
+	for ( int i = 0; i < count; ++i ) {
+            fil.append( qMakeFieldInfo( d, i ) );
+        }
+    }
+    return fil;
+}
+
+int QODBCResult::size() const
+{
+    int size(-1);
+    int at(0);
+    SQLINTEGER currRow(0);
+    SQLRETURN r = SQLGetStmtAttr( d->hStmt,
+    			SQL_ROW_NUMBER,
+			&currRow,
+			SQL_IS_INTEGER,
+			0);
+    at = currRow;
+    r = SQLFetchScroll( d->hStmt,
+                        SQL_FETCH_LAST,
+                        0);
+    if ( r == SQL_SUCCESS ) {
+	r = SQLGetStmtAttr( d->hStmt,
+    			SQL_ROW_NUMBER,
+			&currRow,
+			SQL_IS_INTEGER,
+			0);
+	if ( r == SQL_SUCCESS )
+	    size = currRow;
+	r = SQLFetchScroll( d->hStmt,
+                        SQL_FETCH_ABSOLUTE,
+                        currRow);
+	if ( r != SQL_SUCCESS )
+	    qSystemWarning("Unable to restore position", d );
+    }
+    return size;
+}
+
+int QODBCResult::affectedRows() const
+{
+    SQLINTEGER affectedRowCount(0);
+    SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount);
+    if ( r == SQL_SUCCESS )
+	return affectedRowCount;
+#ifdef CHECK_RANGE
+    else
+	qSystemWarning( "Unable to count affected rows", d );
+#endif
+    return -1;
 }
 

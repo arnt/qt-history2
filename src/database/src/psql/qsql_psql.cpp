@@ -118,8 +118,7 @@ QSqlField makeFieldInfo( const QSqlDriver* driver, const QString& tablename, con
 
 QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
 : QSqlResult( db ),
-  currentSize( 0 ),
-  resultInfo( 0 )
+  currentSize( 0 )
 {
     d =   new QPSQLPrivate();
     (*d) = (*p);
@@ -131,17 +130,6 @@ QPSQLResult::~QPSQLResult()
     delete d;
 }
 
-const QSqlResultInfo* QPSQLResult::info()
-{
-    if ( resultInfo ) {
-        delete resultInfo;
-        resultInfo = 0;
-    }
-    if ( isActive() )
-        resultInfo = new QPSQLResultInfo( d );
-    return resultInfo;
-}
-
 void QPSQLResult::cleanup()
 {
     if ( isActive() ) {
@@ -150,8 +138,6 @@ void QPSQLResult::cleanup()
         d->result = 0;
         setAt( -1 );
     }
-    if ( resultInfo )
-        delete resultInfo;
     currentSize = 0;
     setActive( FALSE );
 }
@@ -340,19 +326,24 @@ bool QPSQLResult::reset ( const QString& query )
     return FALSE;
 }
 
-///////////////////////////////////////////////////////////////////
-
-QPSQLResultInfo::QPSQLResultInfo( QPSQLPrivate* p )
+QSqlFieldList QPSQLResult::fields() const
 {
-    int count = PQnfields ( p->result );
+    QSqlFieldList fil;
+    int count = PQnfields ( d->result );
     for ( int i = 0; i < count; ++i ) {
-	appendField( makeFieldInfo( p, i ) );
+	fil.append( makeFieldInfo( d, i ) );
     }
-    setSize( PQntuples( p->result ) );
+    return fil;
 }
 
-QPSQLResultInfo::~QPSQLResultInfo()
+int QPSQLResult::size() const
 {
+    return PQntuples( d->result );
+}
+
+int QPSQLResult::affectedRows() const
+{
+    return -1; // ###
 }
 
 ///////////////////////////////////////////////////////////////////

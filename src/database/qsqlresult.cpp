@@ -96,11 +96,17 @@ void QSqlResult::setLastError( const QSqlError& e )
     error = e;
 }
 
+/*! \fn  QSqlFieldList   fields() const = 0;
+    Returns a list of fields used in the result.
 
-/*! \fn  const QSqlResultInfo* QSqlResult::info() = 0;
-    Returns a QSqlResultInfo object for the current active result.  Derived classes should
-    override this method and return a database-specific QSqlResultInfo object.
+*/
 
+/*! \fn int size() const = 0;
+    Returns the size of the result.  
+*/
+
+/*! \fn int affectedRows() const;
+    Returns the number of affected rows in the result.  
 */
 
 /*! \fn  QVariant QSqlResult::data( int i )

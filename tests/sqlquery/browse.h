@@ -7,7 +7,6 @@
 #include <qsqlfield.h>
 #include <qsqldatabase.h>
 #include <qsqlresult.h>
-#include <qsqlresultinfo.h>
 #include <qmessagebox.h>
 #include <qpainter.h>
 
@@ -37,19 +36,16 @@ public:
     {
 	free();
 	res = new QSql( r );
-	const QSqlResultInfo* i = res->info();
-         if (i) {
-	    QSqlFieldList flist = i->fields();
-            setNumCols( flist.count() );
-            int rows = i->size();
-            if (rows > 0)
-                setNumRows(rows);
-	    else
-	    	setNumRows(10);
-            QHeader* h = horizontalHeader();
-            for ( int j = 0; j < numCols(); ++j )
-                h->setLabel( j, flist[j].name() );
-        }
+	QSqlFieldList flist = res->fields();
+	setNumCols( flist.count() );
+	int rows = res->size();
+	if (rows > 0)
+	    setNumRows(rows);
+	else
+	    setNumRows(10);
+	QHeader* h = horizontalHeader();
+	for ( int j = 0; j < numCols(); ++j )
+	    h->setLabel( j, flist[j].name() );
     }
 protected:
     void paintCell ( QPainter * p, int row, int col, const QRect & cr, bool selected )

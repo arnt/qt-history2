@@ -4,8 +4,8 @@
 
 #include "qsqldriverplugin.h"
 #include "qsqlresult.h"
-#include "qsqlresultinfo.h"
 #include "qsqldriver.h"
+#include "qsqlfield.h"
 #include <stdlib.h> //### for getenv, get rid of this soon!
 
 class QNullResult : public QSqlResult
@@ -13,7 +13,6 @@ class QNullResult : public QSqlResult
 public:
     QNullResult(const QSqlDriver* d): QSqlResult(d){}
     ~QNullResult(){}
-    const QSqlResultInfo* info() { return 0; }
 protected:
     QVariant    data( int i ) { return QVariant();Q_UNUSED(i) }
     bool	reset ( const QString& sqlquery ) { QString s(sqlquery); return FALSE; }
@@ -21,6 +20,9 @@ protected:
     bool	fetchFirst() { return FALSE; }
     bool	fetchLast() { return FALSE; }
     bool	isNull( int i ) const {return FALSE;Q_UNUSED(i);}
+    QSqlFieldList   fields() const {return QSqlFieldList();}
+    int             size() const {return 0;}
+    int             affectedRows() const {return 0;}
 };
 
 class QNullDriver : public QSqlDriver
@@ -159,10 +161,7 @@ int QSqlDatabase::exec( const QString & sql ) const
 {
     QSql r = d->driver->createResult();
     r << sql;
-    const QSqlResultInfo* i = r.info();
-    if ( i )
-	return i->affectedRows();
-    return 0;
+    return r.affectedRows();
 }
 
 /*! Opens the database using the connection values which were passed to reset().

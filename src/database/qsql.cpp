@@ -336,20 +336,48 @@ bool QSql::last()
     return FALSE;
 }
 
-/*! Returns a pointer to a QSqlResultInfo object, which can be queried for information about the result.
+/*! 
+  Returns a list of fields used in the query.
+    
+*/
 
-    \sa QSqlResultInfo
+QSqlFieldList QSql::fields() const
+{
+    return d->sqlResult->fields();
+}
+
+/*! 
+  Returns the size of the result, or -1 if it cannot be determined.
+  Note that for non-SELECT statements, size() will return -1.  To
+  determine the number of rows affected by a non-SELECT statement,
+  use affectedRows().
+
+  \sa affectedRows()
+
+*/
+int QSql::size() const
+{
+    return d->sqlResult->size();
+}
+  
+/*! 
+  Returns the number of rows affected by the result's SQL statement, or
+  -1 if it cannot be determined.  Note that for SELECT statements, this
+  value will be the same as size(),
+  
+  \sa size()
 
 */
 
-const QSqlResultInfo* QSql::info()
+int QSql::affectedRows() const
 {
-    return d->sqlResult->info();
+    return d->sqlResult->affectedRows();
 }
 
-/*! Returns a QSqlError object which contains information about the last error (if any) that occurred.
-
-    \sa QSqlError
+/*! 
+  Returns a QSqlError object which contains information about the last error (if any) that occurred.
+  
+  \sa QSqlError
 
 */
 

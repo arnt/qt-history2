@@ -1,11 +1,8 @@
 #include "qsql_oci.h"
 
-//#define OCI1_ORACLE
-//#define ORI_ORACLE
-//#define ORL_ORACLE
-#define OCIEXTP_ORACLE
-#define OCI8DP_ORACLE
-#define OCIEXTP_ORACLE
+#define OCIEXTP_ORACLE // not needed
+#define OCI8DP_ORACLE // not needed
+#define OCIEXTP_ORACLE // not needed
 #include <oci.h>
 #include <qvector.h>
 #include <qdatetime.h>
@@ -329,39 +326,6 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-QOCIResultInfo::QOCIResultInfo( const QOCIPrivate* p )
-: QSqlResultInfo()
-{
-    ub4 numCols = 0;
-    int r  = OCIAttrGet( (dvoid*)p->sql,
-    				OCI_HTYPE_STMT,
-				(dvoid**)&numCols,
-            			0,
-				OCI_ATTR_PARAM_COUNT,
-				p->err);
-#ifdef CHECK_RANGE
-    if ( r != 0 )
-	qWarning( OraWarn( p ) );
-#endif
-    for ( ub4 i = 0; i < numCols; ++i )
-	appendField( makeFieldInfo( p, i ) );
-    int rowCount;
-    OCIAttrGet( p->sql,
-    		OCI_HTYPE_STMT,
-		&rowCount,
-		NULL,
-		OCI_ATTR_ROW_COUNT,
-		p->err);
-    setAffectedRows( rowCount );
-    setSize( -1 );
-}
-
-QOCIResultInfo::~QOCIResultInfo()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////
-
 class QOCIResultPrivate
 {
 public:
@@ -448,8 +412,7 @@ private:
 
 QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 : QSqlResult(db),
-  cols(0),
-  resultInfo(0)
+  cols(0)
 {
     d = new QOCIPrivate();
     (*d) = (*p);
@@ -466,19 +429,8 @@ QOCIResult::~QOCIResult()
 #endif
     }
     delete d;
-    if ( resultInfo )
-        delete resultInfo;
     if ( cols )
 	delete cols;
-}
-
-const QSqlResultInfo* QOCIResult::info()
-{
-    if ( resultInfo )
-	delete resultInfo;
-    if ( isActive() )
-    	resultInfo = new QOCIResultInfo( d );
-    return resultInfo;
 }
 
 bool QOCIResult::reset ( const QString& query )
@@ -674,3 +626,40 @@ bool QOCIResult::isNull( int field ) const
 {
     return cols->isNull( field );
 }
+
+QSqlFieldList QOCIResult::fields() const
+{
+    QSqlFieldList fil;
+    ub4 numCols = 0;
+    int r  = OCIAttrGet( (dvoid*)d->sql,
+    				OCI_HTYPE_STMT,
+				(dvoid**)&numCols,
+            			0,
+				OCI_ATTR_PARAM_COUNT,
+				d->err);
+#ifdef CHECK_RANGE
+    if ( r != 0 )
+	qWarning( OraWarn( d ) );
+#endif
+    for ( ub4 i = 0; i < numCols; ++i )
+	fil.append( makeFieldInfo( d, i ) );
+    return fil;
+}
+
+int QOCIResult::size() const
+{
+    return -1; // not supported
+}
+
+int QOCIResult::affectedRows() const
+{
+    int rowCount;
+    OCIAttrGet( d->sql,
+    		OCI_HTYPE_STMT,
+		&rowCount,
+		NULL,
+		OCI_ATTR_ROW_COUNT,
+		d->err);
+    return rowCount;
+}
+

@@ -70,8 +70,7 @@ QSqlField qMakeField( const MYSQL_FIELD* f, int fieldNumber )
 }
 
 QMySQLResult::QMySQLResult( const QMySQLDriver* db )
-: QSqlResult( db ),
-  resultInfo( 0 )
+: QSqlResult( db )
 {
     d =   new QMySQLPrivate();
     (*d) = (*db->d);
@@ -83,17 +82,6 @@ QMySQLResult::~QMySQLResult()
     delete d;
 }
 
-const QSqlResultInfo* QMySQLResult::info()
-{
-    if ( resultInfo ) {
-        delete resultInfo;
-        resultInfo = 0;
-    }
-    if ( isActive() )
-        resultInfo = new QMySQLResultInfo( d );
-    return resultInfo;
-}
-
 void QMySQLResult::cleanup()
 {
     if ( isActive() ) {
@@ -102,8 +90,6 @@ void QMySQLResult::cleanup()
         d->row = NULL;
         setAt( -1 );
     }
-    if ( resultInfo )
-        delete resultInfo;
     setActive( FALSE );
 }
 
@@ -202,27 +188,31 @@ bool QMySQLResult::reset ( const QString& query )
     return TRUE;
 }
 
-/////////////////////////////////////////////////////////
-
-QMySQLResultInfo::QMySQLResultInfo( QMySQLPrivate* p )
+QSqlFieldList QMySQLResult::fields() const
 {
-    if ( !mysql_errno( p->mysql ) ) {
+    QSqlFieldList fil;
+    if ( !mysql_errno( d->mysql ) ) {
 	int count = 0;
     	for ( ;; ) {
-	    MYSQL_FIELD* f = mysql_fetch_field( p->result );
+	    MYSQL_FIELD* f = mysql_fetch_field( d->result );
 	    if ( f )
-		appendField( qMakeField( f , count ) );
+		fil.append( qMakeField( f , count ) );
 	    else
             	break;
 	    count++;
     	}
-	setSize( (int)mysql_num_rows( p->result ) );
-	setAffectedRows( (int)mysql_affected_rows( p->mysql ) );
     }
+    return fil;
 }
 
-QMySQLResultInfo::~QMySQLResultInfo()
+int QMySQLResult::size() const
 {
+    return (int)mysql_num_rows( d->result );
+}
+
+int QMySQLResult::affectedRows() const
+{
+    return (int)mysql_affected_rows( d->mysql );
 }
 
 /////////////////////////////////////////////////////////
