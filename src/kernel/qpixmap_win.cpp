@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#6 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#6 $";
 #endif
 
 
@@ -260,7 +260,7 @@ void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
     if ( fillColor == black )
 	hbrush = GetStockObject( BLACK_BRUSH );
     else if ( fillColor == white )
-	hbrush == GetStockObject( WHITE_BRUSH );
+	hbrush = GetStockObject( WHITE_BRUSH );
     else {
 	hbrush = CreateSolidBrush( fillColor.pixel() );
 	stockBrush = FALSE;
