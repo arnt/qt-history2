@@ -176,37 +176,37 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
     switch (decorationRegion) {
         case Title:
             region =
-                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(
                     QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel, widget));
             break;
         case Menu:
             if (hasSysMenu)
             region =
-                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(
                     QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarSysMenu, widget));
             break;
         case Help:
             if (hasContextHelp)
             region =
-                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(
                     QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarContextHelpButton, widget));
             break;
         case Minimize:
             if (hasMinimize)
             region =
-                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(
                     QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarMinButton, widget));
             break;
         case Normalize:
         case Maximize:
             if (hasMaximize)
             region =
-                QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(
                     QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarMaxButton, widget));
             break;
        case Close:
             region
-                = QStyle::visualRect(opt.direction, opt.rect, style->querySubControlMetrics(
+                = QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(
                     QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarCloseButton, widget));
             break;
 
