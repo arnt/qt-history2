@@ -61,7 +61,7 @@ void ActionEditor::deleteAction()
 {
     if ( !currentAction )
 	return;
-    
+
     QListViewItemIterator it( listActions );
     while ( it.current() ) {
 	if ( ( (ActionItem*)it.current() )->action() == currentAction ) {
@@ -70,7 +70,7 @@ void ActionEditor::deleteAction()
 	}
 	++it;
     }
-    
+
     delete currentAction;
     currentAction = 0;
 }
@@ -96,7 +96,7 @@ void ActionEditor::setFormWindow( FormWindow *fw )
 	setEnabled( FALSE );
     } else {
 	setEnabled( TRUE );
-	for ( QAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) { // ### handle action grpups/childs
+	for ( QDesignerAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) { // ### handle action grpups/childs
 	    ActionItem *i = new ActionItem( listActions, a );
 	    i->setText( 0, a->name() );
 	    i->setPixmap( 0, a->iconSet().pixmap() );

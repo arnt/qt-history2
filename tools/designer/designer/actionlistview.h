@@ -22,26 +22,26 @@
 #define ACTIONLISTVIEW_H
 
 #include <qlistview.h>
-#include <qaction.h>
+#include "actiondnd.h"
 
 class ActionItem : public QListViewItem
 {
 public:
-    ActionItem( QListView *lv, bool group )
+    ActionItem( QListView *lv, bool /*group*/ )
 	: QListViewItem( lv ),
-	  a( group ? new QActionGroup( 0 ) : new QAction( 0 ) ) { setDragEnabled( TRUE ); }
+	  a( /*group ? new QActionGroup( 0 ) : */new QDesignerAction( 0 ) ) { setDragEnabled( TRUE ); }
     ActionItem( ActionItem *parent )
 	: QListViewItem( parent ),
-	  a( new QAction( parent->action() ) ) { setDragEnabled( TRUE ); }
-    ActionItem( QListView *lv, QAction *ac )
+	  a( new QDesignerAction( parent->action() ) ) { setDragEnabled( TRUE ); }
+    ActionItem( QListView *lv, QDesignerAction *ac )
 	: QListViewItem( lv ), a( ac ) { setDragEnabled( TRUE ); }
-    ActionItem( ActionItem *parent, QAction *ac )
+    ActionItem( ActionItem *parent, QDesignerAction *ac )
 	: QListViewItem( parent ), a( ac ) { setDragEnabled( TRUE ); }
 
-    QAction *action() const { return a; }
+    QDesignerAction *action() const { return a; }
 
 private:
-    QAction *a;
+    QDesignerAction *a;
 
 };
 
@@ -52,7 +52,7 @@ public:
 
 protected:
     QDragObject *dragObject();
-    
+
 };
 
 #endif

@@ -1949,13 +1949,13 @@ QColorGroup Resource::loadColorGroup( const QDomElement &e )
     return cg;
 }
 
-void Resource::saveActions( const QList<QAction> &actions, QTextStream &ts, int indent )
+void Resource::saveActions( const QList<QDesignerAction> &actions, QTextStream &ts, int indent )
 {
     if ( actions.isEmpty() )
 	return;
     ts << makeIndent( indent ) << "<actions>" << endl;
     indent++;
-    QListIterator<QAction> it( actions );
+    QListIterator<QDesignerAction> it( actions );
     while ( it.current() ) {
 	ts << makeIndent( indent ) << "<action>" << endl;
 	indent++;
@@ -1971,10 +1971,10 @@ void Resource::saveActions( const QList<QAction> &actions, QTextStream &ts, int 
 void Resource::loadActions( const QDomElement &e )
 {
     QDomElement n = e.firstChild().toElement();
-    QAction *a = 0;
+    QDesignerAction *a = 0;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "action" ) {
-	    a = new QAction( formwindow );
+	    a = new QDesignerAction( formwindow );
 	    MetaDataBase::addEntry( a );
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
@@ -2001,7 +2001,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
 	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\">" << endl;
 	    indent++;
-	    QList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
+	    QList<QDesignerAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() )
 		ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 	    indent--;
@@ -2024,7 +2024,7 @@ void Resource::loadToolBars( const QDomElement &e )
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
-		    for ( QAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
+		    for ( QDesignerAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
 			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
 			    a->addTo( tb );
 			    tb->addAction( a );

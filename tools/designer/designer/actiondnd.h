@@ -11,6 +11,26 @@
 
 class QDesignerPopupMenu;
 
+class QDesignerAction : public QAction
+{
+    Q_OBJECT
+
+public:
+    QDesignerAction( QObject *parent )
+	: QAction( parent ) {}
+
+    QWidget *widget() const { return wid; }
+
+protected:
+    void addedTo( QWidget *w, QWidget * ) {
+	wid = w;
+    }
+
+private:
+    QWidget *wid;
+
+};
+
 class QDesignerToolBar : public QToolBar
 {
     Q_OBJECT
@@ -18,8 +38,8 @@ class QDesignerToolBar : public QToolBar
 public:
     QDesignerToolBar( QMainWindow *mw );
     QDesignerToolBar( QMainWindow *mw, Dock dock );
-    QList<QAction> insertedActions() const { return actionList; }
-    void addAction( QAction *a );
+    QList<QDesignerAction> insertedActions() const { return actionList; }
+    void addAction( QDesignerAction *a );
 
 protected:
 #ifndef QT_NO_DRAGANDDROP
@@ -28,7 +48,6 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
-    void childEvent( QChildEvent * );
 
 private slots:
     void actionRemoved();
@@ -42,9 +61,8 @@ private:
     QPoint lastIndicatorPos;
     QWidget *insertAnchor;
     bool afterAnchor;
-    QList<QAction> actionList;
-    QMap<QWidget*, QAction*> actionMap;
-    QAction *insertingAction;
+    QList<QDesignerAction> actionList;
+    QMap<QWidget*, QDesignerAction*> actionMap;
 
 };
 

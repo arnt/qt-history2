@@ -14,7 +14,6 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     insertAnchor = 0;
     afterAnchor = TRUE;
     setAcceptDrops( TRUE );
-    insertingAction = 0;
 }
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
@@ -23,15 +22,12 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
     insertAnchor = 0;
     afterAnchor = TRUE;
     setAcceptDrops( TRUE );
-    insertingAction = 0;
 }
 
-void QDesignerToolBar::addAction( QAction *a )
+void QDesignerToolBar::addAction( QDesignerAction *a )
 {
     doReinsert = FALSE;
-    insertingAction = a;
     actionList.append( a );
-    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     doReinsert = TRUE;
 }
 
@@ -68,9 +64,19 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
     else
 	return;
     QString s( e->encodedData( "application/x-designer-actions" ) );
-    QAction *a = (QAction*)s.toLong(); // #### huha, that is evil
-    insertingAction = a;
+    QDesignerAction *a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
     a->addTo( this );
+    actionMap.insert( a->widget(), a );
+    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+    if ( index != -1 && afterAnchor )
+	++index;
+    if ( !insertAnchor )
+	index = 0;
+    if ( index == -1 )
+	actionList.append( a );
+    else
+	actionList.insert( index, a );
+    reInsert();
     connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
     if ( lastIndicatorPos != QPoint( -1, -1 ) )
 	drawIndicator( QPoint( -1, -1 ) );
@@ -81,14 +87,12 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 void QDesignerToolBar::reInsert()
 {
     doReinsert = FALSE;
-    QAction *a = 0;
+    QDesignerAction *a = 0;
     actionMap.clear();
     clear();
-    QApplication::sendPostedEvents();
     for ( a = actionList.first(); a; a = actionList.next() ) {
-	insertingAction = a;
 	a->addTo( this );
-	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+	actionMap.insert( a->widget(), a );
     }
     boxLayout()->invalidate();
     boxLayout()->activate();
@@ -97,31 +101,7 @@ void QDesignerToolBar::reInsert()
 
 void QDesignerToolBar::actionRemoved()
 {
-    actionList.removeRef( (QAction*)sender() );
-}
-
-void QDesignerToolBar::childEvent( QChildEvent *e )
-{
-    if ( e->type() != QEvent::ChildInserted || !insertingAction || !e->child()->isWidgetType() )
-	return;
-    actionMap.insert( (QWidget*)e->child(), insertingAction );
-
-    if ( doReinsert ) {
-	int index = actionList.findRef( *actionMap.find( insertAnchor ) );
-	if ( index != -1 && afterAnchor )
-	    ++index;
-	if ( !insertAnchor )
-	    index = 0;
-	if ( index == -1 )
-	    actionList.append( insertingAction );
-	else
-	    actionList.insert( index, insertingAction );
-	reInsert();
-    }
-
-    insertingAction = 0;
-    insertAnchor = 0;
-    afterAnchor = TRUE;
+    actionList.removeRef( (QDesignerAction*)sender() );
 }
 
 QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )

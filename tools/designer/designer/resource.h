@@ -26,7 +26,7 @@
 #include <qvariant.h>
 #include <qvaluelist.h>
 #include <qimage.h>
-#include <qaction.h>
+#include "actiondnd.h"
 
 #include "metadatabase.h"
 
@@ -89,7 +89,7 @@ private:
     void saveColor( QTextStream &ts, int indent, const QColor &c );
     void saveMetaInfo( QTextStream &ts, int indent );
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent );
-    void saveActions( const QList<QAction> &actions, QTextStream &ts, int indent );
+    void saveActions( const QList<QDesignerAction> &actions, QTextStream &ts, int indent );
     void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
     void saveFunctions( QTextStream &ts, int indent );
 
