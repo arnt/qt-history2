@@ -32,6 +32,7 @@
 #include <abstractwidgetfactory.h>
 #include <abstractmetadatabase.h>
 #include <abstractformeditor.h>
+#include <abstractpixmapcache.h>
 #include <ui4.h>
 
 #include <QMainWindow>
@@ -185,7 +186,17 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             QString propertyName = properties.at(i)->attributeName();
             int index = sheet->indexOf(propertyName);
             if (index != -1) {
-                sheet->setProperty(index, toVariant(o->metaObject(), p));
+                QVariant v;
+                if (p->kind() == DomProperty::IconSet) {
+                    QString name;
+                    if (p->elementIconSet() != 0)
+                        name = p->elementIconSet()->attributeResource();
+                    qDebug() << "QDesignerResource::applyProperties(): name=" << name;
+                    v = m_core->pixmapCache()->nameToPixmap(name);
+                } else {
+                    v = toVariant(o->metaObject(), p);
+                }
+                sheet->setProperty(index, v);
                 sheet->setChanged(index, true);
             }
 
@@ -807,6 +818,13 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
 #endif
         qWarning("createProperty for flags not implemented yet!");
         return 0;
+    } else if (value.type() == QVariant::Pixmap) {
+        DomResourcePixmap *r = new DomResourcePixmap;
+        r->setAttributeResource(m_core->pixmapCache()->pixmapToName(value.toPixmap()));
+        DomProperty *p = new DomProperty;
+        p->setElementIconSet(r);
+        p->setAttributeName(propertyName);
+        return p;
     }
 
     return Resource::createProperty(object, propertyName, value);

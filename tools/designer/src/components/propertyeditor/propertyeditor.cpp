@@ -64,7 +64,7 @@ public:
 
     QString path() const { return m_edit->text(); }
     void setPixmap(const QPixmap &pm);
-    QPixmap pixmap() const { return m_button->pixmap() == 0 ? QPixmap() : *m_button->pixmap(); }
+    QPixmap pixmap() const { return m_pixmap; }
 
 signals:
     void pixmapChanged(const QPixmap &pm);
@@ -76,6 +76,7 @@ private:
     QToolButton *m_button;
     QLineEdit *m_edit;
     AbstractFormEditor *m_core;
+    QPixmap m_pixmap;
 };
 
 PixmapPropertyEditor::PixmapPropertyEditor(AbstractFormEditor *core, const QPixmap &pm, 
@@ -94,29 +95,39 @@ PixmapPropertyEditor::PixmapPropertyEditor(AbstractFormEditor *core, const QPixm
 
 void PixmapPropertyEditor::setPath(const QString &path)
 {
-    qDebug() << "setPath: ..." << path;
-
     m_edit->blockSignals(true);
     m_edit->setText(path);
     m_edit->blockSignals(false);
     
     QPixmap pm = m_core->pixmapCache()->nameToPixmap(path);
     
-    qDebug() << "setPath:" << pm.isNull() << pm.serialNumber();
-    
-    if (pm.isNull() && (m_button->pixmap() == 0 || m_button->pixmap()->isNull()))
+    if (pm.isNull() && m_pixmap.isNull())
         return;
-    if (m_button->pixmap() != 0 && pm.serialNumber() == m_button->pixmap()->serialNumber())
+    if (pm.serialNumber() == m_pixmap.serialNumber())
         return;
     
-    m_button->setPixmap(pm);
-    emit pixmapChanged(pm);
+    m_pixmap = pm;
+    m_button->setPixmap(m_pixmap);
+    emit pixmapChanged(m_pixmap);
 }
 
 void PixmapPropertyEditor::setPixmap(const QPixmap &pm)
 {
-    qDebug() << "setPixmap:" << pm.isNull() << pm.serialNumber();
-    setPath(m_core->pixmapCache()->pixmapToName(pm));
+    if (pm.isNull() && m_pixmap.isNull())
+        return;
+    if (pm.serialNumber() == m_pixmap.serialNumber())
+        return;
+
+    QString path = m_core->pixmapCache()->pixmapToName(pm);
+    if (!path.isEmpty()) {
+        m_edit->blockSignals(true);
+        m_edit->setText(path);
+        m_edit->blockSignals(false);
+    }
+    
+    m_pixmap = pm;
+    m_button->setPixmap(m_pixmap);
+    emit pixmapChanged(m_pixmap);
 }
 
 PixmapProperty::PixmapProperty(AbstractFormEditor *core, const QPixmap &value, const QString &name)
