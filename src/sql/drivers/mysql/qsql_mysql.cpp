@@ -86,7 +86,7 @@ static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type,
                             const QMYSQLDriverPrivate* p)
 {
     const char *cerr = mysql_error(p->mysql);
-    return QSqlError(QLatin1String("QMYSQL3: ") + err,
+    return QSqlError(QLatin1String("QMYSQL: ") + err,
                      p->tc ? p->tc->toUnicode(cerr) : QString::fromLatin1(cerr),
                      type, mysql_errno(p->mysql));
 }

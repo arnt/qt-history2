@@ -39,12 +39,12 @@ The drivers shipped with Qt are:
 \list
 \i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.1 and higher)
 \i \link #QIBASE QIBASE\endlink - Borland Interbase Driver
-\i \link #QMYSQL3 QMYSQL3\endlink - MySQL Driver
-\i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver, version 8, 9 and 10
-\i \link #QODBC3 QODBC3\endlink - Open Database Connectivity Driver
-\i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
+\i \link #QMYSQL QMYSQL\endlink - MySQL Driver
+\i \link #QOCI QOCI\endlink - Oracle Call Interface Driver, version 8, 9 and 10
+\i \link #QODBC QODBC\endlink - Open Database Connectivity Driver
+\i \link #QPSQL QPSQL\endlink - PostgreSQL version 7 and 8 Driver
 \i \link #QSQLITE QSQLITE\endlink - SQLite Driver
-\i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
+\i \link #QTDS QTDS\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
 \endlist
 
 Note that not all of the plugins are shipped with the Qt Open Source
@@ -90,8 +90,8 @@ additional information about required libraries.
 \target buildingmanually
 \section1 Building the plugins manually
 
-\target QMYSQL3
-\section2 QMYSQL3 for MySQL 3.x and MySQL 4.x
+\target QMYSQL
+\section2 QMYSQL for MySQL 3.x and MySQL 4.x
 
 \section3 General information
 
@@ -142,19 +142,20 @@ nmake
 If you are not using a Microsoft compiler, replace \c nmake with \c
 make in the line above.
 
-\target QOCI8
-\section2 QOCI8 for the Oracle Call Interface (OCI)
+\target QOCI
+\section2 QOCI for the Oracle Call Interface (OCI)
 
 \section3 General information
 
-The Qt OCI plugin supports both Oracle 8 and Oracle 9. After
+The Qt OCI plugin supports Oracle 8, 9 and 10. After
 connecting to the Oracle server, the plugin will auto-detect the
 database version and enable features accordingly.
 
 \section3 Unicode support
 
 If the Oracle server supports Unicode, the OCI plugin will use UTF-8
-encoding to communicate with the server.
+encoding to communicate with version 8 servers and UCS2 for version 9
+and 10.
 
 \section3 BLOB/LOB support
 
@@ -208,7 +209,7 @@ make
 
 Note that some versions of the OCI client libraries contain a bug
 that makes programs linked to these libraries segfault on exit. This
-only happens if the QOCI8 driver is compiled as a plugin. To work
+only happens if the QOCI driver is compiled as a plugin. To work
 around this problem, either compile the driver into the Qt libray
 itself, or configure Qt with the option '-DQT_NO_LIBRARY_UNLOAD'.
 For Oracle 9, it is possible to link to the static OCI library by
@@ -240,31 +241,31 @@ path to your \c PATH environment variable:
 set PATH=%PATH%;c:\oracle\bin
 \endcode
 
-\target QODBC3
-\section2 QODBC3 for Open Database Connectivity (ODBC)
+\target QODBC
+\section2 QODBC for Open Database Connectivity (ODBC)
 
 \section3 General information
 
 ODBC is a general interface that allows you to connect to multiple
-DBMSs using a common interface. The QODBC3 driver allows you to connect
+DBMSs using a common interface. The QODBC driver allows you to connect
 to an ODBC driver manager and access the available data sources. Note
 that you also need to install and configure ODBC drivers for the ODBC
-driver manager that is installed on your system. The QODBC3 plugin
+driver manager that is installed on your system. The QODBC plugin
 then allows you to use these data sources in your Qt applications.
 
 On Windows 95 and later an ODBC driver manager should be installed by
 default. For Unix systems there are some implementations which must be
 installed first. Note that every client that uses your application is
 required to have an ODBC driver manager installed, otherwise the
-QODBC3 plugin will not work.
+QODBC plugin will not work.
 
 Be aware that when connecting to an ODBC datasource you must pass in
 the name of the ODBC datasource to the QSqlDatabase::setDatabaseName()
 function rather than the actual database name.
 
-The QODBC3 Plugin needs an ODBC compliant driver manager version 2.0 or
+The QODBC Plugin needs an ODBC compliant driver manager version 2.0 or
 later to work. Some ODBC drivers claim to be version 2.0 compliant,
-but do not offer all the necessary functionality. The QODBC3 plugin
+but do not offer all the necessary functionality. The QODBC plugin
 therefore checks whether the data source can be used after a
 connection has been established and refuses to work if the check
 fails. If you don't like this behaviour, you can remove the \c{#define
@@ -276,7 +277,7 @@ that ODBC call tracing is turned off in the ODBC datasource manager.
 
 \section3 Unicode support
 
-The QODBC3 Plugin will use the Unicode API if UNICODE is defined. On
+The QODBC Plugin will use the Unicode API if UNICODE is defined. On
 Windows NT based systems, this is the default. Note that the ODBC
 driver and the DBMS must also support Unicode.
 
@@ -314,12 +315,12 @@ nmake
 If you are not using a Microsoft compiler, replace \c nmake with \c
 make in the line above.
 
-\target QPSQL7
-\section2 QPSQL7 for PostgreSQL version 6 and 7
+\target QPSQL
+\section2 QPSQL for PostgreSQL version 6 and 7
 
 \section3 General information
 
-The QPSQL7 driver supports both version 6 and version 7 of PostgreSQL.
+The QPSQL driver supports both version 6 and version 7 of PostgreSQL.
 We recommend compiling the plugin with a recent version of the
 PostgreSQL client library (libpq) because it is more stable and still
 backwards compatible.
@@ -336,7 +337,7 @@ For more information about PostgreSQL visit \l http://www.postgresql.org.
 
 \section3 Unicode support
 
-The QPSQL7 driver automatically detects whether the PostgreSQL
+The QPSQL driver automatically detects whether the PostgreSQL
 database you are connecting to supports Unicode or not. Unicode is
 automatically used if the server supports it. Note that the driver
 only supports the UTF-8 encoding. If your database uses any other
@@ -362,7 +363,7 @@ Just installing the \c pq client library and the corresponding header
 files is not sufficient. You must get the PostgreSQL source
 distribution and run the \c configure script. If you've already installed
 a binary distribution you don't need to build it. The source
-distribution is needed because the QPSQL7 plugin relies on a couple of
+distribution is needed because the QPSQL plugin relies on a couple of
 header files that are usually not a part of the binary distribution.
 
 To make \c qmake find the PostgreSQL header files and shared
@@ -393,8 +394,8 @@ path would be \c{C:\psql\src\interfaces\libpq\Release}. If you are not
 using a Microsoft compiler, replace \c nmake with \c make in the
 line above.
 
-\target QTDS7
-\section2 QTDS7 for Sybase Adaptive Server and Microsoft SQL Server
+\target QTDS
+\section2 QTDS for Sybase Adaptive Server and Microsoft SQL Server
 
 \section3 How to build the plugin on Unix/Linux
 
@@ -598,8 +599,8 @@ If you are experiencing problems with loading plugins, and see output
 like this
 
 \code
-QSqlDatabase warning: QMYSQL3 driver not loaded
-QSqlDatabase: available drivers: QMYSQL3
+QSqlDatabase warning: QMYSQL driver not loaded
+QSqlDatabase: available drivers: QMYSQL
 \endcode
 
 the problem is probably that the plugin had the wrong build key. For

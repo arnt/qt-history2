@@ -31,7 +31,7 @@ QOCIDriverPlugin::QOCIDriverPlugin()
 
 QSqlDriver* QOCIDriverPlugin::create(const QString &name)
 {
-    if (name == QLatin1String("QOCI8")) {
+    if (name == QLatin1String("QOCI") || name == QLatin1String("QOCI8")) {
         QOCIDriver* driver = new QOCIDriver();
         return driver;
     }
@@ -42,6 +42,7 @@ QStringList QOCIDriverPlugin::keys() const
 {
     QStringList l;
     l.append(QLatin1String("QOCI8"));
+    l.append(QLatin1String("QOCI"));
     return l;
 }
 

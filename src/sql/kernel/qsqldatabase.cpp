@@ -410,22 +410,32 @@ QStringList QSqlDatabase::drivers()
 #ifdef QT_SQL_PSQL
     if (!l.contains(QLatin1String("QPSQL7")))
         l << QLatin1String("QPSQL7");
+    if (!l.contains(QLatin1String("QPSQL")))
+        l << QLatin1String("QPSQL");
 #endif
 #ifdef QT_SQL_MYSQL
     if (!l.contains(QLatin1String("QMYSQL3")))
         l << QLatin1String("QMYSQL3");
+    if (!l.contains(QLatin1String("QMYSQL")))
+        l << QLatin1String("QMYSQL");
 #endif
 #ifdef QT_SQL_ODBC
     if (!l.contains(QLatin1String("QODBC3")))
         l << QLatin1String("QODBC3");
+    if (!l.contains(QLatin1String("QODBC")))
+        l << QLatin1String("QODBC");
 #endif
 #ifdef QT_SQL_OCI
     if (!l.contains(QLatin1String("QOCI8")))
         l << QLatin1String("QOCI8");
+    if (!l.contains(QLatin1String("QOCI")))
+        l << QLatin1String("QOCI");
 #endif
 #ifdef QT_SQL_TDS
     if (!l.contains(QLatin1String("QTDS7")))
         l << QLatin1String("QTDS7");
+    if (!l.contains(QLatin1String("QTDS")))
+        l << QLatin1String("QTDS");
 #endif
 #ifdef QT_SQL_DB2
     if (!l.contains(QLatin1String("QDB2")))
@@ -500,12 +510,12 @@ QStringList QSqlDatabase::connectionNames()
     \header \i Driver Type \i Description
     \row \i QDB2    \i IBM DB2, v7.1 and higher
     \row \i QIBASE  \i Borland Interbase Driver
-    \row \i QMYSQL3 \i MySQL Driver
-    \row \i QOCI8   \i Oracle Call Interface Driver
-    \row \i QODBC3  \i ODBC Driver (includes Microsoft SQL Server)
-    \row \i QPSQL7  \i PostgreSQL v6.x and v7.x Driver
+    \row \i QMYSQL  \i MySQL Driver
+    \row \i QOCI    \i Oracle Call Interface Driver
+    \row \i QODBC   \i ODBC Driver (includes Microsoft SQL Server)
+    \row \i QPSQL   \i PostgreSQL v6.x and v7.x Driver
     \row \i QSQLITE \i SQLite Driver
-    \row \i QTDS7   \i Sybase Adaptive Server
+    \row \i QTDS    \i Sybase Adaptive Server
     \endtable
 
     Additional third party drivers, including your own custom drivers,
@@ -574,45 +584,37 @@ void QSqlDatabasePrivate::init(const QString &type)
     if (!driver) {
 
 #ifdef QT_SQL_PSQL
-        if (type == QLatin1String("QPSQL7"))
+        if (type == QLatin1String("QPSQL") || type == QLatin1String("QPSQL7"))
             driver = new QPSQLDriver();
 #endif
-
 #ifdef QT_SQL_MYSQL
-        if (type == QLatin1String("QMYSQL3"))
+        if (type == QLatin1String("QMYSQL") || type == QLatin1String("QMYSQL3"))
             driver = new QMYSQLDriver();
 #endif
-
 #ifdef QT_SQL_ODBC
-        if (type == QLatin1String("QODBC3"))
+        if (type == QLatin1String("QODBC") || type == QLatin1String("QODBC3"))
             driver = new QODBCDriver();
 #endif
-
 #ifdef QT_SQL_OCI
-        if (type == QLatin1String("QOCI8"))
+        if (type == QLatin1String("QOCI") || type == QLatin1String("QOCI8"))
             driver = new QOCIDriver();
 #endif
-
 #ifdef QT_SQL_TDS
-        if (type == QLatin1String("QTDS7"))
+        if (type == QLatin1String("QTDS") || type == QLatin1String("QTDS7"))
             driver = new QTDSDriver();
 #endif
-
 #ifdef QT_SQL_DB2
         if (type == QLatin1String("QDB2"))
             driver = new QDB2Driver();
 #endif
-
 #ifdef QT_SQL_SQLITE
         if (type == QLatin1String("QSQLITE"))
             driver = new QSQLiteDriver();
 #endif
-
 #ifdef QT_SQL_SQLITE2
         if (type == QLatin1String("QSQLITE2"))
             driver = new QSQLite2Driver();
 #endif
-
 #ifdef QT_SQL_IBASE
         if (type == QLatin1String("QIBASE"))
             driver = new QIBaseDriver();
@@ -1193,22 +1195,22 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     \table
     \header \i Driver \i Class name \i Constructor arguments \i File to include
     \row
-    \i QPSQL7
+    \i QPSQL
     \i QPSQLDriver
     \i PGconn* connection
     \i \c qsql_psql.cpp
     \row
-    \i QMYSQL3
+    \i QMYSQL
     \i QMYSQLDriver
     \i MYSQL* connection
     \i \c qsql_mysql.cpp
     \row
-    \i QOCI8
+    \i QOCI
     \i QOCIDriver
     \i OCIEnv* environment, OCIError* error, OCISvcCtx* serviceContext
     \i \c qsql_oci.cpp
     \row
-    \i QODBC3
+    \i QODBC
     \i QODBCDriver
     \i SQLHANDLE environment, SQLHANDLE connection
     \i \c qsql_odbc.cpp
@@ -1218,7 +1220,7 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     \i SQLHANDLE environment, SQLHANDLE connection
     \i \c qsql_db2.cpp
     \row
-    \i QTDS7
+    \i QTDS
     \i QTDSDriver
     \i LOGINREC* loginRecord, DBPROCESS* dbProcess, const QString& hostName
     \i \c qsql_tds.cpp

@@ -31,7 +31,7 @@ QMYSQLDriverPlugin::QMYSQLDriverPlugin()
 
 QSqlDriver* QMYSQLDriverPlugin::create(const QString &name)
 {
-    if (name == QLatin1String("QMYSQL3")) {
+    if (name == QLatin1String("QMYSQL") || name == QLatin1String("QMYSQL3")) {
         QMYSQLDriver* driver = new QMYSQLDriver();
         return driver;
     }
@@ -41,7 +41,8 @@ QSqlDriver* QMYSQLDriverPlugin::create(const QString &name)
 QStringList QMYSQLDriverPlugin::keys() const
 {
     QStringList l;
-    l  << QLatin1String("QMYSQL3");
+    l << QLatin1String("QMYSQL3");
+    l << QLatin1String("QMYSQL");
     return l;
 }
 

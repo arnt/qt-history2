@@ -153,10 +153,10 @@ connection.
 
 First we activate the driver by calling \l QSqlDatabase::addDatabase(),
 passing the name of the driver we wish to use for this connection. At
-the time of writing the available drivers are: QODBC3 (Open Database
-Connectivity, includes Microsoft SQL Server support), QOCI8 (Oracle 8 and 9),
-QTDS7 (Sybase Adaptive Server), QPSQL7 (PostgreSQL 6 and 7),
-QMYSQL3 (MySQL), QDB2 (IBM DB2), QSQLITE (SQLite) and QIBASE (Interbase).
+the time of writing the available drivers are: QODBC (Open Database
+Connectivity, includes Microsoft SQL Server support), QOCI (Oracle 8, 9 and 10),
+QTDS (Sybase Adaptive Server), QPSQL (PostgreSQL 7 and 8),
+QMYSQL (MySQL), QDB2 (IBM DB2), QSQLITE (SQLite) and QIBASE (Interbase).
 Note that some of these drivers aren't included in the Qt Open Source
 Edition; see the \c README files for details.
 
@@ -166,7 +166,7 @@ other database is specified.
 
 Second we can call setDatabaseName(), setUserName(), setPassword() and
 setHostName() to initialize the connection information. Note that for
-the QOCI8 (Oracle 8 and 9) driver the TNS Service Name must be passed
+the QOCI (Oracle 8, 9 and 10) driver the TNS Service Name must be passed
 to setDatbaseName(). When connecting to ODBC data sources the Data
 Source Name (DSN) should be used in the setDatabaseName() call.
 In this example we use an in-memory database, setting the user name or
@@ -184,8 +184,8 @@ of \l QSqlDatabase::addDatabase() where the second argument is a unique
 identifier distinguishing the connection.
 
 \code
-    QSqlDatabase db2 = QSqlDatabase::addDatabase("QPSQL7", "SALES");
-    QSqlDatabase db3 = QSqlDatabase::addDatabase("QMYSQL3", "ORDERS");
+    QSqlDatabase db2 = QSqlDatabase::addDatabase("QPSQL", "SALES");
+    QSqlDatabase db3 = QSqlDatabase::addDatabase("QMYSQL", "ORDERS");
 \endcode
 
 
