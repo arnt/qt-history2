@@ -46,9 +46,9 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#ifdef Q_CC_EDG
+#ifdef Q_CC_EDG_
 // Hacky workaround for KCC/linux include files.
-// #### explain what actually happens here?
+// Fine! But could you please explain what actually happens here?
 typedef __signed__ char __s8;
 typedef unsigned char __u8;
 
@@ -59,10 +59,12 @@ typedef __signed__ int __s32;
 typedef unsigned int __u32;
 #endif
 
+#if !defined(_OS_FREEBSD_)
 #include <linux/fb.h>
 
 #ifdef __i386__
 #include <asm/mtrr.h>
+#endif
 #endif
 
 // VGA16 code does not compile on sparc
@@ -4275,8 +4277,36 @@ void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, i
     (*optype)=0;
     useBrush();
     GFX_START(clipbounds)
-    if ( cbrush.style()!=NoBrush )
+    if ( cbrush.style()!=NoBrush ) {
+	if ( cbrush.style()!=SolidPattern ) {
+	    srcwidth=cbrushpixmap->width();
+	    srcheight=cbrushpixmap->height();
+	    if(cbrushpixmap->depth()==1) {
+		if(opaque) {
+		    setSource(cbrushpixmap);
+		    setAlphaType(IgnoreAlpha);
+		    useBrush();
+		    srcclut[0]=pixel;
+		    QBrush tmp=cbrush;
+		    cbrush=QBrush(backcolor);
+		    useBrush();
+		    srcclut[1]=pixel;
+		    cbrush=tmp;
+		} else {
+		    useBrush();
+		    srccol=pixel;
+		    srctype=SourcePen;
+		    setAlphaType(LittleEndianMask);
+		    setAlphaSource(cbrushpixmap->scanLine(0),
+				   cbrushpixmap->bytesPerLine());
+		}
+	    } else {
+		setSource(cbrushpixmap);
+		setAlphaType(IgnoreAlpha);
+	    }
+	}
 	scan(pa,winding,index,npoints,stitchedges);
+    }
     drawPolyline(pa, index, npoints);
     if (pa[index] != pa[index+npoints-1]) {
 	drawLine(pa[index].x(), pa[index].y(),
@@ -4296,11 +4326,36 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 {
     while (n--) {
-	int x=point->x()+xoffs;
 	if ( *width > 0 ) {
-	    if(patternedbrush) {
-		// XXX
+	    if ( patternedbrush ) {
+		unsigned char * savealphabits=alphabits;
+		int offx = srcwidgetoffs.x() + brushoffs.x() + point->x();
+		int offy = srcwidgetoffs.y() + brushoffs.y() + point->y();
+
+		// from qpainter_qws.cpp
+		if ( offx < 0 )
+		    offx = srcwidth - -offx % srcwidth;
+		else
+		    offx = offx % srcwidth;
+		if ( offy < 0 )
+		    offy = srcheight - -offy % srcheight;
+		else
+		    offy = offy % srcheight;
+
+		int rx = point->x();
+		int w = *width;
+		int xPos = rx;
+		while ( xPos < rx + w - 1 ) {
+		    int drawW = srcwidth - offx; // Cropping first column
+		    if ( xPos + drawW > rx + w )    // Cropping last column
+			drawW = rx + w - xPos;
+		    blt( xPos, point->y(), drawW, 1, offx, offy );
+		    alphabits=savealphabits;
+		    xPos += drawW;
+		    offx = 0;
+		}
 	    } else {
+		int x=point->x()+xoffs;
 		hline(x,x+*width-1,point->y()+yoffs);
 	    }
 	}
@@ -4454,6 +4509,26 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     if ( !clipbounds.intersects(QRect(rx,ry,w,h)) )
 	return;
 
+    //slightly tighter clip
+    int leftd = clipbounds.x() - rx;
+    if ( leftd > 0 ) {
+	rx += leftd;
+	sx += leftd;
+	w -= leftd;
+    }
+    int topd =  clipbounds.y() - ry;
+    if ( topd > 0 ) {
+	ry += topd;
+	sy += topd;
+	h -= topd;	
+    }
+    int rightd = rx + w - 1 - clipbounds.right();
+    if ( rightd > 0 )
+	w -= rightd;
+    int botd = ry + h - 1 - clipbounds.bottom();
+    if ( botd > 0 )
+	h -= botd;
+    
     QRect cursRect(rx, ry, w+1, h+1);
 
     GFX_START(cursRect);
@@ -5100,7 +5175,9 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 // that does accelerated mode stuff and returns accelerated QGfxen where
 // appropriate. This is stored in qt_screen
 
+#if !defined(QT_NO_QWS_LINUXFB)
 #include "qgfxlinuxfb_qws.cpp"
+#endif
 
 #if !defined(QT_NO_QWS_MACH64)
 # include "qgfxmach64_qws.cpp"
@@ -5150,7 +5227,9 @@ struct DriverTable
 #if !defined(QT_NO_QWS_VGA_16)
     { "VGA16", qt_get_screen_vga16, 0 },
 #endif
+#if !defined(QT_NO_QWS_LINUXFB)
     { "LinuxFb", qt_get_screen_linuxfb, 0 },
+#endif
 #if !defined(QT_NO_QWS_MACH64)
     { "Mach64", qt_get_screen_mach64, 1 },
 #endif
