@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#9 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#9 $";
 #endif
 
 
@@ -133,20 +133,17 @@ bool QGArray::fill( const char *d, int len, uint sz )
 {						// resize and fill array
     if ( len < 0 )
 	len = p->len/sz;			// default: use array length
-    else
-    if ( !resize( len*sz ) )
+    else if ( !resize( len*sz ) )
 	return FALSE;
     if ( sz == 1 )				// 8 bit elements
-	memset( data(), *d, len );		// fast and simple
-    else
-    if ( sz == 4 ) {				// 32 bit elements
+	memset( data(), *d, len );
+    else if ( sz == 4 ) {			// 32 bit elements
 	register INT32 *x = (INT32*)data();
 	INT32 v = *((INT32*)d);
 	while ( len-- )
 	    *x++ = v;
     }
-    else
-    if ( sz == 2 ) {				// 16 bit elements
+    else if ( sz == 2 ) {			// 16 bit elements
 	register INT16 *x = (INT16*)data();
 	INT16 v = *((INT16*)d);
 	while ( len-- )
@@ -193,6 +190,23 @@ QGArray &QGArray::assign( const char *d, uint len )
 
 QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
 {
+    if ( a.p == p ) {				// a.duplicate(a) !
+	if ( p->count > 1 ) {
+	    p->count--;
+	    register array_data *n = new array_data;
+	    CHECK_PTR( n );
+	    if ( (n->len=p->len) ) {
+		n->data = NEW(char,n->len);
+		CHECK_PTR( n->data );
+		if ( n->data )
+		    memcpy( n->data, p->data, n->len );
+	    }
+	    else
+		n->data = 0;
+	    p = n;
+	}
+	return *this;
+    }
     char *oldptr = 0;
     if ( p->count > 1 ) {			// disconnect this
 	p->count--;
@@ -217,14 +231,26 @@ QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
 
 QGArray &QGArray::duplicate( const char *d, uint len )
 {						// deep copy
+    bool overlap = d >= p->data && d < p->data + p->len;
     char *oldptr = 0;
     if ( p->count > 1 ) {			// disconnect this
 	p->count--;
 	p = new array_data;
 	CHECK_PTR( p );
     }
-    else					// delete after copy was made
-	oldptr = p->data;
+    else {					// just a single reference
+	if ( len == p->len ) {			// same size; copy the data
+	    if ( overlap )
+		memmove( p->data, d, len );
+	    else
+		memcpy( p->data, d, len );
+	    return *this;
+	}
+	if ( overlap )
+	    oldptr = p->data;
+	else if ( p->data )
+	    DELETE( p->data );
+    }
     if ( !(d && len) ) {			// null value
 	p->data = 0;
 	p->len = 0;
@@ -233,8 +259,12 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 	p->data = NEW(char,len);
 	CHECK_PTR( p->data );
 	p->len = len;
-	if ( p->data )
-	    memcpy( p->data, d, len );
+	if ( p->data ) {
+	    if ( overlap )
+		memmove( p->data, d, len );
+	    else
+		memcpy( p->data, d, len );
+	}
     }
     if ( oldptr )
 	DELETE(oldptr);
