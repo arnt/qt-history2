@@ -473,13 +473,13 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
 bool QDirModel::hasChildren(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return true; // the drives or "." and ".."
+        return true; // the drives
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     if (!p) {
         qWarning("hasChildren: valid index without data");
         return false;
     }
-    return p->info.isDir();
+    return p->info.isDir() && rowCount(parent) > 0; // rowCount will lazily populate if needed
 }
 
 /*!

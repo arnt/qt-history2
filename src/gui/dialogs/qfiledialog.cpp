@@ -1008,7 +1008,7 @@ void QFileDialog::showDetail()
 void QFileDialog::doubleClicked(const QModelIndex &index)
 {
     if (index.type() == QModelIndex::View
-        && d->model->isDir(index)) {
+        && d->model->hasChildren(index)) {
         d->history.push_back(d->root());
         d->setRoot(index);
         d->updateButtons(index);
