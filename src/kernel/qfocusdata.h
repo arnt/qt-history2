@@ -1,7 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.h#2 $
+** $Id: //depot/qt/main/src/kernel/qfocusdata.h#3 $
 **
-** Definition of QFocusData class
+**		      ***   INTERNAL HEADER FILE   ***
+**
+**		This file is NOT a part of the Qt interface!
+**
+** Definition of internal QFocusData class
 **
 ** Created : 980405
 **
@@ -20,11 +24,15 @@
 
 class QFocusData {
 public:
-    QWidget* current() const { return it.current(); }
+    QWidget* inFocus() const { return it.current(); }
+
+    // List-iteration
+    QWidget* current() { focusWidgets.find(it.current()); return focusWidgets.current(); }
     QWidget* first() { return focusWidgets.first(); }
     QWidget* last() { return focusWidgets.last(); }
     QWidget* next() { return focusWidgets.next(); }
     QWidget* prev() { return focusWidgets.prev(); }
+    int count() { return focusWidgets.count(); }
 
 private:
     friend class QWidget;
