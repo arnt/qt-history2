@@ -182,6 +182,7 @@ bool QDir::setCurrent( const QString &path )
     else
 	*theCWD = QDeepCopy<QString>( path );
     
+    slashify( *theCWD );
     return TRUE;
 }
 
@@ -193,7 +194,7 @@ QString QDir::currentDirPath()
 			 qt_global_mutexpool->get( &theCWD ) : 0 );
 #endif // QT_THREAD_SUPPORT
     if ( ! theCWD )
-	setCurrent( "\\" );
+	setCurrent( "/" );
     Q_ASSERT( theCWD != 0 );
     return *theCWD;
 }
