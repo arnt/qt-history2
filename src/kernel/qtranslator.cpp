@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#26 $
 **
 ** Localization database support.
 **
@@ -459,12 +459,17 @@ bool QTranslator::save( const QString & filename, QTranslator::SaveMode )
 	QDataStream s( &f );
 	s.writeRawBytes( (const char *)magic, magic_length );
 	Q_UINT8 tag;
+
 	tag = (Q_UINT8) QTranslatorPrivate::Hashes;
-	s << tag << (Q_UINT32) d->offsetArray->size();
-	s.writeRawBytes( d->offsetArray->data(), d->offsetArray->size() );
+	Q_UINT32 oas = d->offsetArray ? (Q_UINT32) d->offsetArray->size() : 0;
+	s << tag << oas;
+	s.writeRawBytes( oas ? d->offsetArray->data() : 0, oas );
+
 	tag = (Q_UINT8) QTranslatorPrivate::Messages;
-	s << tag << (Q_UINT32) d->messageArray->size();
-	s.writeRawBytes( d->messageArray->data(), d->messageArray->size() );
+	Q_UINT32 mas = d->messageArray ? (Q_UINT32) d->messageArray->size() : 0;
+	s << tag << mas;
+	s.writeRawBytes( mas ? d->messageArray->data() : 0, mas );
+
 	return TRUE;
     }
     return FALSE;
