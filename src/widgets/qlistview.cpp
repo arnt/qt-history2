@@ -4337,7 +4337,8 @@ void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
 
 	if ( e->button() == RightButton ) {
 	    if ( !i ) {
-		clearSelection();
+ 		if ( !(e->state() & ControlButton) )
+		    clearSelection();
 		emit rightButtonClicked( 0, viewport()->mapToGlobal( vp ), -1 );
 		return;
 	    }
