@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#2 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#3 $
 **
 ** Definition of QPopupMenu class
 **
@@ -53,7 +53,7 @@ private:
     void	hideAllMenus();
     void	hideSubMenus();
 
-    int		itemAtPos( const QPoint &p );
+    int		itemAtPos( const QPoint & );
     void	updateSize();
     int		cellHeight( long );
     int		cellWidth( long );
