@@ -3073,7 +3073,7 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange(DISPID dispID)
     case DISPID_AMBIENT_RIGHTTOLEFT:
 	if (var.vt != VT_BOOL)
 	    break;
-	qApp->setReverseLayout(var.boolVal);
+	qApp->setLayoutDirection(var.boolVal?Qt::RightToLeft:Qt::LeftToRight);
 	break;
     }
 
