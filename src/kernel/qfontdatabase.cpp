@@ -50,7 +50,18 @@
 #include <stdlib.h>
 
 // #define QFONTDATABASE_DEBUG
+#ifdef QFONTDATABASE_DEBUG
+#  define FD_DEBUG qDebug
+#else
+#  define FD_DEBUG if (FALSE) qDebug
+#endif
+
 // #define FONT_MATCH_DEBUG
+#ifdef FONT_MATCH_DEBUG
+#  define FM_DEBUG qDebug
+#else
+#  define FM_DEBUG if (FALSE) qDebug
+#endif
 
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
 #  define for if(0){}else for
@@ -577,9 +588,8 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
     bool hasChar = fe->canRender( &sample, 1 );
 
 #ifdef FONT_MATCH_DEBUG
-    if (hasChar) {
-	qDebug("    font has char 0x%04x", sample.unicode() );
-    }
+    if (hasChar)
+	FM_DEBUG("    font has char 0x%04x", sample.unicode() );
 #endif
 
     return hasChar;
@@ -631,10 +641,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
     Q_UNUSED( script );
     Q_UNUSED( pitch );
 
-#ifdef FONT_MATCH_DEBUG
-    qDebug( "  REMARK: looking for best foundry for family '%s'",
-	    family->name.latin1() );
-#endif // FONT_MATCH_DEBUG
+    FM_DEBUG( "  REMARK: looking for best foundry for family '%s'", family->name.latin1() );
 
     for ( int x = 0; x < family->count; ++x ) {
 	QtFontFoundry *foundry = family->foundries[x];
@@ -642,25 +649,19 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	     ucstricmp( foundry->name, foundry_name ) != 0 )
 	    continue;
 
-#ifdef FONT_MATCH_DEBUG
-	qDebug( "          looking for matching style in foundry '%s'",
-		foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1() );
-#endif // FONT_MATCH_DEBUG
+	FM_DEBUG( "          looking for matching style in foundry '%s'",
+		  foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1() );
 
 	QtFontStyle *style = foundry->style( styleKey );
 	if ( !style && styleKey.italic ) {
-#ifdef FONT_MATCH_DEBUG
-	    qDebug( "          italic not available, looking for oblique" );
-#endif // FONT_MATCH_DEBUG
+	    FM_DEBUG( "          italic not available, looking for oblique" );
 	    styleKey.italic = FALSE;
 	    styleKey.oblique = TRUE;
 	    style = foundry->style( styleKey );
 	}
 
 	if ( !style ) {
-#ifdef FONT_MATCH_DEBUG
-	    qDebug( "          style not available, looking for closest match" );
-#endif // FONT_MATCH_DEBUG
+	    FM_DEBUG( "          style not available, looking for closest match" );
 
 	    int best = 0;
 	    int dist = 0xffff;
@@ -691,18 +692,12 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 		}
 	    }
 
-#ifdef FONT_MATCH_DEBUG
-	    qDebug( "          best style has distance 0x%x", dist );
-#endif // FONT_MATCH_DEBUG
-
+	    FM_DEBUG( "          best style has distance 0x%x", dist );
 	    style = foundry->styles[best];
 	}
 
 	if ( ! style->smoothScalable && ( styleStrategy & QFont::ForceOutline ) ) {
-#  ifdef FONT_MATCH_DEBUG
-	    qDebug( "            ForceOutline set, but not smoothly scalable" );
-#  endif // FONT_MATCH_DEBUG-
-
+	    FM_DEBUG( "            ForceOutline set, but not smoothly scalable" );
 	    continue;
 	}
 
@@ -754,9 +749,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	if ( force_encoding_id >= 0 ) {
 	    encoding = size->encodingID( force_encoding_id );
 	    if ( ! encoding ) {
-#  ifdef FONT_MATCH_DEBUG
-		qDebug( "            required encoding_id not available" );
-#  endif // FONT_MATCH_DEBUG
+		FM_DEBUG( "            required encoding_id not available" );
 		continue;
 	    }
 	} else {
@@ -764,10 +757,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 
 	    if ( encoding && ( styleStrategy & ( QFont::OpenGLCompatible |
 						 QFont::PreferBitmap ) ) ) {
-#  ifdef FONT_MATCH_DEBUG
-		qDebug( "            PreferBitmap and/or OpenGL set, skipping Xft" );
-#  endif // FONT_MATCH_DEBUG
-
+		FM_DEBUG( "            PreferBitmap and/or OpenGL set, skipping Xft" );
 		continue;
 	    }
 
@@ -790,10 +780,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	}
 
 	if ( ! encoding ) {
-#  ifdef FONT_MATCH_DEBUG
-	    qDebug( "          foundry doesn't support the script we want" );
-#  endif // FONT_MATCH_DEBUG
-
+	    FM_DEBUG( "          foundry doesn't support the script we want" );
 	    continue;
 	}
 #endif // Q_WS_X11
@@ -814,10 +801,8 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    this_score += 50;
 
 	if ( this_score < score ) {
-#ifdef FONT_MATCH_DEBUG
-	    qDebug( "          found a match: score %u best score so far %u",
-		    this_score, score );
-#endif // FONT_MATCH_DEBUG
+	    FM_DEBUG( "          found a match: score %u best score so far %u",
+		      this_score, score );
 
 	    score = this_score;
 	    *best_foundry = foundry;
@@ -826,12 +811,9 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 #ifdef Q_WS_X11
 	    *best_encoding = encoding;
 #endif // Q_WS_X11
+	} else {
+	    FM_DEBUG( "          score %u no better than best %u", this_score, score);
 	}
-#ifdef FONT_MATCH_DEBUG
-	else {
-	    qDebug( "          score %u no better than best %u", this_score, score);
-	}
-#endif
     }
 
     return score;
@@ -873,19 +855,17 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     parseFontName( request.family, foundry_name, family_name );
 
-#ifdef FONT_MATCH_DEBUG
-    qDebug( "QFontDatabase::findFont\n"
-	    "  request:\n"
-	    "    family: %s [%s], script: %d (%s)\n"
-	    "    weight: %d, italic: %d\n"
-	    "    stretch: %d\n"
-	    "    pixelSize: %d\n"
-	    "    pitch: %c",
-	    family_name.isEmpty() ? "-- first in script --" : family_name.latin1(),
-	    foundry_name.isEmpty() ? "-- any --" : foundry_name.latin1(),
-	    script, scriptName( script ).latin1(),
-	    request.weight, request.italic, request.stretch, request.pixelSize, pitch );
-#endif // FONT_MATCH_DEBUG
+    FM_DEBUG( "QFontDatabase::findFont\n"
+	      "  request:\n"
+	      "    family: %s [%s], script: %d (%s)\n"
+	      "    weight: %d, italic: %d\n"
+	      "    stretch: %d\n"
+	      "    pixelSize: %d\n"
+	      "    pitch: %c",
+	      family_name.isEmpty() ? "-- first in script --" : family_name.latin1(),
+	      foundry_name.isEmpty() ? "-- any --" : foundry_name.latin1(),
+	      script, scriptName( script ).latin1(),
+	      request.weight, request.italic, request.stretch, request.pixelSize, pitch );
 
     QtFontFamily *best_family = 0;
     QtFontFoundry *best_foundry = 0;
@@ -913,9 +893,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    if ( ! ( family->scripts[script] & QtFontFamily::Supported )
 #ifdef Q_WS_WIN
-		&& !( family->scripts[QFont::Unicode] & QtFontFamily::Supported )
+		 && !( family->scripts[QFont::Unicode] & QtFontFamily::Supported )
 #endif
-		)
+		 )
 		continue;
 
 	    // as we know the script is supported, we can be sure
@@ -956,16 +936,13 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	 || best_size == 0 || best_encoding == 0
 #endif
 	 ) {
-#ifdef FONT_MATCH_DEBUG
-	qDebug( "no best match found" );
-#endif // FONT_MATCH_DEBUG
+	FM_DEBUG( "no best match found" );
 
 	if ( ! request.family.isEmpty() )
 	    return 0;
 
-#ifdef FONT_MATCH_DEBUG
-	qDebug( "returning box engine" );
-#endif // FONT_MATCH_DEBUG
+	FM_DEBUG( "returning box engine" );
+
 	fe = new QFontEngineBox( request.pixelSize );
 
 	if ( fp ) {
@@ -976,24 +953,22 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	return fe;
     }
 
-#ifdef FONT_MATCH_DEBUG
-    qDebug( "  BEST:\n"
-	    "    family: %s [%s]\n"
-	    "    weight: %d, italic: %d, oblique: %d\n"
-	    "    stretch: %d\n"
-	    "    pixelSize: %d\n"
-	    "    pitch: %c",
-	    best_family->name.latin1(),
-	    best_foundry->name.isEmpty() ? "-- none --" : best_foundry->name.latin1(),
-	    best_style->key.weight, best_style->key.italic, best_style->key.oblique,
-	    best_style->key.stretch, best_size ? best_size->pixelSize : 0xffff,
+    FM_DEBUG( "  BEST:\n"
+	      "    family: %s [%s]\n"
+	      "    weight: %d, italic: %d, oblique: %d\n"
+	      "    stretch: %d\n"
+	      "    pixelSize: %d\n"
+	      "    pitch: %c",
+	      best_family->name.latin1(),
+	      best_foundry->name.isEmpty() ? "-- none --" : best_foundry->name.latin1(),
+	      best_style->key.weight, best_style->key.italic, best_style->key.oblique,
+	      best_style->key.stretch, best_size ? best_size->pixelSize : 0xffff,
 #ifdef Q_WS_X11
-	    best_encoding->pitch
+	      best_encoding->pitch
 #else
-	    'p'
+	      'p'
 #endif
-	    );
-#endif // FONT_MATCH_DEBUG
+	      );
 
     fe = loadEngine( script, fp, request, best_family, best_foundry, best_style
 #ifdef Q_WS_X11
@@ -1005,18 +980,15 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	QChar sample = sampleCharacter( script );
 #if !defined Q_WS_WIN
 	if ( ! canRender( fe, sample ) ) {
-#ifdef FONT_MATCH_DEBUG
-	    qDebug( "  WARN: font loaded cannot render sample 0x%04x",
-		    sample.unicode() );
-#endif // FONT_MATCH_DEBUG
+	    FM_DEBUG( "  WARN: font loaded cannot render sample 0x%04x",
+		      sample.unicode() );
 	    delete fe;
 
 	    if ( ! request.family.isEmpty() )
 		return 0;
 
-#ifdef FONT_MATCH_DEBUG
-	    qDebug( "returning box engine" );
-#endif // FONT_MATCH_DEBUG
+	    FM_DEBUG( "returning box engine" );
+
 	    fe = new QFontEngineBox( request.pixelSize );
 
 	    if ( fp ) {
@@ -1083,9 +1055,8 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #endif
     } else {
 	if ( request.family.isEmpty() ) {
-#ifdef FONT_MATCH_DEBUG
-	    qDebug( "returning box engine" );
-#endif // FONT_MATCH_DEBUG
+	    FM_DEBUG( "returning box engine" );
+
 	    fe = new QFontEngineBox( request.pixelSize );
 
 	    if ( fp ) {
@@ -1683,9 +1654,6 @@ QList<int> QFontDatabase::smoothSizes( const QString &family,
 	return QFontDatabase::standardSizes();
 
     qHeapSort( sizes );
-
-    // ### convert to point sizes
-
     return sizes;
 #endif
 }

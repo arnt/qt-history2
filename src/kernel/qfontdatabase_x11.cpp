@@ -37,6 +37,8 @@
 
 #include <qplatformdefs.h>
 
+#include <qdatetime.h>
+
 #include "qt_x11_p.h"
 
 #include <ctype.h>
@@ -52,7 +54,9 @@
 #endif
 
 #ifdef QFONTDATABASE_DEBUG
-#  include <qdatetime.h>
+#  define FD_DEBUG qDebug
+#else
+#  define FD_DEBUG if (FALSE) qDebug
 #endif // QFONTDATABASE_DEBUG
 
 
@@ -1052,9 +1056,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
  xftCheck:
 #endif // _POSIX_MAPPED_FILES
 
-#ifdef QFONTDATABASE_DEBUG
-    qDebug("using Freetype for checking of '%s'", family->name.latin1() );
-#endif // QFONTDATABASE_DEBUG
+    FD_DEBUG("using Freetype for checking of '%s'", family->name.latin1() );
 
     FT_Library ft_lib;
     FT_Error error = FT_Init_FreeType( &ft_lib );
@@ -1066,11 +1068,10 @@ static inline void checkXftCoverage( QtFontFamily *family )
     for ( int i = 0; i < QFont::LastPrivateScript; ++i ) {
 	QChar ch = sampleCharacter( (QFont::Script)i );
 	if ( ch.unicode() != 0 && FT_Get_Char_Index ( face, ch.unicode() ) ) {
-#ifdef QFONTDATABASE_DEBUG
-	    qDebug("font can render char %04x, %04x script %d '%s'",
-		   ch.unicode(), FT_Get_Char_Index ( face, ch.unicode() ),
-		   i, QFontDatabase::scriptName( (QFont::Script)i ).latin1() );
-#endif // QFONTDATABASE_DEBUG
+	    FD_DEBUG("font can render char %04x, %04x script %d '%s'",
+		     ch.unicode(), FT_Get_Char_Index ( face, ch.unicode() ),
+		     i, QFontDatabase::scriptName( (QFont::Script)i ).latin1() );
+
 	    family->scripts[i] = QtFontFamily::Supported;
 	} else {
 	    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
@@ -1085,10 +1086,8 @@ static inline void checkXftCoverage( QtFontFamily *family )
 
 static void load( const QString &family = QString::null, int script = -1 )
 {
-#ifdef QFONTDATABASE_DEBUG
     QTime t;
     t.start();
-#endif // QFONTDATABASE_DEBUG
 
     if ( family.isNull() ) {
 	if ( script == -1 )
@@ -1119,9 +1118,8 @@ static void load( const QString &family = QString::null, int script = -1 )
 	    }
 	}
     }
-#ifdef QFONTDATABASE_DEBUG
-    qDebug("QFontDatabase: load( %s, %d) took %d ms", family.latin1(), script, t.elapsed() );
-#endif // QFONTDATABASE_DEBUG
+
+    FD_DEBUG("QFontDatabase: load( %s, %d) took %d ms", family.latin1(), script, t.elapsed() );
 }
 
 
@@ -1133,27 +1131,21 @@ static void initializeDb()
 
     memset( encodingLoaded, FALSE, sizeof( encodingLoaded ) );
 
-#ifdef QFONTDATABASE_DEBUG
     QTime t;
     t.start();
-#endif // QFONTDATABASE_DEBUG
 
 #ifndef QT_NO_XFTFREETYPE
     loadXft();
+    FD_DEBUG("QFontDatabase: loaded Xft: %d ms",  t.elapsed() );
 #endif
 
-#ifdef QFONTDATABASE_DEBUG
-    qDebug("QFontDatabase: loaded Xft: %d ms",  t.elapsed() );
     t.start();
-#endif // QFONTDATABASE_DEBUG
 
 #ifndef QT_NO_XFTFREETYPE
     for ( int i = 0; i < db->count; i++ ) {
 #ifndef QT_XFT2
 	checkXftCoverage( db->families[i] );
-#ifdef QFONTDATABASE_DEBUG
-	qDebug("QFontDatabase: xft coverage check: %d ms",  t.elapsed() );
-#endif
+	FD_DEBUG("QFontDatabase: xft coverage check: %d ms",  t.elapsed() );
 #endif // QT_XFT2
 
 #ifdef XFT_MATRIX
@@ -1208,38 +1200,38 @@ static void initializeDb()
     // print the database
     for ( int f = 0; f < db->count; f++ ) {
 	QtFontFamily *family = db->families[f];
-	qDebug("'%s' %s  hasXft=%s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""),
-	       (family->hasXft ? "yes" : "no") );
+	FD_DEBUG("'%s' %s  hasXft=%s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""),
+		 (family->hasXft ? "yes" : "no") );
 	for ( int i = 0; i < QFont::LastPrivateScript; ++i ) {
-	    qDebug( "\t%s: %s", QFontDatabase::scriptName( (QFont::Script)i ).latin1(),
-		    ( (family->scripts[i] & QtFontFamily::Supported) ? "Supported" :
+	    FD_DEBUG("\t%s: %s", QFontDatabase::scriptName((QFont::Script) i).latin1(),
+		     ((family->scripts[i] & QtFontFamily::Supported) ? "Supported" :
 		      (family->scripts[i] & QtFontFamily::UnSupported) == QtFontFamily::UnSupported ?
-		      "UnSupported" : "Unknown" ) );
+		      "UnSupported" : "Unknown"));
 	}
 
 	for ( int fd = 0; fd < family->count; fd++ ) {
 	    QtFontFoundry *foundry = family->foundries[fd];
-	    qDebug("\t\t'%s'", foundry->name.latin1() );
+	    FD_DEBUG("\t\t'%s'", foundry->name.latin1() );
 	    for ( int s = 0; s < foundry->count; s++ ) {
 		QtFontStyle *style = foundry->styles[s];
-		qDebug("\t\t\tstyle: italic=%d oblique=%d weight=%d (%s)\n"
-		       "\t\t\tstretch=%d (%s)",
-		       style->key.italic, style->key.oblique, style->key.weight,
-		       style->weightName, style->key.stretch,
-		       style->setwidthName ? style->setwidthName : "nil" );
+		FD_DEBUG("\t\t\tstyle: italic=%d oblique=%d weight=%d (%s)\n"
+			 "\t\t\tstretch=%d (%s)",
+			 style->key.italic, style->key.oblique, style->key.weight,
+			 style->weightName, style->key.stretch,
+			 style->setwidthName ? style->setwidthName : "nil" );
 		if ( style->smoothScalable )
-		    qDebug("\t\t\t\tsmooth scalable" );
+		    FD_DEBUG("\t\t\t\tsmooth scalable" );
 		else if ( style->bitmapScalable )
-		    qDebug("\t\t\t\tbitmap scalable" );
+		    FD_DEBUG("\t\t\t\tbitmap scalable" );
 		if ( style->pixelSizes ) {
 		    qDebug("\t\t\t\t%d pixel sizes",  style->count );
 		    for ( int z = 0; z < style->count; ++z ) {
 			QtFontSize *size = style->pixelSizes + z;
 			for ( int e = 0; e < size->count; ++e ) {
-			    qDebug( "\t\t\t\t  size %5d pitch %c encoding %s",
-				    size->pixelSize,
-				    size->encodings[e].pitch,
-				    xlfd_for_id( size->encodings[e].encoding ) );
+			    FD_DEBUG( "\t\t\t\t  size %5d pitch %c encoding %s",
+				      size->pixelSize,
+				      size->encodings[e].pitch,
+				      xlfd_for_id( size->encodings[e].encoding ) );
 			}
 		    }
 		}
@@ -1269,7 +1261,7 @@ QFontEngine *loadEngine( QFont::Script script,
 {
     if ( fp && fp->rawMode ) {
 	QByteArray xlfd = request.family.toLatin1();
-	qDebug( "Loading XLFD (rawmode) '%s'", xlfd.constData() );
+	FM_DEBUG( "Loading XLFD (rawmode) '%s'", xlfd.constData() );
 
 	XFontStruct *xfs;
 	if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd ) ) )
@@ -1286,9 +1278,7 @@ QFontEngine *loadEngine( QFont::Script script,
 #ifndef QT_NO_XFTFREETYPE
     if ( encoding->encoding == -1 ) {
 
-#  ifdef FONT_MATCH_DEBUG
-	qDebug( "    using Xft" );
-#  endif // FONT_MATCH_DEBUG
+	FM_DEBUG( "    using Xft" );
 
 	XftPattern *pattern = XftPatternCreate();
 	if ( !pattern ) return 0;
@@ -1408,9 +1398,7 @@ QFontEngine *loadEngine( QFont::Script script,
     }
 #endif // QT_NO_XFTFREETYPE
 
-#ifdef FONT_MATCH_DEBUG
-    qDebug( "    using XLFD" );
-#endif // FONT_MATCH_DEBUG
+    FM_DEBUG( "    using XLFD" );
 
     QByteArray xlfd("-");
     xlfd += foundry->name.isEmpty() ? "*" : foundry->name.latin1();
@@ -1454,9 +1442,7 @@ QFontEngine *loadEngine( QFont::Script script,
     xlfd += "-";
     xlfd += xlfd_for_id( encoding->encoding );
 
-#ifdef FONT_MATCH_DEBUG
-    qDebug( "    xlfd: '%s'", xlfd.data() );
-#endif // FONT_MATCH_DEBUG
+    FM_DEBUG( "    xlfd: '%s'", xlfd.data() );
 
     XFontStruct *xfs;
     if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd ) ) )
