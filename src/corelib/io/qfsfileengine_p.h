@@ -49,8 +49,8 @@ public:
     uchar *map(qint64 off, qint64 len);
     void unmap(uchar *data);
 
-    bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
-    bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
+    bool mkdir(const QString &dirName, bool createParentDirectories) const;
+    bool rmdir(const QString &dirName, bool recurseParentDirectories) const;
 
     bool setSize(qint64 size);
 

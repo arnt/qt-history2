@@ -1050,38 +1050,28 @@ QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, Filters filter
 /*!
     Creates a directory.
 
-    If \a recurse is \c Recursive then subdirectories along the path
-    to \a dirName will be created if necessary. If \a recurse is \c
-    NonRecursive then is assumed that all subdirectories of \a dirName
-    exist already.
-
     Returns true if successful; otherwise returns false.
 
     \sa rmdir()
 */
 
-bool QDir::mkdir(const QString &dirName, Recursion recurse) const
+bool QDir::mkdir(const QString &dirName) const
 {
     Q_D(const QDir);
 
     if (dirName.isEmpty()) {
-        qWarning("QDir::rename: Empty or null file name(s)");
+        qWarning("QDir::mkdir: Empty or null file name(s)");
         return false;
     }
     if(!d->data->fileEngine)
         return false;
 
     QString fn = filePath(dirName);
-    return d->data->fileEngine->mkdir(fn, recurse);
+    return d->data->fileEngine->mkdir(fn, false);
 }
 
 /*!
     Removes the directory specified by \a dirName.
-
-    If \a recurse is \c Recursive then subdirectories along the path
-    to \a dirName will be removed if they are empty. If \a recurse is
-    \c NonRecursive then only the directory \a dirName will be
-    removed.
 
     The directory must be empty for rmdir() to succeed.
 
@@ -1090,19 +1080,71 @@ bool QDir::mkdir(const QString &dirName, Recursion recurse) const
     \sa mkdir()
 */
 
-bool QDir::rmdir(const QString &dirName, Recursion recurse) const
+bool QDir::rmdir(const QString &dirName) const
 {
     Q_D(const QDir);
 
     if (dirName.isEmpty()) {
-        qWarning("QDir::rename: Empty or null file name(s)");
+        qWarning("QDir::rmdir: Empty or null file name(s)");
         return false;
     }
     if(!d->data->fileEngine)
         return false;
 
     QString fn = filePath(dirName);
-    return d->data->fileEngine->rmdir(fn, recurse);
+    return d->data->fileEngine->rmdir(fn, false);
+}
+
+/*!
+    Creates the directory path \a dirPath.
+
+    The function will create all parent directories necessary to
+    create the directory.
+
+    Returns true if successful; otherwise returns false.
+
+    \sa rmpath()
+*/
+
+bool QDir::mkpath(const QString &dirPath) const
+{
+    Q_D(const QDir);
+
+    if (dirPath.isEmpty()) {
+        qWarning("QDir::mkpath: Empty or null file name(s)");
+        return false;
+    }
+    if(!d->data->fileEngine)
+        return false;
+
+    QString fn = filePath(dirPath);
+    return d->data->fileEngine->mkdir(fn, true);
+}
+
+/*!
+    Removes the directory path \a dirPath.
+
+    The function will remove all parent directories in \a dirPath,
+    provided that they are empty. This is the opposite of
+    mkpath(dirPath).
+
+    Returns true if successful; otherwise returns false.
+
+    \sa mkpath()
+*/
+bool QDir::rmpath(const QString &dirPath) const
+{
+    Q_D(const QDir);
+
+    if (dirPath.isEmpty()) {
+        qWarning("QDir::rmpath: Empty or null file name(s)");
+        return false;
+    }
+    if(!d->data->fileEngine)
+        return false;
+
+    QString fn = filePath(dirPath);
+    return d->data->fileEngine->rmdir(fn, true);
 }
 
 /*!

@@ -56,12 +56,12 @@ protected:
     QResourceFileEnginePrivate() : offset(0), resource(0) { }
 };
 
-bool QResourceFileEngine::mkdir(const QString &, QDir::Recursion) const
+bool QResourceFileEngine::mkdir(const QString &, bool) const
 {
     return false;
 }
 
-bool QResourceFileEngine::rmdir(const QString &, QDir::Recursion) const
+bool QResourceFileEngine::rmdir(const QString &, bool) const
 {
     return false;
 }

@@ -57,13 +57,13 @@ public:
         File,
         Resource,
 
-        User = 50,                                // first user type id
-        MaxUser = 100                                // last user type id
+        User = 50, // first user type id
+        MaxUser = 100 // last user type id
     };
     virtual Type type() const = 0;
 
-    virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const = 0;
-    virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const = 0;
+    virtual bool mkdir(const QString &dirName, bool createParentDirectories) const = 0;
+    virtual bool rmdir(const QString &dirName, bool recurseParentDirectories) const = 0;
 
     virtual bool setSize(qint64 size) = 0;
 

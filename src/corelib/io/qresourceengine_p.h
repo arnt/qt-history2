@@ -62,8 +62,8 @@ public:
 
     virtual bool isRelativePath() const;
 
-    virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
-    virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
+    virtual bool mkdir(const QString &dirName, bool createParentDirectories) const;
+    virtual bool rmdir(const QString &dirName, bool recurseParentDirectories) const;
 
     virtual bool setSize(qint64 size);
 

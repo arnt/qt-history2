@@ -123,9 +123,10 @@ public:
     QFileInfoList entryInfoList(const QStringList &nameFilters, Filters filters = NoFilter,
                                 SortFlags sort = NoSort) const;
 
-    enum Recursion { Recursive = 0, NonRecursive = 1 };
-    bool mkdir(const QString &dirName, Recursion recurse = NonRecursive) const;
-    bool rmdir(const QString &dirName, Recursion recurse = NonRecursive) const;
+    bool mkdir(const QString &dirName) const;
+    bool rmdir(const QString &dirName) const;
+    bool mkpath(const QString &dirPath) const;
+    bool rmpath(const QString &dirPath) const;
 
     bool isReadable() const;
     bool exists() const;
@@ -192,9 +193,9 @@ public:
     QT3_SUPPORT void setNameFilter(const QString &nameFilter);
 
     inline QT3_SUPPORT bool mkdir(const QString &dirName, bool acceptAbsPath) const
-        { Q_UNUSED(acceptAbsPath); return mkdir(dirName, NonRecursive); }
+        { Q_UNUSED(acceptAbsPath); return mkdir(dirName); }
     inline QT3_SUPPORT bool rmdir(const QString &dirName, bool acceptAbsPath) const
-        { Q_UNUSED(acceptAbsPath); return rmdir(dirName, NonRecursive); }
+        { Q_UNUSED(acceptAbsPath); return rmdir(dirName); }
 
     inline QT3_SUPPORT void convertToAbs() { makeAbsolute(); }
     inline QT3_SUPPORT static QString currentDirPath() { return currentPath(); }

@@ -357,11 +357,11 @@ void QFileEngine::unmap(uchar * /* data */)
  */
 
 /*!
-    \fn bool QFileEngine::mkdir(const QString &dirName, QDir::Recursion recurse) const
+    \fn bool QFileEngine::mkdir(const QString &dirName, bool createParentDirectories) const
 
-    Requests that the directory \a dirName be created. If \a recurse
-    is \c QDir::Recursive then any sub-directories in \a dirName that don't
-    exist must be created. If \a recurse is \c QDir::NonRecursive then
+    Requests that the directory \a dirName be created. If 
+    \a createParentDirectories is true, then any sub-directories in \a dirName
+    that don't exist must be created. If \a createParentDirectories is false then
     any sub-directories in \a dirName must already exist for the function to
     succeed. If the operation succeeds return true; otherwise return
     false.
@@ -372,15 +372,15 @@ void QFileEngine::unmap(uchar * /* data */)
  */
 
 /*!
-    \fn bool QFileEngine::rmdir(const QString &dirName, QDir::Recursion recurse) const
+    \fn bool QFileEngine::rmdir(const QString &dirName, bool recurseParentDirectories) const
 
     Requests that the directory \a dirName is deleted from the file
-    system. When \a recurse is \c QDir::Recursive then any empty
-    sub-directories in \a dirName must also be deleted. If \a recurse is \c
-    QDir::NonRecursive then only \a dirName should be deleted. In most
-    file systems a directory cannot be deleted using this function if
-    it is non-empty. If the operation succeeds return true; otherwise
-    return false.
+    system. When \a recurseParentDirectories is true, then any empty
+    parent-directories in \a dirName must also be deleted. If 
+    \a recurseParentDirectories is false, only the \a dirName leaf-node
+    should be deleted. In most file systems a directory cannot be deleted
+    using this function if it is non-empty. If the operation succeeds
+    return true; otherwise return false.
 
     This virtual function must be reimplemented by all subclasses.
 
