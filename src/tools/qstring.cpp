@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#37 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#37 $";
 #endif
 
 
@@ -77,6 +77,7 @@ char *q_strdup( const char *src )		// safe duplicate string
 
 /*----------------------------------------------------------------------------
   \relates QString
+  Compares two strings ignoring uppper/lower case.
   If \e str1 and \e str2 are both non-null, qstricmp() returns
   negative, 0 or positive, just like the C library's stricmp().	 If
   either \e str1 or \e str2 but not both are null, qstricmp() returns
@@ -103,6 +104,7 @@ int qstricmp( const char *str1, const char *str2 )
 
 /*----------------------------------------------------------------------------
   \relates QString
+  Compares \e len characters of two strings ignoring uppper/lower case.
   If \e str1 and \e str2 are both non-null, qstrnicmp() returns
   negative, 0 or positive, just like the C library's strnicmp() or
   strncasecmp.	If either \e str1 or \e str2 but not both are null,
