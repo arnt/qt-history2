@@ -1613,7 +1613,7 @@ PropertyPixmapItem::PropertyPixmapItem( PropertyList *l, PropertyItem *after, Pr
     box = new QHBox( listview->viewport() );
     box->hide();
     pixPrev = new QLabel( box );
-    pixPrev->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Minimum ) );
+    pixPrev->setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Minimum ) );
     pixPrev->setBackgroundColor( pixPrev->colorGroup().color( QColorGroup::Base ) );
     button = new QPushButton( "...", box );
     setupStyle( button );
