@@ -26,11 +26,12 @@
 #include <qdockarea.h>
 #include "paragdata.h"
 #include <qobjectlist.h>
+#include <qlabel.h>
 
 ViewManager::ViewManager( QWidget *parent, const char *name )
     : QWidget( parent, name ), curView( 0 )
 {
-    layout = new QHBoxLayout( this );
+    QHBoxLayout *l = new QHBoxLayout( this );
     markerWidget = new MarkerWidget( this );
     connect( markerWidget, SIGNAL( markersChanged() ),
 	     this, SIGNAL( markersChanged() ) );
@@ -48,7 +49,8 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
     //dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
     //layout->addWidget( dockArea );
     //dockArea->setMinimumWidth( 5 );
-    layout->addWidget( markerWidget );
+    l->addWidget( markerWidget );
+    layout = new QVBoxLayout( l );
 
 //     QObjectList *l = topLevelWidget()->queryList( "QToolBar" );
 //     for ( QObject *o = l->first(); o; o = l->next() )
@@ -66,6 +68,15 @@ void ViewManager::addView( QWidget *view )
 	     markerWidget, SLOT( doRepaint() ) );
     connect( (Editor*)curView, SIGNAL( clearErrorMarker() ),
 	     this, SLOT( clearErrorMarker() ) );
+    posLabel = new QLabel( this );
+    posLabel->setAlignment( Qt::AlignVCenter | Qt::AlignRight );
+    posLabel->setText( " Line: 1 Col: 1" );
+    posLabel->setFrameStyle( QFrame::Sunken | QFrame::Panel );
+    posLabel->setLineWidth( 1 );
+    posLabel->setFixedHeight( posLabel->fontMetrics().height() );
+    layout->addWidget( posLabel );
+    connect( curView, SIGNAL( cursorPositionChanged( int, int ) ),
+	     this, SLOT( cursorPositionChanged( int, int ) ) );
 }
 
 QWidget *ViewManager::currentView() const
@@ -201,4 +212,9 @@ void ViewManager::showMarkerWidget( bool b )
 void ViewManager::emitMarkersChanged()
 {
     emit markersChanged();
+}
+
+void ViewManager::cursorPositionChanged( int row, int col )
+{
+    posLabel->setText( QString( " Line: %1 Col: %1" ).arg( row + 1 ).arg( col + 1 ) );
 }

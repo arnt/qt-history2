@@ -27,9 +27,10 @@
 
 class QChildEvent;
 class MarkerWidget;
-class QHBoxLayout;
+class QVBoxLayout;
 class QDockArea;
 class QTextParag;
+class QLabel;
 
 class EDITOR_EXPORT ViewManager : public QWidget
 {
@@ -60,7 +61,7 @@ signals:
 
 protected slots:
     void clearErrorMarker();
-
+    void cursorPositionChanged( int row, int col );
 protected:
     void childEvent( QChildEvent *e );
     void resizeEvent( QResizeEvent *e );
@@ -68,8 +69,9 @@ protected:
 private:
     QWidget *curView;
     MarkerWidget *markerWidget;
-    QHBoxLayout *layout;
+    QVBoxLayout *layout;
     QDockArea *dockArea;
+    QLabel *posLabel;
 
 };
 
