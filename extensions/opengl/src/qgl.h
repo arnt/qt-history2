@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#2 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#3 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -57,7 +57,7 @@ public:
     static bool  hasOpenGL();
 
 public:
-    struct Internal : /* public */ QShared {
+    struct Internal : public QShared {
 	bool	doubleBuffer;
 	bool	depth;
 	bool	rgba;
