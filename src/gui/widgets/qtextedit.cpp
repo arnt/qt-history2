@@ -142,7 +142,6 @@ public:
     void selectionChanged();
 
     // ### helper for compat functions
-    QTextBlock blockAt(int block) const;
     QTextBlock blockAt(const QPoint &pos, int *documentPosition = 0) const;
 
     QTextDocument *doc;
@@ -359,16 +358,6 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
 void QTextEditPrivate::selectionChanged()
 {
     emit q->copyAvailable(cursor.hasSelection());
-}
-
-QTextBlock QTextEditPrivate::blockAt(int blockNr) const
-{
-    QTextBlock block = doc->rootFrame()->begin().currentBlock();
-    while (blockNr > 0 && block.isValid()) {
-        block = block.next();
-        --blockNr;
-    }
-    return block;
 }
 
 QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) const
@@ -1258,9 +1247,19 @@ Qt::TextFormat QTextEdit::textFormat() const
     return d->textFormat;
 }
 
+QTextBlock QTextEdit::blockAt(int blockNr) const
+{
+    QTextBlock block = d->doc->rootFrame()->begin().currentBlock();
+    while (blockNr > 0 && block.isValid()) {
+        block = block.next();
+        --blockNr;
+    }
+    return block;
+}
+
 void QTextEdit::setCursorPosition(int parag, int index)
 {
-    QTextCursor c(d->blockAt(parag));
+    QTextCursor c(blockAt(parag));
     c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
     setCursor(c);
 }
@@ -1278,12 +1277,6 @@ void QTextEdit::getCursorPosition(int *parag, int *index) const
     *index = d->cursor.position() - block.position();
 }
 
-QString QTextEdit::text(int parag) const
-{
-    // ### return html for textFormat() == RichText
-    return d->blockAt(parag).text();
-}
-
 int QTextEdit::paragraphs() const
 {
     return d->doc->docHandle()->numBlocks();
@@ -1296,16 +1289,6 @@ int QTextEdit::lines() const
          block.isValid(); block = block.next())
         l += block.layout()->numLines();
     return l;
-}
-
-int QTextEdit::linesOfParagraph(int parag) const
-{
-    return d->blockAt(parag).layout()->numLines();
-}
-
-int QTextEdit::paragraphLength(int parag) const
-{
-    return d->blockAt(parag).length();
 }
 
 void QTextEdit::getSelection(int *paraFrom, int *indexFrom, int *paraTo, int *indexTo) const
@@ -1332,6 +1315,7 @@ void QTextEdit::getSelection(int *paraFrom, int *indexFrom, int *paraTo, int *in
     *indexTo = selEnd - toBlock.position();
 }
 
+/* really have this?
 int QTextEdit::lineOfChar(int parag, int index) const
 {
     QTextBlock block = d->blockAt(parag);
@@ -1344,11 +1328,7 @@ int QTextEdit::lineOfChar(int parag, int index) const
 
     return line.line();
 }
-
-QRect QTextEdit::paragraphRect(int parag) const
-{
-    return d->blockAt(parag).layout()->rect();
-}
+*/
 
 int QTextEdit::paragraphAt(const QPoint &pos) const
 {
@@ -1371,14 +1351,9 @@ int QTextEdit::charAt(const QPoint &pos, int *parag) const
     return docPos - block.position();
 }
 
-QColor QTextEdit::paragraphBackgroundColor(int parag) const
-{
-    return d->blockAt(parag).blockFormat().backgroundColor();
-}
-
 void QTextEdit::setParagraphBackgroundColor(int parag, const QColor &col)
 {
-    QTextBlock block = d->blockAt(parag);
+    QTextBlock block = blockAt(parag);
     if (!block.isValid())
         return;
 
