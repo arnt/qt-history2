@@ -13,10 +13,10 @@
 ****************************************************************************/
 
 #include "qsyntaxhighlighter.h"
-#include "private/qsyntaxhighlighter_p.h"
+#include <private/qsyntaxhighlighter_p.h>
 
 #ifndef QT_NO_SYNTAXHIGHLIGHTER
-#include "../kernel/qrichtext_p.h"
+#include <private/qrichtext_p.h>
 #include "qtextedit.h"
 #include "qtimer.h"
 

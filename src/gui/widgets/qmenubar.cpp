@@ -28,7 +28,7 @@
 #include "qguardedptr.h"
 #include "qlayout.h"
 #include "qcleanuphandler.h"
-#include "../kernel/qinternal_p.h"
+#include <private/qinternal_p.h>
 #include "qstyle.h"
 #include "qtimer.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -898,7 +898,7 @@ int QMenuBar::calculateRects( int max_width )
 	     ) {
 	    ; // empty rectangle
 	} else if ( mi->widget() ) {
-	    if ( mi->widget()->parentWidget() != this ) 
+	    if ( mi->widget()->parentWidget() != this )
 		mi->widget()->setParent(this);
 	    w = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).width()+2;
 	    h = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).height()+2;

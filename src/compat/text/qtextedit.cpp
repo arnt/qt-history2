@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_TEXTEDIT
 
-#include "../kernel/qrichtext_p.h"
+#include <private/qrichtext_p.h>
 #include "qpainter.h"
 #include "qpen.h"
 #include "qbrush.h"

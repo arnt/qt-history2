@@ -18,7 +18,7 @@
 #include "qdrawutil.h"
 #include "qpixmap.h"
 #include "qstyle.h"
-#include "../kernel/qinternal_p.h"
+#include <private/qinternal_p.h>
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

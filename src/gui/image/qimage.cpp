@@ -23,7 +23,7 @@
 #include "qmngio.h"
 #include "qjpegio.h"
 #include "qmap.h"
-#include "qcolor_p.h"
+#include <private/qcolor_p.h>
 #include "qcoreapplication.h"
 #include <private/qpluginmanager_p.h>
 #include "qimageformatinterface_p.h"

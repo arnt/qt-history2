@@ -34,7 +34,7 @@
 #include "qcursor.h"
 #include "qstyle.h"
 #include "qcleanuphandler.h"
-#include "qtextengine_p.h"
+#include <private/qtextengine_p.h>
 #include <private/qunicodetables_p.h>
 
 #include <stdlib.h>

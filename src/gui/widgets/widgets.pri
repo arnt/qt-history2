@@ -1,138 +1,125 @@
 # Qt widgets module
 
-widgets {
-	WIDGETS_P	= widgets
+HEADERS += widgets/qbuttongroup.h \
+	widgets/qbutton.h \
+	widgets/qdialogbuttons_p.h \
+	widgets/qcheckbox.h \
+	widgets/qcombobox.h \
+	widgets/qwidgetresizehandler_p.h \
+	widgets/qdial.h \
+	widgets/qdockarea.h \
+	widgets/qdockwindow.h \
+	widgets/qframe.h \
+	widgets/qframe_p.h \
+	widgets/qgrid.h \
+	widgets/qgridview.h \
+	widgets/qgroupbox.h \
+	widgets/qhbuttongroup.h \
+	widgets/qheader.h \
+	widgets/qhgroupbox.h \
+	widgets/qhbox.h \
+	widgets/qlabel.h \
+	widgets/qlcdnumber.h \
+	widgets/qlineedit.h \
+	widgets/qlineedit_p.h \
+	widgets/qlistbox.h \
+	widgets/qlistview.h \
+	widgets/qmainwindow.h \
+	widgets/qmenubar.h \
+	widgets/qmenudata.h \
+	widgets/qpopupmenu.h \
+	widgets/qprogressbar.h \
+	widgets/qpushbutton.h \
+	widgets/qradiobutton.h \
+	widgets/qrangecontrol.h \
+	widgets/qscrollbar.h \
+	widgets/qscrollview.h \
+	widgets/qslider.h \
+	widgets/qabstractslider.h \
+	widgets/qsplashscreen.h \
+	widgets/qspinbox.h \
+	widgets/qsplitter.h \
+	widgets/qstatusbar.h \
+	widgets/qtabbar.h \
+	widgets/qtabwidget.h \
+	widgets/qtitlebar_p.h \
+	widgets/qabstractslider_p.h \
+	widgets/qtoolbar.h \
+	widgets/qtoolbox.h \
+	widgets/qtoolbutton.h \
+	widgets/qvalidator.h \
+	widgets/qvbox.h \
+	widgets/qvbuttongroup.h \
+	widgets/qvgroupbox.h \
+	widgets/qwidgetstack.h \
+	widgets/qdatetimeedit.h \
+	widgets/qwidgetinterface_p.h \
+	widgets/qwidgetplugin.h
 
-	HEADERS += $$WIDGETS_H/qbuttongroup.h \
-		  $$WIDGETS_H/qbutton.h \
-		  $$WIDGETS_P/qdialogbuttons_p.h \
-		  $$WIDGETS_H/qcheckbox.h \
-		  $$WIDGETS_H/qcombobox.h \
-		  $$WIDGETS_P/qwidgetresizehandler_p.h \
-		  $$WIDGETS_H/qdial.h \
-		  $$WIDGETS_H/qdockarea.h \
-		  $$WIDGETS_H/qdockwindow.h \
-		  $$WIDGETS_H/qframe.h \
-		  $$WIDGETS_H/qframe_p.h \
-		  $$WIDGETS_H/qgrid.h \
-		  $$WIDGETS_H/qgridview.h \
-		  $$WIDGETS_H/qgroupbox.h \
-		  $$WIDGETS_H/qhbuttongroup.h \
-		  $$WIDGETS_H/qheader.h \
-		  $$WIDGETS_H/qhgroupbox.h \
-		  $$WIDGETS_H/qhbox.h \
-		  $$WIDGETS_H/qlabel.h \
-		  $$WIDGETS_H/qlcdnumber.h \
-		  $$WIDGETS_H/qlineedit.h \
-		  $$WIDGETS_H/qlineedit_p.h \
-		  $$WIDGETS_H/qlistbox.h \
-		  $$WIDGETS_H/qlistview.h \
-		  $$WIDGETS_H/qmainwindow.h \
-		  $$WIDGETS_H/qmenubar.h \
-		  $$WIDGETS_H/qmenudata.h \
-		  $$WIDGETS_H/qmultilineedit.h \
-		  $$WIDGETS_H/qpopupmenu.h \
-		  $$WIDGETS_H/qprogressbar.h \
-		  $$WIDGETS_H/qpushbutton.h \
-		  $$WIDGETS_H/qradiobutton.h \
-		  $$WIDGETS_H/qrangecontrol.h \
-		  $$WIDGETS_H/qscrollbar.h \
-		  $$WIDGETS_H/qscrollview.h \
-		  $$WIDGETS_H/qslider.h \
-		  $$WIDGETS_H/qabstractslider.h \
-		  $$WIDGETS_H/qsplashscreen.h \
-		  $$WIDGETS_H/qspinbox.h \
-		  $$WIDGETS_H/qsplitter.h \
-		  $$WIDGETS_H/qstatusbar.h \
-		  $$WIDGETS_H/qtabbar.h \
-		  $$WIDGETS_H/qsyntaxhighlighter.h \
-		  $$WIDGETS_P/qsyntaxhighlighter_p.h \
-		  $$WIDGETS_H/qtabwidget.h \
-		  $$WIDGETS_P/qtitlebar_p.h \
-		  $$WIDGETS_P/qabstractslider_p.h \
-		  $$WIDGETS_H/qtoolbar.h \
-		  $$WIDGETS_H/qtoolbox.h \
-		  $$WIDGETS_H/qtoolbutton.h \
-		  $$WIDGETS_H/qvalidator.h \
-		  $$WIDGETS_H/qvbox.h \
-		  $$WIDGETS_H/qvbuttongroup.h \
-		  $$WIDGETS_H/qvgroupbox.h \
-		  $$WIDGETS_H/qwidgetstack.h \
-		  $$WIDGETS_H/qdatetimeedit.h \
-		  $$WIDGETS_H/qtextview.h \
-		  $$WIDGETS_H/qtextbrowser.h \
-		  $$WIDGETS_H/qtextedit.h \
-		  $$WIDGETS_P/qwidgetinterface_p.h \
-		  $$WIDGETS_H/qwidgetplugin.h
+SOURCES += widgets/qbuttongroup.cpp \
+	widgets/qbutton.cpp \
+	widgets/qdialogbuttons.cpp \
+	widgets/qcheckbox.cpp \
+	widgets/qcombobox.cpp \
+	widgets/qwidgetresizehandler.cpp \
+	widgets/qdial.cpp \
+	widgets/qdockarea.cpp \
+	widgets/qdockwindow.cpp \
+	widgets/qframe.cpp \
+	widgets/qgrid.cpp \
+	widgets/qgridview.cpp \
+	widgets/qgroupbox.cpp \
+	widgets/qhbuttongroup.cpp \
+	widgets/qheader.cpp \
+	widgets/qhgroupbox.cpp \
+	widgets/qhbox.cpp \
+	widgets/qlabel.cpp \
+	widgets/qlcdnumber.cpp \
+	widgets/qlineedit.cpp \
+	widgets/qlistbox.cpp \
+	widgets/qlistview.cpp \
+	widgets/qmainwindow.cpp \
+	widgets/qmenubar.cpp \
+	widgets/qmenudata.cpp \
+	widgets/qpopupmenu.cpp \
+	widgets/qprogressbar.cpp \
+	widgets/qpushbutton.cpp \
+	widgets/qradiobutton.cpp \
+	widgets/qrangecontrol.cpp \
+	widgets/qscrollbar.cpp \
+	widgets/qscrollview.cpp \
+	widgets/qslider.cpp \
+	widgets/qabstractslider.cpp \
+	widgets/qsplashscreen.cpp \
+	widgets/qspinbox.cpp \
+	widgets/qspinwidget.cpp \
+	widgets/qsplitter.cpp \
+	widgets/qstatusbar.cpp \
+	widgets/qtabbar.cpp \
+	widgets/qtabwidget.cpp \
+	widgets/qtitlebar.cpp \
+	widgets/qtoolbar.cpp \
+	widgets/qtoolbox.cpp \
+	widgets/qtoolbutton.cpp \
+	widgets/qvalidator.cpp \
+	widgets/qvbox.cpp \
+	widgets/qvbuttongroup.cpp \
+	widgets/qvgroupbox.cpp \
+	widgets/qwidgetstack.cpp \
+	widgets/qdatetimeedit.cpp \
+	widgets/qeffects.cpp \
+	widgets/qwidgetplugin.cpp
+   
 
-	SOURCES += $$WIDGETS_CPP/qbuttongroup.cpp \
-		  $$WIDGETS_CPP/qbutton.cpp \
-		  $$WIDGETS_CPP/qdialogbuttons.cpp \
-		  $$WIDGETS_CPP/qcheckbox.cpp \
-		  $$WIDGETS_CPP/qcombobox.cpp \
-		  $$WIDGETS_CPP/qwidgetresizehandler.cpp \
-		  $$WIDGETS_CPP/qdial.cpp \
-		  $$WIDGETS_CPP/qdockarea.cpp \
-		  $$WIDGETS_CPP/qdockwindow.cpp \
-		  $$WIDGETS_CPP/qframe.cpp \
-		  $$WIDGETS_CPP/qgrid.cpp \
-		  $$WIDGETS_CPP/qgridview.cpp \
-		  $$WIDGETS_CPP/qgroupbox.cpp \
-		  $$WIDGETS_CPP/qhbuttongroup.cpp \
-		  $$WIDGETS_CPP/qheader.cpp \
-		  $$WIDGETS_CPP/qhgroupbox.cpp \
-		  $$WIDGETS_CPP/qhbox.cpp \
-		  $$WIDGETS_CPP/qlabel.cpp \
-		  $$WIDGETS_CPP/qlcdnumber.cpp \
-		  $$WIDGETS_CPP/qlineedit.cpp \
-		  $$WIDGETS_CPP/qlistbox.cpp \
-		  $$WIDGETS_CPP/qlistview.cpp \
-		  $$WIDGETS_CPP/qmainwindow.cpp \
-		  $$WIDGETS_CPP/qmenubar.cpp \
-		  $$WIDGETS_CPP/qmenudata.cpp \
-		  $$WIDGETS_CPP/qmultilineedit.cpp \
-		  $$WIDGETS_CPP/qpopupmenu.cpp \
-		  $$WIDGETS_CPP/qprogressbar.cpp \
-		  $$WIDGETS_CPP/qpushbutton.cpp \
-		  $$WIDGETS_CPP/qradiobutton.cpp \
-		  $$WIDGETS_CPP/qrangecontrol.cpp \
-		  $$WIDGETS_CPP/qscrollbar.cpp \
-		  $$WIDGETS_CPP/qscrollview.cpp \
-		  $$WIDGETS_CPP/qslider.cpp \
-		  $$WIDGETS_CPP/qabstractslider.cpp \
-		  $$WIDGETS_CPP/qsplashscreen.cpp \
-		  $$WIDGETS_CPP/qspinbox.cpp \
-		  $$WIDGETS_CPP/qspinwidget.cpp \
-		  $$WIDGETS_CPP/qsplitter.cpp \
-		  $$WIDGETS_CPP/qstatusbar.cpp \
-		  $$WIDGETS_CPP/qsyntaxhighlighter.cpp \
-		  $$WIDGETS_CPP/qtabbar.cpp \
-		  $$WIDGETS_CPP/qtabwidget.cpp \
-		  $$WIDGETS_CPP/qtitlebar.cpp \
-		  $$WIDGETS_CPP/qtoolbar.cpp \
-		  $$WIDGETS_CPP/qtoolbox.cpp \
-		  $$WIDGETS_CPP/qtoolbutton.cpp \
-		  $$WIDGETS_CPP/qvalidator.cpp \
-		  $$WIDGETS_CPP/qvbox.cpp \
-		  $$WIDGETS_CPP/qvbuttongroup.cpp \
-		  $$WIDGETS_CPP/qvgroupbox.cpp \
-		  $$WIDGETS_CPP/qwidgetstack.cpp \
-		  $$WIDGETS_CPP/qdatetimeedit.cpp \
-		  $$WIDGETS_CPP/qeffects.cpp \
-		  $$WIDGETS_CPP/qtextview.cpp \
-		  $$WIDGETS_CPP/qtextbrowser.cpp \
-		  $$WIDGETS_CPP/qtextedit.cpp \
-		  $$WIDGETS_CPP/qwidgetplugin.cpp
-   !embedded:mac:SOURCES += $$WIDGETS_CPP/qmenubar_mac.cpp
-}
+!embedded:mac:SOURCES += widgets/qmenubar_mac.cpp
 
 wince-* {
-	SOURCES += $$WIDGETS_CPP/ce/qcemainwindow.cpp
-	HEADERS += $$WIDGETS_H/ce/qcemainwindow.h
+	SOURCES += widgets/ce/qcemainwindow.cpp
+	HEADERS += widgets/ce/qcemainwindow.h
 
-	SOURCES -= $$WIDGETS_CPP/qsyntaxhighlighter.cpp \
-		   $$WIDGETS_CPP/qsplashscreen.cpp
+	SOURCES -= widgets/qsyntaxhighlighter.cpp \
+		   widgets/qsplashscreen.cpp
 
-	HEADERS -= $$WIDGETS_H/qsyntaxhighlighter.h \
-		   $$WIDGETS_H/qsplashscreen.h
+	HEADERS -= widgets/qsyntaxhighlighter.h \
+		   widgets/qsplashscreen.h
 }

@@ -16,7 +16,7 @@
 #define QABSTRACTSLIDER_P_H
 
 #ifndef QT_H
-#include "../kernel/qwidget_p.h"
+#include <private/qwidget_p.h>
 #include "qbasictimer.h"
 #endif // QT_H
 

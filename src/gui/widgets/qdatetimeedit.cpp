@@ -16,8 +16,8 @@
 
 #ifndef QT_NO_DATETIMEEDIT
 
-#include "../kernel/qinternal_p.h"
-#include "../kernel/qrichtext_p.h"
+#include <private/qinternal_p.h>
+#include <private/qrichtext_p.h>
 #include "qevent.h"
 #include "qrangecontrol.h"
 #include "qapplication.h"

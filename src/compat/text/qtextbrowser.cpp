@@ -14,7 +14,7 @@
 
 #include "qtextbrowser.h"
 #ifndef QT_NO_TEXTBROWSER
-#include "../kernel/qrichtext_p.h"
+#include <private/qrichtext_p.h>
 
 #include "qevent.h"
 #include "qdesktopwidget.h"

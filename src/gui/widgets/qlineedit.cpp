@@ -31,7 +31,7 @@
 #include "qguardedptr.h"
 #include "qstyle.h"
 #include "qwhatsthis.h"
-#include "../kernel/qinternal_p.h"
+#include <private/qinternal_p.h>
 #include "private/qtextlayout_p.h"
 #include "qvector.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)

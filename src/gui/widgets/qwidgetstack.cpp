@@ -15,7 +15,7 @@
 #include "qwidgetstack.h"
 #include "qlayout.h"
 #include "qevent.h"
-#include "../kernel/qlayoutengine_p.h"
+#include <private/qlayoutengine_p.h>
 #ifndef QT_NO_WIDGETSTACK
 
 #include "qbutton.h"
