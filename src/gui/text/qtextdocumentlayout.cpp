@@ -1268,11 +1268,10 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
 
-    int flags = d->blockTextFlags | blockFormat.alignment();
-    if (blockFormat.nonBreakableLines())
-        // QTextLine::layout still obeys QChar::LineSeparator in that mode
-        flags |= Qt::TextSingleLine;
-    tl->setTextFlags(flags);
+    QTextOption option(blockFormat.alignment());
+    if (d->blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())
+        option.setWrapMode(QTextOption::ManualWrap);
+    tl->setTextOption(option);
 
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 

@@ -331,21 +331,13 @@ QTextLayout::QTextLayout(const QString& string)
     \a font.
 
     All the metric and layout calculations will be done in terms of
-    the paint device, \a paintdevice.
+    the paint device, \a paintdevice. If \a paintdevice is 0 the
+    calculations will be done in screen metrics.
 */
 QTextLayout::QTextLayout(const QString& string, const QFont &font, QPaintDevice *paintdevice)
 {
-    QFontPrivate *f = QFont(font, paintdevice).d;
+    QFontPrivate *f = paintdevice ? QFont(font, paintdevice).d : font.d;
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), f);
-}
-
-/*!
-    Constructs a text layout to lay out the given \a string using the
-    font \a fnt.
-*/
-QTextLayout::QTextLayout(const QString& string, const QFont& fnt)
-{
-    d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
 }
 
 /*!
@@ -418,34 +410,23 @@ QString QTextLayout::text() const
 }
 
 /*!
-  \internal
+  Sets the text option structure that controls the layouting process.
+
+  \sa textOption() QTextOption
 */
-void QTextLayout::setTextFlags(int textFlags)
+void QTextLayout::setTextOption(const QTextOption &option)
 {
-    d->textFlags = textFlags;
+    d->option = option;
 }
 
 /*!
-    If \a b is true then the layout will use design metrics for its
-    layout; otherwise it will use the metrics of the paint device
-    (which is the default behavior).
+  returns the QTextOption that is currently used to control layouting.
 
-    \sa usesDesignMetrics()
+  \sa setTextOption() QTextOption
 */
-void QTextLayout::useDesignMetrics(bool b)
+QTextOption QTextLayout::textOption() const
 {
-    d->designMetrics = b;
-}
-
-/*!
-    Returns true if this layout uses design rather than device
-    metrics; otherwise returns false.
-
-    \sa useDesignMetrics()
-*/
-bool QTextLayout::usesDesignMetrics() const
-{
-    return d->designMetrics;
+    return d->option;
 }
 
 /*!
@@ -979,7 +960,7 @@ void QTextLine::layout_helper(int maxGlyphs)
 
     Q_ASSERT(line.from < eng->string.length());
 
-    bool breakany = eng->textFlags & Qt::TextWrapAnywhere;
+    bool breakany = eng->option.wrapMode() & QTextOption::WrapAnywhere;
 
     // #### binary search!
     int item;
@@ -1004,7 +985,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             QTextFormat format = eng->formats->format(eng->items[item].format);
             if (eng->docLayout)
                 eng->docLayout->layoutObject(QTextInlineObject(item, eng), format);
-            if (line.length && !(eng->textFlags & Qt::TextSingleLine)) {
+            if (line.length && !(eng->option.wrapMode() & QTextOption::ManualWrap)) {
                 if (line.textWidth + current.width > line.width || glyphCount > maxGlyphs)
                     goto found;
             }
@@ -1079,9 +1060,8 @@ void QTextLine::layout_helper(int maxGlyphs)
 //             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d",
 //                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
 
-            if (line.length && tmpw != 0.
-                && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
-                && !(eng->textFlags & Qt::TextSingleLine))
+            if (line.length && tmpw != qReal(0) && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
+                && !(eng->option.wrapMode() & QTextOption::ManualWrap))
                 goto found;
 
             line.textWidth += tmpw;
@@ -1267,9 +1247,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
     y += line.y + line.ascent;
 
     eng->justify(line);
-    if (eng->textFlags & Qt::AlignRight)
+    if (eng->option.alignment() & Qt::AlignRight)
         x += line.width - line.textWidth;
-    else if (eng->textFlags & Qt::AlignHCenter)
+    else if (eng->option.alignment() & Qt::AlignHCenter)
         x += (line.width - line.textWidth)/2;
 
     QVarLengthArray<int> visualOrder(nItems);
@@ -1432,9 +1412,9 @@ qReal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         *cursorPos = 0;
         const QScriptLine &line = eng->lines[0];
         qReal x = line.x;
-        if (eng->textFlags & Qt::AlignRight)
+        if (eng->option.alignment() & Qt::AlignRight)
             x += line.width - line.textWidth;
-        else if (eng->textFlags & Qt::AlignHCenter)
+        else if (eng->option.alignment() & Qt::AlignHCenter)
             x += (line.width - line.textWidth)/2;
         return x;
     }
@@ -1499,9 +1479,9 @@ qReal QTextLine::cursorToX(int *cursorPos, Edge edge) const
 
     x += line.x;
 
-    if (eng->textFlags & Qt::AlignRight)
+    if (eng->option.alignment() & Qt::AlignRight)
         x += line.width - line.textWidth;
-    else if (eng->textFlags & Qt::AlignHCenter)
+    else if (eng->option.alignment() & Qt::AlignHCenter)
         x += (line.width - line.textWidth)/2;
 
     QVarLengthArray<int> visualOrder(nItems);
@@ -1572,9 +1552,9 @@ int QTextLine::xToCursor(qReal x, CursorPosition cpos) const
     x -= line.x;
 
     eng->justify(line);
-    if (eng->textFlags & Qt::AlignRight)
+    if (eng->option.alignment() & Qt::AlignRight)
         x -= line.width - line.textWidth;
-    else if (eng->textFlags & Qt::AlignHCenter)
+    else if (eng->option.alignment() & Qt::AlignHCenter)
         x -= (line.width - line.textWidth)/2;
 //     qDebug("xToCursor: x=%f, cpos=%d", x, cpos);
 

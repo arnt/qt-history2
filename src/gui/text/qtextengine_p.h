@@ -34,6 +34,7 @@
 #include <qvector.h>
 #include <qpaintengine.h>
 #include <qtextobject.h>
+#include <qtextoption.h>
 
 #include <stdlib.h>
 #ifndef Q_OS_TEMP
@@ -327,12 +328,11 @@ public:
     QChar::Direction direction : 5;
     unsigned int haveCharAttributes : 1;
     unsigned int widthOnly : 1;
-    unsigned int designMetrics : 1;
     unsigned int textColorFromPalette : 1;
     unsigned int invalid : 1;
-    unsigned int reserved : 6;
+    unsigned int reserved : 7;
     unsigned int itemization_mode : 16;
-    unsigned int textFlags;
+    QTextOption option;
 
     QPalette *pal;
     QAbstractTextDocumentLayout *docLayout;

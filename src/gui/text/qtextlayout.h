@@ -66,6 +66,7 @@ class QPaintDevice;
 class QTextFormat;
 class QTextLine;
 class QTextBlock;
+class QTextOption;
 
 class Q_GUI_EXPORT QTextLayout
 {
@@ -73,8 +74,7 @@ public:
     // does itemization
     QTextLayout();
     QTextLayout(const QString& string);
-    QTextLayout(const QString& string, const QFont &font, QPaintDevice *paintdevice);
-    QTextLayout(const QString& string, const QFont& fnt);
+    QTextLayout(const QString& string, const QFont &font, QPaintDevice *paintdevice = 0);
     QTextLayout(const QTextBlock &b);
     ~QTextLayout();
 
@@ -89,16 +89,14 @@ public:
         AtCharBoundaries
     };
 
-    void setTextFlags(int textFlags);
+    void setTextOption(const QTextOption &option);
+    QTextOption textOption() const;
 
     enum PaletteFlags {
         None,
         UseTextColor
     };
     void setPalette(const QPalette &, PaletteFlags f = None);
-
-    void useDesignMetrics(bool);
-    bool usesDesignMetrics() const;
 
     enum LayoutModeFlags {
         MultiLine = 0,

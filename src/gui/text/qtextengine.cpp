@@ -848,10 +848,8 @@ static void init(QTextEngine *e)
     e->direction = QChar::DirON;
     e->haveCharAttributes = false;
     e->widthOnly = false;
-    e->designMetrics = false;
     e->textColorFromPalette = false;
     e->itemization_mode = 0;
-    e->textFlags = 0;
 
     e->pal = 0;
     e->docLayout = 0;
@@ -887,7 +885,6 @@ QTextEngine::QTextEngine(const QString &str, QFontPrivate *f)
 void QTextEngine::setText(const QString &str)
 {
     pal = 0;
-    textFlags = 0;
     invalidate();
     string = str;
 }
@@ -1239,9 +1236,8 @@ void QTextEngine::justify(const QScriptLine &line)
         const_cast<QScriptLine &>(line).gridfitted = true;
     }
 
-    if ((textFlags & Qt::AlignHorizontal_Mask) != Qt::AlignJustify) {
+    if ((option.alignment() & Qt::AlignHorizontal_Mask) != Qt::AlignJustify)
         return;
-    }
 
     // justify line
     int maxJustify = 0;
