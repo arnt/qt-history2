@@ -106,8 +106,8 @@ UnixMakefileGenerator::init()
     if(!project->isEmpty("QMAKE_LIBDIR")) {
 	const QStringList &libdirs = project->values("QMAKE_LIBDIR");
 	for(QStringList::ConstIterator it = libdirs.begin(); it != libdirs.end(); ++it) {
-	    if(!project->isEmpty("QMAKE_RPATH"))
-		project->variables()["QMAKE_LFLAGS"] += var("QMAKE_RPATH") + (*it);
+	    if(!project->isEmpty("QMAKE_LFLAGS_RPATH"))
+		project->variables()["QMAKE_LFLAGS"] += var("QMAKE_LFLAGS_RPATH") + (*it);
 	    project->variables()["QMAKE_LIBDIR_FLAGS"] += "-L" + (*it);
 	}
     }

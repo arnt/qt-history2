@@ -1321,7 +1321,7 @@ void UnixMakefileGenerator::init2()
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	}
 	QString destdir = project->first("DESTDIR");
-	if ( !destdir.isEmpty() && !project->variables()["QMAKE_RPATH"].isEmpty() ) {
+	if ( !destdir.isEmpty() && !project->variables()["QMAKE_LFLAGS_RPATH"].isEmpty() ) {
 	    QString rpath_destdir = destdir;
 	    if(QDir::isRelativePath(rpath_destdir)) {
 		QFileInfo fi(Option::fixPathToLocalOS(rpath_destdir));
@@ -1332,7 +1332,7 @@ void UnixMakefileGenerator::init2()
 	    } else {
 		rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, FALSE);
 	    }
-	    project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_RPATH") + rpath_destdir;
+	    project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_LFLAGS_RPATH") + rpath_destdir;
 	}
     }
     QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];

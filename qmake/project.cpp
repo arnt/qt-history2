@@ -208,6 +208,8 @@ static QString varMap(const QString &x)
 	ret = "QMAKE_EXTRA_INCLUDES";
     else if(ret == "QMAKE_EXTRA_UNIX_VARIABLES")
 	ret = "QMAKE_EXTRA_VARIABLES";
+    else if(ret == "QMAKE_RPATH")
+	ret = "QMAKE_LFLAGS_RPATH";
     return ret;
 }
 

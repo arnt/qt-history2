@@ -151,8 +151,8 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 			conf = new QMakeProject;
 			conf->read(QMakeProject::ReadAll ^ QMakeProject::ReadProFile);
 		    }
-		    if(!conf->isEmpty("QMAKE_RPATH"))
-			(*lit) = conf->first("QMAKE_RPATH") + (*lit).mid(2);
+		    if(!conf->isEmpty("QMAKE_LFLAGS_RPATH"))
+			(*lit) = conf->first("QMAKE_LFLAGS_RPATH") + (*lit).mid(2);
 		}
 	    }
 	    if(conf)
