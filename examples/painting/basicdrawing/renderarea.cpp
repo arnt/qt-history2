@@ -62,7 +62,7 @@ void RenderArea::paintEvent(QPaintEvent *)
     QPainterPath path;
     path.moveTo(20, 80);
     path.lineTo(20, 30);
-    path.curveTo(80, 0, 50, 50, 80, 80);
+    path.cubicTo(80, 0, 50, 50, 80, 80);
 
     int startAngle = 30 * 16;
     int arcLength = 120 * 16;

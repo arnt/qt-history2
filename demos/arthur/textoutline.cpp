@@ -203,7 +203,7 @@ void TextOutline::updatePath()
                 newPath.lineTo(mapPoint(elm.x, elm.y, &mappingOk));
                 break;
             case QPainterPath::CurveToElement:
-                newPath.curveTo(mapPoint(elm.x, elm.y, &mappingOk),
+                newPath.cubicTo(mapPoint(elm.x, elm.y, &mappingOk),
                                 mapPoint(basePath.elementAt(i+1).x, basePath.elementAt(i+1).y, &mappingOk),
                                 mapPoint(basePath.elementAt(i+2).x, basePath.elementAt(i+2).y, &mappingOk));
                 // Skip the two CurveToDataElement's

@@ -22,13 +22,13 @@ Roads::Roads(QWidget *parent)
     timeoutRate = 50;
 
     yellowLine.moveTo(100, 40);
-    yellowLine.curveTo(140, 40, 170, 60, 200, 60);
-    yellowLine.curveTo(260, 60, 280, 40, 330, 50);
-    yellowLine.curveTo(380, 60, 360, 100, 340, 120);
-    yellowLine.curveTo(320, 140, 300, 200, 300, 300);
-    yellowLine.curveTo(300, 400, 160, 400, 180, 300);
-    yellowLine.curveTo(200, 200, 100, 170, 90, 170);
-    yellowLine.curveTo(0, 170, 0, 40, 100, 40);
+    yellowLine.cubicTo(140, 40, 170, 60, 200, 60);
+    yellowLine.cubicTo(260, 60, 280, 40, 330, 50);
+    yellowLine.cubicTo(380, 60, 360, 100, 340, 120);
+    yellowLine.cubicTo(320, 140, 300, 200, 300, 300);
+    yellowLine.cubicTo(300, 400, 160, 400, 180, 300);
+    yellowLine.cubicTo(200, 200, 100, 170, 90, 170);
+    yellowLine.cubicTo(0, 170, 0, 40, 100, 40);
 
     QPainterPathStroker stroker;
     stroker.setWidth(20);

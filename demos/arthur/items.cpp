@@ -33,9 +33,9 @@ public:
             path = new QPainterPath;
             path->addRect(20,20, 60,60);
             path->moveTo(0,0);
-            path->curveTo(99,0, 50,50, 99,99);
+            path->cubicTo(99,0, 50,50, 99,99);
             path->moveTo(99,99);
-            path->curveTo(0,99, 50,50, 0,0);
+            path->cubicTo(0,99, 50,50, 0,0);
 #ifndef Q_WS_QWS
             QFont fnt("times", 75);
 #else

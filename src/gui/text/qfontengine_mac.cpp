@@ -601,7 +601,7 @@ public:
     inline QMacFontPath(float _x, float _y, QPainterPath *_path) : x(_x), y(_y), path(_path) { }
     inline void advance(float _x) { x += _x; }
     static OSStatus lineTo(const Float32Point *, void *);
-    static OSStatus curveTo(const Float32Point *, const Float32Point *,
+    static OSStatus cubicTo(const Float32Point *, const Float32Point *,
                             const Float32Point *, void *);
     static OSStatus moveTo(const Float32Point *, void *);
     static OSStatus closePath(void *);
@@ -615,12 +615,12 @@ OSStatus QMacFontPath::lineTo(const Float32Point *pt, void *data)
     return noErr;
 }
 
-OSStatus QMacFontPath::curveTo(const Float32Point *cp1, const Float32Point *cp2,
+OSStatus QMacFontPath::cubicTo(const Float32Point *cp1, const Float32Point *cp2,
                                const Float32Point *ep, void *data)
 
 {
     QMacFontPath *p = static_cast<QMacFontPath*>(data);
-    p->path->curveTo(p->x + cp1->x, p->y + cp1->y,
+    p->path->cubicTo(p->x + cp1->x, p->y + cp1->y,
                      p->x + cp2->x, p->y + cp2->y,
                      p->x + ep->x, p->y + ep->y);
     return noErr;
@@ -721,18 +721,18 @@ void QFontEngineMac::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
     QMacFontPath fontpath(x, y, path);
     ATSCubicMoveToUPP moveTo = NewATSCubicMoveToUPP(QMacFontPath::moveTo);
     ATSCubicLineToUPP lineTo = NewATSCubicLineToUPP(QMacFontPath::lineTo);
-    ATSCubicCurveToUPP curveTo = NewATSCubicCurveToUPP(QMacFontPath::curveTo);
+    ATSCubicCurveToUPP cubicTo = NewATSCubicCurveToUPP(QMacFontPath::cubicTo);
     ATSCubicClosePathUPP closePath = NewATSCubicClosePathUPP(QMacFontPath::closePath);
     ATSGlyphIdealMetrics idealMetrics;
     for (ItemCount i = 0; i < numRecords; ++i) {
         ATSUGlyphGetCubicPaths(st->style, layoutRecords[i].glyphID, moveTo, lineTo,
-                               curveTo, closePath, &fontpath, &e);
+                               cubicTo, closePath, &fontpath, &e);
         ATSUGlyphGetIdealMetrics(st->style, 1, &layoutRecords[i].glyphID, 0, &idealMetrics);
         fontpath.advance(idealMetrics.advance.x);
     }
     DisposeATSCubicMoveToUPP(moveTo);
     DisposeATSCubicLineToUPP(lineTo);
-    DisposeATSCubicCurveToUPP(curveTo);
+    DisposeATSCubicCurveToUPP(cubicTo);
     DisposeATSCubicClosePathUPP(closePath);
 
     ATSUDirectReleaseLayoutDataArrayPtr(0, kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,

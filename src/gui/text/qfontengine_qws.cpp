@@ -288,9 +288,9 @@ static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPo
         QPointF c3 = (j == nOff) ? next : (next + current)/2;
         QPointF c1 = (2*current + c0)/3;
         QPointF c2 = (2*current + c3)/3;
-//         qDebug("curveTo %f/%f %f/%f %f/%f", (cp + c1).x(),  (cp + c1).y(),
+//         qDebug("cubicTo %f/%f %f/%f %f/%f", (cp + c1).x(),  (cp + c1).y(),
 //                (cp + c2).x(),  (cp + c2).y(), (cp + c3).x(),  (cp + c3).y());
-        path->curveTo(cp + c1, cp + c2, cp + c3);
+        path->cubicTo(cp + c1, cp + c2, cp + c3);
         c0 = c3;
         current = next;
     }

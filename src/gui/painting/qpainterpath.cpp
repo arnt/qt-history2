@@ -433,8 +433,8 @@ void QPainterSubpath::removeBrokenSegments()
     path.addRect(20, 20, 80, 80);
 
     path.moveTo(0, 0);
-    path.curveTo(99, 0,  50, 50,  99, 99);
-    path.curveTo(0, 99,  50, 50,  0, 0);
+    path.cubicTo(99, 0,  50, 50,  99, 99);
+    path.cubicTo(0, 99,  50, 50,  0, 0);
 
     painter.drawPath(path);
     \endcode
@@ -640,7 +640,7 @@ void QPainterPath::lineTo(const QPointF &p)
 }
 
 /*!
-    \fn void QPainterPath::curveTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x,
+    \fn void QPainterPath::cubicTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x,
                                    qreal ctrlPt2y, qreal endPtx, qreal endPty);
 
     \overload
@@ -653,16 +653,16 @@ void QPainterPath::lineTo(const QPointF &p)
 */
 
 /*!
-    \fn void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &endPoint)
+    \fn void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &endPoint)
 
     Adds a Bezier curve between the current point and \a endPoint with control
     points specified by \a c1, and \a c2. After the curve is added, the current
     point is updated to be at the end point of the curve.
 */
-void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &e)
+void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &e)
 {
 #ifdef QPP_DEBUG
-    printf("QPainterPath::curveTo() (%.2f,%.2f), (%.2f,%.2f), (%.2f,%.2f)\n",
+    printf("QPainterPath::cubicTo() (%.2f,%.2f), (%.2f,%.2f), (%.2f,%.2f)\n",
            c1.x(), c1.y(), c2.x(), c2.y(), e.x(), e.y());
 #endif
     Q_ASSERT(!elements.isEmpty());
@@ -705,7 +705,7 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
     QPointF prev(elm.x, elm.y);
     QPointF c1((prev.x() + 2*c.x()) / 3, (prev.y() + 2*c.y()) / 3);
     QPointF c2((e.x() + 2*c.x()) / 3, (e.y() + 2*c.y()) / 3);
-    curveTo(c1, c2, e);
+    cubicTo(c1, c2, e);
 }
 
 /*!
@@ -784,7 +784,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 
         if (startPoint != QPointF(elements.last().x, elements.last().y))
             lineTo(startPoint);
-        curveTo(controlLine1.end(), controlLine2.end(), endPoint);
+        cubicTo(controlLine1.end(), controlLine2.end(), endPoint);
     }
 }
 
@@ -1099,7 +1099,7 @@ QPainterPath QPainterPath::toReversed() const
                 const QPainterPath::Element &sp = elements.at(i-3);
                 Q_ASSERT(prev.type == CurveToDataElement);
                 Q_ASSERT(cp1.type == CurveToElement);
-                rev.curveTo(prev.x, prev.y, cp1.x, cp1.y, sp.x, sp.y);
+                rev.cubicTo(prev.x, prev.y, cp1.x, cp1.y, sp.x, sp.y);
                 i -= 2;
                 break;
             }
@@ -1467,7 +1467,7 @@ void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine,
             cp1Line.setLength(cp1Line.length() * KAPPA);
             QLineF cp2Line(nextLine.start(), isect);
             cp2Line.setLength(cp2Line.length() * KAPPA);
-            path->curveTo(cp1Line.end(), cp2Line.end(), nextLine.start());
+            path->cubicTo(cp1Line.end(), cp2Line.end(), nextLine.start());
             break;
         }
         default:

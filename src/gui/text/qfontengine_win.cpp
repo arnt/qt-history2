@@ -571,10 +571,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
                             endPoint = p2;
                         }
 
-                        QPointF c1((prev.x() + 2*p1.x()) / 3, (prev.y() + 2*p1.y()) / 3);
-                        QPointF c2((endPoint.x() + 2*p1.x()) / 3, (endPoint.y() + 2*p1.y()) / 3);
-                        path->curveTo(c1, c2, endPoint);
-
+                        path->quadTo(p1, endPoint);
                         prev = endPoint;
                     }
 
@@ -585,7 +582,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
                         QPointF p2 = qt_to_qpointf(curve->apfx[i++]) + oset;
                         QPointF p3 = qt_to_qpointf(curve->apfx[i++]) + oset;
                         QPointF p4 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                        path->curveTo(p2, p3, p4);
+                        path->cubicTo(p2, p3, p4);
                     }
                     break;
                 }

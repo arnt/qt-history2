@@ -65,8 +65,8 @@ public:
     void arcTo(const QRectF &rect, qreal startAngle, qreal arcLength);
     inline void arcTo(qreal x, qreal y, qreal w, qreal h, qreal startAngle, qreal arcLength);
 
-    void curveTo(const QPointF &ctrlPt1, const QPointF &ctrlPt2, const QPointF &endPt);
-    inline void curveTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x, qreal ctrlPt2y,
+    void cubicTo(const QPointF &ctrlPt1, const QPointF &ctrlPt2, const QPointF &endPt);
+    inline void cubicTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x, qreal ctrlPt2y,
                         qreal endPtx, qreal endPty);
     void quadTo(const QPointF &ctrlPt, const QPointF &endPt);
     inline void quadTo(qreal ctrlPtx, qreal ctrlPty, qreal endPtx, qreal endPty);
@@ -172,10 +172,10 @@ inline void QPainterPath::arcTo(qreal x, qreal y, qreal w, qreal h, qreal startA
     arcTo(QRectF(x, y, w, h), startAngle, arcLenght);
 }
 
-inline void QPainterPath::curveTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x, qreal ctrlPt2y,
+inline void QPainterPath::cubicTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x, qreal ctrlPt2y,
                                    qreal endPtx, qreal endPty)
 {
-    curveTo(QPointF(ctrlPt1x, ctrlPt1y), QPointF(ctrlPt2x, ctrlPt2y),
+    cubicTo(QPointF(ctrlPt1x, ctrlPt1y), QPointF(ctrlPt2x, ctrlPt2y),
             QPointF(endPtx, endPty));
 }
 

@@ -532,7 +532,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 QPainterPath path;
                 Q_ASSERT(a.size() == 4);
                 path.moveTo(a.at(0));
-                path.curveTo(a.at(1), a.at(2), a.at(3));
+                path.cubicTo(a.at(1), a.at(2), a.at(3));
                 painter->strokePath(path, painter->pen());
                 a.clear();
             }

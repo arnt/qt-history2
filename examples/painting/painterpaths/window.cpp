@@ -62,7 +62,7 @@ Window::Window()
 
     QPainterPath bezierPath;
     bezierPath.moveTo(20, 30);
-    bezierPath.curveTo(80, 0, 50, 50, 80, 80);
+    bezierPath.cubicTo(80, 0, 50, 50, 80, 80);
 
     QPainterPath starPath;
     starPath.moveTo(90, 50);

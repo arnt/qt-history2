@@ -4601,7 +4601,7 @@ void QPainter::drawCubicBezier(const QPolygon &a, int index)
 
     QPainterPath path;
     path.moveTo(a.at(index));
-    path.curveTo(a.at(index+1), a.at(index+2), a.at(index+3));
+    path.cubicTo(a.at(index+1), a.at(index+2), a.at(index+3));
     strokePath(path, d->state->pen);
 }
 #endif

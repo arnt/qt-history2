@@ -52,7 +52,7 @@ void Paths::paintEvent(QPaintEvent *)
     // Add the bezier curves to it
     path.moveTo(a.at(0));
     for (int bez=0; bez<bezierCount; ++bez) {
-        path.curveTo(a.at(bez*3+1), a.at(bez*3+2), a.at(bez*3+3));
+        path.cubicTo(a.at(bez*3+1), a.at(bez*3+2), a.at(bez*3+3));
     }
     path.closeSubpath();
 
