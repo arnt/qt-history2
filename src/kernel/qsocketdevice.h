@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#3 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#4 $
 **
 ** Definition of QSocketDevice class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-class QSocketAddress
+class Q_EXPORT QSocketAddress
 {
 public:
     QSocketAddress();
@@ -59,7 +59,7 @@ private:
 };
 
 
-class QSocketDevice : public QIODevice
+class Q_EXPORT QSocketDevice : public QIODevice
 {
 public:
     enum Type { Stream, Datagram };

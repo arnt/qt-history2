@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#6 $
 **
 ** Implementation of QSocket class
 **
@@ -27,9 +27,16 @@
 #include "qlist.h"
 #include "qsocketdevice.h"
 
+#if defined(UNIX)
 // gethostbyname
 #include <netdb.h>
 #include <netinet/in.h>
+#endif
+
+#if defined(_WS_WIN_)
+#include "qt_windows.h"
+#endif
+
 
 #define QSOCKET_DEBUG
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.h#6 $
+** $Id: //depot/qt/main/src/kernel/qsocket.h#7 $
 **
 ** Definition of QSocket class
 **
@@ -35,7 +35,7 @@
 class QSocketPrivate;
 
 
-class QSocket : public QObject, public QIODevice
+class Q_EXPORT QSocket : public QObject, public QIODevice
 {
     Q_OBJECT
 public:
