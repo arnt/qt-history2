@@ -1556,14 +1556,17 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    QPointArray pa = a;
+    QPointArray pa;
+    if ( npoints != (int)a.size() ) {
+	pa = QPointArray( npoints );
+	for ( int i=0; i<npoints; i++ )
+	    pa.setPoint( i, a.point(index+i) );
+	index = 0;
+    } else {
+	pa = a;
+    }
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
-	    if ( npoints != (int)a.size() ) {
-		pa = QPointArray( npoints );
-		for ( int i=0; i<npoints; i++ )
-		    pa.setPoint( i, a.point(index+i) );
-	    }
 	    QPDevCmdParam param[2];
 	    param[0].ptarr = (QPointArray*)&pa;
 	    param[1].ival = winding;
