@@ -8,6 +8,7 @@
 
 class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
+    Q_OBJECT
 public:
     QItemDelegate(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemDelegate();

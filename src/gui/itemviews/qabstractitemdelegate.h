@@ -25,6 +25,7 @@ class QAbstractItemDelegatePrivate;
 
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
+    Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractItemDelegate)
     Q_ENUMS(EditorType EndEditFlags)
     Q_FLAGS(StartEditFlags)
