@@ -2572,43 +2572,30 @@ void QTextEdit::removeParagraph( int para )
     QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return;
+
     for ( int i = 0; i < doc->numSelections(); ++i )
 	doc->removeSelection( i );
 
-    if ( p == doc->firstParag() && p == doc->lastParag() ) {
-	p->remove( 0, p->length() - 1 );
-	repaintChanged();
-	return;
-    }
-    drawCursor( FALSE );
-    bool resetCursor = cursor->parag() == p;
-    if ( p->prev() )
-	p->prev()->setNext( p->next() );
-    else
-	doc->setFirstParag( p->next() );
-    if ( p->next() )
-	p->next()->setPrev( p->prev() );
-    else
-	doc->setLastParag( p->prev() );
-    QTextParag *start = p->next();
-    int h = p->rect().height();
-    delete p;
-    p = start;
-    int dy = -h;
-    while ( p ) {
-	p->setParagId( p->prev() ? p->prev()->paragId() + 1 : 0 );
-	p->move( dy );
-	p->invalidate( 0 );
-	p->setEndState( -1 );
-	p = p->next();
+    QTextCursor start( doc );
+    QTextCursor end( doc );
+    start.setParag( p );
+    start.setIndex( 0 );
+    end.setParag( p );
+    end.setIndex( p->length() - 1 );
+
+    if ( !(p == doc->firstParag() && p == doc->lastParag()) ) {
+	if ( p->next() ) {
+	    end.setParag( p->next() );
+	    end.setIndex( 0 );
+	} else if ( p->prev() ) {
+	    start.setParag( p->prev() );
+	    start.setIndex( p->prev()->length() - 1 );
+	}
     }
 
-    if ( resetCursor ) {
-	cursor->setParag( doc->firstParag() );
-	cursor->setIndex( 0 );
-    }
-    repaintChanged();
-    drawCursor( TRUE );
+    doc->setSelectionStart( QTextDocument::Temp, &start );
+    doc->setSelectionEnd( QTextDocument::Temp, &end );
+    removeSelectedText( QTextDocument::Temp );
 }
 
 /*!
@@ -2622,9 +2609,6 @@ void QTextEdit::removeParagraph( int para )
 
 void QTextEdit::undo()
 {
-    // XXX FIXME The next line is here because there may be a command
-    // that needs to be 'flushed'.  The FIXME is because I am not
-    // 100% certain this is the right call to do this.
     clearUndoRedo();
     if ( isReadOnly() || !doc->commands()->isUndoAvailable() || !undoEnabled )
 	return;
