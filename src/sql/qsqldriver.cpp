@@ -39,6 +39,7 @@
 #ifndef QT_NO_SQL
 
 #include "qdatetime.h"
+#include "qregexp.h"
 
 // database states
 #define DBState_Open		0x0001
@@ -314,7 +315,9 @@ QString QSqlDriver::nullText() const
   <li> If \a field is character data, the value is returned enclosed
   in single quotation marks, which is appropriate for many SQL
   databases.  If \a trimStrings is TRUE (the default is FALSE), all
-  trailing whitespace is trimmed from the field.
+  trailing whitespace is trimmed from the field.  Any embedded
+  single-quote characters are escaped (replaced with two single-quote
+  characters).
 
   <li> If \a field is date/time data, the value is formatted in ISO
   format and enclosed in single quotation marks.  If the date/time
@@ -352,7 +355,7 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	    break;
 	case QVariant::DateTime:
 	    if ( field->value().toDateTime().isValid() )
-		r = "'" + 
+		r = "'" +
 		    field->value().toDateTime().toString( Qt::ISODate ) + "'";
 	    else
 		r = nullText();
@@ -362,12 +365,14 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	    QString result = field->value().toString();
 	    if ( trimStrings ) {
 		int end = result.length() - 1;
-		while ( end && result[end].isSpace() ) // skip white space from end
+		while ( end && result[end].isSpace() ) /* skip white space from end */
 		    end--;
 		result.truncate( end );
-		r = "'" + result + "'";
-	    } else
-		r = "'" + field->value().toString() + "'";
+	    }
+	    /* escape the ' character */
+	    QRegExp x( "'" );
+	    result.replace( x, "''" );
+	    r = "'" + result + "'";
 	    break;
 	}
 	case QVariant::ByteArray : {
