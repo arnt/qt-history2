@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#25 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -203,7 +203,7 @@ bool QRegExp::operator==( const QRegExp &r ) const
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the wildcard option for the regular expression.  The default
+  Sets the wildcard option for the regular expression.	The default
   is FALSE.
 
   Setting \e wildcard to TRUE makes it convenient to match filenames
@@ -226,7 +226,7 @@ void QRegExp::setWildcard( bool wildcard )
 /*----------------------------------------------------------------------------
   \fn bool QRegExp::caseSensitive() const
 
-  Returns TRUE if case sensitivity is enabled, otherwise FALSE.  The
+  Returns TRUE if case sensitivity is enabled, otherwise FALSE.	 The
   default is TRUE.
 
   \sa setCaseSensitive()
@@ -265,7 +265,7 @@ void QRegExp::setCaseSensitive( bool enable )
   Example:
   \code
     QRegExp r("[0-9]*\.[0-9]+");		// matches floating point
-    int	len;
+    int len;
     r.match("pi = 3.1416", 0, &len);		// returns 5, len == 6
   \endcode
  ----------------------------------------------------------------------------*/
@@ -309,7 +309,7 @@ int QRegExp::match( const char *str, int index, int *len ) const
     }
 }
 
-inline bool iswordchar( int x )
+static inline bool iswordchar( int x )
 {
     return isalnum(x) || x == '_';
 }
@@ -545,7 +545,7 @@ static int char_val( char **str )		// get char value
 
 
 #if defined(DEBUG)
-ushort *dump( ushort *p )			// DEBUG !!!
+static ushort *dump( ushort *p )		// DEBUG !!!
 {
     while ( *p != END ) {
 	if ( *p & CHR ) {
