@@ -37,7 +37,7 @@ struct QPainterPathElement
  */
 struct QPainterSubpath
 {
-    QPainterSubpath() : pointCount(0) { };
+    QPainterSubpath() { };
 
     /*! Makes a straight line connection to the last point if \a p differs from
      * lastPoint. The addLine recursion is safe since we connect to lastPoint
