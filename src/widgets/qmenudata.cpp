@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#65 $
 **
 ** Implementation of QMenuData class
 **
@@ -283,6 +283,10 @@ void QMenuData::setAllDirty( bool dirty )
   menu bar. For stand-alone popup menus, use an independent QAccel
   object.
 
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
 */
@@ -303,6 +307,10 @@ int QMenuData::insertItem( const char *text,
   connects it to an object/slot.
 
   Returns a unique menu item identifier (negative integer \<= -2).
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -325,6 +333,10 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   the left of the text in the item.
 
   Returns a unique menu item identifier (negative integer \<= -2).
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -359,6 +371,10 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
   menu bar. For stand-alone popup menus, use an independent QAccel
   object.
 
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
 */
@@ -391,6 +407,10 @@ int QMenuData::insertItem( const char *text,
   Note that accelerators only work for QPopupMenu items that live in a
   menu bar. For stand-alone popup menus, use an independent QAccel
   object.
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -425,6 +445,10 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   menu bar. For stand-alone popup menus, use an independent QAccel
   object.
 
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
 */
@@ -453,6 +477,10 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
@@ -480,6 +508,10 @@ int QMenuData::insertItem( const char *text, int id, int index )
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
@@ -501,6 +533,10 @@ int QMenuData::insertItem( const char *text, QPopupMenu *popup,
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -529,6 +565,10 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
@@ -551,6 +591,10 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -579,6 +623,10 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
