@@ -176,18 +176,18 @@ public:
     }
 
     // IDispatch
-    HRESULT __stdcall GetTypeInfoCount( unsigned int *count ) { return E_NOTIMPL; }
-    HRESULT __stdcall GetTypeInfo( UINT, LCID, ITypeInfo **info ) { return E_NOTIMPL; }
+    HRESULT __stdcall GetTypeInfoCount( unsigned int * ) { return E_NOTIMPL; }
+    HRESULT __stdcall GetTypeInfo( UINT, LCID, ITypeInfo ** ) { return E_NOTIMPL; }
     HRESULT __stdcall GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * ) { return E_NOTIMPL; }
 
     HRESULT __stdcall Invoke( DISPID dispIdMember,
 			      REFIID riid,
-			      LCID lcid,
+			      LCID,
 			      WORD wFlags,
 			      DISPPARAMS *pDispParams,
-			      VARIANT *pVarResult,
-			      EXCEPINFO *pExcepInfo,
-			      UINT *puArgErr )
+			      VARIANT*,
+			      EXCEPINFO*,
+			      UINT* )
     {
 	// verify input
 	if ( riid != IID_NULL )
@@ -1983,7 +1983,7 @@ void MetaObjectGenerator::readEventInfo()
 	    do {
 		if ( cpoint ) cpoint->Release();
 		cpoint = 0;
-		HRESULT hres = epoints->Next( c, &cpoint, &c );
+		epoints->Next( c, &cpoint, &c );
 		if ( !c )
 		    break;
 
@@ -2164,7 +2164,7 @@ QMetaObject *MetaObjectGenerator::tryCache()
 		    sink->advise( cpoint, iid );
 		    d->eventSink.insert( iid, sink );
 		    sink->sigs = d->metaobj->sigs[iid];
-		    int csigs = sink->sigs.count();
+
 		    sink->props = d->metaobj->props[iid];
 		    sink->propsigs = d->metaobj->propsigs[iid];
 		    cpoints->Release();
@@ -2602,7 +2602,6 @@ QString QAxBase::generateDocumentation()
 	QMap<QString, QString> signalMap;
 	for ( int isignal = 0; isignal < signalCount; ++isignal ) {
 	    const QMetaData *signal = mo->signal( isignal );
-	    const QUMethod *method = signal->method;
 	    signalMap[signal->name] = "void";
 	}
 	QMapConstIterator<QString,QString> it;

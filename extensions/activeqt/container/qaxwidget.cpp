@@ -166,8 +166,8 @@ public:
     STDMETHOD(QueryInterface)(REFIID iid, void **iface );
 
 // IDispatch
-    HRESULT __stdcall GetTypeInfoCount( unsigned int *count ) { return E_NOTIMPL; }
-    HRESULT __stdcall GetTypeInfo( UINT, LCID, ITypeInfo **info ) { return E_NOTIMPL; }
+    HRESULT __stdcall GetTypeInfoCount( unsigned int * ) { return E_NOTIMPL; }
+    HRESULT __stdcall GetTypeInfo( UINT, LCID, ITypeInfo ** ) { return E_NOTIMPL; }
     HRESULT __stdcall GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * ) { return E_NOTIMPL; }
     HRESULT __stdcall Invoke( DISPID dispIdMember, 
 			      REFIID riid, 
@@ -685,7 +685,7 @@ HRESULT WINAPI QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* 
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::TranslateAccelerator(LPMSG lpMsg, DWORD grfModifiers)
+HRESULT WINAPI QAxHostWindow::TranslateAccelerator(LPMSG lpMsg, DWORD /*grfModifiers*/)
 {
     QT_WA_INLINE(
         SendMessage(hostWidget()->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam),
@@ -850,7 +850,7 @@ HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU /*hmenuShared*/, LPOLEMENUGROUP
     return S_OK;
 }
 
-static int menuItemEntry( HMENU menu, int index, MENUITEMINFOA item, QString &text, QPixmap &icon )
+static int menuItemEntry( HMENU menu, int index, MENUITEMINFOA item, QString &text, QPixmap &/*icon*/ )
 {
     if ( item.fType == MFT_STRING && item.cch ) {
 	char *titlebuf = new char[item.cch+1];
@@ -1238,7 +1238,7 @@ bool QAxHostWidget::event( QEvent *e )
 	    killTimer( setFocusTimer );
 	    setFocusTimer = 0;
 	    RECT rcPos = { x(), y(), x()+size().width(), y()+size().height() };
-	    HRESULT res = axhost->m_spOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos );
+	    axhost->m_spOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos );
 	}
 	break;
     }
@@ -1281,7 +1281,7 @@ void QAxHostWidget::windowActivationChange( bool oldActive )
 }
 
 
-void QAxHostWidget::paintEvent( QPaintEvent *e )
+void QAxHostWidget::paintEvent( QPaintEvent* )
 {
     QPaintDevice *grabber = QPainter::redirect( this );
     if ( !grabber )
@@ -1303,7 +1303,7 @@ void QAxHostWidget::paintEvent( QPaintEvent *e )
     bounds.right = pm.width();
     bounds.top = 0;
     bounds.bottom = pm.height();
-    HRESULT res = view->Draw( DVASPECT_CONTENT, -1, 0, 0, 0, hdc, &bounds, 0, 0 /*fptr*/, 0 );
+    view->Draw( DVASPECT_CONTENT, -1, 0, 0, 0, hdc, &bounds, 0, 0 /*fptr*/, 0 );
     view->Release();
     painter.end();
 
