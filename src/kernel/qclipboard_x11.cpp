@@ -59,6 +59,7 @@
 #include "qdatetime.h"
 #include "qdragobject.h"
 #include "qbuffer.h"
+#include "qtextcodec.h"
 #include "qvaluelist.h"
 #include "qt_x11.h"
 #include "qapplication_p.h"
@@ -737,7 +738,7 @@ bool QClipboard::event( QEvent *e )
 		    while (d->source()->format(atoms)) atoms++;
 		    if (d->source()->provides("image/ppm")) atoms++;
 		    if (d->source()->provides("image/pbm")) atoms++;
-		    if (d->source()->provides("text/plain")) atoms+=3;
+		    if (d->source()->provides("text/plain")) atoms+=4;
 
 #if defined(QCLIPBOARD_DEBUG_VERBOSE)
 		    qDebug("qclipboard_x11.cpp:%d: %d provided types", __LINE__, atoms);
@@ -767,6 +768,7 @@ bool QClipboard::event( QEvent *e )
 			atarget[n++] = XA_BITMAP;
 		    if ( d->source()->provides("text/plain") ) {
 			atarget[n++] = xa_utf8_string;
+			atarget[n++] = xa_text;
 			atarget[n++] = xa_compound_text;
 			atarget[n++] = XA_STRING;
 		    }
@@ -791,7 +793,9 @@ bool QClipboard::event( QEvent *e )
 			delete[] multi;
 		} else {
 		    bool already_done = FALSE;
-		    if ( target == XA_STRING) {
+		    if ( target == XA_STRING ||
+			 ( target == xa_text &&
+			   QTextCodec::codecForLocale()->mibEnum() == 4 ) ) {
 			// the ICCCM states that STRING is latin1 plus newline and tab
 			// see section 2.6.2
 			fmt = "text/plain;charset=ISO-8859-1";
@@ -803,7 +807,10 @@ bool QClipboard::event( QEvent *e )
 			// encoding of choice, so we choose the encoding of the locale
 			fmt = "text/plain";
 			data = d->source()->encodedData( fmt );
-			char *list[] = { data.data() };
+			if( data.resize(data.size() + 1) )
+			    *data.end() = '\0';
+			char *list[] = { data.data(), NULL };
+
 			XICCEncodingStyle style;
 			if ( target == xa_compound_text )
 			    style = XCompoundTextStyle;
@@ -813,13 +820,8 @@ bool QClipboard::event( QEvent *e )
 			if ( list[0] != NULL &&
 			     XmbTextListToTextProperty( dpy, list, 1, style,
 							&textprop ) == Success ) {
-			    data.duplicate( (const char *) textprop.value,
-					    textprop.nitems );
+			    XSetTextProperty( dpy, req->requestor, &textprop, property );
 			    XFree( textprop.value );
-			    XChangeProperty( dpy, req->requestor, property,
-					     xa_compound_text, 8, PropModeReplace,
-					     (unsigned char *) data.data(),
-					     data.size() );
 			    evt.xselection.property = property;
 			}
 			already_done = TRUE;
