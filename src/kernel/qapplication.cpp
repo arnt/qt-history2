@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#270 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#271 $
 **
 ** Implementation of QApplication class
 **
@@ -713,7 +713,7 @@ int QApplication::colorSpec()
     Under Windows, this is currently the same as \c CustomColor.
     Under X11 the effect is: <ul>
       <li> For 256-color displays which have at best a 256 color true color
-	    visual, the default visual is used, and a colors are allocated
+	    visual, the default visual is used, and colors are allocated
 	    from a color cube.
 	    The color cube is the 6x6x6 (216 color) "Web palette", but the
 	    number of colors can be changed by the \e -ncols option.
@@ -722,7 +722,7 @@ int QApplication::colorSpec()
 	    option.
       <li> For 256-color displays which have a true color visual with more
             than 256 colors, use that visual.  Silicon Graphics X
-            servers have this feature, for eample.  They provide an 8
+            servers have this feature, for example.  They provide an 8
             bit visual by default but can deliver true color when
             asked.
 
