@@ -655,14 +655,13 @@ int QLineEdit::cursorPosition() const
 
 void QLineEdit::setCursorPosition( int pos )
 {
-    if ( pos <= (int) d->text.length() )
+    if (pos >= 0 && pos <= d->text.length())
 	d->moveCursor( pos );
 }
 
 
 /*! \obsolete Use setText(), setCursorPosition() and setSelection() instead.
 */
-
 bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 				 int newMarkAnchor, int newMarkDrag )
 {

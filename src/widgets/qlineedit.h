@@ -76,13 +76,13 @@ public:
     QSize minimumSizeHint() const;
 
     int cursorPosition() const;
-    bool validateAndSet( const QString &, int, int, int ); // obsolete
 
     int alignment() const;
 
 #ifdef QT_COMPAT
     QT_COMPAT void cursorLeft( bool mark, int steps = 1 ) { cursorForward( mark, -steps ); }
     QT_COMPAT void cursorRight( bool mark, int steps = 1 ) { cursorForward( mark, steps ); }
+    QT_COMPAT bool validateAndSet( const QString &, int, int, int );
 #endif
     void cursorForward( bool mark, int steps = 1 );
     void cursorBackward( bool mark, int steps = 1 );
