@@ -167,7 +167,9 @@ private:
     uint enabled : 1;
     int rw, cl;
     int rowspan, colspan;
-
+#if (QT_VERSION >= 0x040000)
+#error "Add a setAlignment() function in 4.0 and a d pointer also"
+#endif
 };
 
 #define Q_DEFINED_QTABLE_ITEM
