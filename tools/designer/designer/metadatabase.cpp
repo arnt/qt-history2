@@ -536,8 +536,10 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString& spe
     s.access = access;
     s.language = language;
     s.returnType = returnType;
-    if ( r->slotList.find( s ) == r->slotList.end() )
-	r->slotList.append( s );
+    QValueList<MetaDataBase::Slot>::Iterator it = r->slotList.find( s );
+    if ( it != r->slotList.end() )
+	r->slotList.remove( it );
+    r->slotList.append( s );
     ( (FormWindow*)o )->formFile()->addSlotCode( s );
 }
 
@@ -1453,6 +1455,21 @@ QString MetaDataBase::functionComments( QObject *o, const QString &func )
 	return QString::null;
     }
     return *r->functionComments.find( func );
+}
+
+void MetaDataBase::addFunctionBody( QObject *o, const QString &func, const QString &body )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->functionBodies.insert( func, body );
 }
 
 void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang, const QString &returnType )

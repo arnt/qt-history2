@@ -625,8 +625,8 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
 							    slot.returnType, slot.access ) +
 		       "\n" + iface->createEmptyFunction();
 	cod += body;
-	functionBodies.insert( MetaDataBase::normalizeSlot( slot.slot ), iface->createEmptyFunction() );
-	MetaDataBase::setFunctionBodies( formWindow(), functionBodies, pro->language(), slot.returnType );
+	MetaDataBase::addFunctionBody( formWindow(),
+				       MetaDataBase::normalizeSlot( slot.slot ), iface->createEmptyFunction() );
 	if ( codeEdited ) {
 	    setModified( TRUE );
 	    emit somethingChanged( this );
