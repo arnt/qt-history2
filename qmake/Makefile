@@ -8,7 +8,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/I$(QTDIR)\mkspecs\win32-msvc \
 		/DQT_NO_TEXTCODEC  /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL
 LFLAGS	    =	/DEBUG
-LIBS	    =	ole32.lib
+LIBS	    =	ole32.lib advapi32.lib
 LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
 !ELSE
@@ -37,7 +37,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
 	qglist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
-	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj
+	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj
 
 
 
@@ -56,6 +56,12 @@ distclean:: clean
 
 .cpp.obj:
 	$(CXX) $(CFLAGS) $<
+
+qlibrary.obj: $(QTDIR)\src\tools\qlibrary.cpp
+	$(CXX) $(CFLAGS) $(QTDIR)\src\tools\qlibrary.cpp
+
+qlibrary_win.obj: $(QTDIR)\src\tools\qlibrary_win.cpp
+	$(CXX) $(CFLAGS) $(QTDIR)\src\tools\qlibrary_win.cpp
 
 qtextstream.obj: $(QTDIR)\src\tools\qtextstream.cpp
 	$(CXX) $(CFLAGS) $(QTDIR)\src\tools\qtextstream.cpp
