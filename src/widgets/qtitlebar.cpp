@@ -745,8 +745,12 @@ bool QTitleBarLabel::event( QEvent* e )
     if ( e->type() == QEvent::ApplicationPaletteChange ) {
 	getColors();
 	return TRUE;
-    } else if ( e->type() == QEvent::WindowActivate || e->type() == QEvent::WindowDeactivate ) {
+    } else if ( e->type() == QEvent::WindowActivate ) {
 	setActive( act );
+    } else if ( e->type() == QEvent::WindowDeactivate ) {
+	bool wasActive = act;
+	setActive( FALSE );
+	act = wasActive;
     }
 
     return QFrame::event( e );
@@ -754,7 +758,7 @@ bool QTitleBarLabel::event( QEvent* e )
 
 void QTitleBarLabel::setActive( bool a )
 {
-    act = a && isActiveWindow();
+    act = a;
     if ( a ) {
 	textc = atextc;
 	leftc = aleftc;
