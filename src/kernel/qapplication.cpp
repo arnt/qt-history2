@@ -758,19 +758,7 @@ QWidget *QApplication::activePopupWidget()
 
 QWidget *QApplication::activeModalWidget()
 {
-    if ( !qt_modal_stack )
-	return 0;
-    QWidget* w = qt_modal_stack->getFirst();
-    if ( w->testWState( WState_Modal ) )
-	return w;
-    // find the real one
-    QWidgetListIt it( *qt_modal_stack );
-    while ( it.current() ) {
-	if ( it.current()->testWState( WState_Modal ) )
-	    return it.current();
-	--it;
-    }
-    return 0;
+    return qt_modal_stack ? qt_modal_stack->getFirst() : 0;
 }
 
 
@@ -2517,7 +2505,7 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     if ( leave && !sameWindow ) {
 	w = leave;
 	do {
-	    leaveList.prepend( w );
+	    leaveList.append( w );
 	} while ( (w = w->parentWidget( TRUE ) ) );
     }
     if ( enter && !sameWindow ) {
@@ -2552,7 +2540,7 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 
 	w = leave;
 	while ( w != wleave ) {
-	    leaveList.prepend( w );
+	    leaveList.append( w );
 	    w = w->parentWidget();
 	}
 	w = enter;

@@ -515,9 +515,6 @@ inline bool QWidgetMapper::remove( WId id )
   <dt>WState_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
   <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
   <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
-  <dt>WState_Modal<dd> Only for WType_Modal. Defines whether the widget is
-        actually performing  modality when shown. Modality can be switched on/off with
-        this flag.
   <dt> WState_Exposed<dd> the widget was finally exposed (x11 only,
         helps avoiding paint event doubling).
   </dl>
@@ -722,8 +719,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 						    crect.size()) );
     if ( isTopLevel() ) {
 	setWState( WState_ForceHide );
-	if ( testWFlags( WType_Modal ) )
-	    setWState( WState_Modal ); // default for modal windows is to be modal
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
 	    fd->focusWidgets.append( this );

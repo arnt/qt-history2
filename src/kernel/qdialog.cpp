@@ -63,11 +63,12 @@
 
   Modality means that the dialog blocks input to other windows: The
   user \e has to finish interacting with the dialog and close it
-  before resuming work with the other window(s).  The only way to set
-  modality is by using the constructor, and the default is
-  modelessness.  For modal dialog, it's generally better to call
-  exec() than show; exec() returns when the dialog has been closed and
-  has a useful return value (see below).
+  before resuming work with the other window(s).  You achieve this by
+  calling exec() rather than show(); exec() returns when the dialog
+  has been closed and has a useful return value (see below).
+  Alternatively, you can request modality in the constructor. In that
+  case, the dialog will always block input to other windows when being
+  visible.
 
   The default button is the button that's pressed when the user
   presses Enter or Return, to accept the things done using this dialog
@@ -122,7 +123,6 @@ public:
 #endif
     QPoint lastRMBPress;
 };
-
 
 /*!
   Constructs a dialog named \a name, which has a parent widget \a parent.
@@ -227,32 +227,39 @@ void QDialog::hideDefault()
 */
 
 
-/*! Starts the (modal) dialog, waits, and returns the result code when
+/*! Starts the dialog, waits, and returns the result code when
   it is done.
 
-  If the dialog is modeless, the behaviour of this function is
-  undefined.
+  A dialog started with exec() is always modal, i.e. the user \e has
+  to finish interacting with the dialog and close it before resuming
+  work with the other window(s).
+  
+  If you want to show a non-modal dialog, call show().
 
   \sa show(), result()
 */
 
 int QDialog::exec()
 {
-#if defined(QT_CHECK_STATE)
-    if ( !testWFlags(WType_Modal) )
-	qWarning( "QDialog::exec: Calling this function for a modeless dialog "
-		 "makes no sense" );
-#endif
-    setResult( 0 );
+    if ( in_loop ) {
+	qWarning( "QDialog::exec: Recursive call detected." );
+	return -1;
+    }
 
     bool destructiveClose = testWFlags( WDestructiveClose );
     clearWFlags( WDestructiveClose );
+
+    bool wasShowModal = testWFlags( WShowModal );
+    setWFlags( WShowModal );
+    setResult( 0 );
+
     show();
 
-    if ( testWFlags(WType_Modal) && !in_loop ) {
-	in_loop = TRUE;
-	qApp->enter_loop();
-    }
+    in_loop = TRUE;
+    qApp->enter_loop();
+
+    if ( !wasShowModal )
+	clearWFlags( WShowModal );
 
     int res = result();
 
@@ -413,8 +420,8 @@ void QDialog::closeEvent( QCloseEvent *e )
   \warning
 
   In Qt 2.x, calling show() on a modal dialog enters a local event
-  loop, and work like exec(), but not returning the result code exec()
-  returns. Trolltech has always warned against doing this.
+  loop, and works like exec(), but not returning the result code
+  exec() returns. Trolltech has always warned against doing this.
 
   In Qt 3.0 and later, calling show() on a modal dialog will return
   immediately, \e not enter a local event loop. The dialog will of
