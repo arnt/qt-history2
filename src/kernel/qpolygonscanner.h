@@ -35,7 +35,7 @@ class QPoint;
 
 class Q_EXPORT QPolygonScanner {
 public:
-    void scan( const QPointArray& pa, int winding );
+    void scan( const QPointArray& pa, bool winding, int index=0, int npoints=-1 );
     virtual void processSpans( int n, QPoint* point, int* width )=0;
 };
 

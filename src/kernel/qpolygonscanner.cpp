@@ -85,12 +85,6 @@
  *     drawn (as with the even-odd rule).
  */
 
-/*
- * for the winding number rule
- */
-#define CLOCKWISE          1
-#define COUNTERCLOCKWISE  -1
-
 /* $XConsortium: miscanfill.h,v 1.5 94/04/17 20:27:50 dpw Exp $ */
 /*
 
@@ -710,9 +704,10 @@ miInsertionSort(EdgeTableEntry *AET)
     return(changed);
 }
 
-void QPolygonScanner::scan(const QPointArray& pa, int winding)
+void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints)
 {
     DDXPointPtr ptsIn = (DDXPointPtr)pa.data();
+    ptsIn += index;
     register EdgeTableEntry *pAET;  /* the Active Edge Table   */
     register int y;                 /* the current scanline    */
     register int nPts = 0;          /* number of pts in buffer */
@@ -729,22 +724,22 @@ void QPolygonScanner::scan(const QPointArray& pa, int winding)
     ScanLineListBlock SLLBlock;     /* header for ScanLineList */
     int fixWAET = 0;
 
-    if (pa.size() < 3)
+    if (npoints < 3)
 	return;
 
     if(!(pETEs = (EdgeTableEntry *)
-        malloc(sizeof(EdgeTableEntry) * pa.size())))
+        malloc(sizeof(EdgeTableEntry) * npoints)))
 	return;
     ptsOut = FirstPoint;
     width = FirstWidth;
-    if (!miCreateETandAET(pa.size(), ptsIn, &ET, &AET, pETEs, &SLLBlock))
+    if (!miCreateETandAET(npoints, ptsIn, &ET, &AET, pETEs, &SLLBlock))
     {
 	free(pETEs);
 	return;
     }
     pSLL = ET.scanlines.next;
 
-    if (winding==0)
+    if (!winding)
     {
         /*
          *  for each scanline
