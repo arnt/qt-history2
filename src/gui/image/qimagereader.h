@@ -61,10 +61,13 @@ public:
     bool canRead() const;
     QImage read();
 
-    int loopCount() const; // ?
+    bool jumpToNextImage();
+    bool jumpToImage(int imageNumber);
+    int loopCount() const;
     int imageCount() const;
     int nextImageDelay() const;
     int currentImageNumber() const;
+    QRect currentImageRect() const;
 
     ImageReaderError error() const;
     QString errorString() const;

@@ -600,6 +600,37 @@ QImage QImageReader::read()
 }
 
 /*!
+   For image formats that support animation, this function steps over the
+   current image.
+
+   The default implementation calls read(), and then discards the resulting
+   image, but the image handler may have a more efficient way of implementing
+   this operation.
+
+   \sa jumpToImage(), QImageIOHandler::jumpToNextImage()
+*/
+bool QImageReader::jumpToNextImage()
+{
+    if (!d->initHandler())
+        return false;
+    return d->handler->jumpToNextImage();
+}
+
+/*!
+   For image formats that support animation, this function skips to the image
+   whose sequence number is \a imageNumber. The next call to read() will
+   attempt to read this image.
+
+   \sa jumpToNextImage(), QImageIOHandler::jumpToImage()
+*/
+bool QImageReader::jumpToImage(int imageNumber)
+{
+    if (!d->initHandler())
+        return false;
+    return d->handler->jumpToImage(imageNumber);
+}
+
+/*!
     For image formats that support animation, this function returns
     the number of times the animation should loop. Otherwise, it
     returns -1.
@@ -647,6 +678,17 @@ int QImageReader::currentImageNumber() const
     if (!d->initHandler())
         return -1;
     return d->handler->currentImageNumber();
+}
+
+/*!
+    For image formats that support animation, this function returns
+    the rect for the current frame. Otherwise, -1 is returned.
+*/
+QRect QImageReader::currentImageRect() const
+{
+    if (!d->initHandler())
+        return QRect();
+    return d->handler->currentImageRect();
 }
 
 /*!

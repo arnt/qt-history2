@@ -17,6 +17,12 @@
 #ifndef QT_NO_MOVIE
 
 #include <QtCore/qobject.h>
+#include <QtGui/qimagereader.h>
+
+#ifdef QT3_SUPPORT
+#include <QtGui/qimage.h>
+#include <QtGui/qpixmap.h>
+#endif
 
 class QByteArray;
 class QColor;
@@ -58,20 +64,17 @@ public:
     MovieState state() const;
 
     QRect frameRect() const;
-    QImage frameImage() const;
-    QPixmap framePixmap() const;
+    QImage currentImage() const;
+    QPixmap currentPixmap() const;
 
     bool isValid() const;
-    bool isRunning() const;
 
+    bool jumpToFrame(int frameNumber);
     int loopCount() const;
     int frameCount() const;
     int nextFrameDelay() const;
     int currentFrameNumber() const;
-
-    void setPaused(bool paused);
-    bool isPaused() const;
-
+    
     void setSpeed(int percentSpeed);
     int speed() const;
 
@@ -80,18 +83,33 @@ signals:
     void resized(const QSize &size);
     void updated(const QRect &rect);
     void stateChanged(MovieState state);
-    void error();
+    void error(QImageReader::ImageReaderError error);
     void finished();
 
 public slots:
     void start();
-    void pause();
-    void unpause();
+    bool jumpToNextFrame();
+    void setPaused(bool paused);
     void stop();
 
 private:
     Q_DISABLE_COPY(QMovie)
     Q_PRIVATE_SLOT(d, void loadNextFrame())
+
+#ifdef QT3_SUPPORT
+public:
+    inline QT3_SUPPORT bool isNull() const { return isValid(); }
+    inline QT3_SUPPORT int frameNumber() const { return currentFrameNumber(); }
+    inline QT3_SUPPORT bool running() const { return state() == Running; }
+    inline QT3_SUPPORT bool paused() const { return state() == Paused; }
+    inline QT3_SUPPORT bool finished() const { return state() == NotRunning; }
+    inline QT3_SUPPORT void restart() { stop(); start(); }
+    inline QT3_SUPPORT QImage frameImage() const { return currentImage(); }
+    inline QT3_SUPPORT QPixmap framePixmap() const { return currentPixmap(); }
+    inline QT3_SUPPORT void step() { jumpToNextFrame(); }
+    inline QT3_SUPPORT void pause() { setPaused(true); }
+    inline QT3_SUPPORT void unpause() { setPaused(false); }
+#endif
 };
 
 #endif // QT_NO_MOVIE

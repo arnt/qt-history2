@@ -18,6 +18,7 @@
 #include <QtCore/qfactoryinterface.h>
 
 class QImage;
+class QRect;
 class QSize;
 class QVariant;
 
@@ -60,10 +61,13 @@ public:
     virtual bool supportsOption(ImageOption option) const;
 
     // incremental loading
+    virtual bool jumpToNextImage();
+    virtual bool jumpToImage(int imageNumber);
     virtual int loopCount() const;
     virtual int imageCount() const;
     virtual int nextImageDelay() const;
     virtual int currentImageNumber() const;
+    virtual QRect currentImageRect() const;
 
 protected:
     QImageIOHandler(QImageIOHandlerPrivate &dd);

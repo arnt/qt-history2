@@ -318,7 +318,7 @@ bool QImageIOHandler::write(const QImage &image)
 /*!
     Sets the option \a option with the value \a value.
 
-    \sa setOption, ImageOption
+    \sa option(), ImageOption
 */
 void QImageIOHandler::setOption(ImageOption option, const QVariant &value)
 {
@@ -365,6 +365,18 @@ int QImageIOHandler::currentImageNumber() const
 }
 
 /*!
+    Returns the rect of the current image. If no rect is defined for the
+    image, and empty QRect() is returned.
+
+    This function is useful for animations, where only parts of the frame
+    may be updated at a time.
+*/
+QRect QImageIOHandler::currentImageRect() const
+{
+    return QRect();
+}
+
+/*!
     For image formats that support animation, this function returns
     the number of images in the animation. If the image format does
     not support animation, or if it is unable to determine the number
@@ -373,6 +385,30 @@ int QImageIOHandler::currentImageNumber() const
 int QImageIOHandler::imageCount() const
 {
     return 0;
+}
+
+/*!
+   For image formats that support animation, this function jumps to the
+   next image.
+
+   The default implementation does nothing, and returns false.
+*/
+bool QImageIOHandler::jumpToNextImage()
+{
+    return false;
+}
+
+/*!
+   For image formats that support animation, this function jumps to the image
+   whose sequence number is \a imageNumber. The next call to read() will
+   attempt to read this image.
+
+   The default implementation does nothing, and returns false.
+*/
+bool QImageIOHandler::jumpToImage(int imageNumber)
+{
+    Q_UNUSED(imageNumber);
+    return false;
 }
 
 /*!

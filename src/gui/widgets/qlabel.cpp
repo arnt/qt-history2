@@ -601,7 +601,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
 #endif
 #ifndef QT_NO_MOVIE
     else if (mov)
-        br = mov->framePixmap().rect();
+        br = mov->currentPixmap().rect();
 #endif
 #ifndef QT_NO_RICHTEXT
     else if (doc) {
@@ -766,9 +766,9 @@ void QLabel::paintEvent(QPaintEvent *)
 #ifndef QT_NO_MOVIE
     if (mov) {
         // ### should add movie to qDrawItem
-        QRect r = style->itemPixmapRect(cr, align, mov->framePixmap());
+        QRect r = style->itemPixmapRect(cr, align, mov->currentPixmap());
         // ### could resize movie frame at this point
-        paint.drawPixmap(r.x(), r.y(), mov->framePixmap());
+        paint.drawPixmap(r.x(), r.y(), mov->currentPixmap());
     }
     else
 #endif
@@ -968,7 +968,7 @@ void QLabelPrivate::movieUpdated(const QRect& rect)
 {
     if (lmovie && lmovie->isValid()) {
         QRect r = q->contentsRect();
-        r = q->style()->itemPixmapRect(r, align, lmovie->framePixmap());
+        r = q->style()->itemPixmapRect(r, align, lmovie->currentPixmap());
         r.translate(rect.x(), rect.y());
         r.setWidth(qMin(r.width(), rect.width()));
         r.setHeight(qMin(r.height(), rect.height()));
@@ -1004,7 +1004,7 @@ void QLabel::setMovie(QMovie *movie)
 
     // Assume that if the movie is running,
     // resize/update signals will come soon enough
-    if (!movie->isRunning())
+    if (movie->state() != QMovie::Running)
         d->updateLabel();
 }
 

@@ -17,7 +17,6 @@
     with QImageReader.
 
     \ingroup multimedia
-    \module gui
 
     QMovie is a convenience class that uses QImageReader internally to play
     movies.
@@ -42,16 +41,17 @@
 
     Whenever a new frame is available in the movie, QMovie will emit
     updated(). If the size of the frame changes, resized() is emitted. You can
-    call frameImage() or framePixmap() to get a copy of the current
+    call currentImage() or currentPixmap() to get a copy of the current
     frame. When the movie is done, QMovie emits finished(). If any error
     occurs during playback (i.e, the image file is corrupt), QMovie will emit
     error().
 
     You can control the speed of the movie playback by calling setSpeed(),
     which takes the percentage of the original speed as an argument. Pause the
-    movie by calling pause(). QMovie will then enter \l Paused state and emit
-    stateChanged(). If you call unpause(), QMovie will reenter \l Running
-    state and start the movie again. To stop the movie, call stop().
+    movie by calling setPaused(true). QMovie will then enter \l Paused state
+    and emit stateChanged(). If you call setPaused(false), QMovie will reenter
+    \l Running state and start the movie again. To stop the movie, call
+    stop().
 
     Certain animation formats allow you to set the background color. You can
     call setBackgroundColor() to set the color, or backgroundColor() to
@@ -94,14 +94,14 @@
 
     This signal is emitted when the current frame has been resized to \a
     size. This effect is sometimes used in animations as an alternative to
-    replacing the frame. You can call frameImage() or framePixmap() to get a
+    replacing the frame. You can call currentImage() or currentPixmap() to get a
     copy of the updated frame.
 */
 
 /*! \fn QMovie::updated(const QRect &rect)
 
     This signal is emitted when the rect \a rect in the current frame has been
-    updated. You can call frameImage() or framePixmap() to get a copy of the
+    updated. You can call currentImage() or currentPixmap() to get a copy of the
     updated frame.
 */
 
@@ -113,10 +113,10 @@
     \sa QMovie::state()
 */
 
-/*! \fn QMovie::error()
+/*! \fn QMovie::error(QImageReader::ImageReaderError error)
 
-    This signal is emitted by QMovie when an error occurred during playback.
-    QMovie will stop the movie, and enter QMovie::NotRunning state.
+    This signal is emitted by QMovie when the error \a error occurred during
+    playback.  QMovie will stop the movie, and enter QMovie::NotRunning state.
 */
 
 /*! \fn QMovie::finished()
@@ -148,8 +148,8 @@ public:
     int speed;
     QMovie::MovieState movieState;
     QRect frameRect;
-    QImage frameImage;
-    QPixmap framePixmap;
+    QImage currentImage;
+    QPixmap currentPixmap;
     QColor backgroundColor;
 
     QTimer nextImageTimer;
@@ -173,17 +173,17 @@ void QMoviePrivate::loadNextFrame()
 {
     Q_Q(QMovie);
     if (reader->canRead()) {
-        frameImage = reader->read();
-        if (!frameImage.isNull()) {
+        currentImage = reader->read();
+        if (!currentImage.isNull()) {
             if (movieState == QMovie::NotRunning) {
                 movieState = QMovie::Running;
                 emit q->stateChanged(movieState);
                 emit q->started();
             }
 
-            framePixmap = frameImage;
-            if (frameRect.size() != frameImage.rect().size()) {
-                frameRect = frameImage.rect();
+            currentPixmap = currentImage;
+            if (frameRect.size() != currentImage.rect().size()) {
+                frameRect = currentImage.rect();
                 emit q->resized(frameRect.size());
             }
 
@@ -191,7 +191,7 @@ void QMoviePrivate::loadNextFrame()
 
             nextImageTimer.start(reader->nextImageDelay());
         } else {
-            emit q->error();
+            emit q->error(reader->error());
             if (movieState != QMovie::NotRunning) {
                 movieState = QMovie::NotRunning;
                 emit q->stateChanged(movieState);
@@ -371,7 +371,7 @@ QMovie::MovieState QMovie::state() const
     Returns the rect of the last frame. If no frame has yet been updated, an
     invalid QRect is returned.
 
-    \sa frameImage(), framePixmap()
+    \sa currentImage(), currentPixmap()
 */
 QRect QMovie::frameRect() const
 {
@@ -379,26 +379,46 @@ QRect QMovie::frameRect() const
     return d->frameRect;
 }
 
+/*! \fn QImage QMovie::framePixmap() const
+
+    Use currentPixmap() instead.
+*/
+
+/*! \fn void QMovie::pause()
+
+    Use setPaused(true) instead.
+*/
+
+/*! \fn void QMovie::pause()
+
+    Use setPaused(false) instead.
+*/
+
 /*!
     Returns the current frame as a QPixmap.
 
-    \sa frameImage(), updated()
+    \sa currentImage(), updated()
 */
-QPixmap QMovie::framePixmap() const
+QPixmap QMovie::currentPixmap() const
 {
     Q_D(const QMovie);
-    return d->framePixmap;
+    return d->currentPixmap;
 }
+
+/*! \fn QImage QMovie::frameImage() const
+
+    Use currentImage() instead.
+*/
 
 /*!
     Returns the current frame as a QImage.
 
-    \sa framePixmap(), updated()
+    \sa currentPixmap(), updated()
 */
-QImage QMovie::frameImage() const
+QImage QMovie::currentImage() const
 {
     Q_D(const QMovie);
-    return d->frameImage;
+    return d->currentImage;
 }
 
 /*!
@@ -411,16 +431,35 @@ bool QMovie::isValid() const
     return d->reader->canRead();
 }
 
-/*!
-    Returns true if QMovie is in \l Running state.
+/*! \fn bool QMovie::running() const
 
-    Same as state() == \l QMovie::Running.
+    Use state() instead.
 */
-bool QMovie::isRunning() const
-{
-    Q_D(const QMovie);
-    return d->movieState == Running;
-}
+
+/*! \fn bool QMovie::isNull() const
+
+    Use isValid() instead.
+*/
+
+/*! \fn int QMovie::frameNumber() const
+
+    Use currentFrameNumber() instead.
+*/
+
+/*! \fn bool QMovie::paused() const
+
+    Use state() instead.
+*/
+
+/*! \fn bool QMovie::finished() const
+
+    Use state() instead.
+*/
+
+/*! \fn void QMovie::restart() const
+
+    Use stop() and start() instead.
+*/
 
 /*!
     Returns the number of frames in the movie.
@@ -455,6 +494,25 @@ int QMovie::currentFrameNumber() const
 }
 
 /*!
+    Jumps to the next frame. Returns true on success; otherwise returns false.
+*/
+bool QMovie::jumpToNextFrame()
+{
+    Q_D(QMovie);
+    return d->reader->jumpToNextImage();
+}
+
+/*!
+    Jumps to frame number \a frameNumber. Returns true on success; otherwise
+    returns false.
+*/
+bool QMovie::jumpToFrame(int frameNumber)
+{
+    Q_D(QMovie);
+    return d->reader->jumpToImage(frameNumber);
+}      
+
+/*!
     Returns the number of times the movie will loop before it finishes.
 */
 int QMovie::loopCount() const
@@ -468,27 +526,24 @@ int QMovie::loopCount() const
     stateChanged(Paused); otherwise it will enter \l Running state and emit
     stateChanged(Running).
 
-    \sa isPaused(), state()
+    \sa state()
 */
 void QMovie::setPaused(bool paused)
 {
-    if (paused)
-        pause();
-    else
-        unpause();
-}
-
-/*!
-    Returns true if the movie is paused; otherwise returns false.
-
-    Same as state() == \l QMovie::Paused.
-
-    \sa isRunning()
- */
-bool QMovie::isPaused() const
-{
-    Q_D(const QMovie);
-    return d->movieState == Paused;
+    Q_D(QMovie);
+    if (paused) {
+	if (d->movieState == NotRunning)
+	    return;
+	emit stateChanged(Paused);
+	d->movieState = Paused;
+	d->nextImageTimer.stop();
+    } else {
+	if (d->movieState == Running)
+	    return;
+	emit stateChanged(Running);
+	d->movieState = Running;
+	d->nextImageTimer.start(d->reader->nextImageDelay());
+    }
 }
 
 /*!
@@ -525,7 +580,7 @@ int QMovie::speed() const
     Starts the movie. QMovie will enter \l Running state, and start emitting
     updated() and resized() as the movie progresses.
 
-    \sa stop(), pause()
+    \sa stop(), setPaused()
 */
 void QMovie::start()
 {
@@ -540,47 +595,11 @@ void QMovie::start()
 }
 
 /*!
-    Pauses the movie. QMovie will enter \l Paused state, and stop emitting
-    updated() and resized() until the movie is unpaused.
-
-    \sa unpause(), setPaused(), state()
-*/
-void QMovie::pause()
-{
-    Q_D(QMovie);
-    if (d->movieState == NotRunning) {
-        qWarning("QMovie::pause() called when state is NotRunning");
-        return;
-    }
-    emit stateChanged(Paused);
-    d->movieState = Paused;
-    d->nextImageTimer.stop();
-}
-
-/*!
-    Unpauses the movie. QMovie will reenter \l Running state, and start
-    emitting updated() and resized() as the movie progresses.
-
-    \sa pause(), stop()
-*/
-void QMovie::unpause()
-{
-    Q_D(QMovie);
-    if (d->movieState == Running) {
-        qWarning("QMovie::unpause() called when state is NotRunning");
-        return;
-    }
-    emit stateChanged(Running);
-    d->movieState = Running;
-    d->nextImageTimer.start(d->reader->nextImageDelay());
-}
-
-/*!
     Stops the movie. QMovie enters \l NotRunning state, and stops emitting
     updated() and resized(). If start() is called again, the movie will
     restart from the beginning.
 
-    \sa start(), pause()
+    \sa start()
 */
 void QMovie::stop()
 {
