@@ -221,14 +221,13 @@ static void* qt_resolve_symbol( void* handle, const char* f )
 */
 
 /*!
-  Creates a QLibrary object for the shared library \a filename, propagating \a appIface
-  to all interfaces created within this library.
+  Creates a QLibrary object for the shared library \a filename.
   The library get's loaded immediately if \a pol is OptimizeSpeed.
 
   \sa setPolicy(), load()
 */
-QLibrary::QLibrary( const QString& filename, QApplicationInterface* appIface, Policy pol )
-    : pHnd( 0 ), libfile( filename ), libPol( pol ), appInterface( appIface ), info( 0 )
+QLibrary::QLibrary( const QString& filename, Policy pol )
+    : pHnd( 0 ), libfile( filename ), libPol( pol ), info( 0 )
 {
     if ( pol == OptimizeSpeed )
 	load();
@@ -257,7 +256,7 @@ QLibrary::~QLibrary()
 
   \sa setPolicy()
 */
-QComponentInterface* QLibrary::load()
+QUnknownInterface* QLibrary::load()
 {
     if ( libfile.isEmpty() )
 	return 0;
@@ -266,19 +265,11 @@ QComponentInterface* QLibrary::load()
 	pHnd = qt_load_library( libfile );
 
     if ( pHnd && !info ) {
-	typedef QComponentInterface* (*QtLoadInfoProc)();
+	typedef QUnknownInterface* (*QtLoadInfoProc)();
 	QtLoadInfoProc infoProc;
 	infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
 
 	info = infoProc ? infoProc() : 0;
-
-	if ( info ) {
-	    info->appInterface = appInterface;
-	    if ( !info->addRef() ) {
-		delete info;
-		info = 0;
-	    }
-	}
     }
 
     return info;
@@ -307,7 +298,7 @@ bool QLibrary::unload( bool force )
 {
     if ( pHnd ) {
 	if ( info ) {
-	    if ( !info->release() && !force )
+	    if ( info->release() && !force )
 		return FALSE;
 
 	    delete info;
@@ -356,7 +347,7 @@ QString QLibrary::library() const
 
   \sa QUnknownInterface::queryInterface
 */
-QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recursive, bool regexp )
+QUnknownInterface* QLibrary::queryInterface( const char *request )
 {
     if ( !info ) {
 	if ( libPol != Manual )
@@ -371,7 +362,7 @@ QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recurs
 
     QUnknownInterface * iface = 0;
     if( info ) 
-	iface = info->queryInterface( request, recursive, regexp );
+	iface = info->queryInterface( request );
 
     return iface;
 }

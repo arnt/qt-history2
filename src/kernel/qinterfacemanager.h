@@ -47,15 +47,12 @@
 
 #ifndef QT_NO_PLUGIN
 
-class QApplicationInterface;
-
 template<class Type>
 class Q_EXPORT QInterfaceManager
 {
 public:
-    QInterfaceManager( const QString& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so",
-	 QApplicationInterface* appIface = 0, QLibrary::Policy pol = QLibrary::Default )
-	: interfaceId( id ), defPol( pol ), appInterface( appIface )
+    QInterfaceManager( const QString& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Default )
+	: interfaceId( id ), defPol( pol )
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
@@ -84,10 +81,11 @@ public:
 	if ( libDict[file] )
 	    return 0;
 
-	QLibrary* plugin = new QLibrary( file, appInterface, defPol );
+	QLibrary* plugin = new QLibrary( file, defPol );
 	bool useful = FALSE;
 
-	Type* iFace = (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
+//	Type* iFace = (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
+	Type* iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace ) {
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
@@ -124,8 +122,9 @@ public:
 	if ( !plugin )
 	    return FALSE;
 
+//	Type *iFace = (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
 	Type *iFace = (Type*)plugin->queryInterface( interfaceId );
-	if ( iFace && iFace->interfaceId() == interfaceId ) {
+	if ( iFace ) {
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		plugDict.remove( *f );
@@ -160,7 +159,8 @@ public:
 	QLibrary* plugin = plugDict[feature];
 	if ( !plugin )
 	    return 0;
-	return (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
+//	return (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
+	return (Type*)plugin->queryInterface( interfaceId );
     }
 
     QLibrary* plugIn( const QString& feature ) const
@@ -209,7 +209,6 @@ private:
     QDict<QLibrary> libDict;	    // Dict to match library file with library
 
     QLibrary::Policy defPol;
-    QApplicationInterface* appInterface;
 };
 
 #endif

@@ -9,74 +9,44 @@
 
 #ifndef QT_NO_PLUGIN
 
-class QApplicationInterface;
 class QInterfaceList;
 class QRegExp;
 
 class Q_EXPORT QUnknownInterface
 {
-    friend class QLibrary;
-    friend class QApplicationInterface;
 public:
-    QUnknownInterface( QUnknownInterface *parent = 0, const char* name = 0 );
+    QUnknownInterface( QUnknownInterface *parent = 0 );
     virtual ~QUnknownInterface();
 
     virtual QString interfaceId() const;
-    QString Id() const;
 
-    virtual bool initialize();
-    virtual bool cleanup();
-
-    virtual bool hasInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE ) const;
-    virtual QUnknownInterface* queryInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE );
-    virtual QStringList interfaceList( bool recursive = TRUE ) const;
-
-    virtual bool addRef();
-    virtual bool release();
-
-    QApplicationInterface *applicationInterface() const;
+    virtual QUnknownInterface* queryInterface( const QString& );
+    virtual unsigned long addRef();
+    virtual unsigned long release();
 
     QUnknownInterface *parent() const;
 
-    const char *name() const;   
-
 protected:
-    virtual void insertChild( QUnknownInterface * );
-    virtual void removeChild( QUnknownInterface * );
-    QUnknownInterface *child( const QString & ) const;
     QString createId( const QString& parent, const QString& that ) const;
 
 private:
+    void insertChild( QUnknownInterface * );
+    void removeChild( QUnknownInterface * );
+
     QInterfaceList* children;
     QUnknownInterface* par;
-    int refcount;
-    QApplicationInterface *appInterface;
-    const char* objname;
+    unsigned long refcount;
 };
 
 class Q_EXPORT QComponentInterface : public QUnknownInterface
 {
 public:
-    QComponentInterface( const char* name = 0 );
-
     QString interfaceId() const;
 
-    virtual QString brief() const;
-    virtual QString description() const;
-    virtual QString author() const;
-    virtual QString version() const;
-};
-
-class Q_EXPORT QApplicationInterface : public QComponentInterface
-{
-public:
-    QApplicationInterface( const char* name = 0 );
-    QString interfaceId() const;
-
-    QString brief() const;
-
-    QString workDirectory() const;
-    QString command() const;
+    virtual QString name() const = 0;
+    virtual QString description() const = 0;
+    virtual QString author() const = 0;
+    virtual QString version() const = 0;
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -88,7 +58,7 @@ template class Q_EXPORT QGuardedPtr<QObject>;
 class Q_EXPORT QApplicationComponentInterface : public QUnknownInterface
 {
 public:
-    QApplicationComponentInterface( QObject* c, QUnknownInterface *parent, const char* name = 0 );
+    QApplicationComponentInterface( QObject* c, QUnknownInterface *parent = 0);
 
     QString interfaceId() const;
 
@@ -101,20 +71,27 @@ public:
     virtual bool requestEvents( QObject* o );
 
 protected:
-    QObject* component() const { return comp; }
+    virtual QObject* component() const { return comp; }
     void setComponent( QObject* c ) { comp = c; }
 
 private:
     QGuardedPtr<QObject> comp;
 };
 
+#ifndef Q_CREATE_INSTANCE
+    #define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
+	QUnknownInterface *i = new IMPLEMENTATION;	\
+	i->addRef();					\
+	return i;
+#endif
+
 #ifndef Q_EXPORT_INTERFACE
     #ifdef Q_WS_WIN
 	#define Q_EXPORT_INTERFACE( IMPLEMENTATION ) \
-	    extern "C" __declspec(dllexport) QComponentInterface *qt_load_interface() { return new IMPLEMENTATION; }
+	    extern "C" __declspec(dllexport) QUnknownInterface *qt_load_interface() { Q_CREATE_INSTANCE( IMPLEMENTATION ) }
     #else
 	#define Q_EXPORT_INTERFACE( IMPLEMENTATION ) \
-	    extern "C" QComponentInterface *qt_load_interface() { return new IMPLEMENTATION; }
+	    extern "C" QUnknownInterface *qt_load_interface() { Q_CREATE_INSTANCE( IMPLEMENTATION ) }
     #endif
 #endif
 

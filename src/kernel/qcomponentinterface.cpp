@@ -16,17 +16,14 @@ public:
 */
 
 /*!
-  Constructs a QUnknownInterface with parent interface \a parent and name
-  \a name.  The object name is a text that can be used to identify this
-  QObject, and is particularly convenient for debugging.
+  Constructs a QUnknownInterface with parent interface \a parent. 
 
-  \sa parent(), name()
+  \sa parent()
 */
 
-QUnknownInterface::QUnknownInterface( QUnknownInterface *parent, const char *name )
-: children( 0 ), par( parent ), refcount( 0 ), appInterface( 0 )
+QUnknownInterface::QUnknownInterface( QUnknownInterface *parent )
+: children( 0 ), par( parent ), refcount( 0 )
 {
-    objname = name ? qstrdup(name) : 0;
     if ( par )
 	par->insertChild( this );
 }
@@ -42,7 +39,7 @@ QUnknownInterface::~QUnknownInterface()
 
 #if defined(QT_DEBUG)
     if ( refcount )
-	qDebug( "Interface %s is destroyed while referenced %d times", objname, refcount );
+	qDebug( "Interface is destroyed while referenced!" );
 #endif
 
     if ( children ) {
@@ -56,14 +53,6 @@ QUnknownInterface::~QUnknownInterface()
 	}
 	delete children;
     }
-}
-
-/*!
-  Returns the internal name of the interface.
-*/
-const char *QUnknownInterface::name() const
-{
-    return objname;
 }
 
 /*!
@@ -111,59 +100,42 @@ QUnknownInterface* QUnknownInterface::parent() const
 }
 
 /*!
-  Increases the reference counter for this interface by one.
-  If the counter was zero, the initialize() function is executed, and
-  the result of this routine is returned. Otherwise returns TRUE.
+  Increases the reference counter for this interface by one and returns
+  the old reference count. If the interface has a parent, addRef is called
+  for the parent interface.
   This function is called automatically when this interface is returned
   as a result of a queryInterface() call.
 
   \sa release()
 */
-bool QUnknownInterface::addRef()
+unsigned long QUnknownInterface::addRef()
 {
-    if ( !refcount && !initialize() )
-	return FALSE;
+    if ( par )
+	par->addRef();
 
-    if ( parent() )
-	parent()->addRef();
-
-/*
-    if ( objname )
-	qDebug( "Referencing %s (%d ->%d)", objname, refcount, refcount+1 );*/
-    ++refcount;
-
-    return TRUE;
+    return refcount++;
 }
 
 /*!
-  Decreases the reference counter for this interface by one.
-  If the counter becomes zero, the cleanup() function is executed, and
-  the result of this function is returned. Otherwise returns FALSE.
+  Decreases the reference counter for this interface by one and returns
+  the new reference count.
 
   \sa addRef()
 */
 
-bool QUnknownInterface::release()
+unsigned long  QUnknownInterface::release()
 {
     if ( !refcount ) {
 #if defined(QT_CHECK_RANGE)
-	if ( objname )
-	    qWarning( "%s: Interface refcount out of sync!", objname );
+	qWarning( "Interface refcount out of sync!" );
 #endif
 	return TRUE;
     }
-/*    
-    if ( objname )
-	qDebug( "Dereferencing %s (%d ->%d)", objname, refcount, refcount-1 );*/
 
-    if ( parent() )
-	parent()->release();
+    if ( par )
+	par->release();
 
-    bool deref = !--refcount;
-    if ( deref )
-	return cleanup();
-
-    return FALSE;
+    return --refcount;
 }
 
 /*!
@@ -179,7 +151,7 @@ bool QUnknownInterface::release()
 
     ...
 
-    QString MyInterface::interfaceId() const
+    const char* MyInterface::interfaceId() const
     {
 	return createId( QUnknownInterface::interfaceId(), "MyInterface" );
     }
@@ -198,231 +170,56 @@ QString QUnknownInterface::interfaceId() const
 }
 
 /*!
-  Returns the Id of this interface, that is, the last part of interfaceId().
-
-  \sa interfaceId()
-*/
-
-QString QUnknownInterface::Id() const
-{
-    const QString id = interfaceId();
-
-    int last = id.findRev( '/' );
-    return ( last == -1 ) ? id : id.right( id.length() - last - 1 );
-}
-
-/*!
   Returns a QString that represents the interface hierarchy using \a parent
   and \a id.
 
   \sa interfaceId(), ID()
 */
 
-QString QUnknownInterface::createId( const QString &parent, const QString &id ) const
+QString QUnknownInterface::createId( const QString& parent, const QString& id ) const
 {
     return parent + "/" + id;
 }
 
 /*!
-  This function is called when this interface is referenced the first time.
-  Reimplement this function and return TRUE if the initialization succeeded,
-  or FALSE when the process failed. The default implementation always returns
-  TRUE. Reimplementations of this function have to  call the parent class
-  implementation.
+  Returns an interface that matches \a request, or NULL if this interface 
+  can't provide the requested interface.
 
-  \sa addRef(), release(), cleanup()
+  \sa interfaceId()
 */
 
-bool QUnknownInterface::initialize()
+QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
 {
-    return TRUE;
-}
+    QString r;
+    if ( request[0] != '/' )
+	r = "*/"+request+"*";
+    else
+	r = request;
 
-/*!
-  This function is called when this interface is released so that no further
-  references to this interface exist.
-  Reimplement this function and return TRUE if the cleanup process succeeded,
-  otherwise return FALSE. The default implementation always returns TRUE.
-
-  \sa initialize(), release()
-*/
-
-bool QUnknownInterface::cleanup()
-{
-    return TRUE;
-}
-
-/*!
-  Returns TRUE if this interface has a child interface with an interfaceId
-  \a request. If \a recursive is TRUE, this function will look for the
-  requested interface in the child interfaces, too.
-  If \a regexp is TRUE, \a request will be interpreted as a regular expression
-  with wildcards.
-
-  \sa queryInterface()
-*/
-
-bool QUnknownInterface::hasInterface( const QString &request, bool recursive, bool regexp ) const
-{
-    if ( regexp ) {
-	QRegExp re( request, TRUE, TRUE );
-	if ( re.match( interfaceId() ) )
-	    return TRUE;
-    } else {
-	if ( interfaceId() == request )
-	    return TRUE;
-    }
-    if ( !children )
-	return FALSE;
-    QListIterator<QUnknownInterface> it( *children );
-    while ( it.current() ) {
-	if ( regexp ) {
-	    QRegExp re( request, TRUE, TRUE );
-	    if ( re.match( it.current()->interfaceId() ) )
-		return TRUE;
-	} else {
-	    if ( it.current()->interfaceId() == request )
-		return TRUE;
-	} 
-	if ( recursive ) {
-	    bool has = it.current()->hasInterface( request, recursive, regexp );
-	    if ( has )
-		return TRUE;
-	}
-
-	++it;
-    }
-    return FALSE;
-}
-
-/*!
-  Returns the list of interface IDs this interface can provide. If \a recursive is TRUE, this function
-  will return all interface IDs the child interfaces can provide, too.
-
-  \sa hasInterface()
-*/
-
-QStringList QUnknownInterface::interfaceList( bool recursive ) const
-{
-    QStringList list;
-
-    list << interfaceId();
-
-    if ( !children )
-	return list;
-
-    QListIterator<QUnknownInterface> it( *children );
-    while ( it.current() ) {
-	if ( recursive ) {
-	    QStringList clist = it.current()->interfaceList( recursive );
-	    for ( QStringList::Iterator ct = clist.begin(); ct != clist.end(); ct++ )
-		list << *ct ;
-	} else {
-	    list << it.current()->interfaceId();
-	}
-	++it;
-    }
-
-    return list;
-}
-
-/*!
-  Returns an interface that matches \a request. If \a recursive is TRUE, this
-  function will look for the requested interface in the child interfaces, too.
-  if \a regexp is TRUE, \a request will be interpreted as a regular expression
-  with wildcards.  The function returns NULL if this interface can't provide
-  the requested interface.
-
-  \sa interfaceId(), hasInterface(), interfaceList()
-*/
-
-QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool recursive, bool regexp )
-{
-    bool amI;
-    if ( regexp ) {
-	QRegExp re( request, TRUE, TRUE );
-	amI = re.match( interfaceId() );
-    } else {
-	amI = interfaceId() == request;
-    }
-    if ( amI ) {
-	if ( addRef() )
-	    return this;
-	return 0;
+    if ( QRegExp( r, TRUE, TRUE ).match( interfaceId() ) ) {
+	addRef();
+	return this;
     }
     if ( !children )
 	return 0;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	bool isIt;
-	if ( regexp ) {
-	    QRegExp re( request, TRUE, TRUE );
-	    isIt = re.match( it.current()->interfaceId() );
-	} else {
-	    isIt = it.current()->interfaceId() == request;
-	}
-	if ( isIt ) {
-	    it.current()->appInterface = appInterface;
-	    if ( it.current()->addRef() )
-		return it.current();
-	    return 0;
-	} else if ( recursive ) {
-	    QUnknownInterface *iface = it.current()->queryInterface( request, recursive, regexp );
-	    if ( iface )
-		return iface;
-	}
+	QUnknownInterface *iface = it.current();
 	++it;
+	QUnknownInterface *riface = iface->queryInterface( r );
+	if ( riface )
+	    return riface;
     }
     return 0;
 }
-
-/*!
-  Returns the childinterface with ID \a request, or null if there is no such
-  child interface.  The returned interface will not be referenced.
-*/
-
-QUnknownInterface* QUnknownInterface::child( const QString &request ) const
-{
-    if ( !children )
-	return 0;
-
-    QRegExp regexp( request, TRUE, TRUE );
-
-    QListIterator<QUnknownInterface> it( *children );
-    while ( it.current() ) {
-	if ( regexp.match( it.current()->interfaceId() ) )
-	    return it.current();
-	++it;
-    }
-
-    return 0;
-}
-
-/*!
-  Returns the QApplicationInterface this interface is connected to.
-*/
-QApplicationInterface* QUnknownInterface::applicationInterface() const
-{
-    return appInterface;
-}
-
 
 /*!
   \class QComponentInterface qcomponentinterface.h
 
-  \brief This class provides a top level interface for modules.
+  \brief This interface provides functions to get information about components.
 
   \sa QApplicationInterfaces
 */
-
-/*!
-  Creates a QComponentInterface. This is always a top level interface.
-*/
-
-QComponentInterface::QComponentInterface( const char* name )
-: QUnknownInterface( 0, name )
-{
-}
 
 /*!
   \reimp
@@ -434,99 +231,28 @@ QString QComponentInterface::interfaceId() const
 }
 
 /*!
+  \fn QString QComponentInterface::brief() const
+
   Returns a string with the name of the module.
-  The default implementation returns QString::null.
 */
 
-QString QComponentInterface::brief() const
-{
-    return QString::null;
-}
-
 /*!
+  \fn QString QComponentInterface::description() const
+
   Returns a string with a description of the module.
-  The default implementation returns QString::null.
 */
 
-QString QComponentInterface::description() const
-{
-    return QString::null;
-}
-
 /*!
+  \fn QString QComponentInterface::author() const
+
   Returns a string with information about the author of the module.
-  The default implementation returns QString::null.
 */
 
-QString QComponentInterface::author() const
-{
-    return QString::null;
-}
-
 /*!
+  \fn QString QComponentInterface::version() const
+
   Returns a string with information about the version of the module.
-  The default implementation returns QString::null.
 */
-
-QString QComponentInterface::version() const
-{
-    return QString::null;
-}
-
-/*!
-  \class QApplicationInterface qcomponentinterface.h
-
-  \brief This class provides a top level interface for application modules.
-
-  \sa QComponentInterface
-*/
-
-/*!
-  Creates an QApplicationInterface. This is always a top level interface.
-*/
-QApplicationInterface::QApplicationInterface( const char* name )
-: QComponentInterface( name )
-{
-    appInterface = this;
-}
-
-/*!
-  \reimp
-*/
-
-QString QApplicationInterface::interfaceId() const
-{
-    return createId( QComponentInterface::interfaceId(), "QApplicationInterface" );
-}
-
-/*!
-  \reimp
-
-  The default implementation returns the name of the QApplication object.
-*/
-
-QString QApplicationInterface::brief() const
-{
-    return qApp->name();
-}
-
-/*!
-  Returns the current directory of the application.
-*/
-
-QString QApplicationInterface::workDirectory() const
-{
-    return QDir::currentDirPath();
-}
-
-/*!
-  Returns the command the application was executed with.
-*/
-
-QString QApplicationInterface::command() const
-{
-    return qApp->argv()[0];
-}
 
 /*!
   \class QApplicationComponentInterface qcomponentinterface.h
@@ -538,13 +264,9 @@ QString QApplicationInterface::command() const
   Creates a QApplicationComponentInterface that provides an interface to
   the application component \a object.
 */
-QApplicationComponentInterface::QApplicationComponentInterface( QObject* object, QUnknownInterface *parent, const char* name )
-: QUnknownInterface( parent, name )
+QApplicationComponentInterface::QApplicationComponentInterface( QObject* object, QUnknownInterface *parent )
+: QUnknownInterface( parent )
 {
-#if defined(QT_DEBUG)
-    if ( !parent )
-	qWarning( "QApplicationComponentInterfaces can't be top level!" );
-#endif
     comp = object;
 }
 

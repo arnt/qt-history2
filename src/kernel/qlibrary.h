@@ -45,9 +45,7 @@
 
 #ifndef QT_NO_PLUGIN
 
-class QApplicationInterface;
 class QUnknownInterface;
-class QComponentInterface;
 
 class Q_EXPORT QLibrary
 {
@@ -59,10 +57,10 @@ public:
 	Manual
     };
 
-    QLibrary( const QString& filename, QApplicationInterface* appIface = 0, Policy = Default );
+    QLibrary( const QString& filename, Policy = Default );
     ~QLibrary();
 
-    QComponentInterface* load();
+    QUnknownInterface* load();
     bool unload( bool force = FALSE );
     bool isLoaded() const;
 
@@ -71,7 +69,7 @@ public:
 
     QString library() const;
 
-    QUnknownInterface *queryInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE );
+    QUnknownInterface *queryInterface( const char* );
 
 private:
 #ifdef Q_WS_WIN
@@ -81,8 +79,7 @@ private:
 #endif
     QString libfile;
     Policy libPol;
-    QApplicationInterface* appInterface;
-    QComponentInterface* info;
+    QUnknownInterface* info;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
