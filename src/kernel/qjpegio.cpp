@@ -235,7 +235,8 @@ void read_jpeg_image(QImageIO* iio)
 
 
 	} else if ( params.contains( "Scale" ) ) {
-	    sscanf( params.latin1(), "Scale( %i, %i, %s )", &sWidth, &sHeight, sModeStr );
+	    sscanf( params.latin1(), "Scale( %i, %i, %1023s )",
+		    &sWidth, &sHeight, sModeStr );
 
 	    QString sModeQStr( sModeStr );
 	    if ( sModeQStr == "ScaleFree" ) {
