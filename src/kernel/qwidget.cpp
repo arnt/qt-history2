@@ -3473,6 +3473,10 @@ QSize QWidget::sizeHint() const
 {
     if ( layout() )
 	return layout()->totalSizeHint();
+    if ( !testWState(WState_Polished) ) {
+	QWidget* that = (QWidget*) this;
+	that->polish();
+    }
     return QSize( -1, -1 );
 }
 
@@ -3493,6 +3497,10 @@ QSize QWidget::minimumSizeHint() const
 {
     if ( layout() )
 	return layout()->totalMinimumSize();
+    if ( !testWState(WState_Polished) ) {
+	QWidget* that = (QWidget*) this;
+	that->polish();
+    }
     return QSize( -1, -1 );
 }
 
