@@ -553,21 +553,6 @@ were used, the selected items may be represented very differently in
 each view; for example, a contiguous selection in a table view may be
 represented as a fragmented set of highlighted items in a tree view.
 
-\section2 Using headers
-
-The \l QHeaderView class provides facilities for displaying data from
-a model in the form of a header in a view.
-
-
-Headers are used by the \l QTableView and
-\l TreeView classes, but not by \l QListView. Outside of a view
-implementation, the main uses for headers involve the header's
-signals
-/slot
-mechanism, allowing the application to .
-the processing of
-signals
-
 
 */
 
@@ -646,6 +631,7 @@ The \c editorType() function returns a value describing the
 provides. This delegate only supports widget-based editing, so the
 implementation of this function is very simple:
 
+\quotefile spinbox-delegate/delegate.cpp
 \skipto QItemDelegate::EditorType
 \printuntil }
 
@@ -1193,8 +1179,8 @@ indices.
     to present the model's items in the form of a vertical list. For the
     string list model, this view also provides a default editor so that
     the items can be manipulated. We examine the possibilities made
-    available by the standard view classes in the introduction to the
-    view classes.
+    available by the standard view classes in the
+    \l{model-view-view.html}{introduction to the view classes}.
 
 */
 
