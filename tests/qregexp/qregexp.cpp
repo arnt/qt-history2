@@ -610,7 +610,7 @@ private:
 	   Tok_Char = 0x10000, Tok_BackRef = 0x20000 };
     int getChar();
     int getEscape();
-#ifndef QT_NO_REGEXP_QUANTIFIER
+#ifndef QT_NO_REGEXP_INTERVAL
     int getRep( int def );
 #endif
 #ifndef QT_NO_REGEXP_LOOKAHEAD
@@ -2090,7 +2090,7 @@ int QRegExpEngine::getEscape()
     }
 }
 
-#ifndef QT_NO_REGEXP_QUANTIFIER
+#ifndef QT_NO_REGEXP_INTERVAL
 int QRegExpEngine::getRep( int def )
 {
     if ( yyCh >= '0' && yyCh <= '9' ) {
@@ -2262,7 +2262,7 @@ int QRegExpEngine::getToken()
 	return Tok_Char | ']';
     case '^':
 	return Tok_Caret;
-#ifndef QT_NO_REGEXP_QUANTIFIER
+#ifndef QT_NO_REGEXP_INTERVAL
     case '{':
 	yyMinRep = getRep( 0 );
 	yyMaxRep = yyMinRep;
@@ -2452,7 +2452,7 @@ void QRegExpEngine::parseFactor( Box *box )
 #else
     static const int atom = 0;
 #endif
-#ifndef QT_NO_REGEXP_QUANTIFIER
+#ifndef QT_NO_REGEXP_INTERVAL
 #define YYREDO() \
 	yyIn = in, yyPos0 = pos0, yyPos = pos, yyLen = len, yyCh = ch, \
 	*yyCharClass = charClass, yyMinRep = 0, yyMaxRep = 0, yyTok = tok
@@ -2477,7 +2477,7 @@ void QRegExpEngine::parseFactor( Box *box )
     if ( yyTok == Tok_Quantifier ) {
 	if ( yyMaxRep == InftyRep ) {
 	    box->plus( atom );
-#ifndef QT_NO_REGEXP_QUANTIFIER
+#ifndef QT_NO_REGEXP_INTERVAL
 	} else if ( yyMaxRep == 0 ) {
 	    box->clear();
 #endif
@@ -2485,7 +2485,7 @@ void QRegExpEngine::parseFactor( Box *box )
 	if ( yyMinRep == 0 )
 	    box->opt();
 
-#ifndef QT_NO_REGEXP_QUANTIFIER
+#ifndef QT_NO_REGEXP_INTERVAL
 	yyMayCapture = FALSE;
 	int alpha = ( yyMinRep == 0 ) ? 0 : yyMinRep - 1;
 	int beta = ( yyMaxRep == InftyRep ) ? 0 : yyMaxRep - ( alpha + 1 );
@@ -2512,7 +2512,7 @@ void QRegExpEngine::parseFactor( Box *box )
 	*box = rightBox;
 #endif
 	yyTok = getToken();
-#ifndef QT_NO_REGEXP_QUANTIFIER
+#ifndef QT_NO_REGEXP_INTERVAL
 	yyMayCapture = mayCapture;
 #endif
     }
