@@ -252,4 +252,4 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QChar &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QChar &);
 #endif
 
-#endif
+#endif // QCHAR_H

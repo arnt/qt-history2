@@ -54,7 +54,7 @@ class QCache
     Q_DISABLE_COPY(QCache)
 
 public:
-    inline QCache(int maxCost = 100)
+    inline explicit QCache(int maxCost = 100)
         : f(0), l(0), mx(maxCost), total(0) {}
 #ifdef QT_COMPAT
     inline QT_COMPAT_CONSTRUCTOR QCache(int maxCost, int /* dummy */)

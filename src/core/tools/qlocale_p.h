@@ -107,4 +107,4 @@ public:
     static const char *systemLocaleName();
 };
 
-#endif
+#endif // QLOCALE_P_H

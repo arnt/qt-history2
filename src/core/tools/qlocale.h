@@ -469,4 +469,4 @@ private:
 };
 Q_DECLARE_TYPEINFO(QLocale, Q_MOVABLE_TYPE);
 
-#endif
+#endif // QLOCALE_H

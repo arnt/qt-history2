@@ -28,4 +28,4 @@ public:
     inline const T &head() const { return QList<T>::first(); }
 };
 
-#endif
+#endif // QQUEUE_H

@@ -132,4 +132,4 @@ Q_OUTOFLINE_TEMPLATE void QSharedDataPointer<T>::detach_helper()
         delete x;
 }
 
-#endif
+#endif // QSHAREDDATA_H

@@ -320,4 +320,5 @@ inline void qDeleteAll(const Container &c)
 {
     qDeleteAll(c.begin(), c.end());
 }
-#endif
+
+#endif // QALGORITHMS_H

@@ -17,9 +17,8 @@
 #include "QtCore/qsize.h"
 #include "QtCore/qpoint.h"
 
-#if defined(topLeft)
-#error "Macro definition of topLeft conflicts with QRect"
-// don't just silently undo people's defines: #undef topLeft
+#ifdef topLeft
+#error "qrect.h must be included before any header file that defines topLeft"
 #endif
 
 class Q_CORE_EXPORT QRect                                        // rectangle class
@@ -705,6 +704,5 @@ inline QRect QRectF::toRect() const
 #ifndef QT_NO_DEBUG_OUTPUT
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QRectF &);
 #endif
-
 
 #endif // QRECT_H

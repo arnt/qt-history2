@@ -126,6 +126,4 @@ public:
     QDateTimeParser::Section type;
 };
 
-#endif
-
-
+#endif // QDATETIME_P_H

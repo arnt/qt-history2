@@ -86,4 +86,4 @@ inline QDataStream& operator<<(QDataStream& s, const QPair<T1, T2>& p)
 }
 #endif
 
-#endif
+#endif // QPAIR_H

@@ -50,9 +50,9 @@ class Q_CORE_EXPORT QString
 {
 public:
     inline QString();
-    QString(const QChar *unicode, int size);
+    explicit QString(const QChar *unicode, int size);
     explicit QString(QChar c);
-    QString(int size, QChar c);
+    explicit QString(int size, QChar c);
     inline QString(const QLatin1String &latin1);
     inline QString(const QString &);
     inline ~QString();
@@ -800,4 +800,4 @@ extern Q_CORE_EXPORT QByteArray qt_winQString2MB(const QChar *ch, int len);
 extern Q_CORE_EXPORT QString qt_winMB2QString(const char* mb, int len=-1);
 #endif
 
-#endif
+#endif // QSTRING_H

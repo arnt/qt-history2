@@ -322,5 +322,4 @@ inline QPoint QPointF::toPoint() const
 Q_CORE_EXPORT QDebug operator<<(QDebug d, const QPointF &p);
 #endif
 
-
 #endif // QPOINT_H

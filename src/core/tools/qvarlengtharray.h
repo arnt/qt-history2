@@ -20,7 +20,7 @@ template<class T, int Prealloc = 256>
 class QVarLengthArray
 {
 public:
-    inline QVarLengthArray(int size = 0)
+    inline explicit QVarLengthArray(int size = 0)
         : s(size) {
         if (s > Prealloc) {
             ptr = reinterpret_cast<T *>(qMalloc(s * sizeof(T)));
@@ -160,4 +160,4 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int al
         qFree(oldPtr);
 }
 
-#endif
+#endif // QVARLENGTHARRAY_H

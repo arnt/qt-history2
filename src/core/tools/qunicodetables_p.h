@@ -153,4 +153,4 @@ do {                                                 \
     script = (QFont::Script)qt_scriptForChar((c).unicode())
 #endif
 
-#endif
+#endif // QUNICODETABLES_P_H
