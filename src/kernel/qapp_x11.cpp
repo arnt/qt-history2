@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#277 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#278 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#277 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#278 $");
 
 
 /*****************************************************************************
@@ -376,8 +376,8 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
   // Support protocols
 
     static const int atomCount = 6;
-    static Atom atomValues[atomCount];
-    static char * atomNames[atomCount] = {
+    static Atom  atomValues[atomCount];
+    static char *atomNames[atomCount] = {
 	"WM_PROTOCOLS",
 	"WM_DELETE_WINDOW",
 	"QT_SCROLL_DONE",
@@ -386,8 +386,13 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	"WM_STATE"
     };
 
-    // ### ignore return value, as Xt does
+#if defined(XlibSpecificationRelease) && (XlibSpecificationRelease >= 6)
     XInternAtoms( appDpy, atomNames, atomCount, FALSE, atomValues );
+#else
+    for ( int n=0; n<atomCount; n++ )
+	atomValues[n] = XInternAtom(appDpy, atomNames[n], FALSE );
+	
+#endif
 
     qt_wm_protocols = atomValues[0];
     qt_wm_delete_window = atomValues[1];
