@@ -192,6 +192,3 @@ metrowerks_xml.obj: generators/mac/metrowerks_xml.cpp
 
 pbuilder_pbx.obj: generators/mac/pbuilder_pbx.cpp
 	$(CXX) $(CXXFLAGS) generators/mac/pbuilder_pbx.cpp
-
-msvc_objectmodel.obj: generators/win32/msvc_objectmodel.cpp
-	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
