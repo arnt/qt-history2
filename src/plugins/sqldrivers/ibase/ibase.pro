@@ -1,9 +1,4 @@
-TEMPLATE = lib
 TARGET	 = qsqlibase
-
-CONFIG	+= plugin
-QCONFIG  = core sql
-DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/ibase/qsql_ibase.h
 SOURCES		= main.cpp \
@@ -22,7 +17,4 @@ win32 {
 	win32-borland:LIBS  += gds32.lib
 }
 
-REQUIRES	= sql
-
-target.path += $$plugins.path/sqldrivers
-INSTALLS += target
+include(../common.pri)

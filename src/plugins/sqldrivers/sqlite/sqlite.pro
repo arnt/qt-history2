@@ -1,9 +1,4 @@
-TEMPLATE = lib
 TARGET	 = qsqlite
-
-CONFIG	+= plugin
-QCONFIG  = core sql
-DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/sqlite/qsql_sqlite.h
 SOURCES		= smain.cpp \
@@ -72,7 +67,4 @@ win32 {
                ../../../3rdparty/sqlite/where.c
 }
 
-QTDIR_build:REQUIRES	= sql
-
-target.path += $$plugins.path/sqldrivers
-INSTALLS += target
+include(../common.pri)

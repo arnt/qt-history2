@@ -1,9 +1,4 @@
-TEMPLATE = lib
 TARGET	 = qsqloci
-
-CONFIG  += plugin
-QCONFIG  = core sql
-DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/oci/qsql_oci.h
 SOURCES		= main.cpp \
@@ -33,7 +28,4 @@ macx {
         QMAKE_LFLAGS += -Wl,-flat_namespace,-U,_environ
 }
 
-QTDIR_build:REQUIRES	= sql
-
-target.path += $$plugins.path/sqldrivers
-INSTALLS += target
+include(../common.pri)

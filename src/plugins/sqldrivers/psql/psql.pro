@@ -1,9 +1,4 @@
-TEMPLATE = lib
 TARGET	 = qsqlpsql
-
-CONFIG	+= plugin
-QCONFIG  = core sql
-DESTDIR	 = $$QT_BUILD_TREE/plugins/sqldrivers
 
 HEADERS		= ../../../sql/drivers/psql/qsql_psql.h
 SOURCES		= main.cpp \
@@ -27,7 +22,4 @@ win32 {
 #	}
 }
 
-QTDIR_build:REQUIRES	= sql
-
-target.path += $$plugins.path/sqldrivers
-INSTALLS += target
+include(../common.pri)
