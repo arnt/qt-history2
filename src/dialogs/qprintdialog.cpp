@@ -1280,6 +1280,8 @@ void QPrintDialog::printRangeSelected( int id )
     bool enable = id ? TRUE : FALSE;
     d->firstPage->setEnabled( enable );
     d->lastPage->setEnabled( enable );
+    d->firstPageLabel->setEnabled( enable );
+    d->lastPageLabel->setEnabled( enable );
 }
 
 
