@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#14 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#14 $";
 #endif
 
 
@@ -75,22 +75,22 @@ QDataStream& QGDict::write( QDataStream &s, GCI ) const
 
 
 // --------------------------------------------------------------------------
-// Qbucket class (internal hash node)
+// QBucket class (internal hash node)
 //
 
-class Qbucket
+class QBucket
 {
 public:
     char   *getKey()		{ return key; }
     char   *setKey( char *k )	{ return key = k; }
     GCI	    getData()		{ return data; }
     GCI	    setData( GCI d )	{ return data = d; }
-    Qbucket *getNext()		{ return next; }
-    void    setNext( Qbucket *n){ next = n; }
+    QBucket *getNext()		{ return next; }
+    void    setNext( QBucket *n){ next = n; }
 private:
     char   *key;
     GCI	    data;
-    Qbucket *next;
+    QBucket *next;
 };
 
 
@@ -98,11 +98,11 @@ private:
 // QGDict member functions
 //
 
-QGDict::QGDict( uint sz, bool cs, bool ck, bool th )
+QGDict::QGDict( uint len, bool cs, bool ck, bool th )
 {
-    vec = new Qbucket *[vlen = sz];		// allocate hash table
+    vec = new QBucket *[vlen = len];		// allocate hash table
     CHECK_PTR( vec );
-    memset( (char*)vec, 0, vlen*sizeof(Qbucket*) );
+    memset( (char*)vec, 0, vlen*sizeof(QBucket*) );
     numItems = 0;
     cases = cs;
     copyk = ck;
@@ -114,9 +114,9 @@ QGDict::QGDict( uint sz, bool cs, bool ck, bool th )
 
 QGDict::QGDict( const QGDict & dict )		// make copy of other dict
 {
-    vec = new Qbucket *[vlen = dict.vlen];	// allocate hash table
+    vec = new QBucket *[vlen = dict.vlen];	// allocate hash table
     CHECK_PTR( vec );
-    memset( (char*)vec, 0, vlen*sizeof(Qbucket*) );
+    memset( (char*)vec, 0, vlen*sizeof(QBucket*) );
     numItems = 0;
     cases = dict.cases;
     copyk = dict.copyk;
@@ -156,32 +156,40 @@ QGDict &QGDict::operator=( const QGDict &dict ) // assign from other dict
 }
 
 
-GCI QGDict::look( const char *key, GCI d, bool ins )
-{						// find/insert item
-    register Qbucket *n;
+//
+// The do-it-all function; find (op==0), insert (op==1), replace (op==2)
+//
+
+GCI QGDict::look( const char *key, GCI d, int op )
+{
+    register QBucket *n;
     int	 index;
-    if ( trivial ) {				// when key is not a string
-	index = (int)(long(key) % vlen);	// don't call virtual hash func
-	if ( !ins ) {				// find item in list
+    if ( trivial ) {				// key is a long/ptr
+	index = (int)(long(key) % vlen);	// simple hash
+	if ( op == 0 ) {			// find
 	    for ( n=vec[index]; n; n=n->getNext() ) {
 		if ( n->getKey() == key )
-		    return n->getData();	// item was found
+		    return n->getData();	// item found
 	    }
-	    return 0;				// did not find the item
+	    return 0;				// not such item
 	}
     }
     else {					// key is a string
 	index = hashKey( key ) % vlen;
-	if ( !ins ) {				// find item in list
+	if ( op == 0 ) {			// find
 	    for ( n=vec[index]; n; n=n->getNext() ) {
 		if ( (cases ? strcmp(n->getKey(),key)
 			 : stricmp(n->getKey(),key)) == 0 )
-		    return n->getData();	// item was found
+		    return n->getData();	// item found
 	    }
 	    return 0;				// did not find the item
 	}
     }
-    Qbucket *node = new Qbucket;		// insert new node
+    if ( op == 2 ) {				// replace
+	if ( vec[index] != 0 )			// maybe something there
+	    remove( key );
+    }
+    QBucket *node = new QBucket;		// insert new node
     CHECK_PTR( node );
     if ( !node )				// no memory
 	return 0;
@@ -195,12 +203,12 @@ GCI QGDict::look( const char *key, GCI d, bool ins )
 }
 
 
-Qbucket *QGDict::unlink( const char *key )
+QBucket *QGDict::unlink( const char *key )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
-    register Qbucket *n;
-    Qbucket *prev = 0;
+    register QBucket *n;
+    QBucket *prev = 0;
     int index;
     if ( trivial )
 	index = (int)(long(key) % vlen);
@@ -234,9 +242,9 @@ Qbucket *QGDict::unlink( const char *key )
     return 0;
 }
 
-bool QGDict::remove( const char *key )		// remove item from dictionary
+bool QGDict::remove( const char *key )		// remove item
 {
-    register Qbucket *n = unlink( key );
+    register QBucket *n = unlink( key );
     if ( n ) {
 	if ( copyk )
 	    delete n->getKey();
@@ -248,7 +256,7 @@ bool QGDict::remove( const char *key )		// remove item from dictionary
 
 GCI QGDict::take( const char *key )		// take out item
 {
-    register Qbucket *n = unlink( key );
+    register QBucket *n = unlink( key );
     GCI tmp = 0;
     if ( n ) {
 	tmp = n->getData();
@@ -264,7 +272,7 @@ void QGDict::clear()				// delete all items
 {
     if ( !numItems )
 	return;
-    register Qbucket *n;
+    register QBucket *n;
     numItems = 0;				// disable remove() function
     for ( uint j=0; j<vlen; j++ ) {		// destroy hash table
 	n = vec[j];
@@ -272,7 +280,7 @@ void QGDict::clear()				// delete all items
 	    if ( copyk )
 		delete n->getKey();
 	    deleteItem( n->getData() );
-	    Qbucket *next = n->getNext();
+	    QBucket *next = n->getNext();
 	    delete n;
 	    n = next;
 	}
@@ -288,7 +296,7 @@ void QGDict::clear()				// delete all items
 }
 
 
-void QGDict::statistics() const			// show statistics
+void QGDict::statistics() const			// output statistics (debug)
 {
 #if defined(DEBUG)
     QString line;
@@ -305,7 +313,7 @@ void QGDict::statistics() const			// show statistics
     ideal = (float)count()/(2.0*size())*(count()+2.0*size()-1);
     uint i = 0;
     while ( i<size() ) {
-	Qbucket *n = vec[i];
+	QBucket *n = vec[i];
 	int b = 0;
 	while ( n ) {				// count number of buckets
 	    b++;
@@ -372,7 +380,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
     s << count();				// write number of items
     uint i = 0;
     while ( i<size() ) {
-	Qbucket *n = vec[i];
+	QBucket *n = vec[i];
 	while ( n ) {				// write all buckets
 	    if ( trivial )
 		s << (long)n->getKey();		// write key as long int
@@ -422,18 +430,9 @@ GCI QGDictIterator::toFirst()			// move to first item
 	return 0;
     }
     register uint i = 0;
-#if defined(PARANOID_TEST)
-    while ( !dict->vec[i] && i < dict->size() ) // paranoid test
-	i++;
-    if ( i == dict->size() ) {			// nothing found!?
-	debug( "QGDictIterator::toFirst: Internal error" );
-	return 0;
-    }
-#else
-    register Qbucket **v = dict->vec;
+    register QBucket **v = dict->vec;
     while ( !(*v++) )
 	i++;
-#endif
     curNode = dict->vec[i];
     curIndex = i;
     return curNode->getData();
@@ -479,7 +478,7 @@ GCI QGDictIterator::operator++()		// move to next item (prefix)
     curNode = curNode->getNext();
     if ( !curNode ) {				// no next bucket
 	register uint i = curIndex + 1;		// look from next vec element
-	register Qbucket **v = &dict->vec[i];
+	register QBucket **v = &dict->vec[i];
 	while ( i < dict->size() && !(*v++) )
 	    i++;
 	if ( i == dict->size() ) {		// nothing found
