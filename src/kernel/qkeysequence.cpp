@@ -426,6 +426,7 @@ int QKeySequence::decodeString( const QString& str )
 #else
 	    accel.remove(modifiers[i].name);
 #endif
+	    sl = accel.lower();
 	}
     }
 
