@@ -17,7 +17,6 @@
 
 #include <qsqldriver.h>
 #include <qsqlresult.h>
-#include <qmap.h>
 
 #if defined (Q_OS_WIN32)
 #include <qt_windows.h>
@@ -56,14 +55,15 @@
 #include <sqlext.h>
 
 class QODBCPrivate;
+class QODBCDriverPrivate;
 class QODBCDriver;
 class QSqlRecordInfo;
 
 class QODBCResult : public QSqlResult
 {
 public:
-    QODBCResult( const QODBCDriver * db, QODBCPrivate* p );
-    ~QODBCResult();
+    QODBCResult( const QODBCDriver * db, QODBCDriverPrivate* p );
+    virtual ~QODBCResult();
 
     SQLHANDLE   statement();
     bool	prepare( const QString& query );
@@ -83,10 +83,6 @@ protected:
     QSqlRecord record() const;
 
 private:
-    typedef QMap<int,QVariant> FieldCache;
-    FieldCache fieldCache;
-    typedef QMap<int,bool> NullCache;
-    NullCache nullCache;
     QODBCPrivate *d;
 };
 
@@ -95,7 +91,7 @@ class Q_EXPORT_SQLDRIVER_ODBC QODBCDriver : public QSqlDriver
 public:
     QODBCDriver(QObject *parent=0);
     QODBCDriver(SQLHANDLE env, SQLHANDLE con, QObject * parent=0);
-    ~QODBCDriver();
+    virtual ~QODBCDriver();
     bool		hasFeature( DriverFeature f ) const;
     void		close();
     QSqlQuery		createQuery() const;
@@ -122,7 +118,7 @@ private:
     void init();
     bool endTrans();
     void cleanup();
-    QODBCPrivate* d;
+    QODBCDriverPrivate* d;
 };
 
 #endif
