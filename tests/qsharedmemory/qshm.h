@@ -1,35 +1,32 @@
-#if !defined(QT_QWS_NO_SHM)
+#ifndef QT_QWS_NO_SHM
 
 #include <qstring.h>
-#include <sys/ipc.h>
 
+class QWSSharedMemoryPrivate;
 class QWSSharedMemory {
 
 public:
-	QWSSharedMemory(){};
 	QWSSharedMemory(int size, QString file);
-	~QWSSharedMemory(){};
+	~QWSSharedMemory();
 
+	/* active functions */
 	bool create();
 	void destroy();
 
 	bool attach();
 	void detach();
 
-	void setPermissions(mode_t mode);
-	void * base() { return shmBase; };
+	/* query functions */
+	inline void * base() { return shmBase; };
+
+	bool exists() const;
+	inline uint size() const { return shmSize; };
 
 private:
 	void *shmBase;
 	int shmSize;
 	QString shmFile;
-#if defined(QT_QWS_POSIX_SHM)
-	int shmFD;
-#else
-	bool idInitted;
-	key_t key;
-	int shmId;
-#endif
+	QWSSharedMemoryPrivate *d;
 };
 
 #endif
