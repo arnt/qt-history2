@@ -690,7 +690,7 @@ void QTableWidgetItem::clear()
     use QTableView rather than this class.
 
     Items are set with setItem(), or with setText() or setIcon();
-    these last two are convenience functions that create a QTableItem
+    these last two are convenience functions that create a QTableWidgetItem
     for you. The number of rows is set with setRowCount(), and the
     number of columns with setColumnCount().
 
