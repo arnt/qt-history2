@@ -26,7 +26,7 @@ template <class T> \
 class C##Iterator \
 { \
     typedef typename C<T>::const_iterator const_iterator; \
-    const C<T> c; \
+    C<T> c; \
     const_iterator i; \
 public: \
     inline C##Iterator(const C<T> &container) \
@@ -87,7 +87,7 @@ class C##Iterator \
 { \
     typedef typename C<Key,T>::const_iterator const_iterator; \
     typedef const_iterator Item; \
-    const C<Key,T> c; \
+    C<Key,T> c; \
     const_iterator i, n; \
     inline bool item_exists() const { return n != c.constEnd(); } \
 public: \
@@ -113,7 +113,7 @@ public: \
     inline bool findNextKey(const Key &key) \
     {  \
         if (i == c.constBegin()) { \
-            i = c.find(key); \
+            i = const_cast<const C<Key,T> &>(c).find(key); \
             if ((n = i) != c.constEnd()) { \
                 ++i; \
                 return true; \
@@ -130,7 +130,7 @@ public: \
     inline bool findPreviousKey(const Key &key) \
     { \
         if (i == c.constEnd()) { \
-            n = i = c.find(key); \
+            n = i = const_cast<const C<Key,T> &>(c).find(key); \
             if (i == c.constEnd()) { \
                 i = c.constBegin(); \
                 return false; \
