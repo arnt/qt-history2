@@ -61,7 +61,7 @@ END {
 function classsizes
 {
     /bin/ls $1/include | grep -v -e 'qmutex.h' -e 'qgl.h' | grep '\.h$' >incs.out
-    cat incs.out | (cd $1/include; xargs sed -n -e 's/^class \(Q[A-Za-z0-9_]*[A-LN-Za-z0-9_]\)[^A-Za-z0-9_;][^;]*$/\1/p') >pubclasses.out
+    cat incs.out | (cd $1/include; xargs sed -n -e 's/^class \(Q_EXPORT \)?\(Q[A-Za-z0-9_]*[A-LN-Za-z0-9_]\)[^A-Za-z0-9_;][^;]*$/\1/p') >pubclasses.out
     echo '#define INCLUDE_MENUITEM_DEF' >$T3.cpp
     sed -e 's/.*/#include "&"/' incs.out >>$T3.cpp
     cat >>$T3.cpp << EOF
