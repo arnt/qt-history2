@@ -35,6 +35,40 @@ static QRegion* paintEventClipRegion = 0;
 //static QRegion* paintEventSaveRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
 
+
+#define QT_NO_NATIVE_XFORM
+#define QT_NO_NATIVE_PATH
+#define QT_NO_NATIVE_GRADIENT
+// #define QT_NO_NATIVE_ALPHA
+
+// This function decides which native functions the painter should support.
+// You may change the supported feature set by (un)commenting the defines above.
+static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
+{
+    QPaintEngine::PaintEngineFeatures commonFeatures =
+        QPaintEngine::UsesFontEngine
+#ifndef QT_NO_NATIVE_XFORM
+        | QPaintEngine::CoordTransform
+        | QPaintEngine::PenWidthTransform
+        | QPaintEngine::PixmapTransform
+        | QPaintEngine::PixmapScale
+        | QPaintEngine::ClipTransform
+#endif
+#ifndef QT_NO_NATIVE_PATH
+        | QPaintEngine::PainterPaths
+#endif
+#ifndef QT_NO_NATIVE_GRADIENT
+        | QPaintEngine::LinearGradients
+#endif
+#ifndef QT_NO_NATIVE_ALPHA
+        | QPaintEngine::AlphaPixmap
+        | QPaintEngine::AlphaFill
+        | QPaintEngine::AlphaStroke
+#endif
+        ;
+    return commonFeatures;
+}
+
 void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 {
     if (!paintEventClipRegion)
@@ -81,7 +115,6 @@ void qwsUpdateActivePainters()
     */
 }
 
-
 void qt_draw_background(QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int /*h*/)
 {
     QWSPaintEngine *p = static_cast<QWSPaintEngine *>(pe);
@@ -96,21 +129,17 @@ void qt_draw_background(QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int 
 #define q q_func()
 
 QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr)
-    : QPaintEngine(dptr, UsesFontEngine | AlphaPixmap)
+    : QPaintEngine(dptr, qt_decide_paintengine_features())
 {
-//    d->pdev = pdev;
-//        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
 QWSPaintEngine::QWSPaintEngine()
-    : QPaintEngine(*(new QWSPaintEnginePrivate), UsesFontEngine | AlphaPixmap)
+    : QPaintEngine(*(new QWSPaintEnginePrivate), qt_decide_paintengine_features())
 {
-//        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
 QWSPaintEngine::~QWSPaintEngine()
 {
-//        qDebug("QWSPaintEngine::~QWSPaintEngine");
 }
 
 
@@ -358,40 +387,52 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
         clearf(ClipOn);
 }
 
-void QWSPaintEngine::drawLine(const QPointF &p1, const QPointF &p2)
+void QWSPaintEngine::drawLine(const QLineF &line)
 {
-    if (state->pen.style() != Qt::NoPen)
-        d->gfx->drawLine(int(p1.x()), int(p1.y()), int(p2.x()), int(p2.y()));
+    if (state->pen.style() == Qt::NoPen)
+        return;
+    d->gfx->drawLine(int(line.startX()), int(line.startY()), int(line.endX()), int(line.endY()));
 }
 
 void QWSPaintEngine::drawRect(const QRectF &r)
 {
-    int x1 = int(r.x());
-    int y1 = int(r.y());
     int w = int(r.width());
     int h = int(r.height());
+    if (!w && !h)
+        return;
+    int x1 = int(r.x());
+    int y1 = int(r.y());
 
     if (state->pen.style() != Qt::NoPen) {
         if (state->pen.width() > 1) {
             QPointArray a(QRect(x1,y1,w,h), true);
             drawPolyInternal(a);
             return;
-        } else        {
-            int x2 = x1 + (w-1);
-            int y2 = y1 + (h-1);
-            d->gfx->drawLine(x1, y1, x2, y1);
-            d->gfx->drawLine(x2, y1, x2, y2);
-            d->gfx->drawLine(x1, y2, x2, y2);
-            d->gfx->drawLine(x1, y1, x1, y2);
-            x1 += 1;
-            y1 += 1;
-            w -= 2;
-            h -= 2;
         }
+        int x2 = x1 + (w-1);
+        int y2 = y1 + (h-1);
+        bool paintBottom = y1 < y2;
+        bool paintLeft   = y1 < y2 - 1;
+        bool paintRight  = x1 < x2 && paintLeft;
+
+        d->gfx->drawLine(x1, y1, x2, y1); // Top
+        if (paintBottom)
+            d->gfx->drawLine(x1, y2, x2, y2); // Bottom
+        if (paintLeft)
+            d->gfx->drawLine(x1, y1+1, x1, y2-1); // Left
+        if (paintRight)
+            d->gfx->drawLine(x2, y1+1, x2, y2-1); // Right
+
+        x1 += 1;
+        y1 += 1;
+        w -= 2;
+        h -= 2;
     }
 
-    d->gfx->fillRect(x1, y1, w, h);
+    if (w > 0 && h > 0)
+        d->gfx->fillRect(x1, y1, w, h);
 }
+
 void QWSPaintEngine::drawPoint(const QPointF &p)
 {
     d->gfx->drawPoint(int(p.x()), int(p.y()));
@@ -406,34 +447,30 @@ void QWSPaintEngine::drawPoints(const QPolygon &p)
     d->gfx->drawPoints(pa, 0, pa.size());
 }
 
-
 void QWSPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 {
     if (a.size() < 2 || !d->gfx)
         return;
 
-    int x1, y1, x2, y2;                                // connect last to first point
+    int x1, y1, x2, y2;                                  // connect last to first point
     a.point(a.size()-1, &x1, &y1);
     a.point(0, &x2, &y2);
     bool do_close = close && !(x1 == x2 && y1 == y2);
 
-    if (close && state->brush.style() != Qt::NoBrush) {        // draw filled polygon
+    if (close && state->brush.style() != Qt::NoBrush) { // draw filled polygon
         d->gfx->drawPolygon(a,false,0,a.size());
-        if (state->pen.style() == Qt::NoPen) {                // draw fake outline
+        if (state->pen.style() == Qt::NoPen) {          // draw fake outline
             d->gfx->drawPolyline(a,0,a.size());
             if (do_close)
                 d->gfx->drawLine(x1,y1,x2,y2);
         }
     }
-    if (state->pen.style() != Qt::NoPen) {                // draw outline
+    if (state->pen.style() != Qt::NoPen) {              // draw outline
         d->gfx->drawPolyline(a,0,a.size());
         if (do_close)
             d->gfx->drawLine(x1,y1,x2,y2);
     }
 }
-
-
-
 
 void QWSPaintEngine::drawEllipse(const QRectF &r)
 {
