@@ -1239,27 +1239,27 @@ void UnixMakefileGenerator::init2()
     } else if ( project->isActiveConfig("dll") ) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_SHLIB"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
-	if(!project->isEmpty("QMAKE_LFLAGS_COMPAT_VERSION")) {
-	    if(project->isEmpty("COMPAT_VERSION"))
-		project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
-								project->first("VER_MAJ") + "." +
-								project->first("VER_MIN"));
-	    else
-	       project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
-							       project->first("COMPATIBILITY_VERSION"));
-	}
-	if(!project->isEmpty("QMAKE_LFLAGS_VERSION")) {
-	    project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_VERSION") +
-							    project->first("VER_MAJ") + "." +
-							    project->first("VER_MIN") + "." +
-							    project->first("VER_PAT"));
-	}
 	if ( project->isActiveConfig("plugin") ) {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PLUGIN"];
 	    if( project->isActiveConfig("plugin_with_soname") && !project->isActiveConfig("compile_libtool"))
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	} else {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHLIB"];
+	    if(!project->isEmpty("QMAKE_LFLAGS_COMPAT_VERSION")) {
+		if(project->isEmpty("COMPAT_VERSION"))
+		    project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
+								    project->first("VER_MAJ") + "." +
+								    project->first("VER_MIN"));
+		else
+		    project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
+								    project->first("COMPATIBILITY_VERSION"));
+	    }
+	    if(!project->isEmpty("QMAKE_LFLAGS_VERSION")) {
+		project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_VERSION") +
+								project->first("VER_MAJ") + "." +
+								project->first("VER_MIN") + "." +
+								project->first("VER_PAT"));
+	    }
 	    if(!project->isActiveConfig("compile_libtool"))
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	}
