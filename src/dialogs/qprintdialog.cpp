@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#34 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#35 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#35 $");
 
 
 struct QPrintDialogPrivate
@@ -328,9 +328,6 @@ QPrintDialog::~QPrintDialog()
 {
     if ( this == globalPrintDialog )
 	globalPrintDialog = 0;
-    delete d->printerOrFile;
-    delete d->paperSize;
-    delete d->pageOrder;
     delete d;
 }
 
@@ -343,7 +340,8 @@ QGroupBox * QPrintDialog::setupDestination()
     QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
     tll->addSpacing( 8 );
 
-    d->printerOrFile = new QButtonGroup( (QWidget *)0 );
+    d->printerOrFile = new QButtonGroup( this );
+    d->printerOrFile->hide();
     connect( d->printerOrFile, SIGNAL(clicked(int)),
 	     this, SLOT(printerOrFileSelected(int)) );
 
@@ -473,15 +471,18 @@ QGroupBox * QPrintDialog::setupOptions()
     QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
     tll->addSpacing( 8 );
 
-    d->printRange = new QButtonGroup( (QWidget *)0 );
+    d->printRange = new QButtonGroup( this );
+    d->printRange->hide();
     connect( d->printRange, SIGNAL(clicked(int)),
 	     this, SLOT(printRangeSelected(int)) );
 
-    d->pageOrder = new QButtonGroup( (QWidget *)0 );
+    d->pageOrder = new QButtonGroup( this );
+    d->pageOrder->hide();
     connect( d->pageOrder, SIGNAL(clicked(int)),
 	     this, SLOT(pageOrderSelected(int)) );
 
-    d->colorMode = new QButtonGroup( (QWidget *)0 );
+    d->colorMode = new QButtonGroup( this );
+    d->colorMode->hide();
     connect( d->pageOrder, SIGNAL(clicked(int)),
 	     this, SLOT(colorModeSelected(int)) );
 
@@ -603,11 +604,13 @@ QGroupBox * QPrintDialog::setupPaper()
     QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
     tll->addSpacing( 8 );
 
-    d->orient = new QButtonGroup( (QWidget*) 0 );
+    d->orient = new QButtonGroup( this );
+    d->orient->hide();
     connect( d->orient, SIGNAL(clicked(int)),
 	     this, SLOT(orientSelected(int)) );
 
-    d->paperSize = new QButtonGroup( (QWidget *)0 );
+    d->paperSize = new QButtonGroup( this );
+    d->paperSize->hide();
     connect( d->paperSize, SIGNAL(clicked(int)),
 	     this, SLOT(paperSizeSelected(int)) );
 
