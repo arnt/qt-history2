@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#31 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#31 $";
 #endif
 
 
@@ -228,12 +228,14 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QByteArray qstring.h
+
   \ingroup tools
+
   \brief The QByteArray class provides an array of bytes.
 
-  Missing documentation.
+  Boring and ungreppable lack of documentation.
  ----------------------------------------------------------------------------*/
 
 
@@ -242,9 +244,11 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
  *****************************************************************************/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QString qstring.h
+
   \ingroup tools
+
   \brief The QString class is a handle class that provides an
   abstraction of the C style zero-terminated char array.  QString
   inherits QByteArray, which is defined as QArray\<char\>.
