@@ -436,9 +436,6 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     Q_ASSERT(model);
 
     if (d->model) {
-        // view
-        disconnect(d->model, SIGNAL(destroyed(QObject*)),
-                   this, SLOT(modelDestroyed()));
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
@@ -451,9 +448,6 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     d->model = model;
 
     if (d->model) {
-        // view
-        connect(d->model, SIGNAL(destroyed(QObject*)),
-                this, SLOT(modelDestroyed()));
         connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
@@ -461,12 +455,9 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
-        // will connect in setSelectionModel
     }
 
     setRoot(QModelIndex());// triggers layout
-
-    d->selectionModel = 0;
     setSelectionModel(new QItemSelectionModel(d->model));
 }
 
@@ -487,16 +478,13 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     Q_ASSERT(selectionModel);
 
-    if (selectionModel && selectionModel->model() != d->model) {
+    if (selectionModel->model() != d->model) {
         qWarning("QAbstractItemView::setSelectionModel() failed: Trying to set a selection model,"
                  " which works on a different model than the view.");
         return;
     }
 
     if (d->selectionModel) {
-        // view
-        disconnect(d->selectionModel, SIGNAL(destroyed(QObject*)),
-                   this, SLOT(selectionModelDestroyed()));
         disconnect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                    this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
@@ -506,9 +494,6 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
     d->selectionModel = selectionModel;
 
     if (d->selectionModel) {
-        // view
-        connect(d->selectionModel, SIGNAL(destroyed(QObject*)),
-                this, SLOT(selectionModelDestroyed()));
         connect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                 this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
@@ -644,7 +629,7 @@ void QAbstractItemView::reset()
     d->state = NoState;
     if (isVisible())
         doItemsLayout();
-     // the views will be updated later
+     // the view will be updated later
 }
 
 /*!
@@ -1502,22 +1487,6 @@ void QAbstractItemView::verticalScrollbarAction(int)
 void QAbstractItemView::horizontalScrollbarAction(int)
 {
     //do nothing
-}
-
-/*!
-  \internal
-*/
-void QAbstractItemView::selectionModelDestroyed()
-{
-    d->selectionModel = 0;
-}
-
-/*!
-  \internal
-*/
-void QAbstractItemView::modelDestroyed()
-{
-    d->model = 0;
 }
 
 /*!

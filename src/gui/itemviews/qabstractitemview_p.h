@@ -84,9 +84,10 @@ public:
 
     void removeSelectedRows();
 
-    mutable QAbstractItemModel *model;
-    mutable QAbstractItemDelegate *delegate;
-    mutable QItemSelectionModel *selectionModel;
+    QPointer<QAbstractItemModel> model;
+    QPointer<QAbstractItemDelegate> delegate;
+    QPointer<QItemSelectionModel> selectionModel;
+
     QAbstractItemView::SelectionMode selectionMode;
     QAbstractItemView::SelectionBehavior selectionBehavior;
 
