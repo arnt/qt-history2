@@ -668,26 +668,22 @@ void QTranslator::squeeze(SaveMode mode)
     }
 
     if (mode == Stripped) {
-        QHash<const char *,int*> contextSet;
-        int baudelaire;
-
+        QMap<const char *, int> contextSet;
         for (it = messages.constBegin(); it != messages.constEnd(); ++it)
-            contextSet[it.key().context()] = &baudelaire;
+            ++contextSet[it.key().context()];
 
         Q_UINT16 hTableSize;
-        if (contextSet.count() < 200)
-            hTableSize = (contextSet.count() < 60) ? 151 : 503;
-        else if (contextSet.count() < 2500)
-            hTableSize = (contextSet.count() < 750) ? 1511 : 5003;
+        if (contextSet.size() < 200)
+            hTableSize = (contextSet.size() < 60) ? 151 : 503;
+        else if (contextSet.size() < 2500)
+            hTableSize = (contextSet.size() < 750) ? 1511 : 5003;
         else
-            hTableSize = 15013;
+            hTableSize = (contextSet.size() < 10000) ? 15013 : 3 * contextSet.size() / 2;
 
-        QHash<long, const char *> hDict;
-        QHash<const char *, int*>::ConstIterator c = contextSet.begin();
-        while (*c) {
-            hDict[elfHash(c.key())] = c.key();
-            ++c;
-        }
+        QMultiMap<int, const char *> hashMap;
+        QMap<const char *, int>::const_iterator c;
+        for (c = contextSet.constBegin(); c != contextSet.constEnd(); ++c)
+            hashMap.insert(elfHash(c.key()) % hTableSize, c.key());
 
         /*
           The contexts found in this translator are stored in a hash
@@ -713,30 +709,31 @@ void QTranslator::squeeze(SaveMode mode)
         */
         d->contextArray.resize(2 + (hTableSize << 1));
         QDataStream t(&d->contextArray, IO_WriteOnly);
+
         Q_UINT16 *hTable = new Q_UINT16[hTableSize];
         memset(hTable, 0, hTableSize * sizeof(Q_UINT16));
 
         t << hTableSize;
         t.device()->at(2 + (hTableSize << 1));
-        t << (Q_UINT16) 0; // the entry at offset 0 cannot be used
+        t << (Q_UINT16)0; // the entry at offset 0 cannot be used
         uint upto = 2;
-        for (int i = 0; i < hTableSize; i++) {
-            const char *con = hDict[i];
-            if (con == 0) {
-                hTable[i] = 0;
-            } else {
-                hTable[i] = (Q_UINT16) (upto >> 1);
+
+        QMap<int, const char *>::const_iterator entry = hashMap.constBegin();
+        while (entry != hashMap.constEnd()) {
+            int i = entry.key();
+            const char *con = entry.value();
+            hTable[i] = (Q_UINT16)(upto >> 1);
+            uint len = (uint)qstrlen(con);
+            len = qMin(len, 255u);
+            t << (Q_UINT8)len;
+            t.writeRawBytes(con, len);
+            upto += 1 + len;
+
+            ++entry;
+            if (entry == hashMap.constEnd() || entry.key() != i) {
                 do {
-                    uint len = (uint) qstrlen(con);
-                    len = qMin(len, 255u);
-                    t << (Q_UINT8) len;
-                    t.writeRawBytes(con, len);
-                    upto += 1 + len;
-                    hDict.remove(i);
-                } while ((con = hDict[i]) != 0);
-                do {
-                    t << (Q_UINT8) 0; // empty string (at least one)
-                    upto++;
+                    t << (Q_UINT8) 0; // empty string
+                    ++upto;
                 } while ((upto & 0x1) != 0); // offsets have to be even
             }
         }
@@ -877,8 +874,8 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
         return QTranslatorMessage();
 
     /*
-      Check if the context belongs to this QTranslator.  If many translators are
-      installed, this step is necessary.
+        Check if the context belongs to this QTranslator. If many
+        translators are installed, this step is necessary.
     */
     if (!d->contextArray.isEmpty()) {
         Q_UINT16 hTableSize = 0;

@@ -12,7 +12,6 @@
 **
 ****************************************************************************/
 
-
 #ifndef QTRANSLATOR_H
 #define QTRANSLATOR_H
 
@@ -30,19 +29,17 @@ class Q_CORE_EXPORT QTranslatorMessage
 {
 public:
     QTranslatorMessage();
-    QTranslatorMessage(const char * context,
-                        const char * sourceText,
-                        const char * comment,
-                        const QString& translation = QString());
+    QTranslatorMessage(const char * context, const char * sourceText,
+                       const char * comment, const QString& translation = QString());
     QTranslatorMessage(QDataStream &);
     QTranslatorMessage(const QTranslatorMessage & m);
 
     QTranslatorMessage & operator=(const QTranslatorMessage & m);
 
     uint hash() const { return h; }
-    const char *context() const { return cx; }
-    const char *sourceText() const { return st; }
-    const char *comment() const { return cm; }
+    const char *context() const { return cx.isNull() ? 0 : cx.constData(); }
+    const char *sourceText() const { return st.isNull() ? 0 : st.constData(); }
+    const char *comment() const { return cm.isNull() ? 0 : cm.constData(); }
 
     void setTranslation(const QString & translation) { tn = translation; }
     QString translation() const { return tn; }
