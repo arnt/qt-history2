@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#13 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -14,7 +14,7 @@
 #include "qpaintdc.h"
 #include "qwidget.h"
 #include "qpntarry.h"
-#include "qwxfmat.h"
+#include "qwmatrix.h"
 #include "qbitmap.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#13 $";
 #endif
 
 
@@ -277,10 +277,10 @@ QPainter::QPainter()
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
-    wxfmat  = new QWXFMatrix;			// create wxform matrices
-    CHECK_PTR( wxfmat );
-    wxfimat = new QWXFMatrix;
-    CHECK_PTR( wxfimat );
+    wxmat  = new QWorldMatrix;			// create wxform matrices
+    CHECK_PTR( wxmat );
+    wixmat = new QWorldMatrix;
+    CHECK_PTR( wixmat );
     ps_stack = 0;
     list->insert( this );			// add to list of painters
 }
@@ -293,8 +293,8 @@ QPainter::~QPainter()
 #endif
 	end();
     }
-    delete wxfmat;
-    delete wxfimat;
+    delete wxmat;
+    delete wixmat;
     killPStack();
     list->remove( this );			// remove from painter list
 }
@@ -574,7 +574,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     gc_brush = 0;
     bg_col = white;				// default background color
     bro = curPt = QPoint( 0, 0 );
-    wxfmat->reset();				// reset world xform matrix
+    wxmat->reset();				// reset world xform matrix
     sx = sy = tx = ty = 0;			// default view origins
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
@@ -789,22 +789,22 @@ void QPainter::setWorldXForm( bool onOff )	// set world xform on/off
     updateXForm();
 }
 
-QWXFMatrix *QPainter::wxfMatrix() const		// get world xform matrix
+QWorldMatrix *QPainter::worldMatrix() const	// get world xform matrix
 {
-    return wxfmat;
+    return wxmat;
 }
 
-void QPainter::setWxfMatrix( const QWXFMatrix &m, bool concat )
+void QPainter::setWorldMatrix( const QWorldMatrix &m, bool concat )
 {						// set world xform matrix
     if ( concat )
-	*wxfmat = m * *wxfmat;			// concatenate
+	*wxmat = m * *wxmat;			// concatenate
     else
-	*wxfmat = m;				// set    
+	*wxmat = m;				// set    
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
-	param[0].matrix = wxfmat;
+	param[0].matrix = wxmat;
 	param[1].ival = concat;
-	pdev->cmd( PDC_SETWXFMATRIX, param );
+	pdev->cmd( PDC_SETWMATRIX, param );
 	return;
     }
     if ( !testf(WxF) )
@@ -816,28 +816,28 @@ void QPainter::setWxfMatrix( const QWXFMatrix &m, bool concat )
 
 void QPainter::updateXForm()			// update xform params
 {
-    QWXFMatrix mat;
+    QWorldMatrix m;
     if ( testf(VxF) ) {
-	mat.translate( tx, ty );
-	mat.scale( 1.0*tw/sw, 1.0*th/sh );
-	mat.translate( -sx, -sy );
-	mat = *wxfmat * mat;
+	m.translate( tx, ty );
+	m.scale( 1.0*tw/sw, 1.0*th/sh );
+	m.translate( -sx, -sy );
+	m = *wxmat * m;
     }
     else
-	mat = *wxfmat;
-    wm11 = (int)(mat.m11()*65536.0);
-    wm12 = (int)(mat.m12()*65536.0);
-    wm21 = (int)(mat.m21()*65536.0);
-    wm22 = (int)(mat.m22()*65536.0);
-    wdx  = (int)(mat.dx() *65536.0);
-    wdy  = (int)(mat.dy() *65536.0);
-    *wxfimat = mat.invert();			// invert matrix
-    im11 = (int)(wxfimat->m11()*65536.0);
-    im12 = (int)(wxfimat->m12()*65536.0);
-    im21 = (int)(wxfimat->m21()*65536.0);
-    im22 = (int)(wxfimat->m22()*65536.0);
-    idx  = (int)(wxfimat->dx() *65536.0);
-    idy  = (int)(wxfimat->dy() *65536.0);
+	m = *wxmat;
+    wm11 = (int)(m.m11()*65536.0);
+    wm12 = (int)(m.m12()*65536.0);
+    wm21 = (int)(m.m21()*65536.0);
+    wm22 = (int)(m.m22()*65536.0);
+    wdx  = (int)(m.dx() *65536.0);
+    wdy  = (int)(m.dy() *65536.0);
+    *wixmat = m.invert();			// invert matrix
+    im11 = (int)(wixmat->m11()*65536.0);
+    im12 = (int)(wixmat->m12()*65536.0);
+    im21 = (int)(wixmat->m21()*65536.0);
+    im22 = (int)(wixmat->m22()*65536.0);
+    idx  = (int)(wixmat->dx() *65536.0);
+    idy  = (int)(wixmat->dy() *65536.0);
 }
 
 
@@ -1731,7 +1731,7 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 }
 
 
-QString get_tbm_key(  const QWXFMatrix &m, const char *str, int len )
+QString get_tbm_key(  const QWorldMatrix &m, const char *str, int len )
 {
     QString s = str;
     s.resize( len );
@@ -1749,7 +1749,7 @@ static QDictM(QBitMap) *bmDict = 0;
 
 static long bmSize = 0;
 
-QBitMap *get_text_bitmap( const QWXFMatrix &m, const char *str, int len )
+QBitMap *get_text_bitmap( const QWorldMatrix &m, const char *str, int len )
 {
     QString k = get_tbm_key(m,str,len);
     if ( !bmDict )
@@ -1758,7 +1758,8 @@ QBitMap *get_text_bitmap( const QWXFMatrix &m, const char *str, int len )
     return bm;
 }
 // NOTE.... Husk aa legge inn kall fra global destrukt|r!!!
-void ins_text_bitmap( const QWXFMatrix &m, const char *str, int len, QBitMap *bm )
+void ins_text_bitmap( const QWorldMatrix &m, const char *str, int len,
+		      QBitMap *bm )
 {
     int sz = bm->size().width()*bm->size().height();
     if ( bmSize + sz < 240000*8 ) {
@@ -1800,12 +1801,12 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    int w = fm.width( str, len );
 	    int h = fm.height();
 	    int asc = fm.ascent();
-	    QWXFMatrix eff_mat( wm11/65536.0, wm12/65536.0,
-				wm21/65536.0, wm22/65536.0,
-				wdx/65536.0,  wdy/65536.0 );
-	    QBitMap *wxf_bm = get_text_bitmap( eff_mat, str, len );
-	    bool create_new_bm = wxf_bm == 0;
-	    QWXFMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
+	    QWorldMatrix eff_mat( wm11/65536.0, wm12/65536.0,
+				  wm21/65536.0, wm22/65536.0,
+				  wdx/65536.0,  wdy/65536.0 );
+	    QBitMap *wx_bm = get_text_bitmap( eff_mat, str, len );
+	    bool create_new_bm = wx_bm == 0;
+	    QWorldMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
 	    mat = eff_mat * mat;
 	    if ( borrowWidgetGC )
 		createOwnGC();
@@ -1817,10 +1818,10 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		paint.eraseRect( bm.rect() );
 		paint.drawText( 0, asc, str, len );
 		paint.end();
-		wxf_bm = bm.wxform( mat );	// world xform bitmap
+		wx_bm = bm.xForm( mat );	// world xform bitmap
 	    }
 	    WXFORM_P( x, y );
-	    mat = QBitMap::wxfTrueMatrix( mat, w, h );
+	    mat = QBitMap::trueMatrix( mat, w, h );
 	    int dx, dy;
 	    mat.map( 0, asc, &dx, &dy );	// compute bitmap position
 	    x -= dx;  y -= dy;
@@ -1844,8 +1845,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    flags = IsActive;
 	    QBitMap *draw_bm;
 	    if ( do_clip ) {			// clipping was enabled
-		int ww = wxf_bm->size().width();
-		int hh = wxf_bm->size().height();
+		int ww = wx_bm->size().width();
+		int hh = wx_bm->size().height();
 		draw_bm = new QBitMap( ww, hh );
 		QPainter paint;
 		paint.begin( draw_bm );
@@ -1853,11 +1854,11 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		QRegion rgn = crgn.copy();
 		rgn.move( -x, -y );
 		paint.setClipRegion( rgn );
-		paint.drawPixMap( 0, 0, *wxf_bm );
+		paint.drawPixMap( 0, 0, *wx_bm );
 		paint.end();
 	    }
 	    else
-		draw_bm = wxf_bm;
+		draw_bm = wx_bm;
 	    XSetClipMask( dpy, gc, draw_bm->handle() );
 	    XSetClipOrigin( dpy, gc, x, y );
 	    drawPixMap( x, y, *draw_bm );
@@ -1869,7 +1870,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		XSetRegion( dpy, gc, crgn.data->rgn );
 	    }
 	    if ( create_new_bm )
-		ins_text_bitmap( eff_mat, str, len, wxf_bm );
+		ins_text_bitmap( eff_mat, str, len, wx_bm );
 	    return;
 	}
 	if ( testf(VxF) )

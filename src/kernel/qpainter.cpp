@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#7 $
 **
 ** Implementation of QPainter class
 **
@@ -18,12 +18,12 @@
 #include "qpainter.h"
 #include "qpaintdc.h"
 #include "qpntarry.h"
-#include "qwxfmat.h"
+#include "qwmatrix.h"
 #include "qstack.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#7 $";
 #endif
 
 
@@ -48,20 +48,20 @@ void QPainter::setf( ushort b, bool v )
 
 
 struct QPState {				// painter state
-    QFont	font;
-    QPen	pen;
-    QBrush	brush;
-    QColor	bgc;
-    uchar	bgm;
-    uchar	pu;
-    uchar	rop;
-    QPoint	bro;
-    QRect	sr, tr;
-    QWXFMatrix	wm;
-    bool	vxf;
-    bool	wxf;
-    QRegion	rgn;
-    bool	clip;
+    QFont	 font;
+    QPen	 pen;
+    QBrush	 brush;
+    QColor	 bgc;
+    uchar	 bgm;
+    uchar	 pu;
+    uchar	 rop;
+    QPoint	 bro;
+    QRect	 sr, tr;
+    QWorldMatrix wm;
+    bool	 vxf;
+    bool	 wxf;
+    QRegion	 rgn;
+    bool	 clip;
 };
 
 declare(QStackM,QPState);
@@ -90,18 +90,18 @@ void QPainter::save()				// save/push painter state
     ps->font  = cfont.copy();
     ps->pen   = cpen.copy();
     ps->brush = cbrush.copy();
-    ps->bgc = bg_col;
-    ps->bgm = bg_mode;
-    ps->rop = rop;
-    ps->bro = bro;
-    ps->pu  = pu;
-    ps->sr  = QRect( sx, sy, sw, sh );
-    ps->tr  = QRect( tx, ty, tw, th );
-    ps->wm  = *wxfmat;
-    ps->vxf = testf(VxF);
-    ps->wxf = testf(WxF);
-    ps->rgn = crgn.copy();
-    ps->clip= testf(ClipOn);
+    ps->bgc   = bg_col;
+    ps->bgm   = bg_mode;
+    ps->rop   = rop;
+    ps->bro   = bro;
+    ps->pu    = pu;
+    ps->sr    = QRect( sx, sy, sw, sh );
+    ps->tr    = QRect( tx, ty, tw, th );
+    ps->wm    = *wxmat;
+    ps->vxf   = testf(VxF);
+    ps->wxf   = testf(WxF);
+    ps->rgn   = crgn.copy();
+    ps->clip  = testf(ClipOn);
     pss->push( ps );
 }
 
@@ -139,8 +139,8 @@ void QPainter::restore()			// restore/pop painter state
 	setSourceView( ps->sr );
     if ( ps->tr != tr )
 	setTargetView( ps->tr );
-    if ( ps->wm != *wxfmat )
-	setWxfMatrix( ps->wm );
+    if ( ps->wm != *wxmat )
+	setWorldMatrix( ps->wm );
     if ( ps->vxf != testf(VxF) )
 	setViewXForm( ps->vxf );
     if ( ps->wxf != testf(WxF) )
