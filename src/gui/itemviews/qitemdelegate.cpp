@@ -210,30 +210,80 @@ void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect,
             w = options.itemRect.width();
             h = options.itemRect.height();
         }
+        QRect decoration;
         switch (options.decorationPosition) {
         case QItemOptions::Top: {
-            pixmapRect->setRect(x, y, w, pixmapRect->height());
+            decoration.setRect(x, y, w, pixmapRect->height());
             h = hint ? textRect->height() : options.itemRect.height() - pixmapRect->height();
-            textRect->setRect(x, y + pixmapRect->height(),w, h); 
-            return;}
+            textRect->setRect(x, y + pixmapRect->height(),w, h);
+            break;}
         case QItemOptions::Bottom: {
             textRect->setRect(x, y, w, textRect->height());
             h = hint ? pixmapRect->height() : options.itemRect.height() - textRect->height();
-            pixmapRect->setRect(x, y + textRect->height(), w, h);
-            return;}
+            decoration.setRect(x, y + textRect->height(), w, h);
+            break;}
         case QItemOptions::Left: {
-            pixmapRect->setRect(x, y, pixmapRect->width(), h);
+            decoration.setRect(x, y, pixmapRect->width(), h);
             w = hint ? textRect->width() : options.itemRect.width() - pixmapRect->width();
             textRect->setRect(x + pixmapRect->width(), y, w, h);
-            return;}
+            break;}
         case QItemOptions::Right: {
             textRect->setRect(x, y, textRect->width(), h);
             w = hint ? pixmapRect->width() : options.itemRect.width() - textRect->width();
-            pixmapRect->setRect(x + textRect->width(), y, w, h);
-            return;}
+            decoration.setRect(x + textRect->width(), y, w, h);
+            break;}
         default:
-            qWarning("doLayout: decoration positon was invalid");
-        }        
+            qWarning("doLayout: decoration positon is invalid");
+            decoration = *pixmapRect;
+            break;
+        }
+        if (hint)
+            *pixmapRect = decoration;
+        else
+            doAlignment(decoration, options.decorationAlignment, pixmapRect);
+    }
+}
+
+void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect *rect) const
+{
+    if (alignment == Qt::AlignCenter) {
+        rect->moveCenter(boundingRect.center());
+        return;
+    }
+    // Horizontal
+    switch (alignment & Qt::AlignHorizontal_Mask) {
+    case Qt::AlignLeft:
+        rect->moveLeft(boundingRect.left());
+        break;
+    case Qt::AlignRight:
+        rect->moveRight(boundingRect.right());
+        break;
+    case Qt::AlignAuto: {
+        if (QApplication::reverseLayout())
+            rect->moveRight(boundingRect.right());
+        else
+            rect->moveLeft(boundingRect.left());
+        break;}
+    case Qt::AlignJustify:
+    case Qt::AlignHCenter: {
+        rect->moveBy(boundingRect.center().x() - rect->center().x(), 0);
+        break;}
+    default:
+        break;
+    }
+    // Vertical
+    switch (alignment & Qt::AlignVertical_Mask) {
+    case Qt::AlignTop:
+        rect->moveTop(boundingRect.top());
+        return;
+    case Qt::AlignBottom:
+        rect->moveBottom(boundingRect.bottom());
+        return;
+    case Qt::AlignVCenter:
+        rect->moveBy(0, boundingRect.center().y() - rect->center().y());
+        return;
+    default:
+        return;
     }
 }
 

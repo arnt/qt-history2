@@ -31,7 +31,8 @@ public:
     QItemOptions()
         : palette(), itemRect(), selected(false), open(false),
           focus(false), disabled(false), smallItem(true), editing(false),
-          displayAlignment(Qt::AlignAuto), decorationAlignment(Qt::AlignAuto),
+          displayAlignment(Qt::AlignAuto|Qt::AlignVCenter),
+          decorationAlignment(Qt::AlignCenter),
           decorationPosition(Left) {}
 
     QPalette palette;
