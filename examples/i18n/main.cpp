@@ -66,6 +66,9 @@ private:
 
 MyWidget* showLang(QString lang)
 {
+
+    static QTranslator *translator = 0;
+    
     qApp->setPalette(QPalette(QColor(220-rand()%64,220-rand()%64,220-rand()%64)));
 
     lang = "mywidget_" + lang + ".qm";
@@ -77,8 +80,11 @@ MyWidget* showLang(QString lang)
 				      "\n(try eg. 'de', 'ko' or 'no')") );
 	return 0;
     }
-
-    QTranslator *translator = new QTranslator( 0 );
+    if ( translator ) {
+	qApp->removeTranslator( translator );
+	delete translator;
+    }	
+    translator = new QTranslator( 0 );
     translator->load( lang, "." );
     qApp->installTranslator( translator );
     MyWidget *m = new MyWidget;
