@@ -680,9 +680,9 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     const char *d = dd;
     SKIP_WS(d);
     IteratorBlock *iterator = 0;
-    bool scope_failed = false, else_line = false, or_op=false, start_scope=false;
+    bool scope_failed = false, else_line = false, or_op=false;
     char quote = 0;
-    int parens = 0, scope_count=0;
+    int parens = 0, scope_count=0, start_block = 0;
     while(*d) {
         if(!parens) {
             if(*d == '=')
@@ -764,6 +764,10 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                         } else if(func == "for") { //for is a builtin function here, as it modifies state
                             if(args.count() > 2 || args.count() < 1) {
                                 fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n",
+                                        parser.file.toLatin1().constData(), parser.line_no);
+                                return false;
+                            } else if(iterator) {
+                                fprintf(stderr, "%s:%d unexpected nested for()\n",
                                         parser.file.toLatin1().constData(), parser.line_no);
                                 return false;
                             }
@@ -866,10 +870,28 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                 scope_failed = !test;
             or_op = (*d == '|');
 
-            if(*d == '{') // scoping block
-                start_scope = true;
+            if(*d == '{') { // scoping block
+                start_block++;
+                if(iterator) {
+                    for(int off = 0, braces = 0; true; ++off) {
+                        if(*(d+off) == '{')
+                            ++braces;
+                        else if(*(d+off) == '}' && braces)
+                            --braces;
+                        if(!braces || !*(d+off)) {
+                            iterator->parser.append(QString(QByteArray(d+1, off-1)));
+                            if(braces > 1)
+                                iterator->scope_level += braces-1;
+                            d += off-1;
+                            break;
+                        }
+                    }
+                }
+            }
         } else if(!parens && *d == '}') {
-            if(!scope_blocks.count()) {
+            if(start_block) {
+                --start_block;
+            } else if(!scope_blocks.count()) {
                 warn_msg(WarnParser, "Possible braces mismatch %s:%d", parser.file.toLatin1().constData(), parser.line_no);
             } else {
                 if(scope_blocks.count() == 1) {
@@ -891,16 +913,16 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
     if(!else_line || (else_line && !scope_failed))
         scope_blocks.top().else_status = (!scope_failed ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
-    if(start_scope) {
-        ScopeBlock next_scope(scope_failed);
-        next_scope.iterate = iterator;
+    if(start_block) {
+        ScopeBlock next_block(scope_failed);
+        next_block.iterate = iterator;
         if(iterator)
-            next_scope.else_status = ScopeBlock::TestNone;
+            next_block.else_status = ScopeBlock::TestNone;
         else if(scope_failed)
-            next_scope.else_status = ScopeBlock::TestSeek;
+            next_block.else_status = ScopeBlock::TestSeek;
         else
-            next_scope.else_status = ScopeBlock::TestFound;
-        scope_blocks.push(next_scope);
+            next_block.else_status = ScopeBlock::TestFound;
+        scope_blocks.push(next_block);
         debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", parser.file.toLatin1().constData(),
                   parser.line_no, scope_blocks.count(), scope_failed);
     } else if(iterator) {
@@ -1046,8 +1068,10 @@ QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
             if(!line.isEmpty())
                 s += line;
             if(!s.isEmpty()) {
-                if(!(ret = parse(s, place)))
+                if(!(ret = parse(s, place))) {
+                    s = "";
                     break;
+                }
                 s = "";
             }
         }
@@ -2120,18 +2144,20 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         }
         return true;
     } else if(func == "break") {
-        if(!iterator)
+        if(iterator)
+            iterator->cause_break = true;
+        else if(!scope_blocks.isEmpty())
+            scope_blocks.top().ignore = true;
+        else
             fprintf(stderr, "%s:%d unexpected break()\n",
                     parser.file.toLatin1().constData(), parser.line_no);
-        else
-            iterator->cause_break = true;
         return true;
     } else if(func == "next") {
-        if(!iterator)
+        if(iterator)
+            iterator->cause_next = true;
+        else
             fprintf(stderr, "%s:%d unexpected next()\n",
                     parser.file.toLatin1().constData(), parser.line_no);
-        else
-            iterator->cause_next = true;
         return true;
     } else if(func == "defined") {
         if(args.count() < 1 || args.count() > 2) {
