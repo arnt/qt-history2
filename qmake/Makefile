@@ -1,6 +1,6 @@
 !IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
 CFLAGS	    =	/c /Fo$@ \
-		/W3 /Zi /nologo /GX /O2 \
+		/W3 /Zi /nologo /GX /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
 		/I$(QTDIR)\mkspecs\$(QMAKESPEC) \
 		/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL
@@ -11,7 +11,7 @@ ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
 !ELSE
 CXX	    =	bcc32
 CFLAGS	    =	-c -o$@ \
-		-tWR -w -O2 \
+		-tWR -w -O1 \
 		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -I$(QTDIR)\include -I$(QTDIR)\src\tools \
 		-I$(QTDIR)\mkspecs\$(QMAKESPEC) \
 		-DQT_NO_CODECS -DQT_LITE_COMPONENT -DQT_NODLL
