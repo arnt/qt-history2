@@ -388,6 +388,16 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
     init();
 }
 
+void QAction::setType( Type t )
+{
+    d->type = t;
+}
+
+QAction::Type QAction::type() const
+{
+    return d->type;
+}
+
 /*! \obsolete
 
   This constructor results in an iconless action with the description text
@@ -1041,6 +1051,20 @@ void QAction::addedTo( int index, QPopupMenu *menu )
     Q_UNUSED( menu );
 }
 
+void QAction::addedTo( QWidget *actionWidget, QWidget *container, QAction *a )
+{
+    Q_UNUSED( actionWidget );
+    Q_UNUSED( container );
+    Q_UNUSED( a );
+}
+
+void QAction::addedTo( int index, QPopupMenu *menu, QAction *a )
+{
+    Q_UNUSED( index );
+    Q_UNUSED( menu );
+    Q_UNUSED( a );
+}
+
 /*! Sets the status message to \a text, if possible. */
 void QAction::showStatusText( const QString& text )
 {
@@ -1460,7 +1484,7 @@ void QAction::insertSeparator()
 }
 
 /*! \fn bool QActionGroup::addTo( QWidget* w )
-  
+
   Adds this action group to the widget \a w.
 
   Depending on the class of \a w all member actions are automatically presented

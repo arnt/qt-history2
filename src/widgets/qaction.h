@@ -53,6 +53,7 @@ class QPopupMenu;
 class Q_EXPORT QAction : public QObject
 {
     Q_OBJECT
+    Q_ENUMS( Type )
     Q_PROPERTY( bool toggleAction READ isToggleAction WRITE setToggleAction)
     Q_PROPERTY( bool on READ isOn WRITE setOn )
     Q_PROPERTY( bool enabled READ isEnabled WRITE setEnabled )
@@ -64,6 +65,7 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( QString statusTip READ statusTip WRITE setStatusTip )
     Q_PROPERTY( QString whatsThis READ whatsThis WRITE setWhatsThis )
     Q_PROPERTY( int accel READ accel WRITE setAccel )
+    Q_PROPERTY( Type type READ type WRITE setType )
 
 public:
     enum Type { Command, Toggle, Separator, Group, ExclusiveGroup };
