@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#16 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#17 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -164,7 +164,9 @@ protected slots:
     void singleClick();
     void doubleClick();
     void alignInGrid();
-
+    void sortAscending();
+    void sortDescending();
+    
     void slotItemRightClicked( QIconViewItem *item );
     void slotViewportRightClicked();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#40 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#41 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -667,6 +667,11 @@ void QtFileIconView::readDir( const QDir &dir )
 	    continue;
 	emit readNextDir();
 	QtFileIconViewItem *item = new QtFileIconViewItem( this, new QFileInfo( *fi ) );
+	if ( fi->isDir() )
+	    item->setKey( QString( "000000%1" ).arg( fi->fileName() ) );
+	else
+	    item->setKey( fi->fileName() );
+	
 	if ( !allowRenameSet ) {
 	    if ( !QFileInfo( fi->absFilePath() ).isWritable() ||
 		 item->text() == "." || item->text() == ".." )
@@ -826,6 +831,16 @@ void QtFileIconView::alignInGrid()
     repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
 
+void QtFileIconView::sortAscending()
+{
+    sortItems( TRUE );
+}
+
+void QtFileIconView::sortDescending()
+{
+    sortItems( FALSE );
+}
+
 void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
 {
     if ( !item )
@@ -869,6 +884,9 @@ void QtFileIconView::slotViewportRightClicked()
     menu->insertItem( "Use &Double clicks", this, SLOT( doubleClick() ) );
     menu->insertSeparator();
     menu->insertItem( "Align Items in &Grid", this, SLOT( alignInGrid() ) );
+    menu->insertSeparator();
+    menu->insertItem( "Sort &Ascending", this, SLOT( sortAscending() ) );
+    menu->insertItem( "Sort &Descending", this, SLOT( sortDescending() ) );
 
     menu->setMouseTracking( TRUE );
     menu->exec( QCursor::pos() );
