@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#26 $
 **
 ** Implementation of movie classes
 **
@@ -47,11 +47,11 @@
   factories which have been installed, and the format of the input is
   determined as the input is decoded.
 
-  In Qt 1.3, the decoder factory interface is not 
-  available for adding support for new formats. Only GIF support
-  is installed.  The GIF decoder supports interlaced images,
-  transparency, looping, image-restore disposal, local color maps,
-  and background colors.  The Netscape looping extension is obeyed.
+  In Qt 1.30, the decoder factory interface is not available for adding
+  support for new formats. Only GIF support is installed.  The GIF decoder
+  supports interlaced images, transparency, looping, image-restore
+  disposal, local color maps, and background colors.  The Netscape looping
+  extension is obeyed.
 
   We are required to state: The Graphics Interchange Format(c) is the
   Copyright property of CompuServe Incorporated. GIF(sm) is a Service
@@ -816,7 +816,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.25 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.26 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
