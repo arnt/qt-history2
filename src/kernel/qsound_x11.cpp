@@ -41,7 +41,7 @@ static AuBool eventPred(AuServer *, AuEvent *e, AuPointer p)
 
 class QAuBucketNAS : public QAuBucket {
 public:
-    QAuBucketNAS(AuBucketID b, AuFlowID f = 0) : id(b), flow(f), stopped(FALSE) { }
+    QAuBucketNAS(AuBucketID b, AuFlowID f = 0) : id(b), flow(f), stopped(TRUE), numplaying(0) { }
     ~QAuBucketNAS()
     {
 	if ( nas ) {
@@ -57,6 +57,7 @@ public:
     AuBucketID id;
     AuFlowID flow;
     bool     stopped;
+    int      numplaying;
 };
 
 class QAuServerNAS : public QAuServer {
@@ -154,8 +155,11 @@ void QAuServerNAS::setDone(QSound* s)
     if (nas) {
         decLoop(s);
         if (s->loopsRemaining() && !bucket(s)->stopped) {
+	    bucket(s)->stopped = TRUE;
             play(s);
         } else {
+	    if (--(bucket(s)->numplaying) == 0)
+		bucket(s)->stopped = TRUE;
             inprogress->remove(s);
         }
     }
@@ -164,6 +168,11 @@ void QAuServerNAS::setDone(QSound* s)
 void QAuServerNAS::play(QSound* s)
 {
     if (nas) {
+	++(bucket(s)->numplaying);
+	if (!bucket(s)->stopped) {
+	    stop(s);
+	}
+
 	bucket(s)->stopped = FALSE;
 	if ( !inprogress )
 	    inprogress = new AuServerHash;
@@ -182,7 +191,7 @@ void QAuServerNAS::play(QSound* s)
 
 void QAuServerNAS::stop(QSound* s)
 {
-    if (nas) {
+    if (nas && !bucket(s)->stopped) {
 	bucket(s)->stopped = TRUE;
         AuStopFlow(nas, bucket(s)->flow, NULL);
         AuFlush(nas);
