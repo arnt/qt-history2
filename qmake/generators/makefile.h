@@ -99,6 +99,7 @@ protected:
     bool processPrlFile(QString &);
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual void processPrlFiles();
+    virtual void writePrlFile(QTextStream &);
 
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);

@@ -86,6 +86,7 @@ automatically).
 \i DEFINES - A list of any additional pre-processor defines needed for the application.
 \i INCLUDEPATH - A list of any additional include paths needed for the application.
 \i DEPENDPATH - The dependency search path for the application.
+\i VPATH - The search path to find supplied files. 
 \i DEF_FILE - Windows only: A .def file to be linked against for the application.
 \i RC_FILE - Windows only: A resource file for the application.
 \i RES_FILE - Windows only: A resource file to be linked against for the application.

@@ -2050,6 +2050,7 @@ for a in `cat .sorted.projects`
 do
     case $a in
     *-kde.pro|*qtmain.pro) continue ;;
+    */qmake/qmake.pro) continue ;;
     *-pro.pro)
 	if [ "x$Edition" != "xpro" ]
 	then

@@ -125,6 +125,7 @@ bool usage(const char *a0)
 	    "\t-o file        Write output to file\n"
 	    "\t-unix          Run in unix mode\n"
 	    "\t-win32         Run in win32 mode\n"
+	    "\t-macx          Run in Mac OS X mode\n"
 	    "\t-d             Increase debug level\n"
 	    "\t-t templ       Overrides TEMPLATE as templ\n"
 	    "\t-help          This help\n"
