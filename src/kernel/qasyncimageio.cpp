@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#39 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -936,7 +936,6 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		if (newtrans >= ncols) {
 		    // Ignore invalid transparency.
 		    newtrans=-1;
-		    havetrans=FALSE;
 		}
 		if (newtrans >= 0 && frame>=0)
 		    preserve_trans = TRUE;
