@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#105 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#106 $
 **
 ** Definition of QListView widget class
 **
@@ -210,9 +210,14 @@ public:
 
     void repaintItem( const QListViewItem * ) const;
 
-    virtual void setMultiSelection( bool enable, bool strict = FALSE );
+    virtual void setMultiSelection( bool enable );
     bool isMultiSelection() const;
-    bool isStrictMultiSelection() const;
+
+    enum SelectionMode { SingleSelection, MultiSelection, StrictMultiSelection };
+    void setSelectionMode( SelectionMode mode );
+    SelectionMode selectionMode() const;
+    
+    
     virtual void clearSelection();
     virtual void setSelected( QListViewItem *, bool );
     bool isSelected( const QListViewItem * ) const;
