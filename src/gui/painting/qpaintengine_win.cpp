@@ -1265,8 +1265,6 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxNone;
     d->matrix = mtx;
 
-    printf("txop: %d\n", d->txop);
-
     XFORM m;
     if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
         m.eM11 = mtx.m11();
