@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#73 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#74 $
 **
 ** Implementation of QTabDialog class
 **
@@ -911,7 +911,7 @@ void QTabDialog::setOKButton( const QString &text )
 QString QTabDialog::tabLabel( QWidget * w )
 {
     QTab * t = d->tabs->tab( d->stack->id( w ) );
-    return t ? ((QString )t->label) : QString::null;
+    return t ? t->label : QString::null;
 }	
 
 
