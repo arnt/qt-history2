@@ -27,6 +27,7 @@
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // see ### in widgetdatabase.cpp
 extern bool dbnounload;
