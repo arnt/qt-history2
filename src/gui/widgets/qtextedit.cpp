@@ -1663,6 +1663,30 @@ void QTextEdit::dropEvent(QDropEvent *ev)
     d->paste(ev);
 }
 
+/*! \reimp
+*/
+void QTextEdit::focusInEvent(QFocusEvent *ev)
+{
+    // if we have a selection then we need to repaint, because (on windows)
+    // the palette for active and inactive windows can have different colors
+    // for selections
+    if (d->cursor.hasSelection())
+        d->viewport->update();
+    QViewport::focusInEvent(ev);
+}
+
+/*! \reimp
+*/
+void QTextEdit::focusOutEvent(QFocusEvent *ev)
+{
+    // if we have a selection then we need to repaint, because (on windows)
+    // the palette for active and inactive windows can have different colors
+    // for selections
+    if (d->cursor.hasSelection())
+        d->viewport->update();
+    QViewport::focusOutEvent(ev);
+}
+
 /*!
     This function is called to create a right mouse button popup menu
     at the document position \a pos. If you want to create a custom

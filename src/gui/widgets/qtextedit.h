@@ -188,6 +188,8 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *ev);
     virtual void dragMoveEvent(QDragMoveEvent *ev);
     virtual void dropEvent(QDropEvent *ev);
+    virtual void focusInEvent(QFocusEvent *ev);
+    virtual void focusOutEvent(QFocusEvent *ev);
 
     virtual QMenu *createContextMenu(const QPoint &pos);
 
