@@ -44,6 +44,8 @@
 #define QWS_TOUCHPANEL
 #endif
 
+#define QWS_ERICTOUCHPANEL
+
 enum MouseProtocol { Unknown = -1, MouseMan = 0, IntelliMouse = 1,
                      Microsoft = 2, QVFBMouse = 3, TPanel = 4 };
 
@@ -141,7 +143,7 @@ void QMouseHandlerPrivate::handleMouseData()
     int dx = 0, dy = 0;
     bool sendEvent = false;
     int tdx = 0, tdy = 0;
-    
+
     while ( mouseIdx-idx >= mouseData[mouseProtocol].bytesPerPacket ) {
 	uchar *mb = mouseBuf+idx;
 	bstate = 0;
@@ -200,7 +202,7 @@ void QMouseHandlerPrivate::handleMouseData()
 		dx=(char)(((mb[0] & 0x03) << 6) | (mb[1] & 0x3f));
 		dy=-(char)(((mb[0] & 0x0c) << 4) | (mb[2] & 0x3f));
 		sendEvent=true;
-		
+
 		break;
 	    default:
 		qWarning( "Unknown mouse protocol in QMouseHandlerPrivate" );
@@ -358,7 +360,7 @@ private:
     QTimer *rtimer;
 };
 
-QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev)
+QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString)
 {
 #ifdef QWS_TOUCHPANEL
     if ( dev.isEmpty() )
@@ -409,8 +411,8 @@ void QVrTPanelHandlerPrivate::readMouseData()
     static QPoint prev;
     static int prev_pressure = 0;
     static bool pressed = FALSE;
-//    static bool reverse = TRUE;  // = TRUE; Osprey axis reversed
     static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
+//    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
 
     #define EMIT_MOUSE \
 	QPoint q = QPoint((prev.x()+addx)*qt_screen->width()/(brx-tlx), \
@@ -475,6 +477,83 @@ void QVrTPanelHandlerPrivate::readMouseData()
     if ( prev_valid > 1 ) {
 	prev_valid = 0;
 	EMIT_MOUSE
+    }
+#endif
+}
+
+class QEricTPanelHandlerPrivate : public QMouseHandler {
+    Q_OBJECT
+public:
+    QEricTPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~QEricTPanelHandlerPrivate();
+
+private:
+    int mouseFD;
+private slots:
+    void readMouseData();
+
+};
+
+QEricTPanelHandlerPrivate::QEricTPanelHandlerPrivate( MouseProtocol, QString )
+{
+#ifdef QWS_ERICTOUCHPANEL
+    if ((mouseFD = open( "/dev/ts", O_RDONLY)) < 0) {
+        qWarning( "Cannot open /dev/ts (%s)", strerror(errno));
+	return;
+    } else {
+        sleep(1);
+    }
+
+    QSocketNotifier *mouseNotifier;
+    mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read,
+					 this );
+    connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
+#endif
+}
+
+QEricTPanelHandlerPrivate::~QEricTPanelHandlerPrivate()
+{
+    if (mouseFD >= 0)
+	close(mouseFD);
+}
+
+struct Ericdata {
+
+  unsigned char status;
+  unsigned short xpos;
+  unsigned short ypos;
+
+};
+
+void QEricTPanelHandlerPrivate::readMouseData()
+{
+#ifdef QWS_ERICTOUCHPANEL
+    if(!qt_screen)
+	return;
+    Ericdata data;
+
+    unsigned char data2[5];
+
+    int ret;
+
+    ret=read(mouseFD,data2,5);
+
+    if(ret==5) {
+	data.status=data2[0];
+	data.xpos=(data2[1] << 8) | data2[2];
+	data.ypos=(data2[3] << 8) | data2[4];
+	QPoint q;
+	q.setX(data.xpos);
+	q.setY(data.ypos);
+	mousePos=q;
+	if(data.status & 0x40) {
+          emit mouseChanged(mousePos,Qt::LeftButton);
+	} else {
+	  emit mouseChanged(mousePos,0);
+	}
+    }
+    if(ret<0) { 
+	qDebug("Error %s",strerror(errno));
     }
 #endif
 }
@@ -599,17 +678,22 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 
     QMouseHandler *handler = 0;
 
+#ifdef QWS_ERICTOUCHPANEL
+    handler=new QEricTPanelHandlerPrivate(mouseProtocol,mouseDev);
+#endif
+    
+#ifndef QWS_ERICTOUCHPANEL
     switch ( mouseProtocol ) {
 	case MouseMan:
 	case IntelliMouse:
 	case Microsoft:
 	    handler = new QMouseHandlerPrivate( mouseProtocol, mouseDev );
 	    break;
-	
+
 	case QVFBMouse:
 	    handler = new QVFbMouseHandlerPrivate( mouseProtocol, mouseDev );
 	    break;
-	
+
 	case TPanel:
 	    handler = new QVrTPanelHandlerPrivate( mouseProtocol, mouseDev );
 	    break;
@@ -617,6 +701,7 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	default:
 	    qDebug( "Mouse type %s unsupported", spec.latin1() );
     }
+#endif
 
     return handler;
 }
