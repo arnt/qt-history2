@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#27 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#28 $
 **
 ** Definition of QListView widget class
 **
@@ -29,15 +29,15 @@ public:
     QListViewItem( QListView * parent );
     QListViewItem( QListViewItem * parent );
     QListViewItem( QListView * parent,
-		   const char * firstLabel,     const char * firstLabel = 0,
-		   const char * firstLabel = 0, const char * firstLabel = 0,
-		   const char * firstLabel = 0, const char * firstLabel = 0,
-		   const char * firstLabel = 0, const char * firstLabel = 0 );
+		   const char *,     const char * = 0,
+		   const char * = 0, const char * = 0,
+		   const char * = 0, const char * = 0,
+		   const char * = 0, const char * = 0 );
     QListViewItem( QListViewItem * parent,
-		   const char * firstLabel,     const char * firstLabel = 0,
-		   const char * firstLabel = 0, const char * firstLabel = 0,
-		   const char * firstLabel = 0, const char * firstLabel = 0,
-		   const char * firstLabel = 0, const char * firstLabel = 0 );
+		   const char *,     const char * = 0,
+		   const char * = 0, const char * = 0,
+		   const char * = 0, const char * = 0,
+		   const char * = 0, const char * = 0 );
     virtual ~QListViewItem();
 
     virtual void insertItem( QListViewItem * );
