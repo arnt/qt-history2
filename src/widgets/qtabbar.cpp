@@ -608,7 +608,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	r.setRight( r.right() + 2 );
 
 	int xoff = 0, yoff = 0;
-	if(selected) {
+	if(!selected) {
 	    xoff = style().pixelMetric(QStyle::PM_TabBarTabShiftHorizontal, this);
 	    yoff = style().pixelMetric(QStyle::PM_TabBarTabShiftVertical, this);
 	}
