@@ -6,7 +6,7 @@
 class QDesktopWidgetPrivate
 {
 public:
-    QDesktopWidgetPrivate();
+    QDesktopWidgetPrivate( QDesktopWidget *that );
     ~QDesktopWidgetPrivate();
 
     static int screenCount;
@@ -65,7 +65,7 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
     return ( sn != QDesktopWidgetPrivate::screenCount );
 }
 
-QDesktopWidgetPrivate::QDesktopWidgetPrivate()
+QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 {
     if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 ) {
 	screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS
@@ -84,8 +84,10 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 	else
 	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoA" );
 
-	if ( !enumDisplayMonitors || !getMonitorInfo )
+	if ( !enumDisplayMonitors || !getMonitorInfo ) {
+	    rects.at( screenCount ) = that->rect();
 	    return;
+	}
 	// Calls enumCallback
 	enumDisplayMonitors( 0, 0, enumCallback, 0 );
 	enumDisplayMonitors = 0;
@@ -111,7 +113,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
 {
-    d = new QDesktopWidgetPrivate;
+    d = new QDesktopWidgetPrivate( this );
 }
 
 /*!
