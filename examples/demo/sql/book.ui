@@ -1,14 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>BookForm</class>
-<include location="global" impldecl="in declaration">qsqlrecord.h</include>
-<include location="local" impldecl="in declaration">editbook.h</include>
-<include location="global" impldecl="in declaration">qdatabrowser.h</include>
-<include location="global" impldecl="in implementation">qsqlcursor.h</include>
-<include location="global" impldecl="in implementation">qcombobox.h</include>
-<include location="local" impldecl="in implementation">connect.h</include>
-<include location="global" impldecl="in implementation">qsqldatabase.h</include>
-<include location="global" impldecl="in implementation">qlineedit.h</include>
-<include location="global" impldecl="in implementation">qdatatable.h</include>
 <widget class="QWidget">
     <property name="name">
         <cstring>BookForm</cstring>
@@ -167,6 +158,8 @@
                 <sizepolicy>
                     <hsizetype>0</hsizetype>
                     <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
                 </sizepolicy>
             </property>
             <property name="text">
@@ -184,6 +177,8 @@
                 <sizepolicy>
                     <hsizetype>0</hsizetype>
                     <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
                 </sizepolicy>
             </property>
             <property name="text">
@@ -217,83 +212,30 @@
         <receiver>BookForm</receiver>
         <slot>connectClicked()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">editClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">connectClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">newCurrentAuthor( QSqlRecord * author )</slot>
-    <slot access="protected" language="C++" returnType="void">primeInsertAuthor( QSqlRecord * buffer )</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-    <function name="editClicked()" >{
-    EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
-    QSqlCursor cur( "book" );
-    dialog-&gt;BookDataBrowser-&gt;setSqlCursor( &amp;cur );
-    dialog-&gt;BookDataBrowser-&gt;setFilter( BookDataTable-&gt;filter() );
-    dialog-&gt;BookDataBrowser-&gt;setSort(QSqlIndex::fromStringList(
-	BookDataTable-&gt;sort(), &amp;cur ) );
-    dialog-&gt;BookDataBrowser-&gt;refresh();
-    int i = BookDataTable-&gt;currentRow();
-    if ( i == -1 ) i = 0; // Always use the first row
-    dialog-&gt;BookDataBrowser-&gt;seek( i );
-    dialog-&gt;exec();
-    delete dialog;
-    BookDataTable-&gt;refresh();
-}</function>
-    <function name="connectClicked()" >{
-    bool ok = FALSE;
-    ConnectDialog* dialog = new ConnectDialog( this, "Connect", TRUE );
-    dialog-&gt;comboDriver-&gt;insertStringList( QSqlDatabase::drivers() );
-    dialog-&gt;editDatabase-&gt;setText( "book" );
-    if ( dialog-&gt;exec() == QDialog::Accepted ) {
-	QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );	
-	QSqlDatabase* db = QSqlDatabase::addDatabase( dialog-&gt;comboDriver-&gt;currentText() );
-	db-&gt;setDatabaseName( dialog-&gt;editDatabase-&gt;text() );
-	db-&gt;setUserName( dialog-&gt;editUsername-&gt;text() );
-	db-&gt;setPassword( dialog-&gt;editPassword-&gt;text() );
-	db-&gt;setHostName( dialog-&gt;editHostname-&gt;text() );
-	if ( !db-&gt;open() ) {
-	    //## warning?
-	    ok= FALSE;
-	} else
-	    ok = TRUE;
-    } 
-    if ( !ok ) {
-	editButton-&gt;setEnabled( FALSE ); 
-	BookDataTable-&gt;setSqlCursor( 0 );
-	AuthorDataTable-&gt;setSqlCursor( 0 );
-    }  else {
-	editButton-&gt;setEnabled( TRUE );
-	QSqlCursor* authorCursor = new QSqlCursor( "author" );
-	AuthorDataTable-&gt;setSqlCursor( authorCursor, FALSE, TRUE );
-	QSqlCursor* bookCursor = new QSqlCursor( "book" );	
-	BookDataTable-&gt;setSqlCursor( bookCursor, FALSE, TRUE );
-	AuthorDataTable-&gt;refresh( QDataTable::RefreshAll );
-	BookDataTable-&gt;refresh( QDataTable::RefreshAll );	
-    }
-    delete dialog;
-}</function>
-    <function name="newCurrentAuthor(QSqlRecord*)" >{
-    BookDataTable-&gt;setFilter( "authorid=" + author-&gt;value( "id" ).toString() );
-    BookDataTable-&gt;refresh();
-}</function>
-    <function name="primeInsertAuthor(QSqlRecord*)" >{
-    QSqlQuery q;
-    q.exec( "UPDATE sequence SET sequence = sequence + 1 WHERE tablename='author';" );
-    q.exec( "SELECT sequence FROM sequence WHERE tablename='author';" );
-    if ( q.next() ) {
-	buffer-&gt;setValue( "id", q.value( 0 ) );
-    }
-}</function>
-</functions>
 <tabstops>
     <tabstop>connectButton</tabstop>
     <tabstop>editButton</tabstop>
 </tabstops>
+<includes>
+    <include location="global" impldecl="in declaration">qsqlrecord.h</include>
+    <include location="local" impldecl="in declaration">editbook.h</include>
+    <include location="global" impldecl="in declaration">qdatabrowser.h</include>
+    <include location="global" impldecl="in implementation">qsqlcursor.h</include>
+    <include location="global" impldecl="in implementation">qcombobox.h</include>
+    <include location="local" impldecl="in implementation">connect.h</include>
+    <include location="global" impldecl="in implementation">qsqldatabase.h</include>
+    <include location="global" impldecl="in implementation">qlineedit.h</include>
+    <include location="global" impldecl="in implementation">qdatatable.h</include>
+    <include location="local" impldecl="in implementation">book.ui.h</include>
+</includes>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot access="protected">editClicked()</slot>
+    <slot access="protected">connectClicked()</slot>
+    <slot access="protected">newCurrentAuthor( QSqlRecord * author )</slot>
+    <slot access="protected">primeInsertAuthor( QSqlRecord * buffer )</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

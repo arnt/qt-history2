@@ -8,6 +8,11 @@
 #include <qsqldriver.h>
 #include <qmessagebox.h>
 #include <qsqldatabase.h>
+#include <qlineedit.h>
+#include <qcombobox.h>
+#include <qspinbox.h>
+#include <qsqlerror.h>
+#include "connect.h"
 
 class QCustomSqlCursor: public QSqlCursor
 {
@@ -38,6 +43,15 @@ public:
     void setName( const QString& /*name*/, bool /*autopopulate*/ = TRUE ) {}
 };
 
+static void showError( const QSqlError& err, QWidget* parent = 0 )
+{
+   QString errStr ( "The database reported an error\n" );
+    if ( !err.databaseText().isEmpty() )
+	errStr += err.databaseText();
+    if ( !err.driverText().isEmpty() )
+	errStr += err.driverText();
+    QMessageBox::warning( parent, "Error", errStr );
+}
 void SqlEx::init()
 {
     hsplit->setResizeMode( lv, QSplitter::KeepSize );
@@ -48,15 +62,17 @@ void SqlEx::init()
 
 void SqlEx::dbConnect()
 { 
-    // ### TODO: Connection-Dialog    
-    QSqlDatabase* db = QSqlDatabase::addDatabase( "QPSQL7" );
+    ConnectDialog* conDiag = new ConnectDialog( this, "Connection Dialog", TRUE );
+    if ( conDiag->exec() != QDialog::Accepted )
+	return;
+    QSqlDatabase* db = QSqlDatabase::addDatabase( conDiag->comboDriver->currentText(), "SqlEx" );
     if ( !db )
 	return;
-    db->setHostName( "iceblink.troll.no" );
-    db->setDatabaseName( "qttest" );
-    db->setPort( 5433 );
-    db->open( "troll", "trond" );
-    
+    db->setHostName( conDiag->editHostname->text() );
+    db->setDatabaseName( conDiag->editDatabase->text() );
+    db->setPort( conDiag->portSpinBox->value() );
+    if ( !db->open( conDiag->editUsername->text(), conDiag->editPassword->text() ) )
+	showError( db->lastError(), this );
     Frame7->show();
     lbl->setText( "Double-Click on a table-name to view the contents" );
     lv->clear();
@@ -66,16 +82,15 @@ void SqlEx::dbConnect()
 	QListViewItem* lvi = new QListViewItem( lv, *it );
 	QSqlRecordInfo ri = db->recordInfo ( *it );
 	for ( QSqlRecordInfo::Iterator it = ri.begin(); it != ri.end(); ++it ) {
-	    QString req = "?";
-	    QString defVal = (*it).defaultValue().toString();
-	    QString len = (*it).length() >= 0 ? QString::number( (*it).length() ) : "?";
-	    QString prec = (*it).precision() >= 0 ? QString::number( (*it).precision() ) : "?";
+	    QString req;
 	    if ( (*it).isRequired() > 0 ) {
 		req = "Yes";
 	    } else if ( (*it).isRequired() == 0 ) {
 		req = "No";
+	    } else {
+		req = "?";
 	    }
-	    QListViewItem* fi = new QListViewItem( lvi, (*it).name(),  + QVariant::typeToName( (*it).type() ), req, defVal, len, prec );
+	    QListViewItem* fi = new QListViewItem( lvi, (*it).name(),  + QVariant::typeToName( (*it).type() ), req );
 	    lvi->insertItem( fi );
 	}
 	lv->insertItem( lvi );	
@@ -85,7 +100,7 @@ void SqlEx::dbConnect()
 void SqlEx::execQuery()
 {
     // use a custom cursor to populate the data table
-    QCustomSqlCursor* cursor = new QCustomSqlCursor( te->text(), TRUE );
+    QCustomSqlCursor* cursor = new QCustomSqlCursor( te->text(), TRUE, QSqlDatabase::database( "SqlEx", TRUE ) );
     if ( cursor->isSelect() ) {
 	dt->setSqlCursor( cursor, TRUE, TRUE );
 	dt->refresh( QDataTable::RefreshAll );
@@ -96,13 +111,7 @@ void SqlEx::execQuery()
     } else {
 	// an error occured if the cursor is not active
 	if ( !cursor->isActive() ) {
-	    QSqlError err = cursor->lastError();
-	    QString errStr ( "Error while executing Query\n" );
-	    if ( !err.databaseText().isEmpty() )
-		errStr += err.databaseText();
-	    if ( !err.driverText().isEmpty() )
-		errStr += err.driverText();
-	    QMessageBox::warning( this, "Error", errStr );
+	    showError( cursor->lastError(), this );
 	} else {
 	    lbl->setText( QString("Query OK, affected rows: %1").arg( cursor->numRowsAffected() ) );
 	}
@@ -118,9 +127,10 @@ void SqlEx::showTable( QListViewItem * item )
     }
 
     // populate the data table
-    QSqlCursor* cursor = new QSqlCursor( i->text( 0 ), TRUE );
+    QSqlCursor* cursor = new QSqlCursor( i->text( 0 ), TRUE, QSqlDatabase::database( "SqlEx", TRUE ) );
     dt->setSqlCursor( cursor, TRUE, TRUE );
     dt->setSort( cursor->primaryIndex() );
     dt->refresh( QDataTable::RefreshAll );
     lbl->setText( "Displaying table " + i->text( 0 ) );
 }
+

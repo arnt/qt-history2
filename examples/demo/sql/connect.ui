@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>294</width>
-            <height>207</height>
+            <width>333</width>
+            <height>271</height>
         </rect>
     </property>
     <property name="caption">
@@ -82,28 +82,9 @@
                 <cstring>comboDriver</cstring>
             </property>
         </widget>
-        <widget class="QLabel" row="4" column="0" rowspan="1" colspan="2">
-            <property name="name">
-                <cstring>TextLabel5</cstring>
-            </property>
-            <property name="text">
-                <string>&amp;Hostname:</string>
-            </property>
-            <property name="buddy" stdset="0">
-                <cstring>editHostname</cstring>
-            </property>
-        </widget>
         <widget class="QComboBox" row="0" column="2" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>comboDriver</cstring>
-            </property>
-            <property name="editable">
-                <bool>true</bool>
-            </property>
-        </widget>
-        <widget class="QLineEdit" row="4" column="2" rowspan="1" colspan="2">
-            <property name="name">
-                <cstring>editHostname</cstring>
             </property>
         </widget>
         <widget class="QLineEdit" row="2" column="2" rowspan="1" colspan="2">
@@ -111,7 +92,7 @@
                 <cstring>editUsername</cstring>
             </property>
         </widget>
-        <widget class="QPushButton" row="5" column="1" rowspan="1" colspan="2">
+        <widget class="QPushButton" row="6" column="1" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>PushButton1</cstring>
             </property>
@@ -122,7 +103,7 @@
                 <bool>true</bool>
             </property>
         </widget>
-        <widget class="QPushButton" row="5" column="3">
+        <widget class="QPushButton" row="6" column="3">
             <property name="name">
                 <cstring>PushButton2</cstring>
             </property>
@@ -130,7 +111,7 @@
                 <string>&amp;Cancel</string>
             </property>
         </widget>
-        <spacer row="5" column="0">
+        <spacer row="6" column="0">
             <property name="name">
                 <cstring>Spacer1</cstring>
             </property>
@@ -147,6 +128,50 @@
                 </size>
             </property>
         </spacer>
+        <widget class="QLineEdit" row="4" column="2" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>editHostname</cstring>
+            </property>
+        </widget>
+        <widget class="QLabel" row="4" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>TextLabel5</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;Hostname:</string>
+            </property>
+            <property name="buddy" stdset="0">
+                <cstring>editHostname</cstring>
+            </property>
+        </widget>
+        <widget class="QLabel" row="5" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>TextLabel5_2</cstring>
+            </property>
+            <property name="text">
+                <string>P&amp;ort:</string>
+            </property>
+            <property name="buddy" stdset="0">
+                <cstring>portSpinBox</cstring>
+            </property>
+        </widget>
+        <widget class="QSpinBox" row="5" column="2" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>portSpinBox</cstring>
+            </property>
+            <property name="specialValueText">
+                <string>Default</string>
+            </property>
+            <property name="maxValue">
+                <number>65535</number>
+            </property>
+            <property name="minValue">
+                <number>-1</number>
+            </property>
+            <property name="value">
+                <number>-1</number>
+            </property>
+        </widget>
     </grid>
 </widget>
 <connections>
@@ -162,8 +187,6 @@
         <receiver>ConnectDialog</receiver>
         <slot>reject()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
 <tabstops>
     <tabstop>comboDriver</tabstop>
@@ -174,4 +197,12 @@
     <tabstop>PushButton1</tabstop>
     <tabstop>PushButton2</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">connect.ui.h</include>
+</includes>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
