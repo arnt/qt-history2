@@ -26,7 +26,7 @@ class QMemoryManagerPixmap {
 
 class QMemoryManager {
 public:
-    explicit QMemoryManager(void* vram, int vramsize, void* fontrom);
+    QMemoryManager(void* vram, int vramsize, void* fontrom);
 
     // Pixmaps
     typedef int PixmapID;

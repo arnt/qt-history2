@@ -35,7 +35,7 @@ template <const int depth, const int type>
 class QGfxShadow : public SHADOWFB_RASTER_PARENT
 {
 public:
-    explicit QGfxShadow(unsigned char *b,int w,int h);
+    QGfxShadow(unsigned char *b,int w,int h);
     virtual ~QGfxShadow();
 
     virtual void drawPoint(int,int);

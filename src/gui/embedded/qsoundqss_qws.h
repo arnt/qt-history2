@@ -46,7 +46,7 @@ class QWSSoundServerClient : public QTcpSocket {
     Q_OBJECT
 
 public:
-    explicit QWSSoundServerClient(int s, QObject* parent);
+    QWSSoundServerClient(int s, QObject* parent);
     ~QWSSoundServerClient();
 
 signals:
