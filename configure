@@ -783,13 +783,13 @@ fi
 if [ "$JPEG" = "auto" ]
 then
     JPEG=plugin
-    [ -z "$EMBEDDED" ] || JPEG=no
+    [ "$EMBEDDED" = "no" ] || JPEG=no
 fi 
 
 if [ "$MNG" = "auto" ]
 then
     MNG=plugin
-    [ -z "$EMBEDDED" ] || MNG=no
+    [ "$EMBEDDED" = "no" ] || MNG=no
 fi 
 
 
