@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#33 $
 **
 ** Implementation of QPushButton class
 **
@@ -11,13 +11,14 @@
 *****************************************************************************/
 
 #include "qpushbt.h"
+#include "qdialog.h"
 #include "qfontmet.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#33 $";
 #endif
 
 
@@ -25,7 +26,8 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#32 $";
 \class QPushButton qpushbt.h
 \brief The QPushButton widget provides a push button with a text label.
 
-\todo Describe default buttons etc.
+A default push button in a dialog emits the clicked signal if the user
+presses the Enter key.
 */
 
 
@@ -119,8 +121,8 @@ Returns TRUE if the button is an auto-default button.
 Sets the push buttons to an auto-default button if \e enable is TRUE,
 or to a normal button if \e enable is FALSE.
 
-An auto default button becomes the default push button automatically
-when it gets the keyboard focus.
+An auto-default button becomes the default push button automatically
+when it receives the keyboard input focus.
 
 \sa autoDefault() and setDefault().
 */
@@ -142,16 +144,27 @@ Returns TRUE if the button is default.
 Sets the button to be the default button if \e enable is TRUE, or
 to be a normal button if \e enable is FALSE.
 
-\sa default().
+A default push button in a dialog (QDialog) emits the QButton::clicked()
+signal if the user presses the Enter key.  Only one push button in the
+dialog can be default.
+
+Default push buttons are only allowed in dialogs.
+
+\sa default() and setAutoDefault().
 */
 
 void QPushButton::setDefault( bool enable )
 {
     if ( (defButton && enable) || !(defButton || enable) )
 	return;					// no change
+    QWidget *p = this;
+    while ( p && p->parentWidget() )		// get the top level parent
+	p = p->parentWidget();
+    if ( !p->inherits("QDialog") )		// not a dialog
+	return;
     defButton = enable;
     if ( defButton )
-	emit becameDefault();
+	((QDialog*)p)->setDefault( this );
     int gs = style();
     if ( gs != MacStyle && gs != MotifStyle ) {
 	if ( isVisible() )
