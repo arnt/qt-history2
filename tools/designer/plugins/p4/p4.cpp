@@ -4,14 +4,14 @@
 #include <qmessagebox.h>
 #include <qtimer.h>
 
-#include "../../designer/designerappiface.h"
+#include "../designerinterface.h"
 
-P4Edit::P4Edit( const QString &filename, DesignerMainWindowInterface *iface, bool s )
+P4Edit::P4Edit( const QString &filename, QComponentInterface *iface, bool s )
     : QObject( iface ), fileName( filename ), process( 0 ), mwIface( iface ), silent( s )
 {
     state = Done;
-    DesignerStatusBarInterface *sbIface = 0;
-    if ( ( sbIface = (DesignerStatusBarInterface*)mwIface->queryInterface( "DesignerStatusBarInterface" ) ) ) {
+    QComponentInterface *sbIface = 0;
+    if ( ( sbIface = mwIface->queryInterface( "DesignerStatusBarInterface" ) ) ) {
 	sbIface->requestConnect( this, SIGNAL( showStatusBarMessage( const QString &, int ) ),
 				 SLOT( message( const QString &, int ) ) );
     }

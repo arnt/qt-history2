@@ -5,14 +5,14 @@
 #include <qobject.h>
 
 class QProcess;
-class DesignerMainWindowInterface;
+class QComponentInterface;
 
 class P4Edit : public QObject
 {
     Q_OBJECT
 
 public:
-    P4Edit( const QString &filename, DesignerMainWindowInterface *iface, bool s );
+    P4Edit( const QString &filename, QComponentInterface *iface, bool s );
     ~P4Edit();
     void setFileName( const QString &filename ) { fileName = filename; }
     void edit();
@@ -29,7 +29,7 @@ private:
     QString fileName;
     QString fstatData;
     QProcess *process;
-    DesignerMainWindowInterface *mwIface;
+    QComponentInterface *mwIface;
     bool silent;
     
 };
