@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#48 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#48 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -517,7 +517,7 @@ int QFontMetrics::leftBearing(char ch) const
     } else {
 	ABCFLOAT abc;
 	GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
-	return abc.abcfA;
+	return int(abc.abcfA);
     }
 }
 
@@ -531,7 +531,7 @@ int QFontMetrics::rightBearing(char ch) const
     } else {
 	ABCFLOAT abc;
 	GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
-	return abc.abcfC;
+	return int(abc.abcfC);
     }
 }
 
@@ -560,6 +560,16 @@ int QFontMetrics::minRightBearing() const
 	int ml;
 	int mr;
 	if (tm->tmPitchAndFamily & TMPF_TRUETYPE ) {
+	    ABC *abc = new ABC[n];
+	    GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+	    ml = abc[0].abcA;
+	    mr = abc[0].abcC;
+	    for (int i=1; i<n; i++) {
+		ml = QMIN(ml,abc[i].abcA);
+		mr = QMIN(mr,abc[i].abcC);
+	    }
+	    delete [] abc;
+	} else {
 	    ABCFLOAT *abc = new ABCFLOAT[n];
 	    GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
 	    float fml = abc[0].abcfA;
@@ -570,16 +580,6 @@ int QFontMetrics::minRightBearing() const
 	    }
 	    ml = int(fml-0.9999);
 	    mr = int(fmr-0.9999);
-	    delete [] abc;
-	} else {
-	    ABC *abc = new ABC[n];
-	    GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
-	    ml = abc[0].abcA;
-	    mr = abc[0].abcC;
-	    for (int i=1; i<n; i++) {
-		ml = QMIN(ml,abc[i].abcA);
-		mr = QMIN(mr,abc[i].abcC);
-	    }
 	    delete [] abc;
 	}
 	def->lbearing = ml;
@@ -608,10 +608,11 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::width( char ch ) const
 {
-    char tmp[2];
-    tmp[1] = '\0';
-    tmp[0] = ch;
-    return width( tmp, 1 );
+    if (TM->tmPitchAndFamily & TMPF_TRUETYPE ) {
+        return width(&ch,1);
+    } else {
+        return width(&ch,1)-TM->tmOverhang;
+    }
 }
 
 
