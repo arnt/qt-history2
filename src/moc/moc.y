@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#85 $
+** $Id: //depot/qt/main/src/moc/moc.y#86 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#85 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#86 $");
 
 static QString rmWS( const char * );
 
@@ -48,7 +48,10 @@ struct Argument					// single arg meta data
 {
     Argument( char *left, char *right )
 	{ leftType  = rmWS( left );
-	  rightType = rmWS( right ); }
+	  rightType = rmWS( right );
+	  if ( leftType == "void" && rightType.isEmpty() )
+	      leftType = "";
+	}
     QString leftType;
     QString rightType;
 };
@@ -1218,10 +1221,12 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	int count = 0;
 	Argument *a = f->args->first();
 	while ( a ) {
-	    if ( count++ )
-		typstr += ",";
-	    typstr += a->leftType;
-	    typstr += a->rightType;
+	    if ( !a->leftType.isEmpty() || ! a->rightType.isEmpty() ) {
+		if ( count++ )
+		    typstr += ",";
+		typstr += a->leftType;
+		typstr += a->rightType;
+	    }
 	    a = f->args->next();
 	}
 	fprintf( out, "    typedef %s(%s::*m%d_t%d)(%s)%s;\n",
@@ -1252,7 +1257,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.19 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.20 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1377,23 +1382,25 @@ void generateClass()		      // generate C++ source code for a class
 
 	i = 0;
 	while ( a ) {				// argument list
-	    if ( i ) {
-		typstr += ",";
-		valstr += ", ";
-		argstr += ", ";
+	    if ( !a->leftType.isEmpty() || !a->rightType.isEmpty() ) {
+		if ( i ) {
+		    typstr += ",";
+		    valstr += ", ";
+		    argstr += ", ";
+		}
+		typstr += a->leftType;
+		typstr += a->rightType;
+		argstr += a->leftType;
+		argstr += " ";
+		sprintf( buf, "t%d", i );
+		valstr += buf;
+		argstr += buf;
+		argstr += a->rightType;
+		++i;
+		typvec[i] = typstr.copy();
+		valvec[i] = valstr.copy();
+		argvec[i] = argstr.copy();
 	    }
-	    typstr += a->leftType;
-	    typstr += a->rightType;
-	    argstr += a->leftType;
-	    argstr += " ";
-	    sprintf( buf, "t%d", i );
-	    valstr += buf;
-	    argstr += buf;
-	    argstr += a->rightType;
-	    ++i;
-	    typvec[i] = typstr.copy();
-	    valvec[i] = valstr.copy();
-	    argvec[i] = argstr.copy();
 	    a = f->args->next();
 	}
 
