@@ -294,6 +294,7 @@ public:
 private:
     void update();
     void updateGeometry();
+    void updateMask();
     bool internalCreate();
     HRESULT internalActivate();
 
@@ -1173,6 +1174,10 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	}
 	break;
 
+    case WM_ERASEBKGND:
+	that->updateMask();
+	break;
+
     case WM_SIZE:
 	if ( that->qt.widget )
 	    that->qt.widget->resize( LOWORD(lParam), HIWORD(lParam) );
@@ -1324,10 +1329,10 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
     if ( !atom ) {
 	QT_WA( {
 	    WNDCLASSW wcTemp;
-	    wcTemp.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+	    wcTemp.style = CS_DBLCLKS;
 	    wcTemp.cbClsExtra = 0;
 	    wcTemp.cbWndExtra = 0;
-	    wcTemp.hbrBackground = HBRUSH(COLOR_WINDOW+1);
+	    wcTemp.hbrBackground = 0;
 	    wcTemp.hCursor = 0;
 	    wcTemp.hIcon = 0;
 	    wcTemp.hInstance = hInst;
@@ -1338,10 +1343,10 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 	    atom = RegisterClassW( &wcTemp );
 	}, {
 	    WNDCLASSA wcTemp;
-	    wcTemp.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+	    wcTemp.style = CS_DBLCLKS;
 	    wcTemp.cbClsExtra = 0;
 	    wcTemp.cbWndExtra = 0;
-	    wcTemp.hbrBackground = HBRUSH(COLOR_WINDOW+1);
+	    wcTemp.hbrBackground = 0;
 	    wcTemp.hCursor = 0;
 	    wcTemp.hIcon = 0;
 	    wcTemp.hInstance = hInst;
@@ -1376,6 +1381,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
     Q_ASSERT(m_hWnd == hWnd);
 
     internalCreate();
+    updateMask();
 
     return hWnd;
 }
@@ -1632,6 +1638,25 @@ void QAxServerBase::updateGeometry()
 
 	sizeExtent.cx = MAP_PIX_TO_LOGHIM( sizeHint.width(), pmetric.logicalDpiX() );
 	sizeExtent.cy = MAP_PIX_TO_LOGHIM( sizeHint.height(), pmetric.logicalDpiY() );
+    }
+}
+
+/*!
+    \internal
+    
+    Updates the mask of the widget parent.
+*/
+void QAxServerBase::updateMask()
+{
+    if ( !isWidget || !qt.widget || !qt.widget->autoMask() )
+	return;
+
+    HRGN hrgn = CreateRectRgn(0,0,0,0);
+    int regionType = GetWindowRgn( qt.widget->winId(), hrgn );
+    if ( regionType != ERROR ) {
+	SetWindowRgn( m_hWnd, hrgn, TRUE );
+    } else {
+	DeleteObject(hrgn);
     }
 }
 
@@ -2222,6 +2247,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		m_spInPlaceSite->OnPosRectChange( &rect );
 	    }
 	}
+	updateMask();
     }
 
     return res;
@@ -3573,6 +3599,12 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	    if ( qt.widget->focusWidget() == qApp->focusWidget() )
 		break;
 	}
+	break;
+    case QEvent::Show:
+	updateMask();
+	break;
+    case QEvent::Resize:
+	updateMask();
 	break;
     default:
 	break;
