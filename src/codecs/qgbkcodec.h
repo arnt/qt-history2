@@ -36,7 +36,7 @@
 
 // Contributed by James Su <suzhe@gnuchina.org>
 
-#ifndef QGKCODEC_H
-#define QGKCODEC_H
+#ifndef QGBKCODEC_H
+#define QGBKCODEC_H
 #include <qgb18030codec.h>
 #endif
