@@ -354,13 +354,15 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
     }
 #endif
-    case QVariant::SizePolicy:
+    case QVariant::SizePolicy: {
         int h, v;
         Q_INT8 hfw;
         s >> h >> v >> hfw;
-        *static_cast<QSizePolicy *>(d->data.shared->value.ptr) =
-            QSizePolicy((QSizePolicy::SizeType)h, (QSizePolicy::SizeType)v, (bool)hfw);
+        QSizePolicy *sp = static_cast<QSizePolicy *>(d->data.shared->value.ptr);
+        *sp = QSizePolicy(QSizePolicy::SizeType(h), QSizePolicy::SizeType(v));
+        sp->setHeightForWidth(bool(hfw));
         break;
+    }
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
         s >> *static_cast<QKeySequence *>(d->data.shared->value.ptr);
@@ -431,7 +433,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::SizePolicy:
         {
             QSizePolicy *p = static_cast<QSizePolicy *>(d->data.shared->value.ptr);
-            s << (int) p->horData() << (int) p->verData()
+            s << (int) p->horizontalData() << (int) p->verticalData()
               << (Q_INT8) p->hasHeightForWidth();
         }
         break;

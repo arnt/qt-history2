@@ -45,26 +45,26 @@ public:
 
     QSizePolicy() : data(0) { }
 
-    QSizePolicy(SizeType hor, SizeType ver, bool hfw = false)
-        : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) { }
-    QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw = false);
+    QSizePolicy(SizeType horizontal, SizeType vertical)
+        : data(horizontal | (vertical<<HSize)) { }
 
-    SizeType horData() const { return static_cast<SizeTypeFlag>(data & HMask); }
-    SizeType verData() const { return static_cast<SizeTypeFlag>((data & VMask) >> HSize); }
+    SizeType horizontalData() const { return static_cast<SizeTypeFlag>(data & HMask); }
+    SizeType verticalData() const { return static_cast<SizeTypeFlag>((data & VMask) >> HSize); }
 
-    bool mayShrinkHorizontally() const { return horData() & MayShrink || horData() == Ignored; }
-    bool mayShrinkVertically() const { return verData() & MayShrink || verData() == Ignored; }
-    bool mayGrowHorizontally() const { return horData() & MayGrow || horData() == Ignored; }
-    bool mayGrowVertically() const { return verData() & MayGrow || verData() == Ignored; }
+    void setHorizontalData(SizeType d) { data = (data & ~HMask) | d; }
+    void setVerticalData(SizeType d) { data = (data & ~(HMask << HSize)) | (d << HSize); }
+
+    bool mayShrinkHorizontally() const { return horizontalData() & MayShrink || horizontalData() == Ignored; }
+    bool mayShrinkVertically() const { return verticalData() & MayShrink || verticalData() == Ignored; }
+    bool mayGrowHorizontally() const { return horizontalData() & MayGrow || horizontalData() == Ignored; }
+    bool mayGrowVertically() const { return verticalData() & MayGrow || verticalData() == Ignored; }
 
     ExpandData expanding() const
     {
-        return static_cast<ExpandData>(int(verData() & ExpMask ? Vertically : 0)
-                                       | int(horData() & ExpMask ? Horizontally : 0));
+        return static_cast<ExpandData>(int(verticalData() & ExpMask ? Vertically : 0)
+                                       | int(horizontalData() & ExpMask ? Horizontally : 0));
     }
 
-    void setHorData(SizeType d) { data = (data & ~HMask) | d; }
-    void setVerData(SizeType d) { data = (data & ~(HMask << HSize)) | (d << HSize); }
 
     void setHeightForWidth(bool b) { data = b ? (data | (1 << 2*HSize)) : (data & ~(1 << 2*HSize));  }
     bool hasHeightForWidth() const { return data & (1 << 2*HSize); }
@@ -72,12 +72,35 @@ public:
     bool operator==(const QSizePolicy& s) const { return data == s.data; }
     bool operator!=(const QSizePolicy& s) const { return data != s.data; }
 
+    uint horizontalStretch() const { return data >> 24; }
+    uint verticalStretch() const { return (data >> 16) & 0xff; }
+    void setHorizontalStretch(uchar stretchFactor) { data = (data&0x00ffffff) | (uint(stretchFactor)<<24); }
+    void setVerticalStretch(uchar stretchFactor) { data = (data&0xff00ffff) | (uint(stretchFactor)<<16); }
 
-    uint horStretch() const { return data >> 24; }
-    uint verStretch() const { return (data >> 16) & 0xff; }
-    void setHorStretch(uchar sf) { data = (data&0x00ffffff) | (uint(sf)<<24); }
-    void setVerStretch(uchar sf) { data = (data&0xff00ffff) | (uint(sf)<<16); }
-    inline void transpose();
+    void transpose();
+
+
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QSizePolicy(SizeType hor, SizeType ver, bool hfw)
+        : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) { }
+
+    QT_COMPAT_CONSTRUCTOR QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw = false)
+        : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) {
+        setHorizontalStretch(hors);
+        setVerticalStretch(vers);
+    }
+
+    inline QT_COMPAT SizeType horData() const { return static_cast<SizeTypeFlag>(data & HMask); }
+    inline QT_COMPAT SizeType verData() const { return static_cast<SizeTypeFlag>((data & VMask) >> HSize); }
+    inline QT_COMPAT void setHorData(SizeType d) { setHorizontalData(d); }
+    inline QT_COMPAT void setVerData(SizeType d) { setVerticalData(d); }
+
+    inline QT_COMPAT uint horStretch() const { return horizontalStretch(); }
+    inline QT_COMPAT uint verStretch() const { return verticalStretch(); }
+    inline QT_COMPAT void setHorStretch(uchar sf) { setHorizontalStretch(sf); }
+    inline QT_COMPAT void setVerStretch(uchar sf) { setVerticalStretch(sf); }
+#endif
 
 private:
     QSizePolicy(int i) : data(i) { }
@@ -87,15 +110,15 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSizePolicy::SizeType);
 
-inline QSizePolicy::QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw)
-    : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) {
-    setHorStretch(hors);
-    setVerStretch(vers);
-}
-
 inline void QSizePolicy::transpose() {
-    *this = QSizePolicy(verData(), horData(), verStretch(), horStretch(),
-                         hasHeightForWidth());
+    SizeType hData = horizontalData();
+    SizeType vData = verticalData();
+    uchar hStretch = horizontalStretch();
+    uchar vStretch = verticalStretch();
+    setHorizontalData(vData);
+    setVerticalData(hData);
+    setHorizontalStretch(vStretch);
+    setVerticalStretch(hStretch);
 }
 
 #endif // QSIZEPOLICY_H

@@ -414,7 +414,8 @@ public:
     virtual QSize minimumSizeHint() const;
     virtual QSizePolicy sizePolicy() const;
     void setSizePolicy(QSizePolicy);
-    void setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = false);
+
+    inline void setSizePolicy(QSizePolicy::SizeType horizontal, QSizePolicy::SizeType vertical);
     virtual int heightForWidth(int) const;
 
     QRegion clipRegion() const;
@@ -659,6 +660,8 @@ public:
     { setParent(parent, getWFlags() & ~Qt::WType_Mask); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT_COMPAT void recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
+    inline QT_COMPAT void setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
+    { QSizePolicy sp(hor, ver); sp.setHeightForWidth(hfw); }
     inline QT_COMPAT bool hasMouse() const { return testAttribute(Qt::WA_UnderMouse); }
 #ifndef QT_NO_CURSOR
     inline QT_COMPAT bool ownCursor() const { return testAttribute(Qt::WA_SetCursor); }
@@ -890,8 +893,8 @@ inline void QWidget::setWFlags(Qt::WFlags f)
 inline void QWidget::clearWFlags(Qt::WFlags f)
 { data->widget_flags &= ~f; }
 
-inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
-{ setSizePolicy(QSizePolicy(hor, ver, hfw)); }
+inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver)
+{ setSizePolicy(QSizePolicy(hor, ver)); }
 
 inline bool QWidget::testAttribute(Qt::WidgetAttribute attribute) const
 {

@@ -686,9 +686,9 @@ QSize QLabel::minimumSizeHint() const
         if (d->sh.height() < sz.height())
             sz.rheight() = d->sh.height();
     }
-    if (sizePolicy().horData() == QSizePolicy::Ignored)
+    if (sizePolicy().horizontalData() == QSizePolicy::Ignored)
         sz.rwidth() = -1;
-    if (sizePolicy().verData() == QSizePolicy::Ignored)
+    if (sizePolicy().verticalData() == QSizePolicy::Ignored)
         sz.rheight() = -1;
     d->msh = sz;
     return sz;

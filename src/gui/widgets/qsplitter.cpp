@@ -174,7 +174,7 @@ QCOORD QSplitterLayoutStruct::getSizer(Qt::Orientation orient)
             sizer = presizer;
         }
         QSizePolicy p = wid->sizePolicy();
-        int sf = (orient == Qt::Horizontal) ? p.horStretch() : p.verStretch();
+        int sf = (orient == Qt::Horizontal) ? p.horizontalStretch() : p.verticalStretch();
         if (sf > 1)
             sizer *= sf;
     }
@@ -279,7 +279,7 @@ void QSplitterPrivate::doResize()
     bool noStretchFactorsSet = true;
     for (i = 0; i < n; ++i) {
         QSizePolicy p = list.at(i)->wid->sizePolicy();
-        int sf = orient == Qt::Horizontal ? p.horStretch() : p.verStretch();
+        int sf = orient == Qt::Horizontal ? p.horizontalStretch() : p.verticalStretch();
         if (sf != 0) {
             noStretchFactorsSet = false;
             break;
@@ -305,7 +305,7 @@ void QSplitterPrivate::doResize()
             bool stretch = noStretchFactorsSet;
             if (!stretch) {
                 QSizePolicy p = s->wid->sizePolicy();
-                int sf = orient == Qt::Horizontal ? p.horStretch() : p.verStretch();
+                int sf = orient == Qt::Horizontal ? p.horizontalStretch() : p.verticalStretch();
                 stretch = (sf != 0);
             }
             if (stretch) {
@@ -582,15 +582,15 @@ QSplitterLayoutStruct *QSplitterPrivate::findWidget(QWidget *w)
 static void setStretch(QWidget *w, int sf)
 {
     QSizePolicy sp = w->sizePolicy();
-    sp.setHorStretch(sf);
-    sp.setVerStretch(sf);
+    sp.setHorizontalStretch(sf);
+    sp.setVerticalStretch(sf);
     w->setSizePolicy(sp);
 }
 
 static int getStretch(const QWidget *w)
 {
     QSizePolicy sp = w->sizePolicy();
-    return qMax(sp.horStretch(), sp.verStretch());
+    return qMax(sp.horizontalStretch(), sp.verticalStretch());
 }
 
 /*!

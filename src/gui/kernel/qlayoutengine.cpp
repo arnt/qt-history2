@@ -264,7 +264,7 @@ Q_GUI_EXPORT QSize qSmartMinSize(const QWidgetItem *i)
     QSize s(0, 0);
     QSize sh;
 
-    if (w->sizePolicy().horData() != QSizePolicy::Ignored) {
+    if (w->sizePolicy().horizontalData() != QSizePolicy::Ignored) {
         if (w->sizePolicy().mayShrinkHorizontally()) {
             s.setWidth(w->minimumSizeHint().width());
         } else {
@@ -273,7 +273,7 @@ Q_GUI_EXPORT QSize qSmartMinSize(const QWidgetItem *i)
         }
     }
 
-    if (w->sizePolicy().verData() != QSizePolicy::Ignored) {
+    if (w->sizePolicy().verticalData() != QSizePolicy::Ignored) {
         if (w->sizePolicy().mayShrinkVertically()) {
             s.setHeight(w->minimumSizeHint().height());
         } else {

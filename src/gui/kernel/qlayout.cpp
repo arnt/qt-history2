@@ -60,9 +60,9 @@ public:
     QLayoutItem *takeItem() { QLayoutItem *i = item_; item_ = 0; return i; }
 
     int hStretch() { return item_->widget() ?
-                         item_->widget()->sizePolicy().horStretch() : 0; }
+                         item_->widget()->sizePolicy().horizontalStretch() : 0; }
     int vStretch() { return item_->widget() ?
-                         item_->widget()->sizePolicy().verStretch() : 0; }
+                         item_->widget()->sizePolicy().verticalStretch() : 0; }
 
 private:
     friend class QGridLayoutPrivate;
@@ -1476,14 +1476,14 @@ struct QBoxLayoutItem
     }
     int hStretch() {
         if (stretch == 0 && item->widget()) {
-            return item->widget()->sizePolicy().horStretch();
+            return item->widget()->sizePolicy().horizontalStretch();
         } else {
             return stretch;
         }
     }
     int vStretch() {
         if (stretch == 0 && item->widget()) {
-            return item->widget()->sizePolicy().verStretch();
+            return item->widget()->sizePolicy().verticalStretch();
         } else {
             return stretch;
         }
