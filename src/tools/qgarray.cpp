@@ -228,7 +228,6 @@ bool QGArray::resize( uint newsize )
     } else {
 	shd->data = NEW(char,newsize);
     }
-    Q_CHECK_PTR( shd->data );
     if ( !shd->data )				// no memory
 	return FALSE;
     shd->len = newsize;
