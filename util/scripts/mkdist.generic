@@ -235,8 +235,8 @@ if [ "${platform}" = "x11" ]; then
   (cd ${QTDIR}/src; tmake -t ../tmake/propagate.t qt.pro |
 	perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
   mv ${QTDIR}/util/scripts/propagate ${QTDIR}
-  rm -rf ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
-  mkdir ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
+  rm -rf ${DISTDIR}/qt/lib
+  mkdir ${DISTDIR}/qt/lib
 
   echo "Build tutorial, example, and extensions Makefiles" >&2
   find ${DISTDIR}/qt/tutorial \
