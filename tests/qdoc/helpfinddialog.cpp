@@ -19,11 +19,9 @@ HelpFindDialog::HelpFindDialog( QWidget *parent )
     findEdit = new QComboBox( TRUE, this );
     layout->addWidget( findEdit, 1, 0 );
     l->setBuddy( findEdit );
-//     connect( findEdit, SIGNAL( activated( int ) ),
-// 	     this, SLOT( find() ) );
     connect( findEdit, SIGNAL( textChanged( const QString & ) ),
 	     this, SLOT( checkQuery( const QString & ) ) );
-    
+
     QHBoxLayout *checkboxes = new QHBoxLayout;
     layout->addLayout( checkboxes, 2, 0 );
 
