@@ -1,219 +1,234 @@
+#include <qapplication.h>
+#include <qcheckbox.h>
+#include <qeventloop.h>
+#include <qlabel.h>
+#include <qlayout.h>
+#include <qmutex.h>
+#include <qprogressbar.h>
+#include <qpushbutton.h>
 #include <qthread.h>
 #include <qwaitcondition.h>
-#include <qmutex.h>
-#include <qapplication.h>
 #include <qwidget.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qprogressbar.h>
-#include <qlayout.h>
-#include <qevent.h>
-#include <qlabel.h>
-#include <qcstring.h>
-#include <qtextstream.h>
-#include <qfile.h>
 
 #include <stdio.h>
-
-// 50kb buffer
-#define BUFSIZE (50*1000)
-#define PRGSTEP (BUFSIZE / 20)
-#define BLKSIZE (8)
-QByteArray bytearray;
+#include <stdlib.h>
 
 
-class ProdEvent : public QCustomEvent
+static const int totalSize = 1000000;
+static const int increment = totalSize / 100;
+
+
+static const char dataSource[4] = { 'A', 'C', 'G', 'T' };
+static int stats[4] = { 0, 0, 0, 0 };
+
+static QString statsString()
 {
+    QString s("Statistics:");
+    for (int x = 0; x < sizeof(dataSource); ++x)
+	s += QString(" %1=%2")
+	     .arg(dataSource[x])
+	     .arg(stats[x] ? QString::number(stats[x]) : QString("Unavailable"));
+    return s;
+}
+
+static inline void resetStats()
+{
+    for (int x = 0; x < sizeof(dataSource); ++x)
+	stats[x] = 0;
+}
+
+
+class Producer : public QObject
+{
+    Q_OBJECT
+
+    int total;
+    int maximum;
+
 public:
-    ProdEvent(long s, bool d)
-	: QCustomEvent(QEvent::User + 100), sz(s), dn(d)
-    { ; }
+    inline Producer(int max)
+	: total(0), maximum(max)
+    { }
 
-    long size() const { return sz; }
-    bool done() const { return dn; }
+    inline bool isFinished() const
+    { return total == maximum; }
 
+    inline int maximumSize() const { return maximum; }
 
-private:
-    long sz;
-    bool dn;
-};
+    inline void produce(QByteArray *data)
+    {
+	data->resize(increment);
+	char *d = data->data();
+	for (int i = 0; i < data->size(); ++i)
+	    d[i] = dataSource[random() % sizeof(dataSource)];
 
+	total += data->size();
+	emit produced(total);
 
-class ProdThread : public QThread
-{
-public:
-    ProdThread(QObject *r, QMutex *m, QWaitCondition *c);
-
-    void stop();
-    void run();
-
-
-private:
-    QObject *receiver;
-    QMutex *mutex;
-    QWaitCondition *condition;
-
-    bool done;
-};
-
-
-ProdThread::ProdThread(QObject *r, QMutex *m, QWaitCondition *c)
-    : receiver(r), mutex(m), condition(c), done(FALSE)
-{
-}
-
-
-void ProdThread::stop()
-{
-    QMutexLocker locker(mutex);
-    done = TRUE;
-}
-
-
-void ProdThread::run()
-{
-    bool stop = FALSE;
-    done = FALSE;
-
-    uchar *buffer = new uchar[BUFSIZE];
-    int pos = 0, oldpos = 0;
-    int loop = 1;
-    int lastpostedpos = 0;
-
-    ProdEvent *pe = new ProdEvent(pos, done);
-    QApplication::postEvent(receiver, pe);
-
-    while (! stop) {
-	oldpos = pos;
-	int i;
-	for (i = 0; i < BLKSIZE && pos < BUFSIZE; i++) {
-	    buffer[pos++] = (loop % 2) ? 'o' : 'e';
-	}
-
-	mutex->lock();
-
-	if (pos == BUFSIZE) {
-	    done = TRUE;
-	}
-
-	while (! bytearray.isEmpty() && ! stop) {
-            condition->wakeOne();
-            condition->wait(mutex);
-
-	    stop = done;
-	}
-
-	stop = done;
-	bytearray.duplicate((const char *) (buffer + oldpos), pos - oldpos);
-	condition->wakeOne();
-
-	mutex->unlock();
-
-	if ( pos - lastpostedpos > PRGSTEP || stop ) {
-	    lastpostedpos = pos;
-	    ProdEvent *pe = new ProdEvent(pos, stop);
-	    QApplication::postEvent(receiver, pe);
-	}
-
-	loop++;
-    }
-
-    condition->wakeOne();
-
-    delete [] buffer;
-}
-
-
-class ConsEvent : public QCustomEvent
-{
-public:
-    ConsEvent(long s)
-	: QCustomEvent(QEvent::User + 101), sz(s)
-    { ; }
-
-    long size() const { return sz; }
-
-
-private:
-    long sz;
-};
-
-
-class ConsThread : public QThread
-{
-public:
-    ConsThread(QObject *r, QMutex *m, QWaitCondition *c);
-
-    void stop();
-    void run();
-
-
-private:
-    QObject *receiver;
-    QMutex *mutex;
-    QWaitCondition *condition;
-
-    bool done;
-};
-
-
-ConsThread::ConsThread(QObject *r, QMutex *m, QWaitCondition *c)
-    : receiver(r), mutex(m), condition(c), done(FALSE)
-{
-}
-
-
-void ConsThread::stop()
-{
-    QMutexLocker locker(mutex);
-    done = TRUE;
-}
-
-
-void ConsThread::run()
-{
-    bool stop = FALSE;
-    done = FALSE;
-
-    QFile file("prodcons.out");
-    file.open(IO_WriteOnly);
-
-    long size = 0;
-    long lastsize = 0;
-
-    ConsEvent *ce = new ConsEvent(size);
-    QApplication::postEvent(receiver, ce);
-
-    while (! stop) {
-	mutex->lock();
-
-	while (bytearray.isEmpty() && ! stop) {
-            condition->wakeOne();
-            condition->wait(mutex);
-
-	    stop = done;
-	}
-
-	if (size < BUFSIZE) {
-	    file.writeBlock(bytearray.data(), bytearray.size());
-	    size += bytearray.size();
-	    bytearray.resize(0);
-	}
-
-	stop = done || size >= BUFSIZE;
-
-	mutex->unlock();
-
-	if ( size - lastsize > 1000 || stop ) {
-	    lastsize = size;
-	    ConsEvent *ce = new ConsEvent(size);
-	    QApplication::postEvent(receiver, ce);
+	if (isFinished()) {
+	    emit finished();
 	}
     }
 
-    file.flush();
-    file.close();
-}
+signals:
+    void produced(int size);
+    void finished();
+};
+
+
+class Consumer : public QObject
+{
+    Q_OBJECT
+
+    int total;
+
+    Producer *_producer;
+
+public:
+    inline Consumer(Producer *producer)
+	: total(0), _producer(producer)
+    { }
+
+    inline void consume(QByteArray *data)
+    {
+	const char * const d = data->constData();
+	for (int i = 0; i < data->size(); ++i) {
+	    for (int x = 0; x < sizeof(dataSource); ++x) {
+		if (d[i] == dataSource[x])
+		    ++stats[x];
+	    }
+	}
+
+	total += data->size();
+	data->resize(0);
+	emit consumed(total);
+
+	if (total == _producer->maximumSize()) {
+	    emit finished();
+	    emit finished(statsString());
+	}
+    }
+
+signals:
+    void consumed(int size);
+    void finished();
+    void finished(const QString &string);
+};
+
+
+class ProducerThread : public QThread
+{
+ public:
+    Producer *producer;
+
+    QByteArray *data;
+
+    QMutex *mutex;
+    QWaitCondition *condition;
+    QWaitCondition startup;
+
+    volatile bool stopped;
+
+    inline ProducerThread()
+	: producer(0), data(0), mutex(0), condition(0), stopped(false)
+    { }
+
+    inline void stop()
+    { stopped = true; }
+
+    void run() {
+	QEventLoop eventloop;
+	producer = new Producer(totalSize);
+
+	{
+	    // startup checkpoint
+	    QMutexLocker locker(mutex);
+	    stopped = false;
+	    startup.wakeOne();
+	    startup.wait(mutex);
+	}
+
+	do {
+	    QMutexLocker locker(mutex);
+
+	    while (!stopped && !data->isEmpty()) {
+		condition->wakeOne();
+		condition->wait(mutex);
+	    }
+	    if (stopped) break;
+
+	    producer->produce(data);
+	    if (producer->isFinished())
+		break;
+	} while (!stopped);
+
+	if (!stopped) {
+	    // wait for consumer to finish
+	    QMutexLocker locker(mutex);
+	    condition->wakeOne();
+	    condition->wait(mutex);
+	}
+
+	delete producer;
+    }
+};
+
+class ConsumerThread : public QThread
+{
+ public:
+    QPointer<Producer> producer;
+    Consumer *consumer;
+
+    QByteArray *data;
+
+    QMutex *mutex;
+    QWaitCondition *condition;
+    QWaitCondition startup;
+
+    volatile bool stopped;
+
+    inline ConsumerThread()
+	: producer(0), consumer(0), data(0), mutex(0), condition(0), stopped(false)
+    { }
+
+    inline void stop()
+    { stopped = true; }
+
+    void run() {
+	QEventLoop eventloop;
+	consumer = new Consumer(producer);
+
+	{
+	    // startup checkpoint
+	    QMutexLocker locker(mutex);
+	    stopped = false;
+	    startup.wakeOne();
+	    startup.wait(mutex);
+	}
+
+	do {
+	    QMutexLocker locker(mutex);
+
+	    while (!stopped && data->isEmpty()) {
+		condition->wakeOne();
+		condition->wait(mutex);
+	    }
+	    if (stopped) break;
+
+	    consumer->consume(data);
+	    if (producer->isFinished())
+		break;
+	} while (!stopped);
+
+	if (!stopped) {
+	    // tell the producer we are finished
+	    QMutexLocker locker(mutex);
+	    condition->wakeOne();
+	}
+
+	delete consumer;
+    }
+};
 
 
 class ProdCons : public QWidget
@@ -224,174 +239,166 @@ public:
     ProdCons();
     ~ProdCons();
 
-    void customEvent(QCustomEvent *);
-
-
 public slots:
     void go();
     void stop();
 
+    void finished();
 
 private:
-    QMutex mutex;
-    QWaitCondition condition;
+    ProducerThread prod;
+    ConsumerThread cons;
 
-    ProdThread *prod;
-    ConsThread *cons;
+    QPushButton *startButton, *stopButton;
+    QCheckBox *loopCheckBox;
+    QProgressBar *prodBar, *consBar;
+    QLabel *statsLabel;
 
-    QPushButton *startbutton, *stopbutton;
-    QCheckBox *loopcheckbox;
-    QProgressBar *prodbar, *consbar;
     bool stopped;
     bool redraw;
 };
 
-
 ProdCons::ProdCons()
-    : QWidget(0, "producer consumer widget"),
-      prod(0), cons(0), stopped(FALSE), redraw(TRUE)
+    : QWidget(0, "producer consumer widget"), stopped(false), redraw(true)
 {
-    startbutton = new QPushButton("&Start", this);
-    connect(startbutton, SIGNAL(clicked()), SLOT(go()));
+    setCaption("Qt Example - Producer/Consumer");
 
-    stopbutton = new QPushButton("S&top", this);
-    connect(stopbutton, SIGNAL(clicked()), SLOT(stop()));
-    stopbutton->setEnabled(FALSE);
+    startButton = new QPushButton("&Start", this);
+    connect(startButton, SIGNAL(clicked()), SLOT(go()));
 
-    loopcheckbox = new QCheckBox("Loop", this);
-    loopcheckbox->setChecked(FALSE);
+    stopButton = new QPushButton("S&top", this);
+    connect(stopButton, SIGNAL(clicked()), SLOT(stop()));
+    stopButton->setEnabled(false);
 
-    prodbar = new QProgressBar(BUFSIZE, this);
-    consbar = new QProgressBar(BUFSIZE, this);
+    loopCheckBox = new QCheckBox("Loop", this);
+    loopCheckBox->setChecked(false);
+
+    prodBar = new QProgressBar(totalSize, this);
+    consBar = new QProgressBar(totalSize, this);
+
+    statsLabel = new QLabel(statsString(), this);
 
     QVBoxLayout *vbox = new QVBoxLayout(this, 8, 8);
-    vbox->addWidget(new QLabel(QString("Producer/Consumer using %1 byte buffer").
-			       arg(BUFSIZE), this));
-    vbox->addWidget(startbutton);
-    vbox->addWidget(stopbutton);
-    vbox->addWidget(loopcheckbox);
-    vbox->addWidget(new QLabel("Producer progress:", this));
-    vbox->addWidget(prodbar);
-    vbox->addWidget(new QLabel("Consumer progress:", this));
-    vbox->addWidget(consbar);
-}
+    vbox->addWidget(new QLabel(QString("Producer/Consumer using %1kb byte buffer").
+			       arg(totalSize/1000), this));
+    QFrame *line;
 
+    vbox->addWidget(startButton);
+    vbox->addWidget(stopButton);
+    vbox->addWidget(loopCheckBox);
+
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+    vbox->addWidget(line);
+
+    vbox->addWidget(new QLabel("Producer progress:", this));
+    vbox->addWidget(prodBar);
+    vbox->addWidget(new QLabel("Consumer progress:", this));
+    vbox->addWidget(consBar);
+
+    line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+    vbox->addWidget(line);
+
+    vbox->addWidget(statsLabel);
+
+    prod.data = cons.data = new QByteArray();
+    prod.mutex = cons.mutex = new QMutex;
+    prod.condition = cons.condition = new QWaitCondition;
+}
 
 ProdCons::~ProdCons()
 {
     stop();
 
-    if (prod) {
-	delete prod;
-	prod = 0;
-    }
-
-    if (cons) {
-	delete cons;
-	cons = 0;
-    }
+    delete cons.data;
+    delete cons.mutex;
+    delete cons.condition;
+    prod.data = cons.data = 0;
+    prod.mutex = cons.mutex = 0;
+    prod.condition = cons.condition = 0;
 }
-
 
 void ProdCons::go()
 {
-    stopped = FALSE;
-
-    QMutexLocker locker(&mutex);
+    stopped = false;
 
     if ( redraw ) {
-	stopbutton->setEnabled(TRUE);
-	stopbutton->setFocus();
-	startbutton->setEnabled(FALSE);
+	stopButton->setEnabled(true);
+	stopButton->setFocus();
+	startButton->setEnabled(false);
     }
 
-    // start the consumer first
-    if (! cons)
-        cons = new ConsThread(this, &mutex, &condition);
-    cons->start();
+    resetStats();
 
-    // wait for consumer to signal that it has started
-    condition.wait(&mutex);
+    {
+	QMutexLocker locker(prod.mutex);
 
-    if (! prod)
-        prod = new ProdThread(this, &mutex, &condition);
-    prod->start();
+	// start the producer
+	prod.start();
+	prod.startup.wait(locker.mutex());
+
+	cons.producer = prod.producer;
+	connect(prod.producer, SIGNAL(produced(int)), prodBar, SLOT(setProgress(int)));
+
+	prod.startup.wakeOne();
+    }
+
+    {
+	QMutexLocker locker(cons.mutex);
+	// start the consumer and wait for it to signal that is has started
+
+	cons.start();
+	cons.startup.wait(locker.mutex());
+
+	connect(cons.consumer, SIGNAL(consumed(int)), consBar, SLOT(setProgress(int)));
+	connect(cons.consumer, SIGNAL(finished()), SLOT(finished()));
+	connect(cons.consumer, SIGNAL(finished(const QString &)),
+		statsLabel, SLOT(setText(const QString &)));
+
+	cons.startup.wakeOne();
+    }
 }
-
 
 void ProdCons::stop()
 {
-    if (prod && prod->running()) {
-	prod->stop();
-        condition.wakeAll();
-	prod->wait();
+    {
+	QMutexLocker locker(prod.mutex);
+	prod.stop();
+	cons.stop();
+	prod.condition->wakeAll();
     }
 
-    if (cons && cons->running()) {
-	cons->stop();
-        condition.wakeAll();
-	cons->wait();
-    }
+    if (prod.running())
+	prod.wait();
+
+    if (cons.running())
+	cons.wait();
 
     if ( redraw ) {
-	// no point in repainting these buttons so many times is we are looping...
-	startbutton->setEnabled(TRUE);
-	startbutton->setFocus();
-	stopbutton->setEnabled(FALSE);
+	// no point in repainting these Buttons so many times is we are looping...
+	startButton->setEnabled(true);
+	startButton->setFocus();
+	stopButton->setEnabled(false);
+
+	prodBar->reset();
+	consBar->reset();
     }
 
-    stopped = TRUE;
+    stopped = true;
 }
 
-
-void ProdCons::customEvent(QCustomEvent *e)
+void ProdCons::finished()
 {
-    switch (e->type()) {
-    case QEvent::User + 100:
-	{
-	    // ProdEvent
-	    ProdEvent *pe = (ProdEvent *) e;
+    bool loop = (loopCheckBox->isChecked() && !stopped);
+    bool save_redraw = redraw;
+    redraw = !loop;
 
-	    if (pe->size() == 0 ||
-		pe->size() == BUFSIZE ||
-		pe->size() - prodbar->progress() >= PRGSTEP)
-		prodbar->setProgress(pe->size());
+    stop();
+    if (loop)
+	go();
 
-	    // reap the threads
-	    if (pe->done()) {
-		bool loop = (loopcheckbox->isChecked() && ! stopped);
-		bool save_redraw = redraw;
-		redraw = !loop;
-
-		stop();
-
-		if (loop)
-		    go();
-
-		redraw = save_redraw;
-	    }
-
-	    break;
-	}
-
-    case QEvent::User + 101:
-	{
-	    // ConsEvent
-	    ConsEvent *ce = (ConsEvent *) e;
-
-	    if (ce->size() == 0 ||
-		ce->size() == BUFSIZE ||
-		ce->size() - consbar->progress() >= PRGSTEP)
-		consbar->setProgress(ce->size());
-
-	    break;
-	}
-
-    default:
-	{
-	    ;
-	}
-    }
+    redraw = save_redraw;
 }
 
 
