@@ -96,7 +96,7 @@ QWSMouseHandler::QWSMouseHandler()
 }
 
 /*!
-  Destroys the mouse handler. You should not invoke this directly.
+  Destroys the mouse handler. You should not call this directly.
 */
 QWSMouseHandler::~QWSMouseHandler()
 {
@@ -104,8 +104,8 @@ QWSMouseHandler::~QWSMouseHandler()
 
 /*!
   To be called by the mouse handler to signal that the
-  mouse is now at position \a pos and the mouse buttons are now
-  in the state \a bstate.
+  mouse is at position \a pos and the mouse buttons are
+  in state \a bstate.
 */
 void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
 {
@@ -1421,12 +1421,14 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 
 /*!
   \fn QWSMouseHandler::clearCalibration()
+
   This method is reimplemented in the calibrated mouse handler
   to clear calibration information. This version does nothing.
 */
 
 /*!
   \fn QWSMouseHandler::calibrate(QWSPointerCalibrationData * )
+
   This method is reimplemented in the calibrated mouse handler
   to set calibration information (from, for instance, the QPE
   calibration screen). This version does nothing.

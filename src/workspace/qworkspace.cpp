@@ -62,12 +62,11 @@
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
 
-// REVISED: arnt
 
 /*!
   \class QWorkspace qworkspace.h
   \brief The QWorkspace widget provides a workspace window that can
-  contain decorated windows, e.g., for MDI.
+  contain decorated windows, e.g. for MDI.
 
   \module workspace
 
@@ -75,16 +74,16 @@
   \ingroup organizers
   \mainclass
 
-  An MDI application has one main window with a menu bar.  The central
-  widget of this window is a workspace.  The workspace itself contains
-  zero, one or more document windows, each of which displays a
-  document.
+  An MDI (multiple document interface) application has one main window
+  with a menu bar.  The central widget of this window is a workspace.
+  The workspace itself contains zero, one or more document windows,
+  each of which displays a document.
 
   The workspace itself is an ordinary Qt widget.  It has a standard
   constructor that takes a parent widget and an object name.  The
   parent window is usually a QMainWindow, but it need not be.
 
-  Document windows (alias MDI windows) are also ordinary Qt widgets which
+  Document windows (i.e. MDI windows) are also ordinary Qt widgets which
   have the workspace as parent widget.  When you call show(), hide(),
   showMaximized(), setCaption(), etc. on a document window, it is shown,
   hidden, etc. with a frame, caption, icon and icon text, just as you'd
@@ -92,7 +91,7 @@
   of the decoration or the behaviour of the widget itself.
 
   To change the geometry of the MDI windows it is necessary to make the
-  necessary function calls to the parentWidget() of the widget, as this
+  function calls to the parentWidget() of the widget, as this
   will move or resize the decorated window.
 
   A document window becomes active when it gets the keyboard focus.
@@ -103,7 +102,7 @@
   document window.
 
   The convenience function windowList() returns a list of all document
-  windows.  This is useful to create a popup menu "&Windows" on the
+  windows.  This is useful to create a popup menu "<u>W</u>indows" on the
   fly, for example.
 
   QWorkspace provides two built-in layout strategies for child
@@ -114,10 +113,11 @@
   larger than the actual workspace, set the scrollBarsEnabled property
   to TRUE.
 
-  In case the top-level window contains a menu bar and a document
-  minimize, restore and close buttons from the document window's frame
-  to the workspace window's menu bar. It then inserts a window operations
-  menu on the extreme left of the menu bar.
+  If the top-level window contains a menu bar and a document window is
+  maximised, QWorkspace moves the document window's minimize, restore
+  and close buttons from the document window's frame to the workspace
+  window's menu bar. It then inserts a window operations menu at the
+  extreme left of the menu bar.
 
 */
 
@@ -1237,7 +1237,7 @@ void QWorkspace::activatePreviousWindow()
 
     if ( a < 0 )
 	a = d->focus.count()-1;
-    
+
     if ( d->autoFocusChange ) {
 	QWidget *widget = 0;
 	while ( a >= 0 && d->focus.at( a ) && ( widget = d->focus.at( a )->windowWidget() ) && !widget->isVisible() )
@@ -1256,9 +1256,9 @@ void QWorkspace::activatePreviousWindow()
 /*!
   \fn void QWorkspace::windowActivated( QWidget* w )
 
-  This signal is emitted when the window widget \a w becomes active. Note that
-  \a w can be null, and that more than one signal may be fired for one activation
-  event.
+  This signal is emitted when the window widget \a w becomes active.
+  Note that \a w can be null, and that more than one signal may be
+  fired for one activation event.
 
   \sa activeWindow(), windowList()
 */

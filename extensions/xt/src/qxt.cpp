@@ -275,7 +275,7 @@ static void np_do_timers( void*, void* )
 
 /*!
   \class QXtApplication qxt.h
-  \brief The QXtApplication class allows mixing of Xt/Motif and Qt widgets.
+  \brief The QXtApplication class facilitates the mixing of Xt/Motif and Qt widgets.
 
   \extension Xt/Motif
 
@@ -457,7 +457,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   The \a name is the object name passed to the QWidget constructor.
   The widget's parent is \a parent.
 
-  If the \a managed parameter is TRUE and \a parent in not NULL,
+  If the \a managed parameter is TRUE and \a parent in not null,
   XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
@@ -478,14 +478,14 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
   like the Xt class, but can be used like any QWidget.
 
   Note that Xt requires that the most top level Xt widget is a shell.
-  That means, if \a parent is a QXtWidget, the \a widget_class can be
+  This means, if \a parent is a QXtWidget, the \a widget_class can be
   of any kind. If there isn't a parent or the parent is just a normal
   QWidget, \a widget_class should be something like \c
   topLevelShellWidgetClass.
 
   The arguments, \a args, \a num_args are passed on to XtCreateWidget.
 
-  If the \a managed parameter is TRUE and \a parent in not NULL,
+  If the \a managed parameter is TRUE and \a parent in not null,
   XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
@@ -532,6 +532,7 @@ QXtWidget::~QXtWidget()
 
 /*!
   \fn Widget QXtWidget::xtWidget() const
+
   Returns the Xt widget equivalent for the Qt widget.
 */
 
@@ -541,7 +542,7 @@ QXtWidget::~QXtWidget()
   Reimplemented to produce the Xt effect of getting focus when the
   mouse enters the widget. The event is passed in \a e.
 
-  \warning This may be changed.
+    \preliminary
 */
 bool QXtWidget::x11Event( XEvent * e )
 {

@@ -112,14 +112,28 @@ static int get_object_id()
 /*!
   \class QWSWindow qwindowsystem_qws.h
   \ingroup qws
-  \brief The QWSWindow class provides Server-specific functionality in Qt/Embedded.
+  \brief The QWSWindow class provides server-specific functionality in Qt/Embedded.
 
   When you run a Qt/Embedded application, it either runs as a server
   or connects to an existing server. If it runs as a server, some additional
-  operations are provided via the QWSServer class.
+  functionality is provided by the QWSServer class.
 
   This class maintains information about each window and allows operations
   to be performed on the windows.
+
+  You can get the window's name(), caption() and winId(), along with
+  the client() that owns the window.
+
+  The region the window wants to draw on is returned by requested();
+  the region that the window is allowed to draw on is returned by
+  allocation().
+
+  The visibility of the window can be determined using isVisible(),
+  isPartiallyObscured() and isFullyObscured(). Visibility can be
+  changed using raise(), lower(), show(), hide() and
+  setActiveWindow().
+
+
 */
 
 /*!
@@ -137,7 +151,7 @@ static int get_object_id()
 /*!
   \fn const QString &QWSWindow::caption() const
 
-  Returns this windows caption.
+  Returns this window's caption.
 */
 
 /*!
@@ -149,7 +163,7 @@ static int get_object_id()
 /*!
   \fn QRegion QWSWindow::requested() const
 
-  Returns the region that the window has requested to draw into including
+  Returns the region that the window has requested to draw onto including
   any window decorations.
 
   \sa allocation()
@@ -158,8 +172,8 @@ static int get_object_id()
 /*!
   \fn QRegion QWSWindow::allocation() const
 
-  Returns the region that the window is allowed to draw into including
-  any window decorations and excluding regions covered by other windows.
+  Returns the region that the window is allowed to draw onto including
+  any window decorations but excluding regions covered by other windows.
 
   \sa requested()
 */
@@ -167,21 +181,21 @@ static int get_object_id()
 /*!
   \fn bool QWSWindow::isVisible() const
 
-  Returns TRUE if the window is visible.
+  Returns TRUE if the window is visible; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QWSWindow::isPartiallyObscured() const
 
   Returns TRUE is the window is partially obsured by another window or
-  the bounds of the screen.
+  by the bounds of the screen; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QWSWindow::isFullyObscured() const
 
   Returns TRUE is the window is completely obsured by another window or
-  the bounds of the screen.
+  by the bounds of the screen; otherwise returns FALSE.
 */
 
 /*!
@@ -217,7 +231,8 @@ void QWSWindow::hide()
 }
 
 /*!
-  Make this the active window (i.e. sets keyboard focus).
+  Make this the active window (i.e. sets the keyboard focus to this
+  window).
 */
 void QWSWindow::setActiveWindow()
 {
@@ -782,6 +797,25 @@ static void ignoreSignal( int )
 
   A pointer to the QWSServer instance can be obtained via the global
   qwsServer variable.
+
+  The mouse and keyboard devices can be opened with openMouse() and
+  openKeyboard(). (Close them with closeMouse() and closeKeyboard().)
+
+  The display is refreshed with refresh(), and painting can be enabled
+  or disabled with enablePainting().
+
+  Obtain the list of client windows with clientWindows() and find out
+  which window is at a particular point with windowAt().
+
+  Many static functions are provided, for example,
+  setKeyboardFilter(), setKeyboardHandler(), setDefaultKeyboard() and
+  setDefaultMouse().
+
+  The size of the window rectangle can be set with setMaxWindowRect(),
+  and the desktop's background can be set with setDesktopBackground().
+
+  The screen saver is controlled with setScreenSaverInterval() and
+  screenSaverActivate().
 */
 
 /*!
@@ -789,15 +823,16 @@ static void ignoreSignal( int )
 
   Returns the list of top-level windows.  This list will change as
   applications add and remove wigdets so it should not be stored for future
-  use.  The windows are sorted in stacking order from top-most to lowest.
+  use.  The windows are sorted in stacking order from top-most to
+  bottom-most.
 */
 
 /*!
   Construct a QWSServer class with parent \a parent, called \a name
   and flags \a flags.
 
-  This class is instantiated by QApplication for Qt/Embedded server processes.
-  You should never construct this class yourself.
+  \warning This class is instantiated by QApplication for Qt/Embedded
+  server processes. You should never construct this class yourself.
 */
 
 QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
@@ -1163,7 +1198,8 @@ void QWSServer::hideCursor()
 }
 
 /*!
-  Enables (if \a e is true) or disables all painting on the display.
+    If \a e is TRUE, painting on the display is enabled; if \a is
+    FALSE, painting is disabled.
 */
 
 void QWSServer::enablePainting(bool e)
@@ -1203,8 +1239,8 @@ void QWSServer::refresh(QRegion & r)
 #endif
 
 /*!
-  Sets the area of the screen \a r which Qt/Embedded applications will consider
-  to be the maximum area to use for windows.
+  Sets the area of the screen which Qt/Embedded applications
+  will consider to be the maximum area to use for windows to \a r.
 
   \sa QWidget::showMaximized()
 */
@@ -1230,7 +1266,7 @@ void QWSServer::sendMaxWindowRectEvents()
 
 /*!
   Set the mouse driver \a m to use if $QWS_MOUSE_PROTO is not defined.
-  The default is platform-dependant.
+  The default is platform-dependent.
 */
 void QWSServer::setDefaultMouse( const char *m )
 {
@@ -1238,7 +1274,7 @@ void QWSServer::setDefaultMouse( const char *m )
 }
 
 /*!
-  Set the keyboard driver \a k to use if $QWS_KEYBOARD is not defined.
+  Set the keyboard driver to \a k, e.g. if $QWS_KEYBOARD is not defined.
   The default is platform-dependant.
 */
 
@@ -1248,8 +1284,9 @@ void QWSServer::setDefaultKeyboard( const char *k )
 }
 
 /*!
-  Send a mouse event. \a pos is the position on screen of the mouse
-  event, \a state is a mask indicating which buttons are pressed.
+  Send a mouse event. \a pos is the screen position where the mouse
+  event occurred and \a state is a mask indicating which buttons are
+  pressed.
 */
 
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
@@ -1420,9 +1457,9 @@ static int keyUnicode(int keycode)
   Send a key event. You can use this to send key events generated by
   "virtual keyboards". \a unicode is the unicode value of the key to
   send, \a keycode the Qt keycode (e.g. Key_Left), \a modifiers
-  indicates whether, shift/alt/control keys are pressed, \a isPress
-  is true if this is a key down event, false if it's a key up event,
-  and \a autoRepeat is true if this is an autorepeat event (i.e. the
+  indicates whether, Shift/Alt/Ctrl keys are pressed, \a isPress
+  is TRUE if this is a key down event and FALSE if it's a key up event,
+  and \a autoRepeat is TRUE if this is an autorepeat event (i.e. the
   user has held the key down and this is the second or subsequent
   key event being sent).
 */
@@ -2103,7 +2140,7 @@ void QWSServer::syncRegions( QWSWindow *active )
 }
 
 /*!
-  Closes pointer device(s).
+  Closes the pointer device(s).
 */
 void QWSServer::closeMouse()
 {
@@ -2169,7 +2206,7 @@ void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
 }
 
 /*!
-  Open keyboard device(s).
+  Opens the keyboard device(s).
 */
 void QWSServer::openKeyboard()
 {
@@ -2299,8 +2336,8 @@ void QWSServer::refreshBackground()
 
 
 /*!
-  Sets the image \a img to use as the background in the absence of obscuring
-  windows.
+  Sets the image \a img to be used as the background in the absence of
+  obscuring windows.
 */
 
 void QWSServer::setDesktopBackground( const QImage &img )
@@ -2317,7 +2354,7 @@ void QWSServer::setDesktopBackground( const QImage &img )
 
 /*!
   \overload
-  Sets the color \a c to use as the background in the absence of obscuring
+  Sets the color \a c to be used as the background in the absence of obscuring
   windows.
 */
 
@@ -2387,7 +2424,7 @@ void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool is
   Sets a filter \a f to be invoked for all key events from physical keyboard
   drivers (events sent via processKeyEvent()).
   The filter is not invoked for keys generated by virtual keyboard
-  drivers (events send via sendKeyEvent()).
+  drivers (events sent via sendKeyEvent()).
 */
 void QWSServer::setKeyboardFilter( KeyboardFilter *f )
 {
@@ -2397,7 +2434,7 @@ void QWSServer::setKeyboardFilter( KeyboardFilter *f )
 
 /*!
   Sets the timeout for the screensaver to \a ms milliseconds. A setting
-  of zero turns of the screensaver.
+  of zero turns off the screensaver.
 */
 void QWSServer::setScreenSaverInterval(int ms)
 {
@@ -2429,7 +2466,8 @@ void QWSServer::screenSaverSleep()
 }
 
 /*!
-  Returns TRUE if the screensaver is active (i.e. blanked).
+  Returns TRUE if the screensaver is active (i.e. the screen is
+  blanked); otherwise returns FALSE.
 */
 bool QWSServer::screenSaverActive()
 {
@@ -2438,8 +2476,8 @@ bool QWSServer::screenSaverActive()
 }
 
 /*!
-  Activates the screensaver immediately if \a activate is TRUE otherwise
-  deactivates the screensaver.
+    If \a activate is TRUE the screensaver is activated immediately;
+    if \a activated is FALSE the screensaver is deactivated.
 */
 void QWSServer::screenSaverActivate(bool activate)
 {
@@ -2451,27 +2489,30 @@ void QWSServer::screenSaverActivate(bool activate)
 
 /*!
 \fn  QWSWindow::QWSWindow(int i, QWSClient * client)
+
   Constructs a new top-level window, associated with the client \a client
   and giving it the id \a i.
 */
 
 /*!
 \fn QWSServer::manager()
+
   Returns the QWSPropertyManager, which is used for implementing
   X11-style window properties.
 */
 
 /*!
-  \fn QWSServer::windowEvent(QWSWindow * w,QWSServer::WindowEvent e)
-This signal is triggered whenever something happens to a top level
+  \fn QWSServer::windowEvent(QWSWindow * w, QWSServer::WindowEvent e)
+
+This signal is emitted whenever something happens to a top level
 window (e.g. it's created or destroyed). \a w is the window
-to which an event has happened, \a e specifies what type of event
-has occurred.
+to which the event of type \a e has occurred.
 */
 
 /*!
   \fn QWSServer::keyMap()
-This returns the keyboard mapping table used to convert keyboard
+
+Returns the keyboard mapping table used to convert keyboard
 scancodes to Qt keycodes and unicode values. It's used by the keyboard
 driver in qkeyboard_qws.cpp.
 */
@@ -2481,18 +2522,18 @@ driver in qkeyboard_qws.cpp.
 This enum is used to pass various options to the window system server.
 Currently defined are:
 
-\value DisableKeyboard Ignore all keyboard input
-\value DisableMouse Ignore all mouse input
+\value DisableKeyboard Ignore all keyboard input.
+\value DisableMouse Ignore all mouse input.
 */
 
 /*!
   \enum QWSServer::GUIMode
 This determines what sort of QWS server to create:
 
-\value NoGui This is used for non-graphical Qt applications
-\value NormalGUI A normal Qt/Embedded application (not the server)
+\value NoGui This is used for non-graphical Qt applications.
+\value NormalGUI A normal Qt/Embedded application (not the server).
 \value Server A Qt/Embedded server (e.g. if -qws has been specified
-  on the command line
+  on the command line.
 */
 
 /*!
@@ -2511,19 +2552,21 @@ This determines what sort of QWS server to create:
 
   The KeyboardFilter class is used to implement a global, low-level
   filter on key events in the Qt/Embedded server application; this
-  can be used to implement things like APM suspend from a button
-  without having to filter it in all applications.
+  can be used to implement things like APM (advanced power management)
+  suspend from a button without having to filter for it in all
+  applications.
 */
 
 /*!
   \enum QWSServer::WindowEvent
 This specifies what sort of event has occurred to a top level window:
 
-\value Create A new window has been created (QWidget constructor)
-\value Destroy The window has been closed and deleted (QWidget destructor)
-\value Hide The window has been hidden with QWidget::hide()
-\value Show The window has been shown with QWidget::show() or similar
-\value Raise The window has been raised to the top of the desktop
-\value Lower The window has been lowered
-\value Geometry The window has changed size or position
+\value Create A new window has been created (QWidget constructor).
+\value Destroy The window has been closed and deleted (QWidget destructor).
+\value Hide The window has been hidden with QWidget::hide().
+\value Show The window has been shown with QWidget::show() or similar.
+\value Raise The window has been raised to the top of the desktop.
+\value Lower The window has been lowered.
+\value Geometry The window has changed size or position.
 */
+

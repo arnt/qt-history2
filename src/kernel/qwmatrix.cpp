@@ -46,7 +46,6 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 
 #ifndef QT_NO_WMATRIX
 
-// NOT REVISED
 /*!
   \class QWMatrix qwmatrix.h
   \ingroup graphics
@@ -82,11 +81,11 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
   routines in QPainter and by QPixmap::xForm().
 
   The QWMatrix class contains a 3*3 matrix of the form:
-  <pre>
+  \code
     m11	 m12  0
     m21	 m22  0
     dx	 dy   1
-  </pre>
+  \endcode
 
   A matrix transforms a point in the plane to another point:
   \code
@@ -94,8 +93,8 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
     y' = m22*y + m12*x + dy
   \endcode
 
-  The point \e (x,y) is the original point, and \e (x',y') is the
-  transformed point.  \e (x',y') can be transformed back to \e (x,y)
+  The point \e (x, y) is the original point, and \e (x', y') is the
+  transformed point.  \e (x', y') can be transformed back to \e (x, y)
   by performing the same operation on the \link QWMatrix::invert()
   inverted matrix\endlink.
 
@@ -124,23 +123,23 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 
   QWMatrix lets you combine transformations like this:
   \code
-    QWMatrix m;					// identity matrix
-    m.translate(10, -20);			// first translate (10,-20)
-    m.rotate(25);				// then rotate 25 degrees
-    m.scale(1.2, 0.7);				// finally scale it
+    QWMatrix m;           // identity matrix
+    m.translate(10, -20); // first translate (10,-20)
+    m.rotate(25);         // then rotate 25 degrees
+    m.scale(1.2, 0.7);    // finally scale it
   \endcode
 
   Here's the same example using basic matrix operations:
   \code
-    double a    = pi/180 * 25;			// convert 25 to radians
+    double a    = pi/180 * 25;         // convert 25 to radians
     double sina = sin(a);
     double cosa = cos(a);
-    QWMatrix m1(0, 0, 0, 0, 10, -20);		// translation matrix
-    QWMatrix m2( cosa, sina,			// rotation matrix
-		-sina, cosa, 0, 0 );
-    QWMatrix m3(1.2, 0, 0, 0.7, 0, 0);		// scaling matrix
+    QWMatrix m1(0, 0, 0, 0, 10, -20);  // translation matrix
+    QWMatrix m2( cosa, sina,           // rotation matrix
+                 -sina, cosa, 0, 0 );
+    QWMatrix m3(1.2, 0, 0, 0.7, 0, 0); // scaling matrix
     QWMatrix m;
-    m = m3 * m2 * m1;				// combine all transformations
+    m = m3 * m2 * m1;                  // combine all transformations
   \endcode
 
   \l QPainter has functions to translate, scale, shear and rotate the
@@ -198,31 +197,37 @@ void QWMatrix::setMatrix( double m11, double m12, double m21, double m22,
 
 /*!
   \fn double QWMatrix::m11() const
+
   Returns the X scaling factor.
 */
 
 /*!
   \fn double QWMatrix::m12() const
+
   Returns the vertical shearing factor.
 */
 
 /*!
   \fn double QWMatrix::m21() const
+
   Returns the horizontal shearing factor.
 */
 
 /*!
   \fn double QWMatrix::m22() const
+
   Returns the Y scaling factor.
 */
 
 /*!
   \fn double QWMatrix::dx() const
+
   Returns the horizontal translation.
 */
 
 /*!
   \fn double QWMatrix::dy() const
+
   Returns the vertical translation.
 */
 
@@ -248,8 +253,8 @@ void QWMatrix::map( double x, double y, double *tx, double *ty ) const
   Transforms ( \a x, \a y ) to ( \a *tx, \a *ty ) using the formulae:
 
   \code
-    *tx = m11*x + m21*y + dx  --  (rounded to the nearest integer)
-    *ty = m22*y + m12*x + dy  --  (rounded to the nearest integer)
+    *tx = m11*x + m21*y + dx  (rounded to the nearest integer)
+    *ty = m22*y + m12*x + dy  (rounded to the nearest integer)
   \endcode
 */
 
@@ -317,8 +322,8 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
    Transforms \a p to using the formulae:
 
   \code
-    retx = m11*px + m21*py + dx  --  (rounded to the nearest integer)
-    rety = m22*py + m12*px + dy  --  (rounded to the nearest integer)
+    retx = m11*px + m21*py + dx  (rounded to the nearest integer)
+    rety = m22*py + m12*px + dy  (rounded to the nearest integer)
   \endcode
 */
 QPoint QWMatrix::operator *( const QPoint &p ) const
@@ -353,13 +358,13 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 
   Transforms the rectangle \a r.
 
-  Rotation and shearing of a rectangle results in a more general
+  Rotation and shearing a rectangle results in a more general
   region, which is returned here.
 
   Calling this method can be rather expensive, if rotations or
   shearing are used.  If you just need to know the bounding rectangle
-  of the returned region, use mapRect(), as the method is a lot
-  faster than this one.
+  of the returned region, use mapRect() which is a lot
+  faster than this function.
 
     \sa QWMatrix::mapRect()
 */
@@ -432,7 +437,7 @@ void QWMatrix::reset()
 }
 
 /*!
-  Returns whether the matrix is the identity matrix.
+  Returns TRUE if the matrix is the identity matrix; otherwise returns FALSE.
 
   \sa reset()
 */
@@ -523,9 +528,9 @@ QWMatrix &QWMatrix::rotate( double a )
   If the matrix is singular (not invertible), the identity matrix is
   returned.
 
-  If \a *invertible is not null, the value of \a *invertible is set
-  either to TRUE or FALSE to tell whether or not the matrix is
-  invertible.
+  If \a invertible is not null, the value of \a *invertible is set
+  to TRUE if the matrix is invertible or to FALSE if the matrix is
+  not invertible.
 
   \sa isInvertible()
 */
@@ -553,7 +558,7 @@ QWMatrix QWMatrix::invert( bool *invertible ) const
 
 
 /*!
-  Returns TRUE if this matrix is equal to \a m.
+  Returns TRUE if this matrix is equal to \a m; otherwise returns FALSE.
 */
 
 bool QWMatrix::operator==( const QWMatrix &m ) const
@@ -567,7 +572,7 @@ bool QWMatrix::operator==( const QWMatrix &m ) const
 }
 
 /*!
-  Returns TRUE if this matrix is not equal to \a m.
+  Returns TRUE if this matrix is not equal to \a m; otherwise returns FALSE.
 */
 
 bool QWMatrix::operator!=( const QWMatrix &m ) const
@@ -581,7 +586,7 @@ bool QWMatrix::operator!=( const QWMatrix &m ) const
 }
 
 /*!
-  Returns the result of multiplying this matrix with \a m.
+  Returns the result of multiplying this matrix with matrix \a m.
 */
 
 QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
@@ -605,9 +610,9 @@ QWMatrix &QWMatrix::bmul( const QWMatrix &m )
 /*!
     \overload
   \relates QWMatrix
-  Returns the product \a m1 * \a m2.
+  Returns the product of \a m1 * \a m2.
 
-  Remember that matrix multiplication is not commutative, thus
+  Note that matrix multiplication is not commutative, i.e.
   a*b != b*a.
 */
 
