@@ -23,8 +23,6 @@
 #include "qtexthtmlparser_p.h"
 
 #include "qtextdocument_p.h"
-#define d d_func()
-#define q q_func()
 
 /*!
     Returns true if the string \a text is likely to be rich text;
@@ -189,6 +187,7 @@ QString QText::convertFromPlainText(const QString &plain, QText::WhiteSpaceMode 
 QTextDocument::QTextDocument(QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
+    Q_D(QTextDocument);
     d->init();
 }
 
@@ -199,6 +198,7 @@ QTextDocument::QTextDocument(QObject *parent)
 QTextDocument::QTextDocument(const QString &text, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
+    Q_D(QTextDocument);
     d->init();
     QTextCursor(this).insertText(text);
 }
@@ -215,6 +215,7 @@ QTextDocument::~QTextDocument()
 */
 bool QTextDocument::isEmpty() const
 {
+    Q_D(const QTextDocument);
     /* because if we're empty we still have one single paragraph as
      * one single fragment */
     return d->length() <= 1;
@@ -226,6 +227,7 @@ bool QTextDocument::isEmpty() const
 */
 void QTextDocument::undo()
 {
+    Q_D(QTextDocument);
     d->undoRedo(true);
 }
 
@@ -235,6 +237,7 @@ void QTextDocument::undo()
 */
 void QTextDocument::redo()
 {
+    Q_D(QTextDocument);
     d->undoRedo(false);
 }
 
@@ -245,6 +248,7 @@ void QTextDocument::redo()
 */
 void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 {
+    Q_D(QTextDocument);
     d->appendUndoItem(item);
 }
 
@@ -257,11 +261,13 @@ void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 */
 void QTextDocument::setUndoRedoEnabled(bool enable)
 {
+    Q_D(QTextDocument);
     d->enableUndoRedo(enable);
 }
 
 bool QTextDocument::isUndoRedoEnabled() const
 {
+    Q_D(const QTextDocument);
     return d->isUndoRedoEnabled();
 }
 
@@ -302,6 +308,7 @@ bool QTextDocument::isUndoRedoEnabled() const
 */
 bool QTextDocument::isUndoAvailable() const
 {
+    Q_D(const QTextDocument);
     return d->isUndoAvailable();
 }
 
@@ -310,6 +317,7 @@ bool QTextDocument::isUndoAvailable() const
 */
 bool QTextDocument::isRedoAvailable() const
 {
+    Q_D(const QTextDocument);
     return d->isRedoAvailable();
 }
 
@@ -319,6 +327,7 @@ bool QTextDocument::isRedoAvailable() const
 */
 void QTextDocument::setDocumentLayout(QAbstractTextDocumentLayout *layout)
 {
+    Q_D(QTextDocument);
     d->setLayout(layout);
 }
 
@@ -327,9 +336,10 @@ void QTextDocument::setDocumentLayout(QAbstractTextDocumentLayout *layout)
 */
 QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 {
+    Q_D(const QTextDocument);
     if (!d->lout) {
         QTextDocument *that = const_cast<QTextDocument *>(this);
-        that->d->setLayout(new QTextDocumentLayout(that));
+        that->d_func()->setLayout(new QTextDocumentLayout(that));
     }
     return d->lout;
 }
@@ -340,6 +350,7 @@ QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 */
 QString QTextDocument::documentTitle() const
 {
+    Q_D(const QTextDocument);
     return d->config()->title;
 }
 
@@ -351,6 +362,7 @@ QString QTextDocument::documentTitle() const
 */
 QString QTextDocument::plainText() const
 {
+    Q_D(const QTextDocument);
     QString txt = d->plainText();
     txt.replace(QChar::ParagraphSeparator, '\n');
     return txt;
@@ -367,9 +379,9 @@ void QTextDocument::setPlainText(const QString &text)
     QTextDocumentFragment fragment = QTextDocumentFragment::fromPlainText(text);
     QTextCursor cursor(this);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    q->setUndoRedoEnabled(false);
+    setUndoRedoEnabled(false);
     cursor.insertFragment(fragment);
-    q->setUndoRedoEnabled(true);
+    setUndoRedoEnabled(true);
 }
 
 
@@ -400,9 +412,9 @@ void QTextDocument::setHtml(const QString &html)
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(html);
     QTextCursor cursor(this);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    q->setUndoRedoEnabled(false);
+    setUndoRedoEnabled(false);
     cursor.insertFragment(fragment);
-    q->setUndoRedoEnabled(true);
+    setUndoRedoEnabled(true);
 }
 
 /*!
@@ -459,6 +471,8 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QStr
 */
 QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options, FindDirection direction) const
 {
+    Q_D(const QTextDocument);
+
     if (expr.isEmpty())
         return QTextCursor();
 
@@ -558,6 +572,7 @@ QTextObject *QTextDocument::createObject(const QTextFormat &f)
 */
 QTextFrame *QTextDocument::frameAt(int pos) const
 {
+    Q_D(const QTextDocument);
     return d->frameAt(pos);
 }
 
@@ -566,6 +581,7 @@ QTextFrame *QTextDocument::frameAt(int pos) const
 */
 QTextFrame *QTextDocument::rootFrame() const
 {
+    Q_D(const QTextDocument);
     return d->rootFrame();
 }
 
@@ -574,6 +590,7 @@ QTextFrame *QTextDocument::rootFrame() const
 */
 QTextObject *QTextDocument::object(int objectIndex) const
 {
+    Q_D(const QTextDocument);
     return d->objectForIndex(objectIndex);
 }
 
@@ -582,6 +599,7 @@ QTextObject *QTextDocument::object(int objectIndex) const
 */
 QTextObject *QTextDocument::objectForFormat(const QTextFormat &f) const
 {
+    Q_D(const QTextDocument);
     return d->objectForFormat(f);
 }
 
@@ -591,6 +609,7 @@ QTextObject *QTextDocument::objectForFormat(const QTextFormat &f) const
 */
 QTextBlock QTextDocument::findBlock(int pos) const
 {
+    Q_D(const QTextDocument);
     return QTextBlock(docHandle(), d->blockMap().findNode(pos));
 }
 
@@ -599,6 +618,7 @@ QTextBlock QTextDocument::findBlock(int pos) const
 */
 QTextBlock QTextDocument::begin() const
 {
+    Q_D(const QTextDocument);
     return QTextBlock(docHandle(), d->blockMap().begin().n);
 }
 
@@ -1003,5 +1023,6 @@ QString QTextDocument::toHtml() const
 */
 QTextDocumentPrivate *QTextDocument::docHandle() const
 {
+    Q_D(const QTextDocument);
     return const_cast<QTextDocumentPrivate *>(d);
 }
