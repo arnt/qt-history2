@@ -411,7 +411,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 #endif
 		    ret.append((*it));
 		}
-	    } else if(QFile::exists((*it))) {
+	    } else /*if(QFile::exists((*it)))*/ {
 		while(1) {
 		    QStringList::Iterator idx = ret.find((*it));
 		    if(idx == ret.end()) 
