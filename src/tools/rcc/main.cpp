@@ -83,19 +83,19 @@ listResourceFile(const QString &file)
                     QString alias;
                     if(res.toElement().hasAttribute("alias"))
                         alias = res.toElement().attribute("alias");
-                    if(!file.exists() || file.isDir()) {
+                    if(!file.isFile()) {
                         bool recursive = false;
                         if(res.toElement().hasAttribute("recursive")) {
                             QString s = res.toElement().attribute("recursive");
                             recursive = s.toLower() == "true";
                         }
                         QDir dir;
-                        if(!file.exists()) {
+                        if(file.isDir()) {
+                            dir = QDir(file.filePath(), "*");
+                        } else {
                             fileName = fileName.section('/', 0, -2);
                             dir = QDir(file.path(), file.fileName());
                             dir.setFilter(QDir::Filters(QDir::Files|QDir::AllDirs));
-                        } else {
-                            dir = QDir(file.filePath(), "*");
                         }
                         QFileInfoList subFiles = dir.entryInfoList();
                         for(int subFile = 0; subFile < subFiles.count(); subFile++) {
