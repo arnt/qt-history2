@@ -85,16 +85,16 @@ public:
 
 /*!
     \class QDateTimeEdit qdatetimeedit.h
-    \brief The QDateTimeEdit class provides a date/time editor.
+    \brief The QDateTimeEdit class provides a widget for editing dates and times.
 
     \ingroup basic
     \mainclass
 
     QDateTimeEdit allows the user to edit dates by using the keyboard or
-    the arrow keys to increase/decrease date and time values. The
+    the arrow keys to increase and decrease date and time values. The
     arrow keys can be used to move from section to section within the
-    QDateTimeEdit box. Dates/times appear in accordance with the
-    format set. See setFormat().
+    QDateTimeEdit box. Dates and times appear in accordance with the
+    format set; see setFormat().
 
     \code
     QDateTimeEdit *dateEdit = new QDateTimeEdit(QDate::currentDate());
@@ -103,22 +103,22 @@ public:
     dateEdit->setFormat("yyyy.MM.dd");
     \endcode
 
-    Here we've created a new QDateTimeEdit object initialised with today's
-    date and restricted the valid date range to today plus or minus
-    365 days. We've set the order to month, day, year. If the auto
-    advance property is true (as we've set it here) when the user
+    Here we've created a new QDateTimeEdit object initialized with
+    today's date, and restricted the valid date range to today plus or
+    minus 365 days. We've set the order to month, day, year. If the
+    auto advance property is true (as we've set it here) when the user
     completes a section of the date, e.g. enters two digits for the
     month, they are automatically taken to the next section.
 
     The maximum and minimum values for a date value in the date editor
     default to the maximum and minimum values for a QDate. You can
     change this by calling setMinimumDate(), setMaximumDate(),
-    setMinimumTime() and setMaximumTime()
+    setMinimumTime(), and setMaximumTime().
 */
 
 /*!
-    Constructs an empty date time editor which is a child of \a
-    parent. The format is set to "yyyy.MM.dd_hh:mm.ss"
+    Constructs an empty date time editor with a \a parent. The format
+    is set to "yyyy.MM.dd_hh:mm.ss" by default.
 */
 
 QDateTimeEdit::QDateTimeEdit(QWidget *parent, Qt::WFlags f)
@@ -132,9 +132,9 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent, Qt::WFlags f)
 }
 
 /*!
-    Constructs an empty date time editor which is a child of \a
-    parent. The value is set to \a datetime. The format is set to
-    "yyyy.MM.dd_hh:mm.ss"
+    Constructs an empty date time editor with a \a parent. The value
+    is set to \a datetime. The format is set to "yyyy.MM.dd_hh:mm.ss"
+    by default.
 */
 
 QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent, Qt::WFlags f)
@@ -148,8 +148,13 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent, Qt::WFl
 }
 
 /*!
-    Constructs an empty date time editor which is a child of \a
-    parent. The value is set to \a time. The format is set to "hh:mm.ss".
+    \fn QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent, Qt::WFlags flags)
+
+    Constructs an empty date time editor with a \a parent.
+    The value is set to \a time. The format is set to "hh:mm.ss".
+
+    The window \a flags are used to determine the behavior of the
+    widget.
 */
 
 QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent, Qt::WFlags f)
@@ -229,10 +234,11 @@ void QDateTimeEdit::setTime(const QTime &time)
     \brief the minimum date of the date time edit
 
     When setting this property the \l QDateTimeEdit::maximumDate is
-    adjusted if necessary, to ensure that the range remains valid. If \a min is
-    not a valid QDate object this function does nothing.
+    adjusted if necessary, to ensure that the range remains valid.
+    If the date is not a valid QDate object, this function does
+    nothing.
 
-    The default minimum value can be restored with clearMinimum()
+    The default minimum value can be restored with clearMinimum().
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(), setMaximumTime(),
@@ -261,10 +267,11 @@ void QDateTimeEdit::clearMinimumDate()
     \brief the maximum date of the date time edit
 
     When setting this property the \l QDateTimeEdit::minimumDate is
-    adjusted if necessary to ensure that the range remains valid. If \a max is
-    not a valid QDate object this function does nothing.
+    adjusted if necessary to ensure that the range remains valid.
+    If the date is not a valid QDate object, this function does
+    nothing.
 
-    The default minimum value can be restored with clearMinimumDate()
+    The default minimum value can be restored with clearMinimumDate().
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(), clearMinimumDate(),
     setMinimumTime(), maximumTime(), setMaximumTime(), clearMinimumTime(),
@@ -293,10 +300,11 @@ void QDateTimeEdit::clearMaximumDate()
     \brief the minimum time of the date time edit
 
     When setting this property the \l QDateTimeEdit::maximumTime is
-    adjusted if necessary, to ensure that the range remains valid. If \a min is
-    not a valid QTime object this function does nothing.
+    adjusted if necessary, to ensure that the range remains valid.
+    If the time is not a valid QTime object, this function does
+    nothing.
 
-    The default minimum value can be restored with clearMinimumTime()
+    The default minimum value can be restored with clearMinimumTime().
 
     \sa setMinimumTime(), maximumTime(), setMaximumTime(),
     clearMinimumTime(), setMinimumDate(), maximumDate(), setMaximumDate(),
@@ -324,11 +332,12 @@ void QDateTimeEdit::clearMinimumTime()
 
     \brief the maximum time of the date time edit
 
-    When setting this property the \l QDateTimeEdit::maximumTime is adjusted if
-    necessary to ensure that the range remains valid. If \a max is not a valid
-    QTime object this function does nothing.
+    When setting this property the \l QDateTimeEdit::maximumTime is
+    adjusted if necessary to ensure that the range remains valid.
+    If the time is not a valid QTime object, this function does
+    nothing.
 
-    The default minimum value can be restored with clearMinimumDate()
+    The default minimum value can be restored with clearMinimumDate().
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(),
@@ -356,14 +365,19 @@ void QDateTimeEdit::clearMaximumTime()
     Convenience function to set minimum and maximum date with one
     function call.
 
+    \code
     setDateRange(min, max);
+    \endcode
 
        is analogous to:
 
+    \code
     setMinimumDate(min);
     setMaximumDate(max);
+    \endcode
 
-    If either \a min or \a max are not valid this function does nothing.
+    If either \a min or \a max are not valid, this function does
+    nothing.
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(),
@@ -382,14 +396,19 @@ void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
     Convenience function to set minimum and maximum time with one
     function call.
 
+    \code
     setTimeRange(min, max);
+    \endcode
 
        is analogous to:
 
+    \code
     setMinimumTime(min);
     setMaximumTime(max);
+    \endcode
 
-    If either \a min or \a max are not valid this function does nothing.
+    If either \a min or \a max are not valid, this function does
+    nothing.
 
     \sa setMinimumDate(), maximumDate(), setMaximumDate(),
     clearMinimumDate(), setMinimumTime(), maximumTime(),
@@ -407,7 +426,7 @@ void QDateTimeEdit::setTimeRange(const QTime &min, const QTime &max)
 /*!
     \property QDateTimeEdit::display
 
-    \brief the currently displayed fields of the date time edit.
+    \brief the currently displayed fields of the date time edit
 
     Returns a bit set of the displayed sections for this format.
     \a setFormat(), format()
@@ -421,7 +440,7 @@ QDateTimeEdit::Section QDateTimeEdit::display() const
 /*!
     \property QDateTimeEdit::currentSection
 
-    \brief the current section of the spinbox.
+    \brief the current section of the spinbox
     \a setCurrentSection()
 */
 
@@ -442,7 +461,9 @@ void QDateTimeEdit::setCurrentSection(SectionFlags section)
 }
 
 /*!
-    Returns a the text of \a section
+    \fn QString QDateTimeEdit::sectionText(SectionFlags section) const
+
+    Returns the text from the given \a section.
 
     \a text(), cleanText(), currentSection()
 */
@@ -455,7 +476,7 @@ QString QDateTimeEdit::sectionText(SectionFlags s) const
 /*!
     \property QDateTimeEdit::format
 
-    \brief the format used to display the time/date of the date time edit.
+    \brief the format used to display the time/date of the date time edit
 
     This format is a subset of the format described in QDateTime::toString()
 
@@ -464,21 +485,21 @@ QString QDateTimeEdit::sectionText(SectionFlags s) const
     \table
     \header \i Expression \i Output
     \row \i hh
-         \i the hour with a leading zero (00..23 or 01..12 if AM/PM display)
-    \row \i mm \i the minute with a leading zero (00..59)
-    \row \i ss \i the second whith a leading zero (00..59)
-    \row \i zzz \i the milliseconds with leading zeroes (000..999)
+         \i the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)
+    \row \i mm \i the minute with a leading zero (00 to 59)
+    \row \i ss \i the second whith a leading zero (00 to 59)
+    \row \i zzz \i the milliseconds with leading zeroes (000 to 999)
     \row \i AP
          \i use AM/PM display. \e AP will be replaced by either "AM" or "PM".
     \row \i ap
          \i use am/pm display. \e ap will be replaced by either "am" or "pm".
-    \row \i dd \i the day as number with a leading zero (01-31)
-    \row \i MM \i the month as number with a leading zero (01-12)
+    \row \i dd \i the day as number with a leading zero (01 to 31)
+    \row \i MM \i the month as number with a leading zero (01 to 12)
     \row \i MMM
-         \i the abbreviated localized month name (e.g. 'Jan'..'Dec').
+         \i the abbreviated localized month name (e.g. 'Jan' to 'Dec').
             Uses QDate::shortMonthName().
-    \row \i yy \i the year as two digit number (00-99)
-    \row \i yyyy \i the year as four digit number (1752-8000)
+    \row \i yy \i the year as two digit number (00 to 99)
+    \row \i yyyy \i the year as four digit number (1752 to 8000)
     \endtable
 
     All other input characters will be ignored and can be used as delimiters.
@@ -524,7 +545,7 @@ bool QDateTimeEdit::setFormat(const QString &format)
 
 /*!
     This virtual function is used by the date time edit whenever it
-    needs to display date \a v.
+    needs to display the \a date.
 
     If you reimplement this, you may also need to reimplement
     mapTextToValue().
