@@ -38,6 +38,7 @@
 
 QAction *QMenuBarPrivate::actionAt(QPoint p) const
 {
+    const_cast<QMenuBarPrivate*>(this)->updateActions();
     for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
          i != actionRects.constEnd(); ++i) {
         if(i.value().contains(p))
@@ -645,6 +646,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() != Qt::LeftButton)
         return;
+    d->updateActions();
     QAction *action = d->actionAt(e->pos());
     if (!action) {
         d->setCurrentAction(0);
@@ -1003,7 +1005,6 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
 */
 QAction *QMenuBar::actionAtPos(const QPoint &pt) const
 {
-    const_cast<QMenuBarPrivate*>(d)->updateActions();
     return d->actionAt(pt);
 }
 
@@ -1131,7 +1132,7 @@ int QMenuBar::heightForWidth(int max_width) const
 void QMenuBarPrivate::internalShortcutActivated(int id)
 {
     QAction *act = actionList.at(id);
-    setCurrentAction(act, true);
+    setCurrentAction(act, true, true);
 }
 
 void QMenuBarPrivate::updateLayout()

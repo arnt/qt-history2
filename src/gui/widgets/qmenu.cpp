@@ -307,6 +307,7 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
 
 QAction *QMenuPrivate::actionAt(QPoint p) const
 {
+    const_cast<QMenuPrivate*>(d)->updateActions();
     if(!q->rect().contains(p))     //sanity check
        return 0;
 
@@ -997,7 +998,6 @@ int QMenu::columnCount() const
 */
 QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator) const
 {
-    const_cast<QMenuPrivate*>(d)->updateActions();
     if(QAction *ret = d->actionAt(pt)) {
         if(!ignoreSeparator || !ret->isSeparator())
             return ret;
