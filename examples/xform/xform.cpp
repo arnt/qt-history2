@@ -90,7 +90,6 @@ class ShowXForm : public QWidget, public ModeNames
 public:
     ShowXForm( const QFont &f, QWidget *parent=0, const char *name=0 );
    ~ShowXForm() {}
-    void showIt();			// (Re)displays text or pixmap
 
     Mode mode() const { return m; }
 public slots:
@@ -104,12 +103,10 @@ private:
     QSizePolicy sizePolicy() const;
     QSize sizeHint() const;
     void paintEvent( QPaintEvent * );
-    void resizeEvent( QResizeEvent * );
     QWMatrix  mtx;			// coordinate transform matrix
     QString   text;			// text to be displayed
     QPixmap   pix;			// pixmap to be displayed
     QPicture  picture;			// text to be displayed
-    QRect     eraseRect;		// covers last displayed text/pixmap
     Mode      m;
 };
 
@@ -295,12 +292,11 @@ void XFormControl::changeMode(int m)
 
 ShowXForm::ShowXForm( const QFont &initialFont,
 		      QWidget *parent, const char *name )
-	: QWidget( parent, name, WResizeNoErase )
+	: QWidget( parent, name )
 {
     setFont( initialFont );
     setBackgroundColor( white );
     m = Text;
-    eraseRect = QRect( 0, 0, 0, 0 );
 }
 
 QSizePolicy ShowXForm::sizePolicy() const
@@ -313,27 +309,18 @@ QSize ShowXForm::sizeHint() const
     return QSize(400,400);
 }
 
-void ShowXForm::paintEvent( QPaintEvent * )
-{
-    showIt();
-}
 
-void ShowXForm::resizeEvent( QResizeEvent * )
-{
-    eraseRect = QRect( width()/2, height()/2, 0, 0 );
-    repaint(rect());
-}
 
 void ShowXForm::setText( const QString& s )
 {
     text = s;
-    showIt();
+    update();
 }
 
 void ShowXForm::setMatrix( QWMatrix w )
 {
     mtx = w;
-    showIt();
+    update();
 }
 
 void ShowXForm::setFont( const QFont &f )
@@ -346,90 +333,42 @@ void ShowXForm::setPixmap( QPixmap pm )
 {
     pix	 = pm;
     m    = Image;
-    showIt();
+    update();
 }
 
 void ShowXForm::setPicture( const QPicture& p )
 {
     picture = p;
     m = Picture;
-    showIt();
+    update();
 }
 
 void ShowXForm::setMode( int mode )
 {
     m = (Mode)mode;
 }
-
-void ShowXForm::showIt()
+void ShowXForm::paintEvent( QPaintEvent * )
 {
-    QPainter p;
-    QRect r;	  // rectangle covering new text/pixmap in virtual coordinates
     QWMatrix um;  // copy user specified transform
-    int textYPos = 0; // distance from boundingRect y pos to baseline
-    int textXPos = 0; // distance from boundingRect x pos to text start
-    QRect br;
-    QFontMetrics fm( fontMetrics() );	// get widget font metrics
-    switch ( mode() ) {
-      case Text:
-	br = fm.boundingRect( text );	// rectangle covering text
-	r  = br;
-	textYPos = -r.y();
-	textXPos = -r.x();
-	br.moveTopLeft( QPoint( -br.width()/2, -br.height()/2 ) );
-        break;
-      case Image:
-	r = pix.rect();
-        break;
-      case Picture:
-	// ### need QPicture::boundingRect()
-	r = QRect(0,0,1000,1000);
-        break;
-    }
-    r.moveTopLeft( QPoint(-r.width()/2, -r.height()/2) );
-	  // compute union of new and old rect
-	  // the resulting rectangle will cover what is already displayed
-	  // and have room for the new text/pixmap
-    eraseRect = eraseRect.unite( mtx.map(r) );
-    eraseRect.moveBy( -1, -1 ); // add border for matrix round off
-    eraseRect.setSize( QSize( eraseRect.width() + 2,eraseRect.height() + 2 ) );
-    int pw = QMIN(eraseRect.width(),width());
-    int ph = QMIN(eraseRect.height(),height());
-    QPixmap pm( pw, ph );		// off-screen drawing pixmap
-    pm.fill( backgroundColor() );
-
-    p.begin( &pm );
-    um.translate( pw/2, ph/2 );	// 0,0 is center
+    um.translate( width()/2, height()/2 );	// 0,0 is center
     um = mtx * um;
+    QPainter p(this);
     p.setWorldMatrix( um );
     switch ( mode() ) {
-      case Text:
-	p.setFont( font() );		// use widget font
-	p.drawText( r.left() + textXPos, r.top() + textYPos, text );
-#if 0
-	p.setPen( red );
-	p.drawRect( br );
-#endif
+    case Text: {
+	QRect br = p.fontMetrics().boundingRect( 0,0,0,0, Qt::AlignCenter, text );
+	p.drawText( br, Qt::AlignCenter, text );
 	break;
-      case Image:
+    }
+    case Image:
 	p.drawPixmap( -pix.width()/2, -pix.height()/2, pix );
-	//QPixmap rotated = pix.xForm(mtx);
-	//bitBlt( &pm, pm.width()/2 - rotated.width()/2,
-		//pm.height()/2 - rotated.height()/2, &rotated );
 	break;
-      case Picture:
+    case Picture:
 	// ### need QPicture::boundingRect()
 	p.scale(0.25,0.25);
 	p.translate(-230,-180);
 	p.drawPicture( picture );
     }
-    p.end();
-
-    int xpos = width()/2  - pw/2;
-    int ypos = height()/2 - ph/2;
-    bitBlt( this, xpos, ypos,			// copy pixmap to widget
-	    &pm, 0, 0, -1, -1 );
-    eraseRect =	 mtx.map( r );
 }
 
 
