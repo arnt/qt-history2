@@ -513,6 +513,8 @@ int QTabWidget::currentPageIndex() const
 }
 
 /*! Sets the page with index \a id as current page.
+
+    Note that \e id is not the index that is specified when you insert a tab
 */
 
 void QTabWidget::setCurrentPage( int id )
