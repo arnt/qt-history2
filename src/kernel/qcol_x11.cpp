@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#5 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#5 $";
 #endif
 
 
@@ -83,6 +83,7 @@ void QColor::initialize()			// called from startup routines
     ((QColor*)(&white))->rgb = _RGB( 255, 255, 255 );
     ((QColor*)(&white))->pix = WhitePixel( dpy, screen );
 
+    aalloc = TRUE;				// allocate global colors
     ((QColor*)(&darkGray))->   setRGB( 128, 128, 128 );
     ((QColor*)(&gray))->       setRGB( 160, 160, 160 );
     ((QColor*)(&lightGray))->  setRGB( 192, 192, 192 );
@@ -98,6 +99,7 @@ void QColor::initialize()			// called from startup routines
     ((QColor*)(&darkCyan))->   setRGB(	 0, 128, 128 );
     ((QColor*)(&darkMagenta))->setRGB( 128,   0, 128 );
     ((QColor*)(&darkYellow))-> setRGB( 128, 128,   0 );
+    aalloc = FALSE;
 }
 
 void QColor::cleanup()
