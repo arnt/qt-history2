@@ -5771,7 +5771,7 @@ void QWidget::setParent_helper(QObject *parent)
 void QWidget::setParent(QWidget *parent, WFlags f)
 {
     bool resized = testAttribute(WA_Resized);
-    reparent_sys(parent, f, QPoint(0,0), false);
+    reparent_sys(parent, f, mapToGlobal(QPoint(0, 0)), false);
     setAttribute(WA_Resized, resized);
     QEvent e(QEvent::Reparent);
     QApplication::sendEvent(this, &e);
