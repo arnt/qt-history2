@@ -40,12 +40,12 @@ public:
     ~QLabel();
 
     QString text() const;
-    QPixmap *pixmap() const;
+    const QPixmap *pixmap() const;
 #ifndef QT_NO_PICTURE
-    QPicture *picture() const;
+    const QPicture *picture() const;
 #endif
 #ifndef QT_NO_MOVIE
-    QMovie *movie() const;
+    const QMovie *movie() const;
 #endif
 
     Qt::TextFormat textFormat() const;

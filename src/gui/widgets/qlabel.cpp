@@ -147,7 +147,7 @@ public:
     picture.
 */
 
-QPicture *QLabel::picture() const
+const QPicture *QLabel::picture() const
 {
     return d->lpicture;
 }
@@ -373,7 +373,7 @@ void QLabel::setPixmap(const QPixmap &pixmap)
     d->updateLabel();
 }
 
-QPixmap *QLabel::pixmap() const
+const QPixmap *QLabel::pixmap() const
 {
     return d->lpixmap;
 }
@@ -733,12 +733,12 @@ void QLabel::paintEvent(QPaintEvent *)
     if (pixmap())
         pix = *pixmap();
 #ifndef QT_NO_PICTURE
-    QPicture *pic = picture();
+    const QPicture *pic = picture();
 #else
     const int pic = 0;
 #endif
 #ifndef QT_NO_MOVIE
-    QMovie *mov = movie();
+    const QMovie *mov = movie();
 #else
     const int mov = 0;
 #endif
@@ -957,7 +957,7 @@ QWidget * QLabel::buddy() const
 #ifndef QT_NO_MOVIE
 void QLabel::movieUpdated(const QRect& rect)
 {
-    QMovie *mov = movie();
+    const QMovie *mov = movie();
     if (mov && !mov->isNull()) {
         QRect r = contentsRect();
         r = style()->itemRect(0, r, d->align, isEnabled(), mov->framePixmap(),
@@ -1048,7 +1048,7 @@ void QLabelPrivate::clearContents()
     \sa setMovie()
 */
 
-QMovie* QLabel::movie() const
+const QMovie* QLabel::movie() const
 {
     return d->lmovie;
 }
