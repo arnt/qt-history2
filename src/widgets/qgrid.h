@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.h#2 $
+** $Id: //depot/qt/main/src/widgets/qgrid.h#3 $
 **
 ** Definition of grid layout widget
 **
@@ -21,7 +21,8 @@ class QGrid : public QWidget
     Q_OBJECT
 public:
     enum Direction { Horizontal, Vertical };
-    QGrid( int n, Direction = Horizontal, QWidget *parent=0, const char *name=0 );
+    QGrid( int n, QWidget *parent=0, const char *name=0 );
+    QGrid( int n, Direction, QWidget *parent=0, const char *name=0 );
     bool event( QEvent * );
 protected:
     virtual void childEvent( QChildEvent * );
