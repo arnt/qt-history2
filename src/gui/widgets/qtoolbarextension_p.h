@@ -35,9 +35,10 @@ class QToolBarExtension : public QToolButton
 public:
     explicit QToolBarExtension(QWidget *parent);
 
-    void setOrientation(Qt::Orientation o);
-
     QSize sizeHint() const;
+
+public slots:
+    void setOrientation(Qt::Orientation o);
 };
 
 #endif // QTOOLBAREXTENSION_P_H

@@ -37,12 +37,14 @@ class QToolBarSeparator : public QWidget
 public:
     explicit QToolBarSeparator(QToolBar *parent);
 
-    void setOrientation(Qt::Orientation orientation);
     Qt::Orientation orientation() const;
 
     QSize sizeHint() const;
 
     void paintEvent(QPaintEvent *);
+
+public slots:
+    void setOrientation(Qt::Orientation orientation);
 };
 
 #endif // QTOOLBARSEPARATOR_P_H

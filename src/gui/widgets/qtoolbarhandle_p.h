@@ -42,7 +42,6 @@ class QToolBarHandle : public QWidget
 public:
     explicit QToolBarHandle(QToolBar *parent);
 
-    void setOrientation(Qt::Orientation orientation);
     Qt::Orientation orientation() const;
 
     QSize sizeHint() const;
@@ -51,6 +50,9 @@ public:
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void paintEvent(QPaintEvent *e);
+
+public slots:
+    void setOrientation(Qt::Orientation orientation);
 };
 
 #endif // QTOOLBARHANDLE_P_H
