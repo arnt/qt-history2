@@ -128,14 +128,13 @@ struct QWellArrayData {
     QBrush *brush;
 };
 
-// NOT REVISED
-/* WARNING, NOT DOCUMENTED
-  \class QWellArray qwellarray_p.h
-  \brief ....
+/*!
+    \internal
+    \class QWellArray qwellarray_p.h
+    \brief The QWellArray class provides a well array.
 
-  ....
 
-  \ingroup advanced
+    \ingroup advanced
 */
 
 QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
@@ -449,8 +448,8 @@ static void initRGB()
 }
 
 /*!
-  Returns the number of custom colors supported by
-  QColorDialog. All color dialogs share the same custom colors.
+    Returns the number of custom colors supported by QColorDialog. All
+    color dialogs share the same custom colors.
 */
 int QColorDialog::customCount()
 {
@@ -458,8 +457,8 @@ int QColorDialog::customCount()
 }
 
 /*!
-  Returns custom color number \a i as a QRgb.
- */
+    Returns custom color number \a i as a QRgb.
+*/
 QRgb QColorDialog::customColor( int i )
 {
     initRGB();
@@ -473,7 +472,7 @@ QRgb QColorDialog::customColor( int i )
 }
 
 /*!
-  Sets custom color number \a i to the QRgb value \a c.
+    Sets custom color number \a i to the QRgb value \a c.
 */
 void QColorDialog::setCustomColor( int i, QRgb c )
 {
@@ -489,7 +488,7 @@ void QColorDialog::setCustomColor( int i, QRgb c )
 }
 
 /*!
-  Sets standard color number \a i to the QRgb value \a c.
+    Sets standard color number \a i to the QRgb value \a c.
 */
 
 void QColorDialog::setStandardColor( int i, QRgb c )
@@ -1405,13 +1404,13 @@ void QColorDialogPrivate::addCustom()
 
 /*!
     \class QColorDialog qcolordialog.h
+    \brief The QColorDialog class provides a dialog widget for specifying colors.
+    \mainclass
     \ingroup dialogs
     \ingroup graphics
-    \mainclass
-    \brief The QColorDialog class provides a dialog widget for specifying colors.
 
-    The color dialog's function is to allow users to choose colors -
-    for instance, you might use this in a drawing program to allow the
+    The color dialog's function is to allow users to choose colors.
+    For example, you might use this in a drawing program to allow the
     user to set the brush color.
 
     The static functions provide modal color dialogs.
@@ -1429,13 +1428,13 @@ void QColorDialogPrivate::addCustom()
     during the execution of the program. Use setCustomColor() to set
     the custom colors, and use customColor() to get them.
 
-    <img src=qcolordlg-w.png>
+    \img qcolordlg-w.png
 */
 
 /*!
-    Constructs a default color dialog with parent \a parent and called \a
-    name. If \a modal is TRUE the dialog will be modal. Use setColor() to
-    set an initial value.
+    Constructs a default color dialog with parent \a parent and called
+    \a name. If \a modal is TRUE the dialog will be modal. Use
+    setColor() to set an initial value.
 
     \sa getColor()
 */
@@ -1462,12 +1461,12 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 }
 
 /*!
-  Pops up a modal color dialog, lets the user choose a color, and
-  returns that color. The color is initially set to \a initial. The
-  dialog is a child of \a parent and is called \a name. Returns an
-  invalid (see QColor::isValid()) color if the user cancels the dialog.
-  All colors allocated by the dialog will be deallocated before this
-  function returns.
+    Pops up a modal color dialog, lets the user choose a color, and
+    returns that color. The color is initially set to \a initial. The
+    dialog is a child of \a parent and is called \a name. It returns
+    an invalid (see QColor::isValid()) color if the user cancels the
+    dialog. All colors allocated by the dialog will be deallocated
+    before this function returns.
 */
 
 QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
@@ -1496,15 +1495,15 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
 
 
 /*!
-  Pops up a modal color dialog to allow the user to choose a color and
-  an alpha channel (transparency) value. The color+alpha is initially
-  set to \a initial. The dialog is a child of \a parent and called \a
-  name.
+    Pops up a modal color dialog to allow the user to choose a color
+    and an alpha channel (transparency) value. The color+alpha is
+    initially set to \a initial. The dialog is a child of \a parent
+    and called \a name.
 
-  If \a ok is non-null, \e *\a ok is set to TRUE if the user clicked OK,
-  and to FALSE if the user clicked Cancel.
+    If \a ok is non-null, \e *\a ok is set to TRUE if the user clicked
+    OK, and to FALSE if the user clicked Cancel.
 
-  If the user clicks Cancel, the \a initial value is returned.
+    If the user clicks Cancel, the \a initial value is returned.
 */
 
 QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
@@ -1545,9 +1544,9 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
 
 
 /*!
-  Returns the color currently selected in the dialog.
+    Returns the color currently selected in the dialog.
 
-  \sa setColor()
+    \sa setColor()
 */
 
 QColor QColorDialog::color() const
@@ -1556,8 +1555,8 @@ QColor QColorDialog::color() const
 }
 
 
-/*! Destroys the dialog and frees any memory it allocated.
-
+/*!
+    Destroys the dialog and frees any memory it allocated.
 */
 
 QColorDialog::~QColorDialog()
@@ -1574,9 +1573,9 @@ QColorDialog::~QColorDialog()
 
 
 /*!
-  Sets the color shown in the dialog to \a c.
+    Sets the color shown in the dialog to \a c.
 
-  \sa color()
+    \sa color()
 */
 
 void QColorDialog::setColor( const QColor& c )
@@ -1588,8 +1587,8 @@ void QColorDialog::setColor( const QColor& c )
 
 
 /*!
-  Sets the initial alpha channel value to \a a, and shows the alpha channel
-  entry box.
+    Sets the initial alpha channel value to \a a, and shows the alpha
+    channel entry box.
 */
 
 void QColorDialog::setSelectedAlpha( int a )
@@ -1600,7 +1599,7 @@ void QColorDialog::setSelectedAlpha( int a )
 
 
 /*!
-  Returns the value selected for the alpha channel.
+    Returns the value selected for the alpha channel.
 */
 
 int QColorDialog::selectedAlpha() const
@@ -1609,7 +1608,7 @@ int QColorDialog::selectedAlpha() const
 }
 
 /*!
-  Sets focus to the corresponding button, if any.
+    Sets focus to the corresponding button, if any.
 */
 bool QColorDialog::selectColor( const QColor& col )
 {

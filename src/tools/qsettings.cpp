@@ -103,7 +103,8 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \endcode
     Each line above is a complete key, made up of subkeys.
 
-    A typical usage pattern for reading application startup:
+    A typical usage pattern for reading settings at application
+    startup:
     \code
     QSettings settings;
     settings.setPath( "MyCompany.com", "MyApplication" );
@@ -113,7 +114,8 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     // ...
     \endcode
 
-    A typical usage pattern for application exit or 'save preferences':
+    A typical usage pattern for saving settings at application exit or
+    'save preferences':
     \code
     QSettings settings;
     settings.setPath( "MyCompany.com", "MyApplication" );
@@ -123,8 +125,9 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     // ...
     \endcode
 
-    QSettings can build a key prefix that is prepended to all keys. To
-    build the key prefix, use beginGroup() and endGroup().
+    A key prefix can be prepended to all keys using beginGroup(). The
+    application of the prefix is stopped using endGroup(). For
+    example:
     \code
     QSettings settings;
 
@@ -156,8 +159,8 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     // subkeys is empty.
     \endcode
 
-    Since settings for Windows are stored in the registry there are size
-    limits as follows:
+    Since settings for Windows are stored in the registry there are
+    some size limitations as follows:
     \list
     \i A subkey may not exceed 255 characters.
     \i An entry's value may not exceed 16,300 characters.
@@ -167,21 +170,18 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
 
     These limitations are not enforced on Unix or Mac OS X.
 
-    If you wish to use a different search path call insertSearchPath()
-    as often as necessary to add your preferred paths. Call
-    removeSearchPath() to remove any unwanted paths.
-
     \section1 Notes for Mac OS X Applications
 
-    Internal to the CFPreferences API it is not defined (for Mac OS 9
-    support) where the settings will ultimitely be stored. However, at the
-    time of this writing the settings will be stored (either on a global or
-    user basis, preferring locally) into a plist file in
-    $ROOT/System/Library/Preferences (in XML format). QSettings will create
-    an appropriate plist file (com.<first group name>.plist) out of the
-    full path to a key.
+    The location where settings are stored is not formally defined by
+    the CFPreferences API (for the sake of Mac OS 9 support).
 
-    For further information on CFPreferences see also
+    At the time of writing settings are stored (either on a global or
+    user basis, preferring locally) into a plist file in \c
+    $ROOT/System/Library/Preferences (in XML format). QSettings will
+    create an appropriate plist file (\c{com.<first group name>.plist})
+    out of the full path to a key.
+
+    For further information on CFPreferences see
     \link http://developer.apple.com/techpubs/macosx/CoreFoundation/PreferenceServices/preferenceservices_carbon.html
     Apple's Specifications\endlink
 
@@ -191,10 +191,10 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     settings under Unix. In the examples the settings file will be
     searched for in the following directories:
     \list 1
-    \i INSTALL/etc/settings
-    \i /opt/MyCompany/share/etc
-    \i /opt/MyCompany/share/MyApplication/etc
-    \i $HOME/.qt
+    \i \c INSTALL/etc/settings
+    \i \c /opt/MyCompany/share/etc
+    \i \c /opt/MyCompany/share/MyApplication/etc
+    \i \c $HOME/.qt
     \endlist
     When reading settings the files are searched in the order shown
     above, with later settings overriding earlier settings. Files for

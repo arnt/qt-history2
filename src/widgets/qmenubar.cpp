@@ -138,11 +138,16 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
     \section1 QMenuBar on Qt/Mac
 
     QMenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
-    However, if you have multiple menubars in one dialog the outermost
-    menubar (normally inside a widget with widget flag \c
-    WType_TopLevel) will be used for the global menubar.
+    If you have multiple menubars in one dialog the outermost menubar
+    (normally inside a widget with widget flag \c WType_TopLevel) will
+    be used for the system-wide menubar.
 
-    Qt/Mac also provides a menubar merging feature to make QMenubar
+    Note that arbitrary Qt widgets \e cannot be inserted into a
+    QMenuBar on the Mac because Qt uses Mac's native menus which don't
+    support this functionality. This limitation does not apply to
+    stand-alone QPopupMenus.
+
+    Qt/Mac also provides a menubar merging feature to make QMenuBar
     conform more closely to accepted Mac OS X menubar layout. The
     merging functionality is based on string matching the title of a
     QPopupMenu entry. These strings are translated (using

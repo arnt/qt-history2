@@ -87,19 +87,20 @@ static bool destroying_is_ok; // starts out as 0
 static QTextCodec * localeMapper = 0;
 
 
-/*!  Deletes all the created codecs.
+/*!
+    Deletes all the created codecs.
 
-  \warning Do not call this function.
+    \warning Do not call this function.
 
-  QApplication calls this just before exiting, to delete any
-  QTextCodec objects that may be lying around.  Since various other
-  classes hold pointers to QTextCodec objects, it is not safe to call
-  this function earlier.
+    QApplication calls this function just before exiting to delete
+    any QTextCodec objects that may be lying around. Since various
+    other classes hold pointers to QTextCodec objects, it is not safe
+    to call this function earlier.
 
-  If you are using the utility classes (like QString) but not using
-  QApplication, calling this function at the very end of your
-  application can be helpful to chase down memory leaks, as
-  QTextCodec objects will not show up.
+    If you are using the utility classes (like QString) but not using
+    QApplication, calling this function at the very end of your
+    application may be helpful for chasing down memory leaks by
+    eliminating any QTextCodec objects.
 */
 
 void QTextCodec::deleteAllCodecs()
@@ -186,229 +187,230 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
 
 /*!
-  \class QTextCodec qtextcodec.h
-  \reentrant
-  \brief The QTextCodec class provides conversion between text encodings.
-  \ingroup i18n
+    \class QTextCodec qtextcodec.h
+    \brief The QTextCodec class provides conversion between text encodings.
+    \reentrant
+    \ingroup i18n
 
-  Qt uses Unicode to store, draw and manipulate strings. In many
-  situations you may wish to deal with data that uses a different
-  encoding. For example, most japanese documents are still stored in
-  Shift-JIS or ISO2022, while Russian users often have their documents
-  in KOI8-R or CP1251.
+    Qt uses Unicode to store, draw and manipulate strings. In many
+    situations you may wish to deal with data that uses a different
+    encoding. For example, most Japanese documents are still stored in
+    Shift-JIS or ISO2022, while Russian users often have their
+    documents in KOI8-R or CP1251.
 
-  Qt provides a set of QTextCodec classes to help with converting
-  non-Unicode formats to and from Unicode. You can also create your
-  own codec classes (\link #subclassing see later\endlink).
+    Qt provides a set of QTextCodec classes to help with converting
+    non-Unicode formats to and from Unicode. You can also create your
+    own codec classes (\link #subclassing see later\endlink).
 
-  The supported encodings are:
-  \list
-  \i Latin1
-  \i Big5 -- Chinese
-  \i Big5-HKSCS -- Chinese
-  \i eucJP -- Japanese
-  \i eucKR -- Korean
-  \i GB2312 -- Chinese
-  \i GBK -- Chinese
-  \i GB18030 -- Chinese
-  \i JIS7 -- Japanese
-  \i Shift-JIS -- Japanese
-  \i TSCII -- Tamil
-  \i utf8 -- Unicode, 8-bit
-  \i utf16 -- Unicode
-  \i KOI8-R -- Russian
-  \i KOI8-U -- Ukrainian
-  \i ISO8859-1 -- Western
-  \i ISO8859-2 -- Central European
-  \i ISO8859-3 -- Central European
-  \i ISO8859-4 -- Baltic
-  \i ISO8859-5 -- Cyrillic
-  \i ISO8859-6 -- Arabic
-  \i ISO8859-7 -- Greek
-  \i ISO8859-8 -- Hebrew, visually ordered
-  \i ISO8859-8-i -- Hebrew, logically ordered
-  \i ISO8859-9 -- Turkish
-  \i ISO8859-10
-  \i ISO8859-13
-  \i ISO8859-14
-  \i ISO8859-15 -- Western
-  \i IBM 850
-  \i IBM 866
-  \i CP874
-  \i CP1250 -- Central European
-  \i CP1251 -- Cyrillic
-  \i CP1252 -- Western
-  \i CP1253 -- Greek
-  \i CP1254 -- Turkish
-  \i CP1255 -- Hebrew
-  \i CP1256 -- Arabic
-  \i CP1257 -- Baltic
-  \i CP1258
-  \i Apple Roman
-  \i TIS-620 -- Thai
-  \endlist
+    The supported encodings are:
+    \list
+    \i Latin1
+    \i Big5 -- Chinese
+    \i Big5-HKSCS -- Chinese
+    \i eucJP -- Japanese
+    \i eucKR -- Korean
+    \i GB2312 -- Chinese
+    \i GBK -- Chinese
+    \i GB18030 -- Chinese
+    \i JIS7 -- Japanese
+    \i Shift-JIS -- Japanese
+    \i TSCII -- Tamil
+    \i utf8 -- Unicode, 8-bit
+    \i utf16 -- Unicode
+    \i KOI8-R -- Russian
+    \i KOI8-U -- Ukrainian
+    \i ISO8859-1 -- Western
+    \i ISO8859-2 -- Central European
+    \i ISO8859-3 -- Central European
+    \i ISO8859-4 -- Baltic
+    \i ISO8859-5 -- Cyrillic
+    \i ISO8859-6 -- Arabic
+    \i ISO8859-7 -- Greek
+    \i ISO8859-8 -- Hebrew, visually ordered
+    \i ISO8859-8-i -- Hebrew, logically ordered
+    \i ISO8859-9 -- Turkish
+    \i ISO8859-10
+    \i ISO8859-13
+    \i ISO8859-14
+    \i ISO8859-15 -- Western
+    \i IBM 850
+    \i IBM 866
+    \i CP874
+    \i CP1250 -- Central European
+    \i CP1251 -- Cyrillic
+    \i CP1252 -- Western
+    \i CP1253 -- Greek
+    \i CP1254 -- Turkish
+    \i CP1255 -- Hebrew
+    \i CP1256 -- Arabic
+    \i CP1257 -- Baltic
+    \i CP1258
+    \i Apple Roman
+    \i TIS-620 -- Thai
+    \endlist
 
-  QTextCodecs can be used as follows to convert some locally encoded
-  string to Unicode. Suppose you have some string encoded in Russian
-  KOI8-R encoding, and want to convert it to Unicode. The simple way
-  to do this is:
+    QTextCodecs can be used as follows to convert some locally encoded
+    string to Unicode. Suppose you have some string encoded in Russian
+    KOI8-R encoding, and want to convert it to Unicode. The simple way
+    to do this is:
 
-  \code
-  QCString locallyEncoded = "..."; // text to convert
-  QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
-  QString unicodeString = codec->toUnicode( locallyEncoded );
-  \endcode
+    \code
+    QCString locallyEncoded = "..."; // text to convert
+    QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
+    QString unicodeString = codec->toUnicode( locallyEncoded );
+    \endcode
 
-  After this, \c{unicodeString} holds the text converted to Unicode.
-  Converting a string from Unicode to the local encoding is just as
-  easy:
+    After this, \c{unicodeString} holds the text converted to Unicode.
+    Converting a string from Unicode to the local encoding is just as
+    easy:
 
-  \code
-  QString unicodeString = "..."; // any Unicode text
-  QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
-  QCString locallyEncoded = codec->fromUnicode( unicodeString );
-  \endcode
+    \code
+    QString unicodeString = "..."; // any Unicode text
+    QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
+    QCString locallyEncoded = codec->fromUnicode( unicodeString );
+    \endcode
 
-  Some care must be taken when trying to convert the data in chunks,
-  for example, when receiving it over a network. In such cases it is
-  possible that a multi-byte character will be split over two chunks.
-  At best this might result in the loss of a character and at worst
-  cause the entire conversion to fail.
+    Some care must be taken when trying to convert the data in chunks,
+    for example, when receiving it over a network. In such cases it is
+    possible that a multi-byte character will be split over two
+    chunks. At best this might result in the loss of a character and
+    at worst cause the entire conversion to fail.
 
-  The approach to use in these situations is to create a QTextDecoder
-  object for the codec and use this QTextDecoder for the whole
-  decoding process, as shown below:
+    The approach to use in these situations is to create a QTextDecoder
+    object for the codec and use this QTextDecoder for the whole
+    decoding process, as shown below:
 
-  \code
-  QTextCodec *c = QTextCodec::codecForName( "Shift-JIS" );
-  QTextDecoder *decoder = c->makeDecoder();
+    \code
+    QTextCodec *codec = QTextCodec::codecForName( "Shift-JIS" );
+    QTextDecoder *decoder = codec->makeDecoder();
 
-  QString unicodeString;
-  while( receiving_data ) {
-      QByteArray chunk = new_data;
-      unicodeString += decoder->toUnicode( chunk.data(), chunk.length() );
-  }
-  \endcode
+    QString unicodeString;
+    while( receiving_data ) {
+	QByteArray chunk = new_data;
+	unicodeString += decoder->toUnicode( chunk.data(), chunk.length() );
+    }
+    \endcode
 
-  The QTextDecoder object maintains state between chunks and therefore
-  works correctly even if a multi-byte character is split between
-  chunks.
+    The QTextDecoder object maintains state between chunks and therefore
+    works correctly even if a multi-byte character is split between
+    chunks.
 
     \target subclassing
-  \section1 Creating your own Codec class
+    \section1 Creating your own Codec class
 
-  By making objects of subclasses of QTextCodec, support for
-  new text encodings can be added to Qt.
+    Support for new text encodings can be added to Qt by creating
+    QTextCodec subclasses.
 
-  More recently created QTextCodec objects take precedence
-  over earlier ones.
+    Built-in codecs can be overridden by custom codecs since more
+    recently created QTextCodec objects take precedence over earlier
+    ones.
 
-  You may find it more convenient to make your codec class available
-  as a plugin; see the \link plugins-howto.html plugin
-  documentation\endlink for more details.
+    You may find it more convenient to make your codec class available
+    as a plugin; see the \link plugins-howto.html plugin
+    documentation\endlink for more details.
 
-  The abstract virtual functions describe the encoder to the
-  system and the coder is used as required in the different
-  text file formats supported by QTextStream, and under X11, for the
-  locale-specific character input and output.
+    The abstract virtual functions describe the encoder to the
+    system and the coder is used as required in the different
+    text file formats supported by QTextStream, and under X11, for the
+    locale-specific character input and output.
 
-  To add support for another 8-bit encoding to Qt, make a subclass
-  of QTextCodec and implement at least the following methods:
+    To add support for another 8-bit encoding to Qt, make a subclass
+    of QTextCodec and implement at least the following methods:
 
-   \code
-   const char* name() const
-   \endcode
-   Return the official name for the encoding.
+    \code
+    const char* name() const
+    \endcode
+    Return the official name for the encoding.
 
-   \code
-   int mibEnum() const
-   \endcode
-   Return the MIB enum for the encoding if it is listed in the
-      \link http://www.iana.org/assignments/character-sets
-      IANA character-sets encoding file\endlink.
+    \code
+    int mibEnum() const
+    \endcode
+    Return the MIB enum for the encoding if it is listed in the
+	\link http://www.iana.org/assignments/character-sets
+	IANA character-sets encoding file\endlink.
 
-  If the encoding is multi-byte then it will have "state"; that is,
-  the interpretation of some bytes will be dependent on some preceding
-  bytes. For such encodings, you must implement:
+    If the encoding is multi-byte then it will have "state"; that is,
+    the interpretation of some bytes will be dependent on some preceding
+    bytes. For such encodings, you must implement:
 
-   \code
-   QTextDecoder* makeDecoder() const
-   \endcode
-   Return a QTextDecoder that remembers incomplete multi-byte sequence
-   prefixes or other required state.
+    \code
+    QTextDecoder* makeDecoder() const
+    \endcode
+    Return a QTextDecoder that remembers incomplete multi-byte sequence
+    prefixes or other required state.
 
-  If the encoding does \e not require state, you should implement:
+    If the encoding does \e not require state, you should implement:
 
-   \code
-   QString toUnicode(const char* chars, int len) const
-   \endcode
-   Converts \e len characters from \e chars to Unicode.
+    \code
+    QString toUnicode(const char* chars, int len) const
+    \endcode
+    Converts \e len characters from \e chars to Unicode.
 
-  The base QTextCodec class has default implementations of the above
-  two functions, \e{but they are mutually recursive}, so you must
-  re-implement at least one of them, or both for improved efficiency.
+    The base QTextCodec class has default implementations of the above
+    two functions, \e{but they are mutually recursive}, so you must
+    re-implement at least one of them, or both for improved efficiency.
 
-  For conversion from Unicode to 8-bit encodings, it is rarely necessary
-  to maintain state.  However, two functions similar to the two above
-  are used for encoding:
+    For conversion from Unicode to 8-bit encodings, it is rarely necessary
+    to maintain state. However, two functions similar to the two above
+    are used for encoding:
 
-   \code
-   QTextEncoder* makeEncoder() const
-   \endcode
-   Return a QTextEncoder.
+    \code
+    QTextEncoder* makeEncoder() const
+    \endcode
+    Return a QTextEncoder.
 
-   \code
-   QCString fromUnicode(const QString& uc, int& lenInOut ) const
-   \endcode
-   Converts \e lenInOut characters (of type QChar) from the start of
-   the string \e uc, returning a QCString result, and also returning
-   the \link QCString::length() length\endlink of the result in
-   \e lenInOut.
+    \code
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const
+    \endcode
+    Converts \e lenInOut characters (of type QChar) from the start of
+    the string \e uc, returning a QCString result, and also returning
+    the \link QCString::length() length\endlink of the result in
+    \e lenInOut.
 
-  Again, these are mutually recursive so only one needs to be implemented,
-  or both if greater efficiency is possible.
+    Again, these are mutually recursive so only one needs to be implemented,
+    or both if greater efficiency is possible.
 
-  Finally, you must implement:
+    Finally, you must implement:
 
-   \code
-   int heuristicContentMatch(const char* chars, int len) const
-   \endcode
-   Gives a value indicating how likely it is that \e len characters
-   from \e chars are in the encoding.
+    \code
+    int heuristicContentMatch(const char* chars, int len) const
+    \endcode
+    Gives a value indicating how likely it is that \e len characters
+    from \e chars are in the encoding.
 
-  A good model for this function is the
-  QWindowsLocalCodec::heuristicContentMatch function found in the Qt
-  sources.
+    A good model for this function is the
+    QWindowsLocalCodec::heuristicContentMatch function found in the Qt
+    sources.
 
-  A QTextCodec subclass might have improved performance if you also
-  re-implement:
+    A QTextCodec subclass might have improved performance if you also
+    re-implement:
 
-   \code
-   bool canEncode( QChar ) const
-   \endcode
-   Test if a Unicode character can be encoded.
+    \code
+    bool canEncode( QChar ) const
+    \endcode
+    Test if a Unicode character can be encoded.
 
-   \code
-   bool canEncode( const QString& ) const
-   \endcode
-   Test if a string of Unicode characters can be encoded.
+    \code
+    bool canEncode( const QString& ) const
+    \endcode
+    Test if a string of Unicode characters can be encoded.
 
-   \code
-   int heuristicNameMatch(const char* hint) const
-   \endcode
-   Test if a possibly non-standard name is referring to the codec.
+    \code
+    int heuristicNameMatch(const char* hint) const
+    \endcode
+    Test if a possibly non-standard name is referring to the codec.
 
     Codecs can also be created as \link plugins-howto.html plugins\endlink.
 */
 
 
 /*!
-  \nonreentrant
+    \nonreentrant
 
-  Constructs a QTextCodec, and gives it the highest precedence.
-  The QTextCodec should always be constructed on the heap
-  (i.e. with new()), and once constructed it becomes the responsibility
-  of Qt to delete it (which is done at QApplication destruction).
+    Constructs a QTextCodec, and gives it the highest precedence. The
+    QTextCodec should always be constructed on the heap (i.e. with \c
+    new). Qt takes ownership and will delete it when the application
+    terminates.
 */
 QTextCodec::QTextCodec()
 {
@@ -418,10 +420,10 @@ QTextCodec::QTextCodec()
 
 
 /*!
-  \nonreentrant
+    \nonreentrant
 
-  Destroys the QTextCodec.  Note that you should not delete
-  codecs yourself: once created they become Qt's responsibility.
+    Destroys the QTextCodec. Note that you should not delete codecs
+    yourself: once created they become Qt's responsibility.
 */
 QTextCodec::~QTextCodec()
 {
@@ -433,15 +435,15 @@ QTextCodec::~QTextCodec()
 
 
 /*!
-  Returns a value indicating how likely it is that this decoder is
-  appropriate for decoding some format that has the given name. The name is
-  compared with the \a hint.
+    Returns a value indicating how likely it is that this decoder is
+    appropriate for decoding some format that has the given name. The
+    name is compared with the \a hint.
 
-  A good match returns a positive number around
-  the length of the string.  A bad match is negative.
+    A good match returns a positive number around the length of the
+    string. A bad match is negative.
 
-  The default implementation calls simpleHeuristicNameMatch()
-  with the name of the codec.
+    The default implementation calls simpleHeuristicNameMatch() with
+    the name of the codec.
 */
 int QTextCodec::heuristicNameMatch(const char* hint) const
 {
@@ -450,7 +452,7 @@ int QTextCodec::heuristicNameMatch(const char* hint) const
 
 
 // returns a string containing the letters and numbers from input,
-// with a space separating run of a character class.  e.g. "iso8859-1"
+// with a space separating run of a character class. e.g. "iso8859-1"
 // becomes "iso 8859 1"
 static QString lettersAndNumbers( const char * input )
 {
@@ -478,11 +480,10 @@ static QString lettersAndNumbers( const char * input )
 }
 
 /*!
-  A simple utility function for heuristicNameMatch(): it
-  does some very minor character-skipping
-  so that almost-exact matches score high.
-  \a name is the text we're matching and \a hint is used for the
-  comparison.
+    A simple utility function for heuristicNameMatch(): it does some
+    very minor character-skipping so that almost-exact matches score
+    high. \a name is the text we're matching and \a hint is used for
+    the comparison.
 */
 int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
@@ -507,9 +508,9 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 
 
 /*!
-  Returns the QTextCodec \a i positions from the most recently
-  inserted codec, or 0 if there is no such QTextCodec.  Thus,
-  codecForIndex(0) returns the most recently created QTextCodec.
+    Returns the QTextCodec \a i positions from the most recently
+    inserted codec, or 0 if there is no such QTextCodec. Thus,
+    codecForIndex(0) returns the most recently created QTextCodec.
 */
 QTextCodec* QTextCodec::codecForIndex(int i)
 {
@@ -519,8 +520,8 @@ QTextCodec* QTextCodec::codecForIndex(int i)
 
 
 /*!
-  Returns the QTextCodec which matches the
-  \link QTextCodec::mibEnum() MIBenum\endlink \a mib.
+    Returns the QTextCodec which matches the \link
+    QTextCodec::mibEnum() MIBenum\endlink \a mib.
 */
 QTextCodec* QTextCodec::codecForMib(int mib)
 {
@@ -728,17 +729,17 @@ static QTextCodec * ru_RU_hack( const char * i ) {
 #endif
 
 /*!
-  Set the codec to \a c; this will be returned by codecForLocale().
-  This might be needed for some applications that want to use their
-  own mechanism for setting the locale.
+    Set the codec to \a c; this will be returned by codecForLocale().
+    This might be needed for some applications that want to use their
+    own mechanism for setting the locale.
 
-  \sa codecForLocale()
+    \sa codecForLocale()
 */
 void QTextCodec::setCodecForLocale(QTextCodec *c) {
     localeMapper = c;
 }
 
-/*!  Returns a pointer to the codec most suitable for this locale. */
+/*! Returns a pointer to the codec most suitable for this locale. */
 
 QTextCodec* QTextCodec::codecForLocale()
 {
@@ -789,17 +790,17 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
 
 
 /*!
-  Searches all installed QTextCodec objects, returning the one
-  which most recognizes the given content.  May return 0.
+    Searches all installed QTextCodec objects, returning the one which
+    most recognizes the given content. May return 0.
 
-  Note that this is often a poor choice, since character
-  encodings often use most of the available character sequences,
-  and so only by linguistic analysis could a true match be made.
+    Note that this is often a poor choice, since character encodings
+    often use most of the available character sequences, and so only
+    by linguistic analysis could a true match be made.
 
-  \a chars contains the string to check, and \a len contains the
-  number of characters in the string to use.
+    \a chars contains the string to check, and \a len contains the
+    number of characters in the string to use.
 
-  \sa heuristicContentMatch()
+    \sa heuristicContentMatch()
 */
 QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 {
@@ -821,39 +822,39 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
 
 /*!
-  \fn const char* QTextCodec::name() const
+    \fn const char* QTextCodec::name() const
 
-  Subclasses of QTextCodec must reimplement this function.  It returns
-  the name of the encoding supported by the subclass.  When choosing
-  a name for an encoding, consider these points:
-  \list
-    \i On X11, heuristicNameMatch( const char * hint )
+    QTextCodec subclasses must reimplement this function. It returns
+    the name of the encoding supported by the subclass. When choosing
+    a name for an encoding, consider these points:
+    \list
+    \i	On X11, heuristicNameMatch( const char * hint )
 	is used to test if a the QTextCodec
 	can convert between Unicode and the encoding of a font
 	with encoding \e hint, such as "iso8859-1" for Latin-1 fonts,
 	"koi8-r" for Russian KOI8 fonts.
 	The default algorithm of heuristicNameMatch() uses name().
-    \i Some applications may use this function to present
+    \i	Some applications may use this function to present
 	encodings to the end user.
-  \endlist
-*/
+    \endlist
+    */
 
 /*!
-  \fn int QTextCodec::mibEnum() const
+    \fn int QTextCodec::mibEnum() const
 
-  Subclasses of QTextCodec must reimplement this function.  It returns the
-  MIBenum (see
-  \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
-  the IANA character-sets encoding file\endlink for more information).
-  It is important that each QTextCodec subclass returns the correct
-  unique value for this function.
+    Subclasses of QTextCodec must reimplement this function. It
+    returns the MIBenum (see \link
+    ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets the
+    IANA character-sets encoding file\endlink for more information).
+    It is important that each QTextCodec subclass returns the correct
+    unique value for this function.
 */
 
 
 /*!
-  Returns the preferred mime name of the encoding as defined in the
-        \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
-      IANA character-sets encoding file\endlink.
+    Returns the preferred mime name of the encoding as defined in the
+    \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
+    IANA character-sets encoding file\endlink.
 */
 const char* QTextCodec::mimeName() const
 {
@@ -862,31 +863,33 @@ const char* QTextCodec::mimeName() const
 
 
 /*!
-  \fn int QTextCodec::heuristicContentMatch(const char* chars, int len) const
+    \fn int QTextCodec::heuristicContentMatch(const char* chars, int len) const
 
-  Subclasses of QTextCodec must reimplement this function.  It examines
-  the first \a len bytes of \a chars and returns a value indicating how
-  likely it is that the string is a prefix of text encoded in the
-  encoding of the subclass.  A negative return value indicates that
-  the text is detectably not in the encoding (e.g. it contains
-  characters undefined in the encoding). A return value of 0 indicates
-  that the text should be decoded with this codec rather than as
-  ASCII, but there is no particular evidence.  The value should range
-  up to \a len.  Thus, most decoders will return -1, 0, or -\a len.
+    QTextCodec subclasses must reimplement this function. It examines
+    the first \a len bytes of \a chars and returns a value indicating
+    how likely it is that the string is a prefix of text encoded in
+    the encoding of the subclass. A negative return value indicates
+    that the text is detectably not in the encoding (e.g. it contains
+    characters undefined in the encoding). A return value of 0
+    indicates that the text should be decoded with this codec rather
+    than as ASCII, but there is no particular evidence. The value
+    should range up to \a len. Thus, most decoders will return -1, 0,
+    or -\a len.
 
-  The characters are not null terminated.
+    The characters are not null terminated.
 
-  \sa codecForContent().
+    \sa codecForContent().
 */
 
 
 /*!
-  Creates a QTextDecoder which stores enough state to decode chunks
-  of char* data to create chunks of Unicode data.  The default implementation
-  creates a stateless decoder, which is sufficient for only the simplest
-  encodings where each byte corresponds to exactly one Unicode character.
+    Creates a QTextDecoder which stores enough state to decode chunks
+    of char* data to create chunks of Unicode data. The default
+    implementation creates a stateless decoder, which is only
+    sufficient for the simplest encodings where each byte corresponds
+    to exactly one Unicode character.
 
-  The caller is responsible for deleting the returned object.
+    The caller is responsible for deleting the returned object.
 */
 QTextDecoder* QTextCodec::makeDecoder() const
 {
@@ -895,12 +898,13 @@ QTextDecoder* QTextCodec::makeDecoder() const
 
 
 /*!
-  Creates a QTextEncoder which stores enough state to encode chunks
-  of Unicode data as char* data.  The default implementation
-  creates a stateless encoder, which is sufficient for only the simplest
-  encodings where each Unicode character corresponds to exactly one character.
+    Creates a QTextEncoder which stores enough state to encode chunks
+    of Unicode data as char* data. The default implementation creates
+    a stateless encoder, which is only sufficient for the simplest
+    encodings where each Unicode character corresponds to exactly one
+    character.
 
-  The caller is responsible for deleting the returned object.
+    The caller is responsible for deleting the returned object.
 */
 QTextEncoder* QTextCodec::makeEncoder() const
 {
@@ -909,15 +913,15 @@ QTextEncoder* QTextCodec::makeEncoder() const
 
 
 /*!
-  Subclasses of QTextCodec must reimplement this function or
-  makeDecoder().  It converts the first \a len characters of \a chars
-  to Unicode.
+    QTextCodec subclasses must reimplement this function or
+    makeDecoder(). It converts the first \a len characters of \a chars
+    to Unicode.
 
-  The default implementation makes a decoder with makeDecoder() and
-  converts the input with that.  Note that the default makeDecoder()
-  implementation makes a decoder that simply calls
-  this function, hence subclasses \e must reimplement one function or
-  the other to avoid infinite recursion.
+    The default implementation makes a decoder with makeDecoder() and
+    converts the input with that. Note that the default makeDecoder()
+    implementation makes a decoder that simply calls
+    this function, hence subclasses \e must reimplement one function or
+    the other to avoid infinite recursion.
 */
 QString QTextCodec::toUnicode(const char* chars, int len) const
 {
@@ -931,20 +935,20 @@ QString QTextCodec::toUnicode(const char* chars, int len) const
 
 
 /*!
-  Subclasses of QTextCodec must reimplement either this function or
-  makeEncoder().  It converts the first \a lenInOut characters of \a
-  uc from Unicode to the encoding of the subclass.  If \a lenInOut
-  is negative or too large, the length of \a uc is used instead.
+    QTextCodec subclasses must reimplement either this function or
+    makeEncoder(). It converts the first \a lenInOut characters of \a
+    uc from Unicode to the encoding of the subclass. If \a lenInOut is
+    negative or too large, the length of \a uc is used instead.
 
-  Converts \a lenInOut characters (not bytes) from \a uc, producing
-  a QCString.  \a lenInOut will be set to the
-  \link QCString::length() length\endlink of the result (in bytes).
+    Converts \a lenInOut characters (not bytes) from \a uc, producing
+    a QCString. \a lenInOut will be set to the \link
+    QCString::length() length\endlink of the result (in bytes).
 
-  The default implementation makes an encoder with makeEncoder() and
-  converts the input with that.  Note that the default makeEncoder()
-  implementation makes an encoder that simply calls
-  this function, hence subclasses \e must reimplement one function or
-  the other to avoid infinite recursion.
+    The default implementation makes an encoder with makeEncoder() and
+    converts the input with that. Note that the default makeEncoder()
+    implementation makes an encoder that simply calls this function,
+    hence subclasses \e must reimplement one function or the other to
+    avoid infinite recursion.
 */
 
 QCString QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
@@ -971,8 +975,9 @@ QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
 }
 
 /*!
-  \overload
-  \a uc is the unicode source string.
+    \overload
+
+    \a uc is the unicode source string.
 */
 QCString QTextCodec::fromUnicode(const QString& uc) const
 {
@@ -981,9 +986,10 @@ QCString QTextCodec::fromUnicode(const QString& uc) const
 }
 
 /*!
-  \overload
-  \a a contains the source characters; \a len contains the number of
-  characters in \a a to use.
+    \overload
+
+    \a a contains the source characters; \a len contains the number of
+    characters in \a a to use.
 */
 QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
@@ -993,8 +999,9 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 }
 
 /*!
-  \overload
-  \a a contains the source characters.
+    \overload
+
+    \a a contains the source characters.
 */
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
@@ -1003,9 +1010,10 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 }
 
 /*!
-  \overload
-  \a a contains the source characters; \a len contains the number of
-  characters in \a a to use.
+    \overload
+
+    \a a contains the source characters; \a len contains the number of
+    characters in \a a to use.
 */
 QString QTextCodec::toUnicode(const QCString& a, int len) const
 {
@@ -1015,8 +1023,9 @@ QString QTextCodec::toUnicode(const QCString& a, int len) const
 }
 
 /*!
-  \overload
-  \a a contains the source characters.
+    \overload
+
+    \a a contains the source characters.
 */
 QString QTextCodec::toUnicode(const QCString& a) const
 {
@@ -1025,8 +1034,9 @@ QString QTextCodec::toUnicode(const QCString& a) const
 }
 
 /*!
-  \overload
-  \a chars contains the source characters.
+    \overload
+
+    \a chars contains the source characters.
 */
 QString QTextCodec::toUnicode(const char* chars) const
 {
@@ -1049,11 +1059,11 @@ unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) con
 }
 
 /*!
-  Returns TRUE if the unicode character \a ch can be fully encoded
-  with this codec; otherwise returns FALSE.  The default
-  implementation tests if the result of toUnicode(fromUnicode(ch)) is
-  the original \a ch. Subclasses may be able to improve the
-  efficiency.
+    Returns TRUE if the Unicode character \a ch can be fully encoded
+    with this codec; otherwise returns FALSE. The default
+    implementation tests if the result of toUnicode(fromUnicode(ch))
+    is the original \a ch. Subclasses may be able to improve the
+    efficiency.
 */
 bool QTextCodec::canEncode( QChar ch ) const
 {
@@ -1062,6 +1072,7 @@ bool QTextCodec::canEncode( QChar ch ) const
 
 /*!
     \overload
+
     \a s contains the string being tested for encode-ability.
 */
 bool QTextCodec::canEncode( const QString& s ) const
@@ -1074,65 +1085,66 @@ bool QTextCodec::canEncode( const QString& s ) const
 
 
 /*!
-  \class QTextEncoder qtextcodec.h
-  \reentrant
+    \class QTextEncoder qtextcodec.h
+    \brief The QTextEncoder class provides a state-based encoder.
+    \reentrant
     \ingroup i18n
-  \brief The QTextEncoder class provides a state-based encoder.
 
-  The encoder converts Unicode into another format, remembering any state
-  that is required between calls.
+    The encoder converts Unicode into another format, remembering any
+    state that is required between calls.
 
-  \sa QTextCodec::makeEncoder()
+    \sa QTextCodec::makeEncoder()
 */
 
 /*!
-  Destroys the encoder.
+    Destroys the encoder.
 */
 QTextEncoder::~QTextEncoder()
 {
 }
+
 /*!
-  \fn QCString QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
+    \fn QCString QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
 
-  Converts \a lenInOut characters (not bytes) from \a uc, producing
-  a QCString.  \a lenInOut will be set to the
-  \link QCString::length() length\endlink of the result (in bytes).
+    Converts \a lenInOut characters (not bytes) from \a uc, producing
+    a QCString. \a lenInOut will be set to the \link
+    QCString::length() length\endlink of the result (in bytes).
 
-  The encoder is free to record state to use when subsequent calls are
-  made to this function (for example, it might change modes with escape
-  sequences if needed during the encoding of one string, then assume that
-  mode applies when a subsequent call begins).
+    The encoder is free to record state to use when subsequent calls
+    are made to this function (for example, it might change modes with
+    escape sequences if needed during the encoding of one string, then
+    assume that mode applies when a subsequent call begins).
 */
 
 /*!
-  \class QTextDecoder qtextcodec.h
-  \reentrant
+    \class QTextDecoder qtextcodec.h
+    \brief The QTextDecoder class provides a state-based decoder.
+    \reentrant
     \ingroup i18n
-  \brief The QTextDecoder class provides a state-based decoder.
 
-  The decoder converts a text format into Unicode, remembering any state
-  that is required between calls.
+    The decoder converts a text format into Unicode, remembering any
+    state that is required between calls.
 
-  \sa QTextCodec::makeEncoder()
+    \sa QTextCodec::makeEncoder()
 */
 
 
 /*!
-  Destroys the decoder.
+    Destroys the decoder.
 */
 QTextDecoder::~QTextDecoder()
 {
 }
 
 /*!
-  \fn QString QTextDecoder::toUnicode(const char* chars, int len)
+    \fn QString QTextDecoder::toUnicode(const char* chars, int len)
 
-  Converts the first \a len bytes in \a chars to Unicode, returning the
-  result.
+    Converts the first \a len bytes in \a chars to Unicode, returning
+    the result.
 
-  If not all characters are used (e.g. if only part of a multi-byte
-  encoding is at the end of the characters), the decoder remembers
-  enough state to continue with the next call to this function.
+    If not all characters are used (e.g. if only part of a multi-byte
+    encoding is at the end of the characters), the decoder remembers
+    enough state to continue with the next call to this function.
 */
 
 #define CHAINED 0xffff
@@ -1482,8 +1494,8 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
 #ifndef QT_NO_CODECS
 // Cannot use <pre> or \code
 /*!
-  Reads a POSIX2 charmap definition from \a iod.
-  The parser recognizes the following lines:
+    Reads a POSIX2 charmap definition from \a iod.
+    The parser recognizes the following lines:
 
 <font name="sans">
 &nbsp;&nbsp;&lt;code_set_name&gt; <i>name</i></br>
@@ -1497,16 +1509,15 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
 &nbsp;&nbsp;END CHARMAP</br>
 </font>
 
-  The resulting QTextCodec is returned (and also added to the
-  global list of codecs).  The name() of the result is taken
-  from the code_set_name.
+    The resulting QTextCodec is returned (and also added to the global
+    list of codecs). The name() of the result is taken from the
+    code_set_name.
 
-  Note that a codec constructed in this way uses much more memory
-  and is slower than a hand-written QTextCodec subclass, since
-  tables in code are in memory shared by all applications simultaneously
-  using Qt.
+    Note that a codec constructed in this way uses much more memory
+    and is slower than a hand-written QTextCodec subclass, since
+    tables in code are kept in memory shared by all Qt applications.
 
-  \sa loadCharmapFile()
+    \sa loadCharmapFile()
 */
 QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 {
@@ -1519,8 +1530,8 @@ QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 }
 
 /*!
-  A convenience function for loadCharmap() that loads the charmap
-  definition from the file \a filename.
+    A convenience function for loadCharmap() that loads the charmap
+    definition from the file \a filename.
 */
 QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 {
@@ -1538,7 +1549,7 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 #endif //QT_NO_CODECS
 
 /*!
-  Returns a string representing the current language.
+    Returns a string representing the current language.
 */
 
 const char* QTextCodec::locale()
@@ -2873,7 +2884,6 @@ static void realSetup()
 	setupLocaleMapper();
 }
 
-
 void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int length )
 {
     switch( mibEnum() ) {
@@ -2927,17 +2937,17 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
 }
 
 
-/*! \fn QTextCodec* QTextCodec::codecForTr()
+/*!
+    \fn QTextCodec* QTextCodec::codecForTr()
 
-Returns the codec used by QObject::tr() on its argument. If this
-function returns 0 (the default), tr() assumes Latin-1.
+    Returns the codec used by QObject::tr() on its argument. If this
+    function returns 0 (the default), tr() assumes Latin-1.
 
-\sa setCodecForTr()
- */
+    \sa setCodecForTr()
+*/
 
 /*!
     \fn void QTextCodec::setCodecForTr(QTextCodec *c)
-
     \nonreentrant
 
     Sets the codec used by QObject::tr() on its argument to \a c. If
@@ -2982,7 +2992,6 @@ function returns 0 (the default), tr() assumes Latin-1.
 
 /*!
     \fn void QTextCodec::setCodecForCStrings(QTextCodec *c)
-
     \nonreentrant
 
     Sets the codec used by QString to convert to and from const char*
