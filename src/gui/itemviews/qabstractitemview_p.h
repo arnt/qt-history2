@@ -94,8 +94,8 @@ public:
     QMap<QPersistentModelIndex, QWidget*> editors;
     QList<QWidget*> persistent;
 
-    QPersistentModelIndex enteredItem;
-    QPersistentModelIndex pressedItem;
+    QPersistentModelIndex enteredIndex;
+    QPersistentModelIndex pressedIndex;
     Qt::KeyboardModifiers pressedModifiers;
     QPoint pressedPosition;
 

@@ -917,7 +917,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 
     bool itemWasSelected = selectionModel()->isSelected(index);
     QPoint offset(horizontalOffset(), verticalOffset());
-    d->pressedItem = index;
+    d->pressedIndex = index;
     d->pressedModifiers = e->modifiers();
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
     if ((command & QItemSelectionModel::Current) == 0)
@@ -960,16 +960,16 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         topLeft = bottomRight;
 
     QModelIndex index = itemAt(bottomRight);
-    QModelIndex buddy = model() ? model()->buddy(d->pressedItem) : QModelIndex();
+    QModelIndex buddy = model() ? model()->buddy(d->pressedIndex) : QModelIndex();
     if (state() == EditingState && d->editors.contains(buddy))
         return;
 
-    if (d->enteredItem != index) {
+    if (d->enteredIndex != index) {
         if (index.isValid())
             emit itemEntered(index, e->button(), e->modifiers());
         else
             emit viewportEntered(e->button(), e->modifiers());
-        d->enteredItem = index;
+        d->enteredIndex = index;
     } else if (state() == DragSelectingState) {
         return; // we haven't moved over another item yet
     }
@@ -1009,10 +1009,10 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 
     setState(NoState);
 
-    if (selectionModel())
+    if (selectionModel() && index == selectionModel()->currentIndex())
         selectionModel()->select(index, selectionCommand(index, e));
 
-    if (index == d->pressedItem)
+    if (index == d->pressedIndex)
         emit clicked(index, e->button(), e->modifiers());
     if (e->button() == Qt::RightButton) {
         QContextMenuEvent me(QContextMenuEvent::Mouse, pos);
@@ -2066,7 +2066,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
         case QEvent::MouseButtonRelease: // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
             modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
             if (index.isValid()
-                && index == d->pressedItem
+                && index == d->pressedIndex
                 && !(d->pressedModifiers & Qt::ShiftModifier)
                 && !(d->pressedModifiers & Qt::ControlModifier)
                 && selectionModel->isSelected(index))
