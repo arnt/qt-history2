@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#110 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#109 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#110 $");
 
 
 /*!
@@ -381,9 +381,7 @@ int QApplication::colorSpec()
       <li> For 256-color displays which have a true color visual with more
 	    than 256 colors, use that visual.  Silicon Graphics X servers
 	    have this feature. They provide an 8 bit visual as default but
-	    can deliver true color when asked. The user can force the
-	    application to use the pseudo color visual by the \e -visual
-	    option. ### Final sentence not true yet.
+	    can deliver true color when asked. 
     </ul>
   </ul>
 
@@ -410,6 +408,14 @@ int QApplication::colorSpec()
 
   \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext()
 */
+
+/*
+   ### planned functionality
+            The user can force the
+	    application to use the pseudo color visual by the \e -visual
+	    option. ### Final sentence not true yet.
+
+ */
 
 void QApplication::setColorSpec( int spec )
 {

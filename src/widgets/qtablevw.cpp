@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#65 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#65 $");
 
 
 const int sbDim = 16;
@@ -98,6 +98,14 @@ void CornerSquare::paintEvent( QPaintEvent * )
   powerful base class, there wasn't any way around it.  
 
   <img src=qtablevw-m.gif> <img src=qtablevw-w.gif>
+
+  \warning in the current (and previous) version of the library, the 
+  functions setNumRows(), setNumCols(), setCellHeight(),
+  setCellWidth(), setTableFlags() and clearTableFlags() may cause
+  virtual functions like cellWidth() and cellHeight() to be called, even
+  if autoUpdate() is FALSE.
+  This may cause errors if relevant state variables are not initialized.
+
 */
 
 
@@ -411,8 +419,7 @@ void QTableView::setTopLeftCell( int row, int col )
   The \e x parameter is in \e table coordinates.
 
   The interaction with \link setTableFlags() Tbl_snapToHGrid
-  \endlink is tricky.  If \e updateScrBars is TRUE, the scroll bars are
-  updated.
+  \endlink is tricky. 
 
   \sa xOffset(), setYOffset(), setOffset(), setLeftCell()
 */
@@ -437,8 +444,7 @@ void QTableView::setXOffset( int x )
   The \e y parameter is in \e table coordinates.
 
   The interaction with \link setTableFlags() Tbl_snapToVGrid
-  \endlink is tricky.  If \e updateScrBars is TRUE, the scroll bars are
-  updated.
+  \endlink is tricky. 
 
   \sa yOffset(), setXOffset(), setOffset(), setTopCell()
 */
@@ -2116,7 +2122,6 @@ void QTableView::updateScrollBars( uint f )
 }
 
 
-//### hva gjør denne?
 void QTableView::updateFrameSize()
 {
     int rw = width()  - ( testTableFlags(Tbl_vScrollBar) ? sbDim : 0 );

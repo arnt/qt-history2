@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#252 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#253 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#252 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#253 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2575,22 +2575,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    ascii[0] = 0;
 	}
     }
-#if 0 // defined(DEBUG)
-    if ( code == -1 ) {				// cannot translate keysym
-	debug( "translateKey: No translation for X keysym %s (0x%x)",
-	       XKeysymToString(XLookupKeysym(&((XEvent*)event)->xkey,0)),
-	       key );
-	return FALSE;
-    }
-#endif
-#if 0 // defined(DEBUG)
-    if ( count > 1 ) {
-	ascii[15] = '\0';			// not supported
-	debug( "translateKey: Multibyte translation not supported (%d, %s)",
-	       count, ascii );
-	return FALSE;
-    }
-#endif
 #if defined(DEBUG)
     if ( debug_level > 0
       && type==Event_KeyPress
