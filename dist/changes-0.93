@@ -59,3 +59,8 @@ New classes:
 New global functions:
 ---------------------
   qInstallMsgHandler() and qRound(), in qglobal.h.
+
+
+moc:
+----
+  Supports templates.
