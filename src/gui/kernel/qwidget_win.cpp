@@ -848,8 +848,8 @@ static void qt_discard_double_buffer(QWinDoubleBuffer **db)
     if (!*db)
         return;
 
-    DeleteObject((*db)->hbm);
     DeleteDC((*db)->hdc);
+    DeleteObject((*db)->hbm);
 
     delete *db;
     *db = 0;
@@ -871,6 +871,7 @@ static QWinDoubleBuffer *qt_win_create_double_buffer(int width, int height)
     Q_ASSERT(db->hbm);
     bool success = SelectObject(db->hdc, db->hbm);
     Q_ASSERT(success);
+    Q_UNUSED(success); // --release warning
     SelectClipRgn(db->hdc, 0);
     return db;
 }

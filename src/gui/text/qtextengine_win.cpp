@@ -582,8 +582,8 @@ void QTextEngine::shapeText(int item) const
     int from = si.position;
 #endif
     int len = length(item);
-
     Q_ASSERT(len > 0);
+    Q_UNUSED(len); // --release warning
 
     si.glyph_data_offset = used;
 
@@ -661,6 +661,7 @@ void QTextEngine::shapeText(int item) const
 #endif
     {
         Q_ASSERT(script < QFont::NScripts);
+        Q_UNUSED(script); // --release warning
 
         QFontEngine *font = fontEngine(si);
 
