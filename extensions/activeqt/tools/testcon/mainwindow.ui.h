@@ -334,7 +334,7 @@ void MainWindow::loadScript()
 
     if (!scriptManager) {
 	scriptManager = new QAxScriptManager(this);
-	connect(scriptManager, SIGNAL(scriptError(int, const QString&, int, const QString&)),
+	connect(scriptManager, SIGNAL(error(int, const QString&, int, const QString&)),
 			 this,   SLOT(macroError(int,  const QString&, int, const QString&)));
     }
 
