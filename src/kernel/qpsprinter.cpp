@@ -5727,7 +5727,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     outStream << "\n%%EndComments\n";
 
     outStream << "%%BeginProlog\n";
-    const char * const prologLicense = "% Prolog copyright 1994-2001 Trolltech. "
+    const char * const prologLicense = "% Prolog copyright 1994-2003 Trolltech. "
                                  "You may copy this prolog in any way\n"
                                  "% that is directly related to this "
                                  "document. For other use of this prolog,\n"
