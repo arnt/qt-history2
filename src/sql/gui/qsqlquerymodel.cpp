@@ -178,6 +178,17 @@ QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, in
 }
 
 /*!
+    This virtual handler is called when the query changes. query()
+    returns the new query.
+
+    \sa query(), setQuery()
+ */
+void QSqlQueryModel::queryChange()
+{
+    // do nothing
+}
+
+/*!
     Resets the model and sets the data provider to be the given \a
     query. Note that the query must be active and must not be
     isForwardOnly().
@@ -221,8 +232,14 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
         d->bottom = createIndex(d->query.size() - 1, d->rec.count() - 1);
     } else {
         d->bottom = createIndex(0, d->rec.count() - 1);
+    }
+
+    queryChange();
+
+    if (!d->query.driver()->hasFeature(QSqlDriver::QuerySize)) {
         fetchMore();
     }
+
     emit rowsInserted(QModelIndex(), 0, d->bottom.row());
     if (columnsChanged)
         emit columnsInserted(QModelIndex(), 0, d->bottom.column());
@@ -307,10 +324,10 @@ void QSqlQueryModel::setLastError(const QSqlError &error)
 
 /*!
     Returns the record containing information about the fields
-    in the database. If \a row points to a valid row, the
+    of the current query. If \a row points to a valid row, the
     record will be populated with values from that row.
 
-    If the model is not initialized, en empty record will be
+    If the model is not initialized, an invalid record will be
     returned.
 */
 QSqlRecord QSqlQueryModel::record(int row) const
@@ -322,6 +339,18 @@ QSqlRecord QSqlQueryModel::record(int row) const
     for (int i = 0; i < rec.count(); ++i)
         rec.setValue(i, data(createIndex(row, i), EditRole));
     return rec;
+}
+
+/* \overload
+    Returns an empty record containing information about the fields
+    of the current query.
+
+    If the model is not initialized, an invalid record will be
+    returned.
+ */
+QSqlRecord QSqlQueryModel::record() const
+{
+    return d->rec;
 }
 
 /*!
@@ -408,3 +437,4 @@ QModelIndex QSqlQueryModel::dataIndex(const QModelIndex &item) const
         return QModelIndex();
     return createIndex(item.row(), item.column() - d->colOffsets[item.column()], item.data());
 }
+
