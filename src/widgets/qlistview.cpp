@@ -190,7 +190,6 @@ struct QListViewPrivate
     QTimer *scrollTimer;
 
     bool clearing;
-    bool inserting;
     bool makeCurrentVisibleOnUpdate;
     bool pressedSelected;
 
@@ -292,10 +291,6 @@ QListViewItem::QListViewItem( QListView * parent )
 {
     init();
     parent->insertItem( this );
-    QListView *lv = listView();
-    if ( !lv )
-	return;
-    lv->d->inserting = FALSE;
 }
 
 
@@ -306,10 +301,6 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 {
     init();
     parent->insertItem( this );
-    QListView *lv = listView();
-    if ( !lv )
-	return;
-    lv->d->inserting = FALSE;
 }
 
 
@@ -323,10 +314,6 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after )
     init();
     parent->insertItem( this );
     moveToJustAfter( after );
-    QListView *lv = listView();
-    if ( !lv )
-	return;
-    lv->d->inserting = FALSE;
 }
 
 
@@ -338,10 +325,6 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
     init();
     parent->insertItem( this );
     moveToJustAfter( after );
-    QListView *lv = listView();
-    if ( !lv )
-	return;
-    lv->d->inserting = FALSE;
 }
 
 
@@ -377,10 +360,6 @@ QListViewItem::QListViewItem( QListView * parent,
     setText( 5, label6 );
     setText( 6, label7 );
     setText( 7, label8 );
-    QListView *lv = listView();
-    if ( !lv )
-	return;
-    lv->d->inserting = FALSE;
 }
 
 
@@ -416,10 +395,6 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     setText( 5, label6 );
     setText( 6, label7 );
     setText( 7, label8 );
-    QListView *lv = listView();
-    if ( !lv )
-	return;
-    lv->d->inserting = FALSE;
 }
 
 /*!  Constructs a new list view item in the QListView \a parent,
@@ -454,10 +429,6 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
     setText( 5, label6 );
     setText( 6, label7 );
     setText( 7, label8 );
-    QListView *lv = listView();
-    if ( !lv )
-	return;
-    lv->d->inserting = FALSE;
 }
 
 
@@ -494,10 +465,6 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
     setText( 5, label6 );
     setText( 6, label7 );
     setText( 7, label8 );
-    QListView *lv = listView();
-    if ( !lv )
-	return;
-    lv->d->inserting = FALSE;
 }
 
 /*!
@@ -600,7 +567,6 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     QListView *lv = listView();
     if ( !lv )
 	return;
-    lv->d->inserting = TRUE;
     lv->d->makeCurrentVisibleOnUpdate = FALSE;
     if ( lv && lv->hasFocus() && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
@@ -1194,12 +1160,8 @@ void QListViewItem::setText( int column, const QString &text )
     QListView * lv = listView();
     int oldW = lv ? lv->columnWidth( column ) : 0;
     widthChanged( column );
-    if ( !lv )
-	return;
-    if ( oldW != lv->columnWidth( column ) || lv->d->inserting )
+    if ( lv )
 	listView()->triggerUpdate();
-    else
-	repaint();
 }
 
 
@@ -1260,7 +1222,9 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 	widthChanged( column );
 	invalidateHeight();
     }
-    repaint();
+    QListView *lv = listView();
+    if ( lv )
+	lv->triggerUpdate();
 }
 
 
@@ -1839,7 +1803,6 @@ void QListView::init()
     d->scrollTimer = 0;
     d->sortIndicator = FALSE;
     d->clearing = FALSE;
-    d->inserting = FALSE;
     d->minLeftBearing = fontMetrics().minLeftBearing();
     d->minRightBearing = fontMetrics().minRightBearing();
     d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
