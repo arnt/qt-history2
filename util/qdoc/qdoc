@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#3 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#4 $
 #
 # this is a massive hack, written very quickly
 #
@@ -257,7 +257,7 @@ sub readh {
 # { is \x7b and } is \x7d
     while ($h =~ m-\nclass\s+
 	   (\w*?)\s+
-	   \x7b\s+([^\x7d]+)\n\x7d-xsg
+	   \x7b\s+(.*?)\n\x7d-xsg
 	   ) {
 	&storeclass($filename, $1, $2);
     }
@@ -473,7 +473,6 @@ sub makearglinks {
 
 
 
-
 sub printout {
     local($url, $tail, $fnheader, $fntail);
 
@@ -569,9 +568,11 @@ sub printout {
 			$m{$mode} .= $_ . ";";
 		    }
 		}
-		foreach $mode (sort keys %m) {
+		foreach $mode ('public', 'static public',
+			       'signals', 'slots',
+			       'protected', 'static protected') {
 		    my ($e1, $e2);
-		    next if ($mode =~ /private/);
+		    next unless (defined($m{$mode}));
 		    $_ = $mode;
 		    $_ .= " members" if (!/s$/);
 		    print O "<h2>", ucfirst $_, "</h2>\n<ul>\n";
@@ -587,7 +588,7 @@ sub printout {
 							       )
 			    ((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
 								   )
-			    (?:\s*\(([^\(\)]*)\)\s*(const)?)?\s*(?:[\{=].*)?$/x) {
+			    \s*\(([^\(\)]*)\)\s*(const)?\s*(?:[\{=].*)?$/x) {
 			    my ($u,$t,$f,$a,$c);
 			    $t = $1;
 			    $f = $2;
@@ -608,7 +609,7 @@ sub printout {
 				if (defined($capt{$u}));
 			} else {
 			    $_ = &html($_);
-			    s;([^\(]*)(\w+);$1<strong>$2</strong>;s;
+			    s;([^:\(]*)\b(\w+);$1<strong>$2</strong>;s;
 			}
 			print O "<li>", $_, "\n";
 		    }
@@ -623,6 +624,7 @@ sub printout {
 	    $_ = $def{$url};
 	    $name = $url;
 	    $name =~ s/^[^\#]*\#//;
+	    s;([^\(]*)\b(\w+);$1<strong>$2</strong>;s;
 	    s%\(%<a name=$name>\(</a>%s;
 	    print O "<p><dt>", $_, "\n<dd>", $doc{$url};
 	}
@@ -637,13 +639,14 @@ $cfile = "VOLD";
 $internal = 1;
 
 foreach $arg ( 0..$#ARGV ) {
-    print $ARGV[$arg], "\n";
-    &readc($ARGV[$arg])
+    &readc($ARGV[$arg]);
 }
 
 &makenames();
 &makearglinks();
 &processdocs();
+
+chdir("/local/qt/doc/html") || die "can't cd to /local/qt/doc/html";
 
 &printout();
 
