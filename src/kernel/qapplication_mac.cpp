@@ -1988,6 +1988,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    //so this is in for now, FIXME!
 	    QAquaStyle::appearanceChanged();
 #endif
+	    if( app_do_modal && !qt_try_modal(widget, event) )
+		return 1;
+
 	    if(widget) {
 		widget->raise();
 		QWidget *tlw = widget->topLevelWidget();
