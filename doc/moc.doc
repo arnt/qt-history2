@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.16 1999/06/10 12:56:35 paul Exp $
+** $Id: moc.doc,v 2.17 1999/06/10 14:56:17 paul Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -235,7 +235,7 @@ The following example shows one wrong and two correct slot definitions.
 
 For those interested in C++ internals: The cause of this problem is
 that a slot is internally represented as a function pointer, and
-invoked on a QObject. 
+invoked on a QObject pointer. 
 
 
 <h3>Function pointers can not be arguments to signals or slots</h3>
