@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#75 $
+** $Id: //depot/qt/main/src/moc/moc.y#76 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#75 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#76 $");
 
 static QString rmWS( const char * );
 
@@ -521,7 +521,7 @@ class_head:		  class_key
 			  opt_base_spec		{ superclassName = $4; }
 			;
 
-opt_base_spec:			/* empty */	{ $$ = NULL; }
+opt_base_spec:			/* empty */	{ $$ = 0; }
 			| base_spec		{ $$ = $1; }
 			;
 
@@ -1198,7 +1198,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.9 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.10 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
