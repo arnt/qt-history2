@@ -582,12 +582,13 @@ void QGenericTreeView::updateGeometries()
     d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
 
     // update sliders
-    if (model()->rowCount() <= 0)
-        return;
     QItemOptions options;
     getViewOptions(&options);
     QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
-
+    
+    if (def.isEmpty())
+        return;
+    
     // vertical
     int h = viewport()->height();
     int item = d->items.count();
@@ -750,9 +751,9 @@ void QGenericTreeViewPrivate::close(int i)
 {
     QAbstractItemModel *model = q->model();
     int total = items.at(i).total;
-    items[i].open = false;
-    QModelIndex index = modelIndex(i);
+    QModelIndex index = items.at(i).index;
     opened.remove(opened.indexOf(index));
+    items[i].open = false;
     
     int idx = i;
     QModelIndex tmp = index;
