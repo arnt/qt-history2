@@ -711,7 +711,8 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	break;
 
     case PE_ScrollBarSlider:
-	drawPrimitive(PE_ButtonBevel, p, r, cg, flags | Style_Raised);
+	drawPrimitive(PE_ButtonBevel, p, r, cg,
+		      (flags | Style_Raised) & ~Style_Down);
 	break;
 
     case PE_ProgressBarChunk:
