@@ -180,7 +180,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    if ( testWFlags(WStyle_Title) )
 		style |= WS_CAPTION;
 	    if ( testWFlags(WStyle_SysMenu) )
-		style |= WS_SYSMENU | WS_CAPTION;
+		style |= WS_SYSMENU;
 	    if ( testWFlags(WStyle_Minimize) )
 		style |= WS_MINIMIZEBOX;
 	    if ( testWFlags(WStyle_Maximize) )
