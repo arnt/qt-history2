@@ -347,6 +347,7 @@ private:
     bool parseNmtoken();
     bool parseAttribute();
     bool parseReference( bool &charDataRead, EntityRecognitionContext context );
+    bool processReference( bool &charDataRead, EntityRecognitionContext context );
 
     bool parseExternalID( bool allowPublicID = FALSE );
     bool parsePEReference( EntityRecognitionContext context );
