@@ -14,7 +14,7 @@
 #ifndef QOBJECTDEFS_H
 #define QOBJECTDEFS_H
 
-#include "QtCore/qglobal.h"
+#include "QtCore/qnamespace.h"
 
 class QString;
 
@@ -127,11 +127,55 @@ private:
 #define QSLOT_CODE        1
 #define QSIGNAL_CODE        2
 
+#define Q_ARG(type, data) QArgument<type>(#type, data)
+#define Q_RETURN_ARG(type, data) QReturnArgument<type>(#type, data)
+
 class QObject;
 class QMetaMember;
 class QMetaEnum;
 class QMetaProperty;
 class QMetaClassInfo;
+
+
+class Q_CORE_EXPORT QGenericArgument
+{
+public:
+    inline QGenericArgument(const char *aName = 0, const void *aData = 0)
+        : _data(aData), _name(aName) {}
+    inline void *data() const { return const_cast<void *>(_data); }
+    inline const char *name() const { return _name; }
+
+private:
+    const void *_data;
+    const char *_name;
+};
+
+class Q_CORE_EXPORT QGenericReturnArgument: public QGenericArgument
+{
+public:
+    inline QGenericReturnArgument(const char *aName = 0, void *aData = 0)
+        : QGenericArgument(aName, aData)
+        {}
+};
+
+template <class T>
+class QArgument: public QGenericArgument
+{
+public:
+    inline QArgument(const char *aName, const T &aData)
+        : QGenericArgument(aName, static_cast<const void *>(&aData))
+        {}
+};
+
+
+template<class T>
+class QReturnArgument: public QGenericReturnArgument
+{
+public:
+    inline QReturnArgument(const char *aName, T &aData)
+        : QGenericReturnArgument(aName, static_cast<void *>(&aData))
+        {}
+};
 
 struct Q_CORE_EXPORT QMetaObject
 {
@@ -187,6 +231,71 @@ struct Q_CORE_EXPORT QMetaObject
     static void addGuard(QObject **ptr);
     static void removeGuard(QObject **ptr);
     static void changeGuard(QObject **ptr, QObject *o);
+
+    static bool invokeMember(QObject *obj, const char *member,
+                             Qt::ConnectionType,
+                             QGenericReturnArgument ret,
+                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val1 = QGenericArgument(),
+                             QGenericArgument val2 = QGenericArgument(),
+                             QGenericArgument val3 = QGenericArgument(),
+                             QGenericArgument val4 = QGenericArgument(),
+                             QGenericArgument val5 = QGenericArgument(),
+                             QGenericArgument val6 = QGenericArgument(),
+                             QGenericArgument val7 = QGenericArgument(),
+                             QGenericArgument val8 = QGenericArgument(),
+                             QGenericArgument val9 = QGenericArgument());
+
+    static inline bool invokeMember(QObject *obj, const char *member,
+                             QGenericReturnArgument ret,
+                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val1 = QGenericArgument(),
+                             QGenericArgument val2 = QGenericArgument(),
+                             QGenericArgument val3 = QGenericArgument(),
+                             QGenericArgument val4 = QGenericArgument(),
+                             QGenericArgument val5 = QGenericArgument(),
+                             QGenericArgument val6 = QGenericArgument(),
+                             QGenericArgument val7 = QGenericArgument(),
+                             QGenericArgument val8 = QGenericArgument(),
+                             QGenericArgument val9 = QGenericArgument())
+    {
+        return invokeMember(obj, member, Qt::AutoConnection, ret, val0, val1, val2, val3,
+                val4, val5, val6, val7, val8, val9);
+    }
+
+    static inline bool invokeMember(QObject *obj, const char *member,
+                             Qt::ConnectionType type,
+                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val1 = QGenericArgument(),
+                             QGenericArgument val2 = QGenericArgument(),
+                             QGenericArgument val3 = QGenericArgument(),
+                             QGenericArgument val4 = QGenericArgument(),
+                             QGenericArgument val5 = QGenericArgument(),
+                             QGenericArgument val6 = QGenericArgument(),
+                             QGenericArgument val7 = QGenericArgument(),
+                             QGenericArgument val8 = QGenericArgument(),
+                             QGenericArgument val9 = QGenericArgument())
+    {
+        return invokeMember(obj, member, type, QGenericReturnArgument(), val0, val1, val2,
+                                 val3, val4, val5, val6, val7, val8, val9);
+    }
+
+
+    static inline bool invokeMember(QObject *obj, const char *member,
+                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val1 = QGenericArgument(),
+                             QGenericArgument val2 = QGenericArgument(),
+                             QGenericArgument val3 = QGenericArgument(),
+                             QGenericArgument val4 = QGenericArgument(),
+                             QGenericArgument val5 = QGenericArgument(),
+                             QGenericArgument val6 = QGenericArgument(),
+                             QGenericArgument val7 = QGenericArgument(),
+                             QGenericArgument val8 = QGenericArgument(),
+                             QGenericArgument val9 = QGenericArgument())
+    {
+        return invokeMember(obj, member, Qt::AutoConnection, QGenericReturnArgument(), val0,
+                val1, val2, val3, val4, val5, val6, val7, val8, val9);
+    }
 
     enum Call {
         InvokeMetaMember,

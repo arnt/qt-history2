@@ -13,9 +13,6 @@
 
 #include "qbuffer.h"
 #include "private/qiodevice_p.h"
-#ifndef QT_NO_QOBJECT
-#include "qsignal.h"
-#endif
 #include "qtimer.h"
 
 /** QBufferPrivate **/
@@ -422,7 +419,7 @@ qint64 QBuffer::writeData(const char *data, qint64 len)
     d->writtenSinceLastEmit += len;
     if (!d->signalsEmitted) {
         d->signalsEmitted = true;
-        qInvokeMetaMember(this, "emitSignals", Qt::QueuedConnection);
+        QMetaObject::invokeMember(this, "emitSignals", Qt::QueuedConnection);
     }
 #endif
     return len;

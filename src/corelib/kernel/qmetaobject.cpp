@@ -14,9 +14,13 @@
 #include "qmetaobject.h"
 #include "qmetatype.h"
 #include "qobject.h"
+#include "private/qobject_p.h"
 #include <qcoreapplication.h>
+#include <qcoreevent.h>
 #include <qdatastream.h>
 #include <qstringlist.h>
+#include <qthread.h>
+#include <qvarlengtharray.h>
 #include <qvariant.h>
 #include <qhash.h>
 #include <ctype.h>
@@ -828,6 +832,208 @@ QByteArray QMetaObject::normalizedSignature(const char *member)
     return result;
 }
 
+/*!
+    Invokes the \a member (a signal or a slot name) on the object \a
+    obj. Returns true if the member could be invoked. Returns false
+    if there is no such member or the parameters did not match.
+
+    The invocation can be either synchronous or asynchronous,
+    depending on \a type:
+
+    \list
+    \o If \a type is Qt::DirectConnection, the member will be invoked immediately.
+
+    \o If \a type is Qt::QueuedConnection,
+       a QEvent will be sent and the member is invoked as soon as the application
+       enters the main event loop.
+
+    \o If \a type is Qt::AutoConnection, the member is invoked
+       synchronously if \a obj lives in the same thread as the
+       caller; otherwise it will invoke the member asynchronously.
+    \endlist
+
+    The return value of the \a member function call is placed in \a
+    ret. If the invocation is asynchronous, the return value cannot
+    be evaluated. You can pass up to ten arguments (\a val0, \a val1,
+    \a val2, \a val3, \a val4, \a val5, \a val6, \a val7, \a val8,
+    and \a val9) to the \a member function.
+
+    \c QGenericArgument and \c QGenericReturnArgument are internal
+    helper classes. Because signals and slots can be dynamically
+    invoked, you must enclose the arguments using the \c Q_ARG() and
+    \c Q_RETURN_ARG() macros. \c Q_ARG() takes a type name and a
+    const reference of that type; \c Q_RETURN_ARG() takes a type name
+    and a non-const reference.
+
+    To asynchronously invoke the
+    \l{QPushButton::animateClick()}{animateClick()} slot on a
+    QPushButton:
+
+    \code
+        QMetaObject::invokeMember(pushButton, "animateClick",
+                                  Qt::QueuedConnection);
+    \endcode
+
+    To synchronously invoke the \c compute(QString, int, double) slot on
+    some arbitrary object \c obj retrieve its return value:
+
+    \code
+        QString retVal;
+        QMetaObject::invokeMember(obj, "compute", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QString, retVal),
+                                  Q_ARG(QString, "sqrt"),
+                                  Q_ARG(int, 42),
+                                  Q_ARG(double, 9.7));
+    \endcode
+
+    If the "compute" slot does not take exactly one QString, one int
+    and one double in the specified order, the call will fail.
+*/
+bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionType type,
+                 QGenericReturnArgument ret,
+                 QGenericArgument val0,
+                 QGenericArgument val1,
+                 QGenericArgument val2,
+                 QGenericArgument val3,
+                 QGenericArgument val4,
+                 QGenericArgument val5,
+                 QGenericArgument val6,
+                 QGenericArgument val7,
+                 QGenericArgument val8,
+                 QGenericArgument val9)
+{
+    if (!obj)
+        return false;
+
+    QVarLengthArray<char, 512> sig;
+    int len = qstrlen(member);
+    if (len <= 0)
+        return false;
+    sig.append(member, len);
+    sig.append('(');
+
+    enum { ParamCount = 11 };
+    const char *typeNames[] = {ret.name(), val0.name(), val1.name(), val2.name(), val3.name(),
+                               val4.name(), val5.name(), val6.name(), val7.name(), val8.name(),
+                               val9.name()};
+
+    int i;
+    for (i = 1; i < ParamCount; ++i) {
+        len = qstrlen(typeNames[i]);
+        if (len <= 0)
+            break;
+        sig.append(typeNames[i], len);
+        sig.append(',');
+    }
+    if (i == 1)
+        sig.append(')'); // no parameters
+    else
+        sig[sig.size() - 1] = ')';
+    sig.append('\0');
+
+    int idx = obj->metaObject()->indexOfMember(sig.constData());
+    if (idx < 0) {
+        QByteArray norm = QMetaObject::normalizedSignature(sig.constData());
+        idx = obj->metaObject()->indexOfMember(norm.constData());
+    }
+    if (idx < 0)
+        return false;
+
+    // check return type
+    if (ret.data()) {
+        const char *retType = obj->metaObject()->member(idx).typeName();
+        if (qstrcmp(ret.name(), retType) != 0)
+            return false;
+    }
+    void *param[] = {ret.data(), val0.data(), val1.data(), val2.data(), val3.data(), val4.data(),
+                     val5.data(), val6.data(), val7.data(), val8.data(), val9.data()};
+    if (type == Qt::AutoConnection) {
+        type = QThread::currentThread() == obj->thread()
+               ? Qt::DirectConnection
+               : Qt::QueuedConnection;
+    }
+
+    if (type != Qt::QueuedConnection) {
+        return obj->qt_metacall(QMetaObject::InvokeMetaMember, idx, param) < 0;
+    } else {
+        if (ret.data()) {
+            qWarning("QMetaObject::invokeMember: Unable to invoke methods with return values in queued "
+                     "connections.");
+            return false;
+        }
+        int nargs = 1; // include return type
+        void **args = (void **) qMalloc(ParamCount * sizeof(void *));
+        int *types = (int *) qMalloc(ParamCount * sizeof(int));
+        types[0] = 0; // return type
+        args[0] = 0;
+        for (i = 1; i < ParamCount; ++i) {
+            types[i] = QMetaType::type(typeNames[i]);
+            if (types[i]) {
+                args[i] = QMetaType::construct(types[i], param[i]);
+                ++nargs;
+            } else if (param[i]) {
+                qWarning("QMetaObject::invokeMember: Unable to handle unregistered datatype '%s'",
+                         typeNames[i]);
+                return false;
+            }
+        }
+
+        QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, nargs, types, args));
+    }
+    return true;
+}
+
+/*! \fn static inline bool QMetaObject::invokeMember(QObject *obj, const char *member,
+                             QGenericReturnArgument ret,
+                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val1 = QGenericArgument(),
+                             QGenericArgument val2 = QGenericArgument(),
+                             QGenericArgument val3 = QGenericArgument(),
+                             QGenericArgument val4 = QGenericArgument(),
+                             QGenericArgument val5 = QGenericArgument(),
+                             QGenericArgument val6 = QGenericArgument(),
+                             QGenericArgument val7 = QGenericArgument(),
+                             QGenericArgument val8 = QGenericArgument(),
+                             QGenericArgument val9 = QGenericArgument());
+    \overload
+
+    This overload always invokes the member using the connection type Qt::AutoConnection.
+*/
+
+/*! \fn static inline bool QMetaObject::invokeMember(QObject *obj, const char *member,
+                             Qt::ConnectionType type,
+                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val1 = QGenericArgument(),
+                             QGenericArgument val2 = QGenericArgument(),
+                             QGenericArgument val3 = QGenericArgument(),
+                             QGenericArgument val4 = QGenericArgument(),
+                             QGenericArgument val5 = QGenericArgument(),
+                             QGenericArgument val6 = QGenericArgument(),
+                             QGenericArgument val7 = QGenericArgument(),
+                             QGenericArgument val8 = QGenericArgument(),
+                             QGenericArgument val9 = QGenericArgument());
+
+    \overload
+
+    This overload can be used if the return value of the member is of no interest.
+*/
+
+/* \fn static inline bool QMetaObject::invokeMember(QObject *obj, const char *member,
+                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val1 = QGenericArgument(),
+                             QGenericArgument val2 = QGenericArgument(),
+                             QGenericArgument val3 = QGenericArgument(),
+                             QGenericArgument val4 = QGenericArgument(),
+                             QGenericArgument val5 = QGenericArgument(),
+                             QGenericArgument val6 = QGenericArgument(),
+                             QGenericArgument val7 = QGenericArgument(),
+                             QGenericArgument val8 = QGenericArgument(),
+                             QGenericArgument val9 = QGenericArgument());
+    \overload
+
+    This overload invokes the member using the connection type Qt::AutoConnection and
+    ignores return values.
+*/
 
 /*!
     \class QMetaMember qmetaobject.h

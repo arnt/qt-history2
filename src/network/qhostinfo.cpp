@@ -19,7 +19,6 @@
 #include <qcoreapplication.h>
 #include <qmetaobject.h>
 #include <qregexp.h>
-#include <qsignal.h>
 #include <private/qsocketlayer_p.h>
 #include <qstringlist.h>
 #include <qthread.h>
@@ -166,14 +165,14 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
         // To mimic the same behavior that the lookup would have if it was not
         // an IP, we need to choose a Qt::QueuedConnection if there is thread support;
         // otherwise Qt::DirectConnection.
-        if (!qInvokeMetaMember(receiver, arr,
+        if (!QMetaObject::invokeMember(receiver, arr,
 #if !defined QT_NO_THREAD
                          Qt::QueuedConnection,
 #else
                          Qt::DirectConnection,
 #endif
                          QGenericArgument("QHostInfo", &info))) {
-            qWarning("QHostInfo::lookupHost() called with invalid slot (qInvokeMetaMember failed)");
+            qWarning("QHostInfo::lookupHost() called with invalid slot (QMetaObject::invokeMember failed)");
         }
         return info.lookupId();
     }

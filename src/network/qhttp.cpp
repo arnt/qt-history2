@@ -23,7 +23,6 @@
 #include "qtextstream.h"
 #include "qmap.h"
 #include "qlist.h"
-#include "qsignal.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qbuffer.h"
@@ -1412,7 +1411,7 @@ void QHttpPrivate::init()
 {
     Q_Q(QHttp);
     errorString = QT_TRANSLATE_NOOP(QHttp, "Unknown error");
-    qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
+    QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
 }
 
 /*!
@@ -1528,7 +1527,7 @@ QHttp::~QHttp()
     bytes, since for large files these values might need to be
     "scaled" to avoid overflow.
 
-    \sa dataReadProgress() post() request() QProgressBar::setProgress()
+    \sa dataReadProgress(), post(), request(), QProgressBar
 */
 
 /*!
@@ -1547,7 +1546,7 @@ QHttp::~QHttp()
     bytes, since for large files these values might need to be
     "scaled" to avoid overflow.
 
-    \sa dataSendProgress() get() post() request() QProgressBar::setProgress()
+    \sa dataSendProgress() get() post() request() QProgressBar
 */
 
 /*!
@@ -1621,7 +1620,7 @@ qint64 QHttp::bytesAvailable() const
     return qint64(d->rba.size());
 }
 
-/*! \fn qint64 QHttp::readBlock(char *data, Q_ULONG maxlen)
+/*! \fn qint64 QHttp::readBlock(char *data, quint64 maxlen)
 
     Use read() instead.
 */
@@ -1731,7 +1730,7 @@ QIODevice *QHttp::currentSourceDevice() const
     This function can be used to delete the QIODevice in the slot connected to
     the requestFinished() signal.
 
-    \sa currentDestinationDevice() get() post() request()
+    \sa currentSourceDevice() get() post() request()
 */
 QIODevice *QHttp::currentDestinationDevice() const
 {
@@ -2044,7 +2043,7 @@ int QHttpPrivate::addRequest(QHttpRequest *req)
 
     if (pending.count() == 1) {
         // don't emit the requestStarted() signal before the id is returned
-        qInvokeMetaMember(q, "startNextRequest", Qt::QueuedConnection);
+        QMetaObject::invokeMember(q, "startNextRequest", Qt::QueuedConnection);
     }
     return req->id;
 }
@@ -2178,7 +2177,7 @@ void QHttpPrivate::slotClosed()
 
     postDevice = 0;
     setState(QHttp::Closing);
-    qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
+    QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
 }
 
 void QHttpPrivate::slotConnected()
@@ -2437,7 +2436,7 @@ void QHttpPrivate::slotReadyRead()
                 setState(QHttp::Connected);
                 // Start a timer, so that we emit the keep alive signal
                 // "after" this method returned.
-                qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
+                QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
             }
         }
     }
@@ -2513,7 +2512,7 @@ void QHttpPrivate::closeConn()
 
     // Already closed ?
     if (!socket || !socket->isOpen()) {
-        qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
+        QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
     } else {
         // Close now.
         socket->close();
@@ -2521,7 +2520,7 @@ void QHttpPrivate::closeConn()
         // Did close succeed immediately ?
         if (socket->state() == QTcpSocket::UnconnectedState) {
             // Prepare to emit the requestFinished() signal.
-            qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
+            QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
         }
     }
 }

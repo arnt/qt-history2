@@ -16,7 +16,6 @@
 #include "qdesigner_workbench.h"
 
 #include <QtCore/QEvent>
-#include <QtCore/QSignal>
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
 
@@ -92,7 +91,7 @@ void QDesignerToolWindow::closeEvent(QCloseEvent *ev)
     if (m_saveSettings) {
         ev->setAccepted(workbench()->handleClose());
         if (ev->isAccepted() && qDesigner->mainWindow() == this)
-            qInvokeMetaMember(qDesigner, "quit", Qt::QueuedConnection);  // We're going down!
+            QMetaObject::invokeMember(qDesigner, "quit", Qt::QueuedConnection);  // We're going down!
     } else {
         QMainWindow::closeEvent(ev);
     }

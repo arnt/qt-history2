@@ -545,13 +545,6 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
-    \fn bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const = 0
-
-    Returns true if the given \a parent index in the model contains child
-    items; otherwise returns false.
-*/
-
-/*!
     \fn QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent) const = 0
 
     Returns the index of the item in the model specified by the given \a row,
