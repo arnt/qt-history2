@@ -952,7 +952,13 @@ QString	QButton::contentsDescription() const
 /*! \reimp */
 QString	QButton::stateDescription() const
 {
-    return isToggleButton() ? ( isOn() ? tr("On") : tr("Off") ) : QString::null;
+    if ( isToggleButton() ) {
+	if ( isOn() )
+	    return tr( "On" );
+	else
+	    return tr( "Off" );
+    }
+    return QString::null;
 }
 
 /*! \reimp */
