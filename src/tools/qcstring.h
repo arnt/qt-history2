@@ -124,7 +124,7 @@ Q_EXPORT QByteArray qCompress( const uchar* data, int nbytes );
 Q_EXPORT QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize = -1 );
 Q_EXPORT inline QByteArray qCompress( const QByteArray& data)
 { return qCompress( (const uchar*)data.data(), data.size() ); }
-Q_EXPORT inline QByteArray qUncompress( const QByteArray& data, int expextedSize = -1 )
+Q_EXPORT inline QByteArray qUncompress( const QByteArray& data, int expectedSize = -1 )
 { return qUncompress( (const uchar*)data.data(), data.size(), expectedSize ); }
 
 
