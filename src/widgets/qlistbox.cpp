@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#26 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#26 $";
 #endif
 
 
@@ -90,7 +90,7 @@ QListBox::QListBox( QWidget *parent, const char *name )
     itemList	  = new QLBItemList;
     CHECK_PTR( itemList );
     setCellWidth( 0 );			// setup table params
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
     setTableFlags( Tbl_smoothVScrolling );
@@ -286,7 +286,7 @@ void QListBox::inSort( const char *string )
 	return;
     }
     itemList->inSort( newAny( string, 0 ) );
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     int w = fm.width( string ) + 6;
     if ( w > cellWidth() )
 	setCellWidth( w );
@@ -307,7 +307,7 @@ void QListBox::removeItem( int index )
     bool updt = autoUpdate() && itemVisible( index );
 
     QLBItem *tmp = itemList->take( index );
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     int w = internalItemWidth( tmp, fm );
     if ( w == cellWidth() )
 	updateCellWidth();
@@ -701,14 +701,14 @@ QLBItem *QListBox::item( int index ) const
 int QListBox::cellHeight( long index )
 {
     if ( stringsOnly ) {
-	QFontMetrics fm( font() );
+	QFontMetrics fm = fontMetrics();
 	return fm.lineSpacing() + 1;
     }
     QLBItem *tmp = item( (int)index );
     if ( tmp ) {
 	switch( tmp->type ) {
 	    case LBI_String: {
-		QFontMetrics fm( font() );
+		QFontMetrics fm = fontMetrics();
 		return fm.lineSpacing() + 1;
 	    }
 	    case LBI_Pixmap: {
@@ -1022,7 +1022,7 @@ void QListBox::insertAny( const char *s, const QPixmap *bm,
     if ( !lbi )
 	lbi = newAny( s, bm );
     itemList->insert( index, lbi );
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     if ( updateCellWidth ) {
 	int w = internalItemWidth( lbi, fm );
 	if ( w > cellWidth() )
@@ -1041,7 +1041,7 @@ void QListBox::changeAny( const char *s, const QPixmap *bm,
 #endif
 
     QLBItem *tmp = itemList->take( index );
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     int w = internalItemWidth( tmp, fm );
     if ( w == cellWidth() )
 	updateCellWidth();
@@ -1070,7 +1070,7 @@ void QListBox::updateNumRows( bool updateWidth )
 void QListBox::updateCellWidth()
 {
     QLBItem *tmp = itemList->first();
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     int maxW = windowWidth();
     int w;
     while ( tmp ) {

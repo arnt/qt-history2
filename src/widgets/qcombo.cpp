@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#11 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#11 $";
 #endif
 
 /*!
@@ -371,7 +371,7 @@ void QComboBox::adjustSize()
     const char *tmp = d->popup->string( d->current );
     int w, h;
     if ( tmp ) {
-	QFontMetrics fm( font() );
+	QFontMetrics fm = fontMetrics();
 	w = fm.width( tmp );
 	h = fm.height();
     } else {
@@ -468,7 +468,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	p.drawShadePanel( xPos, height() - 2 - dist - buttonH,
 			 buttonW, buttonH,
 			 g.light(), g.dark(), 2 );
-	QFontMetrics fm( font() );
+	QFontMetrics fm = p.fontMetrics();
 	QRect clip( 2, 2, xPos - 2 - 3, height() - 4 );
 	const char *tmp = d->popup->string( d->current );
 	if ( tmp ) {
