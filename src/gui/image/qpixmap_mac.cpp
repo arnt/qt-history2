@@ -205,7 +205,7 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             }
             break;
         default:
-            qDebug("Qt: internal: Oops: Forgot a depth %s:%d", __FILE__, __LINE__);
+            qWarning("Qt: internal: Oops: Forgot a depth %s:%d", __FILE__, __LINE__);
             break;
         }
     }
@@ -619,7 +619,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     if(e != noErr) {
         data->w = data->h = 0;
         data->hd = 0; //just to be sure
-        qDebug("Qt: internal: QPixmap::init error (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
+        qWarning("Qt: internal: QPixmap::init error (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
     } else {
         bool locked = LockPixels(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
         Q_ASSERT(locked);
