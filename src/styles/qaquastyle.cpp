@@ -8965,11 +8965,19 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     }
 
     // Sliders
-    if( s.contains("sldr_") ){
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty",
-                              (const char **) aqua_sldr_act_pty_xpm );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty",
-                              (const char **) aqua_sldr_dis_pty_xpm );
+    if( s.contains("_pty_") ) {
+        size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
+
+        im = QImage( (const char **) aqua_sldr_act_pty_xpm );
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_" + sizestr, px );
+
+        im = QImage( (const char **) aqua_sldr_dis_pty_xpm );
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_" + sizestr, px );
+    }
+    if( s.contains("sldr_grv") ){
         QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left",
                               (const char **) aqua_sldr_grv_tip_left_xpm);
         QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right",
@@ -10154,18 +10162,19 @@ int QAquaStyle::sliderLength() const
 }
 
 /*! \reimp */
-void QAquaStyle::drawSlider( QPainter *p, int x, int y, int /*w*/, int /*h*/,
+void QAquaStyle::drawSlider( QPainter *p, int x, int y, int /*w*/, int h,
                              const QColorGroup & g,
                              Orientation /*orient*/ , bool /* tickAbove */,
                              bool /*tickBelow*/ )
 {
     // ### Orientation
     QPixmap px;
+    QString hstr = QString::number( h );
 
     if( qAquaActive( g ) )
-        qAquaPixmap( "sldr_act_pty", px );
+        qAquaPixmap( "sldr_act_pty_" + hstr, px );
     else
-        qAquaPixmap( "sldr_dis_pty", px );
+        qAquaPixmap( "sldr_dis_pty_" + hstr, px );
 
     p->drawPixmap( x, y, px );
 }
