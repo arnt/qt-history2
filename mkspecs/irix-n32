@@ -1,18 +1,54 @@
 #
-# $Id: tmake.conf,v 1.20 1999/09/10 12:11:40 aavit Exp $
+# $Id: //depot/qt/main/mkspecs/irix-n32#16 $
 #
-# tmake configuration for irix-n32
+# qmake configuration for irix-n32
+#
+# On Irix the _SGI_SOURCE macro imports the most recent system interfaces.
+# This is the macro of choice to request most current Open Group standards
+# available on the system.
+# Now the MIPSpro compiler seems to define _SGI_SOURCE automatically unless
+# it is shadowed by macros such as _POSIX_C_SOURCE or _XOPEN_SOURCE. Worse,
+# directly specifying Open Group standards seems to hide non-standard
+# extensions such as some DNS details even though _SGI_SOURCE is defined.
+# See <standards.h> for more details.
+#
+# From cc(1):
+# 	-n32
+# 	  Generates a (new) 32-bit object. This defaults to -mips3 if
+# 	  -mips4 has not been specified.
+# 	-LANG: ...
+# 	  The language feature option group controls the source language
+# 	  interpretation assumed by the compiler. The individual controls
+# 	  in this group are as follows:
+# 	    ansi-for-init-scope [ = ( ON|OFF ) ]
+# 	      Enables or disables the ANSI scoping rules for for-init
+# 	      declarations (the scope of the name declared extends to
+# 	      the end of the for statement). This enables the behavior
+# 	      that is required by the C++ standard. The default value
+# 	      is OFF, which is the ARM behavior (the scope of the name
+# 	      declared extends to the end of the block enclosing the for
+# 	      statement).
+# 	    bool [ = ( ON|OFF ) ]
+# 	      Enables or disables the predefined bool data type, along
+# 	      with the predefined values true and false. Use this option
+# 	      only to suppress this type in old code that defines bool
+# 	      itself.  Because this option changes the mangling of function
+# 	      names with bool parameters, all files comprising a program
+# 	      should be compiled with consistent options.
+# 	      Default is ON.
+# 	      The _BOOL feature macro can be used in #ifdefs to do conditional
+# 	      compilation based on whether or not this option is enabled.
 #
 
-MAKEFILE_GENERATOR      = UNIX
+MAKEFILE_GENERATOR	= UNIX
 TEMPLATE		= app
 CONFIG			+= qt warn_on release
 
 QMAKE_CC		= cc
-QMAKE_LEX               = flex
-QMAKE_LEXFLAGS  = 
-QMAKE_YACC              = yacc
-QMAKE_YACCFLAGS  = -d
+QMAKE_LEX		= flex
+QMAKE_LEXFLAGS		= 
+QMAKE_YACC		= yacc
+QMAKE_YACCFLAGS		= -d
 QMAKE_CFLAGS		= -n32 -woff 1021,1209,1233,1314,1355,1375,1506
 QMAKE_CFLAGS_WARN_ON	= -fullwarn
 QMAKE_CFLAGS_WARN_OFF	=
@@ -47,17 +83,17 @@ QMAKE_LFLAGS		= -n32
 QMAKE_LFLAGS_RELEASE	=
 QMAKE_LFLAGS_DEBUG	=
 QMAKE_LFLAGS_SHLIB	= -shared
-QMAKE_LFLAGS_PLUGIN     = $$QMAKE_LFLAGS_SHLIB
+QMAKE_LFLAGS_PLUGIN	= $$QMAKE_LFLAGS_SHLIB
 QMAKE_LFLAGS_THREAD	=
 
-# QMAKE_LFLAGS_SONAME	= -Wl,-soname,
+QMAKE_LFLAGS_SONAME	= -Wl,-soname,
 QMAKE_RPATH		= -Wl,-rpath,
 
 QMAKE_LIBS		=
 QMAKE_LIBS_X11		= -lXext -lX11 -lm
 QMAKE_LIBS_QT		= -lqt
 QMAKE_LIBS_QT_THREAD	= -lqt-mt
-QMAKE_LIBS_OPENGL	= -lGLU -lGL -lXmu
+QMAKE_LIBS_OPENGL	= -lGLU -lGL -lXmu -lm
 QMAKE_LIBS_OPENGL_QT	= -lGL -lXmu
 QMAKE_LIBS_THREAD	= -lpthread
 
@@ -72,6 +108,6 @@ QMAKE_CLEAN		= -r so_locations ii_files
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
 
-QMAKE_COPY              = cp -f
-QMAKE_MOVE              = mv
-QMAKE_DEL               = rm -f
+QMAKE_COPY		= cp -f
+QMAKE_MOVE		= mv
+QMAKE_DEL		= rm -f

@@ -1,18 +1,28 @@
 #
+# $Id: //depot/qt/main/mkspecs/solaris-cc-gcc#12 $
+#
 # qmake configuration for solaris-cc-gcc
-# (Using SunPro CC for C++ code and gcc for C code.)
+#
+# Using Sun WorkShop CC for C++ code and gcc for C code :-/
+#
+# There is no _*_SOURCE on Solaris, but there's an __EXTENSIONS__ macro.
+# You may explicitly specify Open Group standards using the relevant
+# _XOPEN_SOURCE* macros, while __EXTENSIONS__ imports additional
+# proprietary or draft interfaces not part of the specified OpenGroup
+# standard.
+# See standards(5) and <sys/feature_tests.h> for more details.
 #
 
-MAKEFILE_GENERATOR      = UNIX
+MAKEFILE_GENERATOR	= UNIX
 TEMPLATE		= app
 CONFIG			+= qt warn_on release
 
 QMAKE_CC		= gcc
-QMAKE_LEX               = flex
-QMAKE_LEXFLAGS  = 
-QMAKE_YACC              = yacc
-QMAKE_YACCFLAGS  = -d
-QMAKE_CFLAGS		=
+QMAKE_LEX		= flex
+QMAKE_LEXFLAGS		= 
+QMAKE_YACC		= yacc
+QMAKE_YACCFLAGS		= -d
+QMAKE_CFLAGS		= -D__EXTENSIONS__
 QMAKE_CFLAGS_WARN_ON	= -Wall -W
 QMAKE_CFLAGS_WARN_OFF	=
 QMAKE_CFLAGS_RELEASE	= -O2
@@ -22,14 +32,14 @@ QMAKE_CFLAGS_YACC	= -Wno-unused -Wno-parentheses
 QMAKE_CFLAGS_THREAD	= -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS
 
 QMAKE_CXX		= CC
-QMAKE_CXXFLAGS		=
+QMAKE_CXXFLAGS		= $$QMAKE_CFLAGS
 QMAKE_CXXFLAGS_WARN_ON	=
 QMAKE_CXXFLAGS_WARN_OFF	= -w
 QMAKE_CXXFLAGS_RELEASE	= $$QMAKE_CFLAGS_RELEASE
 QMAKE_CXXFLAGS_DEBUG	= $$QMAKE_CFLAGS_DEBUG
 QMAKE_CXXFLAGS_SHLIB	= -KPIC
 QMAKE_CXXFLAGS_YACC	=
-QMAKE_CXXFLAGS_THREAD   = -mt -D_POSIX_PTHREAD_SEMANTICS
+QMAKE_CXXFLAGS_THREAD	= -mt -D_POSIX_PTHREAD_SEMANTICS
 
 QMAKE_INCDIR		=
 QMAKE_LIBDIR		=
@@ -70,6 +80,6 @@ QMAKE_CLEAN		= -r Templates.DB
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
 
-QMAKE_COPY              = cp -f
-QMAKE_MOVE              = mv
-QMAKE_DEL               = rm -f
+QMAKE_COPY		= cp -f
+QMAKE_MOVE		= mv
+QMAKE_DEL		= rm -f

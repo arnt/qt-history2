@@ -1,4 +1,6 @@
 #
+# $Id: //depot/qt/main/mkspecs/win32-watcom#9 $
+#
 # qmake configuration for Win32/Watcom C++
 #
 
@@ -6,10 +8,10 @@ TEMPLATE		= app
 CONFIG			+= qt warn_on release
 
 QMAKE_CC		= wcl386
-QMAKE_LEX               = flex
-QMAKE_LEXFLAGS  = 
-QMAKE_YACC              = byacc
-QMAKE_YACCFLAGS  = -d
+QMAKE_LEX		= flex
+QMAKE_LEXFLAGS		= 
+QMAKE_YACC		= byacc
+QMAKE_YACCFLAGS		= -d
 QMAKE_CFLAGS		= -zq
 QMAKE_CFLAGS_WARN_ON	= -w2
 QMAKE_CFLAGS_WARN_OFF	= -w0
@@ -56,6 +58,6 @@ QMAKE_RC		= rc
 
 QMAKE_ZIP		= zip -r -9
 
-QMAKE_COPY              = copy
-QMAKE_MOVE              = move
-QMAKE_DEL               = del
+QMAKE_COPY		= copy
+QMAKE_MOVE		= move
+QMAKE_DEL		= del

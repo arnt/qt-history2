@@ -1,18 +1,20 @@
 #
-# $Id: tmake.conf,v 1.1 1999/12/07 19:03:11 aavit Exp $
+# $Id: //depot/qt/main/mkspecs/reliant-cds#12 $
 #
-# tmake configuration for Reliant UNIX 5.45 (using CDS++ 2.0 for C++ and C.)
+# tmake configuration for reliant-cds
+#
+# Reliant UNIX 5.45 using CDS++ 2.0 for C++ and C
 #
 
-MAKEFILE_GENERATOR      = UNIX
+MAKEFILE_GENERATOR	= UNIX
 TEMPLATE		= app
 CONFIG			+= qt warn_on release
 
 QMAKE_CC		= CC
-QMAKE_LEX               = flex
-QMAKE_LEXFLAGS  = 
-QMAKE_YACC              = yacc
-QMAKE_YACCFLAGS  = -d
+QMAKE_LEX		= flex
+QMAKE_LEXFLAGS		= 
+QMAKE_YACC		= yacc
+QMAKE_YACCFLAGS		= -d
 QMAKE_CFLAGS		=
 QMAKE_CFLAGS_WARN_ON	= -Wall -W
 QMAKE_CFLAGS_WARN_OFF	=
@@ -67,6 +69,6 @@ QMAKE_CLEAN		= -r Templates.DB
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
 
-QMAKE_COPY              = cp -f
-QMAKE_MOVE              = mv
-QMAKE_DEL               = rm -f
+QMAKE_COPY		= cp -f
+QMAKE_MOVE		= mv
+QMAKE_DEL		= rm -f

@@ -1,4 +1,6 @@
 #
+# $Id: //depot/qt/main/mkspecs/win32-visage#9 $
+#
 # qmake configuration for Win32/IBM Visual Age
 #
 
@@ -6,10 +8,10 @@ TEMPLATE		= app
 CONFIG			+= qt warn_on release
 
 QMAKE_CC		= icc -C
-QMAKE_LEX               = flex
-QMAKE_LEXFLAGS  = 
-QMAKE_YACC              = byacc
-QMAKE_YACCFLAGS  = -d
+QMAKE_LEX		= flex
+QMAKE_LEXFLAGS		= 
+QMAKE_YACC		= byacc
+QMAKE_YACCFLAGS		= -d
 QMAKE_CFLAGS		= -Q -Ft -Gd -Gm+ -qrtti=all
 QMAKE_CFLAGS_WARN_ON	= -W3
 QMAKE_CFLAGS_WARN_OFF	= -W0
@@ -58,6 +60,6 @@ QMAKE_RC		= rc
 
 QMAKE_ZIP		= zip -r -9
 
-QMAKE_COPY              = copy
-QMAKE_MOVE              = move
-QMAKE_DEL               = del
+QMAKE_COPY		= copy
+QMAKE_MOVE		= move
+QMAKE_DEL		= del

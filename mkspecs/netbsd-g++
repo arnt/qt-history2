@@ -1,16 +1,18 @@
 #
+# $Id: //depot/qt/main/mkspecs/netbsd-g++#12 $
+#
 # qmake configuration for netbsd-g++
 #
 
-MAKEFILE_GENERATOR      = UNIX
+MAKEFILE_GENERATOR	= UNIX
 TEMPLATE		= app
 CONFIG			+= qt warn_on release
 
 QMAKE_CC		= gcc
-QMAKE_LEX               = flex
-QMAKE_LEXFLAGS  = 
-QMAKE_YACC              = yacc
-QMAKE_YACCFLAGS  = -d
+QMAKE_LEX		= flex
+QMAKE_LEXFLAGS		= 
+QMAKE_YACC		= yacc
+QMAKE_YACCFLAGS		= -d
 QMAKE_CFLAGS		=
 QMAKE_CFLAGS_WARN_ON	= -Wall -W
 QMAKE_CFLAGS_WARN_OFF	=
@@ -64,6 +66,6 @@ QMAKE_RANLIB		=
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
 
-QMAKE_COPY              = cp -f
-QMAKE_MOVE              = mv
-QMAKE_DEL               = rm -f
+QMAKE_COPY		= cp -f
+QMAKE_MOVE		= mv
+QMAKE_DEL		= rm -f
