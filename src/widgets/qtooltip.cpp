@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#88 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -317,7 +317,6 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	hideTip();
 	fallAsleep.stop();
 	leaveWindow.stop();
-	wakeUp.stop();
 	return FALSE;
     }
 	
@@ -331,7 +330,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     if ( !t ) {
 	if ( e->type() >= QEvent::MouseButtonPress &&
 	     e->type() <= QEvent::Leave )
-	    wakeUp.stop();
+	    hideTip();
 	return FALSE;
     }
 
@@ -388,13 +387,13 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	if ( label && label->isVisible() && w == widget )
 	    leaveWindow.stop();
 	else if ( w ) // test in event_leave below should always hit first
-	    wakeUp.stop();
+	    hideTip();
 	break;
     case QEvent::Leave:
 	if ( label && label->isVisible() )
 	    leaveWindow.start( 50, TRUE );
 	else if ( widget != w )
-	    wakeUp.stop();
+	    hideTip();
 	break;
     default:
 	hideTip();
@@ -468,11 +467,13 @@ void QTipManager::hideTip()
     if ( label && label->isVisible() ) {
 	label->hide();
 	fallAsleep.start( 10000, TRUE );
-    if ( currentTip && currentTip->group )
-	emit currentTip->group->removeTip();
+	wakeUp.stop();
+	if ( currentTip && currentTip->group )
+	    emit currentTip->group->removeTip();
     } else if ( wakeUp.isActive() ) {
 	wakeUp.stop();
-	if ( currentTip && currentTip->group && !currentTip->group->delay())
+	if ( currentTip && currentTip->group &&
+	     !currentTip->group->d && !currentTip->groupText.isEmpty() )
 	    emit currentTip->group->removeTip();
     }
 
@@ -978,7 +979,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.82 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.83 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
