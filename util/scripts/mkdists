@@ -43,7 +43,8 @@ MANIFEST_FILE=${TMP_FILE}-manifest
 DO_COMMERCIAL=yes
 DO_FREE=yes
 DO_REVIEW=no
-DO_ACADEMIC=yes
+DO_ACADEMIC=no
+DO_EVALUATION=no  #evaluation for X11
 #platforms
 DO_WIN=yes
 DO_X11=yes
@@ -55,7 +56,7 @@ DO_PKG=no
 DO_QMAKE=no
 DO_GZIP=auto
 DO_BZIP=auto
-DO_STUFF=auto
+DO_STUFF=no
 DO_ID=auto
 DO_DOC=auto
 DO_EXPORTS=auto
@@ -226,6 +227,7 @@ while [ -n "$1" ]; do
    case $VAR in
    #editions
    academic) DO_ACADEMIC=$VAL ;;
+   evaluation) DO_EVALUATION=$VAL ;;
    commercial) DO_COMMERCIAL=$VAL ;;
    free)DO_FREE=$VAL;;
    review) DO_REVIEW=$VAL ;;
@@ -800,6 +802,52 @@ remove_file_and_includes()
     done
 }
 
+do_evaluation()
+{
+    status "Generating evaluation versions..." "1"
+    mkdir $TMP_DIR/buildEval_tmp
+    tar xf $1 -C $TMP_DIR/buildEval_tmp
+
+    pushd $TMP_DIR/buildEval_tmp > /dev/null
+    PACKAGE_NAME=`ls`
+    EVAL_NAME=`echo $PACKAGE_NAME | sed -e 's/commercial/eval/'`
+
+    pushd $PACKAGE_NAME > /dev/null
+    rm -f .LICENSE
+    rm -f .LICENSE-US
+    rm -f README
+    rm -rf "plugins/src/sqldrivers/oci"
+    rm -rf "plugins/src/sqldrivers/tds"
+    rm -rf "src/sql/drivers/oci"
+    rm -rf "src/sql/drivers/shared"
+    rm -rf "src/sql/drivers/tds"
+
+    p4 print -q //depot/qt/main/dist/trial/LICENSE > LICENSE.EVAL
+    if [ `echo $PACKAGE_NAME | grep x11` ]
+	then
+	    p4 print -q //depot/qt/main/dist/trial/README.x11 > README
+	else
+	    p4 print -q //depot/qt/main/dist/trial/README.emb > README
+    fi
+    p4 print -q //depot/qt/main/dist/free/FAQ > FAQ
+
+    popd > /dev/null
+    mv $PACKAGE_NAME $EVAL_NAME
+    tar cf "${EVAL_NAME}.tar" "${EVAL_NAME}"
+    popd > /dev/null
+    if [ "$DO_GZIP" = "yes" ]; then
+	status "Gzip.."
+	gzip -c "$TMP_DIR/buildEval_tmp/${EVAL_NAME}.tar" >"$OUT_TREE/${EVAL_NAME}.tar.gz"
+    fi
+    if [ "$DO_BZIP" = "yes" ]; then
+	status "Bzip2.."
+	bzip2 -z -c "$TMP_DIR/buildEval_tmp/${EVAL_NAME}.tar" >"$OUT_TREE/${EVAL_NAME}.tar.bz2"
+    fi
+    rm -rf $TMP_DIR/buildEval_tmp
+    status "" "-1"
+}
+
+
 for plat in mac win x11 qnx6 embedded; do
     #handle commandline options
     platformname=$plat
@@ -1152,6 +1200,9 @@ for plat in mac win x11 qnx6 embedded; do
               else
                   stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "${PLATNAME}"
               fi
+            fi
+            if [ "$plat" = "x11" ] && [ "$edition" = "commercial" ] && [ "x$DO_EVALUATION" = "xyes" ]; then
+	      do_evaluation "$OUT_TREE/${PLATNAME}.tar"
             fi
 	elif [ "$plat" = "win" ]; then
 	    txtfiles=""
