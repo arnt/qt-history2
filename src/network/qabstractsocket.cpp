@@ -248,6 +248,7 @@
 #include <qabstracteventdispatcher.h>
 #include <qdatetime.h>
 #include <qhostaddress.h>
+#include <qhostinfo.h>
 #include <qpointer.h>
 #include <qsignal.h>
 #include <qtimer.h>
@@ -593,12 +594,12 @@ bool QAbstractSocketPrivate::flush()
 
 /*! \internal
 
-    Slot connected to QDns::getHostByName() in connectToHost(). This
+    Slot connected to QHostInfo::lookupHost() in connectToHost(). This
     function starts the process of connecting to any number of
     candidate IP addresses for the host, if it was found. Calls
     connectToNextAddress().
 */
-void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
+void QAbstractSocketPrivate::startConnecting(const QHostInfo &hostInfo)
 {
     addresses = hostInfo.addresses();
 
@@ -929,10 +930,10 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
 
     QHostAddress temp;
     if (temp.setAddress(hostName)) {
-        d->startConnecting(QDns::getHostByName(hostName));
+        d->startConnecting(QHostInfo::fromName(hostName));
     } else {
         if (QAbstractEventDispatcher::instance(q->thread()))
-            QDns::getHostByName(hostName, this, SLOT(startConnecting(const QDnsHostInfo &)));
+            QHostInfo::lookupHost(hostName, this, SLOT(startConnecting(const QHostInfo &)));
     }
 
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1160,7 +1161,7 @@ bool QAbstractSocket::waitForConnected(int msecs)
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::waitForConnected(%i) doing host name lookup", msecs);
 #endif
-        d->startConnecting(QDns::getHostByName(d->hostName));
+        d->startConnecting(QHostInfo::fromName(d->hostName));
         if (state() == UnconnectedState)
             return false;
     }

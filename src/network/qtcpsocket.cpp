@@ -34,7 +34,6 @@
 
     \sa QTcpServer, QUdpSocket, QFtp, QHttp
 */
-#include "qdns.h"
 #include "qlist.h"
 #include "qsignal.h"
 #include "qabstractsocket_p.h"

@@ -132,7 +132,7 @@ private:
     Q_DISABLE_COPY(QAbstractSocket)
 
     Q_PRIVATE_SLOT(d, void connectToNextAddress())
-    Q_PRIVATE_SLOT(d, void startConnecting(const QDnsHostInfo &))
+    Q_PRIVATE_SLOT(d, void startConnecting(const QHostInfo &))
     Q_PRIVATE_SLOT(d, void abortConnectionAttempt())
     Q_PRIVATE_SLOT(d, void testConnection())
     Q_PRIVATE_SLOT(d, bool canReadNotification(int))

@@ -76,7 +76,6 @@
 
     \sa QTcpSocket
 */
-#include "qdns.h"
 #include "qhostaddress.h"
 #include "qabstractsocket_p.h"
 #include "qudpsocket.h"

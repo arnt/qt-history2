@@ -18,11 +18,12 @@
 #include <private/qinternal_p.h>
 #include <private/qiodevice_p.h>
 #include <qbytearray.h>
-#include <qdns.h>
 #include <qlist.h>
 #include <private/qsocketlayer_p.h>
 #include <qsocketnotifier.h>
 #include <qtimer.h>
+
+class QHostInfo;
 
 class QAbstractSocketPrivate : public QIODevicePrivate
 {
@@ -33,7 +34,7 @@ public:
 
     // slots
     void connectToNextAddress();
-    void startConnecting(const QDnsHostInfo &hostInfo);
+    void startConnecting(const QHostInfo &hostInfo);
     void testConnection();
     bool canReadNotification(int);
     bool canWriteNotification(int);
