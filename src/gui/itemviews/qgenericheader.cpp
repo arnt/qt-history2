@@ -284,7 +284,7 @@ void QGenericHeader::initializeSections(int start, int end)
     int oldCount = count();
     end += 1; // one past the last item, so we get the end position of the last section
     d->sections.resize(end + 1);
-    if (start > end) {
+    if (oldCount >= count()) {
 	viewport()->update();
 	emit sectionCountChanged(start, end);
 	return;

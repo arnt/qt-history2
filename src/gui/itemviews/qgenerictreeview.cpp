@@ -344,25 +344,53 @@ void QGenericTreeView::contentsChanged(const QModelIndex &topLeft, const QModelI
 
 void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
+    if (!(topLeft.isValid() && bottomRight.isValid()))
+	return;
+    
     QModelIndex parent = model()->parent(topLeft);
-    contentsRemoved(parent, topLeft, bottomRight);
+    // do a local relayout of the items
+    if (parent.isValid()) {
+	int pi = d->viewIndex(parent);
+	if (d->isOpen(pi)) {
+	    d->close(pi);
+	    d->open(pi);
+	}
+    } else {
+	qDebug("contentsInserted top %d bottom %d ", topLeft.row(), bottomRight.row());
+	// FIXME: this won't work if there are open branches
+	int count = bottomRight.row() - topLeft.row();
+	qDebug("count %d", count);
+	expand<QGenericTreeViewItem>(d->items, topLeft.row() - 1, count);
+	QGenericTreeViewItem *items = d->items.data();
+	for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
+	    items[i].index = model()->index(i, 0, 0);
+// 	    index[i].open = false;
+// 	    index[i].hidden = false;
+// 	    index[i].total = 0;
+// 	    index[i].level = 0;
+	}
+	resizeContents(contentsHeight() + d->itemHeight * count, contentsWidth());
+	updateContents();
+    }
 }
 
 void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
 				       const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
+    // do a local relayout of the items
     if (parent.isValid()) {
 	int pi = d->viewIndex(parent);
-	d->close(pi);
-	d->open(pi); // force relayout
+	if (d->isOpen(pi)) {
+	    d->close(pi);
+	    d->open(pi);
+	}
     } else {
-	// FIXME: make this more effective
-	d->items.resize(0);
-	resizeContents(0, contentsWidth());
-	d->layout_parent_index = -1;
-	d->layout_from_index = -1;
-	d->layout_count = model()->rowCount(root());
-	startItemsLayout();
+	qDebug("contentsRemoved");
+	int count = bottomRight.row() - topLeft.row();
+	//resizeContents(contentsHeight() - d->itemHeight * count, contentsWidth());
+	// FIXME: this won't work if there are open branches
+	collapse<QGenericTreeViewItem>(d->items, bottomRight.row() - 1, count);
+	updateContents();
     }
 }
 
