@@ -4053,7 +4053,7 @@ void QListViewItem::widthChanged( int c ) const
 */
 
 /*!
-    Processes the mouse move event \a e on behalf of the viewed widget.
+    Processes the mouse press event \a e on behalf of the viewed widget.
 */
 void QListView::contentsMousePressEvent( QMouseEvent * e )
 {
@@ -4264,7 +4264,7 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 }
 
 /*!
-    Processes the mouse move event \a e on behalf of the viewed widget.
+    Processes the mouse release event \a e on behalf of the viewed widget.
 */
 void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
