@@ -1565,7 +1565,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 		redraw = doc->setSelectionEnd( QTextDocument::Standard, cursor ) || redraw;
 	    }
 	} else {
-	    if ( !( e->state() & ShiftButton ) ) {
+	    if ( isReadOnly() || !( e->state() & ShiftButton ) ) {
 		doc->setSelectionStart( QTextDocument::Standard, cursor );
 	    } else {
 		doc->setSelectionStart( QTextDocument::Standard, &c );
