@@ -11,18 +11,21 @@
 **
 ****************************************************************************/
 
+#include "qdesigner.h"
 #include "qdesigner_settings.h"
 #include "qdesigner_widgetbox.h"
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
 
 #include <QtCore/QVariant>
-#include <QtGui/QApplication>
+#include <QtCore/QDir>
+
 #include <QtGui/QDesktopWidget>
 
 QDesignerSettings::QDesignerSettings()
     : QSettings()
 {
+    m_designerPath = QLatin1String("/.designer");
 }
 
 QDesignerSettings::~QDesignerSettings()
@@ -31,8 +34,24 @@ QDesignerSettings::~QDesignerSettings()
 
 QStringList QDesignerSettings::formTemplatePaths() const
 {
-    QStringList formTemplatePaths;
-    return value("FormTemplatePaths", formTemplatePaths).toStringList();
+    return value("FormTemplatePaths", defaultFormTemplatePaths()).toStringList();
+}
+
+void QDesignerSettings::setFormTemplatePaths(const QStringList &paths)
+{
+    setValue("FormTemplatePaths", paths);
+}
+
+QStringList QDesignerSettings::defaultFormTemplatePaths() const
+{
+    QStringList paths;
+
+    QString templatePath = QLatin1String("/templates");
+
+    paths.append(QDir::homePath() + m_designerPath + templatePath);
+    paths.append(qDesigner->applicationDirPath() + templatePath);
+
+    return paths;
 }
 
 void QDesignerSettings::saveGeometryFor(const QWidget *w)

@@ -16,19 +16,23 @@
 
 #include "ui_saveformastemplate.h"
 
+class AbstractFormWindow;
+
 class SaveFormAsTemplate: public QDialog
 {
     Q_OBJECT
 public:
-    SaveFormAsTemplate(QWidget *parent = 0);
+    SaveFormAsTemplate(AbstractFormWindow *formWindow, QWidget *parent = 0);
     virtual ~SaveFormAsTemplate();
 
 private slots:
     void on_okButton_clicked();
     void on_cancelButton_clicked();
+    void updateOKButton(const QString &str);
 
 private:
     Ui::SaveFormAsTemplate ui;
+    AbstractFormWindow *m_formWindow;
 };
 
 #endif // SAVEFORMASTEMPLATE_H

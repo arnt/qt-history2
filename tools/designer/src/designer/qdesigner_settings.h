@@ -25,13 +25,19 @@ public:
     virtual ~QDesignerSettings();
 
     QStringList formTemplatePaths() const;
+    void setFormTemplatePaths(const QStringList &paths);
 
     void setGeometryFor(QWidget *w, const QRect &fallBack = QRect()) const;
     void saveGeometryFor(const QWidget *w);
 
 private:
+    QStringList defaultFormTemplatePaths() const;
+
     void setGeometryHelper(QWidget *w, const QString &key, const QRect &fallBack) const;
     void saveGeometryHelper(const QWidget *w, const QString &key);
+
+private:
+    QString m_designerPath;
 };
 
 #endif // QDESIGNER_SETTINGS_H
