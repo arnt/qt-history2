@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#15 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#16 $
 **
 ** Definition of QListBox widget class
 **
@@ -89,6 +89,9 @@ public:
     bool	smoothScrolling()	const;
     void	setSmoothScrolling( bool );
 
+    int		itemHeight()		const;
+    int		itemHeight( int index )	const;
+
 signals:
     void	highlighted( int index );
     void	selected( int index );
@@ -111,7 +114,7 @@ protected:
     QLBItem    *item( int index ) const;
     bool	itemVisible( int index );
 
-    int		cellHeight( int );
+    int		cellHeight( int index = 0 );
     void	paintCell( QPainter *, int row, int col );
 
     void	mousePressEvent( QMouseEvent * );
