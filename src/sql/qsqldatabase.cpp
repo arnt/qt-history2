@@ -917,43 +917,63 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 }
 
 /*!
-    Sets the specified connect option. To unset an option, set the
-    option value to QString::null. The options supported depend on the
-    database client used:
+    Sets the specified connect \a option to the given \a value. To
+    unset an option, set the option's \a value to QString::null. The
+    options supported depend on the database client used:
 
-    MySQL:
-    CLIENT_COMPRESS
-    CLIENT_FOUND_ROWS
-    CLIENT_IGNORE_SPACE
-    CLIENT_SSL
-    CLIENT_ODBC
-    CLIENT_NO_SCHEMA
-    CLIENT_INTERACTIVE
-    
-    PostgreSQL:
-    connect_timeout
-    options
-    tty
-    requiressl
-    service
-    
-    ODBC:
-    SQL_ATTR_ACCESS_MODE
-    SQL_ATTR_CONNECTION_TIMEOUT
-    SQL_ATTR_LOGIN_TIMEOUT
-    SQL_ATTR_CURRENT_CATALOG
-    SQL_ATTR_METADATA_ID
-    SQL_ATTR_PACKET_SIZE
-    SQL_ATTR_TRACEFILE
-    SQL_ATTR_TRACE
+    \table
+    \header \i DB2 \i MySQL \i OCI
+    \row
 
-    DB2:
-    SQL_ATTR_ACCESS_MODE
-    SQL_ATTR_LOGIN_TIMEOUT
-    
-    No options are currently supported for the OCI and TDS drivers.
-    Example:
-    
+    \i
+    \list
+    \i SQL_ATTR_ACCESS_MODE
+    \i SQL_ATTR_LOGIN_TIMEOUT
+    \endlist
+
+    \i
+    \list
+    \i CLIENT_COMPRESS
+    \i CLIENT_FOUND_ROWS
+    \i CLIENT_IGNORE_SPACE
+    \i CLIENT_SSL
+    \i CLIENT_ODBC
+    \i CLIENT_NO_SCHEMA
+    \i CLIENT_INTERACTIVE
+    \endlist
+
+    \i
+    \e none
+
+    \header \i ODBC \i PostgreSQL \i TDS
+    \row
+
+    \i
+    \list
+    \i SQL_ATTR_ACCESS_MODE
+    \i SQL_ATTR_CONNECTION_TIMEOUT
+    \i SQL_ATTR_LOGIN_TIMEOUT
+    \i SQL_ATTR_CURRENT_CATALOG
+    \i SQL_ATTR_METADATA_ID
+    \i SQL_ATTR_PACKET_SIZE
+    \i SQL_ATTR_TRACEFILE
+    \i SQL_ATTR_TRACE
+    \endlist
+
+    \i
+    \list
+    \i connect_timeout
+    \i options
+    \i tty
+    \i requiressl
+    \i service
+    \endlist
+
+    \i
+    \e none
+
+    \endtable
+
     \code
     // MySQL connection
     db->setConnectOption( "CLIENT_SSL", "TRUE" ); // enable SSL connections for MySQL

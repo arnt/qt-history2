@@ -1029,9 +1029,12 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
     return doImageIO( &io, quality );
 }
 
-/*! \overload
-    This function writes a QPixmap to a QIODevice. This can be used to
-    e.g. save a pixmap directly into a QByteArray:
+/*!
+    \overload
+
+    This function writes a QPixmap to the QIODevice, \a device. This
+    can be used, for example, to save a pixmap directly into a
+    QByteArray:
     \code
     QPixmap pixmap;
     QByteArray ba;
@@ -1226,7 +1229,7 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 }
 
 /*!
-    \fn Q_DUMMY_COMPARISON_OPERATOR( QPixmap )
+    \fn QPixmap::Q_DUMMY_COMPARISON_OPERATOR( QPixmap )
     \internal
 */
 

@@ -3476,9 +3476,12 @@ bool QImage::save( const QString &fileName, const char* format, int quality ) co
     return doImageIO( &io, quality );
 }
 
-/*! \overload
-    This function writes a QImage to a QIODevice. This can be used to
-    e.g. save an image directly to a QByteArray:
+/*!
+    \overload
+
+    This function writes a QImage to the QIODevice, \a device. This
+    can be used, for example, to save an image directly into a
+    QByteArray:
     \code
     QImage image;
     QByteArray ba;

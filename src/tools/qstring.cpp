@@ -3792,13 +3792,11 @@ QString &QString::remove( const QRegExp & rx )
 
 #endif
 
-/*! \overload
+/*!
+    \overload
 
     Removes every occurrence of \a str in the string. Returns a
     reference to the string.
-
-    If \a cs is TRUE (the default), the search is case sensitive;
-    otherwise the search is case insensitive.
 */
 QString &QString::remove( const char *str )
 {
@@ -4654,12 +4652,22 @@ QString &QString::setNum( Q_ULLONG n, int base )
     return setUnicode(p,len);
 }
 
+/*!
+    \fn QString &QString::setNum( long n, int base )
+
+    \overload
+*/
 // ### 4.0: inline
 QString &QString::setNum( long n, int base )
 {
     return setNum( (Q_LLONG)n, base );
 }
 
+/*!
+    \fn QString &QString::setNum( ulong n, int base )
+
+    \overload
+*/
 // ### 4.0: inline
 QString &QString::setNum( ulong n, int base )
 {

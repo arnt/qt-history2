@@ -3157,6 +3157,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 }
 
 
+/*!
+    Draws the text item \a ti at position \a (x, y ).
+*/
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
 {
     if ( testf(DirtyFont) ) {

@@ -3921,14 +3921,14 @@ bool QApplication::reverseLayout()
 
 
 /*!
-    If TRUE the user may compose unicode characters by holding down
-    the meta key and enter the unicode value with the keypad. This
-    mode will override any Meta + <number> accelerator by using the
-    numeric pad, but these accelerators may still be triggered by
-    using the numeric values on the main keyboard.
-    The composed characters cannot be used to trigger accelerators.
+    If \a enable is TRUE the user can compose Unicode characters by
+    holding down the meta key and entering the Unicode value with the
+    keypad. This mode will override any Meta + <number> accelerator
+    when using the numeric keypad, but those accelerators can still be
+    triggered by using the number keys on the main keyboard. The
+    composed characters cannot be used to trigger accelerators.
 
-  \sa metaComposedUnicode()
+    \sa metaComposedUnicode()
 */
 void QApplication::setMetaComposedUnicode( bool enable )
 {

@@ -295,15 +295,15 @@
 */
 
 /*!
-  \n QPrinter::PageRange
+    \enum QPrinter::PageRange
 
-  This enum type is used to specify which of the page range options
-  are enabled in the print dialog. It is also used to specify which
-  of the options is selected by default when the print dialog opens.
+    This enum type is used to specify which of the page range options
+    are enabled in the print dialog. It is also used to specify which
+    of the options is selected by default when the print dialog opens.
 
-  \value All All pages are printed, on windows this cannot be disabled.
-  \value Selection Only the selection is printed
-  \value Range From page, to page option.
+    \value All All pages are printed; on windows this cannot be disabled.
+    \value Selection Only the selection is printed.
+    \value Range From page, to page option.
 */
 
 /*!

@@ -1440,6 +1440,9 @@ unsigned int bestFoundry( unsigned int score, int styleStrategy,
     return score;
 }
 
+/*!
+    \internal
+*/
 QFontEngine *QFontDatabase::findFont( QFont::Script script, const QFontDef &request,
 				      QFontDef &actual, int x11Screen )
 {
