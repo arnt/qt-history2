@@ -42,7 +42,7 @@ static void analyzeComment( const QString& /* fileName */,
     QString lastAuthor;
     int lastLineNo = 0;
 
-    if ( comment.find(QString("\\internal")) != -1 )
+    if ( comment.find(QRegExp(QString("\\\\(?:internal|reimp)\\b"))) != -1 )
 	return;
     QStringList lines = QStringList::split( QChar('\n'), comment );
     QStringList::ConstIterator x = lines.begin();
