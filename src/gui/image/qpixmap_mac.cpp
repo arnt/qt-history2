@@ -330,7 +330,7 @@ QImage QPixmap::toImage() const
     }
 
     if(data->mask && !data->alphapm) {
-        QImage alpha = data->mask->convertToImage();
+        QImage alpha = data->mask->toImage();
         image.setAlphaBuffer(true);
         switch(d) {
         case 8: {
@@ -729,8 +729,10 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             if(in_pix) {
                 //make the image
                 QImage im;
-                im = *in_pix;
-                im = im.smoothScale(images[i].width, images[i].height).convertDepth(images[i].depth);
+                im = in_pix->toImage();
+                im = im.scale(images[i].width, images[i].height, 
+                              Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+                     .convertDepth(images[i].depth);
                 //set handle bits
                 if(images[i].mac_type == kThumbnail8BitMask) {
                     for(int y = 0, h = 0; y < im.height(); y++) {
