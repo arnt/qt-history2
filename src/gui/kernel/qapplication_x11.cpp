@@ -3409,8 +3409,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 mouseButtonPressed == button &&
                 (long)event->xbutton.time -(long)mouseButtonPressTime
                 < QApplication::doubleClickInterval() &&
-                QABS(event->xbutton.x - mouseXPos) < 5 &&
-                QABS(event->xbutton.y - mouseYPos) < 5) {
+                qAbs(event->xbutton.x - mouseXPos) < 5 &&
+                qAbs(event->xbutton.y - mouseYPos) < 5) {
                 type = QEvent::MouseButtonDblClick;
                 mouseButtonPressTime -= 2000;        // no double-click next time
             } else {

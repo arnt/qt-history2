@@ -2578,8 +2578,8 @@ QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) con
             return copy();
         hd = qRound(mat.m22() * hs);
         wd = qRound(mat.m11() * ws);
-        hd = QABS(hd);
-        wd = QABS(wd);
+        hd = qAbs(hd);
+        wd = qAbs(wd);
     } else {                                        // rotation or shearing
         QPointArray a(QRect(0, 0, ws, hs));
         a = mat.map(a);
@@ -3924,10 +3924,10 @@ static void scaleY(QImage *image, int width, int iheight, int oheight)
 static void shearX(QImage *image, int height, int iwidth, double shear)
 {
 //     qDebug("shearX: height=%d, iwidth=%d, shear=%f", height, iwidth, shear);
-    if (QABS(shear*height) < 0.3)
+    if (qAbs(shear*height) < 0.3)
         return;
 
-    Q_ASSERT(image->width() >= iwidth + qRound(QABS(shear*(height-1))));
+    Q_ASSERT(image->width() >= iwidth + qRound(qAbs(shear*(height-1))));
     Q_ASSERT(height <= image->height());
 
     const double skewoffset = shear < 0 ? -shear*(height-1) : 0;
@@ -3964,10 +3964,10 @@ static void shearX(QImage *image, int height, int iwidth, double shear)
 static void shearY(QImage *image, int width, int iheight, double shear, double offset)
 {
 //     qDebug("shearY: width=%d, iheight=%d, shear=%f", width, iheight, shear);
-    if (QABS(shear*width) < 0.3)
+    if (qAbs(shear*width) < 0.3)
         return;
 
-    Q_ASSERT(image->height() >= iheight + qRound(QABS(shear*(width-1))));
+    Q_ASSERT(image->height() >= iheight + qRound(qAbs(shear*(width-1))));
     Q_ASSERT(width <= image->width());
 
     QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
@@ -4028,7 +4028,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     Q_ASSERT(data->w > 0 && data->h > 0);
 
     // avoid degenerate transformations
-    if (QABS(matrix.det()) < 0.001)
+    if (qAbs(matrix.det()) < 0.001)
         return QImage();
 
     /* we decompose the full transformation into a possible mirroring operation,
@@ -4057,18 +4057,18 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
 
 //     qDebug("\nv1=(%f/%f), v2=(%f/%f)", v1x, v1y, v2x, v2y);
 
-    bool v1Horizontal = QABS(v1x) > QABS(v1y);
-    bool v2Horizontal = QABS(v2x) > QABS(v2y);
+    bool v1Horizontal = qAbs(v1x) > qAbs(v1y);
+    bool v2Horizontal = qAbs(v2x) > qAbs(v2y);
 
     if (v1Horizontal == true && v2Horizontal == true) {
         // both want horizontal, move the one to vertical where the error would be smaller.
-        if (QABS(v1y/v1x) <= QABS(v2y/v2x))
+        if (qAbs(v1y/v1x) <= qAbs(v2y/v2x))
             v2Horizontal = false;
         else
             v1Horizontal = false;
     } else if (v1Horizontal == false && v2Horizontal == false) {
         // both want vertical, move the one to horizontal where the error would be smaller.
-        if (QABS(v1x/v1y) < QABS(v2x/v2y))
+        if (qAbs(v1x/v1y) < qAbs(v2x/v2y))
             v2Horizontal = true;
         else
             v1Horizontal = true;
@@ -4216,8 +4216,8 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
 
     QSize s = result.size();
     s = s.expandedTo(QSize(owidth, oheight));
-    int sheared_width = owidth + QABS(qRound(shear_x*oheight));
-    int sheared_height = oheight + QABS(qRound(shear_y*sheared_width));
+    int sheared_width = owidth + qAbs(qRound(shear_x*oheight));
+    int sheared_height = oheight + qAbs(qRound(shear_y*sheared_width));
     s = s.expandedTo(QSize(sheared_width, sheared_height));
     QImage result2(s, 32);
     result2.fill(0);
@@ -4235,8 +4235,8 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
 //     qDebug("shear_x=%f, oheight=%d, offset=%f", shear_x, oheight, offset);
     shearY(&result2, sheared_width, oheight, shear_y, offset);
 
-    QImage final(qMin(result2.width(), qRound(QABS(v1x*data->w) + QABS(v2x*data->h))),
-                 qMin(result2.height(), qRound(QABS(v1y*data->w) + QABS(v2y*data->h))), 32);
+    QImage final(qMin(result2.width(), qRound(qAbs(v1x*data->w) + qAbs(v2x*data->h))),
+                 qMin(result2.height(), qRound(qAbs(v1y*data->w) + qAbs(v2y*data->h))), 32);
     final.setAlphaBuffer(true);
 //     qDebug("result2.height() = %d, final.height() = %d", result2.height(), final.height());
     int yoff = 0;//(result2.height() - final.height())/2;
