@@ -777,7 +777,7 @@ void NorwegianWoodStyle::polish( QApplication *app)
 
     oldPalette = app->palette();
 
-    // we simply create a nice QColorGroup with a couple of fancy wood
+    // we simply create a nice QPalette with a couple of fancy wood
     // pixmaps here and apply to it all widgets
 
     QImage img(button_xpm);
@@ -850,8 +850,7 @@ void NorwegianWoodStyle::polish( QApplication *app)
 
 
     QPalette op(QColor(212,140,95));
-    // QPalette op(white);
-    QColorGroup active (op.active().foreground(),
+    op.setColorGroup(QPalette::Active, op.active().foreground(),
 		     QBrush(op.active().button(),button),
 		     QBrush(op.active().light(), light),
 		     QBrush(op.active().dark(), dark),
@@ -859,9 +858,17 @@ void NorwegianWoodStyle::polish( QApplication *app)
 		     op.active().text(),
 		     Qt::white,
 		     QColor(236,182,120),
-		     QBrush(op.active().background(), background)
-		     );
-    QColorGroup disabled (op.disabled().foreground(),
+		     QBrush(op.active().background(), background));
+    op.setColorGroup(QPalette::Inactive, op.active().foreground(),
+		     QBrush(op.active().button(),button),
+		     QBrush(op.active().light(), light),
+		     QBrush(op.active().dark(), dark),
+		     QBrush(op.active().mid(), mid),
+		     op.active().text(),
+		     Qt::white,
+		     QColor(236,182,120),
+		     QBrush(op.active().background(), background));
+    op.setColorGroup(QPalette::Disabled, op.disabled().foreground(),
 		     QBrush(op.disabled().button(),button),
 		     QBrush(op.disabled().light(), light),
 		     op.disabled().dark(),
@@ -869,10 +876,8 @@ void NorwegianWoodStyle::polish( QApplication *app)
 		     op.disabled().text(),
 		     Qt::white,
 		     QColor(236,182,120),
-		     QBrush(op.disabled().background(), background)
-		     );
-
-   app->setPalette(QPalette(active, disabled, active), TRUE );
+		     QBrush(op.disabled().background(), background));
+   app->setPalette(op, TRUE);
 
 }
 
@@ -923,7 +928,7 @@ void NorwegianWoodStyle::unPolish( QWidget* w)
 void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 					QPainter *p,
 					const QRect &r,
-					const QColorGroup &cg,
+					const QPalette &pal,
 					SFlags flags, const QStyleOption& opt ) const
 {
     int x, y, w, h;
@@ -939,8 +944,8 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 						       h - 2 * b), d - b );
 	    QPen oldPen = p->pen();
 	
-	    QBrush brush( flags & Style_Sunken ? cg.brush(QColorGroup::Mid) :
-			  cg.brush(QColorGroup::Button) );
+	    QBrush brush( flags & Style_Sunken ? pal.brush(QPalette::Mid) :
+			  pal.brush(QPalette::Button) );
 	    p->setClipRegion( internR );
 	    p->fillRect( r, brush );
 	
@@ -953,8 +958,8 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 			 x, y + h - 1 );
 	    p->setClipRegion( QRegion(a) - internR );
 	
-	    p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.dark(), *sunkenDark)
-			                     : cg.brush(QColorGroup::Light)) );
+	    p->fillRect( r, (flags & Style_Sunken ? QBrush( pal.dark(), *sunkenDark)
+			                     : pal.brush(QPalette::Light)) );
 
 	    // A little inversion is needed the buttons
 	    // ( but not flat)
@@ -962,29 +967,29 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 		a.setPoint( 0, x + w - 1, y + w - 1 );
 		p->setClipRegion( QRegion( a ) - internR );
 	
-		p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.light(), *sunkenLight) : cg.brush( QColorGroup::Dark ) ) );
+		p->fillRect( r, (flags & Style_Sunken ? QBrush( pal.light(), *sunkenLight) : pal.brush( QPalette::Dark ) ) );
 	    }
 	    p->setClipRegion( internR );
 	    p->setClipping( FALSE );
-	    p->setPen( cg.foreground() );
+	    p->setPen( pal.foreground() );
 	    drawroundrect( p, x, y, w, h, d );
 	    p->setPen( oldPen );
 	    break;
 	}
     case PE_ScrollBarAddLine:
 	if ( flags & Style_Horizontal )
-	    drawSemicircleButton( p, r, PointRight, flags & Style_Down, cg );
+	    drawSemicircleButton( p, r, PointRight, flags & Style_Down, pal );
 	else
-	    drawSemicircleButton( p, r, PointDown, flags & Style_Down, cg );
+	    drawSemicircleButton( p, r, PointDown, flags & Style_Down, pal );
 	break;
     case PE_ScrollBarSubLine:
 	if ( flags & Style_Horizontal )
-	    drawSemicircleButton( p, r, PointLeft, flags & Style_Down, cg );
+	    drawSemicircleButton( p, r, PointLeft, flags & Style_Down, pal );
 	else
-	    drawSemicircleButton( p, r, PointUp, flags & Style_Down, cg );
+	    drawSemicircleButton( p, r, PointUp, flags & Style_Down, pal );
 	break;
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, opt );
+	QWindowsStyle::drawPrimitive( pe, p, r, pal, flags, opt );
 	break;
     }
 }
@@ -993,7 +998,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 				      QPainter *p,
 				      const QWidget *widget,
 				      const QRect &r,
-				      const QColorGroup &cg,
+				      const QPalette &pal,
 				      SFlags how, const QStyleOption& opt ) const
 {
     switch( element ) {
@@ -1001,7 +1006,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 	{
 	    const QPushButton *btn;
 	    btn = ( const QPushButton * )widget;
-	    QColorGroup myCg( cg );
+	    QPalette myPal( pal );
 	    SFlags flags = Style_Default;
 	    if ( btn->isOn() )
 		flags |= Style_On;
@@ -1017,17 +1022,17 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 	    int x1, y1, x2, y2;
 	    r.coords( &x1, &y1, &x2, &y2 );
 	
-	    p->setPen( cg.foreground() );
-	    p->setBrush( QBrush( cg.button(), NoBrush ) );
+	    p->setPen( pal.foreground() );
+	    p->setBrush( QBrush( pal.button(), NoBrush ) );
 	
 	    QBrush fill;
 	    if ( btn->isDown() )
-		fill = cg.brush( QColorGroup::Mid );
+		fill = pal.brush( QPalette::Mid );
 	    else if ( btn->isOn() )
-		fill = QBrush( cg.mid(), Dense4Pattern );
+		fill = QBrush( pal.mid(), Dense4Pattern );
 	    else
-		fill = cg.brush( QColorGroup::Button );
-	    myCg.setBrush( QColorGroup::Mid, fill );
+		fill = pal.brush( QPalette::Button );
+	    myPal.setBrush( QPalette::Mid, fill );
 	
 	    if ( btn->isDefault() ) {
 		x1 += 2;
@@ -1038,7 +1043,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 		
 	    drawPrimitive( PE_ButtonCommand, p,
 			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1),
-			   myCg, flags, opt );
+			   myPal, flags, opt );
 	
 	    if ( btn->isDefault() ) {
 		QPen pen( Qt::black, 4 );
@@ -1057,7 +1062,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 		    flags |= Style_Enabled;		
 		drawPrimitive( PE_ArrowDown, p,
 			       QRect( x2 - dx, dx, y1, y2 - y1),
-			       myCg, flags, opt );
+			       myPal, flags, opt );
 	    }
 	
 	    if ( p->brush().style() != NoBrush )
@@ -1086,16 +1091,16 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 	    h -= 4;
 	    drawItem( p, QRect( x, y, w, h ),
 		      AlignCenter | ShowPrefix,
-		      cg, btn->isEnabled(),
+		      pal, btn->isEnabled(),
 		      btn->pixmap(), btn->text(), -1,
-		      (btn->isDown() || btn->isOn()) ? &cg.brightText()
-		      : &cg.buttonText() );
+		      (btn->isDown() || btn->isOn()) ? &pal.brightText().color()
+		      : &pal.buttonText().color() );
 	    if ( dx || dy )
 		p->translate( -dx, -dy );
 	    break;
 	}
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, cg, how, opt );
+	QWindowsStyle::drawControl( element, p, widget, r, pal, how, opt );
 	break;
     }
 }
@@ -1125,7 +1130,7 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 					     QPainter *p,
 					     const QWidget *widget,
 					     const QRect &r,
-					     const QColorGroup &cg,
+					     const QPalette &pal,
 					     SFlags how,
 					     SCFlags sub,
 					     SCFlags subActive,
@@ -1140,20 +1145,20 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    get_combo_parameters( subRect(SR_PushButtonContents, widget),
 				  ew, awh, ax, ay, sh, dh, sy );
-	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Raised, opt );
+	    drawPrimitive( PE_ButtonCommand, p, r, pal, Style_Raised, opt );
 	    QStyle *mstyle = QStyleFactory::create( "Motif" );
 	    if ( mstyle )
 		mstyle->drawPrimitive( PE_ArrowDown, p,
-				       QRect(ax, ay, awh, awh), cg, how, opt );
+				       QRect(ax, ay, awh, awh), pal, how, opt );
 	    else
 		drawPrimitive( PE_ArrowDown, p,
-			       QRect(ax, ay, awh, awh), cg, how, opt );
+			       QRect(ax, ay, awh, awh), pal, how, opt );
 
 	    QPen oldPen = p->pen();
-	    p->setPen( cg.light() );
+	    p->setPen( pal.light() );
 	    p->drawLine( ax, sy, ax + awh - 1, sy );
 	    p->drawLine( ax, sy, ax, sy + sh - 1 );
-	    p->setPen( cg.dark() );
+	    p->setPen( pal.dark() );
 	    p->drawLine( ax + 1, sy + sh - 1, ax + awh - 1, sy + sh - 1 );
 	    p->drawLine( ax + awh - 1, sy + 1, ax + awh - 1, sy + sh - 1 );
 	    p->setPen( oldPen );
@@ -1161,14 +1166,14 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	    if ( cmb->editable() ) {
 		QRect r( querySubControlMetrics(CC_ComboBox, widget,
 						SC_ComboBoxEditField, opt) );
-		qDrawShadePanel( p, r, cg, TRUE, 1,
-				 &cg.brush(QColorGroup::Button) );
+		qDrawShadePanel( p, r, pal, TRUE, 1,
+				 &pal.brush(QPalette::Button) );
 	    }
 
 	    break;
 	}
     default:
-	QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how,
+	QWindowsStyle::drawComplexControl( cc, p, widget, r, pal, how,
 					   sub, subActive, opt );
 	break;
     }
@@ -1363,7 +1368,7 @@ static inline int buttonthickness( int d )
 
 void NorwegianWoodStyle::drawSemicircleButton( QPainter *p, const QRect &r,
 					       int dir, bool sunken,
-					       const QColorGroup &g ) const
+					       const QPalette &pal ) const
 {    
     int b =  pixelMetric( PM_ScrollBarExtent ) > 20 ? 3 : 2;
 
@@ -1400,15 +1405,15 @@ void NorwegianWoodStyle::drawSemicircleButton( QPainter *p, const QRect &r,
     QRegion oldClip = p->clipRegion();
     bool bReallyClip = p->hasClipping();  // clip only if we really want.
     p->setClipRegion( intern );
-    p->fillRect( r, g.brush( QColorGroup::Button ) );
+    p->fillRect( r, pal.brush( QPalette::Button ) );
 
     p->setClipRegion( QRegion(a)&extrn );
-    p->fillRect( r, sunken ? g.dark() : g.light() );
+    p->fillRect( r, sunken ? pal.dark() : pal.light() );
 
     a.setPoints( 3, r.right(), r.bottom(), r.x(), r.bottom(),
 		 r.right(), r.top() );
     p->setClipRegion( QRegion(a) &  extrn );
-    p->fillRect( r, sunken ? g.light() : g.dark() );
+    p->fillRect( r, sunken ? pal.light() : pal.dark() );
 
     p->setClipRegion( oldClip );
     p->setClipping( bReallyClip );

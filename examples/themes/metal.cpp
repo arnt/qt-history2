@@ -48,7 +48,7 @@ void MetalStyle::polish( QApplication *app)
 {
     oldPalette = app->palette();
 
-    // we simply create a nice QColorGroup with a couple of fancy
+    // we simply create a nice QPalette with a couple of fancy
     // pixmaps here and apply to it all widgets
 
     QFont f("times", app->font().pointSize() );
@@ -69,36 +69,41 @@ void MetalStyle::polish( QApplication *app)
     QPixmap mid( stone1_xpm );
     QPixmap light( stone1_xpm );//1, 1 ); light.fill( green );
 
-    QPalette op = app->palette();
-
     QColor backCol( 227,227,227 );
 
-    // QPalette op(white);
-    QColorGroup active (op.active().foreground(),
+    QPalette op = app->palette();
+    op.setColorGroup(QPalette::Active, op.active().foreground(),
 		     QBrush(op.active().button(),button),
 		     QBrush(op.active().light(), light),
 		     QBrush(op.active().dark(), dark),
 		     QBrush(op.active().mid(), mid),
 		     op.active().text(),
 		     Qt::white,
-		     op.active().base(),//		     QColor(236,182,120),
-		     QBrush(backCol, background)
-		     );
-    active.setColor( QColorGroup::ButtonText,  Qt::white  );
-    active.setColor( QColorGroup::Shadow,  Qt::black  );
-    QColorGroup disabled (op.disabled().foreground(),
+		     op.active().base(),
+		     QBrush(backCol, background));
+    op.setColor( QPalette::Active, QPalette::ButtonText,  Qt::white  );
+    op.setColor( QPalette::Active, QPalette::Shadow,  Qt::black  );
+    op.setColorGroup(QPalette::Inactive, op.active().foreground(),
+		     QBrush(op.active().button(),button),
+		     QBrush(op.active().light(), light),
+		     QBrush(op.active().dark(), dark),
+		     QBrush(op.active().mid(), mid),
+		     op.active().text(),
+		     Qt::white,
+		     op.active().base(),
+		     QBrush(backCol, background));
+    op.setColor( QPalette::Inactive, QPalette::ButtonText,  Qt::white  );
+    op.setColor( QPalette::Inactive, QPalette::Shadow,  Qt::black  );
+    op.setColorGroup(QPalette::Disabled, op.disabled().foreground(),
 		     QBrush(op.disabled().button(),button),
 		     QBrush(op.disabled().light(), light),
 		     op.disabled().dark(),
 		     QBrush(op.disabled().mid(), mid),
 		     op.disabled().text(),
 		     Qt::white,
-		     op.disabled().base(),//		     QColor(236,182,120),
-		     QBrush(backCol, background)
-		     );
-
-    QPalette newPalette( active, disabled, active );
-    app->setPalette( newPalette, TRUE );
+		     op.disabled().base(),
+		     QBrush(backCol, background));
+    app->setPalette( op, TRUE );
 }
 
 /*!
@@ -152,7 +157,7 @@ void MetalStyle::unPolish( QWidget* w)
 void MetalStyle::drawPrimitive( PrimitiveElement pe,
 				QPainter *p,
 				const QRect &r,
-				const QColorGroup &cg,
+				const QPalette &pal,
 				SFlags flags, const QStyleOption& opt ) const
 {
     switch( pe ) {
@@ -173,13 +178,13 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 	drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
 			 flags & Style_Down, !( flags & Style_Horizontal ) );
 	drawPrimitive( (flags & Style_Horizontal) ? PE_ArrowRight :PE_ArrowDown,
-		       p, r, cg, flags, opt );
+		       p, r, pal, flags, opt );
 	break;
     case PE_ScrollBarSubLine:
 	drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
 			 flags & Style_Down, !( flags & Style_Horizontal ) );
 	drawPrimitive( (flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp,
-		       p, r, cg, flags, opt );
+		       p, r, pal, flags, opt );
 	break;
 
 	
@@ -188,7 +193,7 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 			 flags & Style_Horizontal );
 	break;
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, opt );
+	QWindowsStyle::drawPrimitive( pe, p, r, pal, flags, opt );
 	break;
     }
 }
@@ -197,7 +202,7 @@ void MetalStyle::drawControl( ControlElement element,
 			      QPainter *p,
 			      const QWidget *widget,
 			      const QRect &r,
-			      const QColorGroup &cg,
+			      const QPalette &pal,
 			      SFlags how,
 			      const QStyleOption& opt ) const
 {
@@ -210,17 +215,17 @@ void MetalStyle::drawControl( ControlElement element,
 	
 	    r.coords( &x1, &y1, &x2, &y2 );
 	
-	    p->setPen( cg.foreground() );
-	    p->setBrush( QBrush(cg.button(), NoBrush) );
+	    p->setPen( pal.foreground() );
+	    p->setBrush( QBrush(pal.button(), NoBrush) );
 
 	
 	    QBrush fill;
 	    if ( btn->isDown() )
-		fill = cg.brush( QColorGroup::Mid );
+		fill = pal.brush( QPalette::Mid );
 	    else if ( btn->isOn() )
-		fill = QBrush( cg.mid(), Dense4Pattern );
+		fill = QBrush( pal.mid(), Dense4Pattern );
 	    else
-		fill = cg.brush( QColorGroup::Button );
+		fill = pal.brush( QPalette::Button );
 	
 	    if ( btn->isDefault() ) {
 		QPointArray a;
@@ -243,7 +248,7 @@ void MetalStyle::drawControl( ControlElement element,
 		flags |= Style_Raised;
 	    drawPrimitive( PE_ButtonCommand, p,
 			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1),
-			   cg, flags, opt );
+			   pal, flags, opt );
 	
 	    if ( btn->isMenuButton() ) {
 		flags = Style_Default;
@@ -253,7 +258,7 @@ void MetalStyle::drawControl( ControlElement element,
 		int dx = ( y1 - y2 - 4 ) / 3;
 		drawPrimitive( PE_ArrowDown, p,
 			       QRect(x2 - dx, dx, y1, y2 - y1),
-			       cg, flags, opt );
+			       pal, flags, opt );
 	    }
 	    if ( p->brush().style() != NoBrush )
 		p->setBrush( NoBrush );
@@ -284,15 +289,15 @@ void MetalStyle::drawControl( ControlElement element,
 	    h -= 4;
 	    drawItem( p, QRect( x, y, w, h ),
 		      AlignCenter|ShowPrefix,
-		      cg, btn->isEnabled(),
+		      pal, btn->isEnabled(),
 		      btn->pixmap(), btn->text(), -1,
-		      (btn->isDown() || btn->isOn())? &cg.brightText() : &cg.buttonText() );
+		      (btn->isDown() || btn->isOn())? &pal.brightText().color() : &pal.buttonText().color() );
 	    if ( dx || dy )
 		p->translate( -dx, -dy );
 	    break;
 	}
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, cg, how, opt );
+	QWindowsStyle::drawControl( element, p, widget, r, pal, how, opt );
 	break;
     }
 }
@@ -300,7 +305,7 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 				     QPainter *p,
 				     const QWidget *widget,
 				     const QRect &r,
-				     const QColorGroup &cg,
+				     const QPalette &pal,
 				     SFlags how,
 				     SCFlags sub,
 				     SCFlags subActive,
@@ -313,7 +318,7 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 	    QRect handle = querySubControlMetrics( CC_Slider, widget,
 						   SC_SliderHandle, opt);
 	    if ( sub & SC_SliderGroove )
-		QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how,
+		QWindowsStyle::drawComplexControl( cc, p, widget, r, pal, how,
 						   SC_SliderGroove, subActive, opt );
 	    if ( (sub & SC_SliderHandle) && handle.isValid() )
 		drawMetalButton( p, handle.x(), handle.y(), handle.width(),
@@ -326,21 +331,21 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 	    // not exactly correct...
 	    const QComboBox *cmb = ( const QComboBox* ) widget;
 	
-	    qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg, TRUE,
-			   cmb->isEnabled() ? &cg.brush( QColorGroup::Base ) :
-			                      &cg.brush( QColorGroup::Background ) );
+	    qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), pal, TRUE,
+			   cmb->isEnabled() ? &pal.brush( QPalette::Base ) :
+			                      &pal.brush( QPalette::Background ) );
 	    drawMetalButton( p, r.x() + r.width() - 2 - 16, r.y() + 2, 16, r.height() - 4,
 			     how & Style_Sunken, TRUE );
 	    drawPrimitive( PE_ArrowDown, p,
 			   QRect( r.x() + r.width() - 2 - 16 + 2,
 				  r.y() + 2 + 2, 16 - 4, r.height() - 4 -4 ),
-			   cg,
+			   pal,
 			   cmb->isEnabled() ? Style_Enabled : Style_Default,
 			   opt );
 	    break;
 	}
     default:
-	QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how, sub, subActive,
+	QWindowsStyle::drawComplexControl( cc, p, widget, r, pal, how, sub, subActive,
 					   opt );
 	break;
     }
