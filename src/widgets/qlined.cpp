@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#24 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#24 $";
 #endif
 
 /*!
@@ -181,7 +181,7 @@ Here are the default key bindings:
 <dt> Control-H <dd> Delete the character to the left of the cursor
 </dl>
 
-<strong><a href=mailto:all@troll.no>Comments solicited</a></strong>
+<strong><a href=mailto:qt-bugs@troll.no>Comments solicited</a></strong>
 
 All other keys insert themselves into the line.
 
