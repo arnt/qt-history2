@@ -1,3 +1,4 @@
+#include "qcleanuphandler.h"
 #include "qobjcoll.h"
 #include "qsqldatabase.h"
 #include "qsqlfield.h"
@@ -85,6 +86,21 @@ void QSqlPropertyMap::remove( const QString & classname )
     propertyMap.remove( classname );
 }
 
+static QSqlPropertyMap * defaultmap = 0;
+QCleanUpHandler< QSqlPropertyMap > qsql_cleanup_property_map;
+
+/*!
+
+  Returns the application global QSqlPropertyMap.
+*/
+QSqlPropertyMap * QSqlPropertyMap::defaultMap()
+{
+    if( defaultmap == 0 ){
+	defaultmap = new QSqlPropertyMap();
+	qsql_cleanup_property_map.addCleanUp( defaultmap );
+    }
+    return defaultmap;
+}
 
 /*!
   \class QSqlFormMap qsqlform.h
@@ -103,7 +119,7 @@ void QSqlPropertyMap::remove( const QString & classname )
 */
 QSqlFormMap::QSqlFormMap()
 {
-    m = new QSqlPropertyMap;
+    m = 0;
 }
 
 /*!
@@ -120,7 +136,7 @@ QSqlFormMap::~QSqlFormMap()
 
   Installs a custom QSqlPropertyMap. This is useful if you plan to
   create your own custom editor widgets. NB! QSqlFormMap takes
-  possession of the \a map, and \a map is deleted when the object goes
+  ownership of the \a pmap, and \a pmap is deleted when the object goes
   out of scope.
 
   \sa installEditorFactory()
@@ -129,11 +145,7 @@ void QSqlFormMap::installPropertyMap( QSqlPropertyMap * pmap )
 {
     if( m )
 	delete m;
-
-    if( pmap )
-	m = pmap;
-    else
-	m = new QSqlPropertyMap;
+    m = pmap;
 }
 
 
@@ -165,20 +177,7 @@ void QSqlFormMap::clear()
     for( it = map.begin(); it != map.end(); ++it ){
 	(*it)->clear();
     }
-    syncWidgets();
-}
-
-
-/*!
-
-  Returns the field number widget \a widget is mapped to.
-*/
-QSqlField * QSqlFormMap::whichField( QWidget * widget ) const
-{
-    if( map.contains( widget ) )
-	return map[widget];
-    else
-	return 0;
+    readFields();
 }
 
 /*!
@@ -199,7 +198,7 @@ QWidget * QSqlFormMap::widget( uint i ) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     uint cnt = 0;
-
+    
     if( i > map.count() ) return 0;
     for( it = map.begin(); it != map.end(); ++it ){
 	if( cnt++ == i )
@@ -212,7 +211,7 @@ QWidget * QSqlFormMap::widget( uint i ) const
 
   Returns the widget which field \a field is mapped to.
 */
-QWidget * QSqlFormMap::whichWidget( QSqlField * field ) const
+QWidget * QSqlFormMap::fieldToWidget( QSqlField * field ) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     for( it = map.begin(); it != map.end(); ++it ){
@@ -224,18 +223,31 @@ QWidget * QSqlFormMap::whichWidget( QSqlField * field ) const
 
 /*!
 
+  Returns the field number widget \a widget is mapped to.
+*/
+QSqlField * QSqlFormMap::widgetToField( QWidget * widget ) const
+{
+    if( map.contains( widget ) )
+	return map[widget];
+    else
+	return 0;
+}
+
+/*!
+
   Update the widgets in the map with values from the actual database
   fields.
 */
-void QSqlFormMap::syncWidgets()
+void QSqlFormMap::readFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-
+    QSqlPropertyMap * pmap = (m == 0) ? QSqlPropertyMap::defaultMap() : m;
+        
     for(it = map.begin() ; it != map.end(); ++it ){
-	f = whichField( it.key() );
+	f = widgetToField( it.key() );
 	if( !f ) continue;
-	m->setProperty( it.key(), f->value() );
+	pmap->setProperty( it.key(), f->value() );
     }
 }
 
@@ -243,15 +255,16 @@ void QSqlFormMap::syncWidgets()
 
   Update the actual database fields with values from the widgets.
 */
-void QSqlFormMap::syncFields()
+void QSqlFormMap::writeFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
+    QSqlPropertyMap * pmap = (m == 0) ? QSqlPropertyMap::defaultMap() : m;
 
     for(it = map.begin() ; it != map.end(); ++it ){
-	f = whichField( it.key() );
+	f = widgetToField( it.key() );
 	if( !f ) continue;
-	f->setValue( m->property( it.key() ) );
+	f->setValue( pmap->property( it.key() ) );
     }
 }
 
@@ -265,11 +278,9 @@ void QSqlFormMap::syncFields()
   This class is used to create SQL forms for accessing, updating,
   inserting and deleting data from a database. Populate the form with
   widgets created by the QSqlEditorFactory class, to get the proper
-  widget for a certain field. The form needs a valid QSqlCursor on
-  which to perform its operations.
-  
+  widget for a certain field. The form needs a valid QSqlCursor on which
+  to perform its operations.
   Some sample code to initialize a form successfully:
-  
   \code
   QSqlForm form;
   QSqlEditorFactory factory;
@@ -286,7 +297,7 @@ void QSqlFormMap::syncFields()
   form.associate( w, myView.field( 0 ) );
 
   // Now, update the contents of the form from the fields in the form.
-  form.syncWidgets();
+  form.readFields();
   \endcode
 
   If you want to use custom editors for displaying/editing data fields,
@@ -302,37 +313,42 @@ void QSqlFormMap::syncFields()
 
   Constructs a SQL form.
 */
-QSqlForm::QSqlForm( QWidget * parent, const char * name )
-    : QWidget( parent, name ),
+QSqlForm::QSqlForm( QObject * parent, const char * name )
+    : QObject( parent, name ),
+      autodelete( FALSE ),
       readOnly( FALSE ),
-      v( 0 )
+      v( 0 ),
+      factory( 0 )
 {
-    map = new QSqlFormMap();
 }
 
 /*!
 
-  Constructs a SQL form. This version of the constructor
-  automatically creates a form, spread across \a columns
-  number of columns.
+  Constructs a SQL form. This version of the constructor automatically
+  generates a form, were \a widget becomes the parent of the generated
+  widgets. The form fields will be spread across \a columns number of
+  columns.
+  
+  \sa populate()
 */
-QSqlForm::QSqlForm( QSqlCursor * view, uint columns, QWidget * parent,
-		    const char * name )
-    : QWidget( parent, name ),
+QSqlForm::QSqlForm( QWidget * widget, QSqlCursor * view, uint columns = 1, 
+		    QObject * parent, const char * name )
+    : QObject( parent, name ),
+      autodelete( FALSE ),
       readOnly( FALSE ),
-      v( view )
+      factory( 0 )
 {
-    map = new QSqlFormMap();
-    populate( view, columns );
+    populate( widget, view, columns );
 }
 
 /*!
-
+  
   Destructs the form.
 */
 QSqlForm::~QSqlForm()
 {
-    delete map;
+    if( autodelete && v )
+	delete v;
 }
 
 /*!
@@ -341,17 +357,20 @@ QSqlForm::~QSqlForm()
 */
 void QSqlForm::associate( QWidget * widget, QSqlField * field )
 {
-    map->insert( widget, field );
+    map.insert( widget, field );
 }
 
 /*!
 
   Set the SQL view that the widgets in the form should be associated
-  with. <em> Do not delete the \a view until the QSqlForm goes out of
-  scope.</em>
+  with. #### QSqlForm takes ownership of the \a view pointer, and it will
+  be deleted when a new view is set, or when the object goes out of
+  scope. ### crap!
 */
 void QSqlForm::setView( QSqlCursor * view )
 {
+    if( autodelete && v )
+	delete v;
     v = view;
 }
 
@@ -365,35 +384,41 @@ QSqlCursor * QSqlForm::view() const
 }
 
 /*!
-
+  
   Installs a custom QEditorFactory. This is used in the populate()
   function to automatically create the widgets in the form.
-
-  \sa installPropertyMap()
+  
+  \sa installPropertyMap(QSqlPropertyMap *), QEditorFactory
  */
-void QSqlForm::installEditorFactory( QEditorFactory * )
+void QSqlForm::installEditorFactory( QEditorFactory * f )
 {
+    if( factory )
+	delete factory;
+    factory = f;
 }
 
 /*!
- Installs a custom QSqlPropertyMap. Used together with custom
- field editors. Please note that the QSqlForm class will
- take ownership of the propery map, so don't delete it!
+  
+ Installs a custom QSqlPropertyMap. Used together with custom field
+ editors. Please note that the QSqlForm class will take ownership of
+ the propery map, so don't delete it!
+ 
+ \sa installEditorFactory(QEditorFactory *), QSqlPropertyMap
 */
 void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
 {
-    map->installPropertyMap( m );
+    map.installPropertyMap( m );
 }
 
 /*!
-
+  
   Sets the form state.
  */
 void QSqlForm::setReadOnly( bool state )
 {
-    if( map->count() ){
-	for( uint i = 0; i < map->count(); i++ ){
-	    QWidget * w = map->widget( i );
+    if( map.count() ){
+	for( uint i = 0; i < map.count(); i++ ){
+	    QWidget * w = map.widget( i );
 	    if( w ) w->setEnabled( !state );
 	}
 	readOnly = state;
@@ -401,7 +426,7 @@ void QSqlForm::setReadOnly( bool state )
 }
 
 /*!
-
+  
   Returns the form state.
  */
 bool QSqlForm::isReadOnly() const
@@ -410,15 +435,44 @@ bool QSqlForm::isReadOnly() const
 }
 
 /*!
+  
+  Sets the auto-delete option of the form.
+  
+  Enabling auto-delete (\a enable is TRUE) will delete the view the
+  form currently operates on.
+  
+  Disabling auto-delete (\a enable is FALSE) will <em>not<\em> delete
+  the view when the form goes out of scope, or is deleted.
+  
+  The default setting is FALSE.
+  
+  \sa autoDelete().
+ */
+void QSqlForm::setAutoDelete( bool enable )
+{
+    autodelete = enable;
+}
+/*!
+  
+  Returns the setting of the auto-delete option (default is FALSE).
+  
+  \sa setAutoDelete().
+ */
+bool QSqlForm::autoDelete() const
+{
+    return autodelete;
+}
+
+/*!
 
   Refresh the widgets in the form with values from the associated SQL
   fields. Also emits a signal to indicate that the form state has
   changed.
 */
-void QSqlForm::syncWidgets()
+void QSqlForm::readFields()
 {
     if( v ){
-	map->syncWidgets();
+	map.readFields();
 	emit stateChanged( v->at() );
     } else
 	qWarning( "QSqlForm: No view associated with this form." );
@@ -428,10 +482,10 @@ void QSqlForm::syncWidgets()
 
   Refresh the SQL fields with values from the associated widgets.
 */
-void QSqlForm::syncFields()
+void QSqlForm::writeFields()
 {
     if( v )
-	map->syncFields();
+	map.writeFields();
     else
 	qWarning( "QSqlForm: No view associated with this form." );
 }
@@ -442,8 +496,8 @@ void QSqlForm::syncFields()
 */
 void QSqlForm::clear()
 {
-    map->clear();
-    syncWidgets();
+    map.clear();
+    readFields();
 }
 
 /*!
@@ -453,7 +507,7 @@ void QSqlForm::clear()
 void QSqlForm::first()
 {
     if( v && v->first() ){
-	syncWidgets();
+	readFields();
     }
 }
 
@@ -464,7 +518,7 @@ void QSqlForm::first()
 void QSqlForm::last()
 {
     if( v && v->last() ){
-	syncWidgets();
+	readFields();
     }
 }
 
@@ -480,7 +534,7 @@ void QSqlForm::next()
 	if( v->at() == QSqlResult::AfterLast ){
 	    v->last();
 	}
-	syncWidgets();
+	readFields();
     }
 }
 
@@ -495,7 +549,7 @@ void QSqlForm::previous()
 	if( v->at() == QSqlResult::BeforeFirst ){
 	    v->first();
 	}
-	syncWidgets();
+	readFields();
     }
 }
 
@@ -507,7 +561,7 @@ void QSqlForm::previous()
 bool QSqlForm::insert()
 {
     if( !readOnly && v ){
-	syncFields();
+	writeFields();
 	v->insert();
 	return TRUE;
     }
@@ -522,7 +576,7 @@ bool QSqlForm::insert()
 bool QSqlForm::update()
 {
     if( !readOnly && v ){
-	syncFields();
+	writeFields();
 	if( v->update( v->primaryIndex() ) )
 	    return TRUE;
     }
@@ -537,7 +591,7 @@ bool QSqlForm::update()
 bool QSqlForm::del()
 {
     if( !readOnly && v && v->del( v->primaryIndex() ) ){
-	syncWidgets();
+	readFields();
 	return TRUE;
     }
     return FALSE;
@@ -550,91 +604,69 @@ bool QSqlForm::del()
 void QSqlForm::seek( uint i )
 {
     if( v && v->seek( i ) ){
-	syncWidgets();
+	readFields();
     }
 }
 
 /*!
-
-  This is a convenience function used to quickly populate a form with
-  fields based on a QSql. The form will contain a name label and
-  an editor widget for each of the fields in the view. The widgets are
-  layed out vertically in a QVBoxLayout.
-  Example: \code
-  //
-  // This simple example will pop up a window containing
-  // all the fields in my_table
-  //
-  int main( int argc, char **argv )
-  {
-    QApplication a(argc, argv);
-    QSqlConnection::addDatabase( "QPSQL",     // driver name
-				 "test",      // database name
-				 "tk",	      // username
-				 "tk",        // password
-				 "myserver"); // hostname
-
-    QSqlDatabase * db = QSqlConnection::database();
-    if( !db->isOpen() ) return 0;    // see if we can connect to the dbase
-
-    QSqlCursor  view( "my_table" );
-
-    // select all records from 'my_table' - sort on 'my_field'
-    view.select( view.index( "my_field" ) );
-    if( !view.first() ) return 0;
-
-    QSqlForm * form = new QSqlForm( &view );
-    a.setMainWidget( form );
-    form->show();
-    return a.exec();
-  }
-  \endcode
+  
+  This is a convenience function used to automatically populate a form
+  with fields based on a QSqlCursor. The form will contain a name label
+  and an editor widget for each of the fields in the view. The widgets
+  are layed out vertically in a QVBoxLayout, across \a columns number
+  of columns. \a widget will become the parent of the generated widgets.
  */
 
-void QSqlForm::populate( QSqlCursor * view, uint columns )
+void QSqlForm::populate( QWidget * widget, QSqlCursor * view, uint columns )
 {
-    // ### Remember to remove the children before populating the form!
-
-    if( !view ) return;
-
-    QEditorFactory f( this );
-    QWidget * le;
-    QLabel * lb;
-    QVBoxLayout * vb = new QVBoxLayout( this);
+    // ### Remove the children before populating?
+    
+    if( !widget || !view ) return;
+    
+    QEditorFactory * f = (factory == 0) ? QEditorFactory::defaultFactory() :
+	                                  factory;
+    QWidget * editor;
+    QLabel * label; 
+    QVBoxLayout * vb = new QVBoxLayout( widget );
     QGridLayout * g  = new QGridLayout( vb );
-
+    
     g->setMargin( 5 );
     g->setSpacing( 3 );
-
+    
     QString pi = view->primaryIndex().toString();
-
+    
     if( columns < 1 ) columns = 1;
-    int numPerColumn = view->count()/columns;
+    int numPerColumn = view->count() / columns;
+    
+    if( (view->count() % columns) > 0)
+	numPerColumn++;
+    
     int col = 0, currentCol = 0;
-
+    
     for(uint i = 0; i < view->count(); i++){
 	if( col >= numPerColumn ){
 	    col = 0;
 	    currentCol += 2;
 	}
-
+	
 	// Do not show primary index fields in the form
 	QString name = view->field( i )->name();
 	if( name == pi ) continue;
-
+	
+	// ### crap - use the field displayLabel() instead!
 	name[0] = name[0].upper(); // capitalize the first letter
-	lb = new QLabel( name, this );
-
-	g->addWidget( lb, col, currentCol );
-
-	le = f.createEditor( this, view->value( i ) );
-	g->addWidget( le, col, currentCol + 1 );
-	associate( le, view->field( i ) );
+	label = new QLabel( name, widget );
+	
+	g->addWidget( label, col, currentCol );
+	
+	editor = f->createEditor( widget, view->value( i ) );
+	g->addWidget( editor, col, currentCol + 1 );
+	associate( editor, view->field( i ) );
 	col++;
     }
-
+    
     setView( view );
-    syncWidgets();
+    readFields();
 }
 
 
