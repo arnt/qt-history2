@@ -95,6 +95,70 @@
     errorString().
 */
 
+/*!
+    \fn void QAbstractSocket::hostFound()
+
+    This signal is emitted after connectToHost() has been called and
+    the host lookup has succeeded.
+
+    \sa QAbstractSocket::connected()
+*/
+
+/*!
+    \fn void QAbstractSocket::connected()
+
+    This signal is emitted after connectToHost() has been called and a
+    connection has been successfully established.
+
+    \sa QAbstractSocket::connectToHost(), QAbstractSocket::connectionClosed()
+*/
+
+/*!
+    \fn void QAbstractSocket::closed()
+
+    This signal is emitted when the connection has been closed.
+
+    \sa QAbstractSocket::connectToHost(), QAbstractSocket::close()
+*/
+
+/*!
+    \fn void QAbstractSocket::readyRead()
+
+    This signal is emitted every time there is new incoming data.
+
+    Bear in mind that new incoming data is only reported once; if you
+    do not read any data, this class buffers the data and you can read
+    it later, but no signal is emitted unless new data arrives. A good
+    practice is to read all data in the slot connected to this signal
+    unless you are sure that you need to receive more data to be able
+    to process it.
+
+    \sa QAbstractSocket::read(), QAbstractSocket::readAll(),
+        QAbstractSocket::readLine(), QAbstractSocket::bytesAvailable()
+*/
+
+
+/*!
+    \fn void QAbstractSocket::bytesWritten(Q_LLONG numBytes)
+
+    This signal is emitted when a payload of data has been written to
+    the network.  The \a numBytes parameter specifies how many bytes
+    were written.
+
+    The bytesToWrite() function is often used in the same context; it
+    indicates how many buffered bytes there are left to write.
+
+    \sa QAbstractSocket::write(), QAbstractSocket::bytesToWrite()
+*/
+
+/*!
+    \fn void QSocket::error(int)
+
+    This signal is emitted after an error occurred. The parameter is
+    the \l Qt::SocketError value.
+*/
+
+
 #include "qabstractsocket.h"
 #include "qabstractsocket_p.h"
 #include "qdatetime.h"
