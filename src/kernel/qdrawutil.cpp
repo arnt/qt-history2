@@ -792,7 +792,7 @@ static void qDrawWinArrow( QPainter *p, Qt::ArrowType type, bool down,
 #pragma warning(disable: 4244)
 #endif
 
-
+#ifndef QT_NO_STYLE_MOTIF
 // motif arrows look the same whether they are used or not
 // is this correct?
 static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
@@ -928,7 +928,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 #undef CTOP
 #undef CBOT
 }
-
+#endif
 
 void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 		 int x, int y, int w, int h,
@@ -938,9 +938,11 @@ void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 	case Qt::WindowsStyle:
 	    qDrawWinArrow( p, type, down, x, y, w, h, g, enabled );
 	    break;
+#ifndef QT_NO_STYLE_MOTIF
 	case Qt::MotifStyle:
 	    qDrawMotifArrow( p, type, down, x, y, w, h, g, enabled );
 	    break;
+#endif
 	default:
 #if defined(QT_CHECK_RANGE)
 	    qWarning( "qDrawArrow: Requested GUI style not supported" );
