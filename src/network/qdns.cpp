@@ -1558,7 +1558,7 @@ QDns::~QDns()
     if ( globalManager ) {
 	QDnsManager * m = globalManager;
 	while( q < m->queries.size() ) {
-		QDnsQuery * query=m->queries[q];
+	    QDnsQuery * query=m->queries[q];
 	    if ( query && query->dns )
 		    (void)query->dns->take( (void*) this );
 		q++;
