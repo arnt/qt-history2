@@ -301,6 +301,7 @@ const unsigned char * p_str(const char * c, int len=-1)
     }
     ret[0]=len;
     memcpy(((char *)ret)+1,c,len);
+    ret[len+1] = '\0';
     return ret;
 }
 
