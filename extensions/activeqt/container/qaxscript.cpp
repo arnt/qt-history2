@@ -309,23 +309,26 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
     \extension ActiveQt
 
     Every instance of the QAxScriptEngine class represents a piece of
-    scripting code in a certain language. The class is usually not used 
-    directly. The QAxScript class provides convenient functions to handle 
-    and call script code. 
-    
-    The functions declared in the code can be called using dynamicCall(). 
-    If the script engine supports introspection it can be queried for the 
-    list of functions in the code using functions().
+    scripting code in a particular scripting language. The class is
+    not usually used directly. The QAxScript class provides convenient
+    functions to handle and call script code.
 
-    Direct access to the script engine is provided through queryInterface().
+    The functions declared in the code can be called using
+    dynamicCall(). If the script engine supports introspection it can
+    be queried for the list of functions in the code using
+    functions().
+
+    Direct access to the script engine is provided through
+    queryInterface().
 */
 
 /*!
-    Constructs a QAxScriptEngine object with name \a name and registers
-    it in the QAxScript \a manager. This is usually done by the QAxScript
-    class when \link QAxScript::load() loading a script. \endlink
+    Constructs a QAxScriptEngine object called \a name and registers
+    it with the QAxScript \a manager. This is usually done by the
+    QAxScript class when \link QAxScript::load() loading a script.
+    \endlink
 
-    Instances of QAxScriptEngine should always have a name and have a 
+    Instances of QAxScriptEngine should always have both a name and a
     manager.
 */
 QAxScriptEngine::QAxScriptEngine(const QString &name, QAxScript *manager )
@@ -371,27 +374,27 @@ QAxScriptEngine::~QAxScriptEngine()
 */
 
 /*! \fn QString QAxScriptEngine::scriptCode() const
-    Returns the code in this script engine.
+    Returns the script's code.
 
     \sa QAxScript::load()
 */
 
 /*! \fn QString QAxScriptEngine::scriptLanguage() const
-    Returns the language of the script engine.
+    Returns the name of the script's language, for example "VBScript",
+    or "JScript".
 
     \sa QAxScript::load()
 */
 
 /*!
-    Loads the script source \a code into the script, using the script
-    engine for \a language. The function returns TRUE if \a code could
-    be passed successfully into the script engine, otherwise returns
-    FALSE.
+    Loads the script source \a code written in language \a language
+    into the script engine. Returns TRUE if \a code was successfully
+    entered into the script engine; otherwise returns FALSE.
 
-    If \a language is empty it will be determined heuristically. If \a code
-    contains the string "End Sub" it will be interpreted as VBScript, otherwise
-    as JScript. Additional script engines can be registered using 
-    QAxScript::registerEngine().
+    If \a language is empty it will be determined heuristically. If \a
+    code contains the string "End Sub" it will be interpreted as
+    VBScript, otherwise as JScript. Additional scripting languages can
+    be registered using QAxScript::registerEngine().
 
     This function can only be called once for each QAxScriptEngine object.
 */
@@ -488,11 +491,11 @@ bool QAxScriptEngine::initialize(IUnknown **ptr)
     \fn bool QAxScriptEngine::isValid() const
 
     Returns TRUE if the script engine has been initialized
-    correctly, otherwise returns FALSE.
+    correctly; otherwise returns FALSE.
 */
 
 /*!
-    Returns TRUE if the script engine supports introspection,
+    Returns TRUE if the script engine supports introspection;
     otherwise returns FALSE.
 */
 bool QAxScriptEngine::hasIntrospection() const
@@ -511,9 +514,8 @@ bool QAxScriptEngine::hasIntrospection() const
 }
 
 /*!
-    Returns a list of all functions this script can run if the
-    script engine supports introspection, otherwise returns an
-    empty list.
+    Returns a list of all the functions this script engine can run if
+    it supports introspection; otherwise returns an empty list.
 
     \sa hasIntrospection()
 */
@@ -540,12 +542,12 @@ QStringList QAxScriptEngine::functions() const
 }
 
 /*!
-    Requests the interface \a uuid from the script engine object and 
-    sets the value of \a iface to the provided interface, or to 0 if 
+    Requests the interface \a uuid from the script engine object and
+    sets the value of \a iface to the provided interface, or to 0 if
     the requested interface could not be provided.
 
-    Returns the result of the QueryInterface implementation of the 
-    COM object.
+    Returns the result of the QueryInterface implementation of the COM
+    object.
 */
 long QAxScriptEngine::queryInterface( const QUuid &uuid, void **iface ) const
 {
@@ -562,47 +564,52 @@ long QAxScriptEngine::queryInterface( const QUuid &uuid, void **iface ) const
     \module QAxContainer
     \extension ActiveQt
 
-    The QAxScript acts as a bridge between the COM objects embedded in the Qt 
-    application through QAxObject or QAxWidget, and the scripting languages
-    available through the Windows Script technologies, usually JScript and VBScript.
+    The QAxScript acts as a bridge between the COM objects embedded in
+    the Qt application through QAxObject or QAxWidget, and the
+    scripting languages available through the Windows Script
+    technologies, usually JScript and VBScript.
 
-    Create one QAxScript for each separate document in your application, and
-    add the COM objects the script need to access using addObject(). Then load()
-    the script sources and invoke the functions using call().
+    Create one QAxScript for each separate document in your
+    application, and add the COM objects the script need to access
+    using addObject(). Then load() the script sources and invoke the
+    functions using call().
 
-    Every script can have a name which can later be used to unload or access the
-    script engine created for each script. The script engines provide feedback to 
-    the application through signals. The most important signal is the error() 
-    signal.
+    Every script can have a name which can later be used to unload or
+    access the script engine created for each script. The script
+    engines provide feedback to the application through signals. The
+    most important signal is the error() signal.
 */
 
 /*!
     \enum QAxScript::ScriptState
 
-    The ScriptState enumeration defines the different states a script engine can
-    be in.
+    The ScriptState enumeration defines the different states a script
+    engine can be in.
 
-    \value Uninitialized The script is created, but not yet initialized
+    \value Uninitialized The script has been created, but not yet initialized
     \value Initialized The script has been initialized, but is not running
     \value Started The script can execute code, but does not yet handle events
-    \value Connected The script can execute code and connected to handle events    
-    \value Disconnected The script is loaded, but is not connected to event sources
+    \value Connected The script can execute code and is connected so
+    that it can handle events
+    \value Disconnected The script is loaded, but is not connected to
+    event sources
     \value Closed The script has been closed.
 */
 
 /*! \fn void QAxScript::entered()
 
-    This signal is emitted when a script engine has begun executing code.
+    This signal is emitted when a script engine has started executing code.
 */
 
 /*! \fn void QAxScript::finished()
 
-    This signal is emitted when a script engine has returned from executing code.
+    This signal is emitted when a script engine has finished executing code.
 */
 
 /*! \overload void QAxScript::finished(const QVariant &result)
 
-    \a result contains the script's result if appropriate.
+    \a result contains the script's result. This will be an invalid
+    QVariant if the script has no return value.
 */
 
 /*! \overload void QAxScript::finished(int code, const QString &source,
@@ -619,21 +626,22 @@ long QAxScriptEngine::queryInterface( const QUuid &uuid, void **iface ) const
 */
 
 /*!
-    \fn void QAxScript::error(int code, const QString &description, 
+    \fn void QAxScript::error(int code, const QString &description,
 				    int sourcePosition, const QString &sourceText)
 
-    This signal is emitted when an execution error occured while running a script.
+    This signal is emitted when an execution error occured while
+    running a script.
 
-    \a code, \a description, \a sourcePosition and \a sourceText contain information
-    about the execution error.
+    \a code, \a description, \a sourcePosition and \a sourceText
+    contain information about the execution error.
 */
 
 /*!
-    Creates a QAxScript object. \a parent and \a name 
-    are propagated to the QObject constructor.
+    Creates a QAxScript object. \a parent and \a name are passed on
+    to the QObject constructor.
 
-    You usually create one QAxScript for each document in
-    your application.
+    It is usual to create one QAxScript for each document in an
+    application.
 */
 QAxScript::QAxScript(QObject *parent, const char *name)
 : QObject( parent, name )
@@ -642,8 +650,9 @@ QAxScript::QAxScript(QObject *parent, const char *name)
 }
 
 /*!
-    Returns a list with all functions available. Functions provided by
-    script engines that don't support introspection will not be listed.
+    Returns a list with all the functions that are available.
+    Functions provided by script engines that don't support
+    introspection are not included in the list.
 */
 QStringList QAxScript::functions() const
 {
@@ -661,7 +670,7 @@ QStringList QAxScript::functions() const
 }
 
 /*!
-    Returns a list with the name of all scripts.
+    Returns a list with the names of all the scripts.
 */
 QStringList QAxScript::scriptNames() const
 {
@@ -677,9 +686,9 @@ QStringList QAxScript::scriptNames() const
 }
 
 /*!
-    Returns the script engine for \a name.
+    Returns the script engine for the script called \a name.
 
-    You can use the returned pointer to connect to functions as slots, 
+    You can use the returned pointer to connect to functions as slots,
     to call functions directly through dynamicCall(), or to delete and
     thus unload the script.
 */
@@ -689,11 +698,11 @@ QAxScriptEngine *QAxScript::scriptEngine(const QString &name) const
 }
 
 /*!
-    Adds \a object to the script manager. Scripts handled by this 
-    manager can access the object in the code using the object's 
-    \link QObject::name name \endlink property.
+    Adds \a object to the QAxScript. Scripts handled by this
+    QAxScript can access the object in the code using the object's \link
+    QObject::name name \endlink property.
 
-    You need to add all objects before loading any scripts.
+    You must add all the necessary objects before loading any scripts.
 */
 void QAxScript::addObject(QAxBase *object)
 {
@@ -707,22 +716,25 @@ void QAxScript::addObject(QAxBase *object)
 }
 
 /*!
-    Loads the script source \a code using the script engine for \a language.
-    The script can later be referred to useing \a name. \a name should not
-    be empty.
+    Loads the script source \a code using the script engine for \a
+    language. The script can later be referred to using its \a name
+    which should not be empty.
 
-    The function returns a pointer to the script engine if \a code could be 
-    loaded successfully, otherwise returns 0.
+    The function returns a pointer to the script engine for the given
+    \a code if the \a code was loaded successfully; otherwise it
+    returns 0.
 
-    If \a language is empty it will be determined heuristically. If \a code
-    contains the string "End Sub" it will be interpreted as VBScript, otherwise
-    as JScript. Additional script engines can be registered using registerEngine().
+    If \a language is empty it will be determined heuristically. If \a
+    code contains the string "End Sub" it will be interpreted as
+    VBScript, otherwise as JScript. Additional script engines can be
+    registered using registerEngine().
 
-    You need to add all objects necessary before loading any scripts. If \a code 
-    declares a function that is already available (no matter in which language) 
-    the first function is overloaded and can no longer be called via call(), but 
-    it will still be available calling the \link scriptEngine() script engine 
-    \endlink directly.
+    You must add all the objects necessary (using addObject()) \e
+    before loading any scripts. If \a code declares a function that is
+    already available (no matter in which language) the first function
+    is overloaded and can no longer be called via call(); but it will
+    still be available by calling its \link scriptEngine() script
+    engine \endlink directly.
 
     \sa addObject(), scriptNames(), functions()
 */
@@ -739,16 +751,17 @@ QAxScriptEngine *QAxScript::load(const QString &code, const QString &name, const
 /*!
     \overload
 
-    Loads the source code in \a file. The script can later be referred to 
-    useing \a name. \a name should not be empty.
+    Loads the source code from the \a file. The script can later be
+    referred to using its \a name which should not be empty.
 
-    The function returns a pointer to the script engine if \a file could 
-    be loaded successfully, otherwise returns 0.
+    The function returns a pointer to the script engine for the code
+    in \a file if \a file was loaded successfully; otherwise it
+    returns 0.
 
-    The script engine used is determined from the file extension. By
+    The script engine used is determined from the file's extension. By
     default ".js" files are interpreted as JScript files, and ".vbs"
-    and ".dsm" files are interpreted as VBScript. Additional script engines 
-    can be registered using registerEngine().
+    and ".dsm" files are interpreted as VBScript. Additional script
+    engines can be registered using registerEngine().
 */
 QAxScriptEngine *QAxScript::load(const QString &file, const QString &name)
 {
@@ -792,29 +805,29 @@ QAxScriptEngine *QAxScript::load(const QString &file, const QString &name)
 
 /*!
     Calls \a function passing \a arguments as parameters, and returns
-    the result. The call returns when the script execution is finished.
+    the result. Returns when the script's execution has finished.
 
     In most script engines the only supported parameter type is "const
-    QVariant&". Ie. call a JavaScript function
+    QVariant&", for example, to call a JavaScript function
     \code
     function setNumber(number)
     {
         n = number;
     }
     \endcode
-    using
+    use
     \code
     QValueList args;
     args << 5;
     script->call("setNumber(const QVariant&)", args);
     \endcode
 
-    Functions provided by script engines that don't support introspection 
-    are not available and need to be called directly using 
-    \link QAxBase::dynamicCall() dynamicCall \endlink on the respective 
-    \link scriptEngine() script engine \endlink object.
+    Functions provided by script engines that don't support
+    introspection are not available and must be called directly
+    using \link QAxBase::dynamicCall() dynamicCall \endlink on the
+    respective \link scriptEngine() script engine \endlink object.
 
-    Note that calling this function can be significantely slower than 
+    Note that calling this function can be significantely slower than
     calling the script engine directly.
 */
 QVariant QAxScript::call(const QString &function, QValueList<QVariant> &arguments)
@@ -833,11 +846,12 @@ QVariant QAxScript::call(const QString &function, QValueList<QVariant> &argument
 }
 
 /*!
-    Registers the script engine \a name and returns TRUE if the engine
-    could be located on the system, otherwise returns FALSE and does nothing.
+    Registers the script engine called \a name and returns TRUE if the
+    engine was found; otherwise does nothing and returns FALSE.
 
-    The script engine will be used when loading files with \a extension,
-    or when loading source code that contains the string \a code.
+    The script engine will be used when loading files with the given
+    \a extension, or when loading source code that contains the string
+    \a code.
 */
 bool QAxScript::registerEngine(const QString &name, const QString &extension, const QString &code)
 {
@@ -859,8 +873,8 @@ bool QAxScript::registerEngine(const QString &name, const QString &extension, co
 }
 
 /*!
-    Returns a file filter listing all script languages supported.
-    This filter string can conveniently be used in calls to QFileDialog.
+    Returns a file filter listing all the supported script languages.
+    This filter string is convenient for use with QFileDialog.
 */
 QString QAxScript::scriptFileFilter()
 {
