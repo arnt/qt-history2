@@ -256,7 +256,7 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 
   The default is TRUE.
 
-  \se centerIndicator, indicatorFollowsStyle
+  \sa centerIndicator, indicatorFollowsStyle
 */
 void QProgressBar::setPercentageVisible( bool on )
 {
