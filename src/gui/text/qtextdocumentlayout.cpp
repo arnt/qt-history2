@@ -9,6 +9,7 @@
 #include <qrect.h>
 #include <qpalette.h>
 #include <qdebug.h>
+#include <limits.h>
 
 #include "qabstracttextdocumentlayout_p.h"
 
