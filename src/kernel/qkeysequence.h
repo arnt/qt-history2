@@ -83,7 +83,7 @@ class Q_EXPORT QKeySequence : public Qt
 {
 public:
     QKeySequence() {}
-    QKeySequence( int key ) {}
+    QKeySequence( int ) {}
 };
 
 #endif //QT_NO_ACCEL
