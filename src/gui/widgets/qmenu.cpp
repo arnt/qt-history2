@@ -126,24 +126,24 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 	    ret.append(item);
 	}
     }
-    if(tabWidth) 
+    if(tabWidth)
 	max_column_width += tabWidth+20; //finally add in the tab width
 
     //calculate position
-    int x = 0, y = 0;
+    int x = 0, y2 = 0;
     for(int i = 0; i < ret.count(); i++) {
 	Q4MenuAction *action = ret.at(i);
-	if(!scroll && 
-	   y+action->rect.height() > dh - (q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, q) * 2)) {
+	if(!scroll &&
+	   y2+action->rect.height() > dh - (q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, q) * 2)) {
 	    ncols--;
 	    if(ncols < 0)
 		qWarning("Q4Menu: Column mismatch calculation. %d", ncols);
 	    x += max_column_width;
-	    y = 0;
+	    y2 = 0;
 	}
-	action->rect.moveBy(x, y);                        //move
+	action->rect.moveBy(x, y2);                        //move
 	action->rect.setWidth(max_column_width); //uniform width
-	y += action->rect.height();
+	y2 += action->rect.height();
     }
     return ret;
 }
@@ -211,10 +211,10 @@ void Q4MenuPrivate::popupAction(Q4MenuAction *action, int delay, bool activateFi
 	    q->internalDelayedPopup();
 	} else {
 	    static QTimer *menuDelayTimer = 0;
-	    if(!menuDelayTimer) 
+	    if(!menuDelayTimer)
 		menuDelayTimer = new QTimer(qApp, "menu submenu timer");
 	    menuDelayTimer->disconnect(SIGNAL(timeout()));
-	    QObject::connect(menuDelayTimer, SIGNAL(timeout()), 
+	    QObject::connect(menuDelayTimer, SIGNAL(timeout()),
 			     q, SLOT(internalDelayedPopup()));
 	    menuDelayTimer->start(delay, true);
 	}
@@ -251,7 +251,7 @@ void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, int popup, bool activ
 	q->update(actionRect(currentAction));
 
     d->sloppyAction = 0;
-    if(!sloppyRegion.isEmpty()) 
+    if(!sloppyRegion.isEmpty())
 	sloppyRegion = QRegion();
     currentAction = action;
     if(action && !action->action->isSeparator()) {
@@ -259,7 +259,7 @@ void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, int popup, bool activ
 	if(popup != -1)
 	    popupAction(d->currentAction, popup, activateFirst);
 	q->update(actionRect(action));
-    } 
+    }
     if(activeMenu && (!action || !action->action->menu())) { //otherwise done in popupAction
 	Q4Menu *menu = activeMenu;
 	activeMenu = NULL;
@@ -873,9 +873,9 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 			    Q4MenuAction *next = d->actionItems.at(next_i);
 			    if(next == d->currentAction)
 				break;
-			    if(next->action->isSeparator() || 
-			       (!next->action->isEnabled() && 
-				!style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this))) 
+			    if(next->action->isSeparator() ||
+			       (!next->action->isEnabled() &&
+				!style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this)))
 				continue;
 			    nextAction = next;
 			    if(d->scroll && (d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)) {
@@ -900,7 +900,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 			    if(next == d->currentAction)
 				break;
 			    if(next->action->isSeparator() ||
-			       (!next->action->isEnabled() && 
+			       (!next->action->isEnabled() &&
 				!style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this)))
 				continue;
 			    nextAction = next;
@@ -1080,17 +1080,17 @@ void Q4Menu::mouseMoveEvent(QMouseEvent *e)
     if(!action) {
 	const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q);
 	if(e->pos().x() <= fw || e->pos().x() >= width()-fw ||
-	   e->pos().y() <= fw || e->pos().y() >= height()-fw) 
+	   e->pos().y() <= fw || e->pos().y() >= height()-fw)
 	    return; //mouse over frame
     } else {
 	d->mouseDown = e->state() & LeftButton;
     }
     if(d->sloppyRegion.contains(e->pos())) {
 	static QTimer *sloppyDelayTimer = 0;
-	if(!sloppyDelayTimer) 
+	if(!sloppyDelayTimer)
 	    sloppyDelayTimer = new QTimer(qApp, "menu sloppy timer");
 	sloppyDelayTimer->disconnect(SIGNAL(timeout()));
-	QObject::connect(sloppyDelayTimer, SIGNAL(timeout()), 
+	QObject::connect(sloppyDelayTimer, SIGNAL(timeout()),
 			 q, SLOT(internalSetSloppyAction()));
 	sloppyDelayTimer->start(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this)*6, true);
 	d->sloppyAction = action;
@@ -1102,7 +1102,7 @@ void Q4Menu::mouseMoveEvent(QMouseEvent *e)
 void Q4Menu::leaveEvent(QEvent *)
 {
     d->sloppyAction = 0;
-    if(!d->sloppyRegion.isEmpty()) 
+    if(!d->sloppyRegion.isEmpty())
 	d->sloppyRegion = QRegion();
 #if 0
     if(!d->tornoff)
@@ -1166,11 +1166,11 @@ void Q4Menu::internalDelayedPopup()
 	    on_left = false;
     } else {
 	Q4Menu *caused = qt_cast<Q4Menu*>(d->causedPopup);
-	if(caused && caused->x() > x() || 
+	if(caused && caused->x() > x() ||
 	   x() + width() + menuSize.width() > QApplication::desktop()->width())
 	    on_left = true;
     }
-    if(on_left) 
+    if(on_left)
 	pos.setX(-menuSize.width());
 
     //calc sloppy focus buffer
@@ -1433,7 +1433,7 @@ QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 	item->rect.moveTop(y);
 
 	//keep moving along..
-	x += item->rect.width() + itemSpacing; 
+	x += item->rect.width() + itemSpacing;
     }
     return ret;
 }
@@ -1535,7 +1535,7 @@ void Q4MenuBar::mouseReleaseEvent(QMouseEvent *e)
     d->mouseDown = false;
     Q4MenuAction *action = d->actionAt(e->pos());
     if((d->closePopupMode && action == d->currentAction) || !action || !action->action->menu()) {
-	if(action) 
+	if(action)
 	    action->action->activate(QAction::Trigger);
 	d->setCurrentAction(action, false);
     }
@@ -1611,7 +1611,7 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 	key_consumed = false;
     }
 
-    if(!key_consumed && 
+    if(!key_consumed &&
        (!e->state() || (e->state()&(MetaButton|AltButton))) && e->text().length()==1 && !d->popupState) {
 	int clashCount = 0;
 	Q4MenuAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
@@ -1643,7 +1643,7 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 	    else
 		next_action = firstAfterCurrent;
 	}
-	if(next_action) 
+	if(next_action)
 	    d->setCurrentAction(next_action, true, true);
     }
 }
@@ -1653,7 +1653,7 @@ void Q4MenuBar::mouseMoveEvent(QMouseEvent *e)
     d->mouseDown = e->state() & LeftButton;
     Q4MenuAction *action = d->actionAt(e->pos());
     bool popupState = d->popupState || d->mouseDown;
-    if(action || !popupState) 
+    if(action || !popupState)
 	d->setCurrentAction(action, popupState);
 }
 
@@ -1807,7 +1807,7 @@ QSize Q4MenuBar::sizeHint() const
 	s.setWidth(s.width()+(fw*2));
 	s.setHeight(s.height()+(fw*2));
     }
-    return (style().sizeFromContents(QStyle::CT_MenuBar, this, 
+    return (style().sizeFromContents(QStyle::CT_MenuBar, this,
 				     s.expandedTo(QApplication::globalStrut())));
 }
 
