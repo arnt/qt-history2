@@ -691,9 +691,9 @@ bool QTreeWidgetItem::isSelected() const
     return view->isSelected(this);
 }
 
-void QTreeWidgetItem::setSelected()
+void QTreeWidgetItem::setSelected(bool select)
 {
-    view->setSelected(this);
+    view->setSelected(this, select);
 }
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
@@ -724,10 +724,10 @@ bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
   ###
 */
 
-void QTreeWidget::setSelected(const QTreeWidgetItem *item)
+void QTreeWidget::setSelected(const QTreeWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
-    selectionModel()->select(index, QItemSelectionModel::Select);
+    selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
 }
 
 /*!

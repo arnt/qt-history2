@@ -88,7 +88,7 @@ public:
     void closePersistentEditor(int column);
 
     bool isSelected() const;
-    void setSelected();
+    void setSelected(bool select);
 
 protected:
     QTreeWidgetItem();
@@ -133,7 +133,7 @@ public:
     void closePersistentEditor(QTreeWidgetItem *item, int column = 0);
     
     bool isSelected(const QTreeWidgetItem *item) const;
-    void setSelected(const QTreeWidgetItem *item);
+    void setSelected(const QTreeWidgetItem *item, bool select);
 
 signals:
     void clicked(QTreeWidgetItem *item, int column, int button);
