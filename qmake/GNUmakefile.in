@@ -14,6 +14,7 @@ vpath %.cpp @REL_QTDIR@/src/tools @REL_QTDIR@/src/codecs @REL_QTDIR@/src/kernel
 CFLAGS=@QMAKE_CFLAGS@ -I. -Igenerators -Igenerators/unix -Igenerators/win32  -Igenerators/mac \
 	-I@OUT_QTDIR@/include -I@REL_QTDIR@/include -I@OUT_QTDIR@/src/tools \
 	-DQT_NO_TEXTCODEC -DQT_NO_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
+CXXFLAGS= $(CFLAGS)
 LFLAGS=@QMAKE_LFLAGS@
 
 #if cc isn't gcc I need to use the bad makefile
@@ -47,41 +48,41 @@ distclean:: clean
 
 # don't use optimization for these
 projectgenerator.o: projectgenerator.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 makefile.o: makefile.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 pbuilder_pbx.o: pbuilder_pbx.cpp 
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 metrowerks_xml.o: metrowerks_xml.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 unixmake2.o: unixmake2.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 unixmake.o: unixmake.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 borland_bmake.o: borland_bmake.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 msvc_nmake.o: msvc_nmake.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 msvc_dsp.o: msvc_dsp.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 #default rules
 %.o: %.c
 	$(CC) -c -o $@ $(CFLAGS) $^
 
 %.o: %.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 %.dep: %.c
 	@$(CC) -M $(CFLAGS) $(<) > .deps/$(@)
 
 %.dep: %.cpp
-	@$(CXX) -M $(CFLAGS) $(<) > .deps/$(@)
+	@$(CXX) -M $(CXXFLAGS) $(<) > .deps/$(@)
