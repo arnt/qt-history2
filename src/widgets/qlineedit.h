@@ -50,6 +50,9 @@ class QPopupMenu;
 
 #ifndef QT_NO_LINEEDIT
 
+class QTextParagraph;
+class QTextCursor;
+
 class Q_EXPORT QLineEdit : public QFrame
 {
     Q_OBJECT
@@ -207,6 +210,7 @@ private:
     void init();
     void blinkOn();
     void updateOffset();
+    void updateOffset( QTextParagraph *p, QTextCursor *c );
     void updateSelection();
     void removeSelectedText();
     void delOrBackspace( bool backspace );

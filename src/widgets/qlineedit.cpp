@@ -150,6 +150,7 @@ struct QLineEditPrivate {
 	    (*c)->setParagraph( *p );
 	    (*p)->append( displayText() );
 	    (*c)->setIndex( cursor->index() );
+	    (*p)->setAlignment( parag->alignment() );
 	} else {
 	    *p = parag;
 	    *c = cursor;
@@ -977,7 +978,7 @@ void QLineEdit::drawContents( QPainter *painter )
     parag->pseudoDocument()->docRect = r;
     parag->invalidate( 0 );
     parag->format();
-    updateOffset();
+    updateOffset( parag, cursor );
     int xoff = 1 - d->offset;
     int yoff = ( height() - parag->rect().height()  + 1 ) / 2;
     if ( yoff < 0 )
@@ -991,10 +992,7 @@ void QLineEdit::drawContents( QPainter *painter )
 
     buffer.end();
 
-    if ( d->mode == Password ) {
-	delete parag;
-	delete cursor;
-    }
+    d->releaseTextObjects( &parag, &cursor );
     painter->fillRect( -1, 0, 1, height(), bg );
     painter->translate( -marg, 0 );
 }
@@ -2069,17 +2067,17 @@ void QLineEdit::blinkOn()
     blinkSlot();
 }
 
-void QLineEdit::updateOffset()
+void QLineEdit::updateOffset( QTextParagraph *parag, QTextCursor *cursor )
 {
     // must not call repaint() - paintEvent() calls this
-    int parWidth = d->parag->rect().width() - 4; // QTextParagraph adds 4 pixels to the real width
-    int leftGap = d->parag->leftGap();
+    int parWidth = parag->rect().width() - 4; // QTextParagraph adds 4 pixels to the real width
+    int leftGap = parag->leftGap();
     int textWidth = parWidth - leftGap;
     int w = width();
     int fw = 0;
     fw = frameWidth() + 1;
     w -= 2*fw + 4;
-    int cursorPos = d->cursor->x();
+    int cursorPos = cursor->x();
 
     if ( textWidth > w ) {
 	if ( d->offset + w > parWidth )
@@ -2091,9 +2089,9 @@ void QLineEdit::updateOffset()
 	if ( cursorPos > d->offset + w )
 	    d->offset = cursorPos - w;
     } else {
-	int align = d->parag->alignment() & Qt::AlignHorizontal_Mask;
+	int align = parag->alignment() & Qt::AlignHorizontal_Mask;
 	if ( align == Qt::AlignAuto ) {
-	    if ( d->parag->string()->isRightToLeft() )
+	    if ( parag->string()->isRightToLeft() )
 		align = Qt::AlignRight;
 	    else
 		align = Qt::AlignLeft;
@@ -2111,6 +2109,11 @@ void QLineEdit::updateOffset()
 		break;
 	}
     }
+}
+
+void QLineEdit::updateOffset()
+{
+    updateOffset( d->parag, d->cursor );
 }
 
 
