@@ -96,8 +96,13 @@ public:
     // default font
     QFont();
     // specific font
+#ifdef Q_QDOC
     QFont( const QString &family, int pointSize = 12, int weight = Normal,
 	   bool italic = FALSE );
+#else
+    QFont( const QString &family, int pointSize = -1, int weight = -1,
+	   bool italic = FALSE );
+#endif
     // copy constructor
     QFont( const QFont & );
 

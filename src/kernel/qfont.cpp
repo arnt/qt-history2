@@ -532,23 +532,29 @@ QFont::QFont()
 */
 QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 {
-    if (pointSize <= 0) pointSize = 1;
 
     d = new QFontPrivate;
     Q_CHECK_PTR( d );
 
-    d->request.family = family;
-    d->mask |= QFontPrivate::Family;
+    d->mask = QFontPrivate::Family;
 
+    if (pointSize <= 0) {
+	pointSize = 12;
+    } else {
+	d->mask |= QFontPrivate::Size;
+    }
+
+    if (weight < 0) {
+	weight = Normal;
+    } else {
+	d->mask |= QFontPrivate::Weight | QFontPrivate::Italic;
+    }
+
+    d->request.family = family;
     d->request.pointSize = pointSize * 10;
     d->request.pixelSize = -1;
     d->request.weight = weight;
     d->request.italic = italic;
-
-    // set the mask if the attributes are non-default
-    if ( pointSize != 12 ) d->mask |= QFontPrivate::Size;
-    if ( weight != Normal ) d->mask |= QFontPrivate::Weight;
-    if ( italic ) d->mask |= QFontPrivate::Italic;
 }
 
 /*!
