@@ -400,9 +400,12 @@ static QStringList split_arg_list(QString params)
 {
     QChar quote = 0;
     QStringList args;
-    for(int x = 0, last = 0, parens = 0; x <= (int)params.length(); x++) {
-        if(x == (int)params.length()) {
-            QString mid = params.mid(last, x - last).trimmed();
+
+    const QChar *params_data = params.data();
+    const int params_len = params.length();
+    for(int x = 0, last = 0, parens = 0; x <= params_len; x++) {
+        if(x == params_len) {
+            QString mid(params_data+last, x-last);
             if(quote.unicode()) {
                 if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
                     mid = mid.mid(1, mid.length()-2);
@@ -411,16 +414,15 @@ static QStringList split_arg_list(QString params)
             args << mid;
             break;
         }
-        QChar curr = params.at(x);
-        if(curr == QLatin1Char(')')) {
+        if(*(params_data+x) == QLatin1Char(')')) {
             parens--;
-        } else if(curr == QLatin1Char('(')) {
+        } else if(*(params_data+x) == QLatin1Char('(')) {
             parens++;
-        } else if(quote.unicode() && curr == quote) {
+        } else if(quote.unicode() && *(params_data+x) == quote) {
             quote = 0;
-        } else if(!quote.unicode() && (curr == QLatin1Char('\'') || curr == QLatin1Char('"'))) {
-            quote = curr;
-        } else if(!parens && !quote.unicode() && curr == QLatin1Char(',')) {
+        } else if(!quote.unicode() && (*(params_data+x) == QLatin1Char('\'') || *(params_data+x) == QLatin1Char('"'))) {
+            quote = *(params_data+x);
+        } else if(!parens && !quote.unicode() && *(params_data+x) == QLatin1Char(',')) {
             QString mid = params.mid(last, x - last).trimmed();
             if(quote.unicode()) {
                 if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
@@ -441,28 +443,29 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     QString build;
     QStringList ret;
     QStack<QChar> quote;
-    for(int x = 0, parens = 0; x < (int)vals.length(); x++) {
-        QChar curr = vals.at(x);
-       if(x != (int)vals.length()-1 && curr == QLatin1Char('\\') &&
-          (vals.at(x+1) == QLatin1Char('\'') || vals.at(x+1) == QLatin1Char('"'))) {
-           build += curr; //get that 'escape'
-           curr = vals.at(++x);
-       } else if(!quote.isEmpty() && curr == quote.top()) {
-           quote.pop();
-       } else if(curr == QLatin1Char('\'') || curr == QLatin1Char('"')) {
-           quote.push(curr);
-       } else if(curr == QLatin1Char(')')) {
-           --parens;
-       } else if(curr == QLatin1Char('(')) {
-           ++parens;
-       }
 
-       if(!parens && quote.isEmpty() && ((do_semicolon && curr == QLatin1Char(';')) ||
-                              curr == Option::field_sep)) {
+    const QChar *vals_data = vals.data();
+    const int vals_len = vals.length();
+    for(int x = 0, parens = 0; x < vals_len; x++) {
+        if(x != (int)vals.length()-1 && *(vals_data+x) == QLatin1Char('\\') &&
+           (vals.at(x+1) == QLatin1Char('\'') || vals.at(x+1) == QLatin1Char('"'))) {
+            build += *(vals_data+(x++)); //get that 'escape'
+        } else if(!quote.isEmpty() && *(vals_data+x) == quote.top()) {
+            quote.pop();
+        } else if(*(vals_data+x) == QLatin1Char('\'') || *(vals_data+x) == QLatin1Char('"')) {
+            quote.push(*(vals_data+x));
+        } else if(*(vals_data+x) == QLatin1Char(')')) {
+            --parens;
+        } else if(*(vals_data+x) == QLatin1Char('(')) {
+            ++parens;
+        }
+
+        if(!parens && quote.isEmpty() && ((do_semicolon && *(vals_data+x) == QLatin1Char(';')) ||
+                                          *(vals_data+x) == Option::field_sep)) {
             ret << build;
             build = "";
         } else {
-            build += curr;
+            build += *(vals_data+x);
         }
     }
     if(!build.isEmpty())

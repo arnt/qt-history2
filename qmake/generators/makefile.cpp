@@ -2390,8 +2390,10 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
     if(!cache)
         cache = new QHash<FileFixifyCacheKey, QString>;
     FileFixifyCacheKey cacheKey(ret, out_d, in_d, fix, canon);
-    if(cache->contains(cacheKey))
-        return cache->value(cacheKey);
+    static QString empty_value;
+    QString cacheVal = cache->value(cacheKey);
+    if(cacheVal != empty_value)
+        return cacheVal;
 
     //do the fixin'
     const QString pwd = qmake_getpwd() + "/";
