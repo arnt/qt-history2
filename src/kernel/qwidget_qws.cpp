@@ -547,7 +547,7 @@ void QWidget::grabMouse()
     if ( mouseGrb )
 	mouseGrb->releaseMouse();
 
-    qwsDisplay()->grabMouse(winId(),TRUE);
+    qwsDisplay()->grabMouse(this,TRUE);
 
     mouseGrb = this;
 }
@@ -557,8 +557,8 @@ void QWidget::grabMouse( const QCursor &cursor )
     if ( mouseGrb )
 	mouseGrb->releaseMouse();
 
-    qwsDisplay()->grabMouse(winId(),TRUE);
-    qwsDisplay()->selectCursor(winId(), (int)cursor.handle());
+    qwsDisplay()->grabMouse(this,TRUE);
+    qwsDisplay()->selectCursor(this, (int)cursor.handle());
 
     mouseGrb = this;
 }
@@ -567,7 +567,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 void QWidget::releaseMouse()
 {
     if ( mouseGrb == this ) {
-	qwsDisplay()->grabMouse(winId(),FALSE);
+	qwsDisplay()->grabMouse(this,FALSE);
 	mouseGrb = 0;
     }
 }

@@ -506,10 +506,12 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
     if (activeRegion == None)
     {
-	Region r = pointInRegion(e->globalPos());
-	qwsd->selectCursor(managed->winId(), shape[r]);
+	if ( !QWidget::mouseGrabber() ) {
+	    Region r = pointInRegion(e->globalPos());
+	    qwsd->selectCursor(managed, shape[r]);
+	}
     } else
-	qwsd->selectCursor(managed->winId(), shape[activeRegion]);
+	qwsd->selectCursor(managed, shape[activeRegion]);
 
     // resize/move regions
     dx = e->globalX() - mousePos.x();

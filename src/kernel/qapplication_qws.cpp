@@ -737,26 +737,24 @@ void QWSDisplay::defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
     d->sendCommand( cmd );
 }
 
-void QWSDisplay::selectCursor( WId winId, unsigned int cursId )
+void QWSDisplay::selectCursor( QWidget *w, unsigned int cursId )
 {
-    if ( winId >= INT_MAX ) {
-	// qWarning( "QWSDisplay::selectCursor winId %d", int(winId) );
-	return;
-    }
     if (cursId != qt_last_cursor)
     {
+	QWidget *top = w->topLevelWidget();
 	qt_last_cursor = cursId;
 	QWSSelectCursorCommand cmd;
-	cmd.simpleData.windowid = winId;
+	cmd.simpleData.windowid = top->winId();
 	cmd.simpleData.id = cursId;
 	d->sendCommand( cmd );
     }
 }
 
-void QWSDisplay::grabMouse( WId winId, bool grab )
+void QWSDisplay::grabMouse( QWidget *w, bool grab )
 {
+    QWidget *top = w->topLevelWidget();
     QWSGrabMouseCommand cmd;
-    cmd.simpleData.windowid = winId;
+    cmd.simpleData.windowid = top->winId();
     cmd.simpleData.grab = grab;
     d->sendCommand( cmd );
 }
@@ -1267,8 +1265,10 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     if ( replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
-    WId id = QWidget::mouseGrabber() ? QWidget::mouseGrabber()->winId() : desktop()->winId();
-    desktop()->qwsDisplay()->selectCursor(id, (int)app_cursor->handle());
+    QWidget *w = QWidget::mouseGrabber();
+    if ( !w )
+	w = desktop();
+    desktop()->qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
 }
 
 void QApplication::restoreOverrideCursor()
@@ -1277,13 +1277,15 @@ void QApplication::restoreOverrideCursor()
 	return;
     cursorStack->removeLast();
     app_cursor = cursorStack->last();
-    WId id = QWidget::mouseGrabber() ? QWidget::mouseGrabber()->winId() : desktop()->winId();
+    QWidget *w = QWidget::mouseGrabber();
+    if ( !w )
+	w = desktop();
     if ( !app_cursor ) {
 	delete cursorStack;
 	cursorStack = 0;
-	desktop()->qwsDisplay()->selectCursor(id, ArrowCursor);
+	desktop()->qwsDisplay()->selectCursor(w, ArrowCursor);
     } else
-	desktop()->qwsDisplay()->selectCursor(id, (int)app_cursor->handle());
+	desktop()->qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
 }
 
 
@@ -1708,16 +1710,27 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	if (w) {
 	    widget = w;
 	} else if (!wm || !(wm->region().contains(p))) {
+	    static int btnstate = 0;
+	    static QWidget *gw = 0;
 	    w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
 	    w = w ? (QETWidget*)w : widget;
-	    QCursor *curs = app_cursor;
-	    if (!curs && w->extraData())
-		curs = w->extraData()->curs;
-	    if (curs) {
-		desktop()->qwsDisplay()->selectCursor(widget->winId(), (int)curs->handle());
+	    if ( event->asMouse()->simpleData.state && !btnstate ) {
+		btnstate = event->asMouse()->simpleData.state;
+		gw = w;
+	    } else if ( !event->asMouse()->simpleData.state && btnstate ) {
+		btnstate = 0;
+		gw = 0;
 	    }
-	    else {
-		desktop()->qwsDisplay()->selectCursor(widget->winId(), ArrowCursor);
+	    if ( !gw || gw == w ) {
+		QCursor *curs = app_cursor;
+		if (!curs && w->extraData())
+		    curs = w->extraData()->curs;
+		if (curs) {
+		    desktop()->qwsDisplay()->selectCursor(widget, (int)curs->handle());
+		}
+		else {
+		    desktop()->qwsDisplay()->selectCursor(widget, ArrowCursor);
+		}
 	    }
 	    widget = w;
 	}

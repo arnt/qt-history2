@@ -201,8 +201,8 @@ public:
     void convertSelection( int winId, int selectionProperty, const QString &mimeTypes );
     void defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
 			int hotX, int hotY);
-    void selectCursor( WId winId, unsigned int id );
-    void grabMouse( WId winId, bool grab );
+    void selectCursor( QWidget *w, unsigned int id );
+    void grabMouse( QWidget *w, bool grab );
 
     // Lock display for access only by this process
     static bool initLock( const QString &filename, bool create = FALSE );
