@@ -300,7 +300,7 @@ void QTextView::init()
 {
     d = new QTextViewPrivate;
     connect( doc, SIGNAL( minimumWidthChanged( int ) ),
-	     this, SLOT( setRealWidth( int ) ) );
+	     this, SLOT( documentWidthChanged( int ) ) );
 
     mousePressed = FALSE;
     inDoubleClick = FALSE;
@@ -310,7 +310,6 @@ void QTextView::init()
     wrapMode = WidgetWidth;
     wrapWidth = -1;
     wPolicy = AtWhiteSpace;
-    setMode = Auto;
     inDnD = FALSE;
 
     doc->setFormatter( new QTextFormatterBreakWords );
@@ -354,9 +353,6 @@ void QTextView::init()
 	     this, SLOT( startDrag() ) );
 #endif
 
-    resizeTimer = new QTimer( this );
-    connect( resizeTimer, SIGNAL( timeout() ),
-	     this, SLOT( doResize() ) );
 
     formatMore();
 
@@ -1019,6 +1015,13 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 void QTextView::resizeEvent( QResizeEvent *e )
 {
     QScrollView::resizeEvent( e );
+}
+
+/*! \reimp */
+
+void QTextView::viewportResizeEvent( QResizeEvent *e )
+{
+    QScrollView::viewportResizeEvent( e );
 #if defined(Q_WS_X11)
     if ( e->oldSize().width() != e->size().width() )
 #endif
@@ -1499,8 +1502,7 @@ void QTextView::doResize()
     if ( wrapMode != WidgetWidth )
 	return;
     doc->setMinimumWidth( -1, 0 );
-    resizeContents( visibleWidth() - verticalScrollBar()->width(), contentsHeight() );
-    QScrollView::setHScrollBarMode( AlwaysOff );
+    resizeContents( 0, 0 );
     doc->setWidth( visibleWidth() );
     wrapWidth = visibleWidth();
     doc->invalidate();
@@ -2742,10 +2744,9 @@ QString QTextView::anchorAt( const QPoint& pos )
     return c.parag()->at( c.index() )->format()->anchorHref();
 }
 
-void QTextView::setRealWidth( int w )
+void QTextView::documentWidthChanged( int w )
 {
     resizeContents( w, contentsHeight() );
-    QScrollView::setHScrollBarMode( setMode );
 }
 
 /*!
@@ -3054,13 +3055,6 @@ void QTextView::setUndoDepth( int d )
 void QTextView::setTabStops( int ts )
 {
     document()->setTabStops( ts );
-}
-
-/*! \reimp */
-
-void  QTextView::setHScrollBarMode( ScrollBarMode sm )
-{
-    setMode = sm;
 }
 
 /*! \reimp */

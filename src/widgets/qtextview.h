@@ -138,7 +138,6 @@ public:
     WrapPolicy wrapPolicy() const;
 
     int tabStopWidth() const;
-    void setHScrollBarMode( ScrollBarMode );
 
     QString anchorAt( const QPoint& pos );
 
@@ -183,6 +182,7 @@ protected:
     bool event( QEvent *e );
     void keyPressEvent( QKeyEvent *e );
     void resizeEvent( QResizeEvent *e );
+    void viewportResizeEvent( QResizeEvent* );
     void contentsMousePressEvent( QMouseEvent *e );
     void contentsMouseMoveEvent( QMouseEvent *e );
     void contentsMouseReleaseEvent( QMouseEvent *e );
@@ -214,7 +214,7 @@ private slots:
     void blinkCursor();
     void setModified();
     void startDrag();
-    void setRealWidth( int w );
+    void documentWidthChanged( int w );
 
 private:
     struct Q_EXPORT UndoRedoInfo {
@@ -347,7 +347,7 @@ private:
     QTextDocument *doc;
     QTextCursor *cursor;
     bool mousePressed;
-    QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer, *resizeTimer;
+    QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer;
     QTextParag *lastFormatted;
     int interval;
     UndoRedoInfo undoRedoInfo;
@@ -363,7 +363,6 @@ private:
     WordWrap wrapMode;
     WrapPolicy wPolicy;
     int wrapWidth;
-    QScrollView::ScrollBarMode setMode;
     QString pressedLink;
     QTextViewPrivate *d;
     bool inDnD;

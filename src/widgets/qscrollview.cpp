@@ -116,10 +116,11 @@ struct QScrollViewData {
 	viewport( parent, "qt_viewport", vpwflags ),
 	clipped_viewport( 0 ),
 	flags( vpwflags ),
-	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
+	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 ),
 #ifndef QT_NO_DRAGANDDROP
-	, autoscroll_timer( parent ), drag_autoscroll( TRUE )
+	autoscroll_timer( parent ), drag_autoscroll( TRUE ),
 #endif
+	inresize( FALSE )
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
 	viewport.setBackgroundMode( QWidget::PaletteDark );
@@ -297,6 +298,7 @@ struct QScrollViewData {
     int autoscroll_accel;
     bool drag_autoscroll;
 #endif
+    QTimer scrollbar_timer;
 
     bool static_bg;
     bool fake_scroll;
@@ -306,6 +308,10 @@ struct QScrollViewData {
     // cause two image scrolls, creating ugly flashing.
     //
     bool signal_choke;
+    
+    // This variables indicates in updateScrollBars() that we are
+    // in a resizeEvent() and thus don't want to flash scrollbars
+    bool inresize;
 };
 
 // NOT REVISED
@@ -534,6 +540,9 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 	this, SLOT( vslide( int ) ) );
     d->viewport.installEventFilter( this );
 
+    connect( &d->scrollbar_timer, SIGNAL( timeout() ),
+	     this, SLOT( updateScrollBars() ) );
+    
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     setLineWidth( style().defaultFrameWidth() );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
@@ -715,6 +724,8 @@ void QScrollView::updateScrollBars()
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < contentsWidth();
+  	if ( d->inresize )
+ 	    needh  = !horizontalScrollBar()->isHidden();
 	needv = h-tmarg-bmarg < contentsHeight();
 
 	// Do we intend to show the scrollbar?
@@ -738,7 +749,7 @@ void QScrollView::updateScrollBars()
 	    if (d->vMode == Auto)
 		showv=TRUE;
 	}
-	if ( showv && w-hsbExt-lmarg-rmarg < contentsWidth() ) {
+	if ( showv && !d->inresize && w-hsbExt-lmarg-rmarg < contentsWidth() ) {
 	    needh=TRUE;
 	    if (d->hMode == Auto)
 		showh=TRUE;
@@ -779,7 +790,7 @@ void QScrollView::updateScrollBars()
 	    d->vbar.setRange( 0, 0 );
 	}
 	if ( needh ) {
-	    d->hbar.setRange( 0, contentsWidth()-portw );
+	    d->hbar.setRange( 0, QMAX(0, contentsWidth()-portw) );
 	    d->hbar.setSteps( QScrollView::d->hbar.lineStep(), portw );
 	} else {
 	    d->hbar.setRange( 0, 0 );
@@ -799,19 +810,19 @@ void QScrollView::updateScrollBars()
     if ( showh ) {
 	int right = ( showv || cornerWidget() ) ? w-vsbExt : w;
 	if ( style() == WindowsStyle )
-            setHBarGeometry(d->hbar, fw + xoffset, h-hsbExt-fw,
-                            right-fw-fw, hsbExt );
+	    setHBarGeometry(d->hbar, fw + xoffset, h-hsbExt-fw,
+			    right-fw-fw, hsbExt );
 	else
-            setHBarGeometry(d->hbar, 0 + xoffset, h-hsbExt, right,
-                            hsbExt );
+	    setHBarGeometry(d->hbar, 0 + xoffset, h-hsbExt, right,
+			    hsbExt );
 	bottom=h-hsbExt;
     } else {
-        bottom=h;
+	bottom=h;
     }
     if ( showv ) {
 	clipper()->setGeometry( lmarg + xoffset, tmarg,
-                                w-vsbExt-lmarg-rmarg,
-                                bottom-tmarg-bmarg );
+				w-vsbExt-lmarg-rmarg,
+				bottom-tmarg-bmarg );
 	d->viewportResized( w-vsbExt-lmarg-rmarg, bottom-tmarg-bmarg );
 	if ( style() == WindowsStyle )
 	    changeFrameRect(QRect(0, 0, w, h) );
@@ -819,22 +830,22 @@ void QScrollView::updateScrollBars()
 	    changeFrameRect(QRect(xoffset, 0, w-vsbExt, bottom));
 	if (cornerWidget()) {
 	    if ( style() == WindowsStyle )
-                setVBarGeometry( d->vbar, xpos,
-                                 fw, vsbExt,
-                                 h-hsbExt-fw-fw );
+		setVBarGeometry( d->vbar, xpos,
+				 fw, vsbExt,
+				 h-hsbExt-fw-fw );
 	    else
-                setVBarGeometry( d->vbar, xpos, 0,
-                                 vsbExt,
-                                 h-hsbExt );
+		setVBarGeometry( d->vbar, xpos, 0,
+				 vsbExt,
+				 h-hsbExt );
 	}
 	else {
 	    if ( style() == WindowsStyle )
-                setVBarGeometry( d->vbar, xpos,
-                                 fw, vsbExt,
-                                 bottom-fw-fw );
+		setVBarGeometry( d->vbar, xpos,
+				 fw, vsbExt,
+				 bottom-fw-fw );
 	    else
-                setVBarGeometry( d->vbar, xpos, 0,
-                                 vsbExt, bottom );
+		setVBarGeometry( d->vbar, xpos, 0,
+				 vsbExt, bottom );
 	}
     } else {
 	if ( style() == WindowsStyle )
@@ -847,15 +858,15 @@ void QScrollView::updateScrollBars()
     }
     if ( d->corner ) {
 	if ( style() == WindowsStyle )
-            d->corner->setGeometry( xpos,
-                                    h-hsbExt-fw,
-                                    vsbExt,
-                                    hsbExt );
+	    d->corner->setGeometry( xpos,
+				    h-hsbExt-fw,
+				    vsbExt,
+				    hsbExt );
 	else
-            d->corner->setGeometry( xpos,
-                                    h-hsbExt,
-                                    vsbExt,
-                                    hsbExt );
+	    d->corner->setGeometry( xpos,
+				    h-hsbExt,
+				    vsbExt,
+				    hsbExt );
     }
 
     d->signal_choke=sc;
@@ -877,10 +888,10 @@ void QScrollView::updateScrollBars()
 	moveContents( -contentsX(), -y );
     }
 
-    // Finally, show the scroll bars.
-    if ( showh && !d->hbar.isVisible() )
+    // Finally, show the scroll bars
+    if ( showh && d->hbar.isHidden() )
 	d->hbar.show();
-    if ( showv && !d->vbar.isVisible() )
+    if ( showv && d->vbar.isHidden() )
 	d->vbar.show();
 }
 
@@ -921,23 +932,21 @@ void QScrollView::resizeEvent( QResizeEvent* event )
 {
     // Ensures that scroll bars have the correct size when the widget
     // is resized.
-    bool u = isUpdatesEnabled();
-    setUpdatesEnabled( FALSE );
     QFrame::resizeEvent( event );
 
-    // do _not_ update the scroll bars when updates have been
-    // disabled. This makes it possible for subclasses to implement
-    // dynamic wrapping without a horizontal scroll bar showing up all
-    // the time when making a window smaller.
     if ( QApplication::reverseLayout() ) {
 	d->fake_scroll = TRUE;
 	scrollBy( -event->size().width() + event->oldSize().width(), 0 );
 	d->fake_scroll = FALSE;
     }
-    if ( u )
-	updateScrollBars();
+
+    bool inresize = d->inresize;
+    d->inresize = TRUE;
+    updateScrollBars();
+    d->inresize = inresize;
+    d->scrollbar_timer.start( 0, TRUE );
+    
     d->hideOrShowAll(this);
-    setUpdatesEnabled( u );
 }
 
 
@@ -1739,9 +1748,7 @@ void QScrollView::setContentsPos( int x, int y )
     moveContents( -x, -y );
     d->vbar.setValue( y );
     d->hbar.setValue( x );
-//     updateScrollBars(); // ### warwick, why should we need that???
     d->signal_choke=FALSE;
-//     updateScrollBars(); // ### warwick, why should we need that???
 }
 
 /*!
@@ -1884,8 +1891,7 @@ void QScrollView::resizeContents( int w, int h )
     d->vwidth = w;
     d->vheight = h;
 
-    // Could more efficiently scroll if shrinking, repaint if growing, etc.
-    updateScrollBars();
+    d->scrollbar_timer.start( 0, TRUE );
 
     if ( d->children.isEmpty() && d->policy == Default )
 	setResizePolicy( Manual );
@@ -2417,7 +2423,8 @@ void QScrollView::viewportToContents( int vx, int vy, int& x, int& y ) const
 
 /*!
   \reimp
-*/                                                                            QSize QScrollView::sizeHint() const
+*/
+QSize QScrollView::sizeHint() const
 {
     constPolish();
     QSize result = QSize(frameWidth()*2, frameWidth()*2);
