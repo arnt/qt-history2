@@ -151,8 +151,6 @@ struct QLineEditPrivate {
     void checkUndoRedoInfo( UndoRedoInfo::Type t ) {
 	if ( undoRedoInfo.valid() && t != undoRedoInfo.type ) {
 	    undoRedoInfo.clear();
-// 	emitUndoAvailable( doc->commands()->isUndoAvailable() );
-// 	emitRedoAvailable( doc->commands()->isRedoAvailable() );
 	}
 	undoRedoInfo.type = t;
     }
@@ -728,6 +726,18 @@ void QLineEdit::paintEvent( QPaintEvent * )
     QTextParag *parag;
     QTextCursor *cursor;
     d->getTextObjects( &parag, &cursor );
+    if ( echoMode() == Password ) {
+	// in password mode, make sure that the parag which draws the
+	// *** contains the same selecion as the parag which contains
+	// the actual text
+	if ( d->parag->hasSelection( QTextDocument::Standard ) ) {
+	    int start = d->parag->selectionStart( QTextDocument::Standard );
+	    int end = d->parag->selectionEnd( QTextDocument::Standard );
+	    parag->setSelection( QTextDocument::Standard, start, end );
+	} else {
+	    parag->removeSelection( QTextDocument::Standard );
+	}
+    }
     QTextFormat *f = parag->formatCollection()->format( font(), p.pen().color() );
     parag->setFormat( 0, parag->length(), f );
     f->removeRef();
@@ -896,11 +906,11 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     }
 #endif
     if ( !( e->state() && ShiftButton ) ) {
-	d->selectionStart = d->cursor->index();
-	par->setSelection( QTextDocument::Standard, d->selectionStart, d->selectionStart );
+	d->selectionStart = c->index();
+	d->parag->setSelection( QTextDocument::Standard, d->selectionStart, d->selectionStart );
     } else {
-	if ( par->selectionEnd( QTextDocument::Standard ) != oldPos &&
-	     par->selectionStart( QTextDocument::Standard ) != oldPos )
+	if ( d->parag->selectionEnd( QTextDocument::Standard ) != oldPos &&
+	     d->parag->selectionStart( QTextDocument::Standard ) != oldPos )
 	    d->selectionStart = oldPos;
 	int s = d->selectionStart;
 	int e = c->index();
@@ -908,7 +918,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	    s = c->index();
 	    e = d->selectionStart;
 	}
-	par->setSelection( QTextDocument::Standard, s, e );
+	d->parag->setSelection( QTextDocument::Standard, s, e );
     }
     d->releaseTextObjects( &par, &c);
     update();
