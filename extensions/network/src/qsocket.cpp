@@ -277,7 +277,6 @@ void QSocket::connectToHost( const QString &host, int port )
     QObject * p = this;
     while ( p && p->parent() )
 	p = p->parent();
-    p->QObject::dumpObjectTree();
 
     d->state = HostLookup;
     d->host = host;
@@ -306,7 +305,6 @@ void QSocket::connectToLocalFile( const QString &filename )
     QObject * p = this;
     while ( p && p->parent() )
 	p = p->parent();
-    p->QObject::dumpObjectTree();
 
     d->state = HostLookup;
     d->host = QString::null;
