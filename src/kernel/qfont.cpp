@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#38 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#38 $")
 
 
 /*----------------------------------------------------------------------------
@@ -97,8 +97,11 @@ void QFont::init()
 {
     d = new QFontData;
     CHECK_PTR( d );
+    d->req.pointSize	 = 0;
     d->req.styleHint	 = AnyStyle;
     d->req.charSet	 = Latin1;
+    d->req.weight	 = 0;
+    d->req.italic	 = FALSE;
     d->req.underline	 = FALSE;
     d->req.strikeOut	 = FALSE;
     d->req.fixedPitch	 = FALSE;
@@ -116,7 +119,7 @@ void QFont::init()
 
 QFont::QFont( QFontData *data )			// copies a font
 {
-    d  = new QFontData;
+    d = new QFontData;
     CHECK_PTR( d );
     *d = *data;
     d->count = 1;				// now a single reference
