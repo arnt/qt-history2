@@ -96,7 +96,7 @@
     This table shows the most useful combinations of styles and widths
     (and some rather useless ones):
 
-    <img src=frames.png width=515 height=414 alt="Table of frame styles">
+    \img frames.png Table of frame styles
 */
 
 

@@ -10,8 +10,8 @@ Main::Main(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)
 {
     setBackgroundMode(PaletteBase);
-    QGridLayout* grid = new QGridLayout(this, 17, 17, 3, 3);
-    for (int y=0; y<17; y++) {
+    QGridLayout* grid = new QGridLayout(this, 38, 17, 3, 3);
+    for (int y=0; y<38; y++) {
 	for (int x=0; x<17; x++) {
 	    if ( y == 0 ) {
 		if ( x == 16 ) {
@@ -53,6 +53,13 @@ Main::Main(QWidget* parent, const char* name, int f) :
 			: shape == QFrame::WinPanel ? "WinPanel"
 			: shape == QFrame::HLine ? "HLine"
 			: shape == QFrame::VLine ? "VLine"
+			: shape == QFrame::StyledPanel ? "StyledPanel"
+			: shape == QFrame::PopupPanel ? "PopupPanel"
+			: shape == QFrame::MenuBarPanel ? "MenuBarPanel"
+			: shape == QFrame::ToolBarPanel ? "ToolBarPanel"
+			: shape == QFrame::LineEditPanel ? "LineEditPanel"
+			: shape == QFrame::TabWidgetPanel ? "TabWidgetPanel"
+			: shape == QFrame::GroupBoxPanel ? "GroupBoxPanel"
 			: "???";
 		    txt += " + ";
 		    //txt += "QFrame::";
@@ -66,7 +73,7 @@ Main::Main(QWidget* parent, const char* name, int f) :
 		    grid->addWidget(l,y,x);
 		} else {
 		    QFrame* f = new QFrame(this);
-		    f->setFixedSize(22,22);
+		    f->setFixedSize(28,28);
 		    f->setLineWidth(x/4+1);
 		    f->setMidLineWidth(x%4);
 		    f->setFrameStyle(shape+shadow);
