@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#584 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#585 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1687,8 +1687,6 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
     if ( !qt_wm_state )
 	return w;
-
-    //########### why so complex? Why not findChildWidget(...)->topLevelWidget();? me
 
 
     target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
@@ -3480,12 +3478,18 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     } else {
 	QWidget *widget = this;
 	QWidget *w = QWidget::mouseGrabber();
-	if ( !w && qt_button_down )
-	    w = qt_button_down;
+	if ( !w ) {
+	    if ( type == QEvent::MouseMove ) {
+		w = findChildWidget( this, pos );
+		if ( !w || !w->testWFlags( WMouseNoMask ) )
+		    w = this;
+	    } else {
+		w = qt_button_down;
+	    }
+	}
 	if ( w && w != this ) {
 	    widget = w;
-	    pos = mapToGlobal( pos );
-	    pos = w->mapFromGlobal( pos );
+	    pos = w->mapFromGlobal( globalPos );
 	}
 
 	if ( popupCloseDownMode ) {

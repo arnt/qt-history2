@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#141 $
 **
 ** Implementation of QLabel widget class
 **
@@ -108,7 +108,7 @@ public:
 
   <img src=qlabel-m.png> <img src=qlabel-w.png>
 
-  \sa QLineEdit, QTextView, QPixmap, QMovie, 
+  \sa QLineEdit, QTextView, QPixmap, QMovie,
   <a href="guibooks.html#fowler">GUI Design Handbook: Label</a>
 */
 
@@ -123,7 +123,7 @@ public:
 */
 
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f )
+    : QFrame( parent, name, f & WMouseNoMask )
 {
     init();
 }
@@ -138,9 +138,9 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
   \sa setText(), setAlignment(), setFrameStyle(), setIndent(), setAutoResize()
 */
 
-QLabel::QLabel( const QString &text, QWidget *parent, const char *name, 
+QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
 		WFlags f )
-	: QFrame( parent, name, f )
+	: QFrame( parent, name, f & WMouseNoMask )
 {
     init();
     setText( text );
@@ -161,7 +161,7 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
 
 QLabel::QLabel( QWidget *buddy,  const QString &text,
 		QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f )
+    : QFrame( parent, name, f & WMouseNoMask )
 {
     init();
     setBuddy( buddy );
@@ -219,7 +219,7 @@ void QLabel::init()
 
   If \a text is interpreted as a plain text, and a buddy has been set,
   the buddy accelerator key is updated from the new text.
-  
+
   The label resizes itself if auto-resizing is enabled.
 
   Note that Qlabel is well suited to display small rich text documents
@@ -472,7 +472,7 @@ QSize QLabel::sizeForWidth( int w ) const
     }
     else if ( mov ) {
 	br = mov->framePixmap().rect();
-    } 
+    }
     else if ( doc ) {
 	QPainter p( this );
 	if ( w < 0 ) {

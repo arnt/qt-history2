@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#334 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#335 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2178,7 +2178,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
 		popup = this;
 	    else				// send to last popup
-		pos = popup->mapFromGlobal( mapToGlobal(pos) );
+		pos = popup->mapFromGlobal( QPoint(gpos.x, gpos.y) );
 	}
 	QWidget *popupChild = findChildWidget( popup, pos );
 	bool releaseAfter = FALSE;
@@ -2242,12 +2242,23 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( QWidget::mouseGrabber() == 0 )
 		releaseAutoCapture();
 	}
-	QWidget* widget = this;
-	if ( QWidget::mouseGrabber() == 0 && qt_button_down) {
-	    widget = qt_button_down;
-	    pos = mapToGlobal( pos );
-	    pos = widget->mapFromGlobal( pos );
+
+	QWidget *widget = this;
+	QWidget *w = QWidget::mouseGrabber();
+	if ( !w ) {
+	    if ( type == QEvent::MouseMove ) {
+		w = findChildWidget( this, pos );
+		if ( !w || !w->testWFlags( WMouseNoMask ) )
+		    w = this;
+	    } else {
+		w = qt_button_down;
+	    }
 	}
+	if ( w && w != this ) {
+	    widget = w;
+	    pos = w->mapFromGlobal(  QPoint(gpos.x, gpos.y) );
+	}
+	
 	if ( type == QEvent::MouseButtonRelease &&
 	     (state & (~button) & ( LeftButton |
 				    MidButton |
