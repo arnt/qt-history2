@@ -37,10 +37,6 @@
 #ifndef QDATABROWSER_H
 #define QDATABROWSER_H
 
-#include "qfeatures.h"
-
-#ifndef QT_NO_SQL
-
 #ifndef QT_H
 #include "qwidget.h"
 #include "qstring.h"
@@ -50,6 +46,8 @@
 #include "qsqlcursor.h"
 #include "qsqlerror.h"
 #endif // QT_H
+
+#ifndef QT_NO_SQL
 
 class QSqlForm;
 class QDataBrowserPrivate;

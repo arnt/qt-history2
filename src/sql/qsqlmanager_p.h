@@ -49,16 +49,6 @@
 //
 //
 
-#include "qfeatures.h"
-
-#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_EXPORT
-#endif
-
-#ifndef QT_NO_SQL
-
 #ifndef QT_H
 #include "qglobal.h"
 #include "qstring.h"
@@ -68,6 +58,14 @@
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
 #endif // QT_H
+
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
+#ifndef QT_NO_SQL
 
 class QSqlCursor;
 class QSqlForm;

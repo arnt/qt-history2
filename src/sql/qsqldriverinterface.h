@@ -37,7 +37,9 @@
 #ifndef QSQLDRIVERINTERFACE_H
 #define QSQLDRIVERINTERFACE_H
 
-#include "qfeatures.h"
+#ifndef QT_H
+#include "qcom.h"
+#endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT_SQL
@@ -46,10 +48,6 @@
 #endif
 
 #ifndef QT_NO_SQL
-
-#ifndef QT_H
-#include "qcom.h"
-#endif // QT_H
 
 #ifndef QT_NO_COMPONENT
 

@@ -43,7 +43,7 @@
 **********************************************************************/
 
 #ifndef QT_H
-#include "qfeatures.h"
+#include "qglobal.h"
 #endif // QT_H
 
 #ifndef QT_BUILTIN_GIF_READER

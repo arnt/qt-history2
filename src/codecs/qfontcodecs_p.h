@@ -51,7 +51,7 @@
 //
 
 #ifndef QT_H
-#include <qfeatures.h>
+#include <qglobal.h>
 #include <qtextcodec.h>
 #endif // QT_H
 

@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include <qglobal.h>
-#include <qfeatures.h>
 #endif // QT_H
 
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL )

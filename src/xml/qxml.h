@@ -45,9 +45,6 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#include "qmodules.h"
-#include "qfeatures.h"
-
 #if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT_XML
 #else

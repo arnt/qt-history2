@@ -37,10 +37,6 @@
 #ifndef QSQLQUERY_H
 #define QSQLQUERY_H
 
-#include "qfeatures.h"
-
-#ifndef QT_NO_SQL
-
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
@@ -49,6 +45,8 @@
 #include "qsqlerror.h"
 #include "qsqlfield.h"
 #endif // QT_H
+
+#ifndef QT_NO_SQL
 
 class QSqlDriver;
 class QSqlResult;

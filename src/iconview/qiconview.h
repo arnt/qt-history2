@@ -50,8 +50,6 @@
 #include <qpicture.h>
 #endif // QT_H
 
-#include "qfeatures.h"
-
 #ifndef QT_NO_ICONVIEW
 
 #define QM_EXPORT Q_EXPORT

@@ -37,7 +37,9 @@
 #ifndef QSQL_H
 #define QSQL_H
 
-#include "qfeatures.h"
+#ifndef QT_H
+#include "qglobal.h"
+#endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT_SQL
@@ -46,10 +48,6 @@
 #endif
 
 #ifndef QT_NO_SQL
-
-#ifndef QT_H
-#include "qglobal.h"
-#endif // QT_H
 
 class QM_EXPORT_SQL QSql
 {
