@@ -74,6 +74,9 @@ void Tiger::paintEvent(QPaintEvent *)
     QPainter p(this);
     fillBackground(&p);
 
+    if (attributes->antialias)
+        p.setRenderHint(QPainter::Antialiasing);
+
     p.setMatrix(m);
 
     const int dist = 100;
