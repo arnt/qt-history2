@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#88 $
 **
 ** Implementation of QLabel widget class
 **
@@ -574,11 +574,6 @@ void QLabel::drawContentsMask( QPainter *p )
 	return;
     }
 
-    // Not a movie
-//     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
-// 	       align, colorGroup(), isEnabled(),
-// 	       lpixmap, ltext );
-
     QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color0);
     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
 	       align, g, isEnabled(), lpixmap, ltext );
@@ -591,12 +586,7 @@ void QLabel::drawContentsMask( QPainter *p )
 
 void QLabel::updateLabel()
 {
-    // ##### perhaps we should just use repaint(contentsRect())
-
-    QPainter paint( this );
-    if ( backgroundMode() != NoBackground )
- 	paint.eraseRect( contentsRect() );
-    drawContents( &paint );
+    repaint(contentsRect());
     if ( autoMask() )
 	updateMask();
 }
