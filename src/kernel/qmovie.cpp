@@ -932,8 +932,7 @@ void QMovie::step()
 }
 
 /*!
-  Rewinds the movie to the beginning.  If the movie has not been paused,
-  it begins playing again.
+  Rewinds the movie to the beginning even if the movie has been paused.
 */
 void QMovie::restart()
 {
