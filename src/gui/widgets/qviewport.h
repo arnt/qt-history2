@@ -27,6 +27,7 @@ class Q_GUI_EXPORT QViewport : public QFrame
     Q_OBJECT
     Q_PROPERTY( ScrollBarPolicy ScrollBarPolicy READ verticalScrollBarPolicy WRITE setVerticalScrollBarPolicy )
     Q_PROPERTY( ScrollBarPolicy horizontalScrollBarPolicy READ horizontalScrollBarPolicy WRITE setHorizontalScrollBarPolicy )
+    Q_OVERRIDE( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
 
 public:
     QViewport(QWidget* parent=0);
@@ -57,6 +58,12 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *);
 #ifndef QT_NO_WHEELEVENT
     virtual void wheelEvent(QWheelEvent *);
+#endif
+#ifndef QT_NO_DRAGANDDROP
+    virtual void dragEnterEvent( QDragEnterEvent * );
+    virtual void dragMoveEvent( QDragMoveEvent * );
+    virtual void dragLeaveEvent( QDragLeaveEvent * );
+    virtual void dropEvent( QDropEvent * );
 #endif
 
     virtual void keyPressEvent( QKeyEvent * );

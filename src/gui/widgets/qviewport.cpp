@@ -190,7 +190,12 @@ bool QViewport::event(QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
     case QEvent::Wheel:
-        break;
+#ifndef QT_NO_DRAGANDDROP
+    case QEvent::Drop:
+    case QEvent::DragEnter:
+    case QEvent::DragMove:
+    case QEvent::DragLeave:
+#endif
     case QEvent::ContextMenu:
         return false;
     default:
@@ -209,6 +214,12 @@ bool QViewport::viewportEvent(QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
     case QEvent::ContextMenu:
+#ifndef QT_NO_DRAGANDDROP
+    case QEvent::Drop:
+    case QEvent::DragEnter:
+    case QEvent::DragMove:
+    case QEvent::DragLeave:
+#endif
         return QFrame::event(e);
     case QEvent::Wheel:
         if (!QFrame::event(e)) {
@@ -274,6 +285,27 @@ void QViewport::keyPressEvent( QKeyEvent * e)
     }
     e->accept();
 }
+
+
+#ifndef QT_NO_DRAGANDDROP
+void QViewport::dragEnterEvent( QDragEnterEvent * )
+{
+}
+
+void QViewport::dragMoveEvent( QDragMoveEvent * )
+{
+}
+
+void QViewport::dragLeaveEvent( QDragLeaveEvent * )
+{
+}
+
+void QViewport::dropEvent( QDropEvent * )
+{
+}
+
+
+#endif
 
 void QViewport::scrollContentsBy(int, int)
 {
