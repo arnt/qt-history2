@@ -169,6 +169,8 @@ static HFONT last_font = 0;
 
 void QFont::cleanup()
 {
+    if ( QFontPrivate::fontCache )
+	QFontPrivate::fontCache->clear();
     delete QFontPrivate::fontCache;
     QFontPrivate::fontCache = 0;
     Q_ASSERT( shared_dc_font == 0 );
