@@ -168,45 +168,12 @@ database application programming.  See \link sql-driver.html here
 The Qt SQL module can dynamically load new drivers at runtime using
 the \link component.html Qt component model \endlink.
 
-To compile plugins for a supported database, it may be necessary to
-customize the command line given to \link qmake.html qmake \endlink
-in order to match the setup on your system.
-
-For example, when building the MySQL plugin on Unix:
-
-\code
-cd $QTDIR/plugins/src/sqldrivers/mysql
-qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/libs -lmysqlclient" mysql.pro 
-make
-\endcode
-
-To do the same thing on Windows:
-
-\code
-cd c:\qt\plugins\src\sqldrivers\mysql
-qmake -o Makefile "INCLUDEPATH=c:\path\to\mysql\include" "LIBS=c:\path\to\mysql\lib\libmysql.lib" mysql.pro 
-nmake
-\endcode
-
-These examples ensure that the proper include and library paths
-are used by \e qmake when generating the makefile for the MySQL
-plugin.  You will also need the proper development headers and
-libraries for MySQL installed before compiling the plugin.
+The \link sql_driver.html SQL driver documentation\endlink describes
+how to build plugins for specific database management systems.
 
 Once a plugin is built, Qt will automatically load it, and the driver
 will be available for use by QSqlDatabase (see QSqlDatabase::drivers()
 for more information).
-
-See the readme files for the driver you want to compile.  These
-files are located in the source directory for the specific driver,
-e.g. for the MySQL driver on Unix:
-
-\code $QTDIR/plugins/src/sqldrivers/mysql/README \endcode
-
-And on windows:
-
-\code c:\qt\plugins\src\sqldrivers\mysql\README \endcode
-
 
 \target Connecting_to_Databases
 \section1 Connecting to Databases
