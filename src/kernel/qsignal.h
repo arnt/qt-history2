@@ -48,7 +48,6 @@ class Q_EXPORT QSignal : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY( QVariant value READ value WRITE setValue )
 public:
     QSignal( QObject *parent=0, const char *name=0 );
     ~QSignal();
