@@ -1019,6 +1019,7 @@ void QVariant::detach()
     d->deref();
     Private *x = new Private( d->type, data() );
     x->is_null = d->is_null;
+    d = x;
 
 }
 
