@@ -4263,7 +4263,8 @@ void QListView::reconfigureItems()
     d->minRightBearing = fontMetrics().minRightBearing();
     d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
     d->r->setOpen( FALSE );
-    d->r->setOpen( TRUE );
+    d->r->configured = FALSE;
+    d->r->setOpen( TRUE );    
 }
 
 /*!
