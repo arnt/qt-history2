@@ -207,7 +207,7 @@ struct QScriptItem
 			   isObject( FALSE ), hasPositioning( FALSE ),
 			   descent( -1 ), ascent( -1 ), width( -1 ),
 			   x( 0 ), y( 0 ), num_glyphs( 0 ), glyph_data_offset( 0 ),
-			   fontEngine( 0 ) { }
+			   fontEngine( 0 ), custom(0) { }
     int position;
     QScriptAnalysis analysis;
     unsigned short isSpace  : 1;
@@ -223,6 +223,7 @@ struct QScriptItem
     int num_glyphs;
     int glyph_data_offset;
     QFontEngine *fontEngine;
+    int custom;
 };
 
 struct QScriptItemArrayPrivate
@@ -278,7 +279,7 @@ public:
 
     const QCharAttributes *attributes();
 
-    void setFont(int from, int length, QFontPrivate *font);
+    void setProperty(int from, int length, QFontPrivate *font, int custom);
     void setBoundary(int strPos);
 
     void shape( int item ) const;

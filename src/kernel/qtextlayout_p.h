@@ -65,6 +65,8 @@ public:
     QTextEngine *engine() const { return eng; }
     int item() const { return itm; }
 
+    int custom() const;
+
 private:
     friend class QTextLayout;
     friend class QPainter;
@@ -97,7 +99,9 @@ public:
     /* add an additional item boundary eg. for style change */
     void setBoundary( int strPos );
 
-    void setFont(int from, int length, const QFont &f);
+    void setProperty(int from, int length, const QFont &f, int custom = 0);
+    inline void setFont(int from, int length, const QFont &f)
+	{ setProperty(from, length, f); }
 
     int numItems() const;
     QTextItem itemAt( int i ) const;

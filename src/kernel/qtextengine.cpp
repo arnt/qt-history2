@@ -898,7 +898,7 @@ const QCharAttributes *QTextEngine::attributes()
     return charAttributes;
 }
 
-void QTextEngine::setFont(int from, int length, QFontPrivate *font)
+void QTextEngine::setProperty(int from, int length, QFontPrivate *font, int custom)
 {
     if (from >= string.length())
 	return;
@@ -918,6 +918,7 @@ void QTextEngine::setFont(int from, int length, QFontPrivate *font)
 	    delete si.fontEngine;
 	si.fontEngine = font->engineForScript( script );
 	si.fontEngine->ref();
+	si.custom = custom;
 	++item;
     }
 }

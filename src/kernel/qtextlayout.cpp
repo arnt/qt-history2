@@ -74,6 +74,11 @@ int QTextItem::length() const
     return eng->length(itm);
 }
 
+int QTextItem::custom() const
+{
+    return eng->items[itm].custom;
+}
+
 
 int QTextItem::cursorToX( int *cPos, Edge edge ) const
 {
@@ -274,9 +279,9 @@ QTextItem QTextLayout::findItem( int strPos ) const
     return QTextItem();
 }
 
-void QTextLayout::setFont(int from, int length, const QFont &f)
+void QTextLayout::setProperty(int from, int length, const QFont &f, int custom)
 {
-    d->setFont(from, length, f.d);
+    d->setProperty(from, length, f.d, custom);
 }
 
 void QTextLayout::beginLayout( QTextLayout::LayoutMode m )
