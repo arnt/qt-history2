@@ -103,7 +103,7 @@ signals:
     void activated();
     void toggled( bool );
 
-    void statusMessage(const QString &text);
+    void showStatusMessage(const QString &text);
     void whatsThisClicked(const QString &href);
 
 private slots:

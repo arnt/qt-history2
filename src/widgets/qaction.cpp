@@ -722,13 +722,13 @@ QString QAction::toolTip() const
 
     The statusTip is displayed on all status bars that this action's
     toplevel parent widget provides, and is provided as the parameter
-    of the statusMessage() signal.
+    of the showStatusMessage() signal.
 
     If no status tip is defined, the action uses the tool tip text.
 
     There is no default statusTip text.
 
-    \sa setStatusTip() setToolTip() statusMessage()
+    \sa setStatusTip() setToolTip() showStatusMessage()
 */
 //#### Please reimp for QActionGroup!
 //#### For consistency reasons even action groups should show
@@ -1104,7 +1104,7 @@ void QAction::addedTo( int index, QPopupMenu *menu )
 */
 void QAction::showStatusText( const QString& text )
 {
-    emit statusMessage(text);
+    emit showStatusMessage(text);
 
 #ifndef QT_NO_STATUSBAR
     // find out whether we are clearing the status bar by the popup that actually set the text
@@ -1297,7 +1297,7 @@ void QAction::objectDestroyed()
 */
 
 /*!
-    \fn void QAction::statusMessage(const QString &text)
+    \fn void QAction::showStatusMessage(const QString &text)
 
     This signal is emitted before \a text is displayed in the 
     application's statusbar. \a text can be QString::null when the
