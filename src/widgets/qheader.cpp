@@ -1256,11 +1256,17 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	return;
     }
 
-    bool down = (index==handleIdx) && ( state == Pressed || state == Moving );
+    QStyle::PFlags flags = QStyle::PStyle_Raised;
+    if(index == handleIdx) {
+	if(state == Pressed || state == Moving)
+	    flags = QStyle::PStyle_Down;
+	else
+	    flags = QStyle::PStyle_Sunken;
+    }
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
 	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			       colorGroup(), down ? QStyle::PStyle_Down : QStyle::PStyle_Raised );
+			       colorGroup(), flags );
     } else {
 	// ##### should be somhow styled in 3.0
 	if ( orientation() == Horizontal ) {
@@ -1270,7 +1276,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	    p->setClipRect( fr );
 	    style().drawPrimitive( QStyle::PO_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-				   colorGroup(), down ? QStyle::PStyle_Down : QStyle::PStyle_Raised );
+				   colorGroup(), flags );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x(), fr.y() + fr.height() - 1, fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
@@ -1291,7 +1297,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	    p->setClipRect( fr );
 	    style().drawPrimitive( QStyle::PO_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-				   colorGroup(), down ? QStyle::PStyle_Down : QStyle::PStyle_Raised );
+				   colorGroup(), flags );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x() + width() - 1, fr.y(), fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );

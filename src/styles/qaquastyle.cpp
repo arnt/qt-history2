@@ -379,6 +379,23 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 				   void **data ) const
 {
     switch( op ) {
+    case PO_HeaderSection: {
+	QString nstr = QString::number(r.height());
+	QPixmap px;
+	if(flags & PStyle_Down)
+	    qAquaPixmap( "hdr_down_" + nstr, px );
+	else if(flags & PStyle_Sunken)
+	    qAquaPixmap( "hdr_act_" + nstr, px );
+	else
+	    qAquaPixmap( "hdr_" + nstr, px );
+	p->drawTiledPixmap( r, px );
+	p->save();
+
+	//separator
+	p->setPen( gray );
+	p->drawLine( r.right(), r.top(), r.right(), r.bottom() );
+	p->restore();
+	break; }
     case PO_ProgressBarChunk: {
 	QPixmap px;
 	qAquaPixmap( "progress_" + QString::number(r.height()), px );

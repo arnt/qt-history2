@@ -591,6 +591,116 @@ static char * aqua_win_act_left_controls_xpm[] = {
 ". e._ G+e#{ e#*#{ { f#V#f.& W#I+X#I+W#& f.).<@{ { { { { { { { { <@).f.& W#I+X#I+W#& f.).<@{ { { { { { { { { <@).f.& W#I+X#I+W#& f.).<@{ { { ",
 ". c+F+e#H+H+H+H+H+H+H+W+7 f.Y#=#=#=#Y#f.Z#W+H+H+H+H+H+H+H+H+H+H+H+W+Z#f.Y#=#=#=#Y#f.Z#W+H+H+H+H+H+H+H+H+H+H+H+W+Z#f.Y#=#=#=#Y#f.Z#W+H+H+H+H+"};
 /* XPM */
+static char * aqua_hdr_act_xpm[] = {
+"     6    17       17            1",
+". c #284b9f",
+"# c #454545",
+"a c #6c8ec5",
+"b c #6da3dc",
+"c c #73a9e1",
+"d c #80b5ea",
+"e c #8ab4e0",
+"f c #8bb0d7",
+"g c #8dbef2",
+"h c #9acbfd",
+"i c #9cbcdf",
+"j c #9dbfe1",
+"k c #a3d2ff",
+"l c #a8d8ff",
+"m c #b1e0ff",
+"n c #b6e3ff",
+"o c #bbeaff",
+"......",
+"aaaaaa",
+"ffffff",
+"iiiiii",
+"jjjjjj",
+"eeeeee",
+"bbbbbb",
+"cccccc",
+"dddddd",
+"gggggg",
+"hhhhhh",
+"kkkkkk",
+"llllll",
+"mmmmmm",
+"nnnnnn",
+"oooooo",
+"######"
+};
+/* XPM */
+static char * aqua_hdr_xpm[] = {
+"     7    18       15            1",
+". c #454545",
+"# c #959595",
+"a c #a3a3a3",
+"b c #bebebe",
+"c c #d3d3d3",
+"d c #d9d9d9",
+"e c #dadada",
+"f c #dbdbdb",
+"g c #dddddd",
+"h c #e0e0e0",
+"i c #e9e9e9",
+"j c #f3f3f3",
+"k c #f9f9f9",
+"l c #fefefe",
+"m c #ffffff",
+"aaaaaaa",
+"#######",
+"bbbbbbb",
+"ccccccc",
+"fffffff",
+"ggggggg",
+"eeeeeee",
+"ccccccc",
+"ddddddd",
+"hhhhhhh",
+"iiiiiii",
+"jjjjjjj",
+"kkkkkkk",
+"lllllll",
+"mmmmmmm",
+"mmmmmmm",
+"mmmmmmm",
+"......."
+};
+/* XPM */
+static char * aqua_hdr_down_xpm[] = {
+"     7    17       14            1",
+". c #454545",
+"# c #818181",
+"a c #aaaaaa",
+"b c #bfbfbf",
+"c c #c5c5c5",
+"d c #c6c6c6",
+"e c #c7c7c7",
+"f c #c9c9c9",
+"g c #cccccc",
+"h c #d5d5d5",
+"i c #dfdfdf",
+"j c #e5e5e5",
+"k c #eaeaea",
+"l c #ebebeb",
+"#######",
+"aaaaaaa",
+"bbbbbbb",
+"eeeeeee",
+"fffffff",
+"ddddddd",
+"bbbbbbb",
+"ccccccc",
+"ggggggg",
+"hhhhhhh",
+"iiiiiii",
+"jjjjjjj",
+"kkkkkkk",
+"lllllll",
+"lllllll",
+"lllllll",
+"......."
+};
+/* XPM */
 static char * aqua_win_act_left_xpm[] = {
 "9 23 44 1",
 " 	c None",
@@ -11147,6 +11257,27 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         im = dis;
         px = im.smoothScale( width, height );
         QPixmapCache::insert( "$qt_aqua_bvlbtn_small_dis_" + wstr + "_" + hstr, px );
+    }
+
+    // Headers
+    if( s.contains("hdr_") ) {
+        size = qAquaGetNum( s );
+        QString sizestr = QString::number( size );
+
+	QPixmap a1((const char **) aqua_hdr_act_xpm );
+        im = a1;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_hdr_act_" + sizestr, px );
+
+	QPixmap a2((const char **) aqua_hdr_xpm );
+        im = a2;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_hdr_" + sizestr, px );
+
+	QPixmap a3((const char **) aqua_hdr_down_xpm );
+        im = a3;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_hdr_down_" + sizestr, px );
     }
 
     // Checkboxes
