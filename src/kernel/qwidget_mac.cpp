@@ -1542,26 +1542,25 @@ void QWidget::showMaximized()
 	}
 	QRect orect(geometry().x(), geometry().y(), width(), height()),
 	    nrect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
-	if(orect.size() == nrect.size())
-	    return; //nah.. no real point..
+	if(orect.size() != nrect.size()) { // no real point..
+	    Rect oldr;
+	    SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
+	    SetWindowUserState((WindowPtr)hd, &oldr);
+	    
+	    SetWindowStandardState((WindowPtr)hd, &bounds);
+	    ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
+	    qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
-	Rect oldr;
-	SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
-	SetWindowUserState((WindowPtr)hd, &oldr);
-
-	SetWindowStandardState((WindowPtr)hd, &bounds);
-	ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
-	qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
-
-	crect = nrect;
-	if(isVisible()) {
-	    dirtyClippedRegion(TRUE);
-	    //issue a resize
-	    QResizeEvent qre(size(), orect.size());
-	    QApplication::sendEvent(this, &qre);
-	    //issue a move
-	    QMoveEvent qme(pos(), orect.topLeft());
-	    QApplication::sendEvent(this, &qme);
+	    crect = nrect;
+	    if(isVisible()) {
+		dirtyClippedRegion(TRUE);
+		//issue a resize
+		QResizeEvent qre(size(), orect.size());
+		QApplication::sendEvent(this, &qre);
+		//issue a move
+		QMoveEvent qme(pos(), orect.topLeft());
+		QApplication::sendEvent(this, &qme);
+	    }
 	}
     }
     show();
