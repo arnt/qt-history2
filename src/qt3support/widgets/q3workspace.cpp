@@ -1887,7 +1887,9 @@ bool Q3WorkspaceChild::eventFilter(QObject * o, QEvent * e)
     case QEvent::WindowStateChange: {
         Qt::WindowStates state = windowWidget()->windowState();
 
-        if (state & Qt::WindowMaximized) {
+        if (state & Qt::WindowMinimized) {
+            ((Q3Workspace*)parentWidget())->d->minimizeWindow(windowWidget());
+        } else if (state & Qt::WindowMaximized) {
             if (windowWidget()->maximumSize().isValid() &&
                 (windowWidget()->maximumWidth() < parentWidget()->width() ||
                  windowWidget()->maximumHeight() < parentWidget()->height())) {
@@ -1901,8 +1903,6 @@ bool Q3WorkspaceChild::eventFilter(QObject * o, QEvent * e)
                 ((Q3Workspace*)parentWidget())->d->maximizeWindow(windowWidget());
             else
                 ((Q3Workspace*)parentWidget())->d->normalizeWindow(windowWidget());
-        } else if (state & Qt::WindowMinimized) {
-            ((Q3Workspace*)parentWidget())->d->minimizeWindow(windowWidget());
         } else {
             ((Q3Workspace*)parentWidget())->d->normalizeWindow(windowWidget());
             if (iconw) {
