@@ -1143,6 +1143,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 		char *src;
 		SafeArrayAccessData( array, (void**)&src );
 		memcpy( data, src, bytes.size() );
+		SafeArrayUnaccessData( array );
 	    }
 
 	    var = bytes;
