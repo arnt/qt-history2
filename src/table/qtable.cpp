@@ -1195,7 +1195,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     p->translate( focusRect.x(), focusRect.y() );
     paintFocus( p, focusRect );
     p->translate( -focusRect.x(), -focusRect.y() );
-    
+
     // Paint empty rects
     paintEmptyArea( p, cx, cy, cw, ch );
 }
@@ -1251,7 +1251,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
   currentColumn()). The painter \a p is already translated to the
   cell's origin, while \a cr specifies the cell's geometry in contents
   coordinates.
-*/  
+*/
 
 void QTable::paintFocus( QPainter *p, const QRect &cr )
 {
@@ -1750,7 +1750,7 @@ void QTable::doAutoScroll()
     int tmpCol = curCol;
     if ( pos.y() < 0 )
 	tmpRow--;
-    else if ( pos.y() > visibleWidth() )
+    else if ( pos.y() > visibleHeight() )
 	tmpRow++;
     if ( pos.x() < 0 )
 	tmpCol--;
