@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#221 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#222 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#221 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#222 $");
 
 
 /*!
@@ -2440,8 +2440,8 @@ void QWidget::hide()
   close event. The default implementation of QWidget::closeEvent()
   accepts the close event.
 
-  If \e forceKill is TRUE, the widget is deleted whether it accepts the
-  close event or not.
+  If \e forceKill is TRUE, the widget is deleted whether it accepts
+  the close event or not.
 
   The application is \link QApplication::quit() terminated\endlink when
   the \link QApplication::setMainWidget() main widget\endlink is closed.
