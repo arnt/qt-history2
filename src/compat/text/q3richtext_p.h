@@ -174,7 +174,7 @@ public:
     bool isBidi() const;
     bool isRightToLeft() const;
     QChar::Direction direction() const;
-    void setDirection(QChar::Direction dr) { dir = dr; bidiDirty = true; }
+    void setDirection(QChar::Direction dr) { rightToLeft = (dr == QChar::DirR); bidiDirty = true; }
 
     QVector<Q3TextStringChar> rawData() const { return data; }
 
@@ -195,7 +195,6 @@ private:
     uint bidiDirty : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
     uint rightToLeft : 1;
-    uint dir : 5;
 };
 
 inline bool Q3TextString::isBidi() const
@@ -221,7 +220,7 @@ inline QString Q3TextString::toString() const
 
 inline QChar::Direction Q3TextString::direction() const
 {
-    return (QChar::Direction) dir;
+    return rightToLeft ? QChar::DirR : QChar::DirL;
 }
 
 inline int Q3TextString::nextCursorPosition(int next)
@@ -1287,7 +1286,7 @@ private:
     uint hasdoc : 1;
     uint litem : 1; // whether the paragraph is a list item
     uint rtext : 1; // whether the paragraph needs rich text margin
-    int align : 4;
+    int align : 5;
     uint /*Q3StyleSheetItem::ListStyle*/ lstyle : 4;
     int invalid;
     int state, id;

@@ -3658,7 +3658,6 @@ Q3TextString::Q3TextString()
     bidiDirty = true;
     bidi = false;
     rightToLeft = false;
-    dir = QChar::DirON;
 }
 
 Q3TextString::Q3TextString(const Q3TextString &s)
@@ -3666,7 +3665,6 @@ Q3TextString::Q3TextString(const Q3TextString &s)
     bidiDirty = true;
     bidi = s.bidi;
     rightToLeft = s.rightToLeft;
-    dir = s.dir;
     data = s.data;
     data.detach();
     for (int i = 0; i < (int)data.size(); ++i) {
@@ -3815,8 +3813,7 @@ void Q3TextString::checkBidi() const
     that->bidiDirty = false;
     int length = data.size();
     if (!length) {
-        that->bidi = false;
-        that->rightToLeft = dir == QChar::DirR;
+        that->bidi = rightToLeft;
         return;
     }
     const Q3TextStringChar *start = data.data();
@@ -3827,14 +3824,13 @@ void Q3TextString::checkBidi() const
     // determines the properties we need for layouting
     QTextEngine textEngine;
     textEngine.setText(toString());
-    textEngine.option.setLayoutDirection((dir == QChar::DirR) ? Qt::RightToLeft : Qt::LeftToRight);
+    textEngine.option.setLayoutDirection(rightToLeft ? Qt::RightToLeft : Qt::LeftToRight);
     textEngine.itemize();
     const QCharAttributes *ca = textEngine.attributes() + length-1;
     Q3TextStringChar *ch = (Q3TextStringChar *)end - 1;
     QScriptItem *item = &textEngine.layoutData->items[textEngine.layoutData->items.size()-1];
     unsigned char bidiLevel = item->analysis.bidiLevel;
-    if (bidiLevel)
-        that->bidi = true;
+    that->bidi = (bidiLevel || rightToLeft);
     int pos = length-1;
     while (ch >= start) {
         if (item->position > pos) {
@@ -3853,13 +3849,6 @@ void Q3TextString::checkBidi() const
         --ch;
         --ca;
         --pos;
-    }
-
-    if (dir == QChar::DirR) {
-        that->bidi = true;
-        that->rightToLeft = true;
-    } else if (dir == QChar::DirL) {
-        that->rightToLeft = false;
     }
 }
 
@@ -5389,12 +5378,7 @@ QTextLineStart *Q3TextFormatter::bidiReorderLine(Q3TextParagraph * /*parag*/, Q3
     // now construct the reordered string out of the runs...
 
     int numSpaces = 0;
-    // set the correct alignment. This is a bit messy....
-    if(align == Qt::AlignAuto) {
-        // align according to directionality of the paragraph...
-        if (text->isRightToLeft())
-            align = Qt::AlignRight;
-    }
+    align = QStyle::visualAlignment(text->isRightToLeft() ? Qt::RightToLeft : Qt::LeftToRight, QFlag(align));
 
     // This is not really correct, but as we can't make the scrollbar move to the left of the origin,
     // this ensures all text can be scrolled to and read.
@@ -5964,8 +5948,10 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
         h = qMax(h, tmph);
         lineStart->h = h;
         // last line in a paragraph is not justified
-        if (align == Qt::AlignJustify)
-            align = Qt::AlignAuto;
+        if (align & Qt::AlignJustify) {
+            align |= Qt::AlignLeft;
+            align &= ~(Qt::AlignJustify|Qt::AlignAbsolute);
+        }
         DO_FLOW(lineStart);
         lineStart = formatLine(parag, string, lineStart, firstChar, c, align, SPACE(w - x));
         delete lineStart;
