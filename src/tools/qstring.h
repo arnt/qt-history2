@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#98 $
+** $Id: //depot/qt/main/src/tools/qstring.h#99 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -191,13 +191,14 @@ public:
     bool	isEmpty()	const;
     uint	length()	const;
     void	truncate( uint pos );
-    void	resize( uint pos ); // OBS
     void	fill( QChar c, int len = -1 );
 
     QString	copy()	const;
 
-    QString arg(int a, int fieldwidth=0) const;
-    QString arg(uint a, int fieldwidth=0) const;
+    QString arg(long a, int fieldwidth=0, int base=10) const;
+    QString arg(ulong a, int fieldwidth=0, int base=10) const;
+    QString arg(int a, int fieldwidth=0, int base=10) const;
+    QString arg(uint a, int fieldwidth=0, int base=10) const;
     QString arg(char a, int fieldwidth=0) const;
     QString arg(QChar a, int fieldwidth=0) const;
     QString arg(const QString& a, int fieldwidth=0) const;
@@ -265,13 +266,12 @@ public:
     float	toFloat( bool *ok=0 )	const;
     double	toDouble( bool *ok=0 )	const;
 
-    QString    &setStr( const char* );
-    QString    &setNum( short );
-    QString    &setNum( ushort );
-    QString    &setNum( int );
-    QString    &setNum( uint );
-    QString    &setNum( long );
-    QString    &setNum( ulong );
+    QString    &setNum( short, int base=10 );
+    QString    &setNum( ushort, int base=10 );
+    QString    &setNum( int, int base=10 );
+    QString    &setNum( uint, int base=10 );
+    QString    &setNum( long, int base=10 );
+    QString    &setNum( ulong, int base=10 );
     QString    &setNum( float, char f='g', int prec=6 );
     QString    &setNum( double, char f='g', int prec=6 );
 
@@ -383,11 +383,6 @@ inline bool QString::isNull() const
 inline uint QString::length() const
 { return d->len; }
 
-#ifndef QT_NO_COMPAT
-inline uint QString::size() const
-{ return length()+1; }
-#endif
-
 inline bool QString::isEmpty() const
 { return length() == 0; }
 
@@ -406,20 +401,26 @@ inline QString &QString::append( const QString & s )
 inline QString &QString::append( char c )
 { return operator+=(c); }
 
-inline QString &QString::setNum( short n )
-{ return setNum((long)n); }
+inline QString &QString::setNum( short n, int base )
+{ return setNum((long)n, base); }
 
-inline QString &QString::setNum( ushort n )
-{ return setNum((ulong)n); }
+inline QString &QString::setNum( ushort n, int base )
+{ return setNum((ulong)n, base); }
 
-inline QString &QString::setNum( int n )
-{ return setNum((long)n); }
+inline QString &QString::setNum( int n, int base )
+{ return setNum((long)n, base); }
 
-inline QString &QString::setNum( uint n )
-{ return setNum((ulong)n); }
+inline QString &QString::setNum( uint n, int base )
+{ return setNum((ulong)n, base); }
 
 inline QString &QString::setNum( float n, char f, int prec )
 { return setNum((double)n,f,prec); }
+
+inline QString QString::arg(int a, int fieldwidth, int base) const
+{ return arg((long)a, fieldwidth, base); }
+
+inline QString QString::arg(uint a, int fieldwidth=0, int base=10) const
+{ return arg((ulong)a, fieldwidth, base); }
 
 
 

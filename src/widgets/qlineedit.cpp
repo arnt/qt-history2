@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#179 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#180 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -337,14 +337,11 @@ int QLineEdit::maxLength() const
 
 void QLineEdit::setMaxLength( int m )
 {
-    if ( m > 32767 )
-	m = 32767; // in case of application insanity
     maxLen = m;
     markAnchor = 0;
     markDrag = 0;
     if ( (int)tbuf.length() > maxLen ) {
-	tbuf.resize( maxLen + 1 );		// include \0
-	tbuf[maxLen] = '\0';
+	tbuf.truncate( maxLen );
 	d->pmDirty = TRUE;
     }
     if ( offset || cursorPos ) {
@@ -404,6 +401,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
 		emit returnPressed();
 	}
+#warning "Arnt: must fix this" // fix what?
 	// ### 2.0 must fix this
 	e->ignore();
 	return;

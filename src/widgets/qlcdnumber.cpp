@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#70 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -699,7 +699,7 @@ void QLCDNumber::internalSetString( const QString& s, const QBitArray* newPoints
 {
     digitStr = s;
     if ( (int)digitStr.length() > ndigits )
-	digitStr.resize( ndigits );
+	digitStr.truncate( ndigits );
     if ( newPoints )
 	points = *newPoints;
 }

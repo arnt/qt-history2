@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#104 $
 **
 ** Implementation of QLabel widget class
 **
@@ -281,7 +281,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
     if ( lpixmap->depth() == 1 && !lpixmap->mask() )
 	lpixmap->setMask( *((QBitmap *)lpixmap) );
     if ( !ltext.isNull() )
-	ltext.resize( 0 );
+	ltext = QString::null;
     if ( autoresize && !sameSize )
 	adjustSize();
     else

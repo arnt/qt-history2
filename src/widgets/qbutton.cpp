@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#130 $
 **
 ** Implementation of QButton widget class
 **
@@ -390,7 +390,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );
     int oldAccelChar = shortcutChar(btext);
     if ( !btext.isNull() )
-	btext.resize( 0 );
+	btext = QString::null;
     if ( autoresize && newSize )
 	adjustSize();
     if ( oldAccelChar )

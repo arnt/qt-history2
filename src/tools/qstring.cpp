@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#168 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#169 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -519,21 +519,6 @@ void QString::truncate( uint newLen )
     // (Qt 1.x did, but there, one could access the data directly...)
 }
 
-#if defined(_OS_LINUX_)
-#warning "Warwick, or whoever put in that \obsolete: consider whether it should be there"
-#endif
-
-/*!
-  \obsolete ?
-
-  Equivalent to truncate(newlenp1-1).  This is for backward compatibility.
-  If newlenp1 is 0, truncate(0).
-*/
-void QString::resize( uint newlenp1 )
-{
-    truncate(newlenp1 ? newlenp1-1 : 0);
-}
-
 /*!
   Ensures that at least \a len characters are allocated, and sets the
   length to \a len. Will detach. New space is \e not defined.
@@ -619,35 +604,41 @@ QString QString::arg(const QString& a, int fieldwidth) const
 /*!
   Returns a string equal to this one, but with the first
   occurrence of <tt>%<em>digit</em></tt> replaced by the
-  value \a a.
+  integer value \a in base \a base (defaults to decimal).
+
+  The value is converted to \a base notation (default is decimal).
+  The base must be a value from 2 to 36.
 
   See arg(const QString&,int) for more details.
 */
-QString QString::arg(int a, int fieldwidth) const
+QString QString::arg(long a, int fieldwidth, int base) const
 {
     QString n;
-    n.setNum(a);
+    n.setNum(a,base);
     return arg(n,fieldwidth);
 }
 
 /*!
   Returns a string equal to this one, but with the first
   occurrence of <tt>%<em>digit</em></tt> replaced by the
-  value \a a.
+  unsigned integer value \a in base \a base (defaults to decimal).
+
+  The value is converted to \a base notation (default is decimal).
+  The base must be a value from 2 to 36.
 
   See arg(const QString&,int) for more details.
 */
-QString QString::arg(uint a, int fieldwidth) const
+QString QString::arg(ulong a, int fieldwidth, int base) const
 {
     QString n;
-    n.setNum(a);
+    n.setNum(a,base);
     return arg(n,fieldwidth);
 }
 
 /*!
   Returns a string equal to this one, but with the first
   occurrence of <tt>%<em>digit</em></tt> replaced by the
-  value \a a.
+  character \a a.
 
   See arg(const QString&,int) for more details.
 */
@@ -661,7 +652,7 @@ QString QString::arg(char a, int fieldwidth) const
 /*!
   Returns a string equal to this one, but with the first
   occurrence of <tt>%<em>digit</em></tt> replaced by the
-  value \a a.
+  character \a a.
 
   See arg(const QString&,int) for more details.
 */
@@ -1890,29 +1881,24 @@ float QString::toFloat( bool *ok ) const
 }
 
 
-#warning "Warwick, or whoever put in that \obsolete: consider whether it should be there"
-
-/*!
-  \obsolete ?
-  Makes a deep copy of \e str, interpreted as a classic C string.
-  Returns a reference to the string.
-*/
-
-QString &QString::setStr( const char *str )
-{
-    //warning("QString::setStr is no longer support - using plain assignment");
-    return *this = str;
-}
-
 /*!
   Sets the string to the printed value of \a n and returns a
   reference to the string.
+
+  The value is converted to \a base notation (default is decimal).
+  The base must be a value from 2 to 36.
 */
 
-QString &QString::setNum( long n )
+QString &QString::setNum( long n, int base )
 {
-    char buf[20];
-    register char *p = &buf[19];
+#if defined(CHECK_RANGE)
+    if ( base < 2 || base > 36 ) {
+	warning( "QString::setNum: Invalid base %d", base );
+	base = 10;
+    }
+#endif
+    char buf[65];
+    register char *p = &buf[64];
     bool neg;
     if ( n < 0 ) {
 	neg = TRUE;
@@ -1922,8 +1908,8 @@ QString &QString::setNum( long n )
     }
     *p = '\0';
     do {
-	*--p = ((int)(n%10)) + '0';
-	n /= 10;
+	*--p = "0123456789abcdefghijklmnopqrstuvwxyz"[((int)(n%base))];
+	n /= base;
     } while ( n );
     if ( neg )
 	*--p = '-';
@@ -1933,40 +1919,49 @@ QString &QString::setNum( long n )
 /*!
   Sets the string to the printed unsigned value of \a n and
   returns a reference to the string.
+
+  The value is converted to \a base notation (default is decimal).
+  The base must be a value from 2 to 36.
 */
 
-QString &QString::setNum( ulong n )
+QString &QString::setNum( ulong n, int base )
 {
-    char buf[20];
-    register char *p = &buf[19];
+#if defined(CHECK_RANGE)
+    if ( base < 2 || base > 36 ) {
+	warning( "QString::setNum: Invalid base %d", base );
+	base = 10;
+    }
+#endif
+    char buf[65];
+    register char *p = &buf[64];
     *p = '\0';
     do {
-	*--p = ((int)(n%10)) + '0';
-	n /= 10;
+	*--p = "0123456789abcdefghijklmnopqrstuvwxyz"[((int)(n%base))];
+	n /= base;
     } while ( n );
     return *this = p;
 }
 
 /*!
-  \fn QString &QString::setNum( int n )
+  \fn QString &QString::setNum( int n, int base=10 )
   Sets the string to the printed value of \a n and returns a reference
   to the string.
 */
 
 /*!
-  \fn QString &QString::setNum( uint n )
+  \fn QString &QString::setNum( uint n, int base=10 )
   Sets the string to the printed unsigned value of \a n and returns a
   reference to the string.
 */
 
 /*!
-  \fn QString &QString::setNum( short n )
+  \fn QString &QString::setNum( short n, int base=10 )
   Sets the string to the printed value of \a n and returns a reference
   to the string.
 */
 
 /*!
-  \fn QString &QString::setNum( ushort n )
+  \fn QString &QString::setNum( ushort n, int base=10 )
   Sets the string to the printed unsigned value of \a n and returns a
   reference to the string.
 */
@@ -2055,16 +2050,6 @@ void QString::setExpand( uint index, QChar c )
   string, char* conversion constructs a temporary string, and hence
   direct character operations are meaningless.
 */
-
-/*!
-  \fn uint QString::size() const
-
-  Obsolete.  This method is provided to aide porting to Qt 2.0.
-
-  In Qt 1.x, QString was a QByteArray subclass, and so it had
-  a size() method which was usually equivalent length()+1.
-*/
-
 
 /*!
   \fn bool QString::operator!() const
