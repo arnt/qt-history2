@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#65 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#65 $");
 
 
 /*!
@@ -220,7 +220,9 @@ QColor::QColor( const QColor &c )
 
 void QColor::setNamedColor( const char *name )
 {
-    if ( name[0]=='#' ) {
+    if ( !name ) {
+	setRgb(0,0,0);
+    } if ( name[0]=='#' ) {
 	QString hex = name+1;
 	int bpc = (strlen(name)-1)/3;
 	int i=0;
