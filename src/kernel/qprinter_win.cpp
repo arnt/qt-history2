@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#46 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -99,8 +99,97 @@ bool windowPrintDlg(PRINTDLG* pd)
 		: PrintDlgA( (PRINTDLGA*)pd ) ) != 0;
 }
 
+typedef struct 
+{
+    int winSizeName;
+    QPrinter::PageSize qtSizeName;
+} PageSizeNames;
+
+static QPrinter::PageSize mapDevmodePageSize( int s )
+{
+    static PageSizeNames names[] = {
+	  { DMPAPER_LETTER,		QPrinter::Letter },
+	  { DMPAPER_LETTERSMALL,	QPrinter::Letter },
+	  { DMPAPER_TABLOID,		QPrinter::Tabloid },
+	  { DMPAPER_LEDGER,		QPrinter::Ledger },
+	  { DMPAPER_LEGAL,		QPrinter::Legal },
+	  //	  { DMPAPER_STATEMENT,		QPrinter:: },
+	  { DMPAPER_EXECUTIVE,		QPrinter::Executive },
+	  { DMPAPER_A3,			QPrinter::A3 },
+	  { DMPAPER_A4,			QPrinter::A4 },
+	  { DMPAPER_A4SMALL,		QPrinter::A4 },
+	  { DMPAPER_A5,			QPrinter::A5 },
+	  { DMPAPER_B4,			QPrinter::B4 },
+	  { DMPAPER_B5,			QPrinter::B5 },
+	  { DMPAPER_FOLIO,		QPrinter::Folio },
+	  //{ DMPAPER_QUARTO,		QPrinter:: },
+	  //{ DMPAPER_10X14,		QPrinter:: },
+	  //{ DMPAPER_11X17,		QPrinter:: },
+	  //{ DMPAPER_NOTE,		QPrinter:: },
+	  //{ DMPAPER_ENV_9,		QPrinter:: },
+	  { DMPAPER_ENV_10,		QPrinter::Comm10E },
+	  //{ DMPAPER_ENV_11,		QPrinter:: },
+	  //{ DMPAPER_ENV_12,		QPrinter:: },
+	  //{ DMPAPER_ENV_14,		QPrinter:: },
+	  //{ DMPAPER_CSHEET,		QPrinter:: },
+	  //{ DMPAPER_DSHEET,		QPrinter:: },
+	  //{ DMPAPER_ESHEET,		QPrinter:: },
+	  { DMPAPER_ENV_DL,		QPrinter::DLE },
+	  //{ DMPAPER_ENV_C5,		QPrinter:: },
+	  { DMPAPER_ENV_C3,		QPrinter::C5E },
+	  //{ DMPAPER_ENV_C4,		QPrinter:: },
+	  //{ DMPAPER_ENV_C6,		QPrinter:: },
+	  //{ DMPAPER_ENV_C65,		QPrinter:: },
+	  //{ DMPAPER_ENV_B4,		QPrinter:: },
+	  //{ DMPAPER_ENV_B5,		QPrinter:: },
+	  //{ DMPAPER_ENV_B6,		QPrinter:: },
+	  //{ DMPAPER_ENV_ITALY,		QPrinter:: },
+	  //{ DMPAPER_ENV_MONARCH,	QPrinter:: },
+	  //{ DMPAPER_ENV_PERSONAL,	QPrinter:: },
+	  //{ DMPAPER_FANFOLD_US,		QPrinter:: },
+	  //{ DMPAPER_FANFOLD_STD_GERMAN,	QPrinter:: },
+	  //{ DMPAPER_FANFOLD_LGL_GERMAN,	QPrinter:: },
+	  //{ DMPAPER_ISO_B4,		QPrinter:: },
+	  //{ DMPAPER_JAPANESE_POSTCARD,	QPrinter:: },
+	  //{ DMPAPER_9X11,		QPrinter:: },
+	  //{ DMPAPER_10X11,		QPrinter:: },
+	  //{ DMPAPER_15X11,		QPrinter:: },
+	  //{ DMPAPER_ENV_INVITE,		QPrinter:: },
+	  //{ DMPAPER_RESERVED_48,	QPrinter:: },
+	  //{ DMPAPER_RESERVED_49,	QPrinter:: },
+	  { DMPAPER_LETTER_EXTRA,	QPrinter::Letter },
+	  { DMPAPER_LEGAL_EXTRA,	QPrinter::Legal },
+	  { DMPAPER_TABLOID_EXTRA,	QPrinter::Tabloid },
+	  { DMPAPER_A4_EXTRA,		QPrinter::A4},
+	  { DMPAPER_LETTER_TRANSVERSE,	QPrinter::Letter},
+	  { DMPAPER_A4_TRANSVERSE,	QPrinter::A4},
+	  { DMPAPER_LETTER_EXTRA_TRANSVERSE,	QPrinter::Letter },
+	  { DMPAPER_A_PLUS,		QPrinter::A4 },
+	  { DMPAPER_B_PLUS,		QPrinter::A3 },
+	  { DMPAPER_LETTER_PLUS,	QPrinter::Letter },
+	  { DMPAPER_A4_PLUS,		QPrinter::A4 },
+	  { DMPAPER_A5_TRANSVERSE,	QPrinter::A5 },
+	  { DMPAPER_B5_TRANSVERSE,	QPrinter::B5 },
+	  { DMPAPER_A3_EXTRA,		QPrinter::A3 },
+	  { DMPAPER_A5_EXTRA,		QPrinter::A5 },
+	  { DMPAPER_B5_EXTRA,		QPrinter::B5 },
+	  { DMPAPER_A2,			QPrinter::A2 },
+	  { DMPAPER_A3_TRANSVERSE,	QPrinter::A3 },
+	  { DMPAPER_A3_EXTRA_TRANSVERSE,	QPrinter::A3 },
+	  { -1, QPrinter::A4 }
+    };
+
+    int i = 0;
+    while ( (names[i].winSizeName > 0) && (names[i].winSizeName != s) )
+	i++;
+    debug( "returning %i", (int)names[i].qtSizeName);
+    return names[i].qtSizeName;
+}
+
+
 bool QPrinter::setup( QWidget *parent )
 {
+    
     if ( parent )
 	parent = parent->topLevelWidget();
     else
@@ -157,9 +246,10 @@ bool QPrinter::setup( QWidget *parent )
 		DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
 		if ( dm ) {
 		    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-			orient = Portrait;
+			setOrientation( Portrait );
 		    else
-			orient = Landscape;
+			setOrientation( Landscape );
+		    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
 		    GlobalUnlock( pd.hDevMode );
 		}
 	    }
