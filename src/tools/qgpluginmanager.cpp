@@ -33,7 +33,7 @@
 **
 **********************************************************************/
 
-#include "qgpluginmanager.h"
+#include "qgpluginmanager_p.h"
 #ifndef QT_NO_COMPONENT
 #include "qmap.h"
 #include "qdir.h"
