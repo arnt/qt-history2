@@ -160,7 +160,6 @@
   installed.
 
   The following attributes are then matched, in order of priority: <ol>
-  <li> charSet()
   <li> fixedPitch()
   <li> pointSize() (see below)
   <li> weight()
