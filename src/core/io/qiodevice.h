@@ -117,7 +117,7 @@ public:
         Open = 0x1000,
         StateMask = 0xf000
     };
-    inline QT_COMPAT int state() const { return isOpen(); }
+    inline QT_COMPAT int state() const { return isOpen() ? Open : 0; }
     inline QT_COMPAT bool at(Q_LLONG off) { return seek(off); }
     inline QT_COMPAT Q_LONG readBlock(char *data, Q_LONG maxlen)
     { return read(data, maxlen); }
