@@ -271,7 +271,7 @@
 
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
 static QHash<QObject*,QAccessibleInterface*> *qAccessibleInterface = 0;
-static QList<QAccessible::InterfaceFactory> *qAccessibleFactories;
+static QList<void*> *qAccessibleFactories;
 static bool cleanupAdded = FALSE;
 
 QAccessible::UpdateHandler QAccessible::updateHandler = 0;
@@ -320,7 +320,7 @@ void QAccessible::installFactory(InterfaceFactory factory)
 	return;
 
     if (!qAccessibleFactories) {
-	qAccessibleFactories = new QList<InterfaceFactory>();
+	qAccessibleFactories = new QList<void*>();
 	if (!cleanupAdded) {
 	    qAddPostRoutine(qAccessibleCleanup);
 	    cleanupAdded = TRUE;
@@ -398,7 +398,7 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
 
     if (qAccessibleFactories) {
 	for (int i = qAccessibleFactories->count(); i > 0; --i) {
-	    InterfaceFactory factory = qAccessibleFactories->at(i-1);
+	    InterfaceFactory factory = (InterfaceFactory)qAccessibleFactories->at(i-1);
 	    if (factory(object, iface) && *iface) {
 		qInsertAccessibleObject(object, *iface);
 		return TRUE;
