@@ -184,16 +184,16 @@ void QTextBrowser::setSource(const QString& name)
 		qWarning("QTextBrowser: cannot decode %s", source.latin1() );
 	    }
 	}
- 	if ( isVisible() ) {
- 	    QString firstTag = txt.left( txt.find( '>'  ) + 1 );
- 	    if ( firstTag.left( 3 ) == "<qt" && firstTag.contains( "type" ) && firstTag.contains( "detail" ) ) {
- 		popupDetail( txt, QCursor::pos() );
+	if ( isVisible() ) {
+	    QString firstTag = txt.left( txt.find( '>'  ) + 1 );
+	    if ( firstTag.left( 3 ) == "<qt" && firstTag.contains( "type" ) && firstTag.contains( "detail" ) ) {
+		popupDetail( txt, QCursor::pos() );
 #ifndef QT_NO_CURSOR
- 		qApp->restoreOverrideCursor();
+		qApp->restoreOverrideCursor();
 #endif
- 		return;
- 	    }
- 	}
+		return;
+	    }
+	}
 
 	d->curmain = url;
 	dosettext = TRUE;
@@ -213,11 +213,11 @@ void QTextBrowser::setSource(const QString& name)
     }
 
     int stackCount = d->stack.count();
-    if ( d->stack.top() == url )
+    if ( d->stack.isEmpty() || d->stack.top() == url )
 	stackCount--;
     emit backwardAvailable( stackCount > 0 );
     stackCount = d->forwardStack.count();
-    if ( d->forwardStack.top() == url )
+    if ( d->forwardStack.isEmpty() || d->forwardStack.top() == url )
 	stackCount--;
     emit forwardAvailable( stackCount > 0 );
 
