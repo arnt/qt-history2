@@ -115,7 +115,7 @@ void InvokeMethod::init()
     setControl( 0 );
 }
 
-void InvokeMethod::setControl( QAxWidget *ax )
+void InvokeMethod::setControl( QAxBase *ax )
 {
     activex = ax;
     bool hasControl = activex && !activex->isNull();
