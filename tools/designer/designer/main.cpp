@@ -18,7 +18,6 @@
 **
 **********************************************************************/
 
-#include "formwindow.h"
 #include "mainwindow.h"
 #include "config.h"
 #include "splashloader.h"
@@ -26,12 +25,14 @@
 #include "designerapp.h"
 
 #include <qlabel.h>
-#include <qfile.h>
 #include <qtextstream.h>
-#include <qobjectlist.h>
 
 #include <stdlib.h>
 #include <signal.h>
+#if defined(_WS_WIN_)
+#include <qt_windows.h>
+#include <process.h>
+#endif
 
 #if defined(_WS_X11_)
 extern void qt_wait_for_window_manager( QWidget* );

@@ -1,5 +1,15 @@
 #include "designerapp.h"
 #include "designerappiface.h"
+#include "mainwindow.h"
+#include "formwindow.h"
+#include <qfile.h>
+#include <qdir.h>
+#include <qobjectlist.h>
+
+#ifdef _WS_WIN_
+#include <qt_windows.h>
+#include <process.h>
+#endif
 
 #if defined(HAVE_KDE)
 DesignerApplication::DesignerApplication( int &argc, char **argv, const QCString &rAppName )
