@@ -57,10 +57,13 @@ Win32 Multithreaded Programming\endlink
 
 \warning All GUI classes (e.g. QWidget and subclasses), OS kernel
 classes (e.g. QProcess), and networking classes, are \e not
-thread-safe. Classes which \e can be shared across threads are 
+thread-safe. 
+\omit
+Classes which \e can be shared across threads are 
 QBuffer, QCriticalSection, QDir, QFile, QFileInfo, QIODevice,
 QLibrary (except on the Mac), QMutex, QPair, QSemaphore, QUuid and
 QWaitCondition.
+\endomit
 
 \section1 Enabling Thread Support
 
