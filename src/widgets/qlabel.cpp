@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#37 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#37 $")
 
 
 /*----------------------------------------------------------------------------
@@ -48,9 +48,10 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#36 $")
 
 /*----------------------------------------------------------------------------
   Constructs an empty label which is left-aligned, vertically centered,
-  without automatic resizing, and with automatic margin determination.
+  has an automatic margin and with manual resizing.
 
-  The \e parent and \e name arguments are passed to the QFrame constructor.
+  The \e parent, \e name and \e f arguments are passed to the QFrame
+  constructor.
 
   \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
  ----------------------------------------------------------------------------*/
@@ -66,11 +67,11 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 }
 
 /*----------------------------------------------------------------------------
-  Constructs a label with a text. The label is left-aligned,
-  vertically centered,without automatic resizing, and with automatic
-  margin determination.
+  Constructs a label with a text. The label is left-aligned, vertically
+  centered, has an automatic margin and with manual resizing.
 
-  The \e parent and \e name arguments are passed to the QFrame constructor.
+  The \e parent, \e name and \e f arguments are passed to the QFrame
+  constructor.
 
   \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
  ----------------------------------------------------------------------------*/
@@ -261,13 +262,16 @@ void QLabel::setAlignment( int alignment )
 /*----------------------------------------------------------------------------
   Sets the margin of the label to \e margin pixels.
 
-  If \e margin is negative (as it is by default), the label computes a
-  hopefully suitable value itself.
+  The margin applies to the left edge if alignment() is \c AlignLeft,
+  to the right edge if alignment() is \c AlignRight, to the top edge
+  if alignment() is \c AlignTop, and to to the bottom edge if
+  alignment() is \c AlignBottom.
 
-  If the content is vertically centered (\c AlignVCenter), no extra
-  margin is added to the top or bottom edges.  If the content is
-  horizontally centered (\c AlignHCenter), no extra margin is added to
-  the left or right edges.
+  If \e margin is negative (as it is by default), the label computes the
+  margin as follows: If the \link frameWidth() frame width\endlink is zero,
+  the effective margin becomes 0. If the frame style is greater than zero,
+  the effective margin becomes half the width of the "x" character (of the
+  widget's current \link font() font\endlink.
 
   Setting a non-negative margin gives the specified margin in pixels.
   
@@ -335,8 +339,8 @@ void QLabel::adjustSize()
 	else
 	    m = 0;
     }
-    int w = br.width() + 2*fw + ( (align & AlignHCenter) ? 0 : m );
-    int h = br.height() + 2*fw + ( (align & AlignVCenter) ? 0 : m );
+    int w = br.width()	+ m + 2*fw;
+    int h = br.height() + m + 2*fw;
     p.end();
     if ( w == width() && h == height() )
 	updateLabel();
@@ -361,14 +365,14 @@ void QLabel::drawContents( QPainter *p )
 	else
 	    m = 0;
     }
-    if ( !(align & AlignHCenter) ) {
+    if ( align & AlignLeft )
 	cr.setLeft( cr.left() + m );
+    if ( align & AlignRight )
 	cr.setRight( cr.right() - m );
-    }
-    if ( !(align & AlignVCenter) ) {
+    if ( align & AlignTop )
 	cr.setTop( cr.top() + m );
+    if ( align & AlignBottom )
 	cr.setBottom( cr.bottom() - m );
-    }
     if ( lpixmap ) {
 	int x, y, w, h;
 	cr.rect( &x, &y, &w, &h );
