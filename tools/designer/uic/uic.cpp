@@ -1107,7 +1107,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     if ( protectedSlots.find( "init()" ) != protectedSlots.end() )
-	out << indent << "init()" << endl;
+	out << indent << "init();" << endl;
 
     // end of constructor
     out << "}" << endl;
