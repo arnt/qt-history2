@@ -21,6 +21,7 @@ class QStackedLayoutPrivate;
 class Q_GUI_EXPORT QStackedLayout : public QLayout
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QStackedLayout)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     QDOC_PROPERTY(int count READ count)
 public:
@@ -49,8 +50,6 @@ public:
 
 signals:
     void widgetRemoved(int index);
-private:
-    QStackedLayoutPrivate *d;
 private:
 #if defined(Q_DISABLE_COPY)
     QStackedLayout(const QStackedLayout &);

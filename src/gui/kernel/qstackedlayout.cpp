@@ -12,12 +12,17 @@
 ****************************************************************************/
 
 #include "qstackedlayout.h"
+#include "qlayout_p.h"
 
 #include <qlist.h>
 #include <qwidget.h>
 
-class QStackedLayoutPrivate
+#define d d_func()
+#define q q_func()
+
+class QStackedLayoutPrivate : public QLayoutPrivate
 {
+    Q_DECLARE_PUBLIC(QStackedLayout)
 public:
     QStackedLayoutPrivate():index(-1){}
     QList<QLayoutItem*> list;
@@ -63,9 +68,8 @@ public:
 */
 
 QStackedLayout::QStackedLayout(QWidget *parent)
-    :QLayout(parent)
+    :QLayout(*new QStackedLayoutPrivate, 0, parent)
 {
-    d = new QStackedLayoutPrivate;
 }
 
 
@@ -75,9 +79,8 @@ QStackedLayout::QStackedLayout(QWidget *parent)
 */
 
 QStackedLayout::QStackedLayout(QLayout *parentLayout)
-    :QLayout(parentLayout)
+    :QLayout(*new QStackedLayoutPrivate, parentLayout, 0)
 {
-    d = new QStackedLayoutPrivate;
 }
 
 /*!
@@ -88,7 +91,6 @@ QStackedLayout::QStackedLayout(QLayout *parentLayout)
 QStackedLayout::~QStackedLayout()
 {
     qDeleteAll(d->list);
-    delete d;
 }
 
 /*!
