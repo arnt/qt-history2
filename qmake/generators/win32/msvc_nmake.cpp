@@ -179,10 +179,8 @@ NmakeMakefileGenerator::init()
     init_flag = TRUE;
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->variables()["TEMPLATE"].first() == "app") {
+    if(project->variables()["TEMPLATE"].first() == "app")
 	project->variables()["QMAKE_APP_FLAG"].append("1");
-	project->variables()["CONFIG"].remove( "dll" );
-    }
     else if(project->variables()["TEMPLATE"].first() == "lib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
 
