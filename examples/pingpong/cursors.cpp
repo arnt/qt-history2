@@ -21,7 +21,7 @@ MatchView::MatchView()
 Player2TeamView::Player2TeamView()
     : QSqlCursor( "player2teamview" )
 {
-    setDisplayLabel( "name", "Name" );    
+    setDisplayLabel( "name", "Name" );
     setVisible( "teamid", FALSE );
     setVisible( "id" , FALSE );
 }
@@ -40,12 +40,14 @@ MatchCursor::MatchCursor()
     setDisplayLabel( "date", "Date" );
 }
 
-void MatchCursor::primeInsert( QSqlRecord* buf )
+QSqlRecord* MatchCursor::primeInsert()
 {
+    QSqlRecord* buf = editBuffer();
     QSqlQuery query( "select nextval( 'matchid_sequence' );" );
     if ( query.next() )
 	buf->setValue( "id", query.value(0) );
     buf->setValue( "date", QDate::currentDate() );
+    return buf;
 }
 
 //
@@ -57,11 +59,13 @@ PlayerCursor::PlayerCursor()
     setDisplayLabel( "name", "Player name" );
 }
 
-void PlayerCursor::primeInsert( QSqlRecord* buf )
+QSqlRecord* PlayerCursor::primeInsert()
 {
+    QSqlRecord* buf = editBuffer();    
     QSqlQuery query( "select nextval( 'playerid_sequence' );" );
     if ( query.next() )
 	buf->setValue( "id", query.value(0) );
+    return buf;
 }
 
 //
@@ -91,11 +95,13 @@ QVariant Player2TeamCursor::calculateField( const QString & name )
     return QVariant( QString::null );
 }
 
-void Player2TeamCursor::primeInsert( QSqlRecord* buf )
+QSqlRecord* Player2TeamCursor::primeInsert()
 {
+    QSqlRecord* buf = editBuffer();        
     QSqlQuery query( "select nextval( 'player2teamid_sequence' );" );
     if ( query.next() )
 	buf->setValue( "id", query.value(0) );
+    return buf;
 }
 
 //
@@ -107,9 +113,11 @@ TeamCursor::TeamCursor()
     setDisplayLabel( "name", "Team name" );
 }
 
-void TeamCursor::primeInsert( QSqlRecord* buf )
+QSqlRecord* TeamCursor::primeInsert()
 {
+    QSqlRecord* buf = editBuffer();            
     QSqlQuery query( "select nextval( 'teamid_sequence' );" );
     if ( query.next() )
 	buf->setValue( "id", query.value(0) );
+    return buf;
 }

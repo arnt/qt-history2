@@ -40,7 +40,7 @@ void PingpongFrontEnd::init()
 				  "&Insert result", CTRL+Key_I, this, 0 );
     connect( insertResultAc, SIGNAL( activated() ), SLOT( insertMatch() ) );
     insertResultAc->addTo( toolbar );
-    
+
     updateResultAc = new QAction( "Update result", QPixmap( "edit.png" ),
 				  "&Update result", CTRL+Key_U, this, 0 );
     connect( updateResultAc, SIGNAL( activated() ), SLOT( updateMatch() ) );
@@ -53,11 +53,11 @@ void PingpongFrontEnd::init()
 
     // Menus
     QPopupMenu * menu = new QPopupMenu( this );
-    
-    insertResultAc->addTo( menu );    
-    updateResultAc->addTo( menu );    
+
+    insertResultAc->addTo( menu );
+    updateResultAc->addTo( menu );
     deleteResultAc->addTo( menu );
-    menu->insertSeparator();    
+    menu->insertSeparator();
     menu->insertItem( "Edit &Teams", this, SLOT( editTeams() ), CTRL+Key_T );
     menu->insertSeparator();
     menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
@@ -74,7 +74,7 @@ void PingpongFrontEnd::init()
     matchLayout->setMargin( 11 );
     matchTable = new QSqlTable( matchBase );
     matchLayout->addWidget( matchTable, 0, 0 );
-    
+
     teamEditor = new TeamEditor( tab );
     statistics = new Statistics( tab );
     highscore  = new HighscoreList( tab );
@@ -105,7 +105,7 @@ void PingpongFrontEnd::init()
 
 void PingpongFrontEnd::insertMatch()
 {
-     MatchDialog dlg( matchCursor.editBuffer(TRUE), MatchDialog::Insert, this );
+     MatchDialog dlg( matchCursor.primeInsert(), MatchDialog::Insert, this );
      if( dlg.exec() == QDialog::Accepted ){
  	matchCursor.insert();
  	matchTable->refresh();
@@ -137,7 +137,7 @@ void PingpongFrontEnd::deleteMatch()
     QSqlRecord r = matchTable->currentFieldSelection();
     if ( !r.count() )
 	return;
-    
+
     matchCursor.setValue( "id", r.value( "id" ) );
     matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
     if ( matchCursor.next() ) {

@@ -81,7 +81,7 @@ void TeamEditor::addPlayer()
 		     currentPlayer.value("id").toString() + ";" );
 
     if( query.next() && (query.value(0).toInt() == 0) ){
-	QSqlRecord * buf = player2teamCursor.editBuffer( TRUE );
+	QSqlRecord * buf = player2teamCursor.primeInsert();
 	buf->setValue( "teamid", currentTeam.value("id") );
 	buf->setValue( "playerid", currentPlayer.value("id") );
 	player2teamCursor.insert();
@@ -185,7 +185,7 @@ void Statistics::update()
 
     // Find out who the team has lost most matches to
     query.exec( "select name from team, match where loserid=" +
-		QString::number( teamId ) + 
+		QString::number( teamId ) +
 		" and team.id=match.winnerid group by team.name "
 		"order by count(winnerid) desc;" );
     if ( query.next() && query.value(0).toString().length() )
@@ -195,7 +195,7 @@ void Statistics::update()
 
     // Find out who the team has beat most times
     query.exec( "select name from team, match where winnerid=" +
-		QString::number( teamId ) + 
+		QString::number( teamId ) +
 		" and team.id=match.loserid group by team.name "
 		"order by count(loserid) desc;" );
     if ( query.next() && query.value(0).toString().length() )
@@ -220,7 +220,7 @@ HighscoreList::HighscoreList( QWidget * parent = 0, const char * name = 0 )
     QGridLayout * g = new QGridLayout( this );
     g->setSpacing( 6 );
     g->setMargin( 11 );
-    
+
     list = new QListView( this );
     list->addColumn( "No." );
     list->addColumn( "Team name" );
@@ -231,12 +231,12 @@ HighscoreList::HighscoreList( QWidget * parent = 0, const char * name = 0 )
     list->setSorting( -1 );
     list->setAllColumnsShowFocus( TRUE );
     g->addWidget( list, 0, 0 );
-    
+
     update();
 }
 
 void HighscoreList::update()
-{        
+{
     // Generate a highscore list
     //
     // The 'winners' query will generate a list of the teams that have
@@ -257,7 +257,7 @@ void HighscoreList::update()
 		     "order by count(loserid) asc;" );
 
     QStringList teamNames;
-    
+
     list->clear();
     while( winners.next() ){
 	teamNames.append( winners.value(0).toString() );
@@ -269,10 +269,10 @@ void HighscoreList::update()
     }
     winners.first();
     do {
-	new QListViewItem( list, "", winners.value(0).toString(), 
+	new QListViewItem( list, "", winners.value(0).toString(),
 			   winners.value(1).toString() );
     } while( winners.next() );
-    
+
     // Generate entry numbers
     int i = 1;
     QListViewItem * item = list->firstChild();

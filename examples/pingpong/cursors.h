@@ -12,9 +12,7 @@ class TeamCursor : public QSqlCursor
 {
 public:
     TeamCursor();
-
-protected:
-    void     primeInsert( QSqlRecord * buf );
+    QSqlRecord* primeInsert();
 };
 
 //
@@ -42,9 +40,7 @@ class MatchCursor : public QSqlCursor
 {
 public:
     MatchCursor();
-
-protected:
-    void     primeInsert( QSqlRecord* buf );
+    QSqlRecord* primeInsert();
 };
 
 //
@@ -54,10 +50,9 @@ class Player2TeamCursor : public QSqlCursor
 {
 public:
     Player2TeamCursor();
-
+    QSqlRecord* primeInsert();
 protected:
     QVariant calculateField( const QString& name );
-    void     primeInsert( QSqlRecord * buf );
 };
 
 //
@@ -67,9 +62,7 @@ class PlayerCursor : public QSqlCursor
 {
 public:
     PlayerCursor();
-
-protected:
-    void     primeInsert( QSqlRecord * buf );
+    QSqlRecord* primeInsert();
 };
 
 #endif // CURSORS_H
