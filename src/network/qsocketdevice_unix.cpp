@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#28 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#29 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -193,7 +193,9 @@
 // ### test the OS version to specify the correct SOCKLEN_T.
 
 #include <unistd.h>
-#if defined(BSD4_4)
+#if defined(Q_OS_MACX)
+#  define SOCKLEN_T int
+#elif defined(BSD4_4)
 // BSD 4.4 - FreeBSD at least
 #  define SOCKLEN_T socklen_t
 #elif defined(_XOPEN_SOURCE)
