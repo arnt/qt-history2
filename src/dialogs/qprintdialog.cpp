@@ -608,7 +608,6 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 
     QPushButton * ok = new QPushButton( this, "ok" );
     ok->setText( tr("OK") );
-    ok->setAutoDefault( TRUE );
     ok->setDefault( TRUE );
     horiz->addWidget( ok );
     if ( style() == MotifStyle )
@@ -617,7 +616,6 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 
     QPushButton * cancel = new QPushButton( this, "cancel" );
     cancel->setText( tr("Cancel") );
-    cancel->setAutoDefault( TRUE );
     horiz->addWidget( cancel );
 
     QSize s1 = ok->sizeHint();
@@ -677,7 +675,6 @@ QGroupBox * QPrintDialog::setupDestination()
     // printer radio button, list
     QRadioButton * rb = new QRadioButton( tr( "Print to printer:" ), g,
 					  "printer" );
-    rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
     d->printerOrFile->insert( rb, 0 );
     rb->setChecked( TRUE );
@@ -783,7 +780,7 @@ QGroupBox * QPrintDialog::setupDestination()
     if ( d->printers->firstChild() )
 	h = d->printers->firstChild()->height();
     d->printers->setMinimumSize( d->printers->sizeHint().width(),
-				 d->printers->header()->height() + 
+				 d->printers->header()->height() +
 				  3 * h );
     horiz->addWidget( d->printers, 3 );
 
@@ -791,7 +788,6 @@ QGroupBox * QPrintDialog::setupDestination()
 
     // file radio button, edit/browse
     rb = new QRadioButton( tr( "Print to file:" ), g, "file" );
-    rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
     d->printerOrFile->insert( rb, 1 );
 
@@ -800,11 +796,10 @@ QGroupBox * QPrintDialog::setupDestination()
     horiz->addSpacing( 19 );
 
     d->fileName = new QLineEdit( g, "file name" );
-    d->fileName->setMinimumSize( d->fileName->sizeHint() );
     horiz->addWidget( d->fileName, 1 );
     horiz->addSpacing( 6 );
     d->browse = new QPushButton( tr("Browse..."), g, "browse files" );
-    d->browse->setMinimumSize( d->browse->sizeHint() );
+    d->browse->setAutoDefault( FALSE );
     connect( d->browse, SIGNAL(clicked()),
 	     this, SLOT(browseClicked()) );
     horiz->addWidget( d->browse );
@@ -842,13 +837,11 @@ QGroupBox * QPrintDialog::setupOptions()
 	     this, SLOT(colorModeSelected(int)) );
 
     d->printAllButton = new QRadioButton( tr("Print all"), g, "print all" );
-    d->printAllButton->setMinimumSize( d->printAllButton->sizeHint() );
     d->printRange->insert( d->printAllButton, 0 );
     tll->addWidget( d->printAllButton );
 
     d->printRangeButton = new QRadioButton( tr("Print range"),
 					    g, "print range" );
-    d->printRangeButton->setMinimumSize( d->printRangeButton->sizeHint() );
     d->printRange->insert( d->printRangeButton, 1 );
     tll->addWidget( d->printRangeButton );
 
@@ -861,7 +854,6 @@ QGroupBox * QPrintDialog::setupOptions()
 
     d->firstPage = new QSpinBox( 1, 9999, 1, g, "first page" );
     d->firstPage->setValue( 1 );
-    d->firstPage->setMinimumSize( QPrintDialog::d->firstPage->sizeHint() );
     horiz->addWidget( d->firstPage, 1 );
     connect( d->firstPage, SIGNAL(valueChanged(int)),
 	     this, SLOT(setFirstPage(int)) );
@@ -875,7 +867,6 @@ QGroupBox * QPrintDialog::setupOptions()
 
     d->lastPage = new QSpinBox( 1, 9999, 1, g, "last page" );
     d->lastPage->setValue( 9999 );
-    d->lastPage->setMinimumSize( QPrintDialog::d->lastPage->sizeHint() );
     horiz->addWidget( d->lastPage, 1 );
     connect( d->lastPage, SIGNAL(valueChanged(int)),
 	     this, SLOT(setLastPage(int)) );
@@ -888,14 +879,12 @@ QGroupBox * QPrintDialog::setupOptions()
     // print order
     QRadioButton * rb = new QRadioButton( tr("Print first page first"),
 					  g, "first page first" );
-    rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
     d->pageOrder->insert( rb, QPrinter::FirstPageFirst );
     rb->setChecked( TRUE );
 
     rb = new QRadioButton( tr("Print last page first"),
 			   g, "last page first" );
-    rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
     d->pageOrder->insert( rb, QPrinter::LastPageFirst );
 
@@ -907,14 +896,12 @@ QGroupBox * QPrintDialog::setupOptions()
     // color mode
     rb = new QRadioButton( tr("Print in color if available"),
 			   g, "color" );
-    rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
     d->colorMode->insert( rb, QPrinter::Color );
     rb->setChecked( TRUE );
 
     rb = new QRadioButton( tr("Print in grayscale"),
 			   g, "graysacle" );
-    rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
     d->colorMode->insert( rb, QPrinter::GrayScale );
 
@@ -933,7 +920,6 @@ QGroupBox * QPrintDialog::setupOptions()
 
     d->copies = new QSpinBox( 1, 99, 1, g, "copies" );
     d->copies->setValue( 1 );
-    d->copies->setMinimumSize( QPrintDialog::d->copies->sizeHint() );
     horiz->addWidget( d->copies, 1 );
     connect( d->copies, SIGNAL(valueChanged(int)),
 	     this, SLOT(setNumCopies(int)) );
@@ -972,7 +958,6 @@ QGroupBox * QPrintDialog::setupPaper()
     // page orientation
     QRadioButton * rb = new QRadioButton( tr("Portrait"),
 					  g, "portrait format" );
-    rb->setMinimumSize( rb->sizeHint() );
     d->orient->insert( rb, (int)QPrinter::Portrait );
     tll->addWidget( rb );
 
@@ -980,7 +965,6 @@ QGroupBox * QPrintDialog::setupPaper()
     d->orientation = QPrinter::Portrait;
 
     rb = new QRadioButton( tr("Landscape"), g, "landscape format" );
-    rb->setMinimumSize( rb->sizeHint() );
     d->orient->insert( rb, (int)QPrinter::Landscape );
     tll->addWidget( rb );
 
@@ -991,14 +975,12 @@ QGroupBox * QPrintDialog::setupPaper()
 
     // paper size
     rb = new QRadioButton( QString::fromLatin1("A4 (210 x 297 mm)"), g, "A4" );
-    rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 0 );
     rb->setChecked( TRUE );
     d->pageSize = QPrinter::A4;
     tll->addWidget( rb );
 
     rb = new QRadioButton( QString::fromLatin1("B5"), g, "B5" );
-    rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 1 );
     tll->addWidget( rb );
 
@@ -1013,17 +995,14 @@ QGroupBox * QPrintDialog::setupPaper()
     letter_name += " x 11 in.)";
     rb->setText(letter_name);
 
-    rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 2 );
     tll->addWidget( rb );
 
     rb = new QRadioButton( QString::fromLatin1("Legal"), g, "Letter" );
-    rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 3 );
     tll->addWidget( rb );
 
     rb = new QRadioButton( QString::fromLatin1("Executive"), g, "Letter" );
-    rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 4 );
     tll->addWidget( rb );
 
