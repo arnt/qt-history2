@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#384 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#385 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -26,6 +26,7 @@
 
 #include "qglobal.h"
 #if defined(_OS_WIN32_)
+#undef select
 #include <windows.h>
 #define HANDLE QT_HANDLE
 #endif
@@ -92,8 +93,10 @@ inline void gettimeofday( struct timeval *t, struct timezone * )
 #undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif // _OS_WIN32 etc.
+#if !defined(_OS_WIN32_)
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
+#endif
 
 #if defined(_OS_AIX_)
 // for FD_ZERO
@@ -2054,10 +2057,17 @@ bool QApplication::processNextEvent( bool canWait )
 
     XFlush( appDpy );
     int nsel;
+
+#if defined(_OS_WIN32_)
+#define FDCAST (fd_set*)
+#else
+#define FDCAST (void*)
+#endif
+
     nsel = select( QMAX(app_Xfd,sn_highest)+1,
-		   (void *) (&app_readfds),
-		   (void *) (sn_write  ? &app_writefds  : 0),
-		   (void *) (sn_except ? &app_exceptfds : 0),
+		   FDCAST (&app_readfds),
+		   FDCAST (sn_write  ? &app_writefds  : 0),
+		   FDCAST (sn_except ? &app_exceptfds : 0),
 		   tm );
 #undef FDCAST
 
