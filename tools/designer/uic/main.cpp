@@ -71,8 +71,8 @@ int main( int argc, char * argv[] )
 	    } else if ( opt[0] == 'i' || opt == "impl" ) {
 		impl = TRUE;
 		if ( opt == "impl" || opt[1] == '\0' ) {
-		    if ( !(n < argc-1) ) {
-			error = "Missing name of header file.";
+		    if ( !(n < argc-2) ) {
+			error = "Missing arguments.";
 			break;
 		    }
 		    headerFile = argv[++n];
@@ -81,8 +81,8 @@ int main( int argc, char * argv[] )
 	    } else if ( opt[0] == 'e' || opt == "embed" ) {
 		imagecollection = TRUE;
 		if ( opt == "embed" || opt[1] == '\0' ) {
-		    if ( !(n < argc-1) ) {
-			error = "Missing name of project.";
+		    if ( !(n < argc-2) ) {
+			error = "Missing arguments.";
 			break;
 		    }
 		    projectName = argv[++n];
@@ -99,7 +99,7 @@ int main( int argc, char * argv[] )
 		dbnounload = TRUE;
 	    } else if ( opt == "subdecl" ) {
 		subcl = TRUE;
-		if ( !(n < argc-2) ) {
+		if ( !(n < argc-3) ) {
 		    error = "Missing arguments.";
 		    break;
 		}
@@ -108,7 +108,7 @@ int main( int argc, char * argv[] )
 	    } else if ( opt == "subimpl" ) {
 		subcl = TRUE;
 		impl = TRUE;
-		if ( !(n < argc-2) ) {
+		if ( !(n < argc-3) ) {
 		    error = "Missing arguments.";
 		    break;
 		}
