@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#12 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#13 $
 **
 ** Definition of QTableView class
 **
@@ -49,7 +49,7 @@ protected:
     void	setXOffset( int );
     int		yOffset()	const;
     void	setYOffset( int );
-    void	setOffset( int x, int y, bool update = TRUE );
+    void	setOffset( int x, int y, bool updateScrBars = TRUE );
 
     virtual int cellWidth( int col );
     virtual int cellHeight( int row );

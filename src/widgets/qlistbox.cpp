@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#98 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#98 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -649,7 +649,7 @@ void QListBox::inSort( const QListBoxItem *lbi )
 
 
 /*!
-  /overload void QListBox::inSort( const char *text )
+  \overload void QListBox::inSort( const char *text )
 */
 
 void QListBox::inSort( const char *text )

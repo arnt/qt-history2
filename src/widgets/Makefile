@@ -163,7 +163,6 @@ mspinbox.cpp: qspinbox.h
 	moc qspinbox.h -o mspinbox.cpp
 
 malabel.cpp: qalabel.h
-	@echo Makefil-systemet vi har er HELVETE DÅRLIG
 	moc qalabel.h -o malabel.cpp
 
 -include .depend
