@@ -18,8 +18,85 @@
 
 #include <private/qfontengine_p.h>
 
+/*!  class QPaintEngine qpaintengine.h
+  \brief The QPaintEngine class provides an abstract definition of how
+  QPainter draws to a given device on a given platform.
+
+  Qt 4.0 provides several premade implementations of QPaintEngine for
+  the different painter backends we support. We provide one paint
+  engine for each window system and painting framework we
+  support. This includes X11 on Unix/Linux, GDI/GDI+ on Windows and
+  QuickDraw/CoreGraphics on Mac OS X. In addition we provide
+  QPaintEngine implementations for OpenGL (accessible through
+  QGLWidget) and PostScript (accessible through QPSPrinter on X11).
+
+  If one wants to use QPainter to draw to a different backend, such as
+  PDF, one must subclass QPaintEngine and reimplement all its virtual
+  functions. The QPaintEngine implementation is then made available by
+  subclassing QPaintDevice and reimplementing the virtual function \c
+  QPaintDevice::paintEngine().
+
+  QPaintEngine is created and owned by the QPaintDevice that created it.
+
+  The big advantage of the QPaintEngine approach opposed to the
+  previous QPainter/QPaintDevice::cmd() approach is that it is now
+  possible to adapt to multiple technologies on each platform and take
+  advantage of the to the fullest.
+
+  \sa QPainter, QPaintDevice::paintEngine()
+*/
+
+/*!
+  \enum QPaintEngine::Features
+
+  This enum is used to describe the features or capabilities that the
+  paint engine has. If a feature is not supported by the engine,
+  QPainter will do a best effort to emulate that feature through other
+  means. The features that are currently emulated are: \c
+  CoordTransform, \c PixmapTransform, \c LinearGradients, \c
+  PixmapScale, \c SolidAlphaFill and \c ClipTransform.
+
+  \value CoordTransform The engine can transform the points in a
+  drawing operation.
+
+  \value PenWidthTransform The engine has support for transforming pen
+  widths.
+
+  \value PatterTransform The engine has support for transforming brush
+  patterns.
+
+  \value PixmapTransfor The engine can transform pixmaps, including
+  rotation and shearing.
+
+  \value LinearGradients The engine can fill with linear gradients
+
+  \value PixmapScale The engine can scale pixmaps.
+
+  \value SolidAlphFill The engine can fill and outline with alpha colors
+
+  \value PainterPaths The engine has path support.
+
+  \value ClipTransform The engine is capable of transforming clip regions.
+
+  \value UsesFontEngine For internal use only.
+*/
+
+/*!
+  \enum QPaintEngine::DirtyFlags
+
+  \internal
+
+  This enum is used by QPainter to trigger lazy updates of the various states
+  in the QPaintEngine
+*/
+
+
 #define d d_func()
 #define q q_func()
+
+/*!
+  Creates a paint engine with the featureset specified by \a caps.
+*/
 
 QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
     : dirtyFlag(0),
@@ -31,6 +108,10 @@ QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
 {
     d_ptr->q_ptr = this;
 }
+
+/*!
+  \internal
+*/
 
 QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures caps)
     : dirtyFlag(0),
@@ -52,6 +133,14 @@ QPainter *QPaintEngine::painter() const
 {
     return state->painter;
 }
+
+/*!
+  \internal
+
+  This function is responsible for calling the reimplemented updateXXX functions in
+  the QPaintEngine based on what is currently marked as dirty. If \a updateGC is
+  false we don't call the update functions.
+*/
 
 void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 {
@@ -107,10 +196,16 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 /*!
     The default implementation ignores the \a path and does nothing.
 */
+
 void QPaintEngine::drawPath(const QPainterPath &)
 {
 
 }
+
+/*!
+  This function draws a the text item at the position ti. The default implementation
+  of this function will render the text to a pixmap and draw the pixmap in steed
+ */
 
 void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
@@ -168,35 +263,102 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
     }
 }
 
-void QPaintEngine::drawRects(const QList<QRect> &)
+/*!
+  Draws the rectangles in the list \a rects.
+*/
+void QPaintEngine::drawRects(const QList<QRect> &rects)
 {
 }
 
+/*!
+  Returns the set of supported renderhints.
+ */
 QPainter::RenderHints QPaintEngine::supportedRenderHints() const
 {
     return 0;
 }
 
+/*!
+  Returns the currently set renderhints.
+*/
 QPainter::RenderHints QPaintEngine::renderHints() const
 {
     return d->renderhints;
 }
 
+/*!
+  Sets the the render hints specified by \a hints in addition to the
+  currently set render hints.
+
+  \sa clearRenderHints()
+*/
 void QPaintEngine::setRenderHints(QPainter::RenderHints hints)
 {
     d->renderhints |= hints;
     setDirty(DirtyHints);
 }
 
+/*!
+  Clears the render hints specified by \hints
+*/
 void QPaintEngine::clearRenderHints(QPainter::RenderHints hints)
 {
     d->renderhints &= ~hints;
     setDirty(DirtyHints);
 }
 
-void QPaintEngine::updateRenderHints(QPainter::RenderHints)
+/*!
+  This function is caleed when the engine needs to be updated with
+  the new set of renderhints specified by \a hints.
+*/
+
+void QPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
 }
+
+/*!
+  \fn QPaintEngine::updatePen(const QPen &pen)
+
+  This function is called when the engine needs to be updated with the
+  a new pen, specified by \a pen.
+*/
+
+
+/*!
+  \fn QPaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
+
+  This function is called when the engine needs to be updated with
+  a new brush, specified with \a brush. \a origin describes the brush origin.
+*/
+
+/*!
+  \fn QPaintEngine::updateFont(const QFont &f)
+
+  This function is called when the engine needs to be updated with
+  a new font, specified by \a f
+*/
+
+/*!
+  \fn QPaintEngine::updateBackground(Qt::BGMode bgmode, const QBrush &brush)
+
+  This function is called when the engine needs to be updated with
+  new background settings. \a bgmode describes the background mode and
+  \a brush describes the background brush.
+*/
+
+/*!
+  \fn QPaintEngine::updateXForm(const QWMAtrix &matrix)
+
+  This function is called when the engine needs to be updated with
+  new transformation settings, specified with \a matrix.
+*/
+
+/*!
+  \fn QPaintEngine::updateClipRegion(const QRegion &region, bool enabled)
+
+  This function is called when the clip region changes, specified by \a region or
+  when clipping is enabled or disabled, specified by \a enabled.
+*/
 
 void QWrapperPaintEngine::updatePen(const QPen &pen) { wrap->updatePen(pen); }
 void QWrapperPaintEngine::updateBrush(const QBrush &brush, const QPoint &pt)
