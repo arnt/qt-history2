@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#4 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#5 $
 #
 # this is a massive hack, written very quickly
 #
@@ -59,11 +59,12 @@ sub processcode {
 
 
 sub findlink {
-    local ($_, $class, $url) = @_;
+    local ($_, $class, $url, $ismethod) = @_;
 
     if (defined($anchor{$_}) && $anchor{$_} ne $url) {
 	sprintf("<a href=%s>%s</a>", $anchor{$_}, $_);
-    } elsif (defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
+    } elsif (($ismethod eq "(") && 
+	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
 	sprintf("<a href=%s>%s</a>", $anchor{$class . $_}, $_);
     } else {
 	sprintf("%s", $_);
@@ -124,16 +125,16 @@ sub processdocs {
 	s/:://;
 	$word{$_}++;
 
-	$doc =~ s-(?:(?:(\s+)((?:(?:operator\S{1,3})|(?:\w+))))|(<.*?>))-
-	    if ($3 eq "") {
+	$doc =~ s-(?:(?:(\s+)((?:(?:operator\S{1,3})|(?:\w+)))(\(?))|(<.*?>))-
+	    if ($4 eq "") {
 		if (!defined($word{$2})) {
 		    $word{$2}++;
-		    sprintf("%s%s", $1, &findlink($2, $class, $url));
+		    sprintf("%s%s", $1, &findlink($2, $class, $url, $3));
 		} else {
-		    sprintf("%s%s", $1, $2);
+		    sprintf("%s%s", $1, $2, $3);
 		}
 	    } else {
-		sprintf("%s", $3);
+		sprintf("%s", $4);
 	    }
 	-egsx;
 
@@ -570,7 +571,8 @@ sub printout {
 		}
 		foreach $mode ('public', 'static public',
 			       'signals', 'slots',
-			       'protected', 'static protected') {
+			       'protected', 'static protected',
+			       'private', 'static private') {
 		    my ($e1, $e2);
 		    next unless (defined($m{$mode}));
 		    $_ = $mode;
@@ -595,6 +597,9 @@ sub printout {
 			    $a = $3;
 			    $c = $4;
 			    $u = &manglefn($t, $name{$url}, $f, $a, $c);
+			    next unless ($internal || 
+					 ($mode =~ /public/) ||
+					 ($doc{$u} ne ""));
 			    if ($type{$u} eq "fn") {
 				$_ = join("", &html($t), "<a href=", $u,
 					  "><strong>", &html($f), 
@@ -609,7 +614,7 @@ sub printout {
 				if (defined($capt{$u}));
 			} else {
 			    $_ = &html($_);
-			    s;([^:\(]*)\b(\w+);$1<strong>$2</strong>;s;
+			    s;(\w+[^:\(\{]*)\b(\w+);$1<strong>$2</strong>;s;
 			}
 			print O "<li>", $_, "\n";
 		    }
