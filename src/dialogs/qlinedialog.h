@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qlinedialog.h#4 $
+** $Id: //depot/qt/main/src/dialogs/qlinedialog.h#5 $
 **
 ** Definition of QFileDialog class
 **
@@ -45,6 +45,10 @@ public:
 
     static QString getText( const QString &label, const QString &text = QString::null,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
+
+private slots:
+    void textChanged( const QString &s );
+    void tryAccept();
     
 private:
     QLineDialogPrivate *d;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qlinedialog.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qlinedialog.cpp#4 $
 **
 ** Definition of QFileDialog class
 **
@@ -33,6 +33,7 @@
 struct QLineDialogPrivate
 {
     QLineEdit* lineEdit;
+    QPushButton *ok;
 };
 
 QLineDialog::QLineDialog( const QString &label, QWidget* parent, const char* name, bool modal )
@@ -52,27 +53,28 @@ QLineDialog::QLineDialog( const QString &label, QWidget* parent, const char* nam
     QHBoxLayout *hbox = new QHBoxLayout( 6 );
     vbox->addLayout( hbox, AlignRight );
 
-    QPushButton *ok = new QPushButton( tr( "&OK" ), this );
-    ok->setDefault( TRUE );
+    d->ok = new QPushButton( tr( "&OK" ), this );
+    d->ok->setDefault( TRUE );
     QPushButton *cancel = new QPushButton( tr( "&Cancel" ), this );
 
-    QSize bs( ok->sizeHint() );
+    QSize bs( d->ok->sizeHint() );
     if ( cancel->sizeHint().width() > bs.width() )
 	bs.setWidth( cancel->sizeHint().width() );
 
-    ok->setFixedSize( bs );
+    d->ok->setFixedSize( bs );
     cancel->setFixedSize( bs );
-    
+
     hbox->addWidget( new QWidget( this ) );
-    hbox->addWidget( ok );
+    hbox->addWidget( d->ok );
     hbox->addWidget( cancel );
-    
-    connect( ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
-    connect( d->lineEdit, SIGNAL( returnPressed() ), this, SLOT( accept() ) );
+
+    connect( d->ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
+    connect( d->lineEdit, SIGNAL( returnPressed() ), this, SLOT( tryAccept() ) );
+    connect( d->lineEdit, SIGNAL( textChanged( const QString & ) ), this, SLOT( textChanged( const QString & ) ) );
     connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-    
+
     resize( sizeHint().width() * 2, sizeHint().height() );
-    
+
     d->lineEdit->setFocus();
 }
 
@@ -106,4 +108,15 @@ QString QLineDialog::getText( const QString &label, const QString &text,
 	result = dlg->text();
     delete dlg;
     return result;
+}
+
+void QLineDialog::textChanged( const QString &s )
+{
+    d->ok->setEnabled( !s.isEmpty() );
+}
+
+void QLineDialog::tryAccept()
+{
+    if ( !d->lineEdit->text().isEmpty() )
+	accept();
 }
