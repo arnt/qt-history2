@@ -575,8 +575,12 @@ QImage::~QImage()
 QImage QImage::fromMimeSource( const QString &abs_name )
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
-    if ( !m )
+    if ( !m ) {
+#if defined(QT_CHECK_STATE)
+	qWarning("QImage::fromMimeSource: Cannot find image \"%s\" in the mime source factory", abs_name.latin1() );
+#endif
 	return QImage();
+    }
     QImage img;
     QImageDrag::decode( m, img );
     return img;
