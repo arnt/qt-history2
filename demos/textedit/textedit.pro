@@ -10,4 +10,4 @@ SOURCES         = textedit.cpp \
                   main.cpp
 
 QMAKE_RESOURCE_PREFIX = /images
-RESOURCES          = editcopy.xpm editcut.xpm editpaste.xpm editredo.xpm editundo.xpm filenew.xpm fileopen.xpm fileprint.xpm filesave.xpm textbold.xpm textcenter.xpm textitalic.xpm textjustify.xpm textleft.xpm textright.xpm textunder.xpm logo32.png
+RESOURCES          = editcopy.png editcut.png editpaste.png editredo.png editundo.png filenew.png fileopen.png fileprint.png filesave.png textbold.png textcenter.png textitalic.png textjustify.png textleft.png textright.png textunder.png logo32.png

@@ -73,13 +73,13 @@ void TextEdit::setupFileActions()
 
     QAction *a;
 
-    a = new QAction(QPixmap(":/images/filenew.xpm"), tr("&New..."), this);
+    a = new QAction(QPixmap(":/images/filenew.png"), tr("&New..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_N);
     connect(a, SIGNAL(triggered()), this, SLOT(fileNew()));
     tb->addAction(a);
     menu->addAction(a);
 
-    a = new QAction(QPixmap(":/images/fileopen.xpm"), tr("&Open..."), this);
+    a = new QAction(QPixmap(":/images/fileopen.png"), tr("&Open..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_O);
     connect(a, SIGNAL(triggered()), this, SLOT(fileOpen()));
     tb->addAction(a);
@@ -87,7 +87,7 @@ void TextEdit::setupFileActions()
 
     menu->addSeparator();
 
-    a = new QAction(QPixmap(":/images/filesave.xpm"), tr("&Save..."), this);
+    a = new QAction(QPixmap(":/images/filesave.png"), tr("&Save..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_S);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
     tb->addAction(a);
@@ -98,7 +98,7 @@ void TextEdit::setupFileActions()
     menu->addAction(a);
     menu->addSeparator();
 
-    a = new QAction(QPixmap(":/images/fileprint.xpm"), tr("&Print..."), this);
+    a = new QAction(QPixmap(":/images/fileprint.png"), tr("&Print..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_P);
     connect(a, SIGNAL(triggered()), this, SLOT(filePrint()));
     tb->addAction(a);
@@ -123,24 +123,24 @@ void TextEdit::setupEditActions()
     menuBar()->addMenu(tr("&Edit"), menu);
 
     QAction *a;
-    a = actionUndo = new QAction(QPixmap(":/images/editundo.xpm"), tr("&Undo"), this);
+    a = actionUndo = new QAction(QPixmap(":/images/editundo.png"), tr("&Undo"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_Z);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionRedo = new QAction(QPixmap(":/images/editredo.xpm"), tr("&Redo"), this);
+    a = actionRedo = new QAction(QPixmap(":/images/editredo.png"), tr("&Redo"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_Y);
     tb->addAction(a);
     menu->addAction(a);
     menu->addSeparator();
-    a = actionCut = new QAction(QPixmap(":/images/editcut.xpm"), tr("Cu&t"), this);
+    a = actionCut = new QAction(QPixmap(":/images/editcut.png"), tr("Cu&t"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_X);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionCopy = new QAction(QPixmap(":/images/editcopy.xpm"), tr("&Copy"), this);
+    a = actionCopy = new QAction(QPixmap(":/images/editcopy.png"), tr("&Copy"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_C);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionPaste = new QAction(QPixmap(":/images/editpaste.xpm"), tr("&Paste"), this);
+    a = actionPaste = new QAction(QPixmap(":/images/editpaste.png"), tr("&Paste"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_V);
     tb->addAction(a);
     menu->addAction(a);
@@ -187,7 +187,7 @@ void TextEdit::setupTextActions()
             this, SLOT(textSize(const QString &)));
     comboSize->lineEdit()->setText(QString::number(QApplication::font().pointSize()));
 
-    actionTextBold = new QAction(QPixmap(":/images/textbold.xpm"), tr("&Bold"), this);
+    actionTextBold = new QAction(QPixmap(":/images/textbold.png"), tr("&Bold"), this);
     actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
     QFont bold;
     bold.setBold(true);
@@ -197,7 +197,7 @@ void TextEdit::setupTextActions()
     menu->addAction(actionTextBold);
     actionTextBold->setCheckable(true);
 
-    actionTextItalic = new QAction(QPixmap(":/images/textitalic.xpm"), tr("&Italic"), this);
+    actionTextItalic = new QAction(QPixmap(":/images/textitalic.png"), tr("&Italic"), this);
     actionTextItalic->setShortcut(Qt::CTRL + Qt::Key_I);
     QFont italic;
     italic.setItalic(true);
@@ -207,7 +207,7 @@ void TextEdit::setupTextActions()
     menu->addAction(actionTextItalic);
     actionTextItalic->setCheckable(true);
 
-    actionTextUnderline = new QAction(QPixmap(":/images/textunder.xpm"), tr("&Underline"), this);
+    actionTextUnderline = new QAction(QPixmap(":/images/textunder.png"), tr("&Underline"), this);
     actionTextUnderline->setShortcut(Qt::CTRL + Qt::Key_U);
     QFont underline;
     underline.setUnderline(true);
@@ -222,16 +222,16 @@ void TextEdit::setupTextActions()
     QActionGroup *grp = new QActionGroup(this);
     connect(grp, SIGNAL(triggered(QAction *)), this, SLOT(textAlign(QAction *)));
 
-    actionAlignLeft = new QAction(QPixmap(":/images/textleft.xpm"), tr("&Left"), grp);
+    actionAlignLeft = new QAction(QPixmap(":/images/textleft.png"), tr("&Left"), grp);
     actionAlignLeft->setShortcut(Qt::CTRL + Qt::Key_L);
     actionAlignLeft->setCheckable(true);
-    actionAlignCenter = new QAction(QPixmap(":/images/textcenter.xpm"), tr("C&enter"), grp);
+    actionAlignCenter = new QAction(QPixmap(":/images/textcenter.png"), tr("C&enter"), grp);
     actionAlignCenter->setShortcut(Qt::CTRL + Qt::Key_E);
     actionAlignCenter->setCheckable(true);
-    actionAlignRight = new QAction(QPixmap(":/images/textright.xpm"), tr("&Right"), grp);
+    actionAlignRight = new QAction(QPixmap(":/images/textright.png"), tr("&Right"), grp);
     actionAlignRight->setShortcut(Qt::CTRL + Qt::Key_R);
     actionAlignRight->setCheckable(true);
-    actionAlignJustify = new QAction(QPixmap(":/images/textjustify.xpm"), tr("&Justify"), grp);
+    actionAlignJustify = new QAction(QPixmap(":/images/textjustify.png"), tr("&Justify"), grp);
     actionAlignJustify->setShortcut(Qt::CTRL + Qt::Key_J);
     actionAlignJustify->setCheckable(true);
 
