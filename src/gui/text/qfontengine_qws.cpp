@@ -164,38 +164,24 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
     if (p->painterState()->txop == QPainterPrivate::TxTranslate)
         p->painterState()->painter->map(x, y, &x, &y);
 
-    if (textFlags) {
-        int lw = int(lineThickness());
 
-        //### abuse of updatePen()/updateBrush()
-        //### do we need a QPaintEngine::fillRect() ???
+    QWSPaintEngine *qpe = static_cast<QWSPaintEngine*>(p);
+
+    if (textFlags) {
+        int lw = qRound(lineThickness());
+        lw = qMax(1, lw);
 
         p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
-        p->updatePen(Qt::NoPen);
 
         if (textFlags & Qt::TextUnderline)
-            p->drawRect(QRect(x, y+int(underlinePosition()), si.width, lw));
+            qpe->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
         if (textFlags & Qt::TextStrikeOut)
-            p->drawRect(QRect(x, y-int(ascent())/3, si.width, lw));
+            qpe->fillRect(x, y-qRound(ascent())/3, si.width, lw);
         if (textFlags & Qt::TextOverline)
-            p->drawRect(QRect(x, y-int(ascent())-1, si.width, lw));
+            qpe->fillRect(x, y-qRound(ascent())-1, si.width, lw);
 
         p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
-        p->updatePen(p->painterState()->pen);
     }
-
-// old code
-//     if (textFlags) {
-//         int lw = qRound(lineThickness());
-//         GFX(p)->setBrush(p->painterState()->pen.color());
-//         if (textFlags & Qt::TextUnderline)
-//             GFX(p)->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
-//         if (textFlags & Qt::TextStrikeOut)
-//             GFX(p)->fillRect(x, y-qRound(ascent()/3), si.width, lw);
-//         if (textFlags & Qt::TextOverline)
-//             GFX(p)->fillRect(x, y-qRound(ascent())-1, si.width, lw);
-//         GFX(p)->setBrush(p->painterState()->brush);
-//    }
 
     QGlyphLayout *glyphs = si.glyphs;
 
@@ -212,7 +198,6 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
     qDebug("unaccelerated drawText lock");
 #endif
 
-    QWSPaintEngine *qpe = static_cast<QWSPaintEngine*>(p);
 
     if (si.right_to_left)
         glyphs += si.num_glyphs - 1;
