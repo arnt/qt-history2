@@ -3640,8 +3640,10 @@ void QWidget::show()
     if ( testWFlags(WStyle_Tool) || isPopup() ) {
 	raise();
     } else if ( testWFlags(WType_TopLevel) ) {
-	while ( QApplication::activePopupWidget() )
-	    QApplication::activePopupWidget()->close();
+	while ( QApplication::activePopupWidget() ) {
+	    if ( !QApplication::activePopupWidget()->close() )
+		break;
+	}
     }
 
     if ( !testWState(WState_Polished) )
