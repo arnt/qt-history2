@@ -57,7 +57,9 @@ public:
 	CoordTransform          = 0x0001,		// Points are transformed
 	PenWidthTransform	= 0x0002, 		// Pen width is transformed
 	PatternTransform        = 0x0004,		// Brush patterns
-	PixmapTransform         = 0x0008                // Pixmap transforms
+	PixmapTransform         = 0x0008,               // Pixmap transforms
+	CanRenderText           = 0x0010,		// Calls drawTextItem directly
+	UsesFontEngine          = 0x10000000,           // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(GCCaps, Capability);
 
@@ -107,7 +109,7 @@ public:
 #endif
 
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr) = 0;
-    virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags) = 0;
+    virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim) = 0;
 
 #if defined Q_WS_WIN // ### not liking this!!

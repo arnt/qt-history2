@@ -80,6 +80,10 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     state = s;
 }
 
+void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+{
+
+}
 
 
 void QWrapperPaintEngine::updatePen(QPainterState *ps) { wrap->updatePen(ps); }
