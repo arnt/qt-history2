@@ -22,6 +22,7 @@ class AbstractFormEditor;
 class AbstractFormWindow;
 class QWidget;
 class QAction;
+class DomUI;
 
 class QT_SDK_EXPORT AbstractFormWindowTool: public QObject
 {
@@ -35,9 +36,12 @@ public:
     virtual QWidget *editor() const = 0;
 
     virtual QAction *action() const = 0;
-    
+
     virtual void activated() = 0;
     virtual void deactivated() = 0;
+
+    virtual void saveToDom(DomUI *) {}
+    virtual void loadFromDom(DomUI *) {}
 
     virtual bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event) = 0;
 };
