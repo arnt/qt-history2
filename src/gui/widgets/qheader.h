@@ -26,12 +26,13 @@
 class QShowEvent;
 class QHeaderData;
 class QTable;
+class Q3ListView;
 
 class Q_GUI_EXPORT QHeader : public QWidget
 {
     friend class QTable;
     friend class QTableHeader;
-    friend class QListView;
+    friend class Q3ListView;
 
     Q_OBJECT
     Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation)
