@@ -447,7 +447,7 @@ void SetPropertyCommand::execute()
     if ( isResetCommand ) {
 	MetaDataBase::setPropertyChanged( widget, propName, FALSE );
 	if ( WidgetFactory::resetProperty( widget, propName ) ) {
-	    if ( !formWindow()->isWidgetSelected( widget ) && formWindow() != widget )
+	    if ( !formWindow()->isWidgetSelected( widget ) && formWindow() != (QObject *)widget )
 		formWindow()->selectWidget( (QObject *)widget );
 	    if ( editor->widget() != widget )
 		editor->setWidget( widget, formWindow() );
