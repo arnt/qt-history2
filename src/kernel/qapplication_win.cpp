@@ -3428,7 +3428,7 @@ bool QETWidget::translatePaintEvent( const MSG & )
 {
     QRegion rgn(0,0,1,1); // trigger handle
     int res = GetUpdateRgn(winId(), (HRGN) rgn.handle(), FALSE);
-    if ( res == ERROR || res == NULLREGION )
+    if ( res == ERROR )
 	return TRUE;
 
     setWState( WState_InPaintEvent );
