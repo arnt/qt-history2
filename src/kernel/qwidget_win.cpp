@@ -70,7 +70,6 @@ extern HRGN qt_win_bitmapToRegion(const QBitmap& bitmap);
 static QWidget *mouseGrb    = 0;
 static QCursor *mouseGrbCur = 0;
 static QWidget *keyboardGrb = 0;
-static HHOOK	journalRec  = 0;
 
 extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -715,26 +714,11 @@ QCursor *qt_grab_cursor()
     return mouseGrbCur;
 }
 
-
-LRESULT CALLBACK qJournalRecordProc( int nCode, WPARAM wParam, LPARAM lParam )
-{
-#ifndef Q_OS_TEMP
-    return CallNextHookEx( journalRec, nCode, wParam, lParam );
-#else
-    return 0;
-#endif
-}
-
 void QWidget::grabMouse()
 {
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-#ifndef Q_OS_TEMP
-	journalRec = SetWindowsHookExA( WH_JOURNALRECORD,
-				       (HOOKPROC)qJournalRecordProc,
-				       GetModuleHandleA(0), 0 );
-#endif
 	SetCapture( winId() );
 	mouseGrb = this;
     }
@@ -745,11 +729,6 @@ void QWidget::grabMouse( const QCursor &cursor )
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-#ifndef Q_OS_TEMP
-	journalRec = SetWindowsHookExA( WH_JOURNALRECORD,
-				       (HOOKPROC)qJournalRecordProc,
-				       GetModuleHandleA(0), 0 );
-#endif
 	SetCapture( winId() );
 	mouseGrbCur = new QCursor( cursor );
 	SetCursor( mouseGrbCur->handle() );
@@ -761,12 +740,6 @@ void QWidget::releaseMouse()
 {
     if ( !qt_nograb() && mouseGrb == this ) {
 	ReleaseCapture();
-	if ( journalRec ) {
-#ifndef Q_OS_TEMP
-	    UnhookWindowsHookEx( journalRec );
-#endif
-	    journalRec = 0;
-	}
 	if ( mouseGrbCur ) {
 	    delete mouseGrbCur;
 	    mouseGrbCur = 0;
