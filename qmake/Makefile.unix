@@ -1,6 +1,6 @@
 #qmake code
 OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
-     projectgenerator.o metrowerks_xml.o
+     projectgenerator.o metrowerks_xml.o  pbuilder_pbx.o
 
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o qgarray.o qbuffer.o qglist.o \
@@ -130,6 +130,9 @@ msvc_nmake.o: generators/win32/msvc_nmake.cpp
 
 metrowerks_xml.o: generators/mac/metrowerks_xml.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/mac/metrowerks_xml.cpp
+
+pbuilder_pbx.o: generators/mac/pbuilder_pbx.cpp
+	$(CXX) -c -o $@ $(CFLAGS) generators/mac/pbuilder_pbx.cpp
 
 msvc_dsp.o: generators/win32/msvc_dsp.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/win32/msvc_dsp.cpp

@@ -2,7 +2,7 @@
 
 #qmake code
 OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
-     projectgenerator.o metrowerks_xml.o
+     projectgenerator.o metrowerks_xml.o pbuilder_pbx.o
 vpath %.cpp generators/:generators/win32:generators/unix:generators/mac
 
 #qt code
@@ -48,6 +48,9 @@ projectgenerator.o: projectgenerator.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
 
 makefile.o: makefile.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+pbuilder_pbx.o: pbuilder_pbx.cpp 
 	$(CXX) -c -o $@ $(CFLAGS) $^
 
 metrowerks_xml.o: metrowerks_xml.cpp

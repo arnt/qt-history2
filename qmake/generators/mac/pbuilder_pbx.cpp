@@ -34,38 +34,60 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __UNIXMAKE_H__
-#define __UNIXMAKE_H__
 
-#include "makefile.h"
+#include "pbuilder_pbx.h"
+#include "option.h"
+#include <qdir.h>
+#include <qdict.h>
+#include <qregexp.h>
+#include <stdlib.h>
+#include <time.h>
 
-class UnixMakefileGenerator : public MakefileGenerator
+
+ProjectBuilderMakefileGenerator::ProjectBuilderMakefileGenerator(QMakeProject *p) : UnixMakefileGenerator(p), init_flag(FALSE)
 {
-    bool init_flag, include_deps;
 
-    void writeMakeParts(QTextStream &);
-    void writeSubdirs(QTextStream &);
+}
 
-    bool writeMakefile(QTextStream &);
+bool
+ProjectBuilderMakefileGenerator::writeMakefile(QTextStream &t)
+{
+    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+	/* for now just dump, I need to generated an empty xml or something.. */
+	fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
+		var("QMAKE_FAILED_REQUIREMENTS").latin1());
+	return TRUE;
+    }
 
-public:
-    UnixMakefileGenerator(QMakeProject *p);
-    ~UnixMakefileGenerator();
+    if(project->first("TEMPLATE") == "app" ||
+       project->first("TEMPLATE") == "lib") {
+	return writeMakeParts(t);
+    }
+    else if(project->first("TEMPLATE") == "subdirs") {
+	writeHeader(t);
+	qDebug("Not supported!");
+	return TRUE;
+    }
+    return FALSE;
+}
 
-protected:
-    virtual bool doDepends() const { return !include_deps && MakefileGenerator::doDepends(); }
-    virtual QString defaultInstall(const QString &);
-    virtual void processPrlLibraries(const QStringList &);
-    virtual void processPrlFiles();
-
-    virtual void init();
-    
-private:
-    void init2();
-};
-
-inline UnixMakefileGenerator::~UnixMakefileGenerator()
-{ }
+bool
+ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
+{
+    return TRUE;
+}
 
 
-#endif /* __UNIXMAKE_H__ */
+
+void
+ProjectBuilderMakefileGenerator::init()
+{
+    if(init_flag)
+	return;
+    QStringList::Iterator it;
+    init_flag = TRUE;
+
+    UnixMakefileGenerator::init();
+}
+
+

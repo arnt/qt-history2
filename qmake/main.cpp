@@ -41,7 +41,8 @@
 #include "borland_bmake.h"
 #include "msvc_nmake.h"
 #include "msvc_dsp.h"
-#include "mac/metrowerks_xml.h"
+#include "metrowerks_xml.h"
+#include "pbuilder_pbx.h"
 #include "projectgenerator.h"
 #include <qnamespace.h>
 #include <qregexp.h>
@@ -123,6 +124,9 @@ int main(int argc, char **argv)
 	    } else if(gen == "METROWERKS") {
 		def_mkfile = proj.first("TARGET") + ".xml";
 		mkfile = new MetrowerksMakefileGenerator(&proj);
+	    } else if(gen == "PROJECTBUILDER") {
+		def_mkfile = proj.first("TARGET") + ".pbxproj";
+		mkfile = new ProjectBuilderMakefileGenerator(&proj);
 	    } else {
 		fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
 		exit_val = 4;

@@ -34,38 +34,29 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __UNIXMAKE_H__
-#define __UNIXMAKE_H__
+#ifndef __PBUILDERMAKE_H__
+#define __PBUILDERMAKE_H__
 
-#include "makefile.h"
+#include "unixmake.h"
 
-class UnixMakefileGenerator : public MakefileGenerator
+class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 {
-    bool init_flag, include_deps;
-
-    void writeMakeParts(QTextStream &);
-    void writeSubdirs(QTextStream &);
-
+    bool init_flag;
+    bool writeMakeParts(QTextStream &);
+    bool writeSubDirs(QTextStream &);
     bool writeMakefile(QTextStream &);
+    void init();
 
 public:
-    UnixMakefileGenerator(QMakeProject *p);
-    ~UnixMakefileGenerator();
+    ProjectBuilderMakefileGenerator(QMakeProject *p);
+    ~ProjectBuilderMakefileGenerator();
 
 protected:
-    virtual bool doDepends() const { return !include_deps && MakefileGenerator::doDepends(); }
-    virtual QString defaultInstall(const QString &);
-    virtual void processPrlLibraries(const QStringList &);
-    virtual void processPrlFiles();
-
-    virtual void init();
-    
-private:
-    void init2();
+    virtual bool doDepends() const { return FALSE; } //never necesary
 };
 
-inline UnixMakefileGenerator::~UnixMakefileGenerator()
+inline ProjectBuilderMakefileGenerator::~ProjectBuilderMakefileGenerator()
 { }
 
 
-#endif /* __UNIXMAKE_H__ */
+#endif /* __PBUILDERMAKE_H__ */
