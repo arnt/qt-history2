@@ -48,7 +48,6 @@
 
 class QSqlField;
 class QSqlRecord;
-class QSqlCursor;
 class QSqlEditorFactory;
 class QSqlPropertyMap;
 class QWidget;
