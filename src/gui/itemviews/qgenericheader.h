@@ -87,9 +87,9 @@ protected:
 
     void paintEvent(QPaintEvent *e);
 
-    void viewportMousePressEvent(QMouseEvent *e);
-    void viewportMouseMoveEvent(QMouseEvent *e);
-    void viewportMouseReleaseEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
 
     void resizeEvent(QResizeEvent *e);
 

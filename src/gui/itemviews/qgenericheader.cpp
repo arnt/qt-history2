@@ -467,7 +467,7 @@ void QGenericHeader::resizeSections()
     secs[count].position = position;
 }
 
-void QGenericHeader::viewportMousePressEvent(QMouseEvent *e)
+void QGenericHeader::mousePressEvent(QMouseEvent *e)
 {
     int pos = orientation() == Horizontal ? e->x() : e->y();
     if (e->state() & ControlButton && d->movableSections) {
@@ -497,7 +497,7 @@ void QGenericHeader::viewportMousePressEvent(QMouseEvent *e)
     }
 }
 
-void QGenericHeader::viewportMouseMoveEvent(QMouseEvent *e)
+void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
 {
     int pos = orientation() == Horizontal ? e->x() : e->y();
 
@@ -537,7 +537,7 @@ void QGenericHeader::viewportMouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void QGenericHeader::viewportMouseReleaseEvent(QMouseEvent *e)
+void QGenericHeader::mouseReleaseEvent(QMouseEvent *e)
 {
     int position = orientation() == Horizontal ? e->x() : e->y();
     switch (d->state) {
