@@ -274,12 +274,11 @@ QInputDialog::Type QInputDialog::type() const
 }
 
 /*!
-  Destructor.
+    Destroys the input dialog.
 */
 
 QInputDialog::~QInputDialog()
 {
-    delete d;
 }
 
 /*!
@@ -370,30 +369,24 @@ QString QInputDialog::getText(const QString &caption, const QString &label,
 */
 
 int QInputDialog::getInteger(const QString &caption, const QString &label,
-                              int value, int minValue, int maxValue, int step, bool *ok,
-                              QWidget *parent, const char *name, Qt::WFlags f)
+                             int value, int minValue, int maxValue, int step, bool *ok,
+                             QWidget *parent, const char *name, Qt::WFlags f)
 {
-    QInputDialog *dlg = new QInputDialog(label, parent, SpinBox, f);
-    dlg->setObjectName(name ? name : "qt_inputdlg_getint");
-    dlg->setModal(true);
+    QInputDialog dlg(label, parent, SpinBox, f);
+    dlg.setObjectName(name ? name : "qt_inputdlg_getint");
+    dlg.setModal(true);
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setWindowTitle(caption);
+    dlg.setWindowTitle(caption);
 #endif
-    dlg->spinBox()->setMinimum(minValue);
-    dlg->spinBox()->setMaximum(maxValue);
-    dlg->spinBox()->setSingleStep(step);
-    dlg->spinBox()->setValue(value);
+    dlg.spinBox()->setRange(minValue, maxValue);
+    dlg.spinBox()->setSingleStep(step);
+    dlg.spinBox()->setValue(value);
 
-    bool ok_ = false;
-    int result;
-    ok_ = dlg->exec() == QDialog::Accepted;
+    bool ok_ = (dlg.exec() == QDialog::Accepted);
     if (ok)
         *ok = ok_;
-    result = dlg->spinBox()->value();
-
-    delete dlg;
-    return result;
+    return dlg.spinBox()->value();
 }
 
 /*!
@@ -406,10 +399,10 @@ int QInputDialog::getInteger(const QString &caption, const QString &label,
     user may choose, and \a decimals is the maximum number of decimal
     places the number may have.
 
-    If \a ok is not-null \e *\a ok will be set to true if the user
+    If \a ok is not-null, *\a ok will be set to true if the user
     pressed OK and to false if the user pressed Cancel. The dialog's
-    parent is \a parent; the dialog is called \a name. The
-    dialog will be modal and uses the widget flags \a f.
+    parent is \a parent; the dialog is called \a name. The dialog
+    will be modal and uses the widget flags \a f.
 
     This function returns the floating point number which has been
     entered by the user.
