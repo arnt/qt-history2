@@ -32,7 +32,8 @@ unix:WIDGETS_H	= widgets
 win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
-HEADERS		= $$DIALOGS_H/qdeveloper.h \
+HEADERS		= $$DIALOGS_H/qcolordialog.h \
+		  $$DIALOGS_H/qdeveloper.h \
 		  $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
@@ -350,6 +351,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qworkspace.cpp \
 		  widgets/qworkspacechild.cpp \
 		  widgets/qml.cpp \
+		  dialogs/qcolordialog.cpp \
 		  dialogs/qdeveloper.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qmessagebox.cpp \
