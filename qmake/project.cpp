@@ -103,7 +103,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		    int rparen = scope.findRev(')');
 		    if(rparen == -1) {
 			QCString error;
-			error.sprintf("Function missing right paren: %s", scope.latin1());
+			error.sprintf("%s: Function missing right paren: %s", file.latin1(), scope.latin1());
 			yyerror(error);
 			return FALSE;
 		    }
@@ -142,8 +142,11 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     }
     if(scope_failed)
 	return TRUE; /* oh well */
-    if(!*d)
+    if(!*d) {
+	if(!var.isEmpty()) 
+	    yyerror(file + ": Parse Error");
 	return var.isEmpty(); /* allow just a scope */
+    }
 
     SKIP_WS(d);
     for( ; *d && op.find('=') == -1; op += *(d++));
@@ -208,18 +211,18 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     /* now do the operation */
     if(op == "~=") {
 	if(vallist.count() != 1) {
-	    yyerror("~= operator only accepts one right hand paramater");
+	    yyerror(file + ": ~= operator only accepts one right hand paramater");
 	    return FALSE;
 	}
 	QString val(vallist.first());
 	if(val.length() < 4 || val.at(0) != 's') {
-	    yyerror("~= operator only can handle s/// function");
+	    yyerror(file + ": ~= operator only can handle s/// function");
 	    return FALSE;
 	}
 	QChar sep = val.at(1);
 	QStringList func = QStringList::split(sep, val, TRUE);
 	if(func.count() < 3 || func.count() > 4) {
-	    yyerror("~= operator only can handle s/// function");
+	    yyerror(file + ": ~= operator only can handle s/// function");
 	    return FALSE;
 	}
 	bool global = FALSE, case_sense = TRUE;
