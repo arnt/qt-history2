@@ -649,8 +649,7 @@ void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
     // user.
     if (addresses.isEmpty()) {
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::startConnecting(), host not found",
-               s.latin1());
+        qDebug("QAbstractSocketPrivate::startConnecting(), host not found");
 #endif
         state = Qt::UnconnectedState;
         socketError = Qt::HostNotFoundError;
@@ -1307,6 +1306,8 @@ bool QAbstractSocket::waitForConnected(int msecs)
 
     if (timedOut && socketState() != Qt::ConnectedState) {
         d->socketError = Qt::SocketTimeoutError;
+        setSocketState(Qt::UnconnectedState);
+        d->resetSocketLayer();
         setErrorString(tr("Socket operation timed out"));
     }
 
