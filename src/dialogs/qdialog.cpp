@@ -625,6 +625,7 @@ extern "C" { int XSetTransientForHint( Display *, unsigned long, unsigned long )
 
 void QDialog::show()
 {
+    bool resized = testWState( WState_Resized );
     if ( testWState(WState_Visible) )
 	return;
 
@@ -639,6 +640,9 @@ void QDialog::show()
 #ifdef Q_OS_TEMP
     hideSpecial();
 #endif
+
+    if ( !resized )
+	clearWState( WState_Resized );
     QWidget::show();
     showExtension( d->doShowExtension );
 #ifndef QT_NO_PUSHBUTTON
