@@ -2059,8 +2059,6 @@ struct QPSPrinterPrivate {
 	headerFontNames.setAutoDelete( TRUE );
 	pageFontNames.setAutoDelete( TRUE );
 	fonts.setAutoDelete( TRUE );
-	headerEncodings.setAutoDelete( FALSE );
-	pageEncodings.setAutoDelete( FALSE );
 	currentFontFile = 0;
 	scale = 1.;
 	scriptUsed = -1;
@@ -2072,8 +2070,6 @@ struct QPSPrinterPrivate {
     int fd;
     QDict<QString> headerFontNames;
     QDict<QString> pageFontNames;
-    QIntDict<void> headerEncodings;
-    QIntDict<void> pageEncodings;
     QDict<QPSPrinterFontPrivate> fonts;
     QPSPrinterFontPrivate *currentFontFile;
     int headerFontNumber;
@@ -2154,7 +2150,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 {
     if ( text.length() == 0 ) 
 	return;
-    for (int i=0; i<text.length(); i++) {
+    for (int i = 0; i < (int)text.length(); i++) {
 	ushort u = text.at(i).unicode();
 	if (!subset[u]) {
 	    if (downloaded) { // we need to add to the page subset
@@ -2237,7 +2233,7 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
     return fontName;
 }
 
-void QPSPrinterFontPrivate::download(QTextStream &s, bool global)
+void QPSPrinterFontPrivate::download(QTextStream &s, bool /*global*/)
 {
   // Sivan: output unicode ranges
   // this really does not belong here at all, but in the top headers
@@ -5041,7 +5037,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     priv->fonts.size();
     
     p = priv->fonts.find(xfontname);
-    qDebug("font=%s, fontname=%s, p=%x", f.family().latin1(), xfontname.latin1(), p);
+    qDebug("font=%s, fontname=%s, p=%p", f.family().latin1(), xfontname.latin1(), p);
     if ( !p ) {
 	// ###
 // 	QFont::CharSet cs = f.charSet();
@@ -5225,7 +5221,6 @@ void QPSPrinter::setFont( const QFont & fnt, int script )
     // Sivan: I moved the downloading until after we draw text
     // to allow subsetting.
 
-    int i;
     QString key;
 
     key.sprintf( "%s %d %d", ps.ascii(), f.pointSize(), script );
@@ -6168,7 +6163,6 @@ void QPSPrinter::newPageSetup( QPainter *paint )
 	emitHeader( FALSE );
 
     if ( !d->buffer ) {
-	d->pageEncodings.clear();
 	d->pageFontNames.clear();
     }
 
