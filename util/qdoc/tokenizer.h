@@ -73,11 +73,10 @@ private:
 
     /*
       This limit on the length of a lexeme seems fairly high, but a
-      doc comment can be arbitrarily long. The previous 65536 limit
-      was reached by some of Mark Summerfield's documentation.
+      doc comment can be arbitrarily long. The previous 65,536 limit
+      was reached by Mark Summerfield.
     */
     enum { yyLexBufSize = 524288 };
-
 
     int getChar();
     int getTokenAfterPreprocessor();

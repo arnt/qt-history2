@@ -112,7 +112,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 {
     static QRegExp trailingSpacesPlusNL( QString("[ \t]+\n") );
     static QRegExp endOfLine( QString("\n(?!\n)") );
-    static QRegExp manyNLs( QString("\n+") );
+    static QRegExp manyNLs( QString("\n\n+") );
     static QRegExp aname( QString("<a name=[^>]*></a>") );
 
     fname = fileName;
@@ -193,32 +193,35 @@ QString Walkthrough::start( bool include, bool firstPass,
     QString walkthroughText = includeText;
 
     /*
-      Local links are nice, but not twice in the same HTML page (once
-      in the '\include' and once in the '\walkthrough').
+      Local '<a name="...">'s are nice, but not in '\walkthrough's.
     */
     if ( include && !firstPass )
 	walkthroughText.replace( aname, QString::null );
 
-    fancylines = QStringList::split( endOfLine, walkthroughText, TRUE );
-
     if ( !firstPass ) {
+	QString *text = include ? &includeText : &walkthroughText;
+
 	// add '<a name="...">' as specified in the link map
 	int lineNo = 1;
 	int k = 0;
 	LinkMap::ConstIterator links = exampleLinkMap.begin();
 	while ( links != exampleLinkMap.end() ) {
 	    while ( links.key() > lineNo ) {
-		k = includeText.find( QChar('\n'), k ) + 1;
+		k = text->find( QChar('\n'), k ) + 1;
 		lineNo++;
 	    }
 	    StringSet::ConstIterator link = (*links).begin();
 	    while ( link != (*links).end() ) {
-		includeText.insert( k, QString("<a name=\"%1\">").arg(*link) );
+		text->insert( k, QString("<a name=\"%1\">").arg(*link) );
 		++link;
 	    }
 	    ++links;
 	}
+    }
 
+    fancylines = QStringList::split( endOfLine, walkthroughText, TRUE );
+
+    if ( !firstPass ) {
 	/*
 	  Add a four-space indent to walkthrough code, so that it
 	  stands out, and squeeze blanks (cat -s).
@@ -329,7 +332,7 @@ QString Walkthrough::getNextLine( const Location& docLoc )
 	plainlines.remove( plainlines.begin() );
 	fancylines.remove( fancylines.begin() );
     }
-    return stripTrailingBlankLine( s );
+    return s;
 }
 
 void Walkthrough::incrementScores( bool include, int lineNo, int contribution )
