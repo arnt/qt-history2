@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#247 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#248 $
 **
 ** Implementation of QWidget class
 **
@@ -2057,7 +2057,7 @@ void QWidget::clearFocus()
 bool QWidget::focusNextPrevChild( bool next )
 {
     QWidget* p = parentWidget();
-    if ( p )
+    if ( !testWFlags(WType_TopLevel) && p )
 	return p->focusNextPrevChild(next);
 
     QFocusData *f = focusData( TRUE );
