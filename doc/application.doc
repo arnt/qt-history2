@@ -1,4 +1,4 @@
-// $Id: application.doc,v 2.2 1999/06/16 20:02:00 agulbra Exp $
+// $Id: application.doc,v 2.3 1999/06/21 23:32:04 agulbra Exp $
 
 /*! \page simple-application.html
 
@@ -154,7 +154,7 @@ used.
 
 That's it.
 
-'line ::~
+\line ::~
 \until }
 
 The only thing this widget needs to do is delete the printer it

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#110 $
 **
 ** Implementation of layout classes
 **
@@ -58,7 +58,7 @@ public:
     int alignment() const { return item_->alignment(); }
     QLayoutItem *item() { return item_; }
     QLayoutItem *takeItem() { QLayoutItem *i=item_; item_=0; return i; }
-    
+
 private:
     friend class QLayoutArray;
     QLayoutItem *item_;
@@ -1613,7 +1613,7 @@ void QBoxLayout::addStrut( int size )
 
   If the stretch factor is 0 and nothing else in the QBoxLayout has a
   stretch factor greater than zero, the space is distributed according
-  to the \link QWidget:sizePolicy() size policies\endlink.
+  to the QWidget:sizePolicy() of each widget that's involved.
 
   The default alignment is 0, which means that the widget fills the
   entire cell.
