@@ -156,28 +156,29 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
   The currently defined values are:
 
-  \value ReadOnly  the cursor can only select records from the
+  \value ReadOnly  the cursor can only SELECT records from the
   database.
 
-  \value Insert  the cursor can insert records into the database.
+  \value Insert  the cursor can INSERT records into the database.
 
-  \value Update  the cursor can update records in the database.
+  \value Update  the cursor can UPDATE records in the database.
 
-  \value Delete  the cursor can delete records from the database.
+  \value Delete  the cursor can DELETE records from the database.
 
-  \value Writable  the cursor can insert, update and delete records
+  \value Writable  the cursor can INSERT, UPDATE and DELETE records
   in the database.
 */
 
-/*!  Constructs a cursor on database \a db.  If \a autopopulate is
-  TRUE (the default), the \a name of the cursor must correspond to an
-  existing table or view name in the database so that field
-  information can be automatically created.  If the table or view does
-  not exist, the cursor will not be functional.
+/*!  Constructs a cursor on database \a db over table or view \a name.  
+
+    If \a autopopulate is TRUE (the default), the \a name of the cursor
+    must correspond to an existing table or view name in the database so
+    that field information can be automatically created.  If the table
+    or view does not exist, the cursor will not be functional.
 
   The cursor is created with an initial mode of QSqlCursor::Writable
   (meaning that records can be inserted, updated or deleted using the
-  cursor). Note however that if the cursor does not have a unique
+  cursor). If the cursor does not have a unique
   primary index, update and deletes cannot be performed.
 
   Note that \a autopopulate refers to populating the cursor with
@@ -406,9 +407,9 @@ QSqlIndex QSqlCursor::primaryIndex( bool setFromCursor ) const
 }
 
 /*!  Sets the primary index associated with the cursor.  Note that
-  this index must contain fields which identify a unique record within
-  the underlying database table or view so that update() and del()
-  will execute as expected.
+  this index must contain a field or set of fields which identify a
+  unique record within the underlying database table or view so that
+  update() and del() will execute as expected.
 
   \sa update() del()
 
@@ -567,7 +568,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
   In this example the QSqlIndex, pk, is used for two different purposes.
   When used as the filter (first) argument, the field names it contains
   are used to construct the WHERE clause, each set to the current cursor
-  value, <tt>WHERE id=10</tt> in this case. When used as the sort
+  value, <tt>WHERE id=10</tt>, in this case. When used as the sort
   (second) argument the field names it contains are used for the ORDER
   BY clause, <tt>ORDER BY id</tt> in this example.
 
@@ -799,7 +800,7 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
 
     We create a cursor on the prices table and acquire a pointer to the
     insert buffer. We set each field's value and then call insert() to
-    save the data in the database.
+    post the data to the database.
 
   \sa setMode() lastError()
 */
