@@ -53,7 +53,7 @@ public:
     
     // ### pure
     bool changed() const { return m_changed; }
-    void setChanged(bool b) { m_changed = b; m_dirty = b; m_bold = b; }
+    void setChanged(bool b) { m_changed = b; m_dirty = b; }
 
     bool hasReset() const { return m_reset; }
     void setHasReset(bool b) { m_reset = b; }

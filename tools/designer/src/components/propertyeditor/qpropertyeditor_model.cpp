@@ -81,16 +81,24 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
         if (role == EditRole) {
             property->setValue(value);
 
-            if (property->parent())
-                refresh(property->parent());
+            if (!property->dirty())
+                return false;
+            
+            while (property != 0) {                
+                if (property->dirty()) {
+                    property->setBold(true);
+                    refresh(property);
+                }
 
-            while (property && property->isFake()) {
+                if (!property->isFake()) {
+                    property->setDirty(false);
+                    property->setChanged(false);
+
+                    emit propertyChanged(property);
+                    break;
+                }
+
                 property = property->parent();
-            }
-
-            if (property && property->dirty() && !property->isFake()) {
-                emit propertyChanged(property);
-                property->setDirty(false);
             }
         }
 
