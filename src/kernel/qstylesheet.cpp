@@ -1095,8 +1095,13 @@ QStyleSheet* QStyleSheet::defaultSheet()
 */
 void QStyleSheet::setDefaultSheet( QStyleSheet* sheet)
 {
-    if ( defaultsheet != sheet )
+    if ( defaultsheet != sheet ) {
+	if ( defaultsheet )
+	    qt_cleanup_stylesheet.remove( defaultsheet );
 	delete defaultsheet;
+	if ( sheet )
+	    qt_cleanup_stylesheet.add( sheet );
+    }
     defaultsheet = sheet;
 }
 
