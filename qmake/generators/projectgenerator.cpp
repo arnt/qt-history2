@@ -279,8 +279,10 @@ ProjectGenerator::init()
             }
         }
     }
+#if 0
     if(h.isEmpty())
         addConfig("moc", false);
+#endif
 
     //if we find a file that matches an forms it needn't be included in the project
     QStringList &u = v["INTERFACES"];
