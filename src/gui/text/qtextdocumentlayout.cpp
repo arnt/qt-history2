@@ -765,6 +765,10 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
     // keep them visible
     layoutStruct.maximumWidth = qMax(layoutStruct.maximumWidth, floatMinWidth);
 
+    // as floats in cells get added to the table's float list but must not affect
+    // floats in other cells we must clear the list here.
+    data(t)->floats.clear();
+
 //    qDebug() << "layoutCell done";
 
     return layoutStruct;
