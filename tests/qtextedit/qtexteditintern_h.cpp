@@ -155,6 +155,13 @@ public:
 	Temp // This selection must not be drawn, it's used e.g. by undo/redo to remove multiple lines with removeSelectedText()
     };
 
+    enum Bullet {
+	FilledCircle,
+	FilledSquare, 
+	OutlinedCircle,
+	OutlinedSquare
+    };
+    
     QTextEditDocument( const QString &fn, bool tabify );
 
     int x() const;
@@ -174,13 +181,13 @@ public:
 
     void setFormatter( QTextEditFormatter *f );
     QTextEditFormatter *formatter() const;
-    
+
     void setIndent( QTextEditIndent *i );
     QTextEditIndent *indent() const;
-    
+
     void setParenCheckingEnabled( bool b );
     bool isParenCheckingEnabled() const;
-    
+
     QColor selectionColor( int id ) const;
     bool hasSelection( int id ) const;
     void setSelectionStart( int id, QTextEditCursor *cursor );
@@ -190,7 +197,7 @@ public:
     void setFormat( int id, QTextEditFormat *f );
     QTextEditParag *selectionStart( int id );
     QTextEditParag *selectionEnd( int id );
-    
+
     void load( const QString &fn );
     void save( const QString &fn = QString::null );
     QString fileName() const;
@@ -201,7 +208,7 @@ public:
 
     void setCompletionEnabled( bool b );
     bool isCompletionEnabled() const;
-    
+
     void addCompletionEntry( const QString &s );
     QStringList completionList( const QString &s ) const;
 
@@ -214,7 +221,10 @@ public:
     QTextEditCursor *redo( QTextEditCursor *c  = 0 );
 
     QTextEditFormatCollection *formatCollection() const;
-    
+
+    int listIndent( int depth ) const;
+    Bullet bullet( int depth ) const;
+
 private:
     struct Selection {
 	QTextEditParag *startParag, *endParag;
@@ -232,7 +242,7 @@ private:
     QTextEditFormatter *pFormatter;
     QTextEditIndent *indenter;
     QTextEditFormatCollection *fCollection;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -303,7 +313,7 @@ private:
     QArray<Char> data;
     QTextEditParag *parag;
     QString cache;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -317,8 +327,7 @@ public:
 	ushort y, baseLine, h;
     };
 
-    struct Paren
-    {
+    struct Paren {
 	Paren() : type( Open ), chr( ' ' ), pos( -1 ) {}
 	Paren( int t, const QChar &c, int p ) : type( (Type)t ), chr( c ), pos( p ) {}
 	enum Type { Open, Closed };
@@ -329,14 +338,23 @@ public:
 
     typedef QValueList<Paren> ParenList;
 
+    enum Type {
+	Normal,
+	BulletList,
+	EnumList
+    };
+    
     QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextEditParag *nx, bool updateIds = TRUE );
 
+    Type type() const;
+    void setType( Type t );
+    
     QTextEditString *string() const;
     QTextEditString::Char *at( int i ) const; // maybe remove later
     int length() const; // maybe remove later
 
     QTextEditDocument *document() const;
-    
+
     QRect rect() const;
 
     QTextEditParag *prev() const;
@@ -375,7 +393,7 @@ public:
     bool hasSelection( int id ) const;
     bool hasAnySelection() const;
     bool fullSelected( int id ) const;
-    
+
     void setEndState( int s );
     int endState() const;
 
@@ -389,12 +407,16 @@ public:
 
     ParenList &parenList();
     QMap<int, LineStart*> &lineStartList();
-    
+
     int lastLengthForCompletion() const;
     void setLastLengthFotCompletion( int l );
 
     void setFormat( int index, int len, QTextEditFormat *f, bool useCollection );
 
+    int leftIndent() const;
+    int listDepth() const;
+    void setListDepth( int d );
+    
 private:
     struct Selection {
 	int start, end;
@@ -413,6 +435,9 @@ private:
     ParenList parens;
     int lastLenForCompletion;
     QTextEditString *str;
+    Type typ;
+    int left;
+    int depth;
     
 };
 
@@ -424,10 +449,10 @@ public:
     QTextEditFormatter( QTextEditDocument *d );
     virtual ~QTextEditFormatter() {}
     virtual int format( QTextEditParag *parag, int start ) = 0;
-    
+
 protected:
     QTextEditDocument *doc;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -437,7 +462,7 @@ class QTextEditFormatterBreakInWords : public QTextEditFormatter
 public:
     QTextEditFormatterBreakInWords( QTextEditDocument *d );
     int format( QTextEditParag *parag, int start );
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -447,7 +472,7 @@ class QTextEditFormatterBreakWords : public QTextEditFormatter
 public:
     QTextEditFormatterBreakWords( QTextEditDocument *d );
     int format( QTextEditParag *parag, int start );
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -457,10 +482,10 @@ class QTextEditIndent
 public:
     QTextEditIndent( QTextEditDocument *d );
     virtual void indent( QTextEditParag *parag, int *oldIndent = 0, int *newIndent = 0 ) = 0;
-    
+
 protected:
     QTextEditDocument *doc;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -475,7 +500,7 @@ public:
     QTextEditSyntaxHighlighter( QTextEditDocument *d );
     virtual void highlighte( QTextEditParag *, int, bool = TRUE ) = 0;
     virtual QTextEditFormat *format( int id ) = 0;
-    
+
 protected:
     QTextEditDocument *doc;
 
@@ -483,7 +508,7 @@ protected:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextEditFormatCollection 
+class QTextEditFormatCollection
 {
 public:
     QTextEditFormatCollection();
@@ -492,10 +517,10 @@ public:
     QTextEditFormat *defaultFormat() const;
     QTextEditFormat *format( QTextEditFormat *f );
     QTextEditFormat *format( const QFont &f, const QColor &c );
-    
+
 private:
     QTextEditFormat *defFormat;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -670,6 +695,26 @@ inline bool QTextEditDocument::isCompletionEnabled() const
 inline QTextEditFormatCollection *QTextEditDocument::formatCollection() const
 {
     return fCollection;
+}
+
+inline int QTextEditDocument::listIndent( int depth ) const
+{
+    // #######
+    return ( depth + 1 ) * 15;
+}
+
+inline QTextEditDocument::Bullet QTextEditDocument::bullet( int depth ) const
+{
+    if ( depth == 0 )
+	return FilledCircle;
+    else if ( depth == 1 )
+	return FilledSquare;
+    else if ( depth == 2 )
+	return OutlinedCircle;
+    else if ( depth == 3 )
+	return OutlinedSquare;
+    else
+	return FilledCircle;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -969,6 +1014,30 @@ inline QTextEditString *QTextEditParag::string() const
 inline QTextEditDocument *QTextEditParag::document() const
 {
     return doc;
+}
+
+inline QTextEditParag::Type QTextEditParag::type() const
+{
+    return typ;
+}
+
+inline void QTextEditParag::setType( Type t )
+{
+    if ( t != typ )
+	invalidate( 0 );
+    typ = t;
+    if ( t == Normal )
+	left = 0;
+}
+
+inline int QTextEditParag::leftIndent() const
+{
+    return left;
+}
+
+inline int QTextEditParag::listDepth() const
+{
+    return depth;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

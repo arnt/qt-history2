@@ -155,6 +155,35 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		if ( lastBaseLine == 0 )
 		    lastBaseLine = baseLine;
 	    }
+	    
+	    if ( line == 0 && parag->type() == QTextEditParag::BulletList ) {
+		painter.save();
+		int ext = QMIN( doc->listIndent( 0 ), h );
+		ext -= 8;
+		switch ( doc->bullet( parag->listDepth() ) ) {
+		case QTextEditDocument::FilledCircle: {
+		    painter.setPen( NoPen );
+		    painter.setBrush( colorGroup().brush( QColorGroup::Foreground ) );
+		    painter.drawEllipse( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
+		} break;
+		case QTextEditDocument::FilledSquare: {
+		    painter.fillRect( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext, 
+				      colorGroup().brush( QColorGroup::Foreground ) );
+		} break;
+		case QTextEditDocument::OutlinedCircle: {
+		    painter.setPen( QPen( colorGroup().color( QColorGroup::Foreground ) ) );
+		    painter.setBrush( NoBrush );
+		    painter.drawEllipse( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
+		} break;
+		case QTextEditDocument::OutlinedSquare: {
+		    painter.setPen( QPen( colorGroup().color( QColorGroup::Foreground ) ) );
+		    painter.setBrush( NoBrush );
+		    painter.drawRect( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
+		} break;
+		}
+		painter.restore();
+	    }
+	    
 	    if ( parag == cursor->parag() && i == cursor->index() ) {
 		curx = chr->x;
 		curh = h;
@@ -304,6 +333,13 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 					   !( e->state() & AltButton ) ) {
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
+		    if ( cursor->index() == 0 && cursor->parag()->type() != QTextEditParag::Normal ) {
+			cursor->parag()->setListDepth( cursor->parag()->listDepth() + 1 );
+			drawCursor( FALSE );
+			repaintChanged();
+			drawCursor( TRUE );
+			break;
+		    }
 		    if ( doCompletion() )
 			break;
 		}
@@ -375,6 +411,12 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			setFormat( font, col );
 		    }
 		} break;
+		case Key_L: {
+		    if ( cursor->parag()->type() != QTextEditParag::BulletList )
+			setParagType( (int)QTextEditParag::BulletList );
+		    else
+			setParagType( (int)QTextEditParag::Normal );
+		} break;
 		}
 	    }
     }
@@ -404,6 +446,16 @@ void QTextEdit::doKeyboardAction( int action )
 	    undoRedoInfo.text += "\n";
 	break;
     case ActionBackspace:
+	if ( cursor->parag()->type() != QTextEditParag::Normal ) {
+	    if ( cursor->parag()->listDepth() > 0 )
+		cursor->parag()->setListDepth( cursor->parag()->listDepth() - 1 );
+	    else
+		cursor->parag()->setType( QTextEditParag::Normal );
+	    lastFormatted = cursor->parag();
+	    repaintChanged();
+	    drawCursor( TRUE );
+	    return;
+	}
 	checkUndoRedoInfo( UndoRedoInfo::Delete );
 	if ( !undoRedoInfo.valid() ) {
 	    undoRedoInfo.id = cursor->parag()->paragId();
@@ -419,6 +471,7 @@ void QTextEdit::doKeyboardAction( int action )
 	    undoRedoInfo.index = cursor->index();
 	    undoRedoInfo.id = cursor->parag()->paragId();
 	}
+	lastFormatted = cursor->parag();
 	break;
     case ActionReturn:
 	checkUndoRedoInfo( UndoRedoInfo::Return );
@@ -1042,6 +1095,29 @@ void QTextEdit::setFormat( const QFont &font, const QColor &color )
 	repaintChanged();
 	drawCursor( TRUE );
     }
+}
+
+void QTextEdit::setParagType( int t )
+{
+    QTextEditParag::Type type = (QTextEditParag::Type)t;
+    drawCursor( FALSE );
+    if ( !doc->hasSelection( QTextEditDocument::Standard ) ) {
+	cursor->parag()->setType( type );
+	cursor->parag()->setListDepth( cursor->parag()->listDepth() );
+	repaintChanged();
+    } else {
+	QTextEditParag *start = doc->selectionStart( QTextEditDocument::Standard );
+	QTextEditParag *end = doc->selectionEnd( QTextEditDocument::Standard );
+	while ( start ) {
+	    start->setType( type );
+	    start->setListDepth( cursor->parag()->listDepth() );
+	    if ( start == end )
+		break;
+	    start = start->next();
+	}
+	repaintChanged();
+    }
+    drawCursor( TRUE );
 }
 
 void QTextEdit::updateCurrentFormat()

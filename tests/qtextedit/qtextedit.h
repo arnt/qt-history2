@@ -40,6 +40,7 @@ public:
 
 protected:
     void setFormat( const QFont &font, const QColor &color );
+    void setParagType( int );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void keyPressEvent( QKeyEvent *e );
     void resizeEvent( QResizeEvent *e );
@@ -48,7 +49,7 @@ protected:
     void contentsMouseReleaseEvent( QMouseEvent *e );
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
-    
+
 private slots:
     void formatMore();
     void doResize();
@@ -85,7 +86,7 @@ private:
 	Type type;
 	QTextEditDocument *doc;
     };
-    
+
 private:
     void ensureCursorVisible();
     void drawCursor( bool visible );
@@ -98,7 +99,7 @@ private:
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void repaintChanged();
     void updateCurrentFormat();
-    
+
 private:
     QTextEditDocument *doc;
     QTextEditCursor *cursor;
@@ -112,7 +113,7 @@ private:
     int completionOffset;
     UndoRedoInfo undoRedoInfo;
     QTextEditFormat *currentFormat;
-    
+
 };
 
 inline QTextEditDocument *QTextEdit::document() const

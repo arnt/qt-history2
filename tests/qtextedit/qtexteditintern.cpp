@@ -403,6 +403,8 @@ void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	QTextEditParag *p = string->prev();
 	QTextEditParag *s = new QTextEditParag( doc, p, string, updateIds );
 	s->append( " " );
+	s->setType( string->type() );
+	s->setListDepth( string->listDepth() );
 	if ( ind ) {
 	    s->indent();
 	    s->format();
@@ -413,6 +415,8 @@ void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	QTextEditParag *n = string->next();
 	QTextEditParag *s = new QTextEditParag( doc, string, n, updateIds );
 	s->append( " " );
+	s->setType( string->type() );
+	s->setListDepth( string->listDepth() );
 	if ( ind ) {
 	    int oi, ni;
 	    s->indent( &oi, &ni );
@@ -427,6 +431,8 @@ void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	string->truncate( idx );
 	QTextEditParag *n = string->next();
 	QTextEditParag *s = new QTextEditParag( doc, string, n, updateIds );
+	s->setType( string->type() );
+	s->setListDepth( string->listDepth() );
 	s->append( str );
 	if ( ind ) {
 	    int oi, ni;
@@ -1142,7 +1148,7 @@ void QTextEditString::setFormat( int index, QTextEditFormat *f, QTextEditFormatC
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextEditParag::QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextEditParag *nx, bool updateIds )
-    : invalid( -1 ), p( pr ), n( nx ), doc( d )
+    : invalid( -1 ), p( pr ), n( nx ), doc( d ), typ( Normal )
 {
     if ( p )
  	p->n = this;
@@ -1173,6 +1179,8 @@ QTextEditParag::QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextE
     lastLenForCompletion = -1;
 
     str = new QTextEditString( this );
+
+    left = depth = 0;
 }
 
 void QTextEditParag::setNext( QTextEditParag *s )
@@ -1416,7 +1424,7 @@ void QTextEditParag::setFormat( int index, int len, QTextEditFormat *f, bool use
 
 void QTextEditParag::indent( int *oldIndent, int *newIndent )
 {
-    if ( !doc->indent() ) {
+    if ( !doc->indent() || typ != Normal ) {
 	if ( oldIndent )
 	    *oldIndent = 0;
 	if ( newIndent )
@@ -1426,6 +1434,18 @@ void QTextEditParag::indent( int *oldIndent, int *newIndent )
 	return;
     }
     doc->indent()->indent( this, oldIndent, newIndent );
+}
+
+void QTextEditParag::setListDepth( int d )
+{
+    if ( typ == Normal ) {
+	depth = d;
+	left = 0;
+	return;
+    }
+    left = doc->listIndent( d );
+    depth = d;
+    invalidate( 0 );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1453,8 +1473,9 @@ QTextEditFormatterBreakInWords::QTextEditFormatterBreakInWords( QTextEditDocumen
 int QTextEditFormatterBreakInWords::format( QTextEditParag *parag, int start )
 {
     QTextEditString::Char *c = 0;
-    int x = 0;
-    int w = doc->width();
+    int left = parag->leftIndent();
+    int x = left;
+    int w = doc->width() - x;
     int y = 0;
     int h = 0;
 
@@ -1486,8 +1507,8 @@ int QTextEditFormatterBreakInWords::format( QTextEditParag *parag, int start )
 	    ww = c->format->width( ' ' );
 	}
 	
-	if ( x + ww > w ) {
-	    x = 0;
+	if ( x + ww > left + w ) {
+	    x = left;
 	    y += h;
 	    h = c->format->height();
 	    lineStart = new QTextEditParag::LineStart( y, 0, 0 );
@@ -1519,8 +1540,9 @@ QTextEditFormatterBreakWords::QTextEditFormatterBreakWords( QTextEditDocument *d
 int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 {
     QTextEditString::Char *c = 0;
-    int x = 0;
-    int w = doc->width();
+    int left = parag->leftIndent();
+    int x = left;
+    int w = doc->width() - x;
     int y = 0;
     int h = 0;
 
@@ -1542,7 +1564,7 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 
     for ( ; i < parag->string()->length(); ++i ) {
 	c = &parag->string()->at( i );
-	if ( i > 0 && x > 0 ) {
+	if ( i > 0 && x > left ) {
 	    c->lineStart = 0;
 	} else {
 	    c->lineStart = 1;
@@ -1554,14 +1576,14 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 	    ww = c->format->width( ' ' );
 	}
 	
-	if ( x + ww > w ) {
+	if ( x + ww > left + w ) {
 	    if ( lastSpace == -1 ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 		    h = QMAX( h, tmph );
 		    lineStart->h = h;
 		}
-		x = 0;
+		x = left;
 		y += h;
 		tmph = c->format->height();
 		h = 0;
@@ -1574,7 +1596,7 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 		lastSpace = -1;
 	    } else {
 		i = lastSpace;
-		x = 0;
+		x = left;
 		y += h;
 		tmph = c->format->height();
 		h = tmph;
