@@ -26,6 +26,7 @@
 #include "qtextcodecfactory.h"
 #include "qutfcodec_p.h"
 #include "qnamespace.h"
+#include "qpunycodecodec_p.h"
 #ifndef QT_NO_CODECS
 #include "qtsciicodec_p.h"
 #include "qisciicodec_p.h"
@@ -2750,6 +2751,7 @@ static void realSetup()
     (void)new QLatin15Codec;
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
+    (void)new QPunycodeCodec;
 
 #ifndef QT_NO_CODECS
     int i = 0;

@@ -27,6 +27,10 @@ inline char encodeDigit(uint digit)
   return digit + 22 + 75 * (digit < 26);
 }
 
+QPunycodeCodec::QPunycodeCodec()
+{
+}
+
 const char *QPunycodeCodec::name() const
 {
     return "Punycode";

@@ -9,7 +9,7 @@
 
 class QPunycodeCodec : public QTextCodec {
 public:
-    QPunycodeCodec(int i):idx(i){}
+    QPunycodeCodec();
 
     virtual int mibEnum() const;
     const char *name() const;
