@@ -456,7 +456,7 @@ QListBoxPixmap::~QListBoxPixmap()
 
 /*!
   Constructs a new list box item in list box \a listbox showing the pixmap
-  \a pixmap and the text \a text.
+  \a pix and the text \a text.
 */
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pix, const QString& text)
     : QListBoxItem( listbox )
@@ -466,8 +466,8 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pix, const QSt
 }
 
 /*!
-  Constructs a new list box item in list box \a listbox showing the pixmap
-  \a pixmap. The item gets inserted after the item \a after.
+  Constructs a new list box item in the list box showing the pixmap
+  \a pix.
 */
 QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
     : QListBoxItem()
@@ -478,7 +478,7 @@ QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
 
 /*!
   Constructs a new list box item in list box \a listbox showing the pixmap
-  \a pixmap and the string \a text . The item gets inserted after the
+  \a pix and the string \a text. The item gets inserted after the
   item \a after.
 */
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QString& text,
@@ -697,9 +697,10 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 
   \value FixedNumber  There is a fixed number of rows (or columns).
 
-  \value FitToHeight  There are as many rows as will fit on-screen.
-  (Ditto with \c FitToWidth and columns.)
+  \value FitToWidth   There are as many columns as will fit on-screen.
 
+  \value FitToHeight  There are as many rows as will fit on-screen.
+  
   \value Variable  There are as many rows as are required by the
   column mode.  (Or as many columns as required by the row mode.)
 
@@ -798,7 +799,7 @@ QListBox::~QListBox()
   item is non-null, the cursor is on \a item. If \a item is null, the
   mouse cursor isn't on any item.
 
-  \a pos is the position of the mouse cursor in the global coordinate
+  \a pnt is the position of the mouse cursor in the global coordinate
   system (QMouseEvent::globalPos()). (If the click's press and release
   differ by a pixel or two, \a pos is the  position at release time.)
 
@@ -824,7 +825,7 @@ QListBox::~QListBox()
   item is non-null, the cursor is on \a item. If \a item is null, the
   mouse cursor isn't on any item.
 
-  \a pos is the position of the mouse cursor in the global coordinate
+  \a pnt is the position of the mouse cursor in the global coordinate
   system (QMouseEvent::globalPos()). (If the click's press and release
   differ by a pixel or two, \a pos is the  position at release time.)
 
@@ -2368,9 +2369,8 @@ void QListBox::setSelected( int index, bool select )
   If the list box is a Single selection list box and \a select is TRUE,
   setSelected() calls setCurrentItem().
 
-  If the list box is a Single selection list box, \a select is FALSE and
-  \a index is the currently selected item, setSelected() calls
-  clearSelection().
+  If the list box is a Single selection list box, \a select is FALSE, 
+  setSelected() calls clearSelection().
 
   Note that for this function NoSelection means Multi selection.  The user
   cannot select items in a NoSelection list box, but the application
@@ -3422,7 +3422,7 @@ int QListBox::rowAt( int y ) const
 
 
 /*!  Returns the rectangle on the screen that \a item occupies in
-  viewport()'s coordinates, or an invalid rectangle if \a i is a null
+  viewport()'s coordinates, or an invalid rectangle if \a item is a null
   pointer or it is not currently visible.
 */
 
