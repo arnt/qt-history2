@@ -260,10 +260,13 @@ static bool qt_parse_pattern( const char *s, uint *version, uint *flags,
     return ret;
 }
 
-#if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
+#if defined(Q_OS_UNIX)
 
-#include <sys/types.h>
-#include <sys/mman.h>
+#if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
+#  define USE_MMAP
+#  include <sys/types.h>
+#  include <sys/mman.h>
+#endif // Q_OS_FREEBSD || Q_OS_LINUX
 
 static long qt_find_pattern( const char *s, ulong s_len,
 			     const char *pattern, ulong p_len )
@@ -326,6 +329,7 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
     char *filedata = 0;
     ulong fdlen = 0;
 
+#ifdef USE_MMAP
     char *mapaddr = 0;
     size_t maplen = file.size();
     mapaddr = (char *) mmap( mapaddr, maplen, PROT_READ, MAP_PRIVATE, file.handle(), 0 );
@@ -333,15 +337,17 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 	// mmap succeeded
 	filedata = mapaddr;
 	fdlen = maplen;
-    } else {
-	// mmap failed
-	// perror( "mmap" );
+    } else
+#endif // USE_MMAP
+	{
+	    // mmap failed
+	    // perror( "mmap" );
 
-	// try reading the data into memory instead
-	data = file.readAll();
-	filedata = data.data();
-	fdlen = data.size();
-    }
+	    // try reading the data into memory instead
+	    data = file.readAll();
+	    filedata = data.data();
+	    fdlen = data.size();
+	}
 
     // verify that the pattern is present in the plugin
     const char *pattern = "pattern=QT_UCM_VERIFICATION_DATA";
@@ -353,16 +359,18 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 	ret = qt_parse_pattern( filedata + pos, version, flags, key );
     }
 
+#ifdef USE_MMAP
     if ( mapaddr != MAP_FAILED &&
 	 munmap(mapaddr, maplen) != 0 ) {
 	perror( "munmap" );
     }
+#endif // USE_MMAP
 
     file.close();
     return ret;
 }
 
-#endif // Q_OS_FREEBSD || Q_OS_LINUX
+#endif // Q_OS_UNIX
 
 
 static QSettings *cache = 0;
@@ -411,7 +419,7 @@ void QComLibrary::createInstanceInternal()
 	}
     }
 
-#if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
+#if defined(Q_OS_UNIX)
     if ( ! query_done ) {
 	// get the query information directly from the plugin without loading
 	if ( qt_unix_query( library(), &qt_version, &flags, &key ) ) {
@@ -419,7 +427,7 @@ void QComLibrary::createInstanceInternal()
  	    query_done = TRUE;
 	}
     }
-#else // !Q_OS_FREEBSD || !Q_OS_LINUX
+#else // !Q_OS_UNIX
     if ( ! query_done ) {
 	// get the query information by loading the plugin
 	if ( !isLoaded() ) {
@@ -446,7 +454,7 @@ void QComLibrary::createInstanceInternal()
 	    query_done = TRUE;
 	}
     }
-#endif // Q_OS_FREEBSD || Q_OS_LINUX
+#endif // Q_OS_UNIX
 
     QStringList queried;
     queried << QString::number( qt_version,16 )
