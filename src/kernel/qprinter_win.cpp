@@ -411,9 +411,9 @@ void QPrinter::readPdlg( void* pdv )
         DEVMODE* dm = (DEVMODE*)GlobalLock( pd->hDevMode );
         if ( dm ) {
             if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-                setOrientation( Portrait );
+                orient = Portrait;
             else
-                setOrientation( Landscape );
+                orient = Landscape;
             setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
             setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
 	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
@@ -477,9 +477,9 @@ void QPrinter::readPdlgA( void* pdv )
 	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
 	if ( dm ) {
 	    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-		setOrientation( Portrait );
+		orient = Portrait;
 	    else
-		setOrientation( Landscape );
+		orient = Landscape;
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
             setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
