@@ -1038,10 +1038,11 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 
 void
 MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
-{
+{    
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-        QString m = QMakeSourceFileInfo::mocFile(*it);
+        QString srcMoc = Option::fixPathToTargetOS(*it, false);
+        QString m = QMakeSourceFileInfo::mocFile(srcMoc);
         if(!m.isEmpty()) {
             QString deps;
             if(!project->isActiveConfig("no_mocdepend"))
