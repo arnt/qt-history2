@@ -32,6 +32,7 @@
 #include "qimage.h"
 #include "qdragobject.h"
 #include "qdrawutil.h"
+#include "qpaintdevicemetrics.h"
 
 #include <stdio.h>
 #include <limits.h>
@@ -72,6 +73,7 @@ private:
     int border;
     int outerborder;
     int stretch;
+    int innerborder;
 
     Placement place;
 };
@@ -160,10 +162,33 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
 	place = PlaceLeft;
     else if ( attr["align"] == "right" )
 	place = PlaceRight;
+    
+    tmpwidth = width;
+    width = -1; // force realize
 }
 
 QTextImage::~QTextImage()
 {
+}
+
+void QTextImage::realize( QPainter* p )
+{
+    width = tmpwidth;
+    if ( !p || p->device()->devType() != QInternal::Printer )
+	return;
+    QPaintDeviceMetrics metrics(p->device());
+    width *= metrics.logicalDpiX() / 75;
+    height *= metrics.logicalDpiY() / 75;
+    if ( !pm.isNull() ) {
+	QImage img = pm.convertToImage().smoothScale( width, height );
+	pm.convertFromImage( img );
+	if ( pm.mask() ) {
+	    QRegion mask( *pm.mask() );
+	    QRegion all( 0, 0, pm.width(), pm.height() );
+	    delete reg;
+	    reg = new QRegion( all.subtract( mask ) );
+	}
+    }
 }
 
 void QTextImage::draw(QPainter* p, int x, int y,
@@ -184,6 +209,14 @@ void QTextImage::draw(QPainter* p, int x, int y,
     p->drawPixmap( x-ox , y-oy, pm );
 }
 
+void QTextHorizontalLine::realize( QPainter* p )
+{
+    if ( !p || p->device()->devType() != QInternal::Printer )
+	return;
+    QPaintDeviceMetrics metrics(p->device());
+    height *= metrics.logicalDpiY() / 75;
+}
+
 
 QTextHorizontalLine::QTextHorizontalLine()
 {
@@ -201,11 +234,16 @@ void QTextHorizontalLine::draw(QPainter* p, int x, int y,
 				int ox, int oy, int , int , int , int ,
 				QRegion&, const QColorGroup& cg, const QTextOptions& to )
 {
-    QRect rm( x-ox, y-oy, width, height);
-    //QRect ra( cx-ox, cy-oy, cw,  ch);
-    QRect r = rm; // ####.intersect( ra );
+    QRect r( x-ox, y-oy, width, height);
     to.erase( p, r );
-    qDrawShadeLine( p, r.left()-1, y-oy+4, r.right()+1, y-oy+4, cg, TRUE );
+    if ( p->device()->devType() == QInternal::Printer ) {
+	QPen oldPen = p->pen();
+	p->setPen( QPen( cg.text(), height/8 ) );
+	p->drawLine( r.left()-1, y-oy+height/2, r.right()+1, y-oy+height/2 );
+	p->setPen( oldPen );
+    } else {
+	qDrawShadeLine( p, r.left()-1, y-oy+height/2, r.right()+1, y-oy+height/2, cg, TRUE, height/8 );
+    }
 }
 
 //************************************************************************
@@ -1417,6 +1455,7 @@ QRichTextFormatter::QRichTextFormatter(QRichText& document )
     static_lmargin = static_rmargin = 0;
     currentasc  = currentdesc = 0;
     formatinuse = 0;
+    xscale = yscale = 1;
 }
 QRichTextFormatter::~QRichTextFormatter()
 {
@@ -1441,6 +1480,14 @@ void QRichTextFormatter::initParagraph( QPainter* p, QTextParagraph* b )
 
 void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
 {
+    if ( !formatinuse ) { // ### a bit hacky
+	if ( p && p->device()->devType() == QInternal::Printer ) {
+	    QPaintDeviceMetrics metrics(p->device());
+	    xscale = metrics.logicalDpiX() / 75;
+	    yscale = metrics.logicalDpiY() / 75;
+	}
+    }
+
     if ( !b )
 	return;
     while ( b->child ) {
@@ -1457,17 +1504,17 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
 
 
     y_ =  b->ypos;
-    int m =  b->topMargin();
+    int m =  b->topMargin() * yscale;
     flow->adjustFlow( y_, widthUsed, m ) ;
 
     y_ += m;
 
-    static_lmargin = paragraph->totalMargin( QStyleSheetItem::MarginLeft );
-    static_rmargin = paragraph->totalMargin( QStyleSheetItem::MarginRight );
-    static_labelmargin = paragraph->totalLabelMargin();
-    
+    static_lmargin = paragraph->totalMargin( QStyleSheetItem::MarginLeft ) * xscale;
+    static_rmargin = paragraph->totalMargin( QStyleSheetItem::MarginRight ) * xscale;
+    static_labelmargin = paragraph->totalLabelMargin() * xscale;
+
     alignment = paragraph->alignment();
-    
+
     width = flow->width;
     lmargin = flow->adjustLMargin( y_, static_lmargin );
     lmargin += static_labelmargin;
@@ -1584,8 +1631,8 @@ void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int
     QFont font = p->font();
     p->setFont( par->parent->format.font() );
     int size = p->fontMetrics().lineSpacing() / 3;
-    if ( size > 12 )
-	size = 12;
+    if ( size > 12 * xscale )
+	size = 12 * xscale;
 
     switch ( s ) {
     case QStyleSheetItem::ListDecimal:
@@ -1732,7 +1779,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 	    int l = c.length();
 	    while ( l>0 && ( c[l-1]=='\n' || c[l-1]=='\r' ) )
 		--l;
-	    
+	
 #ifdef _WS_X11_
 	    //### workaround for broken courier fonts on X11
  	    for ( int i = 0; i < l; i++ ) {
@@ -1740,7 +1787,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
  		    c[i] = ' ';
  	    }
 #endif
-	    if ( l ) 
+	    if ( l )
 		p->drawText(gx+currentx-ox, gy-oy+base, c, l );
 	    if ( only_partially_highlighted ) {
 		p->setClipRect( highlight );
@@ -1969,7 +2016,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	p->setFont( fmt->font() );
     QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
     int leading = fm.leading();
-    
+
     widthUsed = 0;
 
     QList<QTextCustomItem> floatingItems;
@@ -1993,7 +2040,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	QTextCustomItem* custom = item->format->customItem();
 	
 	if ( custom ) {
-	    if (!custom->placeInline() ) 
+	    if (!custom->placeInline() )
 		floatingItems.append( custom );
 	    else if ( current == first && custom->isTable() ) {
 		isTableRow = TRUE;
@@ -2225,6 +2272,7 @@ QTextTable::QTextTable(const QMap<QString, QString> & attr  )
     if ( attr.contains("cellpadding") )
 	cellpadding = attr["cellpadding"].toInt();
     border = 0;
+    innerborder = 1;
     if ( attr.contains("border" ) ) {
 	QString s( attr["border"] );
 	if ( s == "true" )
@@ -2269,6 +2317,14 @@ QTextTable::~QTextTable()
 void QTextTable::realize( QPainter* p)
 {
     painter = p;
+    if ( p && p->device()->devType() != QInternal::Printer ) {
+	QPaintDeviceMetrics metrics(p->device());
+	double xscale = metrics.logicalDpiX() / 75;
+	cellspacing *= xscale;
+	border *= xscale;
+	innerborder *= xscale;
+	outerborder *= xscale;
+    }
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
 	cell->realize();
 
@@ -2303,32 +2359,39 @@ void QTextTable::draw(QPainter* p, int x, int y,
 {
     painter = p;
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	if ( y + outerborder + cell->geometry().top() - cellspacing < cy+ch 
+	if ( y + outerborder + cell->geometry().top() - cellspacing < cy+ch
 	     && y + outerborder + 2*cellspacing + cell->geometry().bottom() >= cy ) {
 	    cell->draw( x+outerborder, y+outerborder, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
 	    if ( border ) {
-		const int w = 1;
-		QRect r( x+outerborder+cell->geometry().x()-w-ox,
-			 y+outerborder+cell->geometry().y()-w-oy,
-			 cell->geometry().width()+2*w,
-			 cell->geometry().height()+2*w);
+		QRect r( x+outerborder+cell->geometry().x()-innerborder-ox,
+			 y+outerborder+cell->geometry().y()-innerborder-oy,
+			 cell->geometry().width()+2*innerborder,
+			 cell->geometry().height()+2*innerborder);
 		int s = cellspacing;
-		p->fillRect( r.left()-s, r.top(), s, r.height(), cg.button() );
-		p->fillRect( r.right(), r.top(), s, r.height(), cg.button() );
-		p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, cg.button() );
-		p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, cg.button() );
-		qDrawShadePanel( p, r, cg, TRUE );
+		if ( p->device()->devType() == QInternal::Printer ) {
+		    qDrawPlainRect( p, r, cg.text(), innerborder );
+		} else {
+		    p->fillRect( r.left()-s, r.top(), s, r.height(), cg.button() );
+		    p->fillRect( r.right(), r.top(), s, r.height(), cg.button() );
+		    p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, cg.button() );
+		    p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, cg.button() );
+		    qDrawShadePanel( p, r, cg, TRUE, innerborder );
+		}
 	    }
 	}
     }
     if ( border ) {
 	QRect r ( x-ox, y-oy, width, height );
-	int s = border;
-	p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
-	p->fillRect( r.right()-s, r.top(), s, r.height(), cg.button() );
-	p->fillRect( r.left(), r.top(), r.width(), s, cg.button() );
-	p->fillRect( r.left(), r.bottom()-s, r.width(), s, cg.button() );
-	qDrawShadePanel( p, r, cg, FALSE, border );
+	if ( p->device()->devType() == QInternal::Printer ) {
+	    qDrawPlainRect( p, QRect(r.x()+1, r.y()+1, r.width()-2, r.height()-2), cg.text(), border );
+	} else {
+	    int s = border;
+	    p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
+	    p->fillRect( r.right()-s, r.top(), s, r.height(), cg.button() );
+	    p->fillRect( r.left(), r.top(), r.width(), s, cg.button() );
+	    p->fillRect( r.left(), r.bottom()-s, r.width(), s, cg.button() );
+	    qDrawShadePanel( p, r, cg, FALSE, border );
+	}
 	backgroundRegion = backgroundRegion.subtract( r );
     }
 }

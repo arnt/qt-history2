@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#365 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#366 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -375,7 +375,7 @@ static void qt_set_windows_resources()
 		 QColor(colorref2qrgb(GetSysColor(COLOR_3DLIGHT))) );
     cg.setColor( QColorGroup::Dark,
 		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNSHADOW))) );
-    cg.setColor( QColorGroup::Mid, cg.dark().dark( 150 ) );
+    cg.setColor( QColorGroup::Mid, cg.button().dark( 150 ) );
     cg.setColor( QColorGroup::Text,
 		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
     cg.setColor( QColorGroup::BrightText,
@@ -2302,12 +2302,12 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		setAutoCapture( winId() );
 	} else if ( type == QEvent::MouseButtonRelease && bs == button ) {
 	    if ( QWidget::mouseGrabber() == 0 )
-		releaseAutoCapture();
+		releaseAuto1Capture();
 	}
 
 	QWidget *widget = this;
 	QWidget *w = QWidget::mouseGrabber();
-	if ( !w ) 
+	if ( !w )
 	    w = qt_button_down;
 	if ( w && w != this ) {
 	    widget = w;

@@ -185,6 +185,7 @@ class QTextHorizontalLine : public QTextCustomItem
 public:
     QTextHorizontalLine();
     ~QTextHorizontalLine();
+    void realize( QPainter* );
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
@@ -356,6 +357,7 @@ public:
     ~QTextImage();
 
     Placement placement() const { return place; }
+    void realize( QPainter* );
 
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
@@ -365,6 +367,7 @@ private:
     QRegion* reg;
     QPixmap pm;
     Placement place;
+    int tmpwidth;
 };
 
 
@@ -440,6 +443,7 @@ private:
     int y_;
     QTextCharFormat* formatinuse;
     int alignment;
+    double xscale, yscale;
 
 };
 
@@ -553,7 +557,7 @@ public:
     int height;
 
     int pagesize;
-    
+
 private:
     QList<QTextCustomItem> leftItems;
     QList<QTextCustomItem> rightItems;
@@ -584,7 +588,7 @@ public:
 
     void doLayout( QPainter* p, int nwidth );
     QString anchorAt( const QPoint& pos ) const;
-    
+
     void append( const QString& txt, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
 
     QTextParagraph* getParBefore( int y ) const;
@@ -593,7 +597,7 @@ private:
     void init( const QString& doc, int& pos );
 
     bool parse (QTextParagraph* current, const QStyleSheetItem* cursty, QTextParagraph* dummy,
-		QTextCharFormat fmt, const QString& doc, int& pos, 
+		QTextCharFormat fmt, const QString& doc, int& pos,
 		QStyleSheetItem::WhiteSpaceMode = QStyleSheetItem::WhiteSpaceNormal );
 
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
