@@ -1508,7 +1508,7 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
     if ( d->autoDelete )
 	delete sqlCursor();
     if ( cursor ) {
-	reset();
+	//	reset(); ## needed here?
 	setSqlCursor( cursor );
 	if ( autoPopulate ) {
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
