@@ -3,8 +3,14 @@ TEMPLATE = app
 CONFIG	+= uic3
 QT += compat
 
-QMAKE_LIBS_QT_ENTRY = 
-LIBS	+= -lqaxserver -lqaxcontainer
+QMAKE_LIBS_QT_ENTRY =
+
+CONFIG(debug, debug|release) {
+    LIBS += -lQAxServerd
+} else {
+    LIBS += -lQAxServer
+}
+CONFIG += qaxcontainer
 
 SOURCES	 = main.cpp docuwindow.cpp
 HEADERS	 = docuwindow.h ../../container/qaxselect.h

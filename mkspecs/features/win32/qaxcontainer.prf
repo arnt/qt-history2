@@ -1,0 +1,9 @@
+!debug_and_release|build_pass {
+   CONFIG(debug, debug|release) {
+      LIBS += -lQAxContainerd
+   } else { 
+      LIBS += -lQAxContainer
+   }
+} else {
+   LIBS += -lQAxContainer
+}

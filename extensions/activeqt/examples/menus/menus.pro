@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET	 = menusax
 
-CONFIG	+= qt warn_off activeqt
+CONFIG	+= qt warn_off qaxserver
 
 SOURCES	 = main.cpp menus.cpp
 HEADERS	 = menus.h

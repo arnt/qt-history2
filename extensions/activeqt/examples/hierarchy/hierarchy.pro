@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET	 = hierarchyax
 
-CONFIG	+= qt warn_off activeqt dll
+CONFIG	+= qt warn_off qaxserver dll
 
 SOURCES	 = objects.cpp main.cpp
 HEADERS	 = objects.h

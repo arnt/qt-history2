@@ -1,7 +1,8 @@
 TEMPLATE = app
 
 QT      += compat
-LIBS	+= -lqaxcontainer
+
+CONFIG += qaxcontainer
 
 QTDIR_build:REQUIRES = shared
 

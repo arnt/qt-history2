@@ -1,5 +1,10 @@
 TEMPLATE = lib
-TARGET   = qaxserver
+TARGET   = QAxServer
+
+!debug_and_release|build_pass {
+   CONFIG(debug, debug|release) {
+      TARGET = $$member(TARGET, 0)d
+}
 
 CONFIG  += qt warn_off staticlib
 DESTDIR  = $$QT_BUILD_TREE\lib

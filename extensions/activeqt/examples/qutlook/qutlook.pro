@@ -6,8 +6,7 @@ TARGET	 = qutlook
     REQUIRES += Outlook
 } else {
     TYPELIBS = "c:\program files\Microsoft Office\Office10\msoutl.olb"
-    CONFIG	+= dumpcpp
-    LIBS    += -lqaxcontainer
+    CONFIG	+= dumpcpp qaxcontainer
 
     HEADERS  = addressview.h
     SOURCES  = addressview.cpp main.cpp

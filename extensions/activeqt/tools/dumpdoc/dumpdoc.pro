@@ -1,6 +1,5 @@
 TEMPLATE = app
 
-CONFIG  += console
-LIBS    += -lqaxcontainer
+CONFIG  += console qaxcontainer
 
 SOURCES += main.cpp

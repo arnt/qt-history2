@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG  += activeqt
+CONFIG  += qaxserver
 
 # Input
 SOURCES += main.cpp

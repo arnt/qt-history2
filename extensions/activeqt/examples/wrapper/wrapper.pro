@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET	 = wrapperax
 
-CONFIG	+= qt warn_off activeqt dll
+CONFIG	+= qt warn_off qaxserver dll
 
 SOURCES	 = main.cpp
 RC_FILE	 = ../../control/qaxserver.rc

@@ -1,8 +1,7 @@
 TEMPLATE = lib
 TARGET   = qaxwidget
 
-CONFIG  += plugin
-LIBS	+= -lqaxcontainer
+CONFIG  += plugin qaxcontainer
 VERSION  = 1.0.0
 DESTDIR  = $$QT_BUILD_TREE/plugins/designer
 INCLUDEPATH += $$QT_SOURCE_TREE/tools/designer/interfaces
