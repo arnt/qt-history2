@@ -272,7 +272,7 @@ void ABCentralWidget::updateOutlook()
 
 	(void)new ABListViewItem( listView, firstName, lastName, address, email, item );
 	// the listviewitem takes ownership
-	item->parent()->removeChild( item );
+        item->setParent(0);
 
 	item = contactItems->querySubObject( "GetNext()" );
     }
