@@ -77,39 +77,18 @@ QCommonStyle::~QCommonStyle()
 }
 
 
-/*! \reimp
- */
-void QCommonStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-				  const QColorGroup &g, bool sunken,
-			      bool /* editable */,
-			      bool /*enabled */,
-			      const QBrush *fill )
-{
-    drawButton(p, x, y, w, h, g, sunken, fill);
-}
-
-
-/*! \reimp
- */
-QRect QCommonStyle::comboButtonRect( int x, int y, int w, int h) const
-{
-    return buttonRect(x, y, w-21, h);
-}
-
-/*! \reimp
- */
-QRect QCommonStyle::comboButtonFocusRect( int x, int y, int w, int h) const
-{
-    return buttonRect(x+2, y+2, w-4-21, h-4);
-}
-
-/*! \reimp
+/*!\reimp
 */
-
-void QCommonStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
+void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+				    QMenuItem* mi, QColorGroup& g,
+				    bool enabled, bool )
 {
-    drawButtonMask(p, x, y, w, h);
+#ifndef QT_NO_COMPLEXWIDGETS
+    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
+	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
+#endif
 }
+
 
 
 /*!\reimp
@@ -155,23 +134,6 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 }
 
 
-
-/*!\reimp
- */
-void QCommonStyle::getButtonShift( int &x, int &y) const
-{
-    x = 0;
-    y = 0;
-}
-
-
-
-/*!\reimp
- */
-int QCommonStyle::defaultFrameWidth() const
-{
-    return 2;
-}
 
 
 
@@ -262,65 +224,7 @@ QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, in
 #endif
 }
 
-/*!\reimp
- */
-void
-QCommonStyle::drawSliderMask( QPainter *p,
-			int x, int y, int w, int h,
-			Orientation, bool, bool )
-{
-    p->fillRect(x, y, w, h, color1);
-}
 
-
-/*!\reimp
- */
-void
-QCommonStyle::drawSliderGrooveMask( QPainter *p,
-				   int x, int y, int w, int h,
-				   QCOORD c,
-				   Orientation orient )
-{
-    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
-    drawSliderGroove( p, x, y, w, h, g, c, orient );
-//      if ( orient == Horizontal )
-// 	 p->fillRect(x, y, w, h, color1);
-//     else
-// 	p->fillRect(x, y, w, h, color1);
-}
-
-
-/*!\reimp
- */
-int QCommonStyle::maximumSliderDragDistance() const
-{
-    return -1;
-}
-
-
-
-static const int motifArrowHMargin	= 6;	// arrow horizontal margin
-
-/*! \reimp
- */
-int QCommonStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) const
-{
-    return fm.ascent() + motifArrowHMargin;
-}
-
-void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled, bool )
-{
-#ifndef QT_NO_COMPLEXWIDGETS
-    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
-	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
-#endif
-}
-
-#if defined(_CC_GCC_)
-#warning "doesn't really belong here... fix 3.0"
-#endif
 
 QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 {
@@ -334,30 +238,6 @@ QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 }
 
 
-void QCommonStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
-				bool highlight, const QColorGroup &cg,
-				bool )
-{
-    p->save();
-    p->translate( r.x(), r.y() );
-
-    if ( orientation == Qt::Vertical ) {
-	if ( r.width() > 4 ) {
-	    qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
-			     cg, highlight, 1, 0 );
-	    qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
-			     cg, highlight, 1, 0 );
-	}
-    } else {
-	if ( r.height() > 4 ) {
-	    qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
-			     cg, highlight, 1, 0 );
-	    qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
-			     cg, highlight, 1, 0 );
-	}
-    }
-    p->restore();
-}
 
 void QCommonStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken,

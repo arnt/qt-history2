@@ -173,14 +173,10 @@ public:
 				  const QColorGroup &g, bool sunken = FALSE,
 				  bool editable = FALSE,
 				  bool enabled = TRUE,
-				  const QBrush *fill = 0 ) = 0;
-    virtual QRect comboButtonRect( int x, int y,
-				   int w, int h) const = 0;
-    virtual QRect comboButtonFocusRect( int x, int y,
-					int w, int h) const = 0;
-
-    virtual void drawComboButtonMask( QPainter *p, int x, int y,
-				      int w, int h) = 0;
+				  const QBrush *fill = 0 );
+    virtual QRect comboButtonRect( int x, int y, int w, int h) const;
+    virtual QRect comboButtonFocusRect( int x, int y, int w, int h) const;
+    virtual void drawComboButtonMask( QPainter *p, int x, int y, int w, int h);
 
     // push buttons
     virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
@@ -189,10 +185,10 @@ public:
     virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p) = 0;
     virtual QRect pushButtonContentsRect( QPushButton* btn ) const = 0;
     virtual int menuButtonIndicatorWidth( int h ) const;
-    virtual void getButtonShift( int &x, int &y) const = 0;
+    virtual void getButtonShift( int &x, int &y) const;
 
     // frame
-    virtual int defaultFrameWidth() const = 0;
+    virtual int defaultFrameWidth() const;
 
     // tabbars
     virtual void tabbarMetrics( const QTabBar*,
@@ -224,7 +220,7 @@ public:
 
     virtual void drawSliderMask( QPainter *p,
 				 int x, int y, int w, int h,
-				 Orientation, bool tickAbove, bool tickBelow) = 0;
+				 Orientation, bool tickAbove, bool tickBelow);
     virtual void drawSliderGroove( QPainter *p,
 				   int x, int y, int w, int h,
 				   const QColorGroup& g, QCOORD c,
@@ -232,8 +228,8 @@ public:
     virtual void drawSliderGrooveMask( QPainter *p,
 				       int x, int y, int w, int h,
 				       QCOORD c,
-				       Orientation ) = 0;
-    virtual int maximumSliderDragDistance() const = 0;
+				       Orientation );
+    virtual int maximumSliderDragDistance() const;
 
     virtual int splitterWidth() const = 0;
     virtual void drawSplitter( QPainter *p,
@@ -251,7 +247,7 @@ public:
 				QMenuItem* mi,
 				const QFontMetrics& fm ) const = 0;
     virtual int popupSubmenuIndicatorWidth(
-				const QFontMetrics& fm ) const = 0;
+				const QFontMetrics& fm ) const;
     virtual int popupMenuItemHeight( bool checkable,
 				QMenuItem* mi,
 				const QFontMetrics& fm ) const = 0;
@@ -273,7 +269,7 @@ public:
     virtual void drawToolBarHandle( QPainter *p, const QRect &r,
 				    Qt::Orientation orientation,
 				    bool highlight, const QColorGroup &cg,
-				    bool drawBorder = FALSE ) = 0;
+				    bool drawBorder = FALSE );
 
 protected:
     void setScrollBarExtent( int w, int h=-1 ); // ### remove 3.0

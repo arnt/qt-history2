@@ -56,27 +56,9 @@ private:
     friend class QPlatinumStyle;
 public:
 
-    // "combo box"
-    void drawComboButton( QPainter *p, int x, int y, int w, int h,
-				  const QColorGroup &g, bool sunken = FALSE,
-				  bool editable = FALSE,
-				  bool enabled = TRUE,
-				  const QBrush *fill = 0 );
-    QRect comboButtonRect( int x, int y, int w, int h) const;
-    QRect comboButtonFocusRect( int x, int y, int w, int h) const;
-
-    void drawComboButtonMask( QPainter *p, int x, int y, int w, int h);
-
-
-
-    // push buttons
+     // push buttons
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
     QRect pushButtonContentsRect( QPushButton* btn ) const;
-
-    void getButtonShift( int &x, int &y ) const;
-
-    // frame
-    int defaultFrameWidth() const;
 
     // tabbars
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
@@ -86,34 +68,16 @@ public:
     // scrollbars
     ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );
 
-    // sliders
-    void drawSliderMask( QPainter *p,
-				 int x, int y, int w, int h,
-				 Orientation, bool tickAbove, bool tickBelow);
-    void drawSliderGrooveMask( QPainter *p,
-				       int x, int y, int w, int h,
-				       QCOORD c,
-				       Orientation );
-    int maximumSliderDragDistance() const;
-
-    // popups
-    int popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) const;
-
-    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled, bool active );
-
     // toolbars
     virtual void drawToolButton( QToolButton* btn, QPainter *p);
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
 
-    void drawToolBarHandle( QPainter *p, const QRect &r,
-			    Qt::Orientation orientation,
-			    bool highlight, const QColorGroup &cg,
-			    bool drawBorder = FALSE );
-
+    //menubars
+    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+			  QMenuItem* mi, QColorGroup& g,
+			  bool enabled, bool );
     
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

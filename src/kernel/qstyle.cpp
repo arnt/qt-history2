@@ -37,6 +37,7 @@
 #include "qstyle.h"
 #ifndef QT_NO_STYLE
 #include "qapplication.h"
+#include "qnamespace.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
 #include "qpixmap.h" // for now
@@ -351,7 +352,7 @@ void QStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
     QPen oldPen = p->pen();
     QBrush oldBrush = p->brush();
 
-    p->fillRect( x, y, w, h, QBrush(color1) );
+    p->fillRect( x, y, w, h, QBrush(Qt::color1) );
 
     p->setBrush( oldBrush );
     p->setPen( oldPen );
@@ -365,6 +366,14 @@ void QStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
 			      const QBrush *fill )
   Draws a press-sensitive shape in the style of a combo box or menu button
 */
+void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
+				  const QColorGroup &g, bool sunken,
+			      bool /* editable */,
+			      bool /*enabled */,
+			      const QBrush *fill )
+{
+    drawButton(p, x, y, w, h, g, sunken, fill);
+}
 
 
 /*! Returns the rectangle available for contents in a combo box
@@ -374,19 +383,32 @@ void QStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
 */
 QRect QStyle::comboButtonRect( int x, int y, int w, int h) const
 {
-    return buttonRect(x+3, y+3, w-6-21, h-6);
+    int xpos = x;
+    if( QApplication::reverseLayout() )
+	xpos += 21;
+    return buttonRect(xpos, y, w-21, h);
 }
 
-/*! \fn QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h)
+/*! 
   Returns the rectangle used to draw the focus rectangle in a combo box.
 */
+QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h) const
+{
+    return buttonRect(x+2, y+2, w-4-21, h-4);
+}
 
-/*! \fn void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 
+/*! 
   Draw the mask of a combo box button. Useful if a rounded buttons
   needs to be transparent because the style uses a fancy background
   pixmap.
 */
+void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
+{
+    drawButtonMask(p, x, y, w, h);
+}
+
+
 
 
 /*!
@@ -427,11 +449,22 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h) const
   Some GUI styles shift the contents of a button when the button is down.
   The default implementation returns 0 for both x and y.
  */
+void QStyle::getButtonShift( int &x, int &y) const
+{
+    x = 0;
+    y = 0;
+}
 
-/*! \fn int QStyle::defaultFrameWidth() const
 
+
+/*! 
   The default frame width, usually 2.
  */
+int QStyle::defaultFrameWidth() const
+{
+    return 2;
+}
+
 
 /*!
   Draws a panel to separate parts of the visual interface.
@@ -534,7 +567,7 @@ void QStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 void
 QStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
 {
-    p->fillRect(x, y, w, h, color1);
+    p->fillRect(x, y, w, h, Qt::color1);
 }
 
 /*!
@@ -555,7 +588,7 @@ QStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, boo
 void
 QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int /*state*/ )
 {
-    p->fillRect(x, y, w, h, color1);
+    p->fillRect(x, y, w, h, Qt::color1);
 }
 
 /*!
@@ -631,12 +664,16 @@ TODO
 
 */
 
-/*! \fn void QStyle::drawSliderMask( QPainter *p,
-			int x, int y, int w, int h,
-			Orientation, bool, bool )
-
+/*! 
   Draws the mask of a slider
 */
+void QStyle::drawSliderMask( QPainter *p,
+			int x, int y, int w, int h,
+			Orientation, bool, bool )
+{
+    p->fillRect(x, y, w, h, Qt::color1);
+}
+
 
 /*!
   \fn  void QStyle::drawSliderGroove( QPainter *p,  int x, int y, int w, int h,
@@ -648,16 +685,20 @@ TODO
 
 
 
-/*! \fn void QStyle::drawSliderGrooveMask( QPainter *p,
-				   int x, int y, int w, int h,
-				   QCOORD c ,
-				   Orientation )
-
+/*
   Draws the mask of a slider groove
 */
+void
+QStyle::drawSliderGrooveMask( QPainter *p,
+				   int x, int y, int w, int h,
+				   QCOORD c,
+				   Orientation orient )
+{
+    QColorGroup g(Qt::color1, Qt::color1, Qt::color1, Qt::color1, Qt::color1, Qt::color1, Qt::color1, Qt::color1, Qt::color0);
+    drawSliderGroove( p, x, y, w, h, g, c, orient );
+}
 
-/*! \fn int QStyle::maximumSliderDragDistance() const
-
+/*! 
   Some feels require the scrollbar or other sliders to jump back to
   the original position when the mouse pointer is too far away while
   dragging.
@@ -665,6 +706,10 @@ TODO
   This behavior can be customized with this function. The default is -1
   (no jump back) while Windows requires 20 (weird jump back).
 */
+int QStyle::maximumSliderDragDistance() const
+{
+    return -1;
+}
 
 
 /*!
@@ -716,11 +761,16 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
   indicate item accelerators.
  */
 
-/*! \fn int QStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  )
-
+/*!
   Returns the width of the arrow indicating popup submenus.
   \a fm defines the font metrics used to draw the popup menu.
  */
+int QStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) const
+{
+    return fm.ascent() + 6; // motifArrowHMargin
+}
+
+
 
 /*! \fn int QStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
 
@@ -773,16 +823,36 @@ int QStyle::toolBarHandleExtent() const
     return 11;
 }
 
-/*! \fn void QStyle::drawToolBarHandle( QPainter *p, const QRect &r,
-                                        Qt::Orientation orientation,
-				        bool highlight, const QColorGroup &cg,
-					bool drawBorder )
-
+/*!
   Draws the handle for the toolbar using the painter \a p with the handle coordinates
   \a r. \a orientation gives the orientation of the toolbar, and the handle is drawn
   \a highlighted if \a highlight is TRUE, else not. \a cg is the QColorGroup of the toolbar and
   if \a drawBorder is TRUE a border around the handle may be drawn.
 */
+void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
+				bool highlight, const QColorGroup &cg,
+				bool )
+{
+    p->save();
+    p->translate( r.x(), r.y() );
+
+    if ( orientation == Qt::Vertical ) {
+	if ( r.width() > 4 ) {
+	    qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
+			     cg, highlight, 1, 0 );
+	    qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
+			     cg, highlight, 1, 0 );
+	}
+    } else {
+	if ( r.height() > 4 ) {
+	    qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
+			     cg, highlight, 1, 0 );
+	    qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
+			     cg, highlight, 1, 0 );
+	}
+    }
+    p->restore();
+}
 
 
 /*!
@@ -796,7 +866,8 @@ int QStyle::toolBarHandleExtent() const
 */
 
 void QStyle::setScrollBarExtent( int width, int height )
-{ //### TODO: pick up desktop settings on Windows
+{ 
+//### TODO: pick up desktop settings on Windows
     d->sbextent
 	= QSize( width, height ).expandedTo( QApplication::globalStrut() );
 }
@@ -852,8 +923,8 @@ int QStyle::menuButtonIndicatorWidth( int h ) const
 
 /*! \fn void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled );
-
+				    bool enabled, bool )
+				    
   Draws the menu item \a mi using the painter \a p and the ButtonText
   color of \g. The painter is preset to the right font. \a x, \a y,
   \a w and \a h determine the geometry of the entire item.
