@@ -134,12 +134,19 @@ turn the relevant feature on and off.
 To do this use \l QXmlReader::setFeature(). Whether a supported feature
 is on or off (TRUE or FALSE) can be queried using  \l QXmlReader::feature().
 
-Consider the example tag \e <book:title>. A reader not supporting the
+Consider the example 
+\code 
+<document xmlns:book = 'http://trolltech.com/fnord/book/'
+          xmlns      = 'http://trolltech.com/fnord/' >
+\endcode
+A reader not supporting the
 \e http://xml.org/sax/features/namespace-prefixes feature would clearly
-report \e title but not the prefix. A
+report the element name \e document but not its attributes \e xmlns:book and \e xmlns
+with their values. A
 reader with the feature \e http://xml.org/sax/features/namespace-prefixes
-reports \e title if \l QXmlReader::feature() is FALSE and both \e book 
-and \e title if the feature is TRUE.
+reports the namespace attributes if \l QXmlReader::feature() is TRUE and 
+disregards them if the feature is FALSE.
+
 
 Other features include \e http://xml.org/sax/features/namespace (namespace 
 processing, implies \e http://xml.org/sax/features/namespace-prefixes) or
@@ -163,8 +170,8 @@ and other features.
 As we have seen in the \link #features previous section \endlink
 we can configure the behavior of the reader when it comes to namespace
 processing by setting and unsetting the 
-\e http://xml.org/features/namespaces and
-\e http://xml.org/features/namespace-prefixes features.
+\e http://xml.org/sax/features/namespaces and
+\e http://xml.org/sax/features/namespace-prefixes features.
  
 They influence the reporting behavior in the following way:
 <ol>
@@ -230,8 +237,8 @@ FALSE is illegal.
 </table>
  
 By default 
-\c http://xml.org/features/namespaces is set to \c TRUE and
-\c http://xml.org/features/namespace-prefixes is \c FALSE.
+\c http://xml.org/sax/features/namespaces is set to \c TRUE and
+\c http://xml.org/sax/features/namespace-prefixes is \c FALSE.
  
 <h2><a name="properties">Properties</a></h2>   
 
