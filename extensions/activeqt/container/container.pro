@@ -1,7 +1,23 @@
 TEMPLATE        = lib
 CONFIG          += qt warn_on
-HEADERS         = qaxbase.h qaxwidget.h qaxobject.h ../shared/types.h
-SOURCES         = qaxbase.cpp qaxwidget.cpp qaxobject.cpp ../shared/types.cpp
+
+internal {
+	ACTIVEQT_H  = .
+}
+!internal {
+	ACTIVEQT_H  = $$QT_SOURCE_TREE/include
+}
+
+HEADERS         = $$ACTIVEQT_H/qaxbase.h \
+		  $$ACTIVEQT_H/qaxwidget.h \
+		  $$ACTIVEQT_H/qaxobject.h \
+		  ../shared/types.h
+
+SOURCES         = qaxbase.cpp \
+		  qaxwidget.cpp \
+		  qaxobject.cpp \
+		  ../shared/types.cpp
+
 FORMS           = qactivexselect.ui
 
 DESTDIR         = $$QT_BUILD_TREE/lib

@@ -1,8 +1,25 @@
 TEMPLATE    = lib
 CONFIG      += qt warn_off staticlib
 TARGET      = qaxserver
-SOURCES     = qaxserverbase.cpp qaxbindable.cpp qaxfactory.cpp qaxservermain.cpp qaxserverdll.cpp ../shared/types.cpp
-HEADERS     = qaxserverbase.h qaxbindable.h qaxfactory.h ../shared/types.h
+
+internal {
+	ACTIVEQT_H  = .
+}
+!internal {
+	ACTIVEQT_H  = $$QT_SOURCE_TREE/include
+}
+
+HEADERS     = $$ACTIVEQT_H/qaxserverbase.h \
+	      $$ACTIVEQT_H/qaxbindable.h \
+	      $$ACTIVEQT_H/qaxfactory.h \
+	      ../shared/types.h
+
+SOURCES     = qaxserverbase.cpp \
+	      qaxbindable.cpp \
+	      qaxfactory.cpp \
+	      qaxservermain.cpp \
+	      qaxserverdll.cpp \
+	      ../shared/types.cpp
 
 DESTDIR     = $$QT_BUILD_TREE\lib
 DEFINES     += QAX_NODLL
