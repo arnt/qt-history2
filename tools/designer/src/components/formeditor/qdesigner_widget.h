@@ -78,6 +78,8 @@ public:
     
     void insertRow(QGridLayout *gridLayout, int row);
     void insertColumn(QGridLayout *gridLayout, int column);
+    
+    static void createEmptyCells(QGridLayout *gridLayout);
     void computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutItem*, QRect> *layout);
     void rebuildGridLayout(QGridLayout *gridLayout, const QHash<QLayoutItem*, QRect> &layout);
     

@@ -645,6 +645,53 @@ void QLayoutSupport::insertRow(QGridLayout *gridLayout, int row)
     rebuildGridLayout(gridLayout, infos);
 }
 
+void QLayoutSupport::createEmptyCells(QGridLayout *gridLayout)
+{
+    Q_ASSERT(gridLayout);
+    
+    QMap<QPair<int,int>, QLayoutItem*> cells;
+    
+    for (int r = 0; r < gridLayout->rowCount(); ++r) {
+        for (int c = 0; c < gridLayout->columnCount(); ++c) {
+            QPair<int,int> cell = qMakePair(r, c);
+            cells.insert(cell, 0);
+        }
+    }
+    
+    int index = 0;
+    while (QLayoutItem *item = gridLayout->itemAt(index)) {
+        int row, column, rowspan, colspan;
+        gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
+        ++index;
+        
+        for (int r = row; r < row + rowspan; ++r) {
+            for (int c = column; c < column + colspan; ++c) {
+                QPair<int,int> cell = qMakePair(r, c);
+                cells[cell] = item;
+                
+                if (!item) {
+                    /* skip */
+                } else if (item->layout()) {
+                    qWarning("unexpected layout");
+                } else if (item->spacerItem()) {
+                    qWarning("unexpected spacer");
+                }
+            }
+        }
+    }    
+    
+    QMapIterator<QPair<int,int>, QLayoutItem*> it(cells);
+    while (it.hasNext()) {
+        it.next();
+        
+        const QPair<int, int> &cell = it.key();
+        QLayoutItem *item = it.value();
+        
+        if (!item || !item->widget())
+            gridLayout->addItem(new QSpacerItem(0,0), cell.first, cell.second);
+    }
+}
+
 void QLayoutSupport::insertColumn(QGridLayout *gridLayout, int column)
 {
     qDebug() << "insertColumn:" << column;

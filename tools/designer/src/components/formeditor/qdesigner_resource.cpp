@@ -121,7 +121,12 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
 QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
-    return Resource::create(ui_layout, layout, parentWidget);
+    QLayout *l = Resource::create(ui_layout, layout, parentWidget);
+    
+    if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(l))
+        QLayoutSupport::createEmptyCells(gridLayout);
+    
+    return l;
 }
 
 QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
