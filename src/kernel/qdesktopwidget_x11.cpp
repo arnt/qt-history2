@@ -3,7 +3,7 @@
 **
 ** Implementation of QDesktopWidget class.
 **
-** Created : 
+** Created :
 **
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
@@ -188,22 +188,30 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 {
     if ( !widget )
 	return d->defaultScreen;
-    QRect frame = widget->frameGeometry();
-    if ( !widget->isTopLevel() )
-	frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
 
-    int maxSize = -1;
-    int maxScreen = -1;
+#ifndef QT_NO_XINERAMA
+    if (d->use_xinerama) {
+	// this is how we do it for xinerama
+	QRect frame = widget->frameGeometry();
+	if ( !widget->isTopLevel() )
+	    frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
 
-    for ( int i = 0; i < d->screenCount; ++i ) {
-	QRect sect = d->rects[i].intersect( frame );
-	int size = sect.width() * sect.height();
-	if ( size > maxSize && sect.width() > 0 && sect.height() > 0 ) {
-	    maxSize = size;
-	    maxScreen = i;
+	int maxSize = -1;
+	int maxScreen = -1;
+
+	for ( int i = 0; i < d->screenCount; ++i ) {
+	    QRect sect = d->rects[i].intersect( frame );
+	    int size = sect.width() * sect.height();
+	    if ( size > maxSize && sect.width() > 0 && sect.height() > 0 ) {
+		maxSize = size;
+		maxScreen = i;
+	    }
 	}
+	return maxScreen;
     }
-    return maxScreen;
+#endif // QT_NO_XINERAMA
+
+    return widget->x11Screen();
 }
 
 int QDesktopWidget::screenNumber( const QPoint &point ) const
