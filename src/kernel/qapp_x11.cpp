@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#27 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#27 $";
 #endif
 
 
@@ -1027,13 +1027,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( popup != this ) {
 	    if ( testFlag(WType_Popup) && clientRect().contains(pos) )
 		popup = this;
-	    else {				// send to last popup
-		Window child;
-		int x, y;
-		XTranslateCoordinates( display(), id(), popup->id(),
-				       pos.x(), pos.y(), &x, &y, &child );
-		pos = QPoint( x, y );
-	    }
+	    else				// send to last popup
+		pos = popup->mapFromGlobal( mapToGlobal(pos) );
 	}
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( popup, &e );
@@ -1196,93 +1191,41 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
 
 // --------------------------------------------------------------------------
-// Safe configuration (move,resize,changeGeometry) mechanism to avoid
-// getting two events back when performing a geometry change from the
-// program.
-//
-
-declare(QIntDictM,int);
-static QIntDictM(int) *configCount = 0;
-
-void qXRequestConfig( const QWidget *widget )	// add user config request
-{
-    if ( !widget->isVisible() )			// no need if invisible
-	return;
-    if ( !configCount )	{			// create dict
-	configCount = new QIntDictM(int);
-	configCount->setAutoDelete( TRUE );
-    }
-    int *count = configCount->find( (long)widget );
-    if ( count ) {				// early config request there
-	(*count)++;
-#if defined(CHECK_STATE)
-	if ( *count > 64 )
-	    fatal( "%s: Internal error.  Config event stack overflow!",
-		   appName );
-#endif
-    }
-    else {					// make new request
-	count = new int;
-	*count = 1;
-	configCount->insert( (long)widget, count );
-    }
-}
-
-bool qXPassConfigEvent( const QWidget *widget )	// pass config event to app?
-{
-    int *count = configCount ? configCount->find( (long)widget ) : 0;
-    if ( count ) {
-	(*count)--;
-	if ( *count <= 0 )
-	    configCount->remove( (long)widget );
-	if ( configCount->count() == 0 ) {	// dict becomes empty
-	    delete configCount;
-	    configCount = 0;
-	}
-    }
-    return count == 0;
-}
-
-
-// --------------------------------------------------------------------------
 // ConfigureNotify (window move and resize) event translation
 //
 // The problem with ConfigureNotify is that one cannot trust x and y values
 // in the xconfigure struct. Top level widgets are reparented by the window
 // manager, and (x,y) is sometimes relative to the parent window, but not
-// always!
+// always!  It is safer (but slower) to fetch the window attributes.
 //
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
-    if ( !qXPassConfigEvent(this) )		// skip event
-	return FALSE;
-    QPoint newPos( event->xconfigure.x, event->xconfigure.y );
-    QSize newSize( event->xconfigure.width, event->xconfigure.height );
-    QRect r = clientGeometry();
-    bool  moveOk = event->xconfigure.send_event;
-    if ( newSize != clientSize() ) {		// size changed
-	r.setSize( newSize );
-	setRect( r );
-	QResizeEvent e( newSize );
-	QApplication::sendEvent( this, &e );	// send resize event
-	if ( !parentWidget() ) {		// top level widget
+    if ( !parentWidget() ) {			// top level widget
+	XWindowAttributes a;
+	XGetWindowAttributes( display(), id(), &a );
+	QSize  newSize( a.width, a.height );
+	QPoint newPos( a.x, a.y );
+	QRect r = clientGeometry();
+	if ( newSize != clientSize() ) {	// size changed
+	    r.setSize( newSize );
+	    setRect( r );
+	    QResizeEvent e( newSize );
+	    QApplication::sendEvent( this, &e );
+	}
+	if ( newPos != geometry().topLeft() ) {	// position changed
 	    int x, y;
 	    Window child;
 	    XTranslateCoordinates( display(), id(),
 				   DefaultRootWindow(display()),
 				   newPos.x(), newPos.y(), &x, &y, &child );
-	    newPos = QPoint(x,y) - newPos;	// get right position
+	    newPos = QPoint(x,y) - newPos;	// get position excl frame
+	    r.setTopLeft( newPos );
+	    setRect( r );
+	    QMoveEvent e( geometry().topLeft() );
+	    QApplication::sendEvent( this, &e );
 	}
-	moveOk = TRUE;
     }
-    if ( newPos != r.topLeft() && moveOk ) {	// position changed
-	r.setTopLeft( newPos );
-	setRect( r );
-	QMoveEvent e( geometry().topLeft() );
-	QApplication::sendEvent( this, &e );	// send move event
-    }
-    return TRUE;
 }
 
 
