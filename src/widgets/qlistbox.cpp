@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#50 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#49 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#50 $")
 
 
 declare(QListM, QLBItem);
@@ -128,12 +128,9 @@ QListBox::QListBox( QWidget *parent, const char *name )
 		   Tbl_smoothVScrolling );
     switch ( style() ) {
 	case WindowsStyle:
+	case MotifStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
 	    setBackgroundColor( colorGroup().base() );
-	    break;
-	case MotifStyle:
-	    setFrameStyle( QFrame::Panel | QFrame::Sunken );
-	    setLineWidth( 1 );
 	    break;
 	default:
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );
@@ -1043,8 +1040,10 @@ void QListBox::paintCell( QPainter *p, int row, int column )
     if ( !lbi )
 	return;
     if ( lbi->type != LBI_String && lbi->type != LBI_Pixmap ) {
-	warning( "QListBox::paintCell: illegal item type (%d) in"
+#if defined(CHECK_RANGE)
+	warning( "QListBox::paintCell: Illegal item type (%d) in"
 		 " non-ownerdrawn list box", lbi->type );
+#endif
 	return;
     }
 
@@ -1057,7 +1056,7 @@ void QListBox::paintCell( QPainter *p, int row, int column )
     else
 	fc = g.text();
     if ( current == row ) {
-	p->fillRect( 0, 0, cellWidth( column ), cellHeight( row ), fc );
+	p->fillRect( 0, 0, cellWidth(column), cellHeight(row), fc );
 	p->setPen( backgroundColor() );
     } else {
 	p->setPen( g.text() );
