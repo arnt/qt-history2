@@ -335,8 +335,14 @@ MakefileGenerator::init()
                     seek |= QMakeSourceFileInfo::SEEK_MOCS;
                 if(sources[x] != "OBJECTS")
                     seek |= QMakeSourceFileInfo::SEEK_DEPS;
-                if(seek)
-                    addSourceFiles(v[sources[x]], seek, sources[x] == "FORMS");
+                if(seek) {
+                    QMakeSourceFileInfo::SourceFileType type = QMakeSourceFileInfo::TYPE_C;
+                    if(sources[x] == "FORMS")
+                        type = QMakeSourceFileInfo::TYPE_UI;
+                    else if(sources[x] == "RESOURCES")
+                        type = QMakeSourceFileInfo::TYPE_QRC;
+                    addSourceFiles(v[sources[x]], seek, type);
+                }
             }
         }
     }

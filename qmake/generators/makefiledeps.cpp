@@ -40,11 +40,12 @@ QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNul
 
 struct SourceDependChildren;
 struct SourceFile {
-    SourceFile() : deps(0), uifile(0), mocable(0), traversed(0), exists(1),
+    SourceFile() : deps(0), type(QMakeSourceFileInfo::TYPE_UNKNOWN), 
+                   mocable(0), traversed(0), exists(1),
                    moc_checked(0), dep_checked(0), included_count(0) { }
     QMakeLocalFileName file, mocfile;
     SourceDependChildren *deps;
-    uint uifile : 1;
+    QMakeSourceFileInfo::SourceFileType type;
     uint mocable : 1, traversed : 1, exists : 1;
     uint moc_checked : 1,  dep_checked : 1;
     uchar included_count;
@@ -240,7 +241,8 @@ QMakeSourceFileInfo::~QMakeSourceFileInfo()
     }
 }
 
-void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, bool uifile)
+void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, 
+                                         QMakeSourceFileInfo::SourceFileType type)
 {
     if(!files)
         files = new SourceFiles;
@@ -252,10 +254,10 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, bool 
             file->file = fixPathForFile(fn);
             files->addFile(file);
         } else {
-            if(file->uifile != uifile)
-                warn_msg(WarnLogic, "%s is marked as UI, then not!", (*it).latin1());
+            if(file->type != type)
+                warn_msg(WarnLogic, "%s is marked as %d, then %d!", (*it).latin1(), file->type, type);
         }
-        file->uifile = uifile;
+        file->type = type;
 
         /* Do moc before dependency checking since some includes can come from
            moc_*.cpp files */
@@ -324,7 +326,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
     for(int x = 0; x < buffer_len; x++) {
         bool try_local = true;
         char *inc = 0;
-        if(file->uifile) {
+        if(file->type == QMakeSourceFileInfo::TYPE_UI) {
             // skip whitespaces
             while(x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t'))
                 x++;
@@ -394,7 +396,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     inc = buffer + x;
                 }
             }
-        } else {
+        } else if(file->type == QMakeSourceFileInfo::TYPE_QRC) {
+        } else if(file->type == QMakeSourceFileInfo::TYPE_C) {
             if(*(buffer + x) == '/') {
                 x++;
                 if(buffer_len >= x) {
@@ -512,6 +515,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     dep = new SourceFile;
                     dep->file = lfn;
                     dep->exists = exists;
+                    dep->type = QMakeSourceFileInfo::TYPE_C;
                     files->addFile(dep);
                 } else if(dep->exists != exists) {//not really possible, but seems dangerous -Sam
                     warn_msg(WarnLogic, "%s is found to exist after not existing before!", 

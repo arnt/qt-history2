@@ -60,8 +60,9 @@ public:
     QList<QMakeLocalFileName> dependencyPaths() const { return depdirs; }
     void setDependencyPaths(const QList<QMakeLocalFileName> &);
 
+    enum SourceFileType { TYPE_UNKNOWN, TYPE_C, TYPE_UI, TYPE_QRC };
     enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02, ADD_MOC=0x04 };
-    void addSourceFiles(const QStringList &, uchar, bool uifile=false);
+    void addSourceFiles(const QStringList &, uchar, SourceFileType type=TYPE_C);
 
     int included(const QString &file);
     QStringList dependencies(const QString &file);
