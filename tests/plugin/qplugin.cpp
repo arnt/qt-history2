@@ -96,10 +96,23 @@
   This method returns null if the application does not provide an interface matching
   the requests.
 
-  \sa QClientInterface, QApplicationInterface
+  \sa QClientInterface, QApplicationInterface, connectNotify
+*/
+
+/*!
+  \fn void QPlugInInterface::connectNotify( const QCString& iface )
+
+  This function gets called each time the plugin loader can arrange a handshake between
+  the application interface \a iface and the corresponding client.
+
+  Reimplement this function in your plugin to provide customized initialization.
+
+  \sa clientInterface()
 */
 
 /*
+  \internal
+
   Called by the plugin to connect the a QClientInterface matching \a request to the 
   corresponding QApplicationInterface.
 */
@@ -326,6 +339,11 @@ bool QPlugIn::use()
 /*!
   Loads the interface of the shared library and calls the onConnect routine.
   Returns TRUE if successful, or FALSE if the interface could not be loaded.
+
+  When a QApplication is present, the function will try to connect the 
+  interfaces the application provides with the interfaces the plugin requests.
+
+  \sa QClientInterface, QApplicationInterface
 */
 bool QPlugIn::loadInterface()
 {
@@ -534,7 +552,6 @@ QStringList QPlugIn::featureList()
   Returns the QPlugIn object that provides \a feature, or null if the feature is
   not know to this manager.
 */
-
 
 /*!
   \fn QPlugIn* QPlugInManager::plugInFromFile( const QString& file )
