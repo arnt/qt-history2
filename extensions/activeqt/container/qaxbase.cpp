@@ -357,7 +357,7 @@ public:
             
             const QMetaProperty metaProp = meta->property(meta->indexOfProperty(propname));
             void *argv[] = {0, var.data()};
-            if (!qstrcmp(metaProp.type(), "QVariant"))
+            if (!qstrcmp(metaProp.typeName(), "QVariant"))
                 argv[1] = &var;
             
             // emit the "changed" signal
@@ -2632,7 +2632,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     }
     
     // get the IDispatch
-    if (!d->ptr || !prop)
+    if (!d->ptr || !prop.isValid())
         return index;
     IDispatch *disp = d->dispatch();
     if (!disp)
@@ -2655,7 +2655,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     UINT argerr = 0;
     HRESULT hres = E_FAIL;
     
-    QByteArray proptype(prop.type());
+    QByteArray proptype(prop.typeName());
 
     switch (call) {
     case QMetaObject::ReadProperty:
@@ -2687,12 +2687,12 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
                 qvar = *(int*)v[0];
                 proptype = 0;
             } else {
-                QVariant::Type t = QVariant::nameToType(prop.type());
+                QVariant::Type t = QVariant::nameToType(prop.typeName());
                 if (t == QVariant::Invalid) {
                     if (proptype == "QVariant")
                         qvar = *(QVariant*)v[0];
                     else if (proptype.endsWith('*'))
-                        qVariantSet(qvar, *(void**)v[0], prop.type());
+                        qVariantSet(qvar, *(void**)v[0], prop.typeName());
                 } else {
                     proptype = 0;
                     qvar = QCoreVariant(t, v[0]);
@@ -2702,7 +2702,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             QVariantToVARIANT(qvar, arg, proptype);
             if (arg.vt == VT_EMPTY || arg.vt == VT_ERROR) {
 #ifndef QT_NO_DEBUG
-                qWarning("QAxBase::setProperty(): Unhandled property type %s", prop.type());
+                qWarning("QAxBase::setProperty(): Unhandled property type %s", prop.typeName());
 #endif
                 break;
             }
@@ -2788,7 +2788,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     }
     
     // return value
-    QByteArray rettype(slot.type());
+    QByteArray rettype(slot.typeName());
     VARIANT ret;
     VARIANT *pret = rettype.isEmpty() ? 0 : &ret;
     
@@ -2802,7 +2802,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     
     // set return value
     if (pret) {
-        QVariantToVoidStar(VARIANTToQVariant(ret, slot.type()), v[0], slot.type());
+        QVariantToVoidStar(VARIANTToQVariant(ret, slot.typeName()), v[0], slot.typeName());
         pret = 0;
     }
     
@@ -2886,7 +2886,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
             const QMetaMember slot = metaObject()->slot(id);
             function = slot.signature();
             function.truncate(function.indexOf('('));
-            type = slot.type();
+            type = slot.typeName();
         } else {
             function = function.left(function.indexOf('('));
         }
@@ -2955,7 +2955,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
         
         if (id >= 0) {
             const QMetaProperty prop = metaObject()->property(id);
-            type = prop.type();
+            type = prop.typeName();
         } else {
             function = name;
         }

@@ -177,7 +177,7 @@ QString qax_generateDocumentation(QAxBase *that)
                 continue;
             }
 
-	    QString returntype(slot.type());
+	    QString returntype(slot.typeName());
             if (returntype.isEmpty())
                 returntype = "void";
             QString prototype = namedPrototype(slot.signature(), slot.parameters(), defArgCount);
@@ -283,7 +283,7 @@ QString qax_generateDocumentation(QAxBase *that)
 	for (int iprop = 0; iprop < propCount; ++iprop) {
 	    const QMetaProperty prop = mo->property(iprop);
 	    QString name(prop.name());
-	    QString type(prop.type());
+	    QString type(prop.typeName());
 
 	    stream << "<li>" << type << " <a href=\"#" << name << "\"><b>" << name << "</b></a>;</li>" << endl;
 	    QString detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
@@ -346,7 +346,7 @@ QString qax_generateDocumentation(QAxBase *that)
 	    const QMetaEnum enumdata = mo->enumerator(i);
 	    stream << "<h3><a name=" << enumdata.name() << "></a>" << enumdata.name() << "</h3>" << endl;
 	    stream << "<ul>" << endl;
-	    for (uint e = 0; e < enumdata.numKeys(); ++e) {
+	    for (uint e = 0; e < enumdata.keyCount(); ++e) {
 		stream << "<li>" << enumdata.key(e) << "\t=" << enumdata.value(e) << "</li>" << endl;
 	    }
 	    stream << "</ul>" << endl;
