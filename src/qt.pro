@@ -65,7 +65,6 @@ win32 {
 	}
 
 	CONFIG	+= zlib
-	DEFINES += UNICODE
 	INCLUDEPATH += tmp
 	MOC_DIR	= tmp
 	OBJECTS_DIR = tmp

@@ -11,7 +11,6 @@ win32 {
 	SOURCES		= kernel/qtmain_win.cpp
 	CONFIG		+= png zlib
 	CONFIG		-= jpeg
-	DEFINES		+= UNICODE
 	INCLUDEPATH	+= tmp
 	MOC_DIR		= tmp
 	OBJECTS_DIR	= tmp

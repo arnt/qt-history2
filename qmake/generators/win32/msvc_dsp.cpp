@@ -524,7 +524,6 @@ DspMakefileGenerator::init()
 
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
-	project->variables()["DEFINES"].append("UNICODE");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
 
 	if ( project->isActiveConfig("opengl") ) {
