@@ -1135,7 +1135,7 @@ QString QCoreApplication::applicationFilePath()
     QString argv0 = QFile::decodeName(QByteArray(argv()[0]));
     QString absPath;
 
-    if (argv0.at(0) == QLatin1Char('/')) {
+    if (!argv0.isEmpty() && argv0.at(0) == QLatin1Char('/')) {
         /*
           If argv0 starts with a slash, it is already an absolute
           file path.
