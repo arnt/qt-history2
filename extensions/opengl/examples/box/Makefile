@@ -10,13 +10,14 @@
 CC	=	gcc
 CFLAGS	=	-Wall -W -O1
 INCPATH	=	-I$(QTDIR)/include -I/usr/X11R6/include
-LFLAGS	=	
-LIBS	=	-L$(QTDIR)/lib -lqgl -lqt -L/usr/X11R6/lib -lMesaGL -lMesaGLU -lXext -lm -lX11
+LFLAGS	=	-L$(QTDIR)/lib -lqt 
 MOC	=	moc
 ####### End of automatically generated section
 #
 # $Source: /tmp/cvs/qt/extensions/opengl/examples/box/Makefile,v $
 #
+
+LIBS	=	$(LFLAGS) -lqgl -L/usr/X11R6/lib -lMesaGL -lMesaGLU -lXext -lm -lX11
 
 
 ####### Files
