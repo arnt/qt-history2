@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.7 1997/04/10 07:21:53 aavit Exp $
+** $Id: misc.doc,v 2.8 1997/04/28 00:08:17 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.7 1997/04/10 07:21:53 aavit Exp $";
+static char ident[] = "$Id: misc.doc,v 2.8 1997/04/28 00:08:17 agulbra Exp $";
 #endif
 
 
@@ -18,7 +18,7 @@ static char ident[] = "$Id: misc.doc,v 2.7 1997/04/10 07:21:53 aavit Exp $";
 </head><body bgcolor="#ffffff">
 <h1 align="center">
 Frequently Asked Questions
-</h1><center>This documentation can be <a href="/dl/">downloaded</a> in full</center>
+</h1>
 <ol>
 <li>
 What kind of licenses exist for Qt?
@@ -259,7 +259,7 @@ than this one.
 <p>
 <hr>
 <p>
-<h1 align=center>TROLL TECH FREE SOFTWARE LICENSE</h1><center>This documentation can be <a href="/dl/">downloaded</a> in full</center>
+<h1 align=center>TROLL TECH FREE SOFTWARE LICENSE</h1>
 <p>
 Copyright &copy; 1992-1996 Troll Tech AS.  All rights reserved.
 <p>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: coordsys.doc,v 2.1 1996/10/10 14:02:10 agulbra Exp $
+** $Id: coordsys.doc,v 2.2 1997/04/28 00:08:17 agulbra Exp $
 **
 ** Qt Coordinate System Documentation
 **
@@ -39,7 +39,7 @@ of a paint device.
 
 <img src=coordsys.gif>
 
-The recangle and the line were drawn by this code:
+The rectangle and the line were drawn by this code:
 
 \code
     void MyWidget::paintEvent( QPaintEvent * )
