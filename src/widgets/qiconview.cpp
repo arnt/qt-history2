@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#80 $
 **
 ** Definition of QIconView widget class
 **
@@ -468,7 +468,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 	    if ( pos == -1 )
 		return FALSE;
 	    tr.setHeight( atoi( s.latin1() + pos + 1 ) );
-	    
+	
 	    icon.setIconRect( ir );
 	    icon.setTextRect( tr );
 	    list_.append( icon );
@@ -1859,17 +1859,22 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 void QIconView::orderItemsInGrid()
 {
-    int w = 0, h = 0;
+    int w = 0, h = 0, y = d->spacing;
 
-    resizeContents( viewport()->width(), viewport()->height() );
+//     resizeContents( viewport()->width(), viewport()->height() );
+//     QIconViewItem *item = d->firstItem;
+//     for ( ; item; item = item->next ) {
+// 	insertInGrid( item );
+// 	w = QMAX( w, item->x() + item->width() );
+// 	h = QMAX( h, item->y() + item->height() );
+//     }
+
     QIconViewItem *item = d->firstItem;
-    for ( ; item; item = item->next ) {
-	insertInGrid( item );
-	w = QMAX( w, item->x() + item->width() );
-	h = QMAX( h, item->y() + item->height() );
+    while ( item && item != d->lastItem ) { 
+	item = makeRowLayout( item, y );
+	w = QMAX( w, item->x() + item->width() ); 
     }
-
-    resizeContents( w, h );
+    resizeContents( w, d->lastItem->y() + d->lastItem->height() );
     d->dirty = FALSE;
 }
 
@@ -2932,7 +2937,7 @@ QDragObject *QIconView::dragObject()
     for ( QIconViewItem *item = d->firstItem; item; item = item->next )
 	if ( item->isSelected() )
 	    drag->append( QIconDragItem( QRect( item->iconRect( FALSE ).x() - orig.x(),
-						item->iconRect( FALSE ).y() - orig.y(), 
+						item->iconRect( FALSE ).y() - orig.y(),
 						item->iconRect().width(), item->iconRect().height() ),
 					 QRect( item->textRect( FALSE ).x() - orig.x(),
 						item->textRect( FALSE ).y() - orig.y(), 	
@@ -3298,7 +3303,126 @@ void QIconView::findItemByName( const QString text )
     }
 }
 
+QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
+{
+    QIconViewItem *end = 0;
+	
+    if ( d->alignMode == East ) {
+	
+	if ( d->rastX == -1 ) {
+	    // first calculate the row height
+	    int h = begin->height();
+	    int x = d->spacing;
+	    QIconViewItem *item = begin;
+	    while ( TRUE ) {
+		if ( item->next && item->next->width() + x > visibleWidth() )
+		    break;
+		else if ( !item->next )
+		    break;
+		
+		x += item->width() + d->spacing;
+		item = item->next;
+		h = QMAX( h, item->height() );
+	    }
+	    end = item;
+	    
+	    if ( d->rastY != -1 )
+		h = QMAX( h, d->rastY );
+	    
+	    // now move the items
+	    item = begin;
+	    while ( TRUE ) {
+		if ( item == begin )
+		    item->move( d->spacing, y + h - item->height() );
+		else
+		    item->move( item->prev->x() + item->prev->width() + d->spacing, y + h - item->height() );
+		if ( item == end )
+		    break;
+		item = item->next;
+	    }
+	    y += h + d->spacing;
+	} else {
+	    // first calculate the row height
+	    int h = begin->height();
+	    int x = d->spacing;
+	    QIconViewItem *item = begin;
+	    int i = 0;
+	    int sp = 0;
+// 	    while ( TRUE ) {
+// 		int r = item->width() / d->rastX + 1;
+// 		if ( item == begin ) {
+// 		    i += r;
+// 		    sp += r;
+// 		    x = d->spacing;
+// 		} else {
+// 		    sp += r;
+// 		    x = i * d->rastX + sp * d->spacing;
+// 		    i += r;
+// 		}
+// 		if ( x + item->width() > visibleWidth() ) {
+//  		    if ( item != begin )
+//  			item = item->prev;
+// 		    break;
+// 		}
+// 		h = QMAX( h, item->height() );
+// 		QIconViewItem *old = item;
+// 		item = item->next;
+// 		if ( !item ) {
+// 		    item = old;
+// 		    break;
+// 		}
+// 	    }
+	    while ( TRUE ) {
+		if ( item->next ) {
+		    int r = item->next->width() / d->rastX + 1;
+		    if ( d->rastX * r + r * d->spacing + x > visibleWidth() )
+			break;
+		} else if ( !item->next )
+		    break;
+		
+		int r = item->width() / d->rastX + 1;
+		x += r * d->rastX + r * d->spacing;
+		item = item->next;
+		h = QMAX( h, item->height() );
+	    }
+	    end = item;
+	    
+	    if ( d->rastY != -1 )
+		h = QMAX( h, d->rastY );
+
+	    // now move the items
+	    item = begin;
+	    i = 0;
+	    sp = 0;
+	    while ( TRUE ) {
+		int r = item->width() / d->rastX + 1;
+		if ( item == begin ) {
+		    item->move( d->spacing + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
+		    i += r;
+		    sp += r;
+		} else {
+		    sp += r;
+		    int x = i * d->rastX + sp * d->spacing;
+		    item->move( x + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
+		    i += r;
+		}
+		if ( item == end )
+		    break;
+		item = item->next;
+	    }
+	    y += h + d->spacing;
+	}
+    }
+
+    return end;
+}
+
 #include "qiconview.moc"
+
+
+
+
+
 
 
 

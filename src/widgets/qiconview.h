@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#35 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#36 $
 **
 ** Definition of QIconView widget class
 **
@@ -373,7 +373,8 @@ protected:
     void setDragObjectIsKnown( bool b );
     void setIconDragData( const QValueList<QIconDragItem> &lst );
     void setNumDragItems( int num );
-
+    QIconViewItem *makeRowLayout( QIconViewItem *begin, int &y );
+    
 private:
     void findItemByName( const QString text );
 
