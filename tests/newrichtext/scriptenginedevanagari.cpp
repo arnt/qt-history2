@@ -4,18 +4,18 @@
 #include "qtextdata.h"
 
 enum Features {
-    NuktaFeature = 0x0001,
-    AkhantFeature = 0x0002,
-    RephFeature = 0x0004,
-    BelowFormFeature = 0x0008,
-    HalfFormFeature = 0x0010,
-    PostFormFeature = 0x0020,
-    VattuFeature = 0x0040,
-    PreSubstFeature = 0x0080,
-    BelowSubstFeature = 0x0100,
-    AboveSubstFeature = 0x0200,
-    PostSubstFeature = 0x0400,
-    HalantFeature = 0x0800
+    NuktaFeature = 0x0002,
+    AkhantFeature = 0x0004,
+    RephFeature = 0x0008,
+    BelowFormFeature = 0x0010,
+    HalfFormFeature = 0x0020,
+    PostFormFeature = 0x0040,
+    VattuFeature = 0x0080,
+    PreSubstFeature = 0x0100,
+    BelowSubstFeature = 0x0200,
+    AboveSubstFeature = 0x0400,
+    PostSubstFeature = 0x0800,
+    HalantFeature = 0x1000
 };
 
 enum Form {

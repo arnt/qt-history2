@@ -64,25 +64,25 @@ const Features syriacFeatures[] = {
     { 0,  0 }
 };
 
-const Features devanagariFeatures[] = {
+const Features indicFeatures[] = {
     // Language based forms
-    { FT_MAKE_TAG( 'n', 'u', 'k', 't' ), 0x0001 },
-    { FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), 0x0002 },
-    { FT_MAKE_TAG( 'r', 'p', 'h', 'f' ), 0x0004 },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), 0x0008 },
-    { FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), 0x0010 },
-    { FT_MAKE_TAG( 'p', 's', 'b', 'f' ), 0x0020 },
-    { FT_MAKE_TAG( 'v', 'a', 't', 'u' ), 0x0040 },
+    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), 0x0001 },
+    { FT_MAKE_TAG( 'n', 'u', 'k', 't' ), 0x0002 },
+    { FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), 0x0004 },
+    { FT_MAKE_TAG( 'r', 'p', 'h', 'f' ), 0x0008 },
+    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), 0x0010 },
+    { FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), 0x0020 },
+    { FT_MAKE_TAG( 'p', 's', 'b', 'f' ), 0x0040 },
+    { FT_MAKE_TAG( 'v', 'a', 't', 'u' ), 0x0080 },
     // Conjunkts and typographical forms
-    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), 0x0080 },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), 0x0100 },
-    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), 0x0200 },
-    { FT_MAKE_TAG( 'p', 's', 't', 's' ), 0x0400 },
+    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), 0x0100 },
+    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), 0x0200 },
+    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), 0x0400 },
+    { FT_MAKE_TAG( 'p', 's', 't', 's' ), 0x0800 },
     // halant forms
-    { FT_MAKE_TAG( 'h', 'a', 'l', 'n' ), 0x0800 },
+    { FT_MAKE_TAG( 'h', 'a', 'l', 'n' ), 0x1000 },
     { 0,  0 }
 };
-
 
 
 struct SupportedScript {
@@ -126,25 +126,25 @@ const SupportedScript supported_scripts [] = {
 
 // 	// South and Southeast Asian Scripts
 // 	Devanagari,
-    // #### MS Mangal doens't have pstf. Required for Devanagari?
-    { FT_MAKE_TAG( 'd', 'e', 'v', 'a' ), devanagariFeatures, 0x0fdf, 0x8780 },
+    { FT_MAKE_TAG( 'd', 'e', 'v', 'a' ), indicFeatures, 0x1fbe, 0x8f00 },
 // 	Bengali,
-    { FT_MAKE_TAG( 'b', 'e', 'n', 'g' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 'b', 'e', 'n', 'g' ), indicFeatures, 0x1fff, 0x8f00 },
 // 	Gurmukhi,
-    { FT_MAKE_TAG( 'g', 'u', 'r', 'u' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 'g', 'u', 'r', 'u' ), indicFeatures, 0x1fd2, 0x8f00 },
 // 	Gujarati,
-    { FT_MAKE_TAG( 'g', 'u', 'j', 'r' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 'g', 'u', 'j', 'r' ), indicFeatures, 0x1fbe, 0x8f00 },
 // 	Oriya,
-    { FT_MAKE_TAG( 'o', 'r', 'y', 'a' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 'o', 'r', 'y', 'a' ), indicFeatures, 0x1ffe, 0x8f00 },
 // 	Tamil,
-    { FT_MAKE_TAG( 't', 'a', 'm', 'l' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 't', 'a', 'm', 'l' ), indicFeatures, 0x1f24, 0x8f00 },
 // 	Telugu,
-    { FT_MAKE_TAG( 't', 'e', 'l', 'u' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 't', 'e', 'l', 'u' ), indicFeatures, 0x1e14, 0x8f00 },
 // 	Kannada,
-    { FT_MAKE_TAG( 'k', 'n', 'd', 'a' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 'k', 'n', 'd', 'a' ), indicFeatures, 0x1e1c, 0x8f00 },
 // 	Malayalam,
-    { FT_MAKE_TAG( 'm', 'l', 'y', 'm' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 'm', 'l', 'y', 'm' ), indicFeatures, 0x1f7c, 0x8f00 },
 // 	Sinhala,
+    // ### could not find any OT specs on this
     { FT_MAKE_TAG( 's', 'i', 'n', 'h' ), standardFeatures, 0x0000, 0x8000 },
 // 	Thai,
     { FT_MAKE_TAG( 't', 'h', 'a', 'i' ), standardFeatures, 0x0000, 0x8000 },
