@@ -63,9 +63,7 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 	}
 	if ( !editText.isNull() ) {
 	    if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
-		subdir = "/doc/";
-	    else if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
-		subdir = "/example/";
+		subdir = "/";
 	    else
 		subdir = "/src/";
 	    filename = qtdirenv + subdir + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
