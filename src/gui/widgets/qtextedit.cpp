@@ -2387,7 +2387,7 @@ QRect QTextEditPrivate::cursorRect() const
         return QRect(qRound(layoutPos.x()), qRound(layoutPos.y()), 1, 10); // ###
 
     return QRectF(layoutPos.x() + line.cursorToX(relativePos), layoutPos.y() + line.y(),
-                  1, line.ascent() + line.descent()).toRect();
+                  1, line.ascent() + line.descent()+1.).toRect();
 }
 
 /*!
