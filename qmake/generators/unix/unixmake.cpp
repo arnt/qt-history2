@@ -331,7 +331,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QStringList links;
     if(t == "target") {
 	if(project->first("TEMPLATE") == "app") {
-
+	    target = "$(QMAKE_TARGET)";
 	} else if(!project->isActiveConfig("staticlib")) {
 	    if(project->isActiveConfig("plugin")) {
 
