@@ -25,6 +25,7 @@
 #include "qsettings.h"
 
 #include <qglobal.h>
+#include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qmap.h>
@@ -73,8 +74,14 @@ static void initSearchPaths()
     Q_CHECK_PTR(searchPaths);
     qsettings_path_cleanup.add(searchPaths);
 
+    QDir dir(QDir::homeDirPath() + "/.qt/");
+    if (! dir.exists()) {
+	if (! dir.mkdir(dir.path()))
+	    qWarning("QSettings: error creating %s", dir.path().latin1());
+    }
+
     searchPaths->append(QString(QSETTINGS_DEFAULT_PATH));
-    searchPaths->append(QString(getenv("HOME")) + "/.qt/");
+    searchPaths->append(dir.path());
 }
 
 
@@ -506,7 +513,7 @@ bool QSettings::sync()
 bool QSettings::readBoolEntry(const QString &key, bool *ok )
 {
     QString value = readEntry( key, ok );
- 
+
     if (value.lower() == "true")
 	return TRUE;
     else if (value.lower() == "false")
