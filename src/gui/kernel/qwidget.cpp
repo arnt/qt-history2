@@ -3673,6 +3673,19 @@ void QWidget::show()
     if (needUpdateGeometry)
         updateGeometry();
 
+#ifdef QT_COMPAT
+    QApplication::sendPostedEvents(this, QEvent::ChildInserted);
+#endif
+#ifndef QT_NO_LAYOUT
+    if (!isTopLevel() && parentWidget()->d->layout)
+        parentWidget()->d->layout->activate();
+#endif
+#ifndef QT_NO_LAYOUT
+    // activate our layout before we and our children become visible
+    if (d->layout)
+        d->layout->activate();
+#endif
+
     // adjust size if necessary
     if (!testAttribute(Qt::WA_Resized)
         && (isTopLevel() || !parentWidget()->d->layout))  {
@@ -3699,9 +3712,8 @@ void QWidget::show()
    Makes the widget visible in the isVisible() meaning of the word.
    It is only called for toplevels or widgets with visible parents.
  */
-void QWidget::show_helper()
+void QWidget::show_recursive()
 {
-    data->in_show = true; // qws optimization
 
     // polish if necessary
     ensurePolished();
@@ -3719,6 +3731,12 @@ void QWidget::show_helper()
         d->layout->activate();
 #endif
 
+    show_helper();
+}
+
+void QWidget::show_helper()
+{
+    data->in_show = true; // qws optimization
     // make sure we receive pending move and resize events
     if (testAttribute(Qt::WA_PendingMoveEvent)) {
         QMoveEvent e(data->crect.topLeft(), data->crect.topLeft());
@@ -3925,7 +3943,7 @@ void QWidget::showChildren(bool spontaneous)
             QApplication::sendSpontaneousEvent(widget, &e);
         } else {
             if (widget->testWState(Qt::WState_ExplicitShowHide))
-                widget->show_helper();
+                widget->show_recursive();
             else
                 widget->show();
         }

@@ -574,6 +574,7 @@ private:
     void setParent_sys(QWidget *parent, Qt::WFlags);
     void deactivateWidgetCleanup();
     void setGeometry_sys(int, int, int, int, bool);
+    void show_recursive();
     void show_helper();
     void show_sys();
     void hide_sys();
