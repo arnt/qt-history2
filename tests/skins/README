@@ -14,4 +14,13 @@ QWidgets
 * QTabWidget		0
 * QToolButton		0
 
+Style
 
+* Easier Usage
+  + Auto overide style if specified in skin.
+  + Auto set skin and find skin file.
+* Custom widgets
+* Better example.  Something at least partially functional.
+* Layout
+  + Should be able to have resizable layouts.  This one will require some
+    creativity though.

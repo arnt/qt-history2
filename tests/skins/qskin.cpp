@@ -847,24 +847,26 @@ void QSkinStyle::drawControl(ControlElement element,
 		       flag		image	(backup)
 		       Raised	0	0
 		       Down		1	1
-		       On		2	1
-		       Disabled	3	0
-		       Focus&Raised 4	0
-		       Focus&Down   5	1
-		       Focus&On	6	2, then 1;
+		       On & raised	2	1
+		       On & down	3	2
+		       Disabled		4	0
+		       Focus&Raised 	5	0
+		       Focus&Down   	6	1
+		       etc.
 
 		     */
 		    int ind = 0;
-		    if (flags & Style_HasFocus && count > 6)
-			ind += 4;
 		    if (flags & Style_On && count > 2)
 			ind += 2;
 		    if (flags & Style_Down)
 			ind += 1;
-
-		    /* = because being disabled overides the others */
-		    if (!(flags & Style_Enabled) && count > 3)
-			ind = 3;
+		    /* disabled overides on/off/down/raise */
+		    if (count > 5) 
+			if (!(flags & Style_Enabled))
+			ind = 5;
+		    /* focus images only if all others already present */
+		    if (flags & Style_HasFocus && count > 9)
+			ind += 5;
 
 		    i->clips.first();
 		    i->images.first();
