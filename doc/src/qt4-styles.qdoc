@@ -48,7 +48,7 @@
 
     \l QStyleOption has various subclasses for the various types of
     graphical elements that can be drawn, and it's possible to create
-    custom subclasses. For example, the \l QStyle::PE_FocusRect
+    custom subclasses. For example, the \l QStyle::PE_FrameFocusRect
     element expects a \l QStyleOptionFocusRect argument. This is
     documented for each enum value.
 
