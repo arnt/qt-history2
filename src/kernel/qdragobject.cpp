@@ -685,7 +685,11 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 	    return r;
 	QString text( d->txt );
 #if defined(Q_WS_WIN)
-	text.replace( QRegExp("\n"), "\r\n" );
+	int index = text.find( QString::fromLatin1("\r\n"), 0 );
+	while ( index != -1 ) {
+	    text.replace( index, 2, QChar('\n') );
+	    index = text.find( "\r\n", index );
+	}
 #endif
 	r = codec->fromUnicode(text);
 	if (!codec || codec->mibEnum() != 1000) {
