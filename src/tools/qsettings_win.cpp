@@ -500,21 +500,6 @@ bool QSettings::writeEntry( const QString &key, const QString &value )
     return d->writeKey( key, array, REG_SZ );
 }
 
-bool QSettings::writeEntry( const QString &key, const QStringList &value, const QChar &sep )
-{
-    QString joined = value.join( sep );
-    return writeEntry( key, joined );
-}
-
-QStringList QSettings::readListEntry( const QString &key, const QChar &sep, bool *ok )
-{
-    QString joined = readEntry( key, QString::null, ok );
-    if ( (!ok) || ( ok && *ok ) )
-	return QStringList::split( sep, joined );
-    else
-	return QStringList();
-}
-
 QString QSettings::readEntry( const QString &key, const QString &def, bool *ok )
 {
     if ( ok )

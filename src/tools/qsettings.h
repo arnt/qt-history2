@@ -55,12 +55,14 @@ public:
     bool	writeEntry( const QString &, int );
     bool	writeEntry( const QString &, const char * );
     bool	writeEntry( const QString &, const QString & );
-    bool	writeEntry( const QString &, const QStringList &, const QChar & = ';' );
+    bool	writeEntry( const QString &, const QStringList & );
+    bool	writeEntry( const QString &, const QStringList &, const QChar& sep );
 
     QStringList entryList(const QString &) const;
     QStringList subkeyList(const QString &) const;
 
-    QStringList readListEntry( const QString &, const QChar & = ';', bool * = 0 );
+    QStringList readListEntry( const QString &, bool * = 0 );
+    QStringList readListEntry( const QString &, const QChar& sep, bool * = 0 );
     QString	readEntry( const QString &, const QString &def = QString::null,
 			   bool * = 0 );
     int		readNumEntry( const QString &, int def = 0, bool * = 0 );

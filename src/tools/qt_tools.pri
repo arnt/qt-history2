@@ -108,6 +108,7 @@ tools {
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
+		  $$TOOLS_CPP/qsettings.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp \
 		  $$TOOLS_CPP/qucom.cpp \

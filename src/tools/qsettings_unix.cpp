@@ -293,16 +293,36 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 	} else {
 	    QString key, value;
 	    key = line.left(i);
-	    value = line.mid(i + 1);
-
-	    while (value[value.length() - 1] == '\\') {
-		if (stream.atEnd()) {
-		    qWarning("QSettings: reached end of file, expected continued line");
-		    break;
+	    value = "";
+	    bool esc=TRUE;
+	    i++;
+	    while (esc) {
+		esc = FALSE;
+		for ( ; i < (int)line.length(); i++ ) {
+		    if ( esc ) {
+			if ( line[i] == 'n' )
+			    value.append('\n'); // escaped newline
+			else if ( line[i] == '0' )
+			    value = QString::null; // escaped empty string
+			else
+			    value.append(line[i]);
+			esc = FALSE;
+		    } else if ( line[i] == '\\' )
+			esc = TRUE;
+		    else
+			value.append(line[i]);
 		}
-
-		value[value.length() -1 ] = QChar('\n');
-		value += stream.readLine();
+		if ( esc ) {
+		    // Backwards-compatiblity...
+		    // still escaped at EOL - manually escaped "newline"
+		    if (stream.atEnd()) {
+			qWarning("QSettings: reached end of file, expected continued line");
+			break;
+		    }
+		    value.append('\n');
+		    line = stream.readLine();
+		    i = 0;
+		}
 	    }
 
 	    (*git).insert(key, value);
@@ -452,7 +472,12 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
 
 
     QString v = value;
-    v.replace(QRegExp("\n"), "\\\n");
+    if ( v.isNull() ) {
+	v = "\\0"; // escape null string
+    } else {
+	v.replace(QRegExp("\\"), "\\\\"); // escape backslash
+	v.replace(QRegExp("\n"), "\\n"); // escape newlines
+    }
     grp.modified = TRUE;
     grp.replace(key, v);
     hd.replace(group, grp);
@@ -833,25 +858,6 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 }
 
 
-/*!
-  Reads the entry specified by \a key as a string.  The \a separator is
-  used to create a QStringList by calling QStringList::split(\a
-  separator, entry).
-  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
-  otherwise.
-
-  \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
-*/
-QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok )
-{
-    QString value = readEntry( key, QString::null, ok );
-    if ( ok && !*ok )
-	return QStringList();
-
-    return QStringList::split(separator, value);
-}
-
-
 #if !defined(Q_NO_BOOL_TYPE)
 /*!
     Writes the boolean entry \a value into key \a key. The \a key is
@@ -989,28 +995,6 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
     d->writeGroup(realkey, value);
 
     return TRUE;
-}
-
-
-/*!
-    \overload
-    Writes the string list entry \a value into key \a key. The \a key is
-    created if it doesn't exist. Any previous value is overwritten by \a
-    value. The list is stored as a sequence of strings separated by \a
-    separator, so none of the strings in the list should contain the
-    separator. If the list is empty or null the key's value will be an
-    empty string.
-
-    If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned.
-
-  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
-*/
-bool QSettings::writeEntry(const QString &key, const QStringList &value,
-			   const QChar &separator)
-{
-    QString s(value.join(separator));
-    return writeEntry(key, s);
 }
 
 
