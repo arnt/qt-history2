@@ -97,6 +97,6 @@ SYSCONF_LINK_LIB_STATIC	= #${
 	}
 	if ( $project{"TMAKE_RANLIB"} ) {
 	    $text .= " \\\n\t\t\t\t";
-	    ExpandGlue("TMAKE_RANLIB","",""," \$(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC)");
+	    ExpandGlue("TMAKE_RANLIB","","",' $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC)');
 	}
 #$}
