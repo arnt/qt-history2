@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#391 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#392 $
 **
 ** Implementation of QObject class
 **
@@ -574,7 +574,7 @@ const char * QObject::name( const char * defaultName ) const
 }
 
 
-/*!  Searches the children and optinally grandchildren of this object,
+/*!  Searches the children and optionally grandchildren of this object,
   and returns a child that is named \a objName that inherits \a
   inheritsClass. If \a inheritsClass is 0 (the default), any class
   matches.
