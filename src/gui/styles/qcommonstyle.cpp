@@ -58,18 +58,12 @@
 
 */
 
-// the active painter, if any... this is used as an optimzation to
-// avoid creating a painter if we have an active one (since
-// QStyle::itemRect() needs a painter to operate correctly
-static QPainter *activePainter = 0;
-
 /*!
     Constructs a QCommonStyle.
 */
-QCommonStyle::QCommonStyle() : QStyle()
-{
-    activePainter = 0;
-}
+QCommonStyle::QCommonStyle()
+    : QStyle()
+{ }
 
 /*!
     \overload
@@ -77,9 +71,7 @@ QCommonStyle::QCommonStyle() : QStyle()
     Destroys the style
 */
 QCommonStyle::~QCommonStyle()
-{
-    activePainter = 0;
-}
+{ }
 
 
 static const char * const check_list_controller_xpm[] = {
