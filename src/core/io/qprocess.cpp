@@ -548,7 +548,10 @@ bool QProcess::canReadLine() const
 */
 void QProcess::close()
 {
-    // ### unimplemented
+    closeOutputChannel();
+    closeInputChannel(QProcess::StandardOutput);
+    closeInputChannel(QProcess::StandardError);
+    QIODevice::close();
 }
 
 /*! \reimp
