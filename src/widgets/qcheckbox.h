@@ -36,6 +36,7 @@ class Q_EXPORT QCheckBox : public QButton
 {
     Q_OBJECT
     Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
+    Q_PROPERTY( bool tristate READ isTristate WRITE setTristate )
 
 public:
     QCheckBox( QWidget *parent, const char *name=0 );
@@ -47,6 +48,7 @@ public:
     void    setNoChange();
 
     void    setTristate(bool y=TRUE);
+    bool    isTristate() const;
 
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;

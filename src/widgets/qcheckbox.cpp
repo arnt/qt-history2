@@ -140,11 +140,22 @@ void QCheckBox::setNoChange()
   is the "Italic" check box in the font dialog of a word processor
   when the marked text is partially Italic and partially not.
 
-  \sa setNoChange() stateChanged(), state()
+  \sa isTristate(), setNoChange() stateChanged(), state()
 */
 void QCheckBox::setTristate(bool y)
 {
     setToggleType( y ? Tristate : Toggle );
+}
+
+/*!
+  Returns TRUE if the checkbox is a tristate checkbox. Otherwise returns
+  FALSE.
+
+  \sa setTristate()
+*/
+bool QCheckBox::isTristate() const
+{
+    return toggleType() == Tristate;
 }
 
 static int extraWidth( int gs )
