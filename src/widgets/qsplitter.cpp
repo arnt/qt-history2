@@ -494,6 +494,10 @@ int QSplitter::idAfter( QWidget* w ) const
   close as possible to \a p which is the distance from the left (or
   top) edge of the widget.
 
+  For hebrew and arabic the layout is reversed, and using this function
+  to set the position of the splitter might lead to unexpected results.
+  Especially, in hebrew and arabic, the position of splitter one is left of 
+  the position of splitter zero.
   \sa idAfter()
 */
 void QSplitter::moveSplitter( QCOORD p, int id )
@@ -501,8 +505,13 @@ void QSplitter::moveSplitter( QCOORD p, int id )
     p = adjustPos( p, id );
 
     QSplitterLayoutStruct *s = data->list.at(id);
-    int oldP = orient == Horizontal? s->wid->x() : s->wid->y();
-    bool upLeft = p < oldP;
+    int oldP = orient == Horizontal ? s->wid->x() : s->wid->y();
+    bool upLeft;
+    if ( QApplication::reverseLayout() && orient == Horizontal ) {
+	p += s->wid->width();
+	upLeft = p > oldP;
+    } else
+	upLeft = p < oldP;
 
     moveAfter( p, id, upLeft );
     moveBefore( p-1, id-1, upLeft );
@@ -511,11 +520,13 @@ void QSplitter::moveSplitter( QCOORD p, int id )
 }
 
 
-void QSplitter::setG( QWidget *w, int p, int s )
+void QSplitter::setG( QWidget *w, int p, int s, bool isSplitter )
 {
-    if ( orient == Horizontal )
+    if ( orient == Horizontal ) {
+	if ( QApplication::reverseLayout() && orient == Horizontal && !isSplitter )
+	    p = contentsRect().width() - p - s;
 	w->setGeometry( p, contentsRect().y(), s, contentsRect().height() );
-    else
+    } else
 	w->setGeometry( contentsRect().x(), p, contentsRect().width(), s );
 }
 
@@ -528,6 +539,8 @@ void QSplitter::setG( QWidget *w, int p, int s )
 
 void QSplitter::moveBefore( int pos, int id, bool upLeft )
 {
+    if( id < 0 )
+	return;
     QSplitterLayoutStruct *s = data->list.at(id);
     if ( !s )
 	return;
@@ -535,22 +548,37 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
     if ( w->isHidden() ) {
 	moveBefore( pos, id-1, upLeft );
     } else if ( s->isSplitter ) {
+	int pos1, pos2;
 	int dd = s->sizer;
-	if ( upLeft ) {
-	    setG( w, pos-dd+1, dd );
-	    moveBefore( pos-dd, id-1, upLeft );
+	if( QApplication::reverseLayout() && orient == Horizontal ) {
+	    pos1 = pos;
+	    pos2 = pos + dd;
 	} else {
-	    moveBefore( pos-dd, id-1, upLeft );
-	    setG( w, pos-dd+1, dd );
+	    pos2 = pos - dd;
+	    pos1 = pos2 + 1;
+	}
+	if ( upLeft ) {
+	    setG( w, pos1, dd, true );
+	    moveBefore( pos2, id-1, upLeft );
+	} else {
+	    moveBefore( pos2, id-1, upLeft );
+	    setG( w, pos1, dd, true );
 	}
     } else {
-	int left = pick( w->pos() );
-	int dd = pos - left + 1;
-	dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
-	int newLeft = pos-dd+1;
-	setG( w, newLeft, dd );
-	if ( left != newLeft )
-	    moveBefore( newLeft-1, id-1, upLeft );
+	int dd, newLeft, nextPos;
+	if( QApplication::reverseLayout() && orient == Horizontal ) {
+	    dd = w->geometry().right() - pos;
+	    dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
+	    newLeft = pos+1;
+	    nextPos = newLeft + dd;
+	} else {
+	    dd = pos - pick( w->pos() ) + 1;
+	    dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
+	    newLeft = pos-dd+1;
+	    nextPos = newLeft - 1;
+	}
+	setG( w, newLeft, dd, true );
+	moveBefore( nextPos, id-1, upLeft );
     }
 }
 
@@ -575,21 +603,40 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	return;
     } else if ( s->isSplitter ) {
 	int dd = s->sizer;
-	if ( upLeft ) {
-	    setG( w, pos, dd );
-	    moveAfter( pos+dd, id+1, upLeft );
+	int pos1, pos2;
+	if( QApplication::reverseLayout() && orient == Horizontal ) {
+	    pos2 = pos - dd;
+	    pos1 = pos2 + 1;
 	} else {
-	    moveAfter( pos+dd, id+1, upLeft );
-	    setG( w, pos, dd );
+	    pos1 = pos;
+	    pos2 = pos + dd;
+	}
+	if ( upLeft ) {
+	    setG( w, pos1, dd, true );
+	    moveAfter( pos2, id+1, upLeft );
+	} else {
+	    moveAfter( pos2, id+1, upLeft );
+	    setG( w, pos1, dd, true );
 	}
     } else {
-	int right = pick( w->geometry().bottomRight() );
-
-       	int dd = right - pos + 1;
-	dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
-	int newRight = pos+dd-1;
-	setG( w, pos, dd );
-	moveAfter( newRight+1, id+1, upLeft );
+	int left = pick( w->pos() );
+	int right, dd, newRight, newLeft, nextPos;
+	if ( QApplication::reverseLayout() && orient == Horizontal ) {
+	    dd = pos - left + 1;
+	    dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
+	    newLeft = pos-dd+1;
+	    nextPos = newLeft - 1;
+	} else {
+	    right = pick( w->geometry().bottomRight() );
+	    dd = right - pos + 1;
+	    dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
+	    newRight = pos+dd-1;
+	    newLeft = pos;
+	    nextPos = newLeft + dd;
+	}
+	setG( w, newLeft, dd, true );
+	//if( right != newRight )
+	moveAfter( nextPos, id+1, upLeft );
     }
 }
 
@@ -693,12 +740,10 @@ void QSplitter::doResize()
     }
 
     qGeomCalc( a, 0, n, pick( r.topLeft() ), pick( r.size() ), 0 );
+    
     for ( i = 0; i< n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( orient == Horizontal )
-	    s->wid->setGeometry( a[i].pos, r.top(), a[i].size, r.height() );
-	else
-	    s->wid->setGeometry( r.left(), a[i].pos, r.width(), a[i].size );
+	setG( s->wid, a[i].pos, a[i].size );
     }
 
 }
