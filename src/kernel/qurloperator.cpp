@@ -648,12 +648,11 @@ bool QUrlOperator::isDir( bool *ok )
 
     if ( d->entryMap.contains( "." ) ) {
 	return d->entryMap[ "." ].isDir();
-    } else {
-	// #### can assume that we are a directory?
-	if ( ok )
-	    *ok = FALSE;
-	return TRUE;
     }
+    // #### can assume that we are a directory?
+    if ( ok )
+	*ok = FALSE;
+    return TRUE;
 }
 
 /*!  Tells the network protocol to get data from \a location or, if
