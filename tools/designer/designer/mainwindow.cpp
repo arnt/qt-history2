@@ -91,7 +91,6 @@
 #include <qtimer.h>
 #include <qlistbox.h>
 #include <stdlib.h>
-#include <qdockwidget.h>
 
 static int forms = 0;
 
@@ -117,7 +116,7 @@ static const char * whatsthis_image[] = {
     "     ooo        ",
     "     ooo        "};
 
-const char toolbarHelp[] = "<p>Toolbars contain a number of buttons to "
+const QString toolbarHelp = "<p>Toolbars contain a number of buttons to "
 "provide quick access to often used functions.%1"
 "<br>Click on the toolbar handle to hide the toolbar, "
 "or drag and place the toolbar to a different location.</p>";
@@ -970,9 +969,11 @@ void MainWindow::setupHelpActions()
 
 void MainWindow::setupPropertyEditor()
 {
-    QDockWidget *dw = new QDockWidget;
+    DockWidget *dw = new DockWidget;
     dw->setResizeEnabled( TRUE );
     dw->setCloseEnabled( TRUE );
+    connect( dw, SIGNAL( showMe( bool ) ),
+	     this, SLOT( windowPropertyEditor( bool ) ) );
     propertyEditor = new PropertyEditor( dw );
     addToolBar( dw, Qt::Left );
     dw->setWidget( propertyEditor );
@@ -998,9 +999,11 @@ void MainWindow::setupHierarchyView()
 {
     if ( hierarchyView )
 	return;
-    QDockWidget *dw = new QDockWidget;
+    DockWidget *dw = new DockWidget;
     dw->setResizeEnabled( TRUE );
     dw->setCloseEnabled( TRUE );
+    connect( dw, SIGNAL( showMe( bool ) ),
+	     this, SLOT( windowHierarchyView( bool ) ) );
     hierarchyView = new HierarchyView( dw );
     addToolBar( dw, Qt::Right );
     dw->setWidget( hierarchyView );
@@ -1016,18 +1019,19 @@ void MainWindow::setupHierarchyView()
     connect( hierarchyView, SIGNAL( hidden() ),
 	     this, SLOT( hierarchyViewHidden() ) );
     actionWindowHierarchyView->setOn( FALSE );
-    hierarchyView->hide();
+    dw->hide();
 }
 
 void MainWindow::setupFormList()
 {
-    QDockWidget *dw = new QDockWidget;
+    DockWidget *dw = new DockWidget;
     dw->setResizeEnabled( TRUE );
     dw->setCloseEnabled( TRUE );
+    connect( dw, SIGNAL( showMe( bool ) ),
+	     this, SLOT( windowFormList( bool ) ) );
     formList = new FormList( dw, this );
-    addToolBar( dw, Qt::Left );
+    addToolBar( dw, Qt::Bottom );
     dw->setWidget( formList );
-    dw->show();
 
     dw->setCaption( tr( "Forms" ) );
     flGeom = QRect( -1, -1, 600, 300 );
@@ -1038,7 +1042,7 @@ void MainWindow::setupFormList()
     connect( formList, SIGNAL( hidden() ),
 	     this, SLOT( formListHidden() ) );
     actionWindowFormList->setOn( FALSE );
-    formList->hide();
+    dw->hide();
 }
 
 void MainWindow::setupRMBMenus()
@@ -1788,11 +1792,12 @@ void MainWindow::windowPropertyEditor( bool showIt )
 	setupPropertyEditor();
     if ( showIt ) {
 	correctGeometry( propertyEditor, workspace );
-	propertyEditor->show();
+	propertyEditor->parentWidget()->show();
 	propertyEditor->setFocus();
     } else {
-	propertyEditor->hide();
+	propertyEditor->parentWidget()->hide();
     }
+    actionWindowPropertyEditor->setOn( showIt );
 }
 
 void MainWindow::windowHierarchyView( bool showIt )
@@ -1801,11 +1806,12 @@ void MainWindow::windowHierarchyView( bool showIt )
 	setupHierarchyView();
     if ( showIt ) {
 	correctGeometry( hierarchyView, workspace );
-	hierarchyView->show();
+	hierarchyView->parentWidget()->show();
 	hierarchyView->setFocus();
     } else {
-	hierarchyView->hide();
+	hierarchyView->parentWidget()->hide();
     }
+    actionWindowHierarchyView->setOn( showIt );
 }
 
 void MainWindow::windowFormList( bool showIt )
@@ -1814,11 +1820,12 @@ void MainWindow::windowFormList( bool showIt )
 	setupFormList();
     if ( showIt ) {
 	correctGeometry( formList, workspace );
-	formList->show();
+	formList->parentWidget()->show();
 	formList->setFocus();
     } else {
-	formList->hide();
+	formList->parentWidget()->hide();
     }
+    actionWindowFormList->setOn( showIt );
 }
 
 void MainWindow::toolsCustomWidget()

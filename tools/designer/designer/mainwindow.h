@@ -31,6 +31,7 @@
 
 #include <qmap.h>
 #include <qguardedptr.h>
+#include <qdockwidget.h>
 
 class PropertyEditor;
 class QWorkspace;
@@ -101,7 +102,7 @@ public:
     void saveAllTemp();
 
     QString templatePath() const { return templPath; }
-    
+
 public slots:
     void showProperties( QWidget *w );
     void updateProperties( QWidget *w );
@@ -112,7 +113,7 @@ signals:
     void hasActiveForm( bool );
     void formModified( bool );
     void formWindowsChanged();
-    
+
 protected:
     bool eventFilter( QObject *o, QEvent *e );
     void closeEvent( QCloseEvent *e );
@@ -278,5 +279,27 @@ private:
     ActionPlugInManager *actionPluginManager;
 
 };
+
+class DockWidget : public QDockWidget
+{
+    Q_OBJECT
+    
+public:
+    DockWidget( Place p = InDock, QWidget *parent = 0, const char *name = 0, WFlags f = 0 )
+	: QDockWidget( p, parent, name, f ) {}
+
+    void closeEvent( QCloseEvent *e ) {
+	e->ignore();
+	if ( isVisible() )
+	    emit showMe( FALSE );
+	else
+	    emit showMe( TRUE );
+    }
+    
+signals:
+    void showMe( bool );
+    
+};
+
 
 #endif
