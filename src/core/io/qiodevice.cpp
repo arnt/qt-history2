@@ -466,7 +466,9 @@ qint64 QIODevice::pos() const
 */
 qint64 QIODevice::size() const
 {
-    return bytesAvailable();
+    if (isSequential())
+        return bytesAvailable();
+    return 0;
 }
 
 /*!
@@ -512,7 +514,9 @@ bool QIODevice::reset()
 */
 qint64 QIODevice::bytesAvailable() const
 {
-    return size() - pos();
+    if (!isSequential())
+        return size() - pos();
+    return 0;
 }
 
 /*!
