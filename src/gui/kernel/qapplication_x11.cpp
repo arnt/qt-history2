@@ -771,7 +771,7 @@ bool QApplication::x11_apply_settings()
         settings.value(QLatin1String("useRtlExtensions"), false).toBool();
 
     qt_has_accelerated_xrender =
-        settings.value(QLatin1String("hasAcceleratedXrender"), false).toBool();
+        settings.value(QLatin1String("hasAcceleratedXRender"), false).toBool();
 
 #ifndef QT_NO_XIM
     if (qt_xim_preferred_style == 0) {
