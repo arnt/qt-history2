@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#27 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#28 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#28 $");
 
 
 /*!
@@ -581,15 +581,12 @@ void QFileDialog::resizeEvent( QResizeEvent * )
 
     wTmp = filterB->width();
     filterB->move( (w - wTmp)/2, rTmp.y() );
-
 }
-
 
 /*!
   \internal
   Updates the path box.	 Called from rereadDir().
 */
-
 void QFileDialog::updatePathBox( const char *s )
 {
     QStrList l;
@@ -604,8 +601,11 @@ void QFileDialog::updatePathBox( const char *s )
 	l.insert( 0, tmp + "/" );
 	tmp = strtok( 0, "/" );
     }
+    pathBox->setUpdatesEnabled( FALSE );
     pathBox->clear();
     pathBox->insertStrList( &l );
     pathBox->setCurrentItem( 0 );
     pathBox->move( (width() - pathBox->width()) / 2, pathBox->geometry().y() );
+    pathBox->setUpdatesEnabled( TRUE );
+    pathBox->repaint();
 }
