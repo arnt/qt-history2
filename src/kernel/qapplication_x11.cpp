@@ -1279,24 +1279,6 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	*qt_std_pal = pal;
     }
 
->>>> ORIGINAL qapplication_x11.cpp#73
-    if ( !resEF.isEmpty() ) {
-	QStringList effects = QStringList::split(" ",resEF);
-	QApplication::setEffectEnabled( Qt::UI_General,  effects.contains("general") );
-	QApplication::setEffectEnabled( Qt::UI_AnimateMenu, effects.contains("animatemenu") );
-	QApplication::setEffectEnabled( Qt::UI_FadeMenu, effects.contains("fademenu") );
-	QApplication::setEffectEnabled( Qt::UI_AnimateCombo, effects.contains("animatecombo") );
-	QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, effects.contains("animatetooltip") );
-	QApplication::setEffectEnabled( Qt::UI_FadeTooltip, effects.contains("fadetooltip") );
-    } else {
-	QApplication::setEffectEnabled( Qt::UI_General, FALSE);
-	QApplication::setEffectEnabled( Qt::UI_AnimateMenu, FALSE);
-	QApplication::setEffectEnabled( Qt::UI_FadeMenu, FALSE);
-	QApplication::setEffectEnabled( Qt::UI_AnimateCombo, FALSE );
-	QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, FALSE );
-	QApplication::setEffectEnabled( Qt::UI_FadeTooltip, FALSE );
-    }
-==== THEIRS qapplication_x11.cpp#74
     if ( !resEF.isEmpty() ) {
 	QStringList effects = QStringList::split(" ",resEF);
 	QApplication::setEffectEnabled( Qt::UI_General,  effects.contains("general") );
@@ -1306,15 +1288,6 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, effects.contains("animatetooltip") );
 	QApplication::setEffectEnabled( Qt::UI_FadeTooltip, effects.contains("fadetooltip") );
     } 
-==== YOURS qapplication_x11.cpp
-    QStringList effects = QStringList::split(" ",resEF);
-    QApplication::setEffectEnabled( Qt::UI_General,  effects.contains("general") );
-    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, effects.contains("animatemenu") );
-    QApplication::setEffectEnabled( Qt::UI_FadeMenu, effects.contains("fademenu") );
-    QApplication::setEffectEnabled( Qt::UI_AnimateCombo, effects.contains("animatecombo") );
-    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, effects.contains("animatetooltip") );
-    QApplication::setEffectEnabled( Qt::UI_FadeTooltip, effects.contains("fadetooltip") );
-<<<<
 }
 
 
