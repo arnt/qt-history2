@@ -953,6 +953,10 @@ QMakeProject::read(uchar cmd)
 
     vars = base_vars; // start with the base
 
+    //get a default
+    if(pfile != "-" && vars["TARGET"].isEmpty()) 
+        vars["TARGET"].append(QFileInfo(pfile).baseName());
+
     //before commandline
     if(cmd & ReadCmdLine) {
         cfile = pfile;
@@ -1007,6 +1011,9 @@ QMakeProject::read(uchar cmd)
         }
     }
 
+    if(pfile != "-" && vars["TARGET"].isEmpty()) 
+        vars["TARGET"].append(QFileInfo(pfile).baseName());
+
     if(cmd & ReadConfigs && !Option::user_configs.isEmpty()) {
         parser.file = "(configs)";
         parser.from_file = false;
@@ -1047,18 +1054,6 @@ QMakeProject::read(uchar cmd)
         templ = QStringList(templ.first().left(templ.first().length() - 2));
     if(!Option::user_template_prefix.isEmpty())
         templ.first().prepend(Option::user_template_prefix);
-
-    if(vars["TARGET"].isEmpty()) {
-        // ### why not simply use:
-        // QFileInfo fi(pfile);
-        // fi.baseName();
-        QString tmp = pfile;
-        if(tmp.lastIndexOf('/') != -1)
-            tmp = tmp.right(tmp.length() - tmp.lastIndexOf('/') - 1);
-        if(tmp.lastIndexOf('.') != -1)
-            tmp = tmp.left(tmp.lastIndexOf('.'));
-        vars["TARGET"].append(tmp);
-    }
 
     QString test_version = getenv("QTESTVERSION");
     if(!test_version.isEmpty()) {
