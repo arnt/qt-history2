@@ -37,9 +37,11 @@ public:
     Op( const QVariant& P1 = QVariant(),
 	 const QVariant& P2 = QVariant(),
 	 const QVariant& P3 = QVariant() )
-	: p1( P1 ), p2( P2 ), p3( P3 ), lab( 0 ) {}
+	: p1( P1 ), p2( P2 ), p3( P3 ), lab( 0 )
+    {
+    }
 
-    virtual ~Op();
+    ~Op();
     void setLabel( int L ) { lab = L; }
     int label() const { return lab; }
     QVariant& P( int i )
@@ -679,6 +681,7 @@ public:
     }
 };
 
+#if 0
 /* Resets the internal marked-record iterator for the file which is
   identified by 'id' to the beginning (see Mark).  Marked records can
   then be sequentially retrieved using NextMarked.  The file does not
@@ -697,7 +700,7 @@ public:
 	return drv->rewindMarked();
     }
 };
-
+#endif
 
 /* Go to next marked record of the file identified by 'id'.  On
  failure goto P2.  The file must be open (see Open).

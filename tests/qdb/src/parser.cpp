@@ -699,7 +699,7 @@ void Parser::emitCondition( const QVariant& cond,
 	    yyProg->append( new CreateResult(0) );
 	}
 
-	yyProg->append( new RewindMarked(tableId) );
+	//	yyProg->append( new RewindMarked(tableId) );
 	yyProg->appendLabel( nextRecord );
 	yyProg->append( new NextMarked(tableId, endRecords) );
 
@@ -1627,7 +1627,7 @@ void Parser::matchUpdateStatement()
     int nextMarkedRecord = yyNextLabel--;
     int endRecords = yyNextLabel--;
 
-    yyProg->append( new RewindMarked(tableId) );
+    //    yyProg->append( new RewindMarked(tableId) );
     yyProg->appendLabel( nextMarkedRecord );
     yyProg->append( new NextMarked(tableId, endRecords) );
 

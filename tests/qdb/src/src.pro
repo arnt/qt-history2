@@ -23,6 +23,7 @@ TEMPLATE	= lib
 CONFIG+= xbase
 include(../include/shared.pri)
 SOURCES	        += ../src/sqlinterpreter.cpp \
+		../src/environment.cpp \
 		../src/filedriver_xbase.cpp \
 		../src/op.cpp \
 		../src/parser.cpp \

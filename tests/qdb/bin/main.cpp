@@ -306,7 +306,10 @@ int main( int argc, char** argv )
 	} while( rs->next() );
 	if ( verbose )
 	    outstream << "(" << rs->size() << " row" << (rs->size()==1?")":"s)") << endl;
+    } else if ( env.affectedRows() > -1 ) {
+	outstream << env.affectedRows() << " record(s) processed" << endl;
     }
+
 
     if ( outfile.isOpen() )
 	outfile.close();

@@ -165,6 +165,8 @@ namespace localsql {
 	virtual int exec( Environment* env ) = 0;
 	/*! Returns the name of the instruction */
 	virtual QString name() const = 0;
+
+	virtual	~Op();
     };
 
     /*! \struct Program

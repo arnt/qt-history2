@@ -251,12 +251,8 @@ public:
     QStringList listing() const;
 
 private:
-    QList< localsql::Op > ops;
-    int pc;
-    int pendingLabel;
-    QArray< int > counters;
-    localsql::ColumnKey sortKey;
-    bool dirty;
+    class Private;
+    Private* d;
 
     Program( const Program& other );
     Program& operator=( const Program& other );

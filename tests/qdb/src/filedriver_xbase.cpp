@@ -36,8 +36,8 @@
 #include <xdb/xbase.h>
 #include <xdb/xbexcept.h>
 
-#define DEBUG_XBASE 1
-#define VERBOSE_DEBUG_XBASE
+//#define DEBUG_XBASE 1
+//#define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
@@ -122,16 +122,30 @@ static char variantToXbaseType( QVariant::Type type )
 
 
 
+#define UNKNOWN_FIELD_NAME    QString("Field does not exist: ")
+#define UNKNOWN_FIELD_NUM     QString("Field number does not exist: ")
+#define UNKNOWN_TABLE         QString("Table does not exist: ")
+
 class FileDriver::Private
 {
 public:
     Private()
-	: file(&x), allMarked( FALSE ), fileRewound( FALSE ) { indexes.setAutoDelete( TRUE ); }
+	: file(&x), allMarked( FALSE ), fileRewound( FALSE )
+    {
+	indexes.setAutoDelete( TRUE );
+    }
     Private( const Private& )
-	: file(&x), allMarked( FALSE ), fileRewound( FALSE ) { indexes.setAutoDelete( TRUE ); }
+	: file(&x), allMarked( FALSE ), fileRewound( FALSE )
+    {
+	indexes.setAutoDelete( TRUE );
+    }
     Private& operator=( const Private& )
     {
+	indexes.setAutoDelete( TRUE );
 	return *this;
+    }
+    ~Private()
+    {
     }
     xbShort putField( int i, const QVariant& v )
     {
@@ -302,7 +316,7 @@ bool FileDriver::open()
     }
     xbShort rc = d->file.OpenDatabase( env->path() + "/" + name().latin1() );
     if ( rc != XB_NO_ERROR ) {
-	ERROR_RETURN( "Unable to open table '" + name() + "': " + QString ( xbStrError( rc ) ) );
+	ERROR_RETURN( UNKNOWN_TABLE + "'" + name() + "' [" + QString ( xbStrError( rc ) ) + "]" );
     }
 #ifdef DEBUG_XBASE
     env->output() << env->path() + "/" + name().latin1() << " opened..." << flush;
@@ -434,10 +448,10 @@ bool FileDriver::insert( const localsql::List& data )
 	    name = QString( d->file.GetFieldName( pos ) ).simplifyWhiteSpace();
 	}
 	if ( pos == -1 ) {
-	    ERROR_RETURN( "Unknown field: " + name );
+	    ERROR_RETURN( UNKNOWN_FIELD_NAME + "'" + name + "'" );
 	}
 	if ( !name.length() ) {
-	    ERROR_RETURN( "Unknown field number:" + QString::number(pos) );
+	    ERROR_RETURN( UNKNOWN_FIELD_NUM + QString::number(pos) );
 	}
 	QVariant val = insertData[1];
 	if ( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) == QVariant::Date ) {
@@ -521,8 +535,10 @@ bool FileDriver::deleteMarked()
     env->setAffectedRows( -1 );
     if ( !isOpen() )
 	return FALSE;
-    if ( !d->marked.count() )
+    if ( !d->marked.count() ) {
+	env->setAffectedRows( 0 );
 	return TRUE;
+    }
     for ( uint i = 0; i < d->marked.count(); ++i ) {
 	xbShort rc = d->file.GetRecord( d->marked[i] );
 	if ( rc != XB_NO_ERROR ) {
@@ -548,7 +564,7 @@ bool FileDriver::commit()
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
-    d->file.PackDatabase( F_SETLKW );
+    //    d->file.PackDatabase( F_SETLKW );
 #ifdef VERBOSE_DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -574,7 +590,7 @@ bool FileDriver::field( uint i, QVariant& v )
 	ERROR_RETURN( "Internal error: Not on valid record" );
     }
     if ( (int)i > d->file.FieldCount()-1 ) {
-	ERROR_RETURN( "Internal error: Field does not exist" );
+	ERROR_RETURN( UNKNOWN_FIELD_NUM + QString::number(i) );
     }
     return d->getField( i, v );
 }
@@ -587,6 +603,9 @@ bool FileDriver::fieldDescription( const QString& name, QVariant& v )
     if ( !isOpen() )
 	return FALSE;
     int i = d->file.GetFieldNo( name.latin1() );
+    if ( i == -1 ) {
+	ERROR_RETURN( UNKNOWN_FIELD_NAME + "'" + name + "'" );
+    }
     return fieldDescription( i, v );
 }
 
@@ -598,7 +617,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     if ( !isOpen() )
 	return FALSE;
     if ( i == -1 || i > d->file.FieldCount()-1 ) {
-	ERROR_RETURN( "Internal error: Field does not exist" );
+	ERROR_RETURN( UNKNOWN_FIELD_NUM + QString::number(i));
     }
     localsql::List field;
     QString name = QString( d->file.GetFieldName( i ) ).simplifyWhiteSpace();
@@ -625,8 +644,10 @@ bool FileDriver::updateMarked( const localsql::List& data )
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
-    if ( !d->marked.count() )
+    if ( !d->marked.count() ) {
+	env->setAffectedRows( 0 );
 	return TRUE;
+    }
     if ( !data.count() ) {
 	ERROR_RETURN( "Internal error: No fields defined" );
     }
@@ -743,7 +764,7 @@ bool FileDriver::update( const localsql::List& data )
 	    ERROR_RETURN( "Field not found:" + name );
 	}
 	if ( !name.length() ) {
-	    ERROR_RETURN( "Internal error: Unknown field number:" + QString::number(pos) );
+	    ERROR_RETURN( "Internal error: " + UNKNOWN_FIELD_NUM + QString::number(pos) );
 	}
 	if ( !canConvert( updateData[1].type(), xbaseTypeToVariant( d->file.GetFieldType( pos ) ) ) ) {
 	    QVariant v; v.cast( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) );
@@ -838,13 +859,17 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 			 val.type() == QVariant::CString )
 			numeric = FALSE;
 		}
+		if ( numeric ) {
 #ifdef DEBUG_XBASE
-		env->output() << "search value:'" << searchValue.latin1() << "'..." << flush;
+		    env->output() << "numeric value:'" << searchValue.latin1() << "'..." << flush;
 #endif
-		if ( numeric )
 		    rc = d->indexes[i]->FindKey( searchValue.toDouble() );
-		else
+		} else {
+#ifdef DEBUG_XBASE
+		    env->output() << "string value:'" << searchValue.latin1() << "'..." << flush;
+#endif
 		    rc = d->indexes[i]->FindKey( searchValue.utf8() );
+		}
 		if ( rc == XB_FOUND ) {
 		    rc = XB_NO_ERROR;
 		    /* found a key, now scan until we hit a new key value */
@@ -933,7 +958,7 @@ bool FileDriver::saveResult( const localsql::List* cols, localsql::ResultSet* re
 	QVariant v;
 	if ( (*cols)[i].type() == QVariant::List ) { /* field desc */
 	    if ( !field( (*cols)[i].toList()[0].toString(), v ) ) {
-		ERROR_RETURN( "Unknown column:"+ (*cols)[i].toString() );
+		ERROR_RETURN( UNKNOWN_FIELD_NAME + "'" + (*cols)[i].toString() + "'" );
 	    }
 	} else { /* literal value */
 	    v = (*cols)[i];

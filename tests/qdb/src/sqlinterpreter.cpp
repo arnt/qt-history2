@@ -22,7 +22,8 @@
 
 */
 
-#include <sqlinterpreter.h>
+#include "../include/sqlinterpreter.h"
+#include "../include/op.h"
 #include <qcleanuphandler.h>
 #include <qdatetime.h>
 #include <qfile.h>
@@ -36,15 +37,27 @@
 using namespace std;
 #endif
 
-/*!  Constructs an empty
+class Program::Private
+{
+public:
+    QList< localsql::Op > ops;
+    int pc;
+    int pendingLabel;
+    QArray< int > counters;
+    localsql::ColumnKey sortKey;
+    bool dirty;
+};
+
+/*!  Constructs an empty program
 
 */
 
 Program::Program()
 {
-    ops.setAutoDelete( TRUE );
-    pendingLabel = 0;
-    dirty = FALSE;
+    d = new Private();
+    d->ops.setAutoDelete( TRUE );
+    d->pendingLabel = 0;
+    d->dirty = FALSE;
 }
 
 
@@ -55,12 +68,13 @@ Program::Program()
 
 Program::~Program()
 {
+    delete d;
 }
 
 
 void Program::appendLabel( int lab )
 {
-    pendingLabel = lab;
+    d->pendingLabel = lab;
 }
 
 /*!  Appends \a op to the program listing.  The program takes
@@ -70,11 +84,11 @@ ownership of the pointer.
 
 void Program::append( localsql::Op* op )
 {
-    ops.append( op );
-    dirty = TRUE;
-    if ( pendingLabel != 0 ) {
-	op->setLabel( pendingLabel );
-	pendingLabel = 0;
+    d->ops.append( op );
+    d->dirty = TRUE;
+    if ( d->pendingLabel != 0 ) {
+	op->setLabel( d->pendingLabel );
+	d->pendingLabel = 0;
     }
 }
 
@@ -87,8 +101,8 @@ void Program::append( localsql::Op* op )
 
 void Program::remove( uint i )
 {
-    ops.remove( i );
-    dirty = TRUE;
+    d->ops.remove( i );
+    d->dirty = TRUE;
 }
 
 
@@ -98,8 +112,8 @@ void Program::remove( uint i )
 
 void Program::clear()
 {
-    ops.clear();
-    dirty = TRUE;
+    d->ops.clear();
+    d->dirty = TRUE;
 }
 
 
@@ -111,7 +125,7 @@ be executed. If \a i is negative, it is interpreted as a label.
 void Program::setCounter( int i )
 {
     if ( i < 0 ) {
-	if ( dirty ) {
+	if ( d->dirty ) {
 	    int instrNo = 0;
 
 	    /*
@@ -119,20 +133,20 @@ void Program::setCounter( int i )
 	      numbers. If the instruction is a goto, make the label
 	      map to the target of the goto.
 	    */
-	    localsql::Op *op = ops.first();
+	    localsql::Op *op = d->ops.first();
 	    while ( op != 0 ) {
 		if ( op->label() < 0 ) {
 		    int n = -( op->label() + 1 );
-		    if ( (int) counters.size() < n + 1 )
-			counters.resize( n + 1 );
+		    if ( (int) d->counters.size() < n + 1 )
+			d->counters.resize( n + 1 );
 
 		    if ( op->name() == QString("goto") )
-			counters[n] = op->P( 0 ).toInt();
+			d->counters[n] = op->P( 0 ).toInt();
 		    else
-			counters[n] = instrNo;
+			d->counters[n] = instrNo;
 		}
 		instrNo++;
-		op = ops.next();
+		op = d->ops.next();
 	    }
 
 	    /*
@@ -140,17 +154,17 @@ void Program::setCounter( int i )
 	      (no labels). This process will fall in an infinite loop
 	      if the gotos make an infinite loop.
 	    */
-	    for ( int i = 0; i < (int) counters.size(); i++ ) {
-		while ( counters[i] < 0 )
-		    counters[i] = counters[-(counters[i] + 1)];
+	    for ( int i = 0; i < (int) d->counters.size(); i++ ) {
+		while ( d->counters[i] < 0 )
+		    d->counters[i] = d->counters[-(d->counters[i] + 1)];
 	    }
 
-	    dirty = FALSE;
+	    d->dirty = FALSE;
 	}
 
-	i = counters[-(i + 1)];
+	i = d->counters[-(i + 1)];
     }
-    pc = i - 1;
+    d->pc = i - 1;
 }
 
 
@@ -161,7 +175,7 @@ return the first instruction).
 
 void Program::resetCounter()
 {
-    pc = -1;
+    d->pc = -1;
 }
 
 
@@ -171,7 +185,7 @@ void Program::resetCounter()
 
 int Program::counter()
 {
-    return pc;
+    return d->pc;
 }
 
 
@@ -181,9 +195,9 @@ int Program::counter()
 
 localsql::Op* Program::next()
 {
-    ++pc;
-    if ( pc < (int)ops.count() )
-	return ops.at( pc );
+    ++d->pc;
+    if ( d->pc < (int)d->ops.count() )
+	return d->ops.at( d->pc );
     return 0;
 }
 
