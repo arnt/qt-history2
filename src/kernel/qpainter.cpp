@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#91 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#91 $");
 
 
 /*!
@@ -1247,8 +1247,10 @@ void QPen::setColor( const QColor &c )
 
 bool QPen::operator==( const QPen &p ) const
 {
-    return (p.data == data) || (p.data->style == data->style &&
-	    p.data->width == data->width && p.data->color == data->color);
+    return ((p.data == data) ||
+	    (p.data->style == data->style &&
+	     p.data->width == data->width &&
+	     p.data->color.rgb() == data->color.rgb() ));
 }
 
 
@@ -1579,9 +1581,10 @@ void QBrush::setPixmap( const QPixmap &pixmap )
 
 bool QBrush::operator==( const QBrush &b ) const
 {
-    return (b.data == data) || (b.data->style == data->style &&
-	    b.data->color  == data->color &&
-	    b.data->pixmap == data->pixmap);
+    return ((b.data == data) ||
+	    (b.data->style == data->style &&
+	     b.data->color.rgb() == data->color.rgb() &&
+	     b.data->pixmap == data->pixmap));
 }
 
 
