@@ -3974,3 +3974,105 @@ bool QImage::isDetached() const
 {
     return d->ref == 1;
 }
+
+
+/*
+    Sets the alpha channel of this image to \a alphaChannel.
+
+    If \a alphaChannel is an 8 bit grayscale image, the intensity
+    values are written into this buffer directly. Otherwise, \a
+    alphaChannel is converted to 32 bit and the intensity of the RGB
+    pixel values is used.
+
+    if \a alphaChannel is a null image, the image is reset to
+    fully opaque.
+
+    This function has no effect if the image is not 32 bit.
+*/
+
+void QImage::setAlphaChannel(const QImage &alphaChannel)
+{
+    if (d->d != 32) {
+        qWarning("QImage::setAlphaChannel(), image must be 32-bit");
+        return;
+    }
+
+    detach();
+
+    // Reset alpha channel to full opacity
+    if (alphaChannel.size().isEmpty()) {
+        d->alpha = false;
+        return;
+    }
+
+    d->alpha = true;
+
+    int w = d->w;
+    int h = d->h;
+
+    if (alphaChannel.d->d == 8 && alphaChannel.isGrayscale()) {
+        for (int y=0; y<h; ++y) {
+            const uchar *src = alphaChannel.scanLine(y);
+            QRgb *dest = (QRgb *) d->bits[y];
+            for (int x=0; x<w; ++x) {
+                *dest = (*src << 24) | (0x00ffffff & *dest);
+                ++dest;
+                ++src;
+            }
+        }
+
+    } else {
+        const QImage sourceImage = alphaChannel.convertDepth(32);
+        for (int y=0; y<h; ++y) {
+            const QRgb *src = (QRgb *) alphaChannel.scanLine(y);
+            QRgb *dest = (QRgb *) d->bits[y];
+            for (int x=0; x<w; ++x) {
+                int alpha = qGray(*src);
+                *dest = (alpha << 24) | (0x00ffffff & *dest);
+                ++dest;
+                ++src;
+            }
+        }
+    }
+}
+
+
+/*
+    Extracts the alpha channel from this image as an 8 bit gray scale
+    image and returns it.
+
+    The alphachannel is only accessible for 32 bit images.
+*/
+
+QImage QImage::alphaChannel() const
+{
+    if (d->d != 32) {
+        qWarning("QImage::alphaChannel(), image is not 32 bit");
+        return QImage();
+    }
+
+    int w = d->w;
+    int h = d->h;
+
+    QImage image(w, h, 8, 256);
+
+    // set up gray scale table.
+    for (int i=0; i<256; ++i)
+        image.setColor(i, qRgb(i, i, i));
+
+    if (d->alpha) {
+        for (int y=0; y<h; ++y) {
+            QRgb *src = (QRgb *) d->bits[y];
+            uchar *dest = image.d->bits[y];
+            for (int x=0; x<w; ++x) {
+                *dest = qAlpha(*src);
+                ++dest;
+                ++src;
+            }
+        }
+    } else {
+        image.fill(255);
+    }
+
+    return image;
+}

@@ -93,6 +93,9 @@ public:
     bool hasAlphaBuffer() const;
     void setAlphaBuffer(bool);
 
+    void setAlphaChannel(const QImage &alphaChannel);
+    QImage alphaChannel() const;
+
     bool allGray() const;
     bool isGrayscale() const;
 

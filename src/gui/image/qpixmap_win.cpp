@@ -584,17 +584,12 @@ QPaintEngine *QPixmap::paintEngine() const
 
 void QPixmap::setAlphaChannel(const QPixmap &alphaChannel)
 {
-#if 0
     data->image.setAlphaChannel(alphaChannel.toImage());
-#endif
 }
 
 QPixmap QPixmap::alphaChannel() const
 {
-#if 0
     return QPixmap::fromImage(data->image.alphaChannel());
-#endif
-    return QPixmap();
 }
 
 HBITMAP QPixmap::toWinHBITMAP() const
