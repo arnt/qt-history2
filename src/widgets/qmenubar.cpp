@@ -486,7 +486,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	return FALSE;
     }
 
-    if ( ! isVisible() || ! object->isWidgetType() )
+    if ( !isVisible() || !object->isWidgetType() )
 	return FALSE;
 
     if ( object == this && event->type() == QEvent::LanguageChange ) {
@@ -494,7 +494,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	calculateRects();
 	return FALSE;
     } else if ( event->type() == QEvent::MouseButtonPress ||
-	event->type() == QEvent::MouseButtonRelease ) {
+		event->type() == QEvent::MouseButtonRelease ) {
 	waitforalt = 0;
 	return FALSE;
     } else if ( waitforalt && event->type() == QEvent::FocusOut ) {
@@ -505,11 +505,11 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	// need to touch the event filters
 	waitforalt = 0;
 	return FALSE;
-    } else if ( ! ( event->type() == QEvent::Accel ||
-	event->type() == QEvent::AccelOverride ||
-	event->type() == QEvent::KeyPress ||
-	event->type() == QEvent::KeyRelease ) ||
-	! style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) ) {
+    } else if ( !( event->type() == QEvent::Accel ||
+		event->type() == QEvent::AccelOverride ||
+		event->type() == QEvent::KeyPress ||
+		event->type() == QEvent::KeyRelease ) ||
+		!style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) ) {
 	return FALSE;
     }
 
@@ -844,20 +844,19 @@ int QMenuBar::calculateRects( int max_width )
 {
     polish();
     bool update = ( max_width < 0 );
-
+    
     if ( update ) {
 	rightSide = 0;
 	if ( !badSize )				// size was not changed
 	    return 0;
-	if ( irects )				// Avoid purify complaint.
-	    delete [] irects;
-	if ( mitems->isEmpty() ) {
+	delete [] irects;
+	int i = mitems->count();
+	if ( i == 0 ) {
 	    irects = 0;
-	    return 0;
+	} else {
+	    irects = new QRect[ i ];
+	    Q_CHECK_PTR( irects );
 	}
-	int i = mitems->count();		// workaround for gcc 2.95.2
-	irects = new QRect[ i ];		// create rectangle array
-	Q_CHECK_PTR( irects );
 	max_width = width();
     }
     QFontMetrics fm = fontMetrics();
