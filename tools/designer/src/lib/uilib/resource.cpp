@@ -28,6 +28,7 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QListWidget>
 #include <QtGui/QComboBox>
+#include <QtGui/QStatusBar>
 
 #include <QtXml/QDomDocument>
 
@@ -209,27 +210,47 @@ bool Resource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWid
 
     if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(parentWidget)) {
         tabWidget->addTab(widget, title);
-    } else if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(parentWidget)) {
-        stackedWidget->addWidget(widget);
-    } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
-        toolBox->addItem(widget, label);
-    } else if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget)) {
-        if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
-            mainWindow->addToolBar(tb);
-        }
-    } else if (QMenuBar *mb = qobject_cast<QMenuBar*>(parentWidget)) {
-        if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
-            mb->addMenu(menu);
-        }
-    } else if (QMenu *parentMenu = qobject_cast<QMenu*>(parentWidget)) {
-        if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
-            parentMenu->addMenu(menu);
-        }
-    } else {
-        return false;
+        return true;
     }
 
-    return true;
+    if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(parentWidget)) {
+        stackedWidget->addWidget(widget);
+        return true;
+    }
+
+    if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
+        toolBox->addItem(widget, label);
+        return true;
+    }
+
+    if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget)) {
+        if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
+            mainWindow->addToolBar(tb);
+            return true;
+        } else if (QMenuBar *mb = qobject_cast<QMenuBar*>(widget)) {
+            mainWindow->setMenuBar(mb);
+            return true;
+        } else if (QStatusBar *sb = qobject_cast<QStatusBar*>(widget)) {
+            mainWindow->setStatusBar(sb);
+            return true;
+        }
+    }
+
+    if (QMenuBar *mb = qobject_cast<QMenuBar*>(parentWidget)) {
+        if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
+            mb->addMenu(menu);
+            return true;
+        }
+    }
+
+    if (QMenu *parentMenu = qobject_cast<QMenu*>(parentWidget)) {
+        if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
+            parentMenu->addMenu(menu);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void Resource::layoutInfo(DomWidget *ui_widget, QObject *parent, int *margin, int *spacing)

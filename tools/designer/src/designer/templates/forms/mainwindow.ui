@@ -18,6 +18,7 @@
   <property name="windowTitle" >
    <string>MainWindow</string>
   </property>
+  <widget class="QWidget" name="centralWidget" />
  </widget>
  <pixmapfunction></pixmapfunction>
  <connections/>

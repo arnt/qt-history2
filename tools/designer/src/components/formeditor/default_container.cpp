@@ -108,7 +108,7 @@ void QDesignerContainer::addWidget(QWidget *widget)
     else if (qobject_cast<QDesignerToolBox*>(m_widget))
         static_cast<QDesignerToolBox*>(m_widget)->addItem(widget, QString::fromUtf8("Page"));
     else if (qobject_cast<QMainWindow*>(m_widget)) {
-        /* ignore */
+        static_cast<QMainWindow*>(m_widget)->setCentralWidget(widget);
     } else if (qobject_cast<QDockWidget*>(m_widget)) {
         /* ignore */
     } else
@@ -127,7 +127,7 @@ void QDesignerContainer::insertWidget(int index, QWidget *widget)
     else if (qobject_cast<QDesignerToolBox*>(m_widget))
         static_cast<QDesignerToolBox*>(m_widget)->insertItem(index, widget, QString::fromUtf8("Page"));
     else if (qobject_cast<QMainWindow*>(m_widget)) {
-        /* ignore */
+        Q_ASSERT(0);
     } else if (qobject_cast<QDockWidget*>(m_widget)) {
         /* ignore */
     } else

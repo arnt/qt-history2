@@ -130,6 +130,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         if (IContainer *c = qt_extension<IContainer*>(fw->core()->extensionManager(), object)) {
             for (int i=0; i<c->count(); ++i) {
                 QObject *page = c->widget(i);
+                Q_ASSERT(page != 0);
 
                 QTreeWidgetItem *pageItem = new QTreeWidgetItem(item);
                 workingList.append(qMakePair(pageItem, page));

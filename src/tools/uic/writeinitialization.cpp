@@ -73,14 +73,6 @@ void WriteInitialization::acceptUI(DomUI *node)
         output << option.indent << varConn << " = QSqlDatabase::database(" << fixString(connection) << ");\n";
     }
 
-    if(uic->isMainWindow(widgetClassName) &&
-       (node->elementWidget() && !node->elementWidget()->elementWidget().isEmpty())) {
-        QString centralWidget = driver->unique(QLatin1String("__qt_center_widget"));
-        output << option.indent << "QWidget *" << centralWidget << "= new QWidget(" << varName << ");\n";
-        output << option.indent << centralWidget << "->setObjectName(" << fixString(centralWidget) << ");\n";
-        output << option.indent << varName << "->setCentralWidget(" << centralWidget << ");\n";
-    }
-
     acceptWidget(node->elementWidget());
 
     for (int i=0; i<m_buddies.size(); ++i) {
@@ -144,14 +136,6 @@ void WriteInitialization::acceptWidget(DomWidget *node)
 
     if (uic->isContainer(parentClass))
         parentWidget.clear();
-
-    if (uic->isMainWindow(parentClass) && !uic->isStatusBar(className)
-            && !uic->isToolBar(className) && !uic->isMenuBar(className)) {
-        if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QMainWindow")))
-            parentWidget += QLatin1String("->centralWidget()");
-        else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow")))
-            parentWidget += QLatin1String("->centralWidget()");
-    }
 
     if (m_widgetChain.size() != 1)
         output << option.indent << varName << " = new " << className << "(" << parentWidget << ");\n";
@@ -225,13 +209,17 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     if (attributes.contains(QLatin1String("id")))
         id = attributes.value(QLatin1String("id"))->elementNumber();
 
-    if (uic->customWidgetsInfo()->extends(className, QLatin1String("QMenuBar"))
-        && !uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow"))) {
-        output << option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
-    }
+    if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QMainWindow"))
+            || uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow"))) {
 
-    if (uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBar"))) {
-        output << option.indent << parentWidget << "->addToolBar(" << varName << ");\n";
+        if (uic->customWidgetsInfo()->extends(className, QLatin1String("QMenuBar"))
+            && !uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow"))) {
+            output << option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
+        } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBar"))) {
+            output << option.indent << parentWidget << "->addToolBar(" << varName << ");\n";
+        } else {
+            output << option.indent << parentWidget << "->setCentralWidget(" << varName << ");\n";
+        }
     }
 
     if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QStackedWidget"))) {
@@ -308,9 +296,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
     output << option.indent << varName << " = new " << className << "(";
 
-    if (isMainWindow) {
-        output << driver->findOrInsertWidget(m_widgetChain.top()) << "->centralWidget()";
-    } else if (isGroupBox) {
+    if (isGroupBox) {
         output << driver->findOrInsertWidget(m_widgetChain.top()) << "->layout()";
     } else if (!m_layoutChain.top()) {
         output << driver->findOrInsertWidget(m_widgetChain.top());
