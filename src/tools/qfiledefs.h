@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#17 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#18 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -115,7 +115,7 @@
 # define WRITE		::write
 # define ACCESS		::access
 # if defined(_OS_OS2EMX_)
-#  define GETCWD	::getcwd2
+#  define GETCWD	::_getcwd2
 # else
 #  define GETCWD	::getcwd
 # endif
