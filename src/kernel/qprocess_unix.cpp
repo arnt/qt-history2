@@ -193,6 +193,9 @@ public:
     struct sigaction oldactPipe;
     QPtrList<QProc> *procList;
     int sigchldFd[2];
+
+private:
+    QSocketNotifier *sn;
 };
 
 QCleanupHandler<QProcessManager> qprocess_cleanup_procmanager;
@@ -246,7 +249,7 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
 #undef BAILOUT
 #endif
 
-QProcessManager::QProcessManager()
+QProcessManager::QProcessManager() : sn(0)
 {
     procList = new QPtrList<QProc>;
     procList->setAutoDelete( TRUE );
@@ -265,7 +268,7 @@ QProcessManager::QProcessManager()
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcessManager: install socket notifier (%d)", sigchldFd[1] );
 #endif
-	QSocketNotifier *sn = new QSocketNotifier( sigchldFd[1],
+	sn = new QSocketNotifier( sigchldFd[1],
 		QSocketNotifier::Read, this );
 	connect( sn, SIGNAL(activated(int)),
 		this, SLOT(sigchldHnd(int)) );
@@ -357,14 +360,13 @@ void QProcessManager::removeMe()
 
 void QProcessManager::sigchldHnd( int fd )
 {
-    // make sure that this function is not called recursively -- this can
-    // happen, if you enter the event loop in the slot connected to the
-    // processExited() signal (e.g. by showing a modal dialog) and there are
-    // more than one process which exited in the meantime
-    static bool alreadyCalled = FALSE;
-    if ( alreadyCalled )
-	return;
-    alreadyCalled = TRUE;
+    // Disable the socket notifier to make sure that this function is not
+    // called recursively -- this can happen, if you enter the event loop in
+    // the slot connected to the processExited() signal (e.g. by showing a
+    // modal dialog) and there are more than one process which exited in the
+    // meantime.
+    if ( sn )
+	sn->setEnabled( FALSE );
 
     char tmp;
     ::read( fd, &tmp, sizeof(tmp) );
@@ -421,7 +423,8 @@ void QProcessManager::sigchldHnd( int fd )
 	    proc = procList->next();
 	}
     }
-    alreadyCalled = FALSE;
+    if ( sn )
+	sn->setEnabled( TRUE );
 }
 
 #include "qprocess_unix.moc"
