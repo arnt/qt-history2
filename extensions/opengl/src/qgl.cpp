@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#7 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#8 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#8 $");
 
 
 #if defined(_CC_MSVC_)
@@ -1102,7 +1102,6 @@ void QGLWidget::setContext( QGLContext *context )
 #endif
 
 #if defined(Q_GLX)
-    has_cx = FALSE; //Avoid "unused" warning
     if ( !glcx->isValid() ) {
 	if ( !glcx->create() )
 	    return;
