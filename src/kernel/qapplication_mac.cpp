@@ -1721,8 +1721,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
 		    QApplication::sendSpontaneousEvent( popupwidget, &qme );
 		}
-		if(etype == QEvent::MouseButtonPress && app->activePopupWidget() != popupwidget &&
-		   qt_closed_popup)
+		if(app->activePopupWidget() != popupwidget && qt_closed_popup)
 		    special_close = TRUE;
 	    }
 	    if(special_close) { 	    //We will resend this event later, so just return
@@ -1932,7 +1931,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if ( app_do_modal && !qt_try_modal(widget, event) )
 		return 1;
 
-	    bool isAccel = FALSE;
+	    bool key_event = TRUE;
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
 		QKeyEvent aa(QEvent::AccelOverride, mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat,
 			     mystr.length());
@@ -1943,26 +1942,32 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 				mystr.length());
 		    a.ignore();
 		    QApplication::sendSpontaneousEvent( widget->topLevelWidget(), &a );
-		    if ( a.isAccepted() )
-			isAccel = TRUE;
-		    if( !isAccel ) {
-			MenuRef menu;
-			MenuItemIndex idx;
-			if(IsMenuKeyEvent(NULL, event, kNilOptions, &menu, &idx)) {
-			    bool is_cmd = FALSE;
-			    MenuCommand cmd;
+		    if ( a.isAccepted() ) {
+			key_event = FALSE;
+		    } else {
+			HICommand hic;
+			if(IsMenuKeyEvent(NULL, event, kNilOptions, 
+					  &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
+			    hic.attributes = kHICommandFromMenu;
+			    if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex, 
+						    &hic.commandID))
+			       qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
-			    if(GetMenuItemCommandID(menu, idx, &cmd) == noErr) 
-				is_cmd = QMenuBar::activateCommand(cmd);
-			    if(!is_cmd)
+			    if(QMenuBar::activateCommand(hic.commandID) || 
+			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) {
+				key_event = FALSE;
+				handled_event = TRUE;
+			    } else
 #endif
-				QMenuBar::activate(menu, idx);
-			    isAccel = TRUE;
+			    if(!ProcessHICommand(&hic)) {
+				key_event = FALSE;
+				handled_event = TRUE;
+			    }
 			}
 		    }
 		}
 	    }
-	    if(!isAccel) {
+	    if(key_event) {
 		if((modifiers & Qt::ControlButton) && mychar == Key_Space) { //eat it
 		    if(etype == QEvent::KeyPress) {
 			QIMEvent event(QEvent::IMStart, QString::null, -1);
@@ -2058,7 +2063,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else {
 	    handled_event = FALSE;
 	}
-	break;
+	break; }
     case kEventClassApplication:
 	if(ekind == kEventAppActivated) {
 	    app->clipboard()->loadScrap(FALSE);
@@ -2077,17 +2082,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	if(ekind == kEventMenuOpening) {
 	    Boolean first;
-	    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean, NULL, sizeof(first), NULL, &first);
+	    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean, 
+			      NULL, sizeof(first), NULL, &first);
 	    if(first) {
 		MenuRef mr;
-		GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(mr), NULL, &mr);
+		GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 
+				  NULL, sizeof(mr), NULL, &mr);
 		QMenuBar::macUpdatePopup(mr);
 	    }
 	} else if(ekind == kEventMenuTargetItem) {
 	    MenuRef mr;
-	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(mr), NULL, &mr);
+	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 
+			      NULL, sizeof(mr), NULL, &mr);
 	    MenuItemIndex idx;
-	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, NULL, sizeof(idx), NULL, &idx);
+	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, 
+			      NULL, sizeof(idx), NULL, &idx);
 	    QMenuBar::activate(mr, idx, TRUE);
 	}
 #else
@@ -2107,14 +2116,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     case kEventClassCommand:
 	if(ekind == kEventCommandProcess) {
 	    HICommand cmd;
-	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
+	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, 
+			      NULL, sizeof(cmd), NULL, &cmd);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-	    bool took_cmd = FALSE;
-	    if(cmd.commandID == kHICommandQuit || cmd.commandID == kHICommandPreferences ||
-	       cmd.commandID == kHICommandAbout)
-		took_cmd = QMenuBar::activateCommand(cmd.commandID);
-	    if(!took_cmd)
-		QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex);
+	    if(!QMenuBar::activateCommand(cmd.commandID) && 
+	       !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex)) 
+		handled_event = FALSE;
 #else
 	    if(cmd.commandID == kHICommandQuit)
 		qApp->closeAllWindows();
@@ -2125,7 +2132,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	}
 	break;
-    }
     }
 
     // ok we clear all QtRequestContext events from the queue
