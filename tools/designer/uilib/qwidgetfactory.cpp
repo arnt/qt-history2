@@ -89,6 +89,9 @@
 #include <qpopupmenu.h>
 #include <qwidgetstack.h>
 #include <qdatetimeedit.h>
+#include <qvbox.h>
+#include <qhbox.h>
+#include <qgrid.h>
 
 #include <stdlib.h>
 
@@ -584,6 +587,12 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return new QPopupMenu( parent, name );
     } else if ( className == "QWidgetStack" ) {
 	return new QWidgetStack( parent, name );
+    } else if ( className == "QVBox" ) {
+	return new QVBox( parent, name );
+    } else if ( className == "QHBox" ) {
+	return new QHBox( parent, name );
+    } else if ( className == "QGrid" ) {
+	return new QGrid( 4, parent, name );
     } else if ( className == "QMainWindow" ) {
 	QMainWindow *mw = 0;
 	if ( !qwf_stays_on_top )
