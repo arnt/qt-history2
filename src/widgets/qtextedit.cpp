@@ -2073,8 +2073,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 	cursor->indent();
     formatMore();
     repaintChanged();
-    if ( !isUpdatesEnabled() )
-	ensureCursorVisible();
+    ensureCursorVisible();
     drawCursor( TRUE );
     undoRedoInfo.d->text += txt;
 
