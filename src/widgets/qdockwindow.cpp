@@ -41,15 +41,14 @@
 #include "qdockarea.h"
 #include "qwidgetresizehandler_p.h"
 #include "qtitlebar_p.h"
-
-#include <qpainter.h>
-#include <qapplication.h>
-#include <qtoolbutton.h>
-#include <qtoolbar.h>
-#include <qlayout.h>
-#include <qmainwindow.h>
-#include <qtimer.h>
-#include <qtooltip.h>
+#include "qpainter.h"
+#include "qapplication.h"
+#include "qtoolbutton.h"
+#include "qtoolbar.h"
+#include "qlayout.h"
+#include "qmainwindow.h"
+#include "qtimer.h"
+#include "qtooltip.h"
 
 #if defined( Q_WS_MAC )
 #define MAC_DRAG_HACK

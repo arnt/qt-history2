@@ -34,10 +34,10 @@
 #include "qwsutils_qws.h"
 #include "qgfx_qws.h"
 
-#include <qapplication.h>
-#include <qsocketnotifier.h>
-#include <qnamespace.h>
-#include <qtimer.h>
+#include "qapplication.h"
+#include "qsocketnotifier.h"
+#include "qnamespace.h"
+#include "qtimer.h"
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -34,6 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include "qcom.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
@@ -272,7 +273,7 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 #elif defined(Q_OS_MACX)
 
 #define DO_MAC_LIBRARY
-#include <qdict.h>
+#include "qdict.h"
 
 #ifdef DO_MAC_LIBRARY
 //is this gross or what!?! God I love the preprocessor..

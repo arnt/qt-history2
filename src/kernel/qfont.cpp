@@ -41,13 +41,13 @@
 #include "qfontinfo.h"
 #include "qpainter.h"
 #include "qpainter_p.h"
+#include "qdict.h"
+#include "qcache.h"
+#include "qdatastream.h"
+#include "qapplication.h"
+#include "qcleanuphandler.h"
+#include "qstringlist.h"
 
-#include <qdict.h>
-#include <qcache.h>
-#include <qdatastream.h>
-#include <qapplication.h>
-#include <qcleanuphandler.h>
-#include <qstringlist.h>
 #include <ctype.h>
 #include <limits.h>
 

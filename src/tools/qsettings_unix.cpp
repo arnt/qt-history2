@@ -25,13 +25,13 @@
 #include "qsettings.h"
 #ifndef QT_NO_SETTINGS
 
-#include <qdir.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qmap.h>
-#include <qtextstream.h>
-#include <qcleanuphandler.h>
-#include <qregexp.h>
+#include "qdir.h"
+#include "qfile.h"
+#include "qfileinfo.h"
+#include "qmap.h"
+#include "qtextstream.h"
+#include "qcleanuphandler.h"
+#include "qregexp.h"
 
 
 // for now

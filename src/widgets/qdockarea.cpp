@@ -38,14 +38,14 @@
 #include "qdockarea.h"
 
 #ifndef QT_NO_MAINWINDOW
-#include <qsplitter.h>
-#include <qlayout.h>
-#include <qvector.h>
-#include <qapplication.h>
-#include <qpainter.h>
-#include <qwidgetlist.h>
-#include <qmap.h>
-#include <qmainwindow.h>
+#include "qsplitter.h"
+#include "qlayout.h"
+#include "qvector.h"
+#include "qapplication.h"
+#include "qpainter.h"
+#include "qwidgetlist.h"
+#include "qmap.h"
+#include "qmainwindow.h"
 
 //#define QDOCKAREA_DEBUG
 

@@ -42,8 +42,6 @@
 #include "qsignalslotimp.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
-#include <ctype.h>
-
 #include "qpixmap.h"
 #include "qiconset.h"
 #include "qimage.h"
@@ -53,6 +51,8 @@
 #include "qcursor.h"
 #include "qdatetime.h"
 #include "qucom.h"
+
+#include <ctype.h>
 
 class QObjectPrivate
 {

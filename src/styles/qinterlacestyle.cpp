@@ -39,17 +39,18 @@
 
 #ifndef QT_NO_STYLE_INTERLACE
 
-#include <qapplication.h>
-#include <qpainter.h>
-#include <qdrawutil.h> // for now
-#include <qpalette.h> // for now
-#include <qwidget.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qwidget.h>
-#include <qrangecontrol.h>
-#include <qscrollbar.h>
-#include <qlistbox.h>
+#include "qapplication.h"
+#include "qpainter.h"
+#include "qdrawutil.h" // for now
+#include "qpalette.h" // for now
+#include "qwidget.h"
+#include "qlabel.h"
+#include "qpushbutton.h"
+#include "qwidget.h"
+#include "qrangecontrol.h"
+#include "qscrollbar.h"
+#include "qlistbox.h"
+
 #include <limits.h>
 
 /*!

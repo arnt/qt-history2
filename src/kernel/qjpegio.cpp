@@ -43,23 +43,23 @@
 
 #ifndef QT_NO_IMAGEIO_JPEG
 
-#include <qiodevice.h>
-#include <qjpegio.h>
+#include "qiodevice.h"
+#include "qjpegio.h"
 
-#include <stdio.h> // jpeglib needs this to be pre-included
+#include <stdio.h>      // jpeglib needs this to be pre-included
 #include <setjmp.h>
 
 
 // including jpeglib.h seems to be a little messy
 extern "C" {
-#define XMD_H // Shut JPEGlib up.
+#define XMD_H           // shut JPEGlib up
 #if defined(Q_OS_UNIXWARE7)
-#  define HAVE_BOOLEAN // libjpeg under Unixware seems to need this
+#  define HAVE_BOOLEAN  // libjpeg under Unixware seems to need this
 #  define HAVE_PROTOTYPES
 #endif
 #include <jpeglib.h>
 #ifdef const
-#  undef const // Remove crazy C hackery in jconfig.h
+#  undef const          // remove crazy C hackery in jconfig.h
 #endif
 }
 

@@ -55,9 +55,10 @@
 #include "qscrollbar.h"
 #include "qtabbar.h"
 #include "qlistview.h"
-#include <qbitmap.h>
+#include "qbitmap.h"
+#include "qcleanuphandler.h"
+
 #include <limits.h>
-#include <qcleanuphandler.h>
 
 class QWindowsStylePrivate
 {

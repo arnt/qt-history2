@@ -1,7 +1,9 @@
+// Get the system specific includes and defines
 #include "qplatformdefs.h"
 
-#include <qapplication.h>
-#include <qwidget.h>
+
+#include "qapplication.h"
+#include "qwidget.h"
 #include "qinputcontext_p.h"
 
 

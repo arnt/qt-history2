@@ -39,7 +39,7 @@
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
-#include <qjpunicode.h>
+#include "qjpunicode.h"
 
 
 int QFontJis0208Codec::heuristicContentMatch(const char *, int) const

@@ -39,15 +39,15 @@
 
 #ifndef QT_NO_INPUTDIALOG
 
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qlineedit.h>
-#include <qpushbutton.h>
-#include <qspinbox.h>
-#include <qcombobox.h>
-#include <qwidgetstack.h>
-#include <qvalidator.h>
-#include <qapplication.h>
+#include "qlayout.h"
+#include "qlabel.h"
+#include "qlineedit.h"
+#include "qpushbutton.h"
+#include "qspinbox.h"
+#include "qcombobox.h"
+#include "qwidgetstack.h"
+#include "qvalidator.h"
+#include "qapplication.h"
 
 class QInputDialogPrivate
 {

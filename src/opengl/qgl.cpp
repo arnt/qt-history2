@@ -36,10 +36,10 @@
 **********************************************************************/
 
 #include "qgl.h"
-#include <qpixmap.h>
-#include <qpaintdevicemetrics.h>
-#include <qimage.h>
-#include <qcleanuphandler.h>
+#include "qpixmap.h"
+#include "qpaintdevicemetrics.h"
+#include "qimage.h"
+#include "qcleanuphandler.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
