@@ -7,7 +7,6 @@
 #endif // QT_H
 
 class QString;
-class QByteArray;
 class QFont;
 
 class QTextFormatCollection;
@@ -95,7 +94,6 @@ public:
 	Integer,
 	Float,
 	String,
-	Binary,
 	FormatReference
     };
 
@@ -133,14 +131,12 @@ public:
     int intProperty(int propertyId, int defaultValue = 0) const;
     float floatProperty(int propertyId, float defaultValue = 0.0) const;
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
-    QByteArray binaryProperty(int propertyId, QByteArray defaultValue = QByteArray() ) const;
     int formatReferenceProperty(int propertyId, int defaultValue = -1) const;
 
     void setProperty(int propertyId, bool value);
     void setProperty(int propertyId, int value);
     void setProperty(int propertyId, float value);
     void setProperty(int propertyId, const QString &value);
-    void setProperty(int propertyId, const QByteArray &value);
     void setFormatReferenceProperty(int propertyId, int value);
 
     bool hasProperty(int propertyId) const;
