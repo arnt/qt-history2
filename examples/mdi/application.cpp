@@ -220,9 +220,11 @@ void ApplicationWindow::windowsMenuAboutToShow()
     windowsMenu->clear();
     int cascadeId = windowsMenu->insertItem("&Cascade", ws, SLOT(cascade() ) );
     int tileId = windowsMenu->insertItem("&Tile", ws, SLOT(tile() ) );
+    int horTileId = windowsMenu->insertItem("Tile &Horizontally", this, SLOT(tileHorizontal() ) );
     if ( ws->windowList().isEmpty() ) {
 	windowsMenu->setItemEnabled( cascadeId, FALSE );
 	windowsMenu->setItemEnabled( tileId, FALSE );
+	windowsMenu->setItemEnabled( horTileId, FALSE );
     }
     windowsMenu->insertSeparator();
     QWidgetList windows = ws->windowList();
@@ -241,6 +243,31 @@ void ApplicationWindow::windowsMenuActivated( int id )
 	w->showNormal();
     w->setFocus();
 }
+
+void ApplicationWindow::tileHorizontal()
+{
+    // primitive horizontal tiling
+    QWidgetList windows = ws->windowList();
+    if ( !windows.count() )
+	return;
+    
+    int heightForEach = ws->height() / windows.count();
+    int y = 0;
+    for ( int i = 0; i < int(windows.count()); ++i ) {
+	QWidget *window = windows.at(i);
+	if ( window->testWState( WState_Maximized ) ) {
+	    // prevent flicker
+	    window->hide();
+	    window->showNormal();
+	}
+	int preferredHeight = window->minimumHeight()+window->parentWidget()->baseSize().height();
+	int actHeight = QMAX(heightForEach, preferredHeight);
+	
+	window->parentWidget()->setGeometry( 0, y, ws->width(), actHeight );
+	y += actHeight;
+    }
+}
+
 
 MDIWindow::MDIWindow( QWidget* parent, const char* name, int wflags )
     : QMainWindow( parent, name, wflags )
@@ -364,5 +391,3 @@ void MDIWindow::print( QPrinter* printer)
     }
 #endif
 }
-
-

@@ -57,6 +57,7 @@ private slots:
     void saveAs();
     void print();
     void closeWindow();
+    void tileHorizontal();
 
     void about();
     void aboutQt();
