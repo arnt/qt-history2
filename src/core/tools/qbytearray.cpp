@@ -2964,7 +2964,7 @@ Q_LONGLONG QByteArray::toLongLong(bool *ok, int base) const
     }
 #endif
 
-    return QLocalePrivate::bytearrayToLongLong(*this, base, ok);
+    return QLocalePrivate::bytearrayToLongLong(constData(), base, ok);
 }
 
 /*!
@@ -2994,7 +2994,7 @@ Q_ULONGLONG QByteArray::toULongLong(bool *ok, int base) const
     }
 #endif
 
-    return QLocalePrivate::bytearrayToUnsLongLong(*this, base, ok);
+    return QLocalePrivate::bytearrayToUnsLongLong(constData(), base, ok);
 }
 
 /*!
@@ -3191,7 +3191,7 @@ ushort QByteArray::toUShort(bool *ok, int base) const
 
 double QByteArray::toDouble(bool *ok) const
 {
-    return QLocalePrivate::bytearrayToDouble(*this, ok);
+    return QLocalePrivate::bytearrayToDouble(constData(), ok);
 }
 
 /*!

@@ -87,13 +87,15 @@ public:
     Q_ULONGLONG stringToUnsLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
 
 
-    static double bytearrayToDouble(QByteArray num, bool *ok);
-    static Q_LONGLONG bytearrayToLongLong(QByteArray num, int base, bool *ok);
-    static Q_ULONGLONG bytearrayToUnsLongLong(QByteArray num, int base, bool *ok);
+    static double bytearrayToDouble(const char *num, bool *ok);
+    static Q_LONGLONG bytearrayToLongLong(const char *num, int base, bool *ok);
+    static Q_ULONGLONG bytearrayToUnsLongLong(const char *num, int base, bool *ok);
 
-    QByteArray numberToCLocale(const QString &num,
-    	    	    	  GroupSeparatorMode group_sep_mode) const;
-
+    char numberCharToCLocale(QChar c) const;
+    bool numberToCLocale(const QString &num,
+    	    	    	  GroupSeparatorMode group_sep_mode,
+                          char *buff, int bufflen, QByteArray &overflow) const;
+                          
     Q_UINT32 m_language_id, m_country_id;
 
     Q_UINT16 m_decimal, m_group, m_list, m_percent,

@@ -45,6 +45,8 @@
 #   define ULLONG_MAX Q_UINT64_C(0xffffffffffffffff)
 #endif
 
+#define CONVERSION_BUFF_SIZE 5
+
 #ifndef QT_QLOCALE_USES_FCVT
 static char *qdtoa(double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
@@ -2981,7 +2983,7 @@ bool QLocalePrivate::isDigit(QChar d) const
             && zero().unicode() + 10 > d.unicode();
 }
 
-static char digitToCLocale(QChar zero, QChar d)
+static inline char digitToCLocale(QChar zero, QChar d)
 {
     if (zero.unicode() <= d.unicode()
             && zero.unicode() + 10 > d.unicode())
@@ -3391,13 +3393,12 @@ QString QLocalePrivate::unsLongLongToString(Q_ULONGLONG l, int precision,
 }
 
 // Removes thousand-group separators in "C" locale.
-static bool removeGroupSeparators(QByteArray &num)
+static bool removeGroupSeparators(char *data)
 {
     int group_cnt = 0; // counts number of group chars
     int decpt_idx = -1;
 
-    const char *data = num.data();
-    int l = num.size();
+    int l = strlen(data);
 
     // Find the decimal point and check if there are any group chars
     int i = 0;
@@ -3446,8 +3447,7 @@ static bool removeGroupSeparators(QByteArray &num)
                 return false;
 
             // Remove it
-            num.remove(i, 1);
-            data = num.data();
+            memmove(data + i, data + i + 1, l - i);
 
             --group_cnt;
             --decpt_idx; // adjust decpt_idx
@@ -3462,6 +3462,36 @@ static bool removeGroupSeparators(QByteArray &num)
     return true;
 }
 
+char QLocalePrivate::numberCharToCLocale(QChar c) const
+{
+    if (isDigit(c))
+        return digitToCLocale(zero(), c);
+    else if (c == plus())
+        return '+';
+    else if (c == minus())
+        return '-';
+    else if (c == decimal())
+        return '.';
+    else if (c == group())
+        return ',';
+    // In several languages group() is the char 0xA0, which looks like a space.
+    // People use a regular space instead of it and complain it doesn't work.
+    else if (group().unicode() == 0xA0 && c.unicode() == ' ')
+        return ',';
+    else if (c == exponential() || c == exponential().toUpper())
+        return 'e';
+    else if (c == list())
+        return ';';
+    else if (c == percent())
+        return '%';
+    else if (c.unicode() >= 'A' && c.unicode() <= 'Z')
+        return c.toLower().latin1();
+    else if (c.unicode() >= 'a' && c.unicode() <= 'z')
+        return c.latin1();
+    else
+        return 0;
+}
+
 /*
     Converts a number in locale to its representation in the C locale.
     Only has to guarantee that a string that is a correct representation of
@@ -3470,9 +3500,14 @@ static bool removeGroupSeparators(QByteArray &num)
     number. We can't detect junk here, since we don't even know the base
     of the number.
 */
-QByteArray QLocalePrivate::numberToCLocale(const QString &num,
-                                            GroupSeparatorMode group_sep_mode) const
+bool QLocalePrivate::numberToCLocale(const QString &num,
+                                            GroupSeparatorMode group_sep_mode,
+                                            char *buff, int bufflen, QByteArray &overflow_buff) const
 {
+    Q_ASSERT(bufflen > 1);
+    
+    bool overflow = false;
+    
     const QChar *uc = num.unicode();
     int l = num.length();
     int idx = 0;
@@ -3481,112 +3516,106 @@ QByteArray QLocalePrivate::numberToCLocale(const QString &num,
     while (idx < l && uc[idx].isSpace())
         ++idx;
     if (idx == l)
-        return QByteArray();
+        return false;
 
-    QByteArray result;
-
+    int buffidx = 0;
     while (idx < l) {
-        QChar c = uc[idx];
-
-        if (isDigit(c))
-            result.append(digitToCLocale(zero(), c));
-        else if (c == plus())
-            result.append('+');
-        else if (c == minus())
-            result.append('-');
-        else if (c == decimal())
-            result.append('.');
-        else if (c == group())
-            result.append(',');
-        // In several languages group() is the char 0xA0, which looks like a space.
-        // People use a regular space instead of it and complain it doesn't work.
-        else if (group().unicode() == 0xA0 && c.unicode() == ' ')
-            result.append(',');
-        else if (c == exponential() || c == exponential().toUpper())
-            result.append('e');
-        else if (c == list())
-            result.append(';');
-        else if (c == percent())
-            result.append('%');
-        else if (c.unicode() >= 'A' && c.unicode() <= 'Z')
-            result.append(c.toLower().latin1());
-        else if (c.unicode() >= 'a' && c.unicode() <= 'z')
-            result.append(c.latin1());
-        else if (c.isSpace())
+        char c = numberCharToCLocale(uc[idx]);
+        if (c == 0)
             break;
         else
-            return QByteArray();
+            buff[buffidx] = c;
 
         ++idx;
+        if (++buffidx == bufflen) {
+            overflow = true;
+            overflow_buff = QByteArray(buff, bufflen);
+            break;
+        }
     }
 
+    if (overflow) {
+        while (idx < l) {
+            char c = numberCharToCLocale(uc[idx]);
+            if (c == 0)
+                break;
+            else
+                overflow_buff.append(c);
+            ++idx;
+        }
+    } else {
+        buff[buffidx] = '\0';
+    }
+        
     // Check trailing whitespace
     for (; idx < l; ++idx) {
         if (!uc[idx].isSpace())
-            return QByteArray();
+            return false;
     }
-
+        
     // Check separators
     if (group_sep_mode == ParseGroupSeparators
-            && !removeGroupSeparators(result))
-        return QByteArray();
+            && !removeGroupSeparators(overflow ? overflow_buff.data() : buff))
+        return false;
 
-    return result;
+    return true;
 }
 
 double QLocalePrivate::stringToDouble(const QString &number, bool *ok,
                                         GroupSeparatorMode group_sep_mode) const
 {
-    QByteArray num = numberToCLocale(number, group_sep_mode);
-    if (num.isNull()) {
+    char buff[CONVERSION_BUFF_SIZE];
+    QByteArray overflow;
+    if (!numberToCLocale(number, group_sep_mode, buff, CONVERSION_BUFF_SIZE, overflow)) {
         if (ok != 0)
             *ok = false;
         return 0.0;
     }
 
-    return bytearrayToDouble(num, ok);
+    return bytearrayToDouble(overflow.isNull() ? buff : overflow.constData(), ok);
 }
 
 Q_LONGLONG QLocalePrivate::stringToLongLong(const QString &number, int base,
                                             bool *ok, GroupSeparatorMode group_sep_mode) const
 {
-    QByteArray num = numberToCLocale(number, group_sep_mode);
-    if (num.isNull()) {
+    char buff[CONVERSION_BUFF_SIZE];
+    QByteArray overflow;
+    if (!numberToCLocale(number, group_sep_mode, buff, CONVERSION_BUFF_SIZE, overflow)) {
         if (ok != 0)
             *ok = false;
         return 0;
     }
 
-    return bytearrayToLongLong(num, base, ok);
+    return bytearrayToLongLong(overflow.isNull() ? buff : overflow.constData(), base, ok);
 }
 
 Q_ULONGLONG QLocalePrivate::stringToUnsLongLong(const QString &number, int base,
                                                 bool *ok, GroupSeparatorMode group_sep_mode) const
 {
-    QByteArray num = numberToCLocale(number, group_sep_mode);
-    if (num.isNull()) {
+    char buff[CONVERSION_BUFF_SIZE];
+    QByteArray overflow;
+    if (!numberToCLocale(number, group_sep_mode, buff, CONVERSION_BUFF_SIZE, overflow)) {
         if (ok != 0)
             *ok = false;
         return 0;
     }
 
-    return bytearrayToUnsLongLong(num, base, ok);
+    return bytearrayToUnsLongLong(overflow.isNull() ? buff : overflow.constData(), base, ok);
 }
 
 
-double QLocalePrivate::bytearrayToDouble(QByteArray num, bool *ok)
+double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok)
 {
     if (ok != 0)
         *ok = true;
 
-    if (num == "nan")
+    if (qstrcmp(num, "nan") == 0)
         return Q_SNAN;
 
-    if (num == "+inf"
-                || num == "inf")
+    if (qstrcmp(num, "+inf") == 0 || qstrcmp(num, "inf") == 0)
         return Q_INFINITY;
 
-    if (num == "-inf")
+    if (qstrcmp(num, "-inf") == 0)
         return -Q_INFINITY;
 
     bool _ok;
@@ -3608,7 +3637,7 @@ double QLocalePrivate::bytearrayToDouble(QByteArray num, bool *ok)
         return d;
 }
 
-Q_LONGLONG QLocalePrivate::bytearrayToLongLong(QByteArray num, int base, bool *ok)
+Q_LONGLONG QLocalePrivate::bytearrayToLongLong(const char *num, int base, bool *ok)
 {
     bool _ok;
     const char *endptr;
@@ -3625,7 +3654,7 @@ Q_LONGLONG QLocalePrivate::bytearrayToLongLong(QByteArray num, int base, bool *o
     return l;
 }
 
-Q_ULONGLONG QLocalePrivate::bytearrayToUnsLongLong(QByteArray num, int base, bool *ok)
+Q_ULONGLONG QLocalePrivate::bytearrayToUnsLongLong(const char *num, int base, bool *ok)
 {
     bool _ok;
     const char *endptr;
