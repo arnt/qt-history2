@@ -372,6 +372,40 @@ int QTableWidget::columnCount() const
     return d->model()->columnCount();
 }
 
+/*!
+  ###
+*/
+void QTableWidget::insertRow(int row)
+{
+
+}
+
+/*!
+  ###
+*/
+void QTableWidget::insertColumn(int column)
+{
+
+}
+
+/*!
+  ###
+*/
+int QTableWidget::row(const QTableWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    return d->model()->index(item).row();
+}
+
+/*!
+  ###
+*/
+int QTableWidget::column(const QTableWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    return d->model()->index(item).column();
+}
+
 
 /*!
     Returns the item for the given \a row and \a column.
@@ -383,29 +417,23 @@ QTableWidgetItem *QTableWidget::item(int row, int column) const
     return d->model()->item(row, column);
 }
 
-int QTableWidget::row(const QTableWidgetItem *item) const
-{
-    return d->model()->index(item).row();
-}
-
-int QTableWidget::column(const QTableWidgetItem *item) const
-{
-    return d->model()->index(item).column();
-}
-
 /*!
     Sets the item for the given \a row and \a column to \a item.
 
     \sa item()
 */
 void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
-{
+{    
+    Q_ASSERT(item);
+    item->view = this;
     d->model()->setItem(row, column, item);
 }
 
 QTableWidgetItem *QTableWidget::takeItem(int row, int column)
 {
-    return d->model()->takeItem(row, column);
+    QTableWidgetItem *itm = d->model()->takeItem(row, column);
+    itm->view = 0;
+    return itm;
 }
 
 QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
@@ -415,6 +443,7 @@ QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
 
 void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
+    Q_ASSERT(item);
     d->model()->verticalHeader[row] = item;
 }
 
@@ -425,6 +454,7 @@ QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 
 void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
+    Q_ASSERT(item);
     d->model()->horizontalHeader[column] = item;
 }
 
@@ -451,6 +481,7 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
 
 void QTableWidget::removeItem(QTableWidgetItem *item)
 {
+    Q_ASSERT(item);
     d->model()->removeItem(item);
 }
 

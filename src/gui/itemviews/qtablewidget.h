@@ -23,8 +23,9 @@ class QTableWidget;
 
 class Q_GUI_EXPORT QTableWidgetItem : public QWidgetCellItem
 {
+    friend class QTableWidget;
 public:
-    QTableWidgetItem(QTableWidget *view);
+    QTableWidgetItem(QTableWidget *view = 0);
     ~QTableWidgetItem();
 protected:
     QTableWidget *view;
@@ -47,9 +48,13 @@ public:
     void setColumnCount(int columns);
     int columnCount() const;
 
-    QTableWidgetItem *item(int row, int column) const;
+    void insertRow(int row);
+    void insertColumn(int column);
+
     int row(const QTableWidgetItem *item) const;
     int column(const QTableWidgetItem *item) const;
+
+    QTableWidgetItem *item(int row, int column) const;
     void setItem(int row, int column, QTableWidgetItem *item);
     QTableWidgetItem *takeItem(int row, int column);
 

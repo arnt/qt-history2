@@ -355,6 +355,7 @@ QListWidgetItem *QListWidget::item(int row) const
 
 int QListWidget::row(const QListWidgetItem *item) const
 {
+    Q_ASSERT(item);
     return d->model()->index(const_cast<QListWidgetItem*>(item)).row();
 }
 
@@ -367,8 +368,8 @@ int QListWidget::row(const QListWidgetItem *item) const
 
 void QListWidget::insertItem(int row, QListWidgetItem *item)
 {
-    if (item->view == 0)
-        item->view = this;
+    Q_ASSERT(item);
+    item->view = this;
     d->model()->insert(row, item);
 }
 
@@ -396,8 +397,8 @@ void QListWidget::insertItems(const QStringList &labels, int row)
 
 void QListWidget::appendItem(QListWidgetItem *item)
 {
-    if (item->view == 0)
-        item->view = this;
+    Q_ASSERT(item);
+    item->view = this;
     d->model()->append(item);
 }
 
@@ -426,6 +427,7 @@ int QListWidget::count() const
 
 void QListWidget::removeItem(QListWidgetItem *item)
 {
+    Q_ASSERT(item);
     d->model()->remove(item);
 }
 
@@ -436,12 +438,14 @@ void QListWidget::setModel(QAbstractItemModel *model)
 
 void QListWidget::openPersistentEditor(QListWidgetItem *item)
 {
+    Q_ASSERT(item);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::openPersistentEditor(index);
 }
 
 void QListWidget::closePersistentEditor(QListWidgetItem *item)
 {
+    Q_ASSERT(item);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::closePersistentEditor(index);
 }
