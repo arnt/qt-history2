@@ -166,18 +166,18 @@ static bool isRowSelection( QTable::SelectionMode selMode )
 
     The selection is a rectangular set of cells in a QTable. One of
     the rectangle's cells is called the anchor cell; this is the cell
-    that was selected first. The init() function sets the anchor and
-    the selection rectangle to exactly this cell; the expandTo()
-    function expands the selection rectangle to include additional
-    cells.
+    that was selected first.
+
+    The simplest way to create a selection is to use the constructor
+    that takes a start row and column (this becomes the anchor cell)
+    and an end row and column. Alternatively, use the no-argument
+    constructor, then call init() to set the anchor cell and then call
+    expandTo() to set the end row and column.
 
     There are various access functions to find out about the area:
     anchorRow() and anchorCol() return the anchor's position;
     leftCol(), rightCol(), topRow() and bottomRow() return the
     rectangle's four edges. All four are part of the selection.
-
-    A newly created QTableSelection is inactive -- isActive() returns
-    FALSE. You must use init() and expandTo() to activate it.
 
     \sa QTable QTable::addSelection() QTable::selection()
     QTable::selectCells() QTable::selectRow() QTable::selectColumn()
@@ -196,7 +196,8 @@ QTableSelection::QTableSelection()
 
 /*!
     Creates an active selection, starting at \a start_row and \a
-    start_col, ending at \a end_row and \a end_col.
+    start_col, (which becomes the anchor cell) and ending at \a
+    end_row and \a end_col.
 */
 
 QTableSelection::QTableSelection( int start_row, int start_col, int end_row, int end_col )
@@ -232,7 +233,8 @@ void QTableSelection::init( int row, int col )
     and the previous selection rectangle. After calling this function
     the selection is active.
 
-    If you haven't called init(), this function does nothing.
+    If you haven't called init() (or the four-argument constructor),
+    this function does nothing.
 
     \sa init() isActive()
 */
@@ -329,8 +331,6 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 */
 
 /*!
-    \fn int QTableSelection::numRows() const
-
     Returns the number of rows in the selection.
 
     \sa numCols()
@@ -354,13 +354,15 @@ int QTableSelection::numCols() const
     \fn bool QTableSelection::isActive() const
 
     Returns whether the selection is active or not. A selection is
-    active after init() \e and expandTo() have been called.
+    active after init() \e and expandTo() have been called (or if the
+    four-argument constructor is used).
 */
 
 /*!
     \fn bool QTableSelection::isEmpty() const
 
-    Returns whether the selection is empty or not.
+    Returns whether TRUE if the selection is empty; otherwise returns
+    FALSE.
 
     \sa numRows(), numCols()
 */
@@ -381,21 +383,20 @@ int QTableSelection::numCols() const
     pixmap. The table item also holds the cell's display size and how
     the data should be aligned. The table item specifies the cell's
     \l EditType and the editor used for in-place editing (by default a
-    QLineEdit). If you want checkboxes use \l{QCheckTableItem}, and if
-    you want comboboxes use \l{QComboTableItem}. The \l EditType (set
-    in the constructor) determines whether the cell's contents may be
-    edited; setReplaceable() sets whether the cell's contents may be
-    replaced by another cell's contents.
+    QLineEdit). If you want checkboxes use \l{QCheckTableItem}s, and
+    if you want comboboxes use \l{QComboTableItem}s. The \l EditType
+    (set in the constructor) determines whether the cell's contents
+    may be edited; setReplaceable() sets whether the cell's contents
+    may be replaced by another cell's contents.
 
     If a pixmap is specified it is displayed to the left of any text.
-    You can change the text or pixmap with setText() and setPixmap()
-    respectively. For text you can use setWordWrap().
+    You can change the text or pixmap with setText() and setPixmap().
+    For text you can use setWordWrap().
 
     Reimplement createEditor() and setContentFromEditor() if you want
     to use your own widget instead of a QLineEdit for editing cell
     contents. Reimplement paint() if you want to display custom
-    content. If you want a checkbox table item use QCheckTableItem,
-    and if you want a combo table item use \l{QComboTableItem}.
+    content.
 
     When sorting table items the key() function is used; by default
     this returns the table item's text(). Reimplement key() to
@@ -407,10 +408,11 @@ int QTableSelection::numCols() const
 
     Example:
     \code
-    for ( int row = 0; row < table->numRows(); row++ ) {
-	for ( int col = 0; col < table->numCols(); col++ ) {
-	    table->setItem( row, col,
-		new QTableItem( table, QTableItem::WhenCurrent, QString::number( row * col ) ) );
+    for (int row = 0; row < table->numRows(); row++) {
+	for (int col = 0; col < table->numCols(); col++) {
+	    table->setItem(row, col,
+		new QTableItem(table, QTableItem::WhenCurrent,
+			       QString::number(row * col)));
 	}
     }
     \endcode
@@ -419,8 +421,9 @@ int QTableSelection::numCols() const
     a different table, using QTable::takeItem() and QTable::setItem()
     but see also QTable::swapCells().
 
-    Table items can be deleted with delete in the standard way; the
-    table and cell will be updated accordingly.
+    Table items can be deleted with \c delete in the standard way; the
+    table and cell will be updated accordingly. Table items are owned
+    by the table they are inserted into.
 
     Note, that if you have a table item that is not currently in a table
     then anything you do to that item other than insert it into a table
@@ -569,8 +572,7 @@ int QTableItem::RTTI = 0;
 
     When you create subclasses based on QTableItem make sure that each
     subclass returns a unique rtti() value. It is advisable to use
-    values greater than 1000, preferably large random numbers, to
-    allow for extensions to this class.
+    values greater than 1000, to allow for extensions to this class.
 
     \sa QCheckTableItem::rtti() QComboTableItem::rtti()
 */
