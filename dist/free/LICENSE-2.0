@@ -23,9 +23,20 @@
 <!-- -->model where all source code to
 <!-- -->the software is made available to all users and can be freely
 <!-- -->modified and redistributed.
-<p>The annotations in <i><font color=green>green italics</font></i> are not part of
-<!-- -->the license, merely our answers to common questions that might
-<!-- -->arise.
+<p>The license has features that make it useful for Qt:
+<ul>
+<li>Patches are clearly distinct from the original, so you can keep
+<!-- -->applying old patches to new versions of Qt.
+<li>Patches are distributed under a very liberal license, so they can
+<!-- -->be used by Troll Tech in new Qt versions.
+<li>Binaries <em>can</em> have the same name as the original, so
+<!-- -->distributors can make bug-fixes etc. without having to
+<!-- -->change all packages which link to the binary.
+<li>The Qt Free Edition can be used to
+<!-- -->run commercial software written with the Qt Profession Edition
+<!-- -->without having to install another library.
+</font></i>
+</ul>
 <p>To use the Qt Free Edition under the QPL, simply meet the
 <!-- -->requirements therein.  Your software can be licensed by any license
 <!-- -->that meets the requirements.
@@ -70,10 +81,6 @@ license and that the entire package is distributed, including this notice.
 <p>
 You may use the Software to compile, link and run application programs legally
 developed by third parties.
-<br><i><font color=green>For example, the Qt Free Edition can be used to
-<!-- -->run commercial software written with the Qt Profession Edition
-<!-- -->without having to install another library.
-</font></i>
 
 <p>
 You may use the Software to create application programs, reusable
@@ -109,9 +116,6 @@ apply to each patch:
         restriction, including without limitation the rights to use,
         copy, modify, merge, publish, distribute, sublicense, and/or
         sell copies of the patch.  
-<br><i><font color=green>This is similar to the permission granted in
-<!-- -->the X Consortium software (X11R6 etc.).
-</font></i>
 </blockquote>
 
 <p>
