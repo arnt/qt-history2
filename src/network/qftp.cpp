@@ -151,7 +151,7 @@ class QFtpPI : public QObject
     Q_OBJECT
 
 public:
-    QFtpPI( QObject *parent=0 );
+    QFtpPI( QObject *parent = 0 );
 
     void connectToHost( const QString &host, Q_UINT16 port );
 
@@ -265,8 +265,7 @@ QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev )
 
 QFtpCommand::~QFtpCommand()
 {
-    if ( data_ba )
-	delete data.ba;
+    delete data.ba;
 }
 
 /**********************************************************************
@@ -275,8 +274,7 @@ QFtpCommand::~QFtpCommand()
  *
  *********************************************************************/
 QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
-    QObject( parent, name ), pi( p ),
-    err( QString::null ), callWriteData( FALSE )
+    QObject( parent, name ), pi( p ), callWriteData( FALSE )
 {
     clearData();
 
@@ -643,7 +641,7 @@ bool QFtpPI::sendCommands( const QStringList &cmds )
 	return FALSE;
 
     if ( commandSocket.state()!=QSocket::Connected || state!=Idle ) {
-	emit error( QFtp::NotConnected, tr( "Not connected" ) );
+	emit error( QFtp::NotConnected, QFtp::tr( "Not connected" ) );
 	return TRUE; // there are no pending commands
     }
 
@@ -707,11 +705,11 @@ void QFtpPI::error( int e )
     if ( e == QSocket::ErrHostNotFound ) {
 	emit connectState( QFtp::Unconnected );
 	emit error( QFtp::HostNotFound,
-		tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
+		    QFtp::tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
     } else if ( e == QSocket::ErrConnectionRefused ) {
 	emit connectState( QFtp::Unconnected );
 	emit error( QFtp::ConnectionRefused,
-		tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
+		    QFtp::tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
     }
 }
 
@@ -813,7 +811,7 @@ bool QFtpPI::processReply()
 		return TRUE;
 	    } else if ( replyCode[0] == 2 ) {
 		state = Idle;
-		emit finished( tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
+		emit finished( QFtp::tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 		break;
 	    }
 	    // ### error handling
@@ -943,7 +941,7 @@ void QFtpPI::dtpConnectState( int s )
 	case QFtpDTP::CsHostNotFound:
 	case QFtpDTP::CsConnectionRefused:
 	    emit error( QFtp::ConnectionRefused,
-		    tr( "Connection refused for data connection" ) );
+			QFtp::tr( "Connection refused for data connection" ) );
 	    startNextCmd();
 	    return;
 	default:
@@ -2249,15 +2247,15 @@ void QFtp::npDone( bool err )
 
     if ( state() == Unconnected ) {
 	disconnect( this, SIGNAL(listInfo(const QUrlInfo &)),
-		this, SLOT(npListInfo(const QUrlInfo &)) );
+		    this, SLOT(npListInfo(const QUrlInfo &)) );
 	disconnect( this, SIGNAL(done(bool)),
-		this, SLOT(npDone(bool)) );
+		    this, SLOT(npDone(bool)) );
 	disconnect( this, SIGNAL(stateChanged(int)),
-		this, SLOT(npStateChanged(int)) );
+		    this, SLOT(npStateChanged(int)) );
 	disconnect( this, SIGNAL(dataTransferProgress(int,int)),
-		this, SLOT(npDataTransferProgress(int,int)) );
+		    this, SLOT(npDataTransferProgress(int,int)) );
 	disconnect( this, SIGNAL(readyRead()),
-		this, SLOT(npReadyRead()) );
+		    this, SLOT(npReadyRead()) );
     }
 }
 
