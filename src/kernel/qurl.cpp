@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#36 $
 **
 ** Implementation of QFileDialog class
 **
@@ -354,10 +354,14 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 	  setRef( relUrl );
       } else {
 	  decode( relUrl );
-	  if ( url.path() != "/" )
-	      *this = url + "/" + relUrl;
-	  else
-	      *this = url + relUrl;
+	  *this = url;
+	  QString p = url.path();
+	  if ( p.isEmpty() )
+	      p = "/";
+	  if ( p.right( 1 ) != "/" )
+	      p += "/";
+	  p += relUrl;
+	  d->path = p;
       }
   }
 }
@@ -778,194 +782,6 @@ void QUrl::parse( const QString& url )
     qDebug( "query: %s", d->queryEncoded.latin1() );
     qDebug( "port: %d\n", d->port );
 #endif
-
-
-// ------------------------- OLD STUFF ---------
-#if 0
-    QString port;
-    int start = 0;
-    uint len = url.length();
-    QChar* buf = new QChar[ len + 1 ];
-    QChar* orig = buf;
-    memcpy( buf, url.unicode(), len * sizeof( QChar ) );
-
-    uint pos = 0;
-
-    // Node 1: Accept alpha or slash
-    QChar x = buf[pos++];
-    if ( x == '/' )
-	goto Node9;
-    if ( !isalpha( (int)x ) )
-	goto NodeErr;
-
-    // Node 2: Accept any amount of alphas
-    // Proceed with :// :/ or :
-    while( isalpha( buf[pos] ) && pos < len ) pos++;
-    if ( pos == len )
-	goto NodeErr;
-    if (buf[pos] == ':' && buf[pos+1] == '/' && buf[pos+2] == '/' ) {
-	d->protocol = QString( orig, pos ).lower();
-	pos += 3;
-    } else if (buf[pos] == ':' && buf[pos+1] == '/' ) {
-	d->protocol = QString( orig, pos ).lower();
-	pos++;
-	start = pos;
-	goto Node9;
-    } else if ( buf[pos] == ':' ) {
-	d->protocol = QString( orig, pos ).lower();
-	pos++;
-	goto Node11;
-    } else
-	goto NodeErr;
-
-    //Node 3: We need at least one character here
-    if ( pos == len )
-	goto NodeOk;
-    //    goto NodeErr;
-#if 0
-    start = pos++;
-#else
-    start = pos;
-#endif
-
-    // Node 4: Accept any amount of characters.
-    // Terminate or / or @
-    while( buf[pos] != ':' && buf[pos] != '@' && buf[pos] != '/' && pos < len ) pos++;
-    if ( pos == len ) {
-	d->host = QString( buf + start, pos - start );
-	goto NodeOk;
-    }
-
-    x = buf[pos];
-    if ( x == '@' ) {
-	d->user = QString( buf + start, pos - start );
-	pos++;
-	goto Node7;
-    } else if ( x == '/' ) {
-	d->host = QString( buf + start, pos - start );
-	start = pos++;
-	goto Node9;
-    } else if ( x != ':' )
-	goto NodeErr;
-    d->user = QString( buf + start, pos - start );
-    pos++;
-
-    // Node 5: We need at least one character
-    if ( pos == len )
-	goto NodeErr;
-    start = pos++;
-
-    // Node 6: Read everything until @
-    while( buf[pos] != '@' && pos < len ) pos++;
-    if ( pos == len ) {
-	// Ok the : was used to separate host and port
-	d->host = d->user;
-	d->user = "";
-	QString tmp( buf + start, pos - start );
-	char *endptr;
-	d->port = (unsigned short int)strtol(tmp.ascii(), &endptr, 10);
-	if ((pos == len) && (strlen(endptr) == 0))
-	    goto NodeOk;
-	// there is more after the digits
-	pos -= strlen(endptr);
-	start = pos++;
-	goto Node9;
-    }
-    d->pass = QString( buf + start, pos - start);
-    pos++;
-
-    // Node 7: We need at least one character
-Node7:
-    if ( pos == len )
-	goto NodeErr;
-    start = pos++;
-
-    // Node 8: Read everything until / : or terminate
-    while( buf[pos] != '/' && buf[pos] != ':' && pos < len ) pos++;
-    if ( pos == len ) {
-	d->host = QString( buf + start, pos - start );
-	goto NodeOk;
-    }
-
-    x = buf[pos];
-    d->host = QString( buf + start, pos - start );
-    if ( x == '/' ) {
-	start = pos++;
-	goto Node9;
-    } else if ( x != ':' )
-	goto NodeErr;
-    pos++;
-
-    // Node 8a: Accept at least one digit
-    if ( pos == len )
-	goto NodeErr;
-    start = pos;
-    if ( !isdigit( buf[pos++] ) )
-	goto NodeErr;
-
-    // Node 8b: Accept any amount of digits
-    while( isdigit( buf[pos] ) && pos < len ) pos++;
-    port = QString( buf + start, pos - start );
-    d->port = port.toUShort();
-    if ( pos == len )
-	goto NodeOk;
-    start = pos++;
-
-    // Node 9: Accept any character and # or terminate
-Node9:
-    while( buf[pos] != '#' && pos < len ) pos++;
-    if ( pos == len ) {
-	QString tmp( buf + start, len - start );
-	setEncodedPathAndQuery( tmp );
-	// setEncodedPathAndQuery( QString( buf + start, pos - start ) );
-	goto NodeOk;
-    }
-    else if ( buf[pos] != '#' )
-	goto NodeErr;
-    setEncodedPathAndQuery( QString( buf + start, pos - start ) );
-    pos++;
-
-    // Node 10: Accept all the rest
-    d->refEncoded = QString( buf + pos, len - pos );
-    goto NodeOk;
-
-    // Node 11 We need at least one character
-Node11:
-    start = pos;
-    if ( pos++ == len )
-	goto NodeOk;
-    //    goto NodeErr;
-
-    // Node 12: Accept the res
-    setEncodedPathAndQuery( QString( buf + start, len - start ) );
-    goto NodeOk;
-
-NodeOk:
-    if ( d->path.isEmpty() )
-	d->path = "/";
-    delete []orig;
-    if ( d->networkProtocol )
- 	delete d->networkProtocol;
-    if ( d->port == -1 ) {
-	if ( d->protocol == "ftp" )
-	    d->port = 21;
-	else if ( d->protocol == "http" )
-	    d->port = 80;
-    }
-    getNetworkProtocol();
-
-    return;
-
-NodeErr:
-    if ( d->path.isEmpty() )
-	d->path = "/";
-    qWarning( "Error in parsing \"%s\"", url.ascii() );
-    emit error( ErrParse, QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
-    delete []orig;
-    d->isValid = FALSE;
-
-#endif
-
 }
 
 /*!
@@ -1561,7 +1377,10 @@ QString QUrl::nameFilter() const
 }
 
 /*!
-  Composes a string of the URL and returns it.
+  Composes a string of the URL and returns it. If \a encodedPath 
+  is TRUE, the path in the returned string will be encoded. If
+  \a forcePrependProtocol is TRUE the file:/ protocol is also 
+  prepended if no network protocols are reguistered.
 */
 
 QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
