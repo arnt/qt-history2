@@ -988,7 +988,8 @@ QDir &QDir::operator=( const QString &path )
     // The current directory is "/usr/local"
     QDir d1( "/usr/local/bin" );
     QDir d2( "bin" );
-    if ( d1 != d2 ) qDebug( "They differ\n" ); // This is printed
+    if ( d1 != d2 )
+	qDebug( "They differ" );
     \endcode
 */
 
@@ -1003,7 +1004,8 @@ QDir &QDir::operator=( const QString &path )
     QDir d1( "/usr/local/bin" );
     QDir d2( "bin" );
     d2.convertToAbs();
-    if ( d1 == d2 ) qDebug( "They're the same\n" ); // This is printed
+    if ( d1 == d2 )
+	qDebug( "They're the same" );
     \endcode
 */
 
