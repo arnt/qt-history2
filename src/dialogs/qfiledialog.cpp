@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#113 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#114 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1107,7 +1107,7 @@ void QFileDialog::rereadDir()
 	++it;
 	if ( fi->fileName() != "." &&
 	     ( !cwd.isRoot() || fi->fileName() != ".." ) ) {
-	    QListViewItem * i 
+	    QListViewItem * i
 		= new QFileDialogPrivate::File( fi, files, itemHeight );
 	    if ( mode() == ExistingFiles && fi->isDir() )
 		i->setSelectable( FALSE );
@@ -2055,16 +2055,29 @@ void QFileDialog::modeButtonsDestroyed()
 
 
 /*!  Lets the user select N files from a single directory, and returns
-  a list of the files.
+  a list of the selected files.  The list may be empty, and the file
+  names are fully qualified (i.e. "/usr/games/quake" or
+  "c:\\quake\\quake").
 
   \a filter is the default glob pattern (which the user can change).
   The default is all files.  \a dir is the starting directory.  If \a
   dir is not supplied, QFileDialog picks something presumably useful
   (such as the directory where the user selected something last, or
   the current working directory).
-  
+
   \a parent is a widget over which the dialog should be positioned and
   \a name is the object name of the temporary QFileDialog object.
+  
+  Note that the returned list has auto-delete turned off.  It is the
+  application developer's responsibility to delete the strings in the
+  list, for example using code such as:
+  
+  \code
+    QStrList s( QFileDialog::getOpenFileNames() );
+    // do something with the files in s.
+    s.setAutoDelete();
+    s.clear(); // or just go out of scope.
+  \endcode
 */
 
 QStrList QFileDialog::getOpenFileNames( const char *filter,
@@ -2083,7 +2096,7 @@ QStrList QFileDialog::getOpenFileNames( const char *filter,
 	while( !tmp.isDir() )
 	    tmp.setFile( tmp.dirPath( TRUE ) );
     }
-    
+
     *workingDirectory = tmp.absFilePath();
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
 					parent, name, TRUE );
