@@ -117,22 +117,25 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     }
     t << endl << endl;
 
-    t << "clean:";
-    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
-	QString subdir = *sdirit;
-	subLevels = 1;
-	for( i = 0; i < subdir.length(); i++ ) {
-	    if( subdir.at( i ) == '/' ) subLevels++;
+    QString targs[] = { QString("clean"), QString("install"), QString("mocclean"), QString::null };
+    for(int x = 0; targs[x] != QString::null; x++) {
+        t << targs[x] << ": qmake_all";
+	for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+	    QString subdir = *sdirit;
+	    subLevels = 1;
+	    for( i = 0; i < subdir.length(); i++ ) {
+		if( subdir.at( i ) == '/' ) subLevels++;
+	    }
+	    t << "\n\t"
+	      << "cd " << subdir << "\n\t"
+	      << "$(MAKE) " << targs[x] << "\n\t"
+	      << "@cd ..";
+	    for( i = 1; i < subLevels; i++ ) {
+		t << "\\..";
+	    }
 	}
-	t << "\n\t"
-	  << "cd " << subdir << "\n\t"
-	  << "$(MAKE) clean" << "\n\t"
-	  << "@cd ..";
-	for( i = 1; i < subLevels; i++ ) {
-	    t << "\\..";
-	}
+	t << endl << endl;
     }
-    t << endl << endl;
 
     if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	t << "FORCE:" << endl << endl;
