@@ -15,7 +15,7 @@
 
 #include <qdebug.h>
 
-#define LAYOUT_DEBUG
+// #define LAYOUT_DEBUG
 
 #ifdef LAYOUT_DEBUG
 #define LDEBUG qDebug()
@@ -136,6 +136,7 @@ public:
     void drawListItem(const QPoint &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                       QTextBlockIterator bl, const QTextLayout::Selection &selection) const;
 
+    int hitTest(QTextFrame *frame, const QPoint &point, QText::HitTestAccuracy accuracy) const;
     int hitTest(QTextBlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
 
     void relayoutDocument();
@@ -151,10 +152,72 @@ public:
 #define d d_func()
 #define q q_func()
 
+int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, QText::HitTestAccuracy accuracy) const
+{
+    QTextFrameData *fd = data(frame);
+
+    LDEBUG << "checking frame" << frame->startPosition() << "point=" << point;
+    if (!fd->boundingRect.contains(point) && frame != q->rootFrame()) {
+        LDEBUG << "outside";
+        return -1;
+    }
+    INC_INDENT;
+
+    QPoint p = point - fd->boundingRect.topLeft();
+
+    QTextBlockIterator it = q->findBlock(frame->startPosition());
+    QTextBlockIterator end = q->findBlock(frame->endPosition()+1);
+
+    QList<QTextFrame *> children = frame->children();
+    int pos = -1;
+    for (int i = 0; i < children.size(); ++i) {
+        QTextFrame *c = children.at(i);
+        QTextBlockIterator s = q->findBlock(c->startPosition());
+        while (it != s) {
+            pos = hitTest(it, p, accuracy);
+            if (pos != -1)
+                goto end;
+            ++it;
+        }
+        pos = hitTest(c, p, accuracy);
+        if (pos != -1)
+            goto end;
+        it = q->findBlock(c->endPosition()+1);
+    }
+    while (it != end) {
+        pos = hitTest(it, p, accuracy);
+        if (pos != -1)
+            goto end;
+        ++it;
+    }
+ end:
+    DEC_INDENT;
+    if (pos == -1 && accuracy == QText::FuzzyHit) {
+        int p = frame->endPosition();
+        QTextBlockIterator it = q->findBlock(frame->endPosition());
+        if (it == q->end())
+            --it;
+        QRect r = it.layout()->rect();
+        QPoint relative(point.x(), r.bottom() - 1);
+
+        pos = d->hitTest(it, relative, accuracy);
+
+        if (pos == -1)
+            pos = p;
+    }
+
+    return pos;
+}
+
 int QTextDocumentLayoutPrivate::hitTest(QTextBlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const
 {
     const QTextLayout *tl = bl.layout();
-    QPoint pos = point - tl->rect().topLeft();
+    QRect textrect = tl->rect();
+    if (!textrect.contains(point))
+        return -1;
+
+    LDEBUG << "    block" << bl.position() << "point=" << point;
+    QPoint pos = point - textrect.topLeft();
 
     QTextBlockFormat blockFormat = bl.blockFormat();
 
@@ -162,19 +225,14 @@ int QTextDocumentLayoutPrivate::hitTest(QTextBlockIterator bl, const QPoint &poi
 
     int textStartPos = blockFormat.leftMargin() + indent(bl);
 
+    LDEBUG << "    x=" << pos.x() << "textStartPos=" << textStartPos;
+    // ###### Use per line testing
     if (pos.x() < textStartPos) {
         if (accuracy == QText::ExactHit)
             return -1;
 
         return bl.position();
     }
-
-    QRect textrect = bl.layout()->rect();
-
-    if (point.y() < textrect.top())
-        return bl.position();
-    if (point.y() > textrect.bottom())
-        return bl.position() + bl.length() - 1;
 
     for (int i = 0; i < tl->numLines(); ++i) {
         QTextLine line = tl->lineAt(i);
@@ -202,8 +260,8 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
     QTextFrameData *fd = data(frame);
     if (!fd->boundingRect.intersects(painter->clipRegion().boundingRect()))
         return;
-    LDEBUG << debug_indent << "drawFrame" << frame->startPosition() << "--" << frame->endPosition() << "at" << offset;
-    INC_INDENT;
+//     LDEBUG << debug_indent << "drawFrame" << frame->startPosition() << "--" << frame->endPosition() << "at" << offset;
+//     INC_INDENT;
 
     QPoint off = offset + fd->boundingRect.topLeft();
 
@@ -240,14 +298,14 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         ++it;
     }
 
-    DEC_INDENT;
+//     DEC_INDENT;
 }
 
 void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *painter,
                                            const QAbstractTextDocumentLayout::PaintContext &context,
                                            QTextBlockIterator bl) const
 {
-    LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset;
+//     LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset;
     currentBlock = bl;
     const QTextLayout *tl = bl.layout();
     QTextBlockFormat blockFormat = bl.blockFormat();
@@ -671,22 +729,8 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 
 int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
 {
-    QTextBlockIterator it = begin();
-    for (; it != end(); ++it) {
-        QRect r = it.layout()->rect();
-        if (r.contains(point))
-            return d->hitTest(it, point, accuracy);
-    }
-
-    if (accuracy == QText::FuzzyHit) {
-        it = end();
-        --it;
-        QRect r = it.layout()->rect();
-        QPoint relative(point.x(), r.bottom() - 1);
-
-        return d->hitTest(it, relative, accuracy);
-    }
-    return -1;
+    QTextFrame *f = rootFrame();
+    return d->hitTest(f, point, accuracy);
 }
 
 void QTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
