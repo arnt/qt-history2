@@ -771,6 +771,8 @@ bool QProcess::start(QStringList *env)
         if (fd[1])
             ::fcntl(fd[1], F_SETFD, FD_CLOEXEC); // close on exec shows success
 
+        childStarting();
+
         if (env == 0) { // inherit environment and start process
             QString command = _arguments[0];
 #if defined(Q_OS_DARWIN) //look in a bundle

@@ -317,6 +317,9 @@ bool QProcess::start(QStringList *env)
             envlist[pos++] = 0;
             envlist[pos++] = 0;
         }
+
+        childStarting();
+
         success = CreateProcessW(applicationName, commandLine,
                 0, 0, true, (comms==0 ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW)
 #ifndef Q_OS_TEMP

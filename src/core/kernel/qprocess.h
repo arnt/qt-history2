@@ -66,6 +66,8 @@ public:
     inline bool launch(const char * buf, QStringList *env=0 )
         { return launch(QByteArray(buf), env); }
 
+    virtual void childStarting();
+
     // inquire the status
     bool isRunning() const;
     bool normalExit() const;

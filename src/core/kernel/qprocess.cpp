@@ -700,6 +700,17 @@ bool QProcess::launch(const QString& buf, QStringList *env)
 }
 
 /*!
+    This function is called when the new process has been started, but
+    before its application is launched.
+
+    By reimplementing this function, you can initialize the new
+    process, for example set up pipes or modify settings.
+*/
+void QProcess::childStarting()
+{
+}
+
+/*!
     \fn bool QProcess::launch(const char * buf, QStringList *env=0 )
 
     \overload
