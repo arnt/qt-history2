@@ -172,10 +172,10 @@ QSize QGenericHeader::sizeHint() const
     QModelIndex::Type type = orientation() == Qt::Horizontal
                              ? QModelIndex::HorizontalHeader
                              : QModelIndex::VerticalHeader;
-    QModelIndex item = model()->index(row, col, QModelIndex(), type);
-    if (!item.isValid())
+    QModelIndex index = model()->index(row, col, QModelIndex(), type);
+    if (!index.isValid())
         return QSize();
-    QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, item);
+    QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, index);
     if (orientation() == Qt::Vertical)
         return QSize(hint.width() + border, size());
     return QSize(size(), hint.height() + border);
@@ -237,7 +237,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     start = qMin(start, end);
     end = qMax(tmp, end);
 
-    QModelIndex item;
+    QModelIndex index;
     if (d->sections.isEmpty())
         return;
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
@@ -247,12 +247,14 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     int height = d->viewport->height();
     if (d->orientation == Qt::Horizontal) {
         for (int i = start; i <= end; ++i) {
-            if (sections[i].hidden || !item.isValid())
+            if (sections[i].hidden)
                 continue;
             section = sections[i].section;
-            item = model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
+            index = model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
+            if (!index.isValid())
+                continue;
             option.rect.setRect(sectionPosition(section) - offset, 0, sectionSize(section), height);
-            paintSection(&painter, option, item);
+            paintSection(&painter, option, index);
         }
         if (option.rect.right() < area.right()) {
             QStyleOptionHeader opt = d->getStyleOption();
@@ -262,12 +264,14 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
         }
     } else {
         for (int i = start; i <= end; ++i) {
-            if (sections[i].hidden || !item.isValid())
+            if (sections[i].hidden)
                 continue;
             section = sections[i].section;
-            item = model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
+            index = model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
+            if (!index.isValid())
+                continue;
             option.rect.setRect(0, sectionPosition(section) - offset, width, sectionSize(section));
-            paintSection(&painter, option, item);
+            paintSection(&painter, option, index);
         }
         if (option.rect.bottom() < area.bottom()) {
             QStyleOptionHeader opt = d->getStyleOption();
