@@ -2313,6 +2313,7 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
     if ( !item || item->s == select || d->selectionMode == NoSelection )
 	return;
 
+    bool emitHighlighted = FALSE;
     if ( selectionMode() == Single && d->current != item ) {
 	QListBoxItem *o = d->current;
 	if ( d->current && d->current->s )
@@ -2320,6 +2321,15 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	d->current = item;
 	if ( o )
 	    updateItem( o );
+	emitHighlighted = TRUE;
+    }
+
+    if ( select && !item->isSelectable() )
+	select = FALSE;
+    item->s = (uint)select;
+    updateItem( item );
+    emitChangedSignal( TRUE );
+    if ( emitHighlighted ) {
 	QString tmp;
 	if ( d->current )
 	    tmp = d->current->text();
@@ -2330,12 +2340,6 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	emit highlighted( tmp2 );
 	emit currentChanged( d->current );
     }
-
-    if ( select && !item->isSelectable() )
-	select = FALSE;
-    item->s = (uint)select;
-    updateItem( item );
-    emitChangedSignal( TRUE );
 }
 
 
