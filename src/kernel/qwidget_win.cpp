@@ -189,15 +189,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		style = 0;
 	    }
 	} else {
-#ifndef Q_OS_TEMP
 	    style = WS_OVERLAPPED;
 	    if ( testWFlags(WType_Dialog ) )
+#ifndef Q_OS_TEMP
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu | WStyle_ContextHelp );
 	    else
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 #else
-	    style = 0;
-	    setWFlags( WStyle_NoBorder );
+		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu );
+	    else
+		setWFlags( WStyle_NormalBorder | WStyle_Title );
 #endif
 	}
 	// workaround for some versions of Windows
@@ -870,11 +871,12 @@ void QWidget::showWindow()
 	    sm = SW_HIDE;
 #else
 	    sm = SW_SHOWMINIMIZED;
+#endif 
 	    break;
 	case 2:
 	    sm = SW_SHOWMAXIMIZED;
-#endif
-	    break;	default:
+	    break;	
+	default:
 	    sm = SW_SHOW;
 	    break;
 	}
@@ -900,12 +902,21 @@ void QWidget::hideWindow()
 }
 
 
+#ifdef Q_OS_TEMP
+#define SHFS_SHOWTASKBAR            0x0001
+#define SHFS_SHOWSIPBUTTON          0x0004
+extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
+#endif
+
 void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
 	if ( d->topData()->fullscreen ) {
 	    reparent( 0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft() );
 	    d->topData()->fullscreen = 0;
+#ifdef Q_OS_TEMP
+	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
+#endif
 	}
 #ifndef Q_OS_TEMP
 	if ( isVisible() )
@@ -947,12 +958,26 @@ bool QWidget::isMaximized() const
 void QWidget::showMaximized()
 {
     if ( isTopLevel() ) {
+#ifndef Q_OS_TEMP
 	if ( d->topData()->fullscreen ) {
 	    reparent( 0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft() );
 	    d->topData()->fullscreen = 0;
 	} else if ( d->topData()->normalGeometry.width() < 0 ) {
 	    d->topData()->normalGeometry = geometry();
 	}
+#else
+	if ( topData()->normalGeometry.width() < 0 ) {
+	    topData()->savedFlags = getWFlags();
+	    topData()->normalGeometry = geometry();
+
+	    reparent( 0,
+		      WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
+		      (getWFlags() & 0xffff0000), // preserve some widget flags
+		      topData()->normalGeometry.topLeft() );
+	    topData()->fullscreen = 0;
+	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
+	}
+#endif
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWMAXIMIZED );
 	else {
@@ -970,9 +995,32 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     if ( isTopLevel() ) {
+#ifndef Q_OS_TEMP
 	if ( d->topData()->fullscreen ) {
 	    // when reparenting, preserve some widget flags
 	    reparent( 0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft() );
+#else
+	if ( d->topData()->normalGeometry.width() > 0 ) {
+	    int val = d->topData()->savedFlags;
+	    int style = WS_OVERLAPPED, 
+		exsty = 0;
+	    
+	    style |= (val & WStyle_DialogBorder ? WS_POPUP : 0);
+	    style |= (val & WStyle_Title	? WS_CAPTION : 0);
+	    style |= (val & WStyle_SysMenu	? WS_SYSMENU : 0);
+	    style |= (val & WStyle_Minimize	? WS_MINIMIZEBOX : 0);
+	    style |= (val & WStyle_Maximize	? WS_MAXIMIZEBOX : 0);
+	    exsty |= (val & WStyle_Tool		? WS_EX_TOOLWINDOW : 0);
+	    exsty |= (val & WType_Popup		? WS_EX_TOOLWINDOW : 0);
+	    exsty |= (val & WStyle_ContextHelp	? WS_EX_CONTEXTHELP : 0);
+
+	    SetWindowLong( winId(), GWL_STYLE, style );
+	    if ( exsty )
+		SetWindowLong( winId(), GWL_EXSTYLE, exsty );
+	    // flush Window style cache
+	    SetWindowPos( winId(), HWND_TOP, 0, 0, 200, 200, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
+	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
+#endif
 	    d->topData()->fullscreen = 0;
 	    QRect r = d->topData()->normalGeometry;
 	    if ( r.width() >= 0 ) {
