@@ -1504,10 +1504,11 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     QStack<ScopeBlock> sc = scope_blocks;
     bool parsed = false;
     if(flags & IncludeFlagNewProject) {
-        QMakeProject proj;
+        QMakeProject proj(place);
         if(proj.doProjectInclude("default_pre", IncludeFlagFeature, place) == IncludeNoExist)
             proj.doProjectInclude("default", IncludeFlagFeature, place);
         parsed = proj.read(file.toLatin1().constData(), place);
+        place = proj.variables(); //anything exported is caught here
     } else {
         parsed = read(file.toLatin1().constData(), place);
     }
