@@ -12,15 +12,6 @@
 **
 ****************************************************************************/
 
-// Don't define it while compiling this module, or users of Qt will
-// not be able to link.
-#ifdef QT_NO_CAST_FROM_ASCII
-#undef QT_NO_CAST_FROM_ASCII
-#endif
-#ifdef QT_NO_CAST_TO_ASCII
-#undef QT_NO_CAST_TO_ASCII
-#endif
-
 #include "qstringlist.h"
 #include "qregexp.h"
 #include "qunicodetables_p.h"
@@ -2389,7 +2380,7 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
 
     This is the same as the QString(const char*) constructor, but you
     can make that constructor invisible if you compile with the define
-    \c QT_NO_CAST_ASCII, in which case you can explicitly create a
+    \c QT_NO_CAST_FROM_ASCII, in which case you can explicitly create a
     QString from 8-bit ASCII text using this function.
 
     \code

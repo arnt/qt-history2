@@ -412,7 +412,16 @@ public:
 
 private:
 #ifdef QT_NO_CAST_TO_ASCII
+    // Having these here gives decent error messages
     operator const char *() const;
+#endif
+#ifdef QT_NO_CAST_FROM_ASCII
+    QString &operator+=(const char *s);
+    QString &operator+=(const QByteArray &s);
+    QString(const char *ch);
+    QString(const QByteArray &a);
+    QString &operator=(const char  *ch);
+    QString &operator=(const QByteArray &a);
 #endif
     operator QNoImplicitIntegralCast() const;
     struct Data {
