@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#14 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -45,7 +45,9 @@
 
 #if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
 #include <sys/filio.h>
+#ifndef FNDELAY
 #define FNDELAY O_NDELAY
+#endif
 #endif
 
 //#define QSOCKETDEVICE_DEBUG
