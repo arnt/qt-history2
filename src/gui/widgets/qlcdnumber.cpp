@@ -614,18 +614,18 @@ void QLCDNumber::setSmallDecimalPoint( bool b )
 }
 
 
-/*!
-    Draws the LCD number using painter \a p. This function is called
-    from QFrame::paintEvent().
+/*!\reimp
 */
 
 
-void QLCDNumber::drawContents( QPainter *p )
+void QLCDNumber::paintEvent( QPaintEvent * )
 {
+    QPainter p(this);
+    drawFrame(&p);
     if ( smallPoint )
-        drawString( digitStr, *p, &points, FALSE );
+        drawString( digitStr, p, &points, FALSE );
     else
-        drawString( digitStr, *p, 0, FALSE );
+        drawString( digitStr, p, 0, FALSE );
 }
 
 

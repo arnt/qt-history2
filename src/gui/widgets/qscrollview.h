@@ -179,8 +179,6 @@ protected:
 #endif
     virtual void viewportContextMenuEvent( QContextMenuEvent * );
 
-    void	frameChanged();
-
     virtual void setMargins(int left, int top, int right, int bottom);
     int leftMargin() const;
     int topMargin() const;

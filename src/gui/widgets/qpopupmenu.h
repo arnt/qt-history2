@@ -23,7 +23,7 @@
 #ifndef QT_NO_POPUPMENU
 class QPopupMenuPrivate;
 
-class Q_GUI_EXPORT QPopupMenu : public QFrame, public QMenuData
+class Q_GUI_EXPORT QPopupMenu : public Q3Frame, public QMenuData
 {
     Q_OBJECT
     Q_PROPERTY( bool checkable READ isCheckable WRITE setCheckable )

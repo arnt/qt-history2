@@ -152,8 +152,8 @@ void QToolBoxPrivate::updateTabs()
 	QToolBoxButton *tB = (*i).button;
 	QWidget *tW = (*i).widget;
 	if (after) {
-	    QPalette p = tB->palette(); 
-	    p.setColor(tB->backgroundRole(), tW->palette().color(tW->backgroundRole())); 
+	    QPalette p = tB->palette();
+	    p.setColor(tB->backgroundRole(), tW->palette().color(tW->backgroundRole()));
 	    tB->setPalette(p);
 	    tB->update();
 	} else if ( tB->backgroundRole() != QPalette::Background ) {
@@ -640,13 +640,6 @@ QString QToolBox::itemToolTip( int index ) const
 void QToolBox::showEvent( QShowEvent *e )
 {
     QWidget::showEvent( e );
-}
-
-/*! \reimp */
-void QToolBox::frameChanged()
-{
-    d->layout->setMargin( frameWidth() );
-    QFrame::frameChanged();
 }
 
 /*! \reimp */

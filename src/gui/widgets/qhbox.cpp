@@ -91,17 +91,6 @@ void QHBox::childEvent(QChildEvent *e)
 }
 
 
-
-/*!\reimp
- */
-void QHBox::frameChanged()
-{
-    if ( !layout() )
-	return;
-    layout()->setMargin( frameWidth() );
-}
-
-
 /*!
     Sets the spacing between the child widgets to \a space.
 */

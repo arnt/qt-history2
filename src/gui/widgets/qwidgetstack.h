@@ -45,8 +45,6 @@ public:
 
     QWidget * visibleWidget() const;
 
-    void setFrameRect( const QRect & );
-
 signals:
     void aboutToShow( int );
     void aboutToShow( QWidget * );
@@ -56,10 +54,9 @@ public slots:
     void raiseWidget( QWidget * );
 
 protected:
-    void frameChanged();
     void resizeEvent( QResizeEvent * );
 
-    virtual void setChildGeometries();
+    void setChildGeometries();
     void childEvent( QChildEvent * );
     bool event( QEvent * );
 

@@ -36,7 +36,6 @@ public:
 
 protected:
     QHBox( bool horizontal, QWidget* parent=0, const char* name=0, WFlags f = 0 );
-    void frameChanged();
     void childEvent(QChildEvent *);
 
 private:

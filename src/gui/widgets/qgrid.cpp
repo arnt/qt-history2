@@ -102,13 +102,4 @@ void QGrid::setSpacing( int space )
 	layout()->setSpacing( space );
 }
 
-
-/*!\reimp
- */
-void QGrid::frameChanged()
-{
-    if ( !layout() )
-	return;
-    layout()->setMargin( frameWidth() );
-}
 #endif

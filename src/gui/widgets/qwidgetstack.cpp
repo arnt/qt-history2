@@ -143,7 +143,7 @@ int QWidgetStack::addWidget( QWidget * w, int id )
 
     w->hide();
     if ( w->parent() != this ) {
-	w->setParent(this); 
+	w->setParent(this);
 	w->move(contentsRect().topLeft());
     }
     w->setGeometry( contentsRect() );
@@ -288,27 +288,6 @@ void QWidgetStack::raiseWidget( QWidget *w )
     w->show();
 }
 
-/*!
-    \reimp
-*/
-
-void QWidgetStack::frameChanged()
-{
-    QFrame::frameChanged();
-    setChildGeometries();
-}
-
-
-/*!
-    \reimp
-*/
-
-void QWidgetStack::setFrameRect( const QRect & r )
-{
-    QFrame::setFrameRect( r );
-    setChildGeometries();
-}
-
 
 /*!
     Fixes up the children's geometries.
@@ -428,7 +407,6 @@ QWidget * QWidgetStack::visibleWidget() const
 
 void QWidgetStack::resizeEvent( QResizeEvent * e )
 {
-    QFrame::resizeEvent( e );
     setChildGeometries();
 }
 

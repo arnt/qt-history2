@@ -674,6 +674,7 @@ void QToolBar::createPopup()
 
 void QToolBar::resizeEvent( QResizeEvent *e )
 {
+    QDockWindow::resizeEvent(e);
     checkForExtension( e->size() );
 }
 

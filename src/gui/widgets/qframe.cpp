@@ -42,11 +42,6 @@ QFramePrivate::QFramePrivate()
 
     \ingroup abstractwidgets
 
-    It draws a frame and calls a virtual function, drawContents(), to
-    fill in the frame. This function is reimplemented by subclasses.
-    There are also two other less useful functions: drawFrame() and
-    frameChanged().
-
     QPopupMenu uses this to "raise" the menu above the surrounding
     screen. QProgressBar has a "sunken" look. QLabel has a flat look.
     The frames of widgets like these can be changed.
@@ -179,6 +174,13 @@ QFrame::QFrame(QWidget *parent, const char *name, WFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
     setObjectName(name);
+}
+
+/*
+  Destroys the frame.
+ */
+QFrame::~QFrame()
+{
 }
 
 /*!
@@ -343,6 +345,8 @@ int QFrame::margin() const
 
 void QFramePrivate::updateFrameWidth()
 {
+    QRect fr = q->frameRect();
+
     int frameShape  = frameStyle & QFrame::MShape;
     int frameShadow = frameStyle & QFrame::MShadow;
 
@@ -404,7 +408,7 @@ void QFramePrivate::updateFrameWidth()
 
     frameWidth += margin;
 
-    q->frameChanged();
+    q->setFrameRect(fr);
 }
 
 
@@ -435,10 +439,9 @@ int QFrame::frameWidth() const
 
 QRect QFrame::frameRect() const
 {
-    if (d->frect.isNull())
-        return rect();
-    else
-        return d->frect;
+    QRect fr = contentsRect();
+    fr.addCoords(-d->frameWidth, -d->frameWidth, d->frameWidth, d->frameWidth);
+    return fr;
 }
 
 /*!
@@ -455,29 +458,9 @@ QRect QFrame::frameRect() const
 
 void QFrame::setFrameRect(const QRect &r)
 {
-    d->frect = r.isValid() ? r : rect();
-}
-
-
-/*!
-    Returns the rectangle inside the frame.
-
-    \sa frameRect(), drawContents()
-*/
-
-QRect QFrame::contentsRect() const
-{
-    QRect r = frameRect();
-    int   w = d->frameWidth;
-    int frameShape  = d->frameStyle & MShape;
-    if (frameShape == PopupPanel) {
-	int vExtra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
-	int hExtra = style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this);
-	r.setRect(r.x()+w+hExtra, r.y()+w+vExtra, r.width()-w*2-hExtra*2, r.height()-w*2-vExtra*2);
-    } else {
-	r.setRect(r.x()+w, r.y()+w, r.width()-w*2, r.height()-w*2);
-    }
-    return r;
+    QRect cr = r;
+    cr.addCoords(d->frameWidth, d->frameWidth, -d->frameWidth, -d->frameWidth);
+    setContentsMargins(cr.left(), cr.top(), rect().right() - cr.right(), rect().bottom() - cr.bottom());
 }
 
 /*!\reimp
@@ -497,70 +480,17 @@ QSize QFrame::sizeHint() const
     }
 }
 
-/*!
-    Processes the paint event \a event.
-
-    Paints the frame and the contents.
-
-    Opens the painter on the frame and calls drawFrame(), then
-    drawContents().
+/*!\reimp
 */
 
-void QFrame::paintEvent(QPaintEvent *event)
+void QFrame::paintEvent(QPaintEvent *)
 {
     QPainter paint(this);
-
-    if (!contentsRect().contains(event->rect())) {
-        paint.save();
-	paint.setClipRegion(event->region().intersect(frameRect()));
-        drawFrame(&paint);
-        paint.restore();
-    }
-    if (event->rect().intersects(contentsRect()) &&
-         (d->frameStyle & MShape) != HLine && (d->frameStyle & MShape) != VLine) {
-        paint.setClipRegion(event->region().intersect(contentsRect()));
-        drawContents(&paint);
-    }
+    drawFrame(&paint);
 }
 
-
-/*!
-    Processes the resize event \a e.
-
-    Adjusts the frame rectangle for the resized widget. The frame
-    rectangle is elastic, and the surrounding area is static.
-
-    The resulting frame rectangle may be null or invalid. You can use
-    setMinimumSize() to avoid those possibilities.
-
-    Nothing is done if the frame rectangle is a \link QRect::isNull()
-    null rectangle\endlink already.
-*/
-
-void QFrame::resizeEvent(QResizeEvent *e)
-{
-    if (!d->frect.isNull()) {
-        QRect r(d->frect.x(), d->frect.y(),
-                 width()  - (e->oldSize().width()  - d->frect.width()),
-                 height() - (e->oldSize().height() - d->frect.height()));
-        setFrameRect(r);
-    }
-    QWidget::resizeEvent(e);
-}
-
-
-/*!
-    Draws the frame using the painter \a p and the current frame
-    attributes and color group. The rectangle inside the frame is not
-    affected.
-
-    This function is virtual, but in general you do not need to
-    reimplement it. If you do, note that the QPainter is already open
-    and must remain open.
-
-    \sa frameRect(), contentsRect(), drawContents(), frameStyle(), setPalette()
-*/
-
+/*\internal, mostly for the sake of Q3Frame
+ */
 void QFrame::drawFrame(QPainter *p)
 {
     QPoint      p1, p2;
@@ -699,8 +629,49 @@ void QFrame::drawFrame(QPainter *p)
             qDrawShadeLine(p, p1, p2, pal, frameShadow == Sunken, lw, mlw);
         break;
     }
+
 }
 
+
+/*!\reimp
+ */
+void QFrame::changeEvent(QEvent *ev)
+{
+    if(ev->type() == QEvent::StyleChange)
+	d->updateFrameWidth();
+    QWidget::changeEvent(ev);
+}
+
+
+
+
+
+Q3Frame::Q3Frame(QWidget* parent, const char* name, WFlags f)
+    :QFrame(parent, f)
+{
+    if (name)
+	setObjectName(name);
+    setAttribute(WA_LayoutOnEntireRect);
+}
+
+Q3Frame::~Q3Frame()
+{
+}
+
+void Q3Frame::paintEvent(QPaintEvent * event)
+{
+    QPainter paint( this );
+    if ( !contentsRect().contains( event->rect() ) ) {
+        paint.save();
+        paint.setClipRegion( event->region().intersect(frameRect()) );
+        drawFrame( &paint );
+        paint.restore();
+    }
+    if (event->rect().intersects(contentsRect())) {
+        paint.setClipRegion(event->region().intersect(contentsRect()));
+        drawContents(&paint);
+    }
+}
 
 /*!
     Virtual function that draws the contents of the frame.
@@ -719,10 +690,31 @@ void QFrame::drawFrame(QPainter *p)
     \sa contentsRect(), QPainter::setClipRect()
 */
 
-void QFrame::drawContents(QPainter *)
+void Q3Frame::drawContents(QPainter *)
 {
 }
 
+/*!
+    Draws the frame using the painter \a p and the current frame
+    attributes and color group. The rectangle inside the frame is not
+    affected.
+
+    This function is virtual, but in general you do not need to
+    reimplement it. If you do, note that the QPainter is already open
+    and must remain open.
+
+    \sa frameRect(), contentsRect(), drawContents(), frameStyle(), setPalette()
+*/
+
+void Q3Frame::drawFrame( QPainter *p )
+{
+    QFrame::drawFrame(p);
+}
+
+void Q3Frame::resizeEvent(QResizeEvent *)
+{
+    frameChanged();
+}
 
 /*!
     Virtual function that is called when the frame style, line width
@@ -730,24 +722,10 @@ void QFrame::drawContents(QPainter *)
 
     This function can be reimplemented by subclasses that need to know
     when the frame attributes change.
-
-    The default implementation calls update().
 */
 
-void QFrame::frameChanged()
+void Q3Frame::frameChanged()
 {
-    update();
-    updateGeometry();
 }
-
-/*!\reimp
- */
-void QFrame::changeEvent(QEvent *ev)
-{
-    if(ev->type() == QEvent::StyleChange)
-	d->updateFrameWidth();
-    QWidget::changeEvent(ev);
-}
-
 
 #endif //QT_NO_FRAME

@@ -236,7 +236,7 @@ static const int motifItemVMargin	= 4;	// menu item ver text margin
     Constructs a menu bar called \a name with parent \a parent.
 */
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
-    : QFrame( parent, name )
+    : Q3Frame( parent, name )
 {
 #if defined( Q_WS_MAC ) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     mac_eaten_menubar = FALSE;
@@ -269,7 +269,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     installEventFilter( this );
 
     setBackgroundRole( QPalette::Button );
-    setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
+    setFrameStyle( Q3Frame::MenuBarPanel | Q3Frame::Raised );
 
     QFontMetrics fm = fontMetrics();
     int h = 2*motifBarVMargin + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
@@ -295,7 +295,7 @@ void QMenuBar::changeEvent( QEvent *ev )
     } else if(ev->type() == QEvent::LanguageChange) {
 	menuContentsChanged();
     }
-    QFrame::changeEvent(ev);
+    Q3Frame::changeEvent(ev);
 }
 
 
@@ -1079,7 +1079,7 @@ QMenuBar::Separator QMenuBar::separator() const
  *****************************************************************************/
 
 /*!
-    Called from QFrame::paintEvent(). Draws the menu bar contents
+    Called from Q3Frame::paintEvent(). Draws the menu bar contents
     using painter \a p.
 */
 
@@ -1226,7 +1226,7 @@ void QMenuBar::leaveEvent( QEvent * e )
     if ( !hasFocus() && !popupvisible )
 	actItem = -1;
     updateItem( actId );
-    QFrame::leaveEvent( e );
+    Q3Frame::leaveEvent( e );
 }
 
 
@@ -1341,7 +1341,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 */
 void QMenuBar::resizeEvent( QResizeEvent *e )
 {
-    QFrame::resizeEvent( e );
+    Q3Frame::resizeEvent( e );
     if ( badSize )
 	return;
     badSize = TRUE;
@@ -1556,7 +1556,7 @@ QSize QMenuBar::minimumSize() const
     if ( tb )
 	return sizeHint();
 #endif
-    return QFrame::minimumSize();
+    return Q3Frame::minimumSize();
 }
 
 /*!

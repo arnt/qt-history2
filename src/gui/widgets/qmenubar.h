@@ -25,7 +25,7 @@
 
 class QPopupMenu;
 
-class Q_GUI_EXPORT QMenuBar : public QFrame, public QMenuData
+class Q_GUI_EXPORT QMenuBar : public Q3Frame, public QMenuData
 {
     Q_OBJECT
     Q_ENUMS( Separator )

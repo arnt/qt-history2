@@ -252,7 +252,7 @@ static QPopupMenu* active_popup_menu = 0;
 */
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
-    : QFrame( parent, name, WType_Popup )
+    : Q3Frame( parent, name, WType_Popup )
 {
     d = new QPopupMenuPrivate;
     d->scroll.scrollableSize = d->scroll.topScrollableIndex = 0;
@@ -274,7 +274,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 
     tab = 0;
     ncols = 1;
-    setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
+    setFrameStyle( Q3Frame::PopupPanel | Q3Frame::Raised );
     setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
     setBackgroundRole( QPalette::Button );
     connectModalRecursionSafety = 0;
@@ -1527,7 +1527,7 @@ void QPopupMenu::drawContents( QPainter* p )
 
 void QPopupMenu::paintEvent( QPaintEvent *e )
 {
-    QFrame::paintEvent( e );
+    Q3Frame::paintEvent( e );
 }
 
 /*!
@@ -1559,7 +1559,7 @@ bool QPopupMenu::event(QEvent *e)
     default:
         break;
     }
-    return QFrame::event(e);
+    return Q3Frame::event(e);
 }
 
 /*!
@@ -2131,7 +2131,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 
 void QPopupMenu::timerEvent( QTimerEvent *e )
 {
-    QFrame::timerEvent( e );
+    Q3Frame::timerEvent( e );
 }
 
 /*!
@@ -2159,7 +2159,7 @@ void QPopupMenu::changeEvent( QEvent *ev )
 	if ( QMenuData::d->aPopup ) // torn-off menu
 	    QMenuData::d->aPopup->setEnabled( isEnabled() );
     }
-    QFrame::changeEvent(ev);
+    Q3Frame::changeEvent(ev);
 }
 
 

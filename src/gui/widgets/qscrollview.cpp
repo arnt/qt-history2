@@ -127,7 +127,7 @@ void QScrollViewPrivate::init()
     corner = 0;
     defaultCorner = new QWidget( q, "qt_default_corner" );
     defaultCorner->hide();
-    vbar->setSingleStep(20); 
+    vbar->setSingleStep(20);
     hbar->setSingleStep(20);
     // vbar & hbar setPageStep set later
     policy = QScrollView::Default;
@@ -902,7 +902,7 @@ void QScrollView::updateScrollBars()
     if ( needv ) {
 	d->vbar->setMinimum(0);
 	d->vbar->setMaximum(contentsHeight()-porth);
-	d->vbar->setSingleStep(QScrollView::d->vbar->singleStep()); 
+	d->vbar->setSingleStep(QScrollView::d->vbar->singleStep());
 	d->vbar->setPageStep(porth);
     } else {
 	d->vbar->setMinimum(0);
@@ -911,7 +911,7 @@ void QScrollView::updateScrollBars()
     if ( needh ) {
 	d->hbar->setMinimum(0);
 	d->hbar->setMaximum(qMax(0, d->contentsWidth()-portw));
-	d->hbar->setSingleStep(QScrollView::d->hbar->singleStep()); 
+	d->hbar->setSingleStep(QScrollView::d->hbar->singleStep());
 	d->hbar->setPageStep(portw);
     } else {
 	d->hbar->setMinimum(0);
@@ -2310,15 +2310,6 @@ void QScrollView::drawContents(QPainter*, int, int, int, int)
 
 
 /*!
-    \reimp
-*/
-void QScrollView::frameChanged()
-{
-    updateScrollBars();
-}
-
-
-/*!
     Returns the viewport widget of the scrollview. This is the widget
     containing the contents widget or which is the drawing area.
 */
@@ -2389,7 +2380,6 @@ void QScrollView::changeFrameRect(const QRect& r)
 
     By default all margins are zero.
 
-    \sa frameChanged()
 */
 void QScrollView::setMargins(int left, int top, int right, int bottom)
 {

@@ -345,8 +345,11 @@ bool QProgressBar::setIndicator( QString & indicator, int progress,
 /*!
     \reimp
 */
-void QProgressBar::drawContents( QPainter *p )
+void QProgressBar::paintEvent( QPaintEvent * )
 {
+    QPainter paint(this);
+    QPainter *p = &paint;
+    drawFrame(p);
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
 	flags |= QStyle::Style_Enabled;

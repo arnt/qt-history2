@@ -36,7 +36,6 @@ public:
 #endif
 
 protected:
-    void frameChanged();
     void childEvent(QChildEvent*);
 private:
     QGridLayout *lay;

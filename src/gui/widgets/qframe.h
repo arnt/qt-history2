@@ -39,12 +39,12 @@ class Q_GUI_EXPORT QFrame : public QWidget
 public:
     QFrame(QWidget* parent = 0, WFlags f = 0);
     QFrame(QWidget* parent, const char* name, WFlags f = 0);
+    ~QFrame();
 
     int         frameStyle()    const;
     void setFrameStyle(int);
 
     int         frameWidth()    const;
-    QRect       contentsRect()  const;
 
     QSize       sizeHint() const;
 
@@ -91,17 +91,42 @@ public:
 protected:
     QFrame(QFramePrivate &, QWidget* parent, WFlags f = 0);
     void        paintEvent(QPaintEvent *);
-    void        resizeEvent(QResizeEvent *);
-    virtual void drawFrame(QPainter *);
-    virtual void drawContents(QPainter *);
-    virtual void frameChanged();
     void        changeEvent(QEvent *);
+
+    void drawFrame(QPainter *);
 
 private:
 
 #if defined(Q_DISABLE_COPY)
     QFrame(const QFrame &);
     QFrame &operator=(const QFrame &);
+#endif
+};
+
+
+class Q_GUI_EXPORT Q3Frame : public QFrame
+{
+    Q_OBJECT
+
+public:
+    Q3Frame(QWidget* parent, const char* name = 0, WFlags f = 0);
+    ~Q3Frame();
+#ifndef Q_QDOC
+    bool        lineShapesOk()  const { return TRUE; }
+#endif
+
+protected:
+    void        paintEvent(QPaintEvent *);
+    void        resizeEvent(QResizeEvent *);
+
+    virtual void frameChanged();
+    virtual void drawFrame(QPainter *);
+    virtual void drawContents(QPainter *);
+
+private:
+#if defined(Q_DISABLE_COPY)
+    Q3Frame(const QFrame &);
+    Q3Frame &operator=(const QFrame &);
 #endif
 };
 

@@ -64,7 +64,7 @@ public slots:
     void	setProgress( int progress, int totalSteps );
 
 protected:
-    void	drawContents( QPainter * );
+    void	paintEvent( QPaintEvent * );
     virtual bool setIndicator( QString & progress_str, int progress,
 			       int totalSteps );
     void changeEvent( QEvent * );

@@ -882,7 +882,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 */
 
 QDockWindow::QDockWindow( QWidget* parent, const char* name, WFlags f )
-    : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
+    : Q3Frame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
 {
     curPlace = InDock;
     isToolbar = FALSE;
@@ -907,7 +907,7 @@ QDockWindow::QDockWindow( QWidget* parent, const char* name, WFlags f )
 */
 
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
+    : Q3Frame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
 {
     curPlace = p;
     isToolbar = FALSE;
@@ -918,7 +918,7 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 */
 
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f, bool toolbar )
-    : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
+    : Q3Frame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
 {
     curPlace = p;
     isToolbar = toolbar;
@@ -996,7 +996,7 @@ void QDockWindow::init()
     vHandleRight->hide();
     hHandleTop->hide();
     vHandleLeft->hide();
-    setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+    setFrameStyle( Q3Frame::StyledPanel | Q3Frame::Raised );
     setLineWidth( 2 );
 
     if ( parentWidget() )
@@ -1106,7 +1106,7 @@ QDockWindow::~QDockWindow()
 
 void QDockWindow::resizeEvent( QResizeEvent *e )
 {
-    QFrame::resizeEvent( e );
+    Q3Frame::resizeEvent( e );
     updateGui();
 }
 
@@ -1477,7 +1477,7 @@ void QDockWindow::endRectDraw( bool drawRect )
 void QDockWindow::drawFrame( QPainter *p )
 {
     if ( place() == InDock ) {
-	QFrame::drawFrame( p );
+	Q3Frame::drawFrame( p );
 	return;
     }
 
@@ -1760,7 +1760,7 @@ QBoxLayout *QDockWindow::boxLayout()
 
 QSize QDockWindow::sizeHint() const
 {
-    QSize sh( QFrame::sizeHint() );
+    QSize sh( Q3Frame::sizeHint() );
     if ( place() == InDock )
 	sh = sh.expandedTo( fixedExtent() );
     sh = sh.expandedTo( QSize( 16, 16 ) );
@@ -1778,7 +1778,7 @@ QSize QDockWindow::sizeHint() const
 
 QSize QDockWindow::minimumSize() const
 {
-    QSize ms( QFrame::minimumSize() );
+    QSize ms( Q3Frame::minimumSize() );
     if ( place() == InDock )
 	ms = ms.expandedTo( fixedExtent() );
     ms = ms.expandedTo( QSize( 16, 16 ) );
@@ -1796,7 +1796,7 @@ QSize QDockWindow::minimumSize() const
 
 QSize QDockWindow::minimumSizeHint() const
 {
-    QSize msh( QFrame::minimumSize() );
+    QSize msh( Q3Frame::minimumSize() );
     if ( place() == InDock )
 	msh = msh.expandedTo( fixedExtent() );
     msh = msh.expandedTo( QSize( 16, 16 ) );
@@ -1911,7 +1911,7 @@ void QDockWindow::dock()
 
 void QDockWindow::hideEvent( QHideEvent *e )
 {
-    QFrame::hideEvent( e );
+    Q3Frame::hideEvent( e );
 }
 
 /*! \reimp
@@ -1928,7 +1928,7 @@ void QDockWindow::showEvent( QShowEvent *e )
 	}
     }
 
-    QFrame::showEvent( e );
+    Q3Frame::showEvent( e );
 }
 
 /*!
@@ -2019,7 +2019,7 @@ bool QDockWindow::event( QEvent *e )
 	break;
     case QEvent::WindowTitleChange:
     {
-	QString s = QFrame::windowTitle();
+	QString s = Q3Frame::windowTitle();
 	titleBar->setWindowTitle( s );
 #ifndef QT_NO_TOOLTIP
 	QToolTip::remove( horHandle );
@@ -2033,7 +2033,7 @@ bool QDockWindow::event( QEvent *e )
     default:
 	break;
     }
-    return QFrame::event( e );
+    return Q3Frame::event( e );
 }
 
 /*!

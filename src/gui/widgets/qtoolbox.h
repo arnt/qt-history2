@@ -72,7 +72,6 @@ protected:
     virtual void itemInserted( int index );
     virtual void itemRemoved( int index );
     void showEvent( QShowEvent *e );
-    void frameChanged();
     void changeEvent( QEvent * );
 
 private:

@@ -78,7 +78,7 @@ signals:
     void    overflow();
 
 protected:
-    void    drawContents( QPainter * );
+    void    paintEvent( QPaintEvent * );
 
 private:
     void    init();
