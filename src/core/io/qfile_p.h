@@ -10,8 +10,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QFILE_P_H__
-#define __QFILE_P_H__
+
+#ifndef QFILE_P_H
+#define QFILE_P_H
 
 #include <private/qiodevice_p.h>
 #include <private/qinternal_p.h>
@@ -45,4 +46,4 @@ private:
     static QFile::DecoderFn decoder;
 };
 
-#endif /* __QFILE_P_H__ */
+#endif // QFILE_P_H
