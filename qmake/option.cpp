@@ -148,15 +148,25 @@ Option::parseCommandLine(int argc, char **argv)
     return TRUE;
 }
 
+void fixEnvVariables(QString &x)
+{
+    int rep, rep_len;
+    QRegExp reg_var("\\$\\(.*\\)");
+    while((rep = reg_var.match(x, 0, &rep_len)) != -1)
+	x.replace(rep, rep_len, QString(getenv(x.mid(rep + 2, rep_len - 3).latin1())));
+}
+
 QString 
 Option::fixPathToTargetOS(QString in)
 {
+    fixEnvVariables(in);
     return in.replace(QRegExp(Option::mode == UNIX_MODE ? "\\" : "/"), Option::dir_sep);
 }
 
 QString
 Option::fixPathToLocalOS(QString in)
 {
+    fixEnvVariables(in);
 #ifdef WIN32
     return in.replace(QRegExp("/"), "\\");
 #else
