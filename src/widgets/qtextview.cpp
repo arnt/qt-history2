@@ -3028,10 +3028,10 @@ void QTextView::setFont( const QFont &f )
     size of images.
 */
 
-void QTextView::zoomIn()
+void QTextView::zoomIn( int range )
 {
     QFont f( QScrollView::font() );
-    f.setPointSize( f.pointSize() + 1 );
+    f.setPointSize( f.pointSize() + range );
     setFont( f );
 }
 
@@ -3040,10 +3040,10 @@ void QTextView::zoomIn()
   size of images.
 */
 
-void QTextView::zoomOut()
+void QTextView::zoomOut( int range )
 {
     QFont f( QScrollView::font() );
-    f.setPointSize( QMAX( 1, f.pointSize() - 1 ) );
+    f.setPointSize( QMAX( 1, f.pointSize() - range ) );
     setFont( f );
 }
 

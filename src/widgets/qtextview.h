@@ -164,8 +164,10 @@ public slots:
 
     virtual void selectAll( bool select = TRUE );
     virtual void setTabStops( int ts );
-    virtual void zoomIn();
-    virtual void zoomOut();
+    virtual void zoomIn( int range );
+    virtual void zoomOut( int range );
+    virtual void zoomIn() { zoomIn( 1 ); }
+    virtual void zoomOut() { zoomOut( 1 ); }
 
     virtual void sync();
 
