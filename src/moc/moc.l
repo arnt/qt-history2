@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#20 $
+** $Id: //depot/qt/main/src/moc/moc.l#21 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -294,8 +294,8 @@ extern void addExpressionString( char * );
 			  input();   /* Discard the '\n'. */
 			  do {
 			      c1=' ';
-			      while((c = linput()) != '\n' && c > 0) c1=c;
-			      if (c <= 0) break;
+			      while((c = linput()) != '\n' && c != 0) c1=c;
+			      if (c == 0) break;
 			  } while(c1=='\\');
 			  unput(c);  /* put back the '\n' or the EOF */
 			}
@@ -306,12 +306,12 @@ extern void addExpressionString( char * );
 			  char c = ' ';
 			  do {
 			      if ( c!= '*' ) {
-				  while((c = linput()) != '*' && c > 0)
+				  while((c = linput()) != '*' && c != 0)
 				      ;
 			      }
-			      if (c <= 0) break;
-			  } while(((c = linput())) != '/' && c > 0);
-			  if (c <= 0)
+			      if (c == 0) break;
+			  } while(((c = linput())) != '/' && c != 0);
+			  if (c == 0)
 			      unput(c);
 			}
 

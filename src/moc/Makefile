@@ -8,7 +8,7 @@ INCDIR	=	../tools
 
 ####### Compiler
 
-CFLAGS	=	-O2
+CFLAGS	=	-g
 CC	=	gcc
 
 ####### Extra flags for yacc-written code
