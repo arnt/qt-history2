@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#459 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#460 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1589,18 +1589,40 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 
 	    case WM_SYSCOMMAND:
-		if ( wParam == SC_CONTEXTHELP ) {
-		    // What's This? Windows wants to do something for
-		    // us....naaa
+		switch( wParam ) {
+		case SC_CONTEXTHELP:
 		    QWhatsThis::enterWhatsThisMode();
 		    if ( qt_winver & Qt::WV_NT_based )
 			DefWindowProc( hwnd, WM_NCPAINT, 1, 0 );
 		    else
 			DefWindowProcA( hwnd, WM_NCPAINT, 1, 0 );
-		} else
+		    break;
+		case SC_MAXIMIZE:
+		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
 		    result = FALSE;
+		    break;
+		case SC_MINIMIZE:
+		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMinimized ) );
+		    result = FALSE;
+		    break;
+		case SC_RESTORE:
+		    QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
+		    result = FALSE;
+		    break;
+		default:
+		    result = FALSE;
+		    break;
+		}
 		break;
-
+	    case WM_NCLBUTTONDBLCLK:
+		if ( wParam == HTCAPTION ) {
+		    if ( widget->isMaximized() )
+			QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
+		    else
+			QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+		}
+		result = FALSE;
+		break;
 	    case WM_PAINT:				// paint event
 		result = widget->translatePaintEvent( msg );
 		break;
@@ -1633,6 +1655,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_MOVE:				// move window
 	    case WM_SIZE:				// resize window
 		result = widget->translateConfigEvent( msg );
+		if ( widget->isMaximized() )
+		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
 		break;
 
 	    case WM_ACTIVATE:

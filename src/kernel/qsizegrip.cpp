@@ -116,6 +116,9 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
 			(unsigned char *)&id, 1);
     }
 #endif
+    tlw = qt_sizegrip_topLevelWidget( this );
+    if ( tlw )
+	tlw->installEventFilter( this );
 }
 
 
@@ -219,6 +222,24 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
       ;
 #endif
     QApplication::syncX();
+}
+
+/*! \reimp */
+bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
+{
+    if ( o == tlw ) {
+	switch ( e->type() ) {
+	case QEvent::ShowMaximized:
+	    hide();
+	    break;
+	case QEvent::ShowNormal:
+	    show();
+	    break;
+	default:
+	    break;
+	}
+    }
+    return FALSE;
 }
 
 #endif //QT_NO_SIZEGRIP

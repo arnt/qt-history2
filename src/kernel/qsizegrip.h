@@ -57,10 +57,13 @@ protected:
     void paintEvent( QPaintEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
+
+    bool eventFilter( QObject *, QEvent * );
 private:
     QPoint p;
     QSize s;
     int d;
+    QWidget *tlw;
 };
 
 #endif //QT_NO_SIZEGRIP
