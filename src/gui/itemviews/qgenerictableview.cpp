@@ -22,11 +22,12 @@ class QGenericTableViewPrivate: public QAbstractItemViewPrivate
     Q_DECLARE_PUBLIC(QGenericTableView);
 public:
     QGenericTableViewPrivate()
-	: showGrid(true), topHeader(0), leftHeader(0) {}
+	: showGrid(true), topHeader(0), leftHeader(0), cornerWidget(0) {}
 
     bool showGrid;
     QGenericHeader *topHeader, *leftHeader;
     QModelIndex topLeft, bottomRight; // Used for optimization in setSelection
+    QWidget *cornerWidget;
 };
 
 #define d d_func()
@@ -39,6 +40,7 @@ QGenericTableView::QGenericTableView(QGenericItemModel *model, QWidget *parent, 
     d->leftHeader->setClickable(true);
     setTopHeader(new QGenericHeader(model, Horizontal, this, "topHeader"));
     d->topHeader->setClickable(true);
+    d->cornerWidget = new QWidget(this, "cornerWidget");
 
     model->fetchMore(); // FIXME: can we move this to qabstractitemview?
 }
@@ -312,6 +314,9 @@ void QGenericTableView::updateGeometries()
 
     QRect tr(verticalMargin + frameWidth(), frameWidth(), visibleWidth() + verticalMargin, topMargin());
     d->topHeader->setGeometry(QStyle::visualRect(tr, rect()));
+
+    QRect tl(frameWidth(), frameWidth(), verticalMargin, topMargin());
+    d->cornerWidget->setGeometry(QStyle::visualRect(tl, rect()));
 
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
