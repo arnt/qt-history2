@@ -359,9 +359,9 @@ void MetaDataBase::setMargin( QObject *o, int margin )
 	if ( MainWindow::self->formWindow() )
 	    mardef = MainWindow::self->formWindow()->layoutDefaultMargin();
 	if ( margin == -1 )
-	    layout->setMargin( mardef );
-	else 
-	    layout->setMargin( margin );
+	    layout->setMargin( QMAX( 1, mardef ) );
+	else
+	    layout->setMargin( QMAX( 1, margin ) );
     }
 }
 
@@ -596,7 +596,7 @@ bool MetaDataBase::isSlotUsed( QObject *o, const QCString &slot )
 
 
 void MetaDataBase::addFunction( QObject *o, const QCString &function, const QString &specifier,
-				const QString &access, const QString &type, const QString &language, 
+				const QString &access, const QString &type, const QString &language,
 				const QString &returnType )
 {
     setupDataBase();
@@ -630,15 +630,15 @@ void MetaDataBase::setFunctionList( QObject *o, const QValueList<Function> &func
 		  o, o->name(), o->className() );
 	return;
     }
-    
-    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) 
+
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it )
 	Function f = *it;
-    
+
     r->functionList = functionList;
 }
 
 void MetaDataBase::removeFunction( QObject *o, const QCString &function, const QString &specifier,
-				   const QString &access, const QString &type, const QString &language, 
+				   const QString &access, const QString &type, const QString &language,
 				   const QString &returnType )
 {
     setupDataBase();
@@ -735,7 +735,7 @@ void MetaDataBase::changeFunction( QObject *o, const QCString &function, const Q
 
 void MetaDataBase::changeFunctionAttributes( QObject *o, const QCString &function,
 					     const QString &specifier, const QString &access,
-					     const QString &type, const QString &language, 
+					     const QString &type, const QString &language,
 					     const QString &returnType )
 {
     setupDataBase();
@@ -770,7 +770,7 @@ bool MetaDataBase::hasFunction( QObject *o, const QCString &function, bool onlyC
     }
     /*
     if ( !onlyCustom ) {
-	QStrList functionList = o->metaObject()->slotNames( TRUE ); 
+	QStrList functionList = o->metaObject()->slotNames( TRUE );
 	if ( functionList.find( function ) != -1 )
 	    return TRUE;
 
@@ -1436,9 +1436,9 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	    QString sName = normalizeFunction( f.function );
 	    if ( sName.left( sName.find( '(' ) ) == fName.left( fName.find( '(' ) ) &&
 		 liface->canConnect( sName, fName ) ) {
-		if ( f.type = "slot" ) 
+		if ( f.type = "slot" )
 		    needAddSlot = FALSE;
-		else 
+		else
 		    qDebug( "requested slot is defined as normal function!" );
 		break;
 	    }
