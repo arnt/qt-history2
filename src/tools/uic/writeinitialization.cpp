@@ -559,6 +559,9 @@ void WriteInitialization::writeProperties(const QString &varName,
             if (!propertyValue.contains(QLatin1String("::")))
                 propertyValue.prepend(className + QLatin1String(QLatin1String("::")));
             break;
+        case DomProperty::Set:
+            propertyValue = p->elementSet();
+            break;
         case DomProperty::Font: {
             DomFont *f = p->elementFont();
             QString fontName = driver->unique(QLatin1String("font"));
@@ -611,18 +614,6 @@ void WriteInitialization::writeProperties(const QString &varName,
             propertyValue = QString::fromLatin1("QRect(%1, %2, %3, %4)")
                             .arg(r->elementX()).arg(r->elementY())
                             .arg(r->elementWidth()).arg(r->elementHeight());
-            break;
-        }
-        case DomProperty::Set: {
-            QString keys = p->elementSet();
-            QStringList lst = keys.split(QLatin1Char('|'));
-            propertyValue = QLatin1String("int(");
-            for (int i = 0; i < lst.count(); ++i ) {
-                propertyValue += className + QLatin1String("::") + lst.value(i);
-                if (i != lst.count()-1)
-                    propertyValue += QLatin1String(" | ");
-            }
-            propertyValue += QLatin1String(")");
             break;
         }
         case DomProperty::SizePolicy: {
