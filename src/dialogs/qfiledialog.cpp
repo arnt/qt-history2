@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#206 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#207 $
 **
 ** Implementation of QFileDialog class
 **
@@ -415,7 +415,7 @@ void QFileListBox::startRename( bool check )
     setSelected( i, TRUE );
     QRect r = itemRect( item( i ) );
     int bdr = item( i )->pixmap() ?
-            item( i )->pixmap()->width() + 5 : 25;
+              item( i )->pixmap()->width() + 5 : 25;
     int x = r.x() + bdr;
     int y = r.y() + 1;
     int w = r.width() - bdr - 1;
@@ -444,14 +444,14 @@ static
 bool tryRename( QWidget* parent, const QString& newfile, QDir& dir, const QString& file, const QString& linetext )
 {
     if ( QFile::exists( newfile ) ) {
-	QMessageBox::critical( parent, QFileDialog::tr( "ERROR: Renaming file" ),
-	       QFileDialog::tr( "A file with that name already exists." ) );
-	return FALSE;
+        QMessageBox::critical( parent, QFileDialog::tr( "ERROR: Renaming file" ),
+                               QFileDialog::tr( "A file with that name already exists." ) );
+        return FALSE;
     }
     if ( !dir.rename( file, linetext ) ) {
-	QMessageBox::critical( parent, QFileDialog::tr( "ERROR: Renaming file" ),
-	       QFileDialog::tr( "Could not rename the file." ) );
-	return FALSE;
+        QMessageBox::critical( parent, QFileDialog::tr( "ERROR: Renaming file" ),
+                               QFileDialog::tr( "Could not rename the file." ) );
+        return FALSE;
     }
     return TRUE;
 }
@@ -468,8 +468,8 @@ void QFileListBox::rename()
 
         if ( newfile != file ) {
             QDir dir( filedialog->dirPath() );
-	    if ( !tryRename( this, newfile, dir, file, lined->text() ) )
-		return;
+            if ( !tryRename( this, newfile, dir, file, lined->text() ) )
+                return;
 
             filedialog->rereadDir();
             filedialog->setSelection( newfile );
@@ -570,7 +570,7 @@ void QFileListView::startRename( bool check )
 
     QRect r = itemRect( i );
     int bdr = i->pixmap( 0 ) ?
-            i->pixmap( 0 )->width() + 2 : 22;
+              i->pixmap( 0 )->width() + 2 : 22;
     int x = r.x() + bdr;
     int y = r.y() + 1;
     int w = columnWidth( 0 ) - bdr - 1;
@@ -604,8 +604,8 @@ void QFileListView::rename()
 
         if ( newfile != file ) {
             QDir dir( filedialog->dirPath() );
-	    if ( !tryRename( this, newfile, dir, file, lined->text() ) )
-		return;
+            if ( !tryRename( this, newfile, dir, file, lined->text() ) )
+                return;
 
             filedialog->rereadDir();
             filedialog->setSelection( newfile );
@@ -781,14 +781,6 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
     else
         h = fm.height() + 4;
 
-    /* Not used
-    int w = 4;
-    if ( pixmap() )
-        w += pixmap()->width();
-    w += fm.width( text() );
-    w += 6;
-    */
-
     const QPixmap * pm = pixmap();
     if ( pm )
         ptr->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
@@ -915,7 +907,6 @@ void QFileDialog::init()
                                          const QPoint &, int)) );
 
     files->setFocusPolicy( StrongFocus );
-    //files->viewport()->setFocusPolicy( StrongFocus );
 
     files->installEventFilter( this );
     files->viewport()->installEventFilter( this );
@@ -923,7 +914,6 @@ void QFileDialog::init()
     d->moreFiles = new QFileListBox( d->stack, this );
     d->moreFiles->setFrameStyle( QFrame::NoFrame );
     d->moreFiles->setFocusPolicy( StrongFocus );
-    //d->moreFiles->viewport()->setFocusPolicy( StrongFocus );
     d->moreFiles->setRowMode( QListBox::FitToHeight );
     d->moreFiles->setVariableWidth( TRUE );
 
@@ -1239,9 +1229,6 @@ const QDir *QFileDialog::dir() const
 
 void QFileDialog::setDir( const QDir &dir )
 {
-//     if ( !dir.exists() ||
-//          dir.absPath() == cwd.absPath() )
-//         return;
     QString nf( cwd.nameFilter() );
     cwd = dir;
     cwd.setNameFilter( nf );
@@ -1422,9 +1409,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
                                         parent, name, TRUE );
     CHECK_PTR( dlg );
-    dlg->setCaption(
-        qApp->translate("QFileDialog","Open")
-        );
+    dlg->setCaption( QFileDialog::tr( "Open" ) );
     if ( !initialSelection.isEmpty() )
         dlg->setSelection( initialSelection );
     dlg->setMode( QFileDialog::ExistingFile );
@@ -1503,9 +1488,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
-    dlg->setCaption(
-        qApp->translate("QFileDialog","Save as")
-        );
+    dlg->setCaption( QFileDialog::tr( "Save as" ) );
     QString result;
     if ( !initialSelection.isEmpty() )
         dlg->setSelection( initialSelection );
@@ -1619,9 +1602,9 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
         if ( d->currentFileName.isNull() && info.isDir() )
             okB->setText(tr("Open"));
         else {
-	    QString okt = mode() == AnyFile ? tr("Save") : tr("OK");
+            QString okt = mode() == AnyFile ? tr("Save") : tr("OK");
             okB->setText( okt );
-	}
+        }
     } else {
         okB->setEnabled( FALSE );
     }	
@@ -1858,11 +1841,11 @@ void QFileDialog::popupContextMenu( const QString &filename, bool withSort,
     QPopupMenu m( files, "file dialog context menu" );
 
     QString okt =
-		QFileInfo( dirPath() + "/" + filename ).isDir()
-		    ? tr( "&Open" )
-		    : ( mode() == AnyFile
-			    ? tr( "&Save" )
-			    : tr( "&Open" ) );
+                 QFileInfo( dirPath() + "/" + filename ).isDir()
+                 ? tr( "&Open" )
+     : ( mode() == AnyFile
+         ? tr( "&Save" )
+         : tr( "&Open" ) );
     int ok = m.insertItem( okt );
 
     m.insertSeparator();
@@ -1918,18 +1901,18 @@ void QFileDialog::deleteFile( const QString &filename )
 
 
     if ( QMessageBox::warning( d->moreFiles,
-	    tr( "Delete %1" ).arg( t ),
-	    tr( "<qt>Do you really want to delete the %1 \"%2\"?</qt>" )
-		.arg( t ).arg(filename),
-	    tr( "Yes" ), tr( "No" ), QString::null, 1 ) == 0 )
+                               tr( "Delete %1" ).arg( t ),
+                               tr( "<qt>Do you really want to delete the %1 \"%2\"?</qt>" )
+                               .arg( t ).arg(filename),
+                               tr( "Yes" ), tr( "No" ), QString::null, 1 ) == 0 )
     {
         if ( !cwd.remove( filename ) ) {
             QMessageBox::critical( d->moreFiles,
-		tr( "ERROR: Delete %1" ).arg( t ),
-		QString( tr( "<qt>Could not delete the %1 \"%2\".</qt>" )
-			    .arg( t )
-			    .arg(filename) )
-	    );
+                                   tr( "ERROR: Delete %1" ).arg( t ),
+                                   QString( tr( "<qt>Could not delete the %1 \"%2\".</qt>" )
+                                            .arg( t )
+                                            .arg(filename) )
+                );
         }
         rereadDir();
     }
@@ -1986,7 +1969,6 @@ private:
 };
 
 
-// This dialog should be rewritten using a layout (so can be resized)
 QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
 	: QDialog(parent, name, TRUE)
 {
@@ -2021,7 +2003,6 @@ QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
 
 QtNewFolderDialog::~QtNewFolderDialog()
 {
-	//delete nameEdit;
 }
 
 void QFileDialog::newFolderClicked()
@@ -2038,15 +2019,15 @@ void QFileDialog::newFolderClicked()
         if (!cwd.mkdir(dirname))
             if (cwd.exists(dirname))
                 QMessageBox::warning( this, tr("New Folder"),
-		  tr("<qt>Unable to create directory \"%1\". "
-		      "A file/directory with that name already exists.</qt>"
-		    ).arg(cwd.absPath() + "/" + dirname) );
+                                      tr("<qt>Unable to create directory \"%1\". "
+                                         "A file/directory with that name already exists.</qt>"
+                                          ).arg(cwd.absPath() + "/" + dirname) );
             else
                 QMessageBox::warning( this, tr("New Folder"),
-		  tr("<qt>Unable to create directory \"%1\". "
-		    "Please make sure that the current directory "
-		    "is writable.</qt>"
-		    ).arg(cwd.absPath() + "/" + dirname) );
+                                      tr("<qt>Unable to create directory \"%1\". "
+                                         "Please make sure that the current directory "
+                                         "is writable.</qt>"
+                                          ).arg(cwd.absPath() + "/" + dirname) );
         else
             rereadDir(); // This seem not to work!?
     }
@@ -2066,12 +2047,12 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 {
     makeVariables();
     QFileDialog *dialog	= new QFileDialog( parent, name, TRUE );
-    dialog->setCaption( dialog->tr("Find Directory") );
+    dialog->setCaption( QFileDialog::tr("Find Directory") );
 
     dialog->setMode( Directory );
 
     dialog->d->types->clear();
-    dialog->d->types->insertItem( dialog->tr("Directories") );
+    dialog->d->types->insertItem( QFileDialog::tr("Directories") );
     dialog->d->types->setEnabled( FALSE );
 
     if ( !workingDirectory->isEmpty() ) {
@@ -2320,15 +2301,6 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
         QApplication::sendEvent( files->lined, e );
         ((QKeyEvent *)e)->accept();
         return TRUE;
-//     } else if ( mode() == ExistingFiles &&
-//          e->type() == QEvent::MouseButtonDblClick &&
-//          ( o == files || o == d->moreFiles || o == files->viewport() ||
-//            o == d->moreFiles->viewport() ) ) {
-//         QListViewItem * i = files->firstChild();
-//         while( i && !i->isSelected() )
-//             i = i->nextSibling();
-//         if ( i )
-//             return TRUE;
     } else if ( e->type() == QEvent::KeyPress &&
                 ((QKeyEvent *)e)->key() == Key_Backspace &&
                 ( o == files ||
@@ -2342,17 +2314,17 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
                 ((QKeyEvent *)e)->key() == Key_Delete &&
                 ( o == files ||
                   o == files->viewport() ) ) {
-	if ( files->currentItem() )
-	    deleteFile( files->currentItem()->text( 0 ) );
+        if ( files->currentItem() )
+            deleteFile( files->currentItem()->text( 0 ) );
         ((QKeyEvent *)e)->accept();
         return TRUE;
     } else if ( e->type() == QEvent::KeyPress &&
                 ((QKeyEvent *)e)->key() == Key_Delete &&
                 ( o == d->moreFiles ||
                   o == d->moreFiles->viewport() ) ) {
-	int c = d->moreFiles->currentItem();
-	if ( c >= 0 )
-	    deleteFile( d->moreFiles->item( c )->text() );
+        int c = d->moreFiles->currentItem();
+        if ( c >= 0 )
+            deleteFile( d->moreFiles->item( c )->text() );
         ((QKeyEvent *)e)->accept();
         return TRUE;
     } else if ( o == files && e->type() == QEvent::FocusOut &&
@@ -2491,7 +2463,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
                                         parent, name, TRUE );
     CHECK_PTR( dlg );
-    dlg->setCaption( dlg->tr("Open") );
+    dlg->setCaption( QFileDialog::tr("Open") );
     dlg->setMode( QFileDialog::ExistingFiles );
     QString result;
     QStringList s;
