@@ -91,8 +91,8 @@ public:
 
     QWidget *widget() const;
 
-    bool hasTaskMenu() const
-    { return taskMenu != 0; }
+    ITaskMenu *taskMenuExtension() const
+    { return taskMenu; }
 
     AbstractFormEditor *core() const;
 

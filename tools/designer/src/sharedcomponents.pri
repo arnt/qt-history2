@@ -17,6 +17,7 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     else:isEqual(QTSHAREDLIB, -lsignalsloteditor):sharedlib = -lsignalsloteditor
     else:isEqual(QTSHAREDLIB, -lbuddyeditor):sharedlib = -lbuddyeditor
     else:isEqual(QTSHAREDLIB, -lshared):sharedlib = -lshared
+    else:isEqual(QTSHAREDLIB, -ltaskmenu):sharedlib = -ltaskmenu
     else:isEqual(QTSHAREDLIB, -lQtDesigner):sharedlib = -lQtDesigner
     else:isEqual(QTSHAREDLIB, -lQtOpenGL):sharedlib = -lQtOpenGL
 
@@ -25,7 +26,7 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
         CONFIG(debug, debug|release) {
             unix: LIBS += $${sharedlib}_debug
             else: LIBS += $${sharedlib}d
-        } else { 
+        } else {
             LIBS += $${sharedlib}
         }
     }

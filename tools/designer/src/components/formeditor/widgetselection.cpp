@@ -154,11 +154,12 @@ void WidgetHandle::mousePressEvent(QMouseEvent *e)
     geom = origGeom = widget->geometry();
 
     if (type == TaskMenu && e->button() == Qt::LeftButton) {
+        Q_ASSERT(sel->taskMenuExtension());
+
         QMenu m(this);
-        m.addAction(tr("Move"));
-        m.addAction(tr("Clone"));
-        m.addSeparator();
-        m.addAction(tr("Edit contents"));
+        foreach (QAction *a, sel->taskMenuExtension()->taskActions()) {
+            m.addAction(a);
+        }
         m.exec(e->globalPos());
     }
 
@@ -502,7 +503,7 @@ void WidgetSelection::show()
         WidgetHandle *h = handles[ i ];
         if (h) {
             if (i == WidgetHandle::TaskMenu) {
-                h->setShown(hasTaskMenu());
+                h->setShown(taskMenuExtension() != 0);
                 h->raise();
             } else {
                 h->show();

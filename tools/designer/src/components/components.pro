@@ -8,5 +8,7 @@ SUBDIRS = propertyeditor \
     widgetbox \
     specialeditor \
     imagecollection \
-    buddyeditor
+    buddyeditor \
+    taskmenu
+
 

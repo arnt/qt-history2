@@ -58,7 +58,7 @@ NewFormDialog::NewFormDialog(QWidget *parent) : QDialog(parent)
     mainLayout->addWidget(mWidgetTree);
     mainLayout->addLayout(buttonLayout);
 
-    connect(mWidgetTree, SIGNAL(pressed(QTreeWidgetItem*,int)),
+    connect(mWidgetTree, SIGNAL(itemPressed(QTreeWidgetItem*,int)),
             this, SLOT(fixButton(QTreeWidgetItem*)));
     connect(mWidgetTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
             this, SLOT(handleDoubleClick(QTreeWidgetItem*)));

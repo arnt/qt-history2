@@ -25,6 +25,7 @@
 #include <widgetbox.h>
 #include <specialeditor.h>
 #include <specialeditorsupport.h>
+#include <button_taskmenu.h>
 
 // sdk
 #include <abstractformwindow.h>
@@ -134,6 +135,11 @@ void MainWindow::setupFormEditor()
     new PropertyEditorView(core, invisibleParent);
     new ObjectInspectorView(core, invisibleParent);
     // new SpecialEditorSupport(core); ### disabled for now
+
+    // register the extension factory for the PushButton
+    QExtensionManager *mgr = core->extensionManager();
+    ButtonTaskMenuFactory *factory = new ButtonTaskMenuFactory(mgr);
+    mgr->registerExtensions(factory, Q_TYPEID(ITaskMenu));
 }
 
 void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)

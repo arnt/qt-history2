@@ -11,10 +11,11 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractwidgetfactory.h \
     $$PWD/abstractformwindowcursor.h \
     $$PWD/abstractimagecollection.h \
-    $$PWD/propertysheet.h \
     $$PWD/abstractwidgetbox.h \
     $$PWD/abstractobjectinspector.h \
-    $$PWD/abstractpixmapcache.h
+    $$PWD/abstractpixmapcache.h \
+    $$PWD/propertysheet.h \
+    $$PWD/taskmenu.h
 
 SOURCES += $$PWD/abstractformeditor.cpp \
     $$PWD/abstractpropertyeditor.cpp \

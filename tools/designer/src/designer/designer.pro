@@ -37,6 +37,7 @@ INCLUDEPATH += ../uilib \
     ../components/imagecollection \
     ../components/specialeditor \
     ../components/propertyeditor \
+    ../components/taskmenu \
     ../../../assistant/lib
 
 LIBS += -L../../lib \
@@ -50,11 +51,12 @@ LIBS += -L../../lib \
     -lsignalsloteditor \
     -lbuddyeditor \
     -lshared \
+    -ltaskmenu \
     -L../../../../lib \
     -lQtDesigner
 
 view3d: LIBS += -lQtOpenGL
-    
+
 HEADERS +=  designerapp.h \
     mainwindow.h \
     propertyeditorview.h \
