@@ -989,7 +989,7 @@ QTextBlock::iterator QTextBlock::begin() const
         return iterator();
 
     int pos = position();
-    int len = length();
+    int len = length() - 1; // exclude the fragment that holds the paragraph separator
     int b = p->fragmentMap().findNode(pos);
     int e = p->fragmentMap().findNode(pos+len);
     return iterator(p, b, e, b);
@@ -1007,7 +1007,7 @@ QTextBlock::iterator QTextBlock::end() const
         return iterator();
 
     int pos = position();
-    int len = length();
+    int len = length() - 1; // exclude the fragment that holds the paragraph separator
     int b = p->fragmentMap().findNode(pos);
     int e = p->fragmentMap().findNode(pos+len);
     return iterator(p, b, e, e);
