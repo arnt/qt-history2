@@ -1397,11 +1397,11 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     int screen = -1;
     QPaintDevice *pd = p->painter()->device();
     if (pd->devType() == QInternal::Widget) {
-        QWidget *w = static_cast<const QWidget *>(pd);
+        const QWidget *w = static_cast<const QWidget *>(pd);
 	draw = reinterpret_cast<XftDraw *>(w->xftDrawHandle());
         screen = w->x11Info().screen();
     } else {
-        QPixmap *px = static_cast<const QPixmap *>(pd);
+        const QPixmap *px = static_cast<const QPixmap *>(pd);
 	draw = reinterpret_cast<XftDraw *>(px->xftDrawHandle());
         screen = px->x11Info().screen();
     }
