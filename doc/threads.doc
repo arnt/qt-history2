@@ -187,10 +187,13 @@ mutex must be used:
 
 In Qt, one thread is always the GUI or event thread.  This is the
 thread that creates a QApplication object and calls
-QApplication::exec().  Normally, this is also the initial thread that
-calls main() at program start.  This thread is the only thread that is
+QApplication::exec().  This is also the initial thread that calls
+main() at program start.  This thread is the only thread that is
 allowed to perform GUI operations, including generating and receiving
-events from the window system.
+events from the window system.  Qt does not support creating
+QApplication and running the event loop (with QApplication::exec()) in
+a secondary thread.  You must create the QApplication object and call
+QApplication::exec() from the main() function in your program.
 
 Threads that wish to display data in a widget cannot modify the widget
 directly, so they must post an event to the widget using
@@ -303,6 +306,11 @@ library, you should not link with the normal Qt library, dynamically
 load the normal Qt library or dynamically load another library or
 plugin that depends on the normal Qt library.  On some systems, doing
 this can corrupt the static data used in the Qt library.
+
+\i Qt does not support creating QApplication and running the event
+loop (with QApplication::exec()) in a secondary thread.  You must
+create the QApplication object and call QApplication::exec() from the
+main() function in your program.
 
 \endlist
  
