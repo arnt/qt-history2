@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#8 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#9 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -88,7 +88,11 @@
 #else						// all other systems
 
 # define STATBUF	struct stat
-# define STAT		::lstat
+# if defined(UNIX)
+#  define STAT		::lstat
+# else
+#  define STAT		::stat
+# endif
 # define STAT_REG	S_IFREG
 # define STAT_DIR	S_IFDIR
 # define STAT_MASK	S_IFMT
