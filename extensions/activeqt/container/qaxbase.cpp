@@ -826,18 +826,24 @@ bool QAxBase::setControl( const QString &c )
     if (ctrl.find("/{") != (int)ctrl.length()-39 && !ctrl.endsWith("}&")) {
 	QUuid uuid( ctrl );
 	if ( uuid.isNull() ) {
-	    QSettings controls;
-	    ctrl = controls.readEntry( "/Classes/" + c + "/CLSID/Default" );
-	    if ( ctrl.isEmpty() ) {
-		QStringList clsids = controls.subkeyList( "/Classes/CLSID" );
-		for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
-		    QString clsid = *it;
-		    QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
-		    if ( name == c ) {
-			QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
-			if ( subkeys.contains( "Control" ) || subkeys.contains( "Insertable" ) ) {
-			    ctrl = clsid;
-			    break;
+	    CLSID clsid;
+	    HRESULT res = CLSIDFromProgID(c.ucs2(), &clsid);
+	    if (res == S_OK)
+		ctrl = QUuid(clsid).toString();
+	    else {
+		QSettings controls;
+		ctrl = controls.readEntry( "/Classes/" + c + "/CLSID/Default" );
+		if ( ctrl.isEmpty() ) {
+		    QStringList clsids = controls.subkeyList( "/Classes/CLSID" );
+		    for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
+			QString clsid = *it;
+			QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
+			if ( name == c ) {
+			    QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
+			    if ( subkeys.contains( "Control" ) || subkeys.contains( "Insertable" ) ) {
+				ctrl = clsid;
+				break;
+			    }
 			}
 		    }
 		}
