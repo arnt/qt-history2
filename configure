@@ -227,7 +227,7 @@ CFG_LAZY_DEPS_ALLOWED=no
 CFG_EXCEPTION_SUPPORT=unspecified
 CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
-CFG_EMBEDDED=auto
+CFG_EMBEDDED=no
 CFG_DEBUG=no
 CFG_SHARED=yes
 CFG_GIF=no
@@ -1050,6 +1050,7 @@ fi ### help
 # auto-detect all that hasn't been specified in the arguments
 #-------------------------------------------------------------------------------
 
+[ "$PLATFORM_QWS" = "yes" -a "$CFG_EMBEDDED" = "no" ] && CFG_EMBEDDED=auto
 if [ "$CFG_EMBEDDED" != "no" ]; then
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
     QNX:*)
@@ -1105,7 +1106,7 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
 	;;
     esac
 fi
-if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
+if [ -z "$PLATFORM" ]; then
     PLATFORM_NOTES=
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
@@ -1336,7 +1337,6 @@ if [ $AUTOTHREAD = never ]; then
     AUTOTHREAD=no
 fi
 [ "$CFG_THREAD" = "auto" ] && CFG_THREAD=$AUTOTHREAD
-
 
 #-------------------------------------------------------------------------------
 # tests that don't need qmake (must be run before displaying help)
