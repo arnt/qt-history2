@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#118 $
 **
 ** Implementation of QScrollView class
 **
@@ -379,6 +379,10 @@ covered up by the viewport, clipper, or scrollbars.
   <li> \c AutoOne - if there is only only child widget, the view stays
   the size of that widget.  Otherwise, the behaviour is undefined.
 
+  <li> \c ResizeOne - if there is only one child, that child is
+  resized to the size of the scroll view, but never smaller than its
+  sizeHint().
+  
   </ul>
 */
 

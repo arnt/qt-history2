@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#100 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -826,11 +826,16 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
 */
 bool QImageDrag::canDecode( const QMimeSource* e )
 {
-    return e->provides( "image/png" )
-	|| e->provides( "image/ppm" )
-	|| e->provides( "image/bmp" )
-	|| ( qt_builtin_gif_reader() && e->provides( "image/gif" ) );
-    // ### more Qt images types
+    QStrList fileFormats = QImageIO::inputFormats();
+    fileFormats.first();
+    while ( fileFormats.current() ) {
+	QCString format = fileFormats.current();
+	QCString type = "image/" + format.lower();
+	if ( e->provides( type.data() ) )
+	    return TRUE;
+	fileFormats.next();
+    }
+    return FALSE;
 }
 
 /*!
@@ -841,14 +846,18 @@ bool QImageDrag::canDecode( const QMimeSource* e )
 */
 bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 {
-    QByteArray payload = e->encodedData( "image/png" );
-    if ( payload.isEmpty() )
-	payload = e->encodedData( "image/ppm" );
-    if ( payload.isEmpty() )
-	payload = e->encodedData( "image/bmp" );
-    if ( payload.isEmpty() ) // if we get gif, try it even if !builtin
-	payload = e->encodedData( "image/gif" );
-    // ### more Qt images types
+    QByteArray payload;
+    QStrList fileFormats = QImageIO::inputFormats();
+    fileFormats.first();
+    while ( fileFormats.current() ) {
+	QCString format = fileFormats.current();
+	QCString type = "image/" + format.lower();
+	payload = e->encodedData( type.data() );
+	if ( !payload.isEmpty() )
+	    break;
+	fileFormats.next();
+    }
+
     if ( payload.isEmpty() )
 	return FALSE;
 
