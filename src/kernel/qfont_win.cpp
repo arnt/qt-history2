@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#119 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -55,7 +55,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool scale)
     if (lf.lfItalic)
 	qf.setItalic( TRUE );
     if (lf.lfWeight != FW_DONTCARE)
-	qf.setWeight(lf.lfWeight*99/900);
+	qf.setWeight(lf.lfWeight/10);
     int lfh = QABS( lf.lfHeight );
     if ( scale ) {
 	ASSERT(shared_dc);
@@ -767,13 +767,8 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::width( QChar ch ) const
 {
-    QString s;
-    s += ch;
-    if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
-        return width(s,1);
-    } else {
-        return width(s,1)-TMX->tmOverhang;
-    }
+    QString s(ch);
+    return width(s,1);
 }
 
 

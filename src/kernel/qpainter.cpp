@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#178 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2011,9 +2011,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     else
 	localTabStops = fm.width(QChar('x'))*8;       	// default to 8 times x
 
-    while ( k < len ) {				// convert string to codes
+    QString word;
 
-	if ( ISPRINT(*p) ) {			// printable character
+    while ( k <= len ) {				// convert string to codes
+
+	if ( k < len && ISPRINT(*p) ) {			// printable character
 	    if ( *p == '&' && showprefix ) {
 		cc = '&';			// assume ampersand
 		if ( k < len-1 ) {
@@ -2025,66 +2027,64 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    } else {
 		cc = ENCCHAR(*p);
 	    }
-	    cw = CWIDTH(*p);
-
+	    word += *p;
+	    cw = 0;
 	} else {				// not printable (except ' ')
+	    cw = fm.width(word);
+	    word = "";
+	    if ( wordbreak ) {
+		if ( breakindex > 0 && tw+cw > w ) {
+		    codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
+		    maxwidth = QMAX(maxwidth,tw);
+		    begline = breakindex;
+		    nlines++;
+		    tw = cw;
+		    breakindex = tabindex = 0;
+		    cw = 0;
+		}
+	    }
 
-	    if ( *p == ' ' ) {			// the space character
+	    if ( k == len ) {
+		// end (*p not valid)
+		cc = 0;
+	    } else if ( *p == ' ' ) {			// the space character
 		cc = ' ';
-		cw = spacewidth;
+		cw += spacewidth;
 	    } else if ( *p == '\n' ) {		// newline
 		if ( singleline ) {
 		    cc = ' ';			// convert newline to space
-		    cw = spacewidth;
+		    cw += spacewidth;
 		} else {
 		    cc = BEGLINE;
-		    cw = 0;
 		}
 	    } else if ( *p == '\t' ) {		// TAB character
 		if ( expandtabs ) {
-		    cw = 0;
+		    int ccw = 0;
 		    if ( tabarray ) {		// use tab array
 			while ( tabindex < tabarraylen ) {
 			    if ( tabarray[tabindex] > tw ) {
-				cw = tabarray[tabindex] - tw;
+				ccw = tabarray[tabindex] - tw;
 				tabindex++;
 				break;
 			    }
 			    tabindex++;
 			}
 		    }
-		    if ( cw == 0 )		// use fixed tab stops
-			cw = localTabStops - tw%localTabStops;
+		    if ( ccw == 0 )		// use fixed tab stops
+			ccw = localTabStops - tw%localTabStops;
+		    cw += ccw;
 		    cc = TABSTOP | QMIN(tw+cw,MAXWIDTH);
 		} else {			// convert TAB to space
 		    cc = ' ';
-		    cw = spacewidth;
+		    cw += spacewidth;
 		}
 	    } else {				// ignore character
 		k++;
 		p++;
 		continue;
 	    }
-
-	    if ( wordbreak ) {			// possible break position
-		breakindex = index;
-		breakwidth = tw;
-		bcwidth = cw;
-	    }
-	}
-
-	if ( wordbreak && breakindex > 0 && tw+cw > w ) {
-	    if ( index == breakindex ) {	// break at current index
-		cc = BEGLINE;
-		cw = 0;
-	    } else {				// break at breakindex
-		codes[begline] = BEGLINE | QMIN(breakwidth,MAXWIDTH);
-		maxwidth = QMAX(maxwidth,breakwidth);
-		begline = breakindex;
-		nlines++;
-		tw -= breakwidth + bcwidth;
-		breakindex = tabindex = 0;
-	    }
+	    breakindex = index;
+	    bcwidth = cw;
 	}
 
 	tw += cw;				// increment text width
