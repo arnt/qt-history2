@@ -327,8 +327,8 @@ int QEucJpCodec::heuristicNameMatch(const char* hint) const
 	}
 	// there exists ja_JP.EUC, ko_KR.EUC, zh_CN.EUC and zh_TW.EUC
 	// so "euc" may or may not be Japanese EUC.
-	if (qstricmp(p, "euc") == 0) {
-	    return ja ? score + 4 : 1;
+	if (qstricmp(p, "euc") == 0 && ja) {
+	    return score + 4;
 	}
     }
     return QTextCodec::heuristicNameMatch(hint);

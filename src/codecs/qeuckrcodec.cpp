@@ -230,8 +230,8 @@ int QEucKrCodec::heuristicNameMatch(const char* hint) const
     if (qstricmp(p, "eucKR") == 0) {
       return score + 4;
     }
-    else if (qstricmp(p, "euc") == 0) {
-      return ko ? score + 4 : 1;
+    else if (qstricmp(p, "euc") == 0 && ko) {
+      return score + 4;
     }
   }
   return QTextCodec::heuristicNameMatch(hint);
