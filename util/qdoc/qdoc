@@ -1,65 +1,11 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#225 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#226 $
 #
 # this is a massive hack, written very quickly
 #
-# usage: qdoc *.cpp
-#        (or just some C++ files)
+# usage: qdoc base-qt-directory
 #
-# qdoc looks for comments that start with /*! and does stuff with these
-# escapes:
-#
-# "\e word" emphasises that word
-#
-# "\c word" outputs the word in code style
-#
-# "\warning" outputs "Warning:" in boldface or equivalent
-#
-# \< -> <
-# \> -> >
-# \& -> &
-# in code examples, \/ becomes //
-#
-# \arg, \capt, \name, \return and \todo all use the text until the next
-# blank line to do, respectively, describe an argument, set a caption
-# for the documented unit, set the name which triggers links to the unit,
-# describe the return value, and finally add an item to the todo list
-#
-# "\fn line" uses the rest of the line as a function specification
-# (most commonly an inline or virtual = NULL function). It must be the
-# first escape
-#
-# "\overload line" defines line to be an inline function which differs
-# from some other version only by the argument types.  qdoc will do the
-# appropriate magic
-#
-# "\class name header" documents the class "name" which is defined in
-# header file "<header>".  It too must be the first escape
-#
-# "\code ... \endcode" makes a code example.  If the first two characters
-# on a line in the block are space characters (not white space, ascii 32)
-# they will be removed.
-#   Variables declared as "class name" or "class * name" (any amount of
-# white space) and used as "name.member" or "name->member" will be linked
-# to the correct class::member
-#
-# "\link name text text text \endlink" makes "text text text" into a link
-# to "name" which must be a member of this class or fully qualified
-#
-# "\page filename.html" directs the rest of the file to that filename. If
-# the filename does not end with ".html", the header and footer are omitted.
-#
-# "\sa" outputs "See also: " and clears the has-shown-link table
-#
-# "\header filename.h" adds filename.h to the list of header files that
-# are to be included in the documentation.
-#
-# "\relates classname" directs the documentation for the item to the
-# sensible file (one assumes that you choose a sensible class).
-#
-# "\ingroup groupname" makes this class a member of that class group, and
-# "\makegroup groupname caption" creates a group index page.
 
 use File::Find;
 use Cwd;
@@ -897,6 +843,16 @@ sub manglefn {
 	$url .= "()" . $type . $const;
     }
 
+    if (!defined(%urls) && open( I, "< " . $ENV{"HOME"} . "/.qdoc-cache" ) ) {
+	while( <I> ) {
+	    if ( /(\S+)\s+(\S+)/ ) {
+		$cachable{$1} = $2;
+		$urls{$1} = $2;
+	    }
+	}
+	close I;
+    }
+
     unless (defined($urls{$url})) {
 	$home = &mangleclass($class) unless ($home =~ /\S/);
 	$uniqkeys{$home} ||= "a0";
@@ -905,13 +861,11 @@ sub manglefn {
 	close MD5;
 	$md5sum =~ s/\s.*//;
 	$urls{ $url } = join("", $home, "#", substr($md5sum, 0, 6 ) );
+	$cachable{$url} = $url;
     }
 
-#    print "argument names for $url is $names\n";
     $argnames{$urls{$url}} = " " . $names;
     $url = $urls{$url}; #cool!
-#    print "Saw $url ($type)\n" if ( $type =~ /QCollection/ );
-#    $url;
 }
 
 
@@ -2673,9 +2627,16 @@ print "Documented ", $countdoc, " member functions, left out ",
 
 &post();
 
-chdir( "$outputdir" );
-print "Creating Index...\n";
-system( "$ENV{'QTDIR'}/util/qdoc/mkindex index *.html" );
-print "Creating Title Index...\n";
-system( "$ENV{'QTDIR'}/util/qdoc/mktitleindex titleindex *.html" );
-print "Finished!\n";
+#chdir( "$outputdir" );
+#print "Creating Index...\n";
+#system( "$ENV{'QTDIR'}/util/qdoc/mkindex index *.html" );
+#print "Creating Title Index...\n";
+#system( "$ENV{'QTDIR'}/util/qdoc/mktitleindex titleindex *.html" );
+#print "Finished!\n";
+
+if ( open( O, "> " . $ENV{"HOME"} . "/.qdoc-cache" ) ) {
+    foreach ( keys %cachable ) {
+	print O $_, " ", $urls{$_}, "\n";
+    }
+    close O;
+}
