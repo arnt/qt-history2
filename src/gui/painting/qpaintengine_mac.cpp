@@ -1348,10 +1348,11 @@ QCoreGraphicsPaintEngine::drawRect(const QRectF &r)
     CGMutablePathRef path = 0;
     if(d->current.brush.style() == Qt::LinearGradientPattern) {
         path = CGPathCreateMutable();
-        CGPathAddRect(path, 0, d->adjustedRect(r));
+        CGPathAddRect(path, 0, 
+                      CGRectMake(r.x(), r.y() + adjustment,r.width(), r.height()));
     } else {
         CGContextBeginPath(d->hd);
-        CGContextAddRect(d->hd, d->adjustedRect(r));
+        CGContextAddRect(d->hd, CGRectMake(r.x(), r.y() + adjustment,r.width(), r.height()));
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
