@@ -1,7 +1,9 @@
+#include <qaccel.h>
 #include <qapplication.h>
 #include <qdict.h>
-#include <qheader.h>
 #include <qfiledialog.h>
+#include <qheader.h>
+#include <qinputdialog.h>
 #include <qinputdialog.h>
 #include <qmessagebox.h>
 #include <qprocess.h>
@@ -57,6 +59,10 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
     statusBar = new QLabel( "Ready. Click Repopulate to run qdoc.", this );
     hb->addWidget( statusBar );
     hb->setStretchFactor( statusBar, 2 );
+    findButton = new QPushButton("&Find...", this);
+    findButton->setFocusPolicy( NoFocus );
+    findButton->setAutoDefault( FALSE );
+    hb->addWidget(findButton);
     version = new QPushButton("&QTDIR...", this);
     version->setFocusPolicy( NoFocus );
     version->setAutoDefault( FALSE );
@@ -89,16 +95,20 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
     int width = settings.readNumEntry( "/qDocGUI/geometry/width", 200 );
     int height = settings.readNumEntry( "/qDocGUI/geometry/height", 200 );
     setGeometry( x, y, width, height );
+    findText = settings.readEntry("/qDocGUI/find");
 
     updateTitle();
     setEditor();
     classList->setFocus();
     proc = new QProcess( this );
 
+    QAccel *f3 = new QAccel(this);
+    f3->connectItem(f3->insertItem(Key_F3), this, SLOT(findNext()));
     connect( classList, SIGNAL(returnPressed(QListViewItem*)),
 	     this, SLOT(activateEditor(QListViewItem*)) );
     connect( classList, SIGNAL(doubleClicked(QListViewItem*)),
 	     this, SLOT(activateEditor(QListViewItem*)) );
+    connect(findButton, SIGNAL(clicked()), this, SLOT(find()));
     connect(version, SIGNAL(clicked()), this, SLOT(changeVersion()));
     connect( redo, SIGNAL(clicked()), this, SLOT(populateListView()) );
     connect(stop, SIGNAL(clicked()), proc, SLOT(tryTerminate()));
@@ -108,6 +118,49 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
     QTimer::singleShot(20 * 1000, this, SLOT(timeout()));
 }
 
+
+void QDocMainWindow::find()
+{
+    bool ok;
+    QString text = QInputDialog::getText(
+			"qdocgui -- Find What?",
+			"&Find what (press F3 to find again):",
+			QLineEdit::Normal, findText, &ok, this);
+    text = text.simplifyWhiteSpace();
+    if (ok && !text.isEmpty()) {
+	findText = text;
+	findNext();
+    }
+}
+
+void QDocMainWindow::findNext()
+{
+    if (findText.isEmpty())
+	find();
+    else {
+	QString oldStatus = statusBar->text();
+	statusBar->setText(QString("Searching for '%1'...").arg(findText));
+	QListViewItem *current = classList->currentItem();
+	if (!current)
+	    current = classList->firstChild();
+	if (current) {
+	    QString text = findText.lower();
+	    QListViewItemIterator it(current);
+	    ++it;
+	    while (it.current()) {
+		QListViewItem *item = it.current();
+		if (item->text(0).lower().contains(text)) {
+		    current = item;
+		    break;
+		}
+		++it;
+	    }
+	    classList->setCurrentItem(current);
+	    classList->ensureItemVisible(current);
+	}
+	statusBar->setText(oldStatus);
+    }
+}
 
 void QDocMainWindow::changeVersion()
 {
@@ -145,6 +198,7 @@ void QDocMainWindow::populateListView()
     msgCount = 0;
 
     updateTitle();
+    findButton->setEnabled( FALSE );
     redo->setEnabled( FALSE );
     commercial->setEnabled( FALSE );
     version->setEnabled( FALSE );
@@ -380,6 +434,8 @@ void QDocMainWindow::finished()
 	outputText = outputText.right( outputText.length() - ( newLine + 1 ) );
 	classList->sort();
     }
+    classList->setCurrentItem(classList->firstChild());
+    findButton->setEnabled( TRUE );
     redo->setEnabled( TRUE );
     commercial->setEnabled( TRUE );
     version->setEnabled( TRUE );
@@ -399,6 +455,7 @@ QDocMainWindow::~QDocMainWindow()
     settings.writeEntry( "/qDocGUI/geometry/y", y() );
     settings.writeEntry( "/qDocGUI/geometry/width", width() );
     settings.writeEntry( "/qDocGUI/geometry/height", height() );
+    settings.writeEntry("/qDocGUI/find", findText);
     if (proc)
 	proc->kill();
 }

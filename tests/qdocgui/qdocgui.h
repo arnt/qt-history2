@@ -24,6 +24,8 @@ public slots:
 
 private slots:
     void changeVersion();
+    void find();
+    void findNext();
     void timeout();
 
 private:
@@ -38,10 +40,12 @@ private:
     QString outputText;
     QString qtdirenv;
     QLabel *statusBar;
+    QPushButton *findButton;
     QPushButton *redo;
     QPushButton *commercial;
     QPushButton *version;
     QPushButton *stop;
+    QString findText;
     int msgCount;
     QString editor;
     int warnings;
