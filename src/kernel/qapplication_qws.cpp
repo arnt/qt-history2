@@ -905,15 +905,15 @@ static void qt_set_qws_resources()
 	if ( appBGCol )
 	    bg = QColor( appBGCol );
 	else
-	    bg = qt_std_pal->normal().background();
+	    bg = qt_std_pal->active().background();
 	if ( appFGCol )
 	    fg = QColor( appFGCol );
 	else
-	    fg = qt_std_pal->normal().foreground();
+	    fg = qt_std_pal->active().foreground();
 	if ( appBTNCol )
 	    btn = QColor( appBTNCol);
 	else
-	    btn = qt_std_pal->normal().button();
+	    btn = qt_std_pal->active().button();
 	int h,s,v;
 	fg.hsv(&h,&s,&v);
 	QColor base = Qt::white;
