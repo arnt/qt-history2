@@ -61,12 +61,6 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tools/qconfig"),
 		       new RegExp("^tools/qembed"),
 		       new RegExp("^tools/qev"),
-		       new RegExp("^src/plugins/sqldrivers/db2"),
-		       new RegExp("^src/plugins/sqldrivers/oci"),
-		       new RegExp("^src/plugins/sqldrivers/tds"),
-		       new RegExp("^src/sql/drivers/db2"),
-		       new RegExp("^src/sql/drivers/oci"),
-		       new RegExp("^src/sql/drivers/tds"),
 		       new RegExp("^src/gui/itemviews/qheaderwidget"),
 		       new RegExp("^doc/tutorial"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
@@ -112,7 +106,6 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/styles/mac"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("^.LICENSE"),
 			  new RegExp("^bin/configure.exe"),
 			  new RegExp("^README.qws") ];
 platformKeep["x11"] = [ new RegExp(".") ];
@@ -128,7 +121,6 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_x11"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("^.LICENSE"),
 			  new RegExp("^bin/configure.exe"),
 			  new RegExp("^README.qws") ];
 platformKeep["mac"] = [ new RegExp(".") ];
@@ -141,14 +133,19 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("^src/plugins/styles/mac"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
-			       new RegExp("^.LICENSE"),
 			       new RegExp("^bin/configure.exe") ];
 platformKeep["embedded"] = [ new RegExp(".") ];
 
 editionRemove["commercial"] = [ new RegExp("GPL") ];
 editionKeep["commercial"] = [ new RegExp(".") ];
 
-editionRemove["opensource"] = [ new RegExp("^qmake/generators/win32/borland"),
+editionRemove["opensource"] = [ new RegExp("^src/plugins/sqldrivers/db2"),
+				new RegExp("^src/plugins/sqldrivers/oci"),
+				new RegExp("^src/plugins/sqldrivers/tds"),
+				new RegExp("^src/sql/drivers/db2"),
+				new RegExp("^src/sql/drivers/oci"),
+				new RegExp("^src/sql/drivers/tds"),
+				new RegExp("^qmake/generators/win32/borland"),
 				new RegExp("^qmake/generators/win32/msvc"),
 				new RegExp("^mkspecs/win32-borland"),
 				new RegExp("^mkspecs/win32-icc"),
