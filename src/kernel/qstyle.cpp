@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#11 $
 **
 ** Implementation of QStyle class
 **
@@ -922,7 +922,7 @@ void QStyle::drawButtonMask( QPainter *, int , int , int , int )
 
 void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken,
-				  bool /*enabled */, 
+				  bool /*enabled */,
 				  const QBrush *fill )
 {
     drawButton(p, x, y, w, h, g, sunken, fill);
@@ -1066,7 +1066,7 @@ QStyle::exclusiveIndicatorSize() const
   Draws a mark indicating the state of an exclusive choice.
 */
 void
-QStyle::drawExclusiveIndicator( QPainter* , int x, int y, int w, int h, 
+QStyle::drawExclusiveIndicator( QPainter* , int x, int y, int w, int h,
 		const QColorGroup &, bool on, bool down, bool enabled )
 {
     // move code here ...
@@ -1131,7 +1131,7 @@ QStyle::drawFocusRect( QPainter* p,
 
 /*!
   \fn virtual int sliderLength() const = 0;
-  
+
   The length of a slider.
 
 */
@@ -1142,18 +1142,30 @@ QStyle::drawFocusRect( QPainter* p,
 			     const QColorGroup &g,
 			     SliderDirection dir) = 0;
   Draws a slider.
-			   
+			
 */
 
 /*!
   Draws the mask of a slider
 */
-void 
+void
 QStyle::drawSliderMask( QPainter *p,
 			int x, int y, int w, int h,
 			SliderDirection dir)
 {
-    p->fillRect(x, y, w, h, color1); 
+    p->fillRect(x, y, w, h, color1);
+}
+
+/*!
+  Draws the mask of a slider groove
+*/
+void
+QStyle::drawSliderGrooveMask( QPainter *p, 
+				   int x, int y, int w, int h,
+				   QCOORD /* c */,
+				   bool /* horizontal */ )
+{
+    p->fillRect(x, y, w, h, color1);
 }
 
 
@@ -1161,7 +1173,7 @@ QStyle::drawSliderMask( QPainter *p,
   Some feels require the scrollbar or other sliders to jump back to
   the original position when the mouse pointer is too far away while
   dragging.
-  
+
   This behaviour can be customized with this function. The default is -1
   (no jump back) while Windows requires 20 (weird jump back).
 */
@@ -1177,7 +1189,7 @@ QWindowsStyle::QWindowsStyle() : QStyle(WindowsStyle)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QWindowsStyle::drawIndicator( QPainter* p,
@@ -1270,7 +1282,7 @@ void QWindowsStyle::drawWinShades( QPainter *p,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void
@@ -1328,7 +1340,7 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QSize
@@ -1341,14 +1353,14 @@ QWindowsStyle::indicatorSize() const
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
 				   bool on, bool down, bool /* enabled */ )
 {
-    
+
     static QCOORD pts1[] = {		// dark lines
 	1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
     static QCOORD pts2[] = {		// black lines
@@ -1389,12 +1401,12 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
 	p->drawRect( x+5, y+4, 2, 4 );
 	p->drawRect( x+4, y+5, 4, 2 );
     }
-    
+
 }
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QSize
@@ -1423,7 +1435,7 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
@@ -1435,7 +1447,7 @@ void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void
@@ -1497,7 +1509,7 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
@@ -1532,12 +1544,12 @@ void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken ,
-				  bool enabled, 
+				  bool enabled,
 				  const QBrush *fill )
 {
     drawButton(p, x, y, w, h, g, TRUE, fill?fill:(enabled?&g.fillBase():&g.fillBackground()));
@@ -1549,7 +1561,7 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h){
@@ -1564,7 +1576,7 @@ QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h){
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QWindowsStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
@@ -1599,7 +1611,7 @@ void QWindowsStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int 
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QWindowsStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
@@ -1820,14 +1832,29 @@ void QWindowsStyle::drawSlider( QPainter *p,
 	    p->drawLine( x2, y2-1, x2+d, y2-1-d);
 	    break;
     }
-
 }
 
+void QWindowsStyle::drawSliderGroove( QPainter *p, 
+				      int x, int y, int w, int h,
+				      const QColorGroup& g, QCOORD c,
+				      bool horizontal )
+{
 
+    if ( horizontal ) {
+	qDrawWinPanel( p, 0, c - 2,  w, 4, g, TRUE );
+	p->setPen( g.foreground() );
+	p->drawLine( 1, c - 1, w - 3, c - 1 );
+    } else {
+	qDrawWinPanel( p, c - 2, 0, 4, h, g, TRUE );
+	p->setPen( g.foreground() );
+	p->drawLine( c - 1, 1, c - 1, h - 3 );
+    }
+
+}
 /*!
   Reimplementation from QStyle to emulate the Windows typical jump
   back when dragging controls.
-  
+
   \sa QStyle
   */
 int QWindowsStyle::maximumSliderDragDistance() const
@@ -1841,7 +1868,7 @@ QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QMotifStyle::drawIndicator( QPainter* p,
@@ -1856,7 +1883,7 @@ void QMotifStyle::drawIndicator( QPainter* p,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QSize
@@ -1867,7 +1894,7 @@ QMotifStyle::indicatorSize() const
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QMotifStyle::drawExclusiveIndicator( QPainter* p,
@@ -1900,7 +1927,7 @@ void QMotifStyle::drawExclusiveIndicator( QPainter* p,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QSize
@@ -1914,7 +1941,7 @@ QMotifStyle::exclusiveIndicatorSize() const
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void
@@ -2054,7 +2081,7 @@ void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
@@ -2065,7 +2092,7 @@ void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void
@@ -2117,7 +2144,7 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QMotifStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
@@ -2152,7 +2179,7 @@ void QMotifStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *s
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QMotifStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
@@ -2233,7 +2260,7 @@ void QMotifStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int 
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
@@ -2275,7 +2302,13 @@ void QMotifStyle::drawSlider( QPainter *p,
     //### still unused in qslider.cppx
 }
 
-
+void QMotifStyle::drawSliderGroove( QPainter *p, 
+				      int x, int y, int w, int h,
+				      const QColorGroup& g, QCOORD /*c */,
+				      bool /* horizontal */)
+{
+    qDrawShadePanel( p, x, y, w, h, g, TRUE );
+}
 
 
 QPlatinumStyle::QPlatinumStyle()
@@ -2284,7 +2317,7 @@ QPlatinumStyle::QPlatinumStyle()
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::initialize( QApplication* app)
@@ -2455,7 +2488,7 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QRect QPlatinumStyle::buttonRect( int x, int y, int w, int h){
@@ -2475,7 +2508,7 @@ QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
@@ -2621,7 +2654,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void
@@ -2679,7 +2712,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
@@ -2710,7 +2743,7 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
@@ -2748,7 +2781,7 @@ void QPlatinumStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::drawScrollbarBackground( QPainter *p, int x, int y, int w, int h,
@@ -2820,7 +2853,7 @@ void QPlatinumStyle::drawScrollbarBackground( QPainter *p, int x, int y, int w, 
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
@@ -2927,7 +2960,7 @@ void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, i
 /*!
   draw the nifty Macintosh decoration used on  sliders
   */
-void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h, 
+void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 		      const QColorGroup &g, bool horizontal )
 {
 	if (!horizontal) {
@@ -2967,7 +3000,7 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::drawIndicator( QPainter* p,
@@ -3025,7 +3058,7 @@ void QPlatinumStyle::drawIndicator( QPainter* p,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void
@@ -3043,7 +3076,7 @@ QPlatinumStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QSize
@@ -3056,7 +3089,7 @@ QPlatinumStyle::indicatorSize() const
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
@@ -3115,10 +3148,8 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
     p->drawLineSegments( a );
     if ( on ) {				// draw check mark
 	int x1=x, y1=y;
-// 	if ( down ) {
-// 	    x1++;
-// 	    y1++;
-// 	}
+	x1++;
+	y1++;
 	p->setBrush( g.foreground() );
 	p->setPen( g.foreground() );
 	a.setPoints( QCOORDARRLEN(pts5), pts5 );
@@ -3134,7 +3165,7 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QSize
@@ -3145,12 +3176,12 @@ QPlatinumStyle::exclusiveIndicatorSize() const
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool /* sunken */,
-				  bool /* enabled */, 
+				  bool /* enabled */,
 				  const QBrush *fill )
 {
     QPen oldPen = p->pen();
@@ -3214,12 +3245,12 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 //     p->setPen(g.mid());
 //     p->drawPoint(x+w-4, y+h-4);
 
-    
+
 //     drawButton(p, w-2-16,2,16,h-4, g, sunken );
-    
+
 
     // now the arrow button
-    
+
     {
 	int xx = w-20;
 	int yy = 0;
@@ -3284,20 +3315,20 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 	p->drawLineSegments( a, 0, 3 );		// draw arrow
 	p->drawPoint( a[6] );
 
-    }    
-    
-    
+    }
+
+
     p->setPen( oldPen );
 
 }
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h){
-    return QRect(x+4, y+4, w-8-18, h-8); 
+    return QRect(x+4, y+4, w-8-18, h-8);
 }
 
 
@@ -3331,8 +3362,7 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 
 
     //### works only for Down ....
-    
-    int d;
+
     switch ( dir ) {
 	case SlUp:
 
@@ -3341,22 +3371,22 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 	    // black border
 	    p->setPen( c0 );
 	    p->drawLine(x1+1,y1,x2-1,y1);
-	    p->drawLine(x1, y2-mx+2, x1+mx-2, y2); 
-	    p->drawLine(x2, y2-mx+2, x1+mx+2, y2); 
+	    p->drawLine(x1, y2-mx+2, x1+mx-2, y2);
+	    p->drawLine(x2, y2-mx+2, x1+mx+2, y2);
 	    p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
 	    p->drawLine(x1, y1+1, x1, y2-mx+2);
 	    p->drawLine(x2, y1+1, x2, y2-mx+2);
-	    
+	
 	    // light shadow
 	    p->setPen(c3);
 	    p->drawLine(x1+1, y1+1,x2-1, y1+1);
 	    p->drawLine(x1+1, y1+1, x1+1, y2-mx+2);
-	    
+	
 	    // dark shadow
 	    p->setPen(c1);
 	    p->drawLine(x2-1, y1+1, x2-1, y2-mx+2);
-	    p->drawLine(x1+1, y2-mx+2, x1+mx-2, y2-1); 
-	    p->drawLine(x2-1, y2-mx+2, x1+mx+2, y2-1); 
+	    p->drawLine(x1+1, y2-mx+2, x1+mx-2, y2-1);
+	    p->drawLine(x2-1, y2-mx+2, x1+mx+2, y2-1);
 	    p->drawLine(x1+mx-2, y2-1, x1+mx+2, y2-1);
 
 	    drawRiffles(p, x+2, y, w-4, h-5, g, TRUE);
@@ -3369,10 +3399,76 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 
 }
 
+
+void QPlatinumStyle::drawSliderGroove( QPainter *p, 
+				      int x, int y, int w, int h,
+				      const QColorGroup& g, QCOORD c,
+				       bool /* horizontal */)
+
+{
+
+    p->fillRect(x, y, w, h, g.fillBackground());
+    y = y+c-3;
+    h = 7;
+    p->fillRect(x, y, w, h, g.fillDark());
+
+	 // the dark side
+    p->setPen(g.dark());
+    p->drawLine(x, y, x+w-1, y);
+    p->drawLine(x, y, x, y+h-1);
+
+    p->setPen(black);
+    p->drawLine(x+1, y+1, x+w-2, y+1);
+    p->drawLine(x+1, y+1, x+1, y+h-2);
+
+
+	 // the bright side!
+
+    p->setPen(black);
+    p->drawLine(x+1, y+h-2 ,x+w-2, y+h-2);
+    p->drawLine(x+w-2, y+1, x+w-2, y+h-2);
+
+    p->setPen(g.light());
+    p->drawLine(x, y+h-1,x+w-1, y+h-1);
+    p->drawLine(x+w-1, y, x+w-1, y+h-1);
+
+ 	 // top left corner:
+    p->setPen(g.background());
+    p->drawPoint(x, y);
+    p->drawPoint(x+1, y);
+    p->drawPoint(x, y+1);
+    p->setPen(black);
+    p->drawPoint(x+1, y+1);
+    // bottom left corner:
+    p->setPen(g.background());
+    p->drawPoint(x, y+h-1);
+    p->drawPoint(x+1, y+h-1);
+    p->drawPoint(x, y+h-2);
+    p->setPen(g.light());
+    p->drawPoint(x+1, y+h-2);
+    // top right corner:
+    p->setPen(g.background());
+    p->drawPoint(x+w-1, y);
+    p->drawPoint(x+w-2, y);
+    p->drawPoint(x+w-1, y+1);
+    p->setPen(g.dark());
+    p->drawPoint(x+w-2, y+1);
+    // bottom right corner:
+    p->setPen(g.background());
+    p->drawPoint(x+w-1, y+h-1);
+    p->drawPoint(x+w-2, y+h-1);
+    p->drawPoint(x+w-1, y+h-2);
+    p->setPen(g.light());
+    p->drawPoint(x+w-2, y+h-2);
+    p->setPen(g.dark());
+    p->drawPoint(x+w-3, y+h-3);
+
+}
+
 /*!
   Reimplementation from QWindowsStyle to disable the Windows typical jump
   back when dragging controls.
-  
+
   \sa QStyle
   */
 int QPlatinumStyle::maximumSliderDragDistance() const
@@ -3387,7 +3483,7 @@ QHMotifStyle::QHMotifStyle() : QMotifStyle()
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QHMotifStyle::initialize( QApplication *app)
@@ -3456,7 +3552,7 @@ void QHMotifStyle::initialize( QApplication *app)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QHMotifStyle::polish( QWidget* w)
@@ -3532,7 +3628,7 @@ static void drawroundrect( QPainter *p, QCOORD x, QCOORD y,
 }
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QHMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
@@ -3609,7 +3705,7 @@ void QHMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QHMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
@@ -3620,7 +3716,7 @@ void QHMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QHMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
@@ -3675,7 +3771,7 @@ void QHMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QHMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
@@ -3707,7 +3803,7 @@ void QHMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 QRect QHMotifStyle::buttonRect( int x, int y, int w, int h){
@@ -3716,7 +3812,7 @@ QRect QHMotifStyle::buttonRect( int x, int y, int w, int h){
 
 /*!
   Reimplementation from QStyle
-  
+
   \sa QStyle
   */
 void QHMotifStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)

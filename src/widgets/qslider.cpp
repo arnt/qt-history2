@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#64 $
 **
 ** Implementation of QSlider class
 **
@@ -433,7 +433,7 @@ void QSlider::drawWinGroove( QPainter *p, QCOORD c )
 }
 
 
-/*!
+/*!\obsolete
   Draws the "groove" on which the slider moves, using the painter \a p.
   \a c gives the distance from the top (or left) edge of the widget to
   the center of the groove.
@@ -465,55 +465,40 @@ void QSlider::paintEvent( QPaintEvent *e )
     p.setClipRegion( paintRegion );
     QRect sliderR = sliderRect();
     QColorGroup g = colorGroup();
-    switch ( style() ) {
-    case WindowsStyle:
-	if ( hasFocus() ) {
-	    QRect r;
-	    if ( orient == Horizontal )
-		r.setRect( 0, tickOffset-1, width(), thickness()+2 );
-	    else
-		r.setRect( tickOffset-1, 0, thickness()+2, height() );
-	    r = r.intersect( rect() );
-	    qDrawPlainRect( &p, r, g.background() );
-	    p.drawWinFocusRect( r, backgroundColor() );
+    {
+	int mid = tickOffset + thickness()/2;
+	if ( ticks & Above )
+	    mid += style().sliderLength() / 8;
+	if ( ticks & Below )
+	    mid -= style().sliderLength() / 8;
+ 	if ( orient == Horizontal ) {
+ 	    style().drawSliderGroove(&p, 0, tickOffset, width(), thickness(),
+ 				     g, mid, TRUE );
+ 	    p.fillRect( 0, 0, width(), tickOffset, g.background() );
+ 	    p.fillRect( 0, tickOffset + thickness(),
+ 			width(), height()/*###*/, g.background() );
 	}
-	{
-	    int mid = tickOffset + thickness()/2;
-	    if ( ticks & Above )
-		mid += style().sliderLength() / 8;
-	    if ( ticks & Below )
-		mid -= style().sliderLength() / 8;
-	    drawWinGroove( &p, g, mid );
+	else {
+ 	    style().drawSliderGroove( &p, tickOffset, 0, thickness(), height(),
+				      g, mid, FALSE );
+ 	    p.fillRect( 0, 0,  tickOffset, height(), g.background() );
+ 	    p.fillRect( tickOffset + thickness(), 0,
+ 			width()/*###*/, height(), g.background() );
 	}
-	paintSlider( &p, g, sliderR );
-	break;
-    default:
-    case MotifStyle:
-	if ( orient == Horizontal ) {
-	    qDrawShadePanel( &p, 0, tickOffset, width(), thickness(),
-			     g, TRUE );
-	    p.fillRect( 0, 0, width(), tickOffset, g.background() );
-	    p.fillRect( 0, tickOffset + thickness(),
-			width(), height()/*###*/, g.background() );
-	} else {
-	    qDrawShadePanel( &p, tickOffset, 0, thickness(), height(),
-			     g, TRUE );
-	    p.fillRect( 0, 0,  tickOffset, height(), g.background() );
-	    p.fillRect( tickOffset + thickness(), 0,
-			width()/*###*/, height(), g.background() );
-	}
-
-	if ( hasFocus() ) {
-	    p.setPen( black );
-	    if ( orient == Horizontal )
-		p.drawRect(  1, tickOffset + 1, width() - 2, thickness() - 2 );
-	    else
-		p.drawRect( tickOffset + 1, 1, thickness() - 2, height() - 2 );
-	}
-	paintSlider( &p, g, sliderR );
-	break;
     }
-
+    if ( hasFocus() ) {
+	QRect r;
+	if ( orient == Horizontal )
+	    r.setRect( 0, tickOffset-1, width(), thickness()+2 );
+	else
+	    r.setRect( tickOffset-1, 0, thickness()+2, height() );
+	r = r.intersect( rect() );
+	if (style() == MotifStyle) 
+	    style().drawFocusRect(&p, QRect(r.x()+1, r.y()+1, r.width()-2, r.height()-2), g);
+	else
+	    style().drawFocusRect(&p, r, g);
+    }
+    paintSlider( &p, g, sliderR );
 
     int interval = tickInt;
     if ( interval <= 0 ) {
