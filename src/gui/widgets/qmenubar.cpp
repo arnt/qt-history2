@@ -458,6 +458,17 @@ QAction *QMenuBar::addMenu(const QString &text, QMenu *menu)
 }
 
 /*!
+  Appends a separator to the menu.
+*/
+QAction *QMenuBar::addSeparator()
+{
+    QAction *ret = new QAction;
+    ret->setSeparator(true);
+    addAction(ret);
+    return ret;
+}
+
+/*!
   Inserts an action with text \a text and menu \a menu into the list
   of actions before \a before.
 
