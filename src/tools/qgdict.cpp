@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#66 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#67 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -112,7 +112,7 @@ int QGDict::hashKey( const char *key )
   \sa write()
 */
 
-QDataStream& QGDict::read( QDataStream &s, GCI &item )
+QDataStream& QGDict::read( QDataStream &s, Item &item )
 {
     item = 0;
     return s;
@@ -127,7 +127,7 @@ QDataStream& QGDict::read( QDataStream &s, GCI &item )
   \sa read()
 */
 
-QDataStream& QGDict::write( QDataStream &s, GCI ) const
+QDataStream& QGDict::write( QDataStream &s, Item ) const
 {
     return s;
 }
@@ -237,7 +237,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
   The do-it-all function; op is one of op_find, op_insert, op_replace
 */
 
-QCollection::GCI QGDict::look( const char *key, GCI d, int op )
+QCollection::Item QGDict::look( const char *key, Item d, int op )
 {
     register QBucket *n;
     int	 index;
@@ -330,7 +330,7 @@ void QGDict::resize( uint newsize )
   data pointer, if it is set).
 */
 
-QBucket *QGDict::unlink( const char *key, GCI d )
+QBucket *QGDict::unlink( const char *key, Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -394,7 +394,7 @@ bool QGDict::remove( const char *key )
   Use to remove a specific item when several items have the same key.
 */
 
-bool QGDict::removeItem( const char *key, GCI item )
+bool QGDict::removeItem( const char *key, Item item )
 {
     register QBucket *n = unlink( key, item );
     if ( n ) {
@@ -411,10 +411,10 @@ bool QGDict::removeItem( const char *key, GCI item )
   Takes out the item with the specified key.
 */
 
-QCollection::GCI QGDict::take( const char *key )
+QCollection::Item QGDict::take( const char *key )
 {
     register QBucket *n = unlink( key );
-    GCI tmp;
+    Item tmp;
     if ( n ) {
 	tmp = n->getData();
 	if ( copyk )
@@ -540,7 +540,7 @@ QDataStream &QGDict::read( QDataStream &s )
     s >> num;					// read number of items
     clear();					// clear dict
     while ( num-- ) {				// read all items
-	GCI d;
+	Item d;
 	char *k;
 	if ( triv ) {
 	    Q_UINT32 k_triv;
@@ -672,7 +672,7 @@ QGDictIterator::~QGDictIterator()
   Sets the iterator to point to the first item in the dictionary.
 */
 
-QCollection::GCI QGDictIterator::toFirst()
+QCollection::Item QGDictIterator::toFirst()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -699,7 +699,7 @@ QCollection::GCI QGDictIterator::toFirst()
   Moves to the next item (postfix).
 */
 
-QCollection::GCI QGDictIterator::operator()()
+QCollection::Item QGDictIterator::operator()()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -709,7 +709,7 @@ QCollection::GCI QGDictIterator::operator()()
     }
     if ( !curNode )
 	return 0;
-    QCollection::GCI d = curNode->getData();
+    QCollection::Item d = curNode->getData();
     this->operator++();
     return d;
 }
@@ -719,7 +719,7 @@ QCollection::GCI QGDictIterator::operator()()
   Moves to the next item (prefix).
 */
 
-QCollection::GCI QGDictIterator::operator++()
+QCollection::Item QGDictIterator::operator++()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -750,7 +750,7 @@ QCollection::GCI QGDictIterator::operator++()
   Moves \e jumps positions forward.
 */
 
-QCollection::GCI QGDictIterator::operator+=( uint jumps )
+QCollection::Item QGDictIterator::operator+=( uint jumps )
 {
     while ( curNode && jumps-- )
 	operator++();
@@ -763,17 +763,17 @@ bool QGDict::remove( QString key )
     return remove( (const char*)key.utf8() );
 }
 
-bool QGDict::removeItem( QString key, GCI item )
+bool QGDict::removeItem( QString key, Item item )
 {
     return removeItem( (const char*)key.utf8(), item );
 }
 
-QCollection::GCI QGDict::take( QString key )
+QCollection::Item QGDict::take( QString key )
 {
     return take( (const char*)key.utf8() );
 }
 
-QCollection::GCI QGDict::look( QString key, GCI g, int op )
+QCollection::Item QGDict::look( QString key, Item g, int op )
 {
     if ( op == op_find ) {
 	return look( (const char*)key.utf8(), g, op );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcache.h#18 $
+** $Id: //depot/qt/main/src/tools/qintcache.h#19 $
 **
 ** Definition of QIntCache template/macro class
 **
@@ -47,7 +47,7 @@ public:
     uint  size()      const	{ return QGCache::size(); }
     bool  isEmpty()   const	{ return QGCache::count() == 0; }
     bool  insert( long k, const type *d, int c=1, int p=0 )
-			{ return QGCache::insert((const char*)k,(GCI)d,c,p); }
+			{ return QGCache::insert((const char*)k,(Item)d,c,p); }
     bool  remove( long k )	{ return QGCache::remove((const char*)k); }
     type *take( long k )    { return (type *)QGCache::take((const char*)k);}
     void  clear()	    { QGCache::clear(); }
@@ -57,7 +57,7 @@ public:
 			{ return (type *)QGCache::find( (const char*)k); }
     void  statistics() const { QGCache::statistics(); }
 private:
-    void  deleteItem( GCI d )	{ if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d )	{ if ( del_item ) delete (type *)d; }
 };
 
 

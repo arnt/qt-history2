@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#25 $
+** $Id: //depot/qt/main/src/tools/qdict.h#26 $
 **
 ** Definition of QDict template/macro class
 **
@@ -44,9 +44,9 @@ public:
     bool  isEmpty() const		{ return QGDict::count() == 0; }
 
     void  insert( const char *k, const type *d )
-					{ QGDict::look(k,(GCI)d,1); }
+					{ QGDict::look(k,(Item)d,1); }
     void  replace( const char *k, const type *d )
-					{ QGDict::look(k,(GCI)d,2); }
+					{ QGDict::look(k,(Item)d,2); }
     bool  remove( const char *k )	{ return QGDict::remove(k); }
     type *take( const char *k )		{ return (type *)QGDict::take(k); }
     type *find( const char *k ) const
@@ -55,9 +55,9 @@ public:
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
 
     void  insert( QString k, const type *d )
-					{ QGDict::look(k,(GCI)d,1); }
+					{ QGDict::look(k,(Item)d,1); }
     void  replace( QString k, const type *d )
-					{ QGDict::look(k,(GCI)d,2); }
+					{ QGDict::look(k,(Item)d,2); }
     bool  remove( QString k )	{ return QGDict::remove(k); }
     type *take( QString k )		{ return (type *)QGDict::take(k); }
     type *find( QString k ) const
@@ -69,7 +69,7 @@ public:
     void  resize( uint n )		{ QGDict::resize(n); }
     void  statistics() const		{ QGDict::statistics(); }
 private:
-    void  deleteItem( GCI d )	{ if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d )	{ if ( del_item ) delete (type *)d; }
 };
 
 

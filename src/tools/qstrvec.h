@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#19 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#20 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -47,14 +47,14 @@ public:
     QStrVec( uint size, bool deepc = TRUE ) : QStrVecBase(size) {dc=deepc;}
    ~QStrVec()  { clear(); }
 private:
-    GCI	 newItem( GCI d )	{ return dc ? qstrdup( (const char*)d ) : d; }
-    void deleteItem( GCI d )	{ if ( dc ) delete[] (char*)d; }
-    int	 compareItems( GCI s1, GCI s2 )
+    Item	 newItem( Item d )	{ return dc ? qstrdup( (const char*)d ) : d; }
+    void deleteItem( Item d )	{ if ( dc ) delete[] (char*)d; }
+    int	 compareItems( Item s1, Item s2 )
 				{ return strcmp((const char*)s1,
 						(const char*)s2); }
-    QDataStream &read( QDataStream &s, GCI &d )
+    QDataStream &read( QDataStream &s, Item &d )
 				{ s >> (char *&)d; return s; }
-    QDataStream &write( QDataStream &s, GCI d ) const
+    QDataStream &write( QDataStream &s, Item d ) const
 				{ return s << (const char*)d; }
     bool dc;
 };
@@ -67,7 +67,7 @@ public:
     QStrIVec( uint size, bool dc = TRUE ) : QStrVec( size, dc ) {}
    ~QStrIVec() { clear(); }
 private:
-    int	 compareItems( GCI s1, GCI s2 )
+    int	 compareItems( Item s1, Item s2 )
 				{ return stricmp((const char*)s1,
 						 (const char*)s2); }
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#16 $
+** $Id: //depot/qt/main/src/tools/qcache.h#17 $
 **
 ** Definition of QCache template/macro class
 **
@@ -47,7 +47,7 @@ public:
     uint  size()      const	      { return QGCache::size(); }
     bool  isEmpty()   const	      { return QGCache::count() == 0; }
     bool  insert( const char *k, const type *d, int c=1, int p=0 )
-				      { return QGCache::insert(k,(GCI)d,c,p);}
+				      { return QGCache::insert(k,(Item)d,c,p);}
     bool  remove( const char *k )     { return QGCache::remove(k); }
     type *take( const char *k )	      { return (type *)QGCache::take(k); }
     void  clear()		      { QGCache::clear(); }
@@ -57,7 +57,7 @@ public:
 				      { return (type *)QGCache::find(k);}
     void  statistics() const	      { QGCache::statistics(); }
 private:
-    void  deleteItem( GCI d )	      { if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d )	      { if ( del_item ) delete (type *)d; }
 };
 
 

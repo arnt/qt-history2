@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#32 $
+** $Id: //depot/qt/main/src/tools/qglist.h#33 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -40,12 +40,12 @@ class Q_EXPORT QLNode
 friend class QGList;
 friend class QGListIterator;
 public:
-    QCollection::GCI getData()	{ return data; }
+    QCollection::Item getData()	{ return data; }
 private:
-    QCollection::GCI data;
+    QCollection::Item data;
     QLNode *prev;
     QLNode *next;
-    QLNode( QCollection::GCI d ) { data = d; }
+    QLNode( QCollection::Item d ) { data = d; }
 };
 
 
@@ -70,52 +70,52 @@ protected:
 
     QGList &operator=( const QGList & );	// assign from other list
 
-    void  inSort( GCI );			// add item sorted in list
-    void  append( GCI );			// add item at end of list
-    bool  insertAt( uint index, GCI );		// add item at i'th position
+    void  inSort( Item );			// add item sorted in list
+    void  append( Item );			// add item at end of list
+    bool  insertAt( uint index, Item );		// add item at i'th position
     void  relinkNode( QLNode * );		// relink as first item
     bool  removeNode( QLNode * );		// remove node
-    bool  remove( GCI = 0 );			// remove item (0=current)
-    bool  removeRef( GCI = 0 );			// remove item (0=current)
+    bool  remove( Item = 0 );			// remove item (0=current)
+    bool  removeRef( Item = 0 );			// remove item (0=current)
     bool  removeFirst();			// remove first item
     bool  removeLast();				// remove last item
     bool  removeAt( uint index );		// remove item at i'th position
-    GCI	  takeNode( QLNode * );			// take out node
-    GCI	  take();				// take out current item
-    GCI	  takeAt( uint index );			// take out item at i'th pos
-    GCI	  takeFirst();				// take out first item
-    GCI	  takeLast();				// take out last item
+    Item	  takeNode( QLNode * );			// take out node
+    Item	  take();				// take out current item
+    Item	  takeAt( uint index );			// take out item at i'th pos
+    Item	  takeFirst();				// take out first item
+    Item	  takeLast();				// take out last item
 
     void  clear();				// remove all items
 
-    int	  findRef( GCI, bool = TRUE );		// find exact item in list
-    int	  find( GCI, bool = TRUE );		// find equal item in list
+    int	  findRef( Item, bool = TRUE );		// find exact item in list
+    int	  find( Item, bool = TRUE );		// find equal item in list
 
-    uint  containsRef( GCI )	const;		// get number of exact matches
-    uint  contains( GCI )	const;		// get number of equal matches
+    uint  containsRef( Item )	const;		// get number of exact matches
+    uint  contains( Item )	const;		// get number of equal matches
 
-    GCI	  at( uint index );			// access item at i'th pos
+    Item	  at( uint index );			// access item at i'th pos
     int	  at() const;				// get current index
     QLNode *currentNode() const;		// get current node
 
-    GCI	  get() const;				// get current item
+    Item	  get() const;				// get current item
 
-    GCI	  cfirst() const;			// get ptr to first list item
-    GCI	  clast()  const;			// get ptr to last list item
-    GCI	  first();				// set first item in list curr
-    GCI	  last();				// set last item in list curr
-    GCI	  next();				// set next item in list curr
-    GCI	  prev();				// set prev item in list curr
+    Item	  cfirst() const;			// get ptr to first list item
+    Item	  clast()  const;			// get ptr to last list item
+    Item	  first();				// set first item in list curr
+    Item	  last();				// set last item in list curr
+    Item	  next();				// set next item in list curr
+    Item	  prev();				// set prev item in list curr
 
     void  toVector( QGVector * ) const;		// put items in vector
 
-    virtual int compareItems( GCI, GCI );
+    virtual int compareItems( Item, Item );
 
-    virtual QDataStream &read( QDataStream &, GCI & );
-    virtual QDataStream &write( QDataStream &, GCI ) const;
+    virtual QDataStream &read( QDataStream &, Item & );
+    virtual QDataStream &write( QDataStream &, Item ) const;
 
 private:
-    void  prepend( GCI );			// add item at start of list
+    void  prepend( Item );			// add item at start of list
 
     QLNode *firstNode;				// first node
     QLNode *lastNode;				// last node
@@ -151,7 +151,7 @@ inline int QGList::at() const
     return curIndex;
 }
 
-inline QCollection::GCI QGList::at( uint index )
+inline QCollection::Item QGList::at( uint index )
 {
     QLNode *n = locate( index );
     return n ? n->data : 0;
@@ -162,17 +162,17 @@ inline QLNode *QGList::currentNode() const
     return curNode;
 }
 
-inline QCollection::GCI QGList::get() const
+inline QCollection::Item QGList::get() const
 {
     return curNode ? curNode->data : 0;
 }
 
-inline QCollection::GCI QGList::cfirst() const
+inline QCollection::Item QGList::cfirst() const
 {
     return firstNode ? firstNode->data : 0;
 }
 
-inline QCollection::GCI QGList::clast() const
+inline QCollection::Item QGList::clast() const
 {
     return lastNode ? lastNode->data : 0;
 }
@@ -201,15 +201,15 @@ protected:
 
     bool  atFirst() const;			// test if at first item
     bool  atLast()  const;			// test if at last item
-    QCollection::GCI	  toFirst();				// move to first item
-    QCollection::GCI	  toLast();				// move to last item
+    QCollection::Item	  toFirst();				// move to first item
+    QCollection::Item	  toLast();				// move to last item
 
-    QCollection::GCI	  get() const;				// get current item
-    QCollection::GCI	  operator()();				// get current and move to next
-    QCollection::GCI	  operator++();				// move to next item (prefix)
-    QCollection::GCI	  operator+=(uint);			// move n positions forward
-    QCollection::GCI	  operator--();				// move to prev item (prefix)
-    QCollection::GCI	  operator-=(uint);			// move n positions backward
+    QCollection::Item	  get() const;				// get current item
+    QCollection::Item	  operator()();				// get current and move to next
+    QCollection::Item	  operator++();				// move to next item (prefix)
+    QCollection::Item	  operator+=(uint);			// move n positions forward
+    QCollection::Item	  operator--();				// move to prev item (prefix)
+    QCollection::Item	  operator-=(uint);			// move n positions backward
 
 protected:
     QGList *list;				// reference to list
@@ -229,7 +229,7 @@ inline bool QGListIterator::atLast() const
     return curNode == list->lastNode;
 }
 
-inline QCollection::GCI QGListIterator::get() const
+inline QCollection::Item QGListIterator::get() const
 {
     return curNode ? curNode->data : 0;
 }

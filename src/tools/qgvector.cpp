@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#31 $
 **
 ** Implementation of QGVector class
 **
@@ -49,18 +49,18 @@
   Default implementation of virtual functions
  *****************************************************************************/
 
-int QGVector::compareItems( GCI d1, GCI d2 )
+int QGVector::compareItems( Item d1, Item d2 )
 {
     return d1 != d2;				// compare pointers
 }
 
-QDataStream &QGVector::read( QDataStream &s, GCI &d )
+QDataStream &QGVector::read( QDataStream &s, Item &d )
 {						// read item from stream
     d = 0;
     return s;
 }
 
-QDataStream &QGVector::write( QDataStream &s, GCI ) const
+QDataStream &QGVector::write( QDataStream &s, Item ) const
 {						// write item to stream
     return s;
 }
@@ -84,9 +84,9 @@ QGVector::QGVector( uint size )			// create vectors with nullptrs
 	vec = 0;
 	return;
     }
-    vec = NEW(GCI,len);
+    vec = NEW(Item,len);
     CHECK_PTR( vec );
-    memset( (void*)vec, 0, len*sizeof(GCI) );	// fill with nulls
+    memset( (void*)vec, 0, len*sizeof(Item) );	// fill with nulls
 }
 
 QGVector::QGVector( const QGVector &a )		// make copy of other vector
@@ -94,7 +94,7 @@ QGVector::QGVector( const QGVector &a )		// make copy of other vector
 {
     len = a.len;
     numItems = a.numItems;
-    vec = NEW(GCI,len);
+    vec = NEW(Item,len);
     CHECK_PTR( vec );
     for ( uint i=0; i<len; i++ ) {
 	vec[i] = a.vec[i] ? newItem( a.vec[i] ) : 0;
@@ -113,7 +113,7 @@ QGVector& QGVector::operator=( const QGVector &v )
     clear();					// first delete old vector
     len = v.len;
     numItems = v.numItems;
-    vec = NEW(GCI,len);				// create new vector
+    vec = NEW(Item,len);				// create new vector
     CHECK_PTR( vec );
     for ( uint i=0; i<len; i++ ) {		// copy elements
 	vec[i] = v.vec[i] ? newItem( v.vec[i] ) : 0;
@@ -123,7 +123,7 @@ QGVector& QGVector::operator=( const QGVector &v )
 }
 
 
-bool QGVector::insert( uint index, GCI d )	// insert item at index
+bool QGVector::insert( uint index, Item d )	// insert item at index
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
@@ -162,7 +162,7 @@ bool QGVector::remove( uint index )		// remove item at index
     return TRUE;
 }
 
-QCollection::GCI QGVector::take( uint index )		// take out item
+QCollection::Item QGVector::take( uint index )		// take out item
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
@@ -170,7 +170,7 @@ QCollection::GCI QGVector::take( uint index )		// take out item
 	return 0;
     }
 #endif
-    GCI d = vec[index];				// don't delete item
+    Item d = vec[index];				// don't delete item
     if ( d )
 	numItems--;
     vec[index] = 0;
@@ -213,28 +213,28 @@ bool QGVector::resize( uint newsize )		// resize array
 	    return TRUE;
 	}
 #if defined(DONT_USE_REALLOC)
-	GCI *newvec = NEW(GCI,newsize);		// manual realloc
-	memcpy( newvec, vec, (len < newsize ? len : newsize)*sizeof(GCI) );
+	Item *newvec = NEW(Item,newsize);		// manual realloc
+	memcpy( newvec, vec, (len < newsize ? len : newsize)*sizeof(Item) );
 	DELETE(vec);
 	vec = newvec;
 #else
-	vec = (GCI*)realloc( (char *)vec, newsize*sizeof(GCI) );
+	vec = (Item*)realloc( (char *)vec, newsize*sizeof(Item) );
 #endif
     } else {					// create new vector
-	vec = NEW(GCI,newsize);
+	vec = NEW(Item,newsize);
 	len = numItems = 0;
     }
     CHECK_PTR( vec );
     if ( !vec )					// no memory
 	return FALSE;
     if ( newsize > len )			// init extra space added
-	memset( (void*)&vec[len], 0, (newsize-len)*sizeof(GCI) );
+	memset( (void*)&vec[len], 0, (newsize-len)*sizeof(Item) );
     len = newsize;
     return TRUE;
 }
 
 
-bool QGVector::fill( GCI d, int flen )		// resize and fill vector
+bool QGVector::fill( Item d, int flen )		// resize and fill vector
 {
     if ( flen < 0 )
 	flen = len;				// default: use vector length
@@ -255,7 +255,7 @@ extern "C" {
 
 static int cmp_vec( const void *n1, const void *n2 )
 {
-    return sort_vec->compareItems( *((QCollection::GCI*)n1), *((QCollection::GCI*)n2) );
+    return sort_vec->compareItems( *((QCollection::Item*)n1), *((QCollection::Item*)n2) );
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -267,9 +267,9 @@ void QGVector::sort()				// sort vector
 {
     if ( count() == 0 )				// no elements
 	return;
-    register GCI *start = &vec[0];
-    register GCI *end	= &vec[len-1];
-    GCI tmp;
+    register Item *start = &vec[0];
+    register Item *end	= &vec[len-1];
+    Item tmp;
     while ( TRUE ) {				// put all zero elements behind
 	while ( start < end && *start != 0 )
 	    start++;
@@ -284,11 +284,11 @@ void QGVector::sort()				// sort vector
 	}
     }
     sort_vec = (QGVector*)this;
-    qsort( vec, count(), sizeof(GCI), cmp_vec );
+    qsort( vec, count(), sizeof(Item), cmp_vec );
     sort_vec = 0;
 }
 
-int QGVector::bsearch( GCI d ) const		// binary search; when sorted
+int QGVector::bsearch( Item d ) const		// binary search; when sorted
 {
     if ( !len )
 	return -1;
@@ -319,7 +319,7 @@ int QGVector::bsearch( GCI d ) const		// binary search; when sorted
 }
 
 
-int QGVector::findRef( GCI d, uint index) const // find exact item in vector
+int QGVector::findRef( Item d, uint index) const // find exact item in vector
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
@@ -334,7 +334,7 @@ int QGVector::findRef( GCI d, uint index) const // find exact item in vector
     return -1;
 }
 
-int QGVector::find( GCI d, uint index ) const	// find equal item in vector
+int QGVector::find( Item d, uint index ) const	// find equal item in vector
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
@@ -351,7 +351,7 @@ int QGVector::find( GCI d, uint index ) const	// find equal item in vector
     return -1;
 }
 
-uint QGVector::containsRef( GCI d ) const	// get number of exact matches
+uint QGVector::containsRef( Item d ) const	// get number of exact matches
 {
     uint count = 0;
     for ( uint i=0; i<len; i++ ) {
@@ -361,7 +361,7 @@ uint QGVector::containsRef( GCI d ) const	// get number of exact matches
     return count;
 }
 
-uint QGVector::contains( GCI d ) const		// get number of equal matches
+uint QGVector::contains( Item d ) const		// get number of equal matches
 {
     uint count = 0;
     for ( uint i=0; i<len; i++ ) {
@@ -374,7 +374,7 @@ uint QGVector::contains( GCI d ) const		// get number of equal matches
 }
 
 
-bool QGVector::insertExpand( uint index, GCI d )// insert and grow if necessary
+bool QGVector::insertExpand( uint index, Item d )// insert and grow if necessary
 {
     if ( index >= len ) {
 	if ( !resize( index+1 ) )		// no memory
@@ -424,7 +424,7 @@ QDataStream &QGVector::read( QDataStream &s )	// read vector from stream
     clear();					// clear vector
     resize( num );
     for (uint i=0; i<num; i++) {		// read all items
-	GCI d;
+	Item d;
 	read( s, d );
 	CHECK_PTR( d );
 	if ( !d )				// no memory

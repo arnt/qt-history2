@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#20 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#21 $
 **
 ** Definition of QIntDict template/macro class
 **
@@ -43,9 +43,9 @@ public:
     uint  size()    const	{ return QGDict::size(); }
     bool  isEmpty() const	{ return QGDict::count() == 0; }
     void  insert( long k, const type *d )
-				{ QGDict::look((const char*)k,(GCI)d,1); }
+				{ QGDict::look((const char*)k,(Item)d,1); }
     void  replace( long k, const type *d )
-				{ QGDict::look((const char*)k,(GCI)d,2); }
+				{ QGDict::look((const char*)k,(Item)d,2); }
     bool  remove( long k )	{ return QGDict::remove((const char*)k); }
     type *take( long k )	{ return (type*)QGDict::take((const char*)k); }
     void  clear()		{ QGDict::clear(); }
@@ -56,7 +56,7 @@ public:
 	{ return (type *)((QGDict*)this)->QGDict::look((const char*)k,0,0); }
     void  statistics() const	{ QGDict::statistics(); }
 private:
-    void  deleteItem( GCI d )	{ if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d )	{ if ( del_item ) delete (type *)d; }
 };
 
 template<class type> class Q_EXPORT QIntDictIterator : public QGDictIterator

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvector.h#15 $
+** $Id: //depot/qt/main/src/tools/qvector.h#16 $
 **
 ** Definition of QVector template/macro class
 **
@@ -46,27 +46,27 @@ public:
     bool  isEmpty() const		{ return QGVector::count() == 0; }
     bool  isNull()  const		{ return QGVector::size() == 0; }     \
     bool  resize( uint size )		{ return QGVector::resize(size); }
-    bool  insert( uint i, const type *d){ return QGVector::insert(i,(GCI)d); }
+    bool  insert( uint i, const type *d){ return QGVector::insert(i,(Item)d); }
     bool  remove( uint i )		{ return QGVector::remove(i); }
     type *take( uint i )		{ return (type *)QGVector::take(i); }
     void  clear()			{ QGVector::clear(); }
     bool  fill( const type *d, int size=-1 )
-					{ return QGVector::fill((GCI)d,size);}
+					{ return QGVector::fill((Item)d,size);}
     void  sort()			{ QGVector::sort(); }
-    int	  bsearch( const type *d ) const{ return QGVector::bsearch((GCI)d); }
+    int	  bsearch( const type *d ) const{ return QGVector::bsearch((Item)d); }
     int	  findRef( const type *d, uint i=0 ) const
-					{ return QGVector::findRef((GCI)d,i);}
+					{ return QGVector::findRef((Item)d,i);}
     int	  find( const type *d, uint i= 0 ) const
-					{ return QGVector::find((GCI)d,i); }
+					{ return QGVector::find((Item)d,i); }
     uint  containsRef( const type *d ) const
-				{ return QGVector::containsRef((GCI)d); }
+				{ return QGVector::containsRef((Item)d); }
     uint  contains( const type *d ) const
-					{ return QGVector::contains((GCI)d); }
+					{ return QGVector::contains((Item)d); }
     type *operator[]( int i ) const	{ return (type *)QGVector::at(i); }
     type *at( uint i ) const		{ return (type *)QGVector::at(i); }
     void  toList( QGList *list ) const	{ QGVector::toList(list); }
 private:
-    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
 };
 
 

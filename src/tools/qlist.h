@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#25 $
+** $Id: //depot/qt/main/src/tools/qlist.h#26 $
 **
 ** Definition of QList template/macro class
 **
@@ -41,13 +41,13 @@ public:
 			{ return (QList<type>&)QGList::operator=(l); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
-    bool  insert( uint i, const type *d){ return QGList::insertAt(i,(GCI)d); }
-    void  inSort( const type *d )	{ QGList::inSort((GCI)d); }
-    void  append( const type *d )	{ QGList::append((GCI)d); }
+    bool  insert( uint i, const type *d){ return QGList::insertAt(i,(Item)d); }
+    void  inSort( const type *d )	{ QGList::inSort((Item)d); }
+    void  append( const type *d )	{ QGList::append((Item)d); }
     bool  remove( uint i )		{ return QGList::removeAt(i); }
-    bool  remove()			{ return QGList::remove((GCI)0); }
-    bool  remove( const type *d )	{ return QGList::remove((GCI)d); }
-    bool  removeRef( const type *d )	{ return QGList::removeRef((GCI)d); }
+    bool  remove()			{ return QGList::remove((Item)0); }
+    bool  remove( const type *d )	{ return QGList::remove((Item)d); }
+    bool  removeRef( const type *d )	{ return QGList::removeRef((Item)d); }
     void  removeNode( QLNode *n )	{ QGList::removeNode(n); }
     bool  removeFirst()			{ return QGList::removeFirst(); }
     bool  removeLast()			{ return QGList::removeLast(); }
@@ -55,13 +55,13 @@ public:
     type *take()			{ return (type *)QGList::take(); }
     type *takeNode( QLNode *n )		{ return (type *)QGList::takeNode(n); }
     void  clear()			{ QGList::clear(); }
-    int	  find( const type *d )		{ return QGList::find((GCI)d); }
-    int	  findNext( const type *d )	{ return QGList::find((GCI)d,FALSE); }
-    int	  findRef( const type *d )	{ return QGList::findRef((GCI)d); }
-    int	  findNextRef( const type *d ){ return QGList::findRef((GCI)d,FALSE);}
-    uint  contains( const type *d ) const { return QGList::contains((GCI)d); }
+    int	  find( const type *d )		{ return QGList::find((Item)d); }
+    int	  findNext( const type *d )	{ return QGList::find((Item)d,FALSE); }
+    int	  findRef( const type *d )	{ return QGList::findRef((Item)d); }
+    int	  findNextRef( const type *d ){ return QGList::findRef((Item)d,FALSE);}
+    uint  contains( const type *d ) const { return QGList::contains((Item)d); }
     uint  containsRef( const type *d ) const
-					{ return QGList::containsRef((GCI)d); }
+					{ return QGList::containsRef((Item)d); }
     type *at( uint i )			{ return (type *)QGList::at(i); }
     int	  at() const			{ return QGList::at(); }
     type *current()  const		{ return (type *)QGList::get(); }
@@ -74,7 +74,7 @@ public:
     type *prev()			{ return (type *)QGList::prev(); }
     void  toVector( QGVector *vec )const{ QGList::toVector(vec); }
 private:
-    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
 };
 
 template<class type> class Q_EXPORT QListIterator : public QGListIterator

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#31 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#32 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -40,13 +40,13 @@ class QBucket					// internal dict node
 public:
     char   *getKey()		{ return key; }
     char   *setKey( char *k )	{ return key = k; }
-    QCollection::GCI getData() { return data; }
-    QCollection::GCI setData( QCollection::GCI d ) { return data = d; }
+    QCollection::Item getData() { return data; }
+    QCollection::Item setData( QCollection::Item d ) { return data = d; }
     QBucket *getNext()		{ return next; }
     void    setNext( QBucket *n){ next = n; }
 private:
     char   *key;
-    QCollection::GCI	    data;
+    QCollection::Item	    data;
     QBucket *next;
 };
 
@@ -57,8 +57,8 @@ friend class QGDictIterator;
 public:
     uint	count() const	{ return numItems; }
     uint	size()	const	{ return vlen; }
-    GCI		look( const char *key, GCI, int );
-    GCI		look( QString key, GCI, int );
+    Item		look( const char *key, Item, int );
+    Item		look( QString key, Item, int );
 
     QDataStream &read( QDataStream & );
     QDataStream &write( QDataStream & ) const;
@@ -71,11 +71,11 @@ protected:
     QGDict     &operator=( const QGDict & );
 
     bool	remove( const char *key );
-    bool	removeItem( const char *key, GCI item );
-    GCI		take( const char *key );
+    bool	removeItem( const char *key, Item item );
+    Item		take( const char *key );
     bool	remove( QString key );
-    bool	removeItem( QString key, GCI item );
-    GCI		take( QString key );
+    bool	removeItem( QString key, Item item );
+    Item		take( QString key );
 
     void	clear();
     void	resize( uint );
@@ -84,8 +84,8 @@ protected:
 
     void	statistics() const;
 
-    virtual QDataStream &read( QDataStream &, GCI & );
-    virtual QDataStream &write( QDataStream &, GCI ) const;
+    virtual QDataStream &read( QDataStream &, Item & );
+    virtual QDataStream &write( QDataStream &, Item ) const;
 
 private:
     QBucket   **vec;
@@ -95,7 +95,7 @@ private:
     uint	copyk	: 1;
     uint	triv	: 1;
     QGDItList  *iterators;
-    QBucket    *unlink( const char *, GCI item = 0 );
+    QBucket    *unlink( const char *, Item item = 0 );
     void        init( uint );
 };
 
@@ -109,16 +109,16 @@ public:
     QGDictIterator &operator=( const QGDictIterator & );
    ~QGDictIterator();
 
-    QCollection::GCI		toFirst();
+    QCollection::Item		toFirst();
 
-    QCollection::GCI		get()	 const { return curNode ? curNode->getData() : 0; }
+    QCollection::Item		get()	 const { return curNode ? curNode->getData() : 0; }
     long        getKeyLong() const
 			       { return curNode ? (long)curNode->getKey() : 0; }
     QString     getKey() const;
 
-    QCollection::GCI		operator()();
-    QCollection::GCI		operator++();
-    QCollection::GCI		operator+=(uint);
+    QCollection::Item		operator()();
+    QCollection::Item		operator++();
+    QCollection::Item		operator+=(uint);
 
 protected:
     QGDict     *dict;

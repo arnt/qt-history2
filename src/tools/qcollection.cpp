@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#27 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -39,9 +39,9 @@
   A QCollection knows only about the number of objects in the collection and
   the \link setAutoDelete() deletion strategy\endlink.
 
-  A collection is implemented using the \c GCI (generic collection item)
+  A collection is implemented using the \c Item (generic collection item)
   type, which is a \c void*.  The template (or macro) classes that
-  create the real collections cast the \c GCI to the required type.
+  create the real collections cast the \c Item to the required type.
 
   \sa \link collection.html Collection Classes\endlink
 */
@@ -125,7 +125,7 @@
   \sa deleteItem()
 */
 
-QCollection::GCI QCollection::newItem( GCI d )
+QCollection::Item QCollection::newItem( Item d )
 {
     return d;					// just return reference
 }
@@ -150,7 +150,7 @@ QCollection::GCI QCollection::newItem( GCI d )
   \sa newItem(), setAutoDelete()
 */
 
-void QCollection::deleteItem( GCI d )
+void QCollection::deleteItem( Item d )
 {
     if ( del_item )
 	delete d;				// default operation

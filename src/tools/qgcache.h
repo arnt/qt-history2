@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#21 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#22 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -57,12 +57,12 @@ protected:
     int	    totalCost() const	{ return tCost; }
     void    setMaxCost( int maxCost );
 
-    bool    insert( const char *key, GCI, int cost, int priority );
+    bool    insert( const char *key, Item, int cost, int priority );
     bool    remove( const char *key );
-    GCI	    take( const char *key );
+    Item	    take( const char *key );
     void    clear();
 
-    GCI	    find( const char *key, bool ref=TRUE ) const;
+    Item	    find( const char *key, bool ref=TRUE ) const;
 
     void    statistics() const;			// output debug statistics
 
@@ -91,16 +91,16 @@ protected:
     uint  count()   const;			// number of items in cache
     bool  atFirst() const;			// test if at first item
     bool  atLast()  const;			// test if at last item
-    QCollection::GCI toFirst();			// move to first item
-    QCollection::GCI toLast();			// move to last item
+    QCollection::Item toFirst();			// move to first item
+    QCollection::Item toLast();			// move to last item
 
-    QCollection::GCI get() const;		// get current item
+    QCollection::Item get() const;		// get current item
     const char *getKey() const;			// get current key
-    QCollection::GCI operator()();		// get current and move to next
-    QCollection::GCI operator++();		// move to next item (prefix)
-    QCollection::GCI operator+=( uint );	// move n positions forward
-    QCollection::GCI operator--();		// move to prev item (prefix)
-    QCollection::GCI operator-=( uint );	// move n positions backward
+    QCollection::Item operator()();		// get current and move to next
+    QCollection::Item operator++();		// move to next item (prefix)
+    QCollection::Item operator+=( uint );	// move n positions forward
+    QCollection::Item operator--();		// move to prev item (prefix)
+    QCollection::Item operator-=( uint );	// move n positions backward
 
 protected:
     QCListIt *it;				// iterator on cache list

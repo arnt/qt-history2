@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qqueue.h#13 $
+** $Id: //depot/qt/main/src/tools/qqueue.h#14 $
 **
 ** Definition of QQueue template/macro class
 **
@@ -43,7 +43,7 @@ public:
     void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
-    void  enqueue( const type *d )	{ QGList::append(GCI(d)); }
+    void  enqueue( const type *d )	{ QGList::append(Item(d)); }
     type *dequeue()			{ return (type *)QGList::takeFirst();}
     bool  remove()			{ return QGList::removeFirst(); }
     void  clear()			{ QGList::clear(); }
@@ -51,7 +51,7 @@ public:
 	  operator type *() const	{ return (type *)QGList::cfirst(); }
     type *current() const		{ return (type *)QGList::cfirst(); }
 private:
-    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstack.h#14 $
+** $Id: //depot/qt/main/src/tools/qstack.h#15 $
 **
 ** Definition of QStack template/macro class
 **
@@ -43,7 +43,7 @@ public:
     void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
-    void  push( const type *d )		{ QGList::insertAt(0,GCI(d)); }
+    void  push( const type *d )		{ QGList::insertAt(0,Item(d)); }
     type *pop()				{ return (type *)QGList::takeFirst(); }
     bool  remove()			{ return QGList::removeFirst(); }
     void  clear()			{ QGList::clear(); }
@@ -51,7 +51,7 @@ public:
 	  operator type *() const	{ return (type *)QGList::cfirst(); }
     type *current() const		{ return (type *)QGList::cfirst(); }
 private:
-    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#41 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -44,13 +44,13 @@
 
 struct QCacheItem
 {
-    QCacheItem( const char *k, QCollection::GCI d, int c, short p )
+    QCacheItem( const char *k, QCollection::Item d, int c, short p )
 	: priority(p), skipPriority(p), cost(c), key(k), data(d), node(0) {}
     short	priority;
     short	skipPriority;
     int		cost;
     const char *key;
-    QCollection::GCI data;
+    QCollection::Item data;
     QLNode     *node;
 };
 
@@ -181,7 +181,7 @@ public:
     QCacheItem *take(const char *key)
 		  { return (QCacheItem*)QGDict::take(key); }
     bool  insert( const char *key, const QCacheItem *ci )
-		  { return QGDict::look(key,(GCI)ci,1)!=0;}
+		  { return QGDict::look(key,(Item)ci,1)!=0;}
     bool  removeItem( QCacheItem* item ) 
 	          { return QGDict::removeItem( item->key, item ); } 
     void  statistics()			{ QGDict::statistics(); }
@@ -311,7 +311,7 @@ void QGCache::setMaxCost( int maxCost )
 
 */
 
-bool QGCache::insert( const char *key, GCI data, int cost, int priority )
+bool QGCache::insert( const char *key, Item data, int cost, int priority )
 {
 #if defined(CHECK_NULL)
     ASSERT( key != 0 && data != 0 );
@@ -353,7 +353,7 @@ bool QGCache::remove( const char *key )
 #if defined(CHECK_NULL)
     ASSERT( key != 0 );
 #endif
-    GCI d = take( key );
+    Item d = take( key );
     if ( d )
 	deleteItem( d );
     return d != 0;
@@ -364,13 +364,13 @@ bool QGCache::remove( const char *key )
   Takes an item out of the cache (no delete).
 */
 
-QCollection::GCI QGCache::take( const char *key )
+QCollection::Item QGCache::take( const char *key )
 {
 #if defined(CHECK_NULL)
     ASSERT( key != 0 );
 #endif
     QCacheItem *ci = dict->take( key );		// take from dict
-    GCI d;
+    Item d;
     if ( ci ) {
 	d = ci->data;
 	tCost -= ci->cost;
@@ -408,7 +408,7 @@ void QGCache::clear()
   Finds an item in the cache.
 */
 
-QCollection::GCI QGCache::find( const char *key, bool ref ) const
+QCollection::Item QGCache::find( const char *key, bool ref ) const
 {
 #if defined(CHECK_NULL)
     ASSERT( key != 0 );
@@ -602,7 +602,7 @@ bool QGCacheIterator::atLast() const
   Sets the list iterator to point to the first item in the cache.
 */
 
-QCollection::GCI QGCacheIterator::toFirst()
+QCollection::Item QGCacheIterator::toFirst()
 {
     register QCacheItem *item = it->toFirst();
     return item ? item->data : 0;
@@ -613,7 +613,7 @@ QCollection::GCI QGCacheIterator::toFirst()
   Sets the list iterator to point to the last item in the cache.
 */
 
-QCollection::GCI QGCacheIterator::toLast()
+QCollection::Item QGCacheIterator::toLast()
 {
     register QCacheItem *item = it->toLast();
     return item ? item->data : 0;
@@ -624,7 +624,7 @@ QCollection::GCI QGCacheIterator::toLast()
   Returns the current item.
 */
 
-QCollection::GCI QGCacheIterator::get() const
+QCollection::Item QGCacheIterator::get() const
 {
     register QCacheItem *item = it->current();
     return item ? item->data : 0;
@@ -647,7 +647,7 @@ const char *QGCacheIterator::getKey() const
   Moves to the next item (postfix).
 */
 
-QCollection::GCI QGCacheIterator::operator()()
+QCollection::Item QGCacheIterator::operator()()
 {
     register QCacheItem *item = it->operator()();
     return item ? item->data : 0;
@@ -658,7 +658,7 @@ QCollection::GCI QGCacheIterator::operator()()
   Moves to the next item (prefix).
 */
 
-QCollection::GCI QGCacheIterator::operator++()
+QCollection::Item QGCacheIterator::operator++()
 {
     register QCacheItem *item = it->operator++();
     return item ? item->data : 0;
@@ -669,7 +669,7 @@ QCollection::GCI QGCacheIterator::operator++()
   Moves \e jumps positions forward.
 */
 
-QCollection::GCI QGCacheIterator::operator+=( uint jump )
+QCollection::Item QGCacheIterator::operator+=( uint jump )
 {
     register QCacheItem *item = it->operator+=(jump);
     return item ? item->data : 0;
@@ -680,7 +680,7 @@ QCollection::GCI QGCacheIterator::operator+=( uint jump )
   Moves to the previous item (prefix).
 */
 
-QCollection::GCI QGCacheIterator::operator--()
+QCollection::Item QGCacheIterator::operator--()
 {
     register QCacheItem *item = it->operator--();
     return item ? item->data : 0;
@@ -691,7 +691,7 @@ QCollection::GCI QGCacheIterator::operator--()
   Moves \e jumps positions backward.
 */
 
-QCollection::GCI QGCacheIterator::operator-=( uint jump )
+QCollection::Item QGCacheIterator::operator-=( uint jump )
 {
     register QCacheItem *item = it->operator-=(jump);
     return item ? item->data : 0;

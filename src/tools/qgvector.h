@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#20 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#21 $
 **
 ** Definition of QGVector class
 **
@@ -38,7 +38,7 @@ public:
     QDataStream &read( QDataStream & );		// read vector from stream
     QDataStream &write( QDataStream & ) const;	// write vector to stream
 
-    virtual int compareItems( GCI, GCI );
+    virtual int compareItems( Item, Item );
 
 protected:
     QGVector();					// create empty vector
@@ -48,28 +48,28 @@ protected:
 
     QGVector &operator=( const QGVector &v );	// assign from other vector
 
-    GCI	 *data()    const	{ return vec; }
+    Item	 *data()    const	{ return vec; }
     uint  size()    const	{ return len; }
     uint  count()   const	{ return numItems; }
 
-    bool  insert( uint index, GCI );		// insert item at index
+    bool  insert( uint index, Item );		// insert item at index
     bool  remove( uint index );			// remove item
-    GCI	  take( uint index );			// take out item
+    Item	  take( uint index );			// take out item
 
     void  clear();				// clear vector
     bool  resize( uint newsize );		// resize vector
 
-    bool  fill( GCI, int flen );		// resize and fill vector
+    bool  fill( Item, int flen );		// resize and fill vector
 
     void  sort();				// sort vector
-    int	  bsearch( GCI ) const;			// binary search (when sorted)
+    int	  bsearch( Item ) const;			// binary search (when sorted)
 
-    int	  findRef( GCI, uint index ) const;	// find exact item in vector
-    int	  find( GCI, uint index ) const;	// find equal item in vector
-    uint  containsRef( GCI ) const;		// get number of exact matches
-    uint  contains( GCI ) const;		// get number of equal matches
+    int	  findRef( Item, uint index ) const;	// find exact item in vector
+    int	  find( Item, uint index ) const;	// find equal item in vector
+    uint  containsRef( Item ) const;		// get number of exact matches
+    uint  contains( Item ) const;		// get number of equal matches
 
-    GCI	  at( uint index ) const		// return indexed item
+    Item	  at( uint index ) const		// return indexed item
     {
 #if defined(CHECK_RANGE)
 	if ( index >= len )
@@ -78,15 +78,15 @@ protected:
 	return vec[index];
     }
 
-    bool insertExpand( uint index, GCI );	// insert, expand if necessary
+    bool insertExpand( uint index, Item );	// insert, expand if necessary
 
     void toList( QGList * ) const;		// put items in list
 
-    virtual QDataStream &read( QDataStream &, GCI & );
-    virtual QDataStream &write( QDataStream &, GCI ) const;
+    virtual QDataStream &read( QDataStream &, Item & );
+    virtual QDataStream &write( QDataStream &, Item ) const;
 
 private:
-    GCI	 *vec;
+    Item	 *vec;
     uint  len;
     uint  numItems;
 

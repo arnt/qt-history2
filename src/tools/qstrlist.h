@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#29 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#30 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -51,14 +51,14 @@ public:
     QStrList& operator=( const QStrList & );
 
 private:
-    GCI	  newItem( GCI d )	{ return dc ? qstrdup( (const char*)d ) : d; }
-    void  deleteItem( GCI d )	{ if ( dc ) delete[] (char*)d; }
-    int	  compareItems( GCI s1, GCI s2 )
+    Item	  newItem( Item d )	{ return dc ? qstrdup( (const char*)d ) : d; }
+    void  deleteItem( Item d )	{ if ( dc ) delete[] (char*)d; }
+    int	  compareItems( Item s1, Item s2 )
 				{ return strcmp((const char*)s1,
 						(const char*)s2); }
-    QDataStream &read( QDataStream &s, GCI &d )
+    QDataStream &read( QDataStream &s, Item &d )
 				{ s >> (char *&)d; return s; }
-    QDataStream &write( QDataStream &s, GCI d ) const
+    QDataStream &write( QDataStream &s, Item d ) const
 				{ return s << (const char *)d; }
     bool  dc;
 };
@@ -70,7 +70,7 @@ public:
     QStrIList( bool deepCopies=TRUE ) : QStrList( deepCopies ) {}
    ~QStrIList()			{ clear(); }
 private:
-    int	  compareItems( GCI s1, GCI s2 )
+    int	  compareItems( Item s1, Item s2 )
 				{ return stricmp((const char*)s1,
 						 (const char*)s2); }
 };
