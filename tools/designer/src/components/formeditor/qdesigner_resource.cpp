@@ -296,9 +296,6 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
         m_core->metaDataBase()->add(w);
     }
 
-    if (qt_cast<QDialog*>(w))
-        w->setParent(parentWidget);
-
     return w;
 }
 

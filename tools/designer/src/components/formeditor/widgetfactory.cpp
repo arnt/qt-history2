@@ -121,8 +121,10 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = customWidget;
     }
 
-    if (w)
+    if (w) {
+        w->setParent(w->parentWidget(), 0);
         initialize(w);
+    }
 
     return w;
 }
