@@ -18,7 +18,7 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->save();
     painter->translate(option.rect.x() + option.rect.width()/2 - radius,
                        option.rect.y() + option.rect.height()/2 - radius);
-    painter->drawEllipse(0, 0, 2*radius, 2*radius);
+    painter->drawEllipse(QRectF(0.0, 0.0, 2*radius, 2*radius));
     painter->restore();
 }
 

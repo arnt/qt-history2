@@ -56,9 +56,10 @@ void MainWindow::openImage(const QString &fileName)
     QImage image;
 
     if (image.load(fileName)) {
+        ImageModel *newModel = new ImageModel(image);
+        view->setModel(newModel);
         delete model;
-        model = new ImageModel(image);
-        view->setModel(model);
+        model = newModel;
         setWindowTitle(tr("%1 - %2").arg(fileName).arg(tr("Pixelator")));
 
         printAction->setEnabled(true);
