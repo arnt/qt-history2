@@ -530,7 +530,9 @@ protected:
     virtual void polishEvent(QEvent *);
 
     virtual void inputMethodEvent(QInputMethodEvent *);
+public:
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery) const;
+protected:
 
 #if defined(Q_WS_MAC)
     virtual bool macEvent(EventHandlerCallRef, EventRef);
