@@ -4268,6 +4268,7 @@ void QListView::doAutoScroll()
 
 void QListView::focusInEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     if ( d->focusItem )
 	repaintItem( d->focusItem );
     else if ( firstChild() && e->reason() != QFocusEvent::Mouse ) {
@@ -4297,6 +4298,7 @@ void QListView::focusInEvent( QFocusEvent *e )
 
 void QListView::focusOutEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	if ( e->reason() != QFocusEvent::Popup ) {
 	    bool db = d->useDoubleBuffer;

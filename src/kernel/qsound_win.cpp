@@ -88,6 +88,7 @@ void QAuServerWindows::play(QSound* s)
 void QAuServerWindows::stop(QSound* s)
 {
     // something needs to be done here...
+    Q_UNUSED(s)
 }
 
 bool QAuServerWindows::okay()

@@ -779,6 +779,7 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 
 void QLineEdit::focusInEvent( QFocusEvent * e)
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     d->cursorOn = FALSE;
     blinkOn();
     if ( e->reason() == QFocusEvent::Tab || e->reason() == QFocusEvent::Backtab )
@@ -793,6 +794,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
 
 void QLineEdit::focusOutEvent( QFocusEvent * e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     if ( e->reason() != QFocusEvent::ActiveWindow
 	 && e->reason() != QFocusEvent::Popup )
 	deselect();

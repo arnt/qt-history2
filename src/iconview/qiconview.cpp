@@ -411,6 +411,7 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 
 void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     if ( e->reason() != QFocusEvent::Popup )
 	item->cancelRenameItem();
 }
@@ -4875,6 +4876,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 
 void QIconView::focusInEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     d->mousePressed = FALSE;
     if ( d->currentItem )
 	repaintItem( d->currentItem );
@@ -4902,6 +4904,7 @@ void QIconView::focusInEvent( QFocusEvent *e )
 
 void QIconView::focusOutEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     if ( d->currentItem )
 	repaintItem( d->currentItem );
 

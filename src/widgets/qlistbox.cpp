@@ -2459,6 +2459,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 */
 void QListBox::focusInEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
     if ( e->reason() != QFocusEvent::Mouse && !d->current && d->head ) {
@@ -2507,6 +2508,7 @@ void QListBox::focusInEvent( QFocusEvent *e )
 */
 void QListBox::focusOutEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	if ( e->reason() != QFocusEvent::Popup ) {
 	    if ( d->numColumns == 1 ) {

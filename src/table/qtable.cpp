@@ -3519,6 +3519,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 
 void QTable::focusInEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	if ( e->reason() != QFocusEvent::Popup ) {
 	    repaintSelections();
@@ -3539,6 +3540,7 @@ void QTable::focusInEvent( QFocusEvent *e )
 
 void QTable::focusOutEvent( QFocusEvent *e )
 {
+    Q_UNUSED(e) // I need this to get rid of a Borland warning
     if ( e->reason() != QFocusEvent::Popup && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
 	repaintSelections();
 }

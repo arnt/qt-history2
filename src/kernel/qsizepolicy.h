@@ -105,8 +105,8 @@ public:
 
     uint horStretch() const { return data >> 24; }
     uint verStretch() const { return (data >> 16) & 0xff; }
-    void setHorStretch( uchar sf ) { data = (data&0x00ffffff) | uint(sf)<<24; }
-    void setVerStretch( uchar sf ) { data = (data&0xff00ffff) | uint(sf)<<16; }
+    void setHorStretch( uchar sf ) { data = (data&0x00ffffff) | (uint(sf)<<24); }
+    void setVerStretch( uchar sf ) { data = (data&0xff00ffff) | (uint(sf)<<16); }
 
 private:
     QSizePolicy( int i ): data( (Q_UINT32)i ) {}

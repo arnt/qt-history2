@@ -4717,7 +4717,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 		break;
 	    b = buf24;
 	    while ( p < end ) {
-		c = *(uchar*)b | *(uchar*)(b+1)<<8;
+		c = *(uchar*)b | (*(uchar*)(b+1)<<8);
 		if (nbits != 16)
 		    c |= *(uchar*)(b+2)<<16;
 		*p++ = qRgb(((c & red_mask) >> red_shift) * red_scale,

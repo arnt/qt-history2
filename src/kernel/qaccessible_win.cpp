@@ -325,14 +325,14 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfoCount( unsigned int * p
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int itinfo, unsigned long lcid, ITypeInfo **pptinfo )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int, unsigned long, ITypeInfo **pptinfo )
 {
     // We don't use a type library
     *pptinfo = NULL;
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &riid, wchar_t **rgszNames, unsigned int cNames, unsigned long lcid, long *rgdispid )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * )
 {
 #ifndef Q_CC_BOR
     // PROPERTIES:  Hierarchical
@@ -387,7 +387,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &riid, 
 #endif
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke( long dispIdMember, const _GUID &riid, unsigned long lcid, unsigned short wFlags, tagDISPPARAMS *pDispParams, tagVARIANT *pVarResult, tagEXCEPINFO *pExcepInfo, unsigned int *puArgErr )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke( long dispIdMember, const _GUID &, unsigned long, unsigned short wFlags, tagDISPPARAMS *pDispParams, tagVARIANT *pVarResult, tagEXCEPINFO *, unsigned int * )
 { 
     HRESULT hr = DISP_E_MEMBERNOTFOUND;
 
@@ -755,7 +755,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *
     return S_FALSE;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelpTopic( BSTR *pszHelpFile, VARIANT varChild, long *pidTopic )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelpTopic( BSTR *, VARIANT, long * )
 { 
     return DISP_E_MEMBERNOTFOUND;
 }
@@ -790,7 +790,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accName( VARIANT varID, BSTR* 
     return S_FALSE;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accName( VARIANT varID, BSTR szName )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accName( VARIANT, BSTR )
 { 
     return DISP_E_MEMBERNOTFOUND;
 }
@@ -835,7 +835,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accValue( VARIANT varID, BSTR*
     return S_FALSE;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accValue( VARIANT varChild, BSTR szValue )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accValue( VARIANT, BSTR )
 { 
     return DISP_E_MEMBERNOTFOUND;
 }
