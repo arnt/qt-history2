@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#14 $
 **
 ** Implementation of QFont and QFontMetrics classes for X11
 **
@@ -23,14 +23,14 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#14 $";
 #endif
 
 
-#define DEBUG_FONT
+// #define DEBUG_FONT
 static const int fontFields = 14;
 
-enum FontFieldNames {   Foundry,                // !!!hanord: Enum har stor forbokstav, f.eks. FontFieldNames (qX.. er for globale funksjoner)
+enum FontFieldNames {   Foundry,
                         Family,
                         Weight_,
                         Slant,
@@ -45,7 +45,7 @@ enum FontFieldNames {   Foundry,                // !!!hanord: Enum har stor forb
                         CharsetRegistry,
                         CharsetEncoding };
 
-bool      qParseXFontName ( QString &fontName, char **tokens ); // !!!hanord: parseXFontName
+bool      parseXFontName ( QString &fontName, char **tokens );
 QString   bestFitFamily   ( const  QString &s );
 char    **getXFontNames   ( const  char *pattern, int *count );
 bool      smoothlyScalable( const char *fontName );
@@ -66,7 +66,7 @@ public:
 #define PRIV ((QFont_Private*)this)
 
 
-bool qParseXFontName( QString &fontName, char **tokens )
+bool parseXFontName( QString &fontName, char **tokens )
 {
     if ( fontName.isEmpty() || fontName[0] != '-' ) {
         tokens[0] = 0;
@@ -312,7 +312,7 @@ int QFont_Private::fontMatchScore( char  *fontName, QString &buffer,
     *pointSizeDiff = 0;
 
     strcpy( buffer.data(), fontName );    // Note! buffer must be large enough
-    if ( !qParseXFontName( buffer, tokens ) )
+    if ( !parseXFontName( buffer, tokens ) )
         return 0;   // Name did not conform to X Logical Font Description
 
 //    debug( "parsed: [%s]",fontName );
@@ -502,7 +502,7 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 
             best.score = bestScalable.score;
             strcpy( matchBuffer.data(), bestScalable.name );
-            if ( qParseXFontName( matchBuffer, tokens ) ) {
+            if ( parseXFontName( matchBuffer, tokens ) ) {
                 bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-75-75-%s-*-%s-%s",
                                   tokens[Foundry],
                                   tokens[Family],
@@ -807,11 +807,34 @@ QFontMetrics::QFontMetrics( const QFont &font )
     data->dirty = TRUE;
 }
 
+QFontMetrics::QFontMetrics( const QFontMetrics &fm )
+{
+    data = fm.data;
+    data->ref();
+}
+
 QFontMetrics::~QFontMetrics()
 {
     if ( data->deref() )
 	delete data;
 }
+
+QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
+{
+    fm.data->ref();
+    if ( data->deref() )
+	delete data;
+    data = fm.data;
+    return *this;
+}
+
+
+QFontMetrics QFontMetrics::copy() const
+{
+    QFontMetrics fm( *f );
+    return fm;
+}
+
 
 int QFontMetrics::ascent() const
 {
@@ -871,7 +894,7 @@ void QFontMetrics::updateData( ) const
     QString buffer( 255 );       // Used to hold parsed X font name
 
     buffer = f->data->xFontName.copy();
-    if ( !qParseXFontName( buffer, tokens ) ) {
+    if ( !parseXFontName( buffer, tokens ) ) {
 #if defined(DEBUG_FONT)
         debug("QFontMetrics::updateData: Internal error, reseting font data");
         debug("{%s}", f->data->xFontName.data() );

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#5 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#6 $
 **
 ** Definition of QFontMetrics class
 **
 ** Author  : Haavard Nord
 ** Created : 940514
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,11 @@ class QFontMetrics
 public:
     QFontMetrics();
     QFontMetrics( const QFont & );
-    ~QFontMetrics();
+    QFontMetrics( const QFontMetrics & );
+   ~QFontMetrics();
+    QFontMetrics &operator=( const QFontMetrics & );
+
+    QFontMetrics	copy() const;
 
     int			ascent()	const;
     int			descent()	const;
@@ -30,7 +34,7 @@ public:
     int			width( const char *, int len = -1 ) const;
     int			width( char ) const;
 
-    void		setFont( const QFont &);
+    void		setFont( const QFont & );
     QFont	       *font();
 
     const char	       *family()	const;
@@ -45,9 +49,8 @@ public:
 
 private:
     void		updateData()	const;
-
-    QFontData	     *data;
-    const QFont	     *f;
+    QFontData	       *data;
+    const QFont	       *f;
 };
 
 
