@@ -13,39 +13,26 @@
 #include <qprinter.h>
 #include <qpaintdevicemetrics.h>
 
-//#define CPP_EDITOR
-//#define SPELL_CHECKER
-#define TEST_BIDI
-
-#if defined(CPP_EDITOR) || defined(SPELL_CHECKER)
-#define QTEXTEDIT_OPEN_API
-#endif
+//#define TEST_BIDI
+//#define TEST_TEXTBROWSER
+#define TEST_TEXTFLOW
 
 #include "qtextbrowser.h"
 #include "qtextview.h"
 #include "qtextedit.h"
 #include "qsimplerichtext.h"
 
-#if defined(QTEXTEDIT_OPEN_API)
-
-#if defined(CPP_EDITOR)
-#include "qcppsyntaxhighlighter.h"
-#endif
-
-#if defined(SPELL_CHECKER)
-#include "qspellchecker.h"
-#endif
-
-#endif
+QString srtFile = "/home/reggie/troll/qt-main/doc/html/qlabel.html";
 
 class SimpleText : public QWidget
 {
 public:
     SimpleText() : QWidget() {
-	QFile f( "/home/reggie/tmp/release/qt-2.2.0/doc/html/qcheckbox.html" );
+	QFile f( srtFile );
 	f.open( IO_ReadOnly );
 	QTextStream ts( &f );
-	s = new QSimpleRichText( ts.read(), QApplication::font(), "/home/reggie/tmp/release/qt-2.2.0/doc/html/qcheckbox.html" ); }
+	s = new QSimpleRichText( ts.read(), QApplication::font(), srtFile );
+    }
 protected:
     void paintEvent( QPaintEvent *e ) {
 	QPainter p( this );
@@ -66,13 +53,15 @@ protected:
 		       metrics.width()-margin*dpix/72*2,
 		       metrics.height()-margin*dpiy/72*2 );
 	    QFont font("times", 10);
-	    QFile f( "/home/reggie/tmp/release/qt-2.2.0/doc/html/qcheckbox.html" );
+	    QFile f( srtFile );
 	    f.open( IO_ReadOnly );
 	    QTextStream ts( &f );
 	    QSimpleRichText richText( ts.read(), QFont( "times", 10 ),
-				      "/home/reggie/tmp/release/qt-2.2.0/doc/html/qcheckbox.html", QStyleSheet::defaultSheet(),
+				      srtFile, QStyleSheet::defaultSheet(),
 				      QMimeSourceFactory::defaultFactory(), body.height() );
+	    qDebug( "set w" );
 	    richText.setWidth( &p, body.width() );
+	    qDebug( "over" );
 	    QRect view( body );
 	    int page = 1;
 	    do {
@@ -86,7 +75,9 @@ protected:
 		    break;
 		printer.newPage();
 		page++;
+		qDebug( "set w2" );
 		richText.setWidth( &p, body.width() );
+		qDebug( "over2" );
 	    } while (TRUE);
 	}
     }
@@ -101,7 +92,6 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow() {
-#ifndef CPP_EDITOR
 	lock = TRUE;
 	QFontDatabase db;
 	tb = new QToolBar( this );
@@ -203,9 +193,6 @@ public:
 	save = new QPushButton( "Save HTML", tb );
 	connect( save, SIGNAL( clicked() ),
 		 this, SLOT( saveClicked() ) );
-#else
-	tb = 0;
-#endif
 	
     }
 
@@ -221,7 +208,6 @@ public:
 
 private slots:
     void familyChanged( const QString &f ) {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -229,10 +215,8 @@ private slots:
 	lock = FALSE;
 	lock = FALSE;
 	edit->viewport()->setFocus();
-#endif
     }
     void sizeChanged( const QString &s ) {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -240,38 +224,30 @@ private slots:
 	lock = FALSE;
 	lock = FALSE;
 	edit->viewport()->setFocus();
-#endif
     }
     void boldChanged( int state ) {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
 	edit->setBold( state == 2 );
 	lock = FALSE;
 	lock = FALSE;
-#endif
     }
     void italicChanged( int state ) {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
 	edit->setItalic( state == 2 );
 	lock = FALSE;
-#endif
     }
     void underlineChanged( int state ) {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
 	edit->setUnderline( state == 2 );
 	lock = FALSE;
-#endif
     }
     void changeColor() {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -281,55 +257,43 @@ private slots:
 	    colorChanged( col );
 	}
 	lock = FALSE;
-#endif
     }
     void leftChanged( int state ) {
-#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignLeft );
 	lock = FALSE;
-#endif
     }
     void centerChanged( int state ) {
-#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignHCenter );
 	lock = FALSE;
-#endif
     }
     void rightChanged( int state ) {
-#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignRight );
 	lock = FALSE;
-#endif
     }
     void justifyChanged( int state ) {
-#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignJustify );
 	lock = FALSE;
-#endif
     }
     void autoChanged( int state ) {
-#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignAuto );
 	lock = FALSE;
-#endif
     }
     void styleChanged( int i ) {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -349,12 +313,10 @@ private slots:
  	    edit->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListUpperAlpha );
 	lock = FALSE;
 	edit->viewport()->setFocus();
-#endif
     }
 
 
     void fontChanged( const QFont &f ) {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -364,19 +326,15 @@ private slots:
 	fontCombo->lineEdit()->setText( f.family() );
 	sizeCombo->lineEdit()->setText( QString::number( f.pointSize() ) );
 	lock = FALSE;
-#endif
     }
 
     void colorChanged( const QColor &c ) {
-#ifndef CPP_EDITOR
 	QPixmap pix( 16, 16 );
 	pix.fill( c );
 	color->setPixmap( pix );
-#endif
     }
 
     void alignChanged( int a ) {
-#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -386,14 +344,11 @@ private slots:
 	justify->setOn( a == Qt::AlignJustify );
 	aauto->setOn( a == Qt::AlignAuto );
 	lock = FALSE;
-#endif
     }
 
     void saveClicked() {
-#ifndef CPP_EDITOR
 	edit->setTextFormat( Qt::RichText );
 	edit->save( QString( "test.html" ) );
-#endif
     }
 
 private:
@@ -414,7 +369,7 @@ int main( int argc, char ** argv )
     a.setFont( fnt );
     MainWindow mw;
 
-#ifdef TEST_BIDI
+#if defined(TEST_BIDI)
     QString fn = "bidi.txt";
     if ( argc > 1 )
 	fn = argv[ 1 ];
@@ -428,7 +383,8 @@ int main( int argc, char ** argv )
     ed.setText( text );
     mw.setCentralWidget( &ed );
     mw.setEdit( &ed );
-#else
+#endif
+    
     QString fn = "qtextedit.cpp";
     if ( argc > 1 )
 	fn = argv[ 1 ];
@@ -436,39 +392,25 @@ int main( int argc, char ** argv )
 	fn = "qtextedit.cpp";
 
 
-#ifndef CPP_EDITOR
+#if !defined(TEST_TEXTFLOW)
     QTextEdit ed( &mw );
     ed.load( fn );
     mw.setCentralWidget( &ed );
     mw.setEdit( &ed );
-#if defined(SPELL_CHECKER)
-    ed.document()->setSyntaxHighlighter( new QSpellChecker );
-#endif
-#else
-    QTextEdit ed( &mw );
-    ed.load( fn, TRUE );
-    ed.document()->setPreProcessor( new QCppSyntaxHighlighter );
-    ed.document()->setIndent( new QCppIndent );
-    ed.document()->setParenCheckingEnabled( TRUE );
-    ed.document()->setCompletionEnabled( TRUE );
-    mw.setCentralWidget( &ed );
-    ed.document()->setFormatter( new QTextFormatterBreakInWords );
-    ed.setHScrollBarMode( QScrollView::AlwaysOff );
-    ed.setVScrollBarMode( QScrollView::AlwaysOn );
-    mw.setEdit( &ed );
-#endif
-#endif
 
     ed.viewport()->setFocus();
-
+#endif
+    
     a.setMainWidget( &mw );
     mw.resize( 650, 700 );
     mw.show();
-#if 0
+#if defined(TEST_TEXTFLOW)
     SimpleText t;
     t.resize ( 100, 100 );
     t.show();
-
+#endif
+    
+#if defined(TEST_TEXTBROWSER)
     QTextBrowser b;
     ( (QMimeSourceFactory*)b.mimeSourceFactory() )->setFilePath( "/home/reggie/tmp/release/qt-2.2.0/doc/html" );
     b.setSource( "qcheckbox.html" );
