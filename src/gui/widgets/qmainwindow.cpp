@@ -349,15 +349,11 @@ void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow
 {
     Q_ASSERT_X(dockwindow->isDockable(area),
                "QMainWindow::addDockWindow", "specified 'area' is not an allowed area");
-    Qt::Orientation orientation;
+    Qt::Orientation orientation = Qt::Horizontal;
     switch (area) {
     case Qt::DockWindowAreaLeft:
     case Qt::DockWindowAreaRight:
         orientation = Qt::Vertical;
-        break;
-    case Qt::DockWindowAreaTop:
-    case Qt::DockWindowAreaBottom:
-        orientation = Qt::Horizontal;
         break;
     default:
         break;
@@ -392,6 +388,7 @@ void QMainWindow::splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
                                   Qt::Orientation orientation)
 {
     Qt::DockWindowArea area = dockWindowArea(after);
+    Q_UNUSED(area);
     Q_ASSERT_X(dockwindow->isDockable(area),
                "QMainWindow::splitDockWindow", "specified 'area' is not an allowed area");
     d->layout->splitDockWindow(after, dockwindow, orientation);
