@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#148 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#149 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -24,6 +24,7 @@
 
 #define	 QSTRING_C
 #include "qstring.h"
+#include "qregexp.h"
 #include "qdatastream.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -628,11 +629,11 @@ QString::QString( const QString &s ) :
 }
 
 /*!
-  Constructs a string with room for \e size characters, including the
-  '\0'-terminator.  Makes a null string if \e size == 0.
+  This function is \e strongly deprecated.
 
-  If \e size \> 0, then the first and last characters in the string are
-  initialized to '\0'.	All other characters are uninitialized.
+  Constructs a string with preallocated space for \a size - 1 characters.
+
+  The string is empty.
 
   \sa resize(), isNull()
 */
@@ -696,12 +697,14 @@ QString::QString( const char *str )
 
 
 /*!
+  \obsolete
+
   Constructs a string that is a deep copy of \e str, that is at most
-  \a maxlen characters long.
+  \a maxlen - 1 characters long.
 
   Example:
   \code
-    QString str("helloworld",6); // Assigns "hellow" to str.
+    QString str("helloworld",6); // Assigns "hello" to str.
   \endcode
 
   If \a str contains a 0 byte within the first \a maxlen bytes, the
@@ -715,7 +718,7 @@ QString::QString( const char *str, uint maxlen )
 {
     Q2HELPER(stat_construct_charstar++);
     uint l;
-    QChar *uc = asciiToUnicode(str,l,maxlen);
+    QChar *uc = asciiToUnicode(str,l,maxlen-1); // Stupid backward-compat
     d = new Data(uc,l,l);
 }
 
@@ -893,46 +896,173 @@ void QString::setLength( uint len )
 }
 
 /*!
-  Implemented as a call to the native vsprintf() (see your C-library
-  manual).
+  Safely builds a formatted string from a format string and an
+  arbitrary list of arguments.  The format string supports all
+  the escape sequences of printf() in the standard C library.
 
-  If your string is shorter than 256 characters, this sprintf() calls
-  resize(256) to decrease the chance of memory corruption.  The string is
-  resized back to its natural length before sprintf() returns.
+  \b Note that this function offers no Unicode support.  For typesafe
+  string building, with full Unicode support, use QTextOStream like
+  this:
+  \code
+    int x = ...;
+    QString y = ...;
+    QTextOStream(str) << x << " - " << y;
+  \endcode
+
+  rather than
 
   Example:
   \code
-    QString s;
-    s.sprintf( "%d - %s", 1, "first" );		// result < 256 chars
-
-    QString big( 25000 );			// very long string
-    big.sprintf( "%d - %s", 2, longString );	// result < 25000 chars
+    int x = ...;
+    QString y = ...;
+    str.sprintf("%d - %s", x, y.ascii());
   \endcode
-
-  \warning All vsprintf() implementations will write past the end of
-  the target string (*this) if the format specification and arguments
-  happen to be longer than the target string, and some will also fail
-  if the target string is longer than some arbitrary implementation
-  limit.
-
-  Giving user-supplied arguments to sprintf() is begging for trouble.
-  Sooner or later someone \e will paste a 3000-character line into
-  your application.
 */
 
-QString &QString::sprintf( const char *format, ... )
+QString &QString::sprintf( const char* cformat, ... )
 {
     va_list ap;
-    va_start( ap, format );
-    uint alen = QMAX(256,length());
-    char* ascii = new char[alen];
-    vsprintf( ascii, format, ap );
-    *this = ascii;
-    delete [] ascii;
+    va_start( ap, cformat );
+
+    if ( !cformat ) {
+	// Qt 1.x compat
+	*this = "";
+	return *this;
+    }
+    QString format = cformat;
+
+    static QRegExp escape("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?");
+
+    QString result;
+    int last=0;
+
+    int len=0;
+    int pos=-1;
+    while ( 1 ) {
+	pos=escape.match( format, last, &len );
+	// Non-escaped text
+	if ( pos > last ) {
+	    result += format.mid(last,pos-last);
+//debug("%d UNESCAPED from %d = %s",pos-last,last,format.mid(last,pos-last).ascii());
+	}
+	if ( pos < 0 ) {
+	    // The rest
+//debug("THE REST = %s",format.mid(last).ascii());
+	    if ( last < format.length() )
+		result += format.mid(last);
+	    break;
+	}
+	last = pos + len + 1;
+
+	// Escape
+	QString f = format.mid(pos,len);
+//debug("fmt=%s",f.ascii());
+	uint width, decimals;
+	int params=0;
+	int wpos = f.find('*');
+	if ( wpos >= 0 ) {
+	    params++;
+	    width = va_arg(ap, int);
+//debug("pwidth=%d",width);
+	    if ( f.find('*',wpos+1) >= 0 ) {
+		decimals = va_arg(ap, int);
+//debug("pdec=%d",decimals);
+		params++;
+	    } else {
+		decimals = 0;
+	    }
+	} else {
+	    decimals = width = 0;
+	}
+	QString replacement;
+	if ( format[pos+len] == 's' ||
+	     format[pos+len] == 'S' ||
+	     format[pos+len] == 'c' )
+	{
+	    bool rightjust = ( f.find('-') >= 0 );
+//if ( rightjust ) debug("rightjust");
+
+	    if ( wpos < 0 ) {
+		QRegExp num("[0-9]+");
+		int nlen;
+		int p = num.match(f,0,&nlen);
+		if ( p >= 0 ) {
+		    width = f.mid(p,nlen).toInt();
+		    /* not used
+		    p = num.match(f,p+1,&nlen);
+		    if ( p >= 0 ) {
+			decimals = f.mid(p,nlen).toInt();
+		    }
+		    */
+		}
+	    }
+
+	    if ( format[pos+len] == 's' ) {
+		QString s = va_arg(ap, char*);
+		replacement = s;
+	    /*
+	    } else if ( format[pos+len] == 'S' ) {
+		QString *s = va_arg(ap, QString*);
+		replacement = *s;
+	    */
+	    } else {
+		int ch = va_arg(ap, int);
+		replacement = QChar((ushort)ch);
+	    }
+	    if ( replacement.length() < width ) {
+		replacement = rightjust
+		    ? replacement.rightJustify(width)
+		    : replacement.leftJustify(width);
+	    }
+//debug("rep=%s",replacement.ascii());
+	} else if ( format[pos+len] == '%' ) {
+	    replacement = "%";
+	} else if ( format[pos+len] == 'n' ) {
+	    int* n = va_arg(ap, int*);
+	    *n = result.length();
+	} else {
+	    char in[64], out[128];
+	    strncpy(in,f,63);
+	    char fch = format[pos+len];
+	    in[f.length()] = fch;
+	    switch ( fch ) {
+	      case 'd': case 'i': case 'o': case 'u': case 'x': case 'X': {
+		int value = va_arg(ap, int);
+		switch (params) {
+		  case 0: ::sprintf( out, in, value ); break;
+		  case 1: ::sprintf( out, in, width, value ); break;
+		  case 2: ::sprintf( out, in, width, decimals, value ); break;
+		}
+	      } break;
+	      case 'e': case 'E': case 'f': case 'g': {
+		double value = va_arg(ap, double);
+		switch (params) {
+		  case 0: ::sprintf( out, in, value ); break;
+		  case 1: ::sprintf( out, in, width, value ); break;
+		  case 2: ::sprintf( out, in, width, decimals, value ); break;
+		}
+	      } break;
+	      case 'p': {
+		void* value = va_arg(ap, void*);
+		switch (params) {
+		  case 0: ::sprintf( out, in, value ); break;
+		  case 1: ::sprintf( out, in, width, value ); break;
+		  case 2: ::sprintf( out, in, width, decimals, value ); break;
+		}
+	      } break;
+	    }
+//debug("  %s -> %s",in,out);
+	    replacement = out;
+	}
+//debug("%s%c -> %s",f.ascii(),(char)format[pos+len],replacement.ascii());
+	result += replacement;
+//debug("now %s",result.ascii());
+    }
+    *this = result;
+
     va_end( ap );
     return *this;
 }
-
 
 /*!
   Fills the string with \e len characters of value \e c.
