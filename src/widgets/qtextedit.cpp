@@ -3697,12 +3697,12 @@ void QTextEdit::append( const QString &text )
 	cursor->gotoEnd();
 	if ( cursor->index() > 0 )
 	    cursor->splitAndInsertEmptyParag();
- 	cursor->insert( text, TRUE );
-	*cursor = oldc;
+  	cursor->insert( text, TRUE );
 	formatMore();
 	repaintChanged();
 	ensureCursorVisible();
 	drawCursor( TRUE );
+ 	*cursor = oldc;
 	if ( !scrollToEnd )
 	    blockEnsureCursorVisible = FALSE;
 	emit textChanged();
