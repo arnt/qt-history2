@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#17 $
 **
 ** Implementation of QRegion class
 **
@@ -14,7 +14,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#17 $");
 
 
 /*!
@@ -213,7 +213,7 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
 
 
 // OBSOLETE
-#if !(defined(__STRICT_ANSI__) && defined(_CC_GNU_)) && !defined(_CC_EDG_) && !defined(_CC_HP_) && !defined(xor)
+#if !(defined(__STRICT_ANSI__) && defined(_CC_GNU_)) && !defined(_CC_EDG_) && !defined(_CC_HP_) && !defined(_CC_HP_ACC_) && !defined(xor)
 /*!
   OBSOLETE - Use eor() instead.
 */
