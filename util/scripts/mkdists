@@ -1,13 +1,17 @@
 #!/bin/bash
 
+#internal variables
+CREATED_MANIFEST=no
+TMP_DIR=/tmp
+TMP_FILE=${TMP_DIR}/qt-tmpf-$$
+
 #version info
 REL_VERSION=0.0.0
-BRANCH=
+BRANCH=auto
 #paths
 OUT_TREE=`pwd`
 LOCAL_TREE=
 QDOC_PATH=$QTDIR/util/qdoc/qdoc
-TMP_FILE=/tmp/qt-tmpf-$$
 MANIFEST_FILE=${TMP_FILE}-manifest
 #editions
 DO_PROFESSIONAL=yes
@@ -22,9 +26,6 @@ DO_QWS=yes
 DO_GZIP=auto
 DO_ID=auto
 DO_DOC=auto
-
-#internal variables
-CREATED_MANIFEST=no
 
 die()
 {
@@ -44,15 +45,25 @@ status() {
 #parse commandline
 showhelp()
 {
-    [ ! -z "$1" ] && echo "******** Unknown Option: $1 ********"
+    [ "$#" != 0 ] && [ ! -z "$1" ] && echo "******** Unknown Option: $@ ********"
     echo "$0 [options]"
     echo
     echo "Options can be any of:"
     echo
 
+    echo "P4 Versions:"
+    echo "  -local <directory> : Specify path to pre-p4'd depot"
+    echo "  -version <version> : What version to retrieve from p4"
+    echo "  -branch  <branch>  : What branch to retrieve from. If this"
+    echo "                       option is ommited, it will be deduced from"
+    echo "                       -version"
+    echo "  :   -version and -local are mutually exclusive, if you :"
+    echo "  :   specify -version you may also specify -branch      :"
+    echo "  :   do not use -branch with -local                     :"
+    echo
+
     echo "Paths:"
     echo "  -manifest <file>     : Specify path to manifest file (will create)"
-    echo "  -local <directory>   : Specify path to pre-p4'd depot"
     echo "  -outdir <directory>  : Where to put all things (default $OUT_TREE)"
     echo "  -qdoc <executable>   : Where qdoc lives (default $QDOC_PATH)"
     echo
@@ -93,6 +104,11 @@ while [ -n "$1" ]; do
        VAR=version
        VAL=$1
        ;;
+   -branch)
+       shift
+       VAR=branch
+       VAL=$1
+       ;;
    -help)
        showhelp
        ;;
@@ -124,7 +140,7 @@ while [ -n "$1" ]; do
 	VAL=`echo $1 | sed "s,^--.*=\(.*\)$,\1,"`
 	;;
    *)
-	showhelp $1
+	showhelp "$1"
 	;;
    esac
    shift
@@ -145,21 +161,20 @@ while [ -n "$1" ]; do
    manifest) MANIFEST_FILE=$VAL;;
    local)
        [ -d "$VAL" ] || die "Unknown directory: $VAL"
-       BRANCH="0.0.0"
        LOCAL_TREE=$VAL
        ;;
    #versioning
+   branch) BRANCH=$VAL ;;
    version)
        expr "$VAL" : ".*\.\d*" >/dev/null 2>&1 || die "Can't figure out version from $VAL"
        REL_VERSION=$VAL
-       BRANCH=`echo $VAL | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
        LABEL="qt/$VAL" 
        ;;
    #other
    doc) DO_DOC=$VAL ;;
    gzip)DO_GZIP=$VAL;;
    id) DO_ID=$VAL   ;;
-   *) echo "Unknown flag: --${VAR}=$VAL" ;;
+   *) showhelp "--${VAR}=$VAL" ;;
    esac
 done
 #make sure everything is in order before bothering..
@@ -189,12 +204,18 @@ if [ "$DO_GZIP" = "auto" ]; then
 	DO_GZIP=no
     fi
 fi
+if [ "$BRANCH" = "auto" ]; then
+    if [ ! -z "$LOCAL_TREE" ]; then
+       BRANCH="0.0.0"
+    else
+       BRANCH=`echo "$REL_VERSION" | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
+    fi
+fi
 
-BRANCH="main"
 BRANCH_DIGITS=`echo $BRANCH | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
 MYNAME=`whoami`
 [ -z $MYNAME ] && MYNAME="shellssuck"
-DISTDIR="/tmp/qt-$BRANCH-$MYNAME-$$"
+DISTDIR="${TMP_DIR}/qt-$BRANCH-$MYNAME-$$"
 
 #Checkout P4
 if [ -z $LOCAL_TREE ]; then
@@ -211,8 +232,8 @@ if [ -z $LOCAL_TREE ]; then
     status "Exporting the entire Qt depot $checkoutlabel..";
 
     tmpclient="qt-release-tmp-$MYNAME";
-    p4 client -t qt-release-3x -o $tmpclient >/tmp/tmp_file
-    sed /tmp/tmp_file -e "s,^Root:.*,Root: $DISTDIR," -e "s,/qt/X.Y/,/qt/$BRANCH/,g" \
+    p4 client -t qt-release-3x -o $tmpclient >${TMP_FILE}
+    sed ${TMP_FILE} -e "s,^Root:.*,Root: $DISTDIR," -e "s,/qt/X.Y/,/qt/$BRANCH/,g" \
 	    -e "s,^\(Client: \).*,\1qt-release-tmp-$$," -e "s,\bnomodtime\b,modtime," | \
       p4 -s client -i >/dev/null 2>&1
 
@@ -530,12 +551,15 @@ for plat in mac win x11 qws; do
 
     PLAT_RM_FILE=${TMP_FILE}-plat-${plat}
     for edition in enterprise professional free; do
+	dist_for_edition=$edition
 	case $edition in
 	enterprise)
 	    [ "x$DO_ENTERPRISE" = "xyes" ] || continue 
+	    dist_for_edition="commercial"
 	    ;;
 	professional)
 	    [ "x$DO_PROFESSIONAL" = "xyes" ] || continue 
+	    dist_for_edition="commercial"
 	    ;;
 	free)
 	    { [ "$plat" != "qws" ] && [ "$plat" != "x11" ]; } || [ "x$DO_FREE" != "xyes" ] && continue
@@ -644,10 +668,8 @@ for plat in mac win x11 qws; do
 	fi
 
 	#copy the platform dist stuff
-	copy_platform_files "$platformname" $plat $PLATDIR
-	ddir="commercial"
-	[ "$edition" = "free" ] && ddir="free"
-	copy_platform_files "$ddir" $plat $PLATDIR
+	copy_platform_files "$platformname" $plat $PLATDIR #platform specific
+	copy_platform_files "$dist_for_edition" $plat $PLATDIR #edition specific
 
 	#remove platform specific files that don't belong
 	status "Final cleanup.."
