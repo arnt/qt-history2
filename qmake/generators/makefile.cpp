@@ -1865,7 +1865,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	}
 
 	if(!target.isEmpty()) {
-	    t << "install_" << (*it) << ": ";
+	    t << "install_" << (*it) << ": all ";
 	    const QStringList &deps = project->variables()[(*it) + ".depends"];
 	    if(!deps.isEmpty()) {
 		for(QStringList::ConstIterator dep_it = deps.begin(); dep_it != deps.end(); ++dep_it) {
@@ -1902,7 +1902,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	    debug_msg(1, "no definition for install %s: install target not created",(*it).latin1());
 	}
     }
-    t << "install: all " << all_installs << " " << var("INSTALLDEPS")   << "\n\n";
+    t << "install: " << all_installs << " " << var("INSTALLDEPS")   << "\n\n";
     t << "uninstall: " << all_uninstalls << " " << var("UNINSTALLDEPS") << "\n\n";
 }
 
