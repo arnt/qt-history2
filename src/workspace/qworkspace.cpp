@@ -2123,17 +2123,17 @@ QWidget* QWorkspaceChild::iconWidget() const
 
 void QWorkspaceChild::showMinimized()
 {
-    QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMinimized ) );
+    windowWidget()->setWindowState(WindowMinimized | windowWidget()->windowState());
 }
 
 void QWorkspaceChild::showMaximized()
 {
-    QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMaximized ) );
+    windowWidget()->setWindowState(WindowMaximized | (windowWidget()->windowState() & ~WindowMinimized));
 }
 
 void QWorkspaceChild::showNormal()
 {
-    QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowNormal ) );
+    windowWidget()->setWindowState(windowWidget()->windowState() & ~(WindowMinimized|WindowMaximized));
 }
 
 void QWorkspaceChild::showShaded()
