@@ -2925,16 +2925,19 @@ FormWindow* MainWindow::insertFormWindow( int type )
 	fw->setMainContainer( w );
     }
 
+    fw->setCaption( n );
+    fw->resize( 600, 480 );
+    MetaDataBase::addEntry( fw );
+    insertFormWindow( fw );
+
     TemplateWizardInterface *iface = templateWizardInterface( fw->mainContainer()->className() );
     if ( iface ) {
 	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), fw->iFace(), desInterface );
 	iface->release();
     }
 
-    fw->setCaption( n );
-    fw->resize( 600, 480 );
-    MetaDataBase::addEntry( fw );
-    insertFormWindow( fw );
+    actionEditor->setFormWindow( fw );
+
     return fw;
 }
 
