@@ -587,10 +587,15 @@ private:
 bool UiHandler::startElement( const QString& /* namespaceURI */,
 			      const QString& /* localName */,
 			      const QString& qName,
-			      const QXmlAttributes& /* atts */ )
+			      const QXmlAttributes& atts )
 {
-    if ( qName == QString("string") )
+    if ( qName == QString("item") ) {
 	flush();
+	if ( !atts.value(QString("text")).isEmpty() )
+	    source = atts.value( QString("text") );
+    } else if ( qName == QString("string") ) {
+	flush();
+    }
     accum.truncate( 0 );
     return TRUE;
 }
