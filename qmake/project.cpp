@@ -1444,7 +1444,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     QStack<ScopeBlock> sc = scope_blocks;
     bool parsed = false;
     if(!seek_var.isNull()) {
-        QMap<QString, QStringList> tmp;
+        QMap<QString, QStringList> tmp = place;
         if((parsed = read(file.toLatin1().constData(), tmp)))
             place[seek_var] += tmp[seek_var];
     } else {
@@ -1613,7 +1613,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             QString file = args[0], seek_var = args[1];
             file = Option::fixPathToLocalOS(file);
 
-            QMap<QString, QStringList> tmp;
+            QMap<QString, QStringList> tmp = place;
             if(doProjectInclude(file, false, tmp, seek_var) == IncludeSuccess)
                 ret = tmp[seek_var].join(QString(Option::field_sep));
         }
@@ -2042,7 +2042,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
                     parser.file.toLatin1().constData(), parser.line_no);
             return false;
         }
-        QMakeProject proj;
+        QMakeProject proj(place);
         QString file = args[0];
         fixEnvVariables(file);
         int di = file.lastIndexOf(Option::dir_sep);
