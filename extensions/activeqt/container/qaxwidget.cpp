@@ -719,11 +719,9 @@ HRESULT WINAPI QAxHostWindow::CanInPlaceActivate()
 HRESULT WINAPI QAxHostWindow::OnInPlaceActivate()
 {
     OleLockRunning( m_spOleObject, TRUE, FALSE );
-    m_spOleObject->QueryInterface( IID_IOleInPlaceObject, (void**) &m_spInPlaceObject );
-    if ( m_spInPlaceObject ) {
-	RECT rcPos = { host->x(), host->y(), host->x()+host->width(), host->y()+host->height() };
-	m_spInPlaceObject->SetObjectRects( &rcPos, &rcPos );
-    }
+    if (!m_spInPlaceObject)
+	m_spOleObject->QueryInterface( IID_IOleInPlaceObject, (void**) &m_spInPlaceObject );
+
     return S_OK;
 }
 
