@@ -85,8 +85,8 @@ public:
     Qt::BGMode backgroundMode() const;
 
     QPoint brushOrigin() const;
-    void setBrushOrigin(int x, int y);
-    void setBrushOrigin(const QPoint &);
+    inline void setBrushOrigin(int x, int y);
+    inline void setBrushOrigin(const QPoint &);
     void setBrushOrigin(const QPointF &);
 
     void setBackground(const QBrush &bg);
