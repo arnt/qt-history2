@@ -659,6 +659,8 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
     QChar baseChar = QComplexText::shapedCharacter( str, pos );
     QRect baseRect = f->boundingRect( baseChar );
 
+    int offset = f->actual.pointSize / 100 + 1;
+    
     QPointArray pa( nmarks );
     int i;
     unsigned char lastCmb = 0;
@@ -678,44 +680,44 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
         case QChar::Combining_DoubleBelow:
                 // ### wrong in rtl context!
         case QChar::Combining_BelowLeft:
-            p += QPoint( 0, 1 );
+            p += QPoint( 0, offset );
         case QChar::Combining_BelowLeftAttached:
             p += attachmentRect.bottomLeft() - markRect.topLeft();
             break;
         case QChar::Combining_Below:
-            p += QPoint( 0, 2 );
+            p += QPoint( 0, offset );
         case QChar::Combining_BelowAttached:
             p += attachmentRect.bottomLeft() - markRect.topLeft();
             p += QPoint( (attachmentRect.width() - markRect.width())/2 , 0 );
             break;
             case QChar::Combining_BelowRight:
-            p += QPoint( 0, 1 );
+            p += QPoint( 0, offset );
         case QChar::Combining_BelowRightAttached:
             p += attachmentRect.bottomRight() - markRect.topRight();
             break;
             case QChar::Combining_Left:
-            p += QPoint( -1, 0 );
+            p += QPoint( -offset, 0 );
         case QChar::Combining_LeftAttached:
             break;
             case QChar::Combining_Right:
-            p += QPoint( 1, 0 );
+            p += QPoint( offset, 0 );
         case QChar::Combining_RightAttached:
             break;
         case QChar::Combining_DoubleAbove:
             // ### wrong in RTL context!
         case QChar::Combining_AboveLeft:
-            p += QPoint( 0, -1 );
+            p += QPoint( 0, -offset );
         case QChar::Combining_AboveLeftAttached:
             p += attachmentRect.topLeft() - markRect.bottomLeft();
             break;
             case QChar::Combining_Above:
-            p += QPoint( 0, -2 );
+            p += QPoint( 0, -offset );
         case QChar::Combining_AboveAttached:
             p += attachmentRect.topLeft() - markRect.bottomLeft();
             p += QPoint( (attachmentRect.width() - markRect.width())/2 , 0 );
             break;
             case QChar::Combining_AboveRight:
-            p += QPoint( 0, -1 );
+            p += QPoint( 0, -offset );
         case QChar::Combining_AboveRightAttached:
             p += attachmentRect.topRight() - markRect.bottomRight();
             break;
@@ -726,6 +728,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
         }
         //qDebug( "char=%x combiningClass = %d offset=%d/%d", mark.unicode(), cmb, p.x(), p.y() );
         markRect.moveBy( p.x(), p.y() );
+        p += QPoint( - baseRect.width(), 0 );
         attachmentRect = attachmentRect | markRect;
         lastCmb = cmb;
         pa.setPoint( i, p );

@@ -403,6 +403,13 @@ public:
     struct TextRun {
 	TextRun() { xoff = 0; yoff = 0; fs = 0; string = 0; length = 0; next = 0; }
 	~TextRun() { if ( next ) delete next; }
+	void setParams( int x, int y, const QChar *s, int len, QFontStruct *qfs ) {
+	    xoff = x;
+	    yoff = y;
+	    string = s;
+	    length = len;
+	    fs = qfs;
+	}
 	int xoff;
 	int yoff;
 	QFontStruct *fs;
