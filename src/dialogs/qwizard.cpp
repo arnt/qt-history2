@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#8 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#9 $
 **
 ** Implementation of something useful.
 **
@@ -388,7 +388,7 @@ void QWizard::updateButtons() const
 {
     if ( !d->current )
 	return;
-    d->backButton->setEnabled( d->current->backEnabled && 
+    d->backButton->setEnabled( d->current->backEnabled &&
 			       d->current->back != 0 );
     d->nextButton->setEnabled( d->current->nextEnabled );
     d->finishButton->setEnabled( d->current->finishEnabled );
@@ -504,10 +504,10 @@ void QWizard::layOutTitleRow( QHBoxLayout * layout, const QString & title )
 void QWizard::layOut()
 {
     delete d->v;
-    d->v = new QVBoxLayout( this, 12, 0, "top-level layout" );
+    d->v = new QVBoxLayout( this, 6, 0, "top-level layout" );
 
     QHBoxLayout * l;
-    l = new QHBoxLayout( 0, 6 );
+    l = new QHBoxLayout( 6 );
     d->v->addLayout( l );
     layOutTitleRow( l, d->current ? d->current->t : QString::null );
 
@@ -528,7 +528,7 @@ void QWizard::layOut()
     }
     d->v->addWidget( d->hbar2 );
 
-    l = new QHBoxLayout( 0, 6 );
+    l = new QHBoxLayout( 6 );
     d->v->addLayout( l );
     layOutButtonRow( l );
     d->v->activate();
