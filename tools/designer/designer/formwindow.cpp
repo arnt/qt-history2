@@ -1412,6 +1412,9 @@ void FormWindow::editAdjustSize()
 	QRect oldr = geometry();
 	mainContainer()->adjustSize();
 	resize( mainContainer()->size() );
+	// check whether our own size constraint hit us
+	if ( size() != mainContainer()->size() )
+	    mainContainer()->resize( size() );
 	QRect nr = geometry();
 	if ( oldr != nr ) {
 	    ResizeCommand *cmd = new ResizeCommand( tr( "Adjust Size" ), this, this, oldr, nr );
