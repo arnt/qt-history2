@@ -218,6 +218,25 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     }
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-del ", "\n\t-del ", "");
+
+    // blasted user defined targets
+    QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
+    for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
+	QString targ = var((*it) + ".target"),
+		 cmd = var((*it) + ".commands"), deps;
+	if(targ.isEmpty())
+	    targ = (*it);
+	QStringList &depends = project->variables()[(*it) + ".depends"];
+	for(QStringList::Iterator dep_it = depends.begin(); dep_it != depends.end(); ++dep_it) {
+	    QString dep = var((*dep_it) + ".target");
+	    if(dep.isEmpty())
+		dep = (*dep_it);
+	    deps += " " + dep;
+	}
+	t << "\n\n" << targ << ":" << deps << "\n\t"
+	  << cmd;
+    }
+
     t << endl << endl;
 }
 
