@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#84 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -355,19 +355,13 @@ QImage QPixmap::convertToImage() const
     bmh->biClrImportant	  = 0;
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
 
-    HDC dc;
-    HBITMAP bm;
-    int sy;
-    if ( data->mcp ) {
-	dc = DATA_MCPI_MCP->handle();
-	bm = DATA_MCPI_MCP->hbm();
-	sy = DATA_MCPI_OFFSET;
-    } else {
-	dc = handle();
-	bm = DATA_HBM;
-	sy = 0;
-    }
-    GetDIBits( dc, bm, sy, h, image.bits(), bmi, DIB_RGB_COLORS );
+    bool mcp = data->mcp;
+    if ( mcp )					// disable multi cell
+	((QPixmap*)this)->freeCell();
+    GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi,
+	       DIB_RGB_COLORS );
+    if ( mcp )
+	((QPixmap*)this)->allocCell();
 
 #if 0
     #error "Need to take QPixmap::mask() into account here, "\
@@ -1025,7 +1019,7 @@ int QPixmap::allocCell()
 	list->append( mcp );
     } 
     if ( hdc ) {				// copy into multi cell pixmap
-	BitBlt( mcp->handle(), 0, offset, width(), height(), handle(),
+	BitBlt( mcp->handle(), 0, offset, width(), height(), hdc,
 		0, 0, SRCCOPY );
 	DeleteDC( hdc );
 	hdc = 0;
