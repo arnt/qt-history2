@@ -1072,7 +1072,7 @@ if [ "$CFG_JPEG" = "auto" ]; then
     fi
 fi
 if [ "$CFG_LIBJPEG" = "auto" ]; then
-    if $unixtests/checkavail "libmng" -ljmng; then
+    if $unixtests/checkavail "libmng" -ljpg; then
        CFG_LIBMNG=system
     else
        CFG_LIBJPEG=qt
