@@ -90,15 +90,15 @@ void DatabaseFrontEnd::init()
     label->resize( fm.width("Customer information" ), label->height() );
     vb2->addWidget( label );
 
-    customer = new QLabel( f2 );
-    customer->setText( "Customer info goes here!" );
-    customer->resize( fm.width( customer->text() ),
- 		      customer->height() );
-    customer->setFont( QFont( "fixed" ) );
-    customer->setAutoResize( TRUE );
-    customer->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
-					  QSizePolicy::Fixed ) );
-    vb2->addWidget( customer );
+    customerInfo = new QLabel( f2 );
+    customerInfo->setText( "Customer info goes here!" );
+    customerInfo->resize( fm.width( customerInfo->text() ),
+ 		      customerInfo->height() );
+    customerInfo->setFont( QFont( "fixed" ) );
+    customerInfo->setAutoResize( TRUE );
+    customerInfo->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
+					      QSizePolicy::Fixed ) );
+    vb2->addWidget( customerInfo );
 
     //
     // Third area - invoice table
