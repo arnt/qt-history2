@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#73 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#74 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1539,11 +1539,13 @@ if ($#ARGV > 4 || $#ARGV < 0) {
     &memberlists();
 }
 
-foreach $c ( keys %doc ) {
-    if (!defined($documented{$c}) && ($def{$c} =~ /\S/)) {
-	$_ = $def{$c};
-	s/<.*?>//gs;
-	print "unreferenced: ", $_, "\n";
+if ( $internal ) {
+    foreach $c ( keys %doc ) {
+	if (!defined($documented{$c}) && ($def{$c} =~ /\S/)) {
+	    $_ = $def{$c};
+	    s/<.*?>//gs;
+	    print "unreferenced: ", $_, "\n";
+	}
     }
 }
 
