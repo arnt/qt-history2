@@ -144,7 +144,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
 	     this, SLOT( slotMessageChanged() ) );
 
     messages->setSelectionMode( QListView::Extended );
-    // some preperationes
+    // some preparations
     folders->firstChild()->setOpen( TRUE );
     folders->firstChild()->firstChild()->setOpen( TRUE );
     folders->setCurrentItem( folders->firstChild()->firstChild()->firstChild() );
