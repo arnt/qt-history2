@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#35 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,8 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#34 $");
-
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#35 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -66,12 +65,14 @@ protected:
 private:
     QTimer  wakeUp;
     QTimer  fallAsleep;
+    QTimer  leaveWindow;
 
     QPtrDict<Tip>    *tips;
     QLabel	     *label;
     QPoint	      pos;
     QWidget	     *widget;
     QTipManager::Tip *currentTip;
+    QTipManager::Tip *previousTip;
     bool isApplicationFilter;
 };
 
@@ -82,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.29 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.30 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -167,15 +168,22 @@ QTipManager::QTipManager()
     initMetaObject();
     tips = new QPtrDict<QTipManager::Tip>( 313 );
     currentTip = 0;
+    previousTip = 0;
     label = 0;
     isApplicationFilter = FALSE;
     connect( &wakeUp, SIGNAL(timeout()), SLOT(showTip()) );
     connect( &fallAsleep, SIGNAL(timeout()), SLOT(hideTip()) );
+    connect( &leaveWindow, SIGNAL(timeout()), SLOT(hideTip()) );
 }
 
 
 QTipManager::~QTipManager()
 {
+    if ( isApplicationFilter && !qApp->closingDown() ) {
+	qApp->setGlobalMouseTracking( FALSE );
+	qApp->removeEventFilter( tipManager );
+    }
+
     if ( tips ) {
 	QPtrDictIterator<QTipManager::Tip> i( *tips );
 	QTipManager::Tip *t, *n;
@@ -202,14 +210,8 @@ void QTipManager::add( QWidget *w, const QRect &r, const char *s,
 {
     QTipManager::Tip *h = (*tips)[ w ];
     QTipManager::Tip *t = new QTipManager::Tip;
-    if ( h ) {
+    if ( h )
 	tips->take( w );
-#if !defined(HAAVARD_ER_FLINK_OG_SNILL_OG_SMART_OG_KUL)
-    } else {
-	w->setMouseTracking( TRUE );
-	w->installEventFilter( tipManager );
-#endif
-    }
     t->next = h;
 
     t->tip = tt;
@@ -227,13 +229,11 @@ void QTipManager::add( QWidget *w, const QRect &r, const char *s,
 	    tips->insert( w, t->next );
 	t->next = 0;
     }
-#if defined(HAAVARD_ER_FLINK_OG_SNILL_OG_SMART_OG_KUL)
     if ( !isApplicationFilter && qApp ) {
 	isApplicationFilter = TRUE;
 	qApp->installEventFilter( tipManager );
-	qApp->setMouseTracking( TRUE );
+	qApp->setGlobalMouseTracking( TRUE );
     }
-#endif
 }
 
 
@@ -253,7 +253,7 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 	} else {
 	    // ### w->setMouseTracking( FALSE );
 	    // ### need to disable sometimes
-	    w->removeEventFilter( tipManager );
+	    // w->removeEventFilter( tipManager );
 	}
 	delete t;
     } else {
@@ -348,6 +348,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	if ( !t )
 	    w = w->parentWidget();
     }
+
     if ( !t )
 	return FALSE;
 
@@ -366,12 +367,17 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	// input - turn off tool tip mode
 	hideTip();
 	fallAsleep.stop();
+	leaveWindow.stop();
 	break;
     case Event_MouseMove:
 	{ // a whole scope just for one variable
 	    QMouseEvent * m = (QMouseEvent *)e;
 
-	    if ( currentTip && !currentTip->rect.contains( m->pos() ) ) {
+	    QPoint mousePos( m->pos() );
+	    mousePos = ((QWidget*)obj)->mapToGlobal( mousePos );
+	    mousePos = w->mapFromGlobal( mousePos );
+
+	    if ( currentTip && !currentTip->rect.contains( mousePos ) ) {
 		hideTip();
 		if ( m->state() == 0 )
 		    return TRUE;
@@ -383,19 +389,25 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 		    return TRUE;
 		else if ( fallAsleep.isActive() )
 		    wakeUp.start( 100, TRUE );
-		else
+		else {
+		    previousTip = 0;
 		    wakeUp.start( 1000, TRUE );
+		}
 		widget = w;
-		pos = m->pos();
+		pos = mousePos;
 		return TRUE;
 	    } else {
 		hideTip();
 	    }
 	}
 	break;
-    case Event_Enter: // fall through
+    case Event_Enter:
+	if ( label && label->isVisible() && w == widget )
+	    leaveWindow.stop();
+	break;
     case Event_Leave:
-	hideTip();
+	if ( label && label->isVisible() )
+	    leaveWindow.start( 50, TRUE );
 	break;
     default:
 	hideTip();
@@ -408,8 +420,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
 void QTipManager::showTip()
 {
-    if ( widget == 0 ||
-	 QApplication::widgetAt(widget->mapToGlobal(pos),TRUE) != widget ) {
+    if ( widget == 0 ) {
 	widget = 0;
 	return;
     }
@@ -417,7 +428,7 @@ void QTipManager::showTip()
     QTipManager::Tip *t = (*tips)[ widget ];
     while ( t && !t->rect.contains( pos ) )
 	t = t->next;
-    if ( t == 0 )
+    if ( t == 0 || t == previousTip )
 	return;
 
     if ( t->tip ) {
@@ -454,10 +465,12 @@ void QTipManager::showTip()
     label->raise();
 
     fallAsleep.start( 4000, TRUE );
+    leaveWindow.stop();
 
     if ( t->group && !t->groupText.isEmpty() )
 	emit t->group->showTip( t->groupText );
     currentTip = t;
+    previousTip = 0;
 }
 
 
@@ -474,6 +487,8 @@ void QTipManager::hideTip()
 
     if ( currentTip && currentTip->autoDelete )
 	delete currentTip;
+    else
+	previousTip = currentTip;
 
     currentTip = 0;
     widget = 0;
