@@ -213,6 +213,8 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     setFocusPolicy( TabFocus );
     setFocusProxy( d->tabs );
+
+    installEventFilter( this );
 }
 
 /*!\reimp
@@ -824,7 +826,13 @@ void QTabWidget::updateMask()
  */
 bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 {
-    if ( o == d->stack ) {
+    if ( o == this ) {
+	if ( e->type() == QEvent::LanguageChange ) {
+	    d->dirty = TRUE;
+	    setUpLayout();
+	    updateGeometry();
+	}
+    } else if ( o == d->stack ) {
 	if ( e->type() == QEvent::ChildRemoved
 	     && ( (QChildEvent*)e )->child()->isWidgetType() ) {
 	    removePage( (QWidget*)  ( (QChildEvent*)e )->child() );
