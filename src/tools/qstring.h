@@ -398,6 +398,7 @@ public:
     int		find( QChar c, int index=0, bool cs=TRUE ) const;
     int		find( char c, int index=0, bool cs=TRUE ) const;
     int		find( const QString &str, int index=0, bool cs=TRUE ) const;
+    int		find( QRegExp &, int index=0 ) const;
     int		find( const QRegExp &, int index=0 ) const;
 #ifndef QT_NO_CAST_ASCII
     int		find( const char* str, int index=0 ) const;
@@ -405,6 +406,7 @@ public:
     int		findRev( QChar c, int index=-1, bool cs=TRUE) const;
     int		findRev( char c, int index=-1, bool cs=TRUE) const;
     int		findRev( const QString &str, int index=-1, bool cs=TRUE) const;
+    int		findRev( QRegExp &, int index=-1 ) const;
     int		findRev( const QRegExp &, int index=-1 ) const;
 #ifndef QT_NO_CAST_ASCII
     int		findRev( const char* str, int index=-1 ) const;
