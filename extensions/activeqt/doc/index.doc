@@ -28,6 +28,10 @@
     controls. If built against a shared Qt library QAxWidget integrates 
     as a widget plugin into \link designer-manual.book Qt Designer\endlink.
 
+    The module also provides classes QAxScript, QAxScriptManager and 
+    QAxScriptEngine that allow using Windows Script Host technologies to 
+    script COM objects embedded in the Qt applications.
+
     \link qaxcontainer-examples.html Examples \endlink include a
     web browser application embedding Microsoft Internet Explorer, and an
     address book example synchronizing the contents with Microsoft

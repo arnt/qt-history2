@@ -350,7 +350,7 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 /*!
     Constructs a QAxScriptEngine object interpreting script code in \a language
     provided by the code in \a script. This is usually done by the QAxScript 
-    class when \link QAxScript::load() loading a script.\endlink
+    class when \link QAxScript::load() loading a script\endlink.
 
     Instances of QAxScriptEngine should always have both a language and a
     script.
@@ -559,7 +559,7 @@ void QAxScriptEngine::addItem(const QString &name)
     Constructs a QAxScript object called \a name and registers
     it with the QAxScriptManager \a manager. This is usually done by the
     QAxScriptManager class when \link QAxScriptManager::load() loading a 
-    script.\endlink
+    script\endlink.
 
     A script should always have a name. A manager is necessary to allow
     the script code to reference objects in the application. The \a manager
