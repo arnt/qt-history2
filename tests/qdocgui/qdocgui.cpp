@@ -16,7 +16,8 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     classList = new QListView( this );
     classList->addColumn( "Text" );
     classList->setRootIsDecorated( TRUE );
-    connect( classList, SIGNAL(selectionChanged(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)));
+    connect( classList, SIGNAL(returnPressed(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)));
+    connect( classList, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)));
     classList->show();
     qtdirenv = getenv( "QTDIR" );
     waitText = new QLabel( "Currently QDocing", this, "wait", WType_Modal | WStyle_Customize | WStyle_NormalBorder );
