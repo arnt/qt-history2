@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#416 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#417 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -486,7 +486,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
     int l = 0, r, i;
     QCString item, key, value;
     QCString resFont, resFG, resBG;
-    
+
     if (use_x11_resource_manager) {
 	while( (unsigned) l < res.length()) {
 	    r = res.find( "\n", l );
@@ -2242,6 +2242,7 @@ bool QApplication::x11EventFilter( XEvent * )
 void QApplication::useXResourceManager( bool arg)
 {
     use_x11_resource_manager = arg;
+    set_local_font();
 }
 
 

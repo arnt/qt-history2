@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#188 $
 **
 ** Implementation of QApplication class
 **
@@ -1193,7 +1193,7 @@ void QApplication::noteTopLevel( QWidget* tlw )
   localization.  Message files are searched starting with the most
   recently added file.
 
-  \sa removeMessageFile() translate() QObject::tr() 
+  \sa removeMessageFile() translate() QObject::tr()
 */
 
 void QApplication::installMessageFile( QMessageFile * mf )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#104 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#105 $
 **
 ** Definition of QApplication class
 **
@@ -148,7 +148,7 @@ public:
 #elif defined(_WS_X11_)
     virtual bool     x11EventFilter( XEvent * );
     int              x11ProcessEvent( XEvent* );
-    void useXResourceManager( bool );
+    static void useXResourceManager( bool );
 #endif
 
 #if defined(_WS_WIN_)
