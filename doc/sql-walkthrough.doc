@@ -1,0 +1,111 @@
+/*! \page sql-walkthrough.html
+
+\title Example SQL application walkthrough
+
+This walkthrough shows simple use of QSqlIndex, QSqlQuery, QSqlCursor,
+QSqlTable and QSqlForm - classes that a database front-end or database
+application would want to use.
+
+This example is built on a set of database tables that are used to
+keep track of pingpong scores. First, an overview of the database:
+
+The database contains four simple tables: match, team, player and
+player2team. The match table is used to store pingpong matches, it
+include fields like date, winner, loser and the number of sets played.
+The team table is simply a list of the teams the database knows
+of. The player table is a list of the players the database knows
+of. The player2team table is used to assign player to teams. A player
+can be a member of several teams.
+
+Our goal is to create a simple application that makes it possible to
+do the following:
+* enter match results
+* create and edit teams and players
+* generate team statistics, such as wins and losses
+* include a highscore table that ranks the different teams.
+
+The pingpong example program contains the following files:
+
+<b>main.cpp</b> - Contains the main() function and shows how to connect to an existing database
+
+<b>cursors.h/cpp</b>  - Contains reimplementations of QSqlCursors that are used for traversing data sets.
+
+<b>dialogs.h/cpp</b> - Contains the implementation of dialogs that are used in the pingpong example.
+
+<b>widgets.h/cpp</b> - Contains implementation of special widgets that are used to display statistics, highscores and such.
+
+<b>pingpongfrontend.h/cpp</b>  - Implementation of the main window in the application.
+
+<h2>Specifying a connection to a database</h2>
+
+\code
+int main( int argc, char ** argv )
+{
+    QApplication a( argc, argv );
+
+    QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL6" );
+    db->setDatabaseName( "pingpong" );
+    db->setUserName( "db" );
+    db->setPassword( "db" );
+    db->setHostName( "silverfish" );
+
+    if( !db->open() ){
+	qWarning( "Unable to open database: " + db->lastError().driverText());
+	qWarning( db->lastError().databaseText() );
+	return 0;
+    }
+
+    PingpongFrontEnd dbapp;
+
+    a.setMainWidget( &dbapp );
+    dbapp.show();
+
+    return a.exec();
+}
+\endcode
+
+If we start with the main.cpp file, the first thing that is done after
+the usual QApplication object is created, is to specify a connection to
+the database we want to use. The line:
+\code
+    QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL6" );
+\endcode
+, specifies which driver should be used to access the database. The
+Qt SQL module currently supports the following drivers:
+<ul>
+QPSQL6 - Postgres v6.x databases
+QPSQL7 - Postgres v7.x databases
+QMYSQL - MySQL databases
+QODBC  - ODBC databases
+QOCI   - Oracle databases
+</ul>
+As we have used Postgres v6.5 to implement our Pingpong database we
+choose the QPSQL6 driver to access the database.
+
+The following lines are used to specify the database name, user name
+and password, and the host the database is running on.
+\code
+    db->setDatabaseName( "pingpong" );
+    db->setUserName( "db" );
+    db->setPassword( "db" );
+    db->setHostName( "silverfish" );
+\endcode
+After all the necessary information is passed to QSqlDatabase, the
+database connection is opened with the following statement:
+\code
+    if( !db->open() ){
+	qWarning( "Unable to open database: " + db->lastError().driverText());
+	qWarning( db->lastError().databaseText() );
+	return 0;
+    }
+\endcode
+The connection that has just been created is from this point on used
+by the other the low-level classes in the SQL modules to seamlessly
+access the database. You will probably not need to use the
+QSqlDatabase class after this initial initialization.
+
+After the database connection is up and running - we create an
+instance of the main window widget and enter the event loop as in any
+other Qt application.
+
+*/

@@ -39,11 +39,11 @@
 
 The Qt SQL module provides classes to access SQL databases in a
 uniform way across different platforms and across different SQL
-database servers.  There are several sets of classes which handle
-database connections, SQL queries and results, SQL database objects
-such as tables, views, fields and indexes, and classes which help
-display data from SQL databases in GUI classes such as QLineEdit,
-QComboBox, etc.
+database servers. 
+
+The SQL module contains three layers of classes:
+
+<em>Driver layer</em>
 
 Connections to SQL database servers at a low level are handled by the
 QSqlDriver and QSqlResult abstract classes.  These classes provide an
@@ -51,16 +51,22 @@ interface for database-specific derived classes to implement the
 actual connections to specific SQL servers.  All low-level interaction
 with the SQL servers is handled by these drivers.
 
-At a higher level, QSqlQuery and QSqlCursor provide funcitonality to
+<em>SQL layer</em>
+
+At a higher level, QSqlQuery and QSqlCursor provide functionality to
 send SQL queries (INSERT, UPDATE, DELETE, etc.) to a database and to
 return results (i.e., data) from those queries.  QSqlField, QSqlRecord
 and QSqlIndex are helper classes which represent SQL fields, records
 and indexes respectively.
 
+<em>Widget layer</em>
+
 QSqlTable and QSqlForm display data from SQL databases.  There are
 also helper classes such as QSqlPropertyMap and QSqlEditorFactory
 which help 'glue' together the GUI to the SQL database in your
 applications.
+
+An example application walkthrough can be found <a href="sql-walkthrough.html">here</a>.
 
 <h2>Connecting to the database</h2>
 
