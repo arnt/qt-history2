@@ -4935,8 +4935,8 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if ( sectionState( index ) != Selected ) {
 	QHeader::paintSection( p, index, fr );
     } else {
-	style().drawBevelButton( p, fr.x(), fr.y(), fr.width(), fr.height(),
-				 colorGroup(), TRUE );
+	style().drawHeaderSection( p, fr.x(), fr.y(), fr.width(), fr.height(),
+				   colorGroup(), TRUE );
 	paintSectionLabel( p, index, fr );
     }
 }

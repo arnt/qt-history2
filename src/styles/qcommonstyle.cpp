@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#36 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#37 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -101,50 +101,6 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 }
 
 /*! \reimp */
-void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
-{
-#ifndef QT_NO_PUSHBUTTON
-    QRect r = pushButtonContentsRect( btn );
-    if ( btn->isDown() || btn->isOn() ){
-	int sx = 0;
-	int sy = 0;
-	getButtonShift(sx, sy);
-	r.moveBy( sx, sy );
-    }
-    int x, y, w, h;
-    r.rect( &x, &y, &w, &h );
-    if ( btn->isMenuButton() ) {
-	int dx = menuButtonIndicatorWidth( btn->height() );
-	drawArrow( p, DownArrow, FALSE,
-		   x+w-dx, y+2, dx-4, h-4,
-		   btn->colorGroup(),
-		   btn->isEnabled() );
-	w -= dx;
-    }
-
-    if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
-	QIconSet::Mode mode = btn->isEnabled()
-			      ? QIconSet::Normal : QIconSet::Disabled;
-	if ( mode == QIconSet::Normal && btn->hasFocus() )
-	    mode = QIconSet::Active;
-	QIconSet::State state = QIconSet::Off;
-	if ( btn->isToggleButton() && btn->isOn() )
-	    state = QIconSet::On;
-	QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode, state );
-	int pixw = pixmap.width();
-	int pixh = pixmap.height();
-	p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
-	x += pixw + 4;
-	w -= pixw + 4;
-    }
-    drawItem( p, x, y, w, h,
-	      AlignCenter | ShowPrefix,
-	      btn->colorGroup(), btn->isEnabled(),
-	      btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
-#endif
-}
-
-/*! \reimp */
 void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
 				  int& overlap) const
 {
@@ -222,22 +178,11 @@ QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, in
 }
 
 /*! \reimp */
-QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
-{
-#ifndef QT_NO_PUSHBUTTON
-    int fw = 0;
-    if ( btn->isDefault() || btn->autoDefault() )
-	fw = buttonDefaultIndicatorWidth();
-
-    return buttonRect( fw, fw, btn->width()-2*fw, btn->height()-2*fw );
-#endif
-}
-
-/*! \reimp */
 void QCommonStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h,
 				     const QColorGroup &g, bool down )
 {
-    drawBevelButton( p, x, y, w, h, g, down );
+    drawPrimitive(PO_ButtonBevel, p, QRect(x, y, w, h), g,
+		  down ? PStyle_Sunken : PStyle_Default);
 }
 
 /*! \reimp */
@@ -247,7 +192,8 @@ void QCommonStyle::drawSpinWidgetButton( QPainter *p, int x, int y, int w,
 					 bool /* downbtn */, bool /* enabled */,
 					 bool down )
 {
-    drawButton( p, x, y, w, h, g, down );
+    drawPrimitive(PO_ButtonBevel, p, QRect(x, y, w, h), g,
+		  down ? PStyle_Sunken : PStyle_Default);
 }
 
 /*! \reimp */
@@ -296,8 +242,10 @@ void QCommonStyle::drawSpinWidgetSymbol( QPainter *p, int x, int y, int w,
 	    a.setPoints( 3,  0, sh-1,  sw-1, sh-1,  sh-2, 1 );
 	int bsx = 0;
 	int bsy = 0;
-	if ( down )
-	    getButtonShift( bsx, bsy );
+	if ( down ) {
+	    bsx = pixelMetric(PM_ButtonShiftHorizontal);
+	    bsy = pixelMetric(PM_ButtonShiftVertical);
+	}
 	p->translate( sx + bsx, sy + bsy );
 	p->setPen( g.buttonText() );
 	p->setBrush( g.buttonText() );
@@ -500,8 +448,10 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
 			tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	int xoff = 0, yoff = 0;
-	if(down)
-	    getButtonShift(xoff, yoff);
+	if (down) {
+	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
+	    yoff = pixelMetric(PM_ButtonShiftVertical);
+	}
 	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
 			   TITLEBAR_CONTROL_HEIGHT),
 		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
@@ -515,8 +465,10 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 			tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	xoff = 0;
 	yoff = 0;
-	if(down)
-	    getButtonShift(xoff, yoff);
+	if(down) {
+	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
+	    yoff = pixelMetric(PM_ButtonShiftVertical);
+	}
 	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
 			   TITLEBAR_CONTROL_HEIGHT),
 		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
@@ -529,8 +481,10 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
 			tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	xoff=0, yoff=0;
-	if(down)
-	    getButtonShift(xoff, yoff);
+	if(down) {
+	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
+	    yoff = pixelMetric(PM_ButtonShiftVertical);
+	}
 	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
 			   TITLEBAR_CONTROL_HEIGHT),
 		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
@@ -609,7 +563,8 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
     case PO_ButtonBevel:
     case PO_ButtonTool:
 	qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(),
-			cg, flags & PStyle_Sunken, 1);
+			cg, flags & PStyle_Sunken, 1,
+			&cg.brush(QColorGroup::Button));
 	break;
 
     case PO_FocusRect: {
@@ -689,6 +644,10 @@ void QCommonStyle::drawControl( ControlElement element,
 	drawItem(p, ir, AlignCenter | ShowPrefix, cg,
 		 flags & PStyle_Enabled, button->pixmap(), button->text());
 	break; }
+
+    case CE_PushButtonMask:
+	drawPrimitive(PO_ButtonCommand, p, r, cg, PStyle_Default);
+	break;
     }
 }
 
@@ -732,7 +691,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    QSpinBox * sb = (QSpinBox *) w;
 	    if ( !sb )
 		return QRect();
-	    
+
 	    int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
 	    QSize bs;
 	    bs.setHeight( sb->height()/2 - fw );

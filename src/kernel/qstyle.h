@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#89 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#90 $
 **
 ** Definition of QStyle class
 **
@@ -108,6 +108,9 @@ public:
 	PO_ArrowRight,
 	PO_ArrowLeft,
 
+	PO_SpinSymbolUp,
+	PO_SpinSymbolDown
+
 	/*
 	  PO_Panel,
 	  PO_PanelPopup,
@@ -152,7 +155,8 @@ public:
 
     enum ControlElement{
 	CE_PushButton,
-	CE_PushButtonLabel
+	CE_PushButtonLabel,
+	CE_PushButtonMask
 
 	/*
 	  CE_Tab,
@@ -224,7 +228,7 @@ public:
 	SC_SpinWidgetFrame = 		0x00000004,
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010
-	
+
 /*
 	  SC_MenuItemCheck =	0x00000001,
 	  SC_MenuItemLabel =	0x00000002,
@@ -366,22 +370,6 @@ public:
 				 int lineWidth = 1, int midLineWidth = 0,
 				 const QBrush *fill = 0 );
 
-    virtual void drawButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, bool sunken = FALSE,
-			     const QBrush *fill = 0 ) = 0;
-
-    //virtual void drawShade(...); // ### add 3.0
-
-    virtual QRect buttonRect( int x, int y, int w, int h) const;
-
-    virtual void drawButtonMask( QPainter *p, int x, int y, int w, int h);
-
-    virtual void drawBevelButton( QPainter *p, int x, int y, int w, int h,
-				  const QColorGroup &g, bool sunken = FALSE,
-				  const QBrush *fill = 0 ) = 0;
-
-    virtual QRect bevelButtonRect( int x, int y, int w, int h) const;
-
     virtual void drawPanel( QPainter *p, int x, int y, int w, int h,
 			    const QColorGroup &, bool sunken=FALSE,
 			    int lineWidth = 1, const QBrush *fill = 0 );
@@ -438,18 +426,6 @@ public:
     virtual QRect comboButtonRect( int x, int y, int w, int h) const;
     virtual QRect comboButtonFocusRect( int x, int y, int w, int h) const;
     virtual void drawComboButtonMask( QPainter *p, int x, int y, int w, int h);
-
-    // push buttons
-    virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
-    virtual int  buttonDefaultIndicatorWidth() const;
-    virtual int  buttonMargin() const;
-
-    /// ### add this in 3.0
-    // virtual void drawPushButtonMask(QPushButton *btn, QPainter *p) = 0;
-    virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p) = 0;
-    virtual QRect pushButtonContentsRect( QPushButton* btn ) const = 0;
-    virtual int menuButtonIndicatorWidth( int h ) const;
-    virtual void getButtonShift( int &x, int &y) const;
 
     // frame
     virtual int defaultFrameWidth() const;

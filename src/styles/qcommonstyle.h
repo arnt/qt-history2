@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#13 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#14 $
 **
 ** Definition of QCommonStyle class
 **
@@ -111,10 +111,6 @@ public:
 
 
 
-    // push buttons
-    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
-    QRect pushButtonContentsRect( QPushButton* btn ) const;
-
     // tabbars
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
@@ -155,6 +151,7 @@ public:
     virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& );
 
     ListViewItemControl listViewItemPointOver( const QListViewItem *, const QPoint & );
+
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

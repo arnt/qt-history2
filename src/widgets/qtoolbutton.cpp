@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#138 $
 **
 ** Implementation of QToolButton class
 **
@@ -299,8 +299,10 @@ QSize QToolButton::sizeHint() const
 	if ( tw > w )
 	    w = tw;
     }
+
     if ( d->popup && !d->delay )
-	w += style().menuButtonIndicatorWidth( height() );
+	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
+
 #ifdef Q_WS_QWS // ###### should be style option
     return QSize( w + 4, h + 2 ).expandedTo( QApplication::globalStrut() );
 #else
@@ -308,7 +310,7 @@ QSize QToolButton::sizeHint() const
 #endif
 }
 
-/*!  
+/*!
   \property QToolButton::usesBigPixmap
   \brief whether this toolbutton uses big pixmaps.
 
@@ -334,7 +336,7 @@ void QToolButton::setUsesBigPixmap( bool enable )
 }
 
 
-/*!  
+/*!
   \property QToolButton::usesTextLabel
   \brief whether the toolbutton displays a text label below the button pixmap.
 
@@ -355,7 +357,7 @@ void QToolButton::setUsesTextLabel( bool enable )
 }
 
 
-/*!  
+/*!
   \property QToolButton::on
   \brief whether this tool button is on.
 
@@ -397,7 +399,7 @@ void QToolButton::drawButton( QPainter * p )
     int y = 0;
     int w = width();
     int h = height();
-    int miw = style().menuButtonIndicatorWidth( h );
+    int miw = style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
     if ( d->popup && !d->delay )
 	w -= miw;
 
@@ -416,7 +418,7 @@ void QToolButton::drawButton( QPainter * p )
 
     if ( d->popup && !d->delay ) {
 	if ( uses3D() )
-	    style().drawDropDownButton( p, w, y, miw, h, g, 
+	    style().drawDropDownButton( p, w, y, miw, h, g,
 					d->instantPopup || isDown() || isOn(),
 					isEnabled(), autoRaise() );
 	style().drawArrow( p, DownArrow, d->instantPopup || isDown() || isOn(),
@@ -443,16 +445,17 @@ void QToolButton::drawButtonLabel( QPainter * p )
     int sy = 0;
     int x, y, w, h;
     if ( d->popup && !d->delay )
-	style().toolButtonRect( 0, 0,
-		width() - style().menuButtonIndicatorWidth(height()), height() )
-	       .rect( &x, &y, &w, &h );
+	style().
+	    toolButtonRect( 0, 0, width() -
+			    style().pixelMetric(QStyle::PM_MenuButtonIndicator, this),
+			    height() )
+	    .rect( &x, &y, &w, &h );
     else
 	style().toolButtonRect( 0, 0, width(), height() )
-	       .rect( &x, &y, &w, &h );
+	    .rect( &x, &y, &w, &h );
     if ( isDown() || isOnAndNoOnPixmap() ) {
-	style().getButtonShift( sx, sy );
-	x += sx;
-	y += sy;
+	x += style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this);
+	y += style().pixelMetric(QStyle::PM_ButtonShiftVertical, this);
     }
     if ( hasArrow ) {
 	style().drawArrow( p, d->arrow, isDown(), x, y, w, h, colorGroup(),
@@ -547,8 +550,9 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 	    left = TRUE;
     }
 
-    int dbw = style().menuButtonIndicatorWidth( height() );
-    d->instantPopup = ( ( e->pos().x() < dbw ) && left  ) || ( ( e->pos().x() > ( width() - dbw ) ) && !left );
+    int dbw = style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
+    d->instantPopup = ( ( e->pos().x() < dbw ) && left  ) ||
+		      ( ( e->pos().x() > ( width() - dbw ) ) && !left );
 
     if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup ) {
 	d->instantPopup = TRUE;
@@ -572,10 +576,10 @@ bool QToolButton::uses3D() const
 }
 
 
-/*!  
+/*!
   \property QToolButton::textLabel
   \brief the label of this button.
-  
+
   Setting this property automatically sets it as tool tip, too.
 
   \sa setTextLabel( const QString &newLabel , bool tipToo )
@@ -827,8 +831,8 @@ void QToolButton::popupTimerDone()
 
 /*!
   \property QToolButton::popupDelay
-  \brief the time delay between pressing the button and the appearance of the associated popup menu in milliseconds. 
-  
+  \brief the time delay between pressing the button and the appearance of the associated popup menu in milliseconds.
+
   Usually this is around half a second. A value of 0 will add a special section to the toolbutton
   that can be used to open the popupmenu.
 

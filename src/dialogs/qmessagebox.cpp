@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#170 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#171 $
 **
 ** Implementation of QMessageBox class
 **
@@ -277,7 +277,7 @@ The message box has a different icon for each of the severity levels.
 Complexity is one button (OK) for a simple messages, or two or even
 three buttons for questions.
 
-There are static functions for common cases. 
+There are static functions for common cases.
 For example:
 
 If a program is unable to find a supporting file, but can do perfectly
@@ -299,7 +299,7 @@ errors which can't be easily fixed:
                           "without the server.\n\n",
                           "Try again", "Quit", 0,
                           0, 1 );
-  case 0: // The user clicked the Try again button or pressed Return 
+  case 0: // The user clicked the Try again button or pressed Return
       // try again
       break;
   case 1: // The user clicked the Quit or pressed Escape
@@ -398,7 +398,7 @@ errors which can't be easily fixed:
                            "\n\n<Application> will now exit." );
   \endcode
 
-  In this example an OK button is displayed. 
+  In this example an OK button is displayed.
 
   QMessageBox provides a very simple About box, which displays an
   appropriate icon and the string you provide:
@@ -593,7 +593,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   to make it the default button (clicked when Return is pressed).
 
   One of the buttons can be combined with the \c QMessageBox::Escape flag
-  to make it the cancel or close button (clicked when Escape is pressed). 
+  to make it the cancel or close button (clicked when Escape is pressed).
 
   Example:
   \code
@@ -981,7 +981,7 @@ void QMessageBox::adjustSize()
     int n  = mbd->numButtons;
     int bw = mbd->buttonSize.width();
     int bh = mbd->buttonSize.height();
-    int border = bh/2 - style().buttonDefaultIndicatorWidth();
+    int border = bh / 2 - style().pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if ( border <= 0 )
         border = 10;
     int btn_spacing = 7;
@@ -1017,7 +1017,7 @@ void QMessageBox::resizeEvent( QResizeEvent * )
     int n  = mbd->numButtons;
     int bw = mbd->buttonSize.width();
     int bh = mbd->buttonSize.height();
-    int border = bh/2 - style().buttonDefaultIndicatorWidth();
+    int border = bh / 2 - style().pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if ( border <= 0 )
         border = 10;
     int btn_spacing = 7;
@@ -1213,15 +1213,15 @@ int QMessageBox::critical( QWidget *parent,
   text \a text. The about box's parent is \a parent.
 
   about() looks for a suitable icon in four locations:
-  <ol> 
+  <ol>
   <li>It prefers \link QWidget::icon() parent->icon() \endlink
-  if that exists.  
+  if that exists.
   <li>If not, it tries the top-level widget
   containing \a parent.
   <li>If that fails, it tries the \link
-  QApplication::mainWidget() main widget. \endlink 
+  QApplication::mainWidget() main widget. \endlink
   <li>As a last
-  resort it uses the Information icon. 
+  resort it uses the Information icon.
   </ol>
 
   The about box has a single button labelled OK.
@@ -1310,7 +1310,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 
 
 /*!
-    \overload 
+    \overload
   Displays an information message box with caption \a caption, text \a
   text and one, two or three buttons. Returns the index of the button
   that was clicked (0, 1 or 2).
@@ -1349,7 +1349,7 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
 
 
 /*!
-    \overload 
+    \overload
   Displays a warning message box with a caption, a text, and
   1-3 buttons.  Returns the number of the button that was clicked
   (0, 1, or 2).
@@ -1388,7 +1388,7 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
 
 
 /*!
-    \overload 
+    \overload
   Displays a critical error message box with a caption, a text, and
   1-3 buttons.  Returns the number of the button that was clicked
   (0, 1 or 2).

@@ -136,11 +136,11 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
 
 void QSpinWidget::arrange()
 {
-    d->up = style().querySubControlMetrics( QStyle::CC_SpinWidget, 
-					    parentWidget(), 
+    d->up = style().querySubControlMetrics( QStyle::CC_SpinWidget,
+					    parentWidget(),
 					    QStyle::SC_SpinWidgetUp );
     d->down = style().querySubControlMetrics( QStyle::CC_SpinWidget,
-					      parentWidget(), 
+					      parentWidget(),
 					      QStyle::SC_SpinWidgetDown );
 }
 
@@ -261,23 +261,30 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
 
+    QStyle::SCFlags active = QStyle::SC_None;
+    if (theButton & 1)
+	active = QStyle::SC_SpinWidgetDown;
+    else if (theButton & 2)
+	active = QStyle::SC_SpinWidgetUp;
+
+
+
+
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				d->up,
 				d->upEnabled ? colorGroup() :
 				palette().disabled(),
 				QStyle::CStyle_Default,
 				QStyle::SC_SpinWidgetUp,
-				(theButton & 2) ? QStyle::PStyle_On :
-				QStyle::PStyle_Off );
-    
+				active);
+
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				d->down,
 				d->downEnabled ? colorGroup() :
 				palette().disabled(),
 				QStyle::CStyle_Default,
 				QStyle::SC_SpinWidgetDown,
-				(theButton & 1) ? QStyle::PStyle_On :
-				QStyle::PStyle_Off );
+				active);
 }
 
 

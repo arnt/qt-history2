@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#47 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#48 $
 **
 ** Implementation of Windows-like style class
 **
@@ -277,7 +277,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_ButtonShiftVertical:
 	ret = 1;
 	break;
-	
+
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
@@ -675,7 +675,7 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 /*!\reimp
  */
 void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
-                                const QColorGroup &g, bool sunken, const QBrush* fill)
+                                const QColorGroup &g, bool sunken, const QBrush *)
 {
     drawButton(p, QRect(x, y, w, h), g, sunken);
 }
@@ -2053,11 +2053,11 @@ QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
 }
 
 void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
-					const QWidget * w, 
+					const QWidget * w,
 					const QRect & r,
 					const QColorGroup & cg,
 					CFlags flags,
-					SCFlags sub, 
+					SCFlags sub,
 					SCFlags subActive, void * data ) const
 {
     switch( ctrl ) {
@@ -2084,36 +2084,44 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 }
 
 void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
-				    const QWidget * w, 
+				    const QWidget * w,
 				    const QRect & r, const QColorGroup & cg,
 				    CFlags flags,
 				    SCFlags subActive, void * data ) const
 {
     switch( subCtrl ) {
-	case SC_SpinWidgetUp: {
-	    QSpinWidget * sw = (QSpinWidget *) w;
-	    drawButton( p, r, cg, (subActive == QStyle::PStyle_On)  ?
-			TRUE : FALSE );
-	    QWindowsStyle * that = (QWindowsStyle *) this;
-	    that->drawSpinWidgetSymbol( p, r.x(), r.y(), r.width(),
-				  r.height(), cg, sw, FALSE, TRUE,
-			(subActive == QStyle::PStyle_On) ? TRUE : FALSE );
+    case SC_SpinWidgetUp: {
+	PFlags flags = PStyle_Default;
+
+	flags |= PStyle_Enabled;
+	if (subActive == subCtrl) {
+	    flags |= PStyle_On;
+	    flags |= PStyle_Sunken;
 	}
-	break;
-	case SC_SpinWidgetDown: {
-	    QSpinWidget * sw = (QSpinWidget *) w;
-	    drawButton( p, r, cg, (subActive == QStyle::PStyle_On)  ?
-			TRUE : FALSE );
-	    QWindowsStyle * that = (QWindowsStyle *) this;
-	    that->drawSpinWidgetSymbol( p, r.x(), r.y(), r.width(),
-				  r.height(), cg, sw, TRUE, TRUE,
-			  (subActive == QStyle::PStyle_On) ? TRUE : FALSE );
+
+	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
+	drawPrimitive(PO_ArrowUp, p, r, cg, flags);
+    	break; }
+
+    case SC_SpinWidgetDown: {
+	PFlags flags = PStyle_Default;
+
+	flags |= PStyle_Enabled;
+	if (subActive == subCtrl) {
+	    flags |= PStyle_On;
+	    flags |= PStyle_Sunken;
 	}
+
+	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
+	drawPrimitive(PO_ArrowDown, p, r, cg, flags);
+	break; }
+
+    case SC_SpinWidgetFrame:
+	qDrawWinPanel( p, r, cg, TRUE );//cstyle == Sunken );
 	break;
-	case SC_SpinWidgetFrame:
-            qDrawWinPanel( p, r, cg, TRUE );//cstyle == Sunken );	    
-	    break;
-	default: break;
+
+    default:
+	break;
     }
 }
 #endif

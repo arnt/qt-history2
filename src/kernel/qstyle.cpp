@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#117 $
 **
 ** Implementation of QStyle class
 **
@@ -278,19 +278,6 @@ void QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
 
 
 /*!
-  Returns the rectangle available for contents in a bevel
-  button. Usually this is the entire rectangle minus the border, but
-  it may also be smaller when you think about rounded buttons.
-
-  \sa drawBevelButton()
-*/
-QRect QStyle::bevelButtonRect( int x, int y, int w, int h) const
-{
-    int fw = defaultFrameWidth();
-    return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
-}
-
-/*!
   Draws a press-sensitive shape in the style of a tool bar button.
 
   The default implementation calls drawBevelButton().
@@ -299,7 +286,8 @@ void QStyle::drawToolButton( QPainter * p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken,
 		     const QBrush *fill )
 {
-    drawBevelButton(p, x, y, w, h, g, sunken, fill);
+    drawPrimitive(PO_ButtonTool, p, QRect(x, y, w, h), g,
+		  sunken ? PStyle_Sunken : PStyle_Default);
 }
 
 /*!
@@ -330,7 +318,8 @@ void QStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
 		     const QBrush *fill )
 {
     if ( !autoRaised )
-	drawBevelButton( p, x, y, w, h, g, down, fill );
+	drawPrimitive(PO_ButtonTool, p, QRect(x, y, w, h), g,
+		      down ? PStyle_Sunken : PStyle_Default);
     else
 	drawPanel( p, x, y, w, h, g, down, defaultFrameWidth(), fill );
 }
@@ -346,37 +335,8 @@ void QStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
 */
 QRect QStyle::toolButtonRect( int x, int y, int w, int h)
 {
-    return bevelButtonRect( x, y, w, h );
-}
-
-/*!
-  Returns the rectangle available for contents in a push
-  button. Usually this is the entire rectangle minus the border, but
-  it may also be smaller when you think about rounded buttons.
-
-  \sa drawButton()
-*/
-QRect QStyle::buttonRect( int x, int y, int w, int h) const
-{
     int fw = defaultFrameWidth();
     return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
-}
-
-/*!
-  Draws the mask of a push button. Useful if a rounded push button needs
-  to be transparent because the style uses a fancy background pixmap.
-
-  \sa drawButtonMask()
-*/
-void QStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
-{
-    QPen oldPen = p->pen();
-    QBrush oldBrush = p->brush();
-
-    p->fillRect( x, y, w, h, QBrush(Qt::color1) );
-
-    p->setBrush( oldBrush );
-    p->setPen( oldPen );
 }
 
 /*!
@@ -393,7 +353,8 @@ void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 			      bool /*enabled */,
 			      const QBrush *fill )
 {
-    drawButton(p, x, y, w, h, g, sunken, fill);
+    drawPrimitive(PO_ButtonBevel, p, QRect(x, y, w, h), g,
+		  sunken ? PStyle_Sunken : PStyle_Default);
 }
 
 
@@ -407,7 +368,9 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h) const
     int xpos = x;
     if( QApplication::reverseLayout() )
 	xpos += 21;
-    return buttonRect(xpos, y, w-21, h);
+
+    int fw = defaultFrameWidth();
+    return QRect(xpos+fw, y+fw, w-21-2*fw, h-2*fw);
 }
 
 /*!
@@ -415,7 +378,8 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h) const
 */
 QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h) const
 {
-    return buttonRect(x+2, y+2, w-4-21, h-4);
+    int fw = defaultFrameWidth();
+    return QRect(x+fw+2, y+fw+2, w-2*fw-4-21, h-2*fw-4);
 }
 
 
@@ -426,7 +390,8 @@ QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h) const
 */
 void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 {
-    drawButtonMask(p, x, y, w, h);
+    QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
+    drawPrimitive(PO_ButtonBevel, p, QRect(x, y, w, h), cg);
 }
 
 
@@ -452,21 +417,6 @@ void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
   \sa drawPushButton(), QPushButton::drawButtonLabel()
 */
 
-
-
-
-/*! \fn void QStyle::getButtonShift( int &x, int &y) const
-  Some GUI styles shift the contents of a button when the button is down.
-  The default implementation returns 0 for both x and y.
- */
-void QStyle::getButtonShift( int &x, int &y) const
-{
-    x = 0;
-    y = 0;
-}
-
-
-
 /*!
   The default frame width, usually 2.
  */
@@ -474,7 +424,6 @@ int QStyle::defaultFrameWidth() const
 {
     return 2;
 }
-
 
 /*!
   Draws a panel to separate parts of the visual interface.
@@ -541,7 +490,6 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
     }
     p->setPen( oldPen );                        // restore pen
 }
-
 
 /*!
   Draws a panel suitable as a frame for popup windows.
@@ -933,41 +881,6 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r,
     p->restore();
 }
 
-
-/*!
-  Returns the width of the indicator frame for a default button.
-
-  In this version of the Qt library, subclasses must call
-  setButtonDefaultIndicatorWidth() to change the frame width. In a
-  future version of Qt this function will become virtual.
-*/
-int QStyle::buttonDefaultIndicatorWidth() const
-{
-    return 0;
-}
-
-/*!
-  \fn QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
-
-  Returns the contents rectangle of a push button \a btn. The contents
-  rectangle is the space available for the button label.
-
-  The result depends on the look (buttonRect()), whether the button needs
-  space for a default indicator (buttonDefaultIndicatorWidth()), and
-  whether it is pushed down and needs to be shifted (getButtonShift()).
- */
-
-
-
-/*!
-  Returns the width of the menu button indicator for a given button
-  height \a h.
- */
-int QStyle::menuButtonIndicatorWidth( int h ) const
-{
-    return QMAX( 12, (h-4)/3 );
-}
-
 /*! \fn void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				  QMenuItem* mi, QColorGroup& g, bool active,
 				  bool down, bool hasFocus = FALSE )
@@ -989,10 +902,10 @@ int QStyle::menuButtonIndicatorWidth( int h ) const
   Returns the amount of whitespace between pushbutton labels and
   the frame in this style.
 */
-int QStyle::buttonMargin() const
-{
-    return 6;
-}
+// int QStyle::buttonMargin() const
+// {
+// return 6;
+// }
 
 /*!
   Returns the thickness of a slider in this style.  The thickness is
