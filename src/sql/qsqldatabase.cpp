@@ -222,7 +222,7 @@ bool QSqlDatabaseManager::contains( const QString& name )
     the output of drivers() to determine whether a particular driver
     is available or not.
 
-    The returned QSqlDatabase object is owned by the framework and 
+    The returned QSqlDatabase object is owned by the framework and
     must not be deleted. If you want to explicitely remove the connection,
     use removeDatabase()
 
@@ -357,7 +357,7 @@ void QSqlDatabase::removeDatabase( const QString& connectionName )
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QStringList list = myDatabase.drivers();
+    QStringList list = QSqlDatabase::drivers();
     QStringList::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
