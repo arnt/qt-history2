@@ -342,8 +342,6 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 		struct utimbuf tb;
 		tb.actime = tb.modtime = t.secsTo(timeStamp);
 		utime(fileName.latin1(), &tb);
-#else
-#   warning "Do we need to do this on windows!?"
 #endif
 	    }
 	} else if(chunktype == ChunkSymlink) {
@@ -369,8 +367,6 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 
 #ifdef Q_OS_UNIX
 	    symlink( symName.latin1(), fileName.latin1() );
-#else
-#   warning "How do we symlink on windows?!"
 #endif
 	} else {
 	    if( verbosityMode & Source )

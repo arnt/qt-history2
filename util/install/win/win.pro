@@ -4,7 +4,7 @@ SOURCES = main.cpp setupwizardimpl.cpp environment.cpp shell.cpp folderdlgimpl.c
 INTERFACES = setupwizard.ui folderdlg.ui
 CONFIG += windows qt
 TARGET  = install
-DESTDIR = ../../bin
+DESTDIR = ../../../bin
 INCLUDEPATH = $(QTDIR)\src\3rdparty $(QTDIR)\util\install\archive
 
 win32-msvc:RC_FILE = install.rc

@@ -6,4 +6,5 @@ INTERFACES = generatordlg.ui
 TARGET  = package
 CONFIG += qt
 unix:LIBS += -L$(QTDIR)/util/install/archive -larq
+win32:LIBS += ../archive/arq.lib
 

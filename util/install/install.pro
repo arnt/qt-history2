@@ -5,5 +5,5 @@ SUBDIRS += archive \
            package \
 	   keygen
 
-win:SUBDIRS += win
+win32:SUBDIRS += win
 mac:SUBDIRS += mac
