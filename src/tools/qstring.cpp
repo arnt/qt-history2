@@ -11789,6 +11789,17 @@ static inline QChar::Direction direction( const QChar &c )
 #endif
 }
 
+static inline bool mirrored( const QChar &c )
+{
+#ifndef QT_NO_UNICODETABLES
+    const Q_UINT8 *rowp = direction_info[c.row()];
+    if ( !rowp )
+	return FALSE;
+    return *(rowp+c.cell())>128;
+#else
+    return FALSE;
+#endif
+}
 
 static const Q_UINT16 symmetricPairs[] = {
     0x0028, 0x0029, 0x003C, 0x003E, 0x005B, 0x005D, 0x007B, 0x007D,
@@ -12363,14 +12374,7 @@ QChar::Joining QChar::joining() const
 */
 bool QChar::mirrored() const
 {
-#ifndef QT_NO_UNICODETABLES
-    const Q_UINT8 *rowp = direction_info[row()];
-    if ( !rowp )
-	return FALSE;
-    return *(rowp+cell())>128;
-#else
-    return FALSE;
-#endif
+    return ::mirrored( *this );
 }
 
 /*!
@@ -12380,7 +12384,8 @@ bool QChar::mirrored() const
 QChar QChar::mirroredChar() const
 {
 #ifndef QT_NO_UNICODETABLES
-    if(!mirrored()) return *this;
+    if(!::mirrored( *this )) 
+	return *this;
 
     int i;
     int c = unicode();
@@ -17033,12 +17038,12 @@ QString &QString::setLatin1( const char *str, int len )
 void QString::checkSimpleText() const
 {
     QChar *p = d->unicode;
-    int len = d->len;
+    QChar *end = p + d->len;
     d->simpletext = 1;
-    while( len-- ) {
-	uchar r = p->row();
+    while( p < end ) {
+	ushort uc = p->unicode();
 	// sort out regions of complex text formatting
-	if ( r > 0x04 && ( r < 0x11 || r > 0xfa ) ) {
+	if ( uc > 0x058f && ( uc < 0x1100 || uc > 0xfb0f ) ) {
 	    d->simpletext = 0;
 	    return;
 	}
