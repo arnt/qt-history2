@@ -63,8 +63,6 @@ public:
     QVariant retrieveData(const QString &format, QVariant::Type type) const;
 };
 
-
-
 class QClipboardData
 {
 public:
@@ -227,9 +225,6 @@ bool QClipboard::event(QEvent *e)
         }
     }
     if(check_clip && hasScrapChanged()) {
-#if 0
-        qDebug("%s: got a change..", QTime::currentTime().toString().latin1());
-#endif
         clipboardData()->clear();
         emit dataChanged();
     }
@@ -257,9 +252,6 @@ void QClipboard::setMimeData(QMimeData *src, Mode mode)
     ClearCurrentScrap();
     hasScrapChanged();
 
-#if 0
-    qDebug("%s: starting a put..", QTime::currentTime().toString().latin1());
-#endif
     QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_CLIP);
     QStringList formats = src->formats();
     for (int i = 0; i < formats.size(); ++i) {
@@ -270,16 +262,10 @@ void QClipboard::setMimeData(QMimeData *src, Mode mode)
                 for (int j = 0; j < c->countFlavors(); j++) {
                     uint flav = c->flavor(j);
                     if(c->canConvert(mime, flav)) {
-#if 0
-                        qDebug("%s: writing %s (%d)..", QTime::currentTime().toString().latin1(), mime, flav);
-#endif
                         QList<QByteArray> md = c->convertFromMime(src->data(mime), mime, flav);
                         if(md.count() > 1)
                             qWarning("QClipBoard: cannot handle multiple byte array conversions..");
                         PutScrapFlavor(scrap, (ScrapFlavorType)flav, 0, md.first().size(), md.first().data());
-#if 0
-                        qDebug("%s: done writing %s (%d)..", QTime::currentTime().toString().latin1(), mime, flav);
-#endif
                     }
                 }
             }
@@ -289,9 +275,6 @@ void QClipboard::setMimeData(QMimeData *src, Mode mode)
     extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
     PutScrapFlavor(scrap, qt_mac_mime_type, 0, 0, 0);
     emit dataChanged();
-#if 0
-    qDebug("%s: finished a put..", QTime::currentTime().toString().latin1());
-#endif
     qt_event_send_clipboard_changed();
 }
 
