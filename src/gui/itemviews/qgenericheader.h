@@ -28,7 +28,7 @@ public:
     int offset() const;
     int size() const;
     QSize sizeHint() const;
-    int sectionSizeHint(int section, bool all = true) const;
+    int sectionSizeHint(int section) const;
 
     int sectionAt(int position) const;
     int sectionSize(int section) const;
@@ -68,6 +68,7 @@ signals:
     void sectionSizeChanged(int section, int oldSize, int newSize);
     void sectionClicked(int section, ButtonState state);
     void sectionCountChanged(int oldCount, int newCount);
+    void sectionHandleDoubleClicked(int section, ButtonState state);
 
 protected slots:
     void updateSection(int section);
@@ -85,6 +86,7 @@ protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+    void mouseDoubleClickEvent(QMouseEvent *e);
 
     virtual void paintSection(QPainter *painter, QAbstractItemDelegate *delegate, QItemOptions *options,
                               const QModelIndex &item);

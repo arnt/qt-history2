@@ -63,6 +63,8 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
                             this, SLOT(selectColumn(int,ButtonState)));
         QObject::disconnect(d->topHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
+        QObject::disconnect(d->topHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+                            this, SLOT(resizeColumnToContents(int)));
     }
 
     d->topHeader = header;
@@ -75,6 +77,8 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
                      this, SLOT(selectColumn(int,ButtonState)));
     QObject::connect(d->topHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)));
+    QObject::connect(d->topHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+                     this, SLOT(resizeColumnToContents(int)));
 
     // FIXME: this needs to be set in setSelectionModel too
     d->topHeader->setSelectionModel(selectionModel());
@@ -84,26 +88,30 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 void QGenericTableView::setLeftHeader(QGenericHeader *header)
 {
     if (d->leftHeader) {
-        disconnect(d->leftHeader, SIGNAL(sectionSizeChanged(int,int,int)),
-                   this, SLOT(rowHeightChanged(int,int,int)));
-        disconnect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
-                   this, SLOT(rowIndexChanged(int,int,int)));
-        disconnect(d->leftHeader, SIGNAL(sectionClicked(int,ButtonState)),
-                   this, SLOT(selectRow(int,ButtonState)));
-        disconnect(d->leftHeader, SIGNAL(sectionCountChanged(int,int)),
-                   this, SLOT(rowCountChanged(int,int)));
+        QObject::disconnect(d->leftHeader, SIGNAL(sectionSizeChanged(int,int,int)),
+                            this, SLOT(rowHeightChanged(int,int,int)));
+        QObject::disconnect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
+                            this, SLOT(rowIndexChanged(int,int,int)));
+        QObject::disconnect(d->leftHeader, SIGNAL(sectionClicked(int,ButtonState)),
+                            this, SLOT(selectRow(int,ButtonState)));
+        QObject::disconnect(d->leftHeader, SIGNAL(sectionCountChanged(int,int)),
+                            this, SLOT(rowCountChanged(int,int)));
+        QObject::disconnect(d->leftHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+                            this, SLOT(resizeRowToContents(int)));
     }
 
     d->leftHeader = header;
 
-    connect(d->leftHeader, SIGNAL(sectionSizeChanged(int,int,int)),
-            this, SLOT(rowHeightChanged(int,int,int)));
-    connect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
-            this, SLOT(rowIndexChanged(int,int,int)));
-    connect(d->leftHeader, SIGNAL(sectionClicked(int,ButtonState)),
-            this, SLOT(selectRow(int,ButtonState)));
-    connect(d->leftHeader, SIGNAL(sectionCountChanged(int,int)),
-            this, SLOT(rowCountChanged(int,int)));
+    QObject::connect(d->leftHeader, SIGNAL(sectionSizeChanged(int,int,int)),
+                     this, SLOT(rowHeightChanged(int,int,int)));
+    QObject::connect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
+                     this, SLOT(rowIndexChanged(int,int,int)));
+    QObject::connect(d->leftHeader, SIGNAL(sectionClicked(int,ButtonState)),
+                     this, SLOT(selectRow(int,ButtonState)));
+    QObject::connect(d->leftHeader, SIGNAL(sectionCountChanged(int,int)),
+                     this, SLOT(rowCountChanged(int,int)));
+    QObject::connect(d->leftHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+                     this, SLOT(resizeRowToContents(int)));
 
     // FIXME: this needs to be set in setSelectionModel too
     d->leftHeader->setSelectionModel(selectionModel());
@@ -400,6 +408,8 @@ int QGenericTableView::rowSizeHint(int row) const
 {
     int columnfirst = columnAt(0);
     int columnlast = columnAt(d->viewport->width());
+    if (columnlast < 0)
+        columnlast = d->topHeader->count() - 1;
 
     QItemOptions options;
     getViewOptions(&options);
@@ -417,7 +427,9 @@ int QGenericTableView::columnSizeHint(int column) const
 {
     int rowfirst = rowAt(0);
     int rowlast = rowAt(d->viewport->height());
-
+    if (rowlast < 0)
+        rowlast = d->leftHeader->count() - 1;
+    
     QItemOptions options;
     getViewOptions(&options);
 
@@ -562,6 +574,18 @@ void QGenericTableView::showRow(int row)
 void QGenericTableView::showColumn(int column)
 {
     d->topHeader->showSection(column);
+}
+
+void QGenericTableView::resizeRowToContents(int row)
+{
+    int size = rowSizeHint(row);
+    d->leftHeader->resizeSection(row, size);
+}
+
+void QGenericTableView::resizeColumnToContents(int column)
+{
+    int size = columnSizeHint(column);
+    d->topHeader->resizeSection(column, size);
 }
 
 void QGenericTableView::verticalScrollbarAction(int action)

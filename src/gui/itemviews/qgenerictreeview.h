@@ -43,6 +43,7 @@ public slots:
     void hideColumn(int column);
 
 protected slots:
+    void resizeColumnToContents(int column);
     void columnWidthChanged(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
     void contentsChanged();
@@ -76,6 +77,8 @@ protected:
     void updateGeometries();
     void verticalScrollbarAction(int action);
     void horizontalScrollbarAction(int action);
+
+    int columnSizeHint(int column) const;
 };
 
 #endif

@@ -130,7 +130,7 @@ QSize QGenericHeader::sizeHint() const
     return QSize(size(), hint.height() + border);
 }
 
-int QGenericHeader::sectionSizeHint(int section, bool all) const
+int QGenericHeader::sectionSizeHint(int section/*, bool all*/) const
 {
     QItemOptions options;
     getViewOptions(&options);
@@ -147,9 +147,11 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
     else
         hint = delegate->sizeHint(fontMetrics(), options, header).width();
 
-    if (!all)
+//    if (!all)
         return hint + border;
-
+        
+    // FIXME: the following code only checks the top level. In a treeview, the column may show several levels
+/*
     if (orientation() == Vertical) {
         for (int i = 0; i < model()->columnCount(root()); ++i) {
             QModelIndex index = model()->index(section, i, root());
@@ -162,6 +164,7 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
         }
     }
     return hint + border;
+*/
 }
 
 void QGenericHeader::paintEvent(QPaintEvent *e)
@@ -234,9 +237,9 @@ void QGenericHeader::paintSection(QPainter *painter, QAbstractItemDelegate *dele
         int x = options->itemRect.x();
         int y = options->itemRect.y();
         if (orientation() == Qt::Horizontal)
-            arrowRect.setRect(x + sectionSizeHint(section) - border, y + 5, height / 2, height - border);
+            arrowRect.setRect(x + sectionSize(section) - border, y + 5, height / 2, height - border);
         else
-            arrowRect.setRect(x + 5, y + sectionSizeHint(section) - border, height / 2, height - border);
+            arrowRect.setRect(x + 5, y + sectionSize(section) - border, height / 2, height - border);
         arrowFlags |= (sortIndicatorOrder() == Qt::Ascending ? QStyle::Style_Down : QStyle::Style_Up);
         style().drawPrimitive(QStyle::PE_HeaderArrow, painter, arrowRect, palette(), arrowFlags);
     }
@@ -361,14 +364,6 @@ void QGenericHeader::initializeSections(int start, int end)
     d->viewport->update();
 }
 
-void QGenericHeader::updateSection(int section)
-{
-    if (orientation() == Horizontal)
-        d->viewport->update(QRect(sectionPosition(section) - d->offset, 0, sectionSize(section), height()));
-    else
-        d->viewport->update(QRect(0, sectionPosition(section) - d->offset, width(), sectionSize(section)));
-}
-
 void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     QModelIndex parent = model()->parent(topLeft);
@@ -395,7 +390,7 @@ void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelInd
             if (hint > size)
                 resizeSection(sec, hint);
             else // we have to check them all
-                resizeSection(sec, sectionSizeHint(sec)); // sloooow
+                resizeSection(sec, sectionSizeHint(sec)); // FIXME: get the size of the section from the contents
             resizeSections();
         }
     }
@@ -432,6 +427,14 @@ void QGenericHeader::ensureItemVisible(const QModelIndex &)
 //         setOffset(sectionPosition(index.row()));
 }
 
+void QGenericHeader::updateSection(int section)
+{
+    if (orientation() == Horizontal)
+        d->viewport->update(QRect(sectionPosition(section) - d->offset, 0, sectionSize(section), height()));
+    else
+        d->viewport->update(QRect(0, sectionPosition(section) - d->offset, width(), sectionSize(section)));
+}
+
 void QGenericHeader::resizeSections()
 {
     ResizeMode mode;
@@ -450,7 +453,7 @@ void QGenericHeader::resizeSections()
         if (mode == Interactive)
             secSize = sectionSize(secs[i].section);
         else //if (mode == QGenericHeader::Content)
-            secSize = sectionSizeHint(secs[i].section); // warning: slow!
+        secSize = sectionSizeHint(secs[i].section); // FIXME: get the size of the section from the contents
         section_sizes.append(secSize);
         stretchSize -= secSize;
     }
@@ -474,10 +477,8 @@ void QGenericHeader::mousePressEvent(QMouseEvent *e)
     int pos = orientation() == Horizontal ? e->x() : e->y();
     if (e->state() & ControlButton && d->movableSections) {
         d->section = d->target = sectionAt(pos + d->offset);
-        if (d->section == -1) {
-            //QAbstractItemView::viewportMousePressEvent(e);
+        if (d->section == -1)
             return;
-        }
         d->state = QGenericHeaderPrivate::MoveSection;
         d->setupSectionIndicator();
         d->updateSectionIndictaor();
@@ -486,9 +487,7 @@ void QGenericHeader::mousePressEvent(QMouseEvent *e)
         int handle = d->sectionHandleAt(pos + d->offset);
         while (handle > -1 && isSectionHidden(handle)) handle--;
         if (handle == -1) {
-            // set state to pressed
             int sec = sectionAt(pos + d->offset);
-            updateSection(sec);
             emit sectionClicked(sec, e->state());
             return;
         } else if (resizeMode(handle) == Interactive) {
@@ -529,7 +528,6 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
                 setCursor(orientation() == Horizontal ? SplitHCursor : SplitVCursor);
             else
                 setCursor(ArrowCursor);
-            //QAbstractItemView::viewportMouseMoveEvent(e);
             return;
         }
 
@@ -541,12 +539,12 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
 
 void QGenericHeader::mouseReleaseEvent(QMouseEvent *e)
 {
-    int position = orientation() == Horizontal ? e->x() : e->y();
+    int pos = orientation() == Horizontal ? e->x() : e->y();
     switch (d->state) {
     case QGenericHeaderPrivate::MoveSection:
         // keep the value within the header
-        position = (position < 0 ? 0 : qMin(position, d->sections.at(count()).position));
-        d->target = sectionAt(position + d->offset);
+        pos = (pos < 0 ? 0 : qMin(pos, d->sections.at(count()).position));
+        d->target = sectionAt(pos + d->offset);
         moveSection(index(d->section), index(d->target));
         d->section = d->target = -1;
         d->updateSectionIndictaor();
@@ -560,7 +558,15 @@ void QGenericHeader::mouseReleaseEvent(QMouseEvent *e)
         break;
     }
     d->state = QGenericHeaderPrivate::NoState;
-    //QAbstractItemView::viewportMouseReleaseEvent(e);
+}
+
+void QGenericHeader::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    int pos = orientation() == Horizontal ? e->x() : e->y();
+    int handle = d->sectionHandleAt(pos + d->offset);
+    while (handle > -1 && isSectionHidden(handle)) handle--;
+    if (handle > -1 && resizeMode(handle) == Interactive)
+        emit sectionHandleDoubleClicked(handle, e->state());
 }
 
 void QGenericHeader::moveSection(int from, int to)

@@ -81,9 +81,10 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
                             this, SLOT(contentsChanged()));
         QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        delete d->header; // FIXME ???
+        QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+                            this, SLOT(resizeColumnToContents(int)));
+        delete d->header;
     }
-    // FIXME: reparent header ???
     d->header = header;
     setViewportMargins(0, d->header->sizeHint().height(), 0, 0);
     QObject::connect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
@@ -92,6 +93,8 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
                      this, SLOT(contentsChanged()));
     QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)));
+    QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+                     this, SLOT(resizeColumnToContents(int)));
     d->header->setSelectionModel(selectionModel());
 
     updateGeometries();
@@ -180,18 +183,18 @@ bool QGenericTreeView::isOpen(const QModelIndex &item) const
 
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
-    QPainter painter(viewport());
+    QPainter painter(d->viewport);
     QRect area = e->rect();
 
-    d->left = qMax(d->header->sectionAt(d->header->offset() + area.x()), 0);
-    d->right = -1;//d->header->sectionAt(d->header->offset() + visibleWidth());
+    d->left = qMax(d->header->sectionAt(d->header->offset() + area.left()), 0);
+    d->right = d->header->sectionAt(d->header->offset() + area.right());
     if (d->right < 0)
         d->right = d->header->count() - 1;
 
     if (d->items.isEmpty())
         return;
 
-    QGenericTreeViewItem *items = d->items.data();
+    const QGenericTreeViewItem *items = d->items.constData();
 
     QItemOptions options;
     getViewOptions(&options);
@@ -200,8 +203,8 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     QModelIndex index;
     QModelIndex current = selectionModel()->currentItem();
 
-    int h = viewport()->height();
     int v = verticalScrollBar()->value();
+    int h = d->viewport->height();
     int c = d->items.count();
     int i = d->itemAt(v);
     int y = d->coordinateAt(v, delegate->sizeHint(fontMetrics, options, items[i].index).height());
@@ -610,6 +613,12 @@ bool QGenericTreeView::doItemsLayout(int num)
     return (d->layout_from_index >= (d->layout_parent_index + d->layout_count));
 }
 
+void QGenericTreeView::resizeColumnToContents(int column)
+{
+    int size = columnSizeHint(column);
+    d->header->resizeSection(column, size);
+}
+
 void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
     int columnPos = d->header->sectionPosition(column);
@@ -735,6 +744,35 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
     }
 }
 
+int QGenericTreeView::columnSizeHint(int column) const
+{
+    QItemOptions options;
+    getViewOptions(&options);
+    QFontMetrics fontMetrics(this->fontMetrics());
+    QAbstractItemDelegate *delegate = itemDelegate();
+    QModelIndex index;
+    
+    const QGenericTreeViewItem *items = d->items.constData();
+    int v = verticalScrollBar()->value();
+    int h = d->viewport->height();
+    int c = d->items.count();
+    int i = d->itemAt(v);
+    int y = d->coordinateAt(v, delegate->sizeHint(fontMetrics, options, items[i].index).height());
+    int w = 0;
+    QSize size;
+
+    while (y < h && i < c) {
+        index = items[i].index;
+        index = model()->sibling(index.row(), column, index);
+        size = delegate->sizeHint(fontMetrics, options, index);
+        w = qMax(w, size.width() + (column == 0 ? d->indentation(i) : 0));
+        y += size.height();
+        ++i;
+    }
+
+    return w;
+}
+
 bool QGenericTreeViewPrivate::isOpen(int i) const
 {
     if (i < 0 || i >= items.count())
@@ -763,10 +801,9 @@ void QGenericTreeViewPrivate::close(int i)
     while (parent.isValid()) { // FIXME: *really slow*
         items[idx].total -= total;
         parent = model->parent(parent);
-        idx = viewIndex(parent, v); // FIXME: slow
+        idx = viewIndex(parent, v);
     }
     collapse<QGenericTreeViewItem>(items, i, total);
-//     int height = total * itemHeight;
     q->updateGeometries();
     q->d->viewport->update();
 }
@@ -879,12 +916,11 @@ int QGenericTreeViewPrivate::viewIndex(const QModelIndex &index, int value) cons
     // NOTE: this function is slow if the item is outside the visible area
     // search in visible items first, then below
     int t = itemAt(value);
-    t = t > 100 ? t - 100 : 0; // start a few items above the visible area
-    for (int i = t; i < items.count(); ++i) {
+    t = t > 100 ? t - 100 : 0; // start 100 items above the visible area
+    for (int i = t; i < items.count(); ++i)
         if (items.at(i).index.row() == index.row() &&
             items.at(i).index.data() == index.data()) // ignore column
             return i;
-    }
     // search above
     for (int j = 0; j < t; ++j)
         if (items.at(j).index.row() == index.row() &&
@@ -911,7 +947,6 @@ int QGenericTreeViewPrivate::itemAt(int value) const
 int QGenericTreeViewPrivate::coordinateAt(int value, int iheight) const
 {
     int factor = q->verticalFactor();
-//     int item = value / factor;
     int above = (value % factor) * iheight; // what's left; in "item units"
     return -(above / factor); // above the page
 }
