@@ -505,12 +505,13 @@ void QTitleBar::cutText()
 	maxw = width() - 20;
     const QString txt = caption();
     d->cuttext = txt;
-    if ( fm.width( txt ) > maxw ) {
+    if ( fm.width( txt + "m" ) > maxw ) {
 	int i = txt.length();
 	int dotlength = fm.width( "..." );
 	while ( i>0 && fm.width(txt.left( i )) + dotlength > maxw )
 	    i--;
-	d->cuttext = txt.left( i ) + "...";
+	if(i != (int)txt.length())
+	    d->cuttext = txt.left( i ) + "...";
     }
 #endif
 }
