@@ -677,16 +677,14 @@ static const char * const ps_header[] = {
 // slant is an optional slant. 0 is non slanted, 0.2 is a typical value for a syntetic oblique.
 // encoding can be either an encoding vector of false if the default font encoding is requested.
 "/qtfindfont {",                        // fntlist
-"  true exch",                          // push a dummy on the stack,
+"  true exch true exch",                          // push a dummy on the stack,
 "  {",                          // so the loop over the array will leave a font in any case when exiting.
-"    exch pop",                 // (dummy | oldfont) fontarray
+"    exch pop exch pop",                 // (dummy | oldfont) (dummy | fontdict) fontarray
 "    dup 0 get dup findfont",           // get the fontname from the array and load it
 "    dup /FontName get",                // see if the font exists
 "    3 -1 roll eq {",                   // see if fontname and the one provided are equal
 "      exit",
-"    } {",
-"      pop",
-"    } ifelse",
+"    } if",
 "  } forall",
 "  exch",                               // font fontarray
 "} D",
