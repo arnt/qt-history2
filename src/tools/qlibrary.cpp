@@ -51,10 +51,6 @@
 # endif
 #endif
 
-#if defined(Q_OS_HPUX)
-#define QT_NO_LIBRARY_UNLOAD
-#endif
-
 #if defined(Q_WS_WIN) && !defined(QT_MAKEDLL)
 #define QT_NO_LIBRARY_UNLOAD
 #endif
