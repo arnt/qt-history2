@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#8 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#9 $
 **
-** Definition of QSizePolicy class
+** Definition of QSizePolicyclass
 **
-** Created : 930929
+** Created : 980929
 **
 ** Copyright (C) 1998-1999 Troll Tech AS.  All rights reserved.
 **
@@ -31,22 +31,24 @@
 class Q_EXPORT QSizePolicy
 {
 private:
-        enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
-	       MayGrow = 1, ExpMask = 2, MayShrink = 4 };
+    enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
+	   MayGrow = 1, ExpMask = 2, MayShrink = 4 };
 public:
-    enum SizeType { Fixed = 0, Minimum = MayGrow,
+    enum SizeType { Fixed = 0,
+		    Minimum = MayGrow,
 		    Maximum = MayShrink,
 		    Preferred = MayGrow|MayShrink ,
-		    Expanding = Preferred|ExpMask,
-		    MinimumExpanding = Minimum|ExpMask };
+		    MinimumExpanding = Minimum|ExpMask,
+		    Expanding = MinimumExpanding|MayShrink };
 
-    enum ExpandData { NoDirection = 0, Horizontal = 1, Vertical = 2,
-			 BothDirections = Horizontal | Vertical };
+    enum ExpandData { NoDirection = 0,
+		      Horizontal = 1,
+		      Vertical = 2,
+		      BothDirections = Horizontal | Vertical };
 
     QSizePolicy() { data = 0; }
 
-    QSizePolicy( SizeType hor, SizeType ver ) {
-	data = hor | (ver<<HSize); }
+    QSizePolicy( SizeType hor, SizeType ver ): data( hor | (ver<<HSize) ) {}
 
     SizeType horData() const { return (SizeType)( data & HMask ); }
     SizeType verData() const { return (SizeType)(( data & VMask ) >> HSize); }
@@ -56,21 +58,20 @@ public:
     bool mayGrowHorizontally() const { return horData() & MayGrow; }
     bool mayGrowVertically() const { return verData() & MayGrow; }
 
-    ExpandData expanding() const {
-	int r = (horData()|ExpMask ? Horizontal : 0)
-		|(verData()|ExpMask ? Vertical : 0);
-	return (ExpandData)r;
+    ExpandData expanding() const
+    {
+	return (ExpandData)( (int)(verData()|ExpMask ? Vertical : 0)+
+			     (int)(horData()|ExpMask ? Horizontal : 0) );
     }
 
     void setHorData( SizeType d ) { data = (data & ~HMask) | d; }
     void setVerData( SizeType d ) { data = (data & ~HMask) | d; }
-		
-		
-		
+
     bool hasWidthForHeight() { return data & ( 1 << 2*HSize ); }
 
 private:
-    QSizePolicy( int i ) { data = i; }
+    QSizePolicy( int i ): data( i ) {}
+
     Q_UINT16 data;
 };
 
