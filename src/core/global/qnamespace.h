@@ -112,7 +112,7 @@ public:
     enum SortOrder {
         AscendingOrder,
         DescendingOrder
-#ifndef QT_COMPAT
+#ifdef QT_COMPAT
         ,Ascending = AscendingOrder,
         Descending = DescendingOrder
 #endif
