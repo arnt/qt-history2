@@ -601,6 +601,7 @@ for plat in mac win x11 embedded; do
     embedded)
 	[ "x$DO_EMBEDDED" = "xyes" ] || continue
 	plat2=unix
+	plat3=qws
 	;;
     x11)
 	[ "x$DO_X11" = "xyes" ] || continue
