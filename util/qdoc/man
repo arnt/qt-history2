@@ -72,6 +72,18 @@ sub parsepre {
 sub parselist {
     local ($_) = @_;
 
+    s!<ul[^>]*>.*?</ul>!{
+	my($l) = $&;
+	$l =~ s/\n\.PP\n/\n.IP\n/gs;
+	$l;
+    }!gse;
+
+    s!<ol[^>]*>.*?</ol>!{
+	my($l) = $&;
+	$l =~ s/\n\.PP\n/\n.IP\n/gs;
+	$l;
+    }!gse;
+
     s!<((?:(?:/?[uo]l)|(?:li)))(?:[\s\w]*)>!{
 	if ( $1 eq "ul" ) {
 	    $m = "ul";
@@ -90,6 +102,8 @@ sub parselist {
 	}
     }!gse;
 
+    s-\s*\n\.IP\s*(\n\.IP\s+)-$1-gs;
+
     s-<dl\b[\s\w]*>--gs;
     s-\s*<dt>\s*(.*?)\s*<dd>\s*(.*?)(?=\s*<(?:(?:dt)|(?:/dl))\b)-\n.IP "$1" 1c\n$2\n-gs;
     s-\s*</dl\b[\s\w]*>\s*-\n.PP\n-gs;
@@ -105,7 +119,9 @@ sub parsemembers {
 	my ($f) = $1;
 	$f =~ s/\\fB(\w[\w\d]+)\\fP/$1/gs;	
 	$f =~ s/\\fB(operator.*?)\\fP/$1/gs;
+	$f =~ s/\x22/QUOTEHERE/gs;
 	$f =~ s/((?:(?:[\w\*])|(?:\&amp\;))\s*)\b(\w[\w\d]*)((?:\s*=\s*(?:(?:[\-\w\d]+)|(?:'.'))\s*)?[,\)])/$1\x22 \x22$2\x22 \x22$3/gs;
+	$f =~ s/QUOTEHERE/""/gs;
 	sprintf( "\n.ti -1c\n.BI \"%s\"\n.br\n", $f );
     }@esg;
 
@@ -207,7 +223,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
 "\" \"Troll Tech AS\" \\\" -*- nroff -*-
 .\\\" Copyright 1992-1996 Troll Tech AS.  All rights reserved.  See the
-.\\\" LICENSE file included in the distribution for a complete licence
+.\\\" LICENSE file included in the distribution for a complete license
 .\\\" statement.
 .\\\"
 .\\\" hilit19 workaround: \"
@@ -220,7 +236,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
 .BR http://www.troll.no/qt/", $url, "
 .SH COPYRIGHT
 Copyright 1992-1996 Troll Tech AS.  See the LICENSE file included in
-the distribution for a complete licence statement.
+the distribution for a complete license statement.
 .SH AUTHOR
 Generated automatically from the source code.
 ";
