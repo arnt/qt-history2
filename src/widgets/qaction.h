@@ -167,6 +167,7 @@ private slots:
     void childToggled( bool );
     void childDestroyed();
     void internalComboBoxActivated( int );
+    void internalComboBoxHighlighted( int );
     void internalToggle( QAction* );
     void objectDestroyed();
 

@@ -1647,6 +1647,7 @@ bool QActionGroup::addTo( QWidget* w )
 		if ( foundOn )
 		    box->setCurrentItem( onIndex );
 		connect( box, SIGNAL(activated(int)), this, SLOT( internalComboBoxActivated(int)) );
+		connect( box, SIGNAL(highlighted(int)), this, SLOT( internalComboBoxHighlighted(int)) );
 		d->update( this );
 		return TRUE;
 	    }
@@ -1948,7 +1949,25 @@ void QActionGroup::internalComboBoxActivated( int index )
 	    emit activated();
 	    emit ((QActionGroup*)a)->activated();
 	}
+	a->clearStatusText();
     }
+}
+
+/*! \internal
+*/
+void QActionGroup::internalComboBoxHighlighted( int index )
+{
+    QAction *a = 0;
+    for ( int i = 0; i <= index && i < (int)d->actions.count(); ++i ) {
+	a = d->actions.at( i );
+	if ( a && !qstrcmp( a->name(), "qt_separator_action" ) )
+	    index++;
+    }
+    a = d->actions.at( index );
+    if ( a )
+	a->showStatusText(a->statusTip());
+    else
+	a->clearStatusText();
 }
 
 /*! \internal
