@@ -671,9 +671,9 @@ void QCanvas::advance()
 	if ( i )
 	    i->advance(0);
     }
-    for (QPtrDictIterator<void> it=animDict; it.current(); ) {
-	QCanvasItem* i = (QCanvasItem*)it.currentKey();
-	++it;
+    for (QPtrDictIterator<void> it2=animDict; it2.current(); ) {
+	QCanvasItem* i = (QCanvasItem*)it2.currentKey();
+	++it2;
 	if ( i )
 	    i->advance(1);
     }
@@ -1429,7 +1429,7 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
 
     // s2image != 0
 
-    // XXX 
+    // XXX
     // XXX A non-linear search would typically be more
     // XXX efficient.  Optimal would be spiralling out
     // XXX from the center, but a simple vertical expansion
@@ -1437,7 +1437,7 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
     // XXX
     // XXX My sister just had a baby 40 minutes ago, so
     // XXX I'm too brain-spun to implement it correctly!
-    // XXX 
+    // XXX
     //
 
     // Let's make an assumption.  That sprite masks don't have
