@@ -15,6 +15,7 @@ DESTDIR		= ../../../lib
 
 unix {
 	target.path=$$libs.path
-
+	QMAKE_CFLAGS += $$QMAKE_CFLAGS_SHLIB
+	QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SHLIB
 	INSTALLS        += target
 }
