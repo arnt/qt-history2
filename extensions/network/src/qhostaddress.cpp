@@ -5,7 +5,7 @@
 **
 ** Created : 979899
 **
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of Troll Tech's internal development tree for Qt.
 **
@@ -78,7 +78,7 @@ QHostAddress::QHostAddress( const QHostAddress &address )
 
 
 /*!
-  Destroys the socket address object.
+  Destructs the socket address object.
 */
 
 QHostAddress::~QHostAddress()
@@ -144,5 +144,3 @@ bool QHostAddress::operator==( const QHostAddress & other )
 {
     return  a == other.a;
 }
-
-

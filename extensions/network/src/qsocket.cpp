@@ -107,7 +107,7 @@ QSocket::QSocket( QObject *parent, const char *name )
 
 
 /*!
-  Destroys the socket.  Closes the connection if necessary.
+  Destructs the socket.  Closes the connection if necessary.
   \sa close()
 */
 
@@ -710,7 +710,7 @@ bool QSocket::atEnd() const
 /*!
   Returns the number of incoming bytes that can be read, i.e. the
   size of the input buffer.  Equivalent to size().
-  \sa bytesToWrite();
+  \sa bytesToWrite()
 */
 
 int QSocket::bytesAvailable() const
@@ -725,7 +725,7 @@ int QSocket::bytesAvailable() const
 /*!
   Returns the number of bytes that are waiting to be written, i.e. the
   size of the output buffer.
-  \sa bytesAvailable.
+  \sa bytesAvailable()
 */
 
 int QSocket::bytesToWrite() const
@@ -1009,11 +1009,11 @@ void QSocket::sn_write()
 }
 
 
-/*!  Listens for and accepts a single inbound connection on address \a
-  a, port \a p.  \a a must be supplied (although you can use the
-  default constructor for QHostAddress).  \a p defaults to 0, which
-  lets the operating system select a port.
-
+/*!
+  Listens for and accepts a single inbound connection on address \a a,
+  port \a p.  \a a must be supplied (although you can use the default
+  constructor for QHostAddress).  \a p defaults to 0, which lets the
+  operating system select a port.
 */
 
 bool QSocket::listen( const QHostAddress &a, int p )
@@ -1025,7 +1025,11 @@ bool QSocket::listen( const QHostAddress &a, int p )
 
 
 /*!
+  Returns the socket number, or -1 if there is no connection.
 
+  There is normally no need to manipulate the socket number directly
+  since this class does all the necessary setup for most client or
+  server socket applications.
 */
 
 int QSocket::socket() const
@@ -1069,8 +1073,8 @@ void QSocket::setSocket( int socket )
 }
 
 
-/*!  Returns the port
-
+/*!
+  Returns the host port number of this socket.
 */
 
 uint QSocket::port() const
@@ -1080,7 +1084,8 @@ uint QSocket::port() const
 
 
 /*!
-
+  Returns the host port number as specified to the connectToHost() function.
+  If none has been set, the returned port is 0.
 */
 
 uint QSocket::peerPort() const
@@ -1090,7 +1095,7 @@ uint QSocket::peerPort() const
 
 
 /*!
-
+  Returns the host address of this socket.
 */
 
 QHostAddress QSocket::address() const
@@ -1100,8 +1105,8 @@ QHostAddress QSocket::address() const
 
 
 /*!
-  Returns the host port as specified to the connectToHost() function.
-  If none has been set, the returned port is 0.
+  Returns the host address as resolved from the name specified to the
+  connectToHost() function.
 */
 
 QHostAddress QSocket::peerAddress() const
@@ -1111,7 +1116,8 @@ QHostAddress QSocket::peerAddress() const
 
 
 /*!
-
+  Returns the host name as specified to the connectToHost() function.
+  An empty string is returned if none has been set.
 */
 
 QString QSocket::peerName() const
