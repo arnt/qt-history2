@@ -1,0 +1,75 @@
+@SysInclude { picture }
+@SysInclude { tbl }
+@SysInclude { diag }
+# lout -EPS dependencies.lout > dependencies.eps
+@Illustration
+    @InitialFont { Helvetica Base 14p }
+{
+@Diag
+    outline { shadowbox }
+    shadow { 0.15f }
+    margin { 0.5f }
+    hsize { 5f }
+    arrowwidth { 0.55f }
+    arrowlength { 0.55f }
+    pathwidth { medium }
+    zindent { 0.1f }
+    radius { 0.5f }
+    #
+    bhsize { 0.75f }
+    bmargin { 0c }
+    boutlinestyle { noline }
+{
+@Tbl
+    indent { ctr }
+    iv { ctr }
+    marginvertical { 1.25f }
+    aformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
+    bformat { @StartHSpan @Cell A | @HSpan | @Cell C | @Cell D | @Cell E }
+    cformat { @Cell A | @Cell B | @Cell C | @StartHSpan @Cell D | @HSpan }
+{
+    @Rowa C { QT:: @Node qt }
+    @Rowb A { XFT:: @Node Xft } C { XINERAMA:: @Node Xinerama }
+	  D { GL:: @Node GL }
+    @Rowc A { FREETYPE:: @Node freetype } B { XRENDER:: @Node Xrender }
+	  D { XMUXT:: @Node { Xmu"/"Xt } }
+    @Rowa C { XEXT:: @Node Xext } E { SM:: @Node SM }
+    @Rowb A {
+	@Tbl
+	    font { -2p }
+	    margin { 0.15f }
+	    iv { ctr }
+	    aformat { @Cell A | @Cell B | @Cell C }
+	{
+	    @Rowa A { A:: @BNode {} } B { B:: @BNode {} }
+	          C { optional }
+	    @Rowa A { C:: @BNode {} } B { D:: @BNode {} }
+	          C { some platforms only }
+	}
+} 
+	  C { X:: @Node X11 } E { ICE:: @Node ICE }
+    @Rowa C { PTHREAD:: @Node pthread }
+}
+//
+@Arrow from { QT } to { XINERAMA }
+@LVRCurveArrow from { QT } to { PTHREAD } pathstyle { dashed } bias { 14.25f }
+@HVCurveArrow from { QT } to { SM }
+@VHVCurveArrow from { QT } to { XFT }
+@VHVCurveArrow from { QT } to { GL }
+@VHVCurveArrow from { XFT } to { FREETYPE }
+@VHVCurveArrow from { XFT } to { XRENDER }
+@VHVCurveArrow from { XINERAMA } to { XEXT }
+@VHCurveArrow from { XRENDER } to { XEXT }
+@VHVCurveArrow from { GL } to { XEXT }
+@VHVCurveArrow from { GL } to { XMUXT } pathstyle { dotted }
+@VHCurveArrow from { XMUXT } to { XEXT } pathstyle { dotted }
+@VHVCurveArrow from { XMUXT } to { SM } pathstyle { dotted }
+@Arrow from { SM } to { ICE }
+@Arrow from { XEXT } to { X }
+@RVLCurveArrow from { GL } to { PTHREAD } pathstyle { dotted } bias { 7.65f }
+@Link from { A@W } to { B@E } pathstyle { dashed }
+@Link from { C@W } to { D@E } pathstyle { dotted }
+}
+//0c
+@Right { Qt"/"X11 library dependencies~ }
+}
