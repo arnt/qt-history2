@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#204 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#205 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4207,7 +4207,6 @@ static void write_xpm_image( QImageIO * iio )
 	    if ( cpp == 2 )
 		line[ x*cpp + 1 ] = chars[1];
 	}
-	line[ cpp*w ] = '\0';
 	s << "," << endl << "\"" << line << "\"";
     }
     s << "};" << endl;
