@@ -333,6 +333,7 @@ private:	// Disabled copy constructor and operator=
     QGLWidget& operator=( const QGLWidget& );
 #endif
     friend class QGLOverlayWidget;
+    friend class QOpenGLPaintEngine;
 
     Q_DECL_PRIVATE(QGLWidget);
 

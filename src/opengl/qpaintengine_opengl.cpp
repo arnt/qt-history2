@@ -12,11 +12,12 @@
 **
 ****************************************************************************/
 
-#include "qpaintengine_opengl.h"
 #include <private/qpainter_p.h>
-#include <qgl.h>
-#include <qpen.h>
+#include <qdebug.h>
 #include <qbrush.h>
+#include <qgl.h>
+#include "qpaintengine_opengl.h"
+#include <qpen.h>
 
 class QOpenGLPaintEnginePrivate {
 public:
@@ -40,21 +41,23 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 
 bool QOpenGLPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool begin)
 {
+    Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     dgl = (QGLWidget *)(pdev);
+    dgl->setAutoBufferSwap(false);
     setActive(true);
-//     dgl->glInit();
+
     dgl->makeCurrent();
-    dgl->qglClearColor(dgl->palette().background());
+    dgl->qglClearColor(state->bgColor);
     glViewport(0, 0, dgl->width(), dgl->height());
-    glClear(GL_COLOR_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, dgl->width(), dgl->height(), 0, 0, 1);
+    glOrtho(0, dgl->width(), dgl->height(), 0, -1, 1);
     return true;
 }
 
 bool QOpenGLPaintEngine::end()
 {
+    glFlush();
     dgl->swapBuffers();
     return true;
 }
@@ -85,7 +88,8 @@ void QOpenGLPaintEngine::updateRasterOp(QPainterState *ps)
 
 void QOpenGLPaintEngine::updateBackground(QPainterState *ps)
 {
-
+    dgl->makeCurrent();
+    dgl->qglClearColor(ps->bgColor);
 }
 
 void QOpenGLPaintEngine::updateXForm(QPainterState *ps)
@@ -113,6 +117,7 @@ void QOpenGLPaintEngine::updateXForm(QPainterState *ps)
     mat[3][2] = 0;
     mat[3][3] = 1;
 
+    dgl->makeCurrent();
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(&mat[0][0]);
 //     glTranslatef(mtx.dx(), mtx.dy(), 0);
@@ -130,6 +135,7 @@ void QOpenGLPaintEngine::setRasterOp(RasterOp r)
 
 void QOpenGLPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
+    dgl->makeCurrent();
     glBegin(GL_LINES); {
 	glVertex2i(p1.x(), p1.y());
 	glVertex2i(p2.x(), p2.y());
@@ -139,6 +145,7 @@ void QOpenGLPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 
 void QOpenGLPaintEngine::drawRect(const QRect &r)
 {
+    dgl->makeCurrent();
     if (d->cbrush.style() != NoBrush) {
 	dgl->qglColor(d->cbrush.color());
 	glBegin(GL_POLYGON); {
@@ -175,6 +182,7 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
 
 void QOpenGLPaintEngine::drawPoint(const QPoint &p)
 {
+    dgl->makeCurrent();
     glBegin(GL_POINTS); {
 	glVertex2i(p.x(), p.y());
     }
@@ -184,6 +192,7 @@ void QOpenGLPaintEngine::drawPoint(const QPoint &p)
 
 void QOpenGLPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
+    dgl->makeCurrent();
     glBegin(GL_POINTS); {
 	for (int i = 0; i < pa.size(); ++i)
 	    glVertex2i(pa[i].x(), pa[i].y());
