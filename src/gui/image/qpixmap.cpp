@@ -1295,3 +1295,109 @@ void QPixmap::deref()
     Transforms the pixmap using the given \a matrix and returns the result
     as a new pixmap.
 */
+
+
+
+/*!
+    \fn QPixmap QPixmap::scale(int w, int h, Qt::AspectRatioMode aspectRatioMode,
+                             Qt::TransformationMode transformMode) const
+
+    Returns a copy of the pixmap scaled to a rectangle of width \a w
+    and height \a h according to \a aspectRatioMode and \a transformMode.
+
+    \list
+    \i If \a aspectRatioMode is \c Qt::IgnoreAspectRatio, the pixmap
+       is scaled to (\a w, \a h).
+    \i If \a aspectRatioMode is \c Qt::KeepAspectRatio, the pixmap is
+       scaled to a rectangle as large as possible inside (\a w, \a
+       h), preserving the aspect ratio.
+    \i If \a aspectRatioMode is \c Qt::KeepAspectRatioByExpanding,
+       the pixmap is scaled to a rectangle as small as possible
+       outside (\a w, \a h), preserving the aspect ratio.
+    \endlist
+
+    If either the width \a w or the height \a h is zero or negative,
+    this function returns a \l{isNull()}{null} pixmap.
+
+    \sa scaleWidth() scaleHeight() xForm()
+*/
+
+/*!
+    \fn QPixmap QPixmap::scale(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
+
+    \overload
+
+    Scales the pixmap to the given \a size, using the aspect ratio and
+    transformation modes specified by \a aspectMode and \a transformMode.
+*/
+QPixmap QPixmap::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
+{
+    if (isNull()) {
+        qWarning("QPixmap::scale: Pixmap is a null pixmap");
+        return copy();
+    }
+    if (s.isEmpty())
+        return QPixmap();
+
+    QSize newSize = size();
+    newSize.scale(s, aspectMode);
+    if (newSize == size())
+        return copy();
+
+    QPixmap pix;
+    QMatrix wm;
+    wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
+    pix = transform(wm, mode);
+    return pix;
+}
+
+/*!
+    Returns a scaled copy of the pixmap. The returned pixmap has a width
+    of \a w pixels. This function automatically calculates the height
+    of the pixmap so that the ratio of the pixmap is preserved.
+
+    If \a w is 0 or negative a \link isNull() null\endlink pixmap is
+    returned.
+
+    \sa scale() scaleHeight() xForm()
+*/
+QPixmap QPixmap::scaleWidth(int w) const
+{
+    if (isNull()) {
+        qWarning("QPixmap::scaleWidth: Pixmap is a null pixmap");
+        return copy();
+    }
+    if (w <= 0)
+        return QPixmap();
+
+    QMatrix wm;
+    double factor = (double) w / width();
+    wm.scale(factor, factor);
+    return transform(wm);
+}
+
+/*!
+    Returns a scaled copy of the pixmap. The returned pixmap has a
+    height of \a h pixels. This function automatically calculates the
+    width of the pixmap so that the ratio of the pixmap is preserved.
+
+    If \a h is 0 or negative a \link isNull() null\endlink pixmap is
+    returned.
+
+    \sa scale() scaleWidth() xForm()
+*/
+QPixmap QPixmap::scaleHeight(int h) const
+{
+    if (isNull()) {
+        qWarning("QPixmap::scaleHeight: Pixmap is a null pixmap");
+        return copy();
+    }
+    if (h <= 0)
+        return QPixmap();
+
+    QMatrix wm;
+    double factor = (double) h / height();
+    wm.scale(factor, factor);
+    return transform(wm);
+}
+

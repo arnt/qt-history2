@@ -74,6 +74,13 @@ public:
     static QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
+    inline QPixmap scale(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
+                        Qt::TransformationMode mode = Qt::FastTransformation) const
+        { return scale(QSize(w, h), aspectMode, mode); }
+    QPixmap scale(const QSize &s, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
+                 Qt::TransformationMode mode = Qt::FastTransformation) const;
+    QPixmap scaleWidth(int w) const;
+    QPixmap scaleHeight(int h) const;
     QPixmap transform(const QMatrix &, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &m, int w, int h);
 #endif
