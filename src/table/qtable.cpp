@@ -2866,54 +2866,61 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 	row = numRows() - 1;
     if ( col > numCols() - 1 )
 	col = numCols() - 1;
-    if ( curRow != row || curCol != col ) {
-	itm = oldIitem;
-	if ( itm && itm->editType() != QTableItem::Always )
-	    endEdit( curRow, curCol, TRUE, FALSE );
-	int oldRow = curRow;
-	int oldCol = curCol;
-	curRow = row;
-	curCol = col;
-	repaintCell( oldRow, oldCol );
-	repaintCell( curRow, curCol );
-	ensureCellVisible( curRow, curCol );
-	emit currentChanged( row, col );
+
+    if ( curRow == row && curCol == col )
+	return;
+
+    itm = oldIitem;
+    if ( itm && itm->editType() != QTableItem::Always )
+	endEdit( curRow, curCol, TRUE, FALSE );
+    int oldRow = curRow;
+    int oldCol = curCol;
+    curRow = row;
+    curCol = col;
+    repaintCell( oldRow, oldCol );
+    repaintCell( curRow, curCol );
+    ensureCellVisible( curRow, curCol );
+    emit currentChanged( row, col );
+	
+    if ( oldCol != curCol ) {
 	if ( !isColumnSelected( oldCol ) )
 	    topHeader->setSectionState( oldCol, QTableHeader::Normal );
 	else if ( isRowSelection( selectionMode() ) )
 	    topHeader->setSectionState( oldCol, QTableHeader::Selected );
+	topHeader->setSectionState( curCol, isColumnSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
+    }
+
+    if ( oldRow != curRow ) {
 	if ( !isRowSelected( oldRow ) )
 	    leftHeader->setSectionState( oldRow, QTableHeader::Normal );
-	else if ( isRowSelection( selectionMode() ) )
-	    topHeader->setSectionState( oldRow, QTableHeader::Selected );
-	topHeader->setSectionState( curCol, isColumnSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
-	itm = item( curRow, curCol );
+    }
 
-	QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
-	setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
+    itm = item( curRow, curCol );
 
-	if ( cellWidget( oldRow, oldCol ) &&
-	     cellWidget( oldRow, oldCol )->hasFocus() )
-	    viewport()->setFocus();
+    QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
+    setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
 
-	if ( itm && itm->editType() == QTableItem::WhenCurrent ) {
-	    if ( beginEdit( curRow, curCol, FALSE ) )
-		setEditMode( Editing, row, col );
-	} else if ( itm && itm->editType() == QTableItem::Always ) {
-	    if ( cellWidget( itm->row(), itm->col() ) )
-		cellWidget( itm->row(), itm->col() )->setFocus();
-	}
+    if ( cellWidget( oldRow, oldCol ) &&
+	 cellWidget( oldRow, oldCol )->hasFocus() )
+	viewport()->setFocus();
 
-	if ( updateSelections && isRowSelection( selectionMode() ) ) {
-	    if ( !isSelected( curRow, curCol, FALSE ) ) {
-		clearSelection();
-		currentSel = new QTableSelection();
-		selections.append( currentSel );
-		currentSel->init( curRow, 0 );
-		currentSel->expandTo( curRow, numCols() - 1 );
-		repaintSelections( 0, currentSel );
-	    }
+    if ( itm && itm->editType() == QTableItem::WhenCurrent ) {
+	if ( beginEdit( curRow, curCol, FALSE ) )
+	    setEditMode( Editing, row, col );
+    } else if ( itm && itm->editType() == QTableItem::Always ) {
+	if ( cellWidget( itm->row(), itm->col() ) )
+	    cellWidget( itm->row(), itm->col() )->setFocus();
+    }
+
+    if ( updateSelections && isRowSelection( selectionMode() ) ) {
+	if ( !isSelected( curRow, curCol, FALSE ) ) {
+	    clearSelection();
+	    currentSel = new QTableSelection();
+	    selections.append( currentSel );
+	    currentSel->init( curRow, 0 );
+	    currentSel->expandTo( curRow, numCols() - 1 );
+	    repaintSelections( 0, currentSel );
 	}
     }
 }
@@ -3127,7 +3134,7 @@ void QTable::removeSelection( int num )
 
     QTableSelection *s = selections.at( num );
     selections.removeRef( s );
-    viewport()->repaint( FALSE );
+    repaintContents( FALSE );
 }
 
 /*! Returns the number of the current selection or -1 if there is
@@ -5649,7 +5656,7 @@ void QTable::windowActivationChange( bool )
 	return;
 
     if ( palette().active() != palette().inactive() )
-	viewport()->update();
+	updateContents();
 }
 
 /*! \reimp */
@@ -6135,7 +6142,7 @@ void QTableHeader::updateStretches()
 	resizeSection( i, QMAX( 20, pd ) );
     }
     blockSignals( block );
-    table->viewport()->repaint( FALSE );
+    table->repaintContents( FALSE );
     widgetStretchTimer->start( 100, TRUE );
 }
 
