@@ -327,7 +327,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(t != "target")
 	return QString();
 
-    QStringList &uninst = project->variables()["uninstall." + t];
+    QStringList &uninst = project->variables()[t + ".uninstall"];
     QString ret, destdir=project->first("DESTDIR");
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
@@ -344,7 +344,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	ret += "$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
 	if(!uninst.isEmpty())
 	    uninst.append("\n\t");
-	uninst.append("$(DEL_FILE) \"" + dst_prl + "\"");
+	uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
     }
 
     QString target="$(TARGET)";
@@ -371,7 +371,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	ret += "\n\t" + var("QMAKE_STRIP") + " \"" + dst_targ + "\"";
     if(!uninst.isEmpty())
 	uninst.append("\n\t");
-    uninst.append("$(DEL_FILE) \"" + dst_targ + "\"");
+    uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
 	    if(Option::target_mode == Option::TARG_WIN_MODE || 
@@ -386,7 +386,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		ret += "\n\tln -sf \"" + dst_targ + "\" \"" + dst_link + "\"";
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");
-		uninst.append("$(DEL_FILE) \"" + dst_link + "\"");
+		uninst.append("-$(DEL_FILE) \"" + dst_link + "\"");
 	    }
 	}
     }
