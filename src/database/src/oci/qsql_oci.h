@@ -32,7 +32,6 @@ private:
     QOCIPrivate* 	d;
     QOCIResultPrivate*  cols;
     RowsetCache     	rowCache;
-    uint                currentSize;
     bool                cached;
     bool                cacheNext();
 };

@@ -298,7 +298,6 @@ bool QOCIResult::reset ( const QString& query )
 	delete cols;
 	cols = 0;
     }
-    currentSize = 0;
     rowCache.clear();
     if ( d->sql ) {
 	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
@@ -468,11 +467,9 @@ bool QOCIResult::fetchFirst()
 
 bool QOCIResult::fetchLast()
 {
-    if ( currentSize > 0 ) {
-	setAt( size()-1 );
-	return TRUE;
-    }
-    return FALSE;
+    while ( fetchNext() )
+	; // brute force
+    return fetch( rowCache.count() - 1 );
 }
 
 QVariant QOCIResult::data( int field )
@@ -512,7 +509,7 @@ QSqlFieldList QOCIResult::fields()
 
 int QOCIResult::size()
 {
-    return currentSize;
+    return -1;
 }
 
 int QOCIResult::affectedRows()
@@ -537,6 +534,8 @@ QOCIDriver::QOCIDriver( QObject * parent, const char * name )
 
 void QOCIDriver::init()
 {
+    //    setTransactionSupport( );
+    setQuerySizeSupport( FALSE );
     d = new QOCIPrivate();
     int r = OCIEnvCreate( &d->env,
 			    OCI_DEFAULT,
