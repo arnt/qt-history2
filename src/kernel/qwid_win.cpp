@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#41 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#41 $")
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -53,7 +53,7 @@ bool QWidget::create()
     setWFlags( WState_Created );		// set created flag
 
     if ( !parentWidget() )
-	setWFlags( WType_TopLevel );		// overlapping widget
+	setWFlags( WType_TopLevel );		// top-level widget
 
     static int sw = -1, sh = -1;
 
@@ -73,7 +73,7 @@ bool QWidget::create()
 
     bg_col = pal.normal().background();		// default background color
 
-    if ( modal || popup || desktop ) {		// these are top level, too
+    if ( modal || popup || desktop ) {		// these are top-level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
@@ -140,7 +140,7 @@ bool QWidget::create()
 	} else {
 	    setWinId( id );
 	}
-    }  else if ( topLevel ) {			// create top level widget
+    }  else if ( topLevel ) {			// create top-level widget
 	if ( exsty )
 	    id = CreateWindowEx( exsty, wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
@@ -419,55 +419,16 @@ QWidget *QWidget::keyboardGrabber()
 }
 
 
+bool QWidget::isActiveWindow() const
+{
+    HWND win = GetActiveWindow();
+    QWidget *w = find( win );
+    return w && w->topLevelWidget() == topLevelWidget();
+}
+
 void QWidget::setActiveWindow()
 {
     SetActiveWindow( topLevelWidget()->winId() );
-}
-
-
-void QWidget::setFocus()
-{
-    QWidget *oldFocus = qApp->focusWidget();
-    if ( this == oldFocus )			// has already focus
-	return;
-    if ( !acceptFocus() )			// cannot take focus
-	return;
-    if ( oldFocus ) {				// goodbye to old focus widget
-	qApp->focus_widget = 0;
-	QFocusEvent out( Event_FocusOut );
-	QApplication::sendEvent( oldFocus, &out );
-    }
-    QWidget *top, *w, *p;
-    top = this;
-    while ( top->parentWidget() )		// find top level widget
-	top = top->parentWidget();
-    w = top;
-    while ( w->focusChild )			// reset focus chain
-	w = w->focusChild;
-    w = w->parentWidget();
-    while ( w ) {
-	w->focusChild = 0;
-	w = w->parentWidget();
-    }
-    w = this;
-    while ( (p=w->parentWidget()) ) {		// build new focus chain
-	p->focusChild = w;
-	w = p;
-    }
-    qApp->focus_widget = this;
-    QFocusEvent in( Event_FocusIn );
-    QApplication::sendEvent( this, &in );
-}
-
-
-bool QWidget::focusNextChild()
-{
-    return TRUE;				// !!!TODO
-}
-
-bool QWidget::focusPrevChild()
-{
-    return TRUE;				// !!!TODO
 }
 
 

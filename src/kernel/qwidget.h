@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#87 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#88 $
 **
 ** Definition of QWidget class
 **
@@ -113,9 +113,11 @@ public:
 
   // Keyboard input focus functions
 
+    bool	 isActiveWindow() const;
     void	 setActiveWindow();
     bool	 hasFocus() const;
     void	 setFocus();
+    void	 clearFocus();
 
   // Grab functions
 
@@ -223,8 +225,7 @@ protected:
     void	 setFRect( const QRect & );
     void	 setCRect( const QRect & );
 
-    virtual bool focusNextChild();
-    virtual bool focusPrevChild();
+    virtual bool focusNextPrevChild( bool next );
 
     QWExtra	*extraData();
 

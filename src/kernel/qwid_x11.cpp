@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#138 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#137 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#138 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -64,7 +64,7 @@ bool QWidget::create()
     setWFlags( WState_Created );		// set created flag
 
     if ( !parentWidget() )
-	setWFlags( WType_TopLevel );		// top level widget
+	setWFlags( WType_TopLevel );		// top-level widget
 
     static int sw = -1, sh = -1;		// screen size
 
@@ -84,7 +84,7 @@ bool QWidget::create()
 
     bg_col = pal.normal().background();		// default background color
 
-    if ( modal || popup || desktop ) {		// these are top level, too
+    if ( modal || popup || desktop ) {		// these are top-level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
@@ -124,7 +124,7 @@ bool QWidget::create()
     XSetWindowAttributes wattr;
 
     if ( topLevel && !(desktop || popup || modal) ) {
-	if ( testWFlags(WStyle_Customize) ) {	// customize top level widget
+	if ( testWFlags(WStyle_Customize) ) {	// customize top-level widget
 	    ulong wattr_mask = 0;
 	    if ( testWFlags(WStyle_NormalBorder) ) {
 		;				// ok, we already have it
@@ -142,7 +142,7 @@ bool QWidget::create()
 	    }
 	    if ( wattr_mask )
 		XChangeWindowAttributes( dpy, id, wattr_mask, &wattr );
-	} else {				// normal top level widget
+	} else {				// normal top-level widget
 	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
 		       WStyle_MinMax );	    
 	}
@@ -153,7 +153,7 @@ bool QWidget::create()
 	wattr.save_under = TRUE;
 	XChangeWindowAttributes( dpy, id, CWOverrideRedirect | CWSaveUnder,
 				 &wattr );
-    } else if ( topLevel && !desktop ) {	// top level widget
+    } else if ( topLevel && !desktop ) {	// top-level widget
 	if ( modal ) {
 	    QWidget *p = parentWidget();	// real parent
 	    QWidget *pp = p ? p->parentWidget() : 0;
@@ -633,12 +633,33 @@ QWidget *QWidget::keyboardGrabber()
 
 
 /*----------------------------------------------------------------------------
-  Sets the window this widget is part of to be the active window.
-  An active window is a top level window that has the keyboard
-  input focus.
+  Returns TRUE if the top-level widget containing this widget is the
+  active window.
+
+  \sa setActiveWindow(), topLevelWidget()
+ ----------------------------------------------------------------------------*/
+
+bool QWidget::isActiveWindow() const
+{
+    Window win;
+    int revert;
+    XGetInputFocus( dpy, &win, &revert );
+    QWidget *w = find( win );
+    return w && w->topLevelWidget() == topLevelWidget();
+}
+
+
+/*----------------------------------------------------------------------------
+  Sets the top-level widget containing this widget to be the active
+  window.
+
+  An active window is a top-level window that has the keyboard input
+  focus.
 
   This function performs the same operation as clicking the mouse on
-  the title bar of a top level window.
+  the title bar of a top-level window.
+
+  \sa isActiveWindow(), topLevelWidget()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setActiveWindow()
@@ -648,116 +669,7 @@ void QWidget::setActiveWindow()
 
 
 /*----------------------------------------------------------------------------
-  Gives the keyboard input focus to the widget.
-
-  First, a \link focusOutEvent() focus out event\endlink is sent to the
-  focus widget (if any) to tell it that it is about to loose the
-  focus. Then a \link focusInEvent() focus in event\endlink is sent to
-  this widget to tell it that it just received the focus.
-
-  This widget must enable focus setting in order to get the keyboard input
-  focus, i.e. it must call setAcceptFocus(TRUE).
-
-  \warning If you call setFocus() in a function which may itself be
-  called from focusOutEvent() or focusInEvent(), you may see infinite
-  recursion.
-
-  \sa hasFocus(), focusInEvent(), focusOutEvent(), setAcceptFocus(),
-  QApplication::focusWidget()
- ----------------------------------------------------------------------------*/
-
-void QWidget::setFocus()
-{
-    QWidget *oldFocus = qApp->focusWidget();
-    if ( this == oldFocus )			// has already focus
-	return;
-    if ( !acceptFocus() )			// cannot take focus
-	return;
-    if ( oldFocus ) {				// goodbye to old focus widget
-	qApp->focus_widget = 0;
-	QFocusEvent out( Event_FocusOut );
-	QApplication::sendEvent( oldFocus, &out );
-    }
-    QWidget *top, *w, *p;
-    top = this;
-    while ( top->parentWidget() )		// find top level widget
-	top = top->parentWidget();
-    w = top;
-    while ( w->focusChild )			// reset focus chain
-	w = w->focusChild;
-    w = w->parentWidget();
-    while ( w ) {
-	w->focusChild = 0;
-	w = w->parentWidget();
-    }
-    w = this;
-    while ( (p=w->parentWidget()) ) {		// build new focus chain
-	p->focusChild = w;
-	w = p;
-    }
-    qApp->focus_widget = this;
-    QFocusEvent in( Event_FocusIn );
-    QApplication::sendEvent( this, &in );
-}
-
-
-/*----------------------------------------------------------------------------
-  \internal Handles TAB.
- ----------------------------------------------------------------------------*/
-
-bool QWidget::focusNextChild()
-{
-    QWidget *p = parentWidget();
-    if ( !p )
-	return FALSE;
-    QObjectList *c = (QObjectList *)p->children();
-    if ( c->findRef(this) < 0 )			// why, not found?
-	return FALSE;
-    while ( TRUE ) {
-	c->next();
-	if ( !c->current() )
-	    c->first();
-	if ( c->current()->isWidgetType() ) {
-	    QWidget *w = (QWidget*)c->current();
-	    if ( w->acceptFocus() ) {
-		w->setFocus();
-		return TRUE;
-	    }
-	}
-    }
-    return TRUE;
-}
-
-/*----------------------------------------------------------------------------
-  \internal Handles Shift+TAB.
- ----------------------------------------------------------------------------*/
-
-bool QWidget::focusPrevChild()
-{
-    QWidget *p = parentWidget();
-    if ( !p )
-	return FALSE;
-    QObjectList *c = (QObjectList *)p->children();
-    if ( c->findRef(this) < 0 )			// why, not found?
-	return FALSE;
-    while ( TRUE ) {
-	c->prev();
-	if ( !c->current() )
-	    c->last();
-	if ( c->current()->isWidgetType() ) {
-	    QWidget *w = (QWidget*)c->current();
-	    if ( w->acceptFocus() ) {
-		w->setFocus();
-		return TRUE;
-	    }
-	}
-    }
-    return TRUE;
-}
-
-
-/*----------------------------------------------------------------------------
-  Updates the widget unless updates are disabled or the widget hidden.
+  Updates the widget unless updates are disabled or the widget is hidden.
 
   Updating the widget will erase the widget contents and generate a paint
   event from the window system. The paint event is processed after the
@@ -774,7 +686,7 @@ void QWidget::update()
 
 /*----------------------------------------------------------------------------
   Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget
-  unless updates are disabled or the widget hidden.
+  unless updates are disabled or the widget is hidden.
 
   Updating the widget erases the widget area \e (x,y,w,h), which in turn
   generates a paint event from the window system. The paint event is
@@ -802,12 +714,12 @@ void QWidget::update( int x, int y, int w, int h )
 /*----------------------------------------------------------------------------
   \overload void QWidget::repaint( bool erase )
 
-  This version operates on the entire widget.
+  This version repaints the entire widget.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Repaints the widget directly by calling paintEvent() directly,
-  unless updates are disabled or the widget hidden.
+  unless updates are disabled or the widget is hidden.
 
   Erases the widget area  \e (x,y,w,h) if \e erase is TRUE.
 
@@ -912,7 +824,7 @@ void QWidget::hide()
   Iconifies the widget.
 
   Calling this function has no effect for other than \link isTopLevel()
-  top level widgets\endlink.
+  top-level widgets\endlink.
 
   \sa show(), hide(), isVisible()
  ----------------------------------------------------------------------------*/
@@ -1158,7 +1070,7 @@ void QWidget::setMinimumSize( int w, int h )
     extra->minh = h;
     int minw = QMIN(w,crect.width());
     int minh = QMIN(h,crect.height());
-    if ( isVisible() && ( minw < w || minh < h )) {
+    if ( isVisible() && (minw < w || minh < h) ) {
 	resize( minw, minh );
     } else if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
@@ -1192,7 +1104,7 @@ void QWidget::setMaximumSize( int w, int h )
     extra->maxh = h;
     int maxw = QMAX(w,crect.width());
     int maxh = QMAX(h,crect.height());
-    if ( isVisible() && maxw > w || maxh > h ) {
+    if ( isVisible() && (maxw > w || maxh > h) ) {
 	resize( maxw, maxh );
     } else if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;

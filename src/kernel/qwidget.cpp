@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#126 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#125 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#126 $")
 
 
 /*----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#125 $")
   commonly implemented events include resizeEvent(), keyPressEvent(),
   mousePressEvent() etc.
 
-  A widget without a parent, called a top level widget, is a window
+  A widget without a parent, called a top-level widget, is a window
   with a frame and title bar (depending on the widget style specified
   by the widget flags). A widget with a parent is a child window in
   its parent.
@@ -124,14 +124,14 @@ inline bool QWidgetMapper::remove( WId id )
   Constructs a widget which is a child of \e parent, with the name \e name and
   widget flags set to \e f.
 
-  If \e parent is 0, the new widget becomes a \link isTopLevel() top level
+  If \e parent is 0, the new widget becomes a \link isTopLevel() top-level
   window\endlink. If \e parent is another widget, this widget becomes a child
   window inside \e parent.
 
   The \e name is sent to the QObject constructor.
 
   The widget flags argument \e f is normally 0, but it can be set to
-  customize the window frame of a top level widget (i.e. \e parent must be
+  customize the window frame of a top-level widget (i.e. \e parent must be
   zero). To customize the frame, set the \c WStyle_Customize flag OR'ed with
   any of these flags:
 
@@ -201,6 +201,8 @@ QWidget::~QWidget()
 {
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
+    if ( testWFlags(WFocusSet) )
+	clearFocus();
     if ( testWFlags(WExportFontMetrics) )	// remove references to this
 	QFontMetrics::reset( this );
     if ( testWFlags(WExportFontInfo) )		// remove references to this
@@ -448,15 +450,15 @@ void QWidget::styleChange( GUIStyle )
 
 /*----------------------------------------------------------------------------
   \fn bool QWidget::isTopLevel() const
-  Returns TRUE if the widget is a top level widget, otherwise FALSE.
+  Returns TRUE if the widget is a top-level widget, otherwise FALSE.
 
-  A top level widget is a widget which usually has a frame and a \link
+  A top-level widget is a widget which usually has a frame and a \link
   setCaption() caption\endlink (title bar). \link isPopup() Popup\endlink
-  and \link isDesktop() desktop\endlink widgets are also top level
-  widgets. Modal \link QDialog dialog\endlink widgets are the only top
-  level widgets that can have \link parentWidget() parent widgets\endlink;
-  all other top level widgets have null parents.  Child widgets are the
-  opposite of top level widgets.
+  and \link isDesktop() desktop\endlink widgets are also top-level
+  widgets. Modal \link QDialog dialog\endlink widgets are the only
+  top-level widgets that can have \link parentWidget() parent
+  widgets\endlink; all other top-level widgets have null parents.  Child
+  widgets are the opposite of top-level widgets.
 
   \sa topLevelWidget(), isModal(), isPopup(), isDesktop(), parentWidget()
  ----------------------------------------------------------------------------*/
@@ -465,7 +467,7 @@ void QWidget::styleChange( GUIStyle )
   \fn bool QWidget::isModal() const
   Returns TRUE if the widget is a modal widget, otherwise FALSE.
 
-  A modal widget is also a top level widget.
+  A modal widget is also a top-level widget.
 
   \sa isTopLevel(), QDialog
  ----------------------------------------------------------------------------*/
@@ -477,7 +479,7 @@ void QWidget::styleChange( GUIStyle )
   A popup widget is created by specifying the widget flag \c WType_Popup
   to the widget constructor.
 
-  A popup widget is also a top level widget.
+  A popup widget is also a top-level widget.
 
   \sa isTopLevel()
  ----------------------------------------------------------------------------*/
@@ -487,7 +489,7 @@ void QWidget::styleChange( GUIStyle )
   \fn bool QWidget::isDesktop() const
   Returns TRUE if the widget is a desktop widget, otherwise FALSE.
 
-  A desktop widget is also a top level widget.
+  A desktop widget is also a top-level widget.
 
   \sa isTopLevel(), QApplication::desktop()
  ----------------------------------------------------------------------------*/
@@ -519,6 +521,8 @@ void QWidget::setEnabled( bool enable )
 	}
     } else {
 	if ( !testWFlags(WState_Disabled) ) {
+	    if ( testWFlags(WFocusSet) )
+		clearFocus();
 	    setWFlags( WState_Disabled );
 	    repaint();
 	}
@@ -679,10 +683,10 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
 
 
 /*----------------------------------------------------------------------------
-  Returns the top level widget for this widget.
+  Returns the top-level widget for this widget.
 
-  A top level widget is an overlapping widget. It usually has no parent.
-  Modal \link QDialog dialog widgets\endlink are the only top level
+  A top-level widget is an overlapping widget. It usually has no parent.
+  Modal \link QDialog dialog widgets\endlink are the only top-level
   widgets that can have parent widgets.
 
   \sa isTopLevel()
@@ -998,12 +1002,154 @@ void QWidget::setMouseTracking( bool enable )
 
   Equivalent with <code>qApp->focusWidget() == this</code>.
 
-  \sa setFocus(), setAcceptFocus(), QApplication::focusWidget()
+  \sa setFocus(), clearFocus(), setAcceptFocus(), QApplication::focusWidget()
  ----------------------------------------------------------------------------*/
 
 bool QWidget::hasFocus() const
 {
     return qApp->focusWidget() == this;
+}
+
+/*----------------------------------------------------------------------------
+  Gives the keyboard input focus to the widget.
+
+  First, a \link focusOutEvent() focus out event\endlink is sent to the
+  focus widget (if any) to tell it that it is about to loose the
+  focus. Then a \link focusInEvent() focus in event\endlink is sent to
+  this widget to tell it that it just received the focus.
+
+  This widget must enable focus setting in order to get the keyboard input
+  focus, i.e. it must call setAcceptFocus(TRUE).
+
+  \warning If you call setFocus() in a function which may itself be
+  called from focusOutEvent() or focusInEvent(), you may see infinite
+  recursion.
+
+  \sa hasFocus(), clearFocus(), focusInEvent(), focusOutEvent(),
+  setAcceptFocus(), QApplication::focusWidget()
+ ----------------------------------------------------------------------------*/
+
+void QWidget::setFocus()
+{
+    if ( testWFlags(WFocusSet) || !(acceptFocus() && isEnabled()) )
+	return;					// cannot set focus
+    setWFlags( WFocusSet );
+    QWidget *w;
+    bool sameTLW = FALSE;
+    if ( (w = qApp->focusWidget()) ) {		// goodbye to old focus widget
+	sameTLW = w->topLevelWidget() == topLevelWidget();
+	if ( sameTLW )
+	    w->clearWFlags( WFocusSet );
+	qApp->focus_widget = 0;
+	QFocusEvent out( Event_FocusOut );
+	QApplication::sendEvent( w, &out );
+    }
+    w = this;
+    while ( w->parentWidget() )			// find top-level widget
+	w = w->parentWidget();
+    while ( w->focusChild )			// descend focus chain
+	w = w->focusChild;
+    w = w->parentWidget();
+    while ( w ) {				// reset focus chain
+	w->focusChild = 0;
+	w = w->parentWidget();
+    }
+    w = this;
+    QWidget *p;
+    while ( (p=w->parentWidget()) ) {		// build new focus chain
+	p->focusChild = w;
+	w = p;
+    }
+    if ( sameTLW || isActiveWindow() ) {	// set active focus
+	qApp->focus_widget = this;
+	QFocusEvent in( Event_FocusIn );
+	QApplication::sendEvent( this, &in );
+    }
+}
+
+/*----------------------------------------------------------------------------
+  Takes keyboard input focus from the widget.
+
+  A \link focusOutEvent() focus out event\endlink is sent to this
+  widget to tell it that it is about to loose the focus.
+
+  This widget must enable focus setting in order to get the keyboard input
+  focus, i.e. it must call setAcceptFocus(TRUE).
+
+  \warning If you call clearFocus() in a function which may itself be
+  called from focusOutEvent(), you may see infinite recursion.
+
+  \sa hasFocus(), setFocus(), focusInEvent(), focusOutEvent(),
+  setAcceptFocus(), QApplication::focusWidget()
+ ----------------------------------------------------------------------------*/
+
+void QWidget::clearFocus()
+{
+    if ( !testWFlags(WFocusSet) )		// focus was never set
+	return;
+    clearWFlags( WFocusSet );
+    QWidget *w;
+    if ( (w = qApp->focusWidget()) ) {		// goodbye to old focus widget
+	qApp->focus_widget = 0;
+	QFocusEvent out( Event_FocusOut );
+	QApplication::sendEvent( w, &out );
+    }
+    w = this;
+    while ( w->parentWidget() )			// find top-level widget
+	w = w->parentWidget();
+    while ( w->focusChild )			// descend focus chain
+	w = w->focusChild;
+    w = w->parentWidget();
+    while ( w ) {				// reset focus chain
+	w->focusChild = 0;
+	w = w->parentWidget();
+    }
+    if ( qApp->focusWidget() == this ) {	// clear active focus
+	qApp->focus_widget = 0;
+	QFocusEvent out( Event_FocusOut );
+	QApplication::sendEvent( this, &out );
+    }
+}
+
+/*----------------------------------------------------------------------------
+  \internal Gives the keyboard focus to the next or previous child.
+ ----------------------------------------------------------------------------*/
+
+bool QWidget::focusNextPrevChild( bool next )
+{
+    QWidget *p = parentWidget();
+    if ( !p || p->children() == 0 )
+	return FALSE;
+    QObjectListIt it( *p->children() );
+    while ( it.current() && it.current() != this )
+	++it;
+    if ( !it.current() ) {
+#if defined(CHECK_NULL)
+	warning( "QWidget::focusNextPrevChild: Internal error" );
+#endif
+	return FALSE;
+    }
+    while ( TRUE ) {
+	if ( next ) {
+	    ++it;
+	    if ( !it.current() )
+		it.toFirst();
+	} else {
+	    --it;
+	    if ( !it.current() )
+		it.toLast();
+	}
+	if ( it.current() == this )		// wrapped around
+	    return FALSE;
+	if ( it.current()->isWidgetType() ) {
+	    QWidget *w = (QWidget*)it.current();
+	    if ( w->isEnabled() && w->acceptFocus() ) {
+		w->setFocus();
+		return TRUE;
+	    }
+	}
+    }
+    return FALSE;
 }
 
 
@@ -1216,16 +1362,16 @@ void QWidget::adjustSize()
 
   Widget type flags:
   <dl compact>
-  <dt>WType_TopLevel<dd> Top level widget (not a child).
+  <dt>WType_TopLevel<dd> Top-level widget (not a child).
   <dt>WType_Modal<dd> Modal widget, implies \c WType_TopLevel.
   <dt>WType_Popup<dd> Popup widget, implies \c WType_TopLevel.
   <dt>WType_Desktop<dd> Desktop widget (root window), implies
 	\c WType_TopLevel.
   </dl>
 
-  Window style flags (for top level widgets):
+  Window style flags (for top-level widgets):
   <dl compact>
-  <dt>WStyle_Customize<dd> Custom window style (for top level widgets).
+  <dt>WStyle_Customize<dd> Custom window style.
   <dt>WStyle_NormalBorder<dd> Normal window border.
   <dt>WStyle_DialogBorder<dd> Thin dialog border.
   <dt>WStyle_NoBorder<dd> No window border.
@@ -1316,9 +1462,9 @@ bool QWidget::event( QEvent *e )
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
 	    if ( k->key() == Key_Tab )
-		res = focusNextChild();
+		res = focusNextPrevChild( TRUE );
 	    else if ( k->key() == Key_Backtab )
-		res = focusPrevChild();
+		res = focusNextPrevChild( FALSE );
 	    if ( res )
 		break;
 	    keyPressEvent( k );
