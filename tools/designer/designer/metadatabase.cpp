@@ -1234,7 +1234,7 @@ QMap<QString, QString> MetaDataBase::functionBodies( QObject *o )
 void MetaDataBase::setupInterfaceManagers()
 {
     QString dir = getenv( "QTDIR" );
-    dir += "/plugins";
+    dir += "/plugins/designer";
     if ( !eventInterfaceManager ) {
 	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so; *.dylib" );
 	MetaDataBase::setEventsEnabled( !eventInterfaceManager->featureList().isEmpty() );

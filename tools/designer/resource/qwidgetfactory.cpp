@@ -271,7 +271,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 #endif
 
 	QString dir = getenv( "QTDIR" );
-	dir += "/plugins";
+	dir += "/plugins/designer";
 	if ( !eventInterfaceManager )
 	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir );
 	if ( !interpreterInterfaceManager )
@@ -470,7 +470,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     // try to create it using the loaded widget plugins
     if ( !widgetInterfaceManager ) {
 	QString dir = getenv( "QTDIR" );
-	dir += "/plugins";
+	dir += "/plugins/designer";
 	widgetInterfaceManager = new QInterfaceManager<WidgetInterface>( IID_WidgetInterface, dir );
     }
     WidgetInterface *iface = widgetInterfaceManager->queryInterface( className );

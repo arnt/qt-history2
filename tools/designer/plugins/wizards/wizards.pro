@@ -5,7 +5,7 @@ sql {
 	SOURCES		= main.cpp sqlformwizardimpl.cpp
 	INTERFACES	= sqlformwizard.ui mainwindowwizard.ui
 }
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= $(QTDIR)/plugins/designer
 PROJECTNAME	= Wizards
 INCLUDEPATH	+= $(QTDIR)/tools/designer/interfaces
 

@@ -168,7 +168,7 @@ MainWindow::MainWindow( bool asClient )
     desInterface->addRef();
 
     pluginDir = getenv( "QTDIR" );
-    pluginDir += "/plugins";
+    pluginDir += "/plugins/designer";
     libDir = getenv( "QTDIR" );
     libDir += "/lib";
 

@@ -798,7 +798,7 @@ QInterfaceManager<WidgetInterface> *widgetManager()
 {
     if ( !widgetPluginManager ) {
 	QString dir = getenv( "QTDIR" );
-	dir += "/plugins";
+	dir += "/plugins/designer";
 	widgetPluginManager = new QInterfaceManager<WidgetInterface>( IID_WidgetInterface, dir );
 	cleanup_manager.add( widgetPluginManager );
     }
