@@ -518,7 +518,8 @@ void QButton::setPixmap( const QPixmap &pixmap )
     if ( autoMask() )
 	updateMask();
     update();
-    updateGeometry();
+    if ( newSize )
+	updateGeometry();
 }
 
 
