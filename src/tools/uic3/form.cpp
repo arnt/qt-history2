@@ -251,7 +251,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0);" << endl;
     } else if (objClass == QLatin1String("QWidget")) {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = 0);" << endl;
-    } else if (objClass == QLatin1String("QMainWindow")) {
+    } else if (objClass == QLatin1String("QMainWindow") || objClass == QLatin1String("Q3MainWindow")) {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = Qt::WType_TopLevel);" << endl;
         isMainWindow = TRUE;
     } else {
@@ -642,7 +642,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         out << " */" << endl;
         out << nameOfClass << "::" << bareNameOfClass << "(QWidget* parent, const char* name, Qt::WFlags fl)" << endl;
         out << "    : " << objClass << "(parent, name, fl)";
-    } else if (objClass == QLatin1String("QMainWindow")) {
+    } else if (objClass == QLatin1String("QMainWindow") || objClass == QLatin1String("Q3MainWindow")) {
         out << "/*" << endl;
         out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the" << endl;
         out << " *  name 'name' and widget flags set to 'f'." << endl;
