@@ -264,6 +264,13 @@
   \sa find()
 */
 
+/*!
+  \fn void QCache::statistics() const
+
+  A debug-only utility function. Prints out cache usage, hit/miss, and
+  distribution information using qDebug(). This function does nothing
+  in the release library.
+*/
 
 /*****************************************************************************
   QCacheIterator documentation
@@ -286,10 +293,10 @@
 
   QCacheIterator provides an operator++(), and an operator+=() to
   traverse the cache, current() and currentKey() to access the current
-  cache item and its key, atFirst() atLast() which return TRUE if the
-  iterator points to the first/last item in the cache, isEmpty() which
-  returns TRUE if the cache is empty and finally count() which returns
-  the number of items in the cache.
+  cache item and its key, atFirst() and atLast() which return TRUE if
+  the iterator points to the first/last item in the cache, isEmpty()
+  which returns TRUE if the cache is empty and finally count() which
+  returns the number of items in the cache.
 
   Note that atFirst() and atLast() refer to the iterator's arbitrary
   ordering, not to the cache's internal LRU list.
@@ -340,6 +347,26 @@
 
   Returns TRUE if the cache is empty, i.e. count() == 0, otherwise
   FALSE.  \sa count()
+*/
+
+/*!
+  \fn bool QCacheIterator::atFirst() const
+
+  Returns TRUE if the iterator points to the first item in the
+  cache. Note that this refers to the iterator's arbitrary ordering,
+  not to the cache's internal LRU list.
+
+  \sa toFirst(), atLast()
+*/
+
+/*!
+  \fn bool QCacheIterator::atLast() const
+
+  Returns TRUE if the iterator points to the last item in the
+  cache. Note that this refers to the iterator's arbitrary ordering,
+  not to the cache's internal LRU list.
+
+  \sa toLast(), atFirst()
 */
 
 /*!

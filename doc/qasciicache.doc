@@ -266,6 +266,13 @@
   \sa find()
 */
 
+/*!
+  \fn void QAsciiCache::statistics() const
+
+  A debug-only utility function. Prints out cache usage, hit/miss, and
+  distribution information using qDebug(). This function does nothing
+  in the release library.
+*/
 
 /*****************************************************************************
   QAsciiCacheIterator documentation
@@ -342,6 +349,26 @@
 
   Returns TRUE if the cache is empty, i.e. count() == 0, otherwise
   FALSE.  \sa count()
+*/
+
+/*!
+  \fn bool QAsciiCacheIterator::atFirst() const
+
+  Returns TRUE if the iterator points to the first item in the
+  cache. Note that this refers to the iterator's arbitrary ordering,
+  not to the cache's internal LRU list.
+
+  \sa toFirst(), atLast()
+*/
+
+/*!
+  \fn bool QAsciiCacheIterator::atLast() const
+
+  Returns TRUE if the iterator points to the last item in the
+  cache. Note that this refers to the iterator's arbitrary ordering,
+  not to the cache's internal LRU list.
+
+  \sa toLast(), atFirst()
 */
 
 /*!
