@@ -2314,6 +2314,9 @@ void QApplication::openPopup( QWidget *popup )
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 ){ // grab mouse/keyboard
+	QPaintDevice::qwsDisplay()->grabMouse(popup,TRUE);
+	popupGrabOk = TRUE;
+
 	// XXX grab keyboard
     }
 
@@ -2342,6 +2345,8 @@ void QApplication::closePopup( QWidget *popup )
 	delete popupWidgets;
 	popupWidgets = 0;
 	if ( popupGrabOk ) {	// grabbing not disabled
+	    	QPaintDevice::qwsDisplay()->grabMouse(popup,FALSE);
+	    
 	    // XXX ungrab keyboard
 	}
 	active_window = (*activeBeforePopup);
