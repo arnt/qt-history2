@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#143 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -723,8 +723,10 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	*scalable = TRUE;			// scalable font
 
     if ( charSet() == AnyCharSet ) {
-	// AVOID!
-	warning("QFont using AnyCharSet");
+	// this can happen at least two which do not deserve warnings:
+	// 1. if the program is being used in the yoo-nited states
+	//    and without $LANG
+	// 2. if the program explicitly asks for AnyCharSet
 	score |= CharSetScore;
     } else if ( charSet() == KOI8R ) {
        if ( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
@@ -1884,7 +1886,7 @@ void QFontStylePrivate::refresh() const
 
 class QFontCharSetPrivate {
 public:
-    QFontCharSetPrivate( QFontFamily *p) 
+    QFontCharSetPrivate( QFontFamily *p)
                           { parent           = p;
 			    charSet          = QFont::AnyCharSet;
                             scalable         = FALSE;
@@ -1898,7 +1900,7 @@ public:
     bool normal;  // Only makes sense if the font is scalable
     bool it;      // Gives information about which combinations of
     bool bo;      // these are available.
-    bool itBo; 
+    bool itBo;
 #endif
     bool scalable;
     bool smoothlyScalable;
@@ -2045,10 +2047,10 @@ void QFontDatabasePrivate::createDatabase()
 		db->addFamily( tokens[Family], fam );
 	    }
 	    QString charSetName = getCharSetName( charSet );
-	    
+	
 	    QFontCharSet *chSet = findName( fam->d->charSets, charSetName );
 	    if ( !chSet ) {
-		//warning( "New charset[%s] for family [%s]", 
+		//warning( "New charset[%s] for family [%s]",
 		//	 (const char*)charSetName, tokens[Family] );
 		QFontCharSetPrivate *cd = new QFontCharSetPrivate( fam );
 		CHECK_PTR(cd);
@@ -2080,10 +2082,10 @@ void QFontDatabasePrivate::createDatabase()
 		if ( isSmoothlyScalable( tokens ) ) {
 		    style->d->smoothlyScalable = TRUE;
 		    //warning( "Smooth [%s][%s][%s]", (const char*) styleName,
-		    //     (const char*)charSetName, 
+		    //     (const char*)charSetName,
 		    // tokens[Family] );
 		} else {
-		    //warning( "Scalable, [%s][%s]", (const char*)charSetName, 
+		    //warning( "Scalable, [%s][%s]", (const char*)charSetName,
 		    //     tokens[Family] );
 		}
 	    } else {
@@ -2118,7 +2120,7 @@ static QFont::CharSet getCharSet( const char * registry, const char *encoding )
 	}
 	return QFont::AnyCharSet;
     } else if ( strcmp( registry, "koi8" ) == 0 &&
-		(strcmp( encoding, "r" ) == 0 || 
+		(strcmp( encoding, "r" ) == 0 ||
 		 strcmp( encoding, "1" ) == 0) ) {
 	return QFont::KOI8R;
     } else if ( strcmp( registry, "iso10646" ) == 0 ) {
@@ -2177,7 +2179,7 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
     *italic      = FALSE;
     *lesserItalic = FALSE;
 
-    QString nm = tokens[Weight_]; 
+    QString nm = tokens[Weight_];
 
     if ( nm == "medium" )
 	nm = "";
@@ -2203,7 +2205,7 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 	if ( tokens[Slant][1] ) {
 	    nm += " Other";
 	} else {
-	    nm += " Oblique";	    
+	    nm += " Oblique";	
 	    *italic = TRUE;
 	}
     } else if ( slant0 == 'i' ) {
@@ -2313,7 +2315,7 @@ QFont QFontStylePrivate::font( int pointSize ) const
 {
     QString family         = parent->d->parent->d->name;
     QFont::CharSet charSet = parent->d->charSet;
-    
+
     refresh(); // Make sure the weight is calculated
     QFont f( family, pointSize, weight, italic );
     f.setCharSet( charSet );
