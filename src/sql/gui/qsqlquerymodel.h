@@ -31,8 +31,8 @@ public:
     QSqlQueryModel(QObject *parent = 0);
     virtual ~QSqlQueryModel();
 
-    int rowCount() const;
-    int columnCount() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QSqlRecord record(int row = -1) const;
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
@@ -40,8 +40,8 @@ public:
                         int role = QAbstractItemModel::DisplayRole) const;
     bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
 
-    bool insertColumns(int column, const QModelIndex &parent, int count);
-    bool removeColumns(int column, const QModelIndex &parent, int count);
+    bool insertColumns(int column, int count, const QModelIndex &parent);
+    bool removeColumns(int column, int count, const QModelIndex &parent);
 
     virtual void setQuery(const QSqlQuery &query);
     void setQuery(const QString &query, const QSqlDatabase &db = QSqlDatabase());
@@ -50,7 +50,7 @@ public:
 
     QSqlError lastError() const;
 
-    void fetchMore(const QModelIndex &parent = QModelIndex::Null);
+    void fetchMore(const QModelIndex &parent = QModelIndex());
 
 protected:
     QModelIndex dataIndex(const QModelIndex &item) const;

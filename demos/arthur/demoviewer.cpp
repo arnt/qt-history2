@@ -224,7 +224,7 @@ void DemoViewer::fillModeChanged(int mode)
 void DemoViewer::showEvent(QShowEvent *)
 {
     if (!listWidget->currentIndex().isValid()) {
-        listWidget->selectionModel()->setCurrentIndex(listWidget->model()->index(0, 0, QModelIndex::Null),
+        listWidget->selectionModel()->setCurrentIndex(listWidget->model()->index(0, 0, QModelIndex()),
 						    QItemSelectionModel::ClearAndSelect);
     }
     itemSelected();

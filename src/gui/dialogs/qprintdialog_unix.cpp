@@ -119,18 +119,8 @@ class QPrinterModel : public QAbstractTableModel
 public:
     QPrinterModel(const QList<QPrinterDescription> &printers, QObject *parent);
 
-#ifdef Q_NO_USING_KEYWORD
-    int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parent); }
-    int columnCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::columnCount(parent); }
-#else
-    using QAbstractItemModel::rowCount;
-    using QAbstractItemModel::columnCount;
-#endif
-
-    int rowCount() const;
-    int columnCount() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
@@ -143,12 +133,12 @@ QPrinterModel::QPrinterModel(const QList<QPrinterDescription> &printers, QObject
     lst = printers;
 }
 
-int QPrinterModel::rowCount() const
+int QPrinterModel::rowCount(const QModelIndex &) const
 {
     return lst.count();
 }
 
-int QPrinterModel::columnCount() const
+int QPrinterModel::columnCount(const QModelIndex &) const
 {
     return 3;
 }

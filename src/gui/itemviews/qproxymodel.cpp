@@ -23,10 +23,11 @@ class QEmptyModel : public QAbstractItemModel
 {
 public:
     QEmptyModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
-    QModelIndex index(int, int, const QModelIndex &) const { return QModelIndex::Null; }
-    QModelIndex parent(const QModelIndex &) const { return QModelIndex::Null; }
+    QModelIndex index(int, int, const QModelIndex &) const { return QModelIndex(); }
+    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
     int rowCount(const QModelIndex &) const { return 0; }
     int columnCount(const QModelIndex &) const { return 0; }
+    bool hasChildren(const QModelIndex &) const { return false; }
     QVariant data(const QModelIndex &, int) const { return QVariant(); }
 };
 
@@ -252,9 +253,9 @@ QDrag::DropActions QProxyModel::supportedDropActions() const
     returns false.
 
     \sa QAbstractItemModel::insertRows()*/
-bool QProxyModel::insertRows(int row, const QModelIndex &parent, int count)
+bool QProxyModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    return d->model->insertRows(row, parent, count);
+    return d->model->insertRows(row, count, parent);
 }
 
 /*!
@@ -268,9 +269,9 @@ bool QProxyModel::insertRows(int row, const QModelIndex &parent, int count)
 
     \sa QAbstractItemModel::insertColumns()
 */
-bool QProxyModel::insertColumns(int column, const QModelIndex &parent, int count)
+bool QProxyModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
-    return d->model->insertColumns(column, parent, count);
+    return d->model->insertColumns(column, count, parent);
 }
 
 /*!
@@ -311,9 +312,9 @@ bool QProxyModel::isSortable() const
 
     \sa QAbstractItemModel::sort()
 */
-void QProxyModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+void QProxyModel::sort(int column, Qt::SortOrder order, const QModelIndex &parent)
 {
-    d->model->sort(column, parent, order);
+    d->model->sort(column, order, parent);
 }
 
 /*!

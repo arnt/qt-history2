@@ -480,7 +480,7 @@ QModelIndex QTableView::itemAt(int x, int y) const
     int c = columnAt(x);
     if (r >= 0 && c >= 0)
         return model()->index(r, c, root());
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!
@@ -575,7 +575,7 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     int logicalColumn = horizontalHeader()->logicalIndex(visualColumn);
     if (model()->hasIndex(logicalRow, logicalColumn, root()))
         return model()->index(logicalRow, logicalColumn, root());
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!
@@ -1022,7 +1022,7 @@ void QTableView::columnMoved(int, int oldIndex, int newIndex)
 void QTableView::selectRow(int row)
 {
     if (row >= 0 && row < model()->rowCount(root())) {
-        QItemSelectionModel::SelectionFlags command = selectionCommand(QModelIndex::Null);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(QModelIndex());
         QModelIndex index = model()->index(row, 0, root());
         if (selectionMode() == SingleSelection) {
             selectionModel()->setCurrentIndex(index, command);
@@ -1046,7 +1046,7 @@ void QTableView::selectRow(int row)
 void QTableView::selectColumn(int column)
 {
     if (column >= 0 && column < model()->columnCount(root())) {
-        QItemSelectionModel::SelectionFlags command = selectionCommand(QModelIndex::Null);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(QModelIndex());
         QModelIndex index = model()->index(0, column, root());
         if (selectionMode() == SingleSelection) {
             selectionModel()->setCurrentIndex(index, command);

@@ -1246,9 +1246,9 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     if (d->clickableSections) {
         bool selected = false;
         if (d->orientation == Qt::Horizontal)
-            selected = selectionModel()->isColumnSelected(logicalIndex, QModelIndex::Null);
+            selected = selectionModel()->isColumnSelected(logicalIndex, QModelIndex());
         else
-            selected = selectionModel()->isRowSelected(logicalIndex, QModelIndex::Null);
+            selected = selectionModel()->isRowSelected(logicalIndex, QModelIndex());
         if (selected)
             opt.state |= QStyle::Style_Down;
     } else {
@@ -1391,7 +1391,7 @@ void QHeaderView::ensureVisible(const QModelIndex &)
 
 QModelIndex QHeaderView::itemAt(int, int) const
 {
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!
@@ -1413,7 +1413,7 @@ bool QHeaderView::isIndexHidden(const QModelIndex &) const
 
 QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers)
 {
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!

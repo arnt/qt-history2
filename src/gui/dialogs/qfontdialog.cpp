@@ -39,7 +39,7 @@ class QFontListModel : public QAbstractListModel
 public:
     QFontListModel(QObject *parent);
 
-    int rowCount() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
 
     inline QStringList list()  const { return lst; }
@@ -57,7 +57,7 @@ QFontListModel::QFontListModel(QObject *parent)
 {
 }
 
-int QFontListModel::rowCount() const
+int QFontListModel::rowCount(const QModelIndex &) const
 {
     return lst.count();
 }

@@ -652,7 +652,7 @@ void QItemSelectionModel::clear()
     d->currentSelection.clear();
     emit selectionChanged(QItemSelection(), selection);
     QModelIndex previous = d->currentIndex;
-    d->currentIndex = QModelIndex::Null;
+    d->currentIndex = QModelIndex();
     if (previous.isValid()) {
         emit currentChanged(d->currentIndex, previous);
         emit currentRowChanged(d->currentIndex, previous);

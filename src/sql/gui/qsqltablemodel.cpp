@@ -58,7 +58,7 @@ void QSqlTableModelPrivate::revertInsertedRow()
 
     int oldIndex = insertIndex;
     insertIndex = -1;
-    emit q->rowsAboutToBeRemoved(QModelIndex::Null, oldIndex, oldIndex);
+    emit q->rowsAboutToBeRemoved(QModelIndex(), oldIndex, oldIndex);
 }
 
 void QSqlTableModelPrivate::clearEditBuffer()
@@ -91,7 +91,7 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
                 it = cache.insert(oldKey - 1, oldValue);
                 ++it;
             }
-            emit q->rowsAboutToBeRemoved(QModelIndex::Null, row, row);
+            emit q->rowsAboutToBeRemoved(QModelIndex(), row, row);
         break; }
     }
 }
@@ -834,7 +834,7 @@ QString QSqlTableModel::selectStatement() const
 
     \sa removeRows()
 */
-bool QSqlTableModel::removeColumns(int column, const QModelIndex &parent, int count)
+bool QSqlTableModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
     if (parent.isValid() || column < 0 || column + count > d->rec.count())
         return false;
@@ -857,7 +857,7 @@ bool QSqlTableModel::removeColumns(int column, const QModelIndex &parent, int co
 
     \sa removeColumns()
 */
-bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
+bool QSqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     if (parent.isValid() || row < 0 || count <= 0)
         return false;
@@ -903,7 +903,7 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
 
     \sa primeInsert()
  */
-bool QSqlTableModel::insertRows(int row, const QModelIndex &parent, int count)
+bool QSqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     if (row < 0 || count <= 0 || row > rowCount() || parent.isValid())
         return false;
@@ -950,7 +950,7 @@ bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
 {
     if (row < 0)
         row = rowCount();
-    if (!insertRow(row, QModelIndex::Null))
+    if (!insertRow(row, QModelIndex()))
         return false;
     if (!setRecord(row, record))
         return false;
@@ -961,7 +961,7 @@ bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
 
 /*! \reimp
  */
-int QSqlTableModel::rowCount() const
+int QSqlTableModel::rowCount(const QModelIndex &) const
 {
     int rc = QSqlQueryModel::rowCount();
     if (d->strategy == OnManualSubmit) {

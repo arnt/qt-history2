@@ -138,13 +138,6 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
 }
 
 template <typename T>
-inline int qSortedInsert(QVector<T> &vec, const T &item)
-{
-    qDebug("inserting not implemented: %Ld", item);
-    return -1;
-}
-
-template <typename T>
 inline void qExpand(QVector<T> &vec, int after, size_t n)
 {
     size_t m = vec.size() - after - 1;

@@ -50,12 +50,12 @@ PlasmaModel::~PlasmaModel()
     killTimer(timer);
 }
 
-int PlasmaModel::rowCount() const
+int PlasmaModel::rowCount(const QModelIndex &) const
 {
     return rows;
 }
 
-int PlasmaModel::columnCount() const
+int PlasmaModel::columnCount(const QModelIndex &) const
 {
     return cols;
 }

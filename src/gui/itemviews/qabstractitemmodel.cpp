@@ -55,28 +55,6 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
     }
 }
 
-QString QAbstractItemModelPrivate::i2s(QChar *buf, int size, int num)
-{
-    static ushort unicode_zero = QChar('0').unicode();
-    static ushort unicode_dash = QChar('-').unicode();
-    bool neg = num < 0;
-    int len = 0;
-    while (num != 0 && size > 0) {
-        buf[--size] = unicode_zero + (num % 10);
-        num /= 10;
-        ++len;
-    }
-    if (len == 0) {
-        buf[--size] = unicode_zero;
-        ++len;
-    }
-    if (neg) {
-        buf[--size] = unicode_dash;
-        ++len;
-    }
-    return QString(&buf[size], len);
-}
-
 /*!
   \class QPersistentModelIndex qabstractitemmodel.h
 
@@ -450,7 +428,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
 /*!
   \fn QModelIndex QModelIndex::parent() const
-  Return the parent of the model index or QModelIndex::Null if it has no parent.
+  Return the parent of the model index or QModelIndex() if it has no parent.
 */
 
 /*!
@@ -614,7 +592,7 @@ QAbstractItemModel::~QAbstractItemModel()
     QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
     for (; it != d->persistentIndexes.end(); ++it) {
         Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
-        (*it)->index = QModelIndex::Null;
+        (*it)->index = QModelIndex();
         (*it)->model = 0;
     }
 }
@@ -749,16 +727,6 @@ bool QAbstractItemModel::hasIndex(int row, int column, const QModelIndex &parent
 }
 
 /*!
-    Returns true if \a parent has any children; otherwise returns false.
-
-    \sa parent() index()
-*/
-bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
-{
-    return (rowCount(parent) > 0) && (columnCount(parent) > 0);
-}
-
-/*!
     Returns a map with values for all predefined roles in the model
     for the item at the given \a index.
 
@@ -888,7 +856,7 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
     QModelIndex idx;
     QVector<QModelIndex> parents;
     while (!stream.atEnd()) {
-        insertRows(row, parent, 1);
+        insertRows(row, 1, parent);
         int column = 0;
         while (!stream.atEnd() && column < columnCount(parent)) {
             idx = index(row, column, parent); // only insert in col 0
@@ -932,7 +900,7 @@ QDrag::DropActions QAbstractItemModel::supportedDropActions() const
   you want to be able to insert rows you must reimplement this
   function.
 */
-bool QAbstractItemModel::insertRows(int, const QModelIndex &, int)
+bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 {
     return false;
 }
@@ -954,7 +922,7 @@ bool QAbstractItemModel::insertRows(int, const QModelIndex &, int)
   you want to be able to insert columns you must reimplement this
   function.
 */
-bool QAbstractItemModel::insertColumns(int, const QModelIndex &, int)
+bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 {
     return false;
 }
@@ -966,7 +934,7 @@ bool QAbstractItemModel::insertColumns(int, const QModelIndex &, int)
 
     The base class implementation does nothing and returns false.
 */
-bool QAbstractItemModel::removeRows(int, const QModelIndex &, int)
+bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 {
     return false;
 }
@@ -978,7 +946,7 @@ bool QAbstractItemModel::removeRows(int, const QModelIndex &, int)
 
     The base class implementation does nothing and returns false.
 */
-bool QAbstractItemModel::removeColumns(int, const QModelIndex &, int)
+bool QAbstractItemModel::removeColumns(int, int, const QModelIndex &)
 {
     return false;
 }
@@ -1040,7 +1008,7 @@ bool QAbstractItemModel::isSortable() const
 
     \sa isSortable()
 */
-void QAbstractItemModel::sort(int, const QModelIndex &, Qt::SortOrder)
+void QAbstractItemModel::sort(int, Qt::SortOrder, const QModelIndex &)
 {
     // do nothing
 }
@@ -1267,7 +1235,7 @@ void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
         if (all || (*it)->index.parent() == parent) {
             Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
             if (!all) invalidatePersistentIndexes((*it)->index); // recursive
-            (*it)->index = QModelIndex::Null;
+            (*it)->index = QModelIndex();
         }
     }
 }
@@ -1427,7 +1395,7 @@ QAbstractTableModel::~QAbstractTableModel()
 }
 
 /*!
-    \fn QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const
+    \fn QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent = QModelIndex()) const
 
     Returns the index of the data in \a row and \a column with \a parent.
 
@@ -1436,7 +1404,7 @@ QAbstractTableModel::~QAbstractTableModel()
 
 QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent) const
 {
-    return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex::Null;
+    return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
 }
 
 /*!
@@ -1449,37 +1417,12 @@ QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &p
 
 QModelIndex QAbstractTableModel::parent(const QModelIndex &) const
 {
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
-/*!
-    \internal
-
-    Returns the number of rows in the table with the given \a parent.
-
-    \sa columnCount()
-*/
-
-int QAbstractTableModel::rowCount(const QModelIndex &parent) const
+bool QAbstractTableModel::hasChildren(const QModelIndex &) const
 {
-    if (parent.isValid())
-        return 0;
-    return rowCount();
-}
-
-/*!
-    \internal
-
-    Returns the number of columns in the table with the given \a parent.
-
-    \sa rowCount()
-*/
-
-int QAbstractTableModel::columnCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    return columnCount();
+    return false;
 }
 
 /*!
@@ -1566,7 +1509,7 @@ QAbstractListModel::~QAbstractListModel()
 }
 
 /*!
-    \fn QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const
+    \fn QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent = QModelIndex()) const
 
     Returns the index of the data in \a row and \a column with \a parent.
 
@@ -1575,7 +1518,7 @@ QAbstractListModel::~QAbstractListModel()
 
 QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex::Null;
+    return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
 }
 
 /*!
@@ -1588,35 +1531,23 @@ QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &pa
 
 QModelIndex QAbstractListModel::parent(const QModelIndex &) const
 {
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!
     \internal
 
-    Returns the number of rows in the table with the given \a parent.
-
-    \sa columnCount()
-*/
-
-int QAbstractListModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    return rowCount();
-}
-
-/*!
-    \internal
-
-    Returns the number of columns in the table with the given \a parent.
+    Returns the number of columns in the list with the given \a parent.
 
     \sa rowCount()
 */
 
-int QAbstractListModel::columnCount(const QModelIndex &parent) const
+int QAbstractListModel::columnCount(const QModelIndex &) const
 {
-    if (parent.isValid())
-        return 0;
-    return columnCount();
+    return 1;
+}
+
+bool QAbstractListModel::hasChildren(const QModelIndex &) const
+{
+    return false;
 }

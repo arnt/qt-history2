@@ -36,7 +36,7 @@ public:
     inline int width() const { return br.column() - tl.column() + 1; }
     inline int height() const { return br.row() - tl.row() + 1; }
     inline QModelIndex parent() const
-        { return tl.model() ? tl.model()->parent(tl) : QModelIndex::Null; }
+        { return tl.model() ? tl.model()->parent(tl) : QModelIndex(); }
     inline const QAbstractItemModel *model() const { return tl.model(); }
 
     inline bool contains(const QModelIndex &index) const

@@ -25,8 +25,7 @@ class Q_GUI_EXPORT QModelIndex
 {
     friend class QAbstractItemModel;
 public:
-    enum SpecialValue { Null };
-    inline QModelIndex(SpecialValue = Null) : r(-1), c(-1), d(0), m(0) {}
+    inline QModelIndex() : r(-1), c(-1), d(0), m(0) {}
     inline QModelIndex(const QModelIndex &other)
         : r(other.row()), c(other.column()), d(other.data()), m(other.model()) {}
     inline ~QModelIndex() { d = 0; m = 0; }
@@ -154,16 +153,17 @@ public:
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
 
-    bool hasIndex(int row, int column, const QModelIndex &parent) const;
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent) const = 0;
+    bool hasIndex(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    virtual QModelIndex index(int row, int column,
+                              const QModelIndex &parent = QModelIndex()) const = 0;
     virtual QModelIndex parent(const QModelIndex &child) const = 0;
 
     inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
         { return index(row, column, parent(idx)); }
 
-    virtual int rowCount(const QModelIndex &parent) const = 0;
-    virtual int columnCount(const QModelIndex &parent) const = 0;
-    virtual bool hasChildren(const QModelIndex &parent) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const = 0;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
+    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const = 0;
 
     virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
     virtual bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -186,27 +186,27 @@ public:
                               int row, const QModelIndex &parent);
     virtual QDrag::DropActions supportedDropActions() const;
 
-    virtual bool insertRows(int row, const QModelIndex &parent, int count);
-    virtual bool insertColumns(int column, const QModelIndex &parent, int count);
-    virtual bool removeRows(int row, const QModelIndex &parent, int count);
-    virtual bool removeColumns(int column, const QModelIndex &parent, int count);
+    virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    virtual bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex());
+    virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    virtual bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
 
-    inline bool insertRow(int row, const QModelIndex &parent)
-        { return insertRows(row, parent, 1); }
-    inline bool insertColumn(int column, const QModelIndex &parent)
-        { return insertColumns(column, parent, 1); }
-    inline bool removeRow(int row, const QModelIndex &parent)
-        { return removeRows(row, parent, 1); }
-    inline bool removeColumn(int column, const QModelIndex &parent)
-        { return removeColumns(column, parent, 1); }
+    inline bool insertRow(int row, const QModelIndex &parent = QModelIndex())
+        { return insertRows(row, 1, parent); }
+    inline bool insertColumn(int column, const QModelIndex &parent = QModelIndex())
+        { return insertColumns(column, 1, parent); }
+    inline bool removeRow(int row, const QModelIndex &parent = QModelIndex())
+        { return removeRows(row, 1, parent); }
+    inline bool removeColumn(int column, const QModelIndex &parent = QModelIndex())
+        { return removeColumns(column, 1, parent); }
 
     virtual void fetchMore(const QModelIndex &parent);
 
     virtual ItemFlags flags(const QModelIndex &index) const;
 
     virtual bool isSortable() const;
-    virtual void sort(int column, const QModelIndex &parent,
-                      Qt::SortOrder order = Qt::AscendingOrder);
+    virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder,
+                      const QModelIndex &parent = QModelIndex());
 
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
     virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
@@ -242,7 +242,7 @@ protected:
     inline QModelIndex createIndex(int row, int column, void *data = 0) const
         { return QModelIndex(row, column, data, this); }
 
-    void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex::Null);
+    void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex());
     int persistentIndexesCount() const;
     QModelIndex persistentIndexAt(int position) const;
     void setPersistentIndex(int position, const QModelIndex &index);
@@ -265,35 +265,7 @@ public:
     QAbstractTableModel(QObject *parent = 0);
     ~QAbstractTableModel();
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
-
-#ifdef Q_NO_USING_KEYWORD
-    bool insertRows(int row, const QModelIndex &parent, int count)
-        { return QAbstractItemModel::insertRows(row, parent, count); }
-    bool insertColumns(int column, const QModelIndex &parent, int count)
-        { return QAbstractItemModel::insertColumns(column, parent, count); }
-    bool removeRows(int row, const QModelIndex &parent, int count)
-        { return QAbstractItemModel::removeRows(row, parent, count); }
-    bool removeColumns(int column, const QModelIndex &parent, int count)
-        { return QAbstractItemModel::removeColumns(column, parent, count); }
-#else
-    using QAbstractItemModel::insertRows;
-    using QAbstractItemModel::insertColumns;
-    using QAbstractItemModel::removeRows;
-    using QAbstractItemModel::removeColumns;
-#endif
-
-    inline bool insertRows(int row, int count)
-        { return insertRows(row, QModelIndex::Null, count); }
-    inline bool insertColumns(int column, int count)
-        { return insertColumns(column, QModelIndex::Null, count); }
-    inline bool removeRows(int row, int count)
-        { return removeRows(row, QModelIndex::Null, count); }
-    inline bool removeColumns(int column, int count)
-        { return removeColumns(column, QModelIndex::Null, count); }
-
-    virtual int rowCount() const = 0;
-    virtual int columnCount() const = 0;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 
 protected:
     QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent);
@@ -301,9 +273,7 @@ protected:
 private:
     Q_DISABLE_COPY(QAbstractTableModel)
     QModelIndex parent(const QModelIndex &child) const;
-
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    bool hasChildren(const QModelIndex &parent) const;
 };
 
 class Q_GUI_EXPORT QAbstractListModel : public QAbstractItemModel
@@ -314,25 +284,7 @@ public:
     QAbstractListModel(QObject *parent = 0);
     ~QAbstractListModel();
 
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::Null) const;
-
-#ifdef Q_NO_USING_KEYWORD
-    bool insertRows(int row, const QModelIndex &parent, int count)
-        { return QAbstractItemModel::insertRows(row, parent, count); }
-    bool removeRows(int row, const QModelIndex &parent, int count)
-        { return QAbstractItemModel::removeRows(row, parent, count); }
-#else
-    using QAbstractItemModel::insertRows;
-    using QAbstractItemModel::removeRows;
-#endif
-
-    inline bool insertRows(int row, int count)
-        { return insertRows(row, QModelIndex::Null, count); }
-    inline bool removeRows(int row, int count)
-        { return removeRows(row, QModelIndex::Null, count); }
-
-    virtual int rowCount() const = 0;
-    inline int columnCount() const { return 1; }
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
     
 protected:
     QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent);
@@ -340,14 +292,13 @@ protected:
 private:
     Q_DISABLE_COPY(QAbstractListModel)
     QModelIndex parent(const QModelIndex &child) const;
-
-    int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
+    bool hasChildren(const QModelIndex &parent) const;
 };
 
 // inline implementations
 
 inline QModelIndex QModelIndex::parent() const
-{ return m ? m->parent(*this) : QModelIndex::Null; }
+{ return m ? m->parent(*this) : QModelIndex(); }
 
 #endif

@@ -713,7 +713,7 @@ QModelIndex QTreeView::itemAt(int x, int y) const
     int c = d->columnAt(x);
     if (mi.isValid() && c >= 0)
         return model()->sibling(mi.row(), c, mi);
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!
@@ -949,7 +949,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 */
 void QTreeView::columnMoved()
 {
-    QAbstractItemView::dataChanged(QModelIndex::Null, QModelIndex::Null);
+    QAbstractItemView::dataChanged(QModelIndex(), QModelIndex());
 }
 
 /*!

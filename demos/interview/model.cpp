@@ -37,7 +37,7 @@ QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
 	if (n)
 	    return createIndex(row, column, n);
     }
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 QModelIndex Model::parent(const QModelIndex &child) const
@@ -48,7 +48,7 @@ QModelIndex Model::parent(const QModelIndex &child) const
         if (p)
             return createIndex(row(p), 0, p);
     }
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 int Model::rowCount(const QModelIndex &parent) const

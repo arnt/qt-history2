@@ -24,18 +24,8 @@ public:
     PlasmaModel(int rows, int cols, QObject *parent = 0);
     ~PlasmaModel();
 
-#ifdef Q_NO_USING_KEYWORD
-    int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parnet); }
-    int columnCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::columnCount(parnet); }
-#else
-    using QAbstractItemModel::rowCount;
-    using QAbstractItemModel::columnCount;
-#endif
-
-    int rowCount() const;
-    int columnCount() const;
+    int rowCount(const QModelIndex &) const;
+    int columnCount(const QModelIndex &) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
 

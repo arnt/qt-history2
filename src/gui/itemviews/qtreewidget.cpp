@@ -39,7 +39,8 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent = QModelIndex::Null) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    bool hasChildren(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -53,8 +54,8 @@ public:
                       int row, const QModelIndex &parent);
     QDrag::DropActions supportedDropActions() const;
 
-    bool insertRows(int row, const QModelIndex &parent, int count);
-    bool removeRows(int row, const QModelIndex &parent, int count);
+    bool insertRows(int row, int count, const QModelIndex &parent);
+    bool removeRows(int row, int count, const QModelIndex &parent);
 
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
@@ -145,12 +146,12 @@ void QTreeModel::setColumnCount(int columns)
     int _c = c;
     c = columns;
     if (c < _c)
-        emit columnsAboutToBeRemoved(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
+        emit columnsAboutToBeRemoved(QModelIndex(), qMax(_c - 1, 0), qMax(c - 1, 0));
     header->values.resize(c);
     for (int i = _c; i < c; ++i)
         header->setText(i, QString::number(i)); // FIXME: shouldn't save anything
     if (c > _c)
-        emit columnsInserted(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
+        emit columnsInserted(QModelIndex(), qMax(_c - 1, 0), qMax(c - 1, 0));
 }
 
 /*!
@@ -178,7 +179,7 @@ QTreeWidgetItem *QTreeModel::item(const QModelIndex &index) const
 QModelIndex QTreeModel::index(QTreeWidgetItem *item, int column) const
 {
     if (!item)
-        return QModelIndex::Null;
+        return QModelIndex();
     const QTreeWidgetItem *par = item->parent();
     int row = par ? par->children.indexOf(item) : tree.indexOf(item);
     return createIndex(row, column, item);
@@ -197,16 +198,16 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
     int c = header->columnCount();
 
     if (row < 0 || column < 0 || column >= c)
-        return QModelIndex::Null;
+        return QModelIndex();
 
     // toplevel items
     if (!parent.isValid()) {
         if (row >= tree.count())
-            return QModelIndex::Null;
+            return QModelIndex();
         QTreeWidgetItem *itm = tree.at(row);
         if (itm)
             return createIndex(row, column, itm);
-        return QModelIndex::Null;
+        return QModelIndex();
     }
 
     // children
@@ -215,10 +216,10 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
         QTreeWidgetItem *itm = static_cast<QTreeWidgetItem*>(parentItem->child(row));
         if (itm)
             return createIndex(row, column, itm);
-        return QModelIndex::Null;
+        return QModelIndex();
     }
 
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!
@@ -232,10 +233,10 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
 QModelIndex QTreeModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
-        return QModelIndex::Null;
+        return QModelIndex();
     QTreeWidgetItem *itm = reinterpret_cast<QTreeWidgetItem *>(child.data());
     if (!itm)
-        return QModelIndex::Null;
+        return QModelIndex();
     QTreeWidgetItem *parent = itm->parent();
     return index(parent, 0);
 }
@@ -271,6 +272,16 @@ int QTreeModel::columnCount(const QModelIndex &index) const
 {
     Q_UNUSED(index);
     return header->columnCount();
+}
+
+bool QTreeModel::hasChildren(const QModelIndex &parent) const
+{
+    if (parent.column() != 0)
+        return false;
+    QTreeWidgetItem *itm = item(parent);
+    if (!itm)
+        return false;
+    return itm->children.count() > 0;
 }
 
 /*!
@@ -388,7 +399,7 @@ QDrag::DropActions QTreeModel::supportedDropActions() const
   An empty item will be created by this function.
 */
 
-bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
+bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     // prepare for updating persistent model indexes
     QVector<int> toBeUpdated;
@@ -414,7 +425,7 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
             int i = toBeUpdated.at(j);
             QModelIndex idx = persistentIndexAt(i);
             if (idx.row() >= p->children.count())
-                setPersistentIndex(i, QModelIndex::Null);
+                setPersistentIndex(i, QModelIndex());
             else if (idx.row() >= row)
                 setPersistentIndex(i, index(idx.row() + count, idx.column(), parent));
         }
@@ -433,7 +444,7 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
             int i = toBeUpdated.at(j);
             QModelIndex idx = persistentIndexAt(i);
             if (idx.row() >= tree.count())
-                setPersistentIndex(i, QModelIndex::Null);
+                setPersistentIndex(i, QModelIndex());
             else if (idx.row() >= row)
                 setPersistentIndex(i, index(idx.row() + count, idx.column(), parent));
         }
@@ -449,7 +460,7 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
   if successful; otherwise false is returned.
 */
 
-bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
+bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     emit rowsAboutToBeRemoved(parent, row, row + count - 1);
 
@@ -487,7 +498,7 @@ bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
         QModelIndex idx = persistentIndexAt(i); // invalidated index
         if (idx.isValid() && idx.parent() == parent) {
             if (idx.row() >= itemsCount)
-                setPersistentIndex(i, QModelIndex::Null);
+                setPersistentIndex(i, QModelIndex());
             else if (idx.row() >= row)
                 setPersistentIndex(i, index(idx.row() - count, idx.column(), parent));
         }
@@ -630,7 +641,7 @@ void QTreeModel::append(QTreeWidgetItem *item)
 {
     int r = tree.count();
     tree.push_back(item);
-    emit rowsInserted(QModelIndex::Null, r, r);
+    emit rowsInserted(QModelIndex(), r, r);
 }
 
 /*!
@@ -644,7 +655,7 @@ void QTreeModel::remove(QTreeWidgetItem *item)
     int r = tree.indexOf(item);
     if (r != -1) {
         tree.removeAt(r);
-        emit rowsAboutToBeRemoved(QModelIndex::Null, r, r);
+        emit rowsAboutToBeRemoved(QModelIndex(), r, r);
     }
 }
 
@@ -1736,7 +1747,7 @@ QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
 {
     QModelIndex topLeft = d->model()->index(0, 0);
     int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rowCount(QModelIndex::Null);
+    int hits = d->model()->rowCount(QModelIndex());
     QModelIndexList indexes = d->model()->match(topLeft, role, text, hits, flags);
     QList<QTreeWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)

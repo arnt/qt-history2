@@ -29,17 +29,17 @@ public:
     QModelIndex parent(const QModelIndex &child) const;
 
     int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &) const;
+    int columnCount(const QModelIndex &parent) const;
 
     bool hasChildren(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRows(int row, const QModelIndex &parent, int count);
-    bool insertColumns(int column, const QModelIndex &parent, int count);
-    bool removeRows(int row, const QModelIndex &parent, int count);
-    bool removeColumns(int column, const QModelIndex &parent, int count);
+    bool insertRows(int row, int count, const QModelIndex &parent);
+    bool insertColumns(int column, int count, const QModelIndex &parent);
+    bool removeRows(int row, int count, const QModelIndex &parent);
+    bool removeColumns(int column, int count, const QModelIndex &parent);
 
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 

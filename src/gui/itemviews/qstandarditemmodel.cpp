@@ -81,7 +81,7 @@ QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &pa
             return createIndex(row, column, 0);
         }
     }
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!
@@ -99,7 +99,7 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
         int row = grandParentChildren.indexOf(parentRow);
         return createIndex(row, 0, grandParentRow);
     }
-    return QModelIndex::Null;
+    return QModelIndex();
 }
 
 /*!
@@ -193,7 +193,7 @@ If \a parent has no children, a single column with \a count rows is inserted.
 
 Returns true if the rows were successfully inserted; otherwise returns false.
 */
-bool QStandardItemModel::insertRows(int row, const QModelIndex &parent, int count)
+bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     if (count < 1 || row < 0 || row > rowCount(parent))
         return false;
@@ -219,7 +219,7 @@ bool QStandardItemModel::insertRows(int row, const QModelIndex &parent, int coun
     Returns true if the columns were successfully inserted; otherwise returns
     false.
 */
-bool QStandardItemModel::insertColumns(int column, const QModelIndex &parent, int count)
+bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
     if (count < 0 || column < 0 || column > columnCount(parent))
         return false;
@@ -255,7 +255,7 @@ bool QStandardItemModel::insertColumns(int column, const QModelIndex &parent, in
     Returns true if the rows were successfully removed; otherwise returns
     false.
 */
-bool QStandardItemModel::removeRows(int row, const QModelIndex &parent, int count)
+bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     if (count < 1 || row < 0 || (row + count) > rowCount(parent))
         return false;
@@ -281,7 +281,7 @@ bool QStandardItemModel::removeRows(int row, const QModelIndex &parent, int coun
     Returns true if the columns were successfully removed; otherwise returns
     false.
 */
-bool QStandardItemModel::removeColumns(int column, const QModelIndex &parent, int count)
+bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
     if (count < 1 || column < 0 || (column + count) > columnCount(parent))
         return false;

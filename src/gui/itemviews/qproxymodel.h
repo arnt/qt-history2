@@ -50,14 +50,14 @@ public:
                       int row, const QModelIndex &parent);
     QDrag::DropActions supportedDropActions() const;
 
-    bool insertRows(int row, const QModelIndex &parent, int count);
-    bool insertColumns(int column, const QModelIndex &parent, int count);
+    bool insertRows(int row, int count, const QModelIndex &parent);
+    bool insertColumns(int column, int count, const QModelIndex &parent);
 
     void fetchMore(const QModelIndex &parent);
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
     bool isSortable() const;
-    void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
+    void sort(int column, Qt::SortOrder order, const QModelIndex &parent);
 
     bool equal(const QModelIndex &left, const QModelIndex &right) const;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;

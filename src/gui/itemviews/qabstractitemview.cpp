@@ -40,8 +40,8 @@ public:
     QDefaultModel(QObject *parent) : QAbstractTableModel(parent) {}
     ~QDefaultModel() {}
 
-    int rowCount() const { return 0; }
-    int columnCount() const { return 0; }
+    int rowCount(const QModelIndex&) const { return 0; }
+    int columnCount(const QModelIndex&) const { return 0; }
     QVariant data(const QModelIndex &, int) const { return QVariant(); }
 };
 
@@ -459,7 +459,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         // will connect in setSelectionModel
     }
 
-    setRoot(QModelIndex::Null);// triggers layout
+    setRoot(QModelIndex());// triggers layout
 
     d->selectionModel = 0;
     setSelectionModel(new QItemSelectionModel(d->model));
@@ -1213,7 +1213,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     QModelIndex current = currentIndex();
     if (!current.isValid()) {
         hadCurrent = false;
-        setCurrentIndex(model()->index(0, 0, QModelIndex::Null));
+        setCurrentIndex(model()->index(0, 0, QModelIndex()));
     }
     QModelIndex newCurrent = current;
     if (hadCurrent) {
@@ -2179,6 +2179,6 @@ void QAbstractItemViewPrivate::removeSelectedRows()
         if ((*it).right() != (model->columnCount(parent) - 1))
             continue;
         int count = (*it).bottom() - (*it).top() + 1;
-        model->removeRows((*it).top(), parent, count);
+        model->removeRows((*it).top(), count, parent);
     }
 }
