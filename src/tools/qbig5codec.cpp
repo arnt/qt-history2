@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbig5codec.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qbig5codec.cpp#6 $
 **
 ** Implementation of QBig5Codec class
 **
@@ -7960,8 +7960,8 @@ static bool big5ucs(unsigned char *s,unsigned char *t)
 		i=(s[0]-0x81)*512 + s[1]*2;
 		t[0]=BIG5_UNICODE[i];
 		t[1]=BIG5_UNICODE[i+1];
-		return true;
-	} else return false;
+		return TRUE;
+	} else return FALSE;
 }
 
 static bool ucsbig5(unsigned char *s,unsigned char *t)
@@ -7971,26 +7971,26 @@ static bool ucsbig5(unsigned char *s,unsigned char *t)
 		i=(s[0]-0x4e)*512 + s[1]*2;
 		t[0]=UNICODE_BIG5[i];
 		t[1]=UNICODE_BIG5[i+1];
-		return true;
+		return TRUE;
 	} else if (s[0] >= 0x20 && s[0] <= 0x33) {
 		i=(s[0]-0x20)*512 +s[1]*2;
 		t[0]=UNICODE_BIG5_2[i];
 		t[1]=UNICODE_BIG5_2[i+1];
-		if (!(t[0]|t[1])) return false;
-		return true;
+		if (!(t[0]|t[1])) return FALSE;
+		return TRUE;
 	} else if (s[0] <= 0x3) {
 		i=s[0]*512 +s[1]*2;
 		t[0]=UNICODE_BIG5_1[i];
 		t[1]=UNICODE_BIG5_1[i+1];
-		if (!(t[0]|t[1])) return false;
-		return true;
+		if (!(t[0]|t[1])) return FALSE;
+		return TRUE;
 	} else if(s[0]>= 0xfe) {
 		i=(s[0]-0xfe)*512 + s[1]*2;
 		t[0]=UNICODE_BIG5_3[i];
 		t[1]=UNICODE_BIG5_3[i+1];
-		if (!(t[0]|t[1])) return false;
-		return true;
-	} else return false;
+		if (!(t[0]|t[1])) return FALSE;
+		return TRUE;
+	} else return FALSE;
 }
 
 
