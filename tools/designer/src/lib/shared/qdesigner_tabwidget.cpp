@@ -128,7 +128,6 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
             MyMimeData *mimeData = new MyMimeData();
             mimeData->tab = this;
             drg->setMimeData(mimeData);
-            qDebug("starting drag 1");
 
             dragIndex = currentIndex();
             dragPage = currentWidget();

@@ -383,7 +383,7 @@ void QLayoutSupport::removeWidget(QWidget *widget)
     }
 }
 
-QList<QWidget*> QLayoutSupport::widgets(QLayout *layout)
+QList<QWidget*> QLayoutSupport::widgets(QLayout *layout) const
 {
     if (!layout)
         return QList<QWidget*>();
@@ -508,13 +508,13 @@ void QLayoutSupport::insertWidget(int index, QWidget *widget)
 {
     QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
     QLayoutItem *item = gridLayout->itemAt(index);
-    if (item && isEmptyItem(item)) {
-        int row, column, rowspan, colspan;
-        gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
-        gridLayout->takeAt(index);
-        add_to_grid_layout(gridLayout, widget, row, column, rowspan, colspan);
-        delete item;
-    }
+    Q_ASSERT(item && isEmptyItem(item));
+
+    int row, column, rowspan, colspan;
+    gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
+    gridLayout->takeAt(index);
+    add_to_grid_layout(gridLayout, widget, row, column, rowspan, colspan);
+    delete item;
 }
 
 void QLayoutSupport::createEmptyCells(QGridLayout *&gridLayout)
@@ -787,17 +787,15 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
     if (!m_formWindow->hasFeature(AbstractFormWindow::GridFeature))
         return;
 
-#if 0
-    // ### this is broken atm
-    if (!m_formWindow->currentTool() != 0)
+    if (m_formWindow->currentTool() != 0)
         return;
-#endif
+
+    // only draw red borders if we're editting widgets
 
     QPainter p(this);
 
-#if 0 // ### enable me
-    if (layout()) {
-        p.setPen(QPen(palette().mid().color(), 1, Qt::DotLine));
+    if (layout() != 0) {
+        p.setPen(QPen(QColor(255, 0, 0, 35), 1, Qt::SolidLine));
 
         int index = 0;
         QMap<int, int> rows;
@@ -806,29 +804,14 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
         while (QLayoutItem *item = layout()->itemAt(index)) {
             ++index;
 
-            QRect g = item->geometry();
-            rows.insert(g.y(), g.y());
-            columns.insert(g.x(), g.x());
-
-            rows.insert(g.bottom(), g.bottom());
-            columns.insert(g.right(), g.right());
+            if (item->spacerItem())
+                p.drawRect(item->geometry());
         }
 
-        QRect g = layout()->geometry();
-
-        foreach (int row, rows.keys())
-            p.drawLine(g.x(), row, g.right(), row);
-
-        foreach (int column, columns.keys())
-            p.drawLine(column, g.y(), column, g.bottom());
     }
-#endif
 
-    // only draw red borders if we're editting widgets
-    if (m_formWindow->currentTool() == 0) {
-        p.setPen(QPen(Qt::red, 1));
-        p.drawRect(0, 0, width() - 1, height() - 1);
-    }
+    p.setPen(QPen(Qt::red, 1));
+    p.drawRect(0, 0, width() - 1, height() - 1);
 }
 
 void QLayoutWidget::updateMargin()

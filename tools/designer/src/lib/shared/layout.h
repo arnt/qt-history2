@@ -18,13 +18,13 @@
 
 #include <layoutinfo.h>
 
-#include <QWidget>
-#include <QMap>
-#include <QPointer>
-#include <QObject>
-#include <QLayout>
-#include <QGridLayout>
-#include <QMap>
+#include <QtCore/QPointer>
+#include <QtCore/QObject>
+#include <QtCore/QMap>
+
+#include <QtGui/QLayout>
+#include <QtGui/QGridLayout>
+#include <QtGui/QWidget>
 
 class AbstractFormWindow;
 

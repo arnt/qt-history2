@@ -339,7 +339,7 @@ void InsertWidgetCommand::init(QWidget *widget)
         deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
 
     m_insertMode = deco ? deco->currentInsertMode() : ILayoutDecoration::InsertWidgetMode;
-    m_cell = deco ? deco->currentCell() : qMakePair(0,0);
+    m_cell = deco ? deco->currentCell() : qMakePair(0, 0);
 }
 
 void InsertWidgetCommand::redo()
@@ -354,7 +354,7 @@ void InsertWidgetCommand::redo()
     if (!deco && hasLayout(parentWidget))
         deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
 
-    if (deco) {
+    if (deco != 0) {
         if (LayoutInfo::layoutType(core, parentWidget) == LayoutInfo::Grid) {
             switch (m_insertMode) {
                 case ILayoutDecoration::InsertRowMode:
@@ -365,8 +365,7 @@ void InsertWidgetCommand::redo()
                     deco->insertColumn(m_cell.second);
                     break;
 
-                default:
-                    break;
+                default: break;
             } // end switch
         }
 

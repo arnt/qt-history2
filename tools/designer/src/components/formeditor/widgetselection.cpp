@@ -17,9 +17,11 @@
 
 #include <qextensionmanager.h>
 #include <abstractwidgetfactory.h>
-#include <layoutinfo.h>
 #include <qdesigner_command.h>
+#include <layout.h>
+#include <layoutinfo.h>
 #include <taskmenu.h>
+#include <layoutdecoration.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QWidget>
@@ -28,6 +30,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QStylePainter>
+#include <QtGui/QGridLayout>
 
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
@@ -190,7 +193,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
     if (type == TaskMenu)
         return;
 
-    //e->accept();
+    e->accept();
 
     QWidget *container = widget->parentWidget();
 
@@ -343,7 +346,29 @@ void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
     if (!formWindow->hasFeature(FormWindow::EditFeature))
         return;
 
-    if (geom != widget->geometry()) {
+    LayoutInfo::Type layoutType = widget->parentWidget()
+            ? LayoutInfo::layoutType(formWindow->core(), widget->parentWidget())
+            : LayoutInfo::NoLayout;
+
+    if (layoutType == LayoutInfo::Grid) {
+        QSize size = widget->parentWidget()->size();
+        QGridLayout *grid = static_cast<QGridLayout*>(widget->parentWidget()->layout());
+
+        ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core()->extensionManager(), widget->parentWidget());
+        QList<QWidget*> widgets = deco->widgets(grid);
+        GridLayout gridLayout(widgets, widget->parentWidget(), formWindow, widget->parentWidget(), QSize(10,10));
+
+        gridLayout.breakLayout();
+        gridLayout.doLayout();
+        formWindow->clearSelection(false);
+        formWindow->selectWidget(widget, true);
+
+        // refresh the `deco' extension
+        deco = qt_extension<ILayoutDecoration*>(core()->extensionManager(), widget->parentWidget());
+        deco->simplify();
+
+        widget->parentWidget()->resize(size);
+    } else if (geom != widget->geometry()) {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
         cmd->init(widget, "geometry", widget->geometry());
         cmd->setOldValue(origGeom);
@@ -405,7 +430,7 @@ WidgetSelection::WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSele
 
 void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 {
-    taskMenu = qt_extension<ITaskMenu*>(core()->extensionManager(), w);
+    taskMenu = 0; // ### qt_extension<ITaskMenu*>(core()->extensionManager(), w);
 
 #ifndef NO_TOPWIDGET
     if (m_topWidget) {
@@ -418,7 +443,7 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 #endif
 
 
-    if (!w) {
+    if (w == 0) {
         hide();
         if (updateDict)
             selectionDict->remove(wid);
@@ -427,23 +452,65 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
     }
 
     wid = w;
-    bool active = !wid->parentWidget() || LayoutInfo::layoutType(formWindow->core(), wid->parentWidget()) == LayoutInfo::NoLayout;
+
+    LayoutInfo::Type layoutType = wid->parentWidget()
+            ? LayoutInfo::layoutType(formWindow->core(), wid->parentWidget())
+            : LayoutInfo::NoLayout;
+
+    bool active = (layoutType == LayoutInfo::NoLayout);
+
     for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
-        WidgetHandle *h = handles[ i ];
-        if (h) {
+        if (WidgetHandle *h = handles[i]) {
             h->setWidget(wid);
             h->setActive(active);
         }
     }
 
-#ifndef NO_TOPWIDGET
-    if (wid) {
-        wid->setAttribute(Qt::WA_ContentsPropagated, true);
-        m_topWidget = new TopWidget(wid);
-        QPalette p = m_topWidget->palette();
-        p.setColor(m_topWidget->backgroundRole(), QColor(255, 0, 0, 32));
-        m_topWidget->setPalette(p);
+    if (layoutType == LayoutInfo::Grid) {
+        QGridLayout *grid = static_cast<QGridLayout*>(wid->parentWidget()->layout());
+        int index = grid->indexOf(wid);
+        if (index == -1) {
+            qWarning("unexpected call to WidgetSelection::setWidget()");
+            Q_ASSERT(0);
+            return;
+        }
+
+        Q_ASSERT(index != -1);
+
+        ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core()->extensionManager(), wid->parentWidget());
+        Q_ASSERT(deco != 0);
+
+        QRect info = deco->itemInfo(index);
+
+        int item = -1;
+
+        // bottom cell
+        item = deco->findItemAt(info.bottom() + 1, info.left());
+//        if (item != -1 && grid->itemAt(item)->spacerItem() != 0)
+            handles[WidgetHandle::Bottom]->setActive(true);
+
+        // top cell
+        item = deco->findItemAt(info.top() - 1, info.left());
+//        if (item != -1 && grid->itemAt(item)->spacerItem() != 0)
+            handles[WidgetHandle::Top]->setActive(true);
+
+        // left cell
+        item = deco->findItemAt(info.top(), info.left() - 1);
+//        if (item != -1 && grid->itemAt(item)->spacerItem() != 0)
+            handles[WidgetHandle::Left]->setActive(true);
+
+        // right cell
+        item = deco->findItemAt(info.top(), info.right() + 1);
+//        if (item != -1 && grid->itemAt(item)->spacerItem() != 0)
+            handles[WidgetHandle::Right]->setActive(true);
     }
+
+#ifndef NO_TOPWIDGET
+    wid->setAttribute(Qt::WA_ContentsPropagated, true);
+    m_topWidget = new TopWidget(wid);
+    QPalette p = m_topWidget->palette();
+    p.setColor(m_topWidget->backgroundRole(), QColor(255, 0, 0, 32));
+    m_topWidget->setPalette(p);
 #endif
 
     updateGeometry();

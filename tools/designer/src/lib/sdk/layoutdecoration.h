@@ -15,10 +15,15 @@
 #define LAYOUTDECORATION_H
 
 #include <extension.h>
-#include <QObject>
-#include <qpair.h>
+
+#include <QtCore/QObject>
+#include <QtCore/QPair>
 
 class QPoint;
+class QLayoutItem;
+class QWidget;
+class QRect;
+class QLayout;
 
 class ILayoutDecoration
 {
@@ -32,6 +37,12 @@ public:
 
     virtual ~ILayoutDecoration() {}
 
+    virtual QList<QWidget*> widgets(QLayout *layout) const = 0;
+
+    virtual QRect itemInfo(int index) const = 0;
+    virtual int indexOf(QWidget *widget) const = 0;
+    virtual int indexOf(QLayoutItem *item) const = 0;
+
     virtual InsertMode currentInsertMode() const = 0;
     virtual int currentIndex() const = 0;
     virtual QPair<int, int> currentCell() const = 0;
@@ -43,6 +54,8 @@ public:
     virtual void simplify() = 0;
 
     virtual int findItemAt(const QPoint &pos) const = 0;
+    virtual int findItemAt(int row, int column) const = 0; // ### atm only for grid.
+
     virtual void adjustIndicator(const QPoint &pos, int index) = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(ILayoutDecoration, "http://trolltech.com/Qt/IDE/LayoutDecoration")

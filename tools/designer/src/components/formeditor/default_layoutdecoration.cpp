@@ -16,7 +16,7 @@
 #include "qlayout_widget.h"
 #include "qdesigner_widget.h"
 
-#include <QLayout>
+#include <QtGui/QGridLayout>
 #include <QtCore/qdebug.h>
 
 // ---- QDesignerLayoutDecoration ----
@@ -36,6 +36,26 @@ QDesignerLayoutDecoration::QDesignerLayoutDecoration(FormWindow *formWindow, QWi
 
 QDesignerLayoutDecoration::~QDesignerLayoutDecoration()
 {
+}
+
+QList<QWidget*> QDesignerLayoutDecoration::widgets(QLayout *layout) const
+{
+    return m_layoutSupport->widgets(layout);
+}
+
+QRect QDesignerLayoutDecoration::itemInfo(int index) const
+{
+    return m_layoutSupport->itemInfo(index);
+}
+
+int QDesignerLayoutDecoration::indexOf(QWidget *widget) const
+{
+    return m_layoutSupport->indexOf(widget);
+}
+
+int QDesignerLayoutDecoration::indexOf(QLayoutItem *item) const
+{
+    return m_layoutSupport->indexOf(item);
 }
 
 QDesignerLayoutDecoration::InsertMode QDesignerLayoutDecoration::currentInsertMode() const
@@ -83,6 +103,11 @@ int QDesignerLayoutDecoration::findItemAt(const QPoint &pos) const
     return m_layoutSupport->findItemAt(pos);
 }
 
+int QDesignerLayoutDecoration::findItemAt(int row, int column) const
+{
+    return m_layoutSupport->findItemAt(row, column);
+}
+
 void QDesignerLayoutDecoration::adjustIndicator(const QPoint &pos, int index)
 {
     m_layoutSupport->adjustIndicator(pos, index);
@@ -101,7 +126,7 @@ QObject *QDesignerLayoutDecorationFactory::createExtension(QObject *object, cons
 
     if (QLayoutWidget *widget = qobject_cast<QLayoutWidget*>(object)) {
         return new QDesignerLayoutDecoration(widget, parent);
-    } else if (QWidget *widget = static_cast<QWidget*>(object)) {
+    } else if (QWidget *widget = qobject_cast<QWidget*>(object)) {
         if (FormWindow *fw = FormWindow::findFormWindow(widget)) {
             AbstractMetaDataBaseItem *item = fw->core()->metaDataBase()->item(widget->layout());
             return item ? new QDesignerLayoutDecoration(fw, widget, parent) : 0;

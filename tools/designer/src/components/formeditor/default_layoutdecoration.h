@@ -18,7 +18,8 @@
 #include <layoutdecoration.h>
 
 #include <default_extensionfactory.h>
-#include <qpair.h>
+
+#include <QtCore/QPair>
 
 class QLayoutWidget;
 class QLayoutSupport;
@@ -33,6 +34,12 @@ public:
     QDesignerLayoutDecoration(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
     virtual ~QDesignerLayoutDecoration();
 
+    virtual QList<QWidget*> widgets(QLayout *layout) const;
+
+    virtual QRect itemInfo(int index) const;
+    virtual int indexOf(QWidget *widget) const;
+    virtual int indexOf(QLayoutItem *item) const;
+
     virtual InsertMode currentInsertMode() const;
     virtual int currentIndex() const;
     virtual QPair<int, int> currentCell() const;
@@ -44,6 +51,7 @@ public:
     virtual void simplify();
 
     virtual int findItemAt(const QPoint &pos) const;
+    virtual int findItemAt(int row, int column) const;
     virtual void adjustIndicator(const QPoint &pos, int index);
 
 private:

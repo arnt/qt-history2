@@ -65,7 +65,7 @@ public:
     void insertWidget(QWidget *widget, const QPair<int, int> &cell);
     void removeWidget(QWidget *widget);
 
-    QList<QWidget*> widgets(QLayout *layout);
+    QList<QWidget*> widgets(QLayout *layout) const;
 
     void simplifyLayout();
 
