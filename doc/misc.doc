@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.41 1999/06/03 15:14:50 warwick Exp $
+** $Id: misc.doc,v 2.42 1999/06/16 20:02:39 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.41 1999/06/03 15:14:50 warwick Exp $";
+static char ident[] = "$Id: misc.doc,v 2.42 1999/06/16 20:02:39 agulbra Exp $";
 #endif
 
 
@@ -326,28 +326,6 @@ ensure the mailing lists are virtually free from spam.</small>
 */
 
 
-/*! \page trademarks.html
-
-<title>Trademarks</title></head><body bgcolor="#ffffff">
-\postheader
-<h1 align=center>Trademarks</h1><br clear="all">
-
-The <a href="qtlogo.png">Qt logo</a> and <a
-href="ttlogo-small.png">Troll Tech logo</a> are copyright © Troll
-Tech AS.
-
-<tt>Qt</tt> is a trademark of Troll Tech AS.
-
-All other trademarks mentioned in this documentation are recognized as
-belonging to their respective owners, including but not limited to
-<tt>AIX, BSD/OS, BSDI, Borland, DEC, Digital UNIX, HP, HP-UX, IBM,
-IRIX, Microsoft, OpenGL, OSF/1, OpenGL, PostSCript, SGI, Solaris,
-SparcWorks, Sun, SunOS, SunPRO, Symantec, Tetris, Visual C++</tt> and
-<tt> Watcom.</tt>
-
-*/
-
-
 /*! \page easteregg.html
 
 <title>Qt Official Easter Egg</title>
@@ -512,7 +490,7 @@ throughout the text, generally in groups of four or five.
 (Read more or buy it.)</a>
 
 <h2><nobr>Buying these books from</nobr>
-<a href="http://www.amazon.com/text">Amazon.com.</a></h2>
+<a href="http://www.amazon.com/text/">Amazon.com.</a></h2>
 
 <p>These books are made available in association with Amazon.com, our
 favorite on-line bookstore.  Here is more information about
@@ -522,5 +500,140 @@ Amazon.com's shipping options</a> and its
 customer service.</a> When you buy a book by following one of these
 links, Amazon.com gives about 15% of the purchase price to
 <a href="http://www.amnesty.org">Amnesty International.</a>
+
+*/
+
+/*! \page qnetworkegg.html
+
+<h1 align="center">The Twelve Networking Truths</h1>
+
+<title>Food-for-thought Easter Egg</title>
+</head><body bgcolor="#ffffff">
+\postheader
+
+<p>This is <a href="http://info.internet.isi.edu/1/in-notes/rfc">RFC
+1925</a> - copied in here since its trush are even less limited than
+the author says.
+
+<table cellspacing=0 cellpadding=0 width="100%"><tr>
+<td align=left valign=top>
+Network Working Group<br>
+Request for Comments: 1925<br>
+Category: Informational<br>
+</td><td align=right valign=top>
+R. Callon, Editor<br>
+IOOF<br>
+1 April 1996
+</td>
+</tr></table>
+
+<h3>Status of this Memo</h3>
+
+   This memo provides information for the Internet community.  This memo
+   does not specify an Internet standard of any kind.  Distribution of
+   this memo is unlimited.
+
+<h3>Abstract</h3>
+
+   This memo documents the fundamental truths of networking for the
+   Internet community. This memo does not specify a standard, except in
+   the sense that all standards must implicitly follow the fundamental
+   truths.
+
+<h3>Acknowledgements</h3>
+
+   The truths described in this memo result from extensive study over an
+   extended period of time by many people, some of whom did not intend
+   to contribute to this work. The editor merely has collected these
+   truths, and would like to thank the networking community for
+   originally illuminating these truths.
+
+<h3>1. Introduction</h3>
+
+   This Request for Comments (RFC) provides information about the
+   fundamental truths underlying all networking. These truths apply to
+   networking in general, and are not limited to TCP/IP, the Internet,
+   or any other subset of the networking community.
+
+<h3>2. The Fundamental Truths</h3>
+
+   <ol>
+   <li> It Has To Work.
+
+   <li> No matter how hard you push and no matter what the priority,
+        you can't increase the speed of light.
+
+	<ol type="a"> <li> (corollary). No matter how hard you try, you
+	can't make a baby in much less than 9 months. Trying to speed
+	this up *might* make it slower, but it won't make it happen
+	any quicker. </ol>
+
+   <li> With sufficient thrust, pigs fly just fine. However, this is
+        not necessarily a good idea. It is hard to be sure where they
+        are going to land, and it could be dangerous sitting under them
+        as they fly overhead.
+
+   <li> Some things in life can never be fully appreciated nor
+        understood unless experienced firsthand. Some things in
+        networking can never be fully understood by someone who neither
+        builds commercial networking equipment nor runs an operational
+        network.
+
+   <li> It is always possible to aglutenate multiple separate problems
+        into a single complex interdependent solution. In most cases
+        this is a bad idea.
+
+   <li> It is easier to move a problem around (for example, by moving
+        the problem to a different part of the overall network
+        architecture) than it is to solve it.
+
+        <ol type="a"> <li> (corollary). It is always possible to add
+        another level of indirection. </ol>
+
+   <li> It is always something
+
+        <ol type="a"> <li> (corollary). Good, Fast, Cheap: Pick any two
+        (you can't have all three). </ol>
+
+   <li> It is more complicated than you think.
+
+   <li> For all resources, whatever it is, you need more.
+
+       <ol type="a"> <li> (corollary) Every networking problem always
+       takes longer to solve than it seems like it should.</ol>
+
+   <li> One size never fits all.
+
+   <li> Every old idea will be proposed again with a different name and
+        a different presentation, regardless of whether it works.
+
+        <ol type="a"> <li> (corollary). See rule 6a. </ol>
+
+   <li> In protocol design, perfection has been reached not when there
+        is nothing left to add, but when there is nothing left to take
+        away.
+
+   </ol>
+
+<h3>Security Considerations</h3>
+
+   This RFC raises no security issues. However, security protocols are
+   subject to the fundamental networking truths.
+
+<h3>References</h3>
+
+   The references have been deleted in order to protect the guilty and
+   avoid enriching the lawyers.
+
+<h3>Author's Address</h3>
+
+   Ross Callon<br>
+   Internet Order of Old Farts<br>
+   c/o Bay Networks<br>
+   3 Federal Street<br>
+   Billerica, MA  01821<br>
+   <br>
+   Phone: 508-436-3936<br>
+   EMail: rcallon@baynetworks.com<br>
 
 */
