@@ -379,7 +379,7 @@ void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
     d->autoSwap = true;
     { //just make it black (for now)..
         QPalette p = palette(); 
-        p.setColor(QPalette::Background, black); 
+        p.setColor(QPalette::Background, Qt::black); 
         setPalette(p);
     }
 
