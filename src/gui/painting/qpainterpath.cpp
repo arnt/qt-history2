@@ -1,6 +1,7 @@
 #include "qpainterpath.h"
 #include "qpainterpath_p.h"
 
+#include <qbitmap.h>
 #include <private/qobject_p.h>
 #include <qlist.h>
 #include <qpointarray.h>
