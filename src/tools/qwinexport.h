@@ -74,6 +74,7 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDict<int>;
 #endif
 
 #if defined(Q_DEFINED_QINTDICT) && defined(Q_DEFINED_QWIDGET) && !defined(Q_EXPORTED__TEMPLATES)
+#define Q_EXPORTED__TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDictIterator<QWidget>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDict<QWidget>;
 #endif
@@ -92,13 +93,14 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QString>; // for Qtopia
 #endif
 
 #if defined(Q_DEFINED_QMEMARRAY)  && !defined(Q_EXPORTED_QMEMARRAY_BASIC_TEMPLATES)   
-#define  Q_EXPORTED_QMEMARRAY_BASIC_TEMPLATES
+#define Q_EXPORTED_QMEMARRAY_BASIC_TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<int>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<bool>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<char>;
 #endif
 
 #if defined(Q_DEFINED_QMEMARRAY) && defined(Q_DEFINED_QPOINT)  && !defined(Q_EXPORTED_QMEMARAYPOINT_TEMPLATES)
+#define Q_EXPORTED_QMEMARAYPOINT_TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<QPoint>;
 #endif
 
