@@ -72,11 +72,13 @@ bool QDesignerDataBrowser::event( QEvent* e )
 #endif
 	) {
 	if ( e->type() == QEvent::Show ) {
-	    QSqlCursor* cursor = new QSqlCursor( tbl, TRUE, con );
-	    setCursor( cursor, TRUE );
-	    setForm( frm );
-	    refresh();
-	    first();
+	    if ( con ) {
+		QSqlCursor* cursor = new QSqlCursor( tbl, TRUE, con );
+		setCursor( cursor, TRUE );
+		setForm( frm );
+		refresh();
+		first();
+	    }
 	    return TRUE;
 	}
     }

@@ -420,7 +420,14 @@ bool Project::DatabaseConnection::open()
     connection->setUserName( username );
     connection->setPassword( password );
     connection->setHostName( hostname );
-    return connection->open();
+    bool b = connection->open();
+    if ( !b ) {
+	if ( name == "(default)" )
+	    QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );
+	else
+	    QSqlDatabase::removeDatabase( name );
+    }
+    return b;
 #else
     return FALSE;
 #endif
