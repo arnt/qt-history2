@@ -618,8 +618,6 @@ void QWorkspace::insertIcon( QWidget* w )
     d->icons.append( w );
     if (w->parentWidget() != this )
 	w->reparent( this, 0, QPoint(0,0), FALSE);
-
-
     QRect cr = updateWorkspace();
     int x = 0;
     int y = cr.height() - w->height();
@@ -900,6 +898,7 @@ void QWorkspace::showEvent( QShowEvent *e )
     }
     if(d->wmode == WS_TopLevel) {
 	QWidget *o = topLevelWidget();
+	bool isMain = qApp->mainWidget() == o;
 	const QObjectList *c = o->children();
 	for(QObjectListIt it(*c); it; ++it) {	
 	    if(!(*it)->isWidgetType())
@@ -931,6 +930,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 		    } else if(tb_list.count()) {
 			QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
 							  w->parentWidget(), "QMagicDock");
+			dw->setCloseMode( QDockWindow::Always );
 			dw->setResizeEnabled(TRUE);
 			dw->setCaption(o->caption());
 			QSize os(w->size());
@@ -960,15 +960,19 @@ void QWorkspace::showEvent( QShowEvent *e )
 
 	QWidget *w = new QWidget(NULL, "QDoesNotExist", 
 				 WType_Dialog | WStyle_Customize | WStyle_NoBorder);
+	if(isMain)
+	    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 	QDesktopWidget *dw = QApplication::desktop();
 	w->setGeometry(dw->availableGeometry(dw->screenNumber(o)));
 	o->reparent(w, QPoint(0, 0));
+	o->hide();
 	if(o->inherits("QMainWindow")) {
 	    if(QMenuBar *mb = ((QMainWindow *)o)->menuBar()) 
 		mb->reparent(w, QPoint(0, 0));
 	}
 	reparent(w, QPoint(0,0));
 	setGeometry(0, 0, w->width(), w->height());
+	w->hide();
     }
 
     //done with that nastiness, on with your regularly schedualed programming..
