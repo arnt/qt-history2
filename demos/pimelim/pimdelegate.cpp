@@ -1,6 +1,7 @@
 #include "pimdelegate.h"
 #include "pimmodel.h"
 #include <qpainter.h>
+#include <qdebug.h>
 
 PimDelegate::PimDelegate(QObject *parent)
     : QAbstractItemDelegate(parent)
@@ -30,10 +31,11 @@ void PimDelegate::paint(QPainter *painter,
     QString jobTitle = model->data(index, PimModel::JobTitleRole).toString();
 
     QSize photoSize(64, 64);
-    painter->drawPixmap(QRect(option.rect.topLeft(), photoSize), photo);
+    QPoint topLeft = option.rect.topLeft();
+    painter->drawPixmap(QRect(topLeft, photoSize), photo);
     int h = painter->fontMetrics().height();
-    int x = photoSize.width() + 8;
-    int y = option.rect.top() + h;
+    int x = topLeft.x() + photoSize.width() + 8;
+    int y = topLeft.y() + h;
     painter->drawText(x, y, firstName);
     y += h;
     painter->drawText(x, y, lastName);
