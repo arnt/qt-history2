@@ -165,11 +165,16 @@ QFSFileInfoEnginePrivate::doStat() const
 
 	UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
+        // Stat on windows doesn't accept drivename : without \ so append \ it if this is the case
+        QString statName = file;
+        if (file.length() == 2 && file.at(1) == ':')
+            statName += '\\';
+
         int r;
 	QT_WA({
-	    r = QT_TSTAT((TCHAR*)file.utf16(), (QT_STATBUF4TSTAT*)&st);
+	    r = QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st);
 	} , {
-	    r = QT_STAT(qt_win95Name(file), &st);
+	    r = QT_STAT(qt_win95Name(statName), &st);
 	});
 	if (r) {
 	    bool is_dir=false;
