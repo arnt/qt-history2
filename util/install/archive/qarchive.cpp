@@ -397,6 +397,9 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 		if(filePerm != -1) 
 		    chmod(fileName.latin1(), (mode_t)filePerm);
 #endif
+	    } else {
+		emit operationFeedback( "Cannot open: " + fileName );
+		return FALSE;
 	    }
 	} else if(chunktype == ChunkSymlink) {
 	    *inStream >> entryLength;
