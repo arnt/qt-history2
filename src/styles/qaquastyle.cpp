@@ -8593,7 +8593,8 @@ public:
         int dir;
     };
 
-    QMap<QPushButton *, buttonState *> defaultButtons;
+    QPushButton * defaultButton;
+    buttonState   buttonState;
     int timerId;
 };
 
@@ -8655,9 +8656,16 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     // The pixmap was not found in the cache - create/scale/insert it into
     // the cache
 
-    if( s.contains("gen_back") )
-        QPixmapCache::insert( "$qt_aqua_gen_back",
-                              QPixmap( (const char **) aqua_gen_back_xpm ) );
+    if( s.contains("gen_back") ) {
+	// Double the size of the background pixmap to decrease the
+	// number of blits necessary to fill large areas.
+	QPixmap tmp( (const char **) aqua_gen_back_xpm );
+	QPixmap gen_back( tmp.width()*2, tmp.height()*2 );
+	QPainter p( &gen_back );
+	p.drawTiledPixmap( gen_back.rect(), tmp );
+        QPixmapCache::insert( "$qt_aqua_gen_back", gen_back );
+    }
+    
     if( s.contains("sel_back" ) )
         QPixmapCache::insert( "$qt_aqua_sel_back",
                               QPixmap( (const char **) aqua_sel_back_xpm ) );
@@ -9202,11 +9210,10 @@ void QAquaStyle::polish( QPalette & pal )
     QPixmap px;
     qAquaPixmap( "gen_back", px );
     QBrush background( Qt::black, px );
-
     pal.setBrush( QPalette::Active, QColorGroup::Background, background );
     pal.setBrush( QPalette::Inactive, QColorGroup::Background, background );
     pal.setBrush( QPalette::Disabled, QColorGroup::Background, background );
-
+    
     pal.setBrush( QPalette::Active, QColorGroup::Button, background );
     pal.setBrush( QPalette::Inactive, QColorGroup::Button, background );
     pal.setBrush( QPalette::Disabled, QColorGroup::Button, background );
@@ -9253,10 +9260,10 @@ void QAquaStyle::polish( QWidget * w )
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
-//         if( btn->group() ){
-//             btn->group()->setMargin( 0 );
-//             btn->group()->setInsideSpacing( 0 );
-//         }
+         if( btn->group() ){
+             btn->group()->setMargin( 0 );
+             btn->group()->setInsideSpacing( 0 );
+         }
     }
 
      if( w->inherits("QToolBar") ){
@@ -9279,12 +9286,9 @@ void QAquaStyle::unPolish( QWidget * w )
 {
     if( w->inherits("QPushButton") ){
         QPushButton * btn = (QPushButton *) w;
-        if( btn->isDefault() ){
-            if( d->defaultButtons.contains( btn ) ){
-                delete d->defaultButtons[btn];
-                d->defaultButtons.remove( btn );
-            }
-        }
+        if( btn == d->defaultButton )
+	    d->defaultButton = 0;
+
         if( d->timerId != -1 ){
             killTimer( d->timerId );
             d->timerId = -1;
@@ -9310,13 +9314,9 @@ void QAquaStyle::unPolish( QWidget * w )
 void QAquaStyle::timerEvent( QTimerEvent * te )
 {
     if( te->timerId() == d->timerId ){
-        if( d->defaultButtons.count() > 0 ){
-            QMapIterator<QPushButton *, QAquaStylePrivate::buttonState *> it = d->defaultButtons.begin();
-            while( it != d->defaultButtons.end() ){
-                it.key()->repaint( FALSE );
-                ++it;
-            }
-        }
+	if( d->defaultButton != 0 && (d->defaultButton->isDefault() || 
+				      d->defaultButton->autoDefault()) )
+	    d->defaultButton->repaint( FALSE );
     }
 }
 
@@ -9327,14 +9327,35 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
     if( o->inherits("QPushButton") ){
         QPushButton * btn = (QPushButton *) o;
 
-        if( e->type() == QEvent::Show ){
-            d->defaultButtons.insert( btn, new QAquaStylePrivate::buttonState );
-        } else if( e->type() == QEvent::Hide ){
-            if( d->defaultButtons.contains( btn ) ){
-                delete d->defaultButtons[btn];
-                d->defaultButtons.remove( btn );
-            }
-        }
+        if( e->type() == QEvent::FocusIn ) {
+	    // Kb Focus received - make this the default button
+	    d->defaultButton = btn;
+	} else if( e->type() == QEvent::FocusOut || e->type() == QEvent::Show ) {
+
+	    // Find the correct button to use as default button
+	    QObjectList *list = btn->topLevelWidget()->queryList( "QPushButton" );
+	    QObjectListIt it( * list );
+	    QPushButton * pb;
+	    while ( (pb = (QPushButton*)it.current()) ) {
+		++it;
+		if( ((e->type() == QEvent::FocusOut) && (pb->isDefault() || 
+							 pb->autoDefault() && 
+							 (pb != btn)) ) ||
+		    ((e->type() == QEvent::Show) && pb->isDefault()) ) 
+		{
+		    QPushButton * tmp = d->defaultButton;
+		    d->defaultButton = 0;
+		    if( tmp != 0 )
+			tmp->repaint( FALSE );
+		    d->defaultButton = pb;
+		    break;
+		}
+	    }
+	    delete list;
+        } else if( e->type() == QEvent::Hide ) {
+	    if( d->defaultButton == btn ) 
+		d->defaultButton = 0;
+	}
     }
     return FALSE;
 }
@@ -9737,14 +9758,13 @@ void QAquaStyle::drawPushButton( QPushButton* btn, QPainter *p)
     // ### What about buttons that are so small that the pixmaps don't fit?
     if( w < 33 ){
         QWindowsStyle::drawPanel( p, x, y, w, h, btn->colorGroup(), btn->isDown(), 1 );
-        //drawButton( p, x, y, w, h, btn->colorGroup(), btn->isDown() );
         return;
     }
 
     QString hstr = QString::number( h - y );
-    if( btn->isDefault() && d->defaultButtons.contains( btn ) ){
-        int & alt = d->defaultButtons[btn]->frame;
-        int & dir = d->defaultButtons[btn]->dir;
+    if( (btn->isDefault() || btn->autoDefault()) && (d->defaultButton == btn) ) {
+        int & alt = d->buttonState.frame;
+        int & dir = d->buttonState.dir;
         if( alt > 0 ){
             QString num = QString::number( alt );
             qAquaPixmap( "btn_def_left" + num + "_" + hstr, left );
@@ -9755,9 +9775,12 @@ void QAquaStyle::drawPushButton( QPushButton* btn, QPainter *p)
             qAquaPixmap( "btn_def_mid_" + hstr, mid );
             qAquaPixmap( "btn_def_right_" + hstr, right );
         }
-        if( (dir == 1) && (alt == 9) ) dir = -1;
-        if( (dir == -1) && (alt == 0) ) dir = 1;
-        alt += dir;
+	// Pause animation if button is down
+	if( !btn->isDown() ) {
+	    if( (dir == 1) && (alt == 9) ) dir = -1;
+	    if( (dir == -1) && (alt == 0) ) dir = 1;
+	    alt += dir;
+	}
     } else if( btn->isDown() ){
         qAquaPixmap( "btn_def_left_" + hstr, left );
         qAquaPixmap( "btn_def_mid_" + hstr, mid );
