@@ -136,9 +136,9 @@ public:
 
 protected:
 #ifdef QT_NO_QOBJECT
-    QFile(QFilePrivate &d);
+    QFile(QFilePrivate &dd);
 #else
-    QFile(QFilePrivate &d, QObject *parent);
+    QFile(QFilePrivate &dd, QObject *parent = 0);
 #endif
 
     Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);

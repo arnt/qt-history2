@@ -130,7 +130,7 @@ public:
 #endif
 
 protected:
-    QAbstractSlider(QAbstractSliderPrivate &dd, QWidget *parent);
+    QAbstractSlider(QAbstractSliderPrivate &dd, QWidget *parent=0);
 
 private:
     Q_DISABLE_COPY(QAbstractSlider)

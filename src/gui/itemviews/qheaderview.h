@@ -120,7 +120,7 @@ protected slots:
     void sectionsAboutToBeRemoved(const QModelIndex &parent, int logicalFirst, int logicalLast);
 
 protected:
-    QHeaderView(QHeaderViewPrivate &, Qt::Orientation orientation, QWidget *parent);
+    QHeaderView(QHeaderViewPrivate &dd, Qt::Orientation orientation, QWidget *parent = 0);
     void initialize();
 
     void initializeSections();

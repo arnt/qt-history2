@@ -97,7 +97,7 @@ protected:
     virtual StepEnabled stepEnabled() const;
 
 protected:
-    QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent);
+    QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent = 0);
 
 private:
     Q_PRIVATE_SLOT(d, void editorTextChanged(const QString &))
@@ -107,4 +107,4 @@ private:
     Q_DISABLE_COPY(QAbstractSpinBox)
 };
 
-#endif
+#endif // QABSTRACTSPINBOX_H

@@ -60,7 +60,7 @@ protected:
 
     QModelIndex indexInQuery(const QModelIndex &item) const;
     void setLastError(const QSqlError &error);
-    QSqlQueryModel(QSqlQueryModelPrivate &d, QObject *parent);
+    QSqlQueryModel(QSqlQueryModelPrivate &dd, QObject *parent = 0);
 };
 
-#endif
+#endif // QSQLQUERYMODEL_H

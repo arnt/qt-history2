@@ -45,7 +45,7 @@ public:
     QSize sizeHint() const;
 
 protected:
-    QViewport(QViewportPrivate &dd, QWidget *parent);
+    QViewport(QViewportPrivate &dd, QWidget *parent = 0);
     void setViewportMargins(int left, int top, int right, int bottom);
 
     bool event(QEvent *);
@@ -81,5 +81,4 @@ private:
 
 };
 
-
-#endif
+#endif // QVIEWPORT_H

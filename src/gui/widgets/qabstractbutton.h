@@ -110,7 +110,7 @@ public slots:
 #endif
 
 protected:
-    QAbstractButton(QAbstractButtonPrivate &, QWidget* parent);
+    QAbstractButton(QAbstractButtonPrivate &dd, QWidget* parent = 0);
 
 private:
     Q_DECLARE_PRIVATE(QAbstractButton)

@@ -93,7 +93,7 @@ public:
 #endif
 
 protected:
-    QFrame(QFramePrivate &, QWidget* parent, Qt::WFlags f = 0);
+    QFrame(QFramePrivate &dd, QWidget* parent = 0, Qt::WFlags f = 0);
 
 private:
     Q_DISABLE_COPY(QFrame)
