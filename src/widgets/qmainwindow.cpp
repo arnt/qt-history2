@@ -58,6 +58,7 @@
 #include "qbitmap.h"
 #include "qdockarea.h"
 #include "qstringlist.h"
+#include "qaccessible.h"
 
 /* QMainWindowLayout, respects widthForHeight layouts (like the left
   and right docks are)
@@ -2173,6 +2174,17 @@ void QMainWindow::setAppropriate( QDockWindow *dw, bool a )
 {
     d->appropriate.replace( dw, a );
 }
+
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*!
+  \reimp
+*/
+QAccessibleInterface *QMainWindow::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Application );
+}
+#endif
 
 #ifndef QT_NO_TEXTSTREAM
 static void saveDockArea( QTextStream &ts, QDockArea *a )

@@ -75,6 +75,11 @@ protected:
     void reformat();
     void hideOrShow();
     bool event( QEvent *);
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private:
     QStatusBarPrivate * d;
 private:	// Disabled copy constructor and operator=

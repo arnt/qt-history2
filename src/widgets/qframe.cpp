@@ -41,6 +41,7 @@
 #include "qdrawutil.h"
 #include "qframe.h"
 #include "qbitmap.h"
+#include "qaccessible.h"
 
 // REVISED: warwick
 /*!
@@ -770,4 +771,15 @@ void QFrame::drawContentsMask( QPainter* p)
 
     p->setBrush( oldBrush );
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*!
+  \reimp
+*/
+QAccessibleInterface *QFrame::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Border );
+}
+#endif
+
 #endif //QT_NO_FRAME

@@ -52,6 +52,7 @@
 #include "qcleanuphandler.h"
 #include <ctype.h>
 #include "../kernel/qinternal_p.h"
+#include "qaccessible.h"
 
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp
@@ -1359,5 +1360,16 @@ void QMenuBar::activateItemAt( int index )
     else
 	goodbye( FALSE );
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*!
+  \reimp
+*/
+QAccessibleInterface *QMenuBar::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::MenuBar );
+}
+
+#endif
 
 #endif // QT_NO_MENUBAR

@@ -9,6 +9,7 @@
 #include "qdatetime.h"
 #include "qpainter.h"
 #include "../kernel/qinternal_p.h"
+#include "qaccessible.h"
 #ifndef QT_NO_WORKSPACE
 #include <qworkspace.h>
 #endif
@@ -397,5 +398,12 @@ QSize QTitleBar::sizeHint() const
     style().titleBarMetrics(this, controlWidth, controlHeight, titleWidth, titleHeight);
     return QSize( 128, QMAX( QMAX(controlHeight, titleHeight), fontMetrics().lineSpacing() ) );;
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QTitleBar::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::TitleBar );
+}
+#endif
 
 #endif //QT_NO_TITLEBAR

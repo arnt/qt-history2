@@ -41,6 +41,7 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qpixmap.h"
+#include "qaccessible.h"
 #include <limits.h>
 
 /*!
@@ -482,4 +483,12 @@ void QProgressBar::drawContentsMask( QPainter *p )
 	}
     }
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QProgressBar::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::ProgressBar );
+}
+#endif
+
 #endif

@@ -51,6 +51,7 @@
 #include "qguardedptr.h"
 #include "qeffects_p.h"
 #include "qcursor.h"
+#include "qaccessible.h"
 #include <ctype.h>
 
 //#define ANIMATED_POPUP
@@ -2084,6 +2085,13 @@ void QPopupMenu::activateItemAt( int index )
 
 }
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QPopupMenu::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::PopupMenu );
+}
+#endif
 
 #endif // QT_NO_POPUPMENU
 

@@ -116,6 +116,10 @@ protected:
 
     void styleChange( QStyle& );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private slots:
     void doAutoRepeat();
 

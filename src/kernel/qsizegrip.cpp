@@ -42,6 +42,7 @@
 #include "qpainter.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
+#include "qaccessible.h"
 
 #if defined(Q_WS_X11)
 #include "qt_x11.h"
@@ -227,5 +228,15 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
     }
     return FALSE;
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*!
+  \reimp
+*/
+QAccessibleInterface *QSizeGrip::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Grip );
+}
+#endif
 
 #endif //QT_NO_SIZEGRIP

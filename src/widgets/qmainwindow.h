@@ -168,6 +168,10 @@ protected:
     bool event( QEvent * );
     void styleChange( QStyle& );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private slots:
     void slotPlaceChanged();
     void menuAboutToShow();

@@ -101,6 +101,10 @@ protected:
     void enterEvent( QEvent *e );
     void paintEvent( QPaintEvent *p );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private:
     void cutText();
     void getColors();

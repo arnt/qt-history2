@@ -88,6 +88,10 @@ protected:
     void resizeEvent( QResizeEvent *e );
     void styleChange( QStyle & );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private slots:
     void popupSelected( int id );
     void emulateButtonClicked();

@@ -46,7 +46,7 @@
 #include "qobjectlist.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
-
+#include "qaccessible.h"
 
 // REVISED: arnt
 /*!
@@ -673,5 +673,12 @@ QSize QGroupBox::sizeHint() const
 	return s.expandedTo( QSize( r.width() + 2 * r.x(), r.height()+ 2 * r.y() ) );
     }
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QGroupBox::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Grouping );
+}
+#endif
 
 #endif

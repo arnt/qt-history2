@@ -99,6 +99,10 @@ protected:
     void updateMask();
     void fontChange( const QFont & );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private slots:
     void fixFocus();
 

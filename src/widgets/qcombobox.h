@@ -177,6 +177,10 @@ protected:
     virtual void popup();
     void	updateMask();
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private:
     void	setUpListBox();
     void	setUpLineEdit();

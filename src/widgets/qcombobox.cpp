@@ -49,6 +49,8 @@
 #include "qbitmap.h"
 #include "qeffects_p.h"
 #include "qstringlist.h"
+#include "qcombobox.h"
+#include "qaccessible.h"
 #include <limits.h>
 
 // NOT REVISED
@@ -2029,5 +2031,13 @@ void QComboBox::setBackgroundPixmap( const QPixmap & pixmap )
 {
     setBackgroundPixmapForMode(PaletteBase, pixmap);
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QComboBox::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::ComboBox );
+}
+#endif
 
 #endif // QT_NO_COMBOBOX

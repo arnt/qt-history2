@@ -91,6 +91,10 @@ protected:
 			       int totalSteps );
     void styleChange( QStyle& );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private:
     int		total_steps;
     int		progress_val;

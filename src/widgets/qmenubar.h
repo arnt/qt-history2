@@ -109,6 +109,10 @@ protected:
     void	hidePopups();
     QRect	itemRect( int item );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private slots:
     void	subActivated( int itemId );
     void	subHighlighted( int itemId );

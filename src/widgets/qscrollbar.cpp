@@ -41,6 +41,7 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qtimer.h"
+#include "qaccessible.h"
 #include <limits.h>
 
 /*!
@@ -878,6 +879,16 @@ void QScrollBar::setValue( int i )
 {
     QRangeControl::setValue( i );
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*!
+  \reimp
+*/
+QAccessibleInterface *QScrollBar::accessibleInterface()
+{
+    return new QAccessibleRangeControl( this, QAccessible::ScrollBar );
+}
+#endif
 
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE

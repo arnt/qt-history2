@@ -53,6 +53,7 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 #include "qwidgetlist.h"
+#include "qaccessible.h"
 
 static const char * arrow_v_xpm[] = {
     "7 9 3 1",
@@ -623,6 +624,17 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 	d->extension->hide();
     }
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*!
+  \reimp
+*/
+QAccessibleInterface *QToolBar::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::ToolBar );
+}
+#endif
+
 
 void QToolBar::popupSelected( int id )
 {

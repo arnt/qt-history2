@@ -56,7 +56,7 @@
 #include "qtooltip.h"
 #include "qwmatrix.h"
 #include "qimage.h"
-
+#include "qaccessible.h"
 
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
@@ -176,6 +176,10 @@ protected:
 
     bool focusNextPrevChild( bool );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+     
 private:
     QWidget* childWidget;
     QWidget* lastfocusw;
@@ -1797,6 +1801,13 @@ void QWorkspaceChild::move( int x, int y )
     }
     QFrame::move( nx, ny );
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QWorkspaceChild::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Document );
+}
+#endif
 
 #include "qworkspace.moc"
 #endif // QT_NO_WORKSPACE

@@ -45,6 +45,7 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qsizegrip.h"
+#include "qaccessible.h"
 
 // REVISED: warwick
 /*!
@@ -470,5 +471,13 @@ bool QStatusBar::event( QEvent *e )
     }
     return QWidget::event( e );
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QStatusBar::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::StatusBar );
+}
+#endif
 
 #endif

@@ -116,6 +116,10 @@ protected:
     virtual void drawFrameMask( QPainter * );
     virtual void drawContentsMask( QPainter * );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private:
     void        updateFrameWidth();
     QRect       frect;

@@ -41,6 +41,7 @@
 #include "qguardedptr.h"
 #include "qtimer.h"
 #include "qeffects_p.h"
+#include "qaccessible.h"
 
 static bool globally_enabled = TRUE;
 
@@ -73,6 +74,14 @@ public:
 	setText(text);
 	adjustSize();
     }
+
+protected:
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface()
+    {
+	return new QAccessibleWidget( this, QAccessible::ToolTip );
+    }
+#endif
 };
 
 // Internal class - don't touch

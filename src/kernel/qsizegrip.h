@@ -59,6 +59,11 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
 
     bool eventFilter( QObject *, QEvent * );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private:
     QPoint p;
     QSize s;
