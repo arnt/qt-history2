@@ -3162,8 +3162,13 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	if ( u.isLocalFile() && QFileInfo( u.path() ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
-	    *workingDirectory = u.toString();
-	    initialSelection = QString::null;//u.fileName();
+	    if ( u.isLocalFile() ) {
+		*workingDirectory = QFileInfo( u.path() ).dirPath( TRUE );
+		initialSelection = u.fileName();
+	    } else {
+		*workingDirectory = u.toString();
+		initialSelection = QString::null;//u.fileName();
+	    }
 	}
     }
 
@@ -3272,8 +3277,13 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	if ( u.isLocalFile() && QFileInfo( u.path() ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
-	    *workingDirectory = u.toString();
-	    initialSelection = QString::null;//u.fileName();
+	    if ( u.isLocalFile() ) {
+		*workingDirectory = QFileInfo( u.path() ).dirPath( TRUE );
+		initialSelection = u.fileName();
+	    } else {
+		*workingDirectory = u.toString();
+		initialSelection = QString::null;//u.fileName();
+	    }
 	}
     }
 
