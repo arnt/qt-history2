@@ -73,34 +73,35 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
 }
 
 
-/*! \class QSizeGrip qsizegrip.h
+/*!
+    \class QSizeGrip qsizegrip.h
 
-  \brief The QSizeGrip class provides corner-grip for resizing a top-level window.
+    \brief The QSizeGrip class provides a corner-grip for resizing a top-level window.
 
-  \ingroup application
-  \ingroup basic
-  \ingroup appearance
+    \ingroup application
+    \ingroup basic
+    \ingroup appearance
 
-  This widget works like the standard Windows resize handle.  In the
-  X11 version this resize handle generally works differently from the
-  one provided by the system; we hope to reduce this difference in the
-  future.
+    This widget works like the standard Windows resize handle. In the
+    X11 version this resize handle generally works differently from
+    the one provided by the system; we hope to reduce this difference
+    in the future.
 
-  Put this widget anywhere in a tree and the user can use it to resize
-  the top-level window.  Generally, this should be in the lower right-hand
-  corner.  Note that QStatusBar already uses this widget, so if you have
-  a status bar (e.g. you are using QMainWindow), then you don't need to
-  use this widget explicitly.
+    Put this widget anywhere in a widget tree and the user can use it
+    to resize the top-level window. Generally, this should be in the
+    lower right-hand corner. Note that QStatusBar already uses this
+    widget, so if you have a status bar (e.g. you are using
+    QMainWindow), then you don't need to use this widget explicitly.
 
-  <img src=qsizegrip-m.png> <img src=qsizegrip-w.png>
+    <img src=qsizegrip-m.png> <img src=qsizegrip-w.png>
 
-  \sa QStatusBar
+    \sa QStatusBar
 */
 
 
 /*!
-  Constructs a resize corner as a child widget of \a parent with the name
-  \a name.
+    Constructs a resize corner called \a name, as a child widget of \a
+    parent.
 */
 QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     : QWidget( parent, name )
@@ -127,8 +128,8 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
 
 
 /*!
-  Destroys the size grip.
- */
+    Destroys the size grip.
+*/
 QSizeGrip::~QSizeGrip()
 {
 #if defined(Q_WS_X11)
@@ -142,16 +143,17 @@ QSizeGrip::~QSizeGrip()
 }
 
 /*!
-  Returns the size grip's size hint; this is a small size.
+    Returns the size grip's size hint; this is a small size.
 */
 QSize QSizeGrip::sizeHint() const
 {
     return QSize( 13, 13 ).expandedTo( QApplication::globalStrut() );
 }
 
-/*!  Paints the resize grip. Resize grips are usually rendered as
-    small diagonal textured lines in the lower-right corner. The event
-    is in \a e.
+/*!
+    Paints the resize grip. Resize grips are usually rendered as small
+    diagonal textured lines in the lower-right corner. The event is in
+    \a e.
 */
 void QSizeGrip::paintEvent( QPaintEvent *e )
 {
@@ -161,7 +163,7 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
 }
 
 /*!
-  Primes the resize operation. The event is in \a e.
+    Primes the resize operation. The event is in \a e.
 */
 void QSizeGrip::mousePressEvent( QMouseEvent * e )
 {
@@ -171,8 +173,8 @@ void QSizeGrip::mousePressEvent( QMouseEvent * e )
 
 
 /*!
-  Resizes the top-level widget containing this widget. The event is in
-  \a e.
+    Resizes the top-level widget containing this widget. The event is
+    in \a e.
 */
 void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 {

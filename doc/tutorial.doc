@@ -1902,7 +1902,7 @@ now and use it as a random seed. See the documentation for \l QDate,
 
 Finally we calculate the target's center point. We keep it within
 the rectangle (x=200, y=35, width=190, height=255), (i.e., the
-possible x and y values are x = 200..390 and y = 35..290) in a
+possible x and y values are x = 200..389 and y = 35..289) in a
 coordinate system where we put y position 0 at the bottom edge of the
 widget and let y values increase upwards  X is as normal, with 0 at
 the left edge and with x values increasing to the right.

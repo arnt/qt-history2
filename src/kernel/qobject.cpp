@@ -1920,7 +1920,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 */
 
 /*!
-    Perform a deferred deletion of this object.
+    Performs a deferred deletion of this object.
 
     Instead of an immediate deletion this function schedules a
     deferred delete event for processing when Qt returns to the main

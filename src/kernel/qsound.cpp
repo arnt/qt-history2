@@ -95,46 +95,47 @@ public:
 };
 
 /*!
-  \class QSound qsound.h
-  \brief The QSound class provides access to the platform audio facilities.
+    \class QSound qsound.h
+    \brief The QSound class provides access to the platform audio facilities.
 
-  \ingroup multimedia
-  \mainclass
+    \ingroup multimedia
+    \mainclass
 
-  Qt provides the most commonly required audio operation in
-  GUI applications: playing a sound file asynchronously
-  to the user. This is most simply accomplished with a single call:
-  \code
-    QSound::play("mysounds/bells.wav");
-  \endcode
+    Qt provides the most commonly required audio operation in GUI
+    applications: asynchronously playing a sound file. This is most
+    easily accomplished with a single call:
+    \code
+	QSound::play("mysounds/bells.wav");
+    \endcode
 
-  A second API is provided in which a QSound object is created
-  from a sound file and is later played:
-  \code
-    QSound bells("mysounds/bells.wav");
+    A second API is provided in which a QSound object is created from
+    a sound file and is played later:
+    \code
+	QSound bells("mysounds/bells.wav");
 
-    bells.play();
-  \endcode
+	bells.play();
+    \endcode
 
-  Sounds played by the second model may use more memory but play
-  more immediately than sounds played using the first model, depending
-  on the underlying platform audio facilities.
+    Sounds played using the second model may use more memory but play
+    more immediately than sounds played using the first model,
+    depending on the underlying platform audio facilities.
 
-  On Microsoft Windows the underlying multimedia system is used; only WAVE
-  format sound files are supported. 
+    On Microsoft Windows the underlying multimedia system is used;
+    only WAVE format sound files are supported.
 
-  On X11 the <a href="ftp://ftp.x.org/contrib/audio/nas/">Network Audio
-  System</a> is used if available, otherwise all operations work
-  silently. NAS supports WAVE and AU files.
+    On X11 the \link ftp://ftp.x.org/contrib/audio/nas/ Network Audio
+    System\endlink is used if available, otherwise all operations work
+    silently. NAS supports WAVE and AU files.
 
-  On Macintosh, in an ironic turn of events we use QT (<a
-  href="http://quicktime.apple.com">QuickTime</a>) for sound, this means
-  all QuickTime formats are supported by Qt/Mac.
+    On Macintosh, ironically, we use QT (\link
+    http://quicktime.apple.com QuickTime\endlink) for sound, this
+    means all QuickTime formats are supported by Qt/Mac.
 
-  On Qt/Embedded, a built-in mixing sound server is used, which accesses
-  \c /dev/dsp directly. Only the WAVE format is supported.
+    On Qt/Embedded, a built-in mixing sound server is used, which
+    accesses \c /dev/dsp directly. Only the WAVE format is supported.
 
-  The availability of sound can be tested with QSound::isAvailable().
+    The availability of sound can be tested with
+    QSound::isAvailable().
 */
 
 /*!
@@ -144,7 +145,7 @@ public:
 */
 
 /*!
-  Plays the sound in a file called \a filename.
+    Plays the sound in a file called \a filename.
 */
 void QSound::play(const QString& filename)
 {
@@ -152,13 +153,13 @@ void QSound::play(const QString& filename)
 }
 
 /*!
-  Constructs a QSound that can quickly play the sound in a file
-  named \a filename.
+    Constructs a QSound that can quickly play the sound in a file
+    named \a filename.
 
-  This can use more memory than the static \c play function.
+    This may use more memory than the static \c play function.
 
-  The \a parent and \a name arguments (default 0) are passed on to
-  the QObject constructor.
+    The \a parent and \a name arguments (default 0) are passed on to
+    the QObject constructor.
 */
 QSound::QSound(const QString& filename, QObject* parent, const char* name) :
     QObject(parent,name),
@@ -168,7 +169,7 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name) :
 }
 
 /*!
-  Destroys the sound object.
+    Destroys the sound object.
 */
 QSound::~QSound()
 {
@@ -186,14 +187,14 @@ bool QSound::isFinished() const
 }
 
 /*!
-  \overload
+    \overload
 
-  Starts the sound playing.  The function returns immediately.
-  Depending on the platform audio facilities, other sounds may
-  stop or may be mixed with the new sound.
+    Starts the sound playing. The function returns immediately.
+    Depending on the platform audio facilities, other sounds may stop
+    or may be mixed with the new sound.
 
-  The sound can be played again at any time, possibly mixing or
-  replacing previous plays of the sound.
+    The sound can be played again at any time, possibly mixing or
+    replacing previous plays of the sound.
 */
 void QSound::play()
 {
@@ -202,7 +203,7 @@ void QSound::play()
 }
 
 /*!
-  Returns the number of times the sound will play.
+    Returns the number of times the sound will play.
 */
 int QSound::loops() const
 {
@@ -210,8 +211,8 @@ int QSound::loops() const
 }
 
 /*!
-  Returns the number of times the sound will loop. This value decreases
-  each time the sound loops.
+    Returns the number of times the sound will loop. This value
+    decreases each time the sound loops.
 */
 int QSound::loopsRemaining() const
 {
@@ -219,9 +220,10 @@ int QSound::loopsRemaining() const
 }
 
 /*!
-  Sets the sound to repeat \a l times when it is played.
-  Passing the value -1 will cause the sound to loop indefinitely.
-  \sa loops()
+    Sets the sound to repeat \a l times when it is played. Passing the
+    value -1 will cause the sound to loop indefinitely.
+
+    \sa loops()
 */
 void QSound::setLoops(int l)
 {
@@ -229,7 +231,7 @@ void QSound::setLoops(int l)
 }
 
 /*!
-  Returns the filename associated with the sound.
+    Returns the filename associated with the sound.
 */
 QString QSound::fileName() const
 {
@@ -237,9 +239,9 @@ QString QSound::fileName() const
 }
 
 /*!
-  Stops the sound playing.
+    Stops the sound playing.
 
-  \sa play()
+    \sa play()
 */
 void QSound::stop()
 {
@@ -248,13 +250,13 @@ void QSound::stop()
 
 
 /*!
-  Returns TRUE if sound facilities exist on the platform; otherwise
-  returns FALSE. An application may choose either to notify the user
-  if sound is crucial to the application or to operate silently
-  without bothering the user.
+    Returns TRUE if sound facilities exist on the platform; otherwise
+    returns FALSE. An application may choose either to notify the user
+    if sound is crucial to the application or to operate silently
+    without bothering the user.
 
-  If no sound is available, all QSound operations work silently
-  and quickly.
+    If no sound is available, all QSound operations work silently and
+    quickly.
 */
 bool QSound::isAvailable()
 {
@@ -262,8 +264,8 @@ bool QSound::isAvailable()
 }
 
 /*!
-  Sets the internal bucket record of sound \a s to \a b, deleting
-  any previous setting.
+    Sets the internal bucket record of sound \a s to \a b, deleting
+    any previous setting.
 */
 void QAuServer::setBucket(QSound* s, QAuBucket* b)
 {
@@ -272,7 +274,7 @@ void QAuServer::setBucket(QSound* s, QAuBucket* b)
 }
 
 /*!
-  Returns the internal bucket record of sound \a s.
+    Returns the internal bucket record of sound \a s.
 */
 QAuBucket* QAuServer::bucket(QSound* s)
 {
@@ -280,8 +282,8 @@ QAuBucket* QAuServer::bucket(QSound* s)
 }
 
 /*!
-  Decrements the QSound::loopRemaining() value for sound \a s,
-  returning the result.
+    Decrements the QSound::loopRemaining() value for sound \a s,
+    returning the result.
 */
 int QAuServer::decLoop(QSound* s)
 {
@@ -291,7 +293,7 @@ int QAuServer::decLoop(QSound* s)
 }
 
 /*!
-  Initializes the sound. The default implementation does nothing.
+    Initializes the sound. The default implementation does nothing.
 */
 void QAuServer::init(QSound*)
 {

@@ -216,64 +216,65 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
  *************************************************************************/
 
 /*!
-  \class QThread qthread.h
-  \brief The QThread class provides platform-independent threads.
+    \class QThread qthread.h
+    \brief The QThread class provides platform-independent threads.
 
-  \ingroup thread
-  \ingroup environment
+    \ingroup thread
+    \ingroup environment
 
-  A QThread represents a separate thread of control within the program;
-  it shares data with all the other threads within the process but
-  executes independently in the way that a separate program does on
-  a multitasking operating system. Instead of starting in main(),
-  QThreads begin executing in run(). You inherit run()
-  to include your code. For example:
+    A QThread represents a separate thread of control within the
+    program; it shares data with all the other threads within the
+    process but executes independently in the way that a separate
+    program does on a multitasking operating system. Instead of
+    starting in main(), QThreads begin executing in run(). You inherit
+    run() to include your code. For example:
 
-  \code
-  class MyThread : public QThread {
+    \code
+    class MyThread : public QThread {
 
-  public:
+    public:
 
-    virtual void run();
+	virtual void run();
 
-  };
+    };
 
-  void MyThread::run()
-  {
-    for( int count = 0; count < 20; count++ ) {
-      sleep( 1 );
-      qDebug( "Ping!" );
+    void MyThread::run()
+    {
+	for( int count = 0; count < 20; count++ ) {
+	    sleep( 1 );
+	    qDebug( "Ping!" );
+	}
     }
-  }
 
-  int main()
-  {
-      MyThread a;
-      MyThread b;
-      a.start();
-      b.start();
-      a.wait();
-      b.wait();
-  }
-  \endcode
+    int main()
+    {
+	MyThread a;
+	MyThread b;
+	a.start();
+	b.start();
+	a.wait();
+	b.wait();
+    }
+    \endcode
 
-  This will start two threads, each of which writes Ping! 20 times
-  to the screen and exits. The wait() calls at the end of main() are
-  necessary because exiting main() ends the program, unceremoniously
-  killing all other threads. Each MyThread stops executing when it
-  reaches the end of MyThread::run(), just as an application does when
-  it leaves main().
+    This will start two threads, each of which writes Ping! 20 times
+    to the screen and exits. The wait() calls at the end of main() are
+    necessary because exiting main() ends the program, unceremoniously
+    killing all other threads. Each MyThread stops executing when it
+    reaches the end of MyThread::run(), just as an application does
+    when it leaves main().
 
-  \sa \link threads.html Thread Support in Qt\endlink.
+    \sa \link threads.html Thread Support in Qt\endlink.
 */
 
 
 /*!
-  This returns the thread handle of the currently executing thread.  The
-  handle returned by this function is used for internal reasons and
-  should \e not be used in any application code.
-  On Windows, the returned value is a pseudo handle for the current thread,
-  and it cannot be used for numerical comparison.
+    This returns the thread handle of the currently executing thread.
+
+    \warning The handle returned by this function is used for internal
+    purposes and should \e not be used in any application code. On
+    Windows, the returned value is a pseudo handle for the current
+    thread, and it cannot be used for numerical comparison.
 */
 Qt::HANDLE QThread::currentThread()
 {
@@ -302,20 +303,28 @@ void QThread::cleanup()
 
 
 /*!
-  Provides a way of posting an event from a thread which is not the
-  event thread to an object. The \a event is put into a queue, then the
-  event thread is woken which then sends the event to the \a receiver object.
-  It is important to note that the event handler for the event, when called,
-  will be called from the event thread and not from the thread calling
-  QThread::postEvent().
+    Provides a way of posting an event from a thread which is not the
+    event thread to an object.
 
-  Since QThread::postEvent() posts events into the event queue of QApplication,
-  you must create a QApplication object before calling QThread::postEvent().
+    This is achieved as follows:
+    \list
+    \i The \a event is put into a queue;
+    \i the event thread is woken up;
+    \i the event thread sends the event to the \a receiver object.
+    \endlist
+    It is important to note that the event handler for the event, when
+    called, will be called from the event thread and not from the
+    thread calling QThread::postEvent().
 
-  The event must be allocated on the heap since the post event queue
-  will take ownership of the event and delete it once it has been posted.
+    Since QThread::postEvent() posts events into the event queue of
+    QApplication, you must create a QApplication object before calling
+    QThread::postEvent().
 
-  \sa QApplication::postEvent()
+    The event must be allocated on the heap since the post event queue
+    will take ownership of the event and delete it once it has been
+    posted.
+
+    \sa QApplication::postEvent()
 */
 void QThread::postEvent( QObject * receiver, QEvent * event )
 {
@@ -353,8 +362,8 @@ static void thread_sleep(struct timespec *ti)
 
 
 /*!
-  System independent sleep.  This causes the current thread to sleep for
-  \a secs seconds.
+    System independent sleep. This causes the current thread to sleep
+    for \a secs seconds.
 */
 void QThread::sleep( unsigned long secs )
 {
@@ -368,8 +377,8 @@ void QThread::sleep( unsigned long secs )
 
 
 /*!
-  System independent sleep.  This causes the current thread to sleep for
-  \a msecs milliseconds
+    System independent sleep. This causes the current thread to sleep
+    for \a msecs milliseconds
 */
 void QThread::msleep( unsigned long msecs )
 {
@@ -384,8 +393,8 @@ void QThread::msleep( unsigned long msecs )
 
 
 /*!
-  System independent sleep.  This causes the current thread to sleep for
-  \a usecs microseconds
+    System independent sleep. This causes the current thread to sleep
+    for \a usecs microseconds
 */
 void QThread::usleep( unsigned long usecs )
 {
@@ -400,8 +409,8 @@ void QThread::usleep( unsigned long usecs )
 
 
 /*!
-  Constructs a new thread.  The thread does not actually begin executing
-  until start() is called.
+    Constructs a new thread. The thread does not begin executing until
+    start() is called.
 */
 QThread::QThread()
 {
@@ -411,10 +420,12 @@ QThread::QThread()
 
 
 /*!
-  QThread destructor.  Note that deleting a QThread object will not stop
-  the execution of the thread it represents.  Deleting a running QThread
-  (ie. finished() returns FALSE) will probably result in a program crash.
-  You can wait() on the thread to make sure that the thread has finished.
+    QThread destructor.
+
+    Note that deleting a QThread object will not stop the execution of
+    the thread it represents. Deleting a running QThread (i.e.
+    finished() returns FALSE) will probably result in a program crash.
+    You can wait() on a thread to make sure that it has finished.
 */
 QThread::~QThread()
 {
@@ -432,8 +443,8 @@ QThread::~QThread()
 
 
 /*!
-  Ends the execution of the calling thread and wakes up any threads waiting
-  for its termination.
+    Ends the execution of the calling thread and wakes up any threads
+    waiting for its termination.
 */
 void QThread::exit()
 {
@@ -456,10 +467,11 @@ void QThread::exit()
 
 
 /*!
-  This begins actual execution of the thread by calling run(),
-  which should be reimplemented in a QThread subclass to contain your code.
-  If you try to start a thread that is already running, this call will
-  wait until the thread has finished, and then restart the thread.
+    This begins the execution of the thread by calling run(), which
+    should be reimplemented in a QThread subclass to contain your
+    code. If you try to start a thread that is already running, this
+    call will wait until the thread has finished, and then restart the
+    thread.
 */
 void QThread::start()
 {
@@ -480,18 +492,18 @@ void QThread::start()
 
 
 /*!
-  This provides similar functionality to POSIX pthread_join.  A thread
-  calling this will block until either of these conditions is met:
-  \list
-  \i The thread associated with this QThread object has finished
-       execution (i.e. when it returns from \l{run()}).  This
-       function will return TRUE if the thread has finished.
-       It also returns TRUE if the thread has not been started yet.
-  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (the
-	default), then the wait will never timeout (the thread must return
-	from \l{run()}). This function will return FALSE if the wait timed
-	out.
-  \endlist
+    This provides similar functionality to POSIX pthread_join. A thread
+    calling this will block until either of these conditions is met:
+    \list
+    \i The thread associated with this QThread object has finished
+	execution (i.e. when it returns from \l{run()}). This function
+	will return TRUE if the thread has finished. It also returns
+	TRUE if the thread has not been started yet.
+    \i \a time milliseconds has elapsed. If \a time is ULONG_MAX (the
+	default), then the wait will never timeout (the thread must
+	return from \l{run()}). This function will return FALSE if the
+	wait timed out.
+    \endlist
 */
 bool QThread::wait(unsigned long time)
 {
@@ -503,7 +515,7 @@ bool QThread::wait(unsigned long time)
 
 
 /*!
-  Returns TRUE is the thread is finished; otherwise returns FALSE.
+    Returns TRUE is the thread is finished; otherwise returns FALSE.
 */
 bool QThread::finished() const
 {
@@ -513,7 +525,7 @@ bool QThread::finished() const
 
 
 /*!
-  Returns TRUE if the thread is running; otherwise returns FALSE.
+    Returns TRUE if the thread is running; otherwise returns FALSE.
 */
 bool QThread::running() const
 {
@@ -522,13 +534,14 @@ bool QThread::running() const
 }
 
 
-/*! \fn void QThread::run()
+/*!
+    \fn void QThread::run()
 
-  This method is pure virtual, and it must be implemented in derived classes
-  in order to do useful work. Returning from this method will end execution
-  of the thread.
+    This method is pure virtual, and must be implemented in derived
+    classes in order to do useful work. Returning from this method
+    will end the execution of the thread.
 
-  \sa wait()
+    \sa wait()
 */
 
 #include "qthread_unix.moc"
