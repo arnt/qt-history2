@@ -469,7 +469,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	clickedSystem( sysGroupButton );
 #if defined(QSA)
 	optionsPage->installPath->setText(
-		QString( "C:\\QSA\\Qt" ) +
+		QString( "C:\\Qt_QSA\\Qt" ) +
 		QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
 		);
 #endif
@@ -479,7 +479,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	clickedSystem( sysGroupButton );
 #if defined(QSA)
 	optionsPageQsa->installPath->setText(
-		QString( "C:\\QSA\\" ) +
+		QString( "C:\\Qt_QSA\\" ) +
 		QString( globalInformation.qsaVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
 		);
 #endif
@@ -1043,8 +1043,19 @@ void SetupWizardImpl::doFinalIntegration()
 	    QString("-reconfig \"%1\"").arg(globalInformation.qtVersionStr()),
 	    qtDir );
 #endif
+#if defined(QSA)
+    shell.createShortcut( dirName, common, "License agreement for Qt", "notepad.exe", "Review the license agreement",
+	    "\"" + qtDir + "\\" LICENSE_DEST "\"" );
+    shell.createShortcut( dirName, common, "Readme for Qt", "notepad.exe", "Important information",
+	    "\"" + qtDir + "\\README\"" );
+    shell.createShortcut( dirName, common, "License agreement for QSA", "notepad.exe", "Review the license agreement",
+	    "\"" + optionsPageQsa->installPath->text() + "\\" LICENSE_DEST "\"" );
+    shell.createShortcut( dirName, common, "Readme for QSA", "notepad.exe", "Important information",
+	    "\"" + optionsPageQsa->installPath->text() + "\\README\"" );
+#else
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", "\"" + qtDir + "\\" LICENSE_DEST "\"" );
     shell.createShortcut( dirName, common, "Readme", "notepad.exe", "Important information", QString( "\"" ) + qtDir + "\\README\"" );
+#endif
     shell.createShortcut( dirName, common, "Qt Assistant", qtDir + "\\bin\\assistant.exe", "Browse the On-line documentation", "", qtDir );
     shell.createShortcut( dirName, common, "Qt Linguist", qtDir + "\\bin\\linguist.exe", "Qt translation utility", "", qtDir );
     shell.createInternetShortcut( dirName, common, "Trolltech.com", "http://www.trolltech.com/" );
