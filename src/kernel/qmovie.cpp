@@ -731,7 +731,8 @@ QMovie::QMovie(QDataSource* src, int bufsize)
 QMovie::QMovie(const QString &fileName, int bufsize)
 {
     QFile* file = new QFile(fileName);
-    file->open(IO_ReadOnly);
+    if ( !fileName.isEmpty() )
+ 	file->open(IO_ReadOnly);
     d = new QMoviePrivate(new QIODeviceSource(file), this, bufsize);
 }
 
