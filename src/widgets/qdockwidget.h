@@ -53,9 +53,9 @@ public:
     void setOffset( int o );
     int offset() const;
 
-    void setFixedExtendWidth( int w );
-    void setFixedExtendHeight( int h );
-    QSize fixedExtend() const;
+    void setFixedExtentWidth( int w );
+    void setFixedExtentHeight( int h );
+    QSize fixedExtent() const;
 
     void setNewLine( bool b );
     bool newLine() const;
@@ -75,7 +75,7 @@ signals:
     void positionChanged();
     void visibilityChanged( bool );
 
-protected slots:
+public slots:
     void doUndock();
     void doDock();
 
@@ -110,7 +110,7 @@ private:
     QPoint startOffset;
     bool stretchable[ 2 ];
     int offs;
-    QSize fExtend;
+    QSize fExtent;
     bool nl;
     QDockWidgetResizeHandle *hHandleTop, *hHandleBottom, *vHandleLeft, *vHandleRight;
     QVBoxLayout *hbox;

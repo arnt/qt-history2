@@ -983,7 +983,7 @@ void MainWindow::setupPropertyEditor()
     propertyEditor = new PropertyEditor( dw );
     addToolBar( dw, Qt::Left );
     dw->setWidget( propertyEditor );
-    dw->setFixedExtendWidth( 300 );
+    dw->setFixedExtentWidth( 300 );
     dw->setCaption( tr( "Property Editor" ) );
     QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
 					"<p>You can change the appearance and behaviour of the selected widget in the "
@@ -1012,7 +1012,7 @@ void MainWindow::setupHierarchyView()
     dw->setWidget( hierarchyView );
 
     dw->setCaption( tr( "Object Hierarchy" ) );
-    dw->setFixedExtendWidth( 300 );
+    dw->setFixedExtentWidth( 300 );
     hvGeom = QRect( -1, -1, 300, 500 );
     QWhatsThis::add( hierarchyView, tr("<b>The Hierarchy View</b>"
 				      "<p>The object hierarchy gives a quick overview about the relations "

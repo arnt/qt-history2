@@ -107,14 +107,14 @@ void QDockWidgetResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 		dy = e->globalPos().y() - firstPos.y();
 	    else
 		dy =  firstPos.y() - e->globalPos().y();
-	    dockWidget->setFixedExtendHeight( dockWidget->height() + dy );
+	    dockWidget->setFixedExtentHeight( dockWidget->height() + dy );
 	} else {
 	    int dx;
 	    if ( dockWidget->area()->gravity() == QDockArea::Normal )
 		dx = e->globalPos().x() - firstPos.x();
 	    else
 		dx = firstPos.x() - e->globalPos().x();
-	    dockWidget->setFixedExtendWidth( dockWidget->width() + dx );
+	    dockWidget->setFixedExtentWidth( dockWidget->width() + dx );
 	}
 	if ( orientation() != dockWidget->area()->orientation() )
 	    dockWidget->area()->invalidNextOffset( dockWidget );
@@ -415,7 +415,7 @@ void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
       curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ),
-      moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ),
+      moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ),
       lastPos( -1, -1 )
 {
     hbox = new QVBoxLayout( this );
@@ -763,19 +763,19 @@ void QDockWidget::setOffset( int o )
     offs = o;
 }
 
-QSize QDockWidget::fixedExtend() const
+QSize QDockWidget::fixedExtent() const
 {
-    return fExtend;
+    return fExtent;
 }
 
-void QDockWidget::setFixedExtendWidth( int w )
+void QDockWidget::setFixedExtentWidth( int w )
 {
-    fExtend.setWidth( w );
+    fExtent.setWidth( w );
 }
 
-void QDockWidget::setFixedExtendHeight( int h )
+void QDockWidget::setFixedExtentHeight( int h )
 {
-    fExtend.setHeight( h );
+    fExtent.setHeight( h );
 }
 
 void QDockWidget::setNewLine( bool b )
@@ -796,7 +796,7 @@ QBoxLayout *QDockWidget::boxLayout()
 QSize QDockWidget::sizeHint() const
 {
     QSize sh( QFrame::sizeHint() );
-    sh = sh.expandedTo( fixedExtend() );
+    sh = sh.expandedTo( fixedExtent() );
     sh = sh.expandedTo( QSize( 16, 16 ) );
     return sh;
 }
@@ -804,7 +804,7 @@ QSize QDockWidget::sizeHint() const
 QSize QDockWidget::minimumSize() const
 {
     QSize ms( QFrame::minimumSize() );
-    ms = ms.expandedTo( fixedExtend() );
+    ms = ms.expandedTo( fixedExtent() );
     ms = ms.expandedTo( QSize( 16, 16 ) );
     return ms;
 }
@@ -812,7 +812,7 @@ QSize QDockWidget::minimumSize() const
 QSize QDockWidget::minimumSizeHint() const
 {
     QSize msh( QFrame::minimumSize() );
-    msh = msh.expandedTo( fixedExtend() );
+    msh = msh.expandedTo( fixedExtent() );
     msh = msh.expandedTo( QSize( 16, 16 ) );
     return msh;
 }

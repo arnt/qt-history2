@@ -145,16 +145,16 @@ static int space_left( const QRect &r, int pos, Qt::Orientation o )
     }
 }
 
-static int dock_extend( QDockWidget *w, Qt::Orientation o )
+static int dock_extent( QDockWidget *w, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal ) {
 	int wid;
-	if ( ( wid = w->fixedExtend().width() ) != -1 )
+	if ( ( wid = w->fixedExtent().width() ) != -1 )
 	    return wid;
 	return w->sizeHint().width();
     } else {
 	int hei;
-	if ( ( hei = w->fixedExtend().height() ) != -1 )
+	if ( ( hei = w->fixedExtent().height() ) != -1 )
 	    return hei;
 	return w->sizeHint().height();
     }
@@ -164,26 +164,26 @@ static int dock_strut( QDockWidget *w, Qt::Orientation o )
 {
     if ( o != Qt::Horizontal ) {
 	int wid;
-	if ( ( wid = w->fixedExtend().width() ) != -1 )
+	if ( ( wid = w->fixedExtent().width() ) != -1 )
 	    return wid;
 	return w->sizeHint().width();
     } else {
 	int hei;
-	if ( ( hei = w->fixedExtend().height() ) != -1 )
+	if ( ( hei = w->fixedExtent().height() ) != -1 )
 	    return hei;
 	return w->sizeHint().height();
     }
 }
 
-static void set_geometry( QDockWidget *w, int pos, int sectionpos, int extend, int strut, Qt::Orientation o )
+static void set_geometry( QDockWidget *w, int pos, int sectionpos, int extent, int strut, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal )
-	w->setGeometry( pos, sectionpos, extend, strut );
+	w->setGeometry( pos, sectionpos, extent, strut );
     else
-	w->setGeometry( sectionpos, pos, strut, extend );
+	w->setGeometry( sectionpos, pos, strut, extent );
 }
 
-static int size_extend( const QSize &s, Qt::Orientation o, bool swap = FALSE )
+static int size_extent( const QSize &s, Qt::Orientation o, bool swap = FALSE )
 {
     return o == Qt::Horizontal ? ( swap ? s.height() : s.width() ) : ( swap ? s.width() :  s.height() );
 }
@@ -193,7 +193,7 @@ static int point_pos( const QPoint &p, Qt::Orientation o, bool swap = FALSE )
     return o == Qt::Horizontal ? ( swap ? p.y() : p.x() ) : ( swap ? p.x() : p.y() );
 }
 
-static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextend, int tbstrut )
+static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut )
 {
     QDockWidget *last = 0;
     QRect lastRect;
@@ -218,7 +218,7 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
     if ( !last->isStretchable() )
 	set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
     else
-	set_geometry( last, lastRect.x(), lastRect.y(), fullextend - lastRect.x() - ( o == Qt::Vertical ? 1 : 0 ),
+	set_geometry( last, lastRect.x(), lastRect.y(), fullextent - lastRect.x() - ( o == Qt::Vertical ? 1 : 0 ),
 		      last->isResizeEnabled() ? linestrut : lastRect.height(), o );
 }
 
@@ -255,13 +255,13 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	int op = pos;
 	if ( !dw->isStretchable() )
 	    pos = QMAX( pos, dw->offset() );
-	if ( pos + dock_extend( dw, orientation() )> size_extend( r.size(), orientation() ) - 1 )
-	    pos = QMAX( op, size_extend( r.size(), orientation() ) - 1 - dock_extend( dw, orientation() ) );
+	if ( pos + dock_extent( dw, orientation() )> size_extent( r.size(), orientation() ) - 1 )
+	    pos = QMAX( op, size_extent( r.size(), orientation() ) - 1 - dock_extent( dw, orientation() ) );
 	// if the current widget doesn't fit into the line anymore and it is not the first widget of the line
 	if ( !lastLine.isEmpty() &&
-	     ( space_left( r, pos, orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
+	     ( space_left( r, pos, orientation() ) < dock_extent( dw, orientation() ) || dw->newLine() ) ) {
 	    if ( !testonly ) // place the last line, if not in test mode
-		place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ), tbstrut );
+		place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut );
 	    // remember the line coordinats of the last line
 	    if ( orientation() == Horizontal )
 		lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
@@ -282,21 +282,21 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	    int op = pos;
 	    if ( !dw->isStretchable() )
 		pos = QMAX( pos, dw->offset() );
-	    if ( pos + dock_extend( dw, orientation() )> size_extend( r.size(), orientation() ) - 1 )
-		pos = QMAX( op, size_extend( r.size(), orientation() ) - 1 - dock_extend( dw, orientation() ) );
+	    if ( pos + dock_extent( dw, orientation() )> size_extent( r.size(), orientation() ) - 1 )
+		pos = QMAX( op, size_extent( r.size(), orientation() ) - 1 - dock_extent( dw, orientation() ) );
 	}
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
 	lastLine.append( DockData( dw, QRect( pos, sectionpos,
-					      dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
+					      dock_extent( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
 	if ( dw->inherits( "QToolBar" ) )
 	    tbstrut = QMAX( tbstrut, dock_strut( dw, orientation() ) );
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
-	add_size( dock_extend( dw, orientation() ), pos, orientation() );
+	add_size( dock_extent( dw, orientation() ), pos, orientation() );
     }
 
     // if some stuff was not placed/stored yet, do it now
     if ( !testonly )
-	place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ), tbstrut );
+	place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut );
     if ( orientation() == Horizontal )
 	lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
     else
@@ -422,7 +422,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	for ( QValueList<QRect>::Iterator it = lines.begin(); it != lines.end(); ++it, ++i ) {
 	    if ( point_pos( pos, orientation(), TRUE ) >= point_pos( (*it).topLeft(), orientation(), TRUE ) &&
 		 point_pos( pos, orientation(), TRUE ) <= point_pos( (*it).topLeft(), orientation(), TRUE ) +
-		 size_extend( (*it).size(), orientation(), TRUE ) ) {
+		 size_extent( (*it).size(), orientation(), TRUE ) ) {
 		dockLine = i;
 		lineRect = *it;
 		break;
@@ -436,10 +436,10 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		dockLine = lines.count(); // insert after the last line
 	} else { // inside the dock (we have found a dockLine)
 	    if ( point_pos( pos, orientation(), TRUE ) < point_pos( lineRect.topLeft(), orientation(), TRUE ) +
-		 size_extend( lineRect.size(), orientation(), TRUE ) / 5 ) { 	// mouse was at the very beginning of the line
+		 size_extent( lineRect.size(), orientation(), TRUE ) / 5 ) { 	// mouse was at the very beginning of the line
 		insertLine = TRUE;					// insert a new line before that with the docking widget
 	    } else if ( point_pos( pos, orientation(), TRUE ) > point_pos( lineRect.topLeft(), orientation(), TRUE ) +
-			4 * size_extend( lineRect.size(), orientation(), TRUE ) / 5 ) {	// mouse was at the very and of the line
+			4 * size_extent( lineRect.size(), orientation(), TRUE ) / 5 ) {	// mouse was at the very and of the line
 		insertLine = TRUE;						// insert a line after that with the docking widget
 		dockLine++;
 	    }
@@ -485,13 +485,13 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		bool inc = TRUE;
 		for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
 		    if ( orientation() == Horizontal )
-			dw->setFixedExtendWidth( -1 );
+			dw->setFixedExtentWidth( -1 );
 		    else
-			dw->setFixedExtendHeight( -1 );
+			dw->setFixedExtentHeight( -1 );
 		    if ( point_pos( dw->pos(), orientation() ) < lastPos ) // we are in next line, so break
 			break;
 		    if ( point_pos( pos, orientation() ) <
-			 point_pos( dw->pos(), orientation() ) + size_extend( dw->size(), orientation() ) / 2 ) {
+			 point_pos( dw->pos(), orientation() ) + size_extent( dw->size(), orientation() ) / 2 ) {
 			inc = FALSE;
 		    }
 		    if ( inc )
@@ -660,7 +660,7 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
 	    if ( point_pos( dw->pos(), orientation() ) < lastPos )
 		break;
 	    if ( offset <
-		 point_pos( dw->pos(), orientation() ) + size_extend( dw->size(), orientation() ) / 2 )
+		 point_pos( dw->pos(), orientation() ) + size_extent( dw->size(), orientation() ) / 2 )
 		break;
 	    index++;
 	    lastPos = point_pos( dw->pos(), orientation() );
