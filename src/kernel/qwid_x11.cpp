@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#177 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#176 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#177 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -42,6 +42,9 @@ static QWidget *keyboardGrb = 0;
   QWidget member functions
  *****************************************************************************/
 
+#if QT_VERSION == 200
+#error "Make create and destroy virtual, remove the old functions."
+#endif
 
 extern Atom q_wm_delete_window;			// defined in qapp_x11.cpp
 
@@ -302,12 +305,16 @@ bool QWidget::create()
 
 
 /*!
-  \internal
-  Destroys the widget window and frees up window system resources.
-  Usually called from the QWidget destructor.
+  Destroys the widget window if \a destroyWindow is TRUE.  Frees up
+  window system resources.
+
+  destroy() calls itself recursively for all the child widgets and
+  passes the \a destroyWindow parameter.
+
+  This function is usually called from the QWidget destructor.
 */
 
-bool QWidget::destroy()
+void QWidget::destroy( bool destroyWindow )
 {
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;			// reset focus widget
@@ -322,7 +329,7 @@ bool QWidget::destroy()
 	    while ( (obj=it.current()) ) {	// destroy all widget children
 		++it;
 		if ( obj->isWidgetType() )
-		    ((QWidget*)obj)->destroy();
+		    ((QWidget*)obj)->destroy(destroyWindow);
 	    }
 	}
 	if ( mouseGrb == this )
@@ -333,10 +340,23 @@ bool QWidget::destroy()
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
 	    qt_close_popup( this );
-	if ( !testWFlags(WType_Desktop) )
+	if ( destroyWindow && !testWFlags(WType_Desktop) )
 	    XDestroyWindow( dpy, winid );
 	setWinId( 0 );
     }
+}
+
+
+/*!
+  \internal
+  Destroys the widget's window and frees up window system resources.
+  Equivalent with destroy(TRUE).
+  This function is usually called from the QWidget destructor.
+*/
+
+bool QWidget::destroy()
+{
+    destroy( TRUE );
     return TRUE;
 }
 

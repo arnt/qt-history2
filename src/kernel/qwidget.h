@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#110 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#111 $
 **
 ** Definition of QWidget class
 **
@@ -235,6 +235,7 @@ protected:
 
     void	 create( WId );
     void	 create( WId, bool initializeWindow, bool destroyOldWindow );
+    void	 destroy( bool destroyOldWindow );
     WFlags	 getWFlags()	const;
     void	 setWFlags( WFlags );
     void	 clearWFlags( WFlags n );
