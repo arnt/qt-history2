@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#36 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#36 $");
 
 
 static const int motifBorder = 2;
@@ -1011,7 +1011,7 @@ void QSlider::setTickInterval( int i )
 
 
 /*!
-  \fn int tickmarks()
+  \fn int QSlider::tickInterval() const
   Returns the interval between tickmarks. Returns 0 if the slider
   chooses between pageStep() and lineStep().
   \sa setTickInterval()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#21 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#21 $");
 
 
 /*!
@@ -327,8 +327,7 @@ QBoxLayout::QBoxLayout( Direction d,
 
 
 /*!
-  Deletes this box. Geometry management is terminated if
-  this is a top-level box.
+  Destroys this box. 
 */
 
 QBoxLayout::~QBoxLayout()
@@ -627,6 +626,11 @@ QHBoxLayout::QHBoxLayout( int autoBorder, const char *name )
 {
 }
 
+
+/*!
+  Destroys this box. 
+*/
+
 QHBoxLayout::~QHBoxLayout()
 {
 }
@@ -721,6 +725,10 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
     :QBoxLayout( TopToBottom, autoBorder, name )
 {
 }
+
+/*!
+  Destroys this box. 
+*/
 
 QVBoxLayout::~QVBoxLayout()
 {
