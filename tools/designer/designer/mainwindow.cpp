@@ -49,6 +49,7 @@
 #include "qcategorywidget.h"
 #include "widgetaction.h"
 #include "propertyobject.h"
+#include "popupmenueditor.h"
 #include <qinputdialog.h>
 #include <qtoolbar.h>
 #include <qfeatures.h>
@@ -892,12 +893,16 @@ void MainWindow::updateProperties( QObject * )
 
 bool MainWindow::eventFilter( QObject *o, QEvent *e )
 {
-    if ( o->inherits( "MenuBarEditor" ) ||
-	 o->inherits( "PopupMenuEditor" ) ||
-	 (o->parent() && o->parent()->inherits( "PopupMenuEditor" ) ) ||
-	 (o->parent() && o->parent()->inherits( "MenuBarEditor" ) ) ) {
-	if ( o->inherits( "PopupMenuEditor" ) && e->type() == QEvent::Accel )
-	    return TRUE;// FIXME: consume accel events from popup editor. mmonsen 21112002.
+    if ( o && ( o->inherits( "MenuBarEditor" ) ||
+		o->inherits( "PopupMenuEditor" ) ||
+		(o->parent() && o->parent()->inherits( "PopupMenuEditor" ) ) ||
+		(o->parent() && o->parent()->inherits( "MenuBarEditor" ) ) ) ) {
+
+	if ( e->type() == QEvent::Accel &&
+	     o->inherits( "PopupMenuEditor" ) &&
+	     (( PopupMenuEditor * ) o)->isCreatingAccelerator() )
+	    return TRUE; // consume accel events
+
 	return QMainWindow::eventFilter( o, e );
     }
     

@@ -123,6 +123,8 @@ public:
     void focusCurrentItemMenu();
 
     FormWindow * formWindow();
+    
+    bool isCreatingAccelerator() { return ( currentField == 2 ); }
 
 signals:
     void actionAdded( QAction * );
