@@ -93,7 +93,7 @@ QCursorData::QCursorData( int s )
 {
     cshape = s;
     bm = bmm = 0;
-    hx = hy  = 0;
+    hx = hy  = -1;
     hcurs = NULL;
     my_cursor = FALSE;
 
@@ -524,7 +524,7 @@ void QCursor::update() const
     }
 
     if(d->hcurs && d->my_cursor) {
-	d->hcurs->hotSpot.h = d->hx;
-	d->hcurs->hotSpot.v = d->hy;
+	d->hcurs->hotSpot.h = data->hx >= 0 ? data->hx : 8;
+	d->hcurs->hotSpot.v = data->hy >= 0 ? data->hy : 8;
     }
 }
