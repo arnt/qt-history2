@@ -184,7 +184,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream& operator>>(QDataStream& s, QValueList<T>& l)
 template <typename T>
 Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const QValueList<T>& l)
 {
-    return operator<<(s, static_cast<QLinkedList<T> &>(l));
+    return operator<<(s, static_cast<const QLinkedList<T> &>(l));
 }
 #endif // QT_NO_DATASTREAM
 #endif // QT_COMPAT

@@ -42,9 +42,9 @@ public:
     bool  remove(void *k)                { return QGDict::remove_ptr(k); }
     type *take(void *k)                { return static_cast<type*>(QGDict::take_ptr(k)); }
     type *find(void *k) const
-                { return static_cast<type *>(QGDict::look_ptr(k,0,0)); }
+                { return static_cast<type *>(const_cast<QPtrDict *>(this)->QGDict::look_ptr(k,0,0)); }
     type *operator[](void *k) const
-                { return static_cast<type *>(QGDict::look_ptr(k,0,0)); }
+                { return static_cast<type *>(const_cast<QPtrDict *>(this)->QGDict::look_ptr(k,0,0)); }
     void  clear()                        { QGDict::clear(); }
     void  resize(uint n)                { QGDict::resize(n); }
     void  statistics() const                { QGDict::statistics(); }

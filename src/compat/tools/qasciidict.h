@@ -44,9 +44,9 @@ public:
     bool  remove(const char *k)        { return QGDict::remove_ascii(k); }
     type *take(const char *k)                { return static_cast<type *>(QGDict::take_ascii(k)); }
     type *find(const char *k) const
-                { return static_cast<type *>(QGDict::look_ascii(k,0,0)); }
+        { return static_cast<type *>(const_cast<QAsciiDict *>(this)->QGDict::look_ascii(k,0,0)); }
     type *operator[](const char *k) const
-                { return static_cast<type *>(QGDict::look_ascii(k,0,0)); }
+                { return static_cast<type *>(const_cast<QAsciiDict *>(this)->QGDict::look_ascii(k,0,0)); }
 
     void  clear()                        { QGDict::clear(); }
     void  resize(uint n)                { QGDict::resize(n); }

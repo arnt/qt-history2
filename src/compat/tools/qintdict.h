@@ -42,9 +42,9 @@ public:
     bool  remove(long k)                { return QGDict::remove_int(k); }
     type *take(long k)                { return static_cast<type*>(QGDict::take_int(k)); }
     type *find(long k) const
-                { return static_cast<type *>(QGDict::look_int(k,0,0)); }
+                { return static_cast<type *>(const_cast<QIntDict *>(this)->QGDict::look_int(k,0,0)); }
     type *operator[](long k) const
-                { return static_cast<type *>(QGDict::look_int(k,0,0)); }
+                { return static_cast<type *>(const_cast<QIntDict *>(this)->QGDict::look_int(k,0,0)); }
     void  clear()                        { QGDict::clear(); }
     void  resize(uint n)                { QGDict::resize(n); }
     void  statistics() const                { QGDict::statistics(); }

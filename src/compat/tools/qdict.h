@@ -45,9 +45,9 @@ public:
     bool  remove(const QString &k)        { return QGDict::remove_string(k); }
     type *take(const QString &k)        { return static_cast<type *>(QGDict::take_string(k)); }
     type *find(const QString &k) const
-                { return static_cast<type *>(QGDict::look_string(k,0,0)); }
+                { return static_cast<type *>(const_cast<QDict *>(this)->QGDict::look_string(k,0,0)); }
     type *operator[](const QString &k) const
-                { return static_cast<type *>(QGDict::look_string(k,0,0)); }
+                { return static_cast<type *>(const_cast<QDict *>(this)->QGDict::look_string(k,0,0)); }
 
     void  clear()                        { QGDict::clear(); }
     void  resize(uint n)                { QGDict::resize(n); }
