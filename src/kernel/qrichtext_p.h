@@ -474,8 +474,8 @@ public:
     virtual void setPageSize( int ps );
     int pageSize() const { return pagesize; }
 
-    virtual int adjustLMargin( int yp, int margin, int space );
-    virtual int adjustRMargin( int yp, int margin, int space );
+    virtual int adjustLMargin( int yp, int h, int margin, int space );
+    virtual int adjustRMargin( int yp, int h, int margin, int space );
 
     virtual void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
     virtual void unregisterFloatingItem( QTextCustomItem* item );
