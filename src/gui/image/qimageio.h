@@ -77,12 +77,12 @@ public:
     int currentFrameNumber() const;
     int loopCount() const;
 
-    enum Error {
+    enum ImageFormatError {
         UnknownError,
         UnsupportedImageFormat,
         InvalidImageData
     };
-    Error error() const;
+    ImageFormatError error() const;
     QString errorString() const;
 
     static QByteArray imageFormatForFileName(const QString &fileName);
