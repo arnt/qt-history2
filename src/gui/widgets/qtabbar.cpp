@@ -651,7 +651,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
 void QTabBar::paintEvent( QPaintEvent * e )
 {
-    if ( e->rect().isNull() )
+    if ( e->rect().isNull() || d->l.isEmpty() )
 	return;
 
     QPainter p(this);
