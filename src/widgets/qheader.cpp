@@ -1259,7 +1259,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if(index == handleIdx) {
 	if(state == Pressed || state == Moving)
 	    flags = QStyle::PStyle_Down;
-	else
+	else if(state != Sliding)
 	    flags = QStyle::PStyle_Sunken;
     }
     p->setBrushOrigin( fr.topLeft() );
