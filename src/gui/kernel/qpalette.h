@@ -119,6 +119,7 @@ private:
                        const QBrush &highlight, const QBrush &highlighted_text,
                        const QBrush &link, const QBrush &link_visited);
 #ifdef QT_COMPAT
+    friend class QColorGroup;
     void setColorGroup(ColorGroup, const QColorGroup &);
     QColorGroup createColorGroup(ColorGroup) const;
 #endif
@@ -127,11 +128,7 @@ private:
 
     QPalettePrivate *d;
     uint current_group : 4;
-    uint resolve_mask : 27;
-#ifdef QT_COMPAT
-    friend class QColorGroup;
-    uint is_colorgroup : 1;
-#endif
+    uint resolve_mask : 28;
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
 };
 
@@ -139,17 +136,19 @@ private:
 class Q_GUI_EXPORT QColorGroup : public QPalette
 {
 public:
-    inline QColorGroup() : QPalette() { is_colorgroup = 1; }
+    inline QColorGroup() : QPalette() {}
     inline QColorGroup(const QBrush &foreground, const QBrush &button, const QBrush &light,
                 const QBrush &dark, const QBrush &mid, const QBrush &text,
                 const QBrush &bright_text, const QBrush &base, const QBrush &background)
         : QPalette(foreground, button, light, dark, mid, text, bright_text, base, background)
-    { is_colorgroup = 1; }
+    {}
     inline QColorGroup(const QColor &foreground, const QColor &background, const QColor &light,
                 const QColor &dark, const QColor &mid, const QColor &text, const QColor &base)
-        : QPalette(foreground, background, light, dark, mid, text, base) { is_colorgroup = 1; }
-    inline QColorGroup(const QColorGroup &cg) : QPalette(cg) { is_colorgroup = 1; }
-    inline QColorGroup(const QPalette &pal) : QPalette(pal) { is_colorgroup = 1; }
+        : QPalette(foreground, background, light, dark, mid, text, base) {}
+    inline QColorGroup(const QColorGroup &cg) : QPalette(cg) {}
+    inline QColorGroup(const QPalette &pal) : QPalette(pal) {}
+    bool operator==(const QColorGroup &other) const;
+    inline bool operator!=(const QColorGroup &other) const { return !(operator==(other)); }
 
     inline QT_COMPAT const QColor &foreground() const { return color(Foreground); }
     inline QT_COMPAT const QColor &button() const { return color(Button); }

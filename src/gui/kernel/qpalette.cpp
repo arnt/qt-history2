@@ -456,9 +456,6 @@ QPalette::QPalette()
     : d(QApplication::palette().d),
       current_group(Active),
       resolve_mask(0)
-#ifdef QT_COMPAT
-    ,is_colorgroup(0)
-#endif
 {
     ++d->ref;
 }
@@ -591,9 +588,6 @@ QPalette::QPalette(const QPalette &p)
     d = p.d;
     ++d->ref;
     resolve_mask = p.resolve_mask;
-#ifdef QT_COMPAT
-    is_colorgroup = p.is_colorgroup;
-#endif
     current_group = p.current_group;
 }
 
@@ -610,9 +604,6 @@ QPalette::~QPalette()
 void QPalette::init() {
     d = new QPalettePrivate;
     resolve_mask = 0;
-#ifdef QT_COMPAT
-    is_colorgroup = 0;
-#endif
     current_group = Active; //as a default..
 }
 
@@ -628,9 +619,6 @@ QPalette &QPalette::operator=(const QPalette &p)
     ++x->ref;
     resolve_mask = p.resolve_mask;
     current_group = p.current_group;
-#ifdef QT_COMPAT
-    is_colorgroup = p.is_colorgroup;
-#endif
     x = qAtomicSetPtr(&d, x);
     if(!--x->ref)
         delete x;
@@ -737,9 +725,6 @@ void QPalette::detach()
 */
 bool QPalette::operator==(const QPalette &p) const
 {
-#ifdef QT_COMPAT
-    Q_ASSERT(is_colorgroup == p.is_colorgroup);
-#endif
     if (isCopyOf(p))
         return true;
     for(int grp = 0; grp < (int)NColorGroups; grp++) {
@@ -750,6 +735,19 @@ bool QPalette::operator==(const QPalette &p) const
     }
     return true;
 }
+
+#ifdef QT_COMPAT
+bool QColorGroup::operator==(const QColorGroup &other) const
+{
+    if (isCopyOf(other))
+        return true;
+    for (int role = 0; role < int(NColorRoles); role++) {
+        if(d->br[current_group][role] != other.d->br[other.current_group][role])
+            return false;
+    }
+    return true;
+}
+#endif
 
 /*!
     \fn bool QPalette::isEqual(ColorGroup cg1, ColorGroup cg2) const
