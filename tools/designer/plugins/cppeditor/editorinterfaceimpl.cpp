@@ -92,10 +92,10 @@ void EditorInterfaceImpl::setText( const QString &txt )
     if ( !viewManager || !viewManager->currentView() )
 	return;
     CppEditor *e = (CppEditor*)viewManager->currentView();
-    disconnect( e, SIGNAL( modificationChanged( bool ) ), this, SLOT( modificationChanged() ) );
+    disconnect( e, SIGNAL( modificationChanged( bool ) ), this, SLOT( modificationChanged( bool ) ) );
     e->setText( txt );
     e->setModified( FALSE );
-    connect( e, SIGNAL( modificationChanged( bool ) ), this, SLOT( modificationChanged() ) );
+    connect( e, SIGNAL( modificationChanged( bool ) ), this, SLOT( modificationChanged( bool ) ) );
 }
 
 QString EditorInterfaceImpl::text() const
@@ -261,10 +261,10 @@ void EditorInterfaceImpl::readSettings()
     ( (CppEditor*)viewManager->currentView() )->configChanged();
 }
 
-void EditorInterfaceImpl::modificationChanged()
+void EditorInterfaceImpl::modificationChanged( bool m )
 {
     if ( viewManager && dIface )
-	dIface->setModified( TRUE, viewManager->currentView() );
+	dIface->setModified( m, viewManager->currentView() );
 }
 
 void EditorInterfaceImpl::setModified( bool m )

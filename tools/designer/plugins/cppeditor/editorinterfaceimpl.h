@@ -79,7 +79,7 @@ protected:
     bool eventFilter( QObject*, QEvent* );
 
 private slots:
-    void modificationChanged();
+    void modificationChanged( bool m );
     void intervalChanged();
     void update();
 
