@@ -1022,11 +1022,7 @@ bool QTranslator::isEmpty() const
 QValueList<QTranslatorMessage> QTranslator::messages() const
 {
     ((QTranslator *) this)->unsqueeze();
-    QValueList<QTranslatorMessage> result;
-    QMap<QTranslatorMessage, void *>::ConstIterator it;
-    for ( it = d->messages->begin(); it != d->messages->end(); ++it )
-	result.append( it.key() );
-    return result;
+    return d->messages->keys();
 }
 
 #endif
