@@ -722,7 +722,6 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
     olw = 0;
     autoSwap = TRUE;
 
-    qDebug("init QGL");
     if ( shareWidget )
 	setContext( new QGLContext( format, this ), shareWidget->context() );
     else
@@ -807,7 +806,6 @@ void QGLWidget::setContext( QGLContext *context,
 			    const QGLContext* shareContext,
 			    bool deleteOldContext )
 {
-    qDebug("attempting to set context");
     if ( context == 0 ) {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QGLWidget::setContext: Cannot set null context" );
