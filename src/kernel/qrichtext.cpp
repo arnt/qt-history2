@@ -3452,7 +3452,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
-	       lastDirection != (bool)chr->rightToLeft || //chr->type != lastType ||
+	       lastDirection != (bool)chr->rightToLeft || chr->startOfRun ||
 	       lastY != cy || chr->format() != lastFormat ||
 	       (paintEnd != -1 && at(paintEnd)->c =='\t') || chr->c == '\t' ||
 	       selectionChange || chr->isCustom() ) ) {
@@ -4214,6 +4214,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 		}
 		c->x = x + toAdd;
 		c->rightToLeft = TRUE;
+		c->startOfRun = FALSE;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom() ) {
 		    ww = text->width( pos );
@@ -4241,6 +4242,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 		}
 		c->x = x + toAdd;
 		c->rightToLeft = FALSE;
+		c->startOfRun = FALSE;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom() ) {
 		    ww = text->width( pos );
@@ -4252,6 +4254,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 		pos++;
 	    }
 	}
+	text->at( r->start ).startOfRun = TRUE;
 	r = runs->next();
     }
     QTextParagLineStart *ls = new QTextParagLineStart( control->context, control->status );

@@ -101,16 +101,17 @@ class Q_EXPORT QTextStringChar
 
 public:
     // this is never called, initialize variables in QTextString::insert()!!!
-    QTextStringChar() : lineStart( 0 ), type( Regular ) {d.format=0;}
+    QTextStringChar() : lineStart( 0 ), type( Regular ), startOfRun( 0 ) {d.format=0;}
     ~QTextStringChar();
     QChar c;
-    enum Type { Regular, Custom, Mark, Shaped, LigatureFirst, Ligature };
+    enum Type { Regular, Custom, Mark, Shaped };
     uint lineStart : 1;
     uint rightToLeft : 1;
     uint hasCursor : 1;
     uint canBreak : 1;
-    Type type : 3;
-	
+    Type type : 2;
+    uint startOfRun : 1;
+    
     int x;
     int height() const;
     int ascent() const;
@@ -140,19 +141,11 @@ public:
 	QChar shapedGlyph;
     };
 	
-    struct LigatureData
-    {
-	QTextFormat *format;
-	QChar ligature;
-	unsigned short nchars; // length of the ligature in decomposed form
-    };
-
     union {
 	QTextFormat* format;
 	CustomData* custom;
 	MarkData *mark;
 	ShapedData *shaped;
-	LigatureData *ligature;
     } d;
 
 private:	
@@ -2521,10 +2514,10 @@ inline QTextStringChar::~QTextStringChar()
     switch ( type ) {
 	case Custom:
 	    delete d.custom; break;
+	case Mark:
+	    delete d.mark; break;
 	case Shaped:
 	    delete d.shaped; break;
-	case Ligature:
-	    delete d.ligature;
 	default:
 	    break;
     }

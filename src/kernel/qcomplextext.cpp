@@ -925,7 +925,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 			    runs->append( new QTextRun(sor, eor, context, dir) );
 			    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
 			} else {
-			    if(status.eor == QChar::DirR) {
+			    if(status.eor != QChar::DirL) {
 				runs->append( new QTextRun(sor, eor, context, dir) );
 				++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
 				dir = QChar::DirL;
@@ -1308,4 +1308,26 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
 	lineStart = lineEnd;
     }
     return visual;
+}
+
+inline QTextRun::QTextRun(int _start, int _stop, QBidiContext *context, QChar::Direction dir) {
+    start = _start;
+    stop = _stop;
+    if(dir == QChar::DirON) dir = context->dir;
+    
+    level = context->level;
+    
+    // add level of run (cases I1 & I2)
+    if( level % 2 ) {
+	if(dir == QChar::DirL || dir == QChar::DirAN)
+	    level++;
+    } else {
+	if( dir == QChar::DirR )
+	    level++;
+	else if( dir == QChar::DirAN )
+	    level += 2;
+    }
+#ifdef BIDI_DEBUG
+    printf("new run: dir=%d from %d, to %d level = %d\n", dir, _start, _stop, level);
+#endif
 }

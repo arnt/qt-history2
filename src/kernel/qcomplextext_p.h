@@ -45,25 +45,7 @@ struct Q_EXPORT QBidiControl {
 };
 
 struct Q_EXPORT QTextRun {
-    QTextRun(int _start, int _stop, QBidiContext *context, QChar::Direction dir) {
-	start = _start;
-	stop = _stop;
-	if(dir == QChar::DirON) dir = context->dir;
-
-	level = context->level;
-
-	// add level of run (cases I1 & I2)
-	if( level % 2 ) {
-	    if(dir == QChar::DirL || dir == QChar::DirAN)
-		level++;
-	} else {
-	    if( dir == QChar::DirR )
-		level++;
-	    else if( dir == QChar::DirAN )
-		level += 2;
-	}
-	//printf("new run: level = %d\n", level);
-    }
+    QTextRun(int _start, int _stop, QBidiContext *context, QChar::Direction dir);
 
     int start;
     int stop;
