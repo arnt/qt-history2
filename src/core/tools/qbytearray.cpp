@@ -726,7 +726,7 @@ QByteArray &QByteArray::operator=(const char *str)
     } else if (!*str) {
         x = &shared_empty;
     } else {
-        int len = strlen(str);
+        int len = qstrlen(str);
         if (d->ref != 1 || len > d->alloc || (len < d->size && len < d->alloc >> 1))
             realloc(len);
         x = d;
@@ -1121,7 +1121,7 @@ QByteArray::QByteArray(const char *str)
     } else if (!*str) {
         d = &shared_empty;
     } else {
-        int len = strlen(str);
+        int len = qstrlen(str);
         d = static_cast<Data *>(qMalloc(sizeof(Data)+len));
         if (!d) {
             d = &shared_null;
@@ -1319,7 +1319,7 @@ QByteArray &QByteArray::prepend(const QByteArray &ba)
 QByteArray &QByteArray::prepend(const char *str)
 {
     if (str) {
-        int len = strlen(str);
+        int len = qstrlen(str);
         if (d->ref != 1 || d->size + len > d->alloc)
             realloc(qAllocMore(d->size + len, sizeof(Data)));
         memmove(d->data+len, d->data, d->size);
@@ -1406,7 +1406,7 @@ QByteArray &QByteArray::append(const QByteArray &ba)
 QByteArray& QByteArray::append(const char *str)
 {
     if (str) {
-        int len = strlen(str);
+        int len = qstrlen(str);
         if (d->ref != 1 || d->size + len > d->alloc)
             realloc(qAllocMore(d->size + len, sizeof(Data)));
         memcpy(d->data + d->size, str, len + 1); // include null terminator
@@ -1489,7 +1489,7 @@ QByteArray &QByteArray::insert(int i, const char *str)
 {
     if (!str || !*str || i < 0)
         return *this;
-    int l = strlen(str);
+    int l = qstrlen(str);
     int oldsize = d->size;
     expand(qMax(d->size, i) + l - 1);
     if (i > oldsize)

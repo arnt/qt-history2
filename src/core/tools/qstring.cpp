@@ -959,7 +959,7 @@ QString &QString::insert(int i, const QLatin1String &str)
         return *this;
     d->cache = 0;
 
-    int len = strlen(str.latin1());
+    int len = qstrlen(str.latin1());
     expand(qMax(d->size, i) + len - 1);
 
     ::memmove(d->data + i + len, d->data + i, (d->size - i - len) * sizeof(QChar));
@@ -1059,7 +1059,7 @@ QString &QString::append(const QLatin1String &str)
     const uchar *s = (const uchar *)str.latin1();
     if (s) {
         d->cache = 0;
-        int len = strlen((char *)s);
+        int len = qstrlen((char *)s);
         if (d->ref != 1 || d->size + len > d->alloc)
             realloc(grow(d->size + len));
         ushort *i = d->data + d->size;
@@ -2982,7 +2982,7 @@ QString QString::fromLatin1(const char *str, int size)
         ++d->ref;
     } else {
         if (size < 0)
-            size = strlen(str);
+            size = qstrlen(str);
         d = static_cast<Data *>(qMalloc(sizeof(Data) + size * sizeof(QChar)));
         d->ref = 1;
         d->alloc = d->size = size;
@@ -3104,7 +3104,7 @@ QString QString::fromLocal8Bit(const char *str, int size)
 #elif defined(Q_OS_UNIX)
 #  if !defined(QT_NO_TEXTCODEC)
     if (size < 0)
-        size = strlen(str);
+        size = qstrlen(str);
     QTextCodec *codec = QTextCodec::codecForLocale();
     if (codec)
         return codec->toUnicode(str, size);
@@ -3135,7 +3135,7 @@ QString QString::fromAscii(const char *str, int size)
         if (size == 0 || (!*str && size < 0))
             return QLatin1String("");
         if (size < 0)
-            size = strlen(str);
+            size = qstrlen(str);
         return codecForCStrings->toUnicode(str, size);
     }
 #endif
@@ -3156,7 +3156,7 @@ QString QString::fromUtf8(const char *str, int size)
     if (!str)
         return QString::null;
     if (size < 0)
-        size = strlen(str);
+        size = qstrlen(str);
 
     QString result;
     result.resize(size * 2); // worst case
