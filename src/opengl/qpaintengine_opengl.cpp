@@ -966,3 +966,8 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
     glPopMatrix();
     glPopAttrib();
 }
+
+void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int)
+{
+    dgl->renderText(p.x(), p.y(), QString(ti.chars, ti.num_chars), painter()->font());
+}

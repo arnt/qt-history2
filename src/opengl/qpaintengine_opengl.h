@@ -56,6 +56,7 @@ public:
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
+    void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
 
 #ifdef Q_WS_WIN
     HDC handle() const;
