@@ -53,6 +53,10 @@
 #  include "qmutex.h"
 #endif
 
+#if !defined(QT_NO_DEBUG)
+#include <qdebug.h>
+#endif
+
 #include "qdir.h"
 #include <unistd.h>
 #include <sys/time.h>
@@ -1922,8 +1926,16 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         FindWindowOfClass(&where, kAllWindowClasses, &window, 0);
                     if(window) {
                         HIViewRef hiview;
-                        if(HIViewGetViewForMouseEvent(HIViewGetRoot(window), event, &hiview) == noErr)
+                        if(HIViewGetViewForMouseEvent(HIViewGetRoot(window), event, &hiview) == noErr) {
                             widget = QWidget::find((WId)hiview);;
+                            if (widget) {
+                                // Make sure we didn't pass over a widget with a "fake hole" in it.
+                                QPoint pos = widget->mapFromGlobal(QPoint(where.h, where.v));
+                                QWidget *otherWidget = widget->childAt(pos);
+                                if (otherWidget && otherWidget->testWFlags(Qt::WMouseNoMask))
+                                    widget = otherWidget;
+                            }
+                        }
                     }
                 }
                 if(!widget) //fallback
