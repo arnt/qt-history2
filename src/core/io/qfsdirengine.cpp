@@ -35,9 +35,12 @@ QFSDirEngine::QFSDirEngine(const QString &path)  : QDirEngine(*new QFSDirEngineP
     d->path = path;
 }
 
-void
-QFSDirEngine::setPath(const QString &path)
+bool
+QFSDirEngine::setPath(const QString &path, bool force)
 {
+    if(!force && !d->sysExists(path))
+        return false;
     d->path = path;
+    return true;
 }
 

@@ -33,6 +33,8 @@ class QFSDirEnginePrivate : public QDirEnginePrivate
 protected:
     QFSDirEnginePrivate(QFSDirEngine *qq);
 
+    bool sysExists(const QString &path) const;
+
 private:
     mutable QString path;
 };
