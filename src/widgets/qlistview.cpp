@@ -4164,7 +4164,6 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 		    int  anchorPos = d ? d->selectAnchor->itemPos() : 0,
 			 oldPos    = oldCurrent ? oldCurrent->itemPos() : 0,
 			 newPos    = i->itemPos();
-		    bool down      = oldPos < newPos;
 		    QListViewItem *top=0, *bottom=0;
 		    if ( anchorPos > newPos ) {
 			top = i;
