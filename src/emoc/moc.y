@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#11 $
+** $Id: //depot/qt/main/src/emoc/moc.y#12 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2155,7 +2155,6 @@ void generateClass()		      // generate C++ source code for a class
 	          "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
              (const char*)qualifiedSuperclassName(), (const char*)qualifiedSuperclassName(),
              (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
-    fprintf( out, "\n#if QT_VERSION >= 199\n" );
     fprintf( out, "    staticMetaObject();\n");
     fprintf( out, "}\n\n");
 
@@ -2168,12 +2167,16 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate staticMetaObject member function
 //
-    fprintf( out, "QMetaObject* %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
+    fprintf( out, "void %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
+    fprintf( out, "    createMetaObject();\n}\n\n" );
+
+//
+// Generate createMetaObject member function
+//
+    fprintf( out, "QMetaObject* %s::createMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn metaObj;\n" );
     fprintf( out, "    %s::staticMetaObject();\n", (const char*)qualifiedSuperclassName() );
-    fprintf( out, "#else\n\n" );
-    fprintf( out, "    %s::initMetaObject();\n", (const char*)qualifiedSuperclassName() );
-    fprintf( out, "#endif\n\n" );
+
 
 //
 // Build the enums array in staticMetaObject()

@@ -13,6 +13,9 @@ static const char* TorbensHack[] = {
   "QString", "caption", "const", ")",
   "void", "setGeometry", "", "const QRect&", ")",
   "const QRect&", "geometry", "const", ")",
+  "QSize", "size", "const", ")",
+  "void", "setEnabled", "", "bool", ")",
+  "bool", "isEnabled", "const", ")",
 
   "+", "QButton", "An abstract Button", "", "",
     "void", "setText", "", "const QString&", ")",
@@ -30,8 +33,15 @@ static const char* TorbensHack[] = {
   "void", "setToggleButton", "", "bool", ")",
   "bool", "isToggleButton", "const", ")",
   "+", "QRadioButton", "", "", "",
+  "void", "setChecked", "", "bool", ")",
+  "bool", "isChecked", "const", ")",
+  "+", "QCheckBox", "", "", "",
+  "void", "setChecked", "", "bool", ")",
+  "bool", "isChecked", "const", ")",
   "+", "QWizard", "", "", "",
   "+", "QLineEdit", "", "", "",
+  "void", "setText", "", "const QString&", ")",
+  "QString", "text", "const", ")",
   "+", "QDialog", "", "", "",
   "+", "QMainWindow", "", "", "",
   "+", "QToolBar", "", "", "",
@@ -40,7 +50,11 @@ static const char* TorbensHack[] = {
   "+", "QToolButton", "", "", "",
   "+", "QListView", "", "", "",
   "+", "QGroupBox", "", "", "",
+  "void", "setTitle", "", "const QString&", ")",
+  "QString", "title", "const", ")",
   "+", "QMultiLineEdit", "", "", "",
+  "void", "setText", "", "const QString&", ")",
+  "QString", "text", "const", ")",
   "+", "QPopupMenu", "", "", "",
 
   "+", "QSlider", "", "", "",
@@ -68,7 +82,7 @@ static const char* TorbensHack[] = {
   "Shadow", "frameShadow", "const", ")",
 
   "+", "QMenuBar", "", "", "",
-  
+
   "+", "QGridLayout", "A grid layout", "", "",
   "+", "QVBoxLayout", "", "", "",
   "+", "QHBoxLayout", "", "", "",
