@@ -85,16 +85,20 @@
 
 */
 
+static QPainter *activePainter = 0;
+
 /*!
   Constructs a QCommonStyle.
 */
 QCommonStyle::QCommonStyle() : QStyle()
 {
+    activePainter = 0;
 }
 
 /*! \reimp */
 QCommonStyle::~QCommonStyle()
 {
+    activePainter = 0;
 }
 
 
@@ -114,6 +118,8 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 				  SFlags flags,
 				  const QStyleOption& opt ) const
 {
+    activePainter = p;
+
     switch (pe) {
     case PE_HeaderArrow:
 	p->save();
@@ -226,7 +232,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
 	int sw = w-4;
 	if ( sw < 3 )
-	    return;
+	    break;
 	else if ( !(sw & 1) )
 	    sw--;
 	sw -= ( sw / 7 ) * 2;	// Empty border
@@ -488,6 +494,8 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     default:
 	break;
     }
+
+    activePainter = 0;
 }
 
 /*! \reimp */
@@ -505,6 +513,8 @@ void QCommonStyle::drawControl( ControlElement element,
 	return;
     }
 #endif
+
+    activePainter = p;
 
     switch (element) {
     case CE_PushButton:
@@ -827,6 +837,8 @@ void QCommonStyle::drawControl( ControlElement element,
     default:
 	break;
     }
+
+    activePainter = 0;
 }
 
 /*! \reimp */
@@ -837,6 +849,8 @@ void QCommonStyle::drawControlMask( ControlElement control,
 				    const QStyleOption& opt ) const
 {
     Q_UNUSED(widget);
+
+    activePainter = p;
 
     QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
 
@@ -857,6 +871,8 @@ void QCommonStyle::drawControlMask( ControlElement control,
 	p->fillRect(r, color1);
 	break;
     }
+
+    activePainter = 0;
 }
 
 /*! \reimp */
@@ -936,11 +952,17 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 	    QRect cr = subRect(SR_CheckBoxContents, widget);
 
-	    QPainter p(checkbox);
-	    rect = itemRect(&p, cr, AlignLeft | AlignVCenter | ShowPrefix,
+	    // don't create a painter if we have an active one
+	    QPainter *p = 0;
+	    if (! activePainter)
+		p = new QPainter(checkbox);
+	    rect = itemRect((activePainter ? activePainter : p),
+			    cr, AlignLeft | AlignVCenter | ShowPrefix,
 			    checkbox->isEnabled(),
 			    checkbox->pixmap(),
 			    checkbox->text());
+
+	    delete p;
 
 	    rect.addCoords( -3, -2, 3, 2 );
 	    rect = rect.intersect(wrect);
@@ -970,11 +992,16 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 	    QRect cr = subRect(SR_RadioButtonContents, widget);
 
-	    QPainter p(radiobutton);
-	    rect = itemRect(&p, cr, AlignLeft | AlignVCenter | ShowPrefix,
+	    // don't create a painter if we have an active one
+	    QPainter *p = 0;
+	    if (! activePainter)
+		p = new QPainter(radiobutton);
+	    rect = itemRect((activePainter ? activePainter : p),
+			    cr, AlignLeft | AlignVCenter | ShowPrefix,
 			    radiobutton->isEnabled(),
 			    radiobutton->pixmap(),
 			    radiobutton->text());
+	    delete p;
 
 	    rect.addCoords( -3, -2, 3, 2 );
 	    rect = rect.intersect(wrect);
@@ -1126,6 +1153,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	return;
     }
 #endif
+
+    activePainter = p;
 
     switch (control) {
 #ifndef QT_NO_SCROLLBAR
@@ -1503,6 +1532,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
     default:
 	break;
     }
+
+    activePainter = 0;
 }
 
 
@@ -1566,7 +1597,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    rect.setRect(lx, fw, rx, widget->height() - 2*fw);
 	    break;
 	case SC_SpinWidgetFrame:
-	    return widget->rect();
+	    rect = widget->rect();
 	default:
 	    break;
 	}
