@@ -1617,7 +1617,9 @@ void QDataTable::sortColumn ( int col, bool ascending,
 	    return;
 	QSqlIndex lastSort = sqlCursor()->sort();
 	QSqlIndex newSort( lastSort.cursorName(), "newSort" );
-	newSort.append( *sqlCursor()->field( indexOf( col ) ) );
+	QSqlField *field = sqlCursor()->field( indexOf( col ) );
+	if ( field )
+	    newSort.append( *field );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
 	setSort( newSort );
