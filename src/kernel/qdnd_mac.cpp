@@ -102,8 +102,11 @@ static void qt_mac_dnd_cleanup()
 
 void updateDragMode() {
     if(set_drag_mode == QDragObject::DragDefault) { 
-	//how do we get the keyboard mode? FIXME
-	current_drag_action = QDropEvent::Move;
+	UInt32 mod = GetCurrentKeyModifiers();
+	if((mod & optionKey) || (mod & rightOptionKey))
+	    current_drag_action = QDropEvent::Copy;
+	else
+	    current_drag_action = QDropEvent::Move;
     } else {
 	if(set_drag_mode == QDragObject::DragMove)
 	    current_drag_action = QDropEvent::Move;
