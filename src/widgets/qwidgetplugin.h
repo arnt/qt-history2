@@ -56,13 +56,11 @@ private:
     QWidgetPluginPrivate *d;
 };
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
-
 class QWidgetContainerPluginPrivate;
 
 class Q_EXPORT QWidgetContainerPlugin : public QWidgetPlugin
 {
-//     Q_OBJECT
+     Q_OBJECT
 public:
     QWidgetContainerPlugin();
     ~QWidgetContainerPlugin();
@@ -88,8 +86,6 @@ public:
     virtual QString createCode( const QString &key, const QString &container,
 				const QString &page, const QString &pageName ) const;
 };
-
-#endif // QT_CONTAINER_CUSTOM_WIDGETS
 
 #endif // QT_NO_WIDGETPLUGIN
 #endif // QWIDGETPLUGIN_H
