@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/table/table.cpp#2 $
+** $Id: //depot/qt/main/examples/table/table.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -135,12 +135,11 @@ void Table::keyPressEvent( QKeyEvent* e )
 {
     int oldRow = curRow;			// store previous current cell
     int oldCol = curCol;
-    int edge = 0;
     switch( e->key() ) {			// Look at the key code
 	case Key_Left:				// If 'left arrow'-key, 
 	    if( curCol > 0 ) {			// and cr't not in leftmost col
 		curCol--;     			// set cr't to next left column
-		edge = leftCell();		// find left edge
+		int edge = leftCell();		// find left edge
 		if ( curCol < edge )		// if we have moved off  edge,
 		    setLeftCell( edge - 1 );	// scroll view to rectify
 	    }
@@ -148,7 +147,7 @@ void Table::keyPressEvent( QKeyEvent* e )
 	case Key_Right:				// Correspondingly...
 	    if( curCol < numCols()-1 ) {
 		curCol++;
-		edge = lastColVisible();
+		int edge = lastColVisible();
 		if ( curCol >= edge )
 		    setLeftCell( leftCell() + 1 );
 	    }
@@ -156,7 +155,7 @@ void Table::keyPressEvent( QKeyEvent* e )
 	case Key_Up:
 	    if( curRow > 0 ) {
 		curRow--;
-		edge = topCell();
+		int edge = topCell();
 		if ( curRow < edge )
 		    setTopCell( edge - 1 );
 	    }
@@ -164,7 +163,7 @@ void Table::keyPressEvent( QKeyEvent* e )
 	case Key_Down:
 	    if( curRow < numRows()-1 ) {
 		curRow++;
-		edge = lastRowVisible();
+		int edge = lastRowVisible();
 		if ( curRow >= edge )
 		    setTopCell( topCell() + 1 );
 	    }

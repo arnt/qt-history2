@@ -1,4 +1,4 @@
-TEMPLATE    =	subdirs
+TEMPLATE    =	examples
 SUBDIRS     =	aclock \
 		addressbook \
 		application \

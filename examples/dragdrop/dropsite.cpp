@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dragdrop/dropsite.cpp#2 $
+** $Id: //depot/qt/main/examples/dragdrop/dropsite.cpp#3 $
 **
 ** Drop site example implementation
 **
@@ -145,7 +145,8 @@ void DropSite::mousePressEvent( QMouseEvent * /*e*/ )
 }
 
 
-void DropSite::backgroundColorChange( const QColor &c )
+void DropSite::backgroundColorChange( const QColor & )
 {
+    // Reduce flicker by using repaint() rather than update()
     repaint();
 }

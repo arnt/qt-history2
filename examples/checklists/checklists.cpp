@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/checklists/checklists.cpp#1 $
+** $Id: //depot/qt/main/examples/checklists/checklists.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -49,7 +49,7 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     parentList.append( new QListViewItem( lv1, "Parent Item 3" ) );
     parentList.append( new QListViewItem( lv1, "Parent Item 4" ) );
 
-    QListViewItem *item = 0L;
+    QListViewItem *item = 0;
     unsigned int num;
     // go through the list of parent items...
     for ( item = parentList.first(), num = 1; item; item->setOpen( TRUE ), item = parentList.next(), num++ )

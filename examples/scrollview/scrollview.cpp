@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/scrollview/scrollview.cpp#2 $
+** $Id: //depot/qt/main/examples/scrollview/scrollview.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -360,10 +360,10 @@ private slots:
 		sty = 0;
 	    } else if (id & QFrame::MShape) {
 		sty = vp->frameStyle()&QFrame::MShadow;
-		sty = (sty ? sty : QFrame::Plain) | id&QFrame::MShape;
+		sty = (sty ? sty : QFrame::Plain) | (id&QFrame::MShape);
 	    } else {
 		sty = vp->frameStyle()&QFrame::MShape;
-		sty = (sty ? sty : QFrame::Box) | id&QFrame::MShadow;
+		sty = (sty ? sty : QFrame::Box) | (id&QFrame::MShadow);
 	    }
 	    vp->setFrameStyle(sty);
 	} else if (id & lw_id) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#2 $
+** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -100,10 +100,9 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
 
 void ListBoxCombo::slotLeft2Right()
 {
-    QListBoxItem *item = 0L;
     // Go through all items of the first ListBox
     for ( unsigned int i = 0; i < lb1->count(); i++ ) {
-        item = lb1->item( i );
+	QListBoxItem *item = lb1->item( i );
         // if the item is selected...
         if ( item->selected() ) {
             // ...and it is a text item...

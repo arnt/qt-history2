@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.cpp#1 $
+** $Id: //depot/qt/main/examples/listviews/listviews.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -166,8 +166,7 @@ void ListViews::setupFolders()
 {
     folders->clear();
 
-    Folder *f = 0L;
-    for ( f = lstFolders.first(); f; f = lstFolders.next() )
+    for ( Folder* f = lstFolders.first(); f; f = lstFolders.next() )
         (void)new FolderListItem( folders, f );
 }
 
@@ -178,8 +177,8 @@ void ListViews::slotFolderChanged( QListViewItem *i )
 
     FolderListItem *item = ( FolderListItem* )i;
 
-    Message *msg = 0L;
-    for ( msg = item->folder()->firstMessage(); msg; msg = item->folder()->nextMessage() )
+    for ( Message* msg = item->folder()->firstMessage(); msg;
+		msg = item->folder()->nextMessage() )
         (void)new MessageListItem( messages, msg );
 }
 

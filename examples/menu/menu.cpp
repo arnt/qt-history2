@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/menu/menu.cpp#2 $
+** $Id: //depot/qt/main/examples/menu/menu.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -259,7 +259,6 @@ void MenuExample::resizeEvent( QResizeEvent * )
 {
     label->setGeometry( 20, rect().center().y()-20, width()-40, 40 );
 }
-
 
 
 int main( int argc, char ** argv )

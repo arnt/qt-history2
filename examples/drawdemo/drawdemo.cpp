@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/drawdemo/drawdemo.cpp#2 $
+** $Id: //depot/qt/main/examples/drawdemo/drawdemo.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -59,10 +59,9 @@ void drawFonts( QPainter *p )
     static char *fonts[] = { "Helvetica", "Courier", "Times", 0 };
     static int	 sizes[] = { 10, 12, 18, 24, 36, 0 };
     int f = 0;
-    int s = 0;
     int y = 0;
     while ( fonts[f] ) {
-        s = 0;
+        int s = 0;
         while ( sizes[s] ) {
             QFont font( fonts[f], sizes[s] );
             p->setFont( font );
