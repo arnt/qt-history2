@@ -31,7 +31,7 @@ class QLabel;
 class Info : public QTextBrowser {
     Q_OBJECT
 public:
-    Info( QWidget* Q_PARENT, const char* Q_NAME );
+    Info( QWidget* parent, const char* name=0 );
 
 signals:
     void idClicked(const QString& name);
