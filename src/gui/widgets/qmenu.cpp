@@ -1322,11 +1322,12 @@ void QMenu::changeEvent(QEvent *e)
         setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
         if(isVisible())
             resize(sizeHint() + contentsMarginSize());
-        if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
+        if(!style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
             delete d->scroll;
             d->scroll = 0;
         } else if(!d->scroll) {
             d->scroll = new QMenuPrivate::QMenuScroller;
+            d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
         }
     } else if(e->type() == QEvent::EnabledChange) {
         if (d->tornPopup) // torn-off menu
