@@ -14,7 +14,7 @@ class Q_EXPORT QSqlEditorFactory
 {
 public:
     static  QSqlEditorFactory * instance();
-    virtual QWidget * createEditor( QWidget * parent, QSqlField & field );
+    virtual QWidget * createEditor( QWidget * parent, const QVariant & v );
 
 protected:
     QSqlEditorFactory();

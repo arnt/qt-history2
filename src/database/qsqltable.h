@@ -11,6 +11,7 @@
 #include "qsqlview.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
+#include "qsqleditorfactory.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -41,7 +42,12 @@ public:
 			      bool wholeRows = FALSE );
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
+    void         installEditorFactory( QSqlEditorFactory * f );
 
+public slots:
+    void 	 findString( const QString & str, bool caseSensitive,
+			     bool backwards );
+    
 protected:
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     int          indexOf( uint i );
@@ -58,7 +64,7 @@ protected:
     void         clearCell ( int row, int col ) ;
     void         setPixmap ( int row, int col, const QPixmap & pix );
     void         takeItem ( QTableItem * i );
-
+    void 	 setCellContentFromEditor( int row, int col );
 private slots:
     void         loadNextPage();
     void         loadLine( int l );
@@ -66,6 +72,7 @@ private slots:
 private:
     void         setNumCols ( int r );
     QSqlTablePrivate* d;
+    QSqlEditorFactory * editorFactory;
 };
 
 #endif

@@ -14,29 +14,35 @@ QSqlEditorFactory::QSqlEditorFactory()
 }
 
 /*!
-  Creates and returns the appropriate editor for the QSqlField.
+  Creates and returns the appropriate editor for the QSqlField \a field.
 
 */
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
-					   QSqlField & field )
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 {
     QWidget * w;
-    switch ( field.type() ) {
-    case QVariant::Int:
-	w = new QSpinBox( parent );
-	break;
-    default:
-    case QVariant::String:
-    case QVariant::CString:
-	w = new QLineEdit( parent );
-	break;
+    
+    switch( v.type() ){
+	case QVariant::Int:
+/*	    w = new DateBookMonth( 0 ); 
+	    w->reparent( 0, QWidget::WStyle_Customize + 
+			 QWidget::WStyle_NoBorder, QPoint(0,0) );
+	    w->resize( 100, 100 );*/
+	    w = new QSpinBox( parent );
+	    break;
+	case QVariant::String:
+	case QVariant::CString:
+	    w = new QLineEdit( parent);
+	    break;
+	default:
+	    w = new QLineEdit( parent );
+	    break;
     }
     return w;
 }
 
 
 /*!
-  Returns a pointer to the single existing instance of a
+  Returns a pointer to the only existing instance of a
   QSqlEditorFactory.
 */
 QSqlEditorFactory * QSqlEditorFactory::instance()
@@ -50,4 +56,4 @@ QSqlEditorFactory * QSqlEditorFactory::instance()
     return _instance;
 }
 
-#endif
+#endif // QT_NO_SQL

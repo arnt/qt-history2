@@ -1,5 +1,9 @@
+#include "qapplication.h"
 #include "qsqltable.h"
 #include "qsqldriver.h"
+#include "qsqlpropertymanager.h"
+#include "qsqleditorfactory.h"
+
 #ifndef QT_NO_SQL
 
 class QSqlTablePrivate
@@ -100,6 +104,7 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 {
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
+    editorFactory = QSqlEditorFactory::instance();
 }
 
 /*!
@@ -188,10 +193,93 @@ void QSqlTable::setColumn( uint col, const QSqlField& field )
 
 */
 
-QWidget * QSqlTable::createEditor( int , int, bool ) const
+QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 {
-    return 0;
+    QSqlRowset* rset = d->rowset();
+    QSqlPropertyManager m;
+    QWidget * w = 0;
+
+    m.addClass( "QSqlCustomEd", "state" );
+    if( initFromCell && rset && rset->seek( row ) ){
+	w = editorFactory->createEditor( viewport(), (*rset)[col] );
+	m.setProperty( w, rset->value( col ) );
+    }
+    return w;
 }
+
+/*!
+
+  \reimpl
+
+*/
+
+void QSqlTable::setCellContentFromEditor( int row, int col )
+{
+    QSqlPropertyManager m;
+    QSqlRowset* rset = d->rowset();
+    QWidget * editor = cellWidget( row, col );
+    
+    if ( !editor )
+	return;
+    rset->seek( row );
+    (*rset)[col] = m.property( editor );
+}
+
+/*!
+
+ Search the current result set for the string \a str. If the string is
+ found, it will be marked as the current cell.
+ */
+
+void QSqlTable::findString( const QString & str, bool caseSensitive,
+			    bool backwards )
+{
+    // ### Searching backwards is not implemented yet.
+    Q_UNUSED( backwards );
+    
+    QSqlRowset * rset = d->rowset();
+    unsigned int  row = currentRow(), startRow = row,
+		  col = currentColumn() + 1;
+    bool  wrap = TRUE, 
+	 found = FALSE;
+
+    if( str.isEmpty() || str.isNull() )
+	return;
+    
+    QApplication::setOverrideCursor( Qt::waitCursor );
+    if( rset ){
+	while( wrap ){	    
+	    while( !found && rset->seek( row ) ){
+		for(unsigned int i = col; i < rset->count(); i++){
+		    // ## Sort out the colIndex stuff
+		    QString tmp, text = rset->value( i ).toString();
+		    if( !caseSensitive ){
+			text = text.lower();
+			tmp  = str.lower();
+		    }
+		    if( text.contains( tmp ) ){
+			ensureCellVisible( row, i );
+			setCurrentCell( row, i );
+			col = i;
+			found = TRUE;
+		    }
+		}
+		col = 0;
+		row++;
+	    }
+		    
+	    if( startRow != 0 ){ 
+		startRow = 0;
+	    } else { 
+		wrap = FALSE;
+	    }
+	    rset->first();
+	    row = 0;
+	}
+    }
+    QApplication::restoreOverrideCursor();
+}
+
 
 /*!
 
@@ -617,6 +705,17 @@ void QSqlTable::setPixmap ( int , int , const QPixmap &  )
 void QSqlTable::takeItem ( QTableItem * )
 {
 
+}
+
+/*!
+
+  Installs a new SQL editor factory. This enables the user to create and
+  instantiate their own editors for the different cells in a table.
+*/
+void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
+{
+    if( f )
+	editorFactory = f;
 }
 
 #endif
