@@ -385,7 +385,6 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	int itemWidth = 0;
 	int breakItem = d->firstItemInLine;
 	int breakPosition = -1;
-	int breakGlyph = 0;
 #if 0
 	// we iterate backwards or forward depending on what we guess is closer
 	if ( d->widthUsed - d->lineWidth < d->lineWidth ) {
@@ -437,7 +436,6 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 			    breakItem = i;
 			    breakPosition = pos;
 //   			    qDebug("found possible break at item %d, position %d (absolute=%d), w=%d, tmpWidth=%d, tmpItemWidth=%d", breakItem, breakPosition, d->items[breakItem].position+breakPosition, w, tmpWidth, tmpItemWidth);
-			    breakGlyph = glyph;
 			    w += tmpWidth + tmpItemWidth;
 			    itemWidth += tmpItemWidth;
 			    tmpWidth = 0;
@@ -461,7 +459,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	if ( breakPosition == -1 )
 	    goto nobreak;
 
-//  	qDebug("linebreak at item %d, position %d, glyph %d wu=%d", breakItem, breakPosition, breakGlyph, d->widthUsed );
+//  	qDebug("linebreak at item %d, position %d, wu=%d", breakItem, breakPosition, d->widthUsed );
 	// split the line
 	if ( breakPosition > 0 ) {
 // 	    int length = d->length( breakItem );
