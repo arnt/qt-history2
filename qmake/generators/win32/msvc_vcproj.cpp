@@ -422,7 +422,7 @@ void VcprojGenerator::initConfiguration()
         vcProject.Configuration.ConfigurationType = typeApplication;
 	break;
     }
-    vcProject.Configuration.Name =  ( project->isActiveConfig( "release" ) ? "Release|" : "Debug|" );
+    vcProject.Configuration.Name =  ( project->isActiveConfig( "debug" ) ? "Debug|" : "Release|" );
     vcProject.Configuration.Name += ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
     vcProject.Configuration.ATLMinimizesCRunTimeLibraryUsage = ( project->first("ATLMinimizesCRunTimeLibraryUsage").isEmpty() ? _False : _True );
     vcProject.Configuration.BuildBrowserInformation = triState( temp.isEmpty() ? (short)unset : temp.toShort() );
@@ -454,7 +454,7 @@ void VcprojGenerator::initCompilerTool()
 {
     QString placement = project->first("OBJECTS_DIR");
     if ( placement.isEmpty() )
-	placement = project->isActiveConfig( "release" )? ".\\Release\\":".\\Debug\\";
+	placement = ".\\";
 
     vcProject.Configuration.compiler.AssemblerListingLocation = placement ;
     vcProject.Configuration.compiler.ProgramDataBaseFileName = placement ;
