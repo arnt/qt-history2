@@ -90,13 +90,10 @@ void MainWindow::on_WebBrowser_BeforeNavigate()
 void MainWindow::on_WebBrowser_NavigateComplete(QString)
 {
     actionStop->setEnabled( FALSE );
-    WebBrowser->setProperty("Offline", true);
-    QString str = WebBrowser->property("LocationURL").toString();
 }
 
 void MainWindow::on_actionGo_triggered()
 {
-    actionStop->setEnabled( TRUE );
     WebBrowser->dynamicCall( "Navigate(const QString&)", addressEdit->text() );
 }
 
