@@ -124,6 +124,7 @@ public:
     void rotate(double a);
 #endif
 
+    inline void translate(const QPointF &offset);
     inline void translate(const QPoint &offset);
     void translate(double dx, double dy);
 
@@ -203,8 +204,9 @@ public:
                          Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
 
 #ifndef QT_NO_PICTURE
-    void drawPicture(int x, int y, const QPicture &picture);
-    void drawPicture(const QPoint &p, const QPicture &picture);
+    void drawPicture(const QPointF &p, const QPicture &picture);
+    inline void drawPicture(int x, int y, const QPicture &picture);
+    inline void drawPicture(const QPoint &p, const QPicture &picture);
 #endif
 
     void drawPixmap(const QRectF &targetRect, const QPixmap &pixmap, const QRectF &sourceRect,
@@ -623,6 +625,11 @@ inline void QPainter::drawText(int x, int y, const QString &s, TextDirection dir
     drawText(QPointF(x, y), s, dir);
 }
 
+inline void QPainter::translate(const QPointF &offset)
+{
+    translate(offset.x(), offset.y());
+}
+
 inline void QPainter::translate(const QPoint &offset)
 {
     translate(offset.x(), offset.y());
@@ -642,6 +649,11 @@ inline void QPainter::setWindow(int x, int y, int w, int h)
 inline void QPainter::drawPicture(int x, int y, const QPicture &p)
 {
     drawPicture(QPoint(x, y), p);
+}
+
+inline void QPainter::drawPicture(const QPoint &pt, const QPicture &p)
+{
+    drawPicture(QPointF(pt), p);
 }
 #endif
 

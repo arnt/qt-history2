@@ -3452,7 +3452,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
     called with \a p = QPoint(0, 0).
 */
 
-void QPainter::drawPicture(const QPoint &p, const QPicture &picture)
+void QPainter::drawPicture(const QPointF &p, const QPicture &picture)
 {
     if (!isActive())
         return;
