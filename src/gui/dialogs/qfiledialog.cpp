@@ -549,9 +549,10 @@ QStringList QFileDialog::selectedFiles() const
     QStringList files;
     int r = -1;
     for (int i = 0; i < indexes.count(); ++i) {
-        if (indexes.at(i).row() != r) {
-            files.append(d->model->path(indexes.at(i)));
-            r = indexes.at(i).row();
+        QModelIndex index = indexes.at(i);
+        if (index.row() != r && index.column() == 0) {
+            files.append(d->model->path(index));
+            r = index.row();
         }
     }
 
@@ -1000,11 +1001,14 @@ void QFileDialogPrivate::selectionChanged(const QItemSelection &selection)
 
     QString text;
     QModelIndexList indexes = selections->selectedIndexes();
-    if (indexes.count())
+    if (indexes.count() && indexes.at(0).column() == 0)
         text.append(model->data(indexes.at(0)).toString());
     for (int i = 1; i < indexes.count(); ++i) {
-        text.append(" ");
-        text.append(model->data(indexes.at(i)).toString());
+        QModelIndex index = indexes.at(i);
+        if (index.column() == 0) {
+            text.append(" ");
+            text.append(model->data(index).toString());
+        }
     }
     fileName->setText(text);
 }
