@@ -1279,7 +1279,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		    QString c = getObjectName( n );
 		    QString conn = getDatabaseInfo( n, "connection" );
 		    QString tab = getDatabaseInfo( n, "table" );
-		    if ( !( conn.isEmpty() || tab.isEmpty() ) ) {
+		    if ( !( conn.isEmpty() || tab.isEmpty() || !isFrameworkCodeGenerated( nl.item(i).toElement() ) ) ) {
 			out << indent << "if ( " << c << " ) {" << endl;
 			out << indent << indent << "QSqlCursor* cursor = " << c << "->sqlCursor();" << endl;
 			out << indent << indent << "if ( !cursor ) {" << endl;
@@ -1308,7 +1308,7 @@ void Uic::createFormImpl( const QDomElement &e )
 						   "table" );
 		    QString conn = getDatabaseInfo( nl.item(i).toElement(),
 						    "connection" );
-		    if ( !(tab).isEmpty() ) {
+		    if ( !(tab.isEmpty() || !isFrameworkCodeGenerated( nl.item(i).toElement() ) ) ) {
 			out << indent << "if ( " << obj << " ) {" << endl;
 			out << indent << indent << "if ( !" << obj << "->sqlCursor() ) {" << endl;
 			if ( conn == "(default)" )
