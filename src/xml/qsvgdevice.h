@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#7 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#8 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -85,6 +85,7 @@ private:
 
     enum ElementType {
 	InvalidElement = 0,
+	CommentElement,
 	RectElement,
 	CircleElement,
 	EllipseElement,

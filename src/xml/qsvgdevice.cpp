@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#10 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#11 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -127,6 +127,7 @@ bool QSVGDevice::play( QPainter *painter )
 	const char *name;
 	ElementType type;
     } etab[] = {
+	{ "#comment", CommentElement  },
         { "line",     LineElement     },
         { "circle",   CircleElement   },
         { "ellipse",  EllipseElement  },
@@ -233,6 +234,9 @@ bool QSVGDevice::play( const QDomNode &node )
 	int x1, y1, x2, y2, rx, ry;
 	ElementType t = typeMap[ child.nodeName() ];
 	switch ( t ) {
+	case CommentElement:
+	    // ignore
+	    break;
 	case RectElement:
 	    break;
 	case CircleElement:
@@ -263,6 +267,14 @@ bool QSVGDevice::play( const QDomNode &node )
 	    break;
 	case PathElement:
 	case TextElement:
+	    if ( child.firstChild().isText() ) {
+		QString text = child.firstChild().toText().nodeValue();
+		text = text.simplifyWhiteSpace(); // ### check for preserve
+		x1 = lenToInt( attr, "x" );
+		y1 = lenToInt( attr, "y" );
+		pt->drawText( x1, y1, text );
+	    }
+	    break;
 	case ImageElement:
 	case InvalidElement:
 	    qWarning( "QSVGDevice::play: unknown element type " +
