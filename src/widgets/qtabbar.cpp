@@ -627,7 +627,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
 void QTabBar::paintEvent( QPaintEvent * e )
 {
-    QSharedDoubleBuffer buffer( this );
+    QSharedDoubleBuffer buffer( this, e->rect() );
 
     buffer.painter()->setBrushOrigin( rect().bottomLeft() );
     buffer.painter()->fillRect( 0, 0, width(), height(),
