@@ -20,10 +20,6 @@ do
 done
 
 PLATFORM=$1
-if [ "$PLATFORM" = qws ]
-then
-    UTILS="$UTILS qvfb"
-fi
 
 cd ${QTDIR}
 unset CPLUS_INCLUDE_DIR
