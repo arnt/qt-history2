@@ -72,7 +72,7 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 	    int foundpos = rxp.search( itemtext, 5 );
 	    if ( foundpos != -1 ) {
 		QString linenumber = rxp.cap( 0 );
-		qDebug("%s", linenumber.latin1() );
+//		qDebug("%s", linenumber.latin1() );
 		procedit = new QProcess( this );
 		procedit->addArgument( editText );
 		procedit->addArgument( QString("+" + linenumber) );
@@ -84,7 +84,7 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		
 	    }
 	} else {
-	    qWarning( "You didn't specify an editor you fool! :o)" );
+	    qWarning( "You didn't specify an editor..." );
 	}
     }
 }
