@@ -8,8 +8,11 @@
 #include "some.h"
 
 
+//#define LOGGING
 
+#ifdef LOGGING
 QFile Some::logFile( "outputLog" );
+#endif
 
 /*
  * Some
@@ -18,38 +21,6 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
     : QObject( p ), stdoutConnected( FALSE ), stderrConnected( FALSE ), exitConnected( FALSE )
 {
     proc = new QProcess( this );
-    switch ( com ) {
-    case 1:
-	proc->addArgument( QDir::current().absFilePath( "some" ) );
-	proc->addArgument( "-guicat" );
-	hideAfterExit = TRUE;
-	break;
-#if 0
-	// for windows compiled from a dsp file
-	proc = new QProcess( this );
-	QDir dir = QDir::current();
-	dir.cd( "Debug" );
-	proc->addArgument( dir.absFilePath( "some" ) );
-	proc->addArgument( "-cat" );
-#endif
-    case 2:
-	// other external program
-	proc->addArgument( "p4" );
-	proc->addArgument( "help" );
-	proc->addArgument( "commands" );
-	hideAfterExit = FALSE;
-	break;
-    case 3:
-	proc->addArgument( QDir::current().absFilePath( "some" ) );
-	proc->addArgument( "-much" );
-	hideAfterExit = FALSE;
-	break;
-    default:
-	proc->addArgument( QDir::current().absFilePath( "some" ) );
-	proc->addArgument( "-cat" );
-	hideAfterExit = TRUE;
-	break;
-    }
 
     // io stuff
     QLineEdit *in = new QLineEdit( &main );
@@ -112,6 +83,54 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
     QObject::connect( proc, SIGNAL(wroteStdin()),
 		this, SLOT(wroteStdin()) );
 
+    // start cat in the same QProcess class
+    QPushButton *startButton = new QPushButton( "Start cat", &main );
+    QObject::connect( startButton, SIGNAL(clicked()),
+	    this, SLOT(startCat()) );
+
+    main.show();
+
+    protocolReadStdout = 0;
+    protocolReadStderr = 0;
+    protocol.show();
+
+    procInit( start, com );
+}
+
+void Some::procInit( bool start, int com )
+{
+    switch ( com ) {
+    case 1:
+	proc->addArgument( QDir::current().absFilePath( "some" ) );
+	proc->addArgument( "-guicat" );
+	hideAfterExit = TRUE;
+	break;
+#if 0
+	// for windows compiled from a dsp file
+	proc = new QProcess( this );
+	QDir dir = QDir::current();
+	dir.cd( "Debug" );
+	proc->addArgument( dir.absFilePath( "some" ) );
+	proc->addArgument( "-cat" );
+#endif
+    case 2:
+	// other external program
+	proc->addArgument( "p4" );
+	proc->addArgument( "help" );
+	proc->addArgument( "commands" );
+	hideAfterExit = FALSE;
+	break;
+    case 3:
+	proc->addArgument( QDir::current().absFilePath( "some" ) );
+	proc->addArgument( "-much" );
+	hideAfterExit = FALSE;
+	break;
+    default:
+	proc->addArgument( QDir::current().absFilePath( "some" ) );
+	proc->addArgument( "-cat" );
+	hideAfterExit = TRUE;
+	break;
+    }
     if ( start ) {
 	if ( !proc->start() ) {
 	    qWarning( "Could not start process" );
@@ -124,11 +143,6 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
 	    return;
 	}
     }
-    main.show();
-
-    protocolReadStdout = 0;
-    protocolReadStderr = 0;
-    protocol.show();
 }
 
 void Some::writeMuch()
@@ -184,6 +198,11 @@ void Some::procExited()
     showInfo();
     if ( hideAfterExit )
 	main.hide();
+}
+
+void Some::startCat()
+{
+    procInit( TRUE, 0 );
 }
 
 void Some::wroteStdin()
@@ -260,6 +279,7 @@ void Some::connectExit( bool enable )
 }
 
 
+#ifdef LOGGING
 void Some::logMessage( const QString& buf )
 {
     if ( !logFile.isOpen() ) {
@@ -270,6 +290,10 @@ void Some::logMessage( const QString& buf )
 	    qWarning( "error open file" );
 	}
     }
+#else
+void Some::logMessage( const QString& )
+{
+#endif
 }
 
 

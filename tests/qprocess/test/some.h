@@ -21,6 +21,7 @@ public slots:
     void updateInfo();
     void showInfo();
     void procExited();
+    void startCat();
 
     void connectStdout( bool enable );
     void connectStderr( bool enable );
@@ -34,6 +35,8 @@ public slots:
 signals:
 
 private:
+    void procInit( bool start, int com );
+
     QVBox main;
     QVBox info;
     int protocolReadStdout;
