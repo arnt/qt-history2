@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.13 1998/03/31 09:05:35 aavit Exp $
+** $Id: examples.doc,v 2.14 1998/05/26 23:37:26 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.13 1998/03/31 09:05:35 aavit Exp $";
+static char ident[] = "$Id: examples.doc,v 2.14 1998/05/26 23:37:26 agulbra Exp $";
 #endif
 
 
@@ -281,3 +281,17 @@ magnified area as a .bmp file. */
   This example lets the user rotate, shear and scale text and graphics
   arbitrarily.
 */
+
+
+/*! \example application/application.cpp
+
+  <h1 align=center>A Complete Application Window</h1><br clear="all">
+
+  This example program looks like a complete modern application.  It
+  has a menu bar, it has a tool bar, it has a status bar.
+
+  It also illustrates use of QPrinter.  Oh yes, and you can edit text
+  with it.
+*/
+
+
