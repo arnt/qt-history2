@@ -180,7 +180,9 @@ QLabel::~QLabel()
 void QLabel::init()
 {
     lpixmap = 0;
+#if QT_FEATURE_MOVIE
     lmovie = 0;
+#endif
     lbuddy = 0;
     lpixmap = 0;
     accel = 0;
@@ -463,7 +465,9 @@ QSize QLabel::sizeForWidth( int w ) const
     QFontMetrics fm = fontMetrics();
     QRect br;
     QPixmap *pix = pixmap();
+#if QT_FEATURE_MOVIE
     QMovie *mov = movie();
+#endif
     int fw = frameWidth();
     int m  = 2*indent();
     if ( m < 0 ) {
@@ -475,9 +479,11 @@ QSize QLabel::sizeForWidth( int w ) const
     if ( pix ) {
 	br = pix->rect();
     }
+#if QT_FEATURE_MOVIE
     else if ( mov ) {
 	br = mov->framePixmap().rect();
     }
+#endif
     else if ( doc ) {
 	if ( w < 0 )
 	    doc->adjustSize();
@@ -584,6 +590,7 @@ void QLabel::drawContents( QPainter *p )
 	    cr.setBottom( cr.bottom() - m );
     }
 
+#if QT_FEATURE_MOVIE
     QMovie *mov = movie();
     if ( mov ) {
 	// ### should add movie to qDrawItem
@@ -594,7 +601,9 @@ void QLabel::drawContents( QPainter *p )
 	// ### could resize movie frame at this point
 	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );
     }
-    else if ( doc ) {
+    else
+#endif
+    if ( doc ) {
 	doc->setWidth(p, cr.width() );
 	int rw = doc->widthUsed();
 	int rh = doc->height();
@@ -662,7 +671,8 @@ void QLabel::drawContentsMask( QPainter *p )
 	if ( align & AlignBottom )
 	    cr.setBottom( cr.bottom() - m );
     }
-
+ 
+#if QT_FEATURE_MOVIE
     QMovie *mov = movie();
     if ( mov ) {
 	// ### could add movie to qDrawItem
@@ -680,6 +690,7 @@ void QLabel::drawContentsMask( QPainter *p )
 	    p->fillRect( r, color1 );
 	return;
     }
+#endif
 
     QColorGroup g( color1, color1, color1, color1, color1, color1, color1,
 		   color1, color0);
@@ -852,6 +863,7 @@ QWidget * QLabel::buddy() const
 }
 
 
+#if QT_FEATURE_MOVIE
 void QLabel::movieUpdated(const QRect& rect)
 {
     QMovie *mov = movie();
@@ -900,6 +912,8 @@ void QLabel::setMovie( const QMovie& movie )
 	updateLabel( osh );	// resize/update signals will come soon enough
 }
 
+#endif // QT_FEATURE_MOVIE
+
 /*!
   \internal
 
@@ -919,14 +933,18 @@ void QLabel::clearContents()
     if ( accel )
 	accel->clear();
 
+#if QT_FEATURE_MOVIE
     if ( lmovie ) {
 	lmovie->disconnectResize(this, SLOT(movieResized(const QSize&)));
 	lmovie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
 	delete lmovie;
 	lmovie = 0;
     }
+#endif
 }
 
+
+#if QT_FEATURE_MOVIE
 
 /*!
   If the label contains a movie, returns a pointer to it. Otherwise,
@@ -940,6 +958,7 @@ QMovie* QLabel::movie() const
     return lmovie;
 }
 
+#endif  // QT_FEATURE_MOVIE
 
 /*!
   Returns the current text format.

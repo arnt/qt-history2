@@ -54,7 +54,9 @@ public:
 
     QString	 text()		const	{ return ltext; }
     QPixmap     *pixmap()	const	{ return lpixmap; }
+#if QT_FEATURE_MOVIE
     QMovie      *movie()		const;
+#endif
 
     TextFormat textFormat() const;
     void 	 setTextFormat( TextFormat );
@@ -81,7 +83,9 @@ public:
 public slots:
     virtual void setText( const QString &);
     virtual void setPixmap( const QPixmap & );
+#if QT_FEATURE_MOVIE
     virtual void setMovie( const QMovie & );
+#endif
     virtual void setNum( int );
     virtual void setNum( double );
     void	 clear();
@@ -94,8 +98,10 @@ protected:
 private slots:
     void	 acceleratorSlot();
     void	 buddyDied();
+#if QT_FEATURE_MOVIE
     void	 movieUpdated(const QRect&);
     void	 movieResized(const QSize&);
+#endif
 
 private:
     void	init();
@@ -104,7 +110,9 @@ private:
     QSize	sizeForWidth( int w ) const;
     QString	ltext;
     QPixmap    *lpixmap;
+#if QT_FEATURE_MOVIE
     QMovie *	lmovie;
+#endif
     QWidget *	lbuddy;
     ushort	align;
     short	extraMargin;

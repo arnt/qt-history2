@@ -32,6 +32,8 @@
 #include "qtimer.h"
 #endif // QT_H
 
+#if QT_FEATURE_ASYNC_IO
+
 class QIODevice;
 
 class Q_EXPORT QAsyncIO {
@@ -97,5 +99,7 @@ private slots:
     void kickStart();
     void tryToPump();
 };
+
+#endif	// QT_FEATURE_ASYNC_IO
 
 #endif

@@ -28,6 +28,8 @@
 #include "qtimer.h"
 #include <stdlib.h>
 
+#if QT_FEATURE_ASYNC_IO
+
 // NOT REVISED
 /*!
   \class QAsyncIO qasyncio.h
@@ -331,3 +333,6 @@ void QDataPump::tryToPump()
 
     timer.start(0, TRUE);
 }
+
+#endif // QT_FEATURE_ASYNC_IO
+

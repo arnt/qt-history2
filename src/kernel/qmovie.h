@@ -32,6 +32,8 @@
 #include "qlist.h"
 #endif // QT_H
 
+#if QT_FEATURE_MOVIE
+
 class QDataSource;
 class QMovieFilePrivate;
 
@@ -94,5 +96,7 @@ private:
     friend class QMoviePrivate;
     QMovieFilePrivate *d;
 };
+
+#endif	// QT_FEATURE_MOVIE
 
 #endif
