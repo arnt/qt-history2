@@ -100,6 +100,6 @@ IMAGES	= images/accelerator.png \
 	images/whatsthis.xpm
 TEMPLATE	=app
 CONFIG	+= qt warn_on
-INCLUDEPATH	+= ../pics ../shared
+INCLUDEPATH	+= ../shared
 unix:LIBS	+= -L$$QT_BUILD_TREE/lib -lqassistantclient
 LANGUAGE	= C++
