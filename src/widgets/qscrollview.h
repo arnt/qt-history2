@@ -97,9 +97,9 @@ public:
 
     void	removeChild(QObject* child);
 
-    void setDragAutoScroll( bool b ); // #### virtual in 3.0
-    bool dragAutoScroll() const;
-    
+    void	setDragAutoScroll( bool b ); // #### virtual in 3.0
+    bool	dragAutoScroll() const;
+
 signals:
     void	contentsMoving(int x, int y);
 
@@ -170,7 +170,7 @@ private slots:
     void doDragAutoScroll();
     void startDragAutoScroll();
     void stopDragAutoScroll();
-    
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QScrollView( const QScrollView & );
