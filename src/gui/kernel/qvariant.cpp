@@ -449,7 +449,6 @@ static void save(const QVariant::Private *d, QDataStream &s)
         break;
 #endif
     case QVariant::TextLength:
-        //### add stream operator to icon
         s << *static_cast<QTextLength *>(d->data.shared->value.ptr);
         break;
     case QVariant::SizePolicy:
