@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#31 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#31 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -174,7 +174,6 @@ bool QWidget::destroy()
     if ( parentWidget() && parentWidget()->focusChild == this )
 	parentWidget()->focusChild = 0;
     if ( testWFlags(WState_Created) ) {
-	emit destroyed();			// send out destroyed signal
 	clearWFlags( WState_Created );
 	focusChild = 0;
 	if ( children() ) {
