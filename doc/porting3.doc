@@ -215,6 +215,11 @@ old header-file names are still supported.
 \row \i QVector \i \l QPtrVector \i \c <qptrvector.h>
 \endtable
 
+\section1 QApplication
+
+The function QApplication::processOneEvent() has been removed from
+the public API. Use QApplication::processEvents() instead.
+
 \section1 QButtonGroup
 
 In Qt 2.x, the function QButtonGroup::selected() returns the selected
