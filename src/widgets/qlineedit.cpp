@@ -2593,19 +2593,23 @@ QString QLineEdit::mask() const
 
 
 /*!
-  Checks the content of the QLineEdit compared to the set mask
-  and returns TRUE if the input fits with the mask. The validator (if set)
-  is also checked and needs to be Acceptable for this function to return TRUE.
-
-  Returns FALSE on either invalid input or if no mask specified.
+  Checks  the content of the QLineEdit compared to the set mask (if set) and validator (if set).
+  Returns TRUE if the input fits with the mask and if validate() returns Acceptable.
+  If no mask or validator is set this function returns TRUE.
 
 */
 bool QLineEdit::isValidInput() const
 {
-    QString str = d->parag->string()->toString();
-    str.remove( str.length() - 1, 1 );
+    QString str = text( FALSE );
+    int pos = d->cursor->index();
 
-    if ( ( !hasMask() ) || ( str.length() != d->maskList->count() ) )
+    if ( d->validator && d->validator->validate( str, pos ) != QValidator::Acceptable )
+	return FALSE;
+
+    if ( !hasMask() )
+	return TRUE;
+
+    if ( str.length() != d->maskList->count() )
  	return FALSE;
 
     for ( uint i=0; i < d->maskList->count(); i++) {
@@ -2617,13 +2621,7 @@ bool QLineEdit::isValidInput() const
 		return FALSE;
 	}
     }
-    const QValidator * v = validator();
-    int pos = d->cursor->index();
-
-    if ( v )
-	return ( v->validate( str, pos ) == QValidator::Acceptable );
-    else
-	return TRUE;
+    return TRUE;
 }
 
 
