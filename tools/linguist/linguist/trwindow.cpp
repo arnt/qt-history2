@@ -1107,6 +1107,7 @@ void TrWindow::about()
     splash->setFrameStyle( QFrame::NoFrame | QFrame::Plain );
     splash->setPixmap( pixmap );
     splash->setFixedSize( pixmap.width(), pixmap.height() );
+    splash->setAlignment( QLabel::AlignCenter );
     layout->addWidget( splash );
 
     QLabel * version = new QLabel( tr("Version 1.0"), &about );
@@ -1117,6 +1118,13 @@ void TrWindow::about()
     				     &about );
     copyright->setAlignment( QLabel::AlignCenter );
     layout->addWidget( copyright );
+
+    QLabel * license = new QLabel(
+	tr("<p>This program is licensed to you under the terms of the GNU General Public License Version 2 as published by the Free Software Foundation. This gives you legal permission to copy, distribute and/or modify this software under certain conditions. For details, see the file 'COPYING' that came with this software distribution. If you did not get the file, send email to info@trolltech.com.</p>\n"
+	   "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</p>"),
+	&about );
+    license->setAlignment( QLabel::WordBreak|QLabel::AlignAuto|QLabel::AlignVCenter|QLabel::AlignLeft );
+    layout->addWidget( license );
 
     QSpacerItem* spacer = new QSpacerItem( 20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding );
     layout->addItem( spacer );
