@@ -37,7 +37,6 @@ public:
     explicit QAbstractSlider(QWidget *parent=0);
     ~QAbstractSlider();
 
-    void setOrientation(Qt::Orientation);
     Qt::Orientation orientation() const;
 
     void setMinimum(int);
@@ -99,6 +98,7 @@ signals:
     void actionTriggered(int action);
 
     void setOrientation(Qt::Orientation);
+
 protected:
     void setRepeatAction(SliderAction action, int thresholdTime = 500, int repeatTime = 50);
     SliderAction repeatAction() const;
