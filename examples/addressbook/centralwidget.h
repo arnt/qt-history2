@@ -17,11 +17,11 @@
 #include <qstring.h>
 
 class QTabWidget;
-class QListView;
+class Q3ListView;
 class QGridLayout;
 class QLineEdit;
 class QPushButton;
-class QListViewItem;
+class Q3ListViewItem;
 class QCheckBox;
 
 class ABCentralWidget : public QWidget
@@ -37,7 +37,7 @@ public:
 protected slots:
     void addEntry();
     void changeEntry();
-    void itemSelected( QListViewItem* );
+    void itemSelected( Q3ListViewItem* );
     void selectionChanged();
     void toggleFirstName();
     void toggleLastName();
@@ -51,7 +51,7 @@ protected:
 
     QGridLayout *mainGrid;
     QTabWidget *tabWidget;
-    QListView *listView;
+    Q3ListView *listView;
     QPushButton *add, *change, *find;
     QLineEdit *iFirstName, *iLastName, *iAddress, *iEMail,
         *sFirstName, *sLastName, *sAddress, *sEMail;

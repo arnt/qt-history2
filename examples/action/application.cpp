@@ -33,11 +33,14 @@
 #include <qaction.h>
 #include <qsimplerichtext.h>
 #include <qevent.h>
+#include <qmime.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
+
+using namespace Qt;
 
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )

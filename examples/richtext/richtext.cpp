@@ -89,7 +89,7 @@ MyRichText::MyRichText( QWidget *parent, const char *name )
     if ( paper.pixmap() != 0 )
 	view->setPaper( paper );
     else
-	view->setPaper( white );
+	view->setPaper( Qt::white );
 
     view->setText( sayings[0] );
     view->setMinimumSize( 450, 250 );

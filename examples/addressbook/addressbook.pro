@@ -11,3 +11,4 @@ HEADERS		= centralwidget.h \
 SOURCES		= centralwidget.cpp \
 		  main.cpp \
 		  mainwindow.cpp
+QT	+= compat

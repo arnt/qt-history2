@@ -21,6 +21,8 @@
 #include <qapplication.h>
 #include <qfiledialog.h>
 
+using namespace Qt;
+
 ABMainWindow::ABMainWindow()
     : QMainWindow( 0, "example addressbook application" ),
       filename( QString::null )

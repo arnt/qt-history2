@@ -15,7 +15,7 @@
 
 #include <qwidget.h>
 
-class QListView;
+class Q3ListView;
 class QLabel;
 
 class CheckLists : public QWidget
@@ -26,7 +26,7 @@ public:
     CheckLists( QWidget *parent = 0, const char *name = 0 );
 
 protected:
-    QListView *lv1, *lv2;
+    Q3ListView *lv1, *lv2;
     QLabel *label;
 
 protected slots:

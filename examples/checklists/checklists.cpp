@@ -12,7 +12,7 @@
 
 #include "checklists.h"
 
-#include <qlistview.h>
+#include <q3listview.h>
 #include <qvbox.h>
 #include <qlabel.h>
 #include <qlist.h>
@@ -40,23 +40,23 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     vbox1->addWidget( new QLabel( "Check some items!", this ) );
 
     // Second child: the ListView
-    lv1 = new QListView( this );
+    lv1 = new Q3ListView( this );
     vbox1->addWidget( lv1 );
     lv1->addColumn( "Items" );
     lv1->setRootIsDecorated( TRUE );
 
     // create a list with 4 ListViewItems which will be parent items of other ListViewItems
-    QList<QListViewItem *> parentList;
+    QList<Q3ListViewItem *> parentList;
 
     parentList.append( new QCheckListItem( lv1, "Parent Item 1", QCheckListItem::CheckBoxController ) );
     parentList.append( new QCheckListItem( lv1, "Parent Item 2", QCheckListItem::CheckBoxController ) );
     parentList.append( new QCheckListItem( lv1, "Parent Item 3", QCheckListItem::CheckBoxController ) );
     parentList.append( new QCheckListItem( lv1, "Parent Item 4", QCheckListItem::CheckBoxController ) );
 
-    QListViewItem *item = 0;
+    Q3ListViewItem *item = 0;
     unsigned int num = 1;
     // go through the list of parent items...
-    for ( QList<QListViewItem*>::Iterator it = parentList.begin(); it != parentList.end();
+    for ( QList<Q3ListViewItem*>::Iterator it = parentList.begin(); it != parentList.end();
 	  ( *it )->setOpen( TRUE ), ++it, num++ ) {
 	item = *it;
 	// ...and create 5 checkable child ListViewItems for each parent item
@@ -83,7 +83,7 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     vbox2->addWidget( new QLabel( "Check one item!", this ) );
 
     // create the second listview
-    lv2 = new QListView( this );
+    lv2 = new Q3ListView( this );
     vbox2->addWidget( lv2 );
     lv2->addColumn( "Items" );
     lv2->setRootIsDecorated( TRUE );
@@ -117,7 +117,7 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
 void CheckLists::copy1to2()
 {
     // create an iterator which operates on the first ListView
-    QListViewItemIterator it( lv1 );
+    Q3ListViewItemIterator it( lv1 );
 
     lv2->clear();
 
@@ -149,7 +149,7 @@ void CheckLists::copy1to2()
 void CheckLists::copy2to3()
 {
     // create an iterator which operates on the second ListView
-    QListViewItemIterator it( lv2 );
+    Q3ListViewItemIterator it( lv2 );
 
     label->setText( "No Item checked" );
 

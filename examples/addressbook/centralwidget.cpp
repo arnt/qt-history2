@@ -13,7 +13,7 @@
 #include "centralwidget.h"
 
 #include <qtabwidget.h>
-#include <qlistview.h>
+#include <q3listview.h>
 #include <qlayout.h>
 #include <qwidget.h>
 #include <qlabel.h>
@@ -48,7 +48,7 @@ void ABCentralWidget::save( const QString &filename )
     QTextStream t( &f );
     t.setEncoding(QTextStream::UnicodeUTF8);
 
-    QListViewItemIterator it( listView );
+    Q3ListViewItemIterator it( listView );
 
     for ( ; it.current(); ++it )
         for ( unsigned int i = 0; i < 4; i++ )
@@ -69,7 +69,7 @@ void ABCentralWidget::load( const QString &filename )
     t.setEncoding(QTextStream::UnicodeUTF8);
 
     while ( !t.atEnd() ) {
-        QListViewItem *item = new QListViewItem( listView );
+        Q3ListViewItem *item = new Q3ListViewItem( listView );
         for ( unsigned int i = 0; i < 4; i++ )
             item->setText( i, t.readLine() );
     }
@@ -191,15 +191,15 @@ void ABCentralWidget::setupTabWidget()
 
 void ABCentralWidget::setupListView()
 {
-    listView = new QListView( this );
+    listView = new Q3ListView( this );
     listView->addColumn( "First Name" );
     listView->addColumn( "Last Name" );
     listView->addColumn( "Address" );
     listView->addColumn( "E-Mail" );
 
-    listView->setSelectionMode( QListView::Single );
+    listView->setSelectionMode( Q3ListView::Single );
 
-    connect( listView, SIGNAL( clicked( QListViewItem* ) ), this, SLOT( itemSelected( QListViewItem* ) ) );
+    connect( listView, SIGNAL( clicked( Q3ListViewItem* ) ), this, SLOT( itemSelected( Q3ListViewItem* ) ) );
 
     mainGrid->addWidget( listView, 1, 0 );
     listView->setAllColumnsShowFocus( TRUE );
@@ -209,7 +209,7 @@ void ABCentralWidget::addEntry()
 {
     if ( !iFirstName->text().isEmpty() || !iLastName->text().isEmpty() ||
          !iAddress->text().isEmpty() || !iEMail->text().isEmpty() ) {
-        QListViewItem *item = new QListViewItem( listView );
+        Q3ListViewItem *item = new Q3ListViewItem( listView );
         item->setText( 0, iFirstName->text() );
         item->setText( 1, iLastName->text() );
         item->setText( 2, iAddress->text() );
@@ -224,7 +224,7 @@ void ABCentralWidget::addEntry()
 
 void ABCentralWidget::changeEntry()
 {
-    QListViewItem *item = listView->currentItem();
+    Q3ListViewItem *item = listView->currentItem();
 
     if ( item &&
          ( !iFirstName->text().isEmpty() || !iLastName->text().isEmpty() ||
@@ -244,7 +244,7 @@ void ABCentralWidget::selectionChanged()
     iEMail->setText( "" );
 }
 
-void ABCentralWidget::itemSelected( QListViewItem *item )
+void ABCentralWidget::itemSelected( Q3ListViewItem *item )
 {
     if ( !item )
 	return;
@@ -315,7 +315,7 @@ void ABCentralWidget::findEntries()
         return;
     }
 
-    QListViewItemIterator it( listView );
+    Q3ListViewItemIterator it( listView );
 
     for ( ; it.current(); ++it ) {
         bool select = TRUE;

@@ -20,6 +20,8 @@
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 
+using namespace Qt;
+
 class ExampleWidget : public QWidget
 {
 public:

@@ -14,7 +14,7 @@
 #include "buttongroups.h"
 
 #include <qpopupmenu.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qlayout.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
@@ -38,7 +38,7 @@ ButtonsGroups::ButtonsGroups(QWidget *parent, const char *name)
     // ------- first group
 
     // Create an exclusive button group
-    QButtonGroup *bgrp1 = new QButtonGroup(1, QGroupBox::Horizontal, "Button Group 1 (exclusive)", this);
+    Q3ButtonGroup *bgrp1 = new Q3ButtonGroup(1, Qt::Horizontal, "Button Group 1 (exclusive)", this);
     box1->addWidget(bgrp1);
     bgrp1->setExclusive(true);
 
@@ -51,7 +51,7 @@ ButtonsGroups::ButtonsGroups(QWidget *parent, const char *name)
     // ------- second group
 
     // Create a non-exclusive buttongroup
-    QButtonGroup *bgrp2 = new QButtonGroup(1, QGroupBox::Horizontal, "Button Group 2 (non-exclusive)", this);
+    Q3ButtonGroup *bgrp2 = new Q3ButtonGroup(1, Qt::Horizontal, "Button Group 2 (non-exclusive)", this);
     box1->addWidget(bgrp2);
     bgrp2->setExclusive(false);
 
@@ -66,7 +66,7 @@ ButtonsGroups::ButtonsGroups(QWidget *parent, const char *name)
     // ------------ third group
 
     // create a buttongroup which is exclusive for radiobuttons and non-exclusive for all other buttons
-    QButtonGroup *bgrp3 = new QButtonGroup(1, QGroupBox::Horizontal, "Button Group 3 (Radiobutton-exclusive)", this);
+    Q3ButtonGroup *bgrp3 = new Q3ButtonGroup(1, Qt::Horizontal, "Button Group 3 (Radiobutton-exclusive)", this);
     box2->addWidget(bgrp3);
     bgrp3->setRadioButtonExclusive(true);
 
@@ -85,7 +85,7 @@ ButtonsGroups::ButtonsGroups(QWidget *parent, const char *name)
     // ------------ fourth group
 
     // create a groupbox which layouts its childs in a columns
-    QGroupBox *bgrp4 = new QButtonGroup(1, QGroupBox::Horizontal, "Groupbox with normal buttons", this);
+    Q3ButtonGroup *bgrp4 = new Q3ButtonGroup(1, Qt::Horizontal, "Groupbox with normal buttons", this);
     box2->addWidget(bgrp4);
 
     // insert four pushbuttons...
