@@ -38,8 +38,6 @@
 #define d d_func()
 #define q q_func()
 
-bool fuck = false;
-
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -1287,19 +1285,13 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
 void
 QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
 {
-#if 0
-    QRegion clipRegion(p.toFillPolygon().toPointArray(),
-                       p.fillRule() == Qt::WindingFill);
-    updateClipRegion(clipRegion, op);
-#endif
-
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
         clearf(ClipOn);
         d->current.clip = QRegion();
         d->setClip(0);
     } else {
-        if(!testf(ClipOn))
+        if(testf(ClipOn))
             op = Qt::ReplaceClip;
         setf(ClipOn);
         QRegion clipRegion(p.toFillPolygon().toPointArray(),
@@ -1315,7 +1307,6 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
             d->setClip(&d->current.clip);
         } else {
             CGMutablePathRef path = qt_mac_compose_path(p);
-            CGContextBeginPath(d->hd);
             CGContextAddPath(d->hd, path);
             CGContextClip(d->hd);
             CGPathRelease(path);
@@ -1332,8 +1323,6 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOp
         d->current.clip = QRegion();
         d->setClip(0);
     } else {
-        if(!testf(ClipOn))
-            op = Qt::ReplaceClip;
         setf(ClipOn);
         if(op == Qt::IntersectClip)
             d->current.clip = d->current.clip.intersect(clipRegion);
@@ -1375,8 +1364,6 @@ QCoreGraphicsPaintEngine::drawRect(const QRectF &r)
 {
     Q_ASSERT(isActive());
 
-    if(fuck)
-        qDebug("asked to draw %f %f %f %f", r.x(), r.y(), r.width(), r.height());
     CGMutablePathRef path = 0;
     if(d->current.brush.style() == Qt::LinearGradientPattern) {
         path = CGPathCreateMutable();
@@ -1479,7 +1466,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
         return;
 
     //save
-//    CGContextSaveGState(d->hd);
+    CGContextSaveGState(d->hd);
 
     //setup
     bool asMask = pm.isQBitmap() || pm.depth() == 1;
@@ -1506,7 +1493,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     CGImageRelease(image);
 
     //restore
-//    CGContextRestoreGState(d->hd);
+    CGContextRestoreGState(d->hd);
 }
 
 void
@@ -1542,8 +1529,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     callbks.drawPattern = qt_mac_draw_pattern;
     callbks.releaseInfo = qt_mac_dispose_pattern;
     const int width = pixmap.width(), height = pixmap.height();
-    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), 
-                                       CGContextGetCTM(d->hd), width, height,
+    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM(d->hd), width, height,
                                        kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(0);
     CGContextSetFillColorSpace(d->hd, cs);
@@ -1589,14 +1575,6 @@ QCoreGraphicsPaintEnginePrivate::adjustedRect(const QRectF &r)
 void
 QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
 {
-    if(fuck) {
-        qDebug("setting region %p", rgn);
-        if(rgn) {
-            QVector<QRect> rs = rgn->rects();
-            for(int i = 0; i < rs.size(); i++)
-                qDebug("  %d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
-        }
-    }
     if(hd) {
         qt_mac_clip_cg_reset(hd);
         QPoint mp(0, 0);
@@ -1620,7 +1598,6 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
     if ((ops & (CGFill | CGEOFill))) {
         if (current.brush.style() == Qt::LinearGradientPattern) {
             Q_ASSERT(path);
-            CGContextBeginPath(hd);
             CGContextAddPath(hd, path);
             CGContextSaveGState(hd);
             if (ops & CGFill)
@@ -1652,9 +1629,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         mode = kCGPathFill;
     else //nothing to do..
         return;
-    if(path) {
-        CGContextBeginPath(hd);
+    if(path)
         CGContextAddPath(hd, path);
-    }
     CGContextDrawPath(hd, mode);
 }
