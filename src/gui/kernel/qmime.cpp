@@ -16,7 +16,7 @@
 #include "qurl.h"
 #include "qlist.h"
 #include "qstring.h"
-#include "qmap.h"
+//#include "qmap.h"
 
 #include "private/qobject_p.h"
 
@@ -46,11 +46,47 @@ bool QMimeSource::provides(const char* mimeType) const
     return false;
 }
 
+struct MimeData {
+    QString format;
+    QVariant data;
+};
+
 class QMimeDataPrivate : public QObjectPrivate
 {
 public:
-    QMap<QString, QVariant> data;
+    void setData(const QString &format, const QVariant &data);
+    QVariant getData(const QString &format) const;
+    QList<MimeData> dataList;
+    //QMap<QString, QVariant> data;
 };
+
+void QMimeDataPrivate::setData(const QString &format, const QVariant &data)
+{
+    // remove it first if the format is already here.
+    for (int i=0; i<dataList.size(); i++) {
+        if (dataList.at(i).format == format) {
+            dataList.removeAt(i);
+            break;
+        }
+    }
+    MimeData mimeData;
+    mimeData.format = format;
+    mimeData.data = data;
+    dataList += mimeData;
+}
+
+
+QVariant QMimeDataPrivate::getData(const QString &format) const
+{
+    QVariant data;
+    for (int i=0; i<dataList.size(); i++) {
+        if (dataList.at(i).format == format) {
+            data = dataList.at(i).data;
+            break;
+        }
+    }
+    return data;
+}
 
 /*!
     \class QMimeData
@@ -101,7 +137,8 @@ void QMimeData::setUrls(const QList<QUrl> &urls)
     QList<QCoreVariant> list;
     for (int i = 0; i < urls.size(); ++i)
         list.append(urls.at(i));
-    d->data["text/uri-list"] = list;
+    
+    d->setData("text/uri-list", list);
 }
 
 /*!
@@ -123,7 +160,7 @@ QString QMimeData::text() const
 void QMimeData::setText(const QString &text)
 {
     Q_D(QMimeData);
-    d->data["text/plain"] = text;
+    d->setData("text/plain", text);
 }
 
 /*!
@@ -146,7 +183,7 @@ QString QMimeData::html() const
 void QMimeData::setHtml(const QString &html)
 {
     Q_D(QMimeData);
-    d->data["text/html"] = html;
+    d->setData("text/html", html);
 }
 
 /*!
@@ -168,7 +205,7 @@ QPixmap QMimeData::pixmap() const
 void QMimeData::setPixmap(const QPixmap &pixmap)
 {
     Q_D(QMimeData);
-    d->data["image/ppm"] = pixmap;
+    d->setData("image/ppm", pixmap);
 }
 
 /*!
@@ -190,7 +227,7 @@ QColor QMimeData::color() const
 void QMimeData::setColor(const QColor &color)
 {
     Q_D(QMimeData);
-    d->data["application/x-color"] = color;
+    d->setData("application/x-color", color);
 }
 
 /*!
@@ -210,7 +247,7 @@ QByteArray QMimeData::data(const QString &mimetype) const
 void QMimeData::setData(const QString &mimetype, const QByteArray &data)
 {
     Q_D(QMimeData);
-    d->data[mimetype] = QVariant(data);
+    d->setData(mimetype, QVariant(data));
 }
 
 /*!
@@ -220,17 +257,25 @@ void QMimeData::setData(const QString &mimetype, const QByteArray &data)
 bool QMimeData::hasFormat(const QString &mimetype) const
 {
     Q_D(const QMimeData);
-    return d->data.contains(mimetype);
+    for (int i=0; i<d->dataList.size(); i++) {
+        if (d->dataList.at(i).format == mimetype)
+            return true;
+    }
+    return false;
 }
 
 /*!
     Returns a list of formats supported by the object. This is a list of
-    MIME types for which the object can return suitable data.
+    MIME types for which the object can return suitable data. The formats in
+    the list are in a priority order. 
 */
 QStringList QMimeData::formats() const
 {
     Q_D(const QMimeData);
-    return d->data.keys();
+    QStringList list;
+    for (int i=0; i<d->dataList.size(); i++)
+        list += d->dataList.at(i).format;
+    return list;
 }
 
 /*!
@@ -241,7 +286,7 @@ QStringList QMimeData::formats() const
 QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) const
 {
     Q_D(const QMimeData);
-    QVariant data = d->data.value(mimetype);
+    QVariant data = d->getData(mimetype);
     if (data.type() == type || type == QVariant::Invalid)
         return data;
 
@@ -313,5 +358,5 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
 void QMimeData::clear()
 {
     Q_D(QMimeData);
-    d->data.clear();
+    d->dataList.clear();
 }
