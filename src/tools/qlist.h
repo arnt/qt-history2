@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#6 $
+** $Id: //depot/qt/main/src/tools/qlist.h#7 $
 **
 ** Definition of QList template/macro class
 **
@@ -38,7 +38,7 @@ public:									      \
     QListM(type)()			{}				      \
     QListM(type)( const QListM(type) &l ) : QGList(l) {}		      \
    ~QListM(type)()			{ clear(); }			      \
-    QListM(type)& operator=(const QListM(type) &l)			      \
+    QListM(type) &operator=(const QListM(type) &l)			      \
 			{ return (QListM(type)&)QGList::operator=(l); }	      \
     uint  count()   const		{ return QGList::count(); }	      \
     bool  isEmpty() const		{ return QGList::count() == 0; }      \
@@ -63,7 +63,9 @@ public:									      \
     type *at( uint i )			{ return (type *)QGList::at(i); }     \
     uint  at() const			{ return QGList::at(); }	      \
 	  operator type *() const	{ return (type *)QGList::get(); }     \
-    type *current() const		{ return (type *)QGList::get(); }     \
+    type *current()  const		{ return (type *)QGList::get(); }     \
+    type *getFirst() const		{ return (type *)QGList::cfirst(); }  \
+    type *getLast()  const		{ return (type *)QGList::clast(); }   \
     type *first()			{ return (type *)QGList::first(); }   \
     type *last()			{ return (type *)QGList::last(); }    \
     type *next()			{ return (type *)QGList::next(); }    \
@@ -119,7 +121,7 @@ public:
     QListT()				{}
     QListT( const QListT<type> &l ) : QGList(l) {}
    ~QListT()				{ clear(); }
-    QListT<type>& operator=(const QListT<type> &l)
+    QListT<type> &operator=(const QListT<type> &l)
 			{ return (QListT<type>&)QGList::operator=(l); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
@@ -144,7 +146,9 @@ public:
     type *at( uint i )			{ return (type *)QGList::at(i); }
     uint  at() const			{ return QGList::at(); }
 	  operator type *() const	{ return (type *)QGList::get(); }
-    type *current() const		{ return (type *)QGList::get(); }
+    type *current()  const		{ return (type *)QGList::get(); }
+    type *getFirst() const		{ return (type *)QGList::cfirst(); }
+    type *getLast()  const		{ return (type *)QGList::clast(); }
     type *first()			{ return (type *)QGList::first(); }
     type *last()			{ return (type *)QGList::last(); }
     type *next()			{ return (type *)QGList::next(); }
