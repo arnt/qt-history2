@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#63 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#63 $");
 
 
 #if QT_VERSION == 200
@@ -607,7 +607,7 @@ void QLabel::setBuddy( QWidget *buddy )
     const char * p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
     while( p && *p && p[1] == '&' )
 	p = strchr( p+2, '&' );
-    if ( p && *p && isalpha(p[1]) ) {
+    if ( p && *p && isalnum(p[1]) ) {
 	that->accel->connectItem( that->accel->insertItem(ALT+
 							  toupper(p[1])),
 				  this, SLOT(acceleratorSlot()) );
