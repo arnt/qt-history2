@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#76 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#77 $
 **
 ** Implementation of QRegExp class
 **
@@ -1030,6 +1030,6 @@ void QRegExp::compile()
     CHECK_PTR( rxdata );
     memcpy( rxdata, rxarray, len*sizeof(uint) );
 #if defined(DEBUG)
-    dump( rxdata );	// uncomment this line for debugging
+    //dump( rxdata );	// uncomment this line for debugging
 #endif
 }
