@@ -351,10 +351,20 @@ void MoveCommand::unexecute()
 // ------------------------------------------------------------
 
 DeleteCommand::DeleteCommand( const QString &n, FormWindow *fw,
-			      const QWidgetList &w )
-    : Command( n, fw ), widgets( w )
+			      const QWidgetList &wl )
+    : Command( n, fw ), widgets( wl )
 {
     widgets.setAutoDelete( FALSE );
+
+    // Include the children of the selected items when deleting
+    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+	QObjectList *children = w->queryList( "QWidget" );
+	for ( QWidget *c = (QWidget *)children->first(); c; c = (QWidget *)children->next() ) {
+	    if ( widgets.find( c ) == -1 && formWindow()->widgets()->find( c ) )
+		widgets.append( c );
+	}
+	delete children;
+    }
 }
 
 void DeleteCommand::execute()
