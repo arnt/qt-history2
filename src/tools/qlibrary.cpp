@@ -608,12 +608,6 @@ bool QLibrary::isLoaded() const
 */
 bool QLibrary::load()
 {
-    if ( !QFile::exists( libfile ) ) {
-#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	qWarning( QString("Shared object \"%1\" does not exist!").arg( libfile ) );
-#endif
-	return FALSE;
-    }
     return d->loadLibrary();
 }
 
