@@ -90,7 +90,7 @@ public:
     virtual bool propertyWritable( const char* ) const;
     virtual void setPropertyWritable( const char*, bool );
 
-    bool isNull() const { return !ptr; }
+    bool isNull() const;
 
 #ifdef Q_QDOC
 #error "The Symbol Q_QDOC is reserved for documentation purposes."
@@ -104,6 +104,7 @@ public:
     bool setControl( const QString& );
 
     void disableMetaObject();
+    void disableClassInfo();
     void disableEventSink();
 
 protected:
@@ -117,7 +118,6 @@ private:
     virtual QMetaObject *parentMetaObject() const = 0;
     bool internalInvoke( const QCString &name, void *out, const QVariant &var );
 
-    IUnknown *ptr;
     QString ctrl;
 };
 

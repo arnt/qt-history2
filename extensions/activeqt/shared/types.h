@@ -48,8 +48,6 @@
 /*! 
     Helper functions 
 */
-extern QAX_EXPORT QString typedescToQString( TYPEDESC typedesc );
-
 static inline QString BSTRToQString( BSTR bstr )
 {
     QString str;

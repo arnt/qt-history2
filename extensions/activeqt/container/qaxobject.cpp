@@ -26,9 +26,7 @@
 **********************************************************************/
 
 #include "qaxobject.h"
-
-#include <atlbase.h>
-extern CComModule _Module;
+#include <ole2.h>
 
 extern int moduleLockCount;
 extern void moduleLock();
@@ -54,6 +52,7 @@ extern void moduleUnlock();
     receive events and connect to signals and slots.
 
     \important dynamicCall()
+    \important querySubObject()
 */
 
 /*!
@@ -117,7 +116,6 @@ bool QAxObject::initialize( IUnknown **ptr )
 	moduleUnlock();
 	return FALSE;
     }
-    metaObject();
     return TRUE;
 }
 

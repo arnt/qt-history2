@@ -25,6 +25,7 @@
 **
 **********************************************************************/
 
+//#define QAX_NO_CLASSINFO
 
 #include "qaxobject.h"
 
@@ -381,18 +382,36 @@ class QAxBasePrivate
 {
 public:
     QAxBasePrivate()
-	: useEventSink( TRUE ), useMetaObject( TRUE ), propWritable( 0 )
+	: useEventSink( TRUE ), useMetaObject( TRUE ), useClassInfo( TRUE ),
+	  ptr( 0 ), disp( 0 ), propWritable( 0 )
     {}
 
     ~QAxBasePrivate()
     {
+	Q_ASSERT( !ptr );
+	Q_ASSERT( !disp );
+
 	delete propWritable;
 	propWritable = 0;
+    }
+
+    IDispatch *dispatch()
+    {
+	if ( disp )
+	    return disp;
+
+	if ( ptr )
+	    ptr->QueryInterface( IID_IDispatch, (void**)&disp );
+	return disp;
     }
 
     QDict<QAxEventSink> eventSink;
     bool useEventSink :1;
     bool useMetaObject:1;
+    bool useClassInfo :1;
+
+    IUnknown *ptr;
+    IDispatch *disp;
 
     QMap<QCString, bool> *propWritable;
     QMetaEnum *enums;
@@ -498,13 +517,14 @@ public:
     use setControl() to instantiate a COM object.
 */
 QAxBase::QAxBase( IUnknown *iface )
-: ptr( iface ), metaobj( 0 )
+: metaobj( 0 )
 {
     d = new QAxBasePrivate();
+    d->ptr = iface;
 
-    if ( ptr ) {
+    if ( d->ptr ) {
 	moduleLock();
-	ptr->AddRef();
+	d->ptr->AddRef();
     }
 }
 
@@ -569,7 +589,7 @@ bool QAxBase::setControl( const QString &c )
     }
     if ( ctrl.isEmpty() )
 	ctrl = c;
-    initialize( &ptr );
+    initialize( &d->ptr );
     if ( isNull() ) {
 #ifndef QT_NO_DEBUG
 	qWarning( "QAxBase::setControl: requested control %s could not be instantiated.", c.latin1() );
@@ -587,7 +607,9 @@ QString QAxBase::control() const
 
 /*!
     Disables the event sink implementation for this ActiveX container.
-    
+    If you don't intend to listen to events of the ActiveX control use this
+    function to speed up the meta object generation.
+
     Some ActiveX controls might run unstable when connected with an event sink. 
     To get OLE events you will have to use standard COM methods to register your 
     own event sink. Use queryInterface to get access to the raw COM object.
@@ -602,19 +624,34 @@ void QAxBase::disableEventSink()
 
 /*!
     Disables the meta object generation for this ActiveX container. This also disables the
-    event sink.
+    event sink and class info generation. If you don't intend to use the Qt meta object 
+    implementation call this function to speed up the meta object generation.
 
     Some ActiveX controls might run unstable when used with OLE automation. 
     Use standard COM methods to use those controls through the COM interfaces provided by 
     queryInterface.
 
-    Note that this function should be called immediately after construction of the object (without
+    Note that this function has to be called immediately after construction of the object (without
     passing an object identifier), before calling QAxWidget->setControl().
 */
 void QAxBase::disableMetaObject()
 {
-    d->useMetaObject = FALSE;
-    d->useEventSink  = FALSE;
+    d->useMetaObject	= FALSE;
+    d->useEventSink	= FALSE;
+    d->useClassInfo	= FALSE;
+}
+
+/*!
+    Disables the class info generation for this ActiveX container. If you don't require any
+    class information about the ActiveX control use this function to speed up the meta object
+    generation.
+
+    Note that this function has to be called immediately after construction of the object (without
+    passing an object identifier), before calling QAxWidget->setControl().
+*/
+void QAxBase::disableClassInfo()
+{
+    d->useClassInfo = FALSE;
 }
 
 /*!
@@ -634,9 +671,13 @@ void QAxBase::clear()
 	eventSink->Release();
     }
     d->eventSink.clear();
-    if ( ptr ) {
-	ptr->Release();
-	ptr = 0;
+    if ( d->disp ) {
+	d->disp->Release();
+	d->disp = 0;
+    }
+    if ( d->ptr ) {
+	d->ptr->Release();
+	d->ptr = 0;
 	moduleUnlock();
     }
 
@@ -757,15 +798,15 @@ void QAxBase::clear()
 long QAxBase::queryInterface( const QUuid &uuid, void **iface ) const
 {
     *iface = 0;
-    if ( ptr && !uuid.isNull() )
-	return ptr->QueryInterface( uuid, iface );
+    if ( d->ptr && !uuid.isNull() )
+	return d->ptr->QueryInterface( uuid, iface );
     
     return E_NOTIMPL;
 }
 
-#define UNSUPPORTED(x) x == "UNSUPPORTED" || x == "IDispatch*" || x == "IUnknown*" || x == "USERDEFINED" || x == "USERDEFINED*";
+static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist, const QString &function );
 
-static QString usertypeToQString( TYPEDESC tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist )
+static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist, const QString &function )
 {
     HREFTYPE usertype = tdesc.hreftype;
     if ( tdesc.vt != VT_USERDEFINED || !usertype )
@@ -793,13 +834,9 @@ static QString usertypeToQString( TYPEDESC tdesc, ITypeInfo *info, const QDict<Q
 		return "QFont";
 	    TYPEATTR *typeattr = 0;
 	    usertypeinfo->GetTypeAttr( &typeattr );
-	    if ( typeattr && typeattr->typekind == TKIND_ALIAS ) {
-		QString aliasTypeName = usertypeToQString( typeattr->tdescAlias, info, enumlist );
-		if ( aliasTypeName.isEmpty() )
-		    aliasTypeName = typedescToQString( typeattr->tdescAlias );
-		if ( !aliasTypeName.isEmpty() )
-		    userTypeName = aliasTypeName;
-	    }
+	    if ( typeattr && typeattr->typekind == TKIND_ALIAS )
+		userTypeName = guessTypes( typeattr->tdescAlias, info, enumlist, function );
+
 	    usertypeinfo->ReleaseTypeAttr( typeattr );
 	    return userTypeName;	    
 	}
@@ -807,9 +844,93 @@ static QString usertypeToQString( TYPEDESC tdesc, ITypeInfo *info, const QDict<Q
     return QString::null;
 }
 
-static inline QString guessTypes( TYPEDESC tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist, const QString &function )
+static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist, const QString &function )
 {
-    QString type = usertypeToQString( tdesc, info, enumlist );
+    QString str;
+    switch ( tdesc.vt ) {
+    case VT_I2:
+    case VT_I4:
+	str = "int";
+	break;
+    case VT_R4:
+    case VT_R8:
+	str = "double";
+	break;
+    case VT_CY:
+	str = "long long"; // ### 64bit struct CY { ulong lo, long hi };
+	break;
+    case VT_DATE:
+	str = "QDateTime";
+	break;
+    case VT_BSTR:
+	str = "QString";
+	break;
+    case VT_DISPATCH:
+	str = "IDispatch*";
+	break;
+    case VT_ERROR:
+	str = "long";
+	break;
+    case VT_BOOL:
+	str = "bool";
+	break;
+    case VT_VARIANT:
+	str = "QVariant";
+	break;
+    case VT_UNKNOWN:
+	str = "IUnknown*";
+	break;
+    case VT_I1:
+	str = "char";
+	break;
+    case VT_UI1:
+	str = "unsigned char";
+	break;
+    case VT_UI2:
+	str = "unsigned short";
+	break;
+    case VT_UI4:
+	str = "unsigned int";
+	break;
+    case VT_INT:
+	str = "int";
+	break;
+    case VT_UINT:
+	str = "unsigned int";
+	break;
+    case VT_VOID:
+	str = "void";
+	break;
+    case VT_HRESULT:
+	str = "long";
+	break;
+    case VT_LPSTR:
+	str = "const char*";
+	break;
+    case VT_LPWSTR:
+	str = "const unsigned short*";
+	break;
+    case VT_PTR:
+	str = guessTypes( *tdesc.lptdesc, info, enumlist, function );
+	if ( !str.isEmpty() && str != "QFont" ) 
+	    str += "*";
+	break;
+    case VT_SAFEARRAY:
+	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
+	if ( !str.isEmpty() ) 
+	    str = str + "[" + QString::number( tdesc.lpadesc->cDims ) + "]";
+	break;
+    case VT_USERDEFINED:
+	str = usertypeToQString( tdesc, info, enumlist, function );
+	break;
+
+    default:
+	break;
+    }
+
+    if ( tdesc.vt & VT_BYREF )
+	str += "&";
+/*
     if ( type.isEmpty() )
 	type = typedescToQString( tdesc );
 
@@ -820,8 +941,8 @@ static inline QString guessTypes( TYPEDESC tdesc, ITypeInfo *info, const QDict<Q
 	if ( function.contains( "Font" ) || function.contains( "font" ) )
 	    return "QFont";
     }
-
-    return type;
+*/
+    return str;
 }
 
 static inline QString constRefify( const QString& type )
@@ -923,7 +1044,7 @@ QMetaObject *QAxBase::metaObject() const
     };
 
     // return the default meta object if not yet initialized
-    if ( !ptr || !d->useMetaObject ) {
+    if ( !d->ptr || !d->useMetaObject ) {
 	if ( tempMetaObj )
 	    return tempMetaObj;
 
@@ -943,16 +1064,21 @@ QMetaObject *QAxBase::metaObject() const
 
     // the rest is generated from the IDispatch implementation
     QAxBase* that = (QAxBase*)this; // mutable
+#ifndef QAX_NO_CLASSINFO
     QSettings iidnames;
-    iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
+    if ( d->useClassInfo )
+	iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
+#endif
     QUuid iid_propNotifySink( IID_IPropertyNotifySink );
 
     QDict<QUMethod> slotlist; // QUMethods deleted
     QDict<QUMethod> signallist; // QUMethods deleted
     QDict<QMetaProperty> proplist;
     proplist.setAutoDelete( TRUE ); // deep copied when creating metaobject
+#ifndef QAX_NO_CLASSINFO
     QDict<QString> infolist;
     infolist.setAutoDelete( TRUE ); // deep copied when creating metaobject
+#endif
     QDict<QMetaEnum> enumlist;
     enumlist.setAutoDelete( TRUE ); // deep copied when creating metaobject
     QDict<QMetaEnum> enumDict;	    // dict for fast lookup when generation property/parameter information
@@ -966,8 +1092,9 @@ QMetaObject *QAxBase::metaObject() const
 
     // create class information
     CComPtr<IProvideClassInfo> classinfo;
-    ptr->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
-    if ( classinfo ) {
+    d->ptr->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
+#ifndef QAX_NO_CLASSINFO
+    if ( classinfo && d->useClassInfo ) {
 	CComPtr<ITypeInfo> info;
 	classinfo->GetClassInfo( &info );
 	TYPEATTR *typeattr = 0;
@@ -986,9 +1113,9 @@ QMetaObject *QAxBase::metaObject() const
 	    info->ReleaseTypeAttr( typeattr );
 	}
     }
+#endif
 
-    CComPtr<IDispatch> disp;
-    ptr->QueryInterface( IID_IDispatch, (void**)&disp );
+    IDispatch *disp = d->dispatch();
     if ( disp ) {
 	CComPtr<ITypeInfo> info;
 	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
@@ -1097,13 +1224,16 @@ QMetaObject *QAxBase::metaObject() const
 
 		if ( ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_INTERFACE ) &&
 		    ( typeattr->guid != IID_IDispatch && typeattr->guid != IID_IUnknown ) ) {
-		    // UUID
-		    QUuid uuid( typeattr->guid );
-		    QString uuidstr = uuid.toString().upper();
-		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-		    static interfacecount = 0;
-		    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
-
+#ifndef QAX_NO_CLASSINFO
+		    if ( d->useClassInfo ) {
+			// UUID
+			QUuid uuid( typeattr->guid );
+			QString uuidstr = uuid.toString().upper();
+			uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+			static interfacecount = 0;
+			infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
+		    }
+#endif
 		    info->ReleaseTypeAttr( typeattr );
 		} else {
 		    interesting = FALSE;
@@ -1127,7 +1257,6 @@ QMetaObject *QAxBase::metaObject() const
 		QStringList paramTypes;
 
 		// parse function description
-		bool unsupported = FALSE;
 		BSTR bstrNames[256];
 		UINT maxNames = 255;
 		UINT maxNamesOut;
@@ -1143,7 +1272,6 @@ QMetaObject *QAxBase::metaObject() const
 
 			// get return value
 			returnType = guessTypes( typedesc, info, enumDict, function );
-			unsupported = unsupported || UNSUPPORTED(returnType)
 
 			if ( funcdesc->invkind == INVOKE_FUNC && returnType != "void" ) {
 			    parameters << "return";
@@ -1157,7 +1285,6 @@ QMetaObject *QAxBase::metaObject() const
 		    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
 		    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 		    QString ptype = guessTypes( tdesc, info, enumDict, function );
-		    unsupported = unsupported || UNSUPPORTED(ptype)
 
 		    if ( funcdesc->invkind == INVOKE_FUNC )
 			ptype = constRefify( ptype );
@@ -1182,13 +1309,6 @@ QMetaObject *QAxBase::metaObject() const
 		    {
 			prop = proplist[function];
 			if ( !prop ) {
-			    if ( unsupported ) {
-#ifndef QT_NO_DEBUG
-				qWarning( "%s: Property is of unsupported type: ", QString( returnType + " " + prototype ).latin1() );
-#endif
-				debugInfo += QString( "%1: Property is of unsupported type.\n" ).arg( returnType + " "+ function );
-				break;
-			    }
 			    if ( funcdesc->cParams > 1 ) {
 #ifndef QT_NO_DEBUG
 				qWarning( "%s: Too many parameters in property.", function.latin1() );
@@ -1308,7 +1428,6 @@ QMetaObject *QAxBase::metaObject() const
 			}
 			bool defargs;
 			QString defprototype = prototype;
-			unsupported = FALSE; // try to generate slots for all methods
 			do {
 			    defargs = FALSE;
 			    QUMethod *slot = new QUMethod;
@@ -1346,21 +1465,11 @@ QMetaObject *QAxBase::metaObject() const
 				    if ( inout & PARAMFLAG_FOUT )
 					params[p].inOut |= QUParameter::Out;
 				}
-				if ( paramType != "UNSUPPORTED" )
-				    QStringToQUType( paramType, params + p, enumDict );
-				else
-				    unsupported = TRUE;
+				QStringToQUType( paramType, params + p, enumDict );
 			    }
 
 			    slot->parameters = params;
-			    if ( !unsupported ) {
-				slotlist.insert( prototype, slot );
-			    } else {
-#ifndef QT_NO_DEBUG
-				    qWarning( "%s: Function has parameter of unsupported type: ", prototype.latin1() );
-#endif
-				    debugInfo += QString( "%1: Function has parameter of unsupported type.\n" ).arg( prototype );
-			    }			    
+			    slotlist.insert( prototype, slot );
 			    prototype = defprototype;
 			} while ( defargs );
 		    }
@@ -1416,14 +1525,8 @@ QMetaObject *QAxBase::metaObject() const
 		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
 		QString variableType = guessTypes( typedesc, info, enumDict, variableName );
 
-		bool unsupported = UNSUPPORTED(variableType);
 
-		if ( unsupported ) {
-#ifndef QT_NO_DEBUG
-		    qWarning( "%1: Property is of unsupported datatype", QString( variableType + " " + variableName ).latin1() );
-#endif
-		    debugInfo = QString( "%1: Property is of unsupported datatype" ).arg( variableType + " " + variableName );
-		} else if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
+		if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 		    // generate meta property
 		    QMetaProperty *prop = proplist[variableName];
 		    if ( !prop ) {
@@ -1543,7 +1646,7 @@ QMetaObject *QAxBase::metaObject() const
     }
 
     CComPtr<IConnectionPointContainer> cpoints;
-    ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
+    d->ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
     if ( classinfo && cpoints && d->useEventSink ) {
 	// Get type info and enumerator
 	CComPtr<ITypeInfo> info;
@@ -1585,11 +1688,15 @@ QMetaObject *QAxBase::metaObject() const
 			eventtype->GetTypeAttr( &eventattr );
 			// this is it
 			if ( eventattr && eventattr->typekind == TKIND_DISPATCH && eventattr->guid == iid ) {
-			    QUuid uuid( iid );
-			    QString uuidstr = uuid.toString().upper();
-			    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-			    static eventcount = 0;
-			    infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
+#ifndef QAX_NO_CLASSINFO
+			    if ( d->useClassInfo ) {
+				QUuid uuid( iid );
+				QString uuidstr = uuid.toString().upper();
+				uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+				static eventcount = 0;
+				infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
+			    }
+#endif
 			    eventinfo = eventtype;
 			}
 			eventtype->ReleaseTypeAttr( eventattr );
@@ -1624,7 +1731,7 @@ QMetaObject *QAxBase::metaObject() const
 
 			// get return value
 			TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
-			QString returnType = typedescToQString( typedesc );
+			QString returnType;
 
 			// get event function prototype
 			QString function;
@@ -1632,7 +1739,6 @@ QMetaObject *QAxBase::metaObject() const
 			QStringList parameters;
 			QStringList paramTypes;
 
-			bool unsupported = FALSE;
 			BSTR bstrNames[256];
 			UINT maxNames = 255;
 			UINT maxNamesOut;
@@ -1645,6 +1751,7 @@ QMetaObject *QAxBase::metaObject() const
 			    // function name
 			    if ( !p ) {
 				function = paramName;
+				returnType = guessTypes( typedesc, eventinfo, enumDict, function );
 				prototype = function + "(";
 				continue;
 			    }
@@ -1654,7 +1761,6 @@ QMetaObject *QAxBase::metaObject() const
 			    
 			    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 			    QString ptype = guessTypes( tdesc, info, enumDict, function );
-			    unsupported = unsupported || UNSUPPORTED(ptype);
 
 			    if ( funcdesc->invkind == INVOKE_FUNC )
 				ptype = constRefify( ptype );
@@ -1670,12 +1776,7 @@ QMetaObject *QAxBase::metaObject() const
 			if ( !!prototype )
 			    prototype += ")";
 
-			if ( unsupported ) {
-#ifndef QT_NO_DEBUG
-			    qWarning( "%s: Event has parameter of unsupported datatype.", function.latin1() );
-#endif
-			    debugInfo += QString( "%1: Event has parameter of unsupported datatype.\n" ).arg( function );
-			} else if ( !signallist.find( prototype ) ) {
+			if ( !signallist.find( prototype ) ) {
 			    QUMethod *signal = new QUMethod;
 			    signal->name = new char[function.length()+1];
 			    signal->name = qstrcpy( (char*)signal->name, function );
@@ -1722,8 +1823,10 @@ QMetaObject *QAxBase::metaObject() const
 	}
     }
 
-    if ( !!debugInfo )
+#ifndef QAX_NO_CLASSINFO
+    if ( !!debugInfo && d->useClassInfo )
 	infolist.insert( "debugInfo", new QString( debugInfo ) );
+#endif
 
     // setup slot data
     index = 0;
@@ -1791,9 +1894,10 @@ QMetaObject *QAxBase::metaObject() const
 	++prop_it;
     }
 
+#ifndef QAX_NO_CLASSINFO
     // setup class info data
     index = 0;
-    QClassInfo *const class_info = new QClassInfo[infolist.count()];
+    QClassInfo *const class_info = infolist.count() ? new QClassInfo[infolist.count()] : 0;
     QDictIterator<QString> info_it( infolist );
     while ( info_it.current() ) {
 	QString info = *info_it.current();
@@ -1806,6 +1910,7 @@ QMetaObject *QAxBase::metaObject() const
 	++index;
 	++info_it;
     }
+#endif
 
     // put the metaobject together
     that->metaobj = QMetaObject::new_metaobject( 
@@ -1814,7 +1919,11 @@ QMetaObject *QAxBase::metaObject() const
 	signal_data, signallist.count()+2,
 	prop_data, proplist.count()+1,
 	enum_data, enumlist.count(),
+#ifndef QAX_NO_CLASSINFO
 	class_info, infolist.count() );
+#else
+	0, 0 );
+#endif
 
     return metaobj;
 }
@@ -1857,12 +1966,11 @@ static inline bool checkHRESULT( HRESULT hres )
 bool QAxBase::qt_invoke( int _id, QUObject* _o )
 {
     const int index = _id - metaObject()->slotOffset();
-    if ( !ptr || index < 0 )
+    if ( !d->ptr || index < 0 )
 	return FALSE;
 
     // get the IDispatch
-    CComPtr<IDispatch> disp;
-    ptr->QueryInterface( IID_IDispatch, (void**)&disp );
+    IDispatch *disp = d->dispatch();
     if ( !disp )
 	return FALSE;
 
@@ -1959,10 +2067,9 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 	default: if ( _f > 5 ) return FALSE;
 	}
 	return TRUE;
-    } else if ( ptr && index >= 0 ) {
+    } else if ( d->ptr && index >= 0 ) {
 	// get the IDispatch
-	CComPtr<IDispatch> disp;
-	ptr->QueryInterface( IID_IDispatch, (void**)&disp );
+	IDispatch *disp = d->dispatch();
 	if ( !disp )
 	    return FALSE;
 
@@ -2126,8 +2233,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
 	}
     }
 
-    CComPtr<IDispatch> disp;
-    ptr->QueryInterface( IID_IDispatch, (void**)&disp );
+    IDispatch *disp = d->dispatch();
     if ( !disp || !inout )
 	return FALSE;
 
@@ -2152,7 +2258,6 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
 	params.rgdispidNamedArgs = 0;
 	params.rgvarg = 0;
     } else {
-	int id = metaObject()->findSlot( name, TRUE );
 	arg = QVariantToVARIANT( realVar );
 	params.cArgs = 1;
 	params.cNamedArgs = 0;
@@ -2431,10 +2536,10 @@ private:
 QAxBase::PropertyBag QAxBase::propertyBag() const
 {
     PropertyBag result;
-    if ( !ptr )
+    if ( isNull() )
 	return result;
     CComPtr<IPersistPropertyBag> persist;
-    ptr->QueryInterface( IID_IPersistPropertyBag, (void**)&persist );
+    d->ptr->QueryInterface( IID_IPersistPropertyBag, (void**)&persist );
     if ( persist ) {
 	QtPropertyBag *pbag = new QtPropertyBag();
 	pbag->AddRef();
@@ -2466,10 +2571,10 @@ QAxBase::PropertyBag QAxBase::propertyBag() const
 */
 void QAxBase::setPropertyBag( const PropertyBag &bag )
 {
-    if ( !ptr )
+    if ( isNull() )
 	return;
     CComPtr<IPersistPropertyBag> persist;
-    ptr->QueryInterface( IID_IPersistPropertyBag, (void**)&persist );
+    d->ptr->QueryInterface( IID_IPersistPropertyBag, (void**)&persist );
     if ( persist ) {
 	QtPropertyBag *pbag = new QtPropertyBag();
 	pbag->map = bag;
@@ -2527,6 +2632,17 @@ void QAxBase::setPropertyWritable( const char *prop, bool ok )
 }
 
 /*!
+    Returns TRUE if there is no COM object loaded by this wrapper, otherwise return FALSE.
+
+    \sa control
+*/
+bool QAxBase::isNull() const
+{ 
+    return !d->ptr; 
+}
+
+
+/*!
     \fn bool QAxBase::qt_emit( int, QUObject* );
     \internal 
 */
@@ -2539,14 +2655,6 @@ void QAxBase::setPropertyWritable( const char *prop, bool ok )
 /*!
     \fn QObject *QAxBase::qObject()
     \internal
-*/
-
-/*!
-    \fn bool QAxBase::isNull() const
-
-    Returns TRUE if there is no COM object loaded by this wrapper, otherwise return FALSE.
-
-    \sa control
 */
 
 /*!

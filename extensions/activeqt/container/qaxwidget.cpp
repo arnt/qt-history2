@@ -168,8 +168,9 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     \extension ActiveQt
     \module QAxContainer
 
-    A QAxWidget can be instantiated as an empty object or with the name of the ActiveX control
-    it should wrap. The properties, methods and events of the ActiveX control become available as Qt properties, 
+    A QAxWidget can be instantiated as an empty object, with the name of the ActiveX control
+    it should wrap or with an existing interface pointer to the ActiveX control. 
+    The properties, methods and events of the ActiveX control become available as Qt properties, 
     slots and signals as long as only supported data types are used (see the \link QAxBase QAxBase class
     documentation \endlink for a list of supported and unsupported data types). The baseclass QAxBase provides 
     an API to access the ActiveX directly through the IUnknown pointer.
@@ -180,6 +181,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     QAxWidget tries to provide the necessary hints.
 
     \important dynamicCall()
+    \important querySubObject()
 */
 
 /*!
@@ -320,7 +322,6 @@ bool QAxWidget::initialize( IUnknown **ptr )
 	return FALSE;
     }
 
-    metaObject();
     if ( !hhook )
 	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
     ++hhookref;
