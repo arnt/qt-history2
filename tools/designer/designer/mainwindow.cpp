@@ -4176,6 +4176,46 @@ void MainWindow::projectSelected( QAction *a )
     if ( actionEditPixmapCollection )
 	actionEditPixmapCollection->setEnabled( currentProject != emptyProject() );
     currentProject->setActive( TRUE );
+
+#if 0
+    workSpace()->blockSignals( TRUE );
+    QWidgetList windows = workspace->windowList();
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( w->inherits( "SourceEditor" ) ) {
+	    if ( ( (SourceEditor*)w )->project() == currentProject )
+		w->showNormal();
+	    else
+		w->showMinimized();
+	} else if ( w->inherits( "FormWindow" ) ) {
+	    if ( ( (FormWindow*)w )->project() == currentProject )
+		w->showNormal();
+	    else
+		w->showMinimized();
+	}
+    }
+
+    if ( workspace->activeWindow() ) {
+	if ( workspace->activeWindow()->inherits( "FormWindow" ) ) {
+	    lastActiveFormWindow = (FormWindow*)workspace->activeWindow();
+	    setAppropriate( (QDockWindow*)actionEditor->parentWidget(),
+			    lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
+	    if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) )
+		actionEditor->parentWidget()->show();
+	    else
+		actionEditor->parentWidget()->hide();
+	    actionEditor->setFormWindow( lastActiveFormWindow );
+	} else {
+	    emit formWindowChanged();
+	    emit hasActiveForm( FALSE );
+	    actionEditUndo->setEnabled( FALSE );
+	    actionEditRedo->setEnabled( FALSE );
+	    setAppropriate( (QDockWindow*)actionEditor->parentWidget(), FALSE );
+	    actionEditor->parentWidget()->hide();
+	    actionEditor->setFormWindow( 0 );
+	}
+    }
+    workSpace()->blockSignals( FALSE );
+#endif
 }
 
 void MainWindow::openProject( const QString &fn )
