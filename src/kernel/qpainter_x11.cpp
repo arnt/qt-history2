@@ -569,6 +569,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 
 void QPainter::init()
 {
+    d = 0;
     flags = IsStartingUp;
     bg_col = white;                             // default background color
     bg_mode = TransparentMode;                  // default background mode

@@ -336,6 +336,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 
 void QPainter::init()
 {
+    d = 0;
     flags = IsStartingUp;
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
@@ -1078,9 +1079,9 @@ void QPainter::setClipping( bool enable )
 	    rgn = rgn.intersect( *paintEventClipRegion );
 #ifndef QT_NO_PRINTER
 	if ( pdev->devType() == QInternal::Printer ) {
-	    double xscale = ((float)pdev->metric( QPaintDeviceMetrics::PdmPhysicalDpiX )) / 
+	    double xscale = ((float)pdev->metric( QPaintDeviceMetrics::PdmPhysicalDpiX )) /
     		((float)pdev->metric( QPaintDeviceMetrics::PdmDpiX ));
-	    double yscale = ((float)pdev->metric( QPaintDeviceMetrics::PdmPhysicalDpiY )) / 
+	    double yscale = ((float)pdev->metric( QPaintDeviceMetrics::PdmPhysicalDpiY )) /
     		((float)pdev->metric( QPaintDeviceMetrics::PdmDpiY ));
 	    double xoff = 0;
 	    double yoff = 0;
