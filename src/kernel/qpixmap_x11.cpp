@@ -1504,9 +1504,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 			*aptr++ = *iptr++ >> 24; // squirt
 		} else if (img.depth() == 8) {
 		    const QRgb * const rgb = img.colorTable();
-		    for (int y = 0; y < h; ++y) {
+		    for (uint y = 0; y < h; ++y) {
 			const uchar *iptr = image.scanLine(y);
-			for (int x = 0; x < w; ++x)
+			for (uint x = 0; x < w; ++x)
 			    *aptr++ = qAlpha(rgb[*iptr++]);
 		    }
 		}
