@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#43 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#43 $");
 
 
 /*!
@@ -494,7 +494,7 @@ static double input_double( QTextStream *s )
     int input;					// input token
 
     QIODevice *d = s->device();
-    QString buf( 64 );
+    char buf[256];
     int i = 0;
     int c = eat_ws( d );
 
@@ -523,17 +523,18 @@ static double input_double( QTextStream *s )
 
 	state = table[state][input];
 
-	if  ( state == 0 || state == Done ) {
+	if  ( state == 0 || state == Done || i > 250 ) {
+	    if ( i > 250 ) {			// ignore rest of digits
+		do { c = d->getch(); } while ( c != EOF && isdigit(c) );
+	    }
 	    if ( c != EOF )
 		d->ungetch( c );
 	    buf[i] = '\0';
-	    return buf.toDouble();
+	    char *end;
+	    return strtod( buf, &end );
 	}
 
 	buf[i++] = c;
-	if ( i == (int)buf.size()-1 )
-	    buf.resize( buf.size()*2 );
-
 	c = d->getch();
     }
 
@@ -675,30 +676,42 @@ QTextStream &QTextStream::operator>>( char *s )
   Reads a word from the stream and returns a reference to the stream.
 */
 
-QTextStream &QTextStream::operator>>( QString &s )
+QTextStream &QTextStream::operator>>( QString &str )
 {
     CHECK_STREAM_PRECOND
-    int i = 0;
-    if ( s.size() < 64 )
-	s.resize( 64 );
-    int c = eat_ws( dev );
+    QString  *dynbuf = 0;
+    const int buflen = 256;
+    char      buffer[buflen];
+    char     *s = buffer;
+    int	      i = 0;
+    int	      c = eat_ws(dev);
+
     while ( c != EOF ) {
 	if ( isspace(c) ) {
 	    dev->ungetch( c );
 	    break;
 	}
+	if ( i >= buflen-1 ) {
+	    if ( !dynbuf )  {			// create dynamic buffer
+		dynbuf = new QString(buflen*2);
+		memcpy( dynbuf->data(), s, i );	// copy old data
+	    } else if ( i >= (int)dynbuf->size()-1 ) {
+		dynbuf->resize( dynbuf->size()*2 );
+	    }
+	    s = dynbuf->data();
+	}
 	s[i++] = c;
-	if ( i == (int)s.size()-1 )
-	    s.resize( s.size()*2 );
 	c = dev->getch();
     }
-    s.truncate(i);
+    str.resize( i+1 );
+    memcpy( str.data(), s, i );
+    delete dynbuf;
     return *this;
 }
 
 
 /*!
-  Reads a line from the stream and returns a reference to the stream.
+  Reads a line from the stream and returns a string containing the text.
 
   The returned string does not contain any trailing newline or carriage
   return. Note that this is different from QIODevice::readLine(), which
@@ -711,27 +724,40 @@ QString QTextStream::readLine()
 {
 #if defined(CHECK_STATE)
     if ( !dev ) {
-	warning( "QTextStream: No device" );
+	warning( "QTextStream::readLine: No device" );
 	QString nullString;
 	return nullString;
     }
 #endif
-    QString s( 64 );
-    int i = 0;
-    int c = dev->getch();
+    QString  *dynbuf = 0;
+    const int buflen = 256;
+    char      buffer[buflen];
+    char     *s = buffer;
+    int	      i = 0;
+    int	      c = dev->getch();
+
     while ( c != EOF ) {
 	if ( c == '\n' ) {
 	    break;
 	}
+	if ( i >= buflen-1 ) {
+	    if ( !dynbuf )  {			// create dynamic buffer
+		dynbuf = new QString(buflen*2);
+		memcpy( dynbuf->data(), s, i );	// copy old data
+	    } else if ( i >= (int)dynbuf->size()-1 ) {
+		dynbuf->resize( dynbuf->size()*2 );
+	    }
+	    s = dynbuf->data();
+	}
 	s[i++] = c;
-	if ( i == (int)s.size()-1 )
-	    s.resize( s.size()*2 );
 	c = dev->getch();
     }
     if ( i > 0 && s[i-1] == '\r' )
 	i--;				// if there are two \r, let one stay
-    s.truncate(i);
-    return s;
+    QString str(i+1);
+    memcpy( str.data(), s, i );
+    delete dynbuf;
+    return str;
 }
 
 
