@@ -483,6 +483,7 @@ while [ -n "$1" ]; do
 	fi
 	;;
    -disable-*)
+echo "MODULES(1): $MODULES"
     	MODULE=`echo $1 | sed -e "s/-disable-//"`
 	if [ -d "$relpath/src/$MODULE" ]
 	then
@@ -491,6 +492,7 @@ while [ -n "$1" ]; do
 	    FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
 	    QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
 	fi
+echo "MODULES(2): $MODULES"
 	;;
     -with-*-*-*)
 	CONFIG=`echo $1 | sed -e "s/-with-//"`
@@ -747,6 +749,7 @@ then
     done
 fi
 
+# Auto-detect XRender support
 if [ $XRENDER = auto ]
 then
     XRENDER=yes
