@@ -1501,7 +1501,8 @@ void QFileDialogPrivate::setup(const QString &directory,
                      q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
     QObject::connect(tview, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
                      q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
-    QObject::connect(tview->header(), SIGNAL(sectionPressed(int)),
+    QObject::connect(tview->header(),
+                     SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
                      q, SLOT(headerPressed(int)));
 
     // labels
