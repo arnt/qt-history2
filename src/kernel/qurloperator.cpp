@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#84 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -49,6 +49,7 @@
 
 class QUrlOperatorPrivate
 {
+public:
     QUrlOperatorPrivate()
     {
 	oldOps.setAutoDelete( FALSE );
