@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#17 $
 **
 ** Implementation of QRect class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#17 $";
 #endif
 
 
@@ -542,7 +542,7 @@ QRect QRect::unite( const QRect &r ) const
     QRect tmp;
     tmp.setLeft(   QMIN( x1, r.x1 ) );
     tmp.setRight(  QMAX( x2, r.x2 ) );
-    tmp.setTop(    QMIN( y1, r.y1 ) );
+    tmp.setTop(	   QMIN( y1, r.y1 ) );
     tmp.setBottom( QMAX( y2, r.y2 ) );
     return tmp;
 }
