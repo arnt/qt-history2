@@ -851,7 +851,7 @@ void QTextCursor::indent()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-const int QTextDocument::numSelections = 4; // Don't count the Temp one!
+const int QTextDocument::numSelections = 9; // Don't count the Temp one!
 
 QTextDocument::QTextDocument( QTextDocument *p )
     : par( p ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
@@ -904,10 +904,20 @@ QTextDocument::QTextDocument( QTextDocument *p )
     selectionColors[ Selection1 ] = Qt::magenta;
     selectionColors[ Selection2 ] = Qt::green;
     selectionColors[ Selection3 ] = Qt::yellow;
+    selectionColors[ Selection4 ] = Qt::yellow;
+    selectionColors[ Selection5 ] = Qt::yellow;
+    selectionColors[ Selection6 ] = Qt::yellow;
+    selectionColors[ Selection7 ] = Qt::yellow;
+    selectionColors[ Selection8 ] = Qt::yellow;
     selectionText[ Standard ] = TRUE;
     selectionText[ Selection1 ] = FALSE;
     selectionText[ Selection2 ] = FALSE;
     selectionText[ Selection3] = FALSE;
+    selectionText[ Selection4] = FALSE;
+    selectionText[ Selection5] = FALSE;
+    selectionText[ Selection6] = FALSE;
+    selectionText[ Selection7] = FALSE;
+    selectionText[ Selection8] = FALSE;
     commandHistory = new QTextCommandHistory( 100 ); // ### max undo/redo steps should be configurable
     tStopWidth = formatCollection()->defaultFormat()->width( 'x' ) * 8;
 }

@@ -282,6 +282,11 @@ public:
 	Selection1,
 	Selection2,
 	Selection3,
+	Selection4,
+	Selection5,
+	Selection6,
+	Selection7,
+	Selection8,
 	Temp // This selection must not be drawn, it's used e.g. by undo/redo to
 	// remove multiple lines with removeSelectedText()
     };
@@ -330,6 +335,8 @@ public:
 
     QColor selectionColor( int id ) const;
     bool invertSelectionText( int id ) const;
+    void setSelectionColor( int id, const QColor &c );
+    void setInvertSelectionText( int id, bool b );
     bool hasSelection( int id ) const;
     void setSelectionStart( int id, QTextCursor *cursor );
     bool setSelectionEnd( int id, QTextCursor *cursor );
@@ -1312,6 +1319,16 @@ inline QColor QTextDocument::selectionColor( int id ) const
 inline bool QTextDocument::invertSelectionText( int id ) const
 {
     return selectionText[ id ];
+}
+
+inline void QTextDocument::setSelectionColor( int id, const QColor &c )
+{
+    selectionColors[ id ] = c;
+}
+
+inline void QTextDocument::setInvertSelectionText( int id, bool b )
+{
+    selectionText[ id ] = b;
 }
 
 inline bool QTextDocument::hasSelection( int id ) const
