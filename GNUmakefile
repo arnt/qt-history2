@@ -71,6 +71,8 @@ distclean clean uiclean mocclean:
 	cd plugins/src && $(MAKE) $@
 	cd examples && $(MAKE) $@
 	cd qmake && $(MAKE) $@
+	cd config.tests/unix && $(MAKE) $@
+	cd config.tests/x11 && $(MAKE) $@
 
 doc: FORCE
 	qdoc util/qdoc/qdoc.conf
