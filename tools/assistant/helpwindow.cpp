@@ -218,6 +218,7 @@ QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
     }
     mw->actionNewWindow->addTo( m );
     mw->actionOpenPage->addTo( m );
+    mw->actionClosePage->addTo( m );
     m->insertSeparator();
     mw->actionGoPrevious->addTo( m );
     mw->actionGoNext->addTo( m );
