@@ -692,20 +692,29 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	return;
     WorkspaceItem* wi = (WorkspaceItem*)i;
     enum { OPEN_SOURCE, REMOVE_SOURCE, OPEN_FORM, REMOVE_FORM,
-	   OPEN_FORM_SOURCE, OPEN_OBJECT_SOURCE };
+	   OPEN_FORM_SOURCE, OPEN_OBJECT_SOURCE, EXPORT_PACKAGE, TOGGLE_PACKAGE };
     QPopupMenu menu( this );
+    menu.setCheckable( TRUE );
     switch ( wi->type() ) {
     case WorkspaceItem::SourceFileType:
 	menu.insertItem( tr( "&Open source file..." ), OPEN_SOURCE );
 	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove source file from project" ), REMOVE_SOURCE );
+	menu.insertSeparator();
+	menu.insertItem( tr( "&Export..." ), EXPORT_PACKAGE );
+	menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
+	menu.setItemChecked( TOGGLE_PACKAGE, wi->sourceFile->isPackage() );
 	break;
     case WorkspaceItem::FormFileType:
 	menu.insertItem( tr( "&Open form..." ), OPEN_FORM );
 	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove form from project" ), REMOVE_FORM );
+	menu.insertSeparator();
+	menu.insertItem( tr( "&Export..." ), EXPORT_PACKAGE );
+	menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
+	menu.setItemChecked( TOGGLE_PACKAGE, wi->formFile->isPackage() );
 	break;
     case WorkspaceItem::FormSourceType:
 	menu.insertItem( tr( "&Open form source..." ), OPEN_FORM_SOURCE );
@@ -720,6 +729,7 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	menu.insertItem( tr( "&Open source..." ), OPEN_OBJECT_SOURCE );
 	break;
     }
+
     switch ( menu.exec( pos ) ) {
     case REMOVE_SOURCE:
 	project->removeSourceFile( wi->sourceFile );
@@ -738,6 +748,23 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	break;
     case OPEN_OBJECT_SOURCE:
 	itemClicked( LeftButton, i, pos );
+	break;
+    case EXPORT_PACKAGE:
+	MainWindow::self->fileExport( wi->type() == WorkspaceItem::SourceFileType ?
+				      wi->sourceFile : wi->formFile );
+	break;
+    case TOGGLE_PACKAGE:
+	project->setModified( TRUE );
+	switch ( wi->type() ) {
+	case WorkspaceItem::SourceFileType:
+	    wi->sourceFile->setPackage( !wi->sourceFile->isPackage() );
+	    break;
+	case WorkspaceItem::FormFileType:
+	    wi->formFile->setPackage( !wi->formFile->isPackage() );
+	    break;
+	default:
+	    break;
+	}
 	break;
     }
 }

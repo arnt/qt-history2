@@ -627,6 +627,24 @@ void MainWindow::setupFileActions()
 	
 	a->addTo( tb );
 	a->addTo( fileMenu );
+	
+	fileMenu->insertSeparator();
+
+    	a = new QAction( this, 0 );
+	a->setText( tr( "Import" ) );
+	a->setToolTip( tr( "Import Dialog or File" ) );
+	a->setMenuText( tr( "&Import..." ) );
+	connect( a, SIGNAL( activated() ), this, SLOT( fileImport() ) );
+	a->addTo( fileMenu );
+
+        	a = new QAction( this, 0 );
+	a->setText( tr( "Export" ) );
+	a->setToolTip( tr( "Export Dialog or File" ) );
+	a->setMenuText( tr( "&Export..." ) );
+	connect( a, SIGNAL( activated() ), this, SLOT( fileExport() ) );
+	a->addTo( fileMenu );
+	
+	fileMenu->insertSeparator();
     }
 
     a = new QAction( this, 0 );
@@ -1427,6 +1445,60 @@ void MainWindow::fileCreateTemplate()
     connect( dia.buttonCreate, SIGNAL( clicked() ),
 	     this, SLOT( createNewTemplate() ) );
     dia.exec();
+}
+
+void MainWindow::fileImport()
+{
+}
+
+void MainWindow::fileExport()
+{
+
+    QWidget *w = qworkspace->activeWindow();
+    if ( !w )
+	return;
+    QObject *o;
+    if ( w->inherits( "FormWindow" ) ) {
+	o = ( (FormWindow*)w )->formFile();
+    } else if ( w->inherits( "SourceEditor" ) ) {
+	if ( ( (SourceEditor*)w )->formWindow() )
+	    o = ( (SourceEditor*)w )->formWindow()->formFile();
+	else
+	    o = ( (SourceEditor*)w )->sourceFile();
+    }
+    fileExport( o );
+}
+
+void MainWindow::fileExport( QObject *o )
+{
+    statusBar()->message( tr( "Enter a filename..." ) );
+    if ( o->inherits( "SourceFile" ) ) {
+	SourceFile *sf = (SourceFile*)o;
+	sf->setModified( TRUE );
+	sf->saveAs();
+	QString fn = sf->fileName();
+	QString dir = getenv( "QTSCRIPTDIR" );
+	qDebug( "%s %s", dir.latin1(), fn.latin1() );
+	if ( fn.left( dir.length() ) == dir ) {
+	    currentProject->setModified( TRUE );
+	    sf->setPackage( TRUE );
+	} else {
+	    currentProject->setModified( FALSE );
+	}
+    } else if ( o->inherits( "FormFile" ) ) {
+	FormFile *ff = (FormFile*)o;
+	ff->setModified( TRUE );
+	ff->saveAs();
+	QString fn = ff->fileName();
+	QString dir = getenv( "QTSCRIPTDIR" );
+	qDebug( "%s %s", dir.latin1(), fn.latin1() );
+	if ( fn.left( dir.length() ) == dir ) {
+	    currentProject->setModified( TRUE );
+	    ff->setPackage( TRUE );
+	} else {
+	    currentProject->setModified( FALSE );
+	}
+    }
 }
 
 void MainWindow::createNewTemplate()

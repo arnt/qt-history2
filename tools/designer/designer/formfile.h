@@ -81,6 +81,9 @@ public:
 
     bool isFake() const { return fake; }
 
+    void setPackage( bool b ) { pkg = b; }
+    bool isPackage() const { return pkg; }
+
 signals:
     void somethingChanged( FormFile* );
 
@@ -108,6 +111,7 @@ private:
     bool seperateSource;
     QString cachedFormName;
     bool fake;
+    bool pkg;
 
 };
 

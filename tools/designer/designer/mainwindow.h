@@ -226,6 +226,9 @@ public slots:
     bool fileSaveAs();
     void fileSaveAll();
     void fileCreateTemplate();
+    void fileImport();
+    void fileExport();
+    void fileExport( QObject *o );
 
     void editUndo();
     void editRedo();

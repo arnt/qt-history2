@@ -59,6 +59,9 @@ public:
 
     static QString createUnnamedFileName( const QString &extension );
 
+    void setPackage( bool b ) { pkg = b; }
+    bool isPackage() const { return pkg; }
+
 private:
     bool checkFileName( bool allowBreak );
 
@@ -70,6 +73,7 @@ private:
     bool fileNameTemp;
     TimeStamp timeStamp;
     Project *pro;
+    bool pkg;
 
 };
 

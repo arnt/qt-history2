@@ -52,7 +52,7 @@ static QString make_func_pretty( const QString &s )
 
 FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
     : QObject( 0, name ), filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
-      timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE )
+      timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE ), pkg( FALSE )
 {
     fake = qstrcmp( name, "qt_fakewindow" ) == 0;
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
