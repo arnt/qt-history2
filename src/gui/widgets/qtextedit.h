@@ -101,12 +101,12 @@ public:
     void ensureCursorVisible();
 
 public slots:
-    void setFontPointSize(float size);
-    void setFontFamily(const QString &family);
-    void setFontWeight(int weight);
-    void setFontUnderline(bool underline);
-    void setFontItalic(bool italic);
-    void setColor(const QColor &color);
+    void setFontPointSize(float s);
+    void setFontFamily(const QString &fontFamily);
+    void setFontWeight(int w);
+    void setFontUnderline(bool b);
+    void setFontItalic(bool b);
+    void setColor(const QColor &c);
     void setCurrentFont(const QFont &f);
     void setAlignment(Qt::Alignment a);
 

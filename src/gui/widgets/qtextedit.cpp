@@ -411,6 +411,10 @@ QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) c
     return QTextBlock(pt, pt->blockMap().findNode(docPos));
 }
 
+/*!
+    Constructs an empty QTextEdit with parent \a
+    parent.
+*/
 QTextEdit::QTextEdit(QWidget *parent)
     : QViewport(*new QTextEditPrivate, parent)
 {
@@ -434,42 +438,84 @@ QTextEdit::~QTextEdit()
 {
 }
 
+/*!
+    Returns the point size of the font of the current format.
+
+    \sa setFontFamily() setCurrentFont() setFontPointSize()
+*/
 float QTextEdit::fontPointSize() const
 {
     return d->currentCharFormat.fontPointSize();
 }
 
+/*!
+    Returns the font family of the current format.
+
+    \sa setFontFamily() setCurrentFont() setFontPointSize()
+*/
 QString QTextEdit::fontFamily() const
 {
     return d->currentCharFormat.fontFamily();
 }
 
+/*!
+    Returns the font weight of the current format.
+
+    \sa setFontWeight() setCurrentFont() setFontPointSize()
+*/
 int QTextEdit::fontWeight() const
 {
     return d->currentCharFormat.fontWeight();
 }
 
+/*!
+    Returns true if the font of the current format is underlined; otherwise returns
+    false.
+
+    \sa setFontUnderline()
+*/
 bool QTextEdit::fontUnderline() const
 {
     return d->currentCharFormat.fontUnderline();
 }
 
+/*!
+    Returns true if the font of the current format is italic; otherwise returns
+    false.
+
+    \sa setFontItalic()
+*/
 bool QTextEdit::fontItalic() const
 {
     return d->currentCharFormat.fontItalic();
 }
 
+/*!
+    Returns the color of the current format.
+
+    \sa setColor()
+*/
 QColor QTextEdit::color() const
 {
     return d->currentCharFormat.color();
 }
 
+/*!
+    Returns the font of the current format.
+
+    \sa setCurrentFont() setFontFamily() setFontPointSize()
+*/
 QFont QTextEdit::currentFont() const
 {
     return d->currentCharFormat.font();
 }
 
-
+/*!
+    Sets the alignment of the current paragraph to \a a. Valid
+    alignments are \c Qt::AlignLeft, \c Qt::AlignRight,
+    \c Qt::AlignJustify and \c Qt::AlignCenter (which centers
+    horizontally).
+*/
 void QTextEdit::setAlignment(Qt::Alignment a)
 {
     if (d->readOnly)
@@ -479,16 +525,27 @@ void QTextEdit::setAlignment(Qt::Alignment a)
     d->cursor.mergeBlockFormat(fmt);
 }
 
+/*!
+    Returns the alignment of the current paragraph.
+
+    \sa setAlignment()
+*/
 Qt::Alignment QTextEdit::alignment() const
 {
     return d->cursor.blockFormat().alignment();
 }
 
+/*!
+    Returns a pointer to the underlying document.
+*/
 QTextDocument *QTextEdit::document() const
 {
     return d->doc;
 }
 
+/*!
+    Sets the visible cursor to \a cursor.
+*/
 void QTextEdit::setCursor(const QTextCursor &cursor)
 {
     d->cursor = cursor;
@@ -497,65 +554,108 @@ void QTextEdit::setCursor(const QTextCursor &cursor)
     d->selectionChanged();
 }
 
+/*!
+    Returns a QTextCursor that represents the currently visible cursor.
+ */
 QTextCursor QTextEdit::cursor() const
 {
     return d->cursor;
 }
 
-void QTextEdit::setFontFamily(const QString &family)
+/*!
+    Sets the font family of the current format to \a fontFamily.
+
+    \sa fontFamily() setCurrentFont()
+*/
+void QTextEdit::setFontFamily(const QString &fontFamily)
 {
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
-    fmt.setFontFamily(family);
+    fmt.setFontFamily(fontFamily);
     mergeCurrentCharFormat(fmt);
 }
 
-void QTextEdit::setFontPointSize(float size)
+/*!
+    Sets the point size of the current format to \a s.
+
+    Note that if \a s is zero or negative, the behavior of this
+    function is not defined.
+
+    \sa fontPointSize() setCurrentFont() setFontFamily()
+*/
+void QTextEdit::setFontPointSize(float s)
 {
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
-    fmt.setFontPointSize(size);
+    fmt.setFontPointSize(s);
     mergeCurrentCharFormat(fmt);
 }
 
-void QTextEdit::setFontWeight(int weight)
+/*!
+    Sets the font weight of the current format to \a w.
+
+    \sa fontWeight() setCurrentFont() setFontFamily()
+*/
+void QTextEdit::setFontWeight(int w)
 {
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
-    fmt.setFontWeight(weight);
+    fmt.setFontWeight(w);
     mergeCurrentCharFormat(fmt);
 }
 
-void QTextEdit::setFontUnderline(bool underline)
+/*!
+    If \a b is true sets the current format to underline; otherwise
+    sets the current format to non-underline.
+
+    \sa fontUnderline()
+*/
+void QTextEdit::setFontUnderline(bool b)
 {
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
-    fmt.setFontUnderline(underline);
+    fmt.setFontUnderline(b);
     mergeCurrentCharFormat(fmt);
 }
 
-void QTextEdit::setFontItalic(bool italic)
+/*!
+    If \a b is true sets the current format to italic; otherwise sets
+    the current format to non-italic.
+
+    \sa fontItalic()
+*/
+void QTextEdit::setFontItalic(bool b)
 {
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
-    fmt.setFontItalic(italic);
+    fmt.setFontItalic(b);
     mergeCurrentCharFormat(fmt);
 }
 
-void QTextEdit::setColor(const QColor &color)
+/*!
+    Sets the color of the current format, i.e. of the text, to \a c.
+
+    \sa color()
+*/
+void QTextEdit::setColor(const QColor &c)
 {
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
-    fmt.setColor(color);
+    fmt.setColor(c);
     mergeCurrentCharFormat(fmt);
 }
 
+/*!
+    Sets the font of the current format to \a f.
+
+    \sa currentFont() setFontPointSize() setFontFamily()
+*/
 void QTextEdit::setCurrentFont(const QFont &f)
 {
     if (d->readOnly)
@@ -565,6 +665,14 @@ void QTextEdit::setCurrentFont(const QFont &f)
     mergeCurrentCharFormat(fmt);
 }
 
+/*!
+    Undoes the last operation.
+
+    If there is no operation to undo, i.e. there is no undo step in
+    the undo/redo history, nothing happens.
+
+    \sa redo() 
+*/
 void QTextEdit::undo()
 {
     if (d->readOnly)
@@ -573,6 +681,15 @@ void QTextEdit::undo()
     d->updateCurrentCharFormat();
     d->selectionChanged();
 }
+
+/*!
+    Redoes the last operation.
+
+    If there is no operation to redo, i.e. there is no redo step in
+    the undo/redo history, nothing happens.
+
+    \sa undo()
+*/
 
 void QTextEdit::redo()
 {
@@ -583,6 +700,15 @@ void QTextEdit::redo()
     d->selectionChanged();
 }
 
+/*!
+    Copies the selected text to the clipboard and deletes it from 
+    the text edit.
+
+    If there is no selected text nothing happens.
+
+    \sa copy() paste()
+*/
+
 void QTextEdit::cut()
 {
     if (d->readOnly || !d->cursor.hasSelection())
@@ -592,6 +718,12 @@ void QTextEdit::cut()
     d->selectionChanged();
 }
 
+/*!
+    Copies any selected text to the clipboard.
+
+    \sa copyAvailable()
+*/
+
 void QTextEdit::copy()
 {
     if (!d->cursor.hasSelection())
@@ -600,11 +732,25 @@ void QTextEdit::copy()
     QApplication::clipboard()->setData(drag);
 }
 
+/*!
+    Pastes the text from the clipboard into the text edit at the
+    current cursor position.
+
+    If there is no text in the clipboard nothing happens.
+
+    \sa cut() copy()
+*/
+
 void QTextEdit::paste()
 {
     d->paste(QApplication::clipboard()->data());
 }
 
+/*!
+    Deletes all the text in the text edit.
+
+    \sa cut() removeSelectedText() setPlainText() setHtml()
+*/
 void QTextEdit::clear()
 {
     if (d->readOnly)
@@ -614,12 +760,16 @@ void QTextEdit::clear()
     d->selectionChanged();
 }
 
+
 void QTextEdit::selectAll()
 {
     d->cursor.movePosition(QTextCursor::Start);
     d->cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     d->selectionChanged();
 }
+
+/*! \internal
+*/
 
 void QTextEdit::timerEvent(QTimerEvent *ev)
 {
@@ -636,6 +786,17 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
     }
 }
 
+/*!
+    Changes the text of the text edit to the string \a text. 
+    Any previous text is removed.
+
+    \a text is interpreted as plain text.
+
+    Note that the undo/redo history is cleared by this function.
+
+    \sa plainText()
+*/
+
 void QTextEdit::setPlainText(const QString &text)
 {
     if (text.isEmpty())
@@ -645,10 +806,26 @@ void QTextEdit::setPlainText(const QString &text)
     d->init(fragment);
 }
 
+/*!
+    Returns the text of the text edit as plain text.
+
+    \sa setPlainText
+ */
 QString QTextEdit::plainText() const
 {
     return d->doc->plainText();
 }
+
+/*!
+    \overload
+
+    Changes the text of the text edit to the string \a text. 
+    Any previous text is removed.
+
+    \a text is interpreted as rich text in html format.
+
+    Note that the undo/redo history is cleared by this function.
+*/
 
 void QTextEdit::setHtml(const QString &text)
 {
@@ -658,6 +835,17 @@ void QTextEdit::setHtml(const QString &text)
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
     d->init(fragment);
 }
+/*!
+    \overload
+
+    Changes the text of the text edit to the string \a text. 
+    Any previous text is removed.
+
+    \a text is interpreted as rich text in html format. Any encoding
+    attribute specified in the header of the html is obeyed.
+
+    Note that the undo/redo history is cleared by this function.
+*/
 
 void QTextEdit::setHtml(const QByteArray &text)
 {
@@ -669,6 +857,10 @@ void QTextEdit::setHtml(const QByteArray &text)
     d->init(fragment);
 }
 
+/*!
+    Processes the key event, \a e. By default key events are used to
+    provide keyboard navigation and text editing.
+*/
 void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
     bool updateCurrentFormat = true;
@@ -1022,6 +1214,12 @@ void QTextEdit::dropEvent(QDropEvent *ev)
     d->paste(ev);
 }
 
+/*!
+    This function is called to create a right mouse button popup menu
+    at the document position \a pos. If you want to create a custom
+    popup menu, reimplement this function and return the created popup
+    menu. Ownership of the popup menu is transferred to the caller.
+*/
 QMenu *QTextEdit::createContextMenu(const QPoint &pos)
 {
     Q_UNUSED(pos);
@@ -1190,6 +1388,11 @@ void QTextEdit::setTabChangesFocus(bool b)
 {
     d->tabChangesFocus = b;
 }
+
+/*!
+    \property QTextEdit::documentTitle
+    \brief the title of the document parsed from the text.
+*/
 
 QString QTextEdit::documentTitle() const
 {
