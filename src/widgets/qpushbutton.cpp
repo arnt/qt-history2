@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#89 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#89 $");
 
 
 /*!
@@ -315,7 +315,9 @@ void QPushButton::drawButton( QPainter *paint )
     bool	updated = isDown() != (bool)lastDown ||
 			  lastDef != defButton ||
 			  isEnabled() != (bool)lastEnabled;
-    QColor	fillcol = g.background();
+    QColor	fillcol = gs==MotifStyle && isToggleButton() && isOn() 
+			  ? g.mid() : g.background();
+
     int		x1, y1, x2, y2;
 
     rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
@@ -416,7 +418,6 @@ void QPushButton::drawButton( QPainter *paint )
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
 			     updated ? &fill : 0 );
 	} else if ( isToggleButton() && isOn() ) {
-	    QBrush fill( g.mid() );
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
 			     updated ? &fill : 0 );
 	} else {
