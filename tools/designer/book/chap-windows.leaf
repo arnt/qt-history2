@@ -7,6 +7,8 @@ They are the \l{File Overview Window}, the \l{Object Explorer Window},
 and the \l{Property Editor/Signal Handlers Window}. This chapter
 explains each window in detail.
 
+\img qd-fileoverviewwindow.png
+
 \section1 File Overview Window
 
 This window lists all the files associated with the project, including
@@ -19,9 +21,17 @@ name of the file in the line edit above the files list.
 The Object Explorer window lists the current form's widgets and slots.
 The window contains two tabs, the Widgets tab and the Source tab. 
 
+\img qd-objexpwindowwidgettab.png
+
+\section2 Widget Tab
+
 Click the Widgets tab to view all the widgets for the current form.
 The widgets are listed by name and class. Click a widget in the list
 to highlight it in the corresponding form.
+
+\img qd-objexpwinsourcetab.png
+
+\section2 Source Tab
 
 Click the Source tab to view the current form's declared slots,
 forward declarations, includes, and class variables. To invoke menus
@@ -56,6 +66,8 @@ Includes (in Implementation) Dialog}.
 Click the Property Editor/Signal Handlers window to view and change
 the properties of forms and widgets. This window has a 'Properties'
 tab and a 'Signal Handlers' tab. 
+
+\img qd-propedwinproptab.png
 
 \section2 The Properties Tab
 
@@ -98,6 +110,8 @@ unless the property, e.g. name, is not allowed to be empty.
 
 The property editor fully supports Undo and Redo (Ctrl+Z and Ctrl+Y,
 also available from the Edit menu). 
+
+\img qd-propedwinsigtab.png
 
 \section2 The Signal Handlers Tab
 

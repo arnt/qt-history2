@@ -15,8 +15,8 @@ stand-alone tool palettes. To hide a tool palette click its close
 button. To restore a hidden tool palette, right click the tool area,
 then click the name of the tool palette you wish to restore.
 
-\img menufile.png
-\caption file
+\img qd-filetoolbuttons.png
+\caption file toolbuttons
 
 \section1 The File Toolbar Buttons
 
@@ -39,6 +39,9 @@ the projects that are currently open and select a project name to
 toggle between the projects.
 
 \endlist
+
+\img qd-edittoolbuttons.png
+\caption edit toolbuttons
 
 \section1 The Edit Toolbar Buttons
 
@@ -64,6 +67,9 @@ the current form or file.
 
 \endlist
 
+\img qd-searchtoolbuttons.pnh
+\caption search toolbuttons
+
 \section1 The Search Toolbar Buttons
 
 \list
@@ -86,6 +92,9 @@ for example, several push buttons, \e double click the widget's
 toolbar button. After this, every time you click the form a new widget
 will be added. Click the \Toolbutton Pointer toolbar button to leave
 this mode.
+
+\img qd-pointertoolbuttons.png
+\caption tools toolbuttons
 
 \section2 Tools
 
@@ -113,6 +122,9 @@ to revert your changes, leave tab order mode, then undo.
 
 \endlist
 
+\img qd-buttonstoolbuttons.png
+\caption buttons toolbuttons
+
 \section2 Buttons
 
 \list
@@ -132,6 +144,9 @@ click the form, to place a CheckBox on the form.
 
 \endlist
 
+\img qd-containertoolbuttons.png
+\caption conatiner toolbuttons
+
 \section2 Containers
 
 \list
@@ -149,8 +164,10 @@ click the form, to place a TabWidget on the form. To add or remove
 tabs, right click the tab widget and choose 'Add Page' or 'Remove
 Page' as required. 
 
-
 \endlist
+
+\img qd-viewstoolbuttons.png
+\caption views toolbuttons
 
 \section2 Views
 
@@ -169,6 +186,9 @@ place a Table on the form.
 
 \endlist
 
+\img qd-databasetoolbuttons.png
+\caption database toolbuttons
+
 \section2 Database
 
 \list
@@ -182,6 +202,9 @@ form, to place a DataBrowser on the form.
 form, to place a DataView on the form.
 
 \endlist
+
+\img qd-inputtoolbuttons.png
+\caption input toolbuttons
 
 \section2 Input
 
@@ -218,6 +241,9 @@ form, to place a Dial on the form.
 
 \endlist
 
+\img qd-displaytoolbuttons.png
+\caption display toolbuttons
+
 \section2 Display
 
 \list
@@ -241,6 +267,9 @@ form, to place a TextBrowser on the form.
 
 \endlist
 
+\img qd-customwidgettoolbutton.png
+\caption custom widget toolbutton
+
 \section2 Custom
 
 \list 
@@ -250,6 +279,9 @@ toolbar button only appears if you have created a custom widget using
 \Menu{Tools|Custom|Edit Custom Widgets}.
 
 \endlist
+
+\img qd-layouttoolbuttons.png
+\caption layout toolbuttons
 
 \section2 The Layout Toolbar Buttons
 
@@ -299,6 +331,9 @@ to widgets that take up too much space on the form. The spacer
 consumes extra space in the layout.
 
 \endlist
+
+\img qd-helptoolbuttons.png
+\caption help toolbutton
 
 \section1 The Help Toolbar Button
 

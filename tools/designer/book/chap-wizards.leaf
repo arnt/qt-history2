@@ -12,6 +12,8 @@ The Main Window Wizard is invoked by clicking the Main Window form
 template in the \l{New File Dialog}. This wizard helps you to create
 a main window with actions, menu options and toolbars.
 
+\img qd-mainwinwzdpage1.png
+
 \section2 Choose Available Menus and Toolbars 
 
 The 'Choose available menus and toolbars' wizard page appears first.
@@ -23,6 +25,8 @@ items, toolbar buttons and connections later. Check or uncheck the
 checkboxes to reflect your preferences.
 
 Click \Button Next to move on to the next wizard page.
+
+\img qd-mainwinwzdpage2.png
 
 \section2 Setup Toolbar 
 
@@ -39,14 +43,16 @@ moved to the Toolbar list box as often as required and will cause a
 separator to appear in the finished toolbar.
 
 Click \Button Back if you want to return to the 'Choose available
-menus and toolbars' wizard page. Click \Button Next, then \Button
-Finish to populate the main window and exit the wizard.
+menus and toolbars' wizard page. Click \Button Finish to populate the
+main window and to exit the wizard.
 
 \section1 Data Table Wizard 
 
 The Data Table Wizard is automatically invoked by clicking the
 datatable widget and placing it on the form. The datatable widget is
 used to create tabular views of database data. 
+
+\img qd-datatablewzd.png
 
 \section2 Choose the Database and Table 
 
@@ -60,6 +66,8 @@ through the selected database connection. Select a table or view by
 clicking it.
 
 Click \Button Next to move on to the next wizard page.
+
+\img qd-datatablewzdpage2.png
 
 \section2 Displayed Fields 
 
@@ -78,6 +86,8 @@ Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Choose the Database and Table'
 wizard page.
 
+\img qd-datatablewzdpage3.png
+
 \section2 Table Properties 
 
 The 'Table Properties' wizard page is used to set the Data Table's
@@ -90,6 +100,8 @@ header (which displays the field name).
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page. 
+
+\img qd-datatablewzdpage4.png
 
 \section2 SQL
 
@@ -107,6 +119,8 @@ in the 'Sort By' listbox from ascending to descending and vice versa.
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Table Properties' wizard page. 
+
+\img qd-datatablewzdpage5.png
 
 \section2 Finish 
 
@@ -128,6 +142,8 @@ The Data Browser wizard is automatically invoked by clicking the
 DataBrowser widget and placing it on the form. The DataBrowser widget
 is used to create a form view of database data. 
 
+\img qd-databrowserwzd.png
+
 \section2 Choose the Database and Table
 
 The 'Choose the Database and Table' wizard page appears first. The
@@ -141,6 +157,8 @@ clicking it.
 
 Click \Button Next to move on to the next wizard page.
 
+\img qd-databrowserwzdpage2.png
+
 \section2 Displayed Fields
 
 The 'Displayed Fields' wizard page is used to select fields that will
@@ -153,6 +171,8 @@ listbox.
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Choose the Database and Table'
 wizard page.
+
+\img qd-databrowserwzdpage3.png
 
 \section2 Navigation and Editing 
 
@@ -184,6 +204,8 @@ connected to the \Func QDataTable::beforeInsert() signal.
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page.
 
+\img qd-databrowserwzdpage4.png
+
 \section2 SQL
 
 The 'SQL' wizard page is used to apply filters and sorts to the data
@@ -200,6 +222,8 @@ in the 'Sort By' listbox from ascending to descending and vice versa.
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Navigation and Editing' wizard page.
+
+\img qd-databrowserwzdpage5.png
 
 \section2 Layout
 
@@ -221,6 +245,8 @@ your mind.
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'SQL' wizard page.
 
+\img qd-databrowserwzdpage6.png
+
 \section2 Finish
 
 The 'Finish' wizard page is used to select auto-editing and to leave
@@ -235,12 +261,13 @@ Click \Button Finish to create the databrowser widget with all of the
 options you selected in the wizard. Click \Button
 Back if you want to return to the 'Layout' wizard page.
 
-
 \section1 Data View Wizard
 
 The Data View wizard is automatically invoked by clicking the
 dataview widget and placing it on the form. The Dataview widget
 is used to create a read-only form view of database data. 
+
+\img qd-dataviewwzd.png
 
 \section2 Choose the Database and Table
 
@@ -255,6 +282,8 @@ clicking it.
 
 Click \Button Next to move on to the next wizard page.
 
+\img qd-dataviewwzdpage2.png
+
 \section2 Displayed Fields
 
 The 'Displayed Fields' wizard page is used to select fields that will
@@ -268,6 +297,8 @@ Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Choose the Database and Table'
 wizard page.
 
+\img qd-dataviewwzdpage3.png
+
 \section2 Layout
 
 The 'Layout' wizard page is used to design the layout of the database
@@ -279,6 +310,8 @@ radio button.
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page.
+
+\img qd-dataviewwzdpage4.png
 
 \section2 Finish
 

@@ -10,7 +10,7 @@ option and it's use. For menu options that invoke a dialog box or
 which have a corresponding toolbar button, there is a cross-reference
 to the detailed explanation that appears in the relevant chapter.
 
-\img menufile.png
+\img qd-filemenu.png
 \caption The File Menu
 
 \section1 The File Menu
@@ -70,6 +70,8 @@ message box appears.
 
 See also \l{The File Toolbar Buttons}.
 
+\img qd-editmenu.png 
+
 \section1 The Edit Menu
 
 This menu is invoked with \Key Alt+E, and provides the following
@@ -125,7 +127,9 @@ Settings Dialog}.
 
 See also \l{The Edit Toolbar buttons}.
 
-\section1 The Project Menu
+\img qd-projectmenu.png
+
+\section1 The Project Menu 
 
 This menu is invoked with \Key Alt+O, and provides the following
 options:
@@ -151,6 +155,8 @@ invoke the \l{Edit Database Connections Dialog}.
 \endlist
 
 See also \l{The File Toolbar Buttons}.
+
+\img qd-searchmenu.png
 
 \section1 The Search Menu
 
@@ -179,6 +185,8 @@ in the file.
 \endlist
 
 See also \l{The Search Toolbar Buttons}.
+
+\img qd-toolsmenu.png
 
 \section1 The Tools Menu
 
@@ -316,6 +324,8 @@ Widgets}.
 
 See also \l{The Tools Toolbar Buttons}.
 
+\img qd-layoutmenu.png
+
 \section1 The Layout Menu 
 
 This menu is invoked with \Key Alt+L, and provides the following
@@ -399,6 +409,8 @@ preview the form in Platinum style.
 form in SGI style.
 
 \endlist
+
+\img qd-windowmenu.png
 
 \section1 The Window Menu
 
@@ -520,6 +532,8 @@ the currently open files and forms to switch to the named file or
 form.
 
 \endlist
+
+\img qd-helpmenu.png
 
 \section1 The Help Menu
 
