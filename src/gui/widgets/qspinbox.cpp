@@ -477,14 +477,19 @@ QString QSpinBox::mapValueToText(int v) const
     is only concerned with the other values.
 
     The default implementation tries to interpret \a txt as an integer
-    in the standard way and returns the value. For an empty string or
-    "-" (if negative values are allowed in the spinbox) it returns 0.
+    using QString::toInt() and returns the value. For an empty string
+    or "-" (if negative values are allowed in the spinbox) it returns
+    0.
+
+    \warning
+    This function must not be called with \a txt == 0.
 
     \sa mapValueToText()
 */
 
 int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
 {
+    Q_ASSERT(txt);
     const int t = d->maximum.toInt();
     const int b = d->minimum.toInt();
     if (txt->isEmpty() || (b < 0 && *txt == "-")) {
@@ -889,14 +894,18 @@ QString QDoubleSpinBox::mapValueToText(double v) const
     is only concerned with the other values.
 
     The default implementation tries to interpret \a txt as a double
-    in the standard way and returns the value. For an empty string or
-    "-" (if negative values are allowed in the spinbox) it returns 0.
+    using QString::toDouble() For an empty string or "-" (if negative
+    values are allowed in the spinbox) it returns 0.
+
+    \warning
+    This function must not be called with \a txt == 0.
 
     \sa mapValueToText()
 */
 
 double QDoubleSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
 {
+    Q_ASSERT(txt);
     const double t = d->maximum.toDouble();
     const double b = d->minimum.toDouble();
     if (txt->isEmpty() || (b < 0 && *txt == "-")) {
