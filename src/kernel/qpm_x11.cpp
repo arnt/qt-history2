@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#59 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#58 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#59 $")
 
 
 /*****************************************************************************
@@ -615,20 +615,25 @@ bool QPixmap::convertFromImage( const QImage &img )
     }
     detach();					// detach other references
     QImage  image = img;
-    int w   = image.width();
-    int h   = image.height();
-    int d   = image.depth();
-    int scr = qt_xscreen();
-    int dd  = DefaultDepth(dpy,scr);
+    int  w   = image.width();
+    int  h   = image.height();
+    int  d   = image.depth();
+    int  scr = qt_xscreen();
+    int  dd  = DefaultDepth(dpy,scr);
+    bool make_mono = (dd == 1 || isQBitmap());
 
     if ( data->ximage ) {			// throw old image data
 	XDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
     }
 
-    if ( (dd == 1 || isQBitmap()) && d > 1 ) {	// force to bitmap
+    if ( make_mono && d > 1 ) {			// force to bitmap
 	image = image.convertDepth( 1 );	// dither
 	d = 1;
+    }
+    else if ( !make_mono && d == 1 ) {		// convert to color image
+	image = image.convertDepth( 8 );
+	d = 8;
     }
 
     if ( d == 1 ) {				// 1 bit pixmap (bitmap)

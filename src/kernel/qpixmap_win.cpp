@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#19 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#19 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -425,6 +425,10 @@ bool QPixmap::convertFromImage( const QImage &img )
     if ( isQBitmap() && d != 1 ) {		// force to bitmap
 	image = image.convertDepth( 1 );	// dither
 	d = 1;
+    }
+    else if ( !isQBitmap() && d == 1 ) {	// convert to color image
+	image = image.convertDepth( 8 );
+	d = 8;
     }
 
     if ( d == 1 )				// 1 bit pixmap (bitmap)
