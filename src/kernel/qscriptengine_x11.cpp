@@ -1383,6 +1383,7 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 
     int firstGlyph = si->num_glyphs;
 
+#ifndef QT_NO_XFTFREETYPE
     if (openType) {
 	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, 0, &len,
 						 (si->analysis.bidiLevel %2));
@@ -1481,7 +1482,10 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 	    free(where);
 	    free(logClusters);
 	}
-    } else {
+    } else
+#endif
+    {
+	Q_UNUSED(openType);
 	// can't do any shaping, copy the stuff to the script item.
 	engine->ensureSpace(len);
 
@@ -1599,9 +1603,13 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
     si->num_glyphs = 0;
     int sstart = from;
     int end = sstart + len;
+#ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = si->fontEngine->openType();
     if (openType && !openType->supportsScript(script))
 	openType = 0;
+#else
+    QOpenType *openType = 0;
+#endif
 
     while ( sstart < end ) {
 	bool invalid;
