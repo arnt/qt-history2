@@ -26,6 +26,26 @@
 
 #include <stdlib.h>
 
+static quint64 xpmHash(const QString &str)
+{
+    unsigned int hashValue = 0;
+    for (int i = 0; i < str.size(); ++i) {
+        hashValue <<= 8;
+        hashValue += (unsigned int)str.at(i).unicode();
+    }
+    return hashValue;
+}
+static quint64 xpmHash(char *str)
+{
+    unsigned int hashValue = 0;
+    while (*str != '\0') {
+        hashValue <<= 8;
+        hashValue += (unsigned int)*str;
+        ++str;
+    }
+    return hashValue;
+}
+
 #ifdef QRGB
 #undef QRGB
 #endif
@@ -760,7 +780,8 @@ static QString fbname(const QString &fileName) // get file basename (sort of)
 // Skip until ", read until the next ", return the rest in *buf
 // Returns false on error, true on success
 
-static bool read_xpm_string(QByteArray &buf, QIODevice *d, const char * const *source, int &index)
+static bool read_xpm_string(QByteArray &buf, QIODevice *d, const char * const *source, int &index,
+                            QByteArray &state)
 {
     if (source) {
         buf = source[index++];
@@ -768,19 +789,29 @@ static bool read_xpm_string(QByteArray &buf, QIODevice *d, const char * const *s
     }
 
     buf = "";
-    char c;
-    do {
-        if (!d->getChar(&c))
-            return false;
-    } while (c != '"');
+    bool gotQuote = false;
+    int offset = 0;
+    forever {
+        if (offset == state.size() || state.isEmpty()) {
+            char buf[2048];
+            qint64 bytesRead = d->read(buf, sizeof(buf));
+            if (bytesRead <= 0)
+                return false;
+            state = QByteArray(buf, int(bytesRead));
+            offset = 0;
+        }
 
-    do {
-        if (!d->getChar(&c))
-            return false;
-        if (c != '"')
-            buf.append(c);
-    } while (c != '"');
-
+        if (!gotQuote) {
+            if (state.at(offset++) == '"')
+                gotQuote = true;
+        } else {
+            char c = state.at(offset++);
+            if (c == '"')
+                break;
+            buf += c;
+        }
+    }
+    state.remove(0, offset);
     return true;
 }
 
@@ -795,6 +826,7 @@ static bool read_xpm_string(QByteArray &buf, QIODevice *d, const char * const *s
 bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, QImage &image)
 {
     QByteArray buf(200, 0);
+    QByteArray state;
 
     int i, cpp, ncols, w, h, index = 0;
 
@@ -813,7 +845,7 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
         }// bad magic
     }
 
-    if (!read_xpm_string(buf, device, source, index))
+    if (!read_xpm_string(buf, device, source, index, state))
         return false;
 
     if (sscanf(buf, "%d %d %d %d", &w, &h, &ncols, &cpp) < 4)
@@ -832,15 +864,15 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
     if (image.isNull())
         return false;
 
-    QMap<QString, int> colorMap;
+    QMap<quint64, int> colorMap;
     int currentColor;
 
     for(currentColor=0; currentColor < ncols; ++currentColor) {
-        if (!read_xpm_string(buf, device, source, index)) {
+        if (!read_xpm_string(buf, device, source, index, state)) {
             qWarning("QImage: XPM color specification missing");
             return false;
         }
-        QString index;
+        QByteArray index;
         index = buf.left(cpp);
         buf = buf.mid(cpp).simplified().toLower();
         buf.prepend(" ");
@@ -865,9 +897,9 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             int transparentColor = currentColor;
             if (image.depth() == 8) {
                 image.setColor(transparentColor, 0);
-                colorMap.insert(index, transparentColor);
+                colorMap.insert(xpmHash((const char *)index.constData()), transparentColor);
             } else {
-                colorMap.insert(index, 0);
+                colorMap.insert(xpmHash((const char *)index.constData()), 0);
             }
         } else {
             QRgb c_rgb;
@@ -881,16 +913,16 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             }
             if (image.depth() == 8) {
                 image.setColor(currentColor, 0xff000000 | c_rgb);
-                colorMap.insert(index, currentColor);
+                colorMap.insert(xpmHash((const char *)index.constData()), currentColor);
             } else {
-                colorMap.insert(index, 0xff000000 | c_rgb);
+                colorMap.insert(xpmHash((const char *)index.constData()), 0xff000000 | c_rgb);
             }
         }
     }
 
     // Read pixels
     for(int y=0; y<h; y++) {
-        if (!read_xpm_string(buf, device, source, index)) {
+        if (!read_xpm_string(buf, device, source, index, state)) {
             qWarning("QImage: XPM pixels missing on image line %d", y);
             return false;
         }
@@ -904,14 +936,14 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
                 b[1] = '\0';
                 for (x=0; x<w && d<end; x++) {
                     b[0] = *d++;
-                    *p++ = (uchar)colorMap[b];
+                    *p++ = (uchar)colorMap[xpmHash(b)];
                 }
             } else {
                 char b[16];
                 b[cpp] = '\0';
                 for (x=0; x<w && d<end; x++) {
                     strncpy(b, (char *)d, cpp);
-                    *p++ = (uchar)colorMap[b];
+                    *p++ = (uchar)colorMap[xpmHash(b)];
                     d += cpp;
                 }
             }
@@ -924,7 +956,7 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             b[cpp] = '\0';
             for (x=0; x<w && d<end; x++) {
                 strncpy(b, (char *)d, cpp);
-                *p++ = (QRgb)colorMap[b];
+                *p++ = (QRgb)colorMap[xpmHash(b)];
                 d += cpp;
             }
         }
