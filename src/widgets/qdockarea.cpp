@@ -453,9 +453,10 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	    if ( !insertLine ) { // if we only insert the docking widget in the existing line
 		// find the index for the widget
 		for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
-		    if ( point_pos( dw->pos(), orientation() ) < lastPos )
+		    if ( point_pos( dw->pos(), orientation() ) < lastPos ) // we are in next line, so break
 			break;
-		    if ( point_pos( pos, orientation() ) < size_extend( dw->size(), orientation() ) / 2 )
+		    if ( point_pos( pos, orientation() ) < 
+			 point_pos( dw->pos(), orientation() ) + size_extend( dw->size(), orientation() ) / 2 )
 			break;
 		    index++;
 		    lastPos = point_pos( dw->pos(), orientation() );
@@ -464,7 +465,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		qDebug( "insert at index: %d", index );
 #endif
 		// if we insert it just before a widget which has a new line, transfer the newline to the docking widget
-		if ( index >= 0 && index < (int)dockWidgets->count() && 
+		if ( index >= 0 && index < (int)dockWidgets->count() &&
 		     dockWidgets->at( index )->newLine() && lineOf( index ) == dockLine ) {
 #if defined(QDOCKAREA_DEBUG)
 		    qDebug( "get rid of the old newline and get me one" );
