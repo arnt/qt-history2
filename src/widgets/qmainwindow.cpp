@@ -1201,6 +1201,14 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   moves the mouse cursor onto such a handle, the label of the toolbar
   is displayed in a tool tip (see QToolBar::label()).
 
+  By default the menubar of the mainwindow is not movable. If you need that,
+  you can just create another toolbar, and create a QMenuBar using this
+  toolbar as parent. Then set the menubar as the stretchable widget
+  of this toolbar. Most certainly you want also to disable the Left and
+  Right docks for this toolbar with setDockEnabled().
+  The MDI example (examples/mdi/application.cpp) demonstrates
+  how to implement all that.
+  
   An application with multiple toolbars can choose to save the current
   toolbar layout in order to restore it in the next session. To do so,
   use getLocation() on each toolbar, store the data and restore the
