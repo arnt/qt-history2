@@ -612,17 +612,17 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const 
     //do the blt
     Rect srcr;
     SetRect(&srcr, qRound(sr.x()), qRound(sr.y()),
-            qRound(sr.x() + sr.width()) + 1, qRound(sr.y()+sr.height()) + 1);
+            qRound(sr.x() + sr.width()), qRound(sr.y()+sr.height()));
     Rect dstr;
     SetRect(&dstr, d->offx + qRound(r.x()), d->offy + qRound(r.y()),
-            d->offx + qRound(r.x() + r.width()) + 1,
-            d->offy + qRound(r.y() + r.height()) + 1);
+            d->offx + qRound(r.x() + r.width()),
+            d->offy + qRound(r.y() + r.height()));
     if(srcmask) {
         const BitMap *maskbits = GetPortBitMapForCopyBits(qt_macQDHandle(srcmask));
         if(d->pdev->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
             QPixmap tmppix(qRound(r.width()), qRound(r.height()), pixmap.depth());
             Rect pixr;
-            SetRect(&pixr, 0, 0, qRound(r.width())+1, qRound(r.height()) + 1);
+            SetRect(&pixr, 0, 0, qRound(r.width()), qRound(r.height()));
             const BitMap *pixbits = GetPortBitMapForCopyBits((GWorldPtr)tmppix.handle());
             {
                 QMacSavedPortInfo pi(&tmppix);
