@@ -67,8 +67,8 @@ public:
 signals:
     void filesSelected(const QStringList &);
 
-#ifdef QT_COMPAT
 public:
+#ifdef QT_COMPAT
     typedef FileMode Mode;
     inline QT_COMPAT void setMode(FileMode m) { setFileMode(m); }
     inline QT_COMPAT FileMode mode() const { return fileMode(); }
