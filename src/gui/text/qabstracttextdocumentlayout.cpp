@@ -236,8 +236,10 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTe
         }
         p->drawTiledPixmap(rect, tile);
 #elif defined (Q_WS_MAC)
-        QColor hl = item.engine()->pal->highlight();
+        QColor hl = item.engine()->pal->highlight().color();
         QBrush brush(QColor(hl.red(), hl.green(), hl.blue(), 127));
+        if(QPixmap *pm = item.engine()->pal->highlight().pixmap())
+            brush.setPixmap(*pm);
         p->fillRect(rect, brush);
 #else
         QBrush brush(item.engine()->pal->highlight(), Qt::Dense4Pattern);
