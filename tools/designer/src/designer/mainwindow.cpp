@@ -49,7 +49,9 @@
 #include <QToolBar>
 #include <QVBoxWidget>
 #include <QVariant>
-#include <qsettings.h>
+#include <QStatusBar>
+#include <QSettings>
+
 #include <qevent.h>
 #include <qdebug.h>
 
@@ -87,7 +89,7 @@ MainWindow::MainWindow()
 #endif
     readSettings();
 
-    statusBar();
+    statusBar()->show();
 }
 
 MainWindow::~MainWindow()
