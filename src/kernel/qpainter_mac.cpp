@@ -467,11 +467,6 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
     if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
 
-	//offset painting in widget relative the tld
-	QPoint wp(posInWindow(w));
-	offx = wp.x();
-	offy = wp.y();
-
 	initPaintDevice();
 	
         cfont = w->font();                      // use widget font
@@ -762,12 +757,9 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 		QRegion clip = crgn;
 
 		//create the region
-		QPointArray offa = a;
-		offa.translate(offx, offy);
-		QRegion newclip(offa);
+		QRegion newclip(a);
 		if(clipon && !clip.isNull())
 		    newclip &= clip;
-		newclip.translate(-offx, -offy);
 		setClipRegion(newclip);
 
 		//turn off translation flags
@@ -775,7 +767,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 		flags = IsActive | ClipOn;
 
 		//draw the brush
-		QRect r(offa.boundingRect());
+		QRect r(a.boundingRect());
 		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *pm, 
 				r.x() - bro.x(), r.y() - bro.y());
 
@@ -995,11 +987,9 @@ void QPainter::drawRect( int x, int y, int w, int h )
 		QRegion clip = crgn;
 
 		//create the region
-		QRect qr(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
-		QRegion newclip(qr);
+		QRegion newclip(QRect(x, y, w, h));
 		if(clipon && !clip.isNull())
 		    newclip &= clip;
-		newclip.translate(-offx, -offy);
 		setClipRegion(newclip);
 
 		//turn off translation flags
@@ -1231,11 +1221,9 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 		QRegion clip = crgn;
 
 		//create the region
-		QRect qr(r.left, r.top, r.right-r.left, r.bottom-r.top);
-		QRegion newclip(qr, QRegion::Ellipse);
+		QRegion newclip(QRect(x, y, w, h), QRegion::Ellipse);
 		if(clipon && !clip.isNull())
 		    newclip &= clip;
-		newclip.translate(-offx, -offy);
 		setClipRegion(newclip);
 
 		//turn off translation flags
@@ -1257,8 +1245,10 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	}
     }
 
-    updatePen();
-    FrameOval( &r );
+    if(cpen.style() != NoPen) {
+	updatePen();
+	FrameOval( &r );
+    }
 }
 
 
@@ -1823,6 +1813,11 @@ void QPainter::initPaintDevice(bool force) {
 
 	//set the correct window prot
 	SetPortWindowPort((WindowPtr)w->handle());
+
+	//offset painting in widget relative the tld
+	QPoint wp(posInWindow(w));
+	offx = wp.x();
+	offy = wp.y();
 
 	if(!w->isVisible()) 
 	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
