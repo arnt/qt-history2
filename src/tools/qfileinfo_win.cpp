@@ -413,6 +413,13 @@ bool QFileInfo::permission( int p ) const
 
 void QFileInfo::doStat() const
 {
+    if ( fn.isEmpty() ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QFileInfo::doStat: Filename is null string." );
+#endif
+	return;
+    }
+
 #ifndef Q_OS_TEMP
     UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS);
 #endif
