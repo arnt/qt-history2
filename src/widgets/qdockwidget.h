@@ -23,7 +23,8 @@ class Q_EXPORT QDockWidget : public QFrame
 
 public:
     enum Place { InDock, OutsideDock };
-
+    enum CloseMode { Never = 0, Docked = 1, Undocked = 2, Always = Docked | Undocked };
+    
     QDockWidget( Place p = InDock, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     ~QDockWidget();
 
@@ -34,8 +35,9 @@ public:
 
     QDockArea *area() const;
 
-    virtual void setCloseEnabled( bool b );
+    virtual void setCloseMode( int m );
     bool isCloseEnabled() const;
+    int closeMode() const;
 
     virtual void setResizeEnabled( bool b );
     bool isResizeEnabled() const;
@@ -70,13 +72,15 @@ public:
 signals:
     void orientationChanged( Orientation o );
     void positionChanged();
-
+    void closed();
+    
 protected slots:
     void doUndock();
     void doDock();
 
 protected:
     void resizeEvent( QResizeEvent *e );
+    void closeEvent( QCloseEvent *e );
     QBoxLayout *boxLayout();
 
 private:
@@ -97,7 +101,8 @@ private:
     QRect currRect;
     Place state;
     QDockArea *dockArea, *tmpDockArea;
-    bool closeEnabled, resizeEnabled;
+    bool resizeEnabled;
+    int cMode;
     Orientation startOrientation;
     QRect startRect;
     QPoint startOffset;
@@ -111,7 +116,7 @@ private:
     QBoxLayout *layout;
     void *dockWidgetData;
     QPoint lastPos;
-    
+
 };
 
 inline QDockArea *QDockWidget::area() const

@@ -186,7 +186,7 @@ class QDockWidgetHandle : public QWidget
 public:
     QDockWidgetHandle( QDockWidget *dw );
     void updateGui();
-
+    
     QSize minimumSizeHint() const;
     QSize minimumSize() const { return minimumSizeHint(); }
     QSize sizeHint() const { return minimumSize(); }
@@ -412,7 +412,7 @@ void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
 QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
-      curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
+      curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ), cMode( Never ),
       offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ), lastPos( -1, -1 )
 {
     hbox = new QVBoxLayout( this );
@@ -661,14 +661,26 @@ bool QDockWidget::isResizeEnabled() const
     return resizeEnabled;
 }
 
-void QDockWidget::setCloseEnabled( bool b )
+void QDockWidget::setCloseMode( int m )
 {
-    closeEnabled = b;
+    cMode = m;
+    if ( place() == InDock ) {
+	horHandle->updateGui();
+	verHandle->updateGui();
+    } else {
+	titleBar->updateGui();
+    }
 }
 
 bool QDockWidget::isCloseEnabled() const
 {
-    return closeEnabled;
+    return  ( ( cMode & Docked ) == Docked && place() == InDock ||
+	      ( cMode & Undocked ) == Undocked && place() == OutsideDock );
+}
+
+int QDockWidget::closeMode() const
+{
+    return closeMode();
 }
 
 void QDockWidget::setHorizontalStretchable( bool b )
@@ -830,6 +842,13 @@ void QDockWidget::doDock()
     ( (QDockArea::DockWidgetData*)dockWidgetData )->
 	area->dockWidget( this, (QDockArea::DockWidgetData*)dockWidgetData );
     emit orientationChanged( orientation() );
+}
+
+void QDockWidget::closeEvent( QCloseEvent *e )
+{
+    QFrame::closeEvent( e );
+    if ( e->isAccepted() )
+	emit closed();
 }
 
 #include "qdockwidget.moc"
