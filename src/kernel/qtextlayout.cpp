@@ -665,7 +665,6 @@ bool QTextLayout::validCursorPosition( int pos ) const
 
 QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 {
-    Q_ASSERT(d->items.size());
     QScriptLine line;
     line.x = x1;
     line.width = x2-x1;
@@ -675,6 +674,17 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
     line.textWidth = 0;
     line.ascent = 0;
     line.descent = 0;
+
+    if (!d->items.size()) {
+	// ##### use block font
+	if (d->fnt) {
+	    QFontEngine *e = d->fnt->engineForScript(QFont::Latin);
+	    line.ascent = e->ascent();
+	    line.descent = e->descent();
+	}
+	d->lines.append(line);
+	return QTextLine(0, d);
+    }
 
     // ########## Readd tab support.
     bool breakany = d->textFlags & Qt::BreakAnywhere;
@@ -826,7 +836,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 		}
 	    }
 	}
-	if (sl.from <= cursorPos && sl.from + sl.length > cursorPos) {
+	if (sl.from <= cursorPos && sl.from + sl.length >= cursorPos) {
 	    int x = l.cursorToX(cursorPos);
 	    p->drawLine(pos.x() + x, pos.y() + sl.y, pos.x() + x, pos.y() + sl.y + sl.ascent + sl.descent );
 	}
@@ -1001,6 +1011,11 @@ void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions )
 
 int QTextLine::cursorToX( int *cPos, Edge edge ) const
 {
+    if (!i && !eng->items.size()) {
+	*cPos = 0;
+	return eng->lines[0].x;
+    }
+
     int pos = *cPos;
 
     int itm = eng->findItem(pos);
@@ -1088,8 +1103,6 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 	}
     }
 
-
-//     qDebug("cursorToX: pos=%d, gpos=%d x=%d", pos, glyph_pos, x );
     *cPos = pos + si->position;
     return x;
 }
