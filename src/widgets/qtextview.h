@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.h#88 $
+** $Id: //depot/qt/main/src/widgets/qtextview.h#89 $
 **
 ** Definition of the QTextView class
 **
@@ -48,8 +48,9 @@ class Q_EXPORT QTextView : public QTextEdit
 {
     Q_OBJECT
     Q_ENUMS( WordWrap WrapPolicy )
-    Q_OVERRIDE( int undoDepth READ undoDepth WRITE setUndoDepth DESIGNABLE false )
-    Q_OVERRIDE( bool overwriteMode READ isOverwriteMode WRITE setOverwriteMode DESIGNABLE false )
+    // #### does not work
+//     Q_OVERRIDE( int undoDepth READ undoDepth WRITE setUndoDepth DESIGNABLE false )
+//     Q_OVERRIDE( bool overwriteMode READ isOverwriteMode WRITE setOverwriteMode DESIGNABLE false )
 
 public:
     QTextView( const QString& text, const QString& context = QString::null,
