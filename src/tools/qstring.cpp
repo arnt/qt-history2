@@ -14015,7 +14015,7 @@ QString QString::left( uint len ) const
 	return QString();
     } else if ( len == 0 ) {                    // ## just for 1.x compat:
 	return fromLatin1( "" );
-    } else if ( len > length() ) {
+    } else if ( len >= length() ) {
 	return *this;
     } else {
 	QString s( len, TRUE );
@@ -14048,8 +14048,8 @@ QString QString::right( uint len ) const
 	return fromLatin1( "" );
     } else {
 	uint l = length();
-	if ( len > l )
-	    len = l;
+	if ( len >= l )
+	    return *this;
 	QString s( len, TRUE );
 	memcpy( s.d->unicode, d->unicode+(l-len), len*sizeof(QChar) );
 	s.d->len = len;
@@ -14083,7 +14083,7 @@ QString QString::mid( uint index, uint len ) const
     } else {
 	if ( len > slen-index )
 	    len = slen - index;
-	if ( index == 0 && len == length() )
+	if ( index == 0 && len == slen )
 	    return *this;
 	register const QChar *p = unicode()+index;
 	QString s( len, TRUE );
