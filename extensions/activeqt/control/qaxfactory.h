@@ -133,7 +133,7 @@ inline bool QAxFactory::stopServer()
     { \
     public: \
         QAxDefaultFactory(const QUuid &app, const QUuid &lib) \
-        : QAxFactory(app, lib), className(Class) {} \
+        : QAxFactory(app, lib), className(#Class) {} \
         QStringList featureList() const \
         { \
             QStringList list; \
@@ -149,7 +149,7 @@ inline bool QAxFactory::stopServer()
         QObject *createObject(const QString &key) \
         { \
             if (key == className) \
-                return new Class(parent, name); \
+                return new Class(0); \
             return 0; \
         } \
         QUuid classID(const QString &key) const \
