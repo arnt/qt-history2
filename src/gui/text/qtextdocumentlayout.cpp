@@ -824,15 +824,18 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
                 LayoutStruct layoutStruct = layoutCell(table, cell, width);
 
+                // the last row gets all the remaining space
                 int heightToDistribute = layoutStruct.y + 2*td->padding;
-                for (int n = 0; n < rspan; ++n) {
+                for (int n = 0; n < rspan - 1; ++n) {
                     const int row = r + n;
-                    int h = heightToDistribute / (rspan - n);
-                    td->heights[row] = qMax(td->heights.at(row), h);
-
                     heightToDistribute -= td->heights.at(row);
                     if (heightToDistribute <= 0)
                         break;
+                }
+
+                if (heightToDistribute > 0) {
+                    const int lastRow = r + rspan - 1;
+                    td->heights[lastRow] = qMax(td->heights.at(lastRow), heightToDistribute);
                 }
             }
         }
