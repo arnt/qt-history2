@@ -279,6 +279,16 @@ bool QOCIDriver::endTrans()
     return FALSE;
 }
 
+QStringList QOCIDriver::tables() const
+{
+    QSql t = createResult();
+    t << "select table_name from user_tables;";
+    QStringList tl;
+    while ( t.next() )
+	tl.append( t[0].toString() );
+    return tl;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 QOCIResultInfo::QOCIResultInfo( const QOCIPrivate* p )
