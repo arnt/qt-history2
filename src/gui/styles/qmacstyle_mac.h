@@ -28,6 +28,7 @@ class QPalette;
 #define Q_GUI_EXPORT_STYLE_MAC Q_GUI_EXPORT
 #endif
 
+class QMacStylePrivate;
 class Q_GUI_EXPORT_STYLE_MAC QMacStyle : public QWindowsStyle
 {
     Q_OBJECT
@@ -85,11 +86,7 @@ private:        // Disabled copy constructor and operator=
     QMacStyle(const QMacStyle &);
     QMacStyle& operator=(const QMacStyle &);
 #endif
-
-private:
-    QStyle *correctStyle(const QPainter *) const;
-    QStyle *correctStyle(const QPaintDevice *) const;
-    mutable QStyle *qd_style, *cg_style;
+    QMacStylePrivate *d;
 };
 
 #endif // Q_WS_MAC
