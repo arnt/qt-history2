@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#28 $
 **
 ** Implementation of QScrollView class
 **
@@ -324,13 +324,13 @@ void QScrollView::updateScrollBars()
 	int x=QMAX(0,contentsWidth()-d->viewport.width());
 	d->hbar.setValue(x);
 	// Do it even if it is recursive
-	moveContents( x, contentsY() );
+	moveContents( -x, -contentsY() );
     }
     if ( contentsY()+d->viewport.height() > contentsHeight() ) {
 	int y=QMAX(0,contentsHeight()-d->viewport.height());
 	d->vbar.setValue(y);
 	// Do it even if it is recursive
-	moveContents( contentsX(), y );
+	moveContents( -contentsX(), -y );
     }
 
     // Finally, show the scrollbars.
@@ -733,13 +733,13 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 */
 void QScrollView::setContentsPos( int x, int y )
 {
-    if ( x > 0 ) x = 0;
-    if ( y > 0 ) y = 0;
+    if ( x < 0 ) x = 0;
+    if ( y < 0 ) y = 0;
     // Choke signal handling while we update BOTH sliders.
     signal_choke=TRUE;
-    moveContents( x, y );
-    d->vbar.setValue( -y );
-    d->hbar.setValue( -x );
+    moveContents( -x, -y );
+    d->vbar.setValue( y );
+    d->hbar.setValue( x );
     updateScrollBars();
     signal_choke=FALSE;
     updateScrollBars();
@@ -795,6 +795,11 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 */
 void QScrollView::moveContents(int x, int y)
 {
+    if ( -x+d->viewport.width() > contentsWidth() )
+	x=QMIN(0,-contentsWidth()+d->viewport.width());
+    if ( -y+d->viewport.height() > contentsHeight() )
+	y=QMIN(0,-contentsHeight()+d->viewport.height());
+
     int dx = x - d->vx;
     int dy = y - d->vy;
 
