@@ -51,6 +51,7 @@ public:
     bool usePCH;
 
 protected:
+    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
     virtual bool supportsMetaBuild() { return false; }
     virtual bool openOutput(QFile &file, const QString &build) const;
     virtual void processPrlVariable(const QString &, const QStringList &);

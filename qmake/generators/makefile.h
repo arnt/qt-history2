@@ -106,7 +106,7 @@ protected:
     QString valGlue(const QStringList &varList, const QString &before, const QString &glue, const QString &after);
     QString valList(const QStringList &varList);
 
-    QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
+    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
 
     QString filePrefixRoot(const QString &, const QString &);
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };

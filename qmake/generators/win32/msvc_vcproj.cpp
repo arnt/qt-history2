@@ -1091,6 +1091,17 @@ void VcprojGenerator::initOld()
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 
+QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+{
+    QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
+    ret.replace("$(DEFINES)",  varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
+                varGlue("DEFINES"," -D"," -D",""));
+    ret.replace("$(INCPATH)",  this->var("MSVCPROJ_INCPATH"));
+    return ret;
+}
+
+
+
 bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
@@ -1105,9 +1116,8 @@ bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
             ext = project->first("VCSOLUTION_EXTENSION");
         file.setName(outdir + project->first("TARGET") + ext);
     }
-    if(QDir::isRelativePath(file.name())) {
+    if(QDir::isRelativePath(file.name()))
         file.setName(Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + fixFilename(file.name())));
-    }
     return Win32MakefileGenerator::openOutput(file, build);
 }
 
