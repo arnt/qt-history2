@@ -257,7 +257,7 @@ int QMacMimeAnyMime::registerMimeType(const QString &mime)
     return mime_registry[mime];
 }
 #else
-bool openMimeRegistry(bool global, int mode, QFile &file)
+bool openMimeRegistry(bool global, QIODevice::DeviceMode mode, QFile &file)
 {
     QString dir = "/Library/Qt";
     if(!global)
