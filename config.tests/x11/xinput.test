@@ -41,7 +41,7 @@ if [ "$XINPUT" = "yes" ]
 then
     INCS="X11/extensions/XInput.h wacom.h"
     XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
-    INCDIRS="XDIRS /usr/include /include"
+    INCDIRS="$XDIRS /usr/include /include"
 
     for I in $INCS
     do
@@ -63,7 +63,7 @@ then
 	    XINPUT=no
 	    if [ "$VERBOSE" = "yes" ]
 	    then
-		echo "  Could not find $INC anywhere in $INCDIRS"
+		echo "  Could not find $I anywhere in $INCDIRS"
 	    fi
 	fi
     done
