@@ -34,6 +34,8 @@ QUnknownInterface *SGIStyle::queryInterface( const QUuid &uuid )
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)(QStyleInterface*)this;
+    else if ( uuid == IID_QFeatureListInterface )
+	iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
     else if ( uuid == IID_QLibraryInterface )
