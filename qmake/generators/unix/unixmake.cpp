@@ -367,17 +367,19 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
 #endif
 
-    t << "mocclean:" << "\n\t"
-      << "-rm -f $(OBJMOC)" << "\n\t"
-      << "-rm -f $(SRCMOC)"
-      << endl << endl;
-
-    t << "clean: mocclean" << "\n\t"
-      << "-rm -f $(OBJECTS) $(UICIMPLS) $(UICDECLS) $(TARGET)" << "\n\t";
-    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
+    QString clean_targets;
+    if(mocAware()) {
+	t << "mocclean:" << "\n\t"
+	  << "-rm -f $(OBJMOC)" << "\n\t"
+	  << "-rm -f $(SRCMOC)"
+	  << endl << endl;
+	clean_targets += " mocclean";
     }
-    t << varGlue("QMAKE_CLEAN","-rm -f "," ","") << "\n\t"
+    t << "clean:" << clean_targets << "\n\t"
+      << "-rm -f $(OBJECTS) $(UICIMPLS) $(UICDECLS) $(TARGET)" << "\n\t";
+    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) 
+	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
+    t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t") 
       << "-rm -f *~ core *.core" << "\n\t"
       << varGlue("CLEAN_FILES","-rm -f "," ","") << endl << endl;
     t << "####### Sub-libraries" << endl << endl;
