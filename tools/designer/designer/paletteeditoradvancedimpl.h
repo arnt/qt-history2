@@ -18,28 +18,45 @@
 **
 **********************************************************************/
 
-#include "paletteeditor.h"
+#include "paletteeditoradvanced.h"
 
 class FormWindow;
 
-class PaletteEditor : public PaletteEditorBase
+class PaletteEditorAdvanced : public PaletteEditorAdvancedBase
 {
     Q_OBJECT
-
 public:
-    PaletteEditor( FormWindow *fw, QWidget * parent=0, const char * name=0, bool modal=FALSE, WFlags f=0 );
-    ~PaletteEditor();
+    PaletteEditorAdvanced( FormWindow *fw, QWidget * parent=0, const char * name=0,
+			   bool modal=FALSE, WFlags f=0 );
+    ~PaletteEditorAdvanced();
 
     static QPalette getPalette( bool *ok, const QPalette &pal, BackgroundMode mode = PaletteBackground,
 				QWidget* parent = 0, const char* name = 0, FormWindow *fw = 0 );
 
 protected slots:
-    void onChooseMainColor();
-    void onChoose2ndMainColor();
-    void onTune();
     void paletteSelected(int);
 
+    void onCentral( int );
+    void onEffect( int );
+
+    void onChooseCentralColor();
+    void onChooseEffectColor();
+    void onChoosePixmap();
+
+    void onToggleBuildEffects( bool );
+
 protected:
+    void mapToActiveCentralRole( const QColor& );
+    void mapToActiveEffectRole( const QColor& );
+    void mapToActivePixmapRole( const QPixmap& );
+    void mapToInactiveCentralRole( const QColor& );
+    void mapToInactiveEffectRole( const QColor& );
+    void mapToInactivePixmapRole( const QPixmap& );
+    void mapToDisabledCentralRole( const QColor& );
+    void mapToDisabledEffectRole( const QColor& );
+    void mapToDisabledPixmapRole( const QPixmap& );
+
+
     void buildPalette();
     void buildActiveEffect();
     void buildInactive();
@@ -50,7 +67,7 @@ protected:
 private:
     void setPreviewPalette( const QPalette& );
     void updateStyledButtons();
-    void setupBackgroundMode( BackgroundMode mode ) { backgroundMode = mode; }
+    void setupBackgroundMode( BackgroundMode );
 
     QPalette pal() const;
     void setPal( const QPalette& );
@@ -61,5 +78,6 @@ private:
     QPalette previewPalette;
 
     FormWindow *formWindow;
-    BackgroundMode backgroundMode;
+
+    int selectedPalette;
 };

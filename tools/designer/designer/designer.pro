@@ -24,7 +24,6 @@ HEADERS	= command.h \
 		  customwidgeteditorimpl.h \
 		  paletteeditorimpl.h \
 		  styledbutton.h \
-		  previewstack.h \
 		  iconvieweditorimpl.h \
 		  multilineeditorimpl.h \
 		  formsettingsimpl.h \
@@ -46,7 +45,10 @@ HEADERS	= command.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/parser.h \
 		  config.h \
-		  pixmapcollection.h
+		  pixmapcollection.h \
+		  previewframe.h \
+		  previewwidgetimpl.h \
+		  paletteeditoradvancedimpl.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -72,7 +74,6 @@ SOURCES	= command.cpp \
 		  customwidgeteditorimpl.cpp \
 		  paletteeditorimpl.cpp \
 		  styledbutton.cpp \
-		  previewstack.cpp \
 		  iconvieweditorimpl.cpp \
 		  multilineeditorimpl.cpp \
 		  formsettingsimpl.cpp \
@@ -90,7 +91,10 @@ SOURCES	= command.cpp \
 		  ../shared/widgetdatabase.cpp \
 		  ../shared/parser.cpp \
 		  config.cpp \
-		  pixmapcollection.cpp
+		  pixmapcollection.cpp \
+		  previewframe.cpp \
+		  previewwidgetimpl.cpp \
+		  paletteeditoradvancedimpl.cpp
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/
@@ -99,7 +103,7 @@ win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qresource.lib
 DEFINES	+= DESIGNER
 DESTDIR	= ../../../bin
 win32-msvc:RC_FILE = designer.rc
-INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui texteditpreview.ui listviewpreview.ui paletteeditor.ui radiopreview.ui checkboxpreview.ui widgetpreview.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui
+INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui texteditpreview.ui listviewpreview.ui paletteeditor.ui radiopreview.ui checkboxpreview.ui widgetpreview.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui
 PROJECTNAME	= Designer
 
 sql {
