@@ -29,7 +29,6 @@ DEFINE_GUID(IID_IActiveIMMMessagePumpOwner,
 
 interface IEnumRegisterWordW;
 interface IEnumInputContext;
-struct IMEMENUITEMINFOW;
 
 #define IFMETHOD HRESULT STDMETHODCALLTYPE
 
@@ -106,8 +105,8 @@ public:
     virtual IFMETHOD AssociateContextEx( HWND hWnd, HIMC hIMC, DWORD dwFlags) = 0;
     virtual IFMETHOD DisableIME( DWORD idThread) = 0;
     virtual IFMETHOD dummy_GetImeMenuItemsA( ) = 0;
-    virtual IFMETHOD GetImeMenuItemsW( HIMC hIMC, DWORD dwFlags, DWORD dwType, IMEMENUITEMINFOW __RPC_FAR *pImeParentMenu,
-        IMEMENUITEMINFOW __RPC_FAR *pImeMenu, DWORD dwSize, DWORD __RPC_FAR *pdwResult) = 0;
+    virtual IFMETHOD GetImeMenuItemsW( HIMC hIMC, DWORD dwFlags, DWORD dwType, /*IMEMENUITEMINFOW*/ void __RPC_FAR *pImeParentMenu,
+        /*IMEMENUITEMINFOW*/ void __RPC_FAR *pImeMenu, DWORD dwSize, DWORD __RPC_FAR *pdwResult) = 0;
     virtual IFMETHOD EnumInputContext( DWORD idThread, IEnumInputContext __RPC_FAR *__RPC_FAR *ppEnum) = 0;
 };
 
