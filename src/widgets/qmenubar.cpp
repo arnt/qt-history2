@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#9 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#9 $";
 #endif
 
 
@@ -306,8 +306,7 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
     QSize sz = clientSize();
     p->begin( this );
     
-    p->drawShadePanel( clientRect(), lightColor, darkColor,
-		       motifBarFrame, motifBarFrame );
+    p->drawShadePanel( clientRect(), lightColor, darkColor, motifBarFrame );
     p->setClipRect( motifBarFrame, motifBarFrame,
 		    sz.width()  - 2*motifBarFrame,
 		    sz.height() - 2*motifBarFrame );
@@ -324,11 +323,9 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 	    p->eraseRect( r );
 	}
 	if ( i == actItem )			// active item frame
-	    p->drawShadePanel( r, lightColor, darkColor,
-			       motifItemFrame, motifItemFrame );
+	    p->drawShadePanel( r, lightColor, darkColor, motifItemFrame );
 	else					// incognito frame
-	    p->drawShadePanel( r, normalColor, normalColor,
-			       motifItemFrame, motifItemFrame );
+	    p->drawShadePanel( r, normalColor, normalColor, motifItemFrame );
 	if ( mi->bitmap() )
 	    p->drawPixMap( r.left() + motifItemFrame,
 			   r.top() + motifItemFrame,

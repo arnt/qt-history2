@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#11 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#11 $";
 #endif
 
 
@@ -378,13 +378,11 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	return;
     }
     if ( row == actItem )			// active item frame
-	p->drawShadePanel( 0, 0, cellw, cellh,
-			   lightColor, darkColor,
-			   motifItemFrame, motifItemFrame );
+	p->drawShadePanel( 0, 0, cellw, cellh, lightColor, darkColor,
+			   motifItemFrame );
     else					// incognito frame
-	p->drawShadePanel( 0, 0, cellw, cellh,
-			   normalColor, normalColor,
-			   motifItemFrame, motifItemFrame );
+	p->drawShadePanel( 0, 0, cellw, cellh, normalColor, normalColor,
+			   motifItemFrame );
     if ( mi->bitmap() )				// draw bitmap
 	p->drawPixMap( motifItemFrame + motifItemHMargin, motifItemFrame,
 		       *mi->bitmap() );
@@ -436,12 +434,10 @@ void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
     QRect r = clientRect();
     switch ( style() ) {
 	case MacStyle:
-	    paint.drawShadePanel( r, black, black,
-				  macPopupFrame, macPopupFrame );
+	    paint.drawShadePanel( r, black, black, macPopupFrame );
 	    break;
 	case MotifStyle:
-	    paint.drawShadePanel( r, lightColor, darkColor,
-				  motifPopupFrame, motifPopupFrame );
+	    paint.drawShadePanel( r, lightColor, darkColor, motifPopupFrame );
 	    break;
     }
     paint.end();

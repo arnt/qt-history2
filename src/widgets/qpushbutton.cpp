@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#13 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#13 $";
 #endif
 
 
@@ -161,12 +161,14 @@ void QPushButton::setGeometry( const QRect &r )
 void QPushButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
-    GUIStyle gs = style();
-    bool updated = isDown() != lastDown || lastDef != defButton;
-    int x1, y1, x2, y2;
-    clientRect().coords( &x1, &y1, &x2, &y2 );
+    GUIStyle 	gs = style();
+    bool 	updated = isDown() != lastDown || lastDef != defButton;
+    QColor	fillcol = backgroundColor();
+    int 	x1, y1, x2, y2;
+
+    clientRect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
     QPen pen( black );
-    QBrush brush( backgroundColor(), NoBrush );
+    QBrush brush( fillcol, NoBrush );
 
 #define SAVE_PUSHBUTTON_PIXMAPS
 #if defined(SAVE_PUSHBUTTON_PIXMAPS)
@@ -191,7 +193,7 @@ void QPushButton::drawButton( QPainter *paint )
 	savePixmap( pmkey, pm );		// save for later use
 	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
-	p->setBackgroundColor( backgroundColor() );
+	p->setBackgroundColor( fillcol );
 	p->eraseRect( 0, 0, w, h );
     }
 #endif
@@ -228,14 +230,12 @@ void QPushButton::drawButton( QPainter *paint )
 	    x1++; y1++;
 	    x2--; y2--;
 	}
-	if ( updated )
-	    brush.setStyle( SolidBrush );
 	if ( isDown() )
 	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, darkGray, lightGray,
-			       1, 0, updated );
+			       1, fillcol, updated );
 	else
 	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, white, darkGray,
-			       2, 2, updated );
+			       2, fillcol, updated );
     }
     else if ( gs == PMStyle ) {			// PM push button
 	pen.setColor( darkGray );
@@ -281,16 +281,14 @@ void QPushButton::drawButton( QPainter *paint )
 	if ( isDown() ) {
 	    tColor = black;
 	    bColor = white;
-	    brush.setColor( darkGray );
+	    fillcol = darkGray;
 	}
 	else {
 	    tColor = white;
 	    bColor = darkGray;
 	}
-	if ( updated )
-	    brush.setStyle( SolidBrush );
 	p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, tColor, bColor,
-			   2, 2, updated );
+			   2, fillcol, updated );
     }
     if ( brush.style() != NoBrush )
 	brush.setStyle( NoBrush );

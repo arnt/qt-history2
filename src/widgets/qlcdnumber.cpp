@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#8 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#8 $";
 #endif
 
 
@@ -388,7 +388,7 @@ void QLCDNumber::paintEvent( QPaintEvent * )
     p.begin(this);
     tc = backgroundColor().dark();
     bc = backgroundColor().light();
-    p.drawShadePanel( clientRect(), tc, bc, 1, 1 );
+    p.drawShadePanel( clientRect(), tc, bc, 1 );
     p.pen().setColor( black );
     if ( smallPoint )
 	drawString( digitStr, p, &points, FALSE );

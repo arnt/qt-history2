@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#8 $
 **
 ** Implementation of QLineEdit class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#8 $";
 #endif
 
 
@@ -297,13 +297,12 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
     char *displayText = &t[ offset ];
 
     if ( frame )
-	p->drawShadePanel( QRect( QPoint( 0, 0 ), sz ),
+	p->drawShadePanel( 0, 0, sz.width(), sz.height(),
 			   backgroundColor().dark(),
-			   backgroundColor().light());
-    p->setClipRect( QRect(
-		      LEFT_MARGIN, TOP_MARGIN,
-		      sz.width()  - LEFT_MARGIN - RIGHT_MARGIN + 1,
-		      sz.height() - TOP_MARGIN - BOTTOM_MARGIN + 1) );
+			   backgroundColor().light() );
+    p->setClipRect( LEFT_MARGIN, TOP_MARGIN,
+		    sz.width()  - LEFT_MARGIN - RIGHT_MARGIN + 1,
+		    sz.height() - TOP_MARGIN - BOTTOM_MARGIN + 1 );
 
     int tDispWidth = sz.width() - LEFT_MARGIN - RIGHT_MARGIN;
     int displayLength = xPosToCursorPos( displayText, font(),
