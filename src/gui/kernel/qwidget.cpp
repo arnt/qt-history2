@@ -53,8 +53,8 @@
 #define q q_func()
 
 
-QWidgetPrivate::QWidgetPrivate() :
-        QObjectPrivate(), extra(0), focus_child(0)
+QWidgetPrivate::QWidgetPrivate(int version) :
+        QObjectPrivate(version), extra(0), focus_child(0)
 #ifndef QT_NO_LAYOUT
         ,layout(0)
 #endif
@@ -72,6 +72,9 @@ QWidgetPrivate::QWidgetPrivate() :
         ,polished(0)
 
 {
+    if (version != QObjectPrivateVersion)
+        qFatal("Cannot mix incompatible Qt libraries");
+
     isWidget = true;
     high_attributes[0] = 0;
 }

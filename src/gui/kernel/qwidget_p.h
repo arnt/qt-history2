@@ -135,7 +135,7 @@ class Q_GUI_EXPORT QWidgetPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QWidget)
 
 public:
-    QWidgetPrivate();
+    QWidgetPrivate(int version = QObjectPrivateVersion);
     ~QWidgetPrivate();
 
     QWExtra        *extraData() const;

@@ -36,13 +36,14 @@
 
 inline QObjectData::~QObjectData() {}
 
+enum { QObjectPrivateVersion = 1 };
 
 class Q_CORE_EXPORT QObjectPrivate : public QObjectData
 {
     Q_DECLARE_PUBLIC(QObject)
 
 public:
-    QObjectPrivate();
+    QObjectPrivate(int version = QObjectPrivateVersion);
     virtual ~QObjectPrivate();
 
     // pointer to the thread that owns the object

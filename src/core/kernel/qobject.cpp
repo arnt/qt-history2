@@ -35,12 +35,15 @@ static const int GUARDED_SIGNAL = INT_MIN;
 static int DIRECT_CONNECTION_ONLY = 0;
 
 
-QObjectPrivate::QObjectPrivate()
+QObjectPrivate::QObjectPrivate(int version)
     :
     thread(0),
     connections(0),
     senders(0)
 {
+    if (version != QObjectPrivateVersion)
+        qFatal("Cannot mix incompatible Qt libraries");
+
     // QObjectData initialization
     q_ptr = 0;
     parent = 0;                                 // no parent yet. It is set by setParent()
