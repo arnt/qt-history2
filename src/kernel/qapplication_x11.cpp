@@ -5027,6 +5027,8 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 
     XKeyEvent xkeyevent = event->xkey;
 
+    type = (event->type == XKeyPress)
+			? QEvent::KeyPress : QEvent::KeyRelease;
 #if defined(QT_NO_XIM)
 
     count = XLookupString( &xkeyevent, chars.data(), chars.size(), &key, 0 );
@@ -5035,8 +5037,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	ascii = chars[0];
 
 #else
-    type = (event->type == XKeyPress)
-			? QEvent::KeyPress : QEvent::KeyRelease;
     // Implementation for X11R5 and newer, using XIM
 
     int	       keycode = event->xkey.keycode;
@@ -5292,8 +5292,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		XPutBackEvent(dpy, &evRelease);
 		break;
 	    }
+	    QEvent::Type t;
 	    translateKeyEventInternal( &evPress, countIntern, textIntern,
-				       stateIntern, asciiIntern, codeIntern, type);
+				       stateIntern, asciiIntern, codeIntern, t );
 	    if ( stateIntern == state && !textIntern.isEmpty() ) {
 		if (!grab) { // test for accel if the keyboard is not grabbed
 		    QKeyEvent a( QEvent::AccelAvailable, codeIntern,
