@@ -20,6 +20,7 @@
 #include "private/qsocketdevice_p.h"
 #include "private/qinternal_p.h"
 #include "qlist.h"
+#include "qsignal.h"
 
 #include <string.h>
 #ifndef NO_ERRNO_H
@@ -120,11 +121,11 @@ public:
     void internalConnectionClosed();
     void internalSetSocketDevice(QSocketDevice *device);
     bool consumeWriteBuf(Q_ULONG nbytes);
-    void tryConnection();
     void setSocket(int socket);
 
     void tryConnecting(const QDnsHostInfo &);
-    void emitErrorConnectionRefused();
+    void connectToNextAddress();
+    void testConnection();
 
     QSocket::State state;                           // connection state
     QString host;                                   // host name
@@ -262,20 +263,26 @@ bool QSocketPrivate::consumeWriteBuf(Q_ULONG nbytes)
     return true;
 }
 
-void QSocketPrivate::tryConnection()
+void QSocketPrivate::testConnection()
 {
     if (socket->connect(addr, port)) {
         state = QSocket::Connected;
 #if defined(QSOCKET_DEBUG)
-        qDebug("QSocket (%s): sn_write: Got connection to %s", q->name(), q->peerName().ascii());
+        qDebug("QSocket (%s): testConnection(): Connection to %s established",
+               q->name(), q->peerName().ascii());
 #endif
         if (rsn)
             rsn->setEnabled(true);
         emit q->connected();
-    } else {
-        state = QSocket::Idle;
-        QTimer::singleShot(0, q, SLOT(emitErrorConnectionRefused()));
+        return;
     }
+
+#if defined(QSOCKET_DEBUG)
+    qDebug("QSocket (%s): testConnection(): Connection to %s failed",
+           q->name(), q->peerName().ascii());
+#endif
+
+    qInvokeSlot(q, "connectToNextAddress", Qt::QueuedConnection);
 }
 
 /*
@@ -311,7 +318,12 @@ void QSocketPrivate::setSocket(int socket)
 }
 
 /*
-    Continues the connection process where connectToHost() leaves off.
+    Invoked by QDns::getHostByName(), prepares the list of addresses
+    returned by the hostname lookup, and tries to connect each of them
+    until one succeeds.
+
+    tryConnecting() connects to the IPv4 addresses before any IPv6
+    addresses returned by the lookup.
 */
 void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 {
@@ -326,66 +338,77 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
         return;
     }
 
+    // enter Connecting state (see also sn_write, which is called by
+    // the write socket notifier after connect())
+    state = QSocket::Connecting;
+
     // report the successful host lookup
     emit q->hostFound();
 
-    // put IPv4 addresses upfront, IPv6 back. the relative order of
-    // the addresses is not important beyond that
+    // put any IPv4 addresses upfront, and IPv6 at the end. this
+    // decides the order in which the addresses will be tested.
     for (int i = 0; i < hostInfo.addresses.size(); ++i) {
         const QHostAddress &a = hostInfo.addresses.at(i);
         if (a.isIPv4Address())
             addresses.prepend(a);
-        else
+        else if (a.isIPv6Address())
             addresses.append(a);
     }
-
-    // enter Connecting state (see also sn_write, which is called by
-    // the write socket notifier after connect())
-    state = QSocket::Connecting;    
 
     // create a socket device if we don't have one already
     if (!socket)
         internalSetSocketDevice(0);
-    
+
+    // the addresses returned by the lookup will be tested one after
+    // another by the connectToNextAddress() slot.
+    qInvokeSlot(q, "connectToNextAddress", Qt::QueuedConnection);
+}
+
+/*
+    Picks hostaddresses off the addresses list and attempts to connect
+    to them one at a time. The connects are nonblocking, so a
+    successful connect simply means that eventually testConnection()
+    will be called.  If the test shows that the connect failed, this
+    function is called again until the addresses list is empty, or a
+    connect succeeds.
+*/
+void QSocketPrivate::connectToNextAddress()
+{
     // attempt to connect to all addresses, one at a time.
-    for (;;) {
+    while (!addresses.isEmpty()) {
         addr = addresses.takeFirst();
+#if defined(QSOCKET_DEBUG)
+        qDebug("QSocket (%s)::connectToNextAddress(), connecting to %s on port %i", q->name(),
+               addr.toString().latin1(), port);
+#endif
 
         // try connecting (nonblocking).  if the connect failed but
         // there was no error, the write socket notifier will fire at
         // a point where we should call connect() again. wsn is
-        // connected to tryConnection().
+        // connected to testConnection().
         if (socket->connect(addr, port) || socket->error() == QSocketDevice::NoError) {
+            state = QSocket::Connecting;
             if (wsn) wsn->setEnabled(true);
-            break;
+            return;
         }
 
-        // an error occurred. we ignore the cause of this error and
-        // delete our socket notifiers and socket device. if there are
-        // more addresses we can try then we will continue.
 #if defined(QSOCKET_DEBUG)
-        qDebug("QSocket (%s)::tryConnecting: Gave up on IP address %s",
-               q->name(), socket->peerAddress().toString().ascii());
+        qDebug("QSocket (%s)::connectToNextAddress(), connection failed (%i attempts left)",
+               q->name(), addresses.count());
 #endif
-
-        // if there are no more addresses to try; they all
-        // failed. we also know that the list was not empty, so we
-        // treat this as a connection failure. otherwise the next
-        // address is tested.
-        if (addresses.isEmpty()) {
-            emit q->error(QSocket::ErrConnectionRefused);
-            break;
-        }
     }
-}
 
-void QSocketPrivate::emitErrorConnectionRefused()
-{
+    // if there are no more addresses to try; they all
+    // failed. we also know that the list was not empty, so we
+    // treat this as a connection failure. otherwise the next
+    // address is tested.
+    state = QSocket::Idle;
     emit q->error(QSocket::ErrConnectionRefused);
 }
 
 /*!
     \class QSocket
+    \reentrant
     \brief The QSocket class provides a buffered TCP connection.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
@@ -437,9 +460,6 @@ void QSocketPrivate::emitErrorConnectionRefused()
     flush(), size(), at(), atEnd(), readBlock(), writeBlock(),
     getch(), putch(), ungetch() and readLine() describes the
     differences in detail.
-
-    \warning QSocket is not suitable for use in threads. If you need
-    to uses sockets in threads use the lower-level QSocketDevice class.
 
     \sa QSocketDevice, QHostAddress, QSocketNotifier
 */
@@ -1204,7 +1224,7 @@ void QSocket::sn_read(bool force)
 
     if (d->state == Connecting) {
         if (nbytes > 0) {
-            d->tryConnection();
+            d->testConnection();
         } else {
             // nothing to do, nothing to care about
             goto end;
@@ -1312,8 +1332,9 @@ end:
 
 void QSocket::sn_write()
 {
-    if (d->state == Connecting)                // connection established?
-        d->tryConnection();
+    if (d->state == Connecting)               // connection established?
+        d->testConnection();
+
     flush();
 }
 
