@@ -200,7 +200,18 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                                    : QTextCursor::MoveAnchor;
 
     QTextCursor::MoveOperation op = QTextCursor::NoMove;
+#ifdef Q_WS_MAC
+    // There can be only one modifier (+ shift), but we also need to make sure
+    // that we have a "move key" pressed before we reject it.
+    bool twoModifiers
+        = ((e->state() & (Qt::ControlButton | Qt::AltButton))
+           == (Qt::ControlButton | Qt::AltButton))
+        || ((e->state() & (Qt::ControlButton | Qt::MetaButton))
+            == (Qt::ControlButton | Qt::MetaButton))
+        || ((e->state() & (Qt::AltButton | Qt::MetaButton)) == (Qt::AltButton | Qt::MetaButton));
+#endif
     switch (e->key()) {
+#ifndef Q_WS_MAC  // Use the default Windows bindings.
         case Qt::Key_Up:
             op = QTextCursor::Up;
             break;
@@ -227,6 +238,85 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                  ? QTextCursor::End
                  : QTextCursor::EndOfLine;
             break;
+#else
+// Except for pageup and pagedown, Mac OS X has very different behavior, we don't do it all, but
+// here's the breakdown:
+// Shift still works as an anchor, but only one of the other keys can be down Ctrl (Command),
+// Alt (Option), or Meta (Control).
+// Command/Control + Left/Right -- Move to left or right of the line
+//                 + Up/Down -- Move to top bottom of the file. (Control doesn't move the cursor)
+// Option + Left/Right -- Move one word Left/right.
+//        + Up/Down  -- Begin/End of Paragraph.
+// Home/End Top/Bottom of file. (usually don't move the cursor, but will select)
+        case Qt::Key_Up:
+            if (twoModifiers) {
+                QApplication::beep();
+                return true;
+            } else {
+                if (e->state() & (Qt::ControlButton | Qt::MetaButton))
+                    op = QTextCursor::Start;
+                else if (e->state() & Qt::AltButton)
+                    op = QTextCursor::PreviousBlock;
+                else
+                    op = QTextCursor::Up;
+            }
+            break;
+        case Qt::Key_Down:
+            if (twoModifiers) {
+                QApplication::beep();
+                return true;
+            } else {
+                if (e->state() & (Qt::ControlButton | Qt::MetaButton))
+                    op = QTextCursor::End;
+                else if (e->state() & Qt::AltButton)
+                    op = QTextCursor::StartOfBlock;
+                else
+                    op = QTextCursor::Down;
+            }
+            break;
+        case Qt::Key_Left:
+            if (twoModifiers) {
+                QApplication::beep();
+                return true;
+            } else {
+                if (e->state() & (Qt::ControlButton | Qt::MetaButton))
+                    op = QTextCursor::StartOfLine;
+                else if (e->state() & Qt::AltButton)
+                    op = QTextCursor::WordLeft;
+                else
+                    op = QTextCursor::Left;
+            }
+            break;
+        case Qt::Key_Right:
+            if (twoModifiers) {
+                QApplication::beep();
+                return true;
+            } else {
+                if (e->state() & (Qt::ControlButton | Qt::MetaButton))
+                    op = QTextCursor::EndOfLine;
+                else if (e->state() & Qt::AltButton)
+                    op = QTextCursor::WordRight;
+                else
+                    op = QTextCursor::Right;
+            }
+            break;
+        case Qt::Key_Home:
+            if (e->state() & (Qt::ControlButton | Qt::MetaButton | Qt::AltButton)) {
+                QApplication::beep();
+                return true;
+            } else {
+                op = QTextCursor::Start;
+            }
+            break;
+        case Qt::Key_End:
+            if (e->state() & (Qt::ControlButton | Qt::MetaButton | Qt::AltButton)) {
+                QApplication::beep();
+                return true;
+            } else {
+                op = QTextCursor::End;
+            }
+            break;
+#endif
         case Qt::Key_Next:
             return pageDown(mode);
         case Qt::Key_Prior:
