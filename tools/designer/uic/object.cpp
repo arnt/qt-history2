@@ -438,9 +438,10 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	v = v.arg(r).arg(g).arg(b);
     } else if ( e.tagName() == "font" ) {
 	QDomElement n3 = e.firstChild().toElement();
+	QString attrname = e.parentNode().toElement().attribute( "name", "font" );
 	QString fontname;
 	if ( !obj.isEmpty() ) {
-	    fontname = registerObject( obj + "_font" );
+	    fontname = registerObject( obj + "_" + attrname );
 	    out << indent << "QFont "  << fontname << "(  " << obj << "->font() );" << endl;
 	} else {
 	    fontname = registerObject( "f" );
