@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#23 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#23 $";
 #endif
 
 
@@ -41,7 +41,7 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
     initMetaObject();
-    setOnOffButton( TRUE );
+    setToggleButton( TRUE );
     noHit = FALSE;
 }
 
@@ -51,7 +51,7 @@ QRadioButton::QRadioButton( const char *label, QWidget *parent,
 {
     initMetaObject();
     setLabel( label );
-    setOnOffButton( TRUE );
+    setToggleButton( TRUE );
     noHit = FALSE;
 }
 

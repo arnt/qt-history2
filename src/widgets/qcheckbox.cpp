@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#22 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#22 $";
 #endif
 
 
@@ -40,7 +40,7 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
     initMetaObject();
-    setOnOffButton( TRUE );
+    setToggleButton( TRUE );
 }
 
 QCheckBox::QCheckBox( const char *label, QWidget *parent, const char *name )
@@ -48,7 +48,7 @@ QCheckBox::QCheckBox( const char *label, QWidget *parent, const char *name )
 {
     initMetaObject();
     setLabel( label );
-    setOnOffButton( TRUE );
+    setToggleButton( TRUE );
 }
 
 
