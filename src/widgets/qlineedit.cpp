@@ -54,8 +54,9 @@ struct QLineEditPrivate {
 	pm(0), pmDirty( TRUE ),
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dragTimer( l, "QLineEdit drag timer" ),
+	dndTimer( l, "DnD Timer" ),
 	inDoubleClick( FALSE ), offsetDirty( FALSE ),
-	undo(TRUE), needundo( FALSE ), ignoreUndoWithDel( FALSE ) {}
+	undo(TRUE), needundo( FALSE ), ignoreUndoWithDel( FALSE ), mousePressed( FALSE ) {}
 
     bool frame;
     QLineEdit::EchoMode mode;
@@ -63,7 +64,7 @@ struct QLineEditPrivate {
     QPixmap * pm;
     bool pmDirty;
     QTimer blinkTimer;
-    QTimer dragTimer;
+    QTimer dragTimer, dndTimer;
     QRect cursorRepaintRect;
     bool inDoubleClick;
     bool offsetDirty;
@@ -74,6 +75,7 @@ struct QLineEditPrivate {
     bool undo;
     bool needundo;
     bool ignoreUndoWithDel;
+    bool mousePressed;
 };
 
 
@@ -189,6 +191,8 @@ void QLineEdit::init()
 	     this, SLOT(blinkSlot()) );
     connect( &d->dragTimer, SIGNAL(timeout()),
 	     this, SLOT(dragScrollSlot()) );
+    connect( &d->dndTimer, SIGNAL(timeout()),
+	     this, SLOT(doDrag()) );
     cursorPos = 0;
     offset = 0;
     maxLen = 32767;
@@ -743,10 +747,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     int m2 = maxMark();
     if ( hasMarkedText() && echoMode() == Normal &&
 	 e->button() == LeftButton && m1 < newCP && m2 > newCP ) {
-	QTextDrag *tdo = new QTextDrag( markedText(), this );
-	if ( tdo->drag() ) {
-	    // ##### Delete original (but check if it went to me)
-	}
+	d->dndTimer.start( QApplication::startDragTime(), TRUE );
 	return;
     }
 
@@ -756,8 +757,20 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     newMark( markAnchor, FALSE );
     repaintArea( m1, m2 );
     dragScrolling = FALSE;
+    d->mousePressed = TRUE;
 }
 
+/*
+  \internal
+*/
+
+void QLineEdit::doDrag()
+{
+    QTextDrag *tdo = new QTextDrag( markedText(), this );
+    if ( tdo->drag() ) {
+	// ##### Delete original (but check if it went to me)
+    }
+}
 
 /*!
   Handles mouse move events for the line editor, primarily for
@@ -766,6 +779,11 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( d->dndTimer.isActive() ) {
+	doDrag();
+	return;
+    }
+    
     if ( !(e->state() & LeftButton) )
 	return;
 
@@ -797,11 +815,21 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
     dragScrolling = FALSE;
+    if ( d->dndTimer.isActive() || !d->mousePressed ) {
+	deselect();
+	setCursorPosition( xPosToCursorPos( e->x() ) );
+	d->dndTimer.stop();
+	return;
+    }
     if ( d->inDoubleClick ) {
 	d->inDoubleClick = FALSE;
 	return;
     }
 
+    if ( !d->mousePressed )
+	return;
+    d->mousePressed = FALSE;
+    
 #if defined(_WS_X11_)
     copy();
 #else

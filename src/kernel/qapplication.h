@@ -153,6 +153,10 @@ public:
     static void      setDoubleClickInterval( int );
     static int       doubleClickInterval();
 
+    static void setStartDragTime( int ms );
+    static int startDragTime();
+    static void setStartDragDistance( int l );
+    static int startDragDistance();
 
 #if defined(_WS_MAC_)
     void	     do_mouse_down(void *);

@@ -3536,7 +3536,7 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );
 	    d->startDrag = TRUE;
-	} else if ( QABS( d->dragStartPos.x() - e->x() ) > 4 || QABS( d->dragStartPos.y() - e->y() ) > 4 ) {
+	} else if ( ( d->dragStartPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	    d->mousePressed = FALSE;
 	    d->cleared = FALSE;
 	    startDrag();

@@ -1944,7 +1944,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	{
 	    // The user might be trying to drag
 	    d->dnd_primed = TRUE;
-	    d->dnd_timer = startTimer( 250 );
+	    d->dnd_timer = startTimer( QApplication::startDragTime() );
 	} else {
 	    wordMark = FALSE;
 	    dragMarking    = TRUE;

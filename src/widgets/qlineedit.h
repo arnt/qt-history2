@@ -138,7 +138,8 @@ private slots:
     void	clipboardChanged();
     void	blinkSlot();
     void	dragScrollSlot();
-
+    void 	doDrag();
+    
 private:
     // kept
     void	newMark( int pos, bool copy=TRUE );

@@ -248,6 +248,8 @@ bool	  QApplication::obey_desktop_settings = TRUE;  // use winsys resources
 int	  QApplication::cursor_flash_time = 1000;      // text caret flash time
 int	  QApplication::mouse_double_click_time = 400; // mouse dbl click limit
 bool	  qt_is_gui_used;
+int drag_time = 250;
+int drag_distance = 4;
 
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
@@ -1093,7 +1095,7 @@ void QApplication::polish( QWidget *w )
 	if ( !font( w ).isCopyOf( font() ) )
 	    w->setFont( font( w ) );
     }
-    
+
 #if 0
     if ( qdevel && w->isTopLevel() )
 	qdevel->addTopLevelWidget(tlw);
@@ -1392,10 +1394,10 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 #endif
 	return FALSE;
     }
-    
+
 #if 0
     if ( qdevel && event->type() == QEvent::Reparent
-	 && receiver->isWidgetType() 
+	 && receiver->isWidgetType()
 	 && ((QWidget*)receiver)->isTopLevel() )
 	qdevel->addTopLevelWidget( (QWidget*)receiver );
 #endif
@@ -2176,6 +2178,26 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 }
 
 
+
+void QApplication::setStartDragTime( int ms )
+{
+    drag_time = ms;
+}
+
+int QApplication::startDragTime()
+{
+    return drag_time;
+}
+
+void QApplication::setStartDragDistance( int l )
+{
+    drag_distance = l;
+}
+
+int QApplication::startDragDistance()
+{
+    return drag_distance;
+}
 
 /*!
   \class QSessionManager qsessionmanager.h
