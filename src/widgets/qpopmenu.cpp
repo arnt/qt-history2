@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#30 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#30 $";
 #endif
 
 
@@ -491,18 +491,18 @@ static QString key_str( long k )		// get key string
 }
 
 
-//
-// TODO: Update accelerator when a key has been changed.
-//	 Maybe we should have createAccel and updateAccel???
-//
+/*!
+\internal The \e parent is 0 when it is updated when a menu item has
+changed a state, or it is something else if called from the menu bar.
+*/
 
 void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
-    if ( !parent && !autoaccel )
+    if ( !parent || !autoaccel )		// not ready
 	return;
-    if ( autoaccel )
+    if ( autoaccel )				// build it from scratch
 	autoaccel->clear();
     while ( (mi=it.current()) ) {
 	++it;
@@ -535,10 +535,14 @@ void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
 		}
 	    }
 	}
-	if ( mi->popup() )			// call recursively
+	if ( mi->popup() && parent )		// call recursively
 	    mi->popup()->updateAccel( parent );
     }
 }
+
+/*!
+\internal It would be better to check in the slot.
+*/
 
 void QPopupMenu::enableAccel( bool enable )	// enable/disable accels
 {
