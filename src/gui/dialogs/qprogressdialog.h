@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_PROGRESSDIALOG
 
-class QButton;
+class QPushButton;
 class QTimer;
 class QProgressDialogData;
 
@@ -48,7 +48,7 @@ public:
     ~QProgressDialog();
 
     void        setLabel(QLabel *);
-    void        setCancelButton(QButton *);
+    void        setCancelButton(QPushButton *);
     void        setBar(QProgressBar *);
 
     // ### Qt 4.0: remove wasCancelled() in 4.0

@@ -21,7 +21,7 @@
 #endif // QT_H
 
 #ifndef QT_NO_ERRORMESSAGE
-class QButton;
+class QPushButton;
 class QCheckBox;
 class QLabel;
 class QTextView;
@@ -42,7 +42,7 @@ protected:
     void done(int);
 
 private:
-    QButton * ok;
+    QPushButton * ok;
     QCheckBox * again;
     QTextView * errors;
     QLabel * icon;

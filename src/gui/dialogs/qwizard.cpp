@@ -105,11 +105,11 @@ public:
     QWidgetStack * ws;
     QList<Page *> pages;
     QLabel * title;
-    QButton * backButton;
-    QButton * nextButton;
-    QButton * finishButton;
-    QButton * cancelButton;
-    QButton * helpButton;
+    QPushButton * backButton;
+    QPushButton * nextButton;
+    QPushButton * finishButton;
+    QPushButton * cancelButton;
+    QPushButton * helpButton;
 
     QFrame * hbar1, * hbar2;
 
@@ -146,11 +146,11 @@ QWizard::QWizard(QWidget *parent, const char *name, bool modal,
     d->title = new QLabel(this, "title label");
 
     // create in nice tab order
-    d->nextButton = new QButton(this, "next");
-    d->finishButton = new QButton(this, "finish");
-    d->helpButton = new QButton(this, "help");
-    d->backButton = new QButton(this, "back");
-    d->cancelButton = new QButton(this, "cancel");
+    d->nextButton = new QPushButton(this, "next");
+    d->finishButton = new QPushButton(this, "finish");
+    d->helpButton = new QPushButton(this, "help");
+    d->backButton = new QPushButton(this, "back");
+    d->cancelButton = new QPushButton(this, "cancel");
 
     d->ws->installEventFilter(this);
 
@@ -638,7 +638,7 @@ void QWizard::setTitleFont(const QFont & font)
     virtual so you can reimplement it in a QWizard subclass. Use
     setBackEnabled() to enable/disable this button.
 */
-QButton * QWizard::backButton() const
+QPushButton * QWizard::backButton() const
 {
     return d->backButton;
 }
@@ -651,7 +651,7 @@ QButton * QWizard::backButton() const
     virtual so you can reimplement it in a QWizard subclass. Use
     setNextEnabled() to enable/disable this button.
 */
-QButton * QWizard::nextButton() const
+QPushButton * QWizard::nextButton() const
 {
     return d->nextButton;
 }
@@ -664,7 +664,7 @@ QButton * QWizard::nextButton() const
     slot, which is virtual so you can reimplement it in a QWizard
     subclass. Use setFinishEnabled() to enable/disable this button.
 */
-QButton * QWizard::finishButton() const
+QPushButton * QWizard::finishButton() const
 {
     return d->finishButton;
 }
@@ -677,7 +677,7 @@ QButton * QWizard::finishButton() const
     slot, which is virtual so you can reimplement it in a QWizard
     subclass.
 */
-QButton * QWizard::cancelButton() const
+QPushButton * QWizard::cancelButton() const
 {
     return d->cancelButton;
 }
@@ -690,7 +690,7 @@ QButton * QWizard::cancelButton() const
     virtual so you can reimplement it in a QWizard subclass. Use
     setHelpEnabled() to enable/disable this button.
 */
-QButton * QWizard::helpButton() const
+QPushButton * QWizard::helpButton() const
 {
     return d->helpButton;
 }

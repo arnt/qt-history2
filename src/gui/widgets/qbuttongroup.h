@@ -60,7 +60,7 @@ private:
 
 #ifndef QT_NO_BUTTONGROUP
 
-class QButton;
+class QAbstractButton;
 
 class Q_GUI_EXPORT QButtonGroup : public QGroupBox
 {

@@ -447,7 +447,7 @@ void QGenericListView::getViewOptions(QItemOptions *options) const
     bool small = (d->size == Automatic ? d->wrap == On : d->size == Small);
     options->smallItem = small;
     options->iconAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Qt::AlignTop|Qt::AlignHCenter);
-    options->textAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Qt::AlignCenter);
+    options->textAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Alignment(Qt::AlignCenter));
 }
 
 void QGenericListView::paintEvent(QPaintEvent *e)

@@ -38,7 +38,7 @@ public:
     void setPrinter(QPrinter *, bool = false);
     QPrinter * printer() const;
 
-    void addButton(QButton *but);
+    void addButton(QPushButton *but);
 
 private slots:
     void browseClicked();

@@ -101,8 +101,8 @@
     A dialog's \e default button is the button that's pressed when the
     user presses Enter (Return). This button is used to signify that
     the user accepts the dialog's settings and wants to close the
-    dialog. Use QButton::setDefault(), QButton::isDefault()
-    and QButton::autoDefault() to set and control the dialog's
+    dialog. Use QPushButton::setDefault(), QPushButton::isDefault()
+    and QPushButton::autoDefault() to set and control the dialog's
     default button.
 
     \target escapekey
@@ -196,7 +196,7 @@ public:
         {
     }
 
-    QButton* mainDef;
+    QPushButton* mainDef;
     Orientation orientation;
     QWidget* extension;
     bool doShowExtension;
@@ -265,13 +265,13 @@ QDialog::~QDialog()
   push button calls when it loses focus.
 */
 
-void QDialog::setDefault(QButton *pushButton)
+void QDialog::setDefault(QPushButton *pushButton)
 {
 #ifndef QT_NO_PUSHBUTTON
-    QObjectList list = queryList("QButton");
+    QObjectList list = queryList("QPushButton");
     bool hasMain = false;
     for (int i = 0; i < list.size(); ++i) {
-        QButton *pb = static_cast<QButton *>(list.at(i));
+        QPushButton *pb = static_cast<QPushButton *>(list.at(i));
         if (pb->topLevelWidget() != this)
             continue;
         if (pb == d->mainDef)
@@ -289,9 +289,9 @@ void QDialog::setDefault(QButton *pushButton)
 /*!
   \internal
   This function sets the default default pushbutton to \a pushButton.
-  This function is called by QButton::setDefault().
+  This function is called by QPushButton::setDefault().
 */
-void QDialog::setMainDefault(QButton *pushButton)
+void QDialog::setMainDefault(QPushButton *pushButton)
 {
 #ifndef QT_NO_PUSHBUTTON
     d->mainDef = 0;
@@ -307,9 +307,9 @@ void QDialog::setMainDefault(QButton *pushButton)
 void QDialog::hideDefault()
 {
 #ifndef QT_NO_PUSHBUTTON
-    QObjectList list = queryList("QButton");
+    QObjectList list = queryList("QPushButton");
     for (int i = 0; i < list.size(); ++i) {
-        QButton *pb = static_cast<QButton *>(list.at(i));
+        QPushButton *pb = static_cast<QPushButton *>(list.at(i));
         pb->setDefault(false);
     }
 #endif
@@ -331,10 +331,10 @@ void QDialog::hideSpecial()
     bool showOK = false,
          showX  = false,
          showQ  = false;
-    QObjectList *list = queryList("QButton");
+    QObjectList *list = queryList("QPushButton");
     QObjectListIt it(*list);
-    QButton *pb;
-    while ((pb = (QButton*)it.current())) {
+    QPushButton *pb;
+    while ((pb = (QPushButton*)it.current())) {
         if (!showOK &&
              pb->text() == qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])) {
             pb->hide();
@@ -515,9 +515,9 @@ void QDialog::keyPressEvent(QKeyEvent *e)
         case Key_Enter:
         case Key_Return: {
 #ifndef QT_NO_PUSHBUTTON
-            QObjectList list = queryList("QButton");
+            QObjectList list = queryList("QPushButton");
             for (int i = 0; i < list.size(); ++i) {
-                QButton *pb = static_cast<QButton *>(list.at(i));
+                QPushButton *pb = static_cast<QPushButton *>(list.at(i));
                 if (pb->isDefault() && pb->isVisible()) {
                     if (pb->isEnabled())
                         emit pb->clicked();
@@ -593,10 +593,10 @@ bool QDialog::event(QEvent *e)
                 ? qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])
                 : qApp->tr("Help");
 
-            QObjectList *list = queryList("QButton");
+            QObjectList *list = queryList("QPushButton");
             QObjectListIt it(*list);
-            QButton *pb;
-            while ((pb = (QButton*)it.current())) {
+            QPushButton *pb;
+            while ((pb = (QPushButton*)it.current())) {
                 if (pb->text() == bName) {
                     delete list;
                     if (pb->isEnabled())
@@ -660,9 +660,9 @@ void QDialog::show()
       The following block is to handle a special case, and does not
       really follow propper logic in concern of autoDefault and TAB
       order. However, it's here to ease usage for the users. If a
-      dialog has a default QButton, and first widget in the TAB
-      order also is a QButton, then we give focus to the main
-      default QButton. This simplifies code for the developers,
+      dialog has a default QPushButton, and first widget in the TAB
+      order also is a QPushButton, then we give focus to the main
+      default QPushButton. This simplifies code for the developers,
       and actually catches most cases... If not, then they simply
       have to use [widget*]->setFocus() themselves...
     */
@@ -670,13 +670,13 @@ void QDialog::show()
         QWidget *first = fw;
         while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == NoFocus)
             ;
-        if (first != d->mainDef && qt_cast<QButton*>(first))
+        if (first != d->mainDef && qt_cast<QPushButton*>(first))
             d->mainDef->setFocus();
     }
     if (!d->mainDef && isTopLevel()) {
         QWidget *w = fw;
         while ((w = w->nextInFocusChain()) != fw) {
-            QButton *pb = qt_cast<QButton *>(w);
+            QPushButton *pb = qt_cast<QPushButton *>(w);
             if (pb && pb->autoDefault() && pb->focusPolicy() != NoFocus) {
                 pb->setDefault(true);
                 break;
@@ -860,8 +860,8 @@ QWidget* QDialog::extension() const
   If \a showIt is true, the dialog's extension is shown; otherwise the
   extension is hidden.
 
-  This slot is usually connected to the \l QButton::toggled() signal
-  of a QButton.
+  This slot is usually connected to the \l QPushButton::toggled() signal
+  of a QPushButton.
 
   A dialog with a visible extension is not resizeable.
 

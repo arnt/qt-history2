@@ -1633,7 +1633,7 @@ void QPrintDialog::colorModeSelected(int id)
   last groupbox of the printdialog.
 */
 
-void QPrintDialog::addButton(QButton *but)
+void QPrintDialog::addButton(QPushButton *but)
 {
     d->customLayout->addWidget(but);
 }

@@ -845,7 +845,7 @@ QFDProgressDialog::QFDProgressDialog(QWidget *parent, const QString &fn, int ste
     writeBar->setProgress(0);
     layout->addWidget(writeBar);
 
-    QButton *b = new QButton(QFileDialog::tr("Cancel"), this,
+    QPushButton *b = new QPushButton(QFileDialog::tr("Cancel"), this,
                                       "qt_cancel_btn");
     b->setFixedSize(b->sizeHint());
     layout->addWidget(b);
@@ -2455,11 +2455,11 @@ void QFileDialog::init()
     d->moreFiles->installEventFilter(this);
     d->moreFiles->viewport()->installEventFilter(this);
 
-    okB = new QButton(tr("&OK"), this, "OK"); //### Or "Save (see other "OK")
+    okB = new QPushButton(tr("&OK"), this, "OK"); //### Or "Save (see other "OK")
     okB->setDefault(true);
     okB->setEnabled(false);
     connect(okB, SIGNAL(clicked()), this, SLOT(okClicked()));
-    cancelB = new QButton(tr("Cancel") , this, "Cancel");
+    cancelB = new QPushButton(tr("Cancel") , this, "Cancel");
     connect(cancelB, SIGNAL(clicked()), this, SLOT(cancelClicked()));
 
     d->paths = new QComboBox(true, this, "directory history/editor");
@@ -4646,7 +4646,7 @@ QFileDialog::PreviewMode QFileDialog::previewMode() const
     {
         QLabel* label = new QLabel("Added widgets", this);
         QLineEdit* lineedit = new QLineEdit(this);
-        QButton* pushbutton = new QButton(this);
+        QPushButton* pushbutton = new QPushButton(this);
 
         addWidgets(label, lineedit, pushbutton);
     }
@@ -4661,7 +4661,7 @@ QFileDialog::PreviewMode QFileDialog::previewMode() const
   \sa addToolButton(), addLeftWidget(), addRightWidget()
 */
 
-void QFileDialog::addWidgets(QLabel * l, QWidget * w, QButton * b)
+void QFileDialog::addWidgets(QLabel * l, QWidget * w, QPushButton * b)
 {
     if (!l && !w && !b)
         return;

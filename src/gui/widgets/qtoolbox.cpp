@@ -51,7 +51,7 @@
 #include <qeventloop.h>
 #include <qdatetime.h>
 
-class QToolBoxButton : public QButton
+class QToolBoxButton : public QAbstractButton
 {
 public:
     QToolBoxButton(QWidget *parent, const char *name)
@@ -72,8 +72,7 @@ public:
     QSize minimumSizeHint() const;
 
 protected:
-    void drawButton(QPainter *);
-    void drawButtonLabel(QPainter *);
+    void paintEvent(QPaintEvent *);
 
 private:
     bool selected;
@@ -81,9 +80,6 @@ private:
     QIconSet icon;
 };
 
-void QToolBoxButton::drawButtonLabel(QPainter *)
-{
-}
 
 class QToolBoxPrivate
 {
@@ -183,8 +179,10 @@ QSize QToolBoxButton::minimumSizeHint() const
     return QSize(8, 8) + icon.pixmap(QIconSet::Small, QIconSet::Normal).size();
 }
 
-void QToolBoxButton::drawButton(QPainter *p)
+void QToolBoxButton::paintEvent(QPaintEvent *)
 {
+    QPainter paint(this);
+    QPainter *p = &paint;
     QStyle::SFlags flags = QStyle::Style_Default;
     const QPalette &pal = palette();
 
