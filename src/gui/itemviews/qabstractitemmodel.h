@@ -96,6 +96,18 @@ public:
         User = 32
     };
 
+    // Documented in qstring.cpp
+    enum ItemMatch {
+        MatchContains = 0x0000,
+        MatchFromStart = 0x0001,
+        MatchFromEnd = 0x0002,
+        MatchExactly = MatchFromStart | MatchFromEnd,
+        MatchCase = 0x0004,
+        MatchWrap = 0x0008,
+        MatchDefault = MatchFromStart | MatchWrap
+    };
+    Q_DECLARE_FLAGS(ItemMatchFlags, ItemMatch);
+
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
 
@@ -144,9 +156,8 @@ public:
     inline bool greaterThan(const QModelIndex &left, const QModelIndex &right) const
         { return lessThan(right, left); }
 
-    QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
-                          int hits = 1, bool wrap = false) const;
-
+    virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
+                                  int hits = 1, ItemMatchFlags flags = MatchDefault) const;
 public slots:
     virtual void fetchMore();
 
@@ -160,5 +171,7 @@ protected:
     void invalidatePersistentIndices(const QModelIndex &parent = 0);
     friend class QPersistentModelIndexData;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::ItemMatchFlags);
 
 #endif

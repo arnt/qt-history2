@@ -1160,7 +1160,7 @@ void QAbstractItemView::keyboardSearch(const QString &search) {
     // search from start with wraparound
     QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
     QModelIndexList match;
-    match = model()->match(start, QAbstractItemModel::Display, searchString, 1, true);
+    match = model()->match(start, QAbstractItemModel::Display, searchString);
     if (!match.isEmpty() && match.at(0).isValid()) {
         setCurrentItem(match.at(0));
     }

@@ -455,8 +455,8 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn void QAbstractItemModel::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 
-    This signal is emitted when rows or columns are inserted into the
-    model. The new items are those between \a topLeft and \a
+    This signal is emitted when rows or columns have been inserted
+    into the model. The new items are those between \a topLeft and \a
     bottomRight inclusive.
 
     \sa insertRow() insertColumn()
@@ -791,36 +791,75 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     return left.row() < right.row();
 }
 
+
+/*!
+    \enum QAbstractItemModel::ItemMatch
+
+    \value MatchContains The value is contained in the item.
+    \value MatchFromStart The value matches the start of the item.
+    \value MatchFromEnd The value matches the end of the item.
+    \value MatchExactly The value matches the item exactly.
+    \value MatchCase The search is case sensitive.
+    \value MatchWrap The search wraps around.
+*/
+
 /*!
     Retuns a list of indexes for the items matching \a value in role
-    \a role. The list may be empty. The search starts from index \a
-    start and continues until the number of matching data items equals
-    \a hits or the search reaches the last row or \a start, depending
-    on whether \a wrap is true (search wraps around), or false
-    (searches from \a start to the last row).
+    \a role based on the \a flags. The list may be empty. The search
+    starts from index \a start and continues until the number of
+    matching data items equals \a hits or the search reaches the last
+    row or \a start, depending on whether \a MatchWrap is specified or
+    not.
+
+    \sa QAbstractItemModel::ItemMatch
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
-                                          const QVariant &value, int hits, bool wrap) const
+                                          const QVariant &value, int hits,
+                                          QAbstractItemModel::ItemMatchFlags flags) const
 {
+    QString val = value.toString();
+
+    if (!(flags & MatchCase))
+        val = val.toLower();
+
     QModelIndexList result;
-    QString val = value.toString().toLower();
     QModelIndex idx;
     QModelIndex par = parent(start);
-    int hit = 0;
+    QString itemText;
+    bool keepSearching = true;
     int col = start.column();
-    for (int row = start.row(); row < rowCount(par) && hit < hits; ++row) {
-        idx = index(row, col, par);
-        if (data(idx, role).toString().toLower().startsWith(val)) {
-            result.append(idx);
-            ++hit;
-        }
-    }
-    if (wrap) {
-        for (int row = 0; row < start.row() && hit < hits; ++row) {
+    int matchType = flags & MatchExactly;
+
+    // iterates twice if wrapping
+    for (int i = 0; i < 2 && result.count() < hits; ++i) {
+        if (!(flags & MatchWrap) && i == 1)
+            break;
+        int rowStart = (i == 0) ? start.row() : 0;
+        int rowEnd = (i == 0) ? rowCount(par) : start.row();
+
+        for (int row = rowStart; row < rowEnd && result.count() < hits; ++row) {
             idx = index(row, col, par);
-            if (data(idx, role).toString().toLower().startsWith(val)) {
-                result.append(idx);
-                ++hit;
+            itemText = data(idx, role).toString();
+            if (!(flags & MatchCase))
+                itemText = itemText.toLower();
+
+            switch (matchType) {
+            case MatchExactly:
+                if (itemText == val)
+                    result.append(idx);
+                break;
+            case MatchFromStart:
+                if (itemText.startsWith(val))
+                    result.append(idx);
+                break;
+            case MatchFromEnd:
+                if (itemText.endsWith(val))
+                    result.append(idx);
+                break;
+            case MatchContains:
+            default:
+                if (itemText.contains(val))
+                    result.append(idx);
             }
         }
     }

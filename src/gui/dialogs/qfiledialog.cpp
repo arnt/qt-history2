@@ -576,8 +576,7 @@ void QFileDialog::fileNameChanged(const QString &text)
         QModelIndex current = d->current();
         if (!current.isValid())
             current = d->model->topLeft(d->root());
-        QModelIndexList indices = d->model->match(current,
-                                                  QAbstractItemModel::Display, text, 1, true);
+        QModelIndexList indices = d->model->match(current, QAbstractItemModel::Display, text);
         int key = d->fileName->lastKeyPressed();
         if (indices.count() <= 0) { // no matches
             d->lview->selectionModel()->clear();
