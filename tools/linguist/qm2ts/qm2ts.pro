@@ -5,6 +5,7 @@ SOURCES		= main.cpp \
 		  ../shared/metatranslator.cpp
 
 !xml:DEFINES 	+= QT_INTERNAL_XML
+else:QCONFIG += xml
 include( ../../../src/qt_professional.pri )
 
 TARGET		= qm2ts

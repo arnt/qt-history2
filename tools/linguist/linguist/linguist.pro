@@ -24,6 +24,7 @@ TRANSLATIONS	= linguist_de.ts \
 		  linguist_fr.ts
 
 !xml:DEFINES	+= QT_INTERNAL_XML
+else:QCONFIG += xml
 include( ../../../src/qt_professional.pri )
 
 DESTDIR		= ../../../bin
