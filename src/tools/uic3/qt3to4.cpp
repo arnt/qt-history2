@@ -111,9 +111,25 @@ private:
 
 void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *renamedClasses)
 {
-    if (fileName.isEmpty())
-        fileName = QDir::cleanPath(QFile::encodeName(qInstallPathLibs()) + QString::fromLatin1("/qt3to4/rules.xml"));
-
+/*
+    Rules for findng rules.xml
+    3. look in qInstallPathLibs()/qt3to4/
+    4. look in $QTDIR/tools/porting/src/
+*/
+    if(fileName.isEmpty()) {
+        fileName = QDir::cleanPath(QString(qInstallPathLibs()) + "/qt3to4/rules.xml");
+        QFile f(fileName);
+        if (!f.exists())
+            fileName=QString();
+    }
+    
+    if(fileName.isEmpty()) {
+        fileName= QDir::cleanPath(QString(qgetenv("QTDIR")) + "/tools/porting/src/rules.xml");
+        QFile f(fileName);
+        if (!f.exists())
+            fileName=QString();
+    }
+    
     ContentHandler handler;
 
     QXmlSimpleReader reader;

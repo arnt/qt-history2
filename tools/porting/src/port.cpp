@@ -33,8 +33,8 @@ QString rulesFilePath;
     Rules for findng rules.xml
     1. look in current path
     2. look in program path
-    4. look in qInstallPathLibs()/qt3to4/
-    
+    3. look in qInstallPathLibs()/qt3to4/
+    4. look in $QTDIR/tools/porting/src/
 */
 QString findRulesFile(QString fileName, QString programPath)
 {
@@ -59,6 +59,15 @@ QString findRulesFile(QString fileName, QString programPath)
         if (!f.exists())
             filePath=QString();
     }
+    
+    if(filePath.isEmpty()) {
+        filePath = QString(qgetenv("QTDIR")) + "/tools/porting/src/" + fileName;
+        qDebug(filePath.latin1());
+        QFile f(filePath);
+        if (!f.exists())
+            filePath=QString();
+    }
+   
     return QFileInfo(filePath).absoluteFilePath();
 }
 
