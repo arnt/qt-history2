@@ -427,6 +427,11 @@
 #define QT_NO_STYLE
 #endif
 
+// Dynamic module linking
+#if !defined(QT_NO_COMPONENT) && (defined(QT_NO_QUUID_STRING) || defined(QT_NO_DIR))
+#define QT_NO_COMPONENT
+#endif
+
 // DNS
 #if !defined(QT_NO_DNS) && (defined(QT_NO_NETWORK) || defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_SPRINTF))
 #define QT_NO_DNS
@@ -535,11 +540,6 @@
 // Cut and paste
 #if !defined(QT_NO_CLIPBOARD) && (defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_MIME))
 #define QT_NO_CLIPBOARD
-#endif
-
-// Dynamic module linking
-#if !defined(QT_NO_COMPONENT) && (defined(QT_NO_QUUID_STRING) || defined(QT_NO_SETTINGS))
-#define QT_NO_COMPONENT
 #endif
 
 // Grid layout widgets
