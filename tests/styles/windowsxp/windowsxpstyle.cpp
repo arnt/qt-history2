@@ -15,7 +15,6 @@
 #include <qcursor.h>
 #include <qscrollbar.h>
 #include <qslider.h>
-#include "../widgets/qrangecontrolwidget_p.h"
 
 #if defined (Q_WS_WIN)
 # include <qt_windows.h>

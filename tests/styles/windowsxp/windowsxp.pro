@@ -2,15 +2,15 @@ TEMPLATE	= lib
 CONFIG		+= qt warn_on debug plugin
 win32:DEFINES	+= QT_DLL QT_PLUGIN_STYLE_WINDOWSXP
 
-HEADERS		= ../../qwindowsxpstyle.h
+HEADERS		= windowsxpstyle.h
 
 SOURCES		= main.cpp \
-		  ../../qwindowsxpstyle.cpp
+		  windowsxpstyle.cpp
 
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
 
-TARGET		= qwindowsxpstyle
+TARGET		= windowsxpstyle
 DESTDIR		= ../../../../plugins/styles
 
 target.path=$$plugins.path/styles
