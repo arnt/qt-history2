@@ -39,10 +39,10 @@ public:
     void setShape(Shape shape);
 
     int addTab(const QString &text);
-    int addTab(const QIcon& icon, const QString &text);
+    int addTab(const QIcon &icon, const QString &text);
 
     int insertTab(int index, const QString &text);
-    int insertTab(int index, const QIcon& icon, const QString &text);
+    int insertTab(int index, const QIcon&icon, const QString &text);
 
     void removeTab(int index);
 
@@ -53,9 +53,9 @@ public:
     void setTabText(int index, const QString &text);
 
     QIcon tabIcon(int index) const;
-    void setTabIcon(int index, const QIcon & icon);
+    void setTabIcon(int index, const QIcon &icon);
 
-    void setTabToolTip(int index, const QString & tip);
+    void setTabToolTip(int index, const QString &tip);
     QString tabToolTip(int index) const;
 
     QRect tabRect(int index) const;
