@@ -39,7 +39,6 @@
 #ifndef QT_NO_SQL
 
 #include "qdatetime.h"
-#include "qregexp.h"
 #include "qsqlextension_p.h"
 
 // database states
@@ -431,7 +430,7 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 		result.truncate( end );
 	    }
 	    /* escape the "'" character */
-	    result.replace( QRegExp( "'" ), "''" );
+	    result.replace( QChar( '\'' ), "''" );
 	    r = "'" + result + "'";
 	    break;
 	}
