@@ -26,6 +26,7 @@
 	QSplitterHandle::*;
 	QSqlRecordShared::*;
 	QSVChildRec::*;
+	qt_xdnd_*;
 	QUnicodeTables::*;
 	QViewportWidget::*;
 	QWorkspaceChild::*;
