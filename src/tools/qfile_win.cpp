@@ -27,20 +27,10 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-
-#ifdef UNICODE
-#ifndef _UNICODE
-#define _UNICODE
-#endif
-#endif
+#include "qplatformdefs.h"
 
 #include "qfile.h"
 #include "qfiledefs_p.h"
-
-#include <windows.h>
-#include <direct.h>
-#include <tchar.h>
 
 QCString qt_win95Name(const QString s)
 {
@@ -73,7 +63,7 @@ bool qt_file_access( const QString& fn, int t )
     if ( qt_winunicode )
 	return ::_taccess((TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
     else
-	return ACCESS(qt_win95Name(fn), t) == 0;
+	return QT_ACCESS(qt_win95Name(fn), t) == 0;
 }
 
 bool QFile::remove( const QString &fileName )
@@ -117,43 +107,43 @@ bool QFile::open( int m )
     }
     bool ok = TRUE;
     if ( isRaw() ) {				// raw file I/O
-	int oflags = OPEN_RDONLY;
+	int oflags = QT_OPEN_RDONLY;
 	if ( isReadable() && isWritable() )
-	    oflags = OPEN_RDWR;
+	    oflags = QT_OPEN_RDWR;
 	else if ( isWritable() )
-	    oflags = OPEN_WRONLY;
+	    oflags = QT_OPEN_WRONLY;
 	if ( flags() & IO_Append ) {		// append to end of file?
 	    if ( flags() & IO_Truncate )
-		oflags |= (OPEN_CREAT | OPEN_TRUNC);
+		oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
 	    else
-		oflags |= (OPEN_APPEND | OPEN_CREAT);
+		oflags |= (QT_OPEN_APPEND | QT_OPEN_CREAT);
 	    setFlags( flags() | IO_WriteOnly ); // append implies write
 	} else if ( isWritable() ) {		// create/trunc if writable
 	    if ( flags() & IO_Truncate )
-		oflags |= (OPEN_CREAT | OPEN_TRUNC);
+		oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
 	    else
-		oflags |= OPEN_CREAT;
+		oflags |= QT_OPEN_CREAT;
 	}
 #if defined(HAS_TEXT_FILEMODE)
 	if ( isTranslated() )
-	    oflags |= OPEN_TEXT;
+	    oflags |= QT_OPEN_TEXT;
 	else
-	    oflags |= OPEN_BINARY;
+	    oflags |= QT_OPEN_BINARY;
 #endif
 #if defined(HAS_ASYNC_FILEMODE)
 	if ( isAsynchronous() )
-	    oflags |= OPEN_ASYNC;
+	    oflags |= QT_OPEN_ASYNC;
 #endif
 	if ( qt_winunicode ) {
 	    fd = ::_topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
 	} else {
-	    fd = OPEN(qt_win95Name(fn), oflags, 0666 );
+	    fd = QT_OPEN(qt_win95Name(fn), oflags, 0666 );
 	}
 
 	if ( fd != -1 ) {			// open successful
-	    STATBUF st;
-	    FSTAT( fd, &st );
-	    if ( (st.st_mode&STAT_MASK) == STAT_DIR ) {
+	    QT_STATBUF st;
+	    QT_FSTAT( fd, &st );
+	    if ( (st.st_mode& QT_STAT_MASK) == QT_STAT_DIR ) {
 		ok = FALSE;
 	    } else {
 		length = (int)st.st_size;
@@ -210,9 +200,9 @@ bool QFile::open( int m )
 	    }
 	}
 	if ( fh ) {
-	    STATBUF st;
-	    FSTAT( FILENO(fh), &st );
-	    if ( (st.st_mode&STAT_MASK) == STAT_DIR ) {
+	    QT_STATBUF st;
+	    QT_FSTAT( QT_FILENO(fh), &st );
+	    if ( (st.st_mode& QT_STAT_MASK) == QT_STAT_DIR ) {
 		ok = FALSE;
 	    } else {
 		length = (int)st.st_size;
@@ -249,10 +239,10 @@ bool QFile::open( int m, FILE *f )
     setState( IO_Open );
     fh = f;
     ext_f = TRUE;
-    STATBUF st;
-    FSTAT( FILENO(fh), &st );
+    QT_STATBUF st;
+    QT_FSTAT( QT_FILENO(fh), &st );
     ioIndex = (int)ftell( fh );
-    if ( (st.st_mode & STAT_MASK) != STAT_REG ) {
+    if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
@@ -276,10 +266,10 @@ bool QFile::open( int m, int f )
     setState( IO_Open );
     fd = f;
     ext_f = TRUE;
-    STATBUF st;
-    FSTAT( fd, &st );
-    ioIndex  = (int)LSEEK(fd, 0, SEEK_CUR);
-    if ( (st.st_mode & STAT_MASK) != STAT_REG ) {
+    QT_STATBUF st;
+    QT_FSTAT( fd, &st );
+    ioIndex  = (int)QT_LSEEK(fd, 0, SEEK_CUR);
+    if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
@@ -291,14 +281,14 @@ bool QFile::open( int m, int f )
 
 uint QFile::size() const
 {
-    STATBUF st;
+    QT_STATBUF st;
     if ( isOpen() ) {
-	FSTAT( fh ? FILENO(fh) : fd, &st );
+	QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
     } else {
 	if ( qt_winunicode ) {
-	    ::_tstat((const TCHAR*)qt_winTchar(fn,TRUE), (STATBUF4TSTAT*)&st);
+	    ::_tstat((const TCHAR*)qt_winTchar(fn,TRUE), (QT_STATBUF4TSTAT*)&st);
 	} else {
-	    STAT(qt_win95Name(fn), &st);
+	    QT_STAT(qt_win95Name(fn), &st);
 	}
     }
     return st.st_size;
@@ -314,7 +304,7 @@ bool QFile::at( int pos )
     }
     bool okay;
     if ( isRaw() ) {				// raw file
-	pos = (int)LSEEK(fd, pos, SEEK_SET);
+	pos = (int)QT_LSEEK(fd, pos, SEEK_SET);
 	okay = pos != -1;
     } else {					// buffered file
 	okay = fseek(fh, pos, SEEK_SET) == 0;
@@ -358,7 +348,7 @@ int QFile::readBlock( char *p, uint len )
 
     if( nread < (int)len ) {
 	if ( isRaw() ) {				// raw file
-	    nread += READ( fd, p, len - nread );
+	    nread += QT_READ( fd, p, len - nread );
 	    if ( len && nread <= 0 ) {
 		nread = 0;
 		setStatus(IO_ReadError);
@@ -393,7 +383,7 @@ int QFile::writeBlock( const char *p, uint len )
 #endif
     int nwritten;				// number of bytes written
     if ( isRaw() )				// raw file
-	nwritten = WRITE( fd, p, len );
+	nwritten = QT_WRITE( fd, p, len );
     else					// buffered file
 	nwritten = fwrite( p, 1, len, fh );
     if ( nwritten != (int)len ) {		// write error
@@ -402,7 +392,7 @@ int QFile::writeBlock( const char *p, uint len )
 	else
 	    setStatus( IO_WriteError );
 	if ( isRaw() )				// recalc file position
-	    ioIndex = (int)LSEEK( fd, 0, SEEK_CUR );
+	    ioIndex = (int)QT_LSEEK( fd, 0, SEEK_CUR );
 	else
 	    ioIndex = fseek( fh, 0, SEEK_CUR );
     } else {
@@ -418,7 +408,7 @@ int QFile::handle() const
     if ( !isOpen() )
 	return -1;
     else if ( fh )
-	return FILENO( fh );
+	return QT_FILENO( fh );
     else
 	return fd;
 }
@@ -436,7 +426,7 @@ void QFile::close()
 	    if ( ext_f )
 		ok = TRUE;			// cannot close
 	    else
-		ok = CLOSE( fd ) != -1;
+		ok = QT_CLOSE( fd ) != -1;
 	}
 	init();					// restore internal state
     }

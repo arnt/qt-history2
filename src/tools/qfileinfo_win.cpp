@@ -27,13 +27,7 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-
-#ifdef UNICODE
-#ifndef _UNICODE
-#define _UNICODE
-#endif
-#endif
+#include "qplatformdefs.h"
 
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
@@ -97,14 +91,14 @@ bool QFileInfo::isFile() const
 {
     if ( !fic || !cache )
 	doStat();
-    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_REG : FALSE;
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
 }
 
 bool QFileInfo::isDir() const
 {
     if ( !fic || !cache )
 	doStat();
-    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_DIR : FALSE;
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
 }
 
 bool QFileInfo::isSymLink() const
@@ -221,13 +215,13 @@ void QFileInfo::doStat() const
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
-    STATBUF *b = &that->fic->st;
+    QT_STATBUF *b = &that->fic->st;
 
     int r;
     if ( qt_winunicode )
-	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), (STATBUF4TSTAT*)b);
+	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), (QT_STATBUF4TSTAT*)b);
     else
-	r = STAT(qt_win95Name(fn), b);
+	r = QT_STAT(qt_win95Name(fn), b);
     if ( r!=0 ) {
 	bool is_dir=FALSE;
 	if ( fn[0] == '/' && fn[1] == '/'
@@ -258,7 +252,7 @@ void QFileInfo::doStat() const
 	if ( is_dir ) {
 	    // looks like a UNC dir, is a dir.
 	    memset(b,0,sizeof(*b));
-	    b->st_mode = STAT_DIR;
+	    b->st_mode = QT_STAT_DIR;
 	    b->st_nlink = 1;
 	    r = 0;
 	}

@@ -27,13 +27,7 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-
-#ifdef UNICODE
-#ifndef _UNICODE
-#define _UNICODE
-#endif
-#endif
+#include "qplatformdefs.h"
 
 #include "qdir.h"
 #include "qdir_p.h"
@@ -42,12 +36,8 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
-#include <stdlib.h>
-#include <ctype.h>
 
 #include <windows.h>
-#include <direct.h>
-#include <tchar.h>
 
 #if defined(Q_OS_OS2EMX)
 extern "C" Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
@@ -108,7 +98,7 @@ QString QDir::canonicalPath() const
     QString r;
 
     char cur[PATH_MAX];
-    GETCWD( cur, PATH_MAX );
+    QT_GETCWD( cur, PATH_MAX );
     if ( qt_winunicode ) {
 	if ( ::_tchdir((TCHAR*)qt_winTchar(dPath,TRUE)) >= 0 ) {
 	    TCHAR tmp[PATH_MAX];
@@ -116,13 +106,13 @@ QString QDir::canonicalPath() const
 		r = qt_winQString(tmp);
 	}
     } else {
-	if ( CHDIR(qt_win95Name(dPath)) >= 0 ) {
+	if ( QT_CHDIR(qt_win95Name(dPath)) >= 0 ) {
 	    char tmp[PATH_MAX];
-	    if ( GETCWD( tmp, PATH_MAX ) )
+	    if ( QT_GETCWD( tmp, PATH_MAX ) )
 		r = tmp;
 	}
     }
-    CHDIR( cur );
+    QT_CHDIR( cur );
     slashify( r );
     return r;
 }
@@ -186,7 +176,7 @@ bool QDir::isReadable() const
     if ( qt_winunicode ) {
 	return ::_taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
     } else {
-	return ACCESS(qt_win95Name(dPath), R_OK) == 0;
+	return QT_ACCESS(qt_win95Name(dPath), R_OK) == 0;
     }
 }
 
@@ -262,7 +252,7 @@ bool QDir::setCurrent( const QString &path )
     if ( qt_winunicode ) {
 	r = ::_tchdir((const TCHAR*)qt_winTchar(path,TRUE));
     } else {
-	r = CHDIR(qt_win95Name(path));
+	r = QT_CHDIR(qt_win95Name(path));
     }
 
     return r >= 0;
@@ -284,7 +274,7 @@ QString QDir::currentDirPath()
 	}
     } else {
 	char currentName[PATH_MAX];
-	if ( GETCWD(currentName,PATH_MAX) >= 0 ) {
+	if ( QT_GETCWD(currentName,PATH_MAX) >= 0 ) {
 	    result = QString::fromLatin1(currentName);
 	}
     }
