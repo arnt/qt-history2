@@ -693,12 +693,12 @@ void QDialog::show()
 /*!\reimp */
 void QDialog::showEvent(QShowEvent *)
 {
-    if (testAttribute(WA_Moved)) {
+    if (!testAttribute(WA_Moved)) {
 	adjustPosition(parentWidget());
 	setAttribute(WA_Moved, false); // not really an explicit position
     }
 }
-	
+
 /*! \internal */
 void QDialog::adjustPosition( QWidget* w)
 {

@@ -1301,7 +1301,7 @@ void QWidget::setStyle( QStyle *style )
     }
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(this, &e);
-#ifndef QT_NO_COMPAT    
+#ifndef QT_NO_COMPAT
     styleChange( old );
 #endif
 }
@@ -3311,8 +3311,10 @@ void QWidget::show_helper()
 #ifndef Q_OS_TEMP
 	// toplevels with layout may need a initial size
 	QSize s = qt_initial_size(this);
-	if (!s.isEmpty())
+	if (!s.isEmpty()) {
 	    resize(s);
+	    setAttribute(WA_Resized, false);
+	}
 #endif // Q_OS_TEMP
     }
 
@@ -4168,11 +4170,11 @@ bool QWidget::event( QEvent *e )
 }
 
 /*!
-  This event handler can be reimplemented to handle state changes. 
+  This event handler can be reimplemented to handle state changes.
 
   The state being changed in this event can be retrieved through event \a
   e.
-  
+
 */
 void QWidget::changeEvent( QEvent * e )
 {
@@ -5457,10 +5459,10 @@ void QWidget::drawText(const QPoint &p, const QString &str)
 
     \row \i WA_Resized \i Indicates that the widget has an explicit
     size.\i Functions QWidget::resize() and QWidget::setGeometry()
-    
+
     \row \i WA_Moved \i Indicates that the widget has an explicit
     position.\i Functions QWidget::move() and QWidget::setGeometry()
-    
+
     \row \i WA_InvalidSize \i Indicates that the widget has an invalid
     size. Showing the widget or calling any geometry function
     (e.g. QWidget::height() or QWidget::size()) will call
