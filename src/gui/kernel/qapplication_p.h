@@ -201,6 +201,8 @@ public:
 
     static QApplicationPrivate *instance() { return self; }
 
+    static QString *styleOverride;
+
 private:
     static QApplicationPrivate *self;
 };

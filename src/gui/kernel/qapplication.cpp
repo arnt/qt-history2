@@ -60,7 +60,7 @@ extern void qt_call_post_routines();
 #define q q_func()
 
 
-static QString *qt_style_override = 0;
+
 
 QApplication::Type qt_appType=QApplication::Tty;
 QApplicationPrivate *QApplicationPrivate::self = 0;
@@ -339,7 +339,6 @@ Qt::MouseButtons QApplicationPrivate::mouse_buttons = Qt::NoButton;
 Qt::KeyboardModifiers QApplicationPrivate::modifier_buttons = Qt::NoModifier;
 
 QStyle *QApplicationPrivate::app_style = 0;        // default application style
-bool qt_explicit_app_style = false; // style explicitly set by programmer
 
 int QApplicationPrivate::app_cspec = QApplication::NormalColor;
 QPalette *QApplicationPrivate::app_pal = 0;        // default application palette
@@ -373,6 +372,7 @@ bool QApplicationPrivate::animate_tooltip = false;
 bool QApplicationPrivate::fade_tooltip = false;
 bool QApplicationPrivate::animate_toolbox = false;
 bool QApplicationPrivate::widgetCount = false;
+QString* QApplicationPrivate::styleOverride = 0;
 
 bool qt_tabletChokeMouse = false;
 static bool force_reverse = false;
@@ -546,9 +546,9 @@ void QApplication::process_cmdline()
         }
 #ifndef QT_NO_STYLE
         if (!s.isEmpty()) {
-            if (!qt_style_override)
-                qt_style_override = new QString;
-            *qt_style_override = s;
+            if (!QApplicationPrivate::styleOverride)
+                QApplicationPrivate::styleOverride = new QString;
+            *QApplicationPrivate::styleOverride = s;
         }
 #endif
     }
@@ -937,7 +937,6 @@ QApplication::~QApplication()
     d->session_manager = 0;
 #endif //QT_NO_SESSIONMANAGER
 
-    qt_explicit_app_style = false;
     qt_app_has_font = false;
     QApplicationPrivate::obey_desktop_settings = true;
     QApplicationPrivate::cursor_flash_time = 1000;
@@ -1061,17 +1060,17 @@ QStyle *QApplication::style()
         qFatal("No style available in non-gui applications!");
 
 #if defined(Q_WS_X11)
-    if(!qt_style_override)
+    if(!QApplicationPrivate::styleOverride)
         x11_initialize_style(); // run-time search for default style
 #endif
     if (!QApplicationPrivate::app_style) {
         // Compile-time search for default style
         //
         QString style;
-        if (qt_style_override) {
-            style = *qt_style_override;
-            delete qt_style_override;
-            qt_style_override = 0;
+        if (QApplicationPrivate::styleOverride) {
+            style = *QApplicationPrivate::styleOverride;
+            delete QApplicationPrivate::styleOverride;
+            QApplicationPrivate::styleOverride = 0;
         } else {
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
             style = "PocketPC";
@@ -1140,7 +1139,6 @@ void QApplication::setStyle(QStyle *style)
     if (!style)
         return;
 
-    qt_explicit_app_style = true;
     QStyle* old = QApplicationPrivate::app_style;
     QApplicationPrivate::app_style = style;
 

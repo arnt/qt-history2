@@ -636,12 +636,12 @@ bool QApplicationPrivate::x11_apply_settings()
     }
 
     // read new QStyle
-    extern bool qt_explicit_app_style; // defined in qapplication.cpp
     QString stylename = settings.value(QLatin1String("style")).toString();
-    if (!stylename.isEmpty() && !qt_explicit_app_style) {
+    if (QCoreApplication::startingUp()) {
+        if (!stylename.isEmpty() && !QApplicationPrivate::styleOverride)
+            QApplicationPrivate::styleOverride = new QString(stylename);
+    } else {
         QApplication::setStyle(stylename);
-        // took the style from the user settings, so mark the explicit flag false
-        qt_explicit_app_style = false;
     }
 
     int num =
