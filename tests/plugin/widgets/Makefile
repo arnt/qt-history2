@@ -5,6 +5,6 @@
 #
 #############################################################################
 
-PROJECT = extrawidgets
+PROJECT = widgets
 
 !INCLUDE $(QTDIR)\Makefile.inc

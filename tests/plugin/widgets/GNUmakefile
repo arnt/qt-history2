@@ -5,6 +5,6 @@
 #
 #############################################################################
 
-PROJECT = extrawidgets
+PROJECT = widgets
 
 include $(QTDIR)/GNUmakefile.inc
