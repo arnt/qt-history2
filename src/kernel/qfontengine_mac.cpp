@@ -3,6 +3,16 @@
 #include "qapplication_p.h"
 #include "qcomplextext_p.h"
 
+//antialiasing
+#ifdef Q_WS_MACX
+# define QMAC_FONT_ANTIALIAS
+#endif
+#ifdef QMAC_FONT_ANTIALIAS
+# include "qpixmap.h"
+# include "qpaintdevicemetrics.h"
+# include <ApplicationServices/ApplicationServices.h>
+#endif
+
 //Externals
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
 unsigned char * p_str(const QString &); //qglobal.cpp
@@ -17,7 +27,6 @@ QFontEngine::~QFontEngine()
 QFontEngine::Error 
 QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs) const
 {
-#if 0
     if(*nglyphs < len) {
 	*nglyphs = len;
 	return OutOfMemory;
@@ -27,33 +36,36 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance
     *nglyphs = len;
     if(advances) {
 	for(int i = 0; i < len; i++) 
-	    advances[i] = doTextTask(UNKNOWN, str+i, 0, 1, 1, WIDTH);
+	    advances[i] = doTextTask(str+i, 0, 1, 1, WIDTH);
     }
     return NoError;
-#else
-    return QFontEngine::OutOfMemory; 
-#endif
 }
 
 void 
 QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 		      const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse)
 {
-#if 0
-    Q_UNUSED(p); //SDM?? I probably need to do initPaintDevice()/updatePen()
-    Q_UNUSED(reverse); //SDM?? Not sure what I do with this..
-
-    MoveTo(x, y);
-    if(len < 1)
-	len = s.length();
-
     uchar task = DRAW;
-    if(UNKNOWN->underline || UNKNOWN->strikeOut) 
+    if(fdef.underline || fdef.strikeOut) 
 	task |= WIDTH; //I need the width for these..
-    int w = do_text_task(UNKNOWN, (QChar*)glyphs, 0, numGlyphs, task, x, y, dev, rgn, dir);
-    if(request.underline || request.strikeOut) { 
-	computeLineWidth();
-	if(request.underline) {
+    int w = 0;
+    const QRegion &rgn = qt_mac_update_painter(p, FALSE);
+    if(reverse) {
+	for(int i = 0; i < numGlyphs; i++) {
+	    glyphs--;
+	    offsets--;
+	    advances--;
+	    MoveTo(x, y);
+	    w += doTextTask((QChar*)glyphs, 0, 1, 1, task, x, y, p->device(), &rgn);
+	    x += *advances;
+	}
+    } else {
+	MoveTo(x, y);
+	w = doTextTask((QChar*)glyphs, 0, numGlyphs, numGlyphs, task, x, y, p->device(), &rgn);
+    }
+    if(w && (fdef.underline || fdef.strikeOut)) { 
+	int lineWidth = p->fontMetrics().lineWidth();
+	if(fdef.underline) {
 	    Rect r;
 	    SetRect(&r, x, (y + 2) - (lineWidth / 2), 
 		    x + w, (y + 2) + (lineWidth / 2));
@@ -61,8 +73,8 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 		r.bottom++;
 	    PaintRect(&r);
 	}
-	if(request.strikeOut) {
-	    int spos = fin->ascent() / 3;
+	if(fdef.strikeOut) {
+	    int spos = ascent() / 3;
 	    if(!spos)
 		spos = 1;
 	    Rect r;
@@ -73,16 +85,14 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 	    PaintRect(&r);
 	}
     } 
-#endif
-}
+    }
 
 QGlyphMetrics 
-QFontEngineMac::boundingBox(const glyph_t *glyphs,
-			    const advance_t *advances, const offset_t *offsets, int numGlyphs)
+QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const offset_t *, int numGlyphs)
 {
     int w = 0;
     const advance_t *end = advances + numGlyphs;
-    while( end > advances )
+    while(end > advances)
 	w += *(--end);
     return QGlyphMetrics(0, -(ascent()), w, ascent()+descent(), w, 0);
 }
@@ -90,29 +100,19 @@ QFontEngineMac::boundingBox(const glyph_t *glyphs,
 QGlyphMetrics 
 QFontEngineMac::boundingBox(glyph_t glyph)
 {
-#if 0
-    int w = doTextTask(UNKNOWN, (QChar*)&glyph, 0, 1, 1, WIDTH);
+    int w = doTextTask((QChar*)&glyph, 0, 1, 1, WIDTH);
     return QGlyphMetrics(0, -(ascent()), w, ascent()+descent(), w, 0 );
-#else
-    return QGlyphMetrics();
-#endif
-
 }
 
 bool 
-QFontEngineMac::canRender( const QChar *string,  int len)
+QFontEngineMac::canRender(const QChar *string,  int len)
 {
-#if 0
-    return doTextTask(UNKNOWN, string, 0, len, len, EXISTS);
-#else
-    return TRUE;
-#endif
+    return doTextTask(string, 0, len, len, EXISTS);
 }
 
 int 
-QFontEngineMac::doTextTask(const QFontPrivate *d, const QChar *s, int pos,
-			int use_len, int len, uchar task, int, int,
-			QPaintDevice *dev, const QRegion *rgn) const
+QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int, int y,
+			   QPaintDevice *dev, const QRegion *rgn) const
 {
 #if !defined(QMAC_FONT_ANTIALIAS)
     Q_UNUSED(dev);
@@ -126,7 +126,7 @@ QFontEngineMac::doTextTask(const QFontPrivate *d, const QChar *s, int pos,
     }
 
     int ret = 0;
-    QMacSetFontInfo fi(d, dev);
+    QMacSetFontInfo fi(this, dev);
     QMacFontInfo::QATSUStyle *st = fi.atsuStyle();
     if(!st) 
 	return 0;
@@ -264,7 +264,7 @@ QFontEngineMac::doTextTask(const QFontPrivate *d, const QChar *s, int pos,
     return ret;
 }
 int 
-QFontEngineMac::doTextTask(const QFontPrivate *d, QString s, int pos, int len, uchar task,
+QFontEngineMac::doTextTask(QString s, int pos, int len, uchar task,
 			   int x, int y, QPaintDevice *dev, const QRegion *rgn, int dir, const QFontMetrics *fm) const
 {
     if(!len)
@@ -274,7 +274,7 @@ QFontEngineMac::doTextTask(const QFontPrivate *d, QString s, int pos, int len, u
 
     if(!s.simpleText()) {
 	if(!fm) {
-	    QFontMetrics int_fm(QFont((QFontPrivate*)d, (bool)FALSE));
+	    QFontMetrics int_fm(QFont(fdef.family, fdef.pointSize, fdef.weight, fdef.italic));
 	    s = QComplexText::shapedString(s, pos, len, (QPainter::TextDirection)dir, &int_fm);
 	} else {
 	    s = QComplexText::shapedString(s, pos, len, (QPainter::TextDirection)dir, fm);
@@ -282,14 +282,14 @@ QFontEngineMac::doTextTask(const QFontPrivate *d, QString s, int pos, int len, u
 	pos = 0;
 	len = s.length();
     }
-    return doTextTask(d, s.unicode(), pos, len, s.length(), task, x, y, dev, rgn);
+    return doTextTask(s.unicode(), pos, len, s.length(), task, x, y, dev, rgn);
 }
 
 int 
-QFontEngineMac::doTextTask(const QFontPrivate *d, const QChar &c, uchar task,
+QFontEngineMac::doTextTask(const QChar &c, uchar task,
 			   int x, int y, QPaintDevice *dev, const QRegion *rgn) const
 {
-    return doTextTask(d, &c, 0, 1, 1, task, x, y, dev, rgn);
+    return doTextTask(&c, 0, 1, 1, task, x, y, dev, rgn);
 }
 
 

@@ -399,6 +399,7 @@ protected:
 #elif defined(Q_WS_MAC)
     Qt::HANDLE	hd;				// handle to drawable
     void initPaintDevice(bool force=FALSE);
+    friend const QRegion &qt_mac_update_painter(QPainter *, bool);
 #elif defined(Q_WS_QWS)
     QGfx * gfx;
 #endif

@@ -135,7 +135,7 @@ public:
 	    ATSUDisposeStyle(fi_astyle->style);
 	    delete fi_astyle;
 	} }
-    inline QMacFontInfo &operator=(QMacFontInfo &rhs) {
+    inline QMacFontInfo &operator=(const QMacFontInfo &rhs) {
 	setEncoding(rhs.encoding());
 	setFont(rhs.font());
 	setStyle(rhs.style());
@@ -169,7 +169,7 @@ public:
 	ATSUStyle style;
 	RGBColor rgb;
     };
-    inline QATSUStyle *atsuStyle() { return fi_astyle; }
+    inline QATSUStyle *atsuStyle() const { return fi_astyle; }
     inline void setATSUStyle(QATSUStyle *s) { fi_astyle = s; }
 
 private:
@@ -179,16 +179,25 @@ private:
     QATSUStyle *fi_astyle;
 };
 
+class QFontEngine;
+class QFontDef;
 class QFontPrivate;
 class QMacSetFontInfo : public QMacSavedFontInfo, public QMacFontInfo 
 {
+private:
+    static QMacFontInfo *createFontInfo(const QFontEngine *fe, const QFontDef *def, QPaintDevice *pdev);
+
 public:
     //create this for temporary font settting
     inline QMacSetFontInfo(const QFontPrivate *d, QPaintDevice *pdev) : QMacSavedFontInfo(), 
 									QMacFontInfo() { setMacFont(d, this, pdev); }
+    inline QMacSetFontInfo(const QFontEngine *fe, QPaintDevice *pdev) : QMacSavedFontInfo(), 
+									QMacFontInfo() { setMacFont(fe, this, pdev); }
 
-    //you can use this to cause font setting, without restoring old
+    //you can use these to cause font setting, without restoring old
+    static bool setMacFont(const QMacFontInfo *f, QMacSetFontInfo *sfi=NULL);
     static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL, QPaintDevice *pdev=NULL);
+    static bool setMacFont(const QFontEngine *fe, QMacSetFontInfo *sfi=NULL, QPaintDevice *pdev=NULL);
 };
 
 

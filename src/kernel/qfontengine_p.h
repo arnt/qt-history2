@@ -175,6 +175,7 @@ private:
 #include "qt_mac.h"
 class QFontEngineMac : public QFontEngine
 {
+    QFontDef fdef;
 #if 0
     ATSFontMetrics *info;
 #else
@@ -188,7 +189,8 @@ class QFontEngineMac : public QFontEngine
     friend class QMacSetFontInfo;
 
 public:
-    QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL) { cache_cost = 1; }
+    QFontEngineMac(const QFontDef &f) : QFontEngine(), fdef(f), info(NULL), fnum(-1), 
+					internal_fi(NULL) { cache_cost = 1; }
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
@@ -215,14 +217,11 @@ public:
     Type type() const { return QFontEngine::Mac; }
 
     enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
-    int doTextTask(const QFontPrivate *d, const QChar *s, int pos,
-		   int use_len, int len, uchar task, int =-1, int y=-1,
+    int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int =-1, int y=-1,
 		   QPaintDevice *dev=NULL, const QRegion *rgn=NULL) const;
-    int doTextTask(const QFontPrivate *d, QString s, int pos, int len, uchar task,
-		   int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL, 
-		   int dir = QPainter::Auto, const QFontMetrics *fm = NULL) const;
-    int doTextTask(const QFontPrivate *d, const QChar &c, uchar task,
-		   int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL) const;
+    int doTextTask(QString s, int pos, int len, uchar task, int x=-1, int y=-1, QPaintDevice *dev=NULL, 
+		   const QRegion *rgn=NULL, int dir = QPainter::Auto, const QFontMetrics *fm = NULL) const;
+    int doTextTask(const QChar &c, uchar task, int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL) const;
 };
 
 #elif defined( Q_WS_WIN )

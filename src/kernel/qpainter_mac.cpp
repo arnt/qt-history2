@@ -79,6 +79,16 @@ public:
 #endif
 };
 
+const QRegion &qt_mac_update_painter(QPainter *p, bool brush)
+{
+    p->initPaintDevice();
+    if(brush)
+	p->updateBrush();
+    else
+	p->updatePen();
+    return p->d->cache.paintreg;
+}
+
 /*****************************************************************************
   Current "active" QPainter
  *****************************************************************************/

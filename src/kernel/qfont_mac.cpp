@@ -39,111 +39,126 @@
 #include <qdict.h>
 #include <qapplication.h>
 #include <qpainter.h>
-#ifdef Q_WS_MACX
-# define QMAC_FONT_ANTIALIAS
-#endif
-#ifdef QMAC_FONT_ANTIALIAS
-# include "qpixmap.h"
-# include "qpaintdevicemetrics.h"
-# include <ApplicationServices/ApplicationServices.h>
-#endif
 #include <stdlib.h>
 
-bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi, QPaintDevice *pdev)
+QMacFontInfo *
+QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPaintDevice *pdev)
+{
+    Q_ASSERT(fe->type() == QFontEngine::Mac);
+    const QFontEngineMac *mac_fe = (QFontEngineMac*)fe;
+
+    QMacFontInfo *ret = new QMacFontInfo();
+    //face
+    ret->setFont(mac_fe->fnum);
+
+    //style
+    short face = normal;
+    if(def->italic)
+	face |= italic;
+    if(def->weight == QFont::Bold)
+	face |= bold;
+    ret->setStyle(face);
+	
+    //size
+    int logicalDpi = 80; //FIXME
+    if(pdev) {
+	QPaintDeviceMetrics pm(pdev);
+	logicalDpi = pm.logicalDpiY();
+    } else {
+	short vr, hr;
+	ScreenRes(&hr, &vr);
+	logicalDpi = vr;
+    }
+    int pointSize = ((def->pointSize != -1) ? (def->pointSize / 10) : (def->pixelSize * logicalDpi /72)); 
+    ret->setSize(pointSize);
+
+    //encoding
+    TextEncoding enc;
+    UpgradeScriptInfoToTextEncoding(FontToScript(mac_fe->fnum), kTextLanguageDontCare, 
+				    kTextRegionDontCare, NULL, &enc);
+    ret->setEncoding(enc);
+
+    //Create a cacheable ATSUStyle
+    const int arr_guess = 7;
+    int arr = 0;
+    ATSUAttributeTag tags[arr_guess];
+    ByteCount valueSizes[arr_guess];
+    ATSUAttributeValuePtr values[arr_guess];
+    tags[arr] = kATSUSizeTag; //font size
+    Fixed fsize = FixRatio(pointSize, 1);
+    valueSizes[arr] = sizeof(fsize);
+    values[arr] = &fsize;
+    arr++;
+    tags[arr] = kATSUFontTag;  //font
+    ATSUFontID fond;
+    ATSUFONDtoFontID(mac_fe->fnum, NULL, &fond);
+    valueSizes[arr] = sizeof(fond);
+    values[arr] = &fond;
+    arr++;
+    tags[arr] = kATSUQDItalicTag;
+    valueSizes[arr] = sizeof(Boolean);
+    Boolean italicBool = def->italic ? true : false;
+    values[arr] = &italicBool;
+    arr++;
+    tags[arr] = kATSUQDBoldfaceTag;
+    valueSizes[arr] = sizeof(Boolean);
+    Boolean boldBool = ((def->weight == QFont::Bold) ? true : false);
+    values[arr] = &boldBool;
+    arr++;
+    if(arr > arr_guess) //this won't really happen, just so I will not miss the case
+	qDebug("Qt: internal: %d, WH0A %d: arr_guess overflow", __LINE__, arr);
+
+    //create style
+    QATSUStyle *st = new QATSUStyle;
+    st->rgb.red = st->rgb.green = st->rgb.blue = 0;
+    ATSUCreateStyle(&st->style);
+    if(OSStatus e = ATSUSetAttributes(st->style, arr, tags, valueSizes, values)) {
+	qDebug("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+	delete st;
+	st = NULL;
+    } else {
+	int feat_guess=5, feats=0;
+	ATSUFontFeatureType feat_types[feat_guess];
+	ATSUFontFeatureSelector feat_values[feat_guess];
+	feat_types[feats] = kLigaturesType;
+	feat_values[feats] = kRareLigaturesOffSelector;
+	feats++;
+	feat_types[feats] = kLigaturesType;
+	feat_values[feats] = kCommonLigaturesOffSelector;
+	feats++;
+	if(feats > feat_guess) //this won't really happen, just so I will not miss the case
+	    qDebug("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
+	if(OSStatus e = ATSUSetFontFeatures(st->style, feats, feat_types, feat_values)) 
+	    qDebug("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+    }
+    ret->setATSUStyle(st);
+    return ret;
+}
+
+bool 
+QMacSetFontInfo::setMacFont(const QFontEngine *fe, QMacSetFontInfo *sfi, QPaintDevice *pdev)
+{
+    Q_ASSERT(fe->type() == QFontEngine::Mac);
+    QFontEngineMac *mac_fe = (QFontEngineMac*)fe;
+    if(!mac_fe->internal_fi) 
+	mac_fe->internal_fi = createFontInfo(fe, &mac_fe->fdef, pdev);
+    return setMacFont(mac_fe->internal_fi, sfi);
+}
+
+bool 
+QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi, QPaintDevice *pdev)
 {
     ((QFontPrivate *)d)->load();
-
-    Q_ASSERT(d->fin->type() == QFontEngine::Mac); //SDM?
+    Q_ASSERT(d->fin->type() == QFontEngine::Mac);
     QMacFontInfo *fi = ((QFontEngineMac*)d->fin)->internal_fi;
-    if(!fi) {
-	((QFontEngineMac*)d->fin)->internal_fi = fi = new QMacFontInfo();
+    if(!fi) 
+	((QFontEngineMac*)d->fin)->internal_fi = fi = createFontInfo(d->fin, &d->request, pdev);
+    return setMacFont(fi, sfi);
+}
 
-	//face
-	fi->setFont(((QFontEngineMac*)d->fin)->fnum);
-
-	//style
-	short face = normal;
-	if(d->request.italic)
-	    face |= italic;
-	if(d->request.weight == QFont::Bold)
-	    face |= bold;
-	fi->setStyle(face);
-	
-	//size
-	int logicalDpi = 80; //FIXME
-	if(pdev) {
-	    QPaintDeviceMetrics pm(pdev);
-	    logicalDpi = pm.logicalDpiY();
-	} else {
-	    short vr, hr;
-	    ScreenRes(&hr, &vr);
-	    logicalDpi = vr;
-	}
-	int pointSize = ((d->request.pointSize != -1) ? (d->request.pointSize / 10) : 
-	                          (d->request.pixelSize * logicalDpi /72)); 
-	fi->setSize(pointSize);
-
-	//encoding
-	TextEncoding enc;
-	UpgradeScriptInfoToTextEncoding(FontToScript(((QFontEngineMac*)d->fin)->fnum), kTextLanguageDontCare, 
-					kTextRegionDontCare, NULL, &enc);
-	fi->setEncoding(enc);
-
-	//Create a cacheable ATSUStyle
-	const int arr_guess = 7;
-	int arr = 0;
-	ATSUAttributeTag tags[arr_guess];
-	ByteCount valueSizes[arr_guess];
-	ATSUAttributeValuePtr values[arr_guess];
-	tags[arr] = kATSUSizeTag; //font size
-	Fixed fsize = FixRatio(pointSize, 1);
-	valueSizes[arr] = sizeof(fsize);
-	values[arr] = &fsize;
-	arr++;
-	tags[arr] = kATSUFontTag;  //font
-	ATSUFontID fond;
-	ATSUFONDtoFontID(((QFontEngineMac*)d->fin)->fnum, NULL, &fond);
-	valueSizes[arr] = sizeof(fond);
-	values[arr] = &fond;
-	arr++;
-        tags[arr] = kATSUQDItalicTag;
-        valueSizes[arr] = sizeof(Boolean);
-        Boolean italicBool = d->request.italic ? true : false;
-        values[arr] = &italicBool;
-	arr++;
-        tags[arr] = kATSUQDBoldfaceTag;
-        valueSizes[arr] = sizeof(Boolean);
-        Boolean boldBool = ((d->request.weight == QFont::Bold) ? true : false);
-        values[arr] = &boldBool;
-        arr++;
-	if(arr > arr_guess) //this won't really happen, just so I will not miss the case
-	    qDebug("Qt: internal: %d, WH0A %d: arr_guess overflow", __LINE__, arr);
-
-	//create style
-	QATSUStyle *st = new QATSUStyle;
-	st->rgb.red = st->rgb.green = st->rgb.blue = 0;
-	ATSUCreateStyle(&st->style);
-	if(OSStatus e = ATSUSetAttributes(st->style, arr, tags, valueSizes, values)) {
-	    qDebug("Qt: internal: %ld: unexpected condition reached %s:%d (%s)", e, __FILE__, __LINE__, d->key().latin1());
-	    delete st;
-	    st = NULL;
-	} else {
-	    int feat_guess=5, feats=0;
-	    ATSUFontFeatureType feat_types[feat_guess];
-	    ATSUFontFeatureSelector feat_values[feat_guess];
-	    feat_types[feats] = kLigaturesType;
-	    feat_values[feats] = kRareLigaturesOffSelector;
-	    feats++;
-	    feat_types[feats] = kLigaturesType;
-	    feat_values[feats] = kCommonLigaturesOffSelector;
-	    feats++;
-	    if(feats > feat_guess) //this won't really happen, just so I will not miss the case
-		qDebug("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
-	    if(OSStatus e = ATSUSetFontFeatures(st->style, feats, feat_types, feat_values)) 
-		qDebug("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
-	}
-	fi->setATSUStyle(st);
-    }
+bool
+QMacSetFontInfo::setMacFont(const QMacFontInfo *fi, QMacSetFontInfo *sfi)
+{
     if(!sfi || fi->font() != sfi->tfont)
 	TextFont(fi->font());
     if(!sfi || fi->style() != sfi->tface)
@@ -215,8 +230,8 @@ bool QFontMetrics::inFont(QChar ch) const
 
 int QFontMetrics::width(QChar c) const
 {
-    Q_ASSERT(FI->fin->type() == QFontStruct::Mac); //SDM?
-    return ((QFontEngineMac*)FI->fin)->doTextTask(FI, c, QFontEngineMac::WIDTH);
+    Q_ASSERT(FI->fin->type() == QFontStruct::Mac);
+    return ((QFontEngineMac*)FI->fin)->doTextTask(c, QFontEngineMac::WIDTH);
 }
 
 int QFontMetrics::charWidth(const QString &str, int pos) const
@@ -360,14 +375,14 @@ void QFontPrivate::load()
 	QString k = key();
 	QFontEngine* qfs = fontCache->find(k);
 	if(!qfs) {
-	    qfs = new QFontEngineMac();
+	    qfs = new QFontEngineMac(request);
 	    fontCache->insert(k, qfs, 1);
 	}
 	qfs->ref();
 	if(fin) 
 	    fin->deref();
 	fin=qfs;
-	Q_ASSERT(fin->type() == QFontStruct::Mac); //SDM?
+	Q_ASSERT(fin->type() == QFontStruct::Mac);
 	QFontEngineMac *mac_fin = (QFontEngineMac*)fin;
 
 	if(mac_fin->fnum == -1) {
@@ -416,7 +431,7 @@ void QFontPrivate::load()
 	    actual.pixelSize = (actual.pointSize * 72 / (10 * logicalDpi));
 
 	Str255 font;
-	Q_ASSERT(fin->type() == QFontStruct::Mac); //SDM?
+	Q_ASSERT(fin->type() == QFontStruct::Mac);
 	GetFontName(((QFontEngineMac*)fin)->fnum, font);
 	actual.family = p2qstring(font);
 
@@ -431,13 +446,6 @@ void QFont::initialize()
     if(!QFontPrivate::fontCache) 
 	QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR(QFontPrivate::fontCache);
-#if defined(Q_WS_MACX) && defined(QMAC_FONT_ANTIALIAS) && !defined(QMAC_FONT_ATSU )
-    if(NSIsSymbolNameDefined("_SwapQDTextFlags")) {
-	if(NSSymbol sym = NSLookupAndBindSymbol("_SwapQDTextFlags")) 
-	    (*(UInt32 (*)(UInt32))NSAddressOfSymbol(sym))(kQDUseCGTextMetrics | kQDUseCGTextRendering);
-    }
-#endif
-    
     if(qApp) {
 	Str255 f_name;
 	SInt16 f_size;
