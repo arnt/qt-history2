@@ -955,7 +955,7 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
         return true;
 
 
-    QRegExp re(x, QString::CaseSensitive, true);
+    QRegExp re(x, QString::CaseSensitive, QRegExp::Wildcard);
     QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() -
                                                    (Option::mkfile::qmakespec.lastIndexOf(QDir::separator())+1));
     if((regex && re.exactMatch(spec)) || (!regex && spec == x))

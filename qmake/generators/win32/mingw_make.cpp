@@ -161,7 +161,7 @@ void MingwMakefileGenerator::writeSubDirs(QTextStream &t)
     QTextStream ts (&qs, IO_WriteOnly) ;
     Win32MakefileGenerator::writeSubDirs(ts) ;
     QRegExp rx("(\\n\\tcd [^\\n\\t]+)(\\n\\t.+)\\n\\t@cd ..") ;
-    rx.setMinimal(true);
+    rx.setMinimalMatching(true);
     int pos = 0 ;
     while(-1 != (pos = rx.search(qs, pos)))
     {

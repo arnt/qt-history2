@@ -436,7 +436,7 @@ void fixEnvVariables(QString &x)
 {
     int rep;
     QRegExp reg_var("\\$\\(.*\\)");
-    reg_var.setMinimal(true);
+    reg_var.setMinimalMatching(true);
     while((rep = reg_var.search(x)) != -1)
         x.replace(rep, reg_var.matchedLength(), QString(getenv(x.mid(rep + 2, reg_var.matchedLength() - 3).latin1())));
 }

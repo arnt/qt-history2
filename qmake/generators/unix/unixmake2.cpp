@@ -84,7 +84,7 @@ UnixMakefileGenerator::writeExtraVariables(QTextStream &t)
     QStringList &exports = project->variables()["QMAKE_EXTRA_VARIABLES"];
     for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
         for(QStringList::Iterator exp_it = exports.begin(); exp_it != exports.end(); ++exp_it) {
-            QRegExp rx((*exp_it), QString::CaseInsensitive, true);
+            QRegExp rx((*exp_it), QString::CaseInsensitive, QRegExp::Wildcard);
             if(rx.exactMatch(it.key())) {
                 if(first) {
                     t << "\n####### Custom Variables" << endl;
@@ -175,7 +175,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
             bool increment = false;
             for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
-                if((*objit).indexOf(QRegExp((*incrit), QString::CaseSensitive, true)) != -1) {
+                if((*objit).indexOf(QRegExp((*incrit), QString::CaseSensitive,
+                                    QRegExp::Wildcard)) != -1) {
                     increment = true;
                     incrs_out.append((*objit));
                     break;
@@ -208,7 +209,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
             bool increment = false;
             for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
-                if((*objit).indexOf(QRegExp((*incrit), QString::CaseSensitive, true)) != -1) {
+                if((*objit).indexOf(QRegExp((*incrit), QString::CaseSensitive,
+                                    QRegExp::Wildcard)) != -1) {
                     increment = true;
                     incrs_out.append((*objit));
                     break;
