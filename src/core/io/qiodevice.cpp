@@ -837,7 +837,7 @@ void QIODevice::ungetChar(char c)
 /*!
     Blocks until data is available for reading and the readyRead()
     signal has been emitted, or until \a msecs milliseconds have
-    passed. If msecs is -1, this function waits forever.
+    passed. If msecs is -1, this function will not time out.
 
     Returns true if data is available for reading; otherwise returns
     false (if the operation timed out or if an error occurred).
@@ -861,8 +861,8 @@ bool QIODevice::waitForReadyRead(int msecs)
     For buffered devices, this function waits until a payload of
     buffered written data has been written to the device and the
     bytesWritten() signal has been emitted, or until \a msecs
-    milliseconds have passed. If msecs is -1, this function waits
-    forever. For unbuffered devices, it does nothing.
+    milliseconds have passed. If msecs is -1, this function will
+    not time out. For unbuffered devices, it does nothing.
 
     Returns true if a payload of data was written to the device;
     otherwise returns false (i.e. if the operation timed out, or if an

@@ -638,7 +638,7 @@ QStringList QProcess::environment() const
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.
 
-    If msecs is -1, this function waits forever.
+    If msecs is -1, this function will not time out.
 
     \sa waitForFinished()
 */
@@ -696,7 +696,7 @@ bool QProcess::waitForBytesWritten(int msecs)
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.
 
-    If msecs is -1, this function waits forever.
+    If msecs is -1, this function will not time out.
 
     \sa waitForFinished()
 */

@@ -1151,7 +1151,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
             qDebug("Connected!");
     \endcode
 
-    If msecs is -1, this function waits forever.
+    If msecs is -1, this function will not time out.
 
     \sa connectToHost(), connected()
 */
@@ -1330,7 +1330,7 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
             qDebug("Disconnected!");
     \endcode
 
-    If msecs is -1, this function waits forever.
+    If msecs is -1, this function will not time out.
 
     \sa disconnect(), close()
 */
