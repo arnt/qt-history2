@@ -1062,9 +1062,10 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
         return;
-    } else if (pixmap.hasAlphaChannel()
-               || (pixmap.hasAlpha() && d->txop > QPainter::TxScale)
-               || stretch) {
+    } else if (!d->forceGdi 
+               && (pixmap.hasAlphaChannel()
+                   || (pixmap.hasAlpha() && d->txop > QPainter::TxScale)
+                   || stretch)) {
         // Try to use GDI+ since we don't support alpha in GDI at the moment, and
         // rotated/sheared masked pixmaps looks bad.
         d->forceGdiplus = true;
@@ -1136,6 +1137,7 @@ void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int t
 {
     // We cannot render text in GDI+ mode, so turn it of if it is currently used...
     bool usesGdiplus = d->usesGdiplus();
+    bool oldForceGdi = d->forceGdi;
     if (usesGdiplus) {
         d->forceGdi = true;
         d->endGdiplus();
@@ -1146,7 +1148,7 @@ void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int t
     QPaintEngine::drawTextItem(p, ti, textFlags);
 
     if (usesGdiplus)
-        d->forceGdi = false;
+        d->forceGdi = oldForceGdi;
 }
 
 
