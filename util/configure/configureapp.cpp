@@ -539,20 +539,6 @@ void Configure::parseCmdLine()
 	    dictionary[ "QT_INSTALL_PLUGINS" ] = configCmdLine.at(i);
 	}
 
-	else if( configCmdLine.at(i) == "-libdir" ) {
-	    ++i;
-	    if(i==argCount)
-		break;
-	    dictionary[ "QT_INSTALL_LIBS" ] = configCmdLine.at(i);
-	}
-
-	else if( configCmdLine.at(i) == "-bindir" ) {
-	    ++i;
-	    if(i==argCount)
-		break;
-	    dictionary[ "QT_INSTALL_BINS" ] = configCmdLine.at(i);
-	}
-
 	else if( configCmdLine.at(i) == "-datadir" ) {
 	    ++i;
 	    if(i==argCount)
@@ -771,8 +757,6 @@ WCE( {	cout << "                         pocketpc" << endl; } );
 	cout << "-datadir <data>       Data used by Qt programs will be installed to <data>." << endl;
 	cout << "-translationdir <dir> Translations used by Qt programs will be installed to dir." << endl << "(default PREFIX/translations)" << endl;
 	cout << "                     Default <prefix>." << endl;
-	cout << "-libdir <libs>       Install Qt libraries to <libs>, default <prefix>/lib." << endl;
-	cout << "-bindir <bins>       Install Qt binaries to <bins>, default <prefix>/bin." << endl << endl;
 
 	cout << "-redo                Run configure with the same parameters as last time." << endl;
 	cout << "-saveconfig <config> Run configure and save the parameters as <config>." << endl;
