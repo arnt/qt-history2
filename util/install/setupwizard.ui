@@ -1,6 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>SetupWizard</class>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QWizard">
     <property name="name">
         <cstring>SetupWizard</cstring>
@@ -245,6 +244,12 @@
                                 <property name="name">
                                     <cstring>installPath</cstring>
                                 </property>
+                                <property name="frameShape">
+                                    <enum>StyledPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
                             </widget>
                             <widget class="QPushButton">
                                 <property name="name">
@@ -274,6 +279,9 @@
                         <property name="name">
                             <cstring>installExamples</cstring>
                         </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
                         <property name="text">
                             <string>Install &amp;examples</string>
                         </property>
@@ -284,6 +292,9 @@
                     <widget class="QCheckBox">
                         <property name="name">
                             <cstring>installTutorials</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
                         </property>
                         <property name="text">
                             <string>Install &amp;tutorials</string>
@@ -1515,160 +1526,109 @@ Alternatively, the installation wizard may read them from a license file.</strin
     </image>
 </images>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>sysGroup</sender>
         <signal>clicked(int)</signal>
         <receiver>SetupWizard</receiver>
         <slot>clickedSystem(int)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>installPathButton</sender>
         <signal>clicked()</signal>
         <receiver>SetupWizard</receiver>
         <slot>clickedPath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>folderPathButton</sender>
         <signal>clicked()</signal>
         <receiver>SetupWizard</receiver>
         <slot>clickedFolderPath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>devSysPathButton</sender>
         <signal>clicked()</signal>
         <receiver>SetupWizard</receiver>
         <slot>clickedDevSysPath()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>licenceButtons</sender>
         <signal>clicked(int)</signal>
         <receiver>SetupWizard</receiver>
         <slot>licenseAction(int)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>readLicenseButton</sender>
         <signal>clicked()</signal>
         <receiver>SetupWizard</receiver>
         <slot>clickedLicenseFile()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>customerID</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
         <slot>licenseChanged(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>licenseID</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
         <slot>licenseChanged(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>licenseeName</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
         <slot>licenseChanged(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>expiryDate</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
         <slot>licenseChanged(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>configList</sender>
         <signal>clicked(QListViewItem*)</signal>
         <receiver>SetupWizard</receiver>
         <slot>optionClicked(QListViewItem*)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>configList</sender>
         <signal>spacePressed(QListViewItem*)</signal>
         <receiver>SetupWizard</receiver>
         <slot>optionClicked(QListViewItem*)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>configList</sender>
         <signal>selectionChanged(QListViewItem*)</signal>
         <receiver>SetupWizard</receiver>
         <slot>optionSelected(QListViewItem*)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>advancedList</sender>
         <signal>clicked(QListViewItem*)</signal>
         <receiver>SetupWizard</receiver>
         <slot>optionClicked(QListViewItem*)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>advancedList</sender>
         <signal>selectionChanged(QListViewItem*)</signal>
         <receiver>SetupWizard</receiver>
         <slot>optionSelected(QListViewItem*)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>advancedList</sender>
         <signal>spacePressed(QListViewItem*)</signal>
         <receiver>SetupWizard</receiver>
         <slot>optionClicked(QListViewItem*)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>configTabs</sender>
         <signal>currentChanged(QWidget*)</signal>
         <receiver>SetupWizard</receiver>
         <slot>configPageChanged()</slot>
     </connection>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedDevSysPath()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedEnvironmentButton()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedFolderPath()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedLicenseFile()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedPath()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedSystem( int )</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">licenseAction( int )</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">licenseChanged( const QString &amp; )</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">configPageChanged()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">optionClicked(QListViewItem*)</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">optionSelected(QListViewItem*)</slot>
 </connections>
-<functions>
-    <function name="clickedDevSysPath()" >{
-
-}</function>
-    <function name="clickedEnvironmentButton()" >{
-
-}</function>
-    <function name="clickedFolderPath()" >{
-
-}</function>
-    <function name="clickedLicenseFile()" >{
-
-}</function>
-    <function name="clickedPath()" >{
-
-}</function>
-    <function name="clickedSystem(int)" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-    <function name="init()" >{
-
-}</function>
-    <function name="licenseAction(int)" >{
-
-}</function>
-    <function name="licenseChanged(const QString&amp;)" >{
-	if( licenseID-&gt;text().length() )
-	    setNextEnabled( licensePage, true );
-    	else
-	    setNextEnabled( licensePage, false );
-}</function>
-    <function name="" ></function>
-    <function name="" ></function>
-    <function name="" ></function>
-</functions>
 <tabstops>
     <tabstop>introText</tabstop>
     <tabstop>rejectLicense</tabstop>
@@ -1698,4 +1658,23 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <tabstop>outputDisplay</tabstop>
     <tabstop>finishText</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">setupwizard.ui.h</include>
+</includes>
+<slots>
+    <slot>clickedDevSysPath()</slot>
+    <slot>clickedEnvironmentButton()</slot>
+    <slot>clickedFolderPath()</slot>
+    <slot>clickedLicenseFile()</slot>
+    <slot>clickedPath()</slot>
+    <slot>clickedSystem( int )</slot>
+    <slot access="protected">destroy()</slot>
+    <slot access="protected">init()</slot>
+    <slot>licenseAction( int )</slot>
+    <slot>licenseChanged( const QString &amp; )</slot>
+    <slot access="protected">configPageChanged()</slot>
+    <slot>optionClicked(QListViewItem*)</slot>
+    <slot>optionSelected(QListViewItem*)</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

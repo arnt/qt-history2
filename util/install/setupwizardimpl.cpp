@@ -1225,6 +1225,11 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	else if ( entry == "Off" )
 	    args += "-no-style-sgi";
 
+	if( !installExamples->isChecked() )
+	    args += "-no-examples";
+	if( !installTutorials->isChecked() )
+	    args += "-no-tutorials";
+
 	if( qWinVersion() & WV_NT_based ) {
 	    logOutput( "Execute configure...\n" );
 	    logOutput( args.join( " " ) + "\n" );
