@@ -1783,7 +1783,7 @@ static int cursorInEmptyArea( const QPoint &pos, QMainWindowPrivate::ToolBarDock
     area.setTop( y );
     area.setRight( after ? after->t->x() : width );
     area.setHeight( t->t->height() );
-    
+
     if ( covering && before && ipos ) {
 	covering = before->t;
 	*ipos = QMainWindowPrivate::TotalAfter;
@@ -1791,7 +1791,7 @@ static int cursorInEmptyArea( const QPoint &pos, QMainWindowPrivate::ToolBarDock
 	covering = after->t;
 	*ipos = QMainWindowPrivate::Before;
     }
-    
+
     if ( area.contains( pos ) && pos.x() + t->t->sizeHint().width() < area.right() )
 	return pos.x();
     return -1;
@@ -1880,12 +1880,12 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
     }
 
     // if a relative toolbar for the moving one was found
+    QMainWindowPrivate::ToolBarDock *dummy;
+    QMainWindowPrivate::ToolBar *pt = d->findToolbar( tb, dummy );
+    if ( pt )
+	pt->specialPos = -1;
     if ( t ) {
 	covering = t->t;
-	QMainWindowPrivate::ToolBarDock *dummy;
-	QMainWindowPrivate::ToolBar *pt = d->findToolbar( tb, dummy );
-	if ( pt )
-	    pt->specialPos = -1;
 	QRect r;
 	bool hasRect = FALSE;
 	
