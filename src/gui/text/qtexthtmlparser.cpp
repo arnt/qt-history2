@@ -915,6 +915,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     fontPointSize = parent->fontPointSize;
     fontWeight = parent->fontWeight;
     color = parent->color;
+    verticalAlignment = parent->verticalAlignment;
 
     if (parent->id != Html_table) {
         alignment = parent->alignment;
