@@ -23,10 +23,9 @@ class QIconView;
 class QIconViewItem;
 class QPoint;
 
-class QAction : public QObject
+class Q_EXPORT QAction : public QObject
 {
-    Q_OBJECT
-    Q_BUILDER( "A user action", "" )
+    Q_COMPONENT
 public:
     QAction( const QString& text, int accel = 0, QObject* parent = 0, const char* name = 0 );
     QAction( const QString& text, int accel,
@@ -60,7 +59,7 @@ public:
     virtual QObject* component();
     virtual void setComponent( QObject* );
 
-q_properties:
+qproperties:
     virtual void setText( const QString& text );
     virtual QString text() const;
 
@@ -137,8 +136,7 @@ private:
 
 class QActionSeparator : public QAction
 {
-    Q_OBJECT
-    Q_BUILDER( "", "" )
+    Q_COMPONENT
 public:
     QActionSeparator( QObject* parent = 0, const char* name = 0 );
     ~QActionSeparator();
@@ -147,10 +145,9 @@ public:
     virtual void unplug( QWidget* );
 };
 
-class QActionMenu : public QAction
+class Q_EXPORT QActionMenu : public QAction
 {
-    Q_OBJECT
-    Q_BUILDER( "A user action menu", "" )
+    Q_COMPONENT
 public:
     QActionMenu( const QString& text, QObject* parent = 0, const char* name = 0 );
     QActionMenu( const QString& text, const QIconSet& icon, QObject* parent = 0, const char* name = 0 );
@@ -167,17 +164,17 @@ public:
     void popup( const QPoint& global );
 
     bool event( QEvent* );
-    
+
 protected:
     void configureEvent( QConfigureEvent* );
-    
+
 private:
     QPopupMenu* m_popup;
 };
 
-class QToggleAction : public QAction
+class Q_EXPORT QToggleAction : public QAction
 {
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QToggleAction( const QString& text, int accel = 0, QObject* parent = 0, const char* name = 0 );
     QToggleAction( const QString& text, int accel,
@@ -190,6 +187,7 @@ public:
 
     int plug( QWidget* );
 
+qproperties:
     virtual void setChecked( bool );
     bool isChecked();
 
@@ -211,9 +209,9 @@ private:
     QString m_exclusiveGroup;
 };
 
-class QSelectAction : public QAction
+class Q_EXPORT QSelectAction : public QAction
 {
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QSelectAction( const QString& text, int accel = 0, QObject* parent = 0, const char* name = 0 );
     QSelectAction( const QString& text, int accel,
@@ -229,15 +227,17 @@ public:
 
     int plug( QWidget* );
 
-    virtual void setItems( const QStringList& items );
-    QStringList items();
     virtual void changeItem( int index, const QString& text );
     QString currentText();
-    int currentItem();
-    virtual void setCurrentItem( int index );
     virtual void clear();
 
     QPopupMenu* popupMenu();
+
+qproperties:    
+    virtual void setItems( const QStringList& items );
+    QStringList items();
+    int currentItem();
+    virtual void setCurrentItem( int index );
 
 protected:
     virtual void setCurrentItem( int id, int index );
@@ -260,9 +260,9 @@ private:
     int m_current;
 };
 
-class QFontAction : public QSelectAction
+class Q_EXPORT QFontAction : public QSelectAction
 {
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QFontAction( const QString& text, int accel = 0, QObject* parent = 0, const char* name = 0 );
     QFontAction( const QString& text, int accel,
@@ -277,9 +277,9 @@ private:
     QFontDatabase m_fdb;
 };
 
-class QFontSizeAction : public QSelectAction
+class Q_EXPORT QFontSizeAction : public QSelectAction
 {
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QFontSizeAction( const QString& text, int accel = 0, QObject* parent = 0, const char* name = 0 );
     QFontSizeAction( const QString& text, int accel,
@@ -292,6 +292,7 @@ public:
 
     int plug( QWidget* );
 
+qproperties:
     void setFontSize( int size );
     int fontSize();
 
@@ -308,10 +309,9 @@ private:
     bool m_lock;
 };
 
-class QActionCollection : public QObject
+class Q_EXPORT QActionCollection : public QObject
 {
-    Q_OBJECT
-    Q_BUILDER( "A collection for actions", "" )
+    Q_COMPONENT
 public:
     QActionCollection( QObject* parent = 0, const char* name = 0 );
     ~QActionCollection();
@@ -329,7 +329,7 @@ public:
     virtual QValueList<QAction*> actions();
 
     bool event( QEvent* );
-    
+
     // ####### Torben: QDomElement configuration( QDomDocument& doc, bool properties ) const;
 
 signals:
@@ -344,10 +344,9 @@ private:
     QList<QAction> m_actions;
 };
 
-class QActionWidget : public QWidget
+class Q_EXPORT QActionWidget : public QWidget
 {
-    Q_OBJECT
-    Q_BUILDER( "A widget for selecting actions", "" )
+    Q_COMPONENT
 public:
     QActionWidget( QWidget* parent = 0, const char* name = 0 );
     QActionWidget( QActionCollection*, QWidget* parent = 0, const char* name = 0 );
@@ -390,7 +389,7 @@ private:
     QActionCollection* m_collection;
 };
 
-class QActionDialog : public QDialog
+class Q_EXPORT QActionDialog : public QDialog
 {
     Q_OBJECT
 public:

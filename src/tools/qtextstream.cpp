@@ -1283,6 +1283,9 @@ QTextStream &QTextStream::operator>>( QCString &str )
   return. Note that this is different from QIODevice::readLine(), which
   does not strip the newline at the end of the line.
 
+  On EOF you will get a QString that is null. On reading an empty line the
+  returned QString is empty but not null.
+  
   \sa QIODevice::readLine()
 */
 
@@ -1294,9 +1297,10 @@ QString QTextStream::readLine()
 	return QString::null;
     }
 #endif
-    QString result;
     QChar c = ts_getc();
-
+    if ( c == QEOF )
+	return QString::null;
+    QString result( "" );
     while ( c != QEOF && c != '\n' ) {
 	result += c;
 	c = ts_getc();

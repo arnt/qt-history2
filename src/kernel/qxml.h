@@ -37,6 +37,7 @@ public:
   virtual bool tagEnd( const QString& name ) = 0;
   virtual bool attrib( const QString& name, const QString& value ) = 0;
   virtual bool text( const QString& text ) = 0;
+  virtual bool cdata( const QString& text ) = 0;
   virtual bool entityRef( const QString& name ) = 0;
   virtual bool processingInstruction( const QString& name, const QString& value ) = 0;
   virtual bool doctype( const QString& name ) = 0;
@@ -49,7 +50,7 @@ public:
   virtual bool entity( const QString& name, const QString& publicId, const QString& systemId, const QString& ndata ) = 0;
   virtual bool entity( const QString& name, const QString& value ) = 0;
   virtual bool notation( const QString& name, const QString& publicId, const QString& systemId ) = 0;
-  virtual void parseError( int pos, int line ) = 0;
+  virtual void parseError( int pos, int line, int linepos ) = 0;
   virtual bool finished() = 0;
 };
 
@@ -73,6 +74,7 @@ private:
   bool entity( const QString& name, const QString& value );
   bool entityValue( const QString& name, QString* value );
   bool replaceCharRefs( const QString& x, QString* text );
+  int replaceEntities( QString& text );
 
   QXMLSimpleParserPrivate* d;
 };

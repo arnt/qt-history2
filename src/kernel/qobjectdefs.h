@@ -38,8 +38,7 @@
 #define signals protected			// signals: in class
 #define emit					// emit signal
 
-#define q_prop
-#define q_properties public
+#define qproperties public
 
 #ifdef QT_BUILDER
 
@@ -76,10 +75,14 @@ private:								\
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
 
-#define Q_BUILDER( comment, pixmap )
 #define Q_METAPROP( name, value )
-#define Q_INSPECTOR( classname )
-						// macro for naming members
+#define Q_COMPONENT Q_OBJECT
+#define Q_CUSTOM_FACTORY						\
+public:									\
+    static QObject* qFactory( QObject* parent );			\
+private:
+
+// macro for naming members
 #if defined(_OLD_CPP_)
 #define METHOD(a)	"0""a"
 #define SLOT(a)		"1""a"

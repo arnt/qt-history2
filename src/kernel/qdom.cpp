@@ -52,6 +52,7 @@ public:
   virtual bool tagEnd( const QString& name );
   virtual bool attrib( const QString& name, const QString& value );
   virtual bool text( const QString& text );
+  virtual bool cdata( const QString& text );
   virtual bool entityRef( const QString& name );
   virtual bool processingInstruction( const QString& name, const QString& value );
   virtual bool doctype( const QString& name );
@@ -64,7 +65,7 @@ public:
   virtual bool entity( const QString& name, const QString& publicId, const QString& systemId, const QString& ndata );
   virtual bool entity( const QString& name, const QString& value );
   virtual bool notation( const QString& name, const QString& publicId, const QString& systemId );
-  virtual void parseError( int pos, int line );
+  virtual void parseError( int pos, int line, int linepos );
   virtual bool finished();
 
 private:
@@ -853,7 +854,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::removeChild( QDOM_NodePrivate* oldChild )
 
 QDOM_NodePrivate* QDOM_NodePrivate::appendChild( QDOM_NodePrivate* newChild )
 {
-  // No reference manipulation needed. Dont in insertAfter.
+  // No reference manipulation needed. Done in insertAfter.
   return insertAfter( newChild, 0 );
 }
 
@@ -1528,7 +1529,7 @@ QDOM_NodePrivate* QDOM_NamedNodeMapPrivate::item( int index ) const
     return 0;
 
   QDictIterator<QDOM_NodePrivate> it( m_map );
-  for( int i = 0; i < index; ++i ) { }
+  for( int i = 0; i < index; ++i, ++it ) { }
 
   return it.current();
 }
@@ -1876,7 +1877,8 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::removeChild( QDOM_NodePrivate* oldCh
 
 QDOM_NodePrivate* QDOM_DocumentTypePrivate::appendChild( QDOM_NodePrivate* newChild )
 {
-  // Call the origianl implementation
+    return insertAfter( newChild, 0 );
+    /* // Call the origianl implementation
   QDOM_NodePrivate* p = QDOM_NodePrivate::appendChild( newChild );
   // Update the maps
   if ( p && p->isEntity() )
@@ -1884,12 +1886,14 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::appendChild( QDOM_NodePrivate* newCh
   else if ( p && p->isNotation() )
     m_notations->m_map.insert( p->nodeName(), p );
 
-  return p;
+    return p; */
 }
 
 void QDOM_DocumentTypePrivate::save( QTextStream& s ) const
 {
   s << "<!DOCTYPE " << m_name << " ";
+
+  qDebug("--------- 3 DocType %i %i", m_entities->m_map.count(), m_notations->m_map.count() );
 
   if ( m_entities->length() > 0 || m_notations->length() > 0 )
   {
@@ -2430,9 +2434,48 @@ bool QDOM_AttrPrivate::specified() const
   return m_specified;
 }
 
+/*
+  Encode an attribute value upon saving.
+*/
+static QCString encodeAttr( const QCString& str )
+{
+    QCString tmp( str );
+    uint len = tmp.length();
+    uint i = 0;
+    const char* d = tmp.data();
+    while( i < len )
+    {
+	if ( d[i] == '<' )
+        {
+	    tmp.replace( i, 1, "&lt;" );
+	    d = tmp.data();
+	    len += 3;
+	    i += 4;
+	}
+	else if ( d[i] == '"' )
+        {
+	    tmp.replace( i, 1, "&quot;" );
+	    d = tmp.data();
+	    len += 5;
+	    i += 6;
+	}
+	else if ( d[i] == '&' )
+        {
+	    tmp.replace( i, 1, "&amp;" );
+	    d = tmp.data();
+	    len += 4;
+	    i += 5;
+	}
+	else
+	    ++i;
+    }
+
+    return tmp;
+}
+
 void QDOM_AttrPrivate::save( QTextStream& s ) const
 {
-  s << m_name << "=\"" << m_value.utf8() << "\"";
+  s << m_name << "=\"" << encodeAttr( m_value.utf8() ) << "\"";
 }
 
 /**************************************************************
@@ -2882,7 +2925,7 @@ bool QDomElement::hasAttribute( const QString& name ) const
 
 /*!
   Returns the text contained in children of the tag.
-  If the tag has child tag, then the text() method is called
+  If the tag has child tags, then the text() method is called
   for this children, too.
 
   Example:
@@ -3236,7 +3279,8 @@ QDOM_NodePrivate* QDOM_CDATASectionPrivate::cloneNode( bool deep)
 
 void QDOM_CDATASectionPrivate::save( QTextStream& s ) const
 {
-  s << "<![CDATA[" << m_value << "]]>";
+    // #### How do we escape "]]>" ?
+    s << "<![CDATA[" << m_value << "]]>";
 }
 
 /**************************************************************
@@ -3476,11 +3520,52 @@ QDOM_NodePrivate* QDOM_EntityPrivate::cloneNode( bool deep)
   return new QDOM_EntityPrivate( this, deep );
 }
 
+/*
+  Encode an entity value upon saving.
+*/
+static QCString encodeEntity( const QCString& str )
+{
+    QCString tmp( str );
+    uint len = tmp.length();
+    uint i = 0;
+    const char* d = tmp.data();
+    while( i < len )
+    {
+	if ( d[i] == '%' )
+        {
+	    tmp.replace( i, 1, "&#60;" );
+	    d = tmp.data();
+	    len += 4;
+	    i += 5;
+	}
+	else if ( d[i] == '"' )
+        {
+	    tmp.replace( i, 1, "&#34;" );
+	    d = tmp.data();
+	    len += 4;
+	    i += 5;
+	}
+	// Dont encode &lt; or &quot; or &custom;.
+	// Only encode character references
+	else if ( d[i] == '&' && i + 1 < len && d[i+1] == '#' )
+        {
+	    tmp.replace( i, 1, "&#38;" );
+	    d = tmp.data();
+	    len += 4;
+	    i += 5;
+	}
+	else
+	    ++i;
+    }
+
+    return tmp;
+}
+
 void QDOM_EntityPrivate::save( QTextStream& s ) const
 {
   if ( m_sys.isEmpty() && m_pub.isEmpty() )
   {
-    s << "<!ENTITY " << m_name << " \"" << m_value << "\">";
+    s << "<!ENTITY " << m_name << " \"" << encodeEntity( m_value.utf8() ) << "\">";
   }
   else
   {
@@ -4485,6 +4570,17 @@ bool QDomConsumer::text( const QString& text )
   return TRUE;
 }
 
+bool QDomConsumer::cdata( const QString& text )
+{
+  // No text as child of some document
+  if ( node == doc )
+    return FALSE;
+
+  node->appendChild( doc->createCDATASection( text ) );
+
+  return TRUE;
+}
+
 bool QDomConsumer::entityRef( const QString& name )
 {
   qDebug("ENTITYREF=%s\n",name.ascii());
@@ -4580,9 +4676,9 @@ bool QDomConsumer::notation( const QString& name, const QString& publicId, const
   return TRUE;
 }
 
-void QDomConsumer::parseError( int pos, int line )
+void QDomConsumer::parseError( int pos, int line, int linepos )
 {
-    qDebug("QDom: Parsing error at line %i, total position %i.", line, pos );
+    qDebug("QDom: Parsing error at line %i:%i, total position %i.", line, linepos, pos );
 }
 
 bool QDomConsumer::finished()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.l#4 $
+** $Id: //depot/qt/main/src/emoc/moc.l#5 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -76,7 +76,7 @@ extern void moc_warn( char *msg );
 <OUTSIDE>"template"		{ X;
 				  BEGIN QT_DEF;
 				  return TEMPLATE; }
-<QT_DEF>"q_properties"		{ X;return QPROPERTIES; }
+<QT_DEF>"qproperties"		{ X;return PROPERTIES; }
 <QT_DEF>"signals"		{ X;return SIGNALS; }
 <QT_DEF>"slots"			{ X;return SLOTS; }
 
@@ -90,11 +90,10 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"private"		{ X;return PRIVATE; }
 <IN_CLASS>"signals"		{ X;return SIGNALS; }
 <IN_CLASS>"slots"		{ X;return SLOTS; }
-<IN_CLASS>"q_properties"	{ X;return QPROPERTIES; }
+<IN_CLASS>"qproperties"		{ X;return PROPERTIES; }
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
-<IN_CLASS>"Q_INSPECTOR"		{ X;return Q_INSPECTOR; }
 <IN_CLASS>"Q_METAPROP"		{ X;return Q_METAPROP; }
-<IN_CLASS>"Q_BUILDER"		{ X;return Q_BUILDER; }
+<IN_CLASS>"Q_COMPONENT"		{ X;return Q_COMPONENT; }
 <IN_CLASS>"Q_CUSTOM_FACTORY"	{ X;return Q_CUSTOM_FACTORY; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
@@ -114,8 +113,7 @@ extern void moc_warn( char *msg );
 				  return USING; }
 
 <QT_DEF>"Q_OBJECT"		{ X;return Q_OBJECT; }
-<QT_DEF>"Q_BUILDER"		{ X;return Q_BUILDER; }
-<QT_DEF>"Q_INSPECTOR"		{ X;return Q_INSPECTOR; }
+<QT_DEF>"Q_COMPONENT"		{ X;return Q_COMPONENT; }
 <QT_DEF>"Q_METAPROP"		{ X;return Q_METAPROP; }
 <QT_DEF>"Q_CUSTOM_FACTORY"	{ X;return Q_CUSTOM_FACTORY; }
 <IN_BUILDER>"("			{ X;return '('; }
@@ -160,7 +158,6 @@ extern void moc_warn( char *msg );
 <QT_DEF>"extern"		{ X;return EXTERN; }
 <QT_DEF>"inline"		{ X;return INLINE; }
 <QT_DEF>"virtual"		{ X;return VIRTUAL; }
-<QT_DEF>"q_prop"		{ X;return QPROP; }
 <QT_DEF>"const"			{ X;return CONST; }
 <QT_DEF>"volatile"		{ X;return VOLATILE; }
 <QT_DEF>"char"			{ X;return CHAR; }

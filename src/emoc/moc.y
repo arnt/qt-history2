@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#12 $
+** $Id: //depot/qt/main/src/emoc/moc.y#13 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -137,14 +137,10 @@ AccessPerm tmpAccessPerm;			// current access permission
 AccessPerm subClassPerm;			// current access permission
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
-bool	   Q_BUILDERdetected;			// TRUE if current class
-						// contains the Q_BUILDER macro
+bool	   Q_COMPONENTdetected;			// TRUE if current class
+						// contains the Q_COMPONENT macro
 bool	   Q_CUSTOM_FACTORYdetected;			// TRUE if current class
 						// contains the Q_CUSTOM_FACTORY macro
-QCString   Q_BUILDERcomment;			// Comment to show in the builder ( maybe empty )
-QCString   Q_BUILDERpixmap;			// Pixmap to show in the builder ( maybe empty )
-bool	   Q_INSPECTORdetected;			// TRUE if current class
-						// contains the Q_INSPECTOR macro
 
 QAsciiDict<QString> tmpMetaProperties;		// Stores properties of the QMetaObject
 
@@ -209,13 +205,11 @@ const int  formatRevision = 4;			// moc output format revision
 %token			USING
 %token			MUTABLE
 
-%token			QPROP
-%token			QPROPERTIES
+%token			PROPERTIES
 %token			SIGNALS
 %token			SLOTS
 %token			Q_OBJECT
-%token			Q_BUILDER
-%token			Q_INSPECTOR
+%token			Q_COMPONENT
 %token			Q_METAPROP
 %token			Q_CUSTOM_FACTORY
 
@@ -573,7 +567,6 @@ cv_qualifier_list:	  cv_qualifier		{ $$ = $1; }
 
 cv_qualifier:		  CONST			{ $$ = "const"; }
 			| VOLATILE		{ $$ = "volatile"; }
-			| QPROP			{ $$ = "q_prop"; }
 			;
 
 fct_body_or_semicolon:	  ';'
@@ -644,33 +637,28 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			  slot_area
 			| SIGNALS		{ BEGIN QT_DEF; }
 			  ':'  opt_signal_declarations
-			| QPROPERTIES		{ BEGIN QT_DEF; }
+			| PROPERTIES		{ BEGIN QT_DEF; }
 			  ':'  opt_qprop_declarations
 			| Q_OBJECT		{ if ( tmpAccessPerm )
 				moc_warn("Q_OBJECT is not in the private"
 					" section of the class.\n"
 					"Q_OBJECT is a macro that resets"
 					" access permission to \"private\".");
-						  Q_OBJECTdetected = TRUE; }
+						  Q_OBJECTdetected = TRUE;
+						  Q_COMPONENTdetected = FALSE; }
 			| Q_CUSTOM_FACTORY		{ if ( tmpAccessPerm )
 				moc_warn("Q_CUSTOM_FACTORY is not in the private"
 					" section of the class.\n"
 					"Q_CUSTOM_FACTORY is a macro that resets"
 					" access permission to \"private\".");
 						  Q_CUSTOM_FACTORYdetected = TRUE; }
-			| Q_BUILDER { BEGIN IN_BUILDER; }
-			  '(' STRING ',' STRING ')'
-				{ if ( tmpAccessPerm )
-				  	moc_warn("Q_BUILDER is not in the private"
-						 " section of the class.\n"
-						 "Q_BUILDER is a macro that resets"
-						 " access permission to \"private\".");
-				  Q_BUILDERdetected = TRUE; Q_BUILDERcomment = $4;
-				  Q_BUILDERpixmap = $6; }
-			| Q_INSPECTOR { BEGIN IN_BUILDER; }
-			  '(' IDENTIFIER ')' {
-				  Q_INSPECTORdetected = TRUE;
-				  tmpMetaProperties.insert( "qt_inspector", new QString( $4 ) ); }
+			| Q_COMPONENT		{ if ( tmpAccessPerm )
+				moc_warn("Q_COMPONENT is not in the private"
+					" section of the class.\n"
+					"Q_COMPONENT is a macro that resets"
+					" access permission to \"private\".");
+						  Q_OBJECTdetected = TRUE;
+						  Q_COMPONENTdetected = TRUE; }
 			| Q_METAPROP { BEGIN IN_BUILDER; }
 			  '(' STRING ',' STRING ')'
 				  { tmpMetaProperties.insert( $4, new QString( $6 ) ); }
@@ -899,8 +887,6 @@ qslot:			  type_and_name fct_decl opt_semicolons
 			;
 
 qsignal:		  type_and_name fct_decl opt_semicolons
-				{ if ( tmpFunc->qualifier.find("q_prop") != -1 )
-				  func_warn("Signal as property function."); }
 			| type_and_name opt_bitfield ';' opt_semicolons
 				{ func_warn("Variable as signal or slot."); }
 			| type_and_name opt_bitfield ','member_declarator_list
@@ -980,7 +966,7 @@ extern "C" int hack_isatty( int )
 #include "lex.yy.c"
 
 // HACK
-#include "properties.cpp"
+// #include "properties.cpp"
 
 struct Property
 {
@@ -1267,13 +1253,10 @@ void initClass()				 // prepare for new class
     tmpAccessPerm    = _PRIVATE;
     subClassPerm     = _PRIVATE;
     Q_OBJECTdetected = FALSE;
+    Q_COMPONENTdetected = FALSE;
     skipClass	     = FALSE;
     templateClass    = FALSE;
     Q_CUSTOM_FACTORYdetected  = FALSE;
-    Q_BUILDERdetected  = FALSE;
-    Q_BUILDERcomment   = "";
-    Q_BUILDERpixmap    = "";
-    Q_INSPECTORdetected = FALSE;
     tmpMetaProperties.clear();
     slots.clear();
     signals.clear();
@@ -1650,11 +1633,6 @@ void generateTypedef( Function* f, int num )
     a = f->args->next();
   }
 
-  // Remove q_prop from the qualifier
-  int i = f->qualifier.find( "q_prop" );
-  if ( i != -1 )
-    f->qualifier.remove( i, 6 );
-
   fprintf( out, "    typedef %s(%s::*m%d_t%d)(%s)%s;\n",
 	   (const char*)f->type, (const char*)className, Prop_Num, num,
 	   (const char*)typstr,  (const char*)f->qualifier );
@@ -1922,16 +1900,17 @@ void generateClass()		      // generate C++ source code for a class
       * Torbens incredible hack until Qt 3.0 is released. I am doing
       * this with protest only!
       */
-    int ti = 0;
+	/*    int ti = 0;
     while( ti >= 0 && TorbensHack[ti] != 0 )
     {
       const char* tp = TorbensHack[ti];
       if ( *tp == '+' && strcmp( TorbensHack[ti+1], className.data() ) == 0 )
       {
 	ti += 2;
-	Q_BUILDERdetected = TRUE;
-	Q_BUILDERcomment = TorbensHack[ti++];
-	Q_BUILDERpixmap = TorbensHack[ti++];
+	Q_COMPONENTdetected = TRUE;
+	++ti; ++ti;
+	// Q_BUILDERcomment = TorbensHack[ti++];
+	// Q_BUILDERpixmap = TorbensHack[ti++];
 	// Skip inspector
 	++ti;
 	while( TorbensHack[ti] != 0 && TorbensHack[ti][0] != '+' )
@@ -1970,7 +1949,7 @@ void generateClass()		      // generate C++ source code for a class
       else
 	++ti;
     }
-    // End of hack
+    // End of hack */
 
     if ( skipClass )				// don't generate for class
 	return;
@@ -2030,84 +2009,30 @@ void generateClass()		      // generate C++ source code for a class
     }
 
 //
-// Generate the builder pixmap if needed
-//
-    if ( Q_BUILDERdetected && !Q_BUILDERpixmap.isEmpty() )
-    {
-        QCString fn;
-	if ( includePath.isEmpty() )
-	{
-	  QCString a = fileName;  replace(a.data(),'\\','/');
-	  if ( a.isEmpty() )
-	    fn = Q_BUILDERpixmap;
-	  else
-	  {
-	    int i = a.findRev( '/' );
-	    if ( i == -1 )
-	      fn = Q_BUILDERpixmap;
-	    else
-	    {
-	      fn = a.left( i + 1 );
-	      fn += Q_BUILDERpixmap;
-	    }
-	  }
-	}
-	else
-	    fn = includePath + fn + Q_BUILDERpixmap;
-        QFile file( fn );
-	if ( file.open( IO_ReadOnly ) )
-	{
-	    fprintf( out, "static const char* pixmap_%s[] = {\n", (const char*)className );
-	    while( !file.atEnd() )
-	    {
-	      QString tmp;
-	      int n = file.readLine( tmp, 1024 );
-	      if ( n < 0 || n == 1024 )
-		moc_err("Pixmap in file %s does not seem to be in XPM format", fn.data() );
-	      if ( !tmp.isEmpty() && tmp[0] == '"' )
-		fprintf( out, "%s", tmp.ascii() );
-	    }
-	    fprintf( out, "\n" );
-	}
-	else
-	  moc_err("Pixmap file %s can not be read", fn.data() );
-    }
-
-//
 // Generate static member function factory() if needed
 //
 
-    // This variable is part of Torbens hack
-    if ( className == "QToolBar" )
-    {
-      // Has its own custom factory
-      Q_CUSTOM_FACTORYdetected = TRUE;
-    }
     bool hasFactory = TRUE;
 
-    if ( Q_BUILDERdetected && !Q_CUSTOM_FACTORYdetected )
+    if ( Q_COMPONENTdetected && !Q_CUSTOM_FACTORYdetected )
     {
-        // Torbens incrdible hack start here
-        bool layout = FALSE;
-	bool abstr = FALSE;
-        int tl = 0;
-	while( !layout && TorbensLayout[tl] )
+	// Special handling for QToolBar
+	if ( className == "QToolBar" )
 	{
-	  if ( className == TorbensLayout[tl++] )
-	    layout = TRUE;
+	    fprintf( out, "QObject* QToolBar_factory( QObject* parent )" );
+	    fprintf( out, "{" );
+	    fprintf( out, "    if ( !parent || !parent->inherits(\"QMainWindow\") )" );
+	    fprintf( out, "    {" );
+	    fprintf( out, "	   qDebug( \"The parent of a toolbar must always be a QMainWindow.\n\" );" );
+	    fprintf( out, "	   return 0;" );
+	    fprintf( out, "    }" );
+	    fprintf( out, "" );
+	    fprintf( out, "    return new QToolBar( (QMainWindow*)parent );" );
+	    fprintf( out, "}" );
 	}
-        tl = 0;
-	while( !abstr && TorbensAbstract[tl] )
-	{
-	  if ( className == TorbensAbstract[tl++] )
-	    abstr = TRUE;
-	}
-
-	if ( abstr )
-	{
-	  hasFactory = FALSE;
-	}
-	else if ( layout )
+	// Special handling for Qt layout classes
+	else if ( className == "QGridLayout" || className == "QVBoxLayout" || className == "QHBoxLayout" ||
+	     className == "QBoxLayout" )
 	{
 	    fprintf( out, "static QObject *%s_factory( QObject* _parent )\n{\n", (const char*)className );
 	    fprintf( out, "    if ( _parent == 0 ) return new %s;\n",(const char*)className);
@@ -2115,7 +2040,8 @@ void generateClass()		      // generate C++ source code for a class
 		     (const char*)className);
 	    fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
 	}
-	else
+	// Skip abstract classes
+	else if ( className != "QLayout" )
 	{
 	    // The hack ends here
 	    fprintf( out, "static QObject *%s_factory( QObject* _parent )\n{\n", (const char*)className );
@@ -2141,7 +2067,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "\n#if QT_VERSION >= 199\n" );
     int levels = openNameSpaceForMetaObject( out );
-    fprintf( out, "static QMetaObjectInit init_%s(&%s::staticMetaObject);\n\n",
+    fprintf( out, "static QMetaObjectInit init_%s(&%s::createMetaObject);\n\n",
 	(const char*)pureClassName(), (const char*)qualifiedClassName() );
     closeNameSpaceForMetaObject( out, levels );
     fprintf( out, "#endif\n\n" );
@@ -2239,16 +2165,11 @@ void generateClass()		      // generate C++ source code for a class
 //
 // create Builder information in staticMetaObject()
 //
-    if ( Q_BUILDERdetected )
+    if ( Q_COMPONENTdetected )
     {
-        if ( !Q_BUILDERcomment.isEmpty() )
-           fprintf( out, "    metaObj->setComment( \"%s\" );\n", (const char*)Q_BUILDERcomment );
-        if ( !Q_BUILDERpixmap.isEmpty() )
-           fprintf( out, "    metaObj->setPixmap( pixmap_%s );\n", (const char*)className );
-        // This is one of Torbens hacks
         if ( Q_CUSTOM_FACTORYdetected )
-           fprintf( out, "    metaObj->setFactory( %s::factory );\n", (const char*)className );
-        else if ( hasFactory )
+           fprintf( out, "    metaObj->setFactory( %s::qFactory );\n", (const char*)className );
+        else 
            fprintf( out, "    metaObj->setFactory( %s_factory );\n", (const char*)className );
     }
     fprintf( out, "    return metaObj;\n}\n" );
@@ -2410,63 +2331,61 @@ void addMember( char m )
 	skipFunc    = FALSE;
 	return;
     }
-    bool isprop = ( m == 'p' );
-    if ( m == 't' && tmpFunc->qualifier.find( "q_prop" ) != -1 )
-      isprop = TRUE;
 
     if ( m == 's' && tmpFunc->type != "void" ) {
 	moc_err( "Signals must have \"void\" as their return type" );
 	goto Failed;
     }
-    else if ( isprop && tmpFunc->type != "void" && tmpFunc->args && tmpFunc->args->count() != 0 )
+    else if ( m == 'p' && tmpFunc->type != "void" && tmpFunc->args && tmpFunc->args->count() != 0 )
     {
       moc_err( "getProperty function may not have parameters." );
       goto Failed;
     }
-    else if ( isprop && tmpFunc->type == "void" && ( tmpFunc->args == 0 || tmpFunc->args->count() != 1 ) )
+    else if ( m == 'p' && tmpFunc->type == "void" && ( tmpFunc->args == 0 || tmpFunc->args->count() != 1 ) )
     {
       moc_err( "setProperty function must accept exactly one parameter." );
       goto Failed;
     }
 
-    // Check wether the parameter is of legal type
-    if ( isprop && tmpFunc->type == "void" )
+    // Check wether the parameter is of legal type if
+    // This is a setProperty function
+    if ( m == 'p' && tmpFunc->type == "void" )
     {
-      bool special = FALSE;
-      QCString tmp = tmpFunc->args->first()->leftType.copy();
-      tmp = tmp.simplifyWhiteSpace();
-      if ( tmp.left(6) == "const " )
-      {
-	tmp = tmp.mid( 6, tmp.length() - 6 );
-	special = TRUE;
-      }
-      if ( tmp.right(1) == "&" )
-      {
-	special = TRUE;
-	tmp = tmp.left( tmp.length() - 1 );
-      }
-      tmp = tmp.simplifyWhiteSpace();
-      /* else if ( tmp.right(1) == "*" )
-      {
+        bool special = FALSE;
+        QCString tmp = tmpFunc->args->first()->leftType.copy();
+        tmp = tmp.simplifyWhiteSpace();
+        if ( tmp.left(6) == "const " )
+        {
+	    tmp = tmp.mid( 6, tmp.length() - 6 );
+	    special = TRUE;
+        }
+        if ( tmp.right(1) == "&" )
+        {
+	    special = TRUE;
+	    tmp = tmp.left( tmp.length() - 1 );
+        }
+        tmp = tmp.simplifyWhiteSpace();
+        /* else if ( tmp.right(1) == "*" )
+        {
 	special = TRUE;
 	tmp = tmp.left( tmp.length() - 1 );
 	} */
-      // No []* etc. allowed here
-      for( int i = 0; i < tmp.length(); ++i )
-	if ( !isIdentChar( tmp[i] ) && tmp[i] != '_' )
-	{
-	  moc_err( "setProperty function %s(...) has illegal parameter type.", tmpFunc->name.data() );
-	  goto Failed;
-	}
-      // pointers and refs are not allowed on enums
-      if ( special && !isPropertyType( tmp, FALSE ) )
-      {
-	moc_err( "setProperty function %s(...) has illegal parameter type.", tmpFunc->name.data() );
-	goto Failed;
-      }
+        // No []* etc. allowed here
+        for( int i = 0; i < tmp.length(); ++i )
+	    if ( !isIdentChar( tmp[i] ) && tmp[i] != '_' )
+	    {
+	        moc_err( "setProperty function %s(...) has illegal parameter type.", tmpFunc->name.data() );
+	        goto Failed;
+	    }
+        // pointers and refs are not allowed on enums
+        if ( special && !isPropertyType( tmp, FALSE ) )
+        {
+	    moc_err( "setProperty function %s(...) has illegal parameter type.", tmpFunc->name.data() );
+	    goto Failed;
+        }
     }
     // Check wether the return type is of legal type
-    else if ( isprop && tmpFunc->type != "void" )
+    else if ( m == 'p' && tmpFunc->type != "void" )
     {
       QCString tmp = tmpFunc->type;
       tmp = tmp.simplifyWhiteSpace();
@@ -2509,9 +2428,10 @@ void addMember( char m )
     switch( m ) {
 	case 's': signals.append( tmpFunc ); break;
 	case 't': slots.  append( tmpFunc ); break;
+	case 'p': if ( tmpFunc->type == "void" )
+		      slots.append( tmpFunc ); 
+		  props.  append( tmpFunc ); break;
     }
-    if ( isprop )
-      props.append( tmpFunc );
 
  Failed:
     skipFunc = FALSE;

@@ -2,6 +2,8 @@
 #include <qdom.h>
 #include <qxml.h>
 #include <qfile.h>
+#include <qapplication.h>
+#include <qwidget.h>
 
 int main( int argc, char** argv )
 {
@@ -25,7 +27,7 @@ int main( int argc, char** argv )
 
   printf("Scanning now .... %s\n", text.ascii());
 
-  QDOM::Document doc;
+  QDomDocument doc;
   if ( !doc.setContent( text ) )
   {
     printf("Can not parse\n");
@@ -37,5 +39,15 @@ int main( int argc, char** argv )
   QTextStream str( stdout, IO_WriteOnly );
   str << doc;
 
+  if ( doc.documentElement().nodeName() == "QDL" )
+  {
+      QApplication app( argc, argv );
+      
+      QWidget* w = doc.documentElement().toWidget();
+      ASSERT( w );
+      w->show();
+      
+      app.exec();
+  }
   return 0;
 }
