@@ -1419,10 +1419,12 @@ void QMenuData::activateItemAt( int index )
 	( (QMenuBar*)this )->activateItemAt( index );
     else
 #endif
+    {
 #ifndef QT_NO_POPUPMENU
     if ( isPopupMenu )
 	( (QPopupMenu*)this )->activateItemAt( index );
 #endif
+    }
 }
 
 #endif

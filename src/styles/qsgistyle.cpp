@@ -276,13 +276,20 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
     switch ( e->type() ) {
     case QEvent::MouseButtonPress:
         {
+#ifndef QT_NO_SCROLLBAR
 	    if ( widget->inherits( "QScrollBar" ) ) {
 		d->lastScrollbarRect = ((QScrollBar*)widget)->sliderRect();
 		widget->repaint( FALSE );
-	    } else  if ( widget->inherits("QSlider") ) {
-                d->lastSliderRect = ((QSlider*)widget)->sliderRect();
-		widget->repaint( FALSE );
-            }
+	    } else 
+#endif
+	    {
+#ifndef QT_NO_SLIDER
+		if ( widget->inherits("QSlider") ) {
+		    d->lastSliderRect = ((QSlider*)widget)->sliderRect();
+		    widget->repaint( FALSE );
+		}
+#endif
+	    }
         }
         break;
 
@@ -1111,6 +1118,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
     switch ( control ) {
     case CC_Slider:
 	{
+#ifndef QT_NO_SLIDER
 	    const QSlider * slider = (const QSlider *) widget;
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
@@ -1170,7 +1178,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		QMotifStyle::drawComplexControl( control, p, widget, r, cg, flags,
 						 SC_SliderTickmarks, subActive,
 						 data );
-
+#endif
 	    break;
 	}
     case CC_ComboBox:
@@ -1212,6 +1220,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
     case CC_ScrollBar:
 	{
+#ifndef QT_NO_SCROLLBAR
 	    QScrollBar *scrollbar = (QScrollBar*)widget;
 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 	    if ( maxedOut )
@@ -1286,6 +1295,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
 		drawPrimitive( PE_ScrollBarSlider, p, handle, cg, flags, data );
 	    }
+#endif
 	}
 	break;
 

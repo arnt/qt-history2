@@ -1154,6 +1154,7 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_SliderFocusRect:
 	{
+#ifndef QT_NO_SLIDER
 	    const QSlider *slider = (const QSlider *) widget;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget );
 	    int thickness = pixelMetric( PM_SliderControlThickness, widget );
@@ -1172,6 +1173,7 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 	    }
 
 	    rect.setRect(x, y, wi, he);
+#endif
 	    break;
 	}
 
@@ -1198,6 +1200,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
     switch (control) {
     case CC_ScrollBar:
 	{
+#ifndef QT_NO_SCROLLBAR
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
 	    QRect addline, subline, addpage, subpage, slider, first, last;
 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
@@ -1309,7 +1312,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		    drawPrimitive(PE_FocusRect, p, fr, cg, Style_Default);
 		}
 	    }
-
+#endif
 	    break;
 	}
 
@@ -1418,6 +1421,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
     case CC_Slider:
 	{
+#ifndef QT_NO_SLIDER
 	    const QSlider *slider = (const QSlider *) widget;
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
@@ -1457,7 +1461,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    if (controls & SC_SliderTickmarks)
 		QMotifStyle::drawComplexControl(control, p, widget, r, cg, flags,
 						SC_SliderTickmarks, active, data);
-
+#endif
 	    break;
 	}
 
@@ -1569,6 +1573,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 
     case CC_Slider:
 	{
+#ifndef QT_NO_SLIDER
 	    if (subcontrol == SC_SliderHandle) {
 		const QSlider *slider = (const QSlider *) widget;
 		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, widget );
@@ -1588,7 +1593,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	    } else
 		rect = QMotifStyle::querySubControlMetrics(control, widget,
 							   subcontrol, data);
-
+#endif
 	    break;
 	}
 

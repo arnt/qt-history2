@@ -263,6 +263,8 @@ void QActionPrivate::update( Update upd )
 #ifndef QT_NO_TOOLTIP
 	    QToolTip::remove( btn );
 	    QToolTip::add( btn, toolTip(), tipGroup, statusTip() );
+#endif
+#ifndef QT_NO_WHATSTHIS
 	    QWhatsThis::remove( btn );
 	    if ( !whatsthis.isEmpty() )
 		QWhatsThis::add( btn, whatsthis );
@@ -806,6 +808,7 @@ void QAction::addedTo( int index, QPopupMenu *menu )
 /*! Sets the status message to \a text */
 void QAction::showStatusText( const QString& text )
 {
+#ifndef QT_NO_STATUSBAR
     QObject* par;
     if ( ( par = parent() ) && par->inherits( "QActionGroup" ) )
 	par = par->parent();
@@ -827,6 +830,7 @@ void QAction::showStatusText( const QString& text )
 	else
 	    bar->message( text );
     }
+#endif
 }
 
 /*! Sets the status message to the menu item's status text, or
@@ -1002,9 +1006,11 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 
 #ifndef QT_NO_TOOLTIP
 	QToolTip::remove( cb.current() );
-	QWhatsThis::remove( cb.current() );
 	if ( !!that->toolTip() )
 	    QToolTip::add( cb.current(), that->toolTip() );
+#endif
+#ifndef QT_NO_WHATSTHIS
+	QWhatsThis::remove( cb.current() );
 	if ( !!that->whatsThis() )
 	    QWhatsThis::add( cb.current(), that->whatsThis() );
 #endif
@@ -1019,9 +1025,11 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 
 #ifndef QT_NO_TOOLTIP
 	QToolTip::remove( mb.current() );
-	QWhatsThis::remove( mb.current() );
 	if ( !!that->toolTip() )
 	    QToolTip::add( mb.current(), that->toolTip() );
+#endif
+#ifndef QT_NO_WHATSTHIS
+	QWhatsThis::remove( mb.current() );
 	if ( !!that->whatsThis() )
 	    QWhatsThis::add( mb.current(), that->whatsThis() );
 #endif
@@ -1312,6 +1320,8 @@ bool QActionGroup::addTo( QWidget* w )
 		    QToolTip::add( btn, toolTip() );
 		else if ( !!defAction->toolTip() )
 		    QToolTip::add( btn, defAction->toolTip() );
+#endif
+#ifndef QT_NO_WHATSTHIS
 		if ( !!whatsThis() )
 		    QWhatsThis::add( btn, whatsThis() );
 		else if ( !!defAction->whatsThis() )

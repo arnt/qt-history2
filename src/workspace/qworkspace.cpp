@@ -820,6 +820,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
     static QTime* t = 0;
     static QWorkspace* tc = 0;
+#ifndef QT_NO_MENUBAR
     if ( o == d->maxtools && d->menuId != -1 ) {
 	switch ( e->type() ) {
 	case QEvent::MouseButtonPress:
@@ -842,6 +843,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	}
 	return QWidget::eventFilter( o, e );
     }
+#endif
     switch ( e->type() ) {
     case QEvent::Hide:
     case QEvent::HideToParent:

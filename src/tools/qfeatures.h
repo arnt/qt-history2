@@ -122,9 +122,6 @@
 // Range-control widgets
 //#define QT_NO_RANGECONTROL
 
-// Semi-modal dialogs
-//#define QT_NO_SEMIMODAL
-
 // QSignalMapper
 //#define QT_NO_SIGNALMAPPER
 
@@ -283,6 +280,11 @@
 // Regular expression wildcard support
 #if !defined(QT_NO_REGEXP_WILDCARD) && (defined(QT_NO_STRINGLIST))
 #define QT_NO_REGEXP_WILDCARD
+#endif
+
+// Semi-modal dialogs
+#if !defined(QT_NO_SEMIMODAL) && (defined(QT_NO_DIALOG))
+#define QT_NO_SEMIMODAL
 #endif
 
 // Session management support
@@ -640,11 +642,6 @@
 #define QT_NO_GRIDVIEW
 #endif
 
-// Menu bars
-#if !defined(QT_NO_MENUBAR) && (defined(QT_NO_MENUDATA) || defined(QT_NO_FRAME))
-#define QT_NO_MENUBAR
-#endif
-
 // FTP file access
 #if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
 #define QT_NO_NETWORKPROTOCOL_FTP
@@ -663,6 +660,11 @@
 // QListBox
 #if !defined(QT_NO_LISTBOX) && (defined(QT_NO_SCROLLVIEW) || defined(QT_NO_STRINGLIST))
 #define QT_NO_LISTBOX
+#endif
+
+// Menu bars
+#if !defined(QT_NO_MENUBAR) && (defined(QT_NO_POPUPMENU))
+#define QT_NO_MENUBAR
 #endif
 
 // Scalable Vector Graphics (SVG)
@@ -710,19 +712,9 @@
 #define QT_NO_MESSAGEBOX
 #endif
 
-// QProgressDialog
-#if !defined(QT_NO_PROGRESSDIALOG) && (defined(QT_NO_SEMIMODAL) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON))
-#define QT_NO_PROGRESSDIALOG
-#endif
-
 // Rich text edit
 #if !defined(QT_NO_TEXTEDIT) && (defined(QT_NO_RICHTEXT) || defined(QT_NO_SCROLLVIEW))
 #define QT_NO_TEXTEDIT
-#endif
-
-// QTextView
-#if !defined(QT_NO_TEXTVIEW) && (defined(QT_NO_RICHTEXT) || defined(QT_NO_SCROLLVIEW))
-#define QT_NO_TEXTVIEW
 #endif
 
 // Multi-line edits
@@ -730,9 +722,9 @@
 #define QT_NO_MULTILINEEDIT
 #endif
 
-// QTextBrowser
-#if !defined(QT_NO_TEXTBROWSER) && (defined(QT_NO_TEXTVIEW))
-#define QT_NO_TEXTBROWSER
+// QTextView
+#if !defined(QT_NO_TEXTVIEW) && (defined(QT_NO_TEXTEDIT))
+#define QT_NO_TEXTVIEW
 #endif
 
 // Spin boxes
@@ -740,14 +732,14 @@
 #define QT_NO_SPINBOX
 #endif
 
-// Main-windows
-#if !defined(QT_NO_MAINWINDOW) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_POPUPMENU) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_LAYOUT) || defined(QT_NO_BUTTON))
-#define QT_NO_MAINWINDOW
+// QTextBrowser
+#if !defined(QT_NO_TEXTBROWSER) && (defined(QT_NO_TEXTVIEW))
+#define QT_NO_TEXTBROWSER
 #endif
 
-// QTabDialog
-#if !defined(QT_NO_TABDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_TABBAR) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LAYOUT))
-#define QT_NO_TABDIALOG
+// QProgressDialog
+#if !defined(QT_NO_PROGRESSDIALOG) && (defined(QT_NO_SEMIMODAL) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_PROGRESSBAR))
+#define QT_NO_PROGRESSDIALOG
 #endif
 
 // QWizard
@@ -755,9 +747,9 @@
 #define QT_NO_WIZARD
 #endif
 
-// QErrorMessage
-#if !defined(QT_NO_ERRORMESSAGE) && (defined(QT_NO_DIALOG) || defined(QT_NO_RICHTEXT) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LABEL) || defined(QT_NO_CHECKBOX))
-#define QT_NO_ERRORMESSAGE
+// QTabDialog
+#if !defined(QT_NO_TABDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LAYOUT) || defined(QT_NO_TABWIDGET))
+#define QT_NO_TABDIALOG
 #endif
 
 // QListView
@@ -765,24 +757,34 @@
 #define QT_NO_LISTVIEW
 #endif
 
+// Main-windows
+#if !defined(QT_NO_MAINWINDOW) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_POPUPMENU) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_STATUSBAR))
+#define QT_NO_MAINWINDOW
+#endif
+
 // Toolbars
-#if !defined(QT_NO_TOOLBAR) && (defined(QT_NO_MAINWINDOW) || defined(QT_NO_TOOLBUTTON))
+#if !defined(QT_NO_TOOLBAR) && (defined(QT_NO_MAINWINDOW))
 #define QT_NO_TOOLBAR
-#endif
-
-// QColorDialog
-#if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_DIALOG) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
-#define QT_NO_COLORDIALOG
-#endif
-
-// QWorkSpace
-#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_POPUPMENU) || defined(QT_NO_LAYOUT) || defined(QT_NO_LABEL) || defined(QT_NO_TOOLBUTTON))
-#define QT_NO_WORKSPACE
 #endif
 
 // QComboBox
 #if !defined(QT_NO_COMBOBOX) && (defined(QT_NO_LISTBOX) || defined(QT_NO_LINEEDIT) || defined(QT_NO_POPUPMENU))
 #define QT_NO_COMBOBOX
+#endif
+
+// QColorDialog
+#if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_DIALOG) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_GRIDVIEW))
+#define QT_NO_COLORDIALOG
+#endif
+
+// QErrorMessage
+#if !defined(QT_NO_ERRORMESSAGE) && (defined(QT_NO_DIALOG) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LABEL) || defined(QT_NO_CHECKBOX) || defined(QT_NO_TEXTVIEW))
+#define QT_NO_ERRORMESSAGE
+#endif
+
+// QWorkSpace
+#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_POPUPMENU) || defined(QT_NO_LABEL) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_VBOX) || defined(QT_NO_SCROLLBAR))
+#define QT_NO_WORKSPACE
 #endif
 
 // QAction
@@ -796,7 +798,7 @@
 #endif
 
 // QFontDialog
-#if !defined(QT_NO_FONTDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_FONTDATABASE) || defined(QT_NO_COMBOBOX) || defined(QT_NO_LABEL) || defined(QT_NO_CHECKBOX) || defined(QT_NO_PUSHBUTTON))
+#if !defined(QT_NO_FONTDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_FONTDATABASE) || defined(QT_NO_COMBOBOX) || defined(QT_NO_LABEL) || defined(QT_NO_CHECKBOX) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_VGROUPBOX))
 #define QT_NO_FONTDIALOG
 #endif
 
@@ -806,17 +808,17 @@
 #endif
 
 // SQL classes
-#if !defined(QT_NO_SQL) && (defined(QT_NO_PROPERTIES) || defined(QT_NO_TABLE) || defined(QT_NO_LABEL) || defined(QT_NO_SPINBOX))
+#if !defined(QT_NO_SQL) && (defined(QT_NO_PROPERTIES) || defined(QT_NO_TABLE) || defined(QT_NO_SPINBOX) || defined(QT_NO_MESSAGEBOX))
 #define QT_NO_SQL
 #endif
 
-// QFileDialog
-#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_SEMIMODAL) || defined(QT_NO_REGEXP_CAPTURE))
-#define QT_NO_FILEDIALOG
+// QPrintDialog
+#if !defined(QT_NO_PRINTDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_LABEL) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_SPINBOX) || defined(QT_NO_RADIOBUTTON) || defined(QT_NO_PUSHBUTTON))
+#define QT_NO_PRINTDIALOG
 #endif
 
-// QPrintDialog
-#if !defined(QT_NO_PRINTDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_LABEL) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_SPINBOX))
-#define QT_NO_PRINTDIALOG
+// QFileDialog
+#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_SEMIMODAL) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_VBOX) || defined(QT_NO_SPLITTER) || defined(QT_NO_PROGRESSBAR))
+#define QT_NO_FILEDIALOG
 #endif
 

@@ -2135,7 +2135,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
     case CT_RadioButton:
 	{
-#ifndef QT_NO_PUSHBUTTON
+#ifndef QT_NO_RADIOBUTTON
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 	    QRect irect = subRect(SR_RadioButtonIndicator, widget);
 	    int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );

@@ -49,6 +49,7 @@
 #include "qimage.h"
 #include "qtimer.h"
 #include "qpainter.h"
+#include "qstyle.h"
 #include "../kernel/qinternal_p.h"
 #ifndef QT_NO_WORKSPACE
 #include "qworkspace.h"
@@ -496,6 +497,7 @@ void QTitleBar::setCaption( const QString& title )
 
 void QTitleBar::setIcon( const QPixmap& icon )
 {
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
     QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
 						  QStyle::SC_TitleBarSysMenu);
 
@@ -513,7 +515,10 @@ void QTitleBar::setIcon( const QPixmap& icon )
 	theIcon.convertFromImage( icon.convertToImage().smoothScale(neww,
 								   menur.height()) );
     } else
+#endif
+    {
 	theIcon = icon;
+    }
 
     QWidget::setIcon( theIcon );
 

@@ -1175,6 +1175,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
     case CC_Slider:
 	{
+#ifndef QT_NO_SLIDER
 	    const QSlider * slider = (const QSlider *) widget;
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
@@ -1213,7 +1214,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 		QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 						  SC_SliderTickmarks, subActive,
 						  data );
-
+#endif
 	    break;
 	}
 
@@ -1387,6 +1388,7 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 
     case PM_SliderControlThickness:
 	{
+#ifndef QT_NO_SLIDER
 	    const QSlider * sl = (const QSlider *) widget;
 	    int space = (sl->orientation() == Horizontal) ? sl->height()
 			: sl->width();
@@ -1406,16 +1408,19 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 	    if ( space > 0 )
 		thick += (space * 2) / (n + 2);
 	    ret = thick;
+#endif
 	    break;
 	}
 
     case PM_SliderSpaceAvailable:
 	{
+#ifndef QT_NO_SLIDER
 	    const QSlider * sl = (const QSlider *) widget;
 	    if ( sl->orientation() == Horizontal )
 		ret = sl->width() - pixelMetric( PM_SliderLength, sl ) - 6;
 	    else
 		ret = sl->height() - pixelMetric( PM_SliderLength, sl ) - 6;
+#endif
 	    break;
 	}
 
@@ -1491,6 +1496,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 
     case CC_Slider:
 	{
+#ifndef QT_NO_SLIDER
 	    if (sc == SC_SliderHandle) {
 		const QSlider * sl = (const QSlider *) widget;
 		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, sl );
@@ -1509,12 +1515,13 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 				  thickness - 2*motifBorder, len );
 	    } else
 		rect = QCommonStyle::querySubControlMetrics(control, widget, sc, data);
-
+#endif
 	    break;
 	}
 
     case CC_ScrollBar:
 	{
+#ifndef QT_NO_SCROLLBAR
 	    if (! widget)
 		break;
 
@@ -1591,7 +1598,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    default:
 		break;
 	    }
-
+#endif
 	    break;
 	}
 

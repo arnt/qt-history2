@@ -1121,6 +1121,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 	}
     case CC_Slider:
 	{
+#ifndef QT_NO_SLIDER
 	    const QSlider *slider = (const QSlider *) widget;
 	    int thickness = pixelMetric( PM_SliderControlThickness, widget );
 	    int len = pixelMetric( PM_SliderLength, widget );
@@ -1299,7 +1300,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		QCommonStyle::drawComplexControl( control, p, widget, r,
 						  cg, how, SC_SliderTickmarks,
 						  subActive, data );
-
+#endif
 	    break;
 	}
     default:
@@ -1352,6 +1353,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	break;
     case CC_ScrollBar:
 	{
+#ifndef QT_NO_SCROLLBAR
 	    const QScrollBar *sb;
 	    sb = (const QScrollBar *)widget;
 	    int sliderStart = sb->sliderStart();
@@ -1421,10 +1423,12 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 							      sc, data );
 		break;
 	    }
+#endif
 	    break;
 	}
     case CC_Slider:
 	{
+#ifndef QT_NO_SLIDER
 	    const QSlider *slider = (const QSlider *) widget;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget);
 	    int thickness = pixelMetric( PM_SliderControlThickness, widget);
@@ -1449,6 +1453,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 							      sc, data );
 		break;
 	    }
+#endif
 	    break;
 	}
     default:

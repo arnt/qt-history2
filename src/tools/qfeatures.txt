@@ -1,6 +1,6 @@
 Feature: WORKSPACE
 Section: Widgets
-Requires: TITLEBAR RESIZEHANDLER POPUPMENU LAYOUT LABEL TOOLBUTTON
+Requires: TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON VBOX SCROLLBAR
 Name: QWorkSpace
 SeeAlso: ???
 
@@ -24,7 +24,7 @@ SeeAlso: ???
 
 Feature: SQL
 Section: Sound
-Requires: PROPERTIES TABLE LABEL SPINBOX
+Requires: PROPERTIES TABLE SPINBOX MESSAGEBOX
 Name: SQL classes
 SeeAlso: ???
 
@@ -642,7 +642,7 @@ SeeAlso: ???
 
 Feature: SEMIMODAL
 Section: Widgets
-Requires: 
+Requires: DIALOG
 Name: Semi-modal dialogs
 SeeAlso: ???
 
@@ -666,7 +666,7 @@ SeeAlso: ???
 
 Feature: TOOLBAR
 Section: Widgets
-Requires: MAINWINDOW TOOLBUTTON
+Requires: MAINWINDOW
 Name: Toolbars
 SeeAlso: ???
 
@@ -750,7 +750,7 @@ SeeAlso: ???
 
 Feature: MAINWINDOW
 Section: Widgets
-Requires: STRINGLIST POPUPMENU TITLEBAR RESIZEHANDLER LAYOUT BUTTON
+Requires: STRINGLIST POPUPMENU TITLEBAR RESIZEHANDLER TOOLBUTTON STATUSBAR
 Name: Main-windows
 SeeAlso: ???
 
@@ -774,7 +774,7 @@ SeeAlso: ???
 
 Feature: MENUBAR
 Section: Widgets
-Requires: MENUDATA FRAME
+Requires: POPUPMENU
 Name: Menu bars
 SeeAlso: ???
 
@@ -840,7 +840,7 @@ SeeAlso: ???
 
 Feature: TEXTVIEW
 Section: Widgets
-Requires: RICHTEXT SCROLLVIEW
+Requires: TEXTEDIT
 Name: QTextView
 SeeAlso: ???
 
@@ -1038,7 +1038,7 @@ SeeAlso: ???
 
 Feature: COLORDIALOG
 Section: Widgets
-Requires: LABEL PUSHBUTTON DIALOG LINEEDIT VALIDATOR
+Requires: LABEL PUSHBUTTON DIALOG LINEEDIT VALIDATOR GRIDVIEW
 Name: QColorDialog
 SeeAlso: ???
 
@@ -1050,7 +1050,7 @@ SeeAlso: ???
 
 Feature: TABDIALOG
 Section: Widgets
-Requires: DIALOG TABBAR PUSHBUTTON LAYOUT
+Requires: DIALOG PUSHBUTTON LAYOUT TABWIDGET
 Name: QTabDialog
 SeeAlso: ???
 
@@ -1062,25 +1062,25 @@ SeeAlso: ???
 
 Feature: FILEDIALOG
 Section: Widgets
-Requires: LISTVIEW NETWORKPROTOCOL COMBOBOX MESSAGEBOX SEMIMODAL REGEXP_CAPTURE
+Requires: LISTVIEW NETWORKPROTOCOL COMBOBOX MESSAGEBOX SEMIMODAL REGEXP_CAPTURE TOOLBUTTON BUTTONGROUP VBOX SPLITTER PROGRESSBAR
 Name: QFileDialog
 SeeAlso: ???
 
 Feature: FONTDIALOG
 Section: Widgets
-Requires: DIALOG FONTDATABASE COMBOBOX LABEL CHECKBOX PUSHBUTTON
+Requires: DIALOG FONTDATABASE COMBOBOX LABEL CHECKBOX PUSHBUTTON VGROUPBOX
 Name: QFontDialog
 SeeAlso: ???
 
 Feature: PRINTDIALOG
 Section: Widgets
-Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX
+Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX RADIOBUTTON PUSHBUTTON
 Name: QPrintDialog
 SeeAlso: ???
 
 Feature: PROGRESSDIALOG
 Section: Widgets
-Requires: SEMIMODAL LABEL PUSHBUTTON
+Requires: SEMIMODAL LABEL PUSHBUTTON PROGRESSBAR
 Name: QProgressDialog
 SeeAlso: ???
 
@@ -1092,7 +1092,7 @@ SeeAlso: ???
 
 Feature: ERRORMESSAGE
 Section: Widgets
-Requires: DIALOG RICHTEXT PUSHBUTTON LABEL CHECKBOX
+Requires: DIALOG PUSHBUTTON LABEL CHECKBOX TEXTVIEW
 Name: QErrorMessage
 SeeAlso: ???
 

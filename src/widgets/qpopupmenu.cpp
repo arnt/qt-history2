@@ -474,10 +474,13 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	( parentMenu && parentMenu->isPopupMenu &&
 	( x + w/2 < ((QPopupMenu*)parentMenu)->x() ) ) )
 	hGuess = QEffects::LeftScroll;
+
+#ifndef QT_NO_MENUBAR
     if ( snapToMouse && ( y + h/2 < mouse.y() ) ||
 	( parentMenu && parentMenu->isMenuBar &&
 	( y + h/2 < ((QMenuBar*)parentMenu)->mapToGlobal( ((QMenuBar*)parentMenu)->pos() ).y() ) ) )
 	vGuess = QEffects::UpScroll;
+#endif
 
     if ( QApplication::isEffectEnabled( UI_AnimateMenu ) &&
 	 preventAnimation == FALSE ) {

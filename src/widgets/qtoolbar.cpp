@@ -673,10 +673,13 @@ void QToolBar::emulateButtonClicked()
     if ( !d->button )
 	return;
 
+#ifndef QT_NO_PUSHBUTTON
     if ( d->button->inherits( "QPushButton" ) &&
 	 ( (QPushButton*)d->button )->popup() ) {
 	( (QPushButton*)d->button )->popup()->exec( QCursor::pos() );
-    } else if ( d->button->inherits( "QToolButton" ) &&
+    } else
+#endif
+    if ( d->button->inherits( "QToolButton" ) &&
 		( (QToolButton*)d->button )->popup() ) {
 	( (QToolButton*)d->button )->popup()->exec( QCursor::pos() );
     } else if ( d->button->isToggleButton() ) {
