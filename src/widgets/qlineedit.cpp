@@ -490,12 +490,12 @@ void QLineEdit::deselect()
 
 QString QLineEdit::text() const
 {
-    // only change the text if we need to, this ensure
-    // that multiple calls to text() will get the same value.
-    if ( d->txtBuffer + " " != d->parag->string()->toString() ) {
-	d->txtBuffer = d->parag->string()->toString();
-	d->txtBuffer.remove( d->txtBuffer.length() - 1, 1 );  // remove space
-    }
+    // only change the text if we need to, this ensure that multiple
+    // calls to text() will get the same shared value.
+    QString s = d->parag->string()->toString();
+    s.remove( s.length() - 1, 1 ); // get rid of trailing space
+    if ( d->txtBuffer != s ) 
+	d->txtBuffer = s;
     return d->txtBuffer;
 }
 
