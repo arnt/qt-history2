@@ -70,6 +70,7 @@
     }
     if ( Config("yacc") ) {
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_YACC)' );
+	Project('TMAKE_LIBS *= $(SYSCONF_LIBS_YACC)' );
     }
     Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS)' );
     Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS)' );

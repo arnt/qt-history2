@@ -20,6 +20,7 @@ SYSCONF_LIBS_QT_OPENGL	= #$ Expand('TMAKE_LIBS_QT_OPENGL');
 # OpenGL
 SYSCONF_LFLAGS_OPENGL	= #$ ExpandGlue('TMAKE_LIBDIR_OPENGL', '-L', ' -L', '');
 SYSCONF_LIBS_OPENGL	= #$ Expand('TMAKE_LIBS_OPENGL');
+SYSCONF_LIBS_YACC	= #$ Expand('TMAKE_LIBS_YACC');
 
 # Linking applications
 SYSCONF_LINK		= #$ Expand('TMAKE_LINK');
