@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#307 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#308 $
 **
 ** Implementation of QListBox widget class
 **
@@ -31,7 +31,7 @@
 #include "qscrollbar.h"
 #include "qpixmap.h"
 #include "qapplication.h"
-
+#include "qptrdict.h"
 
 class QListBoxPrivate
 {
@@ -53,10 +53,24 @@ public:
 	selectionMode( QListBox::Single ),
 	count( 0 ),
 	ignoreMoves( FALSE )
-    {}
+    { infoDict.setAutoDelete( FALSE ); }
     ~QListBoxPrivate();
 
+    struct ItemInfo {
+	ItemInfo() {
+	    children.setAutoDelete( FALSE );
+	    dirty = TRUE;
+	    indent = 0;
+	}
+	ItemInfo *parent;
+	QListBoxItem *item, *p;
+	QList<ItemInfo> children;
+	int indent;
+	bool dirty;
+    };
+    
     QListBoxItem * head;
+    QPtrDict<ItemInfo> infoDict;
     QListBoxItem * current;
     bool layoutDirty;
     bool mustPaintAll;
@@ -91,6 +105,7 @@ public:
     int count;
 
     bool ignoreMoves;
+    bool differentDepths;
 };
 
 
@@ -170,8 +185,14 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
     // just something that'll look noticeable in the debugger
     x = y = 42;
 
-    if (listbox)
+    if (listbox) {
 	listbox->insertItem( this );
+	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
+	i->item = this;
+	i->parent = 0;
+	i->p = 0;
+	listbox->d->infoDict.insert( this, i );
+    }
 }
 
 /*!
@@ -189,8 +210,58 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
     // just something that'll look noticeable in the debugger
     x = y = 42;
 
-    if (listbox)
+    if (listbox) {
 	listbox->insertItem( this, after );
+	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
+	i->item = this;
+	i->parent = 0;
+	i->p = 0;
+	listbox->d->infoDict.insert( this, i );
+    }
+}
+
+/*!
+  Constructs and empty listbox item which will be inserted
+  as child of \a parent. Using this you can create a tree
+  structure in a listbox. It really you want to work with a 
+  hirarchical structure (a tree) it큦 suggested to use 
+  a QListView instead of a QListBox. The possibility to 
+  create a tree structure in a listbox is very limited and
+  only supported because it큦 needed in comboboxes.
+  
+  \sa QListView::QListView()
+*/
+
+QListBoxItem::QListBoxItem( QListBoxItem *parent )
+{
+    if ( !parent )
+	return;
+    
+    lbox = parent->lbox;
+    s = FALSE;
+    dirty = TRUE;
+    p = n = 0;
+
+    // just something that'll look noticeable in the debugger
+    x = y = 42;
+
+    if ( lbox ) {
+	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
+	QListBoxPrivate::ItemInfo *pi = lbox->d->infoDict.find( parent );
+	i->item = this;
+	i->parent = pi;
+	i->p = parent;
+	lbox->d->infoDict.insert( this, i );
+	QListBoxItem *after = parent;
+	if ( parent && pi ) {
+	    if ( !pi->children.isEmpty() )
+		after = pi->children.last()->item;
+	    pi->children.append( i );
+	}
+	lbox->insertItem( this, after );
+	lbox->d->differentDepths = TRUE;
+    }
+	
 }
 
 /*!
@@ -199,8 +270,28 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
 
 QListBoxItem::~QListBoxItem()
 {
-    if ( lbox )
+    if ( lbox ) {
+	QListBoxPrivate::ItemInfo *i = lbox->d->infoDict[ this ];
+	QListBoxPrivate::ItemInfo *pi = !i ? 0 : lbox->d->infoDict.find( i->p );
+	if ( i ) {
+	    QList<QListBoxPrivate::ItemInfo> lst = i->children;
+	    lst.setAutoDelete( FALSE );
+	    for ( QListBoxPrivate::ItemInfo *i2 = lst.first(); i2; i2 = lst.next() ) {
+		i2->parent = pi;
+		i2->p = i->p;
+		if ( pi )
+		    pi->children.append( i2 );
+	    }
+	    delete i;
+	}
+	lbox->d->infoDict.remove( this );
+	
+	QPtrDictIterator<QListBoxPrivate::ItemInfo> it( lbox->d->infoDict );
+	for ( ; it.current(); ++it )
+	    it.current()->dirty = TRUE;
+	
 	lbox->takeItem( this );
+    }
 }
 
 
@@ -211,8 +302,6 @@ QListBoxItem::~QListBoxItem()
 
   \sa height(), width()
 */
-
-
 
 /*!
   \fn int QListBoxItem::width( const QListBox* lb ) const
@@ -316,6 +405,24 @@ QListBoxText::QListBoxText( QListBox* listbox, const QString &text, QListBoxItem
 }
 
 /*!
+  Constructs a list box item showing the text \a text, which 
+  will be inserted as child of \a parent. Using this you can 
+  create a tree structure in a listbox. It really you want to 
+  work with a  hirarchical structure (a tree) it큦 suggested to use 
+  a QListView instead of a QListBox. The possibility to 
+  create a tree structure in a listbox is very limited and
+  only supported because it큦 needed in comboboxes.
+  
+  \sa QListView::QListView()
+*/
+
+QListBoxText::QListBoxText( QListBoxItem* parent, const QString &text )
+    : QListBoxItem( parent )
+{
+    setText( text );
+}
+
+/*!
   Destroys the item.
 */
 
@@ -391,6 +498,24 @@ QListBoxPixmap::QListBoxPixmap( const QPixmap &pixmap )
 
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap, QListBoxItem *after )
     : QListBoxItem( listbox, after )
+{
+    pm = pixmap;
+}
+
+/*!
+  Constructs a list box item showing the pixmap \a pixmap, which 
+  will be inserted as child of \a parent. Using this you can 
+  create a tree structure in a listbox. It really you want to 
+  work with a  hirarchical structure (a tree) it큦 suggested to use 
+  a QListView instead of a QListBox. The possibility to 
+  create a tree structure in a listbox is very limited and
+  only supported because it큦 needed in comboboxes.
+  
+  \sa QListView::QListView()
+*/
+
+QListBoxPixmap::QListBoxPixmap( QListBoxItem* parent, const QPixmap &pixmap )
+    : QListBoxItem( parent )
 {
     pm = pixmap;
 }
@@ -476,7 +601,7 @@ int QListBoxPixmap::width( const QListBox* ) const
   same height by calling setVariableHeight( FALSE ).  Of course there
   is a similar setVariableWidth().
 
-  The items discussed are QListBoxItem objects.	 QListBox provides
+  The items discussed are QListBoxItem objects. QListBox provides
   methods to insert new items as a string, as pixmaps, and as
   QListBoxItem * (insertItem() with various arguments), and to replace
   an existing item with a new string, pixmap or QListBoxItem
@@ -496,7 +621,11 @@ int QListBoxPixmap::width( const QListBox* ) const
   or multi-column, and offers both single and multiple selection.
   (QListBox does however not support multiple-column items; QListView
   does that job.)
-
+  Also a listbox can display items arranged in a tree. But this is
+  quite limited, and if you really want to display and work with 
+  a tree, you should use a QListView. The tree stuff in the QListBox
+  is only supported because it큦 needed in comboboxes.
+  
   The list box items can be accessed both as QListBoxItem objects
   (recommended) and using integer indexes (the original QListBox
   implementation used an array of strings internally, and the API
@@ -605,6 +734,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d = new QListBoxPrivate;
     d->updateTimer = new QTimer( this, "listbox update timer" );
     d->visibleTimer = new QTimer( this, "listbox visible timer" );
+    d->differentDepths = FALSE;
     connect( d->updateTimer, SIGNAL(timeout()),
 	     this, SLOT(refreshSlot()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
@@ -620,7 +750,7 @@ QListBox * QListBox::changedListBox = 0;
 /*!
   Destroys the list box.  Deletes all list box items.
 */
-
+ 
 QListBox::~QListBox()
 {
     if ( changedListBox == this )
@@ -860,7 +990,6 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
     }
 }
 
-
 /*!
   Inserts the item \a lbi into the list at \a index.
 
@@ -883,6 +1012,15 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	index = count();
 
     QListBoxItem * item = (QListBoxItem *)lbi;
+    
+    if ( !item->lbox ) {
+	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
+	i->item = item;
+	i->parent = 0;
+	i->p = 0;
+	d->infoDict.insert( item, i );
+    }
+
     item->lbox = this;
     if ( !d->head || index == 0 ) {
 	item->n = d->head;
@@ -908,6 +1046,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	    item->n = 0;
 	}
     }
+    
     d->count++;
     triggerUpdate( TRUE );
 }
@@ -930,6 +1069,15 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 #endif
 
     QListBoxItem * item = (QListBoxItem*)lbi;
+
+    if ( !item->lbox ) {
+	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
+	i->item = item;
+	i->parent = 0;
+	i->p = 0;
+	d->infoDict.insert( item, i );
+    }
+
     item->lbox = this;
     if ( !d->head || !after ) {
 	item->n = d->head;
@@ -952,6 +1100,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 		item->p->n = item;
 	}
     }
+
     d->count++;
     triggerUpdate( TRUE );
 }
@@ -1010,6 +1159,7 @@ void QListBox::clear()
 	delete i;
 	i = n;
     }
+    d->infoDict.clear();
     d->count = 0;
     d->numRows = 1;
     d->numColumns = 1;
@@ -1852,8 +2002,8 @@ void QListBox::setMultiSelection( bool enable )
 
 void QListBox::toggleCurrentItem()
 {
-    if ( selectionMode() == Single || 
-	 selectionMode() == NoSelection || 
+    if ( selectionMode() == Single ||
+	 selectionMode() == NoSelection ||
 	 !d->current )
 	return;
 
@@ -2305,7 +2455,25 @@ void QListBox::tryGeometry( int rows, int columns ) const
 	    d->currentRow = r;
 	    d->currentColumn = c;
 	}
-	int w = i->width(this);
+
+	int indent = 0;
+	if ( d->infoDict[ i ] ) {	
+	    QListBoxPrivate::ItemInfo *inf = d->infoDict[ i ];
+	    QListBoxPrivate::ItemInfo *inf2 = inf;
+	    if ( inf->dirty ) {
+		while ( inf ) {
+		    indent += 20;
+		    inf = inf->parent;
+		}
+		inf = inf2;
+ 		if ( indent > 0 )
+ 		    indent -= 20;
+		inf->indent = indent;
+		inf->dirty = FALSE;
+	    }
+	    indent = inf->indent;
+	}
+	int w = i->width(this) + indent;
 	if ( d->columnPos[c] < w )
 	    d->columnPos[c] = w;
 	int h = i->height(this);
@@ -2925,9 +3093,29 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     const QColorGroup & g = colorGroup();
     int cw = d->columnPos[col+1] - d->columnPos[col];
     int ch = d->rowPos[row+1] - d->rowPos[row];
+    int indent = 0;
     QListBoxItem * i = item( col*numRows()+row );
+    p->save();
+    if ( d->infoDict[ i ] ) {
+	QListBoxPrivate::ItemInfo *inf = d->infoDict[ i ];
+	QListBoxPrivate::ItemInfo *inf2 = inf;
+	if ( inf->dirty ) {
+	    while ( inf ) {
+		indent += 20;
+		inf = inf->parent;
+	    }
+	    inf = inf2;
+ 	    if ( indent > 0 )
+ 		indent -= 20;
+	    inf->indent = indent;
+	    inf->dirty = FALSE;
+	}
+	indent = inf->indent;
+	if ( inf->indent != 0 )
+	    p->translate( inf->indent, 0 );
+    }
     if ( i->s ) {
-	if ( numColumns()  == 1 ) {
+	if ( numColumns()  == 1 && !d->differentDepths ) {
 	    p->fillRect( 0, 0, cw, ch, g.brush( QColorGroup::Highlight ) );
 	    p->setPen( g.highlightedText() );
 	    p->setBackgroundColor( g.highlight() );
@@ -2941,14 +3129,20 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     } else {
 	p->fillRect( 0, 0, cw, ch, g.base() );
     }
+
     i->paint( p );
+    
     if ( d->current == i && hasFocus() ) {
-	if ( numColumns() > 1 )
+	if ( numColumns() > 1 || d->differentDepths )
 	    cw = i->width( this );
 	style().drawFocusRect( p, QRect( 0, 0, cw, ch ),
 			       g, i->selected() ? &g.highlight() : &g.base(),
 			       TRUE );
     }
+
+    p->restore();
+    if (  indent > 0 )
+	p->fillRect( 0, 0, indent, ch, g.base() );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#100 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#101 $
 **
 ** Definition of QListBox widget class
 **
@@ -42,6 +42,8 @@ class QStringList;
 
 class Q_EXPORT QListBox : public QScrollView
 {
+    friend class QListBoxItem;
+    
     Q_OBJECT
 public:
     QListBox( QWidget *parent=0, const char *name=0, WFlags f=0  );
@@ -61,7 +63,7 @@ public:
     void insertItem( const QListBoxItem *, const QListBoxItem *after );
     void insertItem( const QString &text, int index=-1 );
     void insertItem( const QPixmap &pixmap, int index=-1 );
-
+    
     void removeItem( int index );
     void clear();
 
@@ -249,6 +251,7 @@ class Q_EXPORT QListBoxItem
 public:
     QListBoxItem( QListBox* listbox = 0);
     QListBoxItem( QListBox* listbox, QListBoxItem *after);
+    QListBoxItem( QListBoxItem *parent );
     virtual ~QListBoxItem();
 
     virtual QString text() const;
@@ -288,6 +291,7 @@ public:
     QListBoxText( QListBox* listbox, const QString & text=QString::null );
     QListBoxText( const QString & text=QString::null );
     QListBoxText( QListBox* listbox, const QString & text, QListBoxItem *after );
+    QListBoxText( QListBoxItem* parent, const QString & text );
    ~QListBoxText();
 
     int	 height( const QListBox * ) const;
@@ -310,6 +314,7 @@ public:
     QListBoxPixmap( QListBox* listbox, const QPixmap & );
     QListBoxPixmap( const QPixmap & );
     QListBoxPixmap( QListBox* listbox, const QPixmap & pix, QListBoxItem *after );
+    QListBoxPixmap( QListBoxItem* parent, const QPixmap & pix );
    ~QListBoxPixmap();
 
     const QPixmap *pixmap() const { return &pm; }
