@@ -38,8 +38,7 @@ private:
     void close();
     void parseGroups();
     void readArticle();
-    void reinitCommandSocket();
-    
+
 protected slots:
     void hostFound();
     void connected();

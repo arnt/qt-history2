@@ -18,6 +18,7 @@
 View::View()
     : QVBox()
 {
+    // setup the GUI
     setSpacing( 5 );
     setMargin( 5 );
 
@@ -46,6 +47,7 @@ View::View()
     fileView = new QMultiLineEdit( this );
     fileView->setReadOnly( TRUE );
 
+    // if new data comes in, display it
     connect( &op, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
 	     this, SLOT( newData( const QByteArray & ) ) );
 }
@@ -54,7 +56,10 @@ void View::downloadFile()
 {
     QString file = QFileDialog::getOpenFileName();
     if ( !file.isEmpty() ) {
+	// clear the view
 	fileView->clear();
+	
+	// download the data
 	op = file;
 	op.get();
     }
@@ -62,5 +67,6 @@ void View::downloadFile()
 
 void View::newData( const QByteArray &ba )
 {
+    // append new data
     fileView->append( ba );
 }
