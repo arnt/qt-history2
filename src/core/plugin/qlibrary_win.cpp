@@ -36,7 +36,7 @@ bool QLibraryPrivate::unload_sys()
         qSystemWarning("Failed to unload library");
         return false;
     }
-    return return true;
+    return true;
 }
 
 void* QLibraryPrivate::resolve_sys(const char* symbol)
