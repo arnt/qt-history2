@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#35 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#35 $")
 
 
 /*****************************************************************************
@@ -1245,11 +1245,8 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	map( x1, y1, &x1, &y1 );
 	map( x2, y2, &x2, &y2 );
     }
-#if defined(_WS_WIN32_)
-    MoveToEx( hdc, x1, y1, 0 );
-#else
-    MoveTo( hdc, x1, y1 );
-#endif
+    POINT pts[2];
+    bool final_pixel = FALSE;
     if ( x1 == x2 ) {				// vertical
 	if ( y1 < y2 )
 	    y2++;
@@ -1261,10 +1258,14 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	    x2++;
 	else
 	    x2--;
+    } else {
+	final_pixel = cpen.style() == SolidLine;// draw last pixel
     }
-    else if ( cpen.style() == SolidLine )	// draw last pixel
+    pts[0].x = x1;  pts[0].y = y1;
+    pts[1].x = x2;  pts[1].y = y2;
+    Polyline( hdc, pts, 2 );
+    if ( final_pixel )
 	SetPixelV( hdc, x2, y2, cpen.color().pixel() );
-    LineTo( hdc, x2, y2 );
 }
 
 
@@ -1754,27 +1755,39 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
     }
-    QPixmap *pm = (QPixmap*)&pixmap;
-    bool tmp_dc = pm->handle() == 0;
+
+    QPixmap *pm	  = (QPixmap*)&pixmap;
+    QBitmap *mask = (QBitmap*)pm->mask();
+    bool tmp_dc   = pm->handle() == 0;
+
     if ( tmp_dc )
 	pm->allocMemDC();
-    if ( pm->mask() ) {
-	MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, pm->mask()->hbm(),
-		 sx, sy, 0xccaa0000 );
-#if 0
-	SetBkColor( pm->handle(), RGB(255,255,255) );
-	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, MERGEPAINT );
-	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCPAINT );
-#endif
+    if ( mask ) {
+	bool isNT = FALSE;
+	if ( isNT ) {
+	    MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, mask->hbm(),
+		     sx, sy, 0xccaa0000 );
+	} else {
+	    if ( pm->depth() == 1 && pm->handle() == mask->handle() ) {
+		HBRUSH b = CreateSolidBrush( cpen.color().pixel() );
+		b = SelectObject( hdc, b );
+		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
+		DeleteObject( SelectObject(hdc, b) );
+	    } else {
+		SetBkColor( pm->handle(), RGB(255,255,255) );
+		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, MERGEPAINT );
+		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCPAINT );
+	    }
+	}
     }
     else {
 	if ( txop == TxScale ) {
 	    int w, h;
 	    map( x, y, sw, sh, &x, &y, &w, &h );
 	    StretchBlt( hdc, x, y, w, h, pm->handle(), sx,sy, sw,sh, SRCCOPY );
-	}
-	else
+	} else {
 	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
+	}
     }
     if ( tmp_dc )
 	pm->freeMemDC();
