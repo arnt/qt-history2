@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#6 $
 **
 ** Implementation of QFont and QFontMetrics classes for X11
 **
@@ -18,7 +18,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#6 $";
 #endif
 
 
@@ -29,6 +29,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#5 $";
 #include "qdict.h"
 
 typedef declare(QDictM,XFontStruct) QFontDict;
+typedef declare(QDictIteratorM,XFontStruct) QFontDictIt;
 
 static QFontDict *fontDict = 0;			// dict of loaded fonts
 
@@ -37,16 +38,24 @@ static QFontDict *fontDict = 0;			// dict of loaded fonts
 // QFont member functions
 //
 
-void QFont::initialize()			// called from startup routines
+void QFont::initialize()			// called when starting up
 {
-    fontDict = new QFontDict( 29 );
+    fontDict = new QFontDict( 29 );		// create font dictionary
     CHECK_PTR( fontDict );
 }
 
-void QFont::cleanup()
+void QFont::cleanup()				// called when terminating app
 {
-    delete fontDict;
+    Display *dpy = qXDisplay();
+    QFontDictIt it( *fontDict );
+    XFontStruct *f;
+    while ( (f=it.current()) ) {		// free all fonts
+	XFreeFont( dpy, f );
+	++it;
+    }
+    delete fontDict;				// delete font dictionary
 }
+
 
 #define DEFAULT_FONT "6x13"
 
