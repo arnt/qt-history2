@@ -19,7 +19,7 @@
 
 #ifndef QT_NO_SQL
 
-#include "qlist.h"
+#include "qvaluelist.h"
 #include "qsqlrecord.h"
 #include "qsqlfieldinfo.h"
 
@@ -27,7 +27,7 @@
    This class is obsolete, use QSqlRecord instead.
 */
 
-typedef QList<QSqlFieldInfo> QSqlFieldInfoList;
+typedef QValueList<QSqlFieldInfo> QSqlFieldInfoList;
 
 class Q_COMPAT_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
 {
