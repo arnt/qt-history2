@@ -16,11 +16,11 @@ public:
 */
 
 /*!
-  Constructs a QUnknownInterface with parent interface \a parent and name \a name.
-  The object name is a text that can be used to identify this QObject, and is particularly
-  convenient for debugging.
+  Constructs a QUnknownInterface with parent interface \a parent and name
+  \a name.  The object name is a text that can be used to identify this
+  QObject, and is particularly convenient for debugging.
 
-  \sa parent, name
+  \sa parent(), name()
 */
 
 QUnknownInterface::QUnknownInterface( QUnknownInterface *parent, const char *name )
@@ -69,7 +69,7 @@ const char *QUnknownInterface::name() const
 /*!
   Makes interface \a child a child of this interface.
 
-  \sa removeChild, parent
+  \sa removeChild(), parent()
 */
 
 void QUnknownInterface::insertChild( QUnknownInterface *child )
@@ -83,7 +83,7 @@ void QUnknownInterface::insertChild( QUnknownInterface *child )
 /*!
   Removes \a child from the list of children of this interface.
 
-  \sa insertChild
+  \sa insertChild()
 */
 
 void QUnknownInterface::removeChild( QUnknownInterface *child )
@@ -115,9 +115,9 @@ QUnknownInterface* QUnknownInterface::parent() const
   If the counter was zero, the initialize() function is executed, and
   the result of this routine is returned. Otherwise returns TRUE.
   This function is called automatically when this interface is returned
-  as a result of a queryInterface call.
+  as a result of a queryInterface() call.
 
-  \sa release
+  \sa release()
 */
 bool QUnknownInterface::addRef()
 {
@@ -140,7 +140,7 @@ bool QUnknownInterface::addRef()
   If the counter becomes zero, the cleanUp() function is executed, and
   the result of this function is returned. Otherwise returns FALSE.
 
-  \sa ref
+  \sa addRef()
 */
 
 bool QUnknownInterface::release()
@@ -189,7 +189,7 @@ bool QUnknownInterface::release()
   This will return a string "/QUnknownInterface/MyInterface", identifying the
   interface uniquely in runtime.
     
-  \sa ID
+  \sa ID()
 */
 
 QString QUnknownInterface::interfaceId() const
@@ -198,9 +198,9 @@ QString QUnknownInterface::interfaceId() const
 }
 
 /*!
-  Returns a the Id of this interface, that is, the last part of the interfaceId.
+  Returns the ID of this interface, that is, the last part of interfaceId().
 
-  \sa interfaceId
+  \sa interfaceId()
 */
 
 QString QUnknownInterface::ID() const
@@ -212,9 +212,10 @@ QString QUnknownInterface::ID() const
 }
 
 /*!
-  Returns a QString that represents the interface hierarchy using \a parent and \a id
+  Returns a QString that represents the interface hierarchy using \a parent
+  and \a id.
 
-  \sa interfaceId, Id
+  \sa interfaceId(), ID()
 */
 
 QString QUnknownInterface::createId( const QString &parent, const QString &id ) const
@@ -223,13 +224,14 @@ QString QUnknownInterface::createId( const QString &parent, const QString &id ) 
 }
 
 /*!
-  This function is called when this interface is referenced the first time. The
-  application interface of this interface is set to \a appIface.
+  This function is called when this interface is referenced the first time.
+  The application interface of this interface is set to \a appIface.
   Reimplement this function and return TRUE if the initialization succeeded,
   or FALSE when the process failed. The default implementation always returns
-  TRUE. Reimplementations of this function have to  call the parent class implementation.
+  TRUE. Reimplementations of this function have to  call the parent class
+  implementation.
 
-  \a ref, release, cleanUp
+  \sa addRef(), release(), cleanUp()
 */
 
 bool QUnknownInterface::initialize( QApplicationInterface* appIface )
@@ -244,7 +246,7 @@ bool QUnknownInterface::initialize( QApplicationInterface* appIface )
   Reimplement this function and return TRUE if the cleanup process succeeded,
   otherwise return FALSE. The default implementation always returns TRUE.
 
-  \sa initialize, release
+  \sa initialize(), release()
 */
 
 bool QUnknownInterface::cleanUp( QApplicationInterface* )
@@ -254,11 +256,12 @@ bool QUnknownInterface::cleanUp( QApplicationInterface* )
 
 /*!
   Returns TRUE if this interface has a child interface with an interfaceId
-  \a request. If \a recursive is TRUE, this function will look for the requested interface
-  in the child interfaces, too.
-  If \a regexp is TRUE, \a request will be interpreted as a regular expression with wildcards.
+  \a request. If \a recursive is TRUE, this function will look for the
+  requested interface in the child interfaces, too.
+  If \a regexp is TRUE, \a request will be interpreted as a regular expression
+  with wildcards.
 
-  \sa queryInterface
+  \sa queryInterface()
 */
 
 bool QUnknownInterface::hasInterface( const QString &request, bool recursive, bool regexp ) const
@@ -298,7 +301,7 @@ bool QUnknownInterface::hasInterface( const QString &request, bool recursive, bo
   Returns the list of interface IDs this interface can provide. If \a recursive is TRUE, this function
   will return all interface IDs the child interfaces can provide, too.
 
-  \sa hasInterface
+  \sa hasInterface()
 */
 
 QStringList QUnknownInterface::interfaceList( bool recursive ) const
@@ -326,12 +329,13 @@ QStringList QUnknownInterface::interfaceList( bool recursive ) const
 }
 
 /*!
-  Returns an interface that matches \a request. If \a recursive is TRUE, this function will
-  look for the requested interface in the child interfaces, too.
-  if \a regexp is TRUE, \a request will be interpreted as a regular expression with wildcards.
-  The function returns NULL if this interface can't provide the requested interface.
+  Returns an interface that matches \a request. If \a recursive is TRUE, this
+  function will look for the requested interface in the child interfaces, too.
+  if \a regexp is TRUE, \a request will be interpreted as a regular expression
+  with wildcards.  The function returns NULL if this interface can't provide
+  the requested interface.
 
-  \sa interfaceId, hasInterface, interfaceList
+  \sa interfaceId(), hasInterface(), interfaceList()
 */
 
 QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool recursive, bool regexp )
@@ -375,8 +379,8 @@ QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bo
 }
 
 /*!
-  Returns the childinterface with ID \a request, or null if there is no such child interface 
-  The returned interface will not be referenced.
+  Returns the childinterface with ID \a request, or null if there is no such
+  child interface.  The returned interface will not be referenced.
 */
 
 QUnknownInterface* QUnknownInterface::child( const QString &request ) const
@@ -480,7 +484,7 @@ QString QComponentInterface::version() const
 */
 
 /*!
-  Creates an QApplicationInterface. This is always a toplevel interface.
+  Creates an QApplicationInterface. This is always a top level interface.
 */
 QApplicationInterface::QApplicationInterface( const char* name )
 : QComponentInterface( name )
@@ -500,7 +504,7 @@ QString QApplicationInterface::interfaceId() const
 /*!
   \reimp
 
-  Provides a default implementation that returns the name of the QApplication object.
+  The default implementation returns the name of the QApplication object.
 */
 
 QString QApplicationInterface::brief() const
@@ -533,7 +537,8 @@ QString QApplicationInterface::command() const
 */
 
 /*!
-  Creates a QApplicationComponentInterface that provides an interface to the application component \a object.
+  Creates a QApplicationComponentInterface that provides an interface to
+  the application component \a object.
 */
 QApplicationComponentInterface::QApplicationComponentInterface( QObject* object, QUnknownInterface *parent, const char* name )
 : QUnknownInterface( parent, name )
@@ -582,11 +587,13 @@ QVariant QApplicationComponentInterface::requestProperty( const QCString& p )
     return component()->property( p );
 }
 /*!
-  This function changes the value of the property \a p of the handled object to \a value and
-  returns TRUE if the operation was successful, otherwise returns FALSE.
+  This function changes the value of the property \a p of the handled object
+  to \a value and returns TRUE if the operation was successful, otherwise
+  returns FALSE.
   Reimplement this function for advanced processing.
 
-  The default implementation sets the property \a p of the handled object to \a value.
+  The default implementation sets the property \a p of the handled object
+  to \a value.
 */
 bool QApplicationComponentInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
@@ -598,12 +605,13 @@ bool QApplicationComponentInterface::requestSetProperty( const QCString& p, cons
 #endif
 
 /*!
-  This function connects the \a signal of the handled object to the \a slot of the \a target.
-  It returns TRUE if the connection was made successfully, otherwise FALSE.
+  This function connects the \a signal of the handled object to the \a slot of
+  the \a target.  It returns TRUE if the connection was made successfully,
+  otherwise FALSE.
   Reimplement this function for advanced processing.
 
-  The default implementation connects the \a signal of the handled object to the \a slot of \a target and
-  returns the result.
+  The default implementation connects the \a signal of the handled object to
+  the \a slot of \a target and returns the result.
 */
 bool QApplicationComponentInterface::requestConnect( const char* signal, QObject* target, const char* slot )
 {
@@ -613,8 +621,9 @@ bool QApplicationComponentInterface::requestConnect( const char* signal, QObject
 }
 
 /*!
-  This function can be used to connect the \a signal of the \a sender to the \a slot of the
-  \a handled object.  It returns TRUE if the connection was made successfully, otherwise FALSE.
+  This function can be used to connect the \a signal of the \a sender to the
+  \a slot of the \a handled object.  It returns TRUE if the connection was
+  made successfully, otherwise FALSE.
   Reimplement this function for advanced processing.
 
   The default implementation makes the connection and returns the result.
@@ -628,11 +637,9 @@ bool QApplicationComponentInterface::requestConnect( QObject *sender, const char
 }
 
 /*!
-  This function installs the event filter \e f for the handled object and returns TRUE if the
-  eventfilter has been installed, otherwise FALSE.
+  This function installs the event filter \e f for the handled object and
+  returns TRUE if the eventfilter has been installed, otherwise FALSE.
   Reimplement this function for advanced processing.
-
-  The default implementation installes the event filter on for the handled object and returns TRUE.
 */
 bool QApplicationComponentInterface::requestEvents( QObject* f )
 {
