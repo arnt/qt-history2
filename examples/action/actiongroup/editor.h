@@ -3,8 +3,10 @@
 
 #include <qmainwindow.h>
 
+
 class QTextEdit;
 class QAction;
+
 
 class Editor : public QMainWindow
 {
@@ -12,15 +14,13 @@ class Editor : public QMainWindow
 
 public:
     Editor();
-    ~Editor();
-
-private:
-    QTextEdit * editor;
-    QAction * setredfont;
 
 private slots:
     void setFontColor( QAction * );
 
+private:
+    QTextEdit * editor;
+    QAction * setRedFont;
 };
 
 #endif
