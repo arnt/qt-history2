@@ -1705,7 +1705,7 @@ QPaintEngine *QWidget::paintEngine() const
     if (qt_widget_paintengine->isActive()) {
         if (d->extraPaintEngine)
             return d->extraPaintEngine;
-        d->extraPaintEngine = new QWSPaintEngine();
+        const_cast<QWidget *>(this)->d->extraPaintEngine = new QWSPaintEngine();
         return d->extraPaintEngine;
     }
     return qt_widget_paintengine;
