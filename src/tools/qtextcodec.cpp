@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#70 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#71 $
 **
 ** Implementation of QTextCodec class
 **
@@ -287,44 +287,6 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 
 
 
-/* locale names mostly copied from XFree86 */
-static const char * iso8859_2locales[] = {
-    "croatian", "cs", "cs_CS", "cs_CZ","cz", "cz_CZ", "czech", "hr",
-    "hr_HR", "hu", "hu_HU", "hungarian", "pl", "pl_PL", "polish", "ro",
-    "ro_RO", "rumanian", "serbocroatian", "sh", "sh_SP", "sh_YU", "sk",
-    "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
-
-static const char * iso8859_5locales[] = {
-    "bg", "bg_BG", "bulgarian", "mk", "mk_MK", "ru", "ru_RU", "ru_SU",
-    "russian", "sp", "sp_YU", 0 };
-
-static const char * iso8859_6locales[] = {
-    "ar_AA", "ar_SA", "arabic", 0 };
-
-static const char * iso8859_7locales[] = {
-    "el", "el_GR", "greek", 0 };
-
-static const char * iso8859_8locales[] = {
-    "hebrew", "iw", "iw_IL", 0 };
-
-static const char * iso8859_9locales[] = {
-    "tr", "tr_TR", "turkish", 0 };
-
-static const char * iso8859_15locales[] = {
-    "fr", "fi", "french", "finnish", 0 };
-
-
-static bool try_locale_list( const char * locale[], const char * lang )
-{
-    int i;
-    for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
-	;
-    return locale[i] != 0;
-}
-
-
-static QTextCodec * localeMapper = 0;
-
 #ifdef _OS_WIN32_
 class QWindowsLocalCodec: public QTextCodec
 {
@@ -390,7 +352,47 @@ int QWindowsLocalCodec::heuristicContentMatch(const char* chars, int len) const
 	    i++;
     return i;
 }
+
+#else
+
+/* locale names mostly copied from XFree86 */
+static const char * iso8859_2locales[] = {
+    "croatian", "cs", "cs_CS", "cs_CZ","cz", "cz_CZ", "czech", "hr",
+    "hr_HR", "hu", "hu_HU", "hungarian", "pl", "pl_PL", "polish", "ro",
+    "ro_RO", "rumanian", "serbocroatian", "sh", "sh_SP", "sh_YU", "sk",
+    "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
+
+static const char * iso8859_5locales[] = {
+    "bg", "bg_BG", "bulgarian", "mk", "mk_MK", "ru", "ru_RU", "ru_SU",
+    "russian", "sp", "sp_YU", 0 };
+
+static const char * iso8859_6locales[] = {
+    "ar_AA", "ar_SA", "arabic", 0 };
+
+static const char * iso8859_7locales[] = {
+    "el", "el_GR", "greek", 0 };
+
+static const char * iso8859_8locales[] = {
+    "hebrew", "iw", "iw_IL", 0 };
+
+static const char * iso8859_9locales[] = {
+    "tr", "tr_TR", "turkish", 0 };
+
+static const char * iso8859_15locales[] = {
+    "fr", "fi", "french", "finnish", 0 };
+
+
+static bool try_locale_list( const char * locale[], const char * lang )
+{
+    int i;
+    for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
+	;
+    return locale[i] != 0;
+}
+
 #endif
+
+static QTextCodec * localeMapper = 0;
 
 /*!  Returns a pointer to the codec most suitable for this locale. */
 
