@@ -112,7 +112,7 @@ protected:
 
 private:
     QMainWindowPrivate * d;
-    void triggerLayout();
+    void triggerLayout( bool deleteLayout = TRUE);
     void moveToolBar( QToolBar *, QMouseEvent * );
 
     virtual void setMenuBar( QMenuBar * );
