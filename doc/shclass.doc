@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 2.12 1999/07/21 16:39:36 paul Exp $
+** $Id: shclass.doc,v 2.13 1999/10/27 13:29:05 paul Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -187,7 +187,7 @@ The Qt classes that are implicitly shared are:
 <li>\link QPalette QPalette\endlink
 <li>\link QPixmap QPixmap\endlink
 <li>\link QString QString\endlink
-<li>\link QRegion QRegion\endlink (not fully implemented) <!-- ##### -->
+<li>\link QRegion QRegion\endlink
 </ul>
 
 These classes automatically detach from common data if an object is about
