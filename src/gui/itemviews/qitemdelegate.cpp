@@ -508,11 +508,11 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
     if (editor && event->type() == QEvent::KeyPress) {
         switch (static_cast<QKeyEvent *>(event)->key()) {
         case Qt::Key_Escape:
-            emit doneEditing(editor, false);
+            emit doneEditing(editor, QAbstractItemDelegate::Cancelled);
             return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            emit doneEditing(editor, true);
+            emit doneEditing(editor, QAbstractItemDelegate::Accepted);
             return true;
         default:
             break;

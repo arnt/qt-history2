@@ -86,7 +86,7 @@ public:
     virtual bool event(QEvent *e, QAbstractItemModel* model, const QModelIndex &index);
 
 signals:
-    void doneEditing(QWidget *editor, bool accept);
+    void doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action);
 
 protected:
     QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,

@@ -470,8 +470,8 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     Q_ASSERT(delegate);
     d->delegate = delegate;
-    QObject::connect(delegate, SIGNAL(doneEditing(QWidget*, bool)),
-                     this, SLOT(doneEditing(QWidget*, bool)));
+    QObject::connect(delegate, SIGNAL(doneEditing(QWidget*, QAbstractItemDelegate::EndEditAction)),
+                     this, SLOT(doneEditing(QWidget*, QAbstractItemDelegate::EndEditAction)));
 }
 
 /*!
@@ -1071,19 +1071,16 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
                                   QAbstractItemDelegate::BeginEditAction action,
                                   QEvent *event)
 {
-    QModelIndex edit;
-    if (index.isValid() && d->shouldEdit(action, index)) {
-        edit = index;
-    } else {
-        QModelIndex buddy = d->model->buddy(index);
-        if (buddy.isValid() && d->shouldEdit(action, buddy))
-            edit = buddy;
+    if (itemDelegate()->editorType(model(), index) == QAbstractItemDelegate::Events) {
+        itemDelegate()->event(event, model(), index);
+        return true; // event was consumed
     }
-    if (edit.isValid()) {
-        itemDelegate()->event(event, d->model, edit);
-        if (d->requestEditor(action, event, edit))
-            d->state = Editing;
-    }
+
+    QModelIndex buddy = model()->buddy(index);
+    QModelIndex edit = buddy.isValid() ? buddy : index;
+    if (edit.isValid() && d->shouldEdit(action, edit) && d->requestEditor(action, event, edit))
+        d->state = Editing;
+
     return d->state == Editing;
 }
 
@@ -1095,29 +1092,30 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
 
     \sa beginEdit() QAbstractItemDelegate::releaseEditor()
 */
-void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
+void QAbstractItemView::endEdit(const QModelIndex &index,
+                                QAbstractItemDelegate::EndEditAction action)
 {
-    if (!index.isValid())
+    if (d->state != Editing)
         return;
 
-    d->state = NoState;
+    QModelIndex buddy = model()->buddy(index);
+    QPersistentModelIndex persistent(buddy.isValid() ? buddy : index, model());
 
-    if (itemDelegate()->editorType(d->model, index) == QAbstractItemDelegate::Events) {
-        setFocus();
+    if (!persistent.isValid())
+        return;
+
+    if (itemDelegate()->editorType(model(), persistent) == QAbstractItemDelegate::Events) {
+        d->state = NoState;
         return;
     }
 
-    QPersistentModelIndex persistent(index, model());
-    QPointer<QWidget> editor = d->editors.value(persistent);
+    QWidget *editor = d->editors.value(persistent);
     if (editor) {
-        itemDelegate()->releaseEditor(accept
-                                      ? QAbstractItemDelegate::Accepted
-                                      : QAbstractItemDelegate::Cancelled,
-                                      editor, d->model, index);
-        if (!editor) // FIXME: should be removed anyway... but what about persistent editors ?
-            d->editors.remove(persistent);
+        itemDelegate()->releaseEditor(action, editor, model(), index);
+        d->editors.remove(persistent);
+        d->state = NoState;
+        setFocus();
     }
-    setFocus();
 }
 
 /*!
@@ -1168,9 +1166,9 @@ void QAbstractItemView::selectionModelDestroyed()
 /*!
   \internal
 */
-void QAbstractItemView::doneEditing(QWidget *editor, bool accept)
+void QAbstractItemView::doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action)
 {
-    endEdit(d->editors.key(editor), accept); // FIXME: remove
+    endEdit(d->editors.key(editor), action);
 }
 
 // ###DOC: this value is also used by the "scroll in item units" algorithm to
@@ -1321,9 +1319,9 @@ void QAbstractItemView::setPersistentEditor(const QModelIndex &index, QWidget *e
         option.rect = itemViewportRect(index);
         option.state = (index == currentItem() ? QStyle::Style_HasFocus|option.state : option.state);
         editor = itemDelegate()->editor(QAbstractItemDelegate::AlwaysEdit,
-                                        d->viewport, option, d->model, index);
-        itemDelegate()->setModelData(editor, d->model, index);
-        itemDelegate()->updateEditorGeometry(editor, option, d->model, index);
+                                        d->viewport, option, model(), index);
+        itemDelegate()->setModelData(editor, model(), index);
+        itemDelegate()->updateEditorGeometry(editor, option, model(), index);
     }
     d->editors.insert(persistent, editor);
 }
@@ -1424,12 +1422,8 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
 */
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
 {
-    QModelIndex buddy = model()->buddy(old);
-    QPersistentModelIndex persistent(buddy.isValid() ? buddy : old, model());
-    if (d->editors.contains(persistent))
-        endEdit(persistent, true);
-
     if (old.isValid()) {
+        endEdit(old, QAbstractItemDelegate::Accepted);
         int behavior = selectionBehavior();
         QRect rect = itemViewportRect(old);
         if (behavior & SelectRows) {
@@ -1443,10 +1437,10 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
         d->viewport->repaint(rect);
     }
 
-    if (current.isValid())
+    if (current.isValid()) {
         ensureItemVisible(current);
-
-    beginEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
+        beginEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
+    }
 }
 
 /*!
@@ -1736,7 +1730,7 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
         return 0;
 
     QPersistentModelIndex persistent = QPersistentModelIndex(index, model);
-    QPointer<QWidget> editor = editors.value(persistent);
+    QWidget *editor = editors.value(persistent);
 
     if (!editor) {
         QStyleOptionViewItem option = q->viewOptions();
@@ -1745,18 +1739,17 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
         editor = delegate->editor(action, viewport, option, model, index);
         delegate->setEditorData(editor, model, index);
         delegate->updateEditorGeometry(editor, option, model, index);
+        d->editors.insert(persistent, editor);
     }
+
     if (editor) {
         editor->show();
         editor->setFocus();
-
         if (event && (action == QAbstractItemDelegate::AnyKeyPressed
                       || event->type() == QEvent::MouseButtonPress))
             QApplication::sendEvent(editor, event);
-
-        // insert
-        d->editors.insert(persistent, editor);
     }
+
     return editor;
 }
 
