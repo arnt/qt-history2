@@ -127,14 +127,14 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
         // To mimic the same behavior that the lookup would have if it was not
         // an IP, we need to choose a Qt::QueuedConnection if there is thread support;
         // otherwise Qt::DirectConnection.
-        if (!qInvokeSlot(receiver, arr,
+        if (!qInvokeMetaMember(receiver, arr,
 #if !defined QT_NO_THREAD
                          Qt::QueuedConnection,
 #else
                          Qt::DirectConnection,
 #endif
                          QGenericArgument("QDnsHostInfo", &info))) {
-            qWarning("QDns::getHostByName() called with invalid slot (qInvokeSlot failed)");
+            qWarning("QDns::getHostByName() called with invalid slot (qInvokeMetaMember failed)");
         }
         return;
     }
@@ -238,8 +238,8 @@ void QDnsAgent::run()
         if (query.receiver) {
             QByteArray arr(query.member + 1);
             arr.resize(arr.indexOf('('));
-            qInvokeSlot(query.receiver, arr, Qt::QueuedConnection,
-                        QGenericArgument("QDnsHostInfo", &results));
+            qInvokeMetaMember(query.receiver, arr, Qt::QueuedConnection,
+                              QGenericArgument("QDnsHostInfo", &results));
         }
     }
 }

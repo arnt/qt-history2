@@ -128,7 +128,7 @@ public:
 
 /*! internal
 */
-Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+Q_CORE_EXPORT bool qInvokeMetaMember(QObject *obj, const char *member,
                  Qt::ConnectionType,
                  QGenericReturnArgument ret,
                  QGenericArgument val0 = QGenericArgument(0),
@@ -144,7 +144,7 @@ Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
 
 /*! internal
  */
-inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+inline Q_CORE_EXPORT bool qInvokeMetaMember(QObject *obj, const char *member,
                  QGenericReturnArgument ret,
                  QGenericArgument val0 = QGenericArgument(0),
                  QGenericArgument val1 = QGenericArgument(),
@@ -157,13 +157,13 @@ inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
                  QGenericArgument val8 = QGenericArgument(),
                  QGenericArgument val9 = QGenericArgument())
 {
-    return qInvokeSlot(obj, slotName, Qt::AutoConnection, ret, val0, val1, val2, val3, val4, val5,
-                       val6, val7, val8, val9);
+    return qInvokeMetaMember(obj, member, Qt::AutoConnection, ret, val0, val1, val2, val3,
+                             val4, val5, val6, val7, val8, val9);
 }
 
 /*! internal
  */
-inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+inline Q_CORE_EXPORT bool qInvokeMetaMember(QObject *obj, const char *member,
                  Qt::ConnectionType type,
                  QGenericArgument val0 = QGenericArgument(0),
                  QGenericArgument val1 = QGenericArgument(),
@@ -176,14 +176,14 @@ inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
                  QGenericArgument val8 = QGenericArgument(),
                  QGenericArgument val9 = QGenericArgument())
 {
-    return qInvokeSlot(obj, slotName, type, QGenericReturnArgument(), val0, val1, val2, val3,
-                       val4, val5, val6, val7, val8, val9);
+    return qInvokeMetaMember(obj, member, type, QGenericReturnArgument(), val0, val1, val2, val3,
+                             val4, val5, val6, val7, val8, val9);
 }
 
 
 /*! internal
  */
-inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+inline Q_CORE_EXPORT bool qInvokeMetaMember(QObject *obj, const char *member,
                  QGenericArgument val0 = QGenericArgument(0),
                  QGenericArgument val1 = QGenericArgument(),
                  QGenericArgument val2 = QGenericArgument(),
@@ -195,8 +195,8 @@ inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
                  QGenericArgument val8 = QGenericArgument(),
                  QGenericArgument val9 = QGenericArgument())
 {
-    return qInvokeSlot(obj, slotName, Qt::AutoConnection, QGenericReturnArgument(), val0, val1,
-                       val2, val3, val4, val5, val6, val7, val8, val9);
+    return qInvokeMetaMember(obj, member, Qt::AutoConnection, QGenericReturnArgument(), val0,
+                             val1, val2, val3, val4, val5, val6, val7, val8, val9);
 }
 
 #endif // QSIGNAL_H

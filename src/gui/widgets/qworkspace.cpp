@@ -1145,7 +1145,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
             QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
             const char *theSlot = d->shortcutMap.value(se->shortcutId(), 0);
             if (theSlot)
-                qInvokeSlot(this, theSlot);
+                qInvokeMetaMember(this, theSlot);
         }
         break;
     default:

@@ -574,7 +574,7 @@ void QSocketPrivate::testConnection()
            q->objectName().latin1(), q->peerName().ascii());
 #endif
 
-    qInvokeSlot(q, "connectToNextAddress", Qt::QueuedConnection);
+    qInvokeMetaMember(q, "connectToNextAddress", Qt::QueuedConnection);
 }
 
 /*
@@ -656,7 +656,7 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 
     // the addresses returned by the lookup will be tested one after
     // another by the connectToNextAddress() slot.
-    qInvokeSlot(q, "connectToNextAddress", Qt::QueuedConnection);
+    qInvokeMetaMember(q, "connectToNextAddress", Qt::QueuedConnection);
 }
 
 /*

@@ -16,6 +16,7 @@
 #include "qsignal.h"
 #include "qthread.h"
 #include "qmetaobject.h"
+#include "qvarlengtharray.h"
 #include "private/qobject_p.h"
 
 /*!
@@ -165,9 +166,22 @@ bool QSignalEmitter::disconnect(const QObject *receiver, const char *member)
     return QObject::disconnect(this, signal, receiver, member);
 }
 
+typedef QVarLengthArray<char, 512> QVarLengthString;
+
+inline static bool qAppendString(QVarLengthString &sig, const char *str)
+{
+    int len = qstrlen(str);
+    if (!len)
+        return false;
+    const int s = sig.size();
+    sig.resize(s + len);
+    memcpy(sig.data() + s, str, len);
+    return true;
+}
+
 /*! internal
  */
-bool qInvokeSlot(QObject *obj, const char *slotName, Qt::ConnectionType type,
+bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type,
                  QGenericReturnArgument ret,
                  QGenericArgument val0,
                  QGenericArgument val1,
@@ -180,37 +194,30 @@ bool qInvokeSlot(QObject *obj, const char *slotName, Qt::ConnectionType type,
                  QGenericArgument val8,
                  QGenericArgument val9)
 {
-    if (!obj || !slotName)
+    if (!obj)
         return false;
 
-    QByteArray sig;
-    sig.reserve(512);
-    sig.append(slotName).append('(');
-    if (val0.name()
-        && sig.append(val0.name()).append(',').size()
-        && val1.name()
-        && sig.append(val1.name()).append(',').size()
-        && val2.name()
-        && sig.append(val2.name()).append(',').size()
-        && val3.name()
-        && sig.append(val3.name()).append(',').size()
-        && val4.name()
-        && sig.append(val4.name()).append(',').size()
-        && val5.name()
-        && sig.append(val5.name()).append(',').size()
-        && val6.name()
-        && sig.append(val6.name()).append(',').size()
-        && val7.name()
-        && sig.append(val7.name()).append(',').size()
-        && val8.name()
-        && sig.append(val8.name()).append(',').size()
-        && val9.name())
-    {
-        sig.append(val9.name()).append(',');
+    QVarLengthString sig;
+    if (!qAppendString(sig, member))
+        return false;
+    sig.append('(');
+
+    enum { ParamCount = 11 };
+    const char *typeNames[] = {ret.name(), val0.name(), val1.name(), val2.name(), val3.name(),
+                               val4.name(), val5.name(), val6.name(), val7.name(), val8.name(),
+                               val9.name()};
+
+    int i;
+    for (i = 1; i < ParamCount; ++i) {
+        if (!qAppendString(sig, typeNames[i]))
+            break;
+        sig.append(',');
     }
-    if (sig.endsWith(','))
-        sig.chop(1);
-    sig.append(')');
+    if (i == 1)
+        sig.append(')'); // no parameters
+    else
+        sig[sig.size() - 1] = ')';
+    sig.append('\0');
 
     int idx = obj->metaObject()->indexOfSlot(sig.constData());
     if (idx < 0)
@@ -235,14 +242,11 @@ bool qInvokeSlot(QObject *obj, const char *slotName, Qt::ConnectionType type,
         return obj->qt_metacall(QMetaObject::InvokeSlot, idx, param) < 0;
     } else {
         int nargs = 1; // include return type
-        void **args = (void **) qMalloc(11 * sizeof(void *));
-        int *types = (int *) qMalloc(11 * sizeof(int));
-        const char *typeNames[] = {ret.name(), val0.name(), val1.name(), val2.name(), val3.name(),
-                             val4.name(), val5.name(), val6.name(), val7.name(), val8.name(),
-                             val9.name()};
+        void **args = (void **) qMalloc(ParamCount * sizeof(void *));
+        int *types = (int *) qMalloc(ParamCount * sizeof(int));
         types[0] = 0; // return type
         args[0] = 0;
-        for (int i = 1; i < 11; ++i) {
+        for (i = 1; i < ParamCount; ++i) {
             types[i] = QMetaType::type(typeNames[i]);
             if (types[i]) {
                 args[i] = QMetaType::copy(types[i], param[i]);
