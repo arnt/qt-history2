@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.h#15 $
+** $Id: //depot/qt/main/src/tools/qcollection.h#16 $
 **
 ** Definition of base class for all collection classes
 **
@@ -31,9 +31,6 @@
 #endif // QT_H
 
 
-typedef void *GCI;				// generic collection item
-typedef int (*GCF)(GCI,void*);			// generic collection function
-
 class QGVector;
 class QGList;
 class QGDict;
@@ -47,6 +44,9 @@ public:
 
     virtual uint  count() const = 0;
     virtual void  clear() = 0;			// delete all objects
+
+    typedef void *GCI;				// generic collection item
+    typedef int (*GCF)(GCI,void*);		// generic collection function
 
 protected:
     QCollection() { del_item = FALSE; }		// no deletion of objects

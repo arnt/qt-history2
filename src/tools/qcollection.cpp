@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#26 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -125,7 +125,7 @@
   \sa deleteItem()
 */
 
-GCI QCollection::newItem( GCI d )
+QCollection::GCI QCollection::newItem( GCI d )
 {
     return d;					// just return reference
 }

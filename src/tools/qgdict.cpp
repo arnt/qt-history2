@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#65 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#66 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -237,7 +237,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
   The do-it-all function; op is one of op_find, op_insert, op_replace
 */
 
-GCI QGDict::look( const char *key, GCI d, int op )
+QCollection::GCI QGDict::look( const char *key, GCI d, int op )
 {
     register QBucket *n;
     int	 index;
@@ -411,7 +411,7 @@ bool QGDict::removeItem( const char *key, GCI item )
   Takes out the item with the specified key.
 */
 
-GCI QGDict::take( const char *key )
+QCollection::GCI QGDict::take( const char *key )
 {
     register QBucket *n = unlink( key );
     GCI tmp;
@@ -672,7 +672,7 @@ QGDictIterator::~QGDictIterator()
   Sets the iterator to point to the first item in the dictionary.
 */
 
-GCI QGDictIterator::toFirst()
+QCollection::GCI QGDictIterator::toFirst()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -699,7 +699,7 @@ GCI QGDictIterator::toFirst()
   Moves to the next item (postfix).
 */
 
-GCI QGDictIterator::operator()()
+QCollection::GCI QGDictIterator::operator()()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -709,7 +709,7 @@ GCI QGDictIterator::operator()()
     }
     if ( !curNode )
 	return 0;
-    GCI d = curNode->getData();
+    QCollection::GCI d = curNode->getData();
     this->operator++();
     return d;
 }
@@ -719,7 +719,7 @@ GCI QGDictIterator::operator()()
   Moves to the next item (prefix).
 */
 
-GCI QGDictIterator::operator++()
+QCollection::GCI QGDictIterator::operator++()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
@@ -750,7 +750,7 @@ GCI QGDictIterator::operator++()
   Moves \e jumps positions forward.
 */
 
-GCI QGDictIterator::operator+=( uint jumps )
+QCollection::GCI QGDictIterator::operator+=( uint jumps )
 {
     while ( curNode && jumps-- )
 	operator++();
@@ -768,12 +768,12 @@ bool QGDict::removeItem( QString key, GCI item )
     return removeItem( (const char*)key.utf8(), item );
 }
 
-GCI QGDict::take( QString key )
+QCollection::GCI QGDict::take( QString key )
 {
     return take( (const char*)key.utf8() );
 }
 
-GCI QGDict::look( QString key, GCI g, int op )
+QCollection::GCI QGDict::look( QString key, GCI g, int op )
 {
     if ( op == op_find ) {
 	return look( (const char*)key.utf8(), g, op );

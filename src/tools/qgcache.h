@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#20 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#21 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -91,16 +91,16 @@ protected:
     uint  count()   const;			// number of items in cache
     bool  atFirst() const;			// test if at first item
     bool  atLast()  const;			// test if at last item
-    GCI	  toFirst();				// move to first item
-    GCI	  toLast();				// move to last item
+    QCollection::GCI toFirst();			// move to first item
+    QCollection::GCI toLast();			// move to last item
 
-    GCI	  get() const;				// get current item
+    QCollection::GCI get() const;		// get current item
     const char *getKey() const;			// get current key
-    GCI	  operator()();				// get current and move to next
-    GCI	  operator++();				// move to next item (prefix)
-    GCI	  operator+=( uint );			// move n positions forward
-    GCI	  operator--();				// move to prev item (prefix)
-    GCI	  operator-=( uint );			// move n positions backward
+    QCollection::GCI operator()();		// get current and move to next
+    QCollection::GCI operator++();		// move to next item (prefix)
+    QCollection::GCI operator+=( uint );	// move n positions forward
+    QCollection::GCI operator--();		// move to prev item (prefix)
+    QCollection::GCI operator-=( uint );	// move n positions backward
 
 protected:
     QCListIt *it;				// iterator on cache list

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#49 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -528,7 +528,7 @@ bool QGList::removeAt( uint index )
   Takes the node \e n out of the list.
 */
 
-GCI QGList::takeNode( QLNode *n )
+QCollection::GCI QGList::takeNode( QLNode *n )
 {
 #if defined(CHECK_NULL)
     if ( n == 0 || (n->prev && n->prev->next != n) ||
@@ -551,7 +551,7 @@ GCI QGList::takeNode( QLNode *n )
   Takes the current item out of the list.
 */
 
-GCI QGList::take()
+QCollection::GCI QGList::take()
 {
     QLNode *n = unlink();			// unlink node
     GCI d = n ? n->data : 0;
@@ -564,7 +564,7 @@ GCI QGList::take()
   Takes the item at position \e index out of the list.
 */
 
-GCI QGList::takeAt( uint index )
+QCollection::GCI QGList::takeAt( uint index )
 {
     if ( !locate(index) )
 	return 0;
@@ -579,7 +579,7 @@ GCI QGList::takeAt( uint index )
   Takes the first item out of the list.
 */
 
-GCI QGList::takeFirst()
+QCollection::GCI QGList::takeFirst()
 {
     first();
     QLNode *n = unlink();			// unlink node
@@ -593,7 +593,7 @@ GCI QGList::takeFirst()
   Takes the last item out of the list.
 */
 
-GCI QGList::takeLast()
+QCollection::GCI QGList::takeLast()
 {
     last();
     QLNode *n = unlink();			// unlink node
@@ -763,7 +763,7 @@ uint QGList::contains( GCI d ) const
   Returns the first list item.	Sets this to current.
 */
 
-GCI QGList::first()
+QCollection::GCI QGList::first()
 {
     if ( firstNode ) {
 	curIndex = 0;
@@ -777,7 +777,7 @@ GCI QGList::first()
   Returns the last list item.  Sets this to current.
 */
 
-GCI QGList::last()
+QCollection::GCI QGList::last()
 {
     if ( lastNode ) {
 	curIndex = numNodes-1;
@@ -791,7 +791,7 @@ GCI QGList::last()
   Returns the next list item (after current).  Sets this to current.
 */
 
-GCI QGList::next()
+QCollection::GCI QGList::next()
 {
     if ( curNode ) {
 	if ( curNode->next ) {
@@ -810,7 +810,7 @@ GCI QGList::next()
   Returns the previous list item (before current).  Sets this to current.
 */
 
-GCI QGList::prev()
+QCollection::GCI QGList::prev()
 {
     if ( curNode ) {
 	if ( curNode->prev ) {
@@ -1013,7 +1013,7 @@ QGListIterator::~QGListIterator()
   Sets the list iterator to point to the first item in the list.
 */
 
-GCI QGListIterator::toFirst()
+QCollection::GCI QGListIterator::toFirst()
 {
     if ( !list ) {
 #if defined(CHECK_NULL)
@@ -1029,7 +1029,7 @@ GCI QGListIterator::toFirst()
   Sets the list iterator to point to the last item in the list.
 */
 
-GCI QGListIterator::toLast()
+QCollection::GCI QGListIterator::toLast()
 {
     if ( !list ) {
 #if defined(CHECK_NULL)
@@ -1053,11 +1053,11 @@ GCI QGListIterator::toLast()
   Moves to the next item (postfix).
 */
 
-GCI QGListIterator::operator()()
+QCollection::GCI QGListIterator::operator()()
 {
     if ( !curNode )
 	return 0;
-    GCI d = curNode->getData();
+    QCollection::GCI d = curNode->getData();
     curNode = curNode->next;
     return  d;
 }
@@ -1067,7 +1067,7 @@ GCI QGListIterator::operator()()
   Moves to the next item (prefix).
 */
 
-GCI QGListIterator::operator++()
+QCollection::GCI QGListIterator::operator++()
 {
     if ( !curNode )
 	return 0;
@@ -1080,7 +1080,7 @@ GCI QGListIterator::operator++()
   Moves \e jumps positions forward.
 */
 
-GCI QGListIterator::operator+=( uint jumps )
+QCollection::GCI QGListIterator::operator+=( uint jumps )
 {
     while ( curNode && jumps-- )
 	curNode = curNode->next;
@@ -1092,7 +1092,7 @@ GCI QGListIterator::operator+=( uint jumps )
   Moves to the previous item (prefix).
 */
 
-GCI QGListIterator::operator--()
+QCollection::GCI QGListIterator::operator--()
 {
     if ( !curNode )
 	return 0;
@@ -1105,7 +1105,7 @@ GCI QGListIterator::operator--()
   Moves \e jumps positions backward.
 */
 
-GCI QGListIterator::operator-=( uint jumps )
+QCollection::GCI QGListIterator::operator-=( uint jumps )
 {
     while ( curNode && jumps-- )
 	curNode = curNode->prev;

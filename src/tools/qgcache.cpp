@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#40 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -44,13 +44,13 @@
 
 struct QCacheItem
 {
-    QCacheItem( const char *k, GCI d, int c, short p )
+    QCacheItem( const char *k, QCollection::GCI d, int c, short p )
 	: priority(p), skipPriority(p), cost(c), key(k), data(d), node(0) {}
     short	priority;
     short	skipPriority;
     int		cost;
     const char *key;
-    GCI		data;
+    QCollection::GCI data;
     QLNode     *node;
 };
 
@@ -364,7 +364,7 @@ bool QGCache::remove( const char *key )
   Takes an item out of the cache (no delete).
 */
 
-GCI QGCache::take( const char *key )
+QCollection::GCI QGCache::take( const char *key )
 {
 #if defined(CHECK_NULL)
     ASSERT( key != 0 );
@@ -408,7 +408,7 @@ void QGCache::clear()
   Finds an item in the cache.
 */
 
-GCI QGCache::find( const char *key, bool ref ) const
+QCollection::GCI QGCache::find( const char *key, bool ref ) const
 {
 #if defined(CHECK_NULL)
     ASSERT( key != 0 );
@@ -602,7 +602,7 @@ bool QGCacheIterator::atLast() const
   Sets the list iterator to point to the first item in the cache.
 */
 
-GCI QGCacheIterator::toFirst()
+QCollection::GCI QGCacheIterator::toFirst()
 {
     register QCacheItem *item = it->toFirst();
     return item ? item->data : 0;
@@ -613,7 +613,7 @@ GCI QGCacheIterator::toFirst()
   Sets the list iterator to point to the last item in the cache.
 */
 
-GCI QGCacheIterator::toLast()
+QCollection::GCI QGCacheIterator::toLast()
 {
     register QCacheItem *item = it->toLast();
     return item ? item->data : 0;
@@ -624,7 +624,7 @@ GCI QGCacheIterator::toLast()
   Returns the current item.
 */
 
-GCI QGCacheIterator::get() const
+QCollection::GCI QGCacheIterator::get() const
 {
     register QCacheItem *item = it->current();
     return item ? item->data : 0;
@@ -647,7 +647,7 @@ const char *QGCacheIterator::getKey() const
   Moves to the next item (postfix).
 */
 
-GCI QGCacheIterator::operator()()
+QCollection::GCI QGCacheIterator::operator()()
 {
     register QCacheItem *item = it->operator()();
     return item ? item->data : 0;
@@ -658,7 +658,7 @@ GCI QGCacheIterator::operator()()
   Moves to the next item (prefix).
 */
 
-GCI QGCacheIterator::operator++()
+QCollection::GCI QGCacheIterator::operator++()
 {
     register QCacheItem *item = it->operator++();
     return item ? item->data : 0;
@@ -669,7 +669,7 @@ GCI QGCacheIterator::operator++()
   Moves \e jumps positions forward.
 */
 
-GCI QGCacheIterator::operator+=( uint jump )
+QCollection::GCI QGCacheIterator::operator+=( uint jump )
 {
     register QCacheItem *item = it->operator+=(jump);
     return item ? item->data : 0;
@@ -680,7 +680,7 @@ GCI QGCacheIterator::operator+=( uint jump )
   Moves to the previous item (prefix).
 */
 
-GCI QGCacheIterator::operator--()
+QCollection::GCI QGCacheIterator::operator--()
 {
     register QCacheItem *item = it->operator--();
     return item ? item->data : 0;
@@ -691,7 +691,7 @@ GCI QGCacheIterator::operator--()
   Moves \e jumps positions backward.
 */
 
-GCI QGCacheIterator::operator-=( uint jump )
+QCollection::GCI QGCacheIterator::operator-=( uint jump )
 {
     register QCacheItem *item = it->operator-=(jump);
     return item ? item->data : 0;

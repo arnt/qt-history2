@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#30 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#31 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -40,13 +40,13 @@ class QBucket					// internal dict node
 public:
     char   *getKey()		{ return key; }
     char   *setKey( char *k )	{ return key = k; }
-    GCI	    getData()		{ return data; }
-    GCI	    setData( GCI d )	{ return data = d; }
+    QCollection::GCI getData() { return data; }
+    QCollection::GCI setData( QCollection::GCI d ) { return data = d; }
     QBucket *getNext()		{ return next; }
     void    setNext( QBucket *n){ next = n; }
 private:
     char   *key;
-    GCI	    data;
+    QCollection::GCI	    data;
     QBucket *next;
 };
 
@@ -109,16 +109,16 @@ public:
     QGDictIterator &operator=( const QGDictIterator & );
    ~QGDictIterator();
 
-    GCI		toFirst();
+    QCollection::GCI		toFirst();
 
-    GCI		get()	 const { return curNode ? curNode->getData() : 0; }
+    QCollection::GCI		get()	 const { return curNode ? curNode->getData() : 0; }
     long        getKeyLong() const
 			       { return curNode ? (long)curNode->getKey() : 0; }
     QString     getKey() const;
 
-    GCI		operator()();
-    GCI		operator++();
-    GCI		operator+=(uint);
+    QCollection::GCI		operator()();
+    QCollection::GCI		operator++();
+    QCollection::GCI		operator+=(uint);
 
 protected:
     QGDict     *dict;

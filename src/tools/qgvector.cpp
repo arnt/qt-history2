@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#30 $
 **
 ** Implementation of QGVector class
 **
@@ -162,7 +162,7 @@ bool QGVector::remove( uint index )		// remove item at index
     return TRUE;
 }
 
-GCI QGVector::take( uint index )		// take out item
+QCollection::GCI QGVector::take( uint index )		// take out item
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
@@ -255,7 +255,7 @@ extern "C" {
 
 static int cmp_vec( const void *n1, const void *n2 )
 {
-    return sort_vec->compareItems( *((GCI*)n1), *((GCI*)n2) );
+    return sort_vec->compareItems( *((QCollection::GCI*)n1), *((QCollection::GCI*)n2) );
 }
 
 #if defined(Q_C_CALLBACKS)

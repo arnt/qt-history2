@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#31 $
+** $Id: //depot/qt/main/src/tools/qglist.h#32 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -40,12 +40,12 @@ class Q_EXPORT QLNode
 friend class QGList;
 friend class QGListIterator;
 public:
-    GCI	    getData()	{ return data; }
+    QCollection::GCI getData()	{ return data; }
 private:
-    GCI	    data;
+    QCollection::GCI data;
     QLNode *prev;
     QLNode *next;
-    QLNode( GCI d )	{ data = d; }
+    QLNode( QCollection::GCI d ) { data = d; }
 };
 
 
@@ -151,7 +151,7 @@ inline int QGList::at() const
     return curIndex;
 }
 
-inline GCI QGList::at( uint index )
+inline QCollection::GCI QGList::at( uint index )
 {
     QLNode *n = locate( index );
     return n ? n->data : 0;
@@ -162,17 +162,17 @@ inline QLNode *QGList::currentNode() const
     return curNode;
 }
 
-inline GCI QGList::get() const
+inline QCollection::GCI QGList::get() const
 {
     return curNode ? curNode->data : 0;
 }
 
-inline GCI QGList::cfirst() const
+inline QCollection::GCI QGList::cfirst() const
 {
     return firstNode ? firstNode->data : 0;
 }
 
-inline GCI QGList::clast() const
+inline QCollection::GCI QGList::clast() const
 {
     return lastNode ? lastNode->data : 0;
 }
@@ -201,15 +201,15 @@ protected:
 
     bool  atFirst() const;			// test if at first item
     bool  atLast()  const;			// test if at last item
-    GCI	  toFirst();				// move to first item
-    GCI	  toLast();				// move to last item
+    QCollection::GCI	  toFirst();				// move to first item
+    QCollection::GCI	  toLast();				// move to last item
 
-    GCI	  get() const;				// get current item
-    GCI	  operator()();				// get current and move to next
-    GCI	  operator++();				// move to next item (prefix)
-    GCI	  operator+=(uint);			// move n positions forward
-    GCI	  operator--();				// move to prev item (prefix)
-    GCI	  operator-=(uint);			// move n positions backward
+    QCollection::GCI	  get() const;				// get current item
+    QCollection::GCI	  operator()();				// get current and move to next
+    QCollection::GCI	  operator++();				// move to next item (prefix)
+    QCollection::GCI	  operator+=(uint);			// move n positions forward
+    QCollection::GCI	  operator--();				// move to prev item (prefix)
+    QCollection::GCI	  operator-=(uint);			// move n positions backward
 
 protected:
     QGList *list;				// reference to list
@@ -229,7 +229,7 @@ inline bool QGListIterator::atLast() const
     return curNode == list->lastNode;
 }
 
-inline GCI QGListIterator::get() const
+inline QCollection::GCI QGListIterator::get() const
 {
     return curNode ? curNode->data : 0;
 }
