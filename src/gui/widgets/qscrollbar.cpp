@@ -52,17 +52,17 @@
     \i Scroll bars typically include four separate controls: a slider,
     scroll arrows, and a page control.
 
-    \list a
-    \i The slider provides a way to quickly go to any part of the
+    \list
+    \i a. The slider provides a way to quickly go to any part of the
     document, but does not support accurate navigation within large
     documents.
-    \i The scroll arrows are push buttons which can be used to accurately
+    \i b. The scroll arrows are push buttons which can be used to accurately
     navigate to a particular place in a document. For a vertical scroll bar
     connected to a text editor, these typically move the current position one
     "line" up or down, and adjust the position of the slider by a small
     amount. In editors and list boxes a "line" might mean one line of text;
     in an image viewer it might mean 20 pixels.
-    \i The page control is the area over which the slider is dragged (the
+    \i c. The page control is the area over which the slider is dragged (the
     scroll bar's background). Clicking here moves the scroll bar towards
     the click by one "page". This value is usually the same as the length of
     the slider.
