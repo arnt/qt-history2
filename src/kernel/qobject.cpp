@@ -212,6 +212,7 @@ static QCString qt_rmWS( const char *s )
 	if ( *s && isIdentChar(*s) && isIdentChar(last) )
 	    last = *d++ = ' ';
     }
+    *d = '\0';
     result.truncate( (int)(d - result.data()) );
     int void_pos = result.find("(void)");
     if ( void_pos >= 0 )
