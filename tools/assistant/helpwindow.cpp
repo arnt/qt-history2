@@ -32,7 +32,6 @@
 #include <qtextcodec.h>
 #include <qabstracttextdocumentlayout.h>
 #include <qstatusbar.h>
-#include <qdebug.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -44,29 +43,10 @@ HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
 {
 }
 
-void HelpWindow::setSource(const QUrl &_name)
+void HelpWindow::setSource(const QUrl &name)
 {
-    QUrl name = _name;
-
     if (!name.isValid())
         return;
-
-#if defined(Q_OS_WIN32)
-    // transform C:\foo\bar into file://C:\foo\bar
-    const QString nameAsString = name.toString();
-
-    static QFileInfoList drives = QDir::drives();
-    foreach (QFileInfo drive, drives)
-        if (nameAsString.startsWith(drive)) {
-            name.setScheme("file");
-
-            QString path = name.path();
-            path.prepend(drive);
-            name.setPath(path);
-        }
-#endif
-    if (name.scheme().isEmpty())
-        name.setScheme("file");
 
     if (newWindow || shiftPressed) {
         QTextCursor c = textCursor();
