@@ -157,10 +157,10 @@ public:
     typedef ConstIterator const_iterator;
     inline void push_back(const T &t) { append(t); }
     inline void push_front(const T &t) { prepend(t); }
-    inline T& front() { first(); }
-    inline const T& front() const { first(); }
-    inline T& back() { last(); }
-    inline const T& back() const { last(); }
+    inline T& front() { return first(); }
+    inline const T& front() const { return first(); }
+    inline T& back() { return last(); }
+    inline const T& back() const { return last(); }
     inline void pop_front() { removeFirst(); }
     inline void pop_back() { removeLast(); }
     inline bool empty() const { return isEmpty(); }
@@ -399,9 +399,11 @@ template <typename T>
 typename QList<T>::Iterator QList<T>::erase( typename QList<T>::Iterator first,
 					     typename QList<T>::Iterator last )
 {
-    for ( Node *n = (Node*) first; n <= (Node*) last; ++n)
+    for ( Node *n = first.i; n <= last.i; ++n)
 	node_destruct(n);
-    p.remove(i, last - first + 1);
+    int idx = first - begin();
+    p.remove(idx, last - first + 1);
+    return begin()+idx;
 }
 
 template <typename T>
