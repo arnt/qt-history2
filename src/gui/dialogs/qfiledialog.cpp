@@ -1554,6 +1554,15 @@ void QFileDialogPrivate::setup(const QString &directory,
     QObject::connect(detailMode, SIGNAL(clicked()), q, SLOT(showDetail()));
     box->addWidget(detailMode);
 
+    // tab order
+    QWidget::setTabOrder(lookIn, lview);
+    QWidget::setTabOrder(lview, tview);
+    QWidget::setTabOrder(tview, fileName);
+    QWidget::setTabOrder(fileName, fileType);
+    QWidget::setTabOrder(fileType, acceptButton);
+    QWidget::setTabOrder(acceptButton, cancelButton);
+    QWidget::setTabOrder(cancelButton, lookIn);
+
     // last init
     grid->addLayout(box, 0, 4);
     q->resize(550, 320);
