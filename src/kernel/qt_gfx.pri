@@ -100,7 +100,7 @@ system-jpeg:win32:LIBS += libjpeg.lib
 #png support
 HEADERS+=$$KERNEL_H/qpngio.h
 SOURCES+=$$KERNEL_CPP/qpngio.cpp
-!no-png {
+png {
 	INCLUDEPATH  += 3rdparty/libpng
 	SOURCES	+= 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
