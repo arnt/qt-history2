@@ -34,66 +34,31 @@ int main( int /*argc*/, char** /*argv*/ )
 
 #if 0
     /* insert some records */
+    env.program()->append( new Open( 0, FILENAME ) );
+    env.program()->append( new Push( "id" ) );
+    env.program()->append( new Push( 12 ) );
+    env.program()->append( new PushList( 2 ) );
+    env.program()->append( new Push( "name" ) );
+    env.program()->append( new Push( QString("db") ) );
+    env.program()->append( new PushList( 2 ) );
+    env.program()->append( new PushList( 2 ) );
+    env.program()->append( new Insert( 0 ) );
+    env.program()->append( new Close( 0 ) );
+    env.program().append( new Close( 0 ) );
+#endif
+
+#if 0
+    /* create an index on id field */
+    QValueList<QVariant> field;
+    QVariant name = "id";
+    QVariant value;
+    value.cast( QVariant::Int );
+    field.append( name );
+    field.append( value );
+    env.program().append( new Push( field ) );
+    env.program().append( new PushList( 1 ) );
     env.program().append( new Open( 0, FILENAME ) );
-    env.program().append( new Push( 12 ) );
-    env.program().append( new Push( QString("db") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 11 ) );
-    env.program().append( new Push( QString("jasmin") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 10 ) );
-    env.program().append( new Push( QString("trolltech") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 9 ) );
-    env.program().append( new Push( QString("gnome") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 8 ) );
-    env.program().append( new Push( QString("linux") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 7 ) );
-    env.program().append( new Push( QString("boogers") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 6 ) );
-    env.program().append( new Push( QString("junk") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 5 ) );
-    env.program().append( new Push( QString("knicks") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 4 ) );
-    env.program().append( new Push( QString("oslo") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 3 ) );
-    env.program().append( new Push( QString("norway") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 2 ) );
-    env.program().append( new Push( QString("europe") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
-
-    env.program().append( new Push( 1 ) );
-    env.program().append( new Push( QString("canada") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Insert( 0 ) );
+    env.program().append( new CreateIndex( 0, QVariant(FALSE,1) ) );
     env.program().append( new Close( 0 ) );
 #endif
 
@@ -163,21 +128,6 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new PushList( 2 ) );
     env.program().append( new SaveResult( 0 ) );
     env.program().append( new Goto( 5 ) );
-    env.program().append( new Close( 0 ) );
-#endif
-
-#if 0
-    /* create an index on id field */
-    QValueList<QVariant> field;
-    QVariant name = "id";
-    QVariant value;
-    value.cast( QVariant::Int );
-    field.append( name );
-    field.append( value );
-    env.program().append( new Push( field ) );
-    env.program().append( new PushList( 1 ) );
-    env.program().append( new Open( 0, FILENAME ) );
-    env.program().append( new CreateIndex( 0, QVariant(FALSE,1) ) );
     env.program().append( new Close( 0 ) );
 #endif
 
