@@ -1522,7 +1522,7 @@ void QComboBox::inputMethodEvent(QInputMethodEvent *e)
 /*!
     \reimp
 */
-QVariant QComboBox::inputMethodQuery(Qt::InputMethodQuery query)
+QVariant QComboBox::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     if (d->lineEdit)
         return d->lineEdit->inputMethodQuery(query);

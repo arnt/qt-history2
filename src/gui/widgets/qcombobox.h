@@ -166,7 +166,7 @@ protected:
     void keyPressEvent(QKeyEvent *e);
     void keyReleaseEvent(QKeyEvent *e);
     void inputMethodEvent(QInputMethodEvent *);
-    QVariant inputMethodQuery(Qt::InputMethodQuery);
+    QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 
 private:
     Q_DECLARE_PRIVATE(QComboBox)
