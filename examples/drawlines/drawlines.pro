@@ -8,3 +8,4 @@ QTDIR_build:REQUIRES=
 
 HEADERS		=
 SOURCES		= connect.cpp
+QT	+= compat

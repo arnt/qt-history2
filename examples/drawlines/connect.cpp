@@ -16,6 +16,7 @@
 #include <qevent.h>
 #include <stdlib.h>
 
+using namespace Qt;
 
 const int MAXPOINTS = 2000;			// maximum number of points
 const int MAXCOLORS = 40;
