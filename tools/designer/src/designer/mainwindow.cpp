@@ -813,6 +813,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
 
 void MainWindow::changeEvent(QEvent *ev)
 {
+#ifdef Q_WS_WIN
     switch (ev->type()) {
     case QEvent::ActivationChange:
         if (isActiveWindow()) {
@@ -824,7 +825,7 @@ void MainWindow::changeEvent(QEvent *ev)
     default:
         break;
     }
-
+#endif
     QMainWindow::changeEvent(ev);
 }
 
@@ -1138,9 +1139,9 @@ void MainWindow::showTheNewStuff()
 
 void MainWindow::showHelp(const QString &url)
 {
-    if (!assistant) 
+    if (!assistant)
         assistant = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
-    assistant->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath) + "/html/" + url);    
+    assistant->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath) + "/html/" + url);
 }
 
 void MainWindow::aboutDesigner()
