@@ -888,13 +888,13 @@ void Configure::generateConfigfiles()
 	}
 	outStream << endl;
 	outStream << "/* Install paths from configure */" << endl;
-	outStream << "#define QT_INSTALL_PREFIX  \"" << dictionary[ "QT_INSTALL_PREFIX" ] << "\"" << endl;
-	outStream << "#define QT_INSTALL_DOCS    \"" << dictionary[ "QT_INSTALL_DOCS" ] <<"\"" << endl;
-	outStream << "#define QT_INSTALL_HEADERS \"" << dictionary[ "QT_INSTALL_HEADERS" ] << "\"" << endl;
-	outStream << "#define QT_INSTALL_PLUGINS \"" << dictionary[ "QT_INSTALL_PLUGINS" ] << "\"" << endl;
-	outStream << "#define QT_INSTALL_LIBS    \"" << dictionary[ "QT_INSTALL_LIBS" ] << "\"" << endl;
-	outStream << "#define QT_INSTALL_BINS    \"" << dictionary[ "QT_INSTALL_BINS" ] << "\"" << endl;
-	outStream << "#define QT_INSTALL_DATA    \"" << dictionary[ "QT_INSTALL_DATA" ] << "\"" << endl;
+	outStream << "const char *qInstallPath();" << endl;
+	outStream << "const char *qInstallPathDocs();" << endl;
+	outStream << "const char *qInstallPathHeaders();" << endl;
+	outStream << "const char *qInstallPathLibs();" << endl;
+	outStream << "const char *qInstallPathBins();" << endl;
+	outStream << "const char *qInstallPathPlugins();" << endl;
+	outStream << "const char *qInstallPathData();" << endl;
 	outStream << endl;
 	outStream << "/* License information */" << endl;
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
@@ -907,6 +907,7 @@ void Configure::generateConfigfiles()
 	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
 	}
     }
+
     outName = outDir + "/qmodules.h";
 
     ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
@@ -933,6 +934,36 @@ void Configure::generateConfigfiles()
 		qDebug("Couldn't copy %s to include", outName.latin1() );
 	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
 	}
+    }
+
+    outDir = dictionary[ "QT_SOURCE_TREE" ];
+    outName = outDir + "/src/tools/qconfig.cpp";
+    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    QFile::remove( outName );
+    outFile.setName( outName );
+
+    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+	QTextStream outStream( &outFile );
+
+	outStream << "/* Install paths from configure */" << endl;
+
+	outStream << "static const char QT_INSTALL_PREFIX [256] = \"" << dictionary["QT_INSTALL_PREFIX"] << "\";" << endl;
+	outStream << "static const char QT_INSTALL_BINS   [256] = \"" << dictionary["QT_INSTALL_BINS"] << "\";" << endl;
+	outStream << "static const char QT_INSTALL_DOCS   [256] = \"" << dictionary["QT_INSTALL_DOCS"] << "\";" << endl;
+	outStream << "static const char QT_INSTALL_HEADERS[256] = \"" << dictionary["QT_INSTALL_HEADERS"] << "\";" << endl;
+	outStream << "static const char QT_INSTALL_LIBS   [256] = \"" << dictionary["QT_INSTALL_LIBS"] << "\";" << endl;
+	outStream << "static const char QT_INSTALL_PLUGINS[256] = \"" << dictionary["QT_INSTALL_PLUGINS"] << "\";" << endl;
+	outStream << "static const char QT_INSTALL_DATA   [256] = \"" << dictionary["QT_INSTALL_DATA"] << "\";" << endl;
+	outStream << endl;
+	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX;  }" << endl;
+	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS;    }" << endl;
+	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS; }" << endl;
+	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;    }" << endl;
+	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS;    }" << endl;
+	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS; }" << endl;
+	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA;    }" << endl;
+
+    	outFile.close();
     }
 }
 

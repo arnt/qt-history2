@@ -40,7 +40,8 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
 	qglist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
-	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj
+	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj \
+        qconfig.obj
 
 
 
@@ -59,6 +60,9 @@ distclean:: clean
 
 .cpp.obj:
 	$(CXX) $(CXXFLAGS) $<
+
+qconfig.obj: $(QTDIR)\src\tools\qconfig.cpp
+	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qconfig.cpp
 
 qlibrary.obj: $(QTDIR)\src\tools\qlibrary.cpp
 	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qlibrary.cpp
