@@ -38,6 +38,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "VERSION" ]	    = "300";
     dictionary[ "REDO" ]	    = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
+    dictionary[ "DEPENDENCIES" ]    = "no";
 
     dictionary[ "DEBUG" ]	    = "no";
     dictionary[ "SHARED" ]	    = "yes";
@@ -292,6 +293,9 @@ void ConfigureApp::parseCmdLine()
 
 	else if( (*args) == "-dont-process" )
 	    dictionary[ "NOPROCESS" ] = "yes";
+
+	else if( (*args) == "-qmake-deps" )
+	    dictionary[ "DEPENDENCIES" ] = "yes";
 
 	else if( (*args) == "-D" ) {
 	    ++args;
@@ -1058,6 +1062,9 @@ void ConfigureApp::qmakeDone()
     args << makefileName;
     args << "-spec";
     args << dictionary[ "QMAKESPEC" ];
+    if( dictionary[ "DEPENDENCIES" ] == "no" )
+	args << "-nodepend";
+
     if( makefileName.right( 4 ) == ".dsp" ) {
 	args << "-t";
 	if( isProjectLibrary( projectName ) )
