@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#12 $
 **
 ** Implementation of movie classes
 **
@@ -52,7 +52,7 @@
   Copyright property of CompuServe Incorporated. GIF(sm) is a Service
   Mark property of CompuServe Incorporated.
 
-  <img src=qmovie.gif>
+  <img width=140 height=93 src=qmovie.gif>
 
   \sa QLabel::setMovie()
 */
@@ -706,7 +706,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.11 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.12 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
