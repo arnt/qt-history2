@@ -61,9 +61,6 @@
 
 const int Unsorted = 16383;
 
-static QBitmap * verticalLine = 0;
-static QBitmap * horizontalLine = 0;
-
 static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
 struct QListViewPrivate
 {
