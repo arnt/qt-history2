@@ -862,7 +862,7 @@ void QPopupMenu::updateSize()
 	if ( mi->iconSet() != 0)
 	    maxPMWidth = QMAX( maxPMWidth,
 			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
-	else 
+	else
 	    maxPMWidth = QMAX( maxPMWidth, 20 );
     }
 
@@ -1481,23 +1481,27 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 
 void QPopupMenu::keyPressEvent( QKeyEvent *e )
 {
-    if (mouseBtDn && actItem >= 0) {
-	if (e->key() == Key_Shift ||
-	    e->key() == Key_Control ||
-	    e->key() == Key_Alt)
-	    return;
+    /*
+      I get nothing but complaints about this.  -Brad
 
-	QMenuItem *mi = mitems->at(actItem);
-	int modifier = (((e->state() & ShiftButton) ? SHIFT : 0) |
-			((e->state() & ControlButton) ? CTRL : 0) |
-			((e->state() & AltButton) ? ALT : 0));
-
-#ifndef QT_NO_ACCEL
-	if (mi)
-	    setAccel(modifier + e->key(), mi->id());
-#endif
-	return;
-    }
+      - if (mouseBtDn && actItem >= 0) {
+      -	if (e->key() == Key_Shift ||
+      -	    e->key() == Key_Control ||
+      -	    e->key() == Key_Alt)
+      -	    return;
+      -
+      -	QMenuItem *mi = mitems->at(actItem);
+      -	int modifier = (((e->state() & ShiftButton) ? SHIFT : 0) |
+      -			((e->state() & ControlButton) ? CTRL : 0) |
+      -			((e->state() & AltButton) ? ALT : 0));
+      -
+      - #ifndef QT_NO_ACCEL
+      -	if (mi)
+      -	    setAccel(modifier + e->key(), mi->id());
+      - #endif
+      - return;
+      - }
+    */
 
     QMenuItem  *mi = 0;
     QPopupMenu *popup;
