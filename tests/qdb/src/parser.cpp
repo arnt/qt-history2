@@ -533,8 +533,16 @@ void Parser::matchFunctionRefArguments()
 
 void Parser::matchPrimaryExp()
 {
-    while ( yyTok == Tok_Plus || yyTok == Tok_Minus )
+    bool uminus = FALSE;
+
+    while ( yyTok == Tok_Plus || yyTok == Tok_Minus ) {
+	if ( yyTok == Tok_Minus )
+	    uminus = !uminus;
 	yyTok = getToken();
+    }
+
+    if ( uminus )
+	yyProg->append( new Push(0) );
 
     switch ( yyTok ) {
     case Tok_LeftParen:
@@ -544,47 +552,65 @@ void Parser::matchPrimaryExp()
 	break;
     case Tok_Name:
 	matchColumnRef();
+	// ###
 	break;
     case Tok_IntNum:
+	yyProg->append( new Push(yyNum) );
 	yyTok = getToken();
 	break;
     case Tok_ApproxNum:
+	yyProg->append( new Push(yyNum) );
 	yyTok = getToken();
 	break;
     case Tok_String:
+	yyProg->append( new Push(yyStr) );
 	yyTok = getToken();
 	break;
     case Tok_avg:
 	yyTok = getToken();
 	matchFunctionRefArguments();
+	// ###
 	break;
     case Tok_count:
 	yyTok = getToken();
 	matchFunctionRefArguments();
+	// ###
 	break;
     case Tok_max:
 	yyTok = getToken();
 	matchFunctionRefArguments();
+	// ###
 	break;
     case Tok_min:
 	yyTok = getToken();
 	matchFunctionRefArguments();
+	// ###
 	break;
     case Tok_sum:
 	yyTok = getToken();
 	matchFunctionRefArguments();
+	// ###
 	break;
     default:
 	error( "Met '%s' where primary expression was expected", yyLex );
     }
+
+    if ( uminus )
+	yyProg->append( new Subtract );
 }
 
 void Parser::matchMultiplicativeExp()
 {
     matchPrimaryExp();
     while ( yyTok == Tok_Aster || yyTok == Tok_Div ) {
+	int prevTok = yyTok;
 	yyTok = getToken();
 	matchPrimaryExp();
+
+	if ( prevTok == Tok_Aster )
+	    yyProg->append( new Multiply );
+	else
+	    yyProg->append( new Divide );
     }
 }
 
@@ -592,8 +618,14 @@ void Parser::matchScalarExp()
 {
     matchMultiplicativeExp();
     while ( yyTok == Tok_Plus || yyTok == Tok_Minus ) {
+	int prevTok = yyTok;
 	yyTok = getToken();
 	matchMultiplicativeExp();
+
+	if ( prevTok == Tok_Plus )
+	    yyProg->append( new Add );
+	else
+	    yyProg->append( new Subtract );
     }
 }
 
@@ -765,12 +797,10 @@ void Parser::matchDataType()
     case Tok_character:
 	type = QVariant::String;
 	yyTok = getToken();
-	if ( yyTok == Tok_LeftParen ) {
-	    yyTok = getToken();
-	    len = (int) yyNum;
-	    matchOrSkip( Tok_IntNum, "integer" );
-	    matchOrInsert( Tok_RightParen, "')'" );
-	}
+	matchOrInsert( Tok_LeftParen, "')'" );
+	len = (int) yyNum;
+	matchOrSkip( Tok_IntNum, "integer" );
+	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     case Tok_date:
 	type = QVariant::DateTime;
@@ -914,17 +944,17 @@ void Parser::matchDeleteStatement()
     matchOptWhereClause();
 }
 
-void Parser::matchInsertAtom()
+void Parser::matchInsertExp()
 {
     if ( yyTok == Tok_null ) {
 	yyTok = getToken();
 	error( "Null not supported yet" );
     } else {
-	matchAtom();
+	matchScalarExp();
     }
 }
 
-void Parser::matchInsertAtomList( const QStringList& columns )
+void Parser::matchInsertExpList( const QStringList& columns )
 {
     QStringList::ConstIterator col = columns.begin();
     int n = 0;
@@ -941,7 +971,7 @@ void Parser::matchInsertAtomList( const QStringList& columns )
 	    }
 	}
 
-	matchInsertAtom();
+	matchInsertExp();
 	n++;
 
 	if ( yyTok != Tok_Comma )
@@ -971,7 +1001,7 @@ void Parser::matchInsertStatement()
 
     matchOrInsert( Tok_values, "'values'" );
     matchOrInsert( Tok_LeftParen, "'('" );
-    matchInsertAtomList( columns );
+    matchInsertExpList( columns );
     matchOrInsert( Tok_RightParen, "')'" );
 
     yyProg->append( new Insert(0) );

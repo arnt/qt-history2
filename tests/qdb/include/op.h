@@ -24,7 +24,7 @@ public:
 	   const QVariant& P2,
 	   const QVariant& P3,
 	   const QString& label = QString::null )
-	: p1( P1 ), p2( P2 ), p3(P3), lbl( label ) {}
+	: p1( P1 ), p2( P2 ), p3( P3 ), lbl( label ) {}
 
     virtual ~Label();
     QVariant& P( int i )
@@ -194,7 +194,7 @@ public:
 	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	if ( v1.toInt() == 0 ) {
+	if ( v1.toDouble() == 0 ) {
 	    env->output() << "divide: division by zero" << endl;
 	    env->stack()->push( QVariant() );
 	} else

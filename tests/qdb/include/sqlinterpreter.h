@@ -9,7 +9,8 @@
 class FileDriver : public qdb::FileDriver
 {
 public:
-    FileDriver( qdb::Environment* environment = 0, const QString& name = QString::null );
+    FileDriver( qdb::Environment* environment = 0,
+		const QString& name = QString::null );
     virtual ~FileDriver();
     FileDriver( const FileDriver& other );
     FileDriver& operator=( const FileDriver& other );
@@ -57,7 +58,6 @@ private:
     int internalMarkedAt;
     QString err;
     qdb::Environment* env;
-
 };
 
 class ResultSet : public qdb::ResultSet
@@ -150,8 +150,8 @@ private:
     void matchBaseTableElementList();
     void matchCreateStatement();
     void matchDeleteStatement();
-    void matchInsertAtom();
-    void matchInsertAtomList( const QStringList& columns );
+    void matchInsertExp();
+    void matchInsertExpList( const QStringList& columns );
     void matchInsertStatement();
     void matchRollbackStatement();
     void matchFromClause();
@@ -186,7 +186,6 @@ private:
 
     Program( const Program& other );
     Program& operator=( const Program& other );
-
 };
 
 #endif
