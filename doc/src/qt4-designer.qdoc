@@ -32,8 +32,8 @@ This version of \QD introduces a number of editing modes to make different
 types of editing more natural. Each editing mode displays the form in an
 appropriate way for that mode, and provides a specialized user interface for
 manipulating its contents.
-Examples of editing modes include Form Editing mode, Connection Editing mode,
-Buddy Editing mode, and Tab Order Editing mode.
+Examples of editing modes include Form Editing mode, Signals and Slots Editing
+mode, Buddy Editing mode, and Tab Order Editing mode.
 
 \section2 User Interface Features
 
@@ -45,7 +45,7 @@ The widget box displays a categorized list of widgets and other objects that
 can be placed on a form using drag and drop.
 
 When \QD is in Top Level mode, the window containing the widget box also holds
-the main menu and editing tool bar. When in Workspace mode, the widget box
+the main menu and tool bar. When in Workspace mode, the widget box
 becomes an independent window within the \QD workspace.
 
 The contents of the widget box are defined in an XML file that holds a
@@ -56,12 +56,13 @@ making it possible to add custom widgets to the widget box.
 \table
 \row \i \bold{Property Editor}
 
-The property editor allows users to edit most properties of widgets and layout
-objects. The property names and values are presented in an editable tree view
-that shows the properties of the currently selected object.
+The property editor allows designers to edit most properties of widgets and
+layout objects. The property names and values are presented in an editable
+tree view that shows the properties of the currently selected object.
 
-The most commonly used properties for each widget can also be edited via
-the form's context menu.
+Certain resources, such as icons, can be configured in the property editor.
+Resources can be taken from any currently installed resource files, making
+it easier to design self-contained components.
 \i \inlineimage designer-property-editor.png
 \endtable
 
@@ -73,7 +74,7 @@ the form's context menu.
 
 Form templates provide ready-to-use forms for various types of widgets,
 such as QWidget, QDialog, and QMainWindow. Custom templates based on
-these widgets can also be made.
+these widgets can also be created.
 
 Templates can contain child widgets and layouts. Designers can
 save time by creating templates for the most common user interface
@@ -91,10 +92,10 @@ new widgets to them.
 \QD now supports more direct manipulation of widgets:
 You can clone a widget by dragging it with the \key CTRL key held down, and
 it is even possible to drag widgets between forms.
-\i \inlineimage designer-editing-mode.png
 
 In-place widget editors provide specialized editing facilities for
-the most used widget properties.
+the most-used widget properties.
+\i \inlineimage designer-editing-mode.png
 \endtable
 
 \table
@@ -104,7 +105,7 @@ the most used widget properties.
 
 \QD now employs a "wired" approach to the problem of representing and editing
 connections between objects on a form. This editing mode displays all the
-signal and slot connections in your form as arrows. These arrows can be
+signal and slot connections on your form as arrows. These arrows can be
 manipulated visually, and provide the user with an overview of the form's
 connection logic.
 
