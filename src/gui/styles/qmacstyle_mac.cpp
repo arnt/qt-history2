@@ -1619,23 +1619,33 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 break;
             }
         }
-    case QStyle::PE_FrameTabWidget: {
-        HIThemeTabPaneDrawInfo tpdi;
-        tpdi.version = qt_mac_hitheme_tab_version();
-        tpdi.state = tds;
-        tpdi.direction = kThemeTabNorth;
-        if (opt->state & QStyle::Style_Bottom)
-            tpdi.direction = kThemeTabSouth;
-        tpdi.size = kHIThemeTabSizeNormal;
+    case QStyle::PE_FrameTabWidget:
+        if (const QStyleOptionTabWidgetFrame *twf
+                = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            HIThemeTabPaneDrawInfo tpdi;
+            tpdi.version = qt_mac_hitheme_tab_version();
+            tpdi.state = tds;
+            QRect paneRect = twf->rect;
+            if (twf->shape == QTabBar::RoundedSouth || twf->shape == QTabBar::TriangularSouth) {
+                tpdi.direction = kThemeTabSouth;
+                paneRect.setHeight(paneRect.height() + 7);
+            } else {
+                tpdi.direction = kThemeTabNorth;
+                paneRect.setTop(paneRect.top() - 6);
+                paneRect.setHeight(paneRect.height() + 6);
+            }
+            tpdi.size = kHIThemeTabSizeNormal;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-        if (tpdi.version == 1) {
-            tpdi.kind = kHIThemeTabKindNormal;
-            tpdi.adornment = kHIThemeTabPaneAdornmentNormal;
-        }
+            if (tpdi.version == 1) {
+                tpdi.kind = kHIThemeTabKindNormal;
+                tpdi.adornment = kHIThemeTabPaneAdornmentNormal;
+            }
 #endif
-        HIRect hirect = qt_hirectForQRect(opt->rect, p);
-        HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
-        break; }
+
+            HIRect hirect = qt_hirectForQRect(paneRect, p);
+            HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
+        }
+        break;
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
@@ -1988,6 +1998,9 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                   tabOpt, w));
             }
             HIRect hirect = qt_hirectForQRect(tabRect, p);
+            QCFType<HIShapeRef> tabDrawShape;
+            HIThemeGetTabDrawShape(&hirect, &tdi, &tabDrawShape);
+            HIShapeGetBounds(tabDrawShape, &hirect);
             HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
             if (tdi.version == 0) {
                 if (!(opt->state & QStyle::Style_Selected)) {
@@ -2010,6 +2023,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                     p->restore();
                 }
             } else {
+#if 0
                 // Draw the little line for the tabs.
                 if (tabOpt->position != QStyleOptionTab::End) {
                     QCFType<HIShapeRef> tabShape;
@@ -2027,6 +2041,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                 newRect.bottomRight() - QPoint(1, 2));
                     p->restore();
                 }
+#endif
             }
         }
         break;
@@ -4514,10 +4529,16 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         ret = 0;
         break;
     case PM_TabBarBaseHeight:
-        ret = 7;
+        if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
+            ret = 7;
+        else
+            ret = 0;
         break;
     case PM_TabBarTabOverlap:
-        GetThemeMetric(kThemeMetricTabOverlap, &ret);
+        if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
+            GetThemeMetric(kThemeMetricTabOverlap, &ret);
+        else
+            ret = 9;
         break;
     case PM_TabBarBaseOverlap:
         GetThemeMetric(kThemeMetricTabFrameOverlap, &ret);
