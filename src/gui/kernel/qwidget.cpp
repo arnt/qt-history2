@@ -3270,8 +3270,8 @@ void QWidget::clearFocus()
 
 /*!
     Finds a new widget to give the keyboard focus to, as appropriate
-    for Tab and Shift+Tab, and returns true if is can find a new
-    widget and false if it can't,
+    for Tab and Shift+Tab, and returns true if it can find a new
+    widget, or false if it can't.
 
     If \a next is true, this function searches "forwards", if \a next
     is false, it searches "backwards".
