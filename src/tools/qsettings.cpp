@@ -1859,23 +1859,22 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
 
 void QSettings::setPath( const QString &domain, const QString &product, Scope scope )
 {
-    /*
-      On Windows, any trailing ".com(\..*)" is stripped from the domain. The Global
-      scope corresponds to HKEY_LOCAL_MACHINE, and User corresponds to HKEY_CURRENT_USER.
-      Note that on some installations, not all users can write to the Global scope.
-
-      On UNIX, any trailing ".com(\..*)" is stripped from the domain. The Global scope
-      corresponds to "/opt" (this would be configurable at library build time - eg. to
-      "/usr/local" or "/usr"), while the User scope corresponds to $HOME/.*rc.
-      Note that on most installations, not all users can write to the System scope.
-
-      On MacOS X, if there is no "." in domain, append ".com", then reverse the
-      order of the elements (Mac OS uses "com.apple.finder" as domain+product).
-      The Global scope corresponds
-      to /Library/Preferences/*.plist, while the User scope corresponds to
-      ~/Library/Preferences/*.plist.
-      Note that on most installations, not all users can write to the System scope.
-    */
+//    On Windows, any trailing ".com(\..*)" is stripped from the domain. The
+//    Global scope corresponds to HKEY_LOCAL_MACHINE, and User corresponds to
+//    HKEY_CURRENT_USER. Note that on some installations, not all users can
+//    write to the Global scope. On UNIX, any trailing ".com(\..*)" is stripped
+//    from the domain. The Global scope corresponds to "/opt" (this would be
+//    configurable at library build time - eg. to "/usr/local" or "/usr"),
+//    while the User scope corresponds to $HOME/.*rc.
+//    Note that on most installations, not all users can write to the System
+//    scope.
+//    
+//    On MacOS X, if there is no "." in domain, append ".com", then reverse the
+//    order of the elements (Mac OS uses "com.apple.finder" as domain+product).
+//    The Global scope corresponds to /Library/Preferences/*.plist, while the
+//    User scope corresponds to ~/Library/Preferences/*.plist.
+//    Note that on most installations, not all users can write to the System
+//    scope.
     QString actualSearchPath;
     int lastDot = domain.findRev( '.' );
 
