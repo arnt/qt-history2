@@ -38,7 +38,7 @@ public:
     inline bool operator==(const QModelIndex &other) const
     { return (other.r == r && other.c == c && other.d == d && other.t == t); }
     inline bool operator!=(const QModelIndex &other) const { return !(*this == other); }
-    static QModelIndex invalid;
+    static const QModelIndex invalid;
 private:
     inline QModelIndex(int row, int column, void *data, Type type)
         : r(row), c(column), d(data), t(type) {}

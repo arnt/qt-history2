@@ -21,7 +21,7 @@
 #include <qdebug.h>
 #include <private/qabstractitemmodel_p.h>
 
-QModelIndex QModelIndex::invalid;
+const QModelIndex QModelIndex::invalid;
 
 class QAbstractItemModelDrag : public QDragObject
 {
