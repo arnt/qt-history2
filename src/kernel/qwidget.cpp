@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#33 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#33 $";
 #endif
 
 
@@ -100,6 +100,18 @@ inline bool QWidgetMapper::remove( WId id )
 // QWidget member functions
 //
 
+/*! Constructs a new QWidget inside \e parent, named \e name,
+  optionally with widget flags \e f.
+
+  The widget flags are strictly internal; don't use them unless you
+  know what you're doing.
+
+  If \e parent is NULL, the new widget will be a window of its own.
+
+\todo explain widget name
+
+*/
+
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	: QObject( parent, name ),
 	  pal( *qApp->palette() ),		// use application palette
@@ -112,6 +124,10 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     extra = 0;					// no extra widget info
     create();					// platform-dependent init
 }
+
+/*! Destroys the widget.  All children of this widget are deleted
+  first.  The application exits if this widget is (was) the main
+  widget. */
 
 QWidget::~QWidget()
 {
@@ -194,10 +210,23 @@ QWidget *QWidget::find( WId id )		// find widget with id
 }
 
 
+/*! Returns the widgets's GUI style.  Provided for flexibility, not
+  because it's a good idea to change behaviour based on how the screen
+  happens to look.
+
+  \sa GUIStyle, setStyle() and QApplication::style(). */
+
 GUIStyle QWidget::style() const			// get widget GUI style
 {
     return extra ? extra->guistyle : QApplication::style();
 }
+
+/*! Sets the widget's GUI style.  By default, all widgets share the
+  global GUI style, but it looks so cool that we just \e had to allow
+  individual widgets to have their own style.  Not recommended; you're
+  better off setting just the global style.
+
+  \sa GUIStyle, style() and QApplication::setStyle(). */
 
 void QWidget::setStyle( GUIStyle gs )		// set widget GUI style
 {
@@ -206,16 +235,80 @@ void QWidget::setStyle( GUIStyle gs )		// set widget GUI style
 }
 
 
+/*! Makes the widget accept events from the window system.  \sa
+  disable(), isDisabled() and colorGroup(). */
+
 void QWidget::enable()				// enable events
 {
     clearFlag( WState_Disabled );
 }
+
+/*! Makes the widget refuse events from the window system (it's grayed
+  out, in effect).  \sa enable() and colorGroup(). */
 
 void QWidget::disable()				// disable events
 {
     setFlag( WState_Disabled );
 }
 
+/*!
+\fn bool QWidget::isDisabled() const
+
+Returns TRUE if the widget is disabled (grayed out), FALSE if it is
+enabled. \sa enable(), disable() and colorGroup().
+*/
+
+/*!
+\fn QRect QWidget::frameGeometry() const
+
+Returns the geometry of the widget, relative to its parent and
+including any frame the window manager decides to decorate the window
+with. \sa geometry(), QRect, size() and rect(). */
+
+/*!
+\fn QRect QWidget::geometry() const
+
+Returns the geometry of the widget, relative to its parent widget and
+excluding frames and other decorations.  \sa frameGeometry(), QRect,
+size() and rect(). */
+
+/*!
+\fn QSize QWidget::size() const
+
+Returns the size of the widget.  This is the internal size, it doens't
+include any window frames.  \sa QSize, geometry(), width(), height(),
+rect(), setMinimumSize() and setMaximumSize(). */
+
+/*!
+\fn int QWidget::width() const
+
+Returns the width of the widget, excluding any window frames.  \sa
+size(), height(), rect(), geometry(). */
+
+/*!
+\fn int QWidget::height() const
+
+Returns the height of the widget, excluding any window frames.  \sa
+size(), width(), rect(), geometry(). */
+
+/*!
+\fn QRext QWidget::rect() const
+
+Returns the the internal geometry of the widget; a rectangle whose
+opposite corners are (0,0) and (width(),height()).  \sa geometry(),
+width(), height(), size(), setMinimumSize() and setMaximumSize(). */
+
+/*!
+\fn WId QWidget::id() const
+
+Returns the window system ID of the widget.  Portable in principle,
+but if you use it you're probably about to do something
+non-portable: Be careful. */
+
+
+/*! Returns the current color group the widget belongs to.  \sa
+  QColor, enable(), disable(), isDisabled(), palette() and
+  setPalette(). */
 
 const QColorGroup &QWidget::colorGroup() const	// get current colors
 {
@@ -225,11 +318,14 @@ const QColorGroup &QWidget::colorGroup() const	// get current colors
 	return pal.normal();
 }
 
+/*! Returns the palette of the widget.  \sa QPalette and setPalette(). */
 const QPalette &QWidget::palette() const	// get widget palette
 {
     return pal;
 }
 
+/*! Sets the widget's palette, and by extension, also its background
+  color.  \sa QPalette and palette(). */
 void QWidget::setPalette( const QPalette &p )	// set widget palette
 {
     pal = p;
@@ -237,6 +333,22 @@ void QWidget::setPalette( const QPalette &p )	// set widget palette
     update();
 }
 
+/*! \fn QFontMetrics fontMetrics() const
+
+  Returns the font metrics of the font currently in use by this
+  widget.  Each widget gets a default font when it's created.  \sa
+  QFont, QFontMetrics, font(), setFont() and fontInfo(). */
+
+/*!  \fn QFontInfo fontInfo() const
+
+  Returns the font information for the font the widget is currently
+  using, ie. the closest font the window system was able to offer
+  QFont.  \sa QFont, QFontInfo, font() and setFont(). */
+
+/*! \fn bool QWidget::setMouseTracking( bool enable )
+
+  Returns TRUE if it's past midnight.  I called it just now, it
+  returned TRUE, and I'm going home. \sa bed(), sleep().  */
 
 #if !defined(_WS_X11_)
 bool QWidget::setMouseTracking( bool enable )
@@ -269,6 +381,10 @@ void QWidget::setCRect( const QRect &r )	// set crect, update frect
     crect = r;
 }
 
+/*! Translates the coordinate \e pos from relative to absolute
+  coordinates.  Absolute means relative to the root window, relative
+  means relative to this widget. \sa mapFromGlobal() and
+  mapToParent(). */
 
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {						// map to global coordinates
@@ -281,6 +397,11 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     return p;
 }
 
+/*! Translates the coordinate \e pos from absolute to relative
+  coordinates.  Absolute means relative to the root window, relative
+  means relative to this widget. \sa mapToGlobal() and
+  mapFromParent(). */
+
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {						// map from global coordinates
     register QWidget *w = (QWidget*)this;
@@ -292,10 +413,18 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     return p;
 }
 
+/*! Translates the coordinate \e pos from this widget's to its
+  parent's coordinate systems. \sa mapToGlobal() and
+  mapFromParent(). */
+
 QPoint QWidget::mapToParent( const QPoint &p ) const
 {						// map to parent coordinates
     return p + crect.topLeft();
 }
+
+/*! Translates the coordinate \e pos to this widget's from its
+  parent's coordinate systems. \sa mapFromGlobal() and
+  mapToParent(). */
 
 QPoint QWidget::mapFromParent( const QPoint &p ) const
 {						// map from parent coordinate
