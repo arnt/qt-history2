@@ -42,6 +42,9 @@ public:
 
     virtual QFileEngine *fileEngine() const;
 
+protected:
+    virtual bool open(int mode);
+
 private:
     Q_DISABLE_COPY(QTemporaryFile)
 };

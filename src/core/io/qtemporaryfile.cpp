@@ -63,6 +63,7 @@ QTemporaryFileEngine::open(int flags)
         d->sequential = 0;
         return true;
     }
+    qDebug("hmm..");
     free(filename);
     d->setError(errno == EMFILE ? QIODevice::ResourceError : QIODevice::OpenError, errno);
     return false;
@@ -296,4 +297,18 @@ QFileEngine
     if(!d->fileEngine)
         d->fileEngine = new QTemporaryFileEngine(d->templateName);
     return d->fileEngine;
+}
+
+/*!
+   \reimp
+*/
+
+bool
+QTemporaryFile::open(int mode)
+{
+    if(QFile::open(mode)) {
+        setFileName(d->fileEngine->fileName(QFileEngine::DefaultName));
+        return true;
+    }
+    return false;
 }
