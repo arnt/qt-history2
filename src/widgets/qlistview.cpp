@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#118 $
 **
 ** Implementation of QListView widget class
 **
@@ -70,10 +70,10 @@ struct QListViewPrivate
     };
 
     struct ItemColumnInfo {
-	ItemColumnInfo(): next( 0 ) {}
-	~ItemColumnInfo() { delete next; }
+	ItemColumnInfo(): pm( 0 ), next( 0 ) {}
+	~ItemColumnInfo() { delete pm; delete next; }
 	QString text;
-	QPixmap pm;
+	QPixmap * pm;
 	ItemColumnInfo * next;
     };
 
@@ -220,8 +220,6 @@ struct QListViewPrivate
   <img src="treeview.gif" width="256" height="216" alt="Example Tree View">
 */
 
-
-
 /*!  Create a new list view item in the QListView \a parent */
 
 QListViewItem::QListViewItem( QListView * parent )
@@ -344,6 +342,7 @@ QListViewItem::~QListViewItem()
 	delete childItem;
 	childItem = nextChild;
     }
+    delete (QListViewPrivate::ItemColumnInfo *)columns;
 }
 
 
@@ -661,7 +660,9 @@ void QListViewItem::setExpandable( bool enable )
 
 void QListViewItem::enforceSortOrder() const
 {
-    if( parentItem && (parentItem->lsc != lsc || parentItem->lso != lso) )
+    if( parentItem &&
+	(parentItem->lsc != lsc || parentItem->lso != lso) &&
+	(int)parentItem->lsc != Unsorted )
 	((QListViewItem *)this)->sortChildItems( (int)parentItem->lsc,
 						 (bool)parentItem->lso );
 }
@@ -799,7 +800,10 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 	l = l->next;
 	column--;
     }
-    l->pm = pm;
+    if ( l->pm )
+	*(l->pm) = pm;
+    else
+	l->pm = new QPixmap( pm );
     repaint();
 }
 
@@ -820,7 +824,7 @@ const QPixmap * QListViewItem::pixmap( int column ) const
 	column--;
     }
 
-    return (l && !l->pm.isNull()) ? &(l->pm) : 0;
+    return (l && l->pm) ? l->pm : 0;
 }
 
 
@@ -904,7 +908,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
   \sa listView() widthChanged() QListView::setColumnWidthMode()
   QListView::itemMargin()
 */
-int QListViewItem::width(const QFontMetrics& fm, const QListView* lv, int c) const
+int QListViewItem::width(const QFontMetrics& fm,
+			 const QListView* lv, int c) const
 {
     int w = -(fm.minLeftBearing()+fm.minRightBearing()) +
 	    fm.width(text(c)) + lv->itemMargin() + 2;
@@ -1464,7 +1469,9 @@ void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 
 void QListView::buildDrawableList() const
 {
-    if ( (int)d->r->lsc != d->sortcolumn || (bool)d->r->lso != d->ascending )
+    if ( ( (int)d->r->lsc != d->sortcolumn ||
+	   (bool)d->r->lso != d->ascending ) &&
+	 (int)d->r->lsc != Unsorted )
 	d->r->sortChildItems( d->sortcolumn, d->ascending );
 
     QStack<QListViewPrivate::Pending> stack;
@@ -1859,7 +1866,7 @@ void QListView::triggerUpdate()
 	delete d->drawables;
 	d->drawables = 0;
     }
-   d->timer->start( 0, TRUE );
+    d->timer->start( 0, TRUE );
 }
 
 /*!  Redirects events for the viewport to mousePressEvent(),
