@@ -76,7 +76,7 @@ public:
     void setFragment(const QString &fragment);
     QString fragment() const;
 
-    QUrl resolved(const QUrl &relative) const; // ### name!
+    QUrl resolved(const QUrl &relative) const;
 
     bool isRelative() const;
     bool isParentOf(const QUrl &url) const;

@@ -67,7 +67,10 @@
 
 //#define Q4URL_DEBUG
 
-Q_CORE_EXPORT bool qt_resolve_symlinks = true; //### this can sit here for now but needs to go some where else
+// used by qfiledialog.cpp, qapplication_mac.cpp,
+// qapplication_x11.cpp, q3filedialog.cpp and compat/other/q3url.cpp.
+// needs to be in core, but is otherwise unrelated to QUrl.
+Q_CORE_EXPORT bool qt_resolve_symlinks = true;
 
 // needed by the punycode encoder/decoder
 #define MAXINT ((uint)((uint)(-1)>>1))
@@ -439,7 +442,6 @@ public:
 
         QByteArray tmp1;
         if (_h16(ptr, &tmp1)) {
-            // ### FIXME!!!
             // 6( h16 ":" ) ls32
             // [ h16 ] "::" 4( h16 ":" ) ls32
             // [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
@@ -684,7 +686,7 @@ public:
 
         *path += '/';
 
-        // ### be smart
+        // we might be able to unnest this to gain some performance.
         QByteArray tmp;
         if (!_segmentNZ(ptr, &tmp))
             return true;
@@ -698,7 +700,8 @@ public:
                 break;
             }
 
-            // ### be smart
+            // we might be able to unnest this to gain some
+            // performance.
             QByteArray segment;
             if (!_segment(ptr, &segment)) {
                 *ptr = ptrBackup2;
@@ -715,7 +718,7 @@ public:
     // path-rootless = segment-nz *( "/" segment )
     bool _pathRootless(char **ptr, QByteArray *path)
     {
-        // ### be smart
+        // we might be able to unnest this to gain some performance.
         QByteArray segment;
         if (!_segmentNZ(ptr, &segment))
             return false;
@@ -729,7 +732,7 @@ public:
                 break;
             }
 
-            // ### be smart
+            // we might be able to unnest this to gain some performance.
             QByteArray segment;
             if (!_segment(ptr, &segment)) {
                 *ptr = ptrBackup2;
@@ -958,7 +961,6 @@ QString QUrlPrivate::removeDotsFromPath(const QString &dottedPath)
     QString path;
     path.reserve(origPath.length());
 
-    //###
     const QString Dot = QLatin1String(".");
     const QString Slash = QLatin1String("/");
     const QString DotDot = QLatin1String("..");
@@ -2337,15 +2339,15 @@ QString QUrl::toLocalFile() const
 
     QString tmp;
     if (d->scheme.isEmpty() || d->scheme.toLower() == QLatin1String("file")) {
-        
+
 	// magic for shared drive on windows
 	if (!d->host.isEmpty()) {
-	    tmp = QLatin1String("//") + d->host + (d->path.length() > 0 && d->path.at(0) != QLatin1Char('/') 
+	    tmp = QLatin1String("//") + d->host + (d->path.length() > 0 && d->path.at(0) != QLatin1Char('/')
 						  ? QLatin1String("/") + d->path :  d->path);
         } else {
 	    tmp = d->path;
 	    // magic for drives on windows
-            if (d->path.length() > 2 && d->path.at(0) == '/' && d->path.at(2) == ':') 
+            if (d->path.length() > 2 && d->path.at(0) == '/' && d->path.at(2) == ':')
 		tmp.remove(0, 1);
 	}
     }
