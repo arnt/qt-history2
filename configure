@@ -706,7 +706,7 @@ do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    imgfmt-*|style-*|sql-*)
+    imgfmt-*|style-*|sql-*|gfx-*|kbd-*|mouse-*)
 	[ "$VAL" = "yes" ] && VAL=qt
 	if [ "$VAL" != "no" ] && [ "$VAL" != "qt" ] && [ "$VAL" != "plugin" ]; then
 	    UNKNOWN_OPT=yes
