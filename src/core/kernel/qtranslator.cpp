@@ -32,7 +32,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qstring.h"
 #include "qcoreapplication.h"
 #include "qfile.h"
-#include "qbuffer.h"
 #include "qdatastream.h"
 #include "qmap.h"
 #include "qalgorithms.h"

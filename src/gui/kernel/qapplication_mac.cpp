@@ -14,7 +14,6 @@
 
 #include "qapplication.h"
 #include "qbitarray.h"
-#include "qbuffer.h"
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qdatastream.h"
