@@ -2133,7 +2133,8 @@ QTable::~QTable()
     }
     for (int i = 0; i < widgets.size(); ++i)
 	delete widgets.at(i);
-    selections.deleteAll();
+    while (!selections.isEmpty())
+	delete selections.takeFirst();
 }
 
 void QTable::setReadOnly( bool b )
@@ -5246,8 +5247,8 @@ void QTable::clearSelection( bool repaint )
     }
 
     currentSel = 0;
-    selections.deleteAll();
-    selections.clear();
+    while (!selections.isEmpty())
+	delete selections.takeFirst();
 
     if ( repaint )
 	repaintContents( r );

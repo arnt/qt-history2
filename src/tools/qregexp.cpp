@@ -1221,12 +1221,15 @@ QRegExpEngine::QRegExpEngine(const QString &rx, QString::CaseSensitivity caseSen
 
 QRegExpEngine::~QRegExpEngine()
 {
-    s.deleteAll();
+    while (!s.isEmpty())
+	delete s.takeFirst();
 #ifndef QT_NO_REGEXP_CCLASS
-    cl.deleteAll();
+    while (!cl.isEmpty())
+	delete cl.takeFirst();
 #endif
 #ifndef QT_NO_REGEXP_LOOKAHEAD
-    ahead.deleteAll();
+    while (!ahead.isEmpty())
+	delete ahead.takeFirst();
 #endif
 }
 

@@ -275,14 +275,13 @@ QGPluginManager::QGPluginManager( const QUuid& id, const QStringList& paths, con
 
 QGPluginManager::~QGPluginManager()
 {
-    if ( !autounload ) {
-	QHash<QString, QLibrary *>::ConstIterator it = libDict.constBegin();
-	for (; it != libDict.constEnd(); ++it) {
-	    QLibrary *lib = *it;
-	    lib->setAutoUnload( FALSE );
-	}
+    QHash<QString, QLibrary *>::ConstIterator it = libDict.constBegin();
+    for (; it != libDict.constEnd(); ++it) {
+	QLibrary *lib = *it;
+	if (!autounload)
+	    lib->setAutoUnload(false);
+	delete lib;
     }
-    libDict.deleteAll();
 }
 
 void QGPluginManager::addLibraryPath( const QString& path )
@@ -381,7 +380,8 @@ const QLibrary* QGPluginManager::library( const QString& _feature ) const
 		}
 		if ( bestMatch )
 		    that->addLibrary( same.takeAt(same.indexOf(bestMatch)) );
-		same.deleteAll();
+		while (!same.isEmpty())
+		    delete same.takeFirst();
 	    }
 
 	    if ( ( library = that->plugDict[feature] ) )
