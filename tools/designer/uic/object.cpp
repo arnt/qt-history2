@@ -127,7 +127,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    // the layout widget is not necessary, hide it by creating its child in the parent
 	    QString result;
 	    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-		if (tags.contains( n.tagName()  ) )
+		if (tags.contains( n.tagName() ) )
 		    result = createObjectImpl( n, parentClass, parent, layout );
 	    }
 	    return result;
@@ -177,12 +177,12 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    }
 	    if ( prop == "frameworkCode" )
 		continue;
-	    if ( prop == "geometry") {
+	    if ( prop == "geometry" ) {
 		out << indent << objName << "->setGeometry( " << value << " ); " << endl;
 	    } else {
-		if ( stdset )
-		    out << indent << objName << "->" << mkStdSet(prop ) << "( " << value << " );" << endl;
-		else
+		if ( stdset ) {
+		    out << indent << objName << "->" << mkStdSet( prop ) << "( " << value << " );" << endl;
+		} else
 		    out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
 	    }
 	} else if ( n.tagName() == "item" ) {
@@ -228,7 +228,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	}
      } else { // standard widgets
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	    if ( tags.contains( n.tagName()  ) )
+	    if ( tags.contains( n.tagName() ) )
 		createObjectImpl( n, objClass, objName );
 	}
     }
@@ -445,7 +445,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	QString tmp;
 	if ( !obj.isEmpty() )
 	    tmp = obj + "->";
-	v = "QSizePolicy( (QSizePolicy::SizeType)%1, (QSizePolicy::SizeType)%2, " +tmp + "sizePolicy().hasHeightForWidth() )";
+	v = "QSizePolicy( (QSizePolicy::SizeType)%1, (QSizePolicy::SizeType)%2, " + tmp + "sizePolicy().hasHeightForWidth() )";
 	v = v.arg( (int)sp.horData() ).arg( (int)sp.verData() );
     } else if ( e.tagName() == "palette" ) {
 	QPalette pal;
@@ -484,19 +484,19 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 		cg_used = TRUE;
 	    }
 	    n = e.firstChild().toElement();
-	    while ( !n.isNull() && n.tagName() != "active")
+	    while ( !n.isNull() && n.tagName() != "active" )
 		n = n.nextSibling().toElement();
 	    createColorGroupImpl( cg, n );
 	    out << indent << palette << ".setActive( " << cg << " );" << endl;
 
 	    n = e.firstChild().toElement();
-	    while ( !n.isNull() && n.tagName() != "inactive")
+	    while ( !n.isNull() && n.tagName() != "inactive" )
 		n = n.nextSibling().toElement();
 	    createColorGroupImpl( cg, n );
 	    out << indent << palette << ".setInactive( " << cg << " );" << endl;
 
 	    n = e.firstChild().toElement();
-	    while ( !n.isNull() && n.tagName() != "disabled")
+	    while ( !n.isNull() && n.tagName() != "disabled" )
 		n = n.nextSibling().toElement();
 	    createColorGroupImpl( cg, n );
 	    out << indent << palette << ".setDisabled( " << cg << " );" << endl;
