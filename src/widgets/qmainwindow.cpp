@@ -1121,7 +1121,7 @@ void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
 		 this, SLOT( slotPlaceChanged() ) );
     }
     QString s;
-    s.sprintf( "%p_%d", dw, (int)dock );
+    s.sprintf( "%p_%d", (void*)dw, (int)dock );
     if ( enable )
 	d->disabledDocks.remove( s );
     else if ( d->disabledDocks.find( s ) == d->disabledDocks.end() )
@@ -1183,7 +1183,7 @@ bool QMainWindow::isDockEnabled( QDockWindow *tb, Dock dock ) const
     if ( !isDockEnabled( dock ) )
 	return FALSE;
     QString s;
-    s.sprintf( "%p_%d", tb, (int)dock );
+    s.sprintf( "%p_%d", (void*)tb, (int)dock );
     return d->disabledDocks.find( s ) == d->disabledDocks.end();
 }
 
