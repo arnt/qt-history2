@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#143 $
 **
 ** Implementation of QPushButton class
 **
@@ -183,7 +183,7 @@ void QPushButton::setAutoDefault( bool enable )
   \sa setDefault()
 */
 
-/*! 
+/*!
   Sets this button to be the current default button of a
   \link QDialog dialog\endlink if \a enable is TRUE, or to be a normal button
   if \a enable is FALSE.
@@ -241,7 +241,7 @@ QSize QPushButton::sizeHint() const
 	// microsoft's size specifications
 	if ( h <= 25 )
 	    h = 22;
-	if ( w < 85 &&
+	if ( w < 85 && !pixmap() &&
 	     topLevelWidget() &&
 	     topLevelWidget()->inherits( "QDialog" ) )
 	    w = 80;
