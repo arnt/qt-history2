@@ -2851,7 +2851,7 @@ bool QXmlSimpleReader::parseContinue()
     if ( !d->parseStack->isEmpty() ) {
 	initData();
 	int state = state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 	return parseBeginOrContinue( state, TRUE );
     }
     return FALSE; // this should never happen
@@ -3035,14 +3035,14 @@ bool QXmlSimpleReader::parseProlog()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseProlog (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -3218,14 +3218,14 @@ bool QXmlSimpleReader::parseElement()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseElement (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -3574,14 +3574,14 @@ bool QXmlSimpleReader::parseContent()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseContent (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -3871,14 +3871,14 @@ bool QXmlSimpleReader::parseMisc()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseMisc (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -4026,14 +4026,14 @@ bool QXmlSimpleReader::parsePI()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parsePI (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -4258,14 +4258,14 @@ bool QXmlSimpleReader::parseDoctype()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseDoctype (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -4459,14 +4459,14 @@ bool QXmlSimpleReader::parseExternalID()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseExternalID (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -4621,14 +4621,14 @@ bool QXmlSimpleReader::parseMarkupdecl()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseMarkupdecl (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -4777,14 +4777,14 @@ bool QXmlSimpleReader::parsePEReference()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parsePEReference (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -4946,14 +4946,14 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseAttlistDecl (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -5162,14 +5162,14 @@ bool QXmlSimpleReader::parseAttType()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseAttType (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -5383,14 +5383,14 @@ bool QXmlSimpleReader::parseAttValue()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseAttValue (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -5525,14 +5525,14 @@ bool QXmlSimpleReader::parseElementDecl()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseElementDecl (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -5732,14 +5732,14 @@ bool QXmlSimpleReader::parseNotationDecl()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseNotationDecl (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -5874,14 +5874,14 @@ bool QXmlSimpleReader::parseChoiceSeq()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseChoiceSeq (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -6031,14 +6031,14 @@ bool QXmlSimpleReader::parseEntityDecl()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseEntityDecl (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -6292,14 +6292,14 @@ bool QXmlSimpleReader::parseEntityValue()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseEntityValue (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -6411,14 +6411,14 @@ bool QXmlSimpleReader::parseComment()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseComment (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -6525,14 +6525,14 @@ bool QXmlSimpleReader::parseAttribute()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseAttribute (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -6629,14 +6629,14 @@ bool QXmlSimpleReader::parseName()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseName (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -6720,14 +6720,14 @@ bool QXmlSimpleReader::parseNmtoken()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseNmtoken (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -6828,14 +6828,14 @@ bool QXmlSimpleReader::parseReference()
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseReference (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
@@ -7141,14 +7141,14 @@ bool QXmlSimpleReader::parseString()
 	state = 0;
     } else {
 	state = d->parseStack->top()->state;
-	d->parseStack->pop();
+	d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 	qDebug( "QXmlSimpleReader: parseString (cont) in state %d", state );
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
 	    if ( function == &QXmlSimpleReader::eat_ws ) {
-		d->parseStack->pop();
+		d->parseStack->remove();
 #if defined(QT_QXML_DEBUG)
 		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
 #endif
