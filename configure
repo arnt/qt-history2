@@ -12,6 +12,8 @@ relconf=`basename $0`
 relpath=`dirname $0`
 relpath=`(cd $relpath; pwd)`
 outpath=$relpath
+qdir="\$(QTDIR)"
+[ "x$QTDIR" != "x$outpath" ] && qdir="$outpath"
 
 #internal variables
 LAZY_DEPS_ALLOWED=no
@@ -1521,12 +1523,8 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
-else
-    QD="\$(QTDIR)"
-    [ "x$QTDIR" != "x$outpath" ] && QD="$outpath"
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$QD/lib\""
 fi
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$qdir/lib\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
 [ "x$SHARED" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG dll"
