@@ -39,7 +39,7 @@ class QUrlInfo;
 class Q_EXPORT QUrlOperator : public QObject, public QUrl
 {
     friend class QNetworkProtocol;
-    
+
     Q_OBJECT
 
 public:
@@ -59,8 +59,7 @@ public:
     virtual const QNetworkOperation *get( const QString &location = QString::null );
     virtual const QNetworkOperation *put( const QByteArray &data, const QString &location = QString::null  );
     virtual QList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE );
-    virtual QList<QNetworkOperation> copy( const QStringList &files, const QString &dest,
-							 bool move = FALSE );
+    virtual void copy( const QStringList &files, const QString &dest, bool move = FALSE );
     virtual bool isDir( bool *ok = 0 );
 
     virtual void setNameFilter( const QString &nameFilter );
@@ -80,7 +79,8 @@ signals:
     void itemChanged( QNetworkOperation *res );
     void data( const QByteArray &, QNetworkOperation *res );
     void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
-
+    void startedNextCopy( const QList<QNetworkOperation> &lst );
+    
 protected:
     virtual void reset();
     virtual bool parse( const QString& url );
@@ -92,7 +92,8 @@ protected:
 private slots:
     void copyGotData( const QByteArray &data, QNetworkOperation *op );
     void continueCopy( QNetworkOperation *op );
-    virtual void addEntry( const QUrlInfo &i );
+    void finishedCopy();
+    void addEntry( const QUrlInfo &i );
 
 private:
     QUrlOperatorPrivate *d;

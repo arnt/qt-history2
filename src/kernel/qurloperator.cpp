@@ -29,6 +29,7 @@
 #include "qmap.h"
 #include "qapplication.h"
 #include "qptrdict.h"
+#include "qtimer.h"
 
 struct QUrlOperatorPrivate
 {
@@ -36,12 +37,15 @@ struct QUrlOperatorPrivate
     QNetworkProtocol *networkProtocol;
     QString nameFilter;
     QDir dir;
-
+    
     // maps needed for copy/move operations
     QPtrDict<QNetworkOperation> getOpPutOpMap;
     QPtrDict<QNetworkProtocol> getOpPutProtMap;
     QPtrDict<QNetworkProtocol> getOpGetProtMap;
     QPtrDict<QNetworkOperation> getOpRemoveOpMap;
+    QStringList waitingCopies;
+    QString waitingCopiesDest;
+    bool waitingCopiesMove;
 };
 
 // NOT REVISED
@@ -187,6 +191,15 @@ struct QUrlOperatorPrivate
   bytes is not known.
 
   \sa QNetworkOperation, QNetworkProtocol
+*/
+
+/*!
+  \fn void QUrlOperator::startedNextCopy( const QList<QNetworkOperation> &lst )
+  
+  This signal is emitted if copy() started a new copy opration. \a lst contains all
+  QNetworkOperations which describe this copy operation.
+  
+  \sa copy()
 */
 
 /*!
@@ -513,6 +526,8 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 		 this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
 	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
 		 this, SIGNAL( finished( QNetworkOperation * ) ) );
+	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
+		 this, SLOT( finishedCopy() ) );
 
 	d->getOpPutProtMap.insert( (void*)opGet, pProt );
 	d->getOpGetProtMap.insert( (void*)opGet, gProt );
@@ -547,27 +562,22 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 /*!
   Copies \a files to the directory \a dest. If \a move is TRUE,
   the files are moved and not copied. \a dest has to point to a directory.
-  Also at the end finished() (on success or failure) is emitted,
-  so check the state of the network operation object to see if the
-  operation was successful or not.
-
-  Each single copy operation returns a list of network operations (see above for details)
-  So this method returns a list which is concatenation of all these lists.
+  
+  This method is just a convenience function of the copy method above. It
+  calles the copy above for each entry in \a files one after the other. You
+  don't get a result from this method, but each time a new copy is started,
+  startedNextCopy() is emitted, with a list of QNetworkOperations which
+  describe the new copy operation.
 */
 
-QList<QNetworkOperation> QUrlOperator::copy( const QStringList &files, const QString &dest,
-							   bool move )
+void QUrlOperator::copy( const QStringList &files, const QString &dest,
+			 bool move )
 {
-    QStringList::ConstIterator it = files.begin();
-    QList<QNetworkOperation> ops;
-    ops.setAutoDelete( FALSE );
-    for ( ; it != files.end(); ++it ) {
-	QList<QNetworkOperation> lst = copy( *it, dest, move );
-	lst.setAutoDelete( FALSE );
-	for ( QNetworkOperation *op = lst.first(); op; op = lst.next() )
-	    ops.append( op );
-    }
-    return ops;
+    d->waitingCopies = files;
+    d->waitingCopiesDest = dest;
+    d->waitingCopiesMove = move;
+
+    finishedCopy();
 }
 
 /*!
@@ -805,7 +815,7 @@ QUrlInfo QUrlOperator::info( const QString &entry ) const
 {
     if ( d->entryMap.contains( entry.stripWhiteSpace() ) )
 	return d->entryMap[ entry.stripWhiteSpace() ];
-    
+
     return QUrlInfo();
 }
 
@@ -990,4 +1000,19 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
 		this, SLOT( copyGotData( const QByteArray &, QNetworkOperation * ) ) );
     disconnect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
 		this, SLOT( continueCopy( QNetworkOperation * ) ) );
+}
+
+/*!
+  \internal
+*/
+
+void QUrlOperator::finishedCopy()
+{
+    if ( d->waitingCopies.isEmpty() )
+	return;
+    
+    QString cp = d->waitingCopies.first();
+    d->waitingCopies.remove( cp );
+    QList<QNetworkOperation> lst = copy( cp, d->waitingCopiesDest, d->waitingCopiesMove );
+    emit startedNextCopy( lst );
 }
