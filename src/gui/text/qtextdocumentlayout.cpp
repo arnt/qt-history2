@@ -1297,8 +1297,12 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
     layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, tl->minimumWidth() + blockFormat.leftMargin() + indent);
 
     const int maxW = tl->maximumWidth() + blockFormat.leftMargin() + indent;
-    if (maxW > 0)
-        layoutStruct->maximumWidth = qMin(layoutStruct->maximumWidth, maxW);
+    if (maxW > 0) {
+        if (layoutStruct->maximumWidth == INT_MAX)
+            layoutStruct->maximumWidth = maxW;
+        else
+            layoutStruct->maximumWidth = qMax(layoutStruct->maximumWidth, maxW);
+    }
 }
 
 void QTextDocumentLayoutPrivate::floatMargins(LayoutStruct *layoutStruct, int *left, int *right)
