@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#66 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#67 $
 **
 ** Definition of QFileDialog class
 **
@@ -104,7 +104,8 @@ private slots:
     void doubleClickTimeout();
     void changeDirDuringDrag();
     void doDragScroll();
-
+    void dragObjDestroyed();
+    
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
@@ -155,6 +156,7 @@ private slots:
     void doubleClickTimeout();
     void changeDirDuringDrag();
     void doDragScroll();
+    void dragObjDestroyed();
 
 private:
     QRenameEdit *lined;

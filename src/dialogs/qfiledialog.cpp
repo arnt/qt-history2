@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#245 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#246 $
 **
 ** Implementation of QFileDialog class
 **
@@ -637,13 +637,20 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
                 if ( lined->isVisible() )
                     cancelRename();
 
+                connect( drag, SIGNAL( destroyed() ),
+                         this, SLOT( dragObjDestroyed() ) );
                 drag->drag();
-
+                
                 mousePressed = FALSE;
             }
         }
     }
 
+}
+
+void QFileListBox::dragObjDestroyed()
+{
+    filedialog->rereadDir();
 }
 
 void QFileListBox::viewportDragEnterEvent( QDragEnterEvent *e )
@@ -1039,6 +1046,8 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
                 if ( lined->isVisible() )
                     cancelRename();
 
+                connect( drag, SIGNAL( destroyed() ),
+                         this, SLOT( dragObjDestroyed() ) );
                 drag->drag();
 
                 mousePressed = FALSE;
@@ -1046,6 +1055,11 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
         }
     }
 
+}
+
+void QFileListView::dragObjDestroyed()
+{
+    filedialog->rereadDir();
 }
 
 void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
@@ -1501,7 +1515,7 @@ static QStringList makeFiltersList( const QString &filter )
     QStringList lst;
 
     int j = 0;
-    
+
     while ( i != -1 ) {
         if ( filter.mid( j, i - j ).length() > 0 )
             lst.append( filter.mid( j, i - j ) );
