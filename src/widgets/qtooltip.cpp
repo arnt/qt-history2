@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#75 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -932,13 +932,43 @@ QToolTipGroup::~QToolTipGroup()
 }
 
 
+/*!  Returns TRUE if the group text is shown delayed (at the same time
+as the tip) and FALSE if it is shown immediately.
+
+\sa setDelay()
+*/
+
+bool QToolTipGroup::delay() const
+{
+    return d;
+}
+
+
+/*!  Sets the group to show its text immediately if \a enable is
+FALSE, and delayed (at the same time as the tip text) if \a enable is
+TRUE.  The default is TRUE.
+
+\sa delay()
+*/
+
+void QToolTipGroup::setDelay( bool enable )
+{
+    if ( enable && !d ) {
+	// ### maybe show here?
+    }
+    d = enable;
+}
+
+
+
+
 // moc stuff - included by hand.  !Gmoc %
 
 /****************************************************************************
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.69 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.70 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -1008,32 +1038,4 @@ void QTipManager::initMetaObject()
     metaObj = new QMetaObject( "QTipManager", "QObject",
 	slot_tbl, 4,
 	0, 0 );
-}
-
-
-/*!  Returns TRUE if the group text is shown delayed (at the same time
-as the tip) and FALSE if it is shown immediately.
-
-\sa setDelay()
-*/
-
-bool QToolTipGroup::delay() const
-{
-    return d;
-}
-
-
-/*!  Sets the group to show its text immediately if \a enable is
-FALSE, and delayed (at the same time as the tip text) if \a enable is
-TRUE.  The default is TRUE.
-
-\sa delay()
-*/
-
-void QToolTipGroup::setDelay( bool enable )
-{
-    if ( enable && !d ) {
-	// ### maybe show here?
-    }
-    d = enable;
 }
