@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#61 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#61 $");
 
 
 /*****************************************************************************
@@ -227,10 +227,14 @@ void QColor::initialize()
     else
 	defCmap = !qt_cmap_option;
 
-    if ( defCmap )
+    if ( defCmap ) {
 	cmap = DefaultColormap(dpy,scr);
-    else
-	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone );
+    } else {
+#if QT_VERSION >= 140
+#error "Add qt_create_colormap similar to the code qgl solution"
+#endif
+	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone);
+    }
 
     if ( !g_truecolor ) {
 	// Create the g_our_alloc array, which remembers which color pixels
@@ -354,8 +358,7 @@ void QColor::initialize()
 	if ( qt_ncols_option > 216 )
 	    qt_ncols_option = 216;
 
-	int i;
-	for ( i = 0; i < qt_ncols_option; i++ ) {
+	for ( int i=0; i < qt_ncols_option; i++ ) {
 	    QColor c(cmap[i]);
 	    c.alloc();
         }
@@ -494,6 +497,8 @@ uint QColor::alloc()
 	    rgbVal |= RGB_INVALID;
 	    pix = BlackPixel( dpy, scr );
 	    return pix;
+	} else {
+	    rgbVal &= RGB_MASK;
 	}
     }
 
@@ -539,6 +544,7 @@ uint QColor::alloc()
 		    g_carr_fetch = TRUE;
 		}
 	    }
+	    ASSERT(i==g_carr[i].pixel);
 	    if ( !try_again ) {			// got it
 		pix = g_carr[i].pixel;		// allocated X11 color
 		rgbVal &= RGB_MASK;

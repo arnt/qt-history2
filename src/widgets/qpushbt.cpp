@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#102 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#102 $");
 
 
 /*!
@@ -271,11 +271,11 @@ void QPushButton::drawButton( QPainter *paint )
 
     int w = x2 + 1;
     int h = y2 + 1;
+    int dx = 0;
+    int dy = 0;
 
     p->setPen( g.foreground() );
     p->setBrush( QBrush(g.background(),NoBrush) );
-
-    p->save();
 
     if ( gs == WindowsStyle ) {		// Windows push button
 	if ( isDown() ) {
@@ -318,30 +318,23 @@ void QPushButton::drawButton( QPainter *paint )
 			 2, &fill );
 
 	if ( defButton ) {			// default Motif button
-	    int by1, by2, by3, by4, by5, by6; // top to bottom
-	    int bx1, bx2, bx3, bx4; // left to right
+	    int by1, by2, by3, by4, by5, by6;	// top to bottom
+	    int bx1, bx2, bx3, bx4;		// left to right
 
-	    by4 = (y2-y1)/2; // arrowhead
+	    by4 = (y2-y1)/2;			// arrowhead
 	    bx1 = x2 - 2 - (y2 - y1 - 4);
-	    if ( x2 - bx1 - 3*by4/2 > 10 ) // but not too far from the
-		bx1 = x2 - 3*by4/2 - 10; // right edge of the button
-
-	    by2 = by4 / 2 + 1; // top end of arrow
+	    if ( x2 - bx1 - 3*by4/2 > 10 )	// but not too far from the
+		bx1 = x2 - 3*by4/2 - 10; 	// right edge of the button
+	    by2 = by4 / 2 + 1;			// top end of arrow
 	    bx2 = bx1 + (by4-by2);
-
-	    by6 = by4 + (by4-by2); // bottom end of arrow
-
-	    by3 = by4 - (by4-by2)/2; // top end of stem
-	    by5 = by4 + (by4-by3); // bottom end of stem
-
-	    bx3 = bx2 + (bx2-bx1) + 1; // left side of stem
-
-	    bx4 = bx3 + (by5-by3) - 1; // right side of stem
-
-	    by1 = by2 - 1; // end of stem
+	    by6 = by4 + (by4-by2);		// bottom end of arrow
+	    by3 = by4 - (by4-by2)/2;		// top end of stem
+	    by5 = by4 + (by4-by3);		// bottom end of stem
+	    bx3 = bx2 + (bx2-bx1) + 1;		// left side of stem
+	    bx4 = bx3 + (by5-by3) - 1;		// right side of stem
+	    by1 = by2 - 1;			// end of stem
 
 	    QPointArray a;
-
 	    p->setPen( g.dark() );
 	    a.setPoints( 7,
 			 bx4, by1,
@@ -361,16 +354,18 @@ void QPushButton::drawButton( QPainter *paint )
 			 bx4, by1+1 );
 	    p->drawPolyline( a );
 
-	    // ### attention uglehack.  see restore() below
-	    p->translate( (y1-y2-4)/3, 0 );
+	    dx = (y1-y2-4)/3;			// translate button label
 	}
     }
 
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
 
+    if ( dx || dy )
+	p->translate( dx, dy );
     drawButtonLabel( p );
-    p->restore();
+    if ( dx || dy )
+	p->translate( -dx, -dy );
 
     if ( hasFocus() ) {
 	if ( style() == WindowsStyle ) {

@@ -232,7 +232,7 @@ win32:SOURCES +=kernel/qapp_win.cpp \
 		kernel/qrgn_win.cpp \
 		kernel/qwid_win.cpp
 
-unix:HEADERS =	$$KERNEL_H/qprndlg.h \
+unix:HEADERS +=	$$KERNEL_H/qprndlg.h \
 		$$KERNEL_H/qpsprn.h
 
 unix:SOURCES += kernel/qapp_x11.cpp \
