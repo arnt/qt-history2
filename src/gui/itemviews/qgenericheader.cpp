@@ -439,7 +439,7 @@ void QGenericHeader::resizeSections()
     }
     int position = 0;
     int stretchSectionSize = qMax(stretchSecs > 0 ? stretchSize / stretchSecs : 0, minimum);
-    for (int i = 0; i < d->sections.count(); ++i) {
+    for (int i = 0; i < count; ++i) { // FIXME: last pos
 	secs[i].position = position;
 	mode = secs[i].mode;
 	if (mode == Stretch) {
@@ -449,6 +449,7 @@ void QGenericHeader::resizeSections()
 	    section_sizes.pop_front();
 	}
     }
+    secs[count].position = position;
 }
 
 void QGenericHeader::viewportMousePressEvent(QMouseEvent *e)
