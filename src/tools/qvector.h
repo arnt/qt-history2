@@ -42,6 +42,7 @@ class QVector
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
 
+    inline bool operator!() const { return d->size == 0; }
     inline operator const T*() const { return d->array; }
     inline operator const void*() const { return d->array; }
     inline T* data() { detach(); return d->array; }

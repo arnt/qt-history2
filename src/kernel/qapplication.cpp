@@ -476,11 +476,12 @@ QWidgetList * qt_modal_stack=0;		// stack of modal widgets
 
 // Definitions for posted events
 struct QPostEvent {
+    QPostEvent():receiver(0),event(0){}
     QPostEvent( QObject *r, QEvent *e ): receiver( r ), event( e ) {}
     QObject  *receiver;
     QEvent   *event;
 };
-typedef QList<QPostEvent> QPostEventList;
+typedef QVector<QPostEvent> QPostEventList;
 
 static QPostEventList postedEvents;	// list of posted events
 
@@ -3107,7 +3108,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		pe.event->posted = FALSE;
 		QEvent * e = pe.event;
 		QObject * r = pe.receiver;
-		r->hasPostedEvents = false;
+		if (!event_type)
+		    r->hasPostedEvents = false;
 
 		// next, update the data structure so that we're ready
 		// for the next event.
@@ -3140,23 +3142,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
 	// clear the global list, i.e. remove everything that was
 	// delivered.
-	if (!receiver && !event_type) {
+	if (!receiver && !event_type)
 	    postedEvents.clear();
-	} else {
-	    int i = 0;
-	    int j = 0;
-	    while (i < postedEvents.size()) {
-		QPostEvent &pe = postedEvents[i];
-		if ( pe.event ) {
-		    postedEvents[j] = pe;
-		    ++j;
-		    pe.receiver->hasPostedEvents = true;
-		}
-		++i;
-	    }
-	    if (j != i)
-		postedEvents.erase(postedEvents.begin()+j, --postedEvents.end());
-	}
     }
 }
 
