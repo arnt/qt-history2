@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#38 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -254,7 +254,7 @@ static QSize smartMinSize( QWidget *w )
 	else
 	    s.setWidth( w->sizeHint().width() );
 	if ( w->sizePolicy().mayShrinkVertically() )
-	    s.setHeight( w->minimumSizeHint().height() ); 
+	    s.setHeight( w->minimumSizeHint().height() );
 	else
 	    s.setHeight( w->sizeHint().height() );
     }
@@ -837,8 +837,8 @@ void QLayout::addChildLayout( QLayout *l )
 /*!
   \overload void QLayout::freeze()
 
-  This version of the method fixes the main widget at its minimum size.
-  You can also achieve this with freeze( 0, 0 );
+  Fixes the main widget at its minimum size.
+  The recommended way is to call setResizeMode( \c Fixed )
 */
 
 
@@ -858,7 +858,7 @@ void QLayout::freeze( int w, int h )
 	setResizeMode( Fixed );
     } else {
 	setResizeMode( FreeResize ); // layout will not change min/max size
-	//#################paul: doesn't link: setFixedSize( w, h );
+	mainWidget()->setFixedSize( w, h );
     }
 }
 
