@@ -995,26 +995,24 @@ STDMETHODIMP CCommands::QMsDevCreateDSP()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
+    CString projectAnsi;
     // Check for active Project
     CComQIPtr<IBuildProject, &IID_IBuildProject> pProject;
-    if ( getActiveProject( pProject ) != S_OK ) {
-	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
-	::MessageBox(NULL, "Can't find active project!", "QMsDev", MB_OK | MB_ICONINFORMATION );
-	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
-	return S_FALSE;
+    if ( getActiveProject( pProject ) == S_OK ) {
+	CComBSTR projectName;
+	pProject->get_FullName( &projectName );
+	projectAnsi = projectName;
+	projectAnsi = projectAnsi.Left( projectAnsi.GetLength() - 4 ) + ".pro";
     }
-    CComBSTR projectName;
-    pProject->get_FullName( &projectName );
-    CString projectAnsi = projectName;
-    
     
     VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
     CCreateDSPDlg dialog;
-    dialog.m_qtProject = projectAnsi.Left( projectAnsi.GetLength() - 4 ) + ".pro";
+    dialog.m_qtProject = projectAnsi;
     if ( dialog.DoModal() == IDCANCEL ) {
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
 	return S_FALSE;
     }
+    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
     
     return S_OK;
 }
