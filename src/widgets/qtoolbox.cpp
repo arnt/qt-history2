@@ -62,7 +62,7 @@ class QToolBoxButton : public QToolButton
 public:
     QToolBoxButton( QWidget *parent, const char *name ) :
 	QToolButton( parent, name ), selected( FALSE )
-	{ setBackgroundMode( PaletteLight ); }
+    { setBackgroundMode( PaletteBase ); }
 
     void setSelected( bool b ) { selected = b; update(); }
     virtual void setIcon( const QIconSet &is ) { ic = is; }
@@ -187,6 +187,12 @@ void QToolBoxButton::drawButton( QPainter *p )
 	tr = QRect( ir.width() + 4, 0, width() - (ir.width() + 4) - d - 5, height() );
     }
 
+    if ( selected ) {
+	QFont f( p->font() );
+	f.setBold( TRUE );
+	p->setFont( f );
+    }
+
     QString txt;
     if ( p->fontMetrics().width( text() ) < tr.width() ) {
 	txt = text();
@@ -198,12 +204,6 @@ void QToolBoxButton::drawButton( QPainter *p )
 		p->fontMetrics().width( text()[i] )  < tr.width() )
 	    txt += text()[i++];
 	txt += "...";
-    }
-
-    if ( selected ) {
-	QFont f( p->font() );
-	f.setBold( TRUE );
-	p->setFont( f );
     }
 
     if ( ih )
@@ -373,7 +373,7 @@ void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
 	d->lastButton->setSelected( TRUE );
 	sv->show();
 	// #### is this needed, seems hacky
-	set_background_mode( d->currentPage, PaletteLight );
+	set_background_mode( d->currentPage, PaletteBase );
     } else {
 	sv->hide();
     }
@@ -473,7 +473,7 @@ void QToolBox::updateTabs()
     bool after = FALSE;
     for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
 	  c = d->pageList->next() ) {
-	c->button->setBackgroundMode( !after ? PaletteBackground : PaletteLight );
+	c->button->setBackgroundMode( !after ? PaletteBackground : PaletteBase );
 	c->button->update();
 	after = c->button == d->lastButton;
     }
@@ -521,7 +521,7 @@ void QToolBox::setCurrentPage( QWidget *page )
     d->currentPage = page;
     d->currentPage->show();
     // #### is this needed, seems hacky
-    set_background_mode( d->currentPage, PaletteLight );
+    set_background_mode( d->currentPage, PaletteBase );
     updateTabs();
     qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
     emit currentChanged( page );
