@@ -31,9 +31,9 @@ QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
 #ifndef APIENTRY
 # define APIENTRY
 #endif
-typedef void (APIENTRY *qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
-                                                       GLsizei, GLint, GLsizei, const GLvoid *);
-static qt_glCompressedTexImage2DARB glCompressedTexImage2DARB = 0;
+typedef void (APIENTRY *pfn_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
+                                                        GLsizei, GLint, GLsizei, const GLvoid *);
+static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
 
 #if defined(Q_WS_X11)
 #include "private/qt_x11_p.h"
@@ -1108,7 +1108,7 @@ static int scramble(const QString &str)
 */
 GLuint QGLContext::bindTexture(const QString &fileName)
 {
-    if (!glCompressedTexImage2DARB) {
+    if (!qt_glCompressedTexImage2DARB) {
         qWarning("QGLContext::bindTexture(): The GL implementation does not support texture"
                  "compression extensions.");
 	return 0;
@@ -1191,8 +1191,8 @@ GLuint QGLContext::bindTexture(const QString &fileName)
 	if (h == 0) h = 1;
 
 	size = ((w+3)/4) * ((h+3)/4) * blockSize;
-	glCompressedTexImage2DARB(GL_TEXTURE_2D, i, format, w, h, 0,
-				  size, pixels + offset);
+	qt_glCompressedTexImage2DARB(GL_TEXTURE_2D, i, format, w, h, 0,
+                                     size, pixels + offset);
 	offset += size;
 
 	// half size for each mip-map level
@@ -3001,7 +3001,6 @@ void QGLExtensions::init_extensions()
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {
-        glCompressedTexImage2DARB =
-            (qt_glCompressedTexImage2DARB) cx.getProcAddress("glCompressedTexImage2DARB");
+        qt_glCompressedTexImage2DARB = (pfn_glCompressedTexImage2DARB) cx.getProcAddress("glCompressedTexImage2DARB");
     }
 }
