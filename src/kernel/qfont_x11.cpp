@@ -1466,7 +1466,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_SLANT, XftTypeInteger, slant_value,
 				      sizeFormat, XftTypeDouble, size_value,
 				      XFT_SPACING, XftTypeInteger, mono_value,
-				      0);
+				      (char *) 0);
 	else if (! familyName.isNull())
 	    pattern = XftPatternBuild(0,
 				      XFT_ENCODING, XftTypeString, "iso10646-1",
@@ -1476,7 +1476,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_SLANT, XftTypeInteger, slant_value,
 				      sizeFormat, XftTypeDouble, size_value,
 				      XFT_SPACING, XftTypeInteger, mono_value,
-				      0);
+				      (char *) 0);
 	else
 	    pattern = XftPatternBuild(0,
 				      XFT_ENCODING, XftTypeString, "iso10646-1",
@@ -1485,7 +1485,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_SLANT, XftTypeInteger, slant_value,
 				      sizeFormat, XftTypeDouble, size_value,
 				      XFT_SPACING, XftTypeInteger, mono_value,
-				      0);
+				      (char *) 0);
     } else {
 	if (! foundryName.isNull())
 	    pattern = XftPatternBuild(0,
@@ -1496,7 +1496,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
 				      sizeFormat, XftTypeDouble, size_value,
-				      0);
+				      (char *) 0);
 	else if (! familyName.isNull())
 	    pattern = XftPatternBuild(0,
 				      XFT_ENCODING, XftTypeString, "iso10646-1",
@@ -1505,7 +1505,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
 				      sizeFormat, XftTypeDouble, size_value,
-				      0);
+				      (char *) 0);
 	else
 	    pattern = XftPatternBuild(0,
 				      XFT_ENCODING, XftTypeString, "iso10646-1",
@@ -1513,7 +1513,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
 				      sizeFormat, XftTypeDouble, size_value,
-				      0);
+				      (char *) 0);
     }
 
     if ( !qt_use_antialiasing || request.styleStrategy & ( QFont::PreferAntialias |
