@@ -147,8 +147,8 @@
 
         uint size() const;
         int  at() const;        // non-pure virtual
-        bool at(int);                // non-pure virtual
-        bool atEnd() const;        // non-pure virtual
+        bool at(int);           // non-pure virtual
+        bool atEnd() const;     // non-pure virtual
 
         int readBlock(char *data, uint maxlen);
         int writeBlock(const char *data, uint len);
@@ -846,21 +846,22 @@ Q_LONG QIODevice::readLine(char *data, Q_ULONG maxlen)
 */
 
 /*!
-    Returns a human-readable description of the reason of an error that occurred
-    on the device. The error described by the string corresponds to changes of
-    QIODevice::status(). If the status is reset, the error string is also reset.
+    Returns a human-readable description of an error that occurred on
+    the device. The error described by the string corresponds to
+    changes of QIODevice::status(). If the status is reset, the error
+    string is also reset.
 
     \code
-        QFile f("address.dat");
-        if (!f.open(IO_ReadOnly) {
+        QFile file("address.dat");
+        if (!file.open(IO_ReadOnly) {
             QMessageBox::critical(this, tr("Error"),
                     tr("Could not open file for reading: %1")
-                    .arg(f.errorString()));
+                    .arg(file.errorString()));
             return;
         }
     \endcode
 
-    \sa setStatus(), resetStatus()
+    \sa resetStatus()
 */
 
 QString QIODevice::errorString() const

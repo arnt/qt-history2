@@ -248,22 +248,10 @@ QDataStream::QDataStream(QIODevice *d)
 }
 
 /*!
-    Constructs a data stream that operates on a byte array, \a a,
-    through an internal QBuffer device. The \a mode is a
-    QIODevice::mode(), usually either \c IO_ReadOnly or \c
-    IO_WriteOnly.
-
-    Example:
-    \code
-        static char bindata[] = { 231, 1, 44, ... };
-        QByteArray a;
-        a.setRawData(bindata, sizeof(bindata));    // a points to bindata
-        QDataStream stream(a, IO_ReadOnly);        // open on a's data
-        stream >> [something];                     // read raw bindata
-        a.resetRawData(bindata, sizeof(bindata));  // finished
-    \endcode
-
-    ### don't mention setRawData
+    Constructs a data stream that operates on a byte array, \a a. The
+    \a mode is a QIODevice::mode(), usually either \c IO_ReadOnly or
+    \c IO_WriteOnly. Use QDataStream(const QByteArray&, int) if you
+    just want to read from a byte array.
 */
 
 QDataStream::QDataStream(QByteArray *a, int mode)
@@ -278,6 +266,13 @@ QDataStream::QDataStream(QByteArray *a, int mode)
     noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
 }
 
+/*!
+    Constructs a data stream that operates on byte array \a a. Since
+    the byte array is passed as a const it can only be read from; use
+    QDataStream(QByteArray*, int) if you want to write to a byte
+    array. The \a mode is a QIODevice::mode() and should normally be
+    \c IO_ReadOnly.
+*/
 QDataStream::QDataStream(const QByteArray &a, int mode)
 {
     QBuffer *buf = new QBuffer;

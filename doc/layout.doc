@@ -338,7 +338,7 @@ index as the layout index. In other cases where we have a more complex
 data structure, we may have to spend more effort defining a linear
 order for the items.
 
-/code
+\code
 QLayoutItem *CardLayout::itemAt(int idx) const
 {
     // QList::value() performs index checking, and returns 0 if we are

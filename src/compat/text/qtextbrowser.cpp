@@ -330,7 +330,7 @@ void QTextBrowser::setSource(const QString& name)
     on the value of the anchor's href tag and the current context of
     the document.
 
-    \sa anchorClicked(), context()
+    \sa anchorClicked()
 */
 
 /*!

@@ -177,11 +177,12 @@
     which can be the OR of these values. (A flag value of 0 signifies
     a case-insensitive match anywhere in the string.)
 
-    \value CaseSensitive
-    \value BeginsWith
-    \value EndsWith
-    \value Contains
-    \value ExactMatch
+    \value CaseSensitive The strings are compared case-sensitively.
+    \value ExactMatch The strings must be the same apart from case, or
+    exactly the same if CaseSensitive is also used.
+    \value BeginsWith The target string starts with the given string.
+    \value EndsWith The target string ends with the given string.
+    \value Contains The target string contains the given string.
 
 */
 
@@ -307,33 +308,6 @@
     \value Friday
     \value Saturday
     \value Sunday
-*/
-
-/*! \enum Qt::ComparisonFlags
-
-    \internal
-*/
-
-/*! \enum Qt::StringComparisonMode
-
-    This enum type is used to set the string comparison mode when
-    searching for an item. It is used by QListBox, QListView and
-    QIconView, for example. We'll refer to the string being searched
-    as the 'target' string.
-
-    \value CaseSensitive The strings must match case sensitively.
-    \value ExactMatch The target and search strings must match exactly.
-    \value BeginsWith The target string begins with the search string.
-    \value EndsWith The target string ends with the search string.
-    \value Contains The target string contains the search string.
-
-    If you OR these flags together (excluding \c CaseSensitive), the
-    search criteria be applied in the following order: \c ExactMatch,
-    \c BeginsWith, \c EndsWith, \c Contains.
-
-    Matching is case-insensitive unless \c CaseSensitive is set. \c
-    CaseSensitive may be OR-ed with any combination of the other
-    flags.
 */
 
 /*! \enum Qt::ScaleMode
