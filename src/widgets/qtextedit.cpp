@@ -2142,15 +2142,21 @@ void QTextEdit::formatMore()
 
 void QTextEdit::doResize()
 {
-    if ( wrapMode == FixedPixelWidth )
-	return;
-    doc->setMinimumWidth( -1 );
-    resizeContents( 0, 0 );
-    doc->setWidth( visibleWidth() );
-    doc->invalidate();
-    lastFormatted = doc->firstParag();
-    interval = 0;
-    formatMore();
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( !optimizedMode ) {
+#endif
+	if ( wrapMode == FixedPixelWidth )
+	    return;
+	doc->setMinimumWidth( -1 );
+	resizeContents( 0, 0 );
+	doc->setWidth( visibleWidth() );
+	doc->invalidate();
+	lastFormatted = doc->firstParag();
+	interval = 0;
+	formatMore();
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    }
+#endif
     repaintContents( FALSE );
 }
 
@@ -4740,8 +4746,8 @@ bool QTextEdit::checkOptimizedMode()
 	    disconnect( formatTimer, SIGNAL( timeout() ),
 			this, SLOT( formatMore() ) );
  	    optimizedSetText( doc->originalText() );
-  	    doc->clear( TRUE );
-//  	    doc->setFormatter( new QTextFormatterBreakWords );
+    	    doc->clear( TRUE );
+//   	    doc->setFormatter( new QTextFormatterBreakWords );
 	} else {
  	    disconnect( scrollTimer, SIGNAL( timeout() ),
  			this, SLOT( optimizedDoAutoScroll() ) );
@@ -4787,7 +4793,7 @@ void QTextEdit::optimizedSetText( const QString &str )
     od->len = str.length();
     QStringList strl = QStringList::split( '\n', str, TRUE );
     QFontMetrics fm( QScrollView::font() );
-    int lWidth;
+    int lWidth = 0;
     for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
 	od->lines[ od->numLines++ ] = *it;
 	lWidth = fm.width( *it );
@@ -4810,7 +4816,7 @@ void QTextEdit::optimizedAppend( const QString &str )
     QStringList::Iterator it = strl.begin();
 
     QFontMetrics fm( QScrollView::font() );
-    int lWidth;
+    int lWidth = 0;
     // append first line in str to previous line in buffer
     if ( od->numLines > 0 ) {
 	od->lines[ od->numLines - 1 ].append( *it );
@@ -4937,6 +4943,9 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 	}
     }
 
+// just to remind me about that stupid paintbug
+//    p->fillRect( clipx, clipy, clipw, cliph, colorGroup().base() );
+    
     // have to align the painter so that partly visible lines are
     // drawn at the correct position within the area that needs to be
     // painted
