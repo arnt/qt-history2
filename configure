@@ -1297,7 +1297,7 @@ cat >>$relpath/src/tools/qmodules.h.new << EOF
 
 // Compile time features
 EOF
-[ "$STL" = "yes" ] && echo "#define QT_NO_STL" >>$relpath/src/tools/qmodules.h.new
+[ "$STL" = "no" ] && echo "#define QT_NO_STL" >>$relpath/src/tools/qmodules.h.new
 #because things depend on qmodules.h, I conditionally copy
 #so I don't rebuild them when I configure but change nothing..
 QMOD_CHANGES=`diff $relpath/src/tools/qmodules.h $relpath/src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
