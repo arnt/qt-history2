@@ -1,9 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#14 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#15 $
 **
-** Definition of
+** Definition of QListView widget class
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Created : 970809
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 ****************************************************************************/
 
@@ -182,4 +184,4 @@ private:
 };
 
 
-#endif
+#endif // QLISTVIEW_H

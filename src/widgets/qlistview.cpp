@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#35 $
 **
-** Implementation of something useful
+** Implementation of QListView widget class
 **
-** Created : 979899
+** Created : 970809
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#35 $");
 
 
 const int Unsorted = 32767;
