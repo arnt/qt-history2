@@ -42,7 +42,6 @@ unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qdeveloper.h \
 		  $$DIALOGS_H/qfiledialog.h \
-		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
@@ -235,7 +234,8 @@ win32:SOURCES	= kernel/qapplication_win.cpp \
 		  kernel/qpaintdevice_win.cpp \
 		  kernel/qpainter_win.cpp \
 		  kernel/qregion_win.cpp \
-		  kernel/qwidget_win.cpp
+		  kernel/qwidget_win.cpp \
+		  dialogs/qfiledialog_win.cpp
 
 win32:SOURCES  += kernel/qole_win.c
 
@@ -395,7 +395,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  dialogs/qcolordialog.cpp \
 		  dialogs/qdeveloper.cpp \
 		  dialogs/qfiledialog.cpp \
-		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
