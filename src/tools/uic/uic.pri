@@ -1,0 +1,29 @@
+
+DEFINES += QT_KEYWORDS
+INCLUDEPATH += $$PWD
+
+HEADERS += $$PWD/uic.h \
+           $$PWD/ui4.h \
+           $$PWD/treewalker.h \
+           $$PWD/writedeclaration.h \
+           $$PWD/writeicondeclaration.h \
+           $$PWD/option.h \
+           $$PWD/driver.h \
+           $$PWD/validator.h \
+           $$PWD/writeincludes.h \
+           $$PWD/writeinitialization.h \
+           $$PWD/writeiconinitialization.h \
+           $$PWD/writeicondata.h \
+           $$PWD/blockingprocess.h
+
+SOURCES += $$PWD/uic.cpp \
+           $$PWD/treewalker.cpp \
+           $$PWD/writedeclaration.cpp \
+           $$PWD/writeicondeclaration.cpp \
+           $$PWD/driver.cpp \
+           $$PWD/validator.cpp \
+           $$PWD/writeincludes.cpp \
+           $$PWD/writeinitialization.cpp \
+           $$PWD/writeiconinitialization.cpp \
+           $$PWD/writeicondata.cpp \
+           $$PWD/blockingprocess.cpp
