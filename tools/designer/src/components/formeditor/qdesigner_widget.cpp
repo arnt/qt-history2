@@ -730,8 +730,17 @@ void QLayoutSupport::insertRow(int row)
 
     rebuildGridLayout(infos);
 
-    if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout()))
-        createEmptyCells(gridLayout);
+    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    Q_ASSERT(gridLayout);
+
+    if (gridLayout->rowCount() == row) {
+        gridLayout->addItem(new QSpacerItem(20, 20), gridLayout->rowCount(), 0);
+    }
+
+    gridLayout = qt_cast<QGridLayout*>(layout());
+    Q_ASSERT(gridLayout);
+
+    createEmptyCells(gridLayout);
 }
 
 void QLayoutSupport::insertColumn(int column)
@@ -753,8 +762,17 @@ void QLayoutSupport::insertColumn(int column)
 
     rebuildGridLayout(infos);
 
-    if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout()))
-        createEmptyCells(gridLayout);
+    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    Q_ASSERT(gridLayout);
+
+    if (gridLayout->columnCount() == column) {
+        gridLayout->addItem(new QSpacerItem(20, 20), 0, gridLayout->columnCount());
+    }
+
+    gridLayout = qt_cast<QGridLayout*>(layout());
+    Q_ASSERT(gridLayout);
+
+    createEmptyCells(gridLayout);
 }
 
 QRect QLayoutSupport::itemInfo(int index) const
