@@ -272,8 +272,34 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-sgi";
 #  endif
+
+    if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
+	entry = settings.readEntry( "/Trolltech/Qt/DSP Generation", "On", &settingsOK );
+	if ( entry == "On" )
+	    args += "-dsp";
+	else if ( entry == "Off" )
+	    args += "-no-dsp";
+    } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ) {
+	entry = settings.readEntry( "/Trolltech/Qt/VCPROJ Generation", "On", &settingsOK );
+	if ( entry == "On" )
+	    args += "-vcproj";
+	else if ( entry == "Off" )
+	    args += "-no-vcproj";
+    } else if ( globalInformation.sysId() == GlobalInformation::Borland ) {
+	args += "-no-dsp";
+	args += "-no-vcproj";
+    }
+
+    entry = settings.readEntry( "/Trolltech/Qt/zlib", "Direct", &settingsOK );
+    if ( entry == "Direct" )
+	args += "-qt-zlib";
+    else if ( entry == "System" )
+	args += "-system-zlib";
+    else if ( entry == "Off" )
+	args += "-no-zlib";
+
     if ( ( ( !globalInformation.reconfig() && !optionsPage->skipBuild->isChecked() )
-	    || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() ) )
+	    || ( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() ) )
 #  if defined(Q_OS_WIN32)
     && qWinVersion() & WV_NT_based ) {
 #  else
@@ -656,6 +682,34 @@ void SetupWizardImpl::showPageConfig()
     item->setOn( entry == "Release" );
 
     // Advanced options
+    entry = settings.readEntry( "/Trolltech/Qt/zlib", "Direct", &settingsOK );
+    folder = new QCheckListItem( configPage->advancedList, "zlib" );
+    folder->setOpen( true );
+    zlibOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    zlibOff->setOn( entry == "Off" );
+    zlibSystem = new QCheckListItem( folder, "System", QCheckListItem::RadioButton );
+    zlibSystem->setOn( entry == "System" );
+    zlibDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    zlibDirect->setOn( entry == "Direct" );
+
+    if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
+	entry = settings.readEntry( "/Trolltech/Qt/DSP Generation", "On", &settingsOK );
+	folder = new QCheckListItem( configPage->advancedList, "DSP Generation" );
+	folder->setOpen( true );
+	dspOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	dspOff->setOn( entry == "Off" );
+	dspOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	dspOn->setOn( entry == "On" );
+    } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ) {
+	entry = settings.readEntry( "/Trolltech/Qt/VCPROJ Generation", "On", &settingsOK );
+	folder = new QCheckListItem( configPage->advancedList, "VCPROJ Generation" );
+	folder->setOpen( true );
+	vcprojOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	vcprojOff->setOn( entry == "Off" );
+	vcprojOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	vcprojOn->setOn( entry == "On" );
+    }
+    
     QCheckListItem *imfolder = new QCheckListItem( configPage->advancedList, "Image Formats" );
     imfolder->setOpen( true );
 
@@ -922,7 +976,7 @@ void SetupWizardImpl::showPageBuild()
     nextButton()->setText( "Next >" );
     saveSettings();
 
-    if( globalInformation.reconfig() && qWinVersion() & WV_NT_based ) {
+    if( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() && qWinVersion() & WV_NT_based ) {
 	QStringList args;
 	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
 
@@ -1219,6 +1273,30 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 	configPage->explainOption->setText( "Qt supports the \"Portable Network Graphics\" format either "
 				"by compiling the png support "
 				"into Qt, or by loading a plugin on demand." );
+    } else if ( i->text(0) == "zlib" ) {
+	configPage->explainOption->setText( "Qt supports the 3rd party zlib library either by compiling it into "
+					    "Qt, or by linking against the library supplied with the system." );
+    } else if ( i == zlibDirect ) {
+	configPage->explainOption->setText( "Support for the 3rd party zlib library is compiled into Qt." );
+    } else if ( i == zlibSystem ) {
+	configPage->explainOption->setText( "Support for the 3rd party zlib library is provided by linking against "
+					    "an existing zlib.lib" );
+    } else if ( i == zlibOff ) {
+	configPage->explainOption->setText( "Turn off support for the 3rd party zlib library" );
+    } else if ( i->text(0) == "DSP Generation" ) {
+	configPage->explainOption->setText( "qmake will generate the Visual Studio 6 project files (dsp) as well as "
+					    "makefiles for the pro files when Qt is being configured." );
+    } else if ( i == dspOn ) {
+	configPage->explainOption->setText( "Visual Studio 6 project file (dsp) generation is turned on" );
+    } else if ( i == dspOff ) {
+	configPage->explainOption->setText( "Visual Studio 6 project file (dsp) generation is turned off" );
+    } else if ( i->text(0) == "VCPROJ Generation" ) {
+	configPage->explainOption->setText( "qmake will generate the Visual Studio .NET project files (vcproj) as well as "
+					    "makefiles for the pro files when Qt is being configured." );
+    } else if ( i == vcprojOn ) {
+	configPage->explainOption->setText( "Visual Studio .NET project file (vcproj) generation is turned on" );
+    } else if ( i == vcprojOff ) {
+	configPage->explainOption->setText( "Visual Studio .NET project file (vcproj) generation is turned off" );
     }
 }
 

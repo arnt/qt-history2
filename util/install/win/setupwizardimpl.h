@@ -151,6 +151,11 @@ private:
     QCheckListItem *odbcDirect, *odbcPlugin, *odbcOff;
     QCheckListItem *psqlDirect, *psqlPlugin, *psqlOff;
     QCheckListItem *tdsDirect, *tdsPlugin, *tdsOff;
+    
+    QCheckListItem *zlibDirect, *zlibSystem, *zlibOff;
+
+    QCheckListItem *dspOff, *dspOn;
+    QCheckListItem *vcprojOff, *vcprojOn;
 
     QCheckListItem *staticItem;
 

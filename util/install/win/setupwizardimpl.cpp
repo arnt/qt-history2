@@ -776,9 +776,10 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
 
     dir.setSorting( QDir::Name | QDir::IgnoreCase );
     const QFileInfoList* filist = dir.entryInfoList();
+    if ( !filist )
+	return;
     QFileInfoListIterator it( *filist );
     QFileInfo* fi;
-
     while( ( fi = it.current() ) ) {
 	if( fi->fileName()[0] != '.' && // Exclude dot-dirs
 	    fi->fileName() != "sql" ) { // Exclude SQL-dir
