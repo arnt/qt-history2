@@ -3918,7 +3918,7 @@ int QTextString::width( int idx ) const
 {
      int w = 0;
      QTextStringChar *c = &at( idx );
-     if ( c->c.unicode() == 0xad || c->c.unicode() == 0x2028 )
+     if ( !c->charStop || c->c.unicode() == 0xad || c->c.unicode() == 0x2028 )
 	 return 0;
 #ifndef QT_NO_TEXTCUSTOMITEM
      if( c->isCustom() ) {
