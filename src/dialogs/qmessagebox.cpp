@@ -1024,6 +1024,7 @@ int QMessageBox::information( QWidget *parent,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
+    delete mb;
     return reply;
 }
 
@@ -1068,6 +1069,7 @@ int QMessageBox::warning( QWidget *parent,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
+    delete mb;
     return reply;
 }
 
@@ -1112,6 +1114,7 @@ int QMessageBox::critical( QWidget *parent,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
+    delete mb;
     return reply;
 }
 
@@ -1145,22 +1148,8 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
                                        parent, "qt_msgbox_simple_about_box", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    const QPixmap *pm = parent ? parent->icon() : 0;
-    if ( pm && !pm->isNull() )
-	mb->setIconPixmap( *pm );
-    else {
-	pm = parent ? parent->topLevelWidget()->icon() : 0;
-	if ( pm && !pm->isNull() )
-	    mb->setIconPixmap( *pm );
-	else {
-	    pm = qApp && qApp->mainWidget() ? qApp->mainWidget()->icon() : 0;
-	    if ( pm && !pm->isNull() )
-		mb->setIconPixmap( *pm );
-	}
-    }
-#endif
     mb->exec();
+    delete mb;
 }
 
 
@@ -1215,6 +1204,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
     mb->setCursor( Qt::arrowCursor );
 #endif
     int reply = mb->exec();
+    delete mb;
     return reply-1;
 }
 
@@ -1352,8 +1342,8 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     if ( c.isNull() )
         c = "About Qt";
     QMessageBox *mb = new QMessageBox( parent, "qt_msgbox_about_qt" );
+    Q_CHECK_PTR( mb );
     mb->setWFlags( WDestructiveClose );
-
 #ifndef QT_NO_WIDGET_TOPEXTRA
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
 #endif
@@ -1384,6 +1374,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
         mb->mbd->pb[0]->setFocus();
     }
     mb->exec();
+    delete mb;
 }
 
 /*!
