@@ -4811,14 +4811,16 @@ bool QXmlSimpleReader::parsePEReference()
 		    } else if ( entityRes ) {
 			QMap<QString,QXmlSimpleReaderPrivate::ExternParameterEntity>::Iterator it2;
 			it2 = d->externParameterEntities.find( ref() );
-			QXmlInputSource *ret;
+			QXmlInputSource *ret = 0;
 			if ( it2 != d->externParameterEntities.end() ) {
 			    if ( !entityRes->resolveEntity( it2.data().publicId, it2.data().systemId, ret ) ) {
+				delete ret;
 				reportParseError( entityRes->errorString() );
 				return FALSE;
 			    }
 			    if ( ret ) {
 				xmlRefString = ret->data();
+				delete ret;
 				if ( !stripTextDecl( xmlRefString ) ) {
 				    reportParseError( XMLERR_ERRORINTEXTDECL );
 				    return FALSE;
@@ -7060,13 +7062,15 @@ bool QXmlSimpleReader::processReference()
 			    // Included if validating
 			    bool skipIt = TRUE;
 			    if ( entityRes ) {
-				QXmlInputSource *ret;
+				QXmlInputSource *ret = 0;
 				if ( !entityRes->resolveEntity( itExtern.data().publicId, itExtern.data().systemId, ret ) ) {
+				    delete ret;
 				    reportParseError( entityRes->errorString() );
 				    return FALSE;
 				}
 				if ( ret ) {
 				    QString xmlRefString = ret->data();
+				    delete ret;
 				    if ( !stripTextDecl( xmlRefString ) ) {
 					reportParseError( XMLERR_ERRORINTEXTDECL );
 					return FALSE;
