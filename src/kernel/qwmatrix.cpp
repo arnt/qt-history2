@@ -199,6 +199,7 @@ bool qt_old_transformations = TRUE;
     (pointarray[i])} is not neccesarily equal to
     \c{(matrix * pointarry)[i]}.
 
+    \img xform.png Comparison of Points and Areas TransformationModes
 */
 
 /*!
