@@ -1011,6 +1011,20 @@ bool QProcess::isRunning() const
 	    that->exitStat = (char)WEXITSTATUS( status );
 	}
 	d->exitValuesCalculated = TRUE;
+
+	// On heavy processing, the socket notifier for the sigchild might not
+	// have found time to fire yet.
+	if ( d->procManager ) {
+	    fd_set fds;
+	    struct timeval tv;
+	    FD_ZERO( &fds );
+	    FD_SET( d->procManager->sigchldFd[1], &fds );
+	    tv.tv_sec = 0;
+	    tv.tv_usec = 0;
+	    while ( ::select( d->procManager->sigchldFd[1]+1, &fds, 0, 0, &tv ) > 0 )
+		d->procManager->sigchldHnd( d->procManager->sigchldFd[1] );
+	}
+
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::isRunning() (PID: %d): FALSE", d->proc->pid );
 #endif
