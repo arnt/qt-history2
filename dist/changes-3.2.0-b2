@@ -1,0 +1,38 @@
+
+Qt 3.2 introduces new features as well as many improvements over the
+3.1.x series. This file gives an overview of the main changes since
+version 3.1.2.  For more details, see the online documentation which
+is included in this distribution. The documentation is also available
+at http://doc.trolltech.com/
+
+The Qt version 3.2 series is binary compatible with the 3.1.x series.
+Applications compiled for 3.1 will continue to run with 3.2.
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+ActiveQt
+--------
+
+Controls developed with ActiveQt support aggregation, which makes it
+possible to use them in containers that require this form of containment to
+be supported. ActiveQt also supports masked controls in containers that
+support this for window'ed controls.
+
+Compilers
+---------
+
+Note: Qt 3.2 is the last version to officially support IRIX MIPSpro
+o32 and Sun CC 5.0. A script, $QTDIR/bin/qt32castcompat, is provided
+for 3.2 which needs to be run for these compilers.
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QMYSQLDriver
+	Better support for MySQL/embedded.
+
+- QTextEdit
+	Implemented insertAt() for LogText mode.
