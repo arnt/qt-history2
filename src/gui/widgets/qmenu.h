@@ -60,6 +60,9 @@ public:
     void setTearOffEnabled(bool);
     bool isTearOffEnabled() const;
 
+    void setDefaultAction(QAction *);
+    QAction *defaultAction() const;
+
     void setCheckable(bool);
     bool isCheckable() const;
 

@@ -98,6 +98,9 @@ public:
     QMenuAction *sloppyAction;
     QRegion sloppyRegion;
 
+    //default action
+    QPointer<QAction> defaultAction;
+
     //firing of events
     void activateAction(QAction *, QAction::ActionEvent);
 

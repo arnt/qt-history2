@@ -719,6 +719,29 @@ QAction *QMenu::insertSeparator(QAction *before)
 }
 
 /*!
+  This will set the default action to \a act. The default action may
+  have a visual queue depending on the current QStyle. A default
+  action is usually meant to indicate what will defaultly happen on a
+  drop, as shown in a context menu.
+
+  \sa defaultAction()
+*/
+void QMenu::setDefaultAction(QAction *act)
+{
+    d->defaultAction = act;
+}
+
+/*!
+  Returns the current default action.
+
+  \sa setDefaultAction()
+*/
+QAction *QMenu::defaultAction() const
+{
+    return d->defaultAction;
+}
+
+/*!
     \property QMenu::tearOffEnabled
     \brief whether the menu supports being torn off
 
@@ -1132,6 +1155,8 @@ void QMenu::paintEvent(QPaintEvent *e)
             flags |= QStyle::Style_Enabled;
         else
             pal.setCurrentColorGroup(QPalette::Disabled);
+        if(d->defaultAction == action->action)
+            flags |= QStyle::Style_ButtonDefault; //probably should be something else, pending new QStyle ###
         if(d->currentAction == action)
             flags |= QStyle::Style_Active;
         if(d->mouseDown)
