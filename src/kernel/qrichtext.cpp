@@ -5487,7 +5487,7 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
     else
 	p->drawPixmap( cx , cy, pm, cx - x, cy - y, cw, ch );
 
-    if ( selected && placement() == PlaceInline ) {
+    if ( selected && placement() == PlaceInline && p->device()->devType() != QInternal::Printer ) {
 	p->save();
 #if defined(Q_WS_X11)
 	p->fillRect( QRect( QPoint( x, y ), pm.size() ), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
@@ -5523,7 +5523,7 @@ QString QTextHorizontalLine::richText() const
     return "<hr>";
 }
 
-void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg, bool )
+void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg, bool selected )
 {
     QRect r( x, y, width, height);
     if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
@@ -5532,6 +5532,8 @@ void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int
 	p->drawLine( r.left()-1, y + height / 2, r.right() + 1, y + height / 2 );
 	p->setPen( oldPen );
     } else {
+	if ( selected )
+	    p->fillRect( r.left(), y, r.right(), y + height, cg.highlight() );	
 	qDrawShadeLine( p, r.left() - 1, y + height / 2, r.right() + 1, y + height / 2, cg, TRUE, height / 8 );
     }
 }
