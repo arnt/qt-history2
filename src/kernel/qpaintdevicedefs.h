@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#8 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -36,10 +36,11 @@
 #define PDC_DRAWLINESEGS	11		// ptarr
 #define PDC_DRAWPOLYLINE	12		// ptarr
 #define PDC_DRAWPOLYGON		13		// ptarr,ival
-#define PDC_DRAWTEXT		14		// point,str
-#define PDC_DRAWTEXTFRMT	15		// rect,ival,str
-#define PDC_DRAWPIXMAP		16		// point,pixmap
-#define PDC_DRAW_STOP		16
+#define PDC_DRAWBEZIER		14		// ptarr
+#define PDC_DRAWTEXT		15		// point,str
+#define PDC_DRAWTEXTFRMT	16		// rect,ival,str
+#define PDC_DRAWPIXMAP		17		// point,pixmap
+#define PDC_DRAW_STOP		17
 #define PDC_BEGIN		30		//  <void>
 #define PDC_END			31		//  <void>
 #define PDC_SAVE		32		//  <void>

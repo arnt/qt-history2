@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#16 $
 **
 ** Implementation of QPicture class
 **
@@ -19,7 +19,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#16 $";
 #endif
 
 
@@ -210,6 +210,10 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		s >> a >> i_8;
 		painter->drawPolygon( a, i_8 );
 		break;
+	    case PDC_DRAWBEZIER:
+		s >> a;
+		painter->drawBezier( a );
+		break;
 	    case PDC_DRAWTEXT:
 		s >> p >> str;
 		painter->drawText( p, str );
@@ -386,6 +390,7 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	    break;
 	case PDC_DRAWLINESEGS:
 	case PDC_DRAWPOLYLINE:
+        case PDC_DRAWBEZIER:
 	    s << *p[0].ptarr;
 	    break;
 	case PDC_DRAWPOLYGON:
