@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#38 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -173,7 +173,7 @@ struct QNetworkProtocolPrivate
 /*!
   \fn void QNetworkProtocol::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
 
-  When transferring data (using put or get) this signal is emitted during the progress. 
+  When transferring data (using put or get) this signal is emitted during the progress.
   \a bytesDone tells how much bytes of \a bytesTotal are transferred, more information
   about the operation is stored in the \a op, the pointer to the network operation
   which is processed. \a bytesTotal may be -1, which means that the number of total
@@ -246,11 +246,16 @@ QNetworkProtocol::QNetworkProtocol()
 
 QNetworkProtocol::~QNetworkProtocol()
 {
+    if ( !d )
+	return;
+    if ( d->opInProgress == d->operationQueue.head() )
+	d->operationQueue.dequeue();
     delete d->opInProgress;
     d->operationQueue.setAutoDelete( TRUE );
     delete d->opStartTimer;
     delete d->old;
     delete d;
+    d = 0;
 }
 
 /*!
@@ -910,6 +915,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 QNetworkOperation::~QNetworkOperation()
 {
     delete d;
+    d = 0;
 }
 
 /*!
