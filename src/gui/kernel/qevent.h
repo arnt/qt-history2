@@ -58,12 +58,12 @@ public:
     inline int globalY() const { return g.y(); }
 #ifdef QT_COMPAT
     inline QT_COMPAT Qt::ButtonState state() const
-    { return Qt::ButtonState(int(mouseState)|int(QInputEvent::modifiers())); }
+    { return Qt::ButtonState((mouseState^b)|int(modifiers())); }
     inline QT_COMPAT Qt::ButtonState stateAfter() const
-    { return Qt::ButtonState(int(buttons())|int(modifiers())); }
+    { return Qt::ButtonState(int(mouseState)|int(modifiers())); }
 #endif
     inline Qt::MouseButton button() const { return b; }
-    inline Qt::MouseButtons buttons() const { return mouseState^b; }
+    inline Qt::MouseButtons buttons() const { return mouseState; }
 
 protected:
     QPoint p, g;

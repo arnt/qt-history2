@@ -2298,14 +2298,6 @@ static int translateButtonState(int s, int type, int button)
          (GetKeyState(VK_RWIN) < 0))
         bst |= Qt::MetaModifier;
 
-    // Translate from Windows-style "state after event"
-    // to X-style "state before event"
-    if (type == QEvent::MouseButtonPress ||
-         type == QEvent::MouseButtonDblClick)
-        bst &= ~button;
-    else if (type == QEvent::MouseButtonRelease)
-        bst |= button;
-
     return bst;
 }
 
@@ -3263,7 +3255,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
     if (!isModifierKey(code) && state == Qt::AltModifier
          && ((code>=Qt::Key_A && code<=Qt::Key_Z) || (code>=Qt::Key_0 && code<=Qt::Key_9))
          && type == QEvent::KeyPress && !e.isAccepted())
-        QApplication::beep();  // emulate windows behavioar
+        QApplication::beep();  // emulate windows behaviour
     return e.isAccepted();
 }
 

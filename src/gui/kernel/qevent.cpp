@@ -131,14 +131,13 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
     or \c QEvent::MouseMove.
 
     The \a pos is the mouse cursor's position relative to the
-    receiving widget. The cursor's position in global coordinates
-    is specified by \a globalPos.
-    The \a button that caused the event is given as a value from
-    the \l Qt::ButtonState enum. If the event \a type is
-    \c MouseMove, the appropriate button for this event is
-    \c Qt::NoButton (0).
-    The \a state is the \link Qt::ButtonState Qt::ButtonState \endlink
-    at the time of the event.
+    receiving widget. The cursor's position in global coordinates is
+    specified by \a globalPos.  The \a button that caused the event is
+    given as a value from the \l Qt::MouseButton enum. If the event \a
+    type is \c MouseMove, the appropriate button for this event is \c
+    Qt::NoButton (0).  \a buttons is the state of all buttons at the
+    time of the event, \a modifiers the state of all keyboard
+    modifiers.
 
 */
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
@@ -223,8 +222,22 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
     \sa buttons() Qt::MouseButton
 */
 
-
 /*!
+    \fn Qt::MouseButton QMouseEvent::buttons() const
+
+    Returns the button state when the event was generated. The button
+    state is a combination of \c Qt::LeftButton, \c Qt::RightButton,
+    \c Qt::MidButton using the OR operator. For mouse move events,
+    this is all buttons that are pressed down. For mouse press and
+    double click events this includes the button that caused the
+    event. For mouse release events this excludes the button that
+    caused the event.
+
+    \sa button() Qt::MouseButton
+*/
+
+
+/*!\obsolete
     \fn Qt::ButtonState QMouseEvent::state() const
 
     Returns the button state immediately before the event was
@@ -419,7 +432,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
 */
 
 
-/*!
+/*!\obsolete
     \fn Qt::ButtonState QWheelEvent::state() const
 
     Returns the keyboard modifier flags at the time of the event.
@@ -1931,6 +1944,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
         n = "Timer";
         break;
     case QEvent::MouseButtonPress:
+    case QEvent::MouseMove:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
     {
@@ -1938,6 +1952,9 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
         switch(me->type()) {
         case QEvent::MouseButtonPress:
             n = "MouseButtonPress";
+            break;
+        case QEvent::MouseMove:
+            n = "MouseMove";
             break;
         case QEvent::MouseButtonRelease:
             n = "MouseButtonRelease";
@@ -1954,9 +1971,6 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
                       << ")";
     }
     return dbg.space();
-    case QEvent::MouseMove:
-        n = "MouseMove";
-        break;
     case QEvent::ToolTip:
         n = "ToolTip";
         break;

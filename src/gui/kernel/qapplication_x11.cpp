@@ -3389,6 +3389,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             return true;
         }
         if (event->type == ButtonPress) {        // mouse button pressed
+            buttons |= button;
 #if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET_SUPPORT)
             XEvent myEv;
             if (XCheckTypedEvent(X11->display, xinput_button_press, &myEv)) {
@@ -3422,6 +3423,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             mouseGlobalXPos = globalPos.x();
             mouseGlobalYPos = globalPos.y();
         } else {                                // mouse button released
+            buttons &= ~button;
 #if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET_SUPPORT)
             XEvent myEv;
             if (XCheckTypedEvent(X11->display, xinput_button_release, &myEv)) {
