@@ -256,7 +256,7 @@ QDataTable::QDataTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent
 void QDataTable::init()
 {
     d = new QDataTablePrivate();
-    setAutoEdit( FALSE );
+    setAutoEdit( TRUE );
     setSelectionMode( SingleRow );
     setFocusStyle( FollowStyle );
     d->trueTxt = tr( "True" );
@@ -694,7 +694,7 @@ void QDataTable::resizeEvent ( QResizeEvent * e )
 void QDataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 {
     QTable::contentsContextMenuEvent( e );
-    if ( d->dat.mode() != QSql::None )
+    if ( isEditing() && d->dat.mode() != QSql::None )
 	endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
     if ( !sqlCursor() )
 	return;
@@ -737,7 +737,7 @@ void QDataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 {
     QTable::contentsMousePressEvent( e );
-    if ( d->dat.mode() != QSql::None )
+    if ( isEditing() && d->dat.mode() != QSql::None )
 	endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
 }
 
@@ -764,8 +764,10 @@ QWidget* QDataTable::beginEdit ( int row, int col, bool replace )
 }
 
 /*! \reimp */
-void QDataTable::endEdit( int row, int col, bool accept, bool )
+void QDataTable::endEdit( int row, int col, bool, bool )
 {
+    bool accept = autoEdit();
+	 
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
 	return;
@@ -840,6 +842,7 @@ void QDataTable::endUpdate()
     updateRow( d->editRow );
     d->editRow = -1;
     d->editCol = -1;
+    setEditMode( NotEditing, -1, -1 );
 }
 
 /*! Protected virtual function called when editing is about to begin on
@@ -1535,7 +1538,7 @@ void QDataTable::sortColumn ( int col, bool ascending,
 			      bool  )
 {
     if ( sorting() ) {
-	if ( d->dat.mode() != QSql::None )
+	if ( isEditing() && d->dat.mode() != QSql::None )
 	    endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
 	if ( !sqlCursor() )
 	    return;

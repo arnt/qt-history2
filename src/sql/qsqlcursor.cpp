@@ -175,6 +175,14 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     customized to always auto-number primary index fields, or provide
     fields with suitable default values, when inserting new records.
 
+    Note that QSqlCursor does not inherit from QObject. This means
+    that you are responsible for destroying instances of this class
+    yourself. However if you create a QSqlCursor and use it in a
+    \l QDataTable, \l QDataBrowser or a \l QDataView these classes will
+    usually take ownership of the cursor and destroy it when they
+    don't need it anymore. The documentation for QDataTable,
+    QDataBrowser and QDataView explicitly states which calls take
+    ownership of the cursor.
 */
 
 /*! \enum QSqlCursor::Mode

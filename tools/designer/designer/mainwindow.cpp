@@ -739,8 +739,6 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	for ( QObject *o = l->first(); o; o = l->next() ) {
 	    if ( style )
 		( (QWidget*)o )->setStyle( style );
-	    if ( !databaseAutoEdit )
-		o->setProperty( "autoEdit", QVariant( FALSE, 0 ) );
 	}
 	delete l;
 
