@@ -30,10 +30,10 @@ uint QColor::alloc()
   return ret;
 }
 
-void QColor::setSystemNamedColor(const char * name)
+void QColor::setSystemNamedColor(const QString& name)
 {
-  printf("QColor::setSystemNamedColor: %s %d\n",__FILE__,__LINE__);
-  printf("  %s\n",name);
+  //printf("QColor::setSystemNamedColor: %s %d\n",__FILE__,__LINE__);
+  //printf("  %s\n",name);
   setRgb(256,0,0);
 }
 

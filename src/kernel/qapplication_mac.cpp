@@ -714,7 +714,7 @@ void QApplication::setGlobalMouseTracking( bool enable )
     }
 }
 
-bool QApplication::macEventFilter(int *)
+bool QApplication::macEventFilter(void **)
 {
   printf("%s %d\n",__FILE__,__LINE__);
   return false;

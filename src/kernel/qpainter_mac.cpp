@@ -2,7 +2,8 @@
 #include "qpixmap.h"
 #include "qwidget.h"
 #include "qintdict.h"
-#include "qpaintdevicedefs.h"
+#include "q1xcompatibility.h"
+#include "qpaintdevicemetrics.h"
 #include "qbitmap.h"
 #include "qpaintdevice.h"
 #include "qfontdata.h"
@@ -426,7 +427,7 @@ bool QPainter::begin( const QPaintDevice *pd )
         ((QPixmap*)pdev)->detach();             // will modify it
 
     if ( testf(ExtDev) ) {                      // external device
-        if ( !pdev->cmd(PDC_BEGIN,this,0) ) {   // could not begin painting
+        if ( !pdev->cmd(QPaintDevice::PdcBegin,this,0) ) {   // could not begin painting
             pdev = 0;
             return FALSE;
         }
@@ -978,7 +979,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
             }
             QPDevCmdParam param[1];
             param[0].ptarr = (QPointArray*)&pa;
-            if ( !pdev->cmd(PDC_DRAWLINESEGS,this,param) /*|| !hdc*/)
+            if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param) /*|| !hdc*/)
                 return;
         }
         if ( txop != TxNone ) {

@@ -6,7 +6,6 @@
 #include "qstrlist.h"
 #include "qutfcodec.h"
 #include "qt_mac.h"
-#include <stdio>
 
 class QFontInternal {
 
@@ -18,20 +17,20 @@ public:
 
 int QFontMetrics::lineSpacing() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   // Grr. This all works within the current grafport.
   return leading()+height();
 }
 
 int QFontMetrics::lineWidth() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return 1;
 }
 
 int QFontMetrics::leading() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   FontInfo fi;
   GetFontInfo(&fi);
   return fi.leading;
@@ -39,7 +38,7 @@ int QFontMetrics::leading() const
 
 int QFontMetrics::ascent() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   FontInfo fi;
   GetFontInfo(&fi);
   return fi.ascent;
@@ -47,7 +46,7 @@ int QFontMetrics::ascent() const
 
 int QFontMetrics::descent() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   FontInfo fi;
   GetFontInfo(&fi);
   return fi.descent;
@@ -58,7 +57,7 @@ bool spongy=false;
 
 int QFontMetrics::width(QChar c) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   // Grr. How do we force the Mac to speak Unicode?
   // This currently won't work outside of ASCII
   if(!spongy) {
@@ -81,7 +80,7 @@ int QFontMetrics::width(QChar c) const
 
 int QFontMetrics::width(const QString &s,int len) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   if(len<1) {
     len=s.length();
   }
@@ -96,7 +95,7 @@ int QFontMetrics::width(const QString &s,int len) const
 
 int QFontMetrics::maxWidth() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   FontInfo fi;
   GetFontInfo(&fi);
   return fi.widMax;
@@ -104,31 +103,31 @@ int QFontMetrics::maxWidth() const
 
 int QFontMetrics::height() const
 {
-  printf("QFontMetrics::height: %s %d\n",__FILE__,__LINE__);
+  //printf("QFontMetrics::height: %s %d\n",__FILE__,__LINE__);
   return ascent()+descent()+1;
 }
 
 int QFontMetrics::minRightBearing() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return 0;
 }
 
 int QFontMetrics::minLeftBearing() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return 0;
 }
 
 int QFontMetrics::underlinePos() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return 0;
 }
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   if(len<1) {
     len=str.length();
   }
@@ -139,14 +138,14 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
   QStrList * qsl=new QStrList();
   unsigned char buf[256];
   int loopc=0;
-  printf("Font dump:\n");
+  //printf("Font dump:\n");
   char oldbuf[256];
   strcpy(oldbuf,"Wibble!");
   do {
     GetFontName(loopc,buf);
     buf[buf[0]+1]='\0';
     if(strcmp((char *)buf,oldbuf) && buf[0]) {
-      printf("%d: %s\n",loopc,buf+1);
+      //printf("%d: %s\n",loopc,buf+1);
       qsl->append((char *)buf+1);
       strcpy(oldbuf,(char *)buf);
     }
@@ -156,12 +155,15 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
   return *qsl;
   */
 
+/*
 QFont * QFont::defFont=0;
 bool QFont::defRezAdj=FALSE;
+*/
 
+/*
 QFont::QFont(Internal)
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   init();
   d->req.family="Charcoal";
   d->req.pointSize=11*10;
@@ -170,10 +172,11 @@ QFont::QFont(Internal)
   d->req.dirty=TRUE;
   d->fin=0;
 }
+*/
 
 HANDLE QFont::handle() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   if(d->req.dirty) {
     load();
   }
@@ -190,16 +193,16 @@ void QFont::macSetFont(void * v)
     strcpy(buf+1,family().ascii());
     buf[0]=strlen(buf+1);
     GetFNum((unsigned char *)buf,&foo);
-    printf("Setting fnum %d for %s\n",foo,family().ascii());
+    //printf("Setting fnum %d for %s\n",foo,family().ascii());
     TextFont(foo);
   }
 }
 
 void QFont::load() const
 {
-  printf("QFont::load: %s %d\n",__FILE__,__LINE__);
-  printf("Name %s\n",family().ascii());
-  printf("Size %d\n",pointSize());
+  //printf("QFont::load: %s %d\n",__FILE__,__LINE__);
+  //printf("Name %s\n",family().ascii());
+  //printf("Size %d\n",pointSize());
   d->req.dirty=FALSE;
   d->fin=new QFontInternal;
   d->fin->psize=pointSize();
@@ -211,10 +214,11 @@ void QFont::load() const
 
 const QFontDef *QFontInfo::spec() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return 0;
 }
 
+/*
 QFont QFontStyle::font(int) const
 {
   return QFont();
@@ -259,5 +263,4 @@ const QTextCodec * QFontData::mapper() const
   }
   return quc;
 }
-
-
+*/
