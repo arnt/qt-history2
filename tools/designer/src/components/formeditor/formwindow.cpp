@@ -1195,9 +1195,7 @@ BreakLayoutCommand *FormWindow::breakLayoutCommand(QWidget *w)
         widgets.append(static_cast<QWidget*>(obj));
     }
 
-    if (!widgets.count()) {
-        qDebug() << "the layout is empty!!!! layout:" << w->layout();
-    }
+    Q_ASSERT(widgets.isEmpty() == false);
 
     BreakLayoutCommand *cmd = new BreakLayoutCommand(this);
     cmd->init(widgets, core()->widgetFactory()->widgetOfContainer(w));

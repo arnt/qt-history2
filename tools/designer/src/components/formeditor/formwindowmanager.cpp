@@ -523,12 +523,15 @@ void FormWindowManager::slotUpdateActions()
     m_actionSplitHorizontal->setEnabled(false);
     m_actionSplitVertical->setEnabled(false);
 
+    if (selectedWidgets == 0 && m_activeFormWindow->mainContainer() != 0)
+        widgets.append(m_activeFormWindow->mainContainer());
+
     enable = false;
     if (selectedWidgets > 1) {
         int unlaidout = 0;
         int laidout = 0;
-        for (int i = 0; i < widgets.size(); ++i) {
-            QWidget *w = widgets.at(i);
+
+        foreach (QWidget *w, widgets) {
             if (!w->parentWidget() || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout)
                 unlaidout++;
             else
@@ -557,7 +560,7 @@ void FormWindowManager::slotUpdateActions()
             m_actionVerticalLayout->setEnabled(false);
             m_actionGridLayout->setEnabled(false);
             if (w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
-                m_actionBreakLayout->setEnabled(true);
+                m_actionBreakLayout->setEnabled(m_activeFormWindow->widgets(w->parentWidget()).isEmpty() == false);
                 m_breakLayout = true;
             } else {
                 m_actionBreakLayout->setEnabled(false);
@@ -576,46 +579,19 @@ void FormWindowManager::slotUpdateActions()
                     m_actionBreakLayout->setEnabled(false);
                     m_layoutChilds = true;
                 }
+
                 if (w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
-                    m_actionBreakLayout->setEnabled(true);
+                    m_actionBreakLayout->setEnabled(m_activeFormWindow->widgets(w->parentWidget()).isEmpty() == false);
                     m_breakLayout = true;
                 }
             } else {
                 m_actionHorizontalLayout->setEnabled(false);
                 m_actionVerticalLayout->setEnabled(false);
                 m_actionGridLayout->setEnabled(false);
-                m_actionBreakLayout->setEnabled(true);
+                m_actionBreakLayout->setEnabled(m_activeFormWindow->widgets(w).isEmpty() == false);
                 m_breakLayout = true;
             }
         }
-    } else if (selectedWidgets == 0) {
-        m_actionAdjustSize->setEnabled(true);
-        QWidget *w = m_activeFormWindow->mainContainer();
-        if (LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
-            if (!m_activeFormWindow->hasInsertedChildren(w)) {
-                m_actionHorizontalLayout->setEnabled(false);
-                m_actionVerticalLayout->setEnabled(false);
-                m_actionGridLayout->setEnabled(false);
-                m_actionBreakLayout->setEnabled(false);
-            } else {
-                m_actionHorizontalLayout->setEnabled(true);
-                m_actionVerticalLayout->setEnabled(true);
-                m_actionGridLayout->setEnabled(true);
-                m_actionBreakLayout->setEnabled(false);
-                m_layoutChilds = true;
-            }
-        } else {
-            m_actionHorizontalLayout->setEnabled(false);
-            m_actionVerticalLayout->setEnabled(false);
-            m_actionGridLayout->setEnabled(false);
-            m_actionBreakLayout->setEnabled(true);
-            m_breakLayout = true;
-        }
-    } else {
-        m_actionHorizontalLayout->setEnabled(false);
-        m_actionVerticalLayout->setEnabled(false);
-        m_actionGridLayout->setEnabled(false);
-        m_actionBreakLayout->setEnabled(false);
     }
 
     m_actionUndo->setEnabled(m_activeFormWindow->commandHistory()->canUndo());
