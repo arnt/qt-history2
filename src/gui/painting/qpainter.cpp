@@ -1201,8 +1201,7 @@ const QBrush &QPainter::background() const
 
 bool QPainter::hasClipping() const
 {
-    int infoSize = d->state->clipInfo.size();
-    return infoSize > 0 && d->state->clipInfo.at(infoSize-1).operation != Qt::NoClip;
+    return d->state->tmpClipOp != Qt::NoClip;
 }
 
 
@@ -1217,7 +1216,9 @@ void QPainter::setClipping(bool enable)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::setClipping(), enable=%d\n", enable);
+        printf("QPainter::setClipping(), enable=%s, was=%s\n",
+               enable ? "on" : "off",
+               hasClipping() ? "on" : "off");
 #endif
     if (!isActive()) {
         qWarning("QPainter::setClipping(), painter not active, state will be reset by begin");
@@ -1228,13 +1229,14 @@ void QPainter::setClipping(bool enable)
         return;
 
     if (enable) {
-        // ### missing what to do...
+        d->state->tmpClipRegion = clipRegion();
+        d->state->tmpClipOp = Qt::ReplaceClip;
     } else {
         d->state->tmpClipRegion = QRegion();
         d->state->tmpClipOp = Qt::NoClip;
-        d->engine->setDirty(QPaintEngine::DirtyClip);
-        d->engine->updateState(d->state);
     }
+    d->engine->setDirty(QPaintEngine::DirtyClip);
+    d->engine->updateState(d->state);
 }
 
 
