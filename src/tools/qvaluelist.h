@@ -118,7 +118,7 @@ public:
     ConstIterator last( node );
     while( first != last) {
       if ( *first == x )
-	return first;
+	return first.node;
       ++first;
     }
     return last.node;
@@ -196,7 +196,7 @@ public:
     return *this;
   }
 
-  QValueList<T> operator+ ( const QValueList<T>& _l )
+  QValueList<T> operator+ ( const QValueList<T>& _l ) const
   {
     QValueList<T> l( *this );
     for( ConstIterator it = _l.begin(); it != _l.end(); ++it )
@@ -210,6 +210,20 @@ public:
       append( *it );
     return *this;
   }
+
+  bool operator== ( const QValueList<T>& _l ) const
+  {
+    if ( count() != _l.count() )
+      return FALSE;
+    ConstIterator it2 = begin();
+    ConstIterator it = _l.begin();
+    for( ; it != _l.end(); ++it, ++it2 )
+      if ( !( *it == *it2 ) )
+	return FALSE;
+    return TRUE;
+  }
+  
+  bool operator!= ( const QValueList<T>& _l ) const { return !( *this == _l ); }
 
   Iterator begin() { detach(); return Iterator( sh->node->next ); }
   ConstIterator begin() const { return ConstIterator( sh->node->next ); }
