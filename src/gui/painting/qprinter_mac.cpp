@@ -65,7 +65,7 @@ QPrinterPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool 
 {
     if(!print->printerBegin())
 	return FALSE;
-    return QWrapperPaintEngine::begin(pdev, state, unclipped);
+    return QWrapperPaintEngine::begin(const_cast<QPaintDevice *>(pdev), state, unclipped);
 }
 bool
 QPrinterPaintEngine::end()
@@ -511,13 +511,12 @@ QPaintEngine *QPrinter::engine() const
 {
     if (!paintEngine) {
 #if defined( USE_CORE_GRAPHICS )
-	QPaintEngine *wr = new QCoreGraphicsPaintEngine(this);
+	QPaintEngine *wr = new QCoreGraphicsPaintEngine(const_cast<QPrinter *>(this));
 #else
-	QPaintEngine *wr = new QQuickDrawPaintEngine(this);
+	QPaintEngine *wr = new QQuickDrawPaintEngine(const_cast<QPrinter *>(this));
 #endif
-	// Evil Evil Evil (the const-casts help prove it)!
-	const_cast<QPrinter *>(this)->paintEngine = new QPrinterPaintEngine(
-								const_cast<QPrinter *>(this), wr);
+	const_cast<QPrinter *>(this)->paintEngine 
+                                = new QPrinterPaintEngine(const_cast<QPrinter *>(this), wr);
     }
     return 0;
 }
