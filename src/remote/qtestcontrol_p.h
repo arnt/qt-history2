@@ -46,7 +46,7 @@
 #include <qsocket.h>
 #include <private/qremotemessage_p.h>
 #include <qremotecontrol.h>
-#include "widgetdefs_p.h"
+#include "qtestwidgets_p.h"
 #include <quuid.h>
 
 static const char regexp_magic[] = "@@RegExp@@:";
@@ -113,9 +113,8 @@ private:
     QCString			anonymous_magic_;
     time_t			replay_file_date_;  // in seconds since Jan. 1st, 1970 UTC
     bool			isSimulatedEvent;
-    QStringList			multiple_instances;
 
-    WidgetDefs	                widgetDefs;
+    QTestWidgets                testWidgets;
 
     class QTestScalingInfo
     {
@@ -136,8 +135,8 @@ private:
         ScaleMode    scale_mode_;
     };
     friend class QTestScalingInfo;
-    QPtrList<QTestScalingInfo>		scalingInfo;
-    QIntDict<QTestScalingInfo>	widget_scale_dict_;
+    QPtrList<QTestScalingInfo> scalingInfo;
+    QIntDict<QTestScalingInfo> widget_scale_dict_;
 
 private:
     void recordEvent( QObject* receiver, QEvent* e );
@@ -153,29 +152,15 @@ private:
     QMoveEvent* readMoveEvent( QTextStream& replay_stream, QObject* widget );
     QResizeEvent* readResizeEvent( QTextStream& replay_stream, QObject* widget );
 
-    bool isWidgetAComboBoxPanel( const QObject* event_widget );
     bool isToplevelEventFromUser( QObject* receiver );
+
+    bool isWidgetAComboBoxPanel( const QObject* event_widget );
     bool isWidgetAListBoxArea( const QObject* event_widget );
-    bool isTopLevelItem( const QObject* item );
-    bool doesWidgetExistRightNow( QObject* widget );
+
     bool mustWriteEvent( QEvent* e, QObject* receiver );
     QListViewItem* findListViewItemByName( QListViewItem* first_child, QCString& name );
 
-    bool hasName( const QObject* item );
-    QCString getFullName( const QObject* item );
-    bool verifyUniqueName( const QObject *item, QCString &name );
-
-    QObject* findAppWidgetByName( const QCString &name, QString &missing_name, bool allow_invisible_widgets);
-    QObject* findWidgetByName( const QCString &name, const QObjectList *search_list, QString& missing_name, bool allow_invisible_widgets);
-    QObject* findGlobalWidget( const QCString &name );
-    QObject* findWidget( const QCString &name );
-    bool receiverIsAccessible( QObject *receiver );
-
-    void dumpPixmapToFile( QWidget& widget, QString& file_basename );
-    bool appendWidget( const QCString &name, int widget_index );
-    void updateWidgetDefs( const QObjectList* list );
-    void addWidgetDef( const QString &def );
-    void sendWidgetDefs();
+//    void dumpPixmapToFile( QWidget& widget, QString& file_basename );
 
     void notify( QObject* event_widget, QEvent* event );
     void handleCommand( QRemoteMessage *msg );

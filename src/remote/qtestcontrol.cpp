@@ -114,7 +114,9 @@ QTestControl::QTestControl()
     curMessage = new QRemoteMessage;
     m_replyList.setAutoDelete(FALSE);
     m_cmdList.setAutoDelete(FALSE);
+    
     m_socket = new QSocket;
+    testWidgets.setSocket( m_socket );
 
     nameDelimiterString = "";
     nameDelimiterString += nameDelimiterChar;
@@ -185,16 +187,6 @@ void QTestControl::close()
 
     scalingInfo.clear();
     widget_scale_dict_.clear();
-/*
-    delete widget_replay_name_list_;
-    widget_replay_name_list_ = 0;
-
-    delete widget_scale_dict_;
-    widget_scale_dict_ = 0;
-
-    scaling_infos_.setAutoDelete (true);
-    scaling_infos_.clear();
-*/
     m_socket->close();
 }
 
@@ -273,7 +265,7 @@ void QTestControl::onCommand()
 void QTestControl::handleCommand(QRemoteMessage *msg)
 {
     if (msg->event() == "SimulateEvent") {
-qDebug("Receive command: " + msg->event());
+//qDebug("Receive command: " + msg->event());
 	if (simulateEvent(msg)) {
 	    QRemoteMessage S("ACK","");
 	    S.send(m_socket);
@@ -307,16 +299,18 @@ qDebug("Receive command: " + msg->event());
 	QRemoteMessage S("MouseInfo",curClassName + " " + localMousePos + " " + absMousePos + " " + curWidgetName);
 	S.send(m_socket);
 	return;
+
     } else if (msg->event() == "WidgetDef") {
 
 	QString S = msg->message();
-//qDebug("WidgetDef: " + S);
-	addWidgetDef(S);
+	testWidgets.appendWidgetDef(S);
 	return;
+
     } else if (msg->event() == "WidgetDefStart") {
 
-	widgetDefs.clear();
+	testWidgets.clear();
 	return;
+
     } else if (msg->event() == "WidgetDefEnd") {
 
 	// Signal the other side that we start sending widgetdefs
@@ -324,13 +318,14 @@ qDebug("Receive command: " + msg->event());
 	s.send(m_socket);
 
         QObjectList* search_list = (QObjectList*)(QApplication::topLevelWidgets());  // delete
-	updateWidgetDefs(search_list);
+	testWidgets.updateWidgetDefs(search_list);
         delete search_list;
 
 	// Signal the other side that we are ready
 	QRemoteMessage s2("WidgetDefEnd","");
 	s2.send(m_socket);
 	return;
+
     } else if (msg->event() == "AppId") {
 	
 	QUuid id = qApp->applicationId();
@@ -461,23 +456,24 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
 
     int  widget_id;
     line_stream >> widget_id;
-    
-    QCString widget_name;
-    if (!widgetDefs.findWidgetName( widget_id, widget_name )) {
 
+    QTestWidgets::QWidgetRec *rec;
+    if (!testWidgets.getWidgetRec( widget_id, rec )) {
 	QString s;
-	s.sprintf( "Unknown widget index (%d)", widget_id );
+	s.sprintf( "Unknown widget id (%d)", widget_id );
 
 	QRemoteMessage S("ERR",s);
 	S.send(m_socket);
 	return FALSE;
     }
 
-    QString missing_name;  // set if widget is not found
-    QObject* event_widget = findAppWidgetByName( widget_name, missing_name, FALSE );
+    testWidgets.checkPtr( rec );
 
-    if (!event_widget)
-	event_widget = findGlobalWidget( widget_name );
+    QObject* event_widget = rec->_ptr;
+    QCString widget_name = rec->name();
+
+    QString missing_name;  // set if widget is not found
+//    QObject* event_widget = testWidgets.findWidget( widget_name, missing_name, FALSE );
 
     if (event_widget) {
 
@@ -579,7 +575,7 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
     if (event_id == QEvent::MouseMove) {
 
         // X11 window managers like to create invalid mouse moves, so just ignore
-        event_widget = findAppWidgetByName( widget_name, missing_name, TRUE);
+        event_widget = testWidgets.findAppWidget( widget_name, missing_name, TRUE);
         if (event_widget) {
 
             QMouseEvent* event = readMouseEvent((QEvent::Type)event_id, line_stream, event_widget, widget_id);
@@ -592,7 +588,7 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
         }
     } else if (event_id == QEvent::Move) {
 
-        event_widget = findAppWidgetByName(widget_name, missing_name, TRUE);
+        event_widget = testWidgets.findAppWidget(widget_name, missing_name, TRUE);
         if (event_widget) {
 
             QEvent* event = readMoveEvent (line_stream, event_widget);
@@ -605,7 +601,7 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
         }
     } else if (event_id == QEvent::Resize) {
 
-        event_widget = findAppWidgetByName(widget_name, missing_name, TRUE);
+        event_widget = testWidgets.findAppWidget(widget_name, missing_name, TRUE);
         if (event_widget) {
 
             QEvent* event = readResizeEvent (line_stream, event_widget);
@@ -618,7 +614,7 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
 		}
     } else if (event_id == QEvent::MouseButtonDblClick) {
 
-        event_widget = findAppWidgetByName (widget_name, missing_name, TRUE);
+        event_widget = testWidgets.findAppWidget (widget_name, missing_name, TRUE);
         if (event_widget) {
 
             if (( ! event_widget->parent () && event_widget->inherits ("QListBox"))
@@ -642,7 +638,7 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
     } else if (event_id == QEvent::MouseButtonRelease) {
 
         // X11 window managers like to create invalid mouse events, allow to send this one to already hidden widget
-        event_widget = findAppWidgetByName (widget_name, missing_name, TRUE);
+        event_widget = testWidgets.findAppWidget (widget_name, missing_name, TRUE);
         if (event_widget) {
 
             QMouseEvent* event = readMouseEvent ((QEvent::Type)event_id, line_stream, event_widget, widget_id);
@@ -656,7 +652,7 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
     } else if (event_id == QEvent::KeyRelease) {
 
         // window could have been undisplayed by KeyPress event, so allow to send to invisible widget
-        event_widget = findAppWidgetByName (widget_name, missing_name, TRUE);
+        event_widget = testWidgets.findAppWidget (widget_name, missing_name, TRUE);
         if (event_widget) {
 
             QKeyEvent* event =  readKeyEvent ((QEvent::Type)event_id, line_stream);
@@ -670,26 +666,20 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
     }
 
     if (!event_widget)
-        event_widget = findAppWidgetByName(widget_name, missing_name, TRUE);
+        event_widget = testWidgets.findAppWidget(widget_name, missing_name, TRUE);
 
     if (event_widget) {
 
-	QCString wName;
-	widgetDefs.findWidgetName( widget_id, wName );
-
 	QString msg = "Widget '" + missing_name + "' in '";
-	msg+= wName;
+	msg+= widget_name;
 	msg+= "' not visible.";
 
         QRemoteMessage S("ERR",msg);
 	S.send(m_socket);
     } else {
 
-	QCString wName;
-	widgetDefs.findWidgetName( widget_id, wName );
-
 	QString msg = "Unknown widget '" + missing_name + "' in '";
-	msg+= wName;
+	msg+= widget_name;
 	msg+= "'";
 
         QRemoteMessage S("ERR",msg);
@@ -735,46 +725,6 @@ void QTestControl::hostConnected()
 void QTestControl::startRecording()
 {
     is_recording = TRUE;
-}
-
-/*!
-   \internal
-    Browses recursive through the \a list and assigns all available widgets with an 
-    unique ID that will be shared with the test server.
-*/
-
-void QTestControl::updateWidgetDefs( const QObjectList* list )
-{
-    if (list != 0) {
-
-	uint count = list->count();
-        QObjectListIt it (*list);
-        while (count > 0 && it.current()) {
-	    count--;
-
-	    if (it.current()->isWidgetType()) {
-//		&& (!((QWidget*)it.current())->isTopLevel())) {
-
-	        QCString widget_name;
-		if (verifyUniqueName( it.current(), widget_name )) {
-
-		    // only append widgets to the defs if the name is unique
-		    int widget_index;
-		    if (!widgetDefs.findWidgetIndex( widget_name, widget_index )) {
-
-			QString s = widgetDefs.appendWidget( widget_name );
-			QRemoteMessage S( "WidgetDef", s );
-			S.send( m_socket );
-		    }
-		}
-	    }
-	    
-	    // append all children too
-	    updateWidgetDefs( it.current()->children() );
-
-            ++it;
-        }
-    }
 }
 
 /*!
@@ -896,6 +846,8 @@ void QTestControl::recordEvent( QObject* receiver, QEvent* e )
 
 	Q_ASSERT(receiver->isWidgetType());
 
+        testWidgets.addPtr( receiver );
+
         QString event_line;
         switch (e->type ())
         {
@@ -924,6 +876,7 @@ void QTestControl::recordEvent( QObject* receiver, QEvent* e )
                 break;
 
             case QEvent::KeyPress:
+/*
                 // must we dump a screen?
             {
                 QKeyEvent* key_event = (QKeyEvent*)e;
@@ -951,6 +904,7 @@ void QTestControl::recordEvent( QObject* receiver, QEvent* e )
                     }
                 }
             }
+*/
             case QEvent::KeyRelease:
             case QEvent::Accel:
                 getEventLine ((QKeyEvent*)e, event_line);
@@ -964,42 +918,17 @@ void QTestControl::recordEvent( QObject* receiver, QEvent* e )
 		break;
         }
 
-        QCString widget_name;
-	if (!verifyUniqueName(receiver, widget_name ))
-	    return;
-
-        int widget_index = -1;
-	if (!widgetDefs.findWidgetIndex( widget_name, widget_index )) {
-
-	    if (receiverIsAccessible(receiver)) {
-
-		QString s = widgetDefs.appendWidget( widget_name );
-		QRemoteMessage S("WidgetDef",s);
-		S.send(m_socket);
-
-		// append all children too
-		updateWidgetDefs( receiver->children() );
-
-	    } else {
-
-		QRemoteMessage S("ERR","Widget '" + widget_name + "' is not accessible.");
-		S.send(m_socket);
-	    }
-
-        }
-
-	if (widget_index == -1) {
-
-	    QRemoteMessage S("ERR","Widget '" + widget_name + "' is not accessible anymore.");
-	    S.send(m_socket);
-	} else {
-
+        QTestWidgets::QWidgetRec *rec;
+        if (testWidgets.getWidgetRec( receiver, rec )) {
 	    QString s;
-	    s.sprintf("%d %d %s",e->type(),widget_index, event_line.latin1());
+	    s.sprintf("%d %d %s",e->type(),rec->_id, event_line.latin1());
 
 	    QRemoteMessage S("Event",s);
 	    S.send(m_socket);
-	}
+        } else {
+	    QRemoteMessage S("ERR","Widget '" + QString(receiver->name()) + "' is not accessible anymore.");
+	    S.send(m_socket);
+        }
     }
 /*
     if ((e->type() == QEvent::Enter)
@@ -1017,25 +946,6 @@ void QTestControl::recordEvent( QObject* receiver, QEvent* e )
         }
     }
 */
-}
-
-bool QTestControl::appendWidget(const QCString &widget_name, int widget_index)
-{
-    bool indexError;
-    if (!widgetDefs.appendWidget( widget_name, widget_index, indexError)) {
-	
-	QString msg;
-	if (indexError)
-	    msg = "Widget index is already defined!";
-	else
-	    msg = "Widget name is already defined!";
-
-	QRemoteMessage S("WRN",msg);
-	S.send(m_socket);
-	return FALSE;
-    }
-
-    return TRUE;
 }
 
 bool QTestControl::mustWriteEvent(QEvent* e, QObject* receiver)
@@ -1063,8 +973,7 @@ bool QTestControl::mustWriteEvent(QEvent* e, QObject* receiver)
     switch (e->type ())
     {
 	case QEvent::MouseMove:
-	    return doesWidgetExistRightNow(receiver);  // X11 may report move events for deleted widgets
-
+	    return testWidgets.widgetIsVisible( receiver );  // X11 may report move events for deleted widgets
 	case QEvent::MouseButtonPress:
 	case QEvent::MouseButtonRelease:
 	case QEvent::MouseButtonDblClick:
@@ -1076,7 +985,6 @@ bool QTestControl::mustWriteEvent(QEvent* e, QObject* receiver)
 	case QEvent::Quit:
 	case QEvent::Accel:
 	    return TRUE;
-
 	case QEvent::Show:
 	    return receiver->inherits("QPopupMenu");
 	default:
@@ -1252,6 +1160,7 @@ bool QTestControl::isToplevelEventFromUser(QObject* receiver)
     return TRUE;
 }
 
+/*
 void QTestControl::dumpPixmapToFile (QWidget& widget, QString& file_basename)
 {
     assert (&widget);
@@ -1269,189 +1178,7 @@ void QTestControl::dumpPixmapToFile (QWidget& widget, QString& file_basename)
 	    S.send(m_socket);
     }
 }
-
-bool QTestControl::hasName ( const QObject* item )
-{
-    if ( item == 0 )
-	return FALSE;
-
-    if ( !item->name() || strcmp (item->name(), "unnamed") == 0) {
-	if (!item->isWidgetType())
-	    return FALSE;
-	else 
-	    return ((QWidget*)item)->alias() != "";
-    }
-
-    return TRUE;
-}
-
-// getFullName() creates a name that is a concatenation of all parents' names. This is unique
-// as long as you ensure that sibling widgets have unique names.
-QCString QTestControl::getFullName( const QObject* item )
-{
-    if (item == 0)
-	return "";
-
-    QString name;
-
-    if (item->isWidgetType() && !((QWidget*)item)->alias().isNull() && ((QWidget*)item)->alias() != "") {
-	name = ((QWidget*)item)->alias();
-    } else
-	name = item->name();
-    if (name.isNull())
-	name = "null";
-
-    QCString retValue;
-
-//    if (isTopLevelItem(item))
-    if (item->parent() == 0)
-	retValue = name;
-    else
-	retValue = getFullName(item->parent()) + nameDelimiterChar + name.latin1();
-
-    if (!hasName(item)) {
-
-	QRemoteMessage S("WRN","Unnamed instance '" + retValue + "' of class '" + item->className() + "'");
-	S.send(m_socket);
-    }
-//qDebug("getFullName: " + retValue);
-
-    return retValue;
-}
-
-// verifyUniqueName() returns the same name as getFullName() but also verifies that there are
-// no siblings with exactly the same name.
-bool QTestControl::verifyUniqueName( const QObject* item, QCString &widgetName )
-{
-    bool retValue = TRUE;
-    widgetName = getFullName(item);
-
-    QObject* parent = item->parent();
-    if (parent) {
-
-	QObjectList *children = parent->queryList(0,item->name(),FALSE,FALSE);
-	if (children) {
-	    if (children->count() > 1) {
-
-		// some workarounds to solve internal name problems...
-		QString testName = item->name();
-		if (testName == "qt_dockwidget_internal") {
-//QMessageBox::warning(0,"Hi","Hi","Ok");
-
-		    bool bad_class = FALSE;
-		    int popup_count = 0;
-		    int extension_count = 0;
-		    int resize_count = 0;
-		    int title_count = 0;
-		    int handle_count = 0;
-		    int alias_count = 0;
-		    QWidget *w;
-		    uint i;
-		    for (i=0; i < children->count(); i++) {
-			w = (QWidget*)children->at(i);
-			if (w->alias() != "") {
-			    alias_count++;
-			    continue;
-			}
-			QString tmp = w->className();
-			if (tmp == "QDockWindowTitleBar") {
-			    title_count++;
-			    w->setAlias("qt_titlebar");
-			} else if (tmp == "QDockWindowHandle") {
-			    switch (handle_count)
-			    {
-				case 0: w->setAlias("qt_horz_handle"); break;
-				case 1: w->setAlias("qt_vert_handle"); break;
-			    }
-			    handle_count++;
-
-			} else if (tmp == "QDockWindowResizeHandle") {
-			    switch (resize_count)
-			    {
-				case 0: w->setAlias("qt_resize_top"); break;
-				case 1: w->setAlias("qt_resize_left"); break;
-				case 2: w->setAlias("qt_resize_right"); break;
-				case 3: w->setAlias("qt_resize_bottom"); break;
-			    }
-			    resize_count++;
-
-			} else if (tmp == "QToolBarExtensionWidget") {
-			    extension_count++;
-			    w->setAlias("qt_extension_widget");
-			} else if (tmp == "QPopupMenu") {
-			    popup_count++;
-			    w->setAlias("qt_popup_menu");
-			} else {
-			    bad_class = TRUE;
-			}
-		    }
-
-		    if (!bad_class) {
-			if (alias_count == 9 ||
-			   (popup_count == 1 && 
-			    extension_count == 1 && 
-			    resize_count == 4 && 
-			    handle_count == 2 &&
-			    title_count == 1
-			   ) )
-			return TRUE;
-		    }
-
-		    // turn back the clock so we get a proper error message from the children
-		    for (i=0; i < children->count(); i++) {
-			w = (QWidget*)children->at(i);
-			w->setAlias("");
-		    }
-		}
-
-
-		// check if we have issued a warning for this objectname before.
-		// if we have, exit without sending another warning.
-		QStringList::Iterator it = multiple_instances.begin();
-		while (it != multiple_instances.end()) {
-		    if (strcmp(*it,widgetName) == 0) {
-			retValue = FALSE;
-			break;
-		    }
-		    it++;
-		}
-
-		if (retValue) {
-		    // add the name to the list...
-		    multiple_instances.append(widgetName);
-
-		    // and send a warning/error...
-		    QRemoteMessage S("ERR","Multiple instances named '" + widgetName + "' exist.");
-		    S.send(m_socket);
-
-		    for (uint i=0; i < children->count(); i++) {
-			QString tmp = "  of class type '";
-			tmp+= children->at(i)->className();
-			assert(children->at(i)->parent() == parent);
-			tmp+= "'.";
-			QRemoteMessage S("ERR",tmp);
-			S.send(m_socket);
-		    }
-
-		    retValue = FALSE;
-		}
-	    }
-	    delete children;
-	}
-    }
-
-    return retValue;
-}
-
-bool QTestControl::doesWidgetExistRightNow( QObject* receiver )
-{
-    QCString widget_name = getFullName( receiver );
-
-    widget_name += nameDelimiterChar;
-    QString missing_name;
-    QObject* event_widget = findAppWidgetByName( widget_name, missing_name, FALSE );
-    return (event_widget != 0);
-}
+*/
 
 bool QTestControl::isWidgetAListBoxArea( const QObject* event_widget )
 {
@@ -1464,124 +1191,6 @@ bool QTestControl::isWidgetAListBoxArea( const QObject* event_widget )
             && event_widget->parent()
             && event_widget->parent()->parent()
             && event_widget->parent()->inherits("QListBox"));
-}
-
-bool QTestControl::isTopLevelItem(const QObject* item)
-{
-    return (item->isWidgetType() && ((QWidget*)item)->isTopLevel ());
-}
-
-bool QTestControl::receiverIsAccessible(QObject *receiver)
-{
-    assert(receiver);
-
-    if (!receiver->parent()) {
-	if (isTopLevelItem(receiver)) {
-
-	    QObject* widget = findWidget((char*)receiver->name());
-	    if (widget == 0) {
-		return FALSE;
-	    }
-	}
-    }
-
-    return TRUE;
-}
-
-QObject* QTestControl::findWidget( const QCString &name )
-{
-    QString missing_name;
-    QObject *widget = findAppWidgetByName(name, missing_name, TRUE);
-
-    if (!widget)
-	widget = findGlobalWidget(name);
-
-    return widget;
-}
-
-QObject* QTestControl::findAppWidgetByName(const QCString &name, QString &missing_name, bool allow_invisible_widgets)
-{
-    // casting a QWidgetList to a QObjectList is safe as long as QWidget inherits QObject
-    QObjectList *search_list = (QObjectList*)(QApplication::topLevelWidgets());  
-    QObject *widget = findWidgetByName(name, search_list, missing_name, allow_invisible_widgets);
-    delete search_list;
-//    QObjectList *search_list = (QObjectList*)(QApplication::objectTrees());
-//    QObject *widget = findWidgetByName(name, search_list, missing_name, TRUE);
-
-    return widget;
-}
-
-QObject* QTestControl::findGlobalWidget( const QCString &name )
-{
-    QString missing_name;
-    QObjectList *search_list = (QObjectList*)(QApplication::objectTrees());
-    QObject *widget = findWidgetByName(name, search_list, missing_name, TRUE);
-
-    return widget;
-}
-
-QObject* QTestControl::findWidgetByName( const QCString &name, const QObjectList* search_list, QString &missing_name, bool allow_invisible_widgets )
-{
-    bool last = FALSE;
-    QObject* result = 0;
-    if (search_list) {
-
-	QCString base_name;
-	int pos = name.find(nameDelimiterChar);
-	if (pos > 0)
-	    base_name = name.left(pos);
-	else {
-	    base_name = name;
-	    last = TRUE;
-	}
-
-	QCString cur_name;
-        QObjectListIt it (*search_list);
-	QObject *o;
-        while (it.current() && ! result) {
-
-	    o = it.current();
-	    if (o->isWidgetType() && ((QWidget*)o)->alias() != "")
-		cur_name = ((QWidget*)o)->alias();
-	    else
-		cur_name = o->name();
-	    if ((base_name == cur_name) &&
-		    (allow_invisible_widgets || 
-		 !o->isWidgetType() || 
-		 ((QWidget*)o)->isVisible())) {
-
-		    QCString nextname = name.mid(pos+1);     // next name starts after delimiter
-		    if (nextname != "" && !last) {            // if there is another name...
-			result = findWidgetByName(nextname, o->children(), missing_name, allow_invisible_widgets);
-		    } else {
-			if (o->isWidgetType())
-			    result = it.current();
-		    }
-            }
-            ++it;
-        }
-        if ( ! result && missing_name.isNull())
-            missing_name = base_name;
-    }
-    return result;
-}
-
-void QTestControl::addWidgetDef( const QString &def )
-{
-    QCString  widget_name;
-    int      widget_index;
-    if (!widgetDefs.appendWidgetDef(def, widget_name, widget_index))
-	return;
-
-    for (QTestScalingInfo* si = scalingInfo.first(); si; si = scalingInfo.next())
-    {
-        if ((si->regExp()) && 
-			(si->regExp()->isValid()) && 
-			(si->regExp()->search(widget_name, 0) >= 0))
-        {
-            widget_scale_dict_.insert(widget_index, si);
-        }
-    }
 }
 
 QTestControl::QTestScalingInfo::QTestScalingInfo(QByteArray *params, ScaleMode sm)
@@ -1813,6 +1422,7 @@ qDebug("QTestControl::readKeyEvent()...");
 
     if (event_id == QEvent::KeyPress)
     {
+/*
         if ((state & (Qt::ShiftButton | Qt::ControlButton)) == (Qt::ShiftButton | Qt::ControlButton))
         {
             QWidget* dump_widget = 0;
@@ -1836,6 +1446,7 @@ qDebug("QTestControl::readKeyEvent()...");
                 ++playFileCount;              
             }
         }
+*/
     }
     return new QKeyEvent (event_id, key, ascii, state, text, autorep, count);
 }
