@@ -129,7 +129,7 @@ void QItemDelegate::drawIcon(QPainter *painter, const QItemOptions &options, con
     QIconSet::Mode mode = options.disabled ? QIconSet::Disabled : QIconSet::Normal; // FIXME: open
     QIconSet::Size size = options.smallItem ? QIconSet::Small : QIconSet::Large;
     QIconSet::State state = options.selected ? QIconSet::On : QIconSet::Off;
-    painter->drawPixmap(rect, icons.pixmap(size, mode, state));
+    painter->drawPixmap(rect.topLeft(), icons.pixmap(size, mode, state));
 }
 
 void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const
