@@ -1217,7 +1217,7 @@ void QTextEdit::removeSelectedText( int selNum )
 	undoRedoInfo.d->text = QString::null;
     }
     int oldLen = undoRedoInfo.d->text.length();
-    undoRedoInfo.d->text = doc->selectedText( selNum );
+    undoRedoInfo.d->text = doc->selectedText( selNum, FALSE );
     undoRedoInfo.oldAligns.resize( undoRedoInfo.oldAligns.size() + QMAX( 0, c2.parag()->paragId() - c1.parag()->paragId() + 1 ) );
     readFormats( c1, c2, oldLen, undoRedoInfo.d->text, TRUE );
     doc->removeSelectedText( selNum, cursor );

@@ -2162,7 +2162,7 @@ bool QTextDocument::removeSelection( int id )
     return TRUE;
 }
 
-QString QTextDocument::selectedText( int id ) const
+QString QTextDocument::selectedText( int id, bool withCustom ) const
 {
     // ######## TODO: look at textFormat() and return rich text or plain text (like the text() method!)
     QMap<int, QTextDocumentSelection>::ConstIterator it = selections.find( id );
@@ -2193,7 +2193,7 @@ QString QTextDocument::selectedText( int id ) const
 	int end = p == c2.parag() ? c2.index() : p->length() - 1;
 	if ( p == c2.parag() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
 	    ++end;
-	if ( !p->customItems() ) {
+	if ( !withCustom || !p->customItems() ) {
 	    s += p->string()->toString().left( end );
 	    if ( p != c2.parag() )
 		s += "\n";

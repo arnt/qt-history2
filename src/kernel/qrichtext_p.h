@@ -750,7 +750,7 @@ public:
     int numSelections() const { return nSelections; }
     void addSelection( int id );
 
-    QString selectedText( int id ) const;
+    QString selectedText( int id, bool withCustom = TRUE ) const;
     void copySelectedText( int id );
     void removeSelectedText( int id, QTextCursor *cursor );
     void indentSelection( int id );
