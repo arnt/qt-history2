@@ -1391,7 +1391,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
     window = win;
     buttonDown = FALSE;
     imode = iconMode;
-    act = FALSE;
+    act = TRUE;
     titleHeight = 18;
     border = 2;
 
@@ -1501,6 +1501,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 	f.setPointSize( f.pointSize() - 1 );
 #endif
     titleL->setFont( f );
+    setActive( FALSE );
 }
 
 QWorkspaceChildTitleBar::~QWorkspaceChildTitleBar()
@@ -1635,38 +1636,36 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
     }
 }
 
-
 void QWorkspaceChildTitleBar::setActive( bool active )
 {
+    if ( act == active )
+	return ;
+
     act = active;
 
     titleL->setActive( active );
     if ( active ) {
+	if ( win32 ) {
+	    iconL->setBackgroundColor( titleL->leftColor() );	    
+	} else {
+	    if ( !window || !window->testWFlags( WStyle_Tool ) )
+		titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+	}
 	if ( imode && !win32 ){
 	    iconB->show();
 	    maxB->show();
 	    closeB->show();
 	}
-	QColorGroup g = palette().active();
-	if ( win32 ) {
-	    g.setColor( QColorGroup::Background, titleL->leftColor() );
-	    iconL->setPalette( QPalette( g, g, g) );
-	} else {
-	    if ( !window || !window->testWFlags( WStyle_Tool ) )
-		titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-	}
     } else {
+	if ( win32 ) {
+	    iconL->setBackgroundColor( titleL->leftColor() );
+	} else {
+	    titleL->setFrameStyle( QFrame::NoFrame );
+	}
 	if ( imode && !win32 ){
 	    iconB->hide();
 	    closeB->hide();
 	    maxB->hide();
-	}
-	QColorGroup g = palette().inactive();
-	if ( win32 ) {
-	    g.setColor( QColorGroup::Background, titleL->leftColor() );
-	    iconL->setPalette( QPalette( g, g, g) );
-	} else {
-	    titleL->setFrameStyle( QFrame::NoFrame );
 	}
     }
     if ( imode )
