@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#97 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -277,21 +277,6 @@ void QHeader::setOrientation( Orientation orientation )
 {
     if (orient==orientation) return;
     orient = orientation;
-    /*
-    int n = count();
-    if ( orient == Horizontal ) {
-	setCellWidth( 0 );
-	setCellHeight( height() );
-	setNumCols( n );
-	setNumRows( 1 );
-    } else {
-	setCellWidth( width() );
-	setCellHeight( 0 );
-	setNumCols( 1 );
-	setNumRows( n );
-    }
-    updateTableSize();
-    */
     repaint();
 }
 
