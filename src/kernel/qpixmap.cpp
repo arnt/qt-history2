@@ -888,6 +888,12 @@ bool QPixmap::load( const QString &fileName, const char *format,
 
 bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
 {
+    if ( image.isNull() ) {
+	// convert null image to null pixmap
+	*this = QPixmap();
+	return TRUE;
+    }
+	
     int conversion_flags = 0;
     switch (mode) {
       case Color:
@@ -1228,15 +1234,7 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
-    QImageIO io;
-    io.setIODevice( s.device() );
-    if ( s.version() == 1 )
-	io.setFormat( "BMP" );
-    else
-	io.setFormat( "PNG" );
-
-    io.setImage( pixmap.convertToImage() );
-    io.write();
+    s << pixmap.convertToImage();
     return s;
 }
 
@@ -1251,9 +1249,9 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 {
-    QImageIO io( s.device(), 0 );
-    if ( io.read() )
-	pixmap.convertFromImage( io.image() );
+    QImage img;
+    s >> img;
+    pixmap.convertFromImage( img );
     return s;
 }
 

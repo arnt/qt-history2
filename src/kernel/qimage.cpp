@@ -3030,10 +3030,8 @@ QImage QImage::createAlphaMask( int conversion_flags ) const
 	conversion_flags = Qt::DiffuseAlphaDither;
     }
 
-    if ( isNull() || !hasAlphaBuffer() ) {
-	QImage nullImage;
-	return nullImage;
-    }
+    if ( isNull() || !hasAlphaBuffer() )
+	return QImage(); // null image
 
     if ( depth() == 1 ) {
 	// A monochrome pixmap, with alpha channels on those two colors.
@@ -3522,6 +3520,15 @@ bool QImage::save( const QString &fileName, const char* format, int quality ) co
 
 QDataStream &operator<<( QDataStream &s, const QImage &image )
 {
+    if ( s.version() >= 5 ) {
+	if ( image.isNull() ) {
+	    s << (Q_INT32) 0; // null image marker
+	    return s;
+	} else {
+	    s << (Q_INT32) 1;
+	    // continue ...
+	}
+    }
     QImageIO io;
     io.setIODevice( s.device() );
     if ( s.version() == 1 )
@@ -3545,6 +3552,14 @@ QDataStream &operator<<( QDataStream &s, const QImage &image )
 
 QDataStream &operator>>( QDataStream &s, QImage &image )
 {
+    if ( s.version() >= 5 ) {
+	Q_INT32 isNull;
+	s >> isNull;
+	if ( isNull ) {
+	    image = QImage(); // null image
+	    return s;
+	}
+    }
     QImageIO io( s.device(), 0 );
     if ( io.read() )
 	image = io.image();

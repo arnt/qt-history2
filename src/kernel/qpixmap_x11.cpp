@@ -590,12 +590,8 @@ int QPixmap::metric( int m ) const
 QImage QPixmap::convertToImage() const
 {
     QImage image;
-    if ( isNull() ) {
-#if defined(QT_CHECK_NULL)
-	qWarning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
-#endif
-	return image;
-    }
+    if ( isNull() )
+	return image; // null image
 
     int	    w  = width();
     int	    h  = height();

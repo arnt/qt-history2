@@ -69,7 +69,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     }
     SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
 }
 
@@ -224,7 +224,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
     SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
 
     data->uninit = FALSE;
@@ -241,7 +241,7 @@ int get_index(QImage * qi,QRgb mycol)
 {
     int loopc;
     for(loopc=0;loopc<qi->numColors();loopc++) {
-	if(qi->color(loopc)==mycol) 
+	if(qi->color(loopc)==mycol)
 	    return loopc;
     }
     qi->setNumColors(qi->numColors()+1);
@@ -251,17 +251,9 @@ int get_index(QImage * qi,QRgb mycol)
 
 QImage QPixmap::convertToImage() const
 {
-    if ( data->w == 0 ) {
-#if defined(QT_CHECK_NULL)
-        warning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
-#endif
-        QImage nullImage;
-        return nullImage;
-    }
-    if( hd==0 ) {
-        QImage nullImage;
-        return nullImage;
-    }  
+    if ( data->w == 0 || hd==0 )
+	return QImage(); // null image
+
     int w = data->w;
     int h = data->h;
     int d = data->d;
@@ -324,7 +316,7 @@ QImage QPixmap::convertToImage() const
     SwapMMUMode(&mode);
 
 #ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
 
     //how do I handle a mask?
@@ -385,7 +377,7 @@ QImage QPixmap::convertToImage() const
     }
 
 #ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
     return image;
 }
@@ -398,7 +390,7 @@ void QPixmap::fill( const QColor &fillColor )
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
     //at the end of this function this will go out of scope and the destructor will restore the state
-    QMacSavedPortInfo saveportstate(this); 
+    QMacSavedPortInfo saveportstate(this);
 #ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
@@ -426,7 +418,7 @@ void QPixmap::fill( const QColor &fillColor )
 	PaintRect(&r);
     }
 #ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
 }
 
@@ -484,7 +476,7 @@ void QPixmap::deref()
 #ifdef QMAC_ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
-	    DisposeGWorld((GWorldPtr)hd);    
+	    DisposeGWorld((GWorldPtr)hd);
         }
 #ifndef QMAC_NO_QUARTZ
 	if(ctx)
@@ -497,7 +489,7 @@ void QPixmap::deref()
 }
 
 void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
-		   const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+		   const QPaintDevice *src, int sx, int sy, int sw, int sh,
 		   Qt::RasterOp rop, bool imask);
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
@@ -528,7 +520,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	h = QABS( h );
 	w = QABS( w );
 
-	if(w==0 || h==0) 
+	if(w==0 || h==0)
 	    return *this;
 
 	QPixmap pm( w, h, depth(), NormalOptim );
@@ -574,19 +566,19 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bpp = 32;
     dbytes = dbpl*h;
 
-    if ( bpp == 1 ) 
+    if ( bpp == 1 )
 	memset( dptr, 0x00, dbytes );
-    else if ( bpp == 8 ) 
+    else if ( bpp == 8 )
 	memset( dptr, white.pixel(), dbytes );
-    else if( bpp == 32) 
+    else if( bpp == 32)
 	pm.fill(0x00FFFFFF);
-    else 
+    else
 	memset( dptr, 0xff, dbytes );
 
     char mode = true32b;
     SwapMMUMode(&mode);
     int	xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
-    if ( !qt_xForm_helper( mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp, 
+    if ( !qt_xForm_helper( mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
 			   dptr, xbpl, dbpl - xbpl, h, sptr, sbpl, ws, hs ) ){
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
@@ -596,8 +588,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
     SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));
 #endif
 
     if ( depth() == 1 ) {
@@ -619,7 +611,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	d = 32; //magic number.. we always use a 32 bit depth for non-bitmaps
 
     static int serial = 0;
-    
+
     hd = 0;
     data = new QPixmapData;
     Q_CHECK_PTR( data );
@@ -646,7 +638,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	return;
     }
 
-    if(w<1 || h<1) 
+    if(w<1 || h<1)
 	return;
     data->w=w;
     data->h=h;
@@ -657,11 +649,11 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     const int params = alignPix | stretchPix | newDepth;
 #if 1
     if(optim == BestOptim) //try to get it into distant memory
-	e = NewGWorld((GWorldPtr *)&hd, 32, &rect, 
+	e = NewGWorld((GWorldPtr *)&hd, 32, &rect,
 		      data->clut ? &data->clut : NULL, 0, useDistantHdwrMem | params);
     if(e != noErr) //oh well I tried
-#endif  
-	e = NewGWorld((GWorldPtr *)&hd, 32, &rect, 
+#endif
+	e = NewGWorld((GWorldPtr *)&hd, 32, &rect,
 		      data->clut ? &data->clut : NULL, 0, params);
 
     /* error? */

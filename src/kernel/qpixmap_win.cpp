@@ -373,13 +373,8 @@ int QPixmap::metric( int m ) const
 
 QImage QPixmap::convertToImage() const
 {
-    if ( isNull() ) {
-#if defined(QT_CHECK_NULL)
-	qWarning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
-#endif
-	QImage nullImage;
-	return nullImage;
-    }
+    if ( isNull() )
+	return QImage(); // null image
 
     int	w = width();
     int	h = height();
@@ -750,7 +745,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	h = QABS( h );
 	w = QABS( w );
 	// we have to create the new pixmap before we query the handle of this,
-	// as the handle might change if this is a multicell pixmap that gets 
+	// as the handle might change if this is a multicell pixmap that gets
 	// expanded by the constructor in the line below.
 	QPixmap pm( w, h, depth(), optimization() );
 	HDC dc;

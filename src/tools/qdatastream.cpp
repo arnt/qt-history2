@@ -215,7 +215,8 @@
 static int  systemWordSize = 0;
 static bool systemBigEndian;
 
-static const int DefaultStreamVersion = 4;
+static const int DefaultStreamVersion = 5;
+// 5 is default in Qt 3.1
 // 4 is default in Qt 3.0
 // 3 is default in Qt 2.1
 // 2 is the Qt 2.0.x format
@@ -431,7 +432,7 @@ void QDataStream::setByteOrder( int bo )
     \fn int QDataStream::version() const
 
     Returns the version number of the data serialization format. In Qt
-    3.0, this number is 4.
+    3.1, this number is 5.
 
     \sa setVersion()
 */
@@ -453,6 +454,7 @@ void QDataStream::setByteOrder( int bo )
 
     \table
     \header \i Qt Version	    \i QDataStream Version
+    \row \i Qt 3.1		    \i11 5
     \row \i Qt 3.0		    \i11 4
     \row \i Qt 2.1.x and Qt 2.2.x   \i11 3
     \row \i Qt 2.0.x		    \i11 2
