@@ -871,6 +871,8 @@ void QGLWidget::setContext( QGLContext *context,
 
     if ( deleteOldContext )
 	delete oldcx;
+
+    glcx->setWindowCreated( TRUE );
 }
 
 
