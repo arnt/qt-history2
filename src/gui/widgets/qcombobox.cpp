@@ -1123,7 +1123,8 @@ QSize QComboBox::sizeHint() const
     option.state |= (hasFocus()
                      ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
     QSize itemSize;
-    for (int i = 0; i < model()->rowCount(root()); i++) {
+    int count = qMin(100, model()->rowCount(root()));
+    for (int i = 0; i < count; i++) {
         itemSize = d->delegate->sizeHint(fontMetrics(), option,
                                          model(), model()->index(i, 0, root()));
         if (itemSize.width() > d->sizeHint.width())
