@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#74 $
 **
 ** Implementation of QScrollView class
 **
@@ -586,14 +586,9 @@ void QScrollView::removeChild(QWidget* child)
 }
 
 /*!
-  \fn void QScrollView::addChild(QWidget* child)
-  Inserts \a child into the scrolled area.
-  It is equivalent to addChild(child,0,0).
-*/
-
-/*!
   Inserts \a child into the scrolled area positioned at (\a x, \a y).
-  If the child is already in the view, it is just moved.
+  The position defaults to (0,0). If the child is already in the view,
+  it is just moved.
 */
 void QScrollView::addChild(QWidget* child, int x, int y)
 {
@@ -860,7 +855,10 @@ void QScrollView::viewportWheelEvent( QWheelEvent * )
 
  It should not be otherwise manipulated.
 */
-QScrollBar* QScrollView::horizontalScrollBar() { return &d->hbar; }
+QScrollBar* QScrollView::horizontalScrollBar() const
+{
+    return &d->hbar;
+}
 
 /*!
  Returns the component vertical scrollbar.  It is made available to allow
@@ -869,7 +867,10 @@ QScrollBar* QScrollView::horizontalScrollBar() { return &d->hbar; }
 
  It should not be otherwise manipulated.
 */
-QScrollBar* QScrollView::verticalScrollBar() { return &d->vbar; }
+QScrollBar* QScrollView::verticalScrollBar() const {
+    return &d->vbar;
+}
+
 
 /*!
  Scrolls the content so that the point (x, y) is visible
@@ -1200,7 +1201,7 @@ void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int 
 
   The function should draw the rectangle (\a clipx, \a clipy, \a clipw, \a
   cliph ) of the contents, using painter \a p.  The clip rectangle is
-  in the scroll views's coordinates.  
+  in the scroll views's coordinates.
 
   For example:
   \code
@@ -1224,7 +1225,7 @@ void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int 
   \endcode
 
   The clip rectangle and translation of the painter \a p is already set
-  appropriately.  
+  appropriately.
 
   The default implementation does nothing.
 */
@@ -1245,7 +1246,7 @@ void QScrollView::frameChanged()
   Returns the viewport widget of the scrollview.  This is the widget
   containing the contents widget or which is the drawing area.
 */
-QWidget* QScrollView::viewport()
+QWidget* QScrollView::viewport() const
 {
     return &d->viewport;
 }

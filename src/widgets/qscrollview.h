@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#30 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#31 $
 **
 ** Definition of QScrollView class
 **
@@ -41,10 +41,9 @@ public:
     virtual void setResizePolicy( ResizePolicy );
     ResizePolicy resizePolicy() const;
 
-    void addChild(QWidget* child);
     void removeChild(QWidget* child);
-    virtual void addChild(QWidget* child, int x, int y);
-    virtual void moveChild(QWidget* child, int x, int y);
+    virtual void addChild( QWidget* child, int x=0, int y=0 );
+    virtual void moveChild( QWidget* child, int x, int y );
     int childX(QWidget* child);
     int childY(QWidget* child);
     bool childIsVisible(QWidget* child);
@@ -61,9 +60,9 @@ public:
     QWidget*     cornerWidget() const;
     virtual void setCornerWidget(QWidget*);
 
-    QScrollBar*  horizontalScrollBar();
-    QScrollBar*  verticalScrollBar();
-    QWidget*	 viewport();
+    QScrollBar*  horizontalScrollBar() const;
+    QScrollBar*  verticalScrollBar() const;
+    QWidget*	 viewport() const;
 
     int		contentsWidth() const;
     int		contentsHeight() const;
@@ -136,10 +135,5 @@ private:	// Disabled copy constructor and operator=
 #endif
     void changeFrameRect(const QRect&);
 };
-
-inline void QScrollView::addChild(QWidget* child)
-{
-    addChild(child,0,0);
-}
 
 #endif
