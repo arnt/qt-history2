@@ -1112,6 +1112,8 @@ void QPixmap::setDefaultOptimization( Optimization optimization )
 static QPixmap grabChildWidgets( QWidget * w )
 {
     QPixmap res( w->width(), w->height() );
+    if ( res.isNull() && w->width() )
+	return res;
     res.fill( w, QPoint( 0, 0 ) );
     QPainter::redirect( w, &res ); // ### overwrites earlier redirect
     bool dblbfr = QSharedDoubleBuffer::isDisabled();
@@ -1141,7 +1143,13 @@ static QPixmap grabChildWidgets( QWidget * w )
 		// make sure to evaluate pos() first - who knows what
 		// the paint event(s) inside grabChildWidgets() will do.
 		QPoint childpos = ((QWidget *)child)->pos();
-		p.drawPixmap( childpos, grabChildWidgets( (QWidget *)child ) );
+		QPixmap cpm = grabChildWidgets( (QWidget *)child );
+		if ( cpm.isNull() ) {
+		    // Some child pixmap failed - abort and reset
+		    res.resize( 0, 0 );
+		    break;
+		}
+		p.drawPixmap( childpos, cpm);
 	    }
 	}
     }
@@ -1178,6 +1186,10 @@ static QPixmap grabChildWidgets( QWidget * w )
     containing a rendering of \a widget. If the rectangle you ask for
     is a superset of \a widget, the areas outside \a widget are
     covered with the widget's background.
+
+    If an error occurs when trying to grab the widget, such as the
+    size of the widget being too large to fit in memory, an isNull()
+    pixmap is returned.
 
     \sa grabWindow() QPainter::redirect() QWidget::paintEvent()
 */
