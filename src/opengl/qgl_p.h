@@ -36,12 +36,12 @@ public:
     QGLColormap cmap;
     QMap<QString, int> displayListCache;
 
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-    QGLContext* olcx;
+#if defined(Q_WS_WIN)
 #elif defined(Q_WS_X11)
     QGLOverlayWidget*        olw;
-#endif
-#ifdef Q_WS_MAC
+#elif defined(Q_WS_MAC)
+    QGLContext* olcx;
+    EventHandlerRef event_handler;
     void updatePaintDevice();
 #endif
 };

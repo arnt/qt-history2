@@ -225,8 +225,6 @@ void QGLContext::makeCurrent()
     }
 
     aglSetCurrentContext((AGLContext)cx);
-    updatePaintDevice();
-    aglUpdateContext((AGLContext)cx);
     currentCtx = this;
 }
 
@@ -370,13 +368,53 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 #define d d_func()
 #define q q_func()
 
+static EventTypeSpec widget_opengl_events[] = {
+    { kEventClassControl, kEventControlOwningWindowChanged },
+    { kEventClassControl, kEventControlVisibilityChanged },
+    { kEventClassControl, kEventControlBoundsChanged }
+};
+static EventHandlerUPP widget_opengl_handlerUPP = 0;
+static void qt_clean_widget_opengl_handler()
+{
+    DisposeEventHandlerUPP(widget_opengl_handlerUPP);
+}
+OSStatus QGLWidget::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
+{
+    bool handled_event = true;
+    QGLWidget *widget = static_cast<QGLWidget*>(data);
+    UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
+    switch(eclass) {
+    case kEventClassControl:
+        handled_event = false;
+        if(ekind == kEventControlOwningWindowChanged || ekind == kEventControlVisibilityChanged 
+           || ekind == kEventControlBoundsChanged) 
+            widget->d->updatePaintDevice();
+        break;
+    default:
+        handled_event = false;
+        break;
+    }
+    if(!handled_event) //let the event go through
+        return eventNotHandledErr;
+    return noErr; //we eat the event
+}
+
 void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
 {
+    if(!widget_opengl_handlerUPP) {
+        widget_opengl_handlerUPP = NewEventHandlerUPP(QGLWidget::globalEventProcessor);
+        qAddPostRoutine(qt_clean_widget_opengl_handler);
+    }
+    InstallControlEventHandler(reinterpret_cast<HIViewRef>(winId()), 
+                               widget_opengl_handlerUPP, GetEventTypeCount(widget_opengl_events), 
+                               widget_opengl_events, (void *)this, &d->event_handler);
+
     d->glcx = d->olcx = 0;
     d->autoSwap = true;
 
     setAttribute(Qt::WA_NoBackground);
     setContext(context, shareWidget ? shareWidget->context() : 0);
+    
     if(isValid() && d->glcx->format().hasOverlay()) {
         d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
         if(!d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
@@ -462,7 +500,6 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
         d->glcx->create(shareContext);
     if(deleteOldContext)
         delete oldcx;
-    d->updatePaintDevice();
 }
 
 bool QGLWidget::renderCxPm(QPixmap*)
@@ -488,7 +525,6 @@ void QGLWidgetPrivate::updatePaintDevice()
     glcx->updatePaintDevice();
     if(olcx)
         olcx->updatePaintDevice();
-    q->update();
 }
 
 #endif

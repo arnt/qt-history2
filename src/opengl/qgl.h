@@ -293,6 +293,9 @@ public slots:
     virtual void updateOverlayGL();
 
 protected:
+#ifdef Q_WS_MAC
+    static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
+#endif    
     bool event(QEvent *);
     virtual void initializeGL();
     virtual void resizeGL(int w, int h);
