@@ -562,27 +562,27 @@ int QRingBuffer::indexOf(char c) const
 /*! \internal
 
     Reads one line of data (all data up to and including the '\n'
-    character), no longer than \a maxSize bytes, and stores it in \a
-    data. If the line is too long, or if no line could be read, -1 is
-    returned.
+    character), no longer than \a maxSize - 1 bytes, and stores it in \a
+    data. If the line is too long, maxSize bytes of the line are read.
+    \a data is always 0-terminated.
 */
 int QRingBuffer::readLine(char *data, int maxSize)
 {
     int index = indexOf('\n');
-    if (index == -1)
-        return -1;
-
-    if (index > maxSize)
+    if (index == -1 || maxSize <= 0)
         return -1;
 
     int readSoFar = 0;
-    while (readSoFar < index) {
+    while (readSoFar < index && readSoFar < maxSize - 1) {
         int bytesToRead = qMin((index + 1) - readSoFar, nextDataBlockSize());
+        bytesToRead = qMin(bytesToRead, (maxSize - 1) - readSoFar);
         memcpy(data + readSoFar, readPointer(), bytesToRead);
         readSoFar += bytesToRead;
         free(bytesToRead);
     }
 
+    // Terminate it.
+    data[readSoFar] = '\0';
     return readSoFar;
 }
 
@@ -623,7 +623,8 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
 */
 QAbstractSocketPrivate::~QAbstractSocketPrivate()
 {
-    resetSocketLayer();
+    if (socketLayer.isValid())
+        resetSocketLayer();
 }
 
 /*! \internal
@@ -1287,6 +1288,10 @@ bool QAbstractSocket::isValid() const
 */
 bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
 {
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::connectToHost(\"%s\", %i)...", hostName.latin1(), port);
+#endif
+
     if (d->state == Qt::ConnectingState || d->state == Qt::ConnectedState)
         close();
 
@@ -1299,7 +1304,6 @@ bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
         d->startConnecting(QDns::getHostByName(hostName));
     else
         QDns::getHostByName(hostName, this, SLOT(startConnecting(QDnsHostInfo)));
-
 
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::connectToHost(\"%s\", %i) == %s%s", hostName.latin1(), port,
@@ -1316,6 +1320,10 @@ bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
 */
 bool QAbstractSocket::connectToHost(const QHostAddress &address, Q_UINT16 port)
 {
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::connectToHost([%s], %i)...",
+           address.toString().latin1(), port);
+#endif
     return connectToHost(address.toString(), port);
 }
 
@@ -1347,6 +1355,10 @@ bool QAbstractSocket::connectToHost(const QHostAddress &address, Q_UINT16 port)
 */
 void QAbstractSocket::setBlocking(bool blocking, int msec)
 {
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::setBlocking(%s, %i)",
+           blocking ? "true" : "false", msec);
+#endif
     d->isBlocking = blocking;
     d->blockingTimeout = msec;
 
@@ -1494,12 +1506,21 @@ QByteArray QAbstractSocket::readLine()
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::readLine(), blocking? %s", d->isBlocking ? "true" : "false");
 #endif
-    if (!d->socketLayer.isValid())
+    if (!d->socketLayer.isValid()) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readLine() == QByteArray() (invalid socket)");
+#endif
         return QByteArray();
+    }
 
     if (d->isBlocking) {
         int timeout = d->blockingTimeout;
         while (!canReadLine()) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocket::readLine() can't read line, waiting (%i seconds left)",
+                   timeout);
+#endif
+
             QTime stopWatch;
             stopWatch.start();
             int oldSize = d->readBuffer.size();
@@ -1507,6 +1528,10 @@ QByteArray QAbstractSocket::readLine()
                     || oldSize == d->readBuffer.size()) {
                 d->socketError = d->socketLayer.socketError();
                 d->socketErrorString = d->socketLayer.errorString();
+#if defined (QABSTRACTSOCKET_DEBUG)
+                qDebug("QAbstractSocket::readLine() == QByteArray() (%s)",
+                       d->socketErrorString.latin1());
+#endif
                 return QByteArray();
             }
 
@@ -1516,11 +1541,19 @@ QByteArray QAbstractSocket::readLine()
 
     int endOfLine = d->readBuffer.indexOf('\n');
     QByteArray tmp;
-    if (endOfLine == -1)
+    if (endOfLine == -1) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readLine() == QByteArray() (no new line)");
+#endif
         return tmp;
+    }
 
-    tmp.resize(endOfLine + 1);
-    d->readBuffer.readLine(tmp.data(), endOfLine + 1);
+    // Allocate space for the '\n' and a '\0'.
+    tmp.resize(endOfLine + 2);
+    d->readBuffer.readLine(tmp.data(), endOfLine + 2);
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readLine() == \"%s\"", tmp.data());
+#endif
     return tmp;
 }
 
@@ -1595,7 +1628,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
 bool QAbstractSocket::waitForReadyRead(int msecs)
 {
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForReadyRead()", msecs);
+    qDebug("QAbstractSocket::waitForReadyRead(%i)", msecs);
 #endif
 
     if (socketState() != Qt::ConnectedState && socketState() != Qt::BoundState) {
@@ -1608,14 +1641,15 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
         d->socketError = d->socketLayer.socketError();
         d->socketErrorString = d->socketLayer.errorString();
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForReadyRead() failed (%s)", d->socketErrorString.latin1());
+    qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%s)",
+           msecs, d->socketErrorString.latin1());
 #endif
         emit error(d->socketError);
         return false;
     }
 
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForReadyRead() emitting readyRead()", msecs);
+    qDebug("QAbstractSocket::waitForReadyRead(%i) emitting readyRead()", msecs);
 #endif
     emit readyRead();
     return true;
@@ -1690,17 +1724,50 @@ void QAbstractSocket::flush()
 */
 Q_LONGLONG QAbstractSocket::readLine(char *data, Q_LONGLONG maxSize)
 {
+    if (d->isBlocking) {
+        int timeout = d->blockingTimeout;
+        while (!canReadLine()) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocket::readLine(%p, %lld) can't read line,"
+                   " waiting (%i seconds left)", data, maxSize, timeout);
+#endif
+            QTime stopWatch;
+            stopWatch.start();
+            int oldSize = d->readBuffer.size();
+            if (!waitForReadyRead(timeout) || !d->readFromSocket()
+                || oldSize == d->readBuffer.size()) {
+                d->socketError = d->socketLayer.socketError();
+                d->socketErrorString = d->socketLayer.errorString();
+#if defined (QABSTRACTSOCKET_DEBUG)
+                qDebug("QAbstractSocket::readLine(%p, %lld) == -1 (%s)",
+                       data, maxSize, d->socketErrorString.latin1());
+#endif
+                return -1;
+            }
+
+            timeout -= stopWatch.elapsed();
+        }
+    }
+
     int endOfLine = d->readBuffer.indexOf('\n');
-    if (endOfLine == -1)
+    if (endOfLine == -1) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::readLine(%p, %lld) == -1", data, maxSize);
+#endif
         return -1;
+    }
 
-     if (endOfLine + 1 > maxSize)
-         endOfLine = maxSize - 1;
-
-    d->readBuffer.readLine(data, endOfLine + 1);
+    // Allocate space for a '\n' and a '\0'.
+    int lineSize = d->readBuffer.readLine(data, maxSize);
     if (d->readSocketNotifier)
         d->readSocketNotifier->setEnabled(true);
-    return endOfLine + 1;
+
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::readLine(%p \"%s\", %lld) == %lld", data,
+           qt_prettyDebug(data, qMin(lineSize, 16), maxSize).data(),
+           maxSize, Q_LLONG(lineSize));
+#endif
+    return Q_LLONG(lineSize);
 }
 
 /*! \reimp
@@ -1718,6 +1785,13 @@ QByteArray QAbstractSocket::readAll()
         readSoFar += nextSize;
         d->readBuffer.free(nextSize);
     }
+
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::readAll() == %s (%i bytes)",
+           qt_prettyDebug(tmp.data(), qMin(tmp.size(), 16), tmp.size()).data(),
+           tmp.size());
+#endif
+
     return tmp;
 }
 
