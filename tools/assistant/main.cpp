@@ -231,8 +231,10 @@ int main( int argc, char ** argv )
     a.installTranslator( &qtTranslator );
 
     Config *conf = new Config( profileName );
-    if ( !conf->validProfileName() )
+    if ( !conf->validProfileName() ) {
 	qFatal( "Profile '%s' does not exist!\n", profileName.latin1() );
+	return -1;
+    }
 
     bool max = conf->isMaximized();
     QString link = conf->source();
