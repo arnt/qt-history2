@@ -145,6 +145,9 @@ The dialog's widgets and layouts are created with the following code:
 Qt makes layouts so easy that programmers rarely use fixed
 positioning.
 
+  \img countries-designer.png
+  \caption Laying out a form in \l {Qt Designer}
+
 \l {Qt Designer} makes layouts even easier. With only 17 mouse
 clicks, you can create and lay out the widgets for the dialog shown
 above.

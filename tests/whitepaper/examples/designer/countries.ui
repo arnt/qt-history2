@@ -8,12 +8,12 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>297</width>
+            <width>295</width>
             <height>215</height>
         </rect>
     </property>
     <property name="caption">
-        <string>Qt Politician 1.0</string>
+        <string>International Trader</string>
     </property>
     <vbox>
         <property name="name">
@@ -126,7 +126,7 @@
                             </property>
                         </widget>
                         <spacer>
-                            <property name="name">
+                            <property name="name" stdset="0">
                                 <cstring>Spacer7</cstring>
                             </property>
                             <property name="orientation">

@@ -76,14 +76,14 @@ trivial:
 
 \section1 Qt Assistant
 
-\QD's on-line help is provided by the Qt Assistant application. Qt
-Assistant displays Qt's entire documentation set, and works in a
-similar way to a web browser. Unlike web browsers, Qt Assistant
-applies an intelligent indexing algorithm to provide fast searching
-for words and phrases that occur in the documentation.
+\QD's on-line help is provided by the \e {Qt Assistant} application.
+\e {Qt Assistant} displays Qt's entire documentation set, and works
+in a similar way to a web browser. Unlike web browsers, \e {Qt
+Assistant} applies an intelligent indexing algorithm to provide fast
+searching for words and phrases that occur in the documentation.
 
-\img assistant-wp.png
-\caption Qt Assistant
+  \img assistant-wp.png
+  \caption Qt Assistant
 
 Qt's reference documentation consists of around 1,500 HTML pages (over
 2,500 US letter sized pages), which document Qt's classes and tools,
@@ -92,14 +92,19 @@ programming.
 
   \index HTML viewer
 
-Qt Assistant is a Qt application that renders Qt's HTML reference
-documentation using \Class QTextEdit. The \Class QTextEdit class
-supports a subset of HTML 3.2, and can also use custom tags that are
-created with the \Class QStyleSheet class.
+\e {Qt Assistant} is a Qt application that renders Qt's HTML
+reference documentation using \Class QTextEdit. The \Class QTextEdit
+class supports a subset of HTML 3.2, and can also use custom tags
+that are created with the \Class QStyleSheet class.
 
 \section1 GUI Application Example
 
   \img hierarchy.png
+
+  \quotefile hierarchy/classhierarchy.ui.h
+  \skipto ClassHierarchy
+  \printuntil return dict[name];
+  \printline }
 
 \ONLINES
 \Online designer-manual.html

@@ -1,0 +1,3 @@
+class Aircraft : public Machine
+{
+};

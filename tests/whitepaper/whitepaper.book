@@ -1,7 +1,5 @@
 \title Qt Whitepaper
 
-\granularity chapter
-
 \input introduction.leaf
 \input widgets.leaf
 \input signals-and-slots.leaf

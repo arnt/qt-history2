@@ -1,0 +1,3 @@
+class Helicopter : public Aircraft
+{
+};

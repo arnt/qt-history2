@@ -439,7 +439,7 @@ A particular setting is stored using a key. For example, the key \c
 files. Booleans, numbers, Unicode strings and lists of Unicode strings
 can be stored.
 
-\section1 Multiple Threads
+\section1 Multi-Threading
 
   \index multi-threading
 

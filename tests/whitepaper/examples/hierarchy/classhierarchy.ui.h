@@ -7,9 +7,8 @@
 
 void ClassHierarchy::addSearchPath()
 {
-    QString path = QFileDialog::getExistingDirectory( QDir::homeDirPath(),
-						      this, 0,
-						      "Select a Directory" );
+    QString path = QFileDialog::getExistingDirectory(
+	    QDir::homeDirPath(), this, 0, "Select a Directory" );
     if ( !path.isEmpty() && searchPathBox->findItem(path, ExactMatch) == 0 )
 	searchPathBox->insertItem( path );
 }
@@ -21,78 +20,62 @@ void ClassHierarchy::removeSearchPath()
 
 void ClassHierarchy::updateHierarchy()
 {
-    QListViewItem *airship = new QListViewItem( hierarchyView, "Airship", "airship.h" );
-    QListViewItem *airplane = new QListViewItem( airship, "Airplane", "airplane.h" );
-    QListViewItem *helicopter = new QListViewItem( airship, "Helicopter", "helicopter.h" );
-
-#if 0
     QString fileNameFilter;
-    QString classDef;
+    QRegExp classDef;
 
-    if ( languageCombo->currentText() == "C++" ) {
+    if ( language->currentText() == "C++" ) {
 	fileNameFilter = "*.h";
-	classDef = "\\bclass\\s+([A-Z_a-z0-9]+)\\s*"
-		   "(?:\\{|:\\s*public\\s+([A-Z_a-z0-9]+))";
-    } else if ( languageCombo->currentText() == "Java" ) {
+	classDef.setPattern( "\\bclass\\s+([A-Z_a-z0-9]+)\\s*"
+			     "(?:\\{|:\\s*public\\s+([A-Z_a-z0-9]+))" );
+    } else if ( language->currentText() == "Java" ) {
 	fileNameFilter = "*.java";
-	classDef = "\\bclass\\s+([A-Z_a-z0-9]+)\\s+extends"
-		   "\\s+([A-Z_a-z0-9]+)";
-    } else if ( languageCombo->currentText() == "Python" ) {
-	fileNameFilter = "*.py";
-	classDef = "\\bclass\\s+([A-Z_a-z0-9]+)"
-		   "\\s*\\(\\s*([A-Z_a-z0-9]+)\\s*\\)\\s*:";
+	classDef.setPattern( "\\bclass\\s+([A-Z_a-z0-9]+)\\s+extends\\s*"
+			     "([A-Z_a-z0-9]+)" );
     }
-    QRegExp classDefRegExp( classDef );
+
+    dict.clear();
+    listView->clear();
 
     for ( int i = 0; i < searchPathBox->count(); i++ ) {
 	QDir dir = searchPathBox->text( i );
-	dir.setNameFilter( fileNameFilter );
-	QStringList names = dir.entryList();
+	QStringList names = dir.entryList( fileNameFilter );
 
 	for ( int j = 0; j < names.count(); j++ ) {
 	    QFile file( dir.filePath(names[j]) );
 	    if ( file.open(IO_ReadOnly) ) {
 		QString content = file.readAll();
 		int k = 0;
-		while ( (k = classDefRegExp.search(content, k)) != -1 ) {
-		    QString derivedClass = classDefRegExp.cap( 1 );
-		    QString baseClass = classDefRegExp.cap( 2 );
-		    baseClassMap[derivedClass] = baseClass;
-		    sourceFileMap[derivedClass] = names[j];
-		    k += classDefRegExp.matchedLength();
+		while ( (k = classDef.search(content, k)) != -1 ) {
+		    processClassDef( classDef.cap(1), classDef.cap(2), names[j] );
+		    k++;
 		}
 	    }
 	}
     }
-
-    QMap<QString, QStringList> derivedClassMap;
-    QMap<QString, QString>::ConstIterator b = baseClassMap.begin();
-    while ( b != baseClassMap.end() ) {
-	if ( *b == "" || baseClassMap.contains(*b) )
-	    derivedClassMap[*b].push_back( b.key() );
-	++b;
-    }
-
-    hierarchyView->clear();
-    populateLevel( derivedClassMap, "", 0 );
-#endif
 }
 
-void ClassHierarchy::populateLevel(
-	const QMap<QString, QStringList>& derivedClassMap,
-	const QString& baseClass, QListViewItem *parentItem ) const
+void ClassHierarchy::processClassDef( const QString& derived,
+	const QString& base, const QString& sourceFile )
 {
-#if 0
-    QStringList derivedClasses = derivedClassMap[baseClass];
-    for ( int i = 0; i < derivedClasses.count(); i++ ) {
-	QListViewItem *item;
-	if ( parentItem == 0 ) {
-	    item = new QListViewItem( hierarchyView, derivedClasses[i], "foo.h" );
-	} else {
-	    item = new QListViewItem( parentItem, derivedClasses[i], "foo.h" );
+    QListViewItem *derivedItem = insertClass( derived, sourceFile );
+
+    if ( !base.isEmpty() ) {
+	QListViewItem *baseItem = insertClass( base, "" );
+	if ( derivedItem->parent() == 0 ) {
+	    listView->takeItem( derivedItem );
+	    baseItem->insertItem( derivedItem );
+	    derivedItem->setText( 1, sourceFile );
 	}
-	item->setOpen( TRUE );
-	populateLevel( derivedClassMap, derivedClasses[i], item );
     }
-#endif
+}
+
+QListViewItem *ClassHierarchy::insertClass( const QString& name,
+					    const QString& sourceFile )
+{
+    if ( dict[name] == 0 ) {
+	QListViewItem *item = new QListViewItem( listView, name, sourceFile );
+	item->setOpen( TRUE );
+	dict.insert( name, item );
+    }
+    return dict[name];
 }
