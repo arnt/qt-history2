@@ -52,11 +52,12 @@ static int usage(const char *argv0, const char *un=NULL) {
     return 665;
 }
 
-static int unpack( char *filename )
+static int unpack( char *filename, bool verbose )
 {
     QArchive arq( filename );
     ConsoleOutput output;
-    output.connect( &arq, SIGNAL(operationFeedback(const QString&)), SLOT(updateProgress(const QString&)) );
+    if ( verbose )
+	output.connect( &arq, SIGNAL(operationFeedback(const QString&)), SLOT(updateProgress(const QString&)) );
     if ( !arq.open( IO_ReadOnly ) ) {
 	fprintf(stderr, "Can't open the archive %s file to unpack", filename);
 	return 42;
@@ -145,7 +146,7 @@ int main( int argc, char** argv )
 	//unpack
 	} else if(!strcmp(argv[i], "-unpack")) {
 	    if ( ++i < argc )
-		return unpack( argv[i] );
+		return unpack( argv[i], output );
 	//getdesc
 	} else if(!strcmp(argv[i], "-getdesc")) {
 	    if ( ++i < argc )
