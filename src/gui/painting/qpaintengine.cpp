@@ -266,7 +266,7 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
 /*!
   Draws the rectangles in the list \a rects.
 */
-void QPaintEngine::drawRects(const QList<QRect> &rects)
+void QPaintEngine::drawRects(const QList<QRect> &/*rects*/)
 {
 }
 
@@ -312,7 +312,7 @@ void QPaintEngine::clearRenderHints(QPainter::RenderHints hints)
   the new set of renderhints specified by \a hints.
 */
 
-void QPaintEngine::updateRenderHints(QPainter::RenderHints hints)
+void QPaintEngine::updateRenderHints(QPainter::RenderHints /*hints*/)
 {
 }
 
