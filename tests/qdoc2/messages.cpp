@@ -39,9 +39,9 @@ static bool omit( const char *message )
     if ( numAll > maxAll || count > maxSame ) {
 	numOmitted++;
 	return TRUE;
-    } else if ( count == maxSame && warningLevel > 2 ) {
-	fprintf( stderr,
-		 "qdoc: Omitting further similar warnings after this:\n" );
+    } else if ( count == maxSame ) {
+	fprintf( stderr, "qdoc warning: "
+		 "Omitting further similar warnings after this:\n" );
     }
     return FALSE;
 }
@@ -81,9 +81,8 @@ void warning( int level, const Location& loc, const char *message, ... )
     QString filenameBase = loc.filePath();
     filenameBase
 	= filenameBase.left( filenameBase.length() - filename.length() - 1 );
-    if ( filenameBase.isEmpty() )
-	filenameBase = QChar( '\\' );
-    if ( currentDirectory != filenameBase ) {
+    if ( !filenameBase.isEmpty() &&
+	 currentDirectory != filenameBase ) {
 	if ( currentDirectory.length() )
 	    fprintf( stderr, "qdoc: Leaving directory '%s'\n",
 		     currentDirectory.latin1() );
@@ -133,7 +132,25 @@ void syswarning( const char *message, ... )
 
 void warnAboutOmitted()
 {
+    int omitted = 0;
+    if ( msgMap ) {
+	int types = 0;
+	int total = 0;
+	QMap<QString, int>::ConstIterator it = msgMap->begin();
+	while( it != msgMap->end() ) {
+	    total += it.data();
+	    types++;
+	    if ( it.data() > maxSame )
+		omitted++;
+	    ++it;
+	}
+	fprintf( stderr, "qdoc warning: gave %d warning%s of %d type%s\n",
+		 total, total == 1 ? "" : "s",
+		 types, types == 1 ? "" : "s" );
+    }
     if ( numOmitted > 0 )
-	fprintf( stderr, "qdoc warning: %d warning%s omitted\n", numOmitted,
-		 numOmitted == 1 ? "" : "s" );
+	fprintf( stderr,
+		 "qdoc warning: omitted %d more warning%s of %d type%s\n",
+		 numOmitted, numOmitted == 1 ? "" : "s",
+		 omitted, omitted == 1 ? "" : "s" );
 }
