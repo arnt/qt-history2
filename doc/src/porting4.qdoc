@@ -3258,6 +3258,96 @@
 
     \section1 QStyle
 
+    The QStyle API has been overhauled and improved. Most of the information on
+    why this change was done is described in \l{qt4-styles.html}{the QStyle overview}.
+
+    Since QStyle is mostly used internally by Qt's widgets and styles and since
+    it is not essential to the good functioning of an application, there is no
+    compatibility path. This means that we have changed many enums and
+    functions and the qt3to4 porting tool will not change much in your qstyle
+    code. To ease the pain, we list some of the major changes here.
+
+    QStyleOption has taken on a more central role and is no longer an optional
+    argument, please see the QStyleOption documentation for more information.
+
+    The QStyle::StyleFlags have been renamed QStyle::StateFlags and are now prefixed State_
+    instead of Style_, in addition the Style_ButtonDefault flag has moved to
+    QStyleOptionButton.
+
+    The QStyle::PrimitiveElement enumeration has undergone extensive change.
+    Some of the enums were moved to QStyle::ControlElement, some were removed
+    and all were renamed. This renaming is not done by the qt3to4 porting tool,
+    so you will have to do it yourself. The table below shows how things look
+    now.
+
+    \table
+    \header \i Old PrimitiveElement \i New name \i Remark
+    \row \i PE_ButtonCommand                \i \l PE_PanelButtonCommand
+    \row \i PE_ButtonDefault                \i \l PE_FrameDefaultButton
+    \row \i PE_ButtonBevel                  \i \l PE_PanelButtonBevel
+    \row \i PE_ButtonTool                   \i \l PE_PanelButtonTool
+    \row \i PE_ButtonDropDown               \i \l PE_IndicatorButtonDropDown
+    \row \i PE_FocusRect                    \i \l PE_FrameFocusRect
+    \row \i PE_ArrowUp                      \i \l PE_IndicatorArrowUp
+    \row \i PE_ArrowDown                    \i \l PE_IndicatorArrowDown
+    \row \i PE_ArrowRight                   \i \l PE_IndicatorArrowRight
+    \row \i PE_ArrowLeft                    \i \l PE_IndicatorArrowLeft
+    \row \i PE_SpinBoxUp                    \i \l PE_IndicatorSpinUp
+    \row \i PE_SpinBoxDown                  \i \l PE_IndicatorSpinDown
+    \row \i PE_SpinBoxPlus                  \i \l PE_IndicatorSpinPlus
+    \row \i PE_SpinBoxMinus                 \i \l PE_IndicatorSpinMinus
+    \row \i PE_SpinBoxSlider                \i \l CE_SpinBoxSlider \i uses QStyle::drawControl()
+    \row \i PE_Indicator                    \i \l PE_IndicatorCheckBox
+    \row \i PE_IndicatorMask                \i REMOVED \i use QStyle::styleHint() to retrieve mask
+    \row \i PE_ExclusiveIndicator           \i \l PE_IndicatorRadioButton
+    \row \i PE_ExclusiveIndicatorMask       \i REMOVED \i use QStyle::styleHint() to retrieve mask
+    \row \i PE_DockWindowHandle             \i \l PE_IndicatorToolBarHandle
+    \row \i PE_DockWindowSeparator          \i \l PE_Q3DockWindowSeparator
+    \row \i PE_DockWindowResizeHandle       \i \l PE_IndicatorDockWindowResizeHandle
+    \row \i PE_DockWindowTitle              \i \l CE_DockWindowTitle \i uses QStyle::drawControl()
+    \row \i PE_Splitter                     \i \l CE_Splitter \i uses QStyle::drawControl()
+    \row \i PE_Panel                        \i \l PE_Frame
+    \row \i PE_PanelMenu                    \i \l PE_FrameMenu
+    \row \i PE_PanelMenuBar                 \i \l PE_PanelMenuBar
+    \row \i PE_PanelDockWindow              \i \l PE_FrameDockWindow
+    \row \i PE_TabBarBase                   \i \l PE_FrameTabBarBase
+    \row \i PE_HeaderSection                \i \l CE_HeaderSection \i uses QStyle::drawControl()
+    \row \i PE_HeaderArrow                  \i \l PE_IndicatorHeaderArrow
+    \row \i PE_StatusBarSection             \i \l PE_FrameStatusBar
+    \row \i PE_Separator                    \i \l PE_Q3Separator
+    \row \i PE_SizeGrip                     \i \l CE_SizeGrip \i uses QStyle::drawControl()
+    \row \i PE_CheckMark                    \i \l PE_IndicatorMenuCheckMark
+    \row \i PE_ScrollBarAddLine             \i \l CE_ScrollBarAddLine \i uses QStyle::drawControl()
+    \row \i PE_ScrollBarSubLine             \i \l CE_ScrollBarSubLine \i uses QStyle::drawControl()
+    \row \i PE_ScrollBarAddPage             \i \l CE_ScrollBarAddPage \i uses QStyle::drawControl()
+    \row \i PE_ScrollBarSubPage             \i \l CE_ScrollBarSubPage \i uses QStyle::drawControl()
+    \row \i PE_ScrollBarSlider              \i \l CE_ScrollBarSlider  \i uses QStyle::drawControl()
+    \row \i PE_ScrollBarFirst               \i \l CE_ScrollBarFirst   \i uses QStyle::drawControl()
+    \row \i PE_ScrollBarLast                \i \l CE_ScrollBarLast    \i uses QStyle::drawControl()
+    \row \i PE_ProgressBarChunk             \i \l PE_IndicatorProgressChunk
+    \row \i PE_PanelLineEdit                \i \l PE_FrameLineEdit
+    \row \i PE_PanelTabWidget               \i \l PE_FrameTabWidget
+    \row \i PE_WindowFrame                  \i \l PE_FrameWindow
+    \row \i PE_CheckListController          \i \l PE_Q3CheckListController
+    \row \i PE_CheckListIndicator           \i \l PE_Q3CheckListIndicator
+    \row \i PE_CheckListExclusiveIndicator  \i \l PE_Q3CheckListExclusiveIndicator
+    \row \i PE_PanelGroupBox                \i \l PE_FrameGroupBox
+    \row \i PE_TreeBranch                   \i \l PE_IndicatorBranch
+    \row \i PE_RubberBand                   \i \l CE_RubberBand \i uses QStyle::drawControl()
+    \row \i PE_PanelToolBar                 \i \l PE_PanelToolBar
+    \row \i PE_ToolBarHandle                \i \l PE_IndicatorToolBarHandle
+    \row \i PE_ToolBarSeparator             \i \l PE_IndicatorToolBarSeparator
+    \endtable
+
+    The QStyle::drawControlMask() and QStyle::drawComplexControlMask()
+    functions have been removed. They are replaced with a style hint.
+
+    The QStyle::drawItem() overloads that took both a pixmap and a string have
+    been removed. Use QStyle::drawItemText() and QStyle::drawItemPixmap() directly.
+
+    The QStyle::itemRect() overload that took both a pixmap and a string is also removed, use
+    either QStyle::itemTextRect() or QStyle::itemPixmapRect() instead.
+
     \section1 QStyleSheet
 
     The QStyleSheet and QStyleSheetItem classes have been renamed
