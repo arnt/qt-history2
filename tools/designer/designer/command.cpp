@@ -992,12 +992,18 @@ AddConnectionCommand::AddConnectionCommand( const QString &name, FormWindow *fw,
 
 void AddConnectionCommand::execute()
 {
-    MetaDataBase::addConnection( formWindow(), connection.sender, connection.signal, connection.receiver, connection.slot );
+    MetaDataBase::addConnection( formWindow(), connection.sender,
+				 connection.signal, connection.receiver, connection.slot );
+    if ( connection.receiver == formWindow()->mainContainer() )
+	formWindow()->mainWindow()->propertyeditor()->eventList()->setup();
 }
 
 void AddConnectionCommand::unexecute()
 {
-    MetaDataBase::removeConnection( formWindow(), connection.sender, connection.signal, connection.receiver, connection.slot );
+    MetaDataBase::removeConnection( formWindow(), connection.sender,
+				    connection.signal, connection.receiver, connection.slot );
+    if ( connection.receiver == formWindow()->mainContainer() )
+	formWindow()->mainWindow()->propertyeditor()->eventList()->setup();
 }
 
 // ------------------------------------------------------------
@@ -1010,12 +1016,18 @@ RemoveConnectionCommand::RemoveConnectionCommand( const QString &name, FormWindo
 
 void RemoveConnectionCommand::execute()
 {
-    MetaDataBase::removeConnection( formWindow(), connection.sender, connection.signal, connection.receiver, connection.slot );
+    MetaDataBase::removeConnection( formWindow(), connection.sender,
+				    connection.signal, connection.receiver, connection.slot );
+    if ( connection.receiver == formWindow()->mainContainer() )
+	formWindow()->mainWindow()->propertyeditor()->eventList()->setup();
 }
 
 void RemoveConnectionCommand::unexecute()
 {
-    MetaDataBase::addConnection( formWindow(), connection.sender, connection.signal, connection.receiver, connection.slot );
+    MetaDataBase::addConnection( formWindow(), connection.sender,
+				 connection.signal, connection.receiver, connection.slot );
+    if ( connection.receiver == formWindow()->mainContainer() )
+	formWindow()->mainWindow()->propertyeditor()->eventList()->setup();
 }
 
 // ------------------------------------------------------------

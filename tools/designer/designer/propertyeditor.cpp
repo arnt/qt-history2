@@ -2966,16 +2966,36 @@ void EventList::setup()
 {
     clear();
 
-    QValueList<MetaDataBase::EventDescription> events = MetaDataBase::events( editor->widget(), formWindow->project()->language() );
-    if ( events.isEmpty() )
-	return;
-    for ( QValueList<MetaDataBase::EventDescription>::Iterator it = events.begin(); it != events.end(); ++it ) {
-	HierarchyItem *eventItem = new HierarchyItem( this, (*it).name, QString::null, QString::null );
-	eventItem->setOpen( TRUE );
-	QStringList funcs = MetaDataBase::eventFunctions( editor->widget(), (*it).name );
-	for ( QStringList::Iterator fit = funcs.begin(); fit != funcs.end(); ++fit ) {
-	    HierarchyItem *item = new HierarchyItem( eventItem, *fit, QString::null, QString::null );
-	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+    if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
+	QValueList<MetaDataBase::EventDescription> events = MetaDataBase::events( editor->widget(), formWindow->project()->language() );
+	if ( events.isEmpty() )
+	    return;
+	for ( QValueList<MetaDataBase::EventDescription>::Iterator it = events.begin(); it != events.end(); ++it ) {
+	    HierarchyItem *eventItem = new HierarchyItem( this, (*it).name, QString::null, QString::null );
+	    eventItem->setOpen( TRUE );
+	    QStringList funcs = MetaDataBase::eventFunctions( editor->widget(), (*it).name );
+	    for ( QStringList::Iterator fit = funcs.begin(); fit != funcs.end(); ++fit ) {
+		HierarchyItem *item = new HierarchyItem( eventItem, *fit, QString::null, QString::null );
+		item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	    }
+	}
+    } else {
+	QStrList sigs = editor->widget()->metaObject()->signalNames( TRUE );
+	sigs.remove( "destroyed()" );
+	QStrListIterator it( sigs );
+	while ( it.current() ) {
+	    HierarchyItem *eventItem = new HierarchyItem( this, it.current(), QString::null, QString::null );
+	    eventItem->setOpen( TRUE );
+	    QValueList<MetaDataBase::Connection> conns =
+		MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
+	    for ( QValueList<MetaDataBase::Connection>::Iterator cit = conns.begin(); cit != conns.end(); ++cit ) {
+		if ( MetaDataBase::normalizeSlot( QString( (*cit).signal ) ) !=
+		     MetaDataBase::normalizeSlot( QString( it.current() ) ) )
+		    continue;
+		HierarchyItem *item = new HierarchyItem( eventItem, (*cit).slot, QString::null, QString::null );
+		item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	    }
+	    ++it;
 	}
     }
 }
@@ -3001,11 +3021,16 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     menu.insertItem( tr( "Delete Signal Handler" ), DEL_ITEM );
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
-	QString s1 = ( i->parent() ? i->parent() : i )->text( 0 );
-	int pt = s1.find( "(" );
-	if ( pt != -1 )
-	    s1 = s1.left( pt );
- 	QString s = QString( editor->widget()->name() ) + "_" + s1;
+	QString s;
+	if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
+	    QString s1 = ( i->parent() ? i->parent() : i )->text( 0 );
+	    int pt = s1.find( "(" );
+	    if ( pt != -1 )
+		s1 = s1.left( pt );
+	    s = QString( editor->widget()->name() ) + "_" + s1;
+	} else {	
+	    s = QString( editor->widget()->name() ) + "_" + ( i->parent() ? i->parent() : i )->text( 0 );
+	}
 	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, s, QString::null, QString::null );
 	item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	item->setRenameEnabled( 0, TRUE );
@@ -3014,9 +3039,24 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	newItem = item;
 	item->startRename( 0 );
     } else if ( res == DEL_ITEM && i->parent() ) {
-	QListViewItem *p = i->parent();
-	delete i;
-	save( p );
+	if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
+	    QListViewItem *p = i->parent();
+	    delete i;
+	    save( p );
+	} else {
+	    MetaDataBase::Connection conn;
+	    conn.sender = editor->widget();
+	    conn.receiver = formWindow->mainContainer();
+	    conn.signal = i->parent()->text( 0 );
+	    conn.slot = i->text( 0 );
+	    RemoveConnectionCommand *cmd = new RemoveConnectionCommand( tr( "Remove connection" ),
+									formWindow,
+									conn );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+	    delete i;
+	}
     }
 }
 
@@ -3039,8 +3079,28 @@ void EventList::renamed( QListViewItem *i )
     if ( del ) {
 	delete i;
     } else {
-	save( i->parent() );
-	editor->formWindow()->mainWindow()->editFunction( i->text( 0 ),  editor->formWindow()->project()->language(), TRUE );
+	if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
+	    save( i->parent() );
+	    editor->formWindow()->mainWindow()->
+		editFunction( i->text( 0 ), editor->formWindow()->project()->language(), TRUE );
+	} else {
+	    MetaDataBase::Connection conn;
+	    conn.sender = editor->widget();
+	    conn.receiver = formWindow->mainContainer();
+	    conn.signal = i->parent()->text( 0 );
+	    conn.slot = i->text( 0 );
+	    AddConnectionCommand *cmd = new AddConnectionCommand( tr( "Add connection" ),
+								  formWindow,
+								  conn );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), "public",
+				   formWindow->project()->language(), "void" );
+	    editor->formWindow()->mainWindow()->
+		editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
+			      editor->formWindow()->project()->language(), TRUE );
+	    cmd->execute();
+	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+	}
     }
 }
 
@@ -3053,9 +3113,11 @@ void EventList::save( QListViewItem *p )
 	i = i->nextSibling();
     }
 
-    if ( MetaDataBase::setEventFunctions( editor->widget(), formWindow,
-					  formWindow->project()->language(), p->text( 0 ), lst ) )
- 	editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+    if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
+	if ( MetaDataBase::setEventFunctions( editor->widget(), formWindow,
+					      formWindow->project()->language(), p->text( 0 ), lst ) )
+	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+    }
 }
 
 // --------------------------------------------------------------
@@ -3079,7 +3141,7 @@ PropertyEditor::PropertyEditor( QWidget *parent )
     listview = new PropertyList( this );
     addTab( listview, tr( "&Properties" ) );
     eList = new EventList( this, formWindow(), this );
-    eList->hide();
+    addTab( eList, tr( "&Signal Handlers" ) );
 }
 
 QObject *PropertyEditor::widget() const
@@ -3090,15 +3152,6 @@ QObject *PropertyEditor::widget() const
 void PropertyEditor::setWidget( QObject *w, FormWindow *fw )
 {
     eList->setFormWindow( fw );
-    if ( fw != formwindow ) {
-	if ( !fw || !MetaDataBase::hasEvents( fw->project()->language() ) ) {
-	    if ( formwindow && MetaDataBase::hasEvents( formwindow->project()->language() ) )
-		removePage( eList );
-	} else {
-	    if ( !formwindow || !MetaDataBase::hasEvents( formwindow->project()->language() ) )
-		addTab( eList, tr( "&Signal Handlers" ) );
-	}
-    }
     if ( w && w == wid ) {
 	bool ret = TRUE;
 	if ( wid->isWidgetType() && WidgetFactory::layoutType( (QWidget*)wid ) != WidgetFactory::NoLayout ) {
