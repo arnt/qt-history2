@@ -422,6 +422,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QByteArray buffer( 256 );
 	unsigned long buffSize( buffer.size() );
 	GetUserNameA( buffer.data(), &buffSize );
+	folderGroups->clear();
 	folderGroups->insertItem( "Anyone who uses this computer (all users)" );
         folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
 
@@ -584,7 +585,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	while ( ( fi = sqlsrcDirIterator.current() ) ) {
 	    if ( fi->fileName() != "." && fi->fileName() != ".." && fi->fileName() != "tmp" ) {
 		item = new QCheckListItem( sqldrivers, fi->fileName(), QCheckListItem::CheckBox );
-		item->setOn( TRUE );
+		item->setOn( false );
 	    }
 	    --sqlsrcDirIterator;
 	}
@@ -643,7 +644,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
-	    operationProgress->setTotalSteps( 4300 );
+	    operationProgress->setTotalSteps( 4600 );
 	    copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
 	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
