@@ -460,10 +460,16 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
     } else if ( res == expandFunctions ) {
 	emit expand( FALSE );
     } else if ( res == toggleBreakPoint ) {
-	if ( ( (ParagData*)p->extraData() )->marker == ParagData::Breakpoint )
+	if ( ( (ParagData*)p->extraData() )->marker == ParagData::Breakpoint ) {
 	    ( (ParagData*)p->extraData() )->marker = ParagData::NoMarker;
-	else
-	    ( (ParagData*)p->extraData() )->marker = ParagData::Breakpoint;
+	} else {
+	    bool ok;
+	    isBreakpointPossible( ok, ( (Editor*)viewManager->currentView() )->text(), p->paragId() );
+	    if ( ok )
+		( (ParagData*)p->extraData() )->marker = ParagData::Breakpoint;
+	    else
+		emit showMessage( tr( "<font color=red>Can't set breakpoint here!</font>" ) );
+	}
 //    } else if ( res == editBreakpoints ) {
 //	emit editBreakPoints();
     }
