@@ -271,7 +271,7 @@ public:
 	
 	charsetcompat = QFont::Unicode;
 	
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
 		fin = 0;
 #endif // Q_WS_WIN
 		

@@ -399,8 +399,9 @@ void QFontPrivate::load()
 	fontCache->insert( k, qfs, 1 );
     }
     qfs->ref();
-    fin->deref();
-    qfs = fin;
+    if ( fin )
+	fin->deref();
+    fin = qfs;
     request.dirty = FALSE;
 }
 
