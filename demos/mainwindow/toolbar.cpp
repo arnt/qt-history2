@@ -16,6 +16,7 @@
 #include <qmenu.h>
 #include <qpainter.h>
 #include <qspinbox.h>
+#include <stdlib.h>
 
 static QPixmap genIcon(const QString &string, const QColor &color)
 {
