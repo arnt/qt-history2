@@ -8,3 +8,4 @@ embedded:SOURCES+=trayicon_qws.cpp
 INTERFACES	= 
 
 TARGET		= trayicon
+REQUIRES	= large-config
