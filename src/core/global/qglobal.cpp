@@ -703,10 +703,9 @@ void qCritical(const char *msg, ...)
 #endif
     }
 }
-#ifdef QT_COMPAT
+
 void qSystemWarning(const char *msg, int code)
 { qCritical("%s (%s)", msg, qt_error_string(code).local8Bit()); }
-#endif // QT_COMPAT
 
 
 /*!
