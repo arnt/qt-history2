@@ -1373,6 +1373,8 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    sn_init();
 	    dict = *sn_vec[type];
 	}
+        if (dict == 0)
+            return FALSE;
 	sn = new QSockNot;
 	Q_CHECK_PTR( sn );
 	sn->obj = obj;
