@@ -94,15 +94,15 @@
   In the last example, if you read into a QString instead of a \c char*
   you do not have to delete it.
 
-  Normally, each item written to the stream is written in a fixed binary
-  format.
-  For example, a \c char* is written as a 32-bit integer equal to the
-  length of the string including the NUL byte, followed by all the
-  characters of the string including the NUL byte. Similarly when
-  reading a string, 4 bytes are read to create the 32-bit length value,
-  then that many characters for the string including the NUL. For a complete
-  description of all Qt types supporting data streaming see \link
-  datastreamformat.html Format of the QDataStream operators \endlink .
+  Normally, each item written to the stream is written in a fixed
+  binary format.  For example, a \c char* is written as a 32-bit
+  integer equal to the length of the string including the NUL byte,
+  followed by all the characters of the string including the NUL
+  byte. Similarly when reading a string, 4 bytes are read to create
+  the 32-bit length value, then that many characters for the string
+  including the NUL. For a complete description of all Qt types
+  supporting data streaming see \link datastreamformat.html Format of
+  the QDataStream operators \endlink .
 
   If you want a "parsing" input stream, see QTextStream. If you just want the
   data to be human-readable to aid in debugging, you can set the data
