@@ -30,7 +30,7 @@ how-to-learn-qt.html How to Learn Qt\endlink; or to go on a Qt
 training course. (See \link http://www.trolltech.com\endlink for
 details of training courses.)
 
-\section2 Goals for this Walkthrough
+\section2 Goals for the Walkthrough
 
 The goal of this walkthrough is to provide the reader with enough
 knowledge to migrate Motif applications to the Qt toolkit. We will do
@@ -205,7 +205,7 @@ application runs and operates correctly.
 
 We are ready to start migrating the user interface for our project.
 As mentioned in the introduction, we do this in steps, ensuring that
-our application is still usable at every step of the migration process. 
+our application is still usable at every step of the migration process.
 
 The user interface can be viewed as a heirarchy; each top-level window
 and dialog depends upon a parent (which is another top-level window or
@@ -321,7 +321,7 @@ provide static convenience functions that we can use.
 \i QMessageBox::warning() -- replacement for \e {IO Error} dialog.
 \endlist
 
-Each of these functions takes a \c {QWidget *parent} argument. If we
+Each of these functions takes a \e {QWidget *parent} argument. If we
 pass zero as the \e parent argument, then we will have dialogs that
 are centered on the screen, instead of being centered over our main
 window. We can have QMotifWidget create our \c XmMainWindow, and we
@@ -430,7 +430,7 @@ The changes required to make \c {actions.cpp} compile are minimal. We
 need to wrap more C header files and global variables in an \c {extern
 "C"} block.
 
-\quotefile walkthrough/actions.cpp
+\quotefile walkthrough/actions-mainwindow.cpp
 
 \skipuntil Wrap non-standard includes and global variables with extern "C"
 \printuntil extern int maxpages
@@ -460,7 +460,7 @@ QMessageBox::information().
 First, we need to make sure we include the proper header for
 QMessageBox.
 
-\quotefile walkthrough/actions.cpp
+\quotefile walkthrough/actions-mainwindow.cpp
 
 \skipto Qt includes
 \printline
@@ -493,7 +493,7 @@ The changes required to make \c {io.cpp} compile are minimal. We need
 to wrap more C header files and global variables in an \c {extern "C"}
 block.
 
-\quotefile walkthrough/io.cpp
+\quotefile walkthrough/io-mainwindow.cpp
 
 \skipuntil Wrap non-standard includes and global variables with extern "C"
 \printuntil Page AllocPage()
@@ -520,7 +520,7 @@ QMessageBox::warning().
 
 First, we need to make sure we include the proper header for QMessageBox.
 
-\quotefile walkthrough/io.cpp
+\quotefile walkthrough/io-mainwindow.cpp
 
 \skipto Qt includes
 \printline
@@ -561,7 +561,7 @@ regenerate the \c Makefile.  The \e uic utility generates the code for
 our custom QDialog, which is then compiled and linked into our
 application.
 
-We need to pass the top-level QMotifWidget as the \c client_data
+We need to pass the top-level QMotifWidget as the \e client_data
 argument to the \c EditPage function, which we will use as the parent
 for our new \c PageEditDialog.  We do this the same way as we have
 done for the \e Open and \e {Save As} dialogs in \c todo.cpp.
@@ -574,7 +574,7 @@ done for the \e Open and \e {Save As} dialogs in \c todo.cpp.
 The \c EditPage() function is implemented in \c actions.cpp.  We start
 by adding the includes needed for the \c PageEditDialog and QLineEdit.
 
-\quotefile walkthrough/actions.cpp
+\quotefile walkthrough/actions-mainwindow.cpp
 
 \skipto // PageEditDialog includes
 \printline
@@ -733,7 +733,7 @@ implementation.
 We begin by adding the necessary includes for QApplication,
 QMessageBox and QMotifWidget.
 
-\quotefile walkthrough/mainwindow.ui.h
+\quotefile walkthrough/mainwindow-mainwindow.ui.h
 
 \skipto Qt includes
 \printuntil qmotifwidget.h
@@ -773,7 +773,7 @@ use them.
 \printuntil // extern "C"
 
 Each of the existing callback functions takes 3 arguments.  We pass
-NULL to all of the arguments in this example (with a few exceptions,
+\e NULL to all of the arguments in this example (with a few exceptions,
 see below).  The existing code does not rely on any of the arguments.
 Each slot implementation is a single line calling the related callback
 function. The code is not very interesting and it not shown here due
@@ -781,8 +781,8 @@ to space considerations.
 
 There are 4 exceptions to the above.  The \c Open(), \c Save(), \c
 EditPage() and \c DeletePage() callbacks accept a pointer to the
-toplevel QWidget as argument 2 (the \c client_data argument).  For
-these 4 functions, we pass \c this as argument 2, which is a toplevel
+toplevel QWidget as argument 2 (the \e client_data argument).  For
+these 4 functions, we pass \e this as argument 2, which is a toplevel
 \c MainWindow derived from QMainWindow.
 
 \section2 Replacing the \e {Main Window}
@@ -793,7 +793,7 @@ code being removed.
 
 First, we add the include for our new \e {Main Window}.
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/todo-mainwindow.cpp
 
 \skipto Qt based Main Window
 \printuntil mainwindow.h
@@ -836,7 +836,7 @@ so we remove them.
 
 We do not need the toplevel shell either.
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/todo-mainwindow.cpp
 
 \skipto Widget shell;
 \printuntil Widget file_dialog;
@@ -851,7 +851,7 @@ Next, we remove all references to the shell variable in the \c New(),
 In \c main(), we make the large changes.  First, we use our new \c
 MainWindow instead of QMotifWidget with \c XmMainWindow.
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/todo-mainwindow.cpp
 
 \skipto QMotif integrator
 \printuntil context	= integrator.applicationContext();
@@ -867,16 +867,221 @@ remaining code in \c main() is self-explanatory.
 \printuntil return app.exec();
 \printline
 
+\section1 Preparing to Replace the \e {View} Widget
 
+We are ready to start replacing the \e {View} widget.  However, our
+example program uses the \c XmNotebook widget class.  Qt does not
+provide a direct equivalent of this class, so we are faced with 3
+possibilities, each with several advantages and disadvantages.
 
+\list 1
 
+\i We can continue the conversion using existing Qt widgets.
 
+\list
+
+\i Advantages - The widgets provided by Qt are well designed and
+tested, allowing us to quickly redesign the user interface.
+
+\i Disadvantages - Most, if not all, of the existing data structures
+and code will need to be modified or rewritten.  New code must be
+written to maintain compatibility with previous versions of our
+application.
+
+\endlist
+
+\i We can write a new QWidget subclass that is identical to the \c
+XmNotebook widget class.
+
+\list
+
+\i Advantages - The existing data structures will not change, allowing
+compatibility with previous and future versions.
+
+\i Disadvantages - The new widget will need to be written and
+regression tested.  Existing code in our applicaton will need to be
+changed in order to deal with the new widget's API.
+
+\endlist
+
+\i We can leave the \c XmNotebook widget untouched.
+
+\list
+
+\i Advantages - The existing data structures and code remain
+unchanged, allowing us to continue development on other projects,
+new features, etc.
+
+\i Disadvantages - This is the simplest solution, but the application
+will still be dependent upon X11; we will not be able to deploy our
+application on all platforms supported by Qt.
+
+\endlist
+
+\endlist
+
+We will use the first approach to complete the migration of the
+example project used in this walkthrough.  However, we will first
+cleanup the existing code a bit.
+
+\section2 Refactoring Existing Code
+
+Note: In the opinion of the author, the existing code is slightly
+disorganized.  Even though the code \e does work, some cleanups and
+reorganization can only help with readability and maintainability.
+The steps described below are not necessary during the migration
+process but are included for completeness.
+
+\section3 Migrating Data Structures to C++
+
+The \c Page data structure is an opaque data type.  The real data
+structure is called \c PageRec; \c Page defined to be a pointer to a
+\c PageRec.  In addition, we have the \c AllocPage() function that
+allocates and initializes memory for a \c PageRec struct.
+
+With C++, we can do this in the constructor.  We can also write a
+destructor which automatically frees all resources in the \c PageRec,
+instead of having to do it in several different places.
+
+The \c PageRec struct declaration is removed from \c page.h.  We
+declare a \c Page struct with the same data members as \c PageRec, a
+constructor and a destructor.
+
+\quotefile walkthrough/page.h
+\skipto struct Page {
+\printuntil int lastcursorpos;
+\printline
+
+The existing \c pages, \c currentPage and \c maxpages global variables
+are removed from the source files.  We reaplce them with \c extern
+declarations in \c page.h.
+
+\skipto extern Page *pages[];
+\printuntil extern int maxpages;
+
+The global variable instantiations are placed in \c todo.cpp.
+
+Each source file contains function declarations that deal with the
+global \c Page related variables.  We remove these declarations from
+the source files and declare them once in the \c page.h header file.
+
+\skipto void SetPage(int);
+\printuntil void FixPages();
+
+Now that \c Page has a constructor, we remove the \c AllocPage()
+function.  It is no longer needed.  The calls to \c AllocPage() are
+replaced with \c {'new Page()'} in the \c NewPage(), \c DeletePage()
+and \c ReadDB() functions.  We also replace the code to deallocate
+pages with \c {delete pages[X]}, where \e X is the appropriate index
+value.  This is done in the \c ReadDB and \c DeletePage() functions.
+
+Code that accesses the global \c pages variable does not need to be
+modified since the data members of the \c Page struct did not change.
+The existing code will continue to work.
+
+The \c OptionsRec struct declared in \c page.h is also updated,
+following the same pattern as the \c Page struct above.
+
+\skipto struct Options {
+\printuntil extern Options options;
+
+The global variable instantiation is also placed in \c todo.cpp.
+
+Code that accesses the global \c options variable does not need to be
+modified since the data members of the \c Options struct did not
+change.  The existing code will continue to work.
+
+\section3 Moving Existing Code
+
+The rest of the refactoring process involves moving existing code into
+new places.  Currently, each function in the \c mainwindow.ui.h file
+simply calls the old callback handlers present in the other files.
+Instead of calling the old callback functions, the implementations are
+moved accordingly.
+
+\table
+\header \i Function             \i Original File  \i Moved to Function 
+\row    \i \c New()             \i \c todo.cpp    \i \c MainWindow::fileName()
+\row    \i \c Open()            \i \c todo.cpp    \i \c MainWindow::fileOpen()
+\row    \i \c SaveIt()          \i \c actions.cpp \i \c MainWindow::fileSave()
+\row    \i \c Save()            \i \c todo.cpp    \i \c MainWindow::fileSaveAs()
+\row    \i \c ShowPrintDialog() \i \c todo.cpp    \i \c MainWindow::filePrint()
+\row    \i \c EditPage()        \i \c actions.cpp \i \c MainWindow::selProperties()
+\row    \i \c NewPage()         \i \c actions.cpp \i \c MainWindow::selNewPage()
+\row    \i \c DeletePage()      \i \c actions.cpp \i \c MainWindow::selDeletePage()
+\endtable
+
+The \c Print() callback function is still used by the \e {Print}
+dialog, so we move it into \c mainwindow.ui.h and make it \c static.
+
+Previously, the \c Open(), \c Save(), \c EditPage and \c DeletePage()
+functions created dialogs with \e client_data as the parent argument.
+Since we have moved the code directly into the \e {Main Window}
+implementation, we create these dialogs with \e this as the parent
+argument.
+
+The \c PageChange() callback functon is moved to from \c actions.cpp
+to \c todo.cpp and made \c static since it is not used anywhere else.
+
+Earlier modifications to \c actions.cpp caused the \c Trim() function
+to become unused, so we remove it.
+
+The \c MIN() and \c MAX() macros in \c todo.cpp are unneeded.  Qt
+provides the \c QMIN() and \c QMAX() macros which we will use.
+
+Earlier modicifations caused the \c fallback_resources array to become
+unused, so we remove it. 
+
+In the near future, our program will not use Motif anymore, and we
+will no longer need to use QMotif.  To prepare for this, we remove the
+\c resources and \c optionDesc arrays and create the QMotif instance
+with just the \e APP_CLASS argument.
+
+The \c #include statements in the source files are mostly incorrect
+due to the refactoring changes.  Many of the \c #include statements
+are no longer needed.  The \c #include statements from each file are
+listed below, instead of describing which includes are removed and
+added to each file.  
+
+\link #skip-include-fixes Skip\endlink to the next section.
+
+Includes for \c actions.cpp:
+
+\quotefile walkthrough/actions.cpp
+
+\skipto // Motif includes
+\printuntil #include "page.h"
+
+Includes for \c io.cpp:
+
+\quotefile walkthrough/io.cpp
+
+\skipto // Qt includes
+\printuntil #include <Exm/TabB.h>
+\printline
+
+Includes for \c todo.cpp:
+
+\quotefile walkthrough/todo.cpp
+
+\skipto // MainWindow includes
+\printuntil #include "page.h"
+
+Includes for \c mainwindow.ui.h:
+
+\quotefile walkthrough/mainwindow.ui.h
+
+\skipto // PageEditDialog includes
+\printuntil #include <Xmd/Print.h>
+\printline
+
+\target skip-include-fixes
+
+\section1 Replacing the \e {View} Widget
 
 
 
 <font color=red>THE STUFF BELOW IS UNFINISHED AND VERY TERSE</font>
-
-\section1 Preparing to Replace the \e {View} widget
 
 \section1 Continuing Development
 
