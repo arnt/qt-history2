@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#9 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#10 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -97,6 +97,7 @@ void FileMainWindow::setup()
     (void)new QLabel( tr( " Path: " ), toolbar );
 
     pathCombo = new QComboBox( TRUE, toolbar );
+    pathCombo->setAutoCompletion( TRUE );
     toolbar->setStretchableWidget( pathCombo );
     connect( pathCombo, SIGNAL( activated( const QString & ) ),
              this, SLOT ( changePath( const QString & ) ) );
