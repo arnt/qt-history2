@@ -99,6 +99,25 @@
   \sa QComponentRegistrationInterface QComponentFactoryInterface
 */
 
+
+static QPtrList<QLibrary> *libraries = 0;
+
+static void cleanup()
+{
+    delete libraries;
+    libraries = 0;
+}
+
+static QPtrList<QLibrary> *liblist()
+{
+    if ( !libraries ) {
+	libraries = new QPtrList<QLibrary>();
+	libraries->setAutoDelete( TRUE );
+	qAddPostRoutine( cleanup );
+    }
+    return libraries;
+}
+
 /*!
   Searches for the component identifier \a cid in the system component registry,
   loads the corresponding component server and queries for the interface \a iid. 
@@ -124,26 +143,6 @@
   }
   \endcode
 */
-
-static QPtrList<QLibrary> *libraries = 0;
-
-static void cleanup()
-{
-    delete libraries;
-    libraries = 0;
-}
-
-static QPtrList<QLibrary> *liblist()
-{
-    if ( !libraries ) {
-	libraries = new QPtrList<QLibrary>();
-	libraries->setAutoDelete( TRUE );
-	qAddPostRoutine( cleanup );
-    }
-    return libraries;
-}
-
-
 QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid, QUnknownInterface** iface, QUnknownInterface *outer )
 {
     QSettings settings;
