@@ -53,12 +53,6 @@ static const int COLNAMESIZE = 255;
 //Map Qt parameter types to ODBC types
 static const SQLSMALLINT qParamType[ 4 ] = { SQL_PARAM_INPUT, SQL_PARAM_INPUT, SQL_PARAM_OUTPUT, SQL_PARAM_INPUT_OUTPUT };
 
-extern
-#if defined (QT_PLUGIN)
-Q_EXPORT
-#endif
-QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
-
 class QODBCPrivate
 {
 public:
@@ -1185,10 +1179,8 @@ QODBCDriver::QODBCDriver( QObject * parent, const char * name )
 
 void QODBCDriver::init()
 {
-    if ( !qt_open_extension_dict )
-	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
-
-    qt_open_extension_dict->insert( this, new QODBCOpenExtension(this) );
+    if ( qt_open_extension_dict )
+	qt_open_extension_dict->insert( this, new QODBCOpenExtension(this) );
     d = new QODBCPrivate();
 }
 
@@ -1196,16 +1188,9 @@ QODBCDriver::~QODBCDriver()
 {
     cleanup();
     delete d;
-    if ( qt_open_extension_dict ) {
-	if ( !qt_open_extension_dict->isEmpty() ) {
-	    QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
-	    delete ext;
-	}
-
-	if ( qt_open_extension_dict->isEmpty() ) {
-	    delete qt_open_extension_dict;
-	    qt_open_extension_dict = 0;
-	}
+    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
+	QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+	delete ext;
     }
 }
 

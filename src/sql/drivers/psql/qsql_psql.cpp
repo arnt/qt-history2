@@ -519,13 +519,11 @@ QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
 
 void QPSQLDriver::init()
 {
-    if ( !qt_driver_extension_dict )
-	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
-    qt_driver_extension_dict->insert( this, new QPSQLDriverExtension(this) );
+    if ( qt_driver_extension_dict )
+	qt_driver_extension_dict->insert( this, new QPSQLDriverExtension(this) );
 
-    if ( !qt_open_extension_dict )
-	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
-    qt_open_extension_dict->insert( this, new QPSQLOpenExtension(this) );
+    if ( qt_open_extension_dict )
+	qt_open_extension_dict->insert( this, new QPSQLOpenExtension(this) );
 
     d = new QPSQLPrivate();
 }
@@ -535,27 +533,13 @@ QPSQLDriver::~QPSQLDriver()
     if ( d->connection )
 	PQfinish( d->connection );
     delete d;
-    if ( qt_driver_extension_dict ) {
-	if ( !qt_driver_extension_dict->isEmpty() ) {
-	    QSqlDriverExtension *ext = qt_driver_extension_dict->take( this );
-	    delete ext;
-	}
-
-	if ( qt_driver_extension_dict->isEmpty() ) {
-	    delete qt_driver_extension_dict;
-	    qt_driver_extension_dict = 0;
-	}
+    if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
+	QSqlDriverExtension *ext = qt_driver_extension_dict->take( this );
+	delete ext;
     }
-    if ( qt_open_extension_dict ) {
-	if ( !qt_open_extension_dict->isEmpty() ) {
-	    QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
-	    delete ext;
-	}
-
-	if ( qt_open_extension_dict->isEmpty() ) {
-	    delete qt_open_extension_dict;
-	    qt_open_extension_dict = 0;
-	}
+    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
+	QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+	delete ext;
     }
 }
 

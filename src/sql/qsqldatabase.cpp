@@ -62,12 +62,15 @@
 #include "qsqldriver.h"
 #include "qsqldriverinterface_p.h"
 #include <private/qpluginmanager_p.h>
+#include <private/qsqlextension_p.h>
 #include "qobject.h"
 #include "qguardedptr.h"
 #include "qdict.h"
 #include <stdlib.h>
 
 QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultConnection = "qt_sql_default_connection";
+Q_EXPORT QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
+Q_EXPORT QPtrDict<QSqlOpenExtension> *qt_open_extension_dict = 0;
 
 class QNullResult : public QSqlResult
 {
@@ -473,6 +476,11 @@ QSqlDatabase::QSqlDatabase( const QString& driver, const QString& name, QObject 
 */
 void QSqlDatabase::init( const QString& type, const QString&  )
 {
+    // ### These must go in 4.0
+    if ( !qt_driver_extension_dict )
+	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
+    if ( !qt_open_extension_dict )
+	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
 
     d = new QSqlDatabasePrivate();
     d->drvName = type;
@@ -554,6 +562,14 @@ QSqlDatabase::~QSqlDatabase()
     delete d->plugIns;
 #endif
     delete d;
+    if ( qt_driver_extension_dict && qt_driver_extension_dict->isEmpty() ) {
+	delete qt_driver_extension_dict;
+	qt_driver_extension_dict = 0;
+    }
+    if ( qt_open_extension_dict && qt_open_extension_dict->isEmpty() ) {
+	delete qt_open_extension_dict;
+	qt_open_extension_dict = 0;
+    }
 }
 
 /*!

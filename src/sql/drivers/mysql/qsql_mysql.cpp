@@ -40,7 +40,6 @@
 #include <qdatetime.h>
 #include <qmap.h>
 #include <qsqlrecord.h>
-#include <qregexp.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
 
@@ -321,10 +320,8 @@ QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
 
 void QMYSQLDriver::init()
 {
-    if ( !qt_open_extension_dict )
-	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
-
-    qt_open_extension_dict->insert( this, new QMYSQLOpenExtension(this) );
+    if ( qt_open_extension_dict )
+	qt_open_extension_dict->insert( this, new QMYSQLOpenExtension(this) );
     d = new QMYSQLDriverPrivate();
     d->mysql = 0;
 }
@@ -332,16 +329,9 @@ void QMYSQLDriver::init()
 QMYSQLDriver::~QMYSQLDriver()
 {
     delete d;
-    if ( qt_open_extension_dict ) {
-	if ( !qt_open_extension_dict->isEmpty() ) {
-	    QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
-	    delete ext;
-	}
-
-	if ( qt_open_extension_dict->isEmpty() ) {
-	    delete qt_open_extension_dict;
-	    qt_open_extension_dict = 0;
-	}
+    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
+	QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+	delete ext;
     }
 }
 
