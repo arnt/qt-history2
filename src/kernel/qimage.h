@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#7 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#8 $
 **
-** Definition of QImage class
+** Definition of QImage and QImageIO classes
 **
 ** Author  : Haavard Nord
 ** Created : 950207
@@ -17,144 +17,198 @@
 #include "qstring.h"
 
 
-struct QImageData;
-struct QImageIO;
-typedef void (*image_io_handler)( QImageIO * );	// image IO handler
-
-class QIODevice;
-
-
-class QImage					// image class
+class QImage
 {
 public:
+    const IgnoreEndian = 0;			// bit/byte order values
+    const BigEndian    = 1;
+    const LittleEndian = 2;
+
     QImage();
-    QImage( int w, int h, int depth=-1 );
-    QImage( const QPixMap & );
-    QImage( QPixMap * );
+    QImage( int width, int height, int depth, int numColors=0,
+	    int bitOrder=IgnoreEndian );
     QImage( const QImage & );
-    QImage( const QImageData * );
-    virtual ~QImage();
-    QImage     &operator=( const QPixMap & );
+    QImage( const QPixmap & );
+   ~QImage();
+
     QImage     &operator=( const QImage & );
-
-    bool	operator==( const QImage & ) const;
-
-    bool	isNull()	const	{ return data->pm == 0; }
-
+    QImage     &operator=( const QPixmap & );
+    void	detach();
     QImage	copy()		const;
 
-    int		width()		const;
-    int		height()	const;
-    QSize	size()		const;
-    QRect	rect()		const;
+    bool	isNull()	const	{ return data->bits == 0; }
 
-    int		depth()		const;
-    int		numColors()	const;
+    int		width()		const	{ return data->w; }
+    int		height()	const	{ return data->h; }
+    QSize	size()		const	{ return QSize(data->w,data->h); }
+    QRect	rect()		const	{ return QRect(0,0,data->w,data->h); }
+    int		depth()		const	{ return data->d; }
+    int		numColors()	const	{ return data->ncols; }
+    int		bitOrder()	const	{ return data->bitordr; }
+
+    ulong	color( int i )	const;
+    void	setColor( int i, ulong c );
+    void	setNumColors( int );
+    void	setBitOrder( int );
 
     uchar      *bits()		const;
+    uchar      *scanline( int )	const;
+    uchar     **jumpTable()	const;
+    bool	contiguousBits()const;
+    ulong      *colorTable()	const;
+    long	numBytes()	const;
+    int		bytesPerLine()	const;
 
-    void	resize( int width, int height );
-    void	resize( const QSize & );
-    void	fill( const QColor & = white );
+    bool	create( int width, int height, int depth, int numColors=0,
+			int bitOrder=IgnoreEndian );
+    void	reset();
 
-    bool	getImageData( QImageData * ) const;
-    bool	setImageData( const QImageData * );
+    void	convertDepth( int );
+    void	convertBitOrder( int );
 
-    QPixMap    *pixmap()	     const { return data->pm; }
-		operator QPixMap &() const;
-		operator QPixMap *() const { return data->pm; }
+    static int	systemBitOrder();
+    static int	systemByteOrder();
 
-    static void	defineIOHandler( const char *format,
+private:
+    void	freeBits();
+
+public:
+    struct QImageData : QShared {		// internal image data
+	int	w;				// image width
+	int	h;				// image height
+	int	d;				// image depth
+	int	ncols;				// number of colors
+	long	nbytes;				// number of bytes data
+	int	bitordr;			// bit order (1 bit depth)
+	ulong  *ctbl;				// color table
+	uchar **bits;				// image data
+#if defined(_WS_WIN16_)
+	bool    contig;
+#endif
+    };
+
+protected:
+    QImageData *data;
+    QImage( int, int );
+    void    copyTo( QImage * ) const;
+    virtual QImageData *newData();
+    virtual void	deleteData( QImageData * );
+};
+
+
+struct QIODevice;
+typedef void (*image_io_handler)( QImageIO * );	// image IO handler
+
+
+class QImageIO : public QImage
+{
+public:
+    QImageIO();
+    QImageIO( int width, int height, int depth, int numColors=0,
+	      int bitOrder=IgnoreEndian );
+    QImageIO( const QImageIO & );
+    QImageIO( const QPixmap & );
+   ~QImageIO();
+
+    QImageIO   &operator=( const QImageIO & );
+    QImageIO   &operator=( const QPixmap & );
+    void	detach();
+    QImageIO	copy()		const;
+
+    int		status()	const;
+    const char *format()	const;
+    QIODevice  *ioDevice()	const;
+    const char *fileName()	const;
+    const char *parameters()	const;
+    const char *description()	const;
+
+    void	setStatus( int );
+    void	setFormat( const char * );
+    void	setIODevice( QIODevice * );
+    void	setFileName( const char * );
+    void	setParameters( const char * );
+    void	setDescription( const char * );
+
+    bool	read();
+    bool	write();
+
+    static const char *imageFormat( const char *fileName );
+    static const char *imageFormat( QIODevice * );
+
+    static void defineIOHandler( const char *format,
 				 const char *header,
 				 const char *flags,
 				 image_io_handler read_image,
 				 image_io_handler write_image );
 
-    static const char *imageType( const char *fileName );
-    bool	load( const char *fileName, const char *format=0 );
-    bool	save( const char *fileName, const char *format ) const;
-
-    friend QDataStream &operator<<( QDataStream &, const QImage & );
-    friend QDataStream &operator>>( QDataStream &, QImage & );
-
-    virtual bool isBitMap() const;
-
-#if defined(_WS_WIN_)
-    HDC	     handle() const;
-#elif defined(_WS_PM_)
-    HPS	     handle() const;
-#elif defined(_WS_X11_)
-    WId	     handle() const;
-#endif
-
-protected:
-    struct QImagePix : QShared {		// image pixel data
-	QPixMap *pm;
-    } *data;
+private:
+    struct QImageIOData : QImageData {
+	int	    status;			// IO status
+	QString	    format;			// image format
+	QIODevice  *iodev;			// IO device
+	QString	    fname;			// file name
+	QString	    params;			// image parameters
+	QString	    descr;			// image description
+    };
+    QImageData *newData();
+    void	deleteData( QImageData * );
 };
 
 
-inline void QImage::resize( const QSize &s )
+inline uchar **QImage::jumpTable() const
 {
-    resize( s.width(), s.height() );
+    return data->bits;
+}
+
+inline ulong *QImage::colorTable() const
+{
+    return data->ctbl;
+}
+
+inline long QImage::numBytes() const
+{
+    return data->nbytes;
+}
+
+inline int QImage::bytesPerLine() const
+{
+    return data->h ? (int)(data->nbytes/data->h) : 0;
+}
+
+inline uchar *QImage::bits() const
+{
+    return data->bits ? data->bits[0] : 0;
+}
+
+inline bool QImage::contiguousBits() const
+{
+#if defined(_WS_WIN16)
+    return data && data->contig;
+#else
+    return TRUE;
+#endif
 }
 
 
-// --------------------------------------------------------------------------
-// QImage stream functions
-//
+#if !(defined(QIMAGE_C) || defined(DEBUG))
 
-QDataStream &operator<<( QDataStream &, const QImage & );
-QDataStream &operator>>( QDataStream &, QImage & );
+inline ulong QImage::color( int i ) const
+{
+    return data->ctbl ? data->ctbl[i] : -1L;
+}
 
+inline void QImage::setColor( int i, ulong c )
+{
+    if ( data->ctbl )
+	data->ctbl[i] = c;
+}
 
-// --------------------------------------------------------------------------
-// Abstract image description for image processing and storage.
-//
+inline uchar *QImage::scanline( int i ) const
+{
+    return data->bits ? data->bits[i] : 0;
+}
 
-struct QImageData {
-    enum	{ IgnoreEndian, BigEndian, LittleEndian };
-
-    QImageData();
-   ~QImageData();
-    int		width;				// image width
-    int		height;				// image height
-    int		depth;				// image depth
-    int		ncols;				// number of colors
-    ulong      *ctbl;				// color table
-    uchar     **bits;				// image data
-    int		bitOrder;			// bit order (1 bit depth)
-
-    long	numBytes() const;
-    void	allocBits();
-    void	freeBits();
-    void	clear();
-
-    bool	contiguousBits()			const;
-    bool	copyData( QImageData *dst )		const;
-    bool	convertDepth( int, QImageData *dst )	const;
-    void	convertBitOrder( int );
-    static int	systemBitOrder();		// display HW bit order
-    static int	systemByteOrder();		// client computer byte order
-};
-
-struct QIODevice;
-
-struct QImageIO : public QImageData {
-    QImageIO();
-   ~QImageIO();
-    int		status;				// IO status
-    QString	format;				// image format
-    QIODevice  *ioDevice;			// IO device
-    QString	fileName;			// file name
-    QString	params;				// image parameters
-    QString	description;			// image description
-
-    static const char *imageFormat( const char *fileName );
-    static const char *imageFormat( QIODevice * );
-    bool	read();
-    bool	write();
-};
+#endif
 
 
 #endif // QIMAGE_H
