@@ -1895,7 +1895,9 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
 	const Section s = sections.at(i).section;
 	QValidator::State tmpstate;
         int num = sectionValue(s, text, &tmpstate);
-	state = qMin(state, tmpstate);
+        // Apple's GCC 3.3 and GCC 4.0 CVS flags a warning on qMin,
+        // so code by hand to remove the warning.
+        state = state < tmpstate ? state : tmpstate;
         if (state == QValidator::Acceptable) {
             switch(s) {
             case HoursSection: hour = num; break;
