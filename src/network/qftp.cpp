@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.cpp#17 $
+** $Id: //depot/qt/main/src/network/qftp.cpp#18 $
 **
 ** Implementation of QFtp class.
 **
@@ -328,12 +328,12 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     perms[0][0] = (tmp[ 1 ] == 'r');
     perms[0][1] = (tmp[ 2 ] == 'w');
     perms[0][2] = (tmp[ 3 ] == 'x');
-    perms[1][0] = (tmp[ 1 ] == 'r');
-    perms[1][1] = (tmp[ 2 ] == 'w');
-    perms[1][2] = (tmp[ 3 ] == 'x');
-    perms[2][0] = (tmp[ 1 ] == 'r');
-    perms[2][1] = (tmp[ 2 ] == 'w');
-    perms[2][2] = (tmp[ 3 ] == 'x');
+    perms[1][0] = (tmp[ 4 ] == 'r');
+    perms[1][1] = (tmp[ 5 ] == 'w');
+    perms[1][2] = (tmp[ 6 ] == 'x');
+    perms[2][0] = (tmp[ 7 ] == 'r');
+    perms[2][1] = (tmp[ 8 ] == 'w');
+    perms[2][2] = (tmp[ 9 ] == 'x');
 
     // owner
     tmp = lst[ 2 ];
@@ -897,6 +897,10 @@ void QFtp::dataBytesWritten( int nbytes )
 {
     putWritten += nbytes;
     emit dataTransferProgress( putWritten, putToWrite, operationInProgress() );
+    if ( putWritten >= putToWrite ) {
+	dataSocket->close();
+	QTimer::singleShot( 1, this, SLOT( dataClosed() ) );
+    }
 }
 
 /*!
