@@ -358,9 +358,6 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         Q_ASSERT(p); //really need a painter and engine to do any drawing!!!
         QColor rgb = pState->painter->pen().color();
 
-        QString fuck;
-        for(int i = pos; i < use_len; i++)
-            fuck += s[i];
         if(rgb != st->rgb) {
             st->rgb = rgb;
             const ATSUAttributeTag color_tag = kATSUColorTag;
