@@ -471,7 +471,7 @@ MakefileGenerator::init()
 			generateDependancies(incDirs, (*val_it));
 		    if(mocAware()) {
 			if(!generateMocList((*val_it))) {
-			    fprintf(stderr, "Failure to open: %s", (*val_it).latin1());
+			    fprintf(stderr, "Failure to open: %s\n", (*val_it).latin1());
 			}
 		    }
 		}
