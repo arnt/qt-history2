@@ -104,12 +104,22 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     //DUMP SOURCES
     QMap<QString, QStringList> groups;
-    QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "UICIMPLS", "QMAKE_IMAGE_COLLECTION", QString::null };
+    QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "UICIMPLS", "QMAKE_IMAGE_COLLECTION", "FORMS", QString::null };
     for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
+	bool buildable = TRUE;
+	if(srcs[i] == "FORMS")
+	    buildable = FALSE;
 	QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
-	    QString file = fileFixify((*it));
+	    QString file = (*it);
+	    if(srcs[i] == "FORMS") {
+		file += Option::h_ext.first();
+		if(!QFile::exists(file))
+		    continue;
+	    }
+
+	    file = fileFixify(file);
 	    if(file.endsWith(Option::cpp_moc_ext)) 
 		continue;
 	    bool in_root = TRUE;
@@ -152,18 +162,19 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "\t\t\t" << "path = \"" << file << "\";" << "\n"
 	      << "\t\t\t" << "refType = " << reftypeForFile(file) << ";" << "\n"
 	      << "\t\t" << "};" << "\n";
-	    //build reference
-	    QString obj_key = file + ".o";
-	    obj_key = keyFor(obj_key);
-	    t << "\t\t" << obj_key << " = {" << "\n"
-	      << "\t\t\t" << "fileRef = " << src_key << ";" << "\n"
-	      << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
-	      << "\t\t\t" << "settings = {" << "\n"
-	      << "\t\t\t\t" << "ATTRIBUTES = (" << "\n"
-	      << "\t\t\t\t" << ");" << "\n"
-	      << "\t\t\t" << "};" << "\n"
-	      << "\t\t" << "};" << "\n";
-	    project->variables()["QMAKE_PBX_OBJ"].append(obj_key);
+	    if(buildable) { //build reference
+		QString obj_key = file + ".o";
+		obj_key = keyFor(obj_key);
+		t << "\t\t" << obj_key << " = {" << "\n"
+		  << "\t\t\t" << "fileRef = " << src_key << ";" << "\n"
+		  << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
+		  << "\t\t\t" << "settings = {" << "\n"
+		  << "\t\t\t\t" << "ATTRIBUTES = (" << "\n"
+		  << "\t\t\t\t" << ");" << "\n"
+		  << "\t\t\t" << "};" << "\n"
+		  << "\t\t" << "};" << "\n";
+		project->variables()["QMAKE_PBX_OBJ"].append(obj_key);
+	    }
 	}
 	if(!src_list.isEmpty()) {
 	    QString grp;
@@ -188,21 +199,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		grp = "Headers";
 	    } else if(srcs[i] == "SRCMOC") {
 		grp = "Sources [moc]";
-	    } else if(srcs[i] == "UICIMPLS") {
+	    } else if(srcs[i] == "UICIMPLS" || srcs[i] == "FORMS") {
 		grp = "Sources [uic]";
 	    } else if(srcs[i] == "QMAKE_IMAGE_COLLECTION") {
 		grp = "Sources [images]";
 	    }
 	    QString grp_key = keyFor(grp);
-	    project->variables()["QMAKE_PBX_GROUPS"].append(grp_key);
-	    t << "\t\t" << grp_key << " = {" << "\n"
-	      << "\t\t\t" << "children = (" << "\n"
-	      << varGlue("QMAKE_PBX_" + srcs[i], "\t\t\t\t", ",\n\t\t\t\t", "\n")
-	      << "\t\t\t" << ");" << "\n"
-	      << "\t\t\t" << "isa = PBXGroup;" << "\n"
-	      << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
-	      << "\t\t\t" << "refType = 4;" << "\n"
-	      << "\t\t" << "};" << "\n";
+	    QStringList &grp_list = project->variables()["QMAKE_PBX_GROUPS"];
+	    if(grp_list.findIndex(grp_key) == -1)
+		grp_list += grp_key;
+	    groups[grp] += src_list;
 	}
     }
     for(QMap<QString, QStringList>::Iterator grp_it = groups.begin(); 
