@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#44 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#45 $
 **
 ** Definition of QPainter class
 **
@@ -70,13 +70,13 @@ public:
 
   // Drawing attributes/modes
 
-    QColor	backgroundColor() const;
+    const QColor &backgroundColor() const;
     void	setBackgroundColor( const QColor & );
     BGMode	backgroundMode() const;
     void	setBackgroundMode( BGMode );
     RasterOp	rasterOp() const;
     void	setRasterOp( RasterOp );
-    QPoint	brushOrigin() const;
+    const QPoint &brushOrigin() const;
     void	setBrushOrigin( int x, int y );
     void	setBrushOrigin( const QPoint & );
 
@@ -96,7 +96,7 @@ public:
 
     void	setWorldXForm( bool );		// set world xform on/off
     bool	hasWorldXForm() const { return testf(WxF); }
-    Q2DMatrix	worldMatrix()	const;		// get/set world xform matrix
+    const Q2DMatrix &worldMatrix() const;	// get/set world xform matrix
     void	setWorldMatrix( const Q2DMatrix &, bool concat=FALSE );
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
@@ -130,12 +130,12 @@ public:
     void	drawRoundRect( const QRect &, int, int );
     void	drawEllipse( int x, int y, int w, int h );
     void	drawEllipse( const QRect & );
-    void	drawArc( int x, int y, int w, int h, int a1, int a2 );
-    void	drawArc( const QRect &, int a1, int a2 );
-    void	drawPie( int x, int y, int w, int h, int a1, int a2 );
-    void	drawPie( const QRect &, int a1, int a2 );
-    void	drawChord( int x, int y, int w, int h, int a1, int a2 );
-    void	drawChord( const QRect &, int a1, int a2 );
+    void	drawArc( int x, int y, int w, int h, int a, int alen );
+    void	drawArc( const QRect &, int a, int alen );
+    void	drawPie( int x, int y, int w, int h, int a, int alen );
+    void	drawPie( const QRect &, int a, int alen );
+    void	drawChord( int x, int y, int w, int h, int a, int alen );
+    void	drawChord( const QRect &, int a, int alen );
     void	drawLineSegments( const QPointArray &,
 				  int index=0, int nlines=-1 );
     void	drawPolyline( const QPointArray &,
@@ -207,41 +207,41 @@ public:
     static void cleanup();
 
 private:
-    void	updateFont();			// update font data
-    void	updatePen();			// update pen data
-    void	updateBrush();			// update brush data
-    void	updateXForm();			// update internal xform params
+    void	updateFont();
+    void	updatePen();
+    void	updateBrush();
+    void	updateXForm();
 
     enum { IsActive=0x01, DirtyFont=0x02, DirtyPen=0x04, DirtyBrush=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, ExtDev=0x80, SafePolygon=0x100,
 	   IsStartingUp=0x200 };
-    ushort	flags;				// painter flags
+    ushort	flags;
     bool	testf( ushort b ) const { return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
     void	setf( ushort b, bool v );
     void	clearf( ushort b )	{ flags &= (ushort)(~b); }
 
-    QPaintDevice *pdev;				// paint device
-    QColor	bg_col;				// background color
-    uchar	bg_mode;			// background mode
-    uchar	rop;				// raster op/transfer mode
-    uchar	pu;				// coordinate unit/NOT USED
-    QPoint	bro;				// brush origin
-    QFont	cfont;				// current font
-    QPen	cpen;				// current pen
-    QBrush	cbrush;				// current brush
-    QRegion	crgn;				// current region
-    int		tabstops;			// tab stops
-    int	       *tabarray;			// array of tab positions
-    int		tabarraylen;			// len of tab array
-    QCOORD	wx, wy, ww, wh;			// window rect
-    QCOORD	vx, vy, vw, vh;			// viewport rect
-    Q2DMatrix	wxmat;				// world xform matrix
+    QPaintDevice *pdev;
+    QColor	bg_col;
+    uchar	bg_mode;
+    uchar	rop;
+    uchar	pu;
+    QPoint	bro;
+    QFont	cfont;
+    QPen	cpen;
+    QBrush	cbrush;
+    QRegion	crgn;
+    int		tabstops;
+    int	       *tabarray;
+    int		tabarraylen;
+    QCOORD	wx, wy, ww, wh;
+    QCOORD	vx, vy, vw, vh;
+    Q2DMatrix	wxmat;
 #if defined(_WS_MAC_) || defined(_WS_WIN16_) || defined(_WS_X11_)
     long	wm11, wm12, wm21, wm22, wdx, wdy;
     long	im11, im12, im21, im22, idx, idy;
 #endif
-    void       *ps_stack;			// painter save/restore stack
+    void       *ps_stack;
     void	killPStack();
 
 protected:
@@ -259,7 +259,6 @@ protected:
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
 #endif
-    static QPnList *list;
 };
 
 
@@ -267,7 +266,7 @@ protected:
 // QPainter member functions
 //
 
-inline QColor QPainter::backgroundColor() const
+inline const QColor &QPainter::backgroundColor() const
 {
     return bg_col;
 }
@@ -282,7 +281,7 @@ inline RasterOp QPainter::rasterOp() const
     return (RasterOp)rop;
 }
 
-inline QPoint QPainter::brushOrigin() const
+inline const QPoint &QPainter::brushOrigin() const
 {
     return bro;
 }
@@ -352,19 +351,19 @@ inline void QPainter::drawEllipse( const QRect &r )
     drawEllipse( r.x(), r.y(), r.width(), r.height() );
 }
 
-inline void QPainter::drawArc( const QRect &r, int a1, int a2 )
+inline void QPainter::drawArc( const QRect &r, int a, int alen )
 {
-    drawArc( r.x(), r.y(), r.width(), r.height(), a1, a2 );
+    drawArc( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
-inline void QPainter::drawPie( const QRect &r, int a1, int a2 )
+inline void QPainter::drawPie( const QRect &r, int a, int alen )
 {
-    drawPie( r.x(), r.y(), r.width(), r.height(), a1, a2 );
+    drawPie( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
-inline void QPainter::drawChord( const QRect &r, int a1, int a2 )
+inline void QPainter::drawChord( const QRect &r, int a, int alen )
 {
-    drawChord( r.x(), r.y(), r.width(), r.height(), a1, a2 );
+    drawChord( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
 inline void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
