@@ -80,8 +80,8 @@ protected:
     void setLeftWidget(QWidget *);
     void setRightWidget(QWidget *);
 
-private:
 #ifdef QT_COMPAT
+public:
     //menudata
     inline QT_COMPAT uint count() const { return actions().count(); }
     inline QT_COMPAT int insertItem(const QString &text, const QObject *receiver, const char* member,
@@ -191,6 +191,7 @@ private:
                   const QKeySequence *accel, const QMenu *popup, int id, int index);
 #endif
 
+private:
     friend class QMenu;
     friend class QWorkspacePrivate;
     friend class QMenuPrivate;
