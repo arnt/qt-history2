@@ -188,6 +188,7 @@ void QTextStreamPrivate::reset()
     codec = QTextCodec::codecForLocale();
     readConverterState = QTextCodec::ConverterState();
     writeConverterState = QTextCodec::ConverterState();
+    writeConverterState.flags |= QTextCodec::IgnoreHeader;
     autoDetectUnicode = true;
 #endif
     readBufferOffset = 0;
@@ -227,6 +228,7 @@ bool QTextStreamPrivate::fillReadBuffer()
             codec = QTextCodec::codecForName("UTF-16");
         } else if (!codec) {
             codec = QTextCodec::codecForLocale();
+            writeConverterState.flags |= QTextCodec::IgnoreHeader;
         }
     }
 #endif
@@ -1979,6 +1981,7 @@ void QTextStream::setEncoding(Encoding encoding)
 
     switch (encoding) {
     case Locale:
+        d->writeConverterState.flags |= QTextCodec::IgnoreHeader;
         setCodec(QTextCodec::codecForLocale());
         d->autoDetectUnicode = true;
         break;
