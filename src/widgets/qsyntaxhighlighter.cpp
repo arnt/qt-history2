@@ -45,12 +45,27 @@ class QSyntaxHighlighterInternal : public QTextPreProcessor
 {
 public:
     QSyntaxHighlighterInternal( QSyntaxHighlighter *h ) : highlighter( h ) {}
-    void process( QTextDocument *, QTextParagraph *p, int, bool ) {
+    void process( QTextDocument *doc, QTextParagraph *p, int, bool invalidate ) {
+	if ( p->prev() && p->prev()->endState() == -1 )
+	    process( doc, p->prev(), 0, FALSE );
+
 	highlighter->para = p;
 	QString text = p->string()->toString();
 	int endState = p->prev() ? p->prev()->endState() : -2;
 	p->setEndState( highlighter->highlightParagraph( text, endState ) );
 	highlighter->para = 0;
+
+	p->setFirstPreProcess( FALSE );
+	if ( invalidate && p->next() &&
+	     !p->next()->firstPreProcess() && p->next()->endState() != -1 ) {
+	    p = p->next();
+	    while ( p ) {
+		if ( p->endState() == -1 )
+		    return;
+		p->setEndState( -1 );
+		p = p->next();
+	    }
+	}
     }
     QTextFormat *format( int ) { return 0; }
 
