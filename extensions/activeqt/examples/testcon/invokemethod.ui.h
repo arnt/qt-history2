@@ -51,7 +51,7 @@ void InvokeMethod::methodSelected( const QString &method )
     if ( !slot )
 	return;
 
-    for ( int p = 0; p < slot->count; ++p ) {
+    for ( int p = slot->count-1; p >= 0; --p ) {
 	const QUParameter *param = slot->parameters + p;
 	if ( !param )
 	    continue;
