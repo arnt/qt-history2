@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#28 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#28 $")
 
 
 /*----------------------------------------------------------------------------
@@ -31,6 +31,8 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#27 $")
   access permissions, file dates and file types.
 
   The QDir class manages directories and lists of file names.
+
+  \sa QDataStream, QTextStream
  ----------------------------------------------------------------------------*/
 
 
@@ -86,9 +88,9 @@ void QFile::init()				// initialize internal data
 
   Do not call this function if the file has already been opened.
 
-  Note that if the name is relative QFile does not it associated with
-  the current directory.  If you change directory before calling
-  open(), open uses the new current directory.
+  Note that if the name is relative QFile does not associate it with the
+  current directory.  If you change directory before calling open(), open
+  uses the new current directory.
 
   Example:
   \code
@@ -98,6 +100,9 @@ void QFile::init()				// initialize internal data
      QDir::setCurrent( "/home" );
      f.open( IO_ReadOnly );	   // opens "/home/readme.txt" under UNIX
   \endcode
+
+  Also note that the directory separator '/' works for all operating
+  systems supported by Qt.
 
   \sa name(), QFileInfo, QDir
  ----------------------------------------------------------------------------*/
@@ -479,7 +484,7 @@ bool QFile::at( long n )
 
   Returns -1 if a serious error occurred.
 
-  \sa writeBlock() QDataStream
+  \sa writeBlock()
  ----------------------------------------------------------------------------*/
 
 int QFile::readBlock( char *p, uint len )
@@ -510,7 +515,7 @@ int QFile::readBlock( char *p, uint len )
 
   Returns -1 if a serious error occurred.
 
-  \sa readBlock() QDataStream
+  \sa readBlock()
  ----------------------------------------------------------------------------*/
 
 int QFile::writeBlock( const char *p, uint len )
@@ -561,7 +566,7 @@ int QFile::writeBlock( const char *p, uint len )
   readLine() for files that have been opened with the \c IO_Raw
   flag.
 
-  \sa readBlock() QTextStream
+  \sa readBlock()
  ----------------------------------------------------------------------------*/
 
 int QFile::readLine( char *p, uint maxlen )
