@@ -3438,7 +3438,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XKeyRelease:
 	{
 	    if ( keywidget && keywidget->isEnabled() ) { // should always exist
-		if ( event->xkey.keycode == 0 ) {
+		if ( (qt_xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 ) {
 		    // input method has sent us a commit string
 		    QInputContext *qic =
 			(QInputContext *) keywidget->topLevelWidget()->topData()->xic;
@@ -3459,10 +3459,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			qic->focusWidget = 0;
 			qic->text = QString::null;
 		    } else {
+			// qDebug( "invalid keypress, reseting input context" );
 			if ( qic ) qic->reset();
 		    }
-		} else
+		} else {
+		    // qDebug( "sending key event" );
 		    keywidget->translateKeyEvent( event, grabbed );
+		}
 	    }
 	    break;
 	}
