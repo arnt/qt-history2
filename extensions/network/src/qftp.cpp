@@ -186,13 +186,13 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     static int readable = 0;
     static int writable = 1;
     static int executable = 2;
-    
+
     bool perms[ 3 ][ 3 ] = {
 	{ tmp[ 1 ] == 'r', tmp[ 2 ] == 'w', tmp[ 3 ] == 'x' },
 	{ tmp[ 4 ] == 'r', tmp[ 5 ] == 'w', tmp[ 6 ] == 'x' },
 	{ tmp[ 7 ] == 'r', tmp[ 8 ] == 'w', tmp[ 9 ] == 'x' }
     };
-    
+
     // owner
     tmp = lst[ 2 ];
     info.setOwner( tmp );
@@ -202,9 +202,9 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     info.setGroup( tmp );
 
     // ### not correct
-    info.setWritable( ( url()->user() == info.owner() && perms[ user ][ writable ] ) || 
+    info.setWritable( ( url()->user() == info.owner() && perms[ user ][ writable ] ) ||
 	perms[ other ][ writable ] );
-    info.setReadable( ( url()->user() == info.owner() && perms[ user ][ readable ] ) || 
+    info.setReadable( ( url()->user() == info.owner() && perms[ user ][ readable ] ) ||
 	perms[ other ][ readable ] );
 
     int p = 0;
@@ -227,7 +227,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     if ( perms[ other ][ executable ] )
 	p |= QFileInfo::ExeOther;
     info.setPermissions( p );
-    
+
     // size
     tmp = lst[ 4 ];
     info.setSize( tmp.toInt() );
@@ -242,7 +242,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	}
     }
     d = lst[ 6 ].toInt();
-    
+
     if ( lst[ 7 ].contains( ":" ) ) {
 	QTime time( lst[ 7 ].left( 2 ).toInt(), lst[ 7 ].right( 2 ).toInt() );
 	date = QDate( QDate::currentDate().year(), m, d );
@@ -252,7 +252,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	date = QDate( y, m, d );
 	info.setLastModified( QDateTime( date, QTime() ) );
     }
-    
+
     // name
     if ( info.isSymLink() )
 	info.setName( lst[ 8 ].stripWhiteSpace() );
@@ -458,9 +458,9 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	    op->setState( StFailed );
 	    op->setErrorCode( (int)ErrLoginIncorrect );
 	}
+	reinitCommandSocket();
 	clearOperationQueue();
 	emit finished( op );
-	reinitCommandSocket();
     } break;
     case 550: { // no such file or directory
 	QString msg( data.mid( 4 ) );
@@ -471,8 +471,8 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	    op->setState( StFailed );
 	    op->setErrorCode( (int)ErrFileNotExisting );
 	}
-	emit finished( op );
 	reinitCommandSocket();
+	emit finished( op );
     } break;
     case 553: { // permission denied
 	QString msg( data.mid( 4 ) );
@@ -483,8 +483,8 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	    op->setState( StFailed );
 	    op->setErrorCode( (int)ErrPermissionDenied );
 	}
-	emit finished( op );
 	reinitCommandSocket();
+	emit finished( op );
     } break;
     }
 }
@@ -611,7 +611,7 @@ void QFtp::dataReadyRead()
 
 void QFtp::dataBytesWritten( int nbytes )
 {
-    if ( operationInProgress() && operationInProgress()->operation() == OpPut && 
+    if ( operationInProgress() && operationInProgress()->operation() == OpPut &&
 	dataSocket && dataSocket->isOpen() ) {
 	putWritten += nbytes;
 	if ( putToWrite < 0 || putWritten < putToWrite )
