@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#71 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#72 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -762,7 +762,7 @@ QCollection::Item QGDictIterator::operator+=( uint jumps )
   \internal
   QString version of remove.
 */
-bool QGDict::remove( QString key )
+bool QGDict::remove( const QString& key )
 {
     QCString kutf8 = key.utf8();
     return remove( kutf8.data() );
@@ -772,7 +772,7 @@ bool QGDict::remove( QString key )
   \internal
   QString version of removeItem.
 */
-bool QGDict::removeItem( QString key, Item item )
+bool QGDict::removeItem( const QString& key, Item item )
 {
     QCString kutf8 = key.utf8();
     return removeItem( kutf8.data(), item );
@@ -782,7 +782,7 @@ bool QGDict::removeItem( QString key, Item item )
   \internal
   QString version of take.
 */
-QCollection::Item QGDict::take( QString key )
+QCollection::Item QGDict::take( const QString& key )
 {
     QCString kutf8 = key.utf8();
     return take( kutf8.data() );
@@ -792,7 +792,7 @@ QCollection::Item QGDict::take( QString key )
   \internal
   QString version of look.
 */
-QCollection::Item QGDict::look( QString key, Item g, int op )
+QCollection::Item QGDict::look( const QString& key, Item g, int op )
 {
     QCString kutf8 = key.utf8();
     if ( op == op_find ) {

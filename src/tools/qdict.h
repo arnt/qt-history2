@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#26 $
+** $Id: //depot/qt/main/src/tools/qdict.h#27 $
 **
 ** Definition of QDict template/macro class
 **
@@ -54,15 +54,15 @@ public:
     type *operator[]( const char *k ) const
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
 
-    void  insert( QString k, const type *d )
+    void  insert( const QString& k, const type *d )
 					{ QGDict::look(k,(Item)d,1); }
-    void  replace( QString k, const type *d )
+    void  replace( const QString& k, const type *d )
 					{ QGDict::look(k,(Item)d,2); }
-    bool  remove( QString k )	{ return QGDict::remove(k); }
-    type *take( QString k )		{ return (type *)QGDict::take(k); }
-    type *find( QString k ) const
+    bool  remove( const QString& k )	{ return QGDict::remove(k); }
+    type *take( const QString& k )		{ return (type *)QGDict::take(k); }
+    type *find( const QString& k ) const
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
-    type *operator[]( QString k ) const
+    type *operator[]( const QString& k ) const
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
 
     void  clear()			{ QGDict::clear(); }

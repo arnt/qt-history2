@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#32 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#33 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -58,7 +58,7 @@ public:
     uint	count() const	{ return numItems; }
     uint	size()	const	{ return vlen; }
     Item		look( const char *key, Item, int );
-    Item		look( QString key, Item, int );
+    Item		look( const QString& key, Item, int );
 
     QDataStream &read( QDataStream & );
     QDataStream &write( QDataStream & ) const;
@@ -73,9 +73,9 @@ protected:
     bool	remove( const char *key );
     bool	removeItem( const char *key, Item item );
     Item		take( const char *key );
-    bool	remove( QString key );
-    bool	removeItem( QString key, Item item );
-    Item		take( QString key );
+    bool	remove( const QString& key );
+    bool	removeItem( const QString& key, Item item );
+    Item		take( const QString& key );
 
     void	clear();
     void	resize( uint );
