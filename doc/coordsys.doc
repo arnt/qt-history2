@@ -213,7 +213,7 @@ We save the painter and then rotate it so that one axis points along
 the hour hand.
 
 \printline setPoints
-\printline drawPolygon
+\printline drawConvexPolygon
 
 We set \e pts to a four-point polygon that looks like the hour hand at
 three o'clock, and draw it.  Because of the rotation, it's drawn
@@ -229,7 +229,7 @@ almost the same way:
 \printline save
 \printline rotate
 \printline setPoints
-\printline drawPolygon
+\printline drawConvexPolygon
 \printline restore
 
 The only differences are how the rotation angle is computed and the
