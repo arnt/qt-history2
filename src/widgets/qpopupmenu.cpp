@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#134 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#133 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#134 $");
 
 
 // Motif style parameters
@@ -1559,7 +1559,7 @@ void QPopupMenu::subMenuTimer() {
 	return;
 
     QPopupMenu *popup = mi->popup();
-    if ( !popup || !popup-isEnabled() )
+    if ( !popup || !popup->isEnabled() )
 	return;
 
     QPoint p( width() - motifArrowHMargin, frameWidth() + motifArrowVMargin );
