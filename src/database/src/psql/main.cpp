@@ -11,22 +11,6 @@ public:
     QStringList featureList();
 };
 
-QStringList QPSQLDriverInterface::interfaceList()
-{
-    QStringList list;
-
-    list << "QPSQLDriverInterface";
-
-    return list;
-}
-
-QUnknownInterface* QPSQLDriverInterface::queryInterface( const QString& request )
-{
-    if ( request == "QPSQLDriverInterface" )
-	return new QPSQLDriverInterface;
-    return 0;
-}
-
 QSqlDriver* QPSQLDriverInterface::create( const QString &name )
 {
     if ( name == "QPSQL" )
