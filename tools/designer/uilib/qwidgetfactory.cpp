@@ -150,7 +150,7 @@ static void setupWidgetListAndMap()
 static QImage loadImageData( const QString& format, ulong len, QByteArray data )
 {
     QImage img;
-    if ( format == "XPM.GZ" ) {
+    if ( format == "XPM.GZ" || format == "XBM.GZ" ) {
 	if ( len < (ulong)data.size() * 10 )
 	    len = (ulong)data.size() * 10;
 	// qUncompress() expects the first 4 bytes to be the expected length of
@@ -163,7 +163,7 @@ static QImage loadImageData( const QString& format, ulong len, QByteArray data )
 	dataTmp[3] = ( len & 0x000000ff );
 	QByteArray baunzip = qUncompress( dataTmp );
 	len = baunzip.size();
-	img.loadFromData( (const uchar*)baunzip.constData(), len, "XPM" );
+	img.loadFromData( (const uchar*)baunzip.data(), len, format.left(format.find('.')) );
     } else {
 	img.loadFromData( (const uchar*)data.constData(), data.size(), format );
     }

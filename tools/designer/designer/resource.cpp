@@ -675,7 +675,7 @@ bool Resource::save( QIODevice* dev )
     QTextStream ts( dev );
     ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 
-    ts << "<!DOCTYPE UI><UI version=\"3.2\" stdsetdef=\"1\">" << endl;
+    ts << "<!DOCTYPE UI><UI version=\"3.3\" stdsetdef=\"1\">" << endl;
     saveMetaInfoBefore( ts, 0 );
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
     if ( formwindow->mainContainer()->inherits( "QMainWindow" ) ) {
@@ -2266,16 +2266,18 @@ QString Resource::saveInCollection( const QImage &img )
 
 void Resource::saveImageData( const QImage &img, QTextStream &ts, int indent )
 {
+    qDebug( "Resource::saveImageData image format w %d h %d d %d", img.width(), img.height(), img.depth() );
     QByteArray ba;
     QBuffer buf( ba );
     buf.open( IO_WriteOnly | IO_Translate );
-    QImageIO iio( &buf, "XPM" );
+    QString format = img.depth() > 1 ? "XPM" : "XBM";
+    QImageIO iio( &buf, format );
     iio.setImage( img );
     iio.write();
     buf.close();
     QByteArray bazip = qCompress( ba );
     ulong len = bazip.size();
-    ts << makeIndent( indent ) << "<data format=\"XPM.GZ\" length=\"" << ba.size() << "\">";
+    ts << makeIndent( indent ) << "<data format=\"" + format + ".GZ\" length=\"" << ba.size() << "\">";
     static const char hexchars[] = "0123456789abcdef";
     for ( int i = 4; i < (int)len; ++i ) {
 	// The first 4 bytes in qCompress() are the length of the unzipped
@@ -2328,7 +2330,7 @@ static QImage loadImageData( QDomElement &n2 )
 	ba[ i ] = r;
     }
     QString format = n2.attribute( "format", "PNG" );
-    if ( format == "XPM.GZ" ) {
+    if ( format == "XPM.GZ" || format == "XBM.GZ" ) {
 	ulong len = n2.attribute( "length" ).toULong();
 	if ( len < (ulong)data.length() * 5 )
 	    len = data.length() * 5;
@@ -2339,11 +2341,13 @@ static QImage loadImageData( QDomElement &n2 )
 	ba[2] = ( len & 0x0000ff00 ) >> 8;
 	ba[3] = ( len & 0x000000ff );
 	QByteArray baunzip = qUncompress( ba, baSize );
-	img.loadFromData( (const uchar*)baunzip.data(), baunzip.size(), "XPM" );
+	img.loadFromData( (const uchar*)baunzip.data(), baunzip.size(), format.left(format.find('.')) );
     }  else {
 	img.loadFromData( (const uchar*)ba+lengthOffset, baSize-lengthOffset, format );
     }
     delete [] ba;
+
+    qDebug( "Resource::loadImageData image format w %d h %d d %d", img.width(), img.height(), img.depth() );
 
     return img;
 }
