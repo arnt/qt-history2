@@ -183,6 +183,10 @@ protected:
     virtual QPopupMenu *createPopupMenu();
     void windowActivationChange( bool );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private slots:
     void clipboardChanged();
     void blinkSlot();

@@ -49,6 +49,7 @@
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
 #include "qlineedit.h"
+#include "qaccessible.h"
 
 
 class QLabelPrivate
@@ -1227,5 +1228,12 @@ void QLabel::setFont( const QFont &f )
 #endif
 }
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QLabel::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::StaticText );
+}
+#endif
 
 #endif // QT_NO_LABEL

@@ -48,6 +48,7 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qtimer.h"
+#include "qaccessible.h"
 
 class QSpinBoxPrivate
 {
@@ -1045,4 +1046,13 @@ void QSpinBox::setBackgroundPixmap( const QPixmap & pixmap )
     if(!vi) return;
     setBackgroundPixmapForMode(vi->backgroundMode(), pixmap);
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QSpinBox::accessibleInterface()
+{
+    return new QAccessibleRangeControl( this, QAccessible::SpinButton );
+}
+#endif
+
 #endif

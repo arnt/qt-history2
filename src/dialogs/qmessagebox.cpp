@@ -43,6 +43,7 @@
 #include "qpushbutton.h"
 #include "qimage.h"
 #include "qapplication.h"
+#include "qaccessible.h"
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -1502,6 +1503,12 @@ void QMessageBox::setTextFormat( Qt::TextFormat format )
     label->setTextFormat( format );
 }
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QMessageBox::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::AlertMessage );
+}
+#endif
 
 // My own personal favorite minimalist error message popped up whilst
 // testing Freehand 8 last month.  I took a screen shot.  I believe I

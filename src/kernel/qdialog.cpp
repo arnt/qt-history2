@@ -47,6 +47,7 @@
 #include "qsizegrip.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qpopupmenu.h" // ######## dependency
+#include "qaccessible.h"
 
 
 // REVISED: arnt
@@ -744,5 +745,15 @@ void QDialog::resizeEvent( QResizeEvent * )
 	d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
 #endif
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*!
+  \reimp
+*/
+QAccessibleInterface *QDialog::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Dialog );
+}
+#endif
 
 #endif // QT_NO_DIALOG

@@ -103,6 +103,10 @@ protected:
     void 	contextMenuEvent( QContextMenuEvent * );
     bool 	eventFilter( QObject *, QEvent * );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private:
     void	setDefault( QPushButton * );
     void		hideDefault();

@@ -119,6 +119,10 @@ protected:
     void	 fontChange( const QFont & );
     void	 resizeEvent( QResizeEvent* );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private slots:
 #ifndef QT_NO_ACCEL
     void	 acceleratorSlot();

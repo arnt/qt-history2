@@ -52,6 +52,7 @@
 #include <ctype.h>
 #include "../kernel/qrichtext_p.h"
 #include "../kernel/qinternal_p.h"
+#include "qaccessible.h"
 
 struct UndoRedoInfo {
     enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
@@ -1999,5 +2000,13 @@ void QLineEdit::windowActivationChange( bool )
     if ( acg != icg )
 	update();
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QLineEdit::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Text );
+}
+#endif
 
 #endif
