@@ -29,7 +29,4 @@ sunelfdbg:
 	/bin/rm -f $(ELFTARGET)
 	$(CC) -shared -o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lc
 
-purify:
-	make lib "CFLAGS=-gstabs" "OBJDIR=obj/purifylib"
-	/bin/rm -f $(AOUTTARGET)
-	ar q $(AOUTTARGET) obj/purifylib/*/*.o
+purify: sunaout
