@@ -18,11 +18,11 @@ CannonField::CannonField(QWidget *parent)
 void CannonField::setAngle(int angle)
 {
     if (angle < 5)
-	angle = 5;
+        angle = 5;
     if (angle > 70)
-	angle = 70;
+        angle = 70;
     if (ang == angle)
-	return;
+        return;
     ang = angle;
     repaint();
     emit angleChanged(ang);

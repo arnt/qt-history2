@@ -38,11 +38,11 @@ CannonField::CannonField(QWidget *parent)
 void CannonField::setAngle(int angle)
 {
     if (angle < 5)
-	angle = 5;
+        angle = 5;
     if (angle > 70)
-	angle = 70;
+        angle = 70;
     if (ang == angle)
-	return;
+        return;
     ang = angle;
     repaint(cannonRect());
     emit angleChanged(ang);
@@ -51,9 +51,9 @@ void CannonField::setAngle(int angle)
 void CannonField::setForce(int force)
 {
     if (force < 0)
-	force = 0;
+        force = 0;
     if (f == force)
-	return;
+        return;
     f = force;
     emit forceChanged(f);
 }
@@ -61,7 +61,7 @@ void CannonField::setForce(int force)
 void CannonField::shoot()
 {
     if (isShooting())
-	return;
+        return;
     timerCount = 0;
     shoot_ang = ang;
     shoot_f = f;
@@ -74,9 +74,9 @@ void  CannonField::newTarget()
     static bool first_time = true;
 
     if (first_time) {
-	first_time = false;
-	QTime midnight(0, 0, 0);
-	srand(midnight.secsTo(QTime::currentTime()));
+        first_time = false;
+        QTime midnight(0, 0, 0);
+        srand(midnight.secsTo(QTime::currentTime()));
     }
     QRegion r(targetRect());
     target = QPoint(200 + rand() % 190, 10 + rand() % 255);
@@ -86,9 +86,9 @@ void  CannonField::newTarget()
 void CannonField::setGameOver()
 {
     if (gameEnded)
-	return;
+        return;
     if (isShooting())
-	autoShootTimer->stop();
+        autoShootTimer->stop();
     gameEnded = true;
     repaint();
 }
@@ -96,7 +96,7 @@ void CannonField::setGameOver()
 void CannonField::restartGame()
 {
     if (isShooting())
-	autoShootTimer->stop();
+        autoShootTimer->stop();
     gameEnded = false;
     repaint();
     emit canShoot(true);
@@ -110,16 +110,16 @@ void CannonField::moveShot()
     QRect shotR = shotRect();
 
     if (shotR.intersects(targetRect())) {
-	autoShootTimer->stop();
-	emit hit();
-	emit canShoot(true);
+        autoShootTimer->stop();
+        emit hit();
+        emit canShoot(true);
     } else if (shotR.x() > width() || shotR.y() > height()
                || shotR.intersects(barrierRect())) {
-	autoShootTimer->stop();
-	emit missed();
-	emit canShoot(true);
+        autoShootTimer->stop();
+        emit missed();
+        emit canShoot(true);
     } else {
-	r = r.unite(QRegion(shotR));
+        r = r.unite(QRegion(shotR));
     }
 
     repaint(r);
@@ -128,20 +128,20 @@ void CannonField::moveShot()
 void CannonField::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton)
-	return;
+        return;
     if (barrelHit(event->pos()))
-	barrelPressed = true;
+        barrelPressed = true;
 }
 
 void CannonField::mouseMoveEvent(QMouseEvent *event)
 {
     if (!barrelPressed)
-	return;
+        return;
     QPoint pnt = event->pos();
     if (pnt.x() <= 0)
-	pnt.setX(1);
+        pnt.setX(1);
     if (pnt.y() >= height())
-	pnt.setY(height() - 1);
+        pnt.setY(height() - 1);
     double rad = atan(((double)rect().bottom()-pnt.y())/pnt.x());
     setAngle(qRound (rad*180/3.14159265));
 }
@@ -149,7 +149,7 @@ void CannonField::mouseMoveEvent(QMouseEvent *event)
 void CannonField::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
-	barrelPressed = false;
+        barrelPressed = false;
 }
 
 void CannonField::paintEvent(QPaintEvent *event)
@@ -158,18 +158,18 @@ void CannonField::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     if (gameEnded) {
-	painter.setPen(Qt::black);
-	painter.setFont(QFont("Courier", 48, QFont::Bold));
-	painter.drawText(rect(), Qt::AlignCenter, "Game Over");
+        painter.setPen(Qt::black);
+        painter.setFont(QFont("Courier", 48, QFont::Bold));
+        painter.drawText(rect(), Qt::AlignCenter, "Game Over");
     }
     if (updateR.intersects(cannonRect()))
-	paintCannon(painter);
+        paintCannon(painter);
     if (updateR.intersects(barrierRect()))
-	paintBarrier(painter);
+        paintBarrier(painter);
     if (isShooting() && updateR.intersects(shotRect()))
-	paintShot(painter);
+        paintShot(painter);
     if (!gameEnded && updateR.intersects(targetRect()))
-	paintTarget(painter);
+        paintTarget(painter);
 }
 
 void CannonField::paintShot(QPainter &painter)

@@ -24,8 +24,7 @@ CannonField::CannonField(QWidget *parent)
     f = 0;
     timerCount = 0;
     autoShootTimer = new QTimer(this);
-    connect(autoShootTimer, SIGNAL(timeout()),
-	    this, SLOT(moveShot()));
+    connect(autoShootTimer, SIGNAL(timeout()), this, SLOT(moveShot()));
     shoot_ang = 0;
     shoot_f = 0;
     target = QPoint(0, 0);
@@ -37,11 +36,11 @@ CannonField::CannonField(QWidget *parent)
 void CannonField::setAngle(int angle)
 {
     if (angle < 5)
-	angle = 5;
+        angle = 5;
     if (angle > 70)
-	angle = 70;
+        angle = 70;
     if (ang == angle)
-	return;
+        return;
     ang = angle;
     repaint(cannonRect());
     emit angleChanged(ang);
@@ -50,9 +49,9 @@ void CannonField::setAngle(int angle)
 void CannonField::setForce(int force)
 {
     if (force < 0)
-	force = 0;
+        force = 0;
     if (f == force)
-	return;
+        return;
     f = force;
     emit forceChanged(f);
 }
@@ -60,7 +59,7 @@ void CannonField::setForce(int force)
 void CannonField::shoot()
 {
     if (isShooting())
-	return;
+        return;
     timerCount = 0;
     shoot_ang = ang;
     shoot_f = f;
@@ -73,9 +72,9 @@ void CannonField::newTarget()
     static bool firstTime = true;
 
     if (firstTime) {
-	firstTime = false;
-	QTime midnight(0, 0, 0);
-	srand(midnight.secsTo(QTime::currentTime()));
+        firstTime = false;
+        QTime midnight(0, 0, 0);
+        srand(midnight.secsTo(QTime::currentTime()));
     }
     QRegion region(targetRect());
     target = QPoint(200 + rand() % 190, 10 + rand() % 255);
@@ -85,9 +84,9 @@ void CannonField::newTarget()
 void CannonField::setGameOver()
 {
     if (gameEnded)
-	return;
+        return;
     if (isShooting())
-	autoShootTimer->stop();
+        autoShootTimer->stop();
     gameEnded = true;
     repaint();
 }
@@ -95,7 +94,7 @@ void CannonField::setGameOver()
 void CannonField::restartGame()
 {
     if (isShooting())
-	autoShootTimer->stop();
+        autoShootTimer->stop();
     gameEnded = false;
     repaint();
     emit canShoot(true);
@@ -109,15 +108,15 @@ void CannonField::moveShot()
     QRect shotR = shotRect();
 
     if (shotR.intersects(targetRect())) {
-	autoShootTimer->stop();
-	emit hit();
-	emit canShoot(true);
+        autoShootTimer->stop();
+        emit hit();
+        emit canShoot(true);
     } else if (shotR.x() > width() || shotR.y() > height()) {
-	autoShootTimer->stop();
-	emit missed();
-	emit canShoot(true);
+        autoShootTimer->stop();
+        emit missed();
+        emit canShoot(true);
     } else {
-	region = region.unite(shotR);
+        region = region.unite(shotR);
     }
 
     repaint(region);
@@ -129,16 +128,16 @@ void CannonField::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     if (gameEnded) {
-	painter.setPen(Qt::black);
-	painter.setFont(QFont("Courier", 48, QFont::Bold));
-	painter.drawText(rect(), Qt::AlignCenter, "Game Over");
+        painter.setPen(Qt::black);
+        painter.setFont(QFont("Courier", 48, QFont::Bold));
+        painter.drawText(rect(), Qt::AlignCenter, "Game Over");
     }
     if (updateR.intersects(cannonRect()))
-	paintCannon(painter);
+        paintCannon(painter);
     if (isShooting() && updateR.intersects(shotRect()))
-	paintShot(painter);
+        paintShot(painter);
     if (!gameEnded && updateR.intersects(targetRect()))
-	paintTarget(painter);
+        paintTarget(painter);
 }
 
 void CannonField::paintShot(QPainter &painter)

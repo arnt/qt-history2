@@ -36,11 +36,11 @@ CannonField::CannonField(QWidget *parent)
 void CannonField::setAngle(int angles)
 {
     if (angles < 5)
-	angles = 5;
+        angles = 5;
     if (angles > 70)
-	angles = 70;
+        angles = 70;
     if (ang == angles)
-	return;
+        return;
     ang = angles;
     repaint(cannonRect());
     emit angleChanged(ang);
@@ -49,9 +49,9 @@ void CannonField::setAngle(int angles)
 void CannonField::setForce(int force)
 {
     if (force < 0)
-	force = 0;
+        force = 0;
     if (f == force)
-	return;
+        return;
     f = force;
     emit forceChanged(f);
 }
@@ -59,7 +59,7 @@ void CannonField::setForce(int force)
 void CannonField::shoot()
 {
     if (autoShootTimer->isActive())
-	return;
+        return;
     timerCount = 0;
     shoot_ang = ang;
     shoot_f = f;
@@ -71,9 +71,9 @@ void CannonField::newTarget()
     static bool firstTime = true;
 
     if (firstTime) {
-	firstTime = false;
-	QTime midnight(0, 0, 0);
-	srand(midnight.secsTo(QTime::currentTime()));
+        firstTime = false;
+        QTime midnight(0, 0, 0);
+        srand(midnight.secsTo(QTime::currentTime()));
     }
     QRegion region(targetRect());
     target = QPoint(200 + rand() % 190, 10 + rand() % 255);
@@ -88,13 +88,13 @@ void CannonField::moveShot()
     QRect shotR = shotRect();
 
     if (shotR.intersects(targetRect())) {
-	autoShootTimer->stop();
-	emit hit();
+        autoShootTimer->stop();
+        emit hit();
     } else if (shotR.x() > width() || shotR.y() > height()) {
-	autoShootTimer->stop();
-	emit missed();
+        autoShootTimer->stop();
+        emit missed();
     } else {
-	region = region.unite(QRegion(shotR));
+        region = region.unite(QRegion(shotR));
     }
 
     repaint(region);
@@ -106,11 +106,11 @@ void CannonField::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     if (updateR.intersects(cannonRect()))
-	paintCannon(painter);
+        paintCannon(painter);
     if (autoShootTimer->isActive() && updateR.intersects(shotRect()))
-	paintShot(painter);
+        paintShot(painter);
     if (updateR.intersects(targetRect()))
-	paintTarget(painter);
+        paintTarget(painter);
 }
 
 void CannonField::paintShot(QPainter &painter)

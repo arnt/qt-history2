@@ -21,11 +21,11 @@ CannonField::CannonField(QWidget *parent)
 void CannonField::setAngle(int angle)
 {
     if (angle < 5)
-	angle = 5;
+        angle = 5;
     if (angle > 70)
-	angle = 70;
+        angle = 70;
     if (ang == angle)
-	return;
+        return;
     ang = angle;
     repaint(cannonRect());
     emit angleChanged(ang);
@@ -34,9 +34,9 @@ void CannonField::setAngle(int angle)
 void CannonField::setForce(int force)
 {
     if (force < 0)
-	force = 0;
+        force = 0;
     if (f == force)
-	return;
+        return;
     f = force;
     emit forceChanged(f);
 }
@@ -44,7 +44,7 @@ void CannonField::setForce(int force)
 void CannonField::paintEvent(QPaintEvent *event)
 {
     if (!event->rect().intersects(cannonRect()))
-	return;
+        return;
 
     QRect rect = cannonRect();
     QPixmap pixmap(rect.size());
