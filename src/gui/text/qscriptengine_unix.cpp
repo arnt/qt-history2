@@ -1797,6 +1797,69 @@ static void indic_attributes(int script, const QString &text, int from, int len,
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
+#include <qtextcodec.h>
+#include <qlibrary.h>
+
+
+static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *attributes)
+{
+    typedef int (*th_brk_def)(const char*, int[], int);
+    static QTextCodec *thaiCodec = QTextCodec::codecForMib(2259);
+    static th_brk_def th_brk = 0;
+
+    /* load libthai dynamically */
+    if (!th_brk && thaiCodec) {
+        th_brk = (th_brk_def)QLibrary::resolve("thai", "th_brk");
+        if (!th_brk)
+            thaiCodec = 0;
+    }
+
+    if (!th_brk)
+        return;
+
+    QByteArray cstr = thaiCodec->fromUnicode(QString(string, len));
+
+    int brp[128];
+    int *break_positions = brp;
+    int numbreaks = th_brk(cstr.constData(), break_positions, 128);
+    if (numbreaks > 128) {
+        break_positions = new int[numbreaks];
+        numbreaks = th_brk(cstr.data(),break_positions, numbreaks);
+    }
+
+    attributes[0].softBreak = TRUE;
+    for (int i = 1; i < len; ++i)
+        attributes[i].softBreak = FALSE;
+
+    for (int i = 0; i < numbreaks; ++i)
+        attributes[break_positions[i]].softBreak = TRUE;
+
+    if (break_positions != brp)
+        delete [] break_positions;
+}
+
+
+static void thai_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
+{
+    const QChar *uc = text.unicode() + from;
+    attributes += from;
+
+    QCharAttributes *a = attributes;
+    for ( int i = 0; i < len; i++ ) {
+	QChar::Category cat = ::category( *uc );
+	a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
+	a->charStop = (cat != QChar::Mark_NonSpacing);
+        // if we don't know any better, every charstop is a possible line break.
+	a->softBreak = a->charStop;
+	a->wordStop = FALSE;
+	a->invalid = FALSE;
+	++uc;
+	++a;
+    }
+
+    if (script == QFont::Thai)
+        thaiWordBreaks(text.unicode() + from, len, attributes);
+}
 
 
 
@@ -2816,9 +2879,9 @@ const q_scriptEngine scriptEngines[] = {
         // Sinhala,
     { indic_shape, indic_attributes },
         // Thai,
-    { basic_shape, basic_attributes },
+    { basic_shape, thai_attributes },
         // Lao,
-    { basic_shape, basic_attributes },
+    { basic_shape, thai_attributes },
         // Tibetan,
     { tibetan_shape, tibetan_attributes },
         // Myanmar,

@@ -801,11 +801,14 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
             charAttributes[i].softBreak = false;
             continue;
         }
-        if (ncls >= QUnicodeTables::LineBreak_SA) {
-            // ### handle complex case
-            ncls = QUnicodeTables::LineBreak_ID;
-        }
-        int brk = charAttributes[i].charStop ? breakTable[cls][ncls] : (int)Pbk;
+	if (cls == QUnicodeTables::LineBreak_SA && ncls == QUnicodeTables::LineBreak_SA)
+            // two complex chars (thai or lao), thai_attributes has already set this correctly
+            continue;
+        int tcls = ncls;
+        if (tcls >= QUnicodeTables::LineBreak_SA)
+            tcls = QUnicodeTables::LineBreak_ID;
+
+	int brk = charAttributes[i].charStop ? breakTable[cls][tcls] : (int)Pbk;
         if (brk == Ibk)
             charAttributes[i].softBreak = (lineBreakClass(uc[i-1]) == QUnicodeTables::LineBreak_SP);
         else

@@ -5790,6 +5790,10 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
             firstChar = c;
         }
 
+        // ignore non spacing marks for column count.
+        if (col != 0 && ::category(c->c) == QChar::Mark_NonSpacing)
+            --col;
+
 #ifndef QT_NO_TEXTCUSTOMITEM
         lastWasNonInlineCustom =  (c->isCustom() && c->customItem()->placement() != Q3TextCustomItem::PlaceInline);
 #endif
