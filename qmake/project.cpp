@@ -1931,7 +1931,8 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         break;
     }
     default: {
-        if(FunctionBlock *defined = replaceFunctions[func]) {
+        if(replaceFunctions.contains(func)) {
+            FunctionBlock *defined = replaceFunctions[func];
             function_blocks.push(defined);
             defined->exec(args, this, place, ret);
             Q_ASSERT(function_blocks.pop() == defined);
@@ -2114,6 +2115,25 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         else
             iterator->cause_next = true;
         return true;
+    } else if(func == "defined") {
+        if(args.count() < 1 || args.count() > 2) {
+            fprintf(stderr, "%s:%d: defined(function) requires one argument.\n",
+                    parser.file.toLatin1().constData(), parser.line_no);
+        } else {
+           if(args.count() > 1) {
+               if(args[1] == "test")
+                   return testFunctions.contains(args[0]);
+               else if(args[1] == "replace")
+                   return replaceFunctions.contains(args[0]);
+               fprintf(stderr, "%s:%d: defined(function, type): unexpected type [%s].\n",
+                       parser.file.toLatin1().constData(), parser.line_no,
+                       args[1].toLatin1().constData());
+            } else {
+                if(replaceFunctions.contains(args[0]) || testFunctions.contains(args[0]))
+                    return true;
+            }
+        }
+        return false;
     } else if(func == "contains") {
         if(args.count() != 2) {
             fprintf(stderr, "%s:%d: contains(var, val) requires two arguments.\n", parser.file.toLatin1().constData(),
@@ -2243,35 +2263,34 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         if(func == "error")
             exit(2);
         return true;
-    } else {
-        if(FunctionBlock *defined = testFunctions[func]) {
-            QString ret;
-            function_blocks.push(defined);
-            defined->exec(args, this, place, ret);
-            Q_ASSERT(function_blocks.pop() == defined);
+    } else if(testFunctions.contains(func)) {
+        FunctionBlock *defined = testFunctions[func];
+        QString ret;
+        function_blocks.push(defined);
+        defined->exec(args, this, place, ret);
+        Q_ASSERT(function_blocks.pop() == defined);
 
-            if(ret.isEmpty()) {
-                return true;
-            } else {
-                if(ret == "true") {
-                    return true;
-                } else if(ret == "false") {
-                    return false;
-                } else {
-                    bool ok;
-                    int val = ret.toInt(&ok);
-                    if(ok)
-                        return val;
-                    fprintf(stderr, "%s:%d Unexpected return value from test %s [%s].\n", parser.file.toLatin1().constData(),
-                            parser.line_no, func.toLatin1().constData(), ret.toLatin1().constData());
-                }
-                return false;
-            }
+        if(ret.isEmpty()) {
+            return true;
         } else {
-            fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.toLatin1().constData(), parser.line_no,
-                    func.toLatin1().constData());
+            if(ret == "true") {
+                return true;
+            } else if(ret == "false") {
+                return false;
+            } else {
+                bool ok;
+                int val = ret.toInt(&ok);
+                if(ok)
+                    return val;
+                fprintf(stderr, "%s:%d Unexpected return value from test %s [%s].\n", parser.file.toLatin1().constData(),
+                        parser.line_no, func.toLatin1().constData(), ret.toLatin1().constData());
+            }
+            return false;
         }
         return false;
+    } else {
+        fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.toLatin1().constData(), parser.line_no,
+                func.toLatin1().constData());
     }
     return false;
 }
