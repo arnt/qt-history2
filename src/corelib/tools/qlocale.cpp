@@ -4010,7 +4010,6 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #define ULong        quint32
 
 #define MALLOC malloc
-//#define const
 
 #ifdef BSD_QDTOA_DEBUG
 #include <stdio.h>
@@ -4889,7 +4888,7 @@ static double ratio(Bigint *a, Bigint *b)
     return da / db;
 }
 
-static const double tens[] __attribute__ ((aligned (8))) = {
+static const double tens[] = {
     1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9,
     1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19,
     1e20, 1e21, 1e22
