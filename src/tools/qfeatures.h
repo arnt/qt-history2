@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#171 $
+** $Id:  qt/qfeatures.h   3.0.0-beta1-beta1   edited Apr 12 10:52 $
 **
 ** Global feature selection
 **
@@ -359,10 +359,10 @@
 /*!
     Network file access
 */
-#if defined(QT_NO_NETWORK) || defined(QT_NO_DIR) || defined(QT_NO_STRINGLIST)
+#if defined(QT_NO_DIR) || defined(QT_NO_STRINGLIST)
 # define QT_NO_NETWORKPROTOCOL
 #endif
-#if defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
+#if defined(QT_NO_NETWORK) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
     /*!
 	FTP file access
     */
