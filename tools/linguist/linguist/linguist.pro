@@ -34,6 +34,8 @@ INCLUDEPATH	= ../pics \
 		  ../../../src/kernel
 DESTDIR		= ../../../bin
 
+PROJECTNAME	= Qt Linguist
+
 target.path=$$QT_INSTALL_BINPATH
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS	+= target
