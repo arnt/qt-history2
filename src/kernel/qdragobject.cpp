@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#94 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -647,39 +647,64 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 
 /*!
   Attempts to decode the dropped information in \a e
-  into \a str, returning TRUE if successful.
+  into \a str, returning TRUE if successful.  If \a subtype is null,
+  any text subtype is accepted, otherwise only that specified is
+  accepted.  \a subtype is set to the accepted subtype.
 
-  \sa decode()
+  \sa canDecode()
 */
-bool QTextDrag::decode( const QMimeSource* e, QString& str )
+bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 {
     const char* mime;
     for (int i=0; (mime = e->format(i)); i++) {
 	if ( 0==strnicmp(mime,"text/",5) ) {
-	    QTextCodec* codec = findcharset(QCString(mime).lower());
-	    if ( codec ) {
-		QByteArray payload;
+	    QCString m(mime);
+	    m = m.lower();
+	    int semi = m.find(';');
+	    if ( semi < 0 )
+		semi = m.length();
+	    QCString foundst = m.mid(5,semi-5);
+	    if ( subtype.isNull() || foundst == subtype ) {
+		QTextCodec* codec = findcharset(m);
+		if ( codec ) {
+		    QByteArray payload;
 
-		payload = e->encodedData(mime);
-		if ( payload.size() ) {
-		    int l;
-		    if ( codec->mibEnum() != 1000) {
-			// length is at NUL or payload.size()
-			l = 0;
-			while ( l < (int)payload.size() && payload[l] )
-			    l++;
-		    } else {
-			l = payload.size();
+		    payload = e->encodedData(mime);
+		    if ( payload.size() ) {
+			int l;
+			if ( codec->mibEnum() != 1000) {
+			    // length is at NUL or payload.size()
+			    l = 0;
+			    while ( l < (int)payload.size() && payload[l] )
+				l++;
+			} else {
+			    l = payload.size();
+			}
+
+			str = codec->toUnicode(payload,l);
+
+			if ( subtype.isNull() )
+			    subtype = foundst;
+
+			return TRUE;
 		    }
-
-		    str = codec->toUnicode(payload,l);
-
-		    return TRUE;
 		}
 	    }
 	}
     }
     return FALSE;
+}
+
+/*!
+  Attempts to decode the dropped information in \a e
+  into \a str, returning TRUE if successful.
+
+  \sa canDecode()
+*/
+bool QTextDrag::decode( const QMimeSource* e, QString& str )
+{
+    QCString st;
+    return decode(e,str,st);
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#41 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#42 $
 **
 ** Definition of QDragObject
 **
@@ -98,6 +98,7 @@ public:
 
     static bool canDecode( const QMimeSource* e );
     static bool decode( const QMimeSource* e, QString& s );
+    static bool decode( const QMimeSource* e, QString& s, QCString& subtype );
 };
 
 class QImageDragData;
