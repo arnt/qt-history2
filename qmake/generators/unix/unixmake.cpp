@@ -646,6 +646,53 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
 	}
+	if(project->isActiveConfig("create_libtool") && !project->isActiveConfig("compile_libtool")) {	
+	    QString src_lt = var("QMAKE_ORIG_TARGET");
+	    int slsh = src_lt.findRev(Option::dir_sep);
+	    if(slsh != -1)
+		src_lt = src_lt.right(src_lt.length() - slsh);
+	    int dot = src_lt.find('.');
+	    if(dot != -1)
+		src_lt = src_lt.left(dot);
+	    src_lt += ".la";
+	    src_lt.prepend("lib");
+	    QString dst_lt = root + targetdir + src_lt;
+	    if(!project->isEmpty("DESTDIR")) {
+		src_lt.prepend(var("DESTDIR"));
+		src_lt = Option::fixPathToLocalOS(fileFixify(src_lt, 
+							     QDir::currentDirPath(), Option::output_dir));
+	    }
+	    if(!ret.isEmpty())
+		ret += "\n\t";
+	    ret += "-$(COPY) \"" + src_lt + "\" \"" + dst_lt + "\"";
+	    if(!uninst.isEmpty())
+		uninst.append("\n\t");
+	    uninst.append("-$(DEL_FILE) \"" + dst_lt + "\"");
+	}
+	if(project->isActiveConfig("create_pc")) {
+	    QString src_pc = var("QMAKE_ORIG_TARGET");
+	    int slsh = src_pc.findRev(Option::dir_sep);
+	    if(slsh != -1)
+		src_pc = src_pc.right(src_pc.length() - slsh);
+	    int dot = src_pc.find('.');
+	    if(dot != -1)
+		src_pc = src_pc.left(dot);
+	    src_pc += ".pc";
+	    QString dst_pc = root + targetdir + src_pc;
+#if 0
+	    if(!project->isEmpty("DESTDIR")) {
+		src_pc.prepend(var("DESTDIR"));
+		src_pc = Option::fixPathToLocalOS(fileFixify(src_pc, 
+							     QDir::currentDirPath(), Option::output_dir));
+	    }
+#endif
+	    if(!ret.isEmpty())
+		ret += "\n\t";
+	    ret += "-$(COPY) \"" + src_pc + "\" \"" + dst_pc + "\"";
+	    if(!uninst.isEmpty())
+		uninst.append("\n\t");
+	    uninst.append("-$(DEL_FILE) \"" + dst_pc + "\"");
+	}
 	if ( project->isEmpty("QMAKE_CYGWIN_SHLIB") ) {
 	    if ( !project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") ) {
 		if ( project->isEmpty("QMAKE_HPUX_SHLIB") ) {

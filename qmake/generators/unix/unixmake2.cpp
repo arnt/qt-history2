@@ -64,14 +64,12 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 	    warn_msg(WarnLogic, "create_libtool specified with compile_libtool can lead to conflicting .la\n"
 		     "formats, create_libtool has been disabled\n");
 	else
-	    writeLibtoolFile(var("TARGET"));
+	    writeLibtoolFile();
     }
 
     // pkg-config support
-    if(project->isActiveConfig("create_pc") &&
-       project->first("TEMPLATE") == "lib") {
-	writePkgConfigFile(var("TARGET"));
-    }
+    if(project->isActiveConfig("create_pc") && project->first("TEMPLATE") == "lib") 
+	writePkgConfigFile();
 
     writeHeader(t);
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
@@ -1247,10 +1245,10 @@ void UnixMakefileGenerator::init2()
 }
 
 void
-UnixMakefileGenerator::writeLibtoolFile(const QString &target)
+UnixMakefileGenerator::writeLibtoolFile()
 {
-    QString lname = target;
-    int slsh = target.findRev(Option::dir_sep);
+    QString lname = var("TARGET");
+    int slsh = lname.findRev(Option::dir_sep);
     if(slsh != -1)
 	lname = lname.right(lname.length() - slsh);
     int dot = lname.find('.');
@@ -1322,10 +1320,10 @@ UnixMakefileGenerator::writeLibtoolFile(const QString &target)
 }
 
 void
-UnixMakefileGenerator::writePkgConfigFile(const QString &target)
+UnixMakefileGenerator::writePkgConfigFile()
 {
-    QString lname = target;
-    int slsh = target.findRev(Option::dir_sep);
+    QString lname = var("TARGET");
+    int slsh = lname.findRev(Option::dir_sep);
     if(slsh != -1)
 	lname = lname.right(lname.length() - slsh);
     if(lname.startsWith("lib"))

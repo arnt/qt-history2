@@ -43,8 +43,8 @@ class UnixMakefileGenerator : public MakefileGenerator
 {
     bool init_flag, include_deps;
     bool writeMakefile(QTextStream &);
-    virtual void writeLibtoolFile(const QString &target);     // for libtool
-    virtual void writePkgConfigFile(const QString &target);   // for pkg-config
+    virtual void writeLibtoolFile();     // for libtool
+    virtual void writePkgConfigFile();   // for pkg-config
     QStringList combineSetLFlags(const QStringList &list1, const QStringList &list2);
 
 public:
