@@ -1222,9 +1222,8 @@ void QtUndoManager::updateActions()
         m_redo_description = redo_description;
         emit redoDescriptionChanged(redo_description);
     }
-
-    if (changed)
-            emit QtUndoManager::changed();
+/*    if (changed)
+            emit QtUndoManager::changed(); */
 }
 
 /*!
@@ -1387,6 +1386,7 @@ void QtUndoManager::disassociateView(QObject *obj)
     }
 
     disconnect(obj, 0, this, 0);
+    disconnect(*it, 0, this, 0);
     m_stack_map.erase(it);
 }
 
@@ -1419,6 +1419,7 @@ void QtUndoManager::associateView(QObject *obj, QtUndoStack *stack)
     m_stack_map[obj] = stack;
     connect(obj, SIGNAL(destroyed(QObject*)), this,
                 SLOT(viewDestroyed(QObject*)));
+    connect(stack, SIGNAL(commandExecuted()), this, SIGNAL(changed()));
 
     updateActions();
 }
