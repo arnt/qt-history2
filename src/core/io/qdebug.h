@@ -30,8 +30,8 @@ class Q_CORE_EXPORT QDebug
     } *stream;
 public:
     inline QDebug():stream(new Stream){}
-    inline QDebug(const QDebug &o):stream(o.stream){++stream->ref;}
-    inline ~QDebug() {if (!--stream->ref) { stream->buffer.replace(QLatin1Char('%'), QLatin1String("%%"));
+    inline QDebug(const QDebug &o):stream(o.stream) { ++stream->ref; }
+    inline ~QDebug() { if (!--stream->ref) { stream->buffer.replace(QLatin1Char('%'), QLatin1String("%%"));
                                             qDebug(stream->buffer.latin1()); delete stream; } }
     inline QDebug &space() { stream->space = true; stream->ts << ' '; return *this; }
     inline QDebug &nospace() { stream->space = false; return *this; }
@@ -87,9 +87,9 @@ public:
     inline QNoDebug(){}
     inline QNoDebug(const QDebug &){}
     inline ~QNoDebug(){}
-    template <typename T> inline QNoDebug &operator<<(const T &) {return *this; }
-    inline QNoDebug &operator<<(QTSFUNC){ return *this; }
-    inline QNoDebug &operator<<(QTSManip){ return *this; }
+    template <typename T> inline QNoDebug &operator<<(const T &) { return *this; }
+    inline QNoDebug &operator<<(QTSFUNC) { return *this; }
+    inline QNoDebug &operator<<(QTSManip) { return *this; }
     inline QNoDebug &space() { return *this; }
     inline QNoDebug &nospace() { return *this; }
     inline QNoDebug &maybeSpace() { return *this; }

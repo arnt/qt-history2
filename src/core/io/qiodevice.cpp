@@ -913,5 +913,3 @@ QString QIODevice::errorString() const
 
     \sa at() size()
 */
-
-

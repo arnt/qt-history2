@@ -18,15 +18,14 @@
 #include "qregexp.h"
 #include "qbuffer.h"
 #include "qfile.h"
+#include "qdatetime.h"
+#include "qchar.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 #ifndef Q_OS_TEMP
 #include <locale.h>
 #endif
-
-#include <qdatetime.h>
-#include <qchar.h>
 
 #if defined(Q_OS_WIN32)
 #include "qt_windows.h"

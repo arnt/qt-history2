@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include <private/qresourceengine_p.h>
 #include <qdatetime.h>
 #include "qresource.h"

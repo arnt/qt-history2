@@ -12,9 +12,9 @@
 ****************************************************************************/
 
 #define _POSIX_
+#include <qplatformdefs.h>
 #include <qfileengine.h>
 #include "qfileengine_p.h"
-#include <qplatformdefs.h>
 #include <qfile.h>
 #include <qdir.h>
 #ifndef QT_NO_REGEXP

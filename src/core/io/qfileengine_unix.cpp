@@ -10,16 +10,16 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
+#include <qplatformdefs.h>
 #include <qfileengine.h>
 #include "qfileengine_p.h"
-#include <qplatformdefs.h>
 #include <qfile.h>
 #include <qdir.h>
 #ifndef QT_NO_REGEXP
 # include <qregexp.h>
 #endif
 
-#include <sys/stat.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
@@ -511,4 +511,3 @@ QFSFileEngine::setSize(QIODevice::Offset size)
     const QByteArray file = QFile::encodeName(d->file);
     return !::truncate(file.data(), size);
 }
-

@@ -11,13 +11,12 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
 #include "qtemporaryfile.h"
 #include <qfileengine.h>
-
 #include <private/qfile_p.h>
 #include <private/qfileengine_p.h>
 
-#include <qplatformdefs.h>
 #include <stdlib.h>
 #include <errno.h>
 

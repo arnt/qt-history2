@@ -2644,4 +2644,3 @@ bool QUrl::isParentOf(const QUrl &childUrl) const
 
     Use QFileInfo(path()).absolutePath() or QFileInfo(path()) instead.
 */
-

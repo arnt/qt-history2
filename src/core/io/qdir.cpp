@@ -11,10 +11,9 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include "qdir.h"
 #include <qdatetime.h>
-#include <qplatformdefs.h>
-#include <qglobal.h>
 #include <qstring.h>
 #include <qfileengine.h>
 #include <qregexp.h>
@@ -1791,4 +1790,3 @@ void QDir::setNameFilter(const QString &nameFilter)
 
     Use cleanPath() instead.
 */
-

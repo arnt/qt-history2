@@ -11,16 +11,14 @@
 **
 ****************************************************************************/
 
-#include "qfile.h"
 #include <qplatformdefs.h>
-#include <qglobal.h>
-#include <private/qiodevice_p.h>
+#include "qfile.h"
+#include <qlist.h>
 #include <qfileengine.h>
 #include <qfileinfo.h>
 #include <qtemporaryfile.h>
+#include <private/qiodevice_p.h>
 #include <private/qfile_p.h>
-
-#include <qlist.h>
 
 #include <errno.h>
 
