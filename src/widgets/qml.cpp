@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#52 $
 **
 ** Implementation of QML classes
 **
@@ -526,7 +526,7 @@ public:
 
     inline bool isSpace() const {return c[0].isSpace();}
     inline bool isNewline() const {return c[0] == '\n';}
-    inline bool isNull() const {return c == QChar::null;}
+    inline bool isNull() const {return c.isNull();}
 
     inline QMLContainer* parent() const;
     inline QMLBox* box() const;
@@ -540,10 +540,6 @@ public:
     uint isBox:1;
     uint isSelected: 1;
     uint isSelectionDirty: 1;
-
-    int w;
-    int h;
-    int asc;
 };
 
 
@@ -1179,7 +1175,6 @@ QMLNode::QMLNode()
     isBox = 0;
     isSelected = 0;
     isSelectionDirty = 0;
-    w = h = 0;
 }
 
 
@@ -1351,19 +1346,14 @@ QMLRow::QMLRow( QMLContainer* box, QPainter* p, QFontMetrics &fm, QMLNode* &t, Q
     while (i && !i->isBox) {
 	int h,a,d;
 	if (i->isSimpleNode) {
-	    if ( i->h * i->w == 0 ){
-		if ( par != lastPar && par->font() != p->font() ) {
-		    p->setFont( par->font() );
-		    fm = p->fontMetrics();
-		}
-		if (!i->isNull())
-		    i->w = fm.width(i->c);
-		i->h = fm.height();
-		i->asc = fm.ascent();
+	    if ( par != lastPar && par->font() != p->font() ) {
+		p->setFont( par->font() );
+		fm = p->fontMetrics();
 	    }
-	    tx += i->w;
-	    h = i->h;
-	    a = i->asc;
+	    if (!i->isNull())
+		tx += fm.width(i->c);
+	    h = fm.height();
+	    a = fm.ascent();
 	    d = h-a;
 	}
 	else {
@@ -1429,7 +1419,6 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 		  QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper,
 		  bool onlyDirty, bool onlySelection)
 {
-    static QString s;
 
     if (!intersects(cx-obx, cy-oby, cw,ch)) {
 	dirty = FALSE;
@@ -1487,6 +1476,8 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
     par = parent;
 
     int tx = x + fill;
+    
+    static QString s;
 
     do {
 	s.truncate(0);
@@ -1565,10 +1556,10 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 	    if (t->isSimpleNode) {
 		// Get rid of garbage at end of line (\n etc. at visible
 		// on Windows. ### Matthias: Fix in parser?
-		int len = s.length();
-		if ( len > 0 && s[len-1] < (char)32 ) {
-		    len--;
-		}
+ 		int len = s.length();
+ 		if ( len > 0 && s[len-1] < (char)32 ) {
+ 		   len--;
+ 		}
 		p->drawText(tx+obx-ox, y+oby-oy+base, s, len);
 	    }
 	    else {
@@ -1979,7 +1970,7 @@ void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy
  	    if ( paper->pixmap() )
  		p->drawTiledPixmap( r, *paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
  	    else
-		p->fillRect(r, Qt::green );
+		p->fillRect(r, *paper );
 	}
 	
 	QMLBox* b = parentBox();
@@ -2137,7 +2128,7 @@ void QMLBox::setWidth( QPainter* p, int newWidth, bool forceResize )
 			    row->dirty = old->dirty;
 			}
 		    } else if ( old->start == row->start &&
-				old->end == row->end && 
+				old->end == row->end &&
 				old->height == row->height &&
 				old->width == old->width &&
 				old->x == row->x &&
