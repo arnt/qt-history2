@@ -342,7 +342,7 @@ bool QFileInfo::permission( int p ) const
 	ACCESS_MASK access_mask;
 	PACCESS_MASK pAccess = &access_mask; 
 	enum { ReadMask = 0x00000001, WriteMask = 0x00000002, ExecMask = 0x00000020 };
-    
+	resolveLibs();
 #if defined(UNICODE)
         TRUSTEE_W trustee;
 	PTRUSTEE_W pTrustee = &trustee;

@@ -476,7 +476,7 @@ bool QFileInfo::isReadable() const
 
 bool QFileInfo::isWritable() const
 {
-    return qt_file_access( fn, W_OK );
+    return qt_file_access( fn, W_OK ) && permission( WriteUser );
 }
 
 /*!
