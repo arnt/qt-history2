@@ -41,10 +41,51 @@
 #include <stdlib.h>
 #include <qregexp.h>
 #include <qdict.h>
+#include <quuid.h>
 
 #if defined(Q_OS_WIN32)
 #include <objbase.h>
+#ifndef GUID_DEFINED
+#define GUID_DEFINED
+typedef struct _GUID
+{
+    ulong   Data1;
+    ushort  Data2;
+    ushort  Data3;
+    uchar   Data4[8];
+} GUID;
 #endif
+#endif
+
+// Flatfile Tags ----------------------------------------------------
+const char* _snlHeader		= "Microsoft Visual Studio Solution File, Format Version 7.00";
+				  // The following UUID _may_ change for later servicepacks...
+				  // If so we need to search through the registry at
+				  // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.0\Projects
+				  // to find the subkey that contains a "PossibleProjectExtension"
+				  // containing "vcproj"...
+				  // Use the hardcoded value for now so projects generated on other
+				  // platforms are actually usable.
+const char* _snlMSVCvcprojGUID  = "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}";
+const char* _snlProjectBeg	= "\nProject(\"";
+const char* _snlProjectMid	= "\") = ";
+const char* _snlProjectEnd	= "\nEndProject";
+const char* _snlGlobalBeg	= "\nGlobal";
+const char* _snlGlobalEnd	= "\nEndGlobal";
+const char* _snlSolutionConf	= "\n\tGlobalSection(SolutionConfiguration) = preSolution"
+				  "\n\t\tConfigName.0 = Release"
+				  "\n\tEndGlobalSection";
+const char* _snlProjDepBeg	= "\n\tGlobalSection(ProjectDependencies) = postSolution";
+const char* _snlProjDepEnd	= "\n\tEndGlobalSection";
+const char* _snlProjConfBeg	= "\n\tGlobalSection(ProjectConfiguration) = postSolution";
+const char* _snlProjConfTag1	= ".Release.ActiveCfg = Release|Win32";
+const char* _snlProjConfTag2	= ".Release.Build.0 = Release|Win32";
+const char* _snlProjConfEnd	= "\n\tEndGlobalSection";
+const char* _snlExtSections	= "\n\tGlobalSection(ExtensibilityGlobals) = postSolution"
+				  "\n\tEndGlobalSection"
+				  "\n\tGlobalSection(ExtensibilityAddIns) = postSolution"
+				  "\n\tEndGlobalSection";
+// ------------------------------------------------------------------
 
 VcprojGenerator::VcprojGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
@@ -53,8 +94,7 @@ VcprojGenerator::VcprojGenerator(QMakeProject *p) : Win32MakefileGenerator(p), i
 /* \internal
     Generates a project file for the given profile.
     Options are either a Visual Studio projectfiles, or
-    recursive projectfiles.. Maybe we can make .sln files
-    someday?
+    solutionfiles by parsing recursive projectdirectories.
 */
 bool VcprojGenerator::writeMakefile(QTextStream &t)
 {
@@ -65,13 +105,15 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
 
-    // Generate full project file
+    // Generate project file
     if(project->first("TEMPLATE") == "vcapp" ||
        project->first("TEMPLATE") == "vclib") {
         debug_msg(1, "Generator: MSVC.NET: Writing project file" );
 	t << vcProject;
 	return TRUE;
-    } else if(project->first("TEMPLATE") == "vcsubdirs") {    // Generate recursive project
+    } 
+    // Generate solution file
+    else if(project->first("TEMPLATE") == "vcsubdirs") {
         debug_msg(1, "Generator: MSVC.NET: Writing solution file" );
 	writeSubDirs(t);
 	return TRUE;
@@ -81,11 +123,37 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
 }
 
 struct VcsolutionDepend {
-    int uuid;
+    QString uuid;
     QString vcprojFile, orig_target, target;
     ::target targetType;
     QStringList dependencies;
 };
+
+QUuid VcprojGenerator::increaseUUID( const QUuid &id )
+{
+    QUuid result( id );
+    Q_LONG dataFirst = (result.data4[0] << 24) + 
+		       (result.data4[1] << 16) +
+		       (result.data4[2] << 8) +
+                        result.data4[3];
+    Q_LONG dataLast =  (result.data4[4] << 24) + 
+		       (result.data4[5] << 16) +
+		       (result.data4[6] <<  8) +
+		        result.data4[7];
+    
+    if ( !(dataLast++) )
+	dataFirst++;
+
+    result.data4[0] = uchar((dataFirst >> 24) & 0xff);
+    result.data4[1] = uchar((dataFirst >> 16) & 0xff);
+    result.data4[2] = uchar((dataFirst >>  8) & 0xff);
+    result.data4[3] = uchar( dataFirst        & 0xff);
+    result.data4[4] = uchar((dataLast  >> 24) & 0xff);
+    result.data4[5] = uchar((dataLast  >> 16) & 0xff);
+    result.data4[6] = uchar((dataLast  >>  8) & 0xff);
+    result.data4[7] = uchar( dataLast         & 0xff);
+    return result;
+}
 
 void VcprojGenerator::writeSubDirs(QTextStream &t)
 {
@@ -94,6 +162,19 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	Win32MakefileGenerator::writeSubDirs(t);
 	return;
     }
+
+    t << _snlHeader;
+    QUuid solutionGUID;
+#if defined(Q_WS_WIN32)
+    GUID guid;
+    HRESULT h = CoCreateGuid( &guid );
+    if ( h == S_OK )
+	solutionGUID = QUuid( guid );
+#else
+    // Qt doesn't support GUID on other platforms yet,
+    // so we use the all-zero uuid, and increase that.
+#endif
+
 
     QDict<VcsolutionDepend> solution_depends;
     QPtrList<VcsolutionDepend> solution_cleanup;
@@ -143,9 +224,9 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			    newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
 			    newDep->targetType = tmp_vcproj.projectTarget;
 			    {
-			    	static int uuid = 666;
-			    	newDep->uuid = uuid;
-			    	uuid++;
+				static QUuid uuid = solutionGUID;
+				uuid = increaseUUID( uuid );
+			    	newDep->uuid = uuid.toString().upper();
 			    }
 			    if(newDep->target.endsWith(".dll"))
 				newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
@@ -173,8 +254,10 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	    			   solution_depends.insert(newDep->target.left(newDep->target.length() - 
 	    						   libVersion.matchedLength()) + ".lib", newDep);
 			    }
-			    t << "\"" << newDep->orig_target << "\" \"" << newDep->vcprojFile 
-			      << "\" { " << newDep->uuid << " }" << endl;
+			    t << _snlProjectBeg << _snlMSVCvcprojGUID << _snlProjectMid 
+			      << "\"" << newDep->orig_target << "\", \"" << newDep->vcprojFile 
+			      << "\", \"" << newDep->uuid << "\"";
+			    t << _snlProjectEnd;
 		        }
 		    }
 		}
@@ -182,7 +265,9 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	    }
 	}
     }
-
+    t << _snlGlobalBeg;
+    t << _snlSolutionConf;
+    t << _snlProjDepBeg;
     for(solution_cleanup.first(); solution_cleanup.current(); solution_cleanup.next()) {
 	int cnt = 0;
 	for(QStringList::iterator dit = solution_cleanup.current()->dependencies.begin(); 
@@ -190,10 +275,19 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	    ++dit) {
 	    if(VcsolutionDepend *vc=solution_depends[*dit]) {
 	    	if(solution_cleanup.current()->targetType != StaticLib || vc->targetType == Application)
-		    t << solution_cleanup.current()->uuid << "." << cnt++ << " = " << vc->uuid << endl;
+		    t << "\n\t\t" << solution_cleanup.current()->uuid << "." << cnt++ << " = " << vc->uuid;
 	    }
 	}
     }
+    t << _snlProjDepEnd;
+    t << _snlProjConfBeg;
+    for(solution_cleanup.first(); solution_cleanup.current(); solution_cleanup.next()) {
+	t << "\n\t\t" << solution_cleanup.current()->uuid << _snlProjConfTag1;
+	t << "\n\t\t" << solution_cleanup.current()->uuid << _snlProjConfTag2;
+    }
+    t << _snlProjConfEnd;
+    t << _snlExtSections;
+    t << _snlGlobalEnd;
 }
 
 // ------------------------------------------------------------------------------------------------

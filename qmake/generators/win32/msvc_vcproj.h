@@ -46,6 +46,7 @@ enum target {
     StaticLib
 };
 
+struct QUuid;
 class VcprojGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
@@ -89,27 +90,11 @@ protected:
     void initLexYaccFiles();
     void initResourceFiles();
 
-    /*
-    void writeGuid( QTextStream &t );
-    void writeAdditionalOptions( QTextStream &t );
-    void writeHeaders( QTextStream &t );
-    void writeSources( QTextStream &t );
-    void writeMocs( QTextStream &t );
-    void writeLexs( QTextStream &t );
-    void writeYaccs( QTextStream &t );
-    void writePictures( QTextStream &t );
-    void writeImages( QTextStream &t );
-    void writeIDLs( QTextStream &t );
-
-    void writeForms( QTextStream &t );
-    void writeFormsSourceHeaders( QString &variable, QTextStream &t );
-    void writeTranslations( QTextStream &t );
-    void writeStrippedTranslations( QTextStream &t );
-    */
-
     VCProject vcProject;
     target projectTarget;
 
+private:
+    QUuid increaseUUID( const QUuid &id );
     friend class VCFilter;
 };
 
