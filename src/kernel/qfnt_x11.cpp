@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#68 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#68 $");
 
 
 static const int fontFields = 14;
@@ -65,7 +65,8 @@ class QFont_Private : public QFont
 public:
     int	    fontMatchScore( char  *fontName,	  QString &buffer,
 			    float *pointSizeDiff, int	  *weightDiff,
-			    bool  *scalable	, bool	  *polymorphic );
+			    bool  *scalable	, bool	  *polymorphic,
+			    int   *resx		, int	  *resy );
     QString bestMatch( const QString &pattern, int *score );
     QString bestFamilyMember( const QString &family, int *score );
     QString findFont( bool *exact );
@@ -506,7 +507,8 @@ void QFont::loadFont( HANDLE ) const
 
 int QFont_Private::fontMatchScore( char	 *fontName, QString &buffer,
 				   float *pointSizeDiff, int  *weightDiff,
-				   bool	 *scalable     , bool *polymorphic )
+				   bool	 *scalable     , bool *polymorphic,
+                                   int   *resx	       , int  *resy )
 {
     char *tokens[fontFields];
     bool   exactMatch = TRUE;
@@ -570,16 +572,26 @@ int QFont_Private::fontMatchScore( char	 *fontName, QString &buffer,
 
     if ( *scalable ) {
 	pSize = deciPointSize();	// scalable font
-	score |= ResolutionScore;	// know we can ask for 75x75 resolution
     } else {
 	pSize = atoi( tokens[PointSize] );
-	if ( strcmp(tokens[ResolutionX], "75") == 0 &&
-	     strcmp(tokens[ResolutionY], "75") == 0 ) {
-	    score |= ResolutionScore;
-	} else {
-	    exactMatch = FALSE;
-	    pSize = (2*pSize*atoi(tokens[ResolutionY]) + 75) / (75*2);
+    } 
+
+
+    if ( strcmp(tokens[ResolutionX], "0") == 0 &&
+	   strcmp(tokens[ResolutionY], "0") == 0 ) {
+	                                // smoothly scalable font
+	score |= ResolutionScore;	// know we can ask for any resolution
+    } else {
+	int localResx = atoi(tokens[ResolutionX]);
+	int localResy = atoi(tokens[ResolutionY]);
+	if ( *resx == 0 || *resy == 0 ) {
+	    *resx = localResx;
+	    *resy = localResy;
 	}
+	if ( localResx == *resx && localResy == *resy ) 
+	    score |= ResolutionScore;
+	else
+	    exactMatch = FALSE;
     }
 
     float diff;
@@ -645,14 +657,20 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
     int		sc;
     float	pointDiff;	// difference in % from requested point size
     int		weightDiff;	// difference from requested weight
+    int		resx        = 0;
+    int         resy	    = 0;
     bool	scalable    = FALSE;
     bool	polymorphic = FALSE;
+    int		i;
 
     xFontNames = getXFontNames( pattern, &count );
-    for( int i = 0 ; i < count ; i++ ) {
+    for( i = 0 ; i < count ; i++ ) {
+    }
+    for( i = 0 ; i < count ; i++ ) {
 	sc = fontMatchScore( xFontNames[i], matchBuffer,
 			     &pointDiff, &weightDiff,
-			     &scalable, &polymorphic );
+			     &scalable, &polymorphic, &resx, &resy );
+	debug( "(%i) %s", sc, xFontNames[i] );	
 	if ( sc > best.score ||
 	    sc == best.score && pointDiff < best.pointDiff ||
 	    sc == best.score && pointDiff == best.pointDiff &&
@@ -682,10 +700,14 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 		 best.pointDiff != 0 ||
 		 best.weightDiff < bestScalable.weightDiff ) ) ) {
 	if ( smoothlyScalable( bestScalable.name ) ) {
+	    if ( resx == 0 || resy == 0 ) {
+		resx = 75;
+		resy = 75;
+	    }
 	    best.score = bestScalable.score;
 	    strcpy( matchBuffer.data(), bestScalable.name );
 	    if ( parseXFontName( matchBuffer, tokens ) ) {
-		bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-75-75-%s-*-%s-%s",
+		bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-%i-%i-%s-*-%s-%s",
 				  tokens[Foundry],
 				  tokens[Family],
 				  tokens[Weight_],
@@ -693,6 +715,8 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 				  tokens[Width],
 				  tokens[AddStyle],
 				  deciPointSize(),
+				  resx,
+				  resy,
 				  tokens[Spacing],
 				  tokens[CharsetRegistry],
 				  tokens[CharsetEncoding] );
