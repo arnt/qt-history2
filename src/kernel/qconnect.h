@@ -1,16 +1,13 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.h#1 $
+** $Id: //depot/qt/main/src/kernel/qconnect.h#2 $
 **
 ** Definition of QConnection class
 **
 ** Author  : Haavard Nord
 ** Created : 930417
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
-** --------------------------------------------------------------------------
-** The QConnection class contains a signal coupling. A signal can be connected
-** to a slot in the parent part or a method in a sibling object.
 *****************************************************************************/
 
 #ifndef QCONNECT_H
