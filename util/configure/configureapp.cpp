@@ -551,7 +551,7 @@ void Configure::parseCmdLine()
 	dictionary[ "QMAKESPEC" ].endsWith( ".net" ) ||
 	dictionary[ "QMAKESPEC" ].endsWith( "-icc" ) ) {
 		dictionary[ "MAKE" ] = "nmake";
- 		dictionary[ "QMAKEMAKEFILE" ] = "Makefile";	
+ 		dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     } else if ( dictionary[ "QMAKESPEC" ] == QString( "win32-g++" ) ) {
 	    dictionary[ "MAKE" ] = "mingw32-make";
     	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32-g++";
@@ -559,7 +559,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "MAKE" ] = "make";
 	    dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     }
-    
+
     for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
 	modules.remove( (*dis) );
     }
@@ -1128,18 +1128,19 @@ void Configure::generateConfigfiles()
 		  << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
 	outStream << "static const char QT_INSTALL_DATA   [267] = \"qt_datpath="
 		  << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_TRANSLATIONS [256] = \""
+	outStream << "static const char QT_INSTALL_TRANSLATIONS [267] = \"qt_trapath="
 		  << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" )  << "\";" << endl;
 
 	outStream << endl;
-	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX;  }" << endl;
-	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS;    }" << endl;
-	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS; }" << endl;
-	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;    }" << endl;
-	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS;    }" << endl;
-	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS; }" << endl;
-	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA;    }" << endl;
-	outStream << "const char *qInstallPathTranslations() { return QT_INSTALL_TRANSLATIONS; }" << endl;
+	outStream << "/* strlen( \"qt_xxxpath=\" ) == 11 */" << endl;
+	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX  + 11; }" << endl;
+	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS    + 11; }" << endl;
+	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS + 11; }" << endl;
+	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;   + 11; }" << endl;
+	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS    + 11;    }" << endl;
+	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS + 11; }" << endl;
+	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA    + 11;    }" << endl;
+	outStream << "const char *qInstallPathTranslations() { return QT_INSTALL_TRANSLATIONS + 11; }" << endl;
 
 	outFile.close();
     }
@@ -1156,8 +1157,8 @@ void Configure::generateConfigfiles()
 	int major = QT_VERSION >> 16;
 	int minor = QT_VERSION >> 8 & 0xff;
 	int patch = QT_VERSION&0xff;
-	QString prodVer = "0x" + QString::number(major, 16) + ", " + 
-			  "0x" + QString::number(minor, 16) + ", " + 
+	QString prodVer = "0x" + QString::number(major, 16) + ", " +
+			  "0x" + QString::number(minor, 16) + ", " +
 			  "0x" + QString::number(patch, 16) + ", 0";
 	QString prodFile = "qt";
 	if ( dictionary["THREAD"] == "yes" )
