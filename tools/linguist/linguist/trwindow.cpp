@@ -2782,20 +2782,24 @@ void TrWindow::readConfig()
 				     "Geometry/ContextwindowWidth" ) );
     r.setHeight( config.readNumEntry( keybase +
 				      "Geometry/ContextwindowHeight" ) );
-    if ( place == QDockWindow::OutsideDock )
+    if ( place == QDockWindow::OutsideDock ) {
 	dw->undock();
+	dw->show();
+    }
     dw->setGeometry( r );
 
     dw = (QDockWindow *) slv->parent();
-    place = config.readNumEntry( keybase + "Geometry/ContextwindowInDock" );
+    place = config.readNumEntry( keybase + "Geometry/SourcewindowInDock" );
     r.setX( config.readNumEntry( keybase + "Geometry/SourcewindowX" ) );
     r.setY( config.readNumEntry( keybase + "Geometry/SourcewindowY" ) );
     r.setWidth( config.readNumEntry( keybase +
 				     "Geometry/SourcewindowWidth" ) );
     r.setHeight( config.readNumEntry( keybase +
 				      "Geometry/SourcewindowHeight" ) );
-    if ( place == QDockWindow::OutsideDock )
+    if ( place == QDockWindow::OutsideDock ) {
 	dw->undock();
+	dw->show();
+    }
     dw->setGeometry( r );
 
     dw = (QDockWindow *) plv->parent()->parent();
@@ -2806,8 +2810,10 @@ void TrWindow::readConfig()
 				     "Geometry/PhrasewindowWidth" ) );
     r.setHeight( config.readNumEntry( keybase +
 				      "Geometry/PhrasewindowHeight" ) );
-    if ( place == QDockWindow::OutsideDock )
+    if ( place == QDockWindow::OutsideDock ) {
 	dw->undock();
+	dw->show();
+    }
     dw->setGeometry( r );
     QApplication::sendPostedEvents();
 }
