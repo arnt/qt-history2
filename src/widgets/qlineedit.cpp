@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#68 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#68 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 
@@ -82,7 +82,7 @@ static QLineEditExtra * lookInLEDict( const QLineEdit * that )
   Windows/Motif style guides, you can turn off the frame by calling
   setFrame( FALSE ).
 
-  It draws the text using its own \link QColorGoup color group:
+  It draws the text using its own \link QColorGroup color group:
   \endlink \link QColorGroup::text() colorGroup().text() \endlink on
   \link QColorGroup::base() colorGroup().base(). \endlink  The cursor
   and frame use other colors from same color group, of course.
