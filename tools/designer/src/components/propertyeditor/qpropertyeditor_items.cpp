@@ -787,7 +787,7 @@ void DateTimeProperty::updateEditorContents(QWidget *editor)
 void DateTimeProperty::updateValue(QWidget *editor)
 {
     if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
-        QDateTime newValue = lineEdit->date();
+        QDateTime newValue = lineEdit->dateTime();
 
         if (newValue != m_value) {
             m_value = newValue;
