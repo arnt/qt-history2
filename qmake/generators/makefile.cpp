@@ -157,9 +157,9 @@ MakefileGenerator::initOutPaths()
                 for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
                     if(!d.cd(*subit)) {
                         d.mkdir((*subit));
-                        if(d.exists((*subit)))
+                        if(d.exists((*subit))) {
                             d.cd((*subit));
-                        else {
+                        } else {
                             warn_msg(WarnLogic, "%s: Cannot access directory '%s' (%s)", dirs[x].latin1(),
                                      (*subit).latin1(), path.latin1());
                             break;
