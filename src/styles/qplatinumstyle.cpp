@@ -557,7 +557,124 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    }
 	    break;
 	}
-	
+    case PE_ScrollBarAddLine:
+	drawPrimitive( PE_ButtonBevel, p, r, cg,
+		       (flags & Style_Enabled) | ((flags & Style_Down)
+						  ? Style_Sunken
+						  : Style_Raised) );
+	p->setPen( cg.shadow() );
+	p->drawRect( r );
+	drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowRight
+			: PE_ArrowDown), p, QRect(r.x() + 2,
+						  r.y() + 2,
+						  r.width() - 4,
+						  r.height() - 4), cg, flags );
+	break;
+    case PE_ScrollBarSubLine:
+	drawPrimitive( PE_ButtonBevel, p, r, cg,
+		       (flags & Style_Enabled) | ((flags & Style_Down)
+						  ? Style_Sunken
+						  : Style_Raised) );
+	p->setPen( cg.shadow() );
+	p->drawRect( r );
+	drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowLeft
+			: PE_ArrowDown ), p, QRect(r.x() + 2,
+						   r.y() + 2,
+						   r.width() - 4,
+						   r.height() - 4),
+		       cg, flags );
+	break;
+    case PE_ScrollBarAddPage:
+    case PE_ScrollBarSubPage:
+	{
+	    QPen oldPen = p->pen();
+	    if ( r.width() < 3 || r.height() < 3 ) {
+		p->fillRect( r, cg.brush(QColorGroup::Mid) );
+		p->setPen( cg.shadow() );
+		p->drawRect( r );
+		p->setPen( oldPen );
+	    } else {
+		if ( flags & Style_Horizontal ) {
+		    p->fillRect( r.x() + 2, r.y() + 2, r.width() - 2,
+				 r.height() - 4, cg.brush(QColorGroup::Mid) );
+		    // 	// the dark side p->setPen(g.dark().dark());
+		    p->drawLine( r.x(), r.y(), r.x() + r.width() - 1, r.y() );
+		    p->setPen( cg.shadow()); p->drawLine( r.x(), r.y(), r.x(),
+						          r.y()
+							  + r.height() - 1 );
+
+		    p->setPen( cg.mid().dark());
+		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + r.width() - 1,
+				 r.y() + 1 );
+		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + 1,
+				 r.y() + r.height() - 2 );
+		    
+		    // the bright side!
+		    
+		    p->setPen( cg.button());
+		    p->drawLine( r.x() + 1, r.y() + r.height() - 2,
+				 r.x() + r.width() - 1,
+				 r.y() + r.height() - 2 );
+		    p->drawLine( r.x() + r.width() - 2, r.y() + 1,
+				 r.x() + r.width() - 2,
+				 r.y() + r.height() - 2 );		    
+		    p->setPen( cg.shadow());
+		    p->drawLine( r.x(), r.y() + r.height() - 1,
+				 r.x() + r.width() - 1,
+				 r.y() + r.height() - 1 );
+		    p->drawLine( r.x() + r.width() - 1, r.y(), 
+				 r.x() + r.width() - 1,
+				 r.y() + r.height() - 1 );
+		} else {
+		    p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4, 
+				 r.height() - 2, cg.brush(QColorGroup::Mid) );
+		    
+		    // the dark side
+		    p->setPen( cg.dark().dark() );
+		    p->drawLine( r.x(), r.y(), r.x() + r.width() - 1, r.y() );
+		    p->setPen( cg.shadow() );
+		    p->drawLine( r.x(), r.y(), r.x(), r.y() + r.height() - 1 );
+		    
+		    p->setPen( cg.mid().dark() );
+		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + r.width() - 2,
+				 r.y() + 1 );
+		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + 1,
+				 r.y() + r.height() - 1 );
+		    
+		    // the bright side!		    
+		    p->setPen( cg.button() );
+		    p->drawLine( r.x() + 1, r.y() + r.height() - 2, 
+				 r.x() + r.width() - 2,
+				 r.y() + r.height() - 2 );
+		    p->drawLine( r.x() + r.width() - 2, r.y() + 1,
+				 r.x() + r.width() - 2,
+				 r.y() + r.height() - 1 );
+		    
+		    p->setPen( cg.shadow() );
+		    p->drawLine( r.x(), r.y() + r.height() - 1,
+				 r.x() + r.width() - 1,
+				 r.y() + r.height() - 1 );
+		    p->drawLine( r.x() + r.width() - 1, r.y(),
+				 r.x() + r.width() - 1,
+				 r.y() + r.height() - 1 );
+		    
+		}
+	    }
+	    p->setPen( oldPen );
+	    break;
+	}
+    case PE_ScrollBarSlider:
+	{
+	    QPoint bo = p->brushOrigin();
+	    p->setBrushOrigin( r.topLeft() );
+	    drawPrimitive( PE_ButtonBevel, p, r, cg, Style_Raised );
+	    p->setBrushOrigin( bo );
+	    drawRiffles( p, r.x(), r.y(), r.width(), r.height(), cg,
+			 flags & Style_Horizontal );
+	    p->setPen( cg.shadow() );
+	    p->drawRect( r );
+	    break;
+	}
     default:
 	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
 	break;
@@ -1104,8 +1221,6 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	    else
 		sliderStart = sbextent;
 	
-	    // sliderStart += sbextent;
-	
 	    // calculate length
 	    if ( sb->maxValue() != sb->minValue() ) {
 		uint range = sb->maxValue() - sb->minValue();
@@ -1582,62 +1697,7 @@ QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 // {
 // #define ADD_LINE_ACTIVE ( activeControl == AddLine )
 // #define SUB_LINE_ACTIVE ( activeControl == SubLine )
-//     QColorGroup g  = sb->colorGroup();
 
-//     int sliderMin, sliderMax, sliderLength, buttonDim;
-//     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-
-//     if (sliderStart > sliderMax) { // sanity check
-// 	sliderStart = sliderMax;
-//     }
-
-//     int b = 0;
-//     int dimB = buttonDim;
-//     QRect addB;
-//     QRect subB;
-//     QRect addPageR;
-//     QRect subPageR;
-//     QRect sliderR;
-//     int addX, addY, subX, subY;
-//     int length = HORIZONTAL ? sb->width()  : sb->height();
-//     int extent = HORIZONTAL ? sb->height() : sb->width();
-
-//     if ( HORIZONTAL ) {
-// 	subY = addY = ( extent - dimB ) / 2;
-// 	subX = length - dimB - dimB - b; //b;
-// 	addX = length - dimB - b;
-// // 	subY = addY = ( extent - dimB ) / 2;
-// // 	subX = b;
-// // 	addX = b + dimB; //length - dimB - b;
-//     } else {
-// 	subX = addX = ( extent - dimB ) / 2;
-// 	subY = length - dimB - dimB - b; //b;
-// 	addY = length - dimB - b;
-//     }
-
-//     subB.setRect( subX,subY,dimB,dimB );
-//     addB.setRect( addX,addY,dimB,dimB );
-
-//     int sliderEnd = sliderStart + sliderLength;
-//     int sliderW = extent - b*2;
-//     if ( HORIZONTAL ) {
-// 	subPageR.setRect( b + 1, b,
-// 			  sliderStart - 1 , sliderW );
-// 	addPageR.setRect( sliderEnd, b, subX - sliderEnd, sliderW );
-// 	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
-// // 	subPageR.setRect( subB.right() + 1, b,
-// // 			  sliderStart - subB.right() - 1 , sliderW );
-// // 	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-// // 	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
-
-//     } else {
-// 	subPageR.setRect( b, b + 1, sliderW,
-// 			  sliderStart - b - 1 );
-// 	addPageR.setRect( b, sliderEnd, sliderW, subY - sliderEnd );
-// 	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
-//     }
-
-//     bool maxedOut = (sb->maxValue() == sb->minValue());if
 //     if ( controls & AddLine ) {
 // 	drawBevelButton( p, addB.x(), addB.y(),
 // 			 addB.width(), addB.height(), g,
