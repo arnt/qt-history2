@@ -78,10 +78,8 @@ Q_EXPORT inline uint qstrlen( const char *str )
 { return str ? strlen(str) : 0; }
 
 // ### remove 3.0
-#if !defined(QT_CLEAN_NAMESPACE)
 #undef	strlen
 #define strlen qstrlen
-#endif
 
 Q_EXPORT inline char *cstrcpy( char *dst, const char *src )
 { return strcpy(dst,src); }
@@ -89,11 +87,25 @@ Q_EXPORT inline char *cstrcpy( char *dst, const char *src )
 Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
 
-// ### remove 3.0
-#if !defined(QT_CLEAN_NAMESPACE)
+
+// ### TODO for 3.0: these should be used if !defined(QT_CLEAN_NAMESPACE)
+//                   We want to keep source compatibility for 2.x
+// ### TODO for 4.0: completely remove these
 #undef	strcpy
 #define strcpy qstrcpy
-#endif
+
+#undef	strcmp
+#define strcmp qstrcmp
+
+#undef	strncmp
+#define strncmp qstrncmp
+
+#undef	stricmp
+#define stricmp	 qstricmp
+
+#undef	strnicmp
+#define strnicmp qstrnicmp
+
 
 Q_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
 
@@ -103,35 +115,16 @@ Q_EXPORT inline int cstrcmp( const char *str1, const char *str2 )
 Q_EXPORT inline int qstrcmp( const char *str1, const char *str2 )
 { return (str1 && str2) ? strcmp(str1,str2) : (int)((long)str2 - (long)str1); }
 
-// ### remove 3.0
-#if !defined(QT_CLEAN_NAMESPACE)
-#undef	strcmp
-#define strcmp qstrcmp
-#endif
-
 Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
 { return strncmp(str1,str2,len); }
 
 Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
 { return (str1 && str2) ? strncmp(str1,str2,len) :
 			  (int)((long)str2 - (long)str1); }
-// ### remove 3.0
-#if !defined(QT_CLEAN_NAMESPACE)
-#undef	strncmp
-#define strncmp qstrncmp
-#endif
 
 Q_EXPORT int qstricmp( const char *, const char * );
+
 Q_EXPORT int qstrnicmp( const char *, const char *, uint len );
-
-// ### remove 3.0
-#if !defined(QT_CLEAN_NAMESPACE)
-#undef	stricmp
-#define stricmp	 qstricmp
-#undef	strnicmp
-#define strnicmp qstrnicmp
-#endif
-
 
 // qChecksum: Internet checksum
 
