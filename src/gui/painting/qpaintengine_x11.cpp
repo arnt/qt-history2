@@ -1629,7 +1629,7 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 
 
 void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
-                                 Qt::BlendMode mode)
+                                 Qt::PixmapDrawingMode mode)
 {
     int x = r.x();
     int y = r.y();
@@ -1648,12 +1648,12 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     QPixmap::x11SetDefaultScreen(pixmap.x11Info()->screen());
 
     QBitmap *mask = 0;
-    if(mode == Qt::Composite)
+    if(mode == Qt::ComposePixmap)
         mask = const_cast<QBitmap *>(pixmap.mask());
     bool mono = pixmap.depth() == 1;
 
-    if (mono && mode == Qt::IgnoreMask) {
-	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::IgnoreMask ? true : false);
+    if (mono && mode == Qt::CopyPixmapNoMask) {
+	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::CopyPixmapNoMask ? true : false);
         return;
     }
 
@@ -1681,7 +1681,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
                 }
             }
         } else {
-            qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::IgnoreMask ? true : false);
+            qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::CopyPixmapNoMask ? true : false);
         }
         return;
     }

@@ -472,7 +472,7 @@ void QSVGPaintEngine::drawCubicBezier(const QPointArray &a, int /* index */)
 }
 
 void QSVGPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect & /* sr */,
-                                 QPainter::BlendMode mode)
+                                 QPainter::PixmapDrawingMode mode)
 {
     QDomElement e = d->doc.createElement("image");
     e.setAttribute("x", r.x());

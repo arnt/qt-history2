@@ -58,7 +58,7 @@ public:
     virtual void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1);
     virtual void drawCubicBezier(const QPointArray &, int index = 0);
 
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
+    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
     virtual void drawPath(const QPainterPath &);

@@ -53,7 +53,7 @@ public:
 #endif
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                    Qt::BlendMode mode);
+                    Qt::PixmapDrawingMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
 

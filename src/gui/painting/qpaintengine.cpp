@@ -400,7 +400,7 @@ void QWrapperPaintEngine::drawCubicBezier(const QPointArray &a, int index)
 #endif
 
 void QWrapperPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                                     Qt::BlendMode mode)
+                                     Qt::PixmapDrawingMode mode)
 { wrap->drawPixmap(r, pm, sr, mode); }
 void QWrapperPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 { wrap->drawTextItem(p, ti, textflags); }

@@ -167,14 +167,14 @@ public:
 #endif
 
     void drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
-                    const QRect &sourceRect = QRect(), Qt::BlendMode mode = Qt::Composite);
+                    const QRect &sourceRect = QRect(), Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     void drawPixmap(int x, int y, int w, int h, const QPixmap &,
-                    int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::BlendMode mode = Qt::Composite);
+                    int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1,
-                    Qt::BlendMode mode = Qt::Composite);
+                    Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr,
-                    Qt::BlendMode mode = Qt::Composite);
-    void drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode = Qt::Composite);
+                    Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    void drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
 
     void drawText(int x, int y, const QString &, TextDirection dir = Auto);
     inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto)
@@ -361,24 +361,24 @@ inline void QPainter::setViewport(const QRect &r)
 }
 
 inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                                 int sx, int sy, int sw, int sh, Qt::BlendMode mode)
+                                 int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
 {
     drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode);
 }
 
 inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh,
-                                 Qt::BlendMode mode)
+                                 Qt::PixmapDrawingMode mode)
 {
     drawPixmap(QRect(x, y, -1, -1), pm, QRect(sx, sy, sw, sh), mode);
 }
 
 inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
-                                 Qt::BlendMode mode)
+                                 Qt::PixmapDrawingMode mode)
 {
     drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, sr, mode);
 }
 
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode)
+inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode)
 {
     drawPixmap(QRect(p.x(), p.y(), -1, -1),
                pm,

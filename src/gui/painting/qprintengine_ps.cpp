@@ -5812,11 +5812,11 @@ void QPSPrintEngine::drawCubicBezier(const QPointArray &a, int index)
 }
 
 void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                                Qt::BlendMode mode)
+                                Qt::PixmapDrawingMode mode)
 {
     QImage img = pm;
     QImage mask;
-    if (mode == Qt::Composite && pm.mask())
+    if (mode == Qt::ComposePixmap && pm.mask())
         mask = *pm.mask();
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr), mask.copy(sr));
 }

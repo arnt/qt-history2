@@ -321,7 +321,7 @@ void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int /* index */)
 
 // ### Stream out sr
 void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect & /* sr */,
-                                     Qt::BlendMode /* mode */)
+                                     Qt::PixmapDrawingMode /* mode */)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPixmap);

@@ -369,7 +369,7 @@ QPixmap QPixmap::copy(bool) const
     QPixmap pm(data->w, data->h, data->d, data->bitmap, data->optim);
 
     QPainter painter(&pm);
-    painter.drawPixmap(QPoint(0, 0), *this, Qt::IgnoreMask);
+    painter.drawPixmap(QPoint(0, 0), *this, Qt::CopyPixmapNoMask);
     painter.end();
 
 #if defined(Q_WS_X11)
@@ -1132,7 +1132,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     Q_ASSERT_X(src, "::copyBlt", "Source pixmap must be non null");
 
     QPainter p(dst);
-    p.drawPixmap(dx, dy, *src, sx, sy, sw, sh, Qt::SourceCopy);
+    p.drawPixmap(dx, dy, *src, sx, sy, sw, sh, Qt::CopyPixmap);
 }
 
 #endif

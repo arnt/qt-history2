@@ -1068,7 +1068,7 @@ void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 }
 
 void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
-                                   Qt::BlendMode mode)
+                                   Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());
 
@@ -1107,7 +1107,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         }
     }
 
-    if (pixmap.hasAlphaChannel() && mode == Qt::Composite) {
+    if (pixmap.hasAlphaChannel() && mode == Qt::ComposePixmap) {
         BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
                              0,                 // BlendFlags, must be zero
                              255,               // SourceConstantAlpha, we use pr pixel
@@ -1119,7 +1119,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             qSystemWarning("QWin32PaintEngine::drawPixmap, AlphaBlend failed...");
             return;
         }
-    } else if (mask && mode == Qt::Composite) {
+    } else if (mask && mode == Qt::ComposePixmap) {
         if (stretch) {
             QImage imageData(pixmap);
             QImage imageMask = imageData.createAlphaMask();
@@ -2533,7 +2533,7 @@ void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, in
 
 
 void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                                     Qt::BlendMode mode)
+                                     Qt::PixmapDrawingMode mode)
 {
     Q_UNUSED(mode);
     QImage backupPixels;

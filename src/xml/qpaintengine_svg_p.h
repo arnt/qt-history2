@@ -63,7 +63,7 @@ public:
     void drawCubicBezier(const QPointArray &, int index = 0);
 #endif
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, QPainter::BlendMode mode);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, QPainter::PixmapDrawingMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
 

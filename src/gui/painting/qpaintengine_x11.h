@@ -57,7 +57,7 @@ public:
 #endif
 
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                            Qt::BlendMode mode);
+                            Qt::PixmapDrawingMode mode);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
     virtual Qt::HANDLE handle() const;

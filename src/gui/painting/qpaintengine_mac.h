@@ -58,7 +58,7 @@ public:
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
     inline Type type() const { return QPaintEngine::QuickDraw; }
@@ -122,7 +122,7 @@ public:
 #ifndef QT_NO_BEZIER
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
     inline Type type() const { return QPaintEngine::CoreGraphics; }

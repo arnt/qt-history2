@@ -618,7 +618,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
             if(xPos + drawW > r.right())    // Cropping last column
                 drawW = r.right() - xPos;
             drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
-                       Qt::Composite);
+                       Qt::ComposePixmap);
             xPos += drawW;
             xOff = 0;
         }
@@ -653,7 +653,7 @@ QQuickDrawPaintEngine::drawArc(const QRect &r, int a, int alen)
 
 void
 QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
-                                  Qt::BlendMode mode)
+                                  Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());
     if(pixmap.isNull())
@@ -679,7 +679,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     //get pixmap bits
     const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(&pixmap));
     const QPixmap *srcmask=0;
-    if(mode == Qt::Composite) {
+    if(mode == Qt::ComposePixmap) {
         if(pixmap.data->alphapm)
             srcmask = pixmap.data->alphapm;
         else
@@ -1518,7 +1518,7 @@ QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode)
+QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());
     if(pm.isNull())
@@ -1654,7 +1654,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         mode = kCGPathFill;
     else //nothing to do..
         return;
-    if(path) 
+    if(path)
         CGContextAddPath(hd, path);
     CGContextDrawPath(hd, mode);
 }

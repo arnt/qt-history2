@@ -113,7 +113,7 @@ public:
 #endif
 
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                            Qt::BlendMode mode = Qt::Composite) = 0;
+                            Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s) = 0;
 
@@ -249,7 +249,7 @@ public:
 #endif
 
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                            Qt::BlendMode mode = Qt::Composite);
+                            Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 

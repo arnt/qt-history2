@@ -363,7 +363,7 @@ void QRollEffect::paintEvent(QPaintEvent*)
     int y = orientation & DownScroll ? qMin(0, currentHeight - totalHeight) : 0;
 
     QPainter p(this);
-    p.drawPixmap(x, y, pm, 0, 0, pm.width(), pm.height(), Qt::IgnoreMask);
+    p.drawPixmap(x, y, pm, 0, 0, pm.width(), pm.height(), Qt::CopyPixmapNoMask);
 }
 
 /*

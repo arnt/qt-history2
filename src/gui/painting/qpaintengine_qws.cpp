@@ -545,7 +545,7 @@ void QWSPaintEngine::drawCubicBezier(const QPointArray &pa, int index){
 #endif
 
 void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
-                                Qt::BlendMode mode)
+                                Qt::PixmapDrawingMode mode)
     //(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
     int x,y,w,h,sx,sy,sw,sh;
@@ -556,7 +556,7 @@ void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRe
         qDebug("QWSPaintEngine::drawPixmap offset stretch notimplemented");
 
     d->gfx->setSource(&pixmap);
-    if(mode == Qt::Composite && pixmap.mask()) {
+    if(mode == Qt::ComposePixmap && pixmap.mask()) {
         QBitmap * mymask=((QBitmap *)pixmap.mask());
         unsigned char * thebits=mymask->scanLine(0);
         int ls=mymask->bytesPerLine();

@@ -443,7 +443,7 @@ int QWin32PrintEngine::metric(int m) const
 void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
                                    const QPixmap &pixmap,
                                    const QRect &,
-                                   Qt::BlendMode /* mode */)
+                                   Qt::PixmapDrawingMode /* mode */)
 {
     bool oldNoNativeXForm = d->noNativeXform;
     d->noNativeXform = true;

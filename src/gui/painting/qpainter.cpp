@@ -129,16 +129,16 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
         return
 
 /*!
-    \enum Qt::BlendMode
+    \enum Qt::PixmapDrawingMode
 
-    \value Composite This mode will merge the source with the
+    \value ComposePixmap This mode will merge the source with the
     destination, including the alpha channels.
 
-    \value SourceCopy Copies the source to the destination, including
+    \value CopyPixmap Copies the source to the destination, including
     the mask. If the destination is not a pixmap, this operation is
     undefined.
 
-    \value IgnoreMask Draws the source onto the destination, ignoring
+    \value CopyPixmapNoMask Draws the source onto the destination, ignoring
     the source mask.
 */
 
@@ -2294,19 +2294,19 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 
 /*!
     \fn void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                                  int sx, int sy, int sw, int sh, Qt::BlendMode mode)
+                                  int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
 
     \overload
 
     Draws the rectangular portion with the origin \a(sx, sy), width \a sw
     and height \a sh, of the pixmap \a pm, at the point \a(x, y), with a
-    width of \a w and a height of \a h. If \a mode is QPainter::SourceCopy \a pm will not
+    width of \a w and a height of \a h. If \a mode is QPainter::CopyPixmap \a pm will not
     be masked to QPixmap::mask()
 */
 
 /*!
     \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh,
-                                  Qt::BlendMode mode)
+                                  Qt::PixmapDrawingMode mode)
 
     \overload
 
@@ -2326,7 +2326,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 
 /*!
     \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
-                                  Qt::BlendMode mode)
+                                  Qt::PixmapDrawingMode mode)
     \overload
 
     Draws the rectangle \a sr of pixmap \a pm with its origin at point
@@ -2334,7 +2334,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 */
 
 /*!
-    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode)
+    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode)
     \overload
 
     Draws the pixmap \a pm with its origin at point \a p.
@@ -2345,12 +2345,12 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     \a r in the paint device. The blend mode \a mode decides how the
     pixmap is merged with the target paint device.
 
-    \sa Qt::BlendMode
+    \sa Qt::PixmapDrawingMode
 */
-void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode)
+void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode)
 {
     if (!isActive() || pm.isNull()
-	|| (mode == Qt::SourceCopy && d->device->devType() != QInternal::Pixmap))
+	|| (mode == Qt::CopyPixmap && d->device->devType() != QInternal::Pixmap))
         return;
     d->engine->updateState(d->state);
 
@@ -2396,7 +2396,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         if(sx || sy || sw != pm.width() || sh != pm.height()) {
             source = QPixmap(sw, sh, pm.depth());
             QPainter p(&source);
-            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), Qt::SourceCopy);
+            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), Qt::CopyPixmap);
             p.end();
         } else {
             source = pm;
@@ -2424,9 +2424,9 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode);
     }
 
-    // If we have SourceCopy we copy the mask from the source to the target device if it
+    // If we have CopyPixmap we copy the mask from the source to the target device if it
     // is a pixmap also...
-    if (mode == Qt::SourceCopy
+    if (mode == Qt::CopyPixmap
         && d->device->devType() == QInternal::Pixmap
         && pm.mask()) {
         QPixmap *p = static_cast<QPixmap *>(d->device);
@@ -2440,7 +2440,6 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         pt.end();
         p->setMask(bitmap);
     }
-
 }
 
 /*!
@@ -2696,7 +2695,7 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
             if (xPos + drawW > x + w)           // Cropping last column
                 drawW = x + w - xPos;
             gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
-                           Qt::Composite);
+                           Qt::ComposePixmap);
             xPos += drawW;
             xOff = 0;
         }
@@ -3713,7 +3712,7 @@ static void bitBlt_helper(QPaintDevice *dst, const QPoint &dp,
     if (src->devType() == QInternal::Pixmap) {
         const QPixmap *pixmap = static_cast<const QPixmap *>(src);
         QPainter pt(dst);
-        pt.drawPixmap(dp, *pixmap, sr, imask ? Qt::IgnoreMask : Qt::SourceCopy);
+        pt.drawPixmap(dp, *pixmap, sr, imask ? Qt::CopyPixmapNoMask : Qt::CopyPixmap);
     } else {
         qWarning("::bitBlt only works when source is of type pixmap");
     }

@@ -1004,10 +1004,10 @@ public:
     };
 
     // Documented in qpainter.cpp
-    enum BlendMode {
-        Composite,
-        SourceCopy,
-	IgnoreMask
+    enum PixmapDrawingMode {
+        ComposePixmap,
+        CopyPixmap,
+	CopyPixmapNoMask // compatibility
     };
 
     enum RectangleEdge {
