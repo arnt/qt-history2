@@ -36,7 +36,7 @@
 
 #include "qsqlform.h"
 
-#ifndef QT_NO_SQL
+#ifndef QT_NO_SQL_FORM
 
 #include "qsqlfield.h"
 #include "qsqlpropertymap.h"

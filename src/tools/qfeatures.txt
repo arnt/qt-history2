@@ -42,8 +42,26 @@ SeeAlso: ???
 
 Feature: SQL
 Section: Database
-Requires: PROPERTIES TABLE SPINBOX MESSAGEBOX DATETIMEEDIT
+Requires: MESSAGEBOX
 Name: SQL classes
+SeeAlso: ???
+
+Feature: SQL_FORM
+Section: Database
+Requires: SQL PROPERTIES
+Name: QSqlForm
+SeeAlso: ???
+
+Feature: SQL_EDIT_WIDGETS
+Section: Database
+Requires: SQL SPINBOX COMBOBOX CHECKBOX DATETIMEEDIT
+Name: SQL value editor widgets
+SeeAlso: ???
+
+Feature: SQL_VIEW_WIDGETS
+Section: Database
+Requires: SQL_FORM SQL_EDIT_WIDGETS TABLE
+Name: SQL table widgets
 SeeAlso: ???
 
 Feature: STRINGLIST

@@ -47,7 +47,7 @@
 #include "qsqlerror.h"
 #endif // QT_H
 
-#ifndef QT_NO_SQL
+#ifndef QT_NO_SQL_VIEW_WIDGETS
 
 class QSqlForm;
 class QDataBrowserPrivate;

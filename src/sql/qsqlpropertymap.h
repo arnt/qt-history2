@@ -42,7 +42,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#ifndef QT_NO_SQL
+#ifndef QT_NO_SQL_FORM
 
 class QWidget;
 class QSqlPropertyMapPrivate;
@@ -70,5 +70,5 @@ private:	// Disabled copy constructor and operator=
 
 };
 
-#endif // QT_NO_SQL
+#endif // QT_NO_SQL_FORM
 #endif // QSQLPROPERTYMAP_H

@@ -45,7 +45,7 @@
 #include "qeditorfactory.h"
 #include "qdatetimeedit.h"
 
-#ifndef QT_NO_SQL
+#ifndef QT_NO_SQL_EDIT_WIDGETS
 
 /*!
   \class QEditorFactory qeditorfactory.h

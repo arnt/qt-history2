@@ -36,7 +36,7 @@
 
 #include "qsqlpropertymap.h"
 
-#ifndef QT_NO_SQL
+#ifndef QT_NO_SQL_FORM
 
 #include "qwidget.h"
 #include "qcleanuphandler.h"
@@ -293,4 +293,4 @@ void QSqlPropertyMap::installDefaultMap( QSqlPropertyMap * map )
     qsql_cleanup_property_map.add( &defaultmap );
 }
 
-#endif // QT_NO_SQL
+#endif // QT_NO_SQL_FORM

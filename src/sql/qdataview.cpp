@@ -36,7 +36,7 @@
 
 #include "qdataview.h"
 
-#ifndef QT_NO_SQL
+#ifndef QT_NO_SQL_VIEW_WIDGETS
 
 #include "qsqlmanager_p.h"
 

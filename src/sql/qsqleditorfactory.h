@@ -47,7 +47,7 @@
 #define QM_EXPORT_SQL Q_EXPORT
 #endif
 
-#ifndef QT_NO_SQL
+#ifndef QT_NO_SQL_EDIT_WIDGETS
 
 class QSqlField;
 

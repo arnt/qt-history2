@@ -36,7 +36,7 @@
 
 #include "qsqleditorfactory.h"
 
-#ifndef QT_NO_SQL
+#ifndef QT_NO_SQL_EDIT_WIDGETS
 
 #include "qsqlfield.h"
 #include "qcleanuphandler.h"

@@ -95,6 +95,8 @@ private:
     QSqlCursorManagerPrivate* d;
 };
 
+#ifndef QT_NO_SQL_FORM
+
 class QSqlFormManagerPrivate;
 
 class QM_EXPORT_SQL QSqlFormManager
@@ -115,6 +117,8 @@ public:
 private:
     QSqlFormManagerPrivate* d;
 };
+
+#endif
 
 class QWidget;
 class QDataManagerPrivate;

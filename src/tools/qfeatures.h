@@ -841,6 +841,11 @@
 #define QT_NO_MESSAGEBOX
 #endif
 
+// SQL classes
+#if !defined(QT_NO_SQL) && (defined(QT_NO_MESSAGEBOX))
+#define QT_NO_SQL
+#endif
+
 // QTextBrowser
 #if !defined(QT_NO_TEXTBROWSER) && (defined(QT_NO_TEXTVIEW) || defined(QT_NO_MIME))
 #define QT_NO_TEXTBROWSER
@@ -854,6 +859,11 @@
 // QWizard
 #if !defined(QT_NO_WIZARD) && (defined(QT_NO_DIALOG) || defined(QT_NO_WIDGETSTACK) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LAYOUT) || defined(QT_NO_LABEL))
 #define QT_NO_WIZARD
+#endif
+
+// QSqlForm
+#if !defined(QT_NO_SQL_FORM) && (defined(QT_NO_SQL) || defined(QT_NO_PROPERTIES))
+#define QT_NO_SQL_FORM
 #endif
 
 // QListView
@@ -916,9 +926,9 @@
 #define QT_NO_INPUTDIALOG
 #endif
 
-// SQL classes
-#if !defined(QT_NO_SQL) && (defined(QT_NO_PROPERTIES) || defined(QT_NO_TABLE) || defined(QT_NO_SPINBOX) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_DATETIMEEDIT))
-#define QT_NO_SQL
+// SQL value editor widgets
+#if !defined(QT_NO_SQL_EDIT_WIDGETS) && (defined(QT_NO_SQL) || defined(QT_NO_SPINBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_CHECKBOX) || defined(QT_NO_DATETIMEEDIT))
+#define QT_NO_SQL_EDIT_WIDGETS
 #endif
 
 // QPrintDialog
@@ -929,5 +939,10 @@
 // QFileDialog
 #if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_MESSAGEBOX) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_SEMIMODAL) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_VBOX) || defined(QT_NO_SPLITTER) || defined(QT_NO_PROGRESSBAR) || defined(QT_NO_WIDGETSTACK) || defined(QT_NO_DATESTRING))
 #define QT_NO_FILEDIALOG
+#endif
+
+// SQL table widgets
+#if !defined(QT_NO_SQL_VIEW_WIDGETS) && (defined(QT_NO_SQL_FORM) || defined(QT_NO_SQL_EDIT_WIDGETS) || defined(QT_NO_TABLE))
+#define QT_NO_SQL_VIEW_WIDGETS
 #endif
 

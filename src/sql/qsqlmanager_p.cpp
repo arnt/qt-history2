@@ -476,6 +476,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
     return indexEquals;
 }
 
+#ifndef QT_NO_SQL_FORM
 
 class QSqlFormManagerPrivate
 {
@@ -618,6 +619,8 @@ void QSqlFormManager::writeFields()
 	d->frm->writeFields();
     }
 }
+
+#endif // QT_NO_SQL_FORM
 
 class QDataManagerPrivate
 {
