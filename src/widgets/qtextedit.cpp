@@ -4093,7 +4093,9 @@ int QTextEdit::linesOfParagraph( int para ) const
 
 /*!
     Returns the length of the paragraph \a para (i.e. the number of
-    characters), or -1 if there is no paragraph with index \a para
+    characters), or -1 if there is no paragraph with index \a para.
+
+    This function ignores newlines.
 */
 
 int QTextEdit::paragraphLength( int para ) const
@@ -5234,7 +5236,6 @@ int QTextEdit::undoDepth() const
 /*!
     \property QTextEdit::length
     \brief the number of characters in the text
-    This function ignores newlines.
 */
 
 int QTextEdit::length() const
