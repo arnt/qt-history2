@@ -444,6 +444,7 @@ QDir::QDir() : d_ptr(new QDirPrivate(this))
     \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
 */
 
+#ifdef QT_COMPAT
 QDir::QDir(const QString &path, const QString &nameFilter,
              int sortSpec, int filterSpec)  : d_ptr(new QDirPrivate(this))
 {
@@ -454,6 +455,7 @@ QDir::QDir(const QString &path, const QString &nameFilter,
     d->data->sortSpec = sortSpec;
     d->data->filterSpec = filterSpec;
 }
+#endif
 
 /*!
     Constructs a QDir with path \a path, that filters its entries by
