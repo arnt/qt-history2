@@ -171,6 +171,5 @@ public:
 bool LanguageInterfaceImpl::canConnect( const QString &signal, const QString &slot )
 {
     CheckObject o;
-    qDebug( "%s %s", signal.latin1(), slot.latin1() );
     return o.checkConnectArgs( signal.latin1(), slot.latin1() );
 }
