@@ -272,8 +272,12 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
         if (baseClass.isEmpty())
             continue;
 
+        DomHeader *header = new DomHeader;
+        header->setText(customClass.toLower() + QLatin1String(".h"));
+
         DomCustomWidget *customWidget = new DomCustomWidget();
         customWidget->setElementClass(customClass);
+        customWidget->setElementHeader(header);
         customWidget->setElementExtends(baseClass);
         ui_customwidget_list.append(customWidget);
     }
