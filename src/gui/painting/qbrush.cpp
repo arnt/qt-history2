@@ -283,8 +283,12 @@ QBrush::QBrush(const QBrush &b)
 }
 
 /*!
-    \internal
+    Creates a linear gradient brush. The brush will interpolate
+    between the color \a col1 in the point \a p1 to the color \a col2
+    in the point \a p2. The areas outside the interpolation area
+    is filled with the color for that corresponding side.
 */
+
 QBrush::QBrush(const QPoint &p1, const QColor &col1, const QPoint &p2, const QColor &col2)
 {
     init(col1, Qt::LinearGradientPattern);
