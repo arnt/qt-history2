@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#2 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#3 $
 **
 ** Definition of 
 **
@@ -16,6 +16,7 @@
 
 struct QValidatorPrivate;
 
+
 class QValidator: public QObject
 {
     Q_OBJECT
@@ -23,10 +24,9 @@ public:
     QValidator( QObject * parent = 0, const char * name = 0 );
     ~QValidator();
 
-    enum Result{ Good, Unknown, Bad };
+    enum Result{ Good, Uncertain, Bad };
 
     virtual Result validate( const char * );
-    virtual Result validatePureData( QString );
 
     virtual void setInteger( int bottom, int top );
     virtual void setDouble( double bottom, double top, int decimals=0 );
@@ -38,6 +38,12 @@ public:
 
     virtual void setCaseSensitive( bool );
     bool caseSensitive() const;
+
+protected:
+    virtual bool validateContent( const QString );
+    virtual void fixup( QString & );
+
+    virtual QString validateAffixes( const QString );
 
 private:
     QValidatorPrivate * d;
