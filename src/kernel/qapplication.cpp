@@ -611,9 +611,11 @@ void QApplication::construct( int &argc, char **argv, Type type )
     }
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
+
 #if defined(QT_THREAD_SUPPORT)
     qt_mutex = new QMutex(TRUE);
 #endif
+
     initialize( argc, argv );
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
@@ -725,7 +727,8 @@ void QApplication::initialize( int argc, char **argv )
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
-    qApp->lock();
+    if (qt_is_gui_used)
+	qApp->lock();
 #endif
 }
 
