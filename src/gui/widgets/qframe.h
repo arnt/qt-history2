@@ -38,7 +38,6 @@ class Q_GUI_EXPORT QFrame : public QWidget
 
 public:
     QFrame(QWidget* parent = 0, WFlags f = 0);
-    QFrame(QWidget* parent, const char* name, WFlags f = 0);
     ~QFrame();
 
     int         frameStyle()    const;
@@ -93,10 +92,14 @@ protected:
     void drawFrame(QPainter *);
 
 private:
-
 #if defined(Q_DISABLE_COPY)
     QFrame(const QFrame &);
     QFrame &operator=(const QFrame &);
+#endif
+
+#ifdef QT_COMPAT
+public:
+    QFrame(QWidget* parent, const char* name, WFlags f = 0);
 #endif
 };
 

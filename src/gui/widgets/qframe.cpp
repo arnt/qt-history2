@@ -168,12 +168,13 @@ QFrame::QFrame(QFramePrivate &dd, QWidget* parent, WFlags f)
 {
 }
 
-/*! \internal */
+#ifdef QT_COMPAT
 QFrame::QFrame(QWidget *parent, const char *name, WFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
     setObjectName(name);
 }
+#endif
 
 /*!
   Destroys the frame.
