@@ -257,7 +257,12 @@ void QPainter::setClipping( bool enable )
 
 QRegion QPainter::clipRegion(CoordinateMode m) const
 {
-    return m == CoordDevice ? ds->clipRegion : ds->matrix.invert() * ds->clipRegion;
+    if (m == CoordPainter && (ds->VxF || ds->WxF)) {
+	QRegion rt(ds->clipRegion);
+	rt.translate(d->redirection_offset);
+	return ds->matrix.invert() * rt;
+    }
+    return ds->clipRegion;
 }
 
 void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inline?
@@ -270,7 +275,7 @@ void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 {
     Q_ASSERT(dgc);
     if (m == CoordPainter && (ds->VxF || ds->WxF)) {
-	QRegion rt = ds->matrix * r;
+	QRegion rt(ds->matrix * r);
  	rt.translate(-d->redirection_offset);
 	ds->clipRegion = rt;
     } else {
