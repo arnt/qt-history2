@@ -2569,7 +2569,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     ScriptItemArray items;
     layout->itemize( items,  str );
     int i = 0;
-    while ( pos >= items[i].position )
+    while ( i < items.size() && pos >= items[i].position )
 	i++;
     i--;
     ShapedItem shaped;
