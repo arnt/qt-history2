@@ -47,14 +47,17 @@
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
 static const ub2 CSID_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
+static const ub1 CSID_NCHAR = SQLCS_NCHAR;
 
 QByteArray qMakeOraDate( const QDateTime& dt );
+QString qOraWarn( const QOCIPrivate* d );
 
 class QOCIPrivate
 {
 public:
     QOCIPrivate()
-	: env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1)
+	: env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1),
+	  utf8( FALSE ), nutf8( FALSE )
     {
 	rowCache.setAutoDelete( TRUE );
     }
@@ -64,12 +67,42 @@ public:
     OCIStmt          *sql;
     bool             transaction;
     int		     serverVersion;
+    bool	     utf8;  // db charset
+    bool	     nutf8; // national charset
     QString          user;
     
     typedef QPtrVector<QSqlField> RowCache;
     typedef QPtrVector<RowCache> RowsetCache;
     RowsetCache rowCache;
 
+    void setCharset( OCIBind* hbnd )
+    {
+	int r = 0;
+
+	r = OCIAttrSet( (void*)hbnd,
+			OCI_HTYPE_BIND,
+			(void*) &CSID_NCHAR,
+			(ub4) 0,
+			(ub4) OCI_ATTR_CHARSET_FORM,
+			err );
+
+#ifdef QT_CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: " + qOraWarn( this ) );
+#endif
+
+	r = OCIAttrSet( (void*)hbnd,
+			OCI_HTYPE_BIND,
+			(void*) &CSID_UTF8,
+			(ub4) 0,
+			(ub4) OCI_ATTR_CHARSET_ID,
+			err );
+#ifdef QT_CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: " + qOraWarn( this ) );
+#endif
+    }
+    
     int bindValues( QSqlExtension * ext, QPtrList<QVirtualDestructor> & tmpStorage )
     {
 	int r = OCI_SUCCESS;
@@ -102,6 +135,8 @@ public:
 					   it.data().asCString().length(),
 					   SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			if ( r == 0 )
+			    setCharset( hbnd );
 			break;
 		    case QVariant::Time:
 		    case QVariant::Date:
@@ -144,17 +179,8 @@ public:
 					   str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			if ( r == 0 ) {
-			    r = OCIAttrSet( (void*) hbnd,
-					    OCI_HTYPE_BIND,
-					    (void*) &CSID_UTF8,
-					    (ub4) 0,
-					    (ub4) OCI_ATTR_CHARSET_ID,
-					    err );
-			    if ( r != 0 ) {
-				r = 0; /* non-fatal error */
-			    }
-			}
+			if ( r == 0 )
+			    setCharset( hbnd );
 			break; }
 		    default:
 			r = OCIBindByName( sql, &hbnd, err,
@@ -164,6 +190,8 @@ public:
 					   it.data().asString().length()+1,
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			if ( r == 0 )
+			    setCharset( hbnd );
 			break;
 		}
 		if ( r != OCI_SUCCESS ) {
@@ -198,6 +226,8 @@ public:
 					  val.asCString().length(),
 					  SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			if ( r == 0 )
+			    setCharset( hbnd );
 			break;
 		    case QVariant::Time:
 		    case QVariant::Date:
@@ -236,17 +266,8 @@ public:
 					  str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
 					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			if ( r == 0 ) {
-			    r = OCIAttrSet( (void*) hbnd,
-					    OCI_HTYPE_BIND,
-					    (void*) &CSID_UTF8,
-					    (ub4) 0,
-					    (ub4) OCI_ATTR_CHARSET_ID,
-					    err );
-			    if ( r != 0 ) {
-				r = 0; /* non-fatal error */
-			    }
-			}
+			if ( r == 0 )
+			    setCharset( hbnd );
 			break; }
 		    default:
 			r = OCIBindByPos( sql, &hbnd, err,
@@ -255,6 +276,8 @@ public:
 					  val.asCString().length() + 1, // oracle uses this as a limit to find the terminating 0..
 					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			if ( r == 0 )
+			    setCharset( hbnd );
 			break;
 		}
 		if ( r != OCI_SUCCESS ) {
@@ -546,7 +569,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	    type = QVariant::Double;
     }
     if ( colType == SQLT_BLOB )
- 	 colLength = 0;
+	colLength = 0;
 
     ofi.name = QString((char*)colName);
     ofi.name.truncate(colNameLen);
@@ -656,6 +679,8 @@ public:
 					(ub2 *) 0,
 					(ub2 *) 0,
 					OCI_DEFAULT ); /* piecewise */
+		    if ( r == 0 )
+			setCharset( dfn );
 		}
 		break;
 	    case QVariant::ByteArray:
@@ -702,20 +727,8 @@ public:
 				    SQLT_STR,
 				    (dvoid *) createInd( count-1 ),
 				    0, 0, OCI_DEFAULT );
-		if ( r == 0 ) {
-		    r = OCIAttrSet( (void*)dfn,
-				    OCI_HTYPE_DEFINE,
-				    (void*)&CSID_UTF8,
-				    (ub4)0,
-				    (ub4)OCI_ATTR_CHARSET_ID,
-				    d->err );
-		    if ( r != 0 ) {
-#ifdef QT_CHECK_RANGE
-			qWarning( "QOCIResultPrivate::bind: cannot switch to UTF8: " + qOraWarn( d ) );
-#endif
-			r = 0; /* non-fatal error */
-		    }
-		}
+		if ( r == 0 )
+		    setCharset( dfn );
 		break;
 	    }
 #ifdef QT_CHECK_RANGE
@@ -751,6 +764,30 @@ public:
 #endif
 	}
     }
+    void setCharset( OCIDefine* dfn )
+    {
+	int r = 0;
+	r = OCIAttrSet( (void*)dfn,
+			OCI_HTYPE_DEFINE,
+			(void*)&CSID_NCHAR,
+			(ub4)0,
+			(ub4)OCI_ATTR_CHARSET_FORM,
+			d->err );
+#ifdef QT_CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCIResultPrivate::setCharset: cannot switch to NCHAR: " + qOraWarn( d ) );
+#endif
+	r = OCIAttrSet( (void*)dfn,
+			OCI_HTYPE_DEFINE,
+			(void*)&CSID_UTF8,
+			(ub4)0,
+			(ub4)OCI_ATTR_CHARSET_ID,
+			d->err );
+#ifdef QT_CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCIResultPrivate::setCharset: cannot switch to UTF8: " + qOraWarn( d ) );
+#endif
+    }
     int readPiecewise( QSqlRecord& res )
     {
 	OCIDefine*     dfn;
@@ -767,17 +804,20 @@ public:
 	for ( ; ; ) {
 	    r = OCIStmtGetPieceInfo( d->sql, d->err, (dvoid**) &dfn, &typep,
 				     &in_outp, &iterp, &idxp, &piecep );
+#ifdef QT_CHECK_RANGE
 	    if ( r != OCI_SUCCESS )
 		qWarning( "OCIResultPrivate::readPiecewise: unable to get piece info: " + qOraWarn(d) );
+#endif
 	    fieldNum = fieldFromDefine( dfn );
 	    int chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;
 	    nullField = FALSE;
 	    r  = OCIStmtSetPieceInfo( dfn, OCI_HTYPE_DEFINE,
 				      d->err, (void *)col,
 				      (ub4 *)&chunkSize, piecep, NULL, NULL);
+#ifdef QT_CHECK_RANGE
 	    if ( r != OCI_SUCCESS )
 		qWarning( "OCIResultPrivate::readPiecewise: unable to set piece info: " + qOraWarn(d) );
-
+#endif
 	    status = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
 	    if ( status == -1 ) {
 		sb4 errcode;
@@ -787,7 +827,9 @@ public:
 		    nullField = TRUE;
 		    break;
 		default:
+#ifdef QT_CHECK_RANGE
 		    qWarning( "OCIResultPrivate::readPiecewise: unable to fetch next: " + qOraWarn(d) );
+#endif
 		    break;
 		}
 	    }
@@ -840,7 +882,9 @@ public:
 		continue;
 	    r = OCILobGetLength( d->svc, d->err, lob, &amount );
 	    if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
 		qWarning( "OCIResultPrivate::readLOBs: Can't get size of LOB: " + qOraWarn(d) );
+#endif
 		amount = 0;
 	    }
 	    if ( amount > 0 ) {
@@ -848,9 +892,19 @@ public:
 		if ( res.value( i ).type() == QVariant::CString ) {
 		    buf = new QCString( amount + 1 ); // including terminating zero
 		} else {
-		    buf = new QByteArray( amount  );
+		    buf = new QByteArray( amount );
 		}
-		
+
+		// get lob charset ID and tell oracle to transform it into UTF8
+		ub1 csfrm = 0;
+		r = OCILobCharSetForm( d->env, d->err, lob, &csfrm );
+		if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+		    qWarning( "OCIResultPrivate::readLOBs: Can't get encoding of LOB: " + qOraWarn(d) );
+#endif
+		    csfrm = 0;
+		}
+
 		r = OCILobRead( d->svc,
 				d->err,
 				lob,
@@ -858,7 +912,9 @@ public:
 				1,
 				(void*) buf->data(),
 				(ub4) buf->size(),
-				0, 0, 0, 0 );
+				0, 0,
+				0,
+				csfrm );
 		if ( r != 0 ) {
 		    qWarning( "OCIResultPrivate::readLOBs: Cannot read LOB: " + qOraWarn(d) );
 		} else {
@@ -1818,6 +1874,27 @@ bool QOCIDriver::open( const QString & db,
 	d->serverVersion = -1;
     setOpen( TRUE );
     d->user = user.upper();
+    
+    QSqlQuery q = createQuery();
+    q.setForwardOnly( TRUE );
+    if ( q.exec( "select parameter, value from nls_database_parameters "
+		 "where parameter = 'NLS_CHARACTERSET' "
+		 "or parameter = 'NLS_NCHAR_CHARACTERSET'" ) ) {
+	while ( q.next() ) {
+	    if ( q.value( 0 ).toString() == "NLS_CHARACTERSET" &&
+		 q.value( 1 ).toString().upper().startsWith( "UTF8" ) ) {
+		d->utf8 = TRUE;
+	    } else if ( q.value( 0 ).toString() == "NLS_NCHAR_CHARACTERSET" &&
+		 q.value( 1 ).toString().upper().startsWith( "UTF8" ) ) {
+		d->nutf8 = TRUE;
+	    }
+	}
+    } else {
+#ifdef QT_CHECKRANGE
+	qWarning( "QOCIDriver::open: could not get Oracle server character set." );
+#endif
+    }
+        
     return TRUE;
 }
 
