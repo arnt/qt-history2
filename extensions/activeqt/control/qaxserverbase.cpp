@@ -2505,14 +2505,39 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	    }
 
 	    res = S_OK;
-
-	    if (m_spAdviseSink)
-		m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, 0);
 	}
 	break;
 
     default:
 	break;
+    }
+
+    // maybe calling a setter? Notify client about changes
+    if ( m_spAdviseSink ) switch(wFlags) {
+         case DISPATCH_METHOD:
+         case DISPATCH_PROPERTYPUT:
+         case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
+             {
+                 m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, -1 );
+                 
+                 FORMATETC fmt;
+                 fmt.cfFormat = 0;
+                 fmt.ptd = 0;
+                 fmt.dwAspect = DVASPECT_CONTENT;
+                 fmt.lindex = -1;
+                 fmt.tymed = TYMED_NULL;
+                 
+                 STGMEDIUM stg;
+                 stg.tymed = TYMED_NULL;
+                 stg.pUnkForRelease = 0;
+                 stg.hBitmap = 0; // initializes the whole union
+                 
+                 m_spAdviseSink->OnDataChange( &fmt, &stg );
+             }
+             dirtyflag = true;
+             break;
+         default:
+             break;
     }
 
     if (index != -1)
@@ -3302,7 +3327,10 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 	    if (dwKeyMod & 4)
 		state |= Qt::AltModifier;
 
-	    int key = qt_translateKeyCode(pMsg->wParam);
+	    int key = pMsg->wParam;
+            if (!(key >= 'A' && key <= 'Z') && !(key >= '0' && key <= '9'))
+                key = qt_translateKeyCode(pMsg->wParam);
+
 	    QKeyEvent override(QEvent::ShortcutOverride, key, (Qt::KeyboardModifiers)state);
 	    override.ignore();
 	    QApplication::sendEvent(qt.widget->focusWidget(), &override);
