@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#128 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -18,9 +18,10 @@
 #include "qapp.h"
 #include "qbitmap.h"
 #include "qpmcache.h"
+#include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#127 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#128 $");
 
 
 // Motif style parameters
@@ -59,6 +60,18 @@ static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
 // members in 2.0
 static QPopupMenu * syncMenu;
 static int syncMenuId;
+
+// used to provide ONE single-shot timer
+static QTimer * singleSingleShot = 0;
+
+static void popupSubMenuLater( int msec, QObject * receiver ) {
+    if ( !singleSingleShot )
+	singleSingleShot = new QTimer( qApp, "popup submenu timer" );
+    singleSingleShot->disconnect( singleSingleShot );
+    singleSingleShot->connect( singleSingleShot, SIGNAL(timeout()),
+			       receiver, SLOT(subMenuTimer()) );
+    singleSingleShot->start( msec, TRUE );
+}
 
 
 //### How to provide new member variables while keeping binary compatibility:
@@ -1243,8 +1256,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 	    popup->repaint( FALSE );
 	} else {				// open sub menu
 	    hidePopups();
-	    killTimers();
-	    startTimer( 20 );
+	    popupSubMenuLater( 20, this );
 	}
     } else {
 	hidePopups();
@@ -1261,12 +1273,12 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	return;
 
     mouseBtDn = FALSE;
+
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
 	if ( !rect().contains( e->pos() ) && tryMenuBar(e) )
 	    return;
     }
-    actItem = item;
     repaint( FALSE );
     if ( actItem >= 0 ) {			// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
@@ -1294,40 +1306,50 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( parentMenu && parentMenu->isPopupMenu && 
+	 (parentMenu->actItem != ((QPopupMenu *)parentMenu)->popupActive ) ) {
+	// hack: if there's a parent popup, and its active item is not
+	// the same as its popped-up child, make the popped-up child
+	// active
+	QPopupMenu * p = (QPopupMenu *)parentMenu;
+	int lastActItem = p->actItem;
+	p->actItem = p->popupActive;
+	if ( lastActItem >= 0 )
+	    p->updateRow( lastActItem );
+	if ( p->actItem >= 0 )
+	    p->updateRow( p->actItem );
+    }
+
     if ( (e->state() & MouseButtonMask) == 0 && !hasMouseTracking() )
 	return;
+
     int	 item = itemAtPos( e->pos() );
     if ( item == -1 ) {				// no valid item
-	if ( popupActive == -1 ) {		// no active popup sub menu
-	    int lastActItem = actItem;
-	    actItem = -1;
-	    if ( lastActItem >= 0 )
-		updateRow( lastActItem );
-	}
+	int lastActItem = actItem;
+	actItem = -1;
+	if ( lastActItem >= 0 )
+	    updateRow( lastActItem );
+
 	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) )
-	    hidePopups();
+	    popupSubMenuLater( style() == WindowsStyle ? 256 : 96, this );
+	else if ( singleSingleShot )
+	    singleSingleShot->stop();
     } else {					// mouse on valid item
 	// but did not register mouse press
 	if ( (e->state() & MouseButtonMask) && !mouseBtDn )
 	    mouseBtDn = TRUE; // so mouseReleaseEvent will pop down
 
 	register QMenuItem *mi = mitems->at( item );
-	QPopupMenu *popup = mi->popup();
-	if ( actItem == item ) {
-	    if ( popupActive == item && popup->actItem != -1 ) {
-		popup->actItem = -1;
-		popup->hidePopups();
-		popup->repaint( FALSE );
-	    }
+	if ( actItem == item )
 	    return;
-	}
+
+	if ( mi->popup() || (popupActive >= 0 && popupActive != item) )
+	    popupSubMenuLater( style() == WindowsStyle ? 256 : 96, this );
+	else if ( singleSingleShot )
+	    singleSingleShot->stop();
+
 	int lastActItem = actItem;
 	actItem = item;
-	if ( mi->popup() ) {
-	    killTimers();
-	    startTimer( 100 );			// open new popup soon
-	}
-	hidePopups();				// hide popup items
 	if ( lastActItem >= 0 )
 	    updateRow( lastActItem );
 	updateRow( actItem );
@@ -1371,8 +1393,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_Left:
 	if ( parentMenu && parentMenu->isPopupMenu ) {
 	    ((QPopupMenu *)parentMenu)->hidePopups();
-	    killTimers();
-	    startTimer( 20 );
+	    popupSubMenuLater( 20, this );
 	} else {
 	    ok_key = FALSE;
 	}
@@ -1381,8 +1402,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_Right:
 	if ( actItem >= 0 && (popup=mitems->at( actItem )->popup()) ) {
 	    hidePopups();
-	    killTimers();
-	    startTimer( 20 );
+	    popupSubMenuLater( 20, this );
 	    popup->setFirstItemActive();
 	} else {
 	    ok_key = FALSE;
@@ -1402,8 +1422,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	popup = mi->popup();
 	if ( popup ) {
 	    hidePopups();
-	    killTimers();
-	    startTimer( 20 );
+	    popupSubMenuLater( 20, this );
 	    popup->setFirstItemActive();
 	} else {
 	    hideAllPopups();
@@ -1448,8 +1467,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    if ( popup ) {
 		setActiveItem( indx );
 		hidePopups();
-		killTimers();
-		startTimer( 20 );
+		popupSubMenuLater( 20, this );
 		popup->setFirstItemActive();
 	    } else {
 		hideAllPopups();
@@ -1506,21 +1524,43 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 
 void QPopupMenu::timerEvent( QTimerEvent *e )
 {
-    killTimer( e->timerId() );			// ### single-shot timer
-    if ( actItem < 0 )
+    QTableView::timerEvent( e );
+}
+
+
+/*! This private slot handles the delayed submenu effects */
+
+void QPopupMenu::subMenuTimer() {
+    if ( (actItem < 0 && popupActive < 0) || actItem == popupActive )
 	return;
-    QMenuItem *mi = mitems->at(actItem);
-    if ( mi->isEnabled() ) {
-	QPopupMenu *popup = mi->popup();
-	if ( popup ) {				// it is a popup
-	    QPoint pos( width() - motifArrowHMargin,
-			frameWidth() + motifArrowVMargin );
-	    for ( int i=0; i<actItem; i++ )
-		pos.ry() += (QCOORD)cellHeight( i );
-	    popupActive = actItem;
-	    popup->popup( mapToGlobal(pos) );
-	}
+
+    if ( popupActive >= 0 ) {
+	hidePopups();
+	popupActive = -1;
+	return;
     }
+
+    QMenuItem *mi = mitems->at(actItem);
+    if ( !mi->isEnabled() )
+	return;
+
+    QPopupMenu *popup = mi->popup();
+    if ( !popup )
+	return;
+
+    QPoint p( width() - motifArrowHMargin, frameWidth() + motifArrowVMargin );
+    for ( int i=0; i<actItem; i++ )
+	p.setY( p.y() + (QCOORD)cellHeight( i ) );
+    p = mapToGlobal( p );
+    popupActive = actItem;
+    if ( style() == WindowsStyle ) {
+	if ( popup->badSize )
+	    popup->updateSize();
+	if ( p.x() + popup->width() > QApplication::desktop()->width() )
+	    p.setX( mapToGlobal( QPoint(0,0) ).x() -
+		    popup->width() + frameWidth() );
+    }
+    popup->popup( p );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#35 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#36 $
 **
 ** Definition of QPopupMenu class
 **
@@ -63,6 +63,8 @@ private slots:
     void	accelActivated( int itemId );
     void	accelDestroyed();
     void	modalActivation( int );
+
+    void	subMenuTimer();
 
 private:
     void	menuContentsChanged();
