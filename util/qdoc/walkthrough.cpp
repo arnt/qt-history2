@@ -12,8 +12,16 @@
 #include "messages.h"
 #include "walkthrough.h"
 
+static QString stripTrailingBlankLine( const QString& s )
+{
+    if ( s.right(2) == QString("\n\n") )
+	return s.left( s.length() - 1 );
+    else
+	return s;
+}
+
 Walkthrough::Walkthrough( const Walkthrough& w )
-    : plainlines( w.plainlines ), processedlines( w.processedlines ),
+    : plainlines( w.plainlines ), fancylines( w.fancylines ),
       walkloc( w.walkloc ), shutUp( w.shutUp )
 {
 }
@@ -21,7 +29,7 @@ Walkthrough::Walkthrough( const Walkthrough& w )
 Walkthrough& Walkthrough::operator=( const Walkthrough& w )
 {
     plainlines = w.plainlines;
-    processedlines = w.processedlines;
+    fancylines = w.fancylines;
     walkloc = w.walkloc;
     shutUp = w.shutUp;
     return *this;
@@ -67,40 +75,14 @@ void Walkthrough::skipuntil( const QString& substr, const Location& docLoc )
     xuntil( substr, docLoc, QString("skipuntil") );
 }
 
-static QString tabless( const QString & in )
-{
-    int i = 0;
-    int col = 0;
-    QString res;
-    QString spaces( "        " );
-    while( i < in.length() ) {
-	if ( in[i] == '\t' ) {
-	    res += spaces.mid( col&7 );
-	    col = (col|7)+1;
-	    i++;
-	} else if ( in[i] == '\n' ) {
-	    res += in[i++];
-	    col = 0;
-	} else {
-	    res += in[i++];
-	    col++;
-	}
-    }
-    return res;
-}
 
 QString Walkthrough::start( bool localLinks, const QString& fileName,
 			    const Resolver *resolver )
 {
-    static QRegExp *trailingSpaces = 0;
-    static QRegExp *manyNLsInARow = 0;
-    static QRegExp *aname = 0;
-
-    if ( trailingSpaces == 0 ) {
-	trailingSpaces = new QRegExp( QString(" +\n") );
-	manyNLsInARow = new QRegExp( QString("\n\n\n+") );
-	aname = new QRegExp( QString("<a name=[^>]*></a>") );
-    }
+    static QRegExp trailingSpacesPlusNL( QString("[ \t]+\n") );
+    static QRegExp endOfLine( QString("\n(?!\n)") );
+    static QRegExp manyNLs( QString("\n+") );
+    static QRegExp aname( QString("<a name=[^>]*></a>") );
 
     *this = Walkthrough();
 
@@ -117,48 +99,66 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
     }
 
     QTextStream t( &f );
-    QString fullText = tabless( t.read() );
+    QString fullText = t.read();
     f.close();
     if ( fullText.isEmpty() ) {
 	warning( 2, "Example file '%s' empty", filePath.latin1() );
 	return QString::null;
     }
 
+    fullText.replace( trailingSpacesPlusNL, QChar('\n') );
+
+    QString fancyText = processCodeHtml( fullText, resolver, localLinks,
+					 QFileInfo(f).dirPath() );
+
     /*
-      Clean a bit.  This has to be done here, not later, because the plain lines
-      and the processed lines have to be synchronized.
+      Split the source code into logical lines.  Empty lines are handled
+      specially.  If the source code is
 
-      We make sure no two empty lines occur in a row, because the old qdoc did
-      that.  Maybe the source files should be fixed.
+	  p->alpha();
+	  p->beta();
+
+	  p->gamma();
+
+
+	  p->delta();
+
+      the plainlines list will contain four items:
+
+	  p->alpha();
+	  p->beta();\n
+	  p->gamma();\n\n
+	  p->delta();
+
+      The '\n' are important for walkloc.
     */
-    fullText.replace( *trailingSpaces, QChar('\n') );
-    fullText.replace( *manyNLsInARow, QString("\n\n") );
+    plainlines = QStringList::split( endOfLine, fullText, TRUE );
 
-    QString processedText = processCodeHtml( fullText, resolver, localLinks,
-					     QFileInfo(f).dirPath() );
-
-    plainlines = QStringList::split( QChar('\n'), fullText, TRUE );
-
-    QString walkthroughText = processedText;
+    QString walkthroughText = fancyText;
 
     /*
       Local links are nice, but not twice in the same HTML page (once in the
       \include and once in the walkthrough).
     */
     if ( localLinks )
-	walkthroughText.replace( *aname, QString::null );
+	walkthroughText.replace( aname, QString::null );
 
-    processedlines = QStringList::split( QChar('\n'), walkthroughText, TRUE );
+    fancylines = QStringList::split( endOfLine, walkthroughText, TRUE );
 
-    QStringList::Iterator p = processedlines.begin();
-    while ( p != processedlines.end() ) {
+    /*
+      Add a 4-space indent to walkthrough code, so that it stands out from the
+      explanations, and squeeze blanks (cat -s).
+    */
+    QStringList::Iterator p = fancylines.begin();
+    while ( p != fancylines.end() ) {
 	(*p).prepend( QString("    ") );
+	(*p).replace( manyNLs, QChar('\n') );
 	(*p).append( QChar('\n') );
 	++p;
     }
 
     walkloc = Location( filePath );
-    return processedText;
+    return fancyText;
 }
 
 QString Walkthrough::xline( const QString& substr, const Location& docLoc,
@@ -172,9 +172,6 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 		 subs.latin1() );
 	return s;
     }
-
-    if ( !subs.isEmpty() )
-	skipEmptyLines();
 
     if ( plainlines.isEmpty() ) {
 	if ( !shutUp ) {
@@ -199,7 +196,7 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 	s = getNextLine();
 	shutUp = FALSE;
     }
-    return s;
+    return stripTrailingBlankLine( s );
 }
 
 QString Walkthrough::xto( const QString& substr, const Location& docLoc,
@@ -214,12 +211,9 @@ QString Walkthrough::xto( const QString& substr, const Location& docLoc,
 	return s;
     }
 
-    if ( !subs.isEmpty() )
-	skipEmptyLines();
-
     while ( !plainlines.isEmpty() ) {
 	if ( plainlines.first().simplifyWhiteSpace().find(subs) != -1 )
-	    return s;
+	    return stripTrailingBlankLine( s );
 	s += getNextLine();
     }
     if ( !shutUp ) {
@@ -236,24 +230,21 @@ QString Walkthrough::xuntil( const QString& substr, const Location& docLoc,
 {
     QString s = xto( substr, docLoc, command );
     s += getNextLine();
-    return s;
-}
-
-void Walkthrough::skipEmptyLines()
-{
-    while ( !plainlines.isEmpty() &&
-	    plainlines.first().simplifyWhiteSpace().isEmpty() )
-	getNextLine();
+    return stripTrailingBlankLine( s );
 }
 
 QString Walkthrough::getNextLine()
 {
     QString s;
     if ( !plainlines.isEmpty() ) {
-	s = processedlines.first();
+	s = fancylines.first();
+
+	int n = plainlines.first().contains( '\n' ) + 1;
+	for ( int i = 0; i < n; i++ )
+	    walkloc.advance( '\n' );
+
 	plainlines.remove( plainlines.begin() );
-	processedlines.remove( processedlines.begin() );
-	walkloc.advance( '\n' );
+	fancylines.remove( fancylines.begin() );
     }
-    return s;
+    return stripTrailingBlankLine( s );
 }

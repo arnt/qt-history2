@@ -43,7 +43,6 @@ public:
     bool processClass( const QString& className ) const;
     bool serialComma() const { return serial; }
     bool isInternal() const { return internal; }
-    bool readExampleHeaders() const { return readh; }
     bool autoHrefs() const { return autoh; }
     bool supervisor() const { return super; }
 
@@ -85,7 +84,6 @@ private:
     QRegExp onlysym;
     bool serial;
     bool internal;
-    bool readh;
     bool autoh;
     bool super;
 

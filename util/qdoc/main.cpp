@@ -134,8 +134,14 @@ int main( int argc, char **argv )
 
     // finally, pick up old output for the editor
     QStringList outputFiles;
-    if ( config->supervisor() )
+    if ( config->supervisor() ) {
 	outputFiles = find( config->outputDir(), QString("*.html") );
+	s = outputFiles.begin();
+	while ( s != sourceFiles.end() ) {
+	    parseHtmlFile( &steering, *s );
+	    ++s;
+	}
+    }
 
     steering.nailDownDocs();
     steering.emitHtml();

@@ -56,11 +56,10 @@ private:
 		   const QString& command );
     QString xuntil( const QString& substr, const Location& docLoc,
 		   const QString& command );
-    void skipEmptyLines();
     QString getNextLine();
 
     QStringList plainlines;
-    QStringList processedlines;
+    QStringList fancylines;
     Location walkloc;
     bool shutUp;
 };

@@ -15,9 +15,6 @@
 
 static QMap<QString, int> *msgMap = 0;
 static int warningLevel = INT_MAX;
-#if 0
-static bool paranoia = FALSE;
-#endif
 static int numAll = 0;
 static int numOmitted = 0;
 
@@ -60,13 +57,6 @@ void setWarningLevel( int level )
 {
     warningLevel = level;
 }
-
-#if 0 // ### isn't used
-void setParanoiaEnabled( bool enabled )
-{
-    paranoia = enabled;
-}
-#endif
 
 static QString currentDirectory;
 
@@ -114,7 +104,7 @@ void warning( int level, const char *message, ... )
 {
     if ( warningLevel <= level )
 	return;
-    if ( omit(message) )
+    if ( level > 0 && omit(message) )
 	return;
 
     va_list ap;

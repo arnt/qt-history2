@@ -19,7 +19,7 @@ Config *config;
 
 static bool isCSym( QChar ch )
 {
-    return ch.isLetterOrNumber() || ch.unicode() == '_';
+    return ch.isLetterOrNumber() || ch == QChar( '_' );
 }
 
 static QString eval( const QString& str )
@@ -45,7 +45,7 @@ static QString eval( const QString& str )
 static QString singleton( const QString& key, const QStringList& val )
 {
     if ( val.count() != 1 ) {
-	warning( 2, "Entry '%s' should contain exactly one value (found %d)",
+	warning( 1, "Entry '%s' should contain exactly one value (found %d)",
 		 key.latin1(), val.count() );
 	if ( val.isEmpty() )
 	    return QString( "" );
@@ -64,7 +64,7 @@ static bool isYes( const QString& key, const QStringList& val )
 {
     if ( val.count() != 1 ||
 	 !QRegExp(QString("yes|no|true|false")).match(val.first()) ) {
-	warning( 2, "Entry '%s' in configuration file should be 'yes' or 'no'",
+	warning( 1, "Entry '%s' in configuration file should be 'yes' or 'no'",
 		 key.latin1() );
 	return FALSE;
     }
@@ -93,8 +93,8 @@ Config::Config( int argc, char **argv )
     : maxSim( 16 ), maxAll( 64 ), wlevel( 2 ), bas( "" ), modshort( "" ),
       modlong( "" ), co( "" ), vers( "" ), verssym( "" ), posth( "" ),
       foot( "" ), addr( "" ), styl( "" ), falsesym( QChar('0') ),
-      serial( FALSE ), internal( FALSE ), readh( TRUE ), autoh( TRUE ),
-      super( FALSE ), dotHtml( ".html" ), membersDotHtml( "-members.html" )
+      serial( FALSE ), internal( FALSE ), autoh( TRUE ), super( FALSE ),
+      dotHtml( ".html" ), membersDotHtml( "-members.html" )
 {
     QString confFilePath( "./qdoc.conf" );
     int i;
@@ -127,7 +127,7 @@ Config::Config( int argc, char **argv )
 
     QFile f( confFilePath );
     if ( !f.open(IO_ReadOnly) ) {
-	warning( 1, "Cannot open configuration file '%s'",
+	warning( 0, "Cannot open configuration file '%s'",
 		 confFilePath.latin1() );
 	return;
     }
@@ -179,8 +179,6 @@ Config::Config( int argc, char **argv )
 	    outputdir = singleton( key, val );
 	} else if ( key == QString("POSTHEADER") ) {
 	    posth = val.join( QChar(' ') );
-	} else if ( key == QString("READHEADERS") ) {
-	    readh = isYes( key, val );
 	} else if ( key == QString("SERIALCOMMA") ) {
 	    serial = isYes( key, val );
 	} else if ( key == QString("SOURCEDIRS") ) {
@@ -198,7 +196,7 @@ Config::Config( int argc, char **argv )
 	    if ( wlevel < 0 )
 		wlevel = 0;
 	} else {
-	    warning( 2, "Unknown entry '%s' in configuration file",
+	    warning( 1, "Unknown entry '%s' in configuration file",
 		     key.latin1() );
 	    break;
 	}
@@ -209,14 +207,13 @@ Config::Config( int argc, char **argv )
 	QString opt( argv[i++] );
 	QString val;
 	bool plus = FALSE;
-	bool unknown = FALSE;
 
 	if ( opt.left(2) == QString("--") ) {
 	    int k = opt.find( QChar('=') );
 	    if ( k == -1 ) {
 		i++;
 		if ( i == argc ) {
-		    warning( 1, "Expected '%s+=foo', '%s=foo' or '%s foo' on"
+		    warning( 0, "Expected '%s+=foo', '%s=foo' or '%s foo' on"
 			     "command line", opt.latin1() );
 		    showHelp();
 		    break;
@@ -253,8 +250,6 @@ Config::Config( int argc, char **argv )
 		setPattern( &onlysym, val, plus );
 	    } else if ( opt == QString("--output-dir") ) {
 		outputdir = val;
-	    } else if ( opt == QString("--read-headers") ) {
-		readh = isYes( val );
 	    } else if ( opt == QString("--serial-comma") ) {
 		serial = isYes( val );
 	    } else if ( opt == QString("--supervisor") ) {
@@ -264,7 +259,8 @@ Config::Config( int argc, char **argv )
 		    wlevel = 0;
 		wlevel += val.toInt();
 	    } else {
-		unknown = TRUE;
+		warning( 0, "Unknown command-line option '%s'", opt.latin1() );
+		showHelp();
 	    }
 	} else if ( opt.left(1) == QChar('-') ) {
 	    if ( opt == QString("-a") ) {
@@ -298,14 +294,11 @@ Config::Config( int argc, char **argv )
 		maxSim = 262144;
 		maxAll = 262144;
 	    } else {
-		unknown = TRUE;
+		warning( 0, "Unknown command-line option '%s'", opt.latin1() );
+		showHelpShort();
 	    }
 	} else if ( !opt.isEmpty() ) {
-	    warning( 1, "Command-line argument '%s' ignored", opt.latin1() );
-	    showHelp();
-	}
-	if ( unknown ) {
-	    warning( 1, "Unknown command-line option '%s'", opt.latin1() );
+	    warning( 0, "Command-line argument '%s' ignored", opt.latin1() );
 	    showHelp();
 	}
     }
@@ -424,7 +417,7 @@ bool Config::matchLine( QString *key, QStringList *val )
     }
 
     if ( yyPos < (int) yyIn.length() )
-	warning( 1, "Bad syntax in configuration file at line %d\n",
+	warning( 0, "Bad syntax in configuration file at line %d\n",
 		 yyIn.left(yyPos).contains(QChar('\n')) + 1 );
     return FALSE;
 }
@@ -432,7 +425,7 @@ bool Config::matchLine( QString *key, QStringList *val )
 void Config::showHelp()
 {
     /*
-      The output is meant to look like that of gcc.
+      We imitate gcc somewhat.
     */
     printf( "Usage: qdoc [options] [qdoc.conf]\n"
 	    "Long options:\n"
@@ -441,19 +434,18 @@ void Config::showHelp()
 	    "  --define=<regexp>        Define preprocessor symbols\n"
 	    "  --false=<regexp>         Define false preprocessor predicates\n"
 	    "  --help                   Display this information\n"
-	    "  --help-short             Display short options\n"
+	    "  --help-short             List short options\n"
 	    "  --internal=<yes|no>      Generate internal documentation [%s]\n"
 	    "  --max-similar=<num>      Limit number of similar warnings [%d]\n"
 	    "  --max-warnings=<num>     Limit number of warnings [%d]\n"
 	    "  --only=<regexp>          Process only specified classes\n"
 	    "  --output-dir=<path>      Set output directory\n"
-	    "  --read-headers=<yes|no>  Read local includes in examples [%s]\n"
 	    "  --serial-comma=<yes|no>  Use serial comma in enumerations [%s]\n"
 	    "  --supervisor=<yes|no>    Compare with previous run [%s]\n"
 	    "  --version                Display version of qdoc\n"
 	    "  --warning-level=<num>    Set warning level (0 to 4) [%d]\n",
-	    toYN(autoh), toYN(internal), maxSim, maxAll, toYN(readh),
-	    toYN(serial), toYN(super), wlevel );
+	    toYN(autoh), toYN(internal), maxSim, maxAll, toYN(serial),
+	    toYN(super), wlevel );
     exit( EXIT_SUCCESS );
 }
 
@@ -464,7 +456,7 @@ void Config::showHelpShort()
 	    "  -a vs. -A                Automatically add hrefs [%s]\n"
 	    "  -D<regexp>               Define preprocessor symbols\n"
 	    "  -F<regexp>               Define false preprocessor predicates\n"
-	    "  -h                       Display long options\n"
+	    "  -h                       List long options\n"
 	    "  -H                       Display this information\n"
 	    "  -i vs. -I                Generate internal documentation [%s]\n"
 	    "  -m<num>                  Limit number of similar warnings [%d]\n"
@@ -482,6 +474,6 @@ void Config::showHelpShort()
 
 void Config::showVersion()
 {
-    printf( "qdoc version 1.91\n" );   // $\lim_{t\rightarrow\infty} v(t) = 2$
+    printf( "qdoc version 1.92\n" );   // $\lim_{t\rightarrow\infty} V(t) = 2$
     exit( EXIT_SUCCESS );
 }

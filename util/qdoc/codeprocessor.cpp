@@ -13,6 +13,28 @@
 #include "metaresolver.h"
 #include "stringset.h"
 
+static QString untabified( const QString& in )
+{
+    QString res;
+    int col = 0;
+    int i = 0;
+
+    while ( i < (int) in.length() ) {
+	if ( in[i] == QChar('\t') ) {
+	    res += QString( "        " + (col & 0x7) );
+	    col = ( col + 8 ) & 0x7;
+	    i++;
+	} else if ( in[i] == QChar('\n') ) {
+	    res += in[i++];
+	    col = 0;
+	} else {
+	    res += in[i++];
+	    col++;
+	}
+    }
+    return res;
+}
+
 /*
   This is a rewrite of the processcode Perl subroutine of old qdoc.  Thanks to
   Arnt Gulbrandsen for writing it in the first place.
@@ -22,83 +44,44 @@
 QString processCodeHtml( const QString& code, const Resolver *res,
 			 bool localLinks, const QString& dirPath )
 {
-    static QRegExp *amp = 0;
-    static QRegExp *lt = 0;
-    static QRegExp *gt = 0;
-    static QRegExp *ginclude = 0;
-    static QRegExp *linclude = 0;
-    static QRegExp *xInheritsY = 0;
-    static QRegExp *yHasTypeX = 0;
-    static QRegExp *xNewY = 0;
-    static QRegExp *newClassX = 0;
-    static QRegExp *xDotY = 0;
-    static QRegExp *staticZOfY = 0;
-    static QRegExp *classX = 0;
-    static QRegExp *globalY = 0;
-
-    if ( amp == 0 ) {
-	amp = new QRegExp( QChar('&') );
-	lt = new QRegExp( QChar('<') );
-	gt = new QRegExp( QChar('>') );
-	ginclude = new QRegExp( QString("#include +&lt;([^&]*)&gt;") );
-	linclude = new QRegExp( QString("#include +\"([^\"]*)\"") );
-
-	if ( config->readExampleHeaders() )
-	    xInheritsY = new QRegExp( QString(
-		    "class +(?:[a-zA-Z_0-9]+[ \n]+)*([a-zA-Z_0-9]+)[ \n]*"
-		    ":[ \n]*public[ \n]+([a-zA-Z_0-9]+)") );
-	else
-	    xInheritsY = new QRegExp( QString(
-		    "::([a-zA-Z_0-9]+)\\([^){;]*\\)[ \n]*:[ \n]*([a-zA-Z_0-9]+)"
-		    "[ \n]*\\(") );
-
-	yHasTypeX = new QRegExp( QString(
-		"(?:[\n:;{(]|const) +([a-zA-Z_][a-zA-Z_0-9]*)"
-		"(?:&lt;[^;{}]+&gt;)?(?: *[*&] *| +)([a-zA-Z_][a-zA-Z_0-9]*)?"
-		" *[,;()=]") );
-	xNewY = new QRegExp( QString(
-		"\n *([a-zA-Z_][a-zA-Z_0-9]*) *= *new +([a-zA-Z_0-9]+)") );
-	newClassX = new QRegExp( QString("new +([a-zA-Z_][a-zA-Z_0-9]*)") );
-	xDotY = new QRegExp( QString(
-		"\\b([a-zA-Z_][a-zA-Z_0-9]*)"
-		" *(?:\\.|-&gt;|,[ \n]*S(?:IGNAL|LOT)\\() *"
-		"([a-zA-Z_][a-zA-Z_0-9]*)(?= *\\()") );
-	staticZOfY = new QRegExp( QString(
-		"[\n:;{(=] *(([a-zA-Z_0-9]+)::([a-zA-Z_0-9]+))(?= *\\()") );
-	classX = new QRegExp( QString(
-		":[ \n]*(?:p(?:ublic|r(?:otected|ivate))[ \n]+)?"
-		"([a-zA-Z_][a-zA-Z_0-9]*)") );
-	globalY = new QRegExp( QString(
-		"([\n{()=] *)([a-zA-Z_][a-zA-Z_0-9]*)[ \n]*\\(") );
-    }
+    static QRegExp amp( QChar('&') );
+    static QRegExp lt( QChar('<') );
+    static QRegExp gt( QChar('>') );
+    static QRegExp ginclude( QString("#include +&lt;([^&]*)&gt;") );
+    static QRegExp linclude( QString("#include +\"([^\"]*)\"") );
+    static QRegExp xInheritsY( QString(
+		"class +(?:[a-zA-Z_0-9]+[ \n]+)*([a-zA-Z_0-9]+)[ \n]*"
+		":[ \n]*public[ \n]+([a-zA-Z_0-9]+)") );
+    static QRegExp yHasTypeX( QString(
+	    "(?:[\n:;{(]|const) +([a-zA-Z_][a-zA-Z_0-9]*)"
+	    "(?:&lt;[^;{}]+&gt;)?(?: *[*&] *| +)([a-zA-Z_][a-zA-Z_0-9]*)?"
+	    " *[,;()=]") );
+    static QRegExp xNewY( QString(
+	    "\n *([a-zA-Z_][a-zA-Z_0-9]*) *= *new +([a-zA-Z_0-9]+)") );
+    static QRegExp newClassX( QString("new +([a-zA-Z_][a-zA-Z_0-9]*)") );
+    static QRegExp xDotY( QString(
+	    "\\b([a-zA-Z_][a-zA-Z_0-9]*)"
+	    " *(?:\\.|-&gt;|,[ \n]*S(?:IGNAL|LOT)\\() *"
+	    "([a-zA-Z_][a-zA-Z_0-9]*)(?= *\\()") );
+    static QRegExp staticZOfY( QString(
+	    "[\n:;{(=] *(([a-zA-Z_0-9]+)::([a-zA-Z_0-9]+))(?= *\\()") );
+    static QRegExp classX( QString(
+	    ":[ \n]*(?:p(?:ublic|r(?:otected|ivate))[ \n]+)?"
+	    "([a-zA-Z_][a-zA-Z_0-9]*)") );
+    static QRegExp globalY( QString(
+	    "([\n{()=] *)([a-zA-Z_][a-zA-Z_0-9]*)[ \n]*\\(") );
 
     static int funique = 1;
 
-    QString t = code;
+    QString t = untabified( code );
     int k;
-
-    /*
-      Untabify.
-    */
-    int n = 0;
-    for ( int i = 0; i < (int) t.length(); i++ ) {
-	if ( t[i] == QChar('\t') ) {
-	    t.replace( i, 1, QString("        " + n) );
-	    n = 1;
-	}
-
-	if ( n == 7 || t[i] == QChar('\n') )
-	    n = 0;
-	else
-	    n++;
-    }
 
     /*
       HTMLize.
     */
-    t.replace( *amp, QString("&amp;") );
-    t.replace( *lt, QString("&lt;") );
-    t.replace( *gt, QString("&gt;") );
+    t.replace( amp, QString("&amp;") );
+    t.replace( lt, QString("&lt;") );
+    t.replace( gt, QString("&gt;") );
 
     if ( res == 0 || !config->autoHrefs() )
 	return t;
@@ -109,27 +92,25 @@ QString processCodeHtml( const QString& code, const Resolver *res,
       Add links to global include files.
     */
     k = 0;
-    while ( (k = t.find(*ginclude, k)) != -1 ) {
-	QString fn = ginclude->cap( 1 );
+    while ( (k = ginclude.search(t, k)) != -1 ) {
+	QString fn = ginclude.cap( 1 );
 	QString newFn = metaRes.href( fn );
 	if ( newFn.length() != fn.length() )
-	    t.replace( ginclude->pos(1), fn.length(), newFn );
+	    t.replace( ginclude.pos(1), fn.length(), newFn );
 	k++;
     }
 
     /*
-      Derive inheritance information from class definitions or from
-      constructors.  Class definitions are more reliable, but they require more
-      work.
+      Derive inheritance information from class definitions.
     */
     QMap<QString, StringSet> cinherits;
     QString bigt = t;
 
-    if ( config->readExampleHeaders() && !dirPath.isEmpty() ) {
+    if ( !dirPath.isEmpty() ) {
 	QDir dir( dirPath );
 	k = 0;
-	while ( (k = t.find(*linclude, k)) != -1 ) {
-	    QString fn = linclude->cap( 1 );
+	while ( (k = linclude.search(t, k)) != -1 ) {
+	    QString fn = linclude.cap( 1 );
 	    if ( dir.exists(fn) ) {
 		QFile f( dir.filePath(fn) );
 		if ( f.open(IO_ReadOnly) ) {
@@ -138,16 +119,16 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 		    f.close();
 		}
 	    }
-	    k += linclude->matchedLength();
+	    k += linclude.matchedLength();
 	}
     }
 
     k = 0;
-    while ( (k = bigt.find(*xInheritsY, k)) != -1 ) {
-	QString x = xInheritsY->cap( 1 );
-	QString y = xInheritsY->cap( 2 );
+    while ( (k = xInheritsY.search(bigt, k)) != -1 ) {
+	QString x = xInheritsY.cap( 1 );
+	QString y = xInheritsY.cap( 2 );
 	cinherits[x].insert( y );
-	k += xInheritsY->matchedLength();
+	k += xInheritsY.matchedLength();
     }
 
     metaRes.setClassInheritanceMap( cinherits );
@@ -167,7 +148,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 		"::([a-zA-Z_0-9]+)[ \n]*\\([^)]*(?:\\([^)]*\\)[^)]*)?\\)[ \n]*"
 		"(?:const[ \n]*)?[{:]") );
 	k = 0;
-	while ( (k = t.find(memberX, k)) != -1 ) {
+	while ( (k = memberX.search(t, k)) != -1 ) {
 	    classAtOffset.insert( k, c.key() );
 	    QString x = memberX.cap( 1 );
 	    int xpos = memberX.pos( 1 );
@@ -198,10 +179,10 @@ QString processCodeHtml( const QString& code, const Resolver *res,
     */
     QMap<QString, StringSet> types;
     k = 0;
-    while ( (k = t.find(*yHasTypeX, k)) != -1 ) {
-	QString x = yHasTypeX->cap( 1 );
-	int xpos = yHasTypeX->pos( 1 );
-	QString y = yHasTypeX->cap( 2 );
+    while ( (k = yHasTypeX.search(t, k)) != -1 ) {
+	QString x = yHasTypeX.cap( 1 );
+	int xpos = yHasTypeX.pos( 1 );
+	QString y = yHasTypeX.cap( 2 );
 
 	QString newX = metaRes.href( x );
 	if ( newX.length() != x.length() )
@@ -213,7 +194,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	  Without the minus one at the end, 'void member(Class var)' would give
 	  'member' as a variable of type 'void', but would ignore 'Class var'.
 	*/
-	k += yHasTypeX->matchedLength() + newX.length() - x.length() - 1;
+	k += yHasTypeX.matchedLength() + newX.length() - x.length() - 1;
     }
 
     /*
@@ -225,25 +206,25 @@ QString processCodeHtml( const QString& code, const Resolver *res,
       Look for 'var = new Class'.
     */
     k = 0;
-    while ( (k = t.find(*xNewY, k)) != -1 ) {
-	QString x = xNewY->cap( 1 );
-	QString y = xNewY->cap( 2 );
+    while ( (k = xNewY.search(t, k)) != -1 ) {
+	QString x = xNewY.cap( 1 );
+	QString y = xNewY.cap( 2 );
 	types[x].insert( y );
-	k += xNewY->matchedLength();
+	k += xNewY.matchedLength();
     }
 
     /*
       Add link to 'new Class'.
     */
     k = 0;
-    while ( (k = t.find(*newClassX, k)) != -1 ) {
-	QString x = newClassX->cap( 1 );
+    while ( (k = newClassX.search(t, k)) != -1 ) {
+	QString x = newClassX.cap( 1 );
 
 	QString newX = metaRes.href( x );
 	if ( newX.length() != x.length() )
-	    t.replace( k + newClassX->matchedLength() - x.length(), x.length(),
+	    t.replace( k + newClassX.matchedLength() - x.length(), x.length(),
 		       newX );
-	k += newClassX->matchedLength() + newX.length() - x.length();
+	k += newClassX.matchedLength() + newX.length() - x.length();
     }
 
     /*
@@ -255,10 +236,10 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	  var, SLOT(method()).
     */
     k = 0;
-    while ( (k = t.find(*xDotY, k)) != -1 ) {
-	QString x = xDotY->cap( 1 );
-	QString y = xDotY->cap( 2 );
-	int ypos = xDotY->pos( 2 );
+    while ( (k = xDotY.search(t, k)) != -1 ) {
+	QString x = xDotY.cap( 1 );
+	QString y = xDotY.cap( 2 );
+	int ypos = xDotY.pos( 2 );
 
 	QStringList::ConstIterator s = types[x].begin();
 	while ( s != types[x].end() ) {
@@ -270,37 +251,37 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	    }
 	    ++s;
 	}
-	k += xDotY->matchedLength();
+	k += xDotY.matchedLength();
     }
 
     /*
       Add link to 'Class::method()'.
     */
     k = 0;
-    while ( (k = t.find(*staticZOfY, k)) != -1 ) {
-	QString x = staticZOfY->cap( 1 );
-	QString y = staticZOfY->cap( 2 );
-	QString z = staticZOfY->cap( 3 );
+    while ( (k = staticZOfY.search(t, k)) != -1 ) {
+	QString x = staticZOfY.cap( 1 );
+	QString y = staticZOfY.cap( 2 );
+	QString z = staticZOfY.cap( 3 );
 
 	QString newZ = metaRes.href( x, z );
 	if ( newZ.length() != z.length() )
-	    t.replace( k + staticZOfY->matchedLength() - z.length(), z.length(),
+	    t.replace( k + staticZOfY.matchedLength() - z.length(), z.length(),
 		       newZ );
-	k += staticZOfY->matchedLength() + newZ.length() - z.length();
+	k += staticZOfY.matchedLength() + newZ.length() - z.length();
     }
 
     /*
       Add link to ': Class'.
     */
     k = 0;
-    while ( (k = t.find(*classX, k)) != -1 ) {
-	QString x = classX->cap( 1 );
+    while ( (k = classX.search(t, k)) != -1 ) {
+	QString x = classX.cap( 1 );
 
 	QString newX = metaRes.href( x );
 	if ( newX.length() != x.length() )
-	    t.replace( k + classX->matchedLength() - x.length(), x.length(),
+	    t.replace( k + classX.matchedLength() - x.length(), x.length(),
 		       newX );
-	k += classX->matchedLength() + newX.length() - x.length();
+	k += classX.matchedLength() + newX.length() - x.length();
     }
 
     /*
@@ -308,9 +289,9 @@ QString processCodeHtml( const QString& code, const Resolver *res,
     */
     QString curClass;
     k = 0;
-    while ( (k = t.find(*globalY, k)) != -1 ) {
-	QString x = globalY->cap( 1 );
-	QString y = globalY->cap( 2 );
+    while ( (k = globalY.search(t, k)) != -1 ) {
+	QString x = globalY.cap( 1 );
+	QString y = globalY.cap( 2 );
 
 	while ( !classAtOffset.isEmpty() && classAtOffset.begin().key() < k ) {
 	    curClass = *classAtOffset.begin();
@@ -327,7 +308,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	/*
 	  Minus one for the same reason as elsewhere.
 	*/
-	k += globalY->matchedLength() + newY.length() - y.length() - 1;
+	k += globalY.matchedLength() + newY.length() - y.length() - 1;
     }
     return t;
 }

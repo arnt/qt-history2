@@ -1,12 +1,12 @@
-win32:TEMPLATE= app
-win32:CONFIG	+= qt warn_on release console
-unix:TEMPLATE	= app
-unix:CONFIG	= console release qtinc
-DEFINES	+= QT_NO_CODECS QT_LITE_UNICODE
+TEMPLATE	= app
+CONFIG		= warn_on console release
+win32:CONFIG	+= qt
+unix:CONFIG	+= qtinc
+unix:DEFINES	+= QT_NO_CODECS QT_LITE_UNICODE
 INCLUDEPATH	= ../../include ../../src/tools
 DEPENDPATH	= ../../include ../../src/tools
 OBJECTS_DIR	= .
-HEADERS	= binarywriter.h \
+HEADERS		= binarywriter.h \
 		  codechunk.h \
 		  codeprocessor.h \
 		  config.h \
@@ -48,7 +48,7 @@ SOURCES		= binarywriter.cpp \
 		  tokenizer.cpp \
 		  walkthrough.cpp 
 
-unix:SOURCES+=../../src/tools/qbitarray.cpp \
+unix:SOURCES	+= ../../src/tools/qbitarray.cpp \
 		  ../../src/tools/qbuffer.cpp \
 		  ../../src/tools/qcollection.cpp \
 		  ../../src/tools/qcstring.cpp \
@@ -71,7 +71,7 @@ unix:SOURCES+=../../src/tools/qbitarray.cpp \
 		  ../../src/codecs/qtextcodec.cpp \
 		  ../../src/tools/qtextstream.cpp \
 		  ../../src/tools/qdir_unix.cpp \
-		   ../../src/tools/qfile_unix.cpp \
-		   ../../src/tools/qfileinfo_unix.cpp
+		  ../../src/tools/qfile_unix.cpp \
+		  ../../src/tools/qfileinfo_unix.cpp
 
 TARGET		= qdoc
