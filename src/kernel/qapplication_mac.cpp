@@ -1351,7 +1351,8 @@ int QApplication::macProcessEvent(MSG * m)
     
 	if(widget) {
 	    int mychar=get_key(er->message & charCodeMask);
-	    QKeyEvent ke(QEvent::KeyPress,mychar, mychar, get_modifiers(er->modifiers));
+	    QKeyEvent ke(QEvent::KeyPress,mychar, mychar, 
+			 get_modifiers(er->modifiers), QString(QChar(mychar)));
 	    QApplication::sendEvent(widget,&ke);
 	} 
     } else if(er->what == keyUp) {
@@ -1364,7 +1365,8 @@ int QApplication::macProcessEvent(MSG * m)
     
 	if(widget) {
 	    int mychar=get_key(er->message & charCodeMask);
-	    QKeyEvent ke(QEvent::KeyRelease,mychar, mychar, get_modifiers(er->modifiers));
+	    QKeyEvent ke(QEvent::KeyRelease,mychar, mychar, 
+			 get_modifiers(er->modifiers), QString(QChar(mychar)));
 	    QApplication::sendEvent(widget,&ke);
 	} 
     } else if(er->what == activateEvt) {
