@@ -40,7 +40,7 @@ public:
     static void destroy(QPersistentModelIndexData *data);
 };
 
-class Q_GUI_EXPORT QAbstractItemModelPrivate : public QObjectPrivate
+class Q_CORE_EXPORT QAbstractItemModelPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemModel)
 
