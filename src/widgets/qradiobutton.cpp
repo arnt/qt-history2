@@ -75,10 +75,7 @@
 
   <img src=qradiobt-m.png> <img src=qradiobt-w.png>
 
-  \important text, setText, text, pixmap, setPixmap, accel, setAccel,
-  isToggleButton, setDown, isDown, isOn, state, autoRepeat,
-  isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released,
-  clicked, toggled, state stateChanged
+  \important text, setText, text, pixmap, setPixmap, accel, setAccel, isToggleButton, setDown, isDown, isOn, state, autoRepeat, isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released, clicked, toggled, state stateChanged
 
   \sa QPushButton QToolButton
   \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink

@@ -14,7 +14,7 @@
 \class QMenuData
 \class QMessageBox
 \class QPopupMenu
-\class QPrintDialog
+#\class QPrintDialog
 \class QProgressDialog
 \class QTabDialog
 \class QToolBar

@@ -1,8 +1,8 @@
 \title XML with Qt
 
 \page xml.html
-\page xml-dom.html
-\page xml-sax.html
+#\page xml-dom.html
+#\page xml-sax.html
 \class QDomAttr
 \class QDomCDATASection
 \class QDomCharacterData

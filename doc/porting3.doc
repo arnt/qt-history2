@@ -92,6 +92,7 @@ Header files that you might need to add #include directives for include:
 \i \c <qcursor.h>
 \i \c <qregexp.h>
 \i \c <qpainter.h>
+\i \c <qpen.h>
 \i \c <qstringlist.h>
 \i \c <qstrlist.h>
 \i \c <qvaluelist.h>

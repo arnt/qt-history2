@@ -9,7 +9,7 @@
 \class QComboTableItem
 \class QDateEdit
 \class QDateTimeEdit
-\class QDateTimeEditBase
+#\class QDateTimeEditBase
 \class QDial
 \class QFilePreview
 \class QFrame

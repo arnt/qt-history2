@@ -1009,7 +1009,7 @@ void QWidget::setMouseTracking( bool enable )
 	    XSelectExtensionEvent( x11Display(), winId(), event_list,
 				   curr_xinput_events );
 	}
-#endif	
+#endif
     }
 }
 
@@ -1303,7 +1303,7 @@ void QWidget::update( int x, int y, int w, int h )
   \overload void QWidget::update( const QRect &r )
   Updates a rectangle \a r inside the widget
   unless updates are disabled or the widget is hidden.
-    
+
   This function does not cause an immediate repaint - rather, it
   schedules a paint event for processing when Qt returns to the main
   event loop. This permits Qt to optimize for more speed and less
@@ -1878,7 +1878,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     updateGeometry();
 }
 
-/*! \overload 
+/*! \overload
 
     Sets the x (width) size increment to \a w and the y (height) size
     increment to \a h.
@@ -2370,6 +2370,10 @@ void QWidget::destroyInputContext()
 }
 
 
+/*!
+   This function is called when the user finishes input composition,
+   e.g. changes focus to another widget, moves the cursor, etc.
+*/
 void QWidget::resetInputContext()
 {
 #ifndef QT_NO_XIM
