@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qunicodetables_p.h"
 #include "qunicodedata.cpp"
 
@@ -544,7 +545,7 @@ const unsigned char qt_scriptTable[256] =
     Unicode, Han, Han, 0x80+SCRIPTS_fb, Arabic, Arabic, 0x80+SCRIPTS_fe, 0x80+SCRIPTS_ff
 };
 
-int scriptForChar(ushort uc)
+int qt_scriptForChar(ushort uc)
 {
     unsigned char script = qt_scriptTable[(uc>>8)];
     if (script >= SCRIPTS_INDIC) {

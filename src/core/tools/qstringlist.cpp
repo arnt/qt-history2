@@ -450,4 +450,3 @@
     QStringList::ConstIterator i = list.isEmpty() ? list.end() : --list.end();
     \endcode
 */
-

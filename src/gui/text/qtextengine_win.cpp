@@ -595,7 +595,7 @@ void QTextEngine::shapeText(int item) const
             if (script == QFont::Latin && script_prop->fAmbiguousCharSet) {
                 // either some asian language or something Uniscribe doesn't recognise
                 // we look at the first character to find out what it is
-                script = (QFont::Script)scriptForChar(string.unicode()[si.position].unicode());
+                script = (QFont::Script)qt_scriptForChar(string.unicode()[si.position].unicode());
                 if ((script >= QFont::Han && script <= QFont::Yi)
                     || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
                     // maybe some asian language

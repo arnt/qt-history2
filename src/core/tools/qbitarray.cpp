@@ -12,8 +12,8 @@
 ****************************************************************************/
 
 #include "qbitarray.h"
-#include <string.h>
 #include <qdatastream.h>
+#include <string.h>
 
 /*!
     \class QBitArray

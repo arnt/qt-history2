@@ -19,9 +19,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef Q_OS_TEMP
-#include <time.h>
-#endif
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -2808,4 +2805,3 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dt)
     Use the currentDateTime() overload that takes no parameters
     instead.
 */
-

@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include <sys/types.h>
+#include "qplatformdefs.h"
+#include "qlocale.h"
+#include "qlocale_p.h"
+#include "qnamespace.h"
+
 #include <ctype.h>
 #include <float.h>
 #include <limits.h>
 #include <math.h>
 #include <stdlib.h>
-
-#include "qlocale.h"
-#include "qlocale_p.h"
-#include "qnamespace.h"
 
 #if defined(Q_WS_WIN)
 #   include "qt_windows.h"

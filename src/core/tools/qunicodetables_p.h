@@ -143,7 +143,7 @@ inline int lineBreakClass(const QChar &ch)
     return QUnicodeTables::lineBreakClass(ch.unicode());
 }
 
-Q_CORE_EXPORT int scriptForChar(ushort uc);
+Q_CORE_EXPORT int qt_scriptForChar(ushort uc);
 
 #ifdef Q_WS_X11
 #define SCRIPT_FOR_CHAR(script, c)         \
@@ -152,12 +152,12 @@ do {                                                 \
     if (_uc < 0x100) {                                \
         script = QFont::Latin;                \
     } else {                                         \
-        script = (QFont::Script)scriptForChar(_uc);         \
+        script = (QFont::Script)qt_scriptForChar(_uc);         \
     }                                                 \
 } while(false)
 #else
 #define SCRIPT_FOR_CHAR(script, c) \
-    script = (QFont::Script)scriptForChar((c).unicode())
+    script = (QFont::Script)qt_scriptForChar((c).unicode())
 #endif
 
 #endif

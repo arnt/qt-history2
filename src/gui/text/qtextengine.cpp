@@ -16,14 +16,12 @@
 #include "qtextengine_p.h"
 #include "qabstracttextdocumentlayout.h"
 #include "qtextlayout.h"
-
-#include <qvarlengtharray.h>
-
+#include "qvarlengtharray.h"
 #include "qscriptengine_p.h"
-#include <qfont.h>
+#include "qfont.h"
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
-#include <qstring.h>
+#include "qstring.h"
 #include <private/qunicodetables_p.h>
 #include <stdlib.h>
 
@@ -181,7 +179,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
         for (int i = start; i <= stop; i++) {
 
             unsigned short uc = text[i].unicode();
-            QFont::Script s = (QFont::Script)scriptForChar(uc);
+            QFont::Script s = (QFont::Script)qt_scriptForChar(uc);
             if (s == QFont::UnknownScript || s == QFont::CombiningMarks)
                 s = script;
 
@@ -197,7 +195,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
         for (int i = start; i <= stop; i++) {
 
             unsigned short uc = text[i].unicode();
-            QFont::Script s = (QFont::Script)scriptForChar(uc);
+            QFont::Script s = (QFont::Script)qt_scriptForChar(uc);
             if (s == QFont::UnknownScript || s == QFont::CombiningMarks)
                 s = script;
 
