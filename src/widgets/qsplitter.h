@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#6 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#7 $
 **
 ** Defintion of  QSplitter class
 **
@@ -19,7 +19,7 @@ class QInternalSplitter;
 
 class QSplitter : public QFrame
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
     enum Orientation { Horizontal, Vertical };
 
@@ -48,7 +48,7 @@ protected:
     void resizeEvent( QResizeEvent * );
 
     void moveSplitter( QCOORD pos );
-    virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y, 
+    virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y,
 			       QCOORD w, QCOORD h );
 
     int adjustPos( int );
