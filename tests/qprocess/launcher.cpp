@@ -22,7 +22,7 @@ static QColor qtgreen(0xa1,0xc4,0x10);
 Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_Customize )
 {
     int i;
-    QWidget *d = QApplication::desktop();
+//    QWidget *d = QApplication::desktop();
     QPushButton *pb;
     QuickButton *qb;
 
@@ -103,8 +103,10 @@ void Launcher::nextInfo()
 void Launcher::run( const char*path, const char* cmd )
 {
     QStringList list = QStringList::split( QChar(' '), cmd );
-    QString command = list.first();
-    list.remove( list.begin() );
+// ###
+//    QString command = list.first();
+//    list.remove( list.begin() );
+//    QProcess proc( p.absFilePath(command), list );
     list.append( "-style" );
     list.append( "windows" );
 
@@ -112,7 +114,7 @@ void Launcher::run( const char*path, const char* cmd )
     p.cd( path );
     p.cd( suffixDir );
 
-    QProcess proc( p.absFilePath(command).latin1(), list );
+    QProcess proc( list );
 
     QDir p2( baseDir );
     p2.cd( path );

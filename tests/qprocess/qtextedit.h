@@ -2,41 +2,37 @@
 #define QTEXTEDIT_H
 
 #include <qscrollview.h>
+#include <qstylesheet.h>
+#include <qpainter.h>
 
 class QPainter;
-class QTextEditDocument;
-class QTextEditCursor;
+class QTextDocument;
+class QTextCursor;
 class QKeyEvent;
 class QResizeEvent;
 class QMouseEvent;
 class QTimer;
-class QTextEditString;
+class QTextString;
 class QVBox;
 class QListBox;
-class QTextEditCommand;
-class QTextEditParag;
-class QTextEditFormat;
+class QTextCommand;
+class QTextParag;
+class QTextFormat;
 class QFont;
 class QColor;
-class QStyleSheetItem;
 
 class QTextEdit : public QScrollView
 {
     Q_OBJECT
 
 public:
-    enum ParagType {
-	Normal = 0,
-	BulletList,
-	EnumList
-    };
-
     QTextEdit( QWidget *parent, const QString &fn, bool tabify = FALSE );
     QTextEdit( QWidget *parent = 0, const char *name = 0 );
     virtual ~QTextEdit();
 
 #if defined(QTEXTEDIT_OPEN_API)
-    QTextEditDocument *document() const;
+    QTextDocument *document() const;
+    QTextCursor *textCursor() const;
 #endif
 
     QString text() const;
@@ -56,7 +52,6 @@ public:
     int linesOfParagraph( int parag ) const;
     int lineOfChar( int parag, int chr );
 
-    bool isReadOnly() const;
     bool isModified() const;
 
     bool italic() const;
@@ -66,9 +61,39 @@ public:
     int pointSize() const;
     QColor color() const;
     QFont font() const;
-    ParagType paragType() const;
     int alignment() const;
     int maxLines() const;
+
+    const QStyleSheet* styleSheet() const;
+    void setStyleSheet( const QStyleSheet* styleSheet );
+
+    void setPaper( const QBrush& pap);
+    QBrush paper() const;
+
+    void setPaperColorGroup( const QColorGroup& colgrp);
+    QColorGroup paperColorGroup() const;
+
+    void setLinkColor( const QColor& );
+    QColor linkColor() const;
+
+    void setLinkUnderline( bool );
+    bool linkUnderline() const;
+
+    void setMimeSourceFactory( const QMimeSourceFactory* factory );
+    const QMimeSourceFactory* mimeSourceFactory() const;
+
+    int heightForWidth( int w ) const;
+
+    void append( const QString& text );
+
+    bool hasSelectedText() const;
+    QString selectedText() const;
+
+    QString context() const;
+
+    QString documentTitle() const;
+
+    void scrollToAnchor( const QString& name );
 
 public slots:
     virtual void undo();
@@ -87,14 +112,14 @@ public slots:
     virtual void setPointSize( int s );
     virtual void setColor( const QColor &c );
     virtual void setFont( const QFont &f );
-    virtual void setFormat( QStyleSheetItem *f );
 
-    virtual void setParagType( ParagType t );
     virtual void setAlignment( int );
 
+    virtual void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
+
     virtual void setTextFormat( Qt::TextFormat f );
-    virtual void setText( const QString &txt ) { setText( txt, FALSE ); }
-    virtual void setText( const QString &txt, bool tabify );
+    virtual void setText( const QString &txt, const QString &context = QString::null ) { setText( txt, context, FALSE ); }
+    virtual void setText( const QString &txt, const QString &context, bool tabify );
 
     virtual void load( const QString &fn ) { load( fn, FALSE ); }
     virtual void load( const QString &fn, bool tabify );
@@ -105,7 +130,6 @@ public slots:
     virtual void setSelection( int parag_from, int index_from,
 			       int parag_to, int index_to );
 
-    virtual void setReadOnly( bool ro );
     virtual void setModified( bool m );
     virtual void selectAll( bool select );
 
@@ -116,11 +140,12 @@ signals:
     void currentFontChanged( const QFont &f );
     void currentColorChanged( const QColor &c );
     void currentAlignmentChanged( int );
-    void currentParagTypeChanged( QTextEdit::ParagType );
     void textChanged();
+    void highlighted( const QString& );
+    void linkClicked( const QString& );
 
 protected:
-    void setFormat( QTextEditFormat *f, int flags );
+    void setFormat( QTextFormat *f, int flags );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void keyPressEvent( QKeyEvent *e );
     void resizeEvent( QResizeEvent *e );
@@ -134,6 +159,10 @@ protected:
     void contentsDropEvent( QDropEvent *e );
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
+#if !defined(QTEXTEDIT_OPEN_API)
+    QTextDocument *document() const;
+    QTextCursor *textCursor() const;
+#endif
 
 private slots:
     void formatMore();
@@ -163,7 +192,7 @@ private:
 
     struct UndoRedoInfo {
 	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected };
-	UndoRedoInfo( QTextEditDocument *d ) : type( Invalid ), doc( d )
+	UndoRedoInfo( QTextDocument *d ) : type( Invalid ), doc( d )
 	{ text = QString::null; id = -1; index = -1; }
 	void clear();
 	inline bool valid() const { return !text.isEmpty() && id >= 0&& index >= 0; }
@@ -172,19 +201,16 @@ private:
 	int id;
 	int index;
 	Type type;
-	QTextEditDocument *doc;
+	QTextDocument *doc;
     };
 
 private:
-#if !defined(QTEXTEDIT_OPEN_API)
-    QTextEditDocument *document() const;
-#endif
-
-    QPixmap *bufferPixmap( const QSize &s );
+    virtual bool isReadOnly() const { return FALSE; }
+    virtual bool linksEnabled() const { return TRUE; }
     void init();
     void ensureCursorVisible();
     void drawCursor( bool visible );
-    void placeCursor( const QPoint &pos, QTextEditCursor *c = 0 );
+    void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
     void moveCursor( int direction, bool shift, bool control );
     void moveCursor( int direction, bool control );
     void removeSelectedText();
@@ -193,24 +219,24 @@ private:
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void repaintChanged();
     void updateCurrentFormat();
+    void handleReadOnlyKeyEvent( QKeyEvent *e );
+    void makeParagVisible( QTextParag *p );
 
 private:
-    QTextEditDocument *doc;
-    QTextEditCursor *cursor;
+    QTextDocument *doc;
+    QTextCursor *cursor;
     bool drawAll;
     bool mousePressed;
-    QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer;
-    QTextEditParag *lastFormatted;
+    QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer, *resizeTimer;
+    QTextParag *lastFormatted;
     int interval;
     QVBox *completionPopup;
     QListBox *completionListBox;
     int completionOffset;
     UndoRedoInfo undoRedoInfo;
-    QTextEditFormat *currentFormat;
+    QTextFormat *currentFormat;
     QPainter painter;
-    QPixmap *doubleBuffer;
     int currentAlignment;
-    ParagType currentParagType;
     bool inDoubleClick;
     QPoint oldMousePos, mousePos;
     QPixmap *buf_pixmap;
@@ -218,12 +244,19 @@ private:
     bool readOnly, modified, mightStartDrag;
     QPoint dragStartPos;
     int mLines;
+    bool firstResize;
+    QString onLink;
 
 };
 
-inline QTextEditDocument *QTextEdit::document() const
+inline QTextDocument *QTextEdit::document() const
 {
     return doc;
+}
+
+inline QTextCursor *QTextEdit::textCursor() const
+{
+    return cursor;
 }
 
 #endif

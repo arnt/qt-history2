@@ -5,7 +5,6 @@
 
 #define QTEXTEDIT_OPEN_API
 #include "qtextedit.h"
-#include "qtexteditintern_p.h"
 #include "qcppsyntaxhighlighter.h"
 
 class SourceViewer : public QVBox

@@ -1,9 +1,9 @@
 #ifndef QCPPSYNTAXHIGHLIGHTER_H
 #define QCPPSYNTAXHIGHLIGHTER_H
 
-#include "qtexteditintern_p.h"
+#include "qrichtext_p.h"
 
-class QCppSyntaxHighlighter : public QTextEditSyntaxHighlighter
+class QCppSyntaxHighlighter : public QTextSyntaxHighlighter
 {
 public:
     enum CppIds {
@@ -15,28 +15,28 @@ public:
 	PreProcessor
     };
 
-    QCppSyntaxHighlighter( QTextEditDocument *d );
+    QCppSyntaxHighlighter( QTextDocument *d );
     virtual ~QCppSyntaxHighlighter() {}
-    void highlighte( QTextEditParag *string, int start, bool invalidate = TRUE );
+    void highlighte( QTextParag *string, int start, bool invalidate = TRUE );
 
 private:
-    QTextEditFormat *format( int id );
-    void addFormat( int id, QTextEditFormat *f );
+    QTextFormat *format( int id );
+    void addFormat( int id, QTextFormat *f );
     void removeFormat( int id );
 
     void createFormats();
 
-    QTextEditFormat *lastFormat;
+    QTextFormat *lastFormat;
     int lastFormatId;
-    QIntDict<QTextEditFormat> formats;
+    QIntDict<QTextFormat> formats;
 
 };
 
-class QCppIndent : public QTextEditIndent
+class QCppIndent : public QTextIndent
 {
 public:
-    QCppIndent( QTextEditDocument *d );
-    void indent( QTextEditParag *parag, int *oldIndent, int *newIndent );
+    QCppIndent( QTextDocument *d );
+    void indent( QTextParag *parag, int *oldIndent, int *newIndent );
 
 };
 

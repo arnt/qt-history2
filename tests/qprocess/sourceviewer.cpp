@@ -3,7 +3,7 @@
 #include "sourceviewer.h"
 
 SourceViewer::SourceViewer( const QDir &directory, QWidget *parent, const char *name, WFlags f, bool allowLines ) 
-    : QVBox( parent, name, f, allowLines ) 
+    : QVBox( parent, name, allowLines ) 
 {
     init( directory );
 }

@@ -6,7 +6,6 @@ HEADERS		= commands.h \
 		  qcppsyntaxhighlighter.h \
 		  qrichtext_p.h \
 		  qtextedit.h \
-		  qtexteditintern_p.h \
 		  quickbutton.h \
 		  sourceviewer.h
 SOURCES		+= launcher.cpp \
@@ -14,7 +13,6 @@ SOURCES		+= launcher.cpp \
 		   qcppsyntaxhighlighter.cpp \
 		   qrichtext.cpp \
 		   qtextedit.cpp \
-		   qtexteditintern.cpp \
 		   quickbutton.cpp \
 		   sourceviewer.cpp
 INTERFACES	= 
