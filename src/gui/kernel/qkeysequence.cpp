@@ -399,8 +399,10 @@ int QKeySequence::decodeString(const QString &str)
         bool found = false;
         for (int tran = 0; tran < 2; ++tran) {
             for (int i = 0; keyname[i].name; ++i) {
-                if (tran ? accel == QAccel::tr(keyname[i].name)
-                          : accel == keyname[i].name) {
+                QString keyName(tran
+                                ? QAccel::tr(keyname[i].name)
+                                : keyname[i].name);
+                if (accel == keyName.toLower()) {
                     ret |= keyname[i].key;
                     found = true;
                     break;
