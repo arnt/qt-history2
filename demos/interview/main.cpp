@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
     QTreeView *tree = new QTreeView(&page);
     tree->setModel(data);
     tree->setSelectionModel(selections);
+    tree->setUniformRowHeights(true);
 
     QListView *list = new QListView(&page);
     list->setModel(data);
