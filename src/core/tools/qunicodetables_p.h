@@ -49,6 +49,7 @@ namespace QUnicodeTables {
     Q_CORE_EXPORT QChar::Joining QT_FASTCALL joining(uint ucs4);
     Q_CORE_EXPORT bool QT_FASTCALL mirrored(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL mirroredChar(uint ucs4);
+    Q_CORE_EXPORT LineBreakClass QT_FASTCALL lineBreakClass(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL upper(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL lower(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL digitValue(uint ucs4);
@@ -112,7 +113,10 @@ inline bool isSpace(const QChar &ch)
     return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
 }
 
-Q_CORE_EXPORT int lineBreakClass(const QChar &ch);
+inline int lineBreakClass(const QChar &ch)
+{
+    return QUnicodeTables::lineBreakClass(ch.unicode());
+}
 
 Q_CORE_EXPORT int scriptForChar(ushort uc);
 
