@@ -7,7 +7,7 @@
 BASEDIR		= $(QTDIR)
 INCDIR		= $(BASEDIR)/include
 LIBDIR		= $(BASEDIR)/lib
-DISTDIR		= /tmp/qt-0.93
+DISTDIR		= /tmp/qt-0.94
 
 ####### Compiler
 
@@ -21,7 +21,7 @@ CC		= gcc
 ####### Targets
 
 STATICTARGET	= $(LIBDIR)/libqt.a
-SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.3
+SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.4
 
 #######	Sub directories (excluding moc)
 
