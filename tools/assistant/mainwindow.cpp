@@ -614,27 +614,32 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
     hw->setCursor(Qt::arrowCursor);
 
     hw->viewport()->setUpdatesEnabled(false);
-    int minPar = INT_MAX;
-    int minIndex = INT_MAX;
+
+    QTextCharFormat marker;
+    marker.setTextColor(Qt::red);
+
+    QTextCursor firstHit = hw->textCursor();
+    firstHit.movePosition(QTextCursor::Start);
+
     foreach (QString term, terms) {
-        /* ### FIXME
-        int para = 0;
-        int index = 0;
-        bool found = hw->find(term, false, true, true, &para, &index);
+        QTextCursor c = hw->textCursor();
+        c.movePosition(QTextCursor::Start);
+        hw->setTextCursor(c);
+
+        bool found = hw->find(term, QTextDocument::FindWholeWords);
         while (found) {
-            if (para < minPar) {
-                minPar = para;
-                minIndex = index;
-            }
-            hw->setColor(Qt::red);
-            found = hw->find(term, false, true, true);
+            QTextCursor hit = hw->textCursor();
+            if (hit.position() < firstHit.position())
+                firstHit = hit;
+
+            hit.mergeCharFormat(marker);
+            found = hw->find(term, QTextDocument::FindWholeWords);
         }
-        */
     }
+    hw->setTextCursor(firstHit);
+
     hw->blockScrolling(false);
     hw->viewport()->setUpdatesEnabled(true);
-    // ### FIXME
-    //hw->setCursorPosition(minPar, minIndex);
 }
 
 
