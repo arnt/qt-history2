@@ -165,7 +165,8 @@ QStatusBar::~QStatusBar()
 
 
 /*!
-    Adds \a widget to this status bar.
+    Adds \a widget to this status bar. \a widget is reparented if it
+    isn't already a child of the QStatusBar.
 
     \a widget is permanently visible if \a permanent is TRUE and may
     be obscured by temporary messages if \a permanent is FALSE. The
@@ -192,6 +193,9 @@ void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
 #endif
 	return;
     }
+
+    if ( widget->parentWidget() != this )
+	widget->reparent( this, QPoint(0, 0), TRUE );
 
     QStatusBarPrivate::SBItem* item
 	= new QStatusBarPrivate::SBItem( widget, stretch, permanent );
