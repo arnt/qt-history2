@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#173 $
 **
 ** Implementation of event classes
 **
@@ -54,7 +54,7 @@
   Generally, events come from the underlying window system (spontaneous()
   returns TRUE) but it is also possible to manually send events through the
   QApplication class using QApplication::sendEvent() and
-  QApplication::postEvent() (spontaneous() returns FALSE). 
+  QApplication::postEvent() (spontaneous() returns FALSE).
 
   QObjects receive events by having their QObject::event() function
   called. The function can be reimplemented in subclasses to customize
@@ -964,10 +964,10 @@ void QFocusEvent::resetReason()
   If you want the widget to be deleted when it is closed, simply
   create it with the \c WDestructiveClose widget flag.  This is very
   useful for independent top-level windows in a multi-window
-  application. 
+  application.
 
   QObject emits the \link QObject::destroyed() destroyed()\endlink signal
-  when it is deleted.  
+  when it is deleted.
 
   If the last top-level window is closed, the
   QApplication::lastWindowClosed() signal is emitted.
@@ -1141,7 +1141,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn bool QContextMenuEvent::isAccepted() const
   Returns TRUE (which stops propagation of the event) if the receiver
-  has processed the event. 
+  has processed the event.
   \sa accept(), ignore()
 */
 
@@ -1191,6 +1191,110 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   Returns the reason for this context event.
 */
 
+
+/*!
+  \class QIMEvent qevent.h
+  \brief This class contains parameters for input method events.
+
+  Input method events are send to widgets, when an input method is
+  used to enter text into a widget. Input methods are widely used in
+  asian languages as a way to enter text.
+
+  The events are of interest to widgets, that accept keyboard input
+  and want to be able to correctly handle asian languages. Text input
+  in asian languages is usually a three step process.  When the user
+  presses the first key on a keyboard an input context is
+  created. This input context will contain a string with the typed
+  characters. With every new key pressed, the input method will try to
+  create a matching string for the text typed so far.
+
+  While the input context is active, the user can move the cursor only
+  inside the string belonging to this inut context. At some point,
+  when the user presses space, he gets into the second stage, where he
+  can choose from a number of strings that fit to the text he typed so
+  far. Typing return will then confirm his choice and the input
+  context will be closed.
+
+  These three stages are represented by three different types of
+  events. The IMStartEvent, IMComposeEvent and IMEndEvent. When a new
+  input context is created, and IMStartEvent will be send to the
+  widget and delivered to the \l QWidget::imStartEvent method. The
+  widget can then update internal data structures to reflect this.
+
+  After this, an IMComposeEvent will be send to the widget with every
+  key the user presses. It will contain the current composition string
+  the widget has to show and the current cursor position inside the
+  composition string. This string is temporary and can change with
+  every key the user types, so the widget will need to store the state
+  before the composition started (the state it had when it received
+  the IMStartEvent). IMComposeEvents will be delivered to the
+  \l QWIdget::imComposeEvent method.
+
+  Usually, widgets try to mark the part of the text that is part of
+  the current composition in a way visible to the user. Mostly this is
+  achieved by using eg. dotted underlines.
+
+  After the user selected the final string, and IMEndEvent will be
+  send to the widget. The event contains the final string the user
+  selected. This string has to be accepted as the final text the user
+  entered, and the intermediate composition string should be cleared.
+  These events are delivered to \l QWidget::imEndEvent.
+*/
+
+/*!
+  \fn  QIMEvent::QIMEvent( Type type, const QString &text, int cursorPosition )
+
+  Constructs a new QIMEvent with accept flag set to FALSE. \a Type can
+  be one of QEvent::IMStartEvent, QEvent::IMComposeEvents and
+  QEvent::IMEndEvent. \a text describes the current compostion string
+  and \a cursorPosition the current position of the cursor inside \a
+  text.
+*/
+
+/*!
+  \fn const QString &QIMEvent::text() const
+
+  Returns the composition text. This is a null string for an
+  IMStartEvent, and contains the final accepted string in the
+  IMEndEvent.
+*/
+
+/*!
+  \fn int QIMEvent::cursorPos() const
+
+  Returns the current cursor position inside the composition string.
+  Will return 0 for IMStartEvent and IMEndEvent.
+*/
+
+/*!
+  \fn bool QIMEvent::isAccepted() const
+  Returns TRUE if the receiver of the event processed the event.
+*/
+
+/*!
+  \fn void QIMEvent::accept()
+  Sets the accept flag of the input method event object.
+
+  Setting the accept parameter indicates that the receiver of the event processed
+  the input method event.
+
+  The accept flag is not set by default.
+
+  \sa ignore()
+*/
+
+
+/*!
+  \fn void QIMEvent::ignore()
+  Clears the accept flag parameter of the input method event object.
+
+  Clearing the accept parameter indicates that the event receiver does
+  not want the input method event.
+
+  The accept flag is cleared by default.
+
+  \sa accept()
+*/
 
 /*!
   \class QChildEvent qevent.h
@@ -1430,7 +1534,7 @@ QCustomEvent::QCustomEvent( int type )
   \enum QDropEvent::Action
 
   This enum describes the action which a source requests that a target
-  perform with dropped data.  
+  perform with dropped data.
 
    \value Copy  The default action.  The source simply uses the data
 	    provided in the operation.
@@ -1518,7 +1622,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \fn QDragLeaveEvent::QDragLeaveEvent()
-  Constructs a QDragLeaveEvent. 
+  Constructs a QDragLeaveEvent.
 
   Do not create a QDragLeaveEvent yourself since these objects rely on Qt's
   internal state.
@@ -1530,7 +1634,7 @@ QCustomEvent::QCustomEvent( int type )
 
   This event is sent just before QWidget::hide() returns, and also when
   a top-level window has been hidden (iconified) by the user.
-  
+
   if spontaneous() is TRUE the event originated outside the
   application - i.e., the user hid the window via the window manager
   controls, either by iconifying the window or by switching to another
