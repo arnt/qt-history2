@@ -19,7 +19,7 @@ void CppEditorBrowser::showHelp( const QString &w )
 	    word.remove( word.length() - 1, 1 );
 	word = word.lower() + ".html";
 	QStringList lst;
-	lst << "assistant" << word;
+	lst << "assistant" << "-file" << word;
 	QProcess proc( lst );
 	proc.start();
 	return;
