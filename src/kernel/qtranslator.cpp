@@ -149,10 +149,12 @@ public:
 	Offset( const QTranslatorMessage& m, int offset )
 	    : h( m.hash() ), o( offset ) { }
 
-	bool operator<( const Offset&k ) const {
-	    return ( h != k.h ) ? h < k.h : o < k.o;
+	bool operator<(const Offset &other) const {
+	    return (h != other.h) ? h < other.h : o < other.o;
 	}
-	Q_DUMMY_COMPARISON_OPERATOR(QTranslatorPrivate::Offset)
+	bool operator==(const Offset &other) const {
+	    return h == other.h && o == other.o;
+        }
 	uint h;
 	uint o;
     };
