@@ -142,11 +142,11 @@ ProjectGenerator::init()
                 if(fi.isDir()) {
                     newdir = fileFixify(newdir);
                     QStringList &subdirs = v["SUBDIRS"];
-                    if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + ".pro") &&
+                    if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + Option::pro_ext) &&
                        !subdirs.contains(newdir)) {
                         subdirs.append(newdir);
                     } else {
-                        QDir d(newdir, "*.pro");
+                        QDir d(newdir, QString("*" + Option::pro_ext));
                         d.setFilter(QDir::Files);
                         for(int i = 0; i < (int)d.count(); i++) {
                             QString nd = newdir;
@@ -185,11 +185,11 @@ ProjectGenerator::init()
                     QFileInfo fi(newdir);
                     if(fi.fileName() != "." && fi.fileName() != "..") {
                         newdir = fileFixify(newdir);
-                        if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + ".pro") &&
+                        if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + Option::pro_ext) &&
                            !subdirs.contains(newdir)) {
                            subdirs.append(newdir);
                         } else {
-                            QDir d(newdir, "*.pro");
+                            QDir d(newdir, QString("*" + Option::pro_ext));
                             d.setFilter(QDir::Files);
                             for(int i = 0; i < (int)d.count(); i++) {
                                 QString nd = newdir + QDir::separator() + d[i];
@@ -458,7 +458,7 @@ ProjectGenerator::openOutput(QFile &file, const QString &build) const
         int s = dir.lastIndexOf('/');
         if(s != -1)
             dir = dir.right(dir.length() - (s + 1));
-        file.setName(outdir + dir + ".pro");
+        file.setName(outdir + dir + Option::pro_ext);
     }
     return MakefileGenerator::openOutput(file, build);
 }

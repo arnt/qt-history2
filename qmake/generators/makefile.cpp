@@ -1509,7 +1509,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             SubTarget *st = new SubTarget;
             targets.append(st);
             st->makefile = "$(MAKEFILE)";
-            if((*it).right(4) == ".pro") {
+            if((*it).endsWith(Option::pro_ext)) {
                 int slsh = file.lastIndexOf(Option::dir_sep);
                 if(slsh != -1) {
                     st->directory = file.left(slsh+1);
@@ -1519,7 +1519,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                 }
             } else {
                 if(!file.isEmpty() && !project->isActiveConfig("subdir_first_pro"))
-                    st->profile = file.section(Option::dir_sep, -1) + ".pro";
+                    st->profile = file.section(Option::dir_sep, -1) + Option::pro_ext;
                 st->directory = file;
             }
             while(st->directory.right(1) == Option::dir_sep)
@@ -1529,8 +1529,8 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                 int new_slsh = basename.lastIndexOf(Option::dir_sep);
                 if(new_slsh != -1)
                     basename = basename.mid(new_slsh+1);
-                if(st->profile != basename + ".pro")
-                    st->makefile += "." + st->profile.left(st->profile.length() - 4); //no need for the .pro
+                if(st->profile != basename + Option::pro_ext)
+                    st->makefile += "." + st->profile.left(st->profile.length() - Option::pro_ext.length()); //no need for the .pro
             }
             st->target = "sub-" + (*it);
             st->target.replace('/', '-');

@@ -31,6 +31,7 @@ QStringList Option::cpp_ext;
 QString Option::obj_ext;
 QString Option::lex_ext;
 QString Option::yacc_ext;
+QString Option::pro_ext;
 QString Option::dir_sep;
 QString Option::h_moc_mod;
 QString Option::cpp_moc_mod;
@@ -305,6 +306,7 @@ Option::parseCommandLine(int argc, char **argv)
     Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
     Option::lex_ext = ".l";
     Option::yacc_ext = ".y";
+    Option::pro_ext = ".pro";
     Option::sysenv_mod = "QMAKE_ENV_";
     Option::field_sep = ' ';
 
@@ -367,11 +369,11 @@ Option::parseCommandLine(int argc, char **argv)
         //try REALLY hard to do it for them, lazy..
         if(Option::mkfile::project_files.isEmpty()) {
             QString pwd = QDir::currentDirPath(),
-                   proj = pwd + "/" + pwd.right(pwd.length() - (pwd.lastIndexOf('/') + 1)) + ".pro";
+                   proj = pwd + "/" + pwd.right(pwd.length() - (pwd.lastIndexOf('/') + 1)) + Option::pro_ext;
             if(QFile::exists(proj)) {
                 Option::mkfile::project_files.append(proj);
             } else { //last try..
-                QDir d(pwd, "*.pro");
+                QDir d(pwd, QString("*" + Option::pro_ext));
                 if(d.count() != 1)
                     return usage(argv[0]);
                 Option::mkfile::project_files.append(pwd + "/" + d[0]);
