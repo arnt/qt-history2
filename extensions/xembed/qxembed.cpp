@@ -1,4 +1,5 @@
-#include "application.h"
+#include <qapplication.h>
+#include "qxembed.h"
 #include <X11/Xlib.h>
 
 QXEmbed::QXEmbed(QWidget *parent, const char *name)

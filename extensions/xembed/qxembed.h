@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xembed/qxembed.h#1 $
+** $Id: //depot/qt/main/extensions/xembed/qxembed.h#2 $
 **
 ** Definition of something or other
 **
@@ -11,6 +11,8 @@
 
 #ifndef QXEMBED_H
 #define QXEMBED_H
+
+#include <qwidget.h>
 
 class QXEmbed : public QWidget
 {
