@@ -395,20 +395,25 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 /*!
   \class QIconDragItem qiconview.h
 
-  \brief The QIconDragItem class is the internal data structure of a QIconDrag.
+  \brief The QIconDragItem class is an internal class used by the
+  QIconDrag class to encapsulate a drag item.
 
   \module iconview
 
-  This class is used internally in the QIconDrag to store the data of each item
-  (in fact, a list of QIconDragItems is used by QIconDrag).
+    The QIconDragItem class is an internal class that is used to
+    encapsulate drag items. The QIconDrag class uses a list of
+    QIconDragItems to support drag and drop operations.
 
-  So normally a QIconDragItem class (or a class derived from QIconDragItem) is created for each icon view item which is dragged and stored
-  in the QIconDrag object.
+    In practice a QIconDragItem object (or an object of a class derived
+    from QIconDragItem) is created for each icon view item which is
+    dragged. Each of these QIconDragItems is stored in a QIconDrag
+    object.
 
-  See QIconView::dragObject() for more information.
+    See QIconView::dragObject() for more information.
 
-  An example of how to implement this is in the QtFileIconView.
-  (qt/examples/qfileiconview/qfileiconview.h and qt/examples/qfileiconview/qfileiconview.cpp)
+    See the QtFileIconView example for an example of usage, especially
+    the files qt/examples/fileiconview/qfileiconview.h and
+    qt/examples/fileiconview/qfileiconview.cpp.
 */
 
 /*!
@@ -430,7 +435,7 @@ QIconDragItem::~QIconDragItem()
 }
 
 /*!
-  Returns the data of this QIconDragItem.
+  Returns the data contained in the QIconDragItem.
 */
 
 QByteArray QIconDragItem::data() const
@@ -439,7 +444,7 @@ QByteArray QIconDragItem::data() const
 }
 
 /*!
-  Sets the data of this QIconDragItem.
+  Sets the data for the QIconDragItem.
 */
 
 void QIconDragItem::setData( const QByteArray &d )
@@ -482,31 +487,37 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
 /*!
   \class QIconDrag qiconview.h
 
-  \brief The QIconDrag class is the drag object which is used for moving items
-  in the iconview.
+  \brief The QIconDrag class is used to support drag and drop operations
+  within an iconview.
 
   \ingroup draganddrop
 
   \module iconview
 
-  The QIconDrag stores exact information about the positions of the
-  items which are dragged, so that each icon view is able to draw drag
-  shapes in correct positions. The data of each dragged item is also
-  stored here.
+    A QIconDrag object is used to maintain information about the
+    positions of dragged items and data associated with the dragged
+    items. Iconviews are able to use this information to paint the
+    dragged items in the correct positions. Internally QIconDrag stores
+    the data associated with drag items in QIconDragItem objects.
 
-  If you want to use extended drag-and-drop functionality of the
-  QIconView, you can normally just create a QIconDrag object in
+  If you want to use the extended drag-and-drop functionality of
+  QIconView you create a QIconDrag object in a reimplementation of
   QIconView::dragObject(). Then create a QIconDragItem for each item
   which should be dragged, set the data it represents with
-  QIconDragItem::setData(), and add this item to the drag object using
-  append().
+  QIconDragItem::setData(), and add each QIconDragItem to the drag
+  object using append().
 
   If you want to offer the data in other mime-types as well, derive a
   class from this and implement the needed encoding and decoding here.
 
-  An example of how to implement this is in the QtFileIconView example
-  (qt/examples/qfileiconview/qfileiconview.h and qt/examples/qfileiconview/qfileiconview.cpp)
-*/ // ### consider using \dontinclude and friends there
+    The fileiconview example program demonstrates the use of the
+    QIconDrag class including subclassing and reimplementing QIconView::dragObject().
+    See the files qt/examples/fileiconview/qfileiconview.h and
+    qt/examples/fileiconview/qfileiconview.cpp.
+*/ 
+// ### consider using \dontinclude and friends there
+// ### better still produce a really simple example and present that since fileiconview is too complicated 
+// ### The para begining "If you want to offer the data in other mime-types..." is unintelligible.
 
 /*!
   \reimp
@@ -528,8 +539,9 @@ QIconDrag::~QIconDrag()
 }
 
 /*!
-  Appends an icon drag item that should be stored in this
-  dragobject and the geometry of it.
+  Append a QIconDragItem, \a i, to the QIconDrag object's list of items.
+  You must also supply the geometry of the pixmap, \a pr, and of the
+  textual caption, \a tr.
 
   \sa QIconDragItem
 */
