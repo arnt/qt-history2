@@ -283,38 +283,38 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 
 	switch (code) {
 	    case 0x7a: case 0x7b: case 0x7c: case 0x7d:
-		keyCode = code - 0x7a + Key_F9;
+		keyCode = code - 0x7a + Qt::Key_F9;
 		softwareRepeat = FALSE;
 		break;
 	    case 0x79:
-		keyCode = Key_SysReq;
+		keyCode = Qt::Key_SysReq;
 		softwareRepeat = FALSE;
 		break;
 	    case 0x78:
 # ifdef QT_QWS_IPAQ
-		keyCode = Key_F24;  // record
+		keyCode = Qt::Key_F24;  // record
 # else
-		keyCode = Key_Escape;
+		keyCode = Qt::Key_Escape;
 # endif
 		softwareRepeat = FALSE;
 		break;
 	    case 0x60:
-		keyCode = Key_Return;
+		keyCode = Qt::Key_Return;
 # ifdef QT_QWS_IPAQ
 		ipaq_return_pressed = !release;
 # endif
 		break;
 	    case 0x67:
-		keyCode = Key_Right;
+		keyCode = Qt::Key_Right;
 		break;
 	    case 0x69:
-		keyCode = Key_Up;
+		keyCode = Qt::Key_Up;
 		break;
 	    case 0x6a:
-		keyCode = Key_Down;
+		keyCode = Qt::Key_Down;
 		break;
 	    case 0x6c:
-		keyCode = Key_Left;
+		keyCode = Qt::Key_Left;
 		break;
 	}
 
