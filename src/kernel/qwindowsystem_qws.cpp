@@ -1571,6 +1571,8 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 	return;
     }
 
+    bool containsMouse = changingw->allocation().contains(mousePosition);
+
     QRegion region;
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
@@ -1587,7 +1589,10 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 	emit windowEvent( changingw, Hide );
     if ( focusw == changingw && region.isEmpty() )
 	setFocus(changingw,FALSE);
-    updateClientCursorPos();
+
+    // if the window under our mouse changes, send update.
+    if (containsMouse != changingw->allocation().contains(mousePosition))
+	updateClientCursorPos();
 }
 
 void QWSServer::invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *client )
