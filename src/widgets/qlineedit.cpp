@@ -1542,20 +1542,11 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
     QPopupMenu *popup = createPopupMenu();
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
 		 mapToGlobal( QPoint(e->pos().x(), 0) ) + QPoint( width() / 2, height() / 2 );
-    connect( popup, SIGNAL(activated(int)), SLOT(popupActivated(int)) );
-    popup->exec( pos );
+    int r = popup->exec( pos );
     delete popup;
-
-    // WARNING: do not add any code here that accesses members of this QLineEdit since
-    // it could already be destroyed
-
-    e->accept();
-#endif //QT_NO_POPUPMENU
-}
-
-void QLineEdit::popupActivated( int r )
-{
-    if ( r == d->id[ IdClear ] )
+    if ( r == -1 )
+	; // nothing selected or lineedit destroyed. Be careful.
+    else if ( r == d->id[ IdClear ] )
 	clear();
     else if ( r == d->id[ IdSelectAll ] )
 	selectAll();
@@ -1571,8 +1562,10 @@ void QLineEdit::popupActivated( int r )
     else if ( r == d->id[ IdPaste ] )
 	paste();
 #endif
-}
 
+    e->accept();
+#endif //QT_NO_POPUPMENU
+}
 
 /*!
   \obsolete

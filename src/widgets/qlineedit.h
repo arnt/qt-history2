@@ -214,7 +214,6 @@ private slots:
     void doDrag();
 #endif
     void dragSlot();
-    void popupActivated( int r );
 
 private:
     void init();
