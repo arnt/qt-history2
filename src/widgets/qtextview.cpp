@@ -2133,6 +2133,7 @@ QString QTextView::anchorAt( const QPoint& pos )
 
 void QTextView::setRealWidth( int w )
 {
+    w = QMAX( w, visibleWidth() );
     resizeContents( w, contentsHeight() );
     QScrollView::setHScrollBarMode( setMode );
 }
