@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#411 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#412 $
 **
 ** Implementation of QWidget class
 **
@@ -540,15 +540,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
-	// kludge details: set focus to this widget, whether it
-	// accepts focus or not.  this makes buggy old qt programs
-	// which assume that the tlw has focus even though it doesn't
-	// accept focus work.
-	if ( fd->it.current() != this ) {
-	    fd->it.toFirst();
-	    while ( fd->it.current() != this && !fd->it.atLast() )
-		++fd->it;
-	}
     }
 }
 
@@ -3401,8 +3392,6 @@ bool QWidget::event( QEvent *e )
   different if the user moves and clicks the mouse fast.  This is
   a feature of the underlying window system, not Qt.
 
-  The default implementation does nothing.
-
   \sa setMouseTracking(), mousePressEvent(), mouseReleaseEvent(),
   mouseDoubleClickEvent(), event(), QMouseEvent
 */
@@ -3446,8 +3435,6 @@ void QWidget::mousePressEvent( QMouseEvent *e )
 /*!
   This event handler can be reimplemented in a subclass to receive
   mouse release events for the widget.
-
-  The default implementation does nothing.
 
   \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), event(),  QMouseEvent
@@ -3614,8 +3601,6 @@ void QWidget::focusOutEvent( QFocusEvent * )
 
   An event is sent to the widget when the mouse cursor enters the widget.
 
-  The default implementation does nothing.
-
   \sa leaveEvent(), mouseMoveEvent(), event()
 */
 
@@ -3630,8 +3615,6 @@ void QWidget::enterEvent( QEvent * )
   A leave event is sent to the widget when the mouse cursor leaves
   the widget.
 
-  The default implementation does nothing.
-
   \sa enterEvent(), mouseMoveEvent(), event()
 */
 
@@ -3642,8 +3625,6 @@ void QWidget::leaveEvent( QEvent * )
 /*!
   This event handler can be reimplemented in a subclass to receive
   widget paint events.
-
-  The default implementation does nothing.
 
   When the paint event occurs, the update region QPaintEvent::region()
   normally has been cleared to the background color or pixmap. An
@@ -3675,8 +3656,6 @@ void QWidget::paintEvent( QPaintEvent * )
   already at the new position.
 
   The old position is accessible through QMoveEvent::oldPos().
-
-  The default implementation does nothing.
 
   \sa resizeEvent(), event(), move(), QMoveEvent
 */
@@ -3740,8 +3719,6 @@ void QWidget::closeEvent( QCloseEvent *e )
   This event handler is called when a drag is in progress and the
   mouse enters this widget.
 
-  The default implementation does nothing.
-
   See the \link dnd.html Drag-and-drop documentation\endlink for
   an overview of how to provide drag-and-drop in your application.
 
@@ -3756,8 +3733,6 @@ void QWidget::dragEnterEvent( QDragEnterEvent * )
   mouse enters this widget, and whenever it moves within
   the widget.
 
-  The default implementation does nothing.
-
   See the \link dnd.html Drag-and-drop documentation\endlink for
   an overview of how to provide drag-and-drop in your application.
 
@@ -3771,8 +3746,6 @@ void QWidget::dragMoveEvent( QDragMoveEvent * )
   This event handler is called when a drag is in progress and the
   mouse leaves this widget.
 
-  The default implementation does nothing.
-
   See the \link dnd.html Drag-and-drop documentation\endlink for
   an overview of how to provide drag-and-drop in your application.
 
@@ -3785,8 +3758,6 @@ void QWidget::dragLeaveEvent( QDragLeaveEvent * )
 /*!
   This event handler is called when the drag is dropped on this
   widget.
-
-  The default implementation does nothing.
 
   See the \link dnd.html Drag-and-drop documentation\endlink for
   an overview of how to provide drag-and-drop in your application.
@@ -3806,12 +3777,16 @@ void QWidget::dropEvent( QDropEvent * )
   shown. Spontaneous show events of toplevel widgets are delivered
   afterwards, naturally.
 
-  The default implementation does nothing.
-
   \sa event(), QShowEvent
   */
 void QWidget::showEvent( QShowEvent * )
 {
+    if ( focusWidget() )
+	return;
+    else if ( focusPolicy() )
+	setFocus();
+    else
+	focusNextPrevChild( TRUE );
 }
 
 /*!
@@ -3819,8 +3794,6 @@ void QWidget::showEvent( QShowEvent * )
   widget hide events.
 
   Hide events are sent to widgets right after they have been hidden.
-
-  The default implementation does nothing.
 
   \sa event(), QHideEvent
   */
@@ -3838,8 +3811,6 @@ void QWidget::hideEvent( QHideEvent * )
   This event class is internally used to implement Qt enhancements.  It is
   not advisable to use QCustomEvent in normal applications, where other
   event types and the signal/slot mechanism can do the job.
-
-  The default implementation does nothing.
 
   \sa event(), QCustomEvent
 */
@@ -4021,8 +3992,6 @@ bool QWidget::autoMask() const
   This function can be reimplemented in a subclass to support
   transparent widgets. It is supposed to be called whenever a widget
   changes state in a way that the shape mask has to be recalculated.
-
-  The default implementation does nothing.
 
   \sa setAutoMask(), updateMask(), setMask(), clearMask()
   */

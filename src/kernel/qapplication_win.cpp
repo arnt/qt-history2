@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#289 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#290 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1202,12 +1202,10 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 	    return;
 	active_window = widget->topLevelWidget();
 	QWidget *w = widget->focusWidget();
-	if (w && (w->isFocusEnabled() || w->isTopLevel() ) )
+	if ( w && w->isFocusEnabled() )
 	    w->setFocus();
-	else {
-	    // set focus to some arbitrary widget with WTabToFocus
+	else
 	    widget->focusNextPrevChild( TRUE );
-	}
     } else {
 	if ( focus_widget && !inPopupMode() ) {
 	    QFocusEvent out( QEvent::FocusOut );
