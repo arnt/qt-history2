@@ -8,6 +8,6 @@ SOURCES		= controlcentral.cpp \
 		  itemtextview.cpp \
 		  xmlfileitem.cpp \
 		  xmlparser.cpp \
-		  xmltest.cpp
+		  main.cpp
 INTERFACES	= 
-TARGET		= xmltest
+TARGET		= saxtest
