@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#58 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -349,7 +349,10 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
     bmh->biWidth	  = w;
-    bmh->biHeight	  = -h;
+    if ( qt_winver != Qt::WV_NT && !pixmap.isNull() && pixmap.isQBitmap() )
+      bmh->biHeight	  = h;
+    else
+      bmh->biHeight	  = -h;
     bmh->biPlanes	  = 1;
     bmh->biBitCount	  = d;
     bmh->biCompression	  = BI_RGB;
