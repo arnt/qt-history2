@@ -425,7 +425,7 @@ static int mapPaperSourceDevmode( QPrinter::PaperSource s )
 */
 short QPrinter::winPageSize() const
 {
-    return D->winPageSize;
+    return page_size == Custom ? D->winPageSize : mapPageSizeDevmode( page_size );
 }
 
 /*!
