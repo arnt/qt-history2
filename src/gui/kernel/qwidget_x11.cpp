@@ -1591,6 +1591,10 @@ void QWidget::setWindowState(uint newstate)
     bool needShow = false;
     uint oldstate = windowState();
     if (isTopLevel()) {
+        // Ensure the initial size is valid, since we store it as normalGeometry below.
+        if (!testAttribute(Qt::WA_Resized) && !isVisible())
+            adjustSize();
+
         QTLWExtra *top = d->topData();
 
         if ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
