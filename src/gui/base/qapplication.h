@@ -163,9 +163,9 @@ public:
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
     static QT_COMPAT WindowsVersion winVersion() { return (Qt::WindowsVersion)QSysInfo::WindowsVersion; }
 #endif
-#endif
 #if defined(Q_OS_MAC)
-    static MacintoshVersion macVersion();
+    static QT_COMPAT MacintoshVersion macVersion() { return (Qt::MacintoshVersion)QSysInfo::MacintoshVersion; }
+#endif
 #endif
 #if defined(Q_WS_WIN)
     void	     winFocus( QWidget *, bool );

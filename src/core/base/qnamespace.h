@@ -700,24 +700,26 @@ public:
 	CustomPattern=24
     };
 
+#if defined(Q_OS_MAC) && defined(QT_COMPAT)
     // documented in qapplication_mac.cpp
     enum MacintoshVersion {
 	//Unknown
-	MV_Unknown      = 0x0000,
+	MV_Unknown      = QSysInfo::MV_Unknown,
 
 	//Version numbers
-	MV_9            = 0x0001,
-	MV_10_DOT_0     = 0x0002,
-	MV_10_DOT_1     = 0x0003,
-	MV_10_DOT_2     = 0x0004,
-	MV_10_DOT_3     = 0x0005,
+	MV_9            = QSysInfo::MV_9,
+	MV_10_DOT_0     = QSysInfo::MV_10_DOT_0,
+	MV_10_DOT_1     = QSysInfo::MV_10_DOT_1,
+	MV_10_DOT_2     = QSysInfo::MV_10_DOT_2,
+	MV_10_DOT_3     = QSysInfo::MV_10_DOT_3,
 
 	//Code names
-	MV_CHEETAH      = MV_10_DOT_0,
-	MV_PUMA         = MV_10_DOT_1,
-	MV_JAGUAR       = MV_10_DOT_2,
-	MV_PANTHER      = MV_10_DOT_3
+	MV_CHEETAH      = QSysInfo::MV_CHEETAH,
+	MV_PUMA         = QSysInfo::MV_PUMA,
+	MV_JAGUAR       = QSysInfo::MV_JAGUAR,
+	MV_PANTHER      = QSysInfo::MV_PANTHER
     };
+#endif
 
 #if defined(Q_OS_WIN) && defined(QT_COMPAT)
     // documented in qapplication_win.cpp

@@ -1046,13 +1046,33 @@ public:
     };
     static const WinVersion WindowsVersion;
 #endif
+#ifdef Q_WS_MAC
+    enum MacVersion {
+	//Unknown
+	MV_Unknown      = 0x0000,
+
+	//Version numbers
+	MV_9            = 0x0001,
+	MV_10_DOT_0     = 0x0002,
+	MV_10_DOT_1     = 0x0003,
+	MV_10_DOT_2     = 0x0004,
+	MV_10_DOT_3     = 0x0005,
+
+	//Code names
+	MV_CHEETAH      = MV_10_DOT_0,
+	MV_PUMA         = MV_10_DOT_1,
+	MV_JAGUAR       = MV_10_DOT_2,
+	MV_PANTHER      = MV_10_DOT_3
+    };
+    static const MacVersion MacintoshVersion;
+#endif
 };
 
 Q_CORE_EXPORT const char *qVersion();
 Q_CORE_EXPORT bool qSharedBuild();
 
 #if defined(Q_OS_MAC)
-int qMacVersion();
+inline QT_COMPAT int qMacVersion() { return QSysInfo::MacintoshVersion; }
 #endif
 
 #ifdef QT_COMPAT

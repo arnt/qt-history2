@@ -165,28 +165,22 @@ unsigned char * p_str(const QString &s)
     return p_str(s.latin1(), s.length());
 }
 
-int qMacVersion()
+static QSysInfo::MacVersion macVersion()
 {
-    static int macver = Qt::MV_Unknown;
-    static bool first = true;
-    if(first) {
-	first = false;
-	long gestalt_version;
-	if(Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
-	    if(gestalt_version >= 0x1030 && gestalt_version < 0x1040)
-		macver = Qt::MV_10_DOT_3;
-	    else if(gestalt_version >= 0x1020 && gestalt_version < 0x1030)
-		macver = Qt::MV_10_DOT_2;
-	    else if(gestalt_version >= 0x1010 && gestalt_version < 0x1020)
-		macver = Qt::MV_10_DOT_1;
-	    else if(gestalt_version >= 0x1000 && gestalt_version < 0x1010)
-		macver = Qt::MV_10_DOT_0;
-
-	}
+    long gestalt_version;
+    if(Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
+	if(gestalt_version >= 0x1030 && gestalt_version < 0x1040)
+	    return QSysInfo::MV_10_DOT_3;
+	else if(gestalt_version >= 0x1020 && gestalt_version < 0x1030)
+	    return QSysInfo::MV_10_DOT_2;
+	else if(gestalt_version >= 0x1010 && gestalt_version < 0x1020)
+	    return QSysInfo::MV_10_DOT_1;
+	else if(gestalt_version >= 0x1000 && gestalt_version < 0x1010)
+	    return QSysInfo::MV_10_DOT_0;
     }
-    return macver;
+    return QSysInfo::MV_Unknown;
 }
-Qt::MacintoshVersion qt_macver = (Qt::MacintoshVersion)qMacVersion();
+QSysInfo::MacVersion QSysInfo::MacintoshVersion = macVersion();
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN) || defined(Q_OS_TEMP)
 
 #include "qt_windows.h"
