@@ -1384,6 +1384,8 @@ QGridLayout::Corner QGridLayout::origin() const
 */
 void QGridLayout::invalidate()
 {
+    data->setReversed( FALSE, QApplication::reverseLayout() );
+
     QLayout::invalidate();
     QLayout::setGeometry( QRect() ); //###binary compatibility
     data->setDirty();
@@ -2091,20 +2093,19 @@ void QBoxLayout::setDirection( Direction direction )
 			//spacing or strut
 			QSize s = sp->sizeHint();
 			sp->changeSize( s.height(), s.width(),
-		horz(direction) ? QSizePolicy::Fixed:QSizePolicy::Minimum,
-		horz(direction) ? QSizePolicy::Minimum:QSizePolicy::Fixed );
-
+			    horz(direction) ? QSizePolicy::Fixed:QSizePolicy::Minimum,
+			    horz(direction) ? QSizePolicy::Minimum:QSizePolicy::Fixed );
+			
 		    } else {
 			//stretch
 			if ( horz(direction) )
 			    sp->changeSize( 0, 0, QSizePolicy::Expanding,
-					    QSizePolicy::Minimum );
+			    QSizePolicy::Minimum );
 			else
 			    sp->changeSize( 0, 0, QSizePolicy::Minimum,
-					    QSizePolicy::Expanding );
+			    QSizePolicy::Expanding );
 		    }
 		}
-
 	    }
 	}
     }
