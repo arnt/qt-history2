@@ -943,7 +943,7 @@ static int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl
 		    return (current - uc) - skip + 1;
 		// in case we don't have a match we are a bit inefficient as we only skip by one
 		// when we have the non matching char in the string.
-		if (skiptable[::lower((current - skip)->cell())] == pl)
+		if (skiptable[::lower(*(current - skip)).cell()] == pl)
 		    skip = pl - skip;
 		else
 		    skip = 1;
@@ -1667,7 +1667,7 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
     if(sections.isEmpty())
 	return QString();
     if(!(flags & SectionSkipEmpty)) {
-	if(start < 0) 
+	if(start < 0)
 	    start += sections.count();
 	if(end < 0)
 	    end += sections.count();
@@ -1677,7 +1677,7 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
 	    if((*it).isEmpty())
 		skip++;
 	}
-	if(start < 0) 
+	if(start < 0)
 	    start += sections.count() - skip;
 	if(end < 0)
 	    end += sections.count() - skip;
@@ -1703,8 +1703,8 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
 		if((flags & SectionIncludeTrailingSep) && it != sections.end())
 		    ret += sep;
 	    }
-	} 
-	if(!(*it).isEmpty() || !(flags & SectionSkipEmpty)) 
+	}
+	if(!(*it).isEmpty() || !(flags & SectionSkipEmpty))
 	    x++;
     }
     return ret;

@@ -86,7 +86,7 @@ void QFontKsc5601Codec::fromUnicode(const QChar *in, unsigned short *out, int le
 
 bool QFontKsc5601Codec::canEncode( QChar ch ) const
 {
-    return (qt_UnicodeToKsc5601(ch) != 0);
+    return (qt_UnicodeToKsc5601(ch.unicode()) != 0);
 }
 
 #endif // QT_NO_BIG_CODECS
