@@ -671,6 +671,8 @@ database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqlfield.h \
 		    $$DATABASE_H/qsqlrowset.h \
 		    $$DATABASE_H/qsqlview.h \
+		    $$DATABASE_H/qsqleditor.h \
+		    $$DATABASE_H/qsqleditorfactory.h \
 		    $$DATABASE_H/qsqldriver.h \
 		    $$DATABASE_H/qsqldriverinterface.h \
 		    $$DATABASE_H/qsqldriverplugin.h \
@@ -682,6 +684,8 @@ database:SOURCES += database/qsql.cpp \
 		    database/qsqlfield.cpp \
 		    database/qsqlrowset.cpp \
 		    database/qsqlview.cpp \
+		    database/qsqleditor.cpp \
+		    database/qsqleditorfactory.cpp \
 		    database/qsqldriver.cpp \
 		    database/qsqldriverplugin.cpp \
 		    database/qsqlerror.cpp \
