@@ -41,10 +41,8 @@ QString buddyString(const QWidget *widget)
     }
 
     QGroupBox *groupbox = qt_cast<QGroupBox*>(parent);
-    if (groupbox) {
-	qDebug("%s", groupbox->title().latin1());
+    if (groupbox)
 	return groupbox->title();
-    }
 
     return QString();
 }
@@ -640,7 +638,6 @@ QString QAccessibleWidget::text(Text t, int child) const
     default:
 	break;
     }
-    qDebug("%s", str.ascii());
     return str;
 }
 
