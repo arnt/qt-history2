@@ -188,11 +188,6 @@ public:
     inline QT_COMPAT void setItemVisible(int id, bool visible) { 
         if(QAction *act = findActionForId(id)) 
             act->setVisible(visible); }
-    inline QT_COMPAT QRect itemRect(int index) {
-        if(QAction *act = actions().value(index)) 
-            return actionGeometry(act);
-        return QRect();
-    }
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const {
         return findIdForAction(actions().value(index));
@@ -233,6 +228,11 @@ private slots:
     void compatHighlighted(QAction *);
 
 protected:
+    inline QT_COMPAT QRect itemRect(int index) {
+        if(QAction *act = actions().value(index)) 
+            return actionGeometry(act);
+        return QRect();
+    }
     inline QT_COMPAT int itemAtPos(const QPoint &p) {
         return findIdForAction(actionAtPos(p));
     }
