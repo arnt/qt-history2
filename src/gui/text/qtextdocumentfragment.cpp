@@ -195,7 +195,7 @@ QTextDocumentFragment::QTextDocumentFragment(QTextDocument *document)
         return;
 
     QTextCursor cursor(document);
-    cursor.moveTo(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     d = new QTextDocumentFragmentPrivate(cursor);
 }
 

@@ -191,7 +191,7 @@ void QTextCursorPrivate::adjustCursor()
     }
 }
 
-bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
+bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
 {
     bool adjustX = true;
     QTextBlockIterator blockIt = block();
@@ -582,7 +582,7 @@ int QTextCursor::anchor() const
     over; (this is the same effect that the user achieves when they
     move using arrow keys etc., with the Shift key pressed).
 */
-bool QTextCursor::moveTo(MoveOperation op, MoveMode mode, int n)
+bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
 {
     if (!d)
         return false;
@@ -596,7 +596,7 @@ bool QTextCursor::moveTo(MoveOperation op, MoveMode mode, int n)
         default: break;
     }
     for (; n > 0; --n) {
-        if (!d->moveTo(op, mode))
+        if (!d->movePosition(op, mode))
             return false;
     }
     return true;
@@ -748,18 +748,15 @@ int QTextCursor::selectionEnd() const
     return qMax(d->position, d->adjusted_anchor);
 }
 
-/*!
-    Sets the block format of the block the cursor is in to \a format.
 
-    \sa blockFormat() applyBlockFormatModifier()
- */
-void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
+QString QTextCursor::selectedText() const
 {
-    if (!d)
-        return;
+    // ###########
+}
 
-    QTextBlockIterator it = d->block();
-    d->pieceTable->setBlockFormat(it, it, format, QTextPieceTable::SetFormat);
+QTextDocumentFragment QTextCursor::selection() const
+{
+    return QTextDocumentFragment(*this);
 }
 
 /*!
@@ -784,25 +781,26 @@ QTextBlockFormat QTextCursor::blockFormat() const
 }
 
 /*!
-    Applies all the properties set in \a modifier to all the formats
-    that are part of the selection. Does nothing if the cursor doesn't
-    have a selection.
+    Sets the block format of the current block (or all blocks that
+    are contained in the selection) to \a format.
 
-    \sa hasSelection()
+    \sa setBlockFormat()
 */
-void QTextCursor::applyCharFormatModifier(const QTextCharFormat &modifier)
+void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 {
-    if (!d || d->position == d->anchor)
+    if (!d)
         return;
 
     int pos1 = d->position;
     int pos2 = d->adjusted_anchor;
     if (pos1 > pos2) {
-        pos1 = d->adjusted_anchor;
+        pos1 = d->anchor;
         pos2 = d->position;
     }
 
-    d->pieceTable->setCharFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
+    QTextBlockIterator from = d->pieceTable->blocksFind(pos1);
+    QTextBlockIterator to = d->pieceTable->blocksFind(pos2);
+    d->pieceTable->setBlockFormat(from, to, format, QTextPieceTable::SetFormat);
 }
 
 /*!
@@ -811,7 +809,7 @@ void QTextCursor::applyCharFormatModifier(const QTextCharFormat &modifier)
 
     \sa setBlockFormat()
 */
-void QTextCursor::applyBlockFormatModifier(const QTextBlockFormat &modifier)
+void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 {
     if (!d)
         return;
@@ -854,6 +852,49 @@ QTextCharFormat QTextCursor::charFormat() const
         cfmt.setObject(0);
     Q_ASSERT(cfmt.isValid());
     return cfmt;
+}
+
+/*!
+    Set the format \a format as char format for the selection. Does
+    nothing if the cursor doesn't have a selection.
+
+    \sa hasSelection()
+*/
+void QTextCursor::setCharFormat(const QTextCharFormat &format)
+{
+    if (!d || d->position == d->anchor)
+        return;
+
+    int pos1 = d->position;
+    int pos2 = d->adjusted_anchor;
+    if (pos1 > pos2) {
+        pos1 = d->adjusted_anchor;
+        pos2 = d->position;
+    }
+
+    d->pieceTable->setCharFormat(pos1, pos2-pos1, format, QTextPieceTable::SetFormat);
+}
+
+/*!
+    Applies all the properties set in \a modifier to all the formats
+    that are part of the selection. Does nothing if the cursor doesn't
+    have a selection.
+
+    \sa hasSelection()
+*/
+void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
+{
+    if (!d || d->position == d->anchor)
+        return;
+
+    int pos1 = d->position;
+    int pos2 = d->adjusted_anchor;
+    if (pos1 > pos2) {
+        pos1 = d->adjusted_anchor;
+        pos2 = d->position;
+    }
+
+    d->pieceTable->setCharFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
@@ -956,7 +997,7 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
     QTextList *list = static_cast<QTextList *>(c->createObject(format));
     QTextBlockFormat modifier;
     modifier.setObject(list);
-    applyBlockFormatModifier(modifier);
+    mergeBlockFormat(modifier);
     return list;
 }
 

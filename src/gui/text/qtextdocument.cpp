@@ -255,7 +255,7 @@ void QTextDocument::setHtml(const QString &html)
 {
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(html);
     QTextCursor cursor(this);
-    cursor.moveTo(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     cursor.insertFragment(fragment);
 }
 
@@ -306,8 +306,8 @@ QTextCursor QTextDocument::find(const QString &expr, int from, QString::CaseSens
             // ### testme
             if (mode == FindWords) {
                 const int findPos = cursor.position();
-                cursor.moveTo(QTextCursor::NextWord);
-                cursor.moveTo(QTextCursor::PreviousWord);
+                cursor.movePosition(QTextCursor::NextWord);
+                cursor.movePosition(QTextCursor::PreviousWord);
                 // ### test end of word, too - needs something like EndOfWord in API
                 if (cursor.position() != findPos) {
                     pos = findPos + 1;
@@ -315,9 +315,9 @@ QTextCursor QTextDocument::find(const QString &expr, int from, QString::CaseSens
                 }
 
                 // ### EndOfWord
-                cursor.moveTo(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+                cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
             } else {
-                cursor.moveTo(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
+                cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
             }
             return cursor;
         }

@@ -27,7 +27,7 @@ public:
     bool canDelete(int pos) const;
 
     void insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat);
-    bool moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+    bool movePosition(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     inline QTextBlockIterator block() const
     { return pieceTable->blocksFind(position); }

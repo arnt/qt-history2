@@ -69,7 +69,7 @@ public:
         WordRight
     };
 
-    bool moveTo(MoveOperation op, MoveMode = MoveAnchor, int n = 1);
+    bool movePosition(MoveOperation op, MoveMode = MoveAnchor, int n = 1);
 
     void deleteChar();
     void deletePreviousChar();
@@ -80,13 +80,19 @@ public:
     int selectionStart() const;
     int selectionEnd() const;
 
+    QString selectedText() const;
+    QTextDocumentFragment selection() const;
+
     QTextBlockIterator block() const;
-    void setBlockFormat(const QTextBlockFormat &format);
-    QTextBlockFormat blockFormat() const;
-    void applyCharFormatModifier(const QTextCharFormat &modifier);
-    void applyBlockFormatModifier(const QTextBlockFormat &modifier);
 
     QTextCharFormat charFormat() const;
+    void setCharFormat(const QTextCharFormat &format);
+    void mergeCharFormat(const QTextCharFormat &modifier);
+
+    QTextBlockFormat blockFormat() const;
+    void setBlockFormat(const QTextBlockFormat &format);
+    void mergeBlockFormat(const QTextBlockFormat &modifier);
+
 
     bool atBlockStart() const;
     bool atEnd() const;
