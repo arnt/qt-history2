@@ -513,8 +513,9 @@ private:
     void setStoredState( ToggleState );
     void stateChange( ToggleState s );
     void restoreState();
-    void updateController();
+    void updateController( bool store = TRUE );
     void updateStoredState();
+    void setState( ToggleState s, bool update );
 
     Type myType;
     bool unused; // ### remove in ver4
