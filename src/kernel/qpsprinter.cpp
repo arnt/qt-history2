@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#89 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -462,7 +462,7 @@ static const char *ps_header[] = {
 "",
 "", // slower implementation than the old one, but strippable by stripHeader
 "/sl D0",
-"/QCIFunction D0 /Bcomp D0 /Bycomp D0 /QCIstr1 D0 /QCIstr1 D0 /QCIindex",
+"/QCIFunction D0 /Bcomp D0 /Bycomp D0 /QCIstr1 D0 /QCIstr1 D0 /QCIindex D0",
 "/QCI {", // as colorimage but without the last two arguments
 "  /colorimage where {",
 "    pop",
