@@ -60,8 +60,13 @@ int main(int argc, char **argv)
     QDir sunworkshop42workaround = QDir::current();
     QString oldpwd = sunworkshop42workaround.currentDirPath();
     Option::output_dir = oldpwd; //for now this is the output dir
-    if(Option::output_dir.right(1) != QString(QChar(QDir::separator())))
-	Option::output_dir += QDir::separator();
+#ifdef Q_WS_WIN
+    if ( !(Option::output_dir.length() == 3 && Option::output_dir[0].isLetter() && Option::output_dir.endsWith(":/") ) )
+#endif
+    {
+	if(Option::output_dir.right(1) != QString(QChar(QDir::separator())))
+	    Option::output_dir += QDir::separator();
+    }
     QMakeProject proj;
     int exit_val = 0;
     QStringList files;
@@ -118,6 +123,7 @@ int main(int argc, char **argv)
 		} else {
 		    if(Option::output.name().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
 			Option::output.setName(proj.first("QMAKE_MAKEFILE"));
+		    debug_msg( 1, "Output specified is %s", Option::output.name().latin1() );
 		    if(!mkfile->openOutput(Option::output)) {
 			fprintf(stderr, "Failure to open file: %s\n",
 				Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
