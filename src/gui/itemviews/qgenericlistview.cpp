@@ -527,10 +527,10 @@ void QGenericListView::startDrag()
 void QGenericListView::getViewOptions(QItemOptions *options) const
 {
     QAbstractItemView::getViewOptions(options);
-    bool small = (d->size == Automatic ? d->wrap : d->size == Small);
-    options->smallItem = small;
-    options->iconAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Qt::AlignTop|Qt::AlignHCenter);
-    options->textAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Alignment(Qt::AlignCenter));
+    bool tiny = (d->size == Automatic ? d->wrap : d->size == Small);
+    options->smallItem = tiny;
+    options->iconAlignment = (tiny ? Qt::AlignVCenter|Qt::AlignAuto : Qt::AlignTop|Qt::AlignHCenter);
+    options->textAlignment = (tiny ? Qt::AlignVCenter|Qt::AlignAuto : Alignment(Qt::AlignCenter));
 }
 
 void QGenericListView::paintEvent(QPaintEvent *e)

@@ -114,13 +114,11 @@ public:
 
     uint fontFlags;
 
-#if defined QT_GDIPLUS_SUPPORT
     bool usesGdiplus() { return gdiplusInUse && gdiplusEngine; }
     void beginGdiplus();
     void endGdiplus();
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;
-#endif
 };
 
 // True if the system supports gdi plus... Hardcode with define for now.
