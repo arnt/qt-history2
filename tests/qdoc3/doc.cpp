@@ -542,6 +542,21 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		case CMD_PART:
 		    startSection( Doc::Part, command );
 		    break;
+		case CMD_PRINTLINE:
+		    leaveParagraph();
+		    appendToCode( quoter.quoteLine(location(), commandStr,
+						   getRestOfLine()) );
+		    break;
+		case CMD_PRINTTO:
+		    leaveParagraph();
+		    appendToCode( quoter.quoteTo(location(), commandStr,
+				  getRestOfLine()) );
+		    break;
+		case CMD_PRINTUNTIL:
+		    leaveParagraph();
+		    appendToCode( quoter.quoteUntil(location(), commandStr,
+						    getRestOfLine()) );
+		    break;
 		case CMD_QUOTATION:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
@@ -567,21 +582,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			    quoter.quoteUntil(location(), commandStr,
 					      "/^\\}/") );
 		    quoter.reset();
-		    break;
-		case CMD_QUOTELINE:
-		    leaveParagraph();
-		    appendToCode( quoter.quoteLine(location(), commandStr,
-						   getRestOfLine()) );
-		    break;
-		case CMD_QUOTETO:
-		    leaveParagraph();
-		    appendToCode( quoter.quoteTo(location(), commandStr,
-				  getRestOfLine()) );
-		    break;
-		case CMD_QUOTEUNTIL:
-		    leaveParagraph();
-		    appendToCode( quoter.quoteUntil(location(), commandStr,
-						    getRestOfLine()) );
 		    break;
 		case CMD_RAW:
 		    leaveParagraph();
