@@ -1671,6 +1671,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 {
     init();
     d->mode = ExistingFile;
+    rereadDir();
     if ( !dirName.isEmpty() )
 	setSelection( dirName );
 
@@ -1791,6 +1792,8 @@ void QFileDialog::init()
     const QFileInfoList * rootDrives = QDir::drives();
     QFileInfoListIterator it( *rootDrives );
     QFileInfo *fi;
+    makeVariables();
+
     while ( (fi = it.current()) != 0 ) {
 	++it;
 	d->paths->insertItem( *openFolderIcon, fi->absFilePath() );
@@ -1812,8 +1815,6 @@ void QFileDialog::init()
     d->pathL = new QLabel( d->paths, tr("Look &in:"), this );
     d->fileL = new QLabel( nameEdit, tr("File &name:"), this );
     d->typeL = new QLabel( d->types, tr("File &type:"), this );
-
-    makeVariables();
 
     d->cdToParent = new QPushButton( this, "cd to parent" );
     QToolTip::add( d->cdToParent, tr( "One directory up" ) );
