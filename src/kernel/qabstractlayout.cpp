@@ -480,9 +480,11 @@ QSize QSpacerItem::maximumSize() const
 */
 QSize QWidgetItem::maximumSize() const
 {
-    if ( isEmpty() )
+    if ( isEmpty() ) {
 	return QSize( 0, 0 );
-    return qSmartMaxSize( this, align );
+    } else {
+	return qSmartMaxSize( this, align );
+    }
 }
 
 /*!
@@ -1188,9 +1190,17 @@ bool QLayout::activate()
 		 mainWidget()->isTopLevel() && !hasHeightForWidth()) ||
 		autoMinimum ) {
 	mainWidget()->setMinimumSize( totalMinimumSize() );
+
+#if 0
+	QSize max = totalMaximumSize();
+	if ( max.width() < QWIDGETSIZE_MAX )
+	    mainWidget()->setMaximumWidth( max.width() );
+	if ( max.height() < QWIDGETSIZE_MAX )
+	    mainWidget()->setMaximumHeight( max.height() );
+#endif
     }
 
-    // ### if sizeHint or sizePolicy has changed
+    // ### ideally only if sizeHint() or sizePolicy() has changed
     mainWidget()->updateGeometry();
     return TRUE;
 }
@@ -1281,7 +1291,7 @@ bool QLayout::activate()
 */
 
 /*!
-    \fn QSizePolicy::QSizePolicy ()
+    \fn QSizePolicy::QSizePolicy()
 
     Constructs a minimally initialized QSizePolicy.
 */
