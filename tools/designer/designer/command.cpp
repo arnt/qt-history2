@@ -934,6 +934,30 @@ void DeleteWizardPageCommand::unexecute()
 
 // ------------------------------------------------------------
 
+RenameWizardPageCommand::RenameWizardPageCommand( const QString &n, FormWindow *fw,
+						  QWizard *w, int i, const QString& name )
+    : Command( n, fw ), wizard( w ), index( i ), label( name )
+{
+
+}
+
+void RenameWizardPageCommand::execute()
+{
+    page = wizard->page( index );
+    QString oldLabel = wizard->title( page );
+
+    wizard->setTitle( page, label );
+    label = oldLabel;
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+}
+
+void RenameWizardPageCommand::unexecute()
+{
+    execute();
+}
+
+// ------------------------------------------------------------
+
 SwapWizardPagesCommand::SwapWizardPagesCommand( const QString &n, FormWindow *fw, QWizard *w, int i1, int i2 )
     : Command( n, fw ), wizard( w ), index1( i1 ), index2( i2 )
 {

@@ -74,6 +74,7 @@ public:
 	AddWizardPage,
 	DeleteWizardPage,
 	SwapWizardPages,
+	RenameWizardPage,
 	AddConnection,
 	RemoveConnection,
 	AddSlot,
@@ -448,6 +449,24 @@ private:
     bool show;
     QWidget *page;
     QString pageLabel;
+
+};
+
+class RenameWizardPageCommand : public Command
+{
+public:
+    RenameWizardPageCommand( const QString &n, FormWindow *fw,
+			     QWizard *w, int index, const QString& name );
+
+    void execute();
+    void unexecute();
+    Type type() const { return RenameWizardPage; }
+
+private:
+    QWizard *wizard;
+    int index;
+    QWidget *page;
+    QString label;
 
 };
 

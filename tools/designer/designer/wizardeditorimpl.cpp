@@ -27,6 +27,7 @@
 #include <qwizard.h>
 #include <qlistbox.h>
 #include <qpushbutton.h>
+#include <qinputdialog.h>
 
 WizardEditor::WizardEditor( QWidget *parent, QWizard *w, FormWindow *fw )
     : WizardEditorBase( parent, 0 ), formwindow( fw ), wizard( w )
@@ -53,6 +54,8 @@ void WizardEditor::cancelClicked()
 
 void WizardEditor::applyClicked()
 {
+    if ( commands.isEmpty() ) return;
+
     // schedule macro command
     MacroCommand* cmd = new MacroCommand( tr( "Edit Wizard Pages" ), formwindow, commands );
     formwindow->commandHistory()->addCommand( cmd );
@@ -89,7 +92,7 @@ void WizardEditor::applyClicked()
     listBox->setCurrentItem( index );
 
     // show current page
-    wizard->showPage( wizard->page( index ) );
+    wizard->showPage( wizard->page( 0 ) );
 }
 
 void WizardEditor::helpClicked()
@@ -189,7 +192,16 @@ void WizardEditor::itemSelected( int index )
 {
     if ( index < 0 ) return;
 
-    // rename
+    QWidget* page = wizard->page( index );
+
+    bool ok = FALSE;
+    QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, wizard->title( page ), &ok, this );
+    if ( ok ) {
+	QString pn( tr( "Rename page %1 of %2" ).arg( page->name() ).arg( wizard->name() ) );
+	RenameWizardPageCommand *cmd = new RenameWizardPageCommand( pn, formwindow, wizard, index, text );
+	commands.append( cmd );
+	listBox->changeItem( text, index );
+    }
 }
 
 void WizardEditor::updateButtons()
