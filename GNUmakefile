@@ -54,7 +54,7 @@ sub-src: src-moc .qmake.cache FORCE
 	cd src; $(MAKE)
 
 sub-codecs: sub-src .qmake.cache FORCE
-	cd src/codecs/src; $(MAKE)
+	cd plugins/src/codecs; $(MAKE)
 
 sub-tutorial: sub-src FORCE
 	cd tutorial; $(MAKE)
@@ -77,7 +77,7 @@ distclean: clean
 doc: FORCE
 	qdoc util/qdoc/qdoc.conf
 
-.qmake.cache: 
+.qmake.cache:
 	@echo
 	@echo '  Qt must first be configured using the "configure" script.'
 	@echo
