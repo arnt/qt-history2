@@ -106,8 +106,10 @@ void setupOwner()
 {
     if (owner)
         return;
-    owner = new QWidget(0, "internal clipboard owner");
-    requestor = new QWidget(0, "internal clipboard requestor");
+    owner = new QWidget(0);
+    owner->setObjectName("internal clipboard owner");
+    requestor = new QWidget(0);
+    requestor->setObjectName("internal clipboard requestor");
     qAddPostRoutine(cleanup);
 }
 
@@ -625,7 +627,8 @@ QByteArray qt_xclb_read_incremental_property(Display *dpy, Window win,
     // timed out ... create a new requestor window, otherwise the requestor
     // could consider next request to be still part of this timed out request
     delete requestor;
-    requestor = new QWidget(0, "internal clipboard requestor");
+    requestor = new QWidget(0);
+    requestor->setObjectName("internal clipboard requestor");
 
     return QByteArray();
 }

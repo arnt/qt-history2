@@ -41,7 +41,7 @@ struct QDialogButtonsPrivate
 
 #ifndef QT_NO_DIALOG
 QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 buttons,
-                               Qt::Orientation orient, const char *name) : QWidget(parent, name)
+                               Qt::Orientation orient) : QWidget(parent)
 {
     init(buttons, orient);
     if(parent && autoConnect) {
@@ -52,7 +52,7 @@ QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 butto
 #endif // QT_NO_DIALOG
 
 QDialogButtons::QDialogButtons(QWidget *parent, Q_UINT32 buttons,
-                               Qt::Orientation orient, const char *name) : QWidget(parent, name)
+                               Qt::Orientation orient) : QWidget(parent)
 {
     init(buttons, orient);
 }
@@ -132,7 +132,7 @@ QDialogButtons::addWidget(QWidget *w)
 {
     QBoxLayout *lay = NULL;
     if(!d->custom) {
-        d->custom = new QWidget(this, "dialog_custom_area");
+        d->custom = new QWidget(this);
         if(orientation() == Qt::Horizontal)
             lay = new QHBoxLayout(d->custom);
         else

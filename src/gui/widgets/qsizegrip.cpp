@@ -80,11 +80,31 @@ static QWidget* qt_sizegrip_workspace(QWidget* w)
 
 
 /*!
+    Constructs a resize corner as a child widget of \a
+    parent.
+*/
+QSizeGrip::QSizeGrip(QWidget * parent)
+    : QWidget(parent)
+{
+    init();
+}
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
+
     Constructs a resize corner called \a name, as a child widget of \a
     parent.
 */
 QSizeGrip::QSizeGrip(QWidget * parent, const char* name)
-    : QWidget(parent, name)
+    : QWidget(parent)
+{
+    setObjectName(name);
+    init();
+}
+#endif
+
+void QSizeGrip::init()
 {
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC

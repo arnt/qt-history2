@@ -25,7 +25,10 @@ class Q_GUI_EXPORT QSizeGrip: public QWidget
 {
     Q_OBJECT
 public:
-    QSizeGrip(QWidget* parent, const char* name=0);
+    QSizeGrip(QWidget* parent);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QSizeGrip(QWidget* parent, const char* name);
+#endif
     ~QSizeGrip();
 
     QSize sizeHint() const;
@@ -38,6 +41,7 @@ protected:
     bool eventFilter(QObject *, QEvent *);
 
 private:
+    void init();
     QPoint p;
     QSize s;
     int d;

@@ -721,6 +721,7 @@ QWidget::QWidget(QWidget *parent, Qt::WFlags f)
     d->init(f);
 }
 
+#ifdef QT_COMPAT
 /*!
     \overload
     \obsolete
@@ -729,9 +730,9 @@ QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d->init(f);
-    if (name)
-        setObjectName(name);
+    setObjectName(name);
 }
+#endif
 
 /*! \internal
 */

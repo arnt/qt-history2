@@ -39,7 +39,7 @@ public:
 };
 
 QSingleDesktopWidget::QSingleDesktopWidget()
-    : QWidget(0, "desktop", Qt::WType_Desktop)
+    : QWidget(0, Qt::WType_Desktop)
 {
 }
 
@@ -151,7 +151,7 @@ void QDesktopWidgetPrivate::init()
 // the QDesktopWidget itself will be created on the default screen
 // as qt_x11_create_desktop_on_screen defaults to -1
 QDesktopWidget::QDesktopWidget()
-    : QWidget(0, "desktop", Qt::WType_Desktop)
+    : QWidget(0, Qt::WType_Desktop)
 {
     d = new QDesktopWidgetPrivate();
     d->init();

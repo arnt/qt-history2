@@ -32,8 +32,8 @@ class QAccessWidget : public QWidget
     friend class QAlphaWidget;
     friend class QRollEffect;
 public:
-    QAccessWidget(QWidget* parent=0, const char* name=0, Qt::WFlags f = 0)
-        : QWidget(parent, name, f) {}
+    QAccessWidget(QWidget* parent=0, Qt::WFlags f = 0)
+        : QWidget(parent, f) {}
 };
 
 /*
@@ -80,7 +80,7 @@ static QAlphaWidget* q_blend = 0;
   Constructs a QAlphaWidget.
 */
 QAlphaWidget::QAlphaWidget(QWidget* w, Qt::WFlags f)
-    : QWidget(0, "qt internal alpha effect widget", f)
+    : QWidget(0, f)
 {
     setEnabled(false);
 
@@ -324,7 +324,7 @@ static QRollEffect* q_roll = 0;
   Construct a QRollEffect widget.
 */
 QRollEffect::QRollEffect(QWidget* w, Qt::WFlags f, DirFlags orient)
-    : QWidget(0, "qt internal roll effect widget", f), orientation(orient)
+    : QWidget(0, f), orientation(orient)
 {
     setEnabled(false);
     widget = (QAccessWidget*) w;
