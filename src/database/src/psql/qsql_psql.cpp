@@ -28,10 +28,13 @@ QVariant::Type qDecodePSQLType( int t )
     QVariant::Type type = QVariant::Invalid;
     switch ( t ) {
     case BOOLOID	:
+	type = QVariant::Bool;
+	break;
     case INT8OID	:
     case INT2OID	:
     case INT2VECTOROID  :
     case INT4OID        :
+    case OIDOID         :
 	type = QVariant::Int;
 	break;
     case NUMERICOID     :
@@ -65,7 +68,6 @@ QVariant::Type qDecodePSQLType( int t )
 	type = QVariant::ByteArray;
 	break;
     case REGPROCOID     :
-    case OIDOID         :
     case TIDOID         :
     case XIDOID         :
     case CIDOID         :
@@ -129,11 +131,11 @@ QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const 
 		   "and int4out(u.usesysid) = int4out(c.relowner) "
 		   "and c.oid= a.attrelid "
 		   "and a.atttypid = t.oid "
-		   "and (a.attnum > 0)");
+		   "and (a.attnum > 0);");
     QSql fi = driver->createResult();
     fi.setQuery( stmt.arg( tablename ).arg( fieldname ) );
     if ( fi.next() ) {
-	QSqlField f( fieldname, 0, qDecodePSQLType(fi.value(0).toInt()) );
+	QSqlField f( fieldname, 0, qDecodePSQLType( fi.value(0).toInt()) );
 	f.setPrimaryIndex( qIsPrimaryIndex( driver, tablename, fieldname ) );
 	return f;
     }
@@ -227,6 +229,12 @@ QVariant QPSQLResult::data( int i )
 	char* rawdata = PQgetvalue( d->result, at(), i );
 	int rawsize = PQfsize( d->result, i );
 	switch ( type ) {
+	case QVariant::Bool:
+	    { // ###
+		QString bs( rawdata );
+		bool b = ( bs == "t" );
+		return QVariant( b );
+	    }
 	case QVariant::String:
     	    return QVariant( QString(rawdata) );
 	case QVariant::Int:
@@ -291,11 +299,19 @@ QVariant QPSQLResult::data( int i )
 	    }
 	default:
 	case QVariant::Invalid:
+#ifdef CHECK_RANGE
+	    qWarning("QPSQLResult::data Warning: unknown data type");
+#endif
 	    return QVariant();
 	}
     } else {
 	QString val( PQgetvalue( d->result, at(), i ) );
 	switch ( type ) {
+	case QVariant::Bool:
+	    {
+	    QVariant b ( (bool)(val == "t"), 0 );
+	    return ( b );
+	    }
 	case QVariant::String:
 	    return QVariant( val );
 	case QVariant::Int:
@@ -343,6 +359,9 @@ QVariant QPSQLResult::data( int i )
 	    }
 	default:
 	case QVariant::Invalid:
+#ifdef CHECK_RANGE
+	    qWarning("QPSQLResult::data Warning: unknown data type");
+#endif
 	    return QVariant();
 	}
     }
@@ -386,7 +405,7 @@ QSqlFieldList QPSQLResult::fields()
 	QString name = PQfname( d->result, i );
 	QVariant::Type type = qDecodePSQLType( PQftype( d->result, i ) );
 	QSqlField rf( name, i, type );
-	if ( isActive() && isValid() ) 
+	if ( isActive() && isValid() )
 	    rf.setValue( data( i ) );
 	fil.append( rf );
     }
@@ -549,7 +568,7 @@ QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
 		   "and int4out(u.usesysid) = int4out(c.relowner) "
 		   "and c.oid= a.attrelid "
 		   "and a.atttypid = t.oid "
-		   "and (a.attnum > 0)");
+		   "and (a.attnum > 0);");
     QSql fi = createResult();
     fi.setQuery( stmt.arg( tablename ) );
     while ( fi.next() ) {
