@@ -1220,6 +1220,8 @@ bool QApplication::processNextEvent( bool canWait )
 {
     MSG	 msg;
 
+    emit guiThreadAwake();
+    
     sendPostedEvents();
 
     if ( canWait ) {				// can wait if necessary
@@ -1273,6 +1275,11 @@ void QApplication::processEvents( int maxtime )
     }
 }
 
+
+void QApplication::wakeUpGuiThread()
+{
+    //###### TODO send appropriate message
+}
 
 
 bool QApplication::winEventFilter( MSG * )	// Windows event filter

@@ -72,6 +72,12 @@
 #undef gettimeofday
 #endif
 
+#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+#include <sys/ioctl.h>
+static int qt_thread_pipe[2];
+#endif
+
+
 #include "qt_x11.h"
 
 #ifndef X11R4
@@ -1134,6 +1140,11 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
     }
+    
+#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+    pipe( qt_thread_pipe );
+#endif
+
 }
 
 void qt_init( int *argcptr, char **argv )
@@ -1506,12 +1517,12 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     if ( replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
-    
+
     QWidget* amw = activeModalWidget();
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
-	if ( w->testWState(WState_OwnCursor) && 
+	if ( w->testWState(WState_OwnCursor) &&
 	     ( !amw || w->topLevelWidget() == amw ) )	//   set a cursor
 	    XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
 	++it;
@@ -2052,6 +2063,8 @@ bool QApplication::processNextEvent( bool canWait )
     XEvent event;
     int	   nevents = 0;
 
+    emit guiThreadAwake();
+    
     if (qt_is_gui_used ) {
 	sendPostedEvents();
 
@@ -2091,11 +2104,19 @@ bool QApplication::processNextEvent( bool canWait )
 	FD_ZERO( &app_readfds );
     }
 
+    int highest = sn_highest;
     if ( qt_is_gui_used ) {
 	FD_SET( app_Xfd, &app_readfds );
+	highest = QMAX( highest, app_Xfd );
 	XFlush( appDpy );
     }
     int nsel;
+    
+#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+    FD_SET( qt_thread_pipe[1], &app_readfds );
+    highest = QMAX( highest, qt_thread_pipe[1] );
+#endif
+    
 
 #if defined(_OS_WIN32_)
 #define FDCAST (fd_set*)
@@ -2103,7 +2124,7 @@ bool QApplication::processNextEvent( bool canWait )
 #define FDCAST (void*)
 #endif
 
-    nsel = select( qt_is_gui_used ? ( QMAX(app_Xfd,sn_highest)+1) : (sn_highest+1) ,
+    nsel = select( highest + 1,
 		   FDCAST (&app_readfds),
 		   FDCAST (sn_write  ? &app_writefds  : 0),
 		   FDCAST (sn_except ? &app_exceptfds : 0),
@@ -2121,12 +2142,37 @@ bool QApplication::processNextEvent( bool canWait )
 	nevents += sn_activate();
     }
 
+#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+    if ( FD_ISSET( qt_thread_pipe[1], &app_readfds ) ) {
+	char c;
+	::read(qt_thread_pipe[0],&c,1);
+    }
+#endif
+
     nevents += qt_activate_timers();		// activate timers
     qt_reset_color_avail();			// color approx. optimization
-
+    
     return (nevents > 0);
 }
 
+
+
+/*!
+  Wakes up the GUI thread.
+
+  \sa guiThreadAwake()
+*/
+void QApplication::wakeUpGuiThread()
+{
+#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+    char c = '*';
+    int nbytes;
+    if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+	::write(  qt_thread_pipe[1], &c, 1  );
+    }
+#endif
+}
+    
 int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 {
     QETWidget *widget = (QETWidget*)w;

@@ -1329,6 +1329,16 @@ void QApplication::closeAllWindows()
   \sa quit()
 */
 
+
+/*!
+  \fn void QApplication::guiThreadAwake()
+
+  This signal is emitted when the GUI threads is about to process a cycle
+  of the event loop.
+  
+  \sa wakeUpGuiThread()
+*/
+
 /*!
   \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 

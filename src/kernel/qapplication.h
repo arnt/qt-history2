@@ -182,9 +182,13 @@ public:
     static void create_xim();
     static void close_xim();
 #endif
+    
+    void	     wakeUpGuiThread();
+    
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();
+    void	     guiThreadAwake();
 
 public slots:
     void	     quit();
