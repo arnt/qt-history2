@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#36 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#37 $
 **
 ** Implementation of QFontDialog
 **
@@ -526,7 +526,7 @@ void QFontDialog::updateFamilies()
 	s = *it;
 	if ( s.contains('-') ) {
 	    int i = s.find('-');
-	    s = s.left( i ) + " [" + s.right( s.length() - i - 1 ) + "]";
+	    s = s.right( s.length() - i - 1 ) + " [" + s.left( i ) + "]";
 	}
 	s[0] = s[0].upper();
 #if 0

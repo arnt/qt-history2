@@ -731,10 +731,10 @@ const QStringList &QFontDatabasePrivate::families( bool onlyForLocale ) const
 				  "Internal error, Cannot find first foundry");
 
 			that->familyNames.remove( *it );
-			s =  *it + "-" + firstFoundryName;
+			s = firstFoundryName + "-" + *it;
 			that->familyNames.append( s );
 		    }
-		    s = *it + "-" + foundry->name();
+		    s = foundry->name() + "-" + *it;
 		    that->familyNames.append( s );
 		}
 	    }
@@ -758,8 +758,8 @@ const QtFontFamily *QFontDatabasePrivate::family( const QString &name ) const
 
 	if ( name.contains('-') ) {
 	    int i = name.find('-');
-	    QString familyName  = name.left( i );
-    	    QString foundryName = name.right( name.length() - i - 1 );
+	    QString foundryName = name.left( i );
+    	    QString familyName = name.right( name.length() - i - 1 );
 	    fndry = foundry( foundryName );
 	    if ( fndry ) {
 		fam = fndry->family( familyName );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#166 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1147,8 +1147,8 @@ QCString QFont_Private::findFont( bool *exact )
     
     if ( familyName.contains('-') ) {
 	int i = familyName.find('-');
-	foundry    = familyName.right( familyName.length() - i - 1 );
-	familyName = familyName.left( i );
+	foundry = familyName.left( i );
+	familyName = familyName.right( familyName.length() - i - 1 );
     }
 
     if ( needsSet() ) {
