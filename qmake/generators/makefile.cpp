@@ -897,9 +897,7 @@ MakefileGenerator::init()
 					continue;
 				    } else {
 					for(int i = 0; i < (int)d.count(); i++) {
-					    QString file = fileFixify(dir + d[i], real_dir);
-					    qDebug("%s::, %s -- %s", dir.latin1(), d[i].latin1(), 
-						   real_dir.latin1(), file.latin1());
+					    QString file = fileFixify(dir + d[i]);
 					    if(i == (int)d.count() - 1)
 						(*val_it) = file;
 					    else
