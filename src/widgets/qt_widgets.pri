@@ -1,10 +1,8 @@
 # Qt widgets module
 
 widgets {
-	win32:WIDGETS_H	= ../include
-	unix:WIDGETS_H	= widgets
 	WIDGETS_P	= widgets
-	unix:DEPENDPATH += :$$WIDGETS_H
+
 	HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
@@ -61,64 +59,60 @@ widgets {
 		  $$WIDGETS_H/qwindowsstyle.h \
 		  $$WIDGETS_H/qaction.h
 
-	embedded:HEADERS   += $$WIDGETS_H/qcompactstyle.h
-	embedded:SOURCES += $$WIDGETS_H/qcompactstyle.cpp	
-
-	SOURCES += widgets/qbuttongroup.cpp \
-		  widgets/qbutton.cpp \
-		  widgets/qcdestyle.cpp \
-		  widgets/qcheckbox.cpp \
-		  widgets/qcombobox.cpp \
-		  widgets/qwidgetresizehandler.cpp \
-		  widgets/qcommonstyle.cpp \
-		  widgets/qdial.cpp \
-		  widgets/qdockarea.cpp \
-		  widgets/qdockwindow.cpp \
-		  widgets/qframe.cpp \
-		  widgets/qgrid.cpp \
-		  widgets/qgroupbox.cpp \
-		  widgets/qhbuttongroup.cpp \
-		  widgets/qheader.cpp \
-		  widgets/qhgroupbox.cpp \
-		  widgets/qhbox.cpp \
-		  widgets/qlabel.cpp \
-		  widgets/qlcdnumber.cpp \
-		  widgets/qlineedit.cpp \
-		  widgets/qlistbox.cpp \
-		  widgets/qlistview.cpp \
-		  widgets/qmainwindow.cpp \
-		  widgets/qmenubar.cpp \
-		  widgets/qmenudata.cpp \
-		  widgets/qmotifstyle.cpp \
-		  widgets/qmotifplusstyle.cpp \
-		  widgets/qmultilineedit.cpp \
-		  widgets/qplatinumstyle.cpp \
-		  widgets/qpopupmenu.cpp \
-		  widgets/qprogressbar.cpp \
-		  widgets/qpushbutton.cpp \
-		  widgets/qradiobutton.cpp \
-		  widgets/qrangecontrol.cpp \
-		  widgets/qscrollbar.cpp \
-		  widgets/qscrollview.cpp \
-		  widgets/qsgistyle.cpp \
-		  widgets/qslider.cpp \
-		  widgets/qspinbox.cpp \
-		  widgets/qsplitter.cpp \
-		  widgets/qstatusbar.cpp \
-		  widgets/qtabbar.cpp \
-		  widgets/qtabwidget.cpp \
-		  widgets/qtableview.cpp \
-		  widgets/qtoolbar.cpp \
-		  widgets/qtoolbutton.cpp \
-		  widgets/qtooltip.cpp \
-		  widgets/qvalidator.cpp \
-		  widgets/qvbox.cpp \
-		  widgets/qvbuttongroup.cpp \
-		  widgets/qvgroupbox.cpp \
-		  widgets/qwhatsthis.cpp \
-		  widgets/qwidgetstack.cpp \
-		  widgets/qwindowsstyle.cpp \
-		  widgets/qaction.cpp \
-		  widgets/qeffects.cpp
-	embedded:SOURCES += $$WIDGETS_H/qcompactstyle.cpp
+	SOURCES += $$WIDGETS_CPP/qbuttongroup.cpp \
+		  $$WIDGETS_CPP/qbutton.cpp \
+		  $$WIDGETS_CPP/qcdestyle.cpp \
+		  $$WIDGETS_CPP/qcheckbox.cpp \
+		  $$WIDGETS_CPP/qcombobox.cpp \
+		  $$WIDGETS_CPP/qwidgetresizehandler.cpp \
+		  $$WIDGETS_CPP/qcommonstyle.cpp \
+		  $$WIDGETS_CPP/qdial.cpp \
+		  $$WIDGETS_CPP/qdockarea.cpp \
+		  $$WIDGETS_CPP/qdockwindow.cpp \
+		  $$WIDGETS_CPP/qframe.cpp \
+		  $$WIDGETS_CPP/qgrid.cpp \
+		  $$WIDGETS_CPP/qgroupbox.cpp \
+		  $$WIDGETS_CPP/qhbuttongroup.cpp \
+		  $$WIDGETS_CPP/qheader.cpp \
+		  $$WIDGETS_CPP/qhgroupbox.cpp \
+		  $$WIDGETS_CPP/qhbox.cpp \
+		  $$WIDGETS_CPP/qlabel.cpp \
+		  $$WIDGETS_CPP/qlcdnumber.cpp \
+		  $$WIDGETS_CPP/qlineedit.cpp \
+		  $$WIDGETS_CPP/qlistbox.cpp \
+		  $$WIDGETS_CPP/qlistview.cpp \
+		  $$WIDGETS_CPP/qmainwindow.cpp \
+		  $$WIDGETS_CPP/qmenubar.cpp \
+		  $$WIDGETS_CPP/qmenudata.cpp \
+		  $$WIDGETS_CPP/qmotifstyle.cpp \
+		  $$WIDGETS_CPP/qmotifplusstyle.cpp \
+		  $$WIDGETS_CPP/qmultilineedit.cpp \
+		  $$WIDGETS_CPP/qplatinumstyle.cpp \
+		  $$WIDGETS_CPP/qpopupmenu.cpp \
+		  $$WIDGETS_CPP/qprogressbar.cpp \
+		  $$WIDGETS_CPP/qpushbutton.cpp \
+		  $$WIDGETS_CPP/qradiobutton.cpp \
+		  $$WIDGETS_CPP/qrangecontrol.cpp \
+		  $$WIDGETS_CPP/qscrollbar.cpp \
+		  $$WIDGETS_CPP/qscrollview.cpp \
+		  $$WIDGETS_CPP/qsgistyle.cpp \
+		  $$WIDGETS_CPP/qslider.cpp \
+		  $$WIDGETS_CPP/qspinbox.cpp \
+		  $$WIDGETS_CPP/qsplitter.cpp \
+		  $$WIDGETS_CPP/qstatusbar.cpp \
+		  $$WIDGETS_CPP/qtabbar.cpp \
+		  $$WIDGETS_CPP/qtabwidget.cpp \
+		  $$WIDGETS_CPP/qtableview.cpp \
+		  $$WIDGETS_CPP/qtoolbar.cpp \
+		  $$WIDGETS_CPP/qtoolbutton.cpp \
+		  $$WIDGETS_CPP/qtooltip.cpp \
+		  $$WIDGETS_CPP/qvalidator.cpp \
+		  $$WIDGETS_CPP/qvbox.cpp \
+		  $$WIDGETS_CPP/qvbuttongroup.cpp \
+		  $$WIDGETS_CPP/qvgroupbox.cpp \
+		  $$WIDGETS_CPP/qwhatsthis.cpp \
+		  $$WIDGETS_CPP/qwidgetstack.cpp \
+		  $$WIDGETS_CPP/qwindowsstyle.cpp \
+		  $$WIDGETS_CPP/qaction.cpp \
+		  $$WIDGETS_CPP/qeffects.cpp
 }

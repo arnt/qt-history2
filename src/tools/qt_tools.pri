@@ -1,9 +1,6 @@
 # Qt tools module
 
 tools {
-	win32:TOOLS_H	= ../include
-	unix:TOOLS_H	= tools
-	unix:DEPENDPATH	+= :$$TOOLS_H
 	TOOLS_P		= tools
 	HEADERS +=  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
@@ -58,46 +55,46 @@ tools {
 	          $$TOOLS_H/qvaluelist.h
 
 
-	win32:SOURCES += tools/qdir_win.cpp \
-	 	  tools/qfile_win.cpp \
-		  tools/qfileinfo_win.cpp
+	win32:SOURCES += $$TOOLS_CPP/qdir_win.cpp \
+	 	  $$TOOLS_CPP/qfile_win.cpp \
+		  $$TOOLS_CPP/qfileinfo_win.cpp
 
-	unix:SOURCES += tools/qdir_unix.cpp \
-		  tools/qfile_unix.cpp \
-		  tools/qfileinfo_unix.cpp
+	unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
+		  $$TOOLS_CPP/qfile_unix.cpp \
+		  $$TOOLS_CPP/qfileinfo_unix.cpp
 
-	SOURCES += tools/qbig5codec.cpp \
-		  tools/qbitarray.cpp \
-		  tools/qbuffer.cpp \
-		  tools/qcollection.cpp \
-		  tools/qcstring.cpp \
-		  tools/qdatastream.cpp \
-		  tools/qdatetime.cpp \
-		  tools/qdir.cpp \
-		  tools/qeucjpcodec.cpp \
-		  tools/qeuckrcodec.cpp \
-		  tools/qfile.cpp \
-		  tools/qfileinfo.cpp \
-		  tools/qgarray.cpp \
-		  tools/qgbkcodec.cpp \
-		  tools/qgcache.cpp \
-		  tools/qgdict.cpp \
-		  tools/qglist.cpp \
-		  tools/qglobal.cpp \
-		  tools/qgvector.cpp \
-		  tools/qiodevice.cpp \
-		  tools/qjiscodec.cpp \
-		  tools/qjpunicode.cpp \
-		  tools/qmap.cpp \
-		  tools/qregexp.cpp \
-		  tools/qrtlcodec.cpp \
-		  tools/qsjiscodec.cpp \
-		  tools/qstring.cpp \
-		  tools/qstringlist.cpp \
-		  tools/qtextcodec.cpp \
-		  tools/qtextstream.cpp \
-		  tools/qtsciicodec.cpp \
-		  tools/qutfcodec.cpp
+	SOURCES += $$TOOLS_CPP/qbig5codec.cpp \
+		  $$TOOLS_CPP/qbitarray.cpp \
+		  $$TOOLS_CPP/qbuffer.cpp \
+		  $$TOOLS_CPP/qcollection.cpp \
+		  $$TOOLS_CPP/qcstring.cpp \
+		  $$TOOLS_CPP/qdatastream.cpp \
+		  $$TOOLS_CPP/qdatetime.cpp \
+		  $$TOOLS_CPP/qdir.cpp \
+		  $$TOOLS_CPP/qeucjpcodec.cpp \
+		  $$TOOLS_CPP/qeuckrcodec.cpp \
+		  $$TOOLS_CPP/qfile.cpp \
+		  $$TOOLS_CPP/qfileinfo.cpp \
+		  $$TOOLS_CPP/qgarray.cpp \
+		  $$TOOLS_CPP/qgbkcodec.cpp \
+		  $$TOOLS_CPP/qgcache.cpp \
+		  $$TOOLS_CPP/qgdict.cpp \
+		  $$TOOLS_CPP/qglist.cpp \
+		  $$TOOLS_CPP/qglobal.cpp \
+		  $$TOOLS_CPP/qgvector.cpp \
+		  $$TOOLS_CPP/qiodevice.cpp \
+		  $$TOOLS_CPP/qjiscodec.cpp \
+		  $$TOOLS_CPP/qjpunicode.cpp \
+		  $$TOOLS_CPP/qmap.cpp \
+		  $$TOOLS_CPP/qregexp.cpp \
+		  $$TOOLS_CPP/qrtlcodec.cpp \
+		  $$TOOLS_CPP/qsjiscodec.cpp \
+		  $$TOOLS_CPP/qstring.cpp \
+		  $$TOOLS_CPP/qstringlist.cpp \
+		  $$TOOLS_CPP/qtextcodec.cpp \
+		  $$TOOLS_CPP/qtextstream.cpp \
+		  $$TOOLS_CPP/qtsciicodec.cpp \
+		  $$TOOLS_CPP/qutfcodec.cpp
 
 
 }

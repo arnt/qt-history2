@@ -335,6 +335,12 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 
 	QString file = args.first();
 	file.replace(QRegExp("\""), "");
+
+	int rep, rep_len;
+	QRegExp reg_var("\\$\\$[a-zA-Z0-9_-]*");
+	while((rep = reg_var.match(file, 0, &rep_len)) != -1) 
+	    file.replace(rep, rep_len, place[file.mid(rep + 2, rep_len - 2)].join(" "));
+
 	if(Option::debug_level)
 	    printf("Project Parser: Including file %s.\n", file.latin1());
 	int l = line_count;

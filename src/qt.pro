@@ -7,22 +7,64 @@ DLLDESTDIR	= ../bin
 
 CONFIG		+= qt warn_on release
 
+KERNEL_CPP	= kernel	
+CANVAS_CPP      = canvas
+WIDGETS_CPP	= widgets
+SQL_CPP	        = sql
+TABLE_CPP	= table
+DIALOGS_CPP	= dialogs
+ICONVIEW_CPP	= iconview
+NETWORK_CPP	= network
+OPENGL_CPP	= opengl
+TOOLS_CPP	= tools
+WORKSPACE_CPP	= workspace
+XML_CPP	        = xml
+
 win32 {
+	WIN_ALL_H = ../include
+	SQL_H	= $$WIN_ALL_H
+	KERNEL_H	= $$WIN_ALL_H
+	WIDGETS_H	= $$WIN_ALL_H
+	TABLE_H	= $$WIN_ALL_H
+	DIALOGS_H	= $$WIN_ALL_H
+	ICONVIEW_H	= $$WIN_ALL_H
+	NETWORK_H	= $$WIN_ALL_H
+	OPENGL_H	= $$WIN_ALL_H
+	TOOLS_H	= $$WIN_ALL_H
+	WORKSPACE_H	= $$WIN_ALL_H
+	XML_H	= $$WIN_ALL_H
+	CANVAS_H	= $$WIN_ALL_H
+
 	CONFIG	+= png zlib
 	CONFIG -= jpeg
 	DEFINES += QT_NO_IMAGEIO_JPEG UNICODE
 	INCLUDEPATH      += tmp
 	MOC_DIR	  = tmp
 	OBJECTS_DIR = tmp
-	DEPENDPATH = ../include
 }
 win32-borland:INCLUDEPATH += kernel
 
 unix {
+	CANVAS_H	= canvas
+	KERNEL_H	= kernel	
+	WIDGETS_H	= widgets
+	SQL_H	= sql
+	TABLE_H	= table
+	DIALOGS_H	= dialogs
+	ICONVIEW_H	= iconview
+	NETWORK_H	= network
+	OPENGL_H	= opengl
+	TOOLS_H	= tools
+	WORKSPACE_H	= workspace
+	XML_H	= xml
+
 	CONFIG	   += x11 x11inc
 	DEFINES    += QT_FATAL_ASSERT
 	LIBS += -ldl
 }
+
+DEPENDPATH += :$$NETWORK_H:$$KERNEL_H:$$WIDGETS_H:$$SQL_H:$$TABLE_H:$$DIALOGS_H:
+DEPENDPATH += $$ICONVIEW_H:$$OPENGL_H:$$TOOLS_H:$$WORKSPACE_H:$$XML_H:$$CANVAS_H
 
 thread {
 	TARGET = qt-mt
@@ -42,22 +84,20 @@ cups {
 	LIBS += -lcups
 }
 
-include(kernel/qt_compat.pri):
-include(kernel/qt_gfx.pri):
-include(kernel/qt_embedded.pri):
-include(tools/qt_tools.pri):
-include(kernel/qt_kernel.pri):
-include(widgets/qt_widgets.pri):
-include(dialogs/qt_dialogs.pri):
-include(iconview/qt_iconview.pri):
-include(workspace/qt_workspace.pri):
-include(network/qt_network.pri):
-include(canvas/qt_canvas.pri):
-include(table/qt_table.pri):
-include(xml/qt_xml.pri):
-include(opengl/qt_opengl.pri):
-include(sql/qt_sql.pri):
-
-
+include($$KERNEL_CPP/qt_compat.pri):
+include($$KERNEL_CPP/qt_embedded.pri):
+include($$KERNEL_CPP/qt_kernel.pri):
+include($$WIDGETS_CPP/qt_widgets.pri):
+include($$DIALOGS_CPP/qt_dialogs.pri):
+include($$ICONVIEW_CPP/qt_iconview.pri):
+include($$WORKSPACE_CPP/qt_workspace.pri):
+include($$NETWORK_CPP/qt_network.pri):
+include($$CANVAS_CPP/qt_canvas.pri):
+include($$TABLE_CPP/qt_table.pri):
+include($$XML_CPP/qt_xml.pri):
+include($$OPENGL_CPP/qt_opengl.pri):
+include($$SQL_CPP/qt_sql.pri):
+include($$KERNEL_CPP/qt_gfx.pri):
+include($$TOOLS_CPP/qt_tools.pri):
 
 

@@ -1,10 +1,7 @@
 # Qt kernel module
 
 kernel {
-	win32:KERNEL_H	= ../include
-	unix:KERNEL_H	= kernel	
 	KERNEL_P	= kernel
-	unix:DEPENDPATH	+= :$$KERNEL_H
 	HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
@@ -95,145 +92,110 @@ kernel {
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h
 
-	win32:SOURCES += kernel/qapplication_win.cpp \
-		  kernel/qclipboard_win.cpp \
-		  kernel/qcolor_win.cpp \
-		  kernel/qcursor_win.cpp \
-		  kernel/qdnd_win.cpp \
-		  kernel/qfont_win.cpp \
-		  kernel/qmime_win.cpp \
-		  kernel/qpixmap_win.cpp \
-		  kernel/qprinter_win.cpp \
-		  kernel/qprocess_win.cpp \
-		  kernel/qpaintdevice_win.cpp \
-		  kernel/qpainter_win.cpp \
-		  kernel/qregion_win.cpp \
-		  kernel/qsound_win.cpp \
-		  kernel/qthread_win.cpp \
-		  kernel/qwidget_win.cpp \
-		  kernel/qole_win.c
+	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
+		  $$KERNEL_CPP/qclipboard_win.cpp \
+		  $$KERNEL_CPP/qcolor_win.cpp \
+		  $$KERNEL_CPP/qcursor_win.cpp \
+		  $$KERNEL_CPP/qdnd_win.cpp \
+		  $$KERNEL_CPP/qfont_win.cpp \
+		  $$KERNEL_CPP/qmime_win.cpp \
+		  $$KERNEL_CPP/qpixmap_win.cpp \
+		  $$KERNEL_CPP/qprinter_win.cpp \
+		  $$KERNEL_CPP/qprocess_win.cpp \
+		  $$KERNEL_CPP/qpaintdevice_win.cpp \
+		  $$KERNEL_CPP/qpainter_win.cpp \
+		  $$KERNEL_CPP/qregion_win.cpp \
+		  $$KERNEL_CPP/qsound_win.cpp \
+		  $$KERNEL_CPP/qthread_win.cpp \
+		  $$KERNEL_CPP/qwidget_win.cpp \
+		  $$KERNEL_CPP/qole_win.c
 	
-	embedded {
-		SOURCES += kernel/qapplication_qws.cpp \
-			  kernel/qclipboard_qws.cpp \
-			  kernel/qcolor_qws.cpp \
-			  kernel/qcursor_qws.cpp \
-			  kernel/qdnd_qws.cpp \
-			  kernel/qfont_qws.cpp \
-			  kernel/qpixmap_qws.cpp \
-			  kernel/qprinter_qws.cpp \
-			  kernel/qpaintdevice_qws.cpp \
-			  kernel/qpainter_qws.cpp \
-			  kernel/qregion_qws.cpp \
-			  kernel/qsound_qws.cpp \
-			  kernel/qwidget_qws.cpp \
-			  kernel/qgfx_qws.cpp \
-			  kernel/qgfxraster_qws.cpp \
-			  kernel/qfontmanager_qws.cpp \
-			  kernel/qfontfactorybdf_qws.cpp \
-			  kernel/qfontfactoryttf_qws.cpp \
-			  kernel/qmemorymanager_qws.cpp \
-			  kernel/qwscommand_qws.cpp \
-			  kernel/qwsevent_qws.cpp \
-			  kernel/qwindowsystem_qws.cpp \
-			  kernel/qkeyboard_qws.cpp \
-			  kernel/qwscursor_qws.cpp \
-			  kernel/qwsmouse_qws.cpp \
-			  kernel/qwsmanager_qws.cpp \
-			  kernel/qwsproperty_qws.cpp \
-			  kernel/qlock_qws.cpp \
-			  kernel/qwsregionmanager_qws.cpp \
-			  kernel/qwssocket_qws.cpp
+	unix:x11 {
+	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
+		          $$KERNEL_CPP/qclipboard_x11.cpp \
+			  $$KERNEL_CPP/qcolor_x11.cpp \
+			  $$KERNEL_CPP/qcursor_x11.cpp \
+			  $$KERNEL_CPP/qdnd_x11.cpp \
+			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
+			  $$KERNEL_CPP/qpixmap_x11.cpp \
+			  $$KERNEL_CPP/qprinter_x11.cpp \
+			  $$KERNEL_CPP/qpaintdevice_x11.cpp \
+			  $$KERNEL_CPP/qpainter_x11.cpp \
+			  $$KERNEL_CPP/qregion_x11.cpp \
+			  $$KERNEL_CPP/qsound_x11.cpp \
+			  $$KERNEL_CPP/qwidget_x11.cpp \
+			  $$KERNEL_CPP/qnpsupport.cpp \
+			  $$KERNEL_CPP/qwidgetcreate_x11.cpp 
 	}
 
-	!embedded {
-		unix {
-			SOURCES += kernel/qapplication_x11.cpp \
-			  kernel/qclipboard_x11.cpp \
-			  kernel/qcolor_x11.cpp \
-			  kernel/qcursor_x11.cpp \
-			  kernel/qdnd_x11.cpp \
-			  kernel/qmotifdnd_x11.cpp \
-			  kernel/qpixmap_x11.cpp \
-			  kernel/qprinter_x11.cpp \
-			  kernel/qpaintdevice_x11.cpp \
-			  kernel/qpainter_x11.cpp \
-			  kernel/qregion_x11.cpp \
-			  kernel/qsound_x11.cpp \
-			  kernel/qwidget_x11.cpp \
-			  kernel/qnpsupport.cpp \
-			  kernel/qwidgetcreate_x11.cpp 
-		}
-	}
+	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
+		    $$KERNEL_CPP/qprocess_unix.cpp \
+		    $$KERNEL_CPP/qthread_unix.cpp
 
-	unix:SOURCES += kernel/qpsprinter.cpp \
-		    kernel/qprocess_unix.cpp \
-		    kernel/qthread_unix.cpp
-
-	SOURCES += kernel/qabstractlayout.cpp \
-		  kernel/qaccel.cpp \
-		  kernel/qapplication.cpp \
-		  kernel/qasyncimageio.cpp \
-		  kernel/qasyncio.cpp \
-		  kernel/qbitmap.cpp \
-		  kernel/qclipboard.cpp \
-		  kernel/qcolor.cpp \
-		  kernel/qcolor_p.cpp \
-		  kernel/qcomponentinterface.cpp \
-		  kernel/qconnection.cpp \
-		  kernel/qcursor.cpp \
-		  kernel/qdialog.cpp \
-		  kernel/qdragobject.cpp \
-		  kernel/qdrawutil.cpp \
-		  kernel/qdropsite.cpp \
-		  kernel/qevent.cpp \
-		  kernel/qfocusdata.cpp \
-		  kernel/qfont.cpp \
-		  kernel/qfontdatabase.cpp \
-		  kernel/qguardedptr.cpp \
-		  kernel/qiconset.cpp \
-		  kernel/qimage.cpp \
-		  kernel/qjpegio.cpp \
-		  kernel/qlayout.cpp \
-		  kernel/qlayoutengine.cpp \
-		  kernel/qtranslator.cpp \
-		  kernel/qmetaobject.cpp \
-		  kernel/qmime.cpp \
-		  kernel/qmngio.cpp \
-		  kernel/qmovie.cpp \
-		  kernel/qnetworkprotocol.cpp \
-		  kernel/qobject.cpp \
-		  kernel/qpainter.cpp \
-		  kernel/qpalette.cpp \
-		  kernel/qpaintdevicemetrics.cpp \
-		  kernel/qpicture.cpp \
-		  kernel/qpixmap.cpp \
-		  kernel/qpixmapcache.cpp \
-		  kernel/qplugin.cpp \
-		  kernel/qpngio.cpp \
-		  kernel/qpointarray.cpp \
-		  kernel/qpoint.cpp \
-		  kernel/qpolygonscanner.cpp \
-		  kernel/qprinter.cpp \
-		  kernel/qprocess.cpp \
-		  kernel/qrect.cpp \
-		  kernel/qregion.cpp \
-		  kernel/qsignal.cpp \
-		  kernel/qsignalmapper.cpp \
-		  kernel/qsize.cpp \
-		  kernel/qsizegrip.cpp \
-		  kernel/qstyle.cpp \
-		  kernel/qsocketnotifier.cpp \
-		  kernel/qsound.cpp \
-		  kernel/qstylesheet.cpp \
-		  kernel/qtimer.cpp \
-		  kernel/qurl.cpp \
-		  kernel/qlocalfs.cpp \
-		  kernel/qurloperator.cpp \
-		  kernel/qurlinfo.cpp \
-		  kernel/qwidget.cpp \
-		  kernel/qwmatrix.cpp \
-		  kernel/qvariant.cpp
+	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
+		  $$KERNEL_CPP/qaccel.cpp \
+		  $$KERNEL_CPP/qapplication.cpp \
+		  $$KERNEL_CPP/qasyncimageio.cpp \
+		  $$KERNEL_CPP/qasyncio.cpp \
+		  $$KERNEL_CPP/qbitmap.cpp \
+		  $$KERNEL_CPP/qclipboard.cpp \
+		  $$KERNEL_CPP/qcolor.cpp \
+		  $$KERNEL_CPP/qcolor_p.cpp \
+		  $$KERNEL_CPP/qcomponentinterface.cpp \
+		  $$KERNEL_CPP/qconnection.cpp \
+		  $$KERNEL_CPP/qcursor.cpp \
+		  $$KERNEL_CPP/qdialog.cpp \
+		  $$KERNEL_CPP/qdragobject.cpp \
+		  $$KERNEL_CPP/qdrawutil.cpp \
+		  $$KERNEL_CPP/qdropsite.cpp \
+		  $$KERNEL_CPP/qevent.cpp \
+		  $$KERNEL_CPP/qfocusdata.cpp \
+		  $$KERNEL_CPP/qfont.cpp \
+		  $$KERNEL_CPP/qfontdatabase.cpp \
+		  $$KERNEL_CPP/qguardedptr.cpp \
+		  $$KERNEL_CPP/qiconset.cpp \
+		  $$KERNEL_CPP/qimage.cpp \
+		  $$KERNEL_CPP/qjpegio.cpp \
+		  $$KERNEL_CPP/qlayout.cpp \
+		  $$KERNEL_CPP/qlayoutengine.cpp \
+		  $$KERNEL_CPP/qtranslator.cpp \
+		  $$KERNEL_CPP/qmetaobject.cpp \
+		  $$KERNEL_CPP/qmime.cpp \
+		  $$KERNEL_CPP/qmngio.cpp \
+		  $$KERNEL_CPP/qmovie.cpp \
+		  $$KERNEL_CPP/qnetworkprotocol.cpp \
+		  $$KERNEL_CPP/qobject.cpp \
+		  $$KERNEL_CPP/qpainter.cpp \
+		  $$KERNEL_CPP/qpalette.cpp \
+		  $$KERNEL_CPP/qpaintdevicemetrics.cpp \
+		  $$KERNEL_CPP/qpicture.cpp \
+		  $$KERNEL_CPP/qpixmap.cpp \
+		  $$KERNEL_CPP/qpixmapcache.cpp \
+		  $$KERNEL_CPP/qplugin.cpp \
+		  $$KERNEL_CPP/qpngio.cpp \
+		  $$KERNEL_CPP/qpointarray.cpp \
+		  $$KERNEL_CPP/qpoint.cpp \
+		  $$KERNEL_CPP/qpolygonscanner.cpp \
+		  $$KERNEL_CPP/qprinter.cpp \
+		  $$KERNEL_CPP/qprocess.cpp \
+		  $$KERNEL_CPP/qrect.cpp \
+		  $$KERNEL_CPP/qregion.cpp \
+		  $$KERNEL_CPP/qsignal.cpp \
+		  $$KERNEL_CPP/qsignalmapper.cpp \
+		  $$KERNEL_CPP/qsize.cpp \
+		  $$KERNEL_CPP/qsizegrip.cpp \
+		  $$KERNEL_CPP/qstyle.cpp \
+		  $$KERNEL_CPP/qsocketnotifier.cpp \
+		  $$KERNEL_CPP/qsound.cpp \
+		  $$KERNEL_CPP/qstylesheet.cpp \
+		  $$KERNEL_CPP/qtimer.cpp \
+		  $$KERNEL_CPP/qurl.cpp \
+		  $$KERNEL_CPP/qlocalfs.cpp \
+		  $$KERNEL_CPP/qurloperator.cpp \
+		  $$KERNEL_CPP/qurlinfo.cpp \
+		  $$KERNEL_CPP/qwidget.cpp \
+		  $$KERNEL_CPP/qwmatrix.cpp \
+		  $$KERNEL_CPP/qvariant.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h

@@ -14,9 +14,6 @@ sql_odbc:CONFIG += sql
 !sql:DEFINES    += QT_NO_SQL
 
 sql {
-	win32:SQL_H	= ../include
-	unix:SQL_H	= sql
-	unix:DEPENDPATH += :$$SQL_H
 
 	HEADERS     += $$SQL_H/qsql.h \
 		    $$SQL_H/qsqlconnection.h \
@@ -33,23 +30,23 @@ sql {
 		    $$SQL_H/qsqlindex.h \
 		    $$SQL_H/qsqltable.h
 
-	SOURCES     += sql/qsql.cpp \
-		    sql/qsqldatabase.cpp \
-		    sql/qsqlconnection.cpp \
-		    sql/qsqlfield.cpp \
-		    sql/qsqlform.cpp \
-		    sql/qsqlview.cpp \
-		    sql/qsqleditorfactory.cpp \
-		    sql/qsqldriver.cpp \
-		    sql/qsqldriverplugin.cpp \
-		    sql/qsqlerror.cpp \
-		    sql/qsqlresult.cpp \
-		    sql/qsqlindex.cpp \
-		    sql/qsqltable.cpp
+	SOURCES     += $$SQL_CPP/qsql.cpp \
+		    $$SQL_CPP/qsqldatabase.cpp \
+		    $$SQL_CPP/qsqlconnection.cpp \
+		    $$SQL_CPP/qsqlfield.cpp \
+		    $$SQL_CPP/qsqlform.cpp \
+		    $$SQL_CPP/qsqlview.cpp \
+		    $$SQL_CPP/qsqleditorfactory.cpp \
+		    $$SQL_CPP/qsqldriver.cpp \
+		    $$SQL_CPP/qsqldriverplugin.cpp \
+		    $$SQL_CPP/qsqlerror.cpp \
+		    $$SQL_CPP/qsqlresult.cpp \
+		    $$SQL_CPP/qsqlindex.cpp \
+		    $$SQL_CPP/qsqltable.cpp
 
 	sql_postgres {
-		HEADERS += $$SQL_H/src/psql/qsql_psql.h
-		SOURCES += sql/src/psql/qsql_psql.cpp
+		HEADERS += $$SQL_H/src/p$$SQL_CPP/qsql_psql.h
+		SOURCES += $$SQL_CPP/src/p$$SQL_CPP/qsql_psql.cpp
 		DEFINES += QT_SQL_POSTGRES
 		unix {
 			INCLUDEPATH += /usr/include/postgresql
@@ -58,8 +55,8 @@ sql {
 	}
 
 	sql_mysql {
-		HEADERS += $$SQL_H/src/mysql/qsql_mysql.h
-		SOURCES += sql/src/mysql/qsql_mysql.cpp
+		HEADERS += $$SQL_H/src/my$$SQL_CPP/qsql_mysql.h
+		SOURCES += $$SQL_CPP/src/my$$SQL_CPP/qsql_mysql.cpp
 		DEFINES += QT_SQL_MYSQL
 		unix {
 			INCLUDEPATH += /usr/include/mysql
@@ -69,7 +66,7 @@ sql {
 	
 	sql_odbc {
 		HEADERS += $$SQL_H/src/odbc/qsql_odbc.h
-		SOURCES += sql/src/odbc/qsql_odbc.cpp
+		SOURCES += $$SQL_CPP/src/odbc/qsql_odbc.cpp
 		DEFINES += QT_SQL_ODBC
 		unix {
 			INCLUDEPATH += /usr/local/include

@@ -1,9 +1,6 @@
 # Qt network module
 
 network {
-	win32:NETWORK_H	= ../include
-	unix:NETWORK_H	= network
-	unix:DEPENDPATH += :$$NETWORK_H
 	HEADERS += $$NETWORK_H/qdns.h \
 		    $$NETWORK_H/qftp.h \
 		    $$NETWORK_H/qhttp.h \
@@ -12,15 +9,15 @@ network {
 		    $$NETWORK_H/qserversocket.h \
 		    $$NETWORK_H/qsocket.h \
 		    $$NETWORK_H/qsocketdevice.h
-	NETWORK_SOURCES	= network/qdns.cpp \
-		    network/qftp.cpp \
-		    network/qhttp.cpp \
-		    network/qhostaddress.cpp \
-		    network/qnetwork.cpp \
-		    network/qserversocket.cpp \
-		    network/qsocket.cpp \
-		    network/qsocketdevice.cpp
-	unix:NETWORK_SOURCES += network/qsocketdevice_unix.cpp
-	win32:NETWORK_SOURCES += network/qsocketdevice_win.cpp
+	NETWORK_SOURCES	= $$NETWORK_CPP/qdns.cpp \
+		    $$NETWORK_CPP/qftp.cpp \
+		    $$NETWORK_CPP/qhttp.cpp \
+		    $$NETWORK_CPP/qhostaddress.cpp \
+		    $$NETWORK_CPP/qnetwork.cpp \
+		    $$NETWORK_CPP/qserversocket.cpp \
+		    $$NETWORK_CPP/qsocket.cpp \
+		    $$NETWORK_CPP/qsocketdevice.cpp
+	unix:NETWORK_SOURCES += $$NETWORK_CPP/qsocketdevice_unix.cpp
+	win32:NETWORK_SOURCES += $$NETWORK_CPP/qsocketdevice_win.cpp
 	SOURCES    += $$NETWORK_SOURCES
 }

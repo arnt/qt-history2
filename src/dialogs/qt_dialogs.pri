@@ -1,10 +1,7 @@
 # Qt dialogs module
 
 dialogs {
-	win32:DIALOGS_H	= ../include
-	unix:DIALOGS_H	= dialogs
 	DIALOGS_P	= dialogs
-	unix:DEPENDPATH += :$$DIALOGS_H
 
 	HEADERS	+= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qerrormessage.h \
@@ -16,17 +13,17 @@ dialogs {
 		  $$DIALOGS_H/qwizard.h \
 		  $$DIALOGS_H/qinputdialog.h
 
-	win32:SOURCES += dialogs/qfiledialog_win.cpp
-	unix:SOURCES += dialogs/qprintdialog.cpp
+	win32:SOURCES += $$DIALOGS_CPP/qfiledialog_win.cpp
+	unix:SOURCES += $$DIALOGS_CPP/qprintdialog.cpp
 	unix:HEADERS   += $$DIALOGS_H/qprintdialog.h 
 
-	SOURCES += dialogs/qcolordialog.cpp \
-		  dialogs/qerrormessage.cpp \
-		  dialogs/qfiledialog.cpp \
-		  dialogs/qfontdialog.cpp \
-		  dialogs/qmessagebox.cpp \
-		  dialogs/qprogressdialog.cpp \
-		  dialogs/qtabdialog.cpp \
-		  dialogs/qwizard.cpp \
-		  dialogs/qinputdialog.cpp
+	SOURCES += $$DIALOGS_CPP/qcolordialog.cpp \
+		  $$DIALOGS_CPP/qerrormessage.cpp \
+		  $$DIALOGS_CPP/qfiledialog.cpp \
+		  $$DIALOGS_CPP/qfontdialog.cpp \
+		  $$DIALOGS_CPP/qmessagebox.cpp \
+		  $$DIALOGS_CPP/qprogressdialog.cpp \
+		  $$DIALOGS_CPP/qtabdialog.cpp \
+		  $$DIALOGS_CPP/qwizard.cpp \
+		  $$DIALOGS_CPP/qinputdialog.cpp
 }
