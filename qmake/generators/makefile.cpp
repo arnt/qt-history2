@@ -1043,7 +1043,9 @@ MakefileGenerator::init()
 		}
 	    }
 	    impl = fileFixify(impl, QDir::currentDirPath(), Option::output_dir);
-	    impl += Option::dir_sep + fi.baseName(TRUE) + Option::cpp_ext.first();
+	    if(!impl.isEmpty())
+		impl += Option::dir_sep;
+	    impl += fi.baseName(TRUE) + Option::cpp_ext.first();
 	    if(Option::output_dir != QDir::currentDirPath() && 
 	       project->isEmpty("UI_DIR") && project->isEmpty("UI_HEADERS_DIR")) {
 		QString decl_fixed = fileFixify(decl, QDir::currentDirPath(), Option::output_dir);
@@ -1053,7 +1055,9 @@ MakefileGenerator::init()
 		    project->variables()["INCLUDEPATH"].append(decl);
 	    }
 	    decl = fileFixify(decl, QDir::currentDirPath(), Option::output_dir);
-	    decl += Option::dir_sep + fi.baseName(TRUE) + Option::h_ext.first();
+	    if(!decl.isEmpty())
+		decl += Option::dir_sep;
+	    decl += fi.baseName(TRUE) + Option::h_ext.first();
 	    logicWarn(impl, "SOURCES");
 	    logicWarn(decl, "HEADERS");
 	    decls.append(decl);
