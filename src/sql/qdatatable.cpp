@@ -699,7 +699,7 @@ void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 	bool enableDelete = currentRow() > -1 && sqlCursor()->canDelete();
 	popup->setItemEnabled( id[ IdDelete ], enableDelete );
 	int r = popup->exec( e->globalPos() );
-	delete popup;
+	delete (QpopupMenu*) popup;
 	if ( r == id[ IdInsert ] )
 	    beginInsert();
 	else if ( r == id[ IdUpdate ] ) {
