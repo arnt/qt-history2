@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#52 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#52 $")
 
 
 /*----------------------------------------------------------------------------
@@ -145,13 +145,13 @@ void QPushButton::setAutoDefault( bool enable )
   Sets the button to be the default button if \e enable is TRUE, or
   to be a normal button if \e enable is FALSE.
 
-  A default push button in a dialog (QDialog) emits the QButton::clicked()
-  signal if the user presses the Enter key.  Only one push button in the
-  dialog can be default.
+  A default push button in a \link QDialog dialog \endlink emits the
+  QButton::clicked() signal if the user presses the Enter key.  Only
+  one push button in the dialog can be default.
 
   Default push buttons are only allowed in dialogs.
 
-  \sa default(), setAutoDefault()
+  \sa default() setAutoDefault() QDialog
  ----------------------------------------------------------------------------*/
 
 void QPushButton::setDefault( bool enable )
@@ -209,7 +209,7 @@ void QPushButton::adjustSize()
 
 
 /*----------------------------------------------------------------------------
-  Reimplements QWidget::move().
+  Reimplements QWidget::move() for internal purposes.
  ----------------------------------------------------------------------------*/
 
 void QPushButton::move( int x, int y )
@@ -220,7 +220,7 @@ void QPushButton::move( int x, int y )
 }
 
 /*----------------------------------------------------------------------------
-  Reimplements QWidget::move().
+  Reimplements QWidget::move() for internal purposes.
  ----------------------------------------------------------------------------*/
 
 void QPushButton::move( const QPoint &p )
@@ -229,7 +229,7 @@ void QPushButton::move( const QPoint &p )
 }
 
 /*----------------------------------------------------------------------------
-  Reimplements QWidget::resize().
+  Reimplements QWidget::resize() for internal purposes.
  ----------------------------------------------------------------------------*/
 
 void QPushButton::resize( int w, int h )
@@ -240,7 +240,7 @@ void QPushButton::resize( int w, int h )
 }
 
 /*----------------------------------------------------------------------------
-  Reimplements QWidget::resize().
+  Reimplements QWidget::resize() for internal purposes.
  ----------------------------------------------------------------------------*/
 
 void QPushButton::resize( const QSize &s )
@@ -249,7 +249,7 @@ void QPushButton::resize( const QSize &s )
 }
 
 /*----------------------------------------------------------------------------
-  Reimplements QWidget::setGeometry().
+  Reimplements QWidget::setGeometry() for internal purposes.
  ----------------------------------------------------------------------------*/
 
 void QPushButton::setGeometry( int x, int y, int w, int h )
@@ -260,7 +260,7 @@ void QPushButton::setGeometry( int x, int y, int w, int h )
 }
 
 /*----------------------------------------------------------------------------
-  Reimplements QWidget::setGeometry().
+  Reimplements QWidget::setGeometry() for internal purposes.
  ----------------------------------------------------------------------------*/
 
 void QPushButton::setGeometry( const QRect &r )
@@ -269,10 +269,7 @@ void QPushButton::setGeometry( const QRect &r )
 }
 
 
-/*----------------------------------------------------------------------------
-  Draws the pust button, but not the button label.
-  \sa drawButtonLabel()
- ----------------------------------------------------------------------------*/
+/*! Draws the push button, except its label. \sa drawButtonLabel() */
 
 void QPushButton::drawButton( QPainter *paint )
 {
