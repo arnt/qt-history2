@@ -56,9 +56,11 @@ void InvokeMethod::methodSelected( const QString &method )
 
     for (int p = ptypes.count()-1; p >= 0; --p ) {
 	QString ptype(ptypes.at(p));
+	if (ptype.isEmpty())
+	    continue;
 	QString pname(pnames.at(p));
 	if (pname.isEmpty())
-	    pname = QString("<unnamed %1>").arg(p);	
+	    pname = QString("<unnamed %1>").arg(p);
 	QListViewItem *item = new QListViewItem(listParameters, pname, ptype);
     }
 
