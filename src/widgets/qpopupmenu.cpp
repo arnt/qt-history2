@@ -2080,7 +2080,7 @@ void QPopupMenu::setActiveItem( int i )
     }
     if ( mi->id() != -1 )
 	hilitSig( mi->id() );
-#ifndef QT_NO_QWHATSTHIS
+#ifndef QT_NO_WHATSTHIS
     if (whatsThisItem && whatsThisItem != mi) {
 	qWhatsThisBDH();
     }

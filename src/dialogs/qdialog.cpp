@@ -48,6 +48,7 @@
 #include "qsizegrip.h"
 #include "qwhatsthis.h"
 #include "qpopupmenu.h"
+#include "qcursor.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
