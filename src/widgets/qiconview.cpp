@@ -2534,7 +2534,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
  	    item->paintItem( p, colorGroup(), font() );
 #else // optimized drawing
     QIconViewPrivate::ItemContainer *c = d->firstContainer;
-    if ( !c ) {
+    if ( !c && d->firstItem ) {
 	qWarning( "ItemContainers are not built - have to do this now!" );
 	rebuildContainers();
 	c = d->firstContainer;
@@ -3209,10 +3209,10 @@ void QIconView::setAlignMode( AlignMode am )
 	i->d->container2 = 0;
     };
     // ####################
-    
+
     d->alignMode = am;
     viewport()->setUpdatesEnabled( FALSE );
-    resizeContents( viewport()->width() - verticalScrollBar()->width(), 
+    resizeContents( viewport()->width() - verticalScrollBar()->width(),
 		    viewport()->height() - horizontalScrollBar()->height() );
     viewport()->setUpdatesEnabled( TRUE );
     alignItemsInGrid( TRUE );
