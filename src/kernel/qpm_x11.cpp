@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#117 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#117 $");
 
 
 /*****************************************************************************
@@ -756,16 +756,20 @@ QImage QPixmap::convertToImage() const
    <dt>Color matching versus dithering preference
    <dd>
     <ul>
-     <li> \c AutoDither (default) - for conversions from 32-bit
-                images to 8-bit pixmaps, always dither.
-                For conversions from images to files,
-                only dither if too many colors.
-     <li> \c AlwaysDither - always dither when going to 8 bits.
-     <li> \c DemandDither - only dither if too many colors for 8 bits.
+     <li> \c PreferDither - always dither 32-bit images when
+		the image
+		is being converted to 8-bits.
+		This is the default when converting to a pixmap.
+     <li> \c AvoidDither - only dither 32-bit images if
+		the image
+		has more than 256 colours and it
+		is being converted to 8-bits.
+		This is the default when an image is converted
+		for the purpose of saving to a file.
     </ul>
   </dl>
 
-  Passing 0 for \a conversion_flags gives all the \e (default) options.
+  Passing 0 for \a conversion_flags gives all the default options.
 
   Note that even though a QPixmap with depth 1 behaves much like a
   QBitmap, isQBitmap() returns FALSE.
@@ -812,7 +816,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	if ( d > 8 && dd <= 8 ) {		// convert to 8 bit
 	    if ( (conversion_flags & DitherMode_Mask) == AutoDither )
 		conversion_flags = (conversion_flags & ~DitherMode_Mask)
-					| AlwaysDither;
+					| PreferDither;
 	    conv8 = TRUE;
 	} else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {
 	    conv8 = d == 1;			// native depth wanted

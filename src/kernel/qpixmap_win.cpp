@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#61 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#61 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -433,7 +433,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	if ( d > 8 && dd <= 8 ) {		// convert to 8 bit
 	    if ( (conversion_flags & DitherMode_Mask) == AutoDither )
 		conversion_flags = (conversion_flags & ~DitherMode_Mask)
-					| AlwaysDither;
+					| PreferDither;
 	    conv8 = TRUE;
 	} else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {			// native depth wanted
 	    conv8 = d == 1;

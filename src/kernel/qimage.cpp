@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#134 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#133 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#134 $");
 
 
 /*!
@@ -786,7 +786,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
     QRgbMap table[tablesize];
     int   pix=0;
 
-    if ( (conversion_flags & DitherMode_Mask) == AlwaysDither ) {
+    if ( (conversion_flags & DitherMode_Mask) == PreferDither ) {
 	do_quant = TRUE;
     } else {
 	for ( y=0; y<src->height(); y++ ) {		// check if <= 256 colors
@@ -1962,6 +1962,8 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
   The different PNM formats are: PBM (P1), PGM (P2), PPM (P3), PBMRAW (P4),
   PGMRAW (P5) and PPMRAW (P6).
 
+  PBM, PGM, and PPM format output is only supported in PPMRAW format.
+
   Due to patent restrictions, only GIF \e reading is provided.
   See the
     <a href=http://www.lpf.org/Patents/Gif/Gif.html>LPF page on GIF patent</a>
@@ -3108,7 +3110,29 @@ static void write_pbm_image( QImageIO *iio )
     QIODevice* out = iio->ioDevice();
     QString str;
 
-    const QImage& image = iio->image();
+    QImage image = iio->image();
+
+    if ( image.depth() == 1 ) {
+	if ( image.color(0) == QRgb(0,0,0)
+	  && image.color(1) == QRgb(255,255,255))
+	{
+	    // 0=Black, 1=White - invert
+	    image.detach();
+	    int w=(image.width()+7)/8;
+	    for (int y=0; y<image.height(); y++) {
+		for (int x=0; x<w; x++) {
+		    image.scanLine(y)[x] ^= 0xff;
+		}
+	    }
+	} else if ( image.color(1) == QRgb(0,0,0)
+	         && image.color(0) == QRgb(255,255,255))
+	{
+	    // 1=Black, 0=White - normal PBM
+	} else {
+	    // Not monochrome - make it so.
+	    image = image.convertDepth(8);
+	}
+    }
 
     uint w = image.width();
     uint h = image.height();
@@ -3602,7 +3626,7 @@ static void write_xpm_image( QImageIO * iio )
 
     QImage image;
     if ( iio->image().depth() != 8 )
-	image = iio->image().convertDepth( 8, DemandDither );
+	image = iio->image().convertDepth( 8, AvoidDither );
     else
 	image = iio->image();
 
