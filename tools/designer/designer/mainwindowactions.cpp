@@ -1147,6 +1147,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension )
 		    statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
 		    return;
 		}
+		addRecentlyOpened( filename, recentlyFiles );
 		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 		    openFile( *it, FALSE );
 		    QFile::remove( *it );
