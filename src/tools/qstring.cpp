@@ -1407,7 +1407,6 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
     }
     return *this;
 }
-
 #endif
 
 /*!
