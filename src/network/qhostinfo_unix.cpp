@@ -21,6 +21,11 @@ extern "C" {
 #include <netdb.h>
 }
 
+#if defined (QT_NO_GETADDRINFO)
+#include <qmutex.h>
+Q_GLOBAL_STATIC(QMutex, getHostByNameMutex)
+#endif
+
 //#define QHOSTINFO_DEBUG
 
 QHostInfo QHostInfoAgent::fromName(const QString &hostName)
@@ -84,6 +89,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     // reentrant on all platforms. For now this is okay since we only
     // use one QHostInfoAgent, but if more agents are introduced, locking
     // must be provided.
+    QMutexLocker locker(::getHostByNameMutex());
     hostent *result = gethostbyname(hostName.toLatin1().constData());
     if (result) {
         if (result->h_addrtype == AF_INET) {
