@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#14 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#14 $");
 
 
 /*!
@@ -552,7 +552,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 }
 
 /*!
-  \fn QGManager::Direction QBoxLayout::direction() const
+  \fn QBoxLayout::Direction QBoxLayout::direction() const
 
   Returns the (serial) direction of the box. addWidget(), addBox()
   and addSpacing() works in this direction; the stretch stretches
