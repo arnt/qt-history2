@@ -4167,8 +4167,11 @@ int QApplication::wheelScrollLines()
 #endif
 }
 
+static bool effect_override = FALSE;
+
 void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 {
+    effect_override = TRUE;
     switch (effect) {
     case UI_AnimateMenu:
 	animate_menu = enable;
@@ -4233,7 +4236,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
-    if ( desktopSettingsAware() && !( qt_winver == WV_95 || qt_winver == WV_NT ) ) {
+    if ( !effect_override && desktopSettingsAware() && !( qt_winver == WV_95 || qt_winver == WV_NT ) ) {
 	if ( QColor::numBitPlanes() < 16 )
 	    return FALSE;
 	// we know that they can be used when we are here
