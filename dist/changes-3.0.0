@@ -231,7 +231,7 @@ recently. This adds support for anti aliased text and pixmaps with
 alpha channel (semi transparency) on the systems that support the
 rendering extension (at the moment XFree 4.0.3 and later).
 
-Narrator, windows accessability
+Narrator, Windows accessibility
 -------------------------------
 
 ########
@@ -242,7 +242,7 @@ Printing
 
 Printing support has been enhanced on all platforms. The QPrinter
 class now supports setting a virtual resolution for the painting
-process. This makes WYSIYG printing trivial, and also allows to take
+process. This makes WYSIWYG printing trivial, and also allows to take
 full advantage of the high resolution of a printer when painting on
 it.
 
@@ -725,6 +725,7 @@ QString
 
 New functions:
 	bool endsWith( const QString & );
+	int similarityWith( const QString & );
 
 ### TODO
 
@@ -907,14 +908,13 @@ Removed preprocessor directives:
 	above listed standard C functions with the equivalent Qt wrappers.
 	The latter pre-check the input parameters for null pointers as those
 	might cause crashes on some platforms.
+
 	Albeit seeming convenient at first sight, this behind-the-scenes
 	trick turned out to sometimes conflict with 3rd party code, or,
 	simply be nullified by standard system and library headers depending
 	on version and include order.
+
 	To exclude this non-portable, unpredictable behavior we strongly
-	RECOMMEND to either make use of the safe qstr* variants or ensure
+	recommend to either make use of the safe qstr* variants or ensure
 	that no 0 pointer is passed to the standard C functions in your
 	current and future code base.
-
-
-
