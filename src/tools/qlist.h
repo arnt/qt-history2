@@ -43,14 +43,14 @@ public:
     { return QGList::operator==( list ); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
-    bool  insert( uint i, const type *d){ return QGList::insertAt(i,(Item)d); }
-    void  inSort( const type *d )	{ QGList::inSort((Item)d); }
-    void  prepend( const type *d )	{ QGList::insertAt(0,(Item)d); }
-    void  append( const type *d )	{ QGList::append((Item)d); }
+    bool  insert( uint i, const type *d){ return QGList::insertAt(i,(QCollection::Item)d); }
+    void  inSort( const type *d )	{ QGList::inSort((QCollection::Item)d); }
+    void  prepend( const type *d )	{ QGList::insertAt(0,(QCollection::Item)d); }
+    void  append( const type *d )	{ QGList::append((QCollection::Item)d); }
     bool  remove( uint i )		{ return QGList::removeAt(i); }
-    bool  remove()			{ return QGList::remove((Item)0); }
-    bool  remove( const type *d )	{ return QGList::remove((Item)d); }
-    bool  removeRef( const type *d )	{ return QGList::removeRef((Item)d); }
+    bool  remove()			{ return QGList::remove((QCollection::Item)0); }
+    bool  remove( const type *d )	{ return QGList::remove((QCollection::Item)d); }
+    bool  removeRef( const type *d )	{ return QGList::removeRef((QCollection::Item)d); }
     void  removeNode( QLNode *n )	{ QGList::removeNode(n); }
     bool  removeFirst()			{ return QGList::removeFirst(); }
     bool  removeLast()			{ return QGList::removeLast(); }
@@ -59,13 +59,13 @@ public:
     type *takeNode( QLNode *n )		{ return (type *)QGList::takeNode(n); }
     void  clear()			{ QGList::clear(); }
     void  sort()			{ QGList::sort(); }
-    int	  find( const type *d )		{ return QGList::find((Item)d); }
-    int	  findNext( const type *d )	{ return QGList::find((Item)d,FALSE); }
-    int	  findRef( const type *d )	{ return QGList::findRef((Item)d); }
-    int	  findNextRef( const type *d ){ return QGList::findRef((Item)d,FALSE);}
-    uint  contains( const type *d ) const { return QGList::contains((Item)d); }
+    int	  find( const type *d )		{ return QGList::find((QCollection::Item)d); }
+    int	  findNext( const type *d )	{ return QGList::find((QCollection::Item)d,FALSE); }
+    int	  findRef( const type *d )	{ return QGList::findRef((QCollection::Item)d); }
+    int	  findNextRef( const type *d ){ return QGList::findRef((QCollection::Item)d,FALSE);}
+    uint  contains( const type *d ) const { return QGList::contains((QCollection::Item)d); }
     uint  containsRef( const type *d ) const
-					{ return QGList::containsRef((Item)d); }
+					{ return QGList::containsRef((QCollection::Item)d); }
     type *at( uint i )			{ return (type *)QGList::at(i); }
     int	  at() const			{ return QGList::at(); }
     type *current()  const		{ return (type *)QGList::get(); }
@@ -78,7 +78,7 @@ public:
     type *prev()			{ return (type *)QGList::prev(); }
     void  toVector( QGVector *vec )const{ QGList::toVector(vec); }
 private:
-    void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
+    void  deleteItem( QCollection::Item d ) { if ( del_item ) delete (type *)d; }
 };
 
 template<class type> class Q_EXPORT QListIterator : public QGListIterator

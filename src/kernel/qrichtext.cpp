@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#37 $
 **
-** Implementation of the Qt classes dealing with rich text
+** Implementation of the internal Qt classes dealing with rich text
 **
 ** Created : 990101
 **
@@ -22,80 +22,22 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-#include "qstylesheet.h"
+
 #include "qrichtextintern.cpp"
 
-#include <qtextstream.h>
-#include <qapplication.h>
-#include <qlayout.h>
-#include <qpainter.h>
+#include "qpainter.h"
+#include "qfile.h"
+#include "qtextstream.h"
+#include "qtimer.h"
+#include "qimage.h"
+#include "qdragobject.h"
+#include "qdrawutil.h"
 
 #include <stdio.h>
-#include <qfile.h>
-#include <qtextstream.h>
-#include <qlayout.h>
-#include <qbitmap.h>
-#include <qtimer.h>
-#include <qimage.h>
-#include <qdragobject.h>
-#include <qdatetime.h>
-#include <qdrawutil.h>
 #include <limits.h>
 
+
 static int qt_text_paragraph_id = 0;
-
-class QTextTableCell : public QLayoutItem
-{
-public:
-    QTextTableCell(QTextTable* table,
-      int row, int column,
-      const QMap<QString, QString> &attr,
-      const QStyleSheetItem* style,
-      const QTextCharFormat& fmt, const QString& context,
-      const QMimeSourceFactory &factory, const QStyleSheet *sheet, const QString& doc, int& pos );
-    ~QTextTableCell();
-    QSize sizeHint() const ;
-    QSize minimumSize() const ;
-    QSize maximumSize() const ;
-    QSizePolicy::ExpandData expanding() const;
-    bool isEmpty() const;
-    void setGeometry( const QRect& ) ;
-    QRect geometry() const;
-
-    bool hasHeightForWidth() const;
-    int heightForWidth( int ) const;
-
-    void realize();
-
-    int row() const { return row_; }
-    int column() const { return col_; }
-    int rowspan() const { return rowspan_; }
-    int colspan() const { return colspan_; }
-    int stretch() const { return stretch_; }
-
-    QRichText* richText()  const { return richtext; }
-    QTextTable* table() const { return parent; }
-
-    void draw( int x, int y,
-	       int ox, int oy, int cx, int cy, int cw, int ch,
-	       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
-
-private:
-
-    QPainter* painter() const;
-    QRect geom;
-    QTextTable* parent;
-    QRichText* richtext;
-    QBrush* background;
-    int row_;
-    int col_;
-    int rowspan_;
-    int colspan_;
-    int stretch_;
-    int maxw;
-    int minw;
-    bool hasFixedWidth;
-};
 
 class QTextTable: public QTextCustomItem
 {

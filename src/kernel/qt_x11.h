@@ -27,9 +27,15 @@
 #define QT_X11_H
 
 
+//
+//  W A R N I N G
+//  -------------
+//
 // this file is not part of the Qt API.  It exists for the convenience
 // of q*_x11.cpp.  This header file may change from version to version
 // without notice, or even be removed.
+//
+//
 
 
 #include "qwindowdefs.h"
@@ -122,4 +128,3 @@ extern "C" char *XSetIMValues( XIM /* im */, ... );
 
 
 #endif // QT_X11_H
-

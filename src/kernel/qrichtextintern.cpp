@@ -23,6 +23,21 @@
 **
 *****************************************************************************/
 
+#ifndef QRICHTEXT_P_H
+#define QRICHTEXT_P_H
+
+
+//
+//  W A R N I N G
+//  -------------
+//
+// this file is not part of the Qt API.  It exists for the convenience
+// of qrichtext.cpp.  This header file may change from version to version
+// without notice, or even be removed.
+//
+//
+
+
 #include "qstylesheet.h"
 #include "qstring.h"
 #include "qpixmap.h"
@@ -33,14 +48,16 @@
 #include "qcolor.h"
 #include "qfont.h"
 #include "qlist.h"
+#include "qlayout.h"
 
 
-class QStyleSheetItem;
 class QTextCustomItem;
 class QTextFormatCollection;
 class QRichText;
 class QTextView;
 class QTextFlow;
+class QTextTable;
+
 
 class QtTriple
 {
@@ -196,6 +213,7 @@ class QTextRichString
     Item* items;
     int store;
     int len;
+
 public:
     QTextRichString( QTextFormatCollection* fmt );
     QTextRichString( const QTextRichString &other );
@@ -221,6 +239,7 @@ public:
     bool bold( int index ) const;
 
     QTextFormatCollection* formats; // make private
+
 private:
     void setLength( int l );
 };
@@ -326,6 +345,7 @@ public:
 private:
     void init();
     int align;
+
 protected:
     QTextFlow* flow_;
 };
@@ -343,14 +363,13 @@ public:
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
+
 private:
     QRegion* reg;
     QPixmap pm;
     Placement place;
 };
 
-
-class QTextTable;
 
 class QRichTextFormatter
 {
@@ -427,7 +446,59 @@ private:
 };
 
 
-class QTextTableCell;
+// moved from qrichtext.cpp for GCC 2.7.2.3 compatibility
+class QTextTableCell : public QLayoutItem
+{
+public:
+    QTextTableCell(QTextTable* table,
+      int row, int column,
+      const QMap<QString, QString> &attr,
+      const QStyleSheetItem* style,
+      const QTextCharFormat& fmt, const QString& context,
+      const QMimeSourceFactory &factory, const QStyleSheet *sheet, const QString& doc, int& pos );
+    ~QTextTableCell();
+    QSize sizeHint() const ;
+    QSize minimumSize() const ;
+    QSize maximumSize() const ;
+    QSizePolicy::ExpandData expanding() const;
+    bool isEmpty() const;
+    void setGeometry( const QRect& ) ;
+    QRect geometry() const;
+
+    bool hasHeightForWidth() const;
+    int heightForWidth( int ) const;
+
+    void realize();
+
+    int row() const { return row_; }
+    int column() const { return col_; }
+    int rowspan() const { return rowspan_; }
+    int colspan() const { return colspan_; }
+    int stretch() const { return stretch_; }
+
+    QRichText* richText()  const { return richtext; }
+    QTextTable* table() const { return parent; }
+
+    void draw( int x, int y,
+	       int ox, int oy, int cx, int cy, int cw, int ch,
+	       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
+
+private:
+    QPainter* painter() const;
+    QRect geom;
+    QTextTable* parent;
+    QRichText* richtext;
+    QBrush* background;
+    int row_;
+    int col_;
+    int rowspan_;
+    int colspan_;
+    int stretch_;
+    int maxw;
+    int minw;
+    bool hasFixedWidth;
+};
+
 
 class QRichTextIterator
 {
@@ -443,6 +514,7 @@ public:
     bool goTo( const QPoint& pos );
     void goTo( const QtTriple& position );
     bool right( bool doFormat = TRUE );
+
 private:
     struct Item {
 	Item( const QRichTextFormatter& cur, QList<QTextTableCell> &cells )
@@ -625,3 +697,6 @@ inline QTextCharFormat* QRichTextFormatter::format() const
 {
     return paragraph->text.formatAt( current );
 }
+
+
+#endif // QRICHTEXT_P_H

@@ -23,9 +23,8 @@
 **
 *****************************************************************************/
 
-#include "qsimplerichtext.h"
 #include "qrichtextintern.cpp"
-#include "qapplication.h"
+#include "qsimplerichtext.h"
 #include "qpainter.h"
 
 

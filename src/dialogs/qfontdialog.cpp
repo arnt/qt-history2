@@ -22,6 +22,7 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
+
 #include "qwindowdefs.h"
 
 #include "qfontdialog.h"
@@ -756,4 +757,3 @@ void QFontDialog::emitSelectedFont()
 {
     emit fontSelected(font());
 }
-
