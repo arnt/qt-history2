@@ -84,6 +84,7 @@ QTextStream &PageGenerator::out()
 void PageGenerator::generateInnerNode( const InnerNode *node,
 				       CodeMarker *marker )
 {
+qDebug("Generate inner node %s", node->name().ascii());
     if ( node->parent() != 0 ) {
 	beginSubPage( node->location(), fileName(node) );
 	if ( node->type() == Node::Namespace ) {
@@ -102,4 +103,5 @@ void PageGenerator::generateInnerNode( const InnerNode *node,
 	    generateInnerNode( (const InnerNode *) *c, marker );
 	++c;
     }
+qDebug("Done generating inner node %s", node->name().ascii());
 }

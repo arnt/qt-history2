@@ -1,5 +1,6 @@
 MISC:
   * omit \overload in operator<< and operator>>
+  * make operator-() unary and binary independent functions (no \overload)
   * fix bug in enum documentation (QChar)
   * replace QBool with bool
   * support <qglobal.h>'s typedefs with \typedef
