@@ -1673,7 +1673,10 @@ void QTable::init( int rows, int cols )
     topHeader->setTracking( TRUE );
     topHeader->setMovingEnabled( TRUE );
     topLeftCorner = new QWidget( this, "qt_topleft_corner" );
-    setMargins( 30, fontMetrics().height() + 4, 0, 0 );
+    if ( QApplication::reverseLayout() )
+	setMargins( 0, fontMetrics().height() + 4, 30, 0 );
+    else
+	setMargins( 30, fontMetrics().height() + 4, 0, 0 );
 
     topHeader->setUpdatesEnabled( FALSE );
     leftHeader->setUpdatesEnabled( FALSE );
@@ -2048,13 +2051,19 @@ void QTable::swapRows( int row1, int row2, bool swapHeader )
 
     The verticalHeader(), which displays row labels, occupies this
     margin.
+    
+    In a arabic or hebrew localization, the verticalHeader() will appear on the right side of the table, and
+    this call will set the right margin.
 
   \sa leftMargin() setTopMargin() verticalHeader()
 */
 
 void QTable::setLeftMargin( int m )
 {
-    setMargins( m, topMargin(), rightMargin(), bottomMargin() );
+    if ( QApplication::reverseLayout() )
+	setMargins( leftMargin(), topMargin(), m, bottomMargin() );
+    else
+	setMargins( m, topMargin(), rightMargin(), bottomMargin() );
     updateGeometries();
 }
 
@@ -2633,6 +2642,14 @@ void QTable::setCurrentCell( int row, int col )
 {
     setCurrentCell( row, col, TRUE );
 }
+
+// need to use a define, as leftMargin() is protected
+#define VERTICALMARGIN \
+( QApplication::reverseLayout() ? \
+       rightMargin() \
+       : \
+       leftMargin() \
+)
 
 /*! \internal */
 
@@ -3543,7 +3560,7 @@ QSize QTable::sizeHint() const
     }
     QSize s = tableSize();
     if ( s.width() < 500 && s.height() < 500 )
-	return ( ( (QTable*)this )->cachedSizeHint = QSize( tableSize().width() + leftMargin() + 5,
+	return ( ( (QTable*)this )->cachedSizeHint = QSize( tableSize().width() + VERTICALMARGIN + 5,
 							    tableSize().height() + topMargin() + 5 ) );
     return ( ( (QTable*)this )->cachedSizeHint = QScrollView::sizeHint() );
 }
@@ -3779,11 +3796,11 @@ void QTable::updateGeometries()
 	 ts.height() < leftHeader->offset() + leftHeader->height() )
 	verticalScrollBar()->setValue( ts.height() - leftHeader->height() );
 
-    leftHeader->setGeometry( frameWidth(), topMargin() + frameWidth(),
-			     leftMargin(), visibleHeight() );
-    topHeader->setGeometry( leftMargin() + frameWidth(), frameWidth(),
-			    visibleWidth(), topMargin() );
-    topLeftCorner->setGeometry( frameWidth(), frameWidth(), leftMargin(), topMargin() );
+    leftHeader->setGeometry( QStyle::visualRect( QRect( frameWidth(), topMargin() + frameWidth(),
+			     VERTICALMARGIN, visibleHeight() ), rect() ) );
+    topHeader->setGeometry( QStyle::visualRect( QRect(VERTICALMARGIN + frameWidth(), frameWidth(),
+						      visibleWidth(), topMargin() ), rect() ) );
+    topLeftCorner->setGeometry( QStyle::visualRect( QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin() ), rect() ) );
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
     inUpdateGeometries = FALSE;
@@ -3931,7 +3948,7 @@ void QTable::setNumRows( int r )
     bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
     leftHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = r < numRows();
-    int w = leftMargin();
+    int w = VERTICALMARGIN;
     if ( r > numRows() ) {
 	clearSelection( FALSE );
 	while ( numRows() < r ) {
@@ -3945,7 +3962,7 @@ void QTable::setNumRows( int r )
 	    leftHeader->removeLabel( numRows() - 1 );
     }
 
-    if ( leftMargin() > 0 && w > leftMargin() )
+    if ( VERTICALMARGIN > 0 && w > VERTICALMARGIN )
 	setLeftMargin( w );
 
     contents.setAutoDelete( FALSE );
@@ -5543,7 +5560,7 @@ void QTableHeader::sectionLabelChanged( int section )
 	    table->setTopMargin( h );
     } else {
 	int w = sizeHint().width();
-	if ( w != width() && mayOverwriteMargin(table->leftMargin(), w) )
+	if ( w != width() && mayOverwriteMargin( ( QApplication::reverseLayout() ? table->rightMargin() : table->leftMargin() ), w) )
 	    table->setLeftMargin( w );
     }
 }
