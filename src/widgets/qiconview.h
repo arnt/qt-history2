@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#18 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#19 $
 **
 ** Definition of QIconView widget class
 **
@@ -123,7 +123,8 @@ protected:
 class Q_EXPORT QIconViewItem : public QObject
 {
     friend class QIconView;
-
+    friend class QIconViewItemLineEdit;
+    
     Q_OBJECT
 
 public:
@@ -196,7 +197,7 @@ protected slots:
 
 protected:
     virtual void removeRenameBox();
-    virtual void calcRect();
+    virtual void calcRect( int w = -1 );
     virtual void paintItem( QPainter *p );
     virtual void paintFocus( QPainter *p );
     virtual void dropped( QDropEvent *e );
@@ -312,7 +313,7 @@ protected slots:
     virtual void doAutoScroll();
     virtual void adjustItems();
     virtual void slotUpdate();
-    
+
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#36 $
 **
 ** Definition of QIconView widget class
 **
@@ -38,7 +38,7 @@
 #include <qcursor.h>
 #include <qkeycode.h>
 #include <qapplication.h>
-#include <qlineedit.h>
+#include <qmultilinedit.h>
 
 #include <stdlib.h>
 
@@ -126,8 +126,10 @@ struct QIconViewPrivate
  *
  *****************************************************************************/
 
-class QIconViewItemLineEdit : public QLineEdit
+class QIconViewItemLineEdit : public QMultiLineEdit
 {
+    friend class QIconViewItem;
+    
     Q_OBJECT
 
 public:
@@ -147,9 +149,10 @@ protected:
 };
 
 QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char *name )
-    : QLineEdit( parent, name ), item( theItem ), startText( text )
+    : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
 {
     setText( text );
+    clearTableFlags();
 }
 
 void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
@@ -160,8 +163,23 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
     } else if ( e->key() == Key_Enter ||
 	      e->key() == Key_Return )
 	emit returnPressed();
-    else
-	QLineEdit::keyPressEvent( e ) ;
+    else {
+	QMultiLineEdit::keyPressEvent( e );
+	int w = width();
+	int h = height();
+	w = totalWidth();
+	h = totalHeight();
+	QSize s( size() );
+	resize( w, h );
+	if ( s != QSize( w, h ) ) {
+	    int dw = w - s.width();
+	    int dh = h - s.height();
+	    item->itemRect.setWidth( item->itemRect.width() + dw );
+	    item->itemRect.setHeight( item->itemRect.height() + dh );
+	    item->calcRect( width() );
+	    item->repaint();
+	}
+    }
 }
 
 void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
@@ -892,9 +910,10 @@ bool QIconViewItem::acceptDrop( QMimeSource *mime )
 void QIconViewItem::rename()
 {
     renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
-    renameBox->resize( textRect().width() - 2, textRect().height() - 2 );
-    view->addChild( renameBox, textRect( FALSE ).x() + 1, textRect( FALSE ).y() + 1 );
-    renameBox->setFrame( FALSE );
+    renameBox->resize( textRect().width(), textRect().height() );
+    view->addChild( renameBox, textRect( FALSE ).x(), textRect( FALSE ).y() );
+    renameBox->setFrameStyle( QFrame::Plain | QFrame::Box );
+    renameBox->setLineWidth( 1 );
     renameBox->selectAll();
     renameBox->setFocus();
     renameBox->show();
@@ -924,6 +943,10 @@ void QIconViewItem::renameItem()
 
 void QIconViewItem::cancelRenameItem()
 {
+    QRect r = itemRect;
+    calcRect();
+    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2 );
+
     if ( !renameBox )
 	return;
 
@@ -949,29 +972,32 @@ void QIconViewItem::removeRenameBox()
   recalculates the bounding rect, text- and iconrect of the item.
 */
 
-void QIconViewItem::calcRect()
+void QIconViewItem::calcRect( int w )
 {
     if ( !fm )
 	return;
 
-    int w = 0, h = 0;
+    int h = 0;
+    if ( w == -1 ) {
+	w = 0;
+    
+	if ( view->rastX() != -1 && fm->width( itemText ) > view->rastX() - 4 ) {
+	    QStringList lst;	
+	    breakLines( itemText, lst, view->rastX() - 4 );
 
-    if ( view->rastX() != -1 && fm->width( itemText ) > view->rastX() - 4 ) {
-	QStringList lst;
-	breakLines( itemText, lst, view->rastX() - 4 );
-
-	QValueListIterator<QString> it = lst.begin();
-	for ( ; it != lst.end(); ++it ) {
-	    w = QMAX( w, fm->width( *it ) );
-	    h += fm->height();
+	    QValueListIterator<QString> it = lst.begin();
+	    for ( ; it != lst.end(); ++it ) {
+		w = QMAX( w, fm->width( *it ) );
+		h += fm->height();
+	    }
+	    w += 6;
+	    h += 2;
+	} else {
+	    w = fm->width( itemText ) + 6;
+	    h = fm->height() + 2;
 	}
-	w += 6;
-	h += 2;
-    } else {
-	w = fm->width( itemText ) + 6;
-	h = fm->height() + 2;
     }
-
+    
     itemTextRect.setWidth( w );
     itemTextRect.setHeight( h );
 
@@ -1762,13 +1788,13 @@ void QIconView::setAlignMode( AlignMode am )
 	setHScrollBarMode( Auto );
 	setVScrollBarMode( Auto );
     } else {
-	if ( d->alignMode == East ) { 
+	if ( d->alignMode == East ) {
 	    setHScrollBarMode( AlwaysOff );
 	    setVScrollBarMode( Auto );
 	} else {
 	    setVScrollBarMode( AlwaysOff );
 	    setHScrollBarMode( Auto );
-	}		    
+	}		
     }
 
     d->alignMode = am;
@@ -1803,13 +1829,13 @@ void QIconView::setResizeMode( ResizeMode rm )
 	setHScrollBarMode( Auto );
 	setVScrollBarMode( Auto );
     } else {
-	if ( d->alignMode == East ) { 
+	if ( d->alignMode == East ) {
 	    setHScrollBarMode( AlwaysOff );
 	    setVScrollBarMode( Auto );
 	} else {
 	    setVScrollBarMode( AlwaysOff );
 	    setHScrollBarMode( Auto );
-	}		    
+	}		
     }
 }
 
