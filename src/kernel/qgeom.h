@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#9 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#10 $
 **
 **  Geometry Management
 **
@@ -20,7 +20,7 @@ class QBoxLayout : public QObject
 public:
     QBoxLayout(  QWidget *parent, QBasicManager::Direction, int border=0, 
 		 int autoBorder = -1, const char *name=0 );
-    int     defaultBorder() { return defBorder; }
+    int defaultBorder() const { return defBorder; }
 
     bool doIt() { return bm->doIt(); }
     void freeze( int w, int h );
