@@ -21,6 +21,11 @@
 #ifndef HELPDIALOGIMPL_H
 #define HELPDIALOGIMPL_H
 
+#include "helpdialog.h"
+#include "index.h"
+#include "helpwindow.h"
+#include "docuparser.h"
+
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qmap.h>
@@ -28,11 +33,6 @@
 #include <qvalidator.h>
 #include <qdict.h>
 #include <qmime.h>
-
-#include "index.h"
-#include "helpdialog.h"
-#include "helpwindow.h"
-#include "docuparser.h"
 
 class QProgressBar;
 class MainWindow;

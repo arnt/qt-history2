@@ -21,11 +21,11 @@
 #ifndef SETTINGSDIALOGIMPL_H
 #define SETTINGSDIALOGIMPL_H
 
+#include "settingsdialog.h"
+
 #include <qstringlist.h>
 #include <qptrlist.h>
 #include <qlistview.h>
-
-#include "settingsdialog.h"
 
 struct listItem {
     listItem( QString ln, QString sn, int de )

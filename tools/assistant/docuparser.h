@@ -17,6 +17,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #ifndef DOCUPARSER_H
 #define DOCUPARSER_H
 
