@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#32 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#33 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#33 $");
 
 
 struct QPrintDialogPrivate
@@ -95,7 +95,7 @@ static void parsePrintcap( QListView * printers )
     line[1024] = '\0';
 
     QString printerDesc;
-    int lineLength;
+    int lineLength = 0;
 
     while( !printcap.atEnd() &&
 	   (lineLength=printcap.readLine( line, 1024 )) > 0 ) {
