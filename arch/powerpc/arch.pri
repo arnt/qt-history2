@@ -9,9 +9,7 @@ DEPENDPATH += $$ARCH_CPP;$$ARCH_H
 
 HEADERS += $$ARCH_H/qatomic.h
 
-*-g++*:SOURCES += $$ARCH_CPP/qatomic.cpp
-    
-!*-g++ {
+!*-g++* {
     *-64 {
         SOURCES += $$ARCH_CPP/qatomic64.s
     } else {
