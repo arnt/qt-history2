@@ -1168,8 +1168,10 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	QApplication::sendPostedEvents( qworkspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
+/*	This is BAD code, and it breaks on Windows if there are no toolbar settings saved.
+
 	if ( !tbSettingsRead)
-	    ( (QDockWindow*)qWorkspace()->parentWidget()->parentWidget() )->setFixedExtentHeight( 150 );
+	    ( (QDockWindow*)qWorkspace()->parentWidget()->parentWidget() )->setFixedExtentHeight( 150 );*/
 	checkTempFiles();
 	return TRUE;
     case QEvent::Wheel:
