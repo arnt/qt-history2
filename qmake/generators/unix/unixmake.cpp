@@ -239,6 +239,26 @@ UnixMakefileGenerator::init()
 
     init2();
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "QMAKE_LIBDIR_FLAGS" << "QMAKE_LIBS";
+    if(!project->isEmpty("QMAKE_MAX_FILES_PER_AR")) {
+	bool ok;
+	int max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt(&ok);
+	QStringList ar_sublibs, objs = project->variables()["OBJECTS"] + project->variables()["OBJMOC"];
+	if(ok && max_files > 5 && max_files < objs.count()) {
+	    int obj_cnt = 0, lib_cnt = 0;
+	    QString destdir = project->first("DESTDIR"), lib;
+	    for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
+		if((++obj_cnt) >= max_files) {
+		    lib.sprintf("lib%s-tmp%d.a", project->first("QMAKE_ORIG_TARGET").latin1(), ++lib_cnt);
+		    ar_sublibs << destdir + lib;
+		    obj_cnt = 0;
+		}
+	    }
+	}
+	if(!ar_sublibs.isEmpty()) {
+	    project->variables()["QMAKE_AR_SUBLIBS"] = ar_sublibs;
+	    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "QMAKE_AR_SUBLIBS";
+	}
+    }
 }
 
 void
