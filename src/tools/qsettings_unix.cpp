@@ -36,7 +36,7 @@
 #include <stdlib.h>
 
 // for now
-#define QSETTINGS_DEFAULT_PATH "/usr/local/etc/qt/settings"
+#define QSETTINGS_DEFAULT_PATH_SUFFIX "/etc/settings"
 
 
 
@@ -81,7 +81,13 @@ static void initSearchPaths()
 	    qWarning("QSettings: error creating %s", dir.path().latin1());
     }
 
-    searchPaths->append(QString(QSETTINGS_DEFAULT_PATH));
+#ifndef QT_INSTALL_PREFIX
+#  define QT_INSTALL_PREFIX "/usr/local/qt"
+#endif // QT_INSTALL_PREFIX
+
+    QString defpath(QT_INSTALL_PREFIX);
+    defpath += QSETTINGS_DEFAULT_PATH_SUFFIX;
+    searchPaths->append(defpath);
     searchPaths->append(dir.path());
 }
 

@@ -1112,8 +1112,13 @@ void QApplication::setGlobalStrut( const QSize& strut )
 */
 QStringList QApplication::libraryPaths()
 {
-    if ( !app_libpaths )
+    if ( !app_libpaths ) {
 	app_libpaths = new QStringList;
+
+#ifdef QT_INSTALL_PREFIX
+	app_libpaths->append(QString(QT_INSTALL_PREFIX) + "/plugins");
+#endif // QT_INSTALL_PREFIX
+    }
     return *app_libpaths;
 }
 
@@ -1143,9 +1148,13 @@ void QApplication::addLibraryPath(const QString &path)
 	return;
     }
 
-    if ( !app_libpaths )
+    if ( !app_libpaths ) {
 	app_libpaths = new QStringList;
 
+#ifdef QT_INSTALL_PREFIX
+	app_libpaths->append(QString(QT_INSTALL_PREFIX) + "/plugins");
+#endif // QT_INSTALL_PREFIX
+    }
     if (! app_libpaths->contains(path)) {
 	app_libpaths->append(path);
     }
@@ -1163,9 +1172,13 @@ void QApplication::removeLibraryPath(const QString &path)
 	return;
     }
 
-    if ( !app_libpaths )
+    if ( !app_libpaths ) {
 	app_libpaths = new QStringList;
 
+#ifdef QT_INSTALL_PREFIX
+	app_libpaths->append(QString(QT_INSTALL_PREFIX) + "/plugins");
+#endif // QT_INSTALL_PREFIX
+    }
     if (! app_libpaths->contains(path)) {
 	app_libpaths->remove(path);
     }

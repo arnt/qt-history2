@@ -978,6 +978,11 @@ case "$QCONFIG" in
     cat $outpath/src/tools/$QCONFIGFILE >>$outpath/src/tools/qconfig.h.new
     ;;
 esac
+cat >> $outpath/src/tools/qconfig.h.new <<EOF
+
+// Installation prefix
+#define QT_INSTALL_PREFIX "$QT_INSTALL_PREFIX"
+EOF
 QCONF_CHANGES=`diff $outpath/src/tools/qconfig.h $outpath/src/tools/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
 if [ -f $outpath/src/tools/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
 then
