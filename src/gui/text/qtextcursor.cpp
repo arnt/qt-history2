@@ -288,10 +288,12 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     case QTextCursor::EndOfLine: {
         if (!line.isValid() || line.length() == 0)
             break;
+        newPosition = blockIt.position() + line.from() + line.length();
         // currently we don't draw the space at the end, so move to the next
         // reasonable position.
-        newPosition = blockIt.position() + line.from() + line.length() - 1;
-
+        QString text = blockIt.text();
+        if (text.at(line.from() + line.length()-1).isSpace())
+            --newPosition;
         break;
     }
     case QTextCursor::EndOfWord: {

@@ -1514,8 +1514,12 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
                         goto end;
                     }
                 }
-                if (gs > ge)
+                if (gs > ge) {
+                    gl_before = gs;
+                    it_before = item;
+                    x_before = x;
                     break;
+                }
                 x -= glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
                 ++gs;
             }
