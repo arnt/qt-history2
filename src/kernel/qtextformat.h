@@ -147,6 +147,8 @@ public:
 
     QList<int> allPropertyIds() const;
 
+    bool operator==(const QTextFormat &rhs) const;
+
 private:
     QSharedPointer<QTextFormatPrivate> d;
 };

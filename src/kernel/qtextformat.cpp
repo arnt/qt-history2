@@ -110,7 +110,7 @@ public:
     int indexToReference(int idx) const;
     int referenceToIndex(int ref) const;
 
-    QVector<QSharedPointer<QTextFormatPrivate> > formats;
+    QVector<QTextFormat> formats;
     QVector<int> formatReferences;
 };
 
@@ -401,6 +401,11 @@ QList<int> QTextFormat::allPropertyIds() const
     return d->propertyMap().keys();
 }
 
+bool QTextFormat::operator==(const QTextFormat &rhs) const
+{
+    return *d == *rhs.d;
+}
+
 void QTextCharFormat::setFont(const QFont &font)
 {
     setFontFamily(font.family());
@@ -481,16 +486,11 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
     // certainly need speedup
     for (int i = 0; i < d->formats.size(); ++i)
-	if (*d->formats[i] ==
-#undef d
-	    *format.d)
-#define d d_func()
+	if (d->formats[i] == format)
 	    return i;
 
     int idx = d->formats.size();
-#undef d
-    static_cast<QTextFormatCollectionPrivate *>(d_func())->formats.append(format.d);
-#define d d_func()
+    d->formats.append(format);
     return idx;
 }
 
