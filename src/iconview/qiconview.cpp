@@ -252,6 +252,7 @@ public:
     uint sortDirection		:1;
     uint wordWrapIconText	:1;
     uint containerUpdateLocked	:1;
+    uint firstSizeHint : 1;
     uint showTips		:1;
     uint pressedSelected	:1;
     uint dragging		:1;
@@ -2686,6 +2687,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->minRightBearing = d->fm->minRightBearing();
     d->firstContainer = d->lastContainer = 0;
     d->containerUpdateLocked = FALSE;
+    d->firstSizeHint = FALSE;
     d->selectAnchor = 0;
     d->renamingItem = 0;
     d->drawActiveSelection = TRUE;
@@ -5038,7 +5040,7 @@ void QIconView::focusOutEvent( QFocusEvent *e )
     if ( d->currentItem )
 	repaintItem( d->currentItem );
 
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) 
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )
 	&& e->reason() != QFocusEvent::Popup ) {
 	QRect r = visibleRect();
 	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
@@ -5734,7 +5736,29 @@ void QIconView::sort( bool ascending )
 
 QSize QIconView::sizeHint() const
 {
-    return QScrollView::sizeHint();
+    if ( cachedSizeHint().isValid() )
+	return cachedSizeHint();
+
+    constPolish();
+
+    if ( !d->firstItem )
+	return QSize( 50, 50 );
+
+    if ( d->dirty && d->firstSizeHint ) {
+	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ),
+					      QMAX( 400, contentsHeight() ) );
+	if ( autoArrange() )
+	    ( (QIconView*)this )->arrangeItemsInGrid( FALSE );
+	d->firstSizeHint = FALSE;
+    }
+
+    d->dirty = TRUE;
+    int extra = style().pixelMetric(QStyle::PM_ScrollBarExtent,
+				    verticalScrollBar()) + 2*frameWidth();
+    QSize s( QMIN(400, contentsWidth() + extra),
+	     QMIN(400, contentsHeight() + extra) );
+    setCachedSizeHint( s );
+    return s;
 }
 
 /*!

@@ -378,7 +378,7 @@ int QDesignerWidgetStack::removePage( QWidget *p )
     setCurrentPage( 0 );
     updateButtons();
     return i;
-}	
+}
 
 
 int QDesignerWizard::currentPageNum() const
@@ -520,6 +520,8 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
     QString str = WidgetDatabase::createWidgetName( id );
     const char *s = str.latin1();
     w = createWidget( n, parent, name ? name : s, init, r, orient );
+    if ( w->inherits( "QScrollView" ) )
+	( (QScrollView*)w )->disableSizeHintCaching();
     if ( !w && WidgetDatabase::isCustomWidget( id ) )
 	w = createCustomWidget( parent, name ? name : s, MetaDataBase::customWidget( id ) );
     if ( !w )
@@ -1104,7 +1106,7 @@ const char* WidgetFactory::classNameOf( QObject* o )
     else if ( o->inherits( "QDesignerWidgetStack" ) )
 	return "QWidgetStack";
     else if ( o->inherits( "QWidgetStack" ) )
-	return "QWeDoNotWantToBreakTabWidget";	
+	return "QWeDoNotWantToBreakTabWidget";
     else if ( o->inherits( "QDesignerDialog" ) )
 	return "QDialog";
     else if ( o->inherits( "QDesignerWidget" ) )

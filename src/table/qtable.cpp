@@ -4007,7 +4007,20 @@ void QTable::focusOutEvent( QFocusEvent *e )
 
 QSize QTable::sizeHint() const
 {
-    return QScrollView::sizeHint();
+    if ( cachedSizeHint().isValid() )
+	return cachedSizeHint();
+
+    constPolish();
+
+    QSize s = tableSize();
+    QSize sh;
+    if ( s.width() < 500 && s.height() < 500 )
+	sh = QSize( tableSize().width() + VERTICALMARGIN + 5,
+		    tableSize().height() + topMargin() + 5 );
+    else
+	sh = QScrollView::sizeHint();
+    setCachedSizeHint( sh );
+    return sh;
 }
 
 /*! \reimp

@@ -2374,10 +2374,10 @@ void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 */
 void QListBox::keyPressEvent( QKeyEvent *e )
 {
-    if ( ( e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab ) 
+    if ( ( e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab )
 	 && e->state() & Qt::ControlButton )
 	e->ignore();
-    
+
     if ( count() == 0 ) {
 	e->ignore();
 	return;
@@ -2660,7 +2660,7 @@ void QListBox::focusInEvent( QFocusEvent *e )
 void QListBox::focusOutEvent( QFocusEvent *e )
 {
     Q_UNUSED(e) // I need this to get rid of a Borland warning
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) 
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )
 	&& e->reason() != QFocusEvent::Popup )
 	repaintSelection();
 
@@ -2975,7 +2975,33 @@ void QListBox::emitChangedSignal( bool )
 
 QSize QListBox::sizeHint() const
 {
-    return QScrollView::sizeHint();
+    if ( cachedSizeHint().isValid() )
+	return cachedSizeHint();
+
+    constPolish();
+    doLayout();
+
+    int i=0;
+    while( i < 10 &&
+	   i < (int)d->columnPos.size()-1 &&
+	   d->columnPos[i] < 200 )
+	i++;
+    int x;
+    x = QMIN( 200, d->columnPos[i] );
+    x = QMAX( 40, x );
+
+    i = 0;
+    while( i < 10 &&
+	   i < (int)d->rowPos.size()-1 &&
+	   d->rowPos[i] < 200 )
+	i++;
+    int y;
+    y = QMIN( 200, d->rowPos[i] );
+    y = QMAX( 40, y );
+
+    QSize s( x, y );
+    setCachedSizeHint( s );
+    return s;
 }
 
 /*!

@@ -3083,6 +3083,7 @@ int QListView::addColumn( const QString &label, int width )
     d->column.insert( c, new QListViewPrivate::Column );
     d->column[c]->wmode = width >=0 ? Manual : Maximum;
     updateGeometries();
+    updateGeometry();
     return c;
 }
 
@@ -3105,6 +3106,7 @@ int QListView::addColumn( const QIconSet& iconset, const QString &label, int wid
     d->column.insert( c, new QListViewPrivate::Column );
     d->column[c]->wmode = width >=0 ? Manual : Maximum;
     updateGeometries();
+    updateGeometry();
     return c;
 }
 
@@ -3183,6 +3185,7 @@ void QListView::removeColumn( int index )
     updateGeometries();
     if ( d->column.count() == 0 )
 	clear();
+    updateGeometry();
 }
 
 /*!
@@ -3195,6 +3198,7 @@ void QListView::setColumnText( int column, const QString &label )
     if ( column < d->h->count() ) {
 	d->h->setLabel( column, label );
 	updateGeometries();
+	updateGeometry();
     }
 }
 
@@ -5378,8 +5382,8 @@ int QListView::itemMargin() const
 */
 void QListView::styleChange( QStyle& old )
 {
-    reconfigureItems();
     QScrollView::styleChange( old );
+    reconfigureItems();
 }
 
 
@@ -5398,7 +5402,6 @@ void QListView::setFont( const QFont & f )
 */
 void QListView::setPalette( const QPalette & p )
 {
-    d->h->setPalette( p );
     QScrollView::setPalette( p );
     reconfigureItems();
 }
@@ -5889,7 +5892,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 				  cg, styleflags, QStyleOption(this));
 	    r += boxsize + 4;
 	}
-	
+
     } else {
 	Q_ASSERT( lv ); //###
 	//	QFontMetrics fm( lv->font() );
@@ -5972,7 +5975,35 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 */
 QSize QListView::sizeHint() const
 {
-    return QScrollView::sizeHint();
+    if ( cachedSizeHint().isValid() )
+	return cachedSizeHint();
+
+    constPolish();
+
+    if ( !isVisible() && (!d->drawables || d->drawables->isEmpty()) )
+	// force the column widths to sanity, if possible
+	buildDrawableList();
+
+    QSize s( d->h->sizeHint() );
+    s.setWidth( s.width() + style().pixelMetric(QStyle::PM_ScrollBarExtent) );
+    s += QSize(frameWidth()*2,frameWidth()*2);
+    QListViewItem * l = d->r;
+    while( l && !l->height() )
+	l = l->childItem ? l->childItem : l->siblingItem;
+
+    if ( l && l->height() )
+	s.setHeight( s.height() + 10 * l->height() );
+    else
+	s.setHeight( s.height() + 140 );
+
+    if ( s.width() > s.height() * 3 )
+	s.setHeight( s.width() / 3 );
+    else if ( s.width() *3 < s.height() )
+	s.setHeight( s.width() * 3 );
+
+    setCachedSizeHint( s );
+
+    return s;
 }
 
 

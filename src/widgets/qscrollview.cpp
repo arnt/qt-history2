@@ -127,7 +127,7 @@ public:
 #ifndef QT_NO_DRAGANDDROP
         autoscroll_timer( parent ), drag_autoscroll( TRUE ),
 #endif
-        inresize( FALSE )
+        inresize( FALSE ), use_cached_size_hint( TRUE )
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
 	viewport->setBackgroundMode( QWidget::PaletteDark );
@@ -191,18 +191,20 @@ public:
 #endif
     QTimer scrollbar_timer;
 
-    bool static_bg;
-    bool fake_scroll;
+    uint static_bg : 1;
+    uint fake_scroll : 1;
 
     // This variable allows ensureVisible to move the contents then
     // update both the sliders.  Otherwise, updating the sliders would
     // cause two image scrolls, creating ugly flashing.
     //
-    bool signal_choke;
+    uint signal_choke : 1;
 
     // This variables indicates in updateScrollBars() that we are
     // in a resizeEvent() and thus don't want to flash scrollbars
-    bool inresize;
+    uint inresize : 1;
+    uint use_cached_size_hint : 1;
+    QSize cachedSizeHint;
 };
 
 inline QScrollViewData::~QScrollViewData()
@@ -622,8 +624,18 @@ void QScrollView::styleChange( QStyle& old )
 {
     QWidget::styleChange( old );
     updateScrollBars();
+    d->cachedSizeHint = QSize();
 }
 
+/*!
+    \reimp
+*/
+void QScrollView::fontChange( const QFont &old )
+{
+    QWidget::fontChange( old );
+    updateScrollBars();
+    d->cachedSizeHint = QSize();
+}
 
 void QScrollView::hslide( int pos )
 {
@@ -823,7 +835,7 @@ void QScrollView::updateScrollBars()
 		showv = TRUE;
 	    if(d->hMode == Auto)
 		showh = TRUE;
-	}	
+	}
 #endif
 
         // Given other scrollbar will be shown, NOW do we need one?
@@ -2562,6 +2574,9 @@ void QScrollView::viewportToContents( int vx, int vy, int& x, int& y ) const
 */
 QSize QScrollView::sizeHint() const
 {
+    if ( d->use_cached_size_hint && d->cachedSizeHint.isValid() )
+	return d->cachedSizeHint;
+
     int h = fontMetrics().height();
     if ( h < 10 )
 	h = 10;
@@ -2671,5 +2686,20 @@ bool QScrollView::dragAutoScroll() const
 }
 
 #endif // QT_NO_DRAGANDDROP
+
+void QScrollView::setCachedSizeHint( const QSize &sh ) const
+{
+    d->cachedSizeHint = sh;
+}
+
+void QScrollView::disableSizeHintCaching()
+{
+    d->use_cached_size_hint = FALSE;
+}
+
+QSize QScrollView::cachedSizeHint() const
+{
+    return d->use_cached_size_hint ? d->cachedSizeHint : QSize();
+}
 
 #endif // QT_NO_SCROLLVIEW

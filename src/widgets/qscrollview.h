@@ -71,7 +71,7 @@ public:
     virtual void setResizePolicy( ResizePolicy );
     ResizePolicy resizePolicy() const;
 
-    void styleChange(QStyle&);
+    void styleChange( QStyle & );
     void removeChild(QWidget* child);
     virtual void addChild( QWidget* child, int x=0, int y=0 );
     virtual void moveChild( QWidget* child, int x, int y );
@@ -206,17 +206,20 @@ protected:
     virtual void setHBarGeometry(QScrollBar& hbar, int x, int y, int w, int h);
     virtual void setVBarGeometry(QScrollBar& vbar, int x, int y, int w, int h);
 
-    void	resizeEvent(QResizeEvent*);
-    void 	mousePressEvent( QMouseEvent * );
-    void 	mouseReleaseEvent( QMouseEvent * );
-    void 	mouseDoubleClickEvent( QMouseEvent * );
-    void 	mouseMoveEvent( QMouseEvent * );
+    void resizeEvent(QResizeEvent*);
+    void  mousePressEvent( QMouseEvent * );
+    void  mouseReleaseEvent( QMouseEvent * );
+    void  mouseDoubleClickEvent( QMouseEvent * );
+    void  mouseMoveEvent( QMouseEvent * );
 #ifndef QT_NO_WHEELEVENT
-    void 	wheelEvent( QWheelEvent * );
+    void  wheelEvent( QWheelEvent * );
 #endif
-    void	contextMenuEvent( QContextMenuEvent * );
-    bool	eventFilter( QObject *, QEvent *e );
+    void contextMenuEvent( QContextMenuEvent * );
+    bool eventFilter( QObject *, QEvent *e );
 
+    void setCachedSizeHint( const QSize &sh ) const;
+    QSize cachedSizeHint() const;
+    void fontChange( const QFont & );
 
 private:
     void drawContents( QPainter* );
@@ -233,12 +236,16 @@ private slots:
     void stopDragAutoScroll();
 #endif
 
-private:	// Disabled copy constructor and operator=
+private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QScrollView( const QScrollView & );
     QScrollView &operator=( const QScrollView & );
 #endif
     void changeFrameRect(const QRect&);
+
+public:
+    void disableSizeHintCaching();
+
 };
 
 #endif // QT_NO_SCROLLVIEW
