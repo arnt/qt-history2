@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.29 1999/10/05 12:12:09 arnt Exp $
+** $Id: qlist.doc,v 2.30 1999/10/13 17:24:18 aavit Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -887,8 +887,10 @@
   QStrList documentation
  *****************************************************************************/
 
+typedef QList<char> QStrList
+
 /*!
-  \class QStrList qstrlist.doc
+  \class QStrList qstrlist.h
   \brief The QStrList class provides a doubly linked list of \c char*.
 
   \inherit QList
@@ -912,9 +914,13 @@
   consume far less memory than deep copies.  It is also much faster
   to copy a pointer (typically 4 or 8 bytes) than to copy string data.
 
-  The virtual compareItems() function is reimplemented and does a
-  case sensitive string comparison.
-  The inSort() function will insert strings in a sorted order.
+  A QStrList that operates on deep copies will by default turn on
+  auto-deletion (see setAutoDelete()). Thus, by default, QStrList will
+  deallocate any string copies it allocates.
+
+  The virtual compareItems() function is reimplemented and does a case
+  sensitive string comparison. The inSort() function will insert
+  strings in a sorted order.
 
   The QStrListIterator class is an iterator for QStrList.
 */
@@ -990,7 +996,7 @@ case insensitive compare.
  *****************************************************************************/
 
 /*!
-  \class QStrListIterator qstrlist.doc
+  \class QStrListIterator qstrlist.h
   \brief The QStrListIterator class is an iterator for the QStrList and QStrIList classes.
 
   \inherit QListIterator

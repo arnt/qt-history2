@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.11 1999/08/06 17:35:13 aavit Exp $
+** $Id: qarray.doc,v 2.12 1999/10/13 17:24:17 aavit Exp $
 **
 ** QArray class documentation
 **
@@ -408,6 +408,8 @@
 /*!
   \class QByteArray qcstring.h
   \brief The QByteArray class provides an array of bytes.
+
+  \inherit QArray
 
   \ingroup tools
 
