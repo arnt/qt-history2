@@ -119,8 +119,9 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
         return true;
     } else 
     // Generate single configuration project file
-    if(project->first("TEMPLATE") == "vcapp" ||
-       project->first("TEMPLATE") == "vclib") {
+    if((project->first("TEMPLATE") == "vcapp" ||
+        project->first("TEMPLATE") == "vclib") &&
+        !project->isActiveConfig("build_pass")) {
         debug_msg(1, "Generator: MSVC.NET: Writing single configuration project file");
         XmlOutput xmlOut(t);
         xmlOut << vcProject;
