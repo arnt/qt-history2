@@ -24,13 +24,17 @@
 #include <qicon.h>
 #include <qstyle.h>
 #include <qtimer.h>
+#include <qstackedwidget.h>
 
 TabbedBrowser::TabbedBrowser(MainWindow *parent)
     : QWidget(parent)
 {
     ui.setupUi(this);
-
     init();
+
+    QStackedWidget * stack = qFindChild<QStackedWidget*>(ui.tab);
+    Q_ASSERT(stack);
+    stack->setContentsMargins(0, 1, 0, 1);
 }
 
 TabbedBrowser::~TabbedBrowser()
