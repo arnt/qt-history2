@@ -28,9 +28,7 @@ TreeItem::TreeItem(QStringList data, TreeItem *parent)
 
 TreeItem::~TreeItem()
 {
-    QList<TreeItem*>::iterator it;
-    for (it = childItems.begin(); it != childItems.end(); ++it)
-        delete *it;
+    qDeleteAll(childItems);
 }
 
 void TreeItem::appendChild(TreeItem *item)
@@ -40,10 +38,7 @@ void TreeItem::appendChild(TreeItem *item)
 
 TreeItem *TreeItem::child(int row)
 {
-    if (row >= 0 && row < childItems.count())
-        return childItems[row];
-
-    return 0;
+    return childItems.value(row);
 }
 
 int TreeItem::childCount() const
