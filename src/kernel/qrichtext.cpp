@@ -2708,13 +2708,11 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int curx = -1, cury, curh;
     bool lastDirection = 0;
 
-    int numSelections = doc ? doc->numSelections : 0;
-
-    int selectionStarts[ numSelections ];
-    int selectionEnds[ numSelections ];
+    int selectionStarts[ QTextDocument::numSelections ];
+    int selectionEnds[ QTextDocument::numSelections ];
     if ( drawSelections ) {
 	bool hasASelection = FALSE;
-	for ( i = 0; i < numSelections; ++i ) {
+	for ( i = 0; i < QTextDocument::numSelections; ++i ) {
 	    if ( !hasSelection( i ) ) {
 		selectionStarts[ i ] = -1;
 		selectionEnds[ i ] = -1;
@@ -2778,7 +2776,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	// check if selection state changed
 	bool selectionChange = FALSE;
 	if ( drawSelections ) {
-	    for ( int j = 0; j < numSelections; ++j ) {
+	    for ( int j = 0; j < QTextDocument::numSelections; ++j ) {
 		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
 		if ( selectionChange )
 		    break;
@@ -2787,7 +2785,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && buffer.length() > 0 && buffer[ (int)buffer.length() - 1 ].isSpace() ) ||
-	     lastDirection != chr->rightToLeft || chr->rightToLeft ||
+	     (uint)lastDirection != chr->rightToLeft || chr->rightToLeft ||
 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
@@ -2827,7 +2825,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     if ( !buffer.isEmpty() ) {
 	bool selectionChange = FALSE;
 	if ( drawSelections ) {
-	    for ( int j = 0; j < numSelections; ++j ) {
+	    for ( int j = 0; j < QTextDocument::numSelections; ++j ) {
 		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
 		if ( selectionChange )
 		    break;
@@ -2863,7 +2861,6 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
 				      QTextFormat *lastFormat, int i, int *selectionStarts,
 				      int *selectionEnds, const QColorGroup &cg )
 {
-    int numSelections = doc ? doc->numSelections : 0;
     painter.setPen( QPen( lastFormat->color() ) );
     painter.setFont( lastFormat->font() );
 
@@ -2877,7 +2874,7 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
     }
 
     if ( drawSelections ) {
-	for ( int j = 0; j < numSelections; ++j ) {
+	for ( int j = 0; j < QTextDocument::numSelections; ++j ) {
 	    if ( doc && i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
 		if ( doc->invertSelectionText( j ) )
 		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
