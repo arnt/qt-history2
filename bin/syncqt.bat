@@ -183,8 +183,6 @@ if ( check_unix() ) {
     }
     sync_files("$basedir/dist/win/Makefile", "$basedir/Makefile", $fast);
     sync_files("$basedir/dist/win/Makefile.win32-g++", "$basedir/Makefile.win32-g++", $fast);
-    sync_files("$basedir/dist/win/bin/moc.exe", "$basedir/bin/moc.exe", $fast);+
-    sync_files("$basedir/dist/win/bin/configure.exe", "$basedir/bin/configure.exe", $fast);
 }
 
 exit 0;
