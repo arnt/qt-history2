@@ -85,7 +85,7 @@ get function \c priority() and a set function \c setPriority().
     {
         Q_OBJECT
         Q_PROPERTY( Priority priority READ priority WRITE setPriority )
-	Q_ENUMS( Priority )
+        Q_ENUMS( Priority )
     public:
         MyClass( QObject * parent=0, const char * name=0 );
         ~MyClass();

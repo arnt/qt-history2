@@ -884,18 +884,18 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 
   Serialization format:
   <ol>
-  <li> QColorGroup normal
-  <li> QColorGroup disabled
   <li> QColorGroup active
+  <li> QColorGroup disabled
+  <li> QColorGroup inactive
   </ol>
   The color groups are serialized in the listed order.
 */
 
 QDataStream &operator<<( QDataStream &s, const QPalette &p )
 {
-    return s << p.normal()
+    return s << p.active()
 	     << p.disabled()
-	     << p.active();
+	     << p.inactive();
 }
 
 
