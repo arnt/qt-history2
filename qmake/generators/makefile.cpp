@@ -109,6 +109,8 @@ public:
     }
     ~QMakeBufferedDevice()
     {
+        if(!outDevice->isOpen())
+            qDebug("Potential problem! Must use QMakeOutTextStream to close your device!");
         if(used)
             outDevice->write(buffer().constData(), used);
     }
@@ -1041,7 +1043,6 @@ MakefileGenerator::writePrlFile()
 	    project->variables()["QMAKE_INTERNAL_PRL_FILE"].append(prl);
 	    QMakeOutTextStream t(&ft);
 	    writePrlFile(t);
-	    ft.close();
 	}
     }
 }
