@@ -152,6 +152,16 @@ static int cstring_set_double()
     return i;    
 }
 
+static int cstring_append()
+{
+    int i;
+    QCString s = "This quite long string will become";
+    QCString f = " much longer when this string is appended";
+    for ( i=0; i<1000; i++ ) {
+	s += f;
+    }
+    return i;
+}
 
 QPERF_BEGIN(cstring,"QCString tests")
     QPERF(cstring_def_ctor,"Test default QCString constructor")
@@ -167,4 +177,5 @@ QPERF_BEGIN(cstring,"QCString tests")
     QPERF(cstring_set_int,"Convert integer to string")
     QPERF(cstring_set_int_sprintf,"Convert integer to string using sprintf")
     QPERF(cstring_set_double,"Convert double to string")
+    QPERF(cstring_append,"Append a string to a string")
 QPERF_END(cstring)
