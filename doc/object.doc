@@ -38,9 +38,9 @@
 \title Qt Object Model
 
 The standard C++ Object Model provides very efficient runtime support
-of the object paradigm. On the negative side, its static nature shows
-inflexibility in certain problem domains. Graphical User Interface
-programming is one example that requires both runtime efficiency and a
+for the object paradigm. But the C++ Object Model's static nature is
+inflexibile in certain problem domains. Graphical User Interface
+programming is a domain that requires both runtime efficiency and a
 high level of flexibility. Qt provides this, by combining the speed of
 C++ with the flexibility of the Qt Object Model.
 
@@ -61,7 +61,7 @@ Qt adds these features to C++:
   trees \endlink that organize object ownership in a natural way.
 \i guarded pointers, \l QGuardedPtr, that are automatically
   set to null when the referenced object is destroyed, unlike normal C++
-  pointers which become "dangling pointers" in that case.
+  pointers which become "dangling pointers" when their objects are destroyed.
 \endlist
 
 Many of these Qt features are implemented with standard C++
@@ -71,7 +71,7 @@ require the \link metaobjects.html Meta Object System \endlink provided
 by Qt's own \link moc.html Meta Object Compiler (moc) \endlink. 
 
 The Meta Object System is a C++ extension that makes the language
-better suited for true component GUI programming. Although templates can
+better suited to true component GUI programming. Although templates can
 be used to extend C++, the Meta Object System provides benefits using
 standard C++ that cannot be achieved with templates; see \link
 templates.html Why doesn't Qt use templates for signals and
@@ -102,7 +102,7 @@ something else. In other words: the accuracy of timers depends on the
 granularity of your application.
 
 There is practically no upper limit for the interval value (more than
-one year).  The accuracy depends on the underlying operating
+one year is possible).  The accuracy depends on the underlying operating
 system. Windows 95/98 has 55 millisecond (18.2 times per second)
 accuracy; other systems that we have tested (UNIX X11, Windows NT and
 OS/2) can handle 1 millisecond intervals.
@@ -110,9 +110,7 @@ OS/2) can handle 1 millisecond intervals.
 The main API for the timer functionality is \l QTimer.  That class
 provides regular timers that emit a signal when the timer fires, and
 inherit \l QObject so that it fits well into the ownership structure
-of most GUI programs.  The normal way of using it is like this excerpt
-from a Qt example program:
-
+of most GUI programs.  The normal way of using it is like this:
 \code
     QTimer * counter = new QTimer( this );
     connect( counter, SIGNAL(timeout()),
@@ -151,18 +149,18 @@ in a single-threaded application without blocking the user interface.
 
     class Mandelbrot : public QObject
     {
-	Q_OBJECT				// required for signals/slots
+	Q_OBJECT // required for signals/slots
     public:
 	Mandelbrot( QObject *parent=0, const char *name );
 	...
     public slots:
-	void	start();
+	void start();
     signals:
-	void	done();
+	void done();
     private slots:
-	void	calculate();
-    private:
-	QTimer	timer;
+	void calculate();
+	private:
+	QTimer timer;
 	...
     };
 
@@ -171,7 +169,7 @@ in a single-threaded application without blocking the user interface.
     //
 
     Mandelbrot::Mandelbrot( QObject *parent=0, const char *name )
-	: QObject( parent, name )
+    : QObject( parent, name )
     {
 	connect( &timer, SIGNAL(timeout()), SLOT(calculate()) );
 	...
@@ -184,8 +182,8 @@ in a single-threaded application without blocking the user interface.
 
     void Mandelbrot::start()
     {
-	if ( !timer.isActive() )		// not already running
-	    timer.start( 10 );			// timeout every 10 ms
+	if ( !timer.isActive() ) // not already running
+	    timer.start( 10 );   // timeout every 10 ms
     }
 
     //
@@ -195,10 +193,10 @@ in a single-threaded application without blocking the user interface.
 
     void Mandelbrot::calculate()
     {
-	...			// perform the calculation for a scanline
-	if ( finished ) {	// no more scanlines
-	   timer.stop();
-	   emit done();
+	...                // perform the calculation for a scanline
+	if ( finished ) {  // no more scanlines
+	    timer.stop();
+	    emit done();
 	}
     }
   \endcode
@@ -217,7 +215,7 @@ platform-independent library, Qt cannot rely on non-standard compiler
 features like \c __property or \c [property]. Our solution works with
 any standard C++ compiler on every platform we support. It's based on
 the meta-object system that also provides object communication through
-signals and slots.
+\link signalsandslots.html signals and slots\endlink.
 
 The \c Q_PROPERTY macro in a class declaration declares a
 property. Properties can only be declared in classes that inherit \l
@@ -236,30 +234,30 @@ QWidget::isDesktop() do not have this.
 
 \i An attribute "stored" that indicates persistence.  Most properties
 are stored, but a few virtual properties like \l
-QWidget::minimumWidth() aren't: That property is just way of looking
-at \l QWidget::minimumSize(), it has no data of its own.
+QWidget::minimumWidth() aren't, since it's just way of looking
+at \l QWidget::minimumSize(), and has no data of its own.
 
 \i A reset function to set a property back to its context specific
-default value.  Very unusual, but e.g. \l QWidget::font() needs it:
-The default is to follow its surroundings, and no call to \l
-QWidget::setFont() can mean that.
+default value.  Very unusual, but e.g. \l QWidget::font() needs this,
+since no call to \l QWidget::setFont() can mean 'reset to the context
+specific font'.
 
 \i An attribute "designable" that indicates whether it makes sense to
-set that property in a GUI builder (e.g., Qt Designer). For most
-properties it does make sense, but not for \l QButton::isDown().  The
-user can press buttons, and the application programmer can make the
-program press its own buttons, but a GUI design tool can't press
-buttons.
+set make the property available in a GUI builder (e.g. \link
+designer-manual.book Qt Designer\endlink). For most properties this 
+make sense, but not for all, e.g. \l QButton::isDown().  The user can
+press buttons, and the application programmer can make the program
+press its own buttons, but a GUI design tool can't press buttons.
 
 \endlist
 
-The read, write and reset functions can be about any member
+The read, write and reset functions can be just about any member
 functions, inherited or not, virtual or not, with the exception of
 member functions inherited from parents other than the first in the
 case of multiple inheritance.
 
 Properties can be read and written through generic functions in
-QObject without knowing anything about class in use.  These two
+QObject without knowing anything about the class in use.  These two
 function calls are equivalent:
 
 \code
@@ -268,17 +266,18 @@ function calls are equivalent:
     o->setProperty( "down", TRUE );
 \endcode
 
-Equivalent, that is, except that the first is faster, and that the
-first gives much better diagnostics at compile time.  When practical,
-the first is better.  However, since you can get a list of all
-available properties for any QObject through its \l QMetaObject, \l
-QObject::setProperty() can give you control over classes that weren't available
-at compile time.
+Equivalent, that is, except that the first is faster, and provides
+much better diagnostics at compile time.  When practical, the first is
+better.  However, since you can get a list of all available properties
+for any QObject through its \l QMetaObject, \l QObject::setProperty()
+can give you control over classes that weren't available at compile
+time.
 
-As well as QObject::setProperty(), there is a \l QObject::property().
-\l QMetaObject::propertyNames() returns the names of all available
-properties.  \l QMetaObject::property() returns the property data for
-a named property: a \l QMetaProperty object.
+As well as QObject::setProperty(), there is a corresponding \l
+QObject::property() function. \l QMetaObject::propertyNames() returns
+the names of all available properties.  \l QMetaObject::property()
+returns the property data for a named property: a \l QMetaProperty
+object.
 
 Here's a simple example that shows the most important property
 functions in use:
@@ -304,7 +303,7 @@ declare it with the \c Q_PROPERTY macro. The syntax is as follows:
 \code
 Q_PROPERTY( type name READ getFunction [WRITE setFunction]
             [RESET resetFunction] [DESIGNABLE bool] 
-            [SCRIPTABLE  bool] [STORED bool] )
+            [SCRIPTABLE bool] [STORED bool] )
 \endcode
 
 For the declaration to be valid, the get function has to be const and
@@ -324,7 +323,7 @@ possible to set a value by name, like this:
 \endcode
 
 Enumeration types are registered with the \c Q_ENUMS macro.  Here's the
-final class declaration including the property declaration:
+final class declaration including the property related declarations:
 
 \code
     class MyClass : public QObject
@@ -343,10 +342,10 @@ final class declaration including the property declaration:
 \endcode
 
 Another similar macro is \c Q_SETS. Like \c Q_ENUMS, it registers an
-enumeration type but marks it in addition as "set", i.e. the
-enumeration values can be or'ed together.  An I/O class might have
-enumeration values "Read" and "Write" and accept "Read|Write": Such an
-enum is best handled with \c Q_SETS, not \c Q_ENUMS.
+enumeration type but marks it in addition as a "set", i.e. the
+enumeration values can be OR'ed together.  An I/O class might have
+enumeration values "Read" and "Write" and accept "Read|Write": such an
+enum is best handled with \c Q_SETS, rather than \c Q_ENUMS.
 
 The remaining keywords in the \c Q_PROPERTY section are \c RESET, \c
 DESIGNABLE, \c SCRIPTABLE and STORED.
@@ -356,23 +355,23 @@ state (which may have changed since initialization).  The function
 must return void and take no arguments.
 
 \c DESIGNABLE declares whether this property is suited for
-modification by a GUI designer program.  The default is \c true for
-writable properties, otherwise \c false. Other than \c true or \c
-false, you can specify a boolean member function.
+modification by a GUI design tool.  The default is \c TRUE for
+writable properties; otherwise \c FALSE. Instead of \c TRUE or \c
+FALSE, you can specify a boolean member function.
 
 \c SCRIPTABLE declares whether this property is suited for access by a
-scripting engine.  The default is \c true. Other than \c true or \c false,
+scripting engine.  The default is \c TRUE. Instead of \c TRUE or \c FALSE,
 you can specify a boolean member function.
 
-\c STORED declares whether the property's value has to be remembered
+\c STORED declares whether the property's value must be remembered
 when storing an object's state.  Stored makes only sense for writable
-properties. The default value is \c true. Technically superfluous
+properties. The default value is \c TRUE. Technically superfluous
 properties (like QPoint pos if QRect geometry is already a property)
-define this to be \c false.
+define this to be \c FALSE.
 
 
 Connected to the property system is an additional macro, "Q_CLASSINFO",
-that can be used to attach additional name/value-pairs to a classes'
+that can be used to attach additional name/value-pairs to a class'
 meta object, for example:
 
 \code
@@ -513,28 +512,28 @@ details.
 \link QObject QObjects\endlink organize themselves in object trees.
 When you create a QObject with another object as parent, it's added to
 the parent's \link QObject::children() children() \endlink list, and
-is deleted when the parent is.  This turns out to fit the needs of GUI
-objects well.  For example, a \l QAccel (keyboard accelerator) is a
-child of the right window, so when the user closes that window, the
-accelerator is deleted too.
+is deleted when the parent is.  This turns out that this approach fits
+the needs of GUI objects very well.  For example, a \l QAccel (keyboard
+accelerator) is a child of the relevant window, so when the user closes
+that window, the accelerator is deleted too.
 
-The static function \l QObject::objectTrees() gives you access to all
+The static function \l QObject::objectTrees() provides access to all
 the root objects that currently exist.
 
-\l QWidget, the base class of everything that shows up on the screen,
-extends the parent/child relationship: a child normally also becomes a
-so-called child widget, i.e. it is displayed in its parent's
-coordinate system and is graphically clipped by its parent's
-boundaries.  Thus, when the the application deletes a message box
-after it's been closed, the message box' OK button is deleted too,
-just the way you would want, because the button is a child of the
-message box.
+\l QWidget, the base class of everything that appears on the screen,
+extends the parent-child relationship. A child normally also becomes a
+child widget, i.e. it is displayed in its parent's coordinate system
+and is graphically clipped by its parent's boundaries.  For example,
+when the an application deletes a message box after it has been
+closed, the message box's buttons and label are also deleted, just as
+we'd want, because the buttons and label are children of the message
+box.
 
-Of course, you can also delete a child object yourself, and it will
-remove itself from its parent.  For example, when the user removes a
-toolbar that could often result in the application deleting one of the
-\l QToolBar objects, and the tool bar's \l QMainWindow parent would
-then notice the change and reconfigure its screen space.
+You can also delete child objects yourself, and they will remove
+themselves from their parents.  For example, when the user removes a
+toolbar it may lead to the application deleting one of its \l QToolBar
+objects, in which case the tool bar's \l QMainWindow parent would
+detect the change and reconfigure its screen space accordingly.
 
 The debugging functions \l QObject::dumpObjectTree() and \l
 QObject::dumpObjectInfo() are often useful when an application looks or

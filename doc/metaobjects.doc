@@ -45,33 +45,34 @@ mechanism for communication between objects, runtime type information
 and the dynamic property system.
 
 It is based on three things:
-<ul>
-<li> the \l QObject class,
-<li> the Q_OBJECT macro inside the private section of the class
+\list
+\i the \l QObject class,
+\i the Q_OBJECT macro inside the private section of the class
 declaration,
-<li> the <a href="moc.html">Meta Object Compiler (moc)</a>. 
- </ul>
+\i the \link moc.html Meta Object Compiler (moc)\endlink. 
+ \endlist
 
-The <b>moc</b> reads a C++ source file. If it finds one or more class
-declarations that contain the Q_OBJECT macro, it produces another
-C++ source file which contains the meta object code for this
-class. This generated source file is either #included into the class'
-source file or compiled and linked with the class implementation.
+The \e moc reads a C++ source file. If it finds one or more class
+declarations that contain the Q_OBJECT macro, it produces another C++
+source file which contains the meta object code for the classes that
+contain the Q_OBJECT macro. This generated source file is either
+#included into the class' source file or compiled and linked with the
+class' implementation.
 
-Apart from the possibility to use \link 
-signalsandslots.html signals and slots \endlink for communication
-between objects (the main reason for introducing the system), the
-meta object code implements certain other features in QObject:
+In addition to providing the \link signalsandslots.html signals and
+slots \endlink mechanism for communication between objects (the main
+reason for introducing the system), the meta object code implements
+certain other features in QObject:
 
 \list
 
 \i a function \link QObject::className() className() \endlink that
-returns the class name as string during runtime, without requiring
+returns the class name as a string at runtime, without requiring
 native runtime type information (RTTI) support through the C++
 compiler.
 
 \i a function \link QObject::inherits() inherits() \endlink that
-returns whether an object is instance of a class that inherits a
+returns whether an object is an instance of a class that inherits a
 specified class within the QObject inheritance tree.
 
 \i two functions \link QObject::tr() tr() \endlink and
@@ -80,7 +81,7 @@ translation as used for internationalization.
 
 \i two functions \link QObject::setProperty() setProperty() \endlink
 and \link QObject::property() property() \endlink to dynamically set
-and get <a href="properties.html">object properties</a> by name.
+and get \link properties.html object properties\endlink by name.
 
 \i a function \link QObject::metaObject() metaObject() \endlink that
 returns the associated \link QMetaObject meta object \endlink for the
@@ -88,14 +89,15 @@ class.
 
 \endlist
 
-While it is possible to use QObject as a base class without Q_OBJECT
-macro and without meta object code, neither signals and slots nor the
-other features described here will be available. From the meta object
-system's point of view, a QObject subclass without meta code is
-equivalent to its closest ancestor with meta object code. That means
-for example that className() will not return the actual name of your
-class, but the class name of this ancestor. We strongly recommend to
-use the macro in all subclasses of QObject regardless whether they
-actually use signals, slots and properties or not.
+While it is possible to use QObject as a base class without the
+Q_OBJECT macro and without meta object code, neither signals and slots
+nor the other features described here will be available if the
+Q_OBJECT macro is not used. From the meta object system's point of
+view, a QObject subclass without meta code is equivalent to its
+closest ancestor with meta object code. This means for example, that
+className() will not return the actual name of your class, but the
+class name of this ancestor. We strongly recommend that all subclasses
+of QObject use the Q_OBJECT macro regardless whether they actually use
+signals, slots and properties or not.
 
 */

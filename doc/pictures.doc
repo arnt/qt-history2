@@ -37,103 +37,93 @@
 
 \title Pictures of Most Qt Widgets
 
-Most of these widgets are pictured in either Motif or Windows style. 
-All widgets are supported in both styles (plus other \link QStyle
-styles\endlink), but for clarity we've chosen to cut down on the
-number of repeated images.
+Most of these widgets are shown in either Motif or Windows style. 
+All widgets are supported in both styles (and other \link QStyle
+styles\endlink), but for clarity we just present a selection.
 
-Here you see three views seperated by \l {QSplitter}s. At the
-top-left you see a \l QListBox, at the top-right you see a \l
+
+Below we have three views seperated by \l {QSplitter}s. At the
+top-left there's a \l QListBox, at the top-right there's a \l
 QListView with a \l QHeader and two \l {QScrollBar}s. And at the
-bottom you see a \l QIconView.
+bottom there's a \l QIconView.
 
 \img splitter-views-w.png
-\caption Windows
 
-In this screenshot you see a \l QMainWindow which contains on the top
-a \l QMenuBar, below that and at the left some \l {QToolBar}s with
-widgets like \l {QToolButton}s and \l {QComboBox}es. The central
+Below we present a \l QMainWindow which has
+a \l QMenuBar and some \l {QToolBar}s that contain
+various widgets, e.g. \l {QToolButton}s and \l {QComboBox}es. The central
 widget is a \l QWorkspace which is used for MDI window management and
-which contains as MDI-Window a \l QMultiLineEdit here. At the bottom
-you see a \l QStatusBar and at the right/bottom edge a \l QSizeGrip.
+which contains an MDI-Window featuring a \l QTextEdit. At the bottom
+you see a \l QStatusBar and at the bottom-right a \l QSizeGrip.
 
 \img mainwindow-w.png
-\caption Windows
 
-Here you see a \l QFileDialog. On the Windows Platform you can either
-use the QFileDialog or the native Windows file dialog. This is
-explained in the \l QFileDialog class documentation.
+The immage below shows a \l QFileDialog. On the Windows Platform you
+can either use a QFileDialog or the native Windows file dialog. This
+is explained in the \l QFileDialog class documentation.
 
 \img qfiledlg-w.png
-\caption Windows
 
-This is a QPrintDialog. On Windows this dialog is not supported, as the
-native Windows Print-Dialog is used there. Use QPrinter::setup() for
-portability instead of the QPrintDialog if you need to be platform
+Below is a QPrintDialog. On Windows the native print dialog is used,
+but for other platforms we provide QPrintDialog. Use QPrinter::setup()
+for portability instead of the QPrintDialog if you need to be platform
 independent.
 
 \img qprintdlg-m.png
-\caption Motif
 
-In this screenshot you see a \l QFontDialog.
+Below is a \l QFontDialog.
 
 \img qfontdlg-w.png
 \caption Windows
 
-And in this picture a \l QColorDialog is shown.
+The screenshot below shows a \l QColorDialog.
 
 \img qcolordlg-w.png
-\caption Windows
 
-For displaying messages you will use
-the \l QMessageBox.
+Messages are presented using \l{QMessageBox}es, as shown below.
 
 \img qmsgbox-w.png
-\caption Windows
 
-This image shows a \l QProgressDialog. The \l QProgressBar can also
-be used as a separate widget.
+The image below shows a \l QProgressDialog. The \l QProgressBar can
+also be used as a separate widget.
 
 \img qprogdlg-w.png
-\caption Windows
 
-In the screenshot below you see a \l QGroupBox that contains a \l
+In the screenshot below we have a \l QGroupBox that contains a \l
 QLineEdit, a read-only \l QComboBox and an editable \l QComboBox.
 
 \img groupbox-w.png
-\caption Windows
 
-This screenshot shows a \l QPopupMenu.
+The screenshot below shows a \l QPopupMenu.
 
 \img qpopmenu-w.png
-\caption Windows
 
-In the screenshot below you see a \l QButtonGroup containing four \l
+In the screenshot below there's a \l QButtonGroup containing four \l
 {QRadioButton}s and two \l {QCheckBox}es.
 
 \img buttongroup-w.png
-\caption Windows
+
+\omit
+THIS IMAGE DOESN'T SHOW ANYTHING UNDERSTANDABLY USEFUL
 
 All views in the first screenshot are widgets derived from a \l
 QScrollView. But this class can also manage lots of child-widgets,
 like in this screenshot.
 
 \img qscrollview-m.png
-\caption Motif
+\endomit
 
-This screenshot shows a \l QTabDialog. The tabs (\l QTabBar) or the
+The screenshot below shows a \l QTabDialog. The tabs (\l QTabBar) or the
 more convenient class \l QTabWidget, which combines a tab bar with
 the pages, can be used separately. In the visible page you see a \l
 QLabel, the range controls \l QSlider and \l QSpinBox and below a \l
-QLCDNumber. In the bottom row you can see some \l {QPushButton}s.
+QLCDNumber. In the bottom row there are some \l {QPushButton}s.
 
 \img qtabdlg-w.png
-\caption Windows
 
-In this screenshot you see the \l QTextBrowser displaying a HTML
+In the screenshot below there's a \l QTextBrowser displaying a HTML
 page. See also \l QTextEdit.
 
 \img qtextbrowser-w.png
-\caption Windows
 
 */

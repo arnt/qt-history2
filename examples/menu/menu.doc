@@ -7,22 +7,9 @@ $Id$
   \title Using menus
 
   This example demonstrates simple use of menus (a menu bar and
-  pull-down menus).  Qt also supports popup menus, but this example
+  pull-down menus).  Qt also supports popup menus, although this example
   doesn't contain any.
 
-  <blockquote>
-  Customer: "My computer crashed!"<br>
-  Tech Support: "It crashed?"<br>
-  Customer: "Yeah, it won't let me play my game."<br>
-  Tech Support: "All right, hit Control-Alt-Delete to reboot."<br>
-  Customer: "No, it didn't crash -- it crashed."<br>
-  Tech Support: "Huh?"<br>
-  Customer: "I crashed my game. That's what I said before. I crashed my spaceship and now it doesn't work."<br>
-  Tech Support: "Click on 'File,' then 'New Game.'"<br>
-  Customer: [pause] "Wow! How'd you learn how to do that?"<br>
-  </blockquote>
-
-  Now you too can write menu trees tech support will know how to use!
 
   <hr>
 
