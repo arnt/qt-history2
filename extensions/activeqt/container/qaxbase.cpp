@@ -584,8 +584,8 @@ QString QAxBase::control() const
 /*!
     Disables the event sink implementation for this ActiveX container.
     
-    Some ActiveX controls (e.g. the Windows Media Player) run unstable when connected with an 
-    event sink. To get OLE events you will have to use standard COM methods to register your 
+    Some ActiveX controls might run unstable when connected with an event sink. 
+    To get OLE events you will have to use standard COM methods to register your 
     own event sink. Use queryInterface to get access to the raw COM object.
 
     Note that this function should be called immediately after construction of the object (without

@@ -64,8 +64,8 @@ Server
 
 The server module is a static library that implements WinMain, thus
 replacing qtmain.lib when the project is supposed to become an ActiveX 
-server. All ActiveX servers written with Qt run out-of-process to avoid 
-QApplication conflicts.
+server. ActiveX servers written with Qt can be in process or out of
+process, and provide any number of ActiveX controls.
 
 The library implements OLE automation based on the QMetaObject and
 supports multiple ActiveX'es in a single server executable. As the type
@@ -73,7 +73,7 @@ information for OLE has to be provided statically as a type library, the
 build system is extended to generate and link this type library into the
 executable. As the Win32 API required for that step is not supported on
 Windows 95/98/ME it is not possible to build ActiveX servers with Qt on
-those Windows versions. The resulting executable however will run on
+those Windows versions. The resulting binary however will work on
 all Windows versions.
 
 Implementing an ActiveX control with Qt turns
