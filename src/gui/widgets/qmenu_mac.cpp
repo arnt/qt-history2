@@ -52,7 +52,6 @@ enum {
   Externals
  *****************************************************************************/
 extern IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
-extern bool qt_modal_state(); //qapplication_mac.cpp
 
 /*****************************************************************************
   QMenu utility functions
@@ -418,7 +417,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
             AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, (MenuItemIndex*)&index);
         SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     } else {
-        qt_mac_command_set_enabled(action->menu, action->command, !qt_modal_state());
+        qt_mac_command_set_enabled(action->menu, action->command, !QApplicationPrivate::modalState());
         SetMenuCommandProperty(0, action->command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     }
     syncAction(action);
@@ -865,7 +864,7 @@ bool QMenuBar::macUpdateMenuBar()
         if(MenuRef menu = mb->macMenu()) {
             SetRootMenu(menu);
             if(mb != QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget()))
-                qt_mac_set_modal_state(menu, qt_modal_state());
+                qt_mac_set_modal_state(menu, QApplicationPrivate::modalState());
         }
         ret = true;
     } else if(fall_back_to_empty) {

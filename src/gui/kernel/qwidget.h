@@ -40,6 +40,7 @@ class QVariant;
 class QActionEvent;
 class QMouseEvent;
 class QWheelEvent;
+class QHoverEvent;
 class QKeyEvent;
 class QFocusEvent;
 class QPaintEvent;
@@ -509,6 +510,9 @@ protected:
     virtual void focusOutEvent(QFocusEvent *);
     virtual void enterEvent(QEvent *);
     virtual void leaveEvent(QEvent *);
+    virtual void hoverEnterEvent(QHoverEvent *);
+    virtual void hoverLeaveEvent(QHoverEvent *);
+    virtual void hoverMoveEvent(QHoverEvent *);
     virtual void paintEvent(QPaintEvent *);
     virtual void moveEvent(QMoveEvent *);
     virtual void resizeEvent(QResizeEvent *);

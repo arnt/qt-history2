@@ -159,6 +159,10 @@ public:
 
         ZOrderChange = 126,                     // child widget has had its z-order changed
 
+        HoverEnter = 127,                       // mouse cursor enters a hover widget
+        HoverLeave = 128,                       // mouse cursor leaves a hover widget
+        HoverMove = 129,                        // mouse cursor move inside a hover widget
+
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };

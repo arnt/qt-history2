@@ -196,7 +196,6 @@ typedef struct tagTRACKMOUSEEVENT {
 
 #include "private/qwidget_p.h"
 
-extern void qt_dispatchEnterLeave(QWidget*, QWidget*); // qapplication.cpp
 static int translateButtonState(int s, int type, int button);
 
 /*
@@ -1599,7 +1598,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     result = false;
                 // generate leave event also when the caret enters
                 // the non-client area.
-                qt_dispatchEnterLeave(0, QWidget::find(curWin));
+                QApplicationPrivate::dispatchEnterLeave(0, QWidget::find(curWin));
                 curWin = 0;
             }
             break;
@@ -1740,7 +1739,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             // This happens when restoring an application after "Show Desktop"
             if (app_do_modal && LOWORD(wParam) == WA_ACTIVE) {
                 QWidget *top = 0;
-                if (!qt_tryModalHelper(widget, &top) && top && widget != top)
+                if (!QApplicationPrivate::tryModalHelper(widget, &top) && top && widget != top)
                     top->activateWindow();
             }
             if (LOWORD(wParam) == WA_INACTIVE)
@@ -1999,7 +1998,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     }
                 }
                 if (dispatch) {
-                    qt_dispatchEnterLeave(0, QWidget::find((WId)curWin));
+                    QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
                     curWin = 0;
                 }
             }
@@ -2037,24 +2036,24 @@ do_default:
   A modal widget without a parent becomes application-modal.
   A modal widget with a parent becomes modal to its parent and grandparents..
 
-  qt_enter_modal()
+  QApplicationPrivate::enterModal()
         Enters modal state
         Arguments:
             QWidget *widget        A modal widget
 
-  qt_leave_modal()
+  QApplicationPrivate::leaveModal()
         Leaves modal state for a widget
         Arguments:
             QWidget *widget        A modal widget
  *****************************************************************************/
 
-bool qt_modal_state()
+bool QApplicationPrivate::modalState()
 {
     return app_do_modal;
 }
 
 
-void Q_GUI_EXPORT qt_enter_modal(QWidget *widget)
+void QApplicationPrivate::enterModal(QWidget *widget)
 {
     if (!qt_modal_stack) {                        // create modal stack
         qt_modal_stack = new QWidgetList;
@@ -2065,7 +2064,7 @@ void Q_GUI_EXPORT qt_enter_modal(QWidget *widget)
     }
 
     releaseAutoCapture();
-    qt_dispatchEnterLeave(0, QWidget::find((WId)curWin));
+    QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
     qt_modal_stack->insert(0, widget);
     app_do_modal = true;
     curWin = 0;
@@ -2074,7 +2073,7 @@ void Q_GUI_EXPORT qt_enter_modal(QWidget *widget)
 }
 
 
-void Q_GUI_EXPORT qt_leave_modal(QWidget *widget)
+void QApplicationPrivate::leaveModal(QWidget *widget)
 {
     if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
@@ -2083,7 +2082,7 @@ void Q_GUI_EXPORT qt_leave_modal(QWidget *widget)
             QPoint p(QCursor::pos());
             app_do_modal = false; // necessary, we may get recursively into qt_try_modal below
             QWidget* w = QApplication::widgetAt(p.x(), p.y());
-            qt_dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
+            QApplicationPrivate::dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
             curWin = w? w->winId() : 0;
         }
         qt_win_ignoreNextMouseReleaseEvent = true;
@@ -2115,14 +2114,14 @@ static bool qt_blocked_modal(QWidget *widget)
     return true;
 }
 
-static bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
+bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
 {
     QWidget * top = 0;
 
-    if (qt_tryModalHelper(widget, &top))
+    if (QApplicationPrivate::tryModalHelper(widget, &top))
         return true;
 
-    int         type  = msg->message;
+    int type = msg->message;
 
     bool block_event = false;
 #ifndef Q_OS_TEMP
@@ -2133,14 +2132,14 @@ static bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
         if ((type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
              type == WM_MOUSEWHEEL || type == (int)WM95_MOUSEWHEEL ||
              type == WM_MOUSELEAVE ||
-             (type >= WM_KEYFIRST        && type <= WM_KEYLAST)
+             (type >= WM_KEYFIRST && type <= WM_KEYLAST)
 #ifndef Q_OS_TEMP
-                        || type == WM_NCMOUSEMOVE
+            || type == WM_NCMOUSEMOVE
 #endif
                ) {
       if (type == WM_MOUSEMOVE
 #ifndef Q_OS_TEMP
-                        || type == WM_NCMOUSEMOVE
+          || type == WM_NCMOUSEMOVE
 #endif
                        ) {
         QCursor *c = qt_grab_cursor();
@@ -2466,7 +2465,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             SetCursor(w->cursor().handle());
         }
         if (curWin != winId()) {                // new current window
-            qt_dispatchEnterLeave(this, QWidget::find(curWin));
+            QApplicationPrivate::dispatchEnterLeave(this, QWidget::find(curWin));
             curWin = winId();
 #ifndef Q_OS_TEMP
             static bool trackMouseEventLookup = false;

@@ -47,7 +47,6 @@ static DragReference qt_mac_current_dragRef = 0;
   Externals
  *****************************************************************************/
 extern void qt_mac_send_modifiers_changed(quint32, QObject *); //qapplication_mac.cpp
-extern bool qt_modal_state(); //qapplication_mac.cpp
 extern uint qGlobalPostedEventsCount(); //qapplication.cpp
 
 /*****************************************************************************
@@ -337,7 +336,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     if(!mouse.h && !mouse.v)
         GetGlobalMouse(&mouse);
 
-    if(qt_modal_state()) {
+    if(QApplicationPrivate::modalState()) {
         for(QWidget *modal = q; modal; modal = modal->parentWidget()) {
             if(modal->isWindow()) {
                 if(modal != QApplication::activeModalWidget())

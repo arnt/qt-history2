@@ -72,6 +72,18 @@ protected:
     Qt::MouseButtons mouseState;
 };
 
+class Q_GUI_EXPORT QHoverEvent : public QEvent
+{
+public:
+    QHoverEvent(Type type, const QPoint &pos, const QPoint &oldPos);
+    ~QHoverEvent();
+
+    inline const QPoint &pos() const { return p; }
+    inline const QPoint &oldPos() const { return op; }
+
+protected:
+    QPoint p, op;
+};
 
 #ifndef QT_NO_WHEELEVENT
 class Q_GUI_EXPORT QWheelEvent : public QInputEvent

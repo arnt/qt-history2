@@ -3716,9 +3716,9 @@ void QWidgetPrivate::show_helper()
     QApplication::sendEvent(q, &showEvent);
 
     if (q->testAttribute(Qt::WA_ShowModal))
-        // qt_enter_modal *before* show, otherwise the initial
+        // QApplicationPrivate::enterModal *before* show, otherwise the initial
         // stacking might be wrong
-        qt_enter_modal(q);
+        QApplicationPrivate::enterModal(q);
 
     q->setAttribute(Qt::WA_Mapped);
     show_sys();
@@ -3757,7 +3757,7 @@ void QWidgetPrivate::hide_helper()
     // destroyed and we lose all access to its parent because we haven't
     // left modality.  (Eg. modal Progress Dialog)
     if (q->testAttribute(Qt::WA_ShowModal))
-        qt_leave_modal(q);
+        QApplicationPrivate::leaveModal(q);
 
 #if defined(Q_WS_WIN)
     if (q->isWindow() && !(q->windowType() == Qt::Popup) && q->parentWidget() && q->isActiveWindow())
@@ -4405,6 +4405,18 @@ bool QWidget::event(QEvent *e)
         leaveEvent(e);
         break;
 
+    case QEvent::HoverEnter:
+        hoverEnterEvent((QHoverEvent*)e);
+        break;
+
+    case QEvent::HoverLeave:
+        hoverLeaveEvent((QHoverEvent*)e);
+        break;
+
+    case QEvent::HoverMove:
+        hoverMoveEvent((QHoverEvent*)e);
+        break;
+
     case QEvent::Paint:
         // At this point the event has to be delivered, regardless
         // whether the widget isVisible() or not because it
@@ -4775,6 +4787,54 @@ void QWidget::wheelEvent(QWheelEvent *e)
     e->ignore();
 }
 #endif
+
+
+/*!
+    This event handler, for event \a e, can be reimplemented in a
+    subclass to receive hover enter events for the widget.
+
+    A hover enter event is sent to the widget when the mouse enters
+    a widget with the WA_Hover attribute set.
+
+    The default implementation of this function call update() on the
+    entire widget.
+
+    \sa hoverLeaveEvent(), hoverMoveEvent(), QHoverEvent
+*/
+void QWidget::hoverEnterEvent(QHoverEvent *)
+{
+    update();
+}
+
+/*!
+    This event handler, for event \a e, can be reimplemented in a
+    subclass to receive hover leave events for the widget.
+
+    A hover leave event is sent to the widget when the mouse leaves
+    a widget with the WA_Hover attribute set.
+
+    The default implementation of this function call update() on the
+    entire widget.
+
+    \sa hoverEnterEvent(), hoverMoveEvent(), QHoverEvent
+*/
+void QWidget::hoverLeaveEvent(QHoverEvent *)
+{
+    update();
+}
+
+/*!
+    This event handler, for event \a e, can be reimplemented in a
+    subclass to receive hover move events for the widget.
+
+    A hover move event is sent to the widget when the mouse moves
+    inside a widget with the WA_Hover attribute set.
+
+    \sa hoverEnterEvent(), hoverLeaveEvent(), QHoverEvent
+*/
+void QWidget::hoverMoveEvent(QHoverEvent *)
+{
+}
 
 /*!
     This event handler, for event \a e, can be reimplemented in a

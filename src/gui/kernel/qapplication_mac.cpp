@@ -1543,12 +1543,12 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 }
 
 
-bool qt_modal_state()
+bool QApplicationPrivate::modalState()
 {
     return app_do_modal;
 }
 
-void qt_enter_modal(QWidget *widget)
+void QApplicationPrivate::enterModal(QWidget *widget)
 {
 #ifdef DEBUG_MODAL_EVENTS
     qDebug("Entering modal state with %s::%s::%p (%d)", widget->metaObject()->className(), widget->objectName().local8Bit(),
@@ -1562,7 +1562,7 @@ void qt_enter_modal(QWidget *widget)
         QApplication::sendEvent(widget->parentWidget(), &e);
     }
 
-    qt_dispatchEnterLeave(0, qt_mouseover);
+    dispatchEnterLeave(0, qt_mouseover);
     qt_mouseover = 0;
 
     qt_modal_stack->insert(0, widget);
@@ -1572,7 +1572,7 @@ void qt_enter_modal(QWidget *widget)
 }
 
 
-void qt_leave_modal(QWidget *widget)
+void QApplicationPrivate::leaveModal(QWidget *widget)
 {
     if(qt_modal_stack && qt_modal_stack->removeAll(widget)) {
 #ifdef DEBUG_MODAL_EVENTS
@@ -1585,7 +1585,7 @@ void qt_leave_modal(QWidget *widget)
             QPoint p(QCursor::pos());
             app_do_modal = false;
             QWidget* w = QApplication::widgetAt(p.x(), p.y());
-            qt_dispatchEnterLeave(w, qt_mouseover); // send synthetic enter event
+            dispatchEnterLeave(w, qt_mouseover); // send synthetic enter event
             qt_mouseover = w;
         }
     }
@@ -1602,7 +1602,7 @@ void qt_leave_modal(QWidget *widget)
     }
 }
 
-QWidget *qt_tryModalHelperMac(QWidget * top) {
+QWidget *QApplicationPrivate::tryModalHelperMac(QWidget *top) {
     if(top && qt_mac_is_macsheet(top) && !IsWindowVisible(qt_mac_window_for(top))) {
         if(WindowPtr wp = GetFrontWindowOfClass(kSheetWindowClass, true)) {
             if(QWidget *sheet = qt_mac_find_window(wp))
@@ -1616,7 +1616,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 {
     QWidget * top = 0;
 
-    if (qt_tryModalHelper(widget, &top))
+    if (QApplicationPrivate::tryModalHelper(widget, &top))
         return true;
 
     bool block_event  = false;
@@ -2044,7 +2044,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                        qt_mouseover ? qt_mouseover->metaObject()->className() : "none",
                        qt_mouseover ? qt_mouseover->objectName().toLocal8Bit().constData() : "");
 #endif
-                qt_dispatchEnterLeave(widget, qt_mouseover);
+                QApplicationPrivate::dispatchEnterLeave(widget, qt_mouseover);
                 qt_mouseover = widget;
             }
             break;
@@ -2592,7 +2592,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(cmd.commandID == kHICommandQuit) {
                     handled_event = true;
                     HiliteMenu(0);
-                    if (!qt_modal_state()) {
+                    if (!QApplicationPrivate::modalState()) {
                         QCloseEvent ev;
                         QApplication::sendSpontaneousEvent(app, &ev);
                         if(ev.isAccepted())
@@ -2640,7 +2640,7 @@ OSStatus QApplicationPrivate::globalAppleEventProcessor(const AppleEvent *ae, Ap
     if(aeClass == kCoreEventClass) {
         switch(aeID) {
         case kAEQuitApplication: {
-            if(!qt_modal_state() && IsMenuCommandEnabled(NULL, kHICommandQuit)) {
+            if(!QApplicationPrivate::modalState() && IsMenuCommandEnabled(NULL, kHICommandQuit)) {
                 QCloseEvent ev;
                 QApplication::sendSpontaneousEvent(app, &ev);
                 if(ev.isAccepted()) {

@@ -303,10 +303,10 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
     if (options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize |
                            Qt::WStyle_DialogBorder | Qt::WMacSheet);
-        qt_enter_modal(&modal_widg);
+        QApplicationPrivate::enterModal(&modal_widg);
         while (g_nav_blocking)
             qApp->processEvents();
-        qt_leave_modal(&modal_widg);
+        QApplicationPrivate::leaveModal(&modal_widg);
     }
 
     if (!(NavDialogGetUserAction(dlg) &
@@ -420,10 +420,10 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
     NavDialogRun(dlg);
     if (options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
-        qt_enter_modal(&modal_widg);
+        QApplicationPrivate::enterModal(&modal_widg);
         while (g_nav_blocking)
             qApp->processEvents();
-        qt_leave_modal(&modal_widg);
+        QApplicationPrivate::leaveModal(&modal_widg);
     }
 
     if (NavDialogGetUserAction(dlg) != kNavUserActionSaveAs) {

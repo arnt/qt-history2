@@ -44,10 +44,6 @@ class QMouseEvent;
 class QWheelEvent;
 class QInputContext;
 
-extern Q_GUI_EXPORT bool qt_modal_state();
-extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
-extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
-
 extern bool qt_is_gui_used;
 #ifndef QT_NO_CLIPBOARD
 extern QClipboard *qt_clipboard;
@@ -65,9 +61,6 @@ extern QSysInfo::MacVersion qt_macver;
 #if defined(Q_WS_QWS)
 class QWSManager;
 #endif
-
-extern void qt_dispatchEnterLeave(QWidget*, QWidget*);
-extern bool qt_tryModalHelper(QWidget *, QWidget ** = 0);
 
 #ifndef QT_NO_TABLET_SUPPORT
 struct TabletDeviceData
@@ -109,7 +102,7 @@ class QApplicationPrivate : public QCoreApplicationPrivate
     Q_DECLARE_PUBLIC(QApplication)
 public:
     QApplicationPrivate(int &argc, char **argv, QApplication::Type type);
-    ~QApplicationPrivate() {}
+    ~QApplicationPrivate();
 
     static bool x11_apply_settings();
 
@@ -117,6 +110,17 @@ public:
     static void emitLastWindowClosed();
 
     void createEventDispatcher();
+
+    static void dispatchEnterLeave(QWidget *enter, QWidget *leave);
+    static void enterModal(QWidget*);
+    static void leaveModal(QWidget*);
+    static bool modalState();
+    static bool tryModalHelper(QWidget *widget, QWidget **rettop = 0);
+#ifdef Q_WS_MAC
+    static QWidget *QApplicationPrivate::tryModalHelperMac(QWidget *top);
+#endif
+
+
 
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;
@@ -130,7 +134,7 @@ public:
 #endif
 
     QBasicTimer toolTipWakeUp, toolTipFallAsleep;
-    QPoint toolTipPos, toolTipGlobalPos;
+    QPoint toolTipPos, toolTipGlobalPos, hoverGlobalPos;
     QPointer<QWidget> toolTipWidget;
     QShortcutMap shortcutMap;
 
@@ -147,14 +151,14 @@ public:
                && qt_dispatchAccelEvent;
     }
 #endif
-#if defined(Q_WS_X11)  || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     static QInputContext *inputContext;
 #endif
 
     static Qt::MouseButtons mouse_buttons;
     static Qt::KeyboardModifiers modifier_buttons;
 
-    static QSize     app_strut;
+    static QSize app_strut;
     static QWidgetList *popupWidgets;
     static QStyle *app_style;
     static int app_cspec;
@@ -194,6 +198,11 @@ public:
 #ifdef Q_WS_QWS
     QPointer<QWSManager> last_manager;
 #endif
+
+    static QApplicationPrivate *instance() { return self; }
+
+private:
+    static QApplicationPrivate *self;
 };
 
 #endif // QAPPLICATION_P_H

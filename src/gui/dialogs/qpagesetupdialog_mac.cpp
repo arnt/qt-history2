@@ -15,12 +15,6 @@
 #include <private/qprintengine_mac_p.h>
 #include <private/qabstractpagesetupdialog_p.h>
 
-/*****************************************************************************
-  External functions
- *****************************************************************************/
-extern void qt_enter_modal(QWidget *); //qapplication_mac.cpp
-extern void qt_leave_modal(QWidget *); //qapplication_mac.cpp
-
 #define d d_func()
 #define q q_func()
 
@@ -42,10 +36,10 @@ int QPageSetupDialog::exec()
 	QWidget modal_widg(0,
 			   Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
         modal_widg.setObjectName(QLatin1String(__FILE__ "__modal_dlg"));
-	qt_enter_modal(&modal_widg);
+	QApplicationPrivate::enterModal(&modal_widg);
         if (PMSessionPageSetupDialog(ep->session, ep->format, &ret) != noErr)
             ret = false;
-	qt_leave_modal(&modal_widg);
+	QApplicationPrivate::leaveModal(&modal_widg);
     }
     return ret ? Accepted : Rejected;
 }

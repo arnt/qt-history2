@@ -16,12 +16,6 @@
 #include <private/qabstractprintdialog_p.h>
 #include <private/qprintengine_mac_p.h>
 
-/*****************************************************************************
-  External functions
- *****************************************************************************/
-extern void qt_enter_modal(QWidget *); //qapplication_mac.cpp
-extern void qt_leave_modal(QWidget *); //qapplication_mac.cpp
-
 class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 {
     Q_DECLARE_PUBLIC(QPrintDialog)
@@ -75,9 +69,9 @@ int QPrintDialog::exec()
 	QWidget modal_widg(0,
 			   Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
         modal_widg.setObjectName(QLatin1String(__FILE__ "__modal_dlg"));
-	qt_enter_modal(&modal_widg);
+	QApplicationPrivate::enterModal(&modal_widg);
         PMSessionPrintDialog(d->ep->session, d->ep->settings, d->ep->format, &result);
-	qt_leave_modal(&modal_widg);
+	QApplicationPrivate::leaveModal(&modal_widg);
     }
     if (result) {
         UInt32 page;

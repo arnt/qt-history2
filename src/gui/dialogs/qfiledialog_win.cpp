@@ -278,8 +278,6 @@ static void qt_win_clean_up_OFN(OPENFILENAME **ofn)
 
 #endif // UNICODE
 
-extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
-extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
 extern void qt_win_eatMouseMove();
 
 QString qt_win_get_open_file_name(const QFileDialogArgs &args,
@@ -318,7 +316,7 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
     if (args.parent) {
         QEvent e(QEvent::WindowBlocked);
         QApplication::sendEvent(args.parent, &e);
-        qt_enter_modal(args.parent);
+        QApplicationPrivate::enterModal(args.parent);
     }
     QT_WA({
         // Use Unicode strings and API
@@ -348,7 +346,7 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
         qt_win_clean_up_OFNA(&ofn);
     });
     if (args.parent) {
-        qt_leave_modal(args.parent);
+        QApplicationPrivate::leaveModal(args.parent);
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(args.parent, &e);
     }
@@ -400,7 +398,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     if (args.parent) {
         QEvent e(QEvent::WindowBlocked);
         QApplication::sendEvent(args.parent, &e);
-        qt_enter_modal(args.parent);
+        QApplicationPrivate::enterModal(args.parent);
     }
     QT_WA({
         // Use Unicode strings and API
@@ -430,7 +428,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
         qt_win_clean_up_OFNA(&ofn);
     });
     if (args.parent) {
-        qt_leave_modal(args.parent);
+        QApplicationPrivate::leaveModal(args.parent);
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(args.parent, &e);
     }
@@ -483,7 +481,7 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
     if (args.parent) {
         QEvent e(QEvent::WindowBlocked);
         QApplication::sendEvent(args.parent, &e);
-        qt_enter_modal(args.parent);
+        QApplicationPrivate::enterModal(args.parent);
     }
     QT_WA({
         OPENFILENAME* ofn = qt_win_make_OFN(args.parent, args.selection,
@@ -551,7 +549,7 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
         }
     });
     if (args.parent) {
-        qt_leave_modal(args.parent);
+        QApplicationPrivate::leaveModal(args.parent);
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(args.parent, &e);
     }
@@ -632,7 +630,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
     if (parent) {
         QEvent e(QEvent::WindowBlocked);
         QApplication::sendEvent(parent, &e);
-        qt_enter_modal(parent);
+        QApplicationPrivate::enterModal(parent);
     }
     QT_WA({
         qt_win_resolve_libs();
@@ -694,7 +692,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
             result = QString();
     });
     if (parent) {
-        qt_leave_modal(parent);
+        QApplicationPrivate::leaveModal(parent);
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(parent, &e);
     }

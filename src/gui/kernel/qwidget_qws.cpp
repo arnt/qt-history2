@@ -306,7 +306,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if (keyboardGrb == this)
             releaseKeyboard();
         if (testAttribute(Qt::WA_ShowModal))                // just be sure we leave modal
-            qt_leave_modal(this);
+            QApplicationPrivate::leaveModal(this);
         else if ((windowType() == Qt::Popup))
             qApp->closePopup(this);
         if ((windowType() == Qt::Desktop)) {

@@ -2204,7 +2204,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             }
         }
         if (event->type == QWSEvent::Mouse && *mouseInWidget) {
-            qt_dispatchEnterLeave(0, *mouseInWidget);
+            QApplicationPrivate::dispatchEnterLeave(0, *mouseInWidget);
             (*mouseInWidget) = 0;
         }
         return -1;
@@ -2476,12 +2476,12 @@ QDecoration* QApplication::qwsSetDecoration(const QString &decoration)
 
 #endif
 
-bool qt_modal_state()
+bool QApplicationPrivate::modalState()
 {
     return app_do_modal;
 }
 
-void qt_enter_modal(QWidget *widget)
+void QApplicationPrivate::enterModal(QWidget *widget)
 {
     if (!qt_modal_stack) {                        // create modal stack
         qt_modal_stack = new QWidgetList;
@@ -2496,7 +2496,7 @@ void qt_enter_modal(QWidget *widget)
 }
 
 
-void qt_leave_modal(QWidget *widget)
+void QApplicationPrivate::leaveModal(QWidget *widget)
 {
     if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
@@ -2517,7 +2517,7 @@ static bool qt_try_modal(QWidget *widget, QWSEvent *event)
 {
     QWidget * top = 0;
 
-    if (qt_tryModalHelper(widget, &top))
+    if (QApplicationPrivate::tryModalHelper(widget, &top))
         return true;
 
     bool block_event  = false;
@@ -2854,7 +2854,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
             && (widget->d->topData()->qwsManager->region().contains(globalPos)
                 || QWSManager::grabbedMouse() )) {
             if ((*mouseInWidget)) {
-                qt_dispatchEnterLeave(0, *mouseInWidget);
+                QApplicationPrivate::dispatchEnterLeave(0, *mouseInWidget);
                 (*mouseInWidget) = 0;
             }
             QApplication::sendSpontaneousEvent(widget->d->topData()->qwsManager, &e);
@@ -2863,7 +2863,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 #endif
         {
             if (widget != (*mouseInWidget)) {
-                qt_dispatchEnterLeave(widget, *mouseInWidget);
+                QApplicationPrivate::dispatchEnterLeave(widget, *mouseInWidget);
                 (*mouseInWidget) = widget;
             }
             QApplication::sendSpontaneousEvent(widget, &e);

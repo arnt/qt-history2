@@ -295,6 +295,84 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
     Use buttons() and/or modifiers() instead.
 */
 
+
+/*!
+    \class QHoverEvent
+    \ingroup events
+
+    \brief The QHoverEvent class contains parameters that describe a mouse event.
+
+    Mouse events occur when a mouse cursor is moved into, out of, or within a
+    widget, and if the widget has the WA_Hover attribute.
+
+    The function pos() gives the current cursor position, while oldPos() gives
+    the old mouse position.
+*/
+
+/*!
+    \fn const QPoint &QHoverEvent::pos() const
+
+    Returns the position of the mouse cursor, relative to the widget
+    that received the event.
+
+    On HoverLeave events, this position will always be QPoint(-1, -1).
+
+    \sa oldPos()
+*/
+
+/*!
+    \fn const QPoint &QHoverEvent::oldPos() const
+
+    Returns the previous position of the mouse cursor, relative to the widget
+    that received the event. If there is no previous position, oldPos() will
+    return the same position as pos().
+
+    On HoverEnter events, this position will always be QPoint(-1, -1).
+
+    \sa pos()
+*/
+
+/*!
+    \enum QHoverEvent::Reason
+
+    This enum describes the reason why the event was sent.
+
+    \value Enter The mouse cursor entered a hover widget.
+    
+    \value Leave The mouse cursor is leaving a hover widget.
+
+    \value Move The mouse cursor is moving within a hover widget.
+*/
+
+/*!
+    \fn const Reason QHoverEvent::reason() const
+
+    Returns the reason for the hover event.
+*/
+
+/*!
+    Constructs a hover event object.
+
+    The \a type parameter must be \c QEvent::HoverEnter,
+    \c QEvent::HoverLeave, or \c QEvent::HoverMove.
+
+    The \a pos is the current mouse cursor's position relative to the
+    receiving widget, while \a oldPos is the previous mouse cursor's
+    position relative to the receiving widget.
+*/
+QHoverEvent::QHoverEvent(Type type, const QPoint &pos, const QPoint &oldPos)
+    : QEvent(type), p(pos), op(oldPos)
+{
+}
+
+/*!
+    \internal
+*/
+QHoverEvent::~QHoverEvent()
+{
+}
+
+
 /*!
     \class QWheelEvent
     \brief The QWheelEvent class contains parameters that describe a wheel event.

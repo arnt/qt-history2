@@ -58,6 +58,7 @@ extern void qt_call_post_routines();
 static QString *qt_style_override = 0;
 
 QApplication::Type qt_appType=QApplication::Tty;
+QApplicationPrivate *QApplicationPrivate::self = 0;
 
 bool QApplicationPrivate::quitOnLastWindowClosed = true;
 
@@ -79,6 +80,14 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
     qt_tryComposeUnicode = 0;
     qt_dispatchAccelEvent = 0;
 #endif
+    if (!self)
+        self = this;
+}
+
+QApplicationPrivate::~QApplicationPrivate()
+{
+    if (self == this)
+        self = 0;
 }
 
 /*!
@@ -328,7 +337,6 @@ void qt_init(QApplicationPrivate *priv, int type
 #endif
    );
 void qt_cleanup();
-bool qt_tryModalHelper(QWidget *widget, QWidget **rettop);
 
 Qt::MouseButtons QApplicationPrivate::mouse_buttons = Qt::NoButton;
 Qt::KeyboardModifiers QApplicationPrivate::modifier_buttons = Qt::NoModifier;
@@ -2019,7 +2027,7 @@ void QApplication::setActiveWindow(QWidget* act)
   Creates the proper Enter/Leave event when widget \a enter is entered
   and widget \a leave is left.
  */
-void qt_dispatchEnterLeave(QWidget* enter, QWidget* leave) {
+void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
 #if 0
     if (leave) {
         QEvent e(QEvent::Leave);
@@ -2090,21 +2098,28 @@ void qt_dispatchEnterLeave(QWidget* enter, QWidget* leave) {
     QEvent leaveEvent(QEvent::Leave);
     for (int i = 0; i < leaveList.size(); ++i) {
         w = leaveList.at(i);
-        if (!qApp->activeModalWidget() || qt_tryModalHelper(w, 0))
+        if (!qApp->activeModalWidget() || QApplicationPrivate::tryModalHelper(w, 0)) {
             QApplication::sendEvent(w, &leaveEvent);
+            if (w->testAttribute(Qt::WA_Hover)) {
+                Q_ASSERT(instance());
+                QHoverEvent he(QEvent::HoverLeave, QPoint(-1, -1), w->mapFromGlobal(QApplicationPrivate::instance()->hoverGlobalPos));
+                qApp->notify_helper(w, &he);
+            }
+        }
     }
+    QPoint posEnter = QCursor::pos();
     QEvent enterEvent(QEvent::Enter);
     for (int i = 0; i < enterList.size(); ++i) {
         w = enterList.at(i);
-        if (!qApp->activeModalWidget() || qt_tryModalHelper(w, 0))
+        if (!qApp->activeModalWidget() || QApplicationPrivate::tryModalHelper(w, 0)) {
             QApplication::sendEvent(w, &enterEvent);
+            if (w->testAttribute(Qt::WA_Hover)) {
+                QHoverEvent he(QEvent::HoverEnter, w->mapFromGlobal(posEnter), QPoint(-1, -1));
+                qApp->notify_helper(w, &he);
+            }
+        }
     }
 }
-
-
-#ifdef Q_WS_MAC
-extern QWidget *qt_tryModalHelperMac(QWidget * top); //qapplication_mac.cpp
-#endif
 
 
 /*!\internal
@@ -2112,7 +2127,7 @@ extern QWidget *qt_tryModalHelperMac(QWidget * top); //qapplication_mac.cpp
   Called from qapplication_\e{platform}.cpp, returns true
   if the widget should accept the event.
  */
-bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {
+bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop) {
     QWidget *modal=0, *top=QApplication::activeModalWidget();
     if (rettop) *rettop = top;
 
@@ -2120,7 +2135,7 @@ bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {
         return true;
 
 #ifdef Q_WS_MAC
-    top = qt_tryModalHelperMac(top);
+    top = QApplicationPrivate::tryModalHelperMac(top);
     if (rettop) *rettop = top;
 #endif
 
@@ -2812,6 +2827,12 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 mouse->accept();
             else
                 mouse->ignore();
+
+            if (w->testAttribute(Qt::WA_Hover)) {
+                QHoverEvent he(QEvent::HoverMove, w->mapFromGlobal(mouse->globalPos()), w->mapFromGlobal(d->hoverGlobalPos));
+                notify_helper(w, &he);
+            }
+            d->hoverGlobalPos = mouse->globalPos();
         }
         break;
 #ifndef QT_NO_WHEELEVENT

@@ -2798,7 +2798,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             if (X11->focus_model == QX11Data::FM_PointerRoot) // PointerRoot mode
                 setActiveWindow(widget);
         }
-        qt_dispatchEnterLeave(widget, QWidget::find(curWin));
+        QApplicationPrivate::dispatchEnterLeave(widget, QWidget::find(curWin));
         curWin = widget->winId();
         widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
     }
@@ -2849,9 +2849,9 @@ int QApplication::x11ProcessEvent(XEvent* event)
         }
 
         if (!curWin)
-            qt_dispatchEnterLeave(widget, 0);
+            QApplicationPrivate::dispatchEnterLeave(widget, 0);
 
-        qt_dispatchEnterLeave(enter, widget);
+        QApplicationPrivate::dispatchEnterLeave(enter, widget);
         curWin = enter ? enter->winId() : 0;
     }
         break;
@@ -3036,23 +3036,23 @@ bool QApplication::x11EventFilter(XEvent *)
   A modal widget without a parent becomes application-modal.
   A modal widget with a parent becomes modal to its parent and grandparents..
 
-  qt_enter_modal()
+  QApplicationPrivate::enterModal()
         Enters modal state
         Arguments:
             QWidget *widget        A modal widget
 
-  qt_leave_modal()
+  QApplicationPrivate::leaveModal()
         Leaves modal state for a widget
         Arguments:
             QWidget *widget        A modal widget
  *****************************************************************************/
 
-bool qt_modal_state()
+bool QApplicationPrivate::modalState()
 {
     return app_do_modal;
 }
 
-void qt_enter_modal(QWidget *widget)
+void QApplicationPrivate::enterModal(QWidget *widget)
 {
     if (!qt_modal_stack) {                        // create modal stack
         qt_modal_stack = new QWidgetList;
@@ -3062,14 +3062,14 @@ void qt_enter_modal(QWidget *widget)
         QApplication::sendEvent(widget->parentWidget(), &e);
     }
 
-    qt_dispatchEnterLeave(0, QWidget::find((WId)curWin));
+    QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
     qt_modal_stack->insert(0, widget);
     app_do_modal = true;
     curWin = 0;
 }
 
 
-void qt_leave_modal(QWidget *widget)
+void QApplicationPrivate::leaveModal(QWidget *widget)
 {
     if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
@@ -3077,7 +3077,7 @@ void qt_leave_modal(QWidget *widget)
             qt_modal_stack = 0;
             QPoint p(QCursor::pos());
             QWidget* w = QApplication::widgetAt(p.x(), p.y());
-            qt_dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
+            QApplicationPrivate::dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
             curWin = w? w->winId() : 0;
         }
     }
@@ -3090,7 +3090,7 @@ void qt_leave_modal(QWidget *widget)
 }
 
 
-bool qt_try_modal(QWidget *widget, XEvent *event)
+bool QApplicationPrivate::tryModal(QWidget *widget, XEvent *event)
 {
     if (qt_xdnd_dragging) {
         // allow mouse events while DnD is active
@@ -3108,7 +3108,7 @@ bool qt_try_modal(QWidget *widget, XEvent *event)
     if (event->type == ButtonRelease && widget == qt_button_down)
         return true;
 
-    if (qt_tryModalHelper(widget))
+    if (QApplicationPrivate::tryModalHelper(widget))
         return true;
 
     // disallow mouse/key events

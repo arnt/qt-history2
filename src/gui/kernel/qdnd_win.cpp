@@ -610,7 +610,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     qDebug("QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
 #endif
 
-    if (!qt_tryModalHelper(widget)) {
+    if (!QApplicationPrivate::tryModalHelper(widget)) {
         *pdwEffect = DROPEFFECT_NONE;
         return NOERROR;
     }
@@ -648,7 +648,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     qDebug("QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
 #endif
 
-    if (!qt_tryModalHelper(widget)) {
+    if (!QApplicationPrivate::tryModalHelper(widget)) {
         *pdwEffect = DROPEFFECT_NONE;
         return NOERROR;
     }
@@ -690,7 +690,7 @@ QOleDropTarget::DragLeave()
     qDebug("QOleDropTarget::DragLeave()");
 #endif
 
-    if (!qt_tryModalHelper(widget)) {
+    if (!QApplicationPrivate::tryModalHelper(widget)) {
         return NOERROR;
     }
 
@@ -717,7 +717,7 @@ QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LP
     qDebug("QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
 #endif
 
-    if (!qt_tryModalHelper(widget)) {
+    if (!QApplicationPrivate::tryModalHelper(widget)) {
         *pdwEffect = DROPEFFECT_NONE;
         return NOERROR;
     }

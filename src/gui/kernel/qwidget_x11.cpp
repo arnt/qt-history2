@@ -718,7 +718,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if (isWindow())
             X11->deferred_map.removeAll(this);
         if (testAttribute(Qt::WA_ShowModal))                // just be sure we leave modal
-            qt_leave_modal(this);
+            QApplicationPrivate::leaveModal(this);
         else if ((windowType() == Qt::Popup))
             qApp->closePopup(this);
 

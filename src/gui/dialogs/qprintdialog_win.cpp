@@ -15,12 +15,11 @@
 
 #include <qwidget.h>
 #include <qapplication.h>
+#include <private/qapplication_p.h>
 
 #include <private/qabstractprintdialog_p.h>
 #include <private/qprintengine_win_p.h>
 
-extern Q_GUI_EXPORT void qt_leave_modal(QWidget *);
-extern Q_GUI_EXPORT void qt_enter_modal(QWidget *);
 extern void qt_win_eatMouseMove();
 
 class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
@@ -78,7 +77,7 @@ int QPrintDialog::exec()
     if (parent) {
 	QEvent e(QEvent::WindowBlocked);
 	QApplication::sendEvent(parent, &e);
-	qt_enter_modal(parent);
+        QApplicationPrivate::enterModal(parent);
     }
 
     PRINTDLG pd;
@@ -131,7 +130,7 @@ int QPrintDialog::exec()
         result = false;
 
     if (parent) {
-        qt_leave_modal(parent);
+        QApplicationPrivate::leaveModal(parent);
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(parent, &e);
     }
