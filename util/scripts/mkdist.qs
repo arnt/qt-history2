@@ -7,9 +7,6 @@ const qmakeCommand = qtDir + "/bin/qmake";
 const qdocDir = qtDir + "/util/qdoc";
 const qdocCommand = qdocDir + "/qdoc";
 
-const qpkgDir = qtDir + "/util/install/package"
-const qpkgCommand = qtDir + "/bin/package"
-
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
@@ -24,6 +21,8 @@ var distDir;		// directory for P4 checkout
 var p4Port;
 var p4Command;
 
+var indentation = 0;
+const tabSize = 4;
 
 /************************************************************
  * Purging filters that will be moved into files later
@@ -43,20 +42,48 @@ var preKeep = [ /./ ];
  * Here we go
  */
 
-System.println("Initializing...");
+print("Initializing...");
 parseArgc();
 initialize();
-System.println("Checking tools...");
+print("Checking tools...", 2);
 checkTools();
-System.println("Building qdoc...");
+print("Building qdoc...");
 buildQdoc();
-// System.println("Building qpkg...");
-// buildQpkg();
-System.println("Checkout from P4...");
+print("Checkout from P4...");
 checkout();
-System.println("Purging before packaging...");
+print("Purging before packaging...");
 purgeFiles(getFileList(distDir), preRemove, preKeep);
-// cleanup();
+indentation+=tabSize;
+for (var p in validPlatforms) {
+    for (var e in validEditions) {
+	var platform = validPlatforms[p];
+	var edition = validEditions[e];
+	if (options[platform] && options[edition]) {
+	    print("Packaging %1-%2...".arg(platform).arg(edition));
+	    indentation+=tabSize;
+
+	    // copy distDir/qt to platDir
+	    print("Copying depot...");
+	    var platName = "qt-%1-%2-%3".arg(platform).arg(edition).arg(options["version"]);
+	    var platDir = distDir + "/" + platName;
+	    Process.execute(["cp", "-r", distDir+"/qt", platDir]);
+	    var dir = new Dir(platDir);
+	    dir.setCurrent();
+
+	    // run syncqt
+	    print("Running syncqt...");
+	    syncqt(platDir, platform);
+
+	    // run qdoc
+
+	    // purge files after qdoc
+
+	    // package directory
+	}
+    }
+}
+
+//cleanup();
 
 /************************************************************
  * Parses and checks the commandline options and puts them into options[key] = value
@@ -133,7 +160,7 @@ function initialize()
 	p4Command = "/usr/local/bin/p4";
 
 //     for (var i in options)
-// 	System.println("options[%1] = %2".arg(i).arg(options[i]));
+// 	print("options[%1] = %2".arg(i).arg(options[i]));
 }
 
 /************************************************************
@@ -146,6 +173,7 @@ function checkTools()
 	Process.execute("zip -help");
 	Process.execute("tar --help");
 	Process.execute("gzip -h");
+	Process.execute("cp --help");
 	Process.execute(p4Command);
     } catch (e) {
 	throw "Tool failed: %1".arg(e);
@@ -206,11 +234,11 @@ function checkout()
 	clientSpec[i] = clientSpec[i].replace(/X.Y/, options["branch"]);
 	clientSpec[i] = clientSpec[i].replace(/\bnomodtime\b/, "modtime");
     }
-    // save it
+    // save clientSpec
     clientSpec = clientSpec.join("\n");
     Process.execute([p4Command, "client", "-i"], clientSpec);
 
-    // checkout
+    // checkout to distDir
     Process.execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + label]);
 }
 
@@ -241,11 +269,9 @@ function purgeFiles(fileList, remove, keep)
 	    if (File.exists(fileName)) {
 		if (File.isFile(fileName)) {
 		    File.remove(fileName);
-		    System.println("removed" + fileName);
 		} else if (File.isDir(fileName)) {
 		    var dir = new Dir(fileName);
 		    dir.rmdirs();
-		    System.println("removed" + fileName);
 		}
 	    }
 	    continue;
@@ -316,4 +342,31 @@ function cleanup()
     var dir = new Dir(distDir);
     if (dir.exists)
 	dir.rmdirs();
+}
+
+/************************************************************
+ * runs syncqt on syncDir with the specified platform
+ */
+function syncqt(syncDir, platform)
+{
+    var dir = new Dir(syncDir);
+    dir.setCurrent();
+    System.setenv("QTDIR", syncDir);
+    var syncqtCommand = syncDir + "/bin/syncqt";
+    if (platform == "win")
+	Process.execute([syncqtCommand, "-windows"]);
+    else
+	Process.execute([syncqtCommand]);
+}
+
+/************************************************************
+ * prints out text with indentation
+ */
+function print(text)
+{
+    var i = indentation;
+    var spaces = new String();
+    while (i--)
+	spaces += ' ';
+    System.println(spaces + text);
 }
