@@ -159,12 +159,14 @@ void QAssistantClient::closeAssistant()
 
 /*!
   This function tells the Qt Assistant which page to display,
-  \a page is the name of the file.
+  \a page is the name of the file. If the Qt Assistant have
+  not been opened yet, this function will do that.
 */
 void QAssistantClient::showPage( const QString &page )
 {
     if ( !opened ) {
 	pageBuffer = page;
+	openAssistant();
 	return;
     }
     QTextStream os( socket );
