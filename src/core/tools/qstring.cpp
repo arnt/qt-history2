@@ -3606,7 +3606,8 @@ QString &QString::sprintf( const char* cformat, ... )
 		    }
 		    case lm_ll: {
 		    	Q_LLONG *n = va_arg(ap, Q_LLONG*);
-			*n = result.length();
+			volatile uint tmp = result.length(); // egcs-2.91.66 gets internal
+			*n = tmp;			     // compiler error without volatile
 			break;
 		    }
 		    default: {
