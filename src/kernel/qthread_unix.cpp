@@ -379,10 +379,9 @@ void QThread::msleep( unsigned long msecs )
 */
 void QThread::usleep( unsigned long usecs )
 {
-    struct timespec ts;
-    ts.tv_nsec = (usecs % 1000000) * 1000;
-    ts.tv_sec  = usecs / 1000000;
-    (void) ::nanosleep(&ts, NULL);
+    if ( usecs > 1000000 )
+	::sleep( usecs / 1000000 );
+    ::usleep( usecs % 1000000 );
 }
 
 
