@@ -680,6 +680,15 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         if (event->type() == QEvent::ChildInserted)
             ++receiver->d->postedChildInsertedEvents;
 #endif
+
+#undef d
+        if (event->type() == QEvent::DeferredDelete) {
+            // remember the current eventloop
+            if (!data->eventLoops.isEmpty())
+                event->d = reinterpret_cast<QEventPrivate *>(data->eventLoops.top());
+        }
+#define d d_func()
+
         data->postEventList.append(QPostEvent(receiver, event));
     }
 
@@ -727,8 +736,15 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
     } else {
         data = QThreadData::current();
         Q_ASSERT_X(data != 0, "QCoreApplication::sendPostedEvents",
-                   "Posted events can only be send from threads started with QThread");
+                   "Posted events can only be sent from threads started with QThread");
     }
+
+    // the allowDeferredDelete flag is set to true in
+    // QEventLoop::exec(), just before each call to processEvents()
+    //
+    // Note: we leave it set to false when returning
+    bool allowDeferredDelete = data->allowDeferredDelete || event_type == QEvent::DeferredDelete;
+    data->allowDeferredDelete = false;
 
 #ifdef QT3_SUPPORT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
@@ -764,48 +780,60 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         if (!receiver && !event_type)
             data->postEventList.offset = i;
 
-        if (// event hasn't been sent
-            pe.event
-            // we send to all receivers
-            && (receiver == 0
-                // we send to a specific receiver
-                || receiver == pe.receiver)
-            // we send all types
-            && (event_type == 0
-                // we send a specific type
-                || event_type == pe.event->type())) {
-            // first, we diddle the event so that we can deliver
-            // it, and that noone will try to touch it later.
-            pe.event->posted = false;
-            QEvent * e = pe.event;
-            QObject * r = pe.receiver;
+        if (!pe.event)
+            continue;
+        if (receiver && receiver != pe.receiver)
+            continue;
+        if (event_type && event_type != pe.event->type())
+            continue;
 
-            --r->d->postedEvents;
-            Q_ASSERT(r->d->postedEvents >= 0);
+#undef d
+        if (pe.event->type() == QEvent::DeferredDelete) {
+            const QEventLoop *const currentEventLoop =
+                data->eventLoops.isEmpty() ? 0 : data->eventLoops.top();
+            if (!allowDeferredDelete
+                || reinterpret_cast<QEventLoop *>(pe.event->d) != currentEventLoop) {
+                if (!event_type && !receiver) {
+                    // don't lose the event
+                    data->postEventList.append(pe);
+                    const_cast<QPostEvent &>(pe).event = 0;
+                }
+                continue;
+            }
+        }
+#define d d_func()
+
+        // first, we diddle the event so that we can deliver
+        // it, and that noone will try to touch it later.
+        pe.event->posted = false;
+        QEvent * e = pe.event;
+        QObject * r = pe.receiver;
+
+        --r->d->postedEvents;
+        Q_ASSERT(r->d->postedEvents >= 0);
 #ifdef QT3_SUPPORT
-            if (e->type() == QEvent::ChildInserted)
-                --r->d->postedChildInsertedEvents;
-            Q_ASSERT(r->d->postedChildInsertedEvents >= 0);
+        if (e->type() == QEvent::ChildInserted)
+            --r->d->postedChildInsertedEvents;
+        Q_ASSERT(r->d->postedChildInsertedEvents >= 0);
 #endif
 
-            // next, update the data structure so that we're ready
-            // for the next event.
-            const_cast<QPostEvent &>(pe).event = 0;
+        // next, update the data structure so that we're ready
+        // for the next event.
+        const_cast<QPostEvent &>(pe).event = 0;
 
-            locker.unlock();
-            // after all that work, it's time to deliver the event.
-            QCoreApplication::sendEvent(r, e);
-            locker.relock();
+        locker.unlock();
+        // after all that work, it's time to deliver the event.
+        QCoreApplication::sendEvent(r, e);
+        locker.relock();
 
-            // update the offset, in case events have been added ore
-            // removed
-            i = data->postEventList.offset;
+        // update the offset, in case events have been added ore
+        // removed
+        i = data->postEventList.offset;
 
-            delete e;
-            // careful when adding anything below this point - the
-            // sendEvent() call might invalidate any invariants this
-            // function depends on.
-        }
+        delete e;
+        // careful when adding anything below this point - the
+        // sendEvent() call might invalidate any invariants this
+        // function depends on.
     }
 
     // clear the global list, i.e. remove everything that was

@@ -91,8 +91,13 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     Q_ASSERT_X(data != 0, "QEventLoop::exec()", "internal error");
     data->eventLoops.push(this);
 
-    while (!d->exit && !data->quitNow)
+    while (!d->exit && !data->quitNow) {
+        // allow DeferredDelete events to be delivered... this flag is
+        // set to false by QCoreApplication::sendPostedEvents(), which
+        // is called by the event dispatcher's processEvents()
+        data->allowDeferredDelete = true;
         processEvents(flags | WaitForMoreEvents);
+    }
 
     QEventLoop *eventLoop = data->eventLoops.pop();
     Q_ASSERT_X(eventLoop == this, "QEventLoop::exec()", "internal error");
