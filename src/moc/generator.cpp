@@ -228,8 +228,6 @@ void Generator::generateCode()
             fprintf(out, "\"\"");
             len += 2;
         }
-        if (!is_ident_start(s[0]))
-            fprintf(out, "\"\"");
         fprintf(out, "%s\\0", s.constData());
         col += len + 2;
     }
