@@ -1595,11 +1595,14 @@ void replace( char *s, char c1, char c2 );
 void setDefaultIncludeFile()
 {
     if ( g->includeFiles.isEmpty() ) {
-	if ( !g->fileName.isEmpty() && !g->outputFile.isEmpty() &&
-	     g->includePath.isEmpty() ) {
-	    g->includeFiles.append( combinePath(g->fileName, g->outputFile) );
+	if ( g->includePath.isEmpty() ) {
+	    if ( !g->fileName.isEmpty() && !g->outputFile.isEmpty() ) {
+		g->includeFiles.append( combinePath(g->fileName, g->outputFile) );
+	    } else {
+		g->includeFiles.append( g->fileName );
+	    }
 	} else {
-	    g->includeFiles.append( g->fileName );
+	    g->includeFiles.append( combinePath(g->fileName, g->fileName) );
 	}
     }
 }
@@ -2829,7 +2832,7 @@ void generateClass()		      // generate C++ source code for a class
 	    while ( g->includeFiles.current() ) {
 		QCString inc = g->includeFiles.current();
 		if ( inc[0] != '<' && inc[0] != '"' ) {
-		    if ( !g->includePath.isEmpty() )
+		    if ( !g->includePath.isEmpty() && g->includePath != "./" )
 			inc.prepend( g->includePath );
 		    inc = "\"" + inc + "\"";
 		}
