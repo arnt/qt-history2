@@ -628,6 +628,27 @@ QStrList QMetaObject::slotNames( bool super ) const
 }
 
 /*!\internal
+  
+ */
+QStrList QMetaObject::enumeratorNames( bool super ) const
+{
+    QStrList l( FALSE );
+
+    if ( superclass && super ) {
+	QStrList sl = superclass->enumeratorNames( super );
+	for ( QStrListIterator slit( sl ); slit.current(); ++slit )
+	    l.append( slit.current() );
+    }
+
+    for( int i = 0; i < d->numEnumData; ++i ) {
+	if ( d->enumData[i].items )
+	    l.append( d->enumData[i].name );
+    }
+
+    return l;
+}
+
+/*!\internal
  */
 const QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 {
