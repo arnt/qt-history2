@@ -51,6 +51,7 @@
 #include <qtextbrowser.h>
 
 #include <life.h>
+#include "../../examples/dirview/dirview.h"
 
 #include <qtextstream.h>
 #include <qimage.h>
@@ -1008,6 +1009,19 @@ public:
     }
 };
 
+class EgQListView : public DirectoryView
+{
+public:
+    EgQListView() : DirectoryView() {
+	addColumn( "Name" );
+	addColumn( "Type" );
+	(void)new Directory( this, "/" );
+	firstChild()->setOpen( TRUE );
+	firstChild()->firstChild()->nextSibling()->setOpen( TRUE );
+	resize( 300, 300 );
+    }
+};
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
@@ -1074,6 +1088,7 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
 	DEPICT( EgQIconView, "qiconview", "QIconView" );
 	DEPICT( EgQTextBrowser, "qtextbrowser", "QTextBrowser" );
+	DEPICT( EgQListView, "qlistview", "QListView" );
 	
 	if ( !first ) break;
 

@@ -18,10 +18,10 @@ SHELL =	/bin/sh
 
 ####### Files
 
-SOURCES	=	makeppms.cpp $(QTDIR)/examples/life/life.cpp
-OBJECTS	=	makeppms.o life.o
-SRCMETA	=	moc_life.cpp
-OBJMETA =	moc_life.o
+SOURCES	=	makeppms.cpp $(QTDIR)/examples/life/life.cpp $(QTDIR)/examples/dirview/dirview.cpp
+OBJECTS	=	makeppms.o life.o dirview.o
+SRCMETA	=	moc_life.cpp moc_dirview.o
+OBJMETA =	moc_life.o moc_dirview.o
 TARGET	=	makeppms
 
 ####### Implicit rules
@@ -52,11 +52,15 @@ clean:
 
 life.o: $(QTDIR)/examples/life/life.cpp
 	$(CC) -o life.o -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/life/life.cpp
+dirview.o: $(QTDIR)/examples/dirview/dirview.cpp
+	$(CC) -o dirview.o -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/dirview/dirview.cpp
 
 ####### Meta objects
 
 moc_life.cpp: $(QTDIR)/examples/life/life.h
 	$(MOC) $(QTDIR)/examples/life/life.h -o moc_life.cpp
+moc_dirview.cpp: $(QTDIR)/examples/dirview/dirview.h
+	$(MOC) $(QTDIR)/examples/dirview/dirview.h -o moc_dirview.cpp
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

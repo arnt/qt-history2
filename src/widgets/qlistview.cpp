@@ -266,19 +266,6 @@ struct QListViewPrivate
   called.  The dirview/dirview.cpp example program uses precisely this
   technique to start up quickly: The files and subdirectories in a
   directory aren't entered into the tree until they need to.
-
-  This example shows a number of root items in a QListView.  These
-  items are actually subclassed from QListViewItem: The file size,
-  type etc. are computed on the fly.
-
-  <img src="listview.png" width="518" height="82" alt="Example List View">
-
-  The next example shows a fraction of the dirview example.  Again,
-  the Directory/Symbolic Link column is computed on the fly.  None of
-  the items are root items; the \e usr item is a child of the root and
-  the \e X11 item is a child of the \e usr item.
-
-  <img src="treeview.png" width="227" height="261" alt="Example Tree View">
 */
 
 /*!  Constructs a new top-level list view item in the QListView \a parent.
@@ -1660,14 +1647,8 @@ void QListViewPrivate::Root::setup()
   provide a usable keyboard interface and to make the list view look
   better with a white background.
 
-  <img src="listview.png" width="518" height="82" alt="Example List View">
-  <br clear="all">
-  Windows style, flat (from QFileDialog)
-
-  <img src="treeview.png" width="256" height="216" alt="Example Tree View">
-  <br clear="all">
-  Motif style, hierarchical (from the dirview/dirview.cpp example)
-
+  <img src=qlistview-m.png> <img src=qlistview-w.png>
+  
   \internal
 
   need to say stuff about the mouse and keyboard interface.
@@ -4664,77 +4645,10 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 }
 
 
-/*! \base64 listview.png
-
-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
-rz1z/Q9Umf2cul0e4gAAAABJRU5ErkJggg==
-*/
-
 /*! \fn QString QCheckListItem::text( int n ) const
 
   \reimp
 */
-
-/*! \base64 treeview.png
-
-iVBORw0KGgoAAAANSUhEUgAAAOMAAAEFAgMAAABsirj0AAAADFBMVEUAAACDgYPFwsX////f
-g3KtAAAFA0lEQVR4nO2azarjNhSAzc1muBT8Cl2GrC5kMRuDniIU+h7dtmVWlzzF4JWbpzB4
-e0GrbvoUBlECRUWVLNuJpHOOjlOmJdiahRlb39WP9fnYOikMXX4Bzv1xsaUpaPBviPzRk39d
-qPLbz8DJ5yTPDUn+WqDkF5q8HFDyvWle3+vmFSXP5+8vLzBZ118+1TVBvu4biDzvL/V5T5IH
-hHxvXs77ry84eTjsC5isXZsgOJC1JYOTM/m1pntbH7BxNs2n856Y2+aCzC3czRt5aeJbyibr
-h8nzw2RSRvL3E1l+As6NJA2CZSTN1f4zRiAPIj1ekckFS4qr0eJNqxImZSV3uty1+kPH5O5q
-lCyrXmFkpZWSwh5isvh8UkZUCiW1VsaSOiVdb0my8KSKydLOkCRJM5DmGJPGjxMjXTeHcSbk
-n6cf/NzCZGEqY+e2a3V4Z3QmrgQlIa9cUjxK6vB/S9pcK+lWArgIpgrCHUE/3erDyYzZ7YeC
-xc6b3X0Hi503WyKqZM3OkITZGZI0G3mAZc3ubZvI3ObNxm/pXBCzGaR4lNzMXky6lUBWEO6I
-mU2QlNnFZ6NUr5NrI0mY3doVb5e8QEnU7PZ6slc0CNJmq+vQW4LEzB5I6xJOUmZ3EiUzMfuI
-9naL2SO5GH9e0r6qyvTderjhblqlcFXkNMX3pNa67GPSmz2Qxj+UQdKkbWp7WlW606UUO9fm
-26hMMM4jQJpS676rKuf+4ExZyYg8nSwHkL1tUw5Phcp42wSzTeObI0lknOIYkXFvafI2TvvC
-n5DY/ZQWGue237nnUTpOpCAPYgaZdINL4g+oJ7Xsvyb9K7lbCW3oKBWzB9IFF2+2XTH3taiY
-7UkbuP26tWRQgYjZnrSB21sm1YeISCxmT+Rodlt2MiKxmO1JNbcpZUIiMXsm53EmJBKz7+YW
-JPGYHd1PqeL7icds9vKBSQ5+35dFJBKz/6UrS/AnJv1ykHEF4Y6on/MSjD+VsmZ70n5xq1K+
-hWTGbE/aL+5eyVJEJGn29Ehx7+UiJkmzR3L4FkhJymxPlghJmT3PbZ+QGbNv97OMyKzZnOVD
-kBn8vi+LSMrsp7Ls/zI7FpRvdkKyzbZfhaINSK7Z9ks0WLiLzJbChCTb7JTkmp2SLLPTcXLN
-TuZ2M3uF5LRLPn0bjxWEMSyzY5Ifsz9Ea5dpL9uJXGC2SynZwC1mkmm2VUUPqt1IptkTWdyR
-PLPnNm/jZJot3Ti7u3GyY7aUrbZ6z3O7mb1C0q8EEVcYTnDexiOSb3b4Mr7E7PBlfJHZIiG5
-ZgMk02yAZJodj5NvdjS3m9krJKH817KYHVTgm23X2n36dcF3dlfp+5TvIrOD33IsMrtISKbZ
-Vdom0+yY5JstdkcVVPi2ZmeKeJT8Njto6yBt0N2l2Stm1mt4ywz/NDPr5cioU8ysl60Q7Iwb
-dtbLttlFjTKzXuk4mVkveIY4WS+czGa9wPu5Zb3WRELb4lMF4Y5k1gv7BaShSZFui49kLusF
-bIvPJJ31ArbFZ5LOegHb4jeSzHoB2+I3Mpf1irfFR5KT9Sohcst6rYv02+IyfUSyzHZqpyTH
-bH2ULfAbF4bZw+ZZ2ibTbKC3TLNhkmM2TObMRsbJMNvNrRYxuZm9LhJKeE0VhDtmzU5Jntlh
-UmYkeWanIYlrtoxBttkIyTAbIRlmQ+NkmQ3N7Wb2uki/efbo2zhMssy2+gIkZvY/t3Mngm89
-4IgAAAAASUVORK5CYII=
-*/
-
 
 /*!  Returns a pointer to the QHeader object that manages this list
   view's columns.  Please don't modify the header behind the list
