@@ -544,7 +544,7 @@ QFontEngineData::~QFontEngineData()
   Constructs a font from \a font for use on the paint device \a pd.
 */
 QFont::QFont(const QFont &font, QPaintDevice *pd)
-    : resolve_mask(0)
+    : resolve_mask(font.resolve_mask)
 {
     Q_ASSERT(pd != 0);
     int dpi = pd->logicalDpiY();
