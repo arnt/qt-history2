@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#59 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#59 $");
 
 
 #if QT_VERSION == 200
@@ -463,7 +463,8 @@ QSize QLabel::sizeHint() const
 	br = QRect( 0, 0, mov->framePixmap().width(),
 		mov->framePixmap().height() );
     else
-	br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
+	br.setRect( 0, 0, fontMetrics().width( text() ),
+		    fontMetrics().lineSpacing() );
     int m  = 2*margin();
     int fw = frameWidth();
     if ( m < 0 ) {
