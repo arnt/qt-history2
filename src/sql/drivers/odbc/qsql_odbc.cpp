@@ -116,7 +116,7 @@ QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 #ifdef UNICODE
 	return QString( (const QChar*)description_, (uint)msgLen );
 #else
-	return QString( (const char*)description_ );
+	return QString::fromLocal8Bit( (const char*)description_ );
 #endif
     return QString::null;
 }
@@ -393,7 +393,7 @@ QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 #ifdef UNICODE
     QString qColName( (const QChar*)colName, (uint)colNameLen );
 #else
-    QString qColName( (const char*)colName );
+    QString qColName = QString::fromLocal8Bit( (const char*)colName );
 #endif
     // nullable can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
     int required = -1;
@@ -514,14 +514,16 @@ bool QODBCResult::reset ( const QString& query )
 	return FALSE;
     }
 
-    r = SQLExecDirect( d->hStmt,
 #ifdef UNICODE
-		       (SQLWCHAR*)query.unicode(),
+    r = SQLExecDirect( d->hStmt,
+		       (SQLWCHAR*) query.unicode(),
+		       (SQLINTEGER) query.length() );
 #else
-		       // the ODBC driver manager will translate charsets for us
-		       (SQLCHAR*)query.local8Bit().data(),
+    QCString query8 = query.local8Bit();
+    r = SQLExecDirect( d->hStmt,
+                       (SQLCHAR*) query8.data(),
+                       (SQLINTEGER) query8.length() );
 #endif
-		       (SQLINTEGER)query.length() /* count of characters, not bytes */ );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
@@ -855,14 +857,17 @@ bool QODBCResult::prepare( const QString& query )
 	return FALSE;
     }
 
-    r = SQLPrepare( d->hStmt,
 #ifdef UNICODE
-		    (SQLWCHAR*)query.unicode(),
+    r = SQLPrepare( d->hStmt,
+		    (SQLWCHAR*) query.unicode(),
+		    (SQLINTEGER) query.length() );
 #else
-		    // the ODBC driver manager will translate charsets for us
-		    (SQLCHAR*)query.local8Bit().data(),
+    QCString query8 = query.local8Bit();
+    r = SQLPrepare( d->hStmt,
+		    (SQLCHAR*) query8.data(),
+		    (SQLINTEGER) query8.length() );
 #endif
-		    (SQLINTEGER)query.length() /* count of characters, not bytes */ );
+
     if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCResult::prepare: Unable to prepare statement", d );
