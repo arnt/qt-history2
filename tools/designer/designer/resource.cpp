@@ -2621,6 +2621,7 @@ void Resource::saveFormCode()
 	    func.body = *it;
 	    func.comments = MetaDataBase::functionComments( formwindow, func.name );
 	    func.returnType = slot.returnType;
+	    func.access = slot.access;
 	    funcs.append( func );
 	}
 
@@ -2687,7 +2688,7 @@ void Resource::loadFunctions( const QDomElement &e )
 	    code += iface->createFunctionStart( formwindow->name(), make_function_pretty( sl ),
 					       ( (*it).returnType.isEmpty() ?
 						 QString( "void" ) :
-						 (*it).returnType ) );
+						 (*it).returnType ), (*it).access );
 	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
 	    if ( bit != bodies.end() )
 		code += "\n" + *bit + "\n\n";
@@ -2762,10 +2763,16 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
 
     for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
 	  fit != functions.end(); ++fit ) {
-	if ( MetaDataBase::hasSlot( formwindow, (*fit).name.latin1() ) )
-	    MetaDataBase::changeSlot( formwindow, (*fit).name.latin1(), (*fit).name.latin1() );
-	else
-	    MetaDataBase::addSlot( formwindow, (*fit).name.latin1(), "virtual", "public", lang, (*fit).returnType );
+	if ( MetaDataBase::hasSlot( formwindow, (*fit).name.latin1() ) ) {
+	    MetaDataBase::changeSlot( formwindow, (*fit).name.latin1(), (*fit).name.latin1(),
+				      (*fit).access );
+	} else {
+	    QString access = (*fit).access;
+	    if ( access.isEmpty() )
+		access = "public";
+	    MetaDataBase::addSlot( formwindow, (*fit).name.latin1(), "virtual", (*fit).access,
+				   lang, (*fit).returnType );
+	}
 	MetaDataBase::setFunctionComments( formwindow, (*fit).name, (*fit).comments );
 	bodies.insert( MetaDataBase::normalizeSlot( (*fit).name ), (*fit).body );
     }

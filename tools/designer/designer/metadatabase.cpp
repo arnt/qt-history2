@@ -608,7 +608,8 @@ bool MetaDataBase::isSlotUsed( QObject *o, const QCString &slot )
     return FALSE;
 }
 
-void MetaDataBase::changeSlot( QObject *o, const QCString &slot, const QCString &newName )
+void MetaDataBase::changeSlot( QObject *o, const QCString &slot, const QCString &newName,
+			       const QString &access )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -622,6 +623,7 @@ void MetaDataBase::changeSlot( QObject *o, const QCString &slot, const QCString 
 	Slot s = *it;
 	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) ) {
 	    (*it).slot = newName;
+	    (*it).access = access;
 	    return;
 	}
     }

@@ -159,7 +159,8 @@ QString FormFile::code()
 	    txt += iface->createFunctionStart( formWindow()->name(), make_func_pretty( sl ),
 					       ( (*it).returnType.isEmpty() ?
 						 QString( "void" ) :
-						 (*it).returnType ) );
+						 (*it).returnType ),
+					       (*it).access );
 	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
 	    if ( bit != bodies.end() )
 		txt += "\n" + *bit + "\n\n";
@@ -226,7 +227,7 @@ bool FormFile::save( bool withMsgBox )
 		} else {
 		    QMessageBox::warning( MainWindow::self, "Save", "The file " + codeFile() + " could not be saved" );
 		}
-	    } 
+	    }
 	}
     }
 
@@ -469,7 +470,7 @@ void FormFile::createFormCode()
 	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), (*it).slot,
 						    (*it).returnType.isEmpty() ?
 						    QString( "void" ) :
-						    (*it).returnType ) +
+						    (*it).returnType, (*it).access ) +
 	       "\n" + iface->createEmptyFunction();
     }
     parseCode( cod );
@@ -521,7 +522,10 @@ void FormFile::parseCode( const QString &txt )
 		MetaDataBase::Slot slot;
 		slot.slot = make_func_pretty( (*it).name );
 		slot.specifier = (*sit).specifier;
-		slot.access = (*sit).access;
+		if ( pro->language() != "C++" )
+		    slot.access = (*it).access;
+		else
+		    slot.access = (*sit).access;
 		slot.language = (*sit).language;
 		slot.returnType = (*it).returnType;
 		newSlots << slot;
@@ -600,7 +604,7 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
 							    make_func_pretty( slot.slot ),
 							    slot.returnType.isEmpty() ?
 							    QString( "void" ) :
-							    slot.returnType ) +
+							    slot.returnType, slot.access ) +
 		       "\n" + iface->createEmptyFunction();
 	cod += body;
 	functionBodies.insert( MetaDataBase::normalizeSlot( slot.slot ), iface->createEmptyFunction() );

@@ -36,7 +36,8 @@ public:
 
     void functions( const QString &code, QValueList<Function> *funcs ) const;
     void initEventFunctions( QMap<QString, QString> & ) {}
-    QString createFunctionStart( const QString &className, const QString &func, const QString &returnType );
+    QString createFunctionStart( const QString &className, const QString &func,
+				 const QString &returnType, const QString &access );
     QStringList definitions() const;
     QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const;
     void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface );

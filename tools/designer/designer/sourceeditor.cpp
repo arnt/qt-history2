@@ -108,7 +108,7 @@ QString SourceEditor::sourceOfObject( QObject *o, const QString &,
 
 void SourceEditor::setFunction( const QString &func, const QString &clss )
 {
-    iFace->scrollTo( lIface->createFunctionStart( obj->name(), func, "" ), clss );
+    iFace->scrollTo( lIface->createFunctionStart( obj->name(), func, "", "" ), clss );
 }
 
 void SourceEditor::setClass( const QString &clss )

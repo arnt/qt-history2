@@ -622,31 +622,22 @@ void FormDefinitionView::refresh( bool doDelete )
 				       QString::null, QString::null );
     itemPublic = new HierarchyItem( HierarchyItem::Public, itemSlots, tr( "public" ),
 				     QString::null, QString::null );
-    if ( formWindow->project()->language() != "C++" ) {
-	itemPrivate->setVisible( FALSE );
-	itemProtected->setVisible( FALSE );
-	itemPublic->setVisible( FALSE );
+    if ( formWindow->project()->language() != "C++" )
 	itemSlots->setText( 0, tr( "Functions" ) );
-    }
 
     QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
     if ( !slotList.isEmpty() ) {
 	for (;;) {
 	    QListViewItem *item = 0;
-	    if ( formWindow->project()->language() == "C++" ) {
-		if ( (*it).access == "protected" )
-		    item = new HierarchyItem( HierarchyItem::Slot,
-					      itemProtected, (*it).slot, QString::null, QString::null );
-		else if ( (*it).access == "private" )
-		    item = new HierarchyItem( HierarchyItem::Slot,
-					      itemPrivate, (*it).slot, QString::null, QString::null );
-		else // default is public
-		    item = new HierarchyItem( HierarchyItem::Slot,
-					      itemPublic, (*it).slot, QString::null, QString::null );
-	    } else {
+	    if ( (*it).access == "protected" )
 		item = new HierarchyItem( HierarchyItem::Slot,
-					  itemSlots, (*it).slot, QString::null, QString::null );
-	    }
+					  itemProtected, (*it).slot, QString::null, QString::null );
+	    else if ( (*it).access == "private" )
+		item = new HierarchyItem( HierarchyItem::Slot,
+					  itemPrivate, (*it).slot, QString::null, QString::null );
+	    else // default is public
+		item = new HierarchyItem( HierarchyItem::Slot,
+					  itemPublic, (*it).slot, QString::null, QString::null );
 	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    if ( it == slotList.begin() )
 		break;
@@ -657,6 +648,9 @@ void FormDefinitionView::refresh( bool doDelete )
     itemProtected->setOpen( TRUE );
     itemPublic->setOpen( TRUE );
     itemSlots->setOpen( TRUE );
+
+    if ( formWindow->project()->language() != "C++" )
+	itemProtected->setVisible( FALSE );
 }
 
 

@@ -54,6 +54,7 @@ struct LanguageInterface : public QUnknownInterface
 	QString comments;
 	int start;
 	int end;
+	QString access;
 	bool operator==( const Function &f ) const {
 	    return ( name == f.name &&
 		     body == f.body &&
@@ -85,7 +86,8 @@ struct LanguageInterface : public QUnknownInterface
 
     virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;
     virtual void initEventFunctions( QMap<QString, QString> &eventFuncs ) = 0;
-    virtual QString createFunctionStart( const QString &className, const QString &func, const QString &returnType ) = 0;
+    virtual QString createFunctionStart( const QString &className, const QString &func,
+					 const QString &returnType, const QString &access ) = 0;
     virtual QString createArguments( const QStringList &args ) = 0;
     virtual QString createEmptyFunction() = 0;
     virtual QStringList definitions() const = 0;

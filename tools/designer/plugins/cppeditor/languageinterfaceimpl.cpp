@@ -90,7 +90,9 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
     }
 }
 
-QString LanguageInterfaceImpl::createFunctionStart( const QString &className, const QString &func, const QString &returnType )
+QString LanguageInterfaceImpl::createFunctionStart( const QString &className, const QString &func,
+						    const QString &returnType,
+						    const QString & )
 {
     return returnType + " " + className + "::" + func;
 }
