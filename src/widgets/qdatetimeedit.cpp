@@ -2320,9 +2320,12 @@ void QTimeEdit::addNumber( int sec, int num )
 
     switch( sec ) {
     case 0:
-	txt = QString::number( d->h );
-	
+	txt = ( d->display & AMPM && d->h > 12 ) ? 
+	    QString::number( d->h - 12 ) : QString::number( d->h );
+
 	if ( d->overwrite || txt.length() == 2 ) {
+	    if ( d->display & AMPM && d->h > 11 )
+		num += 12;
 	    if ( !outOfRange( num, d->m, d->s ) ) {
 		accepted = TRUE;
 		d->h = num;
@@ -2330,14 +2333,30 @@ void QTimeEdit::addNumber( int sec, int num )
 	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
-	    if ( temp > 23 )
-		temp = num;
-	    if ( outOfRange( temp, d->m, d->s ) )
+
+	    if ( d->display & AMPM ) {
+		if ( temp == 12 ) {
+		    if ( d->h < 12 ) {
+			temp = 0;
+		    }
+		    accepted = TRUE;
+		} else if ( outOfRange( temp + 12, d->m, d->s ) ) {
+		    txt = QString::number( d->h );
+		} else {
+		    if ( d->h > 11 ) {
+			temp += 12;
+		    }
+		    accepted = TRUE;
+		}
+	    } else if ( !(d->display & AMPM) && outOfRange( temp, d->m, d->s ) ) {
 		txt = QString::number( d->h );
-	    else {
+	    } else {
 		accepted = TRUE;
-		d->h = temp;
 	    }
+
+	    if ( accepted )
+		d->h = temp;
+
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( d->ed->focusSection()+1 );
 		overwrite = TRUE;
