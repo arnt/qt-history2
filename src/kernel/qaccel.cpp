@@ -202,8 +202,10 @@ QAccel::QAccel( QWidget *parent, const char *name )
     d->enabled = TRUE;
     d->watch = parent;
     if ( d->watch ) {				// install event filter
+	d->watch->installEventFilter( this );
 	d->tlw = d->watch->topLevelWidget();
-	d->tlw->installEventFilter( this );
+	if ( d->tlw != d->watch )
+	    d->tlw->installEventFilter( this );
     } else {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QAccel: An accelerator must have a parent or a watch widget" );
@@ -224,8 +226,10 @@ QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
     d->enabled = TRUE;
     d->watch = watch;
     if ( watch ) {				// install event filter
+	d->watch->installEventFilter( this );
 	d->tlw = d->watch->topLevelWidget();
-	d->tlw->installEventFilter( this );
+	if ( d->tlw != d->watch )
+	    d->tlw->installEventFilter( this );
     } else {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QAccel: An accelerator must have a parent or a watch widget" );
