@@ -858,8 +858,6 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( isMainWindow )
 	out << indent << "(void)statusBar();" << endl;
 
-    if ( objClass == "QMainWindow" )
-	out << indent << "setCentralWidget( new QWidget( this, \"qt_central_widget\" ) );" << endl;
 
     // create pixmaps for all images
     if ( !images.isEmpty() ) {
@@ -1346,11 +1344,18 @@ void Uic::createMenuBarDecl( const QDomElement &e )
 
   \sa createObjectDecl()
  */
+
+static bool createdCentralWidget = FALSE;
+
 QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass, const QString& par, const QString& layout )
 {
     QString parent( par );
-    if ( parent == "this" && isMainWindow )
+    if ( parent == "this" && isMainWindow ) {
+	if ( !createdCentralWidget )
+	    out << indent << "setCentralWidget( new QWidget( this, \"qt_central_widget\" ) );" << endl;
+	createdCentralWidget = TRUE;
 	parent = "centralWidget()";
+    }
     QDomElement n;
     QString objClass, objName;
 
