@@ -37,6 +37,9 @@ class QLabel;
 class Q_EXPORT QToolTipGroup: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY( bool, "delay", delay, setDelay )
+    Q_PROPERTY( bool, "enabled", enabled, setEnabled )
+	
 public:
     QToolTipGroup( QObject *parent, const char *name = 0 );
    ~QToolTipGroup();

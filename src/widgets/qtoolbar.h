@@ -38,7 +38,9 @@ class QToolBarPrivate;
 class Q_EXPORT QToolBar: public QWidget
 {
     Q_OBJECT
-
+    Q_PROPERTY( QString, "label", label, setLabel )
+    Q_PROPERTY( bool, "stretchable", isStretchable, setStretchable )
+    // ####### Should support Orientation, too!
 public:
     QToolBar( const QString &label,
 	      QMainWindow *, QMainWindow::ToolBarDock = QMainWindow::Top,
