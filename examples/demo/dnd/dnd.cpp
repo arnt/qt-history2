@@ -18,7 +18,6 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
     buttonPixmap4->setEditor( StyledButton::PixmapEditor );
 
     multiLine1->setTextFormat( RichText );
-    multiLine1->setMinimumHeight( 280 );
     multiLine1->setText( QString( "<p><b>Faust</b> - <i>Goethe</i></p>"  )
                          + "Habe nun, ach! Philosophie,<br>"
                          + "Juristerei und Medizin,<br>"
@@ -54,7 +53,6 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
                          + "Und tu nicht mehr in Worten kramen. <br>" );
 
     multiLine2->setTextFormat( RichText );
-    multiLine2->setMinimumHeight( 280 );
     multiLine2->setText( QString( "<p><b>To Milton</b> - <i>Oscar Wilde</i></p>" )
                          + "Milton!  I think thy spirit hath passed away<br>"
                          + "From these white cliffs and high-embattled towers;<br>"
