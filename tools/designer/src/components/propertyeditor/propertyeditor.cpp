@@ -593,14 +593,16 @@ AbstractFormEditor *PropertyEditor::core() const
 
 IProperty *PropertyEditor::propertyByName(IProperty *p, const QString &name)
 {
-    if (p->kind() == IProperty::Property_Normal)
-        return p->propertyName() == name ? p : 0;
+    if (p->propertyName() == name)
+        return p;
 
-    IPropertyGroup *g = static_cast<IPropertyGroup*>(p);
-    for (int i=0; i<g->propertyCount(); ++i)
-        if (IProperty *c = propertyByName(g->propertyAt(i), name))
-            return c;
-
+    if (p->kind() == IProperty::Property_Group) {
+        IPropertyGroup *g = static_cast<IPropertyGroup*>(p);
+        for (int i=0; i<g->propertyCount(); ++i)
+            if (IProperty *c = propertyByName(g->propertyAt(i), name))
+                return c;
+    }
+                
     return 0;
 }
 
@@ -682,6 +684,15 @@ void PropertyEditor::resetProperty(const QString &prop_name)
         p->setValue(m_prop_sheet->property(idx));
         p->setBold(false);
         m_editor->editorModel()->refresh(p);
+
+        if (p->kind() == IProperty::Property_Group) {
+            IPropertyGroup *group = static_cast<IPropertyGroup*>(p);
+            for (int i = 0; i < group->propertyCount(); ++i) {
+                IProperty *child_prop = group->propertyAt(i);
+                child_prop->setBold(false);
+                m_editor->editorModel()->refresh(child_prop);
+            }
+        }
     }
 }
 

@@ -23,6 +23,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMessageBox>
+#include <QtGui/QLabel>
 
 #include <QtGui/qdrawutil.h>
 #include <QtCore/qdebug.h>
@@ -174,8 +175,12 @@ QWidget *Delegate::createEditor(QWidget *parent,
 
     const Model *model = static_cast<const Model*>(index.model());
     const IProperty *property = model->privateData(index);
-    if (!isReadOnly() && property && property->hasEditor()) { // ### always true
-        QWidget *editor = 0;
+    if (property == 0)
+        return 0;
+        
+    QWidget *editor = 0;
+
+    if (!isReadOnly() && property->hasEditor()) { // ### always true
         if (property->hasReset()) {
             EditorWithReset *editor_w_reset
                 = new EditorWithReset(property->propertyName(), parent);
@@ -190,13 +195,12 @@ QWidget *Delegate::createEditor(QWidget *parent,
         } else {
             editor = property->createEditor(parent, this, SLOT(sync()));
         }
-
-        editor->installEventFilter(const_cast<Delegate *>(this));
-        
-        return editor;
     }
+    
+    if (editor != 0)
+        editor->installEventFilter(const_cast<Delegate *>(this));
 
-    return 0;
+    return editor;
 }
 
 void Delegate::setEditorData(QWidget *editor,

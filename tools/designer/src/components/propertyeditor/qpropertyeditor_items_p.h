@@ -172,15 +172,10 @@ public:
     }
 
     inline bool hasEditor() const
-    { return false; }
+    { return true; }
 
-    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const
-    {
-        Q_UNUSED(parent);
-        Q_UNUSED(target);
-        Q_UNUSED(receiver);
-        return 0;
-    }
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    virtual void updateEditorContents(QWidget *editor);
 
     inline bool hasExternalEditor() const
     { return false; }

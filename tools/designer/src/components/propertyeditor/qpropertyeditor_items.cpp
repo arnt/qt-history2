@@ -26,6 +26,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QDateTimeEdit>
 #include <QtGui/QBitmap>
+#include <QtGui/QLabel>
 
 #include <QtCore/qdebug.h>
 #include <limits.h>
@@ -48,6 +49,19 @@ void AbstractPropertyGroup::setDirty(bool b)
 
     for (int i=0; i<propertyCount(); ++i)
         propertyAt(i)->setDirty(b);
+}
+
+QWidget *AbstractPropertyGroup::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    return new QLabel(parent);
+}
+
+void AbstractPropertyGroup::updateEditorContents(QWidget *editor)
+{
+    QLabel *label = qobject_cast<QLabel*>(editor);
+    if (label == 0)
+        return;
+    label->setText(toString());
 }
 
 // -------------------------------------------------------------------------
