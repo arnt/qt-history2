@@ -25,6 +25,7 @@
 #include "command.h"
 #include "listviewdnd.h"
 #include "listboxdnd.h"
+#include "listboxrename.h"
 
 #include <qlistview.h>
 #include <qheader.h>
@@ -73,6 +74,9 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
     for ( ; *it; it++ )
 	(*it)->setRenameEnabled( 0, TRUE );
 
+    ListBoxRename *columnsRename = new ListBoxRename( colPreview );
+    QObject::connect( columnsRename, SIGNAL( itemTextChanged( const QString & ) ),
+		      this, SLOT( columnTextChanged( const QString & ) ) );
 }
 
 void ListViewEditor::applyClicked()

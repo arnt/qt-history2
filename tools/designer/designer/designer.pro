@@ -75,7 +75,8 @@ SOURCES	+= command.cpp \
 		variabledialogimpl.cpp \
 		listviewdnd.cpp \
 		listboxdnd.cpp \
-		listdnd.cpp
+		listdnd.cpp \
+		listboxrename.cpp
 HEADERS	+= command.h \
 		defs.h \
 		formwindow.h \
@@ -136,7 +137,8 @@ HEADERS	+= command.h \
 		variabledialogimpl.h \
 		listviewdnd.h \
 		listboxdnd.h \
-		listdnd.h
+		listdnd.h \
+		listboxrename.h
 
 FORMS		+= listboxeditor.ui \
 		editfunctions.ui \
