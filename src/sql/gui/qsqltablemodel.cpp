@@ -803,8 +803,8 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
         for (i = 0; i < count; ++i) {
             if (!deleteRow(row + i))
                 return false;
-            // ### REFRESH?
         }
+        select();
         break;
     case OnManualSubmit:
         for (i = 0; i < count; ++i) {
@@ -818,13 +818,15 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
     return true;
 }
 
-/*! // TODO document manual updates
+/*!
     Inserts an empty row at position \a row. Note that \a parent has to be invalid, since
     this model does not support parent-child relations.
 
-    Note that only one row can be inserted at a time, so \a count should always be 1.
+    Only one row at a time can be inserted when using the OnFieldChange or OnRowChange
+    update strategies.
 
-    The primeInsert() signal will be emitted, so the newly inserted values can be initialized.
+    The primeInsert() signal will be emitted for each new row. Connect to it if you
+    want to initialize the new row with default values.
 
     Returns false if the parameters are out of bounds, otherwise true.
 
@@ -832,8 +834,7 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
  */
 bool QSqlTableModel::insertRows(int row, const QModelIndex &parent, int count)
 {
-    // TODO - count >= 1
-    if (row < 0 || row > rowCount() || parent.isValid())
+    if (row < 0 || count <= 0 || row > rowCount() || parent.isValid())
         return false;
 
     switch (d->strategy) {
