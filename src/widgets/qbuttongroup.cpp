@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#59 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -26,7 +26,6 @@
 #include "qbuttongroup.h"
 #include "qbutton.h"
 #include "qlist.h"
-#include "qkeycode.h"
 #include "qradiobutton.h"
 
 

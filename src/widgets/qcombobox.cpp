@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#183 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#184 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -29,7 +29,6 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qscrollbar.h"   // we need the qDrawArrow function
-#include "qkeycode.h"
 #include "qstrlist.h"
 #include "qpixmap.h"
 #include "qtimer.h"

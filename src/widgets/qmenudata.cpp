@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#74 $
 **
 ** Implementation of QMenuData class
 **
@@ -288,7 +288,7 @@ void QMenuData::setAllDirty( bool dirty )
 	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
-  qkeycode.h
+  qnamespace.h
 */
 
 int QMenuData::insertItem( const QString &text,
@@ -324,7 +324,7 @@ int QMenuData::insertItem( const QString &text,
 	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
-  qkeycode.h
+  qnamespace.h
 */
 
 int QMenuData::insertItem( const QIconSet& icon,
@@ -360,7 +360,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
-  qkeycode.h
+  qnamespace.h
 */
 
 int QMenuData::insertItem( const QPixmap &pixmap,
@@ -397,7 +397,7 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
-  qkeycode.h
+  qnamespace.h
 */
 
 int QMenuData::insertItem( const QIconSet& icon,
@@ -706,7 +706,7 @@ void QMenuData::clear()
 /*!
   Returns the accelerator key that has been defined for the menu item \a id,
   or 0 if it has no accelerator key.
-  \sa setAccel(), QAccel, qkeycode.h
+  \sa setAccel(), QAccel, qnamespace.h
 */
 
 int QMenuData::accel( int id ) const
@@ -720,7 +720,7 @@ int QMenuData::accel( int id ) const
 
   An accelerator key consists of a key code and a combination of the modifiers
   \c SHIFT, \c CTRL and \c ALT (OR'ed or added).
-  The header file qkeycode.h contains a list of key codes.
+  The header file qnamespace.h contains a list of key codes.
 
   Defining an accelerator key generates a text which is added to the
   menu item, for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
@@ -742,7 +742,7 @@ int QMenuData::accel( int id ) const
 
   You can also specify the accelerator in the insertItem() function.
 
-  \sa setAccel(), accel(), insertItem(), QAccel, qkeycode.h
+  \sa setAccel(), accel(), insertItem(), QAccel, qnamespace.h
 */
 
 void QMenuData::setAccel( int key, int id )

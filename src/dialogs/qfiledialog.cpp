@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#148 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#149 $
 **
 ** Implementation of QFileDialog class
 **
@@ -37,7 +37,6 @@
 #include "qwidgetstack.h"
 #include "qbuttongroup.h"
 #include "qvector.h"
-#include "qkeycode.h"
 #include "qregexp.h"
 #include "qstrlist.h"
 #include "qtimer.h"

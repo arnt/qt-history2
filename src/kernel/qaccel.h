@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#36 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#37 $
 **
 ** Definition of QAccel class
 **
@@ -28,7 +28,6 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qkeycode.h"
 #endif // QT_H
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#40 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -31,7 +31,6 @@
 #include "qptrdict.h"
 #include "qtoolbutton.h"
 #include "qshared.h"
-#include "qkeycode.h"
 #include "qcursor.h"
 #include "qbitmap.h"
 #include "qml.h"

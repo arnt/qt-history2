@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#360 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#361 $
 **
 ** Implementation of QWidget class
 **
@@ -31,7 +31,6 @@
 #include "qptrdict.h"
 #include "qfocusdata.h"
 #include "qpixmap.h"
-#include "qkeycode.h"
 #include "qapplication.h"
 #include "qbrush.h"
 #include "qlayout.h"

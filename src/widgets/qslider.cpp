@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#76 $
 **
 ** Implementation of QSlider class
 **
@@ -27,7 +27,6 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qtimer.h"
-#include "qkeycode.h"
 #include "qbitmap.h"
 
 static const int motifBorder = 2;

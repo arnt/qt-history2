@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#74 $
 **
 ** Implementation of QDialog class
 **
@@ -26,7 +26,6 @@
 #include "qdialog.h"
 #include "qpushbutton.h"
 #include "qapplication.h"
-#include "qkeycode.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidgetlist.h"

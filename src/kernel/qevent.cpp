@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#90 $
 **
 ** Implementation of event classes
 **
@@ -408,7 +408,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   \fn int QKeyEvent::key() const
   Returns the code of the key that was pressed or released.
 
-  The header file qkeycode.h lists the possible keyboard codes.	 These codes
+  The header file qnamespace.h lists the possible keyboard codes.	 These codes
   are independent of the underlying window system.
 
   Key code 0 means that the event is not a result of a known key (e.g. it

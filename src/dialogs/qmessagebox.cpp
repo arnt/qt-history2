@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#85 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#86 $
 **
 ** Implementation of QMessageBox class
 **
@@ -27,7 +27,6 @@
 #include "qlabel.h"
 #include "qpushbutton.h"
 #include "qimage.h"
-#include "qkeycode.h"
 #include "qapplication.h"
 
 // Message box icons, from page 210 of the Windows style guide.

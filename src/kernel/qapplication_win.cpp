@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#247 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#248 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2012,8 +2012,6 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 //
 // Keyboard event translation
 //
-
-#include "qkeycode.h"
 
 static ushort KeyTbl[] = {			// keyboard mapping table
     VK_ESCAPE,		Qt::Key_Escape,		// misc keys

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#189 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#190 $
 **
 ** Implementation of QListBox widget class
 **
@@ -27,7 +27,6 @@
 #include "qfontmetrics.h"
 #include "qpainter.h"
 #include "qstrlist.h"
-#include "qkeycode.h"
 #include "qscrollbar.h"
 #include "qpixmap.h"
 #include "qapplication.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#61 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -28,7 +28,6 @@
 #include <qspinbox.h>
 #include <qpushbutton.h>
 #include <qpainter.h>
-#include <qkeycode.h>
 #include <qbitmap.h>
 #include <qlineedit.h>
 #include <qvalidator.h>

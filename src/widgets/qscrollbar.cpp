@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#123 $
 **
 ** Implementation of QScrollBar class
 **
@@ -26,7 +26,6 @@
 #include "qscrollbar.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qkeycode.h"
 #include "qapplication.h"
 #include <limits.h>
 

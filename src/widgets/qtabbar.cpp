@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#51 $
 **
 ** Implementation of QTabBar class
 **
@@ -22,7 +22,6 @@
 *****************************************************************************/
 
 #include "qtabbar.h"
-#include "qkeycode.h"
 #include "qaccel.h"
 #include "qbitmap.h"
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#12 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -28,7 +28,6 @@
 //#include "qobjectlist.h"
 #include "qobjectdict.h"
 
-#include "qkeycode.h"
 #include "qwellarray.h"
 
 struct QWellArrayData {

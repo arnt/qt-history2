@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#31 $
 **
 ** Implementation of QML classes
 **
@@ -24,7 +24,6 @@
 *****************************************************************************/
 #include "qml.h"
 #include <qapplication.h>
-#include <qkeycode.h>
 #include <qlayout.h>
 #include <qpainter.h>
 

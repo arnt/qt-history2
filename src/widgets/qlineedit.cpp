@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#184 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#185 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -28,7 +28,6 @@
 #include "qdrawutil.h"
 #include "qfontmetrics.h"
 #include "qpixmap.h"
-#include "qkeycode.h"
 #include "qclipboard.h"
 #include "qapplication.h"
 #include "qvalidator.h"

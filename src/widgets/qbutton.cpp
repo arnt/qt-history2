@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#135 $
 **
 ** Implementation of QButton widget class
 **
@@ -27,7 +27,6 @@
 #include "qbuttongroup.h"
 #include "qbitmap.h"
 #include "qpainter.h"
-#include "qkeycode.h"
 #include "qtimer.h"
 #include "qaccel.h"
 #include "qpixmapcache.h"

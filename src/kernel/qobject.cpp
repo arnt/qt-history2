@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#186 $
 **
 ** Implementation of QObject class
 **
@@ -157,7 +157,7 @@
 */
 
 
-/*!
+/* (no '!' on purpose since this is an internal class)
   \class QSenderObject qobject.h
   \brief Internal object used for sending signals.
 
@@ -172,7 +172,7 @@
   and slots.  Alternatively, you can use the QSignal class.
 */
 
-/*!
+/*
   \fn void QSenderObject::setSender (QObject* s)
 
   Internal function, used in signal-slot connections.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#74 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -30,7 +30,6 @@
 #include "qdict.h"
 #include "qdragobject.h"
 #include "qobjectlist.h"
-#include "qkeycode.h"
 #include "qbitmap.h"
 
 #include "qt_x11.h"

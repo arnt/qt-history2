@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#59 $
 **
 ** Implementation of QAccel class
 **
@@ -41,7 +41,7 @@
   (\c SHIFT, \c CTRL, \c ALT or \c ASCII_ACCEL).
 
   For example, <code>CTRL + Key_P</code> could be a shortcut for printing
-  a document. The key codes are listed in qkeycode.h.
+  a document. The key codes are listed in qnamespace.h.
 
   When pressed, an accelerator key sends out the signal activated() with a
   number that identifies this particular accelerator item.  Accelerator

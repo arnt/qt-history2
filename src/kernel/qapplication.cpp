@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#204 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#205 $
 **
 ** Implementation of QApplication class
 **
@@ -85,7 +85,7 @@
   without creating a QApplication.  This can be very useful if you
   wish to share code between a non-GUI server and a GUI client.
 
-  \header qkeycode.h
+  \header qnamespace.h
   \header qwindowdefs.h
   \header qglobal.h
 */

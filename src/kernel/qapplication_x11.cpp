@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#438 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#439 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -42,7 +42,6 @@
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
-#include "qkeycode.h"
 #include "qtextcodec.h"
 #include <stdlib.h>
 #include <ctype.h>
@@ -3183,7 +3182,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 #define XK_MISCELLANY
 #define XK_LATIN1
 #include <X11/keysymdef.h>
-#include "qkeycode.h"
 
 #ifndef XK_ISO_Left_Tab
 #define	XK_ISO_Left_Tab					0xFE20

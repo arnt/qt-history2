@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#22 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#23 $
 **
 ** Implementation of QFontDialog
 **
@@ -33,7 +33,6 @@
 #include "qlayout.h"
 #include "qgroupbox.h"
 #include "qlabel.h"
-#include "qkeycode.h"
 #include "qapplication.h"
 #include "qfontdatabase.h"
 
