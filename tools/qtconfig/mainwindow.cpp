@@ -432,7 +432,7 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/useXft", aacheckbox->isChecked());
 	settings.writeEntry("/qt/doubleClickInterval",
 					     dcispin->value());
-	settings.writeEntry("/qt/cursorFlashTime", cfispin->value());
+	settings.writeEntry("/qt/cursorFlashTime", cfispin->value() == 9 ? 0 : cfispin->value() );
 	settings.writeEntry("/qt/wheelScrollLines", wslspin->value());
 	settings.writeEntry("/qt/resolveSymlinks", resolvelinks->isChecked());
 

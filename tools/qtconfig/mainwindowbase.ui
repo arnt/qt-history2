@@ -685,7 +685,10 @@
                                     <number>10000</number>
                                 </property>
                                 <property name="minValue">
-                                    <number>10</number>
+                                    <number>9</number>
+                                </property>
+                                <property name="specialValueText">
+                                    <string>No blinking</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="1" column="0">

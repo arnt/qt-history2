@@ -2081,10 +2081,12 @@ void QLineEdit::blinkSlot()
 	d->cursorOn = !d->cursorOn;
 	update();
     }
-    if( hasFocus() )
-	d->blinkTimer.start( QApplication::cursorFlashTime()/2, TRUE );
-    else
+    if( hasFocus() ) {
+	if ( QApplication::cursorFlashTime() > 0 )
+	    d->blinkTimer.start( QApplication::cursorFlashTime()/2, TRUE );
+    } else {
 	d->blinkTimer.stop();
+    }
 }
 
 
@@ -2293,7 +2295,7 @@ void QLineEdit::blinkOn()
     if ( !hasFocus() )
 	return;
 
-    d->blinkTimer.start( d->cursorOn
+    d->blinkTimer.start( ( d->cursorOn && QApplication::cursorFlashTime() > 0 )
 			 ? QApplication::cursorFlashTime() / 2
 			 : 0,
 			 TRUE );

@@ -2817,7 +2817,8 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
     if ( o == this || o == viewport() ) {
 #endif
 	if ( e->type() == QEvent::FocusIn ) {
-	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
+	    if ( QApplication::cursorFlashTime() > 0 )
+		blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 	    drawCursor( TRUE );
 	    updateMicroFocusHint();
 	} else if ( e->type() == QEvent::FocusOut ) {
