@@ -117,10 +117,6 @@ int QToolBarPrivate::indexOf(QAction *action) const
     return -1;
 }
 
-
-
-
-
 /*!
     \class QToolBar qtoolbar.h
 
@@ -187,6 +183,18 @@ QToolBar::QToolBar(QMainWindow *parent, const char *name)
 */
 QToolBar::~QToolBar()
 {
+    // Remove the toolbar button if there is nothing left.
+    QMainWindow *mainwindow = qt_cast<QMainWindow *>(parentWidget());
+    if (mainwindow) {
+        QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(mainwindow->layout());
+        mainwin_layout->removeToolBarInfo(this);
+        mainwin_layout->relayout();
+#ifdef Q_WS_MAC
+        if (mainwin_layout && mainwin_layout->tb_layout_info.isEmpty())
+            ChangeWindowAttributes(qt_mac_window_for(mainwindow), kWindowNoAttributes,
+                                   kWindowToolbarButtonAttribute);
+#endif
+    }
 }
 
 /*!
@@ -678,12 +686,12 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 
     if (hidden_count > 0) {
 	if (orientation == Qt::Horizontal) {
- 	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - frameWidth(),
+	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - frameWidth(),
 				      frameWidth(),
 				      d->extension->sizeHint().width() - frameWidth()*2,
 				      height() - frameWidth()*2);
         } else {
- 	    d->extension->setGeometry(frameWidth(),
+	    d->extension->setGeometry(frameWidth(),
 				      height() - d->extension->sizeHint().height() - frameWidth()*2,
 				      width() - frameWidth()*2,
 				      d->extension->sizeHint().height());
