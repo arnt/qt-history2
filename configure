@@ -1444,6 +1444,18 @@ then
 fi
 
 #stl must be way down here after qmake has been made, because the test itself uses qmake
+
+if [ $PLATFORM = "hpux-acc" -a $STL != no ]
+then
+   echo
+   echo "As of aCC A.3.0.30 you may enable STL support in Qt by adding -AA"
+   echo "to the QMAKE_CXXFLAGS variable in $XQMAKESPEC"
+   echo "and re-running configure. Make sure to use the -AA compiler switch"
+   echo "in all your software projects using Qt as it turns on the new"
+   echo "C++ Standard Library which is not binary compatible to the old one."
+   echo
+fi
+
 if [ $STL = auto ]
 then
     STL=yes
