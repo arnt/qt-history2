@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#42 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#43 $
 **
 ** Definition of QPushButton class
 **
@@ -31,7 +31,6 @@
 
 class Q_EXPORT QPushButton : public QButton
 {
-friend class QDialog;
     Q_OBJECT
 public:
     QPushButton( QWidget *parent=0, const char *name=0 );
@@ -76,6 +75,8 @@ private:
     uint	lastDef		: 1;
     uint	lastEnabled	: 1;
     uint	hasMenuArrow	: 1;
+
+    friend class QDialog;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

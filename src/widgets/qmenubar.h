@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#35 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#36 $
 **
 ** Definition of QMenuBar class
 **
@@ -31,7 +31,6 @@
 
 class Q_EXPORT QMenuBar : public QFrame, public QMenuData
 {
-friend class QPopupMenu;
     Q_OBJECT
 public:
     QMenuBar( QWidget *parent=0, const char *name=0 );
@@ -94,9 +93,11 @@ private:
     QAccel     *autoaccel;
     QRect      *irects;
     int		rightSide;
-    
+
     uint	mseparator	: 1;
     uint	windowsaltactive : 1;
+
+    friend class QPopupMenu;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

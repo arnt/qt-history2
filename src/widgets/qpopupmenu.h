@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#49 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#50 $
 **
 ** Definition of QPopupMenu class
 **
@@ -32,8 +32,6 @@
 
 class Q_EXPORT QPopupMenu : public QTableView, public QMenuData
 {
-friend class QMenuData;
-friend class QMenuBar;
     Q_OBJECT
 public:
     QPopupMenu( QWidget *parent=0, const char *name=0 );
@@ -119,6 +117,9 @@ private:
     int		tabCheck;
     bool	hasDoubleItem;
     int		maxPMWidth;
+
+    friend class QMenuData;
+    friend class QMenuBar;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
