@@ -36,8 +36,8 @@ public:
 
     int rowCount() const;
     int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant data(const QModelIndex &index, int role) const;
 
     void changeItem(const QModelIndex &index, const QString &firstName, const QString &lastName, const QString &address, const QString &email);
     void addItem(const QString &firstName, const QString &lastName, const QString &address, const QString &email);
@@ -66,6 +66,8 @@ AddressBookModel::AddressBookModel(AddressView *parent)
 
 AddressBookModel::~AddressBookModel()
 {
+    delete contactItems;
+
     if (!outlook.isNull())
         Outlook::NameSpace(outlook.Session()).Logoff();
 }
@@ -78,26 +80,6 @@ int AddressBookModel::rowCount() const
 int AddressBookModel::columnCount(const QModelIndex &parent) const
 {
     return 4;
-}
-
-QVariant AddressBookModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || role != DisplayRole)
-        return QVariant();
-
-    QStringList data;
-    if (!cache.contains(index)) {
-        Outlook::ContactItem contact(contactItems->Item(index.row() + 1));
-        data << contact.FirstName() << contact.LastName() << contact.HomeAddress() << contact.Email1Address();
-        cache.insert(index, data);
-    } else {
-        data = cache.value(index);
-    }
-
-    if (index.column() < data.count())
-        return data.at(index.column());
-
-    return QVariant();
 }
 
 QVariant AddressBookModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -121,30 +103,38 @@ QVariant AddressBookModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
+QVariant AddressBookModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || role != DisplayRole)
+        return QVariant();
+
+    QStringList data;
+    if (cache.contains(index)) {
+        data = cache.value(index);
+    } else {
+        Outlook::ContactItem contact(contactItems->Item(index.row() + 1));
+        data << contact.FirstName() << contact.LastName() << contact.HomeAddress() << contact.Email1Address();
+        cache.insert(index, data);
+    }
+
+    if (index.column() < data.count())
+        return data.at(index.column());
+
+    return QVariant();
+}
+
 void AddressBookModel::changeItem(const QModelIndex &index, const QString &firstName, const QString &lastName, const QString &address, const QString &email)
 {
     Outlook::ContactItem item(contactItems->Item(index.row() + 1));
-    Q_ASSERT(!item.isNull());
 
-    QString test(item.FirstName());
     item.SetFirstName(firstName);
-    test = item.FirstName();
-
-    test = item.LastName();
     item.SetLastName(lastName);
-    test = item.LastName();
-
-    test = item.HomeAddress();
     item.SetHomeAddress(address);
-    test = item.HomeAddress();
-
     item.SetEmail1Address(email);
 
     item.Save();
 
     cache.take(index);
-
-    emit dataChanged(index, index);
 }
 
 void AddressBookModel::addItem(const QString &firstName, const QString &lastName, const QString &address, const QString &email)
