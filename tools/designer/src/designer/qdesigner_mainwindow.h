@@ -39,6 +39,7 @@ public:
     AbstractFormEditor *core() const;
     bool readInForm(const QString &fileName) const;
     bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName) const;
+    bool saveForm(AbstractFormWindow *fw);
 
 
 signals:

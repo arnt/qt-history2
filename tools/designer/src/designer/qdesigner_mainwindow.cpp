@@ -25,11 +25,10 @@
 
 // Qt
 #include <QtCore/QEvent>
-#include <QtCore/QFile>
 
+#include <QtGui/QCloseEvent>
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
-#include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
@@ -202,93 +201,73 @@ void QDesignerMainWindow::updateWindowState()
 
 bool QDesignerMainWindow::readInForm(const QString &fileName) const
 {
-    // First make sure that we don't have this one open already.
-    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
-    int totalWindows = formWindowManager->formWindowCount();
-    for (int i = 0; i < totalWindows; ++i) {
-        AbstractFormWindow *w = formWindowManager->formWindow(i);
-        if (w->fileName() == fileName) {
-            w->raise();
-            formWindowManager->setActiveFormWindow(w);
-            return true;
-        }
-    }
-
-    // Otherwise load it.
-    QFile f(fileName);
-    if (!f.open(QFile::ReadOnly)) {
-        QMessageBox::warning(core()->topLevel(), tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
-                .arg(f.fileName()).arg(f.errorString()));
-        return false;
-    }
-
-
-    QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-    if (AbstractFormWindow *editor = formWindow->editor()) {
-        editor->setContents(&f);
-        editor->setFileName(fileName);
-        formWindowManager->setActiveFormWindow(editor);
-    }
-    formWindow->show();
-
-    return true;
+    return m_actionManager->readInForm(fileName);
 }
 
 bool QDesignerMainWindow::writeOutForm(AbstractFormWindow *fw, const QString &saveFile) const
 {
-    Q_ASSERT(fw && !saveFile.isEmpty());
-    QFile f(saveFile);
-    while (!f.open(QFile::WriteOnly)) {
-        QMessageBox box(tr("Save Form?"),
-                        tr("Could not open file: %1"
-                                "\nReason: %2"
-                                "\nWould you like to retry or change your file?")
-                                .arg(f.fileName()).arg(f.errorString()),
-                        QMessageBox::Warning,
-                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
-        box.setButtonText(QMessageBox::Yes, tr("Retry"));
-        box.setButtonText(QMessageBox::No, tr("Select New File"));
-        switch(box.exec()) {
-            case QMessageBox::Yes:
-                break;
-                case QMessageBox::No: {
-                    QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-                            QDir::current().absolutePath(), QString("*.ui"));
-                    if (fileName.isEmpty())
-                        return false;
-                    f.setFileName(fileName);
-                    fw->setFileName(fileName);
-                    break; }
-            case QMessageBox::Cancel:
-                return false;
-        }
-    }
-    QByteArray utf8Array = fw->contents().toUtf8();
-    while (f.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
-        QMessageBox box(tr("Save Form?"),
-                        tr("Could not write file: %1\nReason:%2\nWould you like to retry?")
-                                .arg(f.fileName()).arg(f.errorString()),
-                        QMessageBox::Warning,
-                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, 0,
-                        fw, Qt::WMacSheet);
-        box.setButtonText(QMessageBox::Yes, tr("Retry"));
-        box.setButtonText(QMessageBox::No, tr("Don't Retry"));
-        switch(box.exec()) {
-            case QMessageBox::Yes:
-                f.resize(0);
-                break;
-            case QMessageBox::No:
-                return false;
-        }
-    }
-    fw->setDirty(false);
-    return true;
+    return m_actionManager->writeOutForm(fw, saveFile);
 }
 
+bool QDesignerMainWindow::saveForm(AbstractFormWindow *fw)
+{
+    return m_actionManager->saveForm(fw);
+}
 
 void QDesignerMainWindow::closeEvent(QCloseEvent *ev)
 {
-    qDebug() << "CloseEvent for the main window";
-    return QMainWindow::closeEvent(ev);
+    QList<QDesignerFormWindow *> dirtyForms;
+    int totalWindows = m_workbench->formWindowCount();
+    for (int i = 0; i < totalWindows; ++i) {
+        QDesignerFormWindow *w = m_workbench->formWindow(i);
+        if (w->editor()->isDirty())
+            dirtyForms << w;
+    }
+
+    ev->accept();
+
+    if (dirtyForms.size()) {
+        if (dirtyForms.size() == 1) {
+            if (!dirtyForms.at(0)->close()) {
+                ev->ignore();
+                return;
+            }
+        } else {
+            QMessageBox box(tr("Save Forms?"),
+                    tr("There are %1 forms with unsaved changes."
+                        " Do you want to review these changes before quitting?")
+                    .arg(dirtyForms.size()),
+                    QMessageBox::Warning,
+                    QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
+                    QMessageBox::Cancel | QMessageBox::Escape, this);
+            box.setButtonText(QMessageBox::Yes, tr("Review Changes"));
+            box.setButtonText(QMessageBox::No, tr("Discard Changes"));
+            switch (box.exec()) {
+            case QMessageBox::Cancel:
+                ev->ignore();
+                return;
+            case QMessageBox::Yes:
+               foreach (QDesignerFormWindow *fw, dirtyForms) {
+                   fw->show();
+                   fw->raise();
+                   if (!fw->close()) {
+                       ev->ignore();
+                       return;
+                   }
+               }
+               break;
+            case QMessageBox::No:
+              foreach (QDesignerFormWindow *fw, dirtyForms)
+                  fw->editor()->setDirty(false);
+              break;
+            }
+        }
+    }
+
+    totalWindows = m_workbench->formWindowCount();
+    for (int i = 0; i < totalWindows; ++i)
+        m_workbench->formWindow(i)->close();
+
+    //saveSettings();
+    QApplication::instance()->quit();
 }

@@ -46,6 +46,7 @@ private slots:
 
 protected:
     virtual void changeEvent(QEvent *e);
+    void closeEvent(QCloseEvent *ev);
 
 private:
     AbstractFormWindow *m_editor;

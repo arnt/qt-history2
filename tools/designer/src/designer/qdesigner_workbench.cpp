@@ -281,8 +281,8 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     addFormWindow(formWindow);
 
     QRect g = formWindow->geometryHint();
-    g.moveCenter(availableGeometry().center());
-    formWindow->setGeometry(g);
+    formWindow->resize(g.size());
+    formWindow->move(availableGeometry().center() - g.center());
 
     formWindow->show();
 

@@ -13,14 +13,20 @@
 
 #include "qdesigner_formwindow.h"
 #include "qdesigner_workbench.h"
+#include "qdesigner_mainwindow.h"
 
 // sdk
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
 #include <abstractformwindowmanager.h>
 
-#include <QtGui/QAction>
 #include <QtCore/QEvent>
+#include <QtCore/QFile>
+
+#include <QtGui/QAction>
+#include <QtGui/QCloseEvent>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 QDesignerFormWindow::QDesignerFormWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),
@@ -109,3 +115,36 @@ void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
     setWindowTitle(tr("%1 - [Design]").arg(fn));
 }
 
+void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
+{
+    if (m_editor->isDirty()) {
+        raise();
+        QMessageBox box(tr("Save Form?"),
+                tr("Do you want to save the changes you made to \"%1\" before closing?")
+                .arg(m_editor->fileName().isEmpty() ? m_editor->windowTitle() : m_editor->fileName()),
+                QMessageBox::Information,
+                QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
+                QMessageBox::Cancel | QMessageBox::Escape, m_editor, Qt::WMacSheet);
+        box.setButtonText(QMessageBox::Yes, m_editor->fileName().isEmpty() ? tr("Save...") : tr("Save"));
+        box.setButtonText(QMessageBox::No, tr("Don't Save"));
+        switch (box.exec()) {
+            case QMessageBox::Yes:
+                ev->setAccepted(workbench()->mainWindow()->saveForm(m_editor));
+                m_editor->setDirty(false);
+                break;
+            case QMessageBox::No:
+                m_editor->setDirty(false); // Not really necessary, but stops problems if we get close again.
+                ev->accept();
+                break;
+            case QMessageBox::Cancel:
+                ev->ignore();
+                break;
+        }
+    }
+
+    /*
+    if (m_formWindowManager->formWindowCount() == 1 && *accept
+            && QSettings().value("newFormDialog/ShowOnStartup", true).toBool())
+        QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
+        */
+}
