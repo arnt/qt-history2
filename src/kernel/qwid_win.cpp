@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#75 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#75 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
@@ -769,6 +769,8 @@ void QWidget::setSizeIncrement( int w, int h )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
+    if ( backgroundEmpty() )
+	return;
     RECT r;
     r.left = x;
     r.top  = y;
