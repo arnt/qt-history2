@@ -199,7 +199,6 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     }
 
     bool showGrid = d->showGrid;
-    QPen gridPen = QPen(lightGray, 0, d->gridStyle);
     QPen gridPen = QPen(colorGroup().foreground(), 0, d->gridStyle);
     QItemSelectionModel *sels = selectionModel();
     QGenericHeader *leftHeader = d->leftHeader;
