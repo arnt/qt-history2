@@ -2877,6 +2877,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     bool didListLabel = FALSE;
     int paintStart = 0;
     int paintEnd = -1;
+    int lasth = 0;
     for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
 	if ( !str->isBidi() && is_printer( &painter ) ) { // ### fix our broken ps-printer
@@ -2946,10 +2947,11 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    if ( paintStart <= paintEnd ) {
 		if ( lastDirection ) // right to left
 		    drawParagString( painter, revstr, length()- paintEnd - 1, paintEnd - paintStart + 1, startX, lastY, 
-				     lastBaseLine, bw, h, drawSelections,
+				     lastBaseLine, bw, lasth, drawSelections,
 				     lastFormat, i, selectionStarts, selectionEnds, cg );
 		else
-		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, startX, lastY, lastBaseLine, bw, h, drawSelections,
+		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, startX, lastY, 
+				     lastBaseLine, bw, lasth, drawSelections,
 				     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    }
 	    if ( !str->isBidi() && is_printer( &painter ) ) { // ### fix our broken ps-printer
@@ -3002,6 +3004,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    bw += cw;
 	}
 	lastBaseLine = baseLine;
+	lasth = h;
 	lastDirection = chr->rightToLeft;
     }
 	
