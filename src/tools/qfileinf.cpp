@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#20 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#20 $")
 
 
 #if defined(_OS_FATFS_)
@@ -602,7 +602,7 @@ QString QFileInfo::readLink() const
 {
     QString s;
 #if defined(UNIX)
-    if ( !isSymlink() )
+    if ( !isSymLink() )
 	return s;
     s.resize( PATH_MAX + 1 );
     int len = readlink( (const char *)fn, s.data(), s.length() );
