@@ -590,6 +590,8 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
         return false;
     }
 
+    d->crgn = QRegion();
+    d->has_clipping = false;
     d->gc = XCreateGC(d->dpy, d->hd, 0, 0);
     d->gc_brush = XCreateGC(d->dpy, d->hd, 0, 0);
     d->use_path_fallback = false;
@@ -918,7 +920,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     if (dash_len)
         XSetDashes(d->dpy, d->gc, 0, dashes, dash_len);
 
-    if (!hasClipping()) { // if clipping is set the paintevent clip region is merged with the clip region
+    if (!d->has_clipping) { // if clipping is set the paintevent clip region is merged with the clip region
         QRegion sysClip = systemClip();
         if (!sysClip.isEmpty())
             x11SetClipRegion(d->dpy, d->gc, 0, d->picture, sysClip);
@@ -955,7 +957,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 
     vals.fill_style = s;
     XChangeGC(d->dpy, d->gc_brush, mask, &vals);
-    if (!hasClipping()) {
+    if (!d->has_clipping) {
         QRegion sysClip = systemClip();
         if (!sysClip.isEmpty())
             x11SetClipRegion(d->dpy, d->gc_brush, 0, d->picture, sysClip);
@@ -1188,254 +1190,6 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     }
 }
 
-void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
-		const QPaintDevice *src, int sx, int sy, int sw, int sh,
-		bool ignoreMask = false)
-{
-    if (!src || !dst) {
-        Q_ASSERT(src != 0);
-        Q_ASSERT(dst != 0);
-        return;
-    }
-    if (!qt_x11Handle(src) || src->isExtDev())
-        return;
-
-    QPoint redirection_offset;
-    const QPaintDevice *redirected = QPainter::redirected(dst, &redirection_offset);
-    if (redirected) {
-        dst = const_cast<QPaintDevice*>(redirected);
-        dx -= redirection_offset.x();
-        dy -= redirection_offset.y();
-    }
-
-    int ts = src->devType();                        // from device type
-    int td = dst->devType();                        // to device type
-
-    const QX11Info *src_xf = qt_x11Info(src),
-                   *dst_xf = qt_x11Info(dst);
-
-    Q_ASSERT(src_xf != 0 && dst_xf != 0);
-
-    Display *dpy = src_xf->display();
-
-    if (sw <= 0) {                                // special width
-        if (sw < 0)
-            sw = src->metric(QPaintDevice::PdmWidth) - sx;
-        else
-            return;
-    }
-    if (sh <= 0) {                                // special height
-        if (sh < 0)
-            sh = src->metric(QPaintDevice::PdmHeight) - sy;
-        else
-            return;
-    }
-
-    if (dst->paintingActive() && dst->isExtDev()) {
-        QPixmap *pm;                                // output to picture/printer
-        bool tmp_pm = true;
-        if (ts == QInternal::Pixmap) {
-            pm = (QPixmap*)src;
-            if (sx != 0 || sy != 0 ||
-		sw != pm->width() || sh != pm->height() || ignoreMask) {
-                QPixmap *tmp = new QPixmap(sw, sh, pm->depth());
-                qt_bit_blt(tmp, 0, 0, pm, sx, sy, sw, sh, true);
-#if 0
-                // ############## PIXMAP
-                if (pm->mask() && !ignoreMask) {
-                    QBitmap mask(sw, sh);
-                    qt_bit_blt(&mask, 0, 0, pm->mask(), sx, sy, sw, sh, true);
-                    tmp->setMask(mask);
-                }
-#endif
-                pm = tmp;
-            } else {
-                tmp_pm = false;
-            }
-        } else if (ts == QInternal::Widget) {// bitBlt to temp pixmap
-            pm = new QPixmap(sw, sh);
-            qt_bit_blt(pm, 0, 0, src, sx, sy, sw, sh);
-        } else {
-            qWarning("bitBlt: Cannot bitBlt from device");
-            return;
-        }
-	if (pm && dst->paintEngine())
-	    dst->paintEngine()->drawPixmap(QRect(dx, dy, -1, -1), *pm, QRect(0, 0, -1, -1));
-
-        if (tmp_pm)
-            delete pm;
-        return;
-    }
-
-    switch (ts) {
-    case QInternal::Widget:
-    case QInternal::Pixmap:
-    case QInternal::System:                        // OK, can blt from these
-        break;
-    default:
-        qWarning("bitBlt: Cannot bitBlt from device type %x", ts);
-        return;
-    }
-    switch (td) {
-    case QInternal::Widget:
-    case QInternal::Pixmap:
-    case QInternal::System:                        // OK, can blt to these
-        break;
-    default:
-        qWarning("bitBlt: Cannot bitBlt to device type %x", td);
-        return;
-    }
-
-    if (qt_x11Handle(dst) == 0) {
-        qWarning("bitBlt: Cannot bitBlt to device");
-        return;
-    }
-
-    bool mono_src;
-    bool mono_dst;
-    bool include_inferiors = false;
-    bool graphics_exposure = false;
-    QPixmap *src_pm;
-    Qt::HANDLE mask = 0;
-
-    if (ts == QInternal::Pixmap) {
-        src_pm = (QPixmap*)src;
-        if (src_pm->x11Info().screen() != dst_xf->screen())
-            src_pm->x11SetScreen(dst_xf->screen());
-        mono_src = src_pm->depth() == 1;
-        mask = ignoreMask ? 0 : src_pm->data->x11_mask;
-    } else {
-        src_pm = 0;
-        mono_src = false;
-        mask = 0;
-        include_inferiors = ((QWidget*)src)->testAttribute(Qt::WA_PaintUnclipped);
-        graphics_exposure = td == QInternal::Widget;
-    }
-    if (td == QInternal::Pixmap) {
-        if (dst_xf->screen() != src_xf->screen())
-            ((QPixmap*)dst)->x11SetScreen(src_xf->screen());
-        mono_dst = ((QPixmap*)dst)->depth() == 1;
-        ((QPixmap*)dst)->detach();                // changes shared pixmap
-    } else {
-        mono_dst = false;
-        include_inferiors = include_inferiors ||
-                            ((QWidget*)dst)->testAttribute(Qt::WA_PaintUnclipped);
-    }
-
-    if (mono_dst && !mono_src) {        // dest is 1-bit pixmap, source is not
-        qWarning("bitBlt: Incompatible destination pixmap");
-        return;
-    }
-
-#ifndef QT_NO_XRENDER
-    if (X11->use_xrender && X11->has_xft && src_pm && !mono_src) {
-        // use RENDER to do the blit
-	Qt::HANDLE src_pict, dst_pict;
-	if (src->devType() == QInternal::Widget)
-	    src_pict = static_cast<const QWidget *>(src)->xftPictureHandle();
-	else
-	    src_pict = static_cast<const QPixmap *>(src)->xftPictureHandle();
-	if (dst->devType() == QInternal::Widget)
-	    dst_pict = static_cast<const QWidget *>(dst)->xftPictureHandle();
-	else
-	    dst_pict = static_cast<const QPixmap *>(dst)->xftPictureHandle();
-        Q_ASSERT_X(dst_pict && src_pict, "qt_bit_blt", "internal error");
-
-        XRenderPictureAttributes pattr;
-        ulong picmask = 0;
-        if (include_inferiors) {
-            pattr.subwindow_mode = IncludeInferiors;
-            picmask |= CPSubwindowMode;
-        }
-        if (graphics_exposure) {
-            pattr.graphics_exposures = true;
-            picmask |= CPGraphicsExposure;
-        }
-        if (picmask)
-            XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
-        XRenderComposite(dpy, !ignoreMask ? PictOpOver : PictOpSrc, src_pict, 0, dst_pict, sx, sy, sx, sy, dx, dy, sw, sh);
-        // restore attributes
-        pattr.subwindow_mode = ClipByChildren;
-        pattr.graphics_exposures = false;
-        if (picmask)
-            XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
-        return;
-    }
-#endif
-
-
-    if (mask && !mono_src) {                        // fast masked blt
-        GC gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
-        XSetGraphicsExposures(dpy, gc, False);
-        XSetClipMask(dpy, gc, mask);
-        XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
-        if (include_inferiors) {
-            XSetSubwindowMode(dpy, gc, IncludeInferiors);
-            XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
-            XSetSubwindowMode(dpy, gc, ClipByChildren);
-        } else {
-            XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
-        }
-
-        XFreeGC(dpy, gc);
-        return;
-    }
-
-    GC gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
-    if (mono_src && mono_dst && src == dst) { // dst and src are the same bitmap
-        XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
-    } else if (mono_src) {                        // src is bitmap
-        XGCValues gcvals;
-        ulong          valmask = GCBackground | GCForeground | GCFillStyle |
-				 GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
-        if (td == QInternal::Widget) {        // set GC colors
-            QWidget *w = (QWidget *)dst;
-            QColormap cmap = QColormap::instance(dst_xf->screen());
-            gcvals.background = cmap.pixel(w->palette().color(w->backgroundRole()));
-            gcvals.foreground = cmap.pixel(w->palette().color(w->foregroundRole()));
-            if (include_inferiors) {
-                valmask |= GCSubwindowMode;
-                gcvals.subwindow_mode = IncludeInferiors;
-            }
-        } else if (mono_dst) {
-            gcvals.background = 0;
-            gcvals.foreground = 1;
-        } else if (td == QInternal::Pixmap && dst->depth() == 32
-                   && X11->use_xrender && X11->has_xft) {
-            gcvals.background = 0xffffffff; // white, fully opaque
-            gcvals.foreground = 0xff000000; // black, fully opaque
-        } else {
-            gcvals.background = WhitePixel(dpy, dst_xf->screen());
-            gcvals.foreground = BlackPixel(dpy, dst_xf->screen());
-        }
-
-        gcvals.fill_style  = FillOpaqueStippled;
-        gcvals.stipple = qt_x11Handle(src);
-        gcvals.ts_x_origin = dx - sx;
-	gcvals.ts_y_origin = dy - sy;
-
-        if (mask) {
-            // ############## PIXMAP Correct?
-//             if (((QPixmap*)src)->data->selfmask) {
-                gcvals.fill_style = FillStippled;
-//             } else {
-//                 XSetClipMask(dpy, gc, mask->handle());
-//                 XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
-// 	    }
-	}
-
-        XChangeGC(dpy, gc, valmask, &gcvals);
-	XFillRectangle(dpy, qt_x11Handle(dst), gc, dx, dy, sw, sh);
-    } else {                                        // src is pixmap/widget
-	if (graphics_exposure)                // widget to widget
-	    XSetGraphicsExposures(dpy, gc, True);
-	if (include_inferiors)
-	    XSetSubwindowMode(dpy, gc, IncludeInferiors);
-        XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
-    }
-    XFreeGC(dpy, gc);
-}
-
 
 void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                  Qt::PixmapDrawingMode mode)
@@ -1455,92 +1209,51 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     }
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
-
-    // ################### PIXMAP: should be able to do this better...
-    QBitmap mask;
-    if(mode != Qt::CopyPixmapNoMask && !pixmap.hasAlphaChannel())
-        mask = pixmap.mask();
     bool mono_src = pixmap.depth() == 1;
-    // bool mono_dst = d->pdev->depth() == 1;
+    bool mono_dst = d->pdev->depth() == 1;
+    bool restore_clip = false;
 
-    if (mono_src && mode == Qt::CopyPixmap) {
-	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, true);
-        return;
-    }
 
-    if (!mask.isNull() && !hasClipping() && systemClip().isEmpty()) {
-        if (mono_src) {                           // needs GCs pen // color
-            if (d->bg_mode == Qt::TransparentMode) {
-                XSetFillStyle(d->dpy, d->gc, FillStippled);
-                XSetStipple(d->dpy, d->gc, pixmap.handle());
-            } else {
-                XSetFillStyle(d->dpy, d->gc, FillOpaqueStippled);
-                XSetStipple(d->dpy, d->gc, pixmap.handle());
-                XSetClipMask(d->dpy, d->gc, mask.handle());
-                XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
-            }
-            XSetTSOrigin(d->dpy, d->gc, x-sx, y-sy);
-            XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
-            XSetTSOrigin(d->dpy, d->gc, 0, 0);
-            XSetFillStyle(d->dpy, d->gc, FillSolid);
-            if (d->bg_mode != Qt::TransparentMode) {
-                QRegion sysClip = systemClip();
-                if (!sysClip.isEmpty()) {
-                    x11SetClipRegion(d->dpy, d->gc, 0, d->picture, sysClip);
-                } else {
-                    x11ClearClipRegion(d->dpy, d->gc, 0, d->picture);
-                }
-            }
-        } else {
-	    qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::CopyPixmapNoMask ? true : false);
-            if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
-                QPixmap *px = static_cast<QPixmap *>(d->pdev);
-                px->data->alpha = pixmap.data->alpha;
-            }
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+    ::Picture src_pict = pixmap.xftPictureHandle();
+    if (X11->use_xrender && X11->has_xft && src_pict && d->picture) {
+        XRenderComposite(d->dpy, mode == Qt::ComposePixmap ? PictOpOver : PictOpSrc,
+                         src_pict, 0, d->picture, sx, sy, sx, sy, x, y, sw, sh);
+        if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
+            QPixmap *px = static_cast<QPixmap *>(d->pdev);
+            px->data->alpha = pixmap.data->alpha;
         }
         return;
     }
+#endif // !QT_NO_XFT && !QT_NO_XRENDER
 
-
-    if (!mask.isNull()) { // pixmap has clip mask
-        // Implies that clipping is on, either explicit or implicit
-        // Create a new mask that combines the mask with the clip region
-
-	QRegion rgn = d->crgn;
-        QRegion sysClip = systemClip();
-        if (!sysClip.isEmpty()) {
-            if (hasClipping())
-                rgn = rgn.intersect(sysClip);
-            else
-                rgn = sysClip;
-        }
-
+    if (pixmap.data->x11_mask) { // pixmap has a mask
         QBitmap comb(sw, sh);
         GC cgc = XCreateGC(d->dpy, comb.handle(), 0, 0);
         XSetForeground(d->dpy, cgc, 0);
         XFillRectangle(d->dpy, comb.handle(), cgc, 0, 0, sw, sh);
         XSetBackground(d->dpy, cgc, 0);
         XSetForeground(d->dpy, cgc, 1);
-        int num;
-        XRectangle *rects = (XRectangle *)qt_getClipRects(rgn, num);
-        XSetClipRectangles(d->dpy, cgc, -x, -y, rects, num, Unsorted);
+        if (d->has_clipping) {
+            int num;
+            XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
+            XSetClipRectangles(d->dpy, cgc, -x, -y, rects, num, Unsorted);
+        }
         XSetFillStyle(d->dpy, cgc, FillOpaqueStippled);
-        XSetStipple(d->dpy, cgc, mask.handle());
         XSetTSOrigin(d->dpy, cgc, -sx, -sy);
+        XSetStipple(d->dpy, cgc, pixmap.data->x11_mask);
         XFillRectangle(d->dpy, comb.handle(), cgc, 0, 0, sw, sh);
         XFreeGC(d->dpy, cgc);
-        mask = comb;                            // it's deleted below
 
-        XSetClipMask(d->dpy, d->gc, mask.handle());
         XSetClipOrigin(d->dpy, d->gc, x, y);
+        XSetClipMask(d->dpy, d->gc, comb.handle());
+        restore_clip = true;
     }
-    /* if (mono_src && mono_dst) {
-        XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
-        } else*/
+
     if (mono_src) {
         XSetClipMask(d->dpy, d->gc, pixmap.handle());
         XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
-        if (d->pdev->depth() == 1) {
+        if (mono_dst) {
             XSetBackground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
             XSetForeground(d->dpy, d->gc, qGray(d->cpen.color().rgb()) > 127 ? 0 : 1);
         } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
@@ -1556,23 +1269,23 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         XSetClipMask(d->dpy, d->gc, XNone);
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
     } else {
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        ::Picture src_pict = pixmap.xftPictureHandle();
-        if (X11->use_xrender && X11->has_xft && src_pict && d->picture) {
-            XRenderComposite(d->dpy, mode == Qt::ComposePixmap ? PictOpOver : PictOpSrc,
-                             src_pict, 0, d->picture, sx, sy, sx, sy, x, y, sw, sh);
-            if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
-                QPixmap *px = static_cast<QPixmap *>(d->pdev);
-                px->data->alpha = pixmap.data->alpha;
+        XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
+        // copy or merge the mask
+        if (d->pdev->devType() == QInternal::Pixmap) {
+            QPixmap *pm = static_cast<QPixmap *>(d->pdev);
+            if (mode == Qt::CopyPixmap && pixmap.data->x11_mask) {
+                if (!pm->data->x11_mask)
+                    pm->data->x11_mask = XCreatePixmap(d->dpy, RootWindow(d->dpy, d->scrn), sw, sh, 1);
+                GC mono_gc = XCreateGC(d->dpy, pm->data->x11_mask, 0, 0);
+                XCopyArea(d->dpy, pixmap.data->x11_mask, pm->data->x11_mask, mono_gc, sx, sy, sw, sh, x, y);
+                XFreeGC(d->dpy, mono_gc);
+            } else if (mode == Qt::ComposePixmap) {
+                // ### fix mask merging
             }
-        } else
-#endif // !QT_NO_XFT && !QT_NO_XRENDER
-            {
-                XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
-            }
+        }
     }
 
-    if (!mask.isNull()) { // restore clipping
+    if (restore_clip) {
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
         int num;
         XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
@@ -1616,7 +1329,7 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
 {
     QRegion sysClip = systemClip();
     if (op == Qt::NoClip) {
-        clearf(ClipOn);
+        d->has_clipping = false;
         d->crgn = QRegion();
         if (!sysClip.isEmpty()) {
             x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->picture, sysClip);
@@ -1628,7 +1341,7 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
 
     switch (op) {
     case Qt::IntersectClip:
-        if (testf(ClipOn)) {
+        if (d->has_clipping) {
             d->crgn &= clipRegion;
             break;
         }
@@ -1641,12 +1354,13 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
         break;
     case Qt::UniteClip:
         d->crgn |= clipRegion;
+        if (!sysClip.isEmpty())
+            d->crgn = d->crgn.intersect(sysClip);
         break;
-    case Qt::NoClip:
+    default:
         break;
     }
-
-    setf(ClipOn);
+    d->has_clipping = true;
     x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->picture, d->crgn);
 }
 
@@ -1675,7 +1389,9 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     int sx = qRound(p.x());
     int sy = qRound(p.y());
 
-    if (pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate && pixmap.hasAlphaChannel()) {
+    if (pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate
+        && pixmap.hasAlphaChannel() && !pixmap.data->x11_mask)
+    {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         if (d->picture && pixmap.xftPictureHandle()) {
             // this is essentially drawTile() from above, inlined for

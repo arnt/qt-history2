@@ -107,7 +107,6 @@ public:
     friend class QPainter;
     friend class QQuickDrawPaintEngine;
     friend class QFontEngineMac;
-    friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 
 #ifdef QT3_SUPPORT

@@ -142,6 +142,7 @@ public:
         dpy  = 0;
         xinfo = 0;
         txop = QPainterPrivate::TxNone;
+        has_clipping = false;
     }
     enum GCMode {
         PenGC,
@@ -171,7 +172,8 @@ public:
     QBrush bg_brush;
     QRegion crgn;
     QMatrix matrix;
-    bool use_path_fallback;
+    uint use_path_fallback : 1;
+    uint has_clipping : 1;
 
     const QX11Info *xinfo;
     QPointF bg_origin;

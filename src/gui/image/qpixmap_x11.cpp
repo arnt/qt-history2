@@ -1834,6 +1834,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     hs = height();
 
     QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
+    bool complex_xform = false;
+
     if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
         if (mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
             return *this;
@@ -1847,6 +1849,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         QRectF r = a.boundingRect().normalize();
         w = int(r.width() + 0.9999);
         h = int(r.height() + 0.9999);
+        complex_xform = true;
     }
     mat = trueMatrix(mat, ws, hs); // true matrix
 
@@ -1875,7 +1878,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     }
 
     bool use_mitshm = xshmimg && !depth1 &&
-    xshmimg->width >= w && xshmimg->height >= h;
+                      xshmimg->width >= w && xshmimg->height >= h;
 #endif
     XImage *xi = XGetImage(data->xinfo.display(), handle(), 0, 0, ws, hs, AllPlanes,
                            depth1 ? XYPixmap : ZPixmap);
@@ -1974,20 +1977,25 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 #if defined(QT_MITSHM)
         if (use_mitshm) {
             XCopyArea(dpy, xshmpm, pm.handle(), gc, 0, 0, w, h, 0, 0);
-        } else {
+        } else
 #endif
+        {
             xi = XCreateImage(dpy, (Visual *) pm.data->xinfo.visual(), pm.data->d,
                               ZPixmap, 0, (char *)dptr, w, h, 32, 0);
             XPutImage(dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
             qSafeXDestroyImage(xi);
-#if defined(QT_MITSHM)
         }
-#endif
         XFreeGC(data->xinfo.display(), gc);
 
-        if (data->x11_mask) // xform mask, too
-            pm.setMask(data->mask_to_bitmap().transformed(matrix));
-
+        if (!X11->use_xrender) {
+            if (data->x11_mask) { // xform mask, too
+                pm.setMask(data->mask_to_bitmap().transformed(matrix));
+            } else if (complex_xform) { // need a mask!
+                QBitmap mask(data->w, data->h);
+                mask.fill(Qt::color1);
+                pm.setMask(mask.transformed(matrix));
+            }
+        }
         return pm;
     }
 }
