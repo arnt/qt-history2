@@ -169,7 +169,7 @@ bool QUrl::isRelativeUrl( const QString &url )
 }
 
 /*!
-  Constructs and URL taking \a url as base (context) and 
+  Constructs and URL taking \a url as base (context) and
   \a relUrl as relative URL to \a url. If \a relUrl is not relative,
   \a relUrl is taken as new URL.
 
@@ -201,7 +201,7 @@ bool QUrl::isRelativeUrl( const QString &url )
 QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 {
     d = new QUrlPrivate;
-    QString rel = relUrl.stripWhiteSpace();
+    QString rel = relUrl;
     slashify( rel );
 
     if ( !isRelativeUrl( rel ) ) {
