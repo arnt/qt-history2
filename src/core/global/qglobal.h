@@ -158,7 +158,6 @@
    The compiler, must be one of: (Q_CC_x)
 
      SYM      - Digital Mars C/C++ (used to be Symantec C++)
-     MPW      - MPW C++
      MWERKS   - Metrowerks CodeWarrior
      MSVC     - Microsoft Visual C/C++, Intel C++ for Windows
      BOR      - Borland/Turbo C++
@@ -167,12 +166,11 @@
      COMEAU   - Comeau C++
      EDG      - Edison Design Group C++
      OC       - CenterLine C++
-     SUN      - Forte Developer, or Sun ONE Studio C++
+     SUN      - Forte Developer, or Sun Studio C++
      MIPS     - MIPSpro C++
      DEC      - DEC C++
-     HP       - HPUX C++
-     HPACC    - HPUX ANSI C++
-     USLC     - SCO OUDK, UDK, and UnixWare 2.X C++
+     HPACC    - HP aC++
+     USLC     - SCO OUDK and UDK
      CDS      - Reliant C++
      KAI      - KAI C++
      INTEL    - Intel C++ for Linux, Intel C++ for Windows
@@ -190,12 +188,6 @@
 #  if defined(__SC__) && __SC__ < 0x750
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
-#  define Q_NO_USING_KEYWORD
-
-#elif defined(applec)
-#  define Q_CC_MPW
-#  define Q_NO_BOOL_TYPE
-#  define Q_NO_EXPLICIT_KEYWORD
 #  define Q_NO_USING_KEYWORD
 
 #elif defined(__MWERKS__)
@@ -278,7 +270,7 @@
 #    if defined(Q_OS_HPUX) && __GNUC__ == 3 && __GNUC_MINOR__ >= 1
 #      define Q_WRONG_SB_CTYPE_MACROS
 #    endif
-/* Apple's GCC 3.1 chocks on our streaming qDebug() :( */
+/* Apple's GCC 3.1 chokes on our streaming qDebug() */
 #    if defined(Q_OS_DARWIN) && __GNUC__ == 3 && (__GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 3)
 #      define Q_NO_STREAMING_DEBUG
 #    endif
@@ -413,8 +405,7 @@
 #    define Q_CC_CDS
 #    define Q_NO_USING_KEYWORD
 
-/* The MIPSpro compiler in o32 mode is based on EDG but disables features
-   such as template specialization nevertheless */
+/* The MIPSpro compiler defines __EDG */
 #  elif defined(__sgi)
 #    define Q_CC_MIPS
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
@@ -423,15 +414,6 @@
 #      pragma set woff 3624,3625,3649 /* turn off some harmless warnings */
 #    endif
 #  endif
-
-/* The older UnixWare 2.X compiler? */
-#elif defined(__USLC__)
-#  define Q_CC_USLC
-#  define Q_TYPENAME
-#  define Q_NO_BOOL_TYPE
-#  define Q_NO_EXPLICIT_KEYWORD
-#  define Q_NO_USING_KEYWORD
-#  define Q_OUTOFLINE_TEMPLATE inline
 
 /* Never tested! */
 #elif defined(__HIGHC__)
