@@ -109,6 +109,7 @@ QPrinter::QPrinter( PrinterMode m )
     page_order = FirstPageFirst;
     color_mode = GrayScale;
     ncopies     = 1;
+    usercolcopies = FALSE;
     from_pg     = to_pg = min_pg  = max_pg = 0;
     state       = PST_IDLE;
     output_file = FALSE;
@@ -130,7 +131,7 @@ QPrinter::QPrinter( PrinterMode m )
         if ( PrintDlg( &pd ) != 0 )
             readPdlg( &pd );
 #ifndef Q_OS_TEMP
-    } else 
+    } else
 #endif
 #endif
 #ifndef Q_OS_TEMP
@@ -388,6 +389,10 @@ void QPrinter::readPdlg( void* pdv )
     from_pg = pd->nFromPage;
     to_pg = pd->nToPage;
     ncopies = pd->nCopies;
+    if ( pd->Flags & PD_COLLATE )
+        usercolcopies = TRUE;
+    else
+        usercolcopies = FALSE;
     if ( hdc ) {
        DeleteDC( hdc );
        viewOffsetDone = FALSE;
@@ -402,7 +407,12 @@ void QPrinter::readPdlg( void* pdv )
                 setOrientation( Landscape );
             setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
             setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
-            ncopies = dm->dmCopies;
+	    if (pd->flags & PD_USEDEVMODECOPIESANDCOLLATE)
+            	ncopies = dm->dmCopies;
+            if ( dm->dmCollate == DMCOLLATE_TRUE )
+                usercolcopies = TRUE;
+            else
+                usercolcopies = FALSE;
         }
         GlobalUnlock( pd->hDevMode );
     }
@@ -441,21 +451,27 @@ void QPrinter::readPdlgA( void* pdv )
     from_pg = pd->nFromPage;
     to_pg = pd->nToPage;
     ncopies = pd->nCopies;
+    if ( pd->Flags & PD_COLLATE )
+        usercolcopies = TRUE;
     if ( hdc ) {
        DeleteDC( hdc );
        viewOffsetDone = FALSE;
     }
-    hdc = pd->hDC;
+    hdc	= pd->hDC;
+    if ( pd->Flags & PD_COLLATE )
+        usercolcopies = TRUE;
     if ( pd->hDevMode ) {
-        DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
-        if ( dm ) {
-            if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-                setOrientation( Portrait );
-            else
-                setOrientation( Landscape );
-            setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
-            setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
-            ncopies = pd->nCopies;
+	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
+	if ( dm ) {
+	    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+		setOrientation( Portrait );
+	    else
+		setOrientation( Landscape );
+	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+            if (pd->flags & PD_USEDEVMODECOPIESANDCOLLATE)
+            	ncopies = dm->dmCopies;
+            if ( dm->dmCollate == DMCOLLATE_TRUE )
+                usercolcopies = TRUE;
         }
         GlobalUnlock( pd->hDevMode );
     }
@@ -602,9 +618,11 @@ bool QPrinter::setup( QWidget *parent )
             result = PrintDlg( &pd ) != 0;
         }
 
-        if ( result ) {
-            // writePdlg {
-            pd.Flags = PD_RETURNDC;
+	if ( result ) {
+	    // writePdlg {
+	    pd.Flags = PD_RETURNDC;
+	    if ( !appcolcopies )
+		pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;
@@ -647,7 +665,7 @@ bool QPrinter::setup( QWidget *parent )
                 readPdlg( &pd );
         }
 #ifndef Q_OS_TEMP
-    } else 
+    } else
 #endif // Q_OS_TEMP
 #endif
 #ifndef Q_OS_TEMP
@@ -666,8 +684,10 @@ bool QPrinter::setup( QWidget *parent )
             result = PrintDlgA( &pd ) != 0;
         }
 
-        if ( result ) {
-            pd.Flags = PD_RETURNDC;
+	if ( result ) {
+	    pd.Flags = PD_RETURNDC;
+	    if ( !appcolcopies )
+                pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;
@@ -803,7 +823,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
 #ifndef Q_OS_TEMP
-        } else 
+        } else
 #endif
 #endif
 #ifndef Q_OS_TEMP
