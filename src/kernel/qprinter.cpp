@@ -516,6 +516,9 @@ void QPrinter::setPageSize( PageSize newPageSize )
         return;
     }
     page_size = newPageSize;
+#if defined(Q_WS_WIN)
+    reinit();
+#endif
 }
 
 

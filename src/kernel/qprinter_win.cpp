@@ -774,6 +774,7 @@ void QPrinter::setPrinterName( const QString &name )
     }
     printer_name = name;
     setDefaultPrinter( name, &hdevmode, &hdevnames );
+    reinit();
 }
 
 void QPrinter::writeDevmode( HANDLE hdm )
@@ -1341,6 +1342,7 @@ void QPrinter::reinit()
 	    hdc = hdcTmp;
 	}
     }
+    setPrinterMapping( hdc, res );
 }
 
 #endif // QT_NO_PRINTER
