@@ -282,9 +282,6 @@ private:
     int x11Screen() const;
 #endif
 
-    bool dirty() const;
-    int deciPointSize() const;
-
     friend class QFontMetrics;
     friend class QFontMetricsF;
     friend class QFontInfo;

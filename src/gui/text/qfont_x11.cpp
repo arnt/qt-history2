@@ -349,15 +349,6 @@ void QFontPrivate::load(QFont::Script script)
 }
 
 /*!
-    Returns true if the font attributes have been changed and the font
-    has to be (re)loaded; otherwise returns false.
-*/
-bool QFont::dirty() const
-{
-    return d->engineData == 0;
-}
-
-/*!
     Returns the window system handle to the font, for low-level
     access. Using this function is \e not portable.
 */

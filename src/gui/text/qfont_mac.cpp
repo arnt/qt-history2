@@ -193,11 +193,6 @@ void QFont::initialize()
         new QFontCache();
 }
 
-bool QFont::dirty() const
-{
-    return d->engineData == 0;
-}
-
 QString QFont::defaultFamily() const
 {
     switch(d->request.styleHint) {

@@ -692,23 +692,10 @@ void QFont::setFamily(const QString &family)
 }
 
 /*!
-    Returns the point size in 1/10ths of a point.
-
-    The returned value will be -1 if the font size has been specified
-    in pixels.
-
-    \sa pointSize() pointSizeFloat()
-  */
-int QFont::deciPointSize() const
-{
-    return d->request.pointSize;
-}
-
-/*!
     Returns the point size of the font. Returns -1 if the font size
     was specified in pixels.
 
-    \sa setPointSize() deciPointSize() pointSizeFloat()
+    \sa setPointSize() pointSizeFloat()
 */
 int QFont::pointSize() const
 {

@@ -63,12 +63,6 @@ void QFont::setRawName(const QString &)
 {
 }
 
-
-bool QFont::dirty() const
-{
-    return d->engineData == 0;
-}
-
 QString QFont::defaultFamily() const
 {
     switch(d->request.styleHint) {

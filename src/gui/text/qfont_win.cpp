@@ -226,13 +226,6 @@ void QFont::setRawName(const QString &name)
     setFamily(name);
 }
 
-
-bool QFont::dirty() const
-{
-    return !d->engineData;
-}
-
-
 QString QFont::defaultFamily() const
 {
     switch(d->request.styleHint) {
