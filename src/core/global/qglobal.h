@@ -978,11 +978,11 @@ class QDataStream;
 #    define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    define Q_TEMPLATEDLL
 #  endif
-#  define Q_NO_UNRESOLVED_EXTERNALS
+#  define Q_NO_DECLARED_NOT_DEFINED
 #else
 #  if defined(Q_OS_LINUX) && defined(Q_CC_BOR)
 #    define Q_TEMPLATEDLL
-#    define Q_NO_UNRESOLVED_EXTERNALS
+#    define Q_NO_DECLARED_NOT_DEFINED
 #  endif
 #  undef QT_MAKEDLL /* ignore these for other platforms */
 #  undef QT_DLL
@@ -1741,7 +1741,7 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
    operator to disable copying (the compiler gives an error message).
 */
 
-#ifndef Q_NO_UNRESOLVED_EXTERNALS
+#ifndef Q_NO_DECLARED_NOT_DEFINED
 #define Q_DISABLE_COPY(Class) \
     Class(const Class &); \
     Class &operator=(const Class &);
