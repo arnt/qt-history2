@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Compatibility file - should only be included by legacy code.
 ** It #includes the file which obsoletes this one.
@@ -22,5 +22,5 @@
 *****************************************************************************/
 #ifndef QMULTILINEDIT_H
 #define QMULTILINEDIT_H
-#include "qmultilineedit.h"
+#include "qtmultilineedit.h"
 #endif
