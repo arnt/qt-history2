@@ -470,6 +470,16 @@
     This will match zero or more characters followed by a dot followed
     by 'h', 't', 'm' and 'l'.
 
+    To test a string against a wildcard expression, use exactMatch().
+    For example:
+
+    \code
+        QRegExp rx("*.txt");
+        rx.setWildcard(true);
+        rx.exactMatch("README.txt");        // returns true
+        rx.exactMatch("welcome.txt.bak");   // returns false
+    \endcode
+
     \target perl-users
     \section1 Notes for Perl Users
 
@@ -3481,7 +3491,7 @@ bool QRegExp::wildcard() const
     For example, \bold{r*.txt} matches the string \c{readme.txt} in
     wildcard mode, but does not match \c{readme}.
 
-    \sa wildcard()
+    \sa wildcard(), exactMatch()
 */
 void QRegExp::setWildcard(bool wildcard)
 {
@@ -3530,7 +3540,7 @@ void QRegExp::setMinimal(bool minimal)
     expression; otherwise returns false. You can determine how much of
     the string was matched by calling matchedLength().
 
-    For a given regexp string, R, exactMatch("R") is the equivalent of
+    For a given regexp string R, exactMatch("R") is the equivalent of
     search("^R$") since exactMatch() effectively encloses the regexp
     in the start of string and end of string anchors, except that it
     sets matchedLength() differently.
@@ -3541,7 +3551,7 @@ void QRegExp::setMinimal(bool minimal)
     and matchedLength() will return 4, 3 and 0 respectively.
 
     Although const, this function sets matchedLength(),
-    capturedTexts() and pos().
+    capturedTexts(), and pos().
 
     \sa search() searchRev() QRegExpValidator
 */
@@ -3569,7 +3579,7 @@ bool QRegExp::exactMatch(const QString &str) const
     The \a caretMode parameter can be used to instruct whether \bold{^}
     should match at index 0 or at \a offset.
 
-    You might prefer to use QString::find(), QString::contains() or
+    You might prefer to use QString::find(), QString::contains(), or
     even QStringList::grep(). To replace matches use
     QString::replace().
 
@@ -3589,7 +3599,11 @@ bool QRegExp::exactMatch(const QString &str) const
     Although const, this function sets matchedLength(),
     capturedTexts() and pos().
 
-    \sa searchRev() exactMatch()
+    If the QRegExp is a wildcard expression (see setWildcard()) and
+    want to test a string against the whole wildcard expression,
+    use exactMatch() instead of this function.
+
+    \sa searchRev(), exactMatch()
 */
 
 int QRegExp::search(const QString &str, int offset, CaretMode caretMode) const
