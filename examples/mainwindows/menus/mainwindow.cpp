@@ -5,24 +5,24 @@
 MainWindow::MainWindow()
 {
     QVBoxWidget *vbox = new QVBoxWidget(this);
+    vbox->setMargin(5);
     setCentralWidget(vbox);
 
-    QWidget *filler1 = new QWidget(vbox);
-    filler1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QWidget *topFiller = new QWidget(vbox);
+    topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    infoLabel = new QLabel(tr("<i>Choose a menu option</i>"), vbox);
+    infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to "
+                              "invoke a context menu</i>"), vbox);
     infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     infoLabel->setAlignment(Qt::AlignCenter);
 
-    QWidget *filler2 = new QWidget(vbox);
-    filler2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QWidget *bottomFiller = new QWidget(vbox);
+    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    usageLabel = new QLabel(tr(
-            "A context menu is available if you right-click on the window "
-            "or press your keyboard's context menu button"), vbox);
-    usageLabel->setWordWrap(true);
-
+    createActions();
     createMenus();
+
+    statusBar()->message(tr("A context menu is available by right-clicking"));
 
     setWindowTitle(tr("Menus"));
     setMinimumSize(160, 160);
@@ -31,168 +31,260 @@ MainWindow::MainWindow()
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    editMenu->exec(event->globalPos());
+    QMenu menu(this);
+    menu.addAction(cutAct);
+    menu.addAction(copyAct);
+    menu.addAction(pasteAct);
+    menu.exec(event->globalPos());
 }
 
-void MainWindow::fileNew()
+void MainWindow::newFile()
 {
-    infoLabel->setText("Invoked <b>File|New</b>");
+    infoLabel->setText(tr("Invoked <b>File|New</b>"));
 }
 
-void MainWindow::fileOpen()
+void MainWindow::open()
 {
-    infoLabel->setText("Invoked <b>File|Open</b>");
+    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
 }
 
-void MainWindow::fileSave()
+void MainWindow::save()
 {
-    infoLabel->setText("Invoked <b>File|Save</b>");
+    infoLabel->setText(tr("Invoked <b>File|Save</b>"));
 }
 
-void MainWindow::filePrint()
+void MainWindow::print()
 {
-    infoLabel->setText("Invoked <b>File|Print</b>");
+    infoLabel->setText(tr("Invoked <b>File|Print</b>"));
 }
 
-void MainWindow::fileQuit()
+void MainWindow::undo()
 {
-    close();
+    infoLabel->setText(tr("Invoked <b>Edit|Undo</b>"));
 }
 
-void MainWindow::editUndo()
+void MainWindow::redo()
 {
-    infoLabel->setText("Invoked <b>Edit|Undo</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Redo</b>"));
 }
 
-void MainWindow::editRedo()
+void MainWindow::cut()
 {
-    infoLabel->setText("Invoked <b>Edit|Redo</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Cut</b>"));
 }
 
-void MainWindow::editCut()
+void MainWindow::copy()
 {
-    infoLabel->setText("Invoked <b>Edit|Cut</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Copy</b>"));
 }
 
-void MainWindow::editCopy()
+void MainWindow::paste()
 {
-    infoLabel->setText("Invoked <b>Edit|Copy</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Paste</b>"));
 }
 
-void MainWindow::editPaste()
+void MainWindow::bold()
 {
-    infoLabel->setText("Invoked <b>Edit|Paste</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Format|Bold</b>"));
 }
 
-void MainWindow::editFormat()
+void MainWindow::italic()
 {
-    infoLabel->setText("Invoked <b>Edit|Format</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Format|Italic</b>"));
 }
 
-void MainWindow::editFormatBold()
+void MainWindow::leftAlign()
 {
-    infoLabel->setText("Invoked <b>Edit|Format|Bold</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Format|Left Align</b>"));
 }
 
-void MainWindow::editFormatItalic()
+void MainWindow::rightAlign()
 {
-    infoLabel->setText("Invoked <b>Edit|Format|Italic</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Format|Right Align</b>"));
 }
 
-void MainWindow::editFormatLeftAlign()
+void MainWindow::justify()
 {
-    infoLabel->setText("Invoked <b>Edit|Format|Left Align</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Format|Justify</b>"));
 }
 
-void MainWindow::editFormatRightAlign()
+void MainWindow::center()
 {
-    infoLabel->setText("Invoked <b>Edit|Format|Right Align</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Format|Center</b>"));
 }
 
-void MainWindow::editFormatJustify()
+void MainWindow::setLineSpacing()
 {
-    infoLabel->setText("Invoked <b>Edit|Format|Justify</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Format|Set Line Spacing</b>"));
 }
 
-void MainWindow::editFormatCenter()
+void MainWindow::setParagraphSpacing()
 {
-    infoLabel->setText("Invoked <b>Edit|Format|Center</b>");
+    infoLabel->setText(tr("Invoked <b>Edit|Format|Set Paragraph Spacing</b>"));
 }
 
-void MainWindow::editFormatSetLineSpacing()
-{
-    infoLabel->setText("Invoked <b>Edit|Format|Set Line Spacing</b>");
-}
-
-void MainWindow::editFormatSetParagraphSpacing()
-{
-    infoLabel->setText("Invoked <b>Edit|Format|Set Paragraph Spacing</b>");
-}
-
-void MainWindow::helpAbout()
+void MainWindow::about()
 {
     QMessageBox::about(this, tr("About Menu"),
             tr("The <b>Menu</b> example shows how to create "
                "menu-bar menus and context menus."));
 }
 
-void MainWindow::helpAboutQt()
+void MainWindow::createActions()
 {
-    QMessageBox::aboutQt(this);
+    newAct = new QAction(tr("&New"), this);
+    newAct->setShortcut(tr("Ctrl+N"));
+    newAct->setStatusTip(tr("Create a new file"));
+    connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
+
+    openAct = new QAction(tr("&Open..."), this);
+    openAct->setShortcut(tr("Ctrl+O"));
+    openAct->setStatusTip(tr("Open an existing file"));
+    connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
+
+    saveAct = new QAction(tr("&Save"), this);
+    saveAct->setShortcut(tr("Ctrl+S"));
+    saveAct->setStatusTip(tr("Save the document to disk"));
+    connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
+
+    printAct = new QAction(tr("&Print..."), this);
+    printAct->setShortcut(tr("Ctrl+P"));
+    printAct->setStatusTip(tr("Print the document"));
+    connect(printAct, SIGNAL(triggered()), this, SLOT(print()));
+
+    exitAct = new QAction(tr("E&xit"), this);
+    exitAct->setShortcut(tr("Ctrl+Q"));
+    exitAct->setStatusTip(tr("Exit the application"));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+
+    undoAct = new QAction(tr("&Undo"), this);
+    undoAct->setShortcut(tr("Ctrl+Z"));
+    undoAct->setStatusTip(tr("Undo the last operation"));
+    connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
+
+    redoAct = new QAction(tr("&Redo"), this);
+    redoAct->setShortcut(tr("Ctrl+Y"));
+    redoAct->setStatusTip(tr("Redo the last operation"));
+    connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
+
+    cutAct = new QAction(tr("Cu&t"), this);
+    cutAct->setShortcut(tr("Ctrl+X"));
+    cutAct->setStatusTip(tr("Cut the current selection's contents to the "
+                            "clipboard"));
+    connect(cutAct, SIGNAL(triggered()), this, SLOT(cut()));
+
+    copyAct = new QAction(tr("&Copy"), this);
+    copyAct->setShortcut(tr("Ctrl+C"));
+    copyAct->setStatusTip(tr("Copy the current selection's contents to the "
+                             "clipboard"));
+    connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
+
+    pasteAct = new QAction(tr("&Paste"), this);
+    pasteAct->setShortcut(tr("Ctrl+V"));
+    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
+                              "selection"));
+    connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
+
+    boldAct = new QAction(tr("&Bold"), this);
+    boldAct->setShortcut(tr("Ctrl+B"));
+    boldAct->setStatusTip(tr("Make the text bold"));
+    connect(boldAct, SIGNAL(triggered()), this, SLOT(bold()));
+
+    QFont boldFont = boldAct->font();
+    boldFont.setBold(true);
+    boldAct->setFont(boldFont);
+
+    italicAct = new QAction(tr("&Italic"), this);
+    italicAct->setShortcut(tr("Ctrl+I"));
+    italicAct->setStatusTip(tr("Make the text italic"));
+    connect(italicAct, SIGNAL(triggered()), this, SLOT(italic()));
+
+    QFont italicFont = italicAct->font();
+    italicFont.setItalic(true);
+    italicAct->setFont(italicFont);
+
+    leftAlignAct = new QAction(tr("&Left Align"), this);
+    leftAlignAct->setCheckable(true);
+    leftAlignAct->setShortcut(tr("Ctrl+L"));
+    leftAlignAct->setStatusTip(tr("Left align the selected text"));
+    connect(leftAlignAct, SIGNAL(triggered()), this, SLOT(leftAlign()));
+
+    rightAlignAct = new QAction(tr("&Right Align"), this);
+    rightAlignAct->setCheckable(true);
+    rightAlignAct->setShortcut(tr("Ctrl+R"));
+    rightAlignAct->setStatusTip(tr("Right align the selected text"));
+    connect(rightAlignAct, SIGNAL(triggered()), this, SLOT(rightAlign()));
+
+    justifyAct = new QAction(tr("&Justify"), this);
+    justifyAct->setCheckable(true);
+    justifyAct->setShortcut(tr("Ctrl+J"));
+    justifyAct->setStatusTip(tr("Justify the selected text"));
+    connect(justifyAct, SIGNAL(triggered()), this, SLOT(justify()));
+
+    centerAct = new QAction(tr("&Center"), this);
+    centerAct->setCheckable(true);
+    centerAct->setShortcut(tr("Ctrl+E"));
+    centerAct->setStatusTip(tr("Center the selected text"));
+    connect(centerAct, SIGNAL(triggered()), this, SLOT(center()));
+
+    alignmentGroup = new QActionGroup(this);
+    alignmentGroup->addAction(leftAlignAct);
+    alignmentGroup->addAction(rightAlignAct);
+    alignmentGroup->addAction(justifyAct);
+    alignmentGroup->addAction(centerAct);
+    leftAlignAct->setChecked(true);
+
+    setLineSpacingAct = new QAction(tr("Set &Line Spacing..."), this);
+    setLineSpacingAct->setStatusTip(tr("Change the gap between the lines of a "
+                                       "paragraph"));
+    connect(setLineSpacingAct, SIGNAL(triggered()), this, SLOT(leftAlign()));
+
+    setParagraphSpacingAct = new QAction(tr("Set &Paragraph Spacing..."), this);
+    setLineSpacingAct->setStatusTip(tr("Change the gap between paragraphs"));
+    connect(setParagraphSpacingAct, SIGNAL(triggered()),
+            this, SLOT(leftAlign()));
+
+    aboutAct = new QAction(tr("&About"), this);
+    aboutAct->setStatusTip(tr("Show the application's About box"));
+    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+
+    aboutQtAct = new QAction(tr("About &Qt"), this);
+    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
+    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(tr("&New..."), this, SLOT(fileNew()), tr("Ctrl+N"));
-    fileMenu->addAction(tr("&Open..."), this, SLOT(fileOpen()), tr("Ctrl+O"));
-    fileMenu->addAction(tr("&Save"), this, SLOT(fileSave()), tr("Ctrl+S"));
-    fileMenu->addAction(tr("&Print"), this, SLOT(filePrint()), tr("Ctrl+P"));
+    fileMenu->addAction(newAct);
+    fileMenu->addAction(openAct);
+    fileMenu->addAction(saveAct);
+    fileMenu->addAction(printAct);
     fileMenu->addSeparator();
-    fileMenu->addAction(tr("&Quit"), this, SLOT(fileQuit()), tr("Ctrl+Q"));
+    fileMenu->addAction(exitAct);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
-    editMenu->addAction(tr("&Undo"), this, SLOT(editUndo()), tr("Ctrl+Z"));
-    editMenu->addAction(tr("&Redo"), this, SLOT(editRedo()), tr("Ctrl+Y"));
-    editMenu->addAction(tr("Cu&t"), this, SLOT(editCut()), tr("Ctrl+X"));
-    editMenu->addAction(tr("&Copy"), this, SLOT(editCopy()), tr("Ctrl+C"));
-    editMenu->addAction(tr("&Paste"), this, SLOT(editPaste()), tr("Ctrl+V"));
+    editMenu->addAction(undoAct);
+    editMenu->addAction(redoAct);
+    editMenu->addSeparator();
+    editMenu->addAction(cutAct);
+    editMenu->addAction(copyAct);
+    editMenu->addAction(pasteAct);
+    editMenu->addSeparator();
 
-    QList<QAction *> alignmentActions;
     formatMenu = editMenu->addMenu(tr("&Format"));
-    QAction *boldAction = formatMenu->addAction(tr("&Bold"), this,
-                                SLOT(editFormatBold()), tr("Ctrl+B"));
-    QFont font = boldAction->font();
-    font.setBold(true);
-    boldAction->setFont(font);
-    QAction *italicAction = formatMenu->addAction(tr("&Italic"), this,
-                                   SLOT(editFormatItalic()), tr("Ctrl+I"));
-    font = italicAction->font();
-    font.setItalic(true);
-    italicAction->setFont(font);
+    formatMenu->addAction(boldAct);
+    formatMenu->addAction(italicAct);
     formatMenu->addSeparator();
-    alignmentActions.append(formatMenu->addAction(tr("&Left Align"), this,
-                            SLOT(editFormatLeftAlign()), tr("Ctrl+L")));
-    alignmentActions.append(formatMenu->addAction(tr("&Right Align"), this,
-                            SLOT(editFormatRightAlign()), tr("Ctrl+R")));
-    alignmentActions.append(formatMenu->addAction(tr("&Justify"), this,
-                            SLOT(editFormatJustify()), tr("Ctrl+J")));
-    alignmentActions.append(formatMenu->addAction(tr("&Center"), this,
-                            SLOT(editFormatCenter()), tr("Ctrl+E")));
+    formatMenu->addAction(leftAlignAct);
+    formatMenu->addAction(rightAlignAct);
+    formatMenu->addAction(justifyAct);
+    formatMenu->addAction(centerAct);
     formatMenu->addSeparator();
-    formatMenu->addAction(tr("Set &Line Spacing..."), this,
-                          SLOT(editFormatSetLineSpacing()));
-    formatMenu->addAction(tr("Set &Paragraph Spacing..."), this,
-                          SLOT(editFormatSetParagraphSpacing()));
-
-    QActionGroup *group = new QActionGroup(this);
-    foreach (QAction *action, alignmentActions) {
-        action->setCheckable(true);
-        group->addAction(action);
-    }
-    alignmentActions[0]->setChecked(true);
+    formatMenu->addAction(setLineSpacingAct);
+    formatMenu->addAction(setParagraphSpacingAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(tr("&About"), this, SLOT(helpAbout()));
-    helpMenu->addAction(tr("About &Qt"), this, SLOT(helpAboutQt()));
+    helpMenu->addAction(aboutAct);
+    helpMenu->addAction(aboutQtAct);
 }
