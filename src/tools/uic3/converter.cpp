@@ -292,9 +292,9 @@ QString Ui3Reader::fixClassName(const QString &className) const
     else if (className == QLatin1String("QListView"))
         return QLatin1String("Q3ListView");
     else if (className == QLatin1String("QDateEdit"))
-        return QLatin1String("QDateTimeEdit");
+        return QLatin1String("Q3DateEdit");
     else if (className == QLatin1String("QTimeEdit"))
-        return QLatin1String("QDateTimeEdit");
+        return QLatin1String("Q3TimeEdit");
 
     return className;
 }
