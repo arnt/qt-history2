@@ -596,7 +596,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	p->setPen( cg.shadow() );
 	p->drawRect( r );
 	drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowLeft
-			: PE_ArrowDown ), p, QRect(r.x() + 2,
+			: PE_ArrowUp ), p, QRect(r.x() + 2,
 						   r.y() + 2,
 						   r.width() - 4,
 						   r.height() - 4),
@@ -607,8 +607,8 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    QColorGroup myCG = cg;
 	    // shows a drawing error, comment for now...
-// 	    QBrush fill = QBrush( myCG.mid(), Dense4Pattern );
-// 	    myCG.setBrush( QColorGroup::Mid, fill );
+//  	    QBrush fill = QBrush( myCG.mid(), Dense4Pattern );
+//  	    myCG.setBrush( QColorGroup::Mid, fill );
  	    QPen oldPen = p->pen();
 	    if ( r.width() < 3 || r.height() < 3 ) {
 		p->fillRect( r, myCG.brush(QColorGroup::Mid) );
@@ -1053,11 +1053,6 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		slide = (const QSlider*)widget;
 		
 		if ( sub & SC_SliderGroove ) {
-// 		    QWindowsStyle::drawComplexControl( control, p, widget, r,
-// 						      cg,
-// 						      how, SC_SliderGroove,
-// 						      subActive, data );
-				
 		    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
 						  slide );
 		
@@ -1076,6 +1071,8 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 
 // 		    QRect ir = querySubControlMetrics( control, widget,
 //  						       SC_SliderGroove, data );
+
+		    // some of this really needs to be put in querySubMetric
 		    QRect ir;
 		    if ( slide->orientation() == QSlider::Horizontal )
 			ir.setRect( 0, tickOffset, slide->width(), thickness );
@@ -1088,13 +1085,13 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 			y = r.y() + mid - 3;
 			wi = slide->width();
 			he = 7;
-		    }
-		    else {
+		    } else {
 			x = r.x()+ mid - 3;
 			y = 0;
 			wi = 7;
 			he = slide->height();		
 		    }
+		    
 		    p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Dark ));
 		    // the dark side
 		    p->setPen( cg.dark() );
@@ -1105,41 +1102,41 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		    p->drawLine( x + 1, y + 1, x + 1, y + he - 2 );
 		    // the bright side!
 		    p->setPen(cg.shadow());
-		    p->drawLine(x+1, y+he-2 ,x+wi-2, y+he-2);
-		    p->drawLine(x+wi-2, y+1, x+wi-2, y+he-2);
-		    p->setPen(cg.light());
-		    p->drawLine(x, y+he-1,x+wi-1, y+he-1);
-		    p->drawLine(x+wi-1, y, x+wi-1, y+he-1);
+		    p->drawLine( x + 1,  y + he - 2, x + wi - 2,  y + he - 2 );
+		    p->drawLine( x + wi - 2, y + 1, x + wi - 2, y + he - 2 );
+		    p->setPen( cg.light() );
+		    p->drawLine( x, y + he - 1, x + wi - 1, y + he - 1 );
+		    p->drawLine( x + wi - 1, y, x + wi - 1, y + he - 1 );
 		    // top left corner:
 		    p->setPen(cg.background());
-		    p->drawPoint(x, y);
-		    p->drawPoint(x+1, y);
-		    p->drawPoint(x, y+1);
+		    p->drawPoint( x, y );
+		    p->drawPoint( x + 1, y );
+		    p->drawPoint( x, y + 1 );
 		    p->setPen(cg.shadow());
-		    p->drawPoint(x+1, y+1);
+		    p->drawPoint( x + 1, y + 1 );
 		    // bottom left corner:
-		    p->setPen(cg.background());
-		    p->drawPoint(x, y+he-1);
-		    p->drawPoint(x+1, y+he-1);
-		    p->drawPoint(x, y+he-2);
-		    p->setPen(cg.light());
-		    p->drawPoint(x+1, y+he-2);
+		    p->setPen( cg.background() );
+		    p->drawPoint( x, y + he - 1 );
+		    p->drawPoint( x + 1, y + he - 1 );
+		    p->drawPoint( x, y + he - 2 );
+		    p->setPen( cg.light() );
+		    p->drawPoint( x + 1, y + he - 2 );
 		    // top right corner:
-		    p->setPen(cg.background());
-		    p->drawPoint(x+wi-1, y);
-		    p->drawPoint(x+wi-2, y);
-		    p->drawPoint(x+wi-1, y+1);
-		    p->setPen( cg.dark());
-		    p->drawPoint(x+wi-2, y+1);
+		    p->setPen( cg.background() );
+		    p->drawPoint( x + wi - 1, y );
+		    p->drawPoint( x + wi - 2, y );
+		    p->drawPoint( x + wi - 1, y + 1 );
+		    p->setPen( cg.dark() );
+		    p->drawPoint( x + wi - 2, y + 1 );
 		    // bottom right corner:
-		    p->setPen(cg.background());
-		    p->drawPoint(x+wi-1, y+he-1);
-		    p->drawPoint(x+wi-2, y+he-1);
-		    p->drawPoint(x+wi-1, y+he-2);
-		    p->setPen(cg.light());
-		    p->drawPoint(x+wi-2, y+he-2);
-		    p->setPen(cg.dark());
-		    p->drawPoint(x+wi-3, y+he-3);
+		    p->setPen( cg.background() );
+		    p->drawPoint( x + wi - 1, y + he - 1 );
+		    p->drawPoint( x + wi - 2, y + he - 1 );
+		    p->drawPoint( x + wi - 1, y + he - 2 );
+		    p->setPen( cg.light() );
+		    p->drawPoint( x + wi - 2, y + he - 2 );
+		    p->setPen( cg.dark() );
+		    p->drawPoint( x + wi - 3, y + he - 3 );
 		    // ### end slider groove
 		    if ( slide->hasFocus() )
 			drawPrimitive( PE_FocusRect, p, ir, cg );
