@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#13 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
 **
@@ -18,7 +18,7 @@
 #include "qpainter.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#13 $")
 
 
 QFont *QFont::defFont = 0;			// default font
@@ -98,6 +98,7 @@ QFont::QFont( bool )				// create default font
     init();
     d->req.family    = "Arial";
     d->req.pointSize = 12*10;
+    d->req.weight    = QFont::Normal;
 }
 
 
