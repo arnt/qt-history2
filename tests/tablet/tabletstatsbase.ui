@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>673</width>
-            <height>535</height>
+            <width>669</width>
+            <height>533</height>
         </rect>
     </property>
     <property name="caption">
@@ -334,14 +334,6 @@
             <verdata>7</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
-        <slot access="public" specifier="">newOrient( int, int )</slot>
-        <slot access="public" specifier="">newOrient( int, int )</slot>
-        <slot access="public" specifier="">newOrient( int, int )</slot>
-        <slot access="public" specifier="">newOrient( int, int )</slot>
-        <slot access="public" specifier="">newOrient( int, int )</slot>
-        <slot access="public" specifier="">newOrient( int, int )</slot>
-        <slot access="public" specifier="">newOrient( int, int )</slot>
-        <slot access="public" specifier="">newOrient( int, int )</slot>
     </customwidget>
     <customwidget>
         <class>StatsCanvas</class>
