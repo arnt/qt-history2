@@ -485,7 +485,7 @@ void CCommands::addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
     CString inputfile;
     CString mocfile;
     CString fileToMoc;
-    const CString moccommand = "%qtdir%\\bin\\moc.exe ";
+    const CString moccommand = "\"%qtdir%\\bin\\moc.exe\" ";
 
     splitFileName( file, filepath, filename, fileext );
 
@@ -553,8 +553,8 @@ void CCommands::addUIC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
     const CString decFile(filepath + filename + ".h");
     const CString incFile( filename+".h" );
     const CString mocFile(filepath + "moc_" + filename + ".cpp");
-    const CString uiccommand("%qtdir%\\bin\\uic.exe ");
-    const CString moccommand("%qtdir%\\bin\\moc.exe ");
+    const CString uiccommand("\"%qtdir%\\bin\\uic.exe\" ");
+    const CString moccommand("\"%qtdir%\\bin\\moc.exe\" ");
 
     // Add the file and the all output to the project
     if ( pProject->AddFile( CComBSTR(uiFile), CComVariant(VARIANT_TRUE) ) == S_OK )
