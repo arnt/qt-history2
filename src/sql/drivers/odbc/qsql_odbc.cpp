@@ -987,6 +987,7 @@ bool QODBCResult::exec()
     setActive(false);
     setAt(QSql::BeforeFirstRow);
     d->rInf.clear();
+    d->fieldCacheIdx = 0;
 
     if (!d->hStmt) {
         qSqlWarning(QLatin1String("QODBCResult::exec: No statement handle available"), d);
@@ -1182,6 +1183,7 @@ bool QODBCResult::exec()
         for (int i = 0; i < count; ++i) {
             d->rInf.append(qMakeFieldInfo(d, i));
         }
+	d->fieldCache.resize(count);
     } else {
         setSelect(false);
     }
