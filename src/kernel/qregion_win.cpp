@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#19 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#19 $");
 
 
 static QRegion *empty_region = 0;
@@ -128,8 +128,10 @@ QRegion QRegion::copy() const
 {
     QRegion r( TRUE );
     r.data->bop = data->bop.copy();
-    if ( data->rgn )
+    if ( data->rgn ) {
+	r.data->rgn = CreateRectRgn( 0, 0, 2, 2 );
 	CombineRgn( r.data->rgn, data->rgn, 0, RGN_COPY );
+    }
     return r;
 }
 
