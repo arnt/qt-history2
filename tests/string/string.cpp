@@ -19,7 +19,7 @@
 #endif
 #endif
 
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     // Tests every QString function.
     int err=0;
@@ -330,12 +330,12 @@ main(int argc, char** argv)
     TEST(a.simplifyWhiteSpace(),"a");
     a=" a   b ";
     TEST(a.simplifyWhiteSpace(),"a b");
-    
+
     a = "Ys";
     TEST(a.insert(1,'e'),"Yes")
     TEST(a.insert(3,'!'),"Yes!")
     TEST(a.insert(5,'?'),"Yes! ?")
-    
+
     a="ABC";
     TEST(a.insert(5,"DEF"),"ABC  DEF");
     a="ABC";
@@ -346,7 +346,7 @@ main(int argc, char** argv)
     #else
 	a="ABCABCABCABC";
     #endif
-	
+
     TEST(a,"ABCABCABCABC");
     TEST(a.insert(0,'<'),"<ABCABCABCABC");
     TEST(a.insert(1,'>'),"<>ABCABCABCABC");
@@ -492,6 +492,34 @@ main(int argc, char** argv)
     TEST(a+="DEF","ABCDEF");
     TEST(a+='G',"ABCDEFG");
     TEST(a+=((const char*)(0)),"ABCDEFG");
+
+    a = "AB";
+    TEST(a.startsWith("A"),TRUE);
+    TEST(a.startsWith("AB"),TRUE);
+    TEST(a.startsWith("C"),FALSE);
+    TEST(a.startsWith("ABCDEF"),FALSE);
+    TEST(a.startsWith(""),TRUE);
+    TEST(a.startsWith(QString::null),TRUE);
+    TEST(a.endsWith("B"),TRUE);
+    TEST(a.endsWith("AB"),TRUE);
+    TEST(a.endsWith("C"),FALSE);
+    TEST(a.endsWith("ABCDEF"),FALSE);
+    TEST(a.endsWith(""),TRUE);
+    TEST(a.endsWith(QString::null),TRUE);
+    a = "";
+    TEST(a.startsWith(""),TRUE);
+    TEST(a.startsWith(QString::null),TRUE);
+    TEST(a.startsWith("ABC"),FALSE);
+    TEST(a.endsWith(""),TRUE);
+    TEST(a.endsWith(QString::null),TRUE);
+    TEST(a.endsWith("ABC"),FALSE);
+    a = QString::null;
+    TEST(a.startsWith(""),FALSE);
+    TEST(a.startsWith(QString::null),TRUE);
+    TEST(a.startsWith("ABC"),FALSE);
+    TEST(a.endsWith(""),FALSE);
+    TEST(a.endsWith(QString::null),TRUE);
+    TEST(a.endsWith("ABC"),FALSE);
 
     // non-member operators
 

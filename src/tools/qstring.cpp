@@ -15803,11 +15803,37 @@ QConstString::~QConstString()
 
   Returns TRUE if the string starts with \a s; otherwise it returns
   FALSE.
+
+  \sa endsWith()
 */
 bool QString::startsWith( const QString& s ) const
 {
+    if ( isNull() )
+	return s.isNull();
+    if ( s.length() > length() )
+	return FALSE;
     for ( int i =0; i < (int) s.length(); i++ ) {
-	if ( i >= (int) length() || d->unicode[i] != s[i] )
+	if ( d->unicode[i] != s[i] )
+	    return FALSE;
+    }
+    return TRUE;
+}
+
+/*!
+  Returns TRUE if the string ends with \a s; otherwise it returns
+  FALSE.
+
+  \sa startsWith()
+*/
+bool QString::endsWith( const QString& s ) const
+{
+    if ( isNull() )
+	return s.isNull();
+    int pos = length() - s.length();
+    if ( pos < 0 )
+	return FALSE;
+    for ( uint i = 0; i < s.length(); i++ ) {
+	if ( d->unicode[pos+i] != s[i] )
 	    return FALSE;
     }
     return TRUE;

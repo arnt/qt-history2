@@ -574,6 +574,7 @@ public:
 #endif
 
     bool startsWith( const QString& ) const;
+    bool endsWith( const QString& ) const;
     int similarityWith( const QString& ) const;
 
     void setLength( uint newLength );
