@@ -69,16 +69,14 @@ fi
 # check commercial license
 #-------------------------------------------------------------------------------
 
-# Free edition - may only be used under the terms of the QPL or GPL.
-# Qt/X11, Qt/Embedded
+# Open Source edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="free"
     Licensee="Free"
     Products="qt-free"
-# Preview Edition
-# Qt/X11, Qt/Embedded, Qt/Mac
+# Preview Edition.
 elif [ -f $relpath/LICENSE.PREVIEW ]; then
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
@@ -86,21 +84,18 @@ elif [ -f $relpath/LICENSE.PREVIEW ]; then
     Licensee="Preview"
     Products="qt-preview"
 # Evaluation version.
-# Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/LICENSE.EVAL ]; then
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="eval"
     Licensee="Evaluation"
     Products="qt-eval"
 # Internal Trolltech edition.
-# Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/LICENSE.TROLL ]; then
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     Edition="troll"
     Licensee="Trolltech"
     Products="qt-internal"
 # Commercial edition - needs a license.
-# Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/.LICENSE ]; then
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
@@ -113,8 +108,8 @@ elif [ -f $relpath/.LICENSE ]; then
 	    echo "You are using an old license file."
 	    echo
 	    echo "Please install the license file supplied by Trolltech,"
-	    echo "or install the Qt Free Edition if you intend to develop"
-	    echo "free software."
+	    echo "or install the Qt Open Source Edition if you intend to"
+	    echo "develop free software."
 	    exit 1
 	fi
     else
@@ -144,7 +139,7 @@ elif [ -f $relpath/.LICENSE ]; then
 		echo
 		echo "Please contact sales@trolltech.com to upgrade your license"
 		echo "to include the Qt/Embedded platform, or install the"
-		echo "Qt Free Edition if you intend to develop free software."
+		echo "Qt Open Source Edition if you intend to develop free software."
 		exit 1
 		;;
 	    esac
@@ -174,7 +169,7 @@ elif [ -f $relpath/.LICENSE ]; then
 		echo "You are not licensed for the Qt/X11 platform."
 		echo
 		echo "Please contact sales@trolltech.com to upgrade your license to"
-		echo "include the Qt/X11 platform, or install the Qt Free Edition"
+		echo "include the Qt/X11 platform, or install the Qt Open Source Edition"
 		echo "if you intend to develop free software."
 		exit 1
 		;;
@@ -2434,7 +2429,7 @@ if [ "$Edition" = "free" ]; then
     while true; do
 	if [ "$PLATFORM_QWS" = "yes" ]; then
 	    echo
-	    echo "This is the Qt/Embedded Free Edition."
+	    echo "This is the Qt/Embedded Open Source Edition."
 	    echo
 	    echo "You are licensed to use this software under the terms of"
 	    echo "the GNU General Public License (GPL)."
@@ -2442,7 +2437,7 @@ if [ "$Edition" = "free" ]; then
 	    affix="the"
 	elif [ "$PLATFORM_MAC" = "yes" ]; then
 	    echo
-	    echo "This is the Qt/Mac Free Edition."
+	    echo "This is the Qt/Mac Open Source Edition."
 	    echo
 	    echo "You are licensed to use this software under the terms of"
 	    echo "the GNU General Public License (GPL)."
@@ -2450,7 +2445,7 @@ if [ "$Edition" = "free" ]; then
 	    affix="the"
 	elif [ "$PLATFORM_X11" = "yes" ]; then
 	    echo
-	    echo "This is the Qt/X11 Free Edition."
+	    echo "This is the Qt/X11 Open Source Edition."
 	    echo
 	    echo "You are licensed to use this software under the terms of either"
 	    echo "the Q Public License (QPL) or the GNU General Public License (GPL)."
@@ -3230,7 +3225,7 @@ esac
 #   Modules:
 #     styles tools kernel widgets dialogs iconview workspace inputmethod
 #
-#   Enterprise/Free edition modules:
+#   Enterprise/Open Source edition modules:
 #     network canvas table xml opengl sql
 #
 #   Options:

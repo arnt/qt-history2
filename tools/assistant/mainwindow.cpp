@@ -241,7 +241,7 @@ void MainWindow::about()
                  " licensed to you under the terms of the Qt Commercial License"
                  " Agreement. For details, see the file LICENSE that came with"
                  " this software distribution.</p><p></p>"
-                 "<p>Qt Free Edition users: This program is licensed to you"
+                 "<p>Qt Open Source Edition users: This program is licensed to you"
                  " under the terms of the GNU General Public License Version 2."
                  " For details, see the file LICENSE.GPL that came with this"
                  " software distribution.</p><p>The program is provided AS IS"

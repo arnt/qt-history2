@@ -1,10 +1,10 @@
-     Qt/Embedded FREE EDITION %VERSION% SOURCE CODE%SNAPSHOTONLY SNAPSHOT%%STABLEONLY-stable DISTRIBUTION%
+     Qt/Embedded OPEN SOURCE EDITION %VERSION% SOURCE CODE%SNAPSHOTONLY SNAPSHOT%%STABLEONLY-stable DISTRIBUTION%
 
-This is%STABLEONLY the official%%SNAPSHOTONLY a snapshot% release of the Qt/Embedded Free Edition version %VERSION%.
+This is%STABLEONLY the official%%SNAPSHOTONLY a snapshot% release of the Qt/Embedded Open Source Edition version %VERSION%.
 
-Qt/Embedded Free Edition may only be used to develop Free
+Qt/Embedded Open Source Edition may only be used to develop Free
 (non-proprietary) Software. The LICENSE.GPL file explains what you may
-or may not do with the Qt/Embedded Free Edition.
+or may not do with the Qt/Embedded Open Source Edition.
 
 If you are using Qt for developing commercial, proprietary, or other
 software not covered by the terms listed in the LICENSE.GPL file, you
@@ -17,8 +17,9 @@ The INSTALL file explains how to install Qt/Embedded.
 If you want to enable built-in GIF image reading support in Qt, run
 configure with the "-gif" argument before compiling.
 
-The Qt/Embedded Free Edition is currently supported on Linux Framebuffer.
-If you want to port Qt to a new platform, please contact info@trolltech.com
+The Qt/Embedded Open Source Edition is currently supported on Linux
+Framebuffer. If you want to port Qt to a new platform, please contact
+info@trolltech.com
 
 The Qt Reference Documentation is available in HTML format in the
 qt/doc/html directory. Start your favorite Web browser with the
