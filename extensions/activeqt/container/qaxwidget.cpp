@@ -166,6 +166,7 @@ class QAxHostWindow : public QWidget,
 		      public IOleClientSite,
 		      public IOleControlSite,
 		      public IOleInPlaceSite,
+		      public IOleInPlaceFrame,
 		      public IAdviseSink
 {
 public:
@@ -205,7 +206,8 @@ public:
     STDMETHOD(LockInPlaceActive)(BOOL fLock);
     STDMETHOD(GetExtendedControl)(IDispatch** ppDisp);
     STDMETHOD(TransformCoords)(POINTL* pPtlHimetric, POINTF* pPtfContainer, DWORD dwFlags);
-    STDMETHOD(TranslateAccelerator)(LPMSG lpMsg, DWORD grfModifiers);
+    STDMETHOD(TranslateAcceleratorA)(LPMSG lpMsg, DWORD grfModifiers);
+    STDMETHOD(TranslateAcceleratorW)(LPMSG lpMsg, DWORD grfModifiers);
     STDMETHOD(OnFocus)(BOOL fGotFocus );
     STDMETHOD(ShowPropertyFrame)();
 
@@ -224,6 +226,21 @@ public:
     STDMETHOD(DiscardUndoState)();
     STDMETHOD(DeactivateAndUndo)();
     STDMETHOD(OnPosRectChange)(LPCRECT lprcPosRect);
+
+// IOleInPlaceFrame
+    STDMETHOD(InsertMenus( HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths ));
+    STDMETHOD(SetMenu( HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject ));
+    STDMETHOD(RemoveMenus( HMENU hmenuShared ));
+    STDMETHOD(SetStatusText( LPCOLESTR pszStatusText ));
+    STDMETHOD(EnableModeless( BOOL fEnable ));
+    STDMETHOD(TranslateAcceleratorA( LPMSG lpMsg, WORD grfModifiers ));
+    STDMETHOD(TranslateAcceleratorW( LPMSG lpMsg, WORD grfModifiers ));
+
+// IOleInPlaceUIWindow
+    STDMETHOD(GetBorder( LPRECT lprectBorder ));
+    STDMETHOD(RequestBorderSpace( LPCBORDERWIDTHS pborderwidths ));
+    STDMETHOD(SetBorderSpace( LPCBORDERWIDTHS pborderwidths ));
+    STDMETHOD(SetActiveObject( IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName ));
 
 // IAdviseSink
     STDMETHOD_(void, OnDataChange)(FORMATETC* /*pFormatetc*/, STGMEDIUM* /*pStgmed*/)
@@ -414,9 +431,13 @@ HRESULT QAxHostWindow::QueryInterface( REFIID iid, void **iface )
     else if ( iid == IID_IOleControlSite )
 	*iface = (IOleControlSite*)this;
     else if ( iid == IID_IOleWindow )
-	*iface = (IOleWindow*)this;
+	*iface = (IOleWindow*)(IOleInPlaceSite*)this;
     else if ( iid == IID_IOleInPlaceSite )
 	*iface = (IOleInPlaceSite*)this;
+    else if ( iid == IID_IOleInPlaceFrame )
+	*iface = (IOleInPlaceFrame*)this;
+    else if ( iid == IID_IOleInPlaceUIWindow )
+	*iface = (IOleInPlaceUIWindow*)this;
     else
 	return E_NOINTERFACE;
 
@@ -559,7 +580,12 @@ HRESULT QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* /*pPtfC
     return S_OK;
 }
 
-HRESULT QAxHostWindow::TranslateAccelerator(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
+HRESULT QAxHostWindow::TranslateAcceleratorA(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
+{
+    return S_FALSE;
+}
+
+HRESULT QAxHostWindow::TranslateAcceleratorW(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
 {
     return S_FALSE;
 }
@@ -628,8 +654,8 @@ HRESULT QAxHostWindow::GetWindowContext( IOleInPlaceFrame **ppFrame, IOleInPlace
     if ( !ppFrame || !ppDoc || !lprcPosRect || !lprcClipRect || !lpFrameInfo )
 	return E_POINTER;
 
-    QueryInterface(IID_IOleInPlaceFrame, (void**) &ppFrame);
-    QueryInterface(IID_IOleInPlaceUIWindow, (void**) &ppDoc);
+    QueryInterface(IID_IOleInPlaceFrame, (void**)ppFrame);
+    QueryInterface(IID_IOleInPlaceUIWindow, (void**)ppDoc);
 
     ::GetClientRect( winId(), lprcPosRect );
     ::GetClientRect( winId(), lprcClipRect );
@@ -682,6 +708,63 @@ HRESULT QAxHostWindow::DeactivateAndUndo()
 HRESULT QAxHostWindow::OnPosRectChange( LPCRECT lprcPosRect )
 {
     return S_OK;
+}
+
+//**** IOleInPlaceFrame
+HRESULT QAxHostWindow::InsertMenus( HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::RemoveMenus( HMENU hmenuShared )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::SetStatusText( LPCOLESTR pszStatusText )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::EnableModeless( BOOL fEnable )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::TranslateAcceleratorA( LPMSG lpMsg, WORD grfModifiers )
+{
+    return TranslateAcceleratorA( lpMsg, (DWORD)grfModifiers );
+}
+
+HRESULT QAxHostWindow::TranslateAcceleratorW( LPMSG lpMsg, WORD grfModifiers )
+{
+    return TranslateAcceleratorW( lpMsg, (DWORD)grfModifiers );
+}
+
+//**** IOleInPlaceUIWindow
+HRESULT QAxHostWindow::GetBorder( LPRECT lprectBorder )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::RequestBorderSpace( LPCBORDERWIDTHS pborderwidths )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::SetBorderSpace( LPCBORDERWIDTHS pborderwidths )
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::SetActiveObject( IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName )
+{
+    return E_NOTIMPL;
 }
 
 //**** QWidget
