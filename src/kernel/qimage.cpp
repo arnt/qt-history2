@@ -412,11 +412,6 @@ static void read_xpm_image_or_array( QImageIO *, const char * const *, QImage & 
   The extra \c const makes the entire definition read-only, which is
   slightly more efficient (e.g., when the code is in a shared library)
   and ROMable when the application is to be stored in ROM.
-
-  \omit
-  ### remove this text in Qt 3.0 if the "const char * const *" thing worked
-  In order to use that sort of declaration, you must cast the variable
-  back to \c {const char **} when you create the QImage.
 */
 
 QImage::QImage( const char * const xpm[] )

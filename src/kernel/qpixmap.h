@@ -70,7 +70,7 @@ public:
 	     ColorMode mode=Auto );
     QPixmap( const QString& fileName, const char *format,
 	     int conversion_flags );
-    QPixmap( const char *xpm[] );
+    QPixmap( const char *xpm[] ); // ### in 4.0, 'const char * const xpm[]'?
     QPixmap( const QByteArray &data );
 #endif
     QPixmap( const QPixmap & );
