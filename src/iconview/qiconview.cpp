@@ -4676,11 +4676,14 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
     QIconViewItem *item = findItem( e->pos() );
 
     if ( item ) {
-	if ( old ) {
+	if ( old &&
+	     old->rect().contains(d->oldDragPos) &&
+	     !old->rect().contains(e->pos()) ) {
 	    old->dragLeft();
 	    repaintItem( old );
 	}
-	item->dragEntered();
+	if ( !item->rect().contains(d->oldDragPos) )
+	    item->dragEntered();
 	if ( item->acceptDrop( e ) ) {
 	    d->oldDragAcceptAction = TRUE;
 	    e->acceptAction();
