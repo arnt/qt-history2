@@ -86,7 +86,7 @@ public:
     QTimer * updateTimer;
     QTimer * visibleTimer;
     QTimer * resizeTimer;
-    
+
     QPoint scrollPos;
 
     QListBox::SelectionMode selectionMode;
@@ -663,7 +663,7 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 */
 
 QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
-    : QScrollView( parent, name, f )
+    : QScrollView( parent, name, f | WNorthWestGravity | WRepaintNoErase )
 {
     d = new QListBoxPrivate( this );
     d->updateTimer = new QTimer( this, "listbox update timer" );

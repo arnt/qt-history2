@@ -146,7 +146,7 @@ static const int scrollTime = 40;		// mark text scroll time
 */
 
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
-    : QWidget( parent, name, WRepaintNoErase )
+    : QWidget( parent, name, WRepaintNoErase | WNorthWestGravity )
 {
     init();
 }
