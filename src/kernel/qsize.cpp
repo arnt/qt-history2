@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#21 $
 **
 ** Implementation of QSize class
 **
@@ -13,7 +13,7 @@
 #include "qsize.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#21 $");
 
 
 /*!
@@ -36,7 +36,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#20 $");
 
 /*!
   \fn QSize::QSize()
-  Constructs a size with undefined width and height.
+  Constructs a size with invalid (negative) width and height.
 */
 
 /*!
