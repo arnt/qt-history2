@@ -76,8 +76,8 @@ bootstrap { #Qt code
         qbytearraymatcher.h \
         qchar.h \
         qdatastream.h \
-        qDatetime.h \
-        qDatetime_p.h \
+        qdatetime.h \
+        qdatetime_p.h \
         qdir.h \
         qfile.h \
         qfileengine.h \
