@@ -1,19 +1,20 @@
 #ifndef ACTIONINTERFACE_H
 #define ACTIONINTERFACE_H
 
-#include <qplugininterface.h>
+#include <qcomponentinterface.h>
 
 class QAction;
 class QObject;
 
-class ActionInterface : public QPlugInInterface
+class ActionInterface : public QUnknownInterface
 {
 public:
-    QString queryInterface() const { return "ActionInterface"; }
+    virtual QStringList featureList() = 0;
 
     virtual QAction* create( const QString&, QObject* parent = 0 ) = 0;
     virtual QString group( const QString & ) = 0;
-    
+
+    static QString interfaceID() { return "ActionInterface_QtDesigner_Trolltech_05102000_0515"; }
 };
 
 #endif
