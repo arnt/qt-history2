@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#147 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#148 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -351,7 +351,7 @@ QString QSpinBox::prefix() const
   \brief the suffix of the spin box
 
   The suffix is appended to the end of the displayed value.  Typical use is to
-  indicate the unit of measurement to the user. 
+  indicate the unit of measurement to the user.
   To turn off the suffix display, set this property to  an empty
   string. The default is no suffix.
 
@@ -769,7 +769,7 @@ QLineEdit* QSpinBox::editor() const
 void QSpinBox::textChanged()
 {
     edited = TRUE;	// This flag is cleared in updateDisplay()
-};
+}
 
 
 

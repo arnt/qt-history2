@@ -70,7 +70,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 	XFree(xinerama_screeninfo);
 #endif // QT_NO_XINERAMA
 
-};
+}
 
 QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 {

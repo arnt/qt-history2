@@ -833,7 +833,7 @@ MetaDataBase::CustomWidget::CustomWidget()
     id = -1;
     sizePolicy = QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     isContainer = FALSE;
-};
+}
 
 MetaDataBase::CustomWidget::CustomWidget( const CustomWidget &w )
 {
@@ -1219,7 +1219,7 @@ QStringList MetaDataBase::eventFunctions( QObject *o, const QString &e, const QS
 	    event = event.left( i );
 	l = *r->eventFunctions.find( event );
     }
-#endif	
+#endif
     return l;
 }
 

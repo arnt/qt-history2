@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#44 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#45 $
 **
 ** Implementation of QDns class.
 **
@@ -256,7 +256,7 @@ QDnsAnswer::QDnsAnswer( QDnsQuery * query_ )
     newrr->nxdomain = TRUE;
     newrr->current = TRUE;
     rrs->append( newrr );
-};
+}
 
 
 QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
@@ -274,7 +274,7 @@ QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
     ttl = 0;
     label = QString::null;
     rr = 0;
-};
+}
 
 
 QDnsAnswer::~QDnsAnswer()
@@ -1009,7 +1009,7 @@ void QDnsManager::answer()
 	delete q;
     else
 	queries.insert( i, q );
-};
+}
 
 
 void QDnsManager::transmitQuery( QDnsQuery * query_ )
@@ -1827,7 +1827,7 @@ QValueList<QDns::MailServer> QDns::mailServers() const
     \enum QDns::Server
 
   The struct \c QDns::Server contains the following variables:
-  
+
   \value QString QDns::Server::name
   \value Q_UINT16 QDns::Server::priority
   \value Q_UINT16 QDns::Server::weight
