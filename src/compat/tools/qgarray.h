@@ -25,7 +25,6 @@ class Q_COMPAT_EXPORT QGArray                                        // generic 
 friend class QBuffer;
 public:
     // do not use this, even though this is public
-    // ### make protected or private in Qt 4.0 beta?
     struct array_data : public QShared {        // shared array
         array_data():data(0),len(0)
 #ifdef QT_QGARRAY_SPEED_OPTIM
@@ -50,7 +49,6 @@ protected:
 
     virtual void detach()        { duplicate(*this); }
 
-    // ### Qt 4.0: maybe provide two versions of data(), at(), etc.
     char       *data()         const        { return shd->data; }
     uint        nrefs()         const        { return shd->count; }
     uint        size()         const        { return shd->len; }

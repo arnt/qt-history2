@@ -33,9 +33,9 @@ protected:
 
 public:
     QMemArray() {}
-    QMemArray(int size) : QGArray(size*sizeof(type)) {} // ### 4.0 Q_EXPLICIT
+    QMemArray(int size) : QGArray(size*sizeof(type)) {}
     QMemArray(const QMemArray<type> &a) : QGArray(a) {}
-   ~QMemArray() {}
+    ~QMemArray() {}
     QMemArray<type> &operator=(const QMemArray<type> &a)
                                 { return (QMemArray<type>&)QGArray::assign(a); }
     type *data()    const        { return (type *)QGArray::data(); }
@@ -72,7 +72,6 @@ public:
     void sort() { QGArray::sort(sizeof(type)); }
     int  bsearch(const type &d) const
         { return QGArray::bsearch((const char*)&d,sizeof(type)); }
-    // ### Qt 4.0: maybe provide uint overload as work-around for MSVC bug
     type& operator[](int i) const
         { return (type &)(*(type *)QGArray::at(i*sizeof(type))); }
     type& at(uint i) const

@@ -1360,7 +1360,7 @@ int QComboTableItem::count() const
     QComboBox *cb = qt_cast<QComboBox*>(w);
     if (cb)
         return cb->count();
-    return (int)entries.count();    //### size_t/int cast
+    return (int)entries.count();    // ### size_t/int cast
 }
 
 /*!
@@ -3456,7 +3456,6 @@ void QTable::selectCells(int start_row, int start_col, int end_row, int end_col)
   \sa QTableSelection
 */
 
-// ### Make this virtual in 4.0 and remove hack for QDataTable
 void QTable::selectRow(int row)
 {
     row = qMin(numRows()-1, row);
@@ -3471,7 +3470,6 @@ void QTable::selectRow(int row)
   \sa QTableSelection
 */
 
-// ### Make this virtual in 4.0
 void QTable::selectColumn(int col)
 {
     col = qMin(numCols()-1, col);

@@ -63,7 +63,7 @@ public:
     enum Operation {
         OpListChildren = 1,
         OpMkDir = 2,
-        OpMkdir = OpMkDir, // ### remove in 4.0
+        OpMkdir = OpMkDir,
         OpRemove = 4,
         OpRename = 8,
         OpGet = 32,
@@ -89,9 +89,9 @@ public:
         ErrHostNotFound,
         // protocol errors
         ErrListChildren,
-        ErrListChlidren = ErrListChildren, // ### remove in 4.0
+        ErrListChlidren = ErrListChildren,
         ErrMkDir,
-        ErrMkdir = ErrMkDir, // ### remove in 4.0
+        ErrMkdir = ErrMkDir,
         ErrRemove,
         ErrRename,
         ErrGet,
