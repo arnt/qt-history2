@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#124 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,13 +23,14 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#123 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#124 $");
 
 
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
 	frame(TRUE), mode(QLineEdit::Normal), validator( 0 ),
-	pm(0), pmDirty( TRUE ), blinkTimer( l ), dragTimer( l ) {}
+	pm(0), pmDirty( TRUE ), blinkTimer( l ), dragTimer( l ),
+	inDoubleClick( FALSE ) {}
 
     bool frame;
     QLineEdit::EchoMode mode;
@@ -39,6 +40,7 @@ struct QLineEditPrivate {
     QTimer blinkTimer;
     QTimer dragTimer;
     QRect cursorRepaintRect;
+    bool inDoubleClick;
 };
 
 
@@ -391,6 +393,14 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_H:
 	    backspace();
 	    break;
+	case Key_K:
+	    if ( cursorPos < (int)tbuf.length() ) {
+		QString t( tbuf );
+		t.detach(); // ### 2.0
+		t.truncate( cursorPos );
+		validateAndSet( t, cursorPos, cursorPos, cursorPos );
+	    }
+	    break;
 	case Key_V:
 	    insert( QApplication::clipboard()->text() );
 	case Key_X:
@@ -631,6 +641,7 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     killTimers();
+    d->inDoubleClick = FALSE;
     int margin = frame() ? 4 : 2;
     cursorPos = offset + xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
 					  e->pos().x() - margin,
@@ -706,6 +717,11 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
+    if ( d->inDoubleClick ) {
+	d->inDoubleClick = FALSE;
+	return;
+    }
+    
     if ( style() == MotifStyle && hasMarkedText() && echoMode() == Normal )
 	copyText();
     if ( dragScrolling )
@@ -735,6 +751,8 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 {
+    d->inDoubleClick = TRUE;
+    
     if ( dragScrolling )
 	dragScrolling = FALSE;
 
