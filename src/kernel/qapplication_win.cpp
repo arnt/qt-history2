@@ -2441,6 +2441,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    // most current one.
 	    msgPtr->lParam = mouseMsg2.lParam;
 	    msgPtr->wParam = mouseMsg2.wParam;
+	    msgPtr->pt = mouseMsg2.pt;
 	}
     }
 
