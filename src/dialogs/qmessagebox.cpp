@@ -1023,9 +1023,7 @@ int QMessageBox::information( QWidget *parent,
                                        parent, "qt_msgbox_information", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
-    int reply = mb->exec();
-
-    return reply;
+    return mb->exec();
 }
 
 
@@ -1068,8 +1066,7 @@ int QMessageBox::warning( QWidget *parent,
                                        parent, "qt_msgbox_warning", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
-    int reply = mb->exec();
-    return reply;
+    return mb->exec();
 }
 
 
@@ -1112,8 +1109,7 @@ int QMessageBox::critical( QWidget *parent,
                                        parent, "qt_msgbox_critical", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
-    int reply = mb->exec();
-    return reply;
+    return mb->exec();
 }
 
 
@@ -1200,8 +1196,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 #ifndef QT_NO_CURSOR
     mb->setCursor( Qt::arrowCursor );
 #endif
-    int reply = mb->exec();
-    return reply-1;
+    return mb->exec() - 1;
 }
 
 
