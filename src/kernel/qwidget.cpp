@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#92 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#91 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#92 $")
 
 
 /*----------------------------------------------------------------------------
@@ -34,12 +34,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#91 $")
   order to respond to these events.
 
   By far the most important is paintEvent() which is called whenever
-  the widget needs to update its representation.
+  the widget needs to update its on-screen representation.  Other
+  commonly implemented events include resizeEvent(), keyPressEvent(),
+  mousePressEvent() and their friends.
 
   A widget without a parent, called a top level widget, is a window
-  with a frame and title bar (depends on the widget style specified by
-  the widget flags). A widget with a parent becomes a child window in
-  the parent's window.
+  with a frame and title bar (depending on the widget style specified
+  by the widget flags). A widget with a parent is a child window in
+  its parent.
 
   \sa QEvent, QPainter
  ----------------------------------------------------------------------------*/
@@ -380,10 +382,14 @@ void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 }
 
 
-/*----------------------------------------------------------------------------
-  Enables the widget so that it receives mouse and keyboard events.
-  \sa disable(), setEnabled(), isEnabled(), isDisabled()
- ----------------------------------------------------------------------------*/
+/*! Enables the widget so that it receives mouse and keyboard events.
+
+  An enabled widget receives keyboard and mouse events; a disabled
+  widget does not.  Note that an enabled widget received keyboard
+  events only when it is in focus.
+
+  \sa disable(), setEnabled(), isEnabled(), isDisabled() setAcceptFocus()
+  hasFocus() QKeyEvent QMouseEvent */
 
 void QWidget::enable()				// enable events
 {
@@ -393,11 +399,15 @@ void QWidget::enable()				// enable events
     }
 }
 
-/*----------------------------------------------------------------------------
-  Disables the widget so that it does not receive mouse and keyboard
+/*! Disables the widget so that it does not receive mouse and keyboard
   events.
+
+  An enabled widget receives keyboard and mouse events; a disabled
+  widget does not.  Note that an enabled widget received keyboard
+  events only when it is in focus.
+
   \sa enable(), setEnabled(), isEnabled(), isDisabled()
- ----------------------------------------------------------------------------*/
+  setAcceptFocus() hasFocus() QKeyEvent QMouseEvent */
 
 void QWidget::disable()				// disable events
 {
@@ -407,11 +417,14 @@ void QWidget::disable()				// disable events
     }
 }
 
-/*----------------------------------------------------------------------------
-  \fn void QWidget::setEnabled( bool enable )
-  Enables the widget if \e enable is TRUE, otherwise disables the widget.
-  \sa enable(), disable(), isEnabled(), isDisabled()
- ----------------------------------------------------------------------------*/
+/*! Enables the widget if \e enable is TRUE, otherwise disables the widget.
+
+  An enabled widget receives keyboard and mouse events; a disabled
+  widget does not.  Note that an enabled widget received keyboard
+  events only when it is in focus.
+
+  \sa enable() disable() isEnabled() isDisabled() setAcceptFocus
+  QKeyEvent QMouseEvent */
 
 void QWidget::setEnabled( bool enableWidget )
 {
@@ -421,16 +434,28 @@ void QWidget::setEnabled( bool enableWidget )
 	disable();
 }
 
-/*----------------------------------------------------------------------------
-  \fn bool QWidget::isEnabled() const
+/* \fn bool QWidget::isEnabled() const
+
   Returns TRUE if the widget is enabled, or FALSE if it is disabled.
-  \sa enable(), disable(), setEnabled(), isDisabled()
- ----------------------------------------------------------------------------*/
+
+  An enabled widget receives keyboard and mouse events; a disabled
+  widget does not.  Note that an enabled widget received keyboard
+  events only when it is in focus.
+
+  \sa enable(), disable(), setEnabled(), isDisabled() setAcceptFocus()
+  hasFocus() */
 
 /*----------------------------------------------------------------------------
   \fn bool QWidget::isDisabled() const
+
   Returns TRUE if the widget is disabled, or FALSE if it is enabled.
-  \sa enable(), disable(), setEnabled(), isEnabled()
+
+  An enabled widget receives keyboard and mouse events; a disabled
+  widget does not.  Note that an enabled widget received keyboard
+  events only when it is in focus.
+
+  \sa enable(), disable(), setEnabled(), isEnabled() setAcceptFocus()
+  hasFocus() QKeyEvent QMouseEvent
  ----------------------------------------------------------------------------*/
 
 
@@ -797,7 +822,7 @@ bool QWidget::setMouseTracking( bool enable )
   Returns TRUE if this widget (not one of its children) has the
   keyboard input focus, otherwise FALSE.
 
-  Equivalent to: <code>qApp->focusWidget() == this</code>.
+  Equivalent with <code>qApp->focusWidget() == this</code>.
 
   \sa setFocus(), setAcceptFocus(), QApplication::focusWidget()
  ----------------------------------------------------------------------------*/
@@ -863,10 +888,10 @@ void QWidget::setCRect( const QRect &r )	// set crect, update frect
   Enables or disables the keyboard input focus events for the widget.
 
   Focus events are initially disabled. Enabling focus is normally done
-  from a widget's constructor. For instance, QLineEdit makes the call
-  setAcceptFocus(TRUE) from its constructor.
+  from a widget's constructor. For instance, the QLineEdit constructor
+  does setAcceptFocus(TRUE).
 
-  \sa acceptFocus(), setFocus()
+  \sa acceptFocus(), setFocus(), enable() disable() QKeyEvent()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setAcceptFocus( bool enable )
@@ -1018,17 +1043,18 @@ void QWidget::adjustSize()
   in a subclass, but we recommend using one of the specialized event
   handlers instead.
 
-  The main event handler first passes an event through all event
-  filters that have been installed (see
-  QObject::installEventFilter()).  If none of the filters intercept
-  the event, it calls one of the specialized event handlers.
+  The main event handler first passes an event through all \link
+  QObject::installEventFilter() event filters \endlink that have been
+  installed.  If none of the filters intercept the event, it calls one
+  of the specialized event handlers.
 
   Key press/release events are treated differently from other events.
-  First it checks if there exists an \link QAccel accelerator \endlink
-  that wants the key press (accelerators do not get key release
-  events).  If not, it sends the event to the widget that has the
-  keyboard focus.  If there is no widget in focus or the focus widget
-  did not want the key, the event is sent to the top level widget.
+  First event() checks if there exists an \link QAccel accelerator
+  \endlink that wants the key press (accelerators do not get key
+  release events).  If not, it sends the event to the widget that has
+  the \link hasFocus() keyboard focus. \endlink If there is no widget
+  in focus or the focus widget did not want the key, the event is sent
+  to the top level widget.
 
   This function returns TRUE if it is able to pass the event over to
   someone, or FALSE if nobody wanted the event.
@@ -1121,8 +1147,8 @@ bool QWidget::event( QEvent *e )		// receive event(),
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
-  This event handler can be reimplemented in a subclass to receive
+
+/*! This event handler can be reimplemented in a subclass to receive
   mouse move events for the widget.
 
   If mouse tracking is switched off, mouse move events only occur if a
@@ -1132,15 +1158,15 @@ bool QWidget::event( QEvent *e )		// receive event(),
 
   The default implementation does nothing.
 
-  \sa setMouseTracking(), event()
- ----------------------------------------------------------------------------*/
+  \sa setMouseTracking(), event(), mousePressEvent(),
+  mouseReleaseEvent() mouseDoubleClickEvent() QMouseEvent */
 
 void QWidget::mouseMoveEvent( QMouseEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
-  This event handler can be reimplemented in a subclass to receive
+
+/*! This event handler can be reimplemented in a subclass to receive
   mouse press events for the widget.
 
   The default implementation does nothing.
@@ -1152,28 +1178,28 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
   so on in mousePressEvent(), and delay actual processing to
   mouseReleaseEvent().
 
-  \sa mouseReleaseEvent(), event()
- ----------------------------------------------------------------------------*/
+  \sa mouseReleaseEvent(), event() mouseMoveEvent(),
+  mouseReleaseEvent() mouseDoubleClickEvent() QMouseEvent */
 
 void QWidget::mousePressEvent( QMouseEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
-  This event handler can be reimplemented in a subclass to receive
+
+/*! This event handler can be reimplemented in a subclass to receive
   mouse release events for the widget.
 
   The default implementation does nothing.
 
-  \sa mousePressEvent(), event()
- ----------------------------------------------------------------------------*/
+  \sa mousePressEvent(), event() mousePressEvent(),
+  mouseMoveEvent() mouseDoubleClickEvent() QMouseEvent */
 
 void QWidget::mouseReleaseEvent( QMouseEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
-  This event handler can be reimplemented in a subclass to receive
+
+/*! This event handler can be reimplemented in a subclass to receive
   mouse double click events for the widget.
 
   The default implementation generates a normal mouse press event.
@@ -1181,17 +1207,21 @@ void QWidget::mouseReleaseEvent( QMouseEvent * )
   Note that the widgets gets a mousePressEvent() and a
   mouseReleaseEvent() before the mouseDoubleClickEvent().
 
-  \sa mousePressEvent(), event()
- ----------------------------------------------------------------------------*/
+  \sa mousePressEvent(), event() mousePressEvent(),
+  mouseMoveEvent() mouseReleaseEvent() QMouseEvent */
 
 void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 {
     mousePressEvent( e );			// try mouse press event
 }
 
-/*----------------------------------------------------------------------------
-  This event handler can be reimplemented in a subclass to receive
+
+/*! This event handler can be reimplemented in a subclass to receive
   key press events for the widget.
+
+  A widget needs to \link acceptFocus() accept focus \endlink
+  initially and \link \link hasFocus() have focus \endlink at the time
+  in order to receive a key press event.
 
   If you reimplement this, it is very important that you \link
   QKeyEvent ignore() \endlink the press if you do not understand it,
@@ -1199,17 +1229,21 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 
   The default implementation ignores the event.
 
-  \sa keyReleaseEvent(), QKeyEvent::ignore(), event()
- ----------------------------------------------------------------------------*/
+  \sa keyReleaseEvent(), QKeyEvent::ignore(), event() acceptFocus()
+  hasFocus() QKeyEvent() focusInEvent() focusOutEvent() */
 
 void QWidget::keyPressEvent( QKeyEvent *e )
 {
     e->ignore();
 }
 
-/*----------------------------------------------------------------------------
-  This event handler can be reimplemented in a subclass to receive
+
+/*! This event handler can be reimplemented in a subclass to receive
   key release events for the widget.
+
+  A widget needs to \link acceptFocus() accept focus \endlink
+  initially and \link \link hasFocus() have focus \endlink at the time
+  in order to receive a key release event.
 
   If you reimplement this, it is very important that you \link
   QKeyEvent ignore() \endlink the release if you do not understand it,
@@ -1217,41 +1251,49 @@ void QWidget::keyPressEvent( QKeyEvent *e )
 
   The default implementation ignores the event.
 
-  \sa keyPressEvent(), QKeyEvent::ignore(), event()
- ----------------------------------------------------------------------------*/
+  \sa keyPressEvent(), QKeyEvent::ignore(), event() acceptFocus()
+  hasFocus() QKeyEvent() focusInEvent() focusOutEvent() */
 
 void QWidget::keyReleaseEvent( QKeyEvent *e )
 {
     e->ignore();
 }
 
-/*----------------------------------------------------------------------------
-  This event handler can be reimplemented in a subclass to receive
+/* This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus received) for the widget.
+
+  A widget needs to \link acceptFocus() accept focus \endlink
+  initially and \link \link hasFocus() have focus \endlink at the time
+  in order to receive a focus receive event.
 
   The default implementation does nothing.
 
-  \sa focusOutEvent(), event()
- ----------------------------------------------------------------------------*/
+  \sa focusOutEvent(), event(), hasFocus(), setAcceptFocus(),
+  QFocusEvent keyPressEvent(), keyReleaseEvent(), QKeyEvent */
 
 void QWidget::focusInEvent( QFocusEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
-  This event handler can be reimplemented in a subclass to receive
+
+/*! This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus lost) for the widget.
+
+  A widget needs to \link acceptFocus() accept focus \endlink
+  initially and \link \link hasFocus() have focus \endlink at the time
+  in order to receive a focus lost event.
 
   The default implementation does nothing.
 
-  \sa focusInEvent(), event()
- ----------------------------------------------------------------------------*/
+  \sa focusInEvent(), event(), hasFocus(), setAcceptFocus(),
+  QFocusEvent keyPressEvent(), keyReleaseEvent(), QKeyEvent */
 
 void QWidget::focusOutEvent( QFocusEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+
+/*!
   This event handler can be reimplemented in a subclass to receive
   widget paint events.	Actually, it more or less \e must be
   reimplemented.
@@ -1263,39 +1305,43 @@ void QWidget::focusOutEvent( QFocusEvent * )
   sufficient to redraw the entire widget each time, but some need to
   consider \e e->rect() to avoid flicker or slowness.
 
-  Pixmaps can also be used to implement flicker-free update.
+  Pixmaps and double-buffering can also be used to implement
+  flicker-free update.
 
   update() and repaint() can be used to force a paint event.
 
-  \sa event(), repaint(), update(), QPainter, QPixmap
- ----------------------------------------------------------------------------*/
+  \sa event(), repaint(), update(), QPainter, QPixmap */
 
 void QWidget::paintEvent( QPaintEvent * )
 {
 }
 
+
 /*----------------------------------------------------------------------------
   This event handler can be reimplemented in a subclass to receive
   widget move events.  When the widget receives this event, it is
-  already at the new position.
+  already at the new position.  The old position is accessible through
+  QMoveEvent::oldPos().
 
   The default implementation does nothing.
 
-  \sa resizeEvent(), event(), move()
+  \sa resizeEvent(), event(), move() QMoveEvent
  ----------------------------------------------------------------------------*/
 
 void QWidget::moveEvent( QMoveEvent * )
 {
 }
 
+
 /*----------------------------------------------------------------------------
   This event handler can be reimplemented in a subclass to receive
   widget resize events.  When resizeEvent() is called, the widget
-  already has its new geometry.
+  already has its new geometry.  The old size is accessible through
+  QResizeEvent::oldSize().
 
   The default implementation does nothing.
 
-  \sa moveEvent(), event(), resize()
+  \sa moveEvent(), event(), resize() QResizeEvent()
  ----------------------------------------------------------------------------*/
 
 void QWidget::resizeEvent( QResizeEvent * )
@@ -1308,7 +1354,7 @@ void QWidget::resizeEvent( QResizeEvent * )
 
   The default implementation does nothing.
 
-  \sa event(), close(), destroyed()
+  \sa event(), close(), destroyed() QCloseEvent
  ----------------------------------------------------------------------------*/
 
 void QWidget::closeEvent( QCloseEvent * )
