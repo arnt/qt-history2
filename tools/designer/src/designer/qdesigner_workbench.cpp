@@ -259,7 +259,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     } else {
         foreach (QDesignerToolWindow *tw, m_toolWindows) {
             if (tw != widgetBoxWrapper) {
-                tw->setParent(magicalParent(), Qt::WStyle_Tool);
+                tw->setParent(magicalParent(), Qt::Tool);
                 QRect g = m_geometries.value(tw, tw->geometryHint());
                 tw->resize(g.size());
                 tw->move(g.topLeft());
