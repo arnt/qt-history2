@@ -216,7 +216,9 @@ for 3.2 which needs to be run for these compilers.
 
 - QLineEdit
 	Added input masks: setInputMask(), inputMask(), and
-	hasAcceptableInput().
+	hasAcceptableInput(). Added new function selectionStart()
+	which returns the index of the first selected character in the
+	line edit.
 
 - QMessageBox
 	Added the new static function, question(), that complements
