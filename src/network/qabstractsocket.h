@@ -65,8 +65,7 @@ public:
 
     virtual Q_LLONG bytesAvailable() const;
     virtual Q_LLONG bytesToWrite() const;
-    virtual void clearBuffers();
-
+    
     virtual bool canReadLine() const;
     virtual QByteArray readLine();
 

@@ -524,15 +524,6 @@ Q_LLONG QAbstractSocket::bytesToWrite() const
     return (Q_LLONG) d->writeBuffer.size();
 }
 
-void QAbstractSocket::clearBuffers()
-{
-#if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::clearBuffers()");
-#endif
-
-    d->writeBuffer.clear();
-    d->readBuffer.clear();
-}
 
 /*!
   Returns the number of incoming bytes that can be read, i.e. the
