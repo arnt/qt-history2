@@ -534,7 +534,7 @@ MakefileGenerator::initOutPaths()
 	if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
 	    QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
 	    asp = Option::fixPathToTargetOS( asp );
-	    if(asp.isEmpty() || asp == QDir::currentDirPath()) //if they're the same, why bother?
+	    if(asp.isEmpty() || asp == Option::output_dir) //if they're the same, why bother?
 		v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
 	}
 	QString currentDir = QDir::currentDirPath();
@@ -553,7 +553,7 @@ MakefileGenerator::initOutPaths()
 			path += Option::dir_sep;
 		}
 		QString path = project->first(dirs[x]); //not to be changed any further
-		path = Option::fixPathToTargetOS(path);
+		path = Option::fixPathToTargetOS(fileFixify(path, QDir::currentDirPath(), Option::output_dir));
 
 		QDir d;
 		if(path.left(1) == Option::dir_sep) {
@@ -1217,9 +1217,9 @@ MakefileGenerator::write()
 	prl += Option::prl_ext;
 	if(!project->isEmpty("DESTDIR"))
 	    prl.prepend(var("DESTDIR"));
-	prl = fileFixify(prl);
-	fixEnvVariables(prl);
-	QFile ft(prl);
+	QString local_prl = fileFixify(prl, QDir::currentDirPath(), Option::output_dir);
+	fixEnvVariables(local_prl);
+	QFile ft(local_prl);
 	if(ft.open(IO_WriteOnly)) {
 	    project->variables()["ALL_DEPS"].append(prl);
 	    project->variables()["QMAKE_INTERNAL_PRL_FILE"].append(prl);
@@ -1610,7 +1610,7 @@ MakefileGenerator::createObjectList(const QString &var)
 	    dirName = dir;
 	}
 
-	file = fileFixify(dirName + fi.baseName(TRUE) + Option::obj_ext, QDir::currentDirPath(), Option::output_dir);
+	file = dirName + fi.baseName(TRUE) + Option::obj_ext;
 	ret.append( file );
     }
     return ret;
