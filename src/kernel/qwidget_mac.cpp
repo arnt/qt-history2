@@ -752,10 +752,12 @@ void QWidget::showWindow()
 	if(parentWidget()) {
 	    WindowClass c;
 	    GetWindowClass((WindowPtr)hd, &c);
-	    if(c == kModalWindowClass)
-		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd, 
-					  kWindowSheetTransitionEffect, 
-					  kWindowShowTransitionAction, NULL);
+	    if(c == kModalWindowClass) {
+		if( ( qApp->style().inherits("QAquaStyle") ) )
+		    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd, 
+					      kWindowSheetTransitionEffect, 
+					      kWindowShowTransitionAction, NULL);
+	    }
 	}
 
 	//now actually show it
