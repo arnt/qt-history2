@@ -774,7 +774,7 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
     }
     outstream.setDevice( &outputLog );
 
-    outputDisplay->append( entry );
+    outputDisplay->append( entry + "\n" );
     outstream << entry;
 
     if( close )
