@@ -159,3 +159,18 @@ bool LanguageInterfaceImpl::supports( Support s ) const
 	return FALSE;
     return FALSE;
 }
+
+class CheckObject : public QObject
+{
+public:
+    CheckObject() {}
+    bool checkConnectArgs( const char *signal, const char *member ) { return QObject::checkConnectArgs( signal, 0, member ); }
+
+};
+
+bool LanguageInterfaceImpl::canConnect( const QString &signal, const QString &slot )
+{
+    CheckObject o;
+    qDebug( "%s %s", signal.latin1(), slot.latin1() );
+    return o.checkConnectArgs( signal.latin1(), slot.latin1() );
+}

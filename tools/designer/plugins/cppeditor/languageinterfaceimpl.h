@@ -58,6 +58,7 @@ public:
 		       QStringList &,
 		       QValueList<Connection> & ) {}
     QString formCodeExtension() const { return ".cpp"; }
+    bool canConnect( const QString &signal, const QString &slot );
 
 private:
     ulong ref;

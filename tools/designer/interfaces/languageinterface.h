@@ -107,6 +107,8 @@ struct LanguageInterface : public QUnknownInterface
 			       QValueList<Connection> &connections ) = 0;
     virtual QString formCodeExtension() const = 0;
 
+    virtual bool canConnect( const QString &signal, const QString &slot ) = 0;
+
 };
 
 #endif

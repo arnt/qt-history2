@@ -1170,7 +1170,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	for ( QValueList<Slot>::Iterator it = r2->slotList.begin(); it != r2->slotList.end(); ++it ) {
 	    Slot s = *it;
 	    QString sName = normalizeSlot( s.slot );
-	    if ( sName == fName ) {
+	    if ( liface->canConnect( sName, fName ) ) {
 		needAddSlot = FALSE;
 		break;
 	    }
