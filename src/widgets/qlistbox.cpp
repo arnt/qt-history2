@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#53 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#53 $")
 
 
 declare(QListM, QLBItem);
@@ -125,7 +125,7 @@ QListBox::QListBox( QWidget *parent, const char *name )
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
     setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar|
-		   Tbl_smoothVScrolling );
+		   Tbl_smoothVScrolling | Tbl_clipCellPainting );
     switch ( style() ) {
 	case WindowsStyle:
 	case MotifStyle:
@@ -1062,7 +1062,7 @@ void QListBox::paintCell( QPainter *p, int row, int column )
     } else {
 	p->setPen( g.text() );
     }
-    if ( lbi->type == LBI_String )
+    if ( lbi->type == LBI_String )  // ### assumes leading() >= 0
 	p->drawText( 3, fm.ascent() + fm.leading()/2, lbi->string );
     if ( lbi->type == LBI_Pixmap )
 	p->drawPixmap( 3, 0, *lbi->pixmap );
@@ -1176,6 +1176,16 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    break;
     }
 }
+
+
+/*! Handles focus in events.  If there is no current item, sets the
+  current item to first one. \sa keyPressEvent() */
+
+void QListBox::focusInEvent( QFocusEvent * ) {
+    if ( currentItem() < 0 )
+	setCurrentItem( topItem() );
+}
+
 
 /*----------------------------------------------------------------------------
   Handles resize events.  Updates internal parameters for the new list box
