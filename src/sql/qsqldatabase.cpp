@@ -17,7 +17,8 @@
 
 #include "qsqlresult.h"
 #include "qsqldriver.h"
-#include "qsqldriverplugin.h"
+#include "qsqldriverinterface.h"
+#include "qinterfacemanager.h"
 #include "qobject.h"
 #include "qdict.h"
 #include "qapplication.h"
@@ -186,7 +187,7 @@ public:
     {
     }
     QSqlDriver* driver;
-    QSqlDriverPlugInManager* plugIns;
+    QInterfaceManager<QSqlDriverInterface> *plugIns;
     QString dbname;
     QString uname;
     QString pword;
@@ -251,8 +252,9 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 {
     d = new QSqlDatabasePrivate();
 #ifndef QT_NO_PLUGIN
-    //    d->plugIns = new QSqlDriverPlugInManager( QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
-    //    d->driver = d->plugIns->create( type );
+    //    d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
+    //	  QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
+    //    d->driver = iface ? iface->create( type ) : 0;
 #endif
     if ( !d->driver ) {
 #ifdef QT_SQL_POSTGRES
