@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#22 $
 **
 ** Implementation of QScrollView class
 **
@@ -468,17 +468,26 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	}
     } else if ( obj == &d->viewport ) {
 	if ( e->type() == Event_Paint ) {
-	    QPainter p(&d->viewport);
-	    QPaintEvent* pe = (QPaintEvent*)e;
-	    p.setClipRect(pe->rect());
-	    int ex = pe->rect().x() - contentsX();
-	    int ey = pe->rect().y() - contentsY();
-	    int ew = pe->rect().width();
-	    int eh = pe->rect().height();
-	    drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
+	    viewportPaintEvent( (QPaintEvent*)e );
 	}
     }
     return FALSE;  // always continue with standard event processing
+}
+
+/*!
+  This is a low-level painting routine that draws the viewport
+  contents.  Override this if drawContentsOffset() is too high-level.
+  (for example, if you don't want to open a QPainter on the viewport).
+*/
+void QScrollView::viewportPaintEvent( QPaintEvent* pe )
+{
+    QPainter p(&d->viewport);
+    p.setClipRect(pe->rect());
+    int ex = pe->rect().x() - contentsX();
+    int ey = pe->rect().y() - contentsY();
+    int ew = pe->rect().width();
+    int eh = pe->rect().height();
+    drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
 }
 
 /*!
@@ -500,7 +509,7 @@ QScrollBar* QScrollView::horizontalScrollBar() { return &d->hbar; }
 QScrollBar* QScrollView::verticalScrollBar() { return &d->vbar; }
 
 /*!
- Moves the scrolled widget or area so that the point (x, y) is visible
+ Scrolls the widget or area so that the point (x, y) is visible
  with at least 50-pixel margins (if possible, otherwise centered).
 */
 void QScrollView::ensureVisible( int x, int y )
@@ -509,7 +518,7 @@ void QScrollView::ensureVisible( int x, int y )
 }
 
 /*!
- Moves the scrolled widget or area so that the point (x, y) is visible
+ Scrolls the widget or area so that the point (x, y) is visible
  with at least the given pixel margins (if possible, otherwise centered).
 */
 void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
@@ -558,17 +567,26 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
     else if ( cy < ph-ch && ch>ph )
 	cy=ph-ch;
 
-    // Choke signal handling while we update BOTH sliders.
-    signal_choke=TRUE;
-    moveContents( cx, cy );
-    d->vbar.setValue( -cy );
-    d->hbar.setValue( -cx );
-    updateScrollBars();
-    signal_choke=FALSE;
+    setContentsPos( cx, cy );
 }
 
 /*!
- Moves the scrolled widget or area so that the point (x,y) is in the
+ Scrolls the widget or area so that the point (x, y) is in the top-left corner.
+*/
+void QScrollView::setContentsPos( int x, int y )
+{
+    // Choke signal handling while we update BOTH sliders.
+    signal_choke=TRUE;
+    moveContents( x, y );
+    d->vbar.setValue( -y );
+    d->hbar.setValue( -x );
+    updateScrollBars();
+    signal_choke=FALSE;
+    updateScrollBars();
+}
+
+/*!
+ Scrolls the widget or area so that the point (x,y) is in the
  center of visible area.
 */
 void QScrollView::center( int x, int y )
@@ -577,7 +595,7 @@ void QScrollView::center( int x, int y )
 }
 
 /*!
- Moves the scrolled widget or area so that the point (x,y) is visible,
+ Scrolls the widget or area so that the point (x,y) is visible,
  with the given margins (as fractions of visible area).
 
  eg.

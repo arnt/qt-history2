@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#11 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#12 $
 **
 ** Definition of QScrollView class
 **
@@ -55,6 +55,7 @@ signals:
     void	contentsMoved(int x, int y);
 
 public slots:
+    void        setContentsPos( int x, int y );
     void	ensureVisible(int x, int y);
     void	ensureVisible(int x, int y, int xmargin, int ymargin);
     void	center(int x, int y);
@@ -66,6 +67,7 @@ protected:
     void	resizeEvent(QResizeEvent*);
     bool	eventFilter( QObject *, QEvent *e );
 
+    virtual void viewportPaintEvent( QPaintEvent* );
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
     void	frameChanged();
