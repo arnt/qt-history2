@@ -705,7 +705,7 @@ for plat in mac win x11 embedded; do
 	free)
 	    #remove non-GPL sql stuff
 	    #and stuff not ready for release
-	    for f in src/sql/src/oci src/sql/src/tds; do
+	    for f in src/sql/src/oci src/sql/src/tds src/sql/src/shared; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
 	    ;;
