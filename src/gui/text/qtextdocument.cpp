@@ -358,7 +358,13 @@ bool QTextDocument::isUndoRedoEnabled() const
     return d->isUndoRedoEnabled();
 }
 
+/*!
+    \fn void QTextDocument::markContentsDirty(int position, int length)
 
+    Marks the contents specified by the given \a position and \l length
+    as "dirty", informing the document that it needs to be layed out
+    again.
+*/
 void QTextDocument::markContentsDirty(int from, int length)
 {
     Q_D(QTextDocument);
@@ -457,7 +463,8 @@ QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 
 
 /*!
-    Returns meta information about the document.
+    Returns meta information about the document of the type specified by
+    \a info.
 */
 QString QTextDocument::metaInformation(MetaInformation info) const
 {
@@ -479,7 +486,7 @@ void QTextDocument::setMetaInformation(MetaInformation info, const QString &stri
     Returns the plain text contained in the document. If you want
     formatting information use a QTextCursor instead.
 
-    \sa html()
+    \sa toHtml()
 */
 QString QTextDocument::toPlainText() const
 {
@@ -882,6 +889,9 @@ void QTextDocument::print(QPrinter *printer) const
 */
 
 /*!
+    Returns data of the specified \a type from the resource with the
+    given \a name.
+
     This function is called by the rich text engine to request data that isn't
     directly stored by QTextDocument, but still associated with it. For example,
     images are referenced indirectly by the name attribute of a QTextImageFormat
