@@ -167,6 +167,7 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
 {
     bookPixmap = new QPixmap( book_xpm );
     QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
+    mime->setExtensionType("html","text/html;charset=UTF-8");
     QSettings settings;
 #ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,
@@ -188,7 +189,6 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     mime->addFilePath( basePath + "/pics/small" );
     mime->addFilePath( documentationPath );
     mime->addFilePath( basePath + "/doc/en" );
-    mime->setExtensionType("html","text/html;charset=UTF-8");
 #else
     QString base( qInstallPathDocs() );
     documentationPath = base + "/html";
