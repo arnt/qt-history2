@@ -1060,10 +1060,10 @@ void QActionGroup::setEnabled( bool enable )
 	it.current()->setEnabled( enable );
     }
     for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
-	cb.current()->setEnabled( enabled );
+	cb.current()->setEnabled( enable );
     }
-    for ( QListIterator<QToolButtons> mb( d->menubuttons ); mb.current(); ++mb ) {
-	mb.current()->setEnabled( FALSE );
+    for ( QListIterator<QToolButton> mb( d->menubuttons ); mb.current(); ++mb ) {
+	mb.current()->setEnabled( enable );
     }
     QAction::setEnabled( enable );
 }
