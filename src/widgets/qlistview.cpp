@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#37 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#37 $");
 
 
 const int Unsorted = 32767;
@@ -878,7 +878,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	int ih = current->i->height();
 	int ith = current->i->totalHeight();
-	int fc, lc, c;
+	int fc = 0, lc = 0, c;
 	int cs;
 
 	// need to paint current?
@@ -2037,9 +2037,9 @@ bool QListView::allColumnsShowFocus() const
   QListViewItem::firstChild() firstChild() \endlink and \link
   QListViewItem::nextSibling() nextSibling() \endlink functions to
   traverse the entire tree of items.
-  
+
   Returns 0 if there is no first item.
-  
+
   \sa itemAt() itemBelow() itemAbove()
 */
 
