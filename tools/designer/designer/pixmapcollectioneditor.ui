@@ -1,9 +1,11 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>PixmapCollectionEditor</class>
-<include location="global" impldecl="in implementation">qfileinfo.h</include>
-<include location="local" impldecl="in implementation">project.h</include>
-<include location="local" impldecl="in implementation">pixmapchooser.h</include>
 <include location="local" impldecl="in implementation">pixmapcollection.h</include>
+<include location="local" impldecl="in implementation">pixmapchooser.h</include>
+<include location="local" impldecl="in implementation">project.h</include>
+<include location="global" impldecl="in implementation">qfileinfo.h</include>
+<include location="global" impldecl="in implementation">qimage.h</include>
+<include location="global" impldecl="in declaration">qpixmap.h</include>
 <forward>class Project;</forward>
 <variable>bool chooser;</variable>
 <variable>Project *project;</variable>
@@ -15,8 +17,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>362</width>
-            <height>273</height>
+            <width>358</width>
+            <height>271</height>
         </rect>
     </property>
     <property name="caption">
@@ -60,7 +62,7 @@
             </property>
         </widget>
         <spacer row="2" column="1">
-            <property name="name" stdset="0">
+            <property name="name">
                 <cstring>Spacer1</cstring>
             </property>
             <property name="orientation">
@@ -91,7 +93,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer2</cstring>
                     </property>
                     <property name="orientation">
@@ -196,16 +198,17 @@
         <receiver>PixmapCollectionEditor</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">save()</slot>
-    <slot access="protected" language="C++">addPixmap()</slot>
-    <slot access="protected" language="C++">removePixmap()</slot>
-    <slot access="public" language="C++">updateView()</slot>
-    <slot access="public" language="C++">currentChanged( QIconViewItem *i )</slot>
-    <slot access="public" language="C++">setChooserMode( bool c )</slot>
-    <slot access="public" language="C++">setCurrentItem( const QString &amp;name )</slot>
-    <slot access="public" language="C++">setProject( Project *pro )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">save()</slot>
+    <slot access="protected" language="C++" returnType="void">addPixmap()</slot>
+    <slot access="protected" language="C++" returnType="void">removePixmap()</slot>
+    <slot access="public" language="C++" returnType="void">updateView()</slot>
+    <slot access="public" language="C++" returnType="void">currentChanged( QIconViewItem * i )</slot>
+    <slot access="public" language="C++" returnType="void">setChooserMode( bool c )</slot>
+    <slot access="public" language="C++" returnType="void">setCurrentItem( const QString &amp; name )</slot>
+    <slot access="public" language="C++" returnType="void">setProject( Project * pro )</slot>
+    <slot access="public" language="C++" returnType="QPixmap">scaledPixmap( const QPixmap &amp; p )</slot>
 </connections>
 <functions>
     <function name="init()" >{
@@ -251,7 +254,7 @@
     QValueList&lt;PixmapCollection::Pixmap&gt; pixmaps = project-&gt;pixmapCollection()-&gt;pixmaps();
     for ( QValueList&lt;PixmapCollection::Pixmap&gt;::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
 	// #### might need to scale down the pixmap
-	QIconViewItem *item = new QIconViewItem( viewPixmaps, (*it).name, (*it).pix );
+	QIconViewItem *item = new QIconViewItem( viewPixmaps, (*it).name, scaledPixmap( (*it).pix ) );
 	//item-&gt;setRenameEnabled( TRUE ); // this will be a bit harder to implement
 	item-&gt;setDragEnabled( FALSE );
 	item-&gt;setDropEnabled( FALSE );
@@ -291,6 +294,16 @@
     <function name="setProject(Project*)" >{
     project = pro;
     updateView();
+}</function>
+    <function name="scaledPixmap(const QPixmap&amp;)" >{
+    QPixmap pix( p );
+    if ( pix.width() &lt; 50 &amp;&amp; pix.height() &lt; 50 )
+	return pix;
+    QImage img;
+    img = pix;
+    img = img.smoothScale( 50, 50 );
+    pix.convertFromImage( img );
+    return pix;
 }</function>
 </functions>
 <tabstops>
