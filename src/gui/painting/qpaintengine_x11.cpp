@@ -402,10 +402,19 @@ static inline void release_gc(void *ref)
 
 
 // ########
-void qt_erase_background(Qt::HANDLE hd, int screen,
+void qt_erase_background(QPaintDevice *pd, int screen,
                          int x, int y, int w, int h,
                          const QBrush &brush, int xoff, int yoff)
 {
+    if (brush.style() == Qt::LinearGradientPattern) {
+	QPainter p(pd);
+	QPoint rd;
+	QPainter::redirected(pd, &rd);
+	p.fillRect(rd.x(), rd.y(), w, h, brush);
+	return;
+    }
+
+    Qt::HANDLE hd = pd->handle();
     Display *dpy = QX11Info::appDisplay();
     GC gc;
     void *penref = 0;

@@ -42,7 +42,7 @@ bool qt_wstate_iconified(WId);
 void qt_updated_rootinfo();
 
 // from qpaintengine_x11.cpp
-extern void qt_erase_background(Qt::HANDLE, int screen,
+extern void qt_erase_background(QPaintDevice *pd, int screen,
                                 int x, int y, int width, int height,
                                 const QBrush &brush, int offx, int offy);
 
@@ -1000,7 +1000,7 @@ void QWidgetPrivate::updateSystemBackground()
             int yoff = data.wrect.y() % pix.height();
             if (xoff || yoff) {
                 QPixmap newPix(pix.size(), pix.depth());
-                qt_erase_background(newPix.handle(), newPix.x11Info()->screen(), 0,0,pix.width(), pix.height(),
+                qt_erase_background(&newPix, newPix.x11Info()->screen(), 0,0,pix.width(), pix.height(),
                                     pix, xoff, yoff);
                 pix = newPix;
             }
@@ -1568,7 +1568,7 @@ void QWidget::repaint(const QRegion& rgn)
         }
 
         if (double_buffer) {
-            qt_erase_background(q->hd, q->d->xinfo->screen(),
+            qt_erase_background(q, q->d->xinfo->screen(),
                                 br.x() - redirectionOffset.x(), br.y() - redirectionOffset.y(),
                                 br.width(), br.height(), data->pal.brush(w->d->bg_role),
                                 br.x() + offset.x(), br.y() + offset.y());
@@ -1576,8 +1576,14 @@ void QWidget::repaint(const QRegion& rgn)
             QVector<QRect> rects = rgn.rects();
             for (int i = 0; i < rects.size(); ++i) {
                 QRect rr = d->mapToWS(rects[i]);
-                XClearArea(q->d->xinfo->display(), q->winId(),
-                            rr.x(), rr.y(), rr.width(), rr.height(), False);
+		if (data->pal.brush(w->d->bg_role).style() == Qt::LinearGradientPattern) {
+		    qt_erase_background(q, q->d->xinfo->screen(),
+					rr.x(), rr.y(), rr.width(), rr.height(),
+					data->pal.brush(w->d->bg_role), 0, 0);
+		} else {
+		    XClearArea(q->d->xinfo->display(), q->winId(),
+			       rr.x(), rr.y(), rr.width(), rr.height(), False);
+		}
             }
         }
 
