@@ -768,20 +768,19 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     DisposeRgn( polyRegion );
 }
 
-bool fuck = FALSE;
 void QPainter::drawPoint( int x, int y )
 {
     if ( !isActive() )
-        return;
+	return;
     if ( testf(ExtDev|VxF|WxF) ) {
-        if ( testf(ExtDev) ) {
-            QPDevCmdParam param[1];
-            QPoint p( x, y );
-            param[0].point = &p;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawPoint, this, param ) || !hd )
-                return;
-        }
-        map( x, y, &x, &y );
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QPoint p( x, y );
+	    param[0].point = &p;
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawPoint, this, param ) || !hd )
+		return;
+	}
+	map( x, y, &x, &y );
     }
 
 
@@ -792,8 +791,7 @@ void QPainter::drawPoint( int x, int y )
 	f.red = cpen.color().red()*256;
 	f.green = cpen.color().green()*256;
 	f.blue = cpen.color().blue()*256;
-	if(!fuck)
-	    SetCPixel(x+offx,y+offy,&f);
+	SetCPixel(x+offx,y+offy,&f);
     }
 }
 
