@@ -179,8 +179,13 @@
 #  define Q_HAS_BOOL_TYPE
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC
+// proper support of bool for _MSC_VER >= 1100
+#  define Q_HAS_BOOL_TYPE
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
+#  if __BORLANDC__ >= 0x500
+#    define Q_HAS_BOOL_TYPE
+#  endif
 #elif defined(__WATCOMC__)
 #  define Q_CC_WAT
 #  define Q_HAS_BOOL_TYPE
@@ -316,12 +321,6 @@
 //
 // Useful type definitions for Qt
 //
-
-#if defined(bool)
-#  define Q_HAS_BOOL_TYPE
-#elif _MSC_VER >= 1100 || __BORLANDC__ >= 0x500
-#  define Q_HAS_BOOL_TYPE
-#endif
 
 #if !defined(Q_HAS_BOOL_TYPE)
 enum { false, true } bool;
