@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#101 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#100 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#101 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -318,7 +318,12 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   Notice that the background color will be overwritten when setting
   a new palette.
 
-  \sa backgroundColor(), setPalette(), setBackgroundPixmap()
+  \code
+    QWidget w;
+    w.setBackgroundColor( yellow );
+  \endcode
+
+  \sa backgroundColor(), setPalette(), setBackgroundPixmap() QColor
  ----------------------------------------------------------------------------*/
 
 void QWidget::setBackgroundColor( const QColor &color )
