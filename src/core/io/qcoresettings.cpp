@@ -761,8 +761,8 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
         org = QLatin1String("unknown-organization.trolltech.com");
     }
 
-    const char *extension = ".ini";
-
+    const char *extension = format == Qt::IniFormat ? ".ini" : ".conf";
+        
     QString appFile = org + QDir::separator() + application + QLatin1String(extension);
     QString orgFile = org + QLatin1String(extension);
 
