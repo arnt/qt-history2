@@ -903,32 +903,22 @@ bool QApplication::do_mouse_down( Point *pt )
 	    }
 	}
 	break;
+    case inCollapseBox:
+	if( TrackBox( wp, *pt, windowPart ) == true ) {
+	    if(widget) 
+		widget->showMinimized();
+	}
+	break;
     case inZoomIn:
+	if( TrackBox( wp, *pt, windowPart ) == true ) {
+	    if(widget) 
+		widget->showNormal();
+	}
+	break;
     case inZoomOut:
 	if( TrackBox( wp, *pt, windowPart ) == true ) {
-	    Rect bounds;
-	    GetPortBounds( GetWindowPort( wp ), &bounds );
-	    ZoomWindow( wp, windowPart, false);
-	    GetPortBounds( GetWindowPort( wp ), &bounds );
-	    InvalWindowRect( wp, &bounds );
-
-	    QMacSavedPortInfo savedInfo;
-	    SetPortWindowPort( wp );
-	    Point p = { 0, 0 };
-	    LocalToGlobal(&p);
-	    widget->setCRect( QRect( p.h, p.v, bounds.right, bounds.bottom) );
-	    widget->dirtyClippedRegion(TRUE);
-
-	    //issue events
-	    QRect orect(widget->x(), widget->y(), widget->width(), widget->height());
-	    //issue a move
-	    QMoveEvent qme( QPoint( widget->x(), widget->y() ), 
-			    QPoint( orect.x(), orect.y()) );
-	    QApplication::sendEvent( widget, &qme );
-	    //issue a resize
-	    QResizeEvent qre( QSize( widget->width(), widget->height() ), 
-			      QSize( orect.width(), orect.height()) );
-	    QApplication::sendEvent( widget, &qre );
+	    if(widget) 
+		widget->showMaximized();
 	}
 	break;
     }

@@ -777,7 +777,7 @@ void QWidget::hideWindow()
 
 bool QWidget::isMinimized() const
 {
-    return FALSE;
+    return IsWindowCollapsed((WindowRef)hd);
 }
 
 bool QWidget::isMaximized() const
@@ -790,7 +790,7 @@ void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
 	if ( isVisible() ) {
-	    qDebug("showMinimized need to do this %s:%d", __FILE__, __LINE__);
+	    CollapseWindow((WindowPtr)hd, TRUE);
         } else {
 	    topData()->showMode = 1;
 	    show();
@@ -805,7 +805,29 @@ void QWidget::showMinimized()
 void QWidget::showMaximized()
 {
     if ( testWFlags(WType_TopLevel) ) {
-	qDebug("showMaximized need to do this %s:%d", __FILE__, __LINE__);
+	Rect bounds;
+	GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
+	ZoomWindow( (WindowPtr)hd, inZoomOut, FALSE);
+	GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
+	InvalWindowRect( (WindowPtr)hd, &bounds );
+
+	QRect orect(x(), y(), width(), height());
+	QMacSavedPortInfo savedInfo;
+	SetPortWindowPort( (WindowPtr)hd );
+	Point p = { 0, 0 };
+	LocalToGlobal(&p);
+	setCRect( QRect( p.h, p.v, bounds.right, bounds.bottom) );
+
+	if(isVisible()) {
+	    dirtyClippedRegion(TRUE);
+
+	    //issue a move
+	    QMoveEvent qme( pos(), orect.topLeft());
+	    QApplication::sendEvent( this, &qme );
+	    //issue a resize
+	    QResizeEvent qre( size(), orect.size());
+	    QApplication::sendEvent( this, &qre );
+	}
     }
     show();
     QEvent e( QEvent::ShowMaximized );
@@ -820,6 +842,32 @@ void QWidget::showNormal()
 	    reparent( 0, WType_TopLevel, QPoint(0,0) );
 	    topData()->fullscreen = 0;
 	}
+	{
+	    Rect bounds;
+	    GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
+	    ZoomWindow( (WindowPtr)hd, inZoomIn, FALSE);
+	    GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
+	    InvalWindowRect( (WindowPtr)hd, &bounds );
+
+	    QRect orect(x(), y(), width(), height());
+	    QMacSavedPortInfo savedInfo;
+	    SetPortWindowPort( (WindowPtr)hd );
+	    Point p = { 0, 0 };
+	    LocalToGlobal(&p);
+	    setCRect( QRect( p.h, p.v, bounds.right, bounds.bottom) );
+
+	    if(isVisible()) {
+		dirtyClippedRegion(TRUE);
+
+		//issue a move
+		QMoveEvent qme( pos(), orect.topLeft());
+		QApplication::sendEvent( this, &qme );
+		//issue a resize
+		QResizeEvent qre( size(), orect.size());
+		QApplication::sendEvent( this, &qre );
+	    }
+	}
+
 	QRect r = topData()->normalGeometry;
 	if ( r.width() >= 0 ) {
 	    // the widget has been maximized
@@ -838,9 +886,8 @@ void QWidget::showNormal()
 void QWidget::raise()
 {
     if(isTopLevel()) {
-	SelectWindow((WindowPtr)hd);
-//	setActiveWindow();
 	BringToFront((WindowPtr)hd);
+	setActiveWindow();
     } else {
 	QWidget *p = parentWidget();
 	if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
