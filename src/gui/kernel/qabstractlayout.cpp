@@ -26,14 +26,11 @@
 #define d d_func()
 #define q q_func()
 
-static int menuBarHeightForWidth(QMenuBar *menubar, int w)
+static int menuBarHeightForWidth(QWidget *menubar, int w)
 {
-#ifndef QT_NO_MENUBAR
     if (menubar && !menubar->isHidden() && !menubar->isTopLevel())
         return menubar->heightForWidth(qMax(w, menubar->minimumWidth()));
-    else
-#endif
-        return 0;
+    return 0;
 }
 
 /*!
@@ -750,13 +747,6 @@ void QLayout::addWidget(QWidget *w)
     addItem(new QWidgetItem(w));
 }
 /*!
-    \fn QMenuBar* QLayout::menuBar () const
-
-    Returns the menu bar set for this layout, or 0 if no menu bar is
-    set.
-*/
-
-/*!
     \fn bool QLayout::isTopLevel () const
 
     Returns true if this layout is a top-level layout, i.e. not a
@@ -809,13 +799,6 @@ int QLayout::spacing() const
         return -1; //this is a layout that hasn't been inserted yet
     }
 }
-
-#ifndef QT_NO_MENUBAR
-QMenuBar *QLayout::menuBar() const
-{
-    return d->menubar;
-}
-#endif
 
 bool QLayout::isTopLevel() const
 {
@@ -920,10 +903,7 @@ void QLayout::widgetEvent(QEvent *e)
     case QEvent::Resize:
         if (d->activated) {
             QResizeEvent *r = (QResizeEvent *)e;
-            int mbh = 0;
-#ifndef QT_NO_MENUBAR
-            mbh = menuBarHeightForWidth(d->menubar, r->size().width());
-#endif
+            int mbh = menuBarHeightForWidth(d->menubar, r->size().width());
             QWidget *mw = parentWidget();
             QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
             rect.rTop() += mbh; //goes away when menubar isn't magic anymore
@@ -1194,8 +1174,6 @@ void QLayout::freeze(int w, int h)
     parentWidget()->setFixedSize(w, h);
 }
 
-#ifndef QT_NO_MENUBAR
-
 /*!
     Makes the geometry manager take account of the menu bar \a w. All
     child widgets are placed below the bottom edge of the menu bar.
@@ -1203,12 +1181,21 @@ void QLayout::freeze(int w, int h)
     A menu bar does its own geometry management: never do addWidget()
     on a QMenuBar.
 */
-void QLayout::setMenuBar(QMenuBar *w)
+void QLayout::setMenuBar(QWidget *w)
 {
     d->menubar = w;
 }
 
-#endif
+/*!
+    Returns the menu bar set for this layout, or 0 if no menu bar is
+    set.
+*/
+
+QWidget *QLayout::menuBar() const
+{
+    return d->menubar;
+}
+
 
 /*!
     Returns the minimum size of this layout. This is the smallest size

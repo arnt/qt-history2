@@ -22,6 +22,12 @@ class Q_GUI_EXPORT QPopupMenu : public QMenu
     Q_OBJECT
 public:
     QPopupMenu(QWidget *parent = 0, const char * =0) : QMenu(parent)  { }
+#ifdef QT_COMPAT
+    inline QT_COMPAT int exec() { return findIdForAction(QMenu::exec()); }
+    inline QT_COMPAT int exec(const QPoint & pos, int indexAtPoint = 0) {
+        return findIdForAction(QMenu::exec(pos, actions().value(indexAtPoint)));
+    }
+#endif
 };
 
 #endif // QPOPUPMENU_H

@@ -1880,6 +1880,21 @@ QAction *QMenu::findActionForId(int id) const
     return 0;
 }
 
+QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
+{
+   QList<QAction *> list = actions();
+    for (int i = 0; i < list.size(); ++i) {
+        QAction *act = list.at(i);
+        if (act->menu() == popup) {
+            if (index)
+                *index = static_cast<QMenuItem*>(act)->id();
+            return static_cast<QMenuItem*>(act);
+        }
+    }
+    return 0;
+}
+
+
 bool QMenu::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {

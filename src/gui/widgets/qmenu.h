@@ -247,6 +247,9 @@ public:
     inline QT_COMPAT QMenuItem *findItem(int id) const {
         return (QMenuItem*)findActionForId(id);
     }
+
+    QT_COMPAT QMenuItem *findPopup( QMenu *popup, int *index );
+
     QT_COMPAT bool setItemParameter(int id, int param);
     QT_COMPAT int itemParameter(int id) const;
 
@@ -255,9 +258,6 @@ public:
 
     //popupmenu
     inline QT_COMPAT void popup(const QPoint & pos, int indexAtPoint) { popup(pos, actions().value(indexAtPoint)); }
-    inline QT_COMPAT int exec(const QPoint & pos, int indexAtPoint) {
-        return findIdForAction(exec(pos, actions().value(indexAtPoint)));
-    }
     inline QT_COMPAT int insertTearOffHandle(int = 0, int = 0) {
         setTearOffEnabled(true);
         return -1;
@@ -295,8 +295,7 @@ private:
     friend class QMenuBar;
     friend class QMenuBarPrivate;
     friend class QTornOffMenu;
-    friend class MyMenu;
-    friend class MyMenuPrivate;
+    friend class QPopupMenu;
     friend class QComboBox;
 
 #ifdef Q_WS_MAC

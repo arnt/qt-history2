@@ -32,7 +32,6 @@ static const int QLAYOUTSIZE_MAX = INT_MAX/256/16;
 
 class QLayout;
 class QLayoutItem;
-class QMenuBar;
 class QSpacerItem;
 class QWidget;
 
@@ -166,10 +165,8 @@ public:
     void setResizeMode(ResizeMode);
     ResizeMode resizeMode() const;
 
-#ifndef QT_NO_MENUBAR
-    virtual void setMenuBar(QMenuBar *w);
-    QMenuBar *menuBar() const;
-#endif
+    void setMenuBar(QWidget *w);
+    QWidget *menuBar() const;
 
     QWidget *parentWidget() const;
     bool isTopLevel() const;

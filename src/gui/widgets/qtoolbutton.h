@@ -101,7 +101,8 @@ public:
     inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setIcon(static_cast<QIconSet>(pixmap)); }
     QT_COMPAT void setOnIconSet(const QIconSet&);
     QT_COMPAT void setOffIconSet(const QIconSet&);
-    QT_COMPAT void setIconSet(const QIconSet &, bool on = true);
+    inline QT_COMPAT void setIconSet(const QIconSet &icon){setIcon(icon);}
+    QT_COMPAT void setIconSet(const QIconSet &, bool on);
     inline QT_COMPAT void setTextLabel(const QString &text, bool tooltip = true) { setText(text); if (tooltip)setToolTip(text);}
     inline QT_COMPAT QString textLabel() const { return text(); }
     QT_COMPAT QIconSet onIconSet() const;

@@ -24,7 +24,7 @@
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qpainter.h"
-#include "q3popupmenu.h"
+#include "qpopupmenu.h"
 #include "qlist.h"
 #include "private/qsqlmanager_p.h"
 #include "qdatetime.h"
@@ -761,7 +761,7 @@ void QDataTable::contentsContextMenuEvent(QContextMenuEvent* e)
             IdUpdate,
             IdDelete
         };
-        QPointer<Q3PopupMenu> popup = new Q3PopupMenu(this, "qt_datatable_menu");
+        QPointer<QPopupMenu> popup = new QPopupMenu(this, "qt_datatable_menu");
         int id[3];
         id[IdInsert] = popup->insertItem(tr("Insert"));
         id[IdUpdate] = popup->insertItem(tr("Update"));
@@ -773,7 +773,7 @@ void QDataTable::contentsContextMenuEvent(QContextMenuEvent* e)
         bool enableDelete = currentRow() > -1 && sqlCursor()->canDelete();
         popup->setItemEnabled(id[IdDelete], enableDelete);
         int r = popup->exec(e->globalPos());
-        delete (Q3PopupMenu*) popup;
+        delete (QPopupMenu*) popup;
         if (r == id[IdInsert])
             beginInsert();
         else if (r == id[IdUpdate]) {

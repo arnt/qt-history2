@@ -4948,8 +4948,8 @@ void Q3TextEdit::pasteSpecial(const QPoint& pt)
 QByteArray Q3TextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint& pt)
 {
     if (ms)  {
-#ifndef QT_NO_POPUPMENU
-        QPopupMenu popup(this, "qt_pickspecial_menu");
+#ifndef QT_NO_MENU
+        QMenu popup(this);
         QString fmt;
         int n = 0;
         QHash<QString, bool> done;

@@ -19,7 +19,6 @@
 #include "qevent.h"
 #include "q3toolbar.h"
 #include "qlist.h"
-#include "q3popupmenu.h"
 #include "qpopupmenu.h"
 #include "qaccel.h"
 #include "qtoolbutton.h"
@@ -83,7 +82,7 @@
     \printline
     \skipto fileSaveAction->addTo
     \printline
-    \skipto new Q3PopupMenu
+    \skipto new QPopupMenu
     \printuntil insertItem
     \skipto fileSaveAction->addTo
     \printline
@@ -127,7 +126,7 @@ public:
 
     struct MenuItem {
         MenuItem():popup(0),id(0){}
-        Q3PopupMenu* popup;
+        QPopupMenu* popup;
         int id;
     };
     // ComboItem is only necessary for actions that are
@@ -185,7 +184,7 @@ Q3ActionPrivate::~Q3ActionPrivate()
     while (itmi != menuitems.end()) {
         mi = *itmi;
         ++itmi;
-        Q3PopupMenu* menu = mi->popup;
+        QPopupMenu* menu = mi->popup;
         if (menu->findItem(mi->id))
             menu->removeItem(mi->id);
     }
@@ -241,7 +240,7 @@ public:
 
     struct MenuItem {
         MenuItem():popup(0),id(0){}
-        Q3PopupMenu* popup;
+        QPopupMenu* popup;
         int id;
     };
     struct Action4Item {
@@ -253,7 +252,7 @@ public:
     QList<QComboBox*> comboboxes;
     QList<QToolButton*> menubuttons;
     QList<MenuItem*> menuitems;
-    QList<Q3PopupMenu*> popupmenus;
+    QList<QPopupMenu*> popupmenus;
 
     void update(const Q3ActionGroup *);
 };
@@ -990,13 +989,13 @@ void Q3Action::toolButtonToggled(bool on)
 /*!
     Adds this action to widget \a w.
 
-    Currently actions may be added to Q3ToolBar and Q3PopupMenu widgets.
+    Currently actions may be added to Q3ToolBar and QPopupMenu widgets.
 
     An action added to a tool bar is automatically displayed as a tool
     button; an action added to a pop up menu appears as a menu option.
 
     addTo() returns true if the action was added successfully and
-    false otherwise. (If \a w is not a Q3ToolBar or Q3PopupMenu the
+    false otherwise. (If \a w is not a Q3ToolBar or QPopupMenu the
     action will not be added and false will be returned.)
 
     \sa removeFrom()
@@ -1023,12 +1022,12 @@ bool Q3Action::addTo(QWidget* w)
         }
     } else
 #endif
-    if (qt_cast<Q3PopupMenu*>(w)) {
+    if (qt_cast<QPopupMenu*>(w)) {
         Q3ActionPrivate::MenuItem* mi = new Q3ActionPrivate::MenuItem;
-        mi->popup = (Q3PopupMenu*) w;
+        mi->popup = (QPopupMenu*) w;
         QIconSet* diconset = d->iconset;
         if (objectName() == QLatin1String("qt_separator_action"))
-            mi->id = ((Q3PopupMenu*)w)->insertSeparator();
+            mi->id = ((QPopupMenu*)w)->insertSeparator();
         else if (diconset)
             mi->id = mi->popup->insertItem(*diconset, QString::fromLatin1(""));
         else
@@ -1094,7 +1093,7 @@ void Q3Action::addedTo(QWidget *actionWidget, QWidget *container)
     menu \a menu.
 */
 
-void Q3Action::addedTo(int index, Q3PopupMenu *menu)
+void Q3Action::addedTo(int index, QPopupMenu *menu)
 {
     Q_UNUSED(index);
     Q_UNUSED(menu);
@@ -1107,10 +1106,10 @@ void Q3Action::showStatusText(const QString& text)
 {
 #ifndef QT_NO_STATUSBAR
     // find out whether we are clearing the status bar by the popup that actually set the text
-    static Q3PopupMenu *lastmenu = 0;
+    static QPopupMenu *lastmenu = 0;
     QObject *s = (QObject*)sender();
     if (s) {
-        Q3PopupMenu *menu = qt_cast<Q3PopupMenu*>(s);
+        QPopupMenu *menu = qt_cast<QPopupMenu*>(s);
         if (menu && text.size())
             lastmenu = menu;
         else if (menu && text.isEmpty()) {
@@ -1203,7 +1202,7 @@ bool Q3Action::removeFrom(QWidget* w)
         }
     } else
 #endif
-    if (::qt_cast<Q3PopupMenu*>(w)) {
+    if (::qt_cast<QPopupMenu*>(w)) {
         QList<Q3ActionPrivate::MenuItem*>::Iterator it(d->menuitems.begin());
         Q3ActionPrivate::MenuItem* mi;
         while (it != d->menuitems.end()) {
@@ -1373,17 +1372,17 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
     }
     for (QList<Q3ActionGroupPrivate::MenuItem*>::Iterator pu(menuitems.begin()); pu != menuitems.end(); ++pu) {
         QWidget* parent = (*pu)->popup->parentWidget();
-        if (::qt_cast<Q3PopupMenu*>(parent)) {
-            Q3PopupMenu* ppopup = (Q3PopupMenu*)parent;
+        if (::qt_cast<QPopupMenu*>(parent)) {
+            QPopupMenu* ppopup = (QPopupMenu*)parent;
             ppopup->setItemEnabled((*pu)->id, that->isEnabled());
             ppopup->setItemVisible((*pu)->id, that->isVisible());
         } else {
             (*pu)->popup->setEnabled(that->isEnabled());
         }
     }
-    for (QList<Q3PopupMenu*>::Iterator pm(popupmenus.begin()); pm != popupmenus.end(); ++pm) {
-        Q3PopupMenu *popup = *pm;
-        Q3PopupMenu *parent = ::qt_cast<Q3PopupMenu*>(popup->parentWidget());
+    for (QList<QPopupMenu*>::Iterator pm(popupmenus.begin()); pm != popupmenus.end(); ++pm) {
+        QPopupMenu *popup = *pm;
+        QPopupMenu *parent = ::qt_cast<QPopupMenu*>(popup->parentWidget());
         if (!parent)
             continue;
 
@@ -1521,9 +1520,9 @@ Q3ActionGroup::~Q3ActionGroup()
         ++mbit;
         mb->disconnect(SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
     }
-    QList<Q3PopupMenu*>::Iterator pmit(d->popupmenus.begin());
+    QList<QPopupMenu*>::Iterator pmit(d->popupmenus.begin());
     while (pmit != d->popupmenus.end()) {
-        Q3PopupMenu *pm = *pmit;
+        QPopupMenu *pm = *pmit;
         ++pmit;
         pm->disconnect(SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
     }
@@ -1642,7 +1641,7 @@ void Q3ActionGroup::add(Q3Action* action)
         action->addTo((*ac)->action->menu());
     for (QList<Q3ActionGroupPrivate::MenuItem*>::Iterator mi(d->menuitems.begin());
          mi != d->menuitems.end(); ++mi) {
-        Q3PopupMenu* popup = (*mi)->popup;
+        QPopupMenu* popup = (*mi)->popup;
         if (!popup)
             continue;
         action->addTo(popup);
@@ -1764,11 +1763,11 @@ bool Q3ActionGroup::addTo(QWidget *w)
         }
     } else
 #endif
-    if (::qt_cast<Q3PopupMenu*>(w)) {
-        Q3PopupMenu *popup;
+    if (::qt_cast<QPopupMenu*>(w)) {
+        QPopupMenu *popup;
         if (d->dropdown) {
-            Q3PopupMenu *menu = (Q3PopupMenu*)w;
-            popup = new Q3PopupMenu(w, "qt_actiongroup_menu");
+            QPopupMenu *menu = (QPopupMenu*)w;
+            popup = new QPopupMenu(w, "qt_actiongroup_menu");
             d->popupmenus.append(popup);
             connect(popup, SIGNAL(destroyed()), SLOT(objectDestroyed()));
 
@@ -1792,7 +1791,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
             item->popup = popup;
             d->menuitems.append(item);
         } else {
-            popup = (Q3PopupMenu*)w;
+            popup = (QPopupMenu*)w;
         }
         for (QList<Q3Action*>::Iterator it(d->actions.begin()); it != d->actions.end(); ++it) {
             // #### do an addedTo(index, popup, action), need to find out index
@@ -1856,13 +1855,13 @@ bool Q3ActionGroup::removeFrom(QWidget* w)
         }
     } else
 #endif
-    if (::qt_cast<Q3PopupMenu*>(w)) {
+    if (::qt_cast<QPopupMenu*>(w)) {
         QList<Q3ActionGroupPrivate::MenuItem*>::Iterator pu(d->menuitems.begin());
         while (pu != d->menuitems.end()) {
             Q3ActionGroupPrivate::MenuItem *mi = *pu;
             ++pu;
             if (d->dropdown && mi->popup)
-                ((Q3PopupMenu*)w)->removeItem(mi->id);
+                ((QPopupMenu*)w)->removeItem(mi->id);
             delete mi->popup;
         }
     }
@@ -2057,7 +2056,7 @@ void Q3ActionGroup::childEvent(QChildEvent *e)
     }
     for (QList<Q3ActionGroupPrivate::MenuItem*>::Iterator mi(d->menuitems.begin());
          mi != d->menuitems.end(); ++mi) {
-        Q3PopupMenu* popup = (*mi)->popup;
+        QPopupMenu* popup = (*mi)->popup;
         if (!popup)
             continue;
         action->removeFrom(popup);
@@ -2175,7 +2174,7 @@ void Q3ActionGroup::objectDestroyed()
             break;
         }
     }
-    d->popupmenus.removeAll((Q3PopupMenu*)obj);
+    d->popupmenus.removeAll((QPopupMenu*)obj);
     d->comboboxes.removeAll((QComboBox*)obj);
 }
 
@@ -2200,7 +2199,7 @@ void Q3ActionGroup::addedTo(QWidget *actionWidget, QWidget *container, Q3Action 
     index in the popup menu \a menu.
 */
 
-void Q3ActionGroup::addedTo(int index, Q3PopupMenu *menu, Q3Action *a)
+void Q3ActionGroup::addedTo(int index, QPopupMenu *menu, Q3Action *a)
 {
     Q_UNUSED(index);
     Q_UNUSED(menu);
@@ -2230,7 +2229,7 @@ void Q3ActionGroup::addedTo(QWidget *actionWidget, QWidget *container)
     menu \a menu.
 */
 
-void Q3ActionGroup::addedTo(int index, Q3PopupMenu *menu)
+void Q3ActionGroup::addedTo(int index, QPopupMenu *menu)
 {
     Q_UNUSED(index);
     Q_UNUSED(menu);

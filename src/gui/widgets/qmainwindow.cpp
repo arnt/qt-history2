@@ -101,7 +101,7 @@ QMainWindow::~QMainWindow()
 */
 QMenuBar *QMainWindow::menuBar() const
 {
-    QMenuBar *menubar = d->layout->menuBar();
+    QMenuBar *menubar = qt_cast<QMenuBar*>(d->layout->menuBar());
     if (!menubar) {
 	QMainWindow *self = const_cast<QMainWindow *>(this);
 	menubar = new QMenuBar(self);
@@ -239,7 +239,7 @@ void QMainWindow::childEvent(QChildEvent *event)
 	QMenuBar *menubar;
 	QStatusBar *statusbar;
 	if ((menubar = qt_cast<QMenuBar *>(event->child()))) {
-	    QMenuBar *mb = d->layout->menuBar();
+	    QMenuBar *mb = qt_cast<QMenuBar*>(d->layout->menuBar());
 	    Q_ASSERT(mb == 0 || mb == menubar);
 	    if (!mb)
                 d->layout->setMenuBar(menubar);

@@ -23,7 +23,7 @@
 #include "qlayout.h"
 #include "qsizegrip.h"
 #include "qwhatsthis.h"
-#include "qpopupmenu.h"
+#include "qmenu.h"
 #include "qcursor.h"
 #include "private/qdialog_p.h"
 #ifndef QT_NO_ACCESSIBILITY
@@ -458,7 +458,7 @@ bool QDialog::eventFilter(QObject *o, QEvent *e)
 /*! \reimp */
 void QDialog::contextMenuEvent(QContextMenuEvent *e)
 {
-#if !defined(QT_NO_WHATSTHIS) && !defined(QT_NO_POPUPMENU)
+#if !defined(QT_NO_WHATSTHIS) && !defined(QT_NO_MENU)
     QWidget *w = childAt(e->pos());
     if (!w) {
         w = rect().contains(e->pos()) ? this : 0;
@@ -468,7 +468,7 @@ void QDialog::contextMenuEvent(QContextMenuEvent *e)
     while (w && w->whatsThis().size() == 0 && !w->testAttribute(Qt::WA_CustomWhatsThis))
         w = w->isTopLevel() ? 0 : w->parentWidget();
     if (w) {
-        QPopupMenu p(0,"qt_whats_this_menu");
+        QMenu p;
         QAction *wt = p.addAction(tr("What's This?"));
         if (p.exec(e->globalPos()) == wt) {
             QHelpEvent e(QEvent::WhatsThis, w->rect().center(),

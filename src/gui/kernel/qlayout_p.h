@@ -44,9 +44,7 @@ public:
     uint autoResizeMode : 1;
     uint autoNewChild : 1;
     QRect rect;
-#ifndef QT_NO_MENUBAR
-    QMenuBar *menubar;
-#endif
+    QWidget *menubar;
 };
 
 #endif
