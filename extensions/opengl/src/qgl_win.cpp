@@ -30,13 +30,13 @@
 
 
 /*****************************************************************************
-  QColorMap class - temporarily here, until it is ready for prime time
+  QGLColorMap class - temporarily here, until it is ready for prime time
  *****************************************************************************/
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolormap.h#0 $
+** $Id: //depot/qt/main/src/kernel/QGLColorMap.h#0 $
 **
-** Definition of QColorMap class
+** Definition of QGLColorMap class
 **
 ** Created : 20000510
 **
@@ -60,23 +60,23 @@
 
 
 
-#ifndef QCOLORMAP_H
-#define QCOLORMAP_H
+#ifndef QGLColorMap_H
+#define QGLColorMap_H
 
 #include <qcolor.h>
 
-class QColorMapPrivate;
+class QGLColorMapPrivate;
 
-class /*Q_EXPORT*/ QColorMap
+class /*Q_EXPORT*/ QGLColorMap
 {
 public:
     enum Flags { Reserved = 0x01 };
 
-    QColorMap( int maxSize = 256 );
-    QColorMap( const QColorMap& map );
-    ~QColorMap();
+    QGLColorMap( int maxSize = 256 );
+    QGLColorMap( const QGLColorMap& map );
+    ~QGLColorMap();
 
-    QColorMap& operator=( const QColorMap& map );
+    QGLColorMap& operator=( const QGLColorMap& map );
 
     // isEmpty and/or isNull ?
     int size() const;
@@ -94,7 +94,7 @@ public:
 
 private:
     void detach();
-    QColorMapPrivate* d;
+    QGLColorMapPrivate* d;
 };
     
 #endif
@@ -102,9 +102,9 @@ private:
 
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolormap.cpp#0 $
+** $Id: //depot/qt/main/src/kernel/QGLColorMap.cpp#0 $
 **
-** Implementation of QColorMap class
+** Implementation of QGLColorMap class
 **
 ** Created : 20000510
 **
@@ -127,14 +127,14 @@ private:
 *****************************************************************************/
 
 
-//#include <qcolormap.h>
+//#include <QGLColorMap.h>
 #include <qshared.h>
 #include <qarray.h>
 #include <qmap.h>
 
 
 
-class QColorMapPrivate : public QShared
+class QGLColorMapPrivate : public QShared
 {
 public:
     enum AllocState{ UnAllocated = 0, Allocated = 0x01, Reserved = 0x02 };
@@ -148,21 +148,21 @@ public:
 
 
 
-QColorMap::QColorMap( int maxSize ) // add a bool prealloc?
+QGLColorMap::QGLColorMap( int maxSize ) // add a bool prealloc?
 {
-    d = new QColorMapPrivate;
+    d = new QGLColorMapPrivate;
     d->maxSize = maxSize;
 }
 
 
-QColorMap::QColorMap( const QColorMap& map )
+QGLColorMap::QGLColorMap( const QGLColorMap& map )
 {
     d = map.d;
     d->ref();
 }
 
 
-QColorMap::~QColorMap()
+QGLColorMap::~QGLColorMap()
 {
     if ( d && d->deref() )
 	delete d;
@@ -170,7 +170,7 @@ QColorMap::~QColorMap()
 }
 
 
-QColorMap& QColorMap::operator=( const QColorMap& map )
+QGLColorMap& QGLColorMap::operator=( const QGLColorMap& map )
 {
     map.d->ref();
     if ( d->deref() )
@@ -180,23 +180,23 @@ QColorMap& QColorMap::operator=( const QColorMap& map )
 }
 
 
-int QColorMap::size() const
+int QGLColorMap::size() const
 {
     return d->colorArray.size();
 }
 
 
-int QColorMap::maxSize() const
+int QGLColorMap::maxSize() const
 {
     return d->maxSize;
 }
 
 
-void QColorMap::detach()
+void QGLColorMap::detach()
 {
     if ( d->count != 1 ) {
 	d->deref();
-	QColorMapPrivate* newd = new QColorMapPrivate;
+	QGLColorMapPrivate* newd = new QGLColorMapPrivate;
 	newd->maxSize = d->maxSize;
 	newd->colorArray = d->colorArray.copy();
 	newd->allocArray = d->allocArray.copy();
@@ -207,11 +207,11 @@ void QColorMap::detach()
 }
 
 
-void QColorMap::resize( int newSize )
+void QGLColorMap::resize( int newSize )
 {
 #if defined (CHECK_RANGE)
     if ( newSize < 0 || newSize > d->maxSize ) {
-	qWarning( "QColorMap::resize(): size out of range" );
+	qWarning( "QGLColorMap::resize(): size out of range" );
 	return;
     }
 #endif
@@ -228,7 +228,7 @@ void QColorMap::resize( int newSize )
 }
 
 
-int QColorMap::find( QRgb color ) const
+int QGLColorMap::find( QRgb color ) const
 {
     QMap<uint,int>::ConstIterator it = d->colorMap.find( color );
     if ( it != d->colorMap.end() )
@@ -237,7 +237,7 @@ int QColorMap::find( QRgb color ) const
 }
 
 
-int QColorMap::findNearest( QRgb color ) const
+int QGLColorMap::findNearest( QRgb color ) const
 {
     int idx = find( color );
     if ( idx >= 0 )
@@ -249,7 +249,7 @@ int QColorMap::findNearest( QRgb color ) const
     int b = qBlue( color );
     int rx, gx, bx, dist;
     for ( int i=0; i < mapSize; i++ ) {
-	if ( !(d->allocArray[i] & QColorMapPrivate::Allocated) )
+	if ( !(d->allocArray[i] & QGLColorMapPrivate::Allocated) )
 	    continue;
 	QRgb ci = d->colorArray[i];
 	rx = r - qRed( ci );
@@ -269,14 +269,14 @@ int QColorMap::findNearest( QRgb color ) const
 
 // Does not always allocate; returns existing c idx if found
 
-int QColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
+int QGLColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
 {
     int idx = find( color );
     if ( idx >= 0 )
 	return idx;
 
     int mapSize = d->colorArray.size();
-    int newIdx = d->allocArray.find( QColorMapPrivate::UnAllocated );
+    int newIdx = d->allocArray.find( QGLColorMapPrivate::UnAllocated );
 
     if ( newIdx < 0 ) {			// Must allocate more room
 	if ( mapSize < d->maxSize ) {
@@ -292,11 +292,11 @@ int QColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
     }
 
     d->colorArray[newIdx] = color;
-    if ( flags & QColorMap::Reserved ) {
-	d->allocArray[newIdx] = QColorMapPrivate::Reserved;
+    if ( flags & QGLColorMap::Reserved ) {
+	d->allocArray[newIdx] = QGLColorMapPrivate::Reserved;
     }
     else {
-	d->allocArray[newIdx] = QColorMapPrivate::Allocated;
+	d->allocArray[newIdx] = QGLColorMapPrivate::Allocated;
 	d->colorMap.insert( color, newIdx );
     }
     d->contextArray[newIdx] = context;
@@ -304,11 +304,11 @@ int QColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
 }
 
 
-void QColorMap::setEntry( int idx, QRgb color, uint flags, Q_UINT8 context )
+void QGLColorMap::setEntry( int idx, QRgb color, uint flags, Q_UINT8 context )
 {
 #if defined (CHECK_RANGE)
     if ( idx < 0 || idx >= d->maxSize ) {
-	qWarning( "QColorMap::set(): Index out of range" );
+	qWarning( "QGLColorMap::set(): Index out of range" );
 	return;
     }
 #endif
@@ -319,18 +319,18 @@ void QColorMap::setEntry( int idx, QRgb color, uint flags, Q_UINT8 context )
 	resize( mapSize );
     }
     d->colorArray[idx] = color;
-    if ( flags & QColorMap::Reserved ) {
-	d->allocArray[idx] = QColorMapPrivate::Reserved;
+    if ( flags & QGLColorMap::Reserved ) {
+	d->allocArray[idx] = QGLColorMapPrivate::Reserved;
     }
     else {
-	d->allocArray[idx] = QColorMapPrivate::Allocated;
+	d->allocArray[idx] = QGLColorMapPrivate::Allocated;
 	d->colorMap.insert( color, idx );
     }
     d->contextArray[idx] = context;
 }
 
 
-const QRgb* QColorMap::colors() const
+const QRgb* QGLColorMap::colors() const
 {
     return d->colorArray.data();
 }
@@ -484,9 +484,9 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	    else
 		transpColor = QColor( qRgb( 1, 2, 3 ), 0 );
 
-	    cmap = new QColorMap( 1 << lpfd.cColorBits );
+	    cmap = new QGLColorMap( 1 << lpfd.cColorBits );
 	    cmap->setEntry( lpfd.crTransparent, qRgb( 1, 2, 3 ),
-			    QColorMap::Reserved );
+			    QGLColorMap::Reserved );
 	}
 
 	if ( win )
@@ -725,9 +725,11 @@ void QGLContext::doneCurrent()
     currentCtx = 0;
     //#### should use wglRealizeLayerPalette to release colors here?
     // depending on visibility of window?
-    wglMakeCurrent( dc, 0 );			// Also releases dc
-    if ( win )
+    wglMakeCurrent( 0, 0 );
+    if ( win && dc ) {
+	ReleaseDC( win, dc );
 	dc = 0;
+    }
 }
 
 
