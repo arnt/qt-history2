@@ -1252,7 +1252,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     if (event && event->type() == QEvent::KeyPress
         && d->beginEditActions & AnyKeyPressed
         && action & AnyKeyPressed)
-        QApplication::sendEvent(editor, event);
+        QApplication::sendEvent(editor->focusProxy() ? editor->focusProxy() : editor, event);
     d->state = EditingState;
     editor->show();
     editor->setFocus();
@@ -1262,13 +1262,11 @@ bool QAbstractItemView::edit(const QModelIndex &index,
 
 /*!
     Ends the editing operation on the item represented by the given \a index.
-    If \a commit is true, the model item is updated with the value held by
-    the editor; otherwise the editor's value is ignored. In both cases, if
-    there was an editor widget it is released.
+    If there was an editor widget it is released.
 
     \sa edit() QAbstractItemDelegate::releaseEditor()
 */
-void QAbstractItemView::endEdit(const QModelIndex &index, bool commit)
+void QAbstractItemView::endEdit(const QModelIndex &index)
 {
     QPersistentModelIndex persistent(index, model());
     if (!persistent.isValid())
@@ -1277,17 +1275,14 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool commit)
     d->state = NoState;
 
     QWidget *editor = d->editors.value(persistent);
-    if (editor) {
-        if (commit)
-            itemDelegate()->setModelData(editor, model(), index);
-        if (!d->persistent.contains(editor)) { // if the editor is not persistent, remove it
-            QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
-                                this, SLOT(editorDestroyed(QObject*)));
-            d->editors.remove(persistent);
-            itemDelegate()->releaseEditor(editor);
-        }
-        setFocus();
+    if (editor && !d->persistent.contains(editor)) { // if the editor is not persistent, remove it
+        QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
+                            this, SLOT(editorDestroyed(QObject*)));
+        d->editors.remove(persistent);
+        itemDelegate()->releaseEditor(editor);
     }
+
+    setFocus();
 }
 
 /*!
@@ -1377,7 +1372,7 @@ void QAbstractItemView::selectionModelDestroyed()
 */
 void QAbstractItemView::doneEditing(QWidget *editor)
 {
-    endEdit(d->editors.key(editor), false);
+    endEdit(d->editors.key(editor));
 }
 
 /*!
@@ -1659,7 +1654,6 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     if (previous.isValid()) {
-        endEdit(model()->buddy(previous), true); // always submit data
         int behavior = selectionBehavior();
         QRect rect = itemViewportRect(previous);
         if (behavior & SelectRows) {

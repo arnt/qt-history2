@@ -591,7 +591,9 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
 {
     QLineEdit *editor = ::qt_cast<QLineEdit*>(object);
-    if (editor && event->type() == QEvent::KeyPress) {
+    if (!editor)
+        return false;
+    if (event->type() == QEvent::KeyPress) {
         switch (static_cast<QKeyEvent *>(event)->key()) {
         case Qt::Key_Enter:
         case Qt::Key_Return:
@@ -602,6 +604,10 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         default:
             break;
         }
+    } else if (event->type() == QEvent::FocusOut) {
+        emit commitData(editor);
+        emit doneEditing(editor);
+        return true;
     }
     return false;
 }

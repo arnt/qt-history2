@@ -183,7 +183,7 @@ protected:
     virtual QModelIndexList selectedIndexes() const;
 
     virtual bool edit(const QModelIndex &index, BeginEditAction action, QEvent *event);
-    virtual void endEdit(const QModelIndex &index, bool accepted = true);
+    virtual void endEdit(const QModelIndex &index);
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
                                                                  const QEvent *event) const;
