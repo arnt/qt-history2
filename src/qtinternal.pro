@@ -7,16 +7,8 @@ X11ONLY	    =	dialogs/qprndlg.h \
 		kernel/qt_x11.cpp
 
 # Non-public Qt files which we use internally in our Qt library
-INT_HEADERS =	dialogs/qfontdialog.h \
-		widgets/qheader.h \
-		widgets/qscrollview.h \
-		widgets/qlistview.h \
-		widgets/qspinbox.h
-INT_SOURCES =	dialogs/qfontdialog.cpp \
-		widgets/qheader.cpp \
-		widgets/qscrollview.cpp \
-		widgets/qlistview.cpp \
-		widgets/qspinbox.cpp
+INT_HEADERS =	dialogs/qfontdialog.h
+INT_SOURCES =	dialogs/qfontdialog.cpp
 
 # Other non-public Qt files
 INT_MISC    =	kernel/qpshdr.txt \

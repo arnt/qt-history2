@@ -52,44 +52,44 @@ shared: Makefile.shared
 shareddbg: Makefile.shareddbg
 	make -f Makefile.shareddbg
 
-Makefile.static: qtx11.pro qtinternal.pro Makefile
+Makefile.static: qt.pro qtinternal.pro Makefile
 	mkdir -p obj/static
-	tmake qtx11.pro -p qtinternal.pro -o Makefile.static "CONFIG+=staticlib" "OBJECTS_DIR=obj/static"
+	tmake qt.pro -p qtinternal.pro -o Makefile.static "CONFIG+=staticlib" "OBJECTS_DIR=obj/static"
 	make -s include
 
-Makefile.staticdbg: qtx11.pro qtinternal.pro Makefile
+Makefile.staticdbg: qt.pro qtinternal.pro Makefile
 	mkdir -p obj/staticdbg
-	tmake qtx11.pro -p qtinternal.pro -o Makefile.staticdbg "CONFIG+=staticlib debug" "OBJECTS_DIR=obj/staticdbg"
+	tmake qt.pro -p qtinternal.pro -o Makefile.staticdbg "CONFIG+=staticlib debug" "OBJECTS_DIR=obj/staticdbg"
 	make -s include
 
-Makefile.shared: qtx11.pro qtinternal.pro Makefile
+Makefile.shared: qt.pro qtinternal.pro Makefile
 	mkdir -p obj/shared
-	tmake qtx11.pro -p qtinternal.pro -o Makefile.shared "OBJECTS_DIR=obj/shared"
+	tmake qt.pro -p qtinternal.pro -o Makefile.shared "OBJECTS_DIR=obj/shared"
 	make -s include
 
-Makefile.shareddbg: qtx11.pro qtinternal.pro Makefile
+Makefile.shareddbg: qt.pro qtinternal.pro Makefile
 	mkdir -p obj/shareddbg
-	tmake qtx11.pro -p qtinternal.pro -o Makefile.shareddbg "CONFIG+=debug" "OBJECTS_DIR=obj/shareddbg"
+	tmake qt.pro -p qtinternal.pro -o Makefile.shareddbg "CONFIG+=debug" "OBJECTS_DIR=obj/shareddbg"
 	make -s include
 
 
 showdirs:
-	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("DIRS")'
+	@tmake qt.pro -p qtinternal.pro -e 'Expand("DIRS")'
 
 showfiles:
-	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("HEADERS","SOURCES")'
+	@tmake qt.pro -p qtinternal.pro -e 'Expand("HEADERS","SOURCES")'
 
 showheaders:
-	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("HEADERS")'
+	@tmake qt.pro -p qtinternal.pro -e 'Expand("HEADERS")'
 
 showsources:
-	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("SOURCES")'
+	@tmake qt.pro -p qtinternal.pro -e 'Expand("SOURCES")'
 
 showinternal:
-	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("INTERNAL")'
+	@tmake qt.pro -p qtinternal.pro -e 'Expand("INTERNAL")'
 
 showx11only:
-	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("X11ONLY")'
+	@tmake qt.pro -p qtinternal.pro -e 'Expand("X11ONLY")'
 
 
 include:
@@ -107,7 +107,7 @@ clean:
 
 
 tags:
-	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("HEADERS","SOURCES")' \
+	@tmake qt.pro -p qtinternal.pro -e 'Expand("HEADERS","SOURCES")' \
 		| fmt -1 | etags --c++ -
 
 
@@ -136,7 +136,7 @@ help:
 	@echo ""
 
 details:
-	@echo "The file qtx11.pro contains a list of all public Qt files."
+	@echo "The file qt.pro contains a list of all public Qt files."
 	@echo "You should not need to modify this file."
 	@echo ""
 	@echo "The file qtinternal.pro is an internal project file for Troll Tech."
