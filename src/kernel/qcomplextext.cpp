@@ -586,9 +586,25 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	if ( r != 0x06 ) {
 	    if ( r == 0x20 ) {
 		uchar c = ch->cell();
-		if (c == 0x0c || c == 0x0d)
-		    // remove ZWJ and ZWNJ
+	        // remove ZWJ and ZWNJ and BiDi Marks (if dir != Auto)
+ 		switch ( c ) {
+		case 0x0E:
+		case 0x0F:
+		case 0x2A:
+		case 0x2B:
+		case 0x2C:
+		case 0x2D:
+		case 0x2E:
+		    if ( dir == QPainter::Auto ) {
+			// still need the marks for the bidi algorithm
+			break;
+		    }
+		case 0x0C: // ZERO WIDTH NONJOINER
+		case 0x0D: // ZERO WIDTH JOINER
 		    goto skip;
+		default:
+		    break;
+		}
 	    }
 	    if ( dir == QPainter::RTL )
 		*data = mirroredChar( *ch );
@@ -694,11 +710,18 @@ QChar QComplexText::shapedCharacter( const QString &str, int pos, const QFontMet
 	if ( r == 0x20 ) {
 	    // remove ZWJ and ZWNJ
 	    switch ( ch->cell() ) {
-		case 0x0C: // ZERO WIDTH NONJOINER
-		case 0x0D: // ZERO WIDTH JOINER
-		    return QChar(0);
-		default:
-		    break;
+	    case 0x0C: // ZERO WIDTH NONJOINER
+	    case 0x0D: // ZERO WIDTH JOINER
+	    case 0x0E:
+	    case 0x0F:
+	    case 0x2A:
+	    case 0x2B:
+	    case 0x2C:
+	    case 0x2D:
+	    case 0x2E:
+		return QChar(0);
+	    default:
+		break;
 	    }
 	}
 	return *ch;
