@@ -1,5 +1,39 @@
 # Qt graphics 
 
+#mng support
+HEADERS += $$KERNEL_H/qmngio.h
+SOURCES += $$KERNEL_CPP/qmngio.cpp
+mng {
+	INCLUDEPATH        += 3rdparty/libmng
+	SOURCES += 3rdparty/libmng/libmng_callback_xs.c \
+		  3rdparty/libmng/libmng_chunk_io.c \
+		  3rdparty/libmng/libmng_chunk_prc.c \
+		  3rdparty/libmng/libmng_chunk_xs.c \
+		  3rdparty/libmng/libmng_cms.c \
+		  3rdparty/libmng/libmng_display.c \
+		  3rdparty/libmng/libmng_dither.c \
+		  3rdparty/libmng/libmng_error.c \
+		  3rdparty/libmng/libmng_filter.c \
+		  3rdparty/libmng/libmng_hlapi.c \
+		  3rdparty/libmng/libmng_jpeg.c \
+		  3rdparty/libmng/libmng_object_prc.c \
+		  3rdparty/libmng/libmng_pixels.c \
+		  3rdparty/libmng/libmng_prop_xs.c \
+		  3rdparty/libmng/libmng_read.c \
+		  3rdparty/libmng/libmng_trace.c \
+		  3rdparty/libmng/libmng_write.c \
+		  3rdparty/libmng/libmng_zlib.c
+
+	!jpeg {
+		message(Use of mng requires support for jpeg)
+		CONFIG += jpeg
+	}
+}
+system-mng:unix:LIBS += -lmng
+system-mng:mac:LIBS += -lmng
+system-mng:win32:LIBS += libmng.lib
+!mng:!system-mng:DEFINES += QT_NO_IMAGEIO_MNG
+
 #jpeg support..
 HEADERS += $$KERNEL_H/qjpegio.h 
 SOURCES += $$KERNEL_CPP/qjpegio.cpp
@@ -56,40 +90,6 @@ system-jpeg:unix:LIBS += -ljpeg
 system-jpeg:mac:LIBS += -ljpeg
 system-jpeg:win32:LIBS += libjpeg.lib
 !jpeg:!system-jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
-
-#mng support
-HEADERS += $$KERNEL_H/qmngio.h
-SOURCES += $$KERNEL_CPP/qmngio.cpp
-mng {
-	INCLUDEPATH        += 3rdparty/libmng
-	SOURCES += 3rdparty/libmng/libmng_callback_xs.c \
-		  3rdparty/libmng/libmng_chunk_io.c \
-		  3rdparty/libmng/libmng_chunk_prc.c \
-		  3rdparty/libmng/libmng_chunk_xs.c \
-		  3rdparty/libmng/libmng_cms.c \
-		  3rdparty/libmng/libmng_display.c \
-		  3rdparty/libmng/libmng_dither.c \
-		  3rdparty/libmng/libmng_error.c \
-		  3rdparty/libmng/libmng_filter.c \
-		  3rdparty/libmng/libmng_hlapi.c \
-		  3rdparty/libmng/libmng_jpeg.c \
-		  3rdparty/libmng/libmng_object_prc.c \
-		  3rdparty/libmng/libmng_pixels.c \
-		  3rdparty/libmng/libmng_prop_xs.c \
-		  3rdparty/libmng/libmng_read.c \
-		  3rdparty/libmng/libmng_trace.c \
-		  3rdparty/libmng/libmng_write.c \
-		  3rdparty/libmng/libmng_zlib.c
-
-	contains(DEFINES, QT_NO_IMAGEIO_JPEG) {
-		message(Use of mng requires support for jpeg)
-		CONFIG += jpeg
-	}
-}
-system-mng:unix:LIBS += -lmng
-system-mng:mac:LIBS += -lmng
-system-mng:win32:LIBS += libmng.lib
-!mng:!system-mng:DEFINES += QT_NO_IMAGEIO_MNG
 
 #png support
 HEADERS+=$$KERNEL_H/qpngio.h
