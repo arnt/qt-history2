@@ -104,7 +104,7 @@ QSvgDevice::QSvgDevice()
 }
 
 /*!
-    Destroys the QSvgDevice object and frees the resources it used.
+    Destroys the QSvgDevice object, and frees the resources it used.
 */
 
 QSvgDevice::~QSvgDevice()
@@ -377,7 +377,7 @@ int QSvgDevice::metric( int m ) const
 /*!
     \internal
 
-    Records painter commands and stores them in the QDomDocument doc.
+    Records painter commands, and stores them in the QDomDocument doc.
 */
 bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 {
@@ -677,7 +677,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 /*!
     \internal
 
-    Appends the child and applys any style and transformation.
+    Appends the child, and applies any style and transformation.
 
 */
 
