@@ -562,6 +562,23 @@ int QHeaderView::sectionPosition(int section) const
 }
 
 /*!
+  \internal
+*/
+
+void QHeaderView::initializeSections()
+{
+    if (d->orientation == Qt::Horizontal) {
+        int c = d->model->columnCount(root());
+        if (c != count())
+            initializeSections(0, c > 0 ? c - 1 : 0);
+    } else {
+        int r = d->model->rowCount(root());
+        if (r != count())
+            initializeSections(0, r > 0 ? r - 1 : 0);
+    }
+}
+
+/*!
     \internal
 */
 
@@ -1062,13 +1079,7 @@ QModelIndex QHeaderView::itemAt(int x, int y) const
 
 void QHeaderView::doItemsLayout()
 {
-    if (d->orientation == Qt::Horizontal) {
-        int c = d->model->columnCount(root());
-        initializeSections(0, c > 0 ? c - 1 : 0);
-    } else {
-        int r = d->model->rowCount(root());
-        initializeSections(0, r > 0 ? r - 1 : 0);
-    }
+    initializeSections();
     QAbstractItemView::doItemsLayout();
 }
 
@@ -1299,6 +1310,7 @@ bool QHeaderView::highlightCurrentSection() const
 
 void QHeaderView::setResizeMode(ResizeMode mode)
 {
+    initializeSections();
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data();
     for (int i = 0; i < d->sections.count(); ++i)
         sections[i].mode = mode;
@@ -1316,6 +1328,7 @@ void QHeaderView::setResizeMode(ResizeMode mode)
 
 void QHeaderView::setResizeMode(ResizeMode mode, int section)
 {
+    initializeSections();
     if (section >= d->sections.count()) {
         qWarning("setResizeMode: section %d does not exist", section);
         return;

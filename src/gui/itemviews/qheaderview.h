@@ -107,6 +107,7 @@ protected slots:
 protected:
     QHeaderView(QHeaderViewPrivate &, Qt::Orientation orientation, QWidget *parent);
 
+    void initializeSections();
     void initializeSections(int start, int end);
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
