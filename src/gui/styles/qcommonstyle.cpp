@@ -1570,13 +1570,14 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
                 default:
                 case Qt::AlignLeft:
-                    r.moveTopLeft(QPoint(0, 0));
+                    r.moveTopLeft(QPoint(twf->leftCornerWidgetSize.width(), 0));
                     break;
                 case Qt::AlignCenter:
                     r.moveTopLeft(QPoint(twf->rect.center().x() - twf->tabBarSize.width() / 2, 0));
                     break;
                 case Qt::AlignRight:
-                    r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(), 0));
+                    r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width()
+                                         - twf->rightCornerWidgetSize.width(), 0));
                     break;
                 }
                 r = visualRect(twf->direction, twf->rect, r);
@@ -1586,25 +1587,28 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
                 default:
                 case Qt::AlignLeft:
-                    r.moveTopLeft(QPoint(0, twf->rect.height() - twf->tabBarSize.height()));
+                    r.moveTopLeft(QPoint(twf->leftCornerWidgetSize.width(),
+                                         twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 case Qt::AlignCenter:
                     r.moveTopLeft(QPoint(twf->rect.center().x() - twf->tabBarSize.width() / 2,
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 case Qt::AlignRight:
-                    r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(),
+                    r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width()
+                                         - twf->rightCornerWidgetSize.width(),
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 }
-                r = visualRect(opt->direction, opt->rect, r);
+                r = visualRect(twf->direction, twf->rect, r);
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
                 default:
                 case Qt::AlignLeft:
-                    r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(), 0));
+                    r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(),
+                                         twf->leftCornerWidgetSize.height()));
                     break;
                 case Qt::AlignCenter:
                     r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(),
@@ -1612,7 +1616,8 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                     break;
                 case Qt::AlignRight:
                     r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(),
-                                         twf->rect.height() - twf->tabBarSize.height()));
+                                         twf->rect.height() - twf->tabBarSize.height()
+                                         - twf->rightCornerWidgetSize.height()));
                     break;
                 }
                 break;
@@ -1621,24 +1626,23 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
                 default:
                 case Qt::AlignLeft:
-                    r.moveTopLeft(QPoint(0, 0));
+                    r.moveTopLeft(QPoint(0, twf->leftCornerWidgetSize.height()));
                     break;
                 case Qt::AlignCenter:
                     r.moveTopLeft(QPoint(0, twf->rect.center().y() - twf->tabBarSize.height() / 2));
                     break;
                 case Qt::AlignRight:
-                    r.moveTopLeft(QPoint(0, twf->rect.height() - twf->tabBarSize.height()));
+                    r.moveTopLeft(QPoint(0, twf->rect.height() - twf->tabBarSize.height()
+                                         - twf->rightCornerWidgetSize.height()));
                     break;
                 }
                 break;
             }
         }
         break;
-
     case SR_TabWidgetTabPane:
     case SR_TabWidgetTabContents:
-        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt))
-        {
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             QStyleOptionTab tabopt;
             tabopt.shape = twf->shape;
             int overlap = pixelMetric(PM_TabBarBaseOverlap, &tabopt, widget);
@@ -1665,18 +1669,36 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                    r.addCoords(2, 2, -2, -2);
         }
         break;
-
     case SR_TabWidgetLeftCorner:
-        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt))
-        {
-               r = QRect(QPoint(0,0), twf->leftCornerWidgetSize);
-           }
-       break;
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            r = QRect(QPoint(0, 0), twf->leftCornerWidgetSize);
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+               r = visualRect(twf->direction, twf->rect, r);
+               break;
+            default:
+               break;
+            }
+        }
+        break;
    case SR_TabWidgetRightCorner:
-       if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt))
-       {
-               r = QRect(QPoint(0,0), twf->rightCornerWidgetSize);
-           }
+       if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+           r = QRect(QPoint(twf->rect.width() - twf->rightCornerWidgetSize.width(), 0),
+                     twf->rightCornerWidgetSize);
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+               r = visualRect(twf->direction, twf->rect, r);
+               break;
+            default:
+               break;
+            }
+        }
         break;
     default:
         break;

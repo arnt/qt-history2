@@ -208,14 +208,17 @@ QStyleOptionTabWidgetFrame QTabWidgetPrivate::getStyleOption() const
     QStyleOptionTabWidgetFrame option;
     option.init(q);
 
-    if (rightCornerWidget)
-        option.rightCornerWidgetSize = rightCornerWidget->sizeHint();
-    if (leftCornerWidget)
-        option.leftCornerWidgetSize = leftCornerWidget->sizeHint();
-
+    int exth = q->style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, q);
     QSize t(0, stack->frameWidth());
     if (tabs->isVisibleTo(const_cast<QTabWidget *>(q)))
         t = tabs->sizeHint();
+
+    if (rightCornerWidget)
+        option.rightCornerWidgetSize
+            = rightCornerWidget->sizeHint().boundedTo(t - QSize(exth, exth));
+    if (leftCornerWidget)
+        option.leftCornerWidgetSize
+            = leftCornerWidget->sizeHint().boundedTo(t - QSize(exth, exth));
 
     switch (pos) {
     case QTabWidget::North:
