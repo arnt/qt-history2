@@ -84,7 +84,7 @@ struct QHeaderData
 	sortDirection = TRUE;
 	positionsDirty = TRUE;
 	lastPos = 0;
-	fullSize = TRUE;
+	fullSize = FALSE;
     }
 
 
