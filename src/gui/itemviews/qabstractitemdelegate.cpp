@@ -49,7 +49,7 @@
     item.
 
     \value Widget The editor() is a widget.
-    \value Event There is no editor() widget; used if event() is
+    \value Events There is no editor() widget; used if event() is
     reimplemented.
 */
 

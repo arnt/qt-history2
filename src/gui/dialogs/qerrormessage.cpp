@@ -143,9 +143,9 @@ void jump(QtMsgType t, const char * m)
 }
 
 
-/*!  Constructs and installs an error handler window.
-    The parent \a parent and name \a name are passed on to the QDialog
-    constructor.
+/*!
+    Constructs and installs an error handler window with the given \a
+    parent.
 */
 
 QErrorMessage::QErrorMessage(QWidget * parent)
@@ -171,8 +171,10 @@ QErrorMessage::QErrorMessage(QWidget * parent)
 }
 
 
-/*! Destroys the object and frees any allocated resources.  Notably,
-the list of "do not show again" messages is deleted. */
+/*!
+    Destroys the object and frees any allocated resources.
+    Note that the list of "do not show again" messages is deleted.
+*/
 
 QErrorMessage::~QErrorMessage()
 {

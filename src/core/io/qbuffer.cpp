@@ -328,17 +328,12 @@ Q_LONG QBuffer::readBlock(char *p, Q_LONG len)
 }
 
 /*!
-    \fn Q_LONG QBuffer::writeBlock(const QByteArray& data)
-    \overload
-
-    This convenience function is the same as calling
-    \c{writeBlock(data.data(), data.size())} with \a data.
-*/
-
-/*!
     Writes \a len bytes from \a ptr into the buffer at the current
     index position, overwriting any characters there and extending the
     buffer if necessary. Returns the number of bytes actually written.
+
+    For example, to write a QByteArray called data you would call
+    writeBlock(data.data(), data.size()).
 
     Returns -1 if an error occurred.
 

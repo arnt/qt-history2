@@ -237,6 +237,9 @@ QWidget *QStackedLayout::widget(int index) const
 }
 
 
+/*!
+    Returns the number of widgets in this stacked layout.
+*/
 int QStackedLayout::count() const
 {
     return d->list.size();

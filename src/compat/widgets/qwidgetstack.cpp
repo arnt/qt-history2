@@ -497,6 +497,12 @@ bool QWidgetStack::event(QEvent* e)
     return QFrame::event(e);
 }
 
+/*!
+    Sets the widget stack's margin (how much space to leave around
+    the visible widget) to \a margin.
+
+    \sa margin()
+*/
 void QWidgetStack::setMargin(int margin)
 {
     if (d->margin == margin)
@@ -505,11 +511,20 @@ void QWidgetStack::setMargin(int margin)
     updateGeometry();
     setChildGeometries();
 }
+
+/*!
+    Returns the widget stack's margin.
+
+    \sa setMargin()
+*/
 int QWidgetStack::margin() const
 {
     return d->margin;
 }
 
+/*!
+    Returns the widget stack's contents rectangle.
+*/
 QRect QWidgetStack::contentsRect() const
 {
     QRect cr(QFrame::contentsRect());

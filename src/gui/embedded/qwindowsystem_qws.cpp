@@ -612,6 +612,27 @@ static void ignoreSignal(int)
 */
 
 /*!
+    \fn void QWSServer::markedText(const QString &text)
+
+    This signal is emitted whenever some text is selected. The
+    selection is passed in \a text.
+*/
+
+/*!
+    \enum QWSServer::IMMouse
+
+    \internal
+*/
+
+/*!
+    \fn void QWSServer::setOverrideKeys(const KeyOverride *keyOveride)
+
+    \internal
+
+    Sets the override keys to \a keyOveride.
+*/
+
+/*!
     \fn const QList<QWSWindow*> &QWSServer::clientWindows()
 
     Returns the list of top-level windows. This list will change as

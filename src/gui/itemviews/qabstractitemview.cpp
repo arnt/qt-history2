@@ -1214,10 +1214,11 @@ int QAbstractItemView::columnSizeHint(int column) const
 }
 
 /*!
-  \brief Sets \a editor to be the persisten editor for \a index.
-  If \a editor is 0 and no previous persistent editor was set on \a index,
-  the editor will be created by the delegate.
- */
+    Sets \a editor as the persisten editor for the item at the given
+    \a index. If \a editor is 0 and no previous persistent editor has
+    been set for the \a index, the editor will be created by the
+    delegate.
+*/
 void QAbstractItemView::setPersistentEditor(const QModelIndex &index, QWidget *editor)
 {
     if (!editor) {

@@ -1049,6 +1049,22 @@ void QPainter::resetXForm()
 }
 
 /*!
+    \fn void QPainter::setClipPath(const QPainterPath &path)
+
+    \internal
+
+    Sets the painter's clipping path to \a path.
+*/
+
+/*!
+    \fn void QPainter::translate(const QPoint &offset)
+
+    \overload
+
+    Translates the coordinate system by the given \a offset.
+*/
+
+/*!
     Translates the coordinate system by \a (dx, dy). After this call,
     \a (dx, dy) is added to points.
 

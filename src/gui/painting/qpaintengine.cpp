@@ -113,8 +113,9 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     dirtyFlag = 0;
 }
 
-/*! Default implementation does nothing...
- */
+/*!
+    The default implementation ignores the \a path and does nothing.
+*/
 void QPaintEngine::drawPath(const QPainterPath &)
 {
 

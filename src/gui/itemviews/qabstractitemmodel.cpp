@@ -520,7 +520,10 @@ bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
     return (rowCount(parent) > 0) && (columnCount(parent) > 0);
 }
 
-// ### DOC: write something or make it \internal!
+
+/*!
+    \internal
+*/
 void QAbstractItemModel::fetchMore()
 {
     // do nothing
@@ -821,6 +824,13 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     return result;
 }
 
+/*!
+    \internal
+
+    Invalidates the persistent indices by setting them to invalid
+    model indexes. Affects the given \a parent index, or if the \a
+    parent is invalid affects all indexes.
+*/
 void QAbstractItemModel::invalidatePersistentIndices(const QModelIndex &parent)
 {
     bool all = !parent.isValid();
