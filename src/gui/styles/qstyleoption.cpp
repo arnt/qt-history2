@@ -756,7 +756,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
     \property QStyleOptionSlider::tickPosition
     \brief the position of the slider's tick marks, if any.
 
-    \sa QSlider::TickSetting
+    \sa QSlider::TickPosition
 */
 
 /*!

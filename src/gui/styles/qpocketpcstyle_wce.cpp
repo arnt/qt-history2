@@ -475,7 +475,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric pixelmetric, const QStyleOption * /*
             if (!widget) break; // Don't know
 
             const QSlider *sl = (const QSlider *)widget;
-            QSlider::TickSetting ticktype = sl->tickmarks();
+            QSlider::TickPosition ticktype = sl->tickmarks();
             int n = 0;
             int space = (sl->orientation() == Qt::Horizontal)
                         ? sl->height() : sl->width();
@@ -502,7 +502,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric pixelmetric, const QStyleOption * /*
             if (!widget) break; // Don't know
 
             const QSlider * sl = (const QSlider *) widget;
-            QSlider::TickSetting ticktype = sl->tickmarks();
+            QSlider::TickPosition ticktype = sl->tickmarks();
             int space = (sl->orientation() == Qt::Horizontal)
                         ? sl->height() : sl->width();
             int thickness = PM_SLIDERTHICKNESS; // pixelMetric(PM_SliderControlThickness, sl);
