@@ -587,7 +587,7 @@ void QWin32PaintEngine::drawRect(const QRectF &r)
 void QWin32PaintEngine::drawPoint(const QPointF &p)
 {
 #ifdef QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::drawPoint() (%.2f, %.2f)\n", r.x(), r.y());
+    printf(" - QWin32PaintEngine::drawPoint() (%.2f, %.2f)\n", p.x(), p.y());
 #endif
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
@@ -2118,6 +2118,7 @@ void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 
     switch (brush.style()) {
     case Qt::NoBrush:
+        d->brush = 0;
         break;
     case Qt::SolidPattern:
         if (!d->cachedSolidBrush) {
