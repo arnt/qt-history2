@@ -1032,8 +1032,12 @@ bool QDataBrowser::deleteCurrent()
 	cursorChanged( QSqlCursor::Delete );
 	if ( !cur->seek( n ) )
 	    last();
-	cur->editBuffer( TRUE );
-	readFields();
+	if ( cur->isValid() ) {
+	    cur->editBuffer( TRUE );
+	    readFields();
+	} else {
+	    clearValues();
+	}
 	return TRUE;
     } else {
 	if ( !cur->isActive() ) {
