@@ -652,9 +652,10 @@ void QMenuBar::macUpdateMenuBar()
 		InvalMenuBar();
 	    }
 	} else {
-	    if(!first || !w || 
+	    if(first || !w || 
 		(!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup))) {
 	    	first = FALSE;
+		activeMenuBar = NULL;
 		ClearMenuBar();
 		InvalMenuBar();
 	    }
