@@ -391,6 +391,9 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 
 int QDockAreaLayout::heightForWidth( int w ) const
 {
+    if ( dockWindows->isEmpty() && parentWidget )
+	return parentWidget->minimumHeight();
+	
     if ( cached_width != w ) {
 	QDockAreaLayout * mthis = (QDockAreaLayout*)this;
 	mthis->cached_width = w;
@@ -398,6 +401,7 @@ int QDockAreaLayout::heightForWidth( int w ) const
 	mthis->cached_hfw = h;
 	return h;
     }
+    
     return cached_hfw;
 }
 
