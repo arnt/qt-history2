@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#4 $
 **
 ** Implementation of QML classes
 **
@@ -308,7 +308,7 @@ void QMLStyle::setNumberOfColumns(int ncols)
 
 
 /*!
-  Returns the text color of this style, or 
+  Returns the text color of this style, or
   \link QColor::QColor() an invalid color\endlink
   if no color has been set yet.
 
@@ -354,7 +354,7 @@ void QMLStyle::setAnchor(bool anc)
 
 /*!
   Returns the separation of subparagraphs in pixel.
-  
+
   \sa setParagraphSeparation()
  */
 int QMLStyle::paragraphSeparation() const
@@ -366,7 +366,7 @@ int QMLStyle::paragraphSeparation() const
 /*!
   Sets the separation of subparagraphs in pixels.
   The value must be >= 0.
-  
+
   \sa paragraphSeparation()
  */
 void QMLStyle::setParagraphSeparation(int v)
@@ -664,10 +664,28 @@ public:
 
   <ul>
     <li>&lt;qml&gt;...&lt;/qml&gt;
-	A QML document.
+	A QML document. It understands the following attributes
+	<ul>
+	<li> type
+	The type of the document. The default type is "page". It indicates that
+	the document is displayed in a page of its own. Another style is "detail".
+	It can be used to explain certain expressions more detailed in a few 
+	sentences. The QMLBrowser will then keep the curren page and display the
+	new document in a small popup similar to QWhatsThis. Note that links
+	will not work in documents with &lt;qml type="detail" &gt;...&lt;/qml&gt;
+	<li> bgcolor
+	The background color, for example bgcolor="yellow" or bgcolor="#0000FF"
+	<li> bgpixmap
+	The background pixmap, for example bgpixmap="granit.xpm". The pixmap name
+	will be resolved by the default QMLProvider.
+	<li> text
+	The default text color, for example text="red"
+	<li>
+	</ul>
 
     <li>&lt;a&gt;...&lt;/a&gt;
-	An anchor or link.
+	An anchor or link. The reference target is defined in the
+	href attribute of the tag as in 	&lt;a href="target.qml"&gt;...&lt;/a&gt;.
 
     <li>&lt;em&gt;...&lt;/em&gt;
 	Emphasized.
@@ -692,16 +710,22 @@ public:
 	Two-column display.
 
     <li>&lt;ul&gt;...&lt;/ul&gt;
-	An un-ordered list.
+	An un-ordered list. You can also pass a type argument to
+	define the bullet style. The default is type="disc",  other
+	types are "circle" and "square".
 
     <li>&lt;ol&gt;...&lt;/ol&gt;
-	An ordered list.
+	An ordered list. You can also pass a type argument to define
+	the enumeration label style. The default is type="1", other
+	types are "a" and "A".
 
     <li>&lt;li&gt;...&lt;/li&gt;
 	A list item.
 
     <li>&lt;img&gt;
-	An image.
+	An image. The image name for the provider is given in the
+	source attribute, for example <li>&lt;img source="qt.xpm" &gt;
+
   </ul>
 */
 
@@ -2457,7 +2481,7 @@ void QMLCursor::end(QPainter* p, bool select)
   The default implementation gives no meaning to the names of documents
   it provides, beyond that provided by setPath().  However, the image()
   and document() functions are virtual, so a subclass could interpret
-  the names as filenames, URLs, or whatever.  
+  the names as filenames, URLs, or whatever.
 
   \sa QMLView::setProvider()
 */
@@ -2563,11 +2587,11 @@ QString QMLProvider::document(const QString &name) const
 }
 
 
-/*! 
+/*!
   If an item cannot be found in the definitions set by setDocument()
   and setImage(), the default implementations of image() and document()
   will try to load it from the local filesystem in the single directory
-  specified with setPath().  
+  specified with setPath().
 
   \sa path()
  */
@@ -2995,7 +3019,7 @@ inline QMLNode* QMLNode::nextSibling() const
   large QML documents.
 
   For even more, see QMLBrowser.
-*/ 
+*/
 
 struct QMLViewData
 {
@@ -3142,6 +3166,7 @@ const QMLStyleSheet& QMLView::styleSheet() const
 void QMLView::setStyleSheet( const QMLStyleSheet* styleSheet )
 {
     d->sheet_ = styleSheet;
+    updateContents( 0, 0, currentDocument().width, currentDocument().height );
 }
 
 
@@ -3167,6 +3192,7 @@ const QMLProvider& QMLView::provider() const
 void QMLView::setProvider( const QMLProvider* newProvider )
 {
     d->provider_ = newProvider;
+    updateContents( 0, 0, currentDocument().width, currentDocument().height );
 }
 
 
@@ -3179,6 +3205,7 @@ void QMLView::setPaper( const QBrush& pap)
 {
     d->mypapcolgrp.setBrush( QColorGroup::Base, pap );
     d->papcolgrp.setBrush( QColorGroup::Base, pap );
+    updateContents( 0, 0, currentDocument().width, currentDocument().height );
 }
 
 /*!
@@ -3188,6 +3215,7 @@ void QMLView::setPaperColorGroup( const QColorGroup& colgrp)
 {
     d->mypapcolgrp = colgrp;
     d->papcolgrp = colgrp;
+    updateContents( 0, 0, currentDocument().width, currentDocument().height );
 }
 
 /*!
@@ -3686,7 +3714,7 @@ void QMLEdit::viewportResizeEvent(QResizeEvent* e)
   of QMLProvider, to access QML data from anywhere you need to.
 
   For simpler QML use, see QMLView or QMLSimpleDocument.
-*/ 
+*/
 
 struct QMLBrowserData
 {
@@ -3920,7 +3948,7 @@ class QMLDetailPopup : public QFrame
 {
 public:
     QMLDetailPopup( const QString& txt)
-	: QFrame ( 0, 0, WType_Popup )
+	: QFrame ( 0, 0, WType_Popup | WDestructiveClose )
 	{
 	    setFrameStyle( QFrame::Box | QFrame::Plain );
 	    QMLView* view = new QMLView( this );
@@ -3938,10 +3966,6 @@ public:
 	}
 
 protected:
-    void hideEvent( QHideEvent * ) //###### need real popup function, see qwhatsthis
-	{
-	    delete this;
-	}
 
     bool eventFilter( QObject* ,QEvent* e)
 	{
