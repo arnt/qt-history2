@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.36 1999/04/06 19:10:52 warwick Exp $
+** $Id: porting.doc,v 1.37 1999/04/07 17:50:46 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -91,6 +91,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#Collection>Collection classes</a></b>
  <li><b><a href=#QApplication>QApplication</a></b>
  <li><b><a href=#QColor>QColor</a></b>
+ <li><b><a href=#QRgb>QRgb</a></b>
  <li><b><a href=#QRegion>QRegion</a></b>
  <li><b><a href=#QWidget>QWidget</a></b>
  <li><b><a href=#QLabel>QLabel</a></b>
@@ -230,6 +231,22 @@ are in the Qt namespace.
 In members of classes that inherit the Qt namespace-class (eg. QWidget
 subclasses), you can use the unqualified names as before, but in global
 functions (eg. main()), you need to qualify them:  Qt::red, Qt::white, etc.
+See also the <a href=#QRgb>QRgb</a> section below.
+
+<h3><a name=QRgb>QRgb</a></h3>
+
+QRgb (a typedef of long) has changed the order of the RGB channels to
+be in the more efficient order (for typical hardware these days).  If your
+code made assumptions about the order, you will get blue where you expect
+red and vice-versus (you'll not notice the problem if you use shades of
+grey, green, or magenta).  You should port your code to use the
+creator function qRgb(int r,int g,int b) and the
+access functions qRed(QRgb), qBlue(QRgb), and qGreen(QRgb).
+If you are using the alpha channel, it hasn't moved, but you should use
+the functions qRgba(int,int,int,int) and qAlpha(QRgb). Note also that
+QColor::pixel() does <i>not</i> return a QRgb (it never did on all platforms,
+but your code may have assumed so on your platform) - this may also produce
+strange color results - use QColor::rgb() if you want a QRgb.
 
 
 <h3><a name=QRegion>QRegion</a></h3>
@@ -644,6 +661,10 @@ instead.
         NorROP, LastROP)
 is now part of the Qt namespace class, so if you
 use it outside a member function, you'll need to prefix with Qt::.
+
+<h3><a name=QImage>QImage</a></h3>
+
+QImage uses QRgb for the colors - see <a href=#QRgb>the changes to that</a>.
 
 
 <h3><a name=QPixmap>QPixmap</a></h3>
