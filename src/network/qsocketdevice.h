@@ -135,6 +135,9 @@ private:
     virtual void setOption( Option, int );
 
     void	 fetchConnectionParameters();
+#if defined(Q_OS_WIN32)
+    void	 fetchPeerConnectionParameters();
+#endif
 
     static void  init();
     int		 createNewSocket();

@@ -797,20 +797,25 @@ void QSocketDevice::fetchConnectionParameters()
 }
 
 
-Q_UINT16 QSocketDevice::peerPort() const
+void QSocketDevice::fetchPeerConnectionParameters()
 {
     // do the getpeername() lazy on Windows (sales/arc-18/37759 claims that
-    // there will be problems otherwise)
+    // there will be problems otherwise if you use MS Proxy server)
+    struct sockaddr_in sa;
+    memset( &sa, 0, sizeof(sa) );
+    SOCKLEN_T sz;
+    sz = sizeof( sa );
+    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
+	pp = ntohs( sa.sin_port );
+	pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
+    }
+}
+
+Q_UINT16 QSocketDevice::peerPort() const
+{
     if ( pp==0 && isValid() ) {
-	struct sockaddr_in sa;
-	memset( &sa, 0, sizeof(sa) );
-	SOCKLEN_T sz;
-	sz = sizeof( sa );
-	if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
-	    QSocketDevice *that = (QSocketDevice*)this; // mutable
-	    that->pp = ntohs( sa.sin_port );
-	    that->pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
-	}
+	QSocketDevice *that = (QSocketDevice*)this; // mutable
+	that->fetchPeerConnectionParameters();
     }
     return pp;
 }
@@ -818,18 +823,9 @@ Q_UINT16 QSocketDevice::peerPort() const
 
 QHostAddress QSocketDevice::peerAddress() const
 {
-    // do the getpeername() lazy on Windows (sales/arc-18/37759 claims that
-    // there will be problems otherwise)
     if ( pp==0 && isValid() ) {
-	struct sockaddr_in sa;
-	memset( &sa, 0, sizeof(sa) );
-	SOCKLEN_T sz;
-	sz = sizeof( sa );
-	if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
-	    QSocketDevice *that = (QSocketDevice*)this; // mutable
-	    that->pp = ntohs( sa.sin_port );
-	    that->pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
-	}
+	QSocketDevice *that = (QSocketDevice*)this; // mutable
+	that->fetchPeerConnectionParameters();
     }
     return pa;
 }
