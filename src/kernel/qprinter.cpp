@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#7 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#7 $";
 #endif
 
 
@@ -145,7 +145,7 @@ void QPrinter::setOutputFileName( const char *fileName )
   \fn const char *QPrinter::printProgram() const
   Returns the name of the program that sends the print output to the printer.
 
-  The default setting is "/usr/bin/lpr" under X-Windows.  This function
+  The default print program is "lpr" under X-Windows.  This function
   returns 0 for all other window systems.
 
   \sa setPrintProgram()
@@ -219,35 +219,6 @@ void QPrinter::setCreator( const char *creator )
 
 
 /*----------------------------------------------------------------------------
-  \fn QPrinter::PageSize QPrinter::pageSize() const
-  Returns the printer page size. The default value is \c QPrinter::A4.
-  \sa setPageSize()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  Sets the printer page size.
-
-  The page size can be one of:
-  <ul>
-  <li>\c QPrinter::A4 (210x297 mm, 8.26x11.7 inches)
-  <li>\c QPrinter::B5 (182x257 mm, 7.17x10.13 inches)
-  <li>\c QPrinter::Letter (216x279 mm, 8.5x11 inches)
-  <li>\c QPrinter::Legal (216x356 mm, 8.5x14 inches)
-  <li>\c QPrinter::Executive (191x254 mm, 7.5x10 inches)
-  </ul>
-
-  \warning Not yet implemented for X-Windows.
-
-  \sa pageSize()
- ----------------------------------------------------------------------------*/
-
-void QPrinter::setPageSize( PageSize pageSize )
-{
-    page_size = pageSize;
-}
-
-
-/*----------------------------------------------------------------------------
   \fn QPrinter::Orientation QPrinter::orientation() const
   Returns the orientation setting. The default value is \c QPrinter::Portrait.
   \sa setOrientation()
@@ -270,6 +241,35 @@ void QPrinter::setPageSize( PageSize pageSize )
 void QPrinter::setOrientation( Orientation orientation )
 {
     orient = orientation;
+}
+
+
+/*----------------------------------------------------------------------------
+  \fn QPrinter::PageSize QPrinter::pageSize() const
+  Returns the printer page size. The default value is \c QPrinter::A4.
+  \sa setPageSize()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Sets the printer page size.
+
+  The page size can be one of:
+  <ul>
+  <li>\c QPrinter::A4 (210x297 mm, 8.26x11.7 inches)
+  <li>\c QPrinter::B5 (182x257 mm, 7.17x10.13 inches)
+  <li>\c QPrinter::Letter (8.5x11 inches, 216x279 mm)
+  <li>\c QPrinter::Legal ( 8.5x14 inches, 216x356 mm)
+  <li>\c QPrinter::Executive (7.5x10 inches, 191x254 mm)
+  </ul>
+
+  \warning Not yet implemented for X-Windows.
+
+  \sa pageSize()
+ ----------------------------------------------------------------------------*/
+
+void QPrinter::setPageSize( PageSize pageSize )
+{
+    page_size = pageSize;
 }
 
 
