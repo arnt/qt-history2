@@ -130,6 +130,7 @@ public:
     void setSelected( int, bool );
     bool isSelected( int ) const;
     bool isSelected( const QListBoxItem * ) const;
+    int selectedItem() const;
 
     QSize sizeHint() const;
     QSize	minimumSizeHint() const;
