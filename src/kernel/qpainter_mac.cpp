@@ -1791,53 +1791,10 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    map( x, y, &x, &y );
     }
 
-    QTextCodec *mapper = QTextCodec::codecForMib( 106 ); //utf8 always, this should do unicode FIXME
-    QCString mapped = mapper->fromUnicode(str,len);
-
-    if(!mapped) {
-	char * soo=new char[2];
-	soo[0]='?';
-	soo[1]='\0';
-	mapped=soo;
-    }
-
     initPaintDevice();
-    if ( !cfont.handle() ) {
-	if ( mapped.isNull() )
-	    warning("Fontsets only apply to mapped encodings");
-	else {
-	    MoveTo(x+offx,y+offy);
-	    updatePen();
-	    DrawText(mapped, 0, mapped.length());
-	}
-    } else {
-	if ( !mapped.isNull() ) {
-	    MoveTo(x+offx,y+offy);
-	    updatePen();
-	    DrawText(mapped, 0, mapped.length());
-	} else {
-	    // Unicode font
-
-	    QString v = str;
-#ifdef QT_BIDI
-	    v.compose();  // apply ligatures (for arabic, etc...)
-	    v = v.visual(); // visual ordering
-	    len = v.length();
-#endif
-
-	    MoveTo(x+offx,y+offy);
-	    updatePen();
-	    DrawText(mapped, 0, mapped.length());
-	}
-    }
-
-#if 0
-    if ( cfont.underline() || cfont.strikeOut() ) {
-	const QFontMetrics & fm = fontMetrics();
-	int lw = fm.lineWidth();
-	int tw = fm.width( str, len );
-    }
-#endif
+    MoveTo(x+offx,y+offy);
+    updatePen();
+    cfont.d->drawText(str,len);
 }
 
 QPoint QPainter::pos() const

@@ -169,6 +169,7 @@ public:
 
     static short currentFnum;
     static int currentFsize;
+    static TextEncoding currentEncoding;
     short fnum;
     int psize;
     QFontDef s;
@@ -498,6 +499,7 @@ public:
 #if defined( Q_WS_MAC )
     ~QFontPrivate() { if( fin ) fin->deref(); }
     void macSetFont(QPaintDevice *);
+    void drawText( QString s, int len );
     void load();
     QFontStruct *fin;
 #endif

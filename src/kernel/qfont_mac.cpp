@@ -11,8 +11,40 @@
 #include "qpainter.h"
 
 extern const unsigned char * p_str(const char * c);
+
+void qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
+{
+    UnicodeMapping mapping;
+    UnicodeToTextInfo info;
+    mapping.unicodeEncoding = CreateTextEncoding( kTextEncodingUnicodeDefault,
+        kTextEncodingDefaultVariant, kUnicode16BitFormat );
+    mapping.otherEncoding = encoding;
+    mapping.mappingVersion = kUnicodeUseLatestMapping;
+
+    if ( CreateUnicodeToTextInfo( &mapping, &info  ) != noErr )
+      Q_ASSERT( 0 );
+
+    const QChar *uc = s.unicode();
+    UniChar *buf = new UniChar[len];
+    for ( int i = 0; i < len; ++i )
+        buf[i] = uc[i].row() << 8 | uc[i].cell();
+
+    ConvertFromUnicodeToPString( info, len*2, buf, str  );
+    //TODO determine which errors are fatal
+#if 0
+    int err = ConvertFromUnicodeToPString( info, len*2, buf, str  );
+    if (err != noErr) {
+        qDebug( s );
+        qDebug( "ConvertFromUnicodeToPString %d", err );
+	//        Q_ASSERT( 0 );
+    }
+#endif
+    delete buf;
+}
+
 short QFontStruct::currentFnum = 0;
 int QFontStruct::currentFsize = 0;
+TextEncoding QFontStruct::currentEncoding = 0;
 
 int QFontMetrics::lineSpacing() const
 {
@@ -45,21 +77,23 @@ int QFontMetrics::descent() const
 int char_widths[256];
 bool chars_init=false;
 
-int QFontMetrics::charWidth( const QString &str, int pos ) const
+int QFontMetrics::charWidth( const QString &s, int pos ) const
 {
-    return width(str.at(pos));
+    int ret;
+    Str255 str;
+    qstring_to_pstring( s, s.length(), str, QFontStruct::currentEncoding );
+    TextFont( FI->fin->fnum );
+    TextSize( FI->request.pointSize / 10 );
+    //FIXME: This may not work correctly if str contains double byte characters
+    ret = TextWidth( &str[1], pos, 1 );
+    TextFont( QFontStruct::currentFnum );
+    TextSize( QFontStruct::currentFsize );
+    return ret;
 }
 
 int QFontMetrics::width(QChar c) const
 {
-    // Grr. How do we force the Mac to speak Unicode?
-    // This currently won't work outside of ASCII
-    TextFont(FI->fin->fnum);
-    TextSize(d->request.pointSize / 10);
-    int char_width=CharWidth(c);
-    TextFont(QFontStruct::currentFnum);
-    TextSize(QFontStruct::currentFsize);
-    return char_width;
+    return  width( QString( c ) );
 }
 
 #if 0
@@ -79,16 +113,14 @@ int QFontMetrics::width(const QString &s,int len) const
     if(len<1) {
 	len=s.length();
     }
-    // Need to make a Pascal string
-    char * buf=new char[len+1];
-    strncpy(buf,s.ascii(),len);
     int ret;
-    TextFont(FI->fin->fnum);
-    TextSize(FI->request.pointSize / 10);
-    ret=TextWidth(buf,0,len);
-    TextFont(QFontStruct::currentFnum);
-    TextSize(QFontStruct::currentFsize);
-    delete[] buf;
+    Str255 str;
+    qstring_to_pstring( s, len, str, QFontStruct::currentEncoding );
+    TextFont( FI->fin->fnum );
+    TextSize( FI->request.pointSize / 10 );
+    ret = TextWidth( &str[1], 0, str[0] );
+    TextFont( QFontStruct::currentFnum );
+    TextSize( QFontStruct::currentFsize );
     return ret;
 }
 
@@ -112,12 +144,12 @@ int QFontMetrics::minLeftBearing() const
     return FI->fin->minLeftBearing();
 }
 
-int QFontMetrics::leftBearing(QChar ch) const
+int QFontMetrics::leftBearing(QChar) const
 {
     return 0;
 }
 
-int QFontMetrics::rightBearing(QChar ch) const
+int QFontMetrics::rightBearing(QChar) const
 {
   return 0;
 }
@@ -165,13 +197,31 @@ void QFontPrivate::macSetFont(QPaintDevice *v)
 
     TextSize(request.pointSize / 10);
     short fnum;
-    GetFNum(p_str(request.family.ascii()),&fnum);
+    
+    Str255 str;
+    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
+    TextEncoding encoding = CreateTextEncoding( kTextEncodingMacJapanese,
+        kTextEncodingDefaultVariant, kTextEncodingDefaultFormat );
+    qstring_to_pstring( request.family, request.family.length(), str, encoding );
+    GetFNum(str, &fnum);
+
     TextFont(fnum);
     QFontStruct::currentFnum = fnum;
     QFontStruct::currentFsize = request.pointSize / 10;
+    if (UpgradeScriptInfoToTextEncoding( FontToScript( fnum ), 
+        kTextLanguageDontCare, kTextRegionDontCare, NULL,
+	&QFontStruct::currentEncoding ) != noErr)
+        Q_ASSERT(0);
 
     if(fin)
 	fin->fnum = fnum;
+}
+
+void QFontPrivate::drawText( QString s, int len )
+{
+    Str255 str;
+    qstring_to_pstring( s, len, str, QFontStruct::currentEncoding );
+    DrawString( str  );
 }
 
 void QFontPrivate::load()
