@@ -16,6 +16,7 @@
 #include "qdatastream.h"
 #include "qmath_p.h"
 #include "qregion.h"
+#include "qdebug.h"
 #include <limits.h>
 
 #ifndef QT_NO_WMATRIX
@@ -1018,6 +1019,21 @@ QDataStream &operator>>( QDataStream &s, QWMatrix &m )
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QWMatrix &m)
+{
+    dbg.nospace() << "QWMatrix("
+		  << "11=" << m.m11()
+		  << "12=" << m.m12()
+		  << "21=" << m.m21()
+		  << "22=" << m.m22()
+		  << "dx=" << m.dx()
+		  << "dy=" << m.dy();
+    return dbg.space();
+}
+#endif
+
 
 #endif // QT_NO_WMATRIX
 

@@ -176,7 +176,7 @@ inline const QPoint operator/( const QPoint &p, double c )
 }
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QPoint &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QPoint &);
 #endif
 
 #endif // QPOINT_H

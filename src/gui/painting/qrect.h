@@ -427,7 +427,7 @@ inline bool operator!=( const QRect &r1, const QRect &r2 )
 }
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QRect &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QRect &);
 #endif
 
 #endif // QRECT_H

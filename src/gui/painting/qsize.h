@@ -194,7 +194,7 @@ inline QSize QSize::boundedTo( const QSize & otherSize ) const
 }
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QSize &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QSize &);
 #endif
 
 #endif // QSIZE_H

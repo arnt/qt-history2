@@ -100,6 +100,9 @@ Q_GUI_EXPORT QWMatrix operator*( const QWMatrix &, const QWMatrix & );
 Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QWMatrix & );
 Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QWMatrix & );
 
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QWMatrix &);
+#endif
 
 #endif // QT_NO_WMATRIX
 
