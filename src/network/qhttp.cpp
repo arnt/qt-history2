@@ -297,7 +297,7 @@ public:
 
 void QHttpCloseRequest::start( QHttp *http )
 {
-    http->close();
+    http->closeConn();
 }
 
 /****************************************************
@@ -1246,9 +1246,9 @@ QHttp::~QHttp()
 
     This usually happens when a request is started, but it can also
     happen when the server closes the connection or when a call to
-    closeConnection() succeeded.
+    close() succeeded.
 
-    \sa get() post() head() request() closeConnection() state() State
+    \sa get() post() head() request() close() state() State
 */
 
 /*!
@@ -1371,7 +1371,7 @@ void QHttp::abort()
     finishedWithError( tr("Request aborted"), Aborted );
     clearPendingRequests();
     d->socket.clearPendingData();
-    close();
+    closeConn();
 }
 
 /*!
@@ -1441,7 +1441,7 @@ int QHttp::currentId() const
 
 /*!
     Returns the request header of the HTTP request being executed. If
-    the request is one issued by setHost() or closeConnection(), it
+    the request is one issued by setHost() or close(), it
     returns an invalid request header, i.e.
     QHttpRequestHeader::isValid() returns FALSE.
 
@@ -1713,6 +1713,16 @@ int QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QI
 
     \sa stateChanged() abort() requestStarted() requestFinished() done()
 */
+int QHttp::close()
+{
+    return addRequest( new QHttpCloseRequest() );
+}
+
+/*!
+    \obsolete
+
+    Behaves the same as close().
+*/
 int QHttp::closeConnection()
 {
     return addRequest( new QHttpCloseRequest() );
@@ -1855,7 +1865,7 @@ void QHttp::slotError( int err )
 	}
     }
 
-    close();
+    closeConn();
 }
 
 void QHttp::slotBytesWritten( int written )
@@ -1873,7 +1883,7 @@ void QHttp::slotBytesWritten( int written )
 	int n = d->postDevice->readBlock( arr.data(), max );
 	if ( n != max ) {
 	    qWarning("Could not read enough bytes from the device");
-	    close();
+	    closeConn();
 	    return;
 	}
 	if ( d->postDevice->atEnd() ) {
@@ -1919,7 +1929,7 @@ void QHttp::slotReadyRead()
 	    // Check header
 	    if ( !d->response.isValid() ) {
 		finishedWithError( tr("Invalid HTTP response header"), InvalidResponseHeader );
-		close();
+		closeConn();
 		return;
 	    }
 	    if ( d->response.hasKey( "transfer-encoding" ) && d->response.value( "transfer-encoding" ).contains( "chunked" ) )
@@ -1952,7 +1962,7 @@ void QHttp::slotReadyRead()
 			d->chunkedSize = sizeString.toInt( &ok, 16 );
 			if ( !ok ) {
 			    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
-			    close();
+			    closeConn();
 			    return;
 			}
 			if ( d->chunkedSize == 0 ) // last-chunk
@@ -1998,7 +2008,7 @@ void QHttp::slotReadyRead()
 			d->socket.readBlock( tmp, 2 );
 			if ( tmp[0] != '\r' || tmp[1] != '\n' ) {
 			    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
-			    close();
+			    closeConn();
 			    return;
 			}
 		    }
@@ -2048,7 +2058,7 @@ void QHttp::slotReadyRead()
 	if ( everythingRead ) {
 	    // Handle "Connection: close"
 	    if ( d->response.value("connection") == "close" ) {
-		close();
+		closeConn();
 	    } else {
 		setState( Connected );
 		// Start a timer, so that we emit the keep alive signal
@@ -2127,7 +2137,7 @@ void QHttp::setState( int s )
     emit stateChanged( s );
 }
 
-void QHttp::close()
+void QHttp::closeConn()
 {
     // If no connection is open -> ignore
     if ( d->state == Closing || d->state == Unconnected )

@@ -180,6 +180,7 @@ public:
     int request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to=0 );
 
     int closeConnection();
+    int close();
 
     Q_ULONG bytesAvailable() const;
     Q_LONG readBlock( char *data, Q_ULONG maxlen );
@@ -242,7 +243,7 @@ private:
 
     void init();
     void setState( int );
-    void close();
+    void closeConn();
 
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;
