@@ -27,7 +27,7 @@
 #include "mainwindow.h"
 #include "sourcefile.h"
 #include "pixmapchooser.h"
-#include "formlist.h"
+#include "workspace.h"
 
 #include <qlineedit.h>
 #include <qtextedit.h>
@@ -77,28 +77,22 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
 {
     if ( !filePixmap )
 	filePixmap = new QPixmap( file_xpm );
-    editProjectName->setValidator( new AsciiValidator( editProjectName ) );
-    editProjectFile->setValidator( new AsciiValidator( QString( "." ), editProjectFile ) );
-
-    lastProjectName = pro->projectName();
-    editProjectName->setFocus();
-    editProjectName->setText( pro->projectName() );
-    editProjectFile->setText( pro->fileName() );
-    projectNameChanged( pro->projectName() );
-    editProjectDescription->setText( pro->description() );
-
-    if ( lastProjectName == "<No Project>" ) {
-	editProjectName->setEnabled( FALSE );
+    editProjectFile->setFocus();
+    
+    if ( project->isDummy() ) {
 	editProjectFile->setEnabled( FALSE );
-	editProjectFile->setText( "" );
+	editProjectFile->setText( project->projectName() );
+    } else {
+	editProjectFile->setText( pro->fileName() );
     }
+
+    editProjectDescription->setText( pro->description() );
 
     fillFilesList();
 
     listInterfaces->header()->setStretchEnabled( TRUE );
 
     editDatabaseFile->setText( pro->databaseDescription() );
-    editImageFile->setText( pro->imageFile() );
 
     comboLanguage->insertStringList( MetaDataBase::languages() );
     for ( int j = 0; j < (int)comboLanguage->count(); ++j ) {
@@ -127,14 +121,6 @@ void ProjectSettings::chooseDatabaseFile()
     editDatabaseFile->setText( fn );
 }
 
-void ProjectSettings::chooseImageFile()
-{
-    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "C++ Files (*.cpp);;All Files (*)" ), this );
-    if ( fn.isEmpty() )
-	return;
-    editImageFile->setText( fn );
-}
-
 void ProjectSettings::chooseProjectFile()
 {
     QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Project Files (*.pro);;All Files (*)" ), this );
@@ -150,18 +136,15 @@ void ProjectSettings::helpClicked()
 void ProjectSettings::okClicked()
 {
     // ### check for validity
-
-    project->setProjectName( editProjectName->text() );
     project->setFileName( editProjectFile->text(), FALSE );
     project->setDescription( editProjectDescription->text() );
     project->setDatabaseDescription( editDatabaseFile->text() );
-    project->setImageFile( editImageFile->text() );
     project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
     QString flag = "FALSE";
     if ( checkCreateSource->isChecked() )
 	flag = "TRUE";
     project->setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", flag );
-    project->save();
+    project->setModified( TRUE );
     accept();
 }
 
@@ -176,11 +159,11 @@ void ProjectSettings::removeProject()
 	}
 	QMap<QListViewItem*, FormWindow*>::Iterator fit = formMap.find( i );
 	if ( fit != formMap.end() ) {
-	    MainWindow::self->formlist()->removeFormFromProject( i->text( 0 ) );
+	    MainWindow::self->workspace()->removeFormFromProject( i->text( 0 ) );
 	} else {
 	    QMap<QListViewItem*, SourceFile*>::Iterator sit = sourceMap.find( i );
 	    if ( sit != sourceMap.end() ) {
-		MainWindow::self->formlist()->removeSourceFromProject( i->text( 0 ) );
+		MainWindow::self->workspace()->removeSourceFromProject( i->text( 0 ) );
 	    }
 	}
 	++it;
@@ -188,15 +171,6 @@ void ProjectSettings::removeProject()
 
     fillFilesList();
 }
-
-void ProjectSettings::projectNameChanged( const QString &name )
-{
-    if ( editProjectFile->text().isEmpty() ||
-	 editProjectFile->text() == lastProjectName + ".pro" )
-	editProjectFile->setText( name + ".pro" );
-    lastProjectName = name;
-}
-
 void ProjectSettings::languageChanged( const QString &lang )
 {
     checkCreateSource->setEnabled( lang == "C++" );
@@ -226,7 +200,7 @@ void ProjectSettings::fillFilesList()
     formMap.clear();
     sourceMap.clear();
 
-    QListViewItem *sources = new QListViewItem( listInterfaces, tr( "Sources" ) );
+    QListViewItem *sources = new QListViewItem( listInterfaces, tr( "Source Files" ) );
     QListViewItem *forms = new QListViewItem( listInterfaces, tr( "Forms" ) );
     forms->setOpen( TRUE );
     forms->setSelectable( FALSE );

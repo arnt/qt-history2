@@ -23,12 +23,15 @@
 
 #include "newform.h"
 
+class ImageIcon;
+
 class NewForm : public NewFormBase
 {
     Q_OBJECT
 
 public:
     enum Form {
+	Project,
 	Widget,
 	Dialog,
 	Wizard,
@@ -36,10 +39,16 @@ public:
 	Custom
     };
 
-    NewForm( QWidget *parent, const QString &tPath );
+    NewForm( QWidget *parent, const QStringList& projects,
+	     const QString& currentProject, const QString &templatePath );
 
     Form formType() const;
     QString templateFile() const;
+
+    QString project() const;
+
+    void accept();
+    void currentChanged(QIconViewItem*);
 
 private:
     QString templPath;

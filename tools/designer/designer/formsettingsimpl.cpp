@@ -24,6 +24,7 @@
 #include "command.h"
 #include "asciivalidator.h"
 #include "mainwindow.h"
+#include "project.h"
 
 #include <qmultilineedit.h>
 #include <qpushbutton.h>
@@ -54,7 +55,7 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     else
 	radioPixmapFunction->setChecked( TRUE );
     editPixmapFunction->setText( formwindow->pixmapLoaderFunction() );
-    radioProjectImageFile->setEnabled( fw->project() != fw->mainWindow()->emptyProject() );
+    radioProjectImageFile->setEnabled( !fw->project()->isDummy() );
     spinSpacing->setValue( formwindow->layoutDefaultSpacing() );
     spinMargin->setValue( formwindow->layoutDefaultMargin() );
 }

@@ -50,21 +50,21 @@ void PixmapCollection::addPixmap( const Pixmap &pix, bool force )
     }
 
     Pixmap pixmap = pix;
-    pixmap.name = unifyName( pixmap.name );
+    savePixmap( pixmap );
     pixList.append( pixmap );
     mimeSourceFactory->setPixmap( pixmap.name, pixmap.pix );
-    savePixmap( pixmap );
+    project->setModified( TRUE );
 }
 
 void PixmapCollection::removePixmap( const QString &name )
 {
-    removePixmapFile( name );
     for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	if ( (*it).name == name ) {
 	    pixList.remove( it );
 	    break;
 	}
     }
+    project->setModified( TRUE );
 }
 
 QValueList<PixmapCollection::Pixmap> PixmapCollection::pixmaps() const
@@ -110,11 +110,22 @@ QPixmap PixmapCollection::pixmap( const QString &name )
     return QPixmap();
 }
 
-void PixmapCollection::savePixmap( const Pixmap &pix )
+void PixmapCollection::savePixmap( Pixmap &pix )
 {
-    mkdir();
-    QString f = project->fileName();
-    pix.pix.save( QFileInfo( f ).dirPath( TRUE ) + "/images/" + pix.name, "PNG" );
+    if ( pix.absname == imageDir() + "/" + pix.name )
+	return; // no need to save, it is already there
+    QString rel = project->makeRelative( pix.absname );
+    if ( rel[0] == '/' ) { // only save if file is outside the project
+	qDebug("had to save pixmap %s", pix.name.latin1() );
+	mkdir();
+	pix.name = unifyName( QFileInfo( pix.absname ).baseName() );
+	pix.pix.save( imageDir() + "/" + pix.name + ".png", "PNG" );
+    }
+}
+
+QString PixmapCollection::imageDir() const
+{
+    return QFileInfo( project->fileName() ).dirPath( TRUE ) + "/images";
 }
 
 void PixmapCollection::mkdir()
@@ -124,255 +135,25 @@ void PixmapCollection::mkdir()
     d.mkdir( "images" );
 }
 
-void PixmapCollection::removePixmapFile( const QString &name )
+void PixmapCollection::load( const QString& filename )
 {
-    QString f = project->fileName();
-    QDir d( QFileInfo( f ).dirPath( TRUE ) + "/images" );
-    d.remove( name );
-}
-
-void PixmapCollection::load()
-{
-    QString f = project->fileName();
-    QDir d( QFileInfo( f ).dirPath( TRUE ) + "/images" );
-    QStringList l = d.entryList( QDir::Files );
-    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
-	Pixmap pix;
-	pix.name = *it;
-	pix.pix = QPixmap( d.path() + "/" + *it, "PNG" );
-	pixList.append( pix );
-	mimeSourceFactory->setPixmap( pix.name, pix.pix );
-    }
-}
-
-struct EmbedImage
-{
-    int width, height, depth;
-    int numColors;
-    QRgb* colorTable;
-    QString name;
-    QString cname;
-    bool alpha;
-};
-
-static void embedData( const uchar* input, int nbytes, QFile *output )
-{
-    static char hexdigits[] = "0123456789abcdef";
-    QString s;
-    for ( int i=0; i<nbytes; i++ ) {
-	if ( (i%14) == 0 ) {
-	    s += "\n    ";
-	    output->writeBlock( (const char*)s, s.length() );
-	    s.truncate( 0 );
-	}
-	uint v = input[i];
-	s += "0x";
-	s += hexdigits[(v >> 4) & 15];
-	s += hexdigits[v & 15];
-	if ( i < nbytes-1 )
-	    s += ',';
-    }
-    if ( s.length() )
-	output->writeBlock( (const char*)s, s.length() );
-}
-
-static void embedData( const QRgb* input, int n, QFile *output )
-{
-    QString s;
-    for ( int i=0; i<n; i++ ) {
-	if ( (i%14) == 0 ) {
-	    s += "\n    ";
-	    output->writeBlock( (const char*)s, s.length() );
-	    s.truncate( 0 );
-	}
-	QRgb v = input[i];
-	s += "0x";
-	s += QString::number(v,16);
-	if ( i < n-1 )
-	    s += ',';
-    }
-    if ( s.length() )
-	output->writeBlock( (const char*)s, s.length() );
-}
-
-static bool block_create = FALSE;
-
-void PixmapCollection::createCppFile()
-{
-    MainWindow::self->updateFormList();
-    if ( project->projectName() == "<No Project>" )
+    if ( filename.isEmpty() )
 	return;
-    project->save();
-    if ( block_create )
+    QString absfile;
+    if ( filename[0] == '/' )
+	absfile = filename;
+    else
+	absfile = QFileInfo( project->fileName() ).dirPath( TRUE ) + "/" + filename;
+
+    QPixmap pm( absfile );
+    if ( pm.isNull() )
 	return;
-    block_create = TRUE;
-    if ( project->imageFile().isEmpty() )
-	project->setImageFile( "images.cpp" );
-    block_create = FALSE;
-
-    QFile f( project->makeAbsolute( project->imageFile() ) );
-    if ( !f.open( IO_WriteOnly ) )
-	return;
-    QTextStream out( &f );
-
-    out << "#ifndef DESIGNER_IMAGES_H" << endl;
-    out << "#define DESIGNER_IMAGES_H" << endl;
-    out << "#include <qimage.h>" << endl;
-    out << "#include <qdict.h>" << endl;
-    out << "#include <qmime.h>" << endl;
-    out << "#include <qdragobject.h>" << endl;
-    out << "#include <qpixmap.h>" << endl << endl;
-
-
-    QPtrList<EmbedImage> list_image;
-    for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
-	QImage img = (*it).pix.convertToImage();
-	EmbedImage *e = new EmbedImage;
-	e->width = img.width();
-	e->height = img.height();
-	e->depth = img.depth();
-	e->numColors = img.numColors();
-	e->colorTable = new QRgb[e->numColors];
-	e->alpha = img.hasAlphaBuffer();
-	memcpy(e->colorTable, img.colorTable(), e->numColors*sizeof(QRgb));
-	e->name = (*it).name;
-	e->cname = e->name;
-	list_image.append( e );
-	QString s;
-	if ( e->depth == 32 ) {
-	    out << s.sprintf( "static const QRgb %s_data[] = {",
-			      (const char *)e->cname );
-	    embedData( (QRgb*)img.bits(), e->width*e->height, &f );
-	} else {
-	    if ( e->depth == 1 )
-		img = img.convertBitOrder(QImage::BigEndian);
-	    out << s.sprintf( "static const unsigned char %s_data[] = {",
-			      (const char *)e->cname );
-	    embedData( img.bits(), img.numBytes(), &f );
-	}
-	out << "\n};\n\n";
-	if ( e->numColors ) {
-	    out << s.sprintf( "static const QRgb %s_ctable[] = {",
-			      (const char *)e->cname );
-	    embedData( e->colorTable, e->numColors, &f );
-	    out << "\n};\n\n";
-	}
-    }
-
-    if ( !list_image.isEmpty() ) {
-	out << "static struct EmbedImage {\n"
-	    "    int width, height, depth;\n"
-	    "    const unsigned char *data;\n"
-	    "    int numColors;\n"
-	    "    const QRgb *colorTable;\n"
-	    "    bool alpha;\n"
-	    "    const char *name;\n"
-	    "} embed_image_vec[] = {\n";
-	EmbedImage *e = list_image.first();
-	while ( e ) {
-	    out << "    { "
-		<< e->width << ", "
-		<< e->height << ", "
-		<< e->depth << ", "
-		<< "(const unsigned char*)" << e->cname << "_data, "
-		<< e->numColors << ", ";
-	    if ( e->numColors )
-		out << e->cname << "_ctable, ";
-	    else
-		out << "0, ";
-	    if ( e->alpha )
-		out << "TRUE, ";
-	    else
-		out << "FALSE, ";
-	    out << "\"" << e->name << "\" },\n";
-	    e = list_image.next();
-	}
-	out << "    { 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
-
-	out << "\n"
-	    "static QImage& uic_findImage_" + project->fixedProjectName() + "( const char *name )\n"
-	    "{\n"
-	    "    static QDict<QImage> dict;\n"
-	    "    QImage* img = dict.find(name);\n"
-	    "    if ( !img ) {\n"
-	    "        for (int i=0; embed_image_vec[i].data; i++) {\n"
-	    "	if ( 0==strcmp(embed_image_vec[i].name, name) ) {\n"
-	    "	    img = new QImage((uchar*)embed_image_vec[i].data,\n"
-	    "			embed_image_vec[i].width,\n"
-	    "			embed_image_vec[i].height,\n"
-	    "			embed_image_vec[i].depth,\n"
-	    "			(QRgb*)embed_image_vec[i].colorTable,\n"
-	    "			embed_image_vec[i].numColors,\n"
-	    "			QImage::BigEndian\n"
-	    "		);\n"
-	    "	    if ( embed_image_vec[i].alpha )\n"
-	    "	        img->setAlphaBuffer(TRUE);\n"
-	    "	    break;\n"
-	    "	}\n"
-	    "        }\n"
-	    "        if ( !img ) {\n"
-	    "            static QImage dummy;\n"
-	    "            return dummy;\n"
-	    "        }\n"
-	    "    }\n"
-	    "    return *img;\n"
-	    "}\n\n";
-
-	out << "class DesignerMimeSourceFactory : public QMimeSourceFactory" << endl;
-	out << "{" << endl;
-	out << "public:" << endl;
-	out << "    DesignerMimeSourceFactory() {}" << endl;
-
-	out << "    const QMimeSource* data( const QString& abs_name ) const {" << endl;
-	out << "\tQImage img;" << endl;
-	out << "\tif ( !!abs_name )" << endl;
-	out << "\t    img = uic_findImage_" << project->fixedProjectName() << "( abs_name );" << endl;
-	out << "\tif ( !img.isNull() ) {" << endl;
-	out << "\t    QPixmap pix;" << endl;
-	out << "\t    pix.convertFromImage( img );" << endl;
-	out << "\t    QMimeSourceFactory::defaultFactory()->setPixmap( abs_name, pix );" << endl;
-	out << "\t    return QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
-	out << "\t} else {" << endl;
-	out << "\t    QMimeSourceFactory::removeFactory( (QMimeSourceFactory*)this );" << endl;
-	out << "\t    const QMimeSource *s = QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
-	out << "\t    QMimeSourceFactory::addFactory( (QMimeSourceFactory*)this );" << endl;
-	out << "\t    return s;" << endl;
-	out << "\t}" << endl;
-	out << "\treturn 0;" << endl;
-	out << "    };" << endl;
-	out << "};" << endl;
-
-	out << "static DesignerMimeSourceFactory *designerMimeSourceFactory = 0;" << endl;
-
-	out << "void qInitImages_" << project->fixedProjectName() << "()" << endl;
-	out << "{" << endl;
-	out << "    if ( designerMimeSourceFactory )" << endl;
-	out << "	return;" << endl;
-	out << "    designerMimeSourceFactory = new DesignerMimeSourceFactory;" << endl;
-	out << "    QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );" << endl;
-	out << "}" << endl;
-
-	out << "static void qCleanupImages_" << project->fixedProjectName() << "()" << endl;
-	out << "{" << endl;
-	out << "    if ( !designerMimeSourceFactory )" << endl;
-	out << "	return;" << endl;
-	out << "    QMimeSourceFactory::defaultFactory()->removeFactory( designerMimeSourceFactory );" << endl;
-	out << "    delete designerMimeSourceFactory;" << endl;
-	out << "    designerMimeSourceFactory = 0;" << endl;
-	out << "}" << endl;
-
-	out << "class StaticInitImages" << endl;
-	out << "{" << endl;
-	out << "public:" << endl;
-	out << "    StaticInitImages() { qInitImages_" << project->fixedProjectName() << "(); }" << endl;
-	out << "    ~StaticInitImages() { qCleanupImages_" << project->fixedProjectName() << "(); }" << endl;
-	out << "};" << endl;
-
-	out << "static StaticInitImages staticImages;" << endl;
-    }
-
-    out << "#endif" << endl;
-    f.close();
+    
+    Pixmap pix;
+    pix.name = QFileInfo( absfile ).fileName();
+    pix.absname = absfile;
+    pix.pix = pm;
+    addPixmap( pix );
 }
 
 DesignerPixmapCollection *PixmapCollection::iFace()

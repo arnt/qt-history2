@@ -2,39 +2,43 @@ void PixmapCollectionEditor::init()
 {
     project = 0;
     setChooserMode( FALSE );
-    changed = FALSE;
 }
 
 void PixmapCollectionEditor::destroy()
 {
 }
 
-void PixmapCollectionEditor::save()
-{
-    if ( changed )
-	project->pixmapCollection()->createCppFile();     
-}
-
 void PixmapCollectionEditor::addPixmap()
 {
     if ( !project )
 	return;
-    
+
     QString f;
-    QPixmap pix = qChoosePixmap( this, 0, QPixmap(), &f ); 
-    if ( pix.isNull() )
+    QStringList pixmaps = qChoosePixmaps( this );
+    if ( pixmaps.isEmpty() )
 	return;
-    PixmapCollection::Pixmap pixmap;
-    pixmap.pix = pix;
-    pixmap.name = QFileInfo( f ).baseName();
-    project->pixmapCollection()->addPixmap( pixmap );
+    
+    QString lastName;
+    for ( QStringList::ConstIterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
+	QPixmap pm( *it );
+	if ( pm.isNull() )
+	    continue;
+	PixmapCollection::Pixmap pixmap;
+	pixmap.pix = pm;
+	QFileInfo fi ( *it );
+	pixmap.name = fi.fileName();
+	pixmap.absname = fi.filePath();
+	project->pixmapCollection()->addPixmap( pixmap );
+	lastName = pixmap.name;
+    }
+    
     updateView();
-    changed = TRUE;
-    QIconViewItem *item = viewPixmaps->findItem( pixmap.name );
+    QIconViewItem *item = viewPixmaps->findItem( lastName );
     if ( item ) {
 	viewPixmaps->setCurrentItem( item );
 	viewPixmaps->ensureItemVisible( item );
     }
+    
 }
 
 void PixmapCollectionEditor::removePixmap()
@@ -43,16 +47,15 @@ void PixmapCollectionEditor::removePixmap()
 	return;
     project->pixmapCollection()->removePixmap( viewPixmaps->currentItem()->text() );
     updateView();
-    changed = TRUE;
 }
 
 void PixmapCollectionEditor::updateView()
 {
     if ( !project )
 	return;
- 
+
     viewPixmaps->clear();
-    
+
     QValueList<PixmapCollection::Pixmap> pixmaps = project->pixmapCollection()->pixmaps();
     for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
 	// #### might need to scale down the pixmap
@@ -75,13 +78,13 @@ void PixmapCollectionEditor::setChooserMode( bool c )
     chooser = c;
     if ( chooser ) {
 	buttonClose->hide();
-	buttonOk->show(); 
-	buttonCancel->show(); 
+	buttonOk->show();
+	buttonCancel->show();
 	buttonOk->setEnabled( FALSE );
 	buttonOk->setDefault( TRUE );
 	connect( viewPixmaps, SIGNAL( doubleClicked( QIconViewItem * ) ), buttonOk, SIGNAL( clicked() ) );
-	connect( viewPixmaps, SIGNAL( returnPressed( QIconViewItem * ) ), buttonOk, SIGNAL( clicked() ) ); 
-	setCaption( tr( "Choose a Pixmap" ) );
+	connect( viewPixmaps, SIGNAL( returnPressed( QIconViewItem * ) ), buttonOk, SIGNAL( clicked() ) );
+	setCaption( tr( "Choose an image" ) );
     } else {
 	buttonClose->show();
 	buttonOk->hide();

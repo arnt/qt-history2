@@ -1,6 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>ProjectSettingsBase</class>
-<include location="local" implDecl="in declaration">projectsettings.ui.h</include>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
@@ -10,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>371</width>
-            <height>339</height>
+            <width>466</width>
+            <height>331</height>
         </rect>
     </property>
     <property name="caption">
@@ -51,22 +50,6 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLabel" row="0" column="0">
-                        <property name="name">
-                            <cstring>TextLabel1</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Project &amp;Name:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>editProjectName</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit" row="0" column="1">
-                        <property name="name">
-                            <cstring>editProjectName</cstring>
-                        </property>
-                    </widget>
                     <widget class="QLabel" row="1" column="0">
                         <property name="name">
                             <cstring>TextLabel1_2</cstring>
@@ -273,46 +256,6 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget class="QLayoutWidget" row="5" column="1">
-                        <property name="name">
-                            <cstring>Layout1_2_2</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <widget class="QLineEdit">
-                                <property name="name">
-                                    <cstring>editImageFile</cstring>
-                                </property>
-                            </widget>
-                            <widget class="QToolButton">
-                                <property name="name">
-                                    <cstring>buttonImageFile</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>...</string>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <widget class="QLabel" row="5" column="0">
-                        <property name="name">
-                            <cstring>TextLabel1_2_2_2</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;Image File:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>editDatabaseFile</cstring>
-                        </property>
-                    </widget>
                     <spacer row="1" column="0">
                         <property name="name">
                             <cstring>Spacer2</cstring>
@@ -467,18 +410,6 @@
         <slot>removeProject()</slot>
     </connection>
     <connection language="C++">
-        <sender>buttonImageFile</sender>
-        <signal>clicked()</signal>
-        <receiver>ProjectSettingsBase</receiver>
-        <slot>chooseImageFile()</slot>
-    </connection>
-    <connection language="C++">
-        <sender>editProjectName</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>ProjectSettingsBase</receiver>
-        <slot>projectNameChanged(const QString&amp;)</slot>
-    </connection>
-    <connection language="C++">
         <sender>comboLanguage</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>ProjectSettingsBase</receiver>
@@ -490,21 +421,18 @@
         <receiver>ProjectSettingsBase</receiver>
         <slot>addProject()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">chooseDatabaseFile()</slot>
-    <slot access="protected" language="C++" returnType="void">chooseImageFile()</slot>
-    <slot access="protected" language="C++" returnType="void">chooseProjectFile()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">helpClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">languageChanged( const QString &amp; )</slot>
-    <slot access="public" language="C++" returnType="void">addProject()</slot>
-    <slot access="protected" language="C++" returnType="void">okClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">projectNameChanged( const QString &amp; )</slot>
-    <slot access="protected" language="C++" returnType="void">removeProject()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">chooseDatabaseFile()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">chooseProjectFile()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">helpClicked()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">languageChanged( const QString &amp; )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">addProject()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">okClicked()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">removeProject()</slot>
 </connections>
 <tabstops>
     <tabstop>tabWidget</tabstop>
-    <tabstop>editProjectName</tabstop>
     <tabstop>editProjectFile</tabstop>
     <tabstop>comboLanguage</tabstop>
     <tabstop>checkCreateSource</tabstop>
@@ -513,7 +441,6 @@
     <tabstop>PushButton5</tabstop>
     <tabstop>PushButton4</tabstop>
     <tabstop>editDatabaseFile</tabstop>
-    <tabstop>editImageFile</tabstop>
     <tabstop>buttonHelp</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>

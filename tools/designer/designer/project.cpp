@@ -181,22 +181,29 @@ DesignerDatabase *DatabaseConnection::iFace()
 
 ////////
 
-Project::Project( const QString &fn, const QString &pName, QPluginManager<ProjectSettingsInterface> *pm )
-    : proName( pName ), projectSettingsPluginManager( pm )
+bool Project::isDummy() const
 {
+    return isDummyProject;
+}
+
+Project::Project( const QString &fn, const QString &pName, QPluginManager<ProjectSettingsInterface> *pm, bool isDummy  )
+    : proName( pName ), projectSettingsPluginManager( pm ), isDummyProject( isDummy )
+{
+    modified = TRUE;
     pixCollection = new PixmapCollection( this );
     iface = 0;
     lang = "C++";
     cfg.insert( "(all)", "qt warn_on release" );
     templ = "app";
     csList << "CPP_ALWAYS_CREATE_SOURCE";
-    if ( proName == "<No Project>" )
+    if ( isDummy )
 	setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "FALSE" );
     else
 	setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "TRUE" );
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
+    modified = FALSE;
 }
 
 Project::~Project()
@@ -220,7 +227,17 @@ DatabaseConnection *Project::databaseConnection( const QString &name )
 
 void Project::setFileName( const QString &fn, bool doClear )
 {
+    if ( fn == filename )
+	return;
     filename = fn;
+    
+    if ( !filename.endsWith( ".pro" ) )
+	filename += ".pro";
+    proName = filename;
+    
+    if ( proName.contains( '.' ) )
+	proName = proName.left( proName.find( '.' ) );
+    
     if ( !doClear )
 	return;
     clear();
@@ -238,21 +255,9 @@ QStringList Project::uiFiles() const
     return uifiles;
 }
 
-QString Project::imageFile() const
-{
-    return imgFile;
-}
-
-
 QString Project::databaseDescription() const
 {
     return dbFile;
-}
-
-void Project::setProjectName( const QString &n )
-{
-    proName = n;
-    save();
 }
 
 QString Project::projectName() const
@@ -260,6 +265,7 @@ QString Project::projectName() const
     return proName;
 }
 
+/*
 QString Project::fixedProjectName() const
 {
     QString s = proName;
@@ -274,7 +280,7 @@ QString Project::fixedProjectName() const
     }
     return s;
 }
-
+*/
 static QString parse_part( const QString &part )
 {
     QString res;
@@ -366,30 +372,16 @@ void Project::parse()
     QString contents = ts.read();
     f.close();
 
-    QString fl( QFileInfo( filename ).baseName() );
-    proName = fl[ 0 ].upper() + fl.mid( 1 );
+    proName = QFileInfo( filename ).baseName();
 
-    uifiles = parse_multiline_part( contents, "INTERFACES" );
+    uifiles = parse_multiline_part( contents, "FORMS" );
+    uifiles += parse_multiline_part( contents, "INTERFACES" ); // compatibilty
 
     int i = contents.find( "DBFILE" );
     if ( i != -1 ) {
 	dbFile = "";
 	QString part = contents.mid( i + QString( "DBFILE" ).length() );
 	dbFile = parse_part( part );
-    }
-
-    i = contents.find( "IMAGEFILE" );
-    if ( i != -1 ) {
-	imgFile = "";
-	QString part = contents.mid( i + QString( "IMAGEFILE" ).length() );
-	imgFile = parse_part( part );
-    }
-
-    i = contents.find( "PROJECTNAME" );
-    if ( i != -1 ) {
-	proName = "";
-	QString part = contents.mid( i + QString( "PROJECTNAME" ).length() );
-	proName = parse_part( part );
     }
 
     i = contents.find( "LANGUAGE" );
@@ -439,14 +431,16 @@ void Project::parse()
     }
 
     loadConnections();
-    loadImages();
+
+    QStringList images = parse_multiline_part( contents, "IMAGES" );
+    for ( QStringList::ConstIterator it = images.begin(); it != images.end(); ++it )
+	pixCollection->load( *it );
 }
 
 void Project::clear()
 {
     uifiles.clear();
     dbFile = "";
-    imgFile = "";
     proName = "unnamed";
     loadedForms.clear();
     desc = "";
@@ -454,12 +448,14 @@ void Project::clear()
 
 void Project::addUiFile( const QString &f, FormWindow *fw )
 {
-    if ( hasUiFile( f ) )
-	return;
-    uifiles << f;
+    if ( !f.isEmpty() ) {
+	if ( hasUiFile( f ) )
+	    return;
+	uifiles << f;
+    }
     if ( fw )
 	formWindows.insert( fw, f );
-    save();
+    modified = TRUE;
 }
 
 FormWindow *Project::formWindow( const QString &filename )
@@ -474,31 +470,25 @@ FormWindow *Project::formWindow( const QString &filename )
 
 bool Project::hasUiFile( const QString &filename ) const
 {
-    return uifiles.find( filename ) != uifiles.end();
+    return !filename.isEmpty() && uifiles.find( filename ) != uifiles.end();
 }
 
 void Project::removeUiFile( const QString &f, FormWindow *fw )
 {
     formWindows.remove( fw );
     uifiles.remove( f );
-    save();
+    modified = TRUE;
 }
 
 void Project::removeSourceFile( const QString &, SourceFile *sf )
 {
     sources.removeRef( sf );
-    save();
+    modified = TRUE;
 }
 
 void Project::setDatabaseDescription( const QString &db )
 {
     dbFile = db;
-}
-
-void Project::setImageFile( const QString &f )
-{
-    imgFile = f;
-    pixCollection->createCppFile();
 }
 
 void Project::setDescription( const QString &s )
@@ -514,7 +504,7 @@ QString Project::description() const
 void Project::setUiFiles( const QStringList &lst )
 {
     uifiles = lst;
-    save();
+    modified = TRUE;
 }
 
 bool Project::isValid() const
@@ -533,9 +523,11 @@ bool Project::hasFormWindow( FormWindow* fw ) const
 
 void Project::setFormWindow( const QString &f, FormWindow *fw )
 {
+    QString fn = makeRelative( f );
+    if ( !hasUiFile( fn ) )
+	modified = TRUE;
     formWindows.remove( fw );
-    formWindows.insert( fw, f );
-    save();
+    formWindows.insert( fw, fn );
 }
 
 void Project::setFormWindowFileName( FormWindow *fw, const QString &f )
@@ -545,12 +537,12 @@ void Project::setFormWindowFileName( FormWindow *fw, const QString &f )
     uifiles << f;
     formWindows.remove( fw );
     formWindows.insert( fw, f );
-    save();
+    modified = TRUE;
 }
 
 QString Project::makeAbsolute( const QString &f )
 {
-    if ( proName == "<No Project>" )
+    if ( isDummy() )
 	return f;
     QUrl u( QFileInfo( filename ).dirPath( TRUE ), f );
     return u.path();
@@ -558,7 +550,7 @@ QString Project::makeAbsolute( const QString &f )
 
 QString Project::makeRelative( const QString &f )
 {
-    if ( proName == "<No Project>" )
+    if ( isDummy() )
 	return f;
     QString p = QFileInfo( filename ).dirPath( TRUE );
     QString f2 = f;
@@ -600,9 +592,11 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
 
 void Project::save()
 {
-    if ( proName == "<No Project>" || filename.isEmpty() )
+    if ( isDummy()  || filename.isEmpty() )
 	return;
 
+    modified = FALSE;
+    
     QFile f( filename );
     QString contents;
     if ( f.open( IO_ReadOnly ) ) {
@@ -610,21 +604,35 @@ void Project::save()
 	contents = ts.read();
 	f.close();
     } else {
-	contents += "TARGET\t= " + fixedProjectName() + "\n";
+	// initial contents
+	contents = 
+	    "unix {\n"
+	    "  UI_DIR = .ui\n"
+	    "  MOC_DIR = .moc\n"
+	    "  OBJECTS_DIR = .obj\n"
+	    "}\n";
     }
 
-    remove_multiline_contents( contents, "INTERFACES" );
+    remove_multiline_contents( contents, "FORMS" );
+    remove_multiline_contents( contents, "INTERFACES" ); // compatibility
 
     if ( !uifiles.isEmpty() ) {
-	contents += "INTERFACES\t= ";
+	contents += "FORMS\t= ";
 	for ( QStringList::Iterator it = uifiles.begin(); it != uifiles.end(); ++it )
 	    contents += *it + " ";
 	contents += "\n";
     }
+    
+    remove_multiline_contents( contents, "IMAGES" );
+    if ( !pixCollection->isEmpty() ) {
+	contents += "IMAGES\t= ";
+	QValueList<PixmapCollection::Pixmap> pixmaps = pixCollection->pixmaps();
+	for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it )
+	    contents += makeRelative( (*it).absname ) + " ";
+	contents += "\n";
+    }
 
     remove_contents( contents, "DBFILE" );
-    remove_contents( contents, "IMAGEFILE" );
-    remove_contents( contents, "PROJECTNAME" );
     remove_contents( contents, "LANGUAGE" );
     remove_contents( contents, "TEMPLATE" );
     removePlatformSettings( contents, "CONFIG" );
@@ -647,22 +655,15 @@ void Project::save()
     writePlatformSettings( contents, "INCLUDEPATH", inclPath );
     writePlatformSettings( contents, "LIBS", lbs );
 
-    remove_contents( contents, "{SOURCES+=" );
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
-    if ( !imgFile.isEmpty() )
-	contents += "IMAGEFILE\t= " + imgFile + "\n";
-
-    if ( !proName.isEmpty() )
-	contents += "PROJECTNAME\t= " + proName + "\n";
 
     contents += "LANGUAGE\t= " + lang + "\n";
 
     if ( !sources.isEmpty() && iface ) {
 	QMap<QString, QStringList> soureToKey;
-	
 	for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
-	    QString key = iface->projectKeyForExtenstion( QFileInfo( f->fileName() ).extension() );
+	    QString key = iface->projectKeyForExtension( QFileInfo( f->fileName() ).extension() );
 	    QStringList lst = soureToKey[ key ];
 	    QString s = f->originalFileName();
 	    if ( s == f->fileName() )
@@ -683,9 +684,6 @@ void Project::save()
 	}
     }
 
-    if ( !imageFile().isEmpty() && !pixCollection->isEmpty() )
-	contents += "{SOURCES+=" + imageFile() + "}\n";
-
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
 	remove_contents( contents, *it );
 	QString val = *customSettings.find( *it );
@@ -705,7 +703,6 @@ void Project::save()
     f.close();
 
     saveConnections();
-    saveImages();
 }
 
 #ifndef QT_NO_SQL
@@ -726,7 +723,7 @@ void Project::setDatabaseConnections( const QPtrList<DatabaseConnection> &lst )
 void Project::addDatabaseConnection( DatabaseConnection *conn )
 {
     dbConnections.append( conn );
-    saveConnections();
+    modified = TRUE;
 }
 #endif
 
@@ -1006,9 +1003,11 @@ DesignerProject *Project::iFace()
 
 void Project::setLanguage( const QString &l )
 {
+    if ( l == lang ) 
+	return;
     lang = l;
     updateCustomSettings();
-    save();
+    modified = TRUE;
 }
 
 QString Project::language() const
@@ -1056,7 +1055,7 @@ void Project::setCustomSetting( const QString &key, const QString &value )
 {
     customSettings.remove( key );
     customSettings.insert( key, value );
-    save();
+    modified = TRUE;
 }
 
 QString Project::customSetting( const QString &key ) const
@@ -1086,7 +1085,7 @@ void Project::updateCustomSettings()
     if ( lang == "C++" ) {
 	if ( csList.find( "CPP_ALWAYS_CREATE_SOURCE" ) == csList.end() )
 	    csList << "CPP_ALWAYS_CREATE_SOURCE";
-	if ( proName == "<No Project>" )
+	if ( isDummy() )
 	    setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "FALSE" );
 	else
 	    setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "TRUE" );
@@ -1094,15 +1093,6 @@ void Project::updateCustomSettings()
 	
     customSettings.clear();
 
-}
-
-void Project::saveImages()
-{
-}
-
-void Project::loadImages()
-{
-    pixCollection->load();
 }
 
 void Project::setActive( bool b )
@@ -1113,7 +1103,7 @@ void Project::setActive( bool b )
 void Project::addSourceFile( SourceFile *sf )
 {
     sources.append( sf );
-    save();
+    modified = TRUE;
 }
 
 QPtrList<FormWindow> Project::unnamedForms() const
@@ -1136,8 +1126,10 @@ QPtrList<FormWindow> Project::forms() const
 
 void Project::setIncludePath( const QString &platform, const QString &path )
 {
+    if ( inclPath[platform] == path )
+	return;
     inclPath.replace( platform, path );
-    save();
+    modified = TRUE;
 }
 
 void Project::setLibs( const QString &platform, const QString &path )

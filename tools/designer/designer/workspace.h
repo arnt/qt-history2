@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef FORMLIST_H
-#define FORMLIST_H
+#ifndef WORKSPACE_H
+#define WORKSPACE_H
 
 #include <qlistview.h>
 
@@ -35,14 +35,14 @@ class SourceFile;
 class QCompletionEdit;
 class SourceEditor;
 
-class FormListItem : public QListViewItem
+class WorkspaceItem : public QListViewItem
 {
 public:
     enum Type { Parent = 1001, Form, Image, Source };
 
-    FormListItem( QListView *parent );
-    FormListItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw );
-    FormListItem( QListViewItem *parent, const QString &file, SourceFile *fl );
+    WorkspaceItem( QListView *parent );
+    WorkspaceItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw );
+    WorkspaceItem( QListViewItem *parent, const QString &file, SourceFile *fl );
 
     void setFormWindow( FormWindow *fw ) { formwindow = fw; }
     FormWindow *formWindow() const { return formwindow; }
@@ -65,12 +65,12 @@ private:
 
 };
 
-class FormList : public QListView
+class Workspace : public QListView
 {
     Q_OBJECT
 
 public:
-    FormList( QWidget *parent , MainWindow *mw, Project *pro );
+    Workspace( QWidget *parent , MainWindow *mw, Project *pro );
 
     void setProject( Project *pro );
     void addForm( FormWindow *fw );
@@ -88,7 +88,7 @@ public:
 	QListView::drawContentsOffset( p, ox, oy, cx, cy, cw, ch );
     }
 
-    void removeForm( FormWindow *fw );
+    void removeFormFromProject( FormWindow *fw );
     void removeFormFromProject( const QString &file );
     void removeFormFromProject( QListViewItem *i );
     void removeSourceFromProject( const QString &file );
@@ -119,15 +119,15 @@ private slots:
     void bufferChosen( const QString &buffer );
 
 private:
-    FormListItem *findItem( FormWindow *fw );
-    FormListItem *findItem( SourceFile *sf );
+    WorkspaceItem *findItem( FormWindow *fw );
+    WorkspaceItem *findItem( SourceFile *sf );
 
 private:
     MainWindow *mainWindow;
     Project *project;
-    FormListItem *formsParent;
-    FormListItem *imageParent;
-    FormListItem *sourceParent;
+    WorkspaceItem *formsParent;
+    WorkspaceItem *imageParent;
+    WorkspaceItem *sourceParent;
     QCompletionEdit *bufferEdit;
     bool blockNewForms;
 

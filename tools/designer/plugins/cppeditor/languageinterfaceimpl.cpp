@@ -183,7 +183,7 @@ void LanguageInterfaceImpl::fileFilters( QMap<QString, QString> &extensionFilter
     extensionFilterMap.insert( "hxx", "Header Files (*.hxx)" );
 }
 
-QString LanguageInterfaceImpl::projectKeyForExtenstion( const QString &extension ) const
+QString LanguageInterfaceImpl::projectKeyForExtension( const QString &extension ) const
 {
     if ( extension[ 0 ] == 'c' || extension[ 0 ] == 'C' )
 	return "SOURCES";

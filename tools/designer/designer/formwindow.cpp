@@ -1668,13 +1668,28 @@ void FormWindow::updateUndoInfo()
     commandHistory()->emitUndoRedo();
 }
 
-MainWindow *FormWindow::mainWindow() const
+bool FormWindow::saveAs()
 {
-    return mainwindow;
+    mainWindow()->statusBar()->message( tr( "Enter a filename..." ) );
+    QString fn = QFileDialog::getSaveFileName( QString::fromLatin1(name()).lower() + ".ui", 
+					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
+					       tr( "All Files (*)" ), mainWindow(), 0, 
+					       tr( "Save form '%1' as ....").arg( name() ),
+					       &mainWindow()->lastSaveFilter );
+    if ( fn.isEmpty() )
+	return FALSE;
+    QFileInfo fi( fn );
+    if ( fi.extension() != "ui" )
+	fn += ".ui";
+    setFileName( fn );
+    return save();
 }
 
-void FormWindow::save( const QString &filename, bool withMsgBox )
+bool FormWindow::save( bool withMsgBox )
 {
+    if ( filename.isEmpty() ) {
+	return saveAs();
+    }
     mainWindow()->statusBar()->message( tr( "Saving file %1..." ).arg(filename) );
     QStringList missingCustomWidgets;
     QPtrDictIterator<QWidget> it( insertedWidgets );
@@ -1696,11 +1711,9 @@ void FormWindow::save( const QString &filename, bool withMsgBox )
 	       "this form now?";
 	if ( withMsgBox ) {
 	    if ( QMessageBox::information( mainWindow(), tr( "Save Form" ), txt ) == 1 )
-		return;
+		return FALSE;
 	}
     }
-
-    fname = filename;
 
     if ( QFile::exists( filename ) ) {
 	QString fn( filename );
@@ -1722,14 +1735,15 @@ void FormWindow::save( const QString &filename, bool withMsgBox )
 
     Resource resource( mainWindow() );
     resource.setWidget( this );
-    if ( !resource.save( fname ) ) {
+    if ( !resource.save( filename ) ) {
 	mainWindow()->statusBar()->message( tr( "Failed to save file %1.").arg( filename ), 5000 );
 	if ( withMsgBox )
-	    QMessageBox::warning( mainWindow(), tr( "Save" ), tr( "Couldn't save file %1" ).arg( fname ) );
+	    QMessageBox::warning( mainWindow(), tr( "Save" ), tr( "Couldn't save file %1" ).arg( filename ) );
     } else {
 	mainWindow()->statusBar()->message( tr( "%1 saved.").arg( filename ), 3000 );
 	commandHistory()->setModified( FALSE );
     }
+    return TRUE;
 }
 
 void FormWindow::setPropertyShowingBlocked( bool b )

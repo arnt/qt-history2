@@ -175,7 +175,7 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 
     DomTool::fixDocument( doc );
 
-    toplevel = formwindow = new FormWindow( mainwindow->workSpace(), 0 );
+    toplevel = formwindow = new FormWindow( mainwindow->qWorkspace(), 0 );
     formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
 
@@ -2134,7 +2134,7 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	       << "\" impldecl=\"" << (*it).implDecl << "\">" << (*it).header << "</include>" << endl;
 	if ( langIface && langIface->supports( LanguageInterface::SaveFormCodeExternal ) &&
 	     formwindow->project()->language() == "C++" )
-	    ts << makeIndent( indent ) << "<include location=\"local\" implDecl=\"in declaration\">"
+	    ts << makeIndent( indent ) << "<include location=\"local\" impldecl=\"in implementation\">"
 	       << QFileInfo( currFileName ).fileName() << langIface->formCodeExtension() << "</include>" << endl;
 	
 	QStringList forwards = MetaDataBase::forwards( formwindow );

@@ -54,7 +54,7 @@ class QActionGroup;
 class QPopupMenu;
 class HierarchyView;
 class QCloseEvent;
-class FormList;
+class Workspace;
 class ActionEditor;
 class Project;
 class OutputWindow;
@@ -87,7 +87,7 @@ public:
     ~MainWindow();
 
     HierarchyView *objectHierarchy() const;
-    FormList *formlist() const;
+    Workspace *workspace() const;
     PropertyEditor *propertyeditor() const;
     ActionEditor *actioneditor() const;
 
@@ -102,7 +102,7 @@ public:
     QWidget *isAToolBarChild( QObject *o ) const;
 
     void insertFormWindow( FormWindow *fw );
-    QWorkspace *workSpace() const;
+    QWorkspace *qWorkspace() const;
 
     void popupFormWindowMenu( const QPoint &gp, FormWindow *fw );
     void popupWidgetMenu( const QPoint &gp, FormWindow *fw, QWidget *w );
@@ -138,16 +138,16 @@ public:
     TemplateWizardInterface* templateWizardInterface( const QString& className );
     QUnknownInterface* designerInterface() const { return desInterface; }
     QPtrList<DesignerProject> projectList() const;
+    QStringList projectNames() const;
     OutputWindow *outputWindow() const { return oWindow; }
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void addProjectTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void setModified( bool b, QWidget *window );
     void slotsChanged();
     void updateFunctionList();
-    void updateFormList();
+    void updateWorkspace();
     QObjectList *runProject();
 
-    Project *emptyProject();
     void formNameChanged( FormWindow *fw );
 
     int currentLayoutDefaultSpacing() const;
@@ -172,6 +172,7 @@ signals:
     void currentToolChanged();
     void hasActiveForm( bool );
     void hasActiveWindow( bool );
+    void hasActiveWindowOrProject( bool );
     void formModified( bool );
     void formWindowsChanged();
     void formWindowChanged();
@@ -184,14 +185,16 @@ protected:
 
 public slots:
     void fileNew();
-    void fileNewProject();
-    void fileCloseProject();
+    void fileNewProject(); // not visible in menu, called from fileNew
+    void fileClose();
+    void fileCloseProject(); // not visible in menu, called from fileClose
     void fileOpen() { fileOpen( "", "", "" ); }
     void fileOpen( const QString &filter, const QString &extension, const QString &filename = "" );
     bool fileSave();
+    bool fileSaveForm(); // not visible in menu, called from fileSave
+    bool fileSaveProject(); // not visible in menu, called from fileSaveProject
     bool fileSaveAs();
     void fileSaveAll();
-    void fileSaveProject();
     void fileCreateTemplate();
 
     void editUndo();
@@ -263,6 +266,8 @@ private slots:
     void setupRecentlyProjectsMenu();
     void recentlyFilesMenuActivated( int id );
     void recentlyProjectsMenuActivated( int id );
+    
+    void checkHasActiveWindowOrProject();
 
 private:
     void setupMDI();
@@ -279,7 +284,7 @@ private:
 
     void setupPropertyEditor();
     void setupHierarchyView();
-    void setupFormList();
+    void setupWorkspace();
     void setupActionEditor();
     void setupOutputWindow();
 
@@ -332,9 +337,9 @@ private:
 private:
     PropertyEditor *propertyEditor;
     HierarchyView *hierarchyView;
-    FormList *formList;
+    Workspace *wspace;
     QWidget *lastPressWidget;
-    QWorkspace *workspace;
+    QWorkspace *qworkspace;
 #if defined(HAVE_KDE)
     KMenuBar *menubar;
 #else
@@ -410,8 +415,10 @@ private:
     Project *eProject;
     bool inDebugMode;
     QObjectList debuggingForms;
-    QString lastOpenFilter, lastSaveFilter;
+    QString lastOpenFilter;
     QGuardedPtr<QWidget> previewedForm;
+public:
+    QString lastSaveFilter;
 
 };
 

@@ -36,7 +36,8 @@ public:
 
     void setCurrentSlot( const QString &slot );
     static void removeSlotFromCode( const QString &slot, FormWindow *formWindow );
-    void slotAdd();
+    void slotAdd( const QString& access = QString::null );
+    void slotAdd() { slotAdd( "Public" ); }
 
 protected slots:
     void okClicked();

@@ -24,7 +24,7 @@
 #include "mainwindow.h"
 #include "project.h"
 #include "formwindow.h"
-#include "formlist.h"
+#include "workspace.h"
 #include "widgetfactory.h"
 #include "command.h"
 #include "outputwindow.h"
@@ -628,10 +628,10 @@ QWidget *DesignerFormWindowImpl::form() const
 
 void DesignerFormWindowImpl::setListViewIcon( const QPixmap &pix )
 {
-    FormList * listView = formWindow->mainWindow()->formlist();
+    Workspace * listView = formWindow->mainWindow()->workspace();
     QListViewItemIterator it( listView );
     while ( it.current() ) {
-	FormListItem *item = (FormListItem*)it.current();
+	WorkspaceItem *item = (WorkspaceItem*)it.current();
 	++it;
 	QWidget *itemForm = item->formWindow();
 	if ( itemForm == formWindow ) {

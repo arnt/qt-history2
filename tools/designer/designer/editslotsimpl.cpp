@@ -168,14 +168,17 @@ void EditSlots::okClicked()
     accept();
 }
 
-void EditSlots::slotAdd()
+void EditSlots::slotAdd( const QString& access )
 {
     QListViewItem *i = new QListViewItem( slotListView );
     i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
     i->setText( 0, "newSlot()" );
     i->setText( 1, "void" );
     i->setText( 2, "virtual" );
-    i->setText( 3, "public" );
+    if ( access.isEmpty() )
+	i->setText( 3, "public" );
+    else
+	i->setText( 3, access );
     if ( MetaDataBase::isSlotUsed( formWindow, "newSlot()" ) )
 	i->setText( 4, tr( "Yes" ) );
     else

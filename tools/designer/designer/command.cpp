@@ -25,7 +25,7 @@
 #include <widgetdatabase.h>
 #include "mainwindow.h"
 #include "hierarchyview.h"
-#include "formlist.h"
+#include "workspace.h"
 #include "actioneditorimpl.h"
 #include "actiondnd.h"
 
@@ -581,7 +581,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	if ( propName == "name" && widget->isWidgetType() ) {
 	    formWindow()->mainWindow()->objectHierarchy()->namePropertyChanged( (QWidget*)widget, ov );
 	    if ( formWindow()->isMainContainer( widget ) ) {
-		formWindow()->mainWindow()->formlist()->nameChanged( (FormWindow*)widget );
+		formWindow()->mainWindow()->workspace()->nameChanged( (FormWindow*)widget );
 		formWindow()->setName( v.toCString() );
 	    }
 	}

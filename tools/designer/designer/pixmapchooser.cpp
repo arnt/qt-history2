@@ -310,6 +310,35 @@ void PixmapView::previewUrl( const QUrl &u )
     }
 }
 
+QStringList qChoosePixmaps( QWidget *parent )
+{
+    if ( !imageIconProvider && !QFileDialog::iconProvider() )
+	QFileDialog::setIconProvider( ( imageIconProvider = new ImageIconProvider ) );
+
+    QString filter;
+    QString all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );;
+    for ( uint i = 0; i < QImageIO::outputFormats().count(); i++ ) {
+	filter += qApp->translate( "qChoosePixmap", "%1-Pixmaps (%2)\n" ).
+		  arg( QImageIO::outputFormats().at( i ) ).
+		  arg( "*." + QString( QImageIO::outputFormats().at( i ) ).lower() );
+	all += "*." + QString( QImageIO::outputFormats().at( i ) ).lower() + ";";
+    }
+    filter.prepend( all + qApp->translate( "qChoosePixmap", ")\n" ) );
+    filter += qApp->translate( "qChoosePixmap", "All Files (*)" );
+
+    QFileDialog fd( QString::null, filter, parent, 0, TRUE );
+    fd.setMode( QFileDialog::ExistingFiles );
+    fd.setContentsPreviewEnabled( TRUE );
+    PixmapView *pw = new PixmapView( &fd );
+    fd.setContentsPreview( pw, pw );
+    fd.setViewMode( QFileDialog::List );
+    fd.setPreviewMode( QFileDialog::Contents );
+    fd.setCaption( qApp->translate( "qChoosePixmap", "Choose Images..." ) );
+    if ( fd.exec() == QDialog::Accepted )
+	return fd.selectedFiles();
+    return QStringList();
+}
+
 QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QString *fn )
 {
 #if defined(DESIGNER)

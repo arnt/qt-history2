@@ -26,13 +26,13 @@
 
 #include "previewwidgetimpl.h"
 
-class Workspace : public QWorkspace
+class PreviewWorkspace : public QWorkspace
 {
     Q_OBJECT
 public:
-    Workspace( QWidget* parent = 0, const char* name = 0 )
+    PreviewWorkspace( QWidget* parent = 0, const char* name = 0 )
         : QWorkspace( parent, name ) {}
-    ~Workspace() {}
+    ~PreviewWorkspace() {}
 
 protected:
     void paintEvent( QPaintEvent* );

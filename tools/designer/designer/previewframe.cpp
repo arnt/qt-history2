@@ -30,7 +30,7 @@ PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setLineWidth(1);
 
-    Workspace * w = new Workspace( this );
+    PreviewWorkspace * w = new PreviewWorkspace( this );
     w->setEraseColor(colorGroup().dark());
     previewWidget = new PreviewWidget( w );
     previewWidget->move( 10, 10 );
@@ -41,7 +41,7 @@ void PreviewFrame::setPreviewPalette(QPalette pal)
     previewWidget->setPalette(pal);
 }
 
-void Workspace::paintEvent( QPaintEvent* )
+void PreviewWorkspace::paintEvent( QPaintEvent* )
 {
     QPainter p ( this );
     p.setPen( QPen( white ) );

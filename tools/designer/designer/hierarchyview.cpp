@@ -707,7 +707,12 @@ void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	   i->rtti() == HierarchyItem::Protected ||
 	   i->rtti() == HierarchyItem::Private ) ) {
 	EditSlots dlg( this, formWindow );
-	dlg.slotAdd();
+	QString access = "public";
+	if ( i->rtti() == HierarchyItem::Protected )
+	    access = "protected";
+	else if  ( i->rtti() == HierarchyItem::Private )
+	    access = "private";
+	dlg.slotAdd( access );
 	dlg.exec();
     } else {
 	insertEntry( i );
@@ -740,7 +745,12 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	if ( res == NEW_ITEM ) {
 	    if ( formWindow->project()->language() == "C++" ) {
 		EditSlots dlg( this, formWindow );
-		dlg.slotAdd();
+		QString access = "public";
+		if ( i->parent() && i->parent()->rtti() == HierarchyItem::Protected )
+		    access = "protected";
+		else if  ( i->parent() && i->parent()->rtti() == HierarchyItem::Private )
+		    access = "private";
+		dlg.slotAdd( access );
 		dlg.exec();
 	    } else {
 		insertEntry( i->parent() );
@@ -780,7 +790,12 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	       i->rtti() == HierarchyItem::Protected ||
 	       i->rtti() == HierarchyItem::Private ) ) {
 	    EditSlots dlg( this, formWindow );
-	    dlg.slotAdd();
+	    QString access = "public";
+	    if ( i->rtti() == HierarchyItem::Protected )
+		access = "protected";
+	    else if  ( i->rtti() == HierarchyItem::Private )
+		access = "private";
+	    dlg.slotAdd( access );
 	    dlg.exec();
 	} else {
 	    insertEntry( i );
@@ -892,7 +907,7 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 
     if ( fw == formwindow ) {
 	listview->setCurrent( w );
-	if ( MainWindow::self->workSpace()->activeWindow() == fw )
+	if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
 	    showPage( listview );
 	else
 	    showPage( fList );
@@ -906,7 +921,7 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
     listview->setCurrent( w );
     fList->setup();
 
-    if ( MainWindow::self->workSpace()->activeWindow() == fw )
+    if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
 	showPage( listview );
     else
 	showPage( fList );

@@ -8,7 +8,6 @@
 <include location="global" impldecl="in declaration">qpixmap.h</include>
 <include location="local" implDecl="in declaration">pixmapcollectioneditor.ui.h</include>
 <forward>class Project;</forward>
-<variable>bool changed;</variable>
 <variable>Project *project;</variable>
 <variable>bool chooser;</variable>
 <layoutdefaults spacing="6" margin="11"/>
@@ -20,12 +19,12 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>350</width>
-            <height>267</height>
+            <width>346</width>
+            <height>265</height>
         </rect>
     </property>
     <property name="caption">
-        <string>Edit Pixmap Collection</string>
+        <string>Edit Image Collection</string>
     </property>
     <grid>
         <property name="name">
@@ -169,19 +168,7 @@
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
-        <slot>save()</slot>
-    </connection>
-    <connection language="C++">
-        <sender>buttonOk</sender>
-        <signal>clicked()</signal>
-        <receiver>PixmapCollectionEditor</receiver>
         <slot>accept()</slot>
-    </connection>
-    <connection language="C++">
-        <sender>buttonCancel</sender>
-        <signal>clicked()</signal>
-        <receiver>PixmapCollectionEditor</receiver>
-        <slot>save()</slot>
     </connection>
     <connection language="C++">
         <sender>buttonCancel</sender>
@@ -193,25 +180,18 @@
         <sender>buttonClose</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
-        <slot>save()</slot>
-    </connection>
-    <connection language="C++">
-        <sender>buttonClose</sender>
-        <signal>clicked()</signal>
-        <receiver>PixmapCollectionEditor</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">save()</slot>
-    <slot access="protected" language="C++" returnType="void">addPixmap()</slot>
-    <slot access="protected" language="C++" returnType="void">removePixmap()</slot>
-    <slot access="public" language="C++" returnType="void">updateView()</slot>
-    <slot access="public" language="C++" returnType="void">currentChanged( QIconViewItem * i )</slot>
-    <slot access="public" language="C++" returnType="void">setChooserMode( bool c )</slot>
-    <slot access="public" language="C++" returnType="void">setCurrentItem( const QString &amp; name )</slot>
-    <slot access="public" language="C++" returnType="void">setProject( Project * pro )</slot>
-    <slot access="public" language="C++" returnType="QPixmap">scaledPixmap( const QPixmap &amp; p )</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">addPixmap()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">removePixmap()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">updateView()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">currentChanged( QIconViewItem * i )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setChooserMode( bool c )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setCurrentItem( const QString &amp; name )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setProject( Project * pro )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="QPixmap">scaledPixmap( const QPixmap &amp; p )</slot>
 </connections>
 <tabstops>
     <tabstop>PushButton2</tabstop>

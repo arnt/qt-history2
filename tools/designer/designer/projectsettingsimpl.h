@@ -40,12 +40,10 @@ public:
 protected slots:
     void chooseDatabaseFile();
     void chooseProjectFile();
-    void chooseImageFile();
     void helpClicked();
     void okClicked();
     void removeProject();
     void addProject();
-    void projectNameChanged( const QString &name );
     void languageChanged( const QString &lang );
 
 private:
@@ -55,8 +53,6 @@ private:
     Project *project;
     QMap<QListViewItem*, FormWindow*> formMap;
     QMap<QListViewItem*, SourceFile*> sourceMap;
-    QString lastProjectName;
-
 };
 
 #endif // PROJECTSETTINGS_H

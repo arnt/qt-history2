@@ -349,7 +349,7 @@ void Uic::createFormDecl( const QDomElement &e )
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
     QMap<QString, QString> functionImpls;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName()  == "connections" ) {
+	if ( n.tagName() == "slots" || n.tagName()  == "connections" ) {
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "slot" ) {
 		    if ( n2.attribute( "language", "C++" ) != "C++" ) 
@@ -526,7 +526,7 @@ void Uic::createFormImpl( const QDomElement &e )
     QStringList extraSlots;
     QStringList extraSlotTypes;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName()  == "connections" ) {
+	if ( n.tagName() == "slots" ||n.tagName()  == "connections" ) {
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "slot" ) {
 		    if ( n2.attribute( "language", "C++" ) != "C++" ) 

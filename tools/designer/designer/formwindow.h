@@ -132,9 +132,10 @@ public:
 
     virtual void updateUndoInfo();
 
-    virtual MainWindow *mainWindow() const;
+    virtual MainWindow *mainWindow() const { return mainwindow; }
 
-    virtual void save( const QString &filename, bool withMsgBox = TRUE );
+    virtual bool save( bool withMsgBox = TRUE );
+    virtual bool saveAs();
     virtual void insertWidget( QWidget *w, bool checkName = FALSE );
     virtual void removeWidget( QWidget *w );
     virtual void deleteWidgets();
@@ -274,7 +275,6 @@ private:
     QLabel *sizePreviewLabel;
     QTimer *checkSelectionsTimer;
     QPtrDict<QWidget> insertedWidgets;
-    QString fname;
     bool propShowBlocked;
     QTimer* updatePropertiesTimer, *showPropertiesTimer, *selectionChangedTimer,
     *windowsRepaintWorkaroundTimer;

@@ -34,7 +34,7 @@
 #include "config.h"
 #include "hierarchyview.h"
 #include "newformimpl.h"
-#include "formlist.h"
+#include "workspace.h"
 #include "about.h"
 #include "multilineeditorimpl.h"
 #include "wizardeditorimpl.h"
@@ -98,14 +98,14 @@ MainWindow *MainWindow::self = 0;
 QString assistantPath()
 {
 #ifdef Q_OS_MACX
-    return QDir::cleanDirPath(QString(getenv("QTDIR")) + QDir::separator() + 
-			      "bin" + QDir::separator() + 
+    return QDir::cleanDirPath(QString(getenv("QTDIR")) + QDir::separator() +
+			      "bin" + QDir::separator() +
 			      "assistant.app/Contents/MacOS/assistant");
 #else
     return "assistant";
 #endif
 }
-    
+
 
 static QString textNoAccel( const QString& text)
 {
@@ -152,7 +152,7 @@ MainWindow::MainWindow( bool asClient )
     hierarchyView = 0;
     actionEditor = 0;
     currentProject = 0;
-    formList = 0;
+    wspace = 0;
     oWindow = 0;
     actionEditPixmapCollection = 0;
 
@@ -188,7 +188,7 @@ MainWindow::MainWindow( bool asClient )
     setupActionManager();
     setupWindowActions();
 
-    setupFormList();
+    setupWorkspace();
     setupHierarchyView();
     setupPropertyEditor();
     setupActionEditor();
@@ -197,6 +197,9 @@ MainWindow::MainWindow( bool asClient )
 
     setupRMBMenus();
 
+    connect( this, SIGNAL( projectChanged() ), this, SLOT( checkHasActiveWindowOrProject() ) );
+    connect( this, SIGNAL( hasActiveWindow(bool) ), this, SLOT( checkHasActiveWindowOrProject() ) );
+    
     emit hasActiveForm( FALSE );
     emit hasActiveWindow( FALSE );
 
@@ -271,14 +274,14 @@ void MainWindow::setupMDI()
     vbox->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     vbox->setMargin( 1 );
     vbox->setLineWidth( 1 );
-    workspace = new QWorkspace( vbox );
-    workspace->setBackgroundMode( PaletteDark );
-    workspace->setBackgroundPixmap( PixmapChooser::loadPixmap( "background.png", PixmapChooser::NoSize ) );
-    workspace->setScrollBarsEnabled( TRUE );
-    connect( workspace, SIGNAL( windowActivated( QWidget * ) ),
+    qworkspace = new QWorkspace( vbox );
+    qworkspace->setBackgroundMode( PaletteDark );
+    qworkspace->setBackgroundPixmap( PixmapChooser::loadPixmap( "background.png", PixmapChooser::NoSize ) );
+    qworkspace->setScrollBarsEnabled( TRUE );
+    connect( qworkspace, SIGNAL( windowActivated( QWidget * ) ),
 	     this, SLOT( activeWindowChanged( QWidget * ) ) );
     lastActiveFormWindow = 0;
-    workspace->setAcceptDrops( TRUE );
+    qworkspace->setAcceptDrops( TRUE );
 }
 
 void MainWindow::setupMenuBar()
@@ -347,7 +350,7 @@ void MainWindow::setupHierarchyView()
     dw->show();
 }
 
-void MainWindow::setupFormList()
+void MainWindow::setupWorkspace()
 {
     QDockWindow *dw = new QDockWindow;
     dw->setResizeEnabled( TRUE );
@@ -357,14 +360,15 @@ void MainWindow::setupFormList()
     QToolTip::add( edit, tr( "Start typing the buffer you want to switch to here (ALT+B)" ) );
     QAccel *a = new QAccel( this );
     a->connectItem( a->insertItem( ALT + Key_B ), edit, SLOT( setFocus() ) );
-    formList = new FormList( vbox, this, currentProject );
-    formList->setBufferEdit( edit );
+    wspace = new Workspace( vbox, this, currentProject );
+    wspace->setBufferEdit( edit );
     addToolBar( dw, Qt::Left );
     dw->setWidget( vbox );
 
-    dw->setCaption( tr( "Files" ) );
-    QWhatsThis::add( formList, tr("<b>The File List</b>"
-				  "<p>The File List displays all files of the project, including forms and pixmaps</p>") );
+    dw->setCaption( tr( "File Overview" ) );
+    QWhatsThis::add( wspace, tr("<b>The File Overview box</b>"
+				  "<p>The File Overview Box displays all files of all projects, including forms and source files.</p>"
+				"<p>Its search field allows rapid switching between files.</p>"));
     dw->setFixedExtentHeight( 100 );
     dw->show();
 }
@@ -940,7 +944,7 @@ void MainWindow::showProperties( QObject *o )
     }
 
     if ( currentTool() == POINTER_TOOL && fw &&
-	 ( !workspace->activeWindow() || !workspace->activeWindow()->inherits( "SourceEditor" ) ) )
+	 ( !qworkspace->activeWindow() || !qworkspace->activeWindow()->inherits( "SourceEditor" ) ) )
 	fw->setFocus();
 }
 
@@ -1062,8 +1066,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    return FALSE;
 	}
 	if ( ( (QKeyEvent*)e )->key() == Key_Escape && incrementalSearch->hasFocus() ) {
-	    if ( workSpace()->activeWindow() && workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
-		workSpace()->activeWindow()->setFocus();
+	    if ( qWorkspace()->activeWindow() && qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+		qWorkspace()->activeWindow()->setFocus();
 		return TRUE;
 	    }
 	}
@@ -1140,20 +1144,20 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::DragEnter:
-	if ( o == workSpace() || o == formlist() || o == formlist()->viewport() ) {
-	    formlist()->contentsDragEnterEvent( (QDragEnterEvent*)e );
+	if ( o == qWorkspace() || o == workspace() || o == workspace()->viewport() ) {
+	    workspace()->contentsDragEnterEvent( (QDragEnterEvent*)e );
 	    return TRUE;
 	}
 	break;
     case QEvent::DragMove:
-	if ( o == workSpace() || o == formlist() || o == formlist()->viewport() ) {
-	    formlist()->contentsDragMoveEvent( (QDragMoveEvent*)e );
+	if ( o == qWorkspace() || o == workspace() || o == workspace()->viewport() ) {
+	    workspace()->contentsDragMoveEvent( (QDragMoveEvent*)e );
 	    return TRUE;
 	}
 	break;
     case QEvent::Drop:
-	if ( o == workSpace() || o == formlist() || o == formlist()->viewport() ) {
-	    formlist()->contentsDropEvent( (QDropEvent*)e );
+	if ( o == qWorkspace() || o == workspace() || o == workspace()->viewport() ) {
+	    workspace()->contentsDropEvent( (QDropEvent*)e );
 	    return TRUE;
 	}
 	break;
@@ -1162,10 +1166,10 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	if ( ((QShowEvent*)e)->spontaneous() )
 	    break;
-	QApplication::sendPostedEvents( workspace, QEvent::ChildInserted );
+	QApplication::sendPostedEvents( qworkspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
 	if ( !tbSettingsRead)
-	    ( (QDockWindow*)formlist()->parentWidget()->parentWidget() )->setFixedExtentHeight( 150 );
+	    ( (QDockWindow*)qWorkspace()->parentWidget()->parentWidget() )->setFixedExtentHeight( 150 );
 	checkTempFiles();
 	return TRUE;
     case QEvent::Wheel:
@@ -1220,12 +1224,12 @@ QWidget *MainWindow::isAToolBarChild( QObject *o ) const
 
 FormWindow *MainWindow::formWindow()
 {
-    if ( workspace->activeWindow() ) {
+    if ( qworkspace->activeWindow() ) {
 	FormWindow *fw = 0;
-	if ( workspace->activeWindow()->inherits( "FormWindow" ) )
-	    fw = (FormWindow*)workspace->activeWindow();
+	if ( qworkspace->activeWindow()->inherits( "FormWindow" ) )
+	    fw = (FormWindow*)qworkspace->activeWindow();
 	else if ( lastActiveFormWindow &&
-		    workspace->windowList().find( lastActiveFormWindow ) != -1)
+		    qworkspace->windowList().find( lastActiveFormWindow ) != -1)
 	    fw = lastActiveFormWindow;
 	return fw;
     }
@@ -1236,7 +1240,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
 {
     QString n = tr( "Form%1" ).arg( ++forms );
     FormWindow *fw = 0;
-    fw = new FormWindow( this, workspace, n );
+    fw = new FormWindow( this, qworkspace, n );
     MetaDataBase::addEntry( fw );
     if ( type == NewForm::Widget ) {
 	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ), fw, n.latin1() );
@@ -1268,9 +1272,14 @@ FormWindow* MainWindow::insertFormWindow( int type )
     hierarchyView->setFormWindow( fw, fw );
     hierarchyView->functionList()->refreshFunctions();
     fw->killAccels( fw );
-    fw->project()->pixmapCollection()->createCppFile();
+    fw->project()->setModified( TRUE );
 
     return fw;
+}
+
+void MainWindow::checkHasActiveWindowOrProject()
+{
+    emit hasActiveWindowOrProject( !!qworkspace->activeWindow() || !currentProject->isDummy() );
 }
 
 void MainWindow::insertFormWindow( FormWindow *fw )
@@ -1298,14 +1307,14 @@ void MainWindow::insertFormWindow( FormWindow *fw )
     connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 	     this, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
     connect( fw, SIGNAL( fileNameChanged( const QString &, FormWindow * ) ),
-	     formlist(), SLOT( fileNameChanged( const QString &, FormWindow * ) ) );
+	     workspace(), SLOT( fileNameChanged( const QString &, FormWindow * ) ) );
     connect( fw, SIGNAL( modificationChanged( bool, FormWindow * ) ),
-	     formlist(), SLOT( modificationChanged( bool, FormWindow * ) ) );
+	     workspace(), SLOT( modificationChanged( bool, FormWindow * ) ) );
     connect( fw, SIGNAL( modificationChanged( bool, FormWindow * ) ),
 	     this, SIGNAL( formModified( bool ) ) );
 
     if ( !mblockNewForms ) {
-	formlist()->addForm( fw );
+	workspace()->addForm( fw );
     } else {
 	fw->setProject( currentProject );
 	currentProject->setFormWindow( fw->fileName(), fw );
@@ -1327,9 +1336,7 @@ bool MainWindow::unregisterClient( FormWindow *w )
 {
     propertyEditor->closed( w );
     objectHierarchy()->closed( w );
-    if ( w->fileName().isEmpty() || currentProject == eProject )
-	formList->removeForm( w );
-    formList->closed( w );
+    wspace->closed( w );
     if ( w == lastActiveFormWindow )
 	lastActiveFormWindow = 0;
 
@@ -1361,7 +1368,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	    if ( currentTool() != POINTER_TOOL )
 		formWindow()->clearSelection();
 	}
-	formlist()->activeFormChanged( (FormWindow*)w );
+	workspace()->activeFormChanged( (FormWindow*)w );
 	setAppropriate( (QDockWindow*)actionEditor->parentWidget(), lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
 	if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) )
 	    actionEditor->parentWidget()->show();
@@ -1369,7 +1376,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	    actionEditor->parentWidget()->hide();
 
 	actionEditor->setFormWindow( lastActiveFormWindow );
-	if ( formList && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
+	if ( wspace && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
 		if ( *it == ( (FormWindow*)w )->project() ) {
 		    projectSelected( it.key() );
@@ -1416,7 +1423,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	if ( hierarchyView->sourceEditor() != w )
 	    hierarchyView->showClasses( (SourceEditor*)w );
 	actionEditor->setFormWindow( 0 );
-	if ( formList && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
+	if ( wspace && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
 		if ( *it == ( (SourceEditor*)w )->project() ) {
 		    projectSelected( it.key() );
@@ -1425,7 +1432,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 		}
 	    }
 	}
-	formlist()->activeEditorChanged( (SourceEditor*)w );
+	workspace()->activeEditorChanged( (SourceEditor*)w );
     } else {
 	actionSearchFind->setEnabled( FALSE );
 	actionSearchIncremetal->setEnabled( FALSE );
@@ -1437,7 +1444,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
     if ( currentTool() == ORDER_TOOL && w != old )
 	emit currentToolChanged();
 
-    emit hasActiveWindow( !!workspace->activeWindow() );
+    emit hasActiveWindow( !!qworkspace->activeWindow() );
 }
 
 void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
@@ -1463,9 +1470,9 @@ void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
     }
 }
 
-QWorkspace *MainWindow::workSpace() const
+QWorkspace *MainWindow::qWorkspace() const
 {
-    return workspace;
+    return qworkspace;
 }
 
 void MainWindow::popupFormWindowMenu( const QPoint & gp, FormWindow *fw )
@@ -1899,9 +1906,9 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "Grid/y", grid().y() );
 
     config.writeEntry( keybase + "Background/UsePixmap", backPix );
-    config.writeEntry( keybase + "Background/Color", (int)workspace->backgroundColor().rgb() );
-    if ( workspace->backgroundPixmap() )
-	workspace->backgroundPixmap()->save( QDir::home().absPath() + "/.designer/" + "background.xpm", "XPM" );
+    config.writeEntry( keybase + "Background/Color", (int)qworkspace->backgroundColor().rgb() );
+    if ( qworkspace->backgroundPixmap() )
+	qworkspace->backgroundPixmap()->save( QDir::home().absPath() + "/.designer/" + "background.xpm", "XPM" );
 
     config.writeEntry( keybase + "Geometries/MainwindowX", x() );
     config.writeEntry( keybase + "Geometries/MainwindowY", y() );
@@ -1916,10 +1923,10 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "Geometries/HierarchyViewY", hierarchyView->parentWidget()->y() );
     config.writeEntry( keybase + "Geometries/HierarchyViewWidth", hierarchyView->parentWidget()->width() );
     config.writeEntry( keybase + "Geometries/HierarchyViewHeight", hierarchyView->parentWidget()->height() );
-    config.writeEntry( keybase + "Geometries/FormListX", formList->parentWidget()->x() );
-    config.writeEntry( keybase + "Geometries/FormListY", formList->parentWidget()->y() );
-    config.writeEntry( keybase + "Geometries/FormListWidth", formList->parentWidget()->width() );
-    config.writeEntry( keybase + "Geometries/FormListHeight", formList->parentWidget()->height() );
+    config.writeEntry( keybase + "Geometries/WorkspaceX", wspace->parentWidget()->x() );
+    config.writeEntry( keybase + "Geometries/WorkspaceY", wspace->parentWidget()->y() );
+    config.writeEntry( keybase + "Geometries/WorkspaceWidth", wspace->parentWidget()->width() );
+    config.writeEntry( keybase + "Geometries/WorkspaceHeight", wspace->parentWidget()->height() );
 
     config.writeEntry( keybase + "View/TextLabels", usesTextLabel() );
     config.writeEntry( keybase + "View/BigIcons", usesBigPixmaps() );
@@ -1997,9 +2004,9 @@ void MainWindow::readConfig()
 	    QPixmap pix;
 	    pix.load( QDir::home().absPath() + "/.designer/" + "background.xpm" );
 	    if ( !pix.isNull() )
-		workspace->setBackgroundPixmap( pix );
+		qworkspace->setBackgroundPixmap( pix );
 	} else {
-	    workspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( keybase + "Background/Color" ) ) );
+	    qworkspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( keybase + "Background/Color" ) ) );
 	}
 
 	sGrid = config.readBoolEntry( keybase + "Grid/Show", TRUE );
@@ -2121,9 +2128,9 @@ void MainWindow::readOldConfig()
 	    QPixmap pix;
 	    pix.load( QDir::home().absPath() + "/.designer/" + "background.xpm" );
 	    if ( !pix.isNull() )
-		workspace->setBackgroundPixmap( pix );
+		qworkspace->setBackgroundPixmap( pix );
 	} else {
-	    workspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( "Color" ) ) );
+	    qworkspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( "Color" ) ) );
 	}
 	config.setGroup( "Grid" );
 	sGrid = config.readBoolEntry( "Show", TRUE );
@@ -2254,15 +2261,45 @@ QPopupMenu *MainWindow::setupTabWidgetHierarchyMenu( QWidget *parent, const char
 
 void MainWindow::closeEvent( QCloseEvent *e )
 {
-    QWidgetList windows = workSpace()->windowList();
+    QWidgetList windows = qWorkspace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	if ( !w->inherits( "FormWindow" ) )
-	    continue;
-	if ( !closeForm( (FormWindow*)w ) ) {
-	    e->ignore();
-	    return;
+	if ( w->inherits( "FormWindow" ) ) {
+	    if ( !closeForm( (FormWindow*)w ) ) {
+		e->ignore();
+		return;
+	    }
+	} else if ( w->inherits( "SourceEditor" ) ) {
+	    if ( ( (SourceEditor*)w )->object()->inherits( "SourceFile" ) ) {
+		if ( !closeEditor( (SourceEditor*)w ) ) { 
+		    e->ignore();
+		    return;
+		}
+	    }
 	}
     }
+    
+    QMapConstIterator<QAction*, Project*> it = projects.begin();
+    while( it != projects.end() ) {
+	Project *pro = it.data();
+	++it;
+	if ( pro->isModified() ) {
+	    switch ( QMessageBox::warning( this, tr( "Save Project Settings" ),
+					   tr( "Save changes to '%1'?" ).arg( pro->fileName() ),
+					   tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
+	    case 0: // save
+		pro->save();
+		break;
+	    case 1: // don't save
+		break;
+	    case 2: // cancel
+		e->ignore();
+		return;
+	    default:
+		break;
+	    }
+	}
+    }
+    
     writeConfig();
     hide();
     e->accept();
@@ -2284,7 +2321,7 @@ bool MainWindow::closeForm( FormWindow *fw )
 	case 0: // save
 	    fw->setFocus();
 	    qApp->processEvents();
-	    if ( !fileSave() )
+	    if ( !fileSaveForm() )
 		return FALSE;
 	    break;
 	case 1: // don't save
@@ -2330,11 +2367,11 @@ bool MainWindow::closeEditor( SourceEditor *se )
     return TRUE;
 }
 
-FormList *MainWindow::formlist() const
+Workspace *MainWindow::workspace() const
 {
-    if ( !formList )
-	( (MainWindow*)this )->setupFormList();
-    return formList;
+    if ( !wspace )
+	( (MainWindow*)this )->setupWorkspace();
+    return wspace;
 }
 
 PropertyEditor *MainWindow::propertyeditor() const
@@ -2439,7 +2476,7 @@ void MainWindow::rebuildCustomWidgetGUI()
 
 bool MainWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *wid )
 {
-    QWidgetList windows = workSpace()->windowList();
+    QWidgetList windows = qWorkspace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( w->inherits( "FormWindow" ) ) {
 	    if ( ( (FormWindow*)w )->isCustomWidgetUsed( wid ) )
@@ -2454,7 +2491,7 @@ void MainWindow::setGrid( const QPoint &p )
     if ( p == grd )
 	return;
     grd = p;
-    QWidgetList windows = workSpace()->windowList();
+    QWidgetList windows = qWorkspace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
 	    continue;
@@ -2467,7 +2504,7 @@ void MainWindow::setShowGrid( bool b )
     if ( b == sGrid )
 	return;
     sGrid = b;
-    QWidgetList windows = workSpace()->windowList();
+    QWidgetList windows = qWorkspace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
 	    continue;
@@ -2505,14 +2542,14 @@ QString MainWindow::documentationPath() const
 
 void MainWindow::windowsMenuActivated( int id )
 {
-    QWidget* w = workspace->windowList().at( id );
+    QWidget* w = qworkspace->windowList().at( id );
     if ( w )
 	w->setFocus();
 }
 
 void MainWindow::closeAllForms()
 {
-    QWidgetList windows = workSpace()->windowList();
+    QWidgetList windows = qWorkspace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
 	    continue;
@@ -2529,14 +2566,14 @@ void MainWindow::projectSelected( QAction *a )
     if ( currentProject == p )
 	return;
     currentProject = p;
-    if ( formList )
-	formList->setProject( currentProject );
+    if ( wspace )
+	wspace->setProject( currentProject );
     if ( actionEditPixmapCollection )
-	actionEditPixmapCollection->setEnabled( currentProject != emptyProject() );
+	actionEditPixmapCollection->setEnabled( !currentProject->isDummy() );
 
 #if 0
-    workSpace()->blockSignals( TRUE );
-    QWidgetList windows = workspace->windowList();
+    qWorkspace()->blockSignals( TRUE );
+    QWidgetList windows = qworkspace->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( w->inherits( "SourceEditor" ) ) {
 	    if ( ( (SourceEditor*)w )->project() == currentProject )
@@ -2551,9 +2588,9 @@ void MainWindow::projectSelected( QAction *a )
 	}
     }
 
-    if ( workspace->activeWindow() ) {
-	if ( workspace->activeWindow()->inherits( "FormWindow" ) ) {
-	    lastActiveFormWindow = (FormWindow*)workspace->activeWindow();
+    if ( qworkspace->activeWindow() ) {
+	if ( qworkspace->activeWindow()->inherits( "FormWindow" ) ) {
+	    lastActiveFormWindow = (FormWindow*)qworkspace->activeWindow();
 	    setAppropriate( (QDockWindow*)actionEditor->parentWidget(),
 			    lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
 	    if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) )
@@ -2571,7 +2608,7 @@ void MainWindow::projectSelected( QAction *a )
 	    actionEditor->setFormWindow( 0 );
 	}
     }
-    workSpace()->blockSignals( FALSE );
+    qWorkspace()->blockSignals( FALSE );
 #endif
 }
 
@@ -2584,6 +2621,7 @@ void MainWindow::openProject( const QString &fn )
 	}
     }
     Project *pro = new Project( fn, "", projectSettingsPluginManager );
+    pro->setModified( FALSE );
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
     a->setOn( TRUE );
@@ -2758,7 +2796,7 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
 	if ( !lIface )
 	    return;
-	editor = new SourceEditor( workSpace(), eIface, lIface );
+	editor = new SourceEditor( qWorkspace(), eIface, lIface );
 	eIface->release();
 	lIface->release();
 
@@ -2807,6 +2845,13 @@ QPtrList<DesignerProject> MainWindow::projectList() const
     }
 
     return list;
+}
+
+QStringList MainWindow::projectNames() const {
+    QStringList res;
+    for ( QMapConstIterator<QAction*, Project* >  it = projects.begin(); it != projects.end(); ++it )
+	res << (*it)->projectName();
+    return res;
 }
 
 void MainWindow::recentlyFilesMenuActivated( int id )
@@ -2959,7 +3004,7 @@ void MainWindow::setModified( bool b, QWidget *window )
 		fw->commandHistory()->setModified( b );
 		fw->modificationChanged( b );
 	    } else {
-		formList->modificationChanged( b, w );
+		wspace->modificationChanged( b, w );
 	    }
 	}
 	w = w->parentWidget( TRUE );
@@ -2985,15 +3030,15 @@ void MainWindow::doSlotsChanged()
 
 void MainWindow::updateFunctionList()
 {
-    if ( !workSpace()->activeWindow() || !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() || !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	return;
-    ( (SourceEditor*)workSpace()->activeWindow() )->save();
+    ( (SourceEditor*)qWorkspace()->activeWindow() )->save();
     hierarchyView->functionList()->refreshFunctions();
 }
 
-void MainWindow::updateFormList()
+void MainWindow::updateWorkspace()
 {
-    formList->setProject( currentProject );
+    wspace->setProject( currentProject );
 }
 
 void MainWindow::showDebugStep( QObject *o, int line )
@@ -3041,7 +3086,7 @@ void MainWindow::enableAll( bool enable )
     menuBar()->setEnabled( enable );
     QObjectList *l = queryList( "QDockWindow" );
     for ( QObject *o = l->first(); o; o = l->next() ) {
-	if ( o == formList->parentWidget() || o == oWindow->parentWidget() || o == hierarchyView->parentWidget() )
+	if ( o == wspace->parentWidget() || o == oWindow->parentWidget() || o == hierarchyView->parentWidget() )
 	    continue;
 	( (QWidget*)o )->setEnabled( enable );
     }
@@ -3051,7 +3096,7 @@ void MainWindow::enableAll( bool enable )
 void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 {
     QString lang = currentProject->language();
-    QWidgetList windows = workspace->windowList();
+    QWidgetList windows = qworkspace->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	FormWindow *fw = 0;
 	SourceEditor *se = 0;
@@ -3167,14 +3212,10 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
     mblockNewForms = FALSE;
 }
 
-Project *MainWindow::emptyProject()
-{
-    return eProject;
-}
 
 QWidget *MainWindow::findRealForm( QWidget *wid )
 {
-    QWidgetList windows = workSpace()->windowList();
+    QWidgetList windows = qWorkspace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( QString( w->name() ) == QString( wid->name() ) )
 	    return w;
@@ -3190,16 +3231,16 @@ void MainWindow::formNameChanged( FormWindow *fw )
 	if ( e->project() == fw->project() )
 	    e->resetContext();
     }
-    formList->formNameChanged( fw );
+    wspace->formNameChanged( fw );
 }
 
 void MainWindow::breakPointsChanged()
 {
     if ( !inDebugMode )
 	return;
-    if ( !workSpace()->activeWindow() || !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() || !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	return;
-    SourceEditor *e = (SourceEditor*)workSpace()->activeWindow();
+    SourceEditor *e = (SourceEditor*)qWorkspace()->activeWindow();
     if ( !e->object() || !e->project() )
 	return;
     if ( e->project() != currentProject )
@@ -3264,7 +3305,7 @@ void MainWindow::resetBreakPoints()
 SourceFile *MainWindow::sourceFile()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( workspace->activeWindow() == e ) {
+	if ( qworkspace->activeWindow() == e ) {
 	    if ( e->object() && e->object()->inherits( "SourceFile" ) )
 		return (SourceFile*)e->object();
 	}

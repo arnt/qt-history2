@@ -17,7 +17,7 @@ HEADERS	= command.h \
 		  listboxeditorimpl.h \
 		  connectioneditorimpl.h \
 		  newformimpl.h \
-		  formlist.h \
+		  workspace.h \
 		  editslotsimpl.h \
 		  listvieweditorimpl.h \
 		  connectionviewerimpl.h \
@@ -50,8 +50,9 @@ HEADERS	= command.h \
 		  paletteeditoradvancedimpl.h \
 		  pixmapcollection.h \
 		  sourcefile.h \
+		  filechooser.h \
 		  wizardeditorimpl.h \
-		  qcompletionedit.h
+		  qcompletionedit.h 
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -71,7 +72,7 @@ SOURCES	= command.cpp \
 		  listboxeditorimpl.cpp \
 		  connectioneditorimpl.cpp \
 		  newformimpl.cpp \
-		  formlist.cpp \
+		  workspace.cpp \
 		  editslotsimpl.cpp \
 		  listvieweditorimpl.cpp \
 		  connectionviewerimpl.cpp \
@@ -100,6 +101,7 @@ SOURCES	= command.cpp \
 		  previewwidgetimpl.cpp \
 		  paletteeditoradvancedimpl.cpp \
 		  sourcefile.cpp \
+		  filechooser.cpp \
 		  wizardeditorimpl.cpp \
 		  qcompletionedit.cpp
 

@@ -36,6 +36,7 @@ public:
     {
 	QPixmap pix;
 	QString name;
+	QString absname;
     };
 
     PixmapCollection( Project *pro );
@@ -50,15 +51,15 @@ public:
 
     void setActive( bool b);
 
-    void load();
-    void createCppFile();
+    void load( const QString& filename );
 
     DesignerPixmapCollection *iFace();
-
+    
 private:
     QString unifyName( const QString &n );
-    void savePixmap( const Pixmap &pix );
-    void removePixmapFile( const QString &name );
+    void savePixmap( Pixmap &pix );
+    
+    QString imageDir() const;
     void mkdir();
 
 private:

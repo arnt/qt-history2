@@ -102,14 +102,13 @@ private:
 class Project
 {
 public:
-    Project( const QString &fn, const QString &pName = QString::null, QPluginManager<ProjectSettingsInterface> *pm = 0 );
+    Project( const QString &fn, const QString &pName = QString::null,
+	     QPluginManager<ProjectSettingsInterface> *pm = 0, bool isDummy = FALSE );
     ~Project();
 
     void setFileName( const QString &fn, bool doClear = TRUE );
     QString fileName() const;
-    void setProjectName( const QString &n );
     QString projectName() const;
-    QString fixedProjectName() const;
 
     void setDatabaseDescription( const QString &db );
     QString databaseDescription() const;
@@ -129,6 +128,9 @@ public:
     FormWindow *formWindow( const QString &filename );
 
     bool isValid() const;
+
+    // returns TRUE if this project is the <No Project> project
+    bool isDummy() const;
 
     bool hasFormWindow( FormWindow* fw ) const;
     bool hasUiFile( const QString &filename ) const;
@@ -152,8 +154,6 @@ public:
 #endif
     void saveConnections();
     void loadConnections();
-    void saveImages();
-    void loadImages();
 
     bool openDatabase( const QString &connection, bool suppressDialog = TRUE );
     void closeDatabase( const QString &connection );
@@ -166,9 +166,6 @@ public:
 
     void setCustomSetting( const QString &key, const QString &value );
     QString customSetting( const QString &key ) const;
-
-    void setImageFile( const QString &f );
-    QString imageFile() const;
 
     PixmapCollection *pixmapCollection() const { return pixCollection; }
 
@@ -191,6 +188,9 @@ public:
     QString defines( const QString &platform ) const;
     QString includePath( const QString &platform ) const;
     QString templte() const;
+    
+    bool isModified() const { return !isDummy() && modified; }
+    void setModified( bool b ) { modified = b; }
 
 private:
     void parse();
@@ -219,11 +219,12 @@ private:
     QMap<QString, QString> customSettings;
     QStringList csList;
     QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;
-    QString imgFile;
     PixmapCollection *pixCollection;
     QPtrList<SourceFile> sources;
     QMap<QString, QString> inclPath, defs, lbs, cfg;
     QString templ;
+    bool isDummyProject;
+    bool modified;
 
 };
 

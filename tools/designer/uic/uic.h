@@ -76,7 +76,9 @@ public:
     QStringList unique( const QStringList& );
 
     QString trcall( const QString& sourceText, const QString& comment = "" );
-
+    
+    static void embed( QTextStream& out, const char* project, const QStringList& images );
+    
 private:
     void registerLayouts ( const QDomElement& e );
 
@@ -140,6 +142,9 @@ private:
     int defSpacing, defMargin;
     QString fileName;
     bool writeSlotImpl;
+
+    bool isEmptyFunction( const QString& fname );
+    QMap<QString, QString> functionImpls;
 
 };
 

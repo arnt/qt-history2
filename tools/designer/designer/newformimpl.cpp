@@ -21,6 +21,7 @@
 #include "newformimpl.h"
 #include "mainwindow.h"
 #include "pixmapchooser.h"
+#include "metadatabase.h"
 
 #include <qiconview.h>
 #include <qfileinfo.h>
@@ -28,22 +29,33 @@
 #include <qregexp.h>
 #include <qpushbutton.h>
 #include <stdlib.h>
+#include <qcombobox.h>
 
-static QString templatePath( const QString &t )
-{
-    if ( QFileInfo( "../templates" ).exists() )
-	return "../templates";
-    QString qtdir = getenv( "QTDIR" );
-    if ( QFileInfo( qtdir + "/tools/designer/templates" ).exists() )
-	return qtdir + "/tools/designer/templates";
-    return t;
-}
 
-NewForm::NewForm( QWidget *parent, const QString &tPath )
-    : NewFormBase( parent, 0, TRUE ), templPath( tPath )
+NewForm::NewForm( QWidget *parent, const QStringList& projects,
+		  const QString& currentProject, const QString &templatePath )
+    : NewFormBase( parent, 0, TRUE ), templPath( templatePath )
 {
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
-    QIconViewItem *i = new QIconViewItem( templateView );
+
+    projectCombo->insertStringList( projects );
+    projectCombo->setCurrentText( currentProject );
+
+    QIconViewItem *i;
+    QStringList languages = MetaDataBase::languages();
+    for ( QStringList::Iterator it = languages.begin(); it != languages.end(); ++it ) {
+	i = new QIconViewItem( templateView );
+	i->setText( (*it) + " " + tr( "Project" ) );
+	i->setPixmap( PixmapChooser::loadPixmap( "project.xpm" ) );
+	i->setDragEnabled( FALSE );
+    }
+
+    i = new QIconViewItem( templateView );
+    i->setText( tr( "Sourcefile" ) );
+    i->setPixmap( PixmapChooser::loadPixmap( "filenew.xpm" ) );
+    i->setDragEnabled( FALSE );
+
+    i = new QIconViewItem( templateView );
     i->setText( tr( "Dialog" ) );
     i->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     i->setDragEnabled( FALSE );
@@ -60,8 +72,18 @@ NewForm::NewForm( QWidget *parent, const QString &tPath )
     i->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     i->setDragEnabled( FALSE );
 
-    QString templateDir = templatePath( templPath );
-    QDir dir( templateDir );
+
+    if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
+	if ( QFileInfo( "../templates" ).exists() ) {
+	    templPath = "../templates";
+	} else {
+	    QString qtdir = getenv( "QTDIR" );
+	    if ( QFileInfo( qtdir + "/tools/designer/templates" ).exists() )
+		templPath = qtdir + "/tools/designer/templates";
+	}
+    }
+
+    QDir dir( templPath  );
     const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
     if ( filist ) {
 	QFileInfoListIterator it( *filist );
@@ -83,8 +105,25 @@ NewForm::NewForm( QWidget *parent, const QString &tPath )
     templateView->viewport()->setFocus();
 }
 
+QString NewForm::project() const
+{
+    return projectCombo->currentText();
+}
+
+void NewForm::accept()
+{
+    NewFormBase::accept();
+}
+
+void NewForm::currentChanged(QIconViewItem* )
+{
+}
+
+
 NewForm::Form NewForm::formType() const
 {
+    if ( templateView->currentItem()->text().endsWith( tr( "Project" ) ) )
+	 return Project; //UUUUUUUUUGGGGGGLLYYYYYYYYYY############ and only temporary. TODOMATTHIAS
     if ( templateView->currentItem()->text() == tr( "Dialog" ) )
 	return Dialog;
     if ( templateView->currentItem()->text() == tr( "Wizard" ) )
@@ -99,7 +138,7 @@ NewForm::Form NewForm::formType() const
 QString NewForm::templateFile() const
 {
     QString fn = "/" + templateView->currentItem()->text();
-    fn.prepend( templatePath( templPath ) );
+    fn.prepend( templPath );
     fn.append( ".ui" );
     fn = fn.replace( QRegExp( " " ), "_" );
     return fn;

@@ -47,7 +47,7 @@
 #include "newformimpl.h"
 #include "resource.h"
 #include "projectsettingsimpl.h"
-#include "formlist.h"
+#include "workspace.h"
 #include "createtemplate.h"
 #include "hierarchyview.h"
 #include "editslotsimpl.h"
@@ -595,9 +595,9 @@ void MainWindow::setupFileActions()
     a->setMenuText( tr( "&New" ) );
     a->setIconSet( createIconSet("filenew.xpm") );
     a->setAccel( CTRL + Key_N );
-    a->setStatusTip( tr( "Creates a new form" ) );
-    a->setWhatsThis( tr("<b>Create a new form</b>"
-			"<p>Select a template for the new form or start with an empty form. This form is added to the current project.</p>") );
+    a->setStatusTip( tr( "Creates a new project, form or source file." ) );
+    a->setWhatsThis( tr("<b>Create a new project, form or source file</b>"
+			"<p>Select a template for the new document.</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileNew() ) );
     a->addTo( tb );
     a->addTo( fileMenu );
@@ -607,8 +607,8 @@ void MainWindow::setupFileActions()
     a->setMenuText( tr( "&Open..." ) );
     a->setIconSet( createIconSet("fileopen.xpm") );
     a->setAccel( CTRL + Key_O );
-    a->setStatusTip( tr( "Opens an existing form") );
-    a->setWhatsThis( tr("<b>Open a User-Interface (ui) file</b>"
+    a->setStatusTip( tr( "Opens an existing project, form for source file ") );
+    a->setWhatsThis( tr("<b>Open a file</b>"
 			"<p>Use the filedialog to select the file you want to "
 			"open. You can also use Drag&Drop to open multiple files.</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
@@ -618,29 +618,13 @@ void MainWindow::setupFileActions()
     fileMenu->insertSeparator();
 
     a = new QAction( this, 0 );
-    a->setText( tr( "New Project" ) );
-    a->setMenuText( tr( "New &Project..." ) );
-    a->setIconSet( createIconSet("filenew.xpm") );
-    a->setStatusTip( tr( "Creates a new project" ) );
-    a->setWhatsThis( tr("<b>Create a new project</b>"
-			"<p>Creates a new Qt project</p>") );
-    connect( a, SIGNAL( activated() ), this, SLOT( fileNewProject() ) );
-    a->addTo( fileMenu );
-
-    a = new QAction( this, 0 );
-    a->setText( tr( "Save Project" ) );
-    a->setMenuText( tr( "Save Pro&ject" ) );
-    a->setStatusTip( tr( "Saves the current project" ) );
-    a->setWhatsThis( tr("<b>Saves the current project</b>" ) );
-    connect( a, SIGNAL( activated() ), this, SLOT( fileSaveProject() ) );
-    a->addTo( fileMenu );
-
-    a = new QAction( this, 0 );
-    a->setText( tr( "Close Project" ) );
-    a->setMenuText( tr( "Close P&roject" ) );
-    a->setStatusTip( tr( "Closes the current project" ) );
-    a->setWhatsThis( tr("<b>Closes the current project</b>" ) );
-    connect( a, SIGNAL( activated() ), this, SLOT( fileCloseProject() ) );
+    a->setText( tr( "Close" ) );
+    a->setMenuText( tr( "&Close" ) );
+    a->setStatusTip( tr( "Closes the current project or document" ) );
+    a->setWhatsThis( tr("<b>Closes the current project</b> or whatever other document"
+			" is current if there is no project." ) );
+    connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
+    connect( this, SIGNAL( hasActiveWindowOrProject(bool) ), a, SLOT( setEnabled(bool) ) );
     a->addTo( fileMenu );
 
     fileMenu->insertSeparator();
@@ -650,12 +634,13 @@ void MainWindow::setupFileActions()
     a->setMenuText( tr( "&Save" ) );
     a->setIconSet( createIconSet("filesave.xpm") );
     a->setAccel( CTRL + Key_S );
-    a->setStatusTip( tr( "Saves the current form" ) );
-    a->setWhatsThis( tr("<b>Save the current form</b>"
+    a->setStatusTip( tr( "Saves the current project or document" ) );
+    a->setWhatsThis( tr("<b>Save the current project</b> or whatever other document"
+			" is current if there is no project. "
 			"<p>A filedialog will open if there is no filename already "
 			"provided, otherwise the old name will be used.</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSave() ) );
-    connect( this, SIGNAL( hasActiveWindow(bool) ), a, SLOT( setEnabled(bool) ) );
+    connect( this, SIGNAL( hasActiveWindowOrProject(bool) ), a, SLOT( setEnabled(bool) ) );
     a->addTo( tb );
     a->addTo( fileMenu );
 
@@ -671,10 +656,10 @@ void MainWindow::setupFileActions()
     a = new QAction( this, 0 );
     a->setText( tr( "Save All" ) );
     a->setMenuText( tr( "Sa&ve All" ) );
-    a->setStatusTip( tr( "Saves all open forms" ) );
-    a->setWhatsThis( tr( "Save all open forms" ) );
+    a->setStatusTip( tr( "Saves all open documents" ) );
+    a->setWhatsThis( tr( "Save all open documents" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAll() ) );
-    connect( this, SIGNAL( hasActiveWindow(bool) ), a, SLOT( setEnabled(bool) ) );
+    connect( this, SIGNAL( hasActiveWindowOrProject(bool) ), a, SLOT( setEnabled(bool) ) );
     a->addTo( fileMenu );
 
     fileMenu->insertSeparator();
@@ -709,10 +694,10 @@ void MainWindow::setupFileActions()
     a = new QAction( this, 0 );
     a->setText( tr( "Exit" ) );
     a->setMenuText( tr( "E&xit" ) );
-    a->setStatusTip( tr( "Quits the application and prompts to save changed forms" ) );
+    a->setStatusTip( tr( "Quits the application and prompts to save changed forms, source files and project settings" ) );
     a->setWhatsThis( tr( "<b>Exit the designer</b>"
-			 "<p>The Qt Designer will ask if you want to save changed forms before "
-			 "the application closes.</p>") );
+			 "<p>The Qt Designer will ask if you want to save changed forms, source files and "
+			 "project settings before the application closes.</p>") );
     connect( a, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
     a->addTo( fileMenu );
 }
@@ -730,7 +715,7 @@ void MainWindow::setupProjectActions()
     connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
     connect( ag, SIGNAL( selected( QAction * ) ), this, SIGNAL( projectChanged() ) );
     QAction *a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
-    eProject = new Project( "", tr( "<No Project>" ), projectSettingsPluginManager );
+    eProject = new Project( "", tr( "<No Project>" ), projectSettingsPluginManager, TRUE );
     projects.insert( a, eProject );
     a->setOn( TRUE );
     ag->addTo( projectMenu );
@@ -746,10 +731,10 @@ void MainWindow::setupProjectActions()
 					     "<p>####TODO</p>") );
     connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
 
-    actionEditPixmapCollection = new QAction( tr( "Pixmap Collection..." ), QPixmap(),
-					  tr( "P&ixmap Collection..." ), 0, this, 0 );
-    actionEditPixmapCollection->setStatusTip( tr("Opens a dialog to edit the pixmap collection of the current project") );
-    actionEditPixmapCollection->setWhatsThis( tr("<b>Edit pixmap collection of the current project</b>"
+    actionEditPixmapCollection = new QAction( tr( "Image Collection..." ), QPixmap(),
+					  tr( "&Image Collection..." ), 0, this, 0 );
+    actionEditPixmapCollection->setStatusTip( tr("Opens a dialog to edit the image collection of the current project") );
+    actionEditPixmapCollection->setWhatsThis( tr("<b>Edit image collection of the current project</b>"
 						 "<p>####TODO</p>") );
     connect( actionEditPixmapCollection, SIGNAL( activated() ), this, SLOT( editPixmapCollection() ) );
     actionEditPixmapCollection->setEnabled( FALSE );
@@ -828,16 +813,16 @@ void MainWindow::setupWindowActions()
 	actionWindowTile = new QAction( tr( "Tile" ), tr( "&Tile" ), 0, this );
 	actionWindowTile->setStatusTip( tr("Arranges all windows tiled") );
 	actionWindowTile->setWhatsThis( tr("Arrange all windows tiled") );
-	connect( actionWindowTile, SIGNAL( activated() ), workspace, SLOT( tile() ) );
+	connect( actionWindowTile, SIGNAL( activated() ), qworkspace, SLOT( tile() ) );
 	actionWindowCascade = new QAction( tr( "Cascade" ), tr( "&Cascade" ), 0, this );
 	actionWindowCascade->setStatusTip( tr("Arrange all windows cascaded") );
 	actionWindowCascade->setWhatsThis( tr("Arrange all windows cascaded") );
-	connect( actionWindowCascade, SIGNAL( activated() ), workspace, SLOT( cascade() ) );
+	connect( actionWindowCascade, SIGNAL( activated() ), qworkspace, SLOT( cascade() ) );
 
 	actionWindowClose = new QAction( tr( "Close" ), tr( "Cl&ose" ), CTRL + Key_F4, this );
 	actionWindowClose->setStatusTip( tr( "Closes the active window") );
 	actionWindowClose->setWhatsThis( tr( "Close the active window") );
-	connect( actionWindowClose, SIGNAL( activated() ), workspace, SLOT( closeActiveWindow() ) );
+	connect( actionWindowClose, SIGNAL( activated() ), qworkspace, SLOT( closeActiveWindow() ) );
 
 	actionWindowCloseAll = new QAction( tr( "Close All" ), tr( "Close Al&l" ), 0, this );
 	actionWindowCloseAll->setStatusTip( tr( "Closes all form windows") );
@@ -847,12 +832,12 @@ void MainWindow::setupWindowActions()
 	actionWindowNext = new QAction( tr( "Next" ), tr( "Ne&xt" ), CTRL + Key_F6, this );
 	actionWindowNext->setStatusTip( tr( "Activates the next window" ) );
 	actionWindowNext->setWhatsThis( tr( "Activate the next window" ) );
-	connect( actionWindowNext, SIGNAL( activated() ), workspace, SLOT( activateNextWindow() ) );
+	connect( actionWindowNext, SIGNAL( activated() ), qworkspace, SLOT( activateNextWindow() ) );
 
 	actionWindowPrevious = new QAction( tr( "Previous" ), tr( "Pre&vious" ), CTRL + SHIFT + Key_F6, this );
 	actionWindowPrevious->setStatusTip( tr( "Activates the previous window" ) );
 	actionWindowPrevious->setWhatsThis( tr( "Activate the previous window" ) );
-	connect( actionWindowPrevious, SIGNAL( activated() ), workspace, SLOT( activatePreviousWindow() ) );
+	connect( actionWindowPrevious, SIGNAL( activated() ), qworkspace, SLOT( activatePreviousWindow() ) );
     }
 
     if ( !windowMenu ) {
@@ -875,7 +860,7 @@ void MainWindow::setupWindowActions()
     windowMenu->insertSeparator();
     windowMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu( NoToolBars ) );
     windowMenu->insertItem( tr( "&Toolbars" ), createDockWindowMenu( OnlyToolBars ) );
-    QWidgetList windows = workspace->windowList();
+    QWidgetList windows = qworkspace->windowList();
     if ( windows.count() && formWindow() )
 	windowMenu->insertSeparator();
     int j = 0;
@@ -894,7 +879,7 @@ void MainWindow::setupWindowActions()
 
 	int id = windowMenu->insertItem( itemText, this, SLOT( windowsMenuActivated( int ) ) );
 	windowMenu->setItemParameter( id, i );
-	windowMenu->setItemChecked( id, workspace->activeWindow() == windows.at( i ) );
+	windowMenu->setItemChecked( id, qworkspace->activeWindow() == windows.at( i ) );
     }
 }
 
@@ -968,10 +953,10 @@ void MainWindow::setupHelpActions()
     actionHelpWhatsThis->addTo( menu );
 }
 
-static void unifyFormName( FormWindow *fw, QWorkspace *workspace )
+static void unifyFormName( FormWindow *fw, QWorkspace *qworkspace )
 {
     QStringList lst;
-    QWidgetList windows = workspace->windowList();
+    QWidgetList windows = qworkspace->windowList();
     for ( QWidget *w =windows.first(); w; w = windows.next() ) {
 	if ( w == fw )
 	    continue;
@@ -992,11 +977,13 @@ static void unifyFormName( FormWindow *fw, QWorkspace *workspace )
 
 void MainWindow::fileNew()
 {
-    statusBar()->message( tr( "Select a template for the new form...") );
-    NewForm dlg( this, templatePath() );
+    statusBar()->message( tr( "Select new item ...") );
+    NewForm dlg( this, projectNames(), currentProject->projectName(), templatePath() );
     if ( dlg.exec() == QDialog::Accepted ) {
 	NewForm::Form f = dlg.formType();
-	if ( f != NewForm::Custom ) {
+	if ( f == NewForm::Project ) {
+	    fileNewProject(); // temporary hack TODOMATTHIAS
+	} else if ( f != NewForm::Custom ) {
 	    insertFormWindow( f )->setFocus();
 	} else {
 	    QString filename = dlg.templateFile();
@@ -1009,12 +996,12 @@ void MainWindow::fileNew()
 		}
 		if ( formWindow() )
 		    formWindow()->setFileName( QString::null );
-		unifyFormName( formWindow(), workspace );
+		unifyFormName( formWindow(), qworkspace );
 	    }
 	}
     }
 
-    if ( formWindow() && formWindow()->project() != emptyProject() ) {
+    if ( formWindow() && !formWindow()->project()->isDummy() ) {
 	formWindow()->setSavePixmapInProject( TRUE );
 	formWindow()->setSavePixmapInline( FALSE );
     }
@@ -1045,9 +1032,22 @@ void MainWindow::fileNewProject()
     projectSelected( a );
 }
 
+void MainWindow::fileClose()
+{
+    if ( !currentProject->isDummy() ) {
+	fileCloseProject();
+    } else {
+	FormWindow* fw = formWindow();
+	if ( !fw )
+	    return; // what about source file #### TODO reggie, we need some more organization in this code
+	workspace()->removeFormFromProject( fw );
+    }
+}
+
+
 void MainWindow::fileCloseProject()
 {
-    if ( currentProject->projectName() == "<No Project>" )
+    if ( currentProject->isDummy() )
 	return;
     Project *pro = currentProject;
     QAction* a = 0;
@@ -1061,9 +1061,24 @@ void MainWindow::fileCloseProject()
 	lastValid = it.key();
     }
     if ( a ) {
-	pro->save();
-	QWidgetList windows = workSpace()->windowList();
-	workSpace()->blockSignals( TRUE );
+	if ( pro->isModified() ) {
+	    switch ( QMessageBox::warning( this, tr( "Save Project Settings" ),
+					   tr( "Save changes to '%1'?" ).arg( pro->fileName() ),
+					   tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
+	    case 0: // save
+		pro->save();
+		break;
+	    case 1: // don't save
+		break;
+	    case 2: // cancel
+		return;
+	    default:
+		break;
+	    }
+	}
+ 
+	QWidgetList windows = qWorkspace()->windowList();
+	qWorkspace()->blockSignals( TRUE );
 	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	    if ( w->inherits( "FormWindow" ) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
@@ -1081,8 +1096,8 @@ void MainWindow::fileCloseProject()
 	    }
 	}
 	hierarchyView->clear();
-	windows = workSpace()->windowList();
-	workSpace()->blockSignals( FALSE );
+	windows = qWorkspace()->windowList();
+	qWorkspace()->blockSignals( FALSE );
 	actionGroupProjects->removeChild( a );
 	projects.remove( a );
 	delete a;
@@ -1166,7 +1181,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		    SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ) );
 		    MetaDataBase::addEntry( sf );
 		    currentProject->addSourceFile( sf );
-		    formList->setProject( currentProject );
+		    wspace->setProject( currentProject );
 		    editSource( sf );
 		}
 	    } else if ( extension.isEmpty() ) {
@@ -1229,7 +1244,7 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 		} else {
 		    blockCheck = TRUE;
 		    // this calls MainWindow::openFile() again
-		    formList->openForm( currentProject->makeRelative( filename ) );
+		    wspace->openForm( currentProject->makeRelative( filename ) );
 		    blockCheck = FALSE;
 		    return;
 		}
@@ -1257,25 +1272,34 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
     }
 }
 
+
 bool MainWindow::fileSave()
 {
+    
+    if ( !currentProject->isDummy() )
+	return fileSaveProject();
+    return fileSaveForm();
+}
+
+bool MainWindow::fileSaveForm()
+{    
     SourceEditor *se = 0;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->object() == formWindow() )
 	    se = e;
-	if ( e->object() == formWindow() || e == workSpace()->activeWindow() ) {
+	if ( e->object() == formWindow() || e == qWorkspace()->activeWindow() ) {
 	    e->save();
 	    e->setModified( FALSE );
 	}
 	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
-	     e == workSpace()->activeWindow() )
+	     e == qWorkspace()->activeWindow() )
 	    ( (SourceFile*)e->object() )->save();
 	
     }
 
     FormWindow *fw = 0;
 
-    QWidget *w = MainWindow::self->workspace->activeWindow();
+    QWidget *w = qWorkspace()->activeWindow();
     if ( w ) {
 	if ( w->inherits( "SourceEditor" ) ) {
 	    se = (SourceEditor*)w;
@@ -1290,29 +1314,23 @@ bool MainWindow::fileSave()
 
     if ( !fw )
 	fw = formWindow();
-
-    if ( !fw )
+    if ( !fw || !fw->save() )
 	return FALSE;
-    if ( fw->fileName().isEmpty() ) {
-	return fileSaveAs();
-    } else {
-	QApplication::setOverrideCursor( WaitCursor );
-	fw->save( fw->fileName() );
-	if ( se )
-	    se->updateTimeStamp();
-	QApplication::restoreOverrideCursor();
-    }
+    if ( se )
+	se->updateTimeStamp();
+    QApplication::restoreOverrideCursor();
     return TRUE;
 }
 
-void MainWindow::fileSaveProject()
+bool MainWindow::fileSaveProject()
 {
-    QWidgetList windows = workspace->windowList();
+    QWidgetList windows = qworkspace->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( w->inherits( "FormWindow" ) ) {
 	    FormWindow *fw = (FormWindow*)w;
-	    if ( fw->project() == currentProject && !fw->fileName().isEmpty() )
-		fw->save( fw->fileName(), FALSE );
+	    if ( fw->project() == currentProject )
+		if ( !fw->save( FALSE ) )
+		    return FALSE;
 	} else if ( w->inherits( "SourceEditor" ) ) {
 	    SourceEditor *e = (SourceEditor*)w;
 	    if ( e->object() && e->object()->inherits( "SourceFile" ) &&
@@ -1320,6 +1338,14 @@ void MainWindow::fileSaveProject()
 		( (SourceFile*)e->object() )->save();
 	}
     }
+
+    currentProject->save();
+    statusBar()->message( tr( "Project '%1' saved.").arg( currentProject->projectName() ), 3000 );
+    return TRUE;
+    
+    //#### TODO reggie: this needs to check return values, ensure that
+    //saveAs() works properly if there is no real filename, update
+    //timestamps and and and ...
 }
 
 bool MainWindow::fileSaveAs()
@@ -1327,19 +1353,7 @@ bool MainWindow::fileSaveAs()
     statusBar()->message( tr( "Enter a filename..." ) );
     if ( !formWindow() )
 	return FALSE;
-    FormWindow *fw = formWindow();
-
-    QString filename = QFileDialog::getSaveFileName( QString::null, tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
-						     tr( "All Files (*)" ), this, 0, QString::null,
-						     &lastSaveFilter );
-    if ( filename.isEmpty() )
-	return FALSE;
-    QFileInfo fi( filename );
-    if ( fi.extension() != "ui" )
-	filename += ".ui";
-    fw->setFileName( filename );
-    fileSave();
-    return TRUE;
+    return formWindow()->saveAs();
 }
 
 void MainWindow::fileSaveAll()
@@ -1348,13 +1362,13 @@ void MainWindow::fileSaveAll()
 	e->save();
 	e->setModified( FALSE );
 	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
-	     e == workSpace()->activeWindow() ) {
+	     e == qWorkspace()->activeWindow() ) {
 	    statusBar()->message( tr( "Save source file %1").arg( ( (SourceFile*)e->object() )->fileName() ) );
 	    ( (SourceFile*)e->object() )->save();
 	}
     }
 
-    QWidgetList windows = workSpace()->windowList();
+    QWidgetList windows = qWorkspace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
 	    continue;
@@ -1390,7 +1404,7 @@ void MainWindow::saveAllTemp()
 	return;
     inSaveAllTemp = TRUE;
     statusBar()->message( tr( "Qt Designer is crashing - attempting to save work..." ) );
-    QWidgetList windows = workSpace()->windowList();
+    QWidgetList windows = qWorkspace()->windowList();
     QString baseName = QDir::homeDirPath() + "/.designer/saved-form-";
     int i = 1;
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
@@ -1475,9 +1489,9 @@ void MainWindow::createNewTemplate()
 
 void MainWindow::editUndo()
 {
-    if ( workSpace()->activeWindow() &&
-	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
-	( (SourceEditor*)workSpace()->activeWindow() )->editUndo();
+    if ( qWorkspace()->activeWindow() &&
+	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)qWorkspace()->activeWindow() )->editUndo();
 	return;
     }
     if ( formWindow() )
@@ -1486,9 +1500,9 @@ void MainWindow::editUndo()
 
 void MainWindow::editRedo()
 {
-    if ( workSpace()->activeWindow() &&
-	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
-	( (SourceEditor*)workSpace()->activeWindow() )->editRedo();
+    if ( qWorkspace()->activeWindow() &&
+	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)qWorkspace()->activeWindow() )->editRedo();
 	return;
     }
     if ( formWindow() )
@@ -1497,9 +1511,9 @@ void MainWindow::editRedo()
 
 void MainWindow::editCut()
 {
-    if ( workSpace()->activeWindow() &&
-	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
-	( (SourceEditor*)workSpace()->activeWindow() )->editCut();
+    if ( qWorkspace()->activeWindow() &&
+	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)qWorkspace()->activeWindow() )->editCut();
 	return;
     }
     editCopy();
@@ -1508,9 +1522,9 @@ void MainWindow::editCut()
 
 void MainWindow::editCopy()
 {
-    if ( workSpace()->activeWindow() &&
-	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
-	( (SourceEditor*)workSpace()->activeWindow() )->editCopy();
+    if ( qWorkspace()->activeWindow() &&
+	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)qWorkspace()->activeWindow() )->editCopy();
 	return;
     }
     if ( formWindow() )
@@ -1519,9 +1533,9 @@ void MainWindow::editCopy()
 
 void MainWindow::editPaste()
 {
-    if ( workSpace()->activeWindow() &&
-	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
-	( (SourceEditor*)workSpace()->activeWindow() )->editPaste();
+    if ( qWorkspace()->activeWindow() &&
+	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)qWorkspace()->activeWindow() )->editPaste();
 	return;
     }
     if ( !formWindow() )
@@ -1556,9 +1570,9 @@ void MainWindow::editDelete()
 
 void MainWindow::editSelectAll()
 {
-    if ( workSpace()->activeWindow() &&
-	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
-	( (SourceEditor*)workSpace()->activeWindow() )->editSelectAll();
+    if ( qWorkspace()->activeWindow() &&
+	 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)qWorkspace()->activeWindow() )->editSelectAll();
 	return;
     }
     if ( formWindow() )
@@ -1745,7 +1759,7 @@ SourceEditor *MainWindow::editSource( bool /*resetSame*/ )
 	if ( !lIface )
 	    return 0;
 	QApplication::setOverrideCursor( WaitCursor );
-	editor = new SourceEditor( workSpace(), eIface, lIface );
+	editor = new SourceEditor( qWorkspace(), eIface, lIface );
 	eIface->release();
 	lIface->release();
 
@@ -1785,7 +1799,7 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
 	if ( !lIface )
 	    return 0;
 	QApplication::setOverrideCursor( WaitCursor );
-	editor = new SourceEditor( workSpace(), eIface, lIface );
+	editor = new SourceEditor( qWorkspace(), eIface, lIface );
 	eIface->release();
 	lIface->release();
 
@@ -1864,7 +1878,7 @@ void MainWindow::editProjectSettings()
 	t.w->reparent( 0, QPoint(0,0), FALSE );
     }
 
-    formList->setProject( currentProject );
+    wspace->setProject( currentProject );
 }
 
 void MainWindow::editPixmapCollection()
@@ -1898,9 +1912,9 @@ void MainWindow::editPreferences()
     dia->checkBoxBigIcons->setChecked( usesBigPixmaps() );
     dia->checkBoxBigIcons->hide(); // ##### disabled for now
     dia->checkBoxTextLabels->setChecked( usesTextLabel() );
-    dia->buttonColor->setColor( workspace->backgroundColor() );
-    if ( workspace->backgroundPixmap() )
-	dia->buttonPixmap->setPixmap( *workspace->backgroundPixmap() );
+    dia->buttonColor->setColor( qworkspace->backgroundColor() );
+    if ( qworkspace->backgroundPixmap() )
+	dia->buttonPixmap->setPixmap( *qworkspace->backgroundPixmap() );
     if ( backPix )
 	dia->radioPixmap->setChecked( TRUE );
     else
@@ -1934,10 +1948,10 @@ void MainWindow::editPreferences()
 	setUsesBigPixmaps( FALSE /*dia->checkBoxBigIcons->isChecked()*/ ); // ### disable for now
 	setUsesTextLabel( dia->checkBoxTextLabels->isChecked() );
 	if ( dia->radioPixmap->isChecked() && dia->buttonPixmap->pixmap() ) {
-	    workspace->setBackgroundPixmap( *dia->buttonPixmap->pixmap() );
+	    qworkspace->setBackgroundPixmap( *dia->buttonPixmap->pixmap() );
 	    backPix = TRUE;
 	} else {
-	    workspace->setBackgroundColor( dia->buttonColor->color() );
+	    qworkspace->setBackgroundColor( dia->buttonColor->color() );
 	    backPix = FALSE;
 	}
 	splashScreen = dia->checkBoxSplash->isChecked();
@@ -1970,16 +1984,16 @@ void MainWindow::chooseDocPath()
 
 void MainWindow::searchFind()
 {
-    if ( !workSpace()->activeWindow() ||
-	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() ||
+	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	 return;
 
     if ( !findDialog )
 	findDialog = new FindDialog( this, 0, FALSE );
     findDialog->show();
     findDialog->raise();
-    findDialog->setEditor( ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface(),
-			   ( (SourceEditor*)workSpace()->activeWindow() )->object() );
+    findDialog->setEditor( ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface(),
+			   ( (SourceEditor*)qWorkspace()->activeWindow() )->object() );
     findDialog->comboFind->setFocus();
     findDialog->comboFind->lineEdit()->selectAll();
 }
@@ -1992,53 +2006,53 @@ void MainWindow::searchIncremetalFindMenu()
 
 void MainWindow::searchIncremetalFind()
 {
-    if ( !workSpace()->activeWindow() ||
-	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() ||
+	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	 return;
 
-    ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
+    ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
 									     FALSE, FALSE, TRUE, FALSE );
 }
 
 void MainWindow::searchIncremetalFindNext()
 {
-    if ( !workSpace()->activeWindow() ||
-	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() ||
+	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	 return;
 
-    ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
+    ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
 									     FALSE, FALSE, TRUE, TRUE );
 }
 
 void MainWindow::searchReplace()
 {
-    if ( !workSpace()->activeWindow() ||
-	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() ||
+	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	 return;
 
     if ( !replaceDialog )
 	replaceDialog = new ReplaceDialog( this, 0, FALSE );
     replaceDialog->show();
     replaceDialog->raise();
-    replaceDialog->setEditor( ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface(),
-			   ( (SourceEditor*)workSpace()->activeWindow() )->object() );
+    replaceDialog->setEditor( ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface(),
+			   ( (SourceEditor*)qWorkspace()->activeWindow() )->object() );
     replaceDialog->comboFind->setFocus();
     replaceDialog->comboFind->lineEdit()->selectAll();
 }
 
 void MainWindow::searchGotoLine()
 {
-    if ( !workSpace()->activeWindow() ||
-	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !qWorkspace()->activeWindow() ||
+	 !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	 return;
 
     if ( !gotoLineDialog )
 	gotoLineDialog = new GotoLineDialog( this, 0, FALSE );
     gotoLineDialog->show();
     gotoLineDialog->raise();
-    gotoLineDialog->setEditor( ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface() );
+    gotoLineDialog->setEditor( ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface() );
     gotoLineDialog->spinLine->setFocus();
-    gotoLineDialog->spinLine->setMaxValue( ( (SourceEditor*)workSpace()->activeWindow() )->numLines() - 1 );
+    gotoLineDialog->spinLine->setMaxValue( ( (SourceEditor*)qWorkspace()->activeWindow() )->numLines() - 1 );
 }
 
 void MainWindow::toolsCustomWidget()
