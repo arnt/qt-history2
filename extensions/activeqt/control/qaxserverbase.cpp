@@ -112,6 +112,7 @@ class QAxServerBase :
     public IOleInPlaceActiveObject,
     public IProvideClassInfo2,
     public IConnectionPointContainer,
+    public IPersistStream,
     public IPersistStreamInit,
     public IPersistStorage,
     public IPersistPropertyBag,
@@ -1119,7 +1120,9 @@ HRESULT QAxServerBase::InternalQueryInterface( REFIID iid, void **iface )
 	else if ( iid == IID_IProvideClassInfo2)
 	    *iface = (IProvideClassInfo2*)this;
 	else if ( iid == IID_IPersist )
-	    *iface = (IPersist*)(IPersistStreamInit*)this;
+	    *iface = (IPersist*)(IPersistStream*)this;
+	else if ( iid == IID_IPersistStream)
+	    *iface = (IPersistStream*)this;
 	else if ( iid == IID_IPersistStreamInit )
 	    *iface = (IPersistStreamInit*)this;
 	else if ( iid == IID_IPersistStorage )
