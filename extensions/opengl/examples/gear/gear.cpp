@@ -1,5 +1,8 @@
 //
-// Color triangle
+// Draws a gear.
+//
+// Portions of this code have been borrowed from Brian Paul's Mesa
+// distribution.
 //
 
 #include <qgl.h>
@@ -228,13 +231,12 @@ protected:
     void resizeGL( int, int );
     void paintGL();
     void timerEvent( QTimerEvent * );
-private:
 };
 
 GearWidget::GearWidget( QWidget *parent, const char *name )
      : QGLWidget( parent, name )
 {
-    startTimer( 0 );
+    startTimer( 10 );
 }
 
 void GearWidget::resizeGL( int width, int height )
@@ -244,16 +246,12 @@ void GearWidget::resizeGL( int width, int height )
 
 void GearWidget::paintGL()
 {
+    draw();
 }
 
 void GearWidget::timerEvent(QTimerEvent*)
 {
-    makeCurrent();
-    draw();
-    if ( doubleBuffer() )
-	swapBuffers();
-    else
-	glFlush();
+    updateGL();
 }
 
 

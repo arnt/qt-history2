@@ -8,7 +8,7 @@ LIBCFLAGS = -fPIC
 YACCCFLAGS = -Wno-unused -Wno-parentheses
 LFLAGS = -L$(QTDIR)/lib -lqt
 CC = gcc
-MOC = $(QTDIR)/bin/moc
+MOC = moc
 SHELL =	/bin/sh
 
 ####### End of automatically generated section
@@ -55,28 +55,4 @@ clean:
 
 ####### Compile
 
-gear.o: gear.cpp \
-		$(QTDIR)/include/qgl.h \
-		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
-		$(QTDIR)/include/qglobal.h \
-		$(QTDIR)/include/qobject.h \
-		$(QTDIR)/include/qstring.h \
-		$(QTDIR)/include/qarray.h \
-		$(QTDIR)/include/qgarray.h \
-		$(QTDIR)/include/qshared.h \
-		$(QTDIR)/include/qgeneric.h \
-		$(QTDIR)/include/qevent.h \
-		$(QTDIR)/include/qrect.h \
-		$(QTDIR)/include/qsize.h \
-		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
-		$(QTDIR)/include/qpalette.h \
-		$(QTDIR)/include/qcolor.h \
-		$(QTDIR)/include/qcursor.h \
-		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h \
-		$(QTDIR)/include/qapp.h
-
+gear.o: gear.cpp
