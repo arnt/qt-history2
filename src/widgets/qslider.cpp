@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#18 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#18 $");
 
 static const int motifBorder = 2;
 static const int motifLength = 30;
@@ -106,6 +106,7 @@ QSlider::QSlider( int minValue, int maxValue, int step,
 
 void QSlider::init()
 {
+    state = None;
     timer = 0;
     track = TRUE;
     sliderPos = 0;
