@@ -1920,6 +1920,9 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
     case DISPID_CLICK:
 	pcount = 0;
 	break;
+    case DISPID_DBLCLICK:
+        pcount = 0;
+        break;
     default:
 	{
 	    signal = mo->member(index);
@@ -3979,7 +3982,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseMove:
 	if (o == qt.object && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    int button = me->modifiers() & Qt::MouseButtonMask;
+	    int button = me->buttons() & Qt::MouseButtonMask;
 	    int state = mapModifiers(me->modifiers());
 	    int x = me->x();
 	    int y = me->y();
@@ -3996,7 +3999,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseButtonRelease:
 	if (o == qt.object && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    int button = me->modifiers() & Qt::MouseButtonMask;
+	    int button = me->button();
 	    int state = mapModifiers(me->modifiers());
 	    int x = me->x();
 	    int y = me->y();
@@ -4019,7 +4022,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseButtonPress:
 	if (o == qt.widget && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    int button = me->modifiers() & Qt::MouseButtonMask;
+	    int button = me->button();
 	    int state = mapModifiers(me->modifiers());
 	    int x = me->x();
 	    int y = me->y();
