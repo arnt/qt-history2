@@ -1630,7 +1630,7 @@ const QDateTime QVariant::toDateTime() const
   
   \sa asInt()
 */
-int QVariant::toInt( bool * ok=0 ) const
+int QVariant::toInt( bool * ok ) const
 {
     if( d->typ == String )
 	return ((QString*)d->value.ptr)->toInt( ok );
@@ -1659,7 +1659,7 @@ int QVariant::toInt( bool * ok=0 ) const
   
   \sa asUInt()
 */
-uint QVariant::toUInt( bool * ok=0 ) const
+uint QVariant::toUInt( bool * ok ) const
 {
     if( d->typ == String )
 	return ((QString*)d->value.ptr)->toUInt( ok );
@@ -1710,7 +1710,7 @@ bool QVariant::toBool() const
 
   \sa asDouble()
 */
-double QVariant::toDouble( bool * ok=0 ) const
+double QVariant::toDouble( bool * ok ) const
 {
     if( d->typ == String )
 	return ((QString*)d->value.ptr)->toDouble( ok );

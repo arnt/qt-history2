@@ -919,7 +919,7 @@ QTime QTime::currentTime()
   Returns the representation \a s as a QTime using the format \a f, or 
   an invalid time if this is not possible.
  */
-QTime QTime::fromString( const QString& s, Qt::DateFormat f = Qt::TextDate )
+QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 {
     switch ( f ) {
     default:
