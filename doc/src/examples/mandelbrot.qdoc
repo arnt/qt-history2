@@ -16,15 +16,16 @@
     \image mandelbrot.png Screenshot of the Mandelbrot example
 
     In real life, the approach described here is applicable to a
-    large set of problems, including network I/O and database access,
-    where the user interface must remain responsive while some heavy
-    operation is taking place. The \l network/blockingfortuneclient
-    example shows the same principle at work in a TCP client.
+    large set of problems, including synchronous network I/O and
+    database access, where the user interface must remain responsive
+    while some heavy operation is taking place. The \l
+    network/blockingfortuneclient example shows the same principle at
+    work in a TCP client.
 
     The Mandelbrot application supports zooming and scrolling using
     the mouse or the keyboard. To avoid freezing the main thread's
     event loop (and, as a consequence, the application's user
-    interface), we put all the fractal computation in a separate,
+    interface), we put all the fractal computation in a separate
     worker thread. The thread emits a signal when it is done
     rendering the fractal.
 
@@ -84,9 +85,9 @@
     The protected \c run() function is reimplemented from QThread. It
     is automatically called when the thread is started.
 
-    In the \c private section, we have a \l{QMutex}{mutex}, a
-    \l{QWaitCondition}{wait condition}, and a few other data members.
-    The mutex protects the other data member.
+    In the \c private section, we have a QMutex, a QWaitCondition,
+    and a few other data members. The mutex protects the other data
+    member.
 
     \section1 RenderThread Class Implementation
 
@@ -120,7 +121,8 @@
     at any time by \c run().
 
     At the end of the destructor, we call QThread::wait() to wait
-    until \c run() has exited.
+    until \c run() has exited before the base class destructor is
+    invoked.
 
     \skipto ::render(
     \printuntil /^\}/
@@ -140,8 +142,8 @@
     \skipto ::run(
     \printuntil mutex.unlock()
 
-    \c run() is quite a big function, so we'll break it in parts and
-    explain it as we go.
+    \c run() is quite a big function, so we'll break it down into
+    parts.
 
     The function body is an infinite loop which starts by storing the
     rendering parameters in local variables. As usual, we protect
@@ -156,6 +158,7 @@
 
     \printline int halfWidth
     \printuntil emit renderedImage
+    \printuntil }
     \printline }
 
     Then comes the core of the algorithm. Instead of trying to create
@@ -177,7 +180,7 @@
     \printuntil /^\}$/
 
     Once we're done with all the iterations, we call
-    QWaitCondition::sleep() to put the thread to sleep by calling,
+    QWaitCondition::wait() to put the thread to sleep by calling,
     unless \c restart is \c true. There's no use in keeping a worker
     thread looping indefinitely while there's nothing to do.
 
@@ -185,9 +188,9 @@
     \printuntil /^\}/
 
     The \c rgbFromWaveLength() function is a helper function that
-    converts a wave length to a RGB value compatible with QImage. It
-    is called from the constructor to initialize the \c colormap
-    array with pleasing values.
+    converts a wave length to a RGB value compatible with 32-bit
+    \l{QImage}s. It is called from the constructor to initialize the
+    \c colormap array with pleasing colors.
 
     \section1 MandelbrotWidget Class Defintion
 
@@ -199,9 +202,9 @@
     \printuntil /^\};/
 
     The widget reimplements many event handlers from QWidget. In
-    addition, it has a \c drawRenderedImage() slot that we'll connect
-    to the worker thread's \c finishedRendering() signal to update
-    the display whenever we receive new data from the thread.
+    addition, it has an \c updatePixmap() slot that we'll connect to
+    the worker thread's \c renderedImage() signal to update the
+    display whenever we receive new data from the thread.
 
     Among the private variables, we have \c thread of type \c
     RenderThread and \c pixmap, which contains the last rendered
@@ -257,9 +260,11 @@
     \printuntil }
 
     If the pixmap has the right scale factor, we draw the pixmap
-    directly onto the widget. Otherwise, we create a temporary
-    pixmap, \c newPixmap, in which we draw the original pixmap before
-    we scale it and draw it onto the widget.
+    directly onto the widget. Otherwise, we scale and translate the
+    \l{coordsys.html}{coordinate system} before we draw the pixmap.
+    The calls to QPainter::save() and QPainter::restore() make sure
+    that any painting performed afterward uses the standard
+    coordinate system.
 
     \printuntil /^\}$/
 
@@ -269,11 +274,9 @@
     \skipto ::resizeEvent(
     \printuntil /^\}/
 
-    Whenever the user resizes the widget, we update \c pixmapOffset
-    to ensure that the pixmap is always drawn centered and we call \c
-    render() to start generating a new image, with the same \c
-    centerX, \c centerY, and \c curScale parameters but with the new
-    size of the widget.
+    Whenever the user resizes the widget, we call \c render() to
+    start generating a new image, with the same \c centerX, \c
+    centerY, and \c curScale parameters but with the new widget size.
 
     Notice that we rely on \c resizeEvent() being automatically
     called by Qt when the widget is shown the first time to generate
@@ -321,15 +324,15 @@
     because areas revealed when dragging the pixmap are drawn in
     black.)
 
-    \skipto ::drawRenderedImage(
+    \skipto ::updatePixmap(
     \printuntil /^\}/
 
-    The \c drawRenderedImage() slot is invoked when the worker thread
-    has finished rendering an image. We start by checking whether a
-    drag is in effect and do nothing in that case. In the normal
-    case, we store the image in \c pixmap and reinitialize some of
-    the other members. At the end, we call QWidget::update() to
-    refresh the display.
+    The \c updatePixmap() slot is invoked when the worker thread has
+    finished rendering an image. We start by checking whether a drag
+    is in effect and do nothing in that case. In the normal case, we
+    store the image in \c pixmap and reinitialize some of the other
+    members. At the end, we call QWidget::update() to refresh the
+    display.
 
     At this point, you might wonder why we use a QImage for the
     parameter and a QPixmap for the data member. Why not stick to one

@@ -274,7 +274,9 @@
     \printline ::maybeSave(
     \printuntil /^\}/
 
-    
+    The \c maybeSave() function is called to save pending changes. If
+    there are pending changes, it pops up a QMessageBox giving the
+    user to save the document.
 
     \printline ::loadFile(
     \printuntil /^\}/
