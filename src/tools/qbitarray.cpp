@@ -67,7 +67,7 @@
 /*!
   \fn QBitVal& QBitVal::operator= (const QBitVal& v)
 
-  Sets the value referenced by the QBitVal to that referenced by 
+  Sets the value referenced by the QBitVal to that referenced by
   QBitVal \a v.
 */
 
@@ -121,6 +121,10 @@
   obtained with testBit() and with at().
 
   QBitArray supports the & (AND), | (OR), ^ (XOR) and ~ (NOT) operators.
+*/
+
+/* \enum  QBitArray::bitarr_data
+    \internal
 */
 
 

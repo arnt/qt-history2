@@ -57,6 +57,9 @@
 
   \sa QVBox QHBox
 */
+/*! \enum QGrid::Direction
+    \internal
+*/
 
 /*!
   Constructs a grid widget with parent \a parent and name \a name. If

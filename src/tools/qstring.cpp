@@ -11501,12 +11501,12 @@ make sense of anything.
 */
 
 /*!
-    \fn void QChar::setCell( uchar cell ) 
+    \fn void QChar::setCell( uchar cell )
     \internal
 */
 
 /*!
-    \fn void QChar::setRow( uchar row ) 
+    \fn void QChar::setRow( uchar row )
     \internal
 */
 
@@ -12395,7 +12395,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   QStrings are legal parameters to the methods. Assigning \c {(const char
   *)0} to QString gives a null QString.
 
-  Note that if you find that you are mixing usage of \l QCString, 
+  Note that if you find that you are mixing usage of \l QCString,
   QString, and \l QByteArray, this causes lots of unnecessary copying
   and might indicate that the true nature of the data you are dealing
   with is uncertain.  If the data is 0-terminated 8-bit data, use \l
@@ -12444,6 +12444,9 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \sa QChar QCString QByteArray QConstString
 */
 
+/* \enum Qt::ComparisonFlags
+\internal
+*/
 /*!
   \enum Qt::StringComparisonMode
 

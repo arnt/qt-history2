@@ -224,6 +224,29 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   \link coordsys.html Coordinate System Overview \endlink
 */
 
+/*! \enum QPainter::ClipMode
+    \value ClipDevice
+    \value ClipPainter
+
+    \sa clipRegion()
+*/
+/*! \enum QPainter::TextDirection
+    \value Auto
+    \value RTL right to left
+    \value LTR left to right
+
+    \sa drawText()
+*/
+
+/*! \enum Qt::PaintUnit
+    \value PixelUnit
+    \value LoMetricUnit \e obsolete
+    \value HiMetricUnit \e obsolete
+    \value LoEnglishUnit \e obsolete
+    \value HiEnglishUnit \e obsolete
+    \value TwipsUnit \e obsolete
+*/
+
 /*!
     \enum Qt::BrushStyle
 
@@ -1932,7 +1955,7 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
   equal to ClipDevice (the default). If \a m equals ClipPainter
   the returned region is in model coordinates.
 
-  \sa setClipRegion(), setClipRect(), setClipping()
+  \sa setClipRegion(), setClipRect(), setClipping() QPainter::ClipMode
 */
 QRegion QPainter::clipRegion( ClipMode m ) const
 {
@@ -1960,7 +1983,7 @@ QRegion QPainter::clipRegion( ClipMode m ) const
   default). If \a m equals ClipPainter the returned region is in
   model coordinates.
 
-  \sa setClipRegion(), clipRegion(), setClipping()
+  \sa setClipRegion(), clipRegion(), setClipping() QPainter::ClipMode
 */
 
 /*!
@@ -2242,6 +2265,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   Draws the given text at position \a x, \a y. If \a len is -1 (the
   default) all the text is drawn, otherwise the first \a len
   characters are drawn. The text's direction is given by \a dir.
+
+  \sa QPainter::TextDirection
 */
 
 /*!
@@ -2260,6 +2285,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 /*!
     \overload void	QPainter::drawText( const QPoint &, const QString &, int len = -1, TextDirection dir = Auto );
     Draws the text at the given point.
+  \sa QPainter::TextDirection
 */
 /*
     Draws the text in \a s at point \a p. If \a len is -1 the entire
@@ -2280,6 +2306,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     Draws the text from position \a pos, at point \a p If \a
     len is -1 the entire string is drawn, otherwise just the first \a
     len characters. The text's direction is specified by \a dir.
+  \sa QPainter::TextDirection
 */
 
 static inline void fix_neg_rect( int *x, int *y, int *w, int *h )
@@ -2456,10 +2483,10 @@ void qt_format_text( const QFont& font, const QRect &r,
 
 	    if ( !noaccel ) {
 		parStr = str.left( len );
-#ifndef QT_NO_REGEXP   
+#ifndef QT_NO_REGEXP
 		// compatible behaviour to the old implementation. Replace tabs by spaces
 		parStr.replace( QRegExp( "\t" ), " " );
-#endif	
+#endif
 	    }
 	    if( !( tf & QPainter::DontPrint ) ) {
 		if ( !showprefix || noaccel ) {

@@ -990,7 +990,7 @@ textEdit-&gt;setFocus();
 
 	    <para id="akmz">
 <programlisting>
-int fileNew()
+void EditorForm::fileNew()
 {
     if ( saveAndContinue( &quot;New&quot; ) )
             textEdit-&gt;clear();
@@ -1001,7 +1001,7 @@ int fileNew()
 
 	    <para id="akng">
 <programlisting>
-int fileOpen()
+void EditorForm::fileOpen()
 {
     if ( saveAndContinue( &quot;Open&quot; ) ) {
             <emphasis role="bold">QString</> fn( <emphasis role="bold">QFileDialog::getOpenFileName</>( 
@@ -1028,7 +1028,7 @@ int fileOpen()
 
 	    <para id="aknr">
 <programlisting>
-int fileSave()
+void EditorForm::fileSave()
 {
     if ( fileName.isEmpty() ) {
         fileSaveAs();
@@ -1053,7 +1053,7 @@ int fileSave()
 
 	    <para id="akoe">
 <programlisting>
-int fileSaveAs()
+void EditorForm::fileSaveAs()
 {
     <emphasis role="bold">QString</> fn = <emphasis role="bold">QFileDialog::getSaveFileName</>( 
                                     &quot;&quot;, &quot;Rich Text Files (*.htm*)&quot;, this );
@@ -1070,7 +1070,7 @@ int fileSaveAs()
 
 	    <para id="akon">
 <programlisting>
-int fileExit()
+void EditorForm::fileExit()
 {
     if ( saveAndContinue( &quot;Exit&quot; ) )
         qApp-&gt;exit();
@@ -1084,7 +1084,7 @@ int fileExit()
 
 	    <para id="akox">
 <programlisting>
-int saveAndContinue( const <emphasis role="bold">QString</> &amp; action )
+int EditorForm::saveAndContinue( const <emphasis role="bold">QString</> &amp; action )
 {
     int continueAction = 1;
     
@@ -1124,7 +1124,7 @@ int saveAndContinue( const <emphasis role="bold">QString</> &amp; action )
 	    <sect3 id="aligning-text"><title>Aligning Text</title>
 	    <para id="akpi">
 <programlisting>
-int changeAlignment( <emphasis role="bold">QAction</> * align )
+void EditorForm::changeAlignment( <emphasis role="bold">QAction</> * align )
 {
     if ( align == leftAlignAction ) 
         textEdit-&gt;setAlignment( Qt::AlignLeft );
@@ -1151,7 +1151,7 @@ int changeAlignment( <emphasis role="bold">QAction</> * align )
 	    call <indexterm><primary>Functions</primary><secondary>init()</secondary></indexterm>
 <function>init()</>.
 <programlisting>
-int init()
+void EditorForm::init()
 {
     textEdit-&gt;setFocus();  
  

@@ -51,16 +51,22 @@
 	Detailed description
 
    <strong>Groups of functions:</strong>
-  <ul>
+  \list
 
-  <li> Construction:
+  \i Construction:
 	QTestApplication(),
 	~QTestApplication().
 
-  </ul>
+  \endlist
 */
 
 uint QRemoteMessage::next_msg_id = 1;
+
+/*! \enum QRemoteMessage::RetValue
+
+    \value Accepted
+    \value Rejected
+*/
 
 /*!
     Constructs a default (empty) message.
@@ -279,7 +285,7 @@ bool QRemoteMessage::receive(QSocket *socket)
 	internal_pixmap.resize(0,0);
 	if (hasPixmap == 1)
 		tmp >> internal_pixmap;
-	
+
 	Q_UINT8 hasbyteArray;
 	tmp >> hasbyteArray;
 	// ### can't work

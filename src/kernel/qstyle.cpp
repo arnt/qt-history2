@@ -229,6 +229,22 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	       flags, g, enabled, pixmap, text, len, penColor );
 }
 
+/*! \enum Qt::GUIStyle
+    \value WindowsStyle
+    \value MotifStyle
+    \value MacStyle, \e obsolete
+    \value Win3Style, \e obsolete
+    \value PMStyle, \e obsolete
+*/
+/*!
+    \enum Qt::UIEffect
+    \value UI_General
+    \value UI_AnimateMenu
+    \value UI_FadeMenu
+    \value UI_AnimateCombo
+    \value UI_AnimateTooltip
+    \value UI_FadeTooltip
+*/
 /*!
   \enum QStyle::PrimitiveOperation
 

@@ -139,6 +139,17 @@
   \sa \link shclass.html Shared Classes\endlink
 */
 
+/*! \enum QMemArray::Iterator
+    A QMemArray iterator. 
+    \sa begin() end()
+*/
+/*! \enum QMemArray::ConstIterator
+    A const QMemArray iterator.
+    \sa begin() end()
+*/
+/*! \enum QMemArray::ValueType
+    \internal
+*/
 
 /*!
   \fn QMemArray::QMemArray()

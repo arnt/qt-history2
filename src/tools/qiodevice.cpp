@@ -59,7 +59,7 @@
 
   The public member functions in QIODevice roughly fall into two
   groups: the action functions and the state access functions.  The
-  most important action functions are: 
+  most important action functions are:
 
   \list
 
@@ -77,9 +77,9 @@
   \i  flush() ensures that all buffered data are written to the real device.
 
   \endlist
-  
-  There are also some other, less used, action functions: 
-  
+
+  There are also some other, less used, action functions:
+
   \list
 
   \i  getch() reads a single character.
@@ -100,12 +100,12 @@
   device, if that is possible for this device.
 
   \endlist
-  
+
   The state access are all "get" functions.  The QIODevice subclass
   calls setState() to update the state, and simple access functions
   tell the user of the device what the device's state is.  Here are
-  the settings, and their associated access functions: 
-  
+  the settings, and their associated access functions:
+
   \list
 
   \i  Access type.  Some devices are direct access (it is possible to
@@ -180,6 +180,10 @@
   \sa QDataStream, QTextStream
 */
 
+/*! \enum QIODevice::Offset
+    The offset within the device.
+*/
+
 
 /*!
   Constructs an I/O device.
@@ -239,7 +243,7 @@ QIODevice::~QIODevice()
 /*!
   \fn bool QIODevice::isSequentialAccess() const
   Returns TRUE if the device is a sequential access device; otherwise
-  returns FALSE, i.e. if the device is a direct access device. 
+  returns FALSE, i.e. if the device is a direct access device.
 
   Operations involving size() and at(int) are not valid
   on sequential devices.
@@ -264,7 +268,7 @@ QIODevice::~QIODevice()
 /*!
   \fn bool QIODevice::isRaw() const
   Returns TRUE if the device is a raw device; otherwise
-  returns FALSE, i.e. if the device is a buffered device. 
+  returns FALSE, i.e. if the device is a buffered device.
   \sa isBuffered()
 */
 
@@ -278,7 +282,7 @@ QIODevice::~QIODevice()
 /*!
   \fn bool QIODevice::isAsynchronous() const
   Returns TRUE if the device is an asynchronous device; otherwise
-  returns FALSE, i.e. if the device is a synchronous device. 
+  returns FALSE, i.e. if the device is a synchronous device.
 
   This mode is currently not in use.
 
@@ -311,7 +315,7 @@ QIODevice::~QIODevice()
 /*!
   \fn bool QIODevice::isReadWrite() const
   Returns TRUE if the I/O device was opened using \c IO_ReadWrite
-  mode; otherwise returns FALSE. 
+  mode; otherwise returns FALSE.
   \sa isReadable(), isWritable()
 */
 

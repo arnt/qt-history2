@@ -74,16 +74,16 @@
   FILE * pointers which cannot be subclassed.
 
   Qt provides several global functions similar to the ones in iostream:
-  <ul>
-  <li> \c bin sets the QTextStream to read/write binary numbers
-  <li> \c oct sets the QTextStream to read/write octal numbers
-  <li> \c dec sets the QTextStream to read/write decimal numbers
-  <li> \c hex sets the QTextStream to read/write hexadecimal numbers
-  <li> \c endl forces a line break
-  <li> \c flush forces the QIODevice to flush any buffered data
-  <li> \c ws eats any available whitespace (on input)
-  <li> \c reset resets the QTextStream to its default mode (see reset())
-  </ul>
+  \list
+  \i bin sets the QTextStream to read/write binary numbers
+  \i oct sets the QTextStream to read/write octal numbers
+  \i dec sets the QTextStream to read/write decimal numbers
+  \i hex sets the QTextStream to read/write hexadecimal numbers
+  \i endl forces a line break
+  \i flush forces the QIODevice to flush any buffered data
+  \i ws eats any available whitespace (on input)
+  \i reset resets the QTextStream to its default mode (see reset())
+  \endlist
 
   \warning By default QTextStream will automatically detect whether
   integers in the stream are in decimal, octal, hexadecimal or binary
@@ -101,6 +101,17 @@
   8-bit encoding is used.
 
   \sa QDataStream
+*/
+
+/*! \enum QTextStream::Encoding
+    \value Locale
+    \value Latin1
+    \value Unicode
+    \value UnicodeNetworkOrder
+    \value UnicodeReverse
+    \value RawUnicode
+    \value UnicodeUTF8
+
 */
 
 /*
@@ -1053,12 +1064,12 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 /*!
   Resets the text stream.
 
-  <ul>
-  <li> All flags are set to 0.
-  <li> The field width is set to 0.
-  <li> The fill character is set to ' ' (space).
-  <li> The precision is set to 6.
-  </ul>
+  \list
+  \i All flags are set to 0.
+  \i The field width is set to 0.
+  \i The fill character is set to ' ' (space).
+  \i The precision is set to 6.
+  \endlist
 
   \sa setf(), width(), fill(), precision()
 */
@@ -2086,23 +2097,23 @@ QTextStream &QTextStream::operator<<( void *ptr )
   Returns the current stream flags. The default value is 0.
 
   The meanings of the flags are:
-  <ul>
-    <li> \e skipws - Not currently used; whitespace always skipped
-    <li> \e left - Numeric fields are left-aligned
-    <li> \e right - Not currently used (by default, numerics are right-aligned)
-    <li> \e internal - Puts any padding spaces between +/- and value
-    <li> \e bin - Output \e and input only in binary
-    <li> \e oct - Output \e and input only in octal
-    <li> \e dec - Output \e and input only in decimal
-    <li> \e hex - Output \e and input only in hexadecimal
-    <li> \e showbase - Annotates numeric outputs with 0b, 0, or 0x if in
+  \list
+    \i \e skipws - Not currently used; whitespace always skipped
+    \i \e left - Numeric fields are left-aligned
+    \i \e right - Not currently used (by default, numerics are right-aligned)
+    \i \e internal - Puts any padding spaces between +/- and value
+    \i \e bin - Output \e and input only in binary
+    \i \e oct - Output \e and input only in octal
+    \i \e dec - Output \e and input only in decimal
+    \i \e hex - Output \e and input only in hexadecimal
+    \i \e showbase - Annotates numeric outputs with 0b, 0, or 0x if in
 		\e bin, \e oct, or \e hex format
-    <li> \e showpoint - Not currently used
-    <li> \e uppercase - Uses 0B and 0X rather than 0b and 0x
-    <li> \e showpos - Shows + for positive numeric values
-    <li> \e scientific - Uses scientific notation for floating point values
-    <li> \e fixed - Uses fixed-point notation for floating point values
-  </ul>
+    \i \e showpoint - Not currently used
+    \i \e uppercase - Uses 0B and 0X rather than 0b and 0x
+    \i \e showpos - Shows + for positive numeric values
+    \i \e scientific - Uses scientific notation for floating point values
+    \i \e fixed - Uses fixed-point notation for floating point values
+  \endlist
 
   Note that unless \e bin, \e oct, \e dec, or \e hex is set, the input base is
     octal if the value starts with 0, hexadecimal if it starts with 0x, binary
@@ -2305,26 +2316,26 @@ QTextStream &reset( QTextStream &s )
 
 /*!
   Sets the encoding of this stream to \a e, where \a e is one of:
-  <ul>
-  <li> \c Locale - Uses local file format (Latin1 if locale is not
+  \list
+  \i Locale - Uses local file format (Latin1 if locale is not
   set), but autodetecting Unicode(utf16) on input.
-  <li> \c Unicode - Uses Unicode(utf16) for input and output. Output
+  \i Unicode - Uses Unicode(utf16) for input and output. Output
   will be written in the order most efficient for the current platform
   (i.e. the order used internally in QString).
-  <li> \c UnicodeUTF8 Using Unicode(utf8) for input and output. If you use it
+  \i UnicodeUTF8 Using Unicode(utf8) for input and output. If you use it
   for input it will autodetect utf16 and use it instead of utf8.
-  <li> \c Latin1 - ISO-8859-1. Will not autodetect utf16.
-  <li> \c UnicodeNetworkOrder - Uses network order Unicode(utf16) for
+  \i Latin1 - ISO-8859-1. Will not autodetect utf16.
+  \i UnicodeNetworkOrder - Uses network order Unicode(utf16) for
   input and output. Useful when reading Unicode data that does not
   start with the byte order marker.
-  <li> \c UnicodeReverse - Uses reverse network order Unicode(utf16)
+  \i UnicodeReverse - Uses reverse network order Unicode(utf16)
   for input and output. Useful when reading Unicode data that does not
   start with the byte order marker or when writing data that should be
   read by buggy Windows applications.
-  <li> \c RawUnicode - Like Unicode, but does not write the byte order
+  \i RawUnicode - Like Unicode, but does not write the byte order
   marker nor does it auto-detect the byte order. Useful only when
   writing to nonpersistent storage used by a single process.
-  </ul>
+  \endlist
 
   \c Locale and all Unicode encodings, except \c RawUnicode, will look at
   the first two bytes in an input stream to determine the byte order. The

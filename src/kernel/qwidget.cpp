@@ -515,6 +515,10 @@ inline bool QWidgetMapper::remove( WId id )
   \endlist
 */
 
+/*! \enum Qt::WFlags
+    \internal */
+/*! \enum Qt::WState
+    \internal */
 
 /*! \enum Qt::WidgetFlags
 

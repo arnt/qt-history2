@@ -1275,7 +1275,7 @@ Edit Connections dialog will pop up. The top left hand list box
     <indexterm><primary>Functions</primary><secondary>init()</secondary></indexterm>
 <function>init()</> in the Source tab of the Object Hierarchy.
 <programlisting>
-void init()
+void MulticlipForm::init()
 { 
     lengthLCDNumber-&gt;setBackgroundColor( darkBlue ); 
     currentLineEdit-&gt;setFocus(); 
@@ -1314,7 +1314,7 @@ void init()
     starting with <indexterm><primary>Signals and Slots</primary><secondary>dataChanged()</secondary></indexterm>
 <function>dataChanged()</>.
 <programlisting>
-void dataChanged()
+void MulticlipForm::dataChanged()
 { 
     <emphasis role="bold">QString</> text;  
     text = cb-&gt;text();            
@@ -1342,7 +1342,7 @@ void dataChanged()
     under the X Window System. Users of MS Windows can still include the
     code to ensure that the application works cross-platform.
 <programlisting>
-void selectionChanged()
+void MulticlipForm::selectionChanged()
 { 
     cb-&gt;setSelectionMode( TRUE );  
     dataChanged(); 
@@ -1360,7 +1360,7 @@ void selectionChanged()
 <function>dataChanged()</> slot we called another
     custom slot, <function>clippingChanged()</>. 
 <programlisting>
-void clippingChanged( const <emphasis role="bold">QString</> &amp; clipping )
+void MulticlipForm::clippingChanged( const <emphasis role="bold">QString</> &amp; clipping )
 { 
     currentLineEdit-&gt;setText( clipping ); 
     lengthLCDNumber-&gt;display( (int)clipping.length() );  
@@ -1395,7 +1395,7 @@ Edit Slots dialog. Click <guibutton>New Slot</>
     Current Clipping line edit into the list box. We also update the
     length number. 
 <programlisting>
-void addClipping()
+void MulticlipForm::addClipping()
 { 
     <emphasis role="bold">QString</> text = currentLineEdit-&gt;text(); 
     if ( ! text.isEmpty() ) { 
@@ -1467,7 +1467,7 @@ Edit Slots dialog. Click <guibutton>New Slot</> and
     </para>
     <para id="amil">
 <programlisting>
-void copyPrevious()
+void MulticlipForm::copyPrevious()
 { 
     if ( clippingsListBox-&gt;currentItem() != -1 ) { 
         cb-&gt;setText( clippingsListBox-&gt;currentText() ); 
@@ -1532,7 +1532,7 @@ Edit Slots
     The Delete button must delete the current item in the list box and
     clear the line edit. 
 <programlisting>
-void deleteClipping()
+void MulticlipForm::deleteClipping()
 {  
     clippingChanged( &quot;&quot; );  
     clippingsListBox-&gt;removeItem( clippingsListBox-&gt;currentItem() ); 
@@ -1629,7 +1629,7 @@ in a plain text editor (such as notepad, vim, xemacs, etc.). It will look
 similar to this:
 <programlisting>
 TEMPLATE    = app
-CONFIG      = qt warn_on release
+CONFIG     += qt warn_on release
 TARGET      = multiclip
 INTERFACES  = multiclip.ui
 IMAGEFILE   = images.cpp

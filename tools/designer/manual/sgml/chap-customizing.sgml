@@ -602,7 +602,6 @@ format due to differences between the two tools; these are listed below:
     "layoutMargin" properties manually afterwards if necessary.
     </para>
     </listitem>
-
     <listitem>
     <para id="ajhk">
     Layout stretches and spacings
@@ -617,21 +616,7 @@ format due to differences between the two tools; these are listed below:
     "sizePolicy" properties of some widgets and inserting or
     deleting spacers.
     </para>
-
-    <listitem>
-    <para id="ajhy">
-    Widget names and variable names
-    </para>
-    <para id="ajib">
-    Widgets in <indexterm><primary>Files and file types</primary><secondary>.dlg</secondary></indexterm>
-<filename>.dlg</> files may have two names: a unique name used
-    within Qt Architect (the "Name" in the "Widget" tab of the
-    "Widget Properties" dialog), and an optional name used in the
-    generated C++ code (the "Variable Name" in the "Mapping" tab of
-    the "Widget Properties" dialog). <emphasis>Qt Designer</> will only recognize the
-    former which it will use as the "name" property.
-    </para>
-
+    </listitem>
     <listitem>
     <para id="ajil">
     Mixing managed and unmanaged widgets
@@ -643,7 +628,7 @@ format due to differences between the two tools; these are listed below:
 <filename>.dlg</> file that uses this facility, <emphasis>Qt Designer</> will silently put
     the fixed position widgets into the layout.
     </para>
-
+    </listitem>
     <listitem>
     <para id="ajiw">
     Pixmaps
@@ -653,6 +638,7 @@ format due to differences between the two tools; these are listed below:
 <filename>.dlg</> files. These
     have to be restored manually in <emphasis>Qt Designer</>.
     </para>
+    </listitem>
 </itemizedlist>
 </para>
 </sect2>

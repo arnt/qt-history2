@@ -246,6 +246,18 @@
 	The const reference to T type. */
 /*! \enum QValueList::size_type 
 	An unsigned integral type, used to represent various sizes. */
+/*! \enum QValueList::NodePtr
+    \internal
+*/
+/*! \enum QValueList::iterator_category
+    \internal
+*/
+/*! \enum QValueList::size_type
+    \internal
+*/
+/*! \enum QValueList::difference_type
+    \internal
+*/
 /*!
   \fn QValueList::QValueList()
   Constructs an empty list.
@@ -272,6 +284,11 @@
   iterators of this list become invalidated. Note that it is
   impossible for an iterator to check whether or not it is valid -
   QValueList is highly tuned for performance, not error checking.
+*/
+
+/*!
+    \fn QValueListIterator( NodePtr p ) : node( p )
+    \internal
 */
 
 /*!

@@ -93,6 +93,7 @@
   \sa QColor QPalette QWidget::colorGroup()
 */
 
+
 /*! \enum QColorGroup::ColorRole
 
   The ColorRole enum defines the different symbolic color roles used
@@ -495,15 +496,22 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
   \sa QApplication::setPalette(), QWidget::setPalette(), QColorGroup, QColor
 */ // ### should mention the constructors, copy stuff and isCopyOf()
 
+/*! \enum ColorGroup
+    \value Disabled
+    \value Active
+    \value Inactive
+    \value NColorGroups
+    \value Normal synonym for Active
+*/
 
 /*!
-    \fn const QColorGroup &QPalette::normal() const 
+    \fn const QColorGroup &QPalette::normal() const
     Returns the active color group.
     \sa setActive() active()
 */
 
 /*!
-    \fn void QPalette::setNormal( const QColorGroup & cg ) 
+    \fn void QPalette::setNormal( const QColorGroup & cg )
     Sets the active color group to \a cg.
     \sa setActive() active()
 */

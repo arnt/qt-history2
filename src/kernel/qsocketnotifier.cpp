@@ -87,7 +87,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   \endcode
 
   The optional \e parent argument can be set to make the socket notifier a
-  child of any QObject, e.g. a widget, thus being automatically destroyed 
+  child of any QObject, e.g. a widget, thus being automatically destroyed
   when the widget is destroyed.
 
   For read notifiers it makes little sense to connect the activated()
@@ -127,6 +127,12 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   operations.
 
   \sa QSocket, QServerSocket, QSocketDevice
+*/
+
+/*! \enum QSocketNotifier::Type
+    \value Read
+    \value Write
+    \value Exception
 */
 
 

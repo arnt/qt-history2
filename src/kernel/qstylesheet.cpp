@@ -83,6 +83,9 @@ public:
   display property changes associated with it.
 */
 
+/*! \enum QStyleSheetItem::AdditionalStyleValues
+    \internal
+*/
 
 /*! \enum QStyleSheetItem::WhiteSpaceMode
 
@@ -719,7 +722,7 @@ int QStyleSheetItem::lineSpacing() const
   \brief The QStyleSheet class is a collection of styles for rich text
   rendering and a generator of tags.
 
-  \ingroup graphics 
+  \ingroup graphics
   \ingroup helpsystem
 
   By creating QStyleSheetItem objects for a style sheet you build a

@@ -23,8 +23,6 @@ in the online SQL module documentation.
 
 <indexterm><primary>QOCI8, Database driver</primary></indexterm>
 
-<indexterm><primary>QPSQL6, Database driver</primary></indexterm>
-
 <indexterm><primary>QPSQL7, Database driver</primary></indexterm>
 
 <indexterm><primary>QMYSQL3, Database driver</primary></indexterm>
@@ -32,8 +30,6 @@ in the online SQL module documentation.
 <indexterm><primary>Databases</primary><secondary>Drivers</secondary><tertiary>QODBC3</tertiary></indexterm>
 
 <indexterm><primary>Databases</primary><secondary>Drivers</secondary><tertiary>QOCI8</tertiary></indexterm>
-
-<indexterm><primary>Databases</primary><secondary>Drivers</secondary><tertiary>QPSQL6</tertiary></indexterm>
 
 <indexterm><primary>Databases</primary><secondary>Drivers</secondary><tertiary>QPSQL7</tertiary></indexterm>
 
@@ -43,7 +39,7 @@ If you wish to run the examples or create your own applications using
 these widgets you need access to an SQL database and a Qt database driver
 that can connect to the database. At the time of writing the drivers
 that Qt supports are QODBC3 (Open Database Connectivity), QOCI8 (Oracle),
-QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL 7) and QMYSQL3 (MySQL).
+QPSQL7 (PostgreSQL 6 and 7) and QMYSQL3 (MySQL).
 </para>
 
 <para id="afgv">
@@ -210,7 +206,7 @@ Project Settings dialog.
 bool createConnections()
 {
     // create the default database connection
-    <emphasis role="bold">QSqlDatabase</> *defaultDB = <emphasis role="bold">QSqlDatabase::addDatabase</>( &quot;QPSQL6&quot; );
+    <emphasis role="bold">QSqlDatabase</> *defaultDB = <emphasis role="bold">QSqlDatabase::addDatabase</>( &quot;QPSQL7&quot; );
     if ( ! defaultDB ) {
         qWarning( "Failed to connect to driver" );
         return FALSE;
@@ -641,7 +637,7 @@ Edit Connections
 		specify the parameter name and perform the necessary
 		action:
 <programlisting>
-void primeInsertAuthor( <emphasis role="bold">QSqlRecord</> * buffer )
+void BookForm::primeInsertAuthor( <emphasis role="bold">QSqlRecord</> * buffer )
 {
     <emphasis role="bold">QSqlQuery</> query;
     query.exec( &quot;UPDATE sequence SET sequence = sequence + 1 WHERE tablename='author';&quot; );
@@ -1056,7 +1052,7 @@ Edit Connections dialog will appear. Click the
 		    specify the parameter name and perform the necessary
 		    action:
 <programlisting>
-void newCurrentAuthor( <emphasis role="bold">QSqlRecord</> *author )
+void BookForm::newCurrentAuthor( <emphasis role="bold">QSqlRecord</> *author )
 {
     BookDataTable-&gt;setFilter( &quot;authorid=&quot; + author-&gt;value( &quot;id&quot; ).toString() );  
     BookDataTable-&gt;refresh();
@@ -1496,7 +1492,7 @@ Edit Connections dialog
 		<function>editClicked</> function. We need to change it to
 		the following:
 <programlisting>
-void editClicked()
+void BookForm::editClicked()
 {
     EditBookForm *dialog = new EditBookForm( this, &quot;Edit Book Form&quot;, TRUE );
     <emphasis role="bold">QSqlCursor</> cur( &quot;book&quot; );
@@ -1614,7 +1610,7 @@ void editClicked()
 		<function>primeInsertBook</> slot. We need to change
 		it to the following:
 <programlisting>
-void primeInsertBook( <emphasis role="bold">QSqlRecord</> * buffer )
+void EditBookForm::primeInsertBook( <emphasis role="bold">QSqlRecord</> * buffer )
 {
     <emphasis role="bold">QSqlQuery</> query;  
     query.exec( &quot;UPDATE sequence SET sequence = sequence + 1 WHERE tablename='book';&quot; );  
@@ -1768,7 +1764,7 @@ Edit Connections dialog will appear.
 	    <indexterm><primary>Widgets</primary><secondary>ComboBox</secondary></indexterm>
 ComboBox with author names.
 <programlisting>
-void init()
+void EditBookForm::init()
 {
     <emphasis role="bold">QSqlQuery</> query( &quot;SELECT surname FROM author ORDER BY surname;&quot; );    
     while ( query.next() ) 
@@ -1784,7 +1780,7 @@ ComboBox.
 	    We next write the code which will be executed just before a
 	    record is updated (or inserted) in the database.
 <programlisting>
-void beforeUpdateBook( <emphasis role="bold">QSqlRecord</> * buffer )
+void EditBookForm::beforeUpdateBook( <emphasis role="bold">QSqlRecord</> * buffer )
 {
     <emphasis role="bold">QSqlQuery</> query( &quot;SELECT id FROM author WHERE surname ='&quot; + 
         ComboBoxAuthor-&gt;currentText() + &quot;';&quot; );
@@ -1803,7 +1799,7 @@ ComboBox's current author
 	    that the <indexterm><primary>Widgets</primary><secondary>ComboBox</secondary></indexterm>
 ComboBox reflects the current author.  
 <programlisting>
-void primeUpdateBook( <emphasis role="bold">QSqlRecord</> * buffer )
+void EditBookForm::primeUpdateBook( <emphasis role="bold">QSqlRecord</> * buffer )
 {
    <emphasis> // Who is this book's author?
 </>
@@ -1863,7 +1859,7 @@ ComboBox and store them in a
 	    We now record the author id's in the <indexterm><primary>Functions</primary><secondary>init()</secondary></indexterm>
 <function>init()</> function.
 <programlisting>
-void init()
+void EditBookForm::init()
 {
     <emphasis role="bold">QSqlQuery</> query( &quot;SELECT surname, id FROM author ORDER BY surname;&quot; );    
     while ( query.next() ) {
@@ -1884,7 +1880,7 @@ ComboBox we
 	    look it up in the <indexterm><primary>QMap</primary></indexterm>
 <classname>QMap</>.
 <programlisting>
-void beforeUpdateBook( <emphasis role="bold">QSqlRecord</> * buffer )
+void EditBookForm::beforeUpdateBook( <emphasis role="bold">QSqlRecord</> * buffer )
 {
     int id;
     mapAuthor( ComboBoxAuthor-&gt;currentText(), id, FALSE );
@@ -1897,7 +1893,7 @@ void beforeUpdateBook( <emphasis role="bold">QSqlRecord</> * buffer )
 	    We use a single function for storing author id's and
 	    returning them so that we can use a static data structure.
 <programlisting>
-void mapAuthor( const <emphasis role="bold">QString</> &amp; name, int &amp; id, bool populate )
+void EditBookForm::mapAuthor( const <emphasis role="bold">QString</> &amp; name, int &amp; id, bool populate )
 {
     if ( populate ) 
         authorMap[ name ] = id;

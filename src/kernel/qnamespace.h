@@ -122,7 +122,7 @@ public:
 	NoAccel = 0x4000
     };
 
-    // Widget flags
+    // Widget flags; documented in qwidget.cpp
     typedef uint WState;
 
     // QWidget state flags (internal, barely documented in qwidget.cpp)
@@ -152,7 +152,7 @@ public:
 	WState_Exposed		= 0x00400000
     };
 
-    // Widget flags2
+    // Widget flags2; documented in qwidget.cpp
     typedef uint WFlags;
 
     // documented in qwidget.cpp
@@ -242,6 +242,7 @@ public:
     };
 
 #ifndef QT_NO_COMPAT
+    // documented in qpainter.cpp
     enum PaintUnit {				// paint unit
 	PixelUnit,
 	LoMetricUnit, // OBSOLETE
@@ -252,6 +253,7 @@ public:
     };
 #endif
 
+    // documented in qstyle.cpp
 #ifdef QT_NO_COMPAT
     enum GUIStyle {
 	WindowsStyle,
@@ -608,6 +610,7 @@ public:
 	WV_NT_based	= 0x00f0
     };
 
+    // documented in qstyle.cpp
     enum UIEffect {
 	UI_General,
 	UI_AnimateMenu,

@@ -749,6 +749,10 @@ void QHideToolTip::maybeTip( const QPoint &pos )
   \sa QToolBar QDockWindow QStatusBar QAction QMenuBar QPopupMenu QToolTipGroup QDialog
 */
 
+/*! \enum Qt::ToolBarDock
+    \internal
+*/
+
 /*!
   \enum Qt::Dock
 
