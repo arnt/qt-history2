@@ -505,9 +505,15 @@ void QTipManager::showTip()
 	Q_CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
     }
+    int scr = QApplication::desktop()->screenNumber( widget );
+    QRect screen = QApplication::desktop()->screenGeometry( scr );
     QPoint p;
     if ( t->geometry == QRect( -1, -1, -1, -1 ) ) {
 	p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
+	if ( p.x() + label->width() > screen.x() + screen.width() )
+	    p.rx() -= 4 + label->width();
+	if ( p.y() + label->height() > screen.y() + screen.height() )
+	    p.ry() -= 24 + label->height();
     } else {
 	p = widget->mapToGlobal( t->geometry.topLeft() );
 	label->setAlignment( WordBreak | AlignCenter );
@@ -515,8 +521,12 @@ void QTipManager::showTip()
 	label->resize( label->width(), h );
     }
     QRect screen = QApplication::desktop()->screenGeometry( widget );
+    if ( p.y() < screen.y() )
+	p.setY( screen.y() );
     if ( p.x() + label->width() > screen.x() + screen.width() )
 	p.setX( screen.x() + screen.width() - label->width() );
+    if ( p.x() < screen.x() )
+	p.setX( screen.x() );
     if ( p.y() + label->height() > screen.y() + screen.height() )
 	p.setY( screen.y() + screen.height() - label->height() );
     if ( label->text().length() ) {
