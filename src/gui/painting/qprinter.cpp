@@ -63,7 +63,7 @@
     between platforms.)
 
     There are also some settings that the user sets (through the
-    printer dialog) and that applications are expected to obey:
+    printer dialog) and that applications are expected to respect:
 
     \list
 
@@ -74,7 +74,7 @@
     color or grayscale. (If you print in color and the printer does
     not support color, Qt will try to approximate. The document may
     take longer to print, but the quality should not be made visibly
-    poorer.)
+    worse.)
 
     \i fromPage() and toPage() indicate what pages the application
     program should print.
@@ -101,7 +101,7 @@
     \endomit
 
     If your current locale converts "," to ".", you will need to set
-    a locale that doen't do this (e.g. the "C" locale) before using
+    a locale that doesn't do this (e.g. the "C" locale) before using
     QPrinter.
 
     The TrueType font embedding for Qt's postscript driver uses code
