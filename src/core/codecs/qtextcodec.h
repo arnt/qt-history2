@@ -60,7 +60,7 @@ public:
         DefaultConversion,
         ConvertInvalidToNull = 0x80000000,
         KeepHeader = 0x1,
-        WriteHeader = 0x2,
+        WriteHeader = 0x2
     };
     Q_DECLARE_FLAGS(ConversionFlags, ConversionFlag);
 
