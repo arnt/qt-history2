@@ -6,6 +6,12 @@
 #include <qsqlrecord.h>
 #include <qsqlindex.h>
 
+class QIODevice;
+
+typedef QValueList<QVariant> Record;
+typedef QValueList<Record> Data;
+typedef QMap< QVariant, QValueList<int> > ColumnKey;
+
 namespace Interpreter {
 
     struct ResultSet
@@ -13,8 +19,14 @@ namespace Interpreter {
 	virtual void clear() = 0;
 	virtual bool setHeader( const QSqlRecord& record ) = 0;
 	virtual QSqlRecord& header() = 0;
-	virtual bool append( QValueList<QVariant>& buf ) = 0;
+	virtual bool append( Record& buf ) = 0;
 	virtual bool sort( const QSqlIndex* index ) = 0;
+	virtual bool first() = 0;
+	virtual bool last() = 0;
+	virtual bool next() = 0;
+	virtual bool prev() = 0;
+	virtual Record& currentRecord() = 0;
+	virtual uint size() = 0;
     };
 
     struct FileDriver
@@ -76,6 +88,10 @@ namespace Interpreter {
 	virtual void addDriver( int id, const QString& fileName ) = 0;
 	virtual FileDriver& fileDriver( int id ) = 0;
 	virtual ResultSet& resultSet() = 0;
+	virtual bool save( QIODevice *dev ) = 0;
+	virtual bool save( const QString& filename ) = 0;
+	virtual bool saveListing( QIODevice *dev ) = 0;
+	virtual bool saveListing( const QString& filename ) = 0;
     };
 
 };

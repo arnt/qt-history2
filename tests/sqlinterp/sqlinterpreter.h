@@ -57,10 +57,6 @@ private:
 
 };
 
-typedef QValueList<QVariant> Record;
-typedef QValueList<Record> Data;
-typedef QMap< QVariant, QValueList<int> > ColumnKey;
-
 class ResultSet : public Interpreter::ResultSet
 {
 public:
@@ -72,12 +68,21 @@ public:
     bool append( QValueList<QVariant>& buf );
     void clear() { data.clear(); }
     bool sort( const QSqlIndex* index );
+    bool first();
+    bool last();
+    bool next();
+    bool prev();
+    Record& currentRecord();
+    uint size() { return data.count(); }
 
 private:
     QSqlRecord head;
     Data data;
     Interpreter::Environment* env;
     ColumnKey sortKey;
+    ColumnKey::ConstIterator keyit;
+    Data::Iterator datait;
+    int j;
 };
 
 class Program : public Interpreter::Program
@@ -121,6 +126,10 @@ public:
     QValueStack<QVariant>& stack();
     Program& program();
     ResultSet& resultSet();
+    bool save( QIODevice *dev );
+    bool save( const QString& filename );
+    bool saveListing( QIODevice *dev );
+    bool saveListing( const QString& filename );
 
 private:
     QMap<int,FileDriver> drivers;
@@ -156,10 +165,10 @@ public:
     QVariant& P( int i )
     {
 	switch( i ) {
-	case 1: return p1;
-	case 2: return p2;
+	case 0: return p1;
+	case 1: return p2;
 	default:
-	case 3: return p3;
+	case 2: return p3;
 	}
     }
     QString label() const { return lbl; }

@@ -266,14 +266,13 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new Sort( 0 ) ); //## to be used here.
     env.program().append( new Close( 0 ) );
 
-
-
 #if 0
     /* drop a table */
     env.program().append( new Drop( 0, FILENAME ) );
 #endif
 
     env.execute();
+    env.saveListing( "programlisting" );
 
     return 0;
 }

@@ -13,7 +13,7 @@
 #include <xdb/xbase.h>
 
 #define DEBUG_XBASE 1
-
+//#define VERBOSE_DEBUG_XBASE
 
 #ifdef DEBUG_XBASE
 #include <iostream>
@@ -209,7 +209,7 @@ bool FileDriver::insert( const QSqlRecord* record )
 
 bool FileDriver::next()
 {
-#ifdef DEBUG_XBASE
+#ifdef VERBOSE_DEBUG_XBASE
     cout << "FileDriver::next..." << flush;
 #endif
     if ( !isOpen() ) {
@@ -223,7 +223,7 @@ bool FileDriver::next()
     }
     if ( rc != XB_NO_ERROR )
 	return FALSE;
-#ifdef DEBUG_XBASE
+#ifdef VERBOSE_DEBUG_XBASE
     cout << "success" << endl;
 #endif
     return TRUE;

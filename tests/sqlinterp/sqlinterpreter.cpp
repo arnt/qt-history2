@@ -1,6 +1,9 @@
 #include "sqlinterpreter.h"
+#include <qsql.h>
 #include <qcleanuphandler.h>
 #include <qdatetime.h>
+#include <qfile.h>
+#include <qtextstream.h>
 
 //using namespace SqlInterpreter;
 
@@ -242,6 +245,89 @@ ResultSet& Environment::resultSet()
     return result;
 }
 
+bool Environment::save( QIODevice *dev )
+{
+    if ( !dev || !dev->isOpen() )
+	return FALSE;
+    pgm.resetCounter();
+    int i = 0;
+    QDataStream stream( dev );
+    Interpreter::Op* op = 0;
+    while( (op = pgm.next() ) ) {
+	stream << i << op->name();
+	if ( op->P(0).isValid() )
+	     stream << op->P(0);
+	if ( op->P(1).isValid() )
+	     stream << op->P(1);
+	if ( op->P(2).isValid() )
+	     stream << op->P(2);
+	stream << "\n";
+	++i;
+    }
+    pgm.resetCounter();
+    return TRUE;
+}
+
+bool Environment::save( const QString& filename )
+{
+    QFile f( filename );
+    if ( !f.open( IO_WriteOnly ) )
+	return FALSE;
+    save( &f );
+    f.close();
+    return TRUE;
+}
+
+static QString asListing( QVariant& v )
+{
+    QString s;
+    switch( v.type() ) {
+    case QVariant::List: {
+	s = "list(";
+	QValueList<QVariant> l = v.toList();
+	for ( uint i = 0; i < l.count(); ++i )
+	    s += asListing( l[i] ) + (i<l.count()-1?QString(","):QString(")"));
+	break;
+    }
+    default:
+	s = v.toString();
+    }
+    if ( s.isNull() )
+	s = ".";
+    return s;
+}
+
+bool Environment::saveListing( QIODevice *dev )
+{
+    if ( !dev || !dev->isOpen() )
+	return FALSE;
+    pgm.resetCounter();
+    int i = 0;
+    QTextStream stream( dev );
+    Interpreter::Op* op = 0;
+    while( (op = pgm.next() ) ) {
+	stream << QString::number( i ).rightJustify(4) << op->name().rightJustify(15);
+	stream << asListing( op->P(0) ).rightJustify(15);
+	stream << asListing( op->P(1) ).rightJustify(15);
+	stream << asListing( op->P(2) ).rightJustify(15);
+	stream << "\n";
+	++i;
+    }
+    pgm.resetCounter();
+    return TRUE;
+}
+
+
+bool Environment::saveListing( const QString& filename )
+{
+    QFile f( filename );
+    if ( !f.open( IO_WriteOnly ) )
+	return FALSE;
+    saveListing( &f );
+    f.close();
+    return TRUE;
+}
+
 /*! Destroys the object and frees any allocated resources.
 
 */
@@ -305,6 +391,11 @@ bool ResultSet::append( QValueList<QVariant>& buf )
     return TRUE;
 }
 
+/* Provided so that we can sort a list of variants. Note that this
+   does not work for variant types that have no value (e.g., picture,
+   icon, etc), however we are only dealing with basic database types,
+   so its cool.
+*/
 static bool operator<( const QVariant &v1, const QVariant& v2 )
 {
     switch( v1.type() ) {
@@ -322,76 +413,82 @@ static bool operator<( const QVariant &v1, const QVariant& v2 )
     }
 }
 
-#if 0
-class RecordIterator
+bool ResultSet::first()
 {
-public:
-    RecordIterator() : d(dummyD), k(dummyK), i(-1), j(-1) {}
-    RecordIterator( Data& data, ColumnKey& key ) : d(data), k(key), i(0), j(0) {}
-    RecordIterator( const RecordIterator& it ) : d(it.d), k(it.k), i(it.i), j(it.j) {}
-    const int& operator*() const { return k[i][j]; }
-    int& operator*() { return k[i][j]; }
-    bool operator==( const RecordIterator& it ) const { return i == it.i; }
-    bool operator!=( const RecordIterator& it ) const { return i != it.i; }
-    RecordIterator& operator++() {
-	if ( i == -1 || j == -1 )
-	    return *this;
-	return inc();
+    if ( !data.count() )
+	return FALSE;
+    keyit = sortKey.begin();
+    datait = data.begin();
+    j = 0;
+    return TRUE;
+}
+
+bool ResultSet::last()
+{
+    if ( !data.count() )
+	return FALSE;
+    if ( sortKey.count() ) {
+	keyit = --sortKey.end();
+	j = keyit.data().count()-1;
+    } else {
+	datait = --data.end();
     }
-    RecordIterator operator++(int) {
-	if ( i == -1 || j == -1 )
-	    return *this;
-	RecordIterator tmp = *this;
-	inc();
-	return tmp;
-    }
-    RecordIterator& operator--() {
-	if ( i == -1 || j == -1 )
-	    return *this;
-	return dec();
-    }
-    RecordIterator operator--(int) {
-	if ( i == -1 || j == -1 )
-	    return *this;
-	RecordIterator tmp = *this;
-	dec();
-	return tmp;
-    }
-private:
-    Data& d;
-    ColumnKey& k;
-    int i;
-    int j;
-    Data dummyD;
-    ColumnKey dummyK;
-    RecordIterator& inc() {
-	if ( k[i].count() > 0 && j+1 < (int)k[i].count() ) {
+    return TRUE;
+}
+
+bool ResultSet::next()
+{
+    if ( !data.count() )
+	return FALSE;
+    if ( sortKey.count() ) {
+	if ( j+1 > (int)keyit.data().count()-1 ) { /* go to next map element */
+	    if ( keyit == --sortKey.end() )
+		return FALSE;
+	    ++keyit;
+	    j = 0;
+	} else /* go to next list element in the same map element */
 	    ++j;
-	    return *this;
-	}
-	++i;
-	j = 0;
-	if ( i > (int)d.count() ) {
-	    i = -1;
-	    j = -1;
-	}
-	return *this;
+    } else {
+	if ( datait == --data.end() )
+	    return FALSE;
+	++datait;
     }
-    RecordIterator& dec() {
-	if ( k[i].count() > 0 && j > 0 ) {
+    return TRUE;
+}
+
+bool ResultSet::prev()
+{
+    if ( !data.count() )
+	return FALSE;
+    if ( sortKey.count() ) {
+	if ( j-1 < 0 ) { /* go to previous map element */
+	    if ( keyit == sortKey.begin() )
+		return FALSE;
+	    --keyit;
+	    j = keyit.data().count()-1;
+	} else /* go to previous list element in the same map element */
 	    --j;
-	    return *this;
-	}
-	--i;
-	j = 0;
-	if ( i < 0 ) {
-	    i = -1;
-	    j = -1;
-	}
-	return *this;
+    } else {
+	if ( datait == data.begin() )
+	    return FALSE;
+	--datait;
     }
-};
-#endif
+    return TRUE;
+}
+
+Record& ResultSet::currentRecord()
+{
+    if ( !data.count() ) {
+	qWarning("ResultSet::currentRecord: no data available!");
+	return data[0];
+    }
+    if ( sortKey.count() ) {
+	return data[ keyit.data()[j] ];
+    } else {
+	return *datait;
+    }
+}
+
 
 /*!
 
@@ -482,18 +579,18 @@ bool ResultSet::sort( const QSqlIndex* index )
 #ifdef DEBUG_SQLINTERP
     qDebug("number of fields in result set:" + QString::number(head.count()) );
     qDebug("number of result records:" + QString::number( data.count() ) );
-    qDebug("sorted results set:");
-    //    ColumnKey::Iterator it;
-    for ( it = sortKey.begin();
-	  it != sortKey.end();
-	  ++it ) {
-	QValueList<int>& l = *it;
-	for ( i = 0; i < l.count(); ++i ) {
-	    for ( uint j = 0; j < head.count(); ++j )
-		cout << data[l[i]][j].toString().rightJustify(10).latin1();
+
+    if ( size() > 0 ) {
+	qDebug("sorted results set:");
+	first();
+	do {
+	    Record& rec = currentRecord();
+	    for ( uint j = 0; j < rec.count(); ++j )
+		cout << rec[j].toString().rightJustify(10).latin1();
 	    cout << endl;
-	}
+	} while ( next() );
     }
+
 #endif // DEBUG_SQLINTERP
 
     return TRUE;
