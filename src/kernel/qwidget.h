@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#165 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#166 $
 **
 ** Definition of QWidget class
 **
@@ -33,6 +33,7 @@
 #include "qfont.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
+#include "qstyle.h"
 #endif // QT_H
 
 
@@ -47,8 +48,7 @@ public:
 
   // GUI style setting
 
-    GUIStyle	 style() const;
-    virtual void setStyle( GUIStyle );
+    QStyle& style() const;
 
   // Widget types and states
 
@@ -116,9 +116,9 @@ public:
   // Widget attribute functions
 
     enum BackgroundMode { FixedColor, FixedPixmap, NoBackground,
-			  PaletteForeground, PaletteBackground, PaletteLight,
+			  PaletteForeground, PaletteButton, PaletteLight,
 			  PaletteMidlight, PaletteDark, PaletteMid,
-			  PaletteText, PaletteBase };
+			  PaletteText, PaletteBase, PaletteBackground };
 
     BackgroundMode backgroundMode() const;
     virtual void	   setBackgroundMode( BackgroundMode );
@@ -254,6 +254,10 @@ public:
 
     virtual void	 setAcceptDrops( bool on );
     bool	 acceptDrops() const;
+
+    virtual void setAutoMask(bool);
+    bool autoMask() const;
+    
 				
 public:
     QWidget	*parentWidget() const;
@@ -300,6 +304,8 @@ protected:
 #elif defined(_WS_X11_)
     virtual bool x11Event( XEvent * );		// X11 event
 #endif
+
+    virtual void updateMask();
 
   // Misc. protected functions
 
@@ -377,6 +383,8 @@ private:
     QFont	 fnt;
     QCursor	 curs;
     QWExtra	*extra;
+    uint automask : 1;
+    
     QWidget	*focusChild; // ### unused now
     static void	 createMapper();
     static void	 destroyMapper();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#75 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#76 $
 **
 ** Implementation of QMessageBox class
 **
@@ -1008,7 +1008,7 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
 
 void QMessageBox::setStyle( GUIStyle s )
 {
-    QWidget::setStyle( s );
+    //#####    QWidget::setStyle( s );
     if ( mbd->icon != NoIcon ) {
 	// Reload icon for new style
 	setIcon( mbd->icon );

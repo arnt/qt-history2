@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#100 $
 **
 ** Implementation of QScrollBar class
 **
@@ -867,7 +867,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		p->drawRect( addPageR );
 	    if ( controls & SLIDER ) {
 		if ( !maxedOut ) {
-		    QBrush fill( g.background() );
+		    QBrush fill( g.button() );
 		    qDrawWinPanel( p, sliderR.x(), sliderR.y(),
 				   sliderR.width(), sliderR.height(), g,
 				   FALSE, &fill );
@@ -888,12 +888,19 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, MotifStyle,
 			SUB_LINE_ACTIVE, subB.x(), subB.y(),
 			subB.width(), subB.height(), g, value()>minValue() );
-	if ( controls & SUB_PAGE )
-	    p->fillRect( subPageR, g.mid() );
-	if ( controls & ADD_PAGE )
-	    p->fillRect( addPageR, g.mid() );
+
+	QBrush fill( g.mid() );
+	if (backgroundPixmap() )
+	    fill = QBrush( g.mid(), *backgroundPixmap() );
+
+	if ( controls & SUB_PAGE ) 
+	    p->fillRect( subPageR, fill );
+	
+	if ( controls & ADD_PAGE ) 
+	    p->fillRect( addPageR, fill );
+
 	if ( controls & SLIDER ) {
-	    QBrush fill( g.background() );
+	    QBrush fill( g.button() );
 	    qDrawShadePanel( p, sliderR, g, FALSE, 2, &fill );
 	}
 

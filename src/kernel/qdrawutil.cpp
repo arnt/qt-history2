@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#33 $
 **
 ** Implementation of draw utilities
 **
@@ -410,7 +410,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 {
     if ( sunken )
 	qDrawWinShades( p, x, y, w, h,
-		       black, g.light(), g.dark(), g.background(), fill );
+		       black, g.light(), g.dark(), g.button(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
 		       g.light(), black, g.midlight(), g.dark(), fill );
@@ -496,7 +496,7 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
 
 QRect qItemRect( QPainter *p, GUIStyle gs,
 		int x, int y, int w, int h,
-		int flags, 
+		int flags,
 		bool enabled,
 		const QPixmap *pixmap,
 		const QString& text, int len )
@@ -529,7 +529,7 @@ QRect qItemRect( QPainter *p, GUIStyle gs,
 
 void qDrawItem( QPainter *p, GUIStyle gs,
 		int x, int y, int w, int h,
-		int flags, 
+		int flags,
 		const QColorGroup &g, bool enabled,
 		const QPixmap *pixmap,
 		const QString& text, int len )
@@ -697,7 +697,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
     }
 
     QPen savePen = p->pen();			// save current pen
-    p->fillRect( x, y, w, h, g.background() );
+    p->fillRect( x, y, w, h, g.button() );
     if ( enabled ) {
 	a.translate( x+w/2, y+h/2 );
 	p->setPen( g.foreground() );
@@ -726,7 +726,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 // is this correct?
 static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 			     int x, int y, int w, int h,
-			     const QColorGroup &g, bool ) 
+			     const QColorGroup &g, bool )
 {
     QPointArray bFill;				// fill polygon
     QPointArray bTop;				// top shadow.
@@ -808,7 +808,7 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 
     QColor *cols[5];
     cols[0] = 0;
-    cols[1] = (QColor *)&g.background();
+    cols[1] = (QColor *)&g.button();
     cols[2] = (QColor *)&g.mid();
     cols[3] = (QColor *)&g.light();
     cols[4] = (QColor *)&g.dark();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#21 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -42,16 +42,17 @@
   We have identified eight distinct color roles:
   <ol>
   <li>Foreground (graphics foreground color)
-  <li>Background (general background color)
-  <li>Light (lighter than background color, for shadow effects)
-  <li>Midlight (between Background and Light, for shadow effects)
-  <li>Dark (darker than the background color, for shadow effects)
-  <li>Medium (between background and dark, used for shadow and contrast
+  <li>Button (general button color)
+  <li>Light (lighter than button color, for shadow effects)
+  <li>Midlight (between Button and Light, for shadow effects)
+  <li>Dark (darker than the button color, for shadow effects)
+  <li>Medium (between button color  and dark, used for shadow and contrast
     effects)
   <li>Text (usually the same as the foreground color, but sometimes text
     and other foreground are not the same)
   <li>Base (used as background color for some widgets). Usually white or
     another light color.
+  <li>Background (general background color)
   </ol>
 
   We have not seen any good, well-made and usable widgets that use more
@@ -73,22 +74,39 @@ QColorGroup::QColorGroup()
 {						// all colors become black
 }
 
-/*!
-  Constructs a color group with the specified colors.
-*/
-
-QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
+QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
 			  const QColor &light, const QColor &dark,
 			  const QColor &mid,
-			  const QColor &text, const QColor &base )
+			  const QColor &text, const QColor &base, const QColor &background )
 {
     fg_col    = foreground;
-    bg_col    = background;
+    button_col    = button;
     light_col = light;
     dark_col  = dark;
     mid_col   = mid;
     text_col  = text;
     base_col  = base;
+    bg_col    = background;
+}
+
+/*!\obsolete
+  Constructs a color group with the specified colors. The background
+  color will be set to the button color.
+*/
+
+QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
+			  const QColor &light, const QColor &dark,
+			  const QColor &mid,
+			  const QColor &text, const QColor &base )
+{
+    fg_col    = foreground;
+    button_col    = button;
+    light_col = light;
+    dark_col  = dark;
+    mid_col   = mid;
+    text_col  = text;
+    base_col  = base;
+    bg_col    = button;
 }
 
 /*!
@@ -106,8 +124,8 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
-  \fn const QColor & QColorGroup::background() const
-  Returns the background color of the color group.
+  \fn const QColor & QColorGroup::button() const
+  Returns the button color of the color group.
 */
 
 /*!
@@ -118,7 +136,7 @@ QColorGroup::~QColorGroup()
 /*!
   \fn QColor QColorGroup::midlight() const
   Returns the midlight color of the color group. Currently, this is
-  a lightened version of the background, but this may change
+  a lightened version of the button color, but this may change
   in the future, to return a <tt>const QColor &</tt> from the
   palette.
 */
@@ -141,6 +159,11 @@ QColorGroup::~QColorGroup()
 /*!
   \fn const QColor & QColorGroup::base() const
   Returns the base color of the color group.
+*/
+
+/*!
+  \fn const QColor & QColorGroup::background() const
+  Returns the background color of the color group.
 */
 
 /*!
@@ -213,17 +236,18 @@ QPalette::QPalette()
     data->ser_no = palette_count++;
 }
 
-/*!
-  Constructs a palette from the \e background color. The other colors are
-  automatically calculated, based on this color.
+/*!\obsolete
+  Constructs a palette from the \e button color. The other colors are
+  automatically calculated, based on this color. Background will be
+  the button color as well.
 */
 
-QPalette::QPalette( const QColor &background )
+QPalette::QPalette( const QColor &button )
 {
     data = new QPalData;
     CHECK_PTR( data );
     data->ser_no = palette_count++;
-    QColor bg = background, fg, base, disfg;
+    QColor bg = button, btn = button, fg, base, disfg;
     int h, s, v;
     bg.hsv( &h, &s, &v );
     if ( v > 128 ) {				// light background
@@ -235,11 +259,40 @@ QPalette::QPalette( const QColor &background )
 	base = black;
 	disfg = darkGray;
     }
-    data->normal   = QColorGroup( fg, bg, bg.light(150), bg.dark(),
-				  bg.dark(150), fg, base );
+    data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
+				  btn.dark(150), fg, base, bg );
     data->active   = data->normal;
-    data->disabled = QColorGroup( disfg, bg, bg.light(150), bg.dark(),
-				  bg.dark(150), disfg, base );
+    data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
+				  btn.dark(150), disfg, base, bg );
+}
+
+/*!
+  Constructs a palette from a \e button color and a background. The other colors are
+  automatically calculated, based on this color. 
+*/
+
+QPalette::QPalette( const QColor &button, const QColor &background )
+{
+    data = new QPalData;
+    CHECK_PTR( data );
+    data->ser_no = palette_count++;
+    QColor bg = background, btn = button, fg, base, disfg;
+    int h, s, v;
+    bg.hsv( &h, &s, &v );
+    if ( v > 128 ) {				// light background
+	fg   = black;
+	base = white;
+	disfg = darkGray;
+    } else {					// dark background
+	fg   = white;
+	base = black;
+	disfg = darkGray;
+    }
+    data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
+				  btn.dark(150), fg, base, bg );
+    data->active   = data->normal;
+    data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
+				  btn.dark(150), disfg, base, bg );
 }
 
 /*!
@@ -418,12 +471,13 @@ bool QPalette::operator==( const QPalette &p ) const
   Serialization format:
   <ol>
   <li> QColor foreground
-  <li> QColor background
+  <li> QColor button
   <li> QColor light
   <li> QColor dark
   <li> QColor mid
   <li> QColor text
   <li> QColor base
+  <li> QColor background
   </ol>
   The colors are serialized in the listed order.
 */
@@ -431,12 +485,13 @@ bool QPalette::operator==( const QPalette &p ) const
 QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 {
     return s << g.foreground()
-	     << g.background()
+	     << g.button()
 	     << g.light()
 	     << g.dark()
 	     << g.mid()
 	     << g.text()
-	     << g.base();
+	     << g.base()
+	     << g.background();
 }
 
 /*!
@@ -447,14 +502,15 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 {
     QColor fg;
-    QColor bg;
+    QColor button;
     QColor light;
     QColor dark;
     QColor mid;
     QColor text;
     QColor base;
-    s >> fg >> bg >> light >> dark >> mid >> text >> base;
-    QColorGroup newcg( fg, bg, light, dark, mid, text, base );
+    QColor bg;
+    s >> fg >> button >> light >> dark >> mid >> text >> base >> bg;
+    QColorGroup newcg( fg, button, light, dark, mid, text, base, bg );
     g = newcg;
     return s;
 }
@@ -498,7 +554,7 @@ QDataStream &operator>>( QDataStream &s, QPalette &p )
 /*!  Returns TRUE if this palette and \a p are copies of each other,
   ie. one of them was created as a copy of the other and neither was
   subsequently modified.  This is much stricter than equality.
-  
+
   \sa operator=, operator==
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#28 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#29 $
 **
 ** Definition of QSlider class
 **
@@ -83,15 +83,23 @@ protected:
     void	mouseMoveEvent( QMouseEvent * );
     void	wheelEvent( QWheelEvent * );
     void	focusInEvent( QFocusEvent *e );
+    void	focusOutEvent( QFocusEvent *e );
 
+    void updateMask();
+    
     void	valueChange();
     void	rangeChange();
 
+    virtual void paintSlider( QPainter *, const QColorGroup&, const QRect & );
+    void	drawWinGroove( QPainter *, const QColorGroup&, QCOORD );
+    void	drawTicks( QPainter *, const QColorGroup&, int, int, int=1 ) const;
+
     virtual void paintSlider( QPainter *, const QRect & );
-    void	drawWinGroove( QPainter *, QCOORD );
-    void	drawTicks( QPainter *, int, int, int=1 ) const;
+    void	drawWinGroove( QPainter *,  QCOORD );
+    void	drawTicks( QPainter *,  int, int, int=1 ) const;
 
     virtual int	thickness() const;
+    
 
 private slots:
     void	repeatTimeout();

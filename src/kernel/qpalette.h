@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#30 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#31 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -35,31 +35,36 @@ class Q_EXPORT QColorGroup				// color group class
 {
 public:
     QColorGroup();				// all colors black
-    QColorGroup( const QColor &foreground, const QColor &background,
+    QColorGroup( const QColor &foreground, const QColor &button,
 		 const QColor &light, const QColor &dark, const QColor &mid,
-		 const QColor &text, const QColor &base);
+		 const QColor &text, const QColor &base );
+    QColorGroup( const QColor &foreground, const QColor &button,
+		 const QColor &light, const QColor &dark, const QColor &mid,
+		 const QColor &text, const QColor &base, const QColor &background );
    ~QColorGroup();
 
     const QColor &foreground()	const	{ return fg_col; }
-    const QColor &background()	const	{ return bg_col; }
+    const QColor &button()	const	{ return button_col; }
     const QColor &light()	const	{ return light_col; }
           QColor midlight()	const	{ return bg_col.light( 115 ); }
     const QColor &dark()	const	{ return dark_col; }
     const QColor &mid()		const	{ return mid_col; }
     const QColor &text()	const	{ return text_col; }
     const QColor &base()	const	{ return base_col; }
+    const QColor &background()	const	{ return bg_col; }
 
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
 					{ return !(operator==(g)); }
 private:
     QColor fg_col;
-    QColor bg_col;
+    QColor button_col;
     QColor light_col;
     QColor dark_col;
     QColor mid_col;
     QColor text_col;
     QColor base_col;
+    QColor bg_col;
 };
 
 
@@ -67,7 +72,8 @@ class Q_EXPORT QPalette					// palette class
 {
 public:
     QPalette();
-    QPalette( const QColor &background );
+    QPalette( const QColor &button );
+    QPalette( const QColor &button, const QColor &background );
     QPalette( const QColorGroup &normal, const QColorGroup &disabled,
 	      const QColorGroup &active );
     QPalette( const QPalette & );

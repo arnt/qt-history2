@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#274 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#275 $
 **
 ** Implementation of QWidget class
 **
@@ -618,6 +618,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     flags = f;
     focusChild = 0;
     extra = 0;					// no extra widget info
+    automask = 0;
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
     create();					// platform-dependent init
@@ -815,7 +816,6 @@ void QWidget::createExtra()
     if ( !extra ) {				// if not exists
 	extra = new QWExtra;
 	CHECK_PTR( extra );
-	extra->guistyle = QApplication::style();// default style
 	extra->minw = extra->minh = 0;
 	extra->maxw = extra->maxh = QCOORD_MAX;
 	extra->incw = extra->inch = 0;
@@ -919,25 +919,11 @@ QWidget *QWidget::find( WId id )
   \sa setStyle(), QApplication::style()
 */
 
-GUIStyle QWidget::style() const
+QStyle& QWidget::style() const
 {
-    return extra ? extra->guistyle : QApplication::style();
+    return qApp->style(); 
 }
 
-/*!
-  Sets the GUI style for this widget.  The valid values are listed
-  in qwindowdefs.h.
-
-  \sa style(), styleChange(), QApplication::setStyle()
-*/
-
-void QWidget::setStyle( GUIStyle style )
-{
-    GUIStyle old = this->style();
-    createExtra();
-    extra->guistyle = style;
-    styleChange( old );
-}
 
 /*!
   \fn void QWidget::styleChange( GUIStyle oldStyle )
@@ -1426,6 +1412,9 @@ void QWidget::setBackgroundColorFromMode()
 	break;
       case PaletteForeground:
 	setBackgroundColorDirect( colorGroup().foreground() );
+	break;
+      case PaletteButton:
+	setBackgroundColorDirect( colorGroup().button() );
 	break;
       case PaletteBackground:
 	setBackgroundColorDirect( colorGroup().background() );
@@ -2475,9 +2464,8 @@ bool qt_modal_state();				// --- "" ---
   move and resize events just before the widget is shown.
 
   You almost never have to reimplement this function. If you need to
-  change some settings before a widget is shown, use \link showEvent()
-  instead. If you need to do some delayed initialization use \link
-  polish().
+  change some settings before a widget is shown, use showEvent()
+  instead. If you need to do some delayed initialization use polish().
 
   \sa showEvent, hide(), iconify(), isVisible(), polish()
 */
@@ -2518,6 +2506,7 @@ void QWidget::show()
 	    QApplication::activePopupWidget()->hide();
     }
 
+    polish();
     showWindow();
 
     if ( testWFlags(WType_Modal) )
@@ -2585,14 +2574,14 @@ void QWidget::hide()
   guarantee since the initialization of the subclasses might not be
   finished.
 
-  The default implementation calls \link QApplication::polishWidget()
+  The default implementation calls QApplication::polish()
 
-  \sa QApplication::polishWidget()
+  \sa QApplication::polish()
 */
 
 void QWidget::polish()
 {
-    qApp->polishWidget( this );
+    qApp->polish( this );
 }
 
 
@@ -3157,8 +3146,11 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 
 void QWidget::focusInEvent( QFocusEvent * )
 {
-    if ( focusPolicy() != NoFocus || !isTopLevel() )
+    if ( focusPolicy() != NoFocus || !isTopLevel() ) {
 	repaint();
+	if ( automask )
+	    updateMask();
+    }
 }
 
 /*!
@@ -3178,8 +3170,11 @@ void QWidget::focusInEvent( QFocusEvent * )
 
 void QWidget::focusOutEvent( QFocusEvent * )
 {
-    if ( focusPolicy() != NoFocus || !isTopLevel() )
+    if ( focusPolicy() != NoFocus || !isTopLevel() ){
 	repaint();
+	if ( automask )
+	    updateMask();
+    }
 }
 
 /*!
@@ -3271,6 +3266,8 @@ void QWidget::moveEvent( QMoveEvent * )
 
 void QWidget::resizeEvent( QResizeEvent * )
 {
+    if (automask)
+	updateMask();
 }
 
 /*!
@@ -3573,3 +3570,22 @@ void QWidget::updateResizedBorder( QResizeEvent* e, int bw )
 	    update( 0, r.height()-bw,width(),bw );
     }
 }
+
+void QWidget::setAutoMask(bool b)
+{
+    automask = b;
+    if (!b)
+	clearMask();
+    else
+	updateMask();
+}
+
+bool QWidget::autoMask() const
+{
+    return automask;
+}
+
+void QWidget::updateMask()
+{
+}
+

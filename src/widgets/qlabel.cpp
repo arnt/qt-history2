@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#86 $
 **
 ** Implementation of QLabel widget class
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #include "qlabel.h"
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qaccel.h"
@@ -110,11 +110,7 @@ public:
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f )
 {
-    lpixmap    = 0;
-    align      = AlignLeft | AlignVCenter | ExpandTabs;
-    extraMargin= -1;
-    autoresize = FALSE;
-    extra      = 0;
+    init();
 }
 
 
@@ -131,11 +127,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 QLabel::QLabel( const QString &text, QWidget *parent, const char *name, WFlags f )
 	: QFrame( parent, name, f ), ltext(text)
 {
-    lpixmap    = 0;
-    align      = AlignLeft | AlignVCenter | ExpandTabs;
-    extraMargin= -1;
-    autoresize = FALSE;
-    extra      = 0;
+    init();
 }
 
 
@@ -168,11 +160,8 @@ QLabel::QLabel( QWidget *buddy,  const QString &text,
 		QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f ), ltext("")
 {
-    lpixmap    = 0;
+    init();
     align      = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
-    extraMargin= -1;
-    autoresize = FALSE;
-    extra      = 0;
     setBuddy( buddy );
     setText( text );
 }
@@ -189,6 +178,15 @@ QLabel::~QLabel()
     delete extra;
 }
 
+
+void QLabel::init()
+{
+    lpixmap    = 0;
+    align      = AlignLeft | AlignVCenter | ExpandTabs;
+    extraMargin= -1;
+    autoresize = FALSE;
+    extra      = 0;
+}
 
 /*!
   \fn QString QLabel::text() const
@@ -520,7 +518,7 @@ void QLabel::drawContents( QPainter *p )
 			cr.x(), cr.y(), cr.width(), cr.height(),
 			align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point
-	p->drawPixmap(r.x(), r.y(), mov->framePixmap());
+	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );;
 	return;
     }
 
@@ -528,6 +526,62 @@ void QLabel::drawContents( QPainter *p )
     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
 	       align, colorGroup(), isEnabled(),
 	       lpixmap, ltext );
+}
+
+
+void QLabel::setAutoMask(bool b) 
+{
+    if (b)
+	setBackgroundMode( PaletteText );
+    else
+	setBackgroundMode( PaletteBackground );
+    QFrame::setAutoMask(b);
+}
+
+void QLabel::drawContentsMask( QPainter *p )
+{
+    QRect cr = contentsRect();
+    int m = margin();
+    if ( m < 0 ) {
+	if ( frameWidth() > 0 )
+	    m = p->fontMetrics().width("x")/2;
+	else
+	    m = 0;
+    }
+    if ( m > 0 ) {
+	if ( align & AlignLeft )
+	    cr.setLeft( cr.left() + m );
+	if ( align & AlignRight )
+	    cr.setRight( cr.right() - m );
+	if ( align & AlignTop )
+	    cr.setTop( cr.top() + m );
+	if ( align & AlignBottom )
+	    cr.setBottom( cr.bottom() - m );
+    }
+
+    QMovie *mov = movie();
+    if ( mov ) {
+	// ### should add movie to qDrawItem
+	QRect r = qItemRect( p, style(),
+			cr.x(), cr.y(), cr.width(), cr.height(),
+			align, isEnabled(), &(mov->framePixmap()), ltext );
+	// ### could resize movie frame at this point
+	QPixmap pm = mov->framePixmap();
+	if ( FALSE && pm.mask() ) // TODO broken with trolltech.gif
+	    p->drawPixmap(r.x(), r.y(), *pm.mask() );
+	else
+	    p->fillRect( r, color1 );
+	return;
+    }
+
+    // Not a movie
+//     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
+// 	       align, colorGroup(), isEnabled(),
+// 	       lpixmap, ltext );
+
+    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color0);
+    qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
+	       align, g, isEnabled(), lpixmap, ltext );
 }
 
 
@@ -540,9 +594,11 @@ void QLabel::updateLabel()
     // ##### perhaps we should just use repaint(contentsRect())
 
     QPainter paint( this );
-    if ( backgroundMode() != NoBackground )
-	paint.eraseRect( contentsRect() );
+//     if ( backgroundMode() != NoBackground )
+// 	paint.eraseRect( contentsRect() );
     drawContents( &paint );
+    if ( autoMask() )
+	updateMask();
 }
 
 
@@ -636,6 +692,8 @@ void QLabel::movieUpdated(const QRect& rect)
 	r.setWidth(QMIN(r.width(), rect.width()));
 	r.setHeight(QMIN(r.height(), rect.height()));
 	repaint( r );
+	if ( autoMask() )
+	    updateMask();
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#342 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#343 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -112,6 +112,7 @@ static char    *appName;			// application name
 static char    *appFont		= 0;		// application font
 static char    *appBGCol	= 0;		// application bg color
 static char    *appFGCol	= 0;		// application fg color
+static char    *appBTNCol	= 0;		// application btn color
 static char    *mwGeometry	= 0;		// main widget geometry
 static char    *mwTitle		= 0;		// main widget title
 static bool	mwIconic	= FALSE;	// main widget iconified
@@ -195,8 +196,9 @@ int		qt_ncols_option  = 216;		// used in qcolor_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
+Window 	qt_window_for_button_down = 0; // the window which recieves the mouse events
 
-// stuff in qt_xdnd.cpp
+// stuff in tq_xdnd.cpp
 // setup
 extern void qt_xdnd_setup();
 // x event handling
@@ -469,7 +471,7 @@ static void set_local_font()
 
 // set font, foreground and background from x11 resources. The
 // arguments may override the resource settings.
-static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0 )
+static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0, const char* button = 0 )
 {
     Atom   type = None;
     int	   format;
@@ -518,7 +520,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	font.setFamily( resFont );
 	QApplication::setFont( font, TRUE );
     }
-    if ( !resBG.isEmpty() || !resFG.isEmpty() ) {		// set application colors
+    if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {		// set application colors
+	QColor btn;
 	QColor bg;
 	QColor fg;
 	if ( !resBG.isEmpty() )
@@ -529,13 +532,17 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	    fg = QColor(resFG);
 	else
 	    fg = black;
-	QColorGroup cg( fg, bg, bg.light(),
-			bg.dark(), bg.dark(150), fg, white );
-	QColor disabled( (fg.red()+bg.red())/2,
-			 (fg.green()+bg.green())/2,
-			 (fg.blue()+bg.blue())/2 );
-	QColorGroup dcg( disabled, bg, bg.light( 125 ), bg.dark(), bg.dark(150),
-			 disabled, white );
+	if (button)
+	    btn = QColor( button );
+	else
+	    btn = bg;
+	QColorGroup cg( fg, btn, btn.light(),
+			btn.dark(), btn.dark(150), fg, white, bg );
+	QColor disabled( (fg.red()+btn.red())/2,
+			 (fg.green()+btn.green())/2,
+			 (fg.blue()+btn.blue())/2);
+	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
+			 disabled, white, bg );
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal, TRUE );
     }
@@ -548,6 +555,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 
 static void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
+    
     if ( display ) {
       // Qt part of other application	
 
@@ -591,6 +599,9 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    } else if ( arg == "-bg" || arg == "-background" ) {
 		if ( ++i < argc )
 		    appBGCol = argv[i];
+	    } else if ( arg == "-btn" || arg == "-button" ) {
+		if ( ++i < argc )
+		    appBTNCol = argv[i];
 	    } else if ( arg == "-fg" || arg == "-foreground" ) {
 		if ( ++i < argc )
 		    appFGCol = argv[i];
@@ -606,16 +617,20 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    } else if ( arg == "-iconic" ) {
 		mwIconic = !mwIconic;
 	    } else if ( stricmp(arg, "-style=windows") == 0 ) {
-		QApplication::setStyle( WindowsStyle );
+		qApp->setStyle( new QStyle(WindowsStyle) );
 	    } else if ( stricmp(arg, "-style=motif") == 0 ) {
-		QApplication::setStyle( MotifStyle );
+		qApp->setStyle( new QStyle(MotifStyle) );
+	    } else if ( stricmp(arg, "-style=hwindows") == 0 ) {
+		qApp->setStyle( new QHStyle(WindowsStyle) );
+	    } else if ( stricmp(arg, "-style=hmotif") == 0 ) {
+		qApp->setStyle( new QHStyle(MotifStyle) );
 	    } else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 		Q1String s = argv[++i];
 		s = s.lower();
 		if ( s == "windows" )
-		    QApplication::setStyle( WindowsStyle );
+		    qApp->setStyle( new QStyle(WindowsStyle) );
 		else if ( s == "motif" )
-		    QApplication::setStyle( MotifStyle );
+		    qApp->setStyle( new QStyle(MotifStyle) );
 #if defined(DEBUG)
 	    } else if ( arg == "-qdebug" ) {
 		debug_level++;
@@ -722,8 +737,14 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     qApp->setName( appName );
 
-    XSelectInput( appDpy, appRootWin, PropertyChangeMask );
-    qt_set_x11_resources(appFont, appFGCol, appBGCol);
+    XSelectInput( appDpy, appRootWin, 
+		  KeyPressMask | KeyReleaseMask |
+		  KeymapStateMask |
+		  EnterWindowMask | LeaveWindowMask |
+		  FocusChangeMask | PropertyChangeMask
+		  );
+    
+    qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 
 #if !defined(NO_XIM)
     setlocale( LC_ALL, "" );		// use correct char set mapping
@@ -2902,7 +2923,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		return TRUE;
 	}
 	if ( event->type == ButtonPress ) {	// mouse button pressed
-	    qt_button_down = this;
+	    qt_button_down = findChildWidget( this, pos );
+	    if ( !qt_button_down )
+		qt_button_down = this;
+	    qt_window_for_button_down = winId();
 	    if ( mouseActWindow == event->xbutton.window &&
 		 mouseButtonPressed == button &&
 		 (long)event->xbutton.time -(long)mouseButtonPressTime
@@ -2924,12 +2948,16 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		XUngrabPointer( dpy, CurrentTime );
 		XFlush( dpy );
 	    }
+	    
+	    
 	    bool unexpected = FALSE;
-	    if ( qt_button_down != this && !qApp->inPopupMode() )
+	    if ( qt_window_for_button_down != winId() && !qApp->inPopupMode() )
 		unexpected = TRUE;
 
-	    if ( (state & (LeftButton|MidButton|RightButton)) == 0 )
+	    if ( (state & (LeftButton|MidButton|RightButton)) == 0 ) {
 		qt_button_down = 0;
+		qt_window_for_button_down = 0;
+	    }
 
 	    if ( unexpected )
 		return FALSE;			// unexpected event
@@ -3006,11 +3034,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	
     } else {
 	QWidget *widget = this;
-	QWidget *mg = QWidget::mouseGrabber();
-	if ( mg && mg != this ) {
-	    widget = mg;
+	QWidget *w = QWidget::mouseGrabber();
+	if (!w && qt_button_down)
+	    w = qt_button_down;
+	if ( w && w != this ) {
+	    widget = w;
 	    pos = mapToGlobal( pos );
-	    pos = mg->mapFromGlobal( pos );
+	    pos = w->mapFromGlobal( pos );
 	}
 
 	if ( popupCloseDownMode ) {
@@ -3471,7 +3501,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
     QRect  r = geometry();
     if ( newSize != size() ) {			// size changed
- 	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
+  	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
 	QSize oldSize = size();
 	r.setSize( newSize );
 	setCRect( r );

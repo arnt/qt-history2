@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#264 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#265 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -936,8 +936,8 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-     if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
- 	XClearArea( dpy, winid, 0, 0, 0, 0, TRUE );
+    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+	XClearArea( dpy, winid, 0, 0, 0, 0, TRUE );
 }
 
 /*!
@@ -1481,8 +1481,8 @@ void QWidget::erase( int x, int y, int w, int h )
 	w = crect.width()  - x;
     if ( h < 0 )
 	h = crect.height() - y;
-    if ( w != 0 && h != 0 )
-	XClearArea( dpy, winid, x, y, w, h, FALSE );
+    if ( w != 0 && h != 0 ) 
+	XClearArea( dpy, winid, x, y, w, h, TRUE );
 }
 
 /*!
@@ -1562,7 +1562,7 @@ void QWidget::scroll( int dx, int dy )
 	    repaint( 0, y1, crect.width(), crect.height()-h, TRUE );
 	else
 	    XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h,
-			TRUE );
+		       TRUE );
     }
 
     qt_insert_sip( this, dx, dy );

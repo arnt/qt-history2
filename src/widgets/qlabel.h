@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#41 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#42 $
 **
 ** Definition of QLabel widget class
 **
@@ -57,6 +57,8 @@ public:
     virtual void	setBuddy( QWidget * );
     QWidget    *buddy() const;
 
+    void setAutoMask(bool);
+
 public slots:
     virtual void	setText( const QString &);
     virtual void	setPixmap( const QPixmap & );
@@ -67,6 +69,7 @@ public slots:
 
 protected:
     void	drawContents( QPainter * );
+    void	drawContentsMask( QPainter * );
 
 private slots:
     void	acceleratorSlot();
@@ -75,6 +78,7 @@ private slots:
     void	movieResized(const QSize&);
 
 private:
+    void init();
     void	updateLabel();
     QString	ltext;
     QPixmap    *lpixmap;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#64 $
 **
 ** Implementation of QFrame widget class
 **
@@ -25,6 +25,7 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qframe.h"
+#include "qbitmap.h"
 
 /*!
   \class QFrame qframe.h
@@ -481,6 +482,8 @@ void QFrame::resizeEvent( QResizeEvent *e )
     updateResizedBorder( e, frameWidth() );
 
     update( contentsRect() );
+    if ( autoMask())
+	updateMask();
 }
 
 
@@ -581,5 +584,80 @@ void QFrame::drawContents( QPainter * )
 */
 
 void QFrame::frameChanged()
+{
+}
+
+
+void QFrame::updateMask()
+{
+    QBitmap bm( size() );
+    bm.fill( color0 );
+    
+    {
+	QPainter p( &bm, this );
+	drawFrameMask( &p );
+	drawContentsMask( &p );
+    }
+    setMask( bm );
+}
+
+
+void QFrame::drawFrameMask( QPainter* p )
+{
+    QPoint	p1, p2;
+    QRect	r     = frameRect();
+    int		type  = fstyle & MShape;
+    int		style = fstyle & MShadow;
+
+    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color0);
+
+    switch ( type ) {
+
+	case Box:
+	    if ( style == Plain )
+		qDrawPlainRect( p, r, g.foreground(), lwidth );
+	    else
+		qDrawShadeRect( p, r, g, style == Sunken, lwidth,
+				midLineWidth() );
+	    break;
+
+	case Panel:
+	    if ( style == Plain )
+		qDrawPlainRect( p, r, g.foreground(), lwidth );
+	    else
+		qDrawShadePanel( p, r, g, style == Sunken, lwidth );
+	    break;
+
+	case WinPanel:
+	    if ( style == Plain )
+		qDrawPlainRect( p, r, g.foreground(), lwidth );
+	    else
+		qDrawWinPanel( p, r, g, style == Sunken );
+	    break;
+
+	case HLine:
+	case VLine:
+	    if ( type == HLine ) {
+		p1 = QPoint( r.x(), r.height()/2 );
+		p2 = QPoint( r.x()+r.width(), p1.y() );
+	    }
+	    else {
+		p1 = QPoint( r.x()+r.width()/2, 0 );
+		p2 = QPoint( p1.x(), r.height() );
+	    }
+	    if ( style == Plain ) {
+		QPen oldPen = p->pen();
+		p->setPen( QPen(g.foreground(),lwidth) );
+		p->drawLine( p1, p2 );
+		p->setPen( oldPen );
+	    }
+	    else
+		qDrawShadeLine( p, p1, p2, g, style == Sunken,
+				lwidth, midLineWidth() );
+	    break;
+    }
+}
+
+void QFrame::drawContentsMask( QPainter* )
 {
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#83 $
 **
 ** Implementation of QRadioButton class
 **
@@ -261,7 +261,7 @@ void QRadioButton::drawIndicator( GUIStyle gs, QPainter& p, const QColorGroup& c
 	p.drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts5), pts5 );
 	a.translate( x, y );
-	QColor fillColor = isDown() ? cg.background() : cg.base();
+	QColor fillColor = isDown() ? cg.button() : cg.base();
 	p.setPen( fillColor );
 	p.setBrush( fillColor );
 	p.drawPolygon( a );
@@ -282,7 +282,7 @@ void QRadioButton::drawIndicator( GUIStyle gs, QPainter& p, const QColorGroup& c
 	QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
 	p.eraseRect( x, y, w, h );
 	p.setPen( NoPen );
-	p.setBrush( showUp ? cg.background() : cg.mid() );
+	p.setBrush( showUp ? cg.button() : cg.mid() );
 	a.translate( x, y );
 	p.drawPolygon( a );			// clear inner area
 	p.setPen( showUp ? cg.light() : cg.dark() );
@@ -356,29 +356,9 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 			  AlignLeft|AlignVCenter|ShowPrefix,
 			  isEnabled(),
 			  pixmap(), text() );
-    updateMask();
+    if ( autoMask() )
+	updateMask();
     update( br.right(), w, 0, h );
-}
-
-/*!  Obsolete; to be removed in Qt 2.0. */
-
-void QRadioButton::mouseReleaseEvent( QMouseEvent *e )
-{
-    QButton::mouseReleaseEvent( e );
-}
-
-
-/*!  Obsolete; to be removed in Qt 2.0. */
-
-void QRadioButton::keyPressEvent( QKeyEvent * e )
-{
-    QButton::keyPressEvent( e );
-}
-
-void QRadioButton::setText( const QString& s )
-{
-    QButton::setText(s);
-    updateMask();
 }
 
 void QRadioButton::updateMask()
@@ -399,15 +379,39 @@ void QRadioButton::updateMask()
 	w = width() - x;
 	h = height();
 
-	QColorGroup cg(color1,color0,color1,color1,color1,color1,color0);
+	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1, color0);
 
 	qDrawItem( &p, gs, x, y, w, h,
 		   AlignLeft|AlignVCenter|ShowPrefix,
-		   cg, isEnabled(),
+		   cg, TRUE,
 		   pixmap(), text() );
 	x = 0;
 	y = (height() - lsz.height() + fm.height() - sz.height())/2;
 	drawIndicator( gs, p, cg, x, y, sz.width(), sz.height() );
+
+
+	if ( hasFocus() ) {
+ 	    y = 0;
+ 	    x = sz.width() + gutter;
+ 	    w = width() - x;
+ 	    h = height();
+	    QRect br = qItemRect( &p, gs, x, y, w, h,
+				  AlignLeft|AlignVCenter|ShowPrefix,
+				  isEnabled(),
+				  pixmap(), text() );
+	    br.setLeft( br.left()-3 );
+	    br.setRight( br.right()+2 );
+	    br.setTop( br.top()-2 );
+	    br.setBottom( br.bottom()+2);
+	    br = br.intersect( QRect(0,0,width(),height()) );
+
+	    if ( gs == WindowsStyle ) {
+		p.drawWinFocusRect( br );
+	    } else {
+		p.setPen( color1 );
+		p.drawRect( br );
+	    }
+	}
     }
     setMask(bm);
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#88 $
 **
 ** Implementation of QTableView class
 **
@@ -2330,3 +2330,4 @@ void QTableView::updateTableSize()
 		      verSteps |  verRange );
     showOrHideScrollBars();
 }
+

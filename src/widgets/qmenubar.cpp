@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#120 $
 **
 ** Implementation of QMenuBar class
 **
@@ -158,6 +158,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	default:
 	    break;
     }
+    setBackgroundMode( PaletteButton );
 }
 
 /*!
@@ -693,9 +694,9 @@ void QMenuBar::drawContents( QPainter *p )
 		g = palette().disabled();
 		
 	    if ( gs == WindowsStyle ) {
-		p->fillRect( r, palette().normal().background() );
+		p->fillRect( r, palette().normal().button() );
 		if ( i == actItem ) {
-		    QBrush b( palette().normal().background() );
+		    QBrush b( palette().normal().button() );
 		    bool sunken = !windowsaltactive ||
 				  (mi->popup() && mi->popup()->isVisible());
 		    qDrawShadeRect( p,
@@ -710,7 +711,7 @@ void QMenuBar::drawContents( QPainter *p )
 		    qDrawShadePanel( p, r, palette().normal(), FALSE,
 				     motifItemFrame );
 		else // other item
-		    qDrawPlainRect( p, r, palette().normal().background(),
+		    qDrawPlainRect( p, r, palette().normal().button(),
 				    motifItemFrame );
 	    }
 

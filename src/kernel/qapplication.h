@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#86 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#87 $
 **
 ** Definition of QApplication class
 **
@@ -28,6 +28,8 @@
 #include "qwidget.h"
 #endif // QT_H
 
+class QStyle;
+
 
 #if defined(TrueColor)
 // X11/X.h #defines TrueColor, so it can't be used in any class or enum
@@ -50,8 +52,8 @@ public:
     int		    argc()	const;
     char	  **argv()	const;
 
-    static GUIStyle style();
-    static void	    setStyle( GUIStyle );
+    QStyle&  style();
+    void setStyle( QStyle* );
 
 #if 1	/* OBSOLETE */
     enum ColorMode { NormalColors, CustomColors };
@@ -79,7 +81,7 @@ public:
 
     QWidget	    *mainWidget()  const;
     virtual void	     setMainWidget( QWidget * );
-    virtual void	     polishWidget( QWidget * );
+    virtual void	     polish( QWidget * );
 
     static QWidgetList *allWidgets();
     static QWidgetList *topLevelWidgets();
@@ -151,7 +153,7 @@ private:
     char	   **app_argv;
     bool	     quit_now;
     int		     quit_code;
-    static GUIStyle  app_style;
+    QStyle  *app_style;
     static int	     app_cspec;
     static QPalette *app_pal;
     static QFont    *app_font;
@@ -191,9 +193,9 @@ inline char **QApplication::argv() const
     return app_argv;
 }
 
-inline GUIStyle QApplication::style()
+inline QStyle& QApplication::style()
 {
-    return app_style;
+    return *app_style;
 }
 
 inline QCursor *QApplication::overrideCursor()

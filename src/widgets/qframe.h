@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#28 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#29 $
 **
 ** Definition of QFrame widget class
 **
@@ -70,6 +70,7 @@ public:
 
     QSize	sizeHint() const;
 
+
 protected:
     virtual void	setFrameRect( const QRect & );
     void	paintEvent( QPaintEvent * );
@@ -77,6 +78,9 @@ protected:
     virtual void drawFrame( QPainter * );
     virtual void drawContents( QPainter * );
     virtual void frameChanged();
+    void updateMask();
+    virtual void drawFrameMask( QPainter * );
+    virtual void drawContentsMask( QPainter * );
 
 private:
     void	updateFrameWidth();

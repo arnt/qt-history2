@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#79 $
 **
 ** Implementation of QCheckBox class
 **
@@ -26,6 +26,7 @@
 #include "qdrawutil.h"
 #include "qpixmap.h"
 #include "qpixmapcache.h"
+#include "qbitmap.h"
 
 /*!
   \class QCheckBox qcheckbox.h
@@ -36,7 +37,7 @@
   QCheckBox and QRadioButton are both toggle buttons, but a check box
   represents an independent switch that can be on (checked) or off
   (unchecked).
-  
+
   <img src=qchkbox-m.gif> <img src=qchkbox-w.gif>
 
   \sa QButton QRadioButton
@@ -94,7 +95,6 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
   is FALSE.
   \sa isChecked()
 */
-
 
 static int extraWidth( int gs )
 {
@@ -183,7 +183,7 @@ void QCheckBox::drawButton( QPainter *paint )
     if ( gs == WindowsStyle ) {			// Windows check box
 	QColor fillColor;
 	if ( isDown() )
-	    fillColor = g.background();
+	    fillColor = g.button();
 	else
 	    fillColor = g.base();
 	QBrush fill( fillColor );
@@ -210,7 +210,7 @@ void QCheckBox::drawButton( QPainter *paint )
     }
     if ( gs == MotifStyle ) {			// Motif check box
 	bool showUp = !(isDown() ^ isOn());
-	QBrush fill( showUp ? g.background() : g.mid() );
+	QBrush fill( showUp ? g.button() : g.mid() );
 	qDrawShadePanel( p, x, y, sz.width(), sz.height(), g, !showUp, 2, &fill );
     }
 
@@ -282,4 +282,62 @@ void QCheckBox::resizeEvent( QResizeEvent* )
 			  isEnabled(),
 			  pixmap(), text() );
     update( br.right(), w, 0, h );
+    if ( autoMask() )
+	updateMask();
+}
+
+void QCheckBox::updateMask()
+{
+
+    QBitmap bm(width(),height());
+    {
+	int x, y, w, h;
+	GUIStyle gs = style();
+	bm.fill(color0);
+	QPainter p(&bm);
+
+	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1, color0);
+	QFontMetrics fm = fontMetrics();
+	QSize lsz = fm.size(ShowPrefix, text());
+	QSize sz = sizeOfBitmap( gs );
+	x = gs == MotifStyle ? 1 : 0;
+	y = (height() - lsz.height() + fm.height() - sz.height())/2;
+	QBrush fill( color1 );
+	if ( gs == WindowsStyle ) {			// Windows check box
+	    qDrawWinPanel( &p, x, y, sz.width(), sz.height(), cg, TRUE, &fill );
+	}
+	if ( gs == MotifStyle ) {			// Motif check box
+	    qDrawShadePanel( &p, x, y, sz.width(), sz.height(), cg, TRUE , 2, &fill );
+	}
+
+	sz = sizeOfBitmap( gs );
+	y = 0;
+	x = sz.width() + extraWidth( gs );
+	w = width() - x;
+	h = height();
+	qDrawItem( &p, gs, x, y, w, h,
+		   AlignLeft|AlignVCenter|ShowPrefix,
+		   cg, TRUE,
+		   pixmap(), text() );
+
+	if ( hasFocus() ) {
+	    QRect br = qItemRect( &p, gs, x, y, w, h,
+				  AlignLeft|AlignVCenter|ShowPrefix,
+				  isEnabled(),
+				  pixmap(), text() );
+	    br.setLeft( br.left()-3 );
+	    br.setRight( br.right()+2 );
+	    br.setTop( br.top()-2 );
+	    br.setBottom( br.bottom()+2);
+	    br = br.intersect( QRect(0,0,width(),height()) );
+
+	    if ( gs == WindowsStyle ) {
+		p.drawWinFocusRect( br );
+	    } else {
+		p.setPen( color1 );
+		p.drawRect( br );
+	    }
+	}
+    }
+    setMask(bm);
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#120 $
 **
 ** Implementation of QPushButton class
 **
@@ -79,6 +79,7 @@ void QPushButton::init()
 {
     autoDefButton = defButton = lastDown = lastDef = lastEnabled
 		  = hasMenuArrow = FALSE;
+    setBackgroundMode( PaletteButton );
 }
 
 
@@ -299,10 +300,10 @@ void QPushButton::drawButton( QPainter *paint )
     int dy = 0;
 
     p->setPen( g.foreground() );
-    p->setBrush( QBrush(g.background(),NoBrush) );
+    p->setBrush( QBrush(g.button(),NoBrush) );
 
     if ( gs == WindowsStyle ) {		// Windows push button
-	bool clearBackground = TRUE;
+	bool clearButton = TRUE;
 	if ( isDown() ) {
 	    if ( defButton ) {
 		p->setPen( black );
@@ -322,13 +323,14 @@ void QPushButton::drawButton( QPainter *paint )
 	    if ( isToggleButton() && isOn() && isEnabled() ) {
 		QBrush fill(white, Dense4Pattern );
 		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
-		clearBackground = FALSE;
+		clearButton = FALSE;
 	    } else {
 		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() );
 	    }
 	}
-	if ( clearBackground )
-	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.background() );
+	if ( clearButton )
+	    // TODO erase(x1+2, y1+2, x2-x1-3, y2-y1-3);
+	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.button() );
 	if ( hasMenuArrow ) {
 	    dx = (y2-y1) / 3;
 	    qDrawArrow( p, DownArrow, style(), FALSE,
@@ -342,7 +344,7 @@ void QPushButton::drawButton( QPainter *paint )
 	else if ( isOn() )
 	    fill = QBrush( g.mid(), Dense4Pattern );
 	else
-	    fill = QBrush( g.background() );
+	    fill = QBrush( g.button() );
 
 	if ( defButton ) {
 	    QPointArray a;
@@ -381,7 +383,7 @@ void QPushButton::drawButton( QPainter *paint )
     if ( hasFocus() ) {
 	if ( style() == WindowsStyle ) {
 	    p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5,
-				 g.background() );
+				 g.button() );
 	} else {
 	    p->setPen( black );
 	    p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );

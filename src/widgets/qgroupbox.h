@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#19 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#20 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -45,6 +45,7 @@ public:
 
 protected:
     void	paintEvent( QPaintEvent * );
+    void	updateMask();
 
 private:
     void	init();

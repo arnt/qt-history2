@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#144 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#145 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -341,12 +341,11 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 	d->ed->installEventFilter( this );
 	setFocusProxy( d->ed );
 
-	setBackgroundMode( NoBackground );
-
 	connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
     } else {
 	d->ed = 0;
     }
+    setBackgroundMode( NoBackground );
 }
 
 
@@ -383,7 +382,7 @@ QComboBox::~QComboBox()
 void QComboBox::setStyle( GUIStyle s )
 {
     if ( s != style() ) {
-	QWidget::setStyle( s );
+	//#####	QWidget::setStyle( s );
 	if ( !d->usingListBox ) {
 	    QPopupMenu * p = d->popup;
 	    d->listBox = new QListBox( 0, 0, WType_Popup );
@@ -412,11 +411,11 @@ void QComboBox::setStyle( GUIStyle s )
 
     }
     if ( d->ed ) {
-	d->ed->setStyle( s );
+//##### 	d->ed->setStyle( s );
 	d->ed->setFrame( s == MotifStyle );
     }
-    if ( d->listBox )
-	d->listBox->setStyle( s );
+//     if ( d->listBox )
+//##### 	d->listBox->setStyle( s );
 }
 
 
@@ -935,14 +934,14 @@ void QComboBox::paintEvent( QPaintEvent *event )
     QColorGroup g  = colorGroup();
 
     if ( width() < 5 || height() < 5 ) {
-	QBrush fill( g.background() );
+	QBrush fill( g.button() );
 	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
 	return;
     }
 
     if ( !d->usingListBox ) {			// motif 1.x style
 	int dist, buttonH, buttonW;
-	QBrush fill( g.background() );
+	QBrush fill( g.button() );
 
 	getMetrics( &dist, &buttonW, &buttonH );
 	int xPos = width() - dist - buttonW - 1;
@@ -967,7 +966,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
 	int awh, ax, ay, sh, sy;
-	QBrush fill( g.background() );
+	QBrush fill( g.button() );
 
 	if ( height() < 6 ) {
 	    awh = height();
@@ -1036,7 +1035,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	    p.drawRect( ax - 2, ay - 2, awh+4, sy+sh+4-ay );
 
     } else {					// windows 95 style
-	QColor bg = isEnabled() ? g.base() : g.background();
+	QColor bg = isEnabled() ? g.base() : g.button();
 	QString str = d->listBox->text( d->current );
 
 	QBrush fill( bg );

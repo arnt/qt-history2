@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#147 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#148 $
 **
 ** Implementation of QListView widget class
 **
@@ -2939,8 +2939,8 @@ int QListView::itemMargin() const
 
 void QListView::setStyle( GUIStyle s )
 {
-    d->h->setStyle( s );
-    QScrollView::setStyle( s );
+//#####    d->h->setStyle( s );
+//#####    QScrollView::setStyle( s );
     reconfigureItems();
 }
 

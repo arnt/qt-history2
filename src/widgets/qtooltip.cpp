@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#60 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -35,6 +35,21 @@ static inline QRect entireWidget()
 }
 
 
+// Internal class - don't touch
+
+class QTipLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    QTipLabel() 
+	: QLabel( 0, "toolTipTip",
+			  WStyle_Customize | WStyle_NoBorder | WStyle_Tool )
+	{
+	        setAutoMask( FALSE );
+	}
+
+};
+    
 // Internal class - don't touch
 
 class QTipManager : public QObject
@@ -397,14 +412,13 @@ void QTipManager::showTip()
     if ( label ) {
 	label->setText( t->text );
     } else {
-	label = new QLabel( 0, "toolTipTip",
-			    WStyle_Customize | WStyle_NoBorder | WStyle_Tool );
+	label = new QTipLabel;
 	CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
 	label->setFont( QToolTip::font() );
 	label->setPalette( QToolTip::palette() );
 	label->setText( t->text );
-	if ( QApplication::style() == MotifStyle )
+	if ( qApp->style() == MotifStyle )
 	    label->setFrameStyle( QFrame::Plain | QFrame::Box );
 	else
 	    label->setFrameStyle( QFrame::Raised | QFrame::Panel );
@@ -908,10 +922,10 @@ QToolTipGroup::~QToolTipGroup()
 // moc stuff - included by hand.  !Gmoc %
 
 /****************************************************************************
-** QTipManager meta object code from reading C++ file 'standard input'
+** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
-** Created: Fri Aug 21 01:55:59 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.54 $)
+** Created: Sun Aug 23 21:50:26 1998
+**      by: The Qt Meta Object Compiler ($Revision: 2.55 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -923,6 +937,27 @@ QToolTipGroup::~QToolTipGroup()
 #endif
 
 #include <qmetaobject.h>
+
+
+const char *QTipLabel::className() const
+{
+    return "QTipLabel";
+}
+
+QMetaObject *QTipLabel::metaObj = 0;
+
+void QTipLabel::initMetaObject()
+{
+    if ( metaObj )
+	return;
+    if ( strcmp(QLabel::className(), "QLabel") != 0 )
+	badSuperclassWarning("QTipLabel","QLabel");
+    if ( !QLabel::metaObject() )
+	QLabel::initMetaObject();
+    metaObj = new QMetaObject( "QTipLabel", "QLabel",
+	0, 0,
+	0, 0 );
+}
 
 
 const char *QTipManager::className() const

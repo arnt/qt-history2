@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#149 $
 **
 ** Implementation of QApplication class
 **
@@ -27,7 +27,7 @@
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
-
+#include "qstyle.h"
 
 /*!
   \class QApplication qapplication.h
@@ -102,19 +102,12 @@ QWidget	 *QApplication::active_window   = 0;	// toplevel that has keyboard input
 QWidgetList *QApplication::popupWidgets   = 0;	// has keyboard input focus
 
 
-#if defined(_WS_WIN_)
-GUIStyle QApplication::app_style = WindowsStyle;// default style for Windows
-#elif defined(_WS_X11_)
-GUIStyle QApplication::app_style = MotifStyle;	// default style for X Windows
-#endif
-
 int	 QApplication::app_cspec = QApplication::NormalColor;
 
 
 static QPalette *stdPalette = 0;
 static QColor * winHighlightColor = 0;
 static int mouseDoubleClickInterval = 400;
-
 
 static void create_palettes()			// creates default palettes
 {
@@ -199,6 +192,12 @@ QApplication::QApplication( int &argc, char **argv )
 #if defined(CHECK_STATE)
     if ( qApp )
 	warning( "QApplication: There should be only one application object" );
+#endif
+    
+#if defined(_WS_WIN_)
+    app_style = new QStyle(WindowsStyle);// default style for Windows
+#elif defined(_WS_X11_)
+    app_style = new QStyle(MotifStyle);// default style for X Windows
 #endif
     qApp = this;
     static char *empty = "";
@@ -333,8 +332,8 @@ QApplication::~QApplication()
 
 
 /*!
-  \fn GUIStyle QApplication::style()
-  Returns the GUI style of the application.
+  \fn QStyle& QApplication::style()
+  Returns the style object of the application.
   \sa setStyle()
 */
 
@@ -346,8 +345,9 @@ QApplication::~QApplication()
   \sa style(), QWidget::setStyle()
 */
 
-void QApplication::setStyle( GUIStyle style )
+void QApplication::setStyle( QStyle *style )
 {
+    delete app_style;
     app_style = style;
 }
 
@@ -556,14 +556,14 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
   Instead, based on meta informations like \link QObject::className()
   you are able to customize any kind of widgets.
 
-  The default implemention calls QStyle::polishWidget().
+  The default implemention calls QStyle::polish().
 
-  \sa QStyle::polishWidget(), QWidget::polish()
+  \sa QStyle::polish(), QWidget::polish()
 */
 
-void QApplication::polishWidget(QWidget*)
+void QApplication::polish(QWidget* w)
 {
-//###  #warning not yet implemented. Should call qstyle::polish widget
+    app_style->polish( w );
 }
 
 

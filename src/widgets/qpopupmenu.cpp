@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#171 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#172 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -350,6 +350,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );
 	    setLineWidth( 1 );
     }
+    setBackgroundMode( PaletteButton );
 }
 
 /*!
@@ -1030,13 +1031,13 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 				 g, TRUE, 1, &b );
 	    } else if ( gs == WindowsStyle ||
 			mi->pixmap() && !mi->text().isNull() ) {
-		QBrush b( g.background() );
+		QBrush b( g.button() );
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &b );
 	    }
 	} else if ( !act ) {
 	    qDrawPlainRect( p, cm, cm, cellw-2*cm, cellh-2*cm,
-			    g.background(), 1, 0 );
+			    g.button(), 1, 0 );
 	}		
 
 	if ( !mi->text().isNull() && mi->pixmap() ) {		// draw pixmap
@@ -1048,7 +1049,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		    qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE,
 				     motifItemFrame );
 		else				// incognito frame
-		    qDrawPlainRect( p, 0, 0, rw, cellh, g.background(),
+		    qDrawPlainRect( p, 0, 0, rw, cellh, g.button(),
 				    motifItemFrame );
 	    } else {
 		if ( act && !dis ) {
@@ -1084,7 +1085,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    if ( gs == WindowsStyle ) {
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh,
 			     act ? QApplication::winStyleHighlightColor()
-			     : g.background());
+			     : g.button());
 	    }
 	    return;
 	}
@@ -1096,16 +1097,16 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    if ( mi->isChecked() )
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh,
 			     act ? QApplication::winStyleHighlightColor()
-			     : g.background() );
+			     : g.button() );
 	    else
 		p->fillRect( 0, 0, rw, cellh,
 			     act ? QApplication::winStyleHighlightColor()
-			     : g.background() );
+			     : g.button() );
 	} else if ( gs == MotifStyle ) {
 	    if ( act && !dis )			// active item frame
 		qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw );
 	    else				// incognito frame
-		qDrawPlainRect( p, 0, 0, rw, cellh, g.background(), pw );
+		qDrawPlainRect( p, 0, 0, rw, cellh, g.button(), pw );
 	}
 
 	if ( isCheckable() ) {	// just "checking"...

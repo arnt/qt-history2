@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#27 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#28 $
 **
 ** Definition of QCheckBox class
 **
@@ -45,6 +45,7 @@ protected:
     void    resizeEvent( QResizeEvent* );
     void    drawButton( QPainter * );
     void    drawButtonLabel( QPainter * );
+    void    updateMask();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#4 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#5 $
 **
 ** Definition of QStyle class
 **
@@ -34,7 +34,7 @@ public:
 
     GUIStyle guiStyle() const { return gs; }
 
-    virtual void initializeLook( QWidget* );
+    virtual void polish( QWidget* );
 
     virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
 		    int flags, bool enabled,
@@ -84,6 +84,13 @@ public:
 
     virtual void drawFocusRect( QPainter*,
 		    const QRect&, const QColorGroup & );
+};
+
+class Q_EXPORT QHStyle : public QStyle
+{
+public:
+    QHStyle(GUIStyle);
+    void polish( QWidget* );
 };
 
 #endif // QSTYLE_H

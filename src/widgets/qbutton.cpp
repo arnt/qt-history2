@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#122 $
 **
 ** Implementation of QButton widget class
 **
@@ -375,6 +375,8 @@ void QButton::setPixmap( const QPixmap &pixmap )
     if ( oldAccelChar )
 	setAccel( 0 );
     repaint( FALSE );
+    if ( autoMask() )
+	updateMask();
 }
 
 
@@ -778,6 +780,8 @@ void QButton::paintEvent( QPaintEvent *event )
 void QButton::focusInEvent( QFocusEvent * )
 {
     repaint( FALSE );
+    if ( autoMask() )
+	updateMask();
 }
 
 /*!
@@ -788,6 +792,8 @@ void QButton::focusInEvent( QFocusEvent * )
 void QButton::focusOutEvent( QFocusEvent * )
 {
     repaint( FALSE );
+    if ( autoMask() )
+	updateMask();
 }
 
 

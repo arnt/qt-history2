@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#40 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -23,6 +23,7 @@
 
 #include "qgroupbox.h"
 #include "qpainter.h"
+#include "qbitmap.h"
 
 /*!
   \class QGroupBox qgroupbox.h
@@ -189,4 +190,45 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	paint.drawText( r, AlignCenter, str, len );
     }
     drawContents( &paint );
+}
+
+
+void QGroupBox::updateMask(){
+    int		tw  = 0;
+    QRect	cr  = rect();
+    QRect	r   = cr;
+    QRect t;
+    int		len = str.length();
+     QBitmap bm( size() );
+     bm.fill( color0 );
+     {
+ 	QPainter p( &bm, this );
+	QFontMetrics fm = p.fontMetrics();
+	int h = fm.height();
+	while ( len ) {
+	    tw = fm.width( str, len ) + 2*fm.width(QChar(' '));
+	    if ( tw < cr.width() )
+		break;
+	    len--;
+	}
+	if ( len ) {
+	    r.setTop( h/2 );			// frame rect should be
+	    int x;
+	    if ( align & AlignHCenter )		// center alignment
+		x = r.width()/2 - tw/2;
+	    else if ( align & AlignRight )	// right alignment
+		x = r.width() - tw - 8;
+	    else				// left alignment
+		x = 8;
+ 	    t.setRect( x, 0, tw, h );
+	}
+ 	p.fillRect( r, color1 );
+	if ( tw ) {					// draw the title
+	    p.setPen( color1 );
+	    p.drawText( t, AlignCenter, str, len );
+	}
+     }
+
+    setMask( bm );
+
 }
