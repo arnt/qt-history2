@@ -4314,29 +4314,19 @@ bool QWidget::event( QEvent *e )
 
 		update();
 
-		if ( !layout() )
-		    break;
-
-		QObjectList *layouts = layout()->queryList( "QLayout" );
-		if ( !layouts )
-		    break;
-
-		QObjectListIt it( *layouts );
-		QObject *lo = 0;
-		while ( ( lo = it.current() ) != 0 ) {
-		    ++it;
-		    if ( lo->inherits( "QHBoxLayout" ) ) {
-			QHBoxLayout *bl = (QHBoxLayout*)lo;
-			if ( bl->direction() == QBoxLayout::LeftToRight && qApp->reverseLayout() )
-			    bl->setDirection( QBoxLayout::RightToLeft );
-			else if ( bl->direction() == QBoxLayout::RightToLeft && !qApp->reverseLayout() )
-			    bl->setDirection( QBoxLayout::LeftToRight );
-		    } else if ( lo->inherits( "QGridLayout" ) ) {
-			QGridLayout *gl = (QGridLayout*)lo;
-			gl->invalidate();
+		QLayoutIterator *it = 0;
+		if ( layout() ) {
+		    layout()->activate();
+		} else {
+		    QObjectList* llist = queryList( "QLayout", 0, TRUE, TRUE );
+		    QObjectListIt lit( *llist );
+		    QLayout *lay;
+		    while ( ( lay = (QLayout*)lit.current() ) != 0 ) {
+			++lit;
+			lay->activate();
 		    }
+		    delete llist;
 		}
-		delete layouts;
 	    }
 	    break;
 

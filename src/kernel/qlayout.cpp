@@ -1708,6 +1708,10 @@ int QBoxLayout::heightForWidth( int w ) const
 */
 void QBoxLayout::invalidate()
 {
+    QHBoxLayout *hbox = (QHBoxLayout*)qt_cast( "QHBoxLayout" );
+    if ( hbox )
+	hbox->setDirection( qApp->reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
+
     QLayout::invalidate();
     data->setDirty();
 }
