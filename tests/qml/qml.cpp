@@ -1603,10 +1603,8 @@ void QMLView::showCursor()
 void QMLView::hideCursor()
 {
     cursor_hidden = TRUE;
-    viewport()->repaint(doc->cursor->x-contentsX(),
-			doc->cursor->y-contentsY(),
-			doc->cursor->width(),
-			doc->cursor->height);
+    repaintContents(doc->cursor->x, doc->cursor->y,
+		    doc->cursor->width(), doc->cursor->height);
 }
 
 void QMLView::resizeEvent(QResizeEvent*e)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#6 $
+** $Id: //depot/qt/main/tests/qml/qml.h#7 $
 **
 ** Definition of something or other
 **
@@ -78,6 +78,7 @@ class QMLContainer;
 class QMLStyleSheet {
 public:
     QMLStyleSheet();
+    ~QMLStyleSheet();
 
     QMLStyle& defaultStyle() const;
     static QMLStyleSheet& defaultSheet();
