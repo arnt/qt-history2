@@ -37,7 +37,7 @@ MetaMakefileGenerator::init()
 
     const QStringList &builds = project->variables()["BUILDS"];
     bool use_single_build = builds.isEmpty();
-    if(!use_single_build && Option::output.fileName() == "-") {
+    if(!builds.count() > 1 && Option::output.fileName() == "-") {
         use_single_build = true;
         warn_msg(WarnLogic, "Cannot direct to stdout when using multiple BUILDS.");
     } else if(0 && !use_single_build && project->first("TEMPLATE") == "subdirs") {
@@ -45,8 +45,9 @@ MetaMakefileGenerator::init()
         warn_msg(WarnLogic, "Cannot specify multiple builds with TEMPLATE subdirs.");
     }
     if(!use_single_build) {
-        for(QStringList::ConstIterator it = builds.begin(); it != builds.end(); ++it) {
-            MakefileGenerator *makefile = processBuild((*it));
+        for(int i = 0; i < builds.count(); i++) {
+            QString build = builds[i];
+            MakefileGenerator *makefile = processBuild(build);
             if(!makefile) 
                 return false;
             if(!makefile->supportsMetaBuild()) {
@@ -55,10 +56,11 @@ MetaMakefileGenerator::init()
                 use_single_build = true;
                 break;
             } else {
-                Build *build = new Build;
-                build->name = (*it);
-                build->makefile = makefile;
-                makefiles += build;
+                Build *b = new Build;
+                if(builds.count() != 1)
+                    b->name = build;
+                b->makefile = makefile;
+                makefiles += b;
             }
         }
     }
@@ -118,11 +120,11 @@ MetaMakefileGenerator::write(const QString &oldpwd)
            using_stdout = true; //kind of..
         }
 
-        if(!build->makefile)
+        if(!build->makefile) {
             ret = false;
-        else if(build == glue)
+        } else if(build == glue) {
             ret = build->makefile->writeProjectMakefile();
-        else {
+        } else {
             ret = build->makefile->write();
             if (glue && glue->makefile->supportsMergedBuilds())
                 ret = glue->makefile->mergeBuildProject(build->makefile);
