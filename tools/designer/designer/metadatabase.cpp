@@ -1117,8 +1117,8 @@ QString MetaDataBase::extractVariableName( const QString &name )
     QString n = name.right( name.length() - name.findRev( ' ' ) - 1 );
     if ( n[ 0 ] == '*' || n[ 0 ] == '&' )
 	n[ 0 ] = ' ';
-    if ( n[ n.length() - 1 ] == ';' )
-	n[ n.length() - 1 ] = ' ';
+    if ( n[ (int)n.length() - 1 ] == ';' )
+	n[ (int)n.length() - 1 ] = ' ';
     return n.simplifyWhiteSpace();
 }
 
