@@ -38,17 +38,17 @@ Editor::Editor( QWidget * parent , const char * name )
     m->insertItem( "&File", file );
 
     file->insertItem( "&New",   this, SLOT(newDoc()),   ALT+Key_N );
-    file->insertItem( "&Open",  this, SLOT(load()),     ALT+Key_O );
-    file->insertItem( "&Save",  this, SLOT(save()),     ALT+Key_S );
+    file->insertItem( "&Open...",  this, SLOT(load()),     ALT+Key_O );
+    file->insertItem( "&Save...",  this, SLOT(save()),     ALT+Key_S );
     file->insertSeparator();
     open_as = new QPopupMenu();
-    file->insertItem( "Open &as",  open_as );
+    file->insertItem( "Open &As",  open_as );
     save_as = new QPopupMenu();
-    file->insertItem( "Save &as",  save_as );
-    file->insertItem( "Add &encoding", this, SLOT(addEncoding()) );
+    file->insertItem( "Sa&ve As",  save_as );
+    file->insertItem( "Add &Encoding", this, SLOT(addEncoding()) );
 #ifndef QT_NO_PRINTER
     file->insertSeparator();
-    file->insertItem( "&Print", this, SLOT(print()),    ALT+Key_P );
+    file->insertItem( "&Print...", this, SLOT(print()),    ALT+Key_P );
 #endif
     file->insertSeparator();
     file->insertItem( "&Close", this, SLOT(close()),ALT+Key_W );
@@ -62,8 +62,8 @@ Editor::Editor( QWidget * parent , const char * name )
     Q_CHECK_PTR( edit );
     m->insertItem( "&Edit", edit );
 
-    edit->insertItem( "To &uppercase",   this, SLOT(toUpper()),   ALT+Key_U );
-    edit->insertItem( "To &lowercase",   this, SLOT(toLower()),   ALT+Key_L );
+    edit->insertItem( "To &Uppercase",   this, SLOT(toUpper()),   ALT+Key_U );
+    edit->insertItem( "To &Lowercase",   this, SLOT(toLower()),   ALT+Key_L );
 
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
