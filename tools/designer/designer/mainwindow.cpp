@@ -218,7 +218,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     layoutChilds = FALSE;
     layoutSelected = FALSE;
     breakLayout = FALSE;
-    backPix = FALSE;
+    backPix = TRUE;
 
     set_splash_status( "Loading User Settings..." );
     readConfig();
@@ -1992,6 +1992,7 @@ void MainWindow::readConfig()
 
     bool ok;
     bool readPreviousConfig = FALSE;
+    QString backPixName( QDir::home().absPath() + "/.designer/" + "background.xpm" );
     restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", TRUE, &ok );
     if ( !ok ) {
 	keybase = DesignerApplication::oldSettingsKey();
@@ -2001,6 +2002,10 @@ void MainWindow::readConfig()
 		oWindow->shuttingDown();
 		( (QDockWindow*)oWindow->parent() )->hide();
 	    }
+	    QPixmap pix;
+	    pix.load( backPixName );
+	    if ( !pix.isNull() )
+		qworkspace->setBackgroundPixmap( pix );
 	    return;
 	}
 	readPreviousConfig = TRUE;
@@ -2013,21 +2018,23 @@ void MainWindow::readConfig()
 	shStartDialog = config.readBoolEntry( keybase + "ShowStartDialog", shStartDialog );
     }
 
-    if ( restoreConfig ) {
+    if ( restoreConfig || readPreviousConfig ) {
 	recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
 	recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
 
+	backPix = config.readBoolEntry( keybase + "Background/UsePixmap", TRUE ) | readPreviousConfig;
+	if ( backPix ) {
+	    QPixmap pix;
+	    pix.load( backPixName );
+	    if ( !pix.isNull() )
+		qworkspace->setBackgroundPixmap( pix );
+	} else {
+	    qworkspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( keybase + "Background/Color" ) ) );
+	}
+
 	if ( !readPreviousConfig ) {
 	    splashScreen = config.readBoolEntry( keybase + "SplashScreen", TRUE );
-	    backPix = config.readBoolEntry( keybase + "Background/UsePixmap", FALSE );
-	    if ( backPix ) {
-		QPixmap pix;
-		pix.load( QDir::home().absPath() + "/.designer/" + "background.xpm" );
-		if ( !pix.isNull() )
-		    qworkspace->setBackgroundPixmap( pix );
-	    } else {
-		qworkspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( keybase + "Background/Color" ) ) );
-	    }
+
 	    sGrid = config.readBoolEntry( keybase + "Grid/Show", TRUE );
 	    snGrid = config.readBoolEntry( keybase + "Grid/Snap", TRUE );
 	    grd.setX( config.readNumEntry( keybase + "Grid/x", 10 ) );
