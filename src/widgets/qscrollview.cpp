@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#95 $
 **
 ** Implementation of QScrollView class
 **
@@ -224,6 +224,8 @@ struct QScrollViewData {
 /*!
 \class QScrollView qscrollview.h
 \brief The QScrollView widget provides a scrolling area with on-demand scrollbars.
+
+\ingroup abstractwidgets
 
 The QScrollView is a large canvas - potentially larger than the
 coordinate system normally supported by the underlying window system.
