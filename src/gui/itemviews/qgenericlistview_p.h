@@ -120,6 +120,7 @@ public:
 
     QPoint snapToGrid(const QPoint &pos) const;
     QRect mapToViewport(const QRect &rect) const;
+    QSize staticStepSize(const QModelIndex &index, const QRect &rect) const;
 
     QGenericListView::Flow flow;
     QGenericListView::Movement movement;
