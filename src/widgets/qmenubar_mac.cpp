@@ -349,13 +349,13 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		    SetMenuItemHierarchicalMenu(ret, id, createMacPopup(item->popup(), FALSE));
 		} else if(accel_key != Qt::Key_unknown) {
 		    char mod = 0;
-		    if ((k & Qt::CTRL) != Qt::CTRL)
+		    if ((accel_key & Qt::CTRL) != Qt::CTRL)
 			mod |= kMenuNoCommandModifier;
-		    if ((k & Qt::META) == Qt::META)
+		    if ((accel_key & Qt::META) == Qt::META)
 			mod |= kMenuControlModifier;
-		    if ((k & Qt::ALT) == Qt::ALT)
+		    if ((accel_key & Qt::ALT) == Qt::ALT)
 			mod |= kMenuOptionModifier;
-		    if ((k & Qt::SHIFT) == Qt::SHIFT)
+		    if ((accel_key & Qt::SHIFT) == Qt::SHIFT)
 			mod |= kMenuShiftModifier;
 		    int keycode = (accel_key & ~(Qt::MODIFIER_MASK | Qt::UNICODE_ACCEL));
 		    if(keycode) {
