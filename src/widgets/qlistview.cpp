@@ -1143,8 +1143,6 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     lsc = Unsorted;
     newChild->ownHeight = 0;
     newChild->configured = FALSE;
-    if ( !lv )
-	return;
 
     if ( lv && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
