@@ -4585,6 +4585,9 @@ bool QWidget::event( QEvent *e )
 #ifndef QT_NO_LAYOUT
 	case QEvent::LayoutDirectionChange:
 	    if ( layout() ) {
+		QHBoxLayout *hbox = (QHBoxLayout*)layout()->qt_cast( "QHBoxLayout" );
+		if ( hbox )
+		    hbox->setDirection( qApp->reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
 		layout()->activate();
 	    } else {
 		QObjectList* llist = queryList( "QLayout", 0, TRUE, TRUE );
@@ -4592,6 +4595,9 @@ bool QWidget::event( QEvent *e )
 		QLayout *lay;
 		while ( ( lay = (QLayout*)lit.current() ) != 0 ) {
 		    ++lit;
+		    QHBoxLayout *hbox = (QHBoxLayout*)lay->qt_cast( "QHBoxLayout" );
+		    if ( hbox )
+			hbox->setDirection( qApp->reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
 		    lay->activate();
 		}
 		delete llist;
