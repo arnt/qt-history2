@@ -898,7 +898,7 @@ static int scramble(const QString &str)
     Only the DXT1, DXT3 and DXT5 DDS formats are supported.
 
     Note that this will only work if the implementation supports the
-    GL_ARB_texture_compression and GL_EXT_texture_compression_s3tc
+    \c GL_ARB_texture_compression and \c GL_EXT_texture_compression_s3tc
     extensions.
 
     \sa deleteTexture()
@@ -911,15 +911,17 @@ GLuint QGLContext::bindTexture(const QString &fname)
     static bool init_compression = true;
 
     if (init_compression) {
-	QString extensions((const char *) glGetString(GL_EXTENSIONS));
+	QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
 	if (extensions.contains("GL_ARB_texture_compression")
 	    && extensions.contains("GL_EXT_texture_compression_s3tc"))
 	{
 	    glCompressedTexImage2DARB = (qt_glCompressedTexImage2DARB) getProcAddress("glCompressedTexImage2DARB");
 	    if (!glCompressedTexImage2DARB)
-		qWarning("QGLContext::bindTexture(): Error resolving glCompressedTexImage2DARB().");
+		qWarning("QGLContext::bindTexture(): Couldn't resolve glCompressedTexImage2DARB(). "
+			 "No texture compression support available.");
 	} else {
-	    qWarning("QGLContext::bindTexture(): GL implementation does not support compression extensions.");
+	    qWarning("QGLContext::bindTexture(): The GL implementation does not support texture"
+		     "compression extensions.");
 	}
 	init_compression = false;
     }
@@ -1022,8 +1024,15 @@ GLuint QGLContext::bindTexture(const QString &fname)
 
 /*!
     Generates and binds a 2D GL texture to the current context, based
-    on the pixmap that is passed in. The generated texture id is
-    returned and can be used in glBindTexture() calls.
+    on the pixmap \a pm that is passed in. The generated texture id is
+    returned and can be used in later glBindTexture() calls.
+
+    The \a format parameter sets the internal format for the
+    texture. The default format is \c GL_RGBA8.
+
+    If the GL implementation supports the \c GL_SGIS_generate_mipmap
+    extension, mipmaps will be automatically generated for the
+    texture.
 
     The texture that is generated is cached, so multiple calls to
     bindTexture() with the same QPixmap will return the same texture
@@ -1031,15 +1040,15 @@ GLuint QGLContext::bindTexture(const QString &fname)
 
     \sa deleteTexture()
 */
-GLuint QGLContext::bindTexture(const QPixmap &pm)
+GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
 {
-    static bool init_mipmaps = true;
+    static bool init_extensions = true;
     static bool generate_mipmaps = false;
 
-    if (init_mipmaps) {
-	QString ext((const char *) glGetString(GL_EXTENSIONS));
-	generate_mipmaps = ext.contains("GL_SGIS_generate_mipmap");
-	init_mipmaps = false;
+    if (init_extensions) {
+	QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+	generate_mipmaps = extensions.contains("GL_SGIS_generate_mipmap");
+	init_extensions = false;
     }
 
     if (!qt_txCache)
@@ -1070,8 +1079,7 @@ GLuint QGLContext::bindTexture(const QPixmap &pm)
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
     }
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-		 tx.width(), tx.height(), 0, GL_RGBA,
+    glTexImage2D(GL_TEXTURE_2D, 0, format, tx.width(), tx.height(), 0, GL_RGBA,
 		 GL_UNSIGNED_BYTE, tx.bits());
 
     // this assumes the size of a texture is always smaller than the max cache size
@@ -2554,31 +2562,19 @@ bool QGLWidget::autoBufferSwap() const
 }
 
 /*!
-    Generates and binds a 2D GL texture to the current context, based
-    on the pixmap that is passed in. The generated texture id is
-    returned and can be used in glBindTexture() calls.
-
-    The texture that is generated is cached, so multiple calls to
-    bindTexture() with the same QPixmap will return the same texture
-    id.
+    Calls \l QGLContext:::bindTexture(const QPixmap &, GLint) on the
+    currently set context.
 
     \sa deleteTexture()
 */
-GLuint QGLWidget::bindTexture(const QPixmap &pm)
+GLuint QGLWidget::bindTexture(const QPixmap &pm, GLint format)
 {
-    return d->glcx->bindTexture(pm);
+    return d->glcx->bindTexture(pm, format);
 }
 
 /*! \overload
 
-    Reads the DirectDrawSurface (DDS) compressed file \a fname and
-    generates a 2D GL texture from it.
-
-    Only the DXT1, DXT3 and DXT5 DDS formats are supported.
-
-    Note that this will only work if the implementation supports the
-    GL_ARB_texture_compression and GL_EXT_texture_compression_s3tc
-    extensions.
+    Calls \l QGLContext::bindTexture(const QString &) on the currently set context.
 
     \sa deleteTexture()
 */
@@ -2588,8 +2584,7 @@ GLuint QGLWidget::bindTexture(const QString &fname)
 }
 
 /*!
-    Removes the texture identified by \a id from the texture cache and
-    calls glDeleteTexture() on it.
+    Calls \l QGLContext::deleteTexture() on the currently set context.
 
     \sa bindTexture()
 */

@@ -25,8 +25,8 @@
 #endif
 
 #ifdef QT_COMPAT
-#define QGL_VERSION        450
-#define QGL_VERSION_STR        "4.5"
+#define QGL_VERSION        460
+#define QGL_VERSION_STR        "4.6"
 QM_EXPORT_OPENGL inline QT_COMPAT const char *qGLVersion() {
     return QGL_VERSION_STR;
 }
@@ -155,7 +155,7 @@ public:
     virtual void doneCurrent();
     virtual void swapBuffers() const;
 
-    GLuint bindTexture(const QPixmap &pm);
+    GLuint bindTexture(const QPixmap &pm, GLint format = GL_RGBA8);
     GLuint bindTexture(const QString &fname);
     void deleteTexture(GLuint tx_id);
 
@@ -286,7 +286,7 @@ public:
                      const QFont & fnt = QFont(), int listBase = 2000);
     QPaintEngine *paintEngine() const;
 
-    GLuint bindTexture(const QPixmap &pm);
+    GLuint bindTexture(const QPixmap &pm, GLint format = GL_RGBA8);
     GLuint bindTexture(const QString &fname);
     void deleteTexture(GLuint tx_id);
 
