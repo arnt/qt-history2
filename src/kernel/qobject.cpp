@@ -1927,6 +1927,7 @@ bool QObject::disconnectInternal( const QObject *sender, int signal_index,
     if ( !s->connections )
 	return FALSE;
 
+    bool success = FALSE;
     QConnectionList *clist;
     register QConnection *c;
     if ( signal_index == -1 ) {
@@ -1938,9 +1939,11 @@ bool QObject::disconnectInternal( const QObject *sender, int signal_index,
 	    while ( c ) {			// for all receivers...
 		if ( r == 0 ) {			// remove all receivers
 		    removeObjFromList( c->object()->senderObjects, s );
+		    success = TRUE;
 		    c = clist->next();
 		} else if ( r == c->object() && ( member_index == -1 || member_index == c->member() ) ) {
 		    removeObjFromList( c->object()->senderObjects, s );
+		    success = TRUE;
 		    clist->remove();
 		    c = clist->current();
 		} else {
@@ -1959,9 +1962,11 @@ bool QObject::disconnectInternal( const QObject *sender, int signal_index,
 	while ( c ) {				// for all receivers...
 	    if ( r == 0 ) {			// remove all receivers
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
+		success = TRUE;
 		c = clist->next();
 	    } else if ( r == c->object() && ( member_index == -1 || member_index == c->member() ) ) {
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
+		success = TRUE;
 		clist->remove();
 		c = clist->current();
 	    } else {
@@ -1971,7 +1976,7 @@ bool QObject::disconnectInternal( const QObject *sender, int signal_index,
 	if ( r == 0 )				// disconnect all receivers
 	    s->connections->insert( signal_index, 0 );
     }
-    return TRUE;
+    return success;
 }
 
 /*!
