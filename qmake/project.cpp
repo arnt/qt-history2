@@ -1145,11 +1145,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	    else
 		replacement = place[varMap(val)].join(" ");
 	} else {
-	    QStringList arg_list = split_arg_list(args);
-	    for(QStringList::Iterator arit = arg_list.begin(); arit != arg_list.end(); ++arit) {
-		(*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space
-		doVariableReplace((*arit), place);
-	    }
+	    QStringList arg_list = split_arg_list(doVariableReplace(args, place));
 	    debug_msg(1, "Running function: %s( %s )", val.latin1(), arg_list.join("::").latin1());
 	    if(val.lower() == "member") {
 		if(arg_list.count() < 1 || arg_list.count() > 3) {
@@ -1226,8 +1222,11 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		}
 	    } else if(val.lower() == "eval") {
 		for(QStringList::ConstIterator arg_it = arg_list.begin();
-		    arg_it != arg_list.end(); ++arg_it) 
+		    arg_it != arg_list.end(); ++arg_it) {
+		    if(!replacement.isEmpty())
+			replacement += " ";
 		    replacement += place[(*arg_it)].join(" ");
+		}
 	    } else if(val.lower() == "list") {
 		static int x = 0;
 		replacement.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
