@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#7 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#8 $
 **
 ** Definition of QStringList class
 **
@@ -35,8 +35,11 @@ class QStringList : public QValueList<QString>
 {
 public:
     QStringList() { }
-    QStringList( const QString& i ) { append(i); }
     QStringList( const QStringList& l ) : QValueList<QString>(l) { }
+    QStringList( const QString& i ) { append(i); }
+#ifndef QT_NO_CAST_ASCII
+    QStringList( const char* i ) { append(i); }
+#endif
 
     void sort();
     // ... stringlist-specific convenience functions go here.
