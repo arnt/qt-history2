@@ -20,6 +20,8 @@
 #include <qslider.h>
 #include <qcheckbox.h>
 #include <qradiobutton.h>
+#include <qcombobox.h>
+#include <qlistbox.h>
 
 #include <qt_windows.h>
 #include <uxtheme.h>
@@ -318,7 +320,8 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->setMouseTracking( TRUE );
     } else if ( widget->inherits( "QComboBox" ) ) {
 	widget->installEventFilter( this );
-    } else if ( widget->inherits( "QSpinBox" ) ) {
+	widget->setMouseTracking( TRUE );
+    } else if ( widget->inherits( "QSpinWidget" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
     } else if ( widget->inherits( "QScrollBar" ) ) {
@@ -619,7 +622,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    if ( !t->isEnabled() )
 		stateId = 4;
 	    else if ( how & CStyle_Selected )
-		stateId = 3;
+		stateId = widget->hasFocus() ? 2 : 3;
 	    else if ( d->hotTab == t )
 		stateId = 2;
 	    else 
@@ -670,17 +673,18 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     switch ( control ) {
     case CC_SpinWidget:
         {
+	    QSpinWidget *spin = (QSpinWidget*)w;
             XPThemeData theme;
             theme.name = L"SPIN";
 
             if ( sub & SC_SpinWidgetUp ) {
                 theme.rec = querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetUp, data );
                 partId = SPNP_UP;
-                if ( !w->isEnabled() )
+                if ( !spin->isUpEnabled() )
                     stateId = 4;
                 else if ( subActive == SC_SpinWidgetUp )
                     stateId = 3;
-                else if ( d->hotWidget == w )
+                else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
                     stateId = 2;
                 else
                     stateId = 1;
@@ -689,11 +693,11 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
             if ( sub & SC_SpinWidgetDown ) {
                 theme.rec = querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetDown, data );
                 partId = SPNP_DOWN;
-                if ( !w->isEnabled() )
+                if ( !spin->isDownEnabled() )
                     stateId = 4;
                 else if ( subActive == SC_SpinWidgetDown )
                     stateId = 3;
-                else if ( d->hotWidget == w )
+                else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
                     stateId = 2;
                 else
                     stateId = 1;
@@ -704,22 +708,34 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
     case CC_ComboBox:
         {
-            XPThemeData theme;
-            theme.name = L"COMBOBOX";
+	    if ( sub & SC_ComboBoxEditField ) {
+		XPThemeData theme;
+		theme.rec = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxEditField, data );
+		theme.rec = w->rect();
+		theme.name = L"GLOBALS";
+		partId = 1;
+		stateId = 1;
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
             if ( sub & SC_ComboBoxArrow ) {
+		XPThemeData theme;
                 theme.rec = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxArrow, data );
+		theme.name = L"COMBOBOX";
                 partId = CP_DROPDOWNBUTTON;
+		QComboBox *cb = (QComboBox*)w;
+		if ( cb->listBox() && cb->listBox()->isVisible() )
+		    subActive = SC_ComboBoxArrow;
+
                 if ( !w->isEnabled() )
                     stateId = 4;
                 else if ( subActive == SC_ComboBoxArrow )
                     stateId = 3;
+		else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
+		    stateId = 2;
                 else
                     stateId = 1;
                 DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
             }
-	    if ( sub & SC_ComboBoxEditField ) {
-		theme.rec = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxEditField, data );
-	    }
         }
         break;
 
@@ -2027,14 +2043,16 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 			if ( d->hotHeader.isValid() )
 			    header->update( d->hotHeader );
 		    }
-		} else if ( o->inherits( "QSpinBox" ) ) {
-		    QSpinBox *spinbox = (QSpinBox*)o;
-		    QRect rect = spinbox->downRect().unite( spinbox->upRect() );
-		    spinbox->update( rect );
-		}
-		else if ( o->inherits( "QScrollBar" ) ) {
+		} else if ( o->inherits( "QSpinWidget" ) ) {
+		    QSpinWidget *spin = (QSpinWidget*)o;
+		    spin->repaint(FALSE);
+		} else if ( o->inherits( "QScrollBar" ) ) {
 		    repaintByMouseMove = TRUE;
 		    ((QScrollBar*)o)->repaint( FALSE );
+		    repaintByMouseMove = FALSE;
+		} else if ( o->inherits( "QComboBox" ) ) {
+		    repaintByMouseMove = TRUE;
+		    ((QWidget*)o)->repaint( FALSE );
 		    repaintByMouseMove = FALSE;
 		}
 	    }
@@ -2063,41 +2081,48 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	    }
 	    break;
 	case QEvent::Leave:
-	    if ( o != d->hotWidget )
-		break;
+	    {
+		if ( o != d->hotWidget )
+		    break;
 
-	    QPoint curPos = QCursor::pos();
-	    d->hotSpot = d->hotWidget->mapFromGlobal( curPos );
-	    if ( QApplication::widgetAt( curPos, TRUE ) == d->hotWidget )
-		break;
+		QPoint curPos = QCursor::pos();
+		d->hotSpot = d->hotWidget->mapFromGlobal( curPos );
+		if ( QApplication::widgetAt( curPos, TRUE ) == d->hotWidget )
+		    break;
 
-	    QWidget *oldHot = d->hotWidget;
-	    QTab *oldTab = d->hotTab;
-	    QRect oldHeader = d->hotHeader;
-	    d->hotWidget = 0;
-	    d->hotTab = 0;
-	    d->hotHeader = QRect();
+		QWidget *oldHot = d->hotWidget;
+		QTab *oldTab = d->hotTab;
+		QRect oldHeader = d->hotHeader;
+		d->hotWidget = 0;
+		d->hotTab = 0;
+		d->hotHeader = QRect();
 
-	    if ( !oldHot )
-		break;
-	    if ( oldHot->inherits( "QButton" ) ) {
-		oldHot->setPalette( d->oldPalette );
-	    } else if ( oldHot->inherits( "QTabBar" ) ) {
-		if ( oldTab )
-		    oldHot->update( oldTab->rect() );
-	    } else if ( oldHot->inherits( "QHeader" ) ) {
-		if ( oldHeader.isValid() )
-		    oldHot->update( oldHeader );
-	    } else if ( oldHot->inherits( "QSpinBox" ) ) {
-		QSpinBox *spinbox = (QSpinBox*)oldHot;
-		spinbox->update( spinbox->downRect().unite( spinbox->upRect() ) );
-	    } else {
-		oldHot->update();
+		if ( !oldHot )
+		    break;
+		if ( oldHot->inherits( "QButton" ) ) {
+		    oldHot->setPalette( d->oldPalette );
+		} else if ( oldHot->inherits( "QTabBar" ) ) {
+		    if ( oldTab )
+			oldHot->update( oldTab->rect() );
+		} else if ( oldHot->inherits( "QHeader" ) ) {
+		    if ( oldHeader.isValid() )
+			oldHot->update( oldHeader );
+		} else if ( oldHot->inherits( "QSpinWidget" ) ) {
+		    QSpinWidget *spin = (QSpinWidget*)oldHot;
+		    spin->repaint(FALSE);
+		} else {
+		    oldHot->update();
+		}
 	    }
+	    break;
+	case QEvent::FocusIn:
+	case QEvent::FocusOut:
+	    ((QWidget*)o)->repaint(FALSE);
+	    break;
+	default:
 	    break;
 	}
     }
-
     return QWindowsStyle::eventFilter( o, e );
 }
 
