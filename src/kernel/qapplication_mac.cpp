@@ -1863,11 +1863,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QEvent ev(QEvent::Clipboard);
 		QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
 	    }
-
-	    WindowPtr wp = ActiveNonFloatingWindow();
-	    if(wp && !unhandled_dialogs.find((void *)wp)) {
-		if(QWidget *tmp_w = QWidget::find((WId)wp))
-		    app->setActiveWindow(tmp_w);
+	    if(!app->activeWindow()) {
+		WindowPtr wp = ActiveNonFloatingWindow();
+		if(wp && !unhandled_dialogs.find((void *)wp)) {
+		    if(QWidget *tmp_w = QWidget::find((WId)wp))
+			app->setActiveWindow(tmp_w);
+		}
 	    }
 	} else if(ekind == kEventAppDeactivated) {
 	    while(app->inPopupMode())
