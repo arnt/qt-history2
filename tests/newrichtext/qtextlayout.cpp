@@ -72,7 +72,7 @@ public:
     void shape( ShapedItem &shaped, const QFont &font, const QString &string,
 		const ScriptItemArray &items, int item ) const;
 
-    void position( ShapedItem &shaped );
+    void position( ShapedItem &shaped ) const;
 
 };
 
@@ -124,10 +124,11 @@ void TextLayoutQt::shape( ShapedItem &shaped, const QFont &f, const QString &str
 	scriptEngines[script]->shape( &shaped );
 }
 
-void TextLayoutQt::position( ShapedItem &shaped )
+void TextLayoutQt::position( ShapedItem &shaped ) const
 {
-
-
+    QFont::Script script = (QFont::Script)shaped.d->analysis.script;
+    if ( shaped.d->fontEngine && shaped.d->fontEngine != (FontEngineIface*)-1 )
+	scriptEngines[script]->position( &shaped );
 }
 
 

@@ -19,7 +19,7 @@ struct QGlyphInfo
 {
     QGlyphInfo() {
 	x = 100000;
-	y = -100000;
+	y = 100000;
 	width = 0;
 	height = 0;
 	xoff = 0;

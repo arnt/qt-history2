@@ -10,6 +10,8 @@
 
 #include <stdlib.h>
 
+// #define DEBUG
+
 class HackPaintDevice : public QPaintDevice
 {
 public:
@@ -94,7 +96,28 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
     col.color.blue = pen.blue () | pen.blue() << 8;
     col.color.alpha = 0xffff;
     col.pixel = pen.pixel();
+#if DEBUG
+    p->save();
+    p->setBrush( Qt::white );
+    QGlyphInfo ci = boundingBox( glyphs, offsets, numGlyphs );
+    p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
+    qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
+    p->restore();
+#endif
     XftDrawString16 (draw, &col, _font, x, y, (XftChar16 *) glyphs, numGlyphs);
+#if DEBUG
+    p->save();
+    p->setPen( Qt::red );
+    for ( int i = 0; i < numGlyphs; i++ ) {
+	QGlyphInfo ci = boundingBox( glyphs[i] );
+	p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
+	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offset=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
+	       ci.xoff, ci.yoff, offsets[i].x, offsets[i].y );
+	x += ci.xoff + offsets[i].x;
+	y += ci.yoff + offsets[i].y;
+    }
+    p->restore();
+#endif
 }
 
 Offset FontEngineXft::advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
@@ -129,9 +152,9 @@ QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *o
 	overall.xoff += offsets[i].x;
 	overall.yoff += offsets[i].y;
 	if ( getGlyphInfo( &xgi, _font, glyphs[i] ) ) {
-	    overall.x = QMIN( overall.x, overall.xoff + xgi.x );
+	    overall.x = QMIN( overall.x, overall.xoff - xgi.x );
 	    overall.y = QMIN( overall.y, overall.yoff - xgi.y );
-	    xmax = QMAX( xmax, overall.xoff + xgi.x );
+	    xmax = QMAX( xmax, overall.xoff - xgi.x + xgi.width );
 	    ymax = QMAX( ymax, overall.yoff - xgi.y + xgi.height );
 	    overall.xoff += xgi.xOff;
 	    overall.yoff -= xgi.yOff;
@@ -154,7 +177,7 @@ QGlyphInfo FontEngineXft::boundingBox( GlyphIndex glyph )
 {
     XGlyphInfo xgi;
     if ( getGlyphInfo( &xgi, _font, glyph ) ) {
-	return QGlyphInfo( xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
+	return QGlyphInfo( -xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
     }
     int size = ascent();
     return QGlyphInfo( 0, size, size, size, size, 0 );

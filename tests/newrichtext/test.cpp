@@ -42,8 +42,14 @@ void MyWidget::paintEvent( QPaintEvent * )
 //const char * s = "אירופה, תוכנה והאינטרנט: Unicode";
 
 
-const char *s = "أوروبا, برمجيات الحاسوب + انترنيت: some english אירופה, תוכנה והאינטרנט";
+//const char *s = "أوروبا, برمجيات الحاسوب + انترنيت: some english אירופה, תוכנה והאינטרנט";
 
+// Thai
+//const char *s = "ทำไมเขาถึงไม่พูด � าษาไทย";
+
+// Vietnamese
+const char *s = "Tại sao họ không thể chỉ nói tiếng.";
+//const char *s = "Tại";
 
 
 int main( int argc, char **argv )

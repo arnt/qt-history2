@@ -200,7 +200,7 @@ public:
     virtual void shape( ShapedItem &shaped, const QFont &f, const QString &string,
 			const ScriptItemArray &items, int item ) const = 0;
 
-    virtual void position( ShapedItem &shaped ) = 0;
+    virtual void position( ShapedItem &shaped ) const = 0;
 
 #if 0
 

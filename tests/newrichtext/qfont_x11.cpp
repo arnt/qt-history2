@@ -80,8 +80,8 @@ Bool XftNameUnparse (XftPattern *, char *, int);
 #endif
 
 
-#define QFONTLOADER_DEBUG
-#define QFONTLOADER_DEBUG_VERBOSE
+// #define QFONTLOADER_DEBUG
+// #define QFONTLOADER_DEBUG_VERBOSE
 
 #define CN_ENCODINGS "gb18030-0", "gb18030.2000-0", "gbk-0", "gb2312.1980-0"
 #define JP_ENCODINGS "jisx0208.1997-0", "jisx0208.1990-0", "jisx0208.1983-0"

@@ -178,8 +178,6 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, 
 
 Offset FontEngineXLFD::advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
-    int width = 0;
-
     Offset advance = { 0,  0 };
     for (int i = 0; i < numGlyphs; i++) {
 	XCharStruct *xcs = charStruct( _fs, glyphs[i] );

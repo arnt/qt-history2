@@ -135,7 +135,7 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
     for ( int i = start+1; i <= stop; i++ ) {
 
 	QFont::Script s = QTextData::scriptForChar( text[i].unicode() );
-	if ( s != script && !isSpace( text[i] ) ) {
+	if ( s != script && !isSpace( text[i] ) && !isMark( text[i] ) ) {
 	    ScriptItem item;
 	    item.position = i;
 	    item.analysis.script = s;

@@ -16,6 +16,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
     QGlyphInfo base = f->boundingBox( shaped->d->glyphs[gfrom] );
     QRect baseRect( base.x, base.y, base.width, base.height );
 
+    qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
     qDebug( "base char: bounding rect at %d/%d (%d/%d)", baseRect.x(), baseRect.y(), baseRect.width(), baseRect.height() );
     int offset = f->ascent() / 10 + 1;
     qDebug("offset = %d", offset );
@@ -137,6 +138,7 @@ void ScriptEngine::heuristicPositionMarks( ShapedItem *shaped )
 	    cEnd = i;
 	} else if ( cEnd != -1 && !d->glyphAttributes[i].mark ) {
 	    positionCluster( shaped, i, cEnd );
+	    cEnd = -1;
 	}
     }
 }
@@ -153,6 +155,8 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 
     if ( d->length != d->num_glyphs )
 	qWarning("ScriptEngine::heuristicSetGlyphAttributes: char length and num glyphs disagree" );
+
+    qDebug("ScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", d->num_glyphs);
 
     d->glyphAttributes = (GlyphAttributes *)realloc( d->glyphAttributes, d->num_glyphs * sizeof( GlyphAttributes ) );
 
@@ -178,6 +182,7 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 		d->glyphAttributes[gpos].mark = TRUE;
 		d->glyphAttributes[gpos].combiningClass = combiningClass( uc[cpos] );
 		d->glyphAttributes[gpos].clusterStart = FALSE;
+		qDebug("found a mark at position %d", cpos );
 		d->logClusters[cpos] = cpos;
 		hasMark = TRUE;
 	    } else {
@@ -238,6 +243,7 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 		d->glyphAttributes[pos].mark = TRUE;
 		d->glyphAttributes[pos].clusterStart = FALSE;
 		d->glyphAttributes[pos].combiningClass = combiningClass( uc[pos] );
+		qDebug("found a mark at position %d", pos );
 		d->logClusters[pos] = cStart;
 	    } else {
 		d->glyphAttributes[pos].mark = FALSE;
@@ -266,6 +272,7 @@ void ScriptEngineBasic::charAttributes( const QString &text, int from, int len, 
 
 void ScriptEngineBasic::shape( ShapedItem *result )
 {
+    qDebug("ScriptEngineBasic::shape");
     const QString &text = result->d->string;
     int from = result->d->from;
     int len = result->d->length;
@@ -291,15 +298,20 @@ void ScriptEngineBasic::shape( ShapedItem *result )
 
 void ScriptEngineBasic::position( ShapedItem *shaped )
 {
+    qDebug("ScriptEngineBasic::position");
     heuristicPositionMarks( shaped );
 }
 
 int ScriptEngineBasic::cursorToX( int cPos, const ShapedItem &shaped )
 {
-
+    Q_UNUSED(cPos);
+    Q_UNUSED(shaped);
+    return 0;
 }
 
 int ScriptEngineBasic::xToCursor( int x, const ShapedItem &shaped )
 {
-
+    Q_UNUSED(x);
+    Q_UNUSED(shaped);
+    return 0;
 }

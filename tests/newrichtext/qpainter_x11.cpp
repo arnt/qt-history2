@@ -3105,17 +3105,18 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	levels[i] = items[i].analysis.bidiLevel;
     TextLayout::instance()->bidiReorder( items.size(), (unsigned char *)levels, (int *)visualOrder );
 
-//     qDebug("QPainter::drawText: num items=%d",  items.size() );
+     qDebug("QPainter::drawText: num items=%d",  items.size() );
     for ( int i = 0; i < items.size(); i++ ) {
 	int current = visualOrder[i];
 	const ScriptItem &it = items[ current ];
 	ShapedItem shaped;
 	layout->shape( shaped, cfont, string, items, current );
+	layout->position( shaped );
 
 	QFont::Script script = (QFont::Script)it.analysis.script;
 	cfont.d->load( script );
 	FontEngineIface *fe = cfont.engineForScript( script );
-// 	qDebug("drawing item %d, script=%d, fe=%p", current, script, fe );
+ 	qDebug("drawing item %d, script=%d, fe=%p", current, script, fe );
 	if ( fe && fe != (FontEngineIface *)-1 ) {
 	    fe->draw( this, x,  y, shaped.glyphs(), shaped.offsets(), shaped.count() );
 	    Offset advance = fe->advance( shaped.glyphs(), shaped.offsets(), shaped.count() );
