@@ -13,10 +13,13 @@ INCLUDEPATH += ../../lib/sdk \
     ../../uilib \
     ../../lib/extension
 
-HEADERS += default_membersheet.h signalsloteditor.h membersheet.h signalsloteditor_global.h
+HEADERS += \
+    default_membersheet.h \
+    signalsloteditor.h \
+    signalsloteditor_global.h
 
-SOURCES += default_membersheet.cpp signalsloteditor.cpp
-
-MOCABLE += signalsloteditor.cpp
+SOURCES += \
+    default_membersheet.cpp \
+    signalsloteditor.cpp
 
 include(../../sharedcomponents.pri)

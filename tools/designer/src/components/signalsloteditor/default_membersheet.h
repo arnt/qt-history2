@@ -14,7 +14,7 @@
 #ifndef DEFAULT_MEMBERSHEET_H
 #define DEFAULT_MEMBERSHEET_H
 
-#include "membersheet.h"
+#include <membersheet.h>
 #include <default_extensionfactory.h>
 
 class QDesignerMemberSheet: public QObject, public IMemberSheet
@@ -35,11 +35,11 @@ public:
 
     virtual bool isVisible(int index) const;
     virtual void setVisible(int index, bool b);
-    
+
     virtual bool isSignal(int index) const;
     virtual bool isSlot(int index) const;
     virtual bool inheritedFromWidget(int index) const;
-    
+
     virtual QString signature(int index) const;
     virtual QList<QByteArray> parameterTypes(int index) const;
     virtual QList<QByteArray> parameterNames(int index) const;

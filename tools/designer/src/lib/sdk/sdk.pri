@@ -16,6 +16,7 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractobjectinspector.h \
     $$PWD/abstracticoncache.h \
     $$PWD/propertysheet.h \
+    $$PWD/membersheet.h \
     $$PWD/taskmenu.h \
     $$PWD/abstractwidgetbox.h \
     $$PWD/layoutdecoration.h

@@ -13,11 +13,11 @@
 
 #include "default_membersheet.h"
 
-#include <QWidget>
-#include <QVariant>
-#include <QMetaObject>
-#include <QMetaMember>
-#include <qdebug.h>
+#include <QtGui/QWidget>
+#include <QtCore/QVariant>
+#include <QtCore/QMetaObject>
+#include <QtCore/QMetaProperty>
+#include <QtCore/qdebug.h>
 
 Q_GLOBAL_STATIC(QWidget, someWidget)
 
@@ -69,7 +69,7 @@ bool QDesignerMemberSheet::isVisible(int index) const
 {
     if (m_info.contains(index))
         return m_info.value(index).visible;
-        
+
    return meta->member(index).memberType() == QMetaMember::Signal
            || meta->member(index).access() == QMetaMember::Public;
 }
@@ -100,7 +100,7 @@ bool QDesignerMemberSheet::inheritedFromWidget(int index) const
 
 
 QList<QByteArray> QDesignerMemberSheet::parameterTypes(int index) const
-{ 
+{
     return meta->member(index).parameterTypes();
 }
 
