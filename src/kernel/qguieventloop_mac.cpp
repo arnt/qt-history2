@@ -70,12 +70,12 @@ int QGuiEventLoop::registerTimer(int interval, QObject *obj)
     if (!d->macTimerList)
 	d->macTimerList = new MacTimerList;
 
-    static int serial_id = 0;
+    static int serial_id = 666;
     MacTimerInfo t;
     t.obj = obj;
     t.mac_timer = 0;
     t.interval = interval;
-    t.pending = false;
+    t.pending = true;
     t.id = serial_id++;
     if (interval) {
 	if (!timerUPP)
@@ -91,6 +91,7 @@ int QGuiEventLoop::registerTimer(int interval, QObject *obj)
 	d->zero_timer_count++;
 	d->macTimerList->prepend(t); //zero timers come first
     }
+    t.pending = false;
     return t.id;
 }
 
