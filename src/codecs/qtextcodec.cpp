@@ -440,6 +440,8 @@ static QString lettersAndNumbers( const char * input )
 
     while( input && *input ) {
 	c = *input;
+ 	if ( c.isLetter() || c.isNumber() )
+ 	    result += c.lower();
 	if ( input[1] ) {
 	    // add space at character class transition, except
 	    // transition from upper-case to lower-case letter
