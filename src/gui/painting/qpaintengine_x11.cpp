@@ -632,7 +632,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 
     Q_ASSERT(pg[0] == pg[pgSize-1]);
     // generate edge table
-    for (int x = 0; x < pgSize()-1; ++x) {
+    for (int x = 0; x < pgSize-1; ++x) {
 	QEdge edge;
 	edge.winding = pg[x].y() > pg[x+1].y() ? 1 : -1;
 	if (edge.winding > 0) {
