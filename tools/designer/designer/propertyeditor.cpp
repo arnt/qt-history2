@@ -2752,7 +2752,7 @@ void EventTable::setupProperties()
     if ( events.isEmpty() )
 	return;
     for ( QValueList<MetaDataBase::EventDescription>::Iterator it = events.begin(); it != events.end(); ++it ) {
-	PropertyItem *item;
+	PropertyItem *item = 0;
 	addPropertyItem( item, (*it).name.latin1(), QVariant::StringList );
 	setPropertyValue( item );
     }
