@@ -401,15 +401,15 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
 	mypixmap.setMask(mymask);
     }
 
-#if 0       // defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
-    // DOESN'T WORK. eg. MNGSuite
-
+#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
+    extern bool qt_use_xrender;
     // in qpixmap_x11.cpp
     extern void qt_x11_blit_alpha_pixmap(QPixmap *, int, int,
 					 const QPixmap *, int = 0, int = 0,
 					 int = -1, int = -1);
-    qt_x11_blit_alpha_pixmap(&mypixmap, area.left(), area.top(),
-			     &lines, off.x(), off.y(), area.width(), area.height());
+     if ( qt_use_xrender )
+	qt_x11_blit_alpha_pixmap(&mypixmap, area.left(), area.top(),
+				 &lines, off.x(), off.y(), area.width(), area.height());
 #endif
 
 #ifdef Q_WS_QWS
