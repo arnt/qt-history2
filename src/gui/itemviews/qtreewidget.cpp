@@ -600,7 +600,7 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
   to represent cities of the world, and adds a entry for Oslo as a child
   item:
 
-  \quotefile snippets/qtreewidget/mainwindow.cpp
+  \quotefile snippets/qtreewidget-using/mainwindow.cpp
   \skipto QTreeWidgetItem *cities
   \printuntil osloItem->setText(1, tr("Yes"));
 
@@ -625,6 +625,12 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
   given index in the list of children with the insertChild() function.
 
   \sa QTreeWidget
+*/
+
+/*!
+    \fn QTreeWidget *QTreeWidgetItem::treeWidget() const
+
+    Returns the tree widget that contains the item.
 */
 
 /*!

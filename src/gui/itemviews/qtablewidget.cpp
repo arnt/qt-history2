@@ -401,6 +401,205 @@ void QTableModel::itemChanged(QTableWidgetItem *item)
 
 // item
 
+/*!
+    \class QTableWidgetItem
+    \brief The QTableWidgetItem class provides an item for use with the
+    QTableWidget class.
+
+    \ingroup model-view
+    \mainclass
+
+    \sa \link model-view-programming.html Model/View Programming\endlink
+*/
+
+/*!
+    \fn int QTableWidgetItem::checked() const
+
+    Returns the checked state of the list item (see \l{QCheckBox::ToggleState}).
+
+    Only checkable items can be checked. By default, items are not
+    checkable.
+
+    \sa flags()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setChecked(const bool checked)
+
+    Checks the item if \a checked is true; otherwise it will be shown as
+    unchecked.
+
+    \sa checked()
+*/
+
+/*!
+    \fn QTableWidget *QTableWidgetItem::tableWidget() const
+
+    Returns the table widget that contains the item.
+*/
+
+/*!
+    \fn QAbstractItemModel::ItemFlags QTableWidgetItem::flags() const
+
+    Returns the flags used to describe the item. These determine whether
+    the item can be checked, edited, and selected.
+
+    \sa setFlags()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setFlags(QAbstractItemModel::ItemFlags flags)
+
+    Sets the flags for the item to the given \a flags. These determine whether
+    the item can be selected or modified.
+
+    \sa flags()
+*/
+
+/*!
+    \fn QString QTableWidgetItem::text() const
+
+    Returns the item's text.
+
+    \sa setText()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setText(const QString &text)
+
+    Sets the item's text to the \a text specified.
+
+    \sa text() setFont() setTextColor()
+*/
+
+/*!
+    \fn QIcon QTableWidgetItem::icon() const
+
+    Returns the item's icon.
+
+    \sa setIcon()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setIcon(const QIcon &icon)
+
+    Sets the item's icon to the \a icon specified.
+
+    \sa icon() setText()
+*/
+
+/*!
+    \fn QString QTableWidgetItem::statusTip() const
+
+    Returns the item's status tip.
+
+    \sa setStatusTip()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setStatusTip(const QString &statusTip)
+
+    Sets the item's status tip to the string specified by \a statusTip.
+
+    \sa statusTip() setToolTip() setWhatsThis()
+*/
+
+/*!
+    \fn QString QTableWidgetItem::toolTip() const
+
+    Returns the item's tooltip.
+
+    \sa setToolTip()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setToolTip(const QString &toolTip)
+
+    Sets the item's tooltip to the string specified by \a toolTip.
+
+    \sa toolTip() setStatusTip() setWhatsThis()
+*/
+
+/*!
+    \fn QString QTableWidgetItem::whatsThis() const
+
+    Returns the item's "What's This?" help.
+
+    \sa setWhatsThis()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setWhatsThis(const QString &whatsThis)
+
+    Sets the item's "What's This?" help to the string specified by \a whatsThis.
+
+    \sa whatsThis() setStatusTip() setToolTip()
+*/
+
+/*!
+    \fn QFont QTableWidgetItem::font() const
+
+    Returns the font used to render the item's text.
+
+    \sa setFont()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setFont(const QFont &font)
+
+    Sets the font used to display the item's text to the given \a font.
+
+    \sa font() setText() setTextColor()
+*/
+
+/*!
+    \fn QColor QTableWidgetItem::backgroundColor() const
+
+    Returns the color used to render the item's background.
+
+    \sa textColor() setBackgroundColor()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setBackgroundColor(const QColor &color)
+
+    Sets the item's background color to the specified \a color.
+
+    \sa backgroundColor() setTextColor()
+*/
+
+/*!
+    \fn QColor QTableWidgetItem::textColor() const
+
+    Returns the color used to render the item's text.
+
+    \sa backgroundColor() setTextColor()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setTextColor(const QColor &color)
+
+    Sets the color used to display the item's text to the given \a color.
+
+    \sa textColor() setFont() setText()
+*/
+
+/*!
+  \fn int QTableWidgetItem::textAlignment() const
+
+  Returns the text alignment for the item's text (see \l{Qt::AlignmentFlag}).
+*/
+
+/*!
+  \fn void QTableWidgetItem::setTextAlignment(int alignment)
+
+  Sets the text alignment for the item's text to the \a alignment
+  specified (see \l{Qt::AlignmentFlag}).
+*/
+
+/*!
+    Constructs a table item that does not belong to any table.
+*/
 QTableWidgetItem::QTableWidgetItem()
     : view(0), model(0),
       itemFlags(QAbstractItemModel::ItemIsEditable
@@ -410,6 +609,9 @@ QTableWidgetItem::QTableWidgetItem()
 {
 }
 
+/*!
+    Constructs a table item with the given \a text.
+*/
 QTableWidgetItem::QTableWidgetItem(const QString &text)
     : view(0), model(0),
       itemFlags(QAbstractItemModel::ItemIsEditable
@@ -420,12 +622,18 @@ QTableWidgetItem::QTableWidgetItem(const QString &text)
     setData(QAbstractItemModel::DisplayRole, text);
 }
 
+/*!
+    Destroys the table item.
+*/
 QTableWidgetItem::~QTableWidgetItem()
 {
     if (model)
         model->removeItem(this);
 }
 
+/*!
+    Sets the item's data for the given \a role to the specified \a value.
+*/
 void QTableWidgetItem::setData(int role, const QVariant &value)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
@@ -440,6 +648,9 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
         model->itemChanged(this);
 }
 
+/*!
+    Returns the item's data for the given \a role.
+*/
 QVariant QTableWidgetItem::data(int role) const
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
@@ -449,11 +660,18 @@ QVariant QTableWidgetItem::data(int role) const
     return QVariant();
 }
 
+/*!
+    Returns true if the item is less than the \a other item; otherwise returns
+    false.
+*/
 bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 {
     return text() < other.text();
 }
 
+/*!
+    Clears all the item's information.
+*/
 void QTableWidgetItem::clear()
 {
     values.clear();
@@ -477,6 +695,21 @@ void QTableWidgetItem::clear()
     number of columns with setColumnCount().
 
     \sa \link model-view-programming.html Model/View Programming\endlink
+*/
+
+/*!
+    \property QTableWidget::rowCount
+    \brief the number of rows in the table
+*/
+
+/*!
+    \property QTableWidget::columnCount
+    \brief the number of columns in the table
+*/
+
+/*!
+    \property QTableWidget::sortingEnabled
+    \brief whether the items in the tree widget are sorted
 */
 
 #define d d_func()
@@ -933,7 +1166,8 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems() const
 }
 
 /*!
-  Finds items that matches the \a text, using the criteria given in the \a flags (see {QAbstractItemModel::MatchFlags}).
+  Finds items that matches the \a text, using the criteria given in the
+  \a flags (see QAbstractItemModel::MatchFlags).
 */
 
 QList<QTableWidgetItem*> QTableWidget::findItems(const QString &text,

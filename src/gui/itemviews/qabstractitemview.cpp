@@ -151,10 +151,33 @@ void QAbstractItemViewPrivate::init()
 /*!
     \enum QAbstractItemView::SelectionMode
 
-    \value NoSelection       No selections possible.
-    \value SingleSelection   At most only one item is selected.
-    \value MultiSelection    Multiple items can be selected with basic interactions.
-    \value ExtendedSelection Multiple items can be selected with complex interactions.
+    This enum indicates how the view responds to user selections:
+
+    \value Single  When the user selects an item, any already-selected
+    item becomes unselected, and the user cannot unselect the selected
+    item.
+
+    \value Multi  When the user selects an item in the usual way, the
+    selection status of that item is toggled and the other items are
+    left alone.
+
+    \value Extended When the user selects an item in the usual way,
+    the selection is cleared and the new item selected. However, if
+    the user presses the Ctrl key when clicking on an item, the
+    clicked item gets toggled and all other items are left untouched.
+    And if the user presses the Shift key while clicking on an item,
+    all items between the current item and the clicked item get
+    selected or unselected, depending on the state of the clicked
+    item. Also, multiple items can be selected by dragging the mouse
+    over them.
+
+    \value NoSelection  Items cannot be selected.
+
+    In other words, \c Single is a real single-selection list view, \c
+    Multi a real multi-selection list view, \c Extended is a list view
+    where users can select multiple items but usually want to select
+    either just one or a range of contiguous items, and \c NoSelection
+    is a list view where the user can look but not touch.
 */
 
 /*!

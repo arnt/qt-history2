@@ -257,6 +257,12 @@ void QListModel::itemChanged(QListWidgetItem *item)
 */
 
 /*!
+    \fn QListWidget *QListWidgetItem::listWidget() const
+
+    Returns the list widget that contains the item.
+*/
+
+/*!
     \fn QListWidgetItem::QListWidgetItem(QListWidget *parent)
 
     Constructs an empty list widget item with the given \a parent.
@@ -432,6 +438,11 @@ void QListWidgetItem::clear()
     \fn int QListWidgetItem::checked() const
 
     Returns the checked state of the list item (see \l{QCheckBox::ToggleState}).
+
+    Only checkable items can be checked. By default, items are not
+    checkable.
+
+    \sa flags()
 */
 
 /*!

@@ -778,7 +778,8 @@ bool QTableView::isColumnHidden(int column) const
 }
 
 /*!
-  If \a hide is true \a row will be hidden, otherwise it will be shown.
+  If \a hide is true the given \a column will be hidden; otherwise it
+  will be shown.
 */
 void QTableView::setColumnHidden(int column, bool hide)
 {
