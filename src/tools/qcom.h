@@ -227,7 +227,13 @@ public:
 #endif
 #endif
 
-#define Q_REFCOUNT  ulong addRef() {return ref++;}ulong release() {if(!--ref){delete this;return 0;}return ref;}
+#if defined(QT_DEBUG)
+#define Q_REFCOUNT  ulong addRef() {static bool first=TRUE;if(first){first = FALSE;if (ref) qWarning("RefCounter not initialized: %s", __FILE__);}return ref++;} \
+		    ulong release() {if(!--ref){delete this;return 0;}return ref;}
+#else
+#define Q_REFCOUNT  ulong addRef() {return ref++;} \
+		    ulong release() {if(!--ref){delete this;return 0;}return ref;}
+#endif
 
 #if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1
