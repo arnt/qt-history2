@@ -721,7 +721,6 @@ extern bool qt_winunicode;
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
 #    define Q_TEMPLATE_EXTERN extern
-#    pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  endif
 #else
@@ -765,6 +764,7 @@ Q_EXPORT int qWinVersion();
 #    pragma warning(disable: 4786) // truncating debug info after 255 characters
 #    pragma warning(disable: 4660) // template-class specialization 'identifier' is already instantiated
 #    pragma warning(disable: 4355) // 'this' : used in base member initializer list
+#    pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
 #  elif defined(Q_CC_BOR)
 #    pragma option -w-inl
 #    pragma option -w-aus
