@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#153 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#154 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -711,6 +711,7 @@ bool QPopupMenu::tryMenuBar( QMouseEvent *e )
 
 void QPopupMenu::byeMenuBar()
 {
+    hideAllPopups();
     register QMenuData *top = this;		// find top level
     while ( top->parentMenu )
 	top = top->parentMenu;
@@ -1265,7 +1266,6 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
 	if ( !rect().contains(e->pos()) && !tryMenuBar(e) ) {
-	    hide();
 	    byeMenuBar();
 	}
 	return;
@@ -1314,7 +1314,6 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	if ( popup ) {
 	    popup->setFirstItemActive();
 	} else {				// normal menu item
-	    hideAllPopups();			// hide all popup
 	    byeMenuBar();			// deactivate menu bar
 	    if ( mi->isEnabled() ) {
 		if ( mi->signal() )		// activate signal
@@ -1323,7 +1322,6 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	    }
 	}
     } else {
-	hideAllPopups();
 	byeMenuBar();
     }
 }
@@ -1408,14 +1406,13 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 
     case Key_Alt:
 	if ( style() == WindowsStyle ) {
-	    hideAllPopups();
 	    byeMenuBar();
 	}
 	break;
 
     case Key_Escape:
-	hideAllPopups();
-	byeMenuBar();
+	// just hide one
+	hide();
 	break;
 
     case Key_Left:
@@ -1456,7 +1453,6 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    popupSubMenuLater( 20, this );
 	    popup->setFirstItemActive();
 	} else {
-	    hideAllPopups();
 	    byeMenuBar();
 	    if ( mi->isEnabled() ) {
 		if ( mi->signal() )
@@ -1501,7 +1497,6 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		popupSubMenuLater( 20, this );
 		popup->setFirstItemActive();
 	    } else {
-		hideAllPopups();
 		byeMenuBar();
 		if ( mi->isEnabled() ) {
 		    if ( mi->signal() )
