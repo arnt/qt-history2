@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#241 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#242 $
 **
 ** Implementation of QFileDialog class
 **
@@ -516,7 +516,7 @@ void QRenameEdit::focusOutEvent( QFocusEvent * )
 QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
     : QListBox( parent, "filelistbox" ), filedialog( dlg ),
       renaming( FALSE ), renameItem( 0 ), mousePressed( FALSE ),
-      changeDirTimer( this ), firstMousePressEvent( TRUE )
+      changeDirTimer( this ), dragScrollTimer( this ), firstMousePressEvent( TRUE )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -529,6 +529,8 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
              this, SLOT( doubleClickTimeout() ) );
     connect( &changeDirTimer, SIGNAL( timeout() ),
              this, SLOT( changeDirDuringDrag() ) );
+    connect( &dragScrollTimer, SIGNAL( timeout() ),
+             this, SLOT( doDragScroll() ) );
 
     viewport()->setAcceptDrops( TRUE );
 }
@@ -677,6 +679,13 @@ void QFileListBox::viewportDragMoveEvent( QDragMoveEvent *e )
     if ( eraseDragShape )
         filedialog->drawDragShapes( oldDragPos, TRUE, urls );
 
+    if ( ( e->pos().y() < 16 || e->pos().y() > viewport()->height() - 16 ||
+           e->pos().x() < 16 || e->pos().x() > viewport()->width() - 16 ) && !
+         dragScrollTimer.isActive() ) {
+        dragScrollTimer.start( 100, FALSE );
+        e->accept( QRect( 0, 0, 0, 0 ) ); // Keep sending move events
+    }
+
     if ( acceptDrop( e->pos(), e->source() ) ) {
         e->accept();
         setCurrentDropItem( e->pos() );
@@ -694,6 +703,7 @@ void QFileListBox::viewportDragMoveEvent( QDragMoveEvent *e )
 void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
 {
     changeDirTimer.stop();
+    dragScrollTimer.stop();
     filedialog->drawDragShapes( oldDragPos, TRUE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
 }
@@ -701,7 +711,8 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
 void QFileListBox::viewportDropEvent( QDropEvent *e )
 {
     changeDirTimer.stop();
-
+    dragScrollTimer.stop();
+    
     if ( !QUriDrag::canDecode( e ) ) {
         e->ignore();
         return;
@@ -733,6 +744,32 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 
     filedialog->rereadDir();
     currDropItem = 0;
+}
+
+void QFileListBox::doDragScroll()
+{
+    QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
+
+    int l = 16;
+
+    int dx = 0,dy = 0;
+    if ( p.y() < 16 ) {
+        dy = -l;
+    } else if ( p.y() > visibleHeight() - 16 ) {
+        dy = +l;
+    }
+    if ( p.x() < 16 ) {
+        dx = -l;
+    } else if ( p.x() > visibleWidth() - 16 ) {
+        dx = +l;
+    }
+    if ( dx || dy ) {
+        filedialog->drawDragShapes( oldDragPos, TRUE, urls );
+        scrollBy( dx, dy );
+        filedialog->drawDragShapes( oldDragPos, TRUE, urls );
+    } else {
+        dragScrollTimer.stop();
+    }
 }
 
 bool QFileListBox::acceptDrop( const QPoint &pnt, QWidget *source )
