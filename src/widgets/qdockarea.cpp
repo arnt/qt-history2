@@ -191,17 +191,10 @@ static int space_left( const QRect &r, int pos, Qt::Orientation o )
 
 static int dock_extent( QDockWindow *w, Qt::Orientation o, int maxsize )
 {
-    if ( o == Qt::Horizontal ) {
-	int wid;
-	if ( ( wid = w->fixedExtent().width() ) != -1 )
-	    return QMIN( maxsize, wid );
-	return QMIN( maxsize, w->sizeHint().width() );
-    } else {
-	int hei;
-	if ( ( hei = w->fixedExtent().height() ) != -1 )
-	    return QMIN( maxsize, hei );
-	return QMIN( maxsize, w->sizeHint().height() );
-    }
+    if ( o == Qt::Horizontal )
+	return QMIN( maxsize, QMAX( w->sizeHint().width(), w->fixedExtent().width() ) );
+    else
+	return QMIN( maxsize, QMAX( w->sizeHint().height(), w->fixedExtent().height() ) );
 }
 
 static int dock_strut( QDockWindow *w, Qt::Orientation o )
