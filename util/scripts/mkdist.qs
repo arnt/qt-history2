@@ -14,6 +14,10 @@ const validEditions = ["free", "commercial"];
 const validSwitches = ["gzip", "bzip", "zip"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
+const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
+			  "jpg", "bmp", "any", "pic", "ppm",
+			  "exe", "zip", "qm", "ico"];
+
 const user = System.getenv("USER");
 
 var options = [];	// list of all package options
@@ -102,7 +106,7 @@ for (var p in validPlatforms) {
 
   	    // package directory
 	    print("Compressing and packaging file(s)...")
-	    compress(platDir, platName, platform, edition);
+	    compress(platDir, platform, edition);
 	    
   	    indentation-=tabSize;
   	}
@@ -350,33 +354,56 @@ function purgeFiles(rootDir, fileList, remove, keep)
 /************************************************************
  * compresses platDir into files (.zip .gz etc.)
  */
-function compress(platDir, platName, platform, edition)
+function compress(packageDir, platform, edition)
 {
-    // set directory to parent of platDir
-    var dir = new Dir(platDir);
+    // set directory to parent of packageDir
+    var dir = new Dir(packageDir);
+    var packageName = dir.name;
     dir.cdUp();
     dir.setCurrent();
 
     if (platform == "win") {
 	if (options["zip"]) {
-	    
+	    var files = getFileList(packageDir);
+	    var binaryFiles = new Array();
+	    var textFiles = new Array();
+	    var fileName = new String();
+	    var absFileName = new String();
+	    var zipFile = outputDir + "/" + packageName + ".zip";
+	    for (var i in files) {
+		fileName = files[i];
+		absFileName = packageDir + "/" + fileName;
+		if (File.exists(absFileName) && File.isFile(absFileName)) {
+		    if (binaryFile(absFileName))
+			binaryFiles.push(packageName + "/" + fileName);
+		    else
+			textFiles.push(packageName + "/" + fileName);
+		}
+	    }
+
+	    // add binary and text files to the zip file in in two big goes
+	    dir.setCurrent(); //  current dir is parent of packageDir
+	    if (binaryFiles.length > 0)
+		Process.execute(["zip", "-9q", zipFile, "-@"], binaryFiles.join("\n"));
+	    if (textFiles.length > 0)
+		Process.execute(["zip", "-l9q", zipFile, "-@"], textFiles.join("\n"));
 	}
     } else {
-	var outputTar = outputDir + "/" + platName + ".tar";
-	Process.execute(["tar", "cf", outputTar, platName]);
+	var tarFile = outputDir + "/" + packageName + ".tar";
+	Process.execute(["tar", "cf", tarFile, packageName]);
 	print(Process.stdout + Process.stderr);
-	if (!File.exists(outputTar))
-	    throw "Failed to produce %1.".arg(outputTar);
+	if (!File.exists(tarFile))
+	    throw "Failed to produce %1.".arg(tarFile);
 	
  	if (options["bzip"]) {
- 	    Process.execute(["bzip2", "-z", "-k", outputTar]);
+ 	    Process.execute(["bzip2", "-z", "-k", tarFile]);
  	}
  	if (options["gzip"]) {
- 	    Process.execute(["gzip", outputTar]);
+ 	    Process.execute(["gzip", tarFile]);
  	}
 	// remove .tar
-	if (File.exists(outputTar))
-	    File.remove(outputTar);
+	if (File.exists(tarFile))
+	    File.remove(tarFile);
     }
 }
 
@@ -472,4 +499,22 @@ function print(text)
     while (i--)
 	spaces += ' ';
     System.println(spaces + text);
+}
+
+/************************************************************
+ * returns true if the file exists, is a file, is executable or has a binary extension
+ */
+function binaryFile(fileName)
+{
+    if (File.exists(fileName) && File.isFile(fileName)) {
+	var file = new File(fileName);
+	if (file.executable) {
+	    return true;
+	} else {
+	    for (var i in binaryExtensions)
+		if (file.extension.lower() == binaryExtensions[i])
+		    return true;
+	}
+    }
+    return false;
 }
