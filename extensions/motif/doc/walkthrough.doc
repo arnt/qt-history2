@@ -490,10 +490,10 @@ dialogs.  This project has a single custom dialog: the \e {Page Edit}
 dialog.
 
 Instead of writing the code ourselves, we use the \link
-designer-manual.html Qt Designer\endlink to design our dialog.  The
+designer-manual.book Qt Designer\endlink to design our dialog.  The
 steps involved in designing our custom dialog are beyond the scope of
 this walkthrough and will not be discussed here.  The \link
-designer-manual.html Qt Designer Manual\endlink is a complete
+designer-manual.book Qt Designer Manual\endlink is a complete
 reference on the use of \e {Qt Designer}.
 
 \section2 Replacing the \e {Page Edit} Dialog
@@ -663,10 +663,10 @@ above\endlink, we will replace the existing \c XmMainWindow and
 popup-menu heirarchy with \link application.html Qt Main Window
 Classes\endlink.
 
-We will use \link designer-manual.html Qt Designer\endlink to design
+We will use \link designer-manual.book Qt Designer\endlink to design
 our new main window.  The steps involved in designing the \e {Main
 Window} widget are beyond the scope of this walkthrough and will not
-be discussed here.  The \link designer-manual.html Qt Designer
+be discussed here.  The \link designer-manual.book Qt Designer
 Manual\endlink is a complete reference on the use of \e {Qt Designer}.
 
 \section2 Implementing the \e {Main Window}
@@ -1084,11 +1084,11 @@ example project used in this walkthrough, using QTextEdit, QLabel and
 QSpinBox to provide a similar look.  The only difference is that we
 will not have tabs.
 
-We use the \link designer-manual.html Qt Designer\endlink to add the
+We use the \link designer-manual.book Qt Designer\endlink to add the
 QTextEdit, QLabel and QSpinBox widgets to the \e {Main Window} widget.
 The steps involved in designing the \e {Main Window} widget are beyond
 the scope of this walkthrough and will not be discussed here.  The
-\link designer-manual.html Qt Designer Manual\endlink is a complete
+\link designer-manual.book Qt Designer Manual\endlink is a complete
 reference on the use of \e {Qt Designer}.
 
 \section2 Data Structure Modifications

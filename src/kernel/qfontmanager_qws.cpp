@@ -78,16 +78,17 @@ QString qws_topdir()
 QFontManager * qt_fontmanager=0;
 
 /*!
-  \class QFontManager qfontmanager_qws.h
-  \ingroup qws
-  \brief The QFontManager class implements font management in Qt/Embedded.
+    \class QFontManager qfontmanager_qws.h
+    \brief The QFontManager class implements font management in Qt/Embedded.
+    \ingroup qws
 
-  There is one and only one QFontManager per Qt/Embedded
-  application (qt_fontmanager is a global variable that points to it).
-  It keeps a list of font factories, a cache of rendered fonts and a list
-  of fonts available on disk. QFontManager is called when a new font needs
-  to be rendered from a Freetype-compatible or BDF font on disk; this
-  only happens if there isn't an appropriate QPF font already available.
+    There is one and only one QFontManager per Qt/Embedded
+    application. The \c qt_fontmanager global variable points to it. It
+    keeps a list of font factories, a cache of rendered fonts and a
+    list of fonts available on disk. QFontManager is called when a new
+    font needs to be rendered from a Freetype-compatible or BDF font
+    on disk; this only happens if there isn't an appropriate QPF font
+    already available.
 */
 
 /*!
@@ -107,7 +108,7 @@ QFontManager * qt_fontmanager=0;
 */
 
 /*!
-  Creates a new QFontManager and points qt_fontmanager to it
+    Creates a new QFontManager and points \c qt_fontmanager to it
 */
 void QFontManager::initialize()
 {
@@ -115,7 +116,7 @@ void QFontManager::initialize()
 }
 
 /*!
-  Destroys the font manager
+    Destroys the font manager
 */
 void QFontManager::cleanup()
 {
@@ -124,30 +125,32 @@ void QFontManager::cleanup()
 }
 
 /*!
-  \class QRenderedFont qfontmanager_qws.h
-  \ingroup qws
-  \brief The QRenderedFont class is the rendered version of a particular
-  font.
+    \class QRenderedFont qfontmanager_qws.h
+    \brief The QRenderedFont class is the rendered version of a particular
+    font.
 
-  \internal (for now)
+    \internal
+    \omit Expected to become public API \endomit
 
-  The font is specified by a QFont, and is thus rendered at a
-  given weight, family and point size,
-  italic or not, and so on. There is one and only one QRenderedFont
-  for each particular QFont specification; if you specify two Times 10pt
-  bold italic QFonts they will both refer to the same QRenderedFont.
-  QRenderedFonts are cached by QFontManager and are reference counted;
-  when there is no QGfx referring to a particular QRenderedFont it is deleted.
-  Each QRenderedFont renders glyphs (that is, images of characters) on demand
-  and caches the rendered glyphs. It can be subclassed by individual factories
-  since they create new QRenderedFonts.
+    \ingroup qws
+
+    The font is specified by a QFont, and is rendered using the font's
+    weight, family and point size, italic or not, and so on. There is
+    one and only one QRenderedFont for each particular QFont
+    specification; if you specify two Times 10pt bold italic QFonts
+    they will both refer to the same QRenderedFont. QRenderedFonts are
+    cached by QFontManager and are reference counted; when there is no
+    QGfx referring to a particular QRenderedFont it is deleted. Each
+    QRenderedFont renders glyphs (that is, images of characters) on
+    demand and caches the rendered glyphs. It can be subclassed by
+    individual factories since they create new QRenderedFonts.
 */
 
 /*!
-  \fn QRenderedFont::QRenderedFont(QDiskFont * df, const QFontDef &d)
+    \fn QRenderedFont::QRenderedFont(QDiskFont * df, const QFontDef &d)
 
-  This constructs a QRenderedFont; the QDiskFont \a df and QFontDef \a
-  d are needed by the font factory to render glyphs.
+    This constructs a QRenderedFont; the QDiskFont \a df and QFontDef
+    \a d are needed by the font factory to render glyphs.
 */
 
 QRenderedFont::QRenderedFont(QDiskFont * df, const QFontDef &d)
@@ -170,8 +173,9 @@ QRenderedFont::QRenderedFont(QDiskFont * df, const QFontDef &d)
 }
 
 /*!
-\fn QRenderedFont::~QRenderedFont()
-Destroys a QRenderedFont
+    \fn QRenderedFont::~QRenderedFont()
+
+    Destroys a QRenderedFont
 */
 
 QRenderedFont::~QRenderedFont()
@@ -195,8 +199,10 @@ bool QRenderedFont::match(const QFontDef & f)
 // some best guesses
 
 /*!
-Returns the minimum left bearing (distance before the start of a character)
-of any character in the font. Unimplemented.
+    Returns the minimum left bearing (distance before the start of a
+    character) of any character in the font.
+
+    \warning Unimplemented.
 */
 
 int QRenderedFont::minLeftBearing()
@@ -205,8 +211,10 @@ int QRenderedFont::minLeftBearing()
 }
 
 /*!
-Returns the minimum right bearing (distance from the end of a character)
-of any character in the font. Unimplemented.
+    Returns the minimum right bearing (distance from the end of a
+    character) of any character in the font.
+
+    \warning Unimplemented.
 */
 
 int QRenderedFont::minRightBearing()
@@ -215,7 +223,7 @@ int QRenderedFont::minRightBearing()
 }
 
 /*!
-Returns the maximum width in pixels of any character in the font.
+    Returns the maximum width in pixels of any character in the font.
 */
 
 int QRenderedFont::maxWidth()
@@ -225,10 +233,11 @@ int QRenderedFont::maxWidth()
 }
 
 /*!
-Creates a font manager. This method reads in the font definition file
-from \c INSTALL/lib/fonts/fontdir, where \c INSTALL is the directory
-where Qt/Embedded was installed, and creates a list of QDiskFonts to hold
-the information in the file. It also constructs any defined font factories.
+    Creates a font manager. This method reads in the font definition
+    file from \c INSTALL/lib/fonts/fontdir, where \c INSTALL is the
+    directory where Qt/Embedded was installed, and creates a list of
+    QDiskFonts to hold the information in the file. It also constructs
+    any defined font factories.
 */
 
 QFontManager::QFontManager()
@@ -291,8 +300,9 @@ QFontManager::QFontManager()
 }
 
 /*!
-\fn QFontManager::~QFontManager()
-Destroys the QFontManager and sets qt_fontmanager to 0.
+    \fn QFontManager::~QFontManager()
+
+    Destroys the QFontManager and sets \c qt_fontmanager to 0.
 */
 
 QFontManager::~QFontManager()
@@ -327,8 +337,8 @@ int QFontManager::cmpFontDef(const QFontDef & goal, const QFontDef & choice)
 }
 
 /*!
-Returns the QDiskFont that best matches \a f,
-based on family, weight, italicity and font size.
+    Returns the QDiskFont that best matches \a f, based on family,
+    weight, italicity and font size.
 */
 
 QDiskFont * QFontManager::get(const QFontDef & f)
@@ -392,7 +402,7 @@ void QDefaultCachePolicy::uncache(QRenderedFont * f)
 }
 
 /*!
-  Loads the disk font, \a f as a rendered font.
+    Loads the disk font, \a f as a rendered font.
 */
 QRenderedFont* QDiskFont::load(const QFontDef & f)
 {
@@ -410,8 +420,8 @@ QRenderedFont* QDiskFont::load(const QFontDef & f)
 }
 
 /*!
-  Returns a QFontDef equivalent to this disk font.  The pointSize
-  may be 0 indicating this is a scalable font.
+    Returns a QFontDef equivalent to this disk font. The pointSize
+    may be 0 which indicates that this is a scalable font.
 */
 QFontDef QDiskFont::fontDef() const
 {
@@ -424,54 +434,67 @@ QFontDef QDiskFont::fontDef() const
 }
 
 /*!
-\fn int QRenderedFont::ascent()
-Returns the font's ascent (the distance from the baseline to the top of
-the tallest character)
+    \fn int QRenderedFont::ascent()
+
+    Returns the font's ascent (the distance from the baseline to the
+    top of the tallest character)
 */
 
 /*!
-\fn int QRenderedFont::descent()
-Returns the font's descent (the distance from the baseline to the bottom
-of the lowest character)
+    \fn int QRenderedFont::descent()
+
+    Returns the font's descent (the distance from the baseline to the
+    bottom of the lowest character)
 */
 
 /*!
-\fn int QRenderedFont::width(int)
-\overload
-Returns the width in pixels of the unicode character specified
+    \overload int QRenderedFont::width(int)
+
+    Returns the width in pixels of the specified Unicode character.
 */
 
 /*!
-\fn int QRenderedFont::width(const QString & s,int l=-1 );
-Returns the width in pixels of the first \a l characters of the string \a s,
-or the whole string if the value for \a l is not specified. This should be
-used in preference to adding up the widths of each character in the string
-since it can take account of kerning and inter-character spacing
+    \fn int QRenderedFont::width(const QString & s,int l=-1 );
+
+    Returns the width in pixels of the first \a l characters of the
+    string \a s, or the whole string if the value for \a l is not
+    specified. This should be used in preference to adding up the
+    widths of each character in the string since it can take account
+    of kerning and inter-character spacing
 */
 
 /*!
-\fn int QRenderedFont::leftBearing(int)
-Returns the left bearing (distance in pixels before the start of the letter)
-of the character specified.
+    \fn int QRenderedFont::leftBearing(int)
+
+    Returns the left bearing (distance in pixels before the start of
+    the letter) of the character specified.
 */
 
 /*!
-\fn int QRenderedFont::rightBearing(int)
-Returns the right bearing (distance in pixels after the end of the letter)
-of the character specified.
+    \fn int QRenderedFont::rightBearing(int)
+
+    Returns the right bearing (distance in pixels after the end of the
+    letter) of the character specified.
 */
 
 /*!
-\fn bool QRenderedFont::inFont(QChar ch) const
-Returns true if the unicode character \a ch is in the font.
+    \fn bool QRenderedFont::inFont( glyph_t g) const
+
+    \internal
+
+    Returns true if the Unicode character \a g is in the font;
+    otherwise returns FALSE.
 */
 
 /*!
-\fn virtual QGlyph QRenderedFont::render(QChar ch)
-Renders the unicode character \a ch, returning a QGlyph.
-A QGlyph has two members, metrics and data. Metrics contains
-information on the size, advance width and so forth of the character,
-data a pointer to the raw data for the character - either a 1 bit per pixel
-bitmap or an 8 bit per pixel alpha map of the character, the linestep
-of which is specified in QGlyphMetrics.
+    \fn virtual QGlyph QRenderedFont::render( glyph_t g)
+
+    \internal
+
+    Renders the Unicode character \a g, returning a QGlyph. A QGlyph
+    has two members, metrics and data. Metrics contains information on
+    the size, advance width and so forth of the character, data a
+    pointer to the raw data for the character -- either a 1-bit per
+    pixel bitmap or an 8-bit per pixel alpha map of the character, the
+    linestep of which is specified in QGlyphMetrics.
 */

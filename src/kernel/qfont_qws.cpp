@@ -239,6 +239,11 @@ int QFontMetrics::width( QChar ch ) const
 
 // ### should maybe use the common method aswell, but since that one is quite a bit slower
 // and we currently don't support complex text rendering on embedded, leave it as is.
+/*!
+    \overload
+
+    Returns the width of the first \a len characters of string \a str.
+*/
 int QFontMetrics::width( const QString &str, int len ) const
 {
     if ( len < 0 )
@@ -250,6 +255,12 @@ int QFontMetrics::width( const QString &str, int len ) const
     return ret;
 }
 
+/*!
+    \overload
+
+    Returns the bounding rectangle that contains the first \a len
+    characters of string \a str.
+*/
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
     return QRect( 0,-(ascent()),width(str,len),height());

@@ -447,12 +447,12 @@ QFontEngineData::~QFontEngineData()
 	   people. This script encodes the 256 eight-dot patterns with
 	   the 64 six-dot patterns as a subset.
 
-    \value Tagalog,
-    \value Hanunoo,
-    \value Buhid,
-    \value Tagbanwa,
+    \value Tagalog
+    \value Hanunoo
+    \value Buhid
+    \value Tagbanwa
 
-    \value KatakanaHalfWidth,
+    \value KatakanaHalfWidth
 
     \value Unicode includes all the above scripts.
 */

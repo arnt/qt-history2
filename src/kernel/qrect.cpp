@@ -167,16 +167,15 @@ QRect::QRect( const QPoint &topLeft, const QSize &size )
 
     An empty rectangle is not valid. \c{isEmpty() == !isValid()}
 
-    \sa isNull(), isValid()
+    \sa isNull(), isValid(), normalize()
 */
 
 /*!
     \fn bool QRect::isValid() const
 
-    Returns TRUE if the rectangle is valid or FALSE if it is invalid
-    (empty).
+    Returns TRUE if the rectangle is valid; otherwise returns FALSE.
 
-    A valid rectangle has a left() \<= right() and top() \<= bottom().
+    A valid rectangle has a left() \< right() and top() \< bottom().
 
     Note that non-trivial operations like intersections are not defined
     for invalid rectangles.
