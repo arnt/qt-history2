@@ -142,7 +142,6 @@ Configure::Configure( int& argc, char** argv )
 	// Disabled modules for CE
 	disabledModules += "opengl";		// < CE 4.0
 	disabledModules += "sql";		// For now
-	disabledModules += "table";		// For now
     } );
 
     readLicense();
