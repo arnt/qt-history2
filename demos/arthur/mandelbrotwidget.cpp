@@ -18,9 +18,9 @@
 #include <qfontmetrics.h>
 #include <qpainter.h>
 
-const double defaultCX = 0.349507;
-const double defaultCY = -0.085964;
-const double defaultScale = 0.000004;
+const double defaultCX = -0.637011;
+const double defaultCY = -0.0395159;
+const double defaultScale = 0.00403897;
 
 MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     : DemoWidget(parent)

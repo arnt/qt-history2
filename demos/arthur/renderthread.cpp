@@ -31,14 +31,59 @@ RenderThread::~RenderThread()
     wait();
 }
 
+#define COLORMAP_SIZE 512
+uint color_map[COLORMAP_SIZE];
+
+uint wavelength_to_rgb(float wl)
+{
+    float r = 0.0, g = 0.0, b = 0.0;
+
+    if (wl >= 380.0 && wl <= 440.0) {
+        r = -1.0 * (wl - 440.0) / (440.0 - 380.0);
+        b = 1.0;
+    } else if (wl >= 440.0 && wl <= 490.0) {
+        g = (wl - 440.0) / (490.0 - 440.0);
+        b = 1.0;
+    } else if (wl >= 490.0 && wl <= 510.0) {
+        g = 1.0;
+        b = -1.0 * (wl - 510.0) / (510.0 - 490.0);
+    } else if (wl >= 510.0 && wl <= 580.0) {
+        r = (wl - 510.0) / (580.0 - 510.0);
+        g = 1.0;
+    } else if (wl >= 580.0 && wl <= 645.0) {
+        r = 1.0;
+        g = -1.0 * (wl - 645.0) / (645.0 - 580.0);
+    } else if (wl >= 645.0 && wl <= 780.0) {
+        r = 1.0;
+    }
+
+    float s = 1.0;
+    if (wl > 700.0)
+        s = 0.3 + 0.7 * (780.0 - wl) / (780.0 - 700.0);
+    else if (wl <  420.0)
+        s = 0.3 + 0.7 * (wl - 380.0) / (420.0 - 380.0);
+
+    r = pow(r * s, 0.8);
+    g = pow(g * s, 0.8);
+    b = pow(b * s, 0.8);
+    return (uchar(r*255.0) << 16) | (uchar(g*255) << 8) | uchar(b*255);
+}
+
 void RenderThread::run()
 {
+    static bool init_cmap = true;
+    if (init_cmap) {
+        init_cmap = false;
+        for (int i=0; i<COLORMAP_SIZE; ++i)
+            color_map[i] = wavelength_to_rgb(380.0+400.0*i/COLORMAP_SIZE);
+    }
+
     for (;;) {
         short limit = 4;
         int lp;
-        double a1, a2, b1, b2;
+        float a1, a2, b1, b2;
         int x, y;
-        double ax, ay;
+        float ax, ay;
 
         mutex.lock();
         RenderParameters *p = parameters;
@@ -46,9 +91,9 @@ void RenderThread::run()
 
         int pheight = p->height;
         int pwidth = p->width;
-        double pscale = p->scale;
-        double pcx = p->cx;
-        double pcy = p->cy;
+        float pscale = p->scale;
+        float pcx = p->cx;
+        float pcy = p->cy;
         //QObject *preceiver = p->receiver;
 
         delete p;
@@ -59,9 +104,9 @@ void RenderThread::run()
         int halfHeight = pheight / 2;
         QImage image(pwidth, pheight, 32);
 
-        int passCount = 8;
+        int passCount = 32;
         for (int pass = 0; pass < passCount; ++pass) {
-            const int maxPrecision = (pass + 3) * 100;
+            const int maxPrecision = (pass + 3) * 30;
 
             for (y = -halfHeight; y < halfHeight; ++y) {
                 if (parameters)
@@ -86,17 +131,10 @@ void RenderThread::run()
                         b1 = b2;
                     } while (!(lp > maxPrecision || ((a1*a1) + (b1*b1) > limit)));
 
-                    QColor c;
-                    if (lp > maxPrecision) {
-                        c = Qt::black;
-                    } else {
-                        int h = (lp / 360) & 1 ? 359 - (lp % 360) : lp % 360;
-                        int v = ((lp / 256) & 1) ? 255 - (lp & 255) : (lp & 255);
-                        int s = 255 - v;
-                        c.setHsv(h, s, v);
-                    }
-
-                    *scanLine++ = c.rgb();
+                    if (lp > maxPrecision)
+                        *scanLine++ = 0xff000000;
+                    else
+                        *scanLine++ = color_map[lp%COLORMAP_SIZE];
                 }
             }
 
