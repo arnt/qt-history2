@@ -539,7 +539,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
   Selects the item \a selection using the specified \a command, and emits
   selectionChanged().
 
-  \sa QItemSelectionModel::SelectionCommand
+  \sa QItemSelectionModel::SelectionFlag
 */
 void QItemSelectionModel::select(const QItemSelection &selection, SelectionFlags command)
 {
