@@ -2691,8 +2691,14 @@ void QFileDialog::changeMode( int id )
 
 QFileDialog::~QFileDialog()
 {
+    // since clear might call setContentsPos which would emit 
+    // a signal and thus cause a recompute of sizes...
+    files->blockSignals( TRUE );
+    d->moreFiles->blockSignals( TRUE );
     files->clear();
     d->moreFiles->clear();
+    d->moreFiles->blockSignals( FALSE );
+    files->blockSignals( FALSE );
     delete d;
     d = 0;
 }
