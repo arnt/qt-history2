@@ -174,7 +174,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
     bool delete_qApp = false;
     if (!qApp) {
         int argc = 0;
-        QApplication app(argc, 0);
+        (void)new QApplication(argc, 0);
         delete_qApp = true;
     }
     
@@ -952,7 +952,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     bool delete_qApp = false;
     if (!qApp) {
         int argc;
-        QApplication app(argc, 0);
+        (void)new QApplication(argc, 0);
         delete_qApp = true;
     }
     
@@ -1066,7 +1066,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     
 ErrorInClass:
     if (delete_qApp)
-        delete_qApp;
+        delete qApp;
 
     delete mapping;
     mapping = 0;
