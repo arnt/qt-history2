@@ -507,7 +507,7 @@ void QMacStyle::polish(QWidget* w)
 	QPopupMenu *popup = (QPopupMenu*)w;
 	popup->setMargin(0);
 	popup->setLineWidth(0);
-	w->setWindowOpacity(200 / 255);
+	w->setWindowOpacity(0.95);
     } else if(w->inherits("QTitleBar")) {
 //	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
