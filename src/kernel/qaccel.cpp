@@ -157,6 +157,9 @@ static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 		if ( kc.lower() == c.lower()
 		  && (key & Qt::MODIFIER_MASK) == km )
 		    break;
+		else if ( kc.lower() == c.lower()
+		    && (key & Qt::MODIFIER_MASK^Qt::SHIFT) == km )
+		    break;
 	    } else {
 		// No modifiers requested, ignore Shift but require others...
 		if ( kc == ch
