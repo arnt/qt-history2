@@ -356,7 +356,7 @@ XML (rms)
 QRichText
     valign for tables
 
-QListBox/maybe QTable (Reggie)
+QListBox (Reggie)
     DnD API, like QIconView
 
 QTable (Reggie):
