@@ -594,7 +594,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
     p.setPen( whatsThat->colorGroup().foreground() );
     p.drawRect( 0, 0, w, h );
     p.setPen( whatsThat->colorGroup().mid() );
-    p.setBrush( whatsThat->colorGroup().background() );
+    p.setBrush( whatsThat->colorGroup().brush( QColorGroup::Background ) );
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( whatsThat->colorGroup().foreground() );
 
