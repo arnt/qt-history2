@@ -181,11 +181,8 @@ public:
 
 		// If we did not find a suitable mime type, yet skipped
 		// CF_TEXT due to the priorities above, give it a shot
-                if ( !mime && sawSBText ) {
+                if ( !mime && sawSBText && !n ) {
 		    mime = QWindowsMime::cfToMime( CF_TEXT );
-		    if ( mime ) {
-			n--;
-		    }
 		}
 		CloseClipboard();
 	    }
