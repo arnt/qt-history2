@@ -56,8 +56,7 @@ Follow the instructions at
 <h3>Build the kernel</h3>
 
 Get a sample root ramdisk from
-<a href=ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk>
-ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk</a>
+<a href=ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk>ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk</a>
 <p>
 Follow the instructions at
 <a href=http://www.linux-vr.org/ramdisk.html>http://www.linux-vr.org/ramdisk.html</a>
@@ -81,7 +80,7 @@ configuration:
 <h3>Booting Linux</h3>
 
 Follow the instructions at
-<a href=http://www.linux-vr.org/tools.html>http://www.linux-vr.org/booting.html</a>.
+<a href=http://www.linux-vr.org/booting.html>http://www.linux-vr.org/booting.html</a>.
 <p>
 You should see the linux boot messages on the LCD display.
 
@@ -91,7 +90,7 @@ Usually a device such as the Cassiopeia would have a shell, configured as the
 Qt/Embedded server, that allows client applications to be launched.
 For the purposes of this tutorial, we will write a simple application that
 serves as the Qt/Embedded server and client.  A more complete Qt/Embbeded
-server can be found in examples/compact.
+server can be found in $QTDIR/examples/compact.
 <p>
 The application that we will write is a simple note pad.  It will allow
 notes to be created, viewed and deleted.  Since the Cassiopeia doesn't have
@@ -103,7 +102,7 @@ Our note pad user interface is very simple.  It consists of a toolbar with
 "New" and "Delete" buttons, a combo box to select the note to view and
 an editing area.
 <p>
-Take a moment to browse the source code for Note Pad in examples/notetaker/.
+Take a moment to browse the source code for Note Pad in $QTDIR/examples/notepad/.
 The code is quite simple, but there are some things worth noting:
 
 <ol>
@@ -118,8 +117,8 @@ our device.
 <li>The Cassiopeia has no keyboard (generally) so we must provide some means
 of character input with the pen.  The simplest method is to display a small
 keyboard.  The compact example includes a keyboard, so we use this code.
-Key and pointer input is Qt/Embedded specific, so it is surrounded by
-#ifdef _WS_QWS_ ...  #endif so that we can compile the example with Qt/X11
+Key and pointer input is Qt/Embedded specific, so it is surrounded
+by #ifdef _WS_QWS_ ...  #endif so that we can compile the example with Qt/X11
 or Qt/Windows if we wish.
 </ol>
 
@@ -128,7 +127,7 @@ or Qt/Windows if we wish.
 Since our application is quite simple we can remove some unneeded features
 from Qt/Embedded.  Edit $QTDIR/src/tools/qfeatures.h and disable the
 following features:
-<ul>
+<table border=0><tr><td valign=top><ul>
 <li>QT_FEATURE_IMAGEIO_BMP
 <li>QT_FEATURE_IMAGEIO_PPM
 <li>QT_FEATURE_IMAGEIO_XBM
@@ -144,6 +143,7 @@ following features:
 <li>QT_FEATURE_CURSOR
 <li>QT_FEATURE_NETWORKPROTOCOL
 <li>QT_FEATURE_COLORNAMES
+</ul></td><td valign=top><ul>
 <li>QT_FEATURE_TRANSFORMATIONS
 <li>QT_FEATURE_PSPRINTER
 <li>QT_FEATURE_PICTURE
@@ -158,7 +158,7 @@ following features:
 <li>QT_FEATURE_PROGRESSDIALOG
 <li>QT_FEATURE_TABDIALOG
 <li>QT_FEATURE_WIZARD
-</ul>
+</ul></td></tr></table>
 
 See <a href=features.html>Qt Features</a> for a description of the features
 that can be disabled.  This leaves us with a small set of widgets and
