@@ -487,7 +487,8 @@ void QTreeView::scrollTo(const QModelIndex &index)
 {
     Q_D(QTreeView);
     // check if we really need to do anything
-    if (isIndexHidden(index))
+    
+    if (columnCount() == 0 || isIndexHidden(index))
         return;
     QRect rect = visualRect(index);
     if (rect.isEmpty())
