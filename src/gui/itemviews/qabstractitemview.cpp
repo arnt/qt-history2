@@ -808,11 +808,6 @@ bool QAbstractItemView::dragEnabled() const
   alternating colors, otherwise the background will be drawn using the QPalette::Base color.
 */
 
-bool QAbstractItemView::alternatingRowColors() const
-{
-    return d->alternatingColors;
-}
-
 void QAbstractItemView::setAlternatingRowColors(bool enable)
 {
     d->alternatingColors = enable;
@@ -820,19 +815,24 @@ void QAbstractItemView::setAlternatingRowColors(bool enable)
         d->viewport->update();
 }
 
+bool QAbstractItemView::alternatingRowColors() const
+{
+    return d->alternatingColors;
+}
+
 /*!
   \property QAbstractItemView::oddRowColor
   \brief the color used to draw the background for odd rows
 */
 
-QColor QAbstractItemView::oddRowColor() const
-{
-    return d->oddColor;
-}
-
 void QAbstractItemView::setOddRowColor(const QColor &odd)
 {
     d->oddColor = odd;
+}
+
+QColor QAbstractItemView::oddRowColor() const
+{
+    return d->oddColor;
 }
 
 /*!
@@ -840,14 +840,14 @@ void QAbstractItemView::setOddRowColor(const QColor &odd)
   \brief the color used to draw the background for even rows
 */
 
-QColor QAbstractItemView::evenRowColor() const
-{
-    return d->evenColor;
-}
-
 void QAbstractItemView::setEvenRowColor(const QColor &even)
 {
     d->evenColor = even;
+}
+
+QColor QAbstractItemView::evenRowColor() const
+{
+    return d->evenColor;
 }
 
 /*!

@@ -107,14 +107,14 @@ public:
     void setDragEnabled(bool enable);
     bool dragEnabled() const;
 
-    bool alternatingRowColors() const;
     void setAlternatingRowColors(bool enable);
+    bool alternatingRowColors() const;
 
-    QColor oddRowColor() const;
     void setOddRowColor(const QColor &odd);
+    QColor oddRowColor() const;
 
-    QColor evenRowColor() const;
     void setEvenRowColor(const QColor &even);
+    QColor evenRowColor() const;
 
     virtual void keyboardSearch(const QString &search);
     void setKeyboardInputInterval(int msec);
