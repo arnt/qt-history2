@@ -1310,7 +1310,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 	rightArea = QRegion( rightArea ).subtract( rightTop ).boundingRect();
     if ( hasBottom )
 	rightArea = QRegion( rightArea ).subtract( rightBottom ).boundingRect();
-    
+
     // find the docking area into which the toolbar should/could be moved
 
     // if the mouse is in a rect which belongs to two docking areas (intersection),
@@ -1390,7 +1390,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	QPoint pos = mapFromGlobal( QCursor::pos() );
 	QRect r;
 	(void)findDockArea( pos, r, t );
-	d->rectPainter->drawWinFocusRect( r );
+	d->rectPainter->drawRect( r );
 	d->oldPosRect = r;
 	d->origPosRect = r;
 	d->oldPosRectValid = TRUE;
@@ -1427,9 +1427,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
     if ( d->rectPainter ) {
 	if ( d->oldPosRectValid && d->oldPosRect != r )
-	    d->rectPainter->drawWinFocusRect( d->oldPosRect );
+	    d->rectPainter->drawRect( d->oldPosRect );
 	if ( d->oldPosRect != r )
-	    d->rectPainter->drawWinFocusRect( r );
+	    d->rectPainter->drawRect( r );
     }
     d->oldPosRect = r;
     d->oldPosRectValid = TRUE;
