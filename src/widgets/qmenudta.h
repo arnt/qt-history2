@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#42 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#43 $
 **
 ** Definition of QMenuData class
 **
@@ -90,11 +90,19 @@ public:
     int		insertItem( const QPixmap &pixmap,
 			    const QObject *receiver, const char *member,
 			    int accel=0 );
+    int		insertItem( const QPixmap &pixmap, const char *text,
+			    const QObject *receiver, const char *member,
+			    int accel=0 );
     int		insertItem( const char *text, int id=-1, int index=-1 );
     int		insertItem( const char *text, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
     int		insertItem( const QPixmap &pixmap, int id=-1, int index=-1 );
     int		insertItem( const QPixmap &pixmap, QPopupMenu *popup,
+			    int id=-1, int index=-1 );
+    int		insertItem( const QPixmap &pixmap, const char *text, 
+			    int id=-1, int index=-1 );
+    int		insertItem( const QPixmap &pixmap, const char *text, 
+			    QPopupMenu *popup,
 			    int id=-1, int index=-1 );
 
     void	insertSeparator( int index=-1 );
@@ -110,6 +118,7 @@ public:
     QPixmap    *pixmap( int id )	const;
     void	changeItem( const char *text, int id );
     void	changeItem( const QPixmap &pixmap, int id );
+    void	changeItem( const QPixmap &pixmap, const char *text, int id );
 
     bool	isItemEnabled( int id ) const;
     void	setItemEnabled( int id, bool enable );
@@ -143,6 +152,8 @@ protected:
     virtual void   menuStateChanged();
     virtual void   menuInsPopup( QPopupMenu * );
     virtual void   menuDelPopup( QPopupMenu * );
+
+    QMenuItem * findPopup( QPopupMenu *, int *index = 0 );
 
 private:
     int		insertAny( const char *, const QPixmap *, QPopupMenu *,
