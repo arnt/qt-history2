@@ -83,7 +83,8 @@ void FormFile::setFileName( const QString &fn )
 	return;
     if ( fn.isEmpty() ) {
 	fileNameTemp = TRUE;
-	filename = createUnnamedFileName();
+	if ( filename.find( "unnamed" ) != 0 )
+	    filename = createUnnamedFileName();
 	return;
     }
     filename = fn;
