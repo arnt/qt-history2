@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#183 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#184 $
 **
 ** Implementation of QScrollBar class
 **
@@ -246,10 +246,8 @@ void QScrollBar::init()
     repeater = 0;
     d = 0;
 
-    if ( style() == MotifStyle )
-	setBackgroundMode( PaletteMid );
-    else
-	setBackgroundMode( PaletteBackground );
+    setBackgroundMode((Qt::BackgroundMode)
+		      style().styleHint(QStyle::SH_ScrollBarBackgroundMode));
 
     if ( orient == Horizontal )
 	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
@@ -312,10 +310,8 @@ bool QScrollBar::draggingSlider() const
 void QScrollBar::setPalette( const QPalette &p )
 {
     QWidget::setPalette( p );
-    if ( style() == MotifStyle )
-	setBackgroundMode( PaletteMid );
-    else
-	setBackgroundMode( PaletteBackground );
+    setBackgroundMode((Qt::BackgroundMode)
+		      style().styleHint(QStyle::SH_ScrollBarBackgroundMode));
 }
 
 
@@ -807,11 +803,8 @@ void QScrollBar::drawControls( uint controls, uint activeControl,
 void QScrollBar::styleChange( QStyle& old )
 {
     positionSliderFromValue();
-    if ( style() == MotifStyle )
-	setBackgroundMode( PaletteMid );
-    else
-	setBackgroundMode( PaletteBackground );
-
+    setBackgroundMode((Qt::BackgroundMode)
+		      style().styleHint(QStyle::SH_ScrollBarBackgroundMode));
     QWidget::styleChange( old );
 }
 

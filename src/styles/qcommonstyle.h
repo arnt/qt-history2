@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#14 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#15 $
 **
 ** Definition of QCommonStyle class
 **
@@ -100,7 +100,7 @@ public:
 				    const QSize &contentsSize,
 				    void *data = 0 ) const;
 
-    virtual int feelHint( FeelHint f,
+    virtual int styleHint( StyleHint sh,
 			  const QWidget *w = 0,
 			  void **returnData = 0 ) const;
 

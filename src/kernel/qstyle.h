@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#91 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#92 $
 **
 ** Definition of QStyle class
 **
@@ -198,7 +198,7 @@ public:
 
 
     enum ComplexControl{
-	  CC_SpinWidget
+	CC_SpinWidget
 	/*
 	  CC_ScrollBar,
 	  CC_Slider,
@@ -221,14 +221,14 @@ public:
 	  SC_ScrollBarLast = 	0x00000020,
 	  SC_ScrollBarSlider = 	0x00000040,
 	  SC_ScrollBarNoScroll = 	0x00000080,
-*/
+	*/
 	SC_SpinWidgetUp = 		0x00000001,
 	SC_SpinWidgetDown = 		0x00000002,
 	SC_SpinWidgetFrame = 		0x00000004,
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010
 
-/*
+	/*
 	  SC_MenuItemCheck =	0x00000001,
 	  SC_MenuItemLabel =	0x00000002,
 	  SC_MenuItemAccel =	0x00000004,
@@ -309,15 +309,17 @@ public:
 				    const QSize &contentsSize,
 				    void *data = 0 ) const = 0;
 
-    enum FeelHint  {
+    enum StyleHint  {
+	SH_ScrollBarBackgroundMode
+
 	/*
 	  FH_TabBarCentered
 	*/
     };
 
-    virtual int feelHint( FeelHint f,
-			  const QWidget *w = 0,
-			  void **returnData = 0 ) const = 0;
+    virtual int styleHint( StyleHint f,
+			   const QWidget *w = 0,
+			   void **returnData = 0 ) const = 0;
 
 
 

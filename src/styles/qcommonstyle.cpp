@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#39 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#40 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -868,10 +868,21 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
 
 /*!
-  Returns a feel hint.
+  Returns a style (look and feel) hint.
 */
-int QCommonStyle::feelHint(FeelHint, const QWidget *, void **) const
+int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void **) const
 {
-    return 0;
-}
+    int ret;
 
+    switch (sh) {
+    case SH_ScrollBarBackgroundMode:
+	ret = QWidget::PaletteBackground;
+	break;
+
+    default:
+	ret = 0;
+	break;
+    }
+
+    return ret;
+}
