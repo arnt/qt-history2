@@ -69,6 +69,7 @@ int mac_window_count = 0;
 /*****************************************************************************
   Externals
  *****************************************************************************/
+void qt_mac_command_set_enabled(UInt32, bool); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
@@ -1345,12 +1346,8 @@ void QWidget::showWindow()
 	if(testWFlags(WShowModal))
 	    BeginAppModalStateForWindow((WindowRef)hd);
 #else
-	if(testWFlags(WShowModal))
-	    DisableMenuCommand(NULL, kHICommandQuit);
-#endif
-#if 0
-	/* For now this will happen in the event loop (so that the window is actually visible by then) */
-	setActiveWindow();
+	if(testWFlags(WShowModal)) 
+	    qt_mac_command_set_enabled(kHICommandQuit, FALSE);
 #endif
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
@@ -1371,7 +1368,7 @@ void QWidget::hideWindow()
 	    EndAppModalStateForWindow((WindowRef)hd);
 #else
 	if(testWFlags(WShowModal))
-	    EnableMenuCommand(NULL, kHICommandQuit);
+	    qt_mac_command_set_enabled(kHICommandQuit, TRUE);
 #endif
 	if(qt_mac_is_macsheet(this))
 	    HideSheetWindow((WindowPtr)hd);

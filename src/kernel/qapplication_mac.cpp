@@ -204,6 +204,20 @@ static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
     }
 }
 
+void qt_mac_command_set_enabled(UInt32 cmd, bool b) 
+{
+    if(b) {
+	EnableMenuCommand(NULL, cmd);
+	if(MenuRef mr = GetApplicationDockTileMenu()) 
+	    EnableMenuCommand(mr, cmd);
+    } else {
+	DisableMenuCommand(NULL, cmd);
+	if(MenuRef mr = GetApplicationDockTileMenu()) 
+	    DisableMenuCommand(mr, cmd);
+    }
+}
+
+/* lookup widget helper function */
 static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
 {
     Point p;
@@ -642,7 +656,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
 #else
-	DisableMenuCommand(NULL, kHICommandQuit);
+	qt_mac_command_set_enabled(kHICommandQuit, FALSE);
 #endif
 	QColor::initialize();
 	QFont::initialize();
@@ -2288,11 +2302,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(aeClass == kCoreEventClass) {
 		switch(aeID) {
 		case kAEQuitApplication: {
-		    QCloseEvent ev;
-		    QApplication::sendSpontaneousEvent(app, &ev);
-		    if(ev.isAccepted()) {
-			handled_event = TRUE;
-			app->quit();
+		    if(!qt_modal_state() || IsMenuCommandEnabled(NULL, kHICommandQuit)) {
+			QCloseEvent ev;
+			QApplication::sendSpontaneousEvent(app, &ev);
+			if(ev.isAccepted()) {
+			    handled_event = TRUE;
+			    app->quit();
+			}
 		    }
 		    break; }
 		default:
