@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#5 $
 **
 ** Implementation of QMessageBox class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#5 $";
 #endif
 
 
@@ -35,8 +35,8 @@ the contents change.
 Example of use:
 \code
   QMessageBox mb;
-  mb.setText( "This program may crash you hardware!!!\nLet's start..." );
-  mb.setButtonText( "Yes" );
+  mb.setText( "This program may crash your hardware!!!\nLet's start..." );
+  mb.setButtonText( "Yes!" );
   mb.exec();
 \endcode
 */
