@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#7 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#8 $
 **
 ** Definition of QBitArray class
 **
@@ -54,6 +54,7 @@ public:
 
     bool    fill( bool v, int size = -1 );	// fill bit array with value
 
+    void    detach();				// detach bit array
     QBitArray copy() const;			// get deep copy
 
     bool    testBit( uint i ) const;		// test if bit set
