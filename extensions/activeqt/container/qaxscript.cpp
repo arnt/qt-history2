@@ -242,6 +242,7 @@ HRESULT WINAPI QAxScriptSite::OnLeaveScript()
 HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
 {
     EXCEPINFO exception;
+    memset(&exception, 0, sizeof(exception));
     DWORD context;
     ULONG lineNumber;
     LONG charPos;

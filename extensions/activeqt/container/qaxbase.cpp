@@ -3203,6 +3203,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     VariantInit(&arg);
     DISPPARAMS params;
     EXCEPINFO excepinfo;
+    memset(&excepinfo, 0, sizeof(excepinfo));
     UINT argerr = 0;
     HRESULT hres = E_FAIL;
 
@@ -3358,6 +3359,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     UINT argerr = 0;
     HRESULT hres = E_FAIL;
     EXCEPINFO excepinfo;
+    memset(&excepinfo, 0, sizeof(excepinfo));
 
     WORD wFlags = (isProperty && params.cArgs == 1) ? DISPATCH_PROPERTYPUT : DISPATCH_METHOD;
     hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, wFlags, &params, pret, &excepinfo, &argerr);
@@ -3654,6 +3656,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     params.rgdispidNamedArgs = (disptype == DISPATCH_PROPERTYPUT) ? &dispidNamed : 0;
     params.rgvarg = arg;
     EXCEPINFO excepinfo;
+    memset(&excepinfo, 0, sizeof(excepinfo));
     UINT argerr = 0;
 
     HRESULT hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, disptype, &params, res, &excepinfo, &argerr);
