@@ -52,6 +52,7 @@
 #include "qgridview.h"
 #include "qapplication.h"
 #include "qstyle.h"
+#include "qsettings.h"
 
 #ifdef Q_WS_MAC
 QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* name );
@@ -429,6 +430,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 static bool initrgb = FALSE;
 static QRgb stdrgb[6*8];
 static QRgb cusrgb[2*8];
+static bool customSet = FALSE;
 
 
 static void initRGB()
@@ -482,6 +484,7 @@ void QColorDialog::setCustomColor( int i, QRgb c )
 #endif
 	return;
     }
+    customSet = TRUE;
     cusrgb[i] = c;
 }
 
@@ -1435,6 +1438,17 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 {
     setSizeGripEnabled( FALSE );
     d = new QColorDialogPrivate( this );
+
+    if ( !customSet ) {
+	QSettings settings;
+	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+	for ( int i = 0; i < 2*8; ++i ) {
+	    bool ok = FALSE;
+	    QRgb rgb = (QRgb)settings.readNumEntry( "/Qt/customColors/" + QString::number( i ), 0, &ok );
+	    if ( ok )
+		cusrgb[i] = rgb;
+	}
+    }
 }
 
 
@@ -1537,6 +1551,12 @@ QColor QColorDialog::color() const
 
 QColorDialog::~QColorDialog()
 {
+    if ( !customSet ) {
+	QSettings settings;
+	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+	for ( int i = 0; i < 2*8; ++i )
+	    settings.writeEntry( "/Qt/customColors/" + QString::number( i ), (int)cusrgb[i] );
+    }
 }
 
 
