@@ -686,7 +686,7 @@ static inline QString groupKey( const QString &group, const QString &key )
 
   When reading settings the folders are searched forwards from the
   first folder (listed below) to the last, returning the first
-  settings found, and ignoring any folders for which the user doesn't 
+  settings found, and ignoring any folders for which the user doesn't
   have read permission.
   \list 1
   \i HKEY_CURRENT_USER/Software/MyCompany/MyApplication
@@ -710,7 +710,7 @@ static inline QString groupKey( const QString &group, const QString &key )
   \i HKEY_CURRENT_USER/Software/MyApplication
   \endlist
   If a setting is found in the HKEY_CURRENT_USER space, this setting
-  is overwritten independently of write permissions in the 
+  is overwritten independently of write permissions in the
   HKEY_LOCAL_MACHINE space.
 
   When \a s is \e Unix, and the execution environment is Unix, the
@@ -919,7 +919,7 @@ bool QSettings::sync()
 
 	it++;
 
-	if (file.name().isNull() || file.name().isEmpty()) {
+	if ( file.name().isEmpty() ) {
 
 #ifdef QT_CHECK_STATE
 	    qWarning("QSettings::sync: filename is null/empty");
@@ -1873,7 +1873,7 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
 //    while the User scope corresponds to $HOME/.*rc.
 //    Note that on most installations, not all users can write to the System
 //    scope.
-//    
+//
 //    On MacOS X, if there is no "." in domain, append ".com", then reverse the
 //    order of the elements (Mac OS uses "com.apple.finder" as domain+product).
 //    The Global scope corresponds to /Library/Preferences/*.plist, while the
