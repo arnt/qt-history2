@@ -211,17 +211,17 @@ void QValidator::fixup( QString & ) const
     s = "10";
     v.validate( s, 0 ); // returns Acceptable
     s = "35";
-    v.validate( s, 0 );	// returns Acceptable
+    v.validate( s, 0 ); // returns Acceptable
 
     s = "105";
-    v.validate( s, 0 );	// returns Intermediate
+    v.validate( s, 0 ); // returns Intermediate
 
     s = "-763";
-    v.validate( s, 0 );	// returns Invalid
+    v.validate( s, 0 ); // returns Invalid
     s = "abc";
-    v.validate( s, 0 );	// returns Invalid
+    v.validate( s, 0 ); // returns Invalid
     s = "12v";
-    v.validate( s, 0 );	// returns Invalid
+    v.validate( s, 0 ); // returns Invalid
   \endcode
 
   The minimum and maximum values are set in one call with setRange() or
@@ -279,10 +279,10 @@ QIntValidator::~QIntValidator()
     v.validate( s, 0 ); // returns Acceptable
 
     s = "105";
-    v.validate( s, 0 );	// returns Intermediate
+    v.validate( s, 0 ); // returns Intermediate
 
     s = "abc";
-    v.validate( s, 0 );	// returns Invalid
+    v.validate( s, 0 ); // returns Invalid
   \endcode
 */
 
@@ -531,7 +531,7 @@ void QDoubleValidator::setDecimals( int decimals )
   normally be associated with a widget as in the example above.
 
   \code
-    // integers 1 to 9999, i.e. a digit between 1 and 9 followed by up to 3 digits
+    // integers 1 to 9999
     QRegExp rx( "[1-9]\\d{0,3}" );
     // the validator treats the regexp as "^[1-9]\\d{0,3}$"
     QRegExpValidator v( rx, 0 );
@@ -541,7 +541,7 @@ void QDoubleValidator::setDecimals( int decimals )
     s = "12345"; v.validate( s, 0 );    // returns Invalid
     s = "1";     v.validate( s, 0 );    // returns Acceptable
 
-    rx.setPattern( "\\S+" );	        // one or more non-whitespace characters
+    rx.setPattern( "\\S+" );            // one or more non-whitespace characters
     v.setRegExp( rx );
     v.validate( "myfile.txt", 0 );      // returns Acceptable
     v.validate( "my file.txt", 0 );     // returns Invalid
@@ -549,18 +549,18 @@ void QDoubleValidator::setDecimals( int decimals )
     // A, B or C followed by exactly five digits followed by W, X, Y or Z
     rx.setPattern( "[A-C]\\d{5}[W-Z]" );
     v.setRegExp( rx );
-    v.validate( "a12345Z", 0 );	        // returns Invalid
-    v.validate( "A12345Z", 0 );	        // returns Acceptable
-    v.validate( "B12", 0 );	        // returns Intermediate
+    v.validate( "a12345Z", 0 );         // returns Invalid
+    v.validate( "A12345Z", 0 );         // returns Acceptable
+    v.validate( "B12", 0 );             // returns Intermediate
 
     // match most 'readme' files
     rx.setPattern( "read\\S?me(\.(txt|asc|1st))?" );
     rx.setCaseSensitive( FALSE );
     v.setRegExp( rx );
-    v.validate( "readme", 0 );	        // returns Acceptable
+    v.validate( "readme", 0 );          // returns Acceptable
     v.validate( "README.1ST", 0 );      // returns Acceptable
     v.validate( "read me.txt", 0 );     // returns Invalid
-    v.validate( "readm", 0 );	        // returns Intermediate
+    v.validate( "readm", 0 );           // returns Intermediate
   \endcode
 
   \sa QRegExp QIntValidator QDoubleValidator
