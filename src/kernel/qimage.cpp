@@ -3028,7 +3028,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 
 struct QImageIOData
 {
-    char *parameters;
+    const char *parameters;
     int quality;
 };
 
@@ -3082,7 +3082,7 @@ void QImageIO::init()
 QImageIO::~QImageIO()
 {
     if ( d->parameters )
-	delete [] d->parameters;
+	delete [] (char*)d->parameters;
     delete d;
 }
 
@@ -3397,7 +3397,7 @@ const char *QImageIO::parameters() const
 void QImageIO::setParameters( const char *parameters )
 {
     if ( d && d->parameters )
-	delete [] d->parameters;
+	delete [] (char*)d->parameters;
     d->parameters = qstrdup( parameters );
 }
 
