@@ -183,6 +183,7 @@ void FormWindow::setMainWindow( MainWindow *w )
 
 FormWindow::~FormWindow()
 {
+    MetaDataBase::clear( this );
 }
 
 void FormWindow::closeEvent( QCloseEvent *e )

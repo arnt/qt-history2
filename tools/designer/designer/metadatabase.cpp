@@ -1272,3 +1272,13 @@ LanguageInterface *MetaDataBase::languageInterface( const QString &lang )
 {
     return (LanguageInterface*)languageInterfaceManager->queryInterface( lang );
 }
+
+void MetaDataBase::clear( QObject *o )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    db->remove( (void*)o );
+    for ( QPtrDictIterator<QWidget> it( *( (FormWindow*)o )->widgets() ); it.current(); ++it )
+	db->remove( (void*)it.current() );
+}

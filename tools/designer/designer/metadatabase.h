@@ -212,6 +212,8 @@ public:
 
     static QString normalizeSlot( const QString &slot );
 
+    static void clear( QObject *o );
+
 };
 
 #endif
