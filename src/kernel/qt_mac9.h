@@ -13,9 +13,6 @@
 #ifndef QT_NO_IMAGEIO_MNG
 #define QT_NO_IMAGEIO_MNG
 #endif
-#ifndef QT_NO_IMAGEIO_PNG
-#define QT_NO_IMAGEIO_PNG
-#endif
 #ifndef QT_NO_SQL
 #define QT_NO_SQL
 #endif
