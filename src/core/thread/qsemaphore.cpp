@@ -16,9 +16,6 @@
 #include "qmutex.h"
 #include "qwaitcondition.h"
 
-
-
-
 /*!
     \class QSemaphore qsemaphore.h
     \threadsafe
@@ -61,164 +58,83 @@
     blocking.
 */
 
-
 class QSemaphorePrivate {
 public:
-    QSemaphorePrivate(int);
+    inline QSemaphorePrivate(int n)
+        : mutex(false), value(n)
+    { }
 
     QMutex mutex;
     QWaitCondition cond;
 
-    int value, max;
+    int value;
 };
 
-
-QSemaphorePrivate::QSemaphorePrivate(int m)
-    : mutex(false), value(0), max(m)
-{
-}
-
-
 /*!
-    Creates a new semaphore. The semaphore can be concurrently
-    accessed at most \a maxcount times.
+    Creates a new semaphore, initialize its value to \a n.
 */
-QSemaphore::QSemaphore(int maxcount)
+QSemaphore::QSemaphore(int n)
 {
-    d = new QSemaphorePrivate(maxcount);
+    Q_ASSERT_X(n >= 0, "QSemaphore", "parameter 'n' must be non-negative");
+    d = new QSemaphorePrivate(n);
 }
-
 
 /*!
     Destroys the semaphore.
 
-    \warning If you destroy a semaphore that has accesses in use the
-    resultant behavior is undefined.
+    \warning Destroying a semaphore that is in use results in
+    undefined behavior.
 */
 QSemaphore::~QSemaphore()
-{
-    delete d;
-}
-
+{ delete d; }
 
 /*!
-    Postfix ++ operator.
-
-    Try to get access to the semaphore. If \l available() == 0, this
-    call will block until it can get access, i.e. until available() \>
-    0.
+    Try to get access to the semaphore. If \l available() \< \a n,
+    this call will block until it can get all the accesses it wants,
+    i.e.  until available() \>= \a n.
 */
-int QSemaphore::operator++(int)
+void QSemaphore::acquire(int n)
 {
+    Q_ASSERT_X(n >= 0, "QSemaphore::acquire", "parameter 'n' must be non-negative");
     QMutexLocker locker(&d->mutex);
-    while (d->value >= d->max)
+    while (n > d->value)
         d->cond.wait(locker.mutex());
-
-    ++d->value;
-    if (d->value > d->max)
-        d->value = d->max;
-
-    return d->value;
+    d->value -= n;
 }
-
-
-/*!
-    Postfix -- operator.
-
-    Release access of the semaphore. This wakes all threads waiting
-    for access to the semaphore.
-*/
-int QSemaphore::operator--(int)
-{
-    QMutexLocker locker(&d->mutex);
-
-    --d->value;
-    if (d->value < 0)
-        d->value = 0;
-
-    d->cond.wakeAll();
-
-    return d->value;
-}
-
-
-/*!
-    Try to get access to the semaphore. If \l available() \< \a n, this
-    call will block until it can get all the accesses it wants, i.e.
-    until available() \>= \a n.
-*/
-int QSemaphore::operator+=(int n)
-{
-    QMutexLocker locker(&d->mutex);
-
-    if (n < 0 || n > d->max) {
-        qWarning("QSemaphore::operator+=: parameter %d out of range", n);
-        n = n < 0 ? 0 : d->max;
-    }
-
-    while (d->value + n > d->max)
-        d->cond.wait(locker.mutex());
-
-    d->value += n;
-
-    return d->value;
-}
-
 
 /*!
     Release \a n accesses to the semaphore.
 */
-int QSemaphore::operator-=(int n)
+void QSemaphore::release(int n)
 {
+    Q_ASSERT_X(n >= 0, "QSemaphore::release", "parameter 'n' must be non-negative");
     QMutexLocker locker(&d->mutex);
-
-    if (n < 0 || n > d->value) {
-        qWarning("QSemaphore::operator-=: parameter %d out of range", n);
-        n = n < 0 ? 0 : d->value;
-    }
-
-    d->value -= n;
+    d->value += n;
     d->cond.wakeAll();
-
-    return d->value;
 }
-
 
 /*!
     Returns the number of accesses currently available to the
     semaphore.
 */
-int QSemaphore::available() const
+int QSemaphore::value() const
 {
     QMutexLocker locker(&d->mutex);
-    return d->max - d->value;
+    return d->value;
 }
 
-
 /*!
-    Returns the total number of accesses to the semaphore.
-*/
-int QSemaphore::total() const
-{
-    QMutexLocker locker(&d->mutex);
-    return d->max;
-}
-
-
-/*!
-    Try to get access to the semaphore. If \l available() \< \a n, this
-    function will return false immediately. If \l available() \>= \a n,
-    this function will take \a n accesses and return true. This
+    Try to get access to the semaphore. If \l available() \< \a n,
+    this function will return false immediately. If \l available() \>=
+    \a n, this function will take \a n accesses and return true. This
     function does \e not block.
 */
-bool QSemaphore::tryAccess(int n)
+bool QSemaphore::tryAcquire(int n)
 {
+    Q_ASSERT_X(n >= 0, "QSemaphore::tryAcquire", "parameter 'n' must be non-negative");
     QMutexLocker locker(&d->mutex);
-
-    if (d->value + n > d->max)
+    if (n > d->value)
         return false;
-
-    d->value += n;
-
+    d->value -= n;
     return true;
 }

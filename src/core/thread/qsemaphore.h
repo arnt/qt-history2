@@ -21,20 +21,15 @@ class QSemaphorePrivate;
 class Q_CORE_EXPORT QSemaphore
 {
 public:
-    QSemaphore(int);
-    virtual ~QSemaphore();
+    explicit QSemaphore(int n = 0);
+    ~QSemaphore();
 
-    int available() const;
-    int total() const;
+    void acquire(int n = 1);
+    bool tryAcquire(int n = 1);
 
-    // postfix operators
-    int operator++(int);
-    int operator--(int);
+    void release(int n = 1);
 
-    int operator+=(int);
-    int operator-=(int);
-
-    bool tryAccess(int);
+    int value() const;
 
 private:
     Q_DISABLE_COPY(QSemaphore)
