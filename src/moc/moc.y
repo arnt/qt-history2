@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#87 $
+** $Id: //depot/qt/main/src/moc/moc.y#88 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#87 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#88 $");
 
 static QString rmWS( const char * );
 
@@ -1036,8 +1036,9 @@ void initClass()				 // prepare for new class
 //
 
 inline bool isIdentChar( char x )
-{
-    return isalnum(x) || x == '_';
+{						// Avoid bug in isalnum
+    return x == '_' || (x >= '0' && x <= '9') ||
+	 (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
 }
 
 inline bool isSpace( char x )
@@ -1255,7 +1256,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.21 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.22 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
