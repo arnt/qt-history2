@@ -208,7 +208,7 @@ static EventTypeSpec events[] = {
     { kEventClassKeyboard, kEventRawKeyDown },
     { kEventClassKeyboard, kEventRawKeyRepeat },
 
-//    { kEventClassWindow, kEventWindowUpdate },
+    { kEventClassWindow, kEventWindowUpdate },
     { kEventClassWindow, kEventWindowActivated },
     { kEventClassWindow, kEventWindowDeactivated },
     { kEventClassWindow, kEventWindowShown },
@@ -883,13 +883,6 @@ bool QApplication::processNextEvent( bool canWait )
 #define QMAC_EVENT_NOWAIT kEventDurationNoWait
 #endif
 	do {
-	    //propagate now, because later is too late
-	    QWidgetList *list   = qApp->topLevelWidgets();
-	    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-		if ( !widget->isHidden() && !widget->isDesktop())
-		    widget->propagateUpdates();
-	    }
-
 #ifdef QMAC_CAN_WAIT_FOREVER
 	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT,  TRUE, &event );
 #else
@@ -905,12 +898,17 @@ bool QApplication::processNextEvent( bool canWait )
 		break;
 	    nevents++;
 
-	    //send posted events if the event queue is empty
-	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, FALSE, &event );
+	    //if there are no events in the queue, this is a good time to do "stuff"
+	    ret = ReceiveNextEvent( GetEventTypeCount(events), events, QMAC_EVENT_NOWAIT, FALSE, &event );
 	    if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr) {
-		//try to send null timers..
-		activateNullTimers();
-		sendPostedEvents();
+		activateNullTimers();       //try to send null timers..
+		sendPostedEvents(); 	    //send posted events if the event queue is empty
+		//take this moment to try to propagate..
+		QWidgetList *list   = qApp->topLevelWidgets();
+		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+		    if ( !widget->isHidden() && !widget->isDesktop())
+			widget->propagateUpdates();
+		}
 	    }
 	} while(1);
 	sendPostedEvents();
