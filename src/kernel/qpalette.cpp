@@ -75,6 +75,10 @@ QDataStream &operator>>(QDataStream &s, QColorGroup &g)
 }
 #endif
 
+/*!
+    Constructs a palette with the specified \a active, \a disabled and
+    \a inactive color groups.
+*/
 QPalette::QPalette(const QColorGroup &active, const QColorGroup &disabled,
 		   const QColorGroup &inactive)
 {

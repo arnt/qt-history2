@@ -711,6 +711,14 @@ void QIconSet::normalize(Size &which, const QSize &pixSize)
 	which = pixSize.width() > iconSize(Small).width() ? Large : Small;
 }
 
+/*!
+    Installs \a func as the application's default icon factory. The
+    icon factory is used to generates pixmaps not set by the user.
+
+    If no icon factory is installed, QIconFactory::defaultFactory()
+    is used. Individual QIconSet instances can have their own icon
+    factories; see setPixmapGeneratorFn().
+*/
 void QIconSet::setDefaultPixmapGeneratorFn(PixmapGeneratorFn func)
 {
     defaultGeneratorFn = func;

@@ -378,10 +378,18 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     \sa awake()
 */
 
+// ### DOC: Are these called when the _application_ starts/stops or just
+// when the current _event loop_ starts/stops?
+/*!
+   \internal
+*/
 void QEventLoop::appStartingUp()
 {
 }
 
+/*!
+   \internal
+*/
 void QEventLoop::appClosingDown()
 {
 }

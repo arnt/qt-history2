@@ -156,6 +156,9 @@ timeval *QEventLoopPrivate::timerWait()
 }
 
 // Main timer functions for starting and killing timers
+/*!
+    \internal
+*/
 int QEventLoop::registerTimer( int interval, QObject *obj )
 {
     if ( !d->timerList ) {				// initialize timer data
@@ -198,6 +201,9 @@ int QEventLoop::registerTimer( int interval, QObject *obj )
     return id;
 }
 
+/*!
+    \internal
+*/
 bool QEventLoop::unregisterTimer( int id )
 {
     register TimerInfo *t;
@@ -214,6 +220,9 @@ bool QEventLoop::unregisterTimer( int id )
     return FALSE; // id not found
 }
 
+/*!
+    \internal
+*/
 bool QEventLoop::unregisterTimers( QObject *obj )
 {
     register TimerInfo *t;

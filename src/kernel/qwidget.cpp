@@ -457,7 +457,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
   \i WState_Hidden The widget is hidden, i.e. it won't
   become visible unless you call show() on it. WState_Hidden
   implies !WState_Visible.
-  \i WState_MouseTracking Mouse tracking is enabled.
   \i WState_CompressKeys Compress keyboard events.
   \i WState_BlockUpdates Repaints and updates are disabled.
   \i WState_InPaintEvent Currently processing a paint event.
@@ -654,7 +653,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WState_Reserved1
     \value WState_Maximized
     \value WState_Minimized
-    \value WState_ForceDisabled
     \value WState_Exposed
     \value WState_OwnSizePolicy
 */
@@ -2050,6 +2048,9 @@ QWidget *QWidget::topLevelWidget() const
 }
 
 #ifndef QT_NO_COMPAT
+/*!
+    Returns the color role used for painting the widget's background.
+*/
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
     if (testAttribute(WA_NoSystemBackground))
@@ -2093,6 +2094,10 @@ Qt::BackgroundMode QWidget::backgroundMode() const
     return NoBackground;
 }
 
+/*!
+    Sets the color role used for painting the widget's background to
+    background mode \a m.
+*/
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
     if(m == NoBackground) {
@@ -2761,6 +2766,9 @@ QWidget *QWidget::focusWidget() const
     return const_cast<QWidget *>(d->focus_child);
 }
 
+/*!
+    Returns the next widget in this widget's focus chain.
+*/
 QWidget *QWidget::nextInFocusChain() const
 {
     return const_cast<QWidget *>(d->focus_next);
@@ -5217,6 +5225,12 @@ void QWidget::repaint(const QRect &r)
 */
 
 #ifndef QT_NO_COMPAT
+/*!
+    Clear the rectangle at point (\a x, \a y) of width \a w and height
+    \a h.
+
+    \warning This is best done in a paintEvent().
+*/
 void QWidget::erase( int x, int y, int w, int h )
 {
     if (testAttribute(WA_NoSystemBackground))
@@ -5231,6 +5245,13 @@ void QWidget::erase( int x, int y, int w, int h )
     }
 }
 
+/*!
+    \overload
+
+    Clear the given region, \a rgn.
+
+    \warning This is best done in a paintEvent().
+*/
 void QWidget::erase( const QRegion& rgn )
 {
     if (testAttribute(WA_NoSystemBackground))
@@ -5241,6 +5262,11 @@ void QWidget::erase( const QRegion& rgn )
     p.eraseRect(rgn.boundingRect());
 }
 
+/*!
+    Draw the text in \a str at point \a p.
+
+    \warning This is best done in a paintEvent().
+*/
 void QWidget::drawText(const QPoint &p, const QString &str)
 {
     if(!testWState(WState_Visible))

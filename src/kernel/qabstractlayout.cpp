@@ -259,6 +259,10 @@ bool QLayoutItem::hasHeightForWidth() const
     return FALSE;
 }
 
+/*!
+    Returns the minimum height this widget needs for the given width,
+    \a w. The default implementation simply returns heightForWidth(w).
+*/
 int QLayoutItem::minimumHeightForWidth(int w) const
 {
     return heightForWidth(w);

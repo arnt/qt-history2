@@ -889,6 +889,10 @@ QPalette QVariant::toPalette() const
 }
 
 #ifndef QT_NO_COMPAT
+/*!
+    Returns the variant as a QColorGroup if the variant has type()
+    ColorGroup; otherwise returns an empty color group.
+*/
 QColorGroup QVariant::toColorGroup() const
 {
     if (d->type != ColorGroup)

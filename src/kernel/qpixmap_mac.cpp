@@ -743,6 +743,9 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     return pm;
 }
 
+/*!
+    \internal
+*/
 Qt::HANDLE QPixmap::macCGHandle() const
 {
     if(!cg_hd)

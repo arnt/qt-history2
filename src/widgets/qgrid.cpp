@@ -77,6 +77,9 @@ QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
     lay = new QGridLayout( this, -1, n, 0, 0, name );
 }
 
+/*!
+    \internal
+*/
 void QGrid::childEvent(QChildEvent *e)
 {
     QWidget *child = e->childWidget();

@@ -983,6 +983,10 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
     return result;
 }
 
+/*!
+    \relates QWMatrix
+    Assigns matrix \a matrix's values to this matrix.
+*/
 QWMatrix &QWMatrix::operator=(const QWMatrix &matrix)
 {
     _m11 = matrix._m11;

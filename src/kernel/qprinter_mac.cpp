@@ -193,6 +193,9 @@ void QPrinter::setPrinterName(const QString &name)
     printer_name = name;
 }
 
+/*!
+    \internal
+*/
 bool QPrinter::setup(QWidget *w)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
@@ -258,6 +261,9 @@ bool QPrinter::printSetup(QWidget *)
 }
 
 // shows the native mac page setup dialog
+/*!
+    \internal
+*/
 bool QPrinter::pageSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
@@ -407,6 +413,9 @@ QSize QPrinter::margins() const
     return QSize(t, l);
 }
 
+/*!
+    \internal
+*/
 Qt::HANDLE QPrinter::macCGHandle() const
 {
     if(!cg_hd)

@@ -259,6 +259,9 @@ QObject::QObject( QObject *parent, const char *name )
 
 
 
+/*!
+    \internal
+*/
 QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     :
     isSignal( FALSE ),				// assume not a signal object

@@ -2128,9 +2128,10 @@ bool operator>=(const char *s1, const QString &s2)
 
     \sa fromUtf8(), toUtf8()
 */
+
 /*!
-    Returns a Latin-1 representation of the string as QByteArray. The
-    returned value is undefined if the string contains non-Latin-1
+    Returns a Latin-1 representation of the string in a QByteArray.
+    The returned value is undefined if the string contains non-Latin-1
     characters. If you want to convert strings into formats other than
     Unicode, see the QTextCodec classes.
 
@@ -2160,6 +2161,14 @@ QByteArray QString::toLatin1() const
     return *ba;
 }
 
+/*!
+    Returns an ASCII representation of the string in a QByteArray. The
+    returned value is undefined if the string contains non-ASCII
+    characters. If you want to convert strings into formats other than
+    Unicode, see the QTextCodec classes.
+
+    \sa fromLatin1(), ascii(), toLatin1(), toUtf8(), toLocal8Bit()
+*/
 QByteArray QString::toAscii() const
 {
 #ifndef QT_NO_TEXTCODEC
@@ -2181,6 +2190,15 @@ QByteArray QString::toAscii() const
     return toLatin1();
 }
 
+/*!
+    Returns a local 8-bit representation of the string in a
+    QByteArray. The returned value is undefined if the string contains
+    characters that are not in the local 8-bit character set. If you
+    want to convert strings into formats other than Unicode, see the
+    QTextCodec classes.
+
+    \sa fromLatin1(), local8Bit(), toAscii(), toLatin1(), toUtf8()
+*/
 QByteArray QString::toLocal8Bit() const
 {
 #ifndef QT_NO_TEXTCODEC

@@ -107,6 +107,11 @@ QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
 {
 }
 
+// ### DOC: Can only make this public if we specify precisely the
+// format of the address string.
+/*!
+    \internal
+*/
 QHostAddress::QHostAddress(const QString &address)
     : d( new QHostAddressPrivate )
 {
