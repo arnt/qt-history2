@@ -247,6 +247,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	    tlw->installEventFilter( this );
     }
 
+    setBackgroundMode( PaletteButton );
     setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
     setLineWidth( style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this) );
 
@@ -271,7 +272,6 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	default:
 	    break;
     }
-    setBackgroundMode( PaletteButton );
 }
 
 
