@@ -204,8 +204,8 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 	    int index = 0;
 	    QRect rect;
 	    for ( ; index < tabBar()->count(); index++ ) {
-		if ( tabBar()->tabAt( index )->r.contains( de->pos() ) ) {
-		    rect = tabBar()->tabAt( index )->r;
+		if ( tabBar()->tabAt( index )->rect().contains( de->pos() ) ) {
+		    rect = tabBar()->tabAt( index )->rect();
 		    break;
 		}
 	    }
@@ -242,12 +242,12 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 
 		    int newIndex = 0;
 		    for ( ; newIndex < tabBar()->count(); newIndex++ ) {
-			if ( tabBar()->tabAt( newIndex )->r.contains( de->pos() ) )
+			if ( tabBar()->tabAt( newIndex )->rect().contains( de->pos() ) )
 			    break;
 		    }
 
 		    if ( newIndex == tabBar()->count() -1 ) {
-			QRect rect2 = tabBar()->tabAt( newIndex )->r;
+			QRect rect2 = tabBar()->tabAt( newIndex )->rect();
 			rect2.setLeft( rect2.left() + rect2.width() / 2 );
 			if ( rect2.contains( de->pos() ) )
 			    newIndex++;
@@ -255,7 +255,7 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 
 		    int oldIndex = 0;
 		    for ( ; oldIndex < tabBar()->count(); oldIndex++ ) {
-			if ( tabBar()->tabAt( oldIndex )->r.contains( pressPoint ) )
+			if ( tabBar()->tabAt( oldIndex )->rect().contains( pressPoint ) )
 			    break;
 		    }
 
