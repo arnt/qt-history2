@@ -2297,7 +2297,7 @@ void QLineEditPrivate::moveCursor( int pos, bool mark )
 
 void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
 {
-    bool lineDirty = FALSE;
+    bool lineDirty = selDirty;
     if ( textDirty ) {
 	// do validation
 	bool wasValidInput = validInput;
@@ -2325,7 +2325,7 @@ void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
 	}
 	updateTextLayout();
 	updateMicroFocusHint();
-	lineDirty = textDirty || selDirty;
+	lineDirty |= textDirty;
 	if ( setModified )
 	    modified = TRUE;
 	if ( textDirty ) {
