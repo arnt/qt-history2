@@ -59,6 +59,8 @@ bool qt_verify_key(const QString &); //qsettings.cpp
 #include "qurl.h"
 #define MACKEY_SEP '.'
 static void qt_mac_fix_key(QString &k) {
+    if(k.isEmpty())
+	return;
 #ifdef DEBUG_SETTINGS_KEYS
     QString old_k = k;
 #endif
@@ -76,6 +78,9 @@ static void qt_mac_fix_key(QString &k) {
 #endif
 }
 static void qt_mac_unfix_key(QString &k) {
+    if(k.isEmpty())
+	return;
+
 #ifdef DEBUG_SETTINGS_KEYS
     QString old_k = k;
 #endif
@@ -149,26 +154,33 @@ search_keys::search_keys(QString path, QString key, const char *where)
 {
 #ifndef DEBUG_SETTINGS_KEYS
     Q_UNUSED(where);
+#else
+    QString oldkey = key, oldpath = path;
 #endif
     qi = path;
     qk = key;
-    int start = 0;
-    while(qk[start] == '/')
-	start++;
-    int slsh = qk.find('/', start);
-    if(slsh != -1) {
-	qi += qk.left(slsh);
-	qk = qk.mid(slsh+1);
+    while(qk.startsWith("/"))
+	qk = qk.mid(1);
+    while(qi.startsWith("/"))
+	qi = qi.mid(1);
+    if(qi.isEmpty()) {
+	int slsh = qk.find('/');
+	if(slsh != -1) {
+	    qi += qk.left(slsh);
+	    qk = qk.mid(slsh+1);
+	}
     }
+    while(qi.startsWith("/"))
+	qi = qi.mid(1);
     qt_mac_unfix_key(qi);
-    qi.replace('/', "");
+    qi.replace('/', ".");
     if(qt_mac_settings_base)
 	qi.prepend(*qt_mac_settings_base);
 
     qt_mac_fix_key(qk);
 #ifdef DEBUG_SETTINGS_KEYS
-    qDebug("[QSettings::%s] %s::%s -> %s::%s", where ? where : "*Unknown*", 
-	   path.latin1(), key.latin1(), qi.latin1(), qk.latin1());
+    qDebug("search_key [%s] %s::%s -> %s::%s", where ? where : "*Unknown*", 
+	   oldpath.latin1(), oldkey.latin1(), qi.latin1(), qk.latin1());
 #endif
     i = CFStringCreateWithCharacters(NULL, (UniChar *)qi.unicode(), qi.length());
     k = CFStringCreateWithCharacters(NULL, (UniChar *)qk.unicode(), qk.length());
@@ -220,6 +232,8 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
 		break;
 	    }
 	}
+	if(ret)
+	    break;
     }
     return ret;
 }
@@ -249,7 +263,7 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
 
     QStringList ret;
     for(QStringList::Iterator it = searchPaths.fromLast();  it != searchPaths.end(); --it) {
-	search_keys k((*it), key, "entryList");
+	search_keys k((*it), key, subkey ? "subkeyList" : "entryList");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
 	    if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope],

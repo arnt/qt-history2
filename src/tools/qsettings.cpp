@@ -2007,7 +2007,7 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
     QString topLevelDomain = domain.right( domain.length() - lastDot - 1 ) + ".";
     if ( !topLevelDomain.isEmpty() )
 	qt_setSettingsBasePath( topLevelDomain );
-    actualSearchPath = "/" + domain.left( lastDot ) + product;
+    actualSearchPath = "/" + domain.left( lastDot ) + "." + product;
     insertSearchPath( Mac, actualSearchPath );
 #else
     actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;
