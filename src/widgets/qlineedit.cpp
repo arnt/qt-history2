@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#137 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1208,7 +1208,7 @@ bool QLineEdit::event( QEvent * e )
 	return QWidget::event( e );
 
     if ( e->type() == Event_DragMove ) {
-	if ( rect().contains( ((QDragMoveEvent *) e)->pos() ) ) {
+	if ( ((QDragMoveEvent *) e)->provides( "text/plain" ) ) {
 	    ((QDragMoveEvent *) e)->accept();
 	    return TRUE;
 	}
@@ -1376,7 +1376,6 @@ void QLineEdit::insert( const char * newText )
     cursorOn = FALSE;
     blinkSlot();
     validateAndSet( test, cp, cp, cp );
-    return;
 }
 
 
