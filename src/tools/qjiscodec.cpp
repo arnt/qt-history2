@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#4 $
 **
 ** Implementation of QJisCodec class
 **
@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 // Most of the code here was originally written by Serika Kurusugawa
-// a.k.a. Takagi Junji, and is include in Qt with the authors permission,
+// a.k.a. Junji Takagi, and is include in Qt with the authors permission,
 // and the grateful thanks of the Troll Tech team.
 
 /*
