@@ -101,7 +101,7 @@ QString QUuid::toString() const
 {
     QString result;
 
-    result = QString::number( data1, 16 ) + "-";
+    result = "{" + QString::number( data1, 16 ) + "-";
     result += QString::number( data2, 16 ) + "-";
     result += QString::number( data3, 16 ) + "-";
     result += QString::number( data4[0], 16 );
@@ -109,7 +109,7 @@ QString QUuid::toString() const
     for ( int i = 2; i < 8; i++ )
 	result += QString::number( data4[i], 16 );
 
-    return result;
+    return result + "}";
 }
 
 /*!
