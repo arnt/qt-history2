@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#515 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#516 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3880,8 +3880,11 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 {
 
 
-    if ( !testWFlags(WType_TopLevel) || testWFlags( WType_Popup )
-	 || (!testWFlags( WStyle_DialogBorder ) && !testWFlags( WStyle_NormalBorder)) )
+    if ( !testWFlags( WType_TopLevel )
+	 || testWFlags( WType_Popup )
+	 || (!testWFlags( WStyle_DialogBorder ) &&
+	     !testWFlags( WStyle_NormalBorder ) )
+	 || testWFlags( WType_Desktop ) )
 	return TRUE;			// child widget or override_redirect
 
     clearWState(WState_ConfigPending);
