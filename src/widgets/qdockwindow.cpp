@@ -1831,7 +1831,7 @@ void QDockWindow::updateSplitterVisibility( bool visible )
 /*! \reimp */
 bool QDockWindow::eventFilter( QObject * o, QEvent *e )
 {
-    if ( !o->inherits("QWidget") )
+    if ( !o->isWidgetType() )
 	return FALSE;
 
     if ( e->type() == QEvent::KeyPress &&
