@@ -435,7 +435,7 @@ bool QSqlRecord::contains( const QString& name ) const
 
 /*!
     Clears the value of all fields in the record. If \a nullify is
-    TRUE, (it's default is FALSE), each field is set to NULL.
+    TRUE, (the default is FALSE), each field is set to NULL.
 */
 
 void QSqlRecord::clearValues( bool nullify )
