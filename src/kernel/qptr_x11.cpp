@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#140 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#139 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#140 $")
 
 
 // --------------------------------------------------------------------------
@@ -2316,8 +2316,9 @@ static QString gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
 		    fi.underline(), fi.strikeOut(), fi.fixedPitch(),
 		    fi.charSet() );
     k.resize( len + 100 + fd.length() );
-    k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", (char *)s,
-	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(), (char *)fd );
+    k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", (const char *)s,
+	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(),
+	       (const char *)fd );
     return k;
 }
 
@@ -2418,9 +2419,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    bool do_clip = hasClipping();
 	    QPixmap *draw_bm;
 	    if ( do_clip ) {			// clipping enabled
-		int ww = wx_bm->size().width();
-		int hh = wx_bm->size().height();
-		draw_bm = new QPixmap( ww, hh, 1 );
+		draw_bm = new QPixmap( wx_bm->size(), 1 );
 		draw_bm->fill( color0 );
 		QPainter paint;
 		paint.begin( draw_bm );
