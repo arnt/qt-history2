@@ -6,6 +6,7 @@ CONFIG += staticlib
 INCLUDEPATH += \
     ../../lib/sdk \
     ../../lib/extension \
+    ../../shared \
 
 TARGET = taskmenu
 

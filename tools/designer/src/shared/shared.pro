@@ -24,6 +24,7 @@ HEADERS += \
     qtundo.h \
     pluginmanager.h \
     qdesigner_formbuilder.h \
+    qdesigner_taskmenu.h \
     default_propertysheet.h \
     treewidget.h \
     sheet_delegate.h
@@ -35,6 +36,7 @@ SOURCES += \
     qtundo.cpp \
     pluginmanager.cpp \
     qdesigner_formbuilder.cpp \
+    qdesigner_taskmenu.cpp \
     default_propertysheet.cpp \
     treewidget.cpp \
     sheet_delegate.cpp

@@ -28,9 +28,15 @@
 #include <QtCore/qdebug.h>
 
 ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)
-    : QObject(parent),
+    : QDesignerTaskMenu(button, parent),
       m_button(button)
 {
+    QAction *action = 0;
+
+    action = new QAction(this);
+    action->setText(tr("Edit button text"));
+    connect(action, SIGNAL(triggered()), this, SLOT(editText()));
+    m_taskActions.append(action);
 }
 
 ButtonTaskMenu::~ButtonTaskMenu()
@@ -39,26 +45,7 @@ ButtonTaskMenu::~ButtonTaskMenu()
 
 QList<QAction*> ButtonTaskMenu::taskActions() const
 {
-    if (!m_taskActions.isEmpty())
-        return m_taskActions;
-
-    QAction *action = 0;
-
-    ButtonTaskMenu *that = const_cast<ButtonTaskMenu*>(this);
-
-    action = new QAction(that);
-    action->setText(tr("Edit button text"));
-    connect(action, SIGNAL(triggered()), this, SLOT(editText()));
-    m_taskActions.append(action);
-
-#if 0 // ### implement me
-    action = new QAction(that);
-    action->setText(tr("Edit button icon"));
-    connect(action, SIGNAL(triggered()), this, SLOT(editIcon()));
-    m_taskActions.append(action);
-#endif
-
-    return m_taskActions;
+    return QDesignerTaskMenu::taskActions() + m_taskActions;
 }
 
 bool ButtonTaskMenu::eventFilter(QObject *object, QEvent *event)

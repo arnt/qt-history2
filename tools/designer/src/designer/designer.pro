@@ -26,8 +26,8 @@ LIBS += -L../../lib \
     -luilib \
     -lsignalsloteditor \
     -lbuddyeditor \
-    -lshared \
     -ltaskmenu \
+    -lshared \
     -lQtDesigner
 
 RESOURCES += designer.qrc

@@ -17,16 +17,15 @@
 #include <QAbstractButton>
 #include <QPointer>
 
-#include <taskmenu.h>
+#include <qdesigner_taskmenu.h>
 #include <default_extensionfactory.h>
 
 class QLineEdit;
 class AbstractFormWindow;
 
-class ButtonTaskMenu: public QObject, public ITaskMenu
+class ButtonTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
-    Q_INTERFACES(ITaskMenu)
 public:
     ButtonTaskMenu(QAbstractButton *button, QObject *parent = 0);
     virtual ~ButtonTaskMenu();
