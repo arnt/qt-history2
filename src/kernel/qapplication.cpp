@@ -53,6 +53,10 @@
 #include <stdlib.h>
 #include "qcomponentfactory.h"
 
+#ifndef QT_NO_REMOTE
+#include "qremotecontrol_p.h"
+#endif
+
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
 #endif

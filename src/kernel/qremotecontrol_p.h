@@ -56,7 +56,6 @@
 
 #ifndef QT_NO_COMPONENT
 
-//#include <qobject.h>
 class QString;
 class QEvent;
 class QRemoteClient;
@@ -71,9 +70,6 @@ class QSocket;
 class QRemoteControlInterface : public QUnknownInterface
 {
 public:
-    virtual QString info() = 0;
-    virtual void setInfo(QString info) = 0;
-
 /*!
     Opens a connection to the remote controller (host). The connection is anticipated to
     be a socket connection, hence the parameters \a hostName and \a port.
@@ -96,14 +92,14 @@ public:
 
 /*!
     Extends the functionality of QApp::notify() by appending remote functionality.
-    Depending on the information provided by \a receiver and event \e certain actions
+    Depending on the information provided by \a receiver and msgType \e certain actions
     may be taken.
-    The function returns TRUE if the event has been handled completely, i.e. doesn't need
+    The function returns TRUE if the msgType has been handled completely, i.e. doesn't need
     to nor should be handled any more by QApplication::notify() itself.
     QRemoteControlInterface only defines the interface. The actual handleNotification functionality
     must be implemented in a derived class.
 */
-    virtual bool handleNotification(QObject * receiver, QEvent * e) = 0;
+    virtual bool handleNotification(QObject *receiver, QEvent * e) = 0;
 
 /*!
     Saves a reference to the specified \a receiver.
@@ -112,27 +108,27 @@ public:
     virtual void setRemoteClient(QRemoteClient *receiver) = 0;
 
 /*!
-    Posts (e.g. non blocking) an \a event and \a message to the remote controller (host).
+    Posts (e.g. non blocking) an \a msgType and \a message to the remote controller (host).
     QRemoteControlInterface only defines the interface. The actual postObject functionality must be
     implemented in a derived class.
 */
-    virtual void postObject(QString event, QString message) = 0;
+    virtual void postObject(const QString &msgType, const QString &message) = 0;
 
 /*!
     \Overload.
     The additional parameter \a pixmap can be used to transfer a pixmap to the remote
     controller (host).
 */
-    virtual void postObject(QString event, QString message, const QPixmap *pixmap) = 0;
+    virtual void postObject(const QString &msgType, const QString &message, const QPixmap *pixmap) = 0;
 
 /*!
-    Sends (e.g. blocking) an \a event, \a message and \a pixmap to the remote controller
+    Sends (e.g. blocking) an \a msgType, \a message and \a pixmap to the remote controller
     (host) and waits for a \a retValue. You can use \a timeout to specify the max wait time
     for the reply. If \a timeout == -1 the function waits forever.
     QRemoteControlInterface only defines the interface. The actual sendObject functionality must be
     implemented in a derived class.
 */
-    virtual bool sendObject(QString event, QString message, const QPixmap *pixmap, int &retValue, int timeout = -1) = 0;
+    virtual bool sendObject(const QString &msgType, const QString &message, const QPixmap *pixmap, int &retValue, int timeout = -1) = 0;
 };
 
 class QRemoteClient : public QObject

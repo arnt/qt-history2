@@ -60,46 +60,46 @@ public:
     enum retValue {Accepted, Rejected};
 
     QRemoteMessage();
-    QRemoteMessage(QString event, QString params);
-    QRemoteMessage(QString event, QString params, const QPixmap *pixmap);
-    QRemoteMessage(QString event, QString params, const QByteArray *array);
+    QRemoteMessage(const QString &eventName, const QString &eventInfo);
+    QRemoteMessage(const QString &eventName, const QString &eventInfo, const QPixmap *pixmap);
+    QRemoteMessage(const QString &eventName, const QString &eventInfo, const QByteArray *array);
     virtual ~QRemoteMessage();
 	
     virtual void send(QSocket *socket);
     virtual void reply(QSocket *socket, int retValue);
     virtual bool receive(QSocket *socket);
 
-    bool hasPixmap();
+    bool hasPixmap() const;
     bool getPixmap(QPixmap *&pixmap);
 
-    bool hasByteArray();
+    bool hasByteArray() const;
     bool getByteArray(QByteArray *&byteArray);
 
-    uint msgId();
-    bool isReply();
-    int retValue();
-    QString event();
-    QString params();
+    uint messageId() const;
+    bool isReply() const;
+    int retValue() const;
+    QString msgType() const;
+    QString message() const;
 
     void reset();
 
 private:
-    static uint m_nextMsgId;
+    static uint next_msg_id;
 
 protected:
     virtual uint primarySize();
-    uint magicId();
-    bool primaryDataRead;
+    uint magicId() const;
 
-    uint	m_magicId;
-    Q_UINT32	m_size;
-    uint	m_msgId;
-    short	m_isReply;
-    int		m_retValue;
-    QCString	m_event;
-    QCString	m_params;
-    QPixmap	m_pixmap;
-    QByteArray	m_byteArray;
+    bool	primary_data_read;
+    uint	magic_id;
+    Q_UINT32	size;
+    uint	msg_id;
+    short	is_reply;
+    int		retvalue;
+    QCString	msg_type;
+    QCString	msg;
+    QPixmap	internal_pixmap;
+    QByteArray	internal_bytearray;
 };
 
 #endif
