@@ -1,4 +1,4 @@
 lex.yy.c
 y.tab.h
-moc_gen.cpp
+mocgen.cpp
 moc
