@@ -414,26 +414,35 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     if ( t->id == currentTab() )
 	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
 
+    QColor penColor = black;
     if ( t->enabled && isEnabled()  ) {
 #if defined(Q_WS_WIN)
 	if ( colorGroup().brush( QColorGroup::Button ) == colorGroup().brush( QColorGroup::Background ) )
-	    p->setPen( colorGroup().buttonText() );
+	    penColor = colorGroup().buttonText();
 	else
-	    p->setPen( colorGroup().foreground() );
+	    penColor = colorGroup().foreground();
 #else
-	p->setPen( colorGroup().foreground() );
+	penColor = colorGroup().foreground();
 #endif
-	p->drawText( tr, AlignCenter | ShowPrefix, t->label );
+	style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
+			  AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
+			  0, t->label, -1, &penColor );
     } else if ( style() == MotifStyle ) {
-	p->setPen( palette().disabled().foreground() );
-	p->drawText( tr, AlignCenter | ShowPrefix, t->label );
+	penColor = palette().disabled().foreground();
+	style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
+			  AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
+			  0, t->label, -1, &penColor );
     } else { // Windows style, disabled
-	p->setPen( colorGroup().light() );
+	penColor = colorGroup().light();
 	QRect wr = tr;
 	wr.moveBy( 1, 1 );
-	p->drawText( wr, AlignCenter | ShowPrefix, t->label );
-	p->setPen( palette().disabled().foreground() );
-	p->drawText( tr, AlignCenter | ShowPrefix, t->label );
+	style().drawItem( p, wr.x(), wr.y(), wr.width(), wr.height(), 
+			  AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
+			  0, t->label, -1, &penColor );
+	penColor = palette().disabled().foreground();
+	style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
+			  AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
+			  0, t->label, -1, &penColor );
     }
 
     if ( !has_focus )
