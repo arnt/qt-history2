@@ -2649,6 +2649,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 	data[ (int)index + i ].d.format = 0;
 	data[ (int)index + i ].type = QTextStringChar::Regular;
 	data[ (int)index + i ].rightToLeft = 0;
+	data[ (int)index + i ].startOfRun = 0;
 #if defined(Q_WS_X11)
 	//### workaround for broken courier fonts on X11
 	if ( s[ i ] == QChar( 0x00a0U ) )
@@ -3439,7 +3440,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
-	       lastDirection != (bool)chr->rightToLeft || chr->startOfRun ||
+	       lastDirection != (bool)chr->rightToLeft || 
+	       chr->startOfRun ||
 	       lastY != cy || chr->format() != lastFormat ||
 	       (paintEnd != -1 && at(paintEnd)->c =='\t') || chr->c == '\t' ||
 	       selectionChange || chr->isCustom() ) ) {
