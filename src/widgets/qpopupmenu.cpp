@@ -1878,7 +1878,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
 		int i = s.find( '&' );
-		while ( i >= 0 && i < s.length() - 1 ) {
+		while ( i >= 0 && i < (int)s.length() - 1 ) {
 		    if ( s[i+1].upper() == c ) {
 			ok_key = TRUE;
 			clashCount++;
