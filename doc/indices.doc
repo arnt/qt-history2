@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.5 1996/01/10 11:53:32 hanord Exp $
+** $Id: indices.doc,v 1.6 1996/02/04 22:57:32 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.5 1996/01/10 11:53:32 hanord Exp $";
+static char ident[] = "$Id: indices.doc,v 1.6 1996/02/04 22:57:32 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -26,7 +26,7 @@ Here are the main index pages:
 <ul>
 <li><a href=hierarchy.html>Class overview</a>
 <li><a href=classes.html>Alphabetical list</a>
-<li><a href=classes69.html>Annotated list</a>
+<li><a href=annotated.html>Annotated list</a>
 </ul>
 
 <p>
