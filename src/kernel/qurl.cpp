@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#51 $
 **
 ** Implementation of QUrl class
 **
@@ -440,10 +440,19 @@ bool QUrl::parse( const QString& url )
 
     // HACK for windows (drives)
     relPath = url.contains( ":\\" );
+
+#if defined(_WS_WIN_)
+    if ( !relPath ) {
+	// if :// is at pos 1, we have only one letter
+	// before that separator => that's a drive letter!
+	if ( url.find( ":/" ) == 1 )
+	    relPath = TRUE;
+    }
+#endif
     
     int cs = url.find( ":/" );
     table[ 4 ][ 1 ] = User;
-    if ( cs == -1 ) { // we have a relative file (no path, host, protocol, etc.)
+    if ( cs == -1 || relPath ) { // we have a relative file (no path, host, protocol, etc.)
 	table[ 0 ][ 1 ] = Path;
 	relPath = TRUE;
     } else { // some checking
