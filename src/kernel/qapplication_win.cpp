@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#235 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#236 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1211,7 +1211,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    QWidget* w = widget;
 	    while ( w->focusProxy() )
 		w = w->focusProxy();
-	    if ( w->focusPolicy() & QWidget::ClickFocus )  
+	    if ( w->focusPolicy() & QWidget::ClickFocus )
 		w->setFocus();
 	}
 	widget->translateMouseEvent( msg );	// mouse event
@@ -2059,6 +2059,7 @@ static ushort KeyTbl[] = {			// keyboard mapping table
     VK_SUBTRACT,	Qt::Key_Minus,
     VK_DECIMAL,		Qt::Key_Period,
     VK_DIVIDE,		Qt::Key_Slash,
+    VK_APPS,		Qt::Key_Menu,			
     0,			0
 };
 
