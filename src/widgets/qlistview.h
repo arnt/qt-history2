@@ -395,6 +395,7 @@ protected:
     void keyPressEvent( QKeyEvent *e );
 
     void resizeEvent( QResizeEvent *e );
+    void viewportResizeEvent( QResizeEvent *e );
 
     void showEvent( QShowEvent * );
 
