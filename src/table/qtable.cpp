@@ -2869,6 +2869,7 @@ void QTable::setItem( int row, int col, QTableItem *item )
     contents.insert( indexOf( row, col ), item );
     item->setRow( row );
     item->setCol( col );
+    item->t = this;
     updateCell( row, col );
     if ( qt_update_cell_widget )
 	item->updateEditor( orow, ocol );
