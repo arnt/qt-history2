@@ -73,3 +73,6 @@ Support for namespaces
 Recently opened files in file menu
 
 Implement copy&paste in property editor, also if the property item is not a lineedit (Reggie)
+
+Implement length property for spacers which is used for fixed, preferred, etc. This is 
+only change if the spacer is resized by the use, not when resized by the layout
