@@ -302,8 +302,14 @@ QMakeProject::read(const char *project)
 	if(Option::debug_level)
 	    fprintf(stderr, "Overriding TEMPLATE (%s) with: %s\n", vars["TEMPLATE"].first().latin1(),
 	    Option::user_template.latin1());
-	vars["TEMPLATE"].first() = Option::user_template;
+	vars["TEMPLATE"].clear();
+	vars["TEMPLATE"].append(Option::user_template);
     }
+
+    if(Option::user_template.isEmpty())
+	vars["TEMPLATE"].append("app");
+    else
+	vars["TEMPLATE"].first().replace(QRegExp("\\.t$"), "");
 
     return TRUE;
 }
