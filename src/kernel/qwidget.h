@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#16 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#17 $
 **
 ** Definition of QWidget class
 **
@@ -96,6 +96,9 @@ public:
 
     void    update();				// update widget
     void    update( int x, int y, int w, int h);// update part of widget
+    void    repaint( bool erase=TRUE );		// repaint widget
+    void    repaint( int x, int y, int w, int h, bool erase=TRUE );
+    void    repaint( const QRect &, bool erase=TRUE );
 
   // Widget management functions
 
@@ -194,6 +197,16 @@ private:
     static QWidget *activeWidget;		// widget in keyboard focus
 };
 
+
+inline void QWidget::repaint( bool erase )
+{
+    repaint( rect, erase );
+}
+
+inline void QWidget::repaint( int x, int y, int w, int h, bool erase )
+{
+    repaint( QRect(x,y,w,h), erase );
+}
 
 inline void QWidget::move( const QPoint &p )
 {
