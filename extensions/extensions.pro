@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-contains( QT_PRODUCT, qt-enterprise ) {
+contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 	win32:	SUBDIRS = activeqt
 	x11:	SUBDIRS = motif
 }

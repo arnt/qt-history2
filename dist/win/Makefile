@@ -42,8 +42,8 @@ symlinks: .qmake.cache
 
 sub-src: src-qmake .qmake.cache $(FORCEDEP)
 	cd src
-	$(MAKE)
 	$(MAKE) -f Makefile.main
+	$(MAKE)
 	cd ..
 
 sub-plugins: sub-src .qmake.cache $(FORCEDEP)
@@ -58,6 +58,11 @@ sub-tutorial: sub-src $(FORCEDEP)
 
 sub-examples: sub-src $(FORCEDEP)
 	cd examples
+	$(MAKE) $(CONTINUEONERROR)
+	cd ..
+
+sub-extensions: sub-src $(FORCEDEP)
+	cd extensions
 	$(MAKE) $(CONTINUEONERROR)
 	cd ..
 
@@ -76,6 +81,9 @@ clean:
 	$(MAKE) $(CONTINUEONERROR) clean
 	cd ..
 	cd examples
+	$(MAKE) $(CONTINUEONERROR) clean
+	cd ..
+	cd extensions
 	$(MAKE) $(CONTINUEONERROR) clean
 	cd ..
 	cd plugins\src\codecs
