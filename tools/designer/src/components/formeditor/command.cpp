@@ -348,6 +348,7 @@ void DeleteWidgetCommand::redo()
     m_widget->setParent(formWindow());
 
     formWindow()->emitGeometryChanged(m_parentWidget);
+    formWindow()->emitSelectionChanged();
 }
 
 void DeleteWidgetCommand::undo()
@@ -373,6 +374,7 @@ void DeleteWidgetCommand::undo()
 
     m_widget->show();
     formWindow()->emitGeometryChanged(m_parentWidget);
+    formWindow()->emitSelectionChanged();
 }
 
 // ---- ReparentWidgetCommand ----
