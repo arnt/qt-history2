@@ -16,9 +16,9 @@
 
 /*! \page linguist_translator.html
 \title Chapter 2: Translators
-<a name="Chapter_2:_Translators"></a>
+<a name="Chapter_2_Translators"></a>
 
-<center><img src="images/linguist.png" alt="Linguist Main Window">
+<center><img src="../images/linguist.png" alt="Linguist Main Window">
 <h5>Linguist Main Window</h5></center>
 
 <h2><a name="The_1_Minute_Guide_to_Using_Qt_Linguist">
@@ -236,7 +236,7 @@ in the Phrases and guesses area.
 <h2><a name="Creating_and_Using_Phrase_Books">
 Creating and Using Phrase Books</a></h2>
 
-<center><img src="images/phrasebookdialog.png" alt="Phrase Book Dialog">
+<center><img src="../images/phrasebookdialog.png" alt="Phrase Book Dialog">
 <h5>Phrase Book Dialog</h5></center>
 
 A <em>Qt Linguist</em> phrase book is a set of source phrases, target
@@ -339,7 +339,7 @@ number of projects and applications.
 
 <h3><a name="The_Menu_Bar">The Menu Bar</a></h3>
 
-<center><img src="images/menubar.png" alt="Menu Bar">
+<center><img src="../images/menubar.png" alt="Menu Bar">
 <h5>Menu Bar</h5></center>
 
 <ul>
@@ -453,58 +453,58 @@ Books"</a> for details.)
 
 <h3><a name="The_Toolbar">The Toolbar</a></h3>
 
-<center><img src="images/toolbar.png" alt="Toolbar">
+<center><img src="../images/toolbar.png" alt="Toolbar">
 <h5>Toolbar</h5></center>
 
 <dl>
-<dt><img src="images/fileopen.png"></dt>
+<dt><img src="../images/fileopen.png"></dt>
 <dd>Pop up the file open dialog to open a new translation source \c .ts
 file.</dd> 
-<dt><p><img src="images/filesave.png"></dt>
+<dt><p><img src="../images/filesave.png"></dt>
 <dd>Save the current translation source \c .ts file.</dd>
-<dt><p><img src="images/fileprint.png"></dt>
+<dt><p><img src="../images/fileprint.png"></dt>
 <dd>Print the current translation source \c .ts file.</dd>
-<dt><p><img src="images/phrasebookopen.png"></dt>
+<dt><p><img src="../images/phrasebookopen.png"></dt>
 <dd>Pop up the file open dialog to open a new phrase book \c .qph file.</dd>
-<dt><p><img src="images/editundo.png"></dt>
+<dt><p><img src="../images/editundo.png"></dt>
 <dd>Undo the last editing action in the translation pane.</dd>
-<dt><p><img src="images/editredo.png"></dt>
+<dt><p><img src="../images/editredo.png"></dt>
 <dd>Redo the last editing action in the translation pane.</dd>
-<dt><p><img src="images/editcut.png"></dt>
+<dt><p><img src="../images/editcut.png"></dt>
 <dd>Delete any highlighted text in the translation pane and save a copy to 
 the clipboard.</dd>
-<dt><p><img src="images/editcopy.png"></dt>
+<dt><p><img src="../images/editcopy.png"></dt>
 <dd>Copy the highlighted text in the translation pane to the clipboard.</dd>
-<dt><p><img src="images/editpaste.png"></dt>
+<dt><p><img src="../images/editpaste.png"></dt>
 <dd>Paste the clipboard text into the translation pane.</dd>
-<dt><p><img src="images/editdelete.png"></dt>
+<dt><p><img src="../images/editdelete.png"></dt>
 <dd>Delete the highlighted text in the translation pane.</dd>
-<dt><p><img src="images/editfind.png"></dt>
+<dt><p><img src="../images/editfind.png"></dt>
 <dd>Pop up the <a href="#The_Find_Dialog">Find dialog</a>.</dd>
-<dt><p><img src="images/startfromsource.png"></dt>
+<dt><p><img src="../images/startfromsource.png"></dt>
 <dd>Copy the source phrase to the translation area.</dd>
-<dt><p><img src="images/prev.png"></dt>
+<dt><p><img src="../images/prev.png"></dt>
 <dd>Move to the previous source phrase.</dd>
-<dt><p><img src="images/next.png"></dt>
+<dt><p><img src="../images/next.png"></dt>
 <dd>Move to the next source phrase.</dd>
-<dt><p><img src="images/prevunfinished.png"></dt>
+<dt><p><img src="../images/prevunfinished.png"></dt>
 <dd>Move to the previous unfinished source phrase.</dd>
-<dt><p><img src="images/nextunfinished.png"></dt>
+<dt><p><img src="../images/nextunfinished.png"></dt>
 <dd>Move to the next unfinished source phrase.</dd>
-<dt><p><img src="images/doneandnext.png"></dt>
+<dt><p><img src="../images/doneandnext.png"></dt>
 <dd>Mark the phrase as 'done' (translated) and move to the next
 unfinished source phrase.</dd>
-<dt><p><img src="images/validateaccelerators.png"></dt>
+<dt><p><img src="../images/validateaccelerators.png"></dt>
 <dd>Toggle accelerator validation on and off.</dd>
-<dt><p><img src="images/validatepunctuation.png"></dt>
+<dt><p><img src="../images/validatepunctuation.png"></dt>
 <dd>Switch phrase ending punctuation validation on and off.</dd>
-<dt><p><img src="images/validatephrases.png"></dt>
+<dt><p><img src="../images/validatephrases.png"></dt>
 <dd>Set phrase book validation on or off.</dd>
 </dl>
 
 <h3><a name="The_Find_Dialog">The Find Dialog</a></h3>
 
-<center><img src="images/finddialog.png" alt="The Find Dialog">
+<center><img src="../images/finddialog.png" alt="The Find Dialog">
 <h5>The Find Dialog</h5></center>
 
 Choose <em>Edit|Find</em> from the menu bar or press <em>Ctrl+F</em> to pop up

@@ -40,14 +40,14 @@
     <li><a href="#Brief_Overview_of_the_Translation_Process">
     Brief Overview of the Translation Process</a>
     </ul>
-<li><a href="linguist_manager.html#Chapter_1:_Release_Manager">Chapter 1: Release Manager</a>
+<li><a href="linguist_manager.html#Chapter_1_Release_Manager">Chapter 1: Release Manager</a>
     <ul>
     <li><a href="linguist_manager.html#Qt_Project_Files">Qt Project Files</a>
     <li><a href="linguist_manager.html#lupdate">lupdate</a>
     <li><a href="linguist_manager.html#lrelease">lrelease</a>
     <li><a href="linguist_manager.html#Incomplete_Translations">Incomplete Translations</a>
     </ul>
-<li><a href="linguist_translator.html#Chapter_2:_Translators">Chapter 2: Translators</a>
+<li><a href="linguist_translator.html#Chapter_2_Translators">Chapter 2: Translators</a>
     <ul>
     <li><a href="linguist_translator.html#The_1_Minute_Guide_to_Using_Qt_Linguist">
     The One Minute Guide to Using Qt Linguist</a>
@@ -82,7 +82,7 @@
 	<li><a href="linguist_translator.html#The_Phrase_Dialog">The Phrase Dialog</a>
 	</ul>
     </ul>
-<li><a href="linguist_programmer.html#Chapter_3:_Programmers">Chapter 3: Programmers</a>
+<li><a href="linguist_programmer.html#Chapter_3_Programmers">Chapter 3: Programmers</a>
     <ul>
     <li><a href="linguist_programmer.html#Making_The_Application_Translation_Aware">
     Making The Application Translation Aware</a>

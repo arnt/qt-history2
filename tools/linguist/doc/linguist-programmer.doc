@@ -16,7 +16,7 @@
 
 /*! \page linguist_programmer.html
 \title Chapter 3: Programmers
-<a name="Chapter_3:_Programmers">
+<a name="Chapter_3_Programmers">
 
 Support for multiple languages is extremely simple in Qt applications
 and adds little overhead to the programmer's workload. 
@@ -218,7 +218,7 @@ application is upgraded.
 <h3><a name="Tutorial_1:_Loading_Translations">
 Tutorial 1: Loading and Using Translations</a></h3>
 
-<center><img src="images/tt1_en.png"
+<center><img src="../images/tt1_en.png"
 alt="Screenshot of the English version of tutorial 1">
 <h5>Tutorial 1 Screenshot, English version</h5></center>
 
@@ -283,7 +283,7 @@ world!")</code>.
 Since we haven't made the translation file \c tt1_la.qm, the source text
 is shown when we run the application:
 
-<center><img src="images/tt1_en.png"
+<center><img src="../images/tt1_en.png"
 alt="Screenshot of the English version of tutorial 1">
 <h5>Tutorial 1 Screenshot, English version</h5></center>
 
@@ -398,7 +398,7 @@ Generate \c tt1_la.qm from \c tt1_la.ts by choosing
 program again. This time the button will be labelled "Orbis, te
 saluto!".
 
-<center><img src="images/tt1_la.png"
+<center><img src="../images/tt1_la.png"
 alt="Screenshot of the Latin version of tutorial 1">
 <h5>Tutorial 1 Screenshot, Latin version</h5></center>
 
@@ -406,7 +406,7 @@ alt="Screenshot of the Latin version of tutorial 1">
 <h3><a name="Tutorial_2:_Making_User-Visible_Strings_Translate">
 Tutorial 2: Using Two or More Languages</a></h3>
 
-<center><img src="images/tt2_en.png"
+<center><img src="../images/tt2_en.png"
 alt="Screenshot of the English version of tutorial 2">
 <h5>Tutorial 2 Screenshot, English version</h5></center>
 
@@ -485,7 +485,7 @@ We call \c ArrowPad::tr() for each button's label since the labels are
 user-visible text.
 
 
-<center><img src="images/tt2_en.png"
+<center><img src="../images/tt2_en.png"
 alt="Screenshot of the English version of tutorial 2">
 <h5>Tutorial 2 Screenshot, English version</h5></center>
 
@@ -601,8 +601,7 @@ In practice we would include calls to \e lupdate and \e lrelease in the
 application's make file to ensure that the latest translations were
 always used automatically.
 
-<font color="red">[[Arnt -- AN EXAMPLE OF A MAKEFILE OR .PRO FILE THAT
-DID THIS WOULD BE NICE.]]</font>
+<!-- an example of a makefile or .pro file that did this would be nice -->
 
 Type
 
@@ -628,14 +627,14 @@ In Windows, either modify autoexec.bat or run
 
 When you run the program, you should now see the French version:
 
-<center><img src="images/tt2_fr.png"
+<center><img src="../images/tt2_fr.png"
 alt="Screenshot of the French version of tutorial 2">
 <h5>Tutorial 2 Screenshot, French version</h5></center>
 
 Try the same with Dutch, by setting <tt>LANG=nl</tt>. Now the Dutch
 version should appear:
 
-<center><img src="images/tt2_nl.png"
+<center><img src="../images/tt2_nl.png"
 alt="Screenshot of the Dutch version of tutorial 2">
 <h5>Tutorial 2 Screenshot, Dutch version</h5></center>
 
@@ -655,7 +654,7 @@ conflict between \e &Bestand and \e &Boven.
 <h3><a name="Tutorial_3:_Distinguishing_Identical_Strings_That_Require_Different_Translations">
 Tutorial 3: Disambiguating Identical Strings</a></h3>
 
-<center><img src="images/tt3_10_en.png"
+<center><img src="../images/tt3_10_en.png"
 alt="Screenshot of Troll Print 1.0, English version">
 <h5>Tutorial 3 Screenshot, "Troll Print 1.0", English version</h5></center>
 
@@ -780,7 +779,7 @@ version</em>, above. Now run \e lrelease, e.g. <code>lrelease
 tt3.pro</code>, and then run the example again. Now you should see the
 Portuguese edition (Troll Imprimir 1.0):
 
-<center><img src="images/tt3_10_pt_bad.png"
+<center><img src="../images/tt3_10_pt_bad.png"
 alt="Screenshot of Troll Imprimir 1.0 (Bad Portuguese)">
 <h5>Tutorial 3 Screenshot, "Troll Imprimir 1.0", (Bad) Portuguese version</h5>
 </center>
@@ -843,7 +842,7 @@ Change the second "Ativado" into "Ativadas" and the second
 obtain an up-to-date binary \c tt3_pt.qm file, and run Troll Print (or
 rather Troll Imprimir).
 
-<center><img src="images/tt3_10_pt_good.png"
+<center><img src="../images/tt3_10_pt_good.png"
 alt="Screenshot of Troll Imprimir 1.0 (Good Portuguese)">
 <h5>Tutorial 3 Screenshot, "Troll Imprimir 1.0", (Good) Portuguese version</h5>
 </center>
@@ -954,14 +953,14 @@ button to translate "Two-sided", but change the "2" into "Dois".
 Save and quit, then run \e lrelease.  The Portuguese version
 should look like this:
 
-<center><img src="images/tt3_11_pt.png"
+<center><img src="../images/tt3_11_pt.png"
 alt="Screenshot of Troll Imprimir 1.1 Portuguese version">
 <h5>Tutorial 3 Screenshot, "Troll Imprimir 1.1", Portuguese version</h5>
 </center>
 
 Choose <em>Ajuda|Sobre</em>, (<em>Help|About</em>), to see the about box
 
-<center><img src="images/tt3_11_about_pt.png"
+<center><img src="../images/tt3_11_about_pt.png"
 alt="Screenshot of Troll Imprimir 1.1 About box Portuguese version">
 <h5>Tutorial 3 Screenshot, About box, Portuguese version</h5></center>
 
@@ -973,7 +972,7 @@ Qt"</a> for details.
 
 Now set <tt>LANG=en</tt> to get the original English version:
 
-<center><img src="images/tt3_11_en.png"
+<center><img src="../images/tt3_11_en.png"
 alt="Screenshot of Troll Print 1.1, English version"></center>
 <h5>Tutorial 3 Screenshot, "Troll Print 1.1", English version</h5></center>
 
