@@ -123,7 +123,6 @@ int main(int argc, char **argv)
 		} else {
 		    if(Option::output.name().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
 			Option::output.setName(proj.first("QMAKE_MAKEFILE"));
-		    debug_msg( 1, "Output specified is %s", Option::output.name().latin1() );
 		    if(!mkfile->openOutput(Option::output)) {
 			fprintf(stderr, "Failure to open file: %s\n",
 				Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
