@@ -446,8 +446,7 @@ bool QSqlQuery::seek( int i, bool relative )
 	    return FALSE;
 	}
 	actualIdx = i;
-    }
-    else {
+    } else {
 	switch ( at() ) { // relative seek
 	case QSql::BeforeFirst:
 	    if ( i > 0 )
@@ -458,9 +457,10 @@ bool QSqlQuery::seek( int i, bool relative )
 	    }
 	    break;
 	case QSql::AfterLast:
-	    if ( i < 0 )
-		actualIdx = i;
-	    else {
+	    if ( i < 0 ) {
+		d->sqlResult->fetchLast();
+		actualIdx = at() + i;
+	    } else {
 		afterSeek();
 		return FALSE;
 	    }
@@ -471,7 +471,7 @@ bool QSqlQuery::seek( int i, bool relative )
 		afterSeek();
 		return FALSE;
 	    }
-	    actualIdx = i;
+	    actualIdx = at() + i;
 	    break;
 	}
     }
