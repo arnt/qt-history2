@@ -1156,6 +1156,19 @@ void QRasterPaintEngine::drawRect(const QRectF &r)
     }
 }
 
+void QRasterPaintEngine::drawEllipse(const QRectF &rect)
+{
+    Q_D(QRasterPaintEngine);
+    if (!d->antialiased && d->pen.style() == Qt::NoPen && d->txop <= QPainterPrivate::TxTranslate) {
+        QPen oldPen = d->pen;
+        updatePen(QPen(d->brush, 0));
+        QPaintEngine::drawEllipse(rect.adjusted(0, 0, -1, -1));
+        d->pen = oldPen;
+    } else {
+        QPaintEngine::drawEllipse(rect);
+    }
+}
+
 #ifdef Q_WS_WIN
 HDC QRasterPaintEngine::getDC() const
 {
