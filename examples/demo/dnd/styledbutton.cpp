@@ -49,6 +49,14 @@ StyledButton::StyledButton( const QBrush& b, QWidget* parent, const char* name, 
 
 StyledButton::~StyledButton()
 {
+    if ( pix ) {
+	delete pix;
+	pix = 0;
+    }
+    if ( spix ) {
+	delete spix;
+	spix = 0;
+    }
 }
 
 void StyledButton::setEditor( EditorType e )
