@@ -94,7 +94,7 @@ static Window *nwindup(Window *w1, int n) {
     if (! w1) return (Window *) 0;
 
     Window *w2 = new Window[n];
-    while (n--) w2[n] = w1[n];
+    while (n--)	w2[n] = w1[n];
     return w2;
 }
 
@@ -106,7 +106,7 @@ static void refdec_nri(NETRootInfoPrivate *p) {
 
     if (! --p->ref) {
 #ifdef    DEBUG
-	fprintf(stderr, "  no more references, deleting\n");
+	fprintf(stderr, "\tno more references, deleting\n");
 #endif
 
 	if (p->name) delete [] p->name;
@@ -127,6 +127,10 @@ static void refdec_nwi(NETWinInfoPrivate *p) {
 #endif
 
     if (! --p->ref) {
+#ifdef    DEBUG
+	fprintf(stderr, "\tno more references, deleting\n");
+#endif
+
 	if (p->name) delete [] p->name;
 
 	int i;
@@ -136,23 +140,8 @@ static void refdec_nwi(NETWinInfoPrivate *p) {
 }
 
 
-static void windowSort(Window *wins, int num) {
-    int i, j, swaps;
-
-    // bubble sort:
-    for (i = num; i >= 1; i--) {
-	swaps = 0;
-
-	for (j = 2; j <= i; j++)
-	    if (wins[j - 1] > wins[j]) {
-		Window s = wins[j - 1];
-		wins[j - 1] = wins[j];
-		wins[j] = s;
-		swaps++;
-	    }
-
-	if (swaps == 0) break;
-    }
+int wcmp(const void *a, const void *b) {
+    return *((Window *) a) - *((Window *) b);
 }
 
 
@@ -360,7 +349,7 @@ Z &RArray<Z>::operator[](int index) {
 	for (i = 0; i < sz; i++)
 	    newdata[i] = d[i];
 	memset((newdata + i), 0, sizeof(Z));
-	
+
 	sz = index + 1;
 
 	// delete old data and reassign
@@ -449,13 +438,19 @@ NETRootInfo::~NETRootInfo() {
 
 
 void NETRootInfo::activate() {
-    if (! atoms_created) create_atoms(p->display);
-
-    if (role == WindowManager)
+    if (role == WindowManager) {
+#ifdef    DEBUG
+	fprintf(stderr,
+		"NETRootInfo::activate: setting supported properties on root\n");
+#endif
 	// force support for Supported and SupportingWMCheck for window managers
 	setSupported(p->protocols | Supported | SupportingWMCheck);
-    else
+    } else {
+#ifdef    DEBUG
+	fprintf(stderr, "NETRootInfo::activate: updating client information\n");
+#endif
 	update(p->protocols);
+    }
 }
 
 
@@ -467,8 +462,13 @@ void NETRootInfo::setClientList(Window *wins, unsigned int num) {
     if (p->clients) delete [] p->clients;
     p->clients = nwindup(wins, num);
 
+#ifdef    DEBUG
+    fprintf(stderr, "NETRootInfo::setClientList: setting list with %ld windows\n",
+	    p->clients_count);
+#endif
+
     XChangeProperty(p->display, p->root, net_client_list, XA_WINDOW, 32,
-		    PropModeReplace, (unsigned char *) p->clients,
+		    PropModeReplace, *((unsigned char **) &p->clients),
 		    p->clients_count);
 }
 
@@ -568,7 +568,7 @@ void NETRootInfo::setDesktopName(CARD32 desk, const char *name) {
 	if (p->desktop_names[i]) {
 	    strcpy(propp, p->desktop_names[i]);
 	    propp += strlen(p->desktop_names[i]) + 1;
-	} else	
+	} else
 	    *propp++ = '\0';
 
 #ifdef    DEBUG
@@ -576,14 +576,6 @@ void NETRootInfo::setDesktopName(CARD32 desk, const char *name) {
 	    "NETRootInfo::setDesktopName(%ld, '%s')\n"
 	    "desktop_names (atom %ld:\n",
 	    desk, name, net_desktop_names);
-
-    for (i = 0; i < num; i++)
-	fprintf(stderr, "\t'%s'\n", p->desktop_names[i]);
-
-    for (i = 0; i < proplen; i++)
-	if (prop[i] == '\0') fprintf(stderr, ".");
-	else fprintf(stderr, "%c", prop[i]);
-    fprintf(stderr, "\n");
 #endif
 
     XChangeProperty(p->display, p->root, net_desktop_names, XA_STRING, 8,
@@ -932,12 +924,13 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & ClientList)
 	if (XGetWindowProperty(p->display, p->root, net_client_list,
 			       0l, (long) BUFSIZE, False, XA_WINDOW, &type_ret,
-			       &format_ret, &nitems_ret, &unused, &data_ret))
+			       &format_ret, &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_WINDOW && format_ret == 32) {
 		    Window *wins = (Window *) data_ret;
 
-		    windowSort(wins, nitems_ret);
+		    qsort(wins, nitems_ret, sizeof(Window), wcmp);
 
 		    if (p->clients) {
 			if (role == Client) {
@@ -965,6 +958,11 @@ void NETRootInfo::update(unsigned long dirty) {
 			delete [] p->clients;
 		    }
 
+#ifdef    DEBUG
+		    fprintf(stderr,"NETRootInfo::update: ClientList updated, "
+			    "have %ld clients\n", nitems_ret);
+#endif
+
 		    p->clients_count = nitems_ret;
 		    p->clients = nwindup(wins, p->clients_count);
 		}
@@ -972,15 +970,18 @@ void NETRootInfo::update(unsigned long dirty) {
 		XFree(data_ret);
 	    }
 
+
     if (dirty & KDEDockingWindows)
 	if (XGetWindowProperty(p->display, p->root, net_kde_docking_windows,
 			       0l, (long) BUFSIZE, False, XA_WINDOW, &type_ret,
-			       &format_ret, &nitems_ret, &unused, &data_ret))
+			       &format_ret, &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_WINDOW && format_ret == 32) {
 		    Window *wins = (Window *) data_ret;
 
-		    windowSort(wins, nitems_ret);
+		    qsort(wins, nitems_ret, sizeof(Window), wcmp);
+		    //		    windowSort(wins, nitems_ret);
 
 		    if (p->kde_docking_windows) {
 			if (role == Client) {
@@ -1009,6 +1010,11 @@ void NETRootInfo::update(unsigned long dirty) {
 			delete [] p->kde_docking_windows;
 		    }
 
+#ifdef    DEBUG
+		    fprintf(stderr,"NETRootInfo::update: KDEDockWindows updated, "
+			    "have %ld clients\n", nitems_ret);
+#endif
+
 		    p->kde_docking_windows_count = nitems_ret;
 		    p->kde_docking_windows =
 			nwindup(wins, p->kde_docking_windows_count);
@@ -1020,13 +1026,19 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & ClientListStacking)
 	if (XGetWindowProperty(p->display, p->root, net_client_list_stacking,
 			       0, (long) BUFSIZE, False, XA_WINDOW, &type_ret,
-			       &format_ret, &nitems_ret, &unused, &data_ret))
+			       &format_ret, &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_WINDOW && format_ret == 32) {
 		    Window *wins = (Window *) data_ret;
 
 		    if (p->stacking)
 			delete [] p->stacking;
+
+#ifdef    DEBUG
+		    fprintf(stderr,"NETRootInfo::update: ClientStacking updated, "
+			    "have %ld clients\n", nitems_ret);
+#endif
 
 		    p->stacking_count = nitems_ret;
 		    p->stacking = nwindup(wins, p->stacking_count);
@@ -1038,7 +1050,8 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & NumberOfDesktops)
 	if (XGetWindowProperty(p->display, p->root, net_number_of_desktops,
 			       0l, 1l, False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 && nitems_ret == 1)
 		    p->number_of_desktops = *((CARD32 *) data_ret);
@@ -1049,7 +1062,8 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & DesktopGeometry)
 	if (XGetWindowProperty(p->display, p->root, net_desktop_geometry,
 			       0l, 2l, False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 2) {
@@ -1064,7 +1078,8 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & DesktopViewport)
 	if (XGetWindowProperty(p->display, p->root, net_desktop_viewport,
 			       0l, 2l, False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 2) {
@@ -1079,7 +1094,8 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & CurrentDesktop)
 	if (XGetWindowProperty(p->display, p->root, net_current_desktop,
 			       0l, 1l, False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 && nitems_ret == 1)
 		    p->current_desktop = *((CARD32 *) data_ret);
@@ -1090,7 +1106,8 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & DesktopNames)
 	if (XGetWindowProperty(p->display, p->root, net_current_desktop,
 			       0l, (long) BUFSIZE, False, XA_STRING, &type_ret,
-			       &format_ret, &nitems_ret, &unused, &data_ret))
+			       &format_ret, &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_STRING && format_ret == 8) {
 		    // force the last element in the data array to be NUL
@@ -1113,7 +1130,8 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & ActiveWindow)
 	if (XGetWindowProperty(p->display, p->root, net_active_window, 0l, 1l,
 			       False, XA_WINDOW, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_WINDOW && format_ret == 32 && nitems_ret == 1)
 		    p->active = *((Window *) data_ret);
@@ -1125,7 +1143,8 @@ void NETRootInfo::update(unsigned long dirty) {
 	if (XGetWindowProperty(p->display, p->root, net_active_window, 0l,
 			       (p->number_of_desktops * 4), False, XA_CARDINAL,
 			       &type_ret, &format_ret, &nitems_ret, &unused,
-			       &data_ret))
+			       &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == (p->number_of_desktops * 4)) {
@@ -1145,7 +1164,8 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & SupportingWMCheck)
 	if (XGetWindowProperty(p->display, p->root, net_supporting_wm_check,
 			       0l, 1l, False, XA_WINDOW, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_WINDOW && format_ret == 32 && nitems_ret == 1) {
 		    p->supportwindow = *((Window *) data_ret);
@@ -1154,7 +1174,8 @@ void NETRootInfo::update(unsigned long dirty) {
 		    if (XGetWindowProperty(p->display, p->supportwindow,
 					   net_wm_name, 0l, (long) BUFSIZE, False,
 					   XA_STRING, &type_ret, &format_ret,
-					   &nitems_ret, &unused, &name_ret))
+					   &nitems_ret, &unused, &name_ret)
+			== Success)
 			if (name_ret) {
 			    if (type_ret == XA_STRING && format_ret == 8)
 				p->name = nstrdup((const char *) name_ret);
@@ -1169,7 +1190,8 @@ void NETRootInfo::update(unsigned long dirty) {
     if (dirty & VirtualRoots)
 	if (XGetWindowProperty(p->display, p->root, net_virtual_roots,
 			       0, (long) BUFSIZE, False, XA_WINDOW, &type_ret,
-			       &format_ret, &nitems_ret, &unused, &data_ret))
+			       &format_ret, &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_WINDOW && format_ret == 32) {
 		    Window *wins = (Window *) data_ret;
@@ -1265,6 +1287,11 @@ void NETWinInfo::setIcon(NETIcon icon, Bool replace) {
 	(void) memcpy(pprop, p->icons[i].data, sz);
 	pprop += sz;
     }
+    
+    XChangeProperty(p->display, p->window, net_wm_icon, XA_CARDINAL, 32,
+		    PropModeReplace, (unsigned char *) prop, proplen);
+    
+    delete [] prop;
 }
 
 
@@ -1400,7 +1427,7 @@ void NETWinInfo::setKDEDockWinFor(Window win) {
 
 
 NETIcon NETWinInfo::icon(int w, int h) const {
-    
+
     if ( !p->icons.size() ) {
 	NETIcon ni;
 	ni.size.width = 0;
@@ -1408,8 +1435,8 @@ NETIcon NETWinInfo::icon(int w, int h) const {
 	ni.data = 0;
 	return ni;
     }
-    
-    
+
+
     // find the icon that's closest in size to w x h...
     // return the first icon if w and h are -1
     // ### TODO this doesn't work
@@ -1503,7 +1530,8 @@ void NETWinInfo::update(unsigned long dirty) {
     if (dirty & XAWMState)
 	if (XGetWindowProperty(p->display, p->window, xa_wm_state, 0l, 1l,
 			       False, xa_wm_state, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == xa_wm_state && format_ret == 32 &&
 		    nitems_ret == 2) {
@@ -1517,7 +1545,8 @@ void NETWinInfo::update(unsigned long dirty) {
     if (dirty & WMState)
 	if (XGetWindowProperty(p->display, p->window, net_wm_state, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == net_wm_state && format_ret == 32 &&
 		    nitems_ret == 1)
@@ -1530,7 +1559,8 @@ void NETWinInfo::update(unsigned long dirty) {
 	if (XGetWindowProperty(p->display, p->window, net_wm_desktop, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret,
 			       &format_ret, &nitems_ret,
-			       &unused, &data_ret))
+			       &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == net_wm_desktop && format_ret == 32 &&
 		    nitems_ret == 1)
@@ -1542,7 +1572,8 @@ void NETWinInfo::update(unsigned long dirty) {
     if (dirty & WMName)
 	if (XGetWindowProperty(p->display, p->window, net_wm_name, 0l,
 			       (long) BUFSIZE, False, XA_STRING, &type_ret,
-			       &format_ret, &nitems_ret, &unused, &data_ret))
+			       &format_ret, &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_STRING && format_ret == 8 &&
 		    nitems_ret > 0) {
@@ -1556,7 +1587,8 @@ void NETWinInfo::update(unsigned long dirty) {
     if (dirty & WMWindowType)
 	if (XGetWindowProperty(p->display, p->window, net_wm_window_type, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 1)
@@ -1568,7 +1600,8 @@ void NETWinInfo::update(unsigned long dirty) {
     if (dirty & WMStrut)
 	if (XGetWindowProperty(p->display, p->window, net_wm_strut, 0l, 4l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 4) {
@@ -1585,7 +1618,8 @@ void NETWinInfo::update(unsigned long dirty) {
     if (dirty & WMIconGeometry)
 	if (XGetWindowProperty(p->display, p->window, net_wm_icon_geometry, 0l, 4l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 4) {
@@ -1605,7 +1639,8 @@ void NETWinInfo::update(unsigned long dirty) {
     if (dirty & WMKDEDockWinFor)
 	if (XGetWindowProperty(p->display, p->window, net_wm_kde_docking_window_for,
 			       0l, 1l, False, XA_CARDINAL, &type_ret, &format_ret,
-			       &nitems_ret, &unused, &data_ret))
+			       &nitems_ret, &unused, &data_ret)
+	    == Success)
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 1)
