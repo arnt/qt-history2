@@ -168,7 +168,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     } else {
 	if( glFormat.doubleBuffer()) 
 	    attribs[cnt++] = AGL_DOUBLEBUFFER;
-	attribs[cnt++] = AGL_ACCELERATED;
+//	attribs[cnt++] = AGL_ACCELERATED;
     }
 
     attribs[cnt] = AGL_NONE;
