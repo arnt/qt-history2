@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#203 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#204 $
 **
 ** Implementation of QListBox widget class
 **
@@ -894,7 +894,7 @@ int QListBox::currentItem() const
 {
     if ( !d->current || !d->head )
 	return -1;
-    
+
     return index( d->current );
 }
 
@@ -2287,4 +2287,26 @@ int QListBox::rowAt( int y ) const
     while( row < (int)d->rowPos.size()-1 && d->rowPos[row+1] < y )
 	row++;
     return row;
+}
+
+
+void QListBox::inSort( const QListBoxItem * lbi )
+{
+    if ( !lbi )
+	return;
+
+    QListBoxItem * i = d->head;
+    int c;
+
+    while( i && i->text() < lbi->text() ) {
+	i = i->n;
+	c++;
+    }
+    insertItem( lbi, c );
+}
+
+
+void QListBox::inSort( const char *text )
+{
+    inSort( new QListBoxText(text) );
 }
