@@ -645,7 +645,7 @@ void QGenericTreeView::resizeColumnToContents(int column)
 void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
     bool reverse = QApplication::reverseLayout();
-    int x = d->header->sectionPosition(column) - d->header->offset();
+    int x = d->header->sectionPosition(column) - d->header->offset()
             - (reverse ? d->header->sectionSize(column) : 0);
     QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
