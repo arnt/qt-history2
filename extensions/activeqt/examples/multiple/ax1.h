@@ -1,8 +1,6 @@
 #include <qwidget.h>
 #include <qpainter.h>
 
-#include <qaxfactory.h>
-
 class QAxWidget1 : public QWidget
 {
     Q_OBJECT
