@@ -53,6 +53,11 @@
 #include "qapplication.h"
 #include "qstyle.h"
 
+#ifdef Q_WS_MAC
+QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* name );
+QColor macGetColor( const QColor& initial, QWidget *parent, const char *name );
+#endif
+
 //////////// QWellArray BEGIN
 
 struct QWellArrayData;
@@ -1425,6 +1430,10 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
 			       const char *name )
 {
+#if defined(Q_WS_MAC)
+//    return macGetColor(initial, parent, name);
+#endif
+
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -1461,6 +1470,10 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
 QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
 			    QWidget *parent, const char* name )
 {
+#if defined(Q_WS_MAC)
+//    return macGetRgba(initial, ok, parent, name);
+#endif
+
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
     dlg->setColor( initial );
