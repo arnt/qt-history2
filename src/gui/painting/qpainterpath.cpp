@@ -1398,6 +1398,46 @@ QDataStream &operator>>(QDataStream &s, QPainterPath &p)
 #endif
 
 
+/*******************************************************************************
+ * Subpath Iterators
+ */
+QPainterPath::Element QSubpathReverseIterator::next()
+{
+    Q_ASSERT(hasNext());
+
+    const QPainterPath::Element &pe = m_path->elementAt(m_pos+1); // previous element
+    QPainterPath::Element ce = m_path->elementAt(m_pos);   // current element
+
+    switch (pe.type) {
+    case QPainterPath::LineToElement:
+        ce.type = QPainterPath::LineToElement;
+        break;
+    case QPainterPath::CurveToDataElement:
+        // First control point?
+        if (ce.type == QPainterPath::CurveToElement) {
+            ce.type = QPainterPath::CurveToDataElement;
+        } else { // Second control point then
+            ce.type = QPainterPath::CurveToElement;
+        }
+        break;
+    case QPainterPath::CurveToElement:
+        ce.type = QPainterPath::CurveToDataElement;
+        break;
+    default:
+        qWarning("QSubpathReverseIterator::next(), unhandled case, %d", ce.type);
+        break;
+    }
+    --m_pos;
+
+    if (m_pos < m_start) {
+        m_start = m_end + 1;
+        m_end = indexOfSubpath(m_start+1);
+        m_pos = m_end;
+    }
+
+    return ce;
+}
+
 
 /*******************************************************************************
  * class QPainterPathStroker
