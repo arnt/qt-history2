@@ -20,7 +20,7 @@
 Drag and drop provides a simple visual mechanism which users can use
 to transfer information between and within applications. (In the
 literature this is referred to as a "direct manipulation model".) Drag
-and drop is similar in function to the clipboard's cut-and-paste
+and drop is similar in function to the clipboard's cut and paste
 mechanism.
 
 \tableofcontents
@@ -105,14 +105,15 @@ void MyWidget::dropEvent(QDropEvent* event)
 The QDragObject, QDragEnterEvent, QDragMoveEvent, and QDropEvent
 classes are all subclasses of QMimeSource: the class of objects which
 provide typed information. If you base your data transfers on
-QDragObject, you not only get drag-and-drop, but you also get
-traditional cut-and-paste for free. The QClipboard has two functions:
+QDragObject, you not only get drag and drop facilities, but you
+also get traditional cut and paste. The QClipboard has two
+functions:
 \code
     setData(QMimeSource*)
     QMimeSource* data()const
 \endcode
-With these functions you can trivially put your drag-and-drop oriented
-information on the clipboard:
+With these functions you can take the information related to
+drag and drop operations, and trivially put it on the clipboard:
 \code
 void MyWidget::copy()
 {
@@ -160,18 +161,19 @@ DXF, DWG, SVF, WMF, or even QPicture data to other applications.
 
 \section1 Drag and Drop Actions
 
-In the simpler cases, the target of a drag-and-drop receives a copy of
-the data being dragged and the source decides whether to delete the
-original. This is the "Copy" action in QDropEvent. The target may also
-choose to understand other actions, specifically the Move and Link
-actions. If the target understands the Move action, \e{the
-target} is responsible for both the copy and delete operations and
-the source will not attempt to delete the data itself. If the target
-understands the Link, it stores its own reference to the original
-information, and again the source does not delete the original. The
-most common use of drag-and-drop actions is when performing a Move
-within the same widget: see the \link #advanced Advanced
-Drag-and-Drop\endlink section below.
+In the simpler cases, the target of a drag and drop action
+receives a copy of the data being dragged, and the source
+decides whether to delete the original. This is the "Copy"
+action in QDropEvent. The target may also choose to understand
+other actions, specifically the Move and Link actions. If the
+target understands the Move action, \e{the target} is
+responsible for both the copy and delete operations, and
+the source will not attempt to delete the data itself. If the
+target understands the Link, it stores its own reference to
+the original information, and again the source does not delete
+the original. The most common use of drag and drop actions is
+when performing a Move within the same widget: see the
+\link #advanced Advanced Drag and Drop\endlink section below.
 
 The other major use of drag actions is when using a reference type
 such as text/uri-list, where the dragged data are actually references
@@ -179,7 +181,7 @@ to files or objects.
 
 \section1 Adding New Drag and Drop Types
 
-As suggested in the DXF example above, drag-and-drop is not limited to
+As suggested in the DXF example above, drag and drop is not limited to
 text and images. Any information can be dragged and dropped. To drag
 information between applications, the applications must be able to
 indicate to each other which data formats they can accept and which
@@ -195,16 +197,16 @@ provides for "\c{image/*}", where \c{*} is any image format that
 "\c{text/uri-list}", a standard format for transferring a list of
 filenames (or URLs).
 
-To implement drag-and-drop of some type of information for which there
-is no available QDragObject subclass, the first and most important
-step is to look for existing formats that are appropriate: the
-Internet Assigned Numbers Authority (\link http://www.iana.org
-IANA\endlink) provides a \link
-http://www.isi.edu/in-notes/iana/assignments/media-types/ hierarchical
-list of MIME media types\endlink at the Information Sciences Institute
-(\link http://www.isi.edu ISI\endlink). Using standard MIME types
-maximizes the inter-operability of your application with other
-software now and in the future.
+To implement drag and drop actions for a type of information
+with no available QDragObject subclass, the first and most
+important step is to look for existing formats that are
+appropriate: the Internet Assigned Numbers Authority
+(\link http://www.iana.org IANA\endlink) provides a
+\link http://www.isi.edu/in-notes/iana/assignments/media-types/
+hierarchical list of MIME media types\endlink at the Information
+Sciences Institute (\link http://www.isi.edu ISI\endlink).
+Using standard MIME types maximizes the interoperability of
+your application with other software now and in the future.
 
 To support an additional media type, subclass either QDragObject or
 QStoredDrag. Subclass QDragObject when you need to provide support for
@@ -235,13 +237,13 @@ data and the same static members canDecode() and decode() to decode
 incoming data.
 
 \target advanced
-\section1 Advanced Drag-and-Drop
+\section1 Advanced Drag and Drop
 
 In the clipboard model, the user can \e cut or \e copy the source
-information, then later paste it. Similarly in the drag-and-drop
+information, then later paste it. Similarly in the drag and drop
 model, the user can drag a \e copy of the information or they can drag
 the information itself to a new place (\e moving it). The
-drag-and-drop model however has an additional complication for the
+drag and drop model however has an additional complication for the
 programmer: the program doesn't know whether the user wants to cut or
 copy until the drop (paste) is done! For dragging between
 applications, it makes no difference, but for dragging within an

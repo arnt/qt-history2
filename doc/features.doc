@@ -89,10 +89,10 @@ The available options are:
      \i HTML-like text (\l QStyleSheet, \l QLabel)
      \i \c QT_NO_MIME
 \row \i \c QT_NO_DRAGANDDROP
-     \i Drag-and-drop data between applications (\l QDragObject)
+     \i Drag and drop data between applications (\l QDragObject)
      \i \c QT_NO_MIME
 \row \i \c QT_NO_CLIPBOARD
-     \i Cut-and-paste data between applications (\l QClipboard)
+     \i Cut and paste data between applications (\l QClipboard)
      \i \c QT_NO_MIME
 
 \header \i31 Sound

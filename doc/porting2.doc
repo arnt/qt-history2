@@ -761,8 +761,8 @@ if you called it.
 The pixmap
 will be \link QPixmap::isNull() null\endlink if no pixmap is on the
 clipboard.  QClipboard now offers powerful MIME-based types on the
-clipboard, just like drag-and-drop (in fact, you can reuse most of your
-drag-and-drop code with clipboard operations).
+clipboard, just like drag and drop (in fact, you can reuse most of your
+drag and drop code with clipboard operations).
 
 
 <h3><a name="QDropSite">QDropSite</a></h3>
