@@ -252,7 +252,7 @@ static const char * const link_xpm[] = {
 #ifndef QT_NO_DRAGANDDROP
 
 // the universe's only drag manager
-export QDragManager * qt_dnd_manager = 0;
+Q_EXPORT QDragManager * qt_dnd_manager = 0;
 
 
 QDragManager::QDragManager()

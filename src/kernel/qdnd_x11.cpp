@@ -295,8 +295,9 @@ void qt_xdnd_set_current_widget( QWidget * w )
 	QObject::disconnect( qt_xdnd_current_widget, SIGNAL( destroyed() ),
 			     qt_dnd_manager, SLOT( resetPointer() ) );
     qt_xdnd_current_widget = w;
-    QObject::connect( qt_xdnd_current_widget, SIGNAL( destroyed() ),
-			     qt_dnd_manager, SLOT( resetPointer() ) );
+    if ( qt_xdnd_current_widget )
+	QObject::connect( qt_xdnd_current_widget, SIGNAL( destroyed() ),
+			  qt_dnd_manager, SLOT( resetPointer() ) );
 }
 
 
