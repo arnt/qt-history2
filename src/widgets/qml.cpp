@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#50 $
 **
 ** Implementation of QML classes
 **
@@ -1486,7 +1486,7 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
     do {
 	s.truncate(0);
 	p->setFont( par->font() );
-	QFontMetrics fm = p->fontMetrics();
+	const QFontMetrics & fm = p->fontMetrics();
 	int tw = 0;
 	QMLNode* tmp = 0;
 	bool select = t->isSelected;
