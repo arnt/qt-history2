@@ -226,6 +226,36 @@ QDragManager *QDragManager::self()
     return instance;
 }
 
+
+QDrag::DropAction QDragManager::determineDefaultAction(QDrag::DropActions actions)
+{
+    QDrag::DropAction defaultAction = QDrag::CopyAction;
+    
+    Qt::KeyboardModifiers moderfies = QApplication::keyboardModifiers();
+    
+    if (moderfies & Qt::ControlButton && moderfies & Qt::ShiftButton)
+        defaultAction = QDrag::LinkAction;
+    else if (moderfies & Qt::ControlButton)
+        defaultAction = QDrag::CopyAction;
+    else if (moderfies & Qt::ShiftButton)
+        defaultAction = QDrag::MoveAction;
+    else if (moderfies & Qt::AltButton)
+        defaultAction = QDrag::LinkAction;
+    
+    // Check if the action determined is allowed
+    if (!(actions & defaultAction)) {
+        if (actions & QDrag::CopyAction)
+            defaultAction = QDrag::CopyAction;
+        else if (actions & QDrag::MoveAction)
+            defaultAction = QDrag::MoveAction;
+        else if (actions & QDrag::LinkAction)
+            defaultAction = QDrag::LinkAction;
+        else 
+            defaultAction = QDrag::IgnoreAction;
+    }
+    return defaultAction;
+}
+
 #endif
 
 

@@ -73,6 +73,7 @@ public:
 
     QDragPrivate *dragPrivate(QDrag *drag) { return drag ? drag->d_func() : 0; }
     static QDragManager *self();
+    static QDrag::DropAction determineDefaultAction(QDrag::DropActions actions);
 private:
     Q_DISABLE_COPY(QDragManager)
 

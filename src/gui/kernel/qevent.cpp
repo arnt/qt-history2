@@ -1519,10 +1519,12 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, QDrag::DropActions actions, co
 */ // ### pos is in which coordinate system?
 QDropEvent::QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type type)
     : QEvent(type), p(pos), act(actions),
-      // ###### fix default action
-      drop_action(QDrag::CopyAction), default_action(QDrag::CopyAction),
+      drop_action(QDrag::IgnoreAction),
       mdata(data)
-{ ignore(); }
+{
+    default_action = QDragManager::determineDefaultAction(act);
+    ignore(); 
+}
 
 
 /*!

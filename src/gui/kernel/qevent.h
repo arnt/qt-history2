@@ -345,7 +345,7 @@ class Q_GUI_EXPORT QDropEvent : public QEvent
 // END QT_COMPAT
 {
 public:
-    QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type typ = Drop);
+    QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type type = Drop);
     inline const QPoint &pos() const { return p; }
 
     inline QDrag::DropActions possibleActions() const { return act; }
