@@ -313,8 +313,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    SetBkColor( dst_dc, bc );
 	    SetTextColor( dst_dc, tc );
 	    DeleteObject( SelectObject(dst_dc, b) );
-	} else if ( qt_winver == Qt::WV_95 || qt_winver == Qt::WV_98 ||
-		    qt_bitblt_bsm ) {
+	} else if ( (qt_winver & Qt::WV_DOS_based) || qt_bitblt_bsm ) {
 	    HDC mask_dc;
 	    int mask_offset;
 	    if ( mask->isMultiCellPixmap() ) {
