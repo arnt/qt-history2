@@ -610,10 +610,10 @@ const bool true = TRUE;
 #endif
 
 //
-// Proper for-scoping
-// ### turn on in 4.0
+// Proper for-scoping in VC++6
+//
 
-#if 0 && defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
+#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
 #  define for if(0){}else for
 #endif
 
