@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#28 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#29 $
 **
 ** Definition of QStyle class
 **
@@ -47,9 +47,7 @@ class Q_EXPORT QStyle: public QObject
 private:
     QStyle(GUIStyle);
     QStyle();
-    friend class QMotifStyle;
-    friend class QWindowsStyle;
-    friend class QPlatinumStyle;
+    friend class QCommonStyle;
 public:
     virtual ~QStyle();
 
@@ -64,6 +62,8 @@ public:
 #endif
 
     GUIStyle guiStyle() const { return gs; }
+    
+    // abstract section
 
     virtual void polish( QWidget* );
     virtual void unPolish( QWidget* );
@@ -132,36 +132,40 @@ public:
 				int state, bool down = FALSE, bool enabled = TRUE ) = 0;
     virtual void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int state);
 
-    // "combo box"
-    virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
-				  const QColorGroup &g, bool sunken = FALSE,
-				  bool editable = FALSE,
-				  bool enabled = TRUE,
-				  const QBrush *fill = 0 );
-    virtual QRect comboButtonRect( int x, int y, int w, int h);
-    virtual QRect comboButtonFocusRect( int x, int y, int w, int h);
-
-    virtual void drawComboButtonMask( QPainter *p, int x, int y, int w, int h);
-
 
     // focus
     virtual void drawFocusRect( QPainter*, const QRect &,
 				const QColorGroup &, const QColor* bg = 0,
 				bool = FALSE ) = 0;
+    
+    
+    // concrete section depending on Qt's widget cluster ( The line is hard to draw sometimes)
+    
+    // "combo box"
+    virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
+				  const QColorGroup &g, bool sunken = FALSE,
+				  bool editable = FALSE,
+				  bool enabled = TRUE,
+				  const QBrush *fill = 0 ) = 0;
+    virtual QRect comboButtonRect( int x, int y, int w, int h) = 0;
+    virtual QRect comboButtonFocusRect( int x, int y, int w, int h) = 0;
+
+    virtual void drawComboButtonMask( QPainter *p, int x, int y, int w, int h) = 0;
+
 
     // push buttons
     virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
-    virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+    virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p) = 0;
 
-    virtual void getButtonShift( int &x, int &y);
+    virtual void getButtonShift( int &x, int &y) = 0;
 
     // frame
-    virtual int defaultFrameWidth() const;
+    virtual int defaultFrameWidth() const = 0;
 
     // tabbars
-    virtual void tabbarMetrics( const QTabBar*, int&, int&, int& );
-    virtual void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-    virtual void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected );
+    virtual void tabbarMetrics( const QTabBar*, int&, int&, int& ) = 0;
+    virtual void drawTab( QPainter*, const QTabBar*, QTab*, bool selected ) = 0;
+    virtual void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected ) = 0;
 
     // scrollbars
     enum ScrollControl { ADD_LINE = 0x1 , SUB_LINE = 0x2 , ADD_PAGE = 0x4,
@@ -170,7 +174,7 @@ public:
 
     virtual void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) = 0;
     virtual void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl ) = 0;
-    virtual ScrollControl scrollBarPointOver( const QScrollBar*, int sliderStart, const QPoint& );
+    virtual ScrollControl scrollBarPointOver( const QScrollBar*, int sliderStart, const QPoint& ) = 0;
 
     // sliders
     virtual int sliderLength() const = 0;
@@ -181,7 +185,7 @@ public:
 
     virtual void drawSliderMask( QPainter *p,
 				 int x, int y, int w, int h,
-				 Orientation, bool tickAbove, bool tickBelow);
+				 Orientation, bool tickAbove, bool tickBelow) = 0;
     virtual void drawSliderGroove( QPainter *p,
 				   int x, int y, int w, int h,
 				   const QColorGroup& g, QCOORD c,
@@ -189,8 +193,8 @@ public:
     virtual void drawSliderGrooveMask( QPainter *p,
 				       int x, int y, int w, int h,
 				       QCOORD c,
-				       Orientation );
-    virtual int maximumSliderDragDistance() const;
+				       Orientation ) = 0;
+    virtual int maximumSliderDragDistance() const = 0;
 
     virtual int splitterWidth() const = 0;
     virtual void drawSplitter( QPainter *p,
@@ -202,7 +206,7 @@ public:
 				const QColorGroup &g,
 				bool act, bool dis ) = 0;
     virtual void polishPopupMenu( QPopupMenu* ) = 0;
-
+ 
     virtual int widthOfPopupCheckColumn( int maxpm ) = 0;
     virtual int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
     virtual int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) = 0;

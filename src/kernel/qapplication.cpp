@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#226 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#227 $
 **
 ** Implementation of QApplication class
 **
@@ -1949,9 +1949,10 @@ void QApplication::exit_loop()
   Usually this means saving of all open files, after getting
   permission from the user. Furthermore you may want to provide the
   user a way to cancel the shutdown.
-  
-  When completing the shutdown the session manager may or may not quit
-  the application.
+
+  Note that you should not exit the application within this function.
+  Instead, the session manager may or may not do this afterwards,
+  depending on the context.
 
   <strong>Important</strong><br> Within this function, no user
   interaction is possible, \e unless you ask the session manager \a sm
@@ -1979,6 +1980,10 @@ void QApplication::commitData( QSessionManager& /* sm */ )
   For a text editor this would mean creating a temporary file that
   includes the current contents of the edit buffers, the location of
   the cursor and other aspects of the current editing session.
+
+  Note that you should not exit the application within this function.
+  Instead, the session manager may or may not do this afterwards,
+  depending on the context.
 
   <strong>Important</strong><br> Within this function, no user
   interaction is possible, \e unless you ask the session manager \a sm

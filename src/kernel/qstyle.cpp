@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#37 $
 **
 ** Implementation of QStyle class
 **
@@ -30,13 +30,8 @@
 #include "qpixmap.h" // for now
 #include "qpalette.h" // for now
 #include "qwidget.h"
-#include "qlabel.h"
 #include "qimage.h"
-#include "qpushbutton.h"
 #include "qwidget.h"
-#include "qrangecontrol.h"
-#include "qtabbar.h"
-#include "qscrollbar.h"
 #include <limits.h>
 
 
@@ -276,20 +271,17 @@ void QStyle::drawButtonMask( QPainter *, int , int , int , int )
 }
 
 /*!
+\fn void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
+				  const QColorGroup &g, bool sunken,
+			      bool editable ,
+			      bool enabled ,
+			      const QBrush *fill )
   Draws a press-sensitive shape in the style of a combo box or menu button
 */
 
-void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-				  const QColorGroup &g, bool sunken,
-			      bool /* editable */,
-			      bool /*enabled */,
-			      const QBrush *fill )
-{
-    drawButton(p, x, y, w, h, g, sunken, fill);
-}
 
-
-/*!
+/*! \fn QRect QStyle::comboButtonRect( int x, int y, int w, int h)
+  
   Returns the rectangle available for contents in a combo box
   button. Usually this is the entire rectangle without the nifty menu
   indicator, but it may also be smaller when you think about rounded
@@ -300,24 +292,16 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h)
     return buttonRect(x+3, y+3, w-6-21, h-6);
 }
 
-/*!
+/*! \fn QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h)
   Returns the rectangle used to draw the the focus rectangle in a combo box.
 */
-QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h)
-{
-    return buttonRect(x+4, y+4, w-8-21, h-8);
-}
 
-/*!
+/*! \fn void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
+
   Draw the mask of a combo box button. Useful if a rounded buttons
   needs to be transparent because the style uses a fancy background
   pixmap.
 */
-
-void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
-{
-    drawButtonMask(p, x, y, w, h);
-}
 
 
 /*!
@@ -339,59 +323,18 @@ void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
   \sa drawPushButton(), QPushButton::drawButtonLabel()
 */
 
-void QStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
-{
-    QRect r = btn->rect();
-    int x, y, w, h;
-    r.rect( &x, &y, &w, &h );
-
-    int x1, y1, x2, y2;
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    int dx = 0;
-    int dy = 0;
-    if ( btn->isMenuButton() )
-	dx = (y2-y1) / 3;
-    if ( dx || dy )
-	p->translate( dx, dy );
-
-    if ( btn->isDown() || btn->isOn() ){
-	int sx = 0;
-	int sy = 0;
-	getButtonShift(sx, sy);
-	x+=sx;
-	y+=sy;
-    }
-    x += 2;  y += 2;  w -= 4;  h -= 4;
-    drawItem( p, x, y, w, h,
-	       AlignCenter|ShowPrefix,
-	       btn->colorGroup(), btn->isEnabled(),
-	       btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
-
-    if ( dx || dy )
-	p->translate( -dx, -dy );
-}
 
 
 
-/*!
+/*! \fn void QStyle::getButtonShift( int &x, int &y)
   Some GUI styles shift the contents of a button when the button is down.
   The default implementation returns 0 for both x and y.
  */
-void QStyle::getButtonShift( int &x, int &y)
-{
-    x = 0;
-    y = 0;
-}
 
+/*! \fn int QStyle::defaultFrameWidth() const
 
-
-/*!
   The default frame width, usually 2.
  */
-int QStyle::defaultFrameWidth() const
-{
-    return 2;
-}
 
 /*!
   Draws a panel to separate parts of the visual interface.
@@ -519,57 +462,22 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int /*state*
 */
 
 
-void QStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
-{
-    overlap = 3;
-    hframe = 24;
-    vframe = 0;
-    if ( t->shape() == QTabBar::RoundedAbove || t->shape() == QTabBar::RoundedBelow )
-	vframe += 10;
-}
+/*! \fn void QStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
+  
+  TODO
+ */
 
-void QStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
-{
-    if ( tb->shape() == QTabBar::TriangularAbove || tb->shape() == QTabBar::TriangularBelow ) {
-	// triangular, above or below
-	int y;
-	int x;
-	QPointArray a( 10 );
-	a.setPoint( 0, 0, -1 );
-	a.setPoint( 1, 0, 0 );
-	y = t->r.height()-2;
-	x = y/3;
-	a.setPoint( 2, x++, y-1 );
-	a.setPoint( 3, x++, y );
-	a.setPoint( 3, x++, y++ );
-	a.setPoint( 4, x, y );
-	
-	int i;
-	int right = t->r.width() - 1;
-	for ( i = 0; i < 5; i++ )
-	    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
+/*! \fn void QStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
+   
+   TODO
+   
+*/
 
-	if ( tb->shape() == QTabBar::TriangularAbove )
-	    for ( i = 0; i < 10; i++ )
-		a.setPoint( i, a.point(i).x(),
-			    t->r.height() - 1 - a.point( i ).y() );
+/*! \fn void QStyle::drawTabMask( QPainter* p,  const  QTabBar* tb , QTab* t, bool selected )
 
-	a.translate( t->r.left(), t->r.top() );
+TODO
 
-	if ( selected )
-	    p->setBrush( tb->colorGroup().base() );
-	else
-	    p->setBrush( tb->colorGroup().background() );
-	p->setPen( tb->colorGroup().foreground() );
-	p->drawPolygon( a );
-	p->setBrush( NoBrush );
-    }
-}
-
-void QStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ )
-{
-    p->drawRect( t->r );
-}
+*/
 
 /*!
 
@@ -581,26 +489,10 @@ void QStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool 
 */
 
 
-/*!
+/*! \fn QStyle::ScrollControl QStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p)
+
   Returns the scrollbar control under the passed point.
  */
-QStyle::ScrollControl QStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p)
-{
-        if ( !sb->rect().contains( p ) )
-	return NONE;
-    int sliderMin, sliderMax, sliderLength, buttonDim, pos;
-    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-    pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
-    if ( pos < sliderMin )
-	return SUB_LINE;
-    if ( pos < sliderStart )
-	return SUB_PAGE;
-    if ( pos < sliderStart + sliderLength )
-	return SLIDER;
-    if ( pos < sliderMax + sliderLength )
-	return ADD_PAGE;
-    return ADD_LINE;
-}
 
 /*!
 
@@ -631,16 +523,12 @@ QStyle::ScrollControl QStyle::scrollBarPointOver( const QScrollBar* sb, int slid
 			
 */
 
-/*!
-  Draws the mask of a slider
-*/
-void
-QStyle::drawSliderMask( QPainter *p,
+/*! \fn void QStyle::drawSliderMask( QPainter *p,
 			int x, int y, int w, int h,
 			Orientation, bool, bool )
-{
-    p->fillRect(x, y, w, h, color1);
-}
+  
+  Draws the mask of a slider
+*/
 
 /*!
   \fn  void QStyle::drawSliderGroove( QPainter *p,  int x, int y, int w, int h,
@@ -652,20 +540,16 @@ QStyle::drawSliderMask( QPainter *p,
 		
 		
 
-/*!
+/*! \fn void QStyle::drawSliderGrooveMask( QPainter *p,
+				   int x, int y, int w, int h,
+				   QCOORD c ,
+				   Orientation )
+
   Draws the mask of a slider groove
 */
-void
-QStyle::drawSliderGrooveMask( QPainter *p,
-				   int x, int y, int w, int h,
-				   QCOORD /* c */,
-				   Orientation )
-{
-    p->fillRect(x, y, w, h, color1);
-}
 
-
-/*!
+/*! \fn int QStyle::maximumSliderDragDistance() const
+  
   Some feels require the scrollbar or other sliders to jump back to
   the original position when the mouse pointer is too far away while
   dragging.
@@ -673,11 +557,6 @@ QStyle::drawSliderGrooveMask( QPainter *p,
   This behavior can be customized with this function. The default is -1
   (no jump back) while Windows requires 20 (weird jump back).
 */
-int QStyle::maximumSliderDragDistance() const
-{
-    return -1;
-}
-
 
 
 /*!
@@ -704,28 +583,28 @@ int QStyle::maximumSliderDragDistance() const
 
 /*! \fn void drawCheckMark( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g,
-				bool act, bool dis ) 
+				bool act, bool dis )
 				
 				###
 				
 */
-/*  \fn void polishPopupMenu( QPopupMenu* p) 
+/*  \fn void polishPopupMenu( QPopupMenu* p)
     ###
  */
 
-/*! \fn int widthOfPopupCheckColumn( int maxpm ) 
+/*! \fn int widthOfPopupCheckColumn( int maxpm )
   ###
  */
-   
-/* \fn int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) 
+
+/* \fn int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
  ###
  */
 
-/* \fn int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) 
+/* \fn int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
    ###
  */
 
 /* \fn void drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi, const QFontMetrics& fm,
-				    bool act, int x, int y, int w, int h) 
-	###			    
+				    bool act, int x, int y, int w, int h)
+	###			
 */

@@ -55,7 +55,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
-		  $$KERNEL_H/qcdestyle.h \
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_H/qconnection.h \
@@ -78,7 +77,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qtranslator.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmime.h \
-		  $$KERNEL_H/qmotifstyle.h \
 		  $$KERNEL_H/qmovie.h \
 		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qobject.h \
@@ -94,7 +92,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qpicture.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
-		  $$KERNEL_H/qplatinumstyle.h \
 		  $$KERNEL_H/qpngio.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
@@ -120,7 +117,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwidgetintdict.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
-		  $$KERNEL_H/qwindowsstyle.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qproperty.h \
 		  $$TOOLS_H/qarray.h \
@@ -173,7 +169,9 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
+		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
+		  $$WIDGETS_H/qcommonstyle.h \
 		  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgroupbox.h \
@@ -189,7 +187,9 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qmenubar.h \
 		  $$WIDGETS_H/qmenudata.h \
 		  $$WIDGETS_H/qml.h \
+		  $$WIDGETS_H/qmotifstyle.h \
 		  $$WIDGETS_H/qmultilineedit.h \
+		  $$WIDGETS_H/qplatinumstyle.h \
 		  $$WIDGETS_H/qpopupmenu.h \
 		  $$WIDGETS_H/qprogressbar.h \
 		  $$WIDGETS_H/qpushbutton.h \
@@ -215,7 +215,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qworkspace.h \
 		  $$WIDGETS_H/qworkspacechild.h \
-		  $$WIDGETS_H/qwidgetstack.h
+		  $$WIDGETS_H/qwidgetstack.h \
+		  $$WIDGETS_H/qwindowsstyle.h
 
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
@@ -294,7 +295,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qclipboard.cpp \
 		  kernel/qcolor.cpp \
 		  kernel/qconnection.cpp \
-		  kernel/qcdestyle.cpp \
 		  kernel/qcursor.cpp \
 		  kernel/qdialog.cpp \
 		  kernel/qdragobject.cpp \
@@ -310,7 +310,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qtranslator.cpp \
 		  kernel/qmetaobject.cpp \
 		  kernel/qmime.cpp \
-		  kernel/qmotifstyle.cpp \
 		  kernel/qmovie.cpp \
 		  kernel/qobject.cpp \
 		  kernel/qpainter.cpp \
@@ -319,7 +318,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qpicture.cpp \
 		  kernel/qpixmap.cpp \
 		  kernel/qpixmapcache.cpp \
-		  kernel/qplatinumstyle.cpp \
 		  kernel/qpngio.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
@@ -333,20 +331,21 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qsimpletextdocument.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsizegrip.cpp \
+		  kernel/qstyle.cpp \
 		  kernel/qsocket.cpp \
 		  kernel/qsocketdevice.cpp \
 		  kernel/qsocketnotifier.cpp \
-		  kernel/qstyle.cpp \
 		  kernel/qstylesheet.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
-		  kernel/qwindowsstyle.cpp \
 		  kernel/qwmatrix.cpp \
 		  kernel/qproperty.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
+		  widgets/qcdestyle.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
+		  widgets/qcommonstyle.cpp \
 		  widgets/qdial.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgroupbox.cpp \
@@ -362,7 +361,9 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qmenubar.cpp \
 		  widgets/qmenudata.cpp \
 		  widgets/qml.cpp \
+		  widgets/qmotifstyle.cpp \
 		  widgets/qmultilineedit.cpp \
+		  widgets/qplatinumstyle.cpp \
 		  widgets/qpopupmenu.cpp \
 		  widgets/qprogressbar.cpp \
 		  widgets/qpushbutton.cpp \
@@ -387,6 +388,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qwellarray.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
+		  widgets/qwindowsstyle.cpp \
 		  widgets/qworkspace.cpp \
 		  widgets/qworkspacechild.cpp \
 		  dialogs/qcolordialog.cpp \
