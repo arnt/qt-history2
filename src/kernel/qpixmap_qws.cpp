@@ -748,3 +748,9 @@ int QPixmap::numCols() const
 {
     return data->numcols;
 }
+
+bool QPixmap::hasAlpha() const
+{
+    return data->hasAlpha || data->mask;
+}
+

@@ -97,6 +97,7 @@ public:
     const QBitmap *mask() const;
     void	setMask( const QBitmap & );
     bool	selfMask() const;
+    bool	hasAlpha() const;
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QBitmap	createHeuristicMask( bool clipTight = TRUE ) const;
 #endif

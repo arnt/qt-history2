@@ -2003,3 +2003,13 @@ void qt_x11_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src)
 }
 
 #endif // !QT_NO_XRENDER
+
+/*!
+  Returns TRUE if painting with this pixmap might not necessarily
+  paint all pixels in its rectangular area.
+*/
+bool QPixmap::hasAlpha() const
+{
+    return data->alphapm || data->mask;
+}
+

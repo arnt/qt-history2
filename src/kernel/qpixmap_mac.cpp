@@ -690,5 +690,8 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 
-  
+bool QPixmap::hasAlpha() const
+{
+    return data->mask;
+}
 

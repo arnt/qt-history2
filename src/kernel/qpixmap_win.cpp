@@ -1217,3 +1217,10 @@ Q_EXPORT void qt_mcp_debugger()
 	qDebug( "No internal info" );
     qDebug( "MCP DONE\n" );
 }
+
+
+bool QPixmap::hasAlpha() const
+{
+    return data->hasRealAlpha || data->mask;
+}
+

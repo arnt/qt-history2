@@ -684,14 +684,15 @@ void QLabel::resizeEvent( QResizeEvent* e )
     if ( !lpixmap ||  !cr.isValid() ||
 	 // masked pixmaps can only reduce flicker when being top/left
 	 // aligned and when we do not perform scaled contents
-	 ( lpixmap->mask() && ( scaledcontents || ( ( align & (AlignLeft|AlignTop) ) != (AlignLeft|AlignTop) ) ) ) )
+	 ( lpixmap->hasAlpha() && ( scaledcontents || ( ( align & (AlignLeft|AlignTop) ) != (AlignLeft|AlignTop) ) ) ) )
 	return;
 
-    // don't we all love QFrame? Reduce pixmap flicker
     setWFlags( WResizeNoErase );
-    QRegion reg = QRect( QPoint(0, 0), e->size() );
-    reg = reg.subtract( cr );
+
     if ( !scaledcontents ) {
+	// don't we all love QFrame? Reduce pixmap flicker
+	QRegion reg = QRect( QPoint(0, 0), e->size() );
+	reg = reg.subtract( cr );
 	int x = cr.x();
 	int y = cr.y();
 	int w = lpixmap->width();
@@ -815,6 +816,7 @@ void QLabel::drawContents( QPainter *p )
 	if ( scaledcontents && pix ) {
 	    if ( !d->img )
 		d->img = new QImage( lpixmap->convertToImage() );
+
 	    if ( !d->pix )
 		d->pix = new QPixmap;
 	    if ( d->pix->size() != cr.size() )
