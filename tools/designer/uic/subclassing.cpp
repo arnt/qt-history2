@@ -76,7 +76,7 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots" 
+	if ( n.parentNode().toElement().tagName() != "slots"
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
@@ -221,8 +221,9 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots" 
+	if ( n.parentNode().toElement().tagName() != "slots"
 	     && n.parentNode().toElement().tagName() != "connections" )
+	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
 	QString returnType = n.attribute( "returnType", "void" );
