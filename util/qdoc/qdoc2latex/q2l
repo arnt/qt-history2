@@ -89,17 +89,15 @@ if ( ask("dvips") ) {
 	perform("dvips -q $dvi -o $ps");
     }
 }
-if ( ask("pdflatex") ) {
-    for my $tex ( @tex ) {
-	perform("pdflatex --interaction batchmode $tex");
+if ( ask("ps2pdf") ) {
+    for my $ps ( @ps ) {
+	my $pdf = shift @pdf;
+	perform("ps2pdf $ps $pdf");
     }
 }
-else {
-    if ( ask("ps2pdf") ) {
-	for my $ps ( @ps ) {
-	    my $pdf = shift @pdf;
-	    perform("ps2pdf $ps $pdf");
-	}
+else ( ask("pdflatex") ) {
+    for my $tex ( @tex ) {
+	perform("pdflatex --interaction batchmode $tex");
     }
 }
 cleanup($JUSTCLEAN) if $RUNCLEAN;
