@@ -58,7 +58,6 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc
 {
 }
 
-#ifndef NO_USE_GROSS_BIG_BUFFER_THING
 static char *gimme_buffer(off_t s)
 {
     static char *big_buffer = NULL;
@@ -185,14 +184,14 @@ MakefileGenerator::generateMocList(QString fn_target)
 }
 
 bool
-MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
+MakefileGenerator::generateDependancies(QList<MakefileDependDir> &dirs, QString fn)
 {
     fileFixify(fn);
 
     QStringList &fndeps = depends[fn];
     if(!fndeps.isEmpty())
 	return TRUE;
-    fn = Option::fixPathToLocalOS(fn);
+    fn = Option::fixPathToLocalOS(fn, FALSE);
 
     QString fndir;
     int dl = fn.findRev(Option::dir_sep);
@@ -285,10 +284,9 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
 		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) && inc[0] != '/')) {
 		    bool found = FALSE;
-		    for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
-			QString dep = (*it) + QDir::separator() + inc;
-			if((found = QFile::exists(dep)))
-			    fqn = dep;
+		    for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
+			if((found = QFile::exists(mdd->local_dir + QDir::separator() + inc))) 
+			    fqn = mdd->real_dir + QDir::separator() + inc;
 		    }
 		}
 	    }
@@ -320,7 +318,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		    continue;
 	    }
 
-	    fqn = Option::fixPathToTargetOS(fqn);
+	    fqn = Option::fixPathToTargetOS(fqn, FALSE);
 	    fileFixify(fqn);
 
 	    if(fndeps.findIndex(fqn) == -1)
@@ -341,190 +339,6 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
     debug_msg(2, "Dependancies: %s -> %s", fn.latin1(), fndeps.join(" :: ").latin1());
     return TRUE;
 }
-#else
-bool
-MakefileGenerator::generateMocList(QString fn_target)
-{
-    if(!findMocDestination(fn_target).isEmpty())
-	return TRUE;
-
-    QString fn_local = Option::fixPathToLocalOS(fn_target);
-    QFile file(fn_local);
-    const QString stringObj( "Q_OBJECT" );
-    const QString stringDis( "Q_DISPATCH" );
-    if ( file.open(IO_ReadOnly) ) {
-	QTextStream t( &file );
-	QString s;
-	while ( !t.eof() ) {
-	    s = t.readLine();
-	    if( s.find(stringObj) != -1 || s.find(stringDis) != -1) {
-		int ext_pos = fn_target.findRev('.');
-		int ext_len = fn_target.length() - ext_pos;
-		int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
-		QString mocFile;
-		QFileInfo fi(fn_local);
-		if(!project->variables()["MOC_DIR"].isEmpty())
-		    mocFile = project->first("MOC_DIR");
-		else
-		    mocFile = fi.dirPath() + Option::dir_sep;
-
-		if(fn_target.right(ext_len) == Option::cpp_ext) {
-		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
-		    depends[fn_target].append(mocFile);
-		    project->variables()["_SRCMOC"].append(mocFile);
-		}
-		else if(fn_target.right(ext_len) == Option::h_ext &&
-			project->variables()["HEADERS"].findIndex(fn_target) != -1) {
-		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
-		    project->variables()["_HDRMOC"].append(mocFile);
-		}
-
-		if(!mocFile.isEmpty()) {
-		    mocFile = Option::fixPathToTargetOS(mocFile);
-		    mocablesToMOC[cleanFilePath(fn_target)] = mocFile;
-		    mocablesFromMOC[cleanFilePath(mocFile)] = fn_target;
-		}
-		file.close();
-		return TRUE;
-	    }
-	}
-	file.close();
-    }
-    return FALSE;
-}
-
-
-#define GOOD_FIND
-
-bool
-MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
-{
-    fileFixify(fn);
-
-    int pos;
-    int end;
-    int l;
-    // don't search for '#include' since you can write '#  include' (using
-    // QRegExp instead is too expensive)
-    const QString stringInc( "include" );
-    QChar term;
-
-    QStringList &fndeps = depends[fn];
-    if(!fndeps.isEmpty())
-	return TRUE;
-    fn = Option::fixPathToLocalOS(fn);
-
-    QString fndir;
-    int dl = fn.findRev(Option::dir_sep);
-    if(dl != -1)
-	fndir = fn.left(dl+1);
-
-    QFile file(fn);
-    if ( file.open(IO_ReadOnly) ) {
-	QTextStream t( &file );
-	QString s, inc;
-	while ( !t.eof() ) {
-	    s = t.readLine();
-	    pos = s.find( stringInc );
-	    if ( pos == -1 )
-		continue;
-
-	    // find the name of the header
-	    l = s.length();
-#if defined(GOOD_FIND)
-	    pos += 7; // go to character after 'include'
-	    while ( pos < l ) {
-		if ( s[pos] == '<' ) {
-		    term = '>';
-		    break;
-		} else if ( s[pos] == '"' ) {
-		    term = '"';
-		    break;
-		}
-		pos++;
-	    }
-	    if ( pos >= l )
-		continue; // no quoting found
-#else
-	    pos += 8; // go to character after 'include '
-	    if ( pos >= l )
-		continue;
-	    if ( s[pos] == '<' ) {
-		term = '>';
-	    } else if ( s[pos] == '"' ) {
-		term = '"';
-	    } else {
-		continue;
-	    }
-#endif
-	    pos++;
-	    end = s.find( term, pos );
-	    if ( end == -1 )
-		continue;
-	    inc = s.mid( pos, end-pos );
-
-	    QString fqn;
-	    if( QFile::exists(inc) )
-		fqn = inc;
-	    else if( QDir::isRelativePath(inc) ) {
-		bool found = FALSE;
-		for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
-		    QString dep = (*it) + QDir::separator() + inc;
-		    if((found = QFile::exists(dep)))
-			fqn = dep;
-		}
-	    }
-	    if(fqn.isEmpty()) {
-		//these are some hacky heuristics it will try to do on an
-		//include however these can be turned off at runtime, I'm not
-		//sure how reliable these will be, most likely when problems
-		//arise turn it off and see if they go away..
-		if(Option::do_dep_heuristics) { //some heuristics..
-		    //is it a file from a .ui?
-		    int extn = inc.findRev('.');
-		    if(extn != -1) {
-			QString uip = inc.left(extn) + Option::ui_ext + "$";
-			QStringList uil = project->variables()["INTERFACES"];
-			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
-			    QString s = (*it);
-			    if(!project->isEmpty("UI_DIR")) {
-				int d = s.findRev(Option::dir_sep) + 1;
-				s = project->first("UI_DIR") + s.right(s.length()-d);
-			    }
-			    if(s.find(QRegExp(uip)) != -1) {
-				fqn = s.left(s.length()-3) + inc.right(inc.length()-extn);
-				break;
-			    }
-			}
-		    }
-		}
-		if(!Option::do_dep_heuristics || fqn.isEmpty()) //I give up
-		    continue;
-	    }
-	    fqn = Option::fixPathToTargetOS(fqn);
-	    fileFixify(fqn);
-
-	    if(fndeps.findIndex(fqn) == -1)
-		fndeps.append(fqn);
-
-	}
-	file.close();
-	for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {
-	    generateDependancies(dirs, (*fnit));
-
-	    QStringList &deplist = depends[(*fnit)];
-	    for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
-		if(fndeps.findIndex((*it)) == -1)
-		    fndeps.append((*it));
-	}
-
-	debug_msg(2, "Dependancies: %s -> %s", fn.latin1(), fndeps.join(" :: ").latin1());
-
-	return TRUE;
-    }
-    return FALSE;
-}
-#endif
 
 void
 MakefileGenerator::init()
@@ -585,8 +399,10 @@ MakefileGenerator::init()
 
     /* get deps and mocables */
     {
-	QStringList incDirs;
+	QList<MakefileDependDir> deplist;
+	deplist.setAutoDelete(TRUE);
 	if(doDepends()) {
+	    QStringList incDirs;
 	    QString dirs[] = { QString("QMAKE_ABSOLUTE_SOURCE_PATH"),
 				   QString("INCLUDEPATH"), QString("DEPENDPATH"), QString::null };
 	    for(int y = 0; dirs[y] != QString::null; y++) {
@@ -601,8 +417,10 @@ MakefileGenerator::init()
 			incDirs.append((*val_it));
 		}
 	    }
-	    for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it)
-		(*it) = Option::fixPathToLocalOS((*it)); /* this is a local path */
+	    for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it) {
+		QString r = (*it), l = Option::fixPathToLocalOS((*it));
+		deplist.append(new MakefileDependDir(r, l));
+	    }
 	    debug_msg(1, "Dependancy Directories: %s", incDirs.join(" :: ").latin1());
 	}
 
@@ -613,7 +431,7 @@ MakefileGenerator::init()
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		if(!(*val_it).isEmpty()) {
 		    if(doDepends())
-			generateDependancies(incDirs, (*val_it));
+			generateDependancies(deplist, (*val_it));
 		    if(mocAware()) {
 			if(!generateMocList((*val_it))) {
 			    fprintf(stderr, "Failure to open: %s\n", (*val_it).latin1());
@@ -738,7 +556,7 @@ MakefileGenerator::init()
 	l = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
 	    if(!(*val_it).isEmpty())
-		(*val_it) = Option::fixPathToTargetOS((*val_it));
+		(*val_it) = Option::fixPathToTargetOS((*val_it), FALSE);
     }
 }
 
@@ -870,7 +688,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 	if( !mocdir.isEmpty() )
 	    dirName = mocdir;
 	else if(!fi.dirPath().isEmpty() && fi.dirPath() != ".")
-	    dirName = Option::fixPathToTargetOS(fi.dirPath()) + Option::dir_sep;
+	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
 	QString src(dirName + fi.baseName() + Option::cpp_ext );
 
 	QString hdr = findMocSource(src);
@@ -1055,7 +873,7 @@ MakefileGenerator::createObjectList(const QString &var)
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	QString dirName;
 	if ( dir.isEmpty() )
-	    dirName = Option::fixPathToTargetOS(fi.dirPath()) + Option::dir_sep;
+	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
 	else
 	    dirName = dir;
 
@@ -1199,7 +1017,7 @@ MakefileGenerator::fileFixify(QString &file) const
     }
 
     QString orig_file = file;
-    file = Option::fixPathToTargetOS(file);
+    file = Option::fixPathToTargetOS(file, FALSE);
     if(project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) { //relative
 	if(QDir::isRelativePath(file))
 	    return FALSE;

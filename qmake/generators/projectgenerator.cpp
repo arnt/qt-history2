@@ -101,13 +101,22 @@ ProjectGenerator::init()
 	    v["DEPENDPATH"] += dir;
     }
 
+    QList<MakefileDependDir> deplist;
+    deplist.setAutoDelete(TRUE);
+    {
+	QStringList &d = v["DEPENDPATH"];
+	for(QStringList::Iterator it = d.begin(); it != d.end(); ++it) {
+	    QString r = (*it), l = Option::fixPathToLocalOS((*it));
+	    deplist.append(new MakefileDependDir(r, l));
+	}
+    }
+    QStringList &h = v["HEADERS"];
     bool no_qt_files = TRUE;
-    QStringList &d = v["DEPENDPATH"], &h = v["HEADERS"];
     QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "INTERFACES", QString::null };
     for(int i = 0; !srcs[i].isNull(); i++) {
 	QStringList &l = v[srcs[i]];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-	    if(generateDependancies(d, (*val_it))) {
+	    if(generateDependancies(deplist, (*val_it))) {
 		QStringList &tmp = depends[(*val_it)];
 		if(!tmp.isEmpty()) {
 		    for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {

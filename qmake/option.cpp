@@ -333,10 +333,11 @@ Option::fixPathToTargetOS(const QString& in, bool fix_env)
 }
 
 QString
-Option::fixPathToLocalOS(const QString& in)
+Option::fixPathToLocalOS(const QString& in, bool fix_env)
 {
     QString tmp(in);
-    fixEnvVariables(tmp);
+    if(fix_env)
+	fixEnvVariables(tmp);
     tmp = fixPath(tmp);
 #if defined(Q_OS_WIN32)
     return tmp.replace(QRegExp("/"), "\\");

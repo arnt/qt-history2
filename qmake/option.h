@@ -66,7 +66,7 @@ struct Option
     static bool postProcessProject(QMakeProject *); //parse project
 
     //and convenience functions    
-    static QString fixPathToLocalOS(const QString& in);
+    static QString fixPathToLocalOS(const QString& in, bool fix_env=TRUE);
     static QString fixPathToTargetOS(const QString& in, bool fix_env=TRUE);
 
     //global qmake mode, can only be in one mode per invocation!

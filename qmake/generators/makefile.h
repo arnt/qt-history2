@@ -61,8 +61,14 @@ protected:
     QMakeProject *project;
     QMap<QString, QStringList> depends;
 
+    class MakefileDependDir {
+    public:
+	MakefileDependDir(QString r, QString l) : real_dir(r), local_dir(l) { }
+	QString real_dir, local_dir;
+    };
+    bool generateDependancies(QList<MakefileDependDir> &dirs, QString x);
+
     QString cleanFilePath(const QString &file) const;
-    bool generateDependancies(QStringList &dirs, QString x);
     bool generateMocList(QString fn);
 
     QString findMocSource(const QString &moc_file) const;
