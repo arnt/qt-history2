@@ -1279,10 +1279,36 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 void QLineEdit::dragSlot()
 {
     QPoint p( d->lastMovePos.x() + d->offset - frameWidth() - margin() - 1, 0 );
+
     QTextParagraph *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
+    QTextCursor oldCursor = *c;
     c->place( p, par );
+
+    if ( d->inDoubleClick ) {
+	QTextCursor cl = *c;
+	cl.gotoPreviousWord( TRUE );
+	QTextCursor cr = *c;
+	cr.gotoNextWord( TRUE );
+
+	int diff = QABS( oldCursor.paragraph()->at( oldCursor.index() )->x - p.x() );
+	int ldiff = QABS( cl.paragraph()->at( cl.index() )->x - p.x() );
+	int rdiff = QABS( cr.paragraph()->at( cr.index() )->x - p.x() );
+
+
+	if ( c->paragraph()->lineStartOfChar( c->index() ) !=
+	     oldCursor.paragraph()->lineStartOfChar( oldCursor.index() ) )
+	    diff = 0xFFFFFF;
+
+	if ( rdiff < diff && rdiff < ldiff )
+	    *c = cr;
+	else if ( ldiff < diff && ldiff < rdiff )
+	    *c = cl;
+	else
+	    *c = oldCursor;
+    }
+
     d->releaseTextObjects( &par, &c );
     updateSelection();
     update();
@@ -1309,13 +1335,11 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
 	return;
     }
-    if ( d->inDoubleClick ) {
+
+    if ( !d->mousePressed ) {
 	d->inDoubleClick = FALSE;
 	return;
     }
-
-    if ( !d->mousePressed )
-	return;
     d->mousePressed = FALSE;
 
 #ifndef QT_NO_CLIPBOARD
@@ -1335,8 +1359,10 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     }
 #endif
 
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton || d->inDoubleClick ) {
+	d->inDoubleClick = FALSE;
 	return;
+    }
 
     QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
     QTextParagraph *par;
@@ -1359,6 +1385,9 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 
     bool oldHST = hasSelectedText();
     d->inDoubleClick = TRUE;
+    d->dnd_primed = FALSE;
+    d->dndTimer.stop();
+    d->mousePressed = TRUE;
 
     if ( echoMode() == Password ) {
 	selectAll();
@@ -1369,6 +1398,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 	c2.gotoNextWord( TRUE );
 
 	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
+	d->selectionStart = c1.index();
 	*d->cursor = c2;
 
 	d->trippleClickTimer.start( qApp->doubleClickInterval(), TRUE );
