@@ -698,8 +698,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
 	    if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
 		dir += Option::dir_sep;
-	    clean <<  dir + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
-	    clean << dir + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
+	    clean << ( dir + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first() );
+	    clean << ( dir + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first() );
 	}
 	if(!clean.isEmpty()) {
 	    t << "\t-$(DEL_FILE) " << clean.join(" ") << "\n";
@@ -718,7 +718,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
 	    if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
 		dir += Option::dir_sep;
-	    clean <<  dir + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
+	    clean << ( dir + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first() );
 	}
 	if(!clean.isEmpty()) {
 	    t << "\t-$(DEL_FILE) " << clean.join(" ") << "\n";
