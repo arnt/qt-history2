@@ -12472,6 +12472,23 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   incrementing a reference count. QString operates on a copy-on-write
   basis, only copying if an instance is actually changed.
 
+  If you wish to create a deep copy of a QString without loosing any
+  Unicode information then you should use the QString constructor
+  that takes a QChar*.  For example:
+
+  \code
+    QString a("abcd");
+    QString b( a.unicode(), b.length() );
+  \endcode
+
+  Otherwise, using the QString constructor that takes a const char* 
+  will be sufficent.  For example:
+
+  \code
+    QString a("abcd");
+    QString b( a.latin1() );
+  \endcode
+
   \sa QChar QCString QByteArray QConstString
 */
 
