@@ -510,22 +510,6 @@ QByteArray QWindowsMimeImage::convertFromMime( QByteArray data, const char* mime
     }
 }
 
-
-
-static
-int dtoh(int d) // NOT SAFE, only use internally
-{
-    return "0123456789abcdef"[d];
-}
-
-static
-int htod(int h)
-{
-    if (isdigit(h)) return h-'0';
-    return tolower(h)-'a';
-}
-
-
 class QWindowsMimeUri : public QWindowsMime {
 public:
     int		countCf();
