@@ -94,10 +94,10 @@ else
   echo "Generating documentation" >&2
   make -s -C ${QTDIR}/src include
   mkdir -p ${DISTDIR}/qt/doc/html
-  make -s -C ${QTDIR}/opengl/src include
+  make -s -C ${QTDIR}/extensions/opengl/src include
   mkdir -p ${DISTDIR}/qt/opengl/html
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt
-  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/opengl
+  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/opengl
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/nsplugin
   if [ "${platform}" = "x11" ]; then
     mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
@@ -145,7 +145,7 @@ if [ "${platform}" = "win" ]; then
   rm -f ../include/*
   mv */q*.h ../include
   cd ${DISTDIR}/qt
-  mv opengl/src/q*.h include
+  mv extensions/opengl/src/q*.h include
   rm -rf makefiles
   find . -name 'Makefile*' -o -name 'qtx11.*' | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
