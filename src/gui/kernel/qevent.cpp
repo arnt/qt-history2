@@ -658,6 +658,14 @@ Qt::FocusReason QFocusEvent::reason()
 */
 
 /*!
+    \fn bool QPaintEvent::erased() const
+
+    \compat
+
+    This function is obsolete in Qt 4.0.
+*/
+
+/*!
     Constructs a paint event object with the region that needs to
     be updated. The region is specified by \a paintRegion.
 */
