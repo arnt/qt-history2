@@ -2655,11 +2655,11 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
 }
 
 /*!\internal
-  
+
   Moves the relevant subwidgets of this widget from the \a oldtlw's
   tab chain to that of the new parent, if there's anything to move and
   we're really moving
-  
+
   This function is called from QWidget::reparent() *after* the widget
   has been reparented.
 
@@ -2668,14 +2668,16 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
 
 void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 {
-    if ( oldtlw == topLevelWidget() )
+    if ( !focusData() || 
+	 parentWidget() == 0 ? !parentObj : parentWidget()->topLevelWidget() == topLevelWidget() ||
+	 oldtlw == topLevelWidget() )
 	return; // nothing to do
 
     QFocusData * from = oldtlw->focusData();
     from->focusWidgets.first();
     QFocusData * to;
     to = focusData();
-    
+
     do {
 	QWidget * pw = from->focusWidgets.current();
 	while( pw && pw != this )
