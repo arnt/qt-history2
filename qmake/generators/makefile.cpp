@@ -1468,9 +1468,20 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	t << (*it) << ": " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
-	  << "$(UIC) " << " -embed " << project->first("QMAKE_ORIG_TARGET")
-	  << " " << findDependencies((*it)).join(" ") << " -o " << (*it) << endl << endl;
+	QString gen = project->first("MAKEFILE_GENERATOR");
+	if ( gen == "MSVC" ) {
+	    t << (*it) << ": " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
+		<< "$(UIC) " << " -embed " << project->first("QMAKE_ORIG_TARGET")
+		<< " -f <<\n" << findDependencies((*it)).join(" ") << "\n<< -o " << (*it) << endl << endl;
+	} else if ( gen == "BMAKE" ) {
+	    t << (*it) << ": " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
+		<< "$(UIC) " << " -embed " << project->first("QMAKE_ORIG_TARGET")
+		<< " -f &&|\n" << findDependencies((*it)).join(" ") << "\n| -o " << (*it) << endl << endl;
+	} else {
+	    t << (*it) << ": " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
+		<< "$(UIC) " << " -embed " << project->first("QMAKE_ORIG_TARGET")
+		<< " " << findDependencies((*it)).join(" ") << " -o " << (*it) << endl << endl;
+	}
     }
 }
 
