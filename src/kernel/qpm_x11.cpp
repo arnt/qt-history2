@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#8 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#8 $";
 #endif
 
 
@@ -987,20 +987,37 @@ static inline int d2i_round( double d )		// double -> int, rounded
 Transforms the pixmap using \e matrix, and returns the transformed pixmap.
 
 Qt uses this function to implemented rotated text on window systems that
-do not support such fancy features.
+do not support such complex features.
 
-Example of use:
+Example of how to manually draw a rotated text at (100,200) in a widget:
 \code
-  QPixmap   p;				\/ our original pixmap
-  QPixmap   r;				\/ our rotated pixmap
+  QWidget  w;				\/ our widget
+  char    *str = "Trolls R Qt";		\/ text to be drawn
+  QFont	   f( "Charter", 24 );		\/ use Charter 24pt font
+  QFontMetrics fm( f );			\/ get font metrics
+  QRect	   r = fm.boundingRect( str );	\/ get text rectangle
+
+  QPixmap  pm( r.width(), r.height() );	\/ pixmap to be rotated
+  QPoint   bl = -r.topLeft();		\/ baseline position
+  QPainter p;				\/ paints pm
+
+  pm.fill();				\/ fills pm with white
+  p.begin( &pm );			\/ begin painting pm
+  p.setFont( f );			\/ set the font
+  p.setPen( blue );			\/ set blue text color
+  p.drawText( 0,bl, str );		\/ draw the text
+  p.end();				\/ painting done
+
   Q2DMatrix m;				\/ transformation matrix
   m.rotate( -33.4 );			\/ rotate coordinate system
-  m.scale( 1, -1 );			\/ turn up-side-down
-  r = p.xForm( m );			\/ r = transformed p
-  Q2DMatrix t;
-  t = QPixmap::trueMatrix( m );		\/ true transformation matrix
+  QPixmap rp = pm.xForm( m );		\/ rp is rotated pixmap
+
+  Q2DMatrix t = QPixmap::trueMatrix( m, pm.width(), pm.height() );
   int x, y;
-  t.map( 0,0, &x,&y );			\/ (x,y) is p's (0,0) in r
+  t.map( bl.x(),bl.y(), &x,&y );	\/ get pm's baseline pos in rp
+
+  bitBlt( &w, 100-x, 200-y,		\/ blt rp into the widget
+	  &rp, 0, 0, -1, -1 );
 \endcode
 
 \sa trueMatrix().
@@ -1009,9 +1026,9 @@ Example of use:
 */
 
 QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
-{						// world transform pixmap
+{
     int	   w, h;				// size of target pixmap
-    int	   ws, hs;				// size of original pixmap
+    int	   ws, hs;				// size of source pixmap
     uchar *dptr;				// data in target pixmap
     int	   dbpl, dbytes;			// bytes per line/bytes total
     uchar *sptr;				// data in original pixmap
@@ -1021,17 +1038,35 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 
     ws = width();
     hs = height();
+    if ( ws == 0 || hs == 0 ) {			// this is a null pixmap
+	QPixmap nullPixmap;
+	return nullPixmap;
+    }
 
-    int x1,y1, x2,y2, x3,y3, x4,y4;		// get new corners
-    matrix.map(	 0,  0, &x1, &y1 );
-    matrix.map( ws,  0, &x2, &y2 );
-    matrix.map( ws, hs, &x3, &y3 );
-    matrix.map(	 0, hs, &x4, &y4 );
-    int h13 = QABS(y3-y1);
-    int w13 = QABS(x3-x1);
-    int h24 = QABS(y4-y2);
-    int w24 = QABS(x4-x2);
+    float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    float xx = (float)ws;
+    float yy = (float)hs;
+    matrix.map( 0.0, 0.0, &x1, &y1 );
+    matrix.map(  xx, 0.0, &x2, &y2 );
+    matrix.map(  xx,  yy, &x3, &y3 );
+    matrix.map( 0.0,  yy, &x4, &y4 );
 
+    float ymin = y1;				// lowest y value
+    if ( y2 < ymin ) ymin = y2;
+    if ( y3 < ymin ) ymin = y3;
+    if ( y4 < ymin ) ymin = y4;
+    float xmin = x1;				// lowest x value
+    if ( x2 < xmin ) xmin = x2;
+    if ( x3 < xmin ) xmin = x3;
+    if ( x4 < xmin ) xmin = x4;
+
+    Q2DMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
+    mat = matrix * mat;
+
+    int h13 = d2i_round( QABS(y3-y1) );
+    int w13 = d2i_round( QABS(x3-x1) );
+    int h24 = d2i_round( QABS(y4-y2) );
+    int w24 = d2i_round( QABS(x4-x2) );
     h = QMAX(h13,h24);				// size of target pixmap
     w = QMAX(w13,w24);
 
@@ -1081,7 +1116,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     debug( "bytes per line.... %d", xi->bytes_per_line );
     debug( "bits per pixel.... %d", xi->bits_per_pixel );
 #endif
-    Q2DMatrix mat = trueMatrix( matrix, ws, hs );
+
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
     if ( !invertible ) {			// not invertible
@@ -1100,8 +1135,12 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     int	  m12 = d2i_round((double)mat.m12()*65536.0);
     int	  m21 = d2i_round((double)mat.m21()*65536.0);
     int	  m22 = d2i_round((double)mat.m22()*65536.0);
-    int	  dx  = d2i_round((double)mat.dx() *65536.0 + 32768.0);
-    int	  dy  = d2i_round((double)mat.dy() *65536.0 + 32768.0);
+    int	  dx  = d2i_round((double)mat.dx() *65536.0);
+    int	  dy  = d2i_round((double)mat.dy() *65536.0);
+#if 0
+    dx += (dx > 0) ? 32767 : -32768;		// gives error when scaling
+    dy += (dy > 0) ? 32767 : -32768;
+#endif
     int	  m21ydx = dx + (xi->xoffset<<16), m22ydy = dy;
     ulong trigx, trigy;
     ulong maxws = ws<<16, maxhs=hs<<16;
@@ -1261,11 +1300,13 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 
 
 /*!
-Returns the actual matrix used for transforming pixmaps.
+Returns the actual matrix used for transforming a pixmap with \e w
+width and \e h height.
 
 When transforming a pixmap with xForm(), the transformation matrix is
-internally adjusted to compensate for unwanted translation (xForm()
-minimizes the resulting pixmap).
+internally adjusted to compensate for unwanted translation, i.e. xForm()
+returns the smallest pixmap containing all transformed points of the
+original pixmap.
 
 This function returns the modified matrix, which maps points correctly
 from the original pixmap into the new pixmap.
@@ -1276,10 +1317,12 @@ from the original pixmap into the new pixmap.
 Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
 {						// get true wxform matrix
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    matrix.map( 0.0,	  0.0,	    &x1, &y1 );
-    matrix.map( (float)w, 0.0,	    &x2, &y2 );
-    matrix.map( (float)w, (float)h, &x3, &y3 );
-    matrix.map( 0.0,	  (float)h, &x4, &y4 );
+    float x = (float)w;
+    float y = (float)h;
+    matrix.map( 0.0, 0.0, &x1, &y1 );
+    matrix.map(   x, 0.0, &x2, &y2 );
+    matrix.map(   x,   y, &x3, &y3 );
+    matrix.map( 0.0,   y, &x4, &y4 );
 
     float ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
