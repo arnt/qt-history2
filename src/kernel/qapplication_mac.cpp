@@ -301,6 +301,8 @@ void qt_mac_update_os_settings()
 	    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
 	}
 	pal.setDisabled(pal.inactive());
+	//This is what triggers the "inactive" appearance in Qt/Mac!
+	pal.setColor(QPalette::Inactive, QColorGroup::Link, QColor(148, 148, 148));
 	if(!(pal == QApplication::palette()))
 	    QApplication::setPalette(pal);
     }

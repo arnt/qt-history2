@@ -114,7 +114,7 @@ private slots:
  */
 static inline bool qAquaActive( const QColorGroup & g )
 {
-    if( g.buttonText() == QColor( 148,148,148 ) )
+    if( g.link() == QColor( 148,148,148 ) )
         return FALSE;
     else
         return TRUE;
