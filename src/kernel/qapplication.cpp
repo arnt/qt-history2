@@ -2023,15 +2023,16 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    QWidget* w = (QWidget*)receiver;
 	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
 	    while ( w ) {
-		QContextMenuEvent *ce = new QContextMenuEvent( cevent->reason(), w->mapFromGlobal( cevent->globalPos() ), cevent->globalPos(), cevent->state() );
-		res = internalNotify( w, ce );
+		QContextMenuEvent ce( cevent->reason(), 
+				      w->mapFromGlobal( cevent->globalPos() ), 
+				      cevent->globalPos(), cevent->state() );
+		res = internalNotify( w, &ce );
 
-		if ( ce->isAccepted() )
+		if ( ce.isConsumed() )
+		    cevent->consume();
+		if ( ce.isAccepted() )
 		    cevent->accept();
-		else
-		    cevent->ignore();
-		delete ce;
-		if ( res || cevent->isAccepted() || w->testWFlags( WNoMousePropagation ) )
+		if ( res || cevent->isConsumed() || w->testWFlags( WNoMousePropagation ) )
 		    break;
 
 		w = w->parentWidget( TRUE );

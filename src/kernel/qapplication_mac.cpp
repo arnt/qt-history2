@@ -1819,12 +1819,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 	case kEventMouseDown:
-	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
-		remove_context_timer = FALSE;
-		InstallEventLoopTimer(GetMainEventLoop(), 2, 0,
-				      NewEventLoopTimerUPP(qt_trap_context_mouse), widget,
-				      &mac_trap_context);
-	    }
 	    qt_button_down = widget;
 	    break;
 	case kEventMouseUp:
@@ -1896,6 +1890,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
 		    QApplication::sendSpontaneousEvent( widget, &qme );
+		}
+		if(etype == QEvent::MouseButtonPress && 
+		   button == QMouseEvent::LeftButton && !mac_trap_context) {
+		    remove_context_timer = FALSE;
+		    InstallEventLoopTimer(GetMainEventLoop(), 2, 0,
+					  NewEventLoopTimerUPP(qt_trap_context_mouse), widget,
+					  &mac_trap_context);
 		}
 	    }
 	} else {

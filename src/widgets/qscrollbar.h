@@ -111,6 +111,7 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
+    void        contextMenuEvent( QContextMenuEvent * );
 
     void	valueChange();
     void	stepChange();

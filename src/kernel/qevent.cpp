@@ -469,7 +469,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 #ifndef QT_NO_WHEELEVENT
 QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient )
     : QEvent(Wheel), p(pos), d(delta), s((ushort)state),
-      accpt(TRUE), o(orient)
+      accpt(FALSE), o(orient)
 {
     g = QCursor::pos();
 }
@@ -1365,7 +1365,8 @@ void QFocusEvent::resetReason()
 */
 
 QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
-    : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), reas( reason ), s((ushort)state)
+    : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), consum(FALSE), 
+    reas( reason ), s((ushort)state)
 {
     gp = QCursor::pos();
 }
@@ -1431,10 +1432,30 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn bool QContextMenuEvent::isAccepted() const
+  \fn bool QContextMenuEvent::isConsumed() const
   Returns TRUE (which stops propagation of the event) if the receiver
-  has processed the event; otherwise returns FALSE.
-  \sa accept(), ignore()
+  has blocked the event; otherwise returns FALSE.
+  \sa accept(), ignore(), consume()
+*/
+
+/*!
+  \fn void QContextMenuEvent::consume()
+  Sets the consume flag of the context event object.
+
+  Setting the consume flag indicates that the receiver of this event asked
+  that the event not be propagated further (to parent classes).
+
+  The consumed flag is not set by default.
+
+  \sa ignore() accept()
+*/
+
+/*!
+  \fn bool QContextMenuEvent::isAccepted() const
+  Returns TRUE if the receiver has processed the event; otherwise returns
+  FALSE.  
+
+  \sa accept(), ignore(), consume()
 */
 
 /*!
@@ -1442,11 +1463,12 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   Sets the accept flag of the context event object.
 
   Setting the accept flag indicates that the receiver of this event has
-  processed the event; the event will not be propagated further.
+  processed the event. Processing the event means you did something with it
+  and it will be implicitly consume().
 
   The accept flag is not set by default.
 
-  \sa ignore()
+  \sa ignore() consume()
 */
 
 /*!
@@ -1454,11 +1476,12 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   Clears the accept flag of the context event object.
 
   Clearing the accept flag indicates that the receiver of this event does not
-  need to show a context menu.
+  need to show a context menu. This will implicitly remove the consumed flag 
+  as well.
 
   The accept flag is not set by default.
 
-  \sa accept()
+  \sa accept() consume()
 */
 
 /*!
