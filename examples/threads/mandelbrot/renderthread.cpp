@@ -38,39 +38,44 @@ void RenderThread::run()
         int halfHeight = resultSize.height() / 2;
         QImage image(resultSize, 32);
 
-        const int MaxPrecision = 256;
         int limit = 4;
 
-        for (int y = -halfHeight; y < halfHeight; ++y) {
-            if (restart)
-                break;
-            if (abort)
-                return;
+        for (int pass = 0; pass < 32; ++pass) {
+            const int MaxPrecision = 32 * (pass + 3);
 
-            uint *scanLine =
-                    reinterpret_cast<uint *>(image.scanLine(y + halfHeight));
-            for (int x = -halfWidth; x < halfWidth; ++x) {
-                float ax = centerX + (x * scaleFactor);
-                float ay = centerY + (y * scaleFactor);
-                float a1 = ax;
-                float b1 = ay;
-                int numPasses = 0;
+            for (int y = -halfHeight; y < halfHeight; ++y) {
+                if (restart)
+                    break;
+                if (abort)
+                    return;
 
-                do {
-                    ++numPasses;
-                    float a2 = (a1 * a1) - (b1 * b1) + ax;
-                    float b2 = (2 * a1 * b1) + ay;
-                    a1 = a2;
-                    b1 = b2;
-                } while (numPasses < MaxPrecision
-                         && (a1 * a1) + (b1 * b1) <= limit);
+                uint *scanLine =
+                        reinterpret_cast<uint *>(image.scanLine(y + halfHeight));
+                for (int x = -halfWidth; x < halfWidth; ++x) {
+                    float ax = centerX + (x * scaleFactor);
+                    float ay = centerY + (y * scaleFactor);
+                    float a1 = ax;
+                    float b1 = ay;
+                    int numPasses = 0;
 
-                *scanLine++ = colormap[numPasses % ColormapSize];
+                    do {
+                        ++numPasses;
+                        float a2 = (a1 * a1) - (b1 * b1) + ax;
+                        float b2 = (2 * a1 * b1) + ay;
+                        a1 = a2;
+                        b1 = b2;
+                    } while (numPasses < MaxPrecision
+                             && (a1 * a1) + (b1 * b1) <= limit);
+
+                    if (numPasses == MaxPrecision)
+                        *scanLine++ = qRgb(0, 0, 0);
+                    else
+                        *scanLine++ = colormap[numPasses % ColormapSize];
+                }
             }
+            if (!restart)
+                emit renderedImage(image);
         }
-
-        if (!restart)
-            emit finishedRendering(image);
 
         mutex.lock();
         if (!restart)

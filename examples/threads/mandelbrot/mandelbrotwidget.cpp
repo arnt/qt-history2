@@ -23,7 +23,7 @@ MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     curScale = DefaultScale;
 
     qRegisterMetaType<QImage>("QImage");
-    connect(&thread, SIGNAL(finishedRendering(const QImage &)),
+    connect(&thread, SIGNAL(renderedImage(const QImage &)),
             this, SLOT(drawRenderedImage(const QImage &)));
 }
 

@@ -20,7 +20,7 @@ public:
                 QSize resultSize);
 
 signals:
-    void finishedRendering(const QImage &image);
+    void renderedImage(const QImage &image);
 
 protected:
     void run();
