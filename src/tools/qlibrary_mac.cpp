@@ -70,7 +70,12 @@ enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
 #define FALSE OLD_F
 #endif
 
-static QDict<void> *glibs_loaded = 0;
+struct glibs_ref {
+    QString name;
+    int count;
+    void *handle;
+};
+static QDict<glibs_ref> *glibs_loaded = 0;
 
 bool QLibraryPrivate::loadLibrary()
 {
@@ -79,20 +84,29 @@ bool QLibraryPrivate::loadLibrary()
 
     QString filename = library->library();
 
-    if(!glibs_loaded)
-	glibs_loaded = new QDict<void>();
-    else if( ( pHnd = glibs_loaded->find( filename ) ))
+    if(!glibs_loaded) {
+	glibs_loaded = new QDict<glibs_ref>();
+    } else if(glibs_ref *i = glibs_loaded->find( filename )) {
+	i->count++;
+	pHnd = i->handle;
 	return TRUE;
+    }
 
 #ifdef DO_MAC_LIBRARY
     NSObjectFileImage img;
     if( NSCreateObjectFileImageFromFile( filename, &img)  != NSObjectFileImageSuccess )
 	return FALSE;
 
-    if((pHnd = (void *)NSLinkModule(img, filename, NSLINKMODULE_OPTION_PRIVATE)))
-	glibs_loaded->insert( filename, pHnd ); //insert it in the loaded hash
+    if((pHnd = (void *)NSLinkModule(img, filename, NSLINKMODULE_OPTION_PRIVATE))) {
+	glibs_ref *i = new glibs_ref;
+	i->handle = pHnd;
+	i->count = 1;
+	i->name = filename;
+	glibs_loaded->insert( filename, i ); //insert it in the loaded hash
+    }
     return TRUE;
 #else
+    pHnd = NULL;
     return FALSE;
 #endif
 }
@@ -103,8 +117,8 @@ bool QLibraryPrivate::freeLibrary()
 	return TRUE;
 
     if(glibs_loaded) {
-	for(QDictIterator<void> it(*glibs_loaded); it.current(); ++it) {
-	    if( it.current() == pHnd) {
+	for(QDictIterator<glibs_ref> it(*glibs_loaded); it.current(); ++it) {
+	    if( it.current()->handle == pHnd && !(--it.current()->count)) {
 		glibs_loaded->remove(it.currentKey());
 		break;
 	    }
@@ -115,7 +129,8 @@ bool QLibraryPrivate::freeLibrary()
     pHnd = 0;
     return TRUE;
 #else
-    return FALSE;
+    pHnd = 0;
+    return TRUE;
 #endif
 }
 
