@@ -25,6 +25,7 @@ public:
     MenuRef macpopup;
 };
 static QIntDict<MacPopupBinding> *pdict = NULL;
+static QMenuBar* activeMenuBar = NULL;
 
 static const CFStringRef no_ampersands(QString i) {
     for(int w = 0; (w=i.find('&', w)) != -1; )
@@ -270,6 +271,12 @@ void QMenuBar::macRemoveNativeMenubar()
 	QMenuBar *mb = menubars->find((int)topLevelWidget());
 	if(mb == this) 
 	    menubars->remove((int)topLevelWidget());
+	if(activeMenuBar == this) {
+  	    activeMenuBar = NULL;
+	    ClearMenuBar();
+	    if (pdict)
+	      pdict->clear();
+	}
     }
 }
 
@@ -290,16 +297,20 @@ void QMenuBar::macUpdateMenuBar()
 
     static bool first = TRUE;
     if(QWidget *w = qApp->activeWindow()) {
-	if(QMenuBar *mb = menubars->find((int)w)) {
-	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_dirty_menubar))
+  	if(QMenuBar *mb = menubars->find((int)w)) {
+	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_dirty_menubar && (mb == activeMenuBar)))
 		return;
+	    activeMenuBar = mb;
 	    first = FALSE;
 	    mb->mac_dirty_menubar = 0;
 	    updateMenuBar(mb);
 	} else if (!first) {
 	    first = TRUE;
-	    if(!w->testWFlags(WType_Dialog) && !w->testWFlags(WType_Popup) )
+	    if(!w->testWFlags(WType_Dialog) && !w->testWFlags(WType_Popup) ) {
 		ClearMenuBar();
+		if (pdict)
+		    pdict->clear();
+	    }
 	} 
     } 
 }
