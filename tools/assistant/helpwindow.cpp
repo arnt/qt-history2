@@ -20,6 +20,8 @@ void HelpWindow::setSource( const QString &name )
 
     if ( shiftPressed ) {
 	removeSelection();
+	mw->saveSettings();
+	mw->saveToolbarSettings();
 	MainWindow *mw = new MainWindow;
 	mw->showLink( name, "" );
 	mw->show();

@@ -114,19 +114,7 @@ void MainWindow::destroy()
 	delete windows;
 	windows = 0;
     }
-    QString keybase("/Qt Assistant/3.0/");
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    config.writeEntry( keybase + "Family",  browser->QWidget::font().family() );
-    config.writeEntry( keybase + "Size",  browser->QWidget::font().pointSize() );
-    config.writeEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
-    config.writeEntry( keybase + "LinkUnderline", browser->linkUnderline() );
-    config.writeEntry( keybase + "LinkColor", browser->palette().color( QPalette::Active, QColorGroup::Link ).name() );
-    config.writeEntry( keybase + "Source", browser->source() );
-    config.writeEntry( keybase + "Title", browser->caption() );
-    config.writeEntry( keybase + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
-    config.writeEntry( keybase + "GeometryWidth", width() );
-    config.writeEntry( keybase + "GeometryHeight", height() );
+    saveSettings();
 }
 
 void MainWindow::about()
@@ -315,19 +303,43 @@ void MainWindow::showSettingsDialog()
 
 void MainWindow::hide()
 {
-    QString fn = QDir::homeDirPath() + "/.assistanttbrc";
-    QFile f( fn );
-    f.open( IO_WriteOnly );
-    QTextStream ts( &f );
-    ts << *this;
-    f.close();
+    saveToolbarSettings();
     QMainWindow::hide();
 }
 
 
 MainWindow* MainWindow::newWindow()
 {
+    saveSettings();
+    saveToolbarSettings();
     MainWindow *mw = new MainWindow;
     mw->show();
     return mw;
+}
+
+void MainWindow::saveSettings()
+{
+    QString keybase("/Qt Assistant/3.0/");
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    config.writeEntry( keybase + "Family",  browser->QWidget::font().family() );
+    config.writeEntry( keybase + "Size",  browser->QWidget::font().pointSize() );
+    config.writeEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
+    config.writeEntry( keybase + "LinkUnderline", browser->linkUnderline() );
+    config.writeEntry( keybase + "LinkColor", browser->palette().color( QPalette::Active, QColorGroup::Link ).name() );
+    config.writeEntry( keybase + "Source", browser->source() );
+    config.writeEntry( keybase + "Title", browser->caption() );
+    config.writeEntry( keybase + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
+    config.writeEntry( keybase + "GeometryWidth", width() );
+    config.writeEntry( keybase + "GeometryHeight", height() );
+}
+
+void MainWindow::saveToolbarSettings()
+{
+    QString fn = QDir::homeDirPath() + "/.assistanttbrc";
+    QFile f( fn );
+    f.open( IO_WriteOnly );
+    QTextStream ts( &f );
+    ts << *this;
+    f.close();
 }

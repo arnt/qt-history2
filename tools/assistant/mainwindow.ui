@@ -483,6 +483,8 @@
     <slot>showSettingsDialog()</slot>
     <slot>hide()</slot>
     <slot returnType="MainWindow *">newWindow()</slot>
+    <slot>saveSettings()</slot>
+    <slot>saveToolbarSettings()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
