@@ -44,6 +44,7 @@ static const ub1 CSID_NCHAR = SQLCS_NCHAR;
 QByteArray qMakeOraDate( const QDateTime& dt );
 QDateTime qMakeDate( const char* oraDate );
 QString qOraWarn( const QOCIPrivate* d );
+void qOraWarning( const char* msg, const QOCIPrivate* d );
 
 class QOCIPrivate
 {
@@ -535,7 +536,7 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	    type = QVariant::Double;
     }
     if ( type == QVariant::Invalid )
-	qWarning("qDecodeOCIType: unknown type: %d", ocitype );
+	qWarning("qDecodeOCIType: unknown type: %s", ocitype.local8Bit().data() );
     return type;
 }
 
@@ -1302,7 +1303,7 @@ bool QOCIResult::cacheNext()
     if( r == OCI_ERROR ) {
 	switch ( qOraErrorNumber( d ) ) {
 	case 1406:
-	    qWarning( "QOCI Warning: data truncated for %s", lastQuery().local8Bit.data() );
+	    qWarning( "QOCI Warning: data truncated for %s", lastQuery().local8Bit().data() );
 	    r = 0; /* ignore it */
 	    break;
 	default:
