@@ -76,7 +76,7 @@ static inline const QChar *prevChar( const QString &str, int pos )
     pos--;
     const QChar *ch = str.unicode() + pos;
     while( pos > -1 ) {
-	if( !isMark( *ch ) )
+	if( ::category( *ch ) != QChar::Mark_NonSpacing )
 	    return ch;
 	pos--;
 	ch--;
@@ -91,7 +91,7 @@ static inline const QChar *nextChar( const QString &str, int pos)
     const QChar *ch = str.unicode() + pos;
     while( pos < len ) {
 	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( !isMark( *ch ) )
+	if( ::category( *ch ) != QChar::Mark_NonSpacing )
 	    return ch;
 	// assume it's a transparent char, this might not be 100% correct
 	pos++;
@@ -516,7 +516,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	    *data = map;
 	}
 	attrs[gpos].zeroWidth = zeroWidth;
-	if ( isMark( *ch ) ) {
+	if ( ::category( *ch ) == QChar::Mark_NonSpacing ) {
 	    attrs[gpos].mark = TRUE;
 // 	    qDebug("glyph %d (char %d) is mark!", gpos, i );
 	} else {

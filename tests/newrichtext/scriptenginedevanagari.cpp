@@ -235,7 +235,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 
     // nothing to do in this case!
     if ( len == 1 ) {
-	attributes[0].mark = isMark( reordered.unicode()[0] );
+	attributes[0].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
 	attributes[0].clusterStart = FALSE;
 	return reordered;
     }
@@ -443,7 +443,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
     }
 
     for ( int i = 0; i < (int)reordered.length(); i++ ) {
-	attributes[i].mark = isMark( reordered.unicode()[i] );
+	attributes[i].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
 	attributes[i].clusterStart = FALSE;
     }
     attributes[0].clusterStart = TRUE;

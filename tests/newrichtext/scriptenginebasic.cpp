@@ -29,17 +29,26 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 
     for( i = 1; i <= nmarks; i++ ) {
 	GlyphIndex mark = shaped->d->glyphs[gfrom+i];
-	unsigned char cmb = shaped->d->glyphAttributes[gfrom+i].combiningClass;
+	QPoint p;
+	QGlyphMetrics markInfo = f->boundingBox( mark );
+	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
+
 	int offset = offsetBase;
+	unsigned char cmb = shaped->d->glyphAttributes[gfrom+i].combiningClass;
+
+	// ### maybe the whole position determination should move down to heuristicSetGlyphAttributes. Would save some
+	// bits  in the glyphAttributes structure.
 	if ( cmb < 200 ) {
 	    // fixed position classes. We approximate by mapping to one of the others.
-	    // currently I added only the ones for arabic, hebrew and thai.
+	    // currently I added only the ones for arabic, hebrew, lao and thai.
 
-	    // ### add a bit more offset to arabic, a bit hacky
+	    // for Lao and Thai marks with class 0, see below ( heuristicSetGlyphAttributes )
+
+	    // add a bit more offset to arabic, a bit hacky
 	    if ( cmb >= 27 && cmb <= 36 && offset < 3 )
 		offset +=1;
-	    // below
-	    if ( (cmb >= 10 && cmb <= 18) ||
+ 	    // below
+	    else if ( (cmb >= 10 && cmb <= 18) ||
 		 cmb == 20 || cmb == 22 ||
 		 cmb == 29 || cmb == 32 )
 		cmb = QChar::Combining_Below;
@@ -48,10 +57,10 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 		      cmb == 30 || cmb == 31 || (cmb >= 33 && cmb <= 36 ) )
 		cmb = QChar::Combining_Above;
 	    //below-right
-	    else if ( cmb == 103 )
+	    else if ( cmb == 103 || cmb == 118 )
 		cmb = QChar::Combining_BelowRight;
 	    // above-right
-	    else if ( cmb == 24 || cmb == 107 )
+	    else if ( cmb == 24 || cmb == 107 || cmb == 122 )
 		cmb = QChar::Combining_AboveRight;
 	    else if ( cmb == 25 )
 		cmb = QChar::Combining_AboveLeft;
@@ -66,9 +75,6 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	    attachmentRect = baseRect;
 	}
 
-	QPoint p;
-	QGlyphMetrics markInfo = f->boundingBox( mark );
-	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
 	switch( cmb ) {
 	case QChar::Combining_DoubleBelow:
 		// ### wrong in rtl context!
@@ -180,15 +186,48 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
     d->glyphAttributes[0].clusterStart = TRUE;
 
     while ( pos < d->length ) {
-	if ( isMark( uc[pos] ) ) {
+	if ( ::category( uc[pos] ) == QChar::Mark_NonSpacing ) {
 	    d->glyphAttributes[pos].mark = TRUE;
 	    d->glyphAttributes[pos].clusterStart = FALSE;
-	    d->glyphAttributes[pos].combiningClass = combiningClass( uc[pos] );
+	    int cmb = combiningClass( uc[pos] );
+
+	    if ( cmb == 0 ) {
+		// Fix 0 combining classes
+		if ( uc[pos].row() == 0x0e ) {
+		    // thai or lao
+		    unsigned char col = uc[pos].cell();
+		    if ( col == 0x31 ||
+			 col == 0x47 ||
+			 col == 0x4c ||
+			 col == 0x4d ||
+			 col == 0x4e ||
+			 col == 0xcc ||
+			 col == 0xcd ) {
+			cmb = QChar::Combining_AboveRight;
+		    } else if ( col == 0x34 ||
+				col == 0x35 ||
+				col == 0x36 ||
+				col == 0x37 ||
+				col == 0xb1 ||
+				col == 0xb4 ||
+				col == 0xb5 ||
+				col == 0xb6 ||
+				col == 0xb7 ||
+				col == 0xbb ) {
+			cmb = QChar::Combining_Above;
+		    } else if ( col == 0xbc ) {
+			cmb = QChar::Combining_Below;
+		    }
+		}
+	    }
+
+	    d->glyphAttributes[pos].combiningClass = cmb;
 	    // 		qDebug("found a mark at position %d", pos );
 	    d->logClusters[pos] = cStart;
 	} else {
 	    d->glyphAttributes[pos].mark = FALSE;
 	    d->glyphAttributes[pos].clusterStart = TRUE;
+	    d->glyphAttributes[pos].combiningClass = 0;
 	    cStart = pos;
 	}
 	pos++;
