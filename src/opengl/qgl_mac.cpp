@@ -580,7 +580,7 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 	    gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
 	    if(oldcx)
 		qgl_delete_d(this); 
-	    setContext(new QGLContext(format, gl_pix), NULL, FALSE);
+	    setContext(new QGLContext(format, gl_pix), share_ctx, FALSE);
 	}
     } else {
 	setEraseColor(black);
