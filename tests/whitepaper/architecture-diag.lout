@@ -1,0 +1,41 @@
+@SysInclude { tbl }
+@SysInclude { doc }
+@Doc @Text @Begin
+@Scale @Tbl
+    rule { yes }
+    rulecolor { darkgrey }
+    indent { ctr }
+    font { Helvetica Base }
+    aformat { @StartHSpan @Cell paint { darkgrey } white @Color A | 
+	      @HSpan | @HSpan | @HSpan }
+    bformat { @StartHSpan @Cell paint { grey } A | @HSpan | @HSpan | @HSpan }
+    cformat { @Cell paint { lightgrey } A | @Cell paint { lightgrey } B | 
+	      @Cell paint { lightgrey } C | @Cell paint { lightgrey } D }
+    dformat { @StartVSpan @Cell A | @Cell B | @StartVSpan @Cell C | 
+	      @StartVSpan @Cell D }
+    eformat { @VSpan | @Cell B | @VSpan | @VSpan }
+    fformat { @Cell A | @Cell B | @Cell C | @VSpan }
+{
+    @Rowa
+	A { Qt Application Source Code }
+    @Rowb
+	A { Qt API }
+    @Rowc
+	A { "Qt/Windows" }
+	B { "Qt/X11" }
+	C { "Qt/Macintosh" }
+	D { "Qt/Embedded" }
+    @Rowd
+	A { GDI }
+	B { Xlib }
+	C { Carbon }
+	D { @LP @LP Embedded Linux }
+    @Rowe
+	B { X11 }
+    @Rowf
+	A { Windows }
+	B { Unix }
+	C { Mac OS X }
+}
+@End @Text
+
