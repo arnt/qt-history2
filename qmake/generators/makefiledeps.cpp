@@ -37,7 +37,7 @@ struct SourceDependChildren {
     SourceDependChildren() : children(0), num_nodes(0), used_nodes(0) { }
     ~SourceDependChildren() { if(children) free(children); }
     void addChild(SourceFile *s) {
-	if(num_nodes >= used_nodes) {
+	if(num_nodes <= used_nodes) {
 	    num_nodes += 200;
 	    children = (SourceFile**)realloc(children, sizeof(SourceFile*)*(num_nodes));
 	}
