@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#32 $
 **
 ** Localization database support.
 **
@@ -423,6 +423,8 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 #else
     // windows, or unix without mmap
     QFile f(realname);
+    if ( !f.exists() )
+	return FALSE;
     d->unmapLength = f.size();
     d->unmapPointer = new char[d->unmapLength]; // ### really not
     bool ok = FALSE;
