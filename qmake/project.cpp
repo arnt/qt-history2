@@ -652,10 +652,10 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		replacement = "\t";
 	    else if(x == 1) //environment
 		replacement = getenv(rep_var);
-	    else
-		place[varMap(rep_var)].join(" ");
+	    else 
+		replacement = place[varMap(rep_var)].join(" ");
 	    debug_msg(2, "Project parser: (%s) :: %s -> %s", str.latin1(),
-		   str.mid(rep, rep_len).latin1(), replacement.latin1());
+		      str.mid(rep, rep_len).latin1(), replacement.latin1());
 	    str.replace(rep, rep_len, replacement);
 	}
     }
