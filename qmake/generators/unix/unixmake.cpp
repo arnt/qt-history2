@@ -272,7 +272,7 @@ UnixMakefileGenerator::init()
 		if((++obj_cnt) >= max_files) {
 		    if(lib_cnt) {
 			lib.sprintf("lib%s-tmp%d.a", project->first("QMAKE_ORIG_TARGET").latin1(), lib_cnt);
-			ar_sublibs << destdir + lib;
+			ar_sublibs << destdir << lib;
 			obj_cnt = 0;
 		    }
 		    lib_cnt++;

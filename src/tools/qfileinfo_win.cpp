@@ -70,7 +70,10 @@ static PtrGetEffectiveRightsFromAclW ptrGetEffectiveRightsFromAclW = 0;
 typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
 static PtrFreeSid ptrFreeSid = 0;
 
+#if defined(UNICODE)
 static TRUSTEE_W currentUserTrusteeW;
+#endif
+static TRUSTEE_A currentUserTrusteeA;
 
 #endif
 

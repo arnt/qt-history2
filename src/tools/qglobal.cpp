@@ -813,7 +813,7 @@ QtMsgHandler qInstallMsgHandler( QtMsgHandler h )
 unsigned int qt_int_sqrt( unsigned int n )
 {
     // n must be in the range 0...UINT_MAX/2-1
-    if ( n >= UINT_MAX>>2 ) {
+    if ( n >= ( UINT_MAX>>2 ) ) {
 	unsigned int r = 2 * qt_int_sqrt( n / 4 );
 	unsigned int r2 = r + 1;
 	return ( n >= r2 * r2 ) ? r2 : r;
