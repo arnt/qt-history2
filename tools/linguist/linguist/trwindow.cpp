@@ -1427,6 +1427,11 @@ void TrWindow::setupMenuBar()
     doneAndNextAct = translationp->addAction(loadPixmap("doneandnext.png"), tr("Done and &Next"),
                                  this, SLOT(doneAndNext()));
     doneAndNextAct->setShortcut(QKeySequence("Ctrl+Enter"));
+    
+    doneAndNextAlt = new QAction(this);
+    doneAndNextAlt->setShortcut(QKeySequence("Ctrl+Return"));
+    connect( doneAndNextAlt, SIGNAL(triggered()), this, SLOT(doneAndNext()) );
+
     beginFromSourceAct = translationp->addAction(tr("&Begin from Source"),
                                      me, SLOT(beginFromSource()));
     beginFromSourceAct->setShortcut(QKeySequence("Ctrl+B"));
