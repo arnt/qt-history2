@@ -104,6 +104,8 @@ static QAlphaWidget* q_blend = 0;
 QAlphaWidget::QAlphaWidget( QWidget* w, WFlags f )
     : QWidget( 0, "qt internal alpha effect widget", f )
 {
+    setEnabled( FALSE );
+
     pm.setOptimization( QPixmap::BestOptim );
     setBackgroundMode( NoBackground );
     widget = (QAccessWidget*)w;
@@ -137,6 +139,7 @@ void QAlphaWidget::run( int time )
 
     showWidget = TRUE;
     widget->installEventFilter( this );
+    qApp->installEventFilter( this );
 
     move( widget->geometry().x(),widget->geometry().y() );
     resize( widget->size().width(), widget->size().height() );
@@ -180,6 +183,10 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 	showWidget = FALSE;
 	render();
 	break;
+    case QEvent::MouseButtonPress:
+	showWidget = FALSE;
+	render();
+	break;	    
     default:
 	break;
     }
@@ -323,6 +330,7 @@ static QRollEffect* q_roll = 0;
 QRollEffect::QRollEffect( QWidget* w, WFlags f, DirFlags orient )
     : QWidget( 0, "qt internal roll effect widget", f ), orientation(orient)
 {
+    setEnabled( FALSE );
     widget = (QAccessWidget*) w;
     Q_ASSERT( widget );
 
@@ -365,8 +373,7 @@ void QRollEffect::paintEvent( QPaintEvent* )
 */
 bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 {
-    switch ( e->type() )
-	{
+    switch ( e->type() ) {
 	case QEvent::Move:
 	    move( widget->geometry().x(),widget->geometry().y() );
 	    update();
@@ -377,9 +384,13 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 	    done = TRUE;
 	    scroll();
 	    break;
+	case QEvent::MouseButtonPress:
+	    showWidget = FALSE;
+	    done = TRUE;
+	    break;
 	default:
 	    break;
-	}
+    }
     return QWidget::eventFilter( o, e );
 }
 
@@ -413,7 +424,6 @@ void QRollEffect::run( int time )
     if ( duration < 0 )
 	duration = QMIN( QMAX((totalWidth - currentWidth) +
 			      (totalHeight - currentHeight), 100 ), 300 );
-
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
 
     widget->setWState( WState_Visible );
@@ -425,6 +435,7 @@ void QRollEffect::run( int time )
     show();
 
     widget->installEventFilter( this );
+    qApp->installEventFilter( this );
 
     showWidget = TRUE;
     done = FALSE;
