@@ -1153,7 +1153,7 @@ void QObject::findChildren_helper(const QString &name, const QRegExp *re,
                 if (re->indexIn(obj->d->objectName) != -1)
                     list->append(obj);
             } else {
-                if (name.isEmpty() || obj->d->objectName == name)
+                if (name.isNull() || obj->d->objectName == name)
                     list->append(obj);
             }
         }
@@ -1169,7 +1169,7 @@ QObject *QObject::findChild_helper(const QString &name, const QMetaObject &mo) c
     int i;
     for (i = 0; i < d->children.size(); ++i) {
         obj = d->children.at(i);
-        if (mo.cast(obj) && (name.isEmpty() || obj->d->objectName == name))
+        if (mo.cast(obj) && (name.isNull() || obj->d->objectName == name))
             return obj;
     }
     for (i = 0; i < d->children.size(); ++i) {
