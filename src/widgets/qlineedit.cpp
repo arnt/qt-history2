@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#188 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#189 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -297,7 +297,8 @@ bool QLineEdit::hasMarkedText() const
 
 /*!
   Returns the text marked by the user (e.g. by clicking and
-  dragging), or 0 if no text is marked.
+  dragging), or a \link QString::operator!() null string\endlink
+  if no text is marked.
   \sa hasMarkedText()
 */
 
@@ -668,8 +669,8 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    }
 	}
 	// Now is the optimal time to set this - all the repaint-minimization
-	// then also reduces the number of calls to setCaret().
-	setCaret( curXPos, curYTop, 1, curYBot-curYTop+1 );
+	// then also reduces the number of calls to setMicroFocusHint().
+	setMicroFocusHint( curXPos, curYTop, 1, curYBot-curYTop+1 );
     } else {
 	delete d->pm;
 	d->pm = 0;

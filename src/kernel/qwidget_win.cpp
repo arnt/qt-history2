@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#182 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -389,7 +389,7 @@ void QWidget::setFontSys()
 {
 }
 
-void QWidget::setCaret(int x, int y, int width, int height)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height)
 {
 }
 

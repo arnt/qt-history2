@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#337 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#338 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -508,7 +508,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 /*!
-  When a widget gets focus, it should call setCaret for some appropriate
+  When a widget gets focus, it should call setMicroFocusHint for some appropriate
   position and size - \a x, \a y and \a w by \a h.
   This has no \e visual effect, it just provides hints to any system-specific
   input handling tools.
@@ -519,7 +519,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   In the X11 version of Qt, this method sets the XIMP "spot" point for
   complex language input handling.
 */
-void QWidget::setCaret(int x, int y, int width, int height)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height)
 {
     QWidget* tlw = topLevelWidget();
     if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
