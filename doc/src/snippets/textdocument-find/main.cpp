@@ -24,7 +24,6 @@ int main(int argc, char *argv[])
 
     QTextDocument *document = editor->document();
     QTextCursor modifyCursor(document);
-    modifyCursor.setCharFormat(colorFormat);
 
     while (!modifyCursor.isNull() && !modifyCursor.atEnd()) {
         modifyCursor = document->find(searchString, modifyCursor);
