@@ -383,7 +383,7 @@ public:
     {
 	detach();
 	if ( sh->finish == sh->end ) {
-	    sh->reserve( size()+1 );
+	    sh->reserve( size()+size()/2+1 );
 	}
 	*sh->finish = x;
 	++sh->finish;
