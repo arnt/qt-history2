@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#5 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -48,18 +48,18 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     file->insertItem( tr("&Close"), this, SLOT( close() ) );
 
     QPopupMenu* navigate = new QPopupMenu( this );
-    backwardId = navigate->insertItem( QPixmap("back.xpm"), 
+    backwardId = navigate->insertItem( QPixmap("back.xpm"),
 				       tr("&Backward"), browser, SLOT( backward() ),
-				       Key_Alt + Key_Left );
-    forwardId = navigate->insertItem( QPixmap("forward.xpm"), 
+				       ALT | Key_Left );
+    forwardId = navigate->insertItem( QPixmap("forward.xpm"),
 				      tr("&Forward"), browser, SLOT( forward() ),
-				       Key_Alt + Key_Right );
+				       ALT | Key_Right );
     navigate->insertItem( QPixmap("home.xpm"), tr("&Home"), browser, SLOT( home() ) );
 
     QPopupMenu* help = new QPopupMenu( this );
     help->insertItem( tr("&About ..."), this, SLOT( about() ) );
     help->insertItem( tr("About &Qt ..."), this, SLOT( aboutQt() ) );
-    
+
     menuBar()->insertItem( tr("&File"), file );
     menuBar()->insertItem( tr("&Navigate"), navigate );
     menuBar()->insertItem( tr("&Help"), help );
@@ -115,7 +115,7 @@ void HelpWindow::about()
 {
     QMessageBox::about( this, "QBrowser Example",
 			"<p>This example implements a simple HTML browser "
-			"using Qt's rich text capabilities</p>" 
+			"using Qt's rich text capabilities</p>"
 			"<p>It's just about 100 lines of C++ code, so don't expect too much :-)</p>"
 			);
 }
@@ -126,7 +126,7 @@ void HelpWindow::aboutQt()
     QMessageBox::aboutQt( this, "QBrowser" );
 }
 
-void HelpWindow::open() 
+void HelpWindow::open()
 {
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )

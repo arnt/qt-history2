@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/main.cpp#4 $
+** $Id: //depot/qt/main/examples/qbrowser/main.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -42,7 +42,6 @@ int main( int argc, char ** argv )
 
     QString home;
 
-    bool slideshow = FALSE;
     if (argc > 1)
 	home = argv[1];
     else
