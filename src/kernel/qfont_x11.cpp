@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#70 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#70 $");
 
 
 static const int fontFields = 14;
@@ -233,11 +233,11 @@ void QFont::cacheStatistics()
   Constructs a font object that refers to the default font.
 */
 
-QFont::QFont( bool )				// create default font
+QFont::QFont( bool )
 {
     init();
-    d->req.family  = "fixed";
-    d->req.pointSize = 12*10;
+    d->req.family  = "6x13";
+    d->req.pointSize = 11*10;
     d->req.weight    = QFont::Normal;
     d->req.rawMode = TRUE;
 }
@@ -317,9 +317,11 @@ QString QFont::lastResortFamily() const
 }
 
 static const char *tryFonts[] = {
-    "fixed",
     "6x13",
+    "7x13",
+    "8x13",
     "9x15",
+    "fixed",
     "-*-helvetica-medium-r-*-*-*-120-*-*-*-*-*-*",
     "-*-courier-medium-r-*-*-*-120-*-*-*-*-*-*",
     "-*-times-medium-r-*-*-*-120-*-*-*-*-*-*",
