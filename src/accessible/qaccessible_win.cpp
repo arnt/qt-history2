@@ -22,11 +22,7 @@
 #include "qt_windows.h"
 #include "qwidget.h"
 
-#if defined(Q_CC_GNU)
-#include <winuser.h>
-#else
 #include <winable.h>
-#endif
 #include <oleacc.h>
 #if !defined(Q_CC_BOR) && !defined (Q_CC_GNU)
 #include <comdef.h>

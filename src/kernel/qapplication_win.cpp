@@ -110,11 +110,7 @@ Q_KERNEL_EXPORT bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include <qaccessible.h>
-#if defined(Q_CC_GNU)
-#include <winuser.h>
-#else
 #include <winable.h>
-#endif
 #include <oleacc.h>
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
@@ -3602,5 +3598,3 @@ void QSessionManager::cancel()
     \value WV_CENET
     \value WV_CE_based
 */
-
-
