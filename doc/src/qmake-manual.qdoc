@@ -21,23 +21,28 @@
     Table of contents:
 
     \list
+    \omit
     \o \l{qmake-installing.html}{Installing qmake}
+    \endomit
     \o \l{qmake-using.html}{Using qmake}
-    \o \l{qmake-quickguide.html}{The Ten-Minute Guide to Using qmake}
-    \o \l{qmake-tutorial.html}{qmake Tutorial}
     \o \l{qmake-project-files.html}{Project Files}
     \o \l{qmake-advanced-usage.html}{Advanced Usage}
-    \o \l{qmake-command-reference.html}{qmake Command Reference}
+    \o \l{qmake-command-reference.html}{Command Reference}
+    \endlist
+    \list
+    \o \l{qmake-tutorial.html}{qmake Tutorial}
+    \o \l{qmake-common-projects.html}{Common Projects}
     \endlist
 */
 
 /*!
+    \internal
     \page qmake-installing.html
     \title Installing qmake
 
     \c qmake is built by default when Qt is built, so manual installation
     should be unnecessary. However, it is possible to manually build and
-    install \c qmake on Windows
+    install \c qmake on Windows.
 
     \section1 Installing qmake Manually
 
@@ -106,11 +111,9 @@
     each project file to a Makefile that executes the necessary commands
     for compiling and linking.
 
-    In this document, we describe how to create project files, examine
-    some of the main features of \c qmake, and show how to use \c qmake
-    at the command line.
-
-    \tableofcontents
+    In this document, we provide a basic introduction to project files,
+    describe some of the main features of \c qmake, and show how to use
+    \c qmake on the command line.
 
     \section1 Describing a Project
 
@@ -125,190 +128,18 @@
     Project files can contain a number of different elements, including
     comments, variable declarations, built-in functions, and some simple
     control structures. In most simple projects, it is only necessary
-    to assign values to some standard variables to indicate the source and
-    header files that are used in the project.
+    to declare the source and header files that are used to build the
+    project with some basic configuration options.
 
     Complete examples of project files can be found in the
-    \l{qmake-tutorials.html}{qmake Tutorials}.
+    \l{qmake-tutorials.html}{qmake Tutorials} section of this manual. A more
+    detailed description of project files can be found in the
+    \l{qmake-project-files.html}{Project Files} section.
 
-    \section2 Variables
+    \section2 Configuration
 
-    In a project file, variables are used to hold lists of string values.
-    In the simplest case, these variables inform \c qmake about the
-    configuration options to use, or paths to supply to the Makefile that
-    it creates.
-    Variables can also be used internally to store temporary lists of values,
-    and existing lists of values can be overwritten or extended with new
-    values.
+    \section1 Running qmake
 
-    The following lines show how lists of values are assigned to variables:
-
-    \quotefromfile snippets/qmake/variables.pro
-    \printuntil SOURCES
-
-    \c qmake looks for certain variables in each project file, and it
-    uses the contents of these to determine what it should write to a
-    Makefile. For example, the list of values in the \c HEADERS and
-    \c SOURCES variables are used to tell \c qmake about header and
-    source files in the same directory as the project file.
-
-    The list of values in a variable is extended in the following way:
-
-    \quotefromfile snippets/qmake/variables.pro
-    \printuntil CONFIG
-
-    The \c CONFIG variable is another special variable that \c qmake
-    uses when generating a Makefile. It is discussed in the section on
-    configuration later in this chapter.
-
-    \section2 Comments
-
-    You can add comments to project files. Comments begin with the \c
-    # symbol and continue to the end of the same line.
-
-    \quotefromfile snippets/qmake/comments.pro
-    \printuntil .
-
-    \section2 Built-in Functions
-
-    \c qmake provides a number of built-in functions to allow the contents
-    of variables to be processed. The most commonly used function in simple
-    project files is the \c include function which takes a filename as an
-    argument. The contents of the given file are included in the project
-    file at the place where the \c include function is used.
-
-    \quotefromfile snippets/qmake/include.pro
-    \printuntil include
-
-    Various other built-in functions are provided to manipulate strings
-    and paths, support user input, and call external tools. A list of
-    the functions available can be found in the
-    \l{qmake-advanced-use.html}{Advanced Use} chapter of this manual.
-
-    \section2 Control Structures
-
-    Support for conditional structures is made available via \e scopes that
-    behave like \c if statements in programming languages.
-
-    Simple loops are constructed by iterating over lists of values using
-    the built-in \c for function. More complex operations on variables that
-    would usually require loops are provided by built-in functions such as
-    \c find, \c unique, and \c count.
-
-    \section1 Project Templates
-
-    The \c TEMPLATE variable is used to define the type of project that will
-    be built. If this is not declared in the project file, \c qmake assumes
-    that an application should be built, and will generate an appropriate
-    Makefile (or equivalent file) for the purpose.
-
-    The types of project available are listed in the following table with
-    information about the files that \c qmake will generate for each of them:
-
-    \table
-    \header \i TEMPLATE      \i Description of \c qmake output
-    \row    \i app (default) \i Creates a Makefile to build an application.
-    \row    \i lib           \i Creates a Makefile to build a library.
-    \row    \i vcapp         \i Creates a Visual Studio Project file to build
-                             an application.
-    \row    \i vclib         \i Creates a Visual Studio Project file to build a library.
-    \row    \i subdirs       \i Creates a Makefile that will go into the specified
-                             directories and run \c qmake on any project files found.
-    \endtable
-
-    See the \l{qmake-tutorials.html}{qmake Tutorials} for advice on
-    writing project files for common types of project.
-
-    \section1 General Configuration
-
-    The \c CONFIG variable specifies the options that the compiler should use
-    and the libraries that should be linked against.  Anything can be
-    added to the config variable, but the options covered below are
-    recognised by qmake internally.
-
-    The following options control what compiler flags are used:
-
-    \list
-    \i release - The application is to be built in release mode.  This is ignored if \c debug is specified.
-    \i debug - The application is to be built in debug mode.
-    \i warn_on - The compiler should output as many warnings as possible.  This is ignored if 'warn_off' is specified.
-    \i warn_off - The compiler should output as few warnings as possible.
-    \endlist
-
-    The following options define the type of library/application to be built:
-
-    \list
-    \i qt - The application is a Qt application and should link against the Qt library.
-    \i thread - The application is a multi-threaded application.
-    \i x11 - The application is an X11 application or library.
-    \endlist
-
-    When using the \c app template, the type of application to be built can be specified
-    with the following options:
-
-    \list
-    \i windows - The application is a Windows GUI application.
-    \i console - \c app template only: the application is a Windows console application.
-    \endlist
-
-    When using the \c lib template, the following options determine the type of
-    library that is built:
-
-    \list
-    \i dll - The library is a shared library (dll).
-    \i staticlib The library is a static library.
-    \i plugin - The library is a plugin; this also enables the dll option.
-    \endlist
-
-    For example, if your application uses the Qt library and you want to
-    build it as a debuggable multi-threaded application, your project file
-    will have the following line:
-
-    \code
-        CONFIG += qt thread debug
-    \endcode
-
-    Note, that you must use "+=", not "=", or \c qmake will not be able to
-    use the settings used to build Qt as a guide as what type of Qt
-    library was built.
-
-    \section1 Declaring Qt Libraries
-
-    If you enable qmake's support for Qt with the \c CONFIG variable, it is
-    possible to further specify which of the Qt libraries you will link with
-    your application. This is achieved with the \c QT variable which can be
-    used to declare the required extension modules. For example, we can enable
-    the XML and network modules in the following way:
-
-    \code
-        CONFIG += qt
-        QT += network xml
-    \endcode
-
-    Note that \c QT includes the core and GUI modules by default, so the above
-    declaration \e adds the network and XML modules to this default list. The
-    following assignment \e omits the default modules, and will lead to errors
-    when the application's source code is being compiled:
-
-    \code
-        QT = network xml # This will omit the core and GUI modules.
-    \endcode
-
-    The table below shows the options that can be used with the \c QT variable
-    and the features that are associated with each of them:
-
-    \table
-    \header \i Option                     \i Features
-    \row    \i core (included by default) \i Classes that provide fundamental Qt
-                                             features
-    \row    \i gui  (included by default) \i Widgets and other GUI classes
-    \row    \i network   \i \l{networking.html}{Network Module} classes
-    \row    \i opengl    \i \l{opengl.html}{OpenGL Module} classes
-    \row    \i sql       \i \l{sql.html}{SQL Module} classes
-    \row    \i xml       \i \l{xml.html}{XML Module} classes
-    \row    \i compat    \i Enables the use of compatibility classes (see the
-                            \l{porting4.html}{Porting to Qt 4} guide)
-    \endtable
 
 */
 
@@ -923,7 +754,7 @@
 
 /*!
     \page qmake-command-reference.html
-    \title qmake Command Reference
+    \title Command Reference
 
     \tableofcontents section1
 
@@ -3063,4 +2894,229 @@
 
     These commands can easily be placed into a cache file, and subsequent
     .pro files can give several arguments to NEW_HEADERS.
+*/
+
+/*!
+    \page qmake-project-files.html
+
+    \title Project Files
+
+    Project files contain all the information required by \c qmake to build
+    your application, library, or plugin. The resources used by your project
+    are generally specified using a series of declarations, but support for
+    simple programming constructs allow you to describe different build
+    processes for different platforms and environments.
+
+    \tableofcontents
+
+    \section1 Project File Elements
+
+    The project file format used by \c qmake can be used to support both
+    simple and fairly complex build systems. Simple project files will
+    use a straightforward declarative style, defining standard variables
+    to indicate the source and header files that are used in the project.
+
+    The following sections describe the types of elements found in project
+    files.
+
+    \section2 Variables
+
+    In a project file, variables are used to hold lists of string values.
+    In the simplest projects, these variables inform \c qmake about the
+    configuration options to use, or paths to supply to the Makefile that
+    it creates.
+
+    \c qmake looks for certain variables in each project file, and it
+    uses the contents of these to determine what it should write to a
+    Makefile. For example, the list of values in the \c HEADERS and
+    \c SOURCES variables are used to tell \c qmake about header and
+    source files in the same directory as the project file.
+
+    Variables can also be used internally to store temporary lists of values,
+    and existing lists of values can be overwritten or extended with new
+    values.
+
+    The following lines show how lists of values are assigned to variables:
+
+    \quotefromfile snippets/qmake/variables.pro
+    \printto SOURCES
+
+    Note that the first assignment only includes values that are specified on
+    the same line as the \c SOURCES variable. The second assignment splits
+    the items across lines by using the \\ character.
+
+    The list of values in a variable is extended in the following way:
+
+    \printuntil CONFIG
+
+    The \c CONFIG variable is another special variable that \c qmake
+    uses when generating a Makefile. It is discussed in the section on
+    configuration later in this chapter. In the above line, \c QT is
+    added to the list of existing values contained in \c CONFIG.
+
+    The following table lists the variables that \c qmake recognizes, and
+    describes what they should contain.
+
+    \table
+    \header \i Variable \i Contents
+    \row \i CONFIG    \i General project configuration options.
+    \row \i FORMS     \i A list of .ui files to be processed by \c uic.
+    \row \i HEADERS   \i A list of filenames of header (.h) files used when
+                      building the project.
+    \row \i QT        \i Qt-specific configuration options.
+    \row \i RESOURCES \i A list of resource (.rc) files to be included in the
+                      final project. See the \l{resources.html}{The Qt Resource
+                      System} for more information about these files.
+    \row \i SOURCES   \i A list of source code files to be used when building
+                      the project.
+    \row \i TEMPLATE  \i The template to use for the project. This determines
+                      whether the output of the build process will be an
+                      application, a library, or a plugin.
+    \endtable
+
+    \section2 Comments
+
+    You can add comments to project files. Comments begin with the \c
+    # symbol and continue to the end of the same line.
+
+    \quotefromfile snippets/qmake/comments.pro
+    \printuntil .
+
+    \section2 Built-in Functions
+
+    \c qmake provides a number of built-in functions to allow the contents
+    of variables to be processed. The most commonly used function in simple
+    project files is the \c include function which takes a filename as an
+    argument. The contents of the given file are included in the project
+    file at the place where the \c include function is used.
+
+    \quotefromfile snippets/qmake/include.pro
+    \printuntil include
+
+    Various other built-in functions are provided to manipulate strings
+    and paths, support user input, and call external tools. A list of
+    the functions available can be found in the
+    \l{qmake-advanced-use.html}{Advanced Use} chapter of this manual.
+
+    \section2 Control Structures
+
+    Support for conditional structures is made available via \e scopes that
+    behave like \c if statements in programming languages.
+
+    Simple loops are constructed by iterating over lists of values using
+    the built-in \c for function. More complex operations on variables that
+    would usually require loops are provided by built-in functions such as
+    \c find, \c unique, and \c count.
+
+    \section1 Project Templates
+
+    The \c TEMPLATE variable is used to define the type of project that will
+    be built. If this is not declared in the project file, \c qmake assumes
+    that an application should be built, and will generate an appropriate
+    Makefile (or equivalent file) for the purpose.
+
+    The types of project available are listed in the following table with
+    information about the files that \c qmake will generate for each of them:
+
+    \table
+    \header \i TEMPLATE      \i Description of \c qmake output
+    \row    \i app (default) \i Creates a Makefile to build an application.
+    \row    \i lib           \i Creates a Makefile to build a library.
+    \row    \i vcapp         \i Creates a Visual Studio Project file to build
+                             an application.
+    \row    \i vclib         \i Creates a Visual Studio Project file to build a library.
+    \row    \i subdirs       \i Creates a Makefile that will go into the specified
+                             directories and run \c qmake on any project files found.
+    \endtable
+
+    See the \l{qmake-tutorials.html}{qmake Tutorials} for advice on
+    writing project files for common types of project.
+
+    \section1 General Configuration
+
+    The \c CONFIG variable specifies the options that the compiler should use
+    and the libraries that should be linked against.  Anything can be
+    added to the \c CONFIG variable, but the options covered below are
+    recognized by \c qmake internally.
+
+    The following options control the compiler flags that are used to build the
+    project:
+
+    \table
+    \header \i Option   \i Description
+    \row    \i release  \i The project is to be built in release mode.
+                        This is ignored if \c debug is also specified.
+    \row    \i debug    \i The project is to be built in debug mode.
+    \row    \i warn_on  \i The compiler should output as many warnings as possible.
+                        This is ignored if \c warn_off is specified.
+    \row    \i warn_off \i The compiler should output as few warnings as possible.
+    \endtable
+
+    The following options define the type of project to be built. Note that some
+    of these options only take effect when used on the relevant platform. On other
+    platforms, they have no effect.
+
+    \table
+    \header \i Option \i Description
+    \row    \i qt     \i The project is a Qt application and should link against the Qt
+                      library. You can use the \c QT variable to control any additional
+                      Qt modules that are required by your application.
+    \row    \i thread \i The project is a multi-threaded application.
+    \row    \i x11    \i The project is an X11 application or library.
+    \endtable
+
+    When using the \c app or \c lib templates, more specialized configuration
+    options can be used to fine tune the build process. These are explained in
+    details in the \l{qmake-common-projects.html}{Common Projects} chapter of
+    this manual.
+
+    For example, if your application uses the Qt library and you want to
+    build it as a debuggable multi-threaded application, your project file
+    will have the following line:
+
+    \code
+        CONFIG += qt thread debug
+    \endcode
+
+    Note, that you must use "+=", not "=", or \c qmake will not be able to
+    use Qt's configuration to determine the settings needed for your project.
+
+    \section1 Declaring Qt Libraries
+
+    If you enable qmake's support for Qt with the \c CONFIG variable, it is
+    possible to further specify which of the Qt libraries you will link with
+    your application. This is achieved with the \c QT variable which can be
+    used to declare the required extension modules. For example, we can enable
+    the XML and network modules in the following way:
+
+    \code
+        CONFIG += qt
+        QT += network xml
+    \endcode
+
+    Note that \c QT includes the core and GUI modules by default, so the above
+    declaration \e adds the network and XML modules to this default list. The
+    following assignment \e omits the default modules, and will lead to errors
+    when the application's source code is being compiled:
+
+    \code
+        QT = network xml # This will omit the core and GUI modules.
+    \endcode
+
+    The table below shows the options that can be used with the \c QT variable
+    and the features that are associated with each of them:
+
+    \table
+    \header \i Option                     \i Features
+    \row    \i core (included by default) \i Classes that provide fundamental Qt
+                                             features
+    \row    \i gui  (included by default) \i Widgets and other GUI classes
+    \row    \i network   \i \l{networking.html}{Network Module} classes
+    \row    \i opengl    \i \l{opengl.html}{OpenGL Module} classes
+    \row    \i sql       \i \l{sql.html}{SQL Module} classes
+    \row    \i xml       \i \l{xml.html}{XML Module} classes
+    \row    \i compat    \i Enables the use of compatibility classes (see the
+                         \l{porting4.html}{Porting to Qt 4} guide)
+    \endtable
+
 */

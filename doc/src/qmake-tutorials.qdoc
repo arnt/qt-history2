@@ -376,12 +376,26 @@
 /*!
     \page qmake-common-projects.html
 
+    \title Common Projects
+
+    \section1 
+
     \section2 The \c app Template
 
     The \c app template tells \c qmake to generate a Makefile that will build
-    an application.  When using this template the following \c qmake
-    system variables are recognized.  You should use these in your .pro
-    file to specify information about your application.
+    an application. With this template, the type of application can be specified
+    by adding one of the following options to the \c CONFIG variable definition:
+
+    \table
+    \header \i Option  \i Description
+    \row    \i windows \i The application is a Windows GUI application.
+    \row    \i console \i \c app template only: the application is a Windows console
+                       application.
+    \endtable
+
+    When using this template the following \c qmake system variables are recognized.
+    You should use these in your .pro file to specify information about your
+    application.
 
     \list
     \i HEADERS - A list of all the header files for the application.
@@ -431,6 +445,17 @@
     mentioned above for the \c app template the \c VERSION variable is
     supported.  You should use these in your .pro file to specify
     information about the library.
+
+    When using the \c lib template, the following options determine the type of
+    library that is built:
+
+    \table
+    \header \i Option    \i Description
+    \row    \i dll       \i The library is a shared library (dll).
+    \row    \i staticlib \i The library is a static library.
+    \row    \i plugin    \i The library is a plugin; this also enables the dll option.
+    \endtable
+
 
     \list
     \i VERSION - The version number of the target library, for example, 2.3.1.
