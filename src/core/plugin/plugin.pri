@@ -1,6 +1,29 @@
+# Qt core library plugin module
 
+HEADERS += \
+	plugin/qfactoryinterface.h \
+	plugin/qpluginloader.h \
+	plugin/qlibrary.h \
+	plugin/qlibrary_p.h \
+	plugin/qplugin.h \
+	plugin/quuid.h \
+	plugin/qfactoryloader_p.h 
 
-HEADERS += plugin/qfactoryinterface.h plugin/qlibrary.h plugin/quuid.h plugin/qfactoryloader_p.h plugin/qpluginloader.h
-SOURCES += plugin/qlibrary.cpp plugin/qfactoryloader.cpp plugin/qpluginloader.cpp plugin/quuid.cpp
-win32:SOURCES += plugin/qlibrary_win.cpp
-else:SOURCES += plugin/qlibrary_unix.cpp
+SOURCES += \
+	plugin/qpluginloader.cpp \
+	plugin/qfactoryloader.cpp \
+	plugin/quuid.cpp \
+	plugin/qlibrary.cpp
+
+win32 {
+	SOURCES += plugin/qlibrary_win.cpp
+}
+
+mac { 
+	SOURCES+=../3rdparty/dlcompat/dlfcn.c
+	INCLUDEPATH+=../3rdparty/dlcompat
+}
+
+unix {
+	SOURCES += plugin/qlibrary_unix.cpp
+}
