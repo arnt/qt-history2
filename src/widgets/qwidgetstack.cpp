@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#39 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -265,9 +265,8 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( isVisible() ) {
 	emit aboutToShow( w );
 	if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
-	    // ### O(n)
 	    int i = id( w );
-	    if ( i )
+	    if ( i >= 0 )
 		emit aboutToShow( i );
 	}
     }
@@ -442,6 +441,6 @@ QSize QWidgetStack::sizeHint() const
 	}
     }
     if ( size.isNull() )
-	return QSize(100,50);//###
+	return QSize(100,50); //### paul did not like this one
     return size;
 }
