@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#211 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#212 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -723,7 +723,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     cursorPos = offset + xPosToCursorPos( tbuf, offset, fontMetrics(),
 					  e->pos().x() - margin - alignOffset,
 					  width() - 2*margin );
-    if ( hasMarkedText() &&
+    if ( hasMarkedText() && echoMode() == Normal &&
 		e->button() == LeftButton &&
 		( (markAnchor > cursorPos && markDrag < cursorPos) ||
 		  (markAnchor < cursorPos && markDrag > cursorPos) ) ) {
