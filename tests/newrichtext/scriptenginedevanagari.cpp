@@ -196,7 +196,7 @@ static int nextSyllableBoundary( const QString &s, int start, int end, bool *inv
 		break;
 	    // fall through
 	case Matra:
-	    if ( state == Consonant )
+	    if ( state == Consonant || state == Nukta )
 		break;
 	    goto finish;
 
@@ -330,7 +330,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
    fixed++;
    int toMove = 0;
    while ( fixed < len ) {
-       qDebug("fixed = %d", fixed );
+//        qDebug("fixed = %d", fixed );
        for ( int i = fixed; i < len; i++ ) {
 	   if ( form( uc[i] ) == finalOrder[toMove].form &&
 		position( uc[i] ) == finalOrder[toMove].position ) {

@@ -126,7 +126,7 @@ int MyWidget::getCursorPosition( int _x )
 // const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
 
 // Hindi
-const char *s = "क्यों नहीं बोल सकते हैं";
+const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
 
 
 // mixed
@@ -140,7 +140,7 @@ int main( int argc, char **argv )
     QApplication a(argc, argv);
 
     QFont f( family );
-    f.setPointSize( 48 );
+    f.setPointSize( 28 );
     a.setFont( f );
 
 #if 1
