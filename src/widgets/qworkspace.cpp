@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#18 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -120,7 +120,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->px = 0;
     d->py = 0;
     d->becomeActive = 0;
-    
+
     topLevelWidget()->installEventFilter( this );
 
 }	
@@ -182,7 +182,7 @@ void QWorkspace::activateClient( QWidget* w)
 	d->becomeActive = w;
 	return;
     }
-    
+
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
 	c->setActive( c->clientWidget() == w );
 	if (c->clientWidget() == w)
@@ -330,11 +330,6 @@ void QWorkspace::normalizeClient( QWidget* w)
 void QWorkspace::maximizeClient( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
-
-    if ( c &&  c == d->maxClient ) {
-	normalizeClient( w );
-	return;
-    }
 
     if ( c ) {
 	if (d->icons.contains(c->iconWidget()) )
