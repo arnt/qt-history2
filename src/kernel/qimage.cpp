@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#87 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -14,6 +14,7 @@
 #include "qregexp.h"
 #include "qfile.h"
 #include "qdstream.h"
+#include "qtstream.h"
 #include "qbuffer.h"
 #include "qlist.h"
 #include "qdict.h"
@@ -21,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#87 $");
 
 
 /*!
@@ -2472,7 +2473,6 @@ static bool read_xpm_string( QString & buf, QIODevice * d )
     while ( (c=d->getch()) != EOF && c != '"' )
 	;
     if ( c == EOF ) {
-	debug( "eof not eol" );
 	return FALSE;
     }
     i = 0;
@@ -2482,7 +2482,6 @@ static bool read_xpm_string( QString & buf, QIODevice * d )
 	buf[i++] = c;
     }
     if ( c == EOF ) {
-	debug( "saw EOF" );
 	return FALSE;
     }
 
@@ -2493,6 +2492,8 @@ static bool read_xpm_string( QString & buf, QIODevice * d )
 
 static void read_xpm_image( QImageIO * iio ) // read XPM image data
 {
+    if ( iio )
+	iio->setStatus( 1 );
     QIODevice *d = iio ? iio->ioDevice() : 0;
     if ( !d )
 	return;
@@ -2505,23 +2506,17 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
     buf.resize( 200 );
     QRegExp r ("/\\*.XPM.\\*/" );
     d->readLine( buf.data(), buf.size() );		// "/* XPM */"
-    if ( r.match(buf) < 0 ) {
-	debug( "bad magic" );
+    if ( r.match(buf) < 0 )
 	return; // bad magic
-    }
 
     if ( !read_xpm_string( buf, d ) )
 	return;
 
-    if ( sscanf( buf, "%d %d %d %d", &w, &h, &ncols, &cpp ) < 4 ) {
-	debug( "parse error" );
+    if ( sscanf( buf, "%d %d %d %d", &w, &h, &ncols, &cpp ) < 4 )
 	return; // less than four numbers parsed
-    }
 
-    if ( ncols > 256 ) {
-	debug( "truecolour" );
+    if ( ncols > 256 )
 	return;
-    }
 
     QImage image( w, h, 8, ncols, QImage::IgnoreEndian );
 
@@ -2537,57 +2532,47 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	QString index, colour;
 	index = buf.left( cpp );
 	buf = buf.mid( cpp, buf.length() ).simplifyWhiteSpace();
-	while( buf[0] == 's' || buf[0] == 'm' ) {
-	    i = buf.find( ' ', 2 ) + 1;
-	    if ( i < 1 ) {
-		debug( "invalid colour II %s", (const char *)buf );
-		return;
-	    }
-	    buf = buf.mid( i, buf.length() );
-	}
 	if ( buf[0] != 'c' || buf[1] != ' ' ) {
-	    //debug( "colorless %s", (const char *)buf );
-	    return; // no c specification
+	    i = buf.find( " c " );
+	    if ( i < 0 )
+		return; // no c specification
+	    buf = buf.mid( i+1, buf.length() );
 	}
-	i = index.find( ' ', 2 );
-	buf = buf.mid( 2, i >= 0 ? i-1 : buf.length() );
-	QRegExp r( "^#[a-zA-Z0-9]*$" );
+	QRegExp r( "^c #[a-zA-Z0-9]*$" );
 	if ( r.match( buf ) > -1 ) {
+	    i = buf.find( ' ', 2 );
+	    if ( i >= 0 )
+		buf.resize( i );
 	    // it's an RGB value, methinks...
 	    QString red, green, blue; // -Wshadow ahoy!
 	    switch( buf.length() ) {
-	    case 4:
-		red = buf.mid( 1, 1 );
-		green = buf.mid( 2, 1 );
-		blue = buf.mid( 3, 1 );
+	    case 6:
+		red = buf.mid( 3, 1 );
+		green = buf.mid( 4, 1 );
+		blue = buf.mid( 5, 1 );
 		break;
-	    case 7:
-		red = buf.mid( 1, 2 );
-		green = buf.mid( 3, 2 );
-		blue = buf.mid( 5, 2 );
-		break;
-	    case 13:
-		// forget those lsbs
-		red = buf.mid( 1, 2 );
+	    case 9:
+		red = buf.mid( 3, 2 );
 		green = buf.mid( 5, 2 );
-		blue = buf.mid( 9, 2 );
+		blue = buf.mid( 7, 2 );
+		break;
+	    case 15:
+		// forget those lsbs
+		red = buf.mid( 3, 2 );
+		green = buf.mid( 7, 2 );
+		blue = buf.mid( 11, 2 );
 		break;
 	    default:
-		debug( "strange number '%s'", (const char *)buf );
 		return; // bad number of rgb digits
 	    }
 	    int r, g, b;
 	    if ( sscanf( red, "%x", &r ) != 1 ||
 		 sscanf( green, "%x", &g ) != 1 ||
-		 sscanf( blue, "%x", &b ) != 1 ) {
-		debug( "weird number %s", (const char *)buf );
+		 sscanf( blue, "%x", &b ) != 1 )
 		return; // uh...
-	    }
-	    //debug( "found colour %d, %d, %d", r, g, b );
 	    image.setColor( currentColour, qRgb( r, g, b ) );
 	    colourMap.insert( index, (int*)(currentColour+1) );
 	} else if ( stricmp( buf, "none" ) == 0 ) {
-	    //debug( "found transparent %d", image.numColors() );
 	    transparentColour = currentColour;
 	    image.setColor( transparentColour, qRgb( 255,128,64 ) );
 	    colourMap.insert( index, (int*)(transparentColour+1) );
@@ -2595,12 +2580,9 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	    // symbolic colour names: die die die
 	    r = " [a-z] ";
 	    i = r.match( buf );
-	    if ( i > -1 )
-		buf[i] = '0';
-	    QColor tmp( buf );
+	    QColor tmp( buf.mid( 2, i > -1 ? i-2 : buf.length() ) );
 	    image.setColor( currentColour, tmp.rgb() );
 	    colourMap.insert( index, (int*)(currentColour+1) );
-	    //debug( "weird colour %s, %6x", (const char *)buf, tmp.rgb() );
 	}
     }
 
@@ -2613,10 +2595,8 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 
 	for ( int x=0; x<w && i<(int)buf.length(); x++ ) {
 	    int colour = (int)colourMap[ buf.mid( i, cpp ) ];
-	    if ( colour == 0 ) {
-		debug( "unknown colour %s", (const char *)buf );
+	    if ( colour == 0 )
 		return; // bad colour
-	    }
 	    *(image.scanLine(y) + x) = (char)(colour-1);
 	    i += cpp;
 	}
@@ -2626,18 +2606,102 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 }
 
 
-static void write_xpm_image( QImageIO * /* iio */ ) // write XPM image data
+static char* xpm_colour_name( int cpp, int index )
 {
-    warning( "Write of XPM is not implemented" );
-#if 0
-    QIODevice *d = image->iodev;
-    int w = image->width, h = image->height, depth = image->depth, i;
-    QString s = fbname(image->fname);		// get file base name
+    static char returnable[3];
+    if ( cpp > 1 ) {
+	returnable[0] = ".#abcdefghijklmnopqrstuvwxyz"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[(index-1)/64];
+	returnable[1] = ".#abcdefghijklmnopqrstuvwxyz"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[(index-1)%64];
+	returnable[2] = '\0';
+    } else {
+	returnable[0] = ".#abcdefghijklmnopqrstuvwxyz"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[index-1];
+	returnable[1] = '\0';
+    }
+    return returnable;
+}
 
-    QTextStream s( d );
-    s << "/* XPM */" << endl()
-      << "static char *" << s << "[] = {" << endl()
-      << "/* Written by Qt */" << endl()
-      << "\" " << s << " " << h << " " << " 256 2 \"" << endl();
-#endif
+
+// write XPM image data
+static void write_xpm_image( QImageIO * iio )
+{
+    if ( iio )
+	iio->setStatus( 1 );
+    else
+	return;
+
+    QImage image;
+    if ( iio->image().depth() < 32 )
+	image = iio->image().convertDepth( 32 );
+    else
+	image = iio->image();
+
+    QIntDict<int> colourMap( 301 );
+
+    int w = image.width(), h = image.height(), colours=0;
+    int x, y;
+
+    // build color table
+    for( y=0; y<h; y++ ) {
+	QRgb * yp = (QRgb *)image.scanLine( y );
+	for( x=0; x<w; x++ ) {
+	    QRgb colour = *(yp + x);
+	    if ( colour != (colour & RGB_MASK) )
+		colour |= ~RGB_MASK;
+	    if ( !colourMap.find( (int)colour ) )
+		colourMap.insert( (int)colour, (int*)(++colours) );
+	}
+    }
+
+    if ( colours > 4096)
+	return;
+
+    int cpp = colours > 64 ? 2 : 1;
+    QString line;
+
+    // write header
+    QTextStream s( iio->ioDevice() );
+    s << "/* XPM */" << endl
+      << "static char *" << fbname(iio->fileName()) << "[] = {" << endl
+      << "/* width, height, number of colours, and characters per pixel */"
+      << endl << "\"" << w << " " << h << " " << colours << " "
+      << cpp << "\"," << endl << "/* colors */" << endl;
+
+    // write palette
+    QIntDictIterator<int> c( colourMap );
+    while ( c.current() ) {
+	if ( (c.currentKey() & ~RGB_MASK) != 0 )
+	    line.sprintf( "\"%s c None\",", 
+			  xpm_colour_name( cpp, (int)c.current() ) );
+	else
+	    line.sprintf( "\"%s c #%02x%02x%02x\",", 
+			  xpm_colour_name( cpp, (int)c.current() ),
+			  qRed( c.currentKey() ),
+			  qGreen( c.currentKey() ),
+			  qBlue( c.currentKey() ) );
+	++c;
+	s << line << endl;
+    }
+
+    // write pixels
+    s << "/* pixels */" << endl;
+
+    for( y=0; y<h; y++ ) {
+	QRgb * yp = (QRgb *)image.scanLine( y );
+	line.resize( cpp*w + 1 );
+	for( x=0; x<w; x++ ) {
+	    QRgb colour = (QRgb)colourMap[ *(yp + x) ];
+	    const char * chars = xpm_colour_name( cpp, (int)colour );
+	    line[ x*cpp ] = chars[0];
+	    if ( cpp == 2 )
+		line[ x*cpp + 1 ] = chars[1];
+	}
+	line[ cpp*w ] = '\0';
+	s << "\"" << line << "\"," << endl;
+    }
+    s << "NULL };" << endl << endl; // two newlines, just for clarity
+
+    iio->setStatus( 0 );
 }
