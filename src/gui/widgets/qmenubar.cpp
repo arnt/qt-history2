@@ -70,7 +70,7 @@ void QMenuBarPrivate::updateActions()
 
 #ifdef Q_WS_MAC
     if(mac_menubar) {//nothing to see here folks, move along..
-        itemsDirty = 0;
+        itemsDirty = false;
         return;
     }
 #endif
@@ -85,7 +85,7 @@ void QMenuBarPrivate::updateActions()
         for(int i = 0; i < actionList.count(); i++)
             shortcutIndexMap.append(q->grabShortcut(QKeySequence::mnemonic(actionList.at(i)->text())));
     }
-    itemsDirty = 0;
+    itemsDirty = false;
 
 #ifndef QT_NO_LAYOUT
     if(q->parentWidget() && q->parentWidget()->layout())
@@ -611,7 +611,7 @@ bool QMenuBar::isDefaultUp() const
 void QMenuBar::resizeEvent(QResizeEvent *)
 {
     Q_D(QMenuBar);
-    d->itemsDirty = 1;
+    d->itemsDirty = true;
     d->updateActions();
 }
 
@@ -857,7 +857,7 @@ void QMenuBar::leaveEvent(QEvent *)
 void QMenuBar::actionEvent(QActionEvent *e)
 {
     Q_D(QMenuBar);
-    d->itemsDirty = 1;
+    d->itemsDirty = true;
 #ifdef Q_WS_MAC
     if(d->mac_menubar) {
         if(e->type() == QEvent::ActionAdded)
@@ -909,7 +909,7 @@ void QMenuBar::changeEvent(QEvent *e)
 {
     Q_D(QMenuBar);
     if(e->type() == QEvent::StyleChange) {
-        d->itemsDirty = 1;
+        d->itemsDirty = true;
         setMouseTracking(style()->styleHint(QStyle::SH_MenuBar_MouseTracking, 0, this));
         if(parentWidget())
             resize(parentWidget()->width(), heightForWidth(parentWidget()->width()));
@@ -1159,6 +1159,7 @@ void QMenuBarPrivate::updateLayout()
 {
     Q_Q(QMenuBar);
     itemsDirty = true;
+    updateActions();
     q->update();
 }
 
