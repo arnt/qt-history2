@@ -100,8 +100,8 @@ public:
 
     \code
     QDateTimeEdit *dateEdit = new QDateTimeEdit(QDate::currentDate());
-    dateEdit->setMinimumDate(QDate::currentDate().addDaysSection(-365));
-    dateEdit->setMaximumDate(QDate::currentDate().addDaysSection(365));
+    dateEdit->setMinimumDate(QDate::currentDate().addDays(-365));
+    dateEdit->setMaximumDate(QDate::currentDate().addDays(365));
     dateEdit->setFormat("yyyy.MM.dd");
     \endcode
 
@@ -577,16 +577,19 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 {
 //    const QDateTimeEditPrivate::Section s = d->currentsection;
     bool select = true;
-    bool fixcursor = !e->text().isEmpty();
-    if ((e->key() == Qt::Key_Backspace ||
-         (e->key() == Qt::Key_H && e->key() & Qt::ControlButton)) && !d->edit->hasSelectedText()) {
-        const QDateTimeEditPrivate::SectionNode &sn = d->sectionNode(d->currentsection);
-        const int cur = d->edit->cursorPosition();
-        if (cur == sn.pos && cur > d->sections.front().pos) {
-//            const QDateTimeEditPrivate::SectionNode &s = d->nextPrevSection(sn.section, false);
-//            d->edit->setCursorPosition(s.pos + d->sectionLength(s.section));
-            e->accept();
-            return;
+    if ((e->key() == Qt::Key_Backspace
+#ifdef Q_WS_X11
+         || (e->key() == Qt::Key_H && e->key() & Qt::ControlButton)
+#endif
+        ) && !d->edit->hasSelectedText()) {
+        const int pos = d->edit->cursorPosition();
+        const QDateTimeEditPrivate::Section s = d->sections.last().section;
+        const int suffixStart = d->sectionPos(s) + d->sectionLength(s);
+        if (pos == d->last.pos && pos > suffixStart) {
+            d->ignorecursorpositionchanged = true;
+            d->edit->setCursorPosition(suffixStart);
+            d->currentsection = s;
+            d->ignorecursorpositionchanged = false;
         }
     }
     switch((Qt::Key)e->key()) {
@@ -599,7 +602,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Left:
     case Qt::Key_Right:
         if (!(e->state() & Qt::ControlButton)) {
-            int sellength = d->edit->selectedText().size();
+            const int sellength = d->edit->selectedText().size();
             if (sellength == 0 || sellength != d->sectionLength(d->currentsection))
                 break;
             select = false;
@@ -612,23 +615,13 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         if (select) {
             d->setSelected(newSection.section);
         } else {
-            d->edit->setCursorPosition(e->key() == Qt::Key_Right
-                                       ? newSection.pos
-                                       : d->sectionPos(d->currentsection));
+            d->edit->setCursorPosition(e->key() == Qt::Key_Right ? newSection.pos : d->sectionPos(d->currentsection));
         }
         if (!select)
             d->edit->deselect();
         e->accept();
         return; }
-    case Qt::Key_Up:
-    case Qt::Key_Down:
-    case Qt::Key_Prior:
-    case Qt::Key_Next:
-        fixcursor = true;
     default:
-        if (fixcursor && d->currentsection == QDateTimeEditPrivate::FirstSection) {
-            setCurrentSection((Section)d->sections.front().section);
-        }
         break;
     }
 
@@ -666,7 +659,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     QDateTimeEditPrivate::Section s;
     switch(QFocusEvent::reason()) {
     case QFocusEvent::Shortcut:
-    case QFocusEvent::Tab: s = d->sections.front().section; break;
+    case QFocusEvent::Tab: s = d->sections.first().section; break;
     case QFocusEvent::Backtab: s = d->sections.at(d->sections.size() - 1).section; break;
     default: return;
     }
@@ -1297,11 +1290,11 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not
 
 QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
 {
-    if (index < separators.front().size()) {
+    if (index < separators.first().size()) {
         return (index == 0 ? FirstSection : NoSection);
-    } else if (format.size() - index < separators.back().size() + 1) {
-        if (separators.back().size() == 0)
-            return sections.back().section;
+    } else if (format.size() - index < separators.last().size() + 1) {
+        if (separators.last().size() == 0)
+            return sections.last().section;
         return (index == last.pos ? LastSection : NoSection);
     }
     for (int i=0; i<sections.size(); ++i) {
@@ -1323,10 +1316,10 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
 
 QDateTimeEditPrivate::Section QDateTimeEditPrivate::closestSection(int index, bool forward) const
 {
-    if (index < separators.front().size()) {
-        return forward ? sections.front().section : FirstSection;
-    } else if (last.pos - index < separators.back().size() + 1) {
-        return forward ? LastSection : sections.back().section;
+    if (index < separators.first().size()) {
+        return forward ? sections.first().section : FirstSection;
+    } else if (last.pos - index < separators.last().size() + 1) {
+        return forward ? LastSection : sections.last().section;
     }
     for (int i=0; i<sections.size(); ++i) {
 	int tmp = sections.at(i).pos;
@@ -1351,9 +1344,9 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::closestSection(int index, bo
 QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(Section current, bool forward) const
 {
     if (current == FirstSection) {
-        return (forward ? sections.front() : first);
+        return (forward ? sections.first() : first);
     } else if (current == LastSection) {
-        return (forward ? last : sections.back());
+        return (forward ? last : sections.last());
     }
     for (int i=0; i<sections.size(); ++i) {
 	if (sections.at(i).section == current) {
@@ -1626,6 +1619,7 @@ inline int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidat
 
 QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCoreVariant *val) const
 {
+    Q_ASSERT(input);
     SectionNode sn;
     int diff = input->size() - format.size();
     if (diff > 0) {
@@ -1674,10 +1668,10 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     }
 
     if (sn.pos + sectionLength(sn.section) < input->size()
-        && input->mid(sn.pos + sectionLength(sn.section)) != separators.back()) {
+        && input->mid(sn.pos + sectionLength(sn.section)) != separators.last()) {
 //         qDebug(".invalid because '%s' != '%s'",
 //                input->mid(sn.pos + sectionLength(sn.section)).latin1(),
-//                separators.back().latin1());
+//                separators.last().latin1());
         return QValidator::Invalid;
     }
 
