@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#79 $
+** $Id: //depot/qt/main/src/tools/qstring.h#80 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -253,6 +253,7 @@ public:
     QString( int size );			// allocate size incl. \0
     QString( const QString & );			// impl-shared copy
     QString( const QByteArray& );		// deep copy
+    QString( QChar* unicode, uint length );	// deep copy
     QString( const char *str );			// deep copy
     QString( const char *str, uint maxlen );	// deep copy, max length
     ~QString();
@@ -348,8 +349,15 @@ public:
     QString    &operator+=( char c );
 
     // Your compiler is smart enough to use the const one if it can.
-    const QChar& at( uint i ) const { return i<d->len ? unicode()[i] : QChar::null; }
-    QChar& at( uint i ); // detaches, enlarges
+    const QChar& at( uint i ) const
+	{ return i<d->len ? unicode()[i] : QChar::null; }
+    QChar& at( uint i )
+	{ // Optimized for easy-inlining by simple compilers.
+	    if (d->count!=1 || i>=d->len)
+		subat(i);
+	    d->dirtyascii=1;
+	    return d->unicode[i];
+	}
     const QChar& operator[]( int i ) const { return at((uint)i); }
     QChar& operator[]( int i ) { return at((uint)i); }
 
@@ -375,6 +383,7 @@ public:
 private:
     void deref();
     void real_detach();
+    void subat( uint );
 
     struct Data : public QShared {
 	Data() :

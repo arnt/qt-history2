@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#136 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#137 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -622,6 +622,18 @@ QString::QString( const QByteArray& ba )
     QChar *uc = asciiToUnicode(ba,l);
     d = new Data(uc,l,l);
 }
+
+/*!
+  Constructs a string that is a deep copy of the
+  first \a length QChar in the array \a unicode.
+*/
+
+QString::QString( QChar* unicode, uint length )
+{
+    d = new Data(unicode,length,length);
+    memcpy(d->unicode, unicode, length*sizeof(QChar));
+}
+
 
 /*!
   Constructs a string that is a deep copy of \e str,
@@ -1527,6 +1539,7 @@ QString &QString::remove( uint index, uint len )
     uint olen = length();
     if ( index + len >= olen ) {		// range problems
 	if ( index < olen ) {			// index ok
+	    real_detach();
 	    setLength(index);
 	}
     } else if ( len != 0 ) {
@@ -1933,6 +1946,7 @@ QString& QString::operator+=( const QString &str )
     uint len1 = length();
     uint len2 = str.length();
     if ( len2 ) {
+	real_detach();
 	setLength(len1+len2);
 	memcpy( d->unicode+len1, str.unicode(), sizeof(QChar)*len2 );
     }
@@ -1945,6 +1959,7 @@ QString& QString::operator+=( const QString &str )
 
 QString &QString::operator+=( QChar c )
 {
+    real_detach();
     setLength(length()+1);
     d->unicode[length()-1] = c;
     return *this;
@@ -1956,6 +1971,7 @@ QString &QString::operator+=( QChar c )
 
 QString &QString::operator+=( char c )
 {
+    real_detach();
     setLength(length()+1);
     d->unicode[length()-1] = c;
     return *this;
@@ -2018,12 +2034,17 @@ const char* QString::ascii() const
 */
 
 /*!
+  \fn QChar& QString::at( uint i )
   Returns a reference to the character at \a i, expanding
   the string with character-0 if necessary.  The resulting reference
   can then be assigned to, or otherwise used immediately, but
   becomes invalid once further modifications are made to the string.
 */
-QChar& QString::at( uint i )
+
+/*!
+  Only used for uncommon cases of at() above.
+*/
+void QString::subat( uint i )
 {
     real_detach();
 
@@ -2039,8 +2060,6 @@ QChar& QString::at( uint i )
 	    d->unicode[j]=0;
 	d->len = i+1;
     }
-
-    return d->unicode[i];
 }
 
 
@@ -2499,7 +2518,7 @@ Q1String::Q1String( const char *str, uint maxlen )
 
 bool Q1String::resize( uint len )
 {
-    // **SHOULD DETACH**
+    detach();
     if ( !QByteArray::resize(len) )
 	return FALSE;
     if ( len )
@@ -2538,7 +2557,7 @@ bool Q1String::resize( uint len )
 
 Q1String &Q1String::sprintf( const char *format, ... )
 {
-    // **SHOULD DETACH**
+    detach();
     va_list ap;
     va_start( ap, format );
     if ( size() < 256 )
@@ -2562,7 +2581,7 @@ Q1String &Q1String::sprintf( const char *format, ... )
 
 bool Q1String::fill( char c, int len )
 {
-    // **SHOULD DETACH**
+    detach();
     if ( len < 0 )
 	len = length();
     if ( !QByteArray::fill(c,len+1) )
@@ -3100,13 +3119,13 @@ Q1String &Q1String::insert( uint index, const char *s )
     uint olen = length();
     int nlen = olen + len;
     if ( index >= olen ) {			// insert after end of string
-	// **SHOULD DETACH**
+	detach();
 	if ( QByteArray::resize(nlen+index-olen+1) ) {
 	    memset( data()+olen, ' ', index-olen );
 	    memcpy( data()+index, s, len+1 );
 	}
     } else if ( QByteArray::resize(nlen+1) ) {	// normal insert
-	// **SHOULD DETACH**
+	detach();
 	memmove( data()+index+len, data()+index, olen-index+1 );
 	memcpy( data()+index, s, len );
     }
@@ -3166,11 +3185,11 @@ Q1String &Q1String::remove( uint index, uint len )
     uint olen = length();
     if ( index + len >= olen ) {		// range problems
 	if ( index < olen ) {			// index ok
-	    // **SHOULD DETACH**
+	    detach();
 	    resize( index+1 );
 	}
     } else if ( len != 0 ) {
-	// **SHOULD DETACH**
+	detach();
 	memmove( data()+index, data()+index+len, olen-index-len+1 );
 	QByteArray::resize(olen-len+1);
     }
@@ -3312,7 +3331,7 @@ ushort Q1String::toUShort( bool *ok ) const
     ulong v = toULong( ok );
     if ( ok && *ok && (v > 65535) )
 	*ok = FALSE;
-    return (QChar)v;
+    return (ushort)v;
 }
 
 
@@ -3374,13 +3393,13 @@ float Q1String::toFloat( bool *ok ) const
 
 
 /*!
-  Makes a deep copy of \e str without dereferencing the current
-  string, i.e. all strings that share data are modified.
+  Makes a deep copy of \e str.
   Returns a reference to the string.
 */
 
 Q1String &Q1String::setStr( const char *str )
 {
+    detach();
     if ( str )					// valid string
 	store( str, strlen(str)+1 );
     else					// empty
@@ -3391,13 +3410,11 @@ Q1String &Q1String::setStr( const char *str )
 /*!
   Sets the string to the printed value of \e n and returns a
   reference to the string.
-
-  \bug setNum(-2147483648) does not work on 32-bit systems.
 */
 
 Q1String &Q1String::setNum( long n )
 {
-    // **SHOULD DETACH**
+    detach();
     char buf[20];
     register char *p = &buf[19];
     bool neg;
@@ -3425,7 +3442,7 @@ Q1String &Q1String::setNum( long n )
 
 Q1String &Q1String::setNum( ulong n )
 {
-    // **SHOULD DETACH**
+    detach();
     char buf[20];
     register char *p = &buf[19];
     *p = '\0';
@@ -3517,7 +3534,7 @@ Q1String &Q1String::setNum( double n, char f, int prec )
 
 bool Q1String::setExpand( uint index, char c )
 {
-    // **SHOULD DETACH**
+    detach();
     uint oldlen = length();
     if ( index >= oldlen ) {
 	if ( !QByteArray::resize( index+2 ) )	// no memory
@@ -3556,7 +3573,7 @@ Q1String& Q1String::operator+=( const char *str )
 {
     if ( !str )
 	return *this;				// nothing to append
-    // **SHOULD DETACH**
+    detach();
     uint len1 = length();
     uint len2 = strlen(str);
     if ( !QByteArray::resize( len1 + len2 + 1 ) )
@@ -3571,7 +3588,7 @@ Q1String& Q1String::operator+=( const char *str )
 
 Q1String &Q1String::operator+=( char c )
 {
-    // **SHOULD DETACH**
+    detach();
     uint len = length();
     if ( !QByteArray::resize( len + 2 ) )
 	return *this;				// no memory
@@ -3604,7 +3621,7 @@ QDataStream &operator<<( QDataStream &s, const Q1String &str )
 
 QDataStream &operator>>( QDataStream &s, Q1String &str )
 {
-    // **SHOULD DETACH** (str)
+    str.detach();
     Q_UINT32 len;
     s >> len;					// read size of string
     if ( len == 0 || s.eof() ) {		// end of file reached
