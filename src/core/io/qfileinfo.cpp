@@ -457,7 +457,7 @@ QFileInfo::canonicalFilePath() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileEngine->fileName(QFileEngine::CanonicalName);
+    return d->getFileName(QFileEngine::CanonicalName);
 }
 
 
@@ -474,7 +474,7 @@ QFileInfo::absolutePath() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileEngine->fileName(QFileEngine::AbsolutePathName);
+    return d->getFileName(QFileEngine::AbsolutePathName);
 }
 
 /*!
@@ -494,7 +494,7 @@ QFileInfo::canonicalPath() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileEngine->fileName(QFileEngine::CanonicalPathName);
+    return d->getFileName(QFileEngine::CanonicalPathName);
 }
 
 
@@ -509,7 +509,7 @@ QFileInfo::path() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileEngine->fileName(QFileEngine::PathName);
+    return d->getFileName(QFileEngine::PathName);
 }
 
 /*!
@@ -551,7 +551,7 @@ QFileInfo::makeAbsolute()
 {
     if(!d->data->fileEngine || !d->data->fileEngine->isRelativePath())
         return false;
-    QString absFileName = d->data->fileEngine->fileName(QFileEngine::AbsoluteName);
+    QString absFileName = d->getFileName(QFileEngine::AbsoluteName);
     d->detach();
     d->data->fileName = absFileName;
     d->data->fileEngine->setFileName(absFileName);
