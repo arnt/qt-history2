@@ -1,0 +1,171 @@
+\chapter Qt Assistant and the Qt Reference Documentation
+
+\section1 Introduction
+
+This document introduces \QA, a tool for presenting on-line
+documentation. It also introduces the Qt Reference Documentation which
+is accessible using \QA, or with a web browser. The document is
+divided into the following sections:
+
+\list
+\i Introduction to the Qt Reference Documentation
+\i The 1 Minute Guide to using Qt Assistant
+\i Qt Assistant in More Detail
+\endlist
+
+\section1 Introduction to the Qt Reference Documentation
+
+The documentation for the Qt library is written in-line in the \File
+.cpp files by the developers themselves. The documentation team revise
+the documentation to ensure that it is accurate and usable, and to
+provide quality control. The documentation team also writes the
+larger texts, such as the class descriptions that introduce a class
+along with the concepts the class uses as well as introducing the
+functions and properties that the class provides. 
+
+The documentation focuses on the API rather than the internals, since
+we make great efforts to keep our API consistent and compatible with
+each new version, but may change the internals considerably to improve
+performance and enhance functionality.
+
+The Qt Reference Documentation consists of almost 1,500 HTML pages
+(over 2,500 US letter-sized pages). The overwhelming majority of pages
+document Qt classes. Since developers differ in the way they
+think and work we provide a variety of approaches to navigating the
+documentation set: 
+
+\list
+
+\i The \link classes.html All Classes\endlink page lists every class
+in Qt's public API, and consists of several hundred classes.
+
+\i The \link mainclasses.html Main Classes\endlink page lists the
+classes you're most likely to use most often, and provides a much
+shorter and more managable list than the All Classes list.
+
+\i The \link groups.html Grouped Classes\endlink page presents a list
+of groups, each of which leads to a list of related classes, for
+example, the \link advanced.html Advanced Widgets\endlink list.
+
+\i The \link hierarchy.html Inheritance Hierarchy\endlink page
+presents a list of classes in terms of the hierarchy of Qt classes.
+
+\i The \link functions.html All Functions\endlink page lists all the
+functions provided by Qt classes, each one with links to the class(es)
+in which it appears.
+
+\endlist
+
+No matter where you find yourself in the Qt documentation, you will
+find extensive cross-referencing. Even snippets of example code
+contain clickable links, so that for example, if you come across a
+class declaration in a code example, the class name will be a
+clickable link to the class's documentation.
+
+In addition to the class documentation some of Qt's modules have
+extensive descriptions, and there are several overview documents which
+describe various aspects of the Qt library; all these are linked from
+the reference documentation home page. There are also numerous example
+programs in $QTDIR/examples.
+
+\section1 The 1 Minute Guide to using Qt Assistant
+
+Under Windows \QA is available as a menu option on the Qt menu. On
+Unix run \c{$QTDIR/bin/assistant} from an xterm.
+
+When you start up \QA you will be presented with a standard
+main-window style application, with a menu bar and toolbar. Below
+these, on the left hand side is a navigation window called the \e
+Sidebar, and on the right, taking up most of the space, is the
+documentation window. By default the Qt Reference Documentation's home
+page is shown in the documentation window.
+
+\QA works in a similar way to a web browser. If you click underlined
+text (which signifies a cross-reference) the documentation window will
+present the relevant page. You can bookmark pages of particular
+interest and you can click the \Toolbutton Previous and \Toolbutton
+Next toolbar buttons to navigate within the pages you've visited. 
+
+Although can used \QA just like a web browser to navigate through the
+Qt documentation set, \QA offers a powerful means of navigation that
+web browsers don't provide. \QA uses an intelligent algorithm to index
+all the pages in the documentation sets that it presents so that you
+can search for particular words and phrases.
+
+To perform a search, click the \Toolbutton Index tab on the Sidebar
+(or click \Key Ctrl+I). In the 'Look For' line edit enter a word, e.g.
+'homedirpath'. As you type words are found and highlighted in a list
+beneath the line edit. If the highlighted text matches what you're
+looking for, double click it, (or press \Key Enter) and the
+documentation window will display the relevant page. You rarely have
+to type in the whole word before \QA finds a match.
+
+For some words there may be more than one possible page that is
+relevant. For example, enter 'setenabled' in the 'Look For' line edit.
+As you type words are found and highlighted in the list beneath the
+line edit, as before. Once the highlighted text matches what you're
+looking for, double click it, (or press \Key Enter). In the case of
+setEnabled, it is a function name which occurs in several classes, so
+a dialog pops up listing the possible choices. Click the choice you're
+interested in (or move to it using the \Key Up and \Key Down arrow
+keys and press \Key Enter). The relevant page will display in the
+documentation window. 
+
+\section1 Qt Assistant in More Detail
+
+\section2 The Sidebar
+
+The sidebar provides three ways of navigating documentation:
+\list 1
+\i The \Toolbutton Contents tab presents a tree view of the
+documentation sets that are available. If you click an item its
+documentation will appear in the documentation window. If you double
+click an item or click a '+' sign to the left of an item, the item's
+sub-items will appear. Click a sub-item to make its page appear in the
+documentation window. Click a '-' sign to the left of an item to hide
+its sub-items.
+\i The \Toolbutton Index tab is used to look up key words or phrases.
+See \l{The 1 Minute Guide to using Qt Assistant} for how to use this
+tab.
+\i The \Toolbutton Bookmarks tab lists any bookmarks you've made.
+Double click a bookmark to make its page appear in the documentation
+window. The \Toolbutton Bookmarks tab has a \Button{New Bookmark}
+button a and \Button{Delete Bookmark} button at the bottom. Click
+\Button{New Bookmark} to bookmark the page that is showing in the
+documentation window. Click a bookmark in the list, then click 
+\Button{Delete Bookmark} to delete the highlighted bookmark.
+\endlist
+
+If you want the documentation window to use as much space as possible,
+you can easily hide and show the Sidebar. If the Sidebar is showing,
+press \Key Ctrl+T, \Key Ctrl+I or \Key Ctrl+B to hide it. If the
+Sidebar is hidden, press \Key Ctrl+T to show it on the Contents tab,
+or press \Key Ctrl+I to show it on the Index tab (with the focus in
+the 'Look For' line edit box), or press \Key Ctrl+B to show it on the
+Bookmarks tab.
+
+The Sidebar is a dock window, so you can drag it to the top, left,
+right or bottom of \QA's window, or you can drag it outside \QA to
+float it.
+
+\section2 The Toolbar
+
+The toolbar provides fast access to the most common actions.
+\list
+\i \Toolbutton Previous takes you to the previous page. The menu
+option is \Menu Go|Previous and the keyboard shortcut is \Key{Alt+Left
+Arrow}.
+\i \Toolbutton Next takes you to the next page. The menu
+option is \Menu Go|Next and the keyboard shortcut is \Key{Alt+Right
+Arrow}.
+\i \Toolbutton Home takes you to the home page (normally the home page
+of the Qt Reference Documentation). The menu
+option is \Menu Go|Home and the keyboard shortcut is \Key{Ctrl+Home}.
+\i \Toolbutton Copy copies any selected text to the clipboard. The menu
+option is \Menu Edit|Copy and the keyboard shortcut is \Key{Ctrl+C}.
+\i \Toolbutton{Find in Text} invokes the \Dialog{Find Text} dialog. The menu
+option is \Menu XXX and the keyboard shortcut is \Key{XXX}.
+
+\endlist
+
+

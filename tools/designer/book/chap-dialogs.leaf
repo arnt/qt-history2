@@ -734,7 +734,7 @@ Keyboard users press the \Key Tab key to move the focus
     \index Tab Order
 When you click the \Toolbutton {Tab Order} toolbar button a
     number in a blue circle will appear next to every widget that can
-    accept keyboard focus. The numbers represent the each widget's tab
+    accept keyboard focus. The numbers represent each widget's tab
     order, starting from 1. You change the tab order by clicking the
     widgets in the order you want to be the new tab order. If you make
     a mistake and need to start again, double click the widget you
