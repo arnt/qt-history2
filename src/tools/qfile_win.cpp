@@ -35,7 +35,7 @@
 
 extern const char* qt_fileerr_read;
 
-QCString qt_win95Name(const QString s)
+QByteArray qt_win95Name(const QString s)
 {
     if ( s[0] == '/' && s[1] == '/' ) {
 	// Win95 cannot handle slash-slash needs slosh-slosh.
@@ -45,7 +45,7 @@ QCString qt_win95Name(const QString s)
 	int n = ss.find('/');
 	if ( n >= 0 )
 	    ss[n] = '\\';
-	return ss.local8Bit();
+	return ss.toLocal8Bit();
     } else if ( s.length() > 3 && s[2] == '/' && s[3] == '/' ) {
 	QString ss(s);
 	ss[2] = '\\';
@@ -53,9 +53,9 @@ QCString qt_win95Name(const QString s)
 	int n = ss.find('/');
 	if ( n >= 0 )
 	    ss[n] = '\\';
-	return ss.local8Bit();
+	return ss.toLocal8Bit();
     } else {
-	return s.local8Bit();
+	return s.toLocal8Bit();
     }
 }
 
@@ -175,7 +175,7 @@ bool QFile::open( int m )
 	    ok = FALSE;
 	}
     } else {					// buffered file I/O
-	QCString perm;
+	QByteArray perm;
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?

@@ -194,7 +194,7 @@ void QFileInfo::makeAbs( QString &s )
     }
 }
 
-extern QCString qt_win95Name(const QString s);
+extern QByteArray qt_win95Name(const QString s);
 
 bool QFileInfo::isFile() const
 {
@@ -273,7 +273,7 @@ QString QFileInfo::readLink() const
 		    hres = psl->Resolve(0, SLR_ANY_MATCH);
 
 		    if (SUCCEEDED(hres)) {
-			QCString lfn = fn.local8Bit();
+			QByteArray lfn = fn.toLocal8Bit();
 			memcpy( szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char) );
 			hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
 			fileLinked = QString::fromLocal8Bit(szGotPath);
@@ -311,7 +311,7 @@ QString QFileInfo::owner() const
 		TCHAR *domain = new TCHAR[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = qt_winQString(owner);
+		    name = QString::fromUcs2(owner);
 		}
 		LocalFree( pSD );
 		delete [] owner;
@@ -348,7 +348,7 @@ QString QFileInfo::group() const
 		TCHAR *domain = new TCHAR[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = qt_winQString(group);
+		    name = QString::fromUcs2(group);
 		}
 		LocalFree( pSD );
 		delete [] group;

@@ -14,7 +14,7 @@
 class QCharRef;
 class QRegExp;
 
-class QString
+class Q_EXPORT QString
 {
 public:
     QString();
@@ -333,7 +333,8 @@ private:
 	enum { Latin1, Ascii, Local8Bit, Utf8 };
     };
     QString(Data *dd) : d(dd) {}
-    static Data shared_null, shared_empty;
+    static Data shared_null;
+    static Data shared_empty;
     Data *d;
     static int grow(int);
     static void free(Data *);
@@ -427,7 +428,7 @@ inline QString QString::section(const char *in_sep, int start, int end, int flag
 #endif
 
 
-class QCharRef {
+class Q_EXPORT QCharRef {
     QString &s;
     int i;
     inline QCharRef(QString &str, int idx)
@@ -565,7 +566,7 @@ Q_EXPORT QDataStream &operator<<( QDataStream &, const QString & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
 #endif
 
-class QConstString : public QString
+class Q_EXPORT QConstString : public QString
 {
 public:
     QConstString(const QChar *unicode, int length);

@@ -698,7 +698,7 @@ QDateTime QSettingsPrivate::modificationTime()
 
 bool qt_verify_key( const QString &key )
 {
-    if ( key.isEmpty() || key[0] != '/' || key.contains( QRegExp("[=\\r\\n]" ) ) )
+    if ( key.isEmpty() || key[0] != '/' || (bool)key.contains( QRegExp("[=\\r\\n]" ) ) )
 	return FALSE;
     return TRUE;
 }

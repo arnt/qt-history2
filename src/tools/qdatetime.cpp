@@ -154,7 +154,7 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
     if ( dd && !dd->isValid() )
 	return QString::null;
 
-    bool ap = ( f.contains( "AP" ) || f.contains( "ap" ) );
+    bool ap = ( f.contains( "AP", QString::CaseInsensitive ) );
 
     QString buf;
     QString frm;

@@ -6,7 +6,7 @@
 #endif // QT_H
 
 class QBitRef;
-class QBitArray
+class Q_EXPORT QBitArray
 {
     friend QDataStream &operator<<( QDataStream &, const QBitArray & );
     friend QDataStream &operator>>( QDataStream &, QBitArray & );
@@ -77,7 +77,7 @@ inline bool QBitArray::toggleBit(int i)
 inline const bool QBitArray::operator[](int i) const { return testBit(i); }
 inline const bool QBitArray::at(int i) const { return testBit(i); }
 
-class QBitRef
+class Q_EXPORT QBitRef
 {
 private:
     QBitArray& a;

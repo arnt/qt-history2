@@ -22,6 +22,10 @@
 #include <stdarg.h>
 #include <new>
 
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#endif
+
 #ifndef LLONG_MAX
 #define LLONG_MAX Q_INT64_C(9223372036854775807)
 #endif
@@ -3052,8 +3056,8 @@ int QString::localeAwareCompare( const QString& s ) const
 	const TCHAR* s2 = (TCHAR*)s.ucs2();
 	res = CompareStringW( LOCALE_USER_DEFAULT, 0, s1, length(), s2, s.length() );
     } , {
-	QCString s1 = local8Bit();
-	QCString s2 = s.local8Bit();
+	QByteArray s1 = toLocal8Bit();
+	QByteArray s2 = s.toLocal8Bit();
 	res = CompareStringA( LOCALE_USER_DEFAULT, 0, s1.data(), s1.length(), s2.data(), s2.length() );
     } );
 

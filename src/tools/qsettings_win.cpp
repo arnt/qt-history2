@@ -368,15 +368,13 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 	return QByteArray();
     }
 
-    uchar* data = new uchar[ size ];
+    QByteArray result(size, '\0');
     QT_WA( {
-	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), NULL, NULL, data, &size );
+	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), NULL, NULL, (uchar *)result.detach(), &size );
     } , {
-	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, data, &size );
+	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, (uchar *)result.detach(), &size );
     } );
 
-    QByteArray result;
-    result.setRawData( (const char*)data, size );
     RegCloseKey( handle );
 
     if ( ok )
@@ -416,12 +414,9 @@ double QSettingsPrivate::sysReadDoubleEntry( const QString &key, double def, boo
 	*ok = FALSE;
     bool temp;
     QByteArray array = sysd->readKey( key, &temp );
-    if ( !temp ) {
-	char *data = array.data();
-	array.resetRawData( data, array.size() );
-	delete[] data;
+    if ( !temp )
 	return def;
-    }
+
     if ( array.size() != sizeof(double) )
 	return def;
 
@@ -433,9 +428,6 @@ double QSettingsPrivate::sysReadDoubleEntry( const QString &key, double def, boo
     for ( int i = 0; i < sizeof(double); ++i )
 	data[i] = array[ i ];
 
-    char *adata = array.data();
-    array.resetRawData( adata, array.size() );
-    delete[] adata;
     return res;
 }
 
@@ -447,13 +439,8 @@ int QSettingsPrivate::sysReadNumEntry(const QString &key, int def, bool *ok ) co
 	*ok = FALSE;
     bool temp;
     QByteArray array = sysd->readKey( key, &temp );
-    if ( !temp ) {
-	char *data = array.data();
-	array.resetRawData( data, array.size() );
-	delete[] data;
-
+    if ( !temp )
 	return def;
-    }
 
     if ( array.size() != sizeof(int) )
 	return def;
@@ -466,9 +453,6 @@ int QSettingsPrivate::sysReadNumEntry(const QString &key, int def, bool *ok ) co
     for ( int i = 0; i < sizeof(int); ++i )
 	data[i] = array[ i ];
 
-    char *adata = array.data();
-    array.resetRawData( adata, array.size() );
-    delete[] adata;
     return res;
 }
 
@@ -479,12 +463,8 @@ QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, b
 
     bool temp;
     QByteArray array = sysd->readKey( key, &temp );
-    if ( !temp ) {
-	char *data = array.data();
-	array.resetRawData( data, array.size() );
-	delete[] data;
+    if ( !temp )
 	return def;
-    }
 
     if ( ok )
 	*ok = TRUE;
@@ -503,10 +483,6 @@ QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, b
     
     if ( array.size() == 2 && result.isNull() )
 	result = "";
-
-    char *data = array.data();
-    array.resetRawData( data, array.size() );
-    delete[] data;
 
     return result;
 }

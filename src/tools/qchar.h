@@ -13,7 +13,7 @@
 
 class QString;
 
-class QChar {
+class Q_EXPORT QChar {
 public:
     QChar();
 #ifndef QT_NO_CAST_FROM_ASCII

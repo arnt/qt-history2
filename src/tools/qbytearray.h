@@ -52,7 +52,7 @@ Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
 
 Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
 
-inline int qstrcmp(const char *str1, const char *str2)
+Q_EXPORT inline int qstrcmp(const char *str1, const char *str2)
 {
     return (str1 && str2) ? strcmp(str1, str2)
 	: (str1 ? 1 : (str2 ? -1 : 0));
@@ -61,7 +61,7 @@ inline int qstrcmp(const char *str1, const char *str2)
 class QByteRef;
 class QString;
 
-class QByteArray
+class Q_EXPORT QByteArray
 {
 public:
     QByteArray();
@@ -182,7 +182,8 @@ private:
 	char *data;
 	char array[1];
     };
-    static Data shared_null, shared_empty;
+    static Data shared_null;
+    static Data shared_empty;
     Data *d;
     QByteArray(Data *dd) : d(dd) {}
     void realloc(int alloc);
@@ -192,7 +193,7 @@ private:
     friend class QConstByteArray;
 };
 
-class QConstByteArray : public QByteArray
+class Q_EXPORT QConstByteArray : public QByteArray
 {
 public:
     inline QConstByteArray(const char *chars, int length) : QByteArray(new QByteArray::Data) {
@@ -229,7 +230,7 @@ inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
 inline int QByteArray::capacity() const
 { return d->alloc; }
 
-class QByteRef {
+class Q_EXPORT QByteRef {
     QByteArray &a;
     int i;
     inline QByteRef(QByteArray &array, int idx)

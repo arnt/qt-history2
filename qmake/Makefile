@@ -41,7 +41,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
  	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj
 
 #qt code
-QTOBJS=qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj \
+QTOBJS=qchar.obj qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qbytearray.obj qcstring.obj qdatastream.obj \
  	qgarray.obj qbuffer.obj qglist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj \
  	qgcache.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj \
  	qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj qconfig.obj qsettings.obj qsettings_win.obj qunicodetables.obj
@@ -86,8 +86,14 @@ qglobal.obj: ..\src\tools\qglobal.cpp
 qgdict.obj: ..\src\tools\qgdict.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qgdict.cpp
 
+qbytearray.obj: ..\src\tools\qbytearray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qbytearray.cpp
+
 qcstring.obj: ..\src\tools\qcstring.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qcstring.cpp
+
+qchar.obj: ..\src\tools\qchar.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qchar.cpp
 
 qstring.obj: ..\src\tools\qstring.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qstring.cpp

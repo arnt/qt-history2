@@ -61,7 +61,7 @@ void QDir::slashify( QString& n )
     }
 }
 
-extern QCString qt_win95Name(const QString s);
+extern QByteArray qt_win95Name(const QString s);
 
 #else
 
@@ -428,7 +428,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	}
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
-		  dPath.utf8().data() );
+		  dPath.utf8() );
 #endif
 	return FALSE;
     }
