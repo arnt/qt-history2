@@ -925,6 +925,17 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
     return r;
 }
 
+QString QSqlDriver::escapeIdentifier(const QString &identifier) const
+{
+    QString res = identifier;
+    res.replace(QLatin1Char('"'), QLatin1String("\"\""));
+    res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
+    int idx = identifier.indexOf(QLatin1Char('.'));
+    if (idx != -1)
+        res.replace(QLatin1Char('.'), QLatin1String("\".\""));
+    return res;
+}
+
 bool QPSQLDriver::isOpen() const
 {
     return PQstatus(d->connection) == CONNECTION_OK;
