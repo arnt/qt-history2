@@ -42,7 +42,7 @@
 #ifndef QT_NO_SOUND
 
 #include "qptrdict.h"
-#include "qsocknot.h"
+#include "qsocketnotifier.h"
 #include "qapplication.h"
 
 
