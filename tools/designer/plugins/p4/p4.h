@@ -33,6 +33,8 @@ struct P4Info
     bool controlled : 1;
     bool uptodate : 1;
 
+    static QString userName;
+    static QString clientName;
     static QDict<P4Info> files;
 };
 
@@ -44,7 +46,6 @@ public:
     P4Action( const QString& filename );
     ~P4Action();
 
-    bool run( const QString& command );
     virtual bool execute() = 0;
 
 protected slots:
@@ -55,6 +56,8 @@ protected:
     QString fileName() { return file; }
     bool success();
 
+    bool run( const QString& command );
+    bool run( const QString& command, const QString& in );
     void updateStats();
 
 signals:
@@ -64,6 +67,7 @@ signals:
 private slots:
     void newData( const QString& );
     void newStats( const QString&, P4Info* );
+    void cmdProcessed();
 
 private:
     QString p4Data;
@@ -71,6 +75,16 @@ private:
     QProcess* process;
 };
 
+class P4Init : public P4Action
+{
+public:
+    P4Init();
+
+    bool execute();
+
+protected:
+    void processExited();
+};
 
 class P4FStat : public P4Action
 {

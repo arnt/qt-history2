@@ -342,8 +342,8 @@ bool P4Interface::connectNotify( QApplication* theApp )
 				 this, SLOT( p4MightEdit( bool, const QString & ) ) );
 	flIface->requestConnect( SIGNAL( selectionChanged() ), this, SLOT(formChanged() ) );
     }
-
-    return TRUE;
+    P4Init* init = new P4Init;
+    return init->execute();
 }
 
 QStringList P4Interface::featureList()
@@ -619,7 +619,7 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	QPixmap pix = fwIface->requestProperty( "icon" ).toPixmap();
 	QPainter paint( &pix );
 	paint.setRasterOp( AndROP );
-	paint.fillRect( 0, 0, pix.width() - 1 , pix.height() - 1, gray );
+	paint.fillRect( 0, 0, pix.width() - 1 , pix.height() - 1, p4i->uptodate ? gray : red );
 	paint.setRasterOp( CopyROP );
 	actionAdd->setEnabled( FALSE );
 	actionDelete->setEnabled( TRUE );

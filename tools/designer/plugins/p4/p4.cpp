@@ -9,6 +9,8 @@
 #include "submitdialog.h"
 
 QDict<P4Info> P4Info::files = QDict<P4Info>(53);
+QString P4Info::userName = QString();
+QString P4Info::clientName = QString();
 
 P4Action::P4Action( const QString &filename )
     : QObject(), file( filename ), process( 0 )
@@ -31,6 +33,21 @@ bool P4Action::run( const QString &command )
     }
     process->setArguments( QStringList::split( ' ', command ) );
     return process->start();
+}
+
+bool P4Action::run( const QString &command, const QString &in )
+{
+    if ( run( command ) ) {
+	connect( process, SIGNAL(wroteStdin()), this, SLOT(cmdProcessed()) );
+	process->dataStdin( in );
+	return TRUE;
+    }
+    return FALSE;
+}
+
+void P4Action::cmdProcessed()
+{
+    process->closeStdin();
 }
 
 void P4Action::updateStats()
@@ -56,6 +73,25 @@ bool P4Action::success()
     return process && process->exitStatus() == 0;
 }
 
+P4Init::P4Init()
+: P4Action( QString::null )
+{
+}
+
+bool P4Init::execute()
+{
+    return run( "p4 info" );
+}
+
+void P4Init::processExited()
+{
+    QStringList entries = QStringList::split( '\n', data() );
+    QStringList userEntry = entries.grep( "user name:", FALSE );
+    P4Info::userName = QStringList::split( ' ', userEntry[0] )[2];
+    QStringList clientEntry = entries.grep( "client name:", FALSE );
+    P4Info::clientName = QStringList::split( ' ', clientEntry[0] )[2];
+}
+
 P4FStat::P4FStat( const QString& filename )
 : P4Action( filename )
 {
@@ -77,25 +113,46 @@ void P4FStat::processExited()
     P4Info* p4i = new P4Info;
     QStringList entries = QStringList::split( '\n', data() );
 
-    if ( data().find( "clientFile" ) == -1 ) {
-	p4i->controlled = FALSE;
-	p4i->action = P4Info::None;
-    } else {
+    p4i->controlled = FALSE;
+    p4i->action = P4Info::None;
+
+    if ( data().find( "clientFile" ) != -1 ) {						    // The file is somehow known
 	QStringList dfEntry = entries.grep( "depotFile" );
 	if ( dfEntry.count() ) {
-	    p4i->controlled = TRUE;
-	    p4i->action = P4Info::None;
-	    p4i->depotFile = QStringList::split( ' ', dfEntry[0] )[2];
-	    QStringList actionEntry = entries.grep( "... action" );
-	    if ( actionEntry.count() ) {
-		QString act = QStringList::split( ' ', actionEntry[0] )[2];
-		act.contains( "edit", FALSE );
-		if ( act.contains( "edit", FALSE ) )
-		    p4i->action = P4Info::Edit;
-		else if ( act.contains( "add", FALSE ) )
-		    p4i->action = P4Info::Add;
-		else if ( act.contains( "delete", FALSE ) )
-		    p4i->action = P4Info::Delete;
+	    QStringList headActionEntry = entries.grep( "... headAction" );
+	    if ( headActionEntry.count() ) {
+		QString headAction = QStringList::split( ' ', headActionEntry[0] )[2];
+		if ( headAction.stripWhiteSpace() != "delete" ) {			    // Maybe it's already deleted
+		    p4i->controlled = TRUE;
+		    p4i->action = P4Info::None;
+		    p4i->depotFile = QStringList::split( ' ', dfEntry[0] )[2];
+		    QStringList actionEntry = entries.grep( "... action" );
+		    if ( actionEntry.count() ) {
+			QString act = QStringList::split( ' ', actionEntry[0] )[2];	    // Get current action
+			act.contains( "edit", FALSE );
+			if ( act.stripWhiteSpace() == "edit" )
+			    p4i->action = P4Info::Edit;
+			else if ( act.stripWhiteSpace() == "add" )
+			    p4i->action = P4Info::Add;
+			else if ( act.stripWhiteSpace() == "delete" )
+			    p4i->action = P4Info::Delete;
+		    }
+		    QStringList headRevEntry = entries.grep( "... headRev" );		    // Compare revisions
+		    if ( headRevEntry.count() ) {
+			int headrev = 0;
+			int haverev = 0;
+
+			QString head = QStringList::split( ' ', headRevEntry[0] )[2];
+			headrev = head.toInt();
+			QStringList haveRevEntry = entries.grep( "... haveRev" );
+			if ( haveRevEntry.count() ) {
+			    QString have = QStringList::split( ' ', headRevEntry[0] )[2];
+			    haverev = have.toInt();
+			}
+
+			p4i->uptodate = !(haverev < headrev);
+		    }
+		}
 	    }
 	}
     }
@@ -178,39 +235,60 @@ P4Submit::P4Submit( const QString &filename )
 bool P4Submit::execute()
 {
     SubmitDialog *dialog = new SubmitDialog( 0, 0, TRUE );
-    dialog->fileList->header()->hide();
 
     QDictIterator<P4Info> it( P4Info::files );
     while ( it.current() ) {
-	if ( it.current()->controlled && it.current()->action != P4Info::None )
-	    (void)new QCheckListItem( dialog->fileList, it.currentKey(), QCheckListItem::CheckBox );
+	if ( it.current()->controlled && it.current()->action != P4Info::None ) {
+	    QCheckListItem* item = new QCheckListItem( dialog->fileList, it.currentKey(), QCheckListItem::CheckBox );
+	    item->setText( 1, it.current()->depotFile );
+	    switch ( it.current()->action ) {
+	    case P4Info::Edit:
+		item->setText( 2, "Edit" );
+		break;
+	    case P4Info::Add:
+		item->setText( 2, "Add" );
+		break;
+	    case P4Info::Delete:
+		item->setText( 2, "Delete" );
+		break;
+	    default:
+		break;
+	    }
+	}	
 	++it;
     }
+    dialog->description->setText( "<enter description here>" );
 
     if ( dialog->exec() != QDialog::Accepted )
 	return FALSE;
 
     QString description = dialog->description->text().replace( QRegExp("\\n"), "\n\t" );
-    QString buffer = "Description:\n\t";
-    buffer += description + "\n";
+
+    QString buffer = "Change:\tnew\n\n";
+    buffer += "Client:\t" + P4Info::clientName + "\n\n";
+    buffer += "User:\t" + P4Info::userName + "\n\n";
+    buffer += "Status:\tnew\n\n";
+    buffer += "Description:\n\t";
+    buffer += description + "\n\n";
     buffer += "Files:\n";
 
+    bool haveFile = FALSE;
     QListViewItemIterator lvit( dialog->fileList );
     while ( lvit.current() ) {
 	QCheckListItem* item = (QCheckListItem*)lvit.current();
+	++lvit;
 	if ( !item->isOn() )
 	    continue;
 	P4Info* p4i = P4Info::files[ item->text( 0 ) ];
 	if ( !p4i )
 	    continue;
 	buffer += "\t" + p4i->depotFile + "\n";
-	++lvit;
+	haveFile = TRUE;
     }
 
-    qDebug( buffer );
-
-    return TRUE;
-//    run( QString("p4 submit -i %1 < %2").arg( fileName() ).arg( buffer ) );
+    if ( !haveFile )
+	return FALSE;
+    return run( QString("p4 submit -i"), buffer );
 }
 
 void P4Submit::processExited()
