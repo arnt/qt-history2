@@ -2999,6 +2999,8 @@ bool MainWindow::unregisterClient( FormWindow *w )
 {
     propertyEditor->closed( w );
     objectHierarchy()->closed( w );
+    if ( w->fileName().isEmpty() )
+	formList->removeForm( w );
     formList->closed( w );
     if ( w == lastActiveFormWindow )
 	lastActiveFormWindow = 0;

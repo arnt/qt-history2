@@ -171,6 +171,8 @@ public:
     QList<SourceFile> sourceFiles() const { return sources; }
     void addSourceFile( SourceFile *sf );
 
+    QList<FormWindow> unnamedForms() const;
+
 private:
     void parse();
     void clear();

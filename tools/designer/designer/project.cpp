@@ -973,3 +973,13 @@ void Project::addSourceFile( SourceFile *sf )
     sources.append( sf );
     save();
 }
+
+QList<FormWindow> Project::unnamedForms() const
+{
+    QList<FormWindow> fws;
+    for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it ) {
+	if ( (*it).isEmpty() )
+	    fws.append( it.key() );
+    }
+    return fws;
+}

@@ -86,6 +86,8 @@ public:
 	QListView::drawContentsOffset( p, ox, oy, cx, cy, cw, ch );
     }
 
+    void removeForm( FormWindow *fw );
+
 public slots:
     void modificationChanged( bool m, FormWindow *fw );
     void fileNameChanged( const QString &s, FormWindow *fw );
