@@ -25,7 +25,6 @@ SOURCES		= finddialog.cpp \
 		  ../shared/metatranslator.cpp
 FORMS		= about.ui
 
-win32:RC_FILE	= linguist.rc
 TRANSLATIONS	= linguist_de.ts \
 		  linguist_fr.ts
 
@@ -37,10 +36,12 @@ TARGET		= linguist
 INCLUDEPATH	+= ../pics \
 		  ../shared
 
-win32:LIBS	+= $$QT_BUILD_TREE/lib/qassistantclient.lib
-unix {
-	LIBS	+= -L$$QT_BUILD_TREE/lib -lqassistantclient
+unix:LIBS	+= -L$$QT_BUILD_TREE/lib -lqassistantclient
+win32 {
+    LIBS	+= $$QT_BUILD_TREE/lib/qassistantclient.lib
+    RC_FILE	= linguist.rc
 }
+mac:staticlib:CONFIG -= global_init_link_order #yuck
 
 PROJECTNAME	= Qt Linguist
 
