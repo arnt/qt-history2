@@ -218,7 +218,7 @@ For example, when building the MySQL plugin on unix:
 
 \code
 cd $QTDIR/src/sql/src/mysql
-qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/libs -lmysql" mysql.pro 
+qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/libs -lmysqlclient" mysql.pro 
 make
 \endcode
 
