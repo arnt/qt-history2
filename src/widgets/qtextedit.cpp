@@ -294,6 +294,12 @@
   position.
 */
 
+/*! \fn void QTextEdit::clear()
+
+  Removes all text. 
+
+*/
+
 /*! \fn void QTextEdit::indent()
 
   Re-indents the current paragraph.
