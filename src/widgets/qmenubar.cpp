@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#45 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#45 $")
 
 
 /*----------------------------------------------------------------------------
@@ -596,7 +596,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
     if ( actItem < 0 || mouseBtDn )		// cannot handle key event
 	return;
 
-    QMenuItem  *mi;
+    QMenuItem  *mi = 0;
     QPopupMenu *popup;
     int d = 0;
 

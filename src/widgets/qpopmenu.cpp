@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#57 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#57 $")
 
 
 // Mac style parameters
@@ -941,7 +941,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     if ( mouseBtDn )				// cannot handle key event
 	return;
 
-    QMenuItem  *mi;
+    QMenuItem  *mi = 0;
     QPopupMenu *popup;
     int d = 0;
     bool ok_key = TRUE;
