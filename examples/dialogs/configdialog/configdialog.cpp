@@ -8,10 +8,10 @@ ConfigDialog::ConfigDialog()
 {
     contentsWidget = new QListWidget(this);
     contentsWidget->setViewMode(QListView::IconMode);
-    contentsWidget->setGridSize(QSize(128, 108));
     contentsWidget->setIconSize(QSize(96, 84));
     contentsWidget->setMovement(QListView::Static);
     contentsWidget->setMaximumWidth(128);
+    contentsWidget->setSpacing(12);
 
     pagesWidget = new QStackedWidget(this);
     pagesWidget->addWidget(new ConfigurationPage);
