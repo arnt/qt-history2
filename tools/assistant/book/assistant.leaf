@@ -10,7 +10,7 @@ divided into the following sections:
 \i The 1 Minute Guide to using Qt Assistant
 \i Qt Assistant in More Detail
 \i Full Text Searching
-\i Customize Qt Assistant with Profiles
+\i Customizing Qt Assistant with Profiles
 \i Adding Documentation to Profiles
 \endlist
 
@@ -274,29 +274,33 @@ these links, you must specify a web browser. Click \Button ... to
 invoke the \Widget Assistant dialog and navigate until you find the
 web browser you wish to use. Click \OK to accept the selection.
 Alternatively, type in the name of your browser's executable in the
-line edit. If you want to change the home page of \QA, enter the
-file name in the line edit below. For that purpose you can also
-click \Button ... and select the file.
+line edit. If you want to change \QA's home page, enter the
+file name in the line edit below, or use the bottom \Button ... button
+to select the file.
 
-\i Pdf Settings
+\i PDF Settings
 
-Some pages contain links to pdf documents. In order to display these
-links, you must specify a pdf viewer. Click \Button ... to invoke the
-\Widget Assistant dialog and navigate until you find the pdf viewer
+Some pages contain links to PDF documents. In order to display these
+links, you must specify a PDF viewer. Click \Button ... to invoke the
+\Widget Assistant dialog and navigate until you find the PDF viewer
 you wish to use. Click \OK to accept the selection. Alternatively,
-type in the name of your pdf viewer's executable in the line edit.
+type in the name of your PDF viewer's executable in the line edit.
 
 \i Profiles
 
-Profiles make it possible to customize \QA on a large scale. Profiles
-mainly control which documentation is shown. Depending on that, \QA
-appearance may change. This starts with other documentation icons in
-the toolbar and ends with a new name for \QA. To change the current
-used profile, select another one and click \Button Ok. If you want
-to add a new profile click \Button Add, for modifying or deleting
-existing one's select the profile and click \Button Modify or \Button
-Delete. Read more about profiles and customization in chapter
-\l {Customize Qt Assistant}.
+Profiles are a means by which \QA can be made aware of additional
+documentation sets that it can show to its users. Documentation sets
+are specified using document content files (see \l{Adding
+Documentation to a Profile}). Profiles can also be used to control the
+toolbar icons used as shortcuts to documentation sets, and to change
+\QA's title bar.
+
+To change profiles, simply click the profile you require, then click
+\OK. If you want to add a new profile click \Button Add, and if you
+want to modify an existing profile, click the relevant profile, then
+click \Button Modify. To delete a profile, click it, then click
+\Button Delete. Profiles are documented in \l{Customizing Qt
+Assistant with Profiles}.
 
 \chapter Full Text Searching
 
@@ -326,69 +330,73 @@ occurrences of the search text they contain, with those with the
 highest number of occurrences appearing first. Simply click any
 document in the list to have it display in the document pane.
 
-If the documentation is changed, e.g. if new documents are added or
-old ones removed, \QA will reindex.
+If the documentation has changed, e.g. if documents have been added or
+removed, \QA will reindex.
 
-\chapter Customize Qt Assistant with Profiles
+\chapter Customizing Qt Assistant with Profiles
 
-You can change several properties of \QA to adapt it for your needs.
-Those properties are organized in profiles. Profiles contain information
-about e.g. documentation files or icons. If you want to add or modify
-a profile, open the settings dialog, goto the profile tab and click
-\Button Modify or \Button. A new dialog pops up. Insert the name of the
-profile in the first line edit. This name is used either in the
-settings dialog to select it or if you want to start \QA with a certain
-profile. Click the toolbutton in the upper right corner to change
-the application icon of \QA. Title specifies the caption of \QA, so can
-rename \QA to your own application name. The next line edit contains
-the base path of your application. For further information on this issue
-see below. You can also click the button \Button ... to invoke a
-file dialog and navigate until you find the right directory. Homepage
-specifies the starting page of the profile. Usually, this is the html
-file which contains the content directory. In order to customize the
-about text which appears in the help menu fill out the next line edit.
-The about url specifies a file which contains the about text of your
-application. For adding or removing documentation see next chapter,
-\l {Adding Documentation to a Profile}.
+You can change several aspects of \QA's behavior to adapt it for your
+needs. This is achieved by creating and modifying profiles. Profiles
+contain attributes, for example a list of documentation content files,
+and icon names.
 
-\section {Using Profiles}
-If you just want to change the used documentation, add or remove
-documentation files, click \Button Ok and everything is done. If you
-want to create a profile for your own application which is shipped
-along your application then click \Button {Save As} and select a file
-name. Then \QA creates a file and saves all information about the
-profile. The base path - already mentioned above - points to the
+If you want to add or modify a profile, open the settings dialog, go
+to the profile tab and click \Button Modify or \Button Add. A new
+dialog pops up. Insert the name of the profile in the first line edit.
+This name is used both in the settings dialog (where you choose which
+profile to use) and when you start \QA specifying a particular profile
+on the command line. Click the toolbutton in the upper right corner to
+change \QA's application icon. The title field is used to specify \QA'
+caption, so can make \QA have a name consistent with your application.
+The next line edit contains your application's base path (see below).
+You can also click the \Button ... button to invoke a file dialog and
+navigate until you find the right directory. The Homepage specifies
+which page \QA should start with for this profile. Usually, this is
+the HTML file which contains the documentation's contents. In order to
+customize the about text which appears in the help menu fill out the
+next line edit. The about URL specifies a file which contains your
+application's about text. (For adding or removing documentation see
+\l{Adding Documentation to a Profile}.)
+
+\section1 Using Profiles
+
+If you just want to change the documentation sets that \QA displays,
+add or remove documentation files from the list, click \OK and you're
+done.
+
+If you want to create a profile for your own application which is
+shipped along with your application then click \Button{Save As} and
+give a file name. This will make \QA save all the profile information
+into that file. The base path (mentioned earlier) points to the
 application path. While saving, \QA determines the relative path
-between the documentation content files and the base path. The same
-is done for other properties as well. So, in the end, all specified
-paths and files are saved relatively to the base path. This file
-is later used to initialize \QA for your application, i.e. you have
-to ship this file with your application. The initialization itself
-is then straight-forward. Call \QA from your installation program
-with the following options:
+between the documentation content files and the base path. The same is
+done for other properties as well. So all specified paths and files
+are saved relative to the base path. The saved profile file is later
+used to initialize \QA for your application, i.e. you must ship this
+file with your application. The initialization itself is then
+straightforward. Call \QA from your installation program with the
+following option:
 \code
-assistant -addProfile file path
+assistant -addProfile profile-filename optional/path/to/custom/profile
 \endcode
-The parameter file specifies your created profile file as described
-above. The following parameter specifies the base path of your
-application, i.e. the installation path on that machine. If this
-path is not specified, \QA will use the old one from the profile
-file. Starting \QA that way will not show a mainwindow. Instead,
-only the profile is installed and when it is done \QA will quit.
-If you start \QA the very first time it tries to find a profile
-for displaying. If there is none, a default profile containing all
-Qt related documentations is created. If there is already one, 
-meaning \QA was started with the above options, no Qt profile will
-be created.
-If \QA has more than one profiles, select the wished one either on
-startup with
+If you don't provide the path, \QA will use the path from the old
+profile file. Note that when you use this option, \QA does not show a
+main window; it simply registers the profile and quits.
+
+When \QA is run for the first time 
+it tries to find a profile so that it can find documents to display.
+If it can't find a profile and none is specified on the command line, a default profile containing all
+Qt related documentation is created. If the first run finds a profile,
+then no Qt profile will be created.
+If \QA has more than one profile, the one you want to be used can be
+specified at startup like this:
 \code
 assistant -profile profilename
 \endcode
-or later in the settings dialog. Sometimes, documentations are quite
-short, i.e. it makes no sense to waste screen space with \QA side bar
-since the functions provided by the side bar are not neccessary.
-Therefore you can hide the side bar on startup with the option
+or later in the settings dialog.
+
+For small documentation sets the sidebar might not be necessary. You
+can hide the side bar on startup with the option
 \code
 assistant -onlyBrowser
 \endcode
@@ -396,38 +404,38 @@ assistant -onlyBrowser
 
 \chapter Adding Documentation to a Profile
 
-In order to add new documentation to a profile you simply have
+In order to add new documentation to a profile you just have
 to specify a new documentation content file.
 
 Click \Menu Edit|Settings to invoke the \Widget Settings dialog. Click
 the \Menu{Profile} tab. Now select or create a new profile and click
-\Button Add or \Button Modify to invoke the profile dialog. Then goto
-section Documentations and click \Button Add. A file dialog pops up.
-
-Select the new documentation's content file. (This file must be an
-XML file in \QA's documentation content file format.) \QA will check
-this file if it is valid and if so, add it to the profile.
+\Button Add or \Button Modify to invoke the profile dialog. Then go to
+the Documentation list and click \Button Add. A file dialog pops up.
+Select a new documentation content file. (This file must be an
+XML file in \QA's documentation content file format.) \QA will read
+the file, and if it is valid will add it to the profile.
 
 The format of the documentation content file is described in the
-following section.
+following next section.
 
 
 \section1 Documentation Content File format
 
 The file must contain the documentation's table of contents and all
-important keywords for the index. In addition, it may inherit an
-icon for that documentation which is shown later in \QA toolbar.
-Furthermore, an extra directory path for additional images used in
-the documentation may be specified.
+important keywords for the index. In addition, it may inherit an icon
+for the documentation which will be used in a \QA toolbar. You can
+also specify an extra directory path for additional images used in the
+documentation.
 
-An example of a content file with all available tags and attributes is
-shown below:
+An example of a content file that uses all the available tags and
+attributes is shown below:
 
 \c demodoc.xml
 
 \code
 <!DOCTYPE DCF>
-<DCF ref="demo.html" icon="handbook.png" imagedir="../img/" title="Development Demo Handbook">
+<DCF ref="demo.html" icon="handbook.png" imagedir="../img/"
+     title="Development Demo Handbook">
 <section ref="./chap1/chap1.html" title="Chapter1">
     <section ref="./chap1/section1.html" title="Section1">
 	<keyword ref="./chap1/section1.html#foo">foo</keyword>
