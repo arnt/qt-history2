@@ -1177,13 +1177,13 @@ void MainWindow::fileNewProject()
 	delete pro;
 	return;
     }
-    
+
     if ( !pro->isValid() ) {
 	// #### error
 	delete pro;
 	return;
     }
-    
+
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
     a->setOn( TRUE );
@@ -1205,7 +1205,7 @@ void MainWindow::fileOpen()
 	QStringList list = manager.featureList();
 	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
 	    filterlist << *it;
-	filterlist << tr( "All Files (*.*)" );
+	filterlist << tr( "All Files (*)" );
 
 	QString filters = filterlist.join( ";;" );
 
