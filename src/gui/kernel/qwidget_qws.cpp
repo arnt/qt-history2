@@ -261,14 +261,16 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
         if (testWFlags(Qt::WStyle_DialogBorder)
              || testWFlags(Qt::WStyle_NormalBorder))
         {
-            // get size of wm decoration
-            QRegion r = QApplication::qwsDecoration().region(this, data->crect);
+            // get size of wm decoration and make the old crect the new frect
+            QRect cr = data->crect;
+            QRegion r = QApplication::qwsDecoration().region(this, cr);
             QRect br(r.boundingRect());
-            data->crect.moveBy(data->crect.x()-br.x(), data->crect.y()-br.y());
-            d->extra->topextra->fleft = data->crect.x()-br.x();
-            d->extra->topextra->ftop = data->crect.y()-br.y();
-            d->extra->topextra->fright = br.right()-data->crect.right();
-            d->extra->topextra->fbottom = br.bottom()-data->crect.bottom();
+            d->extra->topextra->fleft = cr.x() - br.x();
+            d->extra->topextra->ftop = cr.y() - br.y();
+            d->extra->topextra->fright = br.right() - cr.right();
+            d->extra->topextra->fbottom = br.bottom() - cr.bottom();
+            data->crect.addCoords(d->extra->topextra->fleft, d->extra->topextra->ftop,
+                                  -d->extra->topextra->fright, -d->extra->topextra->fbottom);
             d->topData()->qwsManager = new QWSManager(this);
         } else if (d->topData()->qwsManager) {
             delete d->topData()->qwsManager;
@@ -933,6 +935,7 @@ static uint effectiveState(uint state)
 
 void QWidget::setWindowState(uint newstate)
 {
+    data->in_set_window_state = 1;
     uint oldstate = effectiveState(data->widget_state);
 
     data->widget_state &= ~(Qt::WState_Minimized | Qt::WState_Maximized | Qt::WState_FullScreen);
@@ -972,14 +975,12 @@ void QWidget::setWindowState(uint newstate)
             raise();
             needShow = true;
         } else if (state == Qt::WState_Maximized) {
-            data->in_show_maximized = 1;
 #ifndef QT_NO_QWS_MANAGER
             if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
                 d->extra->topextra->qwsManager->maximize();
             else
 #endif
                 setGeometry(qt_maxWindowRect);
-            data->in_show_maximized = 0;
         } else { //normal
             QRect r = d->topData()->normalGeometry;
             if (r.width() >= 0) {
@@ -988,6 +989,7 @@ void QWidget::setWindowState(uint newstate)
             }
         }
     }
+    data->in_set_window_state = 0;
 
     if (needShow)
         show();
@@ -1116,9 +1118,12 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         oldAlloc = allocatedRegion();
     }
 
-    if (!data->in_show_maximized && !r.contains(geometry())) // eg. might not FIT in max window rect
+    if (!data->in_set_window_state) {
         clearWState(Qt::WState_Maximized);
-
+        clearWState(Qt::WState_FullScreen);
+        if (isTopLevel())
+            d->topData()->normalGeometry = QRect(0, 0, -1, -1);
+    }
     QPoint oldPos = pos();
     data->crect = r;
 

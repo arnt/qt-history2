@@ -783,7 +783,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.sizehint_forced = 0;
     data.is_closing = 0;
     data.in_show = 0;
-    data.in_show_maximized = 0;
+    data.in_set_window_state = 0;
     data.im_enabled = false;
     q->create();                                        // platform-dependent init
     if (!q->isTopLevel()) {
