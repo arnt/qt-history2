@@ -183,6 +183,19 @@ void QMotifStyle::polish( QApplication* a )
     QStyle::polish(a);
 }
 
+static void rot(QPointArray& a, int n)
+{
+    QPointArray r(a.size());
+    for (int i=0; i<a.size(); i++) {
+	switch (n) {
+	    case 1: r.setPoint(i,-a[i].y(),a[i].x()); break;
+	    case 2: r.setPoint(i,-a[i].x(),-a[i].y()); break;
+	    case 3: r.setPoint(i,a[i].y(),-a[i].x()); break;
+	}
+    }
+    a = r;
+}
+
 
 /*!\reimp
 */
@@ -285,7 +298,6 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    QPointArray bTop;
 	    QPointArray bBot;
 	    QPointArray bLeft;
-	    QWMatrix matrix;
 	    bool vertical = pe == PE_ArrowUp || pe == PE_ArrowDown;
 	    bool horizontal = !vertical;
 	    int dim = rect.width() < rect.height() ? rect.width() : rect.height();
@@ -343,30 +355,54 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 		}
 	    }
 
+	    // We use rot() and translate() as it is more efficient that
+	    // matrix transformations on the painter, and because it still
+	    // works with QT_NO_TRANSFORMATIONS defined.
+
 	    if ( pe == PE_ArrowUp || pe == PE_ArrowLeft ) {
-		matrix.translate( rect.x(), rect.y() );
 		if ( vertical ) {
-		    matrix.translate( 0, rect.height() - 1 );
-		    matrix.rotate( -90 );
+		    rot(bFill,3);
+		    rot(bLeft,3);
+		    rot(bTop,3);
+		    rot(bBot,3);
+		    bFill.translate( 0, rect.height() - 1 );
+		    bLeft.translate( 0, rect.height() - 1 );
+		    bTop.translate( 0, rect.height() - 1 );
+		    bBot.translate( 0, rect.height() - 1 );
 		} else {
-		    matrix.translate( rect.width() - 1, rect.height() - 1 );
-		    matrix.rotate( 180 );
+		    rot(bFill,2);
+		    rot(bLeft,2);
+		    rot(bTop,2);
+		    rot(bBot,2);
+		    bFill.translate( rect.width() - 1, rect.height() - 1 );
+		    bLeft.translate( rect.width() - 1, rect.height() - 1 );
+		    bTop.translate( rect.width() - 1, rect.height() - 1 );
+		    bBot.translate( rect.width() - 1, rect.height() - 1 );
 		}
 		if ( flags & Style_Down )
 		    colspec = horizontal ? 0x2334 : 0x2343;
 		else
 		    colspec = horizontal ? 0x1443 : 0x1434;
-	    } else if ( pe == PE_ArrowDown || pe == PE_ArrowRight ) {
-		matrix.translate( rect.x(), rect.y() );
+	    } else {
 		if ( vertical ) {
-		    matrix.translate( rect.width() - 1, 0 );
-		    matrix.rotate( 90 );
+		    rot(bFill,1);
+		    rot(bLeft,1);
+		    rot(bTop,1);
+		    rot(bBot,1);
+		    bFill.translate( rect.width() - 1, 0 );
+		    bLeft.translate( rect.width() - 1, 0 );
+		    bTop.translate( rect.width() - 1, 0 );
+		    bBot.translate( rect.width() - 1, 0 );
 		}
 		if ( flags & Style_Down )
 		    colspec = horizontal ? 0x2443 : 0x2434;
 		else
 		    colspec = horizontal ? 0x1334 : 0x1343;
 	    }
+	    bFill.translate( rect.x(), rect.y() );
+	    bLeft.translate( rect.x(), rect.y() );
+	    bTop.translate( rect.x(), rect.y() );
+	    bBot.translate( rect.x(), rect.y() );
 
 	    QColor *cols[5];
 	    if ( flags & Style_Enabled ) {
@@ -390,13 +426,11 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 
 	    QPen savePen = p->pen();
 	    QBrush saveBrush = p->brush();
-	    QWMatrix wxm = p->worldMatrix();
 	    QPen pen( NoPen );
 	    QBrush brush = cg.brush( flags & Style_Enabled ? QColorGroup::Button :
 				     QColorGroup::Mid );
 	    p->setPen( pen );
 	    p->setBrush( brush );
-	    p->setWorldMatrix( matrix, TRUE );
 	    p->drawPolygon( bFill );
 	    p->setBrush( NoBrush );
 
@@ -407,7 +441,6 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setPen( CBOT );
 	    p->drawLineSegments( bBot );
 
-	    p->setWorldMatrix( wxm );
 	    p->setBrush( saveBrush );
 	    p->setPen( savePen );
 #undef CMID
