@@ -53,7 +53,8 @@ EOF
     elif [ "$a" = "Designer" ]; then
 	mkdir -p "$OUTDIR/usr/lib/"
 	[ -e "${BINDIR}/lib/libQtDesigner.1.dylib" ] && cp "${BINDIR}/lib/libQtDesigner.1.dylib" "$OUTDIR/usr/lib/"
-	[ "$DO_DEBUG" = "no" ] && [ -e "${BINDIR}/lib/libQtDesigner_debug.1.dylib" ] && cp "${BINDIR}/lib/libQtDesigner_debug.1.dylib" "$OUTDIR/usr/lib/"
+	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtDesigner_debug.1.dylib" ] && cp "${BINDIR}/lib/libQtDesigner_debug.1.dylib" "$OUTDIR/usr/lib/"
+
     fi
 
     #perms
