@@ -2,8 +2,8 @@ TEMPLATE	= app
 TARGET		= moc
 
 CONFIG 	       += console qtinc
-CONFIG         -= qt debug
-build_all:CONFIG += debug
+CONFIG         -= qt 
+build_all:CONFIG += release
 mac:CONFIG     -= resource_fork incremental
 DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT \
 		  QT_NO_STL QT_NO_COMPRESS QT_NO_DATASTREAM QT_NO_TEXTSTREAM \
