@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#184 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -813,9 +813,9 @@ void QFont::load() const
 #define CharSetScore	 0x80
 #define PitchScore	 0x40
 #define SizeScore	 0x20
-#define WeightScore	 0x10
-#define SlantScore	 0x08
-#define ResolutionScore	 0x04
+#define ResolutionScore	 0x10
+#define WeightScore	 0x08
+#define SlantScore	 0x04
 #define WidthScore	 0x02
 #define NonUnicodeScore	 0x01
 
@@ -1156,27 +1156,50 @@ QCString QFont_Private::bestFamilyMember( const char *foundry,
                                 WeightScore | SlantScore | WidthScore;
 
     char pattern[256];
-    int foundryScore = 0;
-    QCString foundryResult;
-    int localScore = 0;
-    QCString localResult;
+    int testScore = 0;
+    QCString testResult;
+    int bestScore = 0;
+    QCString result;
 
     if ( foundry && foundry[0] ) {
-	sprintf( pattern, "-%s-%s-*-*-*-*-*-*-*-*-*-*-*-*", foundry, family );
-	foundryResult = bestMatch( pattern, &foundryScore );
-    }
-    if ( foundryScore < prettyGoodScore ) {
-	sprintf( pattern, "-*-%s-*-*-*-*-*-*-*-*-*-*-*-*", family );
-	localResult =  bestMatch( pattern, &localScore );
-    }
-    if ( localScore < foundryScore ) {
-	localScore  = foundryScore;
-	localResult = foundryResult;
+	sprintf( pattern, "-%s-%s-*-*-*-*-*-%d-%d-%d-*-*-*-*", foundry, family,
+	    deciPointSize(), QPaintDevice::x11AppDpiX(), QPaintDevice::x11AppDpiY() );
+	result = bestMatch( pattern, &bestScore );
     }
 
+    if ( bestScore < prettyGoodScore ) {
+	sprintf( pattern, "-*-%s-*-*-*-*-*-%d-%d-%d-*-*-*-*", family,
+	    deciPointSize(), QPaintDevice::x11AppDpiX(), QPaintDevice::x11AppDpiY() );
+	testResult = bestMatch( pattern, &testScore );
+	if ( testScore > bestScore ) {
+	    bestScore = testScore;
+	    result = testResult;
+	}
+    }
+
+    // These branches will only be exercised on old X servers...
+    if ( bestScore < prettyGoodScore ) {
+	sprintf( pattern, "-*-%s-*-*-*-*-*-*-%d-%d-*-*-*-*", family,
+	    QPaintDevice::x11AppDpiX(), QPaintDevice::x11AppDpiY() );
+	testResult = bestMatch( pattern, &testScore );
+	if ( testScore > bestScore ) {
+	    bestScore = testScore;
+	    result = testResult;
+	}
+    }
+    if ( bestScore < prettyGoodScore ) {
+	sprintf( pattern, "-*-%s-*-*-*-*-*-*-*-*-*-*-*-*", family );
+	testResult = bestMatch( pattern, &testScore );
+	if ( testScore > bestScore ) {
+	    bestScore = testScore;
+	    result = testResult;
+	}
+    }
+
+
     if ( score )
-	*score = localScore;
-    return localResult;
+	*score = bestScore;
+    return result;
 }
 
 
@@ -1356,8 +1379,8 @@ int QFontMetrics::printerAdjusted(int val) const
     if ( painter && painter->device() &&
 	 painter->device()->devType() == QInternal::Printer) {
 	painter->cfont.handle();
-	int xres = painter->cfont.d->fin->xResolution();
-	return ( val * 72 + 36 ) / xres; // PostScript is 72dpi
+	int res = QPaintDevice::x11AppDpiY();
+	return ( val * 72 + 36 ) / res; // PostScript is 72dpi
     } else {
 	return val;
     }
