@@ -844,8 +844,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "$(DEL_FILE) " << outdir << "allmoc.h" << endl << endl;
     }
 
-    t <<"FORCE:" << endl << endl;
-
     // user defined targets
     QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
     for(it = qut.begin(); it != qut.end(); ++it) {
@@ -860,6 +858,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		dep = (*dep_it);
 	    deps += " " + dep;
 	}
+	if(project->variables()[(*it) + ".CONFIG"].findIndex("phony") != -1)
+	    deps += QString(" ") + "FORCE";
 	t << targ << ":" << deps << "\n\t"
 	  << cmd << endl << endl;
     }
@@ -911,6 +911,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    }
 	}
     }
+    t <<"FORCE:" << endl << endl;
 }
 
 struct SubDir
@@ -1065,6 +1066,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 		dep = (*dep_it);
 	    deps += " " + dep;
 	}
+	if(project->variables()[(*qut_it) + ".CONFIG"].findIndex("phony") != -1)
+	    deps += QString(" ") + "FORCE";
 	t << targ << ":" << deps << "\n\t"
 	  << cmd << endl << endl;
     }

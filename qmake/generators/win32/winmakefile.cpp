@@ -192,6 +192,9 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		dep = (*dep_it);
 	    deps += " " + dep;
 	}
+	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() && 
+	   project->variables()[(*sit) + ".CONFIG"].findIndex("phony") != -1)
+	    deps += QString(" ") + "FORCE";
 	t << "\n\n" << targ << ":" << deps << "\n\t"
 	  << cmd;
     }

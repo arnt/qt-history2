@@ -283,10 +283,16 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		dep = (*dep_it);
 	    deps += " " + dep;
 	}
+	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() && 
+	   project->variables()[(*it) + ".CONFIG"].findIndex("phony") != -1)
+	    deps += QString(" ") + "FORCE";
 	t << "\n\n" << targ << ":" << deps << "\n\t"
 	  << cmd;
     }
     t << endl << endl;
+
+    if(project->variables()["QMAKE_NOFORCE"].isEmpty())
+	t << "FORCE:" << endl << endl;
 
     t << "distclean: clean"
       << "\n\t-$(DEL_FILE) $(TARGET)"
