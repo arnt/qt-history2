@@ -439,13 +439,13 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::erase(const Key &key)
     }
 
     if (next != e && concrete(next)->key == key) {
-	do {
+//	do {
 	    cur = next;
             next = cur->forward[0];
 	    concrete(cur)->key.~Key();
 	    concrete(cur)->value.~T();
 	    d->node_delete(update, offset(), cur);
-	} while (next != e && concrete(next)->key == key);
+//	} while (next != e && concrete(next)->key == key);
     }
     return oldSize - d->size;
 }
