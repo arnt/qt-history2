@@ -4264,9 +4264,9 @@ static bool ok_in_base( QChar c, int base )
 long QString::toLong( bool *ok, int base ) const
 {
     const QChar *p = unicode();
-    long val = 0;
+    ulong val = 0;
     int l = length();
-    const long max_mult = LONG_MAX / base;
+    const ulong max_mult = LONG_MAX / base;
     bool is_ok = FALSE;
     int neg = 0;
     if ( !p )
@@ -4304,16 +4304,14 @@ long QString::toLong( bool *ok, int base ) const
 	val = base * val + dv;
 	p++;
     }
-    if ( neg )
-	val = -val;
     while ( l && p->isSpace() )                 // skip trailing space
-	l--,p++;
+	l--, p++;
     if ( !l )
 	is_ok = TRUE;
 bye:
     if ( ok )
 	*ok = is_ok;
-    return is_ok ? val : 0;
+    return is_ok ? ( neg ? (long) -val : (long) val ) : 0L;
 }
 
 /*!
