@@ -68,10 +68,10 @@ public:
         return *this;
     }
 
-    inline QDebug &operator<<(QTSFUNC f)
-        { if (f == endl) { qDebug(d->buffer.latin1()); d->buffer.clear(); } 
-          else d->ts << f; 
-          return *this; }
+    inline QDebug &operator<<(QTSFUNC f) {
+        d->ts << f;
+        return *this;
+    }
 
     inline QDebug &operator<<(QTSManip m)
         { d->ts << m; return *this; }
