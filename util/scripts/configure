@@ -42,6 +42,7 @@ GIF=no
 SM=no
 ZLIB=yes
 LIBPNG=yes
+JPEG=no
 I_FLAGS=
 L_FLAGS=
 l_FLAGS=
@@ -89,6 +90,12 @@ while [ -n "$1" ]; do
    -system-libpng)
        LIBPNG=no
 	;;
+   -no-jpeg)
+       JPEG=no
+	;;
+   -system-jpeg)
+       JPEG=yes
+	;;
    -h | -help | --help)
        HELP=yes
 	;;
@@ -128,7 +135,8 @@ if [ "$HELP" = "yes" ]; then
    [ "x$ERROR" = "xyes" ] && echo
    cat <<EOF
 Usage: $0 [-debug] [-release] [-gif] [-no-gif] [-sm] [-no-sm] \\
-        [-qt-zlib] [-system-zlib] [qt-libpng] [-system-libpng] \\
+        [-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
+        [-no-jpeg] [-system-jpeg] \\
         [-Istring] [-lstring] [-Lstring] \\
 
 The defaults (*) are usually acceptable.  Here is a short explanation of
@@ -151,6 +159,9 @@ each option:
 
  *  -qt-libpng ......... Use the libpng bundled with Qt.
     -system-libpng ..... Use a libpng from the operating system.
+
+ *  -no-jpeg ........... Do not compile in JPEG I/O support.
+    -system-jpeg ....... Use a libjpeg from the operating system.
 
     -platform target ... See the PLATFORMS file for a list of supported
                          operating systems and compilers.
@@ -347,6 +358,7 @@ fi
 
 QT_CXX=""
 [ "x$GIF" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER"
+[ "x$JPEG" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_JPEG_SUPPORT"
 [ "x$SM" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_SM_SUPPORT"
 [ "x$ZLIB" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/zlib"
 [ "x$LIBPNG" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/libpng"
@@ -359,6 +371,7 @@ QT_ZLIB=""
 [ "x$LIBPNG" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
 [ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
+[ "x$JPEG" = "xyes" ] && QT_LIBS="${QT_LIBS} -ljpeg"
 QT_LIBS="$L_FLAGS $QT_LIBS $l_FLAGS"
 
 

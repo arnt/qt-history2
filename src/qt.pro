@@ -8,6 +8,11 @@ CONFIG		+= png zlib
 # Also define QT_BUILDER in qglobal.h
 CONFIG		+= builder
 
+# Uncomment the next line if you want to use jpeglib
+DEFINES += QT_JPEG_SUPPORT
+unix:LIBS	+= -ljpeg
+win32:LIBS	+= jpeg.lib
+
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
 
@@ -85,6 +90,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
+		  $$KERNEL_H/qjpegio.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_H/qlayoutengine.h \
 		  $$KERNEL_H/qtranslator.h \
@@ -338,6 +344,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qguardedptr.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
+		  kernel/qjpegio.cpp \
 		  kernel/qlayout.cpp \
 		  kernel/qlayoutengine.cpp \
 		  kernel/qtranslator.cpp \

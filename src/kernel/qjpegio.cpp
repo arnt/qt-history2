@@ -3,7 +3,7 @@
 **
 ** Implementation of JPEG QImage IOHandler
 **
-** Created : 970521
+** Created : 990521
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -23,6 +23,11 @@
 **
 *****************************************************************************/
 
+#ifdef QT_JPEG_SUPPORT
+
+#include <qimage.h>
+#include <qiodevice.h>
+
 #include <stdio.h> // jpeglib needs this to be pre-included
 #include <setjmp.h>
 
@@ -33,8 +38,6 @@ extern "C" {
 #undef const // Remove crazy C hackery in jconfig.h
 #endif
 }
-#include <qimage.h>
-#include <qiodevice.h>
 
 struct my_error_mgr : public jpeg_error_mgr {
     jmp_buf setjmp_buffer;
@@ -375,10 +378,14 @@ void write_jpeg_image(QImageIO* iio)
     delete row_pointer[0];
 }
 
+#endif
 
 void qInitJpegIO()
 {
+#ifdef QT_JPEG_SUPPORT
     // Not much to go on - just 3 bytes: 0xFF, M_SOI, 0xFF
     // Even the third is not strictly specified as required.
     QImageIO::defineIOHandler("JPEG", "^\377\330\377", 0, read_jpeg_image, write_jpeg_image);
+#endif
 }
+
