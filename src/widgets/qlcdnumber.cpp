@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#14 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,8 +16,16 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#14 $";
 #endif
+
+
+/*!
+\class QLCDNumber qlcdnum.h
+\brief The QLCDNumber widget displays an LCD number.
+
+\todo The QLCDNumber class documentation will be provided in a future relase.
+*/
 
 
 static QString long2string( long num, int base, int ndigits, bool *oflow )
@@ -194,7 +202,7 @@ QLCDNumber::QLCDNumber( uint numDigits, QWidget *parent, const char *name )
 void QLCDNumber::init()
 {
     initMetaObject();
-    setFrame( QFrame::Box | QFrame::Raised );
+    setFrameStyle( QFrame::Box | QFrame::Raised );
     base = DEC;
     smallPoint = FALSE;
     setNumDigits( ndigits );
