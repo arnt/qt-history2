@@ -689,7 +689,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
-	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
+	    t << "\n\t" << "-$(COPY_FILE) \"$(TARGET)\" " << *dlldir;
 	}
     }
 
