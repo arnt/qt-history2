@@ -846,6 +846,9 @@ bool QToolBar::event(QEvent *event)
         if (!event->spontaneous())
             d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
+    case QEvent::ParentChange:
+        d->handle->setShown(d->movable && (qt_cast<QMainWindow *>(parentWidget()) != 0));
+        break;
     default:
         break;
     }
