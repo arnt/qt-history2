@@ -70,6 +70,8 @@ public:
 	    align = b.align;
 	    return *this;
 	}
+	// only for xlC. Unused.
+	bool operator== ( const Box& ) const { return FALSE; }
     };
 
 
