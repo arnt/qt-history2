@@ -117,20 +117,35 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
 
 static void setPrinterMapping( HDC hdc, int res )
 {
+    if ( !hdc ) // no printer
+	return;
+
     int mapMode = MM_ANISOTROPIC;
     if ( GetDeviceCaps( hdc, LOGPIXELSX ) == GetDeviceCaps( hdc, LOGPIXELSY ) )
 	mapMode = MM_ISOTROPIC;
-    if ( !SetMapMode(hdc, mapMode ) )
+    if ( !SetMapMode(hdc, mapMode ) ) {
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPrinter: setting mapping mode failed, mapMode=%x rastercaps=%x", mapMode, GetDeviceCaps(hdc,RASTERCAPS) );
+#endif
+	;
+    }
     // The following two lines are the cause of problems on Windows 9x,
     // for some reason, either one of these functions or both don't
     // have an effect.  This appears to be a bug with the Windows API
     // and as of yet I can't find a workaround.
 
-    if ( !SetWindowExtEx(hdc, res, res, NULL) )
+    if ( !SetWindowExtEx(hdc, res, res, NULL) ) {
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPrinter:: setting window failed rastercaps=%x", GetDeviceCaps(hdc,RASTERCAPS) );
-    if ( !SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL) )
+#endif
+	;
+    }
+    if ( !SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL) ) {
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPrinter:: setting viewport failed rastercaps=%x", GetDeviceCaps(hdc,RASTERCAPS) );
+#endif
+	;
+    }
 }
 
 // ### deal with ColorMode GrayScale in qprinter_win.cpp.
