@@ -42,14 +42,14 @@ class QSqlDatabasePrivate;
 class QM_EXPORT_SQL QSqlDriverCreatorBase
 {
 public:
-    virtual QSqlDriver* createObject() = 0;
+    virtual QSqlDriver* createObject() const = 0;
 };
 
 template <class type>
 class QM_EXPORT_SQL QSqlDriverCreator: public QSqlDriverCreatorBase
 {
 public:
-    QSqlDriver* createObject() { return new type; }
+    QSqlDriver* createObject() const { return new type; }
 };
 
 class QM_EXPORT_SQL QSqlDatabase : public QObject
