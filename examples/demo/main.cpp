@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#26 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#27 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -15,6 +15,7 @@
 
 #include "textdrawing/textedit.h"
 #include "textdrawing/helpwindow.h"
+#include "dnd/dnd.h"
 
 #include <qmodules.h>
 
@@ -96,6 +97,12 @@ int main( int argc, char **argv )
     w = new HelpWindow( home, ".", 0, "helpviewer" );
     tab->addTab( w, "Help Browser" );
     frame.addCategory( tab, textpix, textpix_sel, "Text Drawing/Editing" );
+
+    // example 5
+    tab = new QTabWidget();
+    w = new DnDDemo( tab );
+    tab->addTab( w, "Drag and Drop" );
+    frame.addCategory( tab, textpix, textpix_sel, "Drag and Drop" );
 
     a.setMainWidget( &frame );
     frame.show();

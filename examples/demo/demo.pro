@@ -1,15 +1,23 @@
 TEMPLATE 	= app
 CONFIG		+= qt warn_on
-HEADERS		= frame.h \
+HEADERS	= frame.h \
 		  graph.h \
-                  display.h \
+                   	  display.h \
 		  textdrawing/textedit.h \
-		  textdrawing/helpwindow.h
+		  textdrawing/helpwindow.h \
+		  dnd/dnd.h \
+		  dnd/styledbutton.h \
+		  dnd/iconview.h \
+		  dnd/listview.h
 SOURCES		= frame.cpp \
 		  graph.cpp \
-                  display.cpp \
+               	  display.cpp \
 		  textdrawing/textedit.cpp \
 		  textdrawing/helpwindow.cpp \
+		  dnd/dnd.cpp \
+		  dnd/styledbutton.cpp \
+		  dnd/iconview.cpp \
+		  dnd/listview.cpp \
 		  main.cpp
 
 opengl {
@@ -41,3 +49,4 @@ sql {
 TARGET		= demo
 INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
+INTERFACES	= dnd/dndbase.ui
