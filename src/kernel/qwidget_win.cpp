@@ -737,16 +737,8 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
-	 WState_Visible )
-	QApplication::postEvent( this, new QPaintEvent( visibleRect(), !testWFlags(WRepaintNoErase) ) );
-
-    return;
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	if ( !InvalidateRect( winId(), 0, 0 ) )
-	    qSystemWarning( "QWidget::InvalidateRect failed" );
-	qDebug( "%s, %d", name(), !testWFlags( WRepaintNoErase) );
-    }
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+	InvalidateRect( winId(), 0, !testWFlags( WRepaintNoErase) );
 }
 
 void QWidget::update( int x, int y, int w, int h )
