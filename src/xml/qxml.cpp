@@ -2820,13 +2820,14 @@ bool QXmlSimpleReader::parseContent()
 		next();
 		break;
 	    case Ref:
-		// reference may be CharData; so clear string to be safe
 		if ( !charDataRead) {
-		    charDataRead = TRUE;
+		    // reference may be CharData; so clear string to be safe
 		    stringClear();
+		    parseOk = parseReference( charDataRead, InContent );
+		} else {
+		    bool tmp;
+		    parseOk = parseReference( tmp, InContent );
 		}
-		// parse reference
-		parseOk = parseReference( charDataRead, InContent );
 		break;
 	    case Lt:
 		// call the handler for CharData
