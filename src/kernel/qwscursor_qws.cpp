@@ -228,7 +228,7 @@ void QWSServer::initializeCursor()
 #if QT_FEATURE_QWS_CURSOR
     qt_screen->initCursor(sharedram + ramlen,TRUE);
 
-    for ( int i = 0; i < LastCursor; i++ )
+    for ( int i = 0; i <= LastCursor; i++ )
 	systemCursorTable[i] = 0;
 
     // default cursor
@@ -392,7 +392,7 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
     {
 	for (int j = 0; j < bytesPerLine; j++, data++, mask++)
 	{
-	    for (int b = 0; b < 8; b++)
+	    for (int b = 0; b < 8 && j*8+b < width; b++)
 	    {
 		d = *data & (1 << b);
 		m = *mask & (1 << b);
