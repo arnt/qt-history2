@@ -108,9 +108,9 @@ void MainWindow::setup()
 
 
 
+#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
     QAccel *acc = new QAccel( this );
 //     acc->connectItem( acc->insertItem( Key_F5 ), browser, SLOT( reload() ) );
-#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
     acc->connectItem( acc->insertItem( QKeySequence("SHIFT+CTRL+=") ), actionZoomIn, SIGNAL(activated()) );
 #endif
 

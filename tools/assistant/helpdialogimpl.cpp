@@ -1005,7 +1005,7 @@ void HelpDialog::showSearchHelp()
     emit showLink( documentationPath + "/assistant-5.html" );
 }
 
-void HelpDialog::showResultPage( int page )
+void HelpDialog::showResultPage( int )
 {
     /* ###
     viewer->blockScrolling( TRUE );

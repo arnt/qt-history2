@@ -132,7 +132,7 @@ void TabbedBrowser::transferFocus()
     }
 }
 
-void TabbedBrowser::initHelpWindow( HelpWindow * win )
+void TabbedBrowser::initHelpWindow( HelpWindow * /*win*/ )
 {
 }
 
