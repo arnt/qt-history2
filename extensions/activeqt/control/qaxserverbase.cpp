@@ -2060,8 +2060,10 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 	VARIANT var;
 	var.vt = VT_EMPTY;
 	HRESULT res = bag->Read( bstr, &var, 0 );
-	if ( res != S_OK || !activeqt->setProperty( pname, VARIANTToQVariant( var, property->type() ) ) )
-	    error = TRUE;
+	if ( property->writable() ) {
+	    if ( res != S_OK || !activeqt->setProperty( pname, VARIANTToQVariant( var, property->type() ) ) )
+		error = TRUE;
+	}
 	SysFreeString(bstr);
     }
 
