@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#51 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -470,116 +470,129 @@ bool QClipboard::event( QEvent *e )
     return TRUE;
 }
 
+
+
+
 class QClipboardWatcher : public QMimeSource {
 public:
-    QClipboardWatcher()
-    {
-	setupOwner();
-    }
+    QClipboardWatcher();
+    bool empty() const;
+    const char* format( int n ) const;
+    QByteArray encodedData( const char* fmt ) const;
+    QByteArray getDataInFormat(Atom fmtatom) const;
+};
 
-    bool empty() const
-    {
-	Display *dpy   = owner->x11Display();
-	return XGetSelectionOwner(dpy,XA_PRIMARY) == None;
-    }
 
-    const char* format( int n ) const
-    {
-	if ( empty() ) return 0;
 
-	// TODO: record these once
-	static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
-	QByteArray targets = getDataInFormat(xa_targets);
-	if ( targets.size()/sizeof(Atom) > (uint)n ) {
-	    Atom* target = (Atom*)targets.data();
-	    if ( *target == XA_PIXMAP )
-		return "image/ppm";
-	    const char* fmt = qt_xdnd_atom_to_str(target[n]);
-	    return fmt;
-	} else {
-	    if ( n == 0 )
-		return "text/plain";
-	}
+
+QClipboardWatcher::QClipboardWatcher()
+{
+    setupOwner();
+}
+
+bool QClipboardWatcher::empty() const
+{
+    Display *dpy   = owner->x11Display();
+    return XGetSelectionOwner(dpy,XA_PRIMARY) == None;
+}
+
+const char* QClipboardWatcher::format( int n ) const
+{
+    if ( empty() )
 	return 0;
+
+    // TODO: record these once
+    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
+    QByteArray targets = getDataInFormat(xa_targets);
+    if ( targets.size()/sizeof(Atom) > (uint)n ) {
+	Atom* target = (Atom*)targets.data();
+	if ( *target == XA_PIXMAP )
+	    return "image/ppm";
+	const char* fmt = qt_xdnd_atom_to_str(target[n]);
+	return fmt;
+    } else {
+	if ( n == 0 )
+	    return "text/plain";
     }
+    return 0;
+}
 
-    QByteArray encodedData( const char* fmt ) const
-    {
-	if ( empty() ) return 0;
+QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
+{
+    if ( empty() ) return 0;
 
-	Atom fmtatom = 0;
+    Atom fmtatom = 0;
 
-	if ( 0==qstrcmp(fmt,"text/plain") ) {
-	    fmtatom = XA_STRING;
-	} else if ( 0==qstrcmp(fmt,"image/ppm") ) {
-	    fmtatom = XA_PIXMAP;
-	    QByteArray pmd = getDataInFormat(fmtatom);
-	    if ( pmd.size() == sizeof(Pixmap) ) {
-		Pixmap xpm = *((Pixmap*)pmd.data());
-		Display *dpy   = owner->x11Display();
-		Window r;
-		int x,y;
-		uint w,h,bw,d;
-		XGetGeometry(dpy,xpm, &r,&x,&y,&w,&h,&bw,&d);
-		QImageIO iio;
-		GC gc = XCreateGC( dpy, xpm, 0, 0 );
-		if ( d == 1 ) {
-		    QBitmap qbm(w,h);
-		    XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
-		    iio.setFormat("PBMRAW");
-		    iio.setImage(qbm.convertToImage());
-		} else {
-		    QPixmap qpm(w,h);
-		    XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
-		    iio.setFormat("PPMRAW");
-		    iio.setImage(qpm.convertToImage());
-		}
-		XFreeGC(dpy,gc);
-		QBuffer buf;
-		buf.open(IO_WriteOnly);
-		iio.setIODevice(&buf);
-		iio.write();
-		return buf.buffer();
+    if ( 0==qstrcmp(fmt,"text/plain") ) {
+	fmtatom = XA_STRING;
+    } else if ( 0==qstrcmp(fmt,"image/ppm") ) {
+	fmtatom = XA_PIXMAP;
+	QByteArray pmd = getDataInFormat(fmtatom);
+	if ( pmd.size() == sizeof(Pixmap) ) {
+	    Pixmap xpm = *((Pixmap*)pmd.data());
+	    Display *dpy   = owner->x11Display();
+	    Window r;
+	    int x,y;
+	    uint w,h,bw,d;
+	    XGetGeometry(dpy,xpm, &r,&x,&y,&w,&h,&bw,&d);
+	    QImageIO iio;
+	    GC gc = XCreateGC( dpy, xpm, 0, 0 );
+	    if ( d == 1 ) {
+		QBitmap qbm(w,h);
+		XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
+		iio.setFormat("PBMRAW");
+		iio.setImage(qbm.convertToImage());
 	    } else {
-		fmtatom = *qt_xdnd_str_to_atom(fmt);
+		QPixmap qpm(w,h);
+		XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
+		iio.setFormat("PPMRAW");
+		iio.setImage(qpm.convertToImage());
 	    }
+	    XFreeGC(dpy,gc);
+	    QBuffer buf;
+	    buf.open(IO_WriteOnly);
+	    iio.setIODevice(&buf);
+	    iio.write();
+	    return buf.buffer();
 	} else {
 	    fmtatom = *qt_xdnd_str_to_atom(fmt);
 	}
-	return getDataInFormat(fmtatom);
+    } else {
+	fmtatom = *qt_xdnd_str_to_atom(fmt);
     }
+    return getDataInFormat(fmtatom);
+}
 
-    QByteArray getDataInFormat(Atom fmtatom) const
-    {
-	QByteArray buf;
+QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
+{
+    QByteArray buf;
 
-	Window   win   = owner->winId();
-	Display *dpy   = owner->x11Display();
+    Window   win   = owner->winId();
+    Display *dpy   = owner->x11Display();
 
-	XConvertSelection( dpy, XA_PRIMARY, fmtatom,
-			   qt_selection_property, win, CurrentTime );
-	XFlush( dpy );
+    XConvertSelection( dpy, XA_PRIMARY, fmtatom,
+		       qt_selection_property, win, CurrentTime );
+    XFlush( dpy );
 
-	XEvent xevent;
-	if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) )
-	    return buf;
-
-	Atom   type;
-
-	if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
-				   &buf,0,&type,0,FALSE) ) {
-	    // ### use qt_x11_intern_atoms for faster startup
-	    if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
-		int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
-		buf = qt_xclb_read_incremental_property( dpy, win,
-							  qt_selection_property,
-							  nbytes, FALSE );
-	    }
-	}
-
+    XEvent xevent;
+    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) )
 	return buf;
+
+    Atom   type;
+
+    if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
+			       &buf,0,&type,0,FALSE) ) {
+	// ### use qt_x11_intern_atoms for faster startup
+	if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
+	    int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
+	    buf = qt_xclb_read_incremental_property( dpy, win,
+						     qt_selection_property,
+						     nbytes, FALSE );
+	}
     }
-};
+
+    return buf;
+}
 
 
 /*!
