@@ -35,6 +35,7 @@ extern bool qws_sw_cursor;
 
 // #define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
+//#define REVERSE_BIT_ENDIANNESS //testing
 
 // Pull this private function in from qglobal.cpp
 extern unsigned int qt_int_sqrt( unsigned int n );
@@ -3327,15 +3328,22 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 	    l += x1/8;
 	    if ( x1/8 == x2/8 ) {
 		// Same byte
-
+#ifndef REVERSE_BIT_ENDIANNESS
 		uchar mask = (0xff << (x1 % 8)) & (0xff >> (7 - x2 % 8));
+#else
+		uchar mask = (0xff >> (x1 % 8)) & (0xff << (7 - x2 % 8));
+#endif
 		if ( pixel )
 		    *l |= mask;
 		else
 		    *l &= ~mask;
 	    } else {
 		volatile unsigned char *last = l + (x2/8-x1/8);
+#ifndef REVERSE_BIT_ENDIANNESS
 		uchar mask = 0xff << (x1 % 8);
+#else
+		uchar mask = 0xff >> (x1 % 8);
+#endif
 		if ( pixel )
 		    *l++ |= mask;
 		else
@@ -3344,7 +3352,11 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 		while (l < last)
 		    *l++ = byte;
 
+#ifndef REVERSE_BIT_ENDIANNESS
 		mask = 0xff >> (7 - x2 % 8);
+#else
+		mask = 0xff << (7 - x2 % 8);
+#endif
 		if ( pixel )
 		    *l |= mask;
 		else
@@ -3857,10 +3869,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			    GET_MASKED(TRUE, w);
 			}
 			if ( !masked || !ismasking ) {
+#ifndef REVERSE_BIT_ENDIANNESS
 			    if (gv)
 				m |= 0x80 >> i;
 			    else
 				m &= ~( 0x80 >> i );
+#else
+			    if (gv)
+				m |= 0x01 << i;
+			    else
+				m &= ~( 0x01 << i );
+#endif
 			}
 		    }
 		}
@@ -3883,10 +3902,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			    GET_MASKED(FALSE, w);
 			}
 			if ( !masked || !ismasking ) {
+#ifndef REVERSE_BIT_ENDIANNESS
 			    if (gv)
 				m |= 1 << i;
 			    else
 				m &= ~( 1 << i );
+#else
+			    if (gv)
+				m |= 0x80 >> i;
+			    else
+				m &= ~( 0x80 >> i );
+#endif
 			}
 		    }
 		}
@@ -4416,7 +4442,11 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    for (int x=x1; x<=x2; x++) {
 		if ( *alphas++ >= 64 ) { // ### could be configurable (monoContrast)
 		    uchar* lx = l+(x>>3);
+#ifndef REVERSE_BIT_ENDIANNESS
 		    uchar b = 1<<(x&0x7);
+#else
+		    uchar b = 0x80>>(x&0x7);
+#endif
 		    if ( !(*lx&b) != black )
 			*lx ^= b;
 		}
