@@ -267,37 +267,11 @@ if [ "${platform}" = "x11" ]; then
   rm -r src/tmp
   rm src/qtmain.pro src/Makefile.win32-dll
   find . -name 'qtwin.*' | xargs rm -vf
-
-  echo 'Building top-level make files...' >&2
-  export UNIX_MKDIST_QT=1
-  ( cd ${QTDIR}/src/moc; TMAKEPATH=$QTDIR/tmake:$TMAKEPATH tmake moc.pro >Makefile.in)
-  ${QTDIR}/util/scripts/mkconfigs
-  ${QTDIR}/util/scripts/makemake
-  (cd ${QTDIR}/src; tmake -t ../tmake/propagate.t qt.pro |
-	perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
-  mv ${QTDIR}/util/scripts/propagate ${QTDIR}
   rm -rf ${DISTDIR}/qt/lib
   mkdir ${DISTDIR}/qt/lib
 
-  echo "Build tutorial, example, and extensions Makefiles" >&2
-  find ${DISTDIR}/qt/tutorial \
-     ${DISTDIR}/qt/examples \
-     ${DISTDIR}/qt/extensions -name '*.pro' |
-    while read pro_file
-    do
-	DIR=$(dirname $pro_file)
-	cd $DIR # we are in a subshell
-	TEMPLATE=$(echo $(basename $DIR).t)
-	if [ ! -f $TEMPLATE ]
-	then
-	    if [ "${platform}" = "x11" ]; then
-		TEMPLATE=${QTDIR}/tmake/propagate.t
-	    else
-		TEMPLATE=app
-	    fi
-	fi
-	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) > Makefile.in
-    done
+  # Generate makefiles
+  ${QTDIR}/util/scripts/makeunixmake -v
 fi
 
 echo "Copying the README, LICENSE etc. files..." >&2
