@@ -189,6 +189,7 @@
 #include <qsound.h>
 #include <qspinbox.h>
 #include <qsplitter.h>
+#include "qsql.h"
 #include "qsqlfield.h"
 #include "qsqlerror.h"
 #include "qsqlrecord.h"
@@ -204,6 +205,8 @@
 #include <qsqldatabase.h>
 #include <qsqlresult.h>
 #include "qtable.h"
+#include <qdatatable.h>
+#include <qdatabrowser.h>
 #include <qstack.h>
 #include <qstatusbar.h>
 #include "qtimer.h"
