@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#111 $
 **
 ** Implementation of layout classes
 **
@@ -764,7 +764,8 @@ private:
   space the column will get, over and above its necessary minimum.
 
   Normally, each managed widget or layout is put into a cell of its
-  own using addWidget() or addLayout(), but you can also put widget
+  own using addWidget(), addLayout(), or by the \link QLayout::setAutoAdd()
+  auto-add facility\endlink, but you can also put widget
   into multiple cells using addMultiCellWidget().  If you do that,
   QGridLayout will make a guess at how to distribute the size over the
   columns/rows (based on the stretch factors). You can adjust the
@@ -1104,7 +1105,10 @@ static bool checkWidget( QLayout *l, QWidget *w )
   as QLabel::setAlignment(). The default alignment is 0, which means
   that the widget fills the entire cell.
 
-  Note: The alignment parameter is interpreted more aggressively
+  Note 1: You should not call this if you have enabled the
+  \link QLayout::setAutoAdd() auto-add facility of the layout\endlink.
+
+  Note 2: The alignment parameter is interpreted more aggressively
   than in previous versions of Qt.  A non-default alignment now
   indicates that the widget should not grow to fill the available
   space, but should be sized according to sizeHint().
@@ -1511,7 +1515,7 @@ void QBoxLayout::addItem( QLayoutItem *item )
 /*!
   Adds \a layout to the box, with serial stretch factor \a stretch.
 
-  \sa addWidget(), addSpacing()
+  \sa setAutoAdd(), addWidget(), addSpacing()
 */
 
 void QBoxLayout::addLayout( QLayout *layout, int stretch )
@@ -1623,7 +1627,7 @@ void QBoxLayout::addStrut( int size )
   indicates that the widget should not grow to fill the available
   space, but should be sized according to sizeHint().
 
-  \sa addLayout(), addSpacing()
+  \sa setAutoAdd(), addLayout(), addSpacing()
 */
 
 void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignmnt )
@@ -1695,12 +1699,22 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
   This class provides an easier way to construct horizontal box layout
   objects.  See \l QBoxLayout for more details.
 
-  The simplest way to use this class is:
+  The simplest ways to use this class are:
 
   \code
      QBoxLayout * l = new QHBoxLayout( widget );
-     l->addWidget( aWidget );
-     l->addWidget( anotherWidget );
+     l->setAutoAdd( TRUE );
+     new QSomeWidget( widget );
+     new QSomeOtherWidget( widget );
+     new QAnotherWidget( widget );
+  \endcode
+
+  or
+
+  \code
+     QBoxLayout * l = new QHBoxLayout( widget );
+     l->addWidget( existingChildOfWidget );
+     l->addWidget( anotherChildOfWidget );
   \endcode
 
   \sa QVBoxLayout QGridLayout
