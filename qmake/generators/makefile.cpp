@@ -1197,9 +1197,13 @@ void MakefileGenerator::logicWarn(const QString &f, const QString &w)
 	file = file.right(file.length() - slsh - 1);
     QStringList &l = project->variables()[w];
     for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-	if((*val_it).right(file.length()) == file) {
-	    warn_msg(WarnLogic, "Found potential symbol conflict of %s in %s",
-		     file.latin1(), w.latin1());
+	QString file2((*val_it));
+	slsh = file2.findRev(Option::dir_sep);
+	if(slsh != -1)
+	    file2 = file2.right(file2.length() - slsh - 1);
+	if(file2 == file) {
+	    warn_msg(WarnLogic, "Found potential symbol conflict of %s (%s) in %s",
+		     file.latin1(), (*val_it).latin1(), w.latin1());
 	    break;
 	}
     }
