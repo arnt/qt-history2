@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#67 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1018,7 +1018,6 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 
 void QMultiLineEdit::pageDown( bool mark )
 {
-    setBackgroundMode(NoBackground);
     bool oldAuto = autoUpdate();
     if ( mark )
 	setAutoUpdate( FALSE );
@@ -1062,7 +1061,6 @@ void QMultiLineEdit::pageDown( bool mark )
 	}
     if ( !mark )
 	turnMarkOff();
-    setBackgroundMode(PaletteBase);
 }
 
 
@@ -1073,7 +1071,6 @@ void QMultiLineEdit::pageDown( bool mark )
 
 void QMultiLineEdit::pageUp( bool mark )
 {
-    setBackgroundMode(NoBackground);
     bool oldAuto = autoUpdate();
     if ( mark )
 	setAutoUpdate( FALSE );
@@ -1117,7 +1114,6 @@ void QMultiLineEdit::pageUp( bool mark )
 	}
     if ( !mark )
 	turnMarkOff();
-    setBackgroundMode(PaletteBase);
 }
 
 
