@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#245 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#246 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -1994,7 +1994,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
   fill algorithm. If \e winding is FALSE, the polygon is filled using the
   even-odd (alternative) fill algorithm.
 
-  \sa drawLineSegments(), drawPolygon()
+  \sa drawLineSegments(), drawPolyline()
 */
 
 void QPainter::drawPolygon( const QPointArray &a, bool winding,
@@ -2144,7 +2144,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
     if ( sh + sy > pixmap.height() )
 	sh = pixmap.height() - sy;
-    
+
     if ( sw <= 0 || sh <= 0 )
 	return;
 
@@ -2277,13 +2277,13 @@ static void drawTile( QPainter *p, int x, int y, int w, int h,
 		      const QPixmap &pixmap, int xOffset, int yOffset )
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
-    yPos = y; 
+    yPos = y;
     yOff = yOffset;
     while( yPos < y + h ) {
 	drawH = pixmap.height() - yOff;    // Cropping first row
 	if ( yPos + drawH > y + h )	   // Cropping last row
 	    drawH = y + h - yPos;
-	xPos = x; 
+	xPos = x;
 	xOff = xOffset;
 	while( xPos < x + w ) {
 	    drawW = pixmap.width() - xOff; // Cropping first column
