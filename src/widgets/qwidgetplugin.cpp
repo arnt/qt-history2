@@ -143,7 +143,7 @@ QString QWidgetPlugin::group( const QString &widget ) const
 
 QIconSet QWidgetPlugin::iconSet( const QString &widget ) const
 {
-    return QString::null;
+    return QIconSet();
 }
 
 QString QWidgetPlugin::includeFile( const QString &widget ) const
