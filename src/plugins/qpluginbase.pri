@@ -5,3 +5,5 @@ CONFIG += qt plugin
 !debug_and_release|build_pass {
    CONFIG(debug, debug|release):TARGET = $$member(TARGET, 0)_debug
 }
+
+contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
