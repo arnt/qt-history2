@@ -17,15 +17,15 @@
 
 #include "glinfo.h"
 
-#include <GL/glx.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 #include <qstring.h>
 #include <qlistview.h>
 #include <qlayout.h>
 #include <qtextview.h>
 #include <qpushbutton.h>
+
+#include <GL/glx.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include <stdio.h>
 #include <string.h>

@@ -31,7 +31,7 @@ class QListView;
 #endif
 
 #if defined(Q_WS_X11)
-#include <qt_x11.h>
+//#include <qt_x11.h>
 
 struct visual_attribs {
     /* X visual attribs */

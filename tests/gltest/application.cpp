@@ -112,6 +112,11 @@ MDIWindow::MDIWindow( const QGLFormat &f, QWidget* parent, const char* name )
     QString str;
     QVBoxLayout *layout = new QVBoxLayout( this );
     gl = new QGLWidget( f, this );
+    if ( !gl->isValid() ) {
+	QLabel * l = new QLabel( "Unable to create a GL widget with that config", this);
+	layout->addWidget( l );
+	return;
+    }
     str.sprintf("Double Buffer: %d", gl->format().doubleBuffer());
     QLabel *l = new QLabel( str, this);
     layout->addWidget( l );
