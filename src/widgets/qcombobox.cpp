@@ -1995,12 +1995,12 @@ void QComboBox::setEditable( bool y )
 	d->ed->show();
 	if ( currentItem() )
 	    setEditText( currentText() );
-	setFocusPolicy( StrongFocus );
     } else {
 	delete d->ed;
 	d->ed = 0;
-	setFocusPolicy( TabFocus );
     }
+
+    setFocusPolicy( StrongFocus );
     updateGeometry();
     update();
 }

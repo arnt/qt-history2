@@ -1335,7 +1335,7 @@ static XftPattern *checkXftFont( XftPattern *match, const QString &familyName, c
 	XftPatternDestroy(match);
 	match = 0;
     }
-    if (match && sample.unicode() != 0 ) { 
+    if (match && sample.unicode() != 0 ) {
 	// check if the character is actually in the font - this does result in
 	// a font being loaded, but since Xft is completely client side, we can
 	// do this efficiently
@@ -2719,7 +2719,7 @@ void QFont::initialize()
     if (qt_use_xrender &&
 	XftInit(0) && XftInitFtLibrary()) {
 	qt_has_xft = TRUE;
-	qt_use_antialiasing = QSettings().readBoolEntry("/qt/useXft");
+	qt_use_antialiasing = QSettings().readBoolEntry( "/qt/useXft", TRUE );
 	qt_xft_render_sources = new QPixmapDict();
 	cleanup_pixmapdict.add(&qt_xft_render_sources);
     }
