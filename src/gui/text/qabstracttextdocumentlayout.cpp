@@ -26,6 +26,8 @@
     \brief The QAbstractTextDocumentLayout class is an abstract base
     class used to implement custom layouts for QTextDocuments.
 
+    \preliminary
+
     \ingroup text
 
     The standard layout provided by Qt can handle simple word
