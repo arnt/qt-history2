@@ -415,8 +415,8 @@ void QCopChannel::sendLocally( const QCString &ch, const QCString &msg,
     for ( QCopChannel *p = clients.first(); p != 0; p = clients.next() )
 	p->receive( msg, data );
 }
+#include "qcopchannel_qws.moc"
 
 #endif
 
-#include "qcopchannel_qws.moc"
 
