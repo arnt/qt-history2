@@ -227,7 +227,7 @@ class QListViewItem
 {
 public:
     inline QListViewItem()
-        : x(-1), y(-1), w(-1), h(-1), indexHint(-1), visited(0xffff) {}
+        : x(-1), y(-1), w(0), h(0), indexHint(-1), visited(0xffff) {}
     inline QListViewItem(const QListViewItem &other)
         : x(other.x), y(other.y), w(other.w), h(other.h),
           indexHint(other.indexHint), visited(other.visited) {}
@@ -242,7 +242,9 @@ public:
     inline QRect rect()
         { return QRect(x, y, w, h); }
     inline bool isValid()
-        { return (x > -1) && (y > -1) && (w > -1) && (h > -1) && (indexHint > -1); }
+        { return (x > -1) && (y > -1) && (w > 0) && (h > 0) && (indexHint > -1); }
+    inline void invalidate()
+        { x = -1; y = -1; w = 0; h = 0; }
 
     int x, y;
     short w, h;
@@ -277,7 +279,9 @@ public:
     int itemIndex(const QListViewItem item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
                         uint visited, QBinTree<QListViewItem>::Data data);
+
     QPoint initStaticLayout(const QRect &bounds, int spacing, int first);
+    QPoint initDynamicLayout(const QRect &bounds, int spacing, int first);
 
     void insertItem(int index, QListViewItem &item);
     void removeItem(int index);
