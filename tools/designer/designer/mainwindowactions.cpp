@@ -2046,9 +2046,11 @@ void MainWindow::showStartDialog()
 	if ( arg[0] != '-' )
 	    return;
     }
-    StartDialog *sd = new StartDialog( this, templatePath() );
-    sd->setRecentlyFiles( recentlyFiles );
-    sd->setRecentlyProjects( recentlyProjects );
-    sd->exec();
-    shStartDialog = sd->showDialogInFuture();
+    if ( !currentProject || !currentProject->isDummy() ) {
+	StartDialog *sd = new StartDialog( this, templatePath() );
+	sd->setRecentlyFiles( recentlyFiles );
+	sd->setRecentlyProjects( recentlyProjects );
+	sd->exec();
+	shStartDialog = sd->showDialogInFuture();
+    }
 }

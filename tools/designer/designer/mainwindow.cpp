@@ -275,8 +275,8 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
 
     statusBar()->setSizeGripEnabled( TRUE );
     set_splash_status( "Initialization Done." );
-    if ( shStartDialog )
-	QTimer::singleShot( 0, this, SLOT( showStartDialog() ));
+    if ( shStartDialog ) 
+	QTimer::singleShot( 100, this, SLOT( showStartDialog() ));
 
     if ( autoSaveEnabled )
 	autoSaveTimer->start( autoSaveInterval * 1000 );
@@ -921,6 +921,11 @@ void MainWindow::updateProperties( QObject * )
 
 bool MainWindow::eventFilter( QObject *o, QEvent *e )
 {
+    if( o == qApp && e->type() == QEvent::FileOpen ) {
+	fileOpen("", "", ((QFileOpenEvent*)e)->file());
+	return FALSE;
+    }
+
     if ( ::qt_cast<MenuBarEditor*>(o) || ::qt_cast<PopupMenuEditor*>(o) ||
 	 ( o &&
 	   ( ::qt_cast<MenuBarEditor*>(o->parent()) ||
