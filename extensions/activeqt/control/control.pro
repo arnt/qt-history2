@@ -23,7 +23,7 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
     HEADERS     = qaxaggregated.h \
                   qaxbindable.h \
 		  qaxfactory.h \
-		  ../shared/types.h
+		  ../shared/qaxtypes.h
 
     SOURCES     = qaxserver.cpp \
 		  qaxserverbase.cpp \
@@ -32,5 +32,5 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		  qaxservermain.cpp \
 		  qaxserverdll.cpp \
 		  qaxmain.cpp \
-		  ../shared/types.cpp
+		  ../shared/qaxtypes.cpp
 }
