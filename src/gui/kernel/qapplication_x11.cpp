@@ -1991,6 +1991,7 @@ void qt_cleanup()
     X11->net_virtual_root_list = 0;
 
     delete X11;
+    X11 = 0;
 }
 
 
