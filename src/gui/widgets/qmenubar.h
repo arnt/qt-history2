@@ -38,8 +38,7 @@ public:
     using QWidget::addAction;
 #endif
     QAction *addAction(const QString &text);
-    QAction *addAction(const QString &text, const QObject *receiver, const char* member,
-                       const QKeySequence& shortcut = 0);
+    QAction *addAction(const QString &text, const QObject *receiver, const char* member);
     QAction *addMenu(const QString &title, QMenu *menu);
     QAction *addSeparator();
 

@@ -425,10 +425,9 @@ QAction *QMenuBar::addAction(const QString &text)
 
     \sa QWidget::addAction()
 */
-QAction *QMenuBar::addAction(const QString &text, const QObject *receiver, const char* member,
-                          const QKeySequence &shortcut)
+QAction *QMenuBar::addAction(const QString &text, const QObject *receiver, const char* member)
 {
-    QAction *ret = new QAction(text, shortcut, this);
+    QAction *ret = new QAction(text, this);
     QObject::connect(ret, SIGNAL(triggered()), receiver, member);
     addAction(ret);
     return ret;

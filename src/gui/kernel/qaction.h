@@ -55,12 +55,6 @@ public:
     QAction(const QString &text, QMenu *menu, QActionGroup* parent);
     QAction(const QString &text, QActionGroup* parent);
     QAction(const QIconSet &icon, const QString &text, QActionGroup* parent);
-    QAction(const QString &text, const QKeySequence &shortcut, QWidget* parent=0);
-    QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
-              QWidget* parent=0);
-    QAction(const QString &text, const QKeySequence &shortcut, QActionGroup* parent);
-    QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
-              QActionGroup* parent);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QAction(QWidget* parent, const char* name);
@@ -177,8 +171,8 @@ public:
     ~QActionGroup();
 
     QAction *addAction(QAction* a);
-    QAction *addAction(const QString &text, const QKeySequence &shortcut);
-    QAction *addAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut);
+    QAction *addAction(const QString &text);
+    QAction *addAction(const QIconSet &icon, const QString &text);
     void removeAction(QAction *a);
     QList<QAction*> actions() const;
 
@@ -205,7 +199,7 @@ protected:
 
 signals:
     void triggered(QAction *);
-    void selected(QAction *); // QT_COMPAT
+    QT_MOC_COMPAT void selected(QAction *);
     void hovered(QAction *);
 
 private:

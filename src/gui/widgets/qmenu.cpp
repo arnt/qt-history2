@@ -678,17 +678,15 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
     \overload
 
     This convenience function creates a new action with the text \a
-    text and a keyboard shortcut of \a shortcut. The action's
-    triggered() signal is connected to the \a receiver's \a member
-    slot. The function adds the newly created action to the menu's
-    list of actions and returns it.
+    text. The action's triggered() signal is connected to the \a
+    receiver's \a member slot. The function adds the newly created
+    action to the menu's list of actions and returns it.
 
     \sa QWidget::addAction()
 */
-QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member,
-                          const QKeySequence &shortcut)
+QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member)
 {
-    QAction *ret = new QAction(text, shortcut, this);
+    QAction *ret = new QAction(text, this);
     QObject::connect(ret, SIGNAL(triggered()), receiver, member);
     addAction(ret);
     return ret;
@@ -697,18 +695,18 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
 /*!
     \overload
 
-    This convenience function creates a new action with an \a icon,
-    some \a text, and a keyboard \a shortcut.
-    The action's triggered() signal is connected to the \a member
-    slot of the \a receiver object. The function adds the newly created
-    action to the menu's list of actions, and returns it.
+    This convenience function creates a new action with an \a icon and
+    some \a text.  The action's triggered() signal is connected to the
+    \a member slot of the \a receiver object. The function adds the
+    newly created action to the menu's list of actions, and returns
+    it.
 
     \sa QWidget::addAction()
 */
 QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver,
-                          const char* member, const QKeySequence &shortcut)
+                          const char* member)
 {
-    QAction *ret = new QAction(icon, text, shortcut, this);
+    QAction *ret = new QAction(icon, text, this);
     QObject::connect(ret, SIGNAL(triggered()), receiver, member);
     addAction(ret);
     return ret;
@@ -718,8 +716,7 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
     This convenience function creates a new action with some \a
     text, and a submenu given by \a menu. The function adds the newly
     created action to the menu's list of actions, and returns it.
-
-    \sa QWidget::addAction()
+     \sa QWidget::addAction()
 */
 QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 {
@@ -1841,7 +1838,7 @@ void QMenu::internalDelayedPopup()
 int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                           const QKeySequence *shortcut, const QMenu *popup, int id, int index)
 {
-    QAction *act = new QAction;
+    QAction *act = new QAction(this);
     if(id != -1)
         static_cast<QMenuItem*>(act)->setId(id);
     if(icon)
@@ -1863,7 +1860,7 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
 
 int QMenu::insertSeparator(int index)
 {
-    QAction *act = new QAction;
+    QAction *act = new QAction(this);
     act->setSeparator(true);
     if(index == -1)
         addAction(act);

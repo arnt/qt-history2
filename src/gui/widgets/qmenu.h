@@ -46,10 +46,8 @@ public:
 #endif
     QAction *addAction(const QString &text);
     QAction *addAction(const QIconSet &icon, const QString &text);
-    QAction *addAction(const QString &text, const QObject *receiver, const char* member,
-                       const QKeySequence& shortcut = 0);
-    QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member,
-                       const QKeySequence& shortcut = 0);
+    QAction *addAction(const QString &text, const QObject *receiver, const char* member);
+    QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member);
     QAction *addMenu(const QIconSet &icon, const QString &text, QMenu *menu);
     QAction *addMenu(const QString &text, QMenu *menu);
     QAction *addSeparator();

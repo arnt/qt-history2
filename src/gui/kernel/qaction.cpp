@@ -203,62 +203,6 @@ QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
 }
 
 /*!
-    Constructs an action with some \a text and a keyboard \a shortcut
-    for the \a parent action group. The action will be automatically
-    inserted into the action group.
-*/
-QAction::QAction(const QString &text, const QKeySequence &shortcut, QActionGroup* parent)
-    : QObject(*(new QActionPrivate), parent)
-{
-    d->text = text;
-    setShortcut(shortcut);
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
-}
-
-/*!
-    Constructs an action with an \a icon, some \a text, and a keyboard
-    \a shortcut for the \a parent action group. The action will
-    automatically be inserted into the action group.
-*/
-QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut, QActionGroup* parent)
-    : QObject(*(new QActionPrivate), parent)
-{
-    d->text = text;
-    setShortcut(shortcut);
-    d->icons = new QIconSet(icon);
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
-}
-
-/*!
-    Constructs an action with some \a text and a keyboard \a shortcut
-    for the \a parent widget. The action will \e not be automatically
-    inserted into the widget.
-*/
-QAction::QAction(const QString &text, const QKeySequence &shortcut, QWidget* parent)
-    : QObject(*(new QActionPrivate), parent)
-{
-    d->text = text;
-    setShortcut(shortcut);
-}
-
-/*!
-    Constructs an action with an \a icon, some \a text, and a keyboard
-    \a shortcut for the \a parent widget. The action will \e not be
-    automatically inserted into the widget.
-*/
-QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
-                   QWidget* parent) : QObject(*(new QActionPrivate), parent)
-{
-    d->text = text;
-    setShortcut(shortcut);
-    d->icons = new QIconSet(icon);
-}
-
-/*!
     Returns the parent widget.
 */
 QWidget *QAction::parentWidget() const
@@ -281,16 +225,22 @@ void QAction::setShortcut(const QKeySequence &shortcut)
     if (d->shortcut == shortcut)
         return;
 
-    d->shortcut = shortcut;
-    if(QWidget *parent = parentWidget()) {
-        if(d->shortcutId != -1) {
-            parent->releaseShortcut(d->shortcutId);
-            d->shortcutId = -1;
-        } else {
-            parent->installEventFilter(this);
-        }
-        d->shortcutId = parent->grabShortcut(d->shortcut);
+    QWidget *parent = parentWidget();
+    while (qt_cast<QMenu*>(parent))
+        parent = parent->parentWidget();
+    if (!parent) {
+        qWarning("QAction::setShortcut: no widget parent defined");
+        return;
     }
+
+    d->shortcut = shortcut;
+    if(d->shortcutId != -1) {
+        parent->releaseShortcut(d->shortcutId);
+        d->shortcutId = -1;
+    } else {
+        parent->installEventFilter(this);
+    }
+    d->shortcutId = parent->grabShortcut(d->shortcut);
     d->sendDataChanged();
 }
 
@@ -722,7 +672,7 @@ QAction::eventFilter(QObject *, QEvent *e)
         if (d->shortcutId != se->shortcutId())
             return false;
         if (se->isAmbiguous())
-            qWarning("QAction: Ambigious shortcut overload!");
+            qWarning("QAction::eventFilter: smbigious shortcut overload");
         else
             activate(Trigger);
         return true;
@@ -947,32 +897,31 @@ QAction *QActionGroup::addAction(QAction* a)
 }
 
 /*!
-    Creates and returns an action with \a text and a \a shortcut.
-    The newly created action is a child of this action group.
+    Creates and returns an action with \a text.  The newly created
+    action is a child of this action group.
 
     Normally an action is added to a group by creating it with the
     group as parent, so this function is not usually used.
 
     \sa QAction::setActionGroup()
 */
-QAction *QActionGroup::addAction(const QString &text, const QKeySequence &shortcut)
+QAction *QActionGroup::addAction(const QString &text)
 {
-    return new QAction(text, shortcut, this);
+    return new QAction(text, this);
 }
 
 /*!
-    Creates and returns an action with \a text, an \a icon, and
-    a \a shortcut. The newly created action is a child of this
-    action group.
+    Creates and returns an action with \a text and an \a icon. The
+    newly created action is a child of this action group.
 
     Normally an action is added to a group by creating it with the
     group as its parent, so this function is not usually used.
 
     \sa QAction::setActionGroup()
 */
-QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut)
+QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text)
 {
-    return new QAction(icon, text, shortcut, this);
+    return new QAction(icon, text, this);
 }
 
 /*!
