@@ -644,7 +644,7 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
 
     vm = Large;
 
-    setGridX( 100 );
+    setGridX( 75 );
     setResizeMode( Adjust );
     setWordWrapIconText( FALSE );
 
