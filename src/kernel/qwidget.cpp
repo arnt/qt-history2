@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#35 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#35 $";
 #endif
 
 /*! \class QWidget qwidget.h
@@ -368,6 +368,8 @@ bool QWidget::setMouseTracking( bool enable )
     return v;
 }
 #endif // _WS_X11_
+
+
 
 
 void QWidget::setFRect( const QRect &r )	// set frect, update crect
