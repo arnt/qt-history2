@@ -3196,9 +3196,10 @@ bool QXmlSimpleReader::parseElement()
     const signed char ETagBegin2       =  6;
     const signed char Ws2              =  7;
     const signed char EmptyTag         =  8;
-    const signed char Attribute        =  9;
-    const signed char Ws3              = 10;
-    const signed char Done             = 11;
+    const signed char Attrib           =  9;
+    const signed char AttribPro        = 10; // like Attrib, but processAttribute was already called
+    const signed char Ws3              = 11;
+    const signed char Done             = 12;
 
     const signed char InpWs            = 0; // whitespace
     const signed char InpNameBe        = 1; // is_NameBeginning()
@@ -3206,19 +3207,20 @@ bool QXmlSimpleReader::parseElement()
     const signed char InpSlash         = 3; // /
     const signed char InpUnknown       = 4;
 
-    static const signed char table[11][5] = {
+    static const signed char table[12][5] = {
      /*  InpWs      InpNameBe    InpGt        InpSlash     InpUnknown */
 	{ -1,        ReadName,    -1,          -1,          -1        }, // Init
-	{ Ws1,       Attribute,   STagEnd,     EmptyTag,    -1        }, // ReadName
-	{ -1,        Attribute,   STagEnd,     EmptyTag,    -1        }, // Ws1
+	{ Ws1,       Attrib,      STagEnd,     EmptyTag,    -1        }, // ReadName
+	{ -1,        Attrib,      STagEnd,     EmptyTag,    -1        }, // Ws1
 	{ STagEnd2,  STagEnd2,    STagEnd2,    STagEnd2,    STagEnd2  }, // STagEnd
 	{ -1,        -1,          -1,          ETagBegin,   -1        }, // STagEnd2
 	{ -1,        ETagBegin2,  -1,          -1,          -1        }, // ETagBegin
 	{ Ws2,       -1,          Done,        -1,          -1        }, // ETagBegin2
 	{ -1,        -1,          Done,        -1,          -1        }, // Ws2
 	{ -1,        -1,          Done,        -1,          -1        }, // EmptyTag
-	{ Ws3,       Attribute,   STagEnd,     EmptyTag,    -1        }, // Attribute
-	{ -1,        Attribute,   STagEnd,     EmptyTag,    -1        }  // Ws3
+	{ Ws3,       Attrib,      STagEnd,     EmptyTag,    -1        }, // Attrib
+	{ Ws3,       Attrib,      STagEnd,     EmptyTag,    -1        }, // AttribPro
+	{ -1,        Attrib,      STagEnd,     EmptyTag,    -1        }  // Ws3
     };
     signed char state;
     signed char input;
@@ -3261,9 +3263,10 @@ bool QXmlSimpleReader::parseElement()
 		if ( !processElementETagBegin2() )
 		    return FALSE;
 		break;
-	    case Attribute:
+	    case Attrib:
 		if ( !processElementAttribute() )
 		    return FALSE;
+		state = AttribPro;
 		break;
 	    case Done:
 		return TRUE;
@@ -3350,7 +3353,8 @@ bool QXmlSimpleReader::parseElement()
 		    return FALSE;
 		next();
 		break;
-	    case Attribute:
+	    case Attrib:
+	    case AttribPro:
 		// get name and value of attribute
 		if ( !parseAttribute() ) {
 		    parseFailed( &QXmlSimpleReader::parseElement, state );
