@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#331 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#332 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -258,7 +258,8 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 		    } else if ( isspace(*p) )
 			break;
 		}
-		*r++ = *p++;
+		if ( p )
+		    *r++ = *p++;
 	    }
 	    if ( *p )
 		p++;
@@ -567,7 +568,7 @@ void qt_cleanup()
 
   // Deinitialize OLE/COM
     OleUninitialize();
-    
+
     delete activeBeforePopup;
     activeBeforePopup = 0;
 }
