@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 
-$version="1.30";                      # May include "beta", etc.
-$winfile="qtwin130.zip";                 # Name as presented to customer
-$winsource="~/qtwin130.zip";             # File on zen.linpro.no
-$xfile="qt-1.30-commercial.tar.gz";      # Name as presented to customer
-$xsource="~/qt-1.30-commercial.tar.gz";  # File on zen.linpro.no
+$version="1.31";                      # May include "beta", etc.
+$sourcedir="~/qt";                       # Location on zen.linpro.no
+$winfile="qtwin131.zip";                 # Name of Windows archive
+$xfile="qt-1.31-commercial.tar.gz";      # Name of X11 archive
+$winpatch="qtdif131.zip";                 # Name of Windows patch or 0 if no
+$xpatch="qt-1.31-commercial.diff.gz";      # Name of X11 patch or 0 if no
 $custfile = $ENV{"HOME"}."/troll/kunder.txt";
 $dryrun=0; #"testrun";          # 0 for real, or file for test result
-
 
 $message=			     # Footer of message
 "Please send me mail when I can delete the files, and feel free to send
@@ -15,7 +15,10 @@ any questions to support\@troll.no.
 
 - Paul";
 
-
+# WARNING WARNING WARNING
+#
+# There are hardcoded values and strings in this version, please
+# examine carefully before using.
 
 
 open( CUSTOMERS, "<".$custfile ) || die "1";
@@ -53,7 +56,7 @@ foreach $line ( <CUSTOMERS> ) {
     print MAIL
 "Dear Qt customer, 
 
-Qt version 1.31 is now released, it is a bug fix release tith the
+Qt version 1.31 is now released, it is a bug fix release with the
 following bugs fixed (compared to 1.30):
 
 Changing the font of a QButton, QPushButton, QCheckBox or QRadioButton now
@@ -78,35 +81,56 @@ QMultiLineEdit:  In keyPressEvent() backspace no longer inserts an
 QMenubar:        Mouse presses on items without any popup menu are now
 		 always recognized.
 
-Changes to fix compile problems under IRIX.
+ * Changes to fix compile problems under IRIX.
 
-Changes to fix compile problems on some versions of AIX.
+ * Changes to fix compile problems on some versions of AIX.
 
-Changes to fix compile problems with aCC on HP-UX.
+ * Changes to fix compile problems with aCC on HP-UX.
 
-Minor documentation fixes.
+ * Minor documentation fixes.
+
+Qt 1.31 is released both as a complete archive, and as patches to
+Qt 1.30. The patches are in unified diff format. Note that the patches
+contain source code fixes only. Documentation fixes are included
+in the complete archive.
 ";
 
+    print MAIL "
+Note that you may have to use \"patch -p0\" on Windows. 
+"   if ( $platform =~ /w/ );
 
     print SSH "mkdir ", $key, "\n";
 
 
     if ( $platform =~ /w/ ) {
-	print SSH "ln ",$winsource," ", $key, "\n";
-	print MAIL "
-Here is a URL for the Windows version:
+	print SSH "ln $sourcedir/$winfile $key\n";
+	print SSH "ln $sourcedir/$winpatch $key\n"	if ( $winpatch );
 
-   ftp://ftp.troll.no/.private/", $key, "/", $winfile, "
+	print MAIL "
+Here is a URL for the complete Windows version (2.4 MB):
+
+   ftp://ftp.troll.no/.private/$key/$winfile
 ";
+	print MAIL "
+Here is a URL for the Windows patch (8 kB):
+
+   ftp://ftp.troll.no/.private/$key/$winpatch
+"	if ( $winpatch );
     }
 
     if ( $platform =~ /x/ ) {
-	print SSH "ln ",$xsource," ", $key, "\n";
+	print SSH "ln $sourcedir/$xfile $key\n";
+	print SSH "ln $sourcedir/$xpatch $key\n" if ( $xpatch );
 	print MAIL "
-Here is a URL for the X11 version:
+Here is a URL for the complete X11 version (1.9 MB):
 
-   ftp://ftp.troll.no/.private/", $key, "/", $xfile, "
+   ftp://ftp.troll.no/.private/$key/$xfile
 ";
+	print MAIL "
+Here is a URL for the X11 patch (10 kB):
+
+   ftp://ftp.troll.no/.private/$key/$xpatch
+"	if ( $xpatch );
     }
 
 
