@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#125 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#124 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#125 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1269,12 +1269,9 @@ void QWidget::adjustSize()
   of the specialized event handlers.
 
   Key press/release events are treated differently from other events.
-  First event() checks if there exists an \link QAccel accelerator
-  \endlink that wants the key press (accelerators do not get key release
-  events).  If not, it sends the event to the widget that has the \link
-  QApplication::focusWidget() keyboard focus\endlink. If there is no
-  widget in focus or the focus widget did not want the key, the event is
-  sent to the top level widget.
+  event() checks for TAB and shift-TAB and tries to move the focus
+  appropriately.  If there is no widget to move the focus to (or the
+  key press is not TAB or shift-TAB), event() calls keyPressEvent().
 
   This function returns TRUE if it is able to pass the event over to
   someone, or FALSE if nobody wanted the event.
@@ -1317,8 +1314,6 @@ bool QWidget::event( QEvent *e )
 
     case Event_KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
-#if 1
-	    // TAB handling has some unknown bug that nobody remembers
 	    bool res = FALSE;
 	    if ( k->key() == Key_Tab )
 		res = focusNextChild();
@@ -1326,7 +1321,6 @@ bool QWidget::event( QEvent *e )
 		res = focusPrevChild();
 	    if ( res )
 		break;
-#endif
 	    keyPressEvent( k );
 	    }
 	    break;
