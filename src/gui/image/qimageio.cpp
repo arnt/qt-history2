@@ -23,6 +23,7 @@
 #include "qmngio.h"
 #include "qjpegio.h"
 #include "qfile.h"
+#include <ctype.h>
 
 /*****************************************************************************
   Standard image io handlers (defined below)
@@ -1923,14 +1924,14 @@ static void read_xbm_image(QImageIO *iio)
 
     if (r1.indexIn(sbuf) == 0 &&
          r2.indexIn(sbuf, r1.matchedLength()) == r1.matchedLength())
-        w = atoi(&buf[r1.matchedLength()]);
+        w = QString(&buf[r1.matchedLength()]).toInt();
 
     d->readLine(buf, buflen);                        // "#define .._height <num>"
     sbuf = QString::fromLatin1(buf);
 
     if (r1.indexIn(sbuf) == 0 &&
          r2.indexIn(sbuf, r1.matchedLength()) == r1.matchedLength())
-        h = atoi(&buf[r1.matchedLength()]);
+        h = QString(&buf[r1.matchedLength()]).toInt();
 
     if (w <= 0 || w > 32767 || h <= 0 || h > 32767)
         return;                                        // format error
