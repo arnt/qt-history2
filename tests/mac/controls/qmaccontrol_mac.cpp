@@ -202,12 +202,14 @@ QMacControl::setControl(ControlRef ctrl)
 	setFocusPolicy((feat & kControlSupportsFocus) ? StrongFocus : NoFocus);
 	//mask
 	if(feat & kControlSupportsGetRegion) {
-	    qDebug("Set mask (this is untested)!!!");
 	    QRegion rgn;
 	    GetControlRegion(ctrl, 0, rgn.handle(TRUE));
-	    QPoint p = mapTo(topLevelWidget(), QPoint(0, 0));
-	    rgn.translate(-p.x(), -p.y());
-	    setMask(rgn);
+	    if(!rgn.isEmpty()) {
+		qDebug("Set mask (this is untested)!!!");
+		QPoint p = mapTo(topLevelWidget(), QPoint(0, 0));
+		rgn.translate(-p.x(), -p.y());
+		setMask(rgn);
+	    }
 	}
 
 	//Callbacks
@@ -299,9 +301,11 @@ QMacControl::event(QEvent *e)
 	EmbedControl(d->ctrl, root);
 	break; }
     case QEvent::MouseButtonPress: {
-	QPoint qp = mapTo(topLevelWidget(), ((QMouseEvent*)e)->pos());
-	Point p = { qp.y(), qp.x() };
-	TrackControl(d->ctrl, p, GetControlAction(d->ctrl));
+	QPoint p = ((QMouseEvent*)e)->globalPos();
+	QMacTrackEvent te(this, topLevelWidget()->mapFromGlobal(p));
+	QApplication::sendEvent(this, &te); 
+	if(te.isAccepted())
+	    repaint();
 	break; } 
     default:
 	break;
@@ -417,3 +421,4 @@ QMacControl::trackControlEvent(QMacTrackEvent *te)
 
 
 
+\

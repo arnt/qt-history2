@@ -41,6 +41,7 @@ void pb_action(ControlRef, ControlPartCode)
 int
 main(int argc, char **argv)
 {
+    Rect r; 
     //1) standard things
     QApplication a(argc, argv);
     QWidget *window = new QWidget(NULL, "TopLevel");
@@ -48,7 +49,6 @@ main(int argc, char **argv)
     window->show();
 
     //2) interesting part, create a macpushbutton...
-    Rect r; 
     SetRect(&r, 0, 0, 50, 35);
     ControlRef button;
     CreatePushButtonControl((WindowPtr)window->handle(), &r, NULL, &button);
