@@ -19,8 +19,16 @@ linkend="old-custom-widgets"> "Custom Widgets".)
     \p
     A custom widget is often a specialisation (subclass) of another
     widget or a combination of widgets working together or a blend of
-    both of these approaches. We have two recommendations that
-    you should consider when creating a custom widget for a plugin:
+    both these approaches. If you simply want a collection of widgets
+    in a particular configuration it is easiest to create them, select
+    them as a group, and copy and paste them as required. Custom widgets
+    are generally created when you need to add new functionality to
+    existing widgets or groups of widgets. 
+    \P
+    
+    \p
+    We have two recommendations that you should consider when creating a
+    custom widget for a plugin:
 	\list[1]
 	\item\p
 	Using Qt's property system will provide \qd users with a direct
@@ -41,13 +49,22 @@ linkend="old-custom-widgets"> "Custom Widgets".)
     \p
     In the course of this chapter we will create a simple but useful
     widget, 'FileChooser', which we'll later make available in \qd as a
-    plugin. FileChooser consists of a \class[QLineEdit] and a
+    plugin. In practice most custom widgets are created to add
+    functionality rather than to compose widgets, so we will create our
+    widget in code rather than using \qd to reflect this approach.
+    FileChooser consists of a \class[QLineEdit] and a
     \class[QPushButton]. The \class[QLineEdit] is used to hold a file or
     directory name, the \class[QPushButton] is used to launch a file
     dialog through which the user can choose a file or directory.
     <figure><title>The FileChooser Custom Widget</title>
     \img[filechooser]
     </figure>
+    If you've followed the manual up to this point you may well be able
+    to create this custom widget yourself. If you're confident that you
+    can make your own version of the widget, or have another widget that
+    you want to turn into a plugin, skip ahead to <xref
+    linkend="creating-a-plugin"> "Creating a Plugin". If you prefer to
+    read how we created the widget then read on.
     \P
 
 	<sect2>\title[Coding the Widget's Interface]
@@ -155,6 +172,15 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	\fn[clicked] signal is connected to the custom widget's
 	\fn[chooseFile] slot which invokes the appropriate dialog for
 	the user to choose their file or directory.
+	\P
+
+	\p
+<programlisting>
+\scan /setFocusProxy/ 0 
+</programlisting>
+	We set the lineEdit as the focus proxy for our custom widget.
+	This means that when the widget is given focus the focus
+	actually goes to the lineEdit. 
 	\P
 
 	\p
