@@ -2369,6 +2369,6 @@ bool QDateTimeEdit::autoAdvance() const
   Returns the internal widget used for editing the time part of the datetime.
 */
 
-#include <qdatetimeedit.moc>
+#include "qdatetimeedit.moc"
 
 #endif
