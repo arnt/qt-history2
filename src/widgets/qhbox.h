@@ -56,12 +56,13 @@ public:
     QSize sizeHint() const;
 
 protected:
-    QHBox( bool horizontal, QWidget* parent=0, const char* name=0, WFlags f=0 );
+    QHBox( bool horizontal, QWidget* parent, const char* name, WFlags f );
     void frameChanged();
 
 private:
     QBoxLayout *lay;
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+
+#if defined(Q_DISABLE_COPY)
     QHBox( const QHBox & );
     QHBox &operator=( const QHBox & );
 #endif
