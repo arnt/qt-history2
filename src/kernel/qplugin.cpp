@@ -270,10 +270,9 @@ bool QPlugIn::unload( bool force )
 
 	    delete ifc;
 	    ifc = 0;
-
-	    if ( !qt_free_library( pHnd ) )
-		return FALSE;
 	}
+	if ( !qt_free_library( pHnd ) )
+	    return FALSE;
     }
     pHnd = 0;
     return TRUE;
