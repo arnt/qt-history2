@@ -489,6 +489,8 @@ int QToolBox::count() const
 
 void QToolBox::setCurrentPage( int index )
 {
+    if ( index < 0 || index >= count() )
+	return;
     setCurrentPage( page( index ) );
 }
 
@@ -583,7 +585,8 @@ int QToolBox::currentIndex() const
 
 QWidget *QToolBox::page( int index ) const
 {
-    return d->pages.find( d->pageList->at( index )->button );
+    QToolBoxPrivate::Page *p = d->pageList->at( index );
+    return p ? d->pages.find( p->button ) : 0;
 }
 
 /*!
