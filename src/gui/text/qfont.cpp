@@ -106,6 +106,10 @@ bool QFontDef::exactMatch(const QFontDef &other) const
        );
 }
 
+#ifdef Q_WS_WIN
+extern HDC shared_dc;
+#endif
+
 static int defaultDpi()
 {
 
