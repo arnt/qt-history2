@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#30 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#30 $";
 #endif
 
 
@@ -24,13 +24,13 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#29 $";
 \class QMenuData qmenudta.h
 \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
 
-QMenuData has an internal list of menu items.  A menu item is a string
-or a pixmap in a menu.	The menu item sends out an activated() signal
-when it is selected, and a highlighted() signal when it receives the
-user input focus.
+QMenuData has an internal list of menu items.  A menu item is a
+string, separator or pixmap, and may also contain a popup menu.
 
-Menu items can be accessed through identifiers.
-*/
+The menu item sends out an activated() signal when it is selected, and
+a highlighted() signal when it receives the user input focus.
+
+Menu items can be accessed through identifiers. */
 
 // ---------------------------------------------------------------------------
 // QMenuItem member functions
@@ -231,13 +231,12 @@ int QMenuData::insertItem( const char *string,
 /*!
 Inserts a menu item with a string. Returns the menu item identifier.
 
-The menu item gets the identifier \e id if \e id >= 0 or a unique, negative
-identifier if \e id == -1 (default).
-The \e id must not be less than -1.
+The menu item is assigned the identifier \e id if \e id >= 0 or a
+unique, negative identifier if \e id == -1 (default).  The \e id must
+not be less than -1.
 
 The \e index specifies the position in the menu.  The menu item is
-appended at the end of the list if \e index is negative.
-*/
+appended at the end of the list if \e index is negative. */
 
 int QMenuData::insertItem( const char *string, int id, int index )
 {
@@ -252,13 +251,12 @@ int QMenuData::insertItem( const char *string, int id, int index )
 Inserts a menu item with a string and a sub menu.
 Returns the menu item identifier.
 
-The menu item gets the identifier \e id if \e id >= 0 or a unique, negative
-identifier if \e id == -1 (default).
-The \e id must not be less than -1.
+The menu item is assigned the identifier \e id if \e id >= 0 or a
+unique, negative identifier if \e id == -1 (default).  The \e id must
+not be less than -1.
 
 The \e index specifies the position in the menu.  The menu item is
-appended at the end of the list if \e index is negative.
-*/
+appended at the end of the list if \e index is negative. */
 
 int QMenuData::insertItem( const char *string, QPopupMenu *popup,
 			   int id, int index )
@@ -478,9 +476,12 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 }
 
 
-/*!
-Returns TRUE if the item is disabled.
-*/
+/*!  Returns TRUE if the item is disabled (currently not shown in the
+  menu).
+
+  \todo think about name change to itemDisabled()
+
+  \sa setItemDisabled() */
 
 bool QMenuData::isItemDisabled( int id ) const
 {						// is menu item disabled?
@@ -490,7 +491,9 @@ bool QMenuData::isItemDisabled( int id ) const
 
 /*!
 Enables the menu item if \e enable is TRUE, or disables the item if
-\e enable is FALSE.
+\e enable is FALSE.  Disabled items are not shown in the menu.
+
+\sa isItemIDisabled()
 */
 
 void QMenuData::setItemEnabled( int id, bool enable )
@@ -506,9 +509,7 @@ void QMenuData::setItemEnabled( int id, bool enable )
 }
 
 
-/*!
-Returns TRUE if the menu item has been checked.
-*/
+/*! Returns TRUE if the menu item has been checked. */
 
 bool QMenuData::isItemChecked( int id ) const
 {						// is menu item checked?

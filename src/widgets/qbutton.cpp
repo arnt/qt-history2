@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#33 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,20 +16,20 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#33 $";
 #endif
 
 
 /*----------------------------------------------------------------------------
   \class QButton qbutton.h
 
-  \brief The QButton class is abstract the base class of button
-  widgets, and it provides functionality common to buttons.
+  \brief The QButton class is the abstract base class of button
+  widgets, and provides functionality common to buttons.
 
   \ingroup abstractwidgets
 
-  The QButton class implements an abstract button, and lets subclasses specify
-  how to reply to user actions and how to draw the button.
+  The QButton class implements an abstract button, and lets subclasses
+  specify how to reply to user actions and how to draw the button.
 
   The QButton class has three signals. The pressed() signal is emitted
   when the left mouse button is pressed while the cursor is inside the

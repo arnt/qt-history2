@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#25 $
 **
 ** Implementation of QLabel widget class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#25 $";
 #endif
 
 
@@ -53,6 +53,8 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#24 $";
   without automatic resizing.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
+
+  See QFrame for details about the label's frame.
  ----------------------------------------------------------------------------*/
 
 QLabel::QLabel( QWidget *parent, const char *name )
@@ -69,6 +71,8 @@ QLabel::QLabel( QWidget *parent, const char *name )
   centered and without automatic resizing.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
+
+  See QFrame for details about the label's frame.
  ----------------------------------------------------------------------------*/
 
 QLabel::QLabel( const char *text, QWidget *parent, const char *name )
@@ -288,6 +292,8 @@ void QLabel::setAutoResize( bool enable )
 
   This function is called automatically whenever the contents change and
   auto-resizing is enabled.
+
+  \bug Does not work well with the WordBreak flag
 
   \sa setAutoResize()
  ----------------------------------------------------------------------------*/

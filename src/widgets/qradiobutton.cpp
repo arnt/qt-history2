@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#32 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#32 $";
 #endif
 
 
@@ -136,10 +136,10 @@ void QRadioButton::adjustSize()
 
 
 /*----------------------------------------------------------------------------
-  Reimplements QButton::hitButton().
-  This function is implemented to prevent a radio button that is
-  \link isOn() on\endlink from being switched \link isOff() off\endlink.
- ----------------------------------------------------------------------------*/
+  Reimplements QButton::hitButton().  This function is implemented to
+  prevent a radio button that is \link isOn() on \endlink from being
+  switched off.
+  ----------------------------------------------------------------------------*/
 
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
@@ -148,9 +148,9 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 
 
 /*----------------------------------------------------------------------------
-  Draws the radio button, but not the button label.
-  \sa drawButtonLabel()
- ----------------------------------------------------------------------------*/
+  Draws the radio button, but not the button label. \sa
+  drawButtonLabel()
+  ----------------------------------------------------------------------------*/
 
 void QRadioButton::drawButton( QPainter *paint )
 {

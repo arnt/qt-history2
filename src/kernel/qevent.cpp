@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#23 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#23 $";
 #endif
 
 
@@ -156,8 +156,9 @@ void QEvent::peErrMsg()				// posted event error message
 
   The event handler QWidget::timerEvent() receives timer events.
 
-  \sa QObject::startTimer(), QObject::killTimer(), QObject::killTimers()
- ----------------------------------------------------------------------------*/
+  \sa QTimer QWidget::timerEvent() QObject::startTimer()
+  QObject::killTimer() QObject::killTimers()
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QTimerEvent::QTimerEvent( int timerId )
@@ -173,12 +174,14 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*----------------------------------------------------------------------------
   \class QMouseEvent qevent.h
+
   \brief The QMouseEvent class contains parameters that describe a mouse event.
 
   \ingroup event
 
   Mouse events occur when a mouse button is pressed or released inside a
   widget, or when the mouse cursor is moved.
+
   Mouse move events will only occur when some mouse button is pressed down,
   unless \link QWidget::setMouseTracking() mouse tracking\endlink has been
   enabled.
@@ -223,9 +226,9 @@ void QEvent::peErrMsg()				// posted event error message
   Possible return values are \c LeftButton, \c RightButton, \c MidButton and
   \c NoButton.
 
-  The button value is always \c NoButton (0) when a mouse move event is
-  received.
- ----------------------------------------------------------------------------*/
+  \warning The button value is always \c NoButton (0) when a mouse
+  move event is received.
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QMouseEvent::state() const
@@ -246,9 +249,9 @@ void QEvent::peErrMsg()				// posted event error message
   Key events occur when a key is pressed or released when a widget has
   keyboard input focus.
 
-  A key event contain a special accept flag which tells whether the receiver
-  wants the key.  You should answer QKeyEvent::ignore() if the key press
-  or release is not handled by your widget.
+  A key event contains a special accept flag which tells whether the
+  receiver wants the key.  You should call QKeyEvent::ignore() if the
+  key press or release event is not handled by your widget.
 
   The QWidget::disable() function disables mouse and keyboard events for a
   widget, and QWidget::enable() enables mouse and keyboard events.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#19 $
 **
 ** Implementation of QRegExp class
 **
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#19 $";
 #endif
 
 
@@ -33,7 +33,7 @@ QRegExp knows these regexp primitives:
 <ul plain>
 <li><dfn>c</dfn> matches the character 'c'
 <li><dfn>.</dfn> matches any character
-<li><dfn>^</dfn> matches start of input (except [^x] matches NOT [x])
+<li><dfn>^</dfn> matches start of input (except [^x] which matches NOT [x])
 <li><dfn>$</dfn>  matches end of input
 <li><dfn>[]</dfn> matches a set of characters, for example [a-z0-9_]
 <li><dfn>a*</dfn> matches a sequence of zero or more a's
@@ -171,7 +171,7 @@ QRegExp &QRegExp::operator=( const char *pattern )
 
 /*!
 Returns TRUE if this regexp is equal to \e r.
-Two regexp objects are equal if they have the equal pattern strings,
+Two regexp objects are equal if they have equal pattern strings,
 case-sensitivity options and wildcard options.
 */
 
@@ -200,8 +200,8 @@ closing bracket.
 Returns TRUE if wildcard mode is on, otherwise FALSE. \sa setWildcard().
 */
 
-/*!
-Sets the wildcard option for the regular expression.
+/*!  Sets the wildcard option for the regular expression.  The default
+is FALSE.
 
 Setting \e wildcard to TRUE makes it convenient to match filenames
 instead of plain text.
@@ -209,8 +209,7 @@ instead of plain text.
 For example, "qr*.cpp" matches the string "qregexp.cpp" in wildcard mode,
 but not "qicpp" (which will be matched in normal mode).
 
-\sa wildcard().
-*/
+\sa wildcard(). */
 
 void QRegExp::setWildcard( bool wildcard )
 {
@@ -222,10 +221,11 @@ void QRegExp::setWildcard( bool wildcard )
 
 /*!
 \fn bool QRegExp::caseSensitive() const
-Returns TRUE if case-sensitivity is enabled, otherwise FALSE.
 
-See also: setCaseSensitive().
-*/
+Returns TRUE if case-sensitivity is enabled, otherwise FALSE.  The
+default is TRUE.
+
+See also: setCaseSensitive(). */
 
 /*!
 Enables or disables case-sensitive matching.

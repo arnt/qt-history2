@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#4 $
 **
 ** Implementation of QWMatrix class
 **
@@ -19,7 +19,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#4 $";
 #endif
 
 
@@ -94,11 +94,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#3 $";
 
   Rotation is achieved by carefully setting both the shearing factors
   and the scaling factors.  The QWMatrix has a function that sets
-  rotation directly.
-
-  Transformations can be combined by creating one matrix for each
-  primitive transformation, and then multiply the matrices together in
-  reversed transformation order.
+  \link rotate() rotation \endlink directly.
 
   QWMatrix lets you combine transformations like this:
   \code

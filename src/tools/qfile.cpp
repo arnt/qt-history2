@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#19 $
 **
 ** Implementation of QFile class
 **
@@ -15,7 +15,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#19 $";
 #endif
 
 
@@ -24,6 +24,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#18 $";
   \brief The QFile class provides system-independent file access.
 
   \ingroup tools
+  \ingroup files
 
   A file is an \link QIODevice I/O device\endlink that can read and write
   binary and text files.

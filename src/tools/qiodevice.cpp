@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#13 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,15 +13,18 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#13 $";
 #endif
 
 
 /*----------------------------------------------------------------------------
   \class QIODevice qiodev.h
+
   \brief The QIODevice class is the base class of IO devices.
 
-  \ingroup tools, iodevice
+  \ingroup tools
+  \ingroup files
+  \ingroup streams
 
   An IO device represents a medium that one can read bytes from and write
   bytes to.  The QIODevice class itself is not capable of reading or writing
@@ -43,6 +46,9 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#12 $";
   An IO device operation can be executed in either \e synchronous or
   \e asynchronous mode.  The IO devices currently supported by Qt only
   execute synchronously.
+
+  The QDataStream and QTextStream provide binary and text operations
+  on QIODevice objects.
 
   \sa QDataStream, QTextStream
  ----------------------------------------------------------------------------*/
@@ -159,8 +165,9 @@ QIODevice::~QIODevice()
   Returns TRUE if the IO device translates carriage-return and linefeed
   characters.
 
-  A QFile can is translated if it is opened with the \c IO_Translate mode flag.
- ----------------------------------------------------------------------------*/
+  A QFile is translated if it is opened with the \c IO_Translate mode
+  flag.
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QIODevice::isReadable() const
@@ -287,6 +294,19 @@ void QIODevice::setStatus( int s )		// set status
   \fn bool QIODevice::open( int mode )
   Opens the IO device using the specified \e mode.
   Returns TRUE if successful, or FALSE if the device could not be opened.
+
+  The mode parameter \e m must be a combination of the following flags.
+  <ul>
+  <li>\c IO_Raw specified raw (unbuffered) file access.
+  <li>\c IO_ReadOnly opens a file in read-only mode.
+  <li>\c IO_WriteOnly opens a file in write-only mode.
+  <li>\c IO_ReadWrite opens a file in read/write mode.
+  <li>\c IO_Append sets the file index to the end of the file.
+  <li>\c IO_Truncate truncates the file.
+  <li>\c IO_Translate enables carriage returns and linefeed translation
+  for text files under MS-DOS, Window, OS/2 and Macintosh.  Cannot be
+  combined with \c IO_Raw.
+  <\ul>
   
   This virtual function must be reimplemented by subclasses.
 

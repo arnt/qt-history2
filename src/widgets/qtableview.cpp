@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#3 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qtableview.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qtableview.cpp#3 $";
 #endif
 
 
@@ -284,10 +284,9 @@ void QTableView::setNumCols( int cols )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  This slot scrolls the table such that \e row becomes the top
-  row.
-  \sa setYOffset(), setTopLeftCell(), setLeftCell()
- ----------------------------------------------------------------------------*/
+  Scrolls the table such that \e row becomes the top row.  \sa
+  setYOffset(), setTopLeftCell(), setLeftCell()
+  ----------------------------------------------------------------------------*/
 
 void QTableView::setTopCell( int row )
 {
@@ -297,7 +296,7 @@ void QTableView::setTopCell( int row )
 
 /*----------------------------------------------------------------------------
   \fn int QTableView::leftCell() const
-  Returns the index of the first column in the table that's visible in
+  Returns the index of the first column in the table that is visible in
   the view.
   \sa topCell(), setLeftCell()
  ----------------------------------------------------------------------------*/
@@ -352,11 +351,12 @@ void QTableView::setTopLeftCell( int row, int col )
 
 
 /*----------------------------------------------------------------------------
-  \fn int QTableView::xOffset() const
-  Returns the coordinate in pixels of the table which is currently on
-  the left edge of the view.
-  \sa setXOffset(), yOffset(), leftCell()
- ----------------------------------------------------------------------------*/
+  \fn int QTableView::xOffset()
+
+  const Returns the coordinate in pixels of the table point which is
+  currently on the left edge of the view.  \sa setXOffset(),
+  yOffset(), leftCell()
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Scrolls the table such that \e x becomes the leftmost pixel in the view.
@@ -375,7 +375,7 @@ void QTableView::setXOffset( int x )
 
 /*----------------------------------------------------------------------------
   \fn int QTableView::yOffset() const
-  Returns the coordinate in pixels of the table which is currently on
+  Returns the coordinate in pixels of the table point which is currently on
   the top edge of the view.
   \sa setYOffset(), xOffset(), topCell()
  ----------------------------------------------------------------------------*/
@@ -832,6 +832,7 @@ void QTableView::clearTableFlags( ulong f )
   \link setTableFlags() flag\endlink is changed).
 
   If \e enable is FALSE, the view will NOT update itself when it is changed.
+
   \warning Do not leave the view in this state for a long time (i.e. between
   events ). If the user interacts with the view when auto-update is off,
   strange things can happen.
@@ -883,8 +884,8 @@ void QTableView::updateCell( int row, int col, bool erase )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Returns the rectangle which is the actual table, in the view's
-  own coordinate system.
+  Returns the rectangle which is the actual table, excluding any
+  frame, in the widget coordinate system.
 
   Somewhat similar to clientRect(), but does not include any frames.
  ----------------------------------------------------------------------------*/
@@ -900,7 +901,7 @@ QRect QTableView::viewRect() const
   The index of the first row is 0.
 
   If no rows are visible it returns -1.	 This can happen if the
-  voew is too small for the first row and Tbl_cutCellsV is set.
+  view is too small for the first row and Tbl_cutCellsV is set.
 
   \sa lastColumnVisible()
  ----------------------------------------------------------------------------*/
@@ -1156,7 +1157,7 @@ void QTableView::setupPainter( QPainter * )
 /*----------------------------------------------------------------------------
   Handles paint events for the table view.
 
-  It is optimized at repainting only the cells that need to be repainted.
+  It is optimized to repaint only the cells that need to be repainted.
  ----------------------------------------------------------------------------*/
 
 void QTableView::paintEvent( QPaintEvent *e )

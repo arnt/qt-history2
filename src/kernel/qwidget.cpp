@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#71 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#70 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#71 $";
 #endif
 
 /*!
@@ -30,14 +30,23 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#70 $";
 
   \ingroup abstractwidgets
 
-  A widget without a parent, called a top level widget, is a window with a
-  frame and title bar (depends on the widget style specified by the widget
-  flags). A widget with a parent becomes a child window in the parent's
-  window.
+  It receives mouse, keyboard and other events from the window system.
+  It has a number of virtual functions which can be reimplemented in
+  order to respond to these events.
+
+  By far the most important is paintEvent() which is called whenever
+  the widget needs to update its representation.
+
+  A widget without a parent, called a top level widget, is a window
+  with a frame and title bar (depends on the widget style specified by
+  the widget flags). A widget with a parent becomes a child window in
+  the parent's window.
 
   If you intend to set a caption (title) or an icon, you should inherit
-  QWindow.
-*/
+  QWindow rather than QWidget.
+
+  \sa QEvent QPainter
+ */
 
 // --------------------------------------------------------------------------
 // Internal QWidgetMapper class
@@ -306,13 +315,11 @@ GUIStyle QWidget::style() const			// get widget GUI style
     return extra ? extra->guistyle : QApplication::style();
 }
 
-/*!
-  Sets the GUI style for this widget.
+/*!  Sets the GUI style for this widget.  The valid values are listed
+  in qglobal.h, but everything except \c MotifStyle is masked out in
+  the free linux version.
 
-  Only \c MotifStyle is allowed in this version of Qt.
-
-  \sa style(), QApplication::setStyle().
-*/
+  \sa style(), QApplication::setStyle(). */
 
 void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 {
@@ -417,7 +424,7 @@ void QWidget::disable()				// disable events
 
 
 /*!
-  Returns a bounding rectangle of all child widgets.
+  Returns the bounding rectangle of the widget's children.
 */
 
 QRect QWidget::childrenRect() const
@@ -510,7 +517,8 @@ const QPalette &QWidget::palette() const	// get widget palette
 /*!
   Sets the widget palette to \e p. The widget background color is set to
   <code>colorGroup().background()</code>.
-  \sa palette(), colorGroup()
+
+  \sa palette(), colorGroup() setBackgroundColor()
 */
 
 void QWidget::setPalette( const QPalette &p )	// set widget palette
@@ -524,7 +532,7 @@ void QWidget::setPalette( const QPalette &p )	// set widget palette
 /*!
   Returns the font currently set for the widget.
 
-  QFontInfo will tell you what font is actually being used.
+  QFontInfo will tell you what font the window system is actually using.
 
   \sa setFont(), fontInfo(), fontMetrics()
 */
@@ -558,8 +566,9 @@ void QWidget::setFont( const QFont &font )
 
 
 /*!
-  Returns the widget cursor shape.
-  \sa setCursor()
+  Returns the widget cursor.
+
+  \sa setCursor() QCursor
 */
 
 const QCursor &QWidget::cursor() const
@@ -572,14 +581,14 @@ const QCursor &QWidget::cursor() const
   \fn bool QWidget::setMouseTracking( bool enable )
   Enables or disables mouse tracking and returns the previous setting.
 
-  If mouse tracking is enabled, the widget will always receive mouse
-  move events, even if no mouse button is pressed down.
+  If mouse tracking is disabled (default), the widget will only
+  receive mouse move events if at least one mouse button is pressed
+  down while the mouse is being moved.
 
-  If mouse tracking is disabled (default), the widget will only receive
-  mouse move events if at least one mouse button is pressed down.
+  If mouse tracking is enabled, the widget will receive mouse move
+  events even if no buttons are pressed down.
 
-  \sa mouseMoveEvent()
-*/
+  \sa mouseMoveEvent() */
 
 #if !defined(_WS_X11_)
 bool QWidget::setMouseTracking( bool enable )
@@ -684,11 +693,11 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
     return p - crect.topLeft();
 }
 
-/*!
-  Closes this widget.  First it sends the widget a QCloseEvent, then,
-  if the widget did accept that, it does an explicit delete of the
-  widget and all its children.
-*/
+/*!  Closes this widget.  First it sends the widget a QCloseEvent,
+  then, if the widget did accept that, or \e forceKill is TRUE, it
+  does an explicit delete of the widget and all its children.
+
+  \sa closeEvent() ~QWidget()*/
 
 bool QWidget::close( bool forceKill )		// close widget
 {
@@ -789,32 +798,29 @@ public:
     void setAccel()	  { accel = TRUE; }
 };
 
-/*!
-This is the main event handler. You may reimplement this function in
-a sub class, but we recommend using one of the specialized event
-handlers instead.
+/*! This is the main event handler. You may reimplement this function
+  in a sub class, but we recommend using one of the specialized event
+  handlers instead.
 
-The main event handler first passes an event through all event
-filters that have been installed (see QObject::installEventFilter()).
-If none of the filters intercept the event, it calls one of the
-specialized event handlers.
+  The main event handler first passes an event through all event
+  filters that have been installed (see
+  QObject::installEventFilter()).  If none of the filters intercept
+  the event, it calls one of the specialized event handlers.
 
-Key press/release events are treated differently from other events.
-First it checks if there exists an accelerator object (QAccel)
-that want the key press (accelerators do not get key release events).
-If not, it sends the event to the widget that has the keyboard focus.
-If there is no widget in focus or the focus widget did not want the key,
-the event is sent to the top level widget.
+  Key press/release events are treated differently from other events.
+  First it checks if there exists an \link QAccel accelerator \endlink
+  that wants the key press (accelerators do not get key release
+  events).  If not, it sends the event to the widget that has the
+  keyboard focus.  If there is no widget in focus or the focus widget
+  did not want the key, the event is sent to the top level widget.
 
-This function returns TRUE if it is able to pass the event over to someone,
-or FALSE if nobody wanted the event.
+  This function returns TRUE if it is able to pass the event over to
+  someone, or FALSE if nobody wanted the event.
 
-\sa QObject::event(), closeEvent(),
-focusInEvent(), focusOutEvent(), keyPressEvent(), keyReleaseEvent(),
-mouseDoubleClickEvent(), mouseMoveEvent(), mousePressEvent(),
-mouseReleaseEvent(), moveEvent(), paintEvent(), resizeEvent() and
-timerEvent().
-*/
+  \sa QObject::event(), closeEvent(), focusInEvent(), focusOutEvent(),
+  keyPressEvent(), keyReleaseEvent(), mouseDoubleClickEvent(),
+  mouseMoveEvent(), mousePressEvent(), mouseReleaseEvent(),
+  moveEvent(), paintEvent(), resizeEvent() and timerEvent(). */
 
 bool QWidget::event( QEvent *e )		// receive event(),
 {
@@ -967,13 +973,13 @@ This event handler can be reimplemented in a sub class to receive
 mouse move events for the widget.
 
 If mouse tracking is switched off, mouse move events will only occur
-if a mouse button is down.  If mouse tracking is swithed on, mouse
-move events will occur even if no mouse button is down.
+if a mouse button is down while the mouse is being moved.  If mouse
+tracking is switched on, mouse move events will occur even if no mouse
+button is down.
 
 The default implementation does nothing.
 
-\sa setMouseTracking() and event().
-*/
+\sa setMouseTracking() and event(). */
 
 void QWidget::mouseMoveEvent( QMouseEvent * )
 {
@@ -1019,28 +1025,32 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
     mousePressEvent( e );			// try mouse press event
 }
 
-/*!
-This event handler can be reimplemented in a sub class to receive
-key press events for the widget.
+/*! This event handler can be reimplemented in a sub class to receive
+  key press events for the widget.
 
-The default implementation ignores the key.
+  If you reimplement this, it is very important that you \link
+  QKeyEvent ignore() \endlink the press if you do not understand it,
+  so that the widget's parent can interpret it.
 
-\sa keyReleaseEvent() and event().
-*/
+  The default implementation ignores the event.
+
+  \sa keyReleaseEvent() event() QKeyEvent::ignore() */
 
 void QWidget::keyPressEvent( QKeyEvent *e )
 {
     e->ignore();
 }
 
-/*!
-This event handler can be reimplemented in a sub class to receive
-key release events for the widget.
+/*! This event handler can be reimplemented in a sub class to receive
+  key release events for the widget.
 
-The default implementation ignores the key.
+  If you reimplement this, it is very important that you \link
+  QKeyEvent ignore() \endlink the release if you do not understand it,
+  so that the widget's parent can interpret it.
 
-\sa keyPressEvent() and event().
-*/
+  The default implementation ignores the event.
+
+  \sa keyPressEvent() event() QKeyEvent::ignore() */
 
 void QWidget::keyReleaseEvent( QKeyEvent *e )
 {
@@ -1073,16 +1083,22 @@ void QWidget::focusOutEvent( QFocusEvent * )
 {
 }
 
-/*!
-This event handler can be reimplemented in a sub class to receive
-widget paint events.
+/*!  This event handler can be reimplemented in a sub class to receive
+  widget paint events.  Actually, it more or less \e must be
+  reimplemented.
 
-The default implementation does nothing.
+  When the paint event occurs, the rectangle \e e->rect() has been
+  cleared to the background color or pixmap.  For many widgets it is
+  sufficient to redraw the entire widget each time, but some need to
+  consider \e e->rect() to avoid flicker or slowness.
 
-\sa event().
-*/
+  The default implementation does nothing.
 
-void QWidget::paintEvent( QPaintEvent * )
+  update() and repaint() can be used to force a paint event.
+
+  \sa event() repaint() update() QPainter QPixmap */
+
+void QWidget::paintEvent( QPaintEvent * e )
 {
 }
 
@@ -1092,7 +1108,7 @@ widget move events.
 
 The default implementation does nothing.
 
-\sa resizeEvent() and event().
+\sa resizeEvent() event() move()
 */
 
 void QWidget::moveEvent( QMoveEvent * )
@@ -1105,7 +1121,7 @@ widget resize events.
 
 The default implementation does nothing.
 
-\sa moveEvent() and event().
+\sa moveEvent() event() resize()
 */
 
 void QWidget::resizeEvent( QResizeEvent * )

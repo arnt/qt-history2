@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#89 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#88 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#89 $";
 #endif
 
 
@@ -225,7 +225,7 @@ bool QWidget::destroy()				// destroy widget
   bad, regret that it was even born.
 
   It gives the widget a fresh start, new \e parent, new widget flags
-  (\e f but as usual, use 0) at a new position in its new parent (\e p).
+  (\e f, but as usual, use 0) at a new position in its new parent (\e p).
 
   If \e showIt is TRUE, show() is called once the widget has been
   recreated.
@@ -509,21 +509,22 @@ void QWidget::releaseKeyboard()
 }
 
 
-/*!
-  Returns a pointer to the widget that is currently grabbing the mouse input.
-  \sa grabMouse(), keyboardGrabber()
-*/
+/*!  Returns a pointer to the widget that is currently grabbing the
+  mouse input.  If no widget in this application is currently grabbing
+  the mouse, 0 is returned.
+
+  \sa grabMouse(), keyboardGrabber() */
 
 QWidget *QWidget::mouseGrabber()
 {
     return mouseGrb;
 }
 
-/*!
-  Returns a pointer to the widget that is currently grabbing the keyboard
-  input.
-  \sa grabMouse(), mouseGrabber()
-*/
+/*!  Returns a pointer to the widget that is currently grabbing the
+  keyboard input.  If no widget in this application is currently
+  grabbing the keyboard, 0 is returned.
+
+  \sa grabMouse(), mouseGrabber() */
 
 QWidget *QWidget::keyboardGrabber()
 {
@@ -688,6 +689,7 @@ void QWidget::update( int x, int y, int w, int h )
   Doing a repaint() usually is faster than doing an update(), but
   calling update() many times in a row will generate a single paint
   event.
+
   \sa update(), paintEvent(), enableUpdates(), erase()
 */
 
@@ -757,21 +759,22 @@ void QWidget::hide()				// hide widget
 }
 
 
-/*!
-  Raises this widget to the top of the window stack.
-  \sa lower()
-*/
+/*!  Raises this widget to the top of the parent widget's stack.  If
+  there are any siblings of this widget that overlap it on the screen,
+  this widget will be in front of its siblings afterwards.
+
+  \sa lower() */
 
 void QWidget::raise()				// raise widget
 {
     XRaiseWindow( dpy, ident );
 }
 
-/*!
-  Lowers the widget to the bottom of the windows stack.	 Only the
-  parent window will be behind this one afterwards.
-  \sa raise()
-*/
+/*!  Lowers the widget to the bottom of the parent widget's stack.  If
+  there are siblings of this widget that overlap it on the screen,
+  this widget will be obscured by its siblings afterwards.
+
+  \sa raise() */
 
 void QWidget::lower()				// lower widget
 {
@@ -845,13 +848,7 @@ void QWidget::move( int x, int y )		// move widget
 }
 
 
-/*!
- \fn void QWidget::resize(const QSize & p)
-  Resizes the widget to size \e p.
-
-  A \link resizeEvent() resize event\endlink is generated at once.
-  \sa move(), setGeometry(), resizeEvent()
-*/
+/*! \overload void QWidget::resize(const QSize & p) */
 
 /*!
   Resizes the widget to size \e w by \e h pixels.
@@ -860,6 +857,9 @@ void QWidget::move( int x, int y )		// move widget
 
   This function is virtual, and all other overloaded resize()
   implementations call it.
+
+  \bug is not constrained by setMinimumSize() and setMaximumSize()
+
   \sa move(), setGeometry(), resizeEvent()
 */
 

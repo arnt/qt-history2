@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#17 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,15 +18,16 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#17 $";
 #endif
 
 
 /*!
   \class QTextStream qtstream.h
   \ingroup tools
+  \ingroup files
   \brief The QTextStream class provides basic functions for reading and
-  writing text to an QIODevice.
+  writing text using a QIODevice.
 
   The text stream class has a functional interface that is very similar to
   that of the standard C++ iostream class.  The difference between
@@ -35,12 +36,20 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#16 $";
   The QTextStream class reads and writes ASCII text and it is not
   appropriate for dealing with binary data (but QDataStream is).
 
+  Note that string input is still not implemented.
+
   \sa QDataStream
 */
 
 /*!
   \class QTSManip qtstream.h
-  \brief The QTSManip class is an internal helper class for the QTextStream.
+
+  \brief The QTSManip class is an internal helper class for the
+  QTextStream.
+
+  \ingroup streams
+
+  \internal
 
   This class makes it possible to give the QTextStream function objects
   with arguments, like this:
@@ -54,8 +63,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#16 $";
   The QTSManip object contains a pointer to a member function in
   QTextStream and an integer argument.
   When serializing a QTSManip into a QTextStream, the function
-  is executed with the argument.
-*/
+  is executed with the argument. */
 
 
 // --------------------------------------------------------------------------
@@ -107,7 +115,7 @@ QTextStream::QTextStream()
   Constructs a data stream that reads/writes an existing file handle \e fh
   which will be translated to an internal QFile.
 
-  This constructor makes it convenient to things such as:
+  This constructor makes it convenient to do things such as:
   \code
     QTextStream cout( stdout );
     QTextStream cin ( stdin );
@@ -433,6 +441,8 @@ QTextStream &QTextStream::operator>>( unsigned long &i )
 
 /*!
   Reads a \c float from the stream and returns a reference to the stream.
+
+  \warning Not implemented
 */
 
 QTextStream &QTextStream::operator>>( float &f )
@@ -445,6 +455,8 @@ QTextStream &QTextStream::operator>>( float &f )
 
 /*!
   Reads a \c double from the stream and returns a reference to the stream.
+
+  \warning Not implemented
 */
 
 QTextStream &QTextStream::operator>>( double &f )
@@ -457,6 +469,8 @@ QTextStream &QTextStream::operator>>( double &f )
 
 /*!
   Reads a string from the stream and returns a reference to the stream.
+
+  \warning Not implemented
 */
 
 QTextStream &QTextStream::operator>>( char *& )

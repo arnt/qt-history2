@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#86 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#87 $
 #
 # this is a massive hack, written very quickly
 #
@@ -337,6 +337,16 @@ sub processdocs {
 	$brief{$url} = $1
 	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n<p>\s*)|(?:$))//s);
 
+	$brief{$url} =~ s/\s*\n\s*/ /g;
+
+	if ((defined($brief{$url})) && !(defined($capt{$url})) &&
+	    ($type{$url} eq "class" )) {
+	    $capt{$url} = $brief{$url};
+	    $capt{$url} =~ s/^the\s+\w+\s+(?:(?:class)|(?:widget))\s+(?:(?:is)|(?:provides)|(?:contains)|(?:specifies))?\s*(?:\ban?\b)?\s*//si;
+	    $capt{$url} =~ s/\.\s*$//s;
+	    $capt{$url} = ucfirst $capt{$url};
+	}
+
 	$doc{$url} = $doc;
     }
 }
@@ -370,12 +380,14 @@ sub writepages {
 	    die "can't open $outputdir/$file";
 	print O $doctype, "<html><head>", $doc, "\n";
 	if (defined($classes{$file})) {
-	    $p = "<hr>Classes:\n<ul>\n";
+	    $p = "<p>Classes:<ul plain>\n";
 	    $e = "";
 	    foreach ( sort split(/:+/, $classes{$file}) ) {
 		if (defined($anchor{$_})) {
 		    print O $p, "<li><a href=", $anchor{$_}, ">", $_, "</a>\n";
 		    $p = "";
+		    print O "    (", $brief{$capt{$_}}, ")\n" 
+			if (defined($brief{$capt{$_}}));
 		    $e = "</ul>\n";
 		}
 	    }
@@ -754,7 +766,7 @@ sub readc {
 	    $overload = 0; # defeat too-cool switch optimizer
 	    if ($doc =~ /^\\overload\s+([^;\n]+);?\s+(.*?)\s*$/s) {
 		$def = $1;
-		$doc = "This is an overloaded member function, provided for convenience.  It differs from the above function only what argument(s) it takes.\n\n" . $2;
+		$doc = "This is an overloaded member function, provided for convenience.  It differs from the above function only in what argument(s) it takes.\n\n" . $2;
 		$overload = 1;
 	    } elsif ($doc =~ /^\\fn\s+([^;\n]+);?\s+(.*?)\s*$/s) {
 		$def = $1;
@@ -971,7 +983,7 @@ sub fixdefvalues {
 
 	$changed = 0;
 	foreach ( 0 .. $#ha ) {
-	    if ( $ha[$_] =~ /\s*=\s*\S+\s*$/ ) {
+	    if ( $ha[$_] =~ /\s*=.*$/ ) {
 		$ca[$_] .= $&;
 		$changed++;
 	    }
@@ -1320,18 +1332,32 @@ sub classindex {
 	|| die "can't open $outputdir/classes.html for writing";
     print O $doctype, "
 <html>
-<head><title>Qt toolkit, main index page</title></head>
+<head><title>Qt Toolkit - Class List</title></head>
 <body>
-<h1>Qt Index</h1>
-<p>Here are the classes that make up Qt:
+<h1>Semi-Complete Qt Class List</h1>
+<ul compact>
+";
+    open(P, "> $outputdir/classes69.html")
+	|| die "can't open $outputdir/classes69.html for writing";
+    print P $doctype, "
+<html>
+<head><title>Qt Toolkit - Class List</title></head>
+<body>
+<h1>Annotated Qt Class Index</h1>
+<p>Here are the classes that make up Qt, with brief descriptions:
 <ul compact>
 ";
     foreach $url ( sort keys %type ) {
-	print O "<li><a href=", $url, ">", $name{$url}, "</a>\n"
-	    if (($type{$url} eq "class") && defined($documented{$url}));
+	if (($type{$url} eq "class") && defined($documented{$url})) {
+	    print O "<li><a href=", $url, ">", $name{$url}, "</a>\n";
+	    print P "<li><strong><a href=", $url, ">", $name{$url}, "</a></strong> (" 
+		, $capt{$url}, ")\n" if ( $capt{$url} =~ /\S/ );
+	}
     }
     print O "</ul>\n", $address;
+    print P "</ul>\n", $address;
     close(O);
+    close(P);
 }
 
 
@@ -1436,16 +1462,13 @@ sub doclassinheritance {
 
     unless (defined($classtree{$class})) {
 	$classtree{$class}++;
-	print O "<li><a href=", $anchor{$class}, ">", $class, "</a>";
-	print O " (", $capt{$anchor{$class}}, ")"
-	    if (defined ($capt{$anchor{$class}}));
-	print O "\n";
+	print O "<li><a href=", $anchor{$class}, ">", $class, "</a>\n";
 	if ($subclasses{$class} =~ /\S/s) {
 	    print O "<ul plain>\n";
 	    foreach ( sort split(/\s+/, $subclasses{$class} ) ) {
 		if ($inheritance{$anchor{$_}} =~ /,.*$class/s) {
 		    print O "<li><a href=", $anchor{$_}, 
-			    ">", $_, "</a> (secondary inheritance)\n";
+			    ">", $_, "</a>\n";
 		} else {
 		    &doclassinheritance( $_ );
 		}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#34 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#34 $";
 #endif
 
 
@@ -228,10 +228,11 @@ void QScrollBar::setOrientation( Orientation orientation )
   Enables scroll bar tracking if \e enable is TRUE, or disables tracking
   if \e enable is FALSE.
 
-  If tracking is enabled (default), the scroll bar emits the valueChanged()
-  signal whenever the slider is dragged.
-  If tracking is disabled, the scroll bar emits the valueChanged() signal
-  not before the user relases the mouse button.
+  If tracking is enabled (default), the scroll bar emits the
+  valueChanged() signal whenever the slider is being dragged.  If
+  tracking is disabled, the scroll bar emits the valueChanged() signal
+  when the user relases the mouse button (unless the value happens to
+  be the same sa before).
 
   \sa tracking()
  ----------------------------------------------------------------------------*/
