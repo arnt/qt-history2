@@ -1811,7 +1811,7 @@ void QWidgetPrivate::updateCursor(const QRegion &r) const
         QSize s(qt_screen->width(), qt_screen->height());
         QPoint pos = qt_screen->mapToDevice(QPoint(*qt_last_x, *qt_last_y), s);
         if (r.contains(pos))
-            q->qwsDisplay()->selectCursor((QWidget*)this, (unsigned int)q->cursor().handle());
+            q->qwsDisplay()->selectCursor(const_cast<QWidget*>(q), (unsigned int)q->cursor().handle());
     }
 }
 #endif
