@@ -905,17 +905,26 @@ bool QMetaProperty::stored( QObject* o ) const
   \class QMetaObjectCleanUp
 */
 
+/*!
+  \internal
+*/
 QMetaObjectCleanUp::QMetaObjectCleanUp()
 : metaObject( 0 )
 {
 }
 
+/*!
+  \internal
+*/
 QMetaObjectCleanUp::~QMetaObjectCleanUp()
 {
     delete metaObject;
     metaObject = 0;
 }
 
+/*!
+  \internal
+*/
 void QMetaObjectCleanUp::setMetaObject( QMetaObject *mo )
 {
 #if defined(QT_CHECK_RANGE)
