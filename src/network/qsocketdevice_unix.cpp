@@ -150,6 +150,7 @@ void QSocketDevice::close()
 	return;
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
+    setState( 0 );
     ::close( fd );
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::close: Closed socket %x", fd );
@@ -691,6 +692,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    case EPIPE:
 	    case ECONNRESET:
 		// connection closed
+		close();
 		r = 0;
 		break;
 	    default:
@@ -746,8 +748,12 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 	    case EINTR: // signal - call read() or whatever again
 		done = FALSE;
 		break;
-	    case ENOSPC:
 	    case EPIPE:
+		// connection closed
+		close();
+		r = 0;
+		break;
+	    case ENOSPC:
 	    case EIO:
 	    case EISDIR:
 	    case EBADF:
