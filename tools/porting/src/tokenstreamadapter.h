@@ -47,11 +47,16 @@ struct TokenStream
 
     inline AST* nodeAt(int index = 0) const
     {
+        if(index >= m_tokenAstList.count())
+            return 0;
         return m_tokenAstList.at(index);
     }
 
     void setNodeAt(int index, AST *node)
-    { m_tokenAstList[index] = node; }
+    {
+        if(index < m_tokenAstList.count())
+            m_tokenAstList[index] = node;
+    }
 
     bool isHidden(int index) const
     {
