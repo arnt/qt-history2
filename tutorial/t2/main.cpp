@@ -13,7 +13,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    QPushButton quit( "Quit" );
+    QPushButton quit( "Quit", 0 );
     quit.resize( 75, 30 );
     quit.setFont( QFont( "Times", 18, QFont::Bold ) );
 
