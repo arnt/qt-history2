@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#216 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#217 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2173,12 +2173,17 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		popupButtonFocus->mapFromGlobal(QPoint(gpos.x,gpos.y)),
 		QPoint(gpos.x,gpos.y), button, state );
 	    QApplication::sendEvent( popupButtonFocus, &e );
-	    if ( releaseAfter )
+	    if ( releaseAfter ) {
 		popupButtonFocus = 0;
+	    }
 	} else {
 	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
 	    QApplication::sendEvent( popup, &e );
 	}
+	
+	if ( releaseAfter ) 
+	    qt_button_down = 0;
+	
 	if ( type == QEvent::MouseButtonPress &&
 	     (qApp->activePopupWidget() != activePopupWidget) ){
 	    // the popup dissappeared. Replay the event

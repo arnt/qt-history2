@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#397 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#398 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2655,6 +2655,7 @@ void QApplication::closePopup( QWidget *popup )
 {
     if ( !popupWidgets )
 	return;
+    
     popupWidgets->removeRef( popup );
     if (popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
@@ -3263,6 +3264,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    QApplication::sendEvent( popup, &e );
 	}
 
+	if ( releaseAfter ) 
+	    qt_button_down = 0;
+	
 	if ( qApp->inPopupMode() ) {			// still in popup mode
 	    if ( popupGrabOk )
 		XAllowEvents( dpy, SyncPointer, CurrentTime );
