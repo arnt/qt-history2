@@ -220,7 +220,7 @@ struct QComboData
     ~QComboData()
     {
 	delete pop;
-	delete lBox;
+	//delete lBox; //lBox is child of combobox
     }
 
     bool usingListBox()  { return usingLBox; }
@@ -2040,10 +2040,7 @@ void QComboBox::setEditable( bool y )
 
 void QComboBox::setUpListBox()
 {
-    QString listBoxName( name() );
-    listBoxName += "_in-combo";
-
-    d->setListBox( new QListBox( this, listBoxName, WType_Popup ) );
+    d->setListBox( new QListBox( this, "in-combo", WType_Popup ) );
     d->listBox()->setFont( font() );
     d->listBox()->setAutoScrollBar( FALSE );
     d->listBox()->setBottomScrollBar( FALSE );
