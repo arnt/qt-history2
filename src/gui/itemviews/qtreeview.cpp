@@ -781,11 +781,8 @@ int QTreeView::verticalOffset() const
 {
     // gives an estimate
     int item = verticalScrollBar()->value() / d->verticalFactor;
-    if (model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
-        QStyleOptionViewItem option = viewOptions();
-        QModelIndex index = model()->index(0, 0, root());
-        return item * itemDelegate()->sizeHint(option, index).height();
-    }
+    if (model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0)
+        return item * d->itemHeight;
     return item * 30;
 }
 
