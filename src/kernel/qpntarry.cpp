@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#4 $
 **
 ** Implementation of QPointArray class
 **
@@ -21,7 +21,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#4 $";
 #endif
 
 
@@ -112,7 +112,7 @@ inline double qcos( double d ) { return qsincos(d,FALSE); }
 #define qcos cos
 #endif
 
-inline int adjust_angle_huff( int a )
+static inline int fix_angle( int a )
 {
     if ( a > 16*360 )
 	a %= 16*360;
@@ -120,62 +120,51 @@ inline int adjust_angle_huff( int a )
 	a = -((-a) % 16*360);
     return a;
 }
-
-inline int adjust_angle( int a )
-{
-    if ( a > 16*360 )
-	a %= 16*360;
-    else if ( a < -16*360 )
-	a = -((-a) % 16*360);
-    if ( a < 0 )	// FJERN SENERE
-	a = 16*360 + a;
-    return a;
-}
-
-static const double deg16_2_rad = 3.14159265358979323/2880.0;
 
 void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 {
-    a1 = adjust_angle( a1 );
-    a2 = adjust_angle( a2 );
+    a1 = fix_angle( a1 );
+    if ( a1 < 0 )
+	a1 += 16*360;
+    a2 = fix_angle( a2 );
     int a3 = a2 > 0 ? a2 : -a2;			// abs angle
     makeEllipse( x, y, w, h );
-    int start = a1*size()/(16*360);
-    int npts = a3*size()/(16*360);
+    int npts = a3*size()/(16*360);		// # points in arc array
     QPointArray a(npts);
-    for ( int i=0; i<npts; i++ ) {
-	a.setPoint(i,point(i+start));
-	if ( i + start > npts )
-	    start -= npts;
+    int i, j, inc;
+    i = a1*size()/(16*360);	// THIS IS NOT SUFFICIENT. SCAN FOR START AND
+    if ( a2 > 0 ) {		// STOP VALUES !!!
+	j = 0;
+	inc = 1;
+    }
+    else {
+	j = npts - 1;
+	inc = -1;
+    }
+    if ( a1 == 90*16 ) {
+	debug( "a1=%d, a2=%d, a3=%d, size=%d, npts=%d, i=%d",
+	       a1,a2,a3,size(),npts,i);
+    }
+    while ( npts-- ) {
+	if ( i >= size() )			// wrap index
+	    i = 0;
+	a.QArrayM(QPointData)::at( j ) = QArrayM(QPointData)::at( i );
+	i++;
+	j += inc;
     }
     *this = a;
     return;
-#if 0
-    int npts = (w+h)*a3/(16*360);
-    resize( npts );
-    if ( !npts )
-	return;
-    double a = a1*deg16_2_rad;
-    double a_end = (a1+a2)*deg16_2_rad;
-    double a_inc = (a_end-a)/npts;
-    int xx, yy;
-    resize( npts );
-    w /= 2;
-    h /= 2;
-    x += w;
-    y += h;
-    for ( int i=0; i<npts; i++ ) {		// make elliptic point array
-	xx = x + (int)(qsin(a)*w);
-	yy = y - (int)(qcos(a)*h);
-	setPoint( i, xx, yy );
-	a += a_inc;
-    }
-#endif
 }
 
 
-void QPointArray::makeEllipse( int xx, int yy, int w, int h )
+static inline int d2i_round( double d )
 {
+    return d > 0 ? int(d+0.5) : int(d-0.5);
+}
+
+#if 1	/* bresenham */
+void QPointArray::makeEllipse( int xx, int yy, int w, int h )
+{						// midpoint, 1/4 ellipse
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 ) {
 	    resize( 0 );
@@ -190,115 +179,114 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 	    yy -= h;
 	}
     }
-    int s = (w+h)/2;				// max size of x,y array
-    int *px = new int[s];			// 1/8th of ellipse
+    int s = (w+h+2)/2;				// max size of x,y array
+    int *px = new int[s];			// 1/4th of ellipse
     int *py = new int[s];
-    int x, y, d, r;
-    r = w > h ? w/2 : h/2;
+    int x, y, i=0;
+    double d1, d2;
+    double a=0.5*w, b=0.5*h;
+    double a2=a*a,  b2=b*b;
     x = 0;
-    y = r;
-    d = 1 - r;
-    px[x] = x;
-    py[x] = y;
-    while ( x < y ) {				// bresenham, 1/8 ellipse
-	if ( d < 0 )
-	    d += x*2 + 3;
+    y = int(b);
+    d1 = b2 - a2*b + 0.25*a2;
+    px[i] = x;
+    py[i] = y;
+    i++;
+    while ( a2*(y-0.5) > b2*(x+0.5) ) {		// region 1
+	if ( d1 < 0 ) {
+	    d1 = d1 + b2*(3.0+2*x);
+	    x++;
+	}
 	else {
-	    d += (x-y)*2 + 5;
+	    d1 = d1 + b2*(3.0+2*x) + 2.0*a2*(1-y);
+	    x++;
 	    y--;
 	}
-	x++;
-	px[x] = x;
-	py[x] = y;
+	px[i] = x;
+	py[i] = y;
+	i++;
     }
-    s = x;
-    resize( 8*s );				// make full point array
-    xx += w/2;
-    yy += h/2;
-    int dw, dh;
-    dw = w & 1 ? 0 : 1;
-    dh = h & 1 ? 0 : 1;
-    dw = dh = 0;
-    for ( int i=0; i<s; i++ ) {			// mirror
-	x = px[i];
-	y = py[i];
-	setPoint( i, xx+y, yy-x );
-	setPoint( 2*s-1-i, xx+x, yy-y );
-	setPoint( 2*s+i, xx-x, yy-y );
-	setPoint( 4*s-1-i, xx-y, yy-x );
-	setPoint( 4*s+i, xx-y, yy+x );
-	setPoint( 6*s-1-i, xx-x, yy+y );
-	setPoint( 6*s+i, xx+x+dw, yy+y );
-	setPoint( 8*s-1-i, xx+y+dw, yy+x );
-    }
-    if ( w != h ) {				// scale ellipse
-	int e1, e2;
-	if ( h > w ) {
-	    e1 = w;
-	    e2 = h;
+    double t1 = x+0.5;
+    double t2 = y-1;
+    d2 = b2*t1*t1 + a2*t2*t2 - a2*b2;
+    while ( y > 0 ) {				// region 2
+	if ( d2 < 0 ) {
+	    d2 = d2 + 2.0*b2*(x+1) + a2*(3-2*y);
+	    x++;
+	    y--;
 	}
 	else {
-	    e1 = h;
-	    e2 = w;
+	    d2 = d2 + a2*(3-2*y);
+	    y--;
 	}
-	for ( i=0; i<size(); i++ ) {
-	    point( i, &x, &y );
-	    y = y < 0 ? y+yy : y-yy;
-	    setPoint( i, x, y*e1/e2+yy );
-	}
+	px[i] = x;
+	py[i] = y;
+	i++;
+    }
+    if ( i > s ) {
+	debug( "i > s!!!    i=%d,  w=%d, h=%d", i, w, h );
+    }
+    s = i;
+    resize( 4*s );				// make full point array
+    xx += w/2;
+    yy += h/2;
+    for ( i=0; i<s; i++ ) {			// mirror
+	x = px[i];
+	y = py[i];
+	setPoint( s-i-1, xx+x, yy-y );
+	setPoint( s+i, xx-x, yy-y );
+	setPoint( 3*s-i-1, xx-x, yy+y );
+	setPoint( 3*s+i, xx+x, yy+y );
     }
     delete[] px;
     delete[] py;
 }
-
-void QPointArray::smoothArc()			// make smooth arc
+#else /* my own experimental */
+void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 {
-    int s = size();
-    if ( s < 3 )
-	return;
-    register QPointData *p = data();
-    int i=2, nskipped=0;
-    QBitArray b( s );
-    while ( i < s ) {
-	bool xe, ye;
-	if ( (xe =(p[2].x == p[1].x)) || (ye=(p[2].y == p[1].y)) ) {
-	    bool skip_point=FALSE;
-	    if ( xe && ye )
-		skip_point = TRUE;
-	    else if ( xe ) {
-		if ( p[1].y == p[0].y ) {
-		    int xd = p[1].x-p[2].x;
-		    skip_point = xd == 1 || xd == -1;
-		}
-	    }
-	    else {
-		if ( p[1].x == p[0].x ) {		    
-		    int yd = p[1].y-p[2].y;
-		    skip_point = yd == 1 || yd == -1;
-		}
-	    }
-	    if ( skip_point ) {
-		b.setBit( i-1 );
-		nskipped++;
-	    }
+    int s = (w+h)/2;				// max size of x,y array
+    int *px = new int[s];			// 1/4th of ellipse
+    int *py = new int[s];
+    int x, y, y2, i, a, b, a2, b2;
+    a = w/2;
+    b = h/2;
+    a2 = a*a;
+    b2 = b*b;
+    i = 0;
+    x = a;
+    y = 0;
+    px[i] = x;
+    py[i] = y;
+    i++;
+    while ( x > 0 ) {
+	x--;
+	y2 = (a2*b2-x*x*b2)/a2;
+	while ( y*y < y2 ) {
+	    px[i] = x;
+	    py[i] = y;
+	    y++;
 	}
+	px[i] = x;
+	py[i] = y;
 	i++;
-	p++;
     }
-    if ( nskipped ) {
-	QPointData *p2;
-	p = p2 = data();
-	i = 0;
-	while ( i<s ) {
-	    if ( b.testBit(i++) )
-		*p = *p2++;
-	    else
-		*p++ = *p2++;
-	}
-	debug( "SMOOTH %d points, %d skipped", s, nskipped );
-	resize( s-nskipped );
+    ASSERT( i <= s );
+    s = i;
+    resize( 4*s );				// make full point array
+    xx += w/2;
+    yy += h/2;
+    for ( i=0; i<s; i++ ) {			// mirror
+	x = px[i];
+	y = py[i];
+	setPoint( i, xx+x, yy-y );
+	setPoint( 2*s-i-1, xx-x, yy-y );
+	setPoint( 3*s+i, xx-x, yy+y );
+	setPoint( 4*s-i-1, xx+x, yy+y );
     }
+    delete[] px;
+    delete[] py;
 }
+#endif
 
 
 // --------------------------------------------------------------------------

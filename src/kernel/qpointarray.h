@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#4 $
 **
 ** Definition of QPointArray class
 **
 ** Author  : Haavard Nord
 ** Created : 940213
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -72,6 +72,7 @@ public:
     QPointArray() {}
     QPointArray( uint size ) : QArrayM(QPointData)( size ) {}
     QPointArray( const QPointArray &a ) : QArrayM(QPointData)( a ) {}
+    QPointArray( const QRect &r );
     QPointArray( const QCOOT *points, int nPoints );
 
     QPointArray	 &operator=( const QPointArray &a )
@@ -94,6 +95,9 @@ public:
     QPoint  at( uint i ) const;			// access point
     QPointVal operator[]( int i )		// get/set point
 		{ return QPointVal( (QPointArray*)this, i ); }
+
+    void    makeArc( int x, int y, int w, int h, int a1, int a2 );
+    void    makeEllipse( int x, int y, int w, int h );
 };
 
 
