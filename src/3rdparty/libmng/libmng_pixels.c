@@ -655,7 +655,7 @@ mng_retcode display_argb8 (mng_datap pData)
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
-          *pScanline     = *(pDataline+2);
+          *pScanline     = *(pDataline+3);
           *(pScanline+1) = *pDataline;
           *(pScanline+2) = *(pDataline+1);
           *(pScanline+3) = *(pDataline+2);
