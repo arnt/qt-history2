@@ -2459,13 +2459,16 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
       block_event = TRUE;
     }
 #ifndef Q_OS_TEMP
-	else if ( type == WM_MOUSEACTIVATE ){
-      if ( !top->isActiveWindow() )
-	top->setActiveWindow();
-      else
-	QApplication::beep();
-      block_event = TRUE;
-      ret = MA_NOACTIVATEANDEAT;
+    else if ( type == WM_MOUSEACTIVATE || type == WM_NCLBUTTONDOWN || type == WM_SETFOCUS ){
+	if ( !top->isActiveWindow() ) {
+	    if ( type == WM_SETFOCUS )
+		winPostMessage( msg->hwnd, WM_NCACTIVATE, FALSE, 0 );
+	    top->setActiveWindow();
+	} else {
+	    QApplication::beep();
+	}
+	block_event = TRUE;
+	ret = MA_NOACTIVATEANDEAT;
     }
 #endif
 
