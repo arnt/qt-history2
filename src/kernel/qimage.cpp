@@ -3691,6 +3691,7 @@ void qt_init_image_handlers()		// initialize image handlers
 static QImageHandler *get_image_handler( const char *format )
 {						// get pointer to handler
     qt_init_image_handlers();
+    qt_init_image_plugins();
     register QImageHandler *p = imageHandlers->first();
     while ( p ) {				// traverse list
 	if ( p->format == format )

@@ -1,5 +1,5 @@
 TEMPLATE	= lib
-CONFIG+= qt warn_on debug plugin
+CONFIG		+= qt plugin
 
 HEADERS		= ../../../../src/sql/drivers/tds/qsql_tds.h \
 		  ../../../../src/sql/drivers/shared/qsql_result.h
@@ -11,7 +11,6 @@ SOURCES		= main.cpp \
 unix {
 	OBJECTS_DIR	= .obj
 	LIBS 	*= -lsybdb
-	}
 }
 win32 {
 	OBJECTS_DIR	= obj

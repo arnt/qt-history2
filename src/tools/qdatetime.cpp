@@ -415,12 +415,32 @@ QString QDate::shortMonthName( int month )
 	month = 1;
     }
 #endif
+#ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
     memset( &tt, 0, sizeof( tm ) );
     tt.tm_mon = month - 1;
     if ( strftime( buffer, sizeof( buffer ), "%b", &tt ) )
 	return QString::fromLocal8Bit( buffer );
+#else
+    SYSTEMTIME st;
+    st.wYear = 2000;
+    st.wMonth = month;
+    st.wDay = 1;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	TCHAR buf[255];
+	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"MMM", (TCHAR*)&buf, 255 ) )
+	    return qt_winQString( &buf );
+    } else
+#endif
+    {
+	char buf[255];
+	if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, "MMM", (char*)&buf, 255 ) )
+	    return QString::fromLocal8Bit( buf );
+    }
+#endif
+
     return QString::null;
 }
 
@@ -442,12 +462,32 @@ QString QDate::longMonthName( int month )
 	month = 1;
     }
 #endif
+#ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
     memset( &tt, 0, sizeof( tm ) );
     tt.tm_mon = month - 1;
     if ( strftime( buffer, sizeof( buffer ), "%B", &tt ) )
 	return QString::fromLocal8Bit( buffer );
+#else
+    SYSTEMTIME st;
+    st.wYear = 2000;
+    st.wMonth = month;
+    st.wDay = 1 ;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	TCHAR buf[255];
+	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"MMMM", (TCHAR*)&buf, 255 ) )
+	    return qt_winQString( &buf );
+    } else
+#endif
+    {
+	char buf[255];
+	if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, "MMMM", (char*)&buf, 255 ) )
+	    return QString::fromLocal8Bit( buf );
+    }
+#endif
+    
     return QString::null;
 }
 
@@ -476,12 +516,33 @@ QString QDate::shortDayName( int weekday )
 	weekday = 1;
     }
 #endif
+#ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
     memset( &tt, 0, sizeof( tm ) );
     tt.tm_wday = ( weekday == 7 ) ? 0 : weekday;
     if ( strftime( buffer, sizeof( buffer ), "%a", &tt ) )
 	return QString::fromLocal8Bit( buffer );
+#else
+    SYSTEMTIME st;
+    st.wYear = 2001;
+    st.wMonth = 10;
+    st.wDayOfWeek = ( weekday == 7 ) ? 0 : weekday;
+    st.wDay = 21 + st.wDayOfWeek;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	TCHAR buf[255];
+	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"ddd", (TCHAR*)&buf, 255 ) )
+	    return qt_winQString( &buf );
+    } else
+#endif
+    {
+	char buf[255];
+	if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, "ddd", (char*)&buf, 255 ) )
+	    return QString::fromLocal8Bit( buf );
+    }
+#endif
+
     return QString::null;
 }
 
@@ -503,12 +564,33 @@ QString QDate::longDayName( int weekday )
 	weekday = 1;
     }
 #endif
+#ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
     memset( &tt, 0, sizeof( tm ) );
     tt.tm_wday = ( weekday == 7 ) ? 0 : weekday;
     if ( strftime( buffer, sizeof( buffer ), "%A", &tt ) )
 	return QString::fromLocal8Bit( buffer );
+#else
+    SYSTEMTIME st;
+    st.wYear = 2001;
+    st.wMonth = 10;
+    st.wDayOfWeek = ( weekday == 7 ) ? 0 : weekday;
+    st.wDay = 21 + st.wDayOfWeek;
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	TCHAR buf[255];
+	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"dddd", (TCHAR*)&buf, 255 ) )
+	    return qt_winQString( &buf );
+    } else
+#endif
+    {
+	char buf[255];
+	if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, "dddd", (char*)&buf, 255 ) )
+	    return QString::fromLocal8Bit( buf );
+    }
+#endif
+
     return QString::null;
 }
 #endif //QT_NO_TEXTDATE
@@ -585,6 +667,7 @@ QString QDate::toString( Qt::DateFormat f ) const
     default:
     case Qt::TextDate:
 	{
+#ifndef Q_WS_WIN
 	    QString buf = shortDayName( dayOfWeek() );
 	    buf += ' ';
 	    buf += shortMonthName(m);
@@ -592,6 +675,35 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    t.sprintf( " %d %d", d, y);
 	    buf += t;
 	    return buf;
+#else
+	    QString buf;
+	    QString winstr;
+#if defined(UNICODE)
+	    if ( qWinVersion() & Qt::WV_NT_based ) {
+		TCHAR out[255];
+		GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, (TCHAR*)&out, 255 );
+		winstr = qt_winQString( &out );
+	    } else
+#endif
+	    {
+		char out[255];
+		GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_ILDATE, (char*)&out, 255 );
+		winstr = QString::fromLocal8Bit( out );
+	    }
+	    switch ( winstr.toInt() ) {
+	    case 1:
+		buf = shortDayName( dayOfWeek() ) + " " + QString().setNum( d ) + ". " + shortMonthName( m ) + " " + QString().setNum( y );
+		break;
+	    case 2:
+		buf = shortDayName( dayOfWeek() ) + " " + QString().setNum( y ) + " " + shortMonthName( m ) + " " + QString().setNum( d );
+		break;
+	    default:
+		buf = shortDayName( dayOfWeek() ) + " " + shortMonthName( m ) + " " + QString().setNum( d ) + " " + QString().setNum( y );
+		break;
+	    }
+
+	    return buf;
+#endif
 	}
 #endif
     }
@@ -1720,12 +1832,37 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     }
 #ifndef QT_NO_TEXTDATE
     else if ( f == Qt::TextDate ) {
+#ifndef Q_WS_WIN
 	QString buf = d.shortDayName( d.dayOfWeek() );
 	buf += ' ';
 	buf += d.shortMonthName( d.month() );
 	buf += ' ';
 	buf += QString().setNum( d.day() );
 	buf += ' ';
+#else
+	QString buf;
+	QString winstr;
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    TCHAR out[255];
+	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, (TCHAR*)&out, 255 );
+	    winstr = qt_winQString( &out );
+	} else
+#endif
+	{
+	    char out[255];
+	    GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_ILDATE, (char*)&out, 255 );
+	    winstr = QString::fromLocal8Bit( out );
+	}
+	switch ( winstr.toInt() ) {
+	case 1:
+	    buf = d.shortDayName( d.dayOfWeek() ) + " " + QString().setNum( d.day() ) + ". " + d.shortMonthName( d.month() ) + " ";
+	    break;
+	default:
+	    buf = d.shortDayName( d.dayOfWeek() ) + " " + d.shortMonthName( d.month() ) + " " + QString().setNum( d.day() ) + " ";
+	    break;
+	}
+#endif
 	buf += t.toString();
 	buf += ' ';
 	buf += QString().setNum( d.year() );

@@ -354,8 +354,8 @@ QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
-static bool makeqdevel	 = FALSE;	// developer tool needed?
-static QDesktopWidget *desktopWidget = 0;	// root window widgets
+static bool makeqdevel	 = FALSE;		// developer tool needed?
+QDesktopWidget *qt_desktopWidget = 0;		// root window widgets
 #ifndef QT_NO_CLIPBOARD
 QClipboard	      *qt_clipboard = 0;	// global clipboard object
 #endif
@@ -968,8 +968,8 @@ QApplication::~QApplication()
     remoteControl = 0; // The actual instance is in a plugin and will be destroyed automatically
 #endif // QT_NO_REMOTE
 
-    delete desktopWidget;
-    desktopWidget = 0;
+    delete qt_desktopWidget;
+    qt_desktopWidget = 0;
     is_app_closing = TRUE;
 #ifndef QT_NO_CLIPBOARD
     delete qt_clipboard;
@@ -2892,12 +2892,12 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 
 QDesktopWidget *QApplication::desktop()
 {
-    if ( !desktopWidget || // not created yet
-	 !desktopWidget->isDesktop() ) { // reparented away
-	desktopWidget = new QDesktopWidget();
-	Q_CHECK_PTR( desktopWidget );
+    if ( !qt_desktopWidget || // not created yet
+	 !qt_desktopWidget->isDesktop() ) { // reparented away
+	qt_desktopWidget = new QDesktopWidget();
+	Q_CHECK_PTR( qt_desktopWidget );
     }
-    return desktopWidget;
+    return qt_desktopWidget;
 }
 
 #ifndef QT_NO_CLIPBOARD

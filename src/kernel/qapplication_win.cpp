@@ -201,6 +201,7 @@ static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 
 static bool	app_do_modal	   = FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;
+extern QDesktopWidget *qt_desktopWidget;
 static QWidget *popupButtonFocus   = 0;
 static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG *, int& ret );
@@ -1828,6 +1829,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	RETURN(0);
     }
 #endif
+
+    case WM_DISPLAYCHANGE:
+	if ( qt_desktopWidget ) {
+	    delete qt_desktopWidget;
+	    qt_desktopWidget = 0;
+	}
+	break;
 
     case WM_SETTINGCHANGE:
     case WM_SYSCOLORCHANGE:

@@ -27,16 +27,17 @@
 #define BOXLAYOUT_DEFAULT_SPACING 6
 
 #ifndef NO_STATIC_COLORS
-static bool initialized = FALSE;
+static QColor *backColor1 = 0;
+static QColor *backColor2 = 0;
+static QColor *selectedBack = 0;
 
 static void init_colors()
 {
-    if ( !initialized )
+    if ( backColor1 )
 	return;
-    (void)new QColor( 236, 245, 255 );
-    (void)new QColor( 250, 250, 250 );
-    (void)new QColor( 221, 221, 221 );
-    initialized = TRUE;
+    backColor1 = new QColor( 236, 245, 255 );
+    backColor2 = new QColor( 250, 250, 250 );
+    selectedBack = new QColor( 221, 221, 221 );
 }
 
 #endif

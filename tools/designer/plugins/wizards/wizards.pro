@@ -1,4 +1,9 @@
-SOURCES	+= main.cpp 
+TEMPLATE	= lib
+CONFIG		+= qt warn_on release plugin
+
+SOURCES		+= main.cpp 
+FORMS		= sqlformwizard.ui mainwindowwizard.ui 
+
 sql {
 	HEADERS		+= sqlformwizardimpl.h
 	SOURCES		+= sqlformwizardimpl.cpp
@@ -10,10 +15,7 @@ isEmpty(target.path):target.path=$$QT_PREFIX/plugins/designer
 INSTALLS += target
 IMAGEFILE	= images.cpp
 PROJECTNAME	= Wizards
-FORMS	= sqlformwizard.ui mainwindowwizard.ui 
-IMAGES	= images/down.png images/left.png images/logo.png images/qtwizards_menu_1.png images/qtwizards_menu_2.png images/qtwizards_menu_3.png images/qtwizards_table_1.png images/qtwizards_table_2.png images/qtwizards_table_3.png images/qtwizards_table_4.png images/re-sort.png images/right.png images/up.png 
-TEMPLATE	=lib
-CONFIG	+= qt warn_on release plugin
+IMAGES		= images/down.png images/left.png images/logo.png images/qtwizards_menu_1.png images/qtwizards_menu_2.png images/qtwizards_menu_3.png images/qtwizards_table_1.png images/qtwizards_table_2.png images/qtwizards_table_3.png images/qtwizards_table_4.png images/re-sort.png images/right.png images/up.png 
 INCLUDEPATH	+= ../../interfaces
-DBFILE	= wizards.db
+DBFILE		= wizards.db
 LANGUAGE	= C++
