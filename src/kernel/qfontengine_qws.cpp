@@ -20,7 +20,7 @@
 #include <qstackarray.h>
 #include "qpainter_p.h"
 #include "qpaintengine_qws.h"
-#define GFX(p) static_cast<QWSPaintEngine *>(p->device()->engine())->gfx()
+#define GFX(p) static_cast<QWSPaintEngine *>(p)->gfx()
 
 #include "qgfx_qws.h"
 
@@ -74,10 +74,10 @@ struct QtFontEnginePos {
  	int y;
      };
 
-void QFontEngine::draw( QPainter *p, int x, int y, const QTextItem &si, int textFlags )
+void QFontEngine::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    if ( p->d->txop > QPainter::TxScale ) {
+    if ( p->painterState()->txop > QPainter::TxScale ) {
 	int aw = si.width;
 	int ah = si.ascent + si.descent + 1;
 	int tx = 0;
@@ -85,7 +85,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextItem &si, int text
 	if ( aw == 0 || ah == 0 )
 	    return;
 
-	QWMatrix mat1 = p->d->matrix;
+	QWMatrix mat1 = p->painterState()->matrix;
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 	QWMatrix mat2 = QPixmap::trueMatrix( mat1, aw, ah );
 #endif
@@ -98,11 +98,11 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextItem &si, int text
 	    QPainter paint(&pm);
 	    paint.fillRect(pm.rect(),Qt::black);
 	    paint.setPen(QPen(Qt::white));
-	    draw( &paint, 0, si.ascent, si, textFlags );
+	    draw( paint.d->engine, 0, si.ascent, si, textFlags );
 	    paint.end();
 	    // Now we have an image with r,g,b gray scale set.
 	    // Put this in alpha channel and set pixmap to pen color.
-	    QRgb bg = p->pen().color().rgb() & 0x00FFFFFF;
+	    QRgb bg = p->painterState()->pen.color().rgb() & 0x00FFFFFF;
 	    for ( int y = 0; y < ah; y++ ) {
 		uint *p = (uint *)pm.scanLine(y);
 		for ( int x = 0; x < aw; x++ ) {
@@ -132,7 +132,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextItem &si, int text
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setPen( p->color1 );
-		draw( &paint, 0, si.ascent, si, textFlags );
+		draw( paint.d->engine, 0, si.ascent, si, textFlags );
 		paint.end();
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
@@ -179,20 +179,20 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextItem &si, int text
 #endif
 
 #ifndef QT_NO_TRANSFORMATIONS
-    if (p->d->txop == QPainter::TxTranslate)
+    if (p->painterState()->txop == QPainter::TxTranslate)
 #endif
-	p->map( x, y, &x, &y );
+	p->painterState()->painter->map( x, y, &x, &y );
 
     if ( textFlags ) {
 	int lw = lineThickness();
-	GFX(p)->setBrush( p->pen().color() );
+	GFX(p)->setBrush( p->painterState()->pen.color() );
 	if ( textFlags & Qt::Underline )
 	    GFX(p)->fillRect( x, y+underlinePosition(), si.width, lw );
 	if ( textFlags & Qt::StrikeOut )
 	    GFX(p)->fillRect( x, y-ascent()/3, si.width, lw );
 	if ( textFlags & Qt::Overline )
 	    GFX(p)->fillRect( x, y-ascent()-1, si.width, lw );
-	GFX(p)->setBrush( p->brush() );
+	GFX(p)->setBrush( p->painterState()->brush );
     }
 
     QGlyphLayout *glyphs = si.glyphs;

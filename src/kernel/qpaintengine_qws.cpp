@@ -14,6 +14,7 @@
 
 #include "qpaintengine_qws.h"
 #include "qpainter_p.h"
+#include "qfontengine_p.h"
 
 #include "qgfx_qws.h"
 #include "qregion.h"
@@ -622,7 +623,7 @@ void QWSPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, cons
 }
 
 void QWSPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags){
-    qDebug("QWSPaintEngine::drawTextItem");
+    ti.fontEngine->draw(this, p.x(),  p.y(), ti, textflags);
 }
 
 Qt::HANDLE QWSPaintEngine::handle() const{
