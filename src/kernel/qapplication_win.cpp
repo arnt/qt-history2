@@ -3600,6 +3600,28 @@ void QApplication::flush()
 {
 }
 
+bool QSessionManager::allowsInteraction()
+{
+    sm_blockUserInput = FALSE;
+    return TRUE;
+}
+
+bool QSessionManager::allowsErrorInteraction()
+{
+    sm_blockUserInput = FALSE;
+    return TRUE;
+}
+
+void QSessionManager::release()
+{
+    if ( sm_smActive )
+	sm_blockUserInput = TRUE;
+}
+
+void QSessionManager::cancel()
+{
+    sm_cancel = TRUE;
+}
 
 #if defined (QT_TABLET_SUPPORT)
 extern bool qt_is_gui_used;

@@ -4037,6 +4037,7 @@ void* QSessionManager::handle() const
 }
 #endif
 
+#if !defined(Q_WS_WIN)
 bool QSessionManager::allowsInteraction()
 {
     return TRUE;
@@ -4046,7 +4047,6 @@ bool QSessionManager::allowsErrorInteraction()
 {
     return TRUE;
 }
-
 void QSessionManager::release()
 {
 }
@@ -4054,6 +4054,8 @@ void QSessionManager::release()
 void QSessionManager::cancel()
 {
 }
+#endif
+
 
 void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
 {
