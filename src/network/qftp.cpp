@@ -294,7 +294,7 @@ int QFtp::supportedOperations() const
     return OpListChildren | OpMkDir | OpRemove | OpRename | OpGet | OpPut;
 }
 
-/*!
+/*! \internal
   Parses the string, \a buffer, which is one line of a directory listing
   which came from the FTP server, and sets the values which have been
   parsed to the url info object, \a info.
@@ -426,8 +426,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     }
 }
 
-/*!
- \internal
+/*!  \internal
 */
 
 void QFtp::hostFound()
@@ -438,8 +437,7 @@ void QFtp::hostFound()
 	emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
 }
 
-/*!
- \internal
+/*!  \internal
 */
 
 void QFtp::connected()
@@ -450,8 +448,7 @@ void QFtp::connected()
 	emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
 }
 
-/*!
- \internal
+/*!  \internal
 */
 
 void QFtp::closed()
@@ -462,9 +459,9 @@ void QFtp::closed()
 	emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
 }
 
-/*!
+/*!  \internal
   If data has arrived on the command socket, this slot is called. The
-  function loks at the data and passes it on to the function which can
+  function looks at the data and passes it on to the function which can
   handle it
 */
 
@@ -825,15 +822,14 @@ void QFtp::errorForgetIt( int code, const QCString &data )
     }
 }
 
-/*!
-  \internal
+/*!  \internal
 */
 
 void QFtp::dataHostFound()
 {
 }
 
-/*!
+/*!  \internal
   Some operations require a data connection to the server. If this connection
   could be opened, this function handles the data connection.
 */
@@ -895,7 +891,7 @@ void QFtp::dataConnected()
     }
 }
 
-/*!
+/*!  \internal
   This function is called when the data connection has been closed.
 */
 
@@ -921,7 +917,7 @@ void QFtp::dataClosed()
     reinitCommandSocket();
 }
 
-/*!
+/*!  \internal
   This function is called when new data arrived on the data socket.
 */
 
@@ -977,7 +973,7 @@ void QFtp::dataReadyRead()
     }
 }
 
-/*!
+/*!  \internal
   This function is called, when \a nbytes have been successfully written
   to the data socket.
 */
@@ -992,8 +988,7 @@ void QFtp::dataBytesWritten( int nbytes )
     }
 }
 
-/*!
-  \internal
+/*!  \internal
   Reinitializes the command socket
 */
 

@@ -66,7 +66,7 @@ public:
     int supportedOperations() const;
 
 protected:
-    void parseDir( const QString &buffer, QUrlInfo &info );
+    void parseDir( const QString &buffer, QUrlInfo &info ); // ### private in Qt 4.0?
     void operationListChildren( QNetworkOperation *op );
     void operationMkDir( QNetworkOperation *op );
     void operationRemove( QNetworkOperation *op );
@@ -74,6 +74,7 @@ protected:
     void operationGet( QNetworkOperation *op );
     void operationPut( QNetworkOperation *op );
 
+    // ### make these private in Qt 4.0
     QSocket *commandSocket, *dataSocket;
     bool connectionReady, passiveMode;
     int getTotalSize, getDoneSize;
@@ -92,6 +93,7 @@ private:
     void errorForgetIt( int code, const QCString &data );
 
 protected slots:
+    // ### make these private in Qt 4.0
     void hostFound();
     void connected();
     void closed();
