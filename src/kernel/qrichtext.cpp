@@ -3541,7 +3541,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	painter.fillRect( QRect( curx, cury, 1, curh ), Qt::black );
 	painter.save();
 	if ( string()->isBidi() ) {
-	    int d = curh / 3;
+	    const int d = 4;
 	    if ( at( cursor->index() )->rightToLeft ) {
 		painter.setPen( Qt::black );
 		painter.drawLine( curx, cury, curx - d / 2, cury + d / 2 );
