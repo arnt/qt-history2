@@ -1332,7 +1332,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		int y = r.y();
 		int c;
-		int dotoffset;
+		int dotoffset = 0;
 		QPointArray dotlines;
 		if ( subActive == SC_All && sub == SC_ListViewExpand ) {
 		    c = 2;
