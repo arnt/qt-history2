@@ -31,7 +31,7 @@
 #include <string.h>
 
 //This turns on core graphics (don't use it unless you're Sam!!!)
-//#define USE_CORE_GRAPHICS
+#define USE_CORE_GRAPHICS
 
 class paintevent_item;
 class QPainterPrivate
@@ -55,18 +55,24 @@ public:
 	CGPatternRef fill_pattern;
 	CGColorSpaceRef fill_colorspace;
     } cg_info;
-    inline void cg_mac_point(const int &inx, const int &iny, float *outx, float *outy) {
+    inline void cg_mac_point(const int &inx, const int &iny, float *outx, float *outy, bool global=false) {
 	if(outx)
-	    *outx = offx + inx;
+	    *outx = inx;
 	if(outy)
-	    *outy = cg_info.height - (offy+iny);
+	    *outy = cg_info.height - iny;
+	if(!global) {
+	    if(outx)
+		*outx += offx;
+	    if(outy)
+		*outy -= offy;
+	}
     }
-    inline void cg_mac_point(const int &inx, const int &iny, CGPoint *p) {
-	cg_mac_point(inx, iny, &p->x, &p->y);
+    inline void cg_mac_point(const int &inx, const int &iny, CGPoint *p, bool global=false) {
+	cg_mac_point(inx, iny, &p->x, &p->y, global);
     }
-    inline void cg_mac_rect(const int &inx, const int &iny, const int &inw, const int &inh, CGRect *rct) {
+    inline void cg_mac_rect(const int &inx, const int &iny, const int &inw, const int &inh, CGRect *rct, bool global=false) {
 	*rct = CGRectMake(0, 0, inw, -inh);
-	cg_mac_point(inx, iny, &rct->origin);
+	cg_mac_point(inx, iny, &rct->origin, global);
     }
 };
 
@@ -137,8 +143,7 @@ static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *pa
 	ret = (CGContextRef)((QWidget*)pdev)->macCGHandle(!paint_d->unclipped);
     else
 	ret = (CGContextRef)pdev->macCGHandle();
-#if 0
-    //apply paint event region
+    //apply paint event region (in global coords)
     if(paintevent_item *pevent = paintevents.current()) {
 	if((*pevent) == pdev) {
 	    QVector<QRect> rects = pevent->region().rects();
@@ -146,7 +151,7 @@ static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *pa
 	    CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
 	    for(int i = 0; i < count; i++) {
 		const QRect &r = rects[i];
-		paint_d->cg_mac_rect(r.x(), r.y(), r.width(), r.height(), cg_rects+i);
+		paint_d->cg_mac_rect(r.x(), r.y(), r.width()+1, r.height()+1, cg_rects+i, true);
 	    }
 	    CGContextBeginPath(ret);
 	    CGContextAddRects(ret, cg_rects, count);
@@ -154,7 +159,6 @@ static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *pa
 	    free(cg_rects);
 	}
     }
-#endif
     return ret;
 }
 
@@ -923,7 +927,7 @@ void QPainter::setClipping(bool b)
 	    CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
 	    for(int i = 0; i < count; i++) {
 		const QRect &r = rects[i];
-		d->cg_mac_rect(r.x(), r.y(), r.width(), r.height(), cg_rects+i);
+		d->cg_mac_rect(r.x(), r.y(), r.width()+1, r.height()+1, cg_rects+i);
 	    }
 	    CGContextBeginPath((CGContextRef)hd);
 	    CGContextAddRects((CGContextRef)hd, cg_rects, count);
