@@ -6858,8 +6858,8 @@ void QListView::ensureItemVisible( const QListViewItem * i )
     view's back.
 
     You may safely call QHeader::setClickEnabled(),
-    QHeader::setResizeEnabled(), QHeader::setMovingEnabled() and all
-    the const QHeader functions.
+    QHeader::setResizeEnabled(), QHeader::setMovingEnabled(), 
+    QHeader::hide() and all the const QHeader functions.
 */
 
 QHeader * QListView::header() const
