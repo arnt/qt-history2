@@ -98,6 +98,7 @@ QTOBJS= \
         qurl.obj \
 	qsettings_win.obj \
 	qrect.obj \
+	qline.obj \
 	qpoint.obj \
 	qsize.obj \
         qmetatype.obj
@@ -146,6 +147,7 @@ clean::
         -del qurl.obj
 	-del qsettings_win.obj
 	-del qrect.obj
+	-del qline.obj
 	-del qpoint.obj
 	-del qsize.obj
         -del qmetatype.obj
@@ -206,6 +208,9 @@ qurl.obj: ..\src\core\io\qurl.cpp
 
 qrect.obj: ..\src\core\tools\qrect.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qrect.cpp
+
+qline.obj: ..\src\core\tools\qline.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qline.cpp
 
 qpoint.obj: ..\src\core\tools\qpoint.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qpoint.cpp

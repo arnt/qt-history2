@@ -63,6 +63,7 @@ bootstrap { #Qt code
 	qsettings.cpp \
 	qvariant.cpp \
 	qrect.cpp \
+        qline.cpp \
 	qpoint.cpp \
 	qsize.cpp \
         qvector.cpp \
