@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#12 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#13 $
 **
 ** Implementation of Network Extension Library
 **
@@ -329,7 +329,7 @@ void QSocket::tryConnecting()
     QValueList<QHostAddress> l = d->dns->addresses();
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket::tryConnecting: host %s, port %d, %d addresses",
-	    host.ascii(), port, l.count() );
+	    d->host.ascii(), d->port, l.count() );
 #endif
     if ( l.isEmpty() ) {
 	if ( !d->dns->isWorking() )
@@ -344,6 +344,9 @@ void QSocket::tryConnecting()
 	// uhnm?
     }
 #if defined(QSOCKET_DEBUG)
+    QString canonical = d->dns->canonicalName();
+    if ( !canonical.isNull() && canonical != d->host )
+	qDebug( "Connecting to %s", canonical.ascii() );
     qDebug( "QSocket::tryConnecting: Connect to IP address %s",
 	    l[0].ip4AddrString().ascii() );
 #endif
