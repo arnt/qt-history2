@@ -19,9 +19,9 @@ CustomEdit::CustomEdit( QWidget *parent, const char *name ) :
 }
 
 
-QString CustomEdit::upperLine() const 
+void CustomEdit::slotChanged( const QString &line )
 {
-    return upper_line;
+    setUpperLine( line );
 }
 
 
@@ -34,9 +34,9 @@ void CustomEdit::setUpperLine( const QString &line )
 }
 
 
-void CustomEdit::slotChanged( const QString &line )
+QString CustomEdit::upperLine() const 
 {
-    setUpperLine( line );
+    return upper_line;
 }
 
 
