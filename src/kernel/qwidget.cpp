@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#489 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#490 $
 **
 ** Implementation of QWidget class
 **
@@ -2339,10 +2339,6 @@ bool QWidget::hasFocus() const
   this widget to tell it that it just received the focus.
 
   setFocus() gives focus to a widget regardless of its focus policy.
-  However, QWidget::focusWidget() (which determines where
-  Tab/shift-Tab) moves from) is changed only if the widget accepts
-  focus.  This can be used to implement "hidden focus"; see
-  focusNextPrevChild() for details.
 
   \warning If you call setFocus() in a function which may itself be
   called from focusOutEvent() or focusInEvent(), you may see infinite
@@ -2365,6 +2361,17 @@ void QWidget::setFocus()
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
+    
+    f->it.toFirst();
+    while ( f->it.current() != this && !f->it.atLast() )
+	++f->it;
+    // at this point, the iterator should point to 'this'.  if it
+    // does not, 'this' must not be in the list - an error, but
+    // perhaps possible.  fix it.
+    if ( f->it.current() != this ) {
+	f->focusWidgets.append( this );
+	f->it.toLast();
+    }
 
     f->it.toFirst();
     while ( f->it.current() != this && !f->it.atLast() )
@@ -2767,7 +2774,7 @@ void QWidget::setCRect( const QRect &r )
 */
 
 /*!
-  Moves the widget to the position \e (x,y) relative to the parent widget and 
+  Moves the widget to the position \e (x,y) relative to the parent widget and
   including the window frame.
 
   A \link moveEvent() move event\endlink is generated immediately if
@@ -2785,8 +2792,8 @@ void QWidget::setCRect( const QRect &r )
 
 void QWidget::move( int x, int y )
 {
-    internalSetGeometry( x + geometry().x() - QWidget::x(), 
-			 y + geometry().y() - QWidget::y(), 
+    internalSetGeometry( x + geometry().x() - QWidget::x(),
+			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
 }
 
