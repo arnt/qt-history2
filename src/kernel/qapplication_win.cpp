@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#461 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#462 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -745,7 +745,7 @@ bool qt_nograb()				// application no-grab option
 
 static QAsciiDict<int> *winclassNames = 0;
 
-const char* qt_reg_winclass( int flags )	// register window class
+const QString qt_reg_winclass( int flags )	// register window class
 {
     if ( !winclassNames ) {
 	winclassNames = new QAsciiDict<int>;
@@ -753,7 +753,7 @@ const char* qt_reg_winclass( int flags )	// register window class
     }
     uint style;
     bool icon;
-    const char *cname;
+    QString cname;
     if ( (flags & (Qt::WType_Popup|Qt::WStyle_Tool)) == 0 ) {
 	cname = "QWidget";
 	style = CS_DBLCLKS;
@@ -766,7 +766,7 @@ const char* qt_reg_winclass( int flags )	// register window class
 	icon  = FALSE;
     }
 
-    if ( winclassNames->find(cname) )		// already registered
+    if ( winclassNames->find(cname.latin1()) )		// already registered
 	return cname;
 
     if ( qt_winver & Qt::WV_NT_based ) {
@@ -789,7 +789,7 @@ const char* qt_reg_winclass( int flags )	// register window class
 	wc.hCursor	= 0;
 	wc.hbrBackground= 0;
 	wc.lpszMenuName	= 0;
-	wc.lpszClassName= (TCHAR*)qt_winTchar(QString::fromLatin1(cname),TRUE);
+	wc.lpszClassName= (TCHAR*)qt_winTchar(cname,TRUE);
 	RegisterClass( &wc );
     } else {
 	WNDCLASSA wc;
@@ -809,11 +809,11 @@ const char* qt_reg_winclass( int flags )	// register window class
 	wc.hCursor	= 0;
 	wc.hbrBackground= 0;
 	wc.lpszMenuName	= 0;
-	wc.lpszClassName= cname;
+	wc.lpszClassName= cname.latin1();
 	RegisterClassA( &wc );
     }
 
-    winclassNames->insert( cname, (int*)1 );
+    winclassNames->insert( cname.latin1(), (int*)1 );
     return cname;
 }
 
@@ -1415,6 +1415,29 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 }
 
 
+static
+QString imestring_to_unicode(char *s, int len)
+{
+    if ( len <= 0 )
+	return QString::null;
+#ifdef UNICODE
+    if ( qt_winver & Qt::WV_NT_based ) {
+	QString res = QString( (QChar *)s, len/sizeof(QChar) );
+	return res;
+    } else
+#endif
+    {
+	s[len+1] = 0;
+	WCHAR *wc = new WCHAR[len+1];
+	int l = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
+	    s, len, wc, len+1);
+	QString res = QString( (QChar *)wc, l );
+	delete [] wc;
+	return res;
+    }
+}
+
+
 //
 // QtWndProc() receives all messages from the main event loop
 //
@@ -1741,6 +1764,48 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 		break;
 
+	    case WM_IME_STARTCOMPOSITION:
+		{
+    		    QWidget *fw = qApp->focusWidget();
+		    if ( fw ) {
+			QIMEvent e( QEvent::IMStart, QString::null, -1 );
+			result = QApplication::sendEvent( fw, &e );
+		    }
+		}
+		break;
+	    case WM_IME_ENDCOMPOSITION:
+		{
+		    QWidget *fw = qApp->focusWidget();
+	        
+		    if ( fw ) {
+			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
+			char buffer[256];
+			LONG cursorPos = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
+			LONG buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
+			//qDebug( "cursor at %d string is %d bytes '%s'", cursorPos, buflen, buffer);
+			ImmReleaseContext( fw->winId(), imc );
+			QString string = imestring_to_unicode( buffer, buflen );
+			QIMEvent e( QEvent::IMEnd, string, -1 );
+			result = QApplication::sendEvent( fw, &e );
+		    }
+		}
+		break;
+	    case WM_IME_COMPOSITION:
+		{
+		    QWidget *fw = qApp->focusWidget();
+		    if ( fw ) {
+			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
+			char buffer[256];
+			LONG cursorPos = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
+			LONG buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
+			//qDebug( "cursor at %d string is %d bytes '%s'", cursorPos, buflen, buffer);
+			ImmReleaseContext( fw->winId(), imc );
+			QString string = imestring_to_unicode( buffer, buflen );
+			QIMEvent e( QEvent::IMCompose, string, cursorPos );
+			result = QApplication::sendEvent( fw, &e );
+		    }
+		}
+		break;
 	    case WM_CHANGECBCHAIN:
 	    case WM_DRAWCLIPBOARD:
 	    case WM_RENDERFORMAT:

@@ -54,7 +54,7 @@
 #define GWLP_WNDPROC GWL_WNDPROC
 #endif
 
-const char* qt_reg_winclass( int );		// defined in qapplication_win.cpp
+const QString qt_reg_winclass( int );		// defined in qapplication_win.cpp
 void	    qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst ); // dnd_win
 QOleDropTarget* qt_olednd_register( QWidget* widget );
 
@@ -96,7 +96,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     HWND   parentw, destroyw = 0;
     WId	   id;
 
-    const char *windowClassName = qt_reg_winclass( getWFlags() );
+    QString windowClassName = qt_reg_winclass( getWFlags() );
 
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
@@ -133,7 +133,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     parentw = parentWidget() ? parentWidget()->winId() : 0;
 
-    const char* title = 0;
+#ifdef UNICODE
+    TCHAR* title = 0;
+#endif
+    const char *title95 = 0;
     int	 style = WS_CHILD;
     int	 exsty = 0;
 
@@ -188,8 +191,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		exsty |= WS_EX_CONTEXTHELP;
 	}
     }
-    if ( testWFlags(WStyle_Title) )
-	title = qAppName();
+    if ( testWFlags(WStyle_Title) ) {
+#ifdef UNICODE
+	if ( qt_winver & Qt::WV_NT_based ) {
+	    title = (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName()));
+	} else 
+#endif
+	{
+	    title95 = qAppName();
+	}
+    }
 
 	// The WState_Created flag is checked by translateConfigEvent() in
 	// qapplication_win.cpp. We switch it off temporarily to avoid move
@@ -222,21 +233,37 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWinId( id );
 	}
     } else if ( topLevel ) {			// create top-level widget
-	// WWA: I cannot get the Unicode versions to work.
-
 	if ( popup )
 	    parentw = 0;
 
-	if ( exsty )
-	    id = CreateWindowExA( exsty, windowClassName, title, style,
-				 CW_USEDEFAULT, CW_USEDEFAULT,
-				 CW_USEDEFAULT, CW_USEDEFAULT,
-				 parentw, 0, appinst, 0 );
-	else
-	    id = CreateWindowA(	 windowClassName, title, style,
-				 CW_USEDEFAULT, CW_USEDEFAULT,
-				 CW_USEDEFAULT, CW_USEDEFAULT,
-				 parentw, 0, appinst, 0 );
+#ifdef UNICODE
+	if ( qt_winver & Qt::WV_NT_based ) {
+	    // ### can this give problems due to the buffer in qt_winTchar????
+	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
+	    if ( exsty )
+		id = CreateWindowEx( exsty, cname, title, style,
+		    		    CW_USEDEFAULT, CW_USEDEFAULT,
+				    CW_USEDEFAULT, CW_USEDEFAULT,
+				    parentw, 0, appinst, 0 );
+	    else
+		id = CreateWindow( cname, title, style,
+				    CW_USEDEFAULT, CW_USEDEFAULT,
+				    CW_USEDEFAULT, CW_USEDEFAULT,
+				    parentw, 0, appinst, 0 );
+	} else 
+#endif
+	{
+	    if ( exsty )
+		id = CreateWindowExA( exsty, windowClassName.latin1(), title95, style,
+				    CW_USEDEFAULT, CW_USEDEFAULT,
+				    CW_USEDEFAULT, CW_USEDEFAULT,
+				    parentw, 0, appinst, 0 );
+	    else
+		id = CreateWindowA( windowClassName.latin1(), title95, style,
+				    CW_USEDEFAULT, CW_USEDEFAULT,
+				    CW_USEDEFAULT, CW_USEDEFAULT,
+				    parentw, 0, appinst, 0 );
+	}
 #ifndef Q_NO_DEBUG
 	if ( id == NULL )
 	    qSystemWarning( "QWidget: Failed to create window" );
@@ -245,9 +272,17 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( testWFlags( WStyle_StaysOnTop) )
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
-	// WWA: I cannot get the Unicode versions to work.
-	id = CreateWindowA( windowClassName, title, style, 0, 0, 100, 30,
-			   parentw, NULL, appinst, NULL );
+#ifdef UNICODE
+	if ( qt_winver & Qt::WV_NT_based ) {
+	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
+	    id = CreateWindow( cname, title, style, 0, 0, 100, 30,
+			    parentw, NULL, appinst, NULL );
+	} else 
+#endif
+	{
+	    id = CreateWindowA( windowClassName.latin1(), title95, style, 0, 0, 100, 30,
+			    parentw, NULL, appinst, NULL );
+	}
 #ifndef Q_NO_DEBUG
 	if ( id == NULL )
 	    qSystemWarning( "QWidget: Failed to create window" );
@@ -318,6 +353,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( destroyw ) {
 	DestroyWindow( destroyw );
     }
+    if ( title )
+	delete [] title;
 
     setFontSys();
 }
@@ -475,7 +512,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
     if ( text ) {
 	// Translate x,y to be relative to the TLW
 	QPoint p(x,y);
-	p = mapTo( topLevelWidget(), p );
+	//p = mapTo( topLevelWidget(), p );
 
 	COMPOSITIONFORM cf;
 	// ### need X-like inputStyle config settings
