@@ -98,7 +98,7 @@ void QDesignerStackedWidget::updateButtons()
 
 void QDesignerStackedWidget::prevPage()
 {
-    if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+    if (/* FormWindow *fw = */FormWindow::findFormWindow(this)) {
         int newIndex = currentIndex() - 1;
         if (newIndex < 0)
             newIndex = count() -1;
