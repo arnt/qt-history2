@@ -1,6 +1,5 @@
-HEADERS     = mainwindow.h \
-              paintwidget.h
+HEADERS     = renderarea.h \
+              window.h
 SOURCES     = main.cpp \
-              mainwindow.cpp \
-              paintwidget.cpp
-CONFIG      += qt
+              renderarea.cpp \
+	      window.cpp
