@@ -140,6 +140,8 @@ void NewForm::loadFrom(const QString &path)
         if (!fi.isFile())
             continue;
 
+        qApp->processEvents();
+
         QTreeWidgetItem *item = new QTreeWidgetItem(root);
         item->setText(0, fi.baseName());
         item->setData(0, TemplateNameRole, fi.absoluteFilePath());

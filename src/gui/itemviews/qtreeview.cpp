@@ -321,7 +321,11 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
         d->hiddenIndexes.remove(i);
     }
 
-    d->relayout(parent);
+    if (isVisible())
+        d->relayout(parent);
+    else
+        d->doDelayedItemsLayout();
+
 }
 
 /*!
@@ -1006,7 +1010,10 @@ void QTreeView::reexpand()
 */
 void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
-    d->relayout(parent);
+    if (isVisible())
+        d->relayout(parent);
+    else
+        d->doDelayedItemsLayout();
     QAbstractItemView::rowsInserted(parent, start, end);
 }
 
@@ -1408,10 +1415,6 @@ int QTreeViewPrivate::columnAt(int x) const
 
 void QTreeViewPrivate::relayout(const QModelIndex &parent)
 {
-    if (!q->isVisible()) {
-        viewItems.clear();
-        return;
-    }
     // do a local relayout of the items
     if (parent.isValid()) {
         int parentViewIndex = viewIndex(parent);
