@@ -50,8 +50,8 @@
   QMemArray stores the array elements directly in the array. It can
   deal only with simple types (i.e. C++ types, structs, and classes that have
   no constructors, destructors, or virtual functions).  QMemArray uses
-  bitwise operations to copy and compare array elements.
-
+  bitwise operations to copy and compare array elements. 
+  
   The QPtrVector collection class is also a kind of array.  Like most
   \link collection.html collection classes\endlink, it has pointers to the
   contained items.
@@ -63,6 +63,12 @@
   The benefit of sharing is that a program does not need to duplicate
   data when it is not required, which results in less memory usage and
   less copying of data.
+
+  An alternative to QMemArray is QValueVector. The QValueVector class
+  also provides an array of objects, but can deal with objects that
+  have constructors (specifically a copy constructor and a default
+  constructor). QValueVector provides an STL-compatible syntax and is
+  implicitly \link shclass.html shared\endlink.
 
   Example:
   \code
@@ -380,7 +386,12 @@
 
 /*!
   \fn void QMemArray::resetRawData( const type *data, uint size )
-  Resets raw data that was set using setRawData().
+
+  Removes internal references to the raw data that was set using
+  setRawData(). This means that QMemArray no longer has access to the
+  \a data, so you are free to manipulate \a data as you wish. You can
+  now use the QMemArray without affecting the original \a data, for
+  example by calling setRawData() with a pointer to some other data.
 
   The arguments must be the \a data and length, \a size, that were
   passed to setRawData(). This is for consistency checking.

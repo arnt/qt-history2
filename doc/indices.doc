@@ -557,8 +557,10 @@ These classes and interfaces form the basis of the \link component.html Qt Compo
 
 \title Plugins
 
-These classes are used with Qt plugins. See the \link
-plugins-howto.html plugins documentation\endlink.
+These classes deal with shared libraries, (e.g. .so and DLL files),
+and with Qt plugins. 
+
+See the \link plugins-howto.html plugins documentation\endlink.
 
 
 See also the \link activeqt.html ActiveQt framework\endlink for

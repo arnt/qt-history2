@@ -239,8 +239,8 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
     \warning The internal buffer is limited to 8196 bytes (including
     the '\0'-terminator).
 
-    \sa qWarning(), qFatal(), qInstallMsgHandler(), \link debug.html
-    Debugging\endlink
+    \sa qWarning(), qFatal(), qInstallMsgHandler(),
+	\link debug.html Debugging\endlink
 */
 
 /*!

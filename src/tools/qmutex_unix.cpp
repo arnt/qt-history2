@@ -331,66 +331,66 @@ int QRecursiveMutexPrivate::type() const
 
 
 /*!
-  \class QMutex qmutex.h
-  \brief The QMutex class provides access serialization between threads.
+    \class QMutex qmutex.h
+    \brief The QMutex class provides access serialization between threads.
 
-  \ingroup thread
-  \ingroup environment
+    \ingroup thread
+    \ingroup environment
 
-  The purpose of a QMutex is to protect an object, data structure
-  or section of code so that only one thread can access it at a time
-  (In Java terms, this is similar to the synchronized keyword).
-  For example, say there is a method which prints a message to the
-  user on two lines:
+    The purpose of a QMutex is to protect an object, data structure or
+    section of code so that only one thread can access it at a time
+    (In Java terms, this is similar to the synchronized keyword). For
+    example, say there is a method which prints a message to the user
+    on two lines:
 
-  \code
-  void someMethod()
-  {
-     qDebug("Hello");
-     qDebug("World");
-  }
-  \endcode
+    \code
+    void someMethod()
+    {
+	qDebug("Hello");
+	qDebug("World");
+    }
+    \endcode
 
-  If this method is called simultaneously from two threads then
-  the following sequence could result:
+    If this method is called simultaneously from two threads then the
+    following sequence could result:
 
-  \code
-  Hello
-  Hello
-  World
-  World
-  \endcode
+    \code
+    Hello
+    Hello
+    World
+    World
+    \endcode
 
-  If we add a mutex:
+    If we add a mutex:
 
-  \code
-  QMutex mutex;
+    \code
+    QMutex mutex;
 
-  void someMethod()
-  {
-     mutex.lock();
-     qDebug("Hello");
-     qDebug("World");
-     mutex.unlock();
-  }
-  \endcode
+    void someMethod()
+    {
+	mutex.lock();
+	qDebug("Hello");
+	qDebug("World");
+	mutex.unlock();
+    }
+    \endcode
 
-  In Java terms this would be:
+    In Java terms this would be:
 
-  \code
-  void someMethod()
-  {
-     synchronized {
-       qDebug("Hello");
-       qDebug("World");
-     }
-  }
-  \endcode
+    \code
+    void someMethod()
+    {
+	synchronized {
+	qDebug("Hello");
+	qDebug("World");
+	}
+    }
+    \endcode
 
-  Then only one thread can execute someMethod at a time and the order
-  of messages is always correct. This is a trivial example, of course,
-  but applies to any other case where things need to happen in a particular
-  sequence.
+    Then only one thread can execute someMethod() at a time and the
+    order of messages is always correct. This is a trivial example, of
+    course, but applies to any other case where things need to happen
+    in a particular sequence.
 
     When you call lock() in a thread, other threads that try to call
     lock() in the same place will block until the thread that got the
@@ -399,12 +399,12 @@ int QRecursiveMutexPrivate::type() const
 */
 
 /*!
-  Constructs a new mutex. The mutex is created in an unlocked state. A
-  recursive mutex is created if \a recursive is TRUE; a normal mutex is
-  created if \a recursive is FALSE (the default). With a recursive
-  mutex, a thread can lock the same mutex multiple times and it will
-  not be unlocked until a corresponding number of unlock() calls have
-  been made.
+    Constructs a new mutex. The mutex is created in an unlocked state.
+    A recursive mutex is created if \a recursive is TRUE; a normal
+    mutex is created if \a recursive is FALSE (the default). With a
+    recursive mutex, a thread can lock the same mutex multiple times
+    and it will not be unlocked until a corresponding number of
+    unlock() calls have been made.
 */
 QMutex::QMutex(bool recursive)
 {
@@ -417,7 +417,7 @@ QMutex::QMutex(bool recursive)
 }
 
 /*!
-  Destroys the mutex.
+    Destroys the mutex.
 */
 QMutex::~QMutex()
 {
@@ -425,10 +425,10 @@ QMutex::~QMutex()
 }
 
 /*!
-  Attempt to lock the mutex. If another thread has locked the mutex
-  then this call will \e block until that thread has unlocked it.
+    Attempt to lock the mutex. If another thread has locked the mutex
+    then this call will \e block until that thread has unlocked it.
 
-  \sa unlock(), locked()
+    \sa unlock(), locked()
 */
 void QMutex::lock()
 {
@@ -436,12 +436,12 @@ void QMutex::lock()
 }
 
 /*!
-  Unlocks the mutex. Attempting to unlock a mutex in a different thread
-  to the one that locked it results in an error.  Unlocking a mutex that
-  is not locked results in undefined behaviour (varies between
-  different Operating Systems' thread implementations).
+    Unlocks the mutex. Attempting to unlock a mutex in a different
+    thread to the one that locked it results in an error. Unlocking a
+    mutex that is not locked results in undefined behaviour (varies
+    between different Operating Systems' thread implementations).
 
-  \sa lock(), locked()
+    \sa lock(), locked()
 */
 void QMutex::unlock()
 {
@@ -449,14 +449,14 @@ void QMutex::unlock()
 }
 
 /*!
-  Returns TRUE if the mutex is locked by another thread; otherwise
-  returns FALSE.
+    Returns TRUE if the mutex is locked by another thread; otherwise
+    returns FALSE.
 
-  \warning Due to differing implementations of recursive mutexes on various
-  platforms, calling this function from the same thread that previously locked
-  the mutex will return undefined results.
+    \warning Due to differing implementations of recursive mutexes on
+    various platforms, calling this function from the same thread that
+    previously locked the mutex will return undefined results.
 
-  \sa lock(), unlock()
+    \sa lock(), unlock()
 */
 bool QMutex::locked()
 {
@@ -464,15 +464,15 @@ bool QMutex::locked()
 }
 
 /*!
-  Attempt to lock the mutex.  If the lock was obtained, this function
-  returns TRUE.  If another thread has locked the mutex, this function
-  returns FALSE, instead of waiting for the mutex to become available,
-  i.e. it does not block.
+    Attempt to lock the mutex. If the lock was obtained, this function
+    returns TRUE. If another thread has locked the mutex, this
+    function returns FALSE, instead of waiting for the mutex to become
+    available, i.e. it does not block.
 
-  The mutex must be unlocked with unlock() before another thread can
-  successfully lock it.
+    If the lock was obtained, the mutex must be unlocked with unlock()
+    before another thread can successfully lock it.
 
-  \sa lock(), unlock(), locked()
+    \sa lock(), unlock(), locked()
 */
 bool QMutex::tryLock()
 {
