@@ -815,17 +815,15 @@
 
 /*!
   \fn type *QPtrListIterator::toFirst()
-  Sets the current iterator item to point to the first list item and returns
-  a pointer to the item.  Sets the current item to null and returns null
-  if the list is empty.
+  Sets the current iterator item to point to the first list item and
+  returns a pointer to the item, or null if the list is empty.
   \sa toLast(), atFirst()
 */
 
 /*!
   \fn type *QPtrListIterator::toLast()
   Sets the current iterator item to point to the last list item and returns
-  a pointer to the item.  Sets the current item to null and returns null
-  if the list is empty.
+  a pointer to the item, or null if the list is empty.
   \sa toFirst(), atLast()
 */
 
