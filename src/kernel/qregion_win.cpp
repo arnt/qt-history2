@@ -357,7 +357,7 @@ QRegion QRegion::eor( const QRegion &r ) const
 QRect QRegion::boundingRect() const
 {
     RECT r;
-    int result = GetRgnBox(data->rgn, &r);
+    int result = data->rgn ? GetRgnBox(data->rgn, &r) : 0;
     if ( result == 0 || result == NULLREGION )
 	return QRect(0,0,0,0);
     else
@@ -371,7 +371,7 @@ QArray<QRect> QRegion::rects() const
     if ( data->rgn == 0 )
 	return a;
 
-    int numBytes = GetRegionData( data->rgn, 0, 0 );
+    int numBytes = data->rgn ? GetRegionData( data->rgn, 0, 0 ) : 0;
     if ( numBytes == 0 )
 	return a;
 
