@@ -37,9 +37,15 @@
 
 // DNS header files are not fully covered by X/Open specifications.
 // In particular nothing is said about res_* :/
-#include <netinet/in.h>
-#include <arpa/nameser.h>
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
+// getres() is mangled because of missing extern "C" on
+// HP-UX 11.x systems missing PHCO_23963
 #include <resolv.h>
+// #ifdef __cplusplus
+// }
+// #endif
 // Undeclared - at least on HP-UX 10.20.
 extern "C" int res_init();
 
