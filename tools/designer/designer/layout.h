@@ -172,6 +172,7 @@ public:
 	int column;
 	int rowspan;
 	int colspan;
+	Q_DUMMY_COMPARISON_OPERATOR( Item )
     };
 
     QMap<QWidget*, Item> items;

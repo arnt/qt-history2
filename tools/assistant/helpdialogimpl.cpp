@@ -65,6 +65,7 @@ struct IndexKeyword {
     bool operator>( const IndexKeyword &ik ) const {
 	return keyword.lower() > ik.keyword.lower();
     }
+    Q_DUMMY_COMPARISON_OPERATOR( IndexKeyword )
     QString keyword;
     QString link;
 };

@@ -112,6 +112,7 @@ private:
     {
 	QString header;
 	QString location;
+	Q_DUMMY_COMPARISON_OPERATOR(CustomInclude)
     };
     QValueList<Buddy> buddies;
 

@@ -222,6 +222,8 @@ private:
 	~ClassBrowser();
 	QListView *lv;
 	QInterfacePtr<ClassBrowserInterface> iface;
+
+	Q_DUMMY_COMPARISON_OPERATOR( ClassBrowser )
     };
     FormWindow *formwindow;
     HierarchyList *listview;

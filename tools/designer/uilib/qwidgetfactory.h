@@ -137,9 +137,7 @@ private:
 	QString name;
 	QPixmap pix;
 	QString field;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Field& ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR( Field )
     };
 
     struct SqlWidgetConnection
@@ -150,6 +148,7 @@ private:
 	QString conn;
 	QString table;
 	QMap<QString, QString> *dbControls;
+	Q_DUMMY_COMPARISON_OPERATOR( SqlWidgetConnection )
     };
 
     QValueList<Image> images;

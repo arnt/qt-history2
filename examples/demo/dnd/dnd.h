@@ -13,6 +13,8 @@ public:
     QString name() { return _name; }
     QPixmap *pixmap() { return &_pixmap; }
 
+    Q_DUMMY_COMPARISON_OPERATOR( IconItem )
+
 protected:
     QPixmap loadPixmap( const QString& name );
 

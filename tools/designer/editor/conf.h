@@ -29,6 +29,8 @@ struct ConfigStyle
 {
     QFont font;
     QColor color;
+
+    Q_DUMMY_COMPARISON_OPERATOR( ConfigStyle )
 };
 
 struct Config

@@ -70,6 +70,8 @@ private:
 	QString oldAccess;
 	QString type;
 	QString oldType;
+
+	Q_DUMMY_COMPARISON_OPERATOR( FunctItem )
     };
 
     void changeItem( QListViewItem *item, Attribute a, const QString &nV );
