@@ -4014,6 +4014,15 @@ void QTextEdit::getSelection( int *paraFrom, int *indexFrom,
 {
     if ( !paraFrom || !paraTo || !indexFrom || !indexTo )
 	return;
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if (d->optimMode) {
+	*paraFrom = d->od->selStart.line;
+	*paraTo = d->od->selEnd.line;
+	*indexFrom = d->od->selStart.index;
+	*indexTo = d->od->selEnd.index;
+	return;
+    }
+#endif
     if ( !doc->hasSelection( selNum ) ) {
 	*paraFrom = -1;
 	*indexFrom = -1;
