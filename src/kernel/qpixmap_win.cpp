@@ -25,7 +25,7 @@
 #include "qwin32gc.h"
 #endif
 
-Q_KERNEL_EXPORT const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
+extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 #define DATA_HBM	 data->hbm_or_mcpi.hbm
 #define DATA_MCPI	 data->hbm_or_mcpi.mcpi

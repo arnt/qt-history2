@@ -18,9 +18,6 @@
 #ifndef QT_H
 #include "qatomic.h"
 #include "qbytearray.h"
-#include "qpoint.h"
-#include "qsize.h"
-#include "qrect.h"
 #endif // QT_H
 
 #ifndef QT_NO_VARIANT
@@ -29,9 +26,6 @@ class QDataStream;
 class QDate;
 class QDateTime;
 class QKernelVariant;
-class QPoint;
-class QRect;
-class QSize;
 class QString;
 class QStringList;
 class QStringList;
@@ -117,10 +111,6 @@ class Q_KERNEL_EXPORT QKernelVariant
     inline QKernelVariant(const QMap<QString,QKernelVariant> &map);
 #endif
 
-    inline QKernelVariant(const QSize &size);
-    inline QKernelVariant(const QRect &rect);
-    inline QKernelVariant(const QPoint &point);
-
     QKernelVariant& operator=(const QKernelVariant &other);
     bool operator==(const QKernelVariant &other) const;
     inline bool operator!=(const QKernelVariant &other) const
@@ -156,9 +146,6 @@ class Q_KERNEL_EXPORT QKernelVariant
     QList<QKernelVariant> toList() const;
     QMap<QString,QKernelVariant> toMap() const;
 #endif
-    QPoint toPoint() const;
-    QRect toRect() const;
-    QSize toSize() const;
 
     inline int &asInt();
     inline uint &asUInt();
@@ -179,9 +166,6 @@ class Q_KERNEL_EXPORT QKernelVariant
     inline QList<QKernelVariant> &asList();
     inline QMap<QString,QKernelVariant> &asMap();
 #endif
-    inline QPoint &asPoint();
-    inline QRect &asRect();
-    inline QSize &asSize();
 
 #ifndef QT_NO_DATASTREAM
     void load(QDataStream &ds);
@@ -303,12 +287,6 @@ inline QKernelVariant::QKernelVariant(const QList<QKernelVariant> &val)
 inline QKernelVariant::QKernelVariant(const QMap<QString,QKernelVariant> &val)
 { d = create(Map, &val); }
 #endif
-inline QKernelVariant::QKernelVariant(const QPoint &pt)
-{ d = create(Point, &pt); }
-inline QKernelVariant::QKernelVariant(const QRect &r)
-{ d = create(Rect, &r); }
-inline QKernelVariant::QKernelVariant(const QSize &s)
-{ d = create(Size, &s); }
 
 inline QKernelVariant::Type QKernelVariant::type() const
 { return d->type; }
@@ -349,40 +327,6 @@ inline QList<QKernelVariant>& QKernelVariant::asList()
 inline QMap<QString, QKernelVariant>& QKernelVariant::asMap()
 { return *static_cast<QMap<QString, QKernelVariant> *>(castOrDetach(Map)); }
 #endif
-
-inline QPoint& QKernelVariant::asPoint()
-{ return *static_cast<QPoint *>(castOrDetach(Point)); }
-
-inline QRect& QKernelVariant::asRect()
-{ return *static_cast<QRect *>(castOrDetach(Rect)); }
-
-inline QSize &QKernelVariant::asSize()
-{ return *static_cast<QSize *>(castOrDetach(Size)); }
-
-inline QPoint QKernelVariant::toPoint() const
-{
-    if (d->type != Point)
-	return QPoint();
-
-    return *static_cast<QPoint *>(d->value.ptr);
-}
-
-inline QRect QKernelVariant::toRect() const
-{
-    if (d->type != Rect)
-	return QRect();
-
-    return *static_cast<QRect *>(d->value.ptr);
-}
-
-inline QSize QKernelVariant::toSize() const
-{
-    if (d->type != Size)
-	return QSize();
-
-    return *static_cast<QSize *>(d->value.ptr);
-}
-
 
 #ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QKernelVariant& p );

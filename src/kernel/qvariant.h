@@ -56,6 +56,9 @@ class QKeySequence;
 class QPen;
 class QVariant;
 class QApplicationPrivate;
+class QPoint;
+class QRect;
+class QSize;
 
 class Q_GUI_EXPORT QVariant : public QKernelVariant
 {
@@ -142,6 +145,15 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     QPen toPen() const;
     QSizePolicy toSizePolicy() const;
 
+    QPoint toPoint() const;
+    QRect toRect() const;
+    QSize toSize() const;
+
+
+    QPoint &asPoint();
+    QRect &asRect();
+    QSize &asSize();
+
     QFont &asFont();
     QPixmap &asPixmap();
     QImage &asImage();
@@ -197,9 +209,12 @@ inline QVariant::QVariant(const QDateTime &datetime) : QKernelVariant(datetime) 
 inline QVariant::QVariant(const QList<QKernelVariant> &list) : QKernelVariant(list) {};
 inline QVariant::QVariant(const QMap<QString,QKernelVariant> &map) : QKernelVariant(map) {};
 #endif
-inline QVariant::QVariant(const QSize &size) : QKernelVariant(size) {}
-inline QVariant::QVariant(const QRect &rect) : QKernelVariant(rect) {}
-inline QVariant::QVariant(const QPoint &pt) : QKernelVariant(pt) {}
+inline QVariant::QVariant(const QPoint &pt)
+{ d = create(Point, &pt); }
+inline QVariant::QVariant(const QRect &r)
+{ d = create(Rect, &r); }
+inline QVariant::QVariant(const QSize &s)
+{ d = create(Size, &s); }
 
 inline QVariant::QVariant()
     : QKernelVariant()
@@ -281,6 +296,40 @@ inline QPen& QVariant::asPen()
 { return *static_cast<QPen *>(castOrDetach(Pen)); }
 inline QSizePolicy& QVariant::asSizePolicy()
 { return *static_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
+
+
+inline QPoint& QVariant::asPoint()
+{ return *static_cast<QPoint *>(castOrDetach(Point)); }
+
+inline QRect& QVariant::asRect()
+{ return *static_cast<QRect *>(castOrDetach(Rect)); }
+
+inline QSize &QVariant::asSize()
+{ return *static_cast<QSize *>(castOrDetach(Size)); }
+
+inline QPoint QVariant::toPoint() const
+{
+    if (d->type != Point)
+	return QPoint();
+
+    return *static_cast<QPoint *>(d->value.ptr);
+}
+
+inline QRect QVariant::toRect() const
+{
+    if (d->type != Rect)
+	return QRect();
+
+    return *static_cast<QRect *>(d->value.ptr);
+}
+
+inline QSize QVariant::toSize() const
+{
+    if (d->type != Size)
+	return QSize();
+
+    return *static_cast<QSize *>(d->value.ptr);
+}
 
 
 inline const QImage QVariant::toImage() const

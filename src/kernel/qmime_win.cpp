@@ -28,8 +28,8 @@
 #include <shlobj.h>
 
 #ifndef QT_NO_IMAGEIO_BMP
-Q_KERNEL_EXPORT bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
-Q_KERNEL_EXPORT bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
+extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
+extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
 #endif
 
 static QList<QWindowsMime*> mimes;
@@ -578,7 +578,7 @@ int QWindowsMimeImage::cfFor(const char* mime)
 {
     if ( qstrnicmp(mime,"image/",5)==0 ) {
 	QList<QByteArray> ofmts = QImage::outputFormats();
-	for (int i = 0; i < ofmts.count(); ++i) 
+	for (int i = 0; i < ofmts.count(); ++i)
 	    if ( qstricmp(ofmts.at(i),mime+6)==0 )
 		return CF_DIB;
     }
@@ -597,7 +597,7 @@ bool QWindowsMimeImage::canConvert( const char* mime, int cf )
 {
     if ( cf == CF_DIB && qstrnicmp(mime,"image/",5)==0 ) {
 	QList<QByteArray> ofmts = QImage::outputFormats();
-	for (int i = 0; i < ofmts.count(); ++i) 
+	for (int i = 0; i < ofmts.count(); ++i)
 	    if ( qstricmp(ofmts.at(i),mime+6)==0 )
 		return TRUE;
     }
@@ -793,7 +793,7 @@ void cleanup_mimes()
 {
     while ( mimes.size() )
  	delete mimes.first();
- 
+
     mimetypes.setAutoDelete(TRUE);
     mimetypes.clear();
 }

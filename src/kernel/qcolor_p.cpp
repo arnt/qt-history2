@@ -33,7 +33,7 @@ static int hex2int( QChar hexchar )
     return v;
 }
 
-Q_KERNEL_EXPORT bool qt_get_hex_rgb(const char *name, QRgb *rgb)
+bool qt_get_hex_rgb(const char *name, QRgb *rgb)
 {
     if(name[0] != '#')
 	return FALSE;
@@ -750,7 +750,7 @@ static int rgb_cmp( const void *d1, const void *d2 )
 }
 #endif
 
-Q_KERNEL_EXPORT bool qt_get_named_rgb( const char *name, QRgb* rgb )
+bool qt_get_named_rgb( const char *name, QRgb* rgb )
 {
     Q_LONG len = strlen(name)+1;
     char *name_no_space = (char *)malloc(len);
@@ -775,14 +775,14 @@ Q_KERNEL_EXPORT bool qt_get_named_rgb( const char *name, QRgb* rgb )
     }
 }
 
-Q_KERNEL_EXPORT uint qt_get_rgb_val( const char *name )
+uint qt_get_rgb_val( const char *name )
 {
     QRgb r;
     qt_get_named_rgb(name,&r);
     return r;
 }
 #ifndef QT_NO_STRINGLIST
-Q_KERNEL_EXPORT QStringList qt_get_colornames()
+QStringList qt_get_colornames()
 {
     int i = 0;
     QStringList lst;
@@ -793,17 +793,17 @@ Q_KERNEL_EXPORT QStringList qt_get_colornames()
 #endif
 #else
 
-Q_KERNEL_EXPORT bool qt_get_named_rgb( const char *, QRgb* )
+bool qt_get_named_rgb( const char *, QRgb* )
 {
     return FALSE;
 }
 
-Q_KERNEL_EXPORT uint qt_get_rgb_val( const char * )
+uint qt_get_rgb_val( const char * )
 {
     return 0;
 }
 #ifndef QT_NO_STRINGLIST
-Q_KERNEL_EXPORT QStringList qt_get_colornames()
+QStringList qt_get_colornames()
 {
     return QStringList();
 }

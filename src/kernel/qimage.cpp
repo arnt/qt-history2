@@ -297,7 +297,7 @@ static const uchar bitflip[256] = {
     15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255
 };
 
-Q_KERNEL_EXPORT const uchar *qt_get_bitflip_array()			// called from QPixmap code
+const uchar *qt_get_bitflip_array()			// called from QPixmap code
 {
     return bitflip;
 }
@@ -3275,7 +3275,7 @@ QList<QByteArray> QImage::inputFormats()
     return QImageIO::inputFormats();
 }
 
-static QStringList qToStringList(const QList<QByteArray> arr) 
+static QStringList qToStringList(const QList<QByteArray> arr)
 {
     QStringList list;
     for (int i = 0; i < arr.count(); ++i)
@@ -3395,7 +3395,7 @@ bool QImage::loadFromData( const uchar *buf, uint len, const char *format )
 */
 bool QImage::loadFromData( QByteArray buf, const char *format )
 {
-    QBuffer b( buf );    
+    QBuffer b( buf );
     b.open( IO_ReadOnly );
     QImageIO io( &b, format );
     bool result = io.read();
@@ -4235,7 +4235,7 @@ QList<QByteArray> QImageIO::inputFormats()
 	p = imageHandlers->next();
     }
     qHeapSort(result);
-    
+
     return result;
 }
 
@@ -4813,7 +4813,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
     return TRUE;
 }
 
-Q_KERNEL_EXPORT bool qt_read_dib( QDataStream& s, QImage& image )
+bool qt_read_dib( QDataStream& s, QImage& image )
 {
     return read_dib(s,-1,-BMP_FILEHDR_SIZE,image);
 }
@@ -4839,7 +4839,7 @@ static void read_bmp_image( QImageIO *iio )
     }
 }
 
-Q_KERNEL_EXPORT bool qt_write_dib( QDataStream& s, QImage image )
+bool qt_write_dib( QDataStream& s, QImage image )
 {
     int	nbits;
     int	bpl_bmp;
@@ -6371,7 +6371,7 @@ QGfx * QImage::graphicsContext()
 			trigx += m11;						      \
 			trigy += m12;
 	// END OF MACRO
-Q_KERNEL_EXPORT bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
+bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
 	int type, int depth,
 	uchar *dptr, int dbpl, int p_inc, int dHeight,
 	uchar *sptr, int sbpl, int sWidth, int sHeight

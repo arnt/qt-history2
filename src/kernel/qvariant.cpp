@@ -805,24 +805,36 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-    Returns the variant as a QPoint if the variant has type() Point;
-    otherwise returns a point (0, 0).
+    \fn QPoint& QVariant::asPoint()
 
-    \sa asPoint()
+    Tries to convert the variant to hold a point value. If that is not
+    possible the variant is set to a (0, 0) point.
+
+    Returns a reference to the stored point.
+
+    \sa toPoint()
 */
 
 /*!
-    Returns the variant as a QRect if the variant has type() Rect;
-    otherwise returns an empty rectangle.
+    \fn QRect& QVariant::asRect()
 
-    \sa asRect()
+    Tries to convert the variant to hold a rectangle value. If that is
+    not possible the variant is set to an empty rectangle.
+
+    Returns a reference to the stored rectangle.
+
+    \sa toRect()
 */
 
 /*!
-    Returns the variant as a QSize if the variant has type() Size;
-    otherwise returns an invalid size.
+    \fn QSize& QVariant::asSize()
 
-    \sa asSize()
+    Tries to convert the variant to hold a QSize value. If that is not
+    possible the variant is set to an invalid size.
+
+    Returns a reference to the stored size.
+
+    \sa toSize() QSize::isValid()
 */
 
 /*!

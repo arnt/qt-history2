@@ -19,9 +19,7 @@
 #include "qwindowdefs.h"
 #include "qpointarray.h"
 #include "qrect.h"
-#ifdef QT_GUI_LIB
-# include "qregion.h"
-#endif
+#include "qregion.h"
 #endif // QT_H
 
 #ifndef QT_NO_WMATRIX
@@ -52,10 +50,8 @@ public:
     QPoint	map( const QPoint &p )	const { return operator *( p ); }
     QRect	map( const QRect &r )	const { return mapRect ( r ); }
     QPointArray map( const QPointArray &a ) const { return operator * ( a ); }
-#ifdef QT_GUI_LIB
-    QRegion     map( const QRegion &r ) const { return *this * r; }
-    QRegion     mapToRegion( const QRect &r ) const { return *this * r; }
-#endif
+    QRegion     map( const QRegion &r ) const { return operator *(r); }
+    QRegion     mapToRegion( const QRect &r ) const { return operator *(r); }
     QPointArray	mapToPolygon( const QRect &r )	const;
 
     void	reset();
@@ -78,6 +74,8 @@ public:
     /* we use matrix multiplication semantics here */
     QPoint operator * (const QPoint & ) const;
     QPointArray operator *  ( const QPointArray &a ) const;
+    QRegion operator*(const QRect &) const;
+    QRegion operator*(const QRegion &) const;
 
     QWMatrix &operator=(const QWMatrix &);
 

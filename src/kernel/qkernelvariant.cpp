@@ -1789,39 +1789,6 @@ QList<QKernelVariant> QKernelVariant::toList() const
 */
 
 /*!
-    \fn QPoint& QKernelVariant::asPoint()
-
-    Tries to convert the variant to hold a point value. If that is not
-    possible the variant is set to a (0, 0) point.
-
-    Returns a reference to the stored point.
-
-    \sa toPoint()
-*/
-
-/*!
-    \fn QRect& QKernelVariant::asRect()
-
-    Tries to convert the variant to hold a rectangle value. If that is
-    not possible the variant is set to an empty rectangle.
-
-    Returns a reference to the stored rectangle.
-
-    \sa toRect()
-*/
-
-/*!
-    \fn QSize& QKernelVariant::asSize()
-
-    Tries to convert the variant to hold a QSize value. If that is not
-    possible the variant is set to an invalid size.
-
-    Returns a reference to the stored size.
-
-    \sa toSize() QSize::isValid()
-*/
-
-/*!
     \fn QSizePolicy& QKernelVariant::asSizePolicy()
 
     Tries to convert the variant to hold a QSizePolicy value. If that

@@ -19,7 +19,7 @@
 #include "qpoint.h" // ### change to qwindowdefs.h?
 #endif // QT_H
 
-class Q_KERNEL_EXPORT QSize
+class Q_GUI_EXPORT QSize
 // ### Make QSize inherit Qt in Qt 4.0
 {
 public:
@@ -80,8 +80,8 @@ private:
   QSize stream functions
  *****************************************************************************/
 
-Q_KERNEL_EXPORT QDataStream &operator<<( QDataStream &, const QSize & );
-Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QSize & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QSize & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QSize & );
 
 
 /*****************************************************************************

@@ -331,8 +331,8 @@ bool QDir::isRelativePath( const QString &path )
   Reads directory entries.
 */
 
-bool QDir::readDirEntries( const QString &nameFilter,
-			   int filterSpec, int sortSpec )
+void QDir::readDirEntries( const QString &nameFilter,
+			   int filterSpec, int sortSpec ) const
 {
     int i;
 
@@ -375,7 +375,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     if ( plen == 0 ) {
 	qWarning( "QDir::readDirEntries: No directory name specified" );
-	return FALSE;
+	return;
     }
     if ( p.at(plen-1) != '/' && p.at(plen-1) != '\\' )
 	p += '/';
@@ -388,25 +388,21 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
     } );
 
-    if ( !fList ) {
-	fList  = new QStringList;
-    } else {
-	fList->clear();
-    }
+    fList.clear();
 
     if ( ff == FF_ERROR ) {
 	// if it is a floppy disk drive, it might just not have a file on it
 	if ( plen > 1 && p[1] == ':' &&
 		( p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b' ) ) {
-	    fiList->clear();
-	    return TRUE;
+	    fiList.clear();
+	    return;
 	}
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF-8)",
 		  dPath.utf8() );
-	return FALSE;
+	return;
     }
 
-    fiList->clear();
+    fiList.clear();
 
     for ( ;; ) {
 	if ( first )
@@ -478,17 +474,16 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #undef	FF_ERROR
 
     // Sort...
-    QDirSortItem* si= new QDirSortItem[fiList->count()];
-    i=0;
-    for (int i = 0; i < fiList.size(); ++i)
-	si[i++].item = fiList.at(i);
+    QDirSortItem* si= new QDirSortItem[fiList.count()];
+    for (i = 0; i < fiList.size(); ++i)
+	si[i].item = fiList.at(i);
     qt_cmp_si_sortSpec = sortSpec;
     qsort( si, i, sizeof(si[0]), qt_cmp_si );
-    fiList->clear();
+    fiList.clear();
     int j;
     for ( j=0; j<i; j++ ) {
 	fiList.append( si[j].item );
-	fList.append( si[j].item->fileName() );
+	fList.append( si[j].item.fileName() );
     }
     delete [] si;
 
@@ -497,7 +492,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	dirty = FALSE;
     else
 	dirty = TRUE;
-    return TRUE;
+    return;
 }
 
 
@@ -511,14 +506,14 @@ bool QDir::readDirEntries( const QString &nameFilter,
     or modify it.
 */
 
-const QFileInfoList * QDir::drives()
+QFileInfoList QDir::drives()
 {
     // at most one instance of QFileInfoList is leaked, and this variable
     // points to that list
     static QFileInfoList drives;
     bool initialized = false;
 
-    if (!intialized) {
+    if (!initialized) {
 #ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( qt_global_mutexpool ?
 			     qt_global_mutexpool->get( &drives ) : 0 );
@@ -553,5 +548,5 @@ const QFileInfoList * QDir::drives()
 	    }
 	}
     }
-    return knownMemoryLeak;
+    return drives;
 }
