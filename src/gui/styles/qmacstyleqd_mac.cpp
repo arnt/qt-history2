@@ -623,14 +623,14 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
         if(pe == PE_ExclusiveIndicatorMask) {
             p->save();
             RgnHandle rgn = qt_mac_get_rgn();
-            GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind, &info, rgn);
+            GetThemeButtonRegion(qt_glb_mac_rect(r, p, false), bkind, &info, rgn);
             p->setClipRegion(qt_mac_convert_mac_region(rgn));
             qt_mac_dispose_rgn(rgn);
             p->fillRect(r, color1);
             p->restore();
         } else {
             ((QMacStyleQDPainter *)p)->setport();
-            DrawThemeButton(qt_glb_mac_rect(r, p), bkind, &info, NULL, NULL, NULL, 0);
+            DrawThemeButton(qt_glb_mac_rect(r, p, false), bkind, &info, NULL, NULL, NULL, 0);
         }
         break; }
     case PE_CheckListIndicator:
@@ -666,14 +666,14 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
         if(pe == PE_IndicatorMask) {
             p->save();
             RgnHandle rgn = qt_mac_get_rgn();
-            GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind, &info, rgn);
+            GetThemeButtonRegion(qt_glb_mac_rect(r, p, false), bkind, &info, rgn);
             p->setClipRegion(qt_mac_convert_mac_region(rgn));
             qt_mac_dispose_rgn(rgn);
             p->fillRect(r, color1);
             p->restore();
         } else {
             ((QMacStyleQDPainter *)p)->setport();
-            DrawThemeButton(qt_glb_mac_rect(r, p), bkind,
+            DrawThemeButton(qt_glb_mac_rect(r, p, false), bkind,
                             &info, NULL, NULL, NULL, 0);
         }
         break; }
