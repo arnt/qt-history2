@@ -330,7 +330,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 {
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
-	if ( !w || !w->testWFlags( WStyle_Title | WStyle_NormalBorder | WStyle_DialogBorder )
+	if ( !w || w->isTopLevel() || !w->testWFlags( WStyle_Title | WStyle_NormalBorder | WStyle_DialogBorder )
 	     || d->icons.contains( w ) || w == d->vbar || w == d->hbar || w == d->corner )
 	    return;	    // nothing to do
 
