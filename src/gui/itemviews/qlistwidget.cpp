@@ -580,7 +580,9 @@ void QListWidgetPrivate::emitReturnPressed(const QModelIndex &index)
 
 void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    emit q->currentChanged(model()->at(current.row()), model()->at(previous.row()));
+    QListWidgetItem *currentItem = model()->at(current.row());
+    emit q->currentChanged(currentItem, model()->at(previous.row()));
+    emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
 }
 
 void QListWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::ButtonState state)

@@ -157,6 +157,7 @@ signals:
     void keyPressed(QListWidgetItem *item, Qt::Key key, Qt::ButtonState state);
     void returnPressed(QListWidgetItem *item);
     void currentChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void currentTextChanged(const QString &currentText);
     void selectionChanged();
     void itemEntered(QListWidgetItem *item, Qt::ButtonState state);
     void aboutToShowContextMenu(QMenu *menu, QListWidgetItem *item);
