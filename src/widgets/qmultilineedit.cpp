@@ -376,7 +376,7 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 
 QPoint QMultiLineEdit::cursorPoint() const
 {
-    return QPoint( textCursor()->x(), textCursor()->y() );
+    return QPoint( textCursor()->x(), textCursor()->y() + textCursor()->paragraph()->rect().y() );
 }
 
 /*!  \property QMultiLineEdit::alignment
