@@ -1307,6 +1307,7 @@ QWidget *QWidget::find(WId id)
     Portable in principle, but if you use it you are probably about to
     do something non-portable. Be careful.
 
+
     \sa find()
 */
 
@@ -1903,7 +1904,9 @@ QRect QWidget::frameGeometry() const
     return data->crect;
 }
 
-/*! \property QWidget::x
+/*! 
+    \property QWidget::x
+
     \brief the x coordinate of the widget relative to its parent including
     any window frame
 
@@ -5217,7 +5220,9 @@ void QWidget::resizeEvent(QResizeEvent *)
 }
 
 /*!
-    This event handler, for event \a e, will be sent whenever the action
+    \fn void QWidget::actionEvent(QActionEvent *event)
+
+    This event handler, for \a event, will be called whenever the action
     list has changed for the widget.
 
     \sa addAction(), insertAction(), removeAction, actionList, QActionEvent

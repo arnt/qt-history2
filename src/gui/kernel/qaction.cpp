@@ -45,20 +45,21 @@ void QActionPrivate::sendDataChanged()
     same action must be performed regardless of how the action was
     invoked, and since the menu and toolbar should be kept in sync, it
     is useful to represent a command as an \e action. An action can be
-    added to a menu and a toolbar and will automatically keep them in
-    sync. For example, if the user presses a Bold toolbar button the
-    Bold menu item will automatically be checked.
+    added to a menu and a toolbar, and will automatically keep them in
+    sync. For example, in a word processor, if the user presses a
+    Bold toolbar button the Bold menu item will automatically be
+    checked.
 
     A QAction may contain an icon, a menu text, a shortcut, a
-    status text, a whats this text and a tool tip. Most of these can
-    be set in the constructor. They can also be set independently with
-    setIconSet(), setText(), setMenuText(), setToolTip(),
-    setStatusTip(), setWhatsThis() and setShortcut().
+    status text, a "What's This?" text, and a tool tip. Most of these
+    can be set in the constructor. They can also be set independently
+    with setIconSet(), setText(), setMenuText(), setToolTip(),
+    setStatusTip(), setWhatsThis(), and setShortcut().
 
     Actions are added to widgets using QWidget::addAction().
 
     Once a QAction has been created it should be added to the relevant
-    menu and toolbar and then connected to the slot which will perform
+    menu and toolbar, then connected to the slot which will perform
     the action. For example:
 
     \quotefile action/application.cpp
@@ -66,10 +67,10 @@ void QActionPrivate::sendDataChanged()
     \printuntil connect
 
     We recommend that actions are created as children of the window
-    that they are used in. In most cases actions will be children of
+    they are used in. In most cases actions will be children of
     the application's main window.
 
-    To prevent recursion, don't create an action as a child of a
+    To prevent recursion, do not create an action as a child of a
     widget that the action is later added to.
 */
 
@@ -340,8 +341,7 @@ QAction::~QAction()
   Sets this action group to \a group. The action will be automatically
   added to the group's list of actions.
 
-  A QActionGroup will provide mutual exclusivity as well group
-  behavior of all contained actions.
+  Actions within the group will be mutually exclusive.
 
   \sa QActionGroup, QAction::actionGroup()
 */
@@ -394,7 +394,7 @@ QIconSet QAction::icon() const
 }
 
 /*!
-  Set the submenu of this action to menu \a menu.
+  Set the submenu of this action to the \a menu given.
 
   \sa QAction::menu()
 */
@@ -417,8 +417,8 @@ QMenu *QAction::menu() const
 /*!
   If \a b is true then this action will be considered a separator.
 
-  How a separator is reprented depends on the widget this is inserted
-  into. Under most circumstances the text, submenu and icon will be
+  How a separator is represented depends on the widget it is inserted
+  into. Under most circumstances the text, submenu, and icon will be
   ignored for separator actions.
 
   \sa QAction::separator()
@@ -444,7 +444,7 @@ bool QAction::isSeparator() const
     \property QAction::text
     \brief the action's descriptive text
 
-    If \l QMainWindow::usesTextLabel is true, the text appears as a
+    If QMainWindow::usesTextLabel is true, the text appears as a
     label in the relevant tool button. It also serves as the default
     text in menus and tool tips if these have not been specifically
     defined. There is no default text.
@@ -522,8 +522,8 @@ QString QAction::toolTip() const
     \property QAction::statusTip
     \brief the action's status tip
 
-    The statusTip is displayed on all status bars that this action's
-    toplevel parent widget provides, and is provided as the parameter
+    The statusTip is displayed on all status bars provided by the
+    action's top-level parent widget. It can be set, and is provided as the parameter
     of the showStatusMessage() signal.
 
     If no status tip is defined, the action uses the tool tip text.
@@ -574,8 +574,8 @@ QString QAction::whatsThis() const
     \property QAction::checkable
     \brief whether the action is a checkable action
 
-    A toggle action is one which has an on/off state. For example,
-    in a word processor, a "Bold" toolbar button may be either on or
+    A checkable action is one which has an on/off state. For example,
+    in a word processor, a Bold toolbar button may be either on or
     off. An action which is not a toggle action is a command action;
     a command action is simply executed, e.g. file save.
     By default, this property is false.
@@ -584,7 +584,7 @@ QString QAction::whatsThis() const
     on the state of others. For example, "Left Align", "Center" and
     "Right Align" toggle actions are mutually exclusive. To achieve
     exclusive toggling, add the relevant toggle actions to a
-    QActionGroup with the \l QActionGroup::exclusive property set to
+    QActionGroup with the QActionGroup::exclusive property set to
     true.
 
     \sa QAction::setChecked()
@@ -702,11 +702,10 @@ QAction::eventFilter(QObject *, QEvent *e)
 }
 
 /*!
-
   Sends the relevant signals for ActionEvent \a event.
 
-  Action based widgets will use this API to cause the QAction's
-  signals to be sent as well as emit'ing their own signals
+  Action based widgets use this API to cause the QAction
+  to emit signals as well as emitting their own.
 */
 void QAction::activate(ActionEvent event)
 {
@@ -725,9 +724,9 @@ void QAction::activate(ActionEvent event)
 /*!
     \fn void QAction::triggered()
 
-    This signal is emitted when an action is activated by the user,
-    e.g. when the user clicks a menu option or a toolbar button or
-    presses an action's shortcut key combination.
+    This signal is emitted when an action is activated by the user;
+    for example, when the user clicks a menu option, a toolbar button,
+    or presses an action's shortcut key combination.
 
     Connect to this signal for command actions. Connect to the
     toggled() signal for checkable actions.
@@ -740,7 +739,7 @@ void QAction::activate(ActionEvent event)
 
     This signal is emitted when an action is highlighted by the user,
     e.g. when the user pauses with the cursor over a menu option or a
-    toolbar button or presses an action's shortcut key combination.
+    toolbar button, or presses an action's shortcut key combination.
 
     \sa QAction::activate()
 */
@@ -748,9 +747,10 @@ void QAction::activate(ActionEvent event)
 /*!
     \fn void QAction::dataChanged()
 
-    This signal is emitted when an action has changed. If only
-    interested in actions in a given widget you can watch for
-    QWidget::actionEvent() sent with an QEvent::ActionChanged.
+    This signal is emitted when an action has changed. If you
+    are only interested in actions in a given widget, you can
+    watch for QWidget::actionEvent() sent with an
+    QEvent::ActionChanged.
 
     \sa QWidget::actionEvent()
 */

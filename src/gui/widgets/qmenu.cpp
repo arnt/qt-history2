@@ -631,9 +631,9 @@ QMenu::~QMenu()
 /*!
     \overload
 
-    This convenience function creates a new action with the text \a
-    text. The function adds the newly created action to the menu's
-    list of actions and returns it.
+    This convenience function creates a new action with \a text.
+    The function adds the newly created action to the menu's
+    list of actions, and returns it.
 
     \sa QWidget::addAction()
 */
@@ -648,8 +648,8 @@ QAction *QMenu::addAction(const QString &text)
     \overload
 
     This convenience function creates a new action with an \a icon
-    and some \a text. The function adds the newly created action to the
-    menu's list of actions, and returns it.
+    and some \a text. The function adds the newly created action to
+    the menu's list of actions, and returns it.
 
     \sa QWidget::addAction()
 */
@@ -684,10 +684,10 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
     \overload
 
     This convenience function creates a new action with an \a icon,
-    some \a text, and a keyboard shortcut of \a shortcut.
-    The action's triggered() signal is connected to the \a
-    receiver's \a member slot. The function adds the newly created
-    action to the menu's list of actions and returns it.
+    some \a text, and a keyboard \a shortcut.
+    The action's triggered() signal is connected to the \a member
+    slot of the \a receiver object. The function adds the newly created
+    action to the menu's list of actions, and returns it.
 
     \sa QWidget::addAction()
 */
@@ -701,9 +701,9 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 }
 
 /*!
-    This convenience function creates a new action with the text \a
-    text, and submenu \a menu. The function adds the newly created
-    action to the menu's list of actions and returns it.
+    This convenience function creates a new action with some \a
+    text, and a submenu given by \a menu. The function adds the newly
+    created action to the menu's list of actions, and returns it.
 
     \sa QWidget::addAction()
 */

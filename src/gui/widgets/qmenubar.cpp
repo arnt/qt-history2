@@ -448,7 +448,7 @@ QAction *QMenuBar::activeAction() const
 }
 
 /*!
-    Removes all actions.
+    Removes all the actions from the menu bar.
 
     \sa removeAction()
 */

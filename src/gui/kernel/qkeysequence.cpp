@@ -39,7 +39,7 @@
     \ingroup misc
 
     A key sequence consists of up to four keyboard codes, each
-    optionally combined with modifiers, e.g. \c SHIFT, \c CTRL, \c
+    optionally combined with modifiers, such as \c SHIFT, \c CTRL, \c
     ALT or \c META. For example, \c{CTRL + Key_P}
     might be a sequence used as a shortcut for printing a document.
     The key codes are listed in \c{qnamespace.h}. As an alternative,
@@ -651,7 +651,9 @@ bool QKeySequence::operator< (const QKeySequence &other) const
     return false;
 }
 
-/*! \fn bool QKeySequence::operator> (const QKeySequence &other) const
+/*!     
+    \fn bool QKeySequence::operator> (const QKeySequence &other) const
+
     Returns true if this key sequence is larger than \a other key
     sequence; otherwise returns false.
     \sa operator==() operator!=() operator<() operator<=() operator>=()
@@ -663,7 +665,9 @@ bool QKeySequence::operator< (const QKeySequence &other) const
     \sa operator==() operator!=() operator<() operator>() operator>=()
 */
 
-/*! \fn bool QKeySequence::operator>= (const QKeySequence &other) const
+/*!     
+    \fn bool QKeySequence::operator>= (const QKeySequence &other) const
+
     Returns true if this key sequence is larger or equal to \a other
     key sequence; otherwise returns false.
     \sa operator==() operator!=() operator<() operator>() operator<=()
