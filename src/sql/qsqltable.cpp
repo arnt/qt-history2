@@ -1044,44 +1044,9 @@ void QSqlTable::refresh( QSqlCursor* cursor, const QSqlIndex& idx )
     if ( !cursor )
 	return;
 
-    // ## correct?
-    clearCellWidget( currentRow(), currentColumn() );
-    switch ( d->mode ) {
-    case Insert:
-	endInsert();
-	break;
-    case Update:
-	endUpdate();
-	break;
-    default:
-	break;
-    }
-    ensureVisible( 0, 0 );
-    verticalScrollBar()->setValue(0);
-    setNumRows(0);
-    //    setNumCols(0);
-    d->haveAllRows = FALSE;
-    d->continuousEdit = FALSE;
-    //    d->colIndex.clear();
-    //d->colReadOnly.clear();
-    d->mode =  QSqlTable::None;
-    d->editRow = -1;
-    d->editCol = -1;
-    d->insertRowLast = -1;
-    d->insertHeaderLabelLast = QString::null;
-    d->cancelMode = FALSE;
-    d->lastAt = -1;
-    if ( sorting() )
-	horizontalHeader()->setSortIndicator( -1 );
-    //    if ( d->autoDelete )
-    //	delete d->cursor;
-    //    d->ftr = QString::null;
-    //    d->srt.clear();
-    // ##
-
-
-
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
+    int lastAt = d->lastAt; // ### use to optimize reseek on pri idx
+
     QSqlIndex pi;
     if ( seekPrimary )
 	pi = idx;
@@ -1227,7 +1192,7 @@ void QSqlTable::find( const QString & str, bool caseSensitive, bool backwards )
 
 
 /*!  Resets the table so that it displays no data.  This is called
-  internally before displaying a new query.
+  internally before displaying new data.
 
   \sa setCursor()
 
@@ -1249,12 +1214,9 @@ void QSqlTable::reset()
     ensureVisible( 0, 0 );
     verticalScrollBar()->setValue(0);
     setNumRows(0);
-    setNumCols(0);
-    d->cursor = 0;
+
     d->haveAllRows = FALSE;
     d->continuousEdit = FALSE;
-    d->colIndex.clear();
-    d->colReadOnly.clear();
     d->mode =  QSqlTable::None;
     d->editRow = -1;
     d->editCol = -1;
@@ -1264,10 +1226,6 @@ void QSqlTable::reset()
     d->lastAt = -1;
     if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
-    if ( d->autoDelete )
-	delete d->cursor;
-    d->ftr = QString::null;
-    d->srt.clear();
 }
 
 /*!  Returns the index of the field within the current SQL query based
@@ -1373,6 +1331,10 @@ int QSqlTable::numRows() const
 }
 
 /*!  \reimp
+
+  The number of rows in the table will be determined by the cursor
+  (see setCursor()), so normally this method should never be called.
+  It is included for completeness.
 */
 
 void QSqlTable::setNumRows ( int r )
@@ -1381,6 +1343,10 @@ void QSqlTable::setNumRows ( int r )
 }
 
 /*!  \reimp
+
+  The number of columns in the table will be handled automatically
+  (see addColumn()), so normally this method should never be called.
+  It is included for completeness.
 */
 
 void QSqlTable::setNumCols ( int r )
@@ -1623,8 +1589,9 @@ void QSqlTable::addColumns( const QSqlRecord& fieldList )
 
 void QSqlTable::setSize( QSqlCursor* sql )
 {
-    if ( !sql->isActive() )
+    if ( !sql->isActive() ) {
 	sql->select( sql->filter(), sql->sort() );
+    }
     if ( sql->driver()->hasQuerySizeSupport() ) {
 	setVScrollBarMode( Auto );
 	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
@@ -1655,7 +1622,16 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 {
     setUpdatesEnabled( FALSE );
     if ( cursor ) {
+	if ( d->autoDelete )
+	    delete d->cursor;
+	reset();
 	d->cursor = cursor;
+	setNumCols(0);
+	d->colIndex.clear();
+	d->colReadOnly.clear();
+	d->ftr = QString::null;
+	d->srt.clear();
+
 	if ( autoPopulate )
 	    addColumns( *d->cursor );
 	setReadOnly( d->cursor->isReadOnly() );

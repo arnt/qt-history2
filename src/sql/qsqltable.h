@@ -113,6 +113,8 @@ public:
 
     int          numCols() const;
     int          numRows() const;
+    void         setNumCols( int c );
+    void         setNumRows ( int r );
 
 signals:
     void         currentChanged( const QSqlRecord* record );
@@ -180,9 +182,6 @@ protected:
     void         clearCell ( int row, int col ) ;
     void         setPixmap ( int row, int col, const QPixmap & pix );
     void         takeItem ( QTableItem * i );
-
-    void         setNumCols( int c );
-    void         setNumRows ( int r );
 
 private slots:
     void         loadNextPage();
