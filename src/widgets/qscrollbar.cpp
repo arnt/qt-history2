@@ -594,6 +594,8 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 	    emit valueChanged( value() );
     }
     drawControls( tmp, pressedControl );
+    if ( e->button() == MidButton )
+	repaint( FALSE );
 }
 
 
