@@ -232,6 +232,11 @@ QIODevicePrivate::~QIODevicePrivate()
     written to the device. The \a bytes argument is set to the number
     of bytes that were written in this payload.
 
+    bytesWritten() is not emitted recursively; if you reenter the event loop
+    or call waitForBytesWritten() inside a slot connected to the
+    bytesWritten() signal, the signal will not be reemitted (although
+    waitForBytesWritten() may still return true).
+
     \sa readyRead()
 */
 
@@ -242,6 +247,11 @@ QIODevicePrivate::~QIODevicePrivate()
     data is available, such as when a new payload of network data has
     arrived on your network socket, or when a new block of data has
     been appended to your file.
+
+    readyRead() is not emitted recursively; if you reenter the event loop or
+    call waitForReadyRead() inside a slot connected to the readyRead() signal,
+    the signal will not be reemitted (although waitForReadyRead() may still
+    return true).
 
     \sa bytesWritten()
 */
@@ -961,6 +971,9 @@ void QIODevice::ungetChar(char c)
     useful when writing non-GUI applications and when performing
     I/O operations in a non-GUI thread.
 
+    If called from within a slot connected to the readyRead() signal,
+    readyRead() will not be reemitted.
+    
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.
 
@@ -986,6 +999,9 @@ bool QIODevice::waitForReadyRead(int msecs)
     This function can operate without an event loop. It is
     useful when writing non-GUI applications and when performing
     I/O operations in a non-GUI thread.
+
+    If called from within a slot connected to the bytesWritten() signal,
+    bytesWritten() will not be reemitted.
 
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.

@@ -330,6 +330,8 @@ QProcessPrivate::QProcessPrivate()
     exitCode = 0;
     crashed = false;
     writeChannelClosing = false;
+    emittedReadyRead = false;
+    emittedBytesWritten = false;
 #ifdef Q_WS_WIN
     pipeWriter = 0;
     processFinishedNotifier = 0;
@@ -429,16 +431,20 @@ bool QProcessPrivate::canReadStandardOutput()
 
     outputReadBuffer.truncate(available - readBytes);
 
-    bool readyReadEmitted = false;
+    bool didRead = false;
     if (readBytes == 0) {
         if (standardReadSocketNotifier)
             standardReadSocketNotifier->setEnabled(false);
     } else if (processChannel == QProcess::StandardOutput) {
-        readyReadEmitted = true;
-        emit q->readyRead();
+        didRead = true;
+        if (!emittedReadyRead) {
+            emittedReadyRead = true;
+            emit q->readyRead();
+            emittedReadyRead = false;
+        }
     }
     emit q->readyReadStandardOutput();
-    return readyReadEmitted;
+    return didRead;
 }
 
 /*! \internal
@@ -469,16 +475,20 @@ bool QProcessPrivate::canReadStandardError()
 
     errorReadBuffer.truncate(available - readBytes);
 
-    bool readyReadEmitted = false;
+    bool didRead = false;
     if (readBytes == 0) {
         if (errorReadSocketNotifier)
             errorReadSocketNotifier->setEnabled(false);
     } else if (processChannel == QProcess::StandardError) {
-        readyReadEmitted = true;
-        emit q->readyRead();
+        didRead = true;
+        if (!emittedReadyRead) {
+            emittedReadyRead = true;
+            emit q->readyRead();
+            emittedReadyRead = false;
+        }
     }
     emit q->readyReadStandardError();
-    return readyReadEmitted;
+    return didRead;
 }
 
 /*! \internal
@@ -507,7 +517,11 @@ bool QProcessPrivate::canWrite()
     }
 
     writeBuffer.free(written);
-    emit q->bytesWritten(written);
+    if (!emittedBytesWritten) {
+        emittedBytesWritten = true;
+        emit q->bytesWritten(written);
+        emittedBytesWritten = false;
+    }
     if (writeSocketNotifier && !writeBuffer.isEmpty())
         writeSocketNotifier->setEnabled(true);
     if (writeBuffer.isEmpty() && writeChannelClosing)

@@ -44,6 +44,9 @@ public:
     bool readSocketNotifierState;
     bool readSocketNotifierStateSet;
 
+    bool emittedReadyRead;    
+    bool emittedBytesWritten;
+
     bool closeCalled;
 
     QString hostName;

@@ -316,6 +316,8 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
     readBufferMaxSize = 0;
     socketError = QAbstractSocket::UnknownSocketError;
     hostLookupId = -1;
+    emittedReadyRead = false;
+    emittedBytesWritten = false;
 }
 
 /*! \internal
@@ -439,10 +441,6 @@ bool QAbstractSocketPrivate::canReadNotification(int)
                 readSocketNotifier->setEnabled(false);
             }
         }
-#if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::canReadNotification() recursive call detected.");
-#endif
-        return false;
     }
     readSocketNotifierCalled = true;
 
@@ -485,7 +483,12 @@ bool QAbstractSocketPrivate::canReadNotification(int)
         return true;
     }
 
-    emit q->readyRead();
+    // only emit readyRead() when not recursing.
+    if (!emittedReadyRead) {
+        emittedReadyRead = true;
+        emit q->readyRead();
+        emittedReadyRead = false;
+    }
 
     // reset the read socket notifier state if we reentered inside the
     // readyRead() connected slot.
@@ -582,8 +585,14 @@ bool QAbstractSocketPrivate::flush()
 
     // Remove what we wrote so far.
     writeBuffer.free(written);
-    if (written > 0)
-        emit q->bytesWritten(written);
+    if (written > 0) {
+        // Don't emit bytesWritten() recursively.
+        if (!emittedBytesWritten) {
+            emittedBytesWritten = true;
+            emit q->bytesWritten(written);
+            emittedBytesWritten = false;
+        }
+    }
 
     if (writeBuffer.isEmpty() && d->writeSocketNotifier && d->writeSocketNotifier->isEnabled())
         d->writeSocketNotifier->setEnabled(false);

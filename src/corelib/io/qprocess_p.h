@@ -72,6 +72,9 @@ public:
     bool standardOutputClosed;
     bool standardErrorClosed;
 
+    bool emittedReadyRead;
+    bool emittedBytesWritten;
+
     bool writeChannelClosing;
     void closeWriteChannel();
 
