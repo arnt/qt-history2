@@ -1397,7 +1397,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     setupWidgets(grid);
 
     // Insert paths in the "lookin" combobox
-    lookIn->insertItem(model->icon(QModelIndex()), toNative(model->path(QModelIndex()))); // root
+    lookIn->insertItem(model->icon(QModelIndex()), model->name(QModelIndex())); // root
     for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex());
         QString path = model->path(index);

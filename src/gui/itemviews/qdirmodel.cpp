@@ -157,7 +157,6 @@ public:
     void restorePersistentIndexes();
 
     QFileInfoList rootChildren() const;
-    inline QString rootName() const { return QObject::tr("My Computer"); }
     inline QIcon rootIcon() const { return iconProvider->computerIcon(); }
     inline QFileInfoList entryInfoList(const QString &path) const
         {
@@ -752,7 +751,7 @@ void QDirModel::refresh(const QModelIndex &parent)
 
 QModelIndex QDirModel::index(const QString &path, int column) const
 {
-    if (path.isEmpty())// the root path
+    if (path.isEmpty() || path == QObject::tr("My Computer"))// the root path
         return QModelIndex();
 
     const QChar sep = '/';
@@ -841,7 +840,7 @@ QString QDirModel::path(const QModelIndex &index) const
 QString QDirModel::name(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return d->rootName();
+        return QObject::tr("My Computer");
     QFileInfo info = fileInfo(index);
     if (info.isRoot())
         return info.absoluteFilePath();
