@@ -1455,8 +1455,9 @@ MakefileGenerator::writeExtraTargets(QTextStream &t)
 void 
 MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
 {
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+    QString clean_targets;
+    const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
         QString tmp_out = project->variables()[(*it) + ".output"].first();
         QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
         QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
@@ -1464,17 +1465,53 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         QStringList &vars = project->variables()[(*it) + ".variables"];
         if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
             continue;
+        const QStringList &tmp_inputs = project->variables()[(*it) + ".input"];
+        if(project->variables()[(*it) + ".CONFIG"].indexOf("no_clean") == -1) {
+            QString tmp_clean = project->variables()[(*it) + ".clean"].join(" ");
+            QString tmp_clean_cmds = project->variables()[(*it) + ".clean_commands"].join(" ");
+            clean_targets += QString("compiler_" + (*it) + "_clean ");
+            t << "compiler_" << (*it) << "_clean:";
+            bool wrote_clean_cmds = false, wrote_clean = false;
+            if(tmp_clean_cmds.isEmpty()) {
+                wrote_clean_cmds = true;
+            } else if(tmp_clean_cmds.indexOf("${QMAKE_") == -1) {
+                t << "\n\t" << tmp_clean_cmds;
+                wrote_clean_cmds = true;
+            }
+            if(tmp_clean.isEmpty()) {
+                tmp_clean = tmp_out;
+            } else if(tmp_clean.indexOf("${QMAKE_") == -1) {
+                t << "\n\t" << "$(DEL_FILE) " << tmp_clean;
+                wrote_clean = true;
+            }
+            if(!wrote_clean_cmds || !wrote_clean) {
+                QStringList cleans;
+                for(QStringList::ConstIterator it2 = tmp_inputs.begin(); it2 != tmp_inputs.end(); ++it2) {
+                    const QStringList &tmp = project->variables()[(*it2)];
+                    for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
+                        if(!wrote_clean) 
+                            cleans.append("$(DEL_FILE) " + replaceExtraCompilerVariables(tmp_clean, (*input), 
+                                          replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
+                        if(!wrote_clean_cmds)
+                            cleans.append(replaceExtraCompilerVariables(tmp_clean_cmds, (*input), 
+                                          replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
+                    }
+                }
+                if(!cleans.isEmpty())
+                    t << valGlue(cleans, "\n\t", "\n\t", "");
+            }
+            t << endl;
+        }
         if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
-            if(tmp_out.indexOf("$") != -1) {
+            if(tmp_out.indexOf("${QMAKE_") != -1) {
                 warn_msg(WarnLogic, "QMAKE_EXTRA_COMPILERS(%s) with combine has variable output.",
                          (*it).latin1());
                 continue;
             }
             QString inputs;
-            const QStringList &tmp = project->variables()[(*it) + ".input"];
-            for(QStringList::ConstIterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-                const QStringList &tmp2 = project->variables()[(*it2)];
-                for(QStringList::ConstIterator input = tmp2.begin(); input != tmp2.end(); ++input) 
+            for(QStringList::ConstIterator it2 = tmp_inputs.begin(); it2 != tmp_inputs.end(); ++it2) {
+                const QStringList &tmp = project->variables()[(*it2)];
+                for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) 
                     inputs += " " + Option::fixPathToTargetOS((*input), false);
             }
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out), deps;
@@ -1504,10 +1541,9 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
               << cmd.replace("${QMAKE_FILE_IN}", inputs) << endl << endl;
             continue;
         }
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+        for(QStringList::ConstIterator it2 = tmp_inputs.begin(); it2 != tmp_inputs.end(); ++it2) {
+            const QStringList &tmp = project->variables()[(*it2)];
+            for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
                 QString in = Option::fixPathToTargetOS((*input), false), deps;
                 if(!tmp_dep.isEmpty())
                     deps = " " + tmp_dep;
@@ -1540,6 +1576,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             }
         }
     }
+    t << "compiler_clean: " << clean_targets << endl << endl;
 }
 
 void
