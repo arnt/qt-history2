@@ -45,7 +45,7 @@ static XEvent* last_xevent = 0;
 
   Rationale: An XEvent handled by Qt does not go through the Xt event
   handlers, and the internal state of Xt/Motif widgets will not be
-  updated.  This function should only be used if an event delivered by
+  updated. This function should only be used if an event delivered by
   Qt to a QWidget needs to be sent to an Xt/Motif widget.
 */
 bool QMotif::redeliverEvent( XEvent *event )
@@ -181,21 +181,20 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 
 /*!
     \class QMotif
-    \brief The QMotif class is the core behind the Motif Extension.
+    \brief The QMotif class provides the basis of the Motif Extension.
 
     \extension Motif
 
-    QMotif only provides a few public functions, but is the brains
-    behind the integration.  QMotif is responsible for initializing
-    the Xt toolkit and the Xt application context.  It does not open a
-    connection to the X server, this is done by using QApplication.
+    QMotif only provides a few public functions, but it is at the
+    heart of the integration. QMotif is responsible for initializing
+    the Xt toolkit and the Xt application context. It does not open a
+    connection to the X server, that is done by QApplication.
 
     The only member function in QMotif that depends on an X server
     connection is QMotif::initialize(). QMotif must be created before
     QApplication.
 
     Example usage of QMotif and QApplication:
-
     \code
     static char *resources[] = {
 	...
@@ -216,14 +215,14 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 */
 
 /*!
-  Creates QMotif, which allows Qt and Xt/Motif integration.
+    Creates QMotif, which allows Qt and Xt/Motif integration.
 
-  If \a context is NULL, QMotif creates a default application context
-  itself. The context is accessible through applicationContext().
+    If \a context is 0, QMotif creates a default application context
+    itself. The context is accessible through applicationContext().
 
-  All arguments passed to this function (\a applicationClass, \a
-  options and \a numOptions) are used to call XtDisplayInitialize()
-  after QApplication has been constructed.
+    All arguments passed to this function (\a applicationClass, \a
+    options and \a numOptions) are used to call XtDisplayInitialize()
+    after QApplication has been constructed.
 */
 
 
@@ -249,7 +248,7 @@ QMotif::QMotif( const char *applicationClass, XtAppContext context, XrmOptionDes
 
 
 /*!
-  Destroys QMotif.
+    Destroys QMotif.
 */
 QMotif::~QMotif()
 {
@@ -258,7 +257,7 @@ QMotif::~QMotif()
 }
 
 /*!
-  Returns the application context.
+    Returns the application context.
 */
 XtAppContext QMotif::applicationContext() const
 {

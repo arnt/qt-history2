@@ -140,22 +140,22 @@ public:
 
     \extension Motif
 
-    QMotifWidget has a single purpose, to provide a QWidget that can
-    act as a parent for any Xt/Motif widget.  Since the QMotifWidget
-    is a full QWidget, it an be used as a toplevel (e.g. zero parent) or as a
-    child of any other QWwidget.
+    QMotifWidget exists to provide a QWidget that can act as a parent
+    for any Xt/Motif widget. Since the QMotifWidget is a proper
+    QWidget, it an be used as a top-level widget (e.g. 0 parent) or as
+    a child of any other QWidget.
 
-    An Xt/Motif widget with a toplevel QMotifWidget parent can begin
+    An Xt/Motif widget with a top-level QMotifWidget parent can begin
     using the standard Qt dialogs and custom QDialogs while keeping
-    the main Xt/Motif interface of the application.  Using a
+    the main Xt/Motif interface of the application. Using a
     QMotifWidget as the parent for the various QDialogs will ensure
     that modality and stacking works properly throughout the entire
     application.
 
-    Applications moving to Qt can have custom Xt/Motif widgets that
-    will take time to rewrite with Qt.	Such applications can use
-    these custom widgets as QMotifWidget with QWidget parents.	This
-    allows the interface of the application to be replaced gradually.
+    Applications moving to Qt may have custom Xt/Motif widgets that
+    will take time to rewrite with Qt. Such applications can use
+    these custom widgets as QMotifWidget with QWidget parents. This
+    allows the application's interface to be replaced gradually.
 */
 
 /*!
@@ -169,9 +169,9 @@ public:
     This widget can be used as a parent for any other Xt/Motif widget.
 
     If \a parent is a QMotifWidget, the Xt/Motif widget is created as
-    a child of the parent's motifWidget().  If \ parent is zero or a
+    a child of the parent's motifWidget(). If \ parent is 0 or a
     normal QWidget, the Xt/Motif widget is created as a child of a
-    special ApplicationShell widget.  Xt/Motif widgets can use this
+    special ApplicationShell widget. Xt/Motif widgets can use this
     special ApplicationShell parent as the parent for existing
     Xt/Motif dialogs or QMotifDialogs.
 */
@@ -202,7 +202,7 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 }
 
 /*!
-    Destroys the QMotifWidget.	The special ApplicationShell is also
+    Destroys the QMotifWidget. The special ApplicationShell is also
     destroyed, if it was created during construction.
 */
 QMotifWidget::~QMotifWidget()
@@ -219,7 +219,7 @@ QMotifWidget::~QMotifWidget()
 }
 
 /*!
-    Returns the embedded Xt/Motif widget.  If a Shell widget was
+    Returns the embedded Xt/Motif widget. If a Shell widget was
     created by the constructor, you can access it with XtParent().
 */
 Widget QMotifWidget::motifWidget() const
@@ -227,7 +227,9 @@ Widget QMotifWidget::motifWidget() const
     return d->widget;
 }
 
-/*! \reimp
+/*!
+    \reimp
+
     Manages the embedded Xt/Motif widget and shows the widget.
 */
 void QMotifWidget::show()
@@ -244,7 +246,9 @@ void QMotifWidget::show()
     QWidget::show();
 }
 
-/*!\reimp
+/*!
+    \reimp
+
     Unmanages the embedded Xt/Motif widget and hides the widget.
 */
 void QMotifWidget::hide()

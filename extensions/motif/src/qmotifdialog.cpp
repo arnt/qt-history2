@@ -135,14 +135,13 @@ public:
 
     \extension Motif
 
-    QMotifDialog provides the QDialog API for Motif dialogs.
-    Applications moving to Qt will need to not only rewrite Motif
-    dialogs in Qt, they will also need tom move to the Qt modailty
-    semantics.  QMotifDialog ensures that modal Motif dialogs continue
-    to work when used in a Qt application.
+    When migrating Motif applications to Qt, developers will want to
+    rewrite their Motif dialogs using Qt, and switch to using Qt's
+    modality semantics. QMotifDialog ensures that modal Motif dialogs
+    continue to work properly when used in a Qt application.
 
-    For the purpose of the QMotif extension, Motif has 2 types of
-    dialogs: predefined dialogs and custom dialogs.  The predefined
+    For the purpose of the Motif extension, Motif has two types of
+    dialogs: predefined dialogs and custom dialogs. The predefined
     Motif dialogs are:
 
     \list
@@ -186,17 +185,18 @@ public:
     \endcode
 
     QMotifDialog also provides a constructor for custom Motif dialogs,
-    which creates only the dialog shell.  The application programmer
-    can create a custom dialog using the QMotifDialog shell as the
+    which only creates the dialog shell. The application programmer
+    can create a custom dialog using the QMotifDialog shell as its
     parent.
 
-    QMotifDialog can be used with either an Xt/Motif or a QWidget
+    QMotifDialogs can be used with either an Xt/Motif or a QWidget
     parent.
 */
 
-/*! \enum QMotifDialog::DialogType
+/*!
+    \enum QMotifDialog::DialogType
 
-    This enum covers the predefined Motif dialog types.
+    This enum lists the predefined Motif dialog types.
 
     \value Prompt
     \value Selection
@@ -221,9 +221,9 @@ public:
 
     Creates a Shell widget which is a special subclass of
     XmDialogShell. This allows applications to use the QDialog API
-    with existing Motif dialogs. This allows appilications to have
-    proper modality handling through the QMotif extension. You can
-    access the Shell widget with the shell() member function.
+    with existing Motif dialogs. It also means that applications can
+    properly handle modality with the QMotif extension. You can access
+    the Shell widget with the shell() member function.
 
     Creates a dialog widget with the Shell widget as it's parent. The
     type of the dialog created is specified by the \a dtype
@@ -332,13 +332,13 @@ QMotifDialog::QMotifDialog( DialogType dtype, Widget parent,
 
     Creates a Shell widget which is a special subclass of
     XmDialogShell. This allows applications to use the QDialog API
-    with existing Motif dialogs. This allows appilications to have
-    proper modality handling through the QMotif extension. You can
-    access the Shell widget with the shell() member function.
+    with existing Motif dialogs. It also means that applications can
+    properly handle modality with the QMotif extension. You can access
+    the Shell widget with the shell() member function.
 
     A dialog widget is not created by this constructor. Instead, you
     should create the dialog widget as a child of this dialog. Once
-    you do this, QMotifDialog will take over ownership of your custom
+    you do this, QMotifDialog will take ownership of your custom
     dialog, and you can access it with the dialog() member function.
 
     \warning When QMotifDialog is destroyed, the Shell widget and the
@@ -367,7 +367,7 @@ QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
 }
 
 /*!
-   Destroys the QDialog, dialog widget and shell widget.
+    Destroys the QDialog, dialog widget and shell widget.
 */
 QMotifDialog::~QMotifDialog()
 {
@@ -411,7 +411,9 @@ void QMotifDialog::reject()
     QDialog::reject();
 }
 
-/*! \reimp
+/*!
+    \reimp
+
     Manages the dialog widget and shows the dialog.
 */
 void QMotifDialog::show()
@@ -423,7 +425,9 @@ void QMotifDialog::show()
     QDialog::show();
 }
 
-/*! \reimp
+/*!
+    \reimp
+
     Unmanages the dialog and hides the dialog.
 */
 void QMotifDialog::hide()
