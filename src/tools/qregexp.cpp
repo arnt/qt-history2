@@ -3274,6 +3274,7 @@ QRegExp::QRegExp(const QString &pattern, QString::CaseSensitivity cs, bool wildc
 
     \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
 */
+#ifdef QT_COMPAT
 QRegExp::QRegExp(const QString &pattern, bool caseSensitive, bool wildcard)
 {
     priv = new QRegExpPrivate;
@@ -3284,6 +3285,7 @@ QRegExp::QRegExp(const QString &pattern, bool caseSensitive, bool wildcard)
     priv->min = false;
     priv->cs = caseSensitive ? QString::CaseSensitive : QString::CaseInsensitive;
 }
+#endif
 
 /*!
     Constructs a regular expression as a copy of \a rx.

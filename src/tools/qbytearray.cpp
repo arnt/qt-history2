@@ -1257,7 +1257,5 @@ QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
     \sa resize();
 */
 
-
-#ifdef QT_COMPAT
 bool QByteArray::isNull() const { return d == &shared_null; }
-#endif
+
