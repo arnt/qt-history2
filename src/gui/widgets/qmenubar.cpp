@@ -259,6 +259,96 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
         emit q->highlighted(action);
 }
 
+/*!
+    \class QMenuBar qmenubar.h
+    \brief The QMenuBar class provides a horizontal menu bar.
+
+    \ingroup application
+    \mainclass
+
+    A menu bar consists of a list of pull-down menu items. You add
+    menu items with addMenu(). For example, asuming that \c menubar
+    is a pointer to a QMenuBar and \c filemenu is a pointer to a
+    QMenu, the following statement inserts the menu into the menu bar:
+    \code 
+      menubar->addMenu("&File", filemenu); 
+    \endcode 
+
+    The ampersand in the menu item's text sets Alt+F as a shortcut for
+    this menu. (You can use "\&\&" to get a real ampersand in the menu
+    bar.)
+
+    There is no need to lay out a menu bar. It automatically sets its
+    own geometry to the top of the parent widget and changes it
+    appropriately whenever the parent is resized.
+
+    \important addMenu insertMenu clear
+
+    Example of creating a menu bar with menu items (from \l menu/menu.cpp):
+    \quotefile menu/menu.cpp
+    \skipto file = new QMenu
+    \printline
+    \skipto Key_O
+    \printline
+    \printline
+    \skipto new QMenuBar
+    \printline
+    \skipto addMenu
+    \printline
+
+    In most main window style applications you would use the menuBar()
+    provided in QMainWindow, adding \l{QMenu}s to the menu bar and
+    adding \l{QAction}s to the popup menus.
+
+    Example (from \l action/application.cpp):
+    \quotefile action/application.cpp
+    \skipto file = new QMenu
+    \printuntil fileNewAction
+
+    Menu items may be removed with removeAction().
+
+    <img src=qmenubar-m.png> <img src=qmenubar-w.png>
+
+    \section1 QMenuBar on Qt/Mac
+
+    QMenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
+    If you have multiple menubars in one dialog the outermost menubar
+    (normally inside a widget with widget flag \c WType_TopLevel) will
+    be used for the system-wide menubar.
+
+    Qt/Mac also provides a menubar merging feature to make QMenuBar
+    conform more closely to accepted Mac OS X menubar layout. The
+    merging functionality is based on string matching the title of a
+    QMenu entry. These strings are translated (using QObject::tr()) in
+    the "QMenuBar" context. If an entry is moved its slots will still
+    fire as if it was in the original place. The table below outlines
+    the strings looked for and where the entry is placed if matched:
+
+    \table
+    \header \i String matches \i Placement \i Notes
+    \row \i about.*
+         \i Application Menu | About <application name>
+         \i If this entry is not found no About item will appear in
+            the Application Menu
+    \row \i config, options, setup, settings or preferences
+         \i Application Menu | Preferences
+         \i If this entry is not found the Settings item will be disabled
+    \row \i quit or exit
+         \i Application Menu | Quit <application name>
+         \i If this entry is not found a default Quit item will be
+            created to call QApplication::quit()
+    \endtable
+
+    \link menu-example.html menu/menu.cpp\endlink is an example of
+    QMenuBar and QMenu use.
+
+    \sa QMenu QAccel QAction \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua Style Guidelines \endlink \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
+*/
+
+
+/*!
+    Constructs a menu bar with parent \a parent.
+*/
 QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
 {
 #ifdef Q_WS_MAC
@@ -277,6 +367,9 @@ QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
 #endif
 }
 
+/*!
+    Destroys the menu bar.
+*/
 QMenuBar::~QMenuBar()
 {
 #ifdef Q_WS_MAC
@@ -284,6 +377,16 @@ QMenuBar::~QMenuBar()
 #endif
 }
 
+/*!
+  Appends an action with text \a text and menu \a menu to the list of
+  actions.
+
+  This convenience function will create a new QAction, setting its
+  text and menu, append it to the list of actions, and finally
+  return the newly created action.
+
+  \sa QWidget::addAction()
+*/
 QAction *QMenuBar::addMenu(const QString &text, QMenu *menu)
 {
     QAction *ret = new QAction(text, menu);
@@ -291,6 +394,15 @@ QAction *QMenuBar::addMenu(const QString &text, QMenu *menu)
     return ret;
 }
 
+/*!
+  Inserts an action with text \a text and menu \a menu into the list
+  of actions before \a before.
+
+  This convenience function will create a new QAction, insert it to
+  the list of actions, and finally return the newly created action.
+
+  \sa QWidget::insertAction() addMenu()
+*/
 QAction *QMenuBar::insertMenu(QAction *before, const QString &text, QMenu *menu)
 {
     QAction *ret = new QAction(text, menu);
@@ -298,11 +410,20 @@ QAction *QMenuBar::insertMenu(QAction *before, const QString &text, QMenu *menu)
     return ret;
 }
 
+/*!  
+  Returns the QAction that is currently highlighted. A null pointer
+  will be returned if no action is currently selected.
+*/
 QAction *QMenuBar::activeAction() const
 {
     return d->currentAction->action;
 }
 
+/*!
+    Removes all actions.
+
+    \sa removeAction()
+*/
 void QMenuBar::clear()
 {
     QList<QAction*> acts = actions();
@@ -310,6 +431,18 @@ void QMenuBar::clear()
         removeAction(acts[i]);
 }
 
+/*!
+    \property Q3MenuBar::defaultUp
+    \brief the popup orientation
+
+    The default popup orientation. By default, menus pop "down" the
+    screen. By setting the property to true, the menu will pop "up".
+    You might call this for menus that are \e below the document to
+    which they refer.
+
+    If the menu would not fit on the screen, the other direction is
+    used automatically.
+*/
 void QMenuBar::setDefaultUp(bool b)
 {
     d->defaultPopDown = !b;
@@ -320,11 +453,17 @@ bool QMenuBar::isDefaultUp() const
     return !d->defaultPopDown;
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::resizeEvent(QResizeEvent *)
 {
     d->itemsDirty = 1;
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::paintEvent(QPaintEvent *e)
 {
     d->updateActions();
@@ -372,6 +511,9 @@ void QMenuBar::paintEvent(QPaintEvent *e)
     style().drawControl(QStyle::CE_MenuBarEmptyArea, &p, this, rect(), palette());
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() != LeftButton)
@@ -386,6 +528,9 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::mouseReleaseEvent(QMouseEvent *e)
 {
     if(e->button() != LeftButton || !d->mouseDown)
@@ -400,6 +545,9 @@ void QMenuBar::mouseReleaseEvent(QMouseEvent *e)
     d->closePopupMode = 0;
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
@@ -506,6 +654,9 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::mouseMoveEvent(QMouseEvent *e)
 {
     d->mouseDown = e->state() & LeftButton;
@@ -515,12 +666,18 @@ void QMenuBar::mouseMoveEvent(QMouseEvent *e)
         d->setCurrentAction(action, popupState);
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::leaveEvent(QEvent *)
 {
     if(!hasFocus() && !d->popupState)
         d->setCurrentAction(0);
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::actionEvent(QActionEvent *e)
 {
     d->itemsDirty = 1;
@@ -540,15 +697,19 @@ void QMenuBar::actionEvent(QActionEvent *e)
         update();
 }
 
-void
-QMenuBar::focusInEvent(QFocusEvent *)
+/*!
+  \reimp
+*/
+void QMenuBar::focusInEvent(QFocusEvent *)
 {
     if(!d->currentAction && !d->actionItems.isEmpty())
         d->setCurrentAction(d->actionItems.first());
 }
 
-void
-QMenuBar::focusOutEvent(QFocusEvent *)
+/*!
+  \reimp
+*/
+void QMenuBar::focusOutEvent(QFocusEvent *)
 {
     if(!d->popupState) {
         d->setCurrentAction(0);
@@ -556,6 +717,9 @@ QMenuBar::focusOutEvent(QFocusEvent *)
     }
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::changeEvent(QEvent *e)
 {
     if(e->type() == QEvent::StyleChange) {
@@ -566,13 +730,18 @@ void QMenuBar::changeEvent(QEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 void QMenuBar::contextMenuEvent(QContextMenuEvent *e)
 {
     e->accept();
 }
 
-bool
-QMenuBar::event(QEvent *e)
+/*!
+  \reimp
+*/
+bool QMenuBar::event(QEvent *e)
 {
     if(e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
@@ -591,6 +760,9 @@ QMenuBar::event(QEvent *e)
     return QWidget::event(e);
 }
 
+/*!
+  \reimp
+*/
 bool
 QMenuBar::eventFilter(QObject *object, QEvent *event)
 {
@@ -674,6 +846,12 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
+/*!
+  \internal
+
+  Return the item at \a pt, or 0 if there is no item there or if it is
+  a separator item.
+*/
 QAction *QMenuBar::actionAtPos(const QPoint &pt) const
 {
     const_cast<QMenuBarPrivate*>(d)->updateActions();
@@ -682,6 +860,11 @@ QAction *QMenuBar::actionAtPos(const QPoint &pt) const
     return 0;
 }
 
+/*!
+  \internal
+
+  Returns the geometry of action \a act.
+*/
 QRect QMenuBar::actionGeometry(QAction *act) const
 {
     const_cast<QMenuBarPrivate*>(d)->updateActions();
@@ -692,11 +875,17 @@ QRect QMenuBar::actionGeometry(QAction *act) const
     return QRect();
 }
 
+/*!
+  \reimp
+*/
 QSize QMenuBar::minimumSizeHint() const
 {
     return sizeHint();
 }
 
+/*!
+  \reimp
+*/
 QSize QMenuBar::sizeHint() const
 {
     ensurePolished();
@@ -730,6 +919,9 @@ QSize QMenuBar::sizeHint() const
     return (style().sizeFromContents(QStyle::CT_MenuBar, this, ret.expandedTo(QApplication::globalStrut())));
 }
 
+/*!
+  \reimp
+*/
 int QMenuBar::heightForWidth(int max_width) const
 {
     QList<QMenuAction*> actions = d->calcActionRects(max_width, 0);
@@ -744,6 +936,9 @@ int QMenuBar::heightForWidth(int max_width) const
     return style().sizeFromContents(QStyle::CT_MenuBar, this, QSize(0, height)).height(); //not pretty..
 }
 
+/*!
+  \internal
+*/
 void QMenuBar::internalShortcutActivated(int id)
 {
 #ifndef QT_NO_ACCEL
@@ -758,6 +953,14 @@ void QMenuBar::internalShortcutActivated(int id)
 #endif
 }
 
+/*!
+  \internal
+
+  This sets widget \a w to be shown directly on the left of the first
+  menu item.
+
+  \sa setRightWidget
+*/
 void QMenuBar::setLeftWidget(QWidget *w)
 {
     d->itemsDirty = true;
@@ -766,6 +969,14 @@ void QMenuBar::setLeftWidget(QWidget *w)
     d->updateActions();
 }
 
+/*!
+  \internal
+
+  This sets widget \a w to be shown directly on the right of the last
+  menu item.
+
+  \sa setLeftWidget
+*/
 void QMenuBar::setRightWidget(QWidget *w)
 {
     d->itemsDirty = true;
