@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#320 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#321 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2239,6 +2239,8 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	case MotionNotify:
 	case KeyPress:
 	case KeyRelease:
+	case FocusIn:
+	case FocusOut:
 	case ClientMessage:
 	    block_event	 = TRUE;
 	    break;
