@@ -1,48 +1,47 @@
-#include "dialog.h"
+#include <QtCore>
+#include <QtGui>
+#include <QtNetwork>
 
-Dialog::Dialog(QWidget *parent) : QDialog(parent)
+#include "server.h"
+
+Server::Server(QWidget *parent)
+    : QDialog(parent)
 {
-    statusLabel = new QLabel(this);
-    statusLabel->setText(tr("Ready to broadcast"));
-
+    statusLabel = new QLabel(tr("Ready to broadcast datagrams on port 45454"),
+                             this);
     startButton = new QPushButton(tr("&Start"), this);
     quitButton = new QPushButton(tr("&Quit"), this);
-    connect(startButton, SIGNAL(clicked()), SLOT(start()));
-    connect(quitButton, SIGNAL(clicked()), SLOT(close()));
+    timer = new QTimer(this);
+    udpSocket = new QUdpSocket(this);
+    messageNo = 1;
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    connect(startButton, SIGNAL(clicked()), this, SLOT(startBroadcasting()));
+    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(broadcastDatagram()));
 
-    layout->addWidget(statusLabel);
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addStretch(1);
     buttonLayout->addWidget(startButton);
     buttonLayout->addWidget(quitButton);
-    layout->addLayout(buttonLayout);
 
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(broadcast()));
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(statusLabel);
+    mainLayout->addLayout(buttonLayout);
 
-    broadcastServer = new QUdpSocket(this);
-
-    messageCount = 0;
+    setWindowTitle(tr("Broadcast Server"));
 }
 
-void Dialog::start()
+void Server::startBroadcasting()
 {
-    if (!startButton->isEnabled())
-        return;
     startButton->setEnabled(false);
-
     timer->start(1000);
 }
 
-void Dialog::broadcast()
+void Server::broadcastDatagram()
 {
-    QByteArray datagram = "Broadcast message #";
-    datagram += QString::number(messageCount).toLatin1();
-
-    statusLabel->setText(QString(tr("Now broadcasting message #%1").arg(messageCount)));
-    ++messageCount;
-
-    broadcastServer->writeDatagram(datagram.data(), datagram.size(),
-                                   QHostAddress::Broadcast, 45454);
+    statusLabel->setText(tr("Now broadcasting datagram %1").arg(messageNo));
+    QByteArray datagram = "Broadcast message " + QByteArray::number(messageNo);
+    udpSocket->writeDatagram(datagram.data(), datagram.size(),
+                             QHostAddress::Broadcast, 45454);
+    ++messageNo;
 }

@@ -1,12 +1,12 @@
-#include <QtGui>
+#include <QApplication>
 
-#include "dialog.h"
+#include "server.h"
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    Dialog dialog;
-    app.setMainWidget(&dialog);
-    dialog.show();
+    Server server;
+    app.setMainWidget(&server);
+    server.show();
     return app.exec();
 }

@@ -1,31 +1,31 @@
-#ifndef DIALOG_H_INCLUDED
-#define DIALOG_H_INCLUDED
+#ifndef SERVER_H
+#define SERVER_H
 
-#include <QTimer>
-#include <QtGui>
-#include <QtNetwork>
+#include <QDialog>
 
-class Dialog : public QDialog
+class QLabel;
+class QPushButton;
+class QTimer;
+class QUdpSocket;
+
+class Server : public QDialog
 {
     Q_OBJECT
 
 public:
-    Dialog(QWidget *parent = 0);
+    Server(QWidget *parent = 0);
 
-public slots:
-    void start();
-    void broadcast();
+private slots:
+    void startBroadcasting();
+    void broadcastDatagram();
 
 private:
     QLabel *statusLabel;
     QPushButton *startButton;
     QPushButton *quitButton;
-
-    QUdpSocket *broadcastServer;
-
+    QUdpSocket *udpSocket;
     QTimer *timer;
-
-    int messageCount;
+    int messageNo;
 };
 
 #endif
