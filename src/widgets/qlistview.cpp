@@ -5451,13 +5451,13 @@ void QListView::setSorting( int column, bool ascending )
 }
 
 /*!
-    \enum QListView::SortOrder
+    \enum Qt::SortOrder
 
-    This enum describes how the items in the list view are sorted.
+    This enum describes how the items in a widget are sorted.
 
-    \value Ascending The items are sorted ascending.
+    \value Ascending The items are sorted ascending e.g. starts with 'AAA' ends with 'ZZZ'
 
-    \value Descending The items are sorted descending.
+    \value Descending The items are sorted descending e.g. starts with 'ZZZ' ends with 'AAA'
 */
 
 /*!
@@ -5512,7 +5512,7 @@ void QListView::setSortColumn( int column )
 
   \sa sortColumn()
 */
-QListView::SortOrder QListView::sortOrder() const
+Qt::SortOrder QListView::sortOrder() const
 {
     if ( d->ascending )
 	return Ascending;

@@ -91,6 +91,12 @@ public:
 	Vertical
     };
 
+    // documented in qlistview.cpp
+    enum SortOrder {
+	Ascending,
+	Descending
+    };
+
     // Text formatting flags for QPainter::drawText and QLabel
     // the following four enums can be combined to one integer which
     // is passed as textflag to drawText and qt_format_text.

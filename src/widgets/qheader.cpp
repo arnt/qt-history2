@@ -1630,7 +1630,7 @@ void QHeader::paintEvent( QPaintEvent *e )
     list widgets, QHeader can indicate a sort order. This is achieved
     by displaying an arrow at the right edge of a section.
 
-    If \a increasing is TRUE (the default) the arrow will point
+    If \a ascending is TRUE (the default) the arrow will point
     downwards; otherwise it will point upwards.
 
     Only one section can show a sort indicator at any one time. If you
@@ -1638,32 +1638,55 @@ void QHeader::paintEvent( QPaintEvent *e )
     number of -1.
 */
 
-void QHeader::setSortIndicator( int section, bool increasing )
+void QHeader::setSortIndicator( int section, bool ascending )
 {
     d->sortColumn = section;
-    if(section != -1)
+    if ( section != -1 )
 	oldHandleIdx = section;
-    d->sortDirection = increasing;
+    d->sortDirection = ascending;
     update();
     updateGeometry();
 }
 
 /*!
-    Sets \a *section to the column number showing the sort indicator
-    and \a *increasing to TRUE if the arrow is pointing downwards.
-
-    If there is no sort indicator then \a *section will be -1 and the
-    value of \a *increasing will be undefined.
+    Returns the section showing the sort indicator or -1 if there is no sort indicator.
 
     \sa setSortIndicator()
 */
 
-void QHeader::sortIndicator( int *section, bool *increasing ) const
+int QHeader::sortIndicator() const
 {
-    if ( section )
-	(*section) = d->sortColumn;
-    if ( increasing )
-	(*increasing) = d->sortDirection;
+    return d->sortColumn;
+}
+
+/*!
+  Sets the sort order of the QHeader.
+  The sort indicator points downwards for Ascending sort order.
+
+  \sa setSortIndicator()
+*/
+
+void QHeader::setSortOrder( SortOrder order )
+{
+    if ( order == Ascending )
+	d->sortDirection = TRUE;
+    d->sortDirection = FALSE;
+    update();
+    updateGeometry();
+}
+
+/*!
+    Returns the sort order of the QHeader.
+    The sort indicator points downwards for Ascending sort order.
+
+    \sa setSortIndicator()
+*/
+
+Qt::SortOrder QHeader::sortOrder() const
+{
+    if ( d->sortDirection )
+	return Ascending;
+    return Descending;
 }
 
 /*!

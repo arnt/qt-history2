@@ -326,7 +326,6 @@ public:
     virtual void setRootIsDecorated( bool );
     bool rootIsDecorated() const;
 
-    enum SortOrder { Ascending, Descending };
     virtual void setSorting( int column, bool ascending = TRUE );
     int sortColumn() const;
     void setSortColumn( int column );

@@ -119,7 +119,10 @@ public:
     virtual void moveCell( int, int); // obsolete, do not use
 
     void 	setSortIndicator( int section, bool increasing = TRUE );
-    void 	sortIndicator( int *section, bool *increasing = 0 ) const;
+    int sortIndicator() const;
+    void setSortOrder( SortOrder );
+    SortOrder sortOrder() const;
+
     void        adjustHeaderSize() { adjustHeaderSize( -1 ); }
 
 public slots:
