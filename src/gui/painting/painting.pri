@@ -10,7 +10,6 @@ HEADERS += \
 	painting/qdrawutil.h \
 	painting/qline.h \
 	painting/qpaintdevice.h \
-	painting/qpaintdevicedefs.h \
 	painting/qpaintdevicemetrics.h \
 	painting/qpaintengine.h \
 	painting/qpainter.h \
