@@ -3100,7 +3100,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     // we do however need some chars around the part we paint to get arabic shaping correct.
     // ### maybe possible to remove after cursor restrictions work in QRT
     int start = QMAX( 0,  pos - 8 );
-    int end = QMIN( str.length(), pos + len + 8 );
+    int end = QMIN( (int)str.length(), pos + len + 8 );
     QConstString cstr( str.unicode() + start, end - start );
     pos -= start;
 
@@ -3111,6 +3111,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     layout.setBoundary( pos + len );
 
     QTextEngine *engine = layout.d;
+    if ( dir != Auto ) {
+	int level = dir == RTL ? 1 : 0;
+	for ( int i = engine->items.size(); i >= 0; i-- )
+	    engine->items[i].analysis.bidiLevel = level;
+    }
 
     // small hack to force skipping of unneeded items
     start = 0;
