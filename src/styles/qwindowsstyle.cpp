@@ -1790,4 +1790,25 @@ int QWindowsStyle::styleHint( StyleHint hint,
     return ret;
 }
 
+QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
+{
+    QRect rect;
+
+    switch (r) {
+#ifndef QT_NO_SLIDER
+    case SR_SliderFocusRect:
+	{
+	    const QSlider * sl = (const QSlider *) widget;
+	    rect = widget->rect();
+	    break;
+	}
+#endif // QT_NO_SLIDER
+    default:
+	rect = QCommonStyle::subRect( r, widget );
+	break;
+    }
+
+    return rect;
+}
+
 #endif

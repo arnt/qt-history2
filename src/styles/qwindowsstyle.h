@@ -100,6 +100,8 @@ public:
     QPixmap stylePixmap( StylePixmap stylepixmap,
 			 const QWidget *widget = 0,
 			 const QStyleOption& = QStyleOption::Default ) const;
+    
+    QRect subRect( SubRect r, const QWidget *widget ) const;
 
 
 private:
