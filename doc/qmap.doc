@@ -62,7 +62,7 @@
     class Employee
     {
     public:
-	Employee(): s(0){}
+	Employee(): s(0) {}
 	Employee( const QString& name, int salary )
 	    : n(name), s(salary)
 	{}
@@ -365,12 +365,13 @@
   \ingroup qtl
   \ingroup tools
 
-  You can not create an iterator by yourself. Instead you have to
-  ask a map to give you one. An iterator has only the size of a pointer.
-  On 32 bit machines that means 4 bytes otherwise 8 bytes. That makes them
-  very fast. In fact they resemble the semantics of pointers as good as possible
-  and they are almost as fast as usual pointers.
+  You can not create an iterator by yourself. Instead you have to ask
+  a map to give you one. An iterator has only the size of a pointer.
+  On 32 bit machines that means 4 bytes otherwise 8 bytes. That makes
+  them very fast. In fact they resemble the semantics of pointers as
+  good as possible and they are almost as fast as usual pointers.
 
+  Example:
   \code
     #include <qmap.h>
     #include <qstring.h>
@@ -379,16 +380,19 @@
     class Employee
     {
     public:
-        Employee( const QString& name, int salary ) { n=name; s=salary; }
-        Employee( const Employee& _e ) { n = _e.name; s = _e.s; }
+	Employee(): s(0) {}
+	Employee( const QString& name, int salary )
+	    : n(name), s(salary)
+	{}
 
-        QString     name()   const		 { return n; }
-        int	    salary() const		 { return s; }
-	void	    setSalary( int _s ) const	 { s = _s; }
+	QString     name()   const	 	{ return n; }
+	int	    salary() const	 	{ return s; }
+	void	    setSalary( int salary )	{ s = salary; }
     private:
-        QString     n;
-        int         s;
+	QString     n;
+	int         s;
     };
+
 
     void main()
     {
@@ -396,8 +400,8 @@
 	EmployeeMap map;		// map of Employee
 
 	map.insert( "Gates", Employee("Bill", 50000) );
-	map.insert( "Ballmer", ( Employee("Steve",80000) );
-	map.insert( "Sommer," ( Employee("Ron",  60000) );
+	map.insert( "Ballmer", Employee("Steve",80000) );
+	map.insert( "Sommer,", Employee("Ron",  60000) );
 
 	Employee joe( "Joe", 50000 );
 	map.insert( "Doe", joe );
@@ -405,7 +409,7 @@
 	
 	EmployeeMap::Iterator it;
 	for( it = map.begin(); it != map.end(); ++it )
-	    printf( "%s, %s earns %d\n", it.key(), it.data().name(), it.data().salary() );
+	    printf( "%s, %s earns %d\n", it.key().latin1(), it.data().name().latin1(), it.data().salary() );
     }
   \endcode
 
@@ -417,19 +421,21 @@
 	Sommer, Ron earns 60000
   \endcode
 
-  The only way to traverse a map is to use iterators.
-  QMap is highly optimized for performance and memory usage.
-  On the other hand that means that you have to be a bit more careful
-  by what you are doing. QMap does not know about all its iterators
-  and the iterators don't even know to which map they belong. That makes
-  things fast and slim but a bit dangerous because it is up to you to make
-  sure that iterators you are using are still valid. QDictIterator will be able
-  to give warnings while QMapIterator may end up in an undefined state.
+  The only way to traverse a map is to use iterators.  QMap is highly
+  optimized for performance and memory usage.  On the other hand that
+  means that you have to be a bit more careful by what you are
+  doing. QMap does not know about all its iterators and the iterators
+  don't even know to which map they belong. That makes things fast and
+  slim but a bit dangerous because it is up to you to make sure that
+  iterators you are using are still valid. QDictIterator will be able
+  to give warnings while QMapIterator may end up in an undefined
+  state.
 
   For every Iterator there is a ConstIterator. When accessing a QMap
-  in a const environment or if the reference or pointer to the map is itself
-  const, then you have to use the ConstIterator. Its semantics are the same,
-  but it returns only const references to the item it points to.
+  in a const environment or if the reference or pointer to the map is
+  itself const, then you have to use the ConstIterator. Its semantics
+  are the same, but it returns only const references to the item it
+  points to.
 
   \sa QMap
 */

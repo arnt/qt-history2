@@ -61,7 +61,7 @@
     class Employee
     {
     public:
-	Employee(): s(0){}
+	Employee(): s(0) {}
 	Employee( const QString& name, int salary )
 	    : n(name), s(salary)
 	{}

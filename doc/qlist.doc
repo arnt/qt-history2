@@ -65,7 +65,7 @@
 
 	Employee *emp;
 	for ( emp=list.first(); emp != 0; emp=list.next() )
-	    printf( "%s earns %d\n", emp->name().ascii(), emp->salary() );
+	    printf( "%s earns %d\n", emp->name().latin1(), emp->salary() );
     }
   \endcode
 
@@ -715,7 +715,7 @@
 	QListIterator<Employee> it(list); // iterator for employee list
 	for ( ; it.current(); ++it ) {
 	    Employee *emp = it.current();
-	    printf( "%s earns %d\n", emp->name(), emp->salary() );
+	    printf( "%s earns %d\n", emp->name().latin1(), emp->salary() );
         }
     }
   \endcode
@@ -767,7 +767,7 @@
 	  // Now, both the list and the iterator are referring the same item
 
 	list.remove();
-	printf( "%s\n", it.current()->name() );
+	printf( "%s\n", it.current()->name().latin1() );
     }
   \endcode
 
