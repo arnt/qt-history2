@@ -1935,7 +1935,7 @@ void QApplication::closeAllWindows()
   this you get Tab key presses, and you get to see the events before
   any widget-specific event filters.
 
-  \i Installing an event filter on the object. Such an even filter
+  \i Installing an event filter on the object. Such an event filter
   gets all the events except Tab and Shift-Tab key presses.
 
   \i Reimplementing paintEvent(), mousePressEvent() and so

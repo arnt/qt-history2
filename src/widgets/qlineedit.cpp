@@ -247,7 +247,9 @@ QPixmap* QLineEditPrivate::pm = 0;
 
   When the text changes the textChanged() signal is emitted; when the
   Return or Enter key is pressed the returnPressed() signal is
-  emitted.
+  emitted. Note that if there is a validator set on the line edit, the
+  returnPressed() signal will only be emitted if the validator returns
+  Acceptable.
 
   By default, QLineEdits have a frame as specified by the Windows and
   Motif style guides; you can turn it off by calling setFrame(FALSE).
@@ -597,7 +599,10 @@ void QLineEdit::setMaxLength( int m )
 
 /*!
   \fn void  QLineEdit::returnPressed()
-  This signal is emitted when the Return or Enter key is pressed.
+  This signal is emitted when the Return or Enter key is pressed. Note
+  that if there is a validator set on the line edit, the
+  returnPressed() signal will only be emitted if the validator returns
+  Acceptable.
 */
 
 
@@ -1228,7 +1233,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     if ( !d->readonly && e->button() == MidButton ) {
 	if (QApplication::clipboard()->supportsSelection()) {
 	    QApplication::clipboard()->setSelectionMode( TRUE );
-	    paste();	
+	    paste();
 	    QApplication::clipboard()->setSelectionMode( FALSE );
 	}
 	return;

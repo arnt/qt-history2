@@ -263,10 +263,10 @@
     in color or not.
 
     \value Color  print in color if available, otherwise in grayscale.
-    This is the default.
+
 
     \value GrayScale  print in grayscale, even on color printers.
-    Might be a little faster than \c Color.
+    Might be a little faster than \c Color. This is the default.
 */
 
 /*!

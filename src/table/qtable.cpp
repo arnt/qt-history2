@@ -351,8 +351,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 
     If a pixmap is specified it is displayed to the left of any text.
     You can change the text or pixmap with setText() and setPixmap()
-    respectively. For text you can use setWordWrap(). A table item's
-    alignment is set in the constructor.
+    respectively. For text you can use setWordWrap().
 
     Reimplement createEditor() and setContentFromEditor() if you want to
     use your own widget instead of a QLineEdit for editing cell
