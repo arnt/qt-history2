@@ -348,6 +348,9 @@ static const char* const type_map[][2] =
 
 static QString convertTypes(const QString &qtype, bool *ok)
 {
+    qRegisterMetaType("IDispatch*", (void**)0);
+    qRegisterMetaType("IUnknown*", (void**)0);
+
     *ok = false;
     
     int i = 0;
@@ -1029,6 +1032,8 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
                     subtypes = new QStringList;
                 subtypes->append(className);
                 subtypes->append(className + "*");
+                qRegisterMetaType(className, (void**)0);
+                qRegisterMetaType(className + "*", (void**)0);
                 res = classIDL(0, mo, className, false, out);
                 if (res != S_OK)
                     break;
