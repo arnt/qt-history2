@@ -1573,7 +1573,6 @@ private:
     QString kof, knf;
     int cflags;
 
-    QStyleSheet *sheet;
     QPaintDevice *paintdevice;
 };
 
