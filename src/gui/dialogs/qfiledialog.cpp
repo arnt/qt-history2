@@ -534,17 +534,14 @@ QFileDialog::~QFileDialog()
 }
 
 /*!
-    Sets the file dialog's current \a directory. (This is also applied to the
-    underlying model.)
+    Sets the file dialog's current \a directory. 
 */
 
 void QFileDialog::setDirectory(const QDir &directory)
 {
     QModelIndex index = d->model->index(directory.absolutePath());
-    if (index.isValid()) {
-        d->setRoot(index);
-        d->updateButtons(index);
-    }
+    d->setRoot(index);
+    d->updateButtons(index);
 }
 
 /*!
@@ -1237,7 +1234,7 @@ void QFileDialogPrivate::setup()
     grid->setSpacing(6);
 
     // model
-    QDir dir("/");
+    QDir dir(QDir::root());
     dir.setFilter(dir.filter() | QDir::AllDirs);
     dir.setSorting(QDir::DirsFirst);
     model = new QDirModel(dir, q);
