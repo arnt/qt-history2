@@ -1747,8 +1747,9 @@ SourceEditor *MainWindow::openSourceEditor()
     
     QString lang = currentProject->language();
     if ( !MetaDataBase::hasEditor( lang ) ) {
-	QMessageBox::information( this, tr( "Open Source Editor" ),
-				  tr( "There is no plugin for editing " + lang + " code installed" ) );
+	QMessageBox::information( this, tr( "Edit Source" ),
+				  tr( "There is no plugin for editing " + lang + " code installed!\n"
+				      "Note: Plugins are not available in static Qt configurations." ) );
 	return 0;
     }
 
@@ -1771,7 +1772,8 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
     QString lang = currentProject->language(); 
     if ( !MetaDataBase::hasEditor( lang ) ) {
 	QMessageBox::information( this, tr( "Edit Source" ),
-				  tr( "There is no plugin for edit " + lang + " code installed" ) );
+				  tr( "There is no plugin for editing " + lang + " code installed!\n"
+				      "Note: Plugins are not available in static Qt configurations." ) );
 	return 0;
     }
 
