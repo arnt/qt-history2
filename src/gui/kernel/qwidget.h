@@ -459,7 +459,10 @@ public:
 #endif
 #if defined(Q_WS_X11)
     QX11Info *x11Info() const;
+    Qt::HANDLE xftPictureHandle() const;
+    Qt::HANDLE xftDrawHandle() const;
 #endif
+    Qt::HANDLE handle() const;
 
     void setAttribute(Qt::WidgetAttribute, bool = true);
     inline bool testAttribute(Qt::WidgetAttribute) const;
@@ -600,6 +603,8 @@ private:
     friend class QWidgetItem;
     friend class QGuiEventLoop;
     friend class QGLContext;
+    friend class QFontEngineXft;
+    friend class QX11PaintEngine;
 
 #ifdef Q_WS_MAC
     friend class QMacSavedPortInfo;

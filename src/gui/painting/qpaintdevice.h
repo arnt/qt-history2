@@ -27,14 +27,9 @@ class QGfx;
 
 #if defined(Q_WS_X11)
 class QX11Info;
-class QX11PaintEngine;
 #endif
 
-class QIODevice;
-class QString;
-class QApplicationPrivate;
 class QPaintEngine;
-
 class Q_GUI_EXPORT QPaintDevice                                // device for QPainter
 {
 public:
@@ -43,17 +38,6 @@ public:
     int devType() const;
     bool isExtDev() const;
     bool paintingActive() const;
-
-#if defined(Q_WS_WIN)
-    virtual HDC handle() const;
-#else
-    virtual Qt::HANDLE handle() const;
-#endif
-#if defined(Q_WS_X11)
-    virtual Qt::HANDLE x11RenderHandle() const;
-#elif defined(Q_WS_MAC)
-    virtual Qt::HANDLE macCGHandle() const;
-#endif
     virtual QPaintEngine *paintEngine() const = 0;
 
 #if defined(Q_WS_QWS)
@@ -65,50 +49,23 @@ public:
 #endif
 #endif
 
+    Qt::HANDLE handle() const;
+#if defined(Q_WS_X11)
+    QX11Info *x11Info() const;
+    Qt::HANDLE xftPictureHandle() const;
+    Qt::HANDLE xftDrawHandle() const;
+#endif
 protected:
     QPaintDevice(uint devflags);
-
-#if defined(Q_WS_WIN)
-    HDC                hdc;                                // device context
-#else
-    Qt::HANDLE        hd;                                // handle to drawable
-#endif
-#if defined(Q_WS_X11)
-    Qt::HANDLE  rendhd;                         // handle to RENDER pict
-#elif defined(Q_WS_MAC)
-    Qt::HANDLE cg_hd;
-#endif
-
-    virtual int         metric(int) const;
+    virtual int metric(int) const;
 
     ushort        devFlags;                        // device flags
     ushort        painters;                        // refcount
-
-    friend class QPainter;
-    friend class QPaintDeviceMetrics;
-#if defined(Q_WS_WIN)
-    friend class QWin32PaintEngine;
-#elif defined(Q_WS_MAC)
-    friend class QFontEngineMac;
-    friend class QQuickDrawPaintEngine;
-#endif
-#if !defined(Q_WS_MAC)
-    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int, const QPaintDevice *,
-				    int, int, int, int, bool);
-#endif
-#if defined(Q_WS_X11)
-    friend void qt_init(QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE);
-    friend void qt_cleanup();
-    friend class QX11PaintEngine;
-#endif
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPaintDevice(const QPaintDevice &);
     QPaintDevice &operator=(const QPaintDevice &);
-#endif
-#if defined(Q_WS_X11)
-    QX11Info *x11Info() const;
 #endif
 
 #if defined(Q_WS_X11) && defined(QT_COMPAT)
@@ -136,6 +93,9 @@ public:
     static QT_COMPAT void x11SetAppDpiX(int, int);
     static QT_COMPAT void x11SetAppDpiY(int, int);
 #endif
+    friend class QPainter;
+    friend class QPaintDeviceMetrics;
+    friend void bitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 
 

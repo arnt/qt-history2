@@ -1083,18 +1083,6 @@ void QFontEngineLatinXLFD::setScale(double scale)
 
 #ifndef QT_NO_XFT
 
-
-class Q_HackPaintDevice : public QPaintDevice
-{
-public:
-    inline Q_HackPaintDevice() : QPaintDevice(0) {}
-    inline XftDraw *xftDrawHandle() const {
-        return (XftDraw *)rendhd;
-    }
-
-};
-
-
 QFontEngineXft::QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap)
     : _font(font), _pattern(pattern), _openType(0), _cmap(cmap), transformed_fonts(0)
 {
@@ -1361,7 +1349,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
 
     const QColor &pen = static_cast<QX11PaintEngine *>(p)->d->cpen.color();
 
-    XftDraw *draw = static_cast<Q_HackPaintDevice *>(p->painter()->device())->xftDrawHandle();
+    XftDraw *draw = (XftDraw *) p->painter()->device()->xftDrawHandle();
     XftColor col;
     col.color.red = pen.red () | pen.red() << 8;
     col.color.green = pen.green () | pen.green() << 8;

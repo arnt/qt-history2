@@ -35,6 +35,7 @@
 #include "qimage.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
+#include "private/qpaintengine_x11_p.h"
 #include "qpaintengine_x11.h"
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
@@ -265,8 +266,9 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->uninit = true;
     data->bitmap = bitmap;
     data->ser_no = ++serial;
-    data->optim         = optim;
+    data->optim = optim;
     data->xinfo = new QX11Info;
+    data->xft_hd = 0;
 
     if (defaultScreen >= 0 && defaultScreen != data->xinfo->screen()) {
         QX11InfoData* xd = data->xinfo->getX11Data(true);
@@ -291,30 +293,30 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     else if (d < 0 || d == dd)                // def depth pixmap
         data->d = dd;
     if (make_null || w < 0 || h < 0 || data->d == 0) {
-        hd = 0;
-        rendhd = 0;
+        data->hd = 0;
+        data->xft_hd = 0;
         if (!make_null)
             qWarning("QPixmap: Invalid pixmap parameters");
         return;
     }
     data->w = w;
     data->h = h;
-    hd = (HANDLE)XCreatePixmap(data->xinfo->display(),
-                                RootWindow(data->xinfo->display(), data->xinfo->screen()),
-                                w, h, data->d);
+    data->hd = (HANDLE)XCreatePixmap(data->xinfo->display(),
+				     RootWindow(data->xinfo->display(),
+						data->xinfo->screen()),
+				     w, h, data->d);
 
 #ifndef QT_NO_XFT
     if (X11->has_xft) {
         if (data->d == 1) {
-            rendhd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display(), hd);
+            data->xft_hd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display(), data->hd);
         } else {
-            rendhd = (HANDLE) XftDrawCreate(data->xinfo->display(), hd,
-                                             (Visual *) data->xinfo->visual(),
-                                             data->xinfo->colormap());
+            data->xft_hd = (HANDLE) XftDrawCreate(data->xinfo->display(), data->hd,
+						  (Visual *) data->xinfo->visual(),
+						  data->xinfo->colormap());
         }
     }
 #endif // QT_NO_XFT
-
 }
 
 
@@ -327,17 +329,17 @@ void QPixmap::deref()
             qSafeXDestroyImage((XImage*)data->ximage);
         if (data->maskgc)
             XFreeGC(data->xinfo->display(), (GC)data->maskgc);
-        if (qApp && hd) {
+        if (qApp && data->hd) {
 
 #ifndef QT_NO_XFT
-            if (rendhd) {
-                XftDrawDestroy((XftDraw *) rendhd);
-                rendhd = 0;
+            if (data->xft_hd) {
+                XftDrawDestroy((XftDraw *) data->xft_hd);
+                data->xft_hd = 0;
             }
 #endif // QT_NO_XFT
 
-            XFreePixmap(data->xinfo->display(), hd);
-            hd = 0;
+            XFreePixmap(data->xinfo->display(), data->hd);
+            data->hd = 0;
         }
         delete data->xinfo;
         delete data->paintEngine;
@@ -371,13 +373,13 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
         flipped_bits = flip_bits(bits, ((w+7)/8)*h);
         bits = flipped_bits;
     }
-    hd = (HANDLE)XCreateBitmapFromData(data->xinfo->display(),
-                                        RootWindow(data->xinfo->display(), data->xinfo->screen()),
-                                        (char *)bits, w, h);
+    data->hd = (HANDLE)XCreateBitmapFromData(data->xinfo->display(),
+					     RootWindow(data->xinfo->display(), data->xinfo->screen()),
+					     (char *)bits, w, h);
 
 #ifndef QT_NO_XFT
     if (X11->has_xft)
-        rendhd = (HANDLE) XftDrawCreateBitmap (data->xinfo->display (), hd);
+        data->xft_hd = (HANDLE) XftDrawCreateBitmap (data->xinfo->display (), data->hd);
 #endif // QT_NO_XFT
 
     if (flipped_bits)                                // Avoid purify complaint
@@ -497,7 +499,7 @@ void QPixmap::fill(const QColor &fillColor)
     detach();                                        // detach other references
     GC gc = qt_xget_temp_gc(data->xinfo->screen(), depth()==1);
     XSetForeground(data->xinfo->display(), gc, fillColor.pixel(data->xinfo->screen()));
-    XFillRectangle(data->xinfo->display(), hd, gc, 0, 0, width(), height());
+    XFillRectangle(data->xinfo->display(), data->hd, gc, 0, 0, width(), height());
 }
 
 
@@ -587,7 +589,7 @@ QImage QPixmap::convertToImage() const
 
     XImage *xi = (XImage *)data->ximage;        // any cached ximage?
     if (!xi)                                        // fetch data from X server
-        xi = XGetImage(data->xinfo->display(), hd, 0, 0, w, h, AllPlanes,
+        xi = XGetImage(data->xinfo->display(), data->hd, 0, 0, w, h, AllPlanes,
                         mono ? XYPixmap : ZPixmap);
     Q_CHECK_PTR(xi);
 
@@ -605,7 +607,7 @@ QImage QPixmap::convertToImage() const
 
     QImage alpha;
     if (alf) {
-        XImage *axi = XGetImage(data->xinfo->display(), alf->hd, 0, 0, w, h, AllPlanes, ZPixmap);
+        XImage *axi = XGetImage(data->xinfo->display(), alf->data->hd, 0, 0, w, h, AllPlanes, ZPixmap);
 
         if (axi) {
             image.setAlphaBuffer(true);
@@ -947,16 +949,16 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     }
 
     if (d == 1) {                                // 1 bit pixmap (bitmap)
-        if (hd) {                                // delete old X pixmap
+        if (data->hd) {                                // delete old X pixmap
 
 #ifndef QT_NO_XFT
-            if (rendhd) {
-                XftDrawDestroy((XftDraw *) rendhd);
-                rendhd = 0;
+            if (data->xft_hd) {
+                XftDrawDestroy((XftDraw *) data->xft_hd);
+                data->xft_hd = 0;
             }
 #endif // QT_NO_XFT
 
-            XFreePixmap(data->xinfo->display(), hd);
+            XFreePixmap(data->xinfo->display(), data->hd);
         }
 
         // make sure image.color(0) == Qt::color0 (white) and image.color(1) == Qt::color1 (black)
@@ -1007,13 +1009,13 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
             bits = (char *)image.bits();
             tmp_bits = 0;
         }
-        hd = (HANDLE)XCreateBitmapFromData(data->xinfo->display(),
-                                            RootWindow(data->xinfo->display(), data->xinfo->screen()),
-                                            bits, w, h);
+        data->hd = (HANDLE)XCreateBitmapFromData(data->xinfo->display(),
+						 RootWindow(data->xinfo->display(), data->xinfo->screen()),
+						 bits, w, h);
 
 #ifndef QT_NO_XFT
         if (X11->has_xft)
-            rendhd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display(), hd);
+            data->xft_hd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display(), data->hd);
 #endif // QT_NO_XFT
 
         if (tmp_bits)                                // Avoid purify complaint
@@ -1409,38 +1411,38 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         xi->data = (char *)newbits;
     }
 
-    if (hd && (width() != (int)w || height() != (int)h || this->depth() != dd)) {
+    if (data->hd && (width() != (int)w || height() != (int)h || this->depth() != dd)) {
 
 #ifndef QT_NO_XFT
-        if (rendhd) {
-            XftDrawDestroy((XftDraw *) rendhd);
-            rendhd = 0;
+        if (data->xft_hd) {
+            XftDrawDestroy((XftDraw *) data->xft_hd);
+            data->xft_hd = 0;
         }
 #endif // QT_NO_XFT
 
-        XFreePixmap(dpy, hd);                        // don't reuse old pixmap
-        hd = 0;
+        XFreePixmap(dpy, data->hd);                        // don't reuse old pixmap
+        data->hd = 0;
     }
-    if (!hd) {                                        // create new pixmap
-        hd = (HANDLE)XCreatePixmap(data->xinfo->display(),
-                                    RootWindow(data->xinfo->display(), data->xinfo->screen()),
-                                    w, h, dd);
+    if (!data->hd) {                                        // create new pixmap
+        data->hd = (HANDLE)XCreatePixmap(data->xinfo->display(),
+					 RootWindow(data->xinfo->display(), data->xinfo->screen()),
+					 w, h, dd);
 
 #ifndef QT_NO_XFT
         if (X11->has_xft) {
             if (data->d == 1) {
-                rendhd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display (), hd);
+                data->xft_hd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display (), data->hd);
             } else {
-                rendhd = (HANDLE) XftDrawCreate(data->xinfo->display (), hd,
-                                                 (Visual *) data->xinfo->visual(), data->xinfo->colormap());
+                data->xft_hd = (HANDLE) XftDrawCreate(data->xinfo->display (), data->hd,
+						      (Visual *) data->xinfo->visual(), data->xinfo->colormap());
             }
         }
 #endif // QT_NO_XFT
 
     }
 
-    XPutImage(dpy, hd, qt_xget_readonly_gc(data->xinfo->screen(), false ),
-               xi, 0, 0, 0, 0, w, h);
+    XPutImage(dpy, data->hd, qt_xget_readonly_gc(data->xinfo->screen(), false ),
+	      xi, 0, 0, 0, 0, w, h);
 
     if (data->optim != BestOptim) {                // throw away image
         qSafeXDestroyImage(xi);
@@ -1480,12 +1482,12 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
             data->alphapm->data->d = 8;
 
             // create 8bpp pixmap and render picture
-            data->alphapm->hd =
+            data->alphapm->data->hd =
                 XCreatePixmap(data->xinfo->display(), RootWindow(data->xinfo->display(), data->xinfo->screen()),
                               w, h, 8);
 
-            data->alphapm->rendhd =
-                (HANDLE) XftDrawCreateAlpha(data->xinfo->display(), data->alphapm->hd, 8);
+            data->alphapm->data->xft_hd =
+                (HANDLE) XftDrawCreateAlpha(data->xinfo->display(), data->alphapm->data->hd, 8);
 
             XImage *axi = XCreateImage(data->xinfo->display(), (Visual *) data->xinfo->visual(),
                                        8, ZPixmap, 0, 0, w, h, 8, 0);
@@ -1510,8 +1512,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
                     }
                 }
 
-                GC gc = XCreateGC(data->xinfo->display(), data->alphapm->hd, 0, 0);
-                XPutImage(dpy, data->alphapm->hd, gc, axi, 0, 0, 0, 0, w, h);
+                GC gc = XCreateGC(data->xinfo->display(), data->alphapm->data->hd, 0, 0);
+                XPutImage(dpy, data->alphapm->data->hd, gc, axi, 0, 0, 0, 0, w, h);
                 XFreeGC(data->xinfo->display(), gc);
                 qSafeXDestroyImage(axi);
             }
@@ -1834,22 +1836,22 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
                     pm.data->alphapm->data->d = 8;
 
                     // create 8bpp pixmap and render picture
-                    pm.data->alphapm->hd =
+                    pm.data->alphapm->data->hd =
                         XCreatePixmap(data->xinfo->display(),
                                       RootWindow(data->xinfo->display(), data->xinfo->screen()),
                                       w, h, 8);
 
-                    pm.data->alphapm->rendhd =
+                    pm.data->alphapm->data->xft_hd =
                         (HANDLE) XftDrawCreateAlpha(data->xinfo->display(),
-                                                     pm.data->alphapm->hd, 8);
+                                                     pm.data->alphapm->data->hd, 8);
 
                     XImage *axi2 = XCreateImage(data->xinfo->display(), (Visual *) data->xinfo->visual(),
                                                 8, ZPixmap, 0, (char *)dptr, w, h, 8, 0);
 
                     if (axi2) {
                         // the data is deleted by qSafeXDestroyImage
-                        GC gc = XCreateGC(data->xinfo->display(), pm.data->alphapm->hd, 0, 0);
-                        XPutImage(dpy, pm.data->alphapm->hd, gc, axi2, 0, 0, 0, 0, w, h);
+                        GC gc = XCreateGC(data->xinfo->display(), pm.data->alphapm->data->hd, 0, 0);
+                        XPutImage(dpy, pm.data->alphapm->data->hd, gc, axi2, 0, 0, 0, 0, w, h);
                         XFreeGC(data->xinfo->display(), gc);
                         qSafeXDestroyImage(axi2);
                     }
@@ -2026,7 +2028,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
         dst->data->alphapm->data->d = 8;
 
         // create 8bpp pixmap and render picture
-        dst->data->alphapm->hd =
+        dst->data->alphapm->data->hd =
             XCreatePixmap(dst->data->xinfo->display(),
                           RootWindow(dst->data->xinfo->display(), dst->data->xinfo->screen()),
                           dst->width(), dst->height(), 8);
@@ -2034,23 +2036,23 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
         // new alpha pixmaps should be fully opaque by default
         do_init = true;
 
-        dst->data->alphapm->rendhd =
+        dst->data->alphapm->data->xft_hd =
             (Qt::HANDLE) XftDrawCreateAlpha(dst->data->xinfo->display(),
-                                             dst->data->alphapm->hd, 8);
+                                             dst->data->alphapm->data->hd, 8);
     }
 
-    GC gc = XCreateGC(dst->data->xinfo->display(), dst->data->alphapm->hd, 0, 0);
+    GC gc = XCreateGC(dst->data->xinfo->display(), dst->data->alphapm->data->hd, 0, 0);
 
     if (do_init) {
         // the alphapm was just created, make it fully opaque
         XSetForeground(dst->data->xinfo->display(), gc, 255);
         XSetBackground(dst->data->xinfo->display(), gc, 255);
-        XFillRectangle(dst->data->xinfo->display(), dst->data->alphapm->hd, gc,
+        XFillRectangle(dst->data->xinfo->display(), dst->data->alphapm->data->hd, gc,
                         0, 0, dst->data->alphapm->data->w,
                         dst->data->alphapm->data->h);
     }
 
-    XCopyArea(dst->data->xinfo->display(), src->data->alphapm->hd, dst->data->alphapm->hd, gc,
+    XCopyArea(dst->data->xinfo->display(), src->data->alphapm->data->hd, dst->data->alphapm->data->hd, gc,
               sx, sy, sw, sh, dx, dy);
     XFreeGC(dst->data->xinfo->display(), gc);
 #endif // QT_NO_XFT
@@ -2061,4 +2063,34 @@ QPaintEngine *QPixmap::paintEngine() const
     if (!data->paintEngine)
         data->paintEngine = new QX11PaintEngine(const_cast<QPixmap*>(this));
     return data->paintEngine;
+}
+
+/*!
+    Returns the Xft picture handle of the pixmap for XRender
+    support. Use of this function is not portable. This function will
+    return 0 if XRender support is not compiled into Qt, if the
+    XRender extension is not supported on the X11 display, or if the
+    handle could not be created.
+*/
+
+Qt::HANDLE QPixmap::xftPictureHandle() const
+{
+#ifndef QT_NO_XFT
+    return data->xft_hd ? XftDrawPicture((XftDraw *) data->xft_hd) : 0;
+#else
+    return 0;
+#endif // QT_NO_XFT
+}
+
+/*!
+    Returns the Xft draw handle of the pixmap for XRender support. Use
+    of this function is not portable. This function will return 0 if
+    XRender support is not compiled into Qt, if the XRender extension
+    is not supported on the X11 display, or if the handle could not be
+    created.
+*/
+
+Qt::HANDLE QPixmap::xftDrawHandle() const
+{
+    return data->xft_hd;
 }

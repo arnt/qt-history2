@@ -30,7 +30,7 @@ public:
         dpy = 0;
         scrn = -1;
         hd = 0;
-        rendhd = 0;
+        xft_hd = 0;
         //              flags = Qt::IsStartingUp;
         bg_col = Qt::white;                             // default background color
         bg_mode = Qt::TransparentMode;                  // default background mode
@@ -51,7 +51,7 @@ public:
     Display *dpy;
     int scrn;
     Qt::HANDLE hd;
-    Qt::HANDLE rendhd;
+    Qt::HANDLE xft_hd;
     GC gc;
     GC gc_brush;
 

@@ -331,14 +331,6 @@ QPixmap::QPixmap(const QPixmap &pixmap)
         data = pixmap.data;
         data->ref();
         devFlags = pixmap.devFlags;                // copy QPaintDevice flags
-#if defined(Q_WS_WIN)
-        hdc = pixmap.hdc;                        // copy Windows device context
-#elif defined(Q_WS_X11)
-        hd = pixmap.hd;                                // copy X11 drawable
-        rendhd = pixmap.rendhd;
-#elif defined(Q_WS_MAC)
-        hd = pixmap.hd;
-#endif
     }
 }
 
@@ -431,15 +423,6 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
     } else {
         data = pixmap.data;
         devFlags = pixmap.devFlags;                // copy QPaintDevice flags
-#if defined(Q_WS_WIN)
-        hdc = pixmap.hdc;
-#elif defined(Q_WS_X11)
-        hd = pixmap.hd;                                // copy QPaintDevice drawable
-        rendhd = pixmap.rendhd;
-#elif defined(Q_WS_MAC)
-        hd = pixmap.hd;
-#endif
-        data->paintEngine = pixmap.data->paintEngine;
     }
     return *this;
 }
@@ -654,7 +637,7 @@ void QPixmap::setMask(const QBitmap &newmask)
 {
     const QPixmap *tmp = &newmask;                // dec cxx bug
     if ((data == tmp->data) ||
-         (newmask.handle() && newmask.handle() == handle())) {
+         (newmask.data->hd && newmask.data->hd == data->hd)) {
         QPixmap m = tmp->copy(true);
         setMask(*((QBitmap*)&m));
         data->selfmask = true;                        // mask == pixmap

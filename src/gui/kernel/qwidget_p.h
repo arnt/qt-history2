@@ -121,8 +121,6 @@ struct QWExtra {
 #endif
 #if defined(Q_WS_X11)
     WId xDndProxy;                                // XDND forwarding to embedded windows
-#endif
-#if defined(Q_WS_X11)
     uint children_use_dnd : 1;
     uint compress_events : 1;
 #endif
@@ -215,8 +213,10 @@ public:
     QPalette::ColorRole bg_role : 8;
 #endif
     uint high_attributes[1]; // the low ones are in QWidget::widget_attributes
+    Qt::HANDLE hd;
 #if defined(Q_WS_X11)
     QX11Info *xinfo;
+    Qt::HANDLE xft_hd;
 #endif
 #if defined(Q_WS_MAC)
     enum PaintChildrenOPs {

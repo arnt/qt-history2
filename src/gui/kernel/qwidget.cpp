@@ -44,6 +44,7 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #if defined(Q_WS_X11)
+#include "qpaintengine_x11.h"
 #include "qx11info_x11.h"
 #endif
 
@@ -62,8 +63,10 @@ QWidgetPrivate::QWidgetPrivate() :
         ,fg_role(QPalette::Foreground)
         ,bg_role(QPalette::Background)
 #endif
+        ,hd(0)
 #if defined(Q_WS_X11)
         ,xinfo(0)
+        ,xft_hd(0)
 #endif
 {
     isWidget = true;
@@ -899,7 +902,7 @@ void QWidget::setWinId(WId id)                // set widget identifier
 
     data->winid = id;
 #if defined(Q_WS_X11)
-    hd = id;                                        // X11: hd == ident
+    d->hd = id; // X11: hd == ident
 #endif
     if (id)
         mapper->insert(data->winid, this);
@@ -6321,6 +6324,18 @@ void QWidget::setShortcutEnabled(int id, bool enable)
     Q_ASSERT(qApp);
     if (id)
         qApp->d->shortcutMap.setShortcutEnabled(this, id, enable);
+}
+
+/*!
+    Returns the window system handle of the widget, for low-level
+    access. Using this function is not portable.
+
+    The HANDLE type varies with platform; see \c qwindowdefs.h for
+    details.
+*/
+Qt::HANDLE QWidget::handle() const
+{
+    return d->hd;
 }
 
 #include "moc_qwidget.cpp"

@@ -409,8 +409,8 @@ void qt_erase_background(QPaintDevice *pd, int screen,
     if (brush.style() == Qt::LinearGradientPattern) {
 	QPainter p(pd);
 	QPoint rd;
-	QPainter::redirected(pd, &rd);
-	p.fillRect(rd.x(), rd.y(), w, h, brush);
+ 	QPainter::redirected(pd, &rd);
+ 	p.fillRect(rd.x(), rd.y(), w, h, brush);
 	return;
     }
 
@@ -499,21 +499,23 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
 QX11PaintEngine::QX11PaintEngine(QPaintDevice *target)
     : QPaintEngine(*(new QX11PaintEnginePrivate), DrawRects | UsesFontEngine | SolidAlphaFill)
 {
-    d->dpy = QX11Info::appDisplay();
-    d->scrn = QX11Info::appScreen();
-    d->hd = target->handle();
-    d->pdev = target;
+    d->dpy = 0;
+    d->scrn = 0;
+    d->hd = 0;
+    d->xft_hd = 0;
     d->xinfo = 0;
+    d->pdev = target;
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *target)
     : QPaintEngine(dptr, DrawRects | UsesFontEngine | SolidAlphaFill)
 {
-    d->dpy = QX11Info::appDisplay();
-    d->scrn = QX11Info::appScreen();
-    d->hd = target->handle();
-    d->pdev = target;
+    d->dpy = 0;
+    d->scrn = 0;
+    d->hd = 0;
+    d->xft_hd = 0;
     d->xinfo = 0;
+    d->pdev = target;
 }
 
 QX11PaintEngine::~QX11PaintEngine()
@@ -536,12 +538,13 @@ void QX11PaintEngine::cleanup()
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
 {
     d->pdev = pdev;
-    if (d->pdev->devType() == QInternal::Widget)
-        d->xinfo = static_cast<QWidget *>(d->pdev)->x11Info();
-    else if (d->pdev->devType() == QInternal::Pixmap)
-        d->xinfo = static_cast<QPixmap *>(d->pdev)->x11Info();
+    d->xinfo = pdev->x11Info();
+    d->hd = pdev->handle();
+    d->xft_hd = pdev->xftDrawHandle();
 
     Q_ASSERT(d->xinfo != 0);
+    d->dpy = d->xinfo->display(); // get display variable
+    d->scrn = d->xinfo->screen(); // get screen variable
 
     if (isActive()) {                         // already active painting
         qWarning("QX11PaintEngine::begin: Painter is already active."
@@ -553,33 +556,17 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 
     QPixmap::x11SetDefaultScreen(d->xinfo->screen());
 
-//     bool reinit = flags != IsStartingUp;        // 2nd or 3rd etc. time called
     assignf(IsActive | DirtyFont);
-
     if (d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
-        static_cast<QPixmap *>(d->pdev)->detach();             // will modify it
-
-    d->dpy = d->xinfo->display();                   // get display variable
-    d->scrn = d->xinfo->screen();                        // get screen variable
-    d->hd = d->pdev->handle();                       // get handle to drawable - NB! double buffering might change the handle
-    d->rendhd = d->pdev->rendhd;
+        static_cast<QPixmap *>(pdev)->detach(); // will modify it
 
     if (d->xinfo->depth() != QX11Info::appDepth(d->scrn)) { // non-standard depth
         setf(NoCache);
         setf(UsePrivateCx);
     }
 
-//     if (reinit) {
-//         d->bg_mode = Qt::TransparentMode;              // default background mode
-//         d->rop = CopyROP;                          // default ROP
-//     }
-
     QWidget *w = d->pdev->devType() == QInternal::Widget ? static_cast<QWidget *>(d->pdev) : 0;
-//     if (reinit) {
-//         QBrush defaultBrush;
-//         ps->brush = defaultBrush;
-//     }
-    if (w && w->testAttribute(Qt::WA_PaintUnclipped)) {  // paint direct on device
+    if (w && w->testAttribute(WA_PaintUnclipped)) {  // paint direct on device
         setf(NoCache);
         setf(UsePrivateCx);
  	updatePen(QPen(black));
@@ -587,8 +574,8 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
         XSetSubwindowMode(d->dpy, d->gc, IncludeInferiors);
         XSetSubwindowMode(d->dpy, d->gc_brush, IncludeInferiors);
 #ifndef QT_NO_XFT
-        if (d->rendhd)
-                XftDrawSetSubwindowMode((XftDraw *) d->rendhd, IncludeInferiors);
+        if (d->xft_hd)
+                XftDrawSetSubwindowMode((XftDraw *) d->xft_hd, IncludeInferiors);
 #endif
     } else if (d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap *)(pdev);
@@ -623,10 +610,10 @@ bool QX11PaintEngine::end()
     }
 
 #if !defined(QT_NO_XFT)
-    if (d->rendhd) {
+    if (d->xft_hd) {
         // reset clipping/subwindow mode on our render picture
-        XftDrawSetClip((XftDraw *) d->rendhd, 0);
-        XftDrawSetSubwindowMode((XftDraw *) d->rendhd, ClipByChildren);
+        XftDrawSetClip((XftDraw *) d->xft_hd, 0);
+        XftDrawSetSubwindowMode((XftDraw *) d->xft_hd, ClipByChildren);
     }
 #endif
 
@@ -667,7 +654,7 @@ void QX11PaintEngine::drawRect(const QRect &r)
         return;
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    ::Picture pict = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
+    ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
 
     if (pict && d->cbrush.style() != Qt::NoBrush && d->cbrush.color().alpha() != 255) {
 	XRenderColor xc;
@@ -797,13 +784,13 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     if (!internclipok) {
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
             if (d->penRef &&((QGCC*)d->penRef)->clip_serial < gc_cache_clip_serial) {
-                x11SetClipRegion(d->dpy, d->gc, 0, d->rendhd, *paintEventClipRegion);
+                x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, *paintEventClipRegion);
                 ((QGCC*)d->penRef)->clip_serial = gc_cache_clip_serial;
             } else if (!d->penRef) {
-                x11SetClipRegion(d->dpy, d->gc, 0, d->rendhd, *paintEventClipRegion);
+                x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, *paintEventClipRegion);
             }
         } else if (d->penRef && ((QGCC*)d->penRef)->clip_serial) {
-            x11ClearClipRegion(d->dpy, d->gc, 0, d->rendhd);
+            x11ClearClipRegion(d->dpy, d->gc, 0, d->xft_hd);
             ((QGCC*)d->penRef)->clip_serial = 0;
         }
     }
@@ -947,13 +934,13 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
     if (!internclipok) {
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
             if (d->brushRef &&((QGCC*)d->brushRef)->clip_serial < gc_cache_clip_serial) {
-                x11SetClipRegion(d->dpy, d->gc_brush, 0, d->rendhd, *paintEventClipRegion);
+                x11SetClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd, *paintEventClipRegion);
                 ((QGCC*)d->brushRef)->clip_serial = gc_cache_clip_serial;
             } else if (!d->brushRef){
-                x11SetClipRegion(d->dpy, d->gc_brush, 0, d->rendhd, *paintEventClipRegion);
+                x11SetClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd, *paintEventClipRegion);
             }
         } else if (d->brushRef && ((QGCC*)d->brushRef)->clip_serial) {
-            x11ClearClipRegion(d->dpy, d->gc_brush, 0, d->rendhd);
+            x11ClearClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd);
             ((QGCC*)d->brushRef)->clip_serial = 0;
         }
     }
@@ -1236,8 +1223,8 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index,
 	xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
 	xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
 	xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
-	::Picture src = d->rendhd ? XftDrawSrcPicture((XftDraw *) d->rendhd, &xfc) : 0;
-	::Picture dst = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
+	::Picture src = d->xft_hd ? XftDrawSrcPicture((XftDraw *) d->xft_hd, &xfc) : 0;
+	::Picture dst = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
 
 	if (src && dst) {
 	    XPointDouble *poly = new XPointDouble[pa.size()];
@@ -1315,7 +1302,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
 
     if (d->pdev->x11Info() && d->pdev->x11Info()->screen() != pixmap.x11Info()->screen()) {
-        QPixmap* p = (QPixmap*) &pixmap;
+        QPixmap* p = const_cast<QPixmap *>(&pixmap);
         p->x11SetScreen(d->pdev->x11Info()->screen());
     }
 
@@ -1344,9 +1331,9 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
             XSetFillStyle(d->dpy, d->gc, FillSolid);
             if (!selfmask) {
                 if (d->pdev == paintEventDevice && paintEventClipRegion) {
-                    x11SetClipRegion(d->dpy, d->gc, 0, d->rendhd, *paintEventClipRegion);
+                    x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, *paintEventClipRegion);
                 } else {
-                    x11ClearClipRegion(d->dpy, d->gc, 0, d->rendhd);
+                    x11ClearClipRegion(d->dpy, d->gc, 0, d->xft_hd);
                 }
             }
         } else {
@@ -1401,13 +1388,13 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         XSetFillStyle(d->dpy, d->gc, FillSolid);
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        ::Picture pict = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
+        ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
         QPixmap *alpha = pixmap.data->alphapm;
 
-        if (pict && pixmap.x11RenderHandle() &&
-            alpha && alpha->x11RenderHandle()) {
-            XRenderComposite(d->dpy, PictOpOver, pixmap.x11RenderHandle(),
-                             alpha->x11RenderHandle(), pict,
+        if (pict && pixmap.xftPictureHandle() &&
+            alpha && alpha->xftPictureHandle()) {
+            XRenderComposite(d->dpy, PictOpOver, pixmap.xftPictureHandle(),
+                             alpha->xftPictureHandle(), pict,
                              sx, sy, sx, sy, x, y, sw, sh);
         } else
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
@@ -1456,12 +1443,12 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabl
             updatePen(d->cpen);
         if (d->brushRef)
             updateBrush(d->cbrush, d->bg_origin);
-        x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->rendhd, d->crgn);
+        x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, d->crgn);
     } else {
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
-            x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->rendhd, *paintEventClipRegion);
+            x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, *paintEventClipRegion);
         } else {
-            x11ClearClipRegion(d->dpy, d->gc, d->gc_brush, d->rendhd);
+            x11ClearClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd);
         }
     }
 }
@@ -1493,10 +1480,10 @@ void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, con
 
     if (optim) {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        ::Picture pict = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
+        ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
         QPixmap *alpha = pixmap.data->alphapm;
 
-        if (pict && pixmap.x11RenderHandle() && alpha && alpha->x11RenderHandle()) {
+        if (pict && pixmap.xftPictureHandle() && alpha && alpha->xftPictureHandle()) {
             // this is essentially drawTile() from above, inlined for
             // the XRenderComposite call
             int yPos, xPos, drawH, drawW, yOff, xOff;
@@ -1512,8 +1499,8 @@ void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, con
                     drawW = pixmap.width() - xOff; // Cropping first column
                     if (xPos + drawW > x + w)    // Cropping last column
                         drawW = x + w - xPos;
-                    XRenderComposite(d->dpy, PictOpOver, pixmap.x11RenderHandle(),
-                                     alpha->x11RenderHandle(), pict,
+                    XRenderComposite(d->dpy, PictOpOver, pixmap.xftPictureHandle(),
+                                     alpha->xftPictureHandle(), pict,
                                      xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
                     xPos += drawW;
                     xOff = 0;

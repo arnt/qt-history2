@@ -15,6 +15,7 @@
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
+#include "qpaintengine_x11.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -81,8 +82,6 @@ QPaintDevice::QPaintDevice(uint devflags)
     }
     devFlags = devflags;
     painters = 0;
-    hd = 0;
-    rendhd = 0;
 }
 
 /*!
@@ -119,34 +118,6 @@ QPaintDevice::~QPaintDevice()
     QPrinter are external paint devices.
 */
 
-/*!
-    Returns the window system handle of the paint device, for
-    low-level access. Using this function is not portable.
-
-    The HANDLE type varies with platform; see \c qpaintdevice.h and
-    \c qwindowdefs.h for details.
-*/
-Qt::HANDLE QPaintDevice::handle() const
-{
-    return hd;
-}
-
-/*!
-    Returns the window system handle of the paint device for XRender
-    support. Use of this function is not portable. This function will
-    return 0 if XRender support is not compiled into Qt, if the
-    XRender extension is not supported on the X11 display, or if the
-    handle could not be created.
-*/
-Qt::HANDLE QPaintDevice::x11RenderHandle() const
-{
-#ifndef QT_NO_XFT
-    return rendhd ? XftDrawPicture((XftDraw *) rendhd) : 0;
-#else
-    return 0;
-#endif // QT_NO_XFT
-}
-
 
 /*!
     \fn bool QPaintDevice::paintingActive() const
@@ -157,6 +128,22 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 
     \sa QPainter::isActive()
 */
+
+/*!
+    \fn Qt::HANDLE QPaintDevice::handle() const
+
+    Returns the window system handle of the widget, for low-level
+    access. Using this function is not portable.
+*/
+
+Qt::HANDLE QPaintDevice::handle() const
+{
+    if (devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(this)->handle();
+    else if (devType() == QInternal::Pixmap)
+        return static_cast<const QPixmap *>(this)->handle();
+    return 0;
+}
 
 /*!
     \internal
@@ -219,7 +206,6 @@ static GC cache_mask_gc(Display *dpy, Drawable hd, int mask_no, Pixmap mask)
     return p->gc;
 }
 
-
 /*!
     \relates QPaintDevice
 
@@ -268,16 +254,8 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     int ts = src->devType();                        // from device type
     int td = dst->devType();                        // to device type
 
-    QX11Info *src_xf = 0, *dst_xf = 0;
-    if (ts == QInternal::Widget)  // ### fix
-        src_xf = static_cast<const QWidget *>(src)->x11Info();
-    else if (ts == QInternal::Pixmap)
-        src_xf = static_cast<const QPixmap *>(src)->x11Info();
-
-    if (td == QInternal::Widget) // ### fix
-        dst_xf = static_cast<const QWidget *>(dst)->x11Info();
-    else if (td == QInternal::Pixmap)
-        dst_xf = static_cast<const QPixmap *>(dst)->x11Info();
+    QX11Info *src_xf = src->x11Info(),
+	     *dst_xf = dst->x11Info();
 
     Q_ASSERT(src_xf != 0 && dst_xf != 0);
 
@@ -398,9 +376,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     if (src_pm && !mono_src && src_pm->data->alphapm && !ignoreMask) {
         // use RENDER to do the blit
         QPixmap *alpha = src_pm->data->alphapm;
-        if (src->x11RenderHandle() &&
-            alpha->x11RenderHandle() &&
-            dst->x11RenderHandle()) {
+        if (dst->xftPictureHandle() && src->xftPictureHandle() && alpha->xftPictureHandle()) {
             XRenderPictureAttributes pattr;
             ulong picmask = 0;
             if (include_inferiors) {
@@ -412,15 +388,15 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
                 picmask |= CPGraphicsExposure;
             }
             if (picmask)
-                XRenderChangePicture(dpy, dst->x11RenderHandle(), picmask, &pattr);
-            XRenderComposite(dpy, PictOpOver, src->x11RenderHandle(),
-                             alpha->x11RenderHandle(), dst->x11RenderHandle(),
+                XRenderChangePicture(dpy, dst->xftPictureHandle(), picmask, &pattr);
+            XRenderComposite(dpy, PictOpOver, src->xftPictureHandle(),
+                             alpha->xftPictureHandle(), dst->xftPictureHandle(),
                              sx, sy, sx, sy, dx, dy, sw, sh);
             // restore attributes
             pattr.subwindow_mode = ClipByChildren;
             pattr.graphics_exposures = false;
             if (picmask)
-                XRenderChangePicture(dpy, dst->x11RenderHandle(), picmask, &pattr);
+                XRenderChangePicture(dpy, dst->xftPictureHandle(), picmask, &pattr);
             return;
         }
     }
@@ -455,12 +431,10 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
         if (include_inferiors) {
             XSetSubwindowMode(dpy, gc, IncludeInferiors);
-            XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
-                       dx, dy);
+            XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh, dx, dy);
             XSetSubwindowMode(dpy, gc, ClipByChildren);
         } else {
-            XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
-                       dx, dy);
+            XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh, dx, dy);
         }
 
         if (temp_gc)                                // delete temporary GC
@@ -494,7 +468,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         }
 
         gcvals.fill_style  = FillOpaqueStippled;
-        gcvals.stipple           = src->handle();
+        gcvals.stipple = src->handle();
         gcvals.ts_x_origin = dx - sx;
         gcvals.ts_y_origin = dy - sy;
 
@@ -510,7 +484,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         }
 
         XChangeGC(dpy, gc, valmask, &gcvals);
-        XFillRectangle(dpy,dst->handle(), gc, dx, dy, sw, sh);
+        XFillRectangle(dpy, dst->handle(), gc, dx, dy, sw, sh);
 
         valmask = GCFillStyle | GCTileStipXOrigin | GCTileStipYOrigin;
         gcvals.fill_style  = FillSolid;
@@ -533,12 +507,10 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             XSetGraphicsExposures(dpy, gc, True);
         if (include_inferiors) {
             XSetSubwindowMode(dpy, gc, IncludeInferiors);
-            XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
-                       dx, dy);
+            XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh, dx, dy);
             XSetSubwindowMode(dpy, gc, ClipByChildren);
         } else {
-            XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
-                       dx, dy);
+            XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh, dx, dy);
         }
         if (graphics_exposure)                // reset graphics exposure
             XSetGraphicsExposures(dpy, gc, False);
@@ -696,12 +668,42 @@ int QPaintDevice::x11AppDpiY(int screen)
     return QX11Info::appDpiY(screen);
 }
 
+/*!
+    Returns the QX11Info structure for this paint device. 0 is
+    returned if it can't be obtained.
+*/
 QX11Info *QPaintDevice::x11Info() const
 {
     if (devType() == QInternal::Widget)
         return static_cast<const QWidget *>(this)->x11Info();
     else if (devType() == QInternal::Pixmap)
         return static_cast<const QPixmap *>(this)->x11Info();
+    return 0;
+}
+
+/*!
+    Returns the Xft picture handle for this paint device. 0 is
+    returned if it can't be obtained.
+*/
+Qt::HANDLE QPaintDevice::xftPictureHandle() const
+{
+    if (devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(this)->xftPictureHandle();
+    else if (devType() == QInternal::Pixmap)
+        return static_cast<const QPixmap *>(this)->xftPictureHandle();
+    return 0;
+}
+
+/*!
+    Returns the Xft draw handle for this paint device. 0 is returned
+    if it can't be obtained.
+*/
+Qt::HANDLE QPaintDevice::xftDrawHandle() const
+{
+    if (devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(this)->xftDrawHandle();
+    else if (devType() == QInternal::Pixmap)
+        return static_cast<const QPixmap *>(this)->xftDrawHandle();
     return 0;
 }
 #endif

@@ -157,8 +157,11 @@ public:
     static int x11SetDefaultScreen(int screen);
     void x11SetScreen(int screen);
     QX11Info *x11Info() const;
+    Qt::HANDLE xftPictureHandle() const;
+    Qt::HANDLE xftDrawHandle() const;
 #endif
 
+    Qt::HANDLE handle() const;
     QPaintEngine *paintEngine() const;
 
     inline bool operator!() const { return isNull(); }
@@ -211,6 +214,7 @@ protected:
         void   *maskgc;
         QPixmap *alphapm;
         QX11Info *xinfo;
+	Qt::HANDLE xft_hd;
 #elif defined(Q_WS_MAC)
         ColorTable *clut;
         QPixmap *alphapm;
@@ -227,6 +231,7 @@ protected:
         HBITMAP old_hbm;
 #endif
         QPaintEngine *paintEngine;
+	Qt::HANDLE hd;
     } *data;
 private:
 #ifndef QT_NO_IMAGEIO
@@ -239,36 +244,28 @@ private:
 #if defined(Q_WS_WIN)
     void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
     void convertToAlphaPixmap(bool initAlpha=true);
-    static void bitBltAlphaPixmap(QPixmap *dst, int dx, int dy,
-                                   const QPixmap *src, int sx, int sy,
-                                   int sw, int sh, bool useDstAlpha);
+    static void bitBltAlphaPixmap(QPixmap *dst, int dx, int dy, const QPixmap *src,
+				  int sx, int sy, int sw, int sh, bool useDstAlpha);
 #endif
     static Optimization defOptim;
-    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
-                                 const QPaintDevice *,
-                                 int, int, int, int, bool);
-    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
-                                 const QImage* src,
-                                 int, int, int, int, int conversion_flags);
-    friend Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
-                                  const QPixmap *src, int sx, int sy,
-                                  int sw, int sh);
-
+    friend void bitBlt(QPaintDevice *, int, int, const QPaintDevice *,
+		       int, int, int, int, bool);
+    friend void bitBlt(QPaintDevice *, int, int, const QImage* src,
+		       int, int, int, int, int conversion_flags);
+    friend void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap *src, int sx, int sy,
+			int sw, int sh);
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
     friend class QGLWidget;
-#if defined(Q_WS_X11)
     friend class QX11PaintEngine;
-#endif
 #if defined(Q_WS_MAC)
     friend CGImageRef qt_mac_create_cgimage(const QPixmap &, bool);
+#endif
     friend class QQuickDrawPaintEngine;
     friend class QCoreGraphicsPaintEngine;
-#endif
-#if defined(Q_WS_QWS)
     friend class QWSPaintEngine;
-#endif
+    friend class QFontEngineXft;
 };
 
 
@@ -325,6 +322,11 @@ inline bool QPixmap::isMultiCellPixmap() const
     return data->mcp;
 }
 #endif
+
+inline Qt::HANDLE QPixmap::handle() const
+{
+    return data->hd;
+}
 
 /*****************************************************************************
   QPixmap stream functions
