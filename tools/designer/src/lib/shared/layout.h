@@ -32,7 +32,7 @@ void add_to_box_layout(QBoxLayout *box, QWidget *widget);
 void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
 void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align = 0);
 
-class Layout : public QObject
+class QT_SHARED_EXPORT Layout : public QObject
 {
     Q_OBJECT
 public:
@@ -64,7 +64,7 @@ protected slots:
 
 };
 
-class HorizontalLayout : public Layout
+class QT_SHARED_EXPORT HorizontalLayout : public Layout
 {
 public:
     HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
@@ -76,7 +76,7 @@ protected:
 
 };
 
-class VerticalLayout : public Layout
+class QT_SHARED_EXPORT VerticalLayout : public Layout
 {
 public:
     VerticalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
@@ -88,7 +88,7 @@ protected:
 
 };
 
-class StackedLayout : public Layout
+class QT_SHARED_EXPORT StackedLayout : public Layout
 {
 public:
     StackedLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
@@ -103,7 +103,7 @@ protected:
 
 class Grid;
 
-class GridLayout : public Layout
+class QT_SHARED_EXPORT GridLayout : public Layout
 {
 public:
     GridLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, const QSize &res);
@@ -122,21 +122,21 @@ protected:
 
 };
 
-class WidgetVerticalSorter
+class QT_SHARED_EXPORT WidgetVerticalSorter
 {
 public:
     bool operator()(const QWidget *a, const QWidget *b) const
     { return a->y() < b->y(); }
 };
 
-class WidgetHorizontalSorter
+class QT_SHARED_EXPORT WidgetHorizontalSorter
 {
 public:
     bool operator()(const QWidget *a, const QWidget *b) const
     { return a->x() < b->x(); }
 };
 
-class VerticalLayoutList: public QList<QWidget*>
+class QT_SHARED_EXPORT VerticalLayoutList: public QList<QWidget*>
 {
 public:
     VerticalLayoutList(const QList<QWidget*> &l)
@@ -149,7 +149,7 @@ public:
     { qSort(this->begin(), this->end(), WidgetVerticalSorter()); }
 };
 
-class HorizontalLayoutList : public QList<QWidget*>
+class QT_SHARED_EXPORT HorizontalLayoutList : public QList<QWidget*>
 {
 public:
     HorizontalLayoutList(const QList<QWidget*> &l)
