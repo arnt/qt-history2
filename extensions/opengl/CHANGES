@@ -1,5 +1,5 @@
 
-Changes from version 4.10 to version 5.00 (Qt 2.0.2)
+Changes from version 4.10 to version 4.20 (Qt 2.0.2)
 ----------------------------------------------------
 
 Added support for GL overlays (currently only implemented on X11; the
@@ -16,6 +16,9 @@ Added static QGLContext::currentContext() function.
 
 Improved color handling ( with qglColor/qglClearColor ) in color-index
 mode on non-default X11 visuals.
+
+Implementation split out qgl_win.cpp and qgl_x11.cpp, for easier
+maintenance (Does not affect API).
 
 
 Changes from version 4.00 to version 4.10 (Qt 2.0)

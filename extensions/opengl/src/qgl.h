@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#21 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#22 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -27,8 +27,8 @@
 #define QGL_H
 
 
-#define QGL_VERSION	500
-#define QGL_VERSION_STR	"5.0b"
+#define QGL_VERSION	420
+#define QGL_VERSION_STR	"4.2"
 
 const char *qGLVersion();
 
