@@ -15,6 +15,7 @@
 #define QIMAGE_H
 
 #include "QtGui/qrgb.h"
+#include "QtGui/qpaintdevice.h"
 #include "QtCore/qrect.h"
 #include "QtCore/qbytearray.h"
 
@@ -46,7 +47,7 @@ public:
 #endif //QT_NO_IMAGE_TEXT
 
 
-class Q_GUI_EXPORT QImage
+class Q_GUI_EXPORT QImage : public QPaintDevice
 {
 public:
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
@@ -110,9 +111,7 @@ public:
     int numBytes() const;
     int bytesPerLine() const;
 
-#ifdef Q_WS_QWS
-    QWSPaintEngine *paintEngine();
-#endif
+    QPaintEngine *paintEngine() const;
 
     bool create(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     bool create(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
@@ -202,9 +201,13 @@ public:
     inline QT3_SUPPORT void invertPixels(bool invertAlpha) { invertAlpha ? invertPixels(InvertRgba) : invertPixels(InvertRgb); }
 #ifndef QT_NO_IMAGEIO
     inline QT3_SUPPORT_CONSTRUCTOR QImage(const QByteArray &data)
+        : QPaintDevice(QInternal::Image)
         { *this = QImage::fromData(data); }
 #endif
 #endif
+
+protected:
+    virtual int metric(PaintDeviceMetric metric) const;
 
 private:
     QImageData *d;

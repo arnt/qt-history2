@@ -522,7 +522,17 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         }
     }
 
-    d->rasterBuffer->prepare(d->deviceRect.width(), d->deviceRect.height());
+    if (device->devType() == QInternal::Image) {
+        if (device->depth() != 32) {
+            qWarning("QRasterPaintEngine::begin(), only 32 bit images are supported at this time");
+            return false;
+        }
+        d->flushOnEnd = false; // Direct access so no flush.
+        d->rasterBuffer->prepare(static_cast<QImage *>(device));
+    } else {
+        d->rasterBuffer->prepare(d->deviceRect.width(), d->deviceRect.height());
+    }
+
     d->rasterBuffer->resetClip();
 
 #ifdef Q_WS_WIN
@@ -1350,6 +1360,17 @@ void QRasterBuffer::prepare(int w, int h)
 
     m_width = w;
     m_height = h;
+}
+
+
+void QRasterBuffer::prepare(QImage *image)
+{
+    prepareClip(image->width(), image->height());
+
+    m_buffer = (ARGB *)image->bits();
+
+    m_width = image->width();
+    m_height = image->height();
 }
 
 void QRasterBuffer::prepareClip(int /*width*/, int height)

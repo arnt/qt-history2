@@ -172,6 +172,7 @@ public:
 
     void init();
 
+    void prepare(QImage *image);
     void prepare(int w, int h);
     void prepareBuffer(int w, int h);
     void prepareClip(int w, int h);

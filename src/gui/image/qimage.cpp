@@ -25,6 +25,12 @@
 #include <limits.h>
 #include <math.h>
 
+#ifdef Q_WS_WIN
+#include <private/qpaintengine_raster_p.h>
+#else
+#include <private/qpaintengine.h>
+#endif
+
 #ifdef Q_WS_QWS
 #include <private/qpaintengine_qws_p.h>
 #include "qscreen_qws.h"
@@ -99,6 +105,7 @@ struct QImageData {        // internal image data
     bool doImageIO(const QImage *image, QImageWriter* io, int quality) const;
 #endif
 
+    QPaintEngine *paintEngine;
 };
 
 QImageData::QImageData()
@@ -119,6 +126,8 @@ QImageData::QImageData()
     dpmx = 0;
     dpmy = 0;
     offset = QPoint(0,0);
+
+    paintEngine = 0;
 }
 
 QImageData::~QImageData()
@@ -330,6 +339,7 @@ const uchar *qt_get_bitflip_array()                        // called from QPixma
 */
 
 QImage::QImage()
+    : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
     ++d->ref;
@@ -346,6 +356,7 @@ QImage::QImage()
 */
 
 QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
+    : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
     ++d->ref;
@@ -362,6 +373,7 @@ QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
     \sa create()
 */
 QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
+    : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
     ++d->ref;
@@ -394,6 +406,7 @@ QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
 */
 
 QImage::QImage(const QString &fileName, const char *format)
+    : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
     ++d->ref;
@@ -429,6 +442,7 @@ QImage::QImage(const QString &fileName, const char *format)
     \sa QString::fromAscii(),     \sa load(), isNull(), QImageReader
 */
 QImage::QImage(const char *fileName, const char *format)
+    : QPaintDevice(QInternal::Image)
 {
     // ### Qt 5: if you remove the QImage(const QByteArray &) QT3_SUPPORT
     // constructor, remove this constructor as well. The constructor here
@@ -461,6 +475,7 @@ extern bool qt_read_xpm_image_or_array(QIODevice *device, const char * const *so
 */
 
 QImage::QImage(const char * const xpm[])
+    : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
     ++d->ref;
@@ -498,6 +513,7 @@ QImage::QImage(const char * const xpm[])
 */
 
 QImage::QImage(const QImage &image)
+    : QPaintDevice(QInternal::Image)
 {
     d = image.d;
     ++d->ref;
@@ -517,6 +533,7 @@ QImage::QImage(const QImage &image)
     The endianness is given in \a bitOrder.
 */
 QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int numColors, Endian bitOrder)
+    : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
     ++d->ref;
@@ -561,6 +578,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     \warning This constructor is only available on Qt/Embedded.
 */
 QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colortable, int numColors, Endian bitOrder)
+    : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
     ++d->ref;
@@ -3652,22 +3670,75 @@ QImage::Endian qX11BitmapBitOrder()
 }
 #endif
 
-#ifdef Q_WS_QWS
+
 /*!
-\internal
+    \internal
 
-####### Caller deletes!!!
-
-
-Should be removed when image and pixmap are unified
+    Used by QPainter to retreive a paint engine for the image.
 */
-QWSPaintEngine *QImage::paintEngine()
+
+QPaintEngine *QImage::paintEngine() const
 {
-    return new QWSPaintEngine();
+#ifdef Q_WS_WIN
+    if (!d->paintEngine) {
+        d->paintEngine = new QRasterPaintEngine();
+    }
+#endif
+    return d->paintEngine;
 }
 
 
-#endif
+int QImage::metric(PaintDeviceMetric metric) const
+{
+    switch (metric) {
+    case PdmWidth:
+        return d->w;
+        break;
+
+    case PdmHeight:
+        return d->h;
+        break;
+
+    case PdmWidthMM:
+        return d->w / d->dpmx;
+        break;
+
+    case PdmHeightMM:
+        return d->h / d->dpmy;
+        break;
+
+    case PdmNumColors:
+        return d->ncols;
+        break;
+
+    case PdmDepth:
+        return d->d;
+        break;
+
+    case PdmDpiX:
+        return (int)(d->dpmx / 0.0254);
+        break;
+
+    case PdmDpiY:
+        return (int)(d->dpmy / 0.0254);
+        break;
+
+    case PdmPhysicalDpiX:
+        return (int)(d->dpmx / 0.0254);
+        break;
+
+    case PdmPhysicalDpiY:
+        return (int)(d->dpmy / 0.0254);
+        break;
+
+    default:
+        qWarning("QImage::metric(), Unhandled metric type: %d\n", metric);
+        break;
+    }
+    return 0;
+}
+
+
 
 /*****************************************************************************
   QPixmap (and QImage) helper functions
