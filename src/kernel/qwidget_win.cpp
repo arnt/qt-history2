@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#238 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#239 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -753,11 +753,6 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 }
 
 
-// static bool to indicate that the next toplevel widget to be shown
-// will be shown maximized.
-// ### fails whenever certain widgets show other toplevels in their showevent.
-static bool qt_sw_do_show_maximize = FALSE;
-
 /*
   \internal
   Platform-specific part of QWidget::show().
@@ -772,8 +767,22 @@ void QWidget::showWindow()
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     }
     else {
-	ShowWindow( winId(),
-		    (isTopLevel() && qt_sw_do_show_maximize)?SW_SHOWMAXIMIZED:SW_SHOW );
+	int sm = SW_SHOW;
+	if ( isTopLevel() ) {
+	    switch ( topData->showMode ) {
+	    case 1:
+		sm = SW_SHOWMINIMIZED;
+		break;
+	    case 2:
+		sm = SW_SHOWMAXIMIZED;
+		break;
+	    default:
+		sm = SW_SHOW;
+		break;
+	    }
+	    topData->showMode = 0; // reset
+	}
+	ShowWindow( winId(), sm );
     }
     UpdateWindow( winId() );
 }
@@ -796,8 +805,14 @@ void QWidget::hideWindow()
 
 void QWidget::showMinimized()
 {
-    if ( testWFlags(WType_TopLevel) )
-	ShowWindow( winId(), SW_SHOWMINIMIZED );
+    if ( isTopLevel() ) {
+	if ( isVisible() )
+	    ShowWindow( winId(), SW_SHOWMINIMIZED );
+	else {
+	    topData()->showMode = 1;
+	    show();
+	}
+    }
     QCustomEvent e( QEvent::ShowMinimized, 0 );
     QApplication::sendEvent( this, &e );
 }
@@ -813,9 +828,8 @@ void QWidget::showMaximized()
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWMAXIMIZED );
 	else {
-	    qt_sw_do_show_maximize = TRUE;
+	    topData()->showMode = 2;
 	    show();
-	    qt_sw_do_show_maximize = FALSE;
 	}
     }  else
 	show();

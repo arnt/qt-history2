@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#410 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#411 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1222,10 +1222,30 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    if ( isTopLevel() && topData()->wmstate == 2 )
-	qt_deferred_map_add( this );
-    else
-	XMapWindow( x11Display(), winId() );
+    
+    if ( isTopLevel()  ) {
+	int sm = topData()->showMode;
+	if ( sm ) { // handles minimize and reset
+	    XWMHints *h = XGetWMHints( x11Display(), winId() );
+	    XWMHints  wm_hints;
+	    bool got_hints = h != 0;
+	    if ( !got_hints ) {
+		h = &wm_hints;
+		h->flags = 0;
+	    }	
+	    h->initial_state = sm == 1? IconicState : NormalState;
+	    h->flags |= StateHint;
+	    XSetWMHints( x11Display(), winId(), h );
+	    if ( got_hints )
+		XFree( (char *)h );
+	    topData()->showMode = sm == 1?3:0; // trigger reset to normal state next time
+	}
+	if ( topData()->wmstate == 2 ) {
+	    qt_deferred_map_add( this );
+	    return;
+	}
+    }
+    XMapWindow( x11Display(), winId() );
 }
 
 
@@ -1259,12 +1279,14 @@ void QWidget::hideWindow()
 
 void QWidget::showMinimized()
 {
-    if ( testWFlags(WType_TopLevel) )
-	XIconifyWindow( x11Display(), winId(), x11Screen() );
-    //### if the window is mapped (i.e. not WState_Withdrawn) we have
-    // to show it with initial state Iconic! Right now the function only
-    // works for widgets that are already visible.
-
+    if ( isTopLevel() ) {
+	if ( isVisible() )
+	    XIconifyWindow( x11Display(), winId(), x11Screen() );
+	else {
+	    topData()->showMode = 1;
+	    show();
+	}
+    }
     QCustomEvent e( QEvent::ShowMinimized, 0 );
     QApplication::sendEvent( this, &e );
 }

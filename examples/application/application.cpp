@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#10 $
+** $Id: //depot/qt/main/examples/application/application.cpp#11 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -104,12 +104,13 @@ ApplicationWindow::ApplicationWindow()
     menuBar()->insertItem( "&Help", help );
 
     help->insertItem( "&About", this, SLOT(about()), Key_F1);
-    help->insertItem( "About&Qt", this, SLOT(aboutQt()));
+    help->insertItem( "About&Qt", this, SLOT(aboutQt()), CTRL + Key_U);
     help->insertSeparator();
     help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1);
 
     e = new QMultiLineEdit( this, "editor" );
     e->setFocus();
+    e->setWordWrap( QMultiLineEdit::DynamicWrap | QMultiLineEdit::BreakWithinWords );
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
     resize( 450, 600 );
@@ -249,7 +250,7 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
 	ce->accept();
 	return;
     }
-    
+
     switch( QMessageBox::information( this, "Qt Application Example",
 				      "The document has been changed since "
 				      "the last save.",

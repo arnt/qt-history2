@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#487 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#488 $
 **
 ** Implementation of QWidget class
 **
@@ -876,6 +876,7 @@ void QWidget::createTLExtra()
 	x->incw = x->inch = 0;
 	x->basew = x->baseh = 0;
 	x->iconic = 0;
+	x->showMode = 0;
 #if defined(_WS_X11_)
 	x->normalGeometry = QRect(0,0,-1,-1);
 	x->embedded = 0;
