@@ -4,6 +4,6 @@ SUBDIRS = testcon \
 	  qutlook \
 	  multiple \
 	  simple \
-	  tetrix \
+	  tetrax \
 	  opengl \
 	  wrapper
