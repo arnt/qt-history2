@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#11 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#11 $";
 #endif
 
 
@@ -113,7 +113,7 @@ int QDate::daysInMonth() const			// 1..31
 	return monthDays[m];
 }
 
-int QDate::daysInYear() const			// 1..365
+int QDate::daysInYear() const			// 365 or 366
 {
     int y, m, d;
     jul2greg( jd, y, m, d );
