@@ -82,20 +82,20 @@ public:
     bool isResizeEnabled() const;
     bool isMovingEnabled() const;
 
-    void setHorizontalStretchable( bool b );
-    void setVerticalStretchable( bool b );
+    virtual void setHorizontalStretchable( bool b );
+    virtual void setVerticalStretchable( bool b );
     bool isHorizontalStretchable() const;
     bool isVerticalStretchable() const;
     bool isStretchable() const;
 
-    void setOffset( int o );
+    virtual void setOffset( int o );
     int offset() const;
 
-    void setFixedExtentWidth( int w );
-    void setFixedExtentHeight( int h );
+    virtual void setFixedExtentWidth( int w );
+    virtual void setFixedExtentHeight( int h );
     QSize fixedExtent() const;
 
-    void setNewLine( bool b );
+    virtual void setNewLine( bool b );
     bool newLine() const;
 
     Qt::Orientation orientation() const;
@@ -104,9 +104,9 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
-    void dock();
-    void undock( QWidget *w = 0 );
-    void removeFromDock();
+    virtual void dock();
+    virtual void undock( QWidget *w = 0 );
+    virtual void removeFromDock();
 
 signals:
     void orientationChanged( Orientation o );
@@ -114,9 +114,9 @@ signals:
     void visibilityChanged( bool );
 
 public slots:
-    void doUndock();
-    void doDock();
-    void setOrientation( Orientation o );
+    virtual void doUndock();
+    virtual void doDock();
+    virtual void setOrientation( Orientation o );
 
 protected:
     void resizeEvent( QResizeEvent *e );
