@@ -342,7 +342,6 @@ static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowHidden },
     { kEventClassWindow, kEventWindowBoundsChanged },
 
-
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
@@ -432,7 +431,7 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
     if(!app_proc_handler) {
 	app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
 	InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
-			     qt_is_gui_used ? non_gui_event_count : GetEventTypeCount(events), 
+			     qt_is_gui_used ? GetEventTypeCount(events) : non_gui_event_count, 
 			     events, (void *)qApp, &app_proc_handler);
     }
 
