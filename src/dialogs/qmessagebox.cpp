@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#86 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#87 $
 **
 ** Implementation of QMessageBox class
 **
@@ -1245,18 +1245,19 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 
 static const char *textAboutQt =
 "This program is developed with Qt, the multi-platform C++ GUI toolkit.\n\n"
+"Qt version running with this application: %1\n"
 "Qt is a product of Troll Tech AS (http://www.troll.no).\n"
 "Qt is available under two different licenses:\n"
 "- The Free Edition, which may be used free of charge to develop\n"
 "  Free Software on the X Window System.\n"
 "- The Professional Edition, which may be used to develop commercial\n"
-"  software on both X and Microsoft Windows.\n\n"
-"Please contact sales@troll.no for information and pricing.";
+"  software on both X and Microsoft Windows.";
 
 
 /*!
   Displays a simple message box about Qt, with window caption \a
-  caption and optionally centered over \a parent.
+  caption and optionally centered over \a parent.  The message includes
+  the version number of Qt being used by the application.
 
   This is neat for inclusion into the Help menu.  See the menu.cpp
   example.
@@ -1265,7 +1266,9 @@ static const char *textAboutQt =
 void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 {
     information( parent, caption.isNull() ? QString("About Qt") : caption,
-		 qApp->translate( "QMessageBox", textAboutQt ) );
+		 qApp->translate( "QMessageBox", textAboutQt )
+			.arg(QT_VERSION_STR)
+    );
 }
 
 
