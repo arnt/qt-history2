@@ -505,7 +505,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "\t\t" << key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
-	  << (!project->isEmpty("RC_FILE") ? keyFor("ICNS_FILE_REFERENCE") : "")
+	  << (!project->isEmpty("RC_FILE") ? keyFor("ICNS_FILE_REFERENCE") : QString(""))
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "isa = PBXResourcesBuildPhase;" << "\n"
 	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
