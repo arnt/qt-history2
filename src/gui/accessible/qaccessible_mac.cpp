@@ -169,206 +169,206 @@ struct {
     bool settable;
 } text_bindings[][10] = {
     { { QAccessible::MenuBar, kAXMenuBarRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ScrollBar, kAXScrollBarRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Grip, kAXGrowAreaRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Window, kAXWindowRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Dialog, kAXWindowRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::AlertMessage, kAXWindowRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ToolTip, kAXWindowRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::HelpBalloon, kAXWindowRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::PopupMenu, kAXMenuRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::MenuItem, kAXMenuItemRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Application, kAXApplicationRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Pane, kAXGroupRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Grouping, kAXGroupRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Separator, kAXSplitterRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ToolBar, kAXToolbarRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::PageTabList, kAXTabGroupRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ButtonMenu, kAXMenuButtonRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ButtonDropDown, kAXPopUpButtonRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::SpinBox, kAXIncrementorRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Slider, kAXSliderRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ProgressBar, kAXProgressIndicatorRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ComboBox, kAXComboBoxRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::RadioButton, kAXRadioButtonRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::CheckBox, kAXCheckBoxRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::StaticText, kAXStaticTextRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Table, kAXTableRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::StatusBar, kAXStaticTextRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     { { QAccessible::Column, kAXColumnRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ColumnHeader, kAXColumnRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Row, kAXRowRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::RowHeader, kAXRowRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Cell, kAXUnknownRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::PushButton, kAXButtonRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
-    { { QAccessible::EditableText, kAXTextFieldRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+    { { QAccessible::EditableText, kAXTextFieldRole, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
@@ -381,37 +381,37 @@ struct {
     },
 #else
     { { QAccessible::TitleBar, kAXWindowTitleRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::ColumnHeader, kAXTableHeaderViewRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::RowHeader, kAXTableHeaderViewRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Column, kAXTableColumnRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Row, kAXTableRowRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Cell, kAXOutlineCellRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
@@ -423,13 +423,13 @@ struct {
       { -1, 0, false }
     },
     { { QAccessible::Link, kAXTextRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::PushButton, kAXPushButtonRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
@@ -553,18 +553,16 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                     }
                 } else if(CFStringCompare(var, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
                     QPoint qpoint(iface->rect(0).topLeft());
-                    if(QWidget *widget = qt_cast<QWidget*>(object))
-                        qpoint = widget->mapToGlobal(qpoint);
-                    Point point;
-                    point.h = qpoint.x();
-                    point.v = qpoint.y();
-                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeQDPoint, sizeof(point), &point);
+                    HIPoint point;
+                    point.x = qpoint.x();
+                    point.y = qpoint.y();
+                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeHIPoint, sizeof(point), &point);
                 } else if(CFStringCompare(var, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
                     QSize sz(iface->rect(0).size());
-                    Point size;
-                    size.h = sz.width();
-                    size.v = sz.height();
-                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeQDPoint, sizeof(size), &size);
+                    HISize size;
+                    size.width = sz.width();
+                    size.height = sz.height();
+                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeHISize, sizeof(size), &size);
                 } else if(CFStringCompare(var, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
                     CFStringRef role = kAXUnknownRole;
                     for(int r = 0; text_bindings[r][0].qt != -1; r++) {
@@ -687,10 +685,11 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                 GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, 0,
                                   sizeof(var), 0, &var);
                 if(CFStringCompare(var, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
-                    Boolean val;
-                    if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 0,
+                    CFTypeRef val;
+                    if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, 0,
                                          sizeof(val), 0, &val) == noErr) {
-                        if(val)
+                        if(CFGetTypeID(val) == CFBooleanGetTypeID() &&
+                           CFEqual(static_cast<CFBooleanRef>(val), kCFBooleanTrue))
                             iface->doAction(0, SetFocus);
                     }
                 } else {
@@ -703,12 +702,16 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                                         qWarning("Attempt to set unknown [kEventAccessibleGetNamedAttribute]: %s",
                                                  QCFString::toQString(var).latin1());
                                     } else {
-                                        CFStringRef val;
-                                        if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, 0,
+                                        CFTypeRef val;
+                                        if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, 0,
                                                              sizeof(val), 0, &val) == noErr) {
-                                            qDebug("attempting to set to %s", QCFString::toQString(val).latin1());
-                                            iface->setText((QAccessible::Text)text_bindings[r][a].qt,
-                                                           0, QCFString::toQString(val));
+                                            if(CFGetTypeID(val) == CFStringGetTypeID()) 
+                                                iface->setText((QAccessible::Text)text_bindings[r][a].qt,
+                                                               0, QCFString::toQString(static_cast<CFStringRef>(val)));
+                                            else
+                                                qWarning("Unable to handle settable type: %s [%ld]", 
+                                                         QCFString::toQString(var).latin1(), CFGetTypeID(val));
+                                                         
                                         }
                                     }
                                     found = true;
