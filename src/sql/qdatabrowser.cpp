@@ -123,7 +123,7 @@ public:
 
 /*! \enum QDataBrowser::Boundary
 
-  This enum type describes where the browser is currently positioned.
+  This enum describes where the data browser is positioned.
 
   The currently defined values are:
 
