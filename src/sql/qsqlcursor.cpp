@@ -840,7 +840,7 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
     bool separator = FALSE;
     for( uint j = 0; j < i.count(); ++j ){
 	if( separator )
-	    filter += sep + " " ;
+	    filter += " " + sep + " " ;
 	QString fn = i.fieldName( j );
 	QSqlField* f = rec->field( fn );
 	filter += toString( prefix, f, fieldSep );
