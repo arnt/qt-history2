@@ -2218,7 +2218,7 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 	QString orig = s;
 	int num  = 1;
 	QPtrDictIterator<QWidget> it( insertedWidgets );
-	for ( ; it.current(); ++it ) {
+	for ( ; it.current();) {
 	    if ( it.current() != w &&
 		 qstrcmp( it.current()->name(), s.latin1() ) == 0 ) {
 		found = TRUE;
@@ -2226,6 +2226,8 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 		    break;
 		s = orig + "_" + QString::number( ++num );
 		it.toFirst();
+	    } else {
+		++it;
 	    }
 	}
 	if ( !found ) {
