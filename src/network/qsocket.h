@@ -63,9 +63,8 @@ public:
     QSocketDevice *socketDevice();
     virtual void setSocketDevice(QSocketDevice *);
 
-#ifndef QT_NO_DNS
     virtual void connectToHost(const QString &host, Q_UINT16 port);
-#endif
+
     QString peerName() const;
 
     // Implementation of QIODevice abstract virtual functions

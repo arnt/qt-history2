@@ -319,8 +319,6 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 #if defined(QSOCKET_DEBUG)
     qDebug("QSocket (%s)::tryConnecting()", q->name());
 #endif
-#ifndef QT_NO_DNS
-
     // if there are no addresses in the host list, report this to the
     // user.
     if (hostInfo.addresses.isEmpty()) {
@@ -549,9 +547,6 @@ QSocket::State QSocket::state() const
 {
     return d->state;
 }
-
-
-#ifndef QT_NO_DNS
 
 /*!
     Attempts to make a connection to \a host on the specified \a port
