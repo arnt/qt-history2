@@ -320,6 +320,19 @@ Q_UINT16 qChecksum( const char *data, uint len )
 #ifndef QT_NO_COMPRESS
 QByteArray qCompress( const uchar* data, int nbytes )
 {
+    if ( !data ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "qCompress: data is NULL." );
+#endif
+	return QByteArray();
+    }
+    if ( !nbytes ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "qCompress: nbytes is 0." );
+#endif
+	return QByteArray();
+    }
+
     ulong len = nbytes * 2;
     QByteArray bazip;
     for (;;) {
@@ -372,6 +385,18 @@ QByteArray qCompress( const uchar* data, int nbytes )
 #ifndef QT_NO_COMPRESS
 QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
 {
+    if ( !data ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "qUncompress: data is NULL." );
+#endif
+	return QByteArray();
+    }
+    if ( !nbytes ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "qUncompress: nbytes is 0." );
+#endif
+	return QByteArray();
+    }
     ulong len = expectedSize;
     if ( expectedSize == -1 )
 	len = nbytes * 5;
