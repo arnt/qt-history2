@@ -441,7 +441,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
-//	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
+	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
 #endif
 	    filesCopied = true;
 	    logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
