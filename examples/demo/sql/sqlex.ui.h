@@ -12,6 +12,8 @@
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qsqlerror.h>
+#include <qsqlcursor.h>
+#include <qdatatable.h>
 #include "connect.h"
 
 class QCustomSqlCursor: public QSqlCursor
