@@ -37,6 +37,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "BUILD_QMAKE" ] = "yes";
     dictionary[ "DSPFILES" ] = "yes";
     dictionary[ "QMAKEPATH" ] = QEnvironment::getEnv( "QMAKEPATH" );
+    dictionary[ "QMAKE_INTERNAL" ] = "yes";
 
     QString tmp = QEnvironment::getEnv( "QMAKEPATH" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
