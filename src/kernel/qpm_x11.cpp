@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#94 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#94 $");
 
 
 /*****************************************************************************
@@ -68,8 +68,7 @@ bool qt_create_mitshm_buffer( int w, int h )
 
     if ( xshminit ) {
 	qt_cleanup_mitshm();
-    }
-    else {
+    } else {
 	if ( !XShmQueryVersion(dpy, &major, &minor, &pixmaps_ok) )
 	    return FALSE;			// MIT Shm not supported
 	qAddPostRoutine( qt_cleanup_mitshm );
@@ -251,9 +250,9 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     data->uninit = FALSE;
     data->w = w;  data->h = h;	data->d = 1;
     uchar *flipped_bits;
-    if ( isXbitmap )
+    if ( isXbitmap ) {
 	flipped_bits = 0;
-    else {					// not X bitmap -> flip bits
+    } else {					// not X bitmap -> flip bits
 	flipped_bits = flip_bits( bits, ((w+7)/8)*h );
 	bits = flipped_bits;
     }
@@ -779,8 +778,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    image = image.convertDepth( 1 );	// dither
 	    d = 1;
 	}
-    }
-    else {					// can be both
+    } else {					// can be both
 	bool conv8 = FALSE;
 	if ( mode == Color )			// native depth wanted
 	    conv8 = d == 1;
@@ -816,8 +814,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 		    while ( p < end )
 			*b++ = f[*p++];
 		}
-	    }
-	    else {				// just copy
+	    } else {				// just copy
 		b = tmp_bits;
 		p = image.scanLine( 0 );
 		for ( y=0; y<h; y++ ) {
@@ -826,8 +823,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 		    p += ibpl;
 		}
 	    }
-	}
-	else {
+	} else {
 	    bits = (char *)image.bits();
 	    tmp_bits = 0;
 	}
@@ -1099,9 +1095,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     if ( data->optim ) {			// keep ximage that we created
 	data->dirty  = FALSE;
 	data->ximage = xi;
-    }
-    else
+    } else {
 	XDestroyImage( xi );
+    }
     data->w = w;  data->h = h;	data->d = dd;
     return TRUE;
 }
@@ -1270,8 +1266,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	w = qRound( mat.m11()*ws );
 	h = QABS( h );
 	w = QABS( w );
-    }
-    else {					// rotation or shearing
+    } else {					// rotation or shearing
 	QPointArray a( QRect(0,0,ws,hs) );
 	a = mat.map( a );
 	QRect r = a.boundingRect().normalize();
@@ -1317,7 +1312,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( depth1 )
 	dbpl = (w+7)/8;
     else
-	dbpl = (((w*bpp)/8 + 3)/4)*4;
+	dbpl = ((w*bpp+31)/32)*4;
     dbytes = dbpl*h;
 
 #if defined(MITSHM)
@@ -1326,8 +1321,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	uchar fillbyte = bpp == 8 ? white.pixel() : 0xff;
 	for ( y=0; y<h; y++ )
 	    memset( dptr + y*xshmimg->bytes_per_line, fillbyte, dbpl );
-    }
-    else {
+    } else {
 #endif
 	dptr = (uchar *)malloc( dbytes );	// create buffer for bits
 	CHECK_PTR( dptr );
@@ -1373,8 +1367,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( depth1 ) {
 	xbpl  = (w+7)/8;
 	p_inc = dbpl - xbpl;
-    }
-    else {
+    } else {
 	xbpl  = (w*bpp)/8;
 	p_inc = dbpl - xbpl;
 #if defined(MITSHM)
