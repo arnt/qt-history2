@@ -221,6 +221,7 @@ clean:
 	#$ ExpandGlue("TMAKE_CLEAN","-rm -f "," ","");
 	-rm -f *~ core
 	#$ ExpandGlue("CLEAN_FILES","-rm -f "," ","");
+	-rm -f tmp/qt.cpp
 
 # For Qt/Embedded only
 tmp/qt.cpp: ../include/qt.h $(HEADERS)
