@@ -2688,6 +2688,7 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 		w->clearFocus();
 	    if ( !isTopLevel() )
 		to->focusWidgets.append( w );
+	    from->focusWidgets.next();
 	} else {
 	    from->focusWidgets.next();
 	}
@@ -2695,7 +2696,7 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 
     if ( to->focusWidgets.findRef(this) < 0 )
 	to->focusWidgets.append( this );
-    
+
     if ( !isTopLevel() && extra && extra->topextra && extra->topextra->focusData ) {
 	// this widget is no longer a top-level widget, so get rid
 	// of old focus data
