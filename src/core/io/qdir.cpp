@@ -703,7 +703,7 @@ QDir::cd(const QString &dirName, bool acceptAbsPath)
     }
     {
         QFileInfo fi(newPath);
-        if(!fi.exists() || !fi.isDir())
+        if(!fi.exists())
             return false;
     }
 
