@@ -443,8 +443,7 @@ QApplication
 ------------
 
 Added the setStyle(const QString&) overload that takes the name of the
-style as its argument. This will load a style plugin via a
-QStyleFactory.
+style as its argument. This loads a style plugin via a QStyleFactory.
 
 desktop() now returns a QDesktopWidget that provides access to
 multi-head information. Prior to 3.0, it returned a normal QWidget.
@@ -1087,7 +1086,6 @@ QDockArea
 QDockWindow
 QErrorMessage
 QFeatureListInterface
-QGuardedCleanupHandler
 QHttp [network]
 QInterfaceListInterface
 QInterfacePtr
