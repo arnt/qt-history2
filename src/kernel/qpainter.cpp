@@ -500,6 +500,10 @@ QPainter::QPainter()
 	}
     \endcode
 
+    Since the constructor cannot provide feedback when the initialization
+    of the painter failed you should rather use begin() and end() to paint
+    on external devices, e.g. printers.
+
     \sa begin(), end()
 */
 
