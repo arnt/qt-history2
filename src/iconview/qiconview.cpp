@@ -4187,10 +4187,8 @@ void QIconView::resizeEvent( QResizeEvent* e )
 void QIconView::adjustItems()
 {
     d->adjustTimer->stop();
-    if ( d->resizeMode == Adjust ) {
-	if ( size() != d->oldSize )
+    if ( d->resizeMode == Adjust )
 	    arrangeItemsInGrid( TRUE );
-    }
 }
 
 /*!
