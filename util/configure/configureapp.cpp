@@ -1059,9 +1059,9 @@ void Configure::generateConfigfiles()
 	int major = QT_VERSION >> 16;
 	int minor = QT_VERSION >> 8 & 0xff;
 	int patch = QT_VERSION&0xff;
-	QString prodVer = QString::number(major, 16) + ", " + 
-			  QString::number(minor, 16) + ", " + 
-			  QString::number(patch, 16) + ", 0";
+	QString prodVer = "0x" + QString::number(major, 16) + ", " + 
+			  "0x" + QString::number(minor, 16) + ", " + 
+			  "0x" + QString::number(patch, 16) + ", 0";
 	QString prodFile = "qt";
 	if ( dictionary["THREAD"] == "yes" )
 	    prodFile += "-mt";
