@@ -255,7 +255,7 @@ uchar
  */
 
 void 
-QFileEngine::unmap(uchar */*data*/) 
+QFileEngine::unmap(uchar * /*data*/) 
 { 
 }
 
@@ -792,6 +792,6 @@ uchar
 }
 
 void 
-QFSFileEngine::unmap(uchar */*data*/) 
+QFSFileEngine::unmap(uchar * /*data*/) 
 {
 }
