@@ -89,8 +89,7 @@ public:
     void detach();
     bool isDetached() const;
 
-    QImage copy() const;
-    QImage copy(const QRect &rect) const;
+    QImage copy(const QRect &rect = QRect()) const;
     inline QImage copy(int x, int y, int w, int h) const
         { return copy(QRect(x, y, w, h)); }
 

@@ -737,41 +737,9 @@ void QImage::detach()
         *this = copy();
 }
 
-/*!
-    Returns a \link shclass.html deep copy\endlink of the image.
-
-    \sa detach()
-*/
-
-QImage QImage::copy() const
-{
-    if (!d)
-        return QImage();
-
-    QImage image(d->width, d->height, d->format);
-
-#ifdef Q_WS_QWS
-    // Qt/Embedded can create images with non-default bpl
-    // make sure we don't crash.
-    if (image.d->numBytes != d->numBytes) {
-        int bpl = image.bytesPerLine();
-        for (int i = 0; i < height(); i++)
-            memcpy(image.scanLine(i), scanLine(i), bpl);
-    } else
-#endif
-        memcpy(image.bits(), bits(), d->nbytes);
-    image.d->colortable = d->colortable;
-    image.d->dpmx = d->dpmx;
-    image.d->dpmy = d->dpmy;
-    image.d->offset = d->offset;
-#ifndef QT_NO_IMAGE_TEXT
-    image.d->text_lang = d->text_lang;
-#endif
-    return image;
-}
 
 /*!
-    \fn inline QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags = QFlag()) const
+    \fn inline QImage QImage::copy(int x, int y, int w, int h) const
     \overload
 
     Returns a \link shclass.html deep copy\endlink of a sub-area of
@@ -780,12 +748,6 @@ QImage QImage::copy() const
     The returned image is always \a w by \a h pixels in size, and is
     copied from position \a x, \a y in this image. In areas beyond
     this image pixels are filled with pixel 0.
-
-    If the image needs to be modified to fit in a lower-resolution
-    result (e.g. converting from 32-bit to 8-bit), use the \a
-    flags to specify how you'd prefer this to happen.
-
-    \sa bitBlt() Qt::ImageConversionFlags
 */
 
 /*!
@@ -796,12 +758,36 @@ QImage QImage::copy() const
 
     The returned image always has the size of the rectangle \a r. In
     areas beyond this image pixels are filled with pixel 0.
+
+    If \a r is a ull rectangle the entire image is copied.
 */
 QImage QImage::copy(const QRect& r) const
 {
-
     if (!d)
         return QImage();
+
+    if (r.isNull()) {
+        QImage image(d->width, d->height, d->format);
+
+#ifdef Q_WS_QWS
+        // Qt/Embedded can create images with non-default bpl
+        // make sure we don't crash.
+        if (image.d->numBytes != d->numBytes) {
+            int bpl = image.bytesPerLine();
+            for (int i = 0; i < height(); i++)
+                memcpy(image.scanLine(i), scanLine(i), bpl);
+        } else
+#endif
+            memcpy(image.bits(), bits(), d->nbytes);
+        image.d->colortable = d->colortable;
+        image.d->dpmx = d->dpmx;
+        image.d->dpmy = d->dpmy;
+        image.d->offset = d->offset;
+#ifndef QT_NO_IMAGE_TEXT
+        image.d->text_lang = d->text_lang;
+#endif
+        return image;
+    }
 
     int x = r.x();
     int y = r.y();
