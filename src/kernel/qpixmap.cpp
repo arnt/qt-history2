@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#64 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#64 $");
 
 
 /*!
@@ -196,8 +196,8 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 
 /*!
-  \fn bool  QPixmap::isQBitmap() const
-  Returns TRUE if this is a QBitmap.
+  \fn bool QPixmap::isQBitmap() const
+  Returns TRUE if this is a QBitmap, otherwise FALSE.
 */
 
 /*!
@@ -294,6 +294,14 @@ void QPixmap::setMask( const QBitmap &mask )
     delete data->mask;
     data->mask = new QBitmap( mask );
 }
+
+
+/*!
+  \fn bool QPixmap::selfMask() const
+  Returns TRUE if the pixmap's mask is identical to the pixmap
+  itself.
+  \sa mask()
+*/
 
 
 /*!
