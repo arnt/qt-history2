@@ -83,6 +83,11 @@ typedef QObject *(*QtPluginInstanceFunction)();
             { return qt_plugin_verification_data; } \
             Q_EXTERN_C Q_DECL_EXPORT QObject * Q_STANDARD_CALL qt_plugin_instance() \
             Q_PLUGIN_INSTANCE(PLUGIN)
+
+#  define Q_EXPORT_STATIC_PLUGIN(PLUGIN) \
+            Q_DECL_EXPORT QObject *qt_plugin_instance_##PLUGIN() \
+            Q_PLUGIN_INSTANCE(PLUGIN)
+
 #endif
 
 #endif // Q_PLUGIN_H

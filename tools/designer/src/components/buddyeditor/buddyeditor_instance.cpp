@@ -11,11 +11,9 @@
 **
 ****************************************************************************/
 
-#define QT_STATICPLUGIN
-
 #include <QtCore/qplugin.h>
 
 #include "buddyeditor_plugin.h"
 
-Q_EXPORT_PLUGIN(BuddyEditorPlugin)
+Q_EXPORT_STATIC_PLUGIN(BuddyEditorPlugin)
 

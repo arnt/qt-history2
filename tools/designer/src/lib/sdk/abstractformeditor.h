@@ -46,14 +46,13 @@ public:
     QWidget *topLevel() const;
     AbstractWidgetBox *widgetBox() const;
     AbstractPropertyEditor *propertyEditor() const;
+    AbstractObjectInspector *objectInspector() const;
     AbstractFormWindowManager *formWindowManager() const;
     AbstractWidgetDataBase *widgetDataBase() const;
     AbstractMetaDataBase *metaDataBase() const;
     AbstractWidgetFactory *widgetFactory() const;
     AbstractIconCache *iconCache() const;
     PluginManager *pluginManager() const;
-
-    AbstractObjectInspector *objectInspector() const;
 
     void setTopLevel(QWidget *topLevel);
     void setWidgetBox(AbstractWidgetBox *widgetBox);
