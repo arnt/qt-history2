@@ -333,13 +333,13 @@ bool ResultSet::setHeader( const localsql::List& list )
 {
     if ( !list.count() ) {
 	env->setLastError( "No fields defined" );
-	return 0;
+	return FALSE;
     }
     for ( int i = 0; i < (int)list.count(); ++i ) {
 	localsql::List fieldDescription = list[i].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    env->setLastError( "Internal error: Bad field description" );
-	    return 0;
+	    return FALSE;
 	}
 	head->fields[i].name = fieldDescription[0].toString();
 	head->fields[i].type = (QVariant::Type)fieldDescription[1].toInt();

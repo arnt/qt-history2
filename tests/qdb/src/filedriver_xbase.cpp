@@ -37,7 +37,7 @@
 #include <xdb/xbexcept.h>
 
 #define DEBUG_XBASE 1
-//#define VERBOSE_DEBUG_XBASE
+#define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
@@ -537,6 +537,9 @@ bool FileDriver::field( uint i, QVariant& v )
 
 bool FileDriver::fieldDescription( const QString& name, QVariant& v )
 {
+#ifdef VERBOSE_DEBUG_XBASE
+    env->output() << "FileDriver::fieldDescription(string)..." << flush;
+#endif
     if ( !isOpen() )
 	return FALSE;
     int i = d->file.GetFieldNo( name.latin1() );
@@ -545,6 +548,9 @@ bool FileDriver::fieldDescription( const QString& name, QVariant& v )
 
 bool FileDriver::fieldDescription( int i, QVariant& v )
 {
+#ifdef VERBOSE_DEBUG_XBASE
+    env->output() << "FileDriver::fieldDescription(int)..." << flush;
+#endif
     if ( !isOpen() )
 	return FALSE;
     if ( i == -1 || i > d->file.FieldCount()-1 ) {
@@ -560,6 +566,9 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     field.append( len );
     field.append( prec );
     v = field;
+#ifdef DEBUG_XBASE
+    env->output() << "success" << endl;
+#endif
     return TRUE;
 }
 
@@ -620,10 +629,16 @@ bool FileDriver::updateMarked( const localsql::List& data )
 
 bool FileDriver::rewindMarked()
 {
+#ifdef VERBOSE_DEBUG_XBASE
+    env->output() << "FileDriver::rewindMarked..." << flush;
+#endif
     setMarkedAt( -1 );
     if ( d->allMarked )
 	d->fileRewound = TRUE;
     return TRUE;
+#ifdef VERBOSE_DEBUG_XBASE
+    env->output() << "success" << endl;
+#endif
 }
 
 bool FileDriver::nextMarked()
@@ -828,7 +843,13 @@ bool FileDriver::rangeMark( const localsql::List& data )
 
 bool FileDriver::markAll()
 {
+#ifdef DEBUG_XBASE
+    env->output() << "FileDriver::markAll..." << flush;
+#endif
     d->allMarked = TRUE;
+#ifdef DEBUG_XBASE
+     env->output() << "success" << endl;
+#endif
     return TRUE;
 }
 

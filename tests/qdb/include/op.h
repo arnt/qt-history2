@@ -901,8 +901,8 @@ public:
 class MarkAll : public Op
 {
 public:
-    MarkAll( const QVariant& id, const QVariant& name )
-	: Op( id, name ) {}
+    MarkAll( int id )
+	: Op( id ) {}
     QString name() const { return "markall"; }
     int exec( localsql::Environment* env )
     {
