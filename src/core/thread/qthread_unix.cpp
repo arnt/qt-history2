@@ -286,7 +286,7 @@ void QThread::usleep(unsigned long usecs)
     priority argument.
 
     If you try to start a thread that is already running, this
-    function will wait until the the thread has finished and then
+    function will wait until the thread has finished and then
     restart the thread.
 
     \sa Priority

@@ -156,8 +156,8 @@ QThread::~QThread()
     operating systems scheduling policies. Use QThread::wait()
     after terminate() for synchronous termination.
 
-    When the thread is terminated, all threads waiting for the
-    the thread to finish will be woken up.
+    When the thread is terminated, all threads waiting for the thread
+    to finish will be woken up.
 
     \warning This function is dangerous, and its use is discouraged.
     The thread can be terminate at any point in its code path.  Threads
