@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#15 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -332,7 +332,6 @@ QWindowsMime::convertor( const char* mime, int cf )
     QWindowsMime* wm;
     for ( wm = mimes.first(); wm; wm = mimes.next() ) {
 	if ( wm->canConvert(mime,cf) ) {
-debug("%s can convert %s to %d",wm->convertorName(),mime,cf);
 	    return wm;
 	}
     }
@@ -418,7 +417,6 @@ CLIPFORMAT registerMimeType(const char* mime)
 class QOleDropTarget : public IDropTarget
 {
     QWidget* widget;
-    QList<void> formats;
 
 public:    
     QOleDropTarget( QWidget* w );
@@ -426,16 +424,6 @@ public:
     void releaseQt()
     {
 	widget = 0;
-	void* f;
-	while ((f=formats.first()))
-	    formats.remove(f);
-    }
-
-    void addType( const char* mime )
-    {
-	CLIPFORMAT f = registerMimeType(mime);
-	if ( formats.find((void*)f)<0 )
-	    formats.append((void*)f);
     }
 
     /* IUnknown methods */
@@ -605,11 +593,6 @@ QByteArray qt_olednd_obtain_data( const char *format )
     delete fmtetc;
 #endif
     return result;
-}
-
-void qt_olednd_addtype( QOleDropTarget* t, const char* mime )
-{
-    t->addType(mime);
 }
 
 QByteArray QDragMoveEvent::data( const char * format )

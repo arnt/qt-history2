@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#140 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -148,7 +148,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
     setBackgroundMode( PaletteBase );
-    registerDropType( "text/plain" );
+    setAcceptDrops( TRUE );
 }
 
 /*!
@@ -672,7 +672,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 		e->button() == LeftButton &&
 		( (markAnchor > cursorPos && markDrag < cursorPos) ||
 		  (markAnchor < cursorPos && markDrag > cursorPos) ) ) {
-	QTextDragObject * tdo = new QTextDragObject( this );
+	QTextDrag * tdo = new QTextDrag( this );
 	tdo->setText( markedText() );
 	tdo->startDrag();
 	return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#15 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#16 $
 **
 ** Definition of QDragObject
 **
@@ -42,14 +42,14 @@ private:
     QDragData * d;
 };
 
-class QStoredDragObject: public QDragObject {
+class QStoredDrag: public QDragObject {
     Q_OBJECT
     QStoredDragData * d;
 
 public:
-    QStoredDragObject( const char * mimeType,
+    QStoredDrag( const char * mimeType,
 	QWidget * dragSource = 0, const char * name = 0 );
-    ~QStoredDragObject();
+    ~QStoredDrag();
 
     void setEncodedData( QByteArray & );
 
@@ -57,33 +57,39 @@ public:
     virtual QByteArray encodedData(const char*) const;
 };
 
-class QTextDragObject: public QStoredDragObject {
+class QTextDrag: public QStoredDrag {
     Q_OBJECT
 public:
-    QTextDragObject( const char *,
+    QTextDrag( const char *,
 		     QWidget * parent = 0, const char * name = 0 );
-    QTextDragObject( QWidget * parent = 0, const char * name = 0 );
-    ~QTextDragObject();
+    QTextDrag( QWidget * parent = 0, const char * name = 0 );
+    ~QTextDrag();
 
     void setText( const char * );
+
+    static bool canConvert( QDragMoveEvent* e );
+    static bool convert( QDropEvent* e, QString& s );
 };
 
 
-class QImageDragObject: public QDragObject {
+class QImageDrag: public QDragObject {
     Q_OBJECT
     QImage img;
     QStrList ofmts;
 
 public:
-    QImageDragObject( QImage image,
+    QImageDrag( QImage image,
 		      QWidget * parent = 0, const char * name = 0 );
-    QImageDragObject( QWidget * parent = 0, const char * name = 0 );
-    ~QImageDragObject();
+    QImageDrag( QWidget * parent = 0, const char * name = 0 );
+    ~QImageDrag();
 
     void setImage( QImage image );
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
+
+    static bool canConvert( QDragMoveEvent* e );
+    static bool convert( QDropEvent* e, QImage& i );
 };
 
 

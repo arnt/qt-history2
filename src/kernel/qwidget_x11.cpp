@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#245 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#246 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1659,25 +1659,35 @@ int QWidget::metric( int m ) const
 void QWidget::createSysExtra()
 {
     extra->xic = 0;
+    extra->dnd = FALSE;
 }
 
 void QWidget::deleteSysExtra()
 {
 }
 
-/*!  Registers \a mimeType as a possible drop type and announces to
-  the system that this widget \e may be able to accept \a mimeType
-  drop.
+/*!
+  Announces to the system that this widget \e may be able to
+  accept drop events.
 
-  \code
-    registerDropType( "text/plain" );
-    retisterDropType( "image/gif" );
-  \endcode
+  In Qt 1.x, drop event handlers are in QDropSite.
+
+  \sa acceptDrops()
 */
 
-void QWidget::registerDropType( const char * mimeType )
+void QWidget::setAcceptDrops( bool on )
 {
-    // ### set some flags in extraData()?
-    extern void qt_xdnd_add_type( const char * );
-    qt_xdnd_add_type( mimeType );
+    createExtra();
+    extra->dnd = on;
 }
+
+/*!
+  Returns TRUE if drop events are enabled for this widget.
+
+  \sa setAcceptDrops()
+*/
+bool QWidget::acceptDrops() const
+{
+    return ( extra && extra->dnd );
+}
+

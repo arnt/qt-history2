@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#149 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#150 $
 **
 ** Definition of QWidget class
 **
@@ -226,7 +226,8 @@ public:
 
   // drag and drop
 
-    void	 registerDropType( const char * mimeType );
+    void	 setAcceptDrops( bool on );
+    bool	 acceptDrops() const;
 				
 public:
     QWidget	*parentWidget() const;

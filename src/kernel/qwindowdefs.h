@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#107 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#108 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -253,13 +253,17 @@ struct QWExtra {
     QPixmap *icon;				// widget icon
 #if defined(_WS_WIN_)
     HANDLE   winIcon;				// internal Windows icon
-    QOleDropTarget *dropTarget;			// DND drop target
+    QOleDropTarget *dropTarget;			// drop target
 #endif
     QPixmap *bg_pix;				// background pixmap
-    char     bg_mode;				// background mode
     QFocusData *focusData;			// focus data (for TLW)
 #if defined(_WS_X11_)
     void * xic;
+#endif
+    char     bg_mode;				// background mode
+
+#if defined(_WS_X11_)
+    uint dnd : 1;				// drop enable
 #endif
     uint propagateFont: 2;
     uint propagatePalette: 2;

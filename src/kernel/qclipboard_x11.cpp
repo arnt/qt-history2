@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#27 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -219,7 +219,7 @@ static inline int maxSelectionIncr( Display *dpy )
 bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 			   bool deleteProperty,
 			   QByteArray *buffer, int *size, Atom *type,
-			   int *format )
+			   int *format, bool nullterm )
 {
     int	   maxsize = maxSelectionIncr(dpy);
     ulong  bytes_left;
@@ -245,10 +245,9 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
     XFree( (char*)data );
 
     int  offset = 0;
-    bool ok = buffer->resize( (int)bytes_left+1 );
+    bool ok = buffer->resize( (int)bytes_left+ (nullterm?1:0) );
 
     if ( ok ) {					// could allocate buffer
-	buffer->at((uint)bytes_left) = '\0';		// zero-terminate (for text)
 	while ( bytes_left ) {			// more to read...
 	    r = XGetWindowProperty( dpy, win, property, offset/4, maxsize/4,
 				    FALSE, AnyPropertyType, type, format,
@@ -267,6 +266,8 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	    offset += (unsigned int)length;
 	    XFree( (char*)data );
 	}
+	if (nullterm)
+	    buffer->at(offset) = '\0';		// zero-terminate (for text)
     }
     if ( size )
 	*size = offset;				// correct size, not 0-term.
@@ -281,7 +282,8 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 
 // this is externed into qt_xdnd.cpp too.
 QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
-					      Atom property, int nbytes )
+					      Atom property, int nbytes,
+					      bool nullterm )
 {
     XEvent event;
 
@@ -313,7 +315,7 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 	     event.xproperty.state != PropertyNewValue )
 	    continue;
 	if ( qt_xclb_read_property(dpy, win, property, TRUE, &tmp_buf,
-					&length,0, 0) ) {
+					&length,0, 0, nullterm) ) {
 	    if ( length == 0 ) {		// no more data, we're done
 		buf.at( offset ) = '\0';
 		buf.resize( offset+1 );
@@ -388,12 +390,12 @@ void *QClipboard::data( const char *format ) const
     Atom   type;
 
     if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
-			       buf,0,&type,0) ) {
+			       buf,0,&type,0,TRUE) ) {
 	if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
 	    int nbytes = buf->size() >= 4 ? *((int*)buf->data()) : 0;
 	    *buf = qt_xclb_read_incremental_property( dpy, win,
 						      qt_selection_property,
-						      nbytes );
+						      nbytes, TRUE );
 	} else if ( type != XA_STRING ) {
 #if 0
 	    // For debugging

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#29 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -173,9 +173,9 @@ QWidget * QDragObject::source()
 }
 
 
-/*! \class QTextDragObject qdragobject.h
+/*! \class QTextDrag qdragobject.h
 
-  \brief The QTextDragObject provides a drag and drop object for
+  \brief The QTextDrag provides a drag and drop object for
   transferring plain text.
 
   \ingroup kernel
@@ -185,15 +185,18 @@ QWidget * QDragObject::source()
 
   Qt provides no built-in mechanism for delivering only single-line
   or only US-ASCII text.
+
+  Drag&Drop text does \e not have a NUL terminator when it
+  is dropped onto the target.
 */
 
 
 /*!  Creates a text drag object and sets it to \a text.  \a parent
   must be the drag source, \a name is the object name. */
 
-QTextDragObject::QTextDragObject( const char * text,
+QTextDrag::QTextDrag( const char * text,
 				  QWidget * parent, const char * name )
-    : QStoredDragObject( "text/plain", parent, name )
+    : QStoredDrag( "text/plain", parent, name )
 {
     setText( text );
 }
@@ -203,8 +206,8 @@ QTextDragObject::QTextDragObject( const char * text,
   source, \a name is the object name.
 */
 
-QTextDragObject::QTextDragObject( QWidget * parent, const char * name )
-    : QStoredDragObject( "text/plain", parent, name )
+QTextDrag::QTextDrag( QWidget * parent, const char * name )
+    : QStoredDrag( "text/plain", parent, name )
 {
 }
 
@@ -212,7 +215,7 @@ QTextDragObject::QTextDragObject( QWidget * parent, const char * name )
 /*!  Destroys the text drag object and frees all allocated resources.
 */
 
-QTextDragObject::~QTextDragObject()
+QTextDrag::~QTextDrag()
 {
     // nothing
 }
@@ -223,16 +226,34 @@ QTextDragObject::~QTextDragObject()
   not pass the text during construction.
 */
 
-void QTextDragObject::setText( const char * text )
+void QTextDrag::setText( const char * text )
 {
-    QString tmp( text );
+    int l = qstrlen(text);
+    QByteArray tmp(l);
+    memcpy(tmp.data(),text,l);
     setEncodedData( tmp );
 }
 
+bool QTextDrag::canConvert( QDragMoveEvent* e )
+{
+    return e->provides( "text/plain" );
+}
 
-/*! \class QImageDragObject qdragobject.h
+bool QTextDrag::convert( QDropEvent* e, QString& s )
+{
+    QByteArray payload = e->data( "text/plain" );
+    if ( payload.size() ) {
+	e->accept();
+	s = QString( payload.data(), payload.size()+1 );
+	return TRUE;
+    }
+    return FALSE;
+}
 
-  \brief The QImageDragObject provides a drag and drop object for
+
+/*! \class QImageDrag qdragobject.h
+
+  \brief The QImageDrag provides a drag and drop object for
   tranferring images.
 
   \ingroup kernel
@@ -246,7 +267,7 @@ void QTextDragObject::setText( const char * text )
 /*!  Creates an image drag object and sets it to \a image.  \a parent
   must be the drag source, \a name is the object name. */
 
-QImageDragObject::QImageDragObject( QImage image,
+QImageDrag::QImageDrag( QImage image,
 				  QWidget * parent, const char * name )
     : QDragObject( parent, name )
 {
@@ -257,7 +278,7 @@ QImageDragObject::QImageDragObject( QImage image,
   source, \a name is the object name.
 */
 
-QImageDragObject::QImageDragObject( QWidget * parent, const char * name )
+QImageDrag::QImageDrag( QWidget * parent, const char * name )
     : QDragObject( parent, name )
 {
 }
@@ -266,7 +287,7 @@ QImageDragObject::QImageDragObject( QWidget * parent, const char * name )
 /*!  Destroys the image drag object and frees all allocated resources.
 */
 
-QImageDragObject::~QImageDragObject()
+QImageDrag::~QImageDrag()
 {
     // nothing
 }
@@ -276,7 +297,7 @@ QImageDragObject::~QImageDragObject()
   Sets the image to be dragged.  You will need to call this if you did
   not pass the image during construction.
 */
-void QImageDragObject::setImage( QImage image )
+void QImageDrag::setImage( QImage image )
 {
     img = image;
     // ### should detach?
@@ -290,11 +311,11 @@ void QImageDragObject::setImage( QImage image )
     // Could do more magic to order mime types
 }
 
-const char * QImageDragObject::format(int i) const
+const char * QImageDrag::format(int i) const
 {
     if ( i < (int)ofmts.count() ) {
 	static QString str;
-	str.sprintf("image/%s",(((QImageDragObject*)this)->ofmts).at(i));
+	str.sprintf("image/%s",(((QImageDrag*)this)->ofmts).at(i));
 	str = str.lower();
 	if ( str == "image/pbmraw" )
 	    str = "image/ppm";
@@ -304,7 +325,7 @@ const char * QImageDragObject::format(int i) const
     }
 }
 
-QByteArray QImageDragObject::encodedData(const char* fmt) const
+QByteArray QImageDrag::encodedData(const char* fmt) const
 {
     if ( qstrnicmp( fmt, "image/", 6 )==0 ) {
 	QString f = fmt+6;
@@ -322,22 +343,47 @@ QByteArray QImageDragObject::encodedData(const char* fmt) const
     }
 }
 
+bool QImageDrag::canConvert( QDragMoveEvent* e )
+{
+    return e->provides( "image/bmp" )
+        || e->provides( "image/ppm" )
+        || e->provides( "image/gif" );
+    // ### more Qt images types
+}
+
+bool QImageDrag::convert( QDropEvent* e, QImage& i )
+{
+    QByteArray payload = e->data( "image/bmp" );
+    if ( payload.isEmpty() )
+	payload = e->data( "image/ppm" );
+    if ( payload.isEmpty() )
+	payload = e->data( "image/gif" );
+    // ### more Qt images types
+    if ( payload.isEmpty() )
+	return FALSE;
+
+    i.loadFromData(payload);
+    return !i.isNull();
+}
+
+
+
 
 /*!
-  \class QStoredDragObject qdragobject.h
+  \class QStoredDrag qdragobject.h
   \brief Simple stored-value drag object for arbitrary MIME data.
 
   When a block of data only has one representation, you can use
-  a QStoredDragObject to hold it.
+  a QStoredDrag to hold it.
 */
 
 /*!
-  Constructs a QStoredDragObject.  The parameters are passed
+  Constructs a QStoredDrag.  The parameters are passed
   to the QDragObject constructor, and the format is set to \a mimeType.
 
   The data will be unset.  Use setEncodedData() to set it.
 */
-QStoredDragObject::QStoredDragObject( const char* mimeType, QWidget * dragSource, const char * name ) :
+QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char * name ) :
     QDragObject(dragSource,name)
 {
     d = new QStoredDragData();
@@ -347,12 +393,12 @@ QStoredDragObject::QStoredDragObject( const char* mimeType, QWidget * dragSource
 /*!
   Destroys the drag object and frees all allocated resources.
 */
-QStoredDragObject::~QStoredDragObject()
+QStoredDrag::~QStoredDrag()
 {
     delete d;
 }
 
-const char * QStoredDragObject::format(int i) const
+const char * QStoredDrag::format(int i) const
 {
     if ( i==0 )
 	return d->fmt;
@@ -370,7 +416,7 @@ const char * QStoredDragObject::format(int i) const
   has been called.
 */
 
-void QStoredDragObject::setEncodedData( QByteArray & encodedData )
+void QStoredDrag::setEncodedData( QByteArray & encodedData )
 {
     d->enc = encodedData;
     d->enc.detach();
@@ -381,7 +427,7 @@ void QStoredDragObject::setEncodedData( QByteArray & encodedData )
 
   \sa setEncodedData()
 */
-QByteArray QStoredDragObject::encodedData(const char* m) const
+QByteArray QStoredDrag::encodedData(const char* m) const
 {
     if ( m == d->fmt )
 	return d->enc;

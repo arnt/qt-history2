@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#33 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -8,11 +8,6 @@
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-
-// ### you are now entering an uglehack zone
-//
-// this code is bad bad bad.  we need to rethink and clean up in 2.0,
-// when we've had some real experience with use of all this.
 
 #include "qapplication.h"
 #include "qwidget.h"
@@ -44,10 +39,10 @@ extern bool qt_xclb_wait_for_event( Display *dpy, Window win, int type,
 extern bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 				   bool deleteProperty,
 				   QByteArray *buffer, int *size, Atom *type,
-				   int *format );
+				   int *format, bool nullterm );
 extern QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 						     Atom property,
-						     int nbytes );
+						     int nbytes, bool nullterm );
 // and all this stuff is copied -into- qapp_x11.cpp
 
 void qt_xdnd_setup();
@@ -110,24 +105,50 @@ QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 // first drag object, or 0
 QDragObject * qt_xdnd_source_object = 0;
 
-void qt_xdnd_add_type( const char * mimeType )
+const char* qt_xdnd_atom_to_str( Atom a )
+{
+    if ( !a ) return 0;
+
+    if ( !qt_xdnd_drag_types ) {
+	qt_xdnd_drag_types = new QIntDict<QString>( 17 );
+	qt_xdnd_drag_types->setAutoDelete( TRUE );
+	// ### unfinished!  treat XA_STRING as text/plain.  remove ASAP
+	//QString * s;
+	//s = new QString( "text/plain" );
+	//qt_xdnd_drag_types->insert( (long)XA_STRING, s );
+    }
+    QString* result;
+    if ( !(result=qt_xdnd_drag_types->find( a )) ) {
+	const char* mimeType = XGetAtomName( qt_xdisplay(), a );
+	if ( !mimeType )
+	    return 0; // only happens on protocol error
+	result = new QString( mimeType );
+	qt_xdnd_drag_types->insert( (long)a, result );
+	XFree((void*)mimeType);
+    }
+    return *result;
+}
+
+Atom* qt_xdnd_str_to_atom( const char * mimeType )
 {
     if ( !mimeType || !*mimeType )
-	return;
-    if ( !qt_xdnd_atom_numbers )
+	return 0;
+    if ( !qt_xdnd_atom_numbers ) {
 	qt_xdnd_atom_numbers = new QDict<Atom>( 17 );
-    if ( qt_xdnd_atom_numbers->find( mimeType ) )
-	return;
-
-    Atom * tmp = new Atom;
-    *tmp = 0;
-    qt_xdnd_atom_numbers->insert( mimeType, tmp );
-    qt_x11_intern_atom( mimeType, tmp );
-    if ( qt_xdnd_drag_types ) {
-	QString * s = new QString( mimeType );
-	qt_xdnd_drag_types->insert( (long)(*tmp), s );
+	qt_xdnd_atom_numbers->setAutoDelete( TRUE );
     }
-    qt_xdnd_atom_numbers->setAutoDelete( TRUE );
+
+    Atom * result;
+    if ( (result = qt_xdnd_atom_numbers->find( mimeType )) )
+	return result;
+
+    result = new Atom;
+    *result = 0;
+    qt_x11_intern_atom( mimeType, result );
+    qt_xdnd_atom_numbers->insert( mimeType, result );
+    qt_xdnd_atom_to_str( *result );
+
+    return result;
 }
 
 
@@ -146,12 +167,6 @@ void qt_xdnd_setup() {
 
     qt_x11_intern_atom( "QT_SELECTION", &qt_selection_property );
     qt_x11_intern_atom( "INCR", &qt_incr_atom );
-
-    // added for speed, since it's faster to do this at startup
-    qt_xdnd_add_type( "text/plain" );
-    qt_xdnd_add_type( "image/gif" );
-    qt_xdnd_add_type( "image/xpm" );
-    qt_xdnd_add_type( "image/xbm" );
 
     qAddPostRoutine( qt_xdnd_cleanup );
 }
@@ -197,29 +212,12 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 }
 
 
-void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
-    if ( !qt_xdnd_atom_numbers )
-	return; // haven't been set up for dnd
+void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
+{
+    //if ( !w->neveHadAChildWithDropEventsOn() )
+	//return; // haven't been set up for dnd
 
     const long *l = xe->xclient.data.l;
-    // first, build the atom dict, if possible
-    if ( !qt_xdnd_drag_types ) {
-	qt_xdnd_drag_types = new QIntDict<QString>( 17 );
-	qt_xdnd_drag_types->setAutoDelete( TRUE );
-	QDictIterator<Atom> it( *qt_xdnd_atom_numbers );
-	Atom * a;
-	while( (a=it.current()) != 0 ) {
-	    QString * s = new QString( it.currentKey() );
-	    s->detach();
-	    ++it;
-	    qt_xdnd_drag_types->insert( (long)(*a), s );
-	}
-	// ### unfinished!  treat XA_STRING as text/plain.  remove ASAP
-	QString * s;
-	s = new QString( "text/plain" );
-	qt_xdnd_drag_types->insert( (long)XA_STRING, s );
-    }
-
     int version = (int)(((unsigned long)(l[1])) >> 24);
 
     if ( version > 2 )
@@ -234,10 +232,8 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
     // get the first types
     int i;
     int j = 0;
-    for( i=2; i < 5; i++ ) {
-	if ( qt_xdnd_drag_types->find( l[i] ) )
-	    qt_xdnd_types[j++] = l[i];
-    }
+    for( i=2; i < 5; i++ )
+	qt_xdnd_types[j++] = l[i];
     qt_xdnd_types[j] = 0;
 
     if ( l[1] & 1 ) {
@@ -568,9 +564,8 @@ void QDragManager::move( const QPoint & globalPos )
 	Atom * type[3]={0,0,0};
 	const char* fmt;
 	int nfmt=0;
-	for (nfmt=0; nfmt<3 && (fmt=object->format(nfmt)); nfmt++) {
-	    type[nfmt] = qt_xdnd_atom_numbers->find( fmt );
-	}
+	for (nfmt=0; nfmt<3 && (fmt=object->format(nfmt)); nfmt++)
+	    type[nfmt] = qt_xdnd_str_to_atom( fmt );
 	XClientMessageEvent enter;
 	enter.type = ClientMessage;
 	enter.window = target;
@@ -670,7 +665,7 @@ void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * e )
   types, format() returns 0.
 
   This function is provided mainly for debugging.  Most drop targets
-  are probably better off using provides().
+  will use provides().
 
   \sa data() provides()
 */
@@ -683,11 +678,11 @@ const char * QDragMoveEvent::format( int n )
     if ( i < n )
 	return 0;
 
-    QString * name = qt_xdnd_drag_types->find( (long)(qt_xdnd_types[i]) );
+    const char* name = qt_xdnd_atom_to_str( qt_xdnd_types[i] );
     if ( !name )
-	return 0;
+	return 0; // should never happen
 
-    return *name;
+    return name;
 }
 
 /*!  Returns TRUE if this drag object provides format \a mimeType or
@@ -711,7 +706,7 @@ bool QDragMoveEvent::provides( const char * mimeType )
 
 void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 {
-    if ( !req || !qt_xdnd_drag_types )
+    if ( !req )
 	return;
     XEvent evt;
     evt.xselection.type = SelectionNotify;
@@ -721,10 +716,10 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
     evt.xselection.target = req->target;
     evt.xselection.property = None;
     evt.xselection.time = req->time;
-    QString * format = qt_xdnd_drag_types->find( req->target );
+    const char* format = qt_xdnd_atom_to_str( req->target );
     if ( format && qt_xdnd_source_object &&
-	 qt_xdnd_source_object->provides( *format ) ) {
-	QByteArray a = qt_xdnd_source_object->encodedData(*format);
+	 qt_xdnd_source_object->provides( format ) ) {
+	QByteArray a = qt_xdnd_source_object->encodedData(format);
 	XChangeProperty ( qt_xdisplay(), req->requestor, req->property,
 			  req->target, 8, PropModeReplace,
 			  (unsigned char *)a.data(), a.size() );
@@ -755,7 +750,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 	return result;
     }
 
-    Atom * a = qt_xdnd_atom_numbers->find( format );
+    Atom * a = qt_xdnd_str_to_atom( format );
     if ( !a || !*a )
 	return result;
 
@@ -786,7 +781,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 	if ( qt_xclb_read_property( qt_xdnd_current_widget->x11Display(),
 				    qt_xdnd_current_widget->winId(),
 				    qt_xdnd_selection, TRUE,
-				    &result, 0, &type, 0 ) ) {
+				    &result, 0, &type, 0, FALSE ) ) {
 	    if ( type == None ) {
 		return result;
 	    } else if ( type == qt_incr_atom ) {
@@ -794,7 +789,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 		result = qt_xclb_read_incremental_property( qt_xdnd_current_widget->x11Display(),
 							    qt_xdnd_current_widget->winId(),
 							    qt_xdnd_selection,
-							    nbytes );
+							    nbytes, FALSE );
 	    } else if ( type != *a ) {
 		//debug( "Qt clipboard: unknown atom %ld", type);
 	    }

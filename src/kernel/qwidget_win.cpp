@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#110 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -42,7 +42,6 @@ void	    qt_open_popup( QWidget * );
 void	    qt_close_popup( QWidget * );
 void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst ); // dnd_win
 QOleDropTarget* qt_olednd_register( QWidget* widget );
-void        qt_olednd_addtype( QOleDropTarget*, const char* );
 
 
 extern bool qt_nograb();
@@ -1017,11 +1016,22 @@ void QWidget::deleteSysExtra()
 	qt_olednd_unregister( this, extra->dropTarget );
 }
 
-void QWidget::registerDropType( const char * mimeType )
+bool QWidget::acceptDrops() const
 {
-    createExtra();
     QWExtra *extra = extraData();
-    if ( !extra->dropTarget )
-	extra->dropTarget = qt_olednd_register( this );
-    qt_olednd_addtype(extra->dropTarget,mimeType);
+    return ( extra && extra->dropTarget );
+}
+
+void QWidget::setAcceptDrops( bool on )
+{
+    if ( on ) {
+	createExtra();
+	QWExtra *extra = extraData();
+	if ( !extra->dropTarget )
+	    extra->dropTarget = qt_olednd_register( this );
+    } else {
+	QWExtra *extra = extraData();
+	if ( extra->dropTarget )
+	    qt_olednd_unregister(this, extra->dropTarget);
+    }
 }
