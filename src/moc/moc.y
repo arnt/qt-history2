@@ -1867,7 +1867,7 @@ QCString combinePath( const char *infile, const char *outfile )
 	  The paths don't have the same drive, or they don't have the
 	  same root directory. Use an absolute path.
 	*/
-	return QFile::encodeName( inFileInfo.filePath() );
+	return QFile::encodeName( inFileInfo.absFilePath() );
     } else {
 	/*
 	  The paths have something in common. Use a path relative to
