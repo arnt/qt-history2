@@ -68,13 +68,13 @@ ProjectGenerator::init()
 	    dirs.prepend(QDir::currentDirPath());
 	}
 
-	for(QStringList::Iterator pd = dirs.begin(); pd != dirs.end(); pd++) {
-	    QString dir, regex;
+	for(int i = 0; i < dirs.count(); ++i) {
+	    QString dir, regex, pd = dirs.at(i);
 	    bool add_depend = FALSE;
-	    if(QFile::exists((*pd))) {
-		QFileInfo fi((*pd));
+	    if(QFile::exists(pd)) {
+		QFileInfo fi(pd);
 		if(fi.isDir()) {
-		    dir = (*pd);
+		    dir = pd;
 		    add_depend = TRUE;
 		    if(dir.right(1) != Option::dir_sep)
 			dir += Option::dir_sep;
@@ -88,7 +88,7 @@ ProjectGenerator::init()
 		    }
 		    regex = builtin_regex;
 		} else {
-		    QString file = (*pd);
+		    QString file = pd;
 		    int s = file.lastIndexOf(Option::dir_sep);
 		    if(s != -1)
 			dir = file.left(s+1);
@@ -98,7 +98,7 @@ ProjectGenerator::init()
 		    }
 		}
 	    } else { //regexp
-		regex = (*pd);
+		regex = pd;
 	    }
 	    if(!regex.isEmpty()) {
 		int s = regex.lastIndexOf(Option::dir_sep);
