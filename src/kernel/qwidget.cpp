@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#233 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#234 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#233 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#234 $");
 
 
 /*!
@@ -109,15 +109,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#233 $");
 	setMaximumSize(),
 	setMinimumSize(),
 	setSizeIncrement(),
-	setFixedSize(),
-	setAutoMinimumSize(),
-	autoMinimumSize().
+	setFixedSize()
 
   <li> Mode:
 	isVisible(),
 	isVisibleToTLW,
 	isDesktop(),
 	isEnabled(),
+	isEnabled()ToTLW,
 	isModal(),
 	isPopup(),
 	isTopLevel(),
@@ -125,7 +124,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#233 $");
 	hasMouseTracking(),
 	setMouseTracking(),
 	isUpdatesEnabled(),
-	setUpdatesEnabled().
+	setUpdatesEnabled(),
+	setFontPropagation(),
+	fontPropagation(),
+	setPalettePropagation(),
+	palettePropagation().
 
   <li> Look and feel:
 	style(),
@@ -825,7 +828,8 @@ void QWidget::createExtra()
 #if defined(_WS_X11_)
 	extra->xic = 0;
 #endif
-	extra->automin = 0;
+	extra->propagateFont = 0;
+	extra->propagatePalette = 0;
     }
 }
 
@@ -1018,6 +1022,24 @@ void QWidget::styleChange( GUIStyle )
   \sa setEnabled()
 */
 
+
+/*!
+  Returns TRUE if this widget and every parent up to the \link
+  topLevelWidget() top level widget \endlink is enabled, otherwise
+  returns FALSE.
+
+  \sa setEnabled() isEnabled()
+*/
+
+bool QWidget::isEnabledToTLW() const
+{
+    const QWidget * w = this;
+    while ( w && w->isEnabled() && !w->isTopLevel() && w->parentWidget() )
+	w = w->parentWidget();
+    return w->isEnabled();
+}
+
+
 /*!
   Enables widget input events if \e enable is TRUE, otherwise disables
   input events.
@@ -1159,7 +1181,7 @@ QRect QWidget::childrenRect() const
   The widget cannot be resized to a smaller size than the minimum widget
   size.
 
-  \sa setMinimumSize(), setAutoMinimumSize() maximumSize(), sizeIncrement()
+  \sa setMinimumSize() maximumSize(), sizeIncrement()
 */
 
 QSize QWidget::minimumSize() const
@@ -1198,7 +1220,7 @@ QSize QWidget::sizeIncrement() const
   Sets both the minimum and maximum sizes of the widget to \e s,
   thereby preventing it from ever growing or shrinking.
 
-  \sa setMaximumSize() setMinimumSize() setAutoMinimumSize()
+  \sa setMaximumSize() setMinimumSize()
 */
 
 void QWidget::setFixedSize( const QSize & s)
@@ -1225,7 +1247,7 @@ void QWidget::setFixedSize( int w, int h )
   Sets the minimum width of the widget to \a w without changing the
   height.  Provided for convenience.
 
-  \sa sizeHint() setAutoMinimumSize() minimumSize() maximumSize()
+  \sa sizeHint() minimumSize() maximumSize()
   setFixedSize() and more
 */
 
@@ -1278,7 +1300,7 @@ void QWidget::setMaximumHeight( int h )
   Sets both the minimum and maximum width of the widget to \a w
   without changing the heights.  Provided for convenience.
 
-  \sa sizeHint() minimumSize() setAutoMinimumSize() maximumSize() setFixedSize() and more
+  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
 */
 
 void QWidget::setFixedWidth( int w )
@@ -1299,54 +1321,6 @@ void QWidget::setFixedHeight( int h )
 {
     setMinimumSize( minimumSize().width(), h );
     setMaximumSize( maximumSize().width(), h );
-}
-
-
-/*!  Sets this widget to manage its own minimum size (if supported).
-
-  The only effect of this call is to change the value returned by
-  autoMinimumSize().  Some subclasses use code like this:
-
-  \code
-    if ( autoMinimumSize() )
-	setMinimumSize( sizeHint() );
-  \endcode
-
-  in functions such as setFont(), setStyle(), QButton::setPixmap() and
-  QLabel::setText().
-
-  By default, widgets do not manage their own minimum sizes.
-
-  \sa autoMinimumSize(), minimumSize()
-*/
-
-void QWidget::setAutoMinimumSize( bool enable )
-{
-    createExtra();
-    extra->automin = enable;
-}
-
-
-/*!  Returns TRUE if this widget has been configured to manage it own
-  minimum size, and FALSE if it has not.
-
-  The default is FALSE.
-
-  If this function returns TRUE, some widgets ensure that
-  setMinimumSize() is called when appropriate, for example by
-  including this code in access functions like QLabel::setText():
-
-  \code
-    if ( autoMinimumSize() )
-	setMinimumSize( sizeHint() );
-  \endcode
-
-  \sa setAutoMinimumSize(), setMinimumSize()
-*/
-
-bool QWidget::autoMinimumSize() const
-{
-    return (extra && extra->automin) ? TRUE : FALSE;
 }
 
 
@@ -1443,9 +1417,6 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 /*!
   Tells the window system which color to clear this widget to when
   sending a paint event.
-  Tells the window system which color
-  from the \link QWidget::palette() palette\endlink
-  to use for clearing this widget when sending a paint event.
 
   In other words, this color is the color of the widget when
   paintEvent() is called.  To minimize flicker, this should be the
@@ -1651,9 +1622,15 @@ const QColorGroup &QWidget::colorGroup() const
 /*!
   Sets the widget palette to \e p. The widget background color is set to
   <code>colorGroup().background()</code>.
+  
+  If \a palettePropagation() is \c AllChildren or \c SamePalette,
+  setPalette() calls setPalette() for children of the object, or those
+  with whom the object shares the palette, respectively.  The default
+  is \a NoChildren, so setPalette() will not change the children's
+  palettes.
 
   \sa QApplication::setPalette(), palette(), paletteChange(),
-  colorGroup(), setBackgroundColor()
+  colorGroup(), setBackgroundColor(), setPalettePropagation()
 */
 
 void QWidget::setPalette( const QPalette &p )
@@ -1662,6 +1639,18 @@ void QWidget::setPalette( const QPalette &p )
     pal = p;
     setBackgroundColorFromMode();
     paletteChange( old );
+    PropagationMode m = palettePropagation();
+    if ( m != NoChildren && children() ) {
+	QObjectListIt it( *children() );
+	QWidget *w;
+	while( (w=(QWidget *)it.current()) != 0 ) {
+	    ++it;
+	    if ( w->isWidgetType() &&
+		 ( m == AllChildren ||
+		   old.isCopyOf( w->pal ) ) )
+		w->setPalette( pal );
+	}
+    }
 }
 
 /*!
@@ -1707,7 +1696,12 @@ void QWidget::paletteChange( const QPalette & )
     setFont( f );
   \endcode
 
-  \sa font(), fontChange(), fontInfo(), fontMetrics()
+  If \a fontPropagation() is \c AllChildren or \c SameFont, setFont()
+  calls setFont() for children of the object, or those with whom the
+  object shares the font, respectively.  The default is \a NoChildren,
+  so setFont() will not change the children's fonts.
+
+  \sa font(), fontChange(), fontInfo(), fontMetrics(), setFontPropagation()
 */
 
 void QWidget::setFont( const QFont &font )
@@ -1716,6 +1710,18 @@ void QWidget::setFont( const QFont &font )
     fnt = font;
     fnt.handle();				// force load font
     fontChange( old );
+    PropagationMode m = fontPropagation();
+    if ( m != NoChildren && children() ) {
+	QObjectListIt it( *children() );
+	QWidget *w;
+	while( (w=(QWidget *)it.current()) != 0 ) {
+	    ++it;
+	    if ( w->isWidgetType() &&
+		 ( m == AllChildren ||
+		   old.isCopyOf( w->fnt ) ) )
+		 w->setFont( fnt );
+	}
+    }
 }
 
 
@@ -2039,7 +2045,7 @@ bool QWidget::focusNextPrevChild( bool next )
     do {
 	if ( w && w != startingPoint &&
 	     w->testWFlags( WState_TabToFocus ) && !w->focusProxy() &&
-	     w->isVisibleToTLW() && w->isEnabled() )
+	     w->isVisibleToTLW() && w->isEnabledToTLW() )
 	    candidate = w;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
     } while( w && !(candidate && w==startingPoint) );
@@ -3182,3 +3188,65 @@ bool QWidget::x11Event( XEvent * )
 }
 
 #endif
+
+
+/*!  Returns the font propagation mode of this widget.  The default
+  font propagation mode is \c NoChildren, but you can set it to \a
+  SameFont or \a AllChildren.
+  
+  \sa setFontPropagation()
+*/
+
+QWidget::PropagationMode QWidget::fontPropagation() const
+{
+    return extra ? (PropagationMode)extra->propagateFont : NoChildren;
+}
+
+
+/*!  Sets the font propagation mode to \a m.
+  
+  if \a m is \c NoChildren (the default), setFont() does not change
+  any children's fonts.  If it is \c SameFont, setFont() changes the
+  font of the children that have the exact same font as this widget
+  (see \l QFont::isCopyOf() for details).  If it is \c AllChildren,
+  setFont() changes the font of all children.
+
+  \sa fontPropagation() setFont() setPalettePropagation()
+*/
+
+void QWidget::setFontPropagation( PropagationMode m )
+{
+    createExtra();
+    extra->propagateFont = (int)m;
+}
+
+
+/*!  Returns the palette propagation mode of this widget.  The default
+  palette propagation mode is \c NoChildren, but you can set it to \a
+  SamePalette or \a AllChildren.
+  
+  \sa setPalettePropagation()
+*/
+
+QWidget::PropagationMode QWidget::palettePropagation() const
+{
+    return extra ? (PropagationMode)extra->propagatePalette : NoChildren;
+}
+
+
+/*!  Sets the palette propagation mode to \a m.
+  
+  if \a m is \c NoChildren (the default), setPalette() does not change
+  any children's palettes.  If it is \c SamePalette, setPalette()
+  changes the palette of the children that have the exact same palette
+  as this widget (see \l QPalette::isCopyOf() for details).  If it is
+  \c AllChildren, setPalette() changes the palette of all children.
+
+  \sa palettePropagation() setPalette() setFontPropagation()
+*/
+
+void QWidget::setPalettePropagation( PropagationMode m )
+{
+    createExtra();
+    extra->propagatePalette = (int)m;
+}

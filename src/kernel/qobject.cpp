@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#153 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#152 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#153 $");
 
 
 /*!
@@ -446,7 +446,7 @@ bool QObject::isA( const char *clname ) const
 /*!
   Returns TRUE if this object is an instance of a class that inherits
   \e clname, and \a clname inherits QObject.
-  
+
   (A class is considered to inherit itself.)
 
   Example:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#104 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#105 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -257,7 +257,8 @@ struct QWExtra {
 #if defined(_WS_X11_)
     void * xic;
 #endif
-    uint automin: 1;
+    uint propagateFont: 2;
+    uint propagatePalette: 2;
 };
 
 

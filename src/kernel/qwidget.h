@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#142 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#143 $
 **
 ** Definition of QWidget class
 **
@@ -46,6 +46,7 @@ public:
     bool	 isDesktop()	const;
 
     bool	 isEnabled()	const;
+    bool	 isEnabledToTLW() const;
 public slots:
     virtual void setEnabled( bool );
 
@@ -83,9 +84,6 @@ public:
     void	 setFixedWidth( int w );
     void	 setFixedHeight( int h );
 
-    void	 setAutoMinimumSize( bool );
-    bool	 autoMinimumSize() const;
-
   // Widget coordinate mapping
 
     QPoint	 mapToGlobal( const QPoint & )	 const;
@@ -120,6 +118,16 @@ public:
     virtual void setFont( const QFont & );
     QFontMetrics fontMetrics()	const;
     QFontInfo	 fontInfo()	const;
+
+    enum PropagationMode { NoChildren, AllChildren,
+			   SameFont, SamePalette = SameFont };
+
+    PropagationMode fontPropagation() const;
+    void	 setFontPropagation( PropagationMode );
+
+    PropagationMode palettePropagation() const;
+    void	 setPalettePropagation( PropagationMode );
+
 
     const QCursor &cursor() const;
     virtual void setCursor( const QCursor & );
