@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#174 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#173 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#174 $");
 
 
 /*!
@@ -1776,6 +1776,25 @@ void QWidget::setUpdatesEnabled( bool enable )
 }
 
 
+/*
+  Returns TRUE if there's no visible top level window (except the desktop).
+  This is an internal function used by QWidget::close().
+*/
+
+static bool noVisibleTLW()
+{
+    QWidgetList *list   = qApp->topLevelWidgets();
+    QWidget     *widget = list->first();
+    while ( widget ) {
+	if ( widget->isVisible() && !widget->isDesktop() )
+	    break;
+	widget = list->next();
+    }
+    delete list;
+    return widget == 0;
+}
+
+
 /*!
   Closes this widget. Returns TRUE if the widget was closed, otherwise
   FALSE.
@@ -1802,13 +1821,18 @@ bool QWidget::close( bool forceKill )
     QCloseEvent e;
     bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
 	return TRUE;
     }
-    if ( accept || forceKill ) {
+    if ( forceKill )
 	accept = TRUE;
+    if ( accept ) {
 	hide();
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
 	else if ( forceKill || testWFlags(WDestructiveClose) )
@@ -1816,6 +1840,7 @@ bool QWidget::close( bool forceKill )
     }
     return accept;
 }
+
 
 /*!
   \fn bool QWidget::isVisible() const
@@ -2335,9 +2360,11 @@ void QWidget::closeEvent( QCloseEvent *e )
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
-  raw Macintosh events.
+  native Macintosh events.
 
-  It must return FALSE to pass the event to Qt, or TRUE to stop the event.
+  If the event handler returns FALSE, this native event is passed back to
+  Qt, which translates the event into a Qt event and sends it to the
+  widget.  If the event handler returns TRUE, the event is stopped.
 
   \warning This function is not portable.
 
@@ -2353,9 +2380,11 @@ bool QWidget::macEvent( MSG * )
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
-  raw Windows events.
+  native Windows events.
 
-  It must return FALSE to pass the event to Qt, or TRUE to stop the event.
+  If the event handler returns FALSE, this native event is passed back to
+  Qt, which translates the event into a Qt event and sends it to the
+  widget.  If the event handler returns TRUE, the event is stopped.
 
   \warning This function is not portable.
 
@@ -2371,9 +2400,11 @@ bool QWidget::winEvent( MSG * )
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
-  raw OS/2 Presentation Manager events.
+  native OS/2 Presentation Manager events.
 
-  It must return FALSE to pass the event to Qt, or TRUE to stop the event.
+  If the event handler returns FALSE, this native event is passed back to
+  Qt, which translates the event into a Qt event and sends it to the
+  widget.  If the event handler returns TRUE, the event is stopped.
 
   \warning This function is not portable.
 
@@ -2389,9 +2420,11 @@ bool QWidget::pmEvent( QMSG * )
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
-  raw X11 events.
+  native X11 events.
 
-  It must return FALSE to pass the event to Qt, or TRUE to stop the event.
+  If the event handler returns FALSE, this native event is passed back to
+  Qt, which translates the event into a Qt event and sends it to the
+  widget.  If the event handler returns TRUE, the event is stopped.
 
   \warning This function is not portable.
 

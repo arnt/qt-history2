@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#220 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#221 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#220 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#221 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1489,10 +1489,8 @@ bool QApplication::processNextEvent( bool canWait )
 	    case ClientMessage:			// client message
 		if ( (event.xclient.format == 32) ) {
 		    long *l = event.xclient.data.l;
-		    if ( *l == (long)q_wm_delete_window ) {
-			if ( widget->translateCloseEvent(&event) )
-			    delete widget;
-		    }
+		    if ( *l == (long)q_wm_delete_window )
+			widget->translateCloseEvent( &event );
 		}
 		break;
 
@@ -2627,23 +2625,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
 
 //
-// No visible top level window (except the desktop)
-//
-
-static bool noVisibleTLW()
-{
-    QWidgetList *list   = qApp->topLevelWidgets();
-    QWidget     *widget = list->first();
-    while ( widget ) {
-	if ( widget->isVisible() && !widget->isDesktop() )
-	    break;
-	widget = list->next();
-    }
-    delete list;
-    return widget == 0;
-}
-
-//
 // Close window event translation.
 //
 // This class is a friend of QApplication because it needs to emit the
@@ -2652,25 +2633,5 @@ static bool noVisibleTLW()
 
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
-    WId	 id	= winId();
-    bool isMain = qApp->mainWidget() == this;
-    QCloseEvent e;
-    bool accept = QApplication::sendEvent( this, &e );
-    if ( !QWidget::find(id) ) {			// widget was deleted
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
-	    emit qApp->lastWindowClosed();
-	if ( isMain )
-	    qApp->quit();
-	return FALSE;
-    }
-    if ( accept ) {
-	hide();
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
-	    emit qApp->lastWindowClosed();
-	if ( isMain )
-	    qApp->quit();
-	else if ( testWFlags(WDestructiveClose) )
-	    return TRUE;
-    }
-    return FALSE;
+    return close(FALSE);
 }
