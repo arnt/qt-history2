@@ -260,6 +260,9 @@
 /* Intel C++ also masquerades as GCC 3.2.0 */
 #    define Q_CC_INTEL
 #  else
+#    ifdef __APPLE__
+#      define Q_NO_COMPAT_CONSTRUCTORS
+#    endif
 #    if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #      define Q_FULL_TEMPLATE_INSTANTIATION
 #    endif
@@ -636,10 +639,32 @@ typedef int QNoImplicitIntegralCast;
 //
 // Warnings and errors when using deprecated methods
 //
-#ifdef QT_COMPAT  // make sure QT_COMPAT is defined to be void
+#if defined(QT_COMPAT_WARNINGS)
+#  ifdef QT_COMPAT
+#    undef QT_COMPAT
+#  endif
+#  if defined(Q_MOC_RUN)
+#    define QT_COMPAT QT_COMPAT
+#  elif defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
+#    define QT_COMPAT __attribute__ ((__deprecated__))
+#  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
+#    define QT_COMPAT __declspec(deprecated)
+#  else
+#    define QT_COMPAT
+#  endif
+#elif defined(QT_COMPAT) // make sure QT_COMPAT is void
 #  undef QT_COMPAT
 #  define QT_COMPAT
-#  define QT_COMPAT_CONSTRUCTOR
+#endif
+
+#ifndef QT_COMPAT_CONSTRUCTOR
+#  if defined(Q_MOC_RUN)
+#    define QT_COMPAT_CONSTRUCTOR QT_COMPAT_CONSTRUCTOR
+#  elif defined(Q_NO_COMPAT_CONSTRUCTORS)
+#    define QT_COMPAT_CONSTRUCTOR explicit 
+#  else
+#    define QT_COMPAT_CONSTRUCTOR explicit QT_COMPAT
+#  endif
 #endif
 
 #ifdef QT_MOC_COMPAT //for marking signals/slots
@@ -649,27 +674,6 @@ typedef int QNoImplicitIntegralCast;
 #   define QT_MOC_COMPAT QT_MOC_COMPAT
 #else
 #   define QT_MOC_COMPAT
-#endif
-
-#if defined(QT_COMPAT_WARNINGS)
-#  ifdef QT_COMPAT
-#    undef QT_COMPAT
-#  endif
-#  ifdef QT_COMPAT_CONSTRUCTOR
-#    undef QT_COMPAT_CONSTRUCTOR
-#  endif
-#  if defined(Q_MOC_RUN)
-#    define QT_COMPAT QT_COMPAT
-#  elif defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
-#    define QT_COMPAT __attribute__ ((__deprecated__))
-#    define QT_COMPAT_CONSTRUCTOR explicit __attribute__ ((__deprecated__))
-#  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
-#    define QT_COMPAT __declspec(deprecated)
-#    define QT_COMPAT_CONSTRUCTOR __declspec(deprecated)
-#  else
-#    define QT_COMPAT
-#    define QT_COMPAT_CONSTRUCTOR
-#  endif
 #endif
 
 #if defined(QT_DEPRECATED_WARNINGS)

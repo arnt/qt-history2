@@ -63,14 +63,14 @@ public:
               QActionGroup* parent);
 
 #ifdef QT_COMPAT
-    QAction(QWidget* parent, const char* name);
-    QAction(QActionGroup* parent, const char* name);
-    QAction(const QString &menuText, const QKeySequence &shortcut, QWidget* parent, const char* name);
-    QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
-            QWidget* parent, const char* name);
-    QAction(const QString &menuText, const QKeySequence &shortcut, QActionGroup* parent, const char* name);
-    QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
-            QActionGroup* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(QWidget* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(QActionGroup* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(const QString &menuText, const QKeySequence &shortcut, QWidget* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
+                                  QWidget* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(const QString &menuText, const QKeySequence &shortcut, QActionGroup* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
+                                  QActionGroup* parent, const char* name);
 #endif
     ~QAction();
 

@@ -252,7 +252,7 @@ public:
 
     // compatibility
 #ifdef QT_COMPAT
-    explicit QByteArray(int size);
+    QT_COMPAT_CONSTRUCTOR QByteArray(int size);
     QT_COMPAT QByteArray& duplicate(const QByteArray& a)
     { *this = a; return *this; }
     QT_COMPAT QByteArray& duplicate(const char *a, uint n)
