@@ -322,15 +322,15 @@ void TableEditor::readFromTable()
 
     QHeader *rows = editTable->verticalHeader();
     table->setNumRows( rows->count() );
-    for ( int i = 0; i < rows->count(); ++i ) {
-	if ( editTable->verticalHeader()->iconSet( i ) ) {
-	    table->verticalHeader()->setLabel( i, *editTable->verticalHeader()->iconSet( i ),
-					       editTable->verticalHeader()->label( i ) );
-	    listRows->insertItem( editTable->verticalHeader()->iconSet( i )->pixmap(),
-				  editTable->verticalHeader()->label( i ) );
+    for ( int j = 0; j < rows->count(); ++j ) {
+	if ( editTable->verticalHeader()->iconSet( j ) ) {
+	    table->verticalHeader()->setLabel( j, *editTable->verticalHeader()->iconSet( j ),
+					       editTable->verticalHeader()->label( j ) );
+	    listRows->insertItem( editTable->verticalHeader()->iconSet( j )->pixmap(),
+				  editTable->verticalHeader()->label( j ) );
 	} else {
-	    table->verticalHeader()->setLabel( i, editTable->verticalHeader()->label( i ) );
-	    listRows->insertItem( editTable->verticalHeader()->label( i ) );
+	    table->verticalHeader()->setLabel( j, editTable->verticalHeader()->label( j ) );
+	    listRows->insertItem( editTable->verticalHeader()->label( j ) );
 	}
     }
 

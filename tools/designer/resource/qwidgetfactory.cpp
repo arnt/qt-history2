@@ -740,7 +740,7 @@ void QWidgetFactory::createSpacer( const QDomElement &e, QLayout *layout )
     int rowspan = e.attribute( "rowspan" ).toInt();
     int colspan = e.attribute( "colspan" ).toInt();
 
-    Qt::Orientation orient;
+    Qt::Orientation orient = Qt::Horizontal;
     int w = 0, h = 0;
     QSizePolicy::SizeType sizeType = QSizePolicy::Preferred;
     while ( !n.isNull() ) {

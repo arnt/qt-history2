@@ -729,13 +729,13 @@ void PropertyDateItem::setValue( const QVariant &v )
 	    lined()->setDate( v.toDate() );
 	lined()->blockSignals( FALSE );
     }
-    setText( 1, v.toDate().toString( Qt::ISODate ) );
+    setText( 1, v.toDate().toString( ::Qt::ISODate ) );
     PropertyItem::setValue( v );
 }
 
 void PropertyDateItem::setValue()
 {
-    setText( 1, lined()->date().toString( Qt::ISODate ) );
+    setText( 1, lined()->date().toString( ::Qt::ISODate ) );
     QVariant v;
     v = lined()->date();
     PropertyItem::setValue( v );
@@ -804,13 +804,13 @@ void PropertyTimeItem::setValue( const QVariant &v )
 	    lined()->setTime( v.toTime() );
 	lined()->blockSignals( FALSE );
     }
-    setText( 1, v.toTime().toString( Qt::ISODate ) );
+    setText( 1, v.toTime().toString( ::Qt::ISODate ) );
     PropertyItem::setValue( v );
 }
 
 void PropertyTimeItem::setValue()
 {
-    setText( 1, lined()->time().toString( Qt::ISODate ) );
+    setText( 1, lined()->time().toString( ::Qt::ISODate ) );
     QVariant v;
     v = lined()->time();
     PropertyItem::setValue( v );
@@ -879,13 +879,13 @@ void PropertyDateTimeItem::setValue( const QVariant &v )
 	    lined()->setDateTime( v.toDateTime() );
 	lined()->blockSignals( FALSE );
     }
-    setText( 1, v.toDateTime().toString( Qt::ISODate ) );
+    setText( 1, v.toDateTime().toString( ::Qt::ISODate ) );
     PropertyItem::setValue( v );
 }
 
 void PropertyDateTimeItem::setValue()
 {
-    setText( 1, lined()->dateTime().toString( Qt::ISODate ) );
+    setText( 1, lined()->dateTime().toString( ::Qt::ISODate ) );
     QVariant v;
     v = lined()->dateTime();
     PropertyItem::setValue( v );

@@ -79,9 +79,9 @@ public:
 
     void save();
 
-    QList<Project::DatabaseConnection> databaseConnections() const;
-    void setDatabaseConnections( const QList<Project::DatabaseConnection> &lst );
-    void addDatabaseConnection( Project::DatabaseConnection *conn );
+    QList<DatabaseConnection> databaseConnections() const;
+    void setDatabaseConnections( const QList<DatabaseConnection> &lst );
+    void addDatabaseConnection( DatabaseConnection *conn );
     Project::DatabaseConnection *databaseConnection( const QString &name );
 
     QStringList databaseConnectionList();
@@ -105,7 +105,7 @@ private:
     QStringList loadedForms;
     QString desc;
     QMap<FormWindow*, QString> formWindows;
-    QList<Project::DatabaseConnection> dbConnections;
+    QList<DatabaseConnection> dbConnections;
 
 };
 
