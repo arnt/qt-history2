@@ -1183,7 +1183,7 @@ void SetupWizardImpl::makeDone( bool error )
 
 void SetupWizardImpl::configDone()
 {
-    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make make" );
+    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
     QStringList args;
 
     if( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
@@ -1423,7 +1423,7 @@ void SetupWizardImpl::showPageOptions()
 
 void SetupWizardImpl::showPageFolders()
 {
-    QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe make nmake.exe mingw32-make.exe make.exe" );
+    QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe make nmake.exe mingw32-make.exe nmake.exe make.exe" );
     QString makeCmd = makeCmds[ globalInformation.sysId() ];
     if ( optionsPage->skipBuild->isChecked() && optionsPage->skipBuild->isEnabled() ) {
 	if( !findFile( makeCmd ) ) {

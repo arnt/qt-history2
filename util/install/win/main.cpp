@@ -99,6 +99,8 @@ int main( int argc, char** argv )
 		globalInformation.setSysId( GlobalInformation::Borland );
 	    } else if ( qmakespec == "win32-mingw" ) {
 		globalInformation.setSysId( GlobalInformation::MinGW );
+	    } else if ( qmakespec == "win32-watcom" ) {
+		globalInformation.setSysId( GlobalInformation::Watcom );
 	    } else {
 		globalInformation.setSysId( GlobalInformation::Other );
 	    }

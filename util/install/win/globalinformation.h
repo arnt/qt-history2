@@ -24,7 +24,9 @@ public:
 	MACX	= 3,
 	MSVCNET = 4,
 	MinGW   = 5,
-	Other   = 6
+	Watcom  = 6,
+	Other   = 7
+
     };
     void setSysId( SysId );
     SysId sysId() const;

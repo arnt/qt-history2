@@ -53,7 +53,7 @@ void SetupWizardImpl::cleanDone()
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 	    if( !globalInformation.reconfig() ) {
-		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make make" );
+		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
 		outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
 	    }
 	    outFile.close();
@@ -346,7 +346,7 @@ void SetupWizardImpl::cleanDone()
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 
-	    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make make" );
+	    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
 	    if ( globalInformation.reconfig() )
 		outStream << makeCmds[ globalInformation.sysId() ].latin1() << " clean" << endl;
 	    
@@ -383,7 +383,7 @@ void SetupWizardImpl::cleanDone()
 
 void SetupWizardImpl::prepareEnvironment()
 {
-    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net win32-g++" );
+    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net win32-g++ win32-watcom" );
     QByteArray pathBuffer;
     QStringList path;
     QString qtDir;
@@ -1013,7 +1013,7 @@ void SetupWizardImpl::showPageBuild()
 
     if( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() && qWinVersion() & WV_NT_based ) {
 	QStringList args;
-	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make make" );
+	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
 
 	buildPage->compileProgress->hide();
 	buildPage->restartBuild->hide();
