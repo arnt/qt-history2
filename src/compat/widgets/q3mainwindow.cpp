@@ -36,7 +36,7 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #ifdef Q_WS_MAC
-#  include <private/qt_mac_p>.h"
+#  include <private/qt_mac_p.h>
 #endif
 
 class QHideDock;

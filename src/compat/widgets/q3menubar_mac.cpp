@@ -14,7 +14,7 @@
 
 #include "qplatformdefs.h"
 #if defined(Q_WS_MAC)
-#include <qt_mac_p.h>
+# include <private/qt_mac_p.h>
 #if !defined(QMAC_Q3MENUBAR_NO_NATIVE)
 
 #define QMAC_Q3MENUBAR_CPP_FILE

@@ -33,7 +33,7 @@
 #include <private/qfontengine_p.h>
 #include <private/qgl_p.h>
 #include <qpaintengine_opengl.h>
-#include <qt_mac.h>
+#include <private/qt_mac_p.h>
 #include <qpixmap.h>
 #include <qtimer.h>
 #include <qapplication.h>
