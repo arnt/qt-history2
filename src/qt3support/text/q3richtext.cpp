@@ -16,6 +16,7 @@
 #ifndef QT_NO_RICHTEXT
 
 #include "qapplication.h"
+#include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qcursor.h"
 #include "qdatastream.h"
