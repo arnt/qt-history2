@@ -12,8 +12,6 @@ sourcedirs              = $QTDIR/src \
 sources.fileextensions	= "*.cpp *.qdoc"
 exampledirs		= $QTDIR/doc/src \
                           $QTDIR/doc/src/snippets \
-			  $QTDIR/examples/advanced \
-			  $QTDIR/examples/simple \
 			  $QTDIR/examples \
 			  $QTDIR/demos \
 			  $QTDIR/tutorial \

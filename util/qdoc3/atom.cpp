@@ -33,6 +33,7 @@
 
   \value AbstractLeft
   \value AbstractRight
+  \value AutoLink
   \value BaseName
   \value BriefLeft
   \value BriefRight
@@ -96,6 +97,7 @@ static const struct {
 } atms[] = {
     { "AbstractLeft", Atom::AbstractLeft },
     { "AbstractRight", Atom::AbstractRight },
+    { "AutoLink", Atom::AutoLink },
     { "BaseName", Atom::BaseName },
     { "BriefLeft", Atom::BriefLeft },
     { "BriefRight", Atom::BriefRight },

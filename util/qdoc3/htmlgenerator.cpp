@@ -108,6 +108,18 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	break;
     case Atom::AbstractRight:
 	break;
+    case Atom::AutoLink:
+        if (!inLink) {
+            link = linkForNode(marker->resolveTarget(atom->string(), tre, relative), relative);
+	    if (!link.isEmpty())
+	        out() << "<a href=\"" << link << "\">";
+        }
+        out() << protect(atom->string());
+	if (!inLink) {
+            if (!link.isEmpty())
+                out() << "</a>";
+        }
+        break;
     case Atom::BaseName:
 	break;
     case Atom::BriefLeft:

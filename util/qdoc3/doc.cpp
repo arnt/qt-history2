@@ -248,8 +248,9 @@ private:
     void endSection( int unit, int endCommand );
     void parseAlso();
     void append( Atom::Type type, const QString& string = "" );
-    void appendChar( QChar ch );
-    void appendToCode( const QString& code );
+    void appendChar(QChar ch);
+    void appendWord(const QString &word);
+    void appendToCode(const QString &code);
     void startNewPara();
     void enterPara( Atom::Type leftType = Atom::ParaLeft,
 		    Atom::Type rightType = Atom::ParaRight,
@@ -345,594 +346,603 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     while ( pos < len ) {
 	QChar ch = in[pos];
 
-	if ( ch == '\\' ) {
-	    QString commandStr;
-	    pos++;
-	    while ( pos < len ) {
-		ch = in[pos];
-		if ( ch.isLetterOrNumber() ) {
-		    commandStr += ch;
-		    pos++;
-		} else {
-		    break;
-		}
-	    }
-	    if ( commandStr.isEmpty() ) {
-		if ( pos < len ) {
-		    enterPara();
-		    if ( in[pos].isSpace() ) {
-			skipAllSpaces();
-			appendChar( ' ' );
+	switch (ch.unicode()) {
+        case '\\':
+            {
+	        QString commandStr;
+	        pos++;
+	        while ( pos < len ) {
+		    ch = in[pos];
+		    if ( ch.isLetterOrNumber() ) {
+		        commandStr += ch;
+		        pos++;
 		    } else {
-			appendChar( in[pos++] );
+		        break;
 		    }
-		}
-	    } else {
-		int command = commandHash()->value(commandStr, UNKNOWN_COMMAND);
+	        }
+	        if ( commandStr.isEmpty() ) {
+		    if ( pos < len ) {
+		        enterPara();
+		        if ( in[pos].isSpace() ) {
+			    skipAllSpaces();
+			    appendChar( ' ' );
+		        } else {
+			    appendChar( in[pos++] );
+		        }
+		    }
+	        } else {
+		    int command = commandHash()->value(commandStr, UNKNOWN_COMMAND);
 
-		switch ( command ) {
-		case CMD_A:
-		    enterPara();
-		    x = getArgument();
-		    append( Atom::FormattingLeft, ATOM_FORMATTING_PARAMETER );
-		    append( Atom::String, x );
-		    append( Atom::FormattingRight, ATOM_FORMATTING_PARAMETER );
-		    priv->params.insert( x );
-		    break;
-		case CMD_ABSTRACT:
-		    if ( openCommand(command) ) {
-			leavePara();
-			append( Atom::AbstractLeft );
-		    }
-		    break;
-		case CMD_ALSO:
-		    parseAlso();
-		    break;
-                case CMD_BADCODE:
-                    leavePara();
-                    append(Atom::CodeBad, getCode(CMD_BADCODE, marker));
-                    break;
-		case CMD_BASENAME:
-		    leavePara();
-		    insertBaseName(getArgument());
-		    break;
-		case CMD_BOLD:
-		    startFormat( ATOM_FORMATTING_BOLD, command );
-		    break;
-		case CMD_BRIEF:
-		    leavePara();
-		    enterPara( Atom::BriefLeft, Atom::BriefRight );
-		    break;
-		case CMD_C:
-		    enterPara();
-		    x = untabifyEtc( getArgument(true) );
-		    marker = CodeMarker::markerForCode( x );
-		    append( Atom::C, marker->markedUpCode(x, 0, "") );
-		    break;
-		case CMD_CAPTION:
-		    leavePara();
-		    /* ... */
-		    break;
-		case CMD_CHAPTER:
-		    startSection( Doc::Chapter, command );
-		    break;
-		case CMD_CODE:
-		    leavePara();
-                    append(Atom::Code, getCode(CMD_CODE, marker));
-		    break;
-		case CMD_ELSE:
-		    if (preprocessorSkipping.size() > 0) {
-			if (preprocessorSkipping.top()) {
-			    --numPreprocessorSkipping;
-                        } else {
-			    ++numPreprocessorSkipping;
+		    switch ( command ) {
+		    case CMD_A:
+		        enterPara();
+		        x = getArgument();
+		        append( Atom::FormattingLeft, ATOM_FORMATTING_PARAMETER );
+		        append( Atom::String, x );
+		        append( Atom::FormattingRight, ATOM_FORMATTING_PARAMETER );
+		        priv->params.insert( x );
+		        break;
+		    case CMD_ABSTRACT:
+		        if ( openCommand(command) ) {
+			    leavePara();
+			    append( Atom::AbstractLeft );
+		        }
+		        break;
+		    case CMD_ALSO:
+		        parseAlso();
+		        break;
+                    case CMD_BADCODE:
+                        leavePara();
+                        append(Atom::CodeBad, getCode(CMD_BADCODE, marker));
+                        break;
+		    case CMD_BASENAME:
+		        leavePara();
+		        insertBaseName(getArgument());
+		        break;
+		    case CMD_BOLD:
+		        startFormat( ATOM_FORMATTING_BOLD, command );
+		        break;
+		    case CMD_BRIEF:
+		        leavePara();
+		        enterPara( Atom::BriefLeft, Atom::BriefRight );
+		        break;
+		    case CMD_C:
+		        enterPara();
+		        x = untabifyEtc( getArgument(true) );
+		        marker = CodeMarker::markerForCode( x );
+		        append( Atom::C, marker->markedUpCode(x, 0, "") );
+		        break;
+		    case CMD_CAPTION:
+		        leavePara();
+		        /* ... */
+		        break;
+		    case CMD_CHAPTER:
+		        startSection( Doc::Chapter, command );
+		        break;
+		    case CMD_CODE:
+		        leavePara();
+                        append(Atom::Code, getCode(CMD_CODE, marker));
+		        break;
+		    case CMD_ELSE:
+		        if (preprocessorSkipping.size() > 0) {
+			    if (preprocessorSkipping.top()) {
+			        --numPreprocessorSkipping;
+                            } else {
+			        ++numPreprocessorSkipping;
+                            }
+                            preprocessorSkipping.top() = !preprocessorSkipping.top();
+                            (void)getRestOfLine(); // ### should ensure that it's empty
+                            if (numPreprocessorSkipping)
+			        skipToNextPreprocessorCommand();
+		        } else {
+			    location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ELSE)));
                         }
-                        preprocessorSkipping.top() = !preprocessorSkipping.top();
-                        (void)getRestOfLine(); // ### should ensure that it's empty
+                        break;
+		    case CMD_ENDABSTRACT:
+		        if ( closeCommand(command) ) {
+			    leavePara();
+			    append( Atom::AbstractRight );
+		        }
+		        break;
+		    case CMD_ENDCHAPTER:
+		        endSection( 0, command );
+		        break;
+		    case CMD_ENDCODE:
+		        closeCommand( command );
+		        break;
+		    case CMD_ENDFOOTNOTE:
+		        if ( closeCommand(command) ) {
+			    leavePara();
+			    append( Atom::FootnoteRight );
+			    paraState = InsideMultiLinePara; // ###
+		        }
+		        break;
+		    case CMD_ENDIF:
+		        if (preprocessorSkipping.count() > 0) {
+			    if (preprocessorSkipping.pop())
+			        --numPreprocessorSkipping;
+                            (void)getRestOfLine(); // ### should ensure that it's empty
+			    if (numPreprocessorSkipping)
+			        skipToNextPreprocessorCommand();
+		        } else {
+			    location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ENDIF)));
+                        }
+		        break;
+                    case CMD_ENDLINK:
+                        if (closeCommand(command)) {
+                            if (priv->text.lastAtom()->type() == Atom::String
+                                    && priv->text.lastAtom()->string().endsWith(" "))
+                                priv->text.lastAtom()->chopString();
+                            append(Atom::FormattingRight, ATOM_FORMATTING_LINK);
+                        }
+                        break;
+		    case CMD_ENDLIST:
+		        if ( closeCommand(command) ) {
+			    leavePara();
+			    if ( openedLists.top().isStarted() ) {
+			        append( Atom::ListItemRight,
+				        openedLists.top().styleString() );
+			        append( Atom::ListRight,
+				        openedLists.top().styleString() );
+			    }
+			    openedLists.pop();
+		        }
+		        break;
+		    case CMD_ENDOMIT:
+		        closeCommand( command );
+		        break;
+		    case CMD_ENDPART:
+		        endSection( -1, command );
+		        break;
+		    case CMD_ENDQUOTATION:
+		        if ( closeCommand(command) ) {
+			    leavePara();
+			    append( Atom::QuotationRight );
+		        }
+		        break;
+                    case CMD_ENDRAW:
+                        location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ENDRAW)));
+                        break;
+		    case CMD_ENDSECTION1:
+		        endSection( 1, command );
+		        break;
+		    case CMD_ENDSECTION2:
+		        endSection( 2, command );
+		        break;
+		    case CMD_ENDSECTION3:
+		        endSection( 3, command );
+		        break;
+		    case CMD_ENDSECTION4:
+		        endSection( 4, command );
+		        break;
+		    case CMD_ENDSIDEBAR:
+		        if ( closeCommand(command) ) {
+			    leavePara();
+			    append( Atom::SidebarRight );
+		        }
+		        break;
+		    case CMD_ENDTABLE:
+		        if (closeCommand(command)) {
+                            leaveTableRow();
+			    append(Atom::TableRight);
+                        }
+		        break;
+		    case CMD_EXPIRE:
+		        checkExpiry( getArgument() );
+		        break;
+		    case CMD_FOOTNOTE:
+		        if ( openCommand(command) ) {
+			    enterPara();
+			    append( Atom::FootnoteLeft );
+			    paraState = OutsidePara; // ###
+		        }
+		        break;
+		    case CMD_GENERATELIST:
+		        append(Atom::GeneratedList, getArgument());
+		        break;
+		    case CMD_GRANULARITY:
+		        priv->constructExtra();
+		        priv->extra->granularity = getSectioningUnit();
+		        break;
+		    case CMD_HEADER:
+		        if (openedCommands.top() == CMD_TABLE) {
+                            leaveTableRow();
+                            append(Atom::TableHeaderLeft);
+                            inTableHeader = true;
+                        } else {
+			    if (openedCommands.contains(CMD_TABLE)) {
+			        location().warning(tr("Cannot use '\\%1' within '\\%2'")
+					           .arg(commandName(CMD_HEADER))
+                                                   .arg(commandName(openedCommands.top())));
+			    } else {
+			        location().warning(tr("Cannot use '\\%1' outside of '\\%2'")
+					           .arg(commandName(CMD_HEADER))
+                                                   .arg(commandName(CMD_TABLE)));
+			    }
+                        }
+		        break;
+		    case CMD_I:
+		        startFormat( ATOM_FORMATTING_ITALIC, command );
+		        break;
+		    case CMD_IF:
+                        preprocessorSkipping.push(!Tokenizer::isTrue(getRestOfLine()));
+                        if (preprocessorSkipping.top())
+			    ++numPreprocessorSkipping;
                         if (numPreprocessorSkipping)
 			    skipToNextPreprocessorCommand();
-		    } else {
-			location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ELSE)));
-                    }
-                    break;
-		case CMD_ENDABSTRACT:
-		    if ( closeCommand(command) ) {
-			leavePara();
-			append( Atom::AbstractRight );
-		    }
-		    break;
-		case CMD_ENDCHAPTER:
-		    endSection( 0, command );
-		    break;
-		case CMD_ENDCODE:
-		    closeCommand( command );
-		    break;
-		case CMD_ENDFOOTNOTE:
-		    if ( closeCommand(command) ) {
-			leavePara();
-			append( Atom::FootnoteRight );
-			paraState = InsideMultiLinePara; // ###
-		    }
-		    break;
-		case CMD_ENDIF:
-		    if (preprocessorSkipping.count() > 0) {
-			if (preprocessorSkipping.pop())
-			    --numPreprocessorSkipping;
-                        (void)getRestOfLine(); // ### should ensure that it's empty
-			if (numPreprocessorSkipping)
-			    skipToNextPreprocessorCommand();
-		    } else {
-			location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ENDIF)));
-                    }
-		    break;
-                case CMD_ENDLINK:
-                    if (closeCommand(command)) {
-                        if (priv->text.lastAtom()->type() == Atom::String
-                                && priv->text.lastAtom()->string().endsWith(" "))
-                            priv->text.lastAtom()->chopString();
-                        append(Atom::FormattingRight, ATOM_FORMATTING_LINK);
-                    }
-                    break;
-		case CMD_ENDLIST:
-		    if ( closeCommand(command) ) {
-			leavePara();
-			if ( openedLists.top().isStarted() ) {
-			    append( Atom::ListItemRight,
-				    openedLists.top().styleString() );
-			    append( Atom::ListRight,
-				    openedLists.top().styleString() );
-			}
-			openedLists.pop();
-		    }
-		    break;
-		case CMD_ENDOMIT:
-		    closeCommand( command );
-		    break;
-		case CMD_ENDPART:
-		    endSection( -1, command );
-		    break;
-		case CMD_ENDQUOTATION:
-		    if ( closeCommand(command) ) {
-			leavePara();
-			append( Atom::QuotationRight );
-		    }
-		    break;
-                case CMD_ENDRAW:
-                    location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ENDRAW)));
-                    break;
-		case CMD_ENDSECTION1:
-		    endSection( 1, command );
-		    break;
-		case CMD_ENDSECTION2:
-		    endSection( 2, command );
-		    break;
-		case CMD_ENDSECTION3:
-		    endSection( 3, command );
-		    break;
-		case CMD_ENDSECTION4:
-		    endSection( 4, command );
-		    break;
-		case CMD_ENDSIDEBAR:
-		    if ( closeCommand(command) ) {
-			leavePara();
-			append( Atom::SidebarRight );
-		    }
-		    break;
-		case CMD_ENDTABLE:
-		    if (closeCommand(command)) {
-                        leaveTableRow();
-			append(Atom::TableRight);
-                    }
-		    break;
-		case CMD_EXPIRE:
-		    checkExpiry( getArgument() );
-		    break;
-		case CMD_FOOTNOTE:
-		    if ( openCommand(command) ) {
-			enterPara();
-			append( Atom::FootnoteLeft );
-			paraState = OutsidePara; // ###
-		    }
-		    break;
-		case CMD_GENERATELIST:
-		    append(Atom::GeneratedList, getArgument());
-		    break;
-		case CMD_GRANULARITY:
-		    priv->constructExtra();
-		    priv->extra->granularity = getSectioningUnit();
-		    break;
-		case CMD_HEADER:
-		    if (openedCommands.top() == CMD_TABLE) {
-                        leaveTableRow();
-                        append(Atom::TableHeaderLeft);
-                        inTableHeader = true;
-                    } else {
-			if (openedCommands.contains(CMD_TABLE)) {
-			    location().warning(tr("Cannot use '\\%1' within '\\%2'")
-					       .arg(commandName(CMD_HEADER))
-                                               .arg(commandName(openedCommands.top())));
-			} else {
-			    location().warning(tr("Cannot use '\\%1' outside of '\\%2'")
-					       .arg(commandName(CMD_HEADER))
-                                               .arg(commandName(CMD_TABLE)));
-			}
-                    }
-		    break;
-		case CMD_I:
-		    startFormat( ATOM_FORMATTING_ITALIC, command );
-		    break;
-		case CMD_IF:
-                    preprocessorSkipping.push(!Tokenizer::isTrue(getRestOfLine()));
-                    if (preprocessorSkipping.top())
-			++numPreprocessorSkipping;
-                    if (numPreprocessorSkipping)
-			skipToNextPreprocessorCommand();
-		    break;
-		case CMD_IMAGE:
-		    append( Atom::Image, getArgument() );
-		    append( Atom::ImageText, getRestOfLine() );
-		    break;
-		case CMD_INCLUDE:
-		    include( getArgument() );
-		    break;
-		case CMD_INLINEIMAGE:
-                    enterPara();
-		    append(Atom::InlineImage, getArgument());
-		    append(Atom::ImageText, getRestOfLine());
-                    append(Atom::String, " ");
-		    break;
-		case CMD_INDEX:
-		    if ( paraState == OutsidePara ) {
-			enterPara();
-			indexStartedPara = true;
-		    } else {
-			const Atom *last = priv->text.lastAtom();
-			if ( indexStartedPara &&
-			     (last->type() != Atom::FormattingRight ||
-			      last->string() != ATOM_FORMATTING_INDEX) )
-			    indexStartedPara = false;
-		    }
-		    startFormat( ATOM_FORMATTING_INDEX, command );
-		    break;
-		case CMD_KEYWORD:
-		    x = getRestOfLine();
-		    insertTarget( x );
-		    break;
-		case CMD_L:
-		    enterPara();
-		    if ( isLeftBraceAhead() ) {
-			x = getArgument();
-			append( Atom::Link, x );
-			if ( isLeftBraceAhead() ) {
-			    startFormat( ATOM_FORMATTING_LINK, command );
-			} else {
+		        break;
+		    case CMD_IMAGE:
+		        append( Atom::Image, getArgument() );
+		        append( Atom::ImageText, getRestOfLine() );
+		        break;
+		    case CMD_INCLUDE:
+		        include( getArgument() );
+		        break;
+		    case CMD_INLINEIMAGE:
+                        enterPara();
+		        append(Atom::InlineImage, getArgument());
+		        append(Atom::ImageText, getRestOfLine());
+                        append(Atom::String, " ");
+		        break;
+		    case CMD_INDEX:
+		        if ( paraState == OutsidePara ) {
+			    enterPara();
+			    indexStartedPara = true;
+		        } else {
+			    const Atom *last = priv->text.lastAtom();
+			    if ( indexStartedPara &&
+			         (last->type() != Atom::FormattingRight ||
+			          last->string() != ATOM_FORMATTING_INDEX) )
+			        indexStartedPara = false;
+		        }
+		        startFormat( ATOM_FORMATTING_INDEX, command );
+		        break;
+		    case CMD_KEYWORD:
+		        x = getRestOfLine();
+		        insertTarget( x );
+		        break;
+		    case CMD_L:
+		        enterPara();
+		        if ( isLeftBraceAhead() ) {
+			    x = getArgument();
+			    append( Atom::Link, x );
+			    if ( isLeftBraceAhead() ) {
+			        startFormat( ATOM_FORMATTING_LINK, command );
+			    } else {
+			        append(Atom::FormattingLeft, ATOM_FORMATTING_LINK);
+			        append(Atom::String, cleanLink(x));
+			        append(Atom::FormattingRight, ATOM_FORMATTING_LINK);
+			    }
+		        } else {
+			    x = getArgument();
+			    append(Atom::Link, x);
 			    append(Atom::FormattingLeft, ATOM_FORMATTING_LINK);
 			    append(Atom::String, cleanLink(x));
 			    append(Atom::FormattingRight, ATOM_FORMATTING_LINK);
-			}
-		    } else {
-			x = getArgument();
-			append(Atom::Link, x);
-			append(Atom::FormattingLeft, ATOM_FORMATTING_LINK);
-			append(Atom::String, cleanLink(x));
-			append(Atom::FormattingRight, ATOM_FORMATTING_LINK);
-		    }
-		    break;
-		case CMD_LEGALESE:
-		    leavePara();
-		    if (!inLegalese) {
-			append(Atom::LegaleseLeft);
-			inLegalese = true;
-		    }
-                    docPrivate->hasLegalese = true;
-		    break;
-                case CMD_LINK:
-                    if (openCommand(command)) {
-                        enterPara();
-                        x = getArgument();
-                        append(Atom::Link, x);
-                        append(Atom::FormattingLeft, ATOM_FORMATTING_LINK);
-                        skipSpacesOrOneEndl();
-                    }
-                    break;
-		case CMD_LIST:
-		    if ( openCommand(command) ) {
-			leavePara();
-			openedLists.push( OpenedList(location(),
-						     getOptionalArgument()) );
-		    }
-		    break;
-                case CMD_NEWCODE:
-                    location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_NEWCODE)));
-                    break;
-		case CMD_O:
-		    leavePara();
-                    if (openedCommands.top() == CMD_LIST) {
-			if ( openedLists.top().isStarted() ) {
-			    append( Atom::ListItemRight,
+		        }
+		        break;
+		    case CMD_LEGALESE:
+		        leavePara();
+		        if (!inLegalese) {
+			    append(Atom::LegaleseLeft);
+			    inLegalese = true;
+		        }
+                        docPrivate->hasLegalese = true;
+		        break;
+                    case CMD_LINK:
+                        if (openCommand(command)) {
+                            enterPara();
+                            x = getArgument();
+                            append(Atom::Link, x);
+                            append(Atom::FormattingLeft, ATOM_FORMATTING_LINK);
+                            skipSpacesOrOneEndl();
+                        }
+                        break;
+		    case CMD_LIST:
+		        if ( openCommand(command) ) {
+			    leavePara();
+			    openedLists.push( OpenedList(location(),
+						         getOptionalArgument()) );
+		        }
+		        break;
+                    case CMD_NEWCODE:
+                        location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_NEWCODE)));
+                        break;
+		    case CMD_O:
+		        leavePara();
+                        if (openedCommands.top() == CMD_LIST) {
+			    if ( openedLists.top().isStarted() ) {
+			        append( Atom::ListItemRight,
+				        openedLists.top().styleString() );
+			    } else {
+			        append( Atom::ListLeft,
+				        openedLists.top().styleString() );
+			    }
+			    openedLists.top().next();
+			    append( Atom::ListItemNumber,
+				    openedLists.top().numberString() );
+			    append( Atom::ListItemLeft,
 				    openedLists.top().styleString() );
-			} else {
-			    append( Atom::ListLeft,
-				    openedLists.top().styleString() );
-			}
-			openedLists.top().next();
-			append( Atom::ListItemNumber,
-				openedLists.top().numberString() );
-			append( Atom::ListItemLeft,
-				openedLists.top().styleString() );
-			enterPara();
-		    } else if (openedCommands.top() == CMD_TABLE) {
-                        x = "1,1";
+			    enterPara();
+		        } else if (openedCommands.top() == CMD_TABLE) {
+                            x = "1,1";
+                            if (isLeftBraceAhead())
+                                x = getArgument();
+
+			    if (!inTableHeader && !inTableRow) {
+			        location().warning(tr("Missing '\\%1' or '\\%1' before '\\%3'")
+					           .arg(commandName(CMD_HEADER))
+					           .arg(commandName(CMD_ROW))
+                                                   .arg(commandName(CMD_O)));
+			        append(Atom::TableRowLeft);
+                                inTableRow = true;
+                            } else if (inTableItem) {
+                                append(Atom::TableItemRight);
+                                inTableItem = false;
+                            }
+
+                            append(Atom::TableItemLeft, x);
+                            inTableItem = true;
+		        } else {
+			    location().warning(tr("Command '\\%1' outside of '\\%2' and '\\%3'")
+					       .arg(commandName(command))
+					       .arg(commandName(CMD_LIST))
+                                               .arg(commandName(CMD_TABLE)));
+		        }
+		        break;
+                    case CMD_OLDCODE:
+		        leavePara();
+                        append(Atom::CodeOld, getCode(CMD_OLDCODE, marker));
+                        append(Atom::CodeNew, getCode(CMD_NEWCODE, marker));
+		        break;
+		    case CMD_OMIT:
+		        getUntilEnd( command );
+		        break;
+		    case CMD_OMITVALUE:
+		        //leaveValue();
+		        x = getArgument();
+		        if (!priv->enumItemList.contains(x))
+			    priv->enumItemList.append(x);
+		        if (!priv->omitEnumItemList.contains(x))
+		            priv->omitEnumItemList.append(x);
+		        break;
+		    case CMD_PART:
+		        startSection( Doc::Part, command );
+		        break;
+		    case CMD_PRINTLINE:
+		        leavePara();
+		        appendToCode( quoter.quoteLine(location(), commandStr,
+						       getRestOfLine()) );
+		        break;
+		    case CMD_PRINTTO:
+		        leavePara();
+		        appendToCode( quoter.quoteTo(location(), commandStr,
+				      getRestOfLine()) );
+		        break;
+		    case CMD_PRINTUNTIL:
+		        leavePara();
+		        appendToCode( quoter.quoteUntil(location(), commandStr,
+						        getRestOfLine()) );
+		        break;
+		    case CMD_QUOTATION:
+		        if ( openCommand(command) ) {
+			    leavePara();
+			    append( Atom::QuotationLeft );
+		        }
+		        break;
+		    case CMD_QUOTEFILE:
+		        leavePara();
+		        quoteFromFile();
+		        append( Atom::Code,
+			        quoter.quoteTo(location(), commandStr, "") );
+		        quoter.reset();
+		        break;
+		    case CMD_QUOTEFROMFILE:
+		        leavePara();
+		        quoteFromFile();
+		        break;
+		    case CMD_QUOTEFUNCTION:
+		        leavePara();
+		        marker = quoteFromFile();
+		        x = getRestOfLine();
+		        quoter.quoteTo( location(), commandStr,
+				        slashed(marker->functionBeginRegExp(x)) );
+		        append( Atom::Code,
+			        quoter.quoteUntil(location(), commandStr,
+				        slashed(marker->functionEndRegExp(x))) );
+		        quoter.reset();
+		        break;
+		    case CMD_RAW:
+		        leavePara();
+                        x = getRestOfLine();
+                        if (x.isEmpty())
+                            location().warning(tr("Missing format name after '\\%1")
+                                               .arg(commandName(CMD_ELSE)));
+                        append(Atom::FormatIf, x);
+                        append(Atom::RawString, untabifyEtc(getUntilEnd(command)));
+                        append(Atom::FormatElse);
+                        append(Atom::FormatEndif);
+		        break;
+		    case CMD_ROW:
+		        if (openedCommands.top() == CMD_TABLE) {
+			    leaveTableRow();
+                            append(Atom::TableRowLeft);
+                            inTableRow = true;
+                        } else {
+			    if (openedCommands.contains(CMD_TABLE)) {
+			        location().warning(tr("Cannot use '\\%1' within '\\%2'")
+					           .arg(commandName(CMD_ROW))
+                                                   .arg(commandName(openedCommands.top())));
+			    } else {
+			        location().warning(tr("Cannot use '\\%1' outside of '\\%2'")
+					           .arg(commandName(CMD_ROW))
+                                                   .arg(commandName(CMD_TABLE)));
+			    }
+                        }
+		        break;
+		    case CMD_SECTION1:
+		        startSection( Doc::Section1, command );
+		        break;
+		    case CMD_SECTION2:
+		        startSection( Doc::Section2, command );
+		        break;
+		    case CMD_SECTION3:
+		        startSection( Doc::Section3, command );
+		        break;
+		    case CMD_SECTION4:
+		        startSection( Doc::Section4, command );
+		        break;
+		    case CMD_SIDEBAR:
+		        if ( openCommand(command) ) {
+			    leavePara();
+			    append( Atom::SidebarLeft );
+		        }
+		        break;
+		    case CMD_SKIPLINE:
+		        leavePara();
+		        quoter.quoteLine( location(), commandStr, getRestOfLine() );
+		        break;
+		    case CMD_SKIPTO:
+		        leavePara();
+		        quoter.quoteTo( location(), commandStr, getRestOfLine() );
+		        break;
+		    case CMD_SKIPUNTIL:
+		        leavePara();
+		        quoter.quoteUntil( location(), commandStr, getRestOfLine() );
+		        break;
+		    case CMD_SUB:
+		        startFormat( ATOM_FORMATTING_SUBSCRIPT, command );
+		        break;
+		    case CMD_SUP:
+		        startFormat( ATOM_FORMATTING_SUPERSCRIPT, command );
+		        break;
+		    case CMD_TABLE:
+		        if ( openCommand(command) ) {
+			    leavePara();
+			    append(Atom::TableLeft);
+                            inTableHeader = false;
+                            inTableRow = false;
+                            inTableItem = false;
+		        }
+		        break;
+		    case CMD_TABLEOFCONTENTS:
+                        x = "1";
                         if (isLeftBraceAhead())
                             x = getArgument();
+                        x += ",";
+                        x += QString::number((int)getSectioningUnit());
+		        append(Atom::TableOfContents, x);
+		        break;
+		    case CMD_TARGET:
+		        insertTarget( getArgument() );
+		        break;
+		    case CMD_TT:
+		        startFormat( ATOM_FORMATTING_TELETYPE, command );
+		        break;
+		    case CMD_UNDERLINE:
+		        startFormat( ATOM_FORMATTING_UNDERLINE, command );
+		        break;
+		    case CMD_VALUE:
+		        leaveValue();
+		        if ( openedLists.top().style() == OpenedList::Value ) {
+			    x = getArgument();
+			    if (!priv->enumItemList.contains(x))
+			        priv->enumItemList.append(x);
 
-			if (!inTableHeader && !inTableRow) {
-			    location().warning(tr("Missing '\\%1' or '\\%1' before '\\%3'")
-					       .arg(commandName(CMD_HEADER))
-					       .arg(commandName(CMD_ROW))
-                                               .arg(commandName(CMD_O)));
-			    append(Atom::TableRowLeft);
-                            inTableRow = true;
-                        } else if (inTableItem) {
-                            append(Atom::TableItemRight);
-                            inTableItem = false;
-                        }
+			    openedLists.top().next();
+			    append( Atom::ListTagLeft, ATOM_LIST_VALUE );
+			    append( Atom::String, x );
+			    append( Atom::ListTagRight, ATOM_LIST_VALUE );
+			    append( Atom::ListItemLeft, ATOM_LIST_VALUE );
 
-                        append(Atom::TableItemLeft, x);
-                        inTableItem = true;
-		    } else {
-			location().warning(tr("Command '\\%1' outside of '\\%2' and '\\%3'")
-					   .arg(commandName(command))
-					   .arg(commandName(CMD_LIST))
-                                           .arg(commandName(CMD_TABLE)));
-		    }
-		    break;
-                case CMD_OLDCODE:
-		    leavePara();
-                    append(Atom::CodeOld, getCode(CMD_OLDCODE, marker));
-                    append(Atom::CodeNew, getCode(CMD_NEWCODE, marker));
-		    break;
-		case CMD_OMIT:
-		    getUntilEnd( command );
-		    break;
-		case CMD_OMITVALUE:
-		    //leaveValue();
-		    x = getArgument();
-		    if (!priv->enumItemList.contains(x))
-			priv->enumItemList.append(x);
-		    if (!priv->omitEnumItemList.contains(x))
-		        priv->omitEnumItemList.append(x);
-		    break;
-		case CMD_PART:
-		    startSection( Doc::Part, command );
-		    break;
-		case CMD_PRINTLINE:
-		    leavePara();
-		    appendToCode( quoter.quoteLine(location(), commandStr,
-						   getRestOfLine()) );
-		    break;
-		case CMD_PRINTTO:
-		    leavePara();
-		    appendToCode( quoter.quoteTo(location(), commandStr,
-				  getRestOfLine()) );
-		    break;
-		case CMD_PRINTUNTIL:
-		    leavePara();
-		    appendToCode( quoter.quoteUntil(location(), commandStr,
-						    getRestOfLine()) );
-		    break;
-		case CMD_QUOTATION:
-		    if ( openCommand(command) ) {
-			leavePara();
-			append( Atom::QuotationLeft );
-		    }
-		    break;
-		case CMD_QUOTEFILE:
-		    leavePara();
-		    quoteFromFile();
-		    append( Atom::Code,
-			    quoter.quoteTo(location(), commandStr, "") );
-		    quoter.reset();
-		    break;
-		case CMD_QUOTEFROMFILE:
-		    leavePara();
-		    quoteFromFile();
-		    break;
-		case CMD_QUOTEFUNCTION:
-		    leavePara();
-		    marker = quoteFromFile();
-		    x = getRestOfLine();
-		    quoter.quoteTo( location(), commandStr,
-				    slashed(marker->functionBeginRegExp(x)) );
-		    append( Atom::Code,
-			    quoter.quoteUntil(location(), commandStr,
-				    slashed(marker->functionEndRegExp(x))) );
-		    quoter.reset();
-		    break;
-		case CMD_RAW:
-		    leavePara();
-                    x = getRestOfLine();
-                    if (x.isEmpty())
-                        location().warning(tr("Missing format name after '\\%1")
-                                           .arg(commandName(CMD_ELSE)));
-                    append(Atom::FormatIf, x);
-                    append(Atom::RawString, untabifyEtc(getUntilEnd(command)));
-                    append(Atom::FormatElse);
-                    append(Atom::FormatEndif);
-		    break;
-		case CMD_ROW:
-		    if (openedCommands.top() == CMD_TABLE) {
-			leaveTableRow();
-                        append(Atom::TableRowLeft);
-                        inTableRow = true;
-                    } else {
-			if (openedCommands.contains(CMD_TABLE)) {
-			    location().warning(tr("Cannot use '\\%1' within '\\%2'")
-					       .arg(commandName(CMD_ROW))
-                                               .arg(commandName(openedCommands.top())));
-			} else {
-			    location().warning(tr("Cannot use '\\%1' outside of '\\%2'")
-					       .arg(commandName(CMD_ROW))
-                                               .arg(commandName(CMD_TABLE)));
-			}
-                    }
-		    break;
-		case CMD_SECTION1:
-		    startSection( Doc::Section1, command );
-		    break;
-		case CMD_SECTION2:
-		    startSection( Doc::Section2, command );
-		    break;
-		case CMD_SECTION3:
-		    startSection( Doc::Section3, command );
-		    break;
-		case CMD_SECTION4:
-		    startSection( Doc::Section4, command );
-		    break;
-		case CMD_SIDEBAR:
-		    if ( openCommand(command) ) {
-			leavePara();
-			append( Atom::SidebarLeft );
-		    }
-		    break;
-		case CMD_SKIPLINE:
-		    leavePara();
-		    quoter.quoteLine( location(), commandStr, getRestOfLine() );
-		    break;
-		case CMD_SKIPTO:
-		    leavePara();
-		    quoter.quoteTo( location(), commandStr, getRestOfLine() );
-		    break;
-		case CMD_SKIPUNTIL:
-		    leavePara();
-		    quoter.quoteUntil( location(), commandStr, getRestOfLine() );
-		    break;
-		case CMD_SUB:
-		    startFormat( ATOM_FORMATTING_SUBSCRIPT, command );
-		    break;
-		case CMD_SUP:
-		    startFormat( ATOM_FORMATTING_SUPERSCRIPT, command );
-		    break;
-		case CMD_TABLE:
-		    if ( openCommand(command) ) {
-			leavePara();
-			append(Atom::TableLeft);
-                        inTableHeader = false;
-                        inTableRow = false;
-                        inTableItem = false;
-		    }
-		    break;
-		case CMD_TABLEOFCONTENTS:
-                    x = "1";
-                    if (isLeftBraceAhead())
-                        x = getArgument();
-                    x += ",";
-                    x += QString::number((int)getSectioningUnit());
-		    append(Atom::TableOfContents, x);
-		    break;
-		case CMD_TARGET:
-		    insertTarget( getArgument() );
-		    break;
-		case CMD_TT:
-		    startFormat( ATOM_FORMATTING_TELETYPE, command );
-		    break;
-		case CMD_UNDERLINE:
-		    startFormat( ATOM_FORMATTING_UNDERLINE, command );
-		    break;
-		case CMD_VALUE:
-		    leaveValue();
-		    if ( openedLists.top().style() == OpenedList::Value ) {
-			x = getArgument();
-			if (!priv->enumItemList.contains(x))
-			    priv->enumItemList.append(x);
-
-			openedLists.top().next();
-			append( Atom::ListTagLeft, ATOM_LIST_VALUE );
-			append( Atom::String, x );
-			append( Atom::ListTagRight, ATOM_LIST_VALUE );
-			append( Atom::ListItemLeft, ATOM_LIST_VALUE );
-
-                        skipSpacesOrOneEndl();
-                        if (isBlankLine()) {
-                            leaveValueList();
-                        } else {
-                            enterPara();
-                        }
-		    } else {
-			// ### problems
-		    }
-		    break;
-		case CMD_WARNING:
-		    startNewPara();
-		    append( Atom::FormattingLeft, ATOM_FORMATTING_BOLD );
-		    append( Atom::String, "Warning:" );
-		    append( Atom::FormattingRight, ATOM_FORMATTING_BOLD );
-		    append( Atom::String, " " );
-		    break;
-		case UNKNOWN_COMMAND:
-		    if ( metaCommandSet.contains(commandStr) ) {
-			priv->metaCommandSet.insert( commandStr );
-			priv->metaCommandMap[commandStr].append(getMetaCommandArgument(commandStr));
-		    } else if (macroHash()->contains(commandStr)) {
-			const Macro &macro = macroHash()->value(commandStr);
-			int numPendingFi = 0;
-			QMap<QString, QString>::ConstIterator d = macro.otherDefs.begin();
-			while ( d != macro.otherDefs.end() ) {
-			    append( Atom::FormatIf, d.key() );
-			    expandMacro( commandStr, *d, macro.numParams );
-			    ++d;
-
-			    if (d == macro.otherDefs.end()) {
-				append( Atom::FormatEndif );
-			    } else {
-				append( Atom::FormatElse );
-				numPendingFi++;
-			    }
-			}
-			while ( numPendingFi-- > 0 )
-			    append( Atom::FormatEndif );
-
-			if (!macro.defaultDef.isEmpty()) {
-                            if (!macro.otherDefs.isEmpty()) {
-                                macro.defaultDefLocation.warning(tr("Macro cannot have both"
-                                                                    " format-specific and"
-                                                                    " qdoc-syntax definitions"));
+                            skipSpacesOrOneEndl();
+                            if (isBlankLine()) {
+                                leaveValueList();
                             } else {
-	                        location().push(macro.defaultDefLocation.filePath()); // ###
-	                        in.insert(pos, macro.defaultDef);
-	                        len = in.length();
-	                        openedInputs.push(pos + macro.defaultDef.length());
+                                enterPara();
                             }
-			}
-		    } else {
-			location().warning(
-				tr("Unknown command '\\%1'").arg(commandStr),
-				detailsUnknownCommand(metaCommandSet, commandStr));
-			enterPara();
-			append(Atom::UnknownCommand, commandStr);
+		        } else {
+			    // ### problems
+		        }
+		        break;
+		    case CMD_WARNING:
+		        startNewPara();
+		        append( Atom::FormattingLeft, ATOM_FORMATTING_BOLD );
+		        append( Atom::String, "Warning:" );
+		        append( Atom::FormattingRight, ATOM_FORMATTING_BOLD );
+		        append( Atom::String, " " );
+		        break;
+		    case UNKNOWN_COMMAND:
+		        if ( metaCommandSet.contains(commandStr) ) {
+			    priv->metaCommandSet.insert( commandStr );
+			    priv->metaCommandMap[commandStr].append(
+                                    getMetaCommandArgument(commandStr));
+		        } else if (macroHash()->contains(commandStr)) {
+			    const Macro &macro = macroHash()->value(commandStr);
+			    int numPendingFi = 0;
+			    QMap<QString, QString>::ConstIterator d = macro.otherDefs.begin();
+			    while ( d != macro.otherDefs.end() ) {
+			        append( Atom::FormatIf, d.key() );
+			        expandMacro( commandStr, *d, macro.numParams );
+			        ++d;
+
+			        if (d == macro.otherDefs.end()) {
+				    append( Atom::FormatEndif );
+			        } else {
+				    append( Atom::FormatElse );
+				    numPendingFi++;
+			        }
+			    }
+			    while ( numPendingFi-- > 0 )
+			        append( Atom::FormatEndif );
+
+			    if (!macro.defaultDef.isEmpty()) {
+                                if (!macro.otherDefs.isEmpty()) {
+                                    macro.defaultDefLocation.warning(tr("Macro cannot have both"
+                                                                        " format-specific and qdoc-"
+                                                                        " syntax definitions"));
+                                } else {
+	                            location().push(macro.defaultDefLocation.filePath()); // ###
+	                            in.insert(pos, macro.defaultDef);
+	                            len = in.length();
+	                            openedInputs.push(pos + macro.defaultDef.length());
+                                }
+			    }
+		        } else {
+			    location().warning(
+				    tr("Unknown command '\\%1'").arg(commandStr),
+				    detailsUnknownCommand(metaCommandSet, commandStr));
+			    enterPara();
+			    append(Atom::UnknownCommand, commandStr);
+		        }
 		    }
-		}
-	    }
-	} else if ( ch == '{' ) {
+	        }
+            }
+            break;
+        case '{':
 	    enterPara();
 	    appendChar( '{' );
 	    braceDepth++;
 	    pos++;
-	} else if ( ch == '}' ) {
-	    braceDepth--;
-	    pos++;
+            break;
+	case '}':
+            {
+	        braceDepth--;
+	        pos++;
 
-	    QMap<int, QString>::Iterator f = pendingFormats.find( braceDepth );
-	    if ( f == pendingFormats.end() ) {
-		enterPara();
-		appendChar( '}' );
-	    } else {
-		append( Atom::FormattingRight, *f );
-		if ( *f == ATOM_FORMATTING_INDEX && indexStartedPara )
-		    skipAllSpaces();
-		pendingFormats.erase( f );
-	    }
-	} else {
+	        QMap<int, QString>::Iterator f = pendingFormats.find( braceDepth );
+	        if ( f == pendingFormats.end() ) {
+		    enterPara();
+		    appendChar( '}' );
+	        } else {
+		    append( Atom::FormattingRight, *f );
+		    if ( *f == ATOM_FORMATTING_INDEX && indexStartedPara )
+		        skipAllSpaces();
+		    pendingFormats.erase( f );
+	        }
+            }
+            break;
+        default:
 	    if ( paraState == OutsidePara ) {
 		if ( !ch.isSpace() ) {
 		    enterPara();
@@ -941,14 +951,73 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		pos++;
 	    } else {
 		pos++;
-		if ( ch == '\n' ) {
-		    if ( paraState == InsideSingleLinePara || isBlankLine() ) {
+                if (ch.isSpace()) {
+		    if ((ch == '\n') && (paraState == InsideSingleLinePara || isBlankLine())) {
 			leavePara();
 		    } else {
 			appendChar( ' ' );
 		    }
+
+                    int startPos = pos;
+                    int numInternalUppercase = 0;
+                    int numInternalDigits = 0;
+                    int numLowercase = 0;
+                    int numStrangeSymbols = 0;
+
+                    while (pos < len) {
+                        int latin1Ch = in[pos].latin1();
+
+                        if (::islower(latin1Ch)) {
+                            ++numLowercase;
+                            ++pos;
+                        } else if (::isupper(latin1Ch)) {
+                            if (pos > startPos)
+                                ++numInternalUppercase;
+                            ++pos;
+                        } else if (::isdigit(latin1Ch)) {
+                            if (pos > startPos) {
+                                ++numStrangeSymbols;
+                                ++pos;
+                            } else {
+                                break;
+                            }
+                        } else if (latin1Ch == '_') {
+                            ++numStrangeSymbols;
+                            ++pos;
+                        } else if (latin1Ch == ':' && pos < len - 1
+                                   && in.at(pos + 1) == QLatin1Char(':')) {
+                            ++numStrangeSymbols;
+                            pos += 2;
+                        } else if (latin1Ch == '(') {
+                            if (pos > startPos) {
+                                if (pos < len - 1 && in.at(pos + 1) == QLatin1Char(')')) {
+                                    pos += 2;
+                                    break;
+                                } else {
+                                    // ### handle functions with signatures and function calls
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (pos != startPos) {
+                        QString word = in.mid(startPos, pos - startPos);
+
+                        // is word a C++ symbol or an English word?
+                        if ((numInternalUppercase >= 1 && numLowercase >= 2)
+                                || numStrangeSymbols >= 1) {
+                            append(Atom::AutoLink, word);
+                        } else {
+                            appendWord(word);
+                        }
+                    }
 		} else {
-		    appendChar( ch );
+		    appendChar(ch);
 		}
 	    }
 	}
@@ -1303,11 +1372,20 @@ void DocParser::appendChar(QChar ch)
 {
     if (priv->text.lastAtom()->type() != Atom::String)
 	append(Atom::String);
-    if (ch.isSpace()) {
+    if (ch == QLatin1Char(' ')) {
 	if (!priv->text.lastAtom()->string().endsWith(" "))
 	    priv->text.lastAtom()->appendChar(' ');
     } else {
 	priv->text.lastAtom()->appendChar(ch);
+    }
+}
+
+void DocParser::appendWord(const QString &word)
+{
+    if (priv->text.lastAtom()->type() != Atom::String) {
+	append(Atom::String, word);
+    } else {
+	priv->text.lastAtom()->appendString(word);
     }
 }
 
