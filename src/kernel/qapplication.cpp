@@ -3293,3 +3293,109 @@ void MyApplication::commitData( QSessionManager& sm ) {
   AlignRight according to the language used. The other horizontal
   alignment flags are left untouched.
 */
+
+
+/*****************************************************************************
+  Stubbed session management support
+ *****************************************************************************/
+
+#if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC )
+
+class QSessionManager::Data
+{
+public:
+    QStringList restartCommand;
+    QStringList discardCommand;
+    QString sessionId;
+    QSessionManager::RestartHint restartHint;
+};
+
+QSessionManager::QSessionManager( QApplication * app, QString &session )
+    : QObject( app, "qt_sessionmanager" )
+{
+    d = new Data;
+    d->sessionId = session;
+    d->restartHint = RestartIfRunning;
+}
+
+QSessionManager::~QSessionManager()
+{
+    delete d;
+}
+
+QString QSessionManager::sessionId() const
+{
+    return d->sessionId;
+}
+
+void* QSessionManager::handle() const
+{
+    return 0;
+}
+
+bool QSessionManager::allowsInteraction()
+{
+    return TRUE;
+}
+
+bool QSessionManager::allowsErrorInteraction()
+{
+    return TRUE;
+}
+
+void QSessionManager::release()
+{
+}
+
+void QSessionManager::cancel()
+{
+}
+
+void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
+{
+    d->restartHint = hint;
+}
+
+QSessionManager::RestartHint QSessionManager::restartHint() const
+{
+    return d->restartHint;
+}
+
+void QSessionManager::setRestartCommand( const QStringList& command)
+{
+    d->restartCommand = command;
+}
+
+QStringList QSessionManager::restartCommand() const
+{
+    return d->restartCommand;
+}
+
+void QSessionManager::setDiscardCommand( const QStringList& command)
+{
+    d->discardCommand = command;
+}
+
+QStringList QSessionManager::discardCommand() const
+{
+    return d->discardCommand;
+}
+
+void QSessionManager::setManagerProperty( const QString&, const QString&)
+{
+}
+
+void QSessionManager::setManagerProperty( const QString&, const QStringList& )
+{
+}
+
+bool QSessionManager::isPhase2() const
+{
+    return FALSE;
+}
+
+void QSessionManager::requestPhase2()
+{
+}
+
+#endif // QT_NO_SM_SUPPORT

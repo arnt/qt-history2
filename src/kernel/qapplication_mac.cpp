@@ -82,6 +82,12 @@
 #include "qregexp.h"
 #endif
 
+#ifdef Q_WS_MAC9
+#define QMAC_EVENT_NOWAIT 0.01
+#else
+#define QMAC_EVENT_NOWAIT kEventDurationNoWait
+#endif
+
 #ifdef Q_WS_MACX
 #include <sys/time.h>
 #include <sys/select.h>
@@ -183,8 +189,14 @@ static int      activateNullTimers();
 // internal Qt types
 const UInt32 kEventClassQt = 'cute';
 enum {
-    kEventQtRequestPropagate = 1,
-    kEventQtRequestSelect = 2
+    //types
+    typeQWidget = 1,  /* QWidget * */
+    //params
+    kEventParamQWidget = 'qwid',   /* typeQWidget */
+    //events
+    kEventQtRequestPropagate = 10,
+    kEventQtRequestSelect = 11,
+    kEventQtRequestContext = 12
 };
 static bool request_updates_pending = FALSE;
 void qt_event_request_updates() 
@@ -205,10 +217,10 @@ static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowDeactivated },
     { kEventClassWindow, kEventWindowShown },
     { kEventClassWindow, kEventWindowHidden },
-    { kEventClassWindow, kEventWindowContextualMenuSelect },
 
     { kEventClassQt, kEventQtRequestPropagate },
     { kEventClassQt, kEventQtRequestSelect },
+    { kEventClassQt, kEventQtRequestContext },
 
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
@@ -858,11 +870,6 @@ bool QApplication::processNextEvent( bool canWait )
 
 	EventRef event;
 	OSStatus ret;
-#ifdef Q_WS_MAC9
-#define QMAC_EVENT_NOWAIT 0.01
-#else
-#define QMAC_EVENT_NOWAIT kEventDurationNoWait
-#endif
 	while(GetNumEventsInQueue(GetCurrentEventQueue())) {
 	    while(GetNumEventsInQueue(GetCurrentEventQueue())) {
 		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
@@ -872,13 +879,11 @@ bool QApplication::processNextEvent( bool canWait )
 		}
 		ret = SendEventToApplication(event);
 		ReleaseEvent(event);
-		if(ret != noErr)
-		    break;
-		nevents++;
+		if(ret == noErr)
+		    nevents++;
 	    }
 	    sendPostedEvents();
 	}
-#undef QMAC_EVENT_NOWAIT
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::macUpdateMenuBar();
 #endif
@@ -903,7 +908,7 @@ bool QApplication::processNextEvent( bool canWait )
     if(!broke_early && canWait && !zero_timer_count) {
 	EventRef event;
 	ReceiveNextEvent( 0, 0, kEventDurationForever, FALSE, &event );
-    } 
+    }
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock( FALSE );
@@ -938,6 +943,9 @@ static key_sym modifier_syms[] = {
 {   0, MAP_KEY(0) } };
 static int get_modifiers(int key)
 {
+#ifdef DEBUG_KEY_MAPS
+    qDebug("**Mapping modifier: %d", key);
+#endif
     int ret = 0;
     for(int i = 0; modifier_syms[i].qt_code; i++) {
 	if(key & modifier_syms[i].mac_code) {
@@ -1019,6 +1027,9 @@ static key_sym key_syms[] = {
 {   0, MAP_KEY(0) } };
 static int get_key(int key)
 {
+#ifdef DEBUG_KEY_MAPS
+    qDebug("**Mapping key: %d", key);
+#endif
     for(int i = 0; key_syms[i].qt_code; i++) {
 	if(key_syms[i].mac_code == key) {
 #ifdef DEBUG_KEY_MAPS
@@ -1075,7 +1086,6 @@ bool QApplication::do_mouse_down( Point *pt )
 	QMacSavedPortInfo savedInfo(widget);
 	Point p = { 0, 0 };
 	LocalToGlobal(&p);
-	widget->fstrut_dirty = TRUE;
 	widget->crect.setRect( p.h, p.v, widget->width(), widget->height() );
 	QMoveEvent qme( QPoint( widget->crect.x(), widget->crect.y() ),
 			QPoint( ox, oy) );
@@ -1127,7 +1137,7 @@ bool QApplication::do_mouse_down( Point *pt )
 	break;
 #endif
     default:
-	qDebug("Unhandled case in mouse_down..");
+	qDebug("Unhandled case in mouse_down.. %d", windowPart);
 	break;
     }
     return in_widget;
@@ -1136,21 +1146,6 @@ bool QApplication::do_mouse_down( Point *pt )
 void QApplication::wakeUpGuiThread()
 {
 }
-
-/*****************************************************************************
-  A modal widget without a parent becomes application-modal.
-  A modal widget with a parent becomes modal to its parent and grandparents..
-
-  qt_enter_modal()
-	Enters modal state
-	Arguments:
-	    QWidget *widget	A modal widget
-
-  qt_leave_modal()
-	Leaves modal state for a widget
-	Arguments:
-	    QWidget *widget	A modal widget
- *****************************************************************************/
 
 bool qt_modal_state()
 {
@@ -1241,35 +1236,25 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
     return !block_event;
 }
 
+//context menu hack
 static EventLoopTimerRef mac_trap_context = NULL;
+static bool request_context_pending = FALSE;
 QMAC_PASCAL void 
-QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
+QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
 {
-    if(r == mac_trap_context)
-	mac_trap_context = NULL;
-    else
+    QWidget *w = (QWidget *)d;
+    EventLoopTimerRef otc = mac_trap_context;
+    RemoveEventLoopTimer(mac_trap_context);
+    mac_trap_context = NULL;
+    if(r != otc || w != qt_button_down || request_context_pending)
 	return;
-
-    return;
-
-    //figure out which widget to send it to
-    QPoint where = QCursor::pos();
-    QWidget *widget = NULL;
-    if( qt_button_down )
-	widget = qt_button_down;
-    else
-	widget = QApplication::widgetAt( where.x(), where.y(), true );
-
-    //finally send the event to the widget if its not the popup
-    if ( widget ) {
-	QPoint plocal(widget->mapFromGlobal( where ));
-	QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
-	QApplication::sendEvent( widget, &qme );
-	if(qme.isAccepted()) { //once this happens the events before are pitched
-	    qt_button_down = NULL;
-	    mouse_button_state = 0;
-	}
-    }
+    request_context_pending = TRUE;
+    
+    EventRef ctx = NULL;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(), 
+		kEventAttributeUserEvent, &ctx );
+    SetEventParameter(ctx, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue( GetCurrentEventQueue(), ctx, kEventPriorityStandard );
 }
 
 QMAC_PASCAL OSStatus
@@ -1285,6 +1270,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     switch(eclass)
     {
     case kEventClassQt:
+	remove_context_timer = FALSE;
 	if(ekind == kEventQtRequestPropagate) {
 	    request_updates_pending = FALSE;
 	    QApplication::sendPostedEvents();
@@ -1344,6 +1330,28 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 #else
 //#warning "need to implement sockets on mac9"
 #endif
+	} else if(ekind == kEventQtRequestContext) {
+	    request_context_pending = FALSE;
+	    //figure out which widget to send it to
+	    QPoint where = QCursor::pos();
+	    QWidget *widget = NULL;
+	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
+			      sizeof(widget), NULL, &widget);
+	    if(!widget) {
+		if( qt_button_down )
+		    widget = qt_button_down;
+		else
+		    widget = QApplication::widgetAt( where.x(), where.y(), true );
+	    }
+	    if ( widget ) {
+		QPoint plocal(widget->mapFromGlobal( where ));
+		QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
+		QApplication::sendEvent( widget, &qme );
+		if(qme.isAccepted()) { //once this happens the events before are pitched
+		    qt_button_down = NULL;
+		    mouse_button_state = 0;
+		}
+	    }
 	}
 	break;
     case kEventClassMouse:
@@ -1502,8 +1510,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	case kEventMouseDown:
 	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
 		remove_context_timer = FALSE;
-		InstallEventLoopTimer(GetMainEventLoop(), .5, 0, 
-				      NewEventLoopTimerUPP(qt_trap_context_mouse), app, 
+		InstallEventLoopTimer(GetMainEventLoop(), .25, 0, 
+				      NewEventLoopTimerUPP(qt_trap_context_mouse), widget, 
 				      &mac_trap_context);
 	    }
 	    qt_button_down = widget;
@@ -1653,10 +1661,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     }
     case kEventClassWindow:
     {
-	if(ekind == kEventWindowContextualMenuSelect )
-	    qDebug("fun..");
-	
-
 	WindowRef wid;
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
@@ -1668,7 +1672,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    else if(ekind == kEventWindowHidden)
 		unhandled_dialogs.remove((void *)wid);		
 	    else 
-		qWarning("Couldn't find EventClasWindow widget for %d", (int)wid);
+		qWarning("Couldn't find EventClassWindow widget for %d", (int)wid);
 	    break;
 	}
 
@@ -1739,9 +1743,22 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     }
     }
 
-    if(remove_context_timer && mac_trap_context) {
-	RemoveEventLoopTimer(mac_trap_context);
-	mac_trap_context = NULL;
+    if(remove_context_timer) {
+	if(mac_trap_context) {
+	    RemoveEventLoopTimer(mac_trap_context);
+	    mac_trap_context = NULL;
+	}
+	if(request_context_pending) {
+	    request_context_pending = FALSE;
+	    EventRef er;
+	    const EventTypeSpec eventspec = { kEventClassQt, kEventQtRequestContext };
+	    while(1) {
+		OSStatus ret = ReceiveNextEvent( 1, &eventspec, QMAC_EVENT_NOWAIT, TRUE, &er );
+		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr) 
+		    break;
+		ReleaseEvent(er);
+	    }
+	}
     } 
     return noErr;
 }
@@ -1770,20 +1787,6 @@ bool QApplication::macEventFilter( EventRef )
 }
 
 
-
-/*****************************************************************************
-  Popup widget mechanism
-
-  openPopup()
-	Adds a widget to the list of popup widgets
-	Arguments:
-	    QWidget *widget	The popup widget to be added
-
-  closePopup()
-	Removes a widget from the list of popup widgets
-	Arguments:
-	    QWidget *widget	The popup widget to be removed
- *****************************************************************************/
 
 void QApplication::openPopup( QWidget *popup )
 {
@@ -1933,238 +1936,12 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 }
 
 
-
-/*****************************************************************************
-  Session management support
- *****************************************************************************/
-
-#ifdef QT_NO_SM_SUPPORT
-
-class QSessionManager::Data
-{
-public:
-    QStringList restartCommand;
-    QStringList discardCommand;
-    QString sessionId;
-    QSessionManager::RestartHint restartHint;
-};
-
-QSessionManager::QSessionManager( QApplication * app, QString &session )
-    : QObject( app, "qt_sessionmanager" )
-{
-    d = new Data;
-    d->sessionId = session;
-    d->restartHint = RestartIfRunning;
-}
-
-QSessionManager::~QSessionManager()
-{
-    delete d;
-}
-
-QString QSessionManager::sessionId() const
-{
-    return d->sessionId;
-}
-
-void* QSessionManager::handle() const
-{
-    return 0;
-}
-
-bool QSessionManager::allowsInteraction()
-{
-    return TRUE;
-}
-
-bool QSessionManager::allowsErrorInteraction()
-{
-    return TRUE;
-}
-
-void QSessionManager::release()
-{
-}
-
-void QSessionManager::cancel()
-{
-}
-
-void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
-{
-    d->restartHint = hint;
-}
-
-QSessionManager::RestartHint QSessionManager::restartHint() const
-{
-    return d->restartHint;
-}
-
-void QSessionManager::setRestartCommand( const QStringList& command)
-{
-    d->restartCommand = command;
-}
-
-QStringList QSessionManager::restartCommand() const
-{
-    return d->restartCommand;
-}
-
-void QSessionManager::setDiscardCommand( const QStringList& command)
-{
-    d->discardCommand = command;
-}
-
-QStringList QSessionManager::discardCommand() const
-{
-    return d->discardCommand;
-}
-
-void QSessionManager::setManagerProperty( const QString&, const QString&)
-{
-}
-
-void QSessionManager::setManagerProperty( const QString&, const QStringList& )
-{
-}
-
-bool QSessionManager::isPhase2() const
-{
-    return FALSE;
-}
-
-void QSessionManager::requestPhase2()
-{
-}
-
-#else // QT_NO_SM_SUPPORT
-
-
-class QSmSocketReceiver : public QObject
-{
-    Q_OBJECT
-public:
-    QSmSocketReceiver( int socket )
-	: QObject(0,0)
-	{
-	    QSocketNotifier* sn = new QSocketNotifier( socket, QSocketNotifier::Read, this );
-	    connect( sn, SIGNAL( activated(int) ), this, SLOT( socketActivated(int) ) );
-	}
-
-public slots:
-     void socketActivated(int);
-};
-
-
-// workaround for broken libsm, see below
-struct QT_smcConn {
-    unsigned int save_yourself_in_progress : 1;
-    unsigned int shutdown_in_progress : 1;
-};
-
-void QSmSocketReceiver::socketActivated(int)
-{
-}
-
-#include "qapplication_mac.moc"
-
-class QSessionManager::Data
-{
-public:
-    QStringList restartCommand;
-    QStringList discardCommand;
-    QString sessionId;
-    QSessionManager::RestartHint restartHint;
-};
-
-QSessionManager::QSessionManager( QApplication * app, QString &session )
-    : QObject( app, "session manager" )
-{
-    d = new Data;
-    d->sessionId = session;
-    d->restartHint = RestartIfRunning;
-}
-
-QSessionManager::~QSessionManager()
-{
-    delete d;
-}
-
-QString QSessionManager::sessionId() const
-{
-    return "";
-}
-
-bool QSessionManager::allowsInteraction()
-{
-    return FALSE;
-}
-
-bool QSessionManager::allowsErrorInteraction()
-{
-    return FALSE;
-}
-
-void QSessionManager::release()
-{
-}
-
-void QSessionManager::cancel()
-{
-}
-
-void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
-{
-    d->restartHint = hint;
-}
-
-QSessionManager::RestartHint QSessionManager::restartHint() const
-{
-    return d->restartHint;
-}
-
-void QSessionManager::setRestartCommand( const QStringList& )
-{
-}
-
-QStringList QSessionManager::restartCommand() const
-{
-    return QStringList();
-}
-
-void QSessionManager::setDiscardCommand( const QStringList& )
-{
-}
-
-QStringList QSessionManager::discardCommand() const
-{
-    return QStringList();
-}
-
-void QSessionManager::setManagerProperty( const QString&, const QString& )
-{
-}
-
-void QSessionManager::setManagerProperty( const QString&, const QStringList& )
-{
-}
-
-bool QSessionManager::isPhase2() const
-{
-    return true;
-}
-
-void QSessionManager::requestPhase2()
-{
-}
-
-
-#endif // QT_NO_SM_SUPPORT
-
+#if 0
 #include <stdlib.h>
 void* operator new[](size_t size) { return malloc(size); }
 void* operator new(size_t size) { return malloc(size); }
 void operator delete[](void *p) { free(p); }
 void operator delete[](void *p, size_t) { free(p); }
 void operator delete(void *p) { free(p); }
-void operator delete(void *p, size_t) { free(p); }
+pvoid operator delete(void *p, size_t) { free(p); }
+#endif
