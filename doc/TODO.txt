@@ -88,6 +88,9 @@ QWorkspace (vohi)
 QTabWidget
   QWidget *page( int pos ) function like in QWizard
 
+QPSPrinter
+  convert it to use the new font stuff (QFont:CharSet is obsolete)
+
 QPrinter
   More control about specific parameters (e.g. paper bin)
 
