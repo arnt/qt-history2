@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#138 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -497,9 +497,9 @@ QSizePolicy::ExpandData QWidgetItem::expanding() const
     int e =  wid->layout() ? wid->layout()->expanding()
 	     : wid->sizePolicy().expanding();
     if ( align&Qt::AlignHorizontal_Mask )
-	e = e & ~QSizePolicy::Horizontal;
+	e = e & ~QSizePolicy::Horizontally;
     else if  ( align&Qt::AlignVertical_Mask)
-	e = e & ~QSizePolicy::Vertical;
+	e = e & ~QSizePolicy::Vertically;
 
     return (QSizePolicy::ExpandData)e;
 }
@@ -1361,7 +1361,7 @@ QWidget policy).
 \value Expanding  the sizeHint() is a sensible size, but the
 widget can be shrunk below that and still be useful. The widget can
 make use of extra space, so it should get as much space as
-possible (e.g., the horizontal direction of a slider). 
+possible (e.g., the horizontal direction of a slider).
 
 In any case, QLayout never shrinks a widget below the
 QWidget::minimumSizeHint().
@@ -1375,10 +1375,10 @@ extra space.  There are four possible values:
 \value NoDirection  the widget cannot make use of extra space in any
 direction.
 
-\value Horizontal  the widget can usefully be wider than sizeHint()
+\value Horizontally  the widget can usefully be wider than sizeHint()
 says.
 
-\value Vertical  the widget can usefully be taller than sizeHint()
+\value Vertically  the widget can usefully be taller than sizeHint()
 says.
 
 \value BothDirections  the widget can usefully be both wider and
@@ -1720,10 +1720,10 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 {
     QSize s = sizeHint();
     int a = alignment();
-    if ( expanding() & QSizePolicy::Horizontal || !(a & Qt::AlignHorizontal_Mask ) ) {
+    if ( expanding() & QSizePolicy::Horizontally || !(a & Qt::AlignHorizontal_Mask ) ) {
 	s.setWidth( r.width() );
     }
-    if ( expanding() & QSizePolicy::Vertical || !(a & Qt::AlignVertical_Mask )) {
+    if ( expanding() & QSizePolicy::Vertically || !(a & Qt::AlignVertical_Mask )) {
 	s.setHeight( r.height() );
     } else if ( hasHeightForWidth() ) {
 	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );

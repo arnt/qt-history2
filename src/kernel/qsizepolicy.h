@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#29 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#30 $
 **
 ** Definition of the QSizePolicy class
 **
@@ -60,9 +60,14 @@ public:
 		    Expanding = MayGrow|MayShrink|ExpMask };
 
     enum ExpandData { NoDirection = 0,
-		      Horizontal = 1,
-		      Vertical = 2,
-		      BothDirections = Horizontal | Vertical };
+		      Horizontally = 1,
+		      Vertically = 2,
+		      BothDirections = Horizontally | Vertically
+#ifndef QT_NO_COMPAT
+		      ,Horizontal = Horizontally,
+		      Vertical = Vertically
+#endif
+    };
 
     QSizePolicy() : data( 0 ) {}
 
@@ -79,8 +84,8 @@ public:
 
     ExpandData expanding() const
     {
-	return (ExpandData)( (int)(verData()&ExpMask ? Vertical : 0)+
-			     (int)(horData()&ExpMask ? Horizontal : 0) );
+	return (ExpandData)( (int)(verData()&ExpMask ? Vertically : 0)+
+			     (int)(horData()&ExpMask ? Horizontally : 0) );
     }
 
     void setHorData( SizeType d ) { data = (Q_UINT16)(data & ~HMask) | d; }

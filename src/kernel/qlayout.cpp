@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#177 $
 **
 ** Implementation of layout classes
 **
@@ -51,7 +51,7 @@ class QLayoutBox
 {
 public:
     QLayoutBox( QLayoutItem *lit ) { item_ = lit; }
- 
+
     QLayoutBox( QWidget *wid ) { item_ = new QWidgetItem( wid ); }
     QLayoutBox( int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum,
 		QSizePolicy::SizeType vData= QSizePolicy::Minimum )
@@ -321,8 +321,8 @@ QSizePolicy::ExpandData QLayoutArray::expanding( int spacing )
 	hExp = hExp || colData[c].expansive;
     }
 
-    return (QSizePolicy::ExpandData) (( hExp ? QSizePolicy::Horizontal : 0 )
-		  | ( vExp ? QSizePolicy::Vertical : 0 ) );
+    return (QSizePolicy::ExpandData) (( hExp ? QSizePolicy::Horizontally : 0 )
+		  | ( vExp ? QSizePolicy::Vertically : 0 ) );
 }
 
 QSize QLayoutArray::sizeHint( int spacer ) const
@@ -435,7 +435,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 				      colData[box->col].minimumSize );
 
     qMaxExpCalc( colData[box->col].maximumSize, colData[box->col].expansive,
-		maxS.width(), box->expanding() & QSizePolicy::Horizontal);
+		maxS.width(), box->expanding() & QSizePolicy::Horizontally);
 
     }
     if ( r ) {
@@ -445,7 +445,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 				      rowData[box->row].minimumSize );
 
     qMaxExpCalc( rowData[box->row].maximumSize, rowData[box->row].expansive,
-		maxS.height(), box->expanding() & QSizePolicy::Vertical);
+		maxS.height(), box->expanding() & QSizePolicy::Vertically);
     }
     if ( !box->isEmpty() ) {
 	//empty boxes ( i.e. spacers) do not get borders. This is hacky, but compatible.
@@ -2230,14 +2230,14 @@ void QBoxLayout::setupGeom()
 	int space = (empty||first) ? 0 : spacing();
 	bool ignore =  empty && box->item->widget(); // ignore hidden widgets
 	if ( horz( dir ) ) {
-	    bool expand = exp & QSizePolicy::Horizontal || box->stretch > 0;
+	    bool expand = exp & QSizePolicy::Horizontally || box->stretch > 0;
 	    horexp = horexp || expand;
 	    maxw += max.width() + space;
 	    minw += min.width() + space;
 	    hintw += hint.width() + space;
 	    if ( !ignore )
 		qMaxExpCalc( maxh, verexp,
-			     max.height(), exp & QSizePolicy::Vertical );
+			     max.height(), exp & QSizePolicy::Vertically );
 	    minh = QMAX( minh, min.height() );
 	    hinth = QMAX( hinth, hint.height() );
 
@@ -2246,14 +2246,14 @@ void QBoxLayout::setupGeom()
 	    a[i].minimumSize = min.width();
 	    a[i].expansive = expand;
 	} else {
-	    bool expand = exp & QSizePolicy::Vertical || box->stretch > 0;
+	    bool expand = exp & QSizePolicy::Vertically || box->stretch > 0;
 	    verexp = verexp || expand;
 	    maxh += max.height() + space;
 	    minh += min.height() + space;
 	    hinth += hint.height() + space;
 	    if ( !ignore )
 		qMaxExpCalc( maxw, horexp,
-			     max.width(), exp & QSizePolicy::Horizontal );
+			     max.width(), exp & QSizePolicy::Horizontally );
 	    minw = QMAX( minw, min.width() );
 	    hintw = QMAX( hintw, hint.width() );
 
@@ -2269,8 +2269,8 @@ void QBoxLayout::setupGeom()
     }
 
     data->expanding =  (QSizePolicy::ExpandData)
-		       (( horexp ? QSizePolicy::Horizontal : 0 )
-			| ( verexp ? QSizePolicy::Vertical : 0 ) );
+		       (( horexp ? QSizePolicy::Horizontally : 0 )
+			| ( verexp ? QSizePolicy::Vertically : 0 ) );
 
 
     data->minSize = QSize(minw,minh);
