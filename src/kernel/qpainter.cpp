@@ -2837,14 +2837,14 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	} else if ( *chr == '&' ) {
 	    ++maxUnderlines;
 	}
-	chr++;
+	++chr;
     }
     if ( !expandtabs ) {
 	chr = (QChar*)text.unicode();
 	while ( chr != end ) {
 	    if ( *chr == '\t' )
 		*chr = ' ';
-	    chr++;
+	    ++chr;
 	}
     }
 
@@ -2856,18 +2856,16 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	int l = len;
 	while ( l ) {
 	    if ( *cin == '&' ) {
-		if ( l > 1 && *(cin+1) != '&' ) {
-		    cin++;
-		    if ( numUnderlines < 31 )
-			underlinePositions[numUnderlines++] =
-			    cout - text.unicode();
-		    l--;
-		}
+		++cin;
+		if ( --l )
+		    break;
+		if ( *cin != '&' )
+		    underlinePositions[numUnderlines++] = cout - text.unicode();
 	    }
 	    *cout = *cin;
-	    cout++;
-	    cin++;
-	    l--;
+	    ++cout;
+	    ++cin;
+	    --l;
 	}
 	if ( numUnderlines )
 	    text.setLength( cout - text.unicode() );
