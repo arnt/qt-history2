@@ -2915,8 +2915,13 @@ void generateClass()		      // generate C++ source code for a class
 //
 // build the data array
 //
+    QByteArray qualifiedClassNameIdentifier = qualifiedClassName();
+    for (i = 0; i < qualifiedClassNameIdentifier.length(); ++i)
+	if (qualifiedClassNameIdentifier[i] == ':')
+	    qualifiedClassNameIdentifier[i] = '_';
+
     int index = 12;
-    fprintf(out, "static const uint qt_meta_data_%s[] = {\n", (const char*)g->className);
+    fprintf(out, "static const uint qt_meta_data_%s[] = {\n", (const char*)qualifiedClassNameIdentifier);
     fprintf(out, "\n // content:\n");
     fprintf(out, "    %4d,       // revision\n", 1);
     fprintf(out, "    %4d,       // classname\n", strreg(g->className));
@@ -2963,7 +2968,7 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Build stringdata array
 //
-    fprintf(out, "static const char qt_meta_stringdata_%s[] = {\n", (const char*)g->className);
+    fprintf(out, "static const char qt_meta_stringdata_%s[] = {\n", (const char*)qualifiedClassNameIdentifier);
     fprintf(out, "    \"");
     int col = 0;
     for (int i = 0; i < g->strings.size(); ++i) {
@@ -2995,7 +3000,7 @@ void generateClass()		      // generate C++ source code for a class
     else
 	fprintf(out, "    { 0, ");
     fprintf(out, "qt_meta_stringdata_%s,\n      qt_meta_data_%s }\n",
-	     (const char*)g->className, (const char*)g->className);
+	     (const char*)qualifiedClassNameIdentifier, (const char*)qualifiedClassNameIdentifier);
     fprintf(out, "};\n");
 
     if (isQt)
@@ -3017,7 +3022,7 @@ void generateClass()		      // generate C++ source code for a class
     fprintf(out, "    if (!clname) return 0;\n");
     fprintf(out, "    if (!strcmp(clname, qt_meta_stringdata_%s))\n"
 		  "\treturn (void*)this;\n",
-	     (const char*)qualifiedClassName());
+	     (const char*)qualifiedClassNameIdentifier);
     for (int i = 0; i < g->multipleSuperClasses.size(); ++i) {
 	const char *cname = g->multipleSuperClasses.at(i);
 	fprintf(out, "    if (!strcmp(clname, \"%s\"))\n\treturn (%s*)this;\n", cname, cname);
