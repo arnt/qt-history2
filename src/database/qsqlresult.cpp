@@ -1,7 +1,7 @@
 #include "qsqlresult.h"
 
 /*!
-  \class QSqlResult qsql_base.h
+  \class QSqlResult qsqlresult.h
   \brief QSqlResult provides an abstract interface for accessing data via SQL
 
   \module database

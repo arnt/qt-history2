@@ -1,7 +1,7 @@
 #include "qsqlerror.h"
 
 /*!
-    \class QSqlError qsql_base.h
+    \class QSqlError qsqlerror.h
     \brief Class used for reporting errors from a SQL database
 
     \module database

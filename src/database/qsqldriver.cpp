@@ -6,7 +6,7 @@
 #define DBState_OpenError   	0x0002
 
 /*!
-  \class QSqlDriver qsql_base.h
+  \class QSqlDriver qsqldriver.h
   \brief Class used for accessing databases
 
   \module database

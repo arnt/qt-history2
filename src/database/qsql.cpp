@@ -9,7 +9,7 @@ QSqlResultShared::~QSqlResultShared()
 }
 
 /*!
-    \class QSql qsql_base.h
+    \class QSql qsql.h
     \brief Class used for executing and manipulating SQL queries.
 
     \module database
