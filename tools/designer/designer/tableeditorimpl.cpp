@@ -23,8 +23,6 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
     labelColumnPixmap->setText( "" );
     labelRowPixmap->setText( "" );
 
-    readFromTable();
-
     if ( formWindow->project() && editTable->inherits( "QSqlTable" ) ) {
 	QStringList lst = MetaDataBase::fakeProperty( editTable, "database" ).toStringList();
 	if ( lst.count() == 2 && !lst[ 0 ].isEmpty() && !lst[ 1 ].isEmpty() ) {
@@ -34,6 +32,8 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 	    comboFields->insertStringList( fields );
 	}
     }
+
+    readFromTable();
 }
 
 TableEditor::~TableEditor()
@@ -54,6 +54,7 @@ void TableEditor::columnDownClicked()
     listColumns->setCurrentItem( i );
     readColumns();
     restoreFieldMap();
+    currentColumnChanged( i );
 }
 
 void TableEditor::columnTextChanged( const QString &s )
@@ -81,6 +82,7 @@ void TableEditor::columnUpClicked()
     listColumns->setCurrentItem( i );
     readColumns();
     restoreFieldMap();
+    currentColumnChanged( i );
 }
 
 void TableEditor::currentColumnChanged( QListBoxItem *i )
