@@ -2888,7 +2888,11 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
 	cw = chr->width();
-
+	if ( chr->c == '\t' ) {
+	    int tw = nextTab( startX );
+	    cw = QMAX( cw, tw - startX + 1 );
+	}
+	
 	// init a new line
 	if ( chr->lineStart ) {
 	    ++line;
