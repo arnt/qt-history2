@@ -883,7 +883,7 @@ bool TrWindow::maybeSave()
 		return FALSE;
 	    case QMessageBox::Yes:
 		save();
-		break;
+                return !dirty;
 	    case QMessageBox::No:
 		break;
 	}
