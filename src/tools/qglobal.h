@@ -88,6 +88,9 @@
 #define _OS_RELIANTUNIX_
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #define _OS_LINUX_
+#if defined(__alpha__) || defined(__alpha)
+#define _OS_ALPHA_LINUX_
+#endif
 #elif defined(__FreeBSD__)
 #define _OS_FREEBSD_
 #elif defined(__NetBSD__)
@@ -489,7 +492,7 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 //
 
 #define Q_UNUSED(x) x=x;
-
+#define Q_CONST_UNUSED(x) (void)x;
 
 Q_EXPORT void qDebug( const char *, ... )	// print debug message
 #if defined(_CC_GNU_) && !defined(__INSURE__)
