@@ -21,7 +21,7 @@ Please send us the patches you had to make so we can add them to the
 code base; then we can support the new platform in an orderly manner. 
 (We want Qt to run on as many platforms as possible, but _not_ if that
 involves incompatible patches for the same platform floating around the
-net.) 
+net.)
 
 Further, we would like to have copies of all Qt-related files on
 ftp.trolltech.com.
@@ -29,42 +29,28 @@ ftp.trolltech.com.
 			 PORTING INSTRUCTIONS
 
 In the configs/ directory you will find several build configuration
-files for all platforms supported by Qt.  You can generate your own
-config files by using the makeconfig script in the bin/ directory.
-
-1) Download and install tmake; ftp://ftp.trolltech.com/freebies/tmake/
-
-2) Create your own tmake configuration, for example:
-
-	/local/tmake/lib/solaris-cxx/
-
-   This directory must contain a tmake.conf file (with compiler
-   options) and a few tmake template (*.t) files.  Copy these from
-   one of the other configurations and modify tmake.conf as needed.
-
-3) Now run the makeconfig script to generate Qt build configuration
-   files in the configs/ directory:
-
-	makeconfig /local/tmake/lib/solaris-cxx
-
-4) Run the configure script to create your new makefiles.
+files for all platforms supported by Qt.  Start off with one the
+existing files in configs/, rename it, and change it manually to
+fit your system.  For example you may copy
+	configs/solaris-cc-shared-debug
+to
+	configs/solaris-cxx-shared-debug
+If possible try to modify all four configuration files.
 
 Modify qt/src/tools/qglobal.h as required: you need to ensure that
 _OS_whatever_ is defined.  We've done it for many platforms in the
 past, those should be okay.  If you are using a compiler we don't
 detect it's probably a good idea to add a _CC_whatever_ too (even
-though you don't need it at once).  
+though you don't need it at once).  There are also some size-dependent
+types (Q_UINT32 and so on), make sure they're right for your system.
 
-There are also some size-dependent types (Q_UINT32 and so on), make sure
-they're right for your system.
+Some compilers emit bad warnings when they compile Qt.  If yours does,
+and the code in Qt is sane, please use a #pragma or two to shut your
+compiler up.  (This is a good reason for wanting the _CC_whatever_
+define above.) Alternatively try using compiler option flags.
 
-Some compilers emit bad warnings when they compile Qt.  If yours does, and
-the code in Qt is sane, please use a #pragma or two to shut your compiler
-up.  (This is a good reason for wanting the _CC_whatever_ define above.)
-
-Make a unified diff (diff -u) and send the patch and your new tmake
-configuration to qt-bugs@trolltech.com.
+Make a unified diff (diff -u) and send the patch and the configuration
+files to qt-bugs@trolltech.com.
 
 For most Unix varieties, that's all.  Some may need some include file
 tweaks.  Good luck, and again, feel free to send mail to qt-bugs@trolltech.com.
-
