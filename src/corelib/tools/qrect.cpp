@@ -1167,7 +1167,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn void QRectF::setTopLeft(const QPoqreal &p)
+    \fn void QRectF::setTopLeft(const QPointF &p)
 
     Set the top-left corner of the rectangle to \a p. May change
     the size, but will the never change the bottom-right corner of
@@ -1408,9 +1408,7 @@ QRectF QRectF::normalize() const
 /*!
     \fn void QRectF::addCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
 
-    Adds (\a xp1, \a yp1) to the existing position of the rectangle's
-    top-left corner, and (\a xp2, \a yp2) to the position of its
-    bottom-right corner.
+    Use adjust(\a xp1, \a yp1, \a xp2, \a yp2) instead.
 */
 
 /*! \fn QRectF QRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const

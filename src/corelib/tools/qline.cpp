@@ -117,12 +117,6 @@
 */
 
 /*!
-    \fn void QLine::operator+=(const QPoint &point)
-
-    Translates this line with the \a point given.
-*/
-
-/*!
     \fn bool QLine::operator==(const QLine &other) const
 
     Returns true if \a other is the same line as this line.
@@ -336,12 +330,6 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
     point and length.
 
     \img qlinef-normalvector.png
-*/
-
-/*!
-    \fn void QLineF::operator+=(const QPointF &point)
-
-    Translates this line with the \a point given.
 */
 
 /*!

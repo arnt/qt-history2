@@ -94,7 +94,7 @@ public:
 
     void setCoords(int x1, int y1, int x2, int y2);
 #ifdef QT3_SUPPORT
-    void addCoords(int x1, int y1, int x2, int y2);
+    QT3_SUPPORT void addCoords(int x1, int y1, int x2, int y2);
 #endif
     inline void getCoords(int *x1, int *y1, int *x2, int *y2) const;
 
