@@ -276,12 +276,12 @@ public:
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010,
 
-	SC_ComboBoxEditField =		0x00000020,
-	SC_ComboBoxArrow =		0x00000040,
+	SC_ComboBoxEditField =		0x00000001,
+	SC_ComboBoxArrow =		0x00000002,
 
-	SC_SliderGroove =		0x00000080,
-	SC_SliderHandle = 		0x00000100,
-	SC_SliderTickmarks = 		0x00000200,
+	SC_SliderGroove =		0x00000001,
+	SC_SliderHandle = 		0x00000002,
+	SC_SliderTickmarks = 		0x00000004,
 
 	SC_ToolButton =			0x00000001,
 	SC_ToolButtonMenu =		0x00000002,
