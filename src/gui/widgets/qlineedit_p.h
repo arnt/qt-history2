@@ -20,6 +20,10 @@ public:
           undoState(0), selstart(0), selend(0),
           imstart(0), imend(0), imselstart(0), imselend(0)
         {}
+    ~QLineEditPrivate()
+    {
+        delete [] maskData;
+    }
     void init(const QString&);
 
     QString text;
