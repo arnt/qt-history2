@@ -63,10 +63,6 @@ PaletteEditorAdvanced::PaletteEditorAdvanced( QWidget * parent,
 {
     editPalette = QApplication::palette();
     setPreviewPalette( editPalette );
-
-    // force toggle event
-    checkBuildEffect->setChecked(FALSE);
-    checkBuildEffect->setChecked(TRUE);
 }
 
 PaletteEditorAdvanced::~PaletteEditorAdvanced()
@@ -381,7 +377,13 @@ void PaletteEditorAdvanced::buildActiveEffect()
 void PaletteEditorAdvanced::buildInactive()
 {
     editPalette.setInactive( editPalette.active() );
-    buildInactiveEffect();
+    if ( checkBuildEffect->isChecked() )
+	buildInactiveEffect();
+    else {
+	setPreviewPalette( editPalette );
+	updateColorButtons();
+    }
+    
 }
 
 void PaletteEditorAdvanced::buildInactiveEffect()
@@ -417,7 +419,12 @@ void PaletteEditorAdvanced::buildDisabled()
     cg.setColor( QColorGroup::HighlightedText, darkGray );
     editPalette.setDisabled( cg );
 
-    buildDisabledEffect();
+    if ( checkBuildEffect->isChecked() )
+	buildDisabledEffect();
+    else {
+	setPreviewPalette( editPalette );
+	updateColorButtons();
+    }
 }
 
 void PaletteEditorAdvanced::buildDisabledEffect()
