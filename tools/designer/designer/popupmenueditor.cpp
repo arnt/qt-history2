@@ -353,6 +353,7 @@ void PopupMenuEditor::init()
     lineEdit->hide();
     lineEdit->setFrame( FALSE );
     lineEdit->setEraseColor( eraseColor() );
+    lineEdit->installEventFilter( this );
 
     dropLine = new QWidget( this, 0, Qt::WStyle_NoBorder | WStyle_StaysOnTop );
     dropLine->setBackgroundColor( Qt::black );
@@ -733,6 +734,16 @@ void PopupMenuEditor::setFocusAt( const QPoint & pos )
     }
 
     showSubMenu();
+}
+
+bool PopupMenuEditor::eventFilter( QObject * o, QEvent * e )
+{
+    if ( o == lineEdit  && e->type() == QEvent::FocusOut ) {
+	leaveEditMode( 0 );
+	update();
+    }
+
+    return QWidget::eventFilter( o, e );
 }
 
 void PopupMenuEditor::paintEvent( QPaintEvent * )
@@ -1392,7 +1403,7 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
     setFocus();
     lineEdit->hide();
 
-    if ( e->key() == Qt::Key_Escape )
+    if ( e && e->key() == Qt::Key_Escape )
 	return;
 
     PopupMenuEditorItem * i = 0;

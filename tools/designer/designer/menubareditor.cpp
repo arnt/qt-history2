@@ -133,6 +133,7 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
     lineEdit->hide();
     lineEdit->setFrame( FALSE );
     lineEdit->setEraseColor( eraseColor() );
+    lineEdit->installEventFilter( this );
 
     dropLine = new QWidget( this, "menubar dropline", Qt::WStyle_NoBorder | WStyle_StaysOnTop );
     dropLine->setBackgroundColor( Qt::black );
@@ -151,14 +152,18 @@ FormWindow * MenuBarEditor::formWindow()
     return formWnd;
 }
 
-MenuBarEditorItem * MenuBarEditor::createItem( int index )
+MenuBarEditorItem * MenuBarEditor::createItem( int index, bool addToCmdStack )
 {
     MenuBarEditorItem * i =
-	new MenuBarEditorItem(
-	    new PopupMenuEditor( formWnd, ( QWidget * ) parent() ), this );
-    AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i, index );
-    formWnd->commandHistory()->addCommand( cmd );
-    cmd->execute();
+	new MenuBarEditorItem( new PopupMenuEditor( formWnd, ( QWidget * ) parent() ), this );
+    if ( addToCmdStack ) {
+	AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i, index );
+	formWnd->commandHistory()->addCommand( cmd );
+	cmd->execute();
+    } else {
+	AddMenuCommand cmd( "Add Menu", formWnd, this, i, index );
+	cmd.execute();
+    }
     return i;
 }
 
@@ -530,6 +535,16 @@ void MenuBarEditor::paste()
 }
 
 // protected
+
+bool MenuBarEditor::eventFilter( QObject * o, QEvent * e )
+{
+    if ( o == lineEdit && e->type() == QEvent::FocusOut ) {
+	leaveEditMode();
+	update();
+    }
+
+    return QMenuBar::eventFilter( o, e );
+}
 
 void MenuBarEditor::paintEvent( QPaintEvent * )
 {

@@ -62,7 +62,7 @@ public:
 
     FormWindow * formWindow();
 
-    MenuBarEditorItem * createItem( int index = -1 );
+    MenuBarEditorItem * createItem( int index = -1, bool addToCmdStack = TRUE );
     void insertItem( MenuBarEditorItem * item, int index = -1 );
     void insertItem( QString text, PopupMenuEditor * menu, int index = -1 );
     void insertItem( QString text, QActionGroup * group, int index = -1 );
@@ -107,7 +107,7 @@ public slots:
     void paste();
     
 protected:
-
+    bool eventFilter( QObject * o, QEvent * e );
     void paintEvent( QPaintEvent * e );
     void mousePressEvent( QMouseEvent * e );
     void mouseDoubleClickEvent( QMouseEvent * e );
