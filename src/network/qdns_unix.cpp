@@ -53,7 +53,12 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         }
 
         freeaddrinfo(res);
-    } else if (result == EAI_NONAME || result == EAI_NODATA) {
+    } else if (result == EAI_NONAME
+#ifdef EAI_NODATA
+	       // EAI_NODATA is deprecated in RFC 3493
+	       || result == EAI_NODATA
+#endif
+	       ) {
         results.d->err = QDnsHostInfo::HostNotFound;
         results.d->errorStr = tr("Host not found");
     } else {
