@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#133 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#132 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#133 $");
 
 
 /*!
@@ -1687,8 +1687,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     int conversion_flags )
 {
     QPixmap tmp;
-    if ( sx == 0 && sy == 0 &&
-	(sw<0 || sw==src->width()) && (sh<0 || sh==src->height()) )
+    if ( sx == 0 && sy == 0
+	&& (sw<0 || sw==src->width()) && (sh<0 || sh==src->height()) )
     {
 	tmp.convertFromImage( *src, conversion_flags );
     } else {
