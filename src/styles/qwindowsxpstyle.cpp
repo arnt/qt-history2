@@ -693,7 +693,13 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	p->fillRect( r, color1 );
 	return;
 
+    case PE_Splitter:
+    case PE_DockWindowResizeHandle:
+	return;
+
     case PE_Panel:
+	if ( flags & Style_Raised )
+	    return;
 	name = "LISTVIEW";
 	partId = LVP_LISTGROUP;
 	break;
@@ -2029,6 +2035,9 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
     case PM_MDIMinimizedWidth:
 	return 160;
+
+    case PM_SplitterWidth:
+	return QMAX( 5, QApplication::globalStrut().width() );;
 
     default:
 	break;
