@@ -66,8 +66,9 @@ class MultiLineEditor : public MultiLineEditorBase
     Q_OBJECT
 
 public:
-    MultiLineEditor( QWidget *parent, QWidget *editWidget, FormWindow *fw, const QString &text = QString::null );
-    static QString getText( QWidget *parent, const QString &text );
+    MultiLineEditor( bool richtextMode, QWidget *parent, QWidget *editWidget,
+		     FormWindow *fw, const QString &text = QString::null );
+    static QString getText( QWidget *parent, const QString &text, bool richtextMode );
     QString getStaticText();
     int exec();
 

@@ -70,7 +70,7 @@ QTextParagraph* TextEdit::paragraph()
 }
 
 
-MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
+MultiLineEditor::MultiLineEditor( bool richtextMode, QWidget *parent, QWidget *editWidget,
     FormWindow *fw, const QString &text )
     : MultiLineEditorBase( parent, 0,
 	WType_Dialog | WShowModal ), formwindow( fw )
@@ -85,139 +85,145 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     textEdit = new TextEdit( centralWidget(), "textedit" );
     Layout4->insertWidget( 0, textEdit );
 
-    QPopupMenu *stylesMenu = new QPopupMenu( this );
-    menuBar->insertItem( tr( "Styles" ), stylesMenu );
+    if ( richtextMode ) {
+	QPopupMenu *stylesMenu = new QPopupMenu( this );
+	menuBar->insertItem( tr( "Styles" ), stylesMenu );
 
-    basicToolBar = new QToolBar( tr( "Basics" ), this, DockTop );
+	basicToolBar = new QToolBar( tr( "Basics" ), this, DockTop );
 
-    ToolBarItem *it = new ToolBarItem( this, basicToolBar, tr( "Italic" ),
-		      "i", QPixmap::fromMimeSource( "textitalic.png" ), CTRL+Key_I );
-    it->addTo( stylesMenu );
-    connect( it, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	ToolBarItem *it = new ToolBarItem( this, basicToolBar, tr( "Italic" ),
+					   "i", QPixmap::fromMimeSource( "textitalic.png" ), CTRL+Key_I );
+	it->addTo( stylesMenu );
+	connect( it, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
-    ToolBarItem *b = new ToolBarItem( this, basicToolBar, tr( "Bold" ),
-		      "b", QPixmap::fromMimeSource( "textbold.png" ), CTRL+Key_B );
-    b->addTo( stylesMenu );
-    connect( b, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	ToolBarItem *b = new ToolBarItem( this, basicToolBar, tr( "Bold" ),
+					  "b", QPixmap::fromMimeSource( "textbold.png" ), CTRL+Key_B );
+	b->addTo( stylesMenu );
+	connect( b, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
-    ToolBarItem *ul = new ToolBarItem( this, basicToolBar, tr( "Underline" ),
-		      "u", QPixmap::fromMimeSource( "textunderline.png" ), CTRL+Key_U );
-    ul->addTo( stylesMenu );
-    connect( ul, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	ToolBarItem *ul = new ToolBarItem( this, basicToolBar, tr( "Underline" ),
+					   "u", QPixmap::fromMimeSource( "textunderline.png" ), CTRL+Key_U );
+	ul->addTo( stylesMenu );
+	connect( ul, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
-    ToolBarItem *tt = new ToolBarItem( this, basicToolBar, tr( "Typewriter" ),
-		      "tt", QPixmap::fromMimeSource( "textteletext.png" ) );
-    tt->addTo( stylesMenu );
-    connect( tt, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	ToolBarItem *tt = new ToolBarItem( this, basicToolBar, tr( "Typewriter" ),
+					   "tt", QPixmap::fromMimeSource( "textteletext.png" ) );
+	tt->addTo( stylesMenu );
+	connect( tt, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
-    basicToolBar->addSeparator();
+	basicToolBar->addSeparator();
 
-    QPopupMenu *layoutMenu = new QPopupMenu( this );
-    menuBar->insertItem( tr( "Layout" ), layoutMenu );
+	QPopupMenu *layoutMenu = new QPopupMenu( this );
+	menuBar->insertItem( tr( "Layout" ), layoutMenu );
 
-    QAction *brAction = new QAction( this );
-    brAction->setIconSet( QPixmap::fromMimeSource( "textlinebreak.png" ) );
-    brAction->setText( tr("Break" ) );
-    brAction->addTo( basicToolBar );
-    brAction->addTo( layoutMenu );
-    connect( brAction, SIGNAL( activated() ) , this, SLOT( insertBR() ) );
+	QAction *brAction = new QAction( this );
+	brAction->setIconSet( QPixmap::fromMimeSource( "textlinebreak.png" ) );
+	brAction->setText( tr("Break" ) );
+	brAction->addTo( basicToolBar );
+	brAction->addTo( layoutMenu );
+	connect( brAction, SIGNAL( activated() ) , this, SLOT( insertBR() ) );
 
-    ToolBarItem *p = new ToolBarItem( this, basicToolBar, tr( "Paragraph" ),
-		      "p", QPixmap::fromMimeSource( "textparagraph.png" ) );
-    p->addTo( layoutMenu );
-    connect( p, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
-    layoutMenu->insertSeparator();
-    basicToolBar->addSeparator();
+	ToolBarItem *p = new ToolBarItem( this, basicToolBar, tr( "Paragraph" ),
+					  "p", QPixmap::fromMimeSource( "textparagraph.png" ) );
+	p->addTo( layoutMenu );
+	connect( p, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
+	layoutMenu->insertSeparator();
+	basicToolBar->addSeparator();
 
-    ToolBarItem *al = new ToolBarItem( this, basicToolBar, tr( "Align left" ),
-		      "p align=\"left\"", QPixmap::fromMimeSource( "textleft.png" ) );
-    al->addTo( layoutMenu );
-    connect( al, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	ToolBarItem *al = new ToolBarItem( this, basicToolBar, tr( "Align left" ),
+					   "p align=\"left\"", QPixmap::fromMimeSource( "textleft.png" ) );
+	al->addTo( layoutMenu );
+	connect( al, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
-    ToolBarItem *ac = new ToolBarItem( this, basicToolBar, tr( "Align center" ),
-		      "p align=\"center\"", QPixmap::fromMimeSource( "textcenter.png" ) );
-    ac->addTo( layoutMenu );
-    connect( ac, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	ToolBarItem *ac = new ToolBarItem( this, basicToolBar, tr( "Align center" ),
+					   "p align=\"center\"", QPixmap::fromMimeSource( "textcenter.png" ) );
+	ac->addTo( layoutMenu );
+	connect( ac, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
-    ToolBarItem *ar = new ToolBarItem( this, basicToolBar, tr( "Align right" ),
-		      "p align=\"right\"", QPixmap::fromMimeSource( "textright.png" ) );
-    ar->addTo( layoutMenu );
-    connect( ar, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	ToolBarItem *ar = new ToolBarItem( this, basicToolBar, tr( "Align right" ),
+					   "p align=\"right\"", QPixmap::fromMimeSource( "textright.png" ) );
+	ar->addTo( layoutMenu );
+	connect( ar, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
-    ToolBarItem *block = new ToolBarItem( this, basicToolBar, tr( "Blockquote" ),
-		      "blockquote", QPixmap::fromMimeSource( "textjustify.png" ) );
-    block->addTo( layoutMenu );
-    connect( block, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
-
-
-    QPopupMenu *fontMenu = new QPopupMenu( this );
-    menuBar->insertItem( tr( "Font" ), fontMenu );
-
-    fontToolBar = new QToolBar( "Fonts", this, DockTop );
-
-    QAction *fontAction = new QAction( this );
-    fontAction->setIconSet( QPixmap::fromMimeSource( "textfont.png" ) );
-    fontAction->setText( tr("Font" ) );
-    fontAction->addTo( fontToolBar );
-    fontAction->addTo( fontMenu );
-    connect( fontAction, SIGNAL( activated() ) , this, SLOT( showFontDialog() ) );
+	ToolBarItem *block = new ToolBarItem( this, basicToolBar, tr( "Blockquote" ),
+					      "blockquote", QPixmap::fromMimeSource( "textjustify.png" ) );
+	block->addTo( layoutMenu );
+	connect( block, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
 
-    ToolBarItem *fp1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize +1" ),
-		      "font size=\"+1\"", QPixmap::fromMimeSource( "textlarger.png" ) );
-    connect( fp1, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	QPopupMenu *fontMenu = new QPopupMenu( this );
+	menuBar->insertItem( tr( "Font" ), fontMenu );
 
-    ToolBarItem *fm1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize -1" ),
-		      "font size=\"-1\"", QPixmap::fromMimeSource( "textsmaller.png" ) );
-    connect( fm1, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	fontToolBar = new QToolBar( "Fonts", this, DockTop );
 
-    ToolBarItem *h1 = new ToolBarItem( this, fontToolBar, tr( "Headline 1" ),
-		      "h1", QPixmap::fromMimeSource( "texth1.png" ) );
-    connect( h1, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
-
-    ToolBarItem *h2 = new ToolBarItem( this, fontToolBar, tr( "Headline 2" ),
-		      "h2", QPixmap::fromMimeSource( "texth2.png"  ) );
-    connect( h2, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
-
-    ToolBarItem *h3 = new ToolBarItem( this, fontToolBar, tr( "Headline 3" ),
-		      "h3", QPixmap::fromMimeSource( "texth3.png" ) );
-    connect( h3, SIGNAL( clicked( const QString& ) ),
-	     this, SLOT( insertTags( const QString& )));
+	QAction *fontAction = new QAction( this );
+	fontAction->setIconSet( QPixmap::fromMimeSource( "textfont.png" ) );
+	fontAction->setText( tr("Font" ) );
+	fontAction->addTo( fontToolBar );
+	fontAction->addTo( fontMenu );
+	connect( fontAction, SIGNAL( activated() ) , this, SLOT( showFontDialog() ) );
 
 
-    connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
-    textEdit->document()->setFormatter( new QTextFormatterBreakInWords );
-    textEdit->document()->setUseFormatCollection( FALSE );
-    textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
+	ToolBarItem *fp1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize +1" ),
+					    "font size=\"+1\"", QPixmap::fromMimeSource( "textlarger.png" ) );
+	connect( fp1, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
 
-    if ( !callStatic ) {
-	mlined = (QMultiLineEdit*)editWidget;
-	mlined->setReadOnly( TRUE );
-	textEdit->setAlignment( mlined->alignment() );
-	textEdit->setWordWrap( mlined->wordWrap() );
-	textEdit->setWrapColumnOrWidth( mlined->wrapColumnOrWidth() );
-	textEdit->setWrapPolicy( mlined->wrapPolicy() );
-	textEdit->setText( mlined->text() );
-	if ( !mlined->text().isEmpty() )
+	ToolBarItem *fm1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize -1" ),
+					    "font size=\"-1\"", QPixmap::fromMimeSource( "textsmaller.png" ) );
+	connect( fm1, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
+
+	ToolBarItem *h1 = new ToolBarItem( this, fontToolBar, tr( "Headline 1" ),
+					   "h1", QPixmap::fromMimeSource( "texth1.png" ) );
+	connect( h1, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
+
+	ToolBarItem *h2 = new ToolBarItem( this, fontToolBar, tr( "Headline 2" ),
+					   "h2", QPixmap::fromMimeSource( "texth2.png"  ) );
+	connect( h2, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
+
+	ToolBarItem *h3 = new ToolBarItem( this, fontToolBar, tr( "Headline 3" ),
+					   "h3", QPixmap::fromMimeSource( "texth3.png" ) );
+	connect( h3, SIGNAL( clicked( const QString& ) ),
+		 this, SLOT( insertTags( const QString& )));
+
+
+	connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
+	textEdit->document()->setFormatter( new QTextFormatterBreakInWords );
+	textEdit->document()->setUseFormatCollection( FALSE );
+	textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
+
+	if ( !callStatic ) {
+	    mlined = (QMultiLineEdit*)editWidget;
+	    mlined->setReadOnly( TRUE );
+	    textEdit->setAlignment( mlined->alignment() );
+	    textEdit->setWordWrap( mlined->wordWrap() );
+	    textEdit->setWrapColumnOrWidth( mlined->wrapColumnOrWidth() );
+	    textEdit->setWrapPolicy( mlined->wrapPolicy() );
+	    textEdit->setText( mlined->text() );
+	    if ( !mlined->text().isEmpty() )
+		textEdit->selectAll();
+	}
+	else {
+	    textEdit->setText( text );
 	    textEdit->selectAll();
-    }
-    else {
+	}
+    } else {
 	textEdit->setText( text );
 	textEdit->selectAll();
     }
+
     textEdit->setFocus();
 }
 
@@ -322,9 +328,9 @@ QString MultiLineEditor::getStaticText()
     return staticText;
 }
 
-QString MultiLineEditor::getText( QWidget *parent, const QString &text )
+QString MultiLineEditor::getText( QWidget *parent, const QString &text, bool richtextMode )
 {
-    MultiLineEditor medit( parent, 0, 0, text );
+    MultiLineEditor medit( richtextMode,  parent, 0, 0, text );
     if ( medit.exec() == QDialog::Accepted )
 	return medit.getStaticText();
 

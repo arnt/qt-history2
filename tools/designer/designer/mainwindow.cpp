@@ -1577,8 +1577,8 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
     if ( id == props[ "text" ] ) {
 	bool ok = FALSE;
 	QString text;
-	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) ) {
-	    text = MultiLineEditor::getText( this, w->property("text").toString() );
+	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) || w->inherits( "QButton" ) ) {
+	    text = MultiLineEditor::getText( this, w->property("text").toString(), !w->inherits( "QButton" ) );
 	    ok = !text.isEmpty();
 	} else {
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
@@ -2330,8 +2330,8 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
     if ( text && text->designable(w) ) {
 	bool ok = FALSE;
 	QString text;
-	if ( w->inherits( "QTextEdit" ) || w->inherits( "QLabel" ) ) {
-	    text = MultiLineEditor::getText( this, w->property("text").toString() );
+	if ( w->inherits( "QTextEdit" ) || w->inherits( "QLabel" ) || w->inherits( "QButton" ) ) {
+	    text = MultiLineEditor::getText( this, w->property("text").toString(), !w->inherits( "QButton" ) );
 	    ok = !text.isEmpty();
 	} else {
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );

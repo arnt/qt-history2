@@ -716,7 +716,8 @@ void PropertyTextItem::setValue()
 
 void PropertyTextItem::getText()
 {
-    QString txt = MultiLineEditor::getText( listview, value().toString() );
+    QString txt = MultiLineEditor::getText( listview, value().toString(),
+			    !listview->propertyEditor()->widget()->inherits( "QButton" )  );
     if ( !txt.isEmpty() ) {
 	setText( 1, txt );
 	PropertyItem::setValue( txt );
@@ -2817,7 +2818,9 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
     switch ( t ) {
     case QVariant::String:
 	item = new PropertyTextItem( this, item, 0, name, TRUE,
-				     editor->widget()->inherits( "QLabel" ) || editor->widget()->inherits( "QTextView" ) );
+				     editor->widget()->inherits( "QLabel" ) ||
+				     editor->widget()->inherits( "QTextView" ) ||
+				     editor->widget()->inherits( "QButton" ) );
 	break;
     case QVariant::CString:
 	item = new PropertyTextItem( this, item, 0,
