@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#108 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#107 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#108 $")
 
 
 // --------------------------------------------------------------------------
@@ -122,7 +122,7 @@ public:
 };
 
 
-#if defined(_OS_SUN_) || defined(_OS_HPUX_)
+#if defined(_OS_SUN_)
 #define SIG_HANDLER SIG_PF
 #elif defined(_OS_HPUX_)
 typedef void (*SIG_HANDLER)(int);
@@ -192,7 +192,7 @@ void qt_init( int *argcptr, char **argv )
 	    s = s.lower();
 	    int style = -1;
 	    if ( s == "mac" || s == "macintosh" )
-		style = MacStyle;	    
+		style = MacStyle;
 	    else if ( s == "windows" )
 		style = WindowsStyle;
 	    else if ( s == "win3" || s == "windows3" )
@@ -1984,12 +1984,12 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
     QCloseEvent e;
-    if ( QApplication::sendEvent( this, &e ) ) {// close widget
+    if ( QApplication::sendEvent(this, &e) ) {	// accepts close
 	hide();
 	if ( qApp->mainWidget() == this )
 	    qApp->quit();
 	else
-	    return TRUE;			// accepts close
+	    return TRUE;			// delete this widget
     }
     return FALSE;
 }
