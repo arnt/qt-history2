@@ -277,9 +277,25 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         }
         break;
     case kEventClassMouse: {
-        WindowPartCode wpc;
-        if(GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, NULL,
-                             sizeof(wpc), NULL, &wpc) == noErr && wpc != inContent)
+        bool send_to_app = false;
+        {
+            WindowPartCode wpc;
+            if(GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, NULL,
+                                 sizeof(wpc), NULL, &wpc) == noErr && wpc != inContent) 
+                send_to_app = true;
+        }
+        if(!send_to_app) {
+            WindowRef window;
+            if(GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0,
+                                 sizeof(window), 0, &window) == noErr) {
+                HIViewRef hiview;
+                if(HIViewGetViewForMouseEvent(HIViewGetRoot(window), event, &hiview) == noErr) {
+                    if(QWidget *w = QWidget::find((WId)hiview)) 
+                        send_to_app = !w->isActiveWindow();
+                }
+            }
+        }
+        if(send_to_app)
             return SendEventToApplication(event);
         handled_event = false;
         break; }
