@@ -317,14 +317,13 @@ const QRgb* QGLColorMap::colors() const
 void qwglError( const char* method, const char* func )
 {
 #if defined(QT_CHECK_NULL)
-    LPVOID lpMsgBuf;
-    FormatMessage(
+    char* lpMsgBuf;
+    FormatMessageA(
 		  FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 		  0, GetLastError(),
 		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		  (LPTSTR) &lpMsgBuf, 0, 0 );
-    qWarning( "%s : %s failed: %s", method, func, 
-	      qt_winQString(lpMsgBuf).ascii() );
+		  (char*) &lpMsgBuf, 0, 0 );
+    qWarning( "%s : %s failed: %s", method, func, lpMsgBuf );
     LocalFree( lpMsgBuf );
 #else
     Q_UNUSED( method );
