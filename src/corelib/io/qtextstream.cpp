@@ -14,7 +14,8 @@
 //#define QTEXTSTREAM_DEBUG
 static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 
-/*! \class QTextStream
+/*!
+    \class QTextStream
 
     \brief The QTextStream class provides a convenient interface for
     reading and writing text.
@@ -32,8 +33,8 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \code
         QFile data("output.txt");
         if (data.open(QFile::WriteOnly | QFile::Truncate)) {
-            QTextStream stream(&data);
-            stream << "Result: " << qSetFieldWidth(10) << left << 3.14 << 2.7 << endl;
+            QTextStream out(&data);
+            out << "Result: " << qSetFieldWidth(10) << left << 3.14 << 2.7 << endl;
             // writes "Result: 3.14      2.7       \n"
         }
     \endcode
@@ -84,14 +85,14 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     calling setIntegerBase(). Example:
 
     \code
-        QTextStream stream("0x50 0x20");
+        QTextStream in("0x50 0x20");
         int firstNumber, secondNumber;
 
-        stream >> firstNumber; // firstNumber == 80
-        stream >> dec >> secondNumber; // secondNumber == 0
+        in >> firstNumber;             // firstNumber == 80
+        in >> dec >> secondNumber;     // secondNumber == 0
 
         char ch;
-        stream >> ch; // ch == 'x'
+        in >> ch;                      // ch == 'x'
     \endcode
 
     QTextStream supports many formatting options for generating text.
@@ -99,42 +100,44 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     setFieldWidth() and setPadChar(). Use setFieldAlignment() to set
     the alignment within each field. For real numbers, call
     setRealNumberNotation() and setRealNumberPrecision() to set the
-    notation (Smart, Scientific, Fixed) and precision in digits of the
-    generated number. Some extra number formatting options are also
-    available through setNumberFlags().
+    notation (\l Smart, \l Scientific, \l Fixed) and precision in
+    digits of the generated number. Some extra number formatting
+    options are also available through setNumberFlags().
 
-    Like iostream in the standard C++ library, QTextStream also
+    Like \c <iostream> in the standard C++ library, QTextStream also
     defines several global manipulator functions:
 
+    \keyword QTextStream manipulators
+
     \table
-    \header \o Function          \o Description
-    \row    \o bin               \o Same as calling setBase(2).
-    \row    \o oct               \o Same as calling setBase(8).
-    \row    \o dec               \o Same as calling setBase(10).
-    \row    \o hex               \o Same as calling setBase(16).
-    \row    \o showbase          \o Same as calling setNumberFlags(ShowBase).
-    \row    \o forcesign         \o Same as calling setNumberFlags(ForceSign).
-    \row    \o forcepoint        \o Same as calling setNumberFlags(ForcePoint).
-    \row    \o noshowbase        \o Same as calling setNumberFlags(numberFlags() & ~ShowBase).
-    \row    \o noforcesign       \o Same as calling setNumberFlags(numberFlags() & ~ForcePoint).
-    \row    \o noforcepoint      \o Same as calling setNumberFlags(numberFlags() & ~NoForcePoint).
-    \row    \o uppercasebase     \o Same as calling setNumberFlags(UppercaseBase).
-    \row    \o uppercasedigits   \o Same as calling setNumberFlags(UppercaseDigits).
-    \row    \o nouppercasebase   \o Same as calling setNumberFlags(numberFlags() & ~UppercaseBase).
-    \row    \o nouppercasedigits \o Same as calling setNumberFlags(numberFlags() & ~UppercaseDigits).
-    \row    \o fixed             \o Same as calling setRealNumberNotation(FixedNotation).
-    \row    \o scientific        \o Same as calling setRealNumberNotation(ScientificNotation).
-    \row    \o left              \o Same as calling setFieldAlignment(AlignLeft).
-    \row    \o right             \o Same as calling setFieldAlignment(AlignRight).
-    \row    \o center            \o Same as calling setFieldAlignment(AlignCenter).
-    \row    \o endl              \o Same as calling operator<<('\n') and flush().
-    \row    \o flush             \o Same as calling flush().
-    \row    \o reset             \o Same as calling reset().
-    \row    \o ws                \o Same as calling skipWhiteSpace().
-    \row    \o bom               \o Same as calling setGenerateByteOrderMark(true).
+    \header \o Function             \o Description
+    \row    \o \c bin               \o Same as setIntegerBase(2).
+    \row    \o \c oct               \o Same as setIntegerBase(8).
+    \row    \o \c dec               \o Same as setIntegerBase(10).
+    \row    \o \c hex               \o Same as setIntegerBase(16).
+    \row    \o \c showbase          \o Same as setNumberFlags(ShowBase).
+    \row    \o \c forcesign         \o Same as setNumberFlags(ForceSign).
+    \row    \o \c forcepoint        \o Same as setNumberFlags(ForcePoint).
+    \row    \o \c noshowbase        \o Same as setNumberFlags(numberFlags() & ~ShowBase).
+    \row    \o \c noforcesign       \o Same as setNumberFlags(numberFlags() & ~ForceSign).
+    \row    \o \c noforcepoint      \o Same as setNumberFlags(numberFlags() & ~ForcePoint).
+    \row    \o \c uppercasebase     \o Same as setNumberFlags(UppercaseBase).
+    \row    \o \c uppercasedigits   \o Same as setNumberFlags(UppercaseDigits).
+    \row    \o \c nouppercasebase   \o Same as setNumberFlags(numberFlags() & ~UppercaseBase).
+    \row    \o \c nouppercasedigits \o Same as setNumberFlags(numberFlags() & ~UppercaseDigits).
+    \row    \o \c fixed             \o Same as setRealNumberNotation(FixedNotation).
+    \row    \o \c scientific        \o Same as setRealNumberNotation(ScientificNotation).
+    \row    \o \c left              \o Same as setFieldAlignment(AlignLeft).
+    \row    \o \c right             \o Same as setFieldAlignment(AlignRight).
+    \row    \o \c center            \o Same as setFieldAlignment(AlignCenter).
+    \row    \o \c endl              \o Same as operator<<('\n') and flush().
+    \row    \o \c flush             \o Same as flush().
+    \row    \o \c reset             \o Same as reset().
+    \row    \o \c ws                \o Same as skipWhiteSpace().
+    \row    \o \c bom               \o Same as setGenerateByteOrderMark(true).
     \endtable
 
-    \sa QDataStream, QFile, QBuffer, QTcpSocket
+    \sa QDataStream, QIODevice, QFile, QBuffer, QTcpSocket
 */
 
 /*! \enum QTextStream::RealNumberNotation
@@ -833,8 +836,8 @@ QTextStream::QTextStream(QByteArray *array, QIODevice::OpenMode openMode)
             // read numeric arguments (123, 0x20, 4.5...)
             for (int i = 1; i < argc; ++i) {
                   int number;
-                  QTextStream stream(argv[i]);
-                  stream >> number;
+                  QTextStream in(argv[i]);
+                  in >> number;
                   ...
             }
         }
@@ -868,13 +871,9 @@ QTextStream::QTextStream(const QByteArray &array, QIODevice::OpenMode openMode)
     FILE based input and output streams: stdin, stdout and stderr. Example:
 
     \code
-        int main()
-        {
-            QString input;
-            QTextStream stream(stdin);
-            stream >> input;
-            ...
-        }
+        QString str;
+        QTextStream in(stdin);
+        in >> str;
     \endcode
 */
 
@@ -1057,7 +1056,7 @@ QString *QTextStream::string() const
     output with text aligned to the left, to the right or center
     aligned.
 
-    \sa fieldAlignment(), FieldAlignment, setFieldWidth()
+    \sa fieldAlignment(), setFieldWidth()
 */
 void QTextStream::setFieldAlignment(FieldAlignment mode)
 {
@@ -1068,7 +1067,7 @@ void QTextStream::setFieldAlignment(FieldAlignment mode)
 /*!
     Returns the current field alignment.
 
-    \sa setFieldAlignment(), FieldAlignment
+    \sa setFieldAlignment(), fieldWidth()
 */
 QTextStream::FieldAlignment QTextStream::fieldAlignment() const
 {
@@ -1079,16 +1078,23 @@ QTextStream::FieldAlignment QTextStream::fieldAlignment() const
 /*!
     Sets the pad character to \a ch. The default value is the ASCII
     space character (' '), or QChar(0x20). This character is used to
-    fill in the space in fields when generating text. Example:
+    fill in the space in fields when generating text.
+
+    Example:
 
     \code
         QString s;
-        QTextStream stream(&s);
-        stream.setFieldWidth(10);
-        stream.setPadChar('-');
-        stream << "Qt" << endl << "rocks!" << endl;
-        // ----Qt----
-        // --rocks!--
+        QTextStream out(&s);
+        out.setFieldWidth(10);
+        out.setPadChar('-');
+        out << "Qt" << endl << "rocks!" << endl;
+    \endcode
+
+    Output:
+
+    \code
+        ----Qt----
+        --rocks!--
     \endcode
 
     \sa padChar(), setFieldWidth()
@@ -1140,7 +1146,7 @@ int QTextStream::fieldWidth() const
     formatting generated code (e.g., whether or not to always write
     the base or sign of a number).
 
-    \sa numberFlags(), NumberFlags
+    \sa numberFlags(), setIntegerBase(), setRealNumberNotation()
 */
 void QTextStream::setNumberFlags(NumberFlags flags)
 {
@@ -1151,7 +1157,7 @@ void QTextStream::setNumberFlags(NumberFlags flags)
 /*!
     Returns the current number flags.
 
-    \sa setNumberFlags(), NumberFlags
+    \sa setNumberFlags(), integerBase(), realNumberNotation()
 */
 QTextStream::NumberFlags QTextStream::numberFlags() const
 {
@@ -1167,7 +1173,7 @@ QTextStream::NumberFlags QTextStream::numberFlags() const
     stream. When generating numbers, QTextStream assumes base is 10
     unless the base has been set explicitly.
 
-    \sa integerBase(), QString::number()
+    \sa integerBase(), QString::number(), setNumberFlags()
 */
 void QTextStream::setIntegerBase(int base)
 {
@@ -1179,7 +1185,7 @@ void QTextStream::setIntegerBase(int base)
     Returns the current base of integers. 0 means that the base is
     detected when reading, or 10 (decimal) when generating numbers.
 
-    \sa setIntegerBase()
+    \sa setIntegerBase(), QString::number(), numberFlags()
 */
 int QTextStream::integerBase() const
 {
@@ -1193,7 +1199,7 @@ int QTextStream::integerBase() const
     numbers, QTextStream uses this value to detect the formatting of
     real numbers.
 
-    \sa realNumberNotation(), RealNumberNotation
+    \sa realNumberNotation(), setRealNumberPrecision(), setNumberFlags(), setIntegerBase()
 */
 void QTextStream::setRealNumberNotation(RealNumberNotation notation)
 {
@@ -1204,7 +1210,7 @@ void QTextStream::setRealNumberNotation(RealNumberNotation notation)
 /*!
     Returns the current real number notation.
 
-    \sa setRealNumberNotation(), RealNumberNotation
+    \sa setRealNumberNotation(), realNumberPrecision(), numberFlags(), integerBase()
 */
 QTextStream::RealNumberNotation QTextStream::realNumberNotation() const
 {
@@ -1229,7 +1235,7 @@ void QTextStream::setRealNumberPrecision(int precision)
     Returns the current real number precision, or the number of fraction
     digits QTextStream will write when generating real numbers.
 
-    \sa setRealNumberNotation()
+    \sa setRealNumberNotation(), realNumberNotation(), numberFlags(), integerBase()
 */
 int QTextStream::realNumberPrecision() const
 {
@@ -1541,9 +1547,9 @@ bool QTextStreamPrivate::getReal(double *f)
     nested. Example:
 
     \code
-        QTextStream stream(file);
+        QTextStream in(file);
         QChar ch1, ch2, ch3;
-        stream >> ch1 >> ch2 >> ch3;
+        in >> ch1 >> ch2 >> ch3;
     \endcode
 
     Whitespace is \e not skipped.
@@ -2045,8 +2051,8 @@ QTextStream &QTextStream::operator<<(const QByteArray &array)
     is convenient when working with constant string data. Example:
 
     \code
-        QTextStream stream(stdout);
-        stream << "Qt rocks!" << endl;
+        QTextStream out(stdout);
+        out << "Qt rocks!" << endl;
     \endcode
 
     Warning: QTextStream assumes that \a string points to a string of
@@ -2081,10 +2087,12 @@ QTextStream &QTextStream::operator<<(const void *ptr)
 }
 
 /*!
-    \fn QTextStream &bin(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setIntegerBase(2) and returns \a stream.
+    Calls QTextStream::setIntegerBase(2) on \a stream and returns \a
+    stream.
+
+    \sa oct(), dec(), hex(), {QTextStream manipulators}
 */
 QTextStream &bin(QTextStream &stream)
 {
@@ -2093,10 +2101,12 @@ QTextStream &bin(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &oct(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setIntegerBase(8) and returns \a stream.
+    Calls QTextStream::setIntegerBase(8) on \a stream and returns \a
+    stream.
+
+    \sa bin(), dec(), hex(), {QTextStream manipulators}
 */
 QTextStream &oct(QTextStream &stream)
 {
@@ -2105,10 +2115,12 @@ QTextStream &oct(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &dec(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setIntegerBase(10) and returns \a stream.
+    Calls QTextStream::setIntegerBase(10) on \a stream and returns \a
+    stream.
+
+    \sa bin(), oct(), hex(), {QTextStream manipulators}
 */
 QTextStream &dec(QTextStream &stream)
 {
@@ -2117,10 +2129,12 @@ QTextStream &dec(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &hex(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setIntegerBase(16) and returns \a stream.
+    Calls QTextStream::setIntegerBase(16) on \a stream and returns \a
+    stream.
+
+    \sa bin(), oct(), dec(), {QTextStream manipulators}
 */
 QTextStream &hex(QTextStream &stream)
 {
@@ -2129,10 +2143,12 @@ QTextStream &hex(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &showbase(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::ShowBase) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() |
+    QTextStream::ShowBase) on \a stream and returns \a stream.
+
+    \sa noshowbase(), forcesign(), forcepoint(), {QTextStream manipulators}
 */
 QTextStream &showbase(QTextStream &stream)
 {
@@ -2141,10 +2157,12 @@ QTextStream &showbase(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &forcesign(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::ForceSign) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() |
+    QTextStream::ForceSign) on \a stream and returns \a stream.
+
+    \sa noforcesign(), forcepoint(), showbase(), {QTextStream manipulators}
 */
 QTextStream &forcesign(QTextStream &stream)
 {
@@ -2153,10 +2171,12 @@ QTextStream &forcesign(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &forcepoint(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::ForcePoint) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() |
+    QTextStream::ForcePoint) on \a stream and returns \a stream.
+
+    \sa noforcepoint(), forcesign(), showbase(), {QTextStream manipulators}
 */
 QTextStream &forcepoint(QTextStream &stream)
 {
@@ -2165,10 +2185,12 @@ QTextStream &forcepoint(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &noshowbase(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::ShowBase) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() &
+    ~QTextStream::ShowBase) on \a stream and returns \a stream.
+
+    \sa showbase(), noforcesign(), noforcepoint(), {QTextStream manipulators}
 */
 QTextStream &noshowbase(QTextStream &stream)
 {
@@ -2177,10 +2199,12 @@ QTextStream &noshowbase(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &noforcesign(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::ForceSign) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() &
+    ~QTextStream::ForceSign) on \a stream and returns \a stream.
+
+    \sa forcesign(), noforcepoint(), noshowbase(), {QTextStream manipulators}
 */
 QTextStream &noforcesign(QTextStream &stream)
 {
@@ -2189,10 +2213,12 @@ QTextStream &noforcesign(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &noforcepoint(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::ForcePoint) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() &
+    ~QTextStream::ForcePoint) on \a stream and returns \a stream.
+
+    \sa forcepoint(), noforcesign(), noshowbase(), {QTextStream manipulators}
 */
 QTextStream &noforcepoint(QTextStream &stream)
 {
@@ -2201,10 +2227,12 @@ QTextStream &noforcepoint(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &uppercasebase(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::UppercaseBase) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() |
+    QTextStream::UppercaseBase) on \a stream and returns \a stream.
+
+    \sa nouppercasebase(), uppercasedigits(), {QTextStream manipulators}
 */
 QTextStream &uppercasebase(QTextStream &stream)
 {
@@ -2213,10 +2241,12 @@ QTextStream &uppercasebase(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &uppercasedigits(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::UppercaseDigits) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() |
+    QTextStream::UppercaseDigits) on \a stream and returns \a stream.
+
+    \sa nouppercasedigits(), uppercasebase(), {QTextStream manipulators}
 */
 QTextStream &uppercasedigits(QTextStream &stream)
 {
@@ -2225,10 +2255,12 @@ QTextStream &uppercasedigits(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &nouppercasebase(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::UppercaseBase) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() &
+    ~QTextStream::UppercaseBase) on \a stream and returns \a stream.
+
+    \sa uppercasebase(), nouppercasedigits(), {QTextStream manipulators}
 */
 QTextStream &nouppercasebase(QTextStream &stream)
 {
@@ -2237,10 +2269,12 @@ QTextStream &nouppercasebase(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &nouppercasedigits(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::UppercaseDigits) and returns \a stream.
+    Calls QTextStream::setNumberFlags(QTextStream::numberFlags() &
+    ~QTextStream::UppercaseDigits) on \a stream and returns \a stream.
+
+    \sa uppercasedigits(), nouppercasebase(), {QTextStream manipulators}
 */
 QTextStream &nouppercasedigits(QTextStream &stream)
 {
@@ -2249,10 +2283,12 @@ QTextStream &nouppercasedigits(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &fixed(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setRealNumberNotation(QTextStream::FixedNotation) and returns \a stream.
+    Calls QTextStream::setRealNumberNotation(QTextStream::FixedNotation)
+    on \a stream and returns \a stream.
+
+    \sa scientific(), {QTextStream manipulators}
 */
 QTextStream &fixed(QTextStream &stream)
 {
@@ -2261,10 +2297,12 @@ QTextStream &fixed(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &scientific(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setRealNumberNotation(QTextStream::ScientificNotation) and returns \a stream.
+    Calls QTextStream::setRealNumberNotation(QTextStream::ScientificNotation)
+    on \a stream and returns \a stream.
+
+    \sa fixed(), {QTextStream manipulators}
 */
 QTextStream &scientific(QTextStream &s)
 {
@@ -2273,10 +2311,12 @@ QTextStream &scientific(QTextStream &s)
 }
 
 /*!
-    \fn QTextStream &left(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setFieldAlignment(QTextStream::AlignLeft) and returns \a stream.
+    Calls QTextStream::setFieldAlignment(QTextStream::AlignLeft)
+    on \a stream and returns \a stream.
+
+    \sa right(), center(), {QTextStream manipulators}
 */
 QTextStream &left(QTextStream &stream)
 {
@@ -2285,10 +2325,12 @@ QTextStream &left(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &right(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setFieldAlignment(QTextStream::AlignRight) and returns \a stream.
+    Calls QTextStream::setFieldAlignment(QTextStream::AlignRight)
+    on \a stream and returns \a stream.
+
+    \sa left(), center(), {QTextStream manipulators}
 */
 QTextStream &right(QTextStream &stream)
 {
@@ -2297,10 +2339,12 @@ QTextStream &right(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &center(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.setFieldAlignment(QTextStream::AlignCenter) and returns \a stream.
+    Calls QTextStream::setFieldAlignment(QTextStream::AlignCenter)
+    on \a stream and returns \a stream.
+
+    \sa left(), right(), {QTextStream manipulators}
 */
 QTextStream &center(QTextStream &stream)
 {
@@ -2309,21 +2353,29 @@ QTextStream &center(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &endl(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream << '\n' << flush and returns \a stream.
+    Writes '\n' to stream \a out and flushes the stream.
+
+    Equivalent to
+
+    \code
+        out << '\n' << flush;
+    \endcode
+
+    \sa flush(), reset(), {QTextStream manipulators}
 */
-QTextStream &endl(QTextStream &stream)
+QTextStream &endl(QTextStream &out)
 {
-    return stream << QLatin1Char('\n') << flush;
+    return out << QLatin1Char('\n') << flush;
 }
 
 /*!
-    \fn QTextStream &flush(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.flush() and returns \a stream.
+    Calls QTextStream::flush() on \a stream and returns \a stream.
+
+    \sa endl(), reset(), {QTextStream manipulators}
 */
 QTextStream &flush(QTextStream &stream)
 {
@@ -2332,10 +2384,11 @@ QTextStream &flush(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &reset(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.reset() and returns \a stream.
+    Calls QTextStream::reset() on \a stream and returns \a stream.
+
+    \sa flush(), {QTextStream manipulators}
 */
 QTextStream &reset(QTextStream &stream)
 {
@@ -2344,10 +2397,9 @@ QTextStream &reset(QTextStream &stream)
 }
 
 /*!
-    \fn QTextStream &ws(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream.skipWhiteSpace() and returns \a stream.
+    Calls skipWhiteSpace() on \a stream and returns \a stream.
 */
 QTextStream &ws(QTextStream &stream)
 {
@@ -2357,11 +2409,12 @@ QTextStream &ws(QTextStream &stream)
 
 #ifndef QT_NO_TEXTCODEC
 /*!
-    \fn QTextStream &bom(QTextStream &stream)
     \relates QTextStream
 
-    Toggles insertion of the UTF-16 BOM (Byte Order Mark) when QTextStream is
-    used with a UTF-16 codec.
+    Toggles insertion of the UTF-16 Byte Order Mark on \a stream when
+    QTextStream is used with a UTF-16 codec.
+
+    \sa QTextStream::setGenerateByteOrderMark(), bom(), {QTextStream manipulators}
 */
 QTextStream &bom(QTextStream &stream)
 {
@@ -2473,19 +2526,19 @@ bool QTextStream::generateByteOrderMark() const
 */
 
 /*!
-    \fn QTextIStream::QTextIStream(const QString *)
+    \fn QTextIStream::QTextIStream(const QString *string)
 
-    Use QTextStream(&string, QIODevice::ReadOnly) instead.
+    Use QTextStream(&\a{string}, QIODevice::ReadOnly) instead.
 */
 /*!
-    \fn QTextIStream::QTextIStream(QByteArray *)
+    \fn QTextIStream::QTextIStream(QByteArray *byteArray)
 
-    Use QTextStream(&byteArray, QIODevice::ReadOnly) instead.
+    Use QTextStream(&\a{byteArray}, QIODevice::ReadOnly) instead.
 */
 /*!
-    \fn QTextIStream::QTextIStream(FILE *)
+    \fn QTextIStream::QTextIStream(FILE *file)
 
-    Use QTextStream(file, QIODevice::ReadOnly) instead.
+    Use QTextStream(\a{file}, QIODevice::ReadOnly) instead.
 */
 
 /*!
@@ -2501,19 +2554,19 @@ bool QTextStream::generateByteOrderMark() const
 */
 
 /*!
-    \fn QTextOStream::QTextOStream(QString *)
+    \fn QTextOStream::QTextOStream(QString *string)
 
-    Use QTextStream(&string, QIODevice::WriteOnly) instead.
+    Use QTextStream(&\a{string}, QIODevice::WriteOnly) instead.
 */
 /*!
-    \fn QTextOStream::QTextOStream(QByteArray *)
+    \fn QTextOStream::QTextOStream(QByteArray *byteArray)
 
-    Use QTextStream(&byteArray, QIODevice::WriteOnly) instead.
+    Use QTextStream(&\a{byteArray}, QIODevice::WriteOnly) instead.
 */
 /*!
-    \fn QTextOStream::QTextOStream(FILE *)
+    \fn QTextOStream::QTextOStream(FILE *file)
 
-    Use QTextStream(file, QIODevice::WriteOnly) instead.
+    Use QTextStream(\a{file}, QIODevice::WriteOnly) instead.
 */
 
 /*! \internal
