@@ -4,4 +4,4 @@ HEADERS		= menu.h
 SOURCES		= menu.cpp
 TARGET		= menu
 DEPENDPATH=../../include
-REQUIRES=medium-config
+REQUIRES=large-config
