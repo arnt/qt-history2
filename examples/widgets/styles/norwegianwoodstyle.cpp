@@ -19,7 +19,6 @@ void NorwegianWoodStyle::polish(QPalette &palette)
     QImage midImage = buttonImage;
     QImage backgroundImage = buttonImage;
 
-qDebug("[%d]", buttonImage.numColors());
     for (int i = 0; i < buttonImage.numColors(); ++i) {
         QRgb rgb = buttonImage.color(i);
         QColor color(rgb);
@@ -28,7 +27,6 @@ qDebug("[%d]", buttonImage.numColors());
         darkImage.setColor(i, color.dark(180).rgb());
         midImage.setColor(i, color.dark(120).rgb());
         backgroundImage.setColor(i, color.dark(180).rgb());
-qDebug("%d: %d %d %d", i, rgb, color.light().rgb(), color.dark(180).rgb());
     }
 
     palette = QPalette(QColor(212, 140, 95));

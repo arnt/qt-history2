@@ -3,4 +3,4 @@ HEADERS       = norwegianwoodstyle.h \
 SOURCES       = main.cpp \
                 norwegianwoodstyle.cpp \
                 widgetgallery.cpp
-#RESOURCES     = styles.qrc
+RESOURCES     = styles.qrc
