@@ -1,5 +1,6 @@
 README		Getting started with Qt
 INSTALL		How to install Qt
+PLATFORMS	How to install Qt - platform notes
 PORTING		Notes about porting Qt
 changes.<ver>	List of changes from the last version
 LICENCE		Licence statement
@@ -8,11 +9,13 @@ MANIFEST	This file
 Directories:
 ------------
 bin		Place for Qt executables (moc)
-configs		Platform/compiler configuration files.
 doc		Qt documentation in HTML and manpage format.
 examples	Qt example programs
 extensions	Qt extensions (OpenGL, Browser Plugin etc.)
 include		Qt include files
 lib		Place for the Qt library
+mkspecs		Platform/compiler configuration files
+qmake		Qt build system
 src		Qt source code
+tools		Qt tools source code
 tutorial	Source code for the Qt tutorial
