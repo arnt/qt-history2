@@ -68,7 +68,7 @@ static QString htmlShortName( const Decl *decl )
 	html = QString( "<b>" ) + html + QString( "</b>" );
 
     if ( decl->doc() == 0 ) {
-	warning( 1, decl->location(), "Undocumented %s '%s'",
+	warning( 2, decl->location(), "Undocumented %s '%s'",
 		 decl->kind() == Decl::Function ? "function" : "member",
 		 decl->fullMangledName().latin1() );
     } else if ( (config->isInternal() || !decl->internal()) &&
@@ -215,7 +215,7 @@ static void fillInImportantChildren( ClassDecl *classDecl,
 
     i = importantNotMet.begin();
     while ( i != importantNotMet.end() ) {
-	warning( 1, classDecl->classDoc()->location(),
+	warning( 2, classDecl->classDoc()->location(),
 		 "Important inherited member '%s' not found in header files",
 		 (*i).latin1() );
 	++i;
@@ -259,8 +259,8 @@ QString Decl::anchor( const QString& name )
 void Decl::setDoc( Doc *doc )
 {
     if ( d != 0 ) {
-	warning( 2, doc->location(), "Overrides a previous comment" );
-	warning( 2, d->location(), "(the previous comment is here)" );
+	warning( 3, doc->location(), "Overrides a previous comment" );
+	warning( 3, d->location(), "(the previous comment is here)" );
 	delete d;
     }
     d = doc;
@@ -471,7 +471,7 @@ void Decl::setReimplements( Decl *superDecl )
 {
     if ( reimp != 0 ) {
 	if ( doc() != 0 )
-	    warning( 1, doc()->location(),
+	    warning( 2, doc()->location(),
 		     "Function '%s' somehow reimplements two functions at once",
 		     name().latin1() );
     } else {
@@ -841,7 +841,7 @@ void ClassDecl::fillInDocsThis()
 	g = (*f).begin();
 	while ( g != (*f).end() ) {
 	    if ( (*g)->fnDoc() != 0 && (*g)->fnDoc()->overloads() ) {
-		warning( 2, (*g)->fnDoc()->location(),
+		warning( 3, (*g)->fnDoc()->location(),
 			 "Suspicious '\\overload' in doc comment for"
 			 " constructor" );
 		(*g)->fnDoc()->setOverloads( FALSE );
@@ -921,7 +921,7 @@ void ClassDecl::fillInDocsThis()
 	FunctionDecl *canonical = 0;
 	if ( badness == NumCandidateLists ) {
 	    if ( scapeGoat != 0 ) {
-		warning( 2, scapeGoat->location(),
+		warning( 3, scapeGoat->location(),
 			 "All documented versions of this function are"
 			 " '\\overload'" );
 		scapeGoat->setOverloads( FALSE );
@@ -939,7 +939,7 @@ void ClassDecl::fillInDocsThis()
 	    */
 	    ++g;
 	    while ( g != candidates[badness].end() ) {
-		warning( 3, (*g)->fnDoc()->location(), "Missing '\\overload'" );
+		warning( 4, (*g)->fnDoc()->location(), "Missing '\\overload'" );
 		(*g)->fnDoc()->setOverloads( TRUE );
 		++g;
 	    }

@@ -56,14 +56,14 @@ int main( int argc, char **argv )
     Steering steering;
 
     if ( config->outputDir().isEmpty() ) {
-	warning( 0, "No output directory specified (OUTPUTDIR)" );
+	warning( 1, "No output directory specified (OUTPUTDIR)" );
 	return EXIT_FAILURE;
     }
 
     QDir dir( config->outputDir() );
     if ( !dir.exists() ) {
 	if ( !dir.mkdir(config->outputDir()) ) {
-	    warning( 0, "Cannot create '%s'", config->outputDir().latin1() );
+	    warning( 1, "Cannot create '%s'", config->outputDir().latin1() );
 	    return EXIT_FAILURE;
 	}
     }

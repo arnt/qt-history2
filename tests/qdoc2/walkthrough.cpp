@@ -83,13 +83,13 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
 
     QString filePath = config->findDepth( fileName, config->exampleDirList() );
     if ( filePath.isEmpty() ) {
-	warning( 0, "Cannot find example file '%s'", fileName.latin1() );
+	warning( 1, "Cannot find example file '%s'", fileName.latin1() );
 	return QString::null;
     }
 
     QFile f( config->findDepth(fileName, config->exampleDirList()) );
     if ( !f.open(IO_ReadOnly) ) {
-	warning( 0, "Cannot open example file '%s'", filePath.latin1() );
+	warning( 1, "Cannot open example file '%s'", filePath.latin1() );
 	return QString::null;
     }
 
@@ -97,7 +97,7 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
     QString fullText = t.read();
     f.close();
     if ( fullText.isEmpty() ) {
-	warning( 1, "Example file '%s' empty", filePath.latin1() );
+	warning( 2, "Example file '%s' empty", filePath.latin1() );
 	return QString::null;
     }
 
@@ -145,7 +145,7 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
     QString s;
 
     if ( walkloc.filePath().isEmpty() ) {
-	warning( 1, docLoc, "Command '\\%s %s' ignored", command.latin1(),
+	warning( 2, docLoc, "Command '\\%s %s' ignored", command.latin1(),
 		 subs.latin1() );
 	return s;
     }
@@ -154,11 +154,11 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 	skipEmptyLines();
 
     if ( plainlines.isEmpty() ) {
-	warning( 1, docLoc, "Command '\\%s %s' failed at end of '%s'",
+	warning( 2, docLoc, "Command '\\%s %s' failed at end of '%s'",
 		 command.latin1(), subs.latin1(),
 		 walkloc.shortFilePath().latin1() );
     } else if ( plainlines.first().simplifyWhiteSpace().find(subs) == -1 ) {
-	warning( 1, docLoc, "Command '\\%s %s' failed at line %d of '%s'",
+	warning( 2, docLoc, "Command '\\%s %s' failed at line %d of '%s'",
 		 command.latin1(), subs.latin1(), walkloc.lineNum(),
 		 walkloc.shortFilePath().latin1() );
     } else {
@@ -174,7 +174,7 @@ QString Walkthrough::xto( const QString& substr, const Location& docLoc,
     QString s;
 
     if ( walkloc.filePath().isEmpty() ) {
-	warning( 1, docLoc, "Command '\\%s %s' ignored", command.latin1(),
+	warning( 2, docLoc, "Command '\\%s %s' ignored", command.latin1(),
 		 subs.latin1() );
 	return s;
     }
@@ -187,7 +187,7 @@ QString Walkthrough::xto( const QString& substr, const Location& docLoc,
 	    return s;
 	s += getNextLine();
     }
-    warning( 1, docLoc, "Command '\\%s %s' failed at end of '%s'",
+    warning( 2, docLoc, "Command '\\%s %s' failed at end of '%s'",
 	     command.latin1(), subs.latin1(),
 	     walkloc.shortFilePath().latin1() );
     return s;

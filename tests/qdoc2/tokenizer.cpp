@@ -95,7 +95,7 @@ int Tokenizer::getToken()
 		yyCh = getChar();
 
 		if ( yyCh == EOF )
-		    warning( 0, yyTokLoc, "Unterminated C++ string literal" );
+		    warning( 1, yyTokLoc, "Unterminated C++ string literal" );
 		else
 		    return Tok_String;
 		break;
@@ -118,7 +118,7 @@ int Tokenizer::getToken()
 		} while ( yyCh != EOF && yyCh != '\'' );
 
 		if ( yyCh == EOF ) {
-		    warning( 0, yyTokLoc,
+		    warning( 1, yyTokLoc,
 			     "Unterminated C++ character literal" );
 		} else {
 		    yyCh = getChar();
@@ -204,7 +204,7 @@ int Tokenizer::getToken()
 
 		    while ( !metAsterSlash ) {
 			if ( yyCh == EOF ) {
-			    warning( 0, yyTokLoc, "Unterminated C++ comment" );
+			    warning( 1, yyTokLoc, "Unterminated C++ comment" );
 			    break;
 			} else {
 			    if ( yyCh == '*' )
@@ -303,7 +303,7 @@ int Tokenizer::getToken()
 		yyCh = getChar();
 		return Tok_Tilde;
 	    default:		
-		warning( 1, yyTokLoc, "Hostile character 0%.2o in C++ source",
+		warning( 2, yyTokLoc, "Hostile character 0%.2o in C++ source",
 			 yyCh );
 		yyCh = getChar();
 	    }
@@ -311,7 +311,7 @@ int Tokenizer::getToken()
     }
 
     if ( yyPreprocessorSkipping.count() > 1 )
-	warning( 0, yyTokLoc, "Expected #endif before end of file" );
+	warning( 1, yyTokLoc, "Expected #endif before end of file" );
 
     strcpy( yyLex, "end-of-input" );
     yyLexLen = strlen( yyLex );
@@ -484,7 +484,7 @@ void Tokenizer::pushSkipping( bool skip )
 bool Tokenizer::popSkipping()
 {
     if ( yyPreprocessorSkipping.isEmpty() ) {
-	warning( 0, yyTokLoc, "Unexpected #elif, #else or #endif" );
+	warning( 1, yyTokLoc, "Unexpected #elif, #else or #endif" );
 	return TRUE;
     }
 

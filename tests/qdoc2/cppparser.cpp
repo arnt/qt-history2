@@ -577,7 +577,7 @@ static bool matchDeclList( Decl *context )
 	case Tok_Q_OBJECT:
 	    yyTok = getToken();
 	    if ( yyTok == Tok_Semicolon )
-		warning( 1, yyTokenizer->location(),
+		warning( 2, yyTokenizer->location(),
 			 "Needless ';' after 'Q_OBJECT' in C++ source" );
 	    break;
 	case Tok_Q_ENUMS:
@@ -685,7 +685,7 @@ static void matchDocsAndStuff( Steering *steering )
 		    if ( relates != 0 && relates->kind() == Decl::Class ) {
 			root = relates->rootContext();
 		    } else {
-			warning( 0, fn->location(),
+			warning( 1, fn->location(),
 				 "Class '%s' specified with '\\relates' not"
 				 " found", fn->relates().latin1() );
 			relates = 0;
@@ -728,7 +728,7 @@ static void matchDocsAndStuff( Steering *steering )
 			diff = difference( docp, declp );
 			s = diff.begin();
 			while ( s != diff.end() ) {
-			    warning( 2, fn->location(),
+			    warning( 3, fn->location(),
 				     "No such parameter '%s'", (*s).latin1() );
 			    ++s;
 			}
@@ -736,13 +736,13 @@ static void matchDocsAndStuff( Steering *steering )
 			diff = difference( declp, docp );
 			s = diff.begin();
 			while ( s != diff.end() ) {
-			    warning( 3, fn->location(),
+			    warning( 4, fn->location(),
 				     "Undocumented parameter '%s'",
 				     (*s).latin1() );
 			    ++s;
 			}
 		    } else if ( !fn->prototype().isEmpty() ) {
-			warning( 1, fn->location(),
+			warning( 2, fn->location(),
 				 "Function '%s' specified with '\\fn' not"
 				 " found",
 				 yyLastDecl->fullMangledName().latin1() );
@@ -753,7 +753,7 @@ static void matchDocsAndStuff( Steering *steering )
 			yyLastDecl = 0;
 		    }
 		} else {
-		    warning( 2, fn->location(), "Loose doc comment" );
+		    warning( 3, fn->location(), "Loose doc comment" );
 		}
 
 		if ( !fn->prototype().isEmpty() ) {
@@ -776,7 +776,7 @@ static void matchDocsAndStuff( Steering *steering )
 			++g;
 		    }
 		} else {
-		    warning( 0, doc->location(),
+		    warning( 1, doc->location(),
 			     "Class '%s' specified with '\\class' not found",
 			     cl->className().latin1() );
 		}
@@ -792,7 +792,7 @@ static void matchDocsAndStuff( Steering *steering )
 			     decl->fullName() );
 		    deleteDoc = FALSE;
 		} else {
-		    warning( 0, doc->location(),
+		    warning( 1, doc->location(),
 			     "Enum or typedef '%s' specified with '\\enum' not"
 			     " found",
 			     en->enumName().latin1() );

@@ -68,7 +68,7 @@ static QString currentDirectory;
 
 void warning( int level, const Location& loc, const char *message, ... )
 {
-    if ( warningLevel <= level )
+    if ( warningLevel < level )
 	return;
     if ( omit(message) )
 	return;

@@ -342,7 +342,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "a" );
 		arg = getArgument( yyIn, yyPos );
 		if ( arg.isEmpty() ) {
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected variable name after '\\a'" );
 		} else {
 		    QString toks = arg;
@@ -361,7 +361,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'a', 3 ):
 		consume( "arg" );
-		warning( 2, location(),
+		warning( 3, location(),
 			 "Command '\\arg' is obsolete, use '\\a'" );
 		break;
 
@@ -372,7 +372,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'a', 18 ):
 		check( "annotatedclasslist" );
 		if ( !getArgument(yyIn, yyPos).isEmpty() )
-		    warning( 2, location(),
+		    warning( 3, location(),
 			     "Argument to '\\annotatedclasslist' obsolete" );
 		break;
 #endif
@@ -398,7 +398,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( fileName.isEmpty() ) {
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected file name after '\\base64'" );
 		} else {
 		    yyOut = yyIn.mid( yyPos );
@@ -411,7 +411,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( fileName.isEmpty() ) {
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected file name after '\\base256'" );
 		} else {
 		    yyOut = yyIn.mid( yyPos );
@@ -422,7 +422,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "c" );
 		arg = getArgument( yyIn, yyPos );
 		if ( arg.isEmpty() ) {
-		    warning( 1, location(), "Expected code chunk after '\\c'" );
+		    warning( 2, location(), "Expected code chunk after '\\c'" );
 		} else {
 		    yyOut += QString( "<tt>" );
 		    yyOut += arg;
@@ -434,7 +434,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		begin = yyPos;
 		end = yyIn.find( QString("\\endcode"), yyPos );
 		if ( end == -1 ) {
-		    warning( 1, location(), "Missing '\\endcode'" );
+		    warning( 2, location(), "Missing '\\endcode'" );
 		} else {
 		    yyOut += QString( "\\code" );
 		    yyOut += yyIn.mid( begin, end - begin );
@@ -448,7 +448,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( className.isEmpty() ) {
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected class name after '\\class'" );
 		    setKindHasToBe( Doc::Class, command );
 		} else {
@@ -465,13 +465,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( groupName.right(5) == QString(".html") ) {
-		    warning( 2, location(),
+		    warning( 3, location(),
 			     "Group name after '\\defgroup' no longer requires"
 			     " '.html'" );
 		    groupName.truncate( groupName.length() - 5 );
 		}
 		if ( groupName.isEmpty() ) {
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected group name after '\\defgroup'" );
 		    setKindHasToBe( Doc::Defgroup, command );
 		} else {
@@ -482,7 +482,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "e" );
 		arg = getArgument( yyIn, yyPos );
 		if ( arg.isEmpty() ) {
-		    warning( 1, location(), "Expected word after '\\e'" );
+		    warning( 2, location(), "Expected word after '\\e'" );
 		} else {
 		    yyOut += QString( "<em>" );
 		    yyOut += arg;
@@ -500,11 +500,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    break;
 		if ( command[3] == QChar('c') ) {
 		    consume( "endcode" );
-		    warning( 1, location(), "Unexpected '\\endcode'" );
+		    warning( 2, location(), "Unexpected '\\endcode'" );
 		} else if ( command[3] == QChar('l') ) {
 		    consume( "endlink" );
 		    // we've found the missing link: it's Eirik Aavitsland
-		    warning( 1, location(), "Missing '\\link'" );
+		    warning( 2, location(), "Missing '\\link'" );
 		} else {
 		    consume( "example" );
 		    fileName = getWord( yyIn, yyPos );
@@ -518,7 +518,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( extName.isEmpty() )
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected module name after '\\extension'" );
 		else
 		    setKindHasToBe( Doc::Class, command );
@@ -532,7 +532,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		if ( yyPos > begin ) {
 		    prototype = yyIn.mid( begin, yyPos - begin );
 		    if ( prototype.isEmpty() )
-			warning( 1, location(),
+			warning( 2, location(),
 				 "Expected function prototype after '\\fn'" );
 		    else
 			setKind( Doc::Fn, command );
@@ -544,7 +544,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( fileName.isEmpty() ) {
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected file name after '\\header'" );
 		} else {
 		    headers.insert( fileName );
@@ -561,13 +561,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( groupName.right(5) == QString(".html") ) {
-		    warning( 2, location(),
+		    warning( 3, location(),
 			     "Group name after '\\ingroup' should not end with"
 			     " '.html'" );
 		    groupName.truncate( groupName.length() - 5 );
 		}
 		if ( groupName.isEmpty() ) {
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected group name after '\\ingroup'" );
 		} else {
 		    groups.insert( groupName );
@@ -596,7 +596,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    break;
 		if ( command[3] == QChar('e') ) {
 		    consume( "line" );
-		    warning( 2, location(),
+		    warning( 3, location(),
 			     "Command '\\line' is obsolete, use '\\printline'" );
 		    enterPre();
 		    yyOut += QString( "\\printline" );
@@ -605,7 +605,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    begin = yyPos;
 		    end = yyIn.find( QString("\\endlink"), yyPos );
 		    if ( end == -1 ) {
-			warning( 1, location(), "Missing '\\endlink'" );
+			warning( 2, location(), "Missing '\\endlink'" );
 		    } else {
 			yyOut += QString( "\\link" );
 			yyOut += yyIn.mid( begin, end - begin );
@@ -620,7 +620,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( moduleName.isEmpty() )
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected module name after '\\module'" );
 		else
 		    setKindHasToBe( Doc::Class, command );
@@ -685,7 +685,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    break;
 		if ( command[1] == QChar('o') ) {
 		    consume( "postheader" );
-		    warning( 2, location(),
+		    warning( 3, location(),
 			     "Command '\\postheader' is obsolete" );
 		} else {
 		    check( "printuntil" );
@@ -704,7 +704,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( relates.isEmpty() )
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected class name after '\\relates'" );
 		break;
 	    case hash( 's', 2 ):
@@ -721,14 +721,14 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 's', 4 ):
 		consume( "skip" );
-		warning( 2, location(),
+		warning( 3, location(),
 			 "Command '\\skip' is obsolete, use '\\skipto'" );
 		enterPre();
 		yyOut += QString( "\\skipto" );
 		break;
 	    case hash( 's', 5 ):
 		consume( "style" );
-		warning( 2, location(), "Command '\\style' is obsolete" );
+		warning( 3, location(), "Command '\\style' is obsolete" );
 		break;
 	    case hash( 's', 6 ):
 		check( "skipto" );
@@ -748,7 +748,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'u', 5 ):
 		consume( "until" );
-		warning( 2, location(),
+		warning( 3, location(),
 			 "Command '\\until' is obsolete, use '\\printuntil'" );
 		enterPre();
 		yyOut += QString( "\\printuntil" );
@@ -785,7 +785,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	if ( kindHasToBe == Doc::Null || kindHasToBe == Doc::Fn )
 	    kindIs = Doc::Fn;
 	else
-	    warning( 2, loc, "Unexpected '%s' in doc comment",
+	    warning( 3, loc, "Unexpected '%s' in doc comment",
 		     clueCommand.latin1() );
     }
 
@@ -800,7 +800,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	break;
     case Doc::Class:
 	if ( briefBegin == -1 )
-	    warning( 1, loc, "No '\\brief' in '\\class' doc comment" );
+	    warning( 2, loc, "No '\\brief' in '\\class' doc comment" );
 	else
 	    brief = yyOut.mid( briefBegin, briefEnd - briefBegin )
 			 .stripWhiteSpace();
@@ -862,7 +862,7 @@ void DocParser::setKind( Doc::Kind kind, const QString& thanksToCommand )
 {
     setKindHasToBe( kind, thanksToCommand );
     if ( kind == kindIs )
-	warning( 1, location(), "Command '\\%s' is redundant or contradictory",
+	warning( 2, location(), "Command '\\%s' is redundant or contradictory",
 		 thanksToCommand.latin1() );
     kindIs = kind;
 }
@@ -873,7 +873,7 @@ void DocParser::setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand )
 	kindHasToBe = kind;
 	clueCommand = thanksToCommand;
     } else if ( kindHasToBe != kind ) {
-	warning( 2, location(),
+	warning( 3, location(),
 		 "Cannot have both '\\%s' and '\\%s' in same doc comment",
 		 clueCommand.latin1(), thanksToCommand.latin1() );
     }
@@ -892,7 +892,7 @@ QStringList DocParser::getStringList()
 	    yyPos += 5;
 	    end = yyIn.find( QString("\\endlink"), yyPos );
 	    if ( end == -1 ) {
-		warning( 1, location(), "Missing '\\endlink'" );
+		warning( 2, location(), "Missing '\\endlink'" );
 		break;
 	    } else {
 		yyPos = end + 8;
@@ -1432,7 +1432,7 @@ QString Doc::htmlSeeAlso() const
 		    QStringList::split( QChar(' '),
 					name.mid(5).stripWhiteSpace() );
 	    if ( toks.count() < 2 ) {
-		warning( 1, location(),
+		warning( 2, location(),
 			 "Bad '\\link ... \\endlink' syntax in '\\sa'" );
 	    } else {
 		name = toks.first();
@@ -1443,7 +1443,7 @@ QString Doc::htmlSeeAlso() const
 
 	QString y = href( name, text );
 	if ( y.length() == text.length() )
-	    warning( 2, location(), "Unresolved '\\sa' to '%s'",
+	    warning( 3, location(), "Unresolved '\\sa' to '%s'",
 		     name.latin1() );
 
 	html += y;
@@ -1529,7 +1529,7 @@ QString Doc::finalHtml() const
 		begin = yyPos;
 		end = yyIn.find( QString("\\endcode"), yyPos );
 		if ( end == -1 ) {
-		    warning( 1, location(), "Missing '\\endcode'" );
+		    warning( 2, location(), "Missing '\\endcode'" );
 		} else {
 		    yyOut += QString( "<pre>" );
 		    yyOut += processCodeHtml( yyIn.mid(begin, end - begin),
@@ -1552,7 +1552,7 @@ QString Doc::finalHtml() const
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( fileName.isEmpty() )
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected file name after '\\dontinclude'" );
 		else
 		    walkthrough.dontstart( fileName, resolver() );
@@ -1575,7 +1575,7 @@ QString Doc::finalHtml() const
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( fileName.isEmpty() ) {
-		    warning( 1, location(),
+		    warning( 2, location(),
 			     "Expected file name after '\\include'" );
 		} else {
 		    yyOut += QString( "<pre>" );
@@ -1593,13 +1593,13 @@ QString Doc::finalHtml() const
 		begin = yyPos;
 		end = yyIn.find( QString("\\endlink"), yyPos );
 		if ( end == -1 ) {
-		    warning( 1, location(), "Missing '\\endlink'" );
+		    warning( 2, location(), "Missing '\\endlink'" );
 		} else {
 		    QString x = yyIn.mid( begin, end - begin )
 				    .stripWhiteSpace();
 		    QString y = href( link, x );
 		    if ( y.length() == x.length() )
-			warning( 1, location(), "Unresolved '\\link' to '%s'",
+			warning( 2, location(), "Unresolved '\\link' to '%s'",
 				 link.latin1() );
 		    yyOut += y;
 		    yyPos = end + 8;
@@ -1720,9 +1720,9 @@ QString Doc::finalHtml() const
       Complain before it's too late.
     */
     if ( !q.isEmpty() ) {
-	warning( 0, location(), "Ignored '\\mustquote' (fix qdoc)" );
+	warning( 1, location(), "Ignored '\\mustquote' (fix qdoc)" );
     } else if ( !idx.isEmpty() ) {
-	warning( 0, location(), "Ignored '\\index' (fix qdoc)" );
+	warning( 1, location(), "Ignored '\\index' (fix qdoc)" );
     }
 
     return yyOut;
@@ -1803,11 +1803,11 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 	whats[0] = whats[0].upper();
 
     if ( !standardWording )
-	warning( 2, location(),
+	warning( 3, location(),
 		 "Nonstandard wording in '\\brief' text for '%s'",
 		 className.latin1() );
     else if ( !finalStop )
-	warning( 2, location(), "Final stop missing in '\\brief' text for '%s'",
+	warning( 3, location(), "Final stop missing in '\\brief' text for '%s'",
 		 className.latin1() );
 }
 

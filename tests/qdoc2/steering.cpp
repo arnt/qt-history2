@@ -32,7 +32,7 @@ static void emitHtmlHeaderFile( const QString& headerFilePath,
 {
     QFile f( headerFilePath );
     if ( !f.open(IO_ReadOnly) ) {
-	warning( 0, "Cannot open %s", headerFilePath.latin1() );
+	warning( 1, "Cannot open %s", headerFilePath.latin1() );
 	return;
     }
 
@@ -203,7 +203,7 @@ void Steering::emitHtml() const
 	QString headerFilePath = config->findDepth( *s,
 						    config->includeDirList() );
 	if ( headerFilePath.isEmpty() )
-	    warning( 0, "Cannot find header file '%s'", (*s).latin1() );
+	    warning( 1, "Cannot find header file '%s'", (*s).latin1() );
 	else
 	    emitHtmlHeaderFile( headerFilePath, config->verbatimHref(*s) );
 	++s;
@@ -242,7 +242,7 @@ void Steering::emitHtml() const
     while ( def != groupdefs.end() || classes != groupclasses.end() ) {
 	if ( def != groupdefs.end() ) {
 	    if ( classes == groupclasses.end() || def.key() < classes.key() ) {
-		warning( 1, (*def)->location(), "Empty group '%s'",
+		warning( 2, (*def)->location(), "Empty group '%s'",
 			 def.key().latin1() );
 		++def;
 	    }
@@ -252,7 +252,7 @@ void Steering::emitHtml() const
 		c = (*classes).begin();
 		while ( c != (*classes).end() ) {
 		    if ( (*c)->doc() != 0 ) // ###
-			warning( 2, (*c)->doc()->location(),
+			warning( 3, (*c)->doc()->location(),
 				 "Undefined group '%s'", classes.key().latin1() );
 		    ++c;
 		}
@@ -358,6 +358,6 @@ void Steering::emitHtml() const
 void Steering::addHtmlFile( const QString& fileName )
 {
     if ( htmlflist.contains(fileName) )
-	warning( 0, "Duplicate HTML file '%s'", fileName.latin1() );
+	warning( 1, "Duplicate HTML file '%s'", fileName.latin1() );
     htmlflist.insert( fileName );
 }
