@@ -1117,7 +1117,7 @@ void TrWindow::nextUnfinished()
 		}
 		setCurrentContextItem( cItem );
 		if( mItem ) {
-		    setCurrentMessageItem( cItem );
+		    setCurrentMessageItem( mItem );
 		} else {
 		    statusBar()->message( tr("No phrase to translate."),
 					  MessageMS );
@@ -1162,6 +1162,7 @@ void TrWindow::nextUnfinished()
 		    n = (MessageLVI *) n->nextSibling();
 		if ( n && q ) {
 		    setCurrentMessageItem( n );
+		    showNewCurrent( n );
 		    return;
 		}
 	    }
