@@ -30,15 +30,15 @@
 
 #include <private/qwidget_p.h>
 
-class Q3GroupBoxPrivate : public QWidgetPrivate
+class Q3GroupBoxPrivate
 {
-    Q_DECLARE_PUBLIC(Q3GroupBox)
 public:
 
-    Q3GroupBoxPrivate():
+    Q3GroupBoxPrivate(Q3GroupBox *box):
         spacer(0),
         checkbox(0),
-        topMargin(0){}
+        topMargin(0),
+        q(box) {}
     void skip();
     void init();
     void calculateFrame();
@@ -68,10 +68,8 @@ public:
     QSpacerItem *spacer;
     QCheckBox *checkbox;
     int topMargin;
+    Q3GroupBox *q;
 };
-
-#define d d_func()
-#define q q_func()
 
 
 /*!
@@ -121,8 +119,9 @@ public:
 */
 
 Q3GroupBox::Q3GroupBox(QWidget *parent, const char *name)
-    : QWidget(*new Q3GroupBoxPrivate, parent, 0)
+    : Q3Frame(parent, 0)
 {
+    d = new Q3GroupBoxPrivate(this);
     setObjectName(name);
     d->init();
 }
@@ -137,8 +136,9 @@ Q3GroupBox::Q3GroupBox(QWidget *parent, const char *name)
 */
 
 Q3GroupBox::Q3GroupBox(const QString &title, QWidget *parent, const char *name)
-    : QWidget(*new Q3GroupBoxPrivate, parent, 0)
+    : Q3Frame(parent, 0)
 {
+    d = new Q3GroupBoxPrivate(this);
     setObjectName(name);
     d->init();
     setTitle(title);
@@ -155,8 +155,9 @@ Q3GroupBox::Q3GroupBox(const QString &title, QWidget *parent, const char *name)
 
 Q3GroupBox::Q3GroupBox(int strips, Qt::Orientation orientation,
                     QWidget *parent, const char *name)
-    : QWidget(*new Q3GroupBoxPrivate, parent, 0)
+    : Q3Frame(parent, 0)
 {
+    d = new Q3GroupBoxPrivate(this);
     setObjectName(name);
     d->init();
     setColumnLayout(strips, orientation);
@@ -174,8 +175,9 @@ Q3GroupBox::Q3GroupBox(int strips, Qt::Orientation orientation,
 Q3GroupBox::Q3GroupBox(int strips, Qt::Orientation orientation,
                     const QString &title, QWidget *parent,
                     const char *name)
-    : QWidget(*new Q3GroupBoxPrivate, parent, 0)
+    : Q3Frame(parent, 0)
 {
+    d = new Q3GroupBoxPrivate(this);
     setObjectName(name);
     d->init();
     setTitle(title);
@@ -187,6 +189,7 @@ Q3GroupBox::Q3GroupBox(int strips, Qt::Orientation orientation,
 */
 Q3GroupBox::~Q3GroupBox()
 {
+    delete d;
 }
 
 void Q3GroupBoxPrivate::init()
@@ -717,7 +720,7 @@ void Q3GroupBoxPrivate::calculateFrame()
 {
     lenvisible = str.length();
 
-    d->topMargin = 0;
+    topMargin = 0;
     QFontMetrics fm = q->fontMetrics();
     if (lenvisible && !checkbox) { // do we have a label?
         while (lenvisible) {
@@ -729,9 +732,9 @@ void Q3GroupBoxPrivate::calculateFrame()
         if (lenvisible) { // but do we also have a visible label?
             int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
             if(va & Qt::AlignVCenter)
-                d->topMargin = fm.height()/2;
+                topMargin = fm.height()/2;
             else if(va & Qt::AlignTop)
-                d->topMargin = fm.ascent();
+                topMargin = fm.ascent();
         }
     }
     else if (checkbox) {
@@ -895,7 +898,7 @@ void Q3GroupBoxPrivate::setChildrenEnabled(bool b)
     for (int i = 0; i < childs.size(); ++i) {
         QObject *o = childs.at(i);
         if (o->isWidgetType()
-             && o != d->checkbox
+             && o != checkbox
            ) {
             QWidget *w = static_cast<QWidget *>(o);
             if (b) {
@@ -934,8 +937,8 @@ void Q3GroupBox::changeEvent(QEvent *ev)
 */
 void Q3GroupBoxPrivate::updateCheckBoxGeometry()
 {
-    if (d->checkbox) {
-        QSize cbSize = d->checkbox->sizeHint();
+    if (checkbox) {
+        QSize cbSize = checkbox->sizeHint();
         QRect cbRect(0, 0, cbSize.width(), cbSize.height());
         QRect frameRect = q->rect();
         frameRect.setTop(topMargin);
@@ -957,7 +960,7 @@ void Q3GroupBoxPrivate::updateCheckBoxGeometry()
                 cbRect.moveLeft(frameRect.left() + marg);
         }
 
-        d->checkbox->setGeometry(cbRect);
+        checkbox->setGeometry(cbRect);
     }
 }
 

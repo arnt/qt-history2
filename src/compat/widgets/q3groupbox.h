@@ -16,15 +16,14 @@
 #define Q3GROUPBOX_H
 
 #ifndef QT_H
-#include "qframe.h"
+#include "q3frame.h"
 #endif // QT_H
 
 class Q3GroupBoxPrivate;
 
-class Q_COMPAT_EXPORT Q3GroupBox : public QWidget
+class Q_COMPAT_EXPORT Q3GroupBox : public Q3Frame
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q3GroupBox)
 
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
@@ -96,6 +95,7 @@ private:
     Q_PRIVATE_SLOT(void setChildrenEnabled(bool b))
 
 private:
+    Q3GroupBoxPrivate *d;
 
 #if defined(Q_DISABLE_COPY)
     Q3GroupBox(const Q3GroupBox &);
