@@ -205,7 +205,7 @@ class QMacStyleQDPrivate : public QAquaAnimate
 {
     QPointer<QMacStyleQDFocusWidget> focusWidget;
 public:
-    struct Qt::ButtonState {
+    struct ButtonState {
         int frame;
         enum { ButtonDark, ButtonLight } dir;
     } buttonState;
@@ -226,22 +226,22 @@ QMacStyleQDPrivate::QMacStyleQDPrivate() : QAquaAnimate()
 {
     progressbarState.frame = 0;
     buttonState.frame = 0;
-    buttonState.dir = Qt::ButtonState::ButtonDark;
+    buttonState.dir = ButtonState::ButtonDark;
 }
 QMacStyleQDPrivate::~QMacStyleQDPrivate()
 {
     buttonState.frame = 0;
-    buttonState.dir = Qt::ButtonState::ButtonDark;
+    buttonState.dir = ButtonState::ButtonDark;
     progressbarState.frame = 0;
 }
 bool QMacStyleQDPrivate::doAnimate(QAquaAnimate::Animates as)
 {
     if(as == AquaPushButton) {
-        if(buttonState.frame == 25 && buttonState.dir == Qt::ButtonState::ButtonDark)
-            buttonState.dir = Qt::ButtonState::ButtonLight;
-        else if(!buttonState.frame && buttonState.dir == Qt::ButtonState::ButtonLight)
-            buttonState.dir = Qt::ButtonState::ButtonDark;
-        buttonState.frame += ((buttonState.dir == Qt::ButtonState::ButtonDark) ? 1 : -1);
+        if(buttonState.frame == 25 && buttonState.dir == ButtonState::ButtonDark)
+            buttonState.dir = ButtonState::ButtonLight;
+        else if(!buttonState.frame && buttonState.dir == ButtonState::ButtonLight)
+            buttonState.dir = ButtonState::ButtonDark;
+        buttonState.frame += ((buttonState.dir == ButtonState::ButtonDark) ? 1 : -1);
     } else if(as == AquaProgressBar) {
         progressbarState.frame++;
     } else if(as == AquaListViewItemOpen) {

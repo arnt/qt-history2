@@ -1039,22 +1039,22 @@ public:
 #ifdef Q_WS_MAC
     enum MacVersion {
         //Unknown
-        Qt::MV_Unknown  = 0x0000,
+        MV_Unknown  = 0x0000,
 
         //Version numbers
-        Qt::MV_9        = 0x0001,
-        Qt::MV_10_DOT_0 = 0x0002,
-        Qt::MV_10_DOT_1 = 0x0003,
-        Qt::MV_10_DOT_2 = 0x0004,
-        Qt::MV_10_DOT_3 = 0x0005,
+        MV_9        = 0x0001,
+        MV_10_DOT_0 = 0x0002,
+        MV_10_DOT_1 = 0x0003,
+        MV_10_DOT_2 = 0x0004,
+        MV_10_DOT_3 = 0x0005,
 
         //Code names
-        Qt::MV_CHEETAH  = Qt::MV_10_DOT_0,
-        Qt::MV_PUMA     = Qt::MV_10_DOT_1,
-        Qt::MV_JAGUAR   = Qt::MV_10_DOT_2,
-        Qt::MV_PANTHER  = Qt::MV_10_DOT_3
+        MV_CHEETAH  = MV_10_DOT_0,
+        MV_PUMA     = MV_10_DOT_1,
+        MV_JAGUAR   = MV_10_DOT_2,
+        MV_PANTHER  = MV_10_DOT_3
     };
-    static const MacVersion Qt::MacintoshVersion;
+    static const MacVersion MacintoshVersion;
 #endif
 };
 
