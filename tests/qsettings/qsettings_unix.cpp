@@ -24,7 +24,6 @@
 *****************************************************************************/
 
 #include "qsettings.h"
-#include "qxml.h"
 
 #include <qfile.h>
 #include <qvariant.h>
@@ -37,7 +36,17 @@
 #include <qcursor.h>
 #include <qfont.h>
 #include <qsizepolicy.h>
+#include <qxml.h>
 
+// #define QSETTINGS_NODE_DEBUG
+// #define QSETTINGS_ENTRY_DEBUG
+
+
+
+
+// **********************************************************************
+// QSettingsNode - internal data structure for QSettings
+// **********************************************************************
 
 class QSettingsNode
 {
@@ -58,13 +67,13 @@ public:
 };
 
 
-QSettingsNode::QSettingsNode()
+inline QSettingsNode::QSettingsNode()
     : parent(0), prev(0), next(0), first(0), last(0)
 {
 }
 
 
-QSettingsNode::~QSettingsNode()
+inline QSettingsNode::~QSettingsNode()
 {
     QSettingsNode *n = first, *m;
 
@@ -76,26 +85,37 @@ QSettingsNode::~QSettingsNode()
 }
 
 
-void QSettingsNode::addChild(QSettingsNode *child)
+inline void QSettingsNode::addChild(QSettingsNode *child)
 {
     child->parent = this;
 
-    if (last) last->next = child;
+    if (last) {
+	last->next = child;
+    }
     child->prev = last;
 
-    if (! first) first = child;
+    if (! first) {
+	first = child;
+    }
     last = child;
+    
+#ifdef QSETTINGS_NODE_DEBUG
+    qDebug("QSettingsNode::addChild: parent %p child %p first %p last %p",
+	   this, child, first, last);
+#endif // QSETTINGS_NODE_DEBUG
+    
 }
 
 
-void QSettingsNode::removeChild(QSettingsNode *child)
+inline void QSettingsNode::removeChild(QSettingsNode *child)
 {
     if (child->parent != this ||
 	(! child->next &&
 	 ! child->prev &&
-	 first != child))
+	 first != child)) {
 	return;
-
+    }
+    
     if (child->next)
 	child->next->prev = child->prev;
     if (child->prev)
@@ -107,17 +127,30 @@ void QSettingsNode::removeChild(QSettingsNode *child)
 	first = child->next;
 
     child->parent = child->prev = child->next = 0;
+    
+#ifdef QSETTINGS_NODE_DEBUG
+    qDebug("QSettingsNode::removeChild: parent %p child %p first %p last %p",
+	   this, child, first, last);
+#endif // QSETTINGS_NODE_DEBUG
+    
 }
 
 
-void QSettingsNode::setAttributes(const QXmlAttributes &a)
+inline void QSettingsNode::setAttributes(const QXmlAttributes &a)
 {
-    for (int i = 0; i < a.length(); i++)
+    for (int i = 0; i < a.length(); i++) {
 	attributes[a.qName(i)] = a.value(i);
+	
+#ifdef QSETTINGS_NODE_DEBUG
+	qDebug("QSettingsNode::setAttributes: %s = %s",
+	       a.qName(i).latin1(), a.value(i).latin1());
+#endif // QSETTINGS_NODE_DEBUG
+	
+    }
 }
 
 
-QString QSettingsNode::attrString() const
+inline QString QSettingsNode::attrString() const
 {
     QString as;
 
@@ -132,15 +165,22 @@ QString QSettingsNode::attrString() const
 
 	++it;
     }
-
+    
+#ifdef QSETTINGS_NODE_DEBUG
+    qDebug("QSettingsNode::attrString: %s", as.latin1());
+#endif // QSETTINGS_NODE_DEBUG
+    
     return as;
 }
+
+
+
 
 
 class QSettingsXmlHandler : public QXmlDefaultHandler
 {
 public:
-    QSettingsXmlHandler() : node(0) { }
+    QSettingsXmlHandler();
 
     bool startDocument();
     bool endDocument();
@@ -153,7 +193,13 @@ public:
 };
 
 
-bool QSettingsXmlHandler::startDocument()
+inline QSettingsXmlHandler::QSettingsXmlHandler()
+    : node(0)
+{
+}
+
+
+inline bool QSettingsXmlHandler::startDocument()
 {
     tree = node = new QSettingsNode;
     node->tagName = "QSettings";
@@ -162,7 +208,7 @@ bool QSettingsXmlHandler::startDocument()
 }
 
 
-bool QSettingsXmlHandler::endDocument()
+inline bool QSettingsXmlHandler::endDocument()
 {
     if (node != tree)
 	return FALSE;
@@ -170,8 +216,10 @@ bool QSettingsXmlHandler::endDocument()
     return TRUE;
 }
 
-bool QSettingsXmlHandler::startElement(const QString &, const QString &,
-				       const QString &qName, const QXmlAttributes &attr)
+inline bool QSettingsXmlHandler::startElement(const QString &,
+					      const QString &,
+					      const QString &qName,
+					      const QXmlAttributes &attr)
 {
     QSettingsNode *nnode = new QSettingsNode;
     nnode->setAttributes(attr);
@@ -184,7 +232,9 @@ bool QSettingsXmlHandler::startElement(const QString &, const QString &,
 }
 
 
-bool QSettingsXmlHandler::endElement(const QString &, const QString &, const QString &)
+inline bool QSettingsXmlHandler::endElement(const QString &,
+					    const QString &,
+					    const QString &)
 {
     if (node == tree)
 	return FALSE;
@@ -194,7 +244,7 @@ bool QSettingsXmlHandler::endElement(const QString &, const QString &, const QSt
 }
 
 
-bool QSettingsXmlHandler::characters(const QString &ch)
+inline bool QSettingsXmlHandler::characters(const QString &ch)
 {
     node->data += ch;
 
@@ -202,9 +252,16 @@ bool QSettingsXmlHandler::characters(const QString &ch)
 }
 
 
+
+
+// **********************************************************************
+// Base64 encoder/decoder
+// **********************************************************************
+
 static const char *Base64Table = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                  "abcdefghijklmnopqrstuvwxyz"
                                  "0123456789+/";
+
 static char Base64Index[128] = {
     '\377', '\377', '\377', '\377', '\377', '\377', '\377', '\377',
     '\377', '\377', '\377', '\377', '\377', '\377', '\377', '\377',
@@ -234,7 +291,7 @@ static inline int isbase64(int a)
 }
 
 
-static QByteArray encodeBase64 (const QByteArray &ina)
+static inline QByteArray encodeBase64 (const QByteArray &ina)
 {
     if (ina.isNull() || ina.isEmpty()) {
 	return QByteArray(0);
@@ -305,7 +362,7 @@ static QByteArray encodeBase64 (const QByteArray &ina)
 }
 
 
-static QByteArray decodeBase64(const QByteArray &ina)
+static inline QByteArray decodeBase64(const QByteArray &ina)
 {
     if (ina.isNull() || ina.isEmpty()) {
 	return QByteArray(0);
@@ -428,9 +485,14 @@ static QByteArray decodeBase64(const QByteArray &ina)
 }
 
 
-// QPoint
 
-static QPoint readPoint(QSettingsNode *e)
+
+// **********************************************************************
+// helper functions
+// **********************************************************************
+
+// QPoint
+static inline QPoint readPoint(QSettingsNode *e)
 {
     QSettingsNode *n = e->first;
     int x = 0, y = 0;
@@ -447,7 +509,7 @@ static QPoint readPoint(QSettingsNode *e)
     return QPoint(x, y);
 }
 
-static void writePoint(QSettingsNode *e, const QPoint &p)
+static inline void writePoint(QSettingsNode *e, const QPoint &p)
 {
     e->tagName = "point";
 
@@ -464,8 +526,7 @@ static void writePoint(QSettingsNode *e, const QPoint &p)
 
 
 // QFont
-
-static QFont readFont(QSettingsNode *e)
+static inline QFont readFont(QSettingsNode *e)
 {
     QSettingsNode *n = e->first;
     QFont font;
@@ -490,7 +551,7 @@ static QFont readFont(QSettingsNode *e)
     return font;
 }
 
-static void writeFont(QSettingsNode *e, const QFont &font)
+static inline void writeFont(QSettingsNode *e, const QFont &font)
 {
     e->tagName = "font";
 
@@ -527,8 +588,7 @@ static void writeFont(QSettingsNode *e, const QFont &font)
 
 
 // QRect
-
-static QRect readRect(QSettingsNode *e)
+static inline QRect readRect(QSettingsNode *e)
 {
     QSettingsNode *n = e->first;
     int x = 0, y = 0, w = 0, h = 0;
@@ -549,7 +609,7 @@ static QRect readRect(QSettingsNode *e)
     return QRect(x, y, w, h);
 }
 
-static void writeRect(QSettingsNode *e, const QRect &r)
+static inline void writeRect(QSettingsNode *e, const QRect &r)
 {
     e->tagName = "rect";
 
@@ -580,13 +640,12 @@ static void writeRect(QSettingsNode *e, const QRect &r)
 
 
 // QCString
-
-static QCString readCString(QSettingsNode *e)
+static inline QCString readCString(QSettingsNode *e)
 {
     return e->data.utf8();
 }
 
-static void writeCString(QSettingsNode *e, const QCString &s)
+static inline void writeCString(QSettingsNode *e, const QCString &s)
 {
     e->tagName = "cstring";
     e->data = QString::fromUtf8(s);
@@ -594,27 +653,25 @@ static void writeCString(QSettingsNode *e, const QCString &s)
 
 
 // QString
-
-static QString readString(QSettingsNode *e)
+static inline QString readString(QSettingsNode *e)
 {
     return e->data;
 }
 
-static void writeString(QSettingsNode *e, const QString &s)
+static inline void writeString(QSettingsNode *e, const QString &s)
 {
     e->tagName = "string";
     e->data = s;
 }
 
 
-// DOUBLE
-
-static double readDouble(QSettingsNode *e)
+// double
+static inline double readDouble(QSettingsNode *e)
 {
     return e->data.toDouble();
 }
 
-static void writeDouble(QSettingsNode *e, double d)
+static inline void writeDouble(QSettingsNode *e, double d)
 {
     e->tagName = "double";
     e->data = QString::number(d, 'g', 10);
@@ -622,13 +679,12 @@ static void writeDouble(QSettingsNode *e, double d)
 
 
 // int
-
-static int readInt(QSettingsNode *e)
+static inline int readInt(QSettingsNode *e)
 {
     return e->data.toInt();
 }
 
-static void writeInt(QSettingsNode *e, int i)
+static inline void writeInt(QSettingsNode *e, int i)
 {
     e->tagName = "int";
     e->data = QString::number(i);
@@ -636,13 +692,12 @@ static void writeInt(QSettingsNode *e, int i)
 
 
 // uint
-
-static uint readUInt(QSettingsNode *e)
+static inline uint readUInt(QSettingsNode *e)
 {
     return e->data.toUInt();
 }
 
-static void writeUInt(QSettingsNode *e, uint u)
+static inline void writeUInt(QSettingsNode *e, uint u)
 {
     e->tagName = "uint";
     e->data = QString::number(u);
@@ -650,8 +705,7 @@ static void writeUInt(QSettingsNode *e, uint u)
 
 
 // bool
-
-static bool readBool(QSettingsNode *e)
+static inline bool readBool(QSettingsNode *e)
 {
     bool value = false;
 
@@ -668,7 +722,7 @@ static bool readBool(QSettingsNode *e)
     return value;
 }
 
-static void writeBool(QSettingsNode *e, bool b)
+static inline void writeBool(QSettingsNode *e, bool b)
 {
     e->tagName = "bool";
     e->data = QString(b ? "true" : "false");
@@ -676,8 +730,7 @@ static void writeBool(QSettingsNode *e, bool b)
 
 
 // QSize
-
-static QSize readSize(QSettingsNode *e)
+static inline QSize readSize(QSettingsNode *e)
 {
     QSettingsNode *n = e->first;
     int w = -1, h = -1;
@@ -695,7 +748,7 @@ static QSize readSize(QSettingsNode *e)
     return QSize(w, h);
 }
 
-static void writeSize(QSettingsNode *e, const QSize &s)
+static inline void writeSize(QSettingsNode *e, const QSize &s)
 {
     e->tagName = "size";
 
@@ -712,8 +765,7 @@ static void writeSize(QSettingsNode *e, const QSize &s)
 
 
 // QColor
-
-static QColor readColor(QSettingsNode *e)
+static inline QColor readColor(QSettingsNode *e)
 {
     int r = 0, g = 0, b = 0;
 
@@ -732,7 +784,7 @@ static QColor readColor(QSettingsNode *e)
     return QColor(r, g, b);
 }
 
-static void writeColor(QSettingsNode *e, const QColor &c)
+static inline void writeColor(QSettingsNode *e, const QColor &c)
 {
     e->tagName = "color";
 
@@ -753,8 +805,7 @@ static void writeColor(QSettingsNode *e, const QColor &c)
 
 
 // QColorGroup
-
-static QColorGroup readColorGroup(QSettingsNode *e)
+static inline QColorGroup readColorGroup(QSettingsNode *e)
 {
     QColorGroup cg;
 
@@ -771,7 +822,7 @@ static QColorGroup readColorGroup(QSettingsNode *e)
     return cg;
 }
 
-static void writeColorGroup(QSettingsNode *e, const QColorGroup &cg)
+static inline void writeColorGroup(QSettingsNode *e, const QColorGroup &cg)
 {
     e->tagName = "colorgroup";
 
@@ -794,8 +845,7 @@ static void writeColorGroup(QSettingsNode *e, const QColorGroup &cg)
 
 
 // QPalette
-
-static QPalette readPalette(QSettingsNode *e)
+static inline QPalette readPalette(QSettingsNode *e)
 {
     QColorGroup a, i, d;
 
@@ -816,7 +866,7 @@ static QPalette readPalette(QSettingsNode *e)
     return QPalette(a, d, i);
 }
 
-static void writePalette(QSettingsNode *e, const QPalette &p)
+static inline void writePalette(QSettingsNode *e, const QPalette &p)
 {
     e->tagName = "palette";
 
@@ -841,8 +891,7 @@ static void writePalette(QSettingsNode *e, const QPalette &p)
 
 
 // QStringList
-
-static QStringList readStringList(QSettingsNode *e)
+static inline QStringList readStringList(QSettingsNode *e)
 {
     QStringList list;
     QSettingsNode *n = e->first;
@@ -858,7 +907,7 @@ static QStringList readStringList(QSettingsNode *e)
     return list;
 }
 
-static void writeStringList(QSettingsNode *e, const QStringList &strlist)
+static inline void writeStringList(QSettingsNode *e, const QStringList &strlist)
 {
     e->tagName = "stringlist";
 
@@ -884,8 +933,7 @@ static void writeStringList(QSettingsNode *e, const QStringList &strlist)
 
 
 // QPixmap
-
-static QPixmap readPixmap(QSettingsNode *e)
+static inline QPixmap readPixmap(QSettingsNode *e)
 {
     QSize sz;
     int depth = 0;
@@ -924,7 +972,7 @@ static QPixmap readPixmap(QSettingsNode *e)
     return pixmap;
 }
 
-static void writePixmap(QSettingsNode *e, const QPixmap &pixmap)
+static inline void writePixmap(QSettingsNode *e, const QPixmap &pixmap)
 {
     e->tagName = "pixmap";
 
@@ -941,7 +989,8 @@ static void writePixmap(QSettingsNode *e, const QPixmap &pixmap)
     QImage img;
     img = pixmap;
     QByteArray ba;
-    ba.duplicate((const char *) img.bits(), img.width() * img.height() * (img.depth() / 8));
+    ba.duplicate((const char *) img.bits(),
+		 img.width() * img.height() * (img.depth() / 8));
     n->data = "\n" + QString::fromLocal8Bit(encodeBase64(ba).data());
 
     if (! n->next)
@@ -953,8 +1002,7 @@ static void writePixmap(QSettingsNode *e, const QPixmap &pixmap)
 
 
 // QBrush
-
-static QBrush readBrush(QSettingsNode *e)
+static inline QBrush readBrush(QSettingsNode *e)
 {
     QBrush brush;
     QSettingsNode *n = e->first;
@@ -1004,7 +1052,7 @@ static QBrush readBrush(QSettingsNode *e)
     return brush;
 }
 
-static void writeBrush(QSettingsNode *e, const QBrush &brush)
+static inline void writeBrush(QSettingsNode *e, const QBrush &brush)
 {
     e->tagName = "brush";
 
@@ -1091,8 +1139,7 @@ static void writeBrush(QSettingsNode *e, const QBrush &brush)
 
 
 // QIconSet
-
-static QIconSet readIconSet(QSettingsNode *e)
+static inline QIconSet readIconSet(QSettingsNode *e)
 {
     QIconSet iconset;
     int mode = 0, size = 0;
@@ -1117,7 +1164,8 @@ static QIconSet readIconSet(QSettingsNode *e)
 		mode = QIconSet::Normal;
 	    }
 
-	    iconset.setPixmap(readPixmap(n), (QIconSet::Size) size, (QIconSet::Mode) mode);
+	    iconset.setPixmap(readPixmap(n), (QIconSet::Size) size,
+			      (QIconSet::Mode) mode);
 	}
 
 	n = n->next;
@@ -1126,7 +1174,7 @@ static QIconSet readIconSet(QSettingsNode *e)
     return iconset;
 }
 
-static void writeIconSet(QSettingsNode *e, const QIconSet &iconset)
+static inline void writeIconSet(QSettingsNode *e, const QIconSet &iconset)
 {
     e->tagName = "iconset";
 
@@ -1183,8 +1231,7 @@ static void writeIconSet(QSettingsNode *e, const QIconSet &iconset)
 
 
 // QImage
-
-static QImage readImage(QSettingsNode *e)
+static inline QImage readImage(QSettingsNode *e)
 {
     QSize sz;
     int depth = 0;
@@ -1223,7 +1270,7 @@ static QImage readImage(QSettingsNode *e)
     return image;
 }
 
-static void writeImage(QSettingsNode *e, const QImage &img)
+static inline void writeImage(QSettingsNode *e, const QImage &img)
 {
     e->tagName = "image";
 
@@ -1244,14 +1291,14 @@ static void writeImage(QSettingsNode *e, const QImage &img)
     n->tagName = "data";
 
     QByteArray ba;
-    ba.duplicate((const char *) img.bits(), img.width() * img.height() * (img.depth() / 8));
+    ba.duplicate((const char *) img.bits(),
+		 img.width() * img.height() * (img.depth() / 8));
     n->data = "\n" + QString::fromLocal8Bit(encodeBase64(ba).data());
 }
 
 
 // QPointArray
-
-static QPointArray readPointArray(QSettingsNode *e)
+static inline QPointArray readPointArray(QSettingsNode *e)
 {
     QPointArray array;
     QSettingsNode *n = e->first;
@@ -1269,7 +1316,7 @@ static QPointArray readPointArray(QSettingsNode *e)
     return array;
 }
 
-static void writePointArray(QSettingsNode *e, const QPointArray &array)
+static inline void writePointArray(QSettingsNode *e, const QPointArray &array)
 {
     e->tagName = "pointarray";
 
@@ -1291,8 +1338,7 @@ static void writePointArray(QSettingsNode *e, const QPointArray &array)
 
 
 // QRegion
-
-static QRegion readRegion(QSettingsNode *e)
+static inline QRegion readRegion(QSettingsNode *e)
 {
     QRegion region;
     QSettingsNode *n = e->first;
@@ -1311,7 +1357,7 @@ static QRegion readRegion(QSettingsNode *e)
     return region;
 }
 
-static void writeRegion(QSettingsNode *e, const QRegion &region)
+static inline void writeRegion(QSettingsNode *e, const QRegion &region)
 {
     e->tagName = "region";
 
@@ -1333,8 +1379,7 @@ static void writeRegion(QSettingsNode *e, const QRegion &region)
 
 
 // QBitmap
-
-static QBitmap readBitmap(QSettingsNode *e)
+static inline QBitmap readBitmap(QSettingsNode *e)
 {
     QSize sz;
     QByteArray data;
@@ -1366,7 +1411,7 @@ static QBitmap readBitmap(QSettingsNode *e)
     return bitmap;
 }
 
-static void writeBitmap(QSettingsNode *e, const QBitmap &bitmap)
+static inline void writeBitmap(QSettingsNode *e, const QBitmap &bitmap)
 {
     e->tagName = "bitmap";
 
@@ -1389,8 +1434,7 @@ static void writeBitmap(QSettingsNode *e, const QBitmap &bitmap)
 
 
 // QCursor
-
-static QCursor readCursor(QSettingsNode *e)
+static inline QCursor readCursor(QSettingsNode *e)
 {
     QBitmap bitmap, mask;
     QPoint hotSpot(-1, -1);
@@ -1409,35 +1453,35 @@ static QCursor readCursor(QSettingsNode *e)
 	    }
 	} else if (n->tagName == "shape") {
 	    if (n->data == "ArrowCursor") {
-		shape = ArrowCursor;
+		shape = Qt::ArrowCursor;
 	    } else if (n->data == "UpArrowCursor") {
-		shape = UpArrowCursor;
+		shape = Qt::UpArrowCursor;
 	    } else if (n->data == "CrossCursor") {
-		shape = CrossCursor;
+		shape = Qt::CrossCursor;
 	    } else if (n->data == "WaitCursor") {
-		shape = WaitCursor;
+		shape = Qt::WaitCursor;
 	    } else if (n->data == "IbeamCursor") {
-		shape = IbeamCursor;
+		shape = Qt::IbeamCursor;
 	    } else if (n->data == "SizeVerCursor") {
-		shape = SizeVerCursor;
+		shape = Qt::SizeVerCursor;
 	    } else if (n->data == "SizeHorCursor") {
-		shape = SizeHorCursor;
+		shape = Qt::SizeHorCursor;
 	    } else if (n->data == "SizeBDiagCursor") {
-		shape = SizeBDiagCursor;
+		shape = Qt::SizeBDiagCursor;
 	    } else if (n->data == "SizeFDiagCursor") {
-		shape = SizeFDiagCursor;
+		shape = Qt::SizeFDiagCursor;
 	    } else if (n->data == "SizeAllCursor") {
-		shape = SizeAllCursor;
+		shape = Qt::SizeAllCursor;
 	    } else if (n->data == "BlankCursor") {
-		shape = BlankCursor;
+		shape = Qt::BlankCursor;
 	    } else if (n->data == "SplitVCursor") {
-		shape = SplitVCursor;
+		shape = Qt::SplitVCursor;
 	    } else if (n->data == "SplitHCursor") {
-		shape = SplitHCursor;
+		shape = Qt::SplitHCursor;
 	    } else if (n->data == "PointingHandCursor") {
-		shape = PointingHandCursor;
+		shape = Qt::PointingHandCursor;
 	    } else if (n->data == "ForbiddenCursor") {
-		shape = ForbiddenCursor;
+		shape = Qt::ForbiddenCursor;
 	    }
 	} else if (n->tagName == "hotspot") {
 	    hotSpot = readPoint(n);
@@ -1453,7 +1497,7 @@ static QCursor readCursor(QSettingsNode *e)
     return QCursor(shape);
 }
 
-static void writeCursor(QSettingsNode *e, const QCursor &cursor)
+static inline void writeCursor(QSettingsNode *e, const QCursor &cursor)
 {
     e->tagName = "cursor";
 
@@ -1463,67 +1507,67 @@ static void writeCursor(QSettingsNode *e, const QCursor &cursor)
     n->tagName = "shape";
 
     switch (cursor.shape()) {
-    case ArrowCursor:
+    case Qt::ArrowCursor:
 	n->data = "ArrowCursor";
 	break;
 
-    case UpArrowCursor:
+    case Qt::UpArrowCursor:
 	n->data = "UpArrowCursor";
 	break;
 
-    case CrossCursor:
+    case Qt::CrossCursor:
 	n->data = "CrossCursor";
 	break;
 
-    case WaitCursor:
+    case Qt::WaitCursor:
 	n->data = "WaitCursor";
 	break;
 
-    case  IbeamCursor:
+    case Qt:: IbeamCursor:
 	n->data = "IbeamCursor";
 	break;
 
-    case SizeVerCursor:
+    case Qt::SizeVerCursor:
 	n->data = "SizeVerCursor";
 	break;
 
-    case SizeHorCursor:
+    case Qt::SizeHorCursor:
 	n->data = "SizeHorCursor";
 	break;
 
-    case SizeBDiagCursor:
+    case Qt::SizeBDiagCursor:
 	n->data = "SizeBDiagCursor";
 	break;
 
-    case SizeFDiagCursor:
+    case Qt::SizeFDiagCursor:
 	n->data = "SizeFDiagCursor";
 	break;
 
-    case SizeAllCursor:
+    case Qt::SizeAllCursor:
 	n->data = "SizeAllCursor";
 	break;
 
-    case BlankCursor:
+    case Qt::BlankCursor:
 	n->data = "BlankCursor";
 	break;
 
-    case SplitVCursor:
+    case Qt::SplitVCursor:
 	n->data = "SplitVCursor";
 	break;
 
-    case SplitHCursor:
+    case Qt::SplitHCursor:
 	n->data = "SplitHCursor";
 	break;
 
-    case PointingHandCursor:
+    case Qt::PointingHandCursor:
 	n->data = "PointingHandCursor";
 	break;
 
-    case ForbiddenCursor:
+    case Qt::ForbiddenCursor:
 	n->data = "ForbiddenCursor";
 	break;
 
-    case BitmapCursor:
+    case Qt::BitmapCursor:
 	if (cursor.bitmap() &&
 	    ! cursor.bitmap()->isNull()) {
 	    writeBitmap(n, *cursor.bitmap());
@@ -1551,27 +1595,36 @@ static void writeCursor(QSettingsNode *e, const QCursor &cursor)
 
 
 // QSizePolicy
-
-static QSizePolicy readSizePolicy(QSettingsNode *e)
+static inline QSizePolicy readSizePolicy(QSettingsNode *e)
 {
     QSizePolicy sizepolicy;
     QSettingsNode *n = e->first;
 
     while (n) {
 	if (n->tagName == "hordata") {
-	    if (n->data == "Fixed") sizepolicy.setHorData(QSizePolicy::Fixed);
-	    else if (n->data == "Minimum") sizepolicy.setHorData(QSizePolicy::Minimum);
-	    else if (n->data == "Maximum") sizepolicy.setHorData(QSizePolicy::Maximum);
-	    else if (n->data == "Preferred") sizepolicy.setHorData(QSizePolicy::Preferred);
-	    else if (n->data == "Expanding") sizepolicy.setHorData(QSizePolicy::Expanding);
+	    if (n->data == "Fixed")
+		sizepolicy.setHorData(QSizePolicy::Fixed);
+	    else if (n->data == "Minimum")
+		sizepolicy.setHorData(QSizePolicy::Minimum);
+	    else if (n->data == "Maximum")
+		sizepolicy.setHorData(QSizePolicy::Maximum);
+	    else if (n->data == "Preferred")
+		sizepolicy.setHorData(QSizePolicy::Preferred);
+	    else if (n->data == "Expanding")
+		sizepolicy.setHorData(QSizePolicy::Expanding);
 	    else if (n->data == "MinimumExpanding")
 		sizepolicy.setHorData(QSizePolicy::MinimumExpanding);
 	} else if (n->tagName == "verdata") {
-	    if (n->data == "Fixed") sizepolicy.setVerData(QSizePolicy::Fixed);
-	    else if (n->data == "Minimum") sizepolicy.setVerData(QSizePolicy::Minimum);
-	    else if (n->data == "Maximum") sizepolicy.setVerData(QSizePolicy::Maximum);
-	    else if (n->data == "Preferred") sizepolicy.setVerData(QSizePolicy::Preferred);
-	    else if (n->data == "Expanding") sizepolicy.setVerData(QSizePolicy::Expanding);
+	    if (n->data == "Fixed")
+		sizepolicy.setVerData(QSizePolicy::Fixed);
+	    else if (n->data == "Minimum")
+		sizepolicy.setVerData(QSizePolicy::Minimum);
+	    else if (n->data == "Maximum")
+		sizepolicy.setVerData(QSizePolicy::Maximum);
+	    else if (n->data == "Preferred")
+		sizepolicy.setVerData(QSizePolicy::Preferred);
+	    else if (n->data == "Expanding")
+		sizepolicy.setVerData(QSizePolicy::Expanding);
 	    else if (n->data == "MinimumExpanding")
 		sizepolicy.setVerData(QSizePolicy::MinimumExpanding);
 	}
@@ -1582,7 +1635,7 @@ static QSizePolicy readSizePolicy(QSettingsNode *e)
     return sizepolicy;
 }
 
-static void writeSizePolicy(QSettingsNode *e, const QSizePolicy &sizepolicy)
+static inline void writeSizePolicy(QSettingsNode *e, const QSizePolicy &sizepolicy)
 {
     e->tagName = "sizepolicy";
 
@@ -1653,11 +1706,10 @@ static void writeSizePolicy(QSettingsNode *e, const QSizePolicy &sizepolicy)
 
 
 // QValueList<QString,QVariant>
-
 static QMap<QString,QVariant> readMap(QSettingsNode *e);
 static void writeMap(QSettingsNode *e, const QMap<QString,QVariant> &map);
 
-static QValueList<QVariant> readList(QSettingsNode *e)
+static inline QValueList<QVariant> readList(QSettingsNode *e)
 {
     QValueList<QVariant> list;
     QSettingsNode *n = e->first;
@@ -1721,7 +1773,7 @@ static QValueList<QVariant> readList(QSettingsNode *e)
     return list;
 }
 
-static void writeList(QSettingsNode *e, const QValueList<QVariant> &list)
+static inline void writeList(QSettingsNode *e, const QValueList<QVariant> &list)
 {
     e->tagName = "list";
 
@@ -1849,8 +1901,7 @@ static void writeList(QSettingsNode *e, const QValueList<QVariant> &list)
 
 
 // QMap<QString,QVariant>
-
-static QMap<QString,QVariant> readMap(QSettingsNode *e)
+static inline QMap<QString,QVariant> readMap(QSettingsNode *e)
 {
     QMap<QString,QVariant> map;
     QSettingsNode *n = e->first;
@@ -1918,7 +1969,7 @@ static QMap<QString,QVariant> readMap(QSettingsNode *e)
     return map;
 }
 
-static void writeMap(QSettingsNode *e, const QMap<QString,QVariant> &map)
+static inline void writeMap(QSettingsNode *e, const QMap<QString,QVariant> &map)
 {
     e->tagName = "map";
 
@@ -2046,7 +2097,8 @@ static void writeMap(QSettingsNode *e, const QMap<QString,QVariant> &map)
 }
 
 
-static QSettingsNode *load(QIODevice *device)
+// file loading
+static inline QSettingsNode *load(QIODevice *device)
 {
     QTextStream ts(device);
     QXmlInputSource inputsource(ts);
@@ -2054,16 +2106,16 @@ static QSettingsNode *load(QIODevice *device)
 
     QSettingsXmlHandler handler;
 
-    reader.setFeature("http://trolltech.com/xml/features/report-whitespace-only-CharData",
-		      FALSE);
+    reader.
+	setFeature("http://trolltech.com/xml/features/report-whitespace-only-CharData",
+		   FALSE);
     reader.setContentHandler(&handler);
     reader.parse(inputsource);
 
     return handler.tree;
 }
 
-
-static QSettingsNode *load(const QString &filename)
+static inline QSettingsNode *load(const QString &filename)
 {
     if (filename.isEmpty()) {
 	return 0;
@@ -2080,33 +2132,76 @@ static QSettingsNode *load(const QString &filename)
 }
 
 
+
+
+// **********************************************************************
+// QSettings
+// **********************************************************************
+
 void QSettings::cleanup()
 {
-     if (tree) delete tree;
+    if (tree) {
+	delete tree;
+    }
 }
 
 
+/*!
+  Writes the settings to the location returned by QSettings::path().
+  
+  Call this method to save changes to the settings.
+  
+  \sa path(), setPath()
+*/
 void QSettings::write()
 {
-    if (! writable() || pathMap_p[Unix].isNull()) return;
+    if (! writable()) {
+	
+#ifdef Q_CHECK_STATE
+	qWarning("QSettings::write: object not writable");
+#endif // Q_CHECK_STATE
+	
+	return;
+    }
+    
+    QString filename;
+        
+#ifdef Q_OS_UNIX
+    filename = pathMap_p[Unix];
+#endif // Q_OS_UNIX
+    
+    if (filename.isNull()) {
+	
+#  ifdef Q_CHECK_STATE
+	qWarning("QSettings::write: path not set");
+#  endif // Q_CHECK_STATE
+	
+	return;
+    }
     
     if (! tree) {
+	
+#ifdef QSETTINGS_ENTRY_DEBUG
 	qDebug("QSettings::write: doing initial read...");
+#endif // QSETTINGS_ENTRY_DEBUG
+	
+	tree = load(pathMap_p[Unix]);
 
-	if (! pathMap_p[Unix].isNull()) {
-	    tree = load(pathMap_p[Unix]);
-
-	    if (tree && (tree->tagName == "QSettings") &&
-		tree->first && (tree->first->tagName == "RC"))
-		node = tree->first->first;
-
-	    if (! node) {
-		qDebug("QSettings::write: failed to load settings");
-	    }
+	if (tree && (tree->tagName == "QSettings") &&
+	    tree->first && (tree->first->tagName == "RC"))
+	    node = tree->first->first;
+	
+#ifdef QSETTINGS_ENTRY_DEBUG
+	if (! node) {
+	    qDebug("QSettings::write: failed to load settings");
 	}
-
+#endif // QSETTINGS_ENTRY_DEBUG
+	
 	if (! tree) {
+	    
+#ifdef QSETTINGS_ENTRY_DEBUG
 	    qDebug("QSettings::write: generating empty tree");
+#endif // QSETTINGS_ENTRY_DEBUG
 	    
 	    tree = new QSettingsNode;
 	    tree->tagName = "QSettings";
@@ -2116,13 +2211,20 @@ void QSettings::write()
 	    tree->addChild(n);
 	}
     }
-
-    QFile file(pathMap_p[Unix]);
-    if (! file.open(IO_WriteOnly)) return;
+    
+    QFile file(filename);
+    if (! file.open(IO_WriteOnly)) {
+	
+#ifdef Q_CHECK_STATE
+	qWarning("QSettings::write: failed to open file for writing");
+#endif // Q_CHECK_STATE
+	
+	return;
+    }
+    
     QTextStream ts(&file);
     int level = 1, indent;
     ts << "<!DOCTYPE RC>" << endl;
-    
     
     QSettingsNode *n = tree->first;
     while (level > 0 && n) {
@@ -2159,33 +2261,67 @@ void QSettings::write()
 }
 
 
+/*!
+  Writes the entry specified by \a key with \a value.
+  
+  Data is stored in the object using a tree.  The \a key is a slash
+  ( / ) delimited path, similar to UNIX file paths.  The key must begin
+  with a slash, and must not end with a slash.
+  
+  \sa readEntry(), removeEntry()
+*/
 void QSettings::writeEntry(const QString &key, const QVariant &value)
 {
-    if (! writable()) return;
-
+    if (! writable()) {
+	
+#ifdef Q_CHECK_STATE
+	qWarning("QSettings::writeEntry: object is not writable");
+#endif // Q_CHECK_STATE
+	
+	return;
+    }
+    
     if (key[0] != '/' || key[key.length() - 1] == '/') {
-	qDebug("QSettings::writeEntry: malformed key '%s'", key.latin1());
+	
+#ifdef Q_CHECK_STATE
+	qWarning("QSettings::writeEntry: malformed key '%s'", key.latin1());
+#endif // Q_CHECK_STATE
+	
 	return;
     }
 
     if (! tree) {
+	
+#ifdef QSETTINGS_ENTRY_DEBUG
 	qDebug("QSettings::writeEntry: doing initial read...");
-
-	if (! pathMap_p[Unix].isNull()) {
-	    tree = load(pathMap_p[Unix]);
-
+#endif // QSETTINGS_ENTRY_DEBUG
+	
+	QString filename;
+	
+#ifdef Q_OS_UNIX
+	filename = pathMap_p[Unix];
+#endif // Q_OS_UNIX
+	
+	if (! filename.isNull()) {
+	    tree = load(filename);
+	    
 	    if (tree && (tree->tagName == "QSettings") &&
 		tree->first && (tree->first->tagName == "RC"))
 		node = tree->first->first;
 
+#ifdef QSETTINGS_ENTRY_DEBUG
 	    if (! node) {
 		qDebug("QSettings::writeEntry: failed to load settings");
 	    }
+#endif // QSETTINGS_ENTRY_DEBUG
 	}
 
 	if (! tree) {
+
+#ifdef QSETTINGS_ENTRY_DEBUG
 	    qDebug("QSettings::writeEntry: generating empty tree");
-	    
+#endif // QSETTINGS_ENTRY_DEBUG
+ 
 	    tree = new QSettingsNode;
 	    tree->tagName = "QSettings";
 
@@ -2377,31 +2513,92 @@ void QSettings::writeEntry(const QString &key, const QVariant &value)
 }
 
 
+/*!
+  Reads the entry specified by \a key, and returns a QVariant holding
+  the data.  If \a key could not be found, and invalid QVariant is returned.
+  
+  Data is stored in the object using a tree.  The \a key is a slash
+  ( / ) delimited path, similar to UNIX file paths.  The key must begin
+  with a slash, and must not end with a slash.
+  
+  If override() is non-zero and override()->readEntry() returns
+  valid data, it is returned; otherwise this object is searched.
+  
+  It is possible to "chain" multiple QSettings together to allow searching
+  in multiple objects.  For example, if you need to search system wide-defaults,
+  per-application defaults and user-specific settings, something like this
+  could be done:
+  
+  \code
+   // we can change the user settings
+  QSettings userSettings(TRUE);
+  
+  // we cannot change these (may not have write access to the files)
+  QSettings appWideSettings(FALSE, &userSettings);
+  QSettings sysWideSettings(FALSE, &appWideSettings);
+  
+  // set the file paths with QSettings::setPath()
+  ...
+  
+  QVariant v = sysWideSettings.readEntry("/mysoft/myapp/recentdocs");
+  
+  // check the validity and type of the QVariant
+  ...
+  
+  \endcode
+  
+  The call to sysWideSettings.readEntry() above would first look in userSettings,
+  then appWideSettings, and finally in sysWideSettings.
+  
+  \sa writeEntry(), removeEntry(), QVariant::isValid()
+*/
 QVariant QSettings::readEntry(const QString &key)
 {
     if (override_p) {
 	QVariant v = override_p->readEntry(key);
-	if (v.isValid()) return v;
+	
+	if (v.isValid()) {
+	    return v;
+	}
     }
     
     if (key[0] != '/') {
-	qDebug("QSettings::readEntry: malformed key '%s'", key.latin1());
+	
+#ifdef Q_CHECK_STATE
+	qWarning("QSettings::readEntry: malformed key '%s'", key.latin1());
+#endif // Q_CHECK_STATE
+	
 	return QVariant();
     }
+    
+    if (! node) {
+	QString filename;
+    
+#ifdef Q_OS_UNIX
+	filename = pathMap_p[Unix];
+#endif // Q_OS_UNIX
 
-    if (! node && ! pathMap_p[Unix].isNull()) {
-	qDebug("QSettings::readEntry: doing initial read...");
+	if (! filename.isNull()) {
+	    
+#ifdef QSETTINGS_ENTRY_DEBUG
+	    qDebug("QSettings::readEntry: doing initial read...");
+#endif // QSETTINGS_ENTRY_DEBUG
+	
+	    tree = load(filename);
+	
+	    if (tree && (tree->tagName == "QSettings") &&
+		tree->first && (tree->first->tagName == "RC"))
+		node = tree->first->first;
 
-	tree = load(pathMap_p[Unix]);
-
-	if (tree && (tree->tagName == "QSettings") &&
-	    tree->first && (tree->first->tagName == "RC"))
-	    node = tree->first->first;
-
-	if (! node)
-	    qDebug("QSettings::readEntry: failed to load settings");
+#ifdef QSETTINGS_ENTRY_DEBUG
+	    if (! node) {
+		qDebug("QSettings::readEntry: failed to load settings");
+	    }
+#endif // QSETTINGS_ENTRY_DEBUG
+	
+	}
     }
-
+    
     QStringList strlist;
     QString entry;
     {
@@ -2506,30 +2703,60 @@ QVariant QSettings::readEntry(const QString &key)
 }
 
 
+/*!
+  Removes the entry specified by \a key.
+  
+  Data is stored in the object using a tree.  The \a key is a slash
+  ( / ) delimited path, similar to UNIX file paths.  The key must begin
+  with a slash, and must not end with a slash.
+  
+  \sa readEntry(), writeEntry()
+*/
 void QSettings::removeEntry(const QString &key)
 {
-    if (! writable()) return;
-
+    if (! writable()) {
+	
+#ifdef Q_CHECK_STATE
+	qWarning("QSettings::removeEntry: object not writable");
+#endif // Q_CHECK_STATE
+	
+	return;
+    }
+    
     if (key[0] != '/') {
-	qDebug("QSettings::removeEntry: malformed key '%s'", key.latin1());
+	
+#ifdef Q_CHECK_STATE
+	qWarning("QSettings::removeEntry: malformed key '%s'", key.latin1());
+#endif // Q_CHECK_STATE
+	
 	return;
     }
 
-    if (! node && ! pathMap_p[Unix].isNull()) {
-	qDebug("QSettings::removeEntry: doing initial read...");
+    if (! node) {
+	QString filename;
+    
+#ifdef Q_OS_UNIX
+	filename = pathMap_p[Unix];
+#endif // Q_OS_UNIX
+	
+	if (! filename.isNull()) {
+	    qDebug("QSettings::removeEntry: doing initial read...");
+	    
+	    tree = load(filename);
+	    
+	    if (tree && (tree->tagName == "QSettings") &&
+		tree->first && (tree->first->tagName == "RC"))
+		node = tree->first->first;
 
-	tree = load(pathMap_p[Unix]);
-
-	if (tree && (tree->tagName == "QSettings") &&
-	    tree->first && (tree->first->tagName == "RC"))
-	    node = tree->first->first;
-
-	if (node)
-	    qDebug("QSettings::removeEntry: successfully loaded settings");
-	else
-	    qDebug("QSettings::removeEntry: failed to load settings");
+#ifdef QSETTINGS_ENTRY_DEBUG
+	    if (! node) {
+		qDebug("QSettings::removeEntry: failed to load settings");
+	    }
+#endif // QSETTINGS_ENTRY_DEBUG
+	
+	}
     }
-
+    
     QStringList strlist;
     QString entry;
     {
@@ -2570,15 +2797,19 @@ void QSettings::removeEntry(const QString &key)
 	    (n->first &&
 	     n->first->tagName == "key" &&
 	     n->first->data == entry)) {
-	    qDebug("found '%s' '%s' ('%s')",
-		   (n->tagName + "-" + n->data).latin1(),
-		   (n->first->tagName + "-" + n->first->data).latin1(),
+	    
+#ifdef QSETTINGS_ENTRY_DEBUG
+	    qDebug("QSettings::removeEntry: removed '%s' '%s' ('%s')",
+		   (n->tagName + "/" + n->data).latin1(),
+		   (n->first->tagName + "/" + n->first->data).latin1(),
 		   key.latin1());
+#endif // QSETTINGS_ENTRY_DEBUG
+	    
 	    n->parent->removeChild(n);
 	    delete n;
 	    break;
 	}
-	
+
 	n = n->next;
     }
 }

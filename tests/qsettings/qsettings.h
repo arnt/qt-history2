@@ -39,32 +39,32 @@ class QSettings : public QObject
     Q_OBJECT
 
 public:
-    QSettings(bool writable = FALSE, QSettings *override = 0,
-	      QObject *parent = 0, const char *name = 0);
+    enum System { Unix, Windows };
+    
+    QSettings(bool writable = FALSE, QSettings *override = 0);
     ~QSettings();
 
-    void setWritable(bool writable);
+    void setWritable(bool);
     bool writable() const;
 
     void write();
 
-    void setOverride(QSettings *settings);
+    void setOverride(QSettings *);
     const QSettings *override() const;
-
-    void setPath(int system, const QString &path);
-    const QString &path(int system) const;
-
-    // "key" is of the form /path/to/key, e.g. /trolltech/designer/palette/active/foreground
-    void writeEntry(const QString &key, const QVariant &value);
-    QVariant readEntry(const QString &key);
     
-    // this works like a remove directory... if it is a path instead of an entry, it will remove
-    // all entries and all children
-    void removeEntry(const QString &key);
+    void setPath(System, const QString &);
+    const QString &path(System) const;
+    
+    // "key" is of the form /path/to/key, e.g.
+    // /trolltech/designer/palette/active/foreground
+    void writeEntry(const QString &, const QVariant &);
+    QVariant readEntry(const QString &);
 
-    enum System { Unix, Windows };
+    // this works like a remove directory... if it is a path instead of an entry,
+    // it will remove all entries and all children
+    void removeEntry(const QString &);
 
-
+    
 protected:
     void cleanup();
 

@@ -9,6 +9,8 @@
 #include <qiconset.h>
 #include <qpointarray.h>
 #include <qcursor.h>
+#include <qcursor.h>
+#include <qdom.h>
 
 #ifdef Q_OS_UNIX
 #include <sys/time.h>
@@ -18,7 +20,7 @@
 
 
 int main(int argc, char **argv) {
-    QApplication app(argc, argv, false);
+    QApplication app(argc, argv);
 
     {
 	qDebug("== testing all QVariant data types");
@@ -26,13 +28,13 @@ int main(int argc, char **argv) {
 	QSettings settings;
 	QSettings settings2;
 	QSettings settings3;
-	
+
 	settings.setWritable(TRUE);
-	
+
 	settings.setPath(QSettings::Unix, "variantrc");
 	settings2.setPath(QSettings::Unix, "variantrc2");
 	settings3.setPath(QSettings::Unix, "variantrc3");
-		
+	
 	settings.setOverride(&settings2);
 	settings2.setOverride(&settings3);
 	
@@ -212,9 +214,11 @@ int main(int argc, char **argv) {
 	settings.writeEntry("/variant/list", vlist);
 
 	// remove
-	settings.removeEntry("/variant/string");
+	settings.removeEntry("/variant/image");
+	settings.removeEntry("/variant/painter");
 	settings.removeEntry("/variant/list");
 	settings.removeEntry("/variant/map");
+	settings.removeEntry("/variant/string");
 	
 	// read the recently destroyed to see if override works
 	QVariant v = settings.readEntry("/variant/string/string");
@@ -223,11 +227,11 @@ int main(int argc, char **argv) {
 	    qDebug("  read /variant/string/string = '%s'", v.toString().latin1());
 	else
 	    qDebug("   failed to read /variant/string/string");
-		
-	settings.write();
 	
 	settings3.setWritable(TRUE);
 	settings3.write();
+	
+	settings.write();
 	
 	qDebug("-- done");
     }
@@ -421,19 +425,20 @@ int main(int argc, char **argv) {
       settings.writeEntry(path, QVariant(path));
 
       for (int iv = 0; iv < 10; iv++) {
-      path.sprintf("/bradley%d/tyson%d/hughes%d/nyztihke%d", i, ii, iii, iv);
+      path.sprintf("/bradley%d/tyson%d/hughes%d/nyztihke%d",
+      i, ii, iii, iv);
       settings.writeEntry(path, QVariant(path));
 
       for (int v = 0; v < 10; v++) {
-      path.sprintf("/bradley%d/tyson%d/hughes%d/nyztihke%d/reticent%d",
-      i, ii, iii, iv, v);
+      path.sprintf("/bradley%d/tyson%d/hughes%d/nyztihke%d/"
+      "reticent%d", i, ii, iii, iv, v);
       settings.writeEntry(path, QVariant(path));
       }
       }
       }
       }
       }
-
+	  
       QVariant var1;
 
       long starts, startu;
@@ -447,7 +452,8 @@ int main(int argc, char **argv) {
       tv.tv_sec - starts, tv.tv_usec - startu);
 
       if (var1.isValid() && var1.type() == QVariant::String) {
-      qDebug("   search succeeded, found '%s'", (const char *) var1.toString().utf8());
+      qDebug("   search succeeded, found '%s'",
+      (const char *) var1.toString().utf8());
       } else {
       qDebug("   searched failed");
       }
@@ -458,10 +464,12 @@ int main(int argc, char **argv) {
       settings.setPath(QSettings::Unix, "bradrc2");
       settings.write();
       gettimeofday(&tv0, 0);
-      qDebug("  write took %ld s %ld us", tv0.tv_sec - startws, tv0.tv_usec - startwu);
+      qDebug("  write took %ld s %ld us",
+      tv0.tv_sec - startws, tv0.tv_usec - startwu);
 
       gettimeofday(&tv0, 0);
-      qDebug("-- bradrc took %ld s %ld us", tv0.tv_sec - starts0, tv0.tv_usec - startu0);
+      qDebug("-- bradrc took %ld s %ld us",
+      tv0.tv_sec - starts0, tv0.tv_usec - startu0);
       }
     */
 
@@ -486,7 +494,8 @@ int main(int argc, char **argv) {
       QByteArray outa = encodeBase64(ina);
       QByteArray ba = decodeBase64(outa);
       gettimeofday(&tv, 0);
-      qDebug("-- encode & decode took %ld s %ld us", tv.tv_sec - starts, tv.tv_usec - startu);
+      qDebug("-- encode & decode took %ld s %ld us",
+      tv.tv_sec - starts, tv.tv_usec - startu);
 
       // save the base64 output
       QFile file;
