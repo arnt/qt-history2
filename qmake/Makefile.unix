@@ -10,7 +10,7 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qfsfileengine_unix.o qfsfileengine.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qbufferedfsfileengine.o qtemporaryfile.o \
       qmap.o qunicodetables.o qmetatype.o qsettings.o qvariant.o qvsnprintf.o \
-      qlocale.o qlinkedlist.o qpoint.o qrect.o qline.o qsize.o qurl.o qlibraryinfo.o @QMAKE_QTOBJS@
+      qlocale.o qlinkedlist.o qurl.o qlibraryinfo.o @QMAKE_QTOBJS@
 
 #all sources, used for the depend target
 DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
@@ -41,7 +41,7 @@ CXXFLAGS = @QMAKE_CXXFLAGS@ \
 	   -I@SOURCE_PATH@/include -I@SOURCE_PATH@/include/QtCore -I@BUILD_PATH@/src/core/global \
 	   -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_STL -DQT_BUILD_QMAKE \
 	   -DQT_NO_COMPRESS -I@QMAKESPEC@ -DHAVE_QCONFIG_CPP -DQT_NO_THREAD -DQT_NO_QOBJECT \
-           $(OPENSOURCE_CXXFLAGS)
+           -DQT_NO_GEOM_VARIANT $(OPENSOURCE_CXXFLAGS)
 LFLAGS=@QMAKE_LFLAGS@
 
 first all: @BUILD_PATH@/bin/qmake
@@ -65,18 +65,6 @@ qtextstream.o: @SOURCE_PATH@/src/core/io/qtextstream.cpp
 
 qvariant.o: @SOURCE_PATH@/src/core/kernel/qvariant.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qvariant.cpp
-
-qpoint.o: @SOURCE_PATH@/src/core/tools/qpoint.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qpoint.cpp
-
-qsize.o: @SOURCE_PATH@/src/core/tools/qsize.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qsize.cpp
-
-qrect.o: @SOURCE_PATH@/src/core/tools/qrect.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qrect.cpp
-
-qline.o: @SOURCE_PATH@/src/core/tools/qline.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qline.cpp
 
 qsettings.o: @SOURCE_PATH@/src/core/io/qsettings.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qsettings.cpp

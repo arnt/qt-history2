@@ -10,7 +10,7 @@ CFLAGS	    =	-c -o$@ -O \
 		-I..\src\tools -I..\mkspecs\win32-g++ \
 		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT \
 	       	-DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP \
-	       	-DQT_BUILD_QMAKE -DQT_NO_THREAD -DQT_NO_QOBJECT
+	       	-DQT_BUILD_QMAKE -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =
 LIBS	    = -lole32 -luuid
@@ -59,9 +59,6 @@ QTOBJS= \
 	quuid.o \
 	qvector.o \
 	qurl.o \
-	qrect.o \
-	qpoint.o \
-	qsize.o \
 	qsettings.o \
 	qsettings_win.o \
 	qvariant.o \
@@ -97,15 +94,6 @@ qvariant.o: ..\src\core\kernel\qvariant.cpp
 
 qurl.o: ..\src\core\io\qurl.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qurl.cpp
-
-qrect.o: ..\src\core\tools\qrect.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qrect.cpp
-
-qpoint.o: ..\src\core\tools\qpoint.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qpoint.cpp
-
-qsize.o: ..\src\core\tools\qsize.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qsize.cpp
 
 qtextstream.o: ..\src\core\io\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp

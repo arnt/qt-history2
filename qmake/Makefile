@@ -39,7 +39,7 @@ CFLAGS	    = -c -o$@ \
 	-I..\mkspecs\win32-borland \
 	-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
 	-DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
-   	-DQT_NO_QOBJECT
+   	-DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT
 CXXFLAGS    = $(CFLAGS)
 LFLAGS	    = -L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
 LIBS	    = import32.lib cw32i.lib
@@ -97,10 +97,6 @@ QTOBJS= \
 	qvariant.obj \
         qurl.obj \
 	qsettings_win.obj \
-	qrect.obj \
-	qline.obj \
-	qpoint.obj \
-	qsize.obj \
         qmetatype.obj
 
 first all: qmake.exe
@@ -146,10 +142,6 @@ clean::
 	-del qvariant.obj
         -del qurl.obj
 	-del qsettings_win.obj
-	-del qrect.obj
-	-del qline.obj
-	-del qpoint.obj
-	-del qsize.obj
         -del qmetatype.obj
 	-del project.obj
 	-del main.obj
@@ -205,18 +197,6 @@ qvariant.obj: ..\src\core\kernel\qvariant.cpp
 
 qurl.obj: ..\src\core\io\qurl.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qurl.cpp
-
-qrect.obj: ..\src\core\tools\qrect.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qrect.cpp
-
-qline.obj: ..\src\core\tools\qline.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qline.cpp
-
-qpoint.obj: ..\src\core\tools\qpoint.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qpoint.cpp
-
-qsize.obj: ..\src\core\tools\qsize.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\tools\qsize.cpp
 
 qtextstream.obj: ..\src\core\io\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp

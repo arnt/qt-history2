@@ -2,7 +2,8 @@ CONFIG += depend_includepath
 
 QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h
-DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES
+DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES \
+           QT_NO_GEOM_VARIANT
 
 #qmake code
 SOURCES += project.cpp property.cpp main.cpp generators/makefile.cpp \
@@ -62,10 +63,6 @@ bootstrap { #Qt code
         quuid.cpp \
 	qsettings.cpp \
 	qvariant.cpp \
-	qrect.cpp \
-        qline.cpp \
-	qpoint.cpp \
-	qsize.cpp \
         qvector.cpp \
         qvsnprintf.cpp
 

@@ -721,7 +721,7 @@ struct VCFilterFile
     QString                 additionalFile; // For tools like MOC
 };
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 inline QDebug operator<<(QDebug dbg, const VCFilterFile &p)
 {
     dbg.nospace() << "VCFilterFile(file(" << p.file

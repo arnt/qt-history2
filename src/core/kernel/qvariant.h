@@ -126,14 +126,16 @@ class Q_CORE_EXPORT QVariant
     QVariant(const QList<QVariant> &list);
     QVariant(const QMap<QString,QVariant> &map);
 #endif
+#ifndef QT_NO_GEOM_VARIANT
     QVariant(const QSize &size);
     QVariant(const QRect &rect);
     QVariant(const QPoint &pt);
     QVariant(const QPointF &pt);
-    QVariant(const QUrl &url);
-    QVariant(const QLocale &locale);
     QVariant(const QLineF &line);
     QVariant(const QRectF &rect);
+#endif
+    QVariant(const QUrl &url);
+    QVariant(const QLocale &locale);
 
     QVariant& operator=(const QVariant &other);
 
@@ -175,14 +177,16 @@ class Q_CORE_EXPORT QVariant
     QMap<QString,QVariant> toMap() const;
 #endif
 
+#ifndef QT_NO_GEOM_VARIANT
     QPoint toPoint() const;
     QPointF toPointF() const;
     QRect toRect() const;
     QSize toSize() const;
-    QUrl toUrl() const;
-    QLocale toLocale() const;
     QLineF toLineF() const;
     QRectF toRectF() const;
+#endif
+    QUrl toUrl() const;
+    QLocale toLocale() const;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT int &asInt();

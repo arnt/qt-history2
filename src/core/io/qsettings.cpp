@@ -327,7 +327,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             break;
         }
         case QVariant::Rect: {
-            QRect r = v.toRect();
+            QRect r = qVariant_to<QRect>(v);
             result += "@Rect("
                         + QString::number(r.x()) + ", "
                         + QString::number(r.y()) + ", "
@@ -336,7 +336,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             break;
         }
         case QVariant::Size: {
-            QSize s = v.toSize();
+            QSize s = qVariant_to<QSize>(v);
             result += "@Size("
                         + QString::number(s.width()) + ", "
                         + QString::number(s.height()) + ")";
@@ -352,7 +352,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
 //             break;
 //         }
         case QVariant::Point: {
-            QPoint p = v.toPoint();
+            QPoint p = qVariant_to<QPoint>(v);
             result += "@Point("
                         + QString::number(p.x()) + ", "
                         + QString::number(p.y()) + ")";
@@ -360,6 +360,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
         }
 
         default: {
+#ifndef QT_NO_DATASTREAM
             QByteArray a;
             {
                 QDataStream s(&a, QIODevice::WriteOnly);
@@ -369,6 +370,9 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             result = QLatin1String("@Variant(");
             result += QString::fromLatin1(a.constData(), a.size());
             result += QLatin1Char(')');
+#else
+            Q_ASSERT("QSettings: Cannot save custom types without QDataStream support");
+#endif
             break;
         }
     }
@@ -385,20 +389,24 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
         if (s.startsWith(QLatin1String("@ByteArray("))) {
             return QVariant(s.toLatin1().mid(11, s.size() - 12));
         } else if (s.startsWith(QLatin1String("@Variant("))) {
+#ifndef QT_NO_DATASTREAM
             QByteArray a(s.toLatin1().mid(9));
             QDataStream stream(&a, QIODevice::ReadOnly);
             QVariant result;
             stream >> result;
             return result;
+#else
+            Q_ASSERT("QSettings: Cannot load custom types without QDataStream support");
+#endif
         } else if (s.startsWith(QLatin1String("@Rect("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 5);
             if (args.size() == 4) {
-                return QVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
+                return qVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
             }
         } else if (s.startsWith(QLatin1String("@Size("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 5);
             if (args.size() == 2) {
-                return QVariant(QSize(args[0].toInt(), args[1].toInt()));
+                return qVariant(QSize(args[0].toInt(), args[1].toInt()));
             }
             // ### see above
 //         } else if (s.startsWith(QLatin1String("@Color("))) {
@@ -409,7 +417,7 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
         } else if (s.startsWith(QLatin1String("@Point("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 6);
             if (args.size() == 2) {
-                return QVariant(QPoint(args[0].toInt(), args[1].toInt()));
+                return qVariant(QPoint(args[0].toInt(), args[1].toInt()));
             }
         } else if (s == QLatin1String("@Invalid()")) {
             return QVariant();
