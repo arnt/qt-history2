@@ -153,9 +153,9 @@ uint QColor::alloc()
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 	return pix=qGray(r,g,b);
 #else
-	//	return pix = (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
+       	return pix = (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
 //	return pix = closestMatch( r, g, b );
-	pix=qt_screen->alloc(r,g,b);
+	//pix=qt_screen->alloc(r,g,b);
 	return pix;
 #endif
     } else if(depth==1) {
