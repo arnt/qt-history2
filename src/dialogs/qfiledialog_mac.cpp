@@ -122,60 +122,49 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 	return true;
 
     NavFileOrFolderInfo *theInfo = (NavFileOrFolderInfo *)info;
-    if(!theInfo->isFolder) {
-	qt_mac_filter_name *fn = t->filts->at(t->index);
-	if(!fn)
+    QString file;
+    qt_mac_filter_name *fn = t->filts->at(t->index);
+    if(!fn)
+	return true;
+    if(theItem->descriptorType == typeFSS) {
+	AliasHandle alias;
+	Str63 str;
+	FSSpec      FSSpec;
+	AliasInfoType x = 0;
+	AEGetDescData(theItem, &FSSpec, sizeof(FSSpec));
+	if(NewAlias(NULL, &FSSpec, &alias) != noErr)
 	    return true;
-	QStringList reg = QStringList::split(";", fn->regxp);
-	if(theItem->descriptorType == typeFSS) {
-	    AliasHandle alias;
-	    Str63 str;
+	GetAliasInfo(alias, (AliasInfoType)x++, str);
+	if(str[0]) {
 	    char tmp[sizeof(Str63)+2];
-	    FSSpec      FSSpec;
-	    AliasInfoType x = 0;
-	    AEGetDescData(theItem, &FSSpec, sizeof(FSSpec));
-	    if(NewAlias(NULL, &FSSpec, &alias) != noErr)
-		return true;
-	    GetAliasInfo(alias, (AliasInfoType)x++, str);
-	    if(str[0]) {
-		strncpy((char *)tmp, (const char *)str+1, str[0]);
-		tmp[str[0]] = '\0';
-		for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
-		    QRegExp rg((*it), TRUE, TRUE);
-#ifdef DEBUG_FILEDIALOG_FILTERS
-		    qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__, 
-			   tmp, (*it).latin1());
-#endif
-		    if(rg.exactMatch(tmp)) 
-			return true;
-		}
-	    }
-	    return false;
-	} else if(theItem->descriptorType == typeFSRef) {
-	    FSRef ref;
-	    AEGetDescData(theItem, &ref, sizeof(ref));
-	    if(!str_buffer) {
-		qAddPostRoutine(cleanup_str_buffer);
-		str_buffer = (UInt8 *)malloc(1024);
-	    }
-	    FSRefMakePath(&ref, str_buffer, 1024);
-	    QString str = QString::fromUtf8((const char *)str_buffer);
-	    int slsh = str.findRev('/');
-	    if(slsh != -1) 
-		str = str.right(str.length() - slsh - 1);
-	    for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
-		QRegExp rg((*it), TRUE, TRUE);
-#ifdef DEBUG_FILEDIALOG_FILTERS
-		qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__, 
-		       str.latin1(), (*it).latin1());
-#endif
-		if(rg.exactMatch(str)) 
-		    return true;
-	    }
-	    return false;
+	    strncpy((char *)tmp, (const char *)str+1, str[0]);
+	    tmp[str[0]] = '\0';
+	    file = tmp;
 	}
+    } else if(theItem->descriptorType == typeFSRef) {
+	FSRef ref;
+	AEGetDescData(theItem, &ref, sizeof(ref));
+	if(!str_buffer) {
+	    qAddPostRoutine(cleanup_str_buffer);
+	    str_buffer = (UInt8 *)malloc(1024);
+	}
+	FSRefMakePath(&ref, str_buffer, 1024);
+	file = QString::fromUtf8((const char *)str_buffer);
+	int slsh = file.findRev('/');
+	if(slsh != -1) 
+	    file = file.right(file.length() - slsh - 1);
     }
-    return true;
+    QStringList reg = QStringList::split(";", fn->regxp);
+    for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
+	QRegExp rg((*it), TRUE, TRUE);
+#ifdef DEBUG_FILEDIALOG_FILTERS
+	qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__, 
+	       file.latin1(), (*it).latin1());
+#endif
+	if(rg.exactMatch(file)) 
+	    return true;
+    }
+    return (theInfo->isFolder && !file.endsWith(".app"));
 }
 
 //filter UPP stuff
@@ -209,7 +198,7 @@ static QMAC_PASCAL void qt_mac_filedialog_event_proc(const NavEventCallbackMessa
 	NavMenuItemSpec *s = (NavMenuItemSpec*)p->eventData.eventDataParms.param;
 	t->index = s->menuType;
 #ifdef DEBUG_FILEDIALOG_FILTERS
-	qDebug("QFileDialog:%d - Selected a filter: %d", __LINE__, s->menuType);
+	qDebug("QFileDialog:%d - Selected a filter: %ld", __LINE__, s->menuType);
 #endif
 	break; }
     case kNavCBStart:
@@ -248,7 +237,7 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *,
     NavDialogCreationOptions options;
     NavGetDefaultDialogCreationOptions(&options);
     options.modality = kWindowModalityAppModal;
-    options.optionFlags |= kNavDontConfirmReplacement;
+    options.optionFlags |= kNavDontConfirmReplacement | kNavSupportPackages;
     if(multi) 
 	options.optionFlags |= 	kNavAllowMultipleFiles;
     if(!caption.isEmpty()) 
