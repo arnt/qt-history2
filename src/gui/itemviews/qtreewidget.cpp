@@ -826,6 +826,7 @@ public:
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
+    void emitReturnPressed(const QModelIndex &index);
     void emitExpanded(const QModelIndex &index);
     void emitCollapsed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
@@ -850,6 +851,11 @@ void QTreeWidgetPrivate::emitKeyPressed(const QModelIndex &index, Qt::Key key,
                                         Qt::ButtonState state)
 {
     emit q->keyPressed(model()->item(index), index.column(), key, state);
+}
+
+void QTreeWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+{
+    emit q->returnPressed(model()->item(index), index.column());
 }
 
 void QTreeWidgetPrivate::emitExpanded(const QModelIndex &index)
@@ -936,6 +942,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitDoubleClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
             SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
+    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
+            SLOT(emitReturnPressed(const QModelIndex&)));
     connect(this, SIGNAL(expanded(const QModelIndex&)),
             SLOT(emitExpanded(const QModelIndex&)));
     connect(this, SIGNAL(collapsed(const QModelIndex&)),
