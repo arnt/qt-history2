@@ -173,6 +173,13 @@ QAxFactory::QAxFactory( const QUuid &libid, const QUuid &appid )
 }
 
 /*!
+    Destroys the QAxFactory object.
+*/
+QAxFactory::~QAxFactory()
+{
+}
+
+/*!
     \internal
 */
 QRESULT QAxFactory::queryInterface( const QUuid &iid, QUnknownInterface **iface )

@@ -153,9 +153,11 @@ extern HRESULT __stdcall GetClassObject( void *pv, const GUID &iid, void **ppUnk
 QAxFactoryInterface *qAxFactory()
 {
     if ( !_factory ) {
-	QInterfacePtr<QUnknownInterface> unknown = ucm_instantiate();
-	if ( unknown )
+	QUnknownInterface *unknown = ucm_instantiate();
+	if ( unknown ) {
 	    unknown->queryInterface( IID_QAxFactory, (QUnknownInterface**)&_factory );
+	    unknown->release();
+	}
     }
     return _factory;
 }

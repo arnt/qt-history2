@@ -65,7 +65,8 @@ class QAxFactory : public QAxFactoryInterface
 {
 public:
     QAxFactory( const QUuid &, const QUuid &);
-    Q_REFCOUNT
+    virtual ~QAxFactory();
+    Q_REFCOUNT;
 
     QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
 
