@@ -433,8 +433,8 @@
         <translation>Supprimer %1</translation>
     </message>
     <message>
-        <source>&lt;qt&gt;Are you sure you wish to delete %1 "%2"?&lt;/qt&gt;</source>
-        <translation>&lt;qt&gt;Voulez-vous vraiment supprimer %1 "%2"?&lt;/qt&gt;</translation>
+        <source>&lt;qt&gt;Are you sure you wish to delete %1 &quot;%2&quot;?&lt;/qt&gt;</source>
+        <translation>&lt;qt&gt;Voulez-vous vraiment supprimer %1 &quot;%2&quot;?&lt;/qt&gt;</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
@@ -809,12 +809,71 @@ Vérifier le chemin et le nom du fichier.</translation>
         <source>Login Incorrect</source>
         <translation>Informations de connexion incorrectes</translation>
     </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation>Hôte %1 introuvable</translation>
+    </message>
+    <message>
+        <source>Connection refused to host %1</source>
+        <translation>Connecté à l&apos;hôte %1 refusée</translation>
+    </message>
 </context>
 <context>
     <name>QHeader</name>
     <message>
         <source>%1</source>
         <translation>%1</translation>
+    </message>
+</context>
+<context>
+    <name>QHttp</name>
+    <message>
+        <source>Connection refused</source>
+        <translation>Connexion refusée</translation>
+    </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation>Hôte %1 introuvable</translation>
+    </message>
+    <message>
+        <source>Connection closed by %1</source>
+        <translation>Connexion arrêtée par %1</translation>
+    </message>
+    <message>
+        <source>Invalid HTTP reply header</source>
+        <translation>Entête HTTP invalide</translation>
+    </message>
+    <message>
+        <source>Wrong content length</source>
+        <translation>Longueur du contenu invalide</translation>
+    </message>
+    <message>
+        <source>HTTP request failed</source>
+        <translation>Échec de la requête HTTP</translation>
+    </message>
+    <message>
+        <source>Host %1 found</source>
+        <translation>Hôte %1 trouvé</translation>
+    </message>
+    <message>
+        <source>Host found</source>
+        <translation>Hôte trouvé</translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation>Connecté à l&apos;hôte %1</translation>
+    </message>
+    <message>
+        <source>Connected to host</source>
+        <translation>Connecté à l&apos;hôte</translation>
+    </message>
+    <message>
+        <source>Connection to %1 closed</source>
+        <translation>Connexion à %1 arrêtée</translation>
+    </message>
+    <message>
+        <source>Connection closed</source>
+        <translation>Connexion arrêtée</translation>
     </message>
 </context>
 <context>
@@ -832,23 +891,23 @@ Vérifier le chemin et le nom du fichier.</translation>
     <name>QLineEdit</name>
     <message>
         <source>Undo</source>
-        <translation>Annuler</translation>
+        <translation type='obsolete'>Annuler</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Annuler Annuler</translation>
+        <translation type='obsolete'>Annuler Annuler</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>Couper</translation>
+        <translation type='obsolete'>Couper</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Copier</translation>
+        <translation type='obsolete'>Copier</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>Coller</translation>
+        <translation type='obsolete'>Coller</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -857,6 +916,26 @@ Vérifier le chemin et le nom du fichier.</translation>
     <message>
         <source>Select All</source>
         <translation>Tout sélectionner</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation>&amp;Annuler</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation>A&amp;nnuler Annuler</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation>Co&amp;uper</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>Cop&amp;ier</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation>Co&amp;ller</translation>
     </message>
 </context>
 <context>
@@ -931,11 +1010,19 @@ en
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a multi-platform C++ GUI application framework from Trolltech. Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX and many other versions of Unix with X11. Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils multi-plateforme réalisée par Trolltech. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11. Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+        <translation type='obsolete'>&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils multi-plateforme réalisée par Trolltech. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11. Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a multi-platform C++ GUI application framework from Trolltech. Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX and many other versions of Unix with X11. Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils multi-plateforme réalisée par Trolltech. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11. Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+        <translation type='obsolete'>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils multi-plateforme réalisée par Trolltech. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11. Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -1218,23 +1305,23 @@ en
     <name>QTextEdit</name>
     <message>
         <source>Undo</source>
-        <translation>Annuler</translation>
+        <translation type='obsolete'>Annuler</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Annuler Annuler</translation>
+        <translation type='obsolete'>Annuler Annuler</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>Couper</translation>
+        <translation type='obsolete'>Couper</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Copier</translation>
+        <translation type='obsolete'>Copier</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>Coller</translation>
+        <translation type='obsolete'>Coller</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -1243,6 +1330,26 @@ en
     <message>
         <source>Select All</source>
         <translation>Tout sélectionner</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation>&amp;Annuler</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation>A&amp;nnuler Annuler</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation>Co&amp;uper</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>Cop&amp;ier</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation>Co&amp;ller</translation>
     </message>
 </context>
 <context>
@@ -1331,7 +1438,7 @@ en
     </message>
     <message>
         <source>BEOS</source>
-        <translation>BEOS</translation>
+        <translation type='obsolete'>BEOS</translation>
     </message>
     <message>
         <source>Hydro</source>
@@ -1364,6 +1471,10 @@ en
     <message>
         <source>Close</source>
         <translation>Fermer</translation>
+    </message>
+    <message>
+        <source>BeOS</source>
+        <translation>BeOS</translation>
     </message>
 </context>
 <context>
@@ -1439,7 +1550,7 @@ en
     </message>
     <message>
         <source>Restore Down</source>
-        <translation type='unfinished'>&amp;Restaurer en bas</translation>
+        <translation>Restaurer en bas</translation>
     </message>
     <message>
         <source>Close</source>
@@ -1506,11 +1617,11 @@ en
     </message>
     <message>
         <source>EDecl or SDDecl expected while reading the XML declaration</source>
-        <translation>EDecl ou SDDecl attendue dans la déclaration XML</translation>
+        <translation type='obsolete'>EDecl ou SDDecl attendue dans la déclaration XML</translation>
     </message>
     <message>
         <source>SDDecl expected while reading the XML declaration</source>
-        <translation>SDDecl attendue dans la déclaration XML</translation>
+        <translation type='obsolete'>SDDecl attendue dans la déclaration XML</translation>
     </message>
     <message>
         <source>error occurred while parsing document type definition</source>
@@ -1551,6 +1662,14 @@ en
     <message>
         <source>error in the text declaration of an external entity</source>
         <translation>erreur dans la déclaration de texte d&apos;une entité externe</translation>
+    </message>
+    <message>
+        <source>encoding declaration or standalone declaration expected while reading the XML declaration</source>
+        <translation>déclaration d&apos;encodage ou déclaration autonome attendue dans la déclaration XML</translation>
+    </message>
+    <message>
+        <source>standalone declaration expected while reading the XML declaration</source>
+        <translation>déclaration autonome attendue dans la déclaration XML</translation>
     </message>
 </context>
 <context>

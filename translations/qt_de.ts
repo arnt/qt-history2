@@ -449,8 +449,8 @@
         <translation>%1 löschen</translation>
     </message>
     <message>
-        <source>&lt;qt&gt;Are you sure you wish to delete %1 "%2"?&lt;/qt&gt;</source>
-        <translation>&lt;qt&gt;Sind Sie sicher, dass Sie %1 "%2" löschen möchten?&lt;/qt&gt;</translation>
+        <source>&lt;qt&gt;Are you sure you wish to delete %1 &quot;%2&quot;?&lt;/qt&gt;</source>
+        <translation>&lt;qt&gt;Sind Sie sicher, dass Sie %1 &quot;%2&quot; löschen möchten?&lt;/qt&gt;</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
@@ -809,12 +809,71 @@ Datei wurde nicht gefunden.
         <source>Login Incorrect</source>
         <translation>Ungültige Anmeldung</translation>
     </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Connection refused to host %1</source>
+        <translation type='unfinished'></translation>
+    </message>
 </context>
 <context>
     <name>QHeader</name>
     <message>
         <source>%1</source>
         <translation>%1</translation>
+    </message>
+</context>
+<context>
+    <name>QHttp</name>
+    <message>
+        <source>Connection refused</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Connection closed by %1</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Invalid HTTP reply header</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Wrong content length</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>HTTP request failed</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Host %1 found</source>
+        <translation type='unfinished'>Rechner %1 gefunden</translation>
+    </message>
+    <message>
+        <source>Host found</source>
+        <translation type='unfinished'>Rechner gefunden</translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation type='unfinished'>Verbunden mit Rechner %1</translation>
+    </message>
+    <message>
+        <source>Connected to host</source>
+        <translation type='unfinished'>Verbindung mit Rechner besteht</translation>
+    </message>
+    <message>
+        <source>Connection to %1 closed</source>
+        <translation type='unfinished'>Verbindung mit %1 beendet</translation>
+    </message>
+    <message>
+        <source>Connection closed</source>
+        <translation type='unfinished'>Verbindung beendet</translation>
     </message>
 </context>
 <context>
@@ -832,23 +891,23 @@ Datei wurde nicht gefunden.
     <name>QLineEdit</name>
     <message>
         <source>Undo</source>
-        <translation>Rückgängig</translation>
+        <translation type='obsolete'>Rückgängig</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Wiederherstellen</translation>
+        <translation type='obsolete'>Wiederherstellen</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>Ausschneiden</translation>
+        <translation type='obsolete'>Ausschneiden</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopieren</translation>
+        <translation type='obsolete'>Kopieren</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>Einfügen</translation>
+        <translation type='obsolete'>Einfügen</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -857,6 +916,26 @@ Datei wurde nicht gefunden.
     <message>
         <source>Select All</source>
         <translation>Alles auswählen</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation type='unfinished'></translation>
     </message>
 </context>
 <context>
@@ -931,11 +1010,19 @@ nach
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a multi-platform C++ GUI application framework from Trolltech. Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX and many other versions of Unix with X11. Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Dieses Programm verwendet Qt Version %1&lt;/p&gt;&lt;p&gt;Qt ist ein multi-platform Framework zum Erstellen von GUI-Programmen in C++, hergestellt von Trolltech. Qt bietet Portierungsmöglichkeiten mit nur einer Quellcode-Basis auf  Windows 95/98/NT/ME/2000, Linux, Solaris, HP-UX und vielen anderen Unix-Versionen, die X11 verwenden. Qt is auch für eingebettete Systeme erhältlich.&lt;/p&gt;&lt;p&gt;Weitere Informationen finden Sie unter &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;.&lt;/p&gt;</translation>
+        <translation type='obsolete'>&lt;p&gt;Dieses Programm verwendet Qt Version %1&lt;/p&gt;&lt;p&gt;Qt ist ein multi-platform Framework zum Erstellen von GUI-Programmen in C++, hergestellt von Trolltech. Qt bietet Portierungsmöglichkeiten mit nur einer Quellcode-Basis auf  Windows 95/98/NT/ME/2000, Linux, Solaris, HP-UX und vielen anderen Unix-Versionen, die X11 verwenden. Qt is auch für eingebettete Systeme erhältlich.&lt;/p&gt;&lt;p&gt;Weitere Informationen finden Sie unter &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a multi-platform C++ GUI application framework from Trolltech. Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX and many other versions of Unix with X11. Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;Über Qt&lt;/h3&gt;&lt;p&gt;Dieses Programm verwendet Qt Version %1&lt;/p&gt;&lt;p&gt;Qt ist ein multi-platform Framework zum Erstellen von GUI-Programmen in C++, hergestellt von Trolltech. Qt bietet Portierungsmöglichkeiten mit nur einer Quellcode-Basis auf  Windows 95/98/NT/ME/2000, Linux, Solaris, HP-UX und vielen anderen Unix-Versionen, die X11 verwenden. Qt is auch für eingebettete Systeme erhältlich.&lt;/p&gt;&lt;p&gt;Weitere Informationen finden Sie unter &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;.&lt;/p&gt;</translation>
+        <translation type='obsolete'>&lt;h3&gt;Über Qt&lt;/h3&gt;&lt;p&gt;Dieses Programm verwendet Qt Version %1&lt;/p&gt;&lt;p&gt;Qt ist ein multi-platform Framework zum Erstellen von GUI-Programmen in C++, hergestellt von Trolltech. Qt bietet Portierungsmöglichkeiten mit nur einer Quellcode-Basis auf  Windows 95/98/NT/ME/2000, Linux, Solaris, HP-UX und vielen anderen Unix-Versionen, die X11 verwenden. Qt is auch für eingebettete Systeme erhältlich.&lt;/p&gt;&lt;p&gt;Weitere Informationen finden Sie unter &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation type='unfinished'></translation>
     </message>
 </context>
 <context>
@@ -1218,23 +1305,23 @@ nach
     <name>QTextEdit</name>
     <message>
         <source>Undo</source>
-        <translation>Rückgängig</translation>
+        <translation type='obsolete'>Rückgängig</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Wiederherstellen</translation>
+        <translation type='obsolete'>Wiederherstellen</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>Ausschneiden</translation>
+        <translation type='obsolete'>Ausschneiden</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopieren</translation>
+        <translation type='obsolete'>Kopieren</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>Einfügen</translation>
+        <translation type='obsolete'>Einfügen</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -1243,6 +1330,26 @@ nach
     <message>
         <source>Select All</source>
         <translation>Alles auswählen</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation type='unfinished'></translation>
     </message>
 </context>
 <context>
@@ -1284,7 +1391,7 @@ nach
     </message>
     <message>
         <source>The protocol `%1&apos; does not support listing directories</source>
-        <translation>Das Protokoll "%1" wird nicht unterstützt oder es "%2" unterstützt nicht die Auflistung von Verzeichnissen</translation>
+        <translation>Das Protokoll &quot;%1&quot; wird nicht unterstützt oder es &quot;%2&quot; unterstützt nicht die Auflistung von Verzeichnissen</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support creating new directories</source>
@@ -1355,7 +1462,7 @@ nach
     </message>
     <message>
         <source>BEOS</source>
-        <translation>BEOS</translation>
+        <translation type='obsolete'>BEOS</translation>
     </message>
     <message>
         <source>Hydro</source>
@@ -1364,6 +1471,10 @@ nach
     <message>
         <source>Default</source>
         <translation>Standard</translation>
+    </message>
+    <message>
+        <source>BeOS</source>
+        <translation type='unfinished'></translation>
     </message>
 </context>
 <context>
@@ -1506,11 +1617,11 @@ nach
     </message>
     <message>
         <source>EDecl or SDDecl expected while reading the XML declaration</source>
-        <translation>fehlende Encoding-Deklaration oder Standalone-Deklaration beim Parsen der XML-Deklaration</translation>
+        <translation type='obsolete'>fehlende Encoding-Deklaration oder Standalone-Deklaration beim Parsen der XML-Deklaration</translation>
     </message>
     <message>
         <source>SDDecl expected while reading the XML declaration</source>
-        <translation>fehlende Standalone-Deklaration beim Parsen der XML Deklaration</translation>
+        <translation type='obsolete'>fehlende Standalone-Deklaration beim Parsen der XML Deklaration</translation>
     </message>
     <message>
         <source>error occurred while parsing document type definition</source>
@@ -1551,6 +1662,14 @@ nach
     <message>
         <source>error in the text declaration of an external entity</source>
         <translation>Fehler in der Text-Deklaration einer externen Entity</translation>
+    </message>
+    <message>
+        <source>encoding declaration or standalone declaration expected while reading the XML declaration</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>standalone declaration expected while reading the XML declaration</source>
+        <translation type='unfinished'></translation>
     </message>
 </context>
 <context>

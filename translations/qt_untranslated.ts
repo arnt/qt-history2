@@ -99,15 +99,15 @@
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>+</source>
-        <translation type='unfinished'></translation>
-    </message>
-    <message>
         <source>Alt</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
         <source>Shift</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>+</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
@@ -449,7 +449,7 @@
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>&lt;qt&gt;Are you sure you wish to delete %1 "%2"?&lt;/qt&gt;</source>
+        <source>&lt;qt&gt;Are you sure you wish to delete %1 &quot;%2&quot;?&lt;/qt&gt;</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
@@ -807,11 +807,70 @@ Check path and filename.</source>
         <source>Login Incorrect</source>
         <translation type='unfinished'></translation>
     </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Connection refused to host %1</source>
+        <translation type='unfinished'></translation>
+    </message>
 </context>
 <context>
     <name>QHeader</name>
     <message>
         <source>%1</source>
+        <translation type='unfinished'></translation>
+    </message>
+</context>
+<context>
+    <name>QHttp</name>
+    <message>
+        <source>Connection refused</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Connection closed by %1</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Invalid HTTP reply header</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Wrong content length</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>HTTP request failed</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Host %1 found</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Host found</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Connected to host</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Connection to %1 closed</source>
+        <translation type='unfinished'></translation>
+    </message>
+    <message>
+        <source>Connection closed</source>
         <translation type='unfinished'></translation>
     </message>
 </context>
@@ -829,23 +888,23 @@ Check path and filename.</source>
 <context>
     <name>QLineEdit</name>
     <message>
-        <source>Undo</source>
+        <source>&amp;Undo</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>Redo</source>
+        <source>&amp;Redo</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>Cut</source>
+        <source>Cu&amp;t</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>Copy</source>
+        <source>&amp;Copy</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>Paste</source>
+        <source>&amp;Paste</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
@@ -923,11 +982,11 @@ to
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a multi-platform C++ GUI application framework from Trolltech. Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX and many other versions of Unix with X11. Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a multi-platform C++ GUI application framework from Trolltech. Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX and many other versions of Unix with X11. Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
         <translation type='unfinished'></translation>
     </message>
 </context>
@@ -1210,23 +1269,23 @@ to
 <context>
     <name>QTextEdit</name>
     <message>
-        <source>Undo</source>
+        <source>&amp;Undo</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>Redo</source>
+        <source>&amp;Redo</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>Cut</source>
+        <source>Cu&amp;t</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>Copy</source>
+        <source>&amp;Copy</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>Paste</source>
+        <source>&amp;Paste</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
@@ -1347,7 +1406,7 @@ to
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>BEOS</source>
+        <source>BeOS</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
@@ -1498,11 +1557,11 @@ to
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>EDecl or SDDecl expected while reading the XML declaration</source>
+        <source>encoding declaration or standalone declaration expected while reading the XML declaration</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
-        <source>SDDecl expected while reading the XML declaration</source>
+        <source>standalone declaration expected while reading the XML declaration</source>
         <translation type='unfinished'></translation>
     </message>
     <message>
