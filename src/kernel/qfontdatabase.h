@@ -43,13 +43,11 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qfont.h"
-#include "qlist.h"
 #include "qvaluelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_FONTDATABASE
 
-class QStringList;
 class QFontStylePrivate;
 class QtFontStyle;
 class QtFontCharSet;

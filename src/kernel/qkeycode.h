@@ -39,7 +39,6 @@
 #define QKEYCODE_H
 
 #ifndef QT_H
-#include "qglobal.h"
 #include "qnamespace.h"
 #endif // QT_H
 

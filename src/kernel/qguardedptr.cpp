@@ -210,4 +210,3 @@ void QGuardedPtrPrivate::objectDestroyed()
 {
     obj = 0;
 }
-

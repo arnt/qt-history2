@@ -39,11 +39,9 @@
 #include "qfontdata_p.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
-#include "qwidget.h"
 #include "qpainter.h"
 #include "qpainter_p.h"
 #include "qmap.h"
-#include "qstrlist.h"
 #include "qdatastream.h"
 #include "qapplication.h"
 #include <ctype.h>
