@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#2 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -39,7 +39,7 @@ void splitFilter( const QString& rawFilter, QString* filterName,
 {
     if ( !filterName || !filterExp )
 	return;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?]*)$") );
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9;\\.\\*\\?]*)$") );
     int len;
     int index = r.match( rawFilter, 0, &len );
     if ( index >= 0 ) {
@@ -49,7 +49,9 @@ void splitFilter( const QString& rawFilter, QString* filterName,
     }
     else {
 	*filterExp = rawFilter;
-	*filterName = qApp->translate( "QFileDialog", "Selected Files" );
+	*filterName = rawFilter;
+	filterName->prepend( QString::fromLatin1( "(" ) );
+	filterName->append( QString::fromLatin1( ")" ) );	
     }
 }
 
