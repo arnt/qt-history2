@@ -2382,7 +2382,7 @@ QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* p
     irightc = ileftc;
 
     #if defined(SPI_GETGRADIENTCAPTIONS) //Support for gradient titlebar depends on SDK version
-    bool gradient;
+    BOOL gradient;
     SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
     if ( gradient ) {
 	arightc = colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION));

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#386 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#387 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -849,7 +849,7 @@ Qt::WindowsVersion QApplication::winVersion()
 
 bool QApplication::winEffectSupport( Qt::WindowsEffect effect )
 {
-    bool result = FALSE;
+    BOOL result = FALSE;
 
     if (qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
 	uint WINPARAM;
