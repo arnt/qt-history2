@@ -1161,9 +1161,7 @@ fi
 
 #detect how jpeg should be built
 if [ "$CFG_JPEG" = "auto" ]; then
-    if [ "$PLATFORM_QWS" = "yes" ]; then
-	CFG_JPEG=no
-    elif [ "$CFG_MNG" = "yes" ]; then
+    if [ "$CFG_MNG" = "yes" ]; then
 	CFG_JPEG=yes
     elif [ "$CFG_SHARED" = "yes" ]; then
 	CFG_JPEG=plugin
