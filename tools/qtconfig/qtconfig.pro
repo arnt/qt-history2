@@ -1,8 +1,6 @@
 SOURCES	+= colorbutton.cpp main.cpp previewframe.cpp previewwidget.cpp mainwindow.cpp paletteeditoradvanced.cpp 
 HEADERS	+= colorbutton.h previewframe.h previewwidget.h mainwindow.h paletteeditoradvanced.h 
 
-IMAGEFILE	= images.cpp
-
 TARGET		= qtconfig
 DESTDIR		= ../../bin
 
