@@ -246,13 +246,14 @@ MakefileGenerator::init()
             int x;
             for(x = 0; x < sources.count(); x++) {
                 QStringList &l = v[sources[x]], vpath;
-                for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-                    if(!(*val_it).isEmpty()) {
-                        QString file = fileFixify((*val_it), QDir::currentPath(), Option::output_dir);
+                for(int val_it = 0; val_it < l.count(); val_it++) {
+                    QString &val = l[val_it];
+                    if(!val.isEmpty()) {
+                        QString file = fileFixify(val, QDir::currentPath(), Option::output_dir);
                         if(QFile::exists(file))
                             continue;
                         bool found = false;
-                        if(QDir::isRelativePath((*val_it))) {
+                        if(QDir::isRelativePath(val)) {
                             if(vpath.isEmpty())
                                 vpath = v["VPATH_" + sources[x]] + v["VPATH"] +
                                         v["QMAKE_ABSOLUTE_SOURCE_PATH"] + v["DEPENDPATH"];
@@ -260,20 +261,20 @@ MakefileGenerator::init()
                             for(QStringList::Iterator vpath_it = vpath.begin();
                                 vpath_it != vpath.end(); ++vpath_it) {
                                 QString real_dir = Option::fixPathToLocalOS((*vpath_it));
-                                if(QFile::exists(real_dir + QDir::separator() + (*val_it))) {
+                                if(QFile::exists(real_dir + QDir::separator() + val)) {
                                     QString dir = (*vpath_it);
                                     if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
                                         dir += Option::dir_sep;
-                                    (*val_it) = fileFixify(dir + (*val_it));
+                                    val = fileFixify(dir + val);
                                     found = true;
                                     debug_msg(1, "Found file through vpath %s -> %s",
-                                              file.latin1(), (*val_it).latin1());
+                                              file.latin1(), val.latin1());
                                     break;
                                 }
                             }
                         }
                         if(!found) {
-                            QString dir, regex = (*val_it), real_dir;
+                            QString dir, regex = val, real_dir;
                             if(regex.lastIndexOf(Option::dir_sep) != -1) {
                                 dir = regex.left(regex.lastIndexOf(Option::dir_sep) + 1);
                                 real_dir = fileFixify(Option::fixPathToLocalOS(dir),
@@ -285,24 +286,25 @@ MakefileGenerator::init()
                                 if(!d.count()) {
                                     debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
                                               __FILE__, __LINE__,
-                                              (*val_it).latin1(), vpath.join("::").latin1());
-                                    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+                                              val.latin1(), vpath.join("::").latin1());
+                                    warn_msg(WarnLogic, "Failure to find: %s", val.latin1());
                                     continue;
                                 } else {
-                                    for(int i = 0; i < (int)d.count(); i++) {
+                                    for(int i = (int)d.count()-1; i >= 0; i--) {
                                         QString file = fileFixify(dir + d[i]);
-                                        if(i == (int)d.count() - 1)
-                                            (*val_it) = file;
-                                        else
-                                            l.insert(val_it, file);
+                                        if(!i) 
+                                            val = file;
+                                        else 
+                                            l.insert(val_it+1, file);
                                     }
+                                    val_it += d.count();
                                 }
                             } else {
                                 debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
                                           __FILE__, __LINE__, real_dir.latin1(),
                                           QDir::separator().latin1(), regex.latin1(),
                                           real_dir.latin1());
-                                warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+                                warn_msg(WarnLogic, "Failure to find: %s", val.latin1());
                             }
                         }
                     }
@@ -459,9 +461,10 @@ MakefileGenerator::init()
 
         QStringList &l = v["SRCMOC"];
         l = v["_HDRMOC"] + v["_SRCMOC"];
-        for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-            if(!(*val_it).isEmpty())
-                (*val_it) = Option::fixPathToTargetOS((*val_it), false);
+        for(int val_it = 0; val_it < l.count(); val_it++) {
+            QString &val = l[val_it];
+            if(!val.isEmpty())
+                val = Option::fixPathToTargetOS(val, false);
         }
     }
 
