@@ -133,6 +133,9 @@ signals:
     void removed(  QAction * );
     
 public slots:
+    void cut();
+    void copy();
+    void paste();
     void remove( int index );
     void remove( QAction * );
     
@@ -187,6 +190,7 @@ protected:
 private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
+    QPopupMenu * popupMenu;
     QWidget * dropLine;
     QPtrList<PopupMenuEditorItem> itemList;
     PopupMenuEditorItem addItem;

@@ -107,6 +107,11 @@ public:
     void show();
 
     void checkAccels( QMap<QChar, QWidgetList > &accels );
+
+public slots:
+    void cut();
+    void copy();
+    void paste();
     
 protected:
 
@@ -145,6 +150,7 @@ protected:
 private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
+    QPopupMenu * popupMenu;
     QWidget * dropLine;
     QPtrList<MenuBarEditorItem> itemList;
     MenuBarEditorItem addItem;
