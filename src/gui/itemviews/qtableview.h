@@ -24,6 +24,7 @@ class Q_GUI_EXPORT QTableView : public QAbstractItemView
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTableView)
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
+    Q_PROPERTY(Qt::PenStyle gridStyle READ gridStyle WRITE setGridStyle)
 
 public:
     QTableView(QWidget *parent = 0);
@@ -53,6 +54,8 @@ public:
 
     bool showGrid() const;
     void setShowGrid(bool show);
+
+    Qt::PenStyle gridStyle() const;
     void setGridStyle(Qt::PenStyle style);
 
     QRect itemViewportRect(const QModelIndex &index) const;

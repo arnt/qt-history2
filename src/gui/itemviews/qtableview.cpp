@@ -809,9 +809,16 @@ void QTableView::setShowGrid(bool show)
 }
 
 /*!
-    Sets the style used by the grid (see \l{showGrid}) to the given
-    pen \a style.
+  \property QTableView::gridStyle
+  \brief  the pen style used to draw the grid.
+
+  This property holds the style used when drawing the grid (see \l{showGrid}).
 */
+
+Qt::PenStyle QTableView::gridStyle() const
+{
+    return d->gridStyle;
+}
 
 void QTableView::setGridStyle(Qt::PenStyle style)
 {
