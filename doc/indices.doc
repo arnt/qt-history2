@@ -19,25 +19,25 @@
 \if defined(noncommercial)
 \title Qt Reference Documentation (Non-Commercial Edition)
 \endif
-\if defined(preview)
-\title Qt Reference Documentation (Qt 4 Technology Preview)
-\endif
-\if !defined(commercial) && !defined(noncommercial)
+\if defined(free)
 \title Qt Reference Documentation (Free Edition)
 \endif
-
-\if !defined(commercial) && !defined(noncommercial)
-\bold{Notice:} This edition is
-for the development of \l{freeeditions.html}{Free and Open
-Source} software only; see \l{commercialeditions.html}{Commercial
-Editions}.
+\if defined(preview)
+\title Qt Reference Documentation (Technology Preview)
 \endif
+
 \if defined(noncommercial)
 \bold{Notice:} This
 edition is for the development of non-commercial software in
 accordance with the license you agreed to when you installed the
 software from the CD; see also
 \l{commercialeditions.html}{Commercial Editions}.
+\endif
+\if defined(free)
+\bold{Notice:} This edition is
+for the development of \l{freeeditions.html}{Free and Open
+Source} software only; see \l{commercialeditions.html}{Commercial
+Editions}.
 \endif
 \if defined(preview)
 \bold{Notice:} This \link tech-preview.html Technology Preview
