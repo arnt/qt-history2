@@ -281,7 +281,7 @@ class QDesignerWidget : public QWidget
 
 public:
     QDesignerWidget( FormWindow *fw, QWidget *parent, const char *name )
-	: QWidget( parent, name ), formwindow( fw ) {}
+	: QWidget( parent, name, WRepaintNoErase | WResizeNoErase ), formwindow( fw ) {}
 
 protected:
     void paintEvent( QPaintEvent *e );
@@ -297,7 +297,7 @@ class QDesignerDialog : public QDialog
 
 public:
     QDesignerDialog( FormWindow *fw, QWidget *parent, const char *name )
-	: QDialog( parent, name ), formwindow( fw ) {}
+	: QDialog( parent, name, FALSE, WRepaintNoErase | WResizeNoErase ), formwindow( fw ) {}
 
 protected:
     void paintEvent( QPaintEvent *e );
