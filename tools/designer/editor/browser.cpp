@@ -1,13 +1,78 @@
 #include "browser.h"
 #include "editor.h"
+#include <qrichtext_p.h>
+
+static QTextFormat *highlighteFormat = 0;
 
 EditorBrowser::EditorBrowser( Editor *e )
-    : curEditor( e )
+    : curEditor( e ), oldHighlightedParag( 0 )
 {
+    curEditor = e;
+    curEditor->viewport()->installEventFilter( this );
+    curEditor->installEventFilter( this );
 }
 
 bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 {
+    if ( o->parent() && o->parent()->inherits( "Editor" ) || o->inherits( "Editor" ) ) {
+	QMouseEvent *me;
+	QKeyEvent *ke;
+	switch ( e->type() ) {
+	case QEvent::MouseMove:
+	    me = (QMouseEvent*)e;
+	    if ( ( me->state() & ControlButton ) == ControlButton ) {
+		curEditor->viewport()->setCursor( pointingHandCursor );
+		QTextCursor c( curEditor->document() );
+		curEditor->placeCursor( me->pos(), &c );
+		QTextCursor from, to;
+		if ( oldHighlightedParag ) {
+		    oldHighlightedParag->setEndState( -1 );
+		    oldHighlightedParag->format();
+		}
+		oldHighlightedParag = 0;
+		if ( findCursor( c, from, to ) ) {
+		    QFont fn( qApp->font() );
+		    fn.setUnderline( TRUE );
+		    if ( !highlighteFormat )
+			highlighteFormat = curEditor->document()->formatCollection()->format( fn, blue );
+		    from.parag()->setFormat( from.index(), to.index() - from.index() + 1, highlighteFormat, FALSE );
+		    lastWord = from.parag()->string()->toString().mid( from.index(), to.index() - from.index() + 1 );
+		    oldHighlightedParag = from.parag();
+		} else {
+		    lastWord = "";
+		}
+		curEditor->repaintChanged();
+		return TRUE;
+	    }
+	    break;
+	case QEvent::MouseButtonPress:
+	    if ( !lastWord.isEmpty() )
+		showHelp( lastWord );
+	    lastWord = "";
+	    curEditor->viewport()->setCursor( ibeamCursor );
+	    if ( oldHighlightedParag ) {
+		oldHighlightedParag->setEndState( -1 );
+		oldHighlightedParag->format();
+		curEditor->repaintChanged();
+	    }
+	    oldHighlightedParag = 0;
+	    break;
+	case QEvent::KeyRelease:
+	    lastWord = "";
+	    ke = (QKeyEvent*)e;
+	    if ( ke->key() == Key_Control ) {
+		curEditor->viewport()->setCursor( ibeamCursor );
+		if ( oldHighlightedParag ) {
+		    oldHighlightedParag->setEndState( -1 );
+		    oldHighlightedParag->format();
+		    curEditor->repaintChanged();
+		}
+		oldHighlightedParag = 0;
+	    }
+	default:
+	    break;
+	}
+    }
     return FALSE;
 }
 
@@ -20,4 +85,9 @@ void EditorBrowser::setCurrentEdior( Editor *e )
 void EditorBrowser::addEditor( Editor *e )
 {
     e->installEventFilter( this );
+}
+
+bool EditorBrowser::findCursor( const QTextCursor &, QTextCursor &, QTextCursor & )
+{
+    return FALSE;
 }

@@ -5,6 +5,8 @@
 #include "dlldefs.h"
 
 class Editor;
+class QTextCursor;
+class QTextParag;
 
 class EDITOR_EXPORT EditorBrowser : public QObject
 {
@@ -16,9 +18,13 @@ public:
     bool eventFilter( QObject *o, QEvent *e );
     virtual void setCurrentEdior( Editor *e );
     virtual void addEditor( Editor *e );
+    virtual bool findCursor( const QTextCursor &c, QTextCursor &from, QTextCursor &to );
+    virtual void showHelp( const QString & ) {}
 
 protected:
     Editor *curEditor;
+    QTextParag *oldHighlightedParag;
+    QString lastWord;
 
 };
 

@@ -44,8 +44,10 @@ public:
     virtual void load( const QString &fn );
     virtual void save( const QString &fn );
     QTextDocument *document() const { return QTextEdit::document(); }
+    void placeCursor( const QPoint &p, QTextCursor *c ) { QTextEdit::placeCursor( p, c ); }
     void setDocument( QTextDocument *doc ) { QTextEdit::setDocument( doc ); }
     QTextCursor *textCursor() const { return QTextEdit::textCursor(); }
+    void repaintChanged() { QTextEdit::repaintChanged(); }
 
     virtual EditorCompletion *completionManager() { return 0; }
     virtual EditorBrowser *browserManager() { return 0; }
