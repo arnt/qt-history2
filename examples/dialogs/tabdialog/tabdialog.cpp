@@ -8,9 +8,9 @@ TabDialog::TabDialog(QWidget *parent, const QString &fileName)
     QFileInfo fileInfo(fileName);
 
     tabWidget = new QTabWidget(this);
-    tabWidget->addTab(new GeneralTab(this, fileInfo), tr("General"));
-    tabWidget->addTab(new PermissionsTab(this, fileInfo), tr("Permissions"));
-    tabWidget->addTab(new ApplicationsTab(this, fileInfo), tr("Applications"));
+    tabWidget->addTab(new GeneralTab(0, fileInfo), tr("General"));
+    tabWidget->addTab(new PermissionsTab(0, fileInfo), tr("Permissions"));
+    tabWidget->addTab(new ApplicationsTab(0, fileInfo), tr("Applications"));
 
     QPushButton *okButton = new QPushButton(tr("OK"), this);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
