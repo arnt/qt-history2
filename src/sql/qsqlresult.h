@@ -40,10 +40,13 @@ class QM_EXPORT_SQL QSqlResult
 {
 friend class QSqlQuery;
 friend class QSqlResultShared;
+friend class QSqlResultPrivate;
 public:
     virtual ~QSqlResult();
 
 protected:
+    enum BindMethod { BindByPosition, BindByName };
+        
     QSqlResult(const QSqlDriver * db );
     int		    at() const;
     QString         lastQuery() const;
@@ -74,7 +77,7 @@ protected:
     QVariant parameterValue( const QString& holder );
     QVariant parameterValue( int pos );    
     
-//    BindMethod bindMethod() const;
+    BindMethod bindMethod() const;
 
     virtual QVariant data( int i ) = 0;
     virtual bool    isNull( int i ) = 0;

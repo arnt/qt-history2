@@ -37,12 +37,10 @@ struct Holder {
 
 class QSqlResultPrivate
 {
-public:
-    enum BindMethod { BindByPosition, BindByName };
-    
+public:    
     QSqlResultPrivate(QSqlResult* d)
     : q(d), sqldriver(0), idx(QSql::BeforeFirst), active(FALSE), 
-      isSel(FALSE), forwardOnly(FALSE), bindCount(0), bindm(BindByPosition)
+      isSel(FALSE), forwardOnly(FALSE), bindCount(0), bindm(QSqlResult::BindByPosition)
     {}
  
     void clearValues()
@@ -82,7 +80,7 @@ public:
     bool forwardOnly;
     
     int bindCount;
-    BindMethod bindm;
+    QSqlResult::BindMethod bindm;
     QMap<int, QString> index;
     typedef QMap<QString, Param> ValueMap;
     ValueMap values;
@@ -450,7 +448,7 @@ bool QSqlResult::exec()
     bool ret;
     // fake preparation - just replace the placeholders..
     QString query = lastQuery();
-    if ( d->bindm == QSqlResultPrivate::BindByName ) {
+    if ( d->bindm == BindByName ) {
 	int i;
 	QVariant val;
 	QString holder;
@@ -492,7 +490,7 @@ bool QSqlResult::exec()
 
 void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType tp )
 {
-    d->bindm = QSqlResultPrivate::BindByName;
+    d->bindm = BindByName;
     // if the index has already been set when doing emulated named
     // bindings - don't reset it
     if ( d->index[ d->values.count() ].isEmpty() ) {
@@ -503,7 +501,7 @@ void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSq
 
 void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParameterType tp )
 {
-    d->bindm = QSqlResultPrivate::BindByPosition;
+    d->bindm = BindByPosition;
     QString nm = QString::number( pos );
     d->index[ pos ] = nm;
     d->values[ nm ] = Param( val, tp );
@@ -511,7 +509,7 @@ void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParameterType tp
 
 void QSqlResult::addBindValue( const QVariant& val, QSql::ParameterType tp )
 {
-    d->bindm = QSqlResultPrivate::BindByPosition;
+    d->bindm = BindByPosition;
     bindValue( d->bindCount, val, tp );
     ++d->bindCount;
 }
@@ -540,7 +538,7 @@ QMap<QString, QVariant> QSqlResult::boundValues() const
 {
     QMap<QString, Param>::ConstIterator it;
     QMap<QString, QVariant> m;
-    if ( d->bindm == QSqlResultPrivate::BindByName ) {
+    if ( d->bindm == BindByName ) {
 	for ( it = d->values.begin(); it != d->values.end(); ++it )
 	    m.insert( it.key(), it.data().value );
     } else {
@@ -554,11 +552,9 @@ QMap<QString, QVariant> QSqlResult::boundValues() const
     return m;
 }
 
-/*
-QSqlExtension::BindMethod QSqlExtension::bindMethod()
+QSqlResult::BindMethod QSqlResult::bindMethod() const
 {
-    return bindm;
+    return d->bindm;
 }
-*/
 
 #endif // QT_NO_SQL
