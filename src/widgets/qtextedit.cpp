@@ -3309,16 +3309,18 @@ void QTextEdit::setFormat( QTextFormat *f, int flags )
 	c1.restoreState();
 	QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
 	c2.restoreState();
-	clearUndoRedo();
-	undoRedoInfo.type = UndoRedoInfo::Format;
-	undoRedoInfo.id = c1.paragraph()->paragId();
-	undoRedoInfo.index = c1.index();
-	undoRedoInfo.eid = c2.paragraph()->paragId();
-	undoRedoInfo.eindex = c2.index();
-	readFormats( c1, c2, undoRedoInfo.d->text );
-	undoRedoInfo.format = f;
-	undoRedoInfo.flags = flags;
-	clearUndoRedo();
+	if ( undoEnabled ) {
+	    clearUndoRedo();
+	    undoRedoInfo.type = UndoRedoInfo::Format;
+	    undoRedoInfo.id = c1.paragraph()->paragId();
+	    undoRedoInfo.index = c1.index();
+	    undoRedoInfo.eid = c2.paragraph()->paragId();
+	    undoRedoInfo.eindex = c2.index();
+	    readFormats( c1, c2, undoRedoInfo.d->text );
+	    undoRedoInfo.format = f;
+	    undoRedoInfo.flags = flags;
+	    clearUndoRedo();
+	}
 	doc->setFormat( QTextDocument::Standard, f, flags );
 	repaintChanged();
 	formatMore();
