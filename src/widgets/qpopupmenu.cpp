@@ -380,7 +380,7 @@ void QPopupMenu::performDelayedContentsChanged()
 
 
 void QPopupMenu::menuStateChanged()
-{  
+{
      // here the part that can't be delayed
      if( pendingDelayedStateChanges )
          return;
@@ -388,9 +388,9 @@ void QPopupMenu::menuStateChanged()
      if( !pendingDelayedContentsChanges ) // if the timer hasn't been started yet
          QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
 }
- 
+
 void QPopupMenu::performDelayedStateChanged()
-{  
+{
     pendingDelayedStateChanges = 0;
     // here the part that can be delayed
 #ifndef QT_NO_ACCEL
@@ -401,7 +401,7 @@ void QPopupMenu::performDelayedStateChanged()
     if ( QMenuData::d->aWidget )
 	QMenuData::d->aWidget->update();
 }
- 
+
 void QPopupMenu::performDelayedChanges()
 {
     if( pendingDelayedContentsChanges )
@@ -409,7 +409,7 @@ void QPopupMenu::performDelayedChanges()
     if( pendingDelayedStateChanges )
 	performDelayedStateChanged();
 }
-  
+
 
 void QPopupMenu::menuInsPopup( QPopupMenu *popup )
 {
@@ -1136,7 +1136,7 @@ void QPopupMenu::enableAccel( bool enable )
     if ( autoaccel )
 	autoaccel->setEnabled( enable );
     else
-	accelDisabled = TRUE;			// rememeber when updateAccel
+	accelDisabled = !enable;		// rememeber when updateAccel
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {		// do the same for sub popups
@@ -1552,7 +1552,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	else if ( key == Key_Right )
 	    key = Key_Left;
     }
-    
+
     switch ( key ) {
     case Key_Tab:
 	// ignore tab, otherwise it will be passed to the menubar
