@@ -298,17 +298,18 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	int h = fm.height();
 	int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
 	int x;
+	int marg = bFlat ? 0 : 8;
 	if ( align & AlignHCenter )		// center alignment
 	    x = frameRect().width()/2 - tw/2;
 	else if ( align & AlignRight )	// right alignment
-	    x = frameRect().width() - tw - 8;
+	    x = frameRect().width() - tw - marg;
 	else if ( align & AlignLeft )		 // left alignment
-	    x = 8;
+	    x = marg;
 	else { // auto align
 	    if( QApplication::reverseLayout() )
-		x = frameRect().width() - tw - 8;
+		x = frameRect().width() - tw - marg;
 	    else
-		x = 8;
+		x = marg;
 	}
 	QRect r( x, 0, tw, h );
 	int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
