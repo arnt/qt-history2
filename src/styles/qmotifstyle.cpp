@@ -794,6 +794,7 @@ void QMotifStyle::drawControl( ControlElement element,
 		    flags |= Style_On;
 		if (btn->isDown())
 		    flags |= Style_Down;
+		p->setBrushOrigin(p->backgroundOrigin());
 		drawPrimitive(PE_ButtonCommand, p, tmp, pal, flags);
 	    }
 #endif

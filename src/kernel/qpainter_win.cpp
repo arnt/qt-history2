@@ -295,7 +295,7 @@ void QPainter::init()
 {
     d = 0;
     flags = IsStartingUp;
-    bg_col = white;				// default background color
+    bg_brush = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
     tabstops = 0;				// default tabbing
@@ -660,13 +660,13 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	return FALSE;
     }
 
-    const QWidget *copyFrom = 0;
+    const QWidget *redirected = 0;
     QPainter::Redirection redirection = redirect((QPaintDevice*)pd);
     if (redirection.replacement) {    // redirected paint device?
 	pdev = redirection.replacement;
 	redirection_offset = redirection.offset;
 	if ( pd->devType() == QInternal::Widget )
-	    copyFrom = (const QWidget *)pd; // copy widget settings
+	    redirected = (const QWidget *)pd; // copy widget settings
     } else {
 	pdev = (QPaintDevice*)pd;
     }
@@ -721,7 +721,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	    cfont  = defaultFont;		// set these drawing tools
 	    cpen   = defaultPen;
 	    cbrush = defaultBrush;
-	    bg_col = white;			// default background color
+	    bg_brush = white;			// default background color
 	}
     }
     wx = wy = vx = vy = 0;			// default view origins
@@ -729,13 +729,11 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 
     if ( dt == QInternal::Widget ) {		// device is a widget
 	QWidget *w = (QWidget*)pdev;
-	cfont = w->font();			// use widget font
-	cpen = QPen( w->foregroundColor() );	// use widget fg color
+	copyFrom(w);
 	if ( reinit ) {
 	    QBrush defaultBrush;
 	    cbrush = defaultBrush;
 	}
-	bg_col	= w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
 	if ( w->testWState(Qt::WState_InPaintEvent) ) {
@@ -772,7 +770,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	wh = vh = pm->height();
 	if ( pm->depth() == 1 ) {		// monochrome pixmap
 	    setf( MonoDev );
-	    bg_col = color0;
+	    bg_brush = color0;
 	    cpen.setColor( color1 );
 	}
     } else if ( dt == QInternal::Printer ) {	// device is a printer
@@ -796,13 +794,10 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     }
     if ( ww == 0 )
 	ww = wh = vw = vh = 1024;
-    if ( copyFrom ) {				// copy redirected widget
-	cfont = copyFrom->font();
-	cpen = QPen( copyFrom->foregroundColor() );
-	bg_col = copyFrom->backgroundColor();
-    }
+    if (redirected)
+	copyFrom(redirected);
     if ( testf(ExtDev) && hdc == 0 ) {		// external device
-	setBackgroundColor( bg_col );		// default background color
+	setBackgroundColor( bg_brush );		// default background color
 	setBackgroundMode( TransparentMode );	// default background mode
 	setRasterOp( CopyROP );			// default raster operation
     }
@@ -811,7 +806,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	    holdpal = SelectPalette( hdc, QColor::hPal(), TRUE );
 	    RealizePalette( hdc );
 	}
-	SetBkColor( hdc, COLOR_VALUE(bg_col) );
+	SetBkColor( hdc, COLOR_VALUE(bg_brush.color()) );
 	SetBkMode( hdc, TRANSPARENT );
 	SetROP2( hdc, R2_COPYPEN );
 #ifndef Q_OS_TEMP
@@ -925,10 +920,10 @@ void QPainter::setBackgroundColor( const QColor &c )
 	qWarning( "QPainter::setBackgroundColor: Call begin() first" );
 	return;
     }
-    bg_col = c;
+    bg_brush = c;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
-	param[0].color = &bg_col;
+	param[0].color = &bg_brush.color();
 	if ( !pdev->cmd(QPaintDevice::PdcSetBkColor,this,param) || !hdc )
 	    return;
     }

@@ -102,14 +102,17 @@ public:
   // Drawing attributes/modes
 
     const QColor &backgroundColor() const;
-    void	setBackgroundColor( const QColor & );
-    BGMode	backgroundMode() const;
-    void	setBackgroundMode( BGMode );
-    RasterOp	rasterOp()	const;
-    void	setRasterOp( RasterOp );
+    void setBackgroundColor(const QColor &);
+    BGMode backgroundMode() const;
+    void setBackgroundMode( BGMode );
+    RasterOp rasterOp()	const;
+    void setRasterOp( RasterOp );
     const QPoint &brushOrigin() const;
-    void	setBrushOrigin( int x, int y );
-    void	setBrushOrigin( const QPoint & );
+    void setBrushOrigin(int x, int y);
+    void setBrushOrigin(const QPoint &);
+
+    const QBrush &background() const;
+    const QPoint &backgroundOrigin() const;
 
   // Scaling and transformations
 
@@ -300,6 +303,7 @@ private:
 #endif
     void	drawWinFocusRect( int x, int y, int w, int h, bool xorPaint,
 				  const QColor &penColor );
+    void copyFrom(const QWidget*);
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
@@ -316,8 +320,9 @@ private:
     QPainterPrivate *d;
     QPaintDevice *pdev;
     QPoint redirection_offset;
-    QColor	bg_col; // ##### This should be a brush. Matthias
-    uchar	bg_mode;
+    QBrush bg_brush;
+    QPoint bg_origin;
+    uchar bg_mode;
     uchar	rop;
     uchar	pu;
     QPoint	bro;
@@ -465,12 +470,22 @@ inline PaintUnit QPainter::unit() const
 
 inline const QColor &QPainter::backgroundColor() const
 {
-    return bg_col;
+    return bg_brush;
 }
 
 inline Qt::BGMode QPainter::backgroundMode() const
 {
     return (BGMode)bg_mode;
+}
+
+inline const QBrush &QPainter::background() const
+{
+    return bg_brush;
+}
+
+inline const QPoint &QPainter::backgroundOrigin() const
+{
+    return bg_origin;
 }
 
 inline Qt::RasterOp QPainter::rasterOp() const
@@ -658,14 +673,9 @@ inline void QPainter::fillRect( const QRect &r, const QBrush &brush )
     fillRect( r.x(), r.y(), r.width(), r.height(), brush );
 }
 
-inline void QPainter::eraseRect( int x, int y, int w, int h )
-{
-    fillRect( x, y, w, h, backgroundColor() );
-}
-
 inline void QPainter::eraseRect( const QRect &r )
 {
-    fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
+    eraseRect(r.x(), r.y(), r.width(), r.height());
 }
 
 inline void QPainter::drawText( const QPoint &p, const QString &s, int len, TextDirection dir )

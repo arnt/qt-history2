@@ -576,9 +576,9 @@ bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes, boo
 	return FALSE;
     }
     if ( begin( pd, unclipped ) ) {
-	setPen(copyAttributes->palette().color(copyAttributes->foregroundRole()));
-	setBackgroundColor(copyAttributes->palette().color(copyAttributes->backgroundRole()));
-	setFont(copyAttributes->font());
+	copyFrom(copyAttributes);
+	updateBrush();
+	updatePen();
 	return TRUE;
     }
     return FALSE;
@@ -624,7 +624,7 @@ struct QPState {				// painter state
     QPen	pen;
     QPoint	curPt;
     QBrush	brush;
-    QColor	bgc;
+    QBrush	bgb;
     uchar	bgm;
     uchar	rop;
     QPoint	bro;
@@ -688,7 +688,7 @@ void QPainter::save()
     ps->pen   = cpen;
     ps->curPt = pos();
     ps->brush = cbrush;
-    ps->bgc   = bg_col;
+    ps->bgb   = bg_brush;
     ps->bgm   = bg_mode;
     ps->rop   = rop;
     ps->bro   = bro;
@@ -739,8 +739,8 @@ void QPainter::restore()
 	setPen( ps->pen );
     if ( ps->brush != cbrush || hardRestore )
 	setBrush( ps->brush );
-    if ( ps->bgc != bg_col || hardRestore )
-	setBackgroundColor( ps->bgc );
+    if ( ps->bgb != bg_brush || hardRestore )
+	setBackgroundColor( ps->bgb );
     if ( ps->bgm != bg_mode || hardRestore )
 	setBackgroundMode( (BGMode)ps->bgm );
     if ( ps->rop != rop || hardRestore )
@@ -1050,6 +1050,33 @@ void QPainter::setBrush( const QColor &color )
 
     \sa setRasterOp() RasterOp
 */
+
+/*!
+    \fn const QBrush &QPainter::background() const
+
+    Returns the current background as brush.
+
+    \sa eraseRect() backgroundOrigin() setBackgroundColor() QColor
+*/
+
+/*!
+    \fn const QPoint &QPainter::backgroundOrigin() const
+
+    Returns the origin of the background. This is only interesting
+    when a painter operates on a widget that inherits a pixmap
+    background. Using the background origin as brush origin makes it
+    possible to paint with different brushes in the background's
+    coordinate system:
+
+    \code
+	painter->setBrushOrigin(painter->backgroundOrigin);
+	painter->setBrush(palette().dark());
+	painter->drawRect(x, y, w, h);
+    \endcode
+
+    \sa eraseRect()
+*/
+
 
 /*!
     \fn const QPoint &QPainter::brushOrigin() const
@@ -2543,11 +2570,18 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \fn void QPainter::eraseRect( int x, int y, int w, int h )
 
-    Erases the area inside \a x, \a y, \a w, \a h. Equivalent to
-    \c{fillRect( x, y, w, h, backgroundColor() )}.
+    Erases the area inside \a x, \a y, \a w, \a h with the painter's
+    background.
 */
+void QPainter::eraseRect( int x, int y, int w, int h )
+{
+    if (bg_brush.pixmap())
+	drawTiledPixmap(QRect(x, y, w, h), *bg_brush.pixmap(), -bg_origin);
+    else
+	fillRect(x, y, w, h, bg_brush);
+}
+
 
 /*!
     \overload void QPainter::eraseRect( const QRect &r )
@@ -3873,3 +3907,5 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
+

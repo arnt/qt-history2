@@ -1180,6 +1180,20 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
     }
 }
 
+void QPainter::copyFrom(const QWidget* w)
+{
+    if (!w)
+	return;
+    cfont = w->font();
+    cpen = w->palette().color(w->foregroundRole());
+    const QWidget *p = w;
+    while (p->d->isBackgroundInherited()) {
+	bg_origin -= p->pos();
+	p = p->parentWidget();
+    }
+    bg_brush = w->palette().brush(p->d->bg_role);
+}
+
 
 /*!
   \internal
@@ -5560,4 +5574,3 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
     int x = attribute - 8*sizeof(uint);
     return (d->high_attributes[x / (8*sizeof(uint))] & (1<<x));
 }
-
