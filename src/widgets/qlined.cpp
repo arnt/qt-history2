@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#112 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#111 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#112 $");
 
 
 struct QLineEditPrivate {
@@ -374,7 +374,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorLeft( e->state() & ShiftButton );
 	    break;
 	case Key_C:
-	    if ( hasMarkedText() )
+	    if ( hasMarkedText() && echoMode() == Normal )
 		copyText();
 	    break;
 	case Key_D:
@@ -393,7 +393,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_V:
 	    insert( QApplication::clipboard()->text() );
 	case Key_X:
-	    if ( hasMarkedText() ) {
+	    if ( hasMarkedText() && echoMode() == Normal ) {
 		copyText();
 		del();
 	    }
@@ -702,7 +702,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
-    if ( style() == MotifStyle && hasMarkedText() )
+    if ( style() == MotifStyle && hasMarkedText() && echoMode() == Normal )
 	copyText();
     if ( dragScrolling )
 	dragScrolling = FALSE;
@@ -931,8 +931,8 @@ void QLineEdit::newMark( int pos, bool copy )
 	d->pmDirty = TRUE;
     markDrag  = pos;
     cursorPos = pos;
-    if ( copy && style() == MotifStyle ) // ### ????????????
-	copyText();
+    if ( copy && style() == MotifStyle && echoMode() == Normal )
+	copyText(); // ### ????????????
 }
 
 
@@ -963,7 +963,7 @@ void QLineEdit::markWord( int pos )
     } else {
 	cursorPos = markBegin;
     }
-    if ( style() == MotifStyle )
+    if ( style() == MotifStyle && echoMode() == Normal )
 	copyText();
     d->pmDirty = TRUE;
 }
