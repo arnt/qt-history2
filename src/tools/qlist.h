@@ -71,6 +71,8 @@ public:
     inline bool operator!() const { return p.isEmpty(); }
 
     void clear();
+    void deleteAll();
+
     const T &at(int i) const;
     const T &operator[](int i) const;
     T &operator[](int i);
@@ -436,6 +438,18 @@ Q_OUTOFLINE_TEMPLATE void QList<T>::clear()
     *this = QList<T>();
     if (QTypeInfo<T>::isPointer && wasAutoDelete)
 	setAutoDelete(wasAutoDelete);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE void QList<T>::deleteAll()
+{
+    Q_ASSERT_X(QTypeInfo<T>::isPointer,
+	       "QList<T>::deleteAll", "Cannot delete non-pointer types");
+    ConstIterator it = constBegin();
+    while (it != constEnd()) {
+	delete *it;
+	++it;
+    }
 }
 
 template <typename T>

@@ -50,6 +50,7 @@ public:
     inline bool operator!() const { return d->size == 0; }
 
     void clear();
+    void deleteAll();
 
     void append(const T &);
     void prepend(const T &);
@@ -227,6 +228,18 @@ void QLinkedList<T>::clear()
     *this = QLinkedList<T>();
     if (QTypeInfo<T>::isPointer && wasAutoDelete)
 	setAutoDelete(wasAutoDelete);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE void QLinkedList<T>::deleteAll()
+{
+    Q_ASSERT_X(QTypeInfo<T>::isPointer,
+	       "QLinkedList<T>::deleteAll", "Cannot delete non-pointer types");
+    ConstIterator it = constBegin();
+    while (it != constEnd()) {
+	delete *it;
+	++it;
+    }
 }
 
 template <typename T>
