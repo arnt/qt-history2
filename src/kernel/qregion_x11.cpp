@@ -107,6 +107,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
 	Q_CHECK_PTR( data );
 	data->is_null = FALSE;
 	if ( t == Rectangle ) {			// rectangular region
+	    data->rect = r;
 	    data->rgn = XCreateRegion();
 	    XRectangle xr;
 	    xr.x = r.x();
@@ -383,7 +384,12 @@ void QRegion::translate( int dx, int dy )
     if ( empty_region && data == empty_region->data )
 	return;
     detach();
-    XOffsetRegion( data->rgn, dx, dy );
+    if ( data->rect.isValid() ) {
+	data->rect.moveBy( dx, dy );
+	*this = QRegion( data->rect );
+    } else {
+	XOffsetRegion( data->rgn, dx, dy );
+    }
 }
 
 
@@ -450,19 +456,6 @@ QRegion QRegion::eor( const QRegion &r ) const
 }
 
 
-/*!
-    Returns the bounding rectangle of this region. An empty region
-    gives a rectangle that is QRect::isNull().
-*/
-
-QRect QRegion::boundingRect() const
-{
-    XRectangle r;
-    XClipBox( data->rgn, &r );
-    return QRect( r.x, r.y, r.width, r.height );
-}
-
-
 /*
   This is how X represents regions internally.
 */
@@ -480,6 +473,23 @@ struct _XRegion {
 
 
 /*!
+    Returns the bounding rectangle of this region. An empty region
+    gives a rectangle that is QRect::isNull().
+*/
+
+QRect QRegion::boundingRect() const
+{
+    if ( data->rect.isValid() ) {
+	Q_ASSERT( data->rgn->numRects == 1 );
+	return data->rect;
+    }
+    XRectangle r;
+    XClipBox( data->rgn, &r );
+    return QRect( r.x, r.y, r.width, r.height );
+}
+
+
+/*!
     Returns an array of non-overlapping rectangles that make up the
     region.
 
@@ -489,10 +499,15 @@ struct _XRegion {
 QMemArray<QRect> QRegion::rects() const
 {
     QMemArray<QRect> a( (int)data->rgn->numRects );
-    BOX *r = data->rgn->rects;
-    for ( int i=0; i<(int)a.size(); i++ ) {
-	a[i].setCoords( r->x1, r->y1, r->x2-1, r->y2-1);
-	r++;
+    if ( data->rect.isValid() ) {
+	Q_ASSERT( data->rgn->numRects == 1 );
+	a[0] = data->rect;
+    } else {
+	BOX *r = data->rgn->rects;
+	for ( int i=0; i<(int)a.size(); i++ ) {
+	    a[i].setCoords( r->x1, r->y1, r->x2-1, r->y2-1);
+	    r++;
+	}
     }
     return a;
 }
@@ -517,6 +532,7 @@ void QRegion::setRects( const QRect *rects, int num )
     *this = QRegion();
     for (int i=0; i<num; i++)
 	*this |= rects[i];
+    data->rect.setCoords( 0, 0, -1, -1 );
 }
 
 /*!

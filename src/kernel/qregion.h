@@ -120,6 +120,7 @@ private:
 #if defined(Q_WS_WIN)
 	HRGN   rgn;
 #elif defined(Q_WS_X11)
+	QRect rect;
 	Region rgn;
 #elif defined(Q_WS_MAC)
 	uint is_rect:1;
