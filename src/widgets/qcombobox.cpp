@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#172 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#173 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1168,8 +1168,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	    popup();
 	}
 	return;
-    }
-    else if ( d->usingListBox && e->key() == Key_Up ) {
+    } else if ( d->usingListBox && e->key() == Key_Up ) {
 	c = currentItem();
 	if ( c > 0 )
 	    setCurrentItem( c-1 );
