@@ -70,18 +70,19 @@
     Qt's and your own datatypes into .NET datatypes, e.g. \c QString 
     objects need to be converted into a objects of type \c {String*}.
 
+    ###
     \code
     String *StringFromQString(const QString &qstring)
     {
         String string = new String;
-        ###
+        // stick qstring.ucs2() into string
         return string;
     }
 
     QString QStringFromString(String *string)
     {
         QString qstring;
-        ###
+        // stick wchar_t's into qstring
         return qstring;
     }
     \endcode
@@ -139,7 +140,8 @@
     reuse COM objects in a .NET Framework project.
 
     Making a QObject class into a COM object is easily done with ActiveQt
-    and demonstrated in the \link qaxserver-examples examples \endlink.
+    and demonstrated in the \link qaxserver-examples.html examples 
+    \endlink.
 
     The walkthrough will use the Qt classes implemented in the
     \link qaxserver-examples.html QAxServer examples \endlink, so

@@ -65,12 +65,7 @@ function QSimpleAX::ValueChanged( Newvalue )
 
   The control is exported using the default QAxFactory
   \skipto QAXFACTORY
-  \printto int main
-
-  The implementation of \c main returns an error code when 
-  \c QAxFactory::isServer() returns FALSE, otherwise a QApplication
-  object is created and the event loop entered.
-  \printto }
+  \printuntil )
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 

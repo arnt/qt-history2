@@ -680,7 +680,7 @@ void QAxScript::addObject(QAxBase *object)
     (no matter in which language) the first function is overloaded and can 
     no longer be called.
 
-    \sa addObject(), scripts(), functions()
+    \sa addObject(), scriptNames(), functions()
 */
 QAxObject *QAxScript::load(const QString &code, const QString &language, const QString &name)
 {
