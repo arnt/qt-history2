@@ -7,7 +7,7 @@ SUBDIRS         = coordsys \
                   customstyle \
                   dialogs \
                   itemselection \
-                  modelview-subclasses \
+#                  modelview-subclasses \
                   qlistwidget-using \
 #                  qsignalmapper \
                   qtablewidget-resizing \
