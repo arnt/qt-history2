@@ -96,6 +96,7 @@
 #include "projectsettingsimpl.h"
 #ifndef QT_NO_SQL
 #include "dbconnectionsimpl.h"
+#include "dbconnectionimpl.h"
 #endif
 #include "../resource/qwidgetfactory.h"
 #include <qvbox.h>
@@ -1580,7 +1581,7 @@ bool MainWindow::fileSave()
 	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
 	     e == workSpace()->activeWindow() )
 	    ( (SourceFile*)e->object() )->save();
-	
+
     }
     if ( !formWindow() )
 	return FALSE;
@@ -2077,8 +2078,23 @@ void MainWindow::editPixmapCollection()
 void MainWindow::editDatabaseConnections()
 {
 #ifndef QT_NO_SQL
-    DatabaseConnectionEditor dia( currentProject, this, 0, TRUE );
+    DatabaseConnectionsEditor dia( currentProject, this, 0, TRUE );
     dia.exec();
+#endif
+}
+
+void MainWindow::editDatabaseConnection( const QString& name )
+{
+#ifndef QT_NO_SQL
+    FormWindow *fw = formWindow();
+    if ( !fw )
+	return;
+    DatabaseConnection* conn = fw->project()->databaseConnection( name );
+    qDebug("connection:" + conn->name() + " driver:" + conn->driver() );
+    if ( conn ) {
+	DatabaseConnectionEditor dia( conn, this, 0 , TRUE );
+	dia.exec(); //## handle return code
+    }
 #endif
 }
 
@@ -2330,7 +2346,7 @@ QObjectList *MainWindow::runProject()
 	    iiface->onShowError( this, SLOT( showErrorMessage( QObject *, int, const QString & ) ) );
 	    iiface->onFinish( this, SLOT( finishedRun() ) );
 	}
-	
+
 	LanguageInterface *liface = MetaDataBase::languageInterface( lang );
 	if ( liface && liface->supports( LanguageInterface::AdditionalFiles ) ) {
 	    QList<SourceFile> sources = currentProject->sourceFiles();
@@ -2358,7 +2374,7 @@ QObjectList *MainWindow::runProject()
 	    if ( !bps.isEmpty() )
 		iiface->setBreakPoints( o, bps );
 	}
-	
+
 	for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	    if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
 		QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
@@ -2366,7 +2382,7 @@ QObjectList *MainWindow::runProject()
 		    iiface->setBreakPoints( e->object(), bps );
 	    }
 	}
-	
+
 	iiface->release();
     }
 
@@ -2408,17 +2424,18 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     }
 
     if ( fw->project() ) {
-	bool ok = TRUE;
+
 	QStringList::Iterator it;
 	for ( it = databases.begin(); it != databases.end(); ++it ) {
-	    if ( !fw->project()->openDatabase( *it ) )
-		ok = FALSE;
+	    if ( !fw->project()->openDatabase( *it ) ) {
+		editDatabaseConnection( *it );
+	    }
 	}
-	if ( !ok )
-		editDatabaseConnections();
 	// try again
-	for ( it = databases.begin(); it != databases.end(); ++it )
-	    fw->project()->openDatabase( *it );
+//	for ( it = databases.begin(); it != databases.end(); ++it ) {
+//	    if ( !fw->project()->openDatabase( *it ) )
+//		qDebug("unable to open database on second pass");
+//	}
     }
     QApplication::setOverrideCursor( WaitCursor );
 
@@ -2860,7 +2877,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	QApplication::sendPostedEvents( workspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
- 	if ( !tbSettingsRead)
+	if ( !tbSettingsRead)
 	    ( (QDockWindow*)formlist()->parentWidget() )->setFixedExtentHeight( 150 );
 	checkTempFiles();
 	return TRUE;
@@ -4756,4 +4773,3 @@ void MainWindow::breakPointsChanged()
 }
 
 #include "mainwindow.moc"
-

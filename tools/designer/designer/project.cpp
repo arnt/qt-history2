@@ -115,8 +115,9 @@ void DatabaseConnection::close()
     if ( !loaded )
 	return;
 #ifndef QT_NO_SQL
-    if ( conn )
+    if ( conn ) {
 	conn->close();
+    }
 #endif
 }
 

@@ -211,6 +211,7 @@ public slots:
     void editProjectSettings();
     void editPixmapCollection();
     void editDatabaseConnections();
+    void editDatabaseConnection( const QString& name );
     void editPreferences();
 
     void searchFind();

@@ -32,13 +32,13 @@
 static bool blockChanges = FALSE;
 
 /*
- *  Constructs a DatabaseConnectionEditor which is a child of 'parent', with the
+ *  Constructs a DatabaseConnectionsEditor which is a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'
  *
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  TRUE to construct a modal dialog.
  */
-DatabaseConnectionEditor::DatabaseConnectionEditor( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
+DatabaseConnectionsEditor::DatabaseConnectionsEditor( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : DatabaseConnectionBase( parent, name, modal, fl ), project( pro )
 {
     connectionWidget = new DatabaseConnectionWidget( grp );
@@ -52,11 +52,11 @@ DatabaseConnectionEditor::DatabaseConnectionEditor( Project *pro, QWidget* paren
     enableAll( FALSE );
 }
 
-DatabaseConnectionEditor::~DatabaseConnectionEditor()
+DatabaseConnectionsEditor::~DatabaseConnectionsEditor()
 {
 }
 
-void DatabaseConnectionEditor::deleteConnection()
+void DatabaseConnectionsEditor::deleteConnection()
 {
     if ( listConnections->currentItem() == -1 )
 	return;
@@ -71,7 +71,7 @@ void DatabaseConnectionEditor::deleteConnection()
     project->saveConnections();
 }
 
-void DatabaseConnectionEditor::newConnection()
+void DatabaseConnectionsEditor::newConnection()
 {
     blockChanges = TRUE;
     enableAll( TRUE );
@@ -88,7 +88,7 @@ void DatabaseConnectionEditor::newConnection()
     blockChanges = FALSE;
 }
 
-void DatabaseConnectionEditor::doConnect()
+void DatabaseConnectionsEditor::doConnect()
 {
 #ifndef QT_NO_SQL
     if ( listConnections->currentItem() == -1 ||
@@ -124,7 +124,7 @@ void DatabaseConnectionEditor::doConnect()
 #endif
 }
 
-void DatabaseConnectionEditor::currentConnectionChanged( const QString &s )
+void DatabaseConnectionsEditor::currentConnectionChanged( const QString &s )
 {
 #ifndef QT_NO_SQL
     DatabaseConnection *conn = project->databaseConnection( s );
@@ -145,14 +145,14 @@ void DatabaseConnectionEditor::currentConnectionChanged( const QString &s )
 #endif
 }
 
-void DatabaseConnectionEditor::connectionNameChanged( const QString &s )
+void DatabaseConnectionsEditor::connectionNameChanged( const QString &s )
 {
     if ( listConnections->currentItem() == 0 || blockChanges )
 	return;
     listConnections->changeItem( s, listConnections->currentItem() );
 }
 
-void DatabaseConnectionEditor::enableAll( bool b )
+void DatabaseConnectionsEditor::enableAll( bool b )
 {
     connectionWidget->editName->setEnabled( b );
     connectionWidget->editName->setText( "" );

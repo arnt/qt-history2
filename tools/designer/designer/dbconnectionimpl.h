@@ -18,35 +18,32 @@
 **
 **********************************************************************/
 
-#ifndef DATABASECONNECTIONS_H
-#define DATABASECONNECTIONS_H
+#ifndef DATABASECONNECTION_H
+#define DATABASECONNECTION_H
 
-#include "dbconnections.h"
+#include "dbconnectioneditor.h"
 #include "dbconnection.h"
 
-class Project;
+class DatabaseConnection;
+class QGridLayout;
 
-class DatabaseConnectionsEditor : public DatabaseConnectionBase
+class DatabaseConnectionEditor : public DatabaseConnectionEditorBase
 {
     Q_OBJECT
 
 public:
-    DatabaseConnectionsEditor( Project *pro, QWidget* parent = 0,
+    DatabaseConnectionEditor( DatabaseConnection* connection, QWidget* parent = 0,
 			       const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
-    ~DatabaseConnectionsEditor();
+    ~DatabaseConnectionEditor();
 
-protected slots:
-    void deleteConnection();
-    void newConnection();
-    void doConnect();
-    void currentConnectionChanged( const QString & );
-    void connectionNameChanged( const QString &s );
+public slots:
+    void accept();
+private:
+    void init();
 
 private:
-    void enableAll( bool b );
-
-private:
-    Project *project;
+    DatabaseConnection *conn;
+    QGridLayout* lay;
     DatabaseConnectionWidget* connectionWidget;
 
 };
