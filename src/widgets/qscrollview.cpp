@@ -814,9 +814,9 @@ void QScrollView::updateScrollBars()
 	    mac_need_scroll = TRUE;
 	} else {
 	    QWidget *tlw = topLevelWidget();
-	    QPoint tlw_br = QPoint(tlw->width(), tlw->height()), 
+	    QPoint tlw_br = QPoint(tlw->width(), tlw->height()),
 		    my_br = posInWindow(this) + QPoint(w, h);
-	    if(my_br.x() >= tlw_br.x() - 3 && my_br.y() >= tlw_br.y() - 3) 
+	    if(my_br.x() >= tlw_br.x() - 3 && my_br.y() >= tlw_br.y() - 3)
 		mac_need_scroll = TRUE;
 	}
 	if(mac_need_scroll) {
@@ -2063,6 +2063,9 @@ void QScrollView::resizeContents( int w, int h )
 */
 void QScrollView::updateContents( int x, int y, int w, int h )
 {
+    if ( testWState(WState_Visible|WState_BlockUpdates) != WState_Visible )
+	return;
+
     QWidget* vp = viewport();
 
     // Translate
@@ -2147,6 +2150,9 @@ void QScrollView::repaintContents( bool erase )
 */
 void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
 {
+    if ( testWState(WState_Visible|WState_BlockUpdates) != WState_Visible )
+	return;
+
     QWidget* vp = viewport();
 
     // Translate logical to clipper()

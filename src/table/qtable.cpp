@@ -2092,7 +2092,7 @@ void QTable::setShowGrid( bool b )
     if ( sGrid == b )
 	return;
     sGrid = b;
-    viewport()->repaint( FALSE );
+    updateContents();
 }
 
 /*! \property QTable::showGrid
@@ -4955,9 +4955,7 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
     qsort( items, filledRows, sizeof( SortableTableItem ), cmpTableItems );
 
     bool updatesEnabled = isUpdatesEnabled();
-    bool viewportUpdatesEnabled = viewport()->isUpdatesEnabled();
     setUpdatesEnabled( FALSE );
-    viewport()->setUpdatesEnabled( FALSE );
     for ( i = 0; i < numRows(); ++i ) {
 	if ( i < filledRows ) {
 	    if ( ascending ) {
@@ -4979,7 +4977,6 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 	}
     }
     setUpdatesEnabled( updatesEnabled );
-    viewport()->setUpdatesEnabled( viewportUpdatesEnabled );
 
     if ( !wholeRows )
 	repaintContents( columnPos( col ), contentsY(),
