@@ -1626,6 +1626,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 			       const char* className )
 {
     QPalette pal = palette;
+    QPalette *oldpal = 0;
 #ifndef QT_NO_STYLE
     if ( !startingUp() ) // on startup this has been done already
 	qApp->style().polish( pal );	// NB: non-const reference
@@ -1648,16 +1649,19 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 	    Q_CHECK_PTR( app_palettes );
 	    app_palettes->setAutoDelete( TRUE );
 	}
+	oldpal = app_palettes->find( className );
 	app_palettes->insert( className, new QPalette( pal ) );
     }
     if ( informWidgets && is_app_running && !is_app_closing ) {
-	QEvent e( QEvent::ApplicationPaletteChange );
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {		// for all widgets...
-	    ++it;
-	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
-		sendEvent( w, &e );
+	if ( !oldpal || ( *oldpal != pal ) ) {
+	    QEvent e( QEvent::ApplicationPaletteChange );
+	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	    register QWidget *w;
+	    while ( (w=it.current()) ) {		// for all widgets...
+		++it;
+		if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
+		    sendEvent( w, &e );
+	    }
 	}
     }
 }
