@@ -16,7 +16,6 @@
 #include "widgetdatabase.h"
 #include "widgetfactory.h"
 #include "formwindowmanager.h"
-#include "undomanager.h"
 #include "default_propertysheet.h"
 #include "default_container.h"
 #include "default_layoutdecoration.h"
@@ -43,9 +42,6 @@ FormEditor::FormEditor(QObject *parent)
     FormWindowManager *formManager = new FormWindowManager(this, parent);
     setFormManager(formManager);
     
-    UndoManager *undoManager = new UndoManager(this, parent);
-    setUndoManager(undoManager);
-
     QExtensionManager *mgr = new QExtensionManager(this);
     mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(IPropertySheet));
     mgr->registerExtensions(new QDesignerContainerFactory(mgr),             Q_TYPEID(IContainer));

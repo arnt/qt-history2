@@ -38,7 +38,6 @@ HEADERS += qdesigner_widget.h \
            qlayoutwidget_propertysheet.h \
            spacer_propertysheet.h \
            default_container.h \
-           undomanager.h \
            layoutdecoration.h \
            default_layoutdecoration.h
 
@@ -63,7 +62,6 @@ SOURCES += qdesigner_widget.cpp \
            qlayoutwidget_propertysheet.cpp \
            spacer_propertysheet.cpp \
            default_container.cpp \
-           undomanager.cpp \
            default_layoutdecoration.cpp
 
 

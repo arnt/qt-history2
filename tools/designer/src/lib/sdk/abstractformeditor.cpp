@@ -23,7 +23,6 @@ AbstractFormEditor::AbstractFormEditor(QObject *parent)
       m_metaDataBase(0),
       m_widgetDataBase(0),
       m_widgetFactory(0),
-      m_undoManager(0),
       m_objectInspector(0)
 {
 }

@@ -25,7 +25,6 @@ class AbstractWidgetDataBase;
 class AbstractMetaDataBase;
 class AbstractWidgetFactory;
 class AbstractDnDManager;
-class AbstractUndoManager;
 
 class QWidget;
 
@@ -48,7 +47,6 @@ public:
     inline AbstractWidgetDataBase *widgetDataBase() const;
     inline AbstractMetaDataBase *metaDataBase() const;
     inline AbstractWidgetFactory *widgetFactory() const;
-    inline AbstractUndoManager *undoManager() const;
 
     inline ObjectInspector *objectInspector() const; // ### abstract
 
@@ -63,7 +61,6 @@ protected:
     inline void setWidgetDataBase(AbstractWidgetDataBase *widgetDataBase);
     inline void setWidgetFactory(AbstractWidgetFactory *widgetFactory);
     inline void setExtensionManager(QExtensionManager *extensionManager);
-    inline void setUndoManager(AbstractUndoManager *undoManager);
 
 private:
     QWidget *m_topLevel;
@@ -74,7 +71,6 @@ private:
     AbstractMetaDataBase *m_metaDataBase;
     AbstractWidgetDataBase *m_widgetDataBase;
     AbstractWidgetFactory *m_widgetFactory;
-    AbstractUndoManager *m_undoManager;
     ObjectInspector *m_objectInspector;
 
 private:
@@ -108,12 +104,6 @@ inline void AbstractFormEditor::setFormManager(AbstractFormWindowManager *formMa
 
 inline QExtensionManager *AbstractFormEditor::extensionManager() const
 { return m_extensionManager; }
-
-inline void AbstractFormEditor::setUndoManager(AbstractUndoManager *undoManager)
-{ m_undoManager = undoManager; }
-
-inline AbstractUndoManager *AbstractFormEditor::undoManager() const
-{ return m_undoManager; }
 
 inline void AbstractFormEditor::setExtensionManager(QExtensionManager *extensionManager)
 { m_extensionManager = extensionManager; }
