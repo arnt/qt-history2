@@ -114,20 +114,18 @@ void QSocketDevice::init()
     }
 }
 
-void QSocketDevice::initFd( Protocol *protocol )
+QSocketDevice::Protocol QSocketDevice::initFd()
 {
-    if (fd != -1) {
 #if !defined (QT_NO_IPV6)
+    if (fd != -1) {
 	SOCKADDR_STORAGE ss;
 	SOCKLEN_T sslen = sizeof( ss );
 	if ( getsockname(fd, (struct sockaddr *)&ss, &sslen) == 0 ) {
 	    switch ( ss.ss_family ) {
 		case AF_INET:
-		    *protocol = Ipv4;
-		    break;
+		    return Ipv4;
 		case AF_INET6:
-		    *protocol = Ipv6;
-		    break;
+		    return Ipv6;
 		default:
 		    qWarning("Unable to initialize invalid socket");
 		    break;
@@ -135,10 +133,9 @@ void QSocketDevice::initFd( Protocol *protocol )
 	} else {
 	    qWarning("Unable to initialize invalid socket");
 	}
-#else
-	*protocol = Ipv4;
-#endif
     }
+#endif
+    return Ipv4;
 
 }
 

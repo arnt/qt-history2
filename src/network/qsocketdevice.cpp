@@ -135,7 +135,7 @@ QSocketDevice::QSocketDevice( int socket, Type type )
 	   this, socket, type );
 #endif
     init();
-    initFd(&d->protocol);
+    d->protocol = initFd();
 }
 
 /*!

@@ -62,8 +62,7 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 
 #include <errno.h>
 
-static inline QSocketDevice::Protocol
-qt_socket_getportaddr( QSocketDevice *that, struct sockaddr *sa,
+static inline QSocketDevice::Protocol qt_socket_getportaddr( struct sockaddr *sa,
 		       Q_UINT16 *port, QHostAddress *addr )
 {
 #if !defined(QT_NO_IPV6)
@@ -95,29 +94,26 @@ void QSocketDevice::init()
 }
 
 
-void QSocketDevice::initFd( Protocol *protocol )
+QSocketDevice::Protocol QSocketDevice::initFd()
 {
-    if (fd != -1) {
 #if !defined (QT_NO_IPV6)
+    if (fd != -1) {
 	struct sockaddr_storage ss;
 	socklen_t sslen = sizeof( ss );
 	if ( getsockname(fd, (struct sockaddr *)&ss, &sslen) == 0 ) {
 	    switch ( ss.ss_family ) {
 		case AF_INET:
-		    *protocol = Ipv4;
-		    break;
+		    return Ipv4;
 		case AF_INET6:
-		    *protocol = Ipv6;
-		    break;
+		    return Ipv6;
 		default:
 		    qWarning("Unable to initialize invalid socket");
 		    break;
 	    }
 	}
-#else
-	*protocol = Ipv4;
-#endif
     }
+#endif
+    return Ipv4;
 }
 
 /*!
@@ -130,7 +126,7 @@ void QSocketDevice::initFd( Protocol *protocol )
 int QSocketDevice::createNewSocket()
 {
 #if !defined(QT_NO_IPV6)
-    int s = qt_socket_socket( protocol() == Ipv4 ? AF_INET : AF_INET6,
+    int s = qt_socket_socket( protocol() == Ipv6 ? AF_INET6 : AF_INET,
 			      t == Datagram ? SOCK_DGRAM : SOCK_STREAM, 0 );
 #else
     int s = qt_socket_socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
@@ -366,10 +362,10 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 
     struct sockaddr_in a4;
 
-#if !defined(QT_NO_IPV6)
-    struct sockaddr_in6 a6;
     struct sockaddr *aa;
     socklen_t aalen;
+#if !defined(QT_NO_IPV6)
+    struct sockaddr_in6 a6;
 
     if ( addr.isIp6Addr() ) {
 	memset( &a6, 0, sizeof(a6) );
@@ -741,8 +737,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    r = ::recvfrom( socket(), data, maxlen, 0,
 			    (struct sockaddr *)&aa, &sz );
 
-	    setProtocol( qt_socket_getportaddr(this, (struct sockaddr *)&aa,
-					     &pp, &pa) );
+	    setProtocol( qt_socket_getportaddr( (struct sockaddr *)&aa, &pp, &pa) );
 
 	} else {
 	    r = ::read( socket(), data, maxlen );
@@ -997,11 +992,11 @@ void QSocketDevice::fetchConnectionParameters()
     QT_SOCKLEN_T sz;
     sz = sizeof( sa );
     if ( !::getsockname( socket(), (struct sockaddr *)(&sa), &sz ) )
-	setProtocol( qt_socket_getportaddr( this, (struct sockaddr *)&sa, &p, &a ) );
+	setProtocol( qt_socket_getportaddr( (struct sockaddr *)&sa, &p, &a ) );
 
     sz = sizeof( sa );
     if ( !::getpeername( socket(), (struct sockaddr *)(&sa), &sz ) )
-	setProtocol( qt_socket_getportaddr( this, (struct sockaddr *)&sa, &p, &a ) );
+	setProtocol( qt_socket_getportaddr( (struct sockaddr *)&sa, &p, &a ) );
 }
 
 
