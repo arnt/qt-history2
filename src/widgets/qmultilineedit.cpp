@@ -68,7 +68,7 @@
   applications working.
 
   If you implement something new with QMultiLineEdit, we suggest using
-  \l QTextEdit instead.
+  \l QTextEdit instead and call QTextEdit::setTextFormat(Qt::PlainText).
 
   Although most of the old QMultiLineEdit API is still available, there is
   a few difference. The old QMultiLineEdit operated on lines, not on
