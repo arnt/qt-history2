@@ -465,9 +465,10 @@ void QDockWidgetTitle::toggleTopLevel()
 void QDockWidgetPrivate::init() {
     Q_Q(QDockWidget);
 
+    int fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth);
     top = new QVBoxLayout(q);
-    top->setSpacing(q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth));
-    top->setMargin(top->spacing() * 2);
+    top->setSpacing(fw);
+    top->setMargin(qMax(fw, 3));
 
     title = new QDockWidgetTitle(q);
     top->insertWidget(0, title);
@@ -777,10 +778,11 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::Show:
         d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
-    case QEvent::StyleChange:
-        d->top->setSpacing(style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth));
-        d->top->setMargin(d->top->spacing() * 2);
-        break;
+    case QEvent::StyleChange: {
+        int fw = style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth);
+        d->top->setSpacing(fw);
+        d->top->setMargin(qMax(fw, 3));
+    } break;
     default:
         break;
     }
