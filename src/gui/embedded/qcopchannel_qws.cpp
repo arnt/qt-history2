@@ -420,5 +420,3 @@ void QCopChannel::sendLocally(const QString& ch, const QString& msg,
 #include "qcopchannel_qws.moc"
 
 #endif
-
-

@@ -39,7 +39,3 @@ class QDecorationPlugin : public QObject,  public QDecorationFactoryInterface
 };
 
 #endif // QDECORATIONPLUGIN_H
-
-
-
-

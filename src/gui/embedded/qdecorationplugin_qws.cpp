@@ -69,4 +69,3 @@ QDecorationPlugin::QDecorationPlugin(QObject *parent)
 QDecorationPlugin::~QDecorationPlugin()
 {
 }
-

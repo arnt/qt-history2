@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpainter.h>
@@ -294,4 +295,5 @@ void QDecorationBeOS::paintButton(QPainter *painter, const QWidget *w,
 }
 
 #endif // 0 --------------------------------------------------------------
+
 #endif // QT_NO_QWS_DECORATION_BEOS

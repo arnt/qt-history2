@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qmemorymanager_qws.h"
 #include "qscreen_qws.h"
 #include "qpaintdevice.h"

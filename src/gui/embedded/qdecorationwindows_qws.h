@@ -35,4 +35,5 @@ protected:
 };
 
 #endif // QT_NO_QWS_DECORATION_WINDOWS
+
 #endif // QDECORATIONWINDOWS_QWS_H

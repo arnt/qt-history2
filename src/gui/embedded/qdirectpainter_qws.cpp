@@ -243,5 +243,7 @@ void QDirectPainter::setAreaChanged(const QRect& r)
 {
     d->change = r;
 }
+
 #endif //QT_NO_DIRECTPAINTER
+
 #endif
