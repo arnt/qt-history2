@@ -248,14 +248,14 @@ void Uic::createFormDecl( const QDomElement &e )
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" && 
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" &&
 	     n2.attribute( "location" ) != "local" )
 	    globalIncludes += s;
     }
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" && 
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" &&
 	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
 	    localIncludes += s;
     }
@@ -304,14 +304,14 @@ void Uic::createFormDecl( const QDomElement &e )
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" && 
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" &&
 	     n2.attribute( "location" ) != "local" )
 	    globalIncludes += s;
     }
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" && 
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" &&
 	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
 	    localIncludes += s;
     }
@@ -359,7 +359,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	n = nl.item(i).toElement();
 	createObjectDecl( n );
 	needEventHandler = needEventHandler ||
-			   DomTool::hasProperty( n, "font" );
+			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
     }
 
     out << endl;
@@ -445,7 +445,7 @@ void Uic::createFormImpl( const QDomElement &e )
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" && 
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" &&
 	     n2.attribute( "location" ) != "local" )
 	    globalIncludes += s;
     }
@@ -453,7 +453,7 @@ void Uic::createFormImpl( const QDomElement &e )
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" && 
+	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" &&
 	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
 	    localIncludes += s;
     }
@@ -760,7 +760,7 @@ void Uic::createFormImpl( const QDomElement &e )
     nl = e.elementsByTagName( "widget" );
     bool needEventHandler = FALSE;
     for ( i = 0; i < (int) nl.length(); i++ ) {
-	if ( DomTool::hasProperty( nl.item(i).toElement() , "font" ) ) {
+	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() ) {
 	    needEventHandler = TRUE;
 	    break;
 	}
@@ -777,8 +777,9 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << "    if ( ev->type() == QEvent::ApplicationFontChange ) {" << endl;
 	for ( i = 0; i < (int) nl.length(); i++ ) {
 	    n = nl.item(i).toElement();
-	    if ( DomTool::hasProperty( n, "font" ) )
-		createExclusiveProperty( n, "font" );
+	    QStringList list = DomTool::propertiesOfType( n, "font" );
+	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
+		createExclusiveProperty( n, *it );
 	}
 	out << "    }" << endl;
 	out << "    return ret;" << endl;
