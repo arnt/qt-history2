@@ -75,6 +75,18 @@ int main( int argc, char** argv )
 	    die( "invalid option: " + arg );
     }
 
+    /* output file */
+    QFile outfile;
+    QTextStream outstream( stdout, IO_WriteOnly ); /* default to stdout */
+    if ( !outfilename.isNull() ) {
+	if ( verbose )
+	    qWarning( "output to file:" + outfilename );
+	outfile.setName( outfilename );
+	if ( !outfile.open( IO_Truncate | IO_WriteOnly ) )
+	    die( "could not open file:" + outfilename );
+	outstream.setDevice( &outfile );
+    }
+
     /* check db dir */
     if ( !dbdirname )
 	dbdirname = QDir::currentDirPath();
@@ -86,7 +98,7 @@ int main( int argc, char** argv )
     if ( !QDir::setCurrent( dbdirname ) )
 	die( "could not cd: " + dbdirname );
 
-    /* create commands */
+    /* get commands */
     if ( !commands ) {
 	if ( infilename ) {
 	    if ( verbose )
@@ -108,15 +120,14 @@ int main( int argc, char** argv )
 	die( "no commands specified" );
 
     /* execute commands */
-    //## todo
-    //## use outfile
-    //## use echo
     Environment env;
-    if ( env.parse( commands, verbose ) ) {
+    env.setOutput( outstream );
+    if ( env.parse( commands, echo ) ) {
 	if ( !env.execute( verbose ) )
 	    die( env.lastError() );
     } else
 	die( env.lastError() );
-
+    if ( outfile.isOpen() )
+	outfile.close();
     return 0;
 }
