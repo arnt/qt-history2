@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#42 $
+** $Id: //depot/qt/main/src/moc/moc.y#43 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#43 $";
 #endif
 
 
@@ -1192,11 +1192,9 @@ void generateClass()                  // generate C++ source code for a class
 	    continue;
 	}
 
-	fprintf( out, "    QConnectionList *clist;\n" );
-	fprintf( out, "    if ( signalsBlocked() || "
-		      "!(clist=receivers(\"%s(%s)\")) )\n",
+	fprintf( out, "    QConnectionList *clist = receivers(\"%s(%s)\");\n",
 		 (char*)f->name, (char*)typstr );
-	fprintf( out, "\treturn;\n" );
+	fprintf( out, "    if ( !clist || signalsBlocked() )\n\treturn;\n" );
         fprintf( out, "    typedef void (QObject::*RT)(%s);\n",(char*)typstr);
 	fprintf( out, "    typedef RT *PRT;\n" );
 	fprintf( out, "    QConnectionListIt it(*clist);\n" );
