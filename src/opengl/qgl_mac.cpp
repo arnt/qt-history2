@@ -36,6 +36,7 @@
 #include <qpixmap.h>
 #include <qtimer.h>
 #include <qapplication.h>
+#include <qstack.h>
 
 /*****************************************************************************
   QOpenGL debug facilities
@@ -229,6 +230,36 @@ void QGLContext::makeCurrent()
     currentCtx = this;
 }
 
+static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
+{
+    RgnHandle macr = qt_mac_get_rgn();
+    GetControlRegion((HIViewRef)widget->winId(), kControlStructureMetaPart, macr);        
+    QPoint wpos = posInWindow(widget);
+    OffsetRgn(macr, wpos.x(), wpos.y());
+    QRegion ret = qt_mac_convert_mac_region(macr);
+    QStack<const QWidget *> widgets;
+    widgets.push(widget);
+    for(const QWidget *last = 0; (widget = widgets.pop()); last = widget) {
+        const QObjectList &children = widget->children();
+        for(int i = children.size()-1; i >= 0; i--) {
+            QWidget *child = qt_cast<QWidget*>(children.at(i));
+            if(child) {
+                if(child == last) 
+                    break;
+                GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
+                wpos = posInWindow(child);
+                OffsetRgn(macr, wpos.x(), wpos.y());
+                ret -= qt_mac_convert_mac_region(macr);
+            }
+        }
+        if(!widget->parentWidget())
+            break;
+        widgets.push(widget->parentWidget());
+    }
+    qt_mac_dispose_rgn(macr);
+    return ret;
+}
+
 void QGLContext::updatePaintDevice()
 {
     if(d->paintDevice->devType() == QInternal::Widget) {
@@ -244,14 +275,8 @@ void QGLContext::updatePaintDevice()
         aglSetDrawable((AGLContext)cx, GetWindowPort(window));
 
         if(!w->isTopLevel()) {
-            //get drawable area
-            RgnHandle widgetRgn = qt_mac_get_rgn();
-            GetControlRegion(hiview, kControlStructureMetaPart, widgetRgn);
-            QPoint wpos = posInWindow(w);
-            OffsetRgn(widgetRgn, wpos.x(), wpos.y());
+            QRegion clp = qt_mac_get_widget_rgn(w); //get drawable area
 
-            QRegion clp = qt_mac_convert_mac_region(widgetRgn);
-            qt_mac_dispose_rgn(widgetRgn);
 #ifdef DEBUG_WINDOW_UPDATE
             QVector<QRect> rs = clp.rects();
             for(int i = 0; i < rs.count(); i++)
@@ -266,6 +291,7 @@ void QGLContext::updatePaintDevice()
                 if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
                     aglDisable((AGLContext)cx, AGL_CLIP_REGION);
             } else {
+                QPoint wpos = posInWindow(w);
                 const GLint offs[4] = { wpos.x(), w->topLevelWidget()->height() - (wpos.y() + w->height()), 
                                         w->width(), w->height() };
                 aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
@@ -404,7 +430,7 @@ public:
     }
 protected:
     static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);    
-    void windowChanged() { /*context->d->updatePaintDevice();*/ }
+    void windowChanged() { context->d->updatePaintDevice(); }
 };
 
 OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
