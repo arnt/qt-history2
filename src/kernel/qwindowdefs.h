@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#146 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#147 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -127,14 +127,6 @@ Q_EXPORT HINSTANCE qWinAppPrevInst();
 Q_EXPORT int	   qWinAppCmdShow();
 Q_EXPORT HDC	   qt_display_dc();
 
-#if defined(QT_DLL) || defined(QT_MAKEDLL)
-#define QT_BASEAPP
-class QBaseApplication;
-#define QApplication QBaseApplication
-#endif
-// Forward declaration
-class QApplication;
-
 #endif // _WS_WIN_
 
 
@@ -155,6 +147,7 @@ Q_EXPORT GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
 #endif // _WS_X11_
 
+class QApplication;
 
 #if defined(NEEDS_QMAIN)
 #define main qMain

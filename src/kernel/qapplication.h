@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#121 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#122 $
 **
 ** Definition of QApplication class
 **
@@ -38,7 +38,16 @@
 class QSessionManager;
 class QStyle;
 
+class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object
+
+#if defined(QT_DLL) || defined(QT_MAKEDLL)
+#define QT_BASEAPP
+typedef QApplication QNonBaseApplication;
+#define QApplication QBaseApplication
+#else
+#define QNonBaseApplication QApplication
+#endif
 
 
 class Q_EXPORT QApplication : public QObject
@@ -105,8 +114,7 @@ public:
     void	     exit_loop();
     static void	     exit( int retcode=0 );
 
-    static bool	     sendEvent( QObject *receiver, QEvent *event )
-	{ return qApp->notify( receiver, event ); }
+    static bool	     sendEvent( QObject *receiver, QEvent *event );
     static void	     postEvent( QObject *receiver, QEvent *event );
     static void	     sendPostedEvents( QObject *receiver, int event_type );
     static void	     sendPostedEvents();
@@ -218,6 +226,7 @@ private:
     friend class QWidget;
     friend class QETWidget;
     friend class QEvent;
+    friend QNonBaseApplication;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -287,8 +296,8 @@ inline QString QApplication::sessionId() const
     return session_id;
 }
 
+#if defined(QT_BASEAPP)
 
-#if defined(QT_BASEAPP) && !defined(QT_MAKEDLL)
 
 #undef QApplication
 
@@ -301,9 +310,23 @@ private:	// Disabled copy constructor and operator=
     QApplication( const QApplication & );
     QApplication &operator=( const QApplication & );
 #endif
+    friend QBaseApplication;
 };
 
+inline bool QBaseApplication::sendEvent( QObject *receiver, QEvent *event )
+	{ return qApp->notify( receiver, event ); }
+
+#if defined(Q_MOC_OUTPUT_REVISION) && defined(Q_MOC_QApplication)
+#if defined(QT_MAKEDLL)
+#define QApplication QBaseApplication
 #endif
+#endif
+
+#else
+inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
+	{ return qApp->notify( receiver, event ); }
+#endif
+
 
 
 #endif // QAPPLICATION_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#248 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#249 $
 **
 ** Implementation of QApplication class
 **
@@ -38,6 +38,9 @@
 #include "qpngio.h"
 #include "qsessionmanager.h"
 
+#if defined(QT_MAKEDLL)
+#define QApplication QBaseApplication
+#endif
 
 
 /*!
@@ -228,7 +231,7 @@ void qt_cleanup();
 void qt_init( Display* dpy );
 #endif
 
-QApplication *qApp = 0;				// global application object
+QNonBaseApplication *qApp = 0;			// global application object
 QStyle *QApplication::app_style	       = 0;	// default application style
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 QFont	 *QApplication::app_font       = 0;	// default application font
@@ -459,7 +462,7 @@ void QApplication::init_precmdline()
 	qWarning( "QApplication: There should be only one application object" );
 #endif
 
-    qApp = this;
+    qApp = (QNonBaseApplication*)this;
 }
 
 /*!
@@ -492,7 +495,7 @@ void QApplication::initialize( int argc, char **argv )
     qInitPngIO();
 
     app_style->polish( *app_pal );
-    app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
+    app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
 #if 0
     if ( makeqdevel ) {
         qdevel = new QDeveloper;
@@ -500,7 +503,7 @@ void QApplication::initialize( int argc, char **argv )
     }
 #endif
     // connect to the session manager
-    session_manager = new QSessionManager( this, session_id );
+    session_manager = new QSessionManager( qApp, session_id );
 }
 
 
@@ -1100,10 +1103,10 @@ void QApplication::exit( int retcode )
 {
     if ( !qApp )				// no global app object
 	return;
-    if ( qApp->quit_now )			// don't overwrite quit code
+    if ( ((QApplication*)qApp)->quit_now )			// don't overwrite quit code
 	return;
-    qApp->quit_now  = TRUE;
-    qApp->quit_code = retcode;
+    ((QApplication*)qApp)->quit_now  = TRUE;
+    ((QApplication*)qApp)->quit_code = retcode;
 }
 
 

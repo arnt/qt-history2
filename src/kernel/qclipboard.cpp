@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#27 $
 **
 ** Implementation of QClipboard class
 **
@@ -27,6 +27,10 @@
 #include "qapplication.h"
 #include "qdragobject.h"
 #include "qpixmap.h"
+
+#if defined(QT_MAKEDLL)
+#define QApplication QBaseApplication
+#endif
 
 /*!
   \class QClipboard qclipboard.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#69 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#70 $
 **
 ** Definition of QObject class
 **
@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qobjectdefs.h"
+#include "qwindowdefs.h"
 #include "qstring.h"
 #include "qevent.h"
 #include "qnamespace.h"
@@ -155,6 +156,7 @@ private:
     QObject	*sigSender;
 
     friend class QApplication;
+    friend class QBaseApplication;
     friend class QWidget;
     friend class QSignal;
     friend class QSenderObject;

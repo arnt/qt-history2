@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#84 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#85 $
 **
 ** Definition of event classes
 **
@@ -93,6 +93,7 @@ protected:
 private:
     bool  posted;
     friend class QApplication;
+    friend class QBaseApplication;
 };
 
 

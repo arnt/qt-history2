@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#229 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#230 $
 **
 ** Definition of QWidget class
 **
@@ -424,6 +424,7 @@ private:
     static QWidgetList	 *tlwList();
     static QWidgetMapper *mapper;
     friend class QApplication;
+    friend class QBaseApplication;
     friend class QPainter;
     friend class QFontMetrics;
     friend class QFontInfo;

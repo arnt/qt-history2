@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#302 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#303 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -42,6 +42,33 @@
 #include "qtinit_win.cpp"
 #include "qtmain_win.cpp"
 #endif
+
+
+/*
+  Some theory about the QApplication/QBaseApplication/QNonBaseApplication...
+
+  -DQT_DLL code that #includes qapplication.h (ie. applications that want to
+  use the Qt DLL) get a QApplication class which is a simple derived class
+  of the QBaseApplication which has all the funcitonality documented for
+  QApplication.  
+
+  Qt code that does not declare any QApplication::* members works the same
+  as the -DQT_DLL code.
+
+  Qt code that declares some QApplication::* needs to ensure that if a
+  DLL is being built, those methods are actually declared as members of
+  QBaseApplication - they doe this by using the preprocessor code below.
+
+  The QNonBaseApplication is a typedef for the real QApplication class that
+  is needed in a few cases during the scope of the defined QApplication.
+
+  The whole point of this is to ensure that the user code, which links
+  with the static qtmain.lib, causes the Qt DLL to load.
+*/
+#if defined(QT_MAKEDLL)
+#define QApplication QBaseApplication
+#endif
+
 
 
 #ifndef WM_MOUSEWHEEL
@@ -2704,7 +2731,7 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QApplication *, QString &session )
+QSessionManager::QSessionManager( QNonBaseApplication *, QString &session )
 {
     d = new QSessionManagerData;
     d->sessionId = session;
