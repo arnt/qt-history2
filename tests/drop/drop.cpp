@@ -54,7 +54,7 @@ void Drop::dragEnterEvent( QDragEnterEvent *e )
 void Drop::dragLeaveEvent( QDragLeaveEvent * )
 {
     // Give the user some feedback...
-    setText( "" );
+    //    setText( "" );
     setBackgroundColor(lightGray);
 }
 
