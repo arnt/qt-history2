@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
                              "This is useful for right-to-left languages."));
 
     editor->setWindowTitle(app.tr("Text Block Formats"));
+    editor->resize(480, 480);
     editor->show();
     app.setMainWidget(editor);
     
