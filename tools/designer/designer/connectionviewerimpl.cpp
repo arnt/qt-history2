@@ -100,7 +100,6 @@ void ConnectionViewer::readConnections()
 	if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) &&
 	     !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
 	    continue;
-	QListViewItem *i = new QListViewItem( connectionListView );
 	
 	MetaDataBase::Connection conn = *it;
 	if(!noselection) {
@@ -108,7 +107,7 @@ void ConnectionViewer::readConnections()
 		&& conn.receiver->isWidgetType() && !selection.contains((QWidget*)(conn.receiver)))
 		continue;
 	}
-	
+	QListViewItem *i = new QListViewItem( connectionListView );
 	i->setText( 0, conn.sender->name() );
 	i->setText( 1, conn.signal );
 	i->setText( 2, conn.receiver->name() );
