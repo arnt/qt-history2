@@ -55,11 +55,17 @@ sub-examples: sub-src FORCE
 	cd ..
 
 clean:
-	cd qmake&&$(MAKE) clean
-	cd tools&&$(MAKE) clean
-	cd src&&$(MAKE) clean&&$(MAKE) clean -f Makefile.main
-	cd tutorial&&$(MAKE) clean
-	cd examples&&$(MAKE) clean
+	cd qmake
+	$(MAKE) clean
+	cd ..\tools
+	$(MAKE) clean
+	cd ..\src
+	$(MAKE) clean
+	$(MAKE) -f Makefile.main clean
+	cd ..\tutorial
+	$(MAKE) clean
+	cd ..\examples
+	$(MAKE) clean
 
 distclean: clean
 	-del .qmake.cache
