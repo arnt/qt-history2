@@ -1050,6 +1050,9 @@ void QComboTableItem::setCurrentItem( int i )
     current = i;
     setText( currentText() );
     table()->updateCell( row(), col() );
+    QWidget *w = table()->cellWidget( row(), col() );
+    if ( w && w->inherits( "QComboBox" ) )
+	( (QComboBox*)w )->setCurrentItem( i );
 }
 
 /*! \overload
@@ -1253,6 +1256,9 @@ void QCheckTableItem::setChecked( bool b )
 {
     checked = b;
     table()->updateCell( row(), col() );
+    QWidget *w = table()->cellWidget( row(), col() );
+    if ( w && w->inherits( "QCheckBox" ) )
+	( (QCheckBox*)w )->setChecked( b );
 }
 
 /*! Returns TRUE if the checkbox table item is checked; otherwise
