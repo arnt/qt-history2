@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#76 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -242,8 +242,8 @@ QString QSpinBox::cleanText() const
   displayed.
 
   To turn off the special-value text display, call this function with
-  0 or an empty string as parameter.  The default is no special-value
-  text, i.e.  the numeric value is shown as usual.
+  QString::null or an empty string as parameter.  The default is no
+  special-value text, i.e. the numeric value is shown as usual.
 
   \sa specialValueText()
 */
@@ -256,7 +256,7 @@ void QSpinBox::setSpecialValueText( const QString &text )
 
 
 /*!
-  Returns the currently special-value text, or a null string if no
+  Returns the currently special-value text, or an empty string if no
   special-value text is currently set.
 
   \sa setSpecialValueText()
@@ -273,8 +273,9 @@ QString QSpinBox::specialValueText() const
   the displayed value.  Typical use is to indicate the unit of
   measurement to the user.
 
-  To turn off the prefix display, call this function with 0 or an
-  empty string as parameter.  The default is no prefix.
+  To turn off the prefix display, call this function with
+  QString::null or an empty string as parameter.  The default is no
+  prefix.
 
   \sa prefix(), setSuffix(), suffix()
 */
@@ -291,8 +292,9 @@ void QSpinBox::setPrefix( const QString &text )
   displayed value.  Typical use is to indicate the unit of measurement
   to the user.
 
-  To turn off the suffix display, call this function with 0 or an
-  empty string as parameter.  The default is no suffix.
+  To turn off the suffix display, call this function with
+  QString::null or an empty string as parameter.  The default is no
+  suffix.
 
   \sa suffix(), setPrefix(), prefix()
 */
@@ -305,8 +307,8 @@ void QSpinBox::setSuffix( const QString &text )
 
 
 /*!
-  Returns the currently set prefix, or 0 if no prefix is currently
-  set.
+  Returns the currently set prefix, or an empty string if no prefix is
+  currently set.
 
   \sa setPrefix(), setSuffix(), suffix()
 */
@@ -321,8 +323,8 @@ QString QSpinBox::prefix() const
 
 
 /*!
-  Returns the currently set suffix, or 0 if no suffix is currently
-  set.
+  Returns the currently set suffix, or an empty string if no suffix is
+  currently set.
 
   \sa setSuffix(), setPrefix(), suffix()
 */
@@ -383,7 +385,7 @@ QSize QSpinBox::sizeHint() const
     s.prepend( prefix() );
     s.append( suffix() );
     w = QMAX( w, fm.width( s ) + wx );
-    if ( !specialValueText().isNull() ) {
+    if ( !specialValueText().isEmpty() ) {
 	s = specialValueText();
 	w = QMAX( w, fm.width( s ) + wx );
     }
@@ -622,8 +624,9 @@ void QSpinBox::setValidator( const QValidator* v )
 }
 
 
-/*!  Returns the validator which constrains editing for this spin
-  box if there is any, or else 0.
+/*!  
+  Returns the validator which constrains editing for this spin box if
+  there is any, or else 0.
 
   \sa setValidator() QValidator
 */
@@ -661,7 +664,7 @@ void QSpinBox::interpretText()
     bool ok = TRUE;
     bool done = FALSE;
     int newVal = 0;
-    if ( !specialValueText().isNull() ) {
+    if ( !specialValueText().isEmpty() ) {
 	QString s = QString(text()).stripWhiteSpace();
 	QString t = QString(specialValueText()).stripWhiteSpace();
 	if ( s == t ) {
@@ -782,7 +785,7 @@ int QSpinBox::mapTextToValue( bool* ok )
 QString QSpinBox::currentValueText()
 {
     QString s;
-    if ( (value() == minValue()) && !specialValueText().isNull() ) {
+    if ( (value() == minValue()) && !specialValueText().isEmpty() ) {
 	s = specialValueText();
     } else {
 	s = prefix();
