@@ -15833,7 +15833,7 @@ bool QString::endsWith( const QString& s ) const
     if ( pos < 0 )
 	return FALSE;
     for ( uint i = 0; i < s.length(); i++ ) {
-	if ( d->unicode[pos+i] != s[i] )
+	if ( d->unicode[pos+i] != s[(int)i] )
 	    return FALSE;
     }
     return TRUE;
