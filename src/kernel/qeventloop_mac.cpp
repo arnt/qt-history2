@@ -41,6 +41,13 @@
 #  define QMAC_EVENT_NOWAIT kEventDurationNoWait
 #endif
 
+//#define QMAC_LAME_TIME_LIMITED
+#ifdef QMAC_LAME_TIME_LIMITED
+#  include "qmessagebox.h"
+#  include "qdatetime.h"
+#  include "qtimer.h"
+#endif
+
 //Externals
 void qt_event_request_timer(TimerInfo *); //qapplication_mac.cpp
 TimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
@@ -753,9 +760,8 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 	first = TRUE;
 	QDate dt = QDate::currentDate();
 	if(dt.year() != 2001) {
-	    const char *out_str = "Sorry, your evaluation has expired.\n"
-				  "Please contact sales@trolltech.com to continue using Qt/Mac\n"
-	    fprintf(stderr, str);
+	    fprintf(stderr, "Sorry, your evaluation has expired.\n"
+		    "Please contact sales@trolltech.com to continue using Qt/Mac\n");
 	    if(qt_is_gui_used) {
 		QTimer tb;
 		QObject::connect(&tb, SIGNAL(timeout()), qApp, SLOT(quit()));

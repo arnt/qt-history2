@@ -64,11 +64,6 @@
 # include "qmainwindow.h"
 #endif
 
-//#define QMAC_LAME_TIME_LIMITED
-#ifdef QMAC_LAME_TIME_LIMITED
-#  include "qtimer.h"
-#endif
-
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include "qmenubar.h"
 #endif
