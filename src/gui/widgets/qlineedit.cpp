@@ -2671,12 +2671,12 @@ void QLineEditPrivate::undo(int until)
             break;
         case Remove:
         case RemoveSelection:
-            text.insert(cmd.pos, cmd.c);
+            text.insert(cmd.pos, cmd.uc);
             cursor = cmd.pos + 1;
             break;
         case Delete:
         case DeleteSelection:
-            text.insert(cmd.pos, cmd.c);
+            text.insert(cmd.pos, cmd.uc);
             cursor = cmd.pos;
             break;
         case Separator:
@@ -2701,7 +2701,7 @@ void QLineEditPrivate::redo() {
         Command& cmd = history[undoState++];
         switch (cmd.type) {
         case Insert:
-            text.insert(cmd.pos, cmd.c);
+            text.insert(cmd.pos, cmd.uc);
             cursor = cmd.pos + 1;
             break;
         case Remove:

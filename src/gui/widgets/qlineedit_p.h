@@ -109,11 +109,10 @@ public:
     // undo/redo handling
     enum CommandType { Separator, Insert, Remove, Delete, RemoveSelection, DeleteSelection };
     struct Command {
-        inline Command(){}
-        inline Command(CommandType type, int pos, QChar c)
-            :type(type),c(c),pos(pos){}
+        inline Command() {}
+        inline Command(CommandType t, int p, QChar c) : type(t),uc(c),pos(p) {}
         uint type : 4;
-        QChar c;
+        QChar uc;
         int pos;
     };
     int modifiedState;
