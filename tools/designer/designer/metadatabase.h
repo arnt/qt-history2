@@ -198,7 +198,7 @@ public:
     static bool setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function, bool = TRUE );
     static QString eventFunction( QObject *o, const QString &event );
     static QMap<QString, QString> eventFunctions( QObject *o );
-    static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies );
+    static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang );
     static QMap<QString, QString> functionBodies( QObject *o );
 
     static void setupInterfaceManagers();

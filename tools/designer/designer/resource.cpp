@@ -2228,5 +2228,5 @@ void Resource::loadFunctions( const QDomElement &e )
 	}
 	n = n.nextSibling().toElement();
     }
-    MetaDataBase::setFunctionBodies( formwindow, bodies );
+    MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null );
 }

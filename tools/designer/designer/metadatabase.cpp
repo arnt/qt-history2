@@ -32,6 +32,7 @@
 #include <qmetaobject.h>
 #include <qwidgetlist.h>
 #include <qmainwindow.h>
+#include <qregexp.h>
 
 #include <stdlib.h>
 
@@ -1115,7 +1116,18 @@ bool MetaDataBase::hasEditor()
     return editorInstalled;
 }
 
-void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies )
+static QString make_pretty( const QString &s )
+{
+    QString res = s;
+    res.replace( QRegExp( "[(]" ), "( " );
+    res.replace( QRegExp( "[)]" ), " )" );
+    res.replace( QRegExp( "&" ), " &" );
+    res.replace( QRegExp( "[*]" ), " *" );
+    res.replace( QRegExp( "," ), "," );
+    return res;
+}
+
+void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang )
 {
     if ( !o )
 	return;
@@ -1127,7 +1139,34 @@ void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &
 	return;
     }
 
-    r->functionBodies = bodies;
+    if ( !lang.isEmpty() ) {
+	r->functionBodies.clear();
+	for ( QMap<QString, QString>::ConstIterator it = bodies.begin(); it != bodies.end(); ++it ) {
+	    r->functionBodies.insert( normalizeSlot( it.key() ), *it );
+	    bool foundSlot = FALSE;
+	    for ( QValueList<Slot>::Iterator sit = r->slotList.begin(); sit != r->slotList.end(); ++sit ) {
+		Slot s = *sit;
+		if ( normalizeSlot( s.slot ) == normalizeSlot( it.key() ) ) {
+		    foundSlot = TRUE;
+		    if ( QString( s.slot ) != it.key() ) {
+			s.slot = make_pretty( it.key() ).latin1();
+			r->slotList.remove( sit );
+			r->slotList.append( s );
+		    }
+		    break;
+		}
+	    }
+	    if ( !foundSlot ) {
+		Slot sl;
+		sl.slot = make_pretty( it.key() ).latin1();
+		sl.access = "protected";
+		sl.language = lang;
+		r->slotList.append( sl );
+	    }
+	}
+    } else {
+	r->functionBodies = bodies;
+    }
 }
 
 QMap<QString, QString> MetaDataBase::functionBodies( QObject *o )

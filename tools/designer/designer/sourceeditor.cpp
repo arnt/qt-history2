@@ -80,7 +80,7 @@ void SourceEditor::save()
 {
     QMap<QString, QString> functions;
     iFace->functions( &functions );
-    MetaDataBase::setFunctionBodies( formWindow, functions );
+    MetaDataBase::setFunctionBodies( formWindow, functions, lang );
 }
 
 QString SourceEditor::language() const
