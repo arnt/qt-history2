@@ -893,35 +893,73 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         break;
     case VT_ARRAY|VT_VARIANT:
     case VT_ARRAY|VT_VARIANT|VT_BYREF:
-        {
-            SAFEARRAY *array = 0;
-            if (arg.vt & VT_BYREF)
-                array = *arg.pparray;
-            else
-                array = arg.parray;
-            
-            QList<QVariant> list;
-            if (!array || array->cDims != 1) {
-                var = list;
+	{
+	    SAFEARRAY *array = 0;
+	    if ( arg.vt & VT_BYREF )
+		array = *arg.pparray;
+	    else
+		array = arg.parray;
+
+            UINT cDims = array ? SafeArrayGetDim(array) : 0;
+            switch(cDims) {
+            case 1:
+                {
+                    QVariantList list;
+
+	            long lBound, uBound;
+	            SafeArrayGetLBound( array, 1, &lBound );
+	            SafeArrayGetUBound( array, 1, &uBound );
+
+	            for ( long i = lBound; i <= uBound; ++i ) {
+		        VARIANT var;
+		        VariantInit( &var );
+		        HRESULT hres = SafeArrayGetElement( array, &i, &var );
+
+		        QVariant qvar = VARIANTToQVariant( var, 0 );
+		        clearVARIANT( &var );
+		        list << qvar;
+	            }
+
+                    var = list;
+                }
+                break;
+
+            case 2:
+                {
+                    QVariantList listList; //  a list of lists
+                    long dimIndices[2];
+
+                    long xlBound, xuBound, ylBound, yuBound;
+	            SafeArrayGetLBound(array, 1, &xlBound);
+	            SafeArrayGetUBound(array, 1, &xuBound);
+	            SafeArrayGetLBound(array, 2, &ylBound);
+	            SafeArrayGetUBound(array, 2, &yuBound);
+
+                    for (long x = xlBound; x <= xuBound; ++x) {
+                        QVariantList list;
+
+                        dimIndices[0] = x;
+	                for (long y = ylBound; y <= yuBound; ++y) {
+		            VARIANT var;
+		            VariantInit(&var);
+                            dimIndices[1] = y;
+		            HRESULT hres = SafeArrayGetElement(array, dimIndices, &var);
+
+		            QVariant qvar = VARIANTToQVariant(var, 0);
+		            clearVARIANT(&var);
+		            list << qvar;
+                        }
+
+                        listList << list;
+                    }
+                    var = listList;
+                }
+                break;
+            default:
+                var = QVariantList();
                 break;
             }
-            
-            long lBound, uBound;
-            SafeArrayGetLBound(array, 1, &lBound);
-            SafeArrayGetUBound(array, 1, &uBound);
-            
-            for (long i = lBound; i <= uBound; ++i) {
-                VARIANT var;
-                VariantInit(&var);
-                SafeArrayGetElement(array, &i, &var);
-                
-                QVariant qvar = VARIANTToQVariant(var, 0);
-                clearVARIANT(&var);
-                list << qvar;
-            }
-            
-            var = list;
-        }
+	}
         break;
         
     case VT_ARRAY|VT_BSTR:
