@@ -117,10 +117,12 @@ void qt_mac_set_modal_state(MenuRef menu, bool on)
         if(enabled) {
             QMacMenuAction *action = 0;
             if(GetMenuCommandProperty(menu, commands[c], kMenuCreatorQt, kMenuPropertyQAction, 
-                                      sizeof(action), 0, &action) != noErr || !action) 
-                enabled = false;
-            else 
+                                      sizeof(action), 0, &action) != noErr || !action) {
+                if(commands[c] != kHICommandQuit)
+                    enabled = false;
+            } else {
                 enabled = action->action->isEnabled();
+            }
         }
         qt_mac_command_set_enabled(menu, commands[c], enabled);
     }
