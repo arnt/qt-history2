@@ -253,7 +253,15 @@ class QFileDialogPrivate : public QDialogPrivate
 public:
     QFileDialogPrivate()
         : QDialogPrivate(),
-          viewMode(QFileDialog::Detail) {}
+          model(0), lview(0), tview(0),
+          viewMode(QFileDialog::Detail),
+          fileMode(QFileDialog::AnyFile),
+          frame(0), lookIn(0), fileName(0), fileType(0),
+          openAction(0), renameAction(0), deleteAction(0),
+          reloadAction(0), sortByNameAction(0), sortBySizeAction(0),
+          sortByDateAction(0), unsortedAction(0), showHiddenAction(0),
+          back(0), toParent(0), newFolder(0), detailMode(0), listMode(0)
+        {}
 
     void setup();
 
@@ -1240,7 +1248,7 @@ void QFileDialogPrivate::setup()
     dir.setFilter(dir.filter() | QDir::AllDirs);
     dir.setSorting(QDir::DirsFirst);
     model = new QDirModel(dir, q);
-
+    
     // views
     lview = new QGenericListView(q);
     lview->setModel(model);
