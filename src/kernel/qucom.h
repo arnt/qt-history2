@@ -43,6 +43,10 @@
 #include <quuid.h>
 #endif // QT_H
 
+#ifdef check
+#undef check
+#endif
+
 struct QUObject;
 struct QUInterfaceDescription;
 struct QUnknownInterface;
