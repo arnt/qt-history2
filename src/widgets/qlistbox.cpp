@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#241 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#242 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1055,32 +1055,33 @@ void QListBox::setCurrentItem( int index )
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
     if ( d->current == i )
-	return;
+        return;
     QListBoxItem * o = d->current;
     d->current = i;
 
     if ( selectionMode() == Single ) {
-      if ( o )
-	setSelected( o, FALSE );
-      if ( i )
-	setSelected( i, TRUE );
+        if ( o )
+            setSelected( o, FALSE );
+        if ( i )
+            setSelected( i, TRUE );
     }
 
     if ( o )
-	updateItem( o );
+        updateItem( o );
     if ( i )
-	updateItem( i );
+        updateItem( i );
     int ind = index( i );
+
     d->currentColumn = ind / numRows();
     d->currentRow = ind % numRows();
     ensureCurrentVisible();
     QString tmp;
     if ( i )
-	tmp = i->text();
+        tmp = i->text();
     int tmp2 = index( i );
     emit highlighted( i );
     if ( !tmp.isNull() )
-	emit highlighted( tmp );
+        emit highlighted( tmp );
     emit highlighted( tmp2 );
 }
 
@@ -1368,134 +1369,159 @@ void QListBox::updateSelection()
 void QListBox::keyPressEvent( QKeyEvent *e )
 {
     if ( count() == 0 )
-	return;
+        return;
     if ( currentItem() == 0 )
-	setCurrentItem( d->head );
+        setCurrentItem( d->head );
 
     switch ( e->key() ) {
     case Key_Up:
-	if ( currentRow() > 0 ) {
-	    if ( e->state() & ShiftButton ) {
-	        int i = currentItem();
-		setCurrentItem( i - 1 );
-		toggleCurrentItem();
-	        setCurrentItem( i );
-	    }
-	    setCurrentItem( currentItem() - 1 );
-	}
-	break;
+        if ( currentItem() > 0 ) {
+            if ( e->state() & ShiftButton ) {
+                int i = currentItem();
+                setCurrentItem( i - 1 );
+                toggleCurrentItem();
+                setCurrentItem( i );
+            }
+            setCurrentItem( currentItem() - 1 );
+        }
+        break;
     case Key_Down:
-	if ( currentRow() < numRows()-1 ) {
-	    if ( e->state() & ShiftButton ) {
-	        int i = currentItem();
-		setCurrentItem( i + 1 );
-		toggleCurrentItem();
-		setCurrentItem( i );
-	    }
-	    setCurrentItem( currentItem()+1 );
-	}
-	break;
+        if ( numColumns() == 1 && currentItem() < (int)count() - 1 ||
+             numColumns() > 1 && currentItem() < (int)count() ) {
+            if ( e->state() & ShiftButton ) {
+                int i = currentItem();
+                setCurrentItem( i + 1 );
+                toggleCurrentItem();
+                setCurrentItem( i );
+            }
+            setCurrentItem( currentItem()+1 );
+        }
+        break;
     case Key_Left:
-	if ( currentColumn() > 0 ) {
-	    setCurrentItem( currentItem() - numRows() );
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
-	} else {
-	    QApplication::sendEvent( horizontalScrollBar(), e );
-	}
-	break;
+        if ( currentColumn() > 0 ) {
+            setCurrentItem( currentItem() - numRows() );
+            if ( e->state() & ShiftButton )
+                toggleCurrentItem();
+        } else if ( numColumns() > 1 && currentItem() > 0 ) {
+            int row = currentRow();
+            setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
+            
+            if ( !item( currentItem() ) )
+                setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
+            
+            if ( e->state() & ShiftButton )
+                toggleCurrentItem();
+        } else {
+            QApplication::sendEvent( horizontalScrollBar(), e );
+        }
+        break;
     case Key_Right:
-	if ( currentColumn() < numColumns()-1 &&
-	     currentItem() < (int)(count())-numRows() ) {
-	    setCurrentItem( currentItem() + numRows() );
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
-	} else {
-	    QApplication::sendEvent( horizontalScrollBar(), e );
-	}
-	break;
+        if ( currentColumn() < numColumns()-1 ) {
+            int row = currentRow();
+            int i = currentItem();
+            setCurrentItem( currentItem() + numRows() );
+
+            if ( !item( currentItem() ) )
+                if ( row < numRows() - 1 )
+                    setCurrentItem( row + 1 );
+                else
+                    setCurrentItem( i );
+                        
+            if ( e->state() & ShiftButton )
+                toggleCurrentItem();
+        } else if ( numColumns() > 1 && currentRow() < numRows() ) {
+            if ( currentRow() + 1 < numRows() ) {
+                setCurrentItem( currentRow() + 1 );
+            
+                if ( e->state() & ShiftButton )
+                    toggleCurrentItem();
+            }
+        } else {
+            QApplication::sendEvent( horizontalScrollBar(), e );
+        }
+        break;
     case Key_Next:
 #if 0
-	if ( style() == MotifStyle) {
-	    if ( lastRowVisible() == (int) count() - 1){
-		int o = yOffset();
-		setBottomItem( lastRowVisible() );
-		if ( currentItem() < lastRowVisible() &&
-		     currentItem() == topItem() &&
-		     yOffset() != o)
-		    setCurrentItem(currentItem() + 1);
-		break;
-	    }
-	    if (currentItem() != topItem() ){
-		setTopItem( currentItem() );
-		break;
-	    }
-	}
-	else {
-	    if ( currentItem() != lastRowVisible() ||
-		 lastRowVisible() == (int) count() - 1) {
-		ensureCurrentVisible(lastRowVisible());
-		break;
-	    }
-	}
-	oldCurrent = currentItem();
-	setYOffset(yOffset() + viewHeight() );
-	if ( style() == MotifStyle)
-	    ensureCurrentVisible( topItem() );
-	else
-	    ensureCurrentVisible(lastRowVisible());
-	if (oldCurrent == currentItem() && currentItem() + 1 <  (int) count() )
-	    ensureCurrentVisible( currentItem() + 1 );
+        if ( style() == MotifStyle) {
+            if ( lastRowVisible() == (int) count() - 1){
+                int o = yOffset();
+                setBottomItem( lastRowVisible() );
+                if ( currentItem() < lastRowVisible() &&
+                     currentItem() == topItem() &&
+                     yOffset() != o)
+                    setCurrentItem(currentItem() + 1);
+                break;
+            }
+            if (currentItem() != topItem() ){
+                setTopItem( currentItem() );
+                break;
+            }
+        }
+        else {
+            if ( currentItem() != lastRowVisible() ||
+                 lastRowVisible() == (int) count() - 1) {
+                ensureCurrentVisible(lastRowVisible());
+                break;
+            }
+        }
+        oldCurrent = currentItem();
+        setYOffset(yOffset() + viewHeight() );
+        if ( style() == MotifStyle)
+            ensureCurrentVisible( topItem() );
+        else
+            ensureCurrentVisible(lastRowVisible());
+        if (oldCurrent == currentItem() && currentItem() + 1 <  (int) count() )
+            ensureCurrentVisible( currentItem() + 1 );
 #endif
-	break;
+        break;
     case Key_Prior:
 #if 0
-	if ( style() != MotifStyle) {
-	    if (currentItem() != topItem() || topItem() == 0){
-		ensureCurrentVisible(topItem());
-		break;
-	    }
-	}
-	else {
-	    if ( topItem() == 0 ){
-		int o = yOffset();
-		setTopItem( topItem() );
-		if ( currentItem() > 0 && currentItem() == lastRowVisible() && yOffset() != o)
-		    setCurrentItem(currentItem()-1);
-		break;
-	    }
-	    if ( currentItem() != lastRowVisible() ) {
-		setBottomItem( currentItem() );
-		break;
-	    }
-	}
-	oldCurrent = currentItem();
-	setYOffset(yOffset() - viewHeight() );
-	if ( style() == MotifStyle)
-	    ensureCurrentVisible( lastRowVisible() );
-	else
-	    ensureCurrentVisible( topItem() );
-	if (oldCurrent == currentItem() && currentItem() > 0)
-	    ensureCurrentVisible( currentItem() -1);
+        if ( style() != MotifStyle) {
+            if (currentItem() != topItem() || topItem() == 0){
+                ensureCurrentVisible(topItem());
+                break;
+            }
+        }
+        else {
+            if ( topItem() == 0 ){
+                int o = yOffset();
+                setTopItem( topItem() );
+                if ( currentItem() > 0 && currentItem() == lastRowVisible() && yOffset() != o)
+                    setCurrentItem(currentItem()-1);
+                break;
+            }
+            if ( currentItem() != lastRowVisible() ) {
+                setBottomItem( currentItem() );
+                break;
+            }
+        }
+        oldCurrent = currentItem();
+        setYOffset(yOffset() - viewHeight() );
+        if ( style() == MotifStyle)
+            ensureCurrentVisible( lastRowVisible() );
+        else
+            ensureCurrentVisible( topItem() );
+        if (oldCurrent == currentItem() && currentItem() > 0)
+            ensureCurrentVisible( currentItem() -1);
 #endif
-	break;
+        break;
 
     case Key_Space:
-	toggleCurrentItem();
-	break;
+        toggleCurrentItem();
+        break;
 
     case Key_Return:
     case Key_Enter:
-	if ( currentItem() >= 0 ) {
-	    QString tmp = item( currentItem() )->text();
-	    emit selected( currentItem());
-	    if ( !tmp.isEmpty() )
-		emit selected( tmp );
-	}
-	break;
+        if ( currentItem() >= 0 ) {
+            QString tmp = item( currentItem() )->text();
+            emit selected( currentItem());
+            if ( !tmp.isEmpty() )
+                emit selected( tmp );
+        }
+        break;
     default:
-	e->ignore();
-	return;
+        e->ignore();
+        return;
     }
     emitChangedSignal( FALSE );
 }
