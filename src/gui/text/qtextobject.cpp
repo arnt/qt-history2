@@ -955,7 +955,7 @@ QString QTextBlock::text() const
     const QString buffer = p->buffer();
     QString text;
 
-    int pos = position();
+    const int pos = position();
     QTextDocumentPrivate::FragmentIterator it = p->find(pos);
     QTextDocumentPrivate::FragmentIterator end = p->find(pos + length() - 1); // -1 to omit the block separator char
     for (; it != end; ++it) {
