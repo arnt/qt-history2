@@ -105,7 +105,7 @@ public:
     virtual void restore();
     virtual void setMode(int,int,int);
     virtual void setDirty( const QRect& );
-    void checkUpdate();
+    void doUpdate();
     virtual int memoryNeeded(const QString&);
     virtual int sharedRamSize(void *);
 

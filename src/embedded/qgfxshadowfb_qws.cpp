@@ -159,7 +159,7 @@ QShadowTimerHandler::QShadowTimerHandler(QShadowFbScreen * s)
 
 void QShadowTimerHandler::timerEvent(QTimerEvent *)
 {
-    screen->checkUpdate();
+    screen->doUpdate();
 }
 
 QShadowFbScreen::QShadowFbScreen( int display_id )
@@ -185,7 +185,7 @@ bool QShadowFbScreen::connect( const QString &displaySpec )
 	return false;
 
     real_screen=data;
-    
+
     to_update=QRect(0,0,w,h);
 
     return true;
@@ -284,7 +284,7 @@ void QShadowFbScreen::setDirty( const QRect& r )
     to_update=to_update.unite(r);
 }
 
-void QShadowFbScreen::checkUpdate()
+void QShadowFbScreen::doUpdate()
 {
     QArray<QRect> rectlist=to_update.rects();
     QRect screen(0,0,w,h);
@@ -315,11 +315,11 @@ int QShadowFbScreen::memoryNeeded( const QString &displaySpec )
     // This is fairly ugly but I'm not sure how else to handle it
 
     int myfd;
-    
+
     // Check for explicitly specified device
     const int len = 8; // "/dev/fbx"
     int m = displaySpec.find( "/dev/fb" );
-    
+
     QString dev = (m>=0) ? displaySpec.mid( m, len ) : QString("/dev/fb0");
 
     myfd=open( dev.latin1(), O_RDWR );
@@ -327,7 +327,7 @@ int QShadowFbScreen::memoryNeeded( const QString &displaySpec )
 	qWarning("Can't open framebuffer device %s",dev.latin1());
 	return FALSE;
     }
-    
+
     fb_fix_screeninfo finfo;
     fb_var_screeninfo vinfo;
 
@@ -344,9 +344,9 @@ int QShadowFbScreen::memoryNeeded( const QString &displaySpec )
 	qWarning("Error reading variable information");
 	return FALSE;
     }
- 
+
     return vinfo.yres*finfo.line_length;
-    
+
     close(myfd);
 }
 
