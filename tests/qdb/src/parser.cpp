@@ -1996,7 +1996,7 @@ void Parser::matchBaseTableElement()
 	yyProg->append( new Push(column) );
 	yyTok = getToken();
 	matchDataType();
-	yyProg->append( new Push((int) TRUE) ); // ###
+	yyProg->append( new Push( FALSE ) ); // ###
 	yyProg->append( new MakeList );
 
 	matchColumnDefOptions( column );
