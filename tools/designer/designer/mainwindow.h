@@ -406,6 +406,7 @@ private:
     bool inDebugMode;
     QObjectList debuggingForms;
     QString lastOpenFilter, lastSaveFilter;
+    QGuardedPtr<QWidget> previewedForm;
 
 };
 

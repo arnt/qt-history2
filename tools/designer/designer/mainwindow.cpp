@@ -621,6 +621,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 
     QWidget *w = QWidgetFactory::create( &buffer );
     if ( w ) {
+	previewedForm = w;
 	if ( palet ) {
 	    if ( style )
 		style->polish( *palet );
@@ -645,10 +646,6 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	w->show();
 	previewing = FALSE;
 	QApplication::restoreOverrideCursor();
-	if ( fw->project() ) {
-	    QStringList lst = MetaDataBase::fakeProperty( fw, "database" ).toStringList();
-	    fw->project()->closeDatabase( lst[ 0 ] );
-	}
 	return w;
     }
     QApplication::restoreOverrideCursor();
@@ -1095,6 +1092,12 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		( (QCloseEvent*)e )->accept();
 	    }		
 	    return TRUE;
+	} else if ( o->isWidgetType() && (QWidget*)o == (QWidget*)previewedForm ) {
+	    if ( lastActiveFormWindow && lastActiveFormWindow->project() ) {
+		QStringList lst =
+		    MetaDataBase::fakeProperty( lastActiveFormWindow, "database" ).toStringList();
+		lastActiveFormWindow->project()->closeDatabase( lst[ 0 ] );
+	    }
 	}
 	break;
     case QEvent::DragEnter:
