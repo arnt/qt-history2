@@ -565,9 +565,7 @@ bool QToolButton::uses3D() const
   \property QToolButton::textLabel
   \brief the label of this button.
 
-  Setting this property automatically sets it as tool tip, too.
-
-  \sa setTextLabel( const QString &newLabel , bool tipToo )
+  Setting this property automatically sets it as tool tip too.
 */
 
 void QToolButton::setTextLabel( const QString &newLabel )
