@@ -1238,7 +1238,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 		lastWasFull = t->t->fullWidth();
 	    } else
 		lastWasFull = FALSE;
-	    
+	
 	    layout->add(t->t);
 	    t = dock->next();
 	}
@@ -1577,7 +1577,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
   stopped the moving.
 */
 
-/*!  
+/*!
   Sets this main window to expand its toolbars to fill all
   available space if \a enable is TRUE, and to give the toolbars just
   the space they need if \a enable is FALSE.
@@ -1662,11 +1662,18 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
     // calc width and height of the tb depending on the orientation it _would_ have
     int w = o == tb->orientation() ? tb->width() : tb->height();
     int h = o != tb->orientation() ? tb->width() : tb->height();
-    if ( t && t->t && w > t->t->width() && ipos != QMainWindowPrivate::TotalAfter )
-	w = t->t->width();
-    if ( t && t->t && h > t->t->height() && ipos != QMainWindowPrivate::TotalAfter )
-	h = t->t->height();
-    
+    if ( o == Qt::Horizontal ) {
+	if ( t && t->t && w > t->t->width() && ipos != QMainWindowPrivate::TotalAfter )
+	    w = 150; // #### should be calced somehow
+	if ( t && t->t )
+	    h = t->t->height();
+    } else {
+	if ( t && t->t && h > t->t->height() && ipos != QMainWindowPrivate::TotalAfter )
+	    h = 150; // #### should be calced somehow
+	if ( t && t->t )
+	    w = t->t->width();
+    }
+
     // if a relative toolbar for the moving one was found
     if ( t ) {
 	covering = t->t;

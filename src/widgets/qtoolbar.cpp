@@ -308,8 +308,11 @@ QMainWindow * QToolBar::mainWindow()
 }
 
 
-/*!  Sets \a w to be expanded if this toolbar is requested to stretch
+/*!  
+  Sets \a w to be expanded if this toolbar is requested to stretch
   (because QMainWindow right-justifies the dock it's in).
+  
+  \sa QMainWindow::setRightJustification(), setFullWidth()
 */
 
 void QToolBar::setStretchableWidget( QWidget * w )
@@ -414,7 +417,7 @@ void QToolBar::endMoving( QToolBar *tb )
   a toolbar dock in the mainwindow if the orientation() is
   Horizontal. If \a b is FALSE, the toolbar will just take the size it actually
   needs.
-  
+
   \sa QMainWindow::setRightJustification()
 */
 
