@@ -90,7 +90,7 @@ by a section showing how you can create new components.
 
 \list
 \i \l{model-view-model.html}{Model Classes}
-\list \i \l{model-view-model.html}{Creating New Models} \endlist
+\i \l{model-view-subclassing-model.html}{Creating New Models}
 \i \l{model-view-view.html}{View Classes}
 \i \l{model-view-selection.html}{Handling Selections}
 \i \l{model-view-delegate.html}{Delegate Classes}
