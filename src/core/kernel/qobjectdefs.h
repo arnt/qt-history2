@@ -22,7 +22,7 @@ class QString;
 class QByteArray;
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 46
+#define Q_MOC_OUTPUT_REVISION 47
 #endif
 
 // The following macros are our "extensions" to C++
@@ -69,8 +69,8 @@ class QByteArray;
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT \
 public: \
-    virtual const QMetaObject *metaObject() const; \
     static const QMetaObject staticMetaObject; \
+    virtual const QMetaObject *metaObject() const { return &staticMetaObject; } \
     virtual void *qt_metacast(const char *) const; \
     QT_TR_FUNCTIONS \
     virtual int qt_metacall(QMetaObject::Call, int, void **); \

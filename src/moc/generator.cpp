@@ -269,14 +269,6 @@ void Generator::generateCode()
         return;
 
 //
-// Generate virtual metaObject()  function
-//
-    fprintf(out,
-             "\nconst QMetaObject *%s::metaObject() const\n{\n"
-             "    return &staticMetaObject;\n"
-             "}\n", cdef->qualified.constData());
-
-//
 // Generate smart cast function
 //
     fprintf(out, "\nvoid *%s::qt_metacast(const char *_clname) const\n{\n", cdef->qualified.constData());
@@ -413,7 +405,8 @@ void Generator::generateProperties()
     // Create meta data
     //
 
-    fprintf(out, "\n // properties: name, type, flags\n");
+    if (cdef->propertyList.count())
+        fprintf(out, "\n // properties: name, type, flags\n");
     for (int i = 0; i < cdef->propertyList.count(); ++i) {
         const PropertyDef &p = cdef->propertyList.at(i);
         int flags = Invalid;
@@ -482,7 +475,6 @@ void Generator::generateEnums(int index)
     }
 
     fprintf(out, "\n // enum data: key, value\n");
-
     for (i = 0; i < cdef->enumList.count(); ++i) {
         const EnumDef &e = cdef->enumList.at(i);
         for (int j = 0; j < e.values.count(); ++j) {
