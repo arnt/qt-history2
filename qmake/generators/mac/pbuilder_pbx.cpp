@@ -542,8 +542,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "name = " << project->first("QMAKE_ORIG_TARGET") << ".app;" << "\n"
 	  << "\t\t\t" << "path = \"" 
 	  << (!project->isEmpty("DESTDIR") ? project->first("DESTDIR") + project->first("QMAKE_ORIG_TARGET") : 
-	      QDir::currentDirPath()) << ".app/Contents/MacOS/" 
-	  << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n";
+	      QDir::currentDirPath()) << Option::dir_sep << project->first("QMAKE_ORIG_TARGET") << ".app\";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(project->isActiveConfig("staticlib")) {
