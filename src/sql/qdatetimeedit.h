@@ -123,6 +123,8 @@ class Q_EXPORT QDateEdit : public QDateTimeEditBase
     Q_PROPERTY( Order order READ order WRITE setOrder )
     Q_PROPERTY( QDate date READ date WRITE setDate )
     Q_PROPERTY( bool autoAdvance READ autoAdvance WRITE setAutoAdvance )
+    Q_PROPERTY( QDate maxValue READ maxValue WRITE setMaxValue )
+    Q_PROPERTY( QDate minValue READ minValue WRITE setMinValue )
 
 public:
     QDateEdit( QWidget * parent = 0,  const char * name = 0 );
@@ -137,12 +139,18 @@ public:
     };
 
     QSize sizeHint() const;
-    void setDate( const QDate& date );
+    virtual void setDate( const QDate& date );
     QDate date() const;
-    void setOrder( Order order );
+    virtual void setOrder( Order order );
     Order order() const;
-    void setAutoAdvance( bool advance );
+    virtual void setAutoAdvance( bool advance );
     bool autoAdvance() const;
+
+    virtual void setMinValue( const QDate& d ) { setRange( d, maxValue() ); }
+    QDate minValue() const;
+    virtual void setMaxValue( const QDate& d ) { setRange( minValue(), d ); }
+    QDate maxValue() const;
+    virtual void setRange( const QDate& min, const QDate& max );
 
 signals:
     void valueChanged( const QDate& date );
@@ -161,6 +169,7 @@ protected:
     virtual void setMonth( int month );
     virtual void setDay( int day );
     virtual void fix();
+    virtual bool outOfRange( int y, int m, int d ) const;
 
 private:
     void init();
@@ -176,6 +185,8 @@ class Q_EXPORT QTimeEdit : public QDateTimeEditBase
     Q_OBJECT
     Q_PROPERTY( QTime time READ time WRITE setTime )
     Q_PROPERTY( bool autoAdvance READ autoAdvance WRITE setAutoAdvance )
+    Q_PROPERTY( QTime maxValue READ maxValue WRITE setMaxValue )
+    Q_PROPERTY( QTime minValue READ minValue WRITE setMinValue )
 
 public:
     QTimeEdit( QWidget * parent = 0,  const char * name = 0 );
@@ -183,10 +194,16 @@ public:
     ~QTimeEdit();
 
     QSize sizeHint() const;
-    void setTime( const QTime& time );
+    virtual void setTime( const QTime& time );
     QTime time() const;
-    void setAutoAdvance( bool advance );
+    virtual void setAutoAdvance( bool advance );
     bool autoAdvance() const;
+
+    virtual void setMinValue( const QTime& d ) { setRange( d, maxValue() ); }
+    QTime minValue() const;
+    virtual void setMaxValue( const QTime& d ) { setRange( minValue(), d ); }
+    QTime maxValue() const;
+    virtual void setRange( const QTime& min, const QTime& max );
 
 signals:
     void valueChanged( const QTime& time );
@@ -200,10 +217,11 @@ protected:
     void addNumber( int sec, int num );
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
+    virtual bool outOfRange( int h, int m, int s ) const;
 
-    void setHour( int h );
-    void setMinute( int m );
-    void setSecond( int s );
+    virtual void setHour( int h );
+    virtual void setMinute( int m );
+    virtual void setSecond( int s );
 
 private:
     void init();
@@ -224,15 +242,15 @@ public:
 		   const char * name = 0 );
     ~QDateTimeEdit();
     QSize sizeHint() const;
-    void  setDateTime( const QDateTime & dt );
+    virtual void  setDateTime( const QDateTime & dt );
     QDateTime dateTime() const;
 
-    void    setTimeSeparator( const QString & separator );
+    virtual void setTimeSeparator( const QString & separator );
     QString timeSeparator() const;
-    void    setDateSeparator( const QString & separator );
+    virtual void setDateSeparator( const QString & separator );
     QString dateSeparator() const;
 
-    void setAutoAdvance( bool advance );
+    virtual void setAutoAdvance( bool advance );
     bool autoAdvance() const;
 
 signals:

@@ -650,6 +650,9 @@ public:
     bool adv;
     int timerId;
     bool typing;
+    QDate min;
+    QDate max;
+    bool changed;
 };
 
 
@@ -728,6 +731,7 @@ void QDateEdit::init()
     d->adv = FALSE;
     d->timerId = 0;
     d->typing = FALSE;
+    d->changed = FALSE;
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -738,6 +742,54 @@ QDateEdit::~QDateEdit()
 {
     delete d;
 }
+
+/*! \fn void setMinValue( const QDate& d )
+
+  Sets the minimum date value to \a d.  Equivalent to calling
+  QDateEdit::setRange( d, maxValue() );
+*/
+
+/*! Returns the minimum date value for the editor, or an invalid date
+  if there is none.
+
+*/
+
+QDate QDateEdit::minValue() const
+{
+    return d->min;
+}
+
+/*! \fn void setMaxValue( const QDate& d )
+
+  Sets the maximum date value to \a d.  Equivalent to calling
+  QDateEdit::setRange( minValue(), d );
+*/
+
+/*! Returns the maximum date value for the editor, or an invalid date
+  if there is none.
+
+*/
+
+QDate QDateEdit::maxValue() const
+{
+    return d->max;
+}
+
+
+/*! Sets the valid input range for the editor to be from \a min to \a
+  max.  If \a min is invalid, there is no minimum date.  Similarly, if
+  \a max is invalid, there is no maximum date.  For example:
+
+  ###
+
+*/
+
+void QDateEdit::setRange( const QDate& min, const QDate& max )
+{
+    d->min = min;
+    d->max = max;
+}
+
 
 /*! \reimp
 
@@ -922,12 +974,17 @@ QDateEdit::Order QDateEdit::order() const
 void QDateEdit::stepUp()
 {
     int sec = focusSection();
-    if ( sec == d->yearSection )
-	setYear( d->y+1 );
-    else if ( sec == d->monthSection )
-	setMonth( d->m+1 );
-    else if ( sec == d->daySection )
-	setDay( d->d+1 );
+    if ( sec == d->yearSection ) {
+	if ( !outOfRange( d->y+1, d->m, d->d ) )
+	    setYear( d->y+1 );
+    } else if ( sec == d->monthSection ) {
+	if ( !outOfRange( d->y, d->m+1, d->d ) )
+	    setMonth( d->m+1 );
+    } else if ( sec == d->daySection ) {
+	if ( !outOfRange( d->y, d->m, d->d+1 ) )
+	    setDay( d->d+1 );
+    }
+    d->changed = TRUE;
     repaint( rect(), FALSE );
 }
 
@@ -940,12 +997,17 @@ void QDateEdit::stepUp()
 void QDateEdit::stepDown()
 {
     int sec = focusSection();
-    if ( sec == d->yearSection )
-	setYear( d->y-1 );
-    else if ( sec == d->monthSection )
-	setMonth( d->m-1 );
-    else if ( sec == d->daySection )
-	setDay( d->d-1 );
+    if ( sec == d->yearSection ) {
+	if ( !outOfRange( d->y-1, d->m, d->d ) )
+	    setYear( d->y-1 );
+    } else if ( sec == d->monthSection ) {
+	if ( !outOfRange( d->y, d->m-1, d->d ) )
+	    setMonth( d->m-1 );
+    } else if ( sec == d->daySection ) {
+	if ( !outOfRange( d->y, d->m, d->d-1 ) )
+	    setDay( d->d-1 );
+    }
+    d->changed = TRUE;
     repaint( rect(), FALSE );
 }
 
@@ -963,9 +1025,11 @@ void QDateEdit::setYear( int year )
 	year = 1752;
     if ( year > 8000 )
 	year = 8000;
-    d->y = year;
-    setMonth( d->m );
-    setDay( d->d );
+    if ( !outOfRange( year, d->m, d->d ) ) {
+	d->y = year;
+	setMonth( d->m );
+	setDay( d->d );
+    }
 }
 
 
@@ -980,8 +1044,10 @@ void QDateEdit::setMonth( int month )
 	month = 1;
     if ( month > 12 )
 	month = 12;
-    d->m = month;
-    setDay( d->d );
+    if ( !outOfRange( d->y, month, d->d ) ) {
+	d->m = month;
+	setDay( d->d );
+    }
 }
 
 
@@ -1001,10 +1067,13 @@ void QDateEdit::setDay( int day )
 	bool valid = FALSE;
 	while ( !(valid = QDate::isValid( d->y, d->m, day ) ) )
 	    --day;
-	d->d = day;
-    } else if ( d->m > 0 ) {
-	if ( day > 0 && day < 32 )
+	if ( !outOfRange( d->y, d->m, day ) )
 	    d->d = day;
+    } else if ( d->m > 0 ) {
+	if ( day > 0 && day < 32 ) {
+	    if ( !outOfRange( d->y, d->m, day ) )
+		d->d = day;
+	}
     }
 }
 
@@ -1023,10 +1092,14 @@ void QDateEdit::setDate( const QDate& date )
 	d->d = 0;
 	return;
     }
+    if ( (maxValue().isValid() && date > maxValue()) ||
+	 (minValue().isValid() && date < minValue()) )
+	return;
     d->y = date.year();
     d->m =  date.month();
     d->d = date.day();
     emit valueChanged( date );
+    d->changed = FALSE;
     repaint( rect(), FALSE );
 }
 
@@ -1042,6 +1115,26 @@ QDate QDateEdit::date() const
     return QDate();
 }
 
+/*!  Returns TRUE if \a y, \a m, \a d is out of range, otherwise FALSE
+  is returned.
+
+  \sa setRange()
+
+*/
+
+bool QDateEdit::outOfRange( int y, int m, int d ) const
+{
+    if ( QDate::isValid( y, m, d ) ) {
+	QDate currentDate( y, m, d );
+	if ( ( maxValue().isValid() && currentDate > maxValue() ) ||
+	     ( minValue().isValid() && currentDate < minValue() ) ) {
+	    //## outOfRange should set overwrite?
+	    return TRUE;
+	}
+	return FALSE;
+    }
+    return TRUE;
+}
 
 /*!  \reimp
 
@@ -1061,7 +1154,10 @@ void QDateEdit::addNumber( int sec, int num )
 	    d->y = num;
 	} else {
 	    txt += QString::number( num );
-	    d->y = txt.toInt();
+	    if ( txt.length() == 4 && outOfRange( txt.toInt(), d->m, d->d ) )
+		txt = QString::number( d->y );
+	    else
+		d->y = txt.toInt();
 	    if ( d->adv && txt.length() == 4 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
@@ -1075,10 +1171,11 @@ void QDateEdit::addNumber( int sec, int num )
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
 	    if ( temp > 12 )
-		d->m = num;
+		temp = num;
+	    if ( outOfRange( d->y, temp, d->d ) )
+		txt = QString::number( d->m );
 	    else
 		d->m = temp;
-	    txt = QString::number( d->m );
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
@@ -1092,16 +1189,18 @@ void QDateEdit::addNumber( int sec, int num )
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
 	    if ( temp > 31 )
-		d->d = num;
+		temp = num;
+	    if ( outOfRange( d->y, d->m, temp ) )
+		txt = QString::number( d->d );
 	    else
 		d->d = temp;
-	    txt = QString::number( d->d );
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
 	    }
 	}
     }
+    d->changed = TRUE;
     d->overwrite = overwrite;
     d->timerId = startTimer( qApp->doubleClickInterval()*4 );
     repaint( rect(), FALSE );
@@ -1118,8 +1217,7 @@ bool QDateEdit::setFocusSection( int s )
 	killTimer( d->timerId );
 	d->overwrite = TRUE;
 	d->typing = FALSE;
-	fix();
-	emit valueChanged( date() );
+	fix(); // will emit valueChanged if nec
     }
     return QDateTimeEditBase::setFocusSection( s );
 }
@@ -1145,11 +1243,12 @@ bool QDateEdit::setFocusSection( int s )
 
 void QDateEdit::fix()
 {
-    QDate date = QDate::currentDate();
+    bool changed = FALSE;
+    QDate currentDate = QDate::currentDate();
     int year = d->y;
     if ( year < 100 ) {
-	int currentCentury = (int) floor( (double)date.year()/100 );
-	int loFullYear = date.year() - 70;
+	int currentCentury = (int) floor( (double)currentDate.year()/100 );
+	int loFullYear = currentDate.year() - 70;
 	int loCentury = (int) ( floor(loFullYear/100 ) < currentCentury ) ?
 			(int) floor( loFullYear/100 ) : currentCentury;
 	int loYear = loFullYear - ( loCentury * 100 );
@@ -1160,11 +1259,29 @@ void QDateEdit::fix()
 	    year = ( loCentury*100 ) + year;
 	else
 	    year = ( hiCentury*100 ) + year;
-    } else if ( year > 100 && year <= 999 ) {
-	int currentCentury = (int) floor( (double)date.year()/100 );
+	changed = TRUE;
+    } else if ( year > 99 && year <= 999 ) {
+	int currentCentury = (int) floor( (double)currentDate.year()/100 );
 	year = ( currentCentury*100 ) + year;
+	changed = TRUE;
     }
-    setYear( year );
+    if ( changed && outOfRange( year, d->m, d->d ) ) {
+	if ( minValue().isValid() && date() < minValue() ) {
+	    d->d =  minValue().day();
+	    d->m = minValue().month();
+	    d->y = minValue().year();
+	}
+	if ( date() > maxValue() ) {
+	    d->d =  maxValue().day();
+	    d->m = maxValue().month();
+	    d->y = maxValue().year();
+	}
+    } else if ( changed )
+	setYear( year );
+    if ( changed ) {
+	emit valueChanged( date() );
+	d->changed = FALSE;
+    }
 }
 
 
@@ -1177,7 +1294,10 @@ bool QDateEdit::event( QEvent *e )
     if( e->type() == QEvent::FocusOut ) {
 	d->typing = FALSE;
 	fix();
-	emit valueChanged( date() );
+	if ( d->changed ) {
+	    emit valueChanged( date() );
+	    d->changed = FALSE;
+	}
     }
     return QDateTimeEditBase::event( e );
 }
@@ -1262,6 +1382,9 @@ public:
     bool overwrite;
     int timerId;
     bool typing;
+    QTime min;
+    QTime max;
+    bool changed;
 };
 
 /*!
@@ -1330,6 +1453,7 @@ void QTimeEdit::init()
     d->overwrite = FALSE;
     d->timerId = 0;
     d->typing = FALSE;
+    d->changed = FALSE;
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -1340,6 +1464,55 @@ QTimeEdit::~QTimeEdit()
 {
     delete d;
 }
+
+/*! \fn void setMinValue( const QTime& d )
+
+  Sets the minimum time value to \a d.  Equivalent to calling
+  QTimeEdit::setRange( d, maxValue() );
+*/
+
+/*! Returns the minimum time value for the editor, or an invalid time
+  if there is none.
+
+*/
+
+QTime QTimeEdit::minValue() const
+{
+    return d->min;
+}
+
+/*! \fn void setMaxValue( const QTime& d )
+
+  Sets the maximum time value to \a d.  Equivalent to calling
+  QTimeEdit::setRange( minValue(), d );
+*/
+
+/*! Returns the maximum time value for the editor, or an invalid time
+  if there is none.
+
+*/
+
+QTime QTimeEdit::maxValue() const
+{
+    return d->max;
+}
+
+
+/*! Sets the valid input range for the editor to be from \a min to \a
+  max.  If \a min is invalid, there is no minimum time.  Similarly, if
+  \a max is invalid, there is no maximum time.  For example:
+
+  ###
+
+*/
+
+void QTimeEdit::setRange( const QTime& min, const QTime& max )
+{
+    d->min = min;
+    d->max = max;
+}
+
+
 
 /*!  Sets the time to \a time.  If \a time is not valid, the editor
   displays all zeroes and QTimeEdit::time() will return an invalid
@@ -1355,10 +1528,13 @@ void QTimeEdit::setTime( const QTime& time )
 	d->s = 0;
 	return;
     }
+    if ( time > maxValue() || time < maxValue() )
+	return;
     d->h = time.hour();
     d->m = time.minute();
     d->s = time.second();
     emit valueChanged( time );
+    d->changed = FALSE;
     repaint( rect(), FALSE );
 }
 
@@ -1416,7 +1592,10 @@ bool QTimeEdit::event( QEvent *e )
 {
     if( e->type() == QEvent::FocusOut ) {
 	d->typing = FALSE;
-	emit valueChanged( time() );
+	if ( d->changed ) {
+	    emit valueChanged( time() );
+	    d->changed = FALSE;
+	}
     }
     return QDateTimeEditBase::event( e );
 }
@@ -1441,15 +1620,19 @@ void QTimeEdit::stepUp()
     int sec = focusSection();
     switch( sec ) {
     case 0:
-	setHour( d->h+1 );
+	if ( !outOfRange( d->h+1, d->m, d->s ) )
+	     setHour( d->h+1 );
 	break;
     case 1:
-	setMinute( d->m+1 );
+	if ( !outOfRange( d->h, d->m+1, d->s ) )
+	    setMinute( d->m+1 );
 	break;
     case 2:
-	setSecond( d->s+1 );
+	if ( !outOfRange( d->h, d->m, d->s+1 ) )
+	    setSecond( d->s+1 );
 	break;
     }
+    d->changed = TRUE;
     repaint( rect(), FALSE );
 }
 
@@ -1463,15 +1646,19 @@ void QTimeEdit::stepDown()
     int sec = focusSection();
     switch( sec ) {
     case 0:
-	setHour( d->h-1 );
+	if ( !outOfRange( d->h-1, d->m, d->s ) )
+	     setHour( d->h-1 );
 	break;
     case 1:
-	setMinute( d->m-1 );
+	if ( !outOfRange( d->h, d->m-1, d->s ) )
+	    setMinute( d->m-1 );
 	break;
     case 2:
-	setSecond( d->s-1 );
+	if ( !outOfRange( d->h, d->m, d->s-1 ) )
+	    setSecond( d->s-1 );
 	break;
     }
+    d->changed = TRUE;
     repaint( rect(), FALSE );
 }
 
@@ -1510,7 +1697,10 @@ bool QTimeEdit::setFocusSection( int s )
 	d->typing = FALSE;
 	int offset = s*3 + 2;
 	setSectionSelection( s, offset - 2, offset );
-	emit valueChanged( time() );
+	if ( d->changed ) {
+	    emit valueChanged( time() );
+	    d->changed = FALSE;
+	}
     }
     return QDateTimeEditBase::setFocusSection( s );
 }
@@ -1581,6 +1771,19 @@ QString QTimeEdit::sectionText( int sec )
 }
 
 
+bool QTimeEdit::outOfRange( int h, int m, int s ) const
+{
+    if ( QTime::isValid( h, m, s ) ) {
+	QTime currentTime( h, m, s );
+	if ( ( maxValue().isValid() && currentTime > maxValue() ) ||
+	     ( minValue().isValid() && currentTime < minValue() ) )
+	    return TRUE;
+	else
+	    return FALSE;
+    }
+    return FALSE;
+}
+
 /*! \reimp
 
 */
@@ -1595,34 +1798,37 @@ void QTimeEdit::addNumber( int sec, int num )
     QString txt;
     if ( sec == 0 ) {
 	txt = QString::number( d->h );
-	if ( d->overwrite || txt.length() == 2 )
-	    d->h = num;
-	else {
+	if ( d->overwrite || txt.length() == 2 ) {
+	    if ( !outOfRange( num, d->m, d->s ) )
+		d->h = num;
+	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
 	    if ( temp > 23 )
-		d->h = num;
+		temp = num;
+	    if ( outOfRange( temp, d->m, d->s ) )
+		txt = QString::number( d->h );
 	    else
 		d->h = temp;
-	    txt = QString::number( d->h );
 	    if ( d->adv && txt.length() == 2 ) {
-
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
 	    }
 	}
     } else if ( sec == 1 ) {
 	txt = QString::number( d->m );
-	if ( d->overwrite || txt.length() == 2 )
-	    d->m = num;
-	else {
+	if ( d->overwrite || txt.length() == 2 ) {
+	    if ( !outOfRange( d->h, num, d->s ) )
+		d->m = num;
+	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
 	    if ( temp > 59 )
-		d->m = num;
+		temp = num;
+	    if ( outOfRange( d->h, temp, d->s ) )
+		txt = QString::number( d->m );
 	    else
 		d->m = temp;
-	    txt = QString::number( d->m );
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
@@ -1630,22 +1836,25 @@ void QTimeEdit::addNumber( int sec, int num )
 	}
     } else if ( sec == 2 ) {
 	txt = QString::number( d->s );
-	if ( d->overwrite || txt.length() == 2 )
-	    d->s = num;
-	else {
+	if ( d->overwrite || txt.length() == 2 ) {
+	    if ( !outOfRange( d->h, d->m, num ) )
+		d->s = num;
+	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
 	    if ( temp > 59 )
-		d->s = num;
+		temp = num;
+	    if ( outOfRange( d->h, d->m, temp ) )
+		txt = QString::number( d->s );
 	    else
 		d->s = temp;
-	    txt = QString::number( d->s );
 	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
 	    }
 	}
     }
+    d->changed = TRUE;
     d->overwrite = overwrite;
     d->timerId = startTimer( qApp->doubleClickInterval()*4 );
     repaint( rect(), FALSE );
