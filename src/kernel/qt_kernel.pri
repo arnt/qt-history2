@@ -134,6 +134,7 @@ kernel {
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	}
 
+	mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp 
         !embedded:mac {
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
@@ -150,9 +151,7 @@ kernel {
 			  $$KERNEL_CPP/qfont_mac.cpp
              DEFINES += QMAC_ONE_PIXEL_LOCK
         }
-	mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp 
-
-	!mac:unix:SOURCES += $$KERNEL_CPP/qprinter_unix.cpp
+	else:unix:SOURCES += $$KERNEL_CPP/qprinter_unix.cpp
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
 		    $$KERNEL_CPP/qprocess_unix.cpp \
 		    $$KERNEL_CPP/qthread_unix.cpp
