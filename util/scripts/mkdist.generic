@@ -275,7 +275,7 @@ if [ "${platform}" = "win" ]; then
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
-	egrep -v '\.(gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm)$' | xargs ${curdir}/unix_to_dos
+	egrep -v '\.(dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm)$' | xargs ${curdir}/unix_to_dos
 fi
 
 if [ "${platform}" = "x11" ]; then
