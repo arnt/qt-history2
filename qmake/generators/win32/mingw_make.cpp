@@ -188,7 +188,7 @@ void MingwMakefileGenerator::processLibsVar()
 
 void MingwMakefileGenerator::fixTargetExt()
 {
-    if (!project->isActiveConfig("dll") && !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+    if (!project->isActiveConfig("dll") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
         project->variables()["TARGET_EXT"].append(".a");
         project->variables()["QMAKE_LFLAGS"].append("-static");
         if(project->variables()["TARGET"].value(0).left(3) != "lib")
