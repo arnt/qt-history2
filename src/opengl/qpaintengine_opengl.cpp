@@ -489,8 +489,8 @@ void QOpenGLPaintEngine::drawLine(const QLineF &line)
     dgl->qglColor(d->cpen.color());
     glBegin(GL_LINES);
     {
-        glVertex2d(line.startX(), line.startY());
-        glVertex2d(line.endX(), line.endY());
+        glVertex2f(line.startX(), line.startY());
+        glVertex2f(line.endX(), line.endY());
     }
     glEnd();
 }
@@ -538,7 +538,7 @@ void QOpenGLPaintEngine::drawPoint(const QPointF &p)
     dgl->makeCurrent();
     glBegin(GL_POINTS);
     {
-        glVertex2d(p.x(), p.y());
+        glVertex2f(p.x(), p.y());
     }
     glEnd();
 }
