@@ -8,7 +8,6 @@
 
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
-
 #include <X11/Xatom.h>
 
 const int XFocusOut = FocusOut;

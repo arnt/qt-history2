@@ -1,4 +1,5 @@
 #include "qmotif.h"
+
 #include <qapplication.h>
 #include <qwidgetintdict.h>
 

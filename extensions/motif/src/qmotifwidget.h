@@ -2,8 +2,8 @@
 #define QMOTIFWIDGET_H
 
 #include <qwidget.h>
-#include <X11/Intrinsic.h>
 
+#include <X11/Intrinsic.h>
 
 class QMotifWidgetPrivate;
 class QKeyEvent;

@@ -2,6 +2,7 @@
 #define QMOTIFDIALOG_H
 
 #include <qdialog.h>
+
 #include <X11/Intrinsic.h>
 #include <Xm/Xm.h>
 
