@@ -385,13 +385,16 @@ void QTextCursor::insert( const QString &s, bool checkNewLine, QArray<QTextStrin
 		continue;
 	    string->insert( idx, s );
 	    if ( formatting ) {
-		for ( int i = lastIndex; i < (int)s.length(); ++i ) {
-		    if ( formatting->at( i ).format() ) {
-			formatting->at( i ).format()->addRef();
-			string->string()->setFormat( i - lastIndex + idx, formatting->at( i ).format(), TRUE );
+		int len = s.length();
+ 		if ( it != --lst.end() )
+		    len++;
+		for ( int i = 0; i < len; ++i ) {
+		    if ( formatting->at( i + lastIndex ).format() ) {
+			formatting->at( i + lastIndex ).format()->addRef();
+			string->string()->setFormat( i + idx, formatting->at( i + lastIndex ).format(), TRUE );
 		    }
 		}
-		lastIndex = lastIndex + s.length();
+		lastIndex += len;
 	    }
 	    idx += s.length();
 	}

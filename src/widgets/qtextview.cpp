@@ -547,6 +547,10 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	    undoRedoInfo.d->text = QString::null;
 	}
 	undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
+ 	if ( cursor->parag()->at( cursor->index() )->format() ) {
+ 	    cursor->parag()->at( cursor->index() )->format()->addRef();
+ 	    undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
+ 	}
 	if ( cursor->remove() )
 	    undoRedoInfo.d->text += "\n";
 	break;
@@ -567,6 +571,10 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	}
 	cursor->gotoLeft();
 	undoRedoInfo.d->text.prepend( QString( cursor->parag()->at( cursor->index() )->c ) );
+ 	if ( cursor->parag()->at( cursor->index() )->format() ) {
+ 	    cursor->parag()->at( cursor->index() )->format()->addRef();
+ 	    undoRedoInfo.d->text.at( 0 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
+ 	}
 	undoRedoInfo.index = cursor->index();
 	if ( cursor->remove() ) {
 	    undoRedoInfo.d->text.remove( 0, 1 );
