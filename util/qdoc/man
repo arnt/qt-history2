@@ -202,7 +202,7 @@ open( A, "< annotated.html" ) || die "can't open annotated.html";
 $_ = <A>;
 close A;
 
-while ( m@<li><strong><a href=\"(.*?\.html)\">(.*?)</a></strong> \((.*?)\)@gs ) {
+while ( m@<li><strong><a href=\"(.*?\.html)\">(.*?)</a></strong> \((.*?)\)\n@gs ) {
     $name{$1} = $2;
     $desc{$1} = $3;
 }
