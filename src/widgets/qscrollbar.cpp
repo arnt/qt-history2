@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#68 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#68 $");
 
 
 /*!
@@ -53,8 +53,13 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#67 $");
 
 /*!
   \fn void QScrollBar::sliderMoved( int value )
-  This signal is emitted when the slider is dragged, with the
-  new scroll bar value as an argument.
+
+  This signal is emitted when the slider is moved by the user, with
+  the new scroll bar value as an argument.
+
+  This signal is emitted even when tracking is turned off.
+
+  \sa tracking() valueChanged() nextLine() prevLine() nextPage() prevPage()
 */
 
 /*!
