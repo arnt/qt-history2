@@ -83,25 +83,32 @@ QFSFileEngine::isOpen() const
 }
 
 bool
-QFSFileEngine::open(int mode)
+QFSFileEngine::open(int flags)
 {
     int oflags = QT_OPEN_RDONLY;
-    if ((mode & QFile::ReadWrite) == QFile::ReadWrite)
+    if ((flags & QFile::ReadWrite) == QFile::ReadWrite)
         oflags = QT_OPEN_RDWR;
-    else if ((mode & QFile::WriteOnly) == QFile::WriteOnly)
+    else if (flags & QFile::WriteOnly)
         oflags = QT_OPEN_WRONLY;
-    if (mode & QFile::Append) 
-        oflags |= QT_OPEN_APPEND | QT_OPEN_CREAT;
-    else if(mode & QFile::WriteOnly)
-        oflags |= QT_OPEN_TRUNC | QT_OPEN_CREAT;
+    if (flags & QFile::Append) {                // append to end of file?
+        if (!(flags & QFile::ReadOnly) || (flags & QFile::Truncate))
+            oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
+        else
+            oflags |= (QT_OPEN_APPEND | QT_OPEN_CREAT);
+    } else if (flags & QFile::WriteOnly) {                // create/trunc if writable
+        if (!(flags & QFile::ReadOnly) || (flags & QFile::Truncate))
+            oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
+        else
+            oflags |= QT_OPEN_CREAT;
+    }
 #if defined(HAS_TEXT_FILEMODE)
-    if (mode & QFile::Translate)
+    if (flags & QFile::Translate)
         oflags |= QT_OPEN_TEXT;
     else
         oflags |= QT_OPEN_BINARY;
 #endif
 #if defined(HAS_ASYNC_FILEMODE)
-    if (mode & QFile::Async)
+    if (flags & QFile::Async)
         oflags |= QT_OPEN_ASYNC;
 #endif
     d->hasCachedChar = 0;

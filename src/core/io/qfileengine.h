@@ -28,7 +28,7 @@ public:
     virtual ~QFileEngine();
 
     virtual bool isOpen() const = 0;
-    virtual bool open(int mode) = 0;
+    virtual bool open(int flags) = 0;
     virtual bool close() = 0;
     virtual void flush() = 0;
 
@@ -74,8 +74,8 @@ public:
     QFSFileEngine();
 
     virtual bool isOpen() const;
-    virtual bool open(int mode);
-    bool open(int mode, int fd); //FS only!!
+    virtual bool open(int flags);
+    bool open(int flags, int fd); //FS only!!
     virtual bool close();
     virtual void flush();
 

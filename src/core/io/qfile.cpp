@@ -64,7 +64,7 @@ protected:
 
     void initFileEngine(const QString &);
 
-    bool openExternalFile(int mode, int fd);
+    bool openExternalFile(int flags, int fd);
     void reset();
 
 private:
@@ -107,7 +107,7 @@ QFilePrivate::initFileEngine(const QString &file)
 }
 
 bool
-QFilePrivate::openExternalFile(int mode, int fd)
+QFilePrivate::openExternalFile(int flags, int fd)
 {
     Q_ASSERT(!fileEngine || !fileEngine->isOpen());
     delete fileEngine;
@@ -115,7 +115,7 @@ QFilePrivate::openExternalFile(int mode, int fd)
     QFSFileEngine *fe = new QFSFileEngine;
     fileEngine = fe;
     reset();
-    return fe->open(mode, fd);
+    return fe->open(flags, fd);
 }
 
 void 
@@ -549,8 +549,6 @@ QFile::open(int mode)
     }
     if(mode & Append) //append implies write
         mode |= WriteOnly;
-    if(mode & WriteOnly)
-        mode |= Truncate;
     setFlags(IO_Direct);
     resetStatus();
     setMode(mode);
@@ -562,7 +560,7 @@ QFile::open(int mode)
     d->reset();
     if(!d->fileEngine)
         d->initFileEngine(d->fileName);
-    if(d->fileEngine->open(mode)) {
+    if(d->fileEngine->open(flags())) {
         setState(IO_Open);
         if(d->fileEngine->isSequential())
             setType(Sequential);
@@ -641,7 +639,7 @@ QFile::open(int mode, int fd)
         qWarning("QFile::open: File access not specified");
         return false;
     }
-    if(d->openExternalFile(mode, fd)) {
+    if(d->openExternalFile(flags(), fd)) {
         setState(IO_Open);
         setMode(mode | IO_Raw);
         if(d->fileEngine->isSequential())
