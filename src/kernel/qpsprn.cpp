@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#24 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#24 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -168,8 +168,7 @@ static void hexOut( QTextStream &stream, int i )
 
 static void ps_dumpTransparentBitmapData( QTextStream &stream, QImage &img )
 {
-    stream.unsetf( ~0 );
-    stream.setf( QTextStream::hex );
+    stream.setf( QTextStream::hex, QTextStream::basefield );
 
     int width  = img.width();
     int height = img.height();
@@ -188,15 +187,13 @@ static void ps_dumpTransparentBitmapData( QTextStream &stream, QImage &img )
     if ( --count % 66 )
 	stream << '\n';
 
-    stream.unsetf( ~0 );
-    stream.setf( QTextStream::dec );
+    stream.setf( QTextStream::dec, QTextStream::basefield );
 }
 
 static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 			       QColor fgCol, QColor bgCol )
 {
-    stream.unsetf( ~0 );
-    stream.setf( QTextStream::hex );
+    stream.setf( QTextStream::hex, QTextStream::basefield );
 
     if ( img.depth() == 1 ) {
 	img.convertDepth( 8 );
@@ -236,8 +233,7 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
     if ( --count % 11 )
 	stream << '\n';
 
-    stream.unsetf( ~0 );
-    stream.setf( QTextStream::dec );
+    stream.setf( QTextStream::dec, QTextStream::basefield );
 }
 
 #undef XCOORD
