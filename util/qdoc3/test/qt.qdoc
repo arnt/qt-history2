@@ -13,7 +13,7 @@ exampledirs		= $QTDIR/doc/snippets \
 			  $QTDIR/demos \
 			  $QTDIR/tutorial
 imagedirs		= $QTDIR/gif
-outputdir		= output/qt
+outputdir		= $QTDIR/doc/html
 base			= file:$QTDIR/doc/html/
 versionsym		= QT_VERSION_STR
 defines			= Q_QDOC \
