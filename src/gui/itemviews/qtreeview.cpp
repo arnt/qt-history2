@@ -1442,30 +1442,6 @@ void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
     }
 }
 
-void QTreeViewPrivate::updateVerticalPageStep()
-{
-    if (d->viewItems.count() <= 0)
-        return;
-
-    int itemsInViewport = 0;
-    if (uniformRowHeights) {
-        itemsInViewport = viewport->height() / itemHeight;
-    } else {
-        int v = q->verticalScrollBar()->value();
-        int i = itemAt(v);
-        int h = viewport->height();
-        int c = viewItems.count();
-        int s = height(i);
-        int y = topItemDelta(v, s);
-        int j = i;
-        for (; y < h && i < c; ++i)
-            y += height(i);
-        itemsInViewport = i - j;
-    }
-
-    q->verticalScrollBar()->setPageStep(itemsInViewport * verticalStepsPerItem);
-}
-
 void QTreeViewPrivate::updateVerticalScrollbar()
 {
     int viewHeight = viewport->height();
@@ -1478,7 +1454,20 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     }
 
     // set page step size
-    updateVerticalPageStep();
+    int itemsInViewport = 0;
+    if (uniformRowHeights) {
+        q->verticalScrollBar()->setPageStep((viewHeight / itemHeight)
+                                            * verticalStepsPerItem);
+    } else {
+        int v = q->verticalScrollBar()->value();
+        int i = itemAt(v);
+        int s = height(i);
+        int y = topItemDelta(v, s);
+        int j = i;
+        for (; y < viewHeight && i < itemCount; ++i)
+            y += height(i);
+        q->verticalScrollBar()->setPageStep((i - j) * verticalStepsPerItem);
+    }
 
     // set the scroller range
     int y = viewHeight;
