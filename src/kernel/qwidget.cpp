@@ -4601,7 +4601,7 @@ void QWidget::leaveEvent( QEvent * )
 
   When the paint event occurs, the update region normally has been
   erased, so that you're painting on the widget's background. There
-  are a couple of exceptions, though, and QPaintEvent::erased() tells
+  are a couple of exceptions and QPaintEvent::erased() tells
   you whether the widget has been erased or not.
 
   The background can be set using setBackgroundMode(),

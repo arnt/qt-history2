@@ -66,7 +66,14 @@ public:
     QWidget *ed;
 };
 
-/*!  Constructs an empty range control widget with parent \a parent
+/*!
+
+    \class QSpinWidget qspinwidget.h
+    \brief The QSpinWidget class is an internal range control related class.
+
+    \internal
+
+    Constructs an empty range control widget with parent \a parent
     called \a name.
 
 */
@@ -302,8 +309,8 @@ void QSpinWidget::paintEvent( QPaintEvent * )
     else
 	active = QStyle::SC_None;
 
-    QRect fr = QStyle::visualRect( 
-	style().querySubControlMetrics( QStyle::CC_SpinWidget, this, 
+    QRect fr = QStyle::visualRect(
+	style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 					QStyle::SC_SpinWidgetFrame ), this );
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				fr, colorGroup(),

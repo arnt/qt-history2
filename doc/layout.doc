@@ -54,44 +54,54 @@ By specifying the logical layout once, you get the following benefits:
 	\endlist
 \endlist
 
+Qt's layout classes were designed for hand-written C++ code, so
+they're easy to understand and use. 
+
+The disadvantage of hand-written layout code is that it isn't very
+convenient when you're experimenting with the design of a form and you
+have to go through the compile, link and run cycle for each change.
+Our solution is \link designer-manual.book Qt Designer\endlink, a GUI
+visual design tool which makes it fast and easy to experiment with
+layouts and which generates the C++ layout code for you.
+
 \section1 Layout Widgets
 
 The easiest way to give your widgets a good layout is to use the
 layout widgets: \l QHBox, \l QVBox and \l QGrid. A layout widget
-automatically lays out its children in the order they are
-constructed. To make more complex layouts, you can nest layout
+automatically lays out its child widgets in the order they are
+constructed. To create more complex layouts, you can nest layout
 widgets inside each other.
 
 \list
-\i A \l QHBox lays out its children in a horizontal row, left to right.
+\i A \l QHBox lays out its child widgets in a horizontal row, left to right.
 
-   \img qhbox-m.png Horizontal box with five children
+   \img qhbox-m.png Horizontal box with five child widgets
 
-\i A \l QVBox lays out its children in a vertical row, top to bottom.
+\i A \l QVBox lays out its child widgets in a vertical row, top to bottom.
 
-   \img qvbox-m.png Vertical box with five children
+   \img qvbox-m.png Vertical box with five child widgets
 
-\i A \l QGrid lays out its children in a table. You specify how
-   many columns the table has, and it is filled left to right,
-   beginning a new row when the previous is filled up. The grid
-   is fixed; the children will not flow to other rows as the
-   widget is resized.
+\i A \l QGrid lays out its child widgets in a two dimensional grid.
+You can specify how many columns the grid has, and it is populated left to
+right, beginning a new row when the previous row is full. The grid is
+fixed; the child widgets will not flow to other rows as the widget is
+resized.
 \endlist
 
-   \img qgrid-m.png Two-column grid with five children
+   \img qgrid-m.png Two-column grid with five child widgets
 
-The QGrid above can be produced by the following code:
+The grid shown above can be produced by the following code:
 \code
-    QGrid *main = new QGrid( 2 ); // a 2 x n grid
-    new QLabel( "One", main );
-    new QLabel( "Two", main );
-    new QLabel( "Three", main );
-    new QLabel( "Four", main );
-    new QLabel( "Five", main );
+    QGrid *mainGrid = new QGrid( 2 ); // a 2 x n grid
+    new QLabel( "One", mainGrid );
+    new QLabel( "Two", mainGrid );
+    new QLabel( "Three", mainGrid );
+    new QLabel( "Four", mainGrid );
+    new QLabel( "Five", mainGrid );
 \endcode
 
 You can adjust the layout somewhat by calling
-QWidget::setMinimumSize() or QWidget::setFixedSize() on the children.
+QWidget::setMinimumSize() or QWidget::setFixedSize() on the child widgets.
 
 \section1 QLayout
 
@@ -129,21 +139,21 @@ space widgets are given in proportion to one another.
 If we have three widgets laid out using a QHBox with no stretch
 factors set we will get a layout like this:
 
-<img src="layout1.png" alt="3 widgets in a row" />
+\img layout1.png 3 widgets in a row
 
 If we apply stretch factors to each widget, they will be laid out in
 proportion (but never less than their minimum size hint), e.g.
 
-<img src="layout2.png" alt="3 stretch factored widgets in a row" />
+\img layout2.png 3 stretch factored widgets in a row
 
 
 \section1 QLayout
 
-If you need more control over the layout, use a \link QLayout QLayout\endlink
- subclass. The layout classes included in Qt are \link QGridLayout
- QGridLayout\endlink and \link QBoxLayout QBoxLayout\endlink.
-(\link QHBoxLayout  QHBoxLayout\endlink and
-\link QVBoxLayout  QVBoxLayout\endlink are trivial subclasses of QBoxLayout,
+If you need more control over the layout, use a \link QLayout
+QLayout\endlink subclass. The layout classes included in Qt are \link
+QGridLayout QGridLayout\endlink and \link QBoxLayout
+QBoxLayout\endlink. (\link QHBoxLayout  QHBoxLayout\endlink and \link
+QVBoxLayout  QVBoxLayout\endlink are trivial subclasses of QBoxLayout,
 that are simpler to use and make the code easier to read.)
 
 When you use a layout, you have to insert each child both into its
@@ -157,7 +167,7 @@ improvements:
 \code
     QWidget *main = new QWidget;
 
-    // make a 1x1 grid, it will auto-expand
+    // make a 1x1 grid; it will auto-expand
     QGridLayout *grid = new QGridLayout( main, 1, 1 );
 
     // add the first four widgets with (row, column) addressing
@@ -166,8 +176,8 @@ improvements:
     grid->addWidget( new QLabel( "Three", main ), 1, 0 );
     grid->addWidget( new QLabel( "Four", main ), 1, 1 );
 
-    // add the last widget on row 2, let it span from column 0 to
-    // column 1, and let it be aligned center
+    // add the last widget on row 2, spanning from column 0 to
+    // column 1, and center aligned 
     grid->addMultiCellWidget( new QLabel( "Five", main ), 2, 2, 0, 1,
 			      Qt::AlignCenter );
 
@@ -183,7 +193,7 @@ a parameter in the constructor.
     QLineEdit *field = new QLineEdit( main );
     QPushButton *ok = new QPushButton( "OK", main );
     QPushButton *cancel = new QPushButton( "Cancel", main );
-    QLabel *label = new QLabel( "Where do you want to go?", main );
+    QLabel *label = new QLabel( "Write once, compile everywhere.", main );
 
     // a layout on a widget
     QVBoxLayout *vbox = new QVBoxLayout( main );
@@ -202,7 +212,7 @@ then insert it with addLayout().
 \section1 Custom Layouts
 
 If the built-in layout classes are not sufficient, you can define
-your own. You will have to make a subclass of \l QLayout that handles
+your own. You must make a subclass of \l QLayout that handles
 resizing and size calculations, as well as a subclass of \l
 QGLayoutIterator to iterate over your layout class.
 
@@ -213,7 +223,7 @@ in-depth description.
 
 When you make your own widget class, you should also communicate its
 layout properties. If the widget has a QLayout, this is already taken
-care of. If the widget does not have any children, or uses manual
+care of. If the widget does not have any child widgets, or uses manual
 layout, you should reimplement the following QWidget member functions:
 
 \list
@@ -228,7 +238,7 @@ hint or size policy changes. This will cause a layout recalculation.
 Multiple calls to updateGeometry() will only cause one recalculation.
 
 If the preferred height of your widget depends on its actual width
-(eg. a label with automatic word-breaking), set the \link
+(e.g. a label with automatic word-breaking), set the \link
 QSizePolicy::hasHeightForWidth() hasHeightForWidth\endlink() flag in
 \link QWidget::sizePolicy() sizePolicy\endlink(), and reimplement
 \l QWidget::heightForWidth().
@@ -261,7 +271,7 @@ QWidget::event() to be notified of \c LayoutHint events.
 
 \title Writing your own layout manager
 
-Here we go through an example in detail. The class
+Here we present an example in detail. The class
 CardLayout is inspired by the Java layout manager of the same name. It
 lays out the items (widgets or nested layouts)
 on top of each other, each item offset by QLayout::spacing().
@@ -269,13 +279,13 @@ on top of each other, each item offset by QLayout::spacing().
 To write your own layout class, you must define the following:
   \list
   \i A data structure to store the items
-       handle by the layout.
+       handled by the layout.
 	Each item is a \link QLayoutItem QLayoutItem\endlink.
-	We will just use a QPtrList in this example.
+	We will use a QPtrList in this example.
   \i \link QLayout::addItem() addItem() \endlink, how to add items
 	to the layout.
-  \i \link QLayout::setGeometry() setGeometry() \endlink, how to do the
-	layout.
+  \i \link QLayout::setGeometry() setGeometry() \endlink, how to
+    perform the layout.
   \i \link QLayout::sizeHint() sizeHint() \endlink, the preferred size of the
 	layout.
   \i \link QLayout::iterator() iterator() \endlink, how to iterate over the
@@ -324,7 +334,7 @@ private:
 #include "card.h"
 \endcode
 
-We first define an iterator over the layout. Layout iterators are
+First we define an iterator over the layout. Layout iterators are
 used internally by the layout system to handle deletion of
 widgets. They are also available for application programmers.
 
@@ -377,7 +387,7 @@ addItem() implements the default placement strategy for layout items. It
 must be implemented. It is used by QLayout::add(), by the QLayout
 constructor that takes a layout as parent, and it is used to implement
 the \link QLayout::autoAdd() auto-add\endlink feature. If your layout
-has advanced placement options that require parameters, you will have to
+has advanced placement options that require parameters, you will must
 provide extra access functions such as \l QGridLayout::addMultiCell().
 
 \code
@@ -390,7 +400,7 @@ void CardLayout::addItem( QLayoutItem *item )
 The layout takes over responsibility of the items added. Since
 QLayoutItem does not inherit QObject, we must delete the items
 manually. The function QLayout::deleteAllItems()
-uses the iterator we defined above to delete all items in the layout.
+uses the iterator we defined above to delete all the items in the layout.
 
 \code
 CardLayout::~CardLayout()
@@ -463,7 +473,7 @@ QSize CardLayout::minimumSize() const
 }
 \endcode
 
-\section1 Further comments
+\section1 Further Notes
 
 This layout does not implement heightForWidth().
 
@@ -482,7 +492,7 @@ You should not call QLayoutItem::setGeometry() twice on the same item
 in the same function. That can be very expensive if the item has
 several child widgets, because it will have to do a complete layout
 every time. Instead, calculate the geometry and then set it. (This
-does not only apply to layouts, you should do the same if you
+doesn't only apply to layouts, you should do the same if you
 implement your own resizeEvent().)
 
 */

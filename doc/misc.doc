@@ -915,76 +915,76 @@ projects world wide.
 
 <br clear="all">
 
-<table cellpadding=3 cellspacing=0 border="0" width=100% bgcolor=#E5E5E5>
+<table cellpadding=3 cellspacing=0 border="0" bgcolor=#E5E5E5>
 <tr><th colspan=6 valign=top bgcolor=#A2C511>Email</th></tr>
 <tr>
-<td width=3% rowspan=4><br></td>
+<td rowspan=4><br></td>
 <td colspan=2>\link mailto:info@trolltech.com <strong>info@trolltech.com</strong>\endlink
 
 <td colspan=2>\link mailto:sales@trolltech.com <strong>sales@trolltech.com</strong>\endlink
-<td width=3% rowspan=4><br></td>
+<td rowspan=4><br></td>
 <tr>
-<td width=3%><br></td>
-<td width="44%" valign="top"> General inquiries and questions. Please check the
+<td ><br></td>
+<td valign="top"> General inquiries and questions. Please check the
 \link http://www.trolltech.com/faq/ FAQ\endlink to see if your question is already answered there.</td>
-<td width=3%><br></td>
-<td width="44%" valign="top"> Inquires related to purchasing, pricing and availability of Troll
+<td ><br></td>
+<td valign="top"> Inquires related to purchasing, pricing and availability of Troll
 Tech products</td></tr>
 <tr>
 <td colspan=2>\link mailto:www@trolltech.com <strong>www@trolltech.com</strong>\endlink
 <td colspan=2>\link mailto:qt-bugs@trolltech.com <strong>qt-bugs@trolltech.com</strong>\endlink
 <tr>
-<td width=3%><br></td>
+<td ><br></td>
 <td valign="top"> Comments about our web pages</td>
-<td width=3%><br></td>
+<td ><br></td>
 <td valign="top"> For bug reports. Please check the \link http://www.trolltech.com/platforms Platform Notes\endlink and
 \link http://www.trolltech.com/faq/ FAQ\endlink to
 see if the issue is already solved.
 </td></tr>
-<tr><td width=3%><br></td>
+<tr><td ><br></td>
 <td colspan=4 valign=top>Note that Trolltech uses the
 \link http://maps.vix.com/rbl/ RBL\endlink and
 \link http://mail-abuse.org/rss/ RSS\endlink databases to cut down on
 spam. If your mail server is listed, you will regrettably not be able to
 send us mail. The \link http://www.mail-abuse.org/tsi/ MAPS TSI\endlink
 pages provide information about how to secure your server.
-</td><td width=3%><br></td></tr>
+</td><td ><br></td></tr>
 <tr bgcolor="#ffffff"><td bgcolor="#ffffff" cellspan="6"> <br> </td></tr>
 <tr><th colspan=6 valign=top bgcolor=#A2C511>Norway Office</th></tr>
 </tr>
 <tr>
-<td width=3% rowspan=4><br></td>
+<td rowspan=4><br></td>
 <td colspan=2><strong>Telephone</strong>
 <td colspan=2><strong>Street/Mail Address</strong>
-<td width=3% rowspan=4><br></td>
+<td rowspan=4><br></td>
 <tr>
-<td width=3%><br></td>
-<td width="44%" valign="top"> General inquiries: +47 21 60 48 00</td>
-<td width=3% rowspan=3><br></td>
-<td width="44%" valign="top" rowspan=3> Waldemar Thranes gate 98<br> N-0175 Oslo<br> Norway</td></tr>
+<td ><br></td>
+<td valign="top"> General inquiries: +47 21 60 48 00</td>
+<td rowspan=3><br></td>
+<td valign="top" rowspan=3> Waldemar Thranes gate 98<br> N-0175 Oslo<br> Norway</td></tr>
 <tr>
 <td colspan=2><strong>Telefax</strong></td>
 <tr>
-<td width=3%><br></td>
-<td width="44%" valign="top"> All inquiries: +47 21 60 48 01</td>
+<td ><br></td>
+<td valign="top"> All inquiries: +47 21 60 48 01</td>
 <tr bgcolor="#ffffff"><td bgcolor="#ffffff" cellspan="6"> <br> </td></tr>
 <tr><th colspan=6 valign=top bgcolor=#A2C511>USA Office</th></tr>
 </tr>
 <tr>
-<td width=3% rowspan=4><br></td>
+<td rowspan=4><br></td>
 <td colspan=2><strong>Telephone</strong>
 <td colspan=2><strong>Street/Mail Address</strong>
-<td width=3% rowspan=4><br></td>
+<td rowspan=4><br></td>
 <tr>
-<td width=3%><br></td>
-<td width="44%" valign="top"> General inquiries: +1 408 567 0212</td>
-<td width=3% rowspan=3><br></td>
-<td width="44%" valign="top" rowspan=3> 3350 Scott Blvd.<br> Building 55, Suite 2<br> Santa Clara<br> CA 95054<br> USA</td></tr>
+<td ><br></td>
+<td valign="top"> General inquiries: +1 408 567 0212</td>
+<td rowspan=3><br></td>
+<td valign="top" rowspan=3> 3350 Scott Blvd.<br> Building 55, Suite 2<br> Santa Clara<br> CA 95054<br> USA</td></tr>
 <tr>
 <td colspan=2><strong>Telefax</strong></td>
 <tr>
-<td width=3%><br></td>
-<td width="44%" valign="top"> All inquiries: +1 408 567 0264</td>
+<td ><br></td>
+<td valign="top"> All inquiries: +1 408 567 0264</td>
 </table>
 
 */
@@ -1193,17 +1193,17 @@ Note that the distinction only matters for decorated top-level
 widgets. For all child widgets, the frame geometry is equal to the
 widget's client geometry.
 
-This image shows most of the functions in use:
-<center><img src="geometry.png" alt="Illustrating image"></center>
+This diagram shows most of the functions in use:
+\img geometry.png Geometry diagram
 
 \section1 Unix/X11 peculiarities
 
 On Unix/X11, a window does not have a frame until the window manager
 decorates it. This happens asynchronously at some point in time after
 calling show() and the first paint event the window receives - or it
-does not happen at all. Keep in mind that X11 is policy-free (others
+does not happen at all. Bear in mind that X11 is policy-free (others
 call it flexible). Thus you cannot make any safe assumption about the
-decoration frame your window will get. Basic rule: There's always one
+decoration frame your window will get. Basic rule: there's always one
 user who uses a window manager that breaks your assumption, and who
 will complain to you.
 
@@ -1215,10 +1215,10 @@ Conventions Manual (ICCCM), window placement is handled quite
 differently in existing window managers.
 
 X11 provides no standard or easy way to get the frame geometry once
-the window got decorated. Qt solves this problem with nifty heuristics
+the window is decorated. Qt solves this problem with nifty heuristics
 and clever code that works on a wide range of window managers that
 exist today. Don't be surprised if you find one where frameGeometry()
-returns bogus results, though.
+returns bogus results though.
 
 X11 also does not provide a way to maximize a window. The
 showMaximized() function in Qt therefore has to emulate the

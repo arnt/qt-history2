@@ -62,10 +62,10 @@ and
 are present, the last one wins.
 .TP
 .I "-nw"
-Do not generate any warnings. Discouraged.
+Do not generate any warnings. Not recommended.
 .TP
 .I "-ldbg"
-Write a flood of lex debug information on stdout.
+Write a flood of lex debug information to stdout.
 .TP
 .I "-p path"
 Makes
@@ -86,9 +86,9 @@ Displays the version of
 .B moc
 and Qt.
 .PP
-You can explicitely tell the
+You can explicitly tell the
 .B moc
-to not parse parts of a header
+not to parse parts of a header
 file. It recognizes any C++ comment (//) that contains the substrings
 MOC_SKIP_BEGIN or MOC_SKIP_END. They work as you would expect and you
 can have several levels of them. The net result as seen by the
@@ -103,7 +103,7 @@ not by hand.
 .PP
 .B moc
 is typically used with an input file containing class declarations
-like this skeleton:
+like this:
 .PP
 .in +4
 .nf

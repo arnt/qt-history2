@@ -1,23 +1,23 @@
 /*!
  \page scripts.html
 
-\title The Text Engine in Qt
+\title Qt's Text Engine 
 
 Qt 3 comes with a completely redesigned text processing and layout
 engine that is used throughout the whole library.
 
-It has support for most writing systems that are used in todays
+It has support for most writing systems that are used throughout the
 world, including
 
 \list
-\i Latin languages
-\i Cyrillic
-\i Greek
-\i Hebrew
 \i Arabic
 \i Chinese
+\i Cyrillic (Russian)
+\i Greek
+\i Hebrew
 \i Japanese
 \i Korean
+\i Latin languages (e.g. English and many other European languages)
 \i Thai
 \i Vietnamese
 \endlist
@@ -26,58 +26,56 @@ Many of these writing systems exhibit special features:
 
 \list
 
-\i Special line breaking behaviour. Some of the asian languages are
+\i Special line breaking behaviour. Some of the Asian languages are
 written without spaces between words. Line breaking can occur either
 after every character (with exceptions) as in Chinese, Japanese and
 Korean, or after logical word boundaries as in Thai.
 
 \i Bidirectional writing. Arabic and Hebrew are written from right to
-left, while numbers and embedded english text is still written left
-to right. The exact behaviour is defined in the \link
+left, except for numbers and embedded English text which is written
+left to right. The exact behaviour is defined in the \link
 http://www.unicode.org/unicode/reports/tr9/ Unicode Technical Report
 #9 \endlink.
 
-\i Non spacing or diacritical marks. Most people know these as
-accents or umlauts in European languages. Some languages such as
-Vietnamese make extensive use of these marks and some
-characters can have a few marks at the same time to clarify
-pronunciation.
+\i Non spacing or diacritical marks (accents or umlauts in European
+languages). Some languages such as Vietnamese make extensive use of
+these marks and some characters can have a few marks at the same time
+to clarify pronunciation.
 
 \i Ligatures. In special contexts, some characters following each
-other directly get replaced by a combined glyph forming a so called
-ligature. Known examples are the ff and fi ligatures used in
-typesetting of most European books.
+other directly get replaced by a combined glyph forming a 
+ligature. Common examples are the ff and fi ligatures used in
+typesetting US and European books.
 
 \endlist
 
-Except for ligatures which are currently only supported for a special
-case in Arabic, Qt tries to take care of all the special features
+Except for ligatures which are currently only supported for the special
+case of Arabic, Qt tries to take care of all the special features
 listed above. You will usually never have to worry about these
-features as long as you use Qt's input (QLineEdit, QTextView
-or derived classes) and displaying controls (QLabel).
+features as long as you use Qt's input (e.g. QLineEdit, QTextView
+or derived classes) and displaying controls (e.g. QLabel).
 
 Support for these writing systems is transparent to the programmer
 and completely encapsulated in Qt's text engine. This implies that
 you don't need to have any knowledge about the writing system used in
-this language, except for a few small things listed below.
+a particular language, except for a couple of small things listed below.
 
 \list
 
 \i QPainter::drawText( int x, int y, const QString &str ) will always
 draw the string with it's left edge at the position specified with
-the x, y parameters. This will usually give you left aligned strings,
-while in an Arabic or Hebrew application strings are usually right
-aligned. Using the version of drawText() that takes a QRect should
-solve these issues, as alignment will then be done according to
-language.
+the x, y parameters. This will usually give you left aligned strings.
+Arabic and Hebrew application strings are usually right
+aligned, so for these languages use the version of drawText() that
+takes a QRect since this will align in accordance with the language.
 
 \i When you write your own text input controls, use \l
 QFontMetrics::charWidth() to determine the width of a character in a
 string. In some langauges (mainly Arabic), the width and shape of a
-glyph changes with the surrounding characters. Writing input controls
-usually requires a certain knowledge of the scripts it is going to be
-used in. Usually the easier way is to subclass QLineEdit or
-QTextView.
+glyph changes depending on the surrounding characters. Writing input
+controls usually requires a certain knowledge of the scripts it is
+going to be used in. Usually the easiest way is to subclass QLineEdit
+or QTextView.
 
 \endlist
 

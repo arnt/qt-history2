@@ -58,7 +58,7 @@ you see a \l QStatusBar and at the bottom-right a \l QSizeGrip.
 
 \img mainwindow-w.png
 
-The immage below shows a \l QFileDialog. On the Windows Platform you
+The image below shows a \l QFileDialog. On the Windows Platform you
 can either use a QFileDialog or the native Windows file dialog. This
 is explained in the \l QFileDialog class documentation.
 

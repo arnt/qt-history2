@@ -557,12 +557,12 @@ QKeySequence QAccel::shortcutKey( const QString &str )
 #endif
 
 /*! \obsolete
-  
+
    Creates an accelerator string for the key \a k.
    For instance CTRL+Key_O gives "Ctrl+O".  The "Ctrl" etc.
    are translated (using QObject::tr()) in the "QAccel" scope.
-   
-   The function is superfluent.  Cast the QKeySequence \a k to a
+
+   The function is superfluous.  Cast the QKeySequence \a k to a
    QString for the same effect.
 
    \sa stringToKey()
@@ -573,7 +573,7 @@ QString QAccel::keyToString( QKeySequence k )
 }
 
 /*!\obsolete
-  
+
   Returns an accelerator code for the string \a s.  For example
   "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'.  The strings "Ctrl",
   "Shift", "Alt" are recognized, as well as their translated
@@ -593,10 +593,10 @@ QString QAccel::keyToString( QKeySequence k )
   Notice the \c "File|Open" translator comment. It is by no means
   necessary, but it provides some context for the human translator.
 
-  
-  The function is superfluent.  Construct a QKeySequence from the
+
+  The function is superfluous.  Construct a QKeySequence from the
   string \a s for the same effect.
-  
+
   \sa QObject::tr()
       \link i18n.html Internationalization with Qt \endlink
 */
