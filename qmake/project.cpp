@@ -377,8 +377,10 @@ QMakeProject::~QMakeProject()
 
 
 void
-QMakeProject::init(QMakeProperty *p)
+QMakeProject::init(QMakeProperty *p, const QMap<QString, QStringList> *vars)
 {
+    if(vars)
+        base_vars = *vars;
     iterator = 0;
     function = 0;
     if(!p) {

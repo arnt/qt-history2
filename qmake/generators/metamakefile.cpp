@@ -148,19 +148,16 @@ MakefileGenerator
 *MetaMakefileGenerator::processBuild(const QString &build)
 {
     if(project) {
-        //it is ugly how I just use this, but almost better than adding a weird parameter (IMHO)
-        const QStringList old_user_config = Option::user_configs;
-        if(!project->isEmpty(build + ".CONFIG"))
-            Option::user_configs.prepend(project->values(build + ".CONFIG").join(" "));
-        Option::user_configs.prepend(build);
-        Option::user_configs.prepend("build_pass");
-        QMakeProject *build_proj = new QMakeProject(project->properities());
-        build_proj->read(project->projectFile());
-        Option::user_configs = old_user_config;
+        QMap<QString, QStringList> basevars;
+        basevars["CONFIG"] += project->values(build + ".CONFIG");
+        basevars["CONFIG"] += (build);
+        basevars["CONFIG"] += "build_pass";
+        basevars["CONFIG"] += "no_autoqmake";
+        basevars["BUILD_PASS"] = QStringList(build);
         QStringList buildname = project->values(build + ".name");
-        build_proj->variables()["BUILD_PASS"] = QStringList(build); //for the generators
-        build_proj->variables()["BUILD_NAME"] = (buildname.isEmpty() ? QStringList(build) : buildname);
-        build_proj->variables()["CONFIG"] += "no_autoqmake";
+        basevars["BUILD_NAME"] = (buildname.isEmpty() ? QStringList(build) : buildname);
+        QMakeProject *build_proj = new QMakeProject(project->properities(), basevars);
+        build_proj->read(project->projectFile());
         return createMakefileGenerator(build_proj);
     }
     return 0;

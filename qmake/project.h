@@ -67,11 +67,13 @@ class QMakeProject
     bool doProjectTest(const QString &func, QStringList args, QMap<QString, QStringList> &place);
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
     QString doVariableReplace(QString &str, const QMap<QString, QStringList> &place);
-    void init(QMakeProperty *);
+    void init(QMakeProperty *, const QMap<QString, QStringList> *);
 
 public:
-    QMakeProject() { init(0); }
-    QMakeProject(QMakeProperty *p) { init(p); }
+    QMakeProject() { init(0, 0); }
+    QMakeProject(QMakeProperty *p) { init(p, 0); }
+    QMakeProject(const QMap<QString, QStringList> &vars) { init(0, &vars); }
+    QMakeProject(QMakeProperty *p, const QMap<QString, QStringList> &vars) { init(p, &vars); }
     ~QMakeProject();
 
     enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08,
