@@ -40,7 +40,7 @@ The drivers shipped with Qt are:
 \i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.1 and higher)
 \i \link #QIBASE QIBASE\endlink - Borland Interbase Driver
 \i \link #QMYSQL3 QMYSQL3\endlink - MySQL Driver
-\i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver, version 8 and 9
+\i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver, version 8, 9 and 10
 \i \link #QODBC3 QODBC3\endlink - Open Database Connectivity Driver
 \i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
 \i \link #QSQLITE QSQLITE\endlink - SQLite Driver
@@ -181,9 +181,8 @@ Client install.
 Oracle library files required to build the driver:
 
 \list
-\i \c libclntsh.so
-\i \c libclntsh.so.8.0 (Oracle 8) or \c libclntsh.so.9.0 (Oracle 9)
-\i \c libwtc8.so or \c libwtc9.so
+\i \c libclntsh.so (all versions)
+\i \c libwtc8.so (only Oracle 8) or \c libwtc9.so (only Oracle 9)
 \endlist
 
 Tell \c qmake where to find the Oracle header files and shared
@@ -201,6 +200,13 @@ For Oracle version 9:
 \code
 cd $QTDIR/src/plugins/sqldrivers/oci
 qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc9" oci.pro
+make
+\endcode
+
+For Oracle version 10:
+\code
+cd $QTDIR/plugins/src/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh" oci.pro
 make
 \endcode
 
