@@ -290,10 +290,9 @@ bool QMenuBar::updateMenuBar()
 {
     if(this != activeMenuBar) 
 	qDebug("Shouldn't have happened! %s:%d", __FILE__, __LINE__);
-    ClearMenuBar();
-    InvalMenuBar();
     if(mac_d)
 	mac_d->clear();
+    mac_d->mac_menubar = GetNewMBar(128);
 
     for(int x = 0; x < (int)count(); x++) {
 	QMenuItem *item = findItem(idAt(x));
@@ -441,7 +440,6 @@ void QMenuBar::macUpdateMenuBar()
 	    if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
 		mb->mac_d->dirty = 0;
 		mb->updateMenuBar();
-		mb->mac_d->mac_menubar = GetMenuBar();
 	    } else {
 		SetMenuBar(mb->mac_d->mac_menubar);
 		InvalMenuBar();
