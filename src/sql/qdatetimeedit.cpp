@@ -69,10 +69,10 @@ public:
 class QDateTimeEditLabel : public QLabel
 {
 public:
-    QDateTimeEditLabel( QWidget * parent = 0, const char * name = 0, 
+    QDateTimeEditLabel( QWidget * parent = 0, const char * name = 0,
 		        WFlags f = 0 )
 	: QLabel( parent, name, f){}
-    
+
 protected:
     void drawContents( QPainter * p )
     {
@@ -237,7 +237,7 @@ void QDateTimeEditBase::stepUp()
     for( i = 0; i < 3; i++)
 	if( ed[i]->hasFocus() )
 	    focus = i;
-       
+
     NumEdit * e = ed[focus];
     QIntValidator * v = (QIntValidator *) e->validator();
 
@@ -431,6 +431,7 @@ void QDateEdit::init()
  */
 void QDateEdit::setDate( const QDate & d )
 {
+    QDate oldDate = date();
     QIntValidator * v[3];
     int yy = d.year();
     int mm = d.month();
@@ -453,7 +454,8 @@ void QDateEdit::setDate( const QDate & d )
 	ed[monthPos]->setText( QString::number( mm ) );
 	ed[dayPos]->setText( QString::number( dd ) );
     }
-
+    if ( oldDate != date() )
+	emit valueChanged( d );
 //    ed[0]->setFocus();
 //    ed[0]->selectAll();
 }
@@ -469,6 +471,12 @@ QDate QDateEdit::date() const
     return QDate( ed[yearPos]->text().toInt(), ed[monthPos]->text().toInt(),
 		  ed[dayPos]->text().toInt() );
 }
+
+/*! \fn void valueChanged( const QDate& )
+  
+  This signal is emitted every time the date changes.  The argument is
+  the new date.
+*/
 
 /*!
 
@@ -550,9 +558,29 @@ void QDateEdit::fixup()
     }
 }
 
-/*!
+/*! \reimp
+*/
+bool QDateEdit::event( QEvent* e )
+{
+    switch ( e->type() ) {
+    case QEvent::KeyPress: {
+	QKeyEvent *ke = (QKeyEvent*)e;
+	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
+	    QDate newDate = date();
+	    if ( newDate != oldDate ) {
+		emit valueChanged( newDate );
+	    }
+	}
+    }
+    break;
+    default:
+	break;
+    }
+    return QDateTimeEditBase::event( e );
+}
 
-  Handle resize events.
+
+/*! \reimp
 */
 void QDateEdit::resizeEvent( QResizeEvent * )
 {
@@ -636,9 +664,12 @@ void QTimeEdit::init()
  */
 void QTimeEdit::setTime( const QTime & t )
 {
+    QTime oldTime = time();
     ed[0]->setText( QString::number( t.hour() ) );
     ed[1]->setText( QString::number( t.minute() ) );
     ed[2]->setText( QString::number( t.second() ) );
+    if ( oldTime != time() )
+	emit valueChanged( t );
 
 //    ed[0]->setFocus();
 //    ed[0]->selectAll();
@@ -654,9 +685,33 @@ QTime QTimeEdit::time() const
 		  ed[2]->text().toInt() );
 }
 
-/*!
+/*! \fn void valueChanged( const QTime& ) This signal is emitted every
+  time the time changes.  The argument is the new time.
+*/
 
-  Handle resizing.
+/*! \reimp
+*/
+bool QTimeEdit::event( QEvent* e )
+{
+    switch ( e->type() ) {
+    case QEvent::KeyPress: {
+	QKeyEvent *ke = (QKeyEvent*)e;
+	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
+	    QTime newTime = time();
+	    if ( newTime != oldTime ) {
+		emit valueChanged( newTime );
+	    }
+	}
+    }
+    break;
+    default:
+	break;
+    }
+    return QDateTimeEditBase::event( e );
+}
+  
+  
+/*! \reimp
  */
 void QTimeEdit::resizeEvent( QResizeEvent * )
 {
@@ -723,26 +778,48 @@ void QDateTimeEdit::init()
     te = new QTimeEdit( this );
     hb->addWidget( de );
     hb->addWidget( te );
+    connect( de, SIGNAL( valueChanged( const QDate& ) ),
+	     this, SLOT( newValue( const QDate& ) ) );
+    connect( te, SIGNAL( valueChanged( const QTime& ) ),
+	     this, SLOT( newValue( const QTime& ) ) );
     setFocusProxy( de );
 }
 
-/*!
-
-  Set the datetime in this QDateTimeEdit.
+/*!  Set the datetime in this QDateTimeEdit.
  */
+
 void QDateTimeEdit::setDateTime( const QDateTime & dt )
 {
     de->setDate( dt.date() );
     te->setTime( dt.time() );
 }
 
-/*!
-
-  Returns the datetime in this QDateTimeEdit.
+/*!  Returns the datetime in this QDateTimeEdit.
  */
+
 QDateTime QDateTimeEdit::dateTime() const
 {
     return QDateTime( de->date(), te->time() );
 }
+
+/*! \intern
+ */
+
+void QDateTimeEdit::newValue( const QDate& )
+{
+    QDateTime dt = dateTime();
+    emit valueChanged( dt );
+}
+
+/*! \intern
+ */
+
+void QDateTimeEdit::newValue( const QTime& )
+{
+    QDateTime dt = dateTime();
+    emit valueChanged( dt );
+}
+
+
 
 #endif

@@ -11,7 +11,7 @@
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
-**  
+**
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the
@@ -89,11 +89,16 @@ public:
     void    setOrder( const QString & order );
     QString order() const;
 
+signals:
+    void valueChanged( const QDate& );
+    
 protected:
     void init();
     void fixup();
     void resizeEvent( QResizeEvent * );
+    bool event( QEvent * );    
     int yearPos, monthPos, dayPos;
+    QDate oldDate;
     QString format;
 };
 
@@ -107,9 +112,14 @@ public:
     void  setTime( const QTime & t );
     QTime time() const;
 
+signals:
+    void valueChanged( const QTime& );
+    
 protected:
     void init();
     void resizeEvent( QResizeEvent * );
+    bool event( QEvent * );    
+    QTime oldTime;
 };
 
 class Q_EXPORT QDateTimeEdit : public QFrame
@@ -122,8 +132,16 @@ public:
     void  setDateTime( const QDateTime & dt );
     QDateTime dateTime() const;
 
+signals:
+    void valueChanged( const QDateTime& );
+    
 protected:
     void init();
+    
+protected slots:
+    void newValue( const QDate& d );
+    void newValue( const QTime& t );
+    
 private:
     QDateEdit* de;
     QTimeEdit* te;
