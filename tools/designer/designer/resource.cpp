@@ -939,7 +939,8 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	    if ( !lst.isEmpty() ) {
 		ts << makeIndent( indent ) << "<connection>" << entitize( lst[ 0 ] ) << "</connection>" << endl;
 		ts << makeIndent( indent ) << "<table>" << entitize( lst[ 1 ] ) << "</table>" << endl;
-		ts << makeIndent( indent ) << "<field>" << entitize( lst[ 2 ] ) << "</field>" << endl;
+		if ( w != formwindow->mainContainer() ) 
+		    ts << makeIndent( indent ) << "<field>" << entitize( lst[ 2 ] ) << "</field>" << endl;
 	    }
 	    break;
 	}

@@ -1470,8 +1470,9 @@ void PropertyFontItem::childValueChanged( PropertyItem *child )
 
 // --------------------------------------------------------------
 
-PropertyDatabaseItem::PropertyDatabaseItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
-    : PropertyItem( l, after, prop, propName )
+PropertyDatabaseItem::PropertyDatabaseItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, 
+					    const QString &propName, bool wField )
+    : PropertyItem( l, after, prop, propName ), withField( wField )
 {
     box = new QHBox( listview->viewport() );
     box->hide();
@@ -1495,8 +1496,10 @@ void PropertyDatabaseItem::createChildren()
     addChild( i );
     i = new PropertyListItem( listview, i, this, tr( "Table" ), TRUE );
     addChild( i );
-    i = new PropertyListItem( listview, i, this, tr( "Field" ), TRUE );
-    addChild( i );
+    if ( withField ) {
+	i = new PropertyListItem( listview, i, this, tr( "Field" ), TRUE );
+	addChild( i );
+    }
 }
 
 void PropertyDatabaseItem::initChildren()
@@ -1507,14 +1510,14 @@ void PropertyDatabaseItem::initChildren()
     for ( int i = 0; i < childCount(); ++i ) {
 	item = PropertyItem::child( i );
 	if ( item->name() == tr( "Connection" ) ) {
-	    item->setValue( listview->propertyEditor()->formWindow()->project()->databaseConnectionList() ); 
+	    item->setValue( listview->propertyEditor()->formWindow()->project()->databaseConnectionList() );
 	    if ( lst.count() > 0 && !lst[ 0 ].isEmpty() )
 		item->setCurrentItem( lst[ 0 ] );
 	    else
 		item->setCurrentItem( 0 );
 	    conn = item->currentItem();
 	} else if ( item->name() == tr( "Table" ) ) {
-	    item->setValue( listview->propertyEditor()->formWindow()->project()->databaseTableList( conn ) ); 
+	    item->setValue( listview->propertyEditor()->formWindow()->project()->databaseTableList( conn ) );
 	    if ( lst.count() > 1 && !lst[ 1 ].isEmpty() )
 		item->setCurrentItem( lst[ 1 ] );
 	    else
@@ -1561,6 +1564,8 @@ void PropertyDatabaseItem::setValue( const QVariant &v )
 	QString s = lst[ 0 ];
 	if ( lst.count() > 2 )
 	    s.prepend( lst[ 1 ] + "." + lst[ 2 ] + " " );
+	else if ( lst.count() > 1 )
+	    s.prepend( lst[ 1 ] + " " );
 	setText( 1, s );
 	lined->setText( s );
     }
@@ -1576,20 +1581,22 @@ void PropertyDatabaseItem::childValueChanged( PropertyItem *c )
 {
     QStringList lst;
     lst << ( (PropertyListItem*)PropertyItem::child( 0 ) )->currentItem()
-	<< ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem()
-	<< ( (PropertyListItem*)PropertyItem::child( 2 ) )->currentItem();
+	<< ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem();
+    if ( withField )
+	lst << ( (PropertyListItem*)PropertyItem::child( 2 ) )->currentItem();
     if ( c == PropertyItem::child( 0 ) ) { // if the connection changed
 	lst[ 0 ] = ( (PropertyListItem*)c )->currentItem();
 	PropertyItem::child( 1 )->setValue( listview->propertyEditor()->formWindow()->project()->databaseTableList( lst[ 0 ] ) );
 	PropertyItem::child( 2 )->setValue( listview->propertyEditor()->formWindow()->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] ) );
-    } else if ( c == PropertyItem::child( 1 ) ) { // if the table changed
+    } else if ( withField && c == PropertyItem::child( 1 ) ) { // if the table changed
 	lst[ 1 ] = ( (PropertyListItem*)c )->currentItem();
 	PropertyItem::child( 2 )->setValue( listview->propertyEditor()->formWindow()->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] ) );
     }
     lst.clear();
     lst << ( (PropertyListItem*)PropertyItem::child( 0 ) )->currentItem()
-	<< ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem()
-	<< ( (PropertyListItem*)PropertyItem::child( 2 ) )->currentItem();
+	<< ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem();
+    if ( withField )
+	lst << ( (PropertyListItem*)PropertyItem::child( 2 ) )->currentItem();
     setValue( lst );
     notifyValueChange();
 }
@@ -2165,10 +2172,9 @@ void PropertyList::setupProperties()
 	    item->setChanged( TRUE, FALSE );
     }
 
-    if ( editor->formWindow()->mainContainer() != w &&
-	 ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
-	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) ) {
-	item = new PropertyDatabaseItem( this, item, 0, "database" );
+    if ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
+	 editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) {
+	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
@@ -2221,10 +2227,7 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	item = new PropertyIntItem( this, item, 0, name, FALSE );
 	break;
     case QVariant::StringList:
-	if ( name == "database" )
-	    item = new PropertyDatabaseItem( this, item, 0, name );
-	else
-	    item = new PropertyListItem( this, item, 0, name, TRUE );
+	item = new PropertyListItem( this, item, 0, name, TRUE );
 	break;
     case QVariant::Rect:
 	item = new PropertyCoordItem( this, item, 0, name, PropertyCoordItem::Rect );

@@ -441,7 +441,7 @@ class PropertyDatabaseItem : public QObject,
     Q_OBJECT
 
 public:
-    PropertyDatabaseItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName );
+    PropertyDatabaseItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName, bool wField );
     ~PropertyDatabaseItem();
 
     virtual void createChildren();
@@ -458,7 +458,8 @@ private:
     QGuardedPtr<QLineEdit> lined;
     QGuardedPtr<QPushButton> button;
     QGuardedPtr<QHBox> box;
-
+    bool withField;
+    
 };
 
 class PropertyList : public QListView
