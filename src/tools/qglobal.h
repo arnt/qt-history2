@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#116 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#117 $
 **
 ** Global type declarations and definitions
 **
@@ -32,6 +32,7 @@
 //   LINUX	- Linux
 //   FREEBSD	- FreeBSD
 //   NETBSD	- NetBSD
+//   OPENBSD    - OpenBSD
 //   IRIX	- SGI Irix
 //   OSF	- OSF Unix
 //   BSDI	- BSDI Unix
@@ -69,6 +70,8 @@
 #define _OS_FREEBSD_
 #elif defined(__NetBSD__)
 #define _OS_NETBSD_
+#elif defined(__OpenBSD__)
+#define _OS_OPENBSD_
 #elif defined(sgi) || defined(__sgi)
 #define _OS_IRIX_
 #elif defined(__osf__)
