@@ -33,6 +33,7 @@ public:
     void adjustCursor(QTextCursor::MoveOperation m);
 
     void remove();
+    void clearCells(QTextTable *table, int startRow, int startCol, int numRows, int numCols, QTextUndoCommand::Operation op);
     inline void setPosition(int newPosition) {
         Q_ASSERT(newPosition >= 0 && newPosition < priv->length());
         position = newPosition;
@@ -47,6 +48,9 @@ public:
         { return QTextBlock(priv, priv->blockMap().findNode(position)); }
     inline QTextBlockFormat blockFormat() const
         { return block().blockFormat(); }
+
+    bool hasComplexSelection() const;
+    void selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const;
 
     int x;
     int position;

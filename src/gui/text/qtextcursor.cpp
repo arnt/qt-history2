@@ -99,8 +99,44 @@ void QTextCursorPrivate::remove()
         op = QTextUndoCommand::MoveCursor;
     }
 
-    priv->remove(pos1, pos2-pos1, op);
-    anchor = position;
+    QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(pos1));
+    // deleting inside table? -> delete only content
+    if (table) {
+        QTextTableCell firstCell = table->cellAt(pos1);
+        QTextTableCell lastCell = table->cellAt(pos2);
+        if (firstCell != lastCell) {
+
+            int startRow = firstCell.row();
+            int startCol = firstCell.column();
+            int numRows = 1;
+            int numCols = lastCell.column() - startCol + 1;
+
+            if (hasComplexSelection())
+                selectedTableCells(&startRow, &numRows, &startCol, &numCols);
+
+            clearCells(table, startRow, startCol, numRows, numCols, op);
+        }
+    } else {
+        priv->remove(pos1, pos2-pos1, op);
+    }
+
+    adjusted_anchor = anchor = position;
+}
+
+void QTextCursorPrivate::clearCells(QTextTable *table, int startRow, int startCol, int numRows, int numCols, QTextUndoCommand::Operation op)
+{
+    priv->beginEditBlock();
+
+    for (int row = startRow; row < startRow + numRows; ++row)
+        for (int col = startCol; col < startCol + numCols; ++col) {
+            QTextTableCell cell = table->cellAt(row, col);
+            const int startPos = cell.firstPosition();
+            const int endPos = cell.lastPosition();
+            Q_ASSERT(startPos <= endPos);
+            priv->remove(startPos, endPos - startPos, op);
+        }
+
+    priv->endEditBlock();
 }
 
 bool QTextCursorPrivate::canDelete(int pos) const
@@ -423,6 +459,55 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         setX();
 
     return true;
+}
+
+bool QTextCursorPrivate::hasComplexSelection() const
+{
+    if (position == anchor)
+        return false;
+
+    QTextTable *t = qt_cast<QTextTable *>(priv->frameAt(position));
+    if (!t)
+        return false;
+
+    QTextTableCell cell_pos = t->cellAt(position);
+    QTextTableCell cell_anchor = t->cellAt(adjusted_anchor);
+
+    Q_ASSERT(cell_anchor.isValid());
+
+    if (cell_pos == cell_anchor
+        || cell_pos.row() == cell_anchor.row())
+        return false;
+
+    return true;
+}
+
+void QTextCursorPrivate::selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const
+{
+    *firstRow = -1;
+    *firstColumn = -1;
+    *numRows = -1;
+    *numColumns = -1;
+
+    if (position == anchor)
+        return;
+
+    QTextTable *t = qt_cast<QTextTable *>(priv->frameAt(position));
+    if (!t)
+        return;
+
+    QTextTableCell cell_pos = t->cellAt(position);
+    QTextTableCell cell_anchor = t->cellAt(adjusted_anchor);
+
+    Q_ASSERT(cell_anchor.isValid());
+
+    if (cell_pos == cell_anchor)
+        return;
+
+    *firstRow = qMin(cell_pos.row(), cell_anchor.row());
+    *firstColumn = qMin(cell_pos.column(), cell_anchor.column());
+    *numRows = qMax(cell_pos.row() + cell_pos.rowSpan(), cell_anchor.row() + cell_anchor.rowSpan()) - *firstRow;
+    *numColumns = qMax(cell_pos.column() + cell_pos.columnSpan(), cell_anchor.column() + cell_anchor.columnSpan()) - *firstColumn;
 }
 
 /*!
@@ -810,20 +895,7 @@ bool QTextCursor::hasComplexSelection() const
     if (!d || d->position == d->anchor)
         return false;
 
-    QTextTable *t = qt_cast<QTextTable *>(d->priv->frameAt(d->position));
-    if (!t)
-        return false;
-
-    QTextTableCell cell_pos = t->cellAt(d->position);
-    QTextTableCell cell_anchor = t->cellAt(d->adjusted_anchor);
-
-    Q_ASSERT(cell_anchor.isValid());
-
-    if (cell_pos == cell_anchor
-        || cell_pos.row() == cell_anchor.row())
-        return false;
-
-    return true;
+    return d->hasComplexSelection();
 }
 
 /*!
@@ -844,22 +916,7 @@ void QTextCursor::selectedTableCells(int *firstRow, int *numRows, int *firstColu
     if (!d || d->position == d->anchor)
         return;
 
-    QTextTable *t = qt_cast<QTextTable *>(d->priv->frameAt(d->position));
-    if (!t)
-        return;
-
-    QTextTableCell cell_pos = t->cellAt(d->position);
-    QTextTableCell cell_anchor = t->cellAt(d->adjusted_anchor);
-
-    Q_ASSERT(cell_anchor.isValid());
-
-    if (cell_pos == cell_anchor)
-        return;
-
-    *firstRow = qMin(cell_pos.row(), cell_anchor.row());
-    *firstColumn = qMin(cell_pos.column(), cell_anchor.column());
-    *numRows = qMax(cell_pos.row() + cell_pos.rowSpan(), cell_anchor.row() + cell_anchor.rowSpan()) - *firstRow;
-    *numColumns = qMax(cell_pos.column() + cell_pos.columnSpan(), cell_anchor.column() + cell_anchor.columnSpan()) - *firstColumn;
+    d->selectedTableCells(firstRow, numRows, firstColumn, numColumns);
 }
 
 
