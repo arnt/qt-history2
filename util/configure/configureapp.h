@@ -42,7 +42,13 @@ private:
 //    QStringList sqlDrivers;
     QStringList configCmdLine;
     QStringList qmakeConfig;
+
     QStringList qmakeSql;
+    QStringList qmakeSqlPlugins;
+
+    QStringList qmakeStyles;
+    QStringList qmakeStylePlugins;
+
     QStringList qmakeVars;
     QStringList qmakeDefines;
     QStringList makeList;

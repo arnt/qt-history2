@@ -540,59 +540,59 @@ void ConfigureApp::generateOutputVars()
 	qmakeConfig += "no-tablet";
 
     if ( dictionary[ "STYLE_WINDOWS" ] == "yes" )
-	qmakeConfig += "style-windows";
-    else if ( dictionary[ "STYLE_WINDOWS" ] == "no" )
-	qmakeConfig += "no-style-windows";
+	qmakeStyles += "windows";
+    else if ( dictionary[ "STYLE_WINDOWS" ] == "plugin" )
+	qmakeStylePlugins += "windows";
 
     if ( dictionary[ "STYLE_MOTIF" ] == "yes" )
-	qmakeConfig += "style-motif";
-    else if ( dictionary[ "STYLE_MOTIF" ] == "no" )
-	qmakeConfig += "no-style-motif";
+	qmakeStyles += "motif";
+    else if ( dictionary[ "STYLE_MOTIF" ] == "plugin" )
+	qmakeStylePlugins += "motif";
 
     if ( dictionary[ "STYLE_MOTIFPLUS" ] == "yes" )
-	qmakeConfig += "style-motifplus";
-    else if ( dictionary[ "STYLE_MOTIFPLUS" ] == "no" )
-	qmakeConfig += "no-style-motifplus";
+	qmakeStyles += "motifplus";
+    else if ( dictionary[ "STYLE_MOTIFPLUS" ] == "plugin" )
+	qmakeStylePlugins += "motifplus";
 
     if ( dictionary[ "STYLE_PLATINUM" ] == "yes" )
-	qmakeConfig += "style-platinum";
-    else if ( dictionary[ "STYLE_PLATINUM" ] == "no" )
-	qmakeConfig += "no-style-platinum";
+	qmakeStyles += "platinum";
+    else if ( dictionary[ "STYLE_PLATINUM" ] == "plugin" )
+	qmakeStylePlugins += "platinum";
 
     if ( dictionary[ "STYLE_SGI" ] == "yes" )
-	qmakeConfig += "style-sgi";
-    else if ( dictionary[ "STYLE_SGI" ] == "no" )
-	qmakeConfig += "no-style-sgi";
+	qmakeStyles += "sgi";
+    else if ( dictionary[ "STYLE_SGI" ] == "plugin" )
+	qmakeStylePlugins += "sgi";
 
     if ( dictionary[ "STYLE_CDE" ] == "yes" )
-	qmakeConfig += "style-cde";
-    else if ( dictionary[ "STYLE_CDE" ] == "no" )
-	qmakeConfig += "no-style-cde";
+	qmakeStyles += "cde";
+    else if ( dictionary[ "STYLE_CDE" ] == "plugin" )
+	qmakeStylePlugins += "cde";
 
     if ( dictionary[ "SQL_MYSQL" ] == "yes" )
-	qmakeConfig += "sql-mysql";
-    else if ( dictionary[ "SQL_MYSQL" ] == "no" )
-	qmakeConfig += "no-sql-mysql";
+	qmakeSql += "mysql";
+    else if ( dictionary[ "SQL_MYSQL" ] == "plugin" )
+	qmakeSqlPlugins += "mysql";
 
     if ( dictionary[ "SQL_ODBC" ] == "yes" )
-	qmakeConfig += "sql-odbc";
-    else if ( dictionary[ "SQL_ODBC" ] == "no" )
-	qmakeConfig += "no-sql-odbc";
+	qmakeSql += "odbc";
+    else if ( dictionary[ "SQL_ODBC" ] == "plugin" )
+	qmakeSqlPlugins += "odbc";
 
     if ( dictionary[ "SQL_OCI" ] == "yes" )
-	qmakeConfig += "sql-oci";
-    else if ( dictionary[ "SQL_OCI" ] == "no" )
-	qmakeConfig += "no-sql-oci";
+	qmakeSql += "oci";
+    else if ( dictionary[ "SQL_OCI" ] == "plugin" )
+	qmakeSqlPlugins += "oci";
 
     if ( dictionary[ "SQL_PSQL" ] == "yes" )
-	qmakeConfig += "sql-psql";
-    else if ( dictionary[ "SQL_PSQL" ] == "no" )
-	qmakeConfig += "no-sql-psql";
+	qmakeSql += "psql";
+    else if ( dictionary[ "SQL_PSQL" ] == "plugin" )
+	qmakeSqlPlugins += "psql";
 
     if ( dictionary[ "SQL_TDS" ] == "yes" )
-	qmakeConfig += "sql-tds";
-    else if ( dictionary[ "SQL_TDS" ] == "no" )
-	qmakeConfig += "no-sql-tds";
+	qmakeSql += "tds";
+    else if ( dictionary[ "SQL_TDS" ] == "plugin" )
+	qmakeSqlPlugins += "tds";
 
 
     qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
@@ -601,6 +601,11 @@ void ConfigureApp::generateOutputVars()
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
+    qmakeVars += QString( "sql-drivers+=" ) + qmakeSql.join( " " );
+    qmakeVars += QString( "sql-plugins+=" ) + qmakeSqlPlugins.join( " " );
+    qmakeVars += QString( "styles+=" ) + qmakeStyles.join( " " );
+    qmakeVars += QString( "style-plugins+=" ) + qmakeStylePlugins.join( " " );
+
     if( licenseInfo[ "PRODUCTS" ].length() )
 	qmakeVars += QString( "QT_PRODUCT=" ) + licenseInfo[ "PRODUCTS" ];
 
