@@ -114,14 +114,22 @@ QVariant QSqlField::value() const
     return val;
 }
 
-/*!
-  Sets the internal value of the field to \a value.
+/*!  Sets the value of the field to \a value. If the data type of \a
+  value differs from the field's current data type, an attempt is made
+  to cast it to the proper type.  This preserves the data type of the
+  field in the face of assigning, e.g. a QString to an integer data
+  type.  For example:
+  
+  QSqlCursor myCursor( "classroom" );                     // classroom table
+  QSqlField* myField = myCursor.field( "student_count" ); // an integer field
+  ...
+  myField->setValue( myLineEdit->text() ); // cast the line edit to an integer
 
 */
 void QSqlField::setValue( const QVariant& value )
 {
     if ( value.type() != val.type() ) {
-	if ( !val.canCast( value.type() ) )    
+	if ( !val.canCast( value.type() ) )
 	     qWarning("QSqlField::setValue: cannot cast from %s to %s", value.typeName(), val.typeName() );
 	QVariant tmp = value;
 	tmp.cast( val.type() );
