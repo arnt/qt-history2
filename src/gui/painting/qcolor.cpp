@@ -401,7 +401,7 @@ void QColor::getHsvF(qreal *h, qreal *s, qreal *v, qreal *a) const
         return;
     }
 
-    *h = ct.ahsv.hue == USHRT_MAX ? -1.0f : ct.ahsv.hue / 100.0f;
+    *h = ct.ahsv.hue == USHRT_MAX ? -1.0 : ct.ahsv.hue / 100.0;
     *s = ct.ahsv.saturation / qreal(USHRT_MAX);
     *v = ct.ahsv.value / qreal(USHRT_MAX);
 
@@ -445,21 +445,21 @@ void QColor::getHsv(int *h, int *s, int *v, int *a) const
     \overload
 
     The value of \a s, \a v, and \a a must all be in the range
-    0.0f-1.0f; the value of \a h must be in the range 0.0f-360.0f.
+    0.0-1.0; the value of \a h must be in the range 0.0-360.0.
 */
 void QColor::setHsvF(qreal h, qreal s, qreal v, qreal a)
 {
-    if (((h < 0.0f || h >= 360.0f) && h != -1.0f)
-        || (s < 0.0f || s > 1.0f)
-        || (v < 0.0f || v > 1.0f)
-        || (a < 0.0f || a > 1.0f)) {
+    if (((h < 0.0 || h >= 360.0) && h != -1.0)
+        || (s < 0.0 || s > 1.0)
+        || (v < 0.0 || v > 1.0)
+        || (a < 0.0 || a > 1.0)) {
         qWarning("QColor::setHsv: HSV parameters out of range");
         return;
     }
 
     cspec = Hsv;
     ct.ahsv.alpha      = qRound(a * USHRT_MAX);
-    ct.ahsv.hue        = h == -1.0f ? USHRT_MAX : qRound(h * 100);
+    ct.ahsv.hue        = h == -1.0 ? USHRT_MAX : qRound(h * 100);
     ct.ahsv.saturation = qRound(s * USHRT_MAX);
     ct.ahsv.value      = qRound(v * USHRT_MAX);
     ct.ahsv.pad        = 0;
@@ -562,14 +562,14 @@ void QColor::getRgb(int *r, int *g, int *b, int *a) const
 
     \overload
 
-    All values must be in the range 0.0f-1.0f.
+    All values must be in the range 0.0-1.0.
 */
 void QColor::setRgbF(qreal r, qreal g, qreal b, qreal a)
 {
-    if (r < 0.0f || r > 1.0f
-        || g < 0.0f || g > 1.0f
-        || b < 0.0f || b > 1.0f
-        || a < 0.0f || a > 1.0f) {
+    if (r < 0.0 || r > 1.0
+        || g < 0.0 || g > 1.0
+        || b < 0.0 || b > 1.0
+        || a < 0.0 || a > 1.0) {
         qWarning("QColor::setRgb: RGB parameter(s) out of range");
         invalidate();
         return;
@@ -886,7 +886,7 @@ qreal QColor::hueF() const
 {
     if (cspec != Invalid && cspec != Hsv)
         return toHsv().hueF();
-    return ct.ahsv.hue == USHRT_MAX ? -1.0f : ct.ahsv.hue / 100.0f;
+    return ct.ahsv.hue == USHRT_MAX ? -1.0 : ct.ahsv.hue / 100.0;
 }
 
 /*!
@@ -1039,10 +1039,10 @@ QColor QColor::toRgb() const
             const qreal v = ct.ahsv.value / qreal(USHRT_MAX);
             const int i = int(h);
             const qreal f = h - i;
-            const qreal p = v * (1.0f - s);
+            const qreal p = v * (1.0 - s);
 
             if (i & 1) {
-                const qreal q = v * (1.0f - (s * f));
+                const qreal q = v * (1.0 - (s * f));
 
                 switch (i) {
                 case 1:
@@ -1062,7 +1062,7 @@ QColor QColor::toRgb() const
                     break;
                 }
             } else {
-                const qreal t = v * (1.0f - (s * (1.0f - f)));
+                const qreal t = v * (1.0 - (s * (1.0 - f)));
 
                 switch (i) {
                 case 0:
@@ -1091,9 +1091,9 @@ QColor QColor::toRgb() const
             const qreal y = ct.acmyk.yellow / qreal(USHRT_MAX);
             const qreal k = ct.acmyk.black / qreal(USHRT_MAX);
 
-            color.ct.argb.red   = qRound((1.0f - (c * (1.0f - k) + k)) * USHRT_MAX);
-            color.ct.argb.green = qRound((1.0f - (m * (1.0f - k) + k)) * USHRT_MAX);
-            color.ct.argb.blue  = qRound((1.0f - (y * (1.0f - k) + k)) * USHRT_MAX);
+            color.ct.argb.red   = qRound((1.0 - (c * (1.0 - k) + k)) * USHRT_MAX);
+            color.ct.argb.green = qRound((1.0 - (m * (1.0 - k) + k)) * USHRT_MAX);
+            color.ct.argb.blue  = qRound((1.0 - (y * (1.0 - k) + k)) * USHRT_MAX);
             break;
         }
     default:
@@ -1128,7 +1128,7 @@ QColor QColor::toHsv() const
     const qreal min = qMin(r, qMin(g, b));
     const qreal delta = max - min;
     color.ct.ahsv.value = qRound(max * USHRT_MAX);
-    if (delta == 0.0f) {
+    if (delta == 0.0) {
         // achromatic case, hue is undefined
         color.ct.ahsv.hue = USHRT_MAX;
         color.ct.ahsv.saturation = 0;
@@ -1138,9 +1138,9 @@ QColor QColor::toHsv() const
         if (r == max) {
             color.ct.ahsv.hue = qRound(((g - b) /delta) * 6000);
         } else if (g == max) {
-            color.ct.ahsv.hue = qRound((2.0f + (b - r) / delta) * 6000);
+            color.ct.ahsv.hue = qRound((2.0 + (b - r) / delta) * 6000);
         } else if (b == max) {
-            color.ct.ahsv.hue = qRound((4.0f + (r - g) / delta) * 6000);
+            color.ct.ahsv.hue = qRound((4.0 + (r - g) / delta) * 6000);
         } else {
             Q_ASSERT_X(false, "QColor::toHsv", "internal error");
         }
@@ -1169,15 +1169,15 @@ QColor QColor::toCmyk() const
     const qreal r = ct.argb.red   / qreal(USHRT_MAX);
     const qreal g = ct.argb.green / qreal(USHRT_MAX);
     const qreal b = ct.argb.blue  / qreal(USHRT_MAX);
-    qreal c = 1.0f - r;
-    qreal m = 1.0f - g;
-    qreal y = 1.0f - b;
+    qreal c = 1.0 - r;
+    qreal m = 1.0 - g;
+    qreal y = 1.0 - b;
 
     // cmy -> cmyk
     const qreal k = qMin(c, qMin(m, y));
-    c = (c - k) / (1.0f - k);
-    m = (m - k) / (1.0f - k);
-    y = (y - k) / (1.0f - k);
+    c = (c - k) / (1.0 - k);
+    m = (m - k) / (1.0 - k);
+    y = (y - k) / (1.0 - k);
 
     color.ct.acmyk.cyan    = qRound(c * USHRT_MAX);
     color.ct.acmyk.magenta = qRound(m * USHRT_MAX);
@@ -1271,16 +1271,16 @@ QColor QColor::fromRgb(int r, int g, int b, int a)
     the RGB color values, \a r (red), \a g (green), \a b (blue),
     and \a a (alpha-channel, i.e. transparency).
 
-    All the values must be in the range 0.0f-1.0f.
+    All the values must be in the range 0.0-1.0.
 
     \sa toRgb() fromCmyk() fromHsv()
 */
 QColor QColor::fromRgbF(qreal r, qreal g, qreal b, qreal a)
 {
-    if (r < 0.0f || r > 1.0f
-        || g < 0.0f || g > 1.0f
-        || b < 0.0f || b > 1.0f
-        || a < 0.0f || a > 1.0f) {
+    if (r < 0.0 || r > 1.0
+        || g < 0.0 || g > 1.0
+        || b < 0.0 || b > 1.0
+        || a < 0.0 || a > 1.0) {
         qWarning("QColor::fromRgb: RGB paramaters out of range");
         return QColor();
     }
@@ -1333,16 +1333,16 @@ QColor QColor::fromHsv(int h, int s, int v, int a)
     and \a a (alpha-channel, i.e. transparency).
 
     The value of \a s, \a v, and \a a must all be in the range
-    0.0f-1.0f; the value of \a h must be in the range 0.0f-360.0f.
+    0.0-1.0; the value of \a h must be in the range 0.0-360.0.
 
     \sa toHsv() fromCmyk() fromRgb()
 */
 QColor QColor::fromHsvF(qreal h, qreal s, qreal v, qreal a)
 {
-    if (((h < 0.0f || h >= 360.0f) && h != -1.0f)
-        || (s < 0.0f || s > 1.0f)
-        || (v < 0.0f || v > 1.0f)
-        || (a < 0.0f || a > 1.0f)) {
+    if (((h < 0.0 || h >= 360.0) && h != -1.0)
+        || (s < 0.0 || s > 1.0)
+        || (v < 0.0 || v > 1.0)
+        || (a < 0.0 || a > 1.0)) {
         qWarning("QColor::fromHsv: HSV parameters out of range");
         return QColor();
     }
@@ -1350,7 +1350,7 @@ QColor QColor::fromHsvF(qreal h, qreal s, qreal v, qreal a)
     QColor color;
     color.cspec = Hsv;
     color.ct.ahsv.alpha      = qRound(a * USHRT_MAX);
-    color.ct.ahsv.hue        = h == -1.0f ? USHRT_MAX : qRound(h * 100);
+    color.ct.ahsv.hue        = h == -1.0 ? USHRT_MAX : qRound(h * 100);
     color.ct.ahsv.saturation = qRound(s * USHRT_MAX);
     color.ct.ahsv.value      = qRound(v * USHRT_MAX);
     color.ct.ahsv.pad        = 0;
@@ -1444,17 +1444,17 @@ void QColor::setCmyk(int c, int m, int y, int k, int a)
     Sets the color to CMYK values, \a c (cyan), \a m (magenta), \a y (yellow),
     \a k (black), and \a a (alpha-channel, i.e. transparency).
 
-    All the values must be in the range 0.0f-1.0f.
+    All the values must be in the range 0.0-1.0.
 
     \sa getCmyk() setRgb() setHsv()
 */
 void QColor::setCmykF(qreal c, qreal m, qreal y, qreal k, qreal a)
 {
-    if (c < 0.0f || c > 1.0f
-        || m < 0.0f || m > 1.0f
-        || y < 0.0f || y > 1.0f
-        || k < 0.0f || k > 1.0f
-        || a < 0.0f || a > 1.0f) {
+    if (c < 0.0 || c > 1.0
+        || m < 0.0 || m > 1.0
+        || y < 0.0 || y > 1.0
+        || k < 0.0 || k > 1.0
+        || a < 0.0 || a > 1.0) {
         qWarning("QColor::setCmyk: CMYK paramaters out of range");
         return;
     }
@@ -1504,17 +1504,17 @@ QColor QColor::fromCmyk(int c, int m, int y, int k, int a)
     the CMYK color values, \a c (cyan), \a m (magenta), \a y (yellow),
     \a k (black), and \a a (alpha-channel, i.e. transparency).
 
-    All the values must be in the range 0.0f-1.0f.
+    All the values must be in the range 0.0-1.0.
 
     \sa toCmyk() fromHsv() fromRgb()
 */
 QColor QColor::fromCmykF(qreal c, qreal m, qreal y, qreal k, qreal a)
 {
-    if (c < 0.0f || c > 1.0f
-        || m < 0.0f || m > 1.0f
-        || y < 0.0f || y > 1.0f
-        || k < 0.0f || k > 1.0f
-        || a < 0.0f || a > 1.0f) {
+    if (c < 0.0 || c > 1.0
+        || m < 0.0 || m > 1.0
+        || y < 0.0 || y > 1.0
+        || k < 0.0 || k > 1.0
+        || a < 0.0 || a > 1.0) {
         qWarning("QColor::fromCmyk: CMYK paramaters out of range");
         return QColor();
     }
