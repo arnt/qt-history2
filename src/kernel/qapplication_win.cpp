@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#188 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -48,6 +48,7 @@
 #if !defined(QT_MAKEDLL)
 #define QAPPLICATION_WIN_CPP
 #include "qtinit_win.cpp"
+#include "qtmain_win.cpp"
 #endif
 
 
