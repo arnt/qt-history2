@@ -1248,6 +1248,24 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled
         d->gdiplusEngine->updateClipRegion(region, clipEnabled);
         return;
     }
+
+    if (d->txop >= QPainterPrivate::TxScale) {
+        BeginPath(d->hdc);
+        QVector<QRect> rects = region.rects();
+        for (int i=0; i<rects.size(); ++i) {
+            const QRect &r = rects.at(i);
+            MoveToEx(d->hdc, r.left(), r.top(), 0);
+            LineTo(d->hdc, r.right() + 1, r.top());
+            LineTo(d->hdc, r.right() + 1, r.bottom() + 1);
+            LineTo(d->hdc, r.left(), r.bottom() + 1);
+            LineTo(d->hdc, r.left(), r.top());
+            CloseFigure(d->hdc);
+        }
+        EndPath(d->hdc);
+        SelectClipPath(d->hdc, RGN_COPY);
+        return;
+    }
+
     if (clipEnabled) {
         QRegion rgn = region
 #ifndef QT_NO_NATIVE_XFORM
@@ -1275,7 +1293,7 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, bool clipEnable
 
     if (clipEnabled && !path.isEmpty()) {
         d->composeGdiPath(path);
-        SelectClipPath(d->hdc, RGN_AND);
+        SelectClipPath(d->hdc, RGN_COPY);
     } else {
         updateClipRegion(QRegion(), false);
         setDirty(DirtyClip);
