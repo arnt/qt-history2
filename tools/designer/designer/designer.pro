@@ -368,7 +368,8 @@ IMAGES		+= images/adjustsize.png \
 		images/small_down.png \
 		images/small_left.png \
 		images/small_right.png \
-		images/disabled_image.png
+		images/disabled_image.png \
+		images/appicon.png
 
 
 OBJECTS_DIR	= .
