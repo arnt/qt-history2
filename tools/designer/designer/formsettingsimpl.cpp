@@ -47,7 +47,7 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     editAuthor->setText( info.author );
 
     editClassName->setValidator( new AsciiValidator( editClassName ) );
-    editPixmapFunction->setValidator( new AsciiValidator( QString( ":" ), editClassName ) );
+    editPixmapFunction->setValidator( new AsciiValidator( QString( ":" ), editPixmapFunction ) );
 
     if ( formwindow->savePixmapInline() )
 	radioPixmapInline->setChecked( TRUE );
@@ -58,9 +58,11 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     editPixmapFunction->setText( formwindow->pixmapLoaderFunction() );
     radioProjectImageFile->setEnabled( !fw->project()->isDummy() );
     spinSpacing->setValue( formwindow->layoutDefaultSpacing() );
+    spinMargin->setValue( formwindow->layoutDefaultMargin() );
+    editSpacingFunction->setValidator( new AsciiValidator( QString( ":" ), editSpacingFunction ) );
+    editMarginFunction->setValidator( new AsciiValidator( QString( ":" ), editMarginFunction ) ); 
     checkLayoutFunctions->setChecked( formwindow->hasLayoutFunctions() );
     editSpacingFunction->setText( formwindow->spacingFunction() );
-    spinMargin->setValue( formwindow->layoutDefaultMargin() );
     editMarginFunction->setText( formwindow->marginFunction() );
 }
 

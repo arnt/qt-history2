@@ -282,6 +282,12 @@
                     <property name="text">
                         <string>Use Func&amp;tions:</string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Use functions to get the margin and spacing</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>&lt;b&gt;Use a given function for margin and/or spacing&lt;/b&gt;&lt;p&gt;If you choose this option you must define functions in the line edit below which will be used in the generated code for getting the margin and spacing value. &lt;i&gt;Qt Designer&lt;/i&gt; can't preview the correct margin or spacing if you use your own function. Instead, the default values will be used for preview.</string>
+                    </property>
                 </widget>
                 <widget class="QSpinBox" row="1" column="2">
                     <property name="name">
@@ -367,6 +373,12 @@
                     <property name="enabled">
                         <bool>false</bool>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Specify spacing function (only the function's name, no parentheses!)</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>&lt;b&gt;Specify spacing function&lt;/b&gt;&lt;p&gt;Specify the function which should be used for getting the spacing in the generated code. &lt;em&gt;Only enter the function's name, with no parentheses.&lt;/em&gt;</string>
+                    </property>
                 </widget>
                 <widget class="QLineEdit" row="3" column="1" rowspan="1" colspan="3">
                     <property name="name">
@@ -382,6 +394,12 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Specify margin function (only the function's name, no parentheses!)</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>&lt;b&gt;Specify margin function&lt;/b&gt;&lt;p&gt;Specify the function which should be used for getting the margin in the generated code. &lt;em&gt;Only enter the function's name, with no parentheses.&lt;/em&gt;</string>
                     </property>
                 </widget>
             </grid>
@@ -511,9 +529,12 @@
     <tabstop>radioProjectImageFile</tabstop>
     <tabstop>spinMargin</tabstop>
     <tabstop>spinSpacing</tabstop>
-    <tabstop>buttonHelp</tabstop>
+    <tabstop>checkLayoutFunctions</tabstop>
+    <tabstop>editMarginFunction</tabstop>
+    <tabstop>editSpacingFunction</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
+    <tabstop>buttonHelp</tabstop>
 </tabstops>
 <slots>
     <slot>okClicked()</slot>
