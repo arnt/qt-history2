@@ -74,7 +74,7 @@ public:
     int		width( QChar ) const;
     int		width( char c ) const { return width( (QChar) c ); }
 #endif
-    int 		charWidth( const QString &str, int pos );
+    int 		charWidth( const QString &str, int pos ) const;
     QRect	boundingRect( const QString &, int len = -1 ) const;
     QRect	boundingRect( QChar ) const;
     QRect	boundingRect( int x, int y, int w, int h, int flags,

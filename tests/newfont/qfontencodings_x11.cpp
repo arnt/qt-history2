@@ -508,7 +508,7 @@ QCString QFontArabic68Codec::fromUnicode(const QString& uc, int& lenInOut ) cons
 	    result += 0xff; // undefined char in iso8859-6.8x
 	else {
 	    int shape = QArabicShaping::glyphVariant( uc, i );
-	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabic68Mapping[ch->cell()][shape]);
+	    //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabic68Mapping[ch->cell()][shape]);
 	    result += arabic68Mapping[ch->cell()][shape];
 	}
 	ch++;

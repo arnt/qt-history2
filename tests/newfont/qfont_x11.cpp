@@ -2342,7 +2342,7 @@ int QFontMetrics::width( const QString &str, int len ) const
   
   Also takes non spacing marks and ligatures into account.
 */
-int QFontMetrics::charWidth( const QString &str, int pos )
+int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QChar ch = str[pos];
     QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);

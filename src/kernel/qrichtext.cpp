@@ -2200,12 +2200,13 @@ int QTextFormat::width( const QString &str, int pos ) const
 {	
     int w;
     if ( !painter || !painter->isActive() ) {
-	w = fm.width( str, pos );
+	w = fm.charWidth( str, pos );
+    } else {
+	painter->setFont( fn );
+	w = painter->fontMetrics().charWidth( str, pos );
     }
-    painter->setFont( fn );
-    return painter->fontMetrics().width( str, pos );
+    return w;
 }
-
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -2398,7 +2399,16 @@ int QTextString::width(int idx) const
 	     w = c->format()->width( c->c );
 	 else {
 	     // complex text. We need some hacks to get the right metric here
-	     w = c->format()->width( c->c ); 
+	     QString str;
+	     int pos = 0;
+	     if( idx > 3 ) pos = idx - 3;
+	     int off = idx - pos;
+	     int end = QMIN( length(), idx + 3 );
+	     while ( pos < end ) {
+		 str += at(pos).c;
+		 pos++;
+	     }
+	     w = c->format()->width( str, off ); 
 	 }
      }	
      return w;
@@ -2917,7 +2927,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && buffer.length() > 0 && buffer[ (int)buffer.length() - 1 ].isSpace() ) ||
-	     //(uint)lastDirection != chr->rightToLeft || chr->rightToLeft ||
+	     (uint)lastDirection != chr->rightToLeft || chr->rightToLeft ||
 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
@@ -2958,10 +2968,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    }
 	} else {
 	    if ( chr->c != '\n' ) {
-		if( chr->rightToLeft ) {
-		    buffer = chr->c + buffer;
-		    startX = chr->x;
-		} else
+// 		if( chr->rightToLeft ) {
+// 		    buffer = chr->c + buffer;
+// 		    startX = chr->x;
+// 		} else
 		    buffer += chr->c;
 	    }
 	    bw += cw;

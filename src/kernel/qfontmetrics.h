@@ -79,7 +79,7 @@ public:
     int		width( char c ) const { return width( (QChar) c ); }
     // the following function is only a dummy here. It will be used and get some real functionality
     // with the new QFont. Lars.
-    int 		charWidth( const QString &str, int pos ) { return width( str[pos] ); }
+    int 		charWidth( const QString &str, int pos ) const { return width( str[pos] ); }
     QRect	boundingRect( const QString &, int len = -1 ) const;
     QRect	boundingRect( QChar ) const;
     QRect	boundingRect( int x, int y, int w, int h, int flags,
