@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#37 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -531,6 +531,7 @@ void QClipboard::setText( const QString &text )
 
     d->clear();
     d->setText( text );
+    emit dataChanged();
 
     XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
@@ -576,6 +577,7 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
     d->clear();
     d->setPixmap( pixmap );
+    emit dataChanged();
 
     XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
