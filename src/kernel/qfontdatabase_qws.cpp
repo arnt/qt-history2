@@ -32,7 +32,7 @@
 
 #include "qfontmanager_qws.h"
 #include "qdir.h"
-
+#include "qgfx_qws.h" //for qt_screen so we can check for rotation
 
 extern QString qws_topdir();
 
@@ -134,10 +134,34 @@ void QFontDatabase::createDatabase()
 	int u0 = dir[i].find('_');
 	int u1 = dir[i].find('_',u0+1);
 	int u2 = dir[i].find('_',u1+1);
+	int u3 = dir[i].find('.',u1+1);
+	if ( u2 < 0 ) u2 = u3;
+
+#if 1	
+	/*
+	  Skip fonts for other screen orientations. Such fonts may be
+	  installed even on a production device. Different orientations
+	  could have different fonts.
+	*/
+	//### This code could be prettier
+	QString rotation = u2 == u3 ? QString::null : dir[i].mid(u2+1,u3-u2-1);
+
+	QString screenr;
+	if ( qt_screen->isTransformed() ) {
+	    screenr = "t";
+	    QPoint a = qt_screen->mapToDevice(QPoint(0,0),QSize(2,2));
+	    QPoint b = qt_screen->mapToDevice(QPoint(1,1),QSize(2,2));
+	    screenr += QString::number( a.x()*8+a.y()*4+(1-b.x())*2+(1-b.y()) );
+	}
+	
+	if ( rotation != screenr )
+	    continue;
+#endif
+	
 	QString familyname = dir[i].left(u0);
-	int pointSize = dir[i].mid(u0+1,u1-u0-1).toInt();
-	int weight = dir[i].mid(u1+1,u2-u1-1).toInt();
+	int pointSize = dir[i].mid(u0+1,u1-u0-1).toInt()/10;
 	bool italic = dir[i].mid(u2-1,1) == "i";
+	int weight = dir[i].mid(u1+1,u2-u1-1-(italic?1:0)).toInt();
 	QtFontFamily *family = foundry->familyDict.find( familyname );
 	if ( !family ) {
 	    family=new QtFontFamily(foundry,familyname);
