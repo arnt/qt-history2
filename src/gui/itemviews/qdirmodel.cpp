@@ -235,7 +235,7 @@ public:
     Constructs a new directory model with the given \a parent. The
     model initially contains information about the directory specified
     by \a path. Only those files matching the \a nameFilters and the
-    \a filter are included in the model. The sort order is given by \a
+    \a filters are included in the model. The sort order is given by \a
     sorting.
 */
 
