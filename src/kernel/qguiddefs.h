@@ -1,8 +1,10 @@
 #ifndef QGUID_DEFINED
 #define QGUID_DEFINED
 
+#ifndef QT_H
 #include <qglobal.h>
 #include <memory.h>
+#endif // QT_H
 
 struct Q_EXPORT QGuid
 {
