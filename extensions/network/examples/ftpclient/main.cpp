@@ -18,8 +18,10 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
+    // call this to register the FTP network protocol
+    // (and in the future more available ones)
     qInitNetworkProtocols();
-    
+
     FtpMainWindow m;
     a.setMainWidget( &m );
     QValueList<int> sizes;

@@ -31,6 +31,9 @@ FtpMainWindow::FtpMainWindow()
 {
     setup();
 
+    // connect to the signals of the local QUrlOperator - this will be used to
+    // work on the local file system (listing dirs, etc.) and to copy files
+    // TO the local filesystem (downloading)
     connect( &localOperator, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
 	     leftView, SLOT( slotInsertEntry( const QUrlInfo & ) ) );
     connect( &localOperator, SIGNAL( start( QNetworkOperation * ) ),
@@ -42,6 +45,9 @@ FtpMainWindow::FtpMainWindow()
     connect( &localOperator, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
              this, SLOT( slotLocalDataTransferProgress( int, int, QNetworkOperation * ) ) );
 
+    // connect to the signals of the remote QUrlOperator - this will be used to
+    // work on the remote file system (on the FTP Server) and to copy files
+    // TO the ftp server (uploading)
     connect( &remoteOperator, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
 	     rightView, SLOT( slotInsertEntry( const QUrlInfo & ) ) );
     connect( &remoteOperator, SIGNAL( start( QNetworkOperation * ) ),
@@ -53,11 +59,15 @@ FtpMainWindow::FtpMainWindow()
     connect( &remoteOperator, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
              this, SLOT( slotRemoteDataTransferProgress( int, int, QNetworkOperation * ) ) );
 
+    // read the local filesystem at the beginning once
     localOperator.listChildren();
 }
 
 void FtpMainWindow::setupLeftSide()
 {
+    // Setup the left side of the GUI, this is the listview
+    // of the local filesystem
+    
     QVBox *layout = new QVBox( splitter );
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
@@ -88,6 +98,10 @@ void FtpMainWindow::setupLeftSide()
 
 void FtpMainWindow::setupRightSide()
 {
+    // Setup the right side of the GUI, this is the listview
+    // of the remote filesystem (FTP), needs also lineedits/combos
+    // for username, password, etc.
+
     QVBox *layout = new QVBox( splitter );
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
@@ -140,6 +154,8 @@ void FtpMainWindow::setupRightSide()
 
 void FtpMainWindow::setupCenterCommandBar()
 {
+    // Setup the command bar in the middle between the two views
+    
     QVBox *w = new QVBox( splitter );
     splitter->setResizeMode( w, QSplitter::FollowSizeHint );
     w->setSpacing( 5 );
@@ -161,6 +177,8 @@ void FtpMainWindow::setupCenterCommandBar()
 
 void FtpMainWindow::setup()
 {
+    // Setup the GUI
+    
     mainWidget = new QVBox( this );
     splitter = new QSplitter( mainWidget );
     setupLeftSide();
@@ -182,6 +200,8 @@ void FtpMainWindow::setup()
 
 void FtpMainWindow::slotLocalDirChanged( const QString &path )
 {
+    // The user changed the path on the left side
+    
     oldLocal = localOperator;
     localOperator.setPath( path );
     localOperator.listChildren();
@@ -189,6 +209,8 @@ void FtpMainWindow::slotLocalDirChanged( const QString &path )
 
 void FtpMainWindow::slotLocalDirChanged( const QUrlInfo &info )
 {
+    // The user changed the path on the left side
+
     oldLocal = localOperator;
     localOperator.addPath( info.name() );
     localOperator.listChildren();
@@ -198,6 +220,8 @@ void FtpMainWindow::slotLocalDirChanged( const QUrlInfo &info )
 
 void FtpMainWindow::slotRemoteDirChanged( const QString &path )
 {
+    // The user changed the path on the right side
+
     if ( !remoteOperator.isValid() )
 	return;
     oldRemote = remoteOperator;
@@ -207,6 +231,8 @@ void FtpMainWindow::slotRemoteDirChanged( const QString &path )
 
 void FtpMainWindow::slotRemoteDirChanged( const QUrlInfo &info )
 {
+    // The user changed the path on the right side
+
     oldRemote = remoteOperator;
     remoteOperator.addPath( info.name() );
     remoteOperator.listChildren();
@@ -216,57 +242,91 @@ void FtpMainWindow::slotRemoteDirChanged( const QUrlInfo &info )
 
 void FtpMainWindow::slotConnect()
 {
+    // The user pressed the connect button, so let's connect to the
+    // FTP server
+    // First we need to set stuff (host, path, etc.) which the user 
+    // entered on the right side to the remote QUrlOperator
+    
+    // protocol + hostname
     QString s = "ftp://" + remoteHostCombo->currentText();
     oldRemote = remoteOperator;
     remoteOperator = s;
+    
+    // path on the server
     if ( !remotePathCombo->currentText().isEmpty() )
 	remoteOperator.setPath( remotePathCombo->currentText() );
     else
 	remoteOperator.setPath( "/" );
+    
+    // if nothing or "ftp" or "anonymous" has been entered into the username combo,
+    // let's connect anonymous, else private with password
     if ( !userCombo->currentText().isEmpty() &&
 	 userCombo->currentText().lower() != "anonymous" &&
 	 userCombo->currentText().lower() != "ftp" ) {
 	remoteOperator.setUser( userCombo->currentText() );
 	remoteOperator.setPass( passLined->text() );
     }
+    
+    // set the port
     remoteOperator.setPort( portSpin->value() );
+
+    // finally read the directory on the ftp server
     remoteOperator.listChildren();
 }
 
 void FtpMainWindow::slotUpload()
 {
+    // the user pressed the upload button
+    
+    // if files have been selected on the left side (local filesystem)
     QValueList<QUrlInfo> files = leftView->selectedItems();
     if ( files.isEmpty() )
 	return;
 
+    // create a list of the URLs which should be copied
     QStringList lst;
     QValueList<QUrlInfo>::Iterator it = files.begin();
     for ( ; it != files.end(); ++it )
 	lst << QUrl( localOperator, ( *it ).name() );
+    
+    // copy the list of selected files to the directory in which the 
+    // remoteOperator currently is (upload)
     remoteOperator.copy( lst, remoteOperator, FALSE );
 }
 
 void FtpMainWindow::slotDownload()
 {
+    // if the user pressed the download button
+    
+    // if files have been selected on the right side (remote filesystem)
     QValueList<QUrlInfo> files = rightView->selectedItems();
     if ( files.isEmpty() )
 	return;
 
+    // create a list of the URLs which should be downloaded
     QStringList lst;
     QValueList<QUrlInfo>::Iterator it = files.begin();
     for ( ; it != files.end(); ++it )
 	lst << QUrl( remoteOperator, ( *it ).name() );
+
+    // copy the list of selected files to the directory in which the 
+    // localOperator currently is (download)
     localOperator.copy( lst, localOperator, FALSE );
 }
 
 void FtpMainWindow::slotLocalStart( QNetworkOperation *op )
 {
+    // this slot is always called if the local QUrlOperator starts
+    // listing a directory or dowloading a file
+    
     if ( !op )
 	return;
 
-    if ( op->operation() == QNetworkProtocol::OpListChildren )
+    if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	// start listing a dir? clear the left view!
 	leftView->clear();
-    else if ( op->operation() == QNetworkProtocol::OpGet ) {
+    } else if ( op->operation() == QNetworkProtocol::OpGet ) {
+	// start downloading a file? reset the progress bar!
 	progressBar1->setTotalSteps( 0 );
 	progressBar1->reset();
     }
@@ -274,12 +334,17 @@ void FtpMainWindow::slotLocalStart( QNetworkOperation *op )
 
 void FtpMainWindow::slotLocalFinished( QNetworkOperation *op )
 {
+    // this slot is always called if the local QUrlOperator finished
+    // an operation
+
     if ( !op )
 	return;
 
     if ( op && op->state() == QNetworkProtocol::StFailed ) {
+	// an error happend, let the user know that
 	QMessageBox::critical( this, tr( "ERROR" ), op->protocolDetail() );
 
+	// do something depending in the error code
 	int ecode = op->errorCode();
 	if ( ecode == QNetworkProtocol::ErrListChlidren || ecode == QNetworkProtocol::ErrParse ||
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
@@ -290,10 +355,12 @@ void FtpMainWindow::slotLocalFinished( QNetworkOperation *op )
 	    localOperator.listChildren();
 	}
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
+	// finished saving the downloaded file? reread the dir and hide the progress bar
 	localOperator.listChildren();
 	progressLabel1->hide();
 	progressBar1->hide();
     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
+	// finished reading a file from the ftp server? reset the progress bar
 	progressBar1->setTotalSteps( 0 );
 	progressBar1->reset();
     }
@@ -302,12 +369,17 @@ void FtpMainWindow::slotLocalFinished( QNetworkOperation *op )
 
 void FtpMainWindow::slotRemoteStart( QNetworkOperation *op )
 {
+    // this slot is always called if the remote QUrlOperator starts
+    // listing a directory or uploading a file
+    
     if ( !op )
 	return;
 
-    if ( op->operation() == QNetworkProtocol::OpListChildren )
+    if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	// start listing a dir? clear the right view!
 	rightView->clear();
-    else if ( op->operation() == QNetworkProtocol::OpGet ) {
+    } else if ( op->operation() == QNetworkProtocol::OpGet ) {
+	// start downloading a file? reset the progress bar!
 	progressBar2->setTotalSteps( 0 );
 	progressBar2->reset();
     }
@@ -315,12 +387,17 @@ void FtpMainWindow::slotRemoteStart( QNetworkOperation *op )
 
 void FtpMainWindow::slotRemoteFinished( QNetworkOperation *op )
 {
+    // this slot is always called if the remote QUrlOperator finished
+    // an operation
+
     if ( !op )
 	return;
 
     if ( op && op->state() == QNetworkProtocol::StFailed ) {
+	// an error happend, let the user know that
 	QMessageBox::critical( this, tr( "ERROR" ), op->protocolDetail() );
 
+	// do something depending in the error code
 	int ecode = op->errorCode();
 	if ( ecode == QNetworkProtocol::ErrListChlidren || ecode == QNetworkProtocol::ErrParse ||
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
@@ -335,12 +412,15 @@ void FtpMainWindow::slotRemoteFinished( QNetworkOperation *op )
 	    remoteOperator.listChildren();
 	}
     } else if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	// finished reading a dir? set the correct path to the pth combo of the right view
 	remotePathCombo->setEditText( remoteOperator.path() );
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
+	// finished saving the uploaded file? reread the dir and hide the progress bar
 	remoteOperator.listChildren();
 	progressLabel2->hide();
 	progressBar2->hide();
     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
+	// finished reading a file from the local filesystem? reset the progress bar
 	progressBar2->setTotalSteps( 0 );
 	progressBar2->reset();
     }
@@ -349,6 +429,8 @@ void FtpMainWindow::slotRemoteFinished( QNetworkOperation *op )
 void FtpMainWindow::slotLocalDataTransferProgress( int bytesDone, int bytesTotal,
 						   QNetworkOperation *op )
 {
+    // Show the progress here of the local QUrlOperator reads or writes data
+
     if ( !op )
 	return;
 
@@ -379,6 +461,8 @@ void FtpMainWindow::slotLocalDataTransferProgress( int bytesDone, int bytesTotal
 void FtpMainWindow::slotRemoteDataTransferProgress( int bytesDone, int bytesTotal,
 						    QNetworkOperation *op )
 {
+    // Show the progress here of the remote QUrlOperator reads or writes data
+
     if ( !op )
 	return;
 
@@ -408,6 +492,8 @@ void FtpMainWindow::slotRemoteDataTransferProgress( int bytesDone, int bytesTota
 
 void FtpMainWindow::slotLocalMkdir()
 {
+    // create a dir on the local filesystem
+    
     bool ok = FALSE;
     QString name = QLineDialog::getText( tr( "Directory Name:" ), QString::null, &ok, this );
 
@@ -421,6 +507,8 @@ void FtpMainWindow::slotLocalRemove()
 
 void FtpMainWindow::slotRemoteMkdir()
 {
+    // create a dir on the remote filesystem (FTP server)
+
     bool ok = FALSE;
     QString name = QLineDialog::getText( tr( "Directory Name:" ), QString::null, &ok, this );
 
