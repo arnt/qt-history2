@@ -5,27 +5,23 @@
 #include <qsqlfield.h>
 #include <qsqlrowset.h>
 #include <qsqlview.h>
+#include <qvariant.h>
 #include <qapplication.h>
 
-QSqlDatabase* database;
+
 
 int main( int argc, char** argv )
 {
     qDebug("Qt SQL Catalog Test");
     QApplication app( argc, argv, FALSE );
 
-    database = QSqlConnection::addDatabase( qApp->argv()[1],
-					    qApp->argv()[2],
-					    qApp->argv()[3],
-					    qApp->argv()[4],
-					    qApp->argv()[5]);
-    qDebug("Opening database...");
-    database->open();
-    if ( database->isOpen() )
-	qDebug("...success.");
-    else
-	qDebug("...FAILED.");
-
+    QSqlConnection::addDatabase( qApp->argv()[1],
+				 qApp->argv()[2],
+				 qApp->argv()[3],
+				 qApp->argv()[4],
+				 qApp->argv()[5]);
+    QSqlDatabase* database = QSqlConnection::database();
+    
     uint i;
     qDebug("Getting list of tables and fields...");
     QStringList tables = database->tables();
@@ -50,32 +46,37 @@ int main( int argc, char** argv )
 
     // insert a value
     v["id"] = 999;
-    v["name"] = QString("Dave");
-    v.insert();
-    v.select( v.primaryIndex() );
+    v["name"] = "xxxx";
+    ASSERT( v.insert() == 1 );
+    qDebug("after insert, ID:" + v["id"].toString() );
+    qDebug("after insert, name:" + v["name"].toString() );
+
+    v.select( v.primaryIndex(), v.primaryIndex() );
     ASSERT( v.next() );
+    qDebug("after next, ID:" + v["id"].toString() );
+    qDebug("after next, name:" + v["name"].toString() );
+
     ASSERT( v["id"].toInt() == 999 );
-    ASSERT( v["name"].toString() == QString("Dave") );
+    ASSERT( QString(v["name"].toString()) == QString("xxxx") );
     qDebug("name:" + v["name"].toString());
 
-    // put pack a new value
+    // put back a new value
     v["name"] = "Kaja";
-    v.update( v.primaryIndex() );
-    v.select( v.primaryIndex() );
+    ASSERT( v.update( v.primaryIndex() ) == 1 );
+    v.select( v.primaryIndex(), v.primaryIndex() );
     ASSERT( v.next() );
+    qDebug("after next, ID:" + v["id"].toString() );
+    qDebug("after next, name:" + v["name"].toString() );
     ASSERT( v["id"].toInt() == 999 );
     ASSERT( v["name"].toString() == "Kaja" );
 
     // delete the record
     v["id"] = 999;
-    v.del( v.primaryIndex() );
-    v.select( v.primaryIndex() );
+    ASSERT( v.del( v.primaryIndex() ) == 1 );
+    v.select( v.primaryIndex(), v.primaryIndex() );
     ASSERT( !v.next() );
 
-    qDebug("Closing database...");
-    database->close();
-    if ( !database->isOpen() )
-	qDebug("...success.");
     qDebug("Done.");
     return 0;
 };
+
