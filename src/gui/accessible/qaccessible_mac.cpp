@@ -140,9 +140,9 @@ static AXUIElementRef qt_mac_find_uielement(QAccessibleInterface *iface, int chi
         if(HIObjectCreate(kObjectQtAccessibility, init_event, &hiobj) != noErr) 
             hiobj = 0;
         ReleaseEvent(init_event);
-        iface_wrap = qt_mac_access_iface_map()->value(iface); //from the constructor
-        Q_ASSERT(iface_wrap);
         if(hiobj) {
+            iface_wrap = (QAccessibleInterfaceWrapper*)HIObjectDynamicCast(hiobj, kObjectQtAccessibility);
+            Q_ASSERT(iface_wrap);
             InstallHIObjectEventHandler(hiobj, access_proc_handlerUPP, 
                                         GetEventTypeCount(hiobject_events), 
                                         hiobject_events, 0, 0);
@@ -509,9 +509,7 @@ void QAccessible::updateAccessibility(QObject *object, int control, Event reason
 
     if(notification) {
         AXUIElementRef access = qt_mac_find_uielement(object, control);
-        UInt64 id;
-        AXUIElementGetIdentifier(access, &id);
-        AXNotificationHIObjectNotify(notification, AXUIElementGetHIObject(access), id);
+        AXNotificationHIObjectNotify(notification, AXUIElementGetHIObject(access), (UInt64)control);
     }
 }
 
@@ -523,14 +521,16 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
     switch(eclass) {
     case kEventClassAccessibility: {
         AXUIElementRef req_element;
-        GetEventParameter(event, kEventParamAccessibleObject, typeCFTypeRef, 0, sizeof(req_element), 0, &req_element);
+        GetEventParameter(event, kEventParamAccessibleObject, typeCFTypeRef, 0, 
+                          sizeof(req_element), 0, &req_element);
         int req_child = 0;
         QAccessibleInterface *req_iface = qt_mac_find_access_interface(req_element, &req_child);
         if(ekind == kEventAccessibleGetFocusedChild) {
             if(QWidget *widget = qApp->focusWidget()) {
                 if(!req_iface || widget != req_iface->object()) {
                     AXUIElementRef element = qt_mac_find_uielement(widget);
-                    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
+                    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, 
+                                      sizeof(element), &element);
                 }
             }
         } else if(ekind == kEventAccessibleGetChildAtPoint) {
@@ -659,19 +659,24 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                    && req_iface->object()->isWidgetType() 
                    && static_cast<QWidget*>(req_iface->object())->isTopLevel())
                     role = kAXWindowRole;
-                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(role), &role);
+                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, 
+                                  sizeof(role), &role);
             } else if(CFStringCompare(var, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
                 Boolean val = !((req_iface->state(req_child) & Unavailable)) ? true : false;
-                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                  sizeof(val), &val);
             } else if(CFStringCompare(var, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
                 Boolean val = (req_iface->state(req_child) & Expanded) ? true : false;
-                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                  sizeof(val), &val);
             } else if(CFStringCompare(var, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
                 Boolean val = (req_iface->state(req_child) & Selection) ? true : false;
-                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                  sizeof(val), &val);
             } else if(CFStringCompare(var, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
                 Boolean val = (req_iface->state(req_child) & Focus) ? true : false;
-                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                  sizeof(val), &val);
             } else if(CFStringCompare(var, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
                 const int cc = req_iface->childCount();
                 QList<int> sel;
@@ -698,44 +703,52 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                         arr[i] = qt_mac_find_uielement(req_iface, i);
                 }
                 CFArrayRef cfList = CFArrayCreate(0, (const void **)arr, sel.count(), 0);
-                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(cfList), &cfList);
+                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, 
+                                  sizeof(cfList), &cfList);
             } else if(CFStringCompare(var, kAXMainAttribute, 0) == kCFCompareEqualTo) {
                 Boolean val = (req_iface->object() && req_iface->object()->isWidgetType() 
                                && qApp->mainWidget() == req_iface->object()) ? true : false;
-                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean,
+                                  sizeof(val), &val);
             } else if(CFStringCompare(var, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     Boolean val = true; //do we want to add a WState for this?
-                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                      sizeof(val), &val);
                 }
             } else if(CFStringCompare(var, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
                     Boolean val = (widget->testWFlags(Qt::WStyle_Maximize)) ? true : false;
-                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                      sizeof(val), &val);
                 }
             } else if(CFStringCompare(var, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
                     Boolean val = (widget->testWFlags(Qt::WStyle_Minimize)) ? true : false;
-                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                      sizeof(val), &val);
                 }
             } else if(CFStringCompare(var, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
                     Boolean val = (widget->inherits("QMainWindow")) ? true : false;
-                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                      sizeof(val), &val);
                 }
             } else if(CFStringCompare(var, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     Boolean val = true; //do we want to add a WState for this?
-                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                      sizeof(val), &val);
                 }
             } else if(CFStringCompare(var, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
                     Boolean val = (widget->testWState(Qt::WState_Minimized)) ? true : false;
-                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
+                    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
+                                      sizeof(val), &val);
                 }
             } else if(CFStringCompare(var, kAXSubroleAttribute, 0) == kCFCompareEqualTo) {
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, 
@@ -746,7 +759,8 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                     if(req_iface->role(req_child) == (QAccessible::Role)text_bindings[r][0].qt) {
                         for(int a = 1; text_bindings[r][a].qt != -1; a++) {
                             if(CFStringCompare(var, text_bindings[r][a].mac, 0) == kCFCompareEqualTo) {
-                                const QString qstr = req_iface->text((QAccessible::Text)text_bindings[r][a].qt, req_child);
+                                const QString qstr = req_iface->text((QAccessible::Text)text_bindings[r][a].qt, 
+                                                                     req_child);
                                 if(1 || !qstr.isNull()) {
                                     CFStringRef cfstr = QCFString::toCFStringRef(qstr);
                                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
@@ -835,12 +849,13 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                     }
                 }
             }
-            SetEventParameter(event, kEventParamAccessibleAttributeSettable, typeBoolean, sizeof(settable), &settable);
+            SetEventParameter(event, kEventParamAccessibleAttributeSettable, typeBoolean, 
+                              sizeof(settable), &settable);
         } else if(ekind == kEventAccessibleGetAllActionNames) {
             const int actCount = req_iface->userActionCount(req_child);
             CFStringRef *arr = (CFStringRef *)malloc(sizeof(AXUIElementRef) * actCount);
             for(int i = 0; i < actCount; i++) {
-                QString actName = req_iface->actionText(i, Name, 0);
+                QString actName = req_iface->actionText(i, Name, req_child);
                 arr[i] = QCFString::toCFStringRef(actName);
             }
             QCFType<CFArrayRef> cfList
@@ -868,7 +883,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                 const int actCount = req_iface->userActionCount(req_child);
                 const QString qAct = QCFString::toQString(act);
                 for(int i = 0; i < actCount; i++) {
-                    if(req_iface->actionText(i, Name, 0) == qAct) {
+                    if(req_iface->actionText(i, Name, req_child) == qAct) {
                         req_iface->doAction(req_child, i, QVariantList());
                         found_act = true;
                         break;
@@ -902,8 +917,8 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                 const QString qAct = QCFString::toQString(act);
                 const int actCount = req_iface->userActionCount(req_child);
                 for(int i = 0; i < actCount; i++) {
-                    if(req_iface->actionText(i, Name, 0) == qAct) {
-                        actDesc = req_iface->actionText(i, Description, 0);
+                    if(req_iface->actionText(i, Name, req_child) == qAct) {
+                        actDesc = req_iface->actionText(i, Description, req_child);
                         found_act = true;
                         break;
                     }
