@@ -1209,7 +1209,8 @@ QWidgetList QWorkspace::windowList() const
     while ( it.current () ) {
 	QWorkspaceChild* c = it.current();
 	++it;
-	windows.append( c->windowWidget() );
+	if ( c->windowWidget() )
+	    windows.append( c->windowWidget() );
     }
     return windows;
 }
