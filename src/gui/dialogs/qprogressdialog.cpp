@@ -81,7 +81,8 @@ void QProgressDialogPrivate::init(const QString &labelText, const QString &cance
     label = new QLabel(labelText);
     int align = q->style()->styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment, 0, q);
     label->setAlignment(Qt::Alignment(align));
-    bar = new QProgressBar(min, max, q);
+    bar = new QProgressBar(q);
+    bar->setRange(min, max);
     autoClose = true;
     autoReset = true;
     forceHide = false;
