@@ -39,16 +39,6 @@
 #include "qsqlrecord.h"
 #include "qsqldriver.h"
 
-#ifndef UNICODE
-#define QT_UNDEF_UNICODE
-#define UNICODE
-#endif
-#include <sqlcli.h>
-#ifdef QT_UNDEF_UNICODE
-#undef UNICODE
-#undef QT_UNDEF_UNICODE
-#endif
-
 class QDB2Driver;
 class QDB2DriverPrivate;
 class QDB2ResultPrivate;
@@ -81,7 +71,7 @@ class Q_EXPORT_SQLDRIVER_DB2 QDB2Driver : public QSqlDriver
 {
 public:
     QDB2Driver( QObject* parent = 0, const char* name = 0 );
-    QDB2Driver( SQLHANDLE env, SQLHANDLE con, QObject* parent = 0, const char* name = 0 );
+    QDB2Driver( HANDLE env, HANDLE con, QObject* parent = 0, const char* name = 0 );
     ~QDB2Driver();
     bool hasFeature( DriverFeature ) const;
     bool open( const QString& db, const QString& user, const QString& passwd, const QString&, int );
@@ -97,8 +87,8 @@ public:
     bool commitTransaction();
     bool rollbackTransaction();
     QString formatValue( const QSqlField* field, bool trimStrings ) const;
-    SQLHANDLE environment();
-    SQLHANDLE connection();
+    HANDLE environment();
+    HANDLE connection();
     
     // ### remove me for 4.0
     bool open( const QString& db,
