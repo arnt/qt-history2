@@ -582,7 +582,7 @@ void QButtonGroup::moveFocus( int key )
   <b>Warning: </b>In future versions of Qt, the selected toggle button will be returned.
 */
 
-QButton * QButtonGroup::selected()
+QButton * QButtonGroup::selected() const
 {
     if ( !buttons )
 	return 0;

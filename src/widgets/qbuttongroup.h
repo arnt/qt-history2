@@ -81,7 +81,7 @@ public:
 
     virtual void moveFocus( int );
 
-    QButton    *selected();
+    QButton    *selected() const;
 
 signals:
     void	pressed( int id );
