@@ -88,6 +88,7 @@ private:
     double _m21, _m22;
     double _dx, _dy;
 };
+Q_DECLARE_TYPEINFO(QMatrix, Q_MOVABLE_TYPE);
 
 // mathematical semantics
 inline Q_GUI_EXPORT QPoint operator*(const QPoint &p, const QMatrix &m)

@@ -42,6 +42,7 @@ public:
     bool operator==(const QPen &p) const;
     inline bool operator!=(const QPen &p) const { return !(operator==(p)); }
 
+    bool isDetached() { return d->ref == 1; }
 private:
     friend class QPainter;
     inline void detach() { if (d->ref != 1) detach_helper(); }
@@ -49,14 +50,15 @@ private:
     void init(const QColor &c, int width, uint linestyle);
     struct QPenData {
         QAtomic ref;
-        Qt::PenStyle style;
         int width;
         QColor color;
+        Qt::PenStyle style;
         Q_UINT16 linest;
     };
     struct QPenData *d;
 };
-
+Q_DECLARE_TYPEINFO(QPen, Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QPen);
 
 /*****************************************************************************
   QPen stream functions

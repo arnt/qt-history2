@@ -44,20 +44,25 @@ public:
     inline Qt::BrushStyle style() const;
     void setStyle(Qt::BrushStyle);
 
+    QPixmap texture() const;
+    void setTexture(const QPixmap &pixmap);
+
     inline const QColor &color() const;
     void setColor(const QColor &color);
     inline void setColor(Qt::GlobalColor color) { setColor(QColor(color)); }
 
-    inline QPixmap *pixmap() const;
-    void setPixmap(const QPixmap &pixmap);
+    QColor gradientColor() const;
+    QPointF gradientStart() const;
+    QPointF gradientStop() const;
 
-    inline QColor gradientColor() const;
-    inline QPointF gradientStart() const;
-    inline QPointF gradientStop() const;
-
-    inline operator const QColor&() const;
     bool operator==(const QBrush &b) const;
     inline bool operator!=(const QBrush &b) const { return !(operator==(b)); }
+
+#ifdef QT_COMPAT
+    inline QT_COMPAT operator const QColor&() const;
+    QT_COMPAT QPixmap *pixmap() const;
+    inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setTexture(pixmap); }
+#endif
 
 private:
 #if defined(Q_WS_X11)
@@ -68,14 +73,13 @@ private:
 #endif
     friend class QPainter;
     inline void detach(Qt::BrushStyle newStyle);
-    void detach_helper(Qt::BrushStyle newStyle);
     void init(const QColor &color, Qt::BrushStyle bs);
     QBrushData *d;
-    QBrushData *d_func() { return d; }
     void cleanUp(QBrushData *x);
     static QBrushData *shared_default;
 };
 
+Q_DECLARE_TYPEINFO(QBrush, Q_MOVABLE_TYPE);
 
 /*****************************************************************************
   QBrush stream functions
@@ -97,49 +101,11 @@ struct QBrushData
     QColor color;
 };
 
-struct QTexturedBrushData : public QBrushData
-{
-    QPixmap *pixmap;
-};
-
-struct QLinGradBrushData : public QBrushData
-{
-    QColor color2;
-    QPointF p1;
-    QPointF p2;
-};
-
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
 inline const QColor &QBrush::color() const { return d->color; }
+
+#ifdef QT_COMPAT
 inline QBrush::operator const QColor&() const { return d->color; }
-
-inline void QBrush::detach(Qt::BrushStyle newStyle) { if (newStyle != d->style || d->ref != 1) detach_helper(newStyle); }
-
-inline QPixmap *QBrush::pixmap() const
-{
-    return d->style == Qt::CustomPattern
-                     ? static_cast<const QTexturedBrushData*>(d)->pixmap : 0;
-}
-
-inline QPointF QBrush::gradientStart() const
-{
-    return d->style == Qt::LinearGradientPattern
-                     ? static_cast<const QLinGradBrushData*>(d)->p1
-                     : QPointF();
-}
-
-inline QPointF QBrush::gradientStop() const
-{
-    return d->style == Qt::LinearGradientPattern
-                     ? static_cast<const QLinGradBrushData*>(d)->p2
-                     : QPointF();
-}
-
-inline QColor QBrush::gradientColor() const
-{
-    return d->style == Qt::LinearGradientPattern
-                     ? static_cast<const QLinGradBrushData*>(d)->color2
-                     : QColor();
-}
+#endif
 
 #endif // QBRUSH_H

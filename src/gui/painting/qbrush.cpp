@@ -76,6 +76,19 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
 }
 
 
+struct QTexturedBrushData : public QBrushData
+{
+    QPixmap pixmap;
+};
+
+struct QLinGradBrushData : public QBrushData
+{
+    QColor color2;
+    QPointF p1;
+    QPointF p2;
+};
+
+
 /*!
     \class QBrush qbrush.h
 
@@ -118,31 +131,6 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
     \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
 */
 
-/*!
-    \fn QColor QBrush::gradientColor() const
-
-    Returns the gradient's secondary color.
-
-    \sa gradientStart() gradientStop()
-*/
-
-
-/*!
-    \fn QPointF QBrush::gradientStart() const
-
-    Returns the gradient's starting color.
-
-    \sa gradientStop() gradientColor()
-*/
-
-
-/*!
-    \fn QPointF QBrush::gradientStop() const
-
-    Returns the gradient's ending color.
-
-    \sa gradientStart() gradientColor()
-*/
 
 
 QBrushData *QBrush::shared_default = 0;
@@ -199,7 +187,7 @@ QBrush::QBrush(const QPixmap &pixmap)
 // ## if pixmap was image, we could pick a nice color rather than
 // assuming black.
     init(Qt::black, Qt::CustomPattern);
-    setPixmap(pixmap);
+    setTexture(pixmap);
 }
 
 /*!
@@ -249,7 +237,7 @@ QBrush::QBrush(Qt::GlobalColor color, Qt::BrushStyle style)
 QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
 {
     init(color, Qt::CustomPattern);
-    setPixmap(pixmap);
+    setTexture(pixmap);
 }
 
 /*! \overload
@@ -266,7 +254,7 @@ QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
 QBrush::QBrush(Qt::GlobalColor color, const QPixmap &pixmap)
 {
     init(color, Qt::CustomPattern);
-    setPixmap(pixmap);
+    setTexture(pixmap);
 }
 
 /*!
@@ -311,8 +299,7 @@ void QBrush::cleanUp(QBrushData *x)
 {
     switch (x->style) {
     case Qt::CustomPattern:
-        delete static_cast<QTexturedBrushData*>(x)->pixmap;
-        delete x;
+        delete static_cast<QTexturedBrushData*>(x);
         break;
     case Qt::LinearGradientPattern:
         delete static_cast<QLinGradBrushData*>(x);
@@ -323,8 +310,11 @@ void QBrush::cleanUp(QBrushData *x)
 }
 
 
-void QBrush::detach_helper(Qt::BrushStyle newStyle)
+void QBrush::detach(Qt::BrushStyle newStyle)
 {
+    if (newStyle == d->style && d->ref == 1)
+        return;
+
     QBrushData *x;
     switch(newStyle) {
     case Qt::CustomPattern:
@@ -441,6 +431,7 @@ void QBrush::setColor(const QColor &c)
 */
 
 
+#ifdef QT_COMPAT
 /*!
     \fn QPixmap *QBrush::pixmap() const
 
@@ -449,6 +440,26 @@ void QBrush::setColor(const QColor &c)
 
     \sa setPixmap()
 */
+QPixmap *QBrush::pixmap() const
+{
+    return d->style == Qt::CustomPattern
+                     ? &static_cast<const QTexturedBrushData*>(d)->pixmap : 0;
+}
+#endif
+
+/*!
+    \fn QPixmap QBrush::texture() const
+
+    Returns a pointer to the custom brush pattern, or a null pixmap if
+    no custom brush pattern has been set.
+
+    \sa setPixmap()
+*/
+QPixmap QBrush::texture() const
+{
+    return d->style == Qt::CustomPattern
+                     ? static_cast<const QTexturedBrushData*>(d)->pixmap : QPixmap();
+}
 
 /*!
     Sets the brush pixmap to \a pixmap. The style is set to \c
@@ -462,18 +473,62 @@ void QBrush::setColor(const QColor &c)
     \sa pixmap(), color()
 */
 
-void QBrush::setPixmap(const QPixmap &pixmap)
+void QBrush::setTexture(const QPixmap &pixmap)
 {
     if (!pixmap.isNull()) {
         detach(Qt::CustomPattern);
-        QPixmap *pm = new QPixmap(pixmap);
-        if (pm->optimization() == QPixmap::MemoryOptim)
-            pm->setOptimization(QPixmap::NormalOptim);
-        static_cast<QTexturedBrushData *>(d)->pixmap = pm;
+        QTexturedBrushData *data = static_cast<QTexturedBrushData *>(d);
+        data->pixmap = pixmap;
+        if (data->pixmap.optimization() == QPixmap::MemoryOptim)
+            data->pixmap.setOptimization(QPixmap::NormalOptim);
     } else {
         detach(Qt::NoBrush);
     }
 }
+
+
+/*!
+    \fn QColor QBrush::gradientColor() const
+
+    Returns the gradient's secondary color.
+
+    \sa gradientStart() gradientStop()
+*/
+QColor QBrush::gradientColor() const
+{
+    return d->style == Qt::LinearGradientPattern
+                     ? static_cast<const QLinGradBrushData*>(d)->color2
+                     : QColor();
+}
+
+/*!
+    \fn QPointF QBrush::gradientStart() const
+
+    Returns the gradient's starting color.
+
+    \sa gradientStop() gradientColor()
+*/
+QPointF QBrush::gradientStart() const
+{
+    return d->style == Qt::LinearGradientPattern
+                     ? static_cast<const QLinGradBrushData*>(d)->p1
+                     : QPointF();
+}
+
+/*!
+    \fn QPointF QBrush::gradientStop() const
+
+    Returns the gradient's ending color.
+
+    \sa gradientStart() gradientColor()
+*/
+QPointF QBrush::gradientStop() const
+{
+    return d->style == Qt::LinearGradientPattern
+                     ? static_cast<const QLinGradBrushData*>(d)->p2
+                     : QPointF();
+}
+
 
 
 /*!
@@ -500,20 +555,22 @@ void QBrush::setPixmap(const QPixmap &pixmap)
 
 bool QBrush::operator==(const QBrush &b) const
 {
-    if (b.d == d || (b.d->style == d->style && b.d->color == d->color)) {
+    if (b.d == d)
+        return true;
+    if (b.d->style == d->style && b.d->color == d->color) {
         switch (d->style) {
         case Qt::CustomPattern: {
-            QPixmap *us = static_cast<QTexturedBrushData *>(d)->pixmap;
-            QPixmap *them = static_cast<QTexturedBrushData *>(b.d)->pixmap;
-            return (us == them) || (us && them && us->serialNumber() == them->serialNumber());
+            QPixmap us = static_cast<QTexturedBrushData *>(d)->pixmap;
+            QPixmap them = static_cast<QTexturedBrushData *>(b.d)->pixmap;
+            return ((us.isNull() && them.isNull()) || us.serialNumber() == them.serialNumber());
         }
-        case Qt::LinearGradientPattern:
-            return static_cast<QLinGradBrushData*>(d)->color2
-                == static_cast<QLinGradBrushData*>(b.d)->color2
-                && static_cast<QLinGradBrushData*>(d)->p1
-                == static_cast<QLinGradBrushData*>(b.d)->p1
-                && static_cast<QLinGradBrushData*>(d)->p2
-                == static_cast<QLinGradBrushData*>(b.d)->p2;
+        case Qt::LinearGradientPattern: {
+            QLinGradBrushData *d1 = static_cast<QLinGradBrushData *>(d);
+            QLinGradBrushData *d2 = static_cast<QLinGradBrushData *>(b.d);
+            return d1->color2 == d2->color2
+                    && d1->p1 == d2->p1
+                    && d1->p2 == d2->p2;
+        }
         default:
             return true;
         }
@@ -575,7 +632,7 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
     s << (Q_UINT8)b.style() << b.color();
     if (b.style() == Qt::CustomPattern)
 #ifndef QT_NO_IMAGEIO
-        s << *b.pixmap();
+        s << b.texture();
 #else
         qWarning("No Image Brush I/O");
 #endif

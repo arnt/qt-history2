@@ -128,18 +128,6 @@ private:
     static void cleanUp(QRegionData *x);
 };
 
-
-#define QRGN_SETRECT                1                // region stream commands
-#define QRGN_SETELLIPSE                2                //  (these are internal)
-#define QRGN_SETPTARRAY_ALT        3
-#define QRGN_SETPTARRAY_WIND        4
-#define QRGN_TRANSLATE                5
-#define QRGN_OR                        6
-#define QRGN_AND                7
-#define QRGN_SUB                8
-#define QRGN_XOR                9
-#define QRGN_RECTS               10
-
 /*****************************************************************************
   QRegion stream functions
  *****************************************************************************/
