@@ -475,7 +475,7 @@ extern bool qt_winunicode;
 // Create Qt DLL if QT_DLL is defined (Windows only)
 //
 
-#if defined(Q_OS_WIN32) || (Q_OS_WIN64)
+#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
 #  if defined(QT_NODLL)
 #    undef QT_MAKEDLL
 #    undef QT_DLL
