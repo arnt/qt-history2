@@ -201,6 +201,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl << endl;
 
     t << "dist: " << "\n\t"
+      << "cd ..\n\t"
       << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(INTERFACES) $(DIST)" << "\n\t"
       << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
 
@@ -253,7 +254,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << "all: $(SUBDIRS)" << endl << endl;
 
     t << "$(SUBDIRS): tmake_all FORCE" << "\n\t"
-      << "cd $@; $(MAKE)" << endl << endl;
+      << "cd $@ && $(MAKE)" << endl << endl;
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
@@ -264,7 +265,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << "tmake_all:" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
       << "[ ! -f $(MAKEFILE) ] && $(TMAKE) $$i.pro -o $(MAKEFILE); "
-      << "grep \"TEMPLATE.*subdirs\" $$i.pro 2>/dev/null >/dev/null && "
+      << "grep \"^tmake_all:$$\" $$i.pro 2>/dev/null >/dev/null && "
       << "$(MAKE) -f $(MAKEFILE) tmake_all || true; fi; ) ; done" << endl << endl;
 
     t <<"clean release debug:" << "\n\t"
