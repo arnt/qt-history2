@@ -2664,7 +2664,7 @@ QMap<QString, QVariant>& QVariant::asMap()
 */
 bool QVariant::canCast( Type t ) const
 {
-    if ( d->typ == t )
+    if ( Type( d->typ ) == t )
 	return TRUE;
 
     switch ( t ) {
