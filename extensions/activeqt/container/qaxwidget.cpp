@@ -1178,7 +1178,7 @@ int QAxClientSite::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
 
     OleMenuItem oleItem = menuItemMap.value(action);
     if (oleItem.hMenu)
-        ::PostMessageA(m_menuOwner, WM_MENUCOMMAND, oleItem.id, 0);
+        ::PostMessageA(m_menuOwner, WM_COMMAND, oleItem.id, 0);
     return -1;
 }
 
