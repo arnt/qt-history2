@@ -55,6 +55,10 @@ protected:
     int numRowsAffected();
     QSqlRecord record() const;
 
+#if MYSQL_VERSION_ID >= 40102
+    bool prepare(const QString& stmt);
+    bool exec();
+#endif
 private:
     QMYSQLResultPrivate* d;
 };
