@@ -116,7 +116,7 @@ static Visual *find_visual(Display *display,
 
     vi = XGetVisualInfo(display, mask, &rvi, &count);
     if (vi) {
-        int best = -1;
+        int best = 0;
         for (int x = 0; x < count; ++x) {
             if (vi[x].depth > vi[best].depth)
                 best = x;
