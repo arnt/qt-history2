@@ -1310,11 +1310,10 @@ void QODBCPrivate::checkUnicode()
 	return;
     }
 #endif
-
     SQLRETURN   r;
     SQLUINTEGER fFunc;
 
-    unicode = TRUE;
+    unicode = FALSE;
     r = SQLGetInfo( hDbc, 
 		    SQL_CONVERT_CHAR,
 		    (SQLPOINTER)&fFunc,
@@ -1322,8 +1321,7 @@ void QODBCPrivate::checkUnicode()
 		    NULL );
     if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( fFunc & SQL_CVT_WCHAR ) ) {
 	sql_char_type = QVariant::String;
-    } else {
-	unicode = FALSE;
+	unicode = TRUE;
     }
 
     r = SQLGetInfo( hDbc, 
@@ -1333,8 +1331,7 @@ void QODBCPrivate::checkUnicode()
 		    NULL );
     if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( fFunc & SQL_CVT_WVARCHAR ) ) {
 	sql_varchar_type = QVariant::String;
-    } else {
-	unicode = FALSE;
+	unicode = TRUE;
     }
 
     r = SQLGetInfo( hDbc,
@@ -1344,8 +1341,7 @@ void QODBCPrivate::checkUnicode()
 		    NULL );
     if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( fFunc & SQL_CVT_WLONGVARCHAR ) ) {
 	sql_longvarchar_type = QVariant::String;
-    } else {
-	unicode = FALSE;
+	unicode = TRUE;
     }
 }
 
