@@ -3142,6 +3142,9 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
     if ( !firstParagraph() )
 	return 0;
 
+    if ( formatCollection()->defaultFormat()->color() != cg.text() ) 
+	setDefaultFormat( formatCollection()->defaultFormat()->font(), cg.text() );
+
     if ( cx < 0 && cy < 0 ) {
 	cx = 0;
 	cy = 0;
