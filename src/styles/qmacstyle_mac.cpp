@@ -40,7 +40,7 @@ class QMacPainter : public QPainter
 public:
     QMacPainter(QPaintDevice *p) : QPainter(p) { }
     QPoint domap(int x, int y) { map(x, y, &x, &y); return QPoint(x, y); }
-    void setport() { QPainter::initPaintDevice(TRUE); }
+    void setport();
     void setfont() { QPainter::updateFont(); }
 };
 
@@ -88,6 +88,17 @@ static const int macItemVMargin       = 2;    // menu item ver text margin
 static const int macRightBorder       = 12;   // right border on mac
 
 #define QMAC_DO_SECONDARY_GROUPBOXES
+
+void QMacPainter::setport()
+{ 
+    QPainter::initPaintDevice(TRUE); 
+    //just to be extra sure
+    ::RGBColor f;
+    f.red = f.green = f.blue = 0;
+    RGBForeColor(&f);
+    f.red = f.green = f.blue = ~0;
+    RGBBackColor(&f);
+}
 
 // Utility to generate correct rectangles for AppManager internals
 static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL,
@@ -1079,13 +1090,6 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    QListViewItem *item = opt.listViewItem();
 	    int y=r.y(), h=r.height();
 	    ((QMacPainter *)p)->setport();
-	    {
-		::RGBColor f;
-		f.red = f.green = f.blue = 0;
-		RGBForeColor(&f);
-		f.red = f.green = f.blue = ~0;
-		RGBBackColor(&f);
-	    }
 	    for(QListViewItem *child = item->firstChild(); child && y < h;
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
