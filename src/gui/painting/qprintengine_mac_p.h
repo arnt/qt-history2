@@ -20,7 +20,12 @@
 
 class QPrinterPrivate;
 
-class QMacPrintEnginePrivate : public QCoreGraphicsPaintEnginePrivate
+class QMacPrintEnginePrivate : 
+#if defined(QMAC_PRINTER_USE_QUICKDRAW)
+    public QQuickDrawPaintEnginePrivate
+#else
+    public QCoreGraphicsPaintEnginePrivate
+#endif
 {
     Q_DECLARE_PUBLIC(QMacPrintEngine);
 public:
@@ -33,8 +38,9 @@ public:
     QString outputFilename;
     bool outputToFile;
     bool fullPage;
+    GWorldPtr qdHandle;
     QMacPrintEnginePrivate() : mode(QPrinter::ScreenResolution), state(QPrinter::Idle),
-        format(0), settings(0),session(0) {}
+        format(0), settings(0),session(0), qdHandle(0) {}
     void initialize();
     bool newPage_helper();
 };

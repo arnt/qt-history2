@@ -112,7 +112,7 @@ QQuickDrawPaintEngine::QQuickDrawPaintEngine()
 }
 
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures devcaps)
-    : QPaintEngine(dptr, devcaps)
+    : QPaintEngine(dptr, (devcaps ? devcaps : (UsesFontEngine|PixmapScale)))
 {
 }
 

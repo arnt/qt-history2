@@ -22,11 +22,19 @@
 #include <private/qpainter_p.h>
 
 class QMacPrintEnginePrivate;
-class QMacPrintEngine : public QCoreGraphicsPaintEngine, public QPrintEngine
+class QMacPrintEngine : 
+#if defined(QMAC_PRINTER_USE_QUICKDRAW)
+    public QQuickDrawPaintEngine, 
+#else
+    public QCoreGraphicsPaintEngine, 
+#endif
+    public QPrintEngine
 {
     Q_DECLARE_PRIVATE(QMacPrintEngine);
 public:
     QMacPrintEngine(QPrinter::PrinterMode mode);
+
+    Qt::HANDLE handle() const;
 
     bool begin(QPaintDevice *dev);
     bool end();

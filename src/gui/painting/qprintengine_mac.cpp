@@ -19,8 +19,16 @@
 #define d d_func()
 #define q q_func()
 
+#ifdef QMAC_NO_COREGRAPHICS
+//#  define QMAC_PRINTER_USE_QUICKDRAW
+#endif
+
 QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode)
+#if defined(QMAC_PRINTER_USE_QUICKDRAW)
+    : QQuickDrawPaintEngine(*(new QMacPrintEnginePrivate))
+#else
     : QCoreGraphicsPaintEngine(*(new QMacPrintEnginePrivate))
+#endif
 {
     d->mode = mode;
     d->initialize();
@@ -28,15 +36,19 @@ QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode)
 
 bool QMacPrintEngine::begin(QPaintDevice *dev)
 {
+#if defined(QMAC_PRINTER_USE_QUICKDRAW)
+    if (!QQuickDrawPaintEngine::begin(dev))
+        return false;
+#else
     if (!QCoreGraphicsPaintEngine::begin(dev))
         return false;
+#endif
     Q_ASSERT_X(d->state == QPrinter::Idle, "QMacPrintEngine", "printer already active");
-    bool ret = true;
 
     if (PMSessionValidatePrintSettings(d->session, d->settings, kPMDontWantBoolean) != noErr
         || PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean) != noErr) {
         d->state == QPrinter::Error;
-        ret = false;
+        return false;
     }
 
     if (d->outputToFile) {
@@ -47,20 +59,18 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
         if (PMSessionSetDestination(d->session, d->settings, kPMDestinationFile,
                                     kPMDocumentFormatPDF, outFile) != noErr) {
             qWarning("problem setting file [%s]", d->outputFilename.utf8());
-            ret = false;
+            return false;
         }
     }
 
     if (PMSessionBeginDocument(d->session, d->settings, d->format) != noErr) {
         d->state == QPrinter::Error;
-        ret = false;
+        return false;
     }
 
-    if (ret) {
-        d->state = QPrinter::Active;
-        d->newPage_helper();
-    }
-    return ret;
+    d->state = QPrinter::Active;
+    d->newPage_helper();
+    return true;
 }
 
 bool QMacPrintEngine::end()
@@ -114,6 +124,12 @@ void QMacPrintEngine::setOutputFileName(const QString &outputFileName)
 QString QMacPrintEngine::outputFileName()const
 {
     return d->outputFilename;
+}
+
+Qt::HANDLE
+QMacPrintEngine::handle() const
+{
+    return d->qdHandle;
 }
 
 void QMacPrintEngine::setPrintProgram(const QString &) {}
@@ -454,46 +470,58 @@ void QMacPrintEnginePrivate::initialize()
         formatOK = PMSetResolution(format, &resolution) == noErr;
     }
 
-
+#if !defined(QMAC_PRINTER_USE_QUICKDRAW)
     CFStringRef strings[1] = { kPMGraphicsContextCoreGraphics };
     QCFType<CFArrayRef> contextArray = CFArrayCreate(kCFAllocatorDefault,
                                                      reinterpret_cast<const void **>(strings),
                                                      1, &kCFTypeArrayCallBacks);
     bool contextOK = contextArray;
-    if (contextOK)
+    if (contextOK) 
         contextOK = PMSessionSetDocumentFormatGeneration(session, kPMDocumentFormatPDF,
                                                          contextArray, 0) == noErr;
-
-    if (!settingsOK || !formatOK || !contextOK)
+    if(!contextOK) 
         state = QPrinter::Error;
+    else
+#endif
+        if (!settingsOK || !formatOK)
+            state = QPrinter::Error;
 }
 
 bool QMacPrintEnginePrivate::newPage_helper()
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    bool ret = true;
 
     if (PMSessionError(session) != noErr) {
         abort();
         return false;
     }
     OSStatus err = PMSessionBeginPage(session, format, 0);
+#if defined(QMAC_PRINTER_USE_QUICKDRAW)
+    err = PMSessionGetGraphicsContext(session, kPMGraphicsContextQuickdraw,
+                                      reinterpret_cast<void **>(&qdHandle));
+#else
     err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
                                       reinterpret_cast<void **>(&hd));
-
+#endif
 
     if (err != noErr) {
         state = QPrinter::Error;
-        ret = false;
+        return false;
     }
+
     QRect page = q->pageRect();
     QRect paper = q->paperRect();
+#if !defined(QMAC_PRINTER_USE_QUICKDRAW)
     CGContextScaleCTM(hd, 1, -1);
     CGContextTranslateCTM(hd, 0, -paper.height());
-    if (ret && !fullPage)
+    if (!fullPage)
         CGContextTranslateCTM(hd, page.x() - paper.x(), page.y() - paper.y());
     orig_xform = CGContextGetCTM(hd);
     setClip(0);
-    return ret;
+#else
+    QMacSavedPortInfo mp(d->pdev);
+    SetOrigin(page.x() - paper.x(), page.y() - paper.y());
+#endif
+    return true;
 }
 

@@ -17,7 +17,9 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qprinter.h"
 #include <private/qt_mac_p.h>
+#include <qprintengine_mac.h>
 
 /*****************************************************************************
   Internal variables and functions
@@ -61,12 +63,16 @@ int QPaintDevice::metric(int) const
     can't be obtained.
 */
 
-GrafPtr qt_macQDHandle(const QPaintDevice *pd)
+GrafPtr qt_macQDHandle(const QPaintDevice *device)
 {
-    if (pd->devType() == QInternal::Widget)
-        return static_cast<GrafPtr>(static_cast<const QWidget *>(pd)->handle());
-    else if (pd->devType() == QInternal::Pixmap)
-        return static_cast<GrafPtr>(static_cast<const QPixmap *>(pd)->handle());
+    if (device->devType() == QInternal::Widget) {
+        return static_cast<GrafPtr>(static_cast<const QWidget *>(device)->handle());
+    } else if (device->devType() == QInternal::Pixmap) {
+        return static_cast<GrafPtr>(static_cast<const QPixmap *>(device)->handle());
+    } else if (device->devType() == QInternal::Printer) {
+        QPaintEngine *engine = static_cast<const QPrinter *>(device)->paintEngine();
+        return static_cast<GrafPtr>(static_cast<const QMacPrintEngine *>(engine)->handle());
+    }
     return 0;
 }
 

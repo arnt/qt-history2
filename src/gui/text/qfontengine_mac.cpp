@@ -460,20 +460,19 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     arr++;
 
     tags[arr] = kATSUCGContextTag;
+    QMacCGContext q_ctx; //will release on scope ending
     CGContextRef ctx = 0;
     CGrafPtr ctx_port = 0; //only set if the ctx is created from a port
     if(p && p->type() == QPaintEngine::CoreGraphics) {
         if(p && device) {
-            QMacCGContext q_ctx(p->painter());
-            ctx = static_cast<CGContextRef>(q_ctx); // Apparently we have enough, so no retain.
+            q_ctx = QMacCGContext(p->painter());
         } else {
             static QPixmap *pixmap = 0;
             if(!pixmap)
                 pixmap = new QPixmap(1, 1, 32);
-            QMacCGContext q_ctx(pixmap);
-            ctx = static_cast<CGContextRef>(q_ctx);
-            CGContextRetain(ctx);
+            q_ctx = QMacCGContext(pixmap);
         }
+        ctx = static_cast<CGContextRef>(q_ctx);
     } else {
         QRegion rgn;
         if(p && p->type() == QPaintEngine::QuickDraw) {
@@ -501,9 +500,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             if(!pixmap)
                 pixmap = new QPixmap(1, 1, 32);
             QMacSavedPortInfo::setPaintDevice(pixmap);
-            QMacCGContext q_ctx(pixmap);
+            q_ctx = QMacCGContext(pixmap);
             ctx = static_cast<CGContextRef>(q_ctx);
-            CGContextRetain(ctx);
         }
     }
     valueSizes[arr] = sizeof(ctx);

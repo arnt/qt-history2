@@ -465,8 +465,6 @@ public:
     QX11Info *x11Info() const;
     Qt::HANDLE xftPictureHandle() const;
     Qt::HANDLE xftDrawHandle() const;
-#elif defined(Q_WS_MAC)
-    Qt::HANDLE macCGHandle() const;
 #endif
 
 #if defined(Q_WS_WIN)
@@ -474,8 +472,6 @@ public:
 #else
     Qt::HANDLE handle() const;
 #endif
-
-
 
     void setAttribute(Qt::WidgetAttribute, bool on = true);
     inline bool testAttribute(Qt::WidgetAttribute) const;
