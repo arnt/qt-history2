@@ -1834,20 +1834,13 @@ void QApplication::setMainWidget( QWidget *mainWidget )
   QApplication cursor stack
  *****************************************************************************/
 #ifndef QT_NO_CURSOR
-typedef QPtrList<QCursor> QCursorList;
-
-static QCursorList *cursorStack = 0;
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
-    if ( !cursorStack ) {
-	qws_overrideCursor = TRUE;
-	cursorStack = new QCursorList;
-	cursorStack->setAutoDelete( TRUE );
-    }
     app_cursor = new QCursor( cursor );
-    if ( replace )
-	cursorStack->removeLast();
-    cursorStack->append( app_cursor );
+    if (replace && !qApp->d->cursor_list.isEmpty())
+	qApp->d->cursor_list.removeAt(qApp->d->cursor_list.size()-1);
+    qApp->d->cursor_list.append( app_cursor );
+
     QWidget *w = QWidget::mouseGrabber();
     if ( !w && qt_last_x )
 	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
@@ -1858,26 +1851,25 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 
 void QApplication::restoreOverrideCursor()
 {
-    if ( !cursorStack )				// no cursor stack
+    if ( !qApp->d->cursor_list )				// no cursor stack
 	return;
-    cursorStack->removeLast();
-    app_cursor = cursorStack->last();
+    qApp->d->cursor_list.removeAt(qApp->d->cursor_list.size()-1);
+    app_cursor = qApp->d->cursor_list.last();
+
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)
 	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
     if ( !w )
 	w = desktop();
+    int cursor_handle;
     if ( !app_cursor ) {
-	delete cursorStack;
-	cursorStack = 0;
 	qws_overrideCursor = FALSE;
-	if ( w->testAttribute(QWidget::WA_SetCursor) )
-	    QPaintDevice::qwsDisplay()->selectCursor(w, (int)w->cursor().handle());
-	else
-	    QPaintDevice::qwsDisplay()->selectCursor(w, ArrowCursor);
+	cursor_handle = (w->testAttribute(QWidget::WA_SetCursor))
+			? (int)w->cursor().handle() : ArrowCursor;
     } else {
-	QPaintDevice::qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
+	cursor_handle = (int)app_cursor->handle();
     }
+    QPaintDevice::qwsDisplay()->selectCursor(w, cursor_handle);
 }
 #endif// QT_NO_CURSOR
 

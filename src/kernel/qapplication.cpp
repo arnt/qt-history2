@@ -54,6 +54,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = FALSE;
 #endif
+    cursor_list.setAutoDelete( TRUE );
 }
 
 
@@ -1818,7 +1819,7 @@ void QApplication::polish( QWidget *w )
 
   The list is created using \c new and must be deleted by the caller.
 
-  The list is empty (QPtrList::isEmpty()) if there are no top level
+  The list is empty (QList::isEmpty()) if there are no top level
   widgets.
 
   Note that some of the top level widgets may be hidden, for example
@@ -1842,7 +1843,7 @@ void QApplication::polish( QWidget *w )
   The widgets in the list may be deleted by someone else at any time.
 
   \sa allWidgets(), QWidget::isTopLevel(), QWidget::isVisible(),
-      QPtrList::isEmpty()
+      QList::isEmpty()
 */
 QWidgetList QApplication::topLevelWidgets()
 {
@@ -1863,7 +1864,7 @@ QWidgetList QApplication::topLevelWidgets()
 
   The list is created using \c new and must be deleted by the caller.
 
-  The list is empty (QPtrList::isEmpty()) if there are no widgets.
+  The list is empty (QList::isEmpty()) if there are no widgets.
 
   Note that some of the widgets may be hidden.
 
@@ -1885,7 +1886,7 @@ QWidgetList QApplication::topLevelWidgets()
   \warning Delete the list as soon as you have finished using it.
   The widgets in the list may be deleted by someone else at any time.
 
-  \sa topLevelWidgets(), QWidget::isVisible(), QPtrList::isEmpty(),
+  \sa topLevelWidgets(), QWidget::isVisible(), QList::isEmpty(),
 */
 
 QWidgetList QApplication::allWidgets()

@@ -2435,10 +2435,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 
 extern void qt_x11_enforce_cursor( QWidget * w );
 
-typedef QPtrList<QCursor> QCursorList;
-
-static QCursorList *cursorStack = 0;
-
 /*!
     \fn QCursor *QApplication::overrideCursor()
 
@@ -2484,14 +2480,10 @@ static QCursorList *cursorStack = 0;
 
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
-    if ( !cursorStack ) {
-	cursorStack = new QCursorList;
-	cursorStack->setAutoDelete( TRUE );
-    }
     app_cursor = new QCursor( cursor );
-    if ( replace )
-	cursorStack->removeLast();
-    cursorStack->append( app_cursor );
+    if (replace && !qApp->d->cursor_list.isEmpty())
+	qApp->d->cursor_list.removeAt(qApp->d->cursor_list.size()-1);
+    qApp->d->cursor_list.append( app_cursor );
 
     for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
 	register QWidget *w = *it;
@@ -2514,10 +2506,10 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 
 void QApplication::restoreOverrideCursor()
 {
-    if ( !cursorStack )				// no cursor stack
+    if ( !qApp->d->cursor_list )				// no cursor stack
 	return;
-    cursorStack->removeLast();
-    app_cursor = cursorStack->last();
+    qApp->d->cursor_list.removeAt(qApp->d->cursor_list.size()-1);
+    app_cursor = qApp->d->cursor_list.last();
     if ( QWidget::mapper != 0 && !closingDown() ) {
 	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
 	    register QWidget *w = *it;
@@ -2525,10 +2517,6 @@ void QApplication::restoreOverrideCursor()
 		qt_x11_enforce_cursor( w );
 	}
 	XFlush( X11->display );
-    }
-    if ( !app_cursor ) {
-	delete cursorStack;
-	cursorStack = 0;
     }
 }
 
@@ -5258,8 +5246,15 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    } else {
 		setAttribute(WA_PendingResizeEvent, true);
 	    }
+	    // remove unnecessary paint events from the queue
+	    XEvent xevent;
+	    while ( XCheckTypedWindowEvent( x11Display(), winId(), Expose, &xevent ) &&
+		    ! qt_x11EventFilter( &xevent )  &&
+		    ! x11Event( &xevent ) ) // send event through filter
+		;
+	    if (!testAttribute(WA_StaticContents))
+		testWState(WState_InPaintEvent)?update():repaint();
 	}
-
     } else {
 	XEvent xevent;
 	while ( XCheckTypedWindowEvent(x11Display(),winId(), ConfigureNotify,&xevent) &&
