@@ -7,8 +7,8 @@
 #include <qsignal.h>
 #include <qregexp.h>
 #include <private/qspinlock_p.h>
-#include <qtextcodec.h>
 #include <private/qunicodetables_p.h>
+#include <qurl.h>
 
 static QDnsAgent *agent = 0;
 
@@ -128,17 +128,12 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
     // running the punycode decoder on each part, then merging
     // together before passing the name to the lookup agent.
     QString lookup;
-    QTextCodec *codec = QTextCodec::codecForName("Punycode");
-    if (!codec) {
-        lookup = name;
-    } else {
-        const unsigned short delimiters[] = {0x2e, 0x3002, 0xff0e, 0xff61, 0};
-        QStringList labels = name.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
-        for (int i = 0; i < labels.count(); ++i) {
-            if (i != 0) lookup += '.';
-            QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
-            lookup += QString::fromAscii(codec->fromUnicode(label));
-        }
+    const unsigned short delimiters[] = {0x2e, 0x3002, 0xff0e, 0xff61, 0};
+    QStringList labels = name.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
+    for (int i = 0; i < labels.count(); ++i) {
+        if (i != 0) lookup += '.';
+        QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
+        lookup += QString::fromAscii(QUrl::toPunycode(label));
     }
 
     agent->addHostName(lookup, receiver, member);
