@@ -905,7 +905,6 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/oci
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/tds
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/db2
-	    rm -rf $PLATDIR/extensions/motif
 	    ;;
         commercial)
 	    #remove .GPL files for assistant, designer and linguist in commercial
@@ -1063,7 +1062,7 @@ for plat in mac win x11 qnx6 embedded; do
 	if [ "$plat" != "win" ]; then
 	    remove_file_and_includes "extensions/activeqt" #activeqt is windows only
 	fi
-	if [ "$plat" != "x11" ]; then
+	if [ "$plat" != "x11" ] || [ "$edition" == "free" ]; then
 	    remove_file_and_includes "extensions/xt" "extensions/motif" #x11 only
 	fi
 	#remove platform specific files that don't belong
