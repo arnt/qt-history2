@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <dos.h>
 #include <stdlib.h>
+#include <search.h>
 #include <windows.h>
 
 #if __BORLANDC__ >= 0x550
