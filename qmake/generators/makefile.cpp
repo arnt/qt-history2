@@ -1350,6 +1350,7 @@ MakefileGenerator::writePrlFile(QTextStream &t)
 bool
 MakefileGenerator::write()
 {
+    usePlatformDir();
     init();
     findLibraries();
     if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write prl
@@ -1387,6 +1388,61 @@ MakefileGenerator::write()
 	writeMakefile(t);
     }
     return TRUE;
+}
+
+// Manipulate directories, so it's possible to build
+// several cross-platform targets concurrently
+void
+MakefileGenerator::usePlatformDir()
+{
+    QString pltDir(project->first("QMAKE_PLATFORM_DIR"));
+    if(pltDir.isEmpty())
+	return;
+    char sep = QDir::separator();
+    QString slashPltDir = sep + pltDir;
+
+    QString filePath = project->first("DESTDIR");
+    project->variables()["DESTDIR"] = filePath 
+				    + (filePath.isEmpty() ? pltDir : slashPltDir);
+
+    filePath = project->first("DLLDESTDIR");
+    project->variables()["DLLDESTDIR"] = filePath 
+				       + (filePath.isEmpty() ? pltDir : slashPltDir);
+
+    filePath = project->first("OBJECTS_DIR");
+    project->variables()["OBJECTS_DIR"] = filePath 
+					+ (filePath.isEmpty() ? pltDir : slashPltDir);
+
+    filePath = project->first("QMAKE_LIBDIR_QT");
+    project->variables()["QMAKE_LIBDIR_QT"] = filePath 
+					    + (filePath.isEmpty() ? pltDir : slashPltDir);
+
+    filePath = project->first("QMAKE_LIBS_QT");
+    int fpi = filePath.findRev(sep);
+    if (fpi == -1)
+	project->variables()["QMAKE_LIBS_QT"].prepend(pltDir + sep);
+    else
+        project->variables()["QMAKE_LIBS_QT"] = filePath.left(fpi)
+					      + slashPltDir
+					      + filePath.mid(fpi);
+    
+    filePath = project->first("QMAKE_LIBS_QT_THREAD");
+    fpi = filePath.findRev(sep);
+    if (fpi == -1)
+	project->variables()["QMAKE_LIBS_QT_THREAD"].prepend(pltDir + sep);
+    else
+        project->variables()["QMAKE_LIBS_QT_THREAD"] = filePath.left(fpi)
+						     + slashPltDir
+						     + filePath.mid(fpi);
+
+    filePath = project->first("QMAKE_LIBS_QT_ENTRY");
+    fpi = filePath.findRev(sep);
+    if (fpi == -1)
+	project->variables()["QMAKE_LIBS_QT_ENTRY"].prepend(pltDir + sep);
+    else
+        project->variables()["QMAKE_LIBS_QT_ENTRY"] = filePath.left(fpi)
+						    + slashPltDir
+						    + filePath.mid(fpi);
 }
 
 void
