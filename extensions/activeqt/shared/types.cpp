@@ -45,7 +45,14 @@ IFontDisp *QFontToIFont( const QFont &font )
     fdesc.sWeight = font.weight() * 10;
 
     IFontDisp *f;
-    OleCreateFontIndirect( &fdesc, IID_IFontDisp, (void**)&f );
+    HRESULT res = OleCreateFontIndirect( &fdesc, IID_IFontDisp, (void**)&f );
+    if ( res != S_OK ) {
+	if ( f ) f->Release();
+	f = 0;
+#if defined(QT_CHECK_STATE)
+	qWarning( "QFontToIFont: Failed to create IFont" );
+#endif
+    }
     return f;
 }
 
@@ -110,7 +117,14 @@ IPictureDisp *QPixmapToIPicture( const QPixmap &pixmap )
 	desc.bmp.hbitmap = hbm;
     }
 
-    OleCreatePictureIndirect( &desc, IID_IPictureDisp, TRUE, (void**)&pic );
+    HRESULT res = OleCreatePictureIndirect( &desc, IID_IPictureDisp, TRUE, (void**)&pic );
+    if ( res != S_OK ) {
+	if ( pic ) pic->Release();
+	pic = 0;
+#if defined(QT_CHECK_STATE)
+	qWarning( "QPixmapToIPicture: Failed to create IPicture" );
+#endif
+    }
     return pic;
 }
 
@@ -483,8 +497,12 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     case VT_DISPATCH:
     case VT_DISPATCH|VT_BYREF:
 	{
-	    // pdispVal and ppdispVal are a union
-	    IDispatch *disp = arg.pdispVal;
+	    IDispatch *disp = 0;
+	    if ( arg.vt & VT_BYREF )
+		disp = *arg.ppdispVal;
+	    else
+		disp = arg.pdispVal;
+
 	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Font ) {
 		IFont *ifont = 0;
 		QFont qfont;
@@ -530,7 +548,11 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     case VT_ARRAY|VT_VARIANT|VT_BYREF:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::List ) {
 	    // parray and pparrayare a union
-	    SAFEARRAY *array = arg.parray;
+	    SAFEARRAY *array = 0;
+	    if ( arg.vt & VT_BYREF )
+		array = *arg.pparray;
+	    else
+		array = arg.parray;
 	    QValueList<QVariant> list;
 	    QValueList<QVariant> *reference = (QValueList<QVariant>*)static_QUType_varptr.get( obj );
 
@@ -688,7 +710,11 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_DISPATCH|VT_BYREF:
 	{
 	    // pdispVal and ppdispVal are a union
-	    IDispatch *disp = arg.pdispVal;
+	    IDispatch *disp = 0;
+	    if ( arg.vt & VT_BYREF )
+		disp = *arg.ppdispVal;
+	    else
+		disp = arg.pdispVal;
 	    if ( !qstrcmp( hint, "QFont" ) ) {
 		IFont *ifont = 0;
 		if ( disp )
@@ -715,7 +741,12 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_ARRAY|VT_VARIANT:
     case VT_ARRAY|VT_VARIANT|VT_BYREF:
 	{
-	    SAFEARRAY *array = arg.parray;
+	    SAFEARRAY *array = 0;
+	    if ( arg.vt & VT_BYREF )
+		array = *arg.pparray;
+	    else
+		array = arg.parray;
+
 	    QValueList<QVariant> list;
 
 	    if ( !array || array->cDims != 1 ) {
@@ -874,6 +905,20 @@ static inline void makeReference( VARIANT &arg )
     case VT_DATE:
 	arg.pdate = new DATE(arg.date);
 	break;
+    case VT_DISPATCH:
+	{
+	    IDispatch *olddisp = arg.pdispVal;
+	    arg.ppdispVal = new IDispatch*;
+	    *arg.ppdispVal = olddisp;
+	}
+	break;
+    case VT_ARRAY|VT_VARIANT:
+	{
+	    SAFEARRAY *oldarray = arg.parray;
+	    arg.pparray = new SAFEARRAY*;
+	    *arg.pparray = oldarray;
+	}
+	break;
     }
     arg.vt |= VT_BYREF;
 }
@@ -919,8 +964,12 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 	    *dest.pdate = src.date;
 	    break;
 	case VT_DISPATCH:
-	    dest.pdispVal->Release();
-	    dest.pdispVal = src.pdispVal;
+	    if ( *dest.ppdispVal ) (*dest.ppdispVal)->Release();
+	    *dest.ppdispVal = src.pdispVal;
+	    break;
+	case VT_ARRAY|VT_VARIANT:
+	    if ( *dest.pparray ) SafeArrayDestroy( *dest.pparray );
+	    *dest.pparray = src.parray;
 	    break;
 	default:
 	    dest = src;
@@ -1084,7 +1133,7 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 
 void clearQUObject( QUObject *obj, const QUParameter *param )
 {
-    if ( !param || !QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+    if ( !param || !QUType::isEqual( param->type, &static_QUType_varptr ) || !QUType::isEqual( param->type, obj->type ) ) {
 	obj->type->clear( obj );
     } else {
 	const QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
@@ -1176,10 +1225,12 @@ void clearVARIANT( VARIANT *var )
 	    delete var->pdate;
 	    break;
 	case VT_DISPATCH|VT_BYREF:
-	    var->pdispVal->Release();
+	    (*var->ppdispVal)->Release();
+	    delete var->ppdispVal;
 	    break;
 	case VT_ARRAY|VT_VARIANT|VT_BYREF:
-	    SafeArrayDestroy( var->parray );
+	    SafeArrayDestroy( *var->pparray );
+	    delete var->pparray;
 	    break;
 	}
 	VariantInit( var );
