@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#91 $
 **
 ** Implementation of QCheckBox class
 **
@@ -29,6 +29,7 @@
 #include "qpixmap.h"
 #include "qpixmapcache.h"
 #include "qbitmap.h"
+#include "qtextstream.h"
 
 /*!
   \class QCheckBox qcheckbox.h
@@ -95,7 +96,7 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
 void QCheckBox::setNoChange()
 {
     setTristate(TRUE);
-    
+
 }
 
 /*!
@@ -165,7 +166,7 @@ void QCheckBox::drawButton( QPainter *paint )
     x = gs == MotifStyle ? 1 : 0;
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
-//#define SAVE_CHECKBOX_PIXMAPS
+#define SAVE_CHECKBOX_PIXMAPS
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     QString pmkey;				// pixmap key
     int kf = 0;
@@ -174,7 +175,7 @@ void QCheckBox::drawButton( QPainter *paint )
     if ( isEnabled() )
 	kf |= 2;
     kf |= state() << 2;
-    pmkey.sprintf( "$qt_check_%d_%d_%d", gs, palette().serialNumber(), kf );
+    QTextOStream(pmkey) << "$qt_check_" << style().className() << "_" << palette().serialNumber() << "_" << kf;
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixmap( x, y, *pm );
