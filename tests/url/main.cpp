@@ -37,8 +37,15 @@ int main( int argc, char* argv[]  )
 //     fd->show();
 
 //    QString s = QFileDialog::getOpenFileName( "/bin/ls", "*;;*.txt" );
-    QString s = QFileDialog::getExistingDirectory();
-    qDebug( "%s", s.latin1() );
+    QStringList strlst;
+    strlst = QFileDialog::getOpenFileNames();
+    if ( !strlst.isEmpty() ) {
+	QStringList::Iterator it = strlst.begin();
+	for ( ; it != strlst.end(); ++it )
+	    qDebug( "%s", ( *it ).latin1() );
+    } else
+	qDebug( "no files chosen" );
+    //qDebug( "%s", s.latin1() );
 
     a.exec();
 }
