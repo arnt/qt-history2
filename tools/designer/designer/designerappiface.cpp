@@ -3,6 +3,7 @@
 #include "formwindow.h"
 #include <qapplication.h>
 #include <qobjectlist.h>
+#include <qstatusbar.h>
 
 DesignerApplicationInterface::DesignerApplicationInterface()
     : QApplicationInterface()
@@ -27,6 +28,8 @@ QComponentInterface *DesignerMainWindowInterface::requestInterface( const QCStri
 {
     if ( request == "DesignerFormWindowInterface" )
 	return fwIface ? fwIface : ( fwIface = new DesignerFormWindowInterface( mainWindow ) );
+    else if ( request == "DesignerStatusBarInterface" )
+	return sbIface ? sbIface : ( sbIface = new DesignerStatusBarInterface( mainWindow->statusBar() ) );
     return 0;
 }
 
@@ -58,9 +61,23 @@ bool DesignerFormWindowInterface::requestConnect( const char* signal, QObject* t
 	delete l;
 	return FALSE;
     }
-    
-    for ( QObject *o = l->first(); o; o = l->next() ) 
+
+    for ( QObject *o = l->first(); o; o = l->next() )
 	connect( (FormWindow*)o, signal, target, slot );
+    delete l;
+    return TRUE;
+}
+
+bool DesignerFormWindowInterface::requestConnect( QObject *sender, const char* signal, const char* slot )
+{
+    QObjectList *l = mainWindow->queryList( "FormWindow" );
+    if ( !l || l->isEmpty() ) {
+	delete l;
+	return FALSE;
+    }
+
+    for ( QObject *o = l->first(); o; o = l->next() )
+	connect( sender, signal, (FormWindow*)o, slot );
     delete l;
     return TRUE;
 }
@@ -72,10 +89,17 @@ bool DesignerFormWindowInterface::requestEvents( QObject* f )
 	delete l;
 	return FALSE;
     }
-    
-    for ( QObject *o = l->first(); o; o = l->next() ) 
+
+    for ( QObject *o = l->first(); o; o = l->next() )
 	f->installEventFilter( o );
     delete l;
     return TRUE;
 }
 
+
+
+
+DesignerStatusBarInterface::DesignerStatusBarInterface( QStatusBar *sb )
+    : QComponentInterface( sb ), statusBar( sb )
+{
+}

@@ -6,8 +6,10 @@
 #include <qguardedptr.h>
 
 class MainWindow;
-class DesignerFormWindowInterface;
+class QStatusBar;
 class DesignerMainWindowInterface;
+class DesignerFormWindowInterface;
+class DesignerStatusBarInterface;
 
 class DesignerApplicationInterface : public QApplicationInterface
 {
@@ -21,22 +23,6 @@ private:
 
 };
 
-class DesignerFormWindowInterface : public QComponentInterface
-{
-public:
-    DesignerFormWindowInterface( MainWindow *mw );
-
-    QVariant requestProperty( const QCString& p );
-    bool requestSetProperty( const QCString& p, const QVariant& v );
-    bool requestConnect( const char* signal, QObject* target, const char* slot );
-    bool requestEvents( QObject* o );
-    
-private:
-    MainWindow *mainWindow;
-    
-};
-    
-
 class DesignerMainWindowInterface : public QComponentInterface
 {
 public:
@@ -46,7 +32,34 @@ public:
 
 private:
     QGuardedPtr<DesignerFormWindowInterface> fwIface;
+    QGuardedPtr<DesignerStatusBarInterface> sbIface;
     MainWindow *mainWindow;
+
+};
+
+class DesignerFormWindowInterface : public QComponentInterface
+{
+public:
+    DesignerFormWindowInterface( MainWindow *mw );
+
+    QVariant requestProperty( const QCString& p );
+    bool requestSetProperty( const QCString& p, const QVariant& v );
+    bool requestConnect( const char* signal, QObject* target, const char* slot );
+    bool requestConnect( QObject *sender, const char* signal, const char* slot );
+    bool requestEvents( QObject* o );
+
+private:
+    MainWindow *mainWindow;
+
+};
+
+class DesignerStatusBarInterface : public QComponentInterface
+{
+public:
+    DesignerStatusBarInterface( QStatusBar *sb );
+
+private:
+    QStatusBar *statusBar;
     
 };
 
