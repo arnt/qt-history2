@@ -46,6 +46,7 @@
 #include "qapplication.h"
 #include "qstyle.h"
 #include "qguardedptr.h"
+#include "qobjectlist.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -945,6 +946,24 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
             return;
         }
     }
+
+    if ( !( e->state() & AltButton ) ) {
+	QObjectList *list = queryList( "QPushButton" );
+	QObjectListIt it( *list );
+	QPushButton *pb;
+	while ( (pb = (QPushButton*)it.current()) ) {
+	    int key = e->key() & ~(MODIFIER_MASK|UNICODE_ACCEL);
+	    int acc = pb->accel() & ~(MODIFIER_MASK|UNICODE_ACCEL);
+	    if ( (int)acc == key ) {
+		delete list;
+		emit pb->animateClick();
+		return;
+	    }
+	    ++it;
+	}
+	delete list;
+    }
+
     QDialog::keyPressEvent( e );
 }
 
