@@ -159,6 +159,16 @@ public:
 #define d d_func()
 #define q q_func()
 
+#ifdef QT_COMPAT
+QListView::QListView(QWidget *parent, const char* name)
+    : QGenericListView(*new QListViewPrivate(), new QListModel(), parent)
+{
+    setObjectName(name);
+    model()->setParent(this);
+    setSpacing(0);
+}
+#endif
+
 QListView::QListView(QWidget *parent)
     : QGenericListView(*new QListViewPrivate(), new QListModel(), parent)
 {

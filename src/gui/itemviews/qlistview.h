@@ -58,6 +58,9 @@ class Q_GUI_EXPORT QListView : public QGenericListView
     Q_DECLARE_PRIVATE(QListView)
 
 public:
+#ifdef QT_COMPAT
+    QListView(QWidget *parent, const char* name);
+#endif
     QListView(QWidget *parent = 0);
     ~QListView();
 
