@@ -444,7 +444,7 @@ void PopupMenuEditor::exchange( int a, int b )
 void PopupMenuEditor::cut( const int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
-    
+
     if ( clipboardItem && clipboardOperation == Cut )
 	delete clipboardItem;
 
@@ -466,7 +466,7 @@ void PopupMenuEditor::cut( const int index )
 void PopupMenuEditor::copy( const int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
-    
+
     if ( clipboardItem && clipboardOperation == Cut )
 	delete clipboardItem;
 
@@ -482,7 +482,7 @@ void PopupMenuEditor::copy( const int index )
 void PopupMenuEditor::paste( const int index )
 {
     int idx = ( index == -1 ? currentIndex : index );
-    
+
     if ( clipboardItem && clipboardOperation ) {
 	PopupMenuEditorItem * n = new PopupMenuEditorItem( clipboardItem, this );
 	AddActionToPopupCommand * cmd =
@@ -554,7 +554,7 @@ void PopupMenuEditor::showLineEdit( const int index )
 void PopupMenuEditor::setAccelerator( const int key, const Qt::ButtonState state, const int index )
 {
     // FIXME: make this a command
-    
+
     int idx = ( index == -1 ? currentIndex : index );
 
     if ( key == Qt::Key_Shift ||
@@ -1027,14 +1027,14 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
 
     p->fillRect( r, colorGroup().brush( QColorGroup::Background ) );
     i->setDirty( FALSE );
-    
+
     if ( i->isSeparator() ) {
 	style().drawPrimitive( QStyle::PE_Separator, p,
 			       QRect( r.x(), r.y() + 2, r.width(), 1 ),
 			       colorGroup(), QStyle::Style_Sunken | f );
 	return;
     }
-    
+
     const QAction * a = i->anyAction();
     if ( a->isToggleAction() && a->isOn() ) {
 	style().drawPrimitive( QStyle::PE_CheckMark, p,
@@ -1113,9 +1113,9 @@ void PopupMenuEditor::drawItems( QPainter * p )
 	i = itemList.next();
 	idx++;
     }
-    
+
     // Draw the "add item" and "add separator" items
-    p->setPen( colorGroup().link() );
+    p->setPen( darkBlue );
     rect.setHeight( itemHeight( &addItem ) );
     if ( idx == currentIndex )
 	focus = rect;
@@ -1164,7 +1164,7 @@ QSize PopupMenuEditor::contentsSize()
 	}
 	i = itemList.next();
     }
-    
+
     int width = iconWidth + textWidth + borderSize * 3 + accelWidth + arrowWidth;
     return QSize( width, h );
 }

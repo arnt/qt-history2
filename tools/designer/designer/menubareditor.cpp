@@ -596,7 +596,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 		hasSeparator = TRUE;
 		itemCreated = TRUE;
 	    }
-	    
+
 	    MenuBarEditorItemPtrDrag * d =
 		new MenuBarEditorItemPtrDrag( draggedItem, this );
 	    d->setPixmap( createTextPixmap( draggedItem->menuText() ) );
@@ -802,7 +802,7 @@ void MenuBarEditor::drawItems( QPainter & p )
 	i = itemList.next();
     }
 
-    p.setPen( colorGroup().link() );
+    p.setPen( darkBlue );
     drawItem( p, &addItem, c++, pos );
     if ( !hasSeparator )
 	drawItem( p, &addSeparator, c, pos );
@@ -839,7 +839,7 @@ void MenuBarEditor::drawItem( QPainter & p,
 void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
 {
     p.save();
-    p.setPen( colorGroup().link() );
+    p.setPen( darkBlue );
 
     int left = pos.x();
     int top = pos.y() + 2;
@@ -851,7 +851,7 @@ void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
 
     p.fillRect( left, pos.y() + borderSize * 2,
 		separatorWidth - 1, itemHeight - borderSize * 4,
-		QBrush( colorGroup().link(), Qt::Dense5Pattern ) );
+		QBrush( darkBlue, Qt::Dense5Pattern ) );
 
     p.restore();
 }
