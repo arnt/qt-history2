@@ -253,7 +253,7 @@ static void shrink_extend( QDockWindow *dw, int &dockExtend, int /*spaceLeft*/, 
     }
 }
 
-static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut, int maxsize )
+static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut, int maxsize, QDockAreaLayout * )
 {
     QDockWindow *last = 0;
     QRect lastRect;
@@ -290,8 +290,10 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
 
 int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 {
-    if ( !dockWindows || !dockWindows->first() )
+    if ( !dockWindows || !dockWindows->first() || !testonly && skipNextLayout ) {
+	skipNextLayout = FALSE;
 	return 0;
+    }
     // some corrections
     QRect r = rect;
     if ( orientation() == Vertical )
@@ -332,7 +334,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	if ( !lastLine.isEmpty() &&
 	     ( space_left( rect, pos, orientation() ) < dockExtend || dw->newLine() ) ) {
 	    if ( !testonly ) // place the last line, if not in test mode
-		place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut, maxsize );
+		place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut, maxsize, this );
 	    // remember the line coordinats of the last line
 	    if ( orientation() == Horizontal )
 		lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
@@ -366,7 +368,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 
     // if some stuff was not placed/stored yet, do it now
     if ( !testonly )
-	place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut, maxsize );
+	place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut, maxsize, this );
     if ( orientation() == Horizontal )
 	lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
     else
@@ -374,6 +376,16 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     if ( *(--lines.end()) == *(--(--lines.end())) )
 	lines.remove( lines.at( lines.count() - 1 ) );
 
+    it.toFirst();
+    bool hadResizable = FALSE;
+    while ( ( dw = it.current() ) != 0 ) {
+ 	++it;
+	if ( !dw->isVisibleTo( parentWidget ) )
+	    continue;
+	hadResizable = hadResizable || dw->isResizeEnabled();
+	dw->updateSplitterVisibility( !dw->area()->isLastDockWindow( dw ) );
+    }
+    skipNextLayout = !testonly;
     return sectionpos + linestrut + ( orientation() == Horizontal ? 2 : 0 );
 }
 
@@ -1036,3 +1048,19 @@ void QDockArea::setFixedExtent( int d, QDockWindow *dw )
     }
 }
 
+bool QDockArea::isLastDockWindow( QDockWindow *dw )
+{
+    int i = dockWindows->find( dw );
+    if ( i == -1 || i >= (int)dockWindows->count() - 1 )
+	return TRUE;
+    QDockWindow *w = 0;
+    if ( ( w = dockWindows->at( ++i ) ) ) {
+	if ( orientation() == Horizontal && dw->y() < w->y() )
+	    return TRUE;
+	if ( orientation() == Vertical && dw->x() < w->x() )
+	    return TRUE;
+    } else {
+	return TRUE;
+    }
+    return FALSE;
+}

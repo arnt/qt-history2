@@ -52,6 +52,7 @@ class QVBoxLayout;
 class QDockArea;
 class QWidgetResizeHandler;
 class QMainWindow;
+class QDockAreaLayout;
 
 class Q_EXPORT QDockWindow : public QFrame
 {
@@ -70,6 +71,7 @@ class Q_EXPORT QDockWindow : public QFrame
     friend class QDockWindowHandle;
     friend class QDockWindowTitleBar;
     friend class QDockArea;
+    friend class QDockAreaLayout;
     friend class QMainWindow;
 
 public:
@@ -142,6 +144,7 @@ protected:
 private:
     void handleMove( const QPoint &pos, const QPoint &gp, bool drawRect );
     void updateGui();
+    void updateSplitterVisibility( bool visible );
 
     void startRectDraw( const QPoint &so, bool drawRect );
     void endRectDraw( bool drawRect );

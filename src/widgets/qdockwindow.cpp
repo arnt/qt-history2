@@ -103,7 +103,7 @@ QDockWindowResizeHandle::QDockWindowResizeHandle( Qt::Orientation o, QWidget *pa
 
 QSize QDockWindowResizeHandle::sizeHint() const
 {
-    int sw = style().splitterWidth();
+    int sw = 2 * style().splitterWidth() / 3;
     return QSize(sw,sw).expandedTo( QApplication::globalStrut() );
 }
 
@@ -873,7 +873,10 @@ void QDockWindow::updateGui()
 			hHandleTop->show();
 			hHandleBottom->hide();
 		    }
-		    vHandleRight->show();
+		    if ( !area()->isLastDockWindow( this ) )
+			vHandleRight->show();
+		    else
+			vHandleRight->hide();
 		    vHandleLeft->hide();
 		} else {
 		    if ( area()->gravity() == QDockArea::Normal ) {
@@ -883,7 +886,10 @@ void QDockWindow::updateGui()
 			vHandleLeft->show();
 			vHandleRight->hide();
 		    }
-		    hHandleBottom->show();
+		    if ( !area()->isLastDockWindow( this ) )
+			hHandleBottom->show();
+		    else
+			hHandleBottom->hide();
 		    hHandleTop->hide();
 		}
 	    }
@@ -1251,6 +1257,12 @@ QSize QDockWindow::sizeHint() const
     QSize sh( QFrame::sizeHint() );
     sh = sh.expandedTo( fixedExtent() );
     sh = sh.expandedTo( QSize( 16, 16 ) );
+    if ( area() ) {
+	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )
+	    sh.setWidth( sh.width() + 2 * style().splitterWidth() / 3 );
+	else if ( area()->orientation() == Vertical && !hHandleBottom->isVisible() )
+	    sh.setHeight( sh.height() + 2 * style().splitterWidth() / 3 );
+    }
     return sh;
 }
 
@@ -1262,6 +1274,12 @@ QSize QDockWindow::minimumSize() const
     QSize ms( QFrame::minimumSize() );
     ms = ms.expandedTo( fixedExtent() );
     ms = ms.expandedTo( QSize( 16, 16 ) );
+    if ( area() ) {
+	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )
+	    ms.setWidth( ms.width() + 2 * style().splitterWidth() / 3 );
+	else if ( area()->orientation() == Vertical && !hHandleBottom->isVisible() )
+	    ms.setHeight( ms.height() + 2 * style().splitterWidth() / 3 );
+    }
     return ms;
 }
 
@@ -1273,6 +1291,12 @@ QSize QDockWindow::minimumSizeHint() const
     QSize msh( QFrame::minimumSize() );
     msh = msh.expandedTo( fixedExtent() );
     msh = msh.expandedTo( QSize( 16, 16 ) );
+    if ( area() ) {
+	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )
+	    msh.setWidth( msh.width() + 2 * style().splitterWidth() / 3 );
+	else if ( area()->orientation() == Vertical && !hHandleBottom->isVisible() )
+	    msh.setHeight( msh.height() + 2 * style().splitterWidth() / 3 );
+    }
     return msh;
 }
 
@@ -1397,6 +1421,25 @@ void QDockWindow::setCaption( const QString &s )
 {
     titleBar->setText( s );
     QFrame::setCaption( s );
+}
+
+void QDockWindow::updateSplitterVisibility( bool visible )
+{
+    if ( area() && isResizeEnabled() ) {
+	if ( orientation() == Horizontal ) {
+	    if ( visible )
+		vHandleRight->show();
+	    else
+		vHandleRight->hide();
+	    vHandleLeft->hide();
+	} else {
+	    if ( visible )
+		hHandleBottom->show();
+	    else
+		hHandleBottom->hide();
+	    hHandleTop->hide();
+	}
+    }
 }
 
 #include "qdockwindow.moc"

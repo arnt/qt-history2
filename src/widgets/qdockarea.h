@@ -68,7 +68,7 @@ class Q_EXPORT QDockAreaLayout : public QLayout
 
 public:
     QDockAreaLayout( QWidget* parent, Qt::Orientation o, QList<QDockWindow> *wl, int space = -1, int margin = -1, const char *name = 0 )
-	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ) { init(); }
+	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ), skipNextLayout( FALSE ) { init(); }
     ~QDockAreaLayout() {}
 
     void addItem( QLayoutItem * ) {}
@@ -97,6 +97,7 @@ private:
     QWidget *parentWidget;
     QValueList<QRect> lines;
     QList<QDockWindow> ls;
+    bool skipNextLayout;
 
 };
 
@@ -106,6 +107,7 @@ class Q_EXPORT QDockArea : public QWidget
 
     friend class QDockWindow;
     friend class QDockWindowResizeHandle;
+    friend class QDockAreaLayout;
 
 public:
     enum Gravity { Normal, Reverse };
@@ -155,7 +157,8 @@ private:
     void invalidateFixedSizes();
     int maxSpace( int hint, QDockWindow *dw );
     void setFixedExtent( int d, QDockWindow *dw );
-    
+    bool isLastDockWindow( QDockWindow *dw );
+
 private:
     Orientation orient;
     QList<QDockWindow> *dockWindows;
