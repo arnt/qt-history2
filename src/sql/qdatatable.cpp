@@ -800,6 +800,7 @@ void QDataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 	}
 	else if ( r == id[ IdDelete ] )
 	    deleteCurrent();
+	e->accept();
 	return;
     }
 }
