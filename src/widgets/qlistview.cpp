@@ -5470,13 +5470,20 @@ void QCheckListItem::turnOffChild()
  */
 void QCheckListItem::activate()
 {
-    if ( listView() && !listView()->isEnabled() || !isEnabled() )
+    QListView * lv = listView();
+    
+    if ( lv && !lv->isEnabled() || !isEnabled() )
 	return;
 
     QPoint pos;
     if ( activatedPos( pos ) ) {
 	//ignore clicks outside the box
-	if ( pos.x() < 0 || pos.x() >= BoxSize )
+	QRect r( 0, 0, BoxSize, BoxSize );
+	if ( lv && lv->columnAlignment(0) == AlignCenter ) {
+	    QFontMetrics fm( lv->font() );
+	    r.moveBy( (lv->columnWidth(0) - (BoxSize + fm.width(text()))) / 2, 0 );
+	}
+	if ( !r.contains( pos ) )
 	    return;
     }
     if ( myType == CheckBox ) {
@@ -5486,7 +5493,6 @@ void QCheckListItem::activate()
 	setOn( TRUE );
 	ignoreDoubleClick();
     }
-
 }
 
 /*!
@@ -5592,13 +5598,25 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	//	QFontMetrics fm( lv->font() );
 	//	int d = fm.height();
 	int x = 0;
+	if ( align == AlignCenter ) {
+	    QFontMetrics fm( lv->font() );
+	    x = (width - BoxSize - fm.width(text()))/2;
+	}
 	int y = (height() - BoxSize) / 2;
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
 	if ( myType == CheckBox ) {
 	    if ( isEnabled() )
 		p->setPen( QPen( cg.text(), 2 ) );
 	    else
-		p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ), 2 ) );
+		p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ), 2 ) );
+	    if ( isSelected() && lv->header()->mapToSection( 0 ) != 0 )
+	    {
+		p->fillRect( 0, 0, x + marg + BoxSize + 4, height(),
+			     cg.brush( QColorGroup::Highlight ) );
+		if ( isEnabled() )
+		    p->setPen( QPen( cg.highlightedText(), 2 ) );
+	    }
+
 	    p->drawRect( x+marg, y+2, BoxSize-4, BoxSize-4 );
 	    /////////////////////
 	    x++;
@@ -5703,6 +5721,13 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	r += BoxSize + 4;
     }
 
+    if ( align == AlignCenter ) {
+	QFontMetrics fm( lv->font() );
+	r += (width - BoxSize - fm.width(text()))/2;
+        // the text should not be centered when we have a centered checkbox
+	align &= ~AlignCenter; 
+    }
+
     p->translate( r, 0 );
     p->setPen( QPen( cg.text() ) );
     QListViewItem::paintCell( p, cg, column, width - r, align );
@@ -5722,8 +5747,19 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 	xdepth += p;
 	intersect = r.intersects( QRect( p, r.y(), xdepth - p + 1, r.height() ) );
     }
-    if ( myType != Controller && intersect ) {
-	QRect rect( r.x() + BoxSize + 5, r.y(), r.width() - BoxSize - 5, r.height() );
+    if ( myType != Controller && intersect &&
+	 lv && lv->header()->mapToSection( 0 ) == 0 )
+    {
+	QRect rect;
+	if ( lv->columnAlignment(0) == AlignCenter ) {
+	    QFontMetrics fm( lv->font() );
+	    int bx = (lv->columnWidth(0) - (BoxSize + fm.width(text())))/2 + BoxSize;
+	    if ( bx < 0 ) bx = 0;
+	    rect.setRect( r.x() + bx + 5, r.y(), r.width() - bx - 5,
+			  r.height() );
+	} else
+	    rect.setRect( r.x() + BoxSize + 5, r.y(), r.width() - BoxSize - 5,
+			  r.height() );
 	QListViewItem::paintFocus(p, cg, rect);
     } else {
 	QListViewItem::paintFocus(p, cg, r);
