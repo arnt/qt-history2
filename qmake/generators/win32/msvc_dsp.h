@@ -25,7 +25,7 @@ class DspMakefileGenerator : public Win32MakefileGenerator
     bool init_flag;
     bool writeDspHeader(QTextStream &);
     bool writeDspParts(QTextStream &);
-    bool writeFileGroup(QTextStream &t, const QString &listName, const QString &group, const QString &filter);
+    bool writeFileGroup(QTextStream &t, const QStringList &listNames, const QString &group, const QString &filter);
     bool writeBuildstepForFile(QTextStream &t, const QString &file, const QString &listName);
     static bool writeDspConfig(QTextStream &t, DspMakefileGenerator *config);
     static QString writeBuildstepForFileForConfig(const QString &file, const QString &listName, DspMakefileGenerator *config);

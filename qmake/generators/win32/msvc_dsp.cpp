@@ -132,23 +132,19 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
 
     if (project->isActiveConfig("flat")) {
 
-        project->variables()["SOURCES"] += project->variables()["DEF_FILE"];
-        project->variables()["FORMS"] += project->variables()["INTERFACES"];
-                
-        writeFileGroup(t, "SOURCES", "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
-        writeFileGroup(t, "HEADERS", "Header Files", "h;hpp;hxx;hm;inl");
-        writeFileGroup(t, "FORMS", "Form Files", "ui");
-        writeFileGroup(t, "IMAGES", "Image Files", "");
-        writeFileGroup(t, "RC_FILE", "Resources rc", "rc");
-        writeFileGroup(t, "RESOURCES", "Resources qrc", "qrc");
-        writeFileGroup(t, "TRANSLATIONS", "Translations", "ts");
-        writeFileGroup(t, "LEXSOURCES", "Lexables", "l");
-        writeFileGroup(t, "YACCSOURCES", "Yaccables", "y");
-        writeFileGroup(t, "TYPELIBS", "Type Libraries", "tlb;olb");            
+        writeFileGroup(t, QString("SOURCES|DEF_FILE").split("|"), "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+        writeFileGroup(t, QStringList("HEADERS"), "Header Files", "h;hpp;hxx;hm;inl");
+        writeFileGroup(t, QString("FORMS|INTERFACES").split("|"), "Form Files", "ui");
+        writeFileGroup(t, QStringList("IMAGES"), "Image Files", "");
+        writeFileGroup(t, QString("RC_FILE|RESOURCES").split("|"), "Resources", "rc;qrc");
+        writeFileGroup(t, QStringList("TRANSLATIONS"), "Translations", "ts");
+        writeFileGroup(t, QStringList("LEXSOURCES"), "Lexables", "l");
+        writeFileGroup(t, QStringList("YACCSOURCES"), "Yaccables", "y");
+        writeFileGroup(t, QStringList("TYPELIBS"), "Type Libraries", "tlb;olb");            
 
-        project->variables()["GENERATED_SOURCES"] += project->variables()["UIC3_HEADERS"] + swappedBuildSteps.keys();
-        
-        writeFileGroup(t, "GENERATED_SOURCES", "Generated", "");
+        project->variables()["SWAPPED_BUILD_STEPS"] = swappedBuildSteps.keys();
+                
+        writeFileGroup(t, QString("GENERATED_SOURCES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
 
     } else { // directory mode
         /* //###
@@ -359,10 +355,9 @@ DspMakefileGenerator::init()
     usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
     if (usePCH) {
         // Created files
-        QString origTarget = project->first("TARGET");
-        origTarget.replace(QRegExp("-"), "_");
-        precompObj = "\"$(IntDir)\\" + origTarget + Option::obj_ext + "\"";
-        precompPch = "\"$(IntDir)\\" + origTarget + ".pch\"";
+        precompObj = var("OBJECTS_DIR") + project->first("TARGET") + "_pch" + Option::obj_ext;
+        precompPch = var("OBJECTS_DIR") + project->first("TARGET") + "_pch.pch";
+        
         // Add PRECOMPILED_HEADER to HEADERS
         if (!project->variables()["HEADERS"].contains(precompH))
             project->variables()["HEADERS"] += precompH;
@@ -488,7 +483,7 @@ bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
 bool DspMakefileGenerator::mergeBuildProject(MakefileGenerator *other)
 {
    
-    mergedProjects += static_cast<DspMakefileGenerator*>(other);
+    mergedProjects.prepend(static_cast<DspMakefileGenerator*>(other));
     return true;
 }
 
@@ -545,13 +540,10 @@ bool DspMakefileGenerator::writeProjectMakefile()
                 
                 DspMakefileGenerator* config = mergedProjects.at(i);
 
-                config->project->variables()["SOURCES"] += config->project->variables()["DEF_FILE"];
-               
+                files["DEF_FILE"] += config->project->variables()["DEF_FILE"].toSet();
                 files["SOURCES"] += config->project->variables()["SOURCES"].toSet();
                 files["HEADERS"] += config->project->variables()["HEADERS"].toSet();
-
-                config->project->variables()["FORMS"] += config->project->variables()["INTERFACES"];
-
+                files["INTERFACES"] += config->project->variables()["INTERFACES"].toSet();
                 files["FORMS"] += config->project->variables()["FORMS"].toSet();
                 files["IMAGES"] += config->project->variables()["IMAGES"].toSet();
                 files["RC_FILE"] += config->project->variables()["RC_FILE"].toSet();
@@ -562,8 +554,10 @@ bool DspMakefileGenerator::writeProjectMakefile()
                 files["TYPELIBS"] += config->project->variables()["TYPELIBS"].toSet();
             }
 
+            project->variables()["DEF_FILE"] = QList<QString>::fromSet(files["DEF_FILE"]);
             project->variables()["SOURCES"] = QList<QString>::fromSet(files["SOURCES"]);
             project->variables()["HEADERS"] = QList<QString>::fromSet(files["HEADERS"]);
+            project->variables()["INTERFACES"] = QList<QString>::fromSet(files["INTERFACES"]);
             project->variables()["FORMS"] = QList<QString>::fromSet(files["FORMS"]);
             project->variables()["IMAGES"] = QList<QString>::fromSet(files["IMAGES"]);
             project->variables()["RC_FILE"] = QList<QString>::fromSet(files["RC_FILE"]);
@@ -573,29 +567,34 @@ bool DspMakefileGenerator::writeProjectMakefile()
             project->variables()["YACCSOURCES"] = QList<QString>::fromSet(files["YACCSOURCES"]);
             project->variables()["TYPELIBS"] = QList<QString>::fromSet(files["TYPELIBS"]);
             
-            writeFileGroup(t, "SOURCES", "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
-            writeFileGroup(t, "HEADERS", "Header Files", "h;hpp;hxx;hm;inl");
-            writeFileGroup(t, "FORMS", "Form Files", "ui");
-            writeFileGroup(t, "IMAGES", "Image Files", "");
-            writeFileGroup(t, "RC_FILE", "Resources rc", "rc");
-            writeFileGroup(t, "RESOURCES", "Resources qrc", "qrc");
-            writeFileGroup(t, "TRANSLATIONS", "Translations", "ts");
-            writeFileGroup(t, "LEXSOURCES", "Lexables", "l");
-            writeFileGroup(t, "YACCSOURCES", "Yaccables", "y");
-            writeFileGroup(t, "TYPELIBS", "Type Libraries", "tlb;olb");            
+            writeFileGroup(t, QString("SOURCES|DEF_FILE").split("|"), "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+            writeFileGroup(t, QStringList("HEADERS"), "Header Files", "h;hpp;hxx;hm;inl");
+            writeFileGroup(t, QString("FORMS|INTERFACES").split("|"), "Form Files", "ui");
+            writeFileGroup(t, QStringList("IMAGES"), "Image Files", "");
+            writeFileGroup(t, QString("RC_FILE|RESOURCES").split("|"), "Resources", "rc;qrc");
+            writeFileGroup(t, QStringList("TRANSLATIONS"), "Translations", "ts");
+            writeFileGroup(t, QStringList("LEXSOURCES"), "Lexables", "l");
+            writeFileGroup(t, QStringList("YACCSOURCES"), "Yaccables", "y");
+            writeFileGroup(t, QStringList("TYPELIBS"), "Type Libraries", "tlb;olb");            
 
             // done last as generated may have changed when creating build rules for the above
             for (i = 0; i < mergedProjects.count(); ++i) {
                 
                 DspMakefileGenerator* config = mergedProjects.at(i);
                 
-                config->project->variables()["GENERATED_SOURCES"] += config->project->variables()["UIC3_HEADERS"] + config->swappedBuildSteps.keys();
+                files["UIC3_HEADERS"] += config->project->variables()["UIC3_HEADERS"].toSet();
+                
+                config->project->variables()["SWAPPED_BUILD_STEPS"] = config->swappedBuildSteps.keys();
+                files["SWAPPED_BUILD_STEPS"] +=  config->project->variables()["SWAPPED_BUILD_STEPS"].toSet();
 
                 files["GENERATED_SOURCES"] += config->project->variables()["GENERATED_SOURCES"].toSet();
             }
 
+            project->variables()["SWAPPED_BUILD_STEPS"] = QList<QString>::fromSet(files["SWAPPED_BUILD_STEPS"]);
+            project->variables()["UIC3_HEADERS"] = QList<QString>::fromSet(files["UIC3_HEADERS"]);
             project->variables()["GENERATED_SOURCES"] = QList<QString>::fromSet(files["GENERATED_SOURCES"]);
-            writeFileGroup(t, "GENERATED_SOURCES", "Generated", "");
+            
+            writeFileGroup(t, QString("GENERATED_SOURCES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
 
         }
     }
@@ -606,23 +605,29 @@ bool DspMakefileGenerator::writeProjectMakefile()
     return ret;
 }
 
-bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QString &listName, const QString &group, const QString &filter)
+bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &listNames, const QString &group, const QString &filter)
 {
-    QStringList files = project->variables()[listName];
-    files.sort();
-
+    QMap<QString, QString> files;
+    for (int i = 0; i < listNames.count(); ++i) {
+        QStringList list = project->variables()[listNames.at(i)];
+        for (int j = 0; j < list.count(); ++j) {
+            files[list.at(j)] = listNames.at(i);
+        }
+    }
+    
     if (files.isEmpty())
         return false;
 
     t << "# Begin Group \"" << group << "\"" << endl;
     t << "# PROP Default_Filter \"" << filter << "\"" << endl;
-    for (int i = 0; i < files.count(); ++i) {
-        QString file = files.at(i);
+    QMap<QString, QString>::const_iterator it = files.begin();
+    while (it != files.end()) {
         t << "# Begin Source File" << endl;
-        t << "SOURCE=" << file << endl;
-        writeBuildstepForFile(t, file, listName);
+        t << "SOURCE=" << it.key() << endl;
+        writeBuildstepForFile(t, it.key(), it.value());
         t << "# End Source File" << endl;
         t << endl;
+        ++it;
     }
     t << "# End Group" << endl;
     t << endl;
@@ -649,36 +654,18 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
     if (specialBuilds.join("").isEmpty())
         return true;
 
-    bool allBuildEqual = true;
-    for (i = 0; i < specialBuilds.count(); ++i) {
-        if (i < specialBuilds.count() -1 && specialBuilds.at(i) != specialBuilds.at(i+1)) {
-            allBuildEqual = false;
-            break;
-        }
-    }
-    
-    if (allBuildEqual) {
-    
+    for (i = 0; i < mergedProjects.count(); ++i) {
+        if (i == 0)
+            t << "!IF";
+        else 
+            t << "!ELSEIF";
+        t << "\"$(CFG)\" == \"" << configName(mergedProjects.at(i)) << "\"" << endl;
         t << endl;
-        t << specialBuilds.at(0);
+        t << specialBuilds.at(i);
         t << endl;
-    
-    } else {
-
-        for (i = 0; i < mergedProjects.count(); ++i)
-        {
-            if (i == 0)
-                t << "!IF";
-            else 
-                t << "!ELSEIF";
-            t << "\"$(CFG)\" == \"" << configName(mergedProjects.at(i)) << "\"" << endl;
-            t << endl;
-            t << specialBuilds.at(i);
-            t << endl;
-        }
-
-        t << "!ENDIF" << endl;
     }
+
+    t << "!ENDIF" << endl;
 
     return true;
 }
