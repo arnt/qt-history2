@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#32 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#33 $
 **
 ** Implementation of QMessageBox class
 **
@@ -12,9 +12,10 @@
 #include "qmsgbox.h"
 #include "qlabel.h"
 #include "qpushbt.h"
+#include "qpixmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#33 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -78,17 +79,6 @@ static const unsigned char critical_gif_data[] = {
     0x1a,0x2a,0xea,0xa9,0x0a,0x52,0x00,0x00,0x3b
 };
 
-static struct {
-    unsigned int         size;
-    const unsigned char *data;
-    const char          *name;
-} windows_style_icons_vector[] = {
-    { 213, information_gif_data, "information.gif" },
-    { 222, warning_gif_data, "warning.gif" },
-    { 191, critical_gif_data, "critical.gif" },
-    { 0, 0 }
-};
-
 
 /*!
   \class QMessageBox qmsgbox.h
@@ -140,13 +130,13 @@ static struct {
 
   You can also make a message from scratch and set custom button texts:
   \code
-    QMessageBox mb( QMessageBox::Yes | QMessageBox::Default,
+    QMessageBox mb( "Exit Program",
+		    "Saving the file will overwrite the old file on disk.\n"
+		    "Do you really want to save?",
+		    QMessageBox::Warning,
+		    QMessageBox::Yes | QMessageBox::Default,
 		    QMessageBox::No,
 		    QMessageBox::Cancel | QMessageBox::Escape );
-    mb.setIcon( QMessageBox::Warning );
-    mb.setCaption( "Exit Program" );
-    mb.setText( "Saving the file will overwrite the old file on disk.\n"
-	        "Do you really want to save?" );
     mb.setButtonText( QMessageBox::Yes, "Save" );
     mb.setButtonText( QMessageBox::No, "Don't Save" );
     switch( mb.exec() ) {
@@ -169,6 +159,7 @@ static struct {
 struct QMBData {
     int			numButtons;		// number of buttons
     QMessageBox::Icon	icon;			// message box icon
+    QPixmap		iconPixmap;
     int			button[3];		// button types
     int			defButton;		// default button (index)
     int			escButton;		// escape button (index)
@@ -205,11 +196,20 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
 
 
 /*!
-  Constructs a message box with up to three buttons.
+  Constructs a message box with a \a caption, a \a text, an \a icon and up
+  to three buttons.
 
-  Each button can be one of the following values:
+  The \a icon must be one of:
   <ul>
-  <li>\c QMessageBox::Ok
+  <li> \c QMessageBox::NoIcon
+  <li> \c QMessageBox::Information
+  <li> \c QMessageBox::Warning
+  <li> \c QMessageBox::Critical 
+  </ul>
+
+  Each button can have one of the following values:
+  <ul>
+  <li>\c QMessageBox::OK
   <li>\c QMessageBox::Cancel
   <li>\c QMessageBox::Yes
   <li>\c QMessageBox::No
@@ -227,10 +227,11 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
 
   Example:
   \code
-    QMessageBox mb( QMessageBox::Yes | QMessageBox::Default,
+    QMessageBox mb( "Hardware failure",
+		    "Disk error detected\nDo you want to stop?",
+		    QMessageBox::NoIcon,
+		    QMessageBox::Yes | QMessageBox::Default,
 		    QMessageBox::No | QMessageBox::Escape );
-    mb.setCaption( "Hardware failure" );
-    mb.setText( "Disk error detected\nDo you want to stop?" );
     if ( mb.exec() == QMessageBox::No )
         // try again
   \endcode
@@ -239,14 +240,25 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \e parent.
 
-  The \e parent and \e name arguments are passed to the QDialog constructor.
+  If \a modal is TRUE the message becomes modal, otherwise it becomes
+  modeless.
+
+  The \a parent, \a name, \a modal and \a f arguments are passed to the
+  QDialog constructor.
+
+  \sa setCaption(), setText(), setIcon()
 */
 
-QMessageBox::QMessageBox( int button1, int button2, int button3,
-			  QWidget *parent, const char *name )
-    : QDialog( parent, name, TRUE )
+QMessageBox::QMessageBox( const char *caption, const char *text, Icon icon,
+			  int button1, int button2, int button3,
+			  QWidget *parent, const char *name,
+			  bool modal, WFlags f )
+    : QDialog( parent, name, modal, f )
 {
     init( button1, button2, button3 );
+    setCaption( caption );
+    setText( text );
+    setIcon( icon );
 }
 
 
@@ -377,6 +389,13 @@ void QMessageBox::resizeButtons()
 	mbd->pb[i]->resize( maxSize );
 }
 
+
+void QMessageBox::show()
+{
+    QDialog::show();
+}
+
+
 /*!
   Returns the message box text currently set, or null if no text has been set.
   \sa setText()
@@ -409,7 +428,7 @@ void QMessageBox::setText( const char *text )
   <li> \c QMessageBox::Critical 
   </ul>
 
-  \sa setIcon()
+  \sa setIcon(), iconPixmap()
 */
 
 QMessageBox::Icon QMessageBox::icon() const
@@ -419,9 +438,8 @@ QMessageBox::Icon QMessageBox::icon() const
 
 
 /*!
-  Sets the icon the the message box to \a icon.
+  Sets the icon of the message box to \a icon, which is a predefined icon:
 
-  \a icon can be one of the following:
   <ul>
   <li> \c QMessageBox::NoIcon
   <li> \c QMessageBox::Information
@@ -429,12 +447,70 @@ QMessageBox::Icon QMessageBox::icon() const
   <li> \c QMessageBox::Critical 
   </ul>
 
-  \sa icon()
+  The actual pixmap used for displaying the icon depends on the current
+  \link style() GUI style\endlink.  You can also set a custom pixmap icon
+  using the setIconPixmap() function.
+
+  \sa icon(), setIconPixmap(), iconPixmap()
 */
 
 void QMessageBox::setIcon( Icon icon )
 {
     mbd->icon = icon;
+
+    uint icon_size;
+    const uchar *icon_data;
+    switch ( icon ) {
+	case Information:
+	    icon_size = information_gif_len;
+	    icon_data = information_gif_data;
+	    break;
+	case Warning:
+	    icon_size = warning_gif_len;
+	    icon_data = warning_gif_data;
+	    break;
+	case Critical:
+	    icon_size = critical_gif_len;
+	    icon_data = critical_gif_data;
+	    break;
+	default:
+	    icon_size = 0;
+	    icon_data = 0;	    
+    }
+    QPixmap pm;
+    if ( icon_size )
+	pm.loadFromData( icon_data, icon_size );
+    setIconPixmap( pm );
+}
+
+
+/*!
+  Returns the icon pixmap of the message box.
+
+  Example:
+  \code
+    QMessageBox mb(...);
+    mb.setIcon( QMessageBox::Warning );
+    mb.iconPixmap();	// returns the warning icon pixmap
+  \endcode
+
+  \sa setIconPixmap(), icon()
+*/
+
+const QPixmap *QMessageBox::iconPixmap() const
+{
+    return mbd->iconPixmap.isNull() ? 0 : &mbd->iconPixmap;
+}
+
+/*!
+  Sets the icon of the message box to a custom \a pixmap.
+
+  \sa iconPixmap(), setIcon()
+*/
+
+void QMessageBox::setIconPixmap( const QPixmap &pixmap )
+{
+    mbd->iconPixmap = pixmap;
 }
 
 
@@ -610,10 +686,9 @@ int QMessageBox::message( const char *caption,
 			  QWidget    *parent,
 			  const char *name )
 {
-    QMessageBox *mb = new QMessageBox( OK, 0, 0, parent, name );
+    QMessageBox *mb = new QMessageBox( caption, text, NoIcon, OK, 0, 0,
+				       parent, name );
     CHECK_PTR( mb );
-    mb->setCaption( caption );
-    mb->setText( text );
     if ( buttonText )
 	mb->setButtonText( OK, buttonText );
     int retcode = mb->exec();
@@ -645,10 +720,10 @@ bool QMessageBox::query( const char *caption,
 			 const char *noButtonText,
 			 QWidget *parent, const char *name )
 {
-    QMessageBox *mb = new QMessageBox( Yes, No, 0, parent, name );
+    QMessageBox *mb = new QMessageBox( caption, text, NoIcon,
+				       Yes, No, 0,
+				       parent, name );
     CHECK_PTR( mb );
-    mb->setCaption( caption );
-    mb->setText( text );
     if ( yesButtonText )
 	mb->setButtonText( Yes, yesButtonText );
     if ( noButtonText )
@@ -674,12 +749,10 @@ int QMessageBox::information( QWidget *parent,
 			      const char *caption, const char *text,
 			      int button1, int button2, int button3 )
 {
-    QMessageBox *mb = new QMessageBox( button1, button2, button3, parent,
-				       "information" );
+    QMessageBox *mb = new QMessageBox( caption, text, Information,
+				       button1, button2, button3,
+				       parent, "information" );
     CHECK_PTR( mb );
-    mb->setCaption( caption );
-    mb->setText( text );
-    mb->setIcon( Information );
     int reply = mb->exec();
     delete mb;
     return reply;
@@ -701,12 +774,10 @@ int QMessageBox::warning( QWidget *parent,
 			  const char *caption, const char *text,
 			  int button1, int button2, int button3 )
 {
-    QMessageBox *mb = new QMessageBox( button1, button2, button3, parent,
-				       "warning" );
+    QMessageBox *mb = new QMessageBox( caption, text, Warning,
+				       button1, button2, button3,
+				       parent, "warning" );
     CHECK_PTR( mb );
-    mb->setCaption( caption );
-    mb->setText( text );
-    mb->setIcon( Warning );
     int reply = mb->exec();
     delete mb;
     return reply;
@@ -728,12 +799,10 @@ int QMessageBox::critical( QWidget *parent,
 			   const char *caption, const char *text,
 			   int button1, int button2, int button3 )
 {
-    QMessageBox *mb = new QMessageBox( button1, button2, button3, parent,
-				       "critical" );
+    QMessageBox *mb = new QMessageBox( caption, text, Critical,
+				       button1, button2, button3,
+				       parent, "critical" );
     CHECK_PTR( mb );
-    mb->setCaption( caption );
-    mb->setText( text );
-    mb->setIcon( Critical );
     int reply = mb->exec();
     delete mb;
     return reply;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#19 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#20 $
 **
 ** Definition of QMessageBox class
 **
@@ -50,15 +50,22 @@ public:
 #endif
 
     QMessageBox( QWidget *parent=0, const char *name=0 );
-    QMessageBox( int button1, int button2, int button3,
-		 QWidget *parent=0, const char *name=0 );
+    QMessageBox( const char *caption, const char *text, Icon icon,
+		 int button1, int button2, int button3,
+		 QWidget *parent=0, const char *name=0, bool modal=TRUE,
+		 WFlags f=0 );
    ~QMessageBox();
+
+    void	show();
 
     const char *text() const;
     void	setText( const char * );
 
     QMessageBox::Icon icon() const;
     void	setIcon( Icon );
+
+    const QPixmap *iconPixmap() const;
+    void	setIconPixmap( const QPixmap & );
 
 #if 1 /* OBSOLETE */
     const char *buttonText() const;
