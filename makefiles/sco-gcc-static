@@ -1,0 +1,41 @@
+diff -ur template/Makefile sco-gcc-static/Makefile
+--- template/Makefile	Wed Sep  4 14:58:03 1996
++++ sco-gcc-static/Makefile	Wed Sep  4 22:21:38 1996
+@@ -6,7 +6,7 @@
+ 
+ CC	= gcc
+ CFLAGS	= -O2 -fno-strength-reduce -Wall -W
+-LFLAGS	= -lqt
++LFLAGS	= -lqt -lX11 -lsocket
+ 
+ all: library tutorial examples
+ 
+diff -ur template/library/Makefile sco-gcc-static/library/Makefile
+--- template/library/Makefile	Wed Sep  4 14:58:21 1996
++++ sco-gcc-static/library/Makefile	Wed Sep  4 22:15:54 1996
+@@ -76,7 +76,7 @@
+ .SUFFIXES: .cpp
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ 
+@@ -85,14 +85,8 @@
+ # Creates the library when all files have been compiled
+ 
+ library: $(OBJECTS) $(METAOBJ)
+-	-rm -f ../../../lib/libqt.so.$(VERSION)
+-	$(CC) -shared -Wl,-soname,libqt.so.0 \
+-		-o ../../../lib/libqt.so.$(VERSION) \
+-		$(OBJECTS) $(METAOBJ) -lX11
+-	-rm -f ../../../lib/libqt.so
+-	-ln -sf libqt.so.$(VERSION) ../../../lib/libqt.so
+-	-rm -f ../../../lib/libqt.so.0
+-	-ln -s libqt.so.$(VERSION) ../../../lib/libqt.so.0
++	ar q libqt.a `lorder $(OBJECTS) $(METAOBJ) | tsort`
++	mv libqt.a ../../../lib
+ 
+ depend:
+ 	makedepend $(SOURCES) 2> /dev/null
