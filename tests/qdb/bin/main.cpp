@@ -209,21 +209,21 @@ int main( int argc, char** argv )
 	    outstream << sep << "---------------" << sep << "---------------" << sep
 		      << "---------------" << sep << "---------------" << sep << endl;
 	}
-	for ( i = 0; i < driver->count(); ++i ) {
+	QStringList cols = driver->columnNames();
+	QValueList<QVariant::Type> types = driver->columnTypes();
+	for ( i = 0; i < cols.count(); ++i ) {
 	    QVariant v;
-	    if ( !driver->fieldDescription( i, v ) )
-		die( "unable to find field:" + QString::number( i ) );
-	    localsql::List l = v.toList();
-	    QString name( l[0].toString() );
-	    v.cast( (QVariant::Type)l[1].toInt() );
+	    QString name = cols[i];
+	    v.cast( types[i] );
 	    QString typeName( v.typeName() );
 	    typeName = typeName.lower();
 	    if ( typeName[0] == 'q' )
 		typeName = typeName.mid( 1, typeName.length() );
 	    outstream << sep << " " << name.leftJustify( 14 ) << sep
-		      << " " << typeName.leftJustify( 14 ) << sep
-		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep
-		      << " " << QString::number( l[3].toInt() ).leftJustify( 14 ) <<  sep << endl;
+		      << " " << typeName.leftJustify( 14 ) << sep << endl;
+		//## fix
+		//		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep
+		//		      << " " << QString::number( l[3].toInt() ).leftJustify( 14 ) <<  sep << endl;
 	}
 	QStringList priIdxDesc = driver->primaryIndex();
 	QString priIdx;

@@ -1104,9 +1104,11 @@ public:
    (column list)
 
    Where 'column list' is a list of column names of the same form used
-   by ??.  This list identifies the columns to be used.
+   by CreateResult, and 'rangemark list' is a list of the same form
+   used by RangeMark.
 
-   The 'resultid' parameter indicates the result to save the data to.
+   The 'resultid' parameter indicates the new result where the data
+   will be saved..
 */
 
 class RangeSave : public Op

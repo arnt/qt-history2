@@ -1033,7 +1033,7 @@ bool FileDriver::createIndex( const List& data, bool unique )
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
 	if ( indexType == QVariant::Invalid ) /* save type of first indexed field */
-	    indexType = d->file.GetFieldType( fieldnum );
+	    indexType = xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) );
 	if ( !canConvert( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ),
 			  indexType ) ) {
 	    QVariant v1; v1.cast( indexType );
@@ -1164,7 +1164,7 @@ bool FileDriver::starDescription( QVariant& v )
     List list;
     for ( uint i = 0; i < count(); ++i ) {
 	QVariant val;
-	if ( !fieldDescription( i, val ) )
+	//	if ( !fieldDescription( i, val ) ) #### fix
 	    return FALSE;
 	list.append( val );
     }
