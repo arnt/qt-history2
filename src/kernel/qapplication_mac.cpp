@@ -1829,12 +1829,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	widget = QWidget::find( (WId)wid );
 
 	if(!widget) {
-	    if(ekind == kEventWindowShown )
+	    if(ekind == kEventWindowShown ) 
 		unhandled_dialogs.insert((void *)wid, (void *)1);
-	    else if(ekind == kEventWindowHidden)
+	    else if(ekind == kEventWindowHidden) 
 		unhandled_dialogs.remove((void *)wid);
+#if 0
+	    else if(!unhandled_dialogs.find((void *)wid))
+		qWarning("Couldn't find EventClassWindow widget for %d %d", (int)wid, ekind);
 	    else
-		qWarning("Couldn't find EventClassWindow widget for %d", (int)wid);
+		return 1;
+#endif
 	    break;
 	}
 
