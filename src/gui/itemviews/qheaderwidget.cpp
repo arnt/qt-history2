@@ -33,19 +33,12 @@ public:
     void setSectionCount(int sections);
 
     void setItem(int section, QHeaderWidgetItem *item);
-    void setItem(const QModelIndex &index, QHeaderWidgetItem *item);
     QHeaderWidgetItem *takeItem(int section);
     QHeaderWidgetItem *item(int section) const;
-    QHeaderWidgetItem *item(const QModelIndex &index) const;
     void removeItem(QHeaderWidgetItem *item);
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
-                      QModelIndex::Type type = QModelIndex::View);
-
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null);
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
-    bool isEditable(const QModelIndex &index) const;
-
     int rowCount() const;
     int columnCount() const;
 
@@ -115,16 +108,6 @@ void QHeaderModel::setItem(int section, QHeaderWidgetItem *item)
     }
 }
 
-void QHeaderModel::setItem(const QModelIndex &index, QHeaderWidgetItem *item)
-{
-    if (orientation == Qt::Horizontal && index.type() == QModelIndex::HorizontalHeader
-        && index.column() >= 0 && index.column() < items.count())
-        items[index.column()] = item;
-    else if (orientation == Qt::Vertical && index.type() == QModelIndex::VerticalHeader
-        && index.row() >= 0 && index.row() < items.count())
-        items[index.row()] = item;
-}
-
 QHeaderWidgetItem *QHeaderModel::takeItem(int section)
 {
     if (section >= 0 || section < items.count()) {
@@ -142,15 +125,6 @@ QHeaderWidgetItem *QHeaderModel::item(int section) const
     return 0;
 }
 
-QHeaderWidgetItem *QHeaderModel::item(const QModelIndex &index) const
-{
-    if (index.type() == QModelIndex::HorizontalHeader && orientation == Qt::Horizontal)
-        return item(index.column());
-    else if (index.type() == QModelIndex::VerticalHeader && orientation == Qt::Vertical)
-        return item(index.row());
-    return 0;
-}
-
 void QHeaderModel::removeItem(QHeaderWidgetItem *item)
 {
     int i = items.indexOf(item);
@@ -160,46 +134,14 @@ void QHeaderModel::removeItem(QHeaderWidgetItem *item)
     }
 }
 
-QModelIndex QHeaderModel::index(int row, int column, const QModelIndex &, QModelIndex::Type type)
+QModelIndex QHeaderModel::index(int row, int column, const QModelIndex &)
 {
-    if (orientation == Qt::Horizontal && type == QModelIndex::HorizontalHeader) {
-        QHeaderWidgetItem *itm = item(column);
-        return itm ? createIndex(0, column, itm, QModelIndex::HorizontalHeader): QModelIndex::Null;
-    } else if (orientation == Qt::Vertical && type == QModelIndex::VerticalHeader) {
-        QHeaderWidgetItem *itm = item(row);
-        return itm ? createIndex(row, 0, itm, QModelIndex::VerticalHeader) : QModelIndex::Null;
-    }
     return QModelIndex::Null;
 }
 
 QVariant QHeaderModel::data(const QModelIndex &index, int role) const
 {
-    QHeaderWidgetItem *itm = item(index);
-    if (itm)
-        return itm->data(role);
-    if (index.type() == QModelIndex::VerticalHeader && role == QAbstractItemModel::DisplayRole)
-        return QAbstractItemModelPrivate::i2s(strbuf, 65, index.row());
-    if (index.type() == QModelIndex::HorizontalHeader && role == QAbstractItemModel::DisplayRole)
-        return QAbstractItemModelPrivate::i2s(strbuf, 65, index.column());
     return QVariant();
-}
-
-bool QHeaderModel::setData(const QModelIndex &index, int role, const QVariant &value)
-{
-    QHeaderWidgetItem *itm = item(index);
-    if (!itm) {
-        QHeaderWidget *view = ::qt_cast<QHeaderWidget*>(QObject::parent());
-        itm = new QHeaderWidgetItem(view);
-        setItem(index, itm);
-    }
-    itm->setData(role, value);
-    emit dataChanged(index, index);
-    return true;
-}
-
-bool QHeaderModel::isEditable(const QModelIndex &) const
-{
-    return false; // FIXME: should the user be able to edit header items ?
 }
 
 int QHeaderModel::rowCount() const

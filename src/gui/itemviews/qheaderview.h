@@ -117,13 +117,16 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
 
-    virtual void paintSection(QPainter *painter, const QStyleOptionViewItem &option,
-                              const QModelIndex &item);
+    virtual void paintSection(QPainter *painter, const QRect &rect, int section) const;
+    virtual QSize sectionSizeFromContents(int section) const;
+
+    inline int sectionAt(int x, int y) const
+    { return orientation() == Qt::Horizontal ? sectionAt(x) : sectionAt(y); }
+    inline int sectionAt(QPoint pos) const { return sectionAt(pos.x(), pos.y()); }
 
     int horizontalOffset() const;
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
-    QModelIndex item(int section) const;
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags) {}
     QRect selectionViewportRect(const QItemSelection &selection) const;
 

@@ -278,6 +278,9 @@ public:
         SR_ToolBarButtonContents,
         SR_ToolBarButtonMenu,
 
+        SR_HeaderLabel,
+        SR_HeaderArrow,
+
         // do not add any values below/greater than this
         SR_CustomBase = 0xf0000000
     };
@@ -460,6 +463,7 @@ public:
         CT_TabWidget,
         CT_DialogButtons,
         CT_ToolBarButton,
+        CT_HeaderSection,
         // do not add any values below/greater than this
         CT_CustomBase = 0xf0000000
     };

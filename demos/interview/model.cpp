@@ -14,29 +14,7 @@
 #include "model.h"
 #include <qiconset.h>
 #include <qpixmap.h>
-
-static QString i2s(QChar *buf, int size, int num)
-{
-    static ushort unicode_zero = QChar('0').unicode();
-    static ushort unicode_dash = QChar('-').unicode();
-    bool neg = num < 0;
-    int len = 0;
-    while (num != 0 && size > 0) {
-        buf[--size] = unicode_zero + (num % 10);
-        num /= 10;
-        ++len;
-    }
-    if (len == 0) {
-        buf[--size] = unicode_zero;
-        ++len;
-    }
-    if (neg) {
-        buf[--size] = unicode_dash;
-        ++len;
-    }
-    return QString(&buf[size], len);
-}
-
+#include <private/qabstractitemmodel_p.h>
 
 Model::Model(int rows, int columns, QObject *parent)
     : QAbstractItemModel(parent),
@@ -51,12 +29,12 @@ Model::~Model()
     delete tree;
 }
 
-QModelIndex Model::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const
+QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
 {
     if (row < rc && row >= 0 && column < cc && column >= 0) {
 	Node *n = node(row, static_cast<Node*>(parent.data()));
 	if (n)
-	    return createIndex(row, column, n, type);
+	    return createIndex(row, column);
     }
     return QModelIndex::Null;
 }
@@ -85,28 +63,33 @@ int Model::columnCount(const QModelIndex &) const
 QVariant Model::data(const QModelIndex &index, int role) const
 {
     static QIconSet folder(QPixmap("folder.png"));
-    static QIconSet service(QPixmap("services.png"));
-
-    if (index.type() == QModelIndex::VerticalHeader) {
-        if (role == DisplayRole)
-            return i2s(strbuf, 65, index.row());
-        if (role == DecorationRole)
-            return service;
-        return QVariant();
-    }
-
-    if (index.type() == QModelIndex::HorizontalHeader) {
-        if (role == DisplayRole)
-            return i2s(strbuf, 65, index.column());
-        if (role == DecorationRole)
-            return service;
-        return QVariant();
-    }
 
     if (role == DisplayRole)
-	return "Item " + i2s(strbuf, 65, index.row()) + ":" + i2s(strbuf, 65, index.column());
+	return "Item " + QAbstractItemModelPrivate::i2s(strbuf, 65, index.row()) + ":"
+            + QAbstractItemModelPrivate::i2s(strbuf, 65, index.column());
     if (role == DecorationRole)
 	return folder;
+    return QVariant();
+}
+
+QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    static QIconSet service(QPixmap("services.png"));
+
+    if (orientation == Qt::Vertical) {
+        if (role == DisplayRole)
+            return QAbstractItemModelPrivate::i2s(strbuf, 65, section);
+        if (role == DecorationRole)
+            return service;
+        return QVariant();
+    } else {
+        if (role == DisplayRole)
+            return QAbstractItemModelPrivate::i2s(strbuf, 65, section);
+        if (role == DecorationRole)
+            return service;
+        return QVariant();
+    }
+
     return QVariant();
 }
 

@@ -1334,6 +1334,27 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
             }
         }
         break;
+    case SR_HeaderLabel:
+        if (const QStyleOptionHeader * const hdr = qt_cast<const QStyleOptionHeader *>(opt)) {
+            int margin = pixelMetric(QStyle::PM_HeaderMargin);
+            r.setRect(opt->rect.x() + margin, opt->rect.y() + margin,
+                      opt->rect.width() - margin * 2, opt->rect.height() - margin * 2);
+
+        }
+        break;
+    case SR_HeaderArrow:
+        if (const QStyleOptionHeader * const hdr = qt_cast<const QStyleOptionHeader *>(opt)) {
+            int h = opt->rect.height();
+            int w = opt->rect.width();
+            int x = opt->rect.x();
+            int y = opt->rect.y();
+            int margin = pixelMetric(QStyle::PM_HeaderMargin);
+            if (opt->state & QStyle::Style_Horizontal)
+                r.setRect(x + w - margin * 2 - (h / 2), y + 5, h / 2, h - margin * 2);
+            else
+                r.setRect(x + 5, y, h / 2, h - margin * 2);
+        }
+        break;
     default:
         break;
     }
@@ -2469,6 +2490,15 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
                 sz.rwidth() += 3; // between the text and the icon
             if (button->features & QStyleOptionButton::HasMenu)
                 sz.rwidth() += 12;
+        }
+        break;
+    case CT_HeaderSection:
+        if (const QStyleOptionHeader *hdr = qt_cast<const QStyleOptionHeader *>(opt)) {
+            int margin = pixelMetric(QStyle::PM_HeaderMargin);
+            QSize icn = hdr->icon.isNull() ? QSize(0,0) : QIconSet::iconSize(QIconSet::Small);
+            QSize txt = fm.size(0, hdr->text);
+            sz.setHeight(margin + qMax(icn.height(), txt.height()) + margin);
+            sz.setWidth(margin + icn.width() + margin + txt.width() + margin);
         }
         break;
     case CT_MenuBar:

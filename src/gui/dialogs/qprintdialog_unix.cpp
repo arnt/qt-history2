@@ -130,7 +130,8 @@ public:
 
     int rowCount() const;
     int columnCount() const;
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     QList<QPrinterDescription> lst;
 };
@@ -153,22 +154,6 @@ int QPrinterModel::columnCount() const
 
 QVariant QPrinterModel::data(const QModelIndex &index, int) const
 {
-    if (index.type() == QModelIndex::HorizontalHeader) {
-        const char *name = 0;
-        switch(index.column()) {
-        case 0:
-            name = "Printer";
-            break;
-        case 1:
-            name = "Host";
-            break;
-        case 2:
-            name = "Comment";
-            break;
-        }
-        return qApp->translate("QPrintDialog", name);
-
-    }
     if (index.isValid() && index.row() < (int)lst.count()) {
         const QPrinterDescription &desc = lst.at(index.row());
         switch(index.column()) {
@@ -183,6 +168,25 @@ QVariant QPrinterModel::data(const QModelIndex &index, int) const
     return QVariant();
 }
 
+QVariant QPrinterModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        const char *name = 0;
+        switch(section) {
+        case 0:
+            name = "Printer";
+            break;
+        case 1:
+            name = "Host";
+            break;
+        case 2:
+            name = "Comment";
+            break;
+        }
+        return qApp->translate("QPrintDialog", name);
+    }
+    return QAbstractItemModel::headerData(section, orientation, role);
+}
 
 
 class QPrintDialogUnixPrivate : public QAbstractPrintDialogPrivate

@@ -296,17 +296,14 @@ QDirModel::~QDirModel()
 
 /*!
   Returns the model item index for the item in the \a parent with the
-  given \a row, \a column, and \a type.
-
-  The type is a value defined in \l QModelIndex::Type.
+  given \a row and \a column.
 
 */
 
-QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const
+QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (column < 0 || column >= 4 || row < 0 || row >= rowCount(parent)) { // does lazy population
-        if (type == QModelIndex::View)
-            qWarning("index: row %d column %d does not exist", row, column);
+        qWarning("index: row %d column %d does not exist", row, column);
         return QModelIndex::Null;
     }
 
@@ -323,7 +320,7 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QMo
 	return QModelIndex::Null;
     }
 
-    return createIndex(row, column, n, type);
+    return createIndex(row, column, n);
 }
 
 /*!
@@ -360,9 +357,6 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 
 int QDirModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.type() == QModelIndex::HorizontalHeader)
-        return 1;
-
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
 
     bool isDir = !p || p->info.isDir();
@@ -383,10 +377,8 @@ int QDirModel::rowCount(const QModelIndex &parent) const
 
 */
 
-int QDirModel::columnCount(const QModelIndex &parent) const
+int QDirModel::columnCount(const QModelIndex &) const
 {
-    if (parent.type() == QModelIndex::VerticalHeader)
-        return 1;
     return 4;
 }
 
@@ -400,22 +392,6 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     if (!index.isValid()) {
         qWarning("data: the index was not valid");
         return QVariant();
-    }
-
-    if (index.type() == QModelIndex::HorizontalHeader) {
-        if (role != DisplayRole)
-            return QVariant();
-	switch (index.column()) {
-        case 0: return "Name";
-        case 1: return "Size";
-        case 2: return "Type";
-        case 3: return "Modified";
-        default: return QVariant();
-        }
-    } else if (index.type() == QModelIndex::VerticalHeader) {
-        if (role != DisplayRole)
-            return QVariant();
-	return index.row();
     }
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
@@ -486,6 +462,26 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
     }
     qWarning("setData: file renaming failed");
     return false;
+}
+
+/*!
+  Returns the data for the header section \a section, role \a role.
+*/
+
+QVariant QDirModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role != DisplayRole)
+            return QVariant();
+	switch (section) {
+        case 0: return "Name";
+        case 1: return "Size";
+        case 2: return "Type";
+        case 3: return "Modified";
+        default: return QVariant();
+        }
+    }
+    return QAbstractItemModel::headerData(section, orientation, role);
 }
 
 /*!

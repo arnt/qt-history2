@@ -199,8 +199,6 @@ QWidget *QItemDelegate::editor(QWidget *parent,
                                const QAbstractItemModel *,
                                const QModelIndex &index)
 {
-    if (index.type() != QModelIndex::View)
-        return 0;
     QLineEdit *lineEdit = new QLineEdit(parent);
     lineEdit->setFrame(false);
     lineEdit->installEventFilter(this);
@@ -511,9 +509,6 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             emit commitData(editor);
         case Qt::Key_Escape:
             emit doneEditing(editor);
-//             editor->hide();
-//             editor->parentWidget()->setFocus();
-//             editor->deleteLater();
             return true;
         default:
             break;

@@ -1324,10 +1324,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
         QModelIndex parent = model()->parent(start);
         int newRow = (start.row() < model()->rowCount(parent) - 1)
                      ? start.row() + 1 : 0;
-        start = model()->index(newRow,
-                               start.column(),
-                               model()->parent(start),
-                               start.type());
+        start = model()->index(newRow, start.column(), model()->parent(start));
     }
 
     // search from start with wraparound

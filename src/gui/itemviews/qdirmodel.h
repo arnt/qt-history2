@@ -53,8 +53,7 @@ public:
     QDirModel(const QDir &directory, QObject *parent = 0);
     ~QDirModel();
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
-                      QModelIndex::Type type = QModelIndex::View) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
     QModelIndex parent(const QModelIndex &child) const;
 
     int rowCount(const QModelIndex &parent) const;
@@ -62,6 +61,8 @@ public:
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
+
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     bool hasChildren(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;

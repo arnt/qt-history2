@@ -334,19 +334,6 @@ void *QPersistentModelIndex::data() const
     return d->index.data();
 }
 
-
-/*!
-    \fn Type QPersistentModelIndex::type() const
-
-    Returns the \c Type of this persistent model index.
-*/
-
-QModelIndex::Type QPersistentModelIndex::type() const
-{
-    return d->index.type();
-}
-
-
 /*!
     \fn bool QPersistentModelIndex::isValid() const
 
@@ -388,22 +375,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
 #ifndef Q_NO_STREAMING_DEBUG
-    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << ",";
-    switch (idx.type()) {
-    case QModelIndex::Null:
-        dbg.nospace() << "Null";
-        break;
-    case QModelIndex::View:
-        dbg.nospace() << "View";
-        break;
-    case QModelIndex::HorizontalHeader:
-        dbg.nospace() << "HorizontalHeader";
-        break;
-    case QModelIndex::VerticalHeader:
-        dbg.nospace() << "VerticalHeader";
-        break;
-    }
-    dbg.nospace() << ")";
+    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << ")";
     return dbg.space();
 #else
     qWarning("This compiler doesn't support the streaming of QDebug");
@@ -440,22 +412,9 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     immediately and then discarded. If you need to keep a model index
     over time use a QPersistentModelIndex.
 
-    A model index has a row(), a column(), and a type().
+    A model index has a row() and a column()
 
     \sa \link model-view-programming.html Model/View Programming\endlink QPersistentModelIndex QAbstractItemModel
-*/
-
-/*!
-    \enum QModelIndex::Type
-
-    Defines whether a model index refers to an item in a view, or in one of
-    the view's headers.
-
-    \value View             The item belongs in a view.
-    \value HorizontalHeader The item belongs in a horizontal header.
-    \value VerticalHeader   The item belongs in a vertical header.
-    \value Null             There is no item; this is the case when
-    the model index is the parent of a top-level item.
 */
 
 /*!
@@ -463,16 +422,16 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
     Creates a new empty model index. This is typically used to create
     a parent model index for top-level items, i.e., for items which
-    have no parent, so the default \a type of \c Null is usually right.
+    have no parent.
 */
 
 /*!
-    \fn QModelIndex::QModelIndex(int row, int column, void *data, Type type)
+    \fn QModelIndex::QModelIndex(int row, int column, void *data)
 
     \internal
 
     Creates a new model index at the given \a row and \a column,
-    pointing to some \a data of the specified \a type.
+    pointing to some \a data.
 */
 
 /*!
@@ -509,13 +468,6 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
     Returns a \c{void} \c{*} pointer to the data located at this model
     index position.
-*/
-
-
-/*!
-    \fn Type QModelIndex::type() const
-
-    Returns the \c Type of this model index.
 */
 
 
@@ -604,10 +556,10 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
-    \fn QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const = 0
+    \fn QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent) const = 0
 
     Returns the index of the item in the model specified by the given \a row,
-    \a column, \a parent index, and \a type.
+    \a column and \a parent index.
 */
 
 /*!
@@ -1118,10 +1070,31 @@ QSize QAbstractItemModel::span(const QModelIndex &) const
 }
 
 /*!
-    \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *data, QModelIndex::Type type) const
+  Returns the data for the specified \a role and \a section in the header with  \a orientation.
+*/
+
+QVariant QAbstractItemModel::headerData(int section, Qt::Orientation, int role) const
+{
+    if (role == DisplayRole)
+        return QString::number(section + 1);
+    return QVariant();
+}
+
+/*!
+  Sets the data \a value in the header with \a orientation, in \a section and for \a role.
+*/
+  
+bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation, int role,
+                                       const QVariant &value)
+{
+    return false;
+}
+
+/*!
+    \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *data) const
 
     Creates a model index for the given \a row and \a column that
-    points to the given \a data of the specified \a type.
+    points to the given \a data.
 
     This function provides a consistent interface that model subclasses must
     use to create model indices.
@@ -1268,18 +1241,16 @@ QAbstractTableModel::~QAbstractTableModel()
 }
 
 /*!
-    \fn QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent = QModelIndex::Null, QModelIndex::Type type = QModelIndex::View) const
+    \fn QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const
 
-    Returns the index of the data in \a row and \a column with \a
-    parent, of the given \a type.
+    Returns the index of the data in \a row and \a column with \a parent.
 
     \sa parent()
 */
 
-QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent,
-                                     QModelIndex::Type type) const
+QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent) const
 {
-    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex::Null;
+    return isValid(row, column, parent) ? createIndex(row, column, 0) : QModelIndex::Null;
 }
 
 /*!
@@ -1409,18 +1380,16 @@ QAbstractListModel::~QAbstractListModel()
 }
 
 /*!
-    \fn QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent = QModelIndex::Null, QModelIndex::Type type = QModelIndex::View) const
+    \fn QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const
 
-    Returns the index of the data in \a row and \a column with \a
-    parent, of the given \a type.
+    Returns the index of the data in \a row and \a column with \a parent.
 
     \sa parent()
 */
 
-QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent,
-                                     QModelIndex::Type type) const
+QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex::Null;
+    return isValid(row, column, parent) ? createIndex(row, column, 0) : QModelIndex::Null;
 }
 
 /*!

@@ -265,19 +265,10 @@ int QHeaderView::size() const
 QSize QHeaderView::sizeHint() const
 {
     if (d->sections.isEmpty())
-            return QSize();
-    QStyleOptionViewItem option = viewOptions();
-    int row = orientation() == Qt::Horizontal ? 0 : section(count() - 1);
-    int col = orientation() == Qt::Horizontal ? section(count() - 1) : 0;
-    QModelIndex::Type type = orientation() == Qt::Horizontal
-                             ? QModelIndex::HorizontalHeader
-                             : QModelIndex::VerticalHeader;
-    QModelIndex index = model()->index(row, col, QModelIndex::Null, type);
-    if (!index.isValid())
-        return QSize(0, 0);
-    QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, model(), index);
-    int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
-    return QSize(hint.width() + margin, hint.height() + margin);
+        return QSize();
+    QSize hint = sectionSizeFromContents(section(count() - 1));
+    // FIXME: last section
+    return QSize(hint.width(), hint.height());
 }
 
 /*!
@@ -288,28 +279,8 @@ QSize QHeaderView::sizeHint() const
 
 int QHeaderView::sectionSizeHint(int section) const
 {
-    QStyleOptionViewItem option = viewOptions();
-    QAbstractItemDelegate *delegate = itemDelegate();
-    int hint = 0;
-    int row = orientation() == Qt::Vertical ? section : 0;
-    int col = orientation() == Qt::Vertical ? 0 : section;
-    QModelIndex::Type type = orientation() == Qt::Horizontal ?
-                             QModelIndex::HorizontalHeader :
-                             QModelIndex::VerticalHeader;
-    QModelIndex header = model()->index(row, col, QModelIndex::Null, type);
-    if (orientation() == Qt::Vertical) {
-        QSize size = delegate->sizeHint(fontMetrics(), option, model(), header);
-        hint = size.height();
-        if (sortIndicatorSection() == section)
-            hint += size.width();
-    } else {
-        QSize size = delegate->sizeHint(fontMetrics(), option, model(), header);
-        hint = size.width();
-        if (sortIndicatorSection() == section)
-            hint += size.height();
-    }
-
-    return hint + style().pixelMetric(QStyle::PM_HeaderMargin);
+    QSize size = sectionSizeFromContents(section);
+    return orientation() == Qt::Horizontal ? size.width() : size.height();
 }
 
 /*!
@@ -318,7 +289,6 @@ int QHeaderView::sectionSizeHint(int section) const
 
 void QHeaderView::paintEvent(QPaintEvent *e)
 {
-    QStyleOptionViewItem option = viewOptions();
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
@@ -339,52 +309,34 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     start = qMin(start, end);
     end = qMax(tmp, end);
 
-    QModelIndex index;
     if (d->sections.isEmpty())
         return;
-    const QHeaderViewPrivate::HeaderSection *sections = d->sections.constData();
-    QModelIndex current = selectionModel()->currentItem();
+    const QVector<QHeaderViewPrivate::HeaderSection> sections = d->sections;
 
+    QRect rect;
     int section;
     int width = d->viewport->width();
     int height = d->viewport->height();
-    bool focus = d->highlightCurrent && parentWidget() && parentWidget()->hasFocus();
-    if (d->orientation == Qt::Horizontal) {
-        for (int i = start; i <= end; ++i) {
-            if (sections[i].hidden)
-                continue;
-            section = sections[i].section;
-            index = model()->index(0, section, QModelIndex::Null, QModelIndex::HorizontalHeader);
-            if (!index.isValid())
-                continue;
-            option.font.setBold((index.column() == current.column()) && focus);
-            option.rect.setRect(sectionPosition(section) - offset, 0, sectionSize(section), height);
-            paintSection(&painter, option, index);
-        }
-        if (option.rect.right() < area.right()) {
-            QStyleOptionHeader opt = d->getStyleOption();
-            opt.state |= QStyle::Style_Off | QStyle::Style_Raised;
-            opt.rect.setRect(option.rect.right() + 1, 0, width - option.rect.right() - 1, height);
-            style().drawPrimitive(QStyle::PE_HeaderSection, &opt, &painter, this);
-        }
-    } else {
-        for (int i = start; i <= end; ++i) {
-            if (sections[i].hidden)
-                continue;
-            section = sections[i].section;
-            index = model()->index(section, 0, QModelIndex::Null, QModelIndex::VerticalHeader);
-            if (!index.isValid())
-                continue;
-            option.font.setBold((index.row() == current.row()) && focus);
-            option.rect.setRect(0, sectionPosition(section) - offset, width, sectionSize(section));
-            paintSection(&painter, option, index);
-        }
-        if (option.rect.bottom() < area.bottom()) {
-            QStyleOptionHeader opt = d->getStyleOption();
-            opt.state |= QStyle::Style_Off | QStyle::Style_Raised;
-            opt.rect.setRect(0, option.rect.bottom() + 1, width, height - option.rect.bottom() - 1);
-            style().drawPrimitive(QStyle::PE_HeaderSection, &opt, &painter, this);
-        }
+//    bool focus = d->highlightCurrent && parentWidget() && parentWidget()->hasFocus();
+    for (int i = start; i <= end; ++i) {
+        if (sections.at(i).hidden)
+            continue;
+        section = sections.at(i).section;
+        if (orientation() == Qt::Horizontal)
+            rect.setRect(sectionPosition(section) - offset, 0, sectionSize(section), height);
+        else
+            rect.setRect(0, sectionPosition(section) - offset, width, sectionSize(section));
+        paintSection(&painter, rect, section);
+    }
+
+    if (rect.right() < area.right()) {
+        painter.fillRect(rect.right() + 1, 0,
+                         width - rect.right() - 1, height,
+                         palette().background());
+    } else if (rect.bottom() < area.bottom()) {
+        painter.fillRect(0, rect.bottom() + 1,
+                         width, height - rect.bottom() - 1,
+                         palette().background());
     }
 }
 
@@ -395,47 +347,62 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     You normally would not need to use this function.
 */
 
-void QHeaderView::paintSection(QPainter *painter, const QStyleOptionViewItem &option,
-                               const QModelIndex &index)
+void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int section) const
 {
-    int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
-    int section = orientation() == Qt::Horizontal ? index.column() : index.row();
     QStyleOptionHeader opt = d->getStyleOption();
-    QStyle::SFlags arrowFlags = QStyle::Style_Off;
-    opt.rect = option.rect;
+    opt.rect = rect;
     opt.section = section;
-    if (d->clickableSections && (d->orientation == Qt::Horizontal ?
-          selectionModel()->isColumnSelected(index.column(), model()->parent(index)) :
-          selectionModel()->isRowSelected(index.row(), model()->parent(index))))
-        opt.state |= QStyle::Style_Down;
-    else
-        opt.state |= QStyle::Style_Raised;
-    style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
-#if 0
-    opt.rect.setRect(opt.rect.x() + margin, opt.rect.y() + margin,
-                     opt.rect.width() - margin * 2, opt.rect.height() - margin * 2);
-    opt.text = d->model->data(index, QAbstractItemModel::DisplayRole).toString();
-    opt.icon = d->model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
-    style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
-#else
-    itemDelegate()->paint(painter, option, d->model, index);
-#endif
-    if (sortIndicatorSection() == section) {
-        //bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & Qt::AlignRight;
-        // FIXME: use alignRight and RTL
-        int h = option.rect.height();
-        int x = option.rect.x();
-        int y = option.rect.y();
-        int secSize = sectionSize(section);
+
+    if (d->clickableSections) {
+        bool selected = false;
         if (d->orientation == Qt::Horizontal)
-            opt.rect.setRect(x + secSize - margin * 2 - (h / 2), y + 5, h / 2, h - margin * 2);
+            selected = selectionModel()->isColumnSelected(section, QModelIndex::Null);
         else
-            opt.rect.setRect(x + 5, y + secSize - h, h / 2, h - margin * 2);
-        arrowFlags |= (sortIndicatorOrder() == Qt::AscendingOrder
-                       ? QStyle::Style_Down : QStyle::Style_Up);
-        opt.state = arrowFlags;
+            selected = selectionModel()->isRowSelected(section, QModelIndex::Null);
+        if (selected)
+            opt.state |= QStyle::Style_Down;
+    }
+
+    opt.text = d->model->headerData(section, orientation(),
+                                    QAbstractItemModel::DisplayRole).toString();
+    opt.icon = d->model->headerData(section, orientation(),
+                                    QAbstractItemModel::DecorationRole).toIconSet();
+
+    style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
+    opt.rect = style().subRect(QStyle::SR_HeaderLabel, &opt, fontMetrics(), this);
+    style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);   
+
+    if (sortIndicatorSection() == section) {
+        opt.rect = style().subRect(QStyle::SR_HeaderArrow, &opt, fontMetrics(), this);
+        opt.state = (sortIndicatorOrder() == Qt::AscendingOrder
+                     ? QStyle::Style_Down : QStyle::Style_Up) | QStyle::Style_Off;
         style().drawPrimitive(QStyle::PE_HeaderArrow, &opt, painter, this);
     }
+}
+
+QSize QHeaderView::sectionSizeFromContents(int section) const
+{
+    QSize size(100, 30);
+    QStyleOptionHeader opt = d->getStyleOption();
+    opt.text = d->model->headerData(section, orientation(),
+                                    QAbstractItemModel::DisplayRole).toString();
+    opt.icon = d->model->headerData(section, orientation(),
+                                    QAbstractItemModel::DecorationRole).toIconSet();    
+    return style().sizeFromContents(QStyle::CT_HeaderSection, &opt, size, fontMetrics(), this);
+
+    // FIXME: sort indicators
+
+    //     int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
+//     if (orientation() == Qt::Vertical) {
+//         int hint = size.height() + margin;
+//         if (sortIndicatorSection() == section)
+//             hint += size.width();
+//         return hint;
+//     }
+//     hint = size.width() + margin;
+//     if (sortIndicatorSection() == section)
+//         hint += size.height();
+//     return hint;
 }
 
 /*!
@@ -709,10 +676,15 @@ void QHeaderView::resizeSections()
         } else {// mode == QHeaderView::Custom
             // FIXME: get the size of the section from the contents;  this is just a temprary solution
             QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
-            if (par)
-                secSize = (orientation() == Qt::Horizontal
-                           ? par->columnSizeHint(i) : par->rowSizeHint(i));
-            secSize = qMax(secSize, sectionSizeHint(secs[i].section));
+            if (orientation() == Qt::Horizontal) {
+                if (par)
+                    secSize = par->columnSizeHint(i);
+                secSize = qMax(secSize, sectionSizeHint(secs[i].section));
+            } else {
+                if (par)
+                    secSize = par->rowSizeHint(i);
+                secSize = qMax(secSize, sectionSizeHint(secs[i].section));
+            }
         }
         section_sizes.append(secSize);
         stretchSize -= secSize;
@@ -1003,19 +975,20 @@ bool QHeaderView::isSectionHidden(int section) const
 
 QModelIndex QHeaderView::itemAt(int x, int y) const
 {
-    int row = 0;
-    int column = 0;
-    if (d->orientation == Qt::Horizontal) {
-        column = sectionAt(x + offset());
-        if (column < 0)
-            return QModelIndex::Null;
-        return model()->index(0, column, QModelIndex::Null, QModelIndex::HorizontalHeader);
-    } else {
-        row = sectionAt(y + offset());
-        if (row < 0)
-            return QModelIndex::Null;
-        return model()->index(row, 0, QModelIndex::Null, QModelIndex::VerticalHeader);
-    }       
+    return QModelIndex::Null;
+//     int row = 0;
+//     int column = 0;
+//     if (d->orientation == Qt::Horizontal) {
+//         column = sectionAt(x + offset());
+//         if (column < 0)
+//             return QModelIndex::Null;
+//         return model()->index(0, column, QModelIndex::Null, QModelIndex::HorizontalHeader);
+//     } else {
+//         row = sectionAt(y + offset());
+//         if (row < 0)
+//             return QModelIndex::Null;
+//         return model()->index(row, 0, QModelIndex::Null, QModelIndex::VerticalHeader);
+//     }
 }
 
 /*!
@@ -1073,24 +1046,13 @@ QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::ButtonS
 
 QRect QHeaderView::itemViewportRect(const QModelIndex &index) const
 {
-    if (!index.isValid() || index.type() == QModelIndex::View)
+    if (!index.isValid())
         return QRect();
     if (orientation() == Qt::Horizontal)
         return QRect(sectionPosition(index.column()) - offset(),
                      0, sectionSize(index.column()), height());
     return QRect(0, sectionPosition(index.row()) - offset(),
                  width(), sectionSize(index.row()));
-}
-
-/*!
-    Returns the model item index for the item in the given \a section.
-*/
-
-QModelIndex QHeaderView::item(int section) const
-{
-    if (orientation() == Qt::Horizontal)
-        return model()->index(0, section, QModelIndex::Null, QModelIndex::HorizontalHeader);
-    return model()->index(section, 0, QModelIndex::Null, QModelIndex::VerticalHeader);
 }
 
 /*!
@@ -1428,7 +1390,7 @@ QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
     QStyleOptionHeader opt(0);
     opt.rect = q->rect();
     opt.palette = q->palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_Default|QStyle::Style_Raised;
     if (orientation == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
     if (q->isEnabled())

@@ -30,8 +30,7 @@ public:
     QTreeWidgetItem *item(const QModelIndex &index) const;
 
     QModelIndex index(QTreeWidgetItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
-                      QModelIndex::Type type = QModelIndex::View) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent = QModelIndex::Null) const;
     int columnCount(const QModelIndex &parent = QModelIndex::Null) const;
@@ -126,8 +125,6 @@ QTreeWidgetItem *QTreeModel::item(const QModelIndex &index) const
 {
     if (!index.isValid())
         return 0;
-    if (index.type() != QModelIndex::View)
-        return header;
     return static_cast<QTreeWidgetItem*>(index.data());
 }
 
@@ -153,8 +150,7 @@ QModelIndex QTreeModel::index(QTreeWidgetItem *item) const
   and \a parent.
 */
 
-QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
-                              QModelIndex::Type type) const
+QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     int r = tree.count();
     int c = header->columnCount();
@@ -163,14 +159,14 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
     if (!parent.isValid()) {// toplevel
         QTreeWidgetItem *itm = tree.at(row);
         if (itm)
-            return createIndex(row, column, itm, type);
+            return createIndex(row, column, itm);
         return QModelIndex::Null;
     }
     QTreeWidgetItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
         QTreeWidgetItem *itm = static_cast<QTreeWidgetItem*>(parentItem->child(row));
         if (itm)
-            return createIndex(row, column, itm, type);
+            return createIndex(row, column, itm);
         return QModelIndex::Null;
     }
     return QModelIndex::Null;

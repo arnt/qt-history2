@@ -38,8 +38,7 @@ public:
     void removeItem(QTableWidgetItem *item);
 
     QModelIndex index(const QTableWidgetItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
-                      QModelIndex::Type type = QModelIndex::View) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
 
     void setRowCount(int rows);
     void setColumnCount(int columns);
@@ -113,17 +112,10 @@ void QTableModel::setItem(const QModelIndex &index, QTableWidgetItem *item)
 {
     if (!isValid(index))
         return;
-    if (index.type() == QModelIndex::VerticalHeader) {
-        delete verticalHeader.at(index.row());
-        verticalHeader[index.row()] = item;
-    } else if (index.type() == QModelIndex::HorizontalHeader) {
-        delete horizontalHeader.at(index.column());
-        horizontalHeader[index.column()];
-    } else {
-        long i = tableIndex(index.row(), index.column());
-        delete table.at(i);
-        table[i] = item;
-    }
+
+    long i = tableIndex(index.row(), index.column());
+    delete table.at(i);
+    table[i] = item;
 }
 
 QTableWidgetItem *QTableModel::takeItem(int row, int column)
@@ -143,13 +135,7 @@ QTableWidgetItem *QTableModel::item(const QModelIndex &index) const
 {
     if (!isValid(index))
         return 0;
-    if (index.type() == QModelIndex::VerticalHeader)
-        return verticalHeader.at(index.row());
-    else if (index.type() == QModelIndex::HorizontalHeader)
-        return horizontalHeader.at(index.column());
-    else
-        return table.at(tableIndex(index.row(), index.column()));
-    return 0;
+    return table.at(tableIndex(index.row(), index.column()));
 }
 
 void QTableModel::removeItem(QTableWidgetItem *item)
@@ -183,12 +169,11 @@ QModelIndex QTableModel::index(const QTableWidgetItem *item) const
 }
 
 
-QModelIndex QTableModel::index(int row, int column, const QModelIndex &,
-                               QModelIndex::Type type) const
+QModelIndex QTableModel::index(int row, int column, const QModelIndex &) const
 {
     if (row >= 0 && row < r && column >= 0 && column < c) {
         QTableWidgetItem *item = table.at(tableIndex(row, column)); // FIXME: headers ?
-        return createIndex(row, column, item, type);
+        return createIndex(row, column, item);
     }
     return QModelIndex::Null;
 }
@@ -254,12 +239,6 @@ QVariant QTableModel::data(const QModelIndex &index, int role) const
     QTableWidgetItem *itm = item(index);
     if (itm)
         return itm->data(role);
-    if (index.type() == QModelIndex::View)
-        return QVariant();
-    if (index.type() == QModelIndex::VerticalHeader && role == QAbstractItemModel::DisplayRole)
-        return QAbstractItemModelPrivate::i2s(strbuf, 65, index.row());
-    if (index.type() == QModelIndex::HorizontalHeader && role == QAbstractItemModel::DisplayRole)
-        return QAbstractItemModelPrivate::i2s(strbuf, 65, index.column());
     return QVariant();
 }
 
@@ -278,7 +257,7 @@ bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &va
 
 bool QTableModel::isEditable(const QModelIndex &index) const
 {
-    return isValid(index) && index.type() == QModelIndex::View;
+    return isValid(index);
 }
 
 bool QTableModel::isValid(const QModelIndex &index) const

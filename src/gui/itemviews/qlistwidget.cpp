@@ -28,8 +28,7 @@ public:
     int rowCount() const;
 
     QModelIndex index(QListWidgetItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
-                      QModelIndex::Type type = QModelIndex::View) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -97,15 +96,13 @@ QModelIndex QListModel::index(QListWidgetItem *item) const
     int row = lst.indexOf(item);
     if (row == -1)
         return QModelIndex::Null;
-    return createIndex(row, 0, item, QModelIndex::View);
+    return createIndex(row, 0, item);
 }
 
-QModelIndex QListModel::index(int row, int column,
-                              const QModelIndex &parent,
-                              QModelIndex::Type type) const
+QModelIndex QListModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (isValid(row, column, parent))
-        return createIndex(row, column, lst.at(row), type);
+        return createIndex(row, column, lst.at(row));
     return QModelIndex::Null;
 }
 
