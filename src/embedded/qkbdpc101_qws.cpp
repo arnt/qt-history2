@@ -120,11 +120,48 @@ static const QWSKeyMap pc101KeyM[] = {
     {   Qt::Key_Period,     '.'     , '.'     , 0xffff  },
     {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
-    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_Less,   '<'     , '>'  , 0xffff  },
     {   Qt::Key_F11,        0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_F12,        0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
-    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },  // 90
+    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  }, // 90
+    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_Enter,      13      , 13      , 0xffff  },
+    {   Qt::Key_Control,    0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Slash,		'/'     , '/'     , 0xffff  },
+    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Meta,		0xffff  , 0xffff  , 0xffff  }, // 100
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }, // break
+    {	Qt::Key_Home,	    0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Up,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Prior,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Left,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Right,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_End,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Down,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Next,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Insert,		0xffff  , 0xffff  , 0xffff  }, // 110
+    {	Qt::Key_Delete,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }, // macro
+    {   Qt::Key_F13,        0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_F14,        0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_Help,       0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }, // do
+    {   Qt::Key_F17,        0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_Plus,       '+'     , '-'     , 0xffff  },
+    {	Qt::Key_Pause,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
     {   0,          0xffff  , 0xffff  , 0xffff  }
 };
 
@@ -172,6 +209,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     int keypad = 0;
     bool softwareRepeat = FALSE;
 
+#ifndef QT_QWS_USE_KEYCODES
     // extended?
     if (code == 224
 #if defined(QT_QWS_IPAQ) 
@@ -184,12 +222,14 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     	extended = 2;
     	return;
     }
+#endif
 
     if (code & 0x80) {
 	release = true;
 	code &= 0x7f;
     }
 
+#ifndef QT_QWS_USE_KEYCODES
     if (extended == 1) {
 	switch (code) {
 	case 72:
@@ -255,7 +295,9 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	    keyCode = Qt::Key_Pause;
 	    break;
 	}
-    } else {
+    } else
+#endif
+    {
 	if (code < keyMSize) {
 	    keyCode = pc101KeyM[code].key_code;
 	}
@@ -313,13 +355,20 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	    keyCode = Qt::Key_Backtab;
     }
 
+#ifndef QT_QWS_USE_KEYCODES
     /*
       Keypad consists of extended keys 53 and 28,
       and non-extended keys 55 and 71 through 83.
     */
     if (( extended == 1 ) ? (code == 53 || code == 28) :
 	 (code == 55 || ( code >= 71 && code <= 83 )) )
+#else
+    if ( code == 55 || code >= 71 && code <= 83 || code == 96
+	    || code == 98 || code == 118 )
+#endif
+    {
 	keypad = Qt::Keypad;
+    }
 
     // Ctrl-Alt-Backspace exits qws
     if (ctrl && alt && keyCode == Qt::Key_Backspace) {
@@ -357,9 +406,11 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 		    unicode =  keyMap()[code].shift_unicode ?  keyMap()[code].shift_unicode : 0xffff;
 		else
 		    unicode =  keyMap()[code].unicode ?  keyMap()[code].unicode : 0xffff;
+#ifndef QT_QWS_USE_KEYCODES
 	    } else if ( extended==1 ) {
 		if ( code == 53 )
 		    unicode = '/';
+#endif
 	    }
 	}
 

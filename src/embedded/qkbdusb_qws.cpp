@@ -101,6 +101,8 @@ void QWSUsbKbPrivate::readKeyboardData()
     if ( n != 16 )
 	return;
     int key=event.code;
+#ifndef QT_QWS_USE_KEYCODES
+    // Handle SOME keys, otherwise it's useless.
     if(key==103) {
 	handler->processKeyEvent( 0, Qt::Key_Up, 0, event.value!=0, false );
     } else if(key==106) {
@@ -109,7 +111,9 @@ void QWSUsbKbPrivate::readKeyboardData()
 	handler->processKeyEvent( 0, Qt::Key_Down, 0, event.value!=0, false );
     } else if(key==105) {
 	handler->processKeyEvent( 0, Qt::Key_Left, 0, event.value!=0, false );
-    } else {
+    } else
+#endif
+    {
 	if( event.value == 0 ) {
 	    key=key | 0x80;
 	}

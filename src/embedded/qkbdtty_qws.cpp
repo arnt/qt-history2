@@ -154,7 +154,11 @@ QWSTtyKbPrivate::QWSTtyKbPrivate( QWSPC101KeyboardHandler *h, const QString &dev
 	tcgetattr( kbdFD, &termdata );
 
 #if defined(Q_OS_LINUX)
+# ifdef QT_QWS_USE_KEYCODES
+	ioctl(kbdFD, KDSKBMODE, K_MEDIUMRAW);
+# else
 	ioctl(kbdFD, KDSKBMODE, K_RAW);
+# endif
 #endif
 
 	termdata.c_iflag = (IGNPAR | IGNBRK) & (~PARMRK) & (~ISTRIP);
