@@ -672,9 +672,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_ScrollBarSlider   Scroll bar slider.
     \value CE_ScrollBarFirst    Scroll bar first line indicator (i.e., home).
     \value CE_ScrollBarLast     Scroll bar last line indicator (i.e., end).
-    \value CE_RubberBand        Rubber band used in such things as iconview.
+
     \value CE_SpinBoxSlider     The optional slider part of a spin box.
 
+    \value CE_RubberBand        Rubber band used in such things as iconview.
+
+    \value CE_FocusFrame        Focus Frame that can is style controled.
 
     \value CE_CustomBase  Base value for custom ControlElements;
     custom values must be greater than this value
@@ -1162,6 +1165,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_SmallIconSize Default small icon size
     \value PM_LargeIconSize Default large icon size
 
+    \value PM_FocusFrameVMargin Horizontal margin that the focus frame will outset the widget by.
+    \value PM_FocusFrameHMargin Vertical margin that the focus frame will outset the widget by.
 
     \sa pixelMetric()
 */

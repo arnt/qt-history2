@@ -1494,6 +1494,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             }
         }
         break;
+    case CE_FocusFrame:
+        p->fillRect(opt->rect, Qt::red);
+        break;
     case CE_HeaderSection:
         qDrawShadePanel(p, opt->rect, opt->palette,
                         opt->state & State_Sunken, 1,
@@ -1522,6 +1525,16 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
             newBtn.palette = pal;
             drawPrimitive(PE_PanelButtonCommand, &newBtn, p, w);
         }
+        break;
+    case CE_FocusFrame:
+        p->save();
+        p->setPen(QPen(Qt::color1, pixelMetric(PM_FocusFrameVMargin)));
+        p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.bottom());
+        p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.bottom());
+        p->setPen(QPen(Qt::color1, pixelMetric(PM_FocusFrameHMargin)));
+        p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.right(), opt->rect.y());
+        p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.right(), opt->rect.bottom());
+        p->restore();
         break;
     case CE_RubberBand:
         p->setBrush(Qt::color1);
@@ -2576,6 +2589,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
     int ret;
 
     switch (m) {
+    case PM_FocusFrameVMargin:
+    case PM_FocusFrameHMargin:
+        ret = 4;
+        break;
     case PM_MenuBarVMargin:
     case PM_MenuBarHMargin:
         ret = 2;

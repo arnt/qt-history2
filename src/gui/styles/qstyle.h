@@ -201,6 +201,7 @@ public:
         CE_ScrollBarFirst,
         CE_ScrollBarLast,
 
+        CE_FocusFrame,
 
         // do not add any values below/greater than this
         CE_CustomBase = 0xf0000000
@@ -414,6 +415,9 @@ public:
 
         PM_SmallIconSize,
         PM_LargeIconSize,
+
+        PM_FocusFrameVMargin,
+        PM_FocusFrameHMargin,
 
         // do not add any values below/greater than this
         PM_CustomBase = 0xf0000000

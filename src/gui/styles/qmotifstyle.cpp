@@ -30,11 +30,11 @@
 #include "qsplitter.h"
 #include "qslider.h"
 #include "qcombobox.h"
+#include "qlineedit.h"
 #include "qprogressbar.h"
 #include "qimage.h"
+#include "qfocusframe.h"
 #include <limits.h>
-
-
 
 // old constants that might still be useful...
 static const int motifItemFrame         = 2;    // menu item frame width
@@ -76,6 +76,7 @@ static const int motifCheckMarkSpace    = 12;
 */
 QMotifStyle::QMotifStyle(bool useHighlightCols) : QCommonStyle()
 {
+    focus = 0;
     highlightCols = useHighlightCols;
 }
 
@@ -1445,8 +1446,9 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
 /*!
   \reimp
 */
-QRect QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
-                                  SubControl sc, const QWidget *widget) const
+QRect
+QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
+                            SubControl sc, const QWidget *widget) const
 {
     switch (cc) {
     case CC_SpinBox: {
@@ -1614,8 +1616,9 @@ QRect QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *
 /*!
   \reimp
 */
-QSize QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
-                                    const QSize &contentsSize, const QWidget *widget) const
+QSize
+QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                              const QSize &contentsSize, const QWidget *widget) const
 {
     QSize sz(contentsSize);
 
@@ -1688,7 +1691,8 @@ QSize QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 /*!
   \reimp
 */
-QRect QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget) const
+QRect
+QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget) const
 {
     QRect rect;
 
@@ -2067,8 +2071,9 @@ static const char *const question_xpm[] = {
 /*!
   \reimp
 */
-QPixmap QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
-                                    const QWidget *widget) const
+QPixmap
+QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+                            const QWidget *widget) const
 {
 #ifndef QT_NO_IMAGEIO_XPM
     switch (standardPixmap) {
@@ -2157,9 +2162,27 @@ QPixmap QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleO
     return QCommonStyle::standardPixmap(standardPixmap, opt, widget);
 }
 
+bool
+QMotifStyle::event(QEvent *e)
+{
+    if(e->type() == QEvent::FocusIn) {
+        if (qt_cast<QLineEdit*>(QApplication::focusWidget())) {
+            if(!focus)
+                focus = new QFocusFrame(QApplication::focusWidget());
+            else
+                focus->setWidget(QApplication::focusWidget());
+        }
+    } else if(e->type() == QEvent::FocusOut) {
+        if(focus)
+            focus->setWidget(0);
+    }
+    return false;
+}
+
 
 /*! \reimp */
-int QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *widget,
+int
+QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *widget,
                            QStyleHintReturn *returnData) const
 {
     int ret;
@@ -2216,3 +2239,5 @@ int QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidge
 
 
 #endif
+
+

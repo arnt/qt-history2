@@ -62,6 +62,7 @@ HEADERS += \
         widgets/qviewport_p.h \
         widgets/qwidgetplugin.h \
         widgets/qwidgetresizehandler_p.h \
+	widgets/qfocusframe.h \
         widgets/qwidgetview.h
 
 SOURCES += \
@@ -117,6 +118,7 @@ SOURCES += \
         widgets/qviewport.cpp \
         widgets/qwidgetplugin.cpp \
         widgets/qwidgetresizehandler.cpp \
+	widgets/qfocusframe.cpp \
         widgets/qwidgetview.cpp
 
 

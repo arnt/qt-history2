@@ -19,6 +19,7 @@
 #if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 
 class QPalette;
+class QFocusFrame;
 
 #if defined(QT_PLUGIN)
 #define Q_GUI_EXPORT_STYLE_MOTIF
@@ -26,7 +27,7 @@ class QPalette;
 #define Q_GUI_EXPORT_STYLE_MOTIF Q_GUI_EXPORT
 #endif
 
-
+class QMotifStylePrivate;
 class Q_GUI_EXPORT_STYLE_MOTIF QMotifStyle : public QCommonStyle
 {
     Q_OBJECT
@@ -67,9 +68,12 @@ public:
     int styleHint(StyleHint hint, const QStyleOption *opt = 0, const QWidget *widget = 0,
                   QStyleHintReturn *returnData = 0) const;
 
+    bool event(QEvent *);
+
 private:
     Q_DISABLE_COPY(QMotifStyle)
 
+    QFocusFrame *focus;
     bool highlightCols;
 };
 
