@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#60 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#60 $");
 
 
 /*!
@@ -314,7 +314,7 @@ bool QFile::open( int m )
 	if ( fd != -1 ) {			// open successful
 	    STATBUF st;
 	    FSTAT( fd, &st );
-	    length = st.st_size;
+	    length = (int)st.st_size;
 	    index  = (flags() & IO_Append) == 0 ? 0 : length;
 	} else {
 	    ok = FALSE;
@@ -355,7 +355,7 @@ bool QFile::open( int m )
 	if ( fh ) {
 	    STATBUF st;
 	    FSTAT( FILENO(fh), &st );
-	    length = st.st_size;
+	    length = (int)st.st_size;
 	    index  = (flags() & IO_Append) == 0 ? 0 : length;
 	} else {
 	    ok = FALSE;
@@ -416,13 +416,13 @@ bool QFile::open( int m, FILE *f )
     ext_f = TRUE;
     STATBUF st;
     FSTAT( FILENO(fh), &st );
-    index = ftell( fh );
+    index = (int)ftell( fh );
     if ( (st.st_mode & STAT_MASK) != STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
     } else {
-	length = st.st_size;
+	length = (int)st.st_size;
     }
     return TRUE;
 }
@@ -459,8 +459,8 @@ bool QFile::open( int m, int f )
     } else {
 	STATBUF st;
 	FSTAT( fd, &st );
-	length = st.st_size;
-	index  = LSEEK(fd, 0, SEEK_CUR);
+	length = (int)st.st_size;
+	index  = (int)LSEEK(fd, 0, SEEK_CUR);
     }
     return TRUE;
 }
@@ -559,7 +559,7 @@ bool QFile::at( int pos )
     }
     bool ok;
     if ( isRaw() ) {				// raw file
-	pos = LSEEK(fd, pos, SEEK_SET);
+	pos = (int)LSEEK(fd, pos, SEEK_SET);
 	ok = pos != -1;
     } else {					// buffered file
 	ok = fseek(fh, pos, SEEK_SET) == 0;
@@ -681,7 +681,7 @@ int QFile::writeBlock( const char *p, uint len )
 	else
 	    setStatus( IO_WriteError );
 	if ( isRaw() )				// recalc file position
-	    index = LSEEK( fd, 0, SEEK_CUR );
+	    index = (int)LSEEK( fd, 0, SEEK_CUR );
 	else
 	    index = fseek( fh, 0, SEEK_CUR );
     } else {
