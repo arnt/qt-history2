@@ -4394,8 +4394,7 @@ int QTextParag::topMargin() const
 	    break;
     }
     
-    // ### don't know why, but using the scale method here gives wrong results
-    //    m = scale( m, painter() );
+    m = scale( m, painter() );
 
     ( (QTextParag*)this )->tm = m;
     return tm;
@@ -4426,8 +4425,7 @@ int QTextParag::bottomMargin() const
 	    break;
     }
 
-    // ### don't know why, but using the scale method here gives wrong results
-    //    m = scale ( m, painter() );
+    m = scale ( m, painter() );
 
     ( (QTextParag*)this )->bm = m;
     return bm;
@@ -5194,7 +5192,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
     parag->setFullWidth( fullWidth );
-    m = scale( m, parag->painter() );
     y += h + m;
 
     if ( !wrapEnabled )
