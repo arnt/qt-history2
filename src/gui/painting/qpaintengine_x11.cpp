@@ -1282,7 +1282,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
 	mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
 
-    if ( mask && !hasClipping() && d->pdev != paintEventDevice && mono ) {
+    if ( mask && !hasClipping() && d->pdev != paintEventDevice ) {
         if ( mono ) {                           // needs GCs pen // color
             bool selfmask = pixmap.data->selfmask;
             if ( selfmask ) {
