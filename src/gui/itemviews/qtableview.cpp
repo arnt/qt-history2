@@ -15,7 +15,7 @@
 #include <qgenericheader.h>
 #include <private/qgenerictableview_p.h>
 
-class QTableModel : public QAbstractItemModel
+class QTableModel : public QAbstractTableModel
 {
 public:
     QTableModel(int rows = 0, int columns = 0, QObject *parent = 0);
@@ -72,7 +72,7 @@ private:
 };
 
 QTableModel::QTableModel(int rows, int columns, QObject *parent)
-    : QAbstractItemModel(parent), r(rows), c(columns),
+    : QAbstractTableModel(parent), r(rows), c(columns),
       table(rows * columns), leftHeader(rows), topHeader(columns) {}
 
 QTableModel::~QTableModel()

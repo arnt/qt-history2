@@ -34,31 +34,25 @@
 #include <qgenerictreeview.h>
 #include <qgenericheader.h>
 
-class QFontListModel : public QAbstractItemModel
+class QFontListModel : public QAbstractListModel
 {
 public:
     QFontListModel(QObject *parent);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount() const;
     QVariant data(const QModelIndex &index, int role) const;
 
     QStringList lst;
 };
 
 QFontListModel::QFontListModel(QObject *parent)
-    : QAbstractItemModel(parent)
+    : QAbstractListModel(parent)
 {
 }
 
-int QFontListModel::rowCount(const QModelIndex &) const
+int QFontListModel::rowCount() const
 {
     return lst.count();
-}
-
-int QFontListModel::columnCount(const QModelIndex &) const
-{
-    return 1;
 }
 
 QVariant QFontListModel::data(const QModelIndex &index, int) const

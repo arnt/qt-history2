@@ -4,20 +4,16 @@
 #include <qabstractitemmodel.h>
 #include <qvector.h>
 
-class PlasmaModel : public QAbstractItemModel
+class PlasmaModel : public QAbstractTableModel
 {
 public:
     PlasmaModel(int rows, int cols, QObject *parent = 0);
     ~PlasmaModel();
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
-                      QModelIndex::Type type = QModelIndex::View) const;
-    QModelIndex parent(const QModelIndex &child) const;
+    int rowCount() const;
+    int columnCount() const;
 
-    int rowCount(const QModelIndex &index = QModelIndex()) const;
-    int columnCount(const QModelIndex &index = QModelIndex()) const;
-
-    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
 
 protected:
     void timerEvent(QTimerEvent *e);

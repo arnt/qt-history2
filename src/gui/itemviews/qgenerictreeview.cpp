@@ -566,7 +566,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
         opt.state = QStyle::Style_Item
-                               | (rowCount(parent) - 1 > index.row()
+                               | (d->model->rowCount(parent) - 1 > index.row()
                                   ? QStyle::Style_Sibling : 0)
                                | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
                                | (d->items.at(d->current).open ? QStyle::Style_Open : 0);
@@ -576,7 +576,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect,
     for (--level; level >= outer; --level) { // we have already drawn the innermost branch
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         opt.rect = primitive;
-        opt.state = (rowCount(ancestor) - 1 > current.row())
+        opt.state = (d->model->rowCount(ancestor) - 1 > current.row())
                     ? QStyle::Style_Sibling : QStyle::Style_Default;
         style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
         current = ancestor;
@@ -1002,7 +1002,7 @@ void QGenericTreeView::updateGeometries()
     verticalScrollBar()->setRange(0, max);
 
     int w = d->viewport->width();
-    int col = columnCount();
+    int col = d->model->columnCount(root());
     if (w <= 0 || col <= 0 || def.isEmpty()) // if we have no viewport or no columns, there is nothing to do
         return;
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
@@ -1081,7 +1081,7 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
 
         // go down to the right of the page
         int w = d->viewport->width();
-        while (x < w && column < columnCount())
+        while (x < w && column < d->model->columnCount(root()))
             x += d->header->sectionSize(column++);
         value = column * factor; // i is now the last item on the page
         if (x > w && column)
@@ -1207,7 +1207,7 @@ void QGenericTreeViewPrivate::layout(int i)
 {
     QModelIndex current;
     QModelIndex parent = modelIndex(i);
-    int count = q->rowCount(parent);
+    int count = model->rowCount(parent);
 
     if (i == -1)
         items.resize(count);

@@ -31,14 +31,13 @@
 #define d d_func()
 #define q q_func()
 
-class QDefaultModel : public QAbstractItemModel
+class QDefaultModel : public QAbstractListModel
 {
 public:
-    QDefaultModel(QObject *parent) : QAbstractItemModel(parent) {}
+    QDefaultModel(QObject *parent) : QAbstractListModel(parent) {}
     ~QDefaultModel() {}
 
-    int rowCount(const QModelIndex&) const  { return 0; }
-    int columnCount(const QModelIndex&) const { return 0; }
+    int rowCount() const  { return 0; }
     QVariant data(const QModelIndex &, int) const { return QVariant(); }
 };
 
@@ -1247,8 +1246,9 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 
     // skip if we are searching for the same key or a new search started
     if (skipRow) {
-        int newRow = (start.row() < rowCount(model()->parent(start)) - 1) ?
-                     start.row() + 1 : 0;
+        QModelIndex parent = model()->parent(start);
+        int newRow = (start.row() < model()->rowCount(parent) - 1)
+                     ? start.row() + 1 : 0;
         start = model()->index(newRow,
                                start.column(),
                                model()->parent(start),
@@ -1280,7 +1280,7 @@ int QAbstractItemView::rowSizeHint(int row) const
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int height = 0;
-    int colCount = columnCount(root());
+    int colCount = d->model->columnCount(root());
     QModelIndex idx;
     for (int c = 0; c < colCount; ++c) {
         idx = d->model->index(row, c, root());
@@ -1297,23 +1297,13 @@ int QAbstractItemView::columnSizeHint(int column) const
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = 0;
-    int rows = rowCount(root());
+    int rows = d->model->rowCount(root());
     QModelIndex idx;
     for (int r = 0; r < rows; ++r) {
         idx = d->model->index(r, column, root());
         width = qMax(width, delegate->sizeHint(fontMetrics(), option, d->model, idx).width());
     }
     return width;
-}
-
-int QAbstractItemView::rowCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? d->model->childRowCount(parent) : d->model->rowCount();
-}
-
-int QAbstractItemView::columnCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? d->model->childColumnCount(parent) : d->model->columnCount();
 }
 
 /*!

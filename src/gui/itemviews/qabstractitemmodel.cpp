@@ -99,7 +99,7 @@ bool QAbstractItemModelDrag::decode(QMimeSource *src,
 
     QByteArray encoded = src->encodedData(format());
     QDataStream stream(&encoded, IO_ReadOnly);
-    int row = parent.isValid() ? model->childRowCount(parent) : model->rowCount();
+    int row = model->rowCount(parent);
     int count, role;
     QVariant data;
     QModelIndex index;
@@ -641,66 +641,35 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
+  \fn QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(), QModelIndex::Type type = QModelIndex::View) const
     Returns the index of the data in \a row and \a column with \a
     parent, of type \a type.
 
     \sa parent()
  */
-QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent,
-                                     QModelIndex::Type type) const
-{
-    return isValid(row, column, parent) ? QModelIndex(row, column, 0, type) : QModelIndex();
-}
 
 /*!
+  \fn parent(const QModelIndex &) const
     Returns the index of the parent of \a child.
 
     \sa index() hasChildren()
 */
-QModelIndex QAbstractItemModel::parent(const QModelIndex &) const
-{
-    return QModelIndex();
-}
 
 /*!
+  \fn rowCount(const QModelIndex &parent) const
+
   Return the number of rows in the top level table.
 
-  \sa columnCount() childRowCount() childColumnCount()
+  \sa columnCount()
 */
-int QAbstractItemModel::rowCount() const
-{
-    return childRowCount(QModelIndex());
-}
 
 /*!
+   \fn columnCount(const QModelIndex &parent) const
+ 
   Return the number of columns in the top level table.
 
-  \sa rowCount() childRowCount() childColumnCount()
+  \sa rowCount()
 */
-int QAbstractItemModel::columnCount() const
-{
-    return childColumnCount(QModelIndex());
-}
-
-/*!
-  Return the number of rows in the table of children of \a parent.
-
-  \sa rowCount() columnCount() childColumnCount()
-*/
-int QAbstractItemModel::childRowCount(const QModelIndex &) const
-{
-    return 0;
-}
-
-/*!
-  Return the number of column in the table of children of \a parent.
-
-  \sa rowCount() columnCount() childRowCount()
-*/
-int QAbstractItemModel::childColumnCount(const QModelIndex &) const
-{
-    return 1;
-}
 
 /*!
     Returns true if \a parent has any children; otherwise returns false.
@@ -709,9 +678,7 @@ int QAbstractItemModel::childColumnCount(const QModelIndex &) const
 */
 bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
 {
-    if (parent.isValid())
-        return (childRowCount(parent) > 0) && (childColumnCount(parent) > 0);
-    return (rowCount() > 0) && (columnCount() > 0);
+    return (rowCount(parent) > 0) && (columnCount(parent) > 0);
 }
 
 /*!
@@ -1023,7 +990,7 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     QString itemText;
     int col = start.column();
     int matchType = flags & MatchExactly;
-    int rc = par.isValid() ? childRowCount(par) : rowCount();
+    int rc = rowCount(par);
 
     // iterates twice if wrapping
     for (int i = 0; i < 2 && result.count() < hits; ++i) {
@@ -1081,9 +1048,7 @@ bool QAbstractItemModel::isValid(int row, int column, const QModelIndex &parent)
 {
     if (row < 0 || column < 0)
         return false;
-    if (parent.isValid())
-        return row < childRowCount(parent) && column < childColumnCount(parent);
-    return row < rowCount() && column < columnCount();
+    return row < rowCount(parent) && column < columnCount(parent);
 }
     
 
@@ -1156,3 +1121,70 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 }
 #endif
 
+/*
+  QAbstractTableModel
+*/
+
+QAbstractTableModel::QAbstractTableModel(QObject *parent)
+    : QAbstractItemModel(parent)
+{
+
+}
+
+QAbstractTableModel::QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent)
+    : QAbstractItemModel(dd, parent)
+{
+
+}   
+
+QAbstractTableModel::~QAbstractTableModel()
+{
+
+}
+
+QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent,
+                                     QModelIndex::Type type) const
+{
+    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex();
+}
+
+QModelIndex QAbstractTableModel::parent(const QModelIndex &) const
+{
+    return QModelIndex();
+}
+
+int QAbstractTableModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return rowCount();
+}
+
+int QAbstractTableModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return columnCount();
+}
+
+/*
+  QAbstractListModel
+*/
+
+QAbstractListModel::QAbstractListModel(QObject *parent)
+    : QAbstractTableModel(parent)
+{
+
+}
+
+QAbstractListModel::QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent)
+    : QAbstractTableModel(dd, parent)
+{
+
+}   
+
+
+QAbstractListModel::~QAbstractListModel()
+{
+
+}

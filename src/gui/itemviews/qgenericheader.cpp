@@ -227,7 +227,7 @@ void QGenericHeader::setModel(QAbstractItemModel *model)
                             this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::disconnect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
                             this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
-        initializeSections(0, columnCount(root()) - 1);
+        initializeSections(0, model->columnCount(root()) - 1);
         QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
                          this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::connect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
@@ -237,7 +237,7 @@ void QGenericHeader::setModel(QAbstractItemModel *model)
                             this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::disconnect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
                             this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
-        initializeSections(0, rowCount(root()) - 1);
+        initializeSections(0, model->rowCount(root()) - 1);
         QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
                          this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
@@ -438,6 +438,7 @@ void QGenericHeader::paintSection(QPainter *painter, const QStyleOptionViewItem 
     QStyleOptionHeader opt = d->getStyleOption();
     QStyle::SFlags arrowFlags = QStyle::Style_Off;
     opt.rect = option.rect;
+    opt.section = index.column();
     if (d->clickableSections && (d->orientation == Qt::Horizontal ?
           selectionModel()->isColumnSelected(index.column(), model()->parent(index)) :
           selectionModel()->isRowSelected(index.row(), model()->parent(index))))
@@ -445,7 +446,13 @@ void QGenericHeader::paintSection(QPainter *painter, const QStyleOptionViewItem 
     else
         opt.state |= QStyle::Style_Raised;
     style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
+#if 1
     itemDelegate()->paint(painter, option, model(), index);
+#else
+    opt.text = d->model->data(index, QAbstractItemModel::DisplayRole).toString();
+    opt.icon = d->model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
+    style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
+#endif
 
     int section = orientation() == Qt::Horizontal ? index.column() : index.row();
     if (sortIndicatorSection() == section) {
@@ -624,9 +631,9 @@ void QGenericHeader::sectionsInserted(const QModelIndex &parent, int first, int)
     if (parent != root())
         return; // we only handle changes in the top level
     if (d->orientation == Qt::Horizontal)
-        initializeSections(first, columnCount(root()) - 1);
+        initializeSections(first, d->model->columnCount(root()) - 1);
     else
-        initializeSections(first, rowCount(root()) - 1);
+        initializeSections(first, d->model->rowCount(root()) - 1);
 }
 
 /*!
@@ -643,9 +650,9 @@ void QGenericHeader::sectionsRemoved(const QModelIndex &parent, int first, int l
     // the sections have not been removed from the model yet
     int count = last - first + 1;
     if (d->orientation == Qt::Horizontal)
-        initializeSections(first, columnCount(root()) - count - 1);
+        initializeSections(first, d->model->columnCount(root()) - count - 1);
     else
-        initializeSections(first, rowCount(root()) - count - 1);
+        initializeSections(first, d->model->rowCount(root()) - count - 1);
 }
 
 /*!
@@ -1076,7 +1083,7 @@ QModelIndex QGenericHeader::item(int section) const
 QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) const
 {
     if (orientation() == Qt::Horizontal) {
-        int left = columnCount() - 1;
+        int left = d->model->columnCount(root()) - 1;
         int right = 0;
         int rangeLeft, rangeRight;
 
@@ -1102,7 +1109,7 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
     // orientation() == Qt::Vertical
-    int top = rowCount() - 1;
+    int top = d->model->rowCount(root()) - 1;
     int bottom = 0;
     int rangeTop, rangeBottom;
 

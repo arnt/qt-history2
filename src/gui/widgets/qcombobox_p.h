@@ -162,7 +162,7 @@ private:
     }
 };
 
-class ComboModel : public QAbstractItemModel
+class ComboModel : public QAbstractListModel
 {
 public:
     QVariant data(const QModelIndex &index, int role = DisplayRole) const {
@@ -176,9 +176,6 @@ public:
                 return list.at(index.row()).second;
         }
         return QVariant::Invalid;
-    }
-    int columnCount() const {
-        return 1;
     }
     int rowCount() const {
         return list.count();
@@ -255,11 +252,6 @@ public:
     void emitActivated(const QModelIndex&);
     void emitHighlighted(const QModelIndex&);
     void resetButton();
-
-    inline int rowCount(const QModelIndex &parent) const
-        { return parent.isValid() ? model->childRowCount(parent) : model->rowCount(); }
-    inline int columnCount(const QModelIndex &parent) const
-        { return parent.isValid() ? model->childColumnCount(parent) : model->columnCount(); }
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;

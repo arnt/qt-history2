@@ -14,7 +14,7 @@
 #include "qlistview.h"
 #include <private/qgenericlistview_p.h>
 
-class QListModel : public QAbstractItemModel
+class QListModel : public QAbstractListModel
 {
 public:
     QListModel(QObject *parent = 0);
@@ -39,7 +39,7 @@ private:
 };
 
 QListModel::QListModel(QObject *parent)
-    : QAbstractItemModel(parent)
+    : QAbstractListModel(parent)
 {
 }
 

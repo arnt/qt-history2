@@ -1046,7 +1046,7 @@ void QFileDialog::lookInChanged(const QString &text)
             QString pth = (s == 0 ? QDir::rootPath() : text.left(s));
             QModelIndex dirIndex = d->model->index(pth);
             QString searchText = text.section(QDir::separator(), -1);
-            int rowCount = d->lview->rowCount(dirIndex);
+            int rowCount = d->model->rowCount(dirIndex);
             QModelIndexList indices = d->model->match(d->model->index(0, 0, dirIndex),
                                                       QAbstractItemModel::DisplayRole,
                                                       searchText, rowCount);
@@ -1398,7 +1398,7 @@ void QFileDialogPrivate::setup()
     lookIn->setEditable(true);
     lookIn->setAutoCompletion(false);
     lookIn->insertItem(model->icons(QModelIndex()), model->path(QModelIndex()));
-    for (int r = 0; r < model->rowCount(); ++r) { // drives
+    for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex());
         QString path = model->path(index);
         QIconSet icons = model->icons(index);

@@ -76,14 +76,14 @@ void QSqlModelPrivate::prefetch(int limit)
     Creates an empty QSqlModel and sets the parent to \a parent.
  */
 QSqlModel::QSqlModel(QObject *parent)
-    : QAbstractItemModel(*new QSqlModelPrivate, parent)
+    : QAbstractTableModel(*new QSqlModelPrivate, parent)
 {
 }
 
 /*! \internal
  */
 QSqlModel::QSqlModel(QSqlModelPrivate &dd, QObject *parent = 0)
-    : QAbstractItemModel(dd, parent)
+    : QAbstractTableModel(dd, parent)
 {
 }
 

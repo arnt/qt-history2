@@ -119,17 +119,14 @@ public:
     virtual ~QAbstractItemModel();
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
-                              QModelIndex::Type type = QModelIndex::View) const;
-    virtual QModelIndex parent(const QModelIndex &child) const;
+                              QModelIndex::Type type = QModelIndex::View) const = 0;
+    virtual QModelIndex parent(const QModelIndex &child) const = 0;
 
     inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
         { return index(row, column, parent(idx), idx.type()); }
 
-    virtual int rowCount() const;
-    virtual int columnCount() const;
-
-    virtual int childRowCount(const QModelIndex &parent) const;
-    virtual int childColumnCount(const QModelIndex &parent) const;
+    virtual int rowCount(const QModelIndex &parent) const = 0;
+    virtual int columnCount(const QModelIndex &parent) const = 0;
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     virtual bool canDecode(QMimeSource *src) const;
@@ -192,5 +189,41 @@ protected:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
+
+class QAbstractTableModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    QAbstractTableModel(QObject *parent = 0);
+    virtual ~QAbstractTableModel();
+
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
+                      QModelIndex::Type type = QModelIndex::View) const;
+    QModelIndex parent(const QModelIndex &child) const;
+
+    virtual int rowCount() const = 0;
+    virtual int columnCount() const = 0;
+
+protected:
+    QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent);
+
+private:
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+};
+
+class QAbstractListModel : public QAbstractTableModel
+{
+    Q_OBJECT
+
+public:
+    QAbstractListModel(QObject *parent = 0);
+    virtual ~QAbstractListModel();
+    int columnCount() const { return 1; }
+
+protected:
+    QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent);
+};
 
 #endif

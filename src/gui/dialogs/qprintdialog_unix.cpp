@@ -123,30 +123,30 @@ struct QPrinterDescription {
     }
 };
 
-class QPrinterModel : public QAbstractItemModel
+class QPrinterModel : public QAbstractTableModel
 {
 public:
     QPrinterModel(const QList<QPrinterDescription> &printers, QObject *parent);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount() const;
+    int columnCount() const;
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
 
     QList<QPrinterDescription> lst;
 };
 
 QPrinterModel::QPrinterModel(const QList<QPrinterDescription> &printers, QObject *parent)
-    : QAbstractItemModel(parent)
+    : QAbstractTableModel(parent)
 {
     lst = printers;
 }
 
-int QPrinterModel::rowCount(const QModelIndex &) const
+int QPrinterModel::rowCount() const
 {
     return lst.count();
 }
 
-int QPrinterModel::columnCount(const QModelIndex &) const
+int QPrinterModel::columnCount() const
 {
     return 3;
 }

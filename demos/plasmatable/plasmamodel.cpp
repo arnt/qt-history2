@@ -3,7 +3,7 @@
 #include <math.h>
 
 PlasmaModel::PlasmaModel(int rows, int cols, QObject *parent)
-    : QAbstractItemModel(parent), rows(rows), cols(cols)
+    : QAbstractTableModel(parent), rows(rows), cols(cols)
 {
 
     waves.resize(4);
@@ -37,30 +37,13 @@ PlasmaModel::~PlasmaModel()
     killTimer(timer);
 }
 
-QModelIndex PlasmaModel::index(int row, int column, const QModelIndex &parent,
-                               QModelIndex::Type type) const
+int PlasmaModel::rowCount() const
 {
-    if (parent.isValid() || row < 0 || row >= rows || column < 0 || column >= cols)
-        return QModelIndex();
-    return QAbstractItemModel::createIndex(row, column, 0, type);
-}
-
-QModelIndex PlasmaModel::parent(const QModelIndex &) const
-{
-    return QModelIndex();
-}
-
-int PlasmaModel::rowCount(const QModelIndex &index) const
-{
-    if (index.isValid())
-        return 0;
     return rows;
 }
 
-int PlasmaModel::columnCount(const QModelIndex &index) const
+int PlasmaModel::columnCount() const
 {
-    if (index.isValid())
-        return 0;
     return cols;
 }
 

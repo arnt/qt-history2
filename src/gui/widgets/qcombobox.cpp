@@ -503,12 +503,12 @@ void QComboBoxPrivate::returnPressed()
             row = 0;
             break;
         case QComboBox::AtBottom:
-            row = d->rowCount(q->root());
+            row = d->model->rowCount(q->root());
             break;
         case QComboBox::AtCurrent:
         case QComboBox::AfterCurrent:
         case QComboBox::BeforeCurrent:
-            if (!d->rowCount(q->root()) || !currentItem.isValid())
+            if (!d->model->rowCount(q->root()) || !currentItem.isValid())
                 row = 0;
             else if (insertionPolicy == QComboBox::AtCurrent)
                 q->setItemText(text, q->currentItem());
@@ -615,7 +615,7 @@ void QComboBox::setSizeLimit(int limit)
 
 int QComboBox::count() const
 {
-    return d->rowCount(root());
+    return d->model->rowCount(root());
 }
 
 /*!
@@ -963,7 +963,7 @@ void QComboBox::insertStringList(const QStringList &list, int row)
         return;
 
     if (row < 0)
-        row = d->rowCount(root());
+        row = d->model->rowCount(root());
 
     if (model()->insertRows(row, root(), list.count())) {
         QModelIndex item;
@@ -985,7 +985,7 @@ void QComboBox::insertItem(const QString &text, int row)
     if (!(count() < d->maxCount))
         return;
     if (row < 0)
-        row = d->rowCount(root());
+        row = d->model->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
@@ -1004,7 +1004,7 @@ void QComboBox::insertItem(const QIconSet &icon, int row)
     if (!(count() < d->maxCount))
         return;
     if (row < 0)
-        row = d->rowCount(root());
+        row = d->model->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
@@ -1023,7 +1023,7 @@ void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
     if (!(count() < d->maxCount))
         return;
     if (row < 0)
-        row = d->rowCount(root());
+        row = d->model->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
@@ -1123,7 +1123,7 @@ QSize QComboBox::sizeHint() const
     option.state |= (hasFocus()
                      ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
     QSize itemSize;
-    int count = qMin(100, d->rowCount(root()));
+    int count = qMin(100, d->model->rowCount(root()));
     for (int i = 0; i < count; i++) {
         itemSize = d->delegate->sizeHint(fontMetrics(), option,
                                          model(), model()->index(i, 0, root()));
@@ -1146,7 +1146,7 @@ QSize QComboBox::sizeHint() const
 
 void QComboBox::popup()
 {
-    if (d->rowCount(root()) <= 0)
+    if (d->model->rowCount(root()) <= 0)
         return;
 
     // set current item
@@ -1156,7 +1156,7 @@ void QComboBox::popup()
     int itemHeight = listView()->itemSizeHint(model()->index(0, 0, root())).height()
                      + listView()->spacing();
     QRect listRect(rect());
-    listRect.setHeight(itemHeight * qMin(d->sizeLimit, d->rowCount(root()))
+    listRect.setHeight(itemHeight * qMin(d->sizeLimit, d->model->rowCount(root()))
                        + 2*listView()->spacing() + 2);
 
     // make sure the widget fits on screen
@@ -1192,7 +1192,7 @@ void QComboBox::popup()
 
 void QComboBox::clear()
 {
-    model()->removeRows(0, root(), d->rowCount(root()));
+    model()->removeRows(0, root(), model()->rowCount(root()));
 }
 
 /*!
@@ -1387,7 +1387,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_End:
         if (!isEditable())
-            newRow = d->rowCount(root()) - 1;
+            newRow = d->model->rowCount(root()) - 1;
         break;
     default:
         if (!e->text().isEmpty() && !isEditable()) {
