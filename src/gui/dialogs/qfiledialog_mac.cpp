@@ -40,7 +40,8 @@ static void cleanup_str_buffer()
     }
 }
 
-extern const char *qt_file_dialog_filter_reg_exp; // defined in q4filedialog.cpp
+extern QStringList qt_make_filter_list(const QString &filter); //qfiledialog.cpp
+extern const char *qt_file_dialog_filter_reg_exp; //qfiledialog.cpp
 
 // Returns the wildcard part of a filter.
 struct qt_mac_filter_name {
