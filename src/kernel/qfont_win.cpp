@@ -178,7 +178,7 @@ void QFont::cleanup()
 // If d->req.dirty is not TRUE the font must have been loaded
 // and we can safely assume that d->fin is a valid pointer:
 
-#define DIRTY_FONT (d->request.dirty || d->fin->dirty())
+#define DIRTY_FONT ( !d->fin || d->request.dirty || d->fin->dirty())
 
 
 HFONT QFont::handle() const
@@ -341,7 +341,7 @@ void QFontPrivate::load()
 {
     if ( !fontCache )				// not initialized
 	return;
-    if ( !request.dirty )
+    if ( !request.dirty && fin )
 	return;
 
     QFontStruct *qfs = 0;
