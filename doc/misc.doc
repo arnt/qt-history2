@@ -863,6 +863,14 @@ Tech products</td></tr>
 <a href="http://www.trolltech.com/faq/">FAQ</a> to
 see if the issue is already solved!
 </td></tr>
+<tr><td width=3%><br></td>
+<td colspan=4 valign=top>Note that Troll Tech uses the
+<a href="http://maps.vix.com/rbl/">RBL</a> and
+<a href="http://mail-abuse.org/rss/">RSS</a> databases to cut down on
+spam. If your mail server is listed, you will regrettably not be able to
+send us mail. The <a href="http://www.mail-abuse.org/tsi/">MAPS TSI</a>
+pages provide information about how to secure your server.
+</td><td width=3%><br></td></tr>
 <tr bgcolor="#ffffff"><td bgcolor="#ffffff" cellspan="6"> <br> </td></tr>
 <tr><th colspan=6 valign=top bgcolor=#A2C511>Other</th></tr>
 </tr>
@@ -873,8 +881,7 @@ see if the issue is already solved!
 <td width=3% rowspan=4><br></td>
 <tr>
 <td width=3%><br></td>
-<td width="44%" valign="top"> General inquiries: +47 21 60 48 00<br>
-Sales department: +47 21 60 48 91</td>
+<td width="44%" valign="top"> General inquiries: +47 21604800</td>
 <td width=3% rowspan=3><br></td>
 <td width="44%" valign="top" rowspan=3> Waldemar Thranes gate 98B<br> N-0175 Oslo<br> Norway</td></tr>
 <tr>
