@@ -944,6 +944,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     }
 
     emit cursorPositionChanged( cursor );
+    emit cursorPositionChanged( cursor->parag()->paragId(), cursor->index() );
     if ( clearUndoRedoInfo )
 	clearUndoRedo();
     changeIntervalTimer->start( 100, TRUE );
@@ -1617,6 +1618,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 #endif
     }
     emit cursorPositionChanged( cursor );
+    emit cursorPositionChanged( cursor->parag()->paragId(), cursor->index() );
     if ( oldCursor != *cursor )
 	updateCurrentFormat();
     inDoubleClick = FALSE;
