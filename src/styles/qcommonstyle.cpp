@@ -753,6 +753,78 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 
+    case CE_ToolButtonLabel:
+	{
+	    const QToolButton *toolbutton = (const QToolButton *) widget;
+	    QRect rect = r;
+	    bool use3d = FALSE;
+	    bool drawarrow = FALSE;
+	    Qt::ArrowType arrowType = Qt::DownArrow;
+
+	    if (data) {
+		use3d      = *((bool *) data[0]);
+		drawarrow  = *((bool *) data[1]);
+		arrowType  = *((Qt::ArrowType *) data[2]);
+	    }
+
+	    if (flags & (Style_Down | Style_On))
+		rect.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+			    pixelMetric(PM_ButtonShiftVertical, widget));
+
+	    if (drawarrow) {
+		PrimitiveElement pe;
+		switch (arrowType) {
+		case Qt::LeftArrow:  pe = PE_ArrowLeft;  break;
+		case Qt::RightArrow: pe = PE_ArrowRight; break;
+		case Qt::UpArrow:    pe = PE_ArrowUp;    break;
+		default:
+		case Qt::DownArrow:  pe = PE_ArrowDown;  break;
+		}
+
+		drawPrimitive(pe, p, rect, cg, flags, data);
+	    } else {
+		QColor btext = cg.buttonText();
+
+		if (toolbutton->iconSet().isNull() &&
+		    ! toolbutton->text().isNull() &&
+		    ! toolbutton->usesTextLabel()) {
+		    drawItem(p, rect, AlignCenter | ShowPrefix, cg,
+			     flags & Style_Enabled, 0, toolbutton->text(),
+			     toolbutton->text().length(), &btext);
+		} else {
+		    QPixmap pm;
+		    QIconSet::Size size =
+			toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
+		    QIconSet::State state =
+			toolbutton->isOn() ? QIconSet::On : QIconSet::Off;
+		    QIconSet::Mode mode;
+		    if (! toolbutton->isEnabled())
+			mode = QIconSet::Disabled;
+		    else if (flags & (Style_Down | Style_On | Style_Raised))
+			mode = QIconSet::Active;
+		    else
+			mode = QIconSet::Normal;
+		    pm = toolbutton->iconSet().pixmap( size, mode, state );
+
+		    if ( toolbutton->usesTextLabel() ) {
+			p->setFont( toolbutton->font() );
+
+			QRect pr = rect, tr = rect;
+			int fh = p->fontMetrics().height();
+			pr.addCoords(0, 0, 0, -fh);
+			tr.addCoords(0, tr.height() - fh, 0, 0);
+			drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
+			drawItem( p, tr, AlignCenter | ShowPrefix, cg,
+				  flags & Style_Enabled, 0, toolbutton->textLabel(),
+				  toolbutton->textLabel().length(), &btext);
+		    } else
+			drawItem( p, rect, AlignCenter, cg, TRUE, &pm, QString::null );
+		}
+	    }
+
+	    break;
+	}
+
     default:
 	break;
     }
@@ -960,6 +1032,10 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    break;
 	}
 
+    case SR_ToolButtonContents:
+	rect = querySubControlMetrics(CC_ToolButton, widget, SC_ToolButton);
+	break;
+
     default:
 	rect = wrect;
 	break;
@@ -1019,8 +1095,6 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	return;
     }
 #endif
-
-    Q_UNUSED(flags);
 
     switch (control) {
 #ifndef QT_NO_SCROLLBAR
@@ -1109,9 +1183,6 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
 	    menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, data);
 
-	    bool on = toolbutton->isOn();
-	    bool down = toolbutton->isDown();
-	    bool autoraise = toolbutton->autoRaise();
 	    bool use3d = FALSE;
 	    bool drawarrow = FALSE;
 	    Qt::ArrowType arrowType = Qt::DownArrow;
@@ -1122,107 +1193,24 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		arrowType  = *((Qt::ArrowType *) data[2]);
 	    }
 
-	    SFlags bflags = Style_Default,
-		   mflags = Style_Default;
+	    SFlags bflags = flags,
+		   mflags = flags;
 
-	    if (toolbutton->isEnabled()) {
-		bflags |= Style_Enabled;
-		mflags |= Style_Enabled;
-	    }
-
-	    if (down) {
+	    if (active & SC_ToolButton)
 		bflags |= Style_Down;
+	    if (active & SC_ToolButtonMenu)
 		mflags |= Style_Down;
-	    }
-	    if (on) {
-		bflags |= Style_On;
-		mflags |= Style_On;
-	    }
-	    if (autoraise) {
-		bflags |= Style_AutoRaise;
-		mflags |= Style_AutoRaise;
-
-		if (use3d) {
-		    bflags |= Style_MouseOver;
-		    mflags |= Style_MouseOver;
-
-		    if (active & SC_ToolButton)
-			bflags |= Style_Down;
-		    if (active & SC_ToolButtonMenu)
-			mflags |= Style_Down;
-
-		    if (! on && ! down) {
-			bflags |= Style_Raised;
-			mflags |= Style_Raised;
-		    }
-		}
-	    } else if (! on && ! down) {
-		bflags |= Style_Raised;
-		mflags |= Style_Raised;
-	    }
 
 	    if (controls & SC_ToolButton) {
 		if (bflags & (Style_Down | Style_On | Style_Raised))
 		    drawPrimitive(PE_ButtonTool, p, button, cg, bflags, data);
 		else if ( toolbutton->parentWidget() &&
 			  toolbutton->parentWidget()->backgroundPixmap() &&
-			  ! toolbutton->parentWidget()->backgroundPixmap()->isNull() )
-		    p->drawTiledPixmap( r, *(toolbutton->parentWidget()->backgroundPixmap()),
-					toolbutton->pos() );
+			  ! toolbutton->parentWidget()->backgroundPixmap()->isNull() ) {
+		    QPixmap pixmap =
+			*(toolbutton->parentWidget()->backgroundPixmap());
 
-		if (bflags & (Style_Down | Style_On))
-		    button.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-				  pixelMetric(PM_ButtonShiftVertical, widget));
-
-		if (drawarrow) {
-		    PrimitiveElement pe;
-		    switch (arrowType) {
-		    case Qt::LeftArrow:  pe = PE_ArrowLeft;  break;
-		    case Qt::RightArrow: pe = PE_ArrowRight; break;
-		    case Qt::UpArrow:    pe = PE_ArrowUp;    break;
-		    default:
-		    case Qt::DownArrow:  pe = PE_ArrowDown;  break;
-		    }
-
-		    drawPrimitive(pe, p, button, cg, bflags, data);
-		} else {
-		    QColor btext = cg.buttonText();
-
-		    if (toolbutton->iconSet().isNull() &&
-			! toolbutton->text().isNull() &&
-			! toolbutton->usesTextLabel()) {
-			drawItem(p, button, AlignCenter | ShowPrefix, cg,
-				 bflags & Style_Enabled, 0, toolbutton->text(),
-				 toolbutton->text().length(), &btext);
-		    } else {
-			QPixmap pm;
-			QIconSet::Size size =
-			    toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
-			QIconSet::State state =
-			    toolbutton->isOn() ? QIconSet::On : QIconSet::Off;
-			QIconSet::Mode mode;
-			if (! toolbutton->isEnabled())
-			    mode = QIconSet::Disabled;
-			else if (bflags & (Style_Down | Style_On | Style_Raised))
-			    mode = QIconSet::Active;
-			else
-			    mode = QIconSet::Normal;
-			pm = toolbutton->iconSet().pixmap( size, mode, state );
-
-			if ( toolbutton->usesTextLabel() ) {
-			    p->setFont( toolbutton->font() );
-
-			    QRect pr = button, tr = button;
-			    int fh = p->fontMetrics().height();
-			    pr.addCoords(0, 0, 0, -fh);
-			    tr.addCoords(0, tr.height() - fh, 0, 0);
-			    drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
-			    drawItem( p, tr, AlignCenter | ShowPrefix, cg,
-				      bflags & Style_Enabled, 0, toolbutton->textLabel(),
-				      toolbutton->textLabel().length(), &btext);
-			} else
-			    drawItem( p, button, AlignCenter, cg, TRUE, &pm, QString::null );
-		    }
+		    p->drawTiledPixmap( r, pixmap, toolbutton->pos() );
 		}
 	    }
 

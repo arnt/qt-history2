@@ -879,6 +879,51 @@ are drawn.</td>
 <td valign=top>Style_HasFocus</td>
 <td valign=top>set if the menubar has input focus.</td>
 </tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top rowspan=7><b>CE_ToolButtonLabel</b><br>const QToolButton *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the toolbutton is enabled.</td>
+<td valign=top>data[0]</td>
+<td valign=top>bool *</td>
+<td valign=top>if the tool button has auto-raise enabled, this bool is TRUE when
+the mouse is over the tool button, FALSE otherwise.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the toolbutton has input focus.</td>
+<td valign=top>data[1]</td>
+<td valign=top>bool *</td>
+<td valign=top>this bool TRUE is when the tool button only contains an arrow, FALSE
+    otherwise.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the toolbutton is down (ie. mouse button or space pressed).</td>
+<td valign=top>data[2]</td>
+<td valign=top>ArrowType *</td>
+<td valign=top>when the tool button only contains an arrow, this is the
+    arrow's type.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_On</td>
+<td valign=top>set if the toolbutton is a toggle button and is toggled on.</td>
+<td valign=top rowspan=4>&nbsp;</td>
+<td valign=top rowspan=4>&nbsp;</td>
+<td valign=top rowspan=4>&nbsp;</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_AutoRaise</td>
+<td valign=top>set if the toolbutton has auto-raise enabled.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_MouseOver</td>
+<td valign=top>set if the mouse pointer is over the toolbutton.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Raised</td>
+<td valign=top>set if the button is not down, not on and doesn't contain the mouse
+    when auto-raise is enabled.</td>
+</tr>
 </table>
 </center>
 
@@ -1112,8 +1157,8 @@ are drawn.</td>
   drawControl().
 
   The \a how argument is used to control how the ComplexControl is
-  drawn.  Multiple flags can OR'ed together. See \l
-  StyleFlags.
+  drawn.  Multiple flags can OR'ed together. See the table below for
+  an explanation of which flags are used with the various ComplexControls.
 
   The \a widget argument is a pointer to a QWidget or one of its
   subclasses.  The widget can be cast to the appropriate type based on
@@ -1123,78 +1168,133 @@ are drawn.</td>
   of the extra data.  See the table below for the appropriate \a
   widget and \a data casts:
 
-  <center>
-  <table cellpadding=4 cellspacing=2 border=0>
-    <tr bgcolor=#A2C511>
-      <th>ComplexControl</th>
-      <th>Widget Cast</th>
-      <th>Data</th>
-      <th>Data Cast</th>
-      <th>Notes</th>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CC_SpinWidget</b></td>
-      <td valign=top>const QSpinWidget *</td>
-      <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CC_ComboBox</b></td>
-      <td valign=top>const QComboBox *</td>
-      <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CC_ScrollBar</b></td>
-      <td valign=top>const QScrollBar *</td>
-      <td valign=top>data[0]</td>
-      <td valign=top>int *</td>
-      <td valign=top>position in pixels for the start of the scrollbar handle.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CC_Slider</b></td>
-      <td valign=top>const QSlider *</td>
-      <td valign=top>data[0]</td>
-      <td valign=top>int *</td>
-      <td valign=top>position in pixels for the start of the slider handle.</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top rowspan=3><b>CC_ToolButton</b></td>
-      <td valign=top rowspan=3>const QToolButton *</td>
-      <td valign=top>data[0]</td>
-      <td valign=top>bool *</td>
-      <td valign=top>if the tool button has auto-raise enabled, this bool is TRUE when
-          the mouse is over the tool button, FALSE otherwise.</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top>data[1]</td>
-      <td valign=top>bool *</td>
-      <td valign=top>this bool TRUE is when the tool button only contains an arrow, FALSE
-          otherwise.</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top>data[2]</td>
-      <td valign=top>ArrowType *</td>
-      <td valign=top>when the tool button only contains an arrow, this is the arrow's type.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CC_TitleBar</b></td>
-      <td valign=top>const QWidget *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CC_ListView</b></td>
-      <td valign=top>const QListView *</td>
-      <td valign=top>data[0]</td>
-      <td valign=top>QListViewItem *</td>
-      <td valign=top>pointer to the item that needs branches drawn</td>
-    </tr>
-  </table>
-  </center>
+<center>
+<table cellpadding=4 cellspacing=2 border=0>
+<tr bgcolor=#A2C511>
+<th>ComplexControl<br>&amp; Widget Cast</th>
+<th>Style Flags</th>
+<th>Notes</th>
+<th>Data</th>
+<th>Data Cast</th>
+<th>Notes</th>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan=2 valign=top><b>CC_SpinWidget</b><br>const QSpinWidget *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the spinwidget is enabled.</td>
+<td rowspan=2 valign=top>unused</td>
+<td rowspan=2 valign=top></td>
+<td rowspan=2 valign=top></td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the spinwidget has input focus.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td rowspan=2 valign=top><b>CC_ComboBox</b><br>const QComboBox *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the combobox is enabled.</td>
+<td rowspan=2 valign=top>unused</td>
+<td rowspan=2 valign=top>&nbsp;</td>
+<td rowspan=2 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the combobox has input focus.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan=2 valign=top><b>CC_ScrollBar</b><br>const QScrollBar *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the scrollbar is enabled.</td>
+<td valign=top>data[0]</td>
+<td valign=top>int *</td>
+<td valign=top>position in pixels for the start of the scrollbar handle.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the scrollbar has input focus.</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td rowspan=2 valign=top><b>CC_Slider</b><br>const QSlider *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the slider is enabled.</td>
+<td valign=top>data[0]</td>
+<td valign=top>int *</td>
+<td valign=top>position in pixels for the start of the slider handle.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the slider has input focus.</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top rowspan=7><b>CC_ToolButton</b><br>const QToolButton *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the toolbutton is enabled.</td>
+<td valign=top>data[0]</td>
+<td valign=top>bool *</td>
+<td valign=top>if the tool button has auto-raise enabled, this bool is TRUE when
+the mouse is over the tool button, FALSE otherwise.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the toolbutton has input focus.</td>
+<td valign=top>data[1]</td>
+<td valign=top>bool *</td>
+<td valign=top>this bool TRUE is when the tool button only contains an arrow, FALSE
+    otherwise.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the toolbutton is down (ie. mouse button or space pressed).</td>
+<td valign=top>data[2]</td>
+<td valign=top>ArrowType *</td>
+<td valign=top>when the tool button only contains an arrow, this is the
+    arrow's type.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_On</td>
+<td valign=top>set if the toolbutton is a toggle button and is toggled on.</td>
+<td valign=top rowspan=4>&nbsp;</td>
+<td valign=top rowspan=4>&nbsp;</td>
+<td valign=top rowspan=4>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_AutoRaise</td>
+<td valign=top>set if the toolbutton has auto-raise enabled.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_MouseOver</td>
+<td valign=top>set if the mouse pointer is over the toolbutton.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Raised</td>
+<td valign=top>set if the button is not down, not on and doesn't contain the mouse
+    when auto-raise is enabled.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top><b>CC_TitleBar</b><br>const QWidget *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the titlebar is enabled.</td>
+<td valign=top>unused</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top><b>CC_ListView</b><br>const QListView *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the titlebar is enabled.</td>
+<td valign=top>data[0]</td>
+<td valign=top>QListViewItem *</td>
+<td valign=top>pointer to the item that needs branches drawn</td>
+</tr>
+</table>
+</center>
 
   \sa ComplexControl, SubControl
 */

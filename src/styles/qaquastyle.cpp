@@ -229,7 +229,7 @@ void QAquaStyle::polish( QWidget * w )
     }
 
     if( w->inherits("QFrame") && w->parentWidget() &&
-	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") && 
+	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") &&
 	!w->inherits("QMenuBar") && !w->inherits("QTable")) {
 	QObject::connect(w, SIGNAL(destroyed(QObject*)), d, SLOT(objDestroyed(QObject*)));
 	w->installEventFilter( this );
@@ -305,7 +305,7 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
     if(d->focusWidget && ((e->type() == QEvent::FocusOut && d->focusWidget == o) ||
 			  (e->type() == QEvent::FocusIn && d->focusWidget != o)))  { //restore it
 	/* I do this game with inherits() & className() because once the QFrame is destructed it
-	   becomes a QWidget. Then in ~QWidget() it does clearFocus() so by the time this gets 
+	   becomes a QWidget. Then in ~QWidget() it does clearFocus() so by the time this gets
 	   called inherits("QFrame") returns TRUE, but classname will be wrong. Hackyness. */
 	if(o != d->focusWidget || (o->inherits("QFrame") && strcmp(o->className(), "QWidget"))) {
 	    d->focusWidget->setFrameShape(d->oldFrameShape);
@@ -722,7 +722,7 @@ void QAquaStyle::drawControl( ControlElement element,
 	int tab = *((int *)data[1]);
 	int maxpmw = *((int *)data[2]);
 	bool checkable = popupmenu->isCheckable();
-	bool act = how & Style_Selected;
+	bool act = how & Style_Active;
 	int x, y, w, h;
 	r.rect(&x, &y, &w, &h);
 
@@ -1164,13 +1164,13 @@ QRect QAquaStyle::subRect( SubRect r, const QWidget *w ) const
 
     case SR_RadioButtonContents: {
 	QRect ir = subRect(SR_RadioButtonIndicator, w);
-	ret.setRect(ir.right() + 5, wrect.y(), 
+	ret.setRect(ir.right() + 5, wrect.y(),
 		    wrect.width() - ir.width() - 5, wrect.height());
 	break; }
 
     case SR_CheckBoxContents: {
 	QRect ir = subRect(SR_CheckBoxIndicator, w);
-	ret.setRect(ir.right() + 5, wrect.y(), 
+	ret.setRect(ir.right() + 5, wrect.y(),
 		    wrect.width() - ir.width() - 5, wrect.height());
 	break; }
 
@@ -1325,8 +1325,8 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	for(QListViewItem *child = item->firstChild(); child && y < h;
 	    y += child->totalHeight(), child = child->nextSibling()) {
 	    if(y + child->height() > 0) {
-		if ( child->isExpandable() || child->childCount() ) 
-		    drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p, 
+		if ( child->isExpandable() || child->childCount() )
+		    drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
 				   QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg );
 	    }
 	}
@@ -1425,21 +1425,23 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 	break; }
 
-    case CC_ComboBox: {
-	QPixmap left, mid, right;
-	QString hstr = QString::number( r.height() );
-	bool active = qAquaActive( cg );
-	qAquaPixmap( "cmb_act_left_" + hstr, left );
-	qAquaPixmap( "cmb_act_mid_" + hstr, mid );
-	if( active )
-	    qAquaPixmap( "cmb_act_right_" + hstr, right );
-	else
-	    qAquaPixmap( "cmb_dis_right_" + hstr, right );
+    case CC_ComboBox:
+	{
+	    QPixmap left, mid, right;
+	    QString hstr = QString::number( r.height() );
+	    bool active = qAquaActive( cg );
+	    qAquaPixmap( "cmb_act_left_" + hstr, left );
+	    qAquaPixmap( "cmb_act_mid_" + hstr, mid );
+	    if( active )
+		qAquaPixmap( "cmb_act_right_" + hstr, right );
+	    else
+		qAquaPixmap( "cmb_dis_right_" + hstr, right );
 
-	p->drawPixmap( r.x(), r.y(), left );
-	p->drawTiledPixmap( r.x() + left.width(), r.y(), r.width() - left.width()*2, r.height(), mid );
-	p->drawPixmap( r.x() + r.width() - right.width(), r.y(), right );
-	break; }
+	    p->drawPixmap( r.x(), r.y(), left );
+	    p->drawTiledPixmap( r.x() + left.width(), r.y(), r.width() - left.width()*2, r.height(), mid );
+	    p->drawPixmap( r.x() + r.width() - right.width(), r.y(), right );
+	    break;
+	}
 
     case CC_ToolButton: {
 	if(!widget)
@@ -1452,7 +1454,6 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 	bool on = toolbutton->isOn();
 	bool down = toolbutton->isDown();
-	bool autoraise = toolbutton->autoRaise();
 	bool use3d = FALSE;
 	bool drawarrow = FALSE;
 	Qt::ArrowType arrowType = Qt::DownArrow;
@@ -1463,44 +1464,13 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    arrowType  = *((Qt::ArrowType *) data[2]);
 	}
 
-	SFlags bflags = Style_Default,
-	       mflags = Style_Default;
+	SFlags bflags = flags,
+	       mflags = flags;
 
-	if (toolbutton->isEnabled()) {
-	    bflags |= Style_Enabled;
-	    mflags |= Style_Enabled;
-	}
-
-	if (down) {
+	if (subActive & SC_ToolButton)
 	    bflags |= Style_Down;
+	if (subActive & SC_ToolButtonMenu)
 	    mflags |= Style_Down;
-	}
-	if (on) {
-	    bflags |= Style_On;
-	    mflags |= Style_On;
-	}
-	if (autoraise) {
-	    bflags |= Style_AutoRaise;
-	    mflags |= Style_AutoRaise;
-
-	    if (use3d) {
-		bflags |= Style_MouseOver;
-		mflags |= Style_MouseOver;
-
-		if (subActive & SC_ToolButton)
-		    bflags |= Style_Down;
-		if (subActive & SC_ToolButtonMenu)
-		    mflags |= Style_Down;
-
-		if (! on && ! down) {
-		    bflags |= Style_Raised;
-		    mflags |= Style_Raised;
-		}
-	    }
-	} else if (! on && ! down) {
-	    bflags |= Style_Raised;
-	    mflags |= Style_Raised;
-	}
 
 	if (sub & SC_ToolButton) {
 	    if (bflags & (Style_Down | Style_On | Style_Raised)) {
@@ -1534,61 +1504,6 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		p->drawTiledPixmap( r, *(toolbutton->parentWidget()->backgroundPixmap()),
 				    toolbutton->pos() );
 	    }
-
-	    if (bflags & (Style_Down | Style_On))
-		button.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-			      pixelMetric(PM_ButtonShiftVertical, widget));
-
-	    if (drawarrow) {
-		PrimitiveElement pe;
-		switch (arrowType) {
-		case Qt::LeftArrow:  pe = PE_ArrowLeft;  break;
-		case Qt::RightArrow: pe = PE_ArrowRight; break;
-		case Qt::UpArrow:    pe = PE_ArrowUp;    break;
-		default:
-		case Qt::DownArrow:  pe = PE_ArrowDown;  break;
-		}
-
-		drawPrimitive(pe, p, button, cg, bflags, data);
-	    } else {
-		QColor btext = cg.buttonText();
-
-		if (toolbutton->iconSet().isNull() &&
-		    ! toolbutton->text().isNull() &&
-		    ! toolbutton->usesTextLabel()) {
-		    drawItem(p, button, AlignCenter | ShowPrefix, cg,
-			     bflags & Style_Enabled, 0, toolbutton->text(),
-			     toolbutton->text().length(), &btext);
-		} else {
-		    QPixmap pm;
-		    QIconSet::Size size =
-			toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
-		    QIconSet::State state =
-			toolbutton->isOn() ? QIconSet::On : QIconSet::Off;
-		    QIconSet::Mode mode;
-		    if (! toolbutton->isEnabled())
-			mode = QIconSet::Disabled;
-		    else if (bflags & (Style_Down | Style_On | Style_Raised))
-			mode = QIconSet::Active;
-		    else
-			mode = QIconSet::Normal;
-		    pm = toolbutton->iconSet().pixmap( size, mode, state );
-
-		    if ( toolbutton->usesTextLabel() ) {
-			p->setFont( toolbutton->font() );
-
-			QRect pr = button, tr = button;
-			int fh = p->fontMetrics().height();
-			pr.addCoords(0, 0, 0, -fh);
-			tr.addCoords(0, tr.height() - fh, 0, 0);
-			drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
-			drawItem( p, tr, AlignCenter | ShowPrefix, cg,
-				  bflags & Style_Enabled, 0, toolbutton->textLabel(),
-				  toolbutton->textLabel().length(), &btext);
-		    } else
-			drawItem( p, button, AlignCenter, cg, TRUE, &pm, QString::null );
-		}
-	    }
 	}
 
 	if (sub & SC_ToolButtonMenu) {
@@ -1621,7 +1536,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    drawPrimitive(PE_ArrowDown, p, QRect(menuarea.x()+2,
 						 menuarea.y()+(menuarea.height()-menuarea.width()-4),
 						 menuarea.width() - 4, menuarea.width()-2),
-						 cg, mflags, data);
+			  cg, mflags, data);
 	}
 
 	if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {

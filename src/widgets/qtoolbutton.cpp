@@ -407,10 +407,66 @@ void QToolButton::drawButton( QPainter * p )
 	    active |= QStyle::SC_ToolButtonMenu;
     }
 
-    style().drawComplexControl(QStyle::CC_ToolButton,
-			       p, this, rect(), colorGroup(),
-			       QStyle::Style_Default,
-			       controls, active, data);
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+    if (isDown())
+	flags |= QStyle::Style_Down;
+    if (isOn())
+	flags |= QStyle::Style_On;
+    if (autoRaise()) {
+	flags |= QStyle::Style_AutoRaise;
+	if (use3d) {
+	    flags |= QStyle::Style_MouseOver;
+	    if (! isOn() && ! isDown())
+		flags |= QStyle::Style_Raised;
+	}
+    } else if (! isOn() && ! isDown())
+	flags |= QStyle::Style_Raised;
+
+    style().drawComplexControl(QStyle::CC_ToolButton, p, this, rect(), colorGroup(),
+			       flags, controls, active, data);
+    drawButtonLabel(p);
+}
+
+
+/*! \reimp */
+void QToolButton::drawButtonLabel(QPainter *p)
+{
+    QRect r =
+	QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, this), this);
+
+    bool use3d = uses3D();
+    bool drawarrow = hasArrow;
+    Qt::ArrowType arrowtype = d->arrow;
+    void *data[3];
+    data[0] = (void *) &use3d;
+    data[1] = (void *) &drawarrow;
+    data[2] = (void *) &arrowtype;
+
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if (isEnabled())
+	flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+	flags |= QStyle::Style_HasFocus;
+    if (isDown())
+	flags |= QStyle::Style_Down;
+    if (isOn())
+	flags |= QStyle::Style_On;
+    if (autoRaise()) {
+	flags |= QStyle::Style_AutoRaise;
+	if (use3d) {
+	    flags |= QStyle::Style_MouseOver;
+	    if (! isOn() && ! isDown())
+		flags |= QStyle::Style_Raised;
+	}
+    } else if (! isOn() && ! isDown())
+	flags |= QStyle::Style_Raised;
+
+    style().drawControl(QStyle::CE_ToolButtonLabel, p, this, r,
+			colorGroup(), flags, data);
 }
 
 

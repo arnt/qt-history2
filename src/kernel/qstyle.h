@@ -194,7 +194,9 @@ public:
 	CE_ProgressBarLabel,
 
 	CE_PopupMenuItem,
-	CE_MenuBarItem
+	CE_MenuBarItem,
+
+	CE_ToolButtonLabel
     };
 
     virtual void drawControl( ControlElement element,
@@ -230,7 +232,9 @@ public:
 
 	SR_ProgressBarGroove,
 	SR_ProgressBarContents,
-	SR_ProgressBarLabel
+	SR_ProgressBarLabel,
+
+	SR_ToolButtonContents
 
 	/*
 	  SR_DefaultFrameContents,

@@ -117,6 +117,7 @@ public slots:
 protected:
     void mousePressEvent( QMouseEvent * );
     void drawButton( QPainter * );
+    void drawButtonLabel(QPainter *);
 
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );
