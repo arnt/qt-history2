@@ -260,8 +260,10 @@ void QGLContext::fixBufferRect()
 		aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	    }
 	}
-	if(update)
+	if(update) {
 	    aglUpdateContext((AGLContext)cx);
+	    QMacSavedPortInfo::flush(w);
+	}
     } 
 }
 
@@ -515,15 +517,17 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
     bool need_fix = FALSE;
     if(isTopLevel()) {
 	dblbuf = 0;
-	if(clippedSerial() != clp_serial && children()) {
-	    QRect myrect(rect());
-            register QObject *obj;
-            for(QObjectListIt it(*children()); (obj = it.current()); ++it) {
-                if(obj->isWidgetType()) {
-		    QWidget *w = (QWidget*)obj;
-		    if(!w->isTopLevel() && myrect.intersects(QRect(w->pos(), w->size()))) {
-			dblbuf = 1;
-			break;
+	if(clippedSerial() != clp_serial) {
+	    if(children()) {
+		QRect myrect(rect());
+		register QObject *obj;
+		for(QObjectListIt it(*children()); (obj = it.current()); ++it) {
+		    if(obj->isWidgetType()) {
+			QWidget *w = (QWidget*)obj;
+			if(w->isVisible() && !w->isTopLevel() && myrect.intersects(QRect(w->pos(), w->size()))) {
+			    dblbuf = 1;
+			    break;
+			}
 		    }
 		}
 	    }
@@ -532,7 +536,7 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
     } else if(clippedSerial() != clp_serial) {
 	QRegion rgn = clippedRegion();
 	clp_serial = clippedSerial();
-	if(rgn.isNull()) { //don't double buffer, we'll just make the area empty
+	if(rgn.isNull() || rgn.isEmpty()) { //don't double buffer, we'll just make the area empty
 	    dblbuf = 0;
 	} else {
 	    QRect rct(posInWindow(this), size());
@@ -540,13 +544,15 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 		rct &= topLevelWidget()->rect();
 	    dblbuf = (rgn != QRegion(rct));
 	}
-	if(glcx_dblbuf != dblbuf) 
-	    need_fix = TRUE;
     }
+    if(glcx_dblbuf != dblbuf) 
+	need_fix = TRUE;
+    else if(dblbuf && (!gl_pix || gl_pix->size() != size()))
+	need_fix = TRUE;
     if(pending_fix || need_fix) {
-	if(fix)
+	if(fix) 
 	    macInternalRecreateContext(req_format);
-	else
+	else 
 	    pending_fix = TRUE;
     }
 #else
@@ -558,7 +564,15 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLContext *share_ctx,
 					   bool update)
 {
+    if(QMacBlockingFunction::blocking()) { //nah, let's do it "later"
+	if(!dblbuf)
+	    glcx->fixBufferRect();
+	pending_fix = TRUE;
+	return;
+    }
+
     QGLContext* oldcx = glcx;
+    glcx_dblbuf = dblbuf;
     pending_fix = FALSE;
     if(dblbuf) {
 	setBackgroundMode(NoBackground);

@@ -884,13 +884,12 @@ void QEventLoop::wakeUp()
 
 /* This allows the eventloop to block, and will keep things going - including keeping away
    the evil spinning cursor */
-bool QMacBlockingFunction::block = FALSE;
+int QMacBlockingFunction::block = 0;
 QMacBlockingFunction::QMacBlockingFunction()
 {
-    if(block)
-	qWarning("QMacBlockingFunction is a non-recursive function");
-    block = TRUE;
-    startTimer(1);
+    if(!block)
+	startTimer(1);
+    block++;
 }
 
 void QMacBlockingFunction::timerEvent(QTimerEvent *)
