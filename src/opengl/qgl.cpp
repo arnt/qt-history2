@@ -51,7 +51,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 /*!
     \namespace QGL
 
-    \brief The QGL namespace contains miscellaneous identifiers used
+    \brief The QGL namespace specifies miscellaneous identifiers used
     in the Qt OpenGL module.
 
     \ingroup multimedia
@@ -252,6 +252,10 @@ QGLFormat::QGLFormat(const QGLFormat &other)
     d = new QGLFormatPrivate;
     *d = *other.d;
 }
+
+/*!
+    Assigns \a other to this object.
+*/
 
 QGLFormat QGLFormat::operator=(const QGLFormat &other)
 {
@@ -585,9 +589,9 @@ bool QGLFormat::testOption(QGL::FormatOptions opt) const
 }
 
 /*!
-    Set the preferred depth buffer size.
+    Set the preferred depth buffer size to \a size.
 
-    \sa depth(), setDepth(), depthBufferSize()
+    \sa depthBufferSize(), setDepth(), depth()
 */
 void QGLFormat::setDepthBufferSize(int size)
 {
@@ -637,9 +641,9 @@ void QGLFormat::setAccumBufferSize(int size)
 }
 
 /*!
-    Returns the accumulation buffer size.
+    Returns the accumulation buffer size to \a size.
 
-    \sa accum(), setAccum(), setAccumBufferSize()
+    \sa setAccumBufferSize(), accum(), setAccum()
 */
 int QGLFormat::accumBufferSize() const
 {
@@ -647,9 +651,9 @@ int QGLFormat::accumBufferSize() const
 }
 
 /*!
-    Set the preferred stencil buffer size.
+    Set the preferred stencil buffer size to \a size.
 
-    \sa stencil(), setStencil(), stencilBufferSize()
+    \sa stencilBufferSize(), setStencil(), stencil()
 */
 void QGLFormat::setStencilBufferSize(int size)
 {
@@ -1211,8 +1215,8 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLint format, int key
 
 /*!
     Generates and binds a 2D GL texture to the current context, based
-    on the image \a image that is passed in. The generated texture id is
-    returned and can be used in later glBindTexture() calls.
+    on \a image. The generated texture id is returned and can be used
+    in later \c glBindTexture() calls.
 
     The \a format parameter sets the internal format for the
     texture. The default format is \c GL_RGBA8.
@@ -1240,6 +1244,8 @@ GLuint QGLContext::bindTexture(const QImage &image, GLint format)
 }
 
 /*! \overload
+
+    Generates and binds a 2D GL texture based on \a pixmap.
 */
 GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLint format)
 {
@@ -2562,11 +2568,15 @@ void QGLWidget::qglClearColor(const QColor& c) const
     Converts the image \a img into the unnamed format expected by
     OpenGL functions such as glTexImage2D(). The returned image is not
     usable as a QImage, but QImage::width(), QImage::height() and
-    QImage::bits() may be used with OpenGL. The following few lines
-    are from the texture example. Most of the code is irrelevant, so
-    we just quote the relevant bits:
+    QImage::bits() may be used with OpenGL.
 
-    \quotefile opengl/texture/gltexobj.cpp
+    \omit ###
+
+    \l opengl/texture example
+    The following few lines are from the texture example. Most of the
+    code is irrelevant, so we just quote the relevant bits:
+
+    \quotefromfile opengl/texture/gltexobj.cpp
     \skipto tex1
     \printline tex1
     \printline gllogo.bmp
@@ -2590,8 +2600,9 @@ void QGLWidget::qglClearColor(const QColor& c) const
     border is either 0 or 1.
 
     Another function in the same example uses \e tex1 with OpenGL.
-*/
 
+    \endomit
+*/
 
 QImage QGLWidget::convertToGLFormat(const QImage& img)
 {

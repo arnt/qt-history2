@@ -25,13 +25,24 @@
 
 /*!
     \class QSqlRelation
-    \brief The QSqlRelation stores information about an SQL foreign key.
+    \brief The QSqlRelation class stores information about an SQL foreign key.
 
     QSqlRelation is a helper class for QSqlRelationalTableModel. See
     QSqlRelationalTableModel::setRelation() and
     QSqlRelationalTableModel::relation() for details.
 
     \sa QSqlRelationalTableModel, QSqlRelationalDelegate
+*/
+
+/*!
+    \fn QSqlRelation::QSqlRelation()
+
+    Constructs an invalid QSqlRelation object.
+
+    For such an object, the tableName(), indexColumn(), and
+    displayColumn() functions return an empty string.
+
+    \sa isValid()
 */
 
 /*!

@@ -2,11 +2,6 @@
 
     \title The QAxContainer Module
 
-\if defined(commercial)
-    This module is part of the \link commercialeditions.html Qt
-    Enterprise Edition \endlink.
-\endif
-
     \tableofcontents
 
     \section1 Introduction

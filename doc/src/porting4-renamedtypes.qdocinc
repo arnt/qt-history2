@@ -11,6 +11,8 @@
 \row \o QIODevice::Offset \o Q_LONGLONG
 \row \o QImage::ScaleMode \o Qt::AspectRatioMode
 \row \o QSize::ScaleMode \o Qt::AspectRatioMode
+\row \o QSocket::Error \o Qt::SocketError
+\row \o QSocket::State \o Qt::SocketState
 \row \o QStyle::SCFlags \o QStyle::SubControls
 \row \o QStyle::SFlags \o QStyle::StyleFlags
 \row \o QTS \o QTextStream

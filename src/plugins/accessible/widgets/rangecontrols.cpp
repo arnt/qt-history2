@@ -367,12 +367,6 @@ bool QAccessibleScrollBar::doAction(int /*action*/, int /*child*/, const QVarian
 */
 
 /*!
-    \fn QString QAccessibleSlider::actionText(int action, Text t, int child)
-
-    \internal
-*/
-
-/*!
   Constructs a QAccessibleScrollBar object for \a w.
   \a name is propagated to the QAccessibleWidget constructor.
 */
@@ -489,6 +483,7 @@ int QAccessibleSlider::defaultAction(int /*child*/) const
     return 0;
 }
 
+/*! \internal */
 QString QAccessibleSlider::actionText(int /*action*/, Text /*t*/, int /*child*/) const
 {
     return QString("");

@@ -69,7 +69,7 @@
     drawControl(), drawControlMask(), drawComplexControl(), and
     drawComplexControlMask().
 
-    Most draw functions take four arguments:
+    Most QStyle draw functions take four arguments:
     \list
     \i an enum value specifying which graphical element to draw
     \i a QStyleOption specifying how and where to render that element
@@ -80,19 +80,9 @@
     For example, if you want to draw a focus rectangle on your
     widget, you can write:
 
-    \code
-        void MyWidget::paintEvent(QPaintEvent *event)
-        {
-            QPainter painter(this);
-            ...
-
-            QStyleOptionFocusRect option(1);
-            option.init(this);
-            option.backgroundColor = palette().color(QPalette::Background);
-
-            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
-        }
-    \endcode
+    \quotefromfile snippets/styles/styles.cpp
+    \skipto MyWidget::paintEvent
+    \printuntil }
 
     QStyle gets all the information it needs to render the graphical
     element from QStyleOption. The widget is passed as the last
@@ -102,13 +92,32 @@
     device, not just widgets, by setting the QPainter properly.
 
     QStyleOption has various subclasses for the various types of
-    graphical elements that can be drawn. For example, \c
+    graphical elements that can be drawn. For example,
     PE_FrameFocusRect expects a QStyleOptionFocusRect argument. This is
     documented for each enum value.
 
     To ensure that drawing operations are as fast as possible,
     QStyleOption and its subclasses have public data members. See the
     QStyleOption class documentation for details on how to use it.
+
+    For convenience, Qt provides the QStylePainter class, which
+    combines a QStyle, a QPainter, and a QWidget. This makes it
+    possible to write
+
+    \skipto QStylePainter painter
+    \printline painter
+    \dots
+    \skipto drawPrimitive
+    \printline drawPrimitive
+
+    instead of
+
+    \quotefromfile snippets/styles/styles.cpp
+    \skipto QPainter painter
+    \printline painter
+    \dots
+    \skipto drawPrimitive
+    \printline drawPrimitive
 
     \section1 Creating a Custom Style
 
@@ -216,7 +225,7 @@
     to translate logical coordinates into screen coordinates for
     drawing.
 
-    \sa QStyleOption
+    \sa QStyleOption, QStylePainter
 */
 
 /*!
@@ -305,7 +314,7 @@ void QStyle::unPolish(QApplication * /* app */)
 
     \sa QPalette, QApplication::setPalette()
 */
-void QStyle::polish(QPalette &/*pal*/)
+void QStyle::polish(QPalette & /* pal */)
 {
 }
 

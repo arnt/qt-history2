@@ -162,31 +162,6 @@
 */
 
 /*!
-    \fn void QAbstractSocket::readyRead()
-
-    This signal is emitted every time there is new incoming data.
-
-    Bear in mind that new incoming data is only reported once; if you
-    do not read any data, this class buffers the data and you can
-    read it later, but no signal is emitted until new data arrives. A
-    good practice is to read all data in the slot connected to this
-    signal unless you need to receive more data to be able to process
-    it.
-
-    \sa read(), readAll(), readLine(), bytesAvailable()
-*/
-
-/*!
-    \fn void QAbstractSocket::bytesWritten(Q_LONGLONG numBytes)
-
-    This signal is emitted when a payload of data has been written to
-    the network. The \a numBytes parameter specifies how many bytes
-    were written.
-
-    \sa write(), bytesToWrite()
-*/
-
-/*!
     \fn void QAbstractSocket::error(int socketError)
 
     This signal is emitted after an error occurred. The \a
@@ -1379,7 +1354,14 @@ bool QAbstractSocket::flush()
     return d->writeBuffer.isEmpty();
 }
 
-/*! \reimpl
+/*! \reimp
+*/
+bool QAbstractSocket::isSequential() const
+{
+    return true;
+}
+
+/*! \reimp
 */
 Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
 {
@@ -1478,7 +1460,7 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
     return readSoFar;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 Q_LONGLONG QAbstractSocket::writeData(const char *data, Q_LONGLONG size)
 {
@@ -1685,5 +1667,78 @@ void QAbstractSocket::setSocketError(Qt::SocketError socketError)
 {
     d->socketError = socketError;
 }
+
+#ifdef QT_COMPAT
+/*! \enum QAbstractSocket::Error
+    \compat
+
+    Use Qt::SocketError instead.
+
+    \value ErrConnectionRefused Use Qt::ConnectionRefusedError instead.
+    \value ErrHostNotFound Use Qt::HostNotFoundError instead.
+    \value ErrSocketRead Use Qt::UnknownSocketError instead.
+*/
+
+/*! \enum QAbstractSocket::State
+    \compat
+
+    Use Qt::SocketState instead.
+
+    \value Idle Use Qt::UnconnectedState instead.
+    \value HostLookup Use Qt::HostLookupState instead.
+    \value Connecting Use Qt::ConnectingState instead.
+    \value Connected Use Qt::ConnectedState instead.
+    \value Closing Use Qt::ClosingState instead.
+    \value Connection Use Qt::ConnectedState instead.
+*/
+
+/*!
+    \fn QAbstractSocket::State QAbstractSocket::state() const
+
+    Use socketState() instead.
+*/
+
+/*!
+    \fn int QAbstractSocket::socket() const
+
+    Use socketDescriptor() instead.
+*/
+
+/*!
+    \fn void QAbstractSocket::setSocket(int socket)
+
+    Use setSocketDescriptor() instead.
+*/
+
+/*!
+    \fn Q_ULONG QAbstractSocket::waitForMore(int msecs, bool *timeout = 0) const
+
+    Use waitForReadyRead() instead.
+
+    \oldcode
+        bool timeout;
+        Q_ULONG numBytes = socket->waitForMore(30000, &timeout);
+    \newcode
+        Q_LONGLONG numBytes = 0;
+        if (socket->waitForReadyRead(msecs))
+            numBytes = socket->bytesAvailable();
+        bool timeout = (socketError() == Qt::SocketTimeoutError);
+    \endcode
+
+    \sa waitForReadyRead(), bytesAvailable(), socketError(), Qt::SocketTimeoutError
+*/
+
+/*!
+    \fn void QAbstractSocket::connectionClosed()
+
+    Use closing() instead.
+*/
+
+/*!
+    \fn void QAbstractSocket::delayedCloseFinished()
+
+    Use closed() instead.
+*/
+#endif
 
 #include "moc_qabstractsocket.cpp"

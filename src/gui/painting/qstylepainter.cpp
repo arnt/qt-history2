@@ -21,24 +21,32 @@
 
     \ingroup appearance multimedia
 
-    QStylePainter is a QPainter that also has a higher-level interface to
-    QStyle's draw* functions. QStylePainter can only be used on a widget as it
-    uses the widget's underlying style to call the style functions.
+    QStylePainter extends QPainter with a set of high-level \c
+    draw...() functions implemented on top of QStyle's API. The
+    advantage of using QStylePainter is that the parameter lists get
+    considerably shorter. Whereas a QStyle object must be able to
+    draw on any widget using any painter (because the application
+    normally has one QStyle object shared by all widget), a
+    QStylePainter is initialized with a widget, eliminating the need
+    to specify the QWidget, the QPainter, and the QStyle for every
+    function call.
 
-    Here is a standard use case for using QStylePainter
+    Example using QStyle directly:
 
-    \code
+    \quotefromfile snippets/styles/styles.cpp
+    \skipto ::paintEvent(
+    \printuntil }
 
-    void MyWidget::paintEvent(QPaintEvent *)
-    {
-        QStylePainter painter(this);
+    Example using QStylePainter:
 
-        painter.drawControl(QStyle::CE_PushButton, getStyleOption());
+    \quotefromfile snippets/styles/styles.cpp
+    \skipto ::paintEvent(
+    \printline paintEvent
+    \skipuntil ::paintEvent2(
+    \printline {
+    \printuntil }
 
-        // Further painting with the painter.
-        ...
-    }
-
+    \sa QStyle, QStyleOption
 */
 
 /*!
@@ -54,7 +62,7 @@
 */
 
 /*!
-    \fn QStylePainter::QStylePainter(QPaintDevice *pd,  Widget *widget)
+    \fn QStylePainter::QStylePainter(QPaintDevice *pd, QWidget *widget)
 
     Construct a QStylePainter using \a pd for its paint device, and
     attributes from \a widget.
@@ -68,8 +76,9 @@
     This is automatically called by the constructor that takes a QWidget.
 */
 
-/*! \overload
-    \fn bool QStylePainter::begin(QPaintDevice *pd QWidget *widget)
+/*!
+    \fn bool QStylePainter::begin(QPaintDevice *pd, QWidget *widget)
+    \overload
 
     Begin painting operations on paint device \a pd as if it was \a
     widget.  This is automatically called by the constructor that
@@ -82,7 +91,7 @@
 
     Use the widget's style to draw a primitive element \a pe specified by QStyleOption \a option.
 
-    \sa QStyle::drawPrimitive
+    \sa QStyle::drawPrimitive()
 */
 
 /*!
@@ -90,16 +99,16 @@
 
     Use the widget's style to draw a control element \a ce specified by QStyleOption \a option.
 
-    \sa QStyle::drawControl
+    \sa QStyle::drawControl()
 */
 
 /*!
-    void QStylePainter::drawControlMask(QStyle::ControlElement element, const QStyleOption &option)
+    \fn void QStylePainter::drawControlMask(QStyle::ControlElement element, const QStyleOption &option)
 
-    Use the widget's style to draw a control element's mask \a ce specified by
-    QStyleOption \a option.
+    Use the widget's style to draw the mast for control element \a
+    element further specified by QStyleOption \a option.
 
-    \sa QStyle::drawControlMask
+    \sa QStyle::drawControlMask()
 */
 
 /*!
@@ -109,7 +118,7 @@
     Use the widget's style to draw a complex control \a cc specified by the
     QStyleOptionComplex \a option.
 
-    \sa QStyle::drawComplexControl
+    \sa QStyle::drawComplexControl()
 */
 
 
@@ -120,7 +129,7 @@
     Use the widget's style to draw a complex control element's mask \a cc
     specified by QStyleOptionComplex \a option.
 
-    \sa QStyle::drawComplexControlMask
+    \sa QStyle::drawComplexControlMask()
 */
 
 /*!
@@ -138,11 +147,10 @@
     If \a len is -1 (the default), all the \a text is drawn;
     otherwise only the first \a len characters of \a text are drawn.
     The text is aligned and wrapped according to \a
-    alignment.
+    flags.
 
-    \sa Qt::Alignment QStyle::drawItem
+    \sa QStyle::drawItem(), Qt::Alignment
 */
-
 
 /*!
     \fn void QStylePainter::drawItem(const QRect &rect, int flags, const QPalette &pal,
@@ -151,10 +159,9 @@
 
     \overload
 
-    Draws the \a pixmap in rectangle \a rect using \a painter and the
-    palette \a pal.
+    Draws the \a pixmap in rectangle \a rect using palette \a pal.
 
-    \sa QStyle::drawItem
+    \sa QStyle::drawItem()
 */
 
 
@@ -164,10 +171,10 @@
                                      int len = -1, const QColor *penColor = 0)
 
     \overload
-    Draws the \a pixmap or \a text in rectangle \a rect using \a painter and
-    palette \a pal.
 
-    \sa QStyle::drawItem
+    Draws the \a pixmap or \a text in rectangle \a rect using palette \a pal.
+
+    \sa QStyle::drawItem()
 */
 
 /*!

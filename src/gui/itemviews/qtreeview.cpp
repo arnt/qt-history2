@@ -790,8 +790,6 @@ int QTreeView::verticalOffset() const
 }
 
 /*!
-  \fn QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifers modifers)
-
   Move the cursor in the way described by \a cursorAction, using the
   information provided by the button \a state.
 

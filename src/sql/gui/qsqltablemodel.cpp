@@ -791,9 +791,6 @@ QSqlDatabase QSqlTableModel::database() const
     This will immediately select data, use setSort()
     to set a sort order without populating the model with data.
 
-    The \a parent index is ignored, because the model doesn't support
-    parent-child relationships.
-
     \sa setSort(), isSortable(), select(), orderByClause()
 */
 void QSqlTableModel::sort(int column, Qt::SortOrder order)

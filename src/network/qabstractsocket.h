@@ -95,7 +95,7 @@ public:
     // from QIODevice
     void close();
     bool flush();
-    inline bool isSequential() const { return true; }
+    bool isSequential() const;
 
     // for synchronous access
     bool waitForConnected(int msecs = 30000);

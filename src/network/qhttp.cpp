@@ -100,7 +100,7 @@ public:
     QHttp::Error error;
     QString errorString;
 
-    QString hostname;
+    QString hostName;
     Q_UINT16 port;
 
     QByteArray buffer;
@@ -283,9 +283,9 @@ public:
 void QHttpPGHRequest::start(QHttp *http)
 {
     if (http->d_func()->port && http->d_func()->port != 80)
-	header.setValue("Host", http->d_func()->hostname + ":" + QString::number(http->d_func()->port));
+	header.setValue("Host", http->d_func()->hostName + ":" + QString::number(http->d_func()->port));
     else
-	header.setValue("Host", http->d_func()->hostname);
+	header.setValue("Host", http->d_func()->hostName);
     QHttpNormalRequest::start(http);
 }
 
@@ -299,7 +299,7 @@ class QHttpSetHostRequest : public QHttpRequest
 {
 public:
     QHttpSetHostRequest(const QString &h, Q_UINT16 p) :
-        hostname(h), port(p)
+        hostName(h), port(p)
     { }
 
     void start(QHttp *);
@@ -310,13 +310,13 @@ public:
     { return 0; }
 
 private:
-    QString hostname;
+    QString hostName;
     Q_UINT16 port;
 };
 
 void QHttpSetHostRequest::start(QHttp *http)
 {
-    http->d_func()->hostname = hostname;
+    http->d_func()->hostName = hostName;
     http->d_func()->port = port;
     http->d_func()->finishedWithSuccess();
 }
@@ -1384,8 +1384,8 @@ QString QHttpRequestHeader::toString() const
 */
 
 /*!
-    Constructs a QHttp object. The \a parent and \a name parameters
-    are passed on to the QObject constructor.
+    Constructs a QHttp object. The \a parent parameter is passed on
+    to the QObject constructor.
 */
 QHttp::QHttp(QObject *parent)
     : QObject(*new QHttpPrivate, parent)
@@ -1396,20 +1396,19 @@ QHttp::QHttp(QObject *parent)
 
 /*!
     Constructs a QHttp object. Subsequent requests are done by
-    connecting to the server \a hostname on port \a port.
+    connecting to the server \a hostName on port \a port.
 
-    The \a parent and \a name parameters are passed on to the
-    QObject constructor.
+    The \a parent parameter is passed on to the QObject constructor.
 
     \sa setHost()
 */
-QHttp::QHttp(const QString &hostname, Q_UINT16 port, QObject *parent)
+QHttp::QHttp(const QString &hostName, Q_UINT16 port, QObject *parent)
     : QObject(*new QHttpPrivate, parent)
 {
     Q_D(QHttp);
     d->init();
 
-    d->hostname = hostname;
+    d->hostName = hostName;
     d->port = port;
 }
 
@@ -1488,7 +1487,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::responseHeaderReceived(const QHttpResponseHeaer &resp)
+    \fn void QHttp::responseHeaderReceived(const QHttpResponseHeader &resp);
 
     This signal is emitted when the HTTP header of a server response
     is available. The header is passed in \a resp.
@@ -1777,7 +1776,7 @@ void QHttp::clearPendingRequests()
 }
 
 /*!
-    Sets the HTTP server that is used for requests to \a hostname on
+    Sets the HTTP server that is used for requests to \a hostName on
     port \a port.
 
     The function does not block and returns immediately. The request
@@ -1791,10 +1790,10 @@ void QHttp::clearPendingRequests()
 
     \sa get() post() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::setHost(const QString &hostname, Q_UINT16 port)
+int QHttp::setHost(const QString &hostName, Q_UINT16 port)
 {
     Q_D(QHttp);
-    return d->addRequest(new QHttpSetHostRequest(hostname, port));
+    return d->addRequest(new QHttpSetHostRequest(hostName, port));
 }
 
 /*!
@@ -2077,7 +2076,7 @@ void QHttpPrivate::sendRequest()
     if (!proxyHost.isEmpty()) {
         QUrl proxyUrl;
         proxyUrl.setScheme("http");
-        proxyUrl.setHost(hostname);
+        proxyUrl.setHost(hostName);
         if (port && port != 80) proxyUrl.setPort(port);
         QString request = proxyUrl.resolved(QUrl(header.path())).toEncoded();
 
@@ -2093,7 +2092,7 @@ void QHttpPrivate::sendRequest()
             header.setValue("Proxy-Authorization", pass.toBase64());
         }
 
-        hostname = proxyHost;
+        hostName = proxyHost;
     }
 
     // Username support. Insert the user and password into the query
@@ -2107,7 +2106,7 @@ void QHttpPrivate::sendRequest()
         header.setValue("Authorization", "Basic " + pass.toBase64());
     }
 
-    if (hostname.isNull()) {
+    if (hostName.isNull()) {
         finishedWithError(QT_TRANSLATE_NOOP(QHttp, "No server set to connect to"),
                           QHttp::UnknownError);
         return;
@@ -2117,11 +2116,11 @@ void QHttpPrivate::sendRequest()
 
     // Do we need to setup a new connection or can we reuse an
     // existing one?
-    if (socket->peerName() != hostname || socket->peerPort() != port
+    if (socket->peerName() != hostName || socket->peerPort() != port
         || socket->socketState() != Qt::ConnectedState) {
         setState(QHttp::Connecting);
         if (proxyHost.isEmpty())
-            socket->connectToHost(hostname, port);
+            socket->connectToHost(hostName, port);
         else
             socket->connectToHost(proxyHost, proxyPort);
     } else {

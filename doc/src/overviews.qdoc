@@ -38,7 +38,6 @@
 \i
     \list
     \i \link layout.html Layout Classes \endlink
-    \i \link customlayout.html Writing your own layout manager \endlink
     \i \link coordsys.html The Coordinate System \endlink
     \i \link geometry.html Window Geometry \endlink
     \endlist
@@ -73,16 +72,14 @@
     \i \link eventsandfilters.html Events and Event Filters \endlink
     \i \link focus.html Keyboard Focus Overview \endlink
     \i \link accelerators.html   Standard Accelerators \endlink
-    \i \link netscape-plugin.html Qt-based LiveConnect Plugins \endlink
     \i \link activeqt.html ActiveX support \endlink
-    \i \link motif-extension.html Motif Support Extension \endlink
+    \i \link motif.html Motif Support Extension \endlink
     \i \link opengl-x11-overlays.html OpenGL Overlays (X11)\endlink
     \i \link appicon.html Setting the Application Icon \endlink
     \i \link session.html Session Management \endlink
     \i \link shclass.html Shared Classes \endlink
     \i \link threads.html Thread Support in Qt \endlink
     \i \link timers.html Timers \endlink
-    \i \link pictures.html Pictures of Most Qt Widgets \endlink
     \i \link distributingqt.html Deploying Qt Applications\endlink
 \omit    \i \link xt.html Qt Xt/Motif Support Extension \endlink \endomit
     \endlist

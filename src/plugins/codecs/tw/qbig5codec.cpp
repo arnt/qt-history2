@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 /*!
-    \class QBig5Codec qbig5codec.h
+    \class QBig5Codec
     \brief The QBig5Codec class provides conversion to and from the Big5 encoding.
 
     \ingroup i18n

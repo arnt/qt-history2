@@ -448,6 +448,9 @@ QXmlParseException::QXmlParseException(const QString& name, int c, int l,
     d->sys = s;
 }
 
+/*!
+    Destroys the QXmlParseException.
+*/
 QXmlParseException::~QXmlParseException()
 {
     delete d;

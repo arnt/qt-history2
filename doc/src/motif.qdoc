@@ -1,13 +1,10 @@
-/* Index page for Qt Motif Extension */
-
-/*! \page motif-extension.html
+/*! \page motif.html
 
 \title Qt Motif Extension
 \keyword Motif
 
-This module is part of the \link commercialeditions.html Qt Enterprise
-Edition \endlink and is \e not part of the Free or Non-Commercial
-Editions.
+This module is part of the \link commercialedition.html Qt Commercial
+Edition \endlink and is \e not part of the Qt Open Source Edition.
 
 \section1 Introduction
 
