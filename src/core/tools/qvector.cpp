@@ -31,7 +31,8 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     return qAllocMore(size * sizeofT, sizeofTypedData - sizeofT) / sizeofT;
 }
 
-/*! \class QVector
+/*! 
+    \class QVector
     \brief The QVector class is a template class that provides a dynamic array.
 
     \ingroup qtl
