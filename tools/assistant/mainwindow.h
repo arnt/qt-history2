@@ -80,6 +80,7 @@ protected:
 private:
     void setupGoActions();
     bool insertActionSeparator();
+    QString urlifyFileName(const QString &fileName);
 
 private:
     Ui::MainWindow ui;

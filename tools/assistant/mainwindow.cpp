@@ -298,24 +298,30 @@ void MainWindow::on_actionEditFindAgainPrev_triggered()
 
 void MainWindow::on_actionGoHome_triggered()
 {
-    QString home = Config::configuration()->homePage();    
-    QUrl url(home);
+    QString home = urlifyFileName(Config::configuration()->homePage());
+    showLink(home);
+}
+
+QString MainWindow::urlifyFileName(const QString &fileName)
+{
+    QString name = fileName;
+    QUrl url(name);
 #if defined(Q_OS_WIN32)
-    home = home.toLower();
+    name = name.toLower();
     if (!url.isValid()) {
         foreach (QFileInfo drive, QDir::drives()) {
-            if (home.startsWith(drive.absolutePath().toLower())) {
-                home = "file:" + home;
+            if (name.startsWith(drive.absolutePath().toLower())) {
+                name = "file:" + name;
                 break;
             }
         }
     }
-    home = home.replace("\\", "/");
+    name = name.replace("\\", "/");
 #else
     if (!url.isValid() || url.scheme().isEmpty())
-        home.prepend("file:");
+        name.prepend("file:");
 #endif
-    showLink(home);
+    return name;
 }
 
 void MainWindow::on_actionFilePrint_triggered()
@@ -422,7 +428,8 @@ void MainWindow::timerEvent(QTimerEvent *e)
     pendingBrowsers.removeFirst();
     if (pendingLinks.size() == 0)
         killTimer(e->timerId());
-    win->setSource(link);
+
+    win->setSource(urlifyFileName(link));
 }
 
 void MainWindow::showQtHelp()
