@@ -218,7 +218,7 @@ QString QAccessibleMenuBar::text(Text t, int child) const
     QString str;
 
     if(child) {
-        if(QAction *action = menuBar()->actions()[child]) {
+        if (QAction *action = menuBar()->actions().value(child, 0)) {
             switch (t) {
             case Name:
                 return qacc_stripAmp(action->text());
