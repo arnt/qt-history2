@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#91 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#91 $");
 
 
 /*!
@@ -301,6 +301,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
 	}
 	d->ed->installEventFilter( this );
+	d->ed->setFocusPolicy( focusPolicy() );
     
 	connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
     } else {
@@ -973,7 +974,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	}
 	qDrawShadePanel( &p, rect(), g, FALSE, 2 );
 
-	if ( hasFocus() )
+	if ( hasFocus() || (d && d->ed && d->ed->hasFocus()) )
 	    p.drawRect( ax - 2, ay - 2, awh+4, sy+sh+4-ay );
 
     } else {					// windows 95 style
@@ -1259,9 +1260,9 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 {
     if ( !event )
 	return TRUE;
-    else if ( object == (QObject *)(d->ed) ) {
+    else if ( object == d->ed ) {
 	if ( event->type() == Event_KeyPress &&
-		    style() == MotifStyle ) {
+	     style() == MotifStyle ) {
 	    int c;
 	    switch( ((QKeyEvent *)event)->key() ) {
 	    case Key_Up:
@@ -1281,7 +1282,12 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    default:
 		break;
 	    }
-	}
+	} else if ( style() == MotifStyle &&
+		    (event->type() == Event_FocusIn ||
+		     event->type() == Event_FocusOut ) ) {
+	    // to get the focus indication right
+	    repaint();
+	}	
     } else if ( d->usingListBox && object == d->listBox ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch( event->type() ) {
@@ -1514,4 +1520,20 @@ void QComboBox::setEnabled( bool enable )
     if ( d && d->ed )
 	d->ed->setEnabled( enable );
     QWidget::setEnabled( enable );
+}
+
+
+/*!
+  Reimplemented for internal purposes.
+*/
+
+void QComboBox::focusInEvent( QFocusEvent * )
+{
+    if ( d && d->ed ) {
+	// ### 2.0 alert!
+	d->ed->setFocusPolicy( focusPolicy() );
+	setFocusPolicy( (QWidget::FocusPolicy)(focusPolicy() &
+					       QWidget::ClickFocus) );
+	d->ed->setFocus();
+    }
 }
