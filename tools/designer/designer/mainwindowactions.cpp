@@ -506,7 +506,7 @@ void MainWindow::setupToolActions()
 	QToolBar *tb2 = new QToolBar( grp, 0, toolBox, FALSE, grp.latin1() );
 	tb2->setFrameStyle( QFrame::NoFrame );
 	tb2->setOrientation( Qt::Vertical );
-	toolBox->addPage( grp, tb2 );
+	toolBox->addPage( tb2, grp );
 
 	if ( grp == "Custom" ) {
 	    if ( !customWidgetMenu )
@@ -581,7 +581,7 @@ void MainWindow::setupToolActions()
 				      toolBox, FALSE, "Custom Widgets" );
 	tb2->setOrientation( Qt::Vertical );
 	tb2->setFrameStyle( QFrame::NoFrame );
-	toolBox->addPage( "Custom Widgets", tb2 );
+	toolBox->addPage( tb2, "Custom Widgets" );
 	customWidgetToolBar2 = tb2;
     }
 

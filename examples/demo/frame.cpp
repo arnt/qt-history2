@@ -91,14 +91,15 @@ void Frame::setCategories( const QPtrList<CategoryInterface> &l )
     dw->setCloseMode( QDockWindow::Always );
 
     toolBox = new QToolBox( dw );
+    toolBox->setPageBackgroundMode( PaletteDark );
     dw->setWidget( toolBox );
 
     dw->setCaption( tr( "Demo Categories" ) );
 
     for ( int i = 0; i < categories.count(); ++i )
-	toolBox->addPage( categories.at(i)->name(),
-			      categories.at(i)->icon(),
-			      createCategoryPage( categories.at(i) ) );
+	toolBox->addPage( createCategoryPage( categories.at(i) ),
+			  categories.at(i)->icon(),
+			  categories.at(i)->name() );
 
     categories.first()->setCurrentCategory( 0 );
 }

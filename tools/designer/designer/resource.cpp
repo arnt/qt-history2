@@ -1700,7 +1700,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 		    ( (QDesignerWidgetStack*)parent )->insertPage( w, v.toInt() );
 	    } else if ( parent->inherits( "QToolBox" ) ) {
 		if ( attrib == "label" )
-		    ( (QDesignerToolBox*)parent )->insertPage( v.toString(), w );
+		    ( (QToolBox*)parent )->insertPage( w, v.toString() );
 	    } else if ( parent->inherits( "QWizard" ) ) {
 		if ( attrib == "title" )
 		    ( (QWizard*)parent )->addPage( w, v.toString() );

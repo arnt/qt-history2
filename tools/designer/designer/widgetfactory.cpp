@@ -936,10 +936,10 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	FormWindow *fw = find_formwindow( parent );
 	QWidget *w = fw ? new QDesignerWidget( fw, tb, "page1" ) :
 		     new QWidget( tb, "page1" );
-	tb->addPage( MainWindow::tr("Page 1"), w );
+	tb->addPage( w, MainWindow::tr("Page 1") );
 	MetaDataBase::addEntry( w );
 	w = fw ? new QDesignerWidget( fw, tb, "page2" ) : new QWidget( tb, "page2" );
-	tb->addPage( MainWindow::tr("Page 2"), w );
+	tb->addPage( w, MainWindow::tr("Page 2") );
 	MetaDataBase::addEntry( tb );
 	MetaDataBase::addEntry( w );
 	return tb;
@@ -1299,6 +1299,8 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "pageLabel", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageIconSet", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageToolTip", TRUE );
+	MetaDataBase::setPropertyChanged( o, "pageBackgroundMode", TRUE );
+	((QToolBox*)o)->setPageBackgroundMode( PaletteDark );
 #ifndef QT_NO_TABLE
     } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
@@ -1730,3 +1732,26 @@ void QDesignerToolBox::setCurrentPage( QWidget *page )
     if ( MainWindow::self->propertyeditor()->widget() == this )
 	MainWindow::self->propertyeditor()->refetchData();
 }
+
+void QDesignerToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
+				   const QString &label, int index )
+{
+    QToolBox::insertPage( page, iconSet, label, index );
+    page->installEventFilter( this );
+}
+
+bool QDesignerToolBox::eventFilter( QObject *o, QEvent *e )
+{
+    if ( e->type() != QEvent::ChildInserted )
+	return QToolBox::eventFilter( o, e );
+    QObject *c = ((QChildEvent*)e)->child();
+    if ( c->isWidgetType() ) {
+	if ( pageBackgroundMode() != NoBackground ) {
+	    QShowEvent se;
+	    showEvent( &se );
+	}
+	c->installEventFilter( this );
+    }
+    return QToolBox::eventFilter( o, e );
+}
+

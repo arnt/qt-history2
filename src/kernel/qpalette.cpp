@@ -1167,6 +1167,11 @@ QColorGroup::ColorRole QPalette::foregroundRoleFromMode( Qt::BackgroundMode mode
 	return QColorGroup::ButtonText;
     case Qt::PaletteBase:
 	return QColorGroup::Text;
+    case Qt::PaletteDark:
+    case Qt::PaletteShadow:
+	return QColorGroup::Light;
+    case Qt::PaletteHighlight:
+	return QColorGroup::HighlightedText;
     case Qt::PaletteBackground:
     default:
 	return QColorGroup::Foreground;

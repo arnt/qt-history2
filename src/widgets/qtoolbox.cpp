@@ -90,45 +90,22 @@ public:
 	QString toolTip;
     };
 
-    QToolBoxPrivate()
+    inline QToolBoxPrivate()
+	: currentPage( 0 ), lastButton( 0 ), pageBackgroundMode( Qt::NoBackground )
 	{
-	    currentPage = 0;
-	    lastButton = 0;
-	    pageList = new QPtrList<Page>;
-	    pageList->setAutoDelete( TRUE );
+	    pageList.setAutoDelete( TRUE );
 	}
 
-    ~QToolBoxPrivate()
-	{
-	    delete pageList;
-	}
 
-    QToolBoxButton *button( QWidget *page )
-	{
-	    QPtrDictIterator<QWidget> it( pages );
-	    while ( it.current() ) {
-		if ( it.current() == page )
-		    return (QToolBoxButton*)it.currentKey();
-		++it;
-	    }
-	    return 0;
-	}
+    QToolBoxButton *button( QWidget *page );
+    Page *page( QWidget *page );
+    void updatePageBackgroundMode();
+    void updateTabs( QToolBox *tb );
 
-    Page *page( QWidget *page )
-	{
-	    QToolBoxButton *b = button( page );
-	    for ( QToolBoxPrivate::Page *c = pageList->first(); c;
-		  c = pageList->next() ) {
-		if ( c->button == b )
-		    return c;
-	    }
-	    return 0;
-	}
-
-    // #### improve that algorithm // at the moment that one finds the
+    // #### improve that algorithm at the moment that one finds the
     // #### first available page, but it really should look in both
     // #### directions and find the closest available page
-    QWidget *findClosestPage( QWidget *page )
+    inline QWidget *findClosestPage( QWidget *page )
 	{
 	    QWidget *p = 0;
 	    QPtrDictIterator<QWidget> it( pages );
@@ -144,24 +121,74 @@ public:
 	}
 
     QPtrDict<QWidget> pages;
-    QPtrList<Page> *pageList;
+    QPtrList<Page> pageList;
     QVBoxLayout *layout;
     QWidget *currentPage;
     QToolBoxButton *lastButton;
+    Qt::BackgroundMode pageBackgroundMode;
 };
+
+QToolBoxPrivate::Page *QToolBoxPrivate::page( QWidget *page )
+{
+    QToolBoxButton *b = button( page );
+    for ( QToolBoxPrivate::Page *c = pageList.first(); c;
+	  c = pageList.next() ) {
+	if ( c->button == b )
+	    return c;
+    }
+    return 0;
+}
+
+QToolBoxButton *QToolBoxPrivate::button( QWidget *page )
+{
+    QPtrDictIterator<QWidget> it( pages );
+    while ( it.current() ) {
+	if ( it.current() == page )
+	    return (QToolBoxButton*)it.currentKey();
+	++it;
+    }
+    return 0;
+}
+
+void QToolBoxPrivate::updatePageBackgroundMode()
+{
+    if ( pageBackgroundMode == Qt::NoBackground || !currentPage )
+	return;
+    QObjectList *l =
+	((QScrollView*)currentPage)->viewport()->queryList( "QWidget" );
+    for ( QObject *o = l->first(); o; o = l->next() )
+	((QWidget*)o)->setBackgroundMode( pageBackgroundMode );
+}
+
+void QToolBoxPrivate::updateTabs( QToolBox *tb )
+{
+    bool after = FALSE;
+    for ( QToolBoxPrivate::Page *c = pageList.first(); c;
+	  c = pageList.next() ) {
+	c->button->setBackgroundMode( (!after ||
+				       pageBackgroundMode == Qt::NoBackground) ?
+				      tb->backgroundMode() : pageBackgroundMode );
+	c->button->update();
+	after = c->button == lastButton;
+    }
+}
+
+
+
 
 
 QSize QToolBoxButton::sizeHint() const
 {
     int ih = 0;
     if ( !ic.isNull() )
-	ih = icon().pixmap( QIconSet::Small, QIconSet::Normal ).height() + 6;
+	ih = ic.pixmap( QIconSet::Small, QIconSet::Normal ).height() + 6;
     return QToolButton::sizeHint().expandedTo( QSize( 0, ih ) );
 }
 
 void QToolBoxButton::drawButton( QPainter *p )
 {
     QStyle::SFlags flags = QStyle::Style_Default;
+    const QColorGroup &cg = colorGroup();
 
     if ( isEnabled() )
 	flags |= QStyle::Style_Enabled;
@@ -169,8 +196,8 @@ void QToolBoxButton::drawButton( QPainter *p )
 	flags |= QStyle::Style_Selected;
     if ( hasFocus() )
 	flags |= QStyle::Style_HasFocus;
-    style().drawControl( QStyle::CE_ToolBoxTab, p, this, rect(),
-			 colorGroup(), flags );
+    style().drawControl( QStyle::CE_ToolBoxTab, p, parentWidget(), rect(),
+			 cg, flags );
 
     int d = 20 + height() - 3;
     QRect tr, ir;
@@ -210,25 +237,38 @@ void QToolBoxButton::drawButton( QPainter *p )
     if ( ih )
 	p->drawPixmap( ir.left(), (height() - ih) / 2,
 		       icon().pixmap( QIconSet::Small, QIconSet::Normal ) );
-    style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, colorGroup(),
-		      isEnabled(), 0, txt );
+    QToolBox *tb = (QToolBox*)parentWidget();
+
+    QColor c = tb->paletteForegroundColor();
+    if ( selected &&
+	 style().styleHint( QStyle::SH_ToolBox_SelectedPageTitleBold ) &&
+	 tb->pageBackgroundMode() != NoBackground )
+	c = cg.color( QPalette::foregroundRoleFromMode( tb->pageBackgroundMode() ) );
+
+    style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, cg,
+		      isEnabled(), 0, txt, -1, &c );
 
     if ( !txt.isEmpty() && hasFocus() )
-	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, colorGroup() );
+	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, cg );
 }
 
-// ### is this needed, seems hacky
-static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
+static QWidget *real_page( QWidget *pg )
 {
-    QObjectList *l = top->queryList( "QWidget" );
-    l->append( top );
-    for ( QObject *o = l->first(); o; o = l->next() )
-	( (QWidget*)o )->setBackgroundMode( bm );
-    delete l;
+    QScrollView *sv = (QScrollView*)pg;
+    if ( !sv )
+	return 0;
+    if ( !sv->viewport()->children() )
+	return 0;
+    return (QWidget*)sv->viewport()->children()->getFirst();
 }
 
-
-#define FIX_PAGE( page ) if ( page && !page->inherits( "QScrollView" ) && page->parentWidget() ) page = page->parentWidget()->parentWidget()
+static QWidget *internal_page( QWidget *pg, const QWidget *tb )
+{
+    QWidget *pp;
+    while ( pg && ( pp = pg->parentWidget() ) && pp != tb )
+	pg = pp;
+    return pg;
+}
 
 /*!
     \class QToolBox
@@ -286,40 +326,25 @@ QToolBox::~QToolBox()
 }
 
 /*!
+  \fn void QToolBox::addPage( QWidget *page, const QString &label )
     \overload
 
     Adds the widget \a page in a new tab at bottom of the toolbox. The
     new tab's label is set to \a label.
 */
-
-void QToolBox::addPage( const QString &label, QWidget *page )
-{
-    addPage( label, QIconSet(), page );
-}
-
 /*!
+  \fn void QToolBox::addPage( QWidget *page, const QIconSet &iconSet,const QString &label )
     Adds the widget \a page in a new tab at bottom of the toolbox. The
     new tab's label is set to \a label, and the \a iconSet is
     displayed to the left of the \a label.
 */
-
-void QToolBox::addPage( const QString &label, const QIconSet &iconSet,
-				QWidget *page )
-{
-    insertPage( label, iconSet, page );
-}
-
 /*!
+    \fn void QToolBox::insertPage( QWidget *page, const QString &label, int index )
     \overload
 
     Inserts the widget \a page in a new tab at position \a index. The
     new tab's label is set to \a label.
 */
-
-void QToolBox::insertPage( const QString &label, QWidget *page, int index )
-{
-    insertPage( label, QIconSet(), page, index );
-}
 
 /*!
     Inserts the widget \a page in a new tab at position \a index. The
@@ -327,22 +352,19 @@ void QToolBox::insertPage( const QString &label, QWidget *page, int index )
     displayed to the left of the \a label.
 */
 
-void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
-				   QWidget *page, int index )
+void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
+			   const QString &label, int index )
 {
-    page->setBackgroundMode( PaletteBackground );
-
     QToolBoxButton *button = new QToolBoxButton( this, label.latin1() );
-    button->setBackgroundMode( (BackgroundMode)style().styleHint( QStyle::SH_ToolBox_PageBackgroundMode, this ) );
     QToolBoxPrivate::Page *c = new QToolBoxPrivate::Page;
     c->button = button;
     c->label = label;
     c->iconSet = iconSet;
     bool needRelayout = FALSE;
     if ( index < 0 || index >= count() ) {
-	d->pageList->append( c );
+	d->pageList.append( c );
     } else {
-	d->pageList->insert( index, c );
+	d->pageList.insert( index, c );
 	needRelayout = TRUE;
     }
 
@@ -353,6 +375,7 @@ void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
     connect( button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
 
     QScrollView *sv = new QScrollView( this );
+    sv->hide();
     sv->setResizePolicy( QScrollView::AutoOneFit );
     sv->addChild( page );
     sv->setFrameStyle( QFrame::NoFrame );
@@ -366,22 +389,12 @@ void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
 	relayout();
     }
 
-    page->show();
     button->show();
 
-    if ( count() == 1 ) {
-	d->currentPage = sv;
-	d->lastButton = button;
-	d->lastButton->setSelected( TRUE );
-	sv->show();
-	// #### is this needed, seems hacky
-	set_background_mode( d->currentPage, 
-			     (BackgroundMode)style().styleHint( QStyle::SH_ToolBox_PageBackgroundMode, this ) );
-    } else {
-	sv->hide();
-    }
+    if ( count() == 1 )
+	setCurrentPage( page );
 
-    updateTabs();
+    d->updateTabs( this );
 }
 
 #ifndef Q_OS_WIN32
@@ -429,8 +442,8 @@ void QToolBox::buttonClicked()
 	int direction = 0;
 
 	QWidgetList buttons;
-	for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
-	      c = d->pageList->next() ) {
+	for ( QToolBoxPrivate::Page *c = d->pageList.first(); c;
+	      c = d->pageList.next() ) {
 	    if ( c->button == tb ) {
 		if ( direction < 0 ) {
 		    buttons.append( c->button );
@@ -471,18 +484,6 @@ void QToolBox::buttonClicked()
     setCurrentPage( page );
 }
 
-void QToolBox::updateTabs()
-{
-    bool after = FALSE;
-    for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
-	  c = d->pageList->next() ) {
-	c->button->setBackgroundMode( !after ? PaletteButton : 
-				      (BackgroundMode)style().styleHint( QStyle::SH_ToolBox_PageBackgroundMode, this ) );
-	c->button->update();
-	after = c->button == d->lastButton;
-    }
-}
-
 /*!
     \property QToolBox::count
     \brief The number of pages contained in the toolbox.
@@ -490,10 +491,10 @@ void QToolBox::updateTabs()
 
 int QToolBox::count() const
 {
-    return d->pageList->count();
+    return d->pageList.count();
 }
 
-void QToolBox::setCurrentPage( int index )
+void QToolBox::setCurrentIndex( int index )
 {
     if ( index < 0 || index >= count() )
 	return;
@@ -508,7 +509,7 @@ void QToolBox::setCurrentPage( int index )
 
 void QToolBox::setCurrentPage( QWidget *page )
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page || d->currentPage == page )
 	return;
 
@@ -523,11 +524,9 @@ void QToolBox::setCurrentPage( QWidget *page )
     if ( d->currentPage )
 	d->currentPage->hide();
     d->currentPage = page;
+    d->updatePageBackgroundMode();
     d->currentPage->show();
-    // #### is this needed, seems hacky
-    set_background_mode( d->currentPage, 
-			 (BackgroundMode)style().styleHint( QStyle::SH_ToolBox_PageBackgroundMode, this ) );
-    updateTabs();
+    d->updateTabs( this );
     qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
     emit currentChanged( page );
 }
@@ -536,8 +535,8 @@ void QToolBox::relayout()
 {
     delete d->layout;
     d->layout = new QVBoxLayout( this );
-    for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
-	  c = d->pageList->next() ) {
+    for ( QToolBoxPrivate::Page *c = d->pageList.first(); c;
+	  c = d->pageList.next() ) {
 	d->layout->addWidget( c->button );
 	d->layout->addWidget( d->pages.find( c->button ) );
     }
@@ -553,7 +552,7 @@ void QToolBox::relayout()
 
 void QToolBox::removePage( QWidget *page )
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return;
 
@@ -566,24 +565,14 @@ void QToolBox::removePage( QWidget *page )
     d->layout->remove( page );
     d->layout->remove( tb );
     d->pages.remove( page );
-    d->pageList->remove( d->page( page ) );
+    d->pageList.remove( d->page( page ) );
 
-    if ( d->pageList->isEmpty() ) {
+    if ( d->pageList.isEmpty() ) {
 	d->lastButton = 0;
 	d->currentPage = 0;
     } else {
-	setCurrentPage( d->pages.find( d->pageList->first()->button ) );
+	setCurrentPage( d->pages.find( d->pageList.first()->button ) );
     }
-}
-
-static QWidget *real_page( QWidget *pg )
-{
-    QScrollView *sv = (QScrollView*)pg;
-    if ( !sv )
-	return 0;
-    if ( !sv->viewport()->children() )
-	return 0;
-    return (QWidget*)sv->viewport()->children()->getFirst();
 }
 
 /*!
@@ -602,7 +591,7 @@ QWidget *QToolBox::currentPage() const
 
 int QToolBox::currentIndex() const
 {
-    return pageIndex( d->currentPage );
+    return indexOf( d->currentPage );
 }
 
 /*!
@@ -611,7 +600,7 @@ int QToolBox::currentIndex() const
 
 QWidget *QToolBox::page( int index ) const
 {
-    QToolBoxPrivate::Page *p = d->pageList->at( index );
+    QToolBoxPrivate::Page *p = d->pageList.at( index );
     if ( !p )
 	return 0;
     QWidget *pg = d->pages.find( p->button );
@@ -624,15 +613,15 @@ QWidget *QToolBox::page( int index ) const
     Returns the index position of page \a page.
 */
 
-int QToolBox::pageIndex( QWidget *page ) const
+int QToolBox::indexOf( QWidget *page ) const
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return -1;
     QToolBoxButton *tb = d->button( page );
     int i = 0;
-    for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
-	  c = d->pageList->next(), ++i ) {
+    for ( QToolBoxPrivate::Page *c = d->pageList.first(); c;
+	  c = d->pageList.next(), ++i ) {
 	if ( c->button == tb )
 	    return i;
     }
@@ -646,7 +635,7 @@ int QToolBox::pageIndex( QWidget *page ) const
 
 void QToolBox::setPageEnabled( QWidget *page, bool enabled )
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return;
     QToolBoxButton *tb = d->button( page );
@@ -682,7 +671,7 @@ void QToolBox::activateClosestPage( QWidget *page )
 
 void QToolBox::setPageLabel( QWidget *page, const QString &label )
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return;
     QToolBoxButton *tb = d->button( page );
@@ -700,7 +689,7 @@ void QToolBox::setPageLabel( QWidget *page, const QString &label )
 
 void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return;
     QToolBoxButton *tb = d->button( page );
@@ -718,7 +707,7 @@ void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
 
 void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return;
     QToolBoxButton *tb = d->button( page );
@@ -737,7 +726,7 @@ void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
 
 bool QToolBox::isPageEnabled( QWidget *page ) const
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return FALSE;
     QToolBoxButton *tb = d->button( page );
@@ -750,7 +739,7 @@ bool QToolBox::isPageEnabled( QWidget *page ) const
 
 QString QToolBox::pageLabel( QWidget *page ) const
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return QString::null;
     QToolBoxPrivate::Page *c = d->page( page );
@@ -763,7 +752,7 @@ QString QToolBox::pageLabel( QWidget *page ) const
 
 QIconSet QToolBox::pageIconSet( QWidget *page ) const
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return QIconSet();
     QToolBoxPrivate::Page *c = d->page( page );
@@ -776,11 +765,36 @@ QIconSet QToolBox::pageIconSet( QWidget *page ) const
 
 QString QToolBox::pageToolTip( QWidget *page ) const
 {
-    FIX_PAGE( page );
+    page = internal_page( page, this );
     if ( !page )
 	return QString::null;
     QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->toolTip : QString::null;
+}
+
+/*!
+  \property QToolBox::pageBackgroundMode
+  \brief The background mode in which the current page should be displayed.
+*/
+
+void QToolBox::setPageBackgroundMode( BackgroundMode bm )
+{
+    if ( d->pageBackgroundMode == bm )
+	return;
+    d->pageBackgroundMode = bm;
+    d->updatePageBackgroundMode();
+    d->updateTabs( this );
+}
+
+Qt::BackgroundMode QToolBox::pageBackgroundMode() const
+{
+    return d->pageBackgroundMode;
+}
+
+void QToolBox::showEvent( QShowEvent *e )
+{
+    d->updatePageBackgroundMode();
+    QWidget::showEvent( e );
 }
 
 #include "qtoolbox.moc"

@@ -295,7 +295,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, objName );
 		QString label = DomTool::readAttribute( n, "label", "" ).toString();
-		out << indent << objName << "->addPage( \"" << label << "\", " << page << " );" << endl;
+		out << indent << objName << "->addPage( \"" << page << "\", " << label << " );" << endl;
 	    }
 	}
      } else if ( objClass != "QToolBar" && objClass != "QMenuBar" ) { // standard widgets

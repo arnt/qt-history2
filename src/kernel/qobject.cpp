@@ -2131,8 +2131,6 @@ QMetaObject* QObject::staticQtMetaObject()
     };
 
     static const QMetaEnum::Item enum_3[] = {
-	{ "FixedColor",  (int) Qt::FixedColor },
-	{ "FixedPixmap",  (int) Qt::FixedPixmap },
 	{ "NoBackground",  (int) Qt::NoBackground },
 	{ "PaletteForeground",  (int) Qt::PaletteForeground },
 	{ "PaletteButton",  (int) Qt::PaletteButton },
@@ -2149,8 +2147,7 @@ QMetaObject* QObject::staticQtMetaObject()
 	{ "PaletteHighlightedText",  (int) Qt::PaletteHighlightedText },
 	{ "PaletteButtonText",  (int) Qt::PaletteButtonText },
 	{ "PaletteLink", (int) Qt::PaletteLink },
-	{ "PaletteLinkVisited", (int) Qt::PaletteLinkVisited },
-	{ "X11ParentRelative",  (int) Qt::X11ParentRelative }
+	{ "PaletteLinkVisited", (int) Qt::PaletteLinkVisited }
     };
 
     static const QMetaEnum::Item enum_4[] = {

@@ -63,6 +63,7 @@
 #include <limits.h>
 #include <qpixmap.h>
 #include "../widgets/qtitlebar_p.h"
+#include <qtoolbox.h>
 
 /*!
     \class QCommonStyle qcommonstyle.h
@@ -804,10 +805,12 @@ void QCommonStyle::drawControl( ControlElement element,
 	    a.setPoint( 5, r.width() - 1, r.height() + 1 );
 	    a.setPoint( 6, -1, r.height() + 1 );
 
-	    if ( flags & Style_Selected )
-		p->setBrush( cg.light() );
+	    const QToolBox *tb = (const QToolBox*)widget;
+
+	    if ( flags & Style_Selected && tb->currentPage() )
+		p->setBrush( tb->currentPage()->paletteBackgroundColor() );
 	    else
-		p->setBrush( cg.brush( QColorGroup::Background ) );
+		p->setBrush( tb->paletteBackgroundColor() );
 
 	    p->setPen( cg.mid().dark( 150 ) );
 	    p->drawPolygon( a );
@@ -946,7 +949,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		drawPrimitive(pe, p, rect, cg, flags, opt);
 	    } else {
-		QColor btext = cg.buttonText();
+		QColor btext = toolbutton->paletteForegroundColor();
 
 		if (toolbutton->iconSet().isNull() &&
 		    ! toolbutton->text().isNull() &&
@@ -1481,6 +1484,10 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 
+	    QColorGroup c = cg;
+	    if ( toolbutton->backgroundMode() != PaletteButton )
+		c.setBrush( QColorGroup::Button,
+			    toolbutton->paletteBackgroundColor() );
 	    QRect button, menuarea;
 	    button   = visualRect( querySubControlMetrics(control, widget, SC_ToolButton, opt), widget );
 	    menuarea = visualRect( querySubControlMetrics(control, widget, SC_ToolButtonMenu, opt), widget );
@@ -1494,9 +1501,9 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		mflags |= Style_Down;
 
 	    if (controls & SC_ToolButton) {
-		if (bflags & (Style_Down | Style_On | Style_Raised))
-		    drawPrimitive(PE_ButtonTool, p, button, cg, bflags, opt);
-		else if ( toolbutton->parentWidget() &&
+		if (bflags & (Style_Down | Style_On | Style_Raised)) {
+		    drawPrimitive(PE_ButtonTool, p, button, c, bflags, opt);
+		} else if ( toolbutton->parentWidget() &&
 			  toolbutton->parentWidget()->backgroundPixmap() &&
 			  ! toolbutton->parentWidget()->backgroundPixmap()->isNull() ) {
 		    QPixmap pixmap =
@@ -1508,14 +1515,14 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 	    if (controls & SC_ToolButtonMenu) {
 		if (mflags & (Style_Down | Style_On | Style_Raised))
-		    drawPrimitive(PE_ButtonDropDown, p, menuarea, cg, mflags, opt);
-		drawPrimitive(PE_ArrowDown, p, menuarea, cg, mflags, opt);
+		    drawPrimitive(PE_ButtonDropDown, p, menuarea, c, mflags, opt);
+		drawPrimitive(PE_ArrowDown, p, menuarea, c, mflags, opt);
 	    }
 
 	    if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
 		QRect fr = toolbutton->rect();
 		fr.addCoords(3, 3, -3, -3);
-		drawPrimitive(PE_FocusRect, p, fr, cg);
+		drawPrimitive(PE_FocusRect, p, fr, c);
 	    }
 
 	    break;
@@ -2567,10 +2574,6 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 
     case SH_ToolBox_SelectedPageTitleBold:
 	ret = 1;
-	break;
-
-    case SH_ToolBox_PageBackgroundMode:
-	ret = PaletteBase;
 	break;
 
     default:

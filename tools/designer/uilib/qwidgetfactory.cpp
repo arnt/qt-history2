@@ -1684,7 +1684,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 			( (QWidgetStack*)parent )->addWidget( w, v.toInt() );
 		} else if ( parent->inherits( "QToolBox" ) ) {
 		    if ( attrib == "label" )
-			( (QToolBox*)parent )->addPage( v.toString(), w );
+			( (QToolBox*)parent )->addPage( w, v.toString() );
 		} else if ( parent->inherits( "QWizard" ) ) {
 		    if ( attrib == "title" )
 			( (QWizard*)parent )->addPage( w, v.toString() );

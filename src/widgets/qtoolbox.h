@@ -47,43 +47,46 @@ class QWidgetList;
 class Q_EXPORT QToolBox : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( int currentPage READ currentIndex WRITE setCurrentPage )
+    Q_PROPERTY( int currentPage READ currentIndex WRITE setCurrentIndex )
     Q_PROPERTY( int count READ count )
+    Q_PROPERTY( BackgroundMode pageBackgroundMode READ pageBackgroundMode WRITE setPageBackgroundMode )
 
 public:
     QToolBox( QWidget *parent = 0, const char *name = 0 );
     ~QToolBox();
 
-    virtual void addPage( const QString &label, QWidget *page );
-    virtual void addPage( const QString &label, const QIconSet &iconSet,
-			  QWidget *page );
-    virtual void insertPage( const QString &label, QWidget *page, int index = -1 );
-    virtual void insertPage( const QString &label, const QIconSet &iconSet,
-			     QWidget *page, int index = -1 );
-
+    void addPage( QWidget *page, const QString &label );
+    void addPage( QWidget *page, const QIconSet &iconSet, const QString &label );
+    void insertPage( QWidget *page, const QString &label, int index = -1 );
+    virtual void insertPage( QWidget *page, const QIconSet &iconSet,
+			     const QString &label, int index = -1 );
+    void setPageEnabled( QWidget *page, bool enabled );
     bool isPageEnabled( QWidget *page ) const;
 
+    void setPageLabel( QWidget *page, const QString &label );
     QString pageLabel( QWidget *page ) const;
 
+    void setPageIconSet( QWidget *page, const QIconSet &iconSet );
     QIconSet pageIconSet( QWidget *page ) const;
 
+    void setPageToolTip( QWidget *page, const QString &toolTip );
     QString pageToolTip( QWidget *page ) const;
 
     QWidget *currentPage() const;
     int currentIndex() const;
     QWidget *page( int index ) const;
-    int pageIndex( QWidget *page ) const;
+    int indexOf( QWidget *page ) const;
+
+    void setPageBackgroundMode( BackgroundMode bm );
+    BackgroundMode pageBackgroundMode() const;
+
+    virtual void setCurrentPage( QWidget *page );
+    virtual void removePage( QWidget *page );
 
     int count() const;
 
 public slots:
-    virtual void setCurrentPage( int index );
-    virtual void setCurrentPage( QWidget *page );
-    virtual void setPageEnabled( QWidget *page, bool enabled );
-    virtual void removePage( QWidget *page );
-    virtual void setPageLabel( QWidget *page, const QString &label );
-    virtual void setPageIconSet( QWidget *page, const QIconSet &iconSet );
-    virtual void setPageToolTip( QWidget *page, const QString &toolTip );
+    void setCurrentIndex( int index );
 
 signals:
     void currentChanged( QWidget *page );
@@ -91,8 +94,10 @@ signals:
 private slots:
     void buttonClicked();
 
+protected:
+    void showEvent( QShowEvent *e );
+
 private:
-    void updateTabs();
     void relayout();
     void activateClosestPage( QWidget *page );
 
@@ -100,5 +105,15 @@ private:
     QToolBoxPrivate *d;
 
 };
+
+
+inline void QToolBox::addPage( QWidget *page, const QString &label )
+{ addPage( page, QIconSet(), label ); }
+inline void QToolBox::addPage( QWidget *page, const QIconSet &iconSet,
+			       const QString &label )
+{ insertPage( page, iconSet, label ); }
+inline void QToolBox::insertPage( QWidget *page, const QString &label, int index )
+{ insertPage( page, QIconSet(), label, index ); }
+
 
 #endif

@@ -36,7 +36,6 @@ void WidgetAction::addedTo( QWidget *w, QWidget *container )
 	w->setStyle( windowsStyle );
 	( (QToolButton*)w )->setUsesTextLabel( TRUE );
 	( (QToolButton*)w )->setTextPosition( QToolButton::Right );
-	( (QToolButton*)w )->setBackgroundMode( container->backgroundMode() );
     }
 }
 

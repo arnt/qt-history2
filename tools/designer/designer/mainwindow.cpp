@@ -432,6 +432,7 @@ void MainWindow::setupToolbox()
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockLeft );
     toolBox = new QToolBox( dw );
+    toolBox->setPageBackgroundMode( PaletteLight );
     dw->setWidget( toolBox );
     dw->setFixedExtentWidth( 160 );
     dw->setCaption( tr( "Toolbox" ) );
@@ -441,7 +442,7 @@ void MainWindow::setupToolbox()
     commonWidgetsToolBar = new QToolBar( "Common Widgets", 0, toolBox, FALSE, "Common Widgets" );
     commonWidgetsToolBar->setFrameStyle( QFrame::NoFrame );
     commonWidgetsToolBar->setOrientation( Qt::Vertical );
-    toolBox->addPage( "Common Widgets", commonWidgetsToolBar );
+    toolBox->addPage( commonWidgetsToolBar, "Common Widgets" );
 }
 
 void MainWindow::setupRMBMenus()
@@ -2212,7 +2213,7 @@ void MainWindow::readConfig()
 	QString s = config.readEntry( keybase + "LastToolPage" );
 	for ( int i = 0; i < toolBox->count(); ++i ) {
 	    if ( toolBox->pageLabel( toolBox->page( i ) ) == s ) {
-		toolBox->setCurrentPage( i );
+		toolBox->setCurrentIndex( i );
 		break;
 	    }
 	}

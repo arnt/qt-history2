@@ -2307,7 +2307,7 @@ void AddToolBoxPageCommand::execute()
 {
     if ( index == -1 )
 	index = toolBox->count();
-    toolBox->insertPage( toolBoxLabel,toolBoxPage, index );
+    toolBox->insertPage( toolBoxPage, toolBoxLabel, index );
     toolBox->setCurrentPage( toolBoxPage );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
@@ -2341,7 +2341,7 @@ void DeleteToolBoxPageCommand::execute()
 
 void DeleteToolBoxPageCommand::unexecute()
 {
-    toolBox->insertPage( toolBoxLabel, toolBoxPage, index );
+    toolBox->insertPage( toolBoxPage, toolBoxLabel, index );
     toolBox->setCurrentPage( toolBoxPage );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();

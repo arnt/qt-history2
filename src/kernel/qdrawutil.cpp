@@ -309,12 +309,20 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
     	qWarning( "qDrawShadePanel() Invalid parameters." );
 #endif
     }
+    QColor shade = g.dark();
+    QColor light = g.light();
+    if ( fill ) {
+	if ( fill->color() == shade )
+	    shade = g.shadow();
+	if ( fill->color() == light )
+	    light = g.midlight();
+    }
     QPen oldPen = p->pen();			// save pen
     QPointArray a( 4*lineWidth );
     if ( sunken )
-	p->setPen( g.dark() );
+	p->setPen( shade );
     else
-	p->setPen( g.light() );
+	p->setPen( light );
     int x1, y1, x2, y2;
     int i;
     int n = 0;
@@ -334,9 +342,9 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
     p->drawLineSegments( a );
     n = 0;
     if ( sunken )
-	p->setPen( g.light() );
+	p->setPen( light );
     else
-	p->setPen( g.dark() );
+	p->setPen( shade );
     x1 = x;
     y1 = y2 = y+h-1;
     x2 = x+w-1;
@@ -449,7 +457,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 		       g.shadow(), g.light(), g.dark(), g.button(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.light(), g.shadow(), g.midlight(), g.dark(), fill );
+		       g.light(), g.shadow(), g.button(), g.dark(), fill );
 }
 
 /*!

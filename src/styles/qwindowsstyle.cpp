@@ -1828,10 +1828,6 @@ int QWindowsStyle::styleHint( StyleHint hint,
 	ret = 0;
 	break;
 
-    case SH_ToolBox_PageBackgroundMode:
-	ret = PaletteBackground;
-	break;
-
     default:
 	ret = QCommonStyle::styleHint(hint, widget, opt, returnData);
 	break;
