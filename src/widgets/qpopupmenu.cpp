@@ -1878,7 +1878,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
 		int i = s.find( '&' );
-		if ( i >= 0 ) {
+		while ( i >= 0 && i < s.length() - 1 ) {
 		    if ( s[i+1].upper() == c ) {
 			ok_key = TRUE;
 			clashCount++;
@@ -1888,6 +1888,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 			    currentSelected = m;
 			else if ( !firstAfterCurrent && currentSelected )
 			    firstAfterCurrent = m;
+			break;
+		    } else if ( s[i+1] == '&' ) {
+			i = s.find( '&', i+2 );
+		    } else {
+			break;
 		    }
 		}
 	    }
