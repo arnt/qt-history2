@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.2 1997/03/24 17:15:39 hanord Exp $
+** $Id: examples.doc,v 2.3 1997/03/24 17:22:47 aavit Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.2 1997/03/24 17:15:39 hanord Exp $";
+static char ident[] = "$Id: examples.doc,v 2.3 1997/03/24 17:22:47 aavit Exp $";
 #endif
 
 
@@ -134,6 +134,18 @@ cursor is on.
   <h1 align=center>Show Image</h1>
 
   This example reads and displays an image.
+*/
+
+
+/*! \example table/table.cpp
+
+  <h1 align=center>Table</h1>
+
+  The table program displays a spreadsheet-like table. It is an example of
+  how to inherit the QTableView widget for presentations of 2D data arrays.
+
+  Left-click the mouse to set a current cell. Press the arrow buttons to
+  move the current mark around.
 */
 
 
