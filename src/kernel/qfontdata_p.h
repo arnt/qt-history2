@@ -167,6 +167,7 @@ public:
     int leading() const { return info->leading; }
     int maxWidth() const { return info->widMax; }
 
+    static short currentFStyle;
     static short currentFnum;
     static int currentFsize;
     static TextEncoding currentEncoding;

@@ -43,6 +43,7 @@ void qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
     delete buf;
 }
 
+short QFontStruct::currentFStyle = normal;
 short QFontStruct::currentFnum = 0;
 int QFontStruct::currentFsize = 0;
 TextEncoding QFontStruct::currentEncoding = 0;
@@ -196,26 +197,39 @@ void QFontPrivate::macSetFont(QPaintDevice *v)
 	Q_ASSERT(0); //we need to figure out if this can really happen
     }
 
-    TextSize(request.pointSize / 10);
-    short fnum;
-    
+    //style
+    QFontStruct::currentFStyle = normal;
+    if(request.italic)
+	QFontStruct::currentFStyle |= italic;
+    if(request.underline) 
+	QFontStruct::currentFStyle |= underline;
+    //strikeout? FIXME
+    if(request.weight == QFont::Bold)
+	QFontStruct::currentFStyle |= bold;
+
+    //size
+    QFontStruct::currentFsize = request.pointSize / 10;
+
+    //font
     Str255 str;
     // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
     TextEncoding encoding = CreateTextEncoding( kTextEncodingMacJapanese,
         kTextEncodingDefaultVariant, kTextEncodingDefaultFormat );
     qstring_to_pstring( request.family, request.family.length(), str, encoding );
-    GetFNum(str, &fnum);
+    GetFNum(str, &QFontStruct::currentFnum);
 
-    TextFont(fnum);
-    QFontStruct::currentFnum = fnum;
-    QFontStruct::currentFsize = request.pointSize / 10;
-    if (UpgradeScriptInfoToTextEncoding( FontToScript( fnum ), 
+    //actually set things now
+    TextFont(QFontStruct::currentFnum);
+    TextSize(QFontStruct::currentFsize);
+    TextFace(QFontStruct::currentFStyle);
+
+    if (UpgradeScriptInfoToTextEncoding( FontToScript( QFontStruct::currentFnum ), 
         kTextLanguageDontCare, kTextRegionDontCare, NULL,
 	&QFontStruct::currentEncoding ) != noErr)
         Q_ASSERT(0);
 
     if(fin)
-	fin->fnum = fnum;
+	fin->fnum = QFontStruct::currentFnum;
 }
 
 void QFontPrivate::drawText( QString s, int len )
