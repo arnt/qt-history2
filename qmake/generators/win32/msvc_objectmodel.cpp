@@ -1813,12 +1813,17 @@ void VCFilter::addMOCstage(QTextStream &, QString filename)
     if(mocOutput.isEmpty())
         return;
 
+    QStringList defines = Project->qmakeProject()->variables()["DEFINES"];
+    for (int i=0; i<defines.size(); ++i)
+        defines[i] = "-D" + defines[i];
+
     CustomBuildTool = VCCustomBuildTool();
     useCustomBuildTool = true;
     CustomBuildTool.Description = "Moc&apos;ing " + filename + "...";
     QString mocApp = Project->var("QMAKE_MOC");
     CustomBuildTool.CommandLine += (mocApp + " "
-                                + filename + " -o " + mocOutput);
+                                    + defines.join(" ") + " "
+                                    + filename + " -o " + mocOutput);
     CustomBuildTool.AdditionalDependencies = mocApp;
     CustomBuildTool.Outputs += mocOutput;
 }

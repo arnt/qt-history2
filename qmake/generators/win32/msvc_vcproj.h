@@ -47,6 +47,8 @@ public:
     bool usePCH;
     QString mocFile(const QString &file) { return Win32MakefileGenerator::mocFile(file); }
 
+    QMakeProject *qmakeProject() { return project; }
+
 protected:
     virtual bool openOutput(QFile &file) const;
     virtual void processPrlVariable(const QString &, const QStringList &);
