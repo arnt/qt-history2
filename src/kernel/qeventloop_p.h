@@ -155,8 +155,6 @@ public:
 #ifdef Q_WS_WIN
     // pending socket notifiers list
     QList<QSockNot *> sn_pending_list;
-    static TimerVec  *timerVec;		// timer vector
-    static TimerDict *timerDict;	// timer dict
 #endif // Q_WS_WIN
 
 };
