@@ -1695,13 +1695,8 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     // If the listview is in "listbox-mode", the items are as wide as the view.
     if (!wrap && movement == QListView::Static) {
         if (flow == QListView::TopToBottom) {
-            int w = qMax(contentsSize.width(), viewport->width());
-            if (w > result.width())
-                result.setWidth(w);
-        } else {
-            int h = qMax(contentsSize.height(), viewport->height());
-            if (h > result.height())
-                result.setHeight(h);
+            result.setRight(qMax(contentsSize.width(), viewport->width())-1);
+            result.setLeft(0);
         }
     }
     return result;
