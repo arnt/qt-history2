@@ -23,7 +23,8 @@
 WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
       m_defaultMargin(0), m_defaultSpacing(0),
-      refreshOut(&m_delayedInitialization, IO_WriteOnly)
+      refreshOut(&m_delayedInitialization, IO_WriteOnly),
+      actionOut(&m_delayedActionInitialization, IO_WriteOnly)
 {
     this->uic = uic;
 }
@@ -88,6 +89,9 @@ void WriteInitialization::accept(DomUI *node)
     if (node->elementTabStops())
         accept(node->elementTabStops());
 
+    if (m_delayedActionInitialization.size())
+        output << "\n" << m_delayedActionInitialization;
+
     output << option.indent << "refreshUi(" << varName << ");\n";
 
     if (option.autoConnection)
@@ -149,6 +153,10 @@ void WriteInitialization::accept(DomWidget *node)
 
     writeProperties(varName, className, node->elementProperty());
 
+    if (uic->customWidgetsInfo()->extends(className, "QMenu") && parentWidget.size()) {
+        initializeMenu(node, parentWidget);
+    }
+
     if (node->elementLayout().isEmpty())
         m_layoutChain.push(0);
 
@@ -196,7 +204,6 @@ void WriteInitialization::accept(DomWidget *node)
 
     } else if (uic->customWidgetsInfo()->extends(parentClass, "QMenuBar")
             || uic->customWidgetsInfo()->extends(parentClass, "QMenu") && uic->customWidgetsInfo()->extends(className, "QMenu")) {
-        output << option.indent << varName << "Action = " << parentWidget << "->addMenu(" << trCall(title, className) << ", " << varName << ");\n";
         refreshOut << option.indent << varName << "Action->setText(" << trCall(title, className) << ");\n";
     }
 
@@ -399,12 +406,12 @@ void WriteInitialization::accept(DomActionRef *node)
             return;
         } else {
             // separator is always reserved!
-            output << option.indent << varName << "->addSeparator();\n";
+            actionOut << option.indent << varName << "->addSeparator();\n";
             return;
         }
     }
 
-    output << option.indent << varName << "->addAction(" << node->attributeName() << ");\n";
+    actionOut << option.indent << varName << "->addAction(" << node->attributeName() << ");\n";
 }
 
 void WriteInitialization::writeProperties(const QString &varName, const QString &className,
@@ -1000,4 +1007,18 @@ void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
     output << option.indent << "}\n";
 }
 
+void WriteInitialization::initializeMenu(DomWidget *w, const QString &parentWidget)
+{
+    QHash<QString, DomProperty*> attributes = propertyMap(w->elementAttribute());
+
+    QString title = QLatin1String("Menu");
+    if (attributes.contains("title"))
+        title = attributes.value("title")->elementString();
+
+    QString varName = driver->findOrInsertWidget(w);
+    output << option.indent << varName << "Action = new QAction("
+           << trCall(title, w->attributeClass())
+           << ", " << varName
+           << ", " << parentWidget << ");\n";
+}
 

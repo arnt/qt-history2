@@ -73,8 +73,9 @@ private:
     QString translate(const QString &text, const QString &className=QString::null) const;
 
 //
-// item views
+// special initialization
 //
+    void initializeMenu(DomWidget *w, const QString &parentWidget);
     void initializeListBox(DomWidget *w);
     void initializeIconView(DomWidget *w);
     void initializeListView(DomWidget *w);
@@ -116,6 +117,9 @@ private:
 
     QString m_delayedInitialization;
     QTextStream refreshOut;
+
+    QString m_delayedActionInitialization;
+    QTextStream actionOut;
 };
 
 

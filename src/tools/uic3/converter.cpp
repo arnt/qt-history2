@@ -370,7 +370,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             || (className.endsWith("IconView") && className != QLatin1String("QIconView"))) // ### Q3IconView??
         candidateCustomWidgets.insert(className, true);
 
-    bool isMenuBar = (className == QLatin1String("QMenuBar"));
+    bool isMenu = (className == QLatin1String("QMenuBar") || className == QLatin1String("QMenu"));
 
     ui_widget->setAttributeClass(className);
 
@@ -430,9 +430,10 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomColumn *column = new DomColumn();
             column->read(e);
             ui_column_list.append(column);
-        } else if (isMenuBar && t == QLatin1String("item")) {
+        } else if (isMenu && t == QLatin1String("item")) {
             QString text = e.attribute("text");
             QString name = e.attribute("name");
+            QString accel = e.attribute("accel");
 
             QList<DomProperty*> properties;
             QList<DomProperty*> attributes;
@@ -453,6 +454,11 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             menu->setElementProperty(properties);
             menu->setElementAttribute(attributes);
             ui_child_list.append(menu);
+
+            DomActionRef *a = new DomActionRef();
+            a->setAttributeName(name + QLatin1String("Action"));
+            ui_action_list.append(a);
+
         } else if (t == QLatin1String("item")) {
             DomItem *item = new DomItem();
             item->read(e);
