@@ -39,9 +39,9 @@
 
 #include <qtextstream.h>
 #include <qstring.h>
-#include "makefile.h"
+#include "winmakefile.h"
 
-class NmakeMakefileGenerator : public MakefileGenerator
+class NmakeMakefileGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
     void writeNmakeParts(QTextStream &);

@@ -41,7 +41,7 @@
 #include <stdlib.h>
 #include <qdir.h>
 
-NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
+NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
     
 }
@@ -50,8 +50,16 @@ bool
 NmakeMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
-    writeNmakeParts(t);
-    return MakefileGenerator::writeMakefile(t);
+    if(project->variables()["TEMPLATE"].first() == "app" || 
+       project->variables()["TEMPLATE"].first() == "lib") {
+	writeNmakeParts(t);
+	return MakefileGenerator::writeMakefile(t);
+    }	
+    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+	writeSubDirs(t);
+	return TRUE; 
+    }
+    return FALSE;
 }
 
 void
@@ -238,8 +246,12 @@ NmakeMakefileGenerator::init()
 	} else {
 	    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT"];
 	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty() ) {
-//		my $qtver =FindHighestLibVersion($ENV{"QTDIR"} . "/lib", "qt");
-//		project->variables()["TMAKE_LIBS /= s/qt.lib/qt${qtver}.lib/"];
+		int hver = findHighestVersion(QString(getenv("QTDIR")) + "/lib", "qt");
+		if(hver != -1) {
+		    QString ver;
+		    ver.sprintf("qt%d.lib", hver);
+		    project->variables()["TMAKE_LIBS"].first().replace(QRegExp("qt\\.lib"), ver);
+		}
 		if ( !project->isActiveConfig("dll") ) {
 		    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT_DLL"];
 		}

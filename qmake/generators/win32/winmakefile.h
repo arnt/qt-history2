@@ -34,27 +34,22 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __DSPMAKE_H__
-#define __DSPMAKE_H__
+#ifndef __WINMAKEFILE_H__
+#define __WINMAKEFILE_H__
 
-#include <qtextstream.h>
-#include <qstring.h>
-#include "winmakefile.h"
+#include "makefile.h"
 
-class DspMakefileGenerator : public Win32MakefileGenerator
+class Win32MakefileGenerator : public MakefileGenerator
 {
-    bool init_flag;
-    void writeHeader(QTextStream &);	
-    bool writeDspParts(QTextStream &);
-
-    bool writeMakefile(QTextStream &);
-    QString findTemplate(QString file);
-    void init();
+protected:
+    virtual void writeSubDirs(QTextStream &t);
+    int findHighestVersion(const QString &dir, const QString &stem);
 
 public:
-    DspMakefileGenerator(QMakeProject *p);
-    ~DspMakefileGenerator() { }
-
+    Win32MakefileGenerator(QMakeProject *p);
+    ~Win32MakefileGenerator() { }
 };
 
-#endif /* __DSPMAKE_H__ */
+
+
+#endif /* __WINMAKEFILE_H__ */

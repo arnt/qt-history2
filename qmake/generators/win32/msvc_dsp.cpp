@@ -41,13 +41,28 @@
 #include <qdir.h>
 #include <stdlib.h>
 
-DspMakefileGenerator::DspMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
+DspMakefileGenerator::DspMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
     
 }
 
 bool
 DspMakefileGenerator::writeMakefile(QTextStream &t)
+{
+    if(project->variables()["TEMPLATE"].first() == "vcapp" || 
+       project->variables()["TEMPLATE"].first() == "vclib") {
+	writeDspParts(t);
+	return MakefileGenerator::writeMakefile(t);
+    }	
+    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+	writeSubDirs(t);
+	return TRUE; 
+    }
+    return FALSE;
+}
+
+bool
+DspMakefileGenerator::writeDspParts(QTextStream &t)
 {
     QString dspfile;
     if ( !project->variables()["DSP_TEMPLATE"].isEmpty() ) {
@@ -179,6 +194,7 @@ DspMakefileGenerator::writeMakefile(QTextStream &t)
     }
     t << endl;
     file.close();
+    return TRUE;
 }
 
 
@@ -242,13 +258,13 @@ DspMakefileGenerator::init()
 	} else {
 	    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT"];
 	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty() ) {
-//		my $qtver =FindHighestLibVersion($ENV{"QTDIR"} . "/lib", "qt");
-//		if ( project->isActiveConfig("thread") ) {
-//		    project->variables()["TMAKE_LIBS /= s/qt.lib/qt-mt${qtver}.lib/"];
-//		} else {
-//		    project->variables()["TMAKE_LIBS /= s/qt.lib/qt${qtver}.lib/"];
-//		}
-		if ( !project->isActiveConfig("dll") ) {
+		int hver = findHighestVersion(QString(getenv("QTDIR")) + "/lib", "qt");
+		if(hver != -1) {
+		    QString ver;
+		    ver.sprintf("qt%d%s.lib", hver, (project->isActiveConfig("thread") ? "-mt" : ""));
+		    project->variables()["TMAKE_LIBS"].first().replace(QRegExp("qt\\.lib"), ver);
+		}
+		if ( project->isActiveConfig("dll") ) {
 		    project->variables()["TMAKE_LIBS"] +=project->variables()["TMAKE_LIBS_QT_DLL"];
 		}
 	    }

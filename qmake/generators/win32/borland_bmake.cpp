@@ -41,7 +41,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-BorlandMakefileGenerator::BorlandMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
+BorlandMakefileGenerator::BorlandMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
     
 }
@@ -56,7 +56,7 @@ BorlandMakefileGenerator::writeMakefile(QTextStream &t)
 	return MakefileGenerator::writeMakefile(t);
     }	
     else if(project->variables()["TEMPLATE"].first() == "subdirs") {
-	writeSubdirs(t);
+	writeSubDirs(t);
 	return TRUE; 
     }
     return FALSE;
@@ -150,56 +150,6 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << "-del $(TARGET)" << "\n\t"
       << varGlue("TMAKE_CLEAN","-del ","\n\t-del ","") << "\n\t"
       << varGlue("CLEAN_FILES","-del ","\n\t-del ","") << endl << endl;
-}
-
-void
-BorlandMakefileGenerator::writeSubdirs(QTextStream &t)
-{
-    t << "MAKEFILE=	" << var("MAKEFILE") << endl;
-    t << "TMAKE =	" << var("TMAKE") << endl;
-    t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
-
-    t << "all: $(SUBDIRS)" << endl << endl;
-
-    QStringList &sdirs = project->variables()["SUBDIRS]"];
-	QStringList::Iterator sdirit;
-
-    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
-	t << (*sdirit) << ":";
-	if(project->variables()["TMAKE_NOFORCE"].isEmpty())
-	    t << " FORCE";
-	t << "\n\t"
-	  << "cd " << (*sdirit) << "\n\t"
-	  << "$(MAKE)" << "\n\t"
-	  << "@cd .." << endl << endl;
-    }
-
-    t << "qmake: " << "\n\t"
-      << "qmake " << project->projectFile();
-    if (Option::output.name())
-	t << " -o " << Option::output.name();
-    t << endl << endl;
-
-    t << "tmake_all:";
-    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) { 
-	t << "\n\t" 
-	  << "cd " << (*sdirit) << "\n\t"
-	  << "$(TMAKE) " << (*sdirit) << ".pro -o $(MAKEFILE)" << "\n\t"
-	  << "@cd ..";
-    }
-    t << endl << endl;
-
-    t << "clean:";
-    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) { 
-	t << "\n\t"
-	  << "cd " << (*sdirit) << "\n\t"
-	  << "$(MAKE) clean" << "\n\t"
-	  << "@cd ..";
-    }
-    t << endl << endl;
-
-    if(!project->variables()["TMAKE_NOFORCE"].isEmpty())
-	t << "FORCE:" << endl << endl;
 }
 
 void
@@ -303,8 +253,12 @@ BorlandMakefileGenerator::init()
 	} else {
 	    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT"];
 	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty() ) {
-//		my $qtver =FindHighestLibVersion($ENV{"QTDIR"} . "/lib", "qt");
-//		project->variables()["TMAKE_LIBS /= s/qt.lib/qt${qtver}.lib/"];
+		int hver = findHighestVersion(QString(getenv("QTDIR")) + "/lib", "qt");
+		if(hver != -1) {
+		    QString ver;
+		    ver.sprintf("qt%d.lib", hver);
+		    project->variables()["TMAKE_LIBS"].first().replace(QRegExp("qt\\.lib"), ver);
+		}
 		if ( !project->isActiveConfig("dll") ) {
 		    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT_DLL"];
 		}

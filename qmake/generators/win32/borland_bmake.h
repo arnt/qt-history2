@@ -39,13 +39,12 @@
 
 #include <qtextstream.h>
 #include <qstring.h>
-#include "makefile.h"
+#include "winmakefile.h"
 
-class BorlandMakefileGenerator : public MakefileGenerator
+class BorlandMakefileGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
     void writeBorlandParts(QTextStream &);
-    void writeSubdirs(QTextStream &);
 
     bool writeMakefile(QTextStream &);
     void init();
