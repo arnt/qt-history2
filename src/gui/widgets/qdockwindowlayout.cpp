@@ -816,7 +816,7 @@ static QRect trySplit(Qt::Orientation orientation,
         Q_ASSERT(false);
     }
 
-    if (ret.isValid())
+    if (!ret.isEmpty())
         ret.setSize(ret.size().expandedTo(sz1));
     return ret;
 }
@@ -868,7 +868,7 @@ QRect QDockWindowLayout::place(QDockWindow *dockwindow, const QRect &r, const QP
                                      info.cur_size));
             DEBUG() << "  splitting" << sz1 << sz2 << "into" << r;
             target = ::trySplit(orientation, location.area, r, sz1, sz2);
-            if (!target.isValid()) {
+            if (target.isEmpty()) {
                 DEBUG() << "  could not split";
                 const QPoint p = parentWidget()->mapFromGlobal(mouse) - geometry().topLeft();
                 const int pos = pick(orientation, p);
@@ -886,7 +886,7 @@ QRect QDockWindowLayout::place(QDockWindow *dockwindow, const QRect &r, const QP
         }
     }
 
-    if (target.isValid()) {
+    if (!target.isEmpty()) {
         DEBUG("END of place (target already found %d,%d %dx%d)",
               target.x(), target.y(), target.width(), target.height());
 
@@ -983,7 +983,7 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
                                  info.cur_size));
         DEBUG() << "  splitting" << sz1 << sz2 << "into" << r;
         QRect target = ::trySplit(orientation, location.area, r, sz1, sz2);
-        if (target.isValid()) {
+        if (!target.isEmpty()) {
             split(qt_cast<QDockWindow *>(info.item->widget()), dockwindow, location.area);
 
             DEBUG("END of drop (nested window dock)");
