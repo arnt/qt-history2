@@ -42,13 +42,15 @@ all: $(SOURCES) $(TARGET)
 obj: $(HEADERS) $(SOURCES) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(TARGET) -lqt
+	make -C ../tools $(LIBDIR)/libqtools.a
+	$(CC) $(OBJECTS) -o $(TARGET) -L$(LIBDIR) -lqtools
 #	strip moc
 #	cp moc $(QTDIR)/bin
 
-staticmoc: $(OBJECTS)
-	make -C ../tools $(LIBDIR)/libqtools.a
-	$(CC) $(OBJECTS) -o $(TARGET) -L$(LIBDIR) -lqtools
+dynamicmoc: $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET) -lqt
+#	strip moc
+#	cp moc $(QTDIR)/bin
 
 rcs:: ./RCS/$$@,v
 
