@@ -1051,12 +1051,20 @@ static inline int match(QRgb a,QRgb b)
     int ret;
 
 #if defined(QWS_DEPTH_8)
-    QColor tmp1(a);
-    QColor tmp2(b);
     int h1,s1,v1;
     int h2,s2,v2;
+    /*
+    QColor tmp1(a);
+    QColor tmp2(b);
     tmp1.hsv(&h1,&s1,&v1);
     tmp2.hsv(&h2,&s2,&v2);
+    */
+    h1=qRed(a);
+    s1=qGreen(a);
+    v1=qBlue(a);
+    h2=qRed(b);
+    s2=qGreen(b);
+    v2=qBlue(b);    
     ret=abs(h1-h2);
     ret+=abs(s1-s2);
     ret+=abs(v1-v2);
@@ -2873,11 +2881,6 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 
-#ifdef QWS_DEPTH_8
-	    if(av!=0 && av!=255) {
-		av=av>127 ? 255 : 0;
-	    }
-#endif
 	    if(av==255) {
 		// Do nothing - we already have source values in r,g,b
 	    } else if(av==0) {
@@ -3625,6 +3628,8 @@ unsigned char * QGfxRaster<depth,type>::srcScanLine(int i)
     return ret;
 }
 
+extern bool qws_smoothfonts;
+
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers
 
@@ -3740,7 +3745,7 @@ bool QScreen::initCard()
 	} else {
 	    mtrr_sentry sentry;
 	    sentry.base=(unsigned long int)finfo.smem_start;
-	    qDebug("Physical framebuffer address %p",finfo.smem_start);
+	    qDebug("Physical framebuffer address %ld",finfo.smem_start);
 	    // Size needs to be in 4k chunks, but that's not always
 	    // what we get thanks to graphics card registers. Write combining
 	    // these is Not Good, so we write combine what we can
