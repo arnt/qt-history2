@@ -50,11 +50,15 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     if(!project->isActiveConfig("no_versionlink")) {
         QDir dir(bd);
         QStringList entries = dir.entryList();
-        QRegExp regx("(" + dllStem + "([0-9]*)).(lib|prl)$", Qt::CaseInsensitive);
+        QRegExp regx("((lib)?" + dllStem + "([0-9]*)).(a|lib|prl)$", Qt::CaseInsensitive);
         for(QStringList::Iterator it = entries.begin(); it != entries.end(); ++it) {
-            if(regx.exactMatch((*it)))
-                biggest = qMax(biggest, (regx.cap(1) == dllStem ||
-                                         regx.cap(2).isEmpty()) ? -1 : regx.cap(2).toInt());
+            if(regx.exactMatch((*it))) {
+				if (!regx.cap(3).isEmpty()) {
+					bool ok = true;
+					int num = regx.cap(3).toInt(&ok);
+					biggest = qMax(biggest, (!ok ? -1 : num));
+				}
+			}
         }
     }
     if(libInfoRead
