@@ -823,7 +823,7 @@ bool QListViewItem::isEnabled() const
 
 /*!
     If in-place renaming of this item is enabled (see
-    renameEnabled()), this function starts renaming the item in cloumn
+    renameEnabled()), this function starts renaming the item in column
     \a col, by creating and initializing an edit box.
 */
 
@@ -1294,8 +1294,8 @@ QString QListViewItem::key( int column, bool ) const
 
 /*!
     Compares this list view item to \a i using the column \a col in \a
-    ascending order. Returns -1 if this item is less than \a i, 0 if
-    they are equal and 1 if this item is greater than \a i.
+    ascending order. Returns \< 0 if this item is less than \a i, 0 if
+    they are equal and \> 0 if this item is greater than \a i.
 
     This function is used for sorting.
 
