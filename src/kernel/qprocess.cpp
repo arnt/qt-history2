@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#22 $
 **
 ** Implementation of QProcess class
 **
@@ -358,10 +358,10 @@ void QProcess::closeStdinLaunch()
 /*!
   \fn void QProcess::wroteStdin()
 
-  This signal is emitted if the data send to standard input (via writeToStdin()) was
-  actually written to the process. This does not imply that the process really
-  read the data, but it is now save to close standard input without loosing
-  pending data.
+  This signal is emitted if the data send to standard input (via
+  writeToStdin()) was actually written to the process. This does not imply that
+  the process really read the data, but it is now save to close standard input
+  without loosing pending data.
 
   \sa writeToStdin() closeStdin()
 */
@@ -369,12 +369,14 @@ void QProcess::closeStdinLaunch()
 
 /*! \overload
 
-  The string \a buf is handled as a text. So what is written to standard input is the
-  QString::local8Bit() representation.
+  The string \a buf is handled as a text. So what is written to standard input
+  is the QString::local8Bit() representation.
 */
 void QProcess::writeToStdin( const QString& buf )
 {
-    writeToStdin( buf.local8Bit() );
+    QByteArray tmp = buf.local8Bit();
+    tmp.resize( buf.length() );
+    writeToStdin( tmp );
 }
 
 
