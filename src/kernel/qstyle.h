@@ -498,6 +498,7 @@ public:
 	CT_LineEdit,
 	CT_MenuBar,
 	CT_SpinBox,
+	CT_SizeGrip,
 	CT_DialogButtons,
 
 	// do not add any values below/greater than this

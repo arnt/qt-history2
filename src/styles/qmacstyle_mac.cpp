@@ -575,8 +575,12 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	const Rect *rect = qt_glb_mac_rect(r, p);
 	Point orig = { rect->top, rect->left };
 	((QMacPainter *)p)->setport();
-	DrawThemeStandaloneGrowBox(orig, kThemeGrowRight | kThemeGrowDown, false,
-				   kThemeStateActive);
+	ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
+#if 0
+	if(QApplication::reverseLayout())
+	    dir = kThemeGrowLeft | kThemeGrowDown;
+#endif
+	DrawThemeStandaloneGrowBox(orig, dir, false, kThemeStateActive);
 	break; }
     case PE_FocusRect:
 	break;     //This is not used because of the QAquaFocusWidget thingie..

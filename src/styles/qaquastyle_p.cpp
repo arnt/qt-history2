@@ -446,6 +446,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    ct = QStyle::CT_Header;
 	else if(widg->inherits("QMenuBar"))
 	    ct = QStyle::CT_MenuBar;
+	else if(widg->inherits("QSizeGrip"))
+	    ct = QStyle::CT_SizeGrip;
 	else
 	    return ret;
     }
@@ -496,6 +498,21 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	else 
 	    ret = QSize(-1, 16);
 #endif
+#endif
+    } else if(ct == QStyle::CT_SizeGrip) {
+#ifdef Q_WS_MAC
+	Rect r;
+	Point p = { 0, 0 };
+	ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
+	if(QApplication::reverseLayout())
+	    dir = kThemeGrowLeft | kThemeGrowDown;
+	if(GetThemeStandaloneGrowBoxBounds(p, dir, sz != QAquaSizeSmall, &r) == noErr) 
+	    ret = QSize(r.right - r.left, r.bottom - r.top);
+#else
+	if(sz == QAquaSizeLarge)
+	    ret = QSize(15, 15);
+	else
+	    ret = QSize(10, 10);
 #endif
     } else if(ct == QStyle::CT_ComboBox) {
 #ifdef Q_WS_MAC

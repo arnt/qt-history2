@@ -126,7 +126,7 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     tlw = qt_sizegrip_topLevelWidget( this );
     if ( tlw )
 	tlw->installEventFilter( this );
-    installEventFilter( this ); //for binary compatibility fix in 4.0 with an event()
+    installEventFilter( this ); //for binary compatibility fix in 4.0 with an event() ###
 }
 
 
@@ -142,13 +142,6 @@ QSizeGrip::~QSizeGrip()
  			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
  			(unsigned char *)&id, 1);
     }
-#elif defined(Q_WS_MAC)
-    if(isVisible() && !QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
-	if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
-	    if(w->isTopLevel()) 
-		qt_mac_update_sizer(w, -1);
-	}
-    }
 #endif
 }
 
@@ -157,7 +150,8 @@ QSizeGrip::~QSizeGrip()
 */
 QSize QSizeGrip::sizeHint() const
 {
-    return QSize( 13, 13 ).expandedTo( QApplication::globalStrut() );
+    return (style().sizeFromContents(QStyle::CT_SizeGrip, this, QSize(13, 13)).
+	    expandedTo(QApplication::globalStrut()));
 }
 
 /*!
@@ -264,8 +258,6 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
 	switch(e->type()) {
 	case QEvent::Hide:
 	case QEvent::Show:
-	    if((e->type() == QEvent::Show && isVisible()) || (e->type() == QEvent::Hide && !isVisible()))
-		break;
 	    if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
 		if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
 		    if(w->isTopLevel()) 
