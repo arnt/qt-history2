@@ -707,6 +707,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	{
 	    XPThemeData theme( w, L"TRACKBAR" );
 	    QSlider *sl = (QSlider*)w;
+	    QRegion tickreg = sl->rect();
 
 	    if ( sub & SC_SliderGroove ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderGroove, data );
@@ -716,46 +717,22 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = 4; // no TRS_DISABLED
 		    else
 			stateId = TRS_NORMAL;
+		    theme.rec.addCoords( 0, 5, 0, -5 );
 		} else {
 		    partId = TKP_TRACKVERT;
 		    if ( !w->isEnabled() )
 			stateId = 4; // no TRVS_DISABLED
 		    else
 			stateId = TRVS_NORMAL;
+		    theme.rec.addCoords( 5, 0, -5, 0 );
 		}
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
-	    }
-	    if ( sub & SC_SliderHandle ) {
-		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderHandle, data );
-		if ( sl->orientation() == Horizontal ) {
-		    partId = TKP_THUMB;
-		    if ( !w->isEnabled() )
-			stateId = TUS_DISABLED;
-		    else if ( subActive == SC_SliderHandle )
-			stateId = TUS_PRESSED;
-		    else if ( flags & Style_HasFocus )
-			stateId = TUS_FOCUSED;
-		    else if ( w->hasMouse() && theme.rec.contains( d->hotSpot ) )
-			stateId = TUS_HOT;
-		    else
-			stateId = TUS_NORMAL;
-		} else {
-		    partId = TKP_THUMBVERT;
-		    if ( !w->isEnabled() )
-			stateId = TUVS_DISABLED;
-		    else if ( subActive == SC_SliderHandle )
-			stateId = TUVS_PRESSED;
-		    else if ( flags & Style_HasFocus )
-			stateId = TUVS_FOCUSED;
-		    else if ( w->hasMouse() && theme.rec.contains( d->hotSpot ) )
-			stateId = TUS_HOT;
-		    else
-			stateId = TUVS_NORMAL;
-		}
-		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		tickreg -= theme.rec;
 	    }
 	    if ( sub & SC_SliderTickmarks ) {
-		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderTickmarks, data );
+		p->setClipRegion( tickreg );
+		p->fillRect( sl->rect(), cg.brush( QColorGroup::Background ) );
+		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderTickmarks, data );		
 		if ( sl->orientation() == Horizontal ) {
 		    partId = TKP_TICS;
 		    if ( !w->isEnabled() )
@@ -769,8 +746,51 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    else
 			stateId = TSVS_NORMAL;
 		}
-    
+
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		p->setClipping( FALSE );
+	    }
+	    if ( sub & SC_SliderHandle ) {
+		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderHandle, data );
+		if ( sl->orientation() == Horizontal ) {
+		    if ( sl->tickmarks() == QSlider::Above )
+			partId = TKP_THUMBTOP;
+		    else if ( sl->tickmarks() == QSlider::Below )
+			partId = TKP_THUMBBOTTOM;
+		    else
+			partId = TKP_THUMB;
+
+		    if ( !w->isEnabled() )
+			stateId = TUS_DISABLED;
+		    else if ( subActive == SC_SliderHandle )
+			stateId = TUS_PRESSED;
+		    else if ( flags & Style_HasFocus )
+			stateId = TUS_FOCUSED;
+		    else if ( w->hasMouse() && theme.rec.contains( d->hotSpot ) )
+			stateId = TUS_HOT;
+		    else
+			stateId = TUS_NORMAL;
+		} else {
+		    if ( sl->tickmarks() == QSlider::Left )
+			partId = TKP_THUMBLEFT;
+		    else if ( sl->tickmarks() == QSlider::Right )
+			partId = TKP_THUMBRIGHT;
+		    else
+			partId = TKP_THUMBVERT;
+
+		    if ( !w->isEnabled() )
+			stateId = TUVS_DISABLED;
+		    else if ( subActive == SC_SliderHandle )
+			stateId = TUVS_PRESSED;
+		    else if ( flags & Style_HasFocus )
+			stateId = TUVS_FOCUSED;
+		    else if ( w->hasMouse() && theme.rec.contains( d->hotSpot ) )
+			stateId = TUS_HOT;
+		    else
+			stateId = TUVS_NORMAL;
+		}
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		tickreg -= theme.rec;
 	    }
 	}
 	break;
