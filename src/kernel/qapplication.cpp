@@ -3161,3 +3161,52 @@ QStrList QApplication::queryInterfaceList() const
 {
     return QStrList();
 }
+
+/*!
+  \class QApplicationInterface qapplicationinterface.h
+
+  \brief This class provides an abstract interface to give runtime access to application components.
+
+  \sa QClientInterface, QPlugIn
+*/
+
+/*!
+  \overload
+  \fn QApplicationInterface::void requestProperty( const QCString& property, QVariant& value )
+
+  A handler to handle request the plugin calls for the the value of \a property.
+  This function will be called each time a connected QClientInterface emits the 
+  \link QDualInterface::readProperty readProperty signal. You have to reimplement this function
+  for each compoent of your application you want to enable plugins to access, and handle the incoming
+  request by providing the requested property in the passed QVariant object \a value.
+*/
+
+/*!
+  \fn QApplicationInterface::void requestSetProperty( const QCString& property, const QVariant& value )
+
+  A handler to handle requests the plugin sends to change the \a property to \a value.
+  This function will be called each time a connected QClientInterface emits the
+  \link QDualInterface::writeProperty readProperty signal. You have to reimplement this function
+  for each component your application wants to grant the plugin access to, and handle the incoming
+  requests.
+*/
+
+/*!
+  \class QClientInterface qapplicationinterface.h
+*/
+
+/*!
+  void QClientInterface::requestProperty( const QCString& property, QVariant& value )
+
+  Call this function to send a readProperty request for \a property to the
+  QApplicationInterface corresponding with this QClientInterface. The application will 
+  write the result in \a value.
+*/
+
+/*!
+  void QClientInterface::requestSetProperty( const QCString& property, QVariant& value )
+
+  Call this function in your plugin to send a writeProperty request for \a property to the
+  QApplicationInterface corresponding with this QClientInterace. 
+  The application will set the \a property of the object it represents to \a value.
+*/
