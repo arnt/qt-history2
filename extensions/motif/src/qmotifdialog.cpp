@@ -563,31 +563,11 @@ void QMotifDialog::realize( Widget w )
 	XtSetMappedWhenManaged( d->shell, False );
 
 	// save the caption
-	QString cap;
-	if ( ! caption().isNull() ) {
-	    cap = caption();
-	    setCaption( QString::null );
-	} else {
-	    setCaption( QString::null );
-	    XTextProperty text_prop;
-	    if (XGetWMName(x11Display(), winId(), &text_prop)) {
-		if (text_prop.value && text_prop.nitems > 0) {
-		    if (text_prop.encoding == XA_STRING) {
-			cap = QString::fromLocal8Bit( (char *) text_prop.value );
-		    } else {
-			text_prop.nitems = strlen((char *) text_prop.value);
-
-			char **list;
-			int num;
-			if (XmbTextPropertyToTextList(x11Display(), &text_prop,
-						      &list, &num) == Success &&
-			    num > 0 && *list) {
-			    cap = QString::fromLocal8Bit( *list );
-			    XFreeStringList(list);
-			}
-		    }
-		}
-	    }
+	QString cap = caption();
+	if ( cap.isEmpty() ) {
+ 	    char *title;
+ 	    XtVaGetValues(w, XtNtitle, &title, NULL);
+ 	    cap = QString::fromLocal8Bit(title);
 	}
 
 	Window newid = XtWindow(w);
@@ -604,7 +584,8 @@ void QMotifDialog::realize( Widget w )
 	create( newid, TRUE, TRUE );
 
 	// restore the caption
-	setCaption( cap );
+ 	if (!cap.isEmpty())
+	    setCaption( cap );
 
 	// if this dialog was created without a QWidget parent, then the transient
 	// for will be set to the root window, which is not acceptable.

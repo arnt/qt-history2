@@ -461,30 +461,10 @@ void QMotifWidget::realize( Widget w )
 
 	// save the caption
 	QString cap;
-	if ( ! caption().isNull() ) {
-	    cap = caption();
-	    setCaption( QString::null );
-	} else {
-	    setCaption( QString::null );
-	    XTextProperty text_prop;
-	    if (XGetWMName(x11Display(), winId(), &text_prop)) {
-		if (text_prop.value && text_prop.nitems > 0) {
-		    if (text_prop.encoding == XA_STRING) {
-			cap = QString::fromLocal8Bit( (char *) text_prop.value );
-		    } else {
-			text_prop.nitems = strlen((char *) text_prop.value);
-
-			char **list;
-			int num;
-			if (XmbTextPropertyToTextList(x11Display(), &text_prop,
-						      &list, &num) == Success &&
-			    num > 0 && *list) {
-			    cap = QString::fromLocal8Bit( *list );
-			    XFreeStringList(list);
-			}
-		    }
-		}
-	    }
+	if ( cap.isEmpty() ) {
+ 	    char *title;
+ 	    XtVaGetValues(w, XtNtitle, &title, NULL);
+ 	    cap = QString::fromLocal8Bit(title);
 	}
 
 	Window newid = XtWindow( w );
@@ -504,7 +484,8 @@ void QMotifWidget::realize( Widget w )
 	create( newid, TRUE, TRUE );
 
 	// restore the caption
-	setCaption( cap );
+	if (!cap.isEmpty())
+	    setCaption( cap );
 
 	// restore geometry of the shell
 	XMoveResizeWindow( x11Display(), winId(),
