@@ -27,11 +27,12 @@ class Q_CORE_EXPORT QBuffer : public QIODevice
 #endif
 
 public:
-    QBuffer();
-    QBuffer(QByteArray *buf);
 #ifndef QT_NO_QOBJECT
-    QBuffer(QObject *parent);
-    QBuffer(QByteArray *buf, QObject *parent);
+     QBuffer(QObject *parent = 0);
+     QBuffer(QByteArray *buf, QObject *parent = 0);
+#else
+     QBuffer();
+     QBuffer(QByteArray *buf);
 #endif
     ~QBuffer();
 

@@ -125,27 +125,14 @@ QBuffer::QBuffer()
     Q_D(QBuffer);
     d->buf = &d->defaultBuf;
 }
-QBuffer::QBuffer(QByteArray *a)
+QBuffer::QBuffer(QByteArray *buf)
     : QIODevice(*new QBufferPrivate)
 {
     Q_D(QBuffer);
-    d->buf = a;
+    d->buf = buf ? buf : &d->defaultBuf;
+    d->defaultBuf.clear();
 }
 #else
-QBuffer::QBuffer()
-    : QIODevice(*new QBufferPrivate, 0)
-{
-    Q_D(QBuffer);
-    d->buf = &d->defaultBuf;
-}
-
-QBuffer::QBuffer(QByteArray *byteArray)
-    : QIODevice(*new QBufferPrivate, 0)
-{
-    Q_D(QBuffer);
-    d->buf = byteArray;
-}
-
 /*!
     Constructs an empty buffer with the given \a parent. You can call
     setData() to fill the buffer with data, or you can open it in
@@ -184,7 +171,8 @@ QBuffer::QBuffer(QByteArray *byteArray, QObject *parent)
     : QIODevice(*new QBufferPrivate, parent)
 {
     Q_D(QBuffer);
-    d->buf = byteArray;
+    d->buf = byteArray ? byteArray : &d->defaultBuf;
+    d->defaultBuf.clear();
 }
 #endif
 
