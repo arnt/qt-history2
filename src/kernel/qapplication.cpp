@@ -284,6 +284,10 @@ bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
 
+#ifdef QT_THREAD_SUPPORT
+QMutex * QApplication::qt_mutex=0;
+#endif
+
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
 QAsciiDict<QFont>    *QApplication::app_fonts = 0;
@@ -660,6 +664,9 @@ void QApplication::construct( int &argc, char **argv, Type type )
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
     initialize( argc, argv );
+#ifdef QT_THREAD_SUPPORT
+    qt_mutex=new QMutex();
+#endif
 }
 
 
@@ -875,6 +882,9 @@ QApplication::~QApplication()
     is_app_running = FALSE;
 #ifndef QT_NO_TRANSLATION
     delete translators;
+#endif
+#ifdef QT_THREAD_SUPPORT
+    delete qt_mutex;
 #endif
     // Cannot delete codecs until after QDict destructors
     // QTextCodec::deleteAllCodecs()
@@ -2505,7 +2515,7 @@ int QApplication::enter_loop()
 	switched=true;
     }
 #endif
-    
+
     loop_level++;
 
     bool old_app_exit_loop = app_exit_loop;
@@ -2528,7 +2538,7 @@ int QApplication::enter_loop()
 	qt_exec_stack->releaseExec();
     }
 #endif
-    
+
     return 0;
 }
 

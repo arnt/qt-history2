@@ -220,8 +220,8 @@ public:
     void	     wakeUpGuiThread();
     void	     guiThreadTaken();
 #if defined(QT_THREAD_SUPPORT)
-    void	     lock() { qt_mutex.lock(); }
-    void	     unlock() { qt_mutex.unlock(); }
+    void	     lock() { qt_mutex->lock(); }
+    void	     unlock() { qt_mutex->unlock(); }
 #endif
 
 signals:
@@ -241,7 +241,7 @@ private:
     void	     process_cmdline( int* argcptr, char ** argv );
 
 #if defined(QT_THREAD_SUPPORT)
-    static QMutex qt_mutex;
+    static QMutex * qt_mutex;
 #endif
 
     int		     app_argc;
