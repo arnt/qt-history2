@@ -22,9 +22,6 @@ kernel {
 		  $$KERNEL_H/qgif.h \
 		  $$KERNEL_H/qguieventloop.h\
 		  $$KERNEL_H/qiconset.h \
-		  $$KERNEL_H/qimage.h \
-		  $$KERNEL_P/qimageformatinterface_p.h \
-		  $$KERNEL_H/qimageformatplugin.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qkeysequence.h \
 		  $$KERNEL_H/qlayout.h \
@@ -156,6 +153,7 @@ kernel {
 		  $$KERNEL_CPP/qfontdatabase.cpp \
 		  $$KERNEL_CPP/qguieventloop.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \
+		  $$KERNEL_CPP/qimage_gui.cpp \
 		  $$KERNEL_CPP/qkeysequence.cpp \
 		  $$KERNEL_CPP/qlayout.cpp \
 		  $$KERNEL_CPP/qlayoutengine.cpp \
@@ -166,7 +164,6 @@ kernel {
 		  $$KERNEL_CPP/qpalette.cpp \
 		  $$KERNEL_CPP/qpicture.cpp \
 		  $$KERNEL_CPP/qpictureformatplugin.cpp \
-		  $$KERNEL_CPP/qimage_gui.cpp \
 		  $$KERNEL_CPP/qpixmap.cpp \
 		  $$KERNEL_CPP/qpixmapcache.cpp \
 		  $$KERNEL_CPP/qprinter.cpp \

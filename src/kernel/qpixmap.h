@@ -16,10 +16,11 @@
 #define QPIXMAP_H
 
 #ifndef QT_H
-#include "qpaintdevice.h"
 #include "qcolor.h" // char*->QColor conversion
-#include "qstring.h" // char*->QString conversion
+#include "qimage.h"
 #include "qnamespace.h"
+#include "qpaintdevice.h"
+#include "qstring.h" // char*->QString conversion
 #endif // QT_H
 
 class QGfx;
@@ -153,6 +154,7 @@ public:
 #endif
 
     inline bool operator!() const { return isNull(); }
+    inline operator QImage() const { return convertToImage(); }
 
 #ifndef Q_QDOC
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
@@ -247,7 +249,7 @@ private:
     friend class QPainter;
 #if defined(Q_WS_X11) && defined(Q_Q4PAINTER)
     friend class QX11GC;
-#endif    
+#endif
 };
 
 

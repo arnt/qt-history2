@@ -1,7 +1,6 @@
 #include "qimage.h"
 #include "qmime.h"
 #include "qdragobject.h"
-#include "qpixmap.h"
 
 #if defined(Q_WS_X11)
 #include <X11/Xlib.h>				// needed for systemBitOrder
@@ -16,7 +15,7 @@
   \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
 */
 #ifndef QT_NO_MIME
-QImage QImage::fromMimeSource( const QString &abs_name )
+QImage qFromMimeSource_helper( const QString &abs_name )
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
     if ( !m ) {
@@ -39,12 +38,6 @@ QImage QImage::fromMimeSource( const QString &abs_name )
     Makes a call to QPixmap::convertToImage().
 */
 
-QImage &QImage::operator=( const QPixmap &pixmap )
-{
-    *this = pixmap.convertToImage();
-    return *this;
-}
-
 /*!
     Determines the bit order of the display hardware. Returns
     QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
@@ -52,11 +45,3 @@ QImage &QImage::operator=( const QPixmap &pixmap )
     \sa systemByteOrder()
 */
 
-QImage::Endian QImage::systemBitOrder()
-{
-#if defined(Q_WS_X11)
-    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
-#else
-    return BigEndian;
-#endif
-}

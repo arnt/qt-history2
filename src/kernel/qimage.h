@@ -22,11 +22,14 @@
 #include "qshared.h"
 #include "qrgb.h"
 #include "qrect.h"
+#ifndef QT_BUILD_KERNEL_LIB
+class QPixmap;
+#endif
 #endif // QT_H
 
 class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT
-class Q_EXPORT QImageTextKeyLang {
+class Q_KERNEL_EXPORT QImageTextKeyLang {
 public:
     QImageTextKeyLang(const char* k, const char* l) : key(k), lang(l) { }
     QImageTextKeyLang() { }
@@ -42,7 +45,7 @@ public:
 #endif //QT_NO_IMAGE_TEXT
 
 
-class Q_EXPORT QImage
+class Q_KERNEL_EXPORT QImage
 {
 public:
     enum Endian { IgnoreEndian, BigEndian, LittleEndian };
@@ -68,9 +71,6 @@ public:
     QImage( const QImage & );
    ~QImage();
 
-#ifdef QT_GUI_LIB
-    QImage &operator=( const QPixmap &pixmap );
-#endif
     QImage     &operator=( const QImage & );
     bool	operator==( const QImage & ) const;
     bool	operator!=( const QImage & ) const;
@@ -79,7 +79,7 @@ public:
     QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;
     QImage	copy(const QRect&)	const;
 #ifndef QT_NO_MIME
-#ifdef QT_GUI_LIB
+#ifndef QT_BUILD_KERNEL_LIB
     static QImage fromMimeSource( const QString& abs_name );
 #endif
 #endif
@@ -160,7 +160,7 @@ public:
 #endif
     QImage	swapRGB() const;
 
-#ifdef QT_GUI_LIB
+#ifndef QT_BUILD_KERNEL_LIB
     static Endian systemBitOrder();
 #endif
     static Endian systemByteOrder();
@@ -232,7 +232,7 @@ private:
 #ifndef QT_NO_IMAGEIO
     bool doImageIO( QImageIO* io, int quality ) const;
 #endif
-    friend Q_EXPORT void bitBlt( QImage* dst, int dx, int dy,
+    friend Q_KERNEL_EXPORT void bitBlt( QImage* dst, int dx, int dy,
 				 const QImage* src, int sx, int sy,
 				 int sw, int sh, int conversion_flags );
 };
@@ -241,8 +241,8 @@ private:
 // QImage stream functions
 
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QImage & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QImage & );
+Q_KERNEL_EXPORT QDataStream &operator<<( QDataStream &, const QImage & );
+Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QImage & );
 #endif
 
 #ifndef QT_NO_IMAGEIO
@@ -253,7 +253,7 @@ typedef void (*image_io_handler)( QImageIO * ); // image IO handler
 struct QImageIOData;
 
 
-class Q_EXPORT QImageIO
+class Q_KERNEL_EXPORT QImageIO
 {
 public:
     QImageIO();
@@ -326,7 +326,7 @@ private:	// Disabled copy constructor and operator=
 Q_KERNEL_EXPORT bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
 #endif
 
-Q_EXPORT void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
+Q_KERNEL_EXPORT void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 		      int sx=0, int sy=0, int sw=-1, int sh=-1,
 		      int conversion_flags=0 );
 
@@ -403,6 +403,28 @@ inline QPoint QImage::offset() const
 {
     return data->offset;
 }
+
+#ifndef QT_BUILD_KERNEL_LIB
+
+#ifndef QT_NO_MIME
+Q_GUI_EXPORT QImage qFromMimeSource_helper( const QString &abs_name );
+inline QImage QImage::fromMimeSource( const QString &abs_name )
+{
+    return qFromMimeSource_helper(abs_name);
+}
+#endif
+
+
+inline QImage::Endian QImage::systemBitOrder()
+{
+#if defined(Q_WS_X11)
+    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
+#else
+    return BigEndian;
+#endif
+}
+
+#endif // QT_GUI_LIB
 
 
 #endif // QIMAGE_H

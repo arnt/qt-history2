@@ -2,7 +2,7 @@ REQUIRES = !qt_one_lib
 TARGET		= qtkernel
 QCONFIG         =
 
-DEFINES += QT_KERNEL_LIB
+DEFINES += QT_BUILD_KERNEL_LIB 
 
 include(qbase.pri)
 include($$KERNEL_CPP/qt_kernel.pri)

@@ -22,6 +22,7 @@
 #include "qfile.h"
 #include "qdatastream.h"
 #include "qpaintdevicemetrics.h"
+#include "qregion.h"
 
 /*!
     \class QPicture qpicture.h

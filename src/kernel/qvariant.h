@@ -20,7 +20,7 @@
 #include "qbytearray.h"
 #endif // QT_H
 
-#ifdef QT_GUI_LIB
+#ifndef QT_BUILD_KERNEL_LIB
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qfont.h"
@@ -151,7 +151,7 @@ class Q_KERNEL_EXPORT QVariant
     inline QVariant(const QMap<QString,QVariant> &map);
 #endif
 
-#ifdef QT_GUI_LIB
+#ifndef QT_BUILD_KERNEL_LIB
     inline QVariant(const QFont &font);
     inline QVariant(const QPixmap &pixmap);
     inline QVariant(const QImage &image);
@@ -178,7 +178,7 @@ class Q_KERNEL_EXPORT QVariant
 #endif
     inline QVariant(const QPen &pen);
     inline QVariant(const QSizePolicy &sp);
-#endif // QT_GUI_LIB
+#endif // QT_BUILD_KERNEL_LIB
 
     QVariant& operator=(const QVariant &other);
     bool operator==(const QVariant &other) const;
@@ -216,7 +216,7 @@ class Q_KERNEL_EXPORT QVariant
     QMap<QString,QVariant> toMap() const;
 #endif
 
-#ifdef QT_GUI_LIB
+#ifndef QT_BUILD_KERNEL_LIB
     QFont toFont() const;
     QPixmap toPixmap() const;
     const QImage toImage() const;
@@ -239,7 +239,7 @@ class Q_KERNEL_EXPORT QVariant
 #endif
     QPen toPen() const;
     QSizePolicy toSizePolicy() const;
-#endif // QT_GUI_LIB
+#endif // QT_BUILD_KERNEL_LIB
 
     inline int &asInt();
     inline uint &asUInt();
@@ -261,7 +261,7 @@ class Q_KERNEL_EXPORT QVariant
     inline QMap<QString,QVariant> &asMap();
 #endif
 
-#ifdef QT_GUI_LIB
+#ifndef QT_BUILD_KERNEL_LIB
     inline QFont &asFont();
     inline QPixmap &asPixmap();
     inline QImage &asImage();
@@ -286,7 +286,7 @@ class Q_KERNEL_EXPORT QVariant
 #endif
     inline QPen &asPen();
     inline QSizePolicy &asSizePolicy();
-#endif //QT_GUI_LIB
+#endif //QT_BUILD_GUI_LIB
 
 #ifndef QT_NO_DATASTREAM
     void load(QDataStream &ds);
@@ -451,7 +451,7 @@ inline QMap<QString, QVariant>& QVariant::asMap()
 #endif
 
 
-#ifdef QT_GUI_LIB
+#ifndef QT_BUILD_KERNEL_LIB
 
 inline QVariant::QVariant(const QFont &val)
 { d = create(Font, &val); }
@@ -685,8 +685,8 @@ Q_VARIANT_TO(Font);
 Q_VARIANT_TO(Color);
 #ifndef QT_NO_ACCEL
 Q_VARIANT_TO(KeySequence);
-#endif
-#endif // QT_GUI_LIB
+
+#endif // QT_BUILD_KERNEL_LIB
 
 
 #ifndef QT_NO_DATASTREAM
