@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#451 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#452 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -180,6 +180,7 @@ Atom		qt_wm_delete_window;		// delete window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
 
 static Atom	qt_embedded_window;
+static Atom	qt_embedded_window_focus_in;
 static Atom	qt_unicode_key_press;
 static Atom	qt_unicode_key_release;
 
@@ -891,6 +892,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
 
     qt_x11_intern_atom( "QT_EMBEDDED_WINDOW", &qt_embedded_window );
+    qt_x11_intern_atom( "QT_EMBEDDED_WINDOW_FOCUS_IN", &qt_embedded_window_focus_in );
     qt_x11_intern_atom( "QT_UNICODE_KEY_PRESS", &qt_unicode_key_press );
     qt_x11_intern_atom( "QT_UNICODE_KEY_RELEASE", &qt_unicode_key_release );
 
@@ -2147,7 +2149,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		qt_handle_xdnd_drop( widget, event );
 	    } else if ( event->xclient.message_type == qt_xdnd_finished ) {
 		qt_handle_xdnd_finished( widget, event );
+	    } else if ( event->xclient.message_type == qt_embedded_window_focus_in ) {
+	        widget->setFocus();
 	    }
+	      
 	}
 	else if ( event->xclient.format == 16 ) {
 	    if ( event->xclient.message_type == qt_unicode_key_press
@@ -2998,8 +3003,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 			// inform parent in case we are an embedded window
 			QWidget* active_window = topLevelWidget();
 			if (active_window && active_window->extra->topextra->embedded) {
-			    ((XEvent*)event)->xfocus.window = active_window->extra->topextra->parentWinId;
-			    XSendEvent(appDpy, active_window->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
+			  XClientMessageEvent client_message;
+			  client_message.type = ClientMessage;
+			  client_message.window = active_window->extra->topextra->parentWinId;
+			  client_message.format = 32;
+			  client_message.message_type = qt_embedded_window_focus_in;
+			  XSendEvent( appDpy, client_message.window, FALSE, NoEventMask,
+				      (XEvent*)&client_message );
 			}
 		    }
 		}
