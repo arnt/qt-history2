@@ -54,20 +54,21 @@ QSqlResultShared::~QSqlResultShared()
 
     \module sql
 
-    This class is used to execute SQL queries on a \l QSqlDatabase. It
-    can be used to execute DML (data maniuplation language) statements,
-    e.g. \c SELECT, \c INSERT, \c UPDATE and \c DELETE, and also DDL
-    (data definition language) statements, e.g. <tt>CREATE TABLE</tt>.
     QSqlQuery encapsulates the functionality involved in creating,
-    navigating and retrieving data from SQL queries.  This class works
-    with \l QSqlResult to form a simple, but flexible, interface to SQL
-    database engines.
+    navigating and retrieving data from SQL queries which are executed
+    on a \l QSqlDatabase. It can be used to execute DML (data
+    manipulation language) statements, e.g. \c SELECT, \c INSERT, \c
+    UPDATE and \c DELETE, and also DDL (data definition language)
+    statements, e.g. <tt>CREATE TABLE</tt>.  It can also be used to
+    execute database-specific commands which are not standard SQL
+    (e..g, 'SET DATESTYLE=ISO' for PostgreSQL).
 
-    Successful queries set the query to an active state (isActive()
-    returns TRUE) otherwise set it to be inactive. In either case the
-    query is positioned on an invalid record; an active query must be
-    navigated to a valid record (isValid() returns TRUE) before values
-    can be retrieved.
+    Successfully executed SQL statements set the query to an active
+    state (isActive() returns TRUE) otherwise the query is set to an
+    inactive state. In either case, when executing a new SQL
+    statement, the query is positioned on an invalid record; an active
+    query must be navigated to a valid record (so that isValid()
+    returns TRUE) before values can be retrieved.
 
     Navigating records is performed with the following methods:
 
@@ -89,17 +90,17 @@ QSqlResultShared::~QSqlResultShared()
 
     \code
     QSqlQuery query( "select name from customer;" );
-    while ( query->next() ) { 
+    while ( query->next() ) {
 	QString name = query.value(0).toString();
-	DoSomething( name );
+	doSomething( name );
     }
     \endcode
 
-    \sa QSqlDatabase QSqlResult QVariant
+    \sa QSqlDatabase QVariant
 */
 
-/*!  Creates a QSqlQuery object which uses QSqlResult to communicate
-    with a database.
+/*!  Creates a QSqlQuery object which uses the QSqlResult \a r to
+    communicate with a database.
 */
 
 QSqlQuery::QSqlQuery( QSqlResult * r )
@@ -132,6 +133,8 @@ QSqlQuery::QSqlQuery( const QSqlQuery& other )
   database \a db.  If \a db is 0, (the default), the default application
   database is used.
 
+  \sa QSqlDatabase
+
 */
 QSqlQuery::QSqlQuery( const QString& query, QSqlDatabase* db )
 {
@@ -159,11 +162,11 @@ QSqlQuery& QSqlQuery::operator=( const QSqlQuery& other )
     return *this;
 }
 
-/*!  Returns TRUE if \a field is NULL, otherwise returns FALSE.  The
-     result object must be active and positioned on a valid record before
-     calling this method otherwise it returns FALSE.  Note that, for
-     some drivers, isNull() will not return accurate information until
-     after an attempt is made to retrieve data.
+/*!  Returns TRUE if \a field is currently NULL, otherwise returns
+     FALSE.  The query must be active and positioned on a valid record
+     before calling this method otherwise it returns FALSE.  Note
+     that, for some drivers, isNull() will not return accurate
+     information until after an attempt is made to retrieve data.
 
      \sa isActive() isValid() value()
 
@@ -179,13 +182,14 @@ bool QSqlQuery::isNull( int field ) const
 }
 
 /*! Executes the SQL \a query.  Returns TRUE if the query was
-    successful, otherwise returns FALSE.  The \a query string must
-    use SQL syntax appropriate for the SQL database being queried.
+    successful and the query is not active, otherwise returns FALSE
+    and the query becomes inactive.  The \a query string must use
+    standard SQL syntax, or syntax appropriate for the SQL database
+    being queried.
 
-    If the query was successful, the query is set to an active
-    state, otherwise it is set to an inactive state.  In either case,
-    the query is positioned on an invalid record, and must be
-    navigated to a valid record before data values can be retrieved.
+    After the query is executed, the query is positioned on an invalid
+    record, and must be navigated to a valid record before data values
+    can be retrieved.
 
     \sa isActive() isValid() next() prev() first() last() seek()
 
@@ -214,10 +218,11 @@ bool QSqlQuery::exec ( const QString& query )
 
 /*! Returns the value of field \a i (zero based).
 
-    The fields are numbered from left to right using the text of the \c
-    SELECT statement, e.g. in "select forename, surname from people;",
-    field 0 is forename and field 1 is surname. Using <tt>SELECT *</tt>
-    is not recommended because the order of the fields is undetermined.
+    The fields are numbered from left to right using the text of the
+    \c SELECT statement, e.g. in "select forename, surname from
+    people;", field 0 is forename and field 1 is surname. Using
+    <tt>SELECT *</tt> is not recommended because the order of the
+    fields in the query is undefined.
 
     An invalid QVariant is returned if field \a i does not exist, or if
     the query is inactive, or if the query is positioned on an invalid
@@ -253,9 +258,8 @@ int QSqlQuery::at() const
     return d->sqlResult->at();
 }
 
-
 /*! Returns the text of the current query being used, or QString::null
-    if there is no current query.
+    if there is no current query text.
 
 */
 
@@ -540,14 +544,15 @@ bool QSqlQuery::last()
     return b;
 }
 
-/*!  Returns the size of the result, (number of rows returned), or -1 if
-    the size cannot be determined or the database does not support reporting
-    information about query sizes.  Note that for non-SELECT statements
-    (isSelect() returns FALSE), size() will return -1.  If the query is
-    not active (isActive() returns FALSE), -1 is returned.
+/*!  Returns the size of the result, (number of rows returned), or -1
+    if the size cannot be determined or the database does not support
+    reporting information about query sizes.  Note that for non-SELECT
+    statements (isSelect() returns FALSE), size() will return -1.  If
+    the query is not active (isActive() returns FALSE), -1 is
+    returned.
 
-  To determine the number of rows affected by a non-SELECT statement,
-  use numRowsAffected().
+    To determine the number of rows affected by a non-SELECT
+    statement, use numRowsAffected().
 
   \sa isActive() numRowsAffected() QSqlDatabase::hasQuerySizeSupport()
 
