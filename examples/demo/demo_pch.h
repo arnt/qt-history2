@@ -8,6 +8,6 @@
 
 #if defined __cplusplus
 
-#include "../../src/kernel/qt_pch.h"
+#include "../../src/core/base/qt_pch.h"
 
 #endif
