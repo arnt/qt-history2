@@ -7,3 +7,5 @@ Funksjonalitet som skal inn i 1.1
 	- widget flaggene dokumenteres
 	- barnelista oppdateres ved raise() og lower()
 	- const char * og const char * i moc
+
+	- globale navn med Q?

@@ -39,6 +39,8 @@ Bugs
 Funksjonalitet:
 ---------------
 
+    nye signals/slots    Gå gjennom samtlige klasser.
+
     ikonifiseringsevent?
 
     Progress bar
