@@ -35,7 +35,7 @@
 
 #include "qobject.h"
 #include "qregion.h"
-#include "qlock_qws.h"
+#include "private/qlock_p.h"
 #include "qwindowdefs.h"
 
 #include "qptrlist.h"
