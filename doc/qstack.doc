@@ -42,16 +42,30 @@
   \class QStack qstack.h
   \brief The QStack class is a template class that provides a stack.
 
-  \ingroup collection
   \ingroup tools
 
   QStack is implemented as a template class. Define a template
   instance QStack\<X\> to create a stack that operates on pointers to
-  X, or X*.
+  X, or X*, for example a stack to store QListViewItems:
+
+  \walkthrough xml/tagreader-with-features/structureparser.h 
+  \skipto QStack<QListViewItem>
+  \printline QStack<QListViewItem>
 
   A stack is a last in, first out (LIFO) structure. Items are added to
   the top of the stack with push() and retrieved from the top
-  with pop().
+  with pop(), e.g.:
+
+  \walkthrough xml/tagreader-with-features/structureparser.cpp 
+  \skipto QListViewItem
+  \printline QListViewItem
+  \skipto new QListViewItem( stack.top()
+  \printline new QListViewItem( stack.top()
+  \skipto stack.push
+  \printline stack.push
+
+  (c.f. \link xml/tagreader-with-features/structureparser.cpp
+  xml/tagreader-with-features/structureparser.cpp \endlink )
 
   \sa \link collection.html Collection Classes\endlink
 */
@@ -61,7 +75,7 @@
 */
 
 /*! \fn QStack::QStack (const QStack<type>& s) 
-  Creates a stack by making a shallow copy of another stack.
+  Creates a stack by making a shallow copy of another stack \a s.
 */
 
 /*! \fn QStack::~QStack () 
@@ -69,7 +83,7 @@
 */
 
 /*! \fn QStack<type>& QStack::operator= (const QStack<type>& s) 
-  Sets the contents of this stack by making a shallow copy of another stack.
+  Sets the contents of this stack by making a shallow copy of another stack \a s.
   Elements currently in this stack will be deleted if autoDelete() is TRUE.
 */
 
@@ -78,7 +92,7 @@
 */
 
 /*! \fn void QStack::push (const type* d) 
-  Adds an element to the top of the stack.  Last in, first out.
+  Adds an element \a d to the top of the stack.  Last in, first out.
 */
 
 /*! \fn type* QStack::pop () 
@@ -129,7 +143,12 @@
 
 /*! \fn void QStack::setAutoDelete( bool enable ) 
 
+  Defines whether \e this stack auto-deletes its contents.
   The same as QCollection::setAutoDelete().
+
+  If \a enable is TRUE the stack auto-deletes its contents
+  whereas it  never deletes them if \a enable is
+  FALSE. 
  
   \sa autoDelete()
 */
