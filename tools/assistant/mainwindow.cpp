@@ -71,9 +71,10 @@ MainWindow::MainWindow()
     dw = new QDockWindow(this);
     dw->setAllowedAreas(Qt::AllDockWindowAreas);
     dw->setWindowTitle(tr("Sidebar"));
-
     helpDock = new HelpDialog(dw, this);
     dw->setWidget(helpDock);
+
+    addDockWindow(Qt::DockWindowAreaLeft, dw);
 
     // read geometry configuration
     setupGoActions();
