@@ -70,12 +70,6 @@ Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
     return -1;
 }
 
-int QProcessPrivate::waitForChild()
-{
-    qWarning("QProcessPrivate::waitForChild() unimplemented for win32 (use Q3Process instead)");
-    return -1;
-}
-
 void QProcessPrivate::killProcess()
 {
     qWarning("QProcessPrivate::killProcess() unimplemented for win32 (use Q3Process instead)");
