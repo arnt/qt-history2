@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#341 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#342 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -958,11 +958,7 @@ QWidget *QWidget::keyboardGrabber()
 
 bool QWidget::isActiveWindow() const
 { // ### should be portable in theory, different from _win in practice
-    QWidget* tlw = topLevelWidget();
-    return tlw == qApp->activeWindow()
-		|| ( tlw->extra &&
-		     tlw->extra->topextra &&
-		     tlw->extra->topextra->embedded); //#### hashes for what?
+    return topLevelWidget() == qApp->activeWindow();
 }
 
 
