@@ -155,7 +155,8 @@ QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPai
 	delete st;
 	st = NULL;
     } else {
-	int feat_guess=5, feats=0;
+	const int feat_guess=5;
+	int feats=0;
 	ATSUFontFeatureType feat_types[feat_guess];
 	ATSUFontFeatureSelector feat_values[feat_guess];
 	feat_types[feats] = kLigaturesType;
