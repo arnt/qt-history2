@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#49 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#50 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -620,8 +620,8 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     connect( this, SIGNAL( viewportRightPressed() ),
 	     this, SLOT( slotViewportRightClicked() ) );
 
-    setAlignItemsWhenInsert( TRUE );
-    setSortItemsWhenInsert( TRUE );
+    setAligning( TRUE );
+    setSorting( TRUE );
 
     QFont f( font() );
     f.setUnderline( TRUE );
@@ -644,7 +644,7 @@ void QtFileIconView::setDirectory( const QDir &dir )
 
 void QtFileIconView::newDirectory()
 {
-    setAlignItemsWhenInsert( FALSE );
+    setAligning( FALSE );
     selectAll( FALSE );
     if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
 	QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
@@ -659,7 +659,7 @@ void QtFileIconView::newDirectory()
 	qApp->processEvents();
 	item->rename();
     }
-    setAlignItemsWhenInsert( TRUE );
+    setAligning( TRUE );
 }
 
 QDir QtFileIconView::currentDir()
@@ -808,19 +808,16 @@ void QtFileIconView::slotDropped( QDropEvent *e )
 void QtFileIconView::viewLarge()
 {
     setViewMode( QIconSet::Large );
-    alignInGrid();
 }
 
 void QtFileIconView::viewNormal()
 {
     setViewMode( QIconSet::Automatic );
-    alignInGrid();
 }
 
 void QtFileIconView::viewSmall()
 {
     setViewMode( QIconSet::Small );
-    alignInGrid();
 }
 
 void QtFileIconView::viewBottom()
@@ -836,31 +833,21 @@ void QtFileIconView::viewRight()
 void QtFileIconView::flowEast()
 {
     setAlignMode( East );
-    alignInGrid();
 }
 
 void QtFileIconView::flowSouth()
 {
     setAlignMode( South );
-    alignInGrid();
 }
 
 void QtFileIconView::doubleClick()
 {
     setUseSingleClickMode( FALSE );
-    viewport()->repaint( FALSE );
 }
 
 void QtFileIconView::singleClick()
 {
     setUseSingleClickMode( TRUE );
-    viewport()->repaint( FALSE );
-}
-
-void QtFileIconView::alignInGrid()
-{
-    alignItemsInGrid();
-    repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
 
 void QtFileIconView::sortAscending()
@@ -915,7 +902,7 @@ void QtFileIconView::slotViewportRightClicked()
     menu->insertItem( "Use &Single clicks", this, SLOT( singleClick() ) );
     menu->insertItem( "Use &Double clicks", this, SLOT( doubleClick() ) );
     menu->insertSeparator();
-    menu->insertItem( "Align Items in &Grid", this, SLOT( alignInGrid() ) );
+    menu->insertItem( "Align Items in &Grid", this, SLOT( alignItemsInGrid() ) );
     menu->insertSeparator();
     menu->insertItem( "Sort &Ascending", this, SLOT( sortAscending() ) );
     menu->insertItem( "Sort &Descending", this, SLOT( sortDescending() ) );
