@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#91 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -3160,7 +3160,7 @@ void QMultiLineEdit::rebreakParagraph( int line, int removed )
 	    }
 	    r->s.append( other->s );
 	    r->newline = other->newline;
-	    contents->remove( other );
+	    contents->remove( line + 1 );
 	    ++removed;
 	}
     }
@@ -3173,6 +3173,9 @@ void QMultiLineEdit::rebreakAll()
 	return;
     d->maxLineWidth = 0;
     for (int i = 0; i < int(contents->count()); ++i ) {
+	if ( contents->at( i )->newline && 
+	     contents->at( i )->w < contentsRect().width() -  2*d->lr_marg )
+	    continue;
 	rebreakParagraph( i );
 	while ( i < int(contents->count() )
 		&& !contents->at( i )->newline )
