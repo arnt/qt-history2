@@ -573,7 +573,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	widget->setProperty( propName, p->keyToValue( currentItemText ) );
     } else {
 	QVariant ov;
-	if ( propName == "name"  || propName == "itemName" )
+	if ( propName == "name"	 || propName == "itemName" )
 	    ov = widget->property( propName );
 	widget->setProperty( propName, v );
 	if ( propName == "cursor" )
@@ -891,7 +891,7 @@ void AddWizardPageCommand::execute()
 	index = wizard->pageCount();
     wizard->insertPage( page, pageLabel, index );
     if ( show )
-        ( (QDesignerWizard*)wizard )->setCurrentPage( ( (QDesignerWizard*)wizard )->pageNum( page ) );
+	( (QDesignerWizard*)wizard )->setCurrentPage( ( (QDesignerWizard*)wizard )->pageNum( page ) );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->pagesChanged( wizard );
 }
@@ -927,7 +927,7 @@ void DeleteWizardPageCommand::unexecute()
 {
     wizard->insertPage( page, pageLabel, index );
     if ( show )
-        ( (QDesignerWizard*)wizard )->setCurrentPage( ( (QDesignerWizard*)wizard )->pageNum( page ) );
+	( (QDesignerWizard*)wizard )->setCurrentPage( ( (QDesignerWizard*)wizard )->pageNum( page ) );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->pagesChanged( wizard );
 }

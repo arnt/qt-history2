@@ -64,23 +64,23 @@ void WizardEditor::applyClicked()
     // fix wizard buttons
     for ( int i = 0; i < wizard->pageCount(); i++ ) {
 
-        QWidget * page = wizard->page( i );
-        if ( i == 0 ) { // first page
+	QWidget * page = wizard->page( i );
+	if ( i == 0 ) { // first page
 
-            wizard->setBackEnabled( page, FALSE );
-            wizard->setNextEnabled( page, TRUE );
-        }
-        else if ( i == wizard->pageCount() - 1 ) { // last page
+	    wizard->setBackEnabled( page, FALSE );
+	    wizard->setNextEnabled( page, TRUE );
+	}
+	else if ( i == wizard->pageCount() - 1 ) { // last page
 
-            wizard->setBackEnabled( page, TRUE );
-            wizard->setNextEnabled( page, FALSE );
-        }
-        else {
+	    wizard->setBackEnabled( page, TRUE );
+	    wizard->setNextEnabled( page, FALSE );
+	}
+	else {
 
-            wizard->setBackEnabled( page, TRUE );
-            wizard->setNextEnabled( page, TRUE );
-        }
-        wizard->setFinishEnabled( page, FALSE );
+	    wizard->setBackEnabled( page, TRUE );
+	    wizard->setNextEnabled( page, TRUE );
+	}
+	wizard->setFinishEnabled( page, FALSE );
     }
 
     // update listbox
@@ -105,7 +105,7 @@ void WizardEditor::addClicked()
 
     // schedule add command
     AddWizardPageCommand *cmd = new AddWizardPageCommand( tr( "Add Page to %1" ).arg( wizard->name() ),
-                                                          formwindow, wizard, "Page", index, false);
+							  formwindow, wizard, "Page", index, false);
     commands.append( cmd );
 
     // update buttons
@@ -121,8 +121,8 @@ void WizardEditor::removeClicked()
 
     // schedule remove command
     DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Remove Page %1 of %2" )
-                                                                .arg( listBox->text( index ) ).arg( wizard->name() ),
-                                                                formwindow, wizard, index, false );
+								.arg( listBox->text( index ) ).arg( wizard->name() ),
+								formwindow, wizard, index, false );
     commands.append( cmd );
 
     // update buttons
@@ -142,7 +142,7 @@ void WizardEditor::upClicked()
 
     // schedule swap command
     SwapWizardPagesCommand *cmd = new SwapWizardPagesCommand( tr( "Swap pages %1 and %2 of %1" ).arg( index1 ).arg( index2 )
-                                                             .arg( wizard->name() ), formwindow, wizard, index1, index2);
+							     .arg( wizard->name() ), formwindow, wizard, index1, index2);
     commands.append( cmd );
 
     // update buttons
@@ -162,7 +162,7 @@ void WizardEditor::downClicked()
 
     // schedule swap command
     SwapWizardPagesCommand *cmd = new SwapWizardPagesCommand( tr( "Swap pages %1 and %2 of %1" ).arg( index1 ).arg( index2 )
-                                                             .arg( wizard->name() ), formwindow, wizard, index2, index1);
+							     .arg( wizard->name() ), formwindow, wizard, index2, index1);
     commands.append( cmd );
 
     // update buttons
@@ -175,7 +175,7 @@ void WizardEditor::fillListBox()
 
     if ( !wizard ) return;
     for ( int i = 0; i < wizard->pageCount(); i++ )
-        listBox->insertItem( wizard->title( wizard->page( i ) ) );
+	listBox->insertItem( wizard->title( wizard->page( i ) ) );
 
     updateButtons();
 }

@@ -73,7 +73,7 @@ public:
 	MoveTabPage,
 	AddWizardPage,
 	DeleteWizardPage,
-              SwapWizardPages,
+	SwapWizardPages,
 	AddConnection,
 	RemoveConnection,
 	AddSlot,
@@ -464,6 +464,7 @@ public:
 private:
     QWizard *wizard;
     int index1, index2;
+
 };
 
 class AddConnectionCommand : public Command
