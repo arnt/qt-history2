@@ -1202,6 +1202,10 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	return 0;
 
     w = QWidget::find( win );
+    while ( !w && win ) {
+	win = GetParent( win );
+	w = QWidget::find( win );
+    }
     if ( !w )
 	return 0;
     if ( !child && !w->isTopLevel() )
@@ -2181,7 +2185,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_IME_ENDCOMPOSITION:
 		{
 		    QWidget *fw = qApp->focusWidget();
-		    qDebug("EndComposition: lparam=%x", lParam);
 		    if ( fw && imePosition != -1 ) {
 			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
 			result = qt_sendSpontaneousEvent( fw, &e );
@@ -2193,7 +2196,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_IME_COMPOSITION:
 		{
 		    QWidget *fw = qApp->focusWidget();
-		    qDebug("Composition: lparam=%x", lParam);
 		    if ( fw && imePosition != -1 ) {
 			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
 			char buffer[256];
