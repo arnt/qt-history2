@@ -662,8 +662,6 @@ These classes provide automatic geometry (layout) management of widgets.
 
 \title Help System
 
-\keyword online help
-
 \keyword help system
 
 These classes provide for all forms of online-help in your application,
