@@ -351,7 +351,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
 }
 
 /*!
-    \fn const QRect &QDesktopWidget::availableGeometry(QWidget *widget) const
+    \fn const QRect &QDesktopWidget::availableGeometry(const QWidget *widget) const
     \overload
 
     Returns the available geometry of the screen which contains \a widget.
@@ -387,7 +387,7 @@ const QRect& QDesktopWidget::screenGeometry(int screen) const
 }
 
 /*!
-    \fn const QRect &QDesktopWidget::screenGeometry(QWidget *widget) const
+    \fn const QRect &QDesktopWidget::screenGeometry(const QWidget *widget) const
     \overload
 
     Returns the geometry of the screen which contains \a widget.

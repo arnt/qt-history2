@@ -333,9 +333,20 @@ void QTableViewItem::setData(int role, const QVariant &value)
 
 
 /*!
-  \class QTableView qtableview.h
+    \class QTableView qtableview.h
+    \brief The QTableView class provides a table view that uses the
+    predefined QTableModel model.
 
-  \brief Table view implementation using the QTableModel by default
+    If you want a table that uses your own data model you should
+    subclass QGenericTableView rather than this class.
+
+    Items are set with setItem(), or with setText() or setIconSet();
+    these last two are convenience functions that create a QTableItem
+    for you. The label and icon for a given row is set with
+    setRowText() and setRowIconSet(), and for a given column with
+    setColumnText() and setColumnIconSet(). The number of rows is set
+    with setRowCount(), and the number of columns with
+    setColumnCount().
 */
 
 class QTableViewPrivate : public QGenericTableViewPrivate
@@ -349,101 +360,202 @@ public:
 #define d d_func()
 #define q q_func()
 
+/*!
+    Creates a new table view with the given \a parent. The table view
+    uses a QTableModel to hold its data.
+*/
 QTableView::QTableView(QWidget *parent)
     : QGenericTableView(*new QTableViewPrivate, new QTableModel(), parent)
 {
     model()->setParent(this); // make sure the model gets deleted
 }
 
+/*!
+    Destroys this QTableView.
+*/
 QTableView::~QTableView()
 {
 }
 
+/*!
+    Sets the number of rows in this table's model to \a rows. If
+    this is less than rowCount(), the data in the unwanted rows
+    is discarded.
+
+    \sa setColumnCount()
+*/
 void QTableView::setRowCount(int rows)
 {
     d->model()->setRowCount(rows);
 }
 
+/*!
+    Sets the number of columns in this table's model to \a columns. If
+    this is less than columnCount(), the data in the unwanted columns
+    is discarded.
+
+    \sa setRowCount()
+*/
 void QTableView::setColumnCount(int columns)
 {
     d->model()->setColumnCount(columns);
 }
 
+/*!
+    Returns the number of rows in this table's model.
+
+    \sa setRowCount() columnCount()
+*/
 int QTableView::rowCount() const
 {
     return model()->rowCount();
 }
 
+/*!
+    Returns the number of columns in this table's model.
+
+    \sa setColumnCount() rowCount()
+*/
 int QTableView::columnCount() const
 {
     return model()->columnCount();
 }
 
+/*!
+    Returns the item for the given \a row and \a column.
+
+    \sa setItem() text() iconSet()
+*/
 QTableViewItem QTableView::item(int row, int column) const
 {
     return d->model()->item(row, column);
 }
 
+/*!
+    Sets the item for the given \a row and \a column to \a item.
+
+    \sa item() setText() setIconSet()
+*/
 void QTableView::setItem(int row, int column, const QTableViewItem &item)
 {
     d->model()->setItem(row, column, item);
 }
 
+/*!
+    Sets the text for the given \a row and \a column to \a text.
+
+    \sa text() setIconSet() setItem()
+*/
 void QTableView::setText(int row, int column, const QString &text)
 {
     d->model()->setText(row, column, text);
 }
 
+/*!
+    Sets the icon for the given \a row and \a column to \a iconSet.
+
+    \sa iconSet() setText() setItem()
+*/
 void QTableView::setIconSet(int row, int column, const QIconSet &iconSet)
 {
     d->model()->setIconSet(row, column, iconSet);
 }
 
+/*!
+    Returns the text for the given \a row and \a column.
+
+    \sa setText() iconSet()
+*/
 QString QTableView::text(int row, int column) const
 {
     return d->model()->text(row, column);
 }
 
+/*!
+    Returns the icon for the given \a row and \a column.
+
+    \sa setIconSet() text()
+*/
 QIconSet QTableView::iconSet(int row, int column) const
 {
     return d->model()->iconSet(row, column);
 }
 
+/*!
+    Sets the text for the given \a row to \a text.
+
+    \sa rowText() setRowIconSet()
+*/
 void QTableView::setRowText(int row, const QString &text)
 {
     d->model()->setRowText(row, text);
 }
 
+/*!
+    Sets the icon for the given \a row to \a iconSet.
+
+    \sa rowIconSet() setRowText()
+*/
 void QTableView::setRowIconSet(int row, const QIconSet &iconSet)
 {
     d->model()->setRowIconSet(row, iconSet);
 }
 
+/*!
+    Returns the text for the given \a row.
+
+    \sa setRowText() rowIconSet()
+*/
 QString QTableView::rowText(int row) const
 {
     return d->model()->rowText(row);
 }
 
+/*!
+    Returns the icon for the given \a row.
+
+    \sa setRowIconSet() rowText()
+*/
 QIconSet QTableView::rowIconSet(int row) const
 {
     return d->model()->rowIconSet(row);
 }
 
+/*!
+    Sets the text for the given \a column to \a text.
+
+    \sa columnText() setColumnIconSet()
+*/
 void QTableView::setColumnText(int column, const QString &text)
 {
     d->model()->setColumnText(column, text);
 }
 
+/*!
+    Sets the icon for the given \a column to \a iconSet.
+
+    \sa columnIconSet() setColumnText()
+*/
 void QTableView::setColumnIconSet(int column, const QIconSet &iconSet)
 {
     d->model()->setColumnIconSet(column, iconSet);
 }
 
+/*!
+    Returns the text for the given \a column.
+
+    \sa setColumnText() columnIconSet()
+*/
 QString QTableView::columnText(int column) const
 {
     return d->model()->columnText(column);
 }
 
+/*!
+    Returns the icon for the given \a column.
+
+    \sa setColumnIconSet() columnText()
+*/
 QIconSet QTableView::columnIconSet(int column) const
 {
     return d->model()->columnIconSet(column);

@@ -12,28 +12,41 @@ public:
 };
 
 /*!
-  \class QStackedLayout
+    \class QStackedLayout
 
-  \brief The  QStackedLayout class maintains a stack of widgets where only the top widget is visible.
+    \brief The QStackedLayout class maintains a stack of widgets where only the top widget is visible.
 
     \ingroup geomanagement
     \ingroup appearance
 
-    QStackedLayout places all its maintained widgets on top of each
-    other. Only one widget is visible to the user at a time. This top
-    widget is the currentWidget().  It can be changed by setting the
-    \l currentIndex property, using setCurrentIndex(). The index of a
-    given widget inside the stacked box is retrieved with index(),
-    widget() returns the widget at a given index position.  :
-    currentWidget(). The current widget is set with
-    setCurrentWidget().
+    QStackedLayout places all the widgets it is responsible for on top of each
+    other, so only the top one is visible to the user at any one time.
+    Widget positions are given by positive integer indexes starting at
+    0; the widget on top has index position 0.
 
+    Widgets are added at the the end of the stack with addWidget(), or
+    inserted in the stack with insertWidget(). The current widget is
+    returned by currentWidget(), and its index is returned by
+    currentIndex(). The index position of a given widget is returned
+    by indexOf(), and the widget at a given index position by
+    widget(). The number of widgets in the stack is returned by
+    count(). The top widget is set with setCurrentIndex(). If a widget
+    is removed (e.g. with QLayout::removeWidget()), the
+    widgetRemoved() signal is emitted.
 
     \sa QStackedBox
 */
 
 /*!
-  Constructs a new QStackedLayout with parent widget \a parent.
+    \fn void QStackedLayout::widgetRemoved(int index)
+
+    This signal is emitted if a widget is removed from the stack, e.g.
+    with QLayout::removeWidget(). The position that the removed widget
+    occupied in the stack is given by \a index.
+*/
+
+/*!
+    Constructs a new QStackedLayout with the given \a parent.
 */
 
 QStackedLayout::QStackedLayout(QWidget *parent)
@@ -44,8 +57,8 @@ QStackedLayout::QStackedLayout(QWidget *parent)
 
 
 /*!
-  Constructs a new QStackedLayout and inserts it into
-  \a parentLayout.
+    Constructs a new QStackedLayout and inserts it into
+    the given \a parentLayout.
 */
 
 QStackedLayout::QStackedLayout(QLayout *parentLayout)
@@ -57,25 +70,36 @@ QStackedLayout::QStackedLayout(QLayout *parentLayout)
 /*!
     Destroys this QStackedLayout.
 
-    The layout's widgets aren't destroyed.
+    The layout's widgets are \e not destroyed.
 */
 QStackedLayout::~QStackedLayout()
 {
     delete d;
 }
 
-/*!  Adds \a w to this layout. The first widget added becomes the
-  initial current widget.  Returns the index of \a w in this layout.
+/*!
+    Adds widget \a w at the end of this layout stack and returns the
+    index position of \a w.
+
+    The very first widget that is added becomes the initial current
+    widget and is placed in index position 0 (i.e. on top).
+
+    \sa insertWidget()
 */
 int QStackedLayout::addWidget(QWidget *w)
 {
     return insertWidget(d->list.count(), w);
 }
 
-/*!  Inserts \a w to this layout at position \a index. If \a index is
-  out of range, the widget gets appended. The first widget added
-  becomes the initial current widget.  Returns the index of \a w in
-  this layout.
+/*!
+    Inserts widget \a w to this layout at position \a index. If \a index is
+    out of range, the widget is appended. Returns the index position
+    of \a w.
+
+    The very first widget that is added becomes the initial current
+    widget and is placed in index position 0 (i.e. on top).
+
+    \sa addWidget()
 */
 int QStackedLayout::insertWidget(int index, QWidget *w)
 {
@@ -120,12 +144,14 @@ QLayoutItem *QStackedLayout::takeAt(int index)
     return item;
 }
 
-/*\property QStackedBox::currentIndex
-\brief The index of the current widget
+/*!
+    \property QStackedLayout::currentIndex
+    \brief The index position of the current widget.
 
-The current index is -1 if there is no current widget.
+    The current index is -1 if there is no current widget, for example
+    if the stack is empty.
 
-\sa currentWidget() indexOf()
+    \sa currentWidget() indexOf()
 */
 void QStackedLayout::setCurrentIndex(int index)
 {
@@ -176,16 +202,18 @@ int QStackedLayout::currentIndex() const
 
 
 /*!
-  Returns the current widget, or 0 if there are no widgets in this layout. Equivalent to \c widget(currentIndex())
- */
+    Returns the current widget, or 0 if there are no widgets in this
+    layout. Equivalent to \c{widget(currentIndex())}.
+*/
 QWidget *QStackedLayout::currentWidget() const
 {
     return d->index >= 0 ? d->list.at(d->index)->widget() : 0;
 }
 
 /*!
-  Returns the index of \a w in this layout, or -1 if \a w is not present in this layout.
- */
+    Returns the index position of widget \a w in this layout, or -1 if
+    \a w is not in this layout.
+*/
 int QStackedLayout::indexOf(QWidget *w) const
 {
     for (int i = 0; i < d->list.count(); ++i) {
@@ -198,8 +226,9 @@ int QStackedLayout::indexOf(QWidget *w) const
 
 
 /*!
-  Returns the widget with index \a index in this layout. Returns 0 if there is no such widget.
- */
+    Returns the widget at position \a index, or 0 if there is no
+    widget at the given position.
+*/
 QWidget *QStackedLayout::widget(int index) const
 {
      if (index < 0 || index >= d->list.size())
@@ -207,9 +236,7 @@ QWidget *QStackedLayout::widget(int index) const
     return d->list.at(index)->widget();
 }
 
-/*!\property QStackedLayout::count
-  \brief the number of widgets in this layout.
-*/
+
 int QStackedLayout::count() const
 {
     return d->list.size();

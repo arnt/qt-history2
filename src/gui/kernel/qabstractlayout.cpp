@@ -567,11 +567,9 @@ bool QWidgetItem::isEmpty() const
 */
 
 
-
-
 /*!
-    Constructs a new top-level QLayout called \a name, with parent
-    widget \a parent. \a parent may not be 0.
+    Constructs a new top-level QLayout, with parent \a parent.
+    \a parent may not be 0.
 
     There can be only one top-level layout for a widget. It is
     returned by QWidget::layout()
@@ -595,9 +593,8 @@ QLayout::QLayout(QWidget *parent)
 
 
 /*!
-    Constructs a new child QLayout called \a name, and places it
-    inside \a parentLayout by using the default placement defined by
-    addItem().
+    Constructs a new child QLayout, and places it inside \a
+    parentLayout by using the default placement defined by addItem().
 */
 QLayout::QLayout(QLayout *parentLayout)
     : QObject(*new QLayoutPrivate,parentLayout)

@@ -133,6 +133,8 @@ QSignalMapper::~QSignalMapper()
     sender, the signal mapped(\a id) is emitted.
 
     There may be at most one integer ID for each object.
+
+    \sa mapping()
 */
 void QSignalMapper::setMapping(const QObject *sender, int id)
 {
@@ -158,6 +160,12 @@ void QSignalMapper::setMapping(const QObject *sender, const QString &id)
 }
 
 
+/*!
+    Returns the sender QObject that is associated with the given \a
+    id.
+
+    \sa setMapping()
+*/
 QObject *QSignalMapper::mapping(int id) const
 {
     QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
@@ -169,6 +177,9 @@ QObject *QSignalMapper::mapping(int id) const
     return 0;
 }
 
+/*!
+    \overload
+*/
 QObject *QSignalMapper::mapping(const QString &id) const
 {
     QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();

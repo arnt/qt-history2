@@ -1373,19 +1373,12 @@ void QApplication::setGlobalStrut(const QSize& strut)
     app_strut = strut;
 }
 
-/*!
-  Returns the application palette.
-
-  If a widget is passed in \a w, the default palette for the
-  widget's class is returned. This may or may not be the application
-  palette. In most cases there isn't a special palette for certain
-  types of widgets, but one notable exception is the popup menu under
-  Windows, if the user has defined a special background color for
-  menus in the display settings.
-
-  \sa setPalette(), QWidget::palette()
-*/
 #ifndef QT_NO_PALETTE
+/*!
+    Returns the application palette.
+
+    \sa setPalette(), QWidget::palette()
+*/
 QPalette QApplication::palette()
 {
     if (!qApp)
@@ -1401,6 +1394,18 @@ QPalette QApplication::palette()
     return *app_pal;
 }
 
+/*!
+    \overload
+
+    If a widget is passed in \a w, the default palette for the
+    widget's class is returned. This may or may not be the application
+    palette. In most cases there isn't a special palette for certain
+    types of widgets, but one notable exception is the popup menu
+    under Windows, if the user has defined a special background color
+    for menus in the display settings.
+
+    \sa setPalette(), QWidget::palette()
+*/
 QPalette QApplication::palette(const QWidget* w)
 {
     if (w && app_palettes.size()) {
@@ -1415,6 +1420,13 @@ QPalette QApplication::palette(const QWidget* w)
     return palette();
 }
 
+/*!
+    \overload
+
+    Returns the palette for widgets of the given \a className.
+
+    \sa setPalette(), QWidget::palette()
+*/
 QPalette QApplication::palette(const char *className)
 {
     if (!app_pal)

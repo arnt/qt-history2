@@ -1670,9 +1670,10 @@ QBoxLayout::QBoxLayout(Direction dir, QWidget *parent)
 
 
 /*!
-  \obsolete
-    Constructs a new QBoxLayout called \a name, with direction \a dir,
-    and inserts it into \a parentLayout.
+    \obsolete
+
+    Constructs a new QBoxLayout, with direction \a dir, and inserts it
+    into \a parentLayout.
 
 */
 QBoxLayout::QBoxLayout(Direction dir, QLayout *parentLayout)
@@ -2223,6 +2224,15 @@ bool QBoxLayout::setStretchFactor(QLayout *l, int stretch)
     }
     return false;
 }
+
+
+/*!
+    \fn void QBoxLayout::setAlignment(Alignment alignment)
+
+    \overload
+
+    Sets the alignment for the box layout to be \a alignment.
+*/
 
 /*!
     Sets the alignment for widget \a w to \a alignment and returns
