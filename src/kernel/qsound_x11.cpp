@@ -206,7 +206,7 @@ public:
     QAuServerNull(QObject* parent);
 
     void play(const QString&) { }
-    void play(QSound*s) { s->setLoops(0); }
+    void play(QSound*s) { while(decLoop(s) > 0) /* nothing */ ; }
     void stop(QSound*s) { s->setLoops(0); }
     bool okay() { return FALSE; }
 };
