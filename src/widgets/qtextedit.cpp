@@ -613,6 +613,21 @@ static bool block_set_alignment = FALSE;
   \sa setCursorPosition()
 */
 
+/*! \fn void QTextEdit::clicked( int para, int index )
+
+  This signal is emitted when the mouse is clicked on a paragraph.
+
+  \sa doubleClicked()
+*/
+
+/*! \fn void QTextEdit::doubleClicked( int para, int index )
+
+  This signal is emitted when the mouse is double-clicked on a
+  paragraph.
+
+  \sa clicked()
+*/
+
 /*! \overload void QTextEdit::cursorPositionChanged( int para, int pos )
 
   This signal is emitted if the position of the cursor changed. \a
@@ -1952,9 +1967,15 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 {
+    if ( !inDoubleClick ) { // could be the release of a dblclick
+	int para = 0;
+	int index = charAt( e->pos(), &para );
+	emit clicked( para, index );
+    }
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode ) {
 	optimMouseReleaseEvent( e );
+	inDoubleClick = FALSE;
 	return;
     }
 #endif
@@ -2059,11 +2080,10 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 
 /*! \reimp */
 
-void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
+void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( d->optimMode ) // XXX implement me!
-	return;
+    if ( !d->optimMode ) {
 #endif
     QTextCursor c1 = *cursor;
     QTextCursor c2 = *cursor;
@@ -2078,9 +2098,15 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
     *cursor = c2;
 
     repaintChanged();
-
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    }
+#endif
     inDoubleClick = TRUE;
     mousePressed = TRUE;
+
+    int para = 0;
+    int index = charAt( e->pos(), &para );
+    emit doubleClicked( para, index );
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -2489,6 +2515,8 @@ void QTextEdit::insert( const QString &text, bool indent,
 
   The default flags are CheckNewLines | RemoveSelected.
 
+  If the widget is in LogText mode this function will do nothing.
+
   \sa paste() pasteSubType()
 */
 
@@ -2573,7 +2601,10 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
     }
 }
 
-/*! Inserts \a text in the paragraph \a para and position \a index */
+/*! Inserts \a text in the paragraph \a para and position \a index
+  
+    If the widget is in LogText mode this function will do nothing.
+*/
 
 void QTextEdit::insertAt( const QString &text, int para, int index )
 {
@@ -2595,6 +2626,8 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
 /*! Inserts \a text as the paragraph at position \a para. If \a para
   is -1 or out of range, the text is appended. Use append() if the
   append operation is performance critical.
+  
+  If the widget is in LogText mode this function will do nothing.
 */
 
 void QTextEdit::insertParagraph( const QString &text, int para )
@@ -5032,7 +5065,7 @@ QRect QTextEdit::paragraphRect( int para ) const
 
 /*!
     Returns the paragraph which is at position \a pos (in contents
-    coordinates), or -1 if there is no paragraph with index \a pos.
+    coordinates).
 */
 
 int QTextEdit::paragraphAt( const QPoint &pos ) const
@@ -5044,25 +5077,33 @@ int QTextEdit::paragraphAt( const QPoint &pos ) const
 	if ( parag <= d->od->numLines )
 	    return parag;
 	else
-	    return -1;
+	    return 0;
     }
 #endif
     QTextCursor c( doc );
     c.place( pos, doc->firstParag() );
     if ( c.parag() )
 	return c.parag()->paragId();
-    return -1;
+    return -1; // should never happen..
 }
 
 /*!
     Returns the index of the character (relative to its paragraph) at
     position \a pos (in contents coordinates). If \a para is not null,
-    \e *\a para is set to this paragraph. If there is no character at
-    \a pos, -1 is returned.
+    \e *\a para is set to this paragraph.
 */
 
 int QTextEdit::charAt( const QPoint &pos, int *para ) const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( d->optimMode ) {
+	int par = paragraphAt( pos );
+	if ( para != 0 )
+	    *para = par;
+	QTextEdit * that = (QTextEdit *) this;
+	return that->optimCharIndex( d->od->lines[ par ], pos.x() );
+    }
+#endif    
     QTextCursor c( doc );
     c.place( pos, doc->firstParag() );
     if ( c.parag() ) {
@@ -5070,7 +5111,7 @@ int QTextEdit::charAt( const QPoint &pos, int *para ) const
 	    *para = c.parag()->paragId();
 	return c.index();
     }
-    return -1;
+    return -1; // should never happen..
 }
 
 /*! Sets the background color of the paragraph \a para to \a bg */
@@ -5824,7 +5865,7 @@ void QTextEdit::optimMousePressEvent( QMouseEvent * e )
 	d->od->selStart.index = d->od->lines[ d->od->numLines-1 ].length();
     } else {
 	QString str = d->od->lines[ d->od->selStart.line ];
-	d->od->selStart.index = optimCharIndex( str );
+	d->od->selStart.index = optimCharIndex( str, mousePos.x() );
     }
     d->od->selEnd.line = d->od->selStart.line;
     d->od->selEnd.index = d->od->selStart.index;
@@ -5848,7 +5889,7 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
     }
     QString str = d->od->lines[ d->od->selEnd.line ];
     mousePos = e->pos();
-    d->od->selEnd.index = optimCharIndex( str );
+    d->od->selEnd.index = optimCharIndex( str, mousePos.x() );
     if ( d->od->selEnd.line < d->od->selStart.line ) {
 	int tmp = d->od->selStart.line;
 	d->od->selStart.line = d->od->selEnd.line;
@@ -5919,7 +5960,7 @@ void QTextEdit::optimDoAutoScroll()
     }
 
     QString str = d->od->lines[ d->od->selEnd.line ];
-    d->od->selEnd.index = optimCharIndex( str );
+    d->od->selEnd.index = optimCharIndex( str, mousePos.x() );
 
     // have to have a valid index before generating a paint event
     if ( doScroll )
@@ -5956,13 +5997,13 @@ void QTextEdit::optimDoAutoScroll()
   Returns the index of the character in the string \a str that is
   currently under the mouse pointer.
 */
-int QTextEdit::optimCharIndex( const QString &str )
+int QTextEdit::optimCharIndex( const QString &str, int mx )
 {
     QFontMetrics fm( QScrollView::font() );
     uint i = 0;
     int dd, dist = 10000000;
     int curpos = 0;
-    int mx = mousePos.x() - 4; // ### get the real margin from somewhere
+    mx = mx - 4; // ### get the real margin from somewhere
 
     if ( mx > fm.width( str ) )
 	return str.length();

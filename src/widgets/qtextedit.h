@@ -388,6 +388,8 @@ signals:
     void cursorPositionChanged( int para, int pos );
     void returnPressed();
     void modificationChanged( bool m );
+    void clicked( int parag, int index );
+    void doubleClicked( int parag, int index );
 
 protected:
     void repaintChanged();
@@ -500,7 +502,7 @@ private:
     void optimMousePressEvent( QMouseEvent * e );
     void optimMouseReleaseEvent( QMouseEvent * e );
     void optimMouseMoveEvent( QMouseEvent * e );
-    int  optimCharIndex( const QString &str );
+    int  optimCharIndex( const QString &str, int mx );
     void optimSelectAll();
     void optimRemoveSelection();
     void optimSetSelection( int startLine, int startIdx, int endLine,
