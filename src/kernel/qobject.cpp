@@ -58,6 +58,12 @@ class QObjectPrivate {
 }
 #endif
 
+class QSenderObjectList : public QObjectList
+{
+public:
+    QObject *currentSender;
+};
+
 /*!
     \class Qt qnamespace.h
 
@@ -147,9 +153,6 @@ class QObjectPrivate {
     QObjects. QObjectLists support the same operations as QPtrLists
     and have an iterator class, QObjectListIt.
 */
-
-
-static QObject * sigSender = 0;
 
 
 //
@@ -1359,7 +1362,7 @@ static void err_info_about_candidates( int code,
 
 const QObject *QObject::sender()
 {
-    return sigSender;
+    return senderObjects ? ((QSenderObjectList *) senderObjects)->currentSender : 0;
 }
 
 
@@ -1663,7 +1666,8 @@ void QObject::connectInternal( const QObject *sender, int signal_index, const QO
     Q_CHECK_PTR( c );
     clist->append( c );
     if ( !r->senderObjects ) {			// create list of senders
-	r->senderObjects = new QObjectList;
+	r->senderObjects = new QSenderObjectList;
+	((QSenderObjectList *) r->senderObjects)->currentSender = 0;
 	Q_CHECK_PTR( r->senderObjects );
     }
     r->senderObjects->append( s );		// add sender to list
@@ -2045,11 +2049,11 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 
     QObject *object;
     QConnection *c;
-    QObject *previousSender = sigSender;
-    sigSender = this;
     if ( clist->count() == 1 ) { // save iterator
 	c = clist->first();
 	object = c->object();
+	if ( object->senderObjects )
+	    ((QSenderObjectList *) object->senderObjects)->currentSender = this;
 	if ( c->memberType() == QSIGNAL_CODE )
 	    object->qt_emit( c->member(), o );
 	else
@@ -2059,13 +2063,14 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 	while ( (c=it.current()) ) {
 	    ++it;
 	    object = c->object();
+	    if ( object->senderObjects )
+		((QSenderObjectList *) object->senderObjects)->currentSender = this;
 	    if ( c->memberType() == QSIGNAL_CODE )
 		object->qt_emit( c->member(), o );
 	    else
 		object->qt_invoke( c->member(), o );
 	}
     }
-    sigSender = previousSender;
 }
 
 /*!
