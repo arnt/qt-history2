@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.2 1997/06/15 18:31:30 hanord Exp $
+** $Id: qarray.doc,v 2.3 1997/06/30 10:34:22 warwick Exp $
 **
 ** QArray class documentation
 **
@@ -140,6 +140,12 @@
   \fn QArray::QArray( const QArray<type> &a )
   Constructs a shallow copy of \e a.
   \sa assign()
+*/
+
+/*!
+  \fn QArray::QArray( int, int )
+  Constructs an array <em>without allocating</em> array space.
+  The arguments should be (0, 0). Use at own risk.
 */
 
 /*!

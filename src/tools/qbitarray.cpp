@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#36 $
 **
 ** Implementation of QBitArray class
 **
@@ -12,7 +12,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#36 $");
 
 
 #define SHBLOCK	 ((bitarr_data*)(sharedBlock()))
@@ -24,6 +24,32 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#35 $");
 
   The QBitVal is required by the indexing [] operator on bit arrays.
   It is probably a bad idea to use it in any other context.
+*/
+
+/*!
+  \fn QBitVal::QBitVal (QBitArray* a, uint i) 
+
+  Constructs a reference to an element in a QBitArray.  This is
+  what QBitArray::operator[] contructs its return value with.
+*/
+
+/*!
+  \fn QBitVal::operator int () 
+
+  Returns the value referenced by the QBitVal.
+*/
+
+/*!
+  \fn QBitVal& QBitVal::operator= (const QBitVal& v) 
+
+  Sets the value referenced by the QBitVal to that reference by another
+  QBitVal.
+*/
+
+/*!
+  \fn QBitVal& QBitVal::operator= (int v) 
+
+  Sets the value referenced by the QBitVal.
 */
 
 

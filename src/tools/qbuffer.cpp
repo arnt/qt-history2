@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#33 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#33 $");
 
 
 /*!
@@ -120,6 +120,11 @@ bool QBuffer::setBuffer( QByteArray buf )
     return TRUE;
 }
 
+/*!
+  \fn QByteArray buffer() const
+
+  Returns the buffer most recently set by setBuffer(), or at construction.
+*/
 
 /*!
   Opens the file specified by the file name currently set, using the mode \e m.

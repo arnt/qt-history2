@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#42 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#42 $");
 
 
 /*!
@@ -62,6 +62,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#41 $");
 /*!
   \fn QPointArray::QPointArray( const QPointArray &a )
   Constructs a shallow copy of the point array \e a.
+
+  \sa copy()
 */
 
 /*!
@@ -111,8 +113,15 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
   to this point array.
 
   Equivalent to assign( a ).
+
+  \sa copy()
 */
 
+/*!
+  \fn QPointArray copy() const
+
+  Creates a deep copy of the array.
+*/
 
 /*!
   Fills the point array with the point \e p.
@@ -348,6 +357,18 @@ QPoint QPointArray::at( uint index ) const
     QPointData p = QArrayM(QPointData)::at( index );
     return QPoint( (QCOORD)p.x, (QCOORD)p.y );
 }
+
+/*!
+  \fn QPointVal operator[]( int index )
+
+  Returns a reference to the point at position \e index in the array.
+*/
+
+/*!
+  \fn QPointVal operator[]( uint index )
+
+  Returns a reference to the point at position \e index in the array.
+*/
 
 
 /*!
