@@ -42,6 +42,8 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 #if defined (USE_ARCHIVES)
     readArchive( "sys.arq", tmpPath );
 #endif
+    
+    connect( &autoContTimer, SIGNAL( timeout() ), this, SLOT( timerFired() ) );
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -279,7 +281,6 @@ void SetupWizardImpl::doFinalIntegration()
     uninstaller << DISTVER;
 
     QEnvironment::recordUninstall( QString( "Qt " ) + DISTVER, uninstaller.join( " " ) );
-
 }
 
 void SetupWizardImpl::integratorDone()
@@ -296,6 +297,10 @@ void SetupWizardImpl::integratorDone()
 	*/
 	doFinalIntegration();
 	setNextEnabled( buildPage, true );
+
+	timeCounter = 30;
+	autoContTimer.start( 1000 );
+	logOutput( "The build was successful" );
     }
 }
 
@@ -493,7 +498,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
 	QByteArray pathBuffer;
 	QStringList path;
-	QString qtDir = QEnvironment::getFSFileName( installPath->text() );
+	QString qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( installPath->text() ) );
 
 	createDir( installPath->text() );
 	
@@ -672,8 +677,11 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 #endif
 	    createDir( installPath->text() + "\\plugins\\designer" );
 	    filesCopied = copySuccessful;
+
+	    timeCounter = 30;
+	    autoContTimer.start( 1000 );
 	    if( copySuccessful )
-		logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
+		logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\nThe build will start automatically in 30 seconds", true );
 	    else
 		logFiles( "One or more errors occurred during file copying,\nplease review the log and try to amend the situation.\n", true );
 	}
@@ -1032,4 +1040,18 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 void SetupWizardImpl::setInstallStep( int step )
 {
     setCaption( QString( "Qt Installation Wizard - Step %1 of 7" ).arg( step ) );
+}
+
+void SetupWizardImpl::timerFired()
+{
+    QString tmp( "Next %1 >" );
+
+    timeCounter--;
+
+    if( timeCounter )
+	nextButton()->setText( tmp.arg( timeCounter ) );
+    else {
+	next();
+	autoContTimer.stop();
+    }
 }

@@ -1,4 +1,5 @@
 #include <qprocess.h>
+#include <qtimer.h>
 
 #include "setupwizard.h"
 #include "shell.h"
@@ -53,6 +54,7 @@ protected slots:
     virtual void readMakeError();
     virtual void readIntegratorOutput();
     virtual void readIntegratorError();
+    virtual void timerFired();
 //    virtual void envDone();
 
 private:
@@ -87,6 +89,9 @@ private:
     void setInstallStep( int step );
     QFile fileLog;
     QFile outputLog;
+
+    QTimer autoContTimer;
+    int timeCounter;
 public:
     void stopProcesses();
 };
