@@ -139,7 +139,7 @@ inline void QSettingsHeading::parseLine(const QString &l)
 	QString gname = line;
 
 	gname = gname.remove(0, 1);
-	if (gname[gname.length() - 1] == QChar(']'))
+	if (gname[(int)gname.length() - 1] == QChar(']'))
 	    gname = gname.remove(gname.length() - 1, 1);
 
 	git = replace(gname, QSettingsGroup());
