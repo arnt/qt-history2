@@ -4888,6 +4888,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 #ifndef QT_NO_XFTFREETYPE
     if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle ) {
+	// ### cache filename directly!
 	//qDebug("fontstruct name: %s", fs->name.data());
 	XftPattern *pattern = XftNameParse(fs->name.data());
 	//qDebug("xfthandle=%p", font);
@@ -4896,8 +4897,10 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	XftPattern *f = XftFontMatch(qt_xdisplay(), 0, pattern, &res);
 	XftPatternGetString (f, XFT_FILE, 0, &filename);
 	//qDebug("filename for font is '%s'", filename);
-	if ( filename )
+	if ( filename ) {
 	    fontfilename = QString::fromLatin1( filename );
+	    xfontname = fontfilename; 
+	}
 	XftPatternDestroy( f );
 	XftPatternDestroy( pattern );
     } else
@@ -4915,123 +4918,124 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    xfontname = rawName.mid(0,index);
 	    xlfd = TRUE;
 	}
-	if ( xlfd ) {
-	    char** font_path;
-	    int npaths;
+    }
+#endif
+    // ### somehow the font dict doesn't seem to work without this. Don't ask me why...
+    priv->fonts.size();
+    p = priv->fonts.find(xfontname);
+    if ( p )
+	return;
 
-	    font_path = XGetFontPath( qt_xdisplay(), &npaths);
-	    for (int i=0; i<npaths && fontfilename.length()==0; i++) {
-		if ((font_path[i])[0] != '/') continue; // not a path name, a font server
-		QString fontmapname;
-		int num = 0;
-		// search font.dir and font.scale for the right file
-		while ( num < 2 ) {
-		    if ( num == 0 )
-			fontmapname.sprintf("%s%s",font_path[i],"/fonts.scale");
-		    else
-			fontmapname.sprintf("%s%s",font_path[i],"/fonts.dir");
-		    //qWarning(fontmapname);
-		    QFile fontmap(fontmapname);
-		    if (fontmap.open(IO_ReadOnly)) {
-			while (!fontmap.atEnd()) {
-			    QString mapping;
-			    fontmap.readLine(mapping,512);
+#ifdef Q_WS_X11
+    if ( xlfd ) {
+	char** font_path;
+	int npaths;
+
+	font_path = XGetFontPath( qt_xdisplay(), &npaths);
+	for (int i=0; i<npaths && fontfilename.length()==0; i++) {
+	    if ((font_path[i])[0] != '/') continue; // not a path name, a font server
+	    QString fontmapname;
+	    int num = 0;
+	    // search font.dir and font.scale for the right file
+	    while ( num < 2 ) {
+		if ( num == 0 )
+		    fontmapname.sprintf("%s%s",font_path[i],"/fonts.scale");
+		else
+		    fontmapname.sprintf("%s%s",font_path[i],"/fonts.dir");
+		//qWarning(fontmapname);
+		QFile fontmap(fontmapname);
+		if (fontmap.open(IO_ReadOnly)) {
+		    while (!fontmap.atEnd()) {
+			QString mapping;
+			fontmap.readLine(mapping,512);
 				// fold to lower (since X folds to lowercase)
 				//qWarning(xfontname);
 				//qWarning(mapping);
-			    if (mapping.lower().contains(xfontname.lower())) {
-				index = mapping.find(' ',0);
-				QString ffn = mapping.mid(0,index);
+			if (mapping.lower().contains(xfontname.lower())) {
+			    int index = mapping.find(' ',0);
+			    QString ffn = mapping.mid(0,index);
 				// remove the most common bitmap formats
-				if( !ffn.contains( ".pcf" ) && !ffn.contains( " .bdf" ) &&
-				    !ffn.contains( ".spd" ) && !ffn.contains( ".phont" ) ) {
-				    fontfilename = font_path[i] + QString("/") + ffn;
-				    if ( QFile::exists(fontfilename) ) {
-					//qDebug("found font file %s", fontfilename.latin1());
-					break;
-				    } else // unset fontfilename
-					fontfilename = QString();
-				}
+			    if( !ffn.contains( ".pcf" ) && !ffn.contains( " .bdf" ) &&
+				!ffn.contains( ".spd" ) && !ffn.contains( ".phont" ) ) {
+				fontfilename = font_path[i] + QString("/") + ffn;
+				if ( QFile::exists(fontfilename) ) {
+				    //qDebug("found font file %s", fontfilename.latin1());
+				    break;
+				} else // unset fontfilename
+				    fontfilename = QString();
 			    }
 			}
-			fontmap.close();
 		    }
-		    num++;
+		    fontmap.close();
 		}
+		num++;
 	    }
-	    XFreeFontPath(font_path);
 	}
+	XFreeFontPath(font_path);
     }
 #endif
-    if ( !fontfilename.isEmpty() )
-	xfontname = fontfilename;
-    // ### somehow the font dict doesn't seem to work without this. Don't ask me why...
-    priv->fonts.size();
 
-    p = priv->fonts.find(xfontname);
     //qDebug("font=%s, fontname=%s, p=%p", f.family().latin1(), xfontname.latin1(), p);
 
-    if ( !p ) {
-	// memory mapping would be better here
-	if (fontfilename.length() > 0) { // maybe there is no file name
-	    QFile fontfile(fontfilename);
-	    if ( fontfile.exists() ) {
-		printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
-		data = QByteArray( fontfile.size() );
+    // memory mapping would be better here
+    if (fontfilename.length() > 0) { // maybe there is no file name
+	QFile fontfile(fontfilename);
+	if ( fontfile.exists() ) {
+	    printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
+	    data = QByteArray( fontfile.size() );
 
-		fontfile.open(IO_Raw | IO_ReadOnly);
-		fontfile.readBlock(data.data(), fontfile.size());
-		fontfile.close();
-	    }
+	    fontfile.open(IO_Raw | IO_ReadOnly);
+	    fontfile.readBlock(data.data(), fontfile.size());
+	    fontfile.close();
 	}
+    }
 
 
-	enum { NONE, PFB, PFA, TTF } type = NONE;
+    enum { NONE, PFB, PFA, TTF } type = NONE;
 
-	if (!data.isNull() && data.size() > 0) {
-	    unsigned char* d = (unsigned char *)data.data();
-	    if (d[0] == 0x80 && d[6] == '%' && d[7] == '!' && d[8] == 'P' && d[9] == 'S' )
-		type = PFB;
-	    else if (d[0] == '%' && d[1] == '!' && d[2] == 'P' && d[3] == 'S')
-		type = PFA;
-	    else if (d[0]==0x00 && d[1]==0x01 && d[2]==0x00 && d[3]==0x00)
-		type = TTF;
-	    else
-		type = NONE;
-	} else
+    if (!data.isNull() && data.size() > 0) {
+	unsigned char* d = (unsigned char *)data.data();
+	if (d[0] == 0x80 && d[6] == '%' && d[7] == '!' && d[8] == 'P' && d[9] == 'S' )
+	    type = PFB;
+	else if (d[0] == '%' && d[1] == '!' && d[2] == 'P' && d[3] == 'S')
+	    type = PFA;
+	else if (d[0]==0x00 && d[1]==0x01 && d[2]==0x00 && d[3]==0x00)
+	    type = TTF;
+	else
 	    type = NONE;
+    } else
+	type = NONE;
 
 	//qWarning(xfontname);
-	switch (type) {
-	    case TTF :
-		p = new QPSPrinterFontTTF(f, data);
-		break;
-	    case PFB:
-		p = new QPSPrinterFontPFB(f, data);
-		break;
-	    case PFA:
-		p = new QPSPrinterFontPFA(f, data);
-		break;
-	    case NONE: 
-	    default:   
+    switch (type) {
+	case TTF :
+	    p = new QPSPrinterFontTTF(f, data);
+	    break;
+	case PFB:
+	    p = new QPSPrinterFontPFB(f, data);
+	    break;
+	case PFA:
+	    p = new QPSPrinterFontPFA(f, data);
+	    break;
+	case NONE: 
+	default:   
 
-		if ( script == QFont::Hiragana || script == QFont::Katakana ) {
-		    p = new QPSPrinterFontJapanese( f );
-		} else if ( script == QFont::Hangul) {
-		    p = new QPSPrinterFontKorean( f );
-		} else if ( script == QFont::UnifiedHan ) {
-		    // #####
+	    if ( script == QFont::Hiragana || script == QFont::Katakana ) {
+		p = new QPSPrinterFontJapanese( f );
+	    } else if ( script == QFont::Hangul) {
+		p = new QPSPrinterFontKorean( f );
+	    } else if ( script == QFont::UnifiedHan ) {
+		// #####
 //			    || cs == QFont::Big5 || cs == QFont::Set_Zh_TW) {
-		    p = new QPSPrinterFontTraditionalChinese( f );
+		p = new QPSPrinterFontTraditionalChinese( f );
 //		} else if ( cs == QFont::Set_GBK || cs == QFont::GB_2312 || cs == QFont::Set_Zh) {
 //		    p = new QPSPrinterFontSimplifiedChinese( f );
-		} else 
-		    //qDebug("didnt find font for %s", xfontname.latin1());
-		    p=new QPSPrinterFontNotFound( f ); break;
-	}
-	//qDebug("inserting %s int dict (%p)", xfontname.latin1(), p);
-	priv->fonts.insert( xfontname, p );
+	    } else 
+		//qDebug("didnt find font for %s", xfontname.latin1());
+		p=new QPSPrinterFontNotFound( f ); break;
     }
+    //qDebug("inserting %s int dict (%p)", xfontname.latin1(), p);
+    priv->fonts.insert( xfontname, p );
 }
 
 // ================= END OF PS FONT METHODS ============
