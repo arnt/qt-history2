@@ -134,6 +134,10 @@ void QKernelApplication::init()
 
     is_app_closing = FALSE;
 
+#ifndef QT_NO_COMPONENT
+    d->app_libpaths = 0;
+#endif
+
     if (self)
 	qFatal("cannot construct to application objects");
     self = this;
