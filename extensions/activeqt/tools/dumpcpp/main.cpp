@@ -68,6 +68,11 @@ enum MemberFlags {
     MemberScriptable = 0x40,
 };
 
+extern QMetaObject *qax_readEnumInfo(ITypeLib *typeLib, const QMetaObject *parentObject);
+extern QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
+extern QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
+extern QByteArray qax_current_typelib;
+extern QList<QByteArray> qax_qualified_usertypes;
 
 void writeEnums(QTextStream &out, const QMetaObject *mo)
 {
@@ -87,7 +92,7 @@ void writeEnums(QTextStream &out, const QMetaObject *mo)
     }
 }
 
-void generateNameSpace(QTextStream &out, const QMetaObject *mo, const QByteArray &nameSpace)
+void writeHeader(QTextStream &out, const QByteArray &nameSpace)
 {
     out << "#ifndef QAX_DUMPCPP_" << nameSpace.toUpper() << "_H" << endl;
     out << "#define QAX_DUMPCPP_" << nameSpace.toUpper() << "_H" << endl;
@@ -103,7 +108,11 @@ void generateNameSpace(QTextStream &out, const QMetaObject *mo, const QByteArray
     out << "#include <qpixmap.h>" << endl;
     out << endl;
     out << "struct IDispatch;" << endl;
+    out << endl;
+}
 
+void generateNameSpace(QTextStream &out, const QMetaObject *mo, const QByteArray &nameSpace)
+{
     out << "namespace " << nameSpace << " {" << endl;
     out << endl;
     writeEnums(out, mo);
@@ -211,19 +220,43 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 
         QByteArray propertyType(property.typeName());
         QByteArray castType(propertyType);
- 
-        out << indent << "inline " << propertyType << " ";
+
+        QByteArray simplePropType = propertyType;
+        simplePropType.replace('*', "");
+        out << indent << "inline ";
+        bool foreignNamespace = true;
+        if (!propertyType.contains("::") && qax_qualified_usertypes.contains(simplePropType)) {
+            propertyType = nameSpace + "::" + propertyType;
+            foreignNamespace = false;
+        }
+
+        out << propertyType << " ";
+
         if (category & OnlyInlines)
             out << className << "::";
         out << propertyName << "() const";
 
         if (!(category & NoInlines)) {
             out << endl << indent << "{" << endl;
+            if (qax_qualified_usertypes.contains(simplePropType)) {
+                out << indent << "    IDispatch *disp_pointer = 0;" << endl;
+                out << indent << "    qRegisterMetaType(\"" << property.typeName() << "\", &disp_pointer);" << endl;
+            }
             out << indent << "    QVariant qax_result = property(\"" << propertyName << "\");" << endl;
             if (propertyType.at(propertyType.length()-1) == '*')
                 out << indent << "    if (!qax_result.constData()) return 0;" << endl;
             out << indent << "    Q_ASSERT(qax_result.isValid());" << endl;
-            out << indent << "    return *(" << propertyType << "*)qax_result.constData();" << endl;
+            if (qax_qualified_usertypes.contains(simplePropType)) {
+                if (foreignNamespace) {
+                    out << indent << "    return 0; // foreign namespace not supported at this point" << endl;
+                } else {
+                    simplePropType = propertyType;
+                    simplePropType.replace('*', "");
+                    out << indent << "    return new " << simplePropType << "(*(IDispatch**)qax_result.constData());" << endl;
+                }
+            } else {
+                out << indent << "    return *(" << propertyType << "*)qax_result.constData();" << endl;
+            }
             out << indent << "}" << endl;
         } else {
             out << ";" << endl;
@@ -279,6 +312,11 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         QByteArray slotTag(slot.tag());
         QByteArray slotType(slot.typeName());
 
+        QByteArray simpleSlotType = slotType;
+        simpleSlotType.replace('*', "");
+        if (!slotType.contains("::") && qax_qualified_usertypes.contains(simpleSlotType))
+            slotType = nameSpace + "::" + slotType;
+
         QByteArray slotNamedSignature;
         if (slotSignature.endsWith("()")) { // no parameters - no names
             slotNamedSignature = slotSignature;
@@ -332,9 +370,14 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
                 out << indent << "    QVariantList qax_parameters;" << endl;
                 out << indent << "    qax_parameters << " << slotParameters.replace(',', " << ") << ";" << endl;
             }
+            if (qax_qualified_usertypes.contains(simpleSlotType)) {
+                out << indent << "    IDispatch *disp_pointer = 0;" << endl;
+                out << indent << "    qRegisterMetaType(\"" << slot.typeName() << "\", &disp_pointer);" << endl;
+            }
             out << indent << "    ";
-            if (!slotType.isEmpty())
+            if (!slotType.isEmpty()) {
                 out << "QVariant qax_result = ";
+            }
 
             out << "dynamicCall(\"" << slotSignature << "\"";
             if (!slotParameters.isEmpty())
@@ -344,7 +387,14 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
                 if (slotType.at(slotType.length() - 1) == '*')
                     out << indent << "    if (!qax_result.constData()) return 0;" << endl;
                 out << indent << "    Q_ASSERT(qax_result.isValid());" << endl;
-                out << indent << "    return *(" << slotType << "*)qax_result.constData();" << endl;
+
+                if (qax_qualified_usertypes.contains(simpleSlotType)) {
+                    simpleSlotType = slotType;
+                    simpleSlotType.replace('*', "");
+                    out << indent << "    return new " << simpleSlotType << "(*(IDispatch**)qax_result.constData());" << endl;
+                } else {
+                    out << indent << "    return *(" << slotType << "*)qax_result.constData();" << endl;
+                }
             }
             out << indent << "}" << endl;
         }
@@ -579,6 +629,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
         out << "****************************************************************************/" << endl;
         out << endl;
 
+        writeHeader(out, nameSpace);
         generateNameSpace(out, mo, nameSpace);
 
         // close namespace file
@@ -651,9 +702,6 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
     return true;
 }
 
-extern QMetaObject *qax_readEnumInfo(ITypeLib *typeLib, const QMetaObject *parentObject);
-extern QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
-extern QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
 
 bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, ObjectCategory category)
 {
@@ -668,17 +716,12 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         return false;
     }
 
-    QString libName, libDoc, libHelp;
-
+    QString libName;
     BSTR nameString;
-    BSTR docString;
-    DWORD helpContext;
-    BSTR helpFile;
-    if (S_OK == typelib->GetDocumentation(-1, &nameString, &docString, &helpContext, &helpFile)) {
-        libName = BSTRToQString(nameString);
-        libDoc = BSTRToQString(docString);
-        libHelp = BSTRToQString(helpFile);
-    }
+    HRESULT hasDocu = typelib->GetDocumentation(-1, &nameString, 0, 0, 0);
+    libName = BSTRToQString(nameString);
+    SysFreeString(nameString);
+    qax_current_typelib = libName.latin1();
 
     QString libVersion("1.0");
 
@@ -707,6 +750,16 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             return false;
         }
 
+        implOut << "/****************************************************************************" << endl;
+        implOut << "**" << endl;
+        implOut << "** Metadata for " << libName << " generated by dumpcpp from type library" << endl;
+        implOut << "** " << typeLibFile << endl;
+        implOut << "**" << endl;
+        implOut << "****************************************************************************/" << endl;
+        implOut << endl;
+
+        implOut << "#define QAX_DUMPCPP_" << libName.toUpper() << "_NOINLINES" << endl;
+
         implOut << "#include \"" << cppFile << ".h\"" << endl;
         implOut << endl;
         implOut << "using namespace " << libName << ";" << endl;
@@ -717,6 +770,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     QTextStream declOut(&declFile);
     QString inlines;
     QTextStream inlinesOut(&inlines, QIODevice::WriteOnly);
+    QMap<QByteArray, QList<QByteArray> > namespaces;
 
     if(!(category & NoDeclaration)) {
         if (!declFile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
@@ -732,12 +786,12 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         declOut << "****************************************************************************/" << endl;
         declOut << endl;
 
-        generateNameSpace(declOut, namespaceObject, libName.latin1());
+        writeHeader(declOut, libName.latin1());
 
         UINT typeCount = typelib->GetTypeInfoCount();
         if (declFile.isOpen()) {
             declOut << endl;
-            declOut << "//Forward declarations" << endl;
+            declOut << "// Referenced namespace" << endl;
             for (UINT index = 0; index < typeCount; ++index) {
                 ITypeInfo *typeinfo = 0;
                 typelib->GetTypeInfo(index, &typeinfo);
@@ -754,25 +808,60 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                 TYPEKIND typekind;
                 typelib->GetTypeInfoType(index, &typekind);
 
-                // forward declare classes and interface (not enums and typedefs)
-                if (typekind == TKIND_COCLASS || typekind == TKIND_DISPATCH) {
-                    BSTR nameString;
-                    BSTR docString;
-                    DWORD helpContext;
-                    BSTR helpFile;
+                QMetaObject *metaObject = 0;
 
-                    if (S_OK == typeinfo->GetDocumentation(-1, &nameString, &docString, &helpContext, &helpFile)) {
-                        QString classname = BSTRToQString(nameString);
-                        declOut << "class " << classname << ";" << endl;
-                    }
+                // trigger meta object to collect references to other type libraries
+                switch (typekind) {
+                case TKIND_COCLASS:
+                    metaObject = qax_readClassInfo(typelib, typeinfo, &QObject::staticMetaObject);
+                    break;
+                case TKIND_DISPATCH:
+                    metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QObject::staticMetaObject);
+                    break;
+                default:
+                    break;
                 }
 
+                delete metaObject;
                 typeinfo->ReleaseTypeAttr(typeattr);
                 typeinfo->Release();
             }
 
+            for (int i = 0; i < qax_qualified_usertypes.count(); ++i) {
+                QByteArray refType = qax_qualified_usertypes.at(i);
+                QByteArray refTypeLib;
+                if (refType.contains("::")) {
+                    refTypeLib = refType;
+                    refType = refType.mid(refType.lastIndexOf("::") + 2);
+                    refTypeLib = refTypeLib.left(refTypeLib.indexOf("::"));
+                    namespaces[refTypeLib].append(refType);
+                } else {
+                    namespaces[libName.latin1()].append(refType);
+                }                
+            }
+
+            QList<QByteArray> keys = namespaces.keys();
+            for (int n = 0; n < keys.count(); ++n) {
+                QByteArray nspace = keys.at(n);
+                if (nspace != libName) {
+                    declOut << "namespace " << nspace << " {" << endl;
+                    QList<QByteArray> classes = namespaces.value(nspace);
+                    for (int c = 0; c < classes.count(); ++c) {
+                        declOut << "    class " << classes.at(c) << ";" << endl;
+                    }
+                    declOut << "}" << endl << endl;
+                }
+            }
+
             declOut << endl;
         }
+        generateNameSpace(declOut, namespaceObject, libName.latin1());
+
+        QList<QByteArray> classes = namespaces.value(libName.latin1());
+        if (classes.count())
+            declOut << "// forward declarations" << endl;
+        for (int c = 0; c < classes.count(); ++c)
+            declOut << "    class " << classes.at(c) << ";" << endl;
     }
 
     UINT typeCount = typelib->GetTypeInfoCount();
@@ -798,7 +887,6 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         else if (typeattr->wTypeFlags & TYPEFLAG_FCONTROL)
             object_category |= ActiveX;
 
-        QUuid guid(typeattr->guid);
         QMetaObject *metaObject = 0;
 
         switch (typekind) {
@@ -813,6 +901,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         }
 
         if (metaObject) {
+            QUuid guid(typeattr->guid);
             QByteArray className(metaObject->className());
             if (declFile.isOpen()) {
                 generateClassDecl(declOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
@@ -835,10 +924,14 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     delete namespaceObject;
 
     if (declFile.isOpen()) {
-        if (inlines.size())
-            declOut << "// member function implementation" << endl << inlines << endl;
+        if (inlines.size()) {
+            declOut << "// member function implementation" << endl;
+            declOut << "#ifndef QAX_DUMPCPP_" << libName.toUpper() << "_NOINLINES" << endl;
+            declOut << inlines << endl;
+            declOut << "#endif" << endl << endl;
+        }
         // close namespace
-        declOut << "};" << endl;
+        declOut << "}" << endl;
         declOut << endl;
 
         declOut << "#endif" << endl;
@@ -851,6 +944,9 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
 int main(int argc, char **argv)
 {
+    extern bool qax_dispatchEqualsIDispatch;
+//    qax_dispatchEqualsIDispatch = false;
+
     CoInitialize(0);
 
     uint category = DefaultObject;
