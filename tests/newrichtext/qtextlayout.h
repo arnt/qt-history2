@@ -99,6 +99,7 @@ private:
     void operator = ( const QTextLayout & ) {}
 
     friend class QTextItem;
+    friend class QPainter;
     QTextEngine *d;
 };
 

@@ -58,7 +58,8 @@ void QScriptItemArray::split( int pos )
     QScriptItem &oldItem = d->items[itemToSplit];
     newItem = oldItem;
     d->items[itemToSplit+1].position = pos;
-    newItem.fontEngine->ref();
+    if ( newItem.fontEngine )
+	newItem.fontEngine->ref();
 
 //     qDebug("split at position %d itempos=%d", pos, itemToSplit );
 }
