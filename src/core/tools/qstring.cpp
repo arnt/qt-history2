@@ -1529,6 +1529,9 @@ bool QString::operator==(const QLatin1String &other) const
     const ushort *e = uc + d->size;
     const uchar *c = (uchar *)other.latin1();
 
+    if (!c)
+        return isEmpty();
+
     while (*c) {
         if (uc == e || *uc != *c)
             return false;
@@ -1584,6 +1587,9 @@ bool QString::operator<(const QLatin1String &other) const
     const ushort *uc = d->data;
     const ushort *e = uc + d->size;
     const uchar *c = (uchar *) other.latin1();
+
+    if (!c || *c == 0)
+        return false;
 
     while (*c) {
         if (uc == e || *uc != *c)
@@ -1677,6 +1683,9 @@ bool QString::operator>(const QLatin1String &other) const
     const ushort *uc = d->data;;
     const ushort *e = uc + d->size;
     const uchar *c = (uchar *) other.latin1();
+
+    if (!c || *c == '\0')
+        return !isEmpty();
 
     while (*c) {
         if (uc == e || *uc != *c)
