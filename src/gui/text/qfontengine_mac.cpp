@@ -396,13 +396,13 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	bool use_cached_width = TRUE;
 	for(int i = 0; i < use_len; i++) {
 	    int c;
-	    if(s[i].unicode() >= widthCacheSize || (c = !widthCache[s[i].unicode()])) {
+	    if(s[i].unicode() >= widthCacheSize || !(c = widthCache[s[i].unicode()])) {
 		use_cached_width = FALSE;
 		break;
 	    }
-	    if(c == -666)
+	    if(c == -666) //special marker meaning 0
 		c = 0;
-	    ret += widthCache[s[i].unicode()];
+	    ret += c;
 	}
 	if(use_cached_width) {
 	    if(task == WIDTH)
@@ -531,10 +531,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
 	ATSUGetUnjustifiedBounds(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &left, &right, &bottom, &top);
 	ret = FixRound(right-left);
-	if(!ret)
-	    ret = -666; //marker
 	if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
-	    widthCache[s->unicode()] = ret;
+	    widthCache[s->unicode()] = ret ? ret : -666; //mark so that 0 is cached..
     }
     if(task & DRAW) {
 	int drawy = y;

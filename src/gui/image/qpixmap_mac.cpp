@@ -712,7 +712,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 */
 Qt::HANDLE QPixmap::macCGHandle() const
 {
-    if(!cg_hd) {
+    if(!cg_hd && hd) {
 	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
 	if(depth() == 1) //bitmaps really don't need antialiasing..
 	    CGContextSetShouldAntialias((CGContextRef)cg_hd, false);
