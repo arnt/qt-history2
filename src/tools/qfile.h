@@ -44,8 +44,6 @@
 #include <stdio.h>
 #endif // QT_H
 
-//#define RMS_BUFFERING
-
 class QDir;
 
 
@@ -107,15 +105,6 @@ protected:
 private:
     void	init();
     QCString	ungetchBuffer;
-#if defined(RMS_BUFFERING)
-    int buf_fillFromFile(); // read new buffer input from file
-    int buf_read( char *c, int size ); // like fread()
-    int buf_getline( char *s, int size ); // like fgets() (without appending 0 )
-    static const int readBufferIdealSize;
-    QByteArray	readBuffer;
-    int readBufferPos;
-    int readBufferSize;
-#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

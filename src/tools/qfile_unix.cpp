@@ -41,102 +41,6 @@
 #include "qfiledefs_p.h"
 
 
-#if defined(RMS_BUFFERING)
-int QFile::buf_fillFromFile()
-{
-#if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {				// file not open
-	qWarning( "QFile::buf_fillFromFile: File not open" );
-	return -1;
-    }
-    if ( !isReadable() ) {			// reading not permitted
-	qWarning( "QFile::buf_fillFromFile: Read operation not permitted" );
-	return -1;
-    }
-#endif
-    readBuffer.resize( readBufferIdealSize );
-    readBufferPos = 0;
-    readBufferSize = readBufferIdealSize;
-    int rb_i = 0;
-
-    int nread = 0;					// number of bytes read
-    if ( !ungetchBuffer.isEmpty() ) {
-	// need to add these to the returned string.
-	int l = ungetchBuffer.length();
-	while( nread < l ) {
-	    readBuffer[rb_i] = ungetchBuffer[ l - nread - 1 ];
-	    rb_i++;
-	    nread++;
-	}
-	ungetchBuffer.truncate( l - nread );
-    }
-    
-    if ( nread < readBufferIdealSize ) {
-	if ( isRaw() ) {				// raw file
-	    nread += READ( fd, readBuffer.data()+nread, readBufferIdealSize-nread );
-	    if ( nread <= 0 ) {
-		nread = 0;
-		setStatus(IO_ReadError);
-	    }
-	} else {					// buffered file
-	    nread += fread( readBuffer.data()+nread, 1, readBufferIdealSize-nread, fh );
-	    if ( nread != readBufferIdealSize ) {
-		if ( ferror( fh ) || nread==0 )
-		    setStatus(IO_ReadError);
-	    }
-	}
-    }
-    ioIndex += nread;
-    if ( nread < readBufferIdealSize ) {
-	readBufferSize = nread;
-	readBuffer.resize( nread );
-    }
-
-    return nread;
-}
-
-int QFile::buf_read( char *c, int size )
-{
-    int nread = 0;
-    while ( nread < size ) {
-	if ( readBufferPos >= readBufferSize ) {
-	    if ( buf_fillFromFile() == 0 ) {
-		break;
-	    }
-	}
-	int cpsize = QMIN( size-nread, (int)readBuffer.size() );
-	memcpy( c+nread, readBuffer.data()+readBufferPos, cpsize );
-	nread += cpsize;
-	readBufferPos += cpsize;
-    }
-    return nread;
-}
-
-int QFile::buf_getline( char *s, int size )
-{
-    if ( readBufferPos >= readBufferSize ) {
-	buf_fillFromFile();
-    }
-    int nread = 0;
-    while ( nread < size ) {
-	s[nread] = readBuffer[readBufferPos];
-	readBufferPos++;
-	if ( s[nread] == '\n' || s[nread] == '\r' ) {
-	    nread++;
-	    break;
-	}
-	nread++;
-	if ( readBufferPos >= readBufferSize ) {
-	    if ( buf_fillFromFile() == 0 ) {
-		break;
-	    }
-	}
-    }
-    return nread;
-}
-#endif
-
-
 bool qt_file_access( const QString& fn, int t )
 {
     if ( fn.isEmpty() )
@@ -550,9 +454,6 @@ bool QFile::at( int pos )
 
 int QFile::readBlock( char *p, uint len )
 {
-#if defined(RMS_BUFFERING)
-    return buf_read( p, len );
-#else
 #if defined(QT_CHECK_NULL)
     if ( !p )
 	qWarning( "QFile::readBlock: Null pointer error" );
@@ -596,7 +497,6 @@ int QFile::readBlock( char *p, uint len )
     }
     ioIndex += nread;
     return nread;
-#endif
 }
 
 /*! \overload int QFile::writeBlock( const QByteArray& data )
