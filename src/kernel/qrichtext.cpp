@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#17 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -1883,6 +1883,7 @@ void QRichText::init( const QString& doc, const QFont& fnt, int margin )
 
 QRichText::~QRichText()
 {
+    delete base;
 }
 
 

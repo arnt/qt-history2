@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#43 $
 **
 ** Implementation of QToolBar class
 **
@@ -290,15 +290,19 @@ void QToolBar::paintEvent( QPaintEvent * )
 	}
     } else {
 	if ( orientation() == Vertical ) {
-	    qDrawShadePanel( &p, 2, 4, width() - 4, 3,
-			     colorGroup(), FALSE, 1, 0 );
-	    qDrawShadePanel( &p, 2, 7, width() - 4, 3,
-			     colorGroup(), FALSE, 1, 0 );
+	    if ( width() > 4 ) {
+		qDrawShadePanel( &p, 2, 4, width() - 4, 3,
+				 colorGroup(), FALSE, 1, 0 );
+		qDrawShadePanel( &p, 2, 7, width() - 4, 3,
+				 colorGroup(), FALSE, 1, 0 );
+	    }
 	} else {
-	    qDrawShadePanel( &p, 4, 2, 3, height() - 4,
-			     colorGroup(), FALSE, 1, 0 );
-	    qDrawShadePanel( &p, 7, 2, 3, height() - 4,
-			     colorGroup(), FALSE, 1, 0 );
+	    if ( height() > 4 ) {
+		qDrawShadePanel( &p, 4, 2, 3, height() - 4,
+				 colorGroup(), FALSE, 1, 0 );
+		qDrawShadePanel( &p, 7, 2, 3, height() - 4,
+				 colorGroup(), FALSE, 1, 0 );
+	    }
 	}
     }
 }

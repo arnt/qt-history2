@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#124 $
 **
 ** Implementation of QLabel widget class
 **
@@ -184,6 +184,7 @@ QLabel::QLabel( QWidget *buddy,  const QString &text,
 QLabel::~QLabel()
 {
     unsetMovie();
+    delete doc;
     delete lpixmap;
     delete d;
 }
