@@ -918,8 +918,6 @@ void QGLWidget::setContext( QGLContext *context,
     // calling QWidget::create() will always result in a new paint
     // engine being created - get rid of it and replace it with our
     // own
-    delete paintEngine;
-    paintEngine = new QOpenGLPaintEngine(this); // deleted in QWidget::destroy()
 
     if ( visible )
 	show();
@@ -1102,4 +1100,11 @@ void QGLWidget::cleanupColormaps()
 
 void QGLWidget::macInternalFixBufferRect()
 {
+}
+
+QPaintEngine *QGLWidget::engine() const
+{
+    if (!d->paintEngine)
+	((QGLWidget*) this)->d->paintEngine = new QOpenGLPaintEngine(this);
+    return d->paintEngine;
 }

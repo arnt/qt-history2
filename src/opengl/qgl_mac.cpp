@@ -33,6 +33,7 @@
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qgl_p.h>
+#include <qpaintengine_opengl.h>
 #include <qt_mac.h>
 #include <qpixmap.h>
 #include <qtimer.h>
@@ -170,7 +171,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	attribs[cnt++] = AGL_LEVEL;
 	attribs[cnt++] = glFormat.plane();
     }
-	
+
     if(deviceIsPixmap()) {
 	attribs[cnt++] = AGL_OFFSCREEN;
     } else {
@@ -482,5 +483,12 @@ void QGLWidget::macInternalFixBufferRect()
     if(d->olcx)
 	d->olcx->fixBufferRect();
     update();
+}
+
+QPaintEngine *QGLWidget::engine() const
+{
+    if (!d->paintEngine)
+	((QGLWidget*) this)->d->paintEngine = new QOpenGLPaintEngine(this);
+    return d->paintEngine;
 }
 #endif
