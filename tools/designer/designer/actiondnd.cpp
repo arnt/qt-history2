@@ -354,7 +354,11 @@ void QDesignerToolBar::buttonContextMenuEvent( QContextMenuEvent *e, QObject *o 
     const int ID_DELETE = 1;
     const int ID_SEP = 2;
     const int ID_DELTOOLBAR = 3;
-    menu.insertItem( tr( "Delete Item" ), ID_DELETE );
+    QMap<QWidget*, QAction*>::Iterator it = actionMap.find( (QWidget*)o );
+    if ( it != actionMap.end() && (*it)->inherits( "QSeparatorAction" ) )
+	menu.insertItem( tr( "Delete Separator" ), ID_DELETE );
+    else
+	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
     menu.insertItem( tr( "Insert Separator" ), ID_SEP );
     menu.insertSeparator();
     menu.insertItem( tr( "Delete Toolbar" ), ID_DELTOOLBAR );
@@ -989,7 +993,11 @@ void QDesignerPopupMenu::contextMenuEvent( QContextMenuEvent *e )
     QPopupMenu menu( 0 );
     const int ID_DELETE = 1;
     const int ID_SEP = 2;
-    menu.insertItem( tr( "Delete Item" ), ID_DELETE );
+    QAction *a = actionList.at( itm );
+    if ( a && a->inherits( "QSeparatorAction" ) )
+	menu.insertItem( tr( "Delete Separator" ), ID_DELETE );
+    else
+	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
     menu.insertItem( tr( "Insert Separator" ), ID_SEP );
     int res = menu.exec( e->globalPos() );
     if ( res == ID_DELETE ) {
@@ -1052,7 +1060,11 @@ void QDesignerPopupMenu::createPopupMenu()
     itm = itemAtPos( popupLocalPos, FALSE );
     if ( itm == -1 )
 	return;
-    menu.insertItem( tr( "Delete Item" ), ID_DELETE );
+    QAction *a = actionList.at( itm );
+    if ( a && a->inherits( "QSeparatorAction" ) )
+	menu.insertItem( tr( "Delete Separator" ), ID_DELETE );
+    else
+	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
     menu.insertItem( tr( "Insert Separator" ), ID_SEP );
     int res = menu.exec( popupPos );
     if ( res == ID_DELETE ) {
