@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#71 $
 **
 ** Implementation of QFrame widget class
 **
@@ -431,7 +431,7 @@ QSize QFrame::sizeHint() const
 
 
 /*!
-  If this is a  line, it may stretch in the direction of the line, but it is 
+  If this is a  line, it may stretch in the direction of the line, but it is
   fixed in the other direction. If this is a normal frame, use QWidget's
   default behavior.
 */
@@ -440,9 +440,9 @@ QSizePolicy QFrame::sizePolicy() const
 {
     switch (fstyle & MShape) {
       case HLine:
-	  return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+	  return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
       case VLine:
-	  return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::MayGrow ); 
+	  return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
     default:
 	return QWidget::sizePolicy();
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#4 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#5 $
 **
 ** Definition of the abstract layout base class
 **
@@ -43,7 +43,7 @@ public:
     virtual QSize sizeHint() const = 0;
     virtual QSize minimumSize() const = 0;
     virtual QSize maximumSize() const = 0;
-    virtual QSizePolicy::Expansiveness expansive() const =0;
+    virtual QSizePolicy::ExpandData expanding() const =0;
     virtual void setGeometry( const QRect& ) = 0;
     virtual SearchResult removeW( QWidget * )=0;
     virtual bool isEmpty() const = 0;
@@ -58,14 +58,14 @@ protected:
 class Q_EXPORT QSpacerItem : public QLayoutItem
 {
  public:
-    QSpacerItem( int w, int h, QSizeData hData=QSizeData::MayGrow,
-		 QSizeData vData= QSizeData::MayGrow )
+    QSpacerItem( int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum,
+		 QSizePolicy::SizeType vData= QSizePolicy::Minimum )
 	:width(w), height(h), sizeP(hData, vData )
 	{}
     QSize sizeHint() const ;
     QSize minimumSize() const ;
     QSize maximumSize() const ;
-    QSizePolicy::Expansiveness expansive() const;
+    QSizePolicy::ExpandData expanding() const;
     bool isEmpty() const;
     void setGeometry( const QRect& ) ;
     SearchResult removeW( QWidget * );
@@ -81,7 +81,7 @@ public:
     QSize sizeHint() const ;
     QSize minimumSize() const ;
     QSize maximumSize() const ;
-    QSizePolicy::Expansiveness expansive() const;
+    QSizePolicy::ExpandData expanding() const;
     bool isEmpty() const;
     void setGeometry( const QRect& ) ;
     SearchResult removeW( QWidget * );
@@ -119,7 +119,7 @@ public:
     void add( QWidget *w ) { addItem( new QWidgetItem( w ) ); }
     virtual void addItem ( QLayoutItem * ) = 0;
 
-    QSizePolicy::Expansiveness expansive() const;
+    QSizePolicy::ExpandData expanding() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
     void setGeometry( const QRect& );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#172 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#173 $
 **
 ** Implementation of QListView widget class
 **
@@ -3538,7 +3538,7 @@ QSize QListView::sizeHint() const
 
 QSizePolicy QListView::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::PrefMin );
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
 

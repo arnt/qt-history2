@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#45 $
 **
 ** Implementation of QTabBar class
 **
@@ -270,7 +270,7 @@ QSize QTabBar::sizeHint() const
 
 QSizePolicy QTabBar::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::MayGrow );
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#64 $
 **
 ** Implementation of layout classes
 **
@@ -37,15 +37,15 @@ public:
     QLayoutBox( QLayoutItem *lit ) { item = lit; }
     //    QLayoutBox( QLayout *layout ) { item = new QLayoutLayoutItem( layout ); }
     QLayoutBox( QWidget *wid ) { item = new QWidgetItem( wid ); }
-    QLayoutBox( int w, int h, QSizeData hData=QSizeData::MayGrow,
-		QSizeData vData= QSizeData::MayGrow )
+    QLayoutBox( int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum,
+		QSizePolicy::SizeType vData= QSizePolicy::Minimum )
 	{ item = new QSpacerItem( w, h, hData, vData ); }
     ~QLayoutBox() { delete item; }
 
     QSize sizeHint() const { return item->sizeHint(); }
     QSize minimumSize() const { return item->minimumSize(); }
     QSize maximumSize() const { return item->maximumSize(); }
-    QSizePolicy::Expansiveness expansive() const { return item->expansive(); }
+    QSizePolicy::ExpandData expanding() const { return item->expanding(); }
     bool isEmpty() const { return item->isEmpty(); }
     QLayoutItem::SearchResult removeWidget( QWidget *w ) { return item->removeW(w); }
 
@@ -99,7 +99,7 @@ public:
     QSize minimumSize( int ) const;
     QSize maximumSize( int ) const;
 
-    QSizePolicy::Expansiveness expansive();
+    QSizePolicy::ExpandData expanding();
 
     void distribute( QRect, int );
     int numRows() const { return rr; }
@@ -231,7 +231,7 @@ QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
     return QSize(w,h);
 }
 
-QSizePolicy::Expansiveness QLayoutArray::expansive()
+QSizePolicy::ExpandData QLayoutArray::expanding()
 {
     setupLayoutData();
     bool hExp = FALSE;
@@ -244,7 +244,7 @@ QSizePolicy::Expansiveness QLayoutArray::expansive()
 	hExp = hExp || colData[c].expansive;
     }
 
-    return (QSizePolicy::Expansiveness) (( hExp ? QSizePolicy::Horizontal : 0 )
+    return (QSizePolicy::ExpandData) (( hExp ? QSizePolicy::Horizontal : 0 )
 		  | ( vExp ? QSizePolicy::Vertical : 0 ) );
 }
 
@@ -318,7 +318,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
     colData[box->col].maximumSize = QMIN( maxS.width(),
 				      colData[box->col].maximumSize );
     colData[box->col].expansive = colData[box->col].expansive ||
-				  (box->expansive() & QSizePolicy::Horizontal);
+				  (box->expanding() & QSizePolicy::Horizontal);
     }
     if ( r ) {
     rowData[box->row].sizeHint = QMAX( hint.height(),
@@ -328,7 +328,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
     rowData[box->row].maximumSize = QMIN( maxS.height(),
 				      rowData[box->row].maximumSize );
     rowData[box->row].expansive = rowData[box->row].expansive ||
-				  (box->expansive() & QSizePolicy::Vertical);
+				  (box->expanding() & QSizePolicy::Vertical);
     }
     if ( !box->isEmpty() ) {
 	//#### empty boxes ( i.e. spacers) do not get borders. This is hacky, but compatible.
@@ -901,9 +901,9 @@ void QGridLayout::addColSpacing( int col, int minsize )
   Returns the expansiveness of this layout
 */
 
-QSizePolicy::Expansiveness QGridLayout::expansive()
+QSizePolicy::ExpandData QGridLayout::expanding()
 {
-    return array->expansive();
+    return array->expanding();
 }
 
 /*!
@@ -1106,14 +1106,14 @@ void QBoxLayout::addSpacing( int size )
     if ( horz( dir ) ) {
 	int n = numCols();
 	expand( 1, n+1 );
-	QLayoutItem *b = new QSpacerItem( size, 0, QSizeData::NoGrow,
-					QSizeData::MayGrow );
+	QLayoutItem *b = new QSpacerItem( size, 0, QSizePolicy::Minimum,
+					  QSizePolicy::Minimum );
 	QGridLayout::add( b, 0, n ) ;
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
-	QLayoutItem *b = new QSpacerItem( 0, size, QSizeData::MayGrow,
-					QSizeData::NoGrow );
+	QLayoutItem *b = new QSpacerItem( 0, size, QSizePolicy::Minimum,
+					  QSizePolicy::Minimum );
 	QGridLayout::add( b, n, 0 ) ;
     }
 }
@@ -1131,15 +1131,15 @@ void QBoxLayout::addStretch( int stretch )
     if ( horz( dir ) ) {
 	int n = numCols();
 	expand( 1, n+1 );
-	QLayoutItem *b = new QSpacerItem( 0, 0, QSizeData::WannaGrow,
-				       QSizeData::MayGrow );
+	QLayoutItem *b = new QSpacerItem( 0, 0, QSizePolicy::Expanding,
+				       QSizePolicy::Expanding );
 	QGridLayout::add( b, 0, n ) ;
 	setColStretch( n, stretch );
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
-	QLayoutItem *b = new QSpacerItem( 0, 0, QSizeData::MayGrow,
-					QSizeData::WannaGrow );
+	QLayoutItem *b = new QSpacerItem( 0, 0,  QSizePolicy::Expanding,
+				       QSizePolicy::Expanding );
 	QGridLayout::add( b, n, 0 ) ;
 	setRowStretch( n, stretch );
     }

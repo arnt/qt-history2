@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#41 $
 **
 ** Implementation of QToolButton class
 **
@@ -215,7 +215,7 @@ QSize QToolButton::sizeHint() const
 
 QSizePolicy QToolButton::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::MayGrow );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
 }
 
 

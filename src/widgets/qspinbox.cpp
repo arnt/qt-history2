@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#55 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -388,7 +388,7 @@ QSize QSpinBox::sizeHint() const
 
 QSizePolicy QSpinBox::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
 

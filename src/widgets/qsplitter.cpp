@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#40 $
 **
 **  Splitter widget
 **
@@ -74,9 +74,9 @@ QSplitterHandle::QSplitterHandle( Qt::Orientation o,
 QSizePolicy QSplitterHandle::sizePolicy() const
 {
     if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::PrefMin );
+	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
     else
-    	return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::Fixed );
+    	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 
 }
 
@@ -547,7 +547,7 @@ void QSplitter::getRange( int id, int *min, int *max )
 	*min = pick(r.topLeft()) + QMAX( minB, r.width()-maxA );
     if ( max )
 	*max = pick(r.topLeft()) + QMIN( maxB, r.width()-minA );
-    
+
 }
 
 /*!

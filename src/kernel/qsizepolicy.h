@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#4 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#5 $
 **
 ** Definition of QSizePolicy class
 **
@@ -24,65 +24,42 @@
 #ifndef QSIZEPOLICY_H
 #define QSIZEPOLICY_H
 
-
-class Q_EXPORT QSizeData
+class QSizePolicy
 {
-public:
-    enum SizeType { NoShrink = 0, MayShrink = 0x04,
-		      NoGrow = 0, MayGrow = 0x01, WannaGrow = 0x03,
-		      Fixed = NoGrow | NoShrink,
-		      PrefSize = MayShrink | MayGrow,
-		      PrefMin = MayShrink | WannaGrow };
-
-    QSizeData() { data = 0; }
-    QSizeData( SizeType i ) { data = i; }
-    QSizeData operator&( const QSizeData d ) {
-	return QSizeData( data & d.data ); }
-    QSizeData operator|( const QSizeData d ) {
-	return QSizeData( data | d.data ); }
-    bool isFixed() { return data == Fixed; }
-    bool mayGrow() { return data & MayGrow; }
-    bool preferGrow() { return data & (WannaGrow^MayGrow); } //###
-    bool mayShrink() { return data & MayShrink; }
 private:
-    QSizeData( int i ) { data = i; }
-    Q_UINT8 data;
-    friend class QSizePolicy;
-};
-
-
-class Q_EXPORT QSizePolicy
-{
+        enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
+	       MayGrow = 1, ExpMask = 2, MayShrink = 4 };
 public:
-    enum TriState { No=0, May=1, Yes=3 };
-    enum SizeType { NoShrink = 0, MayShrink = 0x04,
-		      NoGrow = 0, MayGrow = 0x01, WannaGrow = 0x03,
-		      Fixed = NoGrow | NoShrink,
-		      PrefSize = MayShrink | MayGrow,
-		      PrefMin = MayShrink | WannaGrow };
+    enum SizeType { Fixed = 0, Minimum = MayGrow,
+		    Maximum = MayShrink,
+		    Preferred = MayGrow|MayShrink ,
+		    Expanding = Preferred|ExpMask,
+		    MinimumExpanding = Minimum|ExpMask };
 
-    enum Expansiveness { NoDirection = 0, Horizontal = 1, Vertical = 2,
+    enum ExpandData { NoDirection = 0, Horizontal = 1, Vertical = 2,
 			 BothDirections = Horizontal | Vertical };
 
     QSizePolicy() { data = 0; }
-    QSizePolicy( TriState hGrow, bool hShrink,
-		   TriState vGrow, bool vShrink );
 
     QSizePolicy( SizeType hor, SizeType ver ) {
 	data = hor | (ver<<HSize); }
-    QSizePolicy( QSizeData hor, QSizeData ver ) {
-	data = hor.data | (ver.data<<HSize); }
-    QSizeData horData() const { return QSizeData( data & HMask ); }
-    QSizeData verData() const { return QSizeData(( data & VMask ) >> HSize); }
 
-    Expansiveness expansive() const {
-	int r = (horData().preferGrow() ? Horizontal : 0)
-		|(verData().preferGrow() ? Vertical : 0);
-	return (Expansiveness)r;
+    SizeType horData() const { return (SizeType)( data & HMask ); }
+    SizeType verData() const { return (SizeType)(( data & VMask ) >> HSize); }
+
+    bool mayShrinkHorizontally() const { return horData() & MayShrink; }
+    bool mayShrinkVertically() const { return verData() & MayShrink; }
+    bool mayGrowHorizontally() const { return horData() & MayGrow; }
+    bool mayGrowVertically() const { return verData() & MayGrow; }
+
+    ExpandData expanding() const {
+	int r = (horData()|ExpMask ? Horizontal : 0)
+		|(verData()|ExpMask ? Vertical : 0);
+	return (ExpandData)r;
     }
 
-    void setHorData( QSizeData d ) { data = (data & ~HMask) | d.data; }
-    void setVerData( QSizeData d ) { data = (data & ~HMask) | d.data; }
+    void setHorData( SizeType d ) { data = (data & ~HMask) | d; }
+    void setVerData( SizeType d ) { data = (data & ~HMask) | d; }
 		
 		
 		
@@ -90,7 +67,6 @@ public:
 
 private:
     QSizePolicy( int i ) { data = i; }
-    enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize };
     Q_UINT16 data;
 };
 

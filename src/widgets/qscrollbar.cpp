@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#112 $
 **
 ** Implementation of QScrollBar class
 **
@@ -347,9 +347,9 @@ QSize QScrollBar::sizeHint() const
 QSizePolicy QScrollBar::sizePolicy() const
 {
     if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
     else
-	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::MayGrow );
+	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Minimum );
 }
 
 

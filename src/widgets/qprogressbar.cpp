@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#25 $
 **
 ** Implementation of QProgressBar class
 **
@@ -174,7 +174,7 @@ QSize QProgressBar::sizeHint() const
 
 QSizePolicy QProgressBar::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 }
 
 

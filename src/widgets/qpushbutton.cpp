@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#126 $
 **
 ** Implementation of QPushButton class
 **
@@ -227,7 +227,7 @@ QSize QPushButton::sizeHint() const
 
 QSizePolicy QPushButton::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#65 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -698,7 +698,7 @@ QSize QHeader::sizeHint() const
 
 QSizePolicy QHeader::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
 

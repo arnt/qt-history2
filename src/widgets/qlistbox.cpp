@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#169 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#170 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1967,5 +1967,5 @@ QSize QListBox::sizeHint() const
 
 QSizePolicy QListBox::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::PrefMin );
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }

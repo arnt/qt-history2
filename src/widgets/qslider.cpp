@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#70 $
 **
 ** Implementation of QSlider class
 **
@@ -947,9 +947,9 @@ QSize QSlider::sizeHint() const
 QSizePolicy QSlider::sizePolicy() const
 {
     if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
     else
-	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::MayGrow ); 
+	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Minimum );
 }
 
 

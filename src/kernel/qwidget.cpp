@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#300 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#301 $
 **
 ** Implementation of QWidget class
 **
@@ -3729,5 +3729,5 @@ void QWidget::setLayout( QLayout *l )
 
 QSizePolicy QWidget::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::PrefSize, QSizePolicy::PrefSize );
+    return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#93 $
 **
 ** Implementation of QRadioButton class
 **
@@ -158,7 +158,7 @@ QSize QRadioButton::sizeHint() const
 
 QSizePolicy QRadioButton::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
 

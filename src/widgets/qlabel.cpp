@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#95 $
 **
 ** Implementation of QLabel widget class
 **
@@ -495,7 +495,7 @@ QSize QLabel::sizeHint() const
 
 QSizePolicy QLabel::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::MayGrow );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
 }
 
 

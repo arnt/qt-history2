@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#62 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -1114,5 +1114,5 @@ QSize QLCDNumber::sizeHint() const
 
 QSizePolicy QLCDNumber::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::PrefMin );
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#87 $
 **
 ** Implementation of QCheckBox class
 **
@@ -298,5 +298,5 @@ void QCheckBox::updateMask()
 
 QSizePolicy QCheckBox::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#6 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -41,9 +41,9 @@ static QSize smartMinSize( QWidget *w )
 	//###this is hacky
 	s = w->layout()->minimumSize();
     } else {
-	if ( !w->sizePolicy().horData().mayShrink() )
+	if ( !w->sizePolicy().mayShrinkHorizontally() )
 	    s.setWidth( w->sizeHint().width() );
-	if ( !w->sizePolicy().verData().mayShrink() )
+	if ( !w->sizePolicy().mayShrinkVertically() )
 	    s.setHeight( w->sizeHint().height() );
     }
     QSize min = w->minimumSize();
@@ -60,11 +60,11 @@ static QSize smartMaxSize( QWidget *w, int align = 0 )
 {
     QSize s = w->maximumSize();
     if ( s.width() == QCOORD_MAX )
-	if ( !w->sizePolicy().horData().mayGrow() )
+	if ( !w->sizePolicy().mayGrowHorizontally() )
 	    s.setWidth( w->sizeHint().width() );
 
     if ( s.height() ==  QCOORD_MAX )
-	if ( !w->sizePolicy().verData().mayGrow() )
+	if ( !w->sizePolicy().mayGrowVertically() )
 	    s.setHeight( w->sizeHint().height() );
 
     //s = s.expandedTo( w->minimumSize() ); //### ???
@@ -80,7 +80,7 @@ static QSize smartMaxSize( QWidget *w, int align = 0 )
 
 
 
-void QSpacerItem::setGeometry( const QRect& ) 
+void QSpacerItem::setGeometry( const QRect& )
 {
 }
 
@@ -109,19 +109,19 @@ void QWidgetItem::setGeometry( const QRect &r )
     wid->setGeometry( x, y, s.width(), s.height() );
 }
 
-QSizePolicy::Expansiveness QSpacerItem::expansive() const
+QSizePolicy::ExpandData QSpacerItem::expanding() const
 {
-    return sizeP.expansive();
+    return sizeP.expanding();
 }
-QSizePolicy::Expansiveness QWidgetItem::expansive() const
+QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
-    return wid->sizePolicy().expansive();
+    return wid->sizePolicy().expanding();
 }
 
 QSize QSpacerItem::minimumSize() const
 {
-	return QSize( sizeP.horData().mayShrink() ? 0 : width,
-		      sizeP.verData().mayShrink() ? 0 : height );;
+	return QSize( sizeP.mayShrinkHorizontally() ? 0 : width,
+		      sizeP.mayShrinkVertically() ? 0 : height );;
 }
 QSize QWidgetItem::minimumSize() const
 {
@@ -131,8 +131,8 @@ QSize QWidgetItem::minimumSize() const
 
 QSize QSpacerItem::maximumSize() const
 {
-    return QSize( sizeP.horData().mayGrow() ? QCOORD_MAX : width,
-		  sizeP.verData().mayGrow() ? QCOORD_MAX : height );
+    return QSize( sizeP.mayGrowHorizontally() ? QCOORD_MAX : width,
+		  sizeP.mayGrowVertically() ? QCOORD_MAX : height );
 }
 
 QSize QWidgetItem::maximumSize() const
@@ -591,7 +591,7 @@ QSize QLayout::maximumSize() const
   The default implementation returns NoDirection.
 */
 
-QSizePolicy::Expansiveness QLayout::expansive() const
+QSizePolicy::ExpandData QLayout::expanding() const
 {
     return QSizePolicy::NoDirection;
 }

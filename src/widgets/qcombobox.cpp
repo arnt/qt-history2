@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#157 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#158 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -805,7 +805,7 @@ QSize QComboBox::sizeHint() const
 
 QSizePolicy QComboBox::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
 

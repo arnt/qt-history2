@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#121 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2169,7 +2169,7 @@ QPoint QMultiLineEdit::cursorPoint() const
 
 QSizePolicy QMultiLineEdit::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::PrefMin );
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
 
@@ -2199,4 +2199,4 @@ void QMultiLineEdit::resizeEvent( QResizeEvent *e )
 {
     QTableView::resizeEvent( e );
     setCellWidth( QMAX( contentsRect().width(), mlData->maxLineWidth ) );
-}  
+}

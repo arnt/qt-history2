@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#31 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#32 $
 **
 ** Definition of layout classes
 **
@@ -51,7 +51,7 @@ public:
     int numRows() const;
     int numCols() const;
 
-    QSizePolicy::Expansiveness expansive();
+    QSizePolicy::ExpandData expanding();
     void invalidate();
 
     void addItem( QLayoutItem * );
