@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.h#7 $
+** $Id: //depot/qt/main/src/network/qftp.h#8 $
 **
 ** Definition of QFtp class.
 **
@@ -73,7 +73,6 @@ protected:
     int getTotalSize, getDoneSize;
     bool startGetOnFail;
     int putToWrite, putWritten;
-    int putOffset; // not in use
     bool errorInListChildren;
 
 private:
