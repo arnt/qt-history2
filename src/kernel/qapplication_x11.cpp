@@ -1185,14 +1185,15 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    while ( isspace((uchar) res[l]) )
 		l++;
 	    bool mine = FALSE;
-	    if ( res[l] == '*'
-		 && (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'g') )
+	    if ( res[l] == '*' &&
+		 (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'g' ||
+		  res[l+1] == 'F' || res[l+1] == 'B' || res[l+1] == 'G') )
 		{
 		    // OPTIMIZED, since we only want "*[fbg].."
 
 		    QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
 		    int i = item.find( ":" );
-		    key = item.left( i ).stripWhiteSpace().mid(1);
+		    key = item.left( i ).stripWhiteSpace().mid(1).lower();
 		    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
 		    mine = TRUE;
 		} else if ( res[l] == appName[0] ) {
@@ -1201,7 +1202,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 			{
 			    QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
 			    int i = item.find( ":" );
-			    key = item.left( i ).stripWhiteSpace().mid(apnl+1);
+			    key = item.left( i ).stripWhiteSpace().mid(apnl+1).lower();
 			    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
 			    mine = TRUE;
 			}
@@ -4663,6 +4664,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
 
+    static int x_root_save = -1, y_root_save = -1;
+
     if ( event->type == MotionNotify ) { // mouse move
 	if (event->xmotion.root != RootWindow(appDpy, x11Screen()) &&
 	    ! qt_xdnd_dragging )
@@ -4699,6 +4702,17 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 					 MidButton |
 					 RightButton ) ) == 0 )
 	    qt_button_down = 0;
+
+	// throw away mouse move events that are sent multiple times to the same
+	// position
+	bool throw_away = false;
+	if ( x_root_save == globalPos.x() &&
+	     y_root_save == globalPos.y() )
+	    throw_away = true;
+	x_root_save = globalPos.x();
+	y_root_save = globalPos.y();
+	if ( throw_away )
+	    return TRUE;
     } else if ( event->type == EnterNotify || event->type == LeaveNotify) {
 	XEvent *xevent = (XEvent *)event;
 	//unsigned int xstate = event->xcrossing.state;
@@ -4714,6 +4728,17 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    qt_button_down = 0;
 	if ( !qt_button_down )
 	    state = state & ~(LeftButton | MidButton | RightButton );
+
+	// throw away mouse move events that are sent multiple times to the same
+	// position
+	bool throw_away = false;
+	if ( x_root_save == globalPos.x() &&
+	     y_root_save == globalPos.y() )
+	    throw_away = true;
+	x_root_save = globalPos.x();
+	y_root_save = globalPos.y();
+	if ( throw_away )
+	    return TRUE;
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
@@ -4848,7 +4873,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
 
 	int oldOpenPopupCount = openPopupCount;
-	
+
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			   globalPos, button, state );
@@ -4875,7 +4900,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
 	    QApplication::sendSpontaneousEvent( popupEvent, &e );
 	}
-	
+
 	if ( releaseAfter )
 	    qt_button_down = 0;
 
@@ -4919,10 +4944,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 
 	int oldOpenPopupCount = openPopupCount;
-	
+
 	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendSpontaneousEvent( widget, &e );
-	
+
 	if ( type == QEvent::MouseButtonPress && button == RightButton && ( openPopupCount == oldOpenPopupCount ) ) {
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
 	    QApplication::sendSpontaneousEvent( widget, &e );

@@ -521,6 +521,7 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
 	return FALSE;
 
     fd->family = QString::fromLatin1(tokens[Family]);
+    fd->addStyle = QString::fromLatin1(tokens[AddStyle]);
     fd->pointSize = atoi(tokens[PointSize]);
     fd->styleHint = QFont::AnyStyle;	// ### any until we match families
 

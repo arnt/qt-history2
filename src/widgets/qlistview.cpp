@@ -94,7 +94,7 @@ struct QListViewPrivate
     // to remember what's on screen
     class DrawableItem {
     public:
-	DrawableItem( Pending * pi ) { y=pi->y; l=pi->l; i=pi->i; };
+	DrawableItem( Pending * pi ) { y = pi->y; l = pi->l; i = pi->i; };
 	int y;
 	int l;
 	QListViewItem * i;
@@ -1257,12 +1257,12 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     // direction, and finally set this->childItem to the new top
     // child.
     if ( ascending ) {
-	for( i=0; i < nChildren-1; i++ )
+	for( i = 0; i < nChildren - 1; i++ )
 	    siblings[i].item->siblingItem = siblings[i+1].item;
 	siblings[nChildren-1].item->siblingItem = 0;
 	childItem = siblings[0].item;
     } else {
-	for( i=nChildren-1; i >0; i-- )
+	for( i = nChildren - 1; i > 0; i-- )
 	    siblings[i].item->siblingItem = siblings[i-1].item;
 	siblings[0].item->siblingItem = 0;
 	childItem = siblings[nChildren-1].item;
@@ -1518,7 +1518,6 @@ void QListViewItem::setExpandable( bool enable )
   \sa sortChildItems()
 */
 
-
 void QListViewItem::enforceSortOrder() const
 {
     QListView *lv = listView();
@@ -1640,7 +1639,7 @@ void QListViewItem::setText( int column, const QString &text )
 	l = new QListViewPrivate::ItemColumnInfo;
 	columns = (void*)l;
     }
-    for( int c=0; c<column; c++ ) {
+    for( int c = 0; c < column; c++ ) {
 	if ( !l->next )
 	    l->next = new QListViewPrivate::ItemColumnInfo;
 	l = l->next;
@@ -1702,7 +1701,7 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 	columns = (void*)l;
     }
 
-    for( int c=0; c<column; c++ ) {
+    for( int c = 0; c < column; c++ ) {
 	if ( !l->next )
 	    l->next = new QListViewPrivate::ItemColumnInfo;
 	l = l->next;
@@ -1887,7 +1886,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	marg -= lv->d->minRightBearing;
 #endif
     if ( isSelected() &&
-	 (column==0 || listView()->allColumnsShowFocus()) ) {
+	 (column == 0 || listView()->allColumnsShowFocus()) ) {
 	p->fillRect( r - marg, 0, width - r + marg, height(),
 		     cg.brush( QColorGroup::Highlight ) );
 	if ( enabled || !lv )
@@ -2571,7 +2570,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	QRect br( cx - ox, cy - oy, cw, ch );
 	QPtrDictIterator<void> it( *(d->dirtyItems) );
 	QListViewItem * i;
-	while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
+	while( (i = (QListViewItem *)(it.currentKey())) != 0 ) {
 	    ++it;
 	    QRect ir = itemRect( i ).intersect( viewport()->rect() );
 	    if ( ir.isEmpty() || br.contains( ir ) )
@@ -2649,7 +2648,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		int i = d->h->mapToLogical( c );
 		cs = d->h->cellSize( c );
 		r.setRect( x - ox, current->y - oy, cs, ih );
-		if ( i==0 && current->i->parentItem )
+		if ( i == 0 && current->i->parentItem )
 		    r.setLeft( r.left() + current->l * treeStepSize() );
 
 		p->save();
@@ -3328,7 +3327,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
     bool sv = horizontalScrollBar()->isVisible();
     updateGeometries();
     bool fullRepaint = d->fullRepaintOnComlumnChange || sx != horizontalScrollBar()->value()
-	               || sv != horizontalScrollBar()->isVisible();
+		       || sv != horizontalScrollBar()->isVisible();
     d->fullRepaintOnComlumnChange = FALSE;
     viewport()->setUpdatesEnabled( upe );
 
@@ -3385,7 +3384,7 @@ void QListView::updateDirtyItems()
     QRect ir;
     QPtrDictIterator<void> it( *(d->dirtyItems) );
     QListViewItem * i;
-    while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
+    while( (i = (QListViewItem *)(it.currentKey())) != 0 ) {
 	++it;
 	ir = ir.unite( itemRect(i) );
     }
@@ -3656,7 +3655,7 @@ QListViewItem * QListViewItem::itemBelow()
   \sa nextSibling()
 */
 
-QListViewItem* QListViewItem::firstChild () const
+QListViewItem* QListViewItem::firstChild() const
 {
     enforceSortOrder();
     return childItem;
@@ -3670,14 +3669,14 @@ QListViewItem* QListViewItem::firstChild () const
   \sa firstChild(), nextSibling()
 */
 
-QListViewItem* QListViewItem::parent () const
+QListViewItem* QListViewItem::parent() const
 {
     if ( !parentItem || parentItem->is_root ) return 0;
     return parentItem;
 }
 
 
-/*! \fn QListViewItem* QListViewItem::nextSibling () const
+/*! \fn QListViewItem* QListViewItem::nextSibling() const
 
   Returns a pointer to the sibling item below this item, or a
   null pointer if there is no sibling item after this item.
@@ -3995,27 +3994,26 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	else if ( selectionMode() == Multi  )
 	    setSelected( i, d->select );
 	else if ( selectionMode() == Extended ) {
-	    bool changed= TRUE;
-	    if ( !( ( e->state() & ControlButton ) ||
-		    ( e->state() & ShiftButton ) ) ) {
+	    bool changed = TRUE;
+	    if ( !(e->state() & (ControlButton | ShiftButton)) ) {
 		if ( !i->isSelected() ) {
 		    bool blocked = signalsBlocked();
 		    blockSignals( TRUE );
 		    clearSelection();
 		    blockSignals( blocked );
 		    i->setSelected( TRUE );
-		    changed= TRUE;
+		    changed = TRUE;
 		}
 	    } else {
 		if ( e->state() & ShiftButton )
 		    d->pressedSelected = FALSE;
 		if ( e->state() & ControlButton && i ) {
 		    i->setSelected( !i->isSelected() );
-		    changed= TRUE;
+		    changed = TRUE;
 		    d->pressedSelected = FALSE;
 		} else if ( !oldCurrent || !i || oldCurrent == i ) {
 		    if ( (bool)i->selected != d->select ) {
-			changed= TRUE;
+			changed = TRUE;
 			i->setSelected( d->select );
 		    }
 		} else {
@@ -4029,7 +4027,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 			if ( down && lit.current() == i ) {
 			    if ( (bool)i->selected != d->select ) {
 				i->setSelected( d->select );
-				changed= TRUE;
+				changed = TRUE;
 			    }
 			    triggerUpdate();
 			    break;
@@ -4041,7 +4039,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 			}
 			if ( (bool)lit.current()->selected != d->select ) {
 			    lit.current()->setSelected( d->select );
-			    changed= TRUE;
+			    changed = TRUE;
 			}
 		    }
 		}
@@ -4148,8 +4146,7 @@ void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
 	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
 						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
 	if ( r.contains( e->pos() ) &&
-	     !( ( e->state() & ShiftButton ) == ShiftButton ) &&
-	     !( ( e->state() & ControlButton ) == ControlButton ) )
+	     !( e->state() & ( ShiftButton | ControlButton ) ) )
 	    d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
     }
     if ( i && vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
@@ -4634,7 +4631,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		while( keyItem ) {
 		    // Look for text in column 0, then left-to-right
 		    keyItemKey = keyItem->text(0);
-		    for (int col=0; col < d->h->count() && !keyItemKey; col++ )
+		    for (int col = 0; col < d->h->count() && !keyItemKey; col++ )
 			keyItemKey = keyItem->text( d->h->mapToLogical(col) );
 		    if ( !keyItemKey.isEmpty() ) {
 			prefix = keyItemKey;
@@ -4805,7 +4802,7 @@ void QListView::setSelectionMode( SelectionMode mode )
 {
     if ( isMultiSelection() && ( mode == QListView::Single || mode == QListView::NoSelection ) ){
 	clearSelection();
-	if ( mode == QListView::Single )
+	if ( ( mode == QListView::Single ) && currentItem() )
 	    currentItem()->selected = TRUE;
     }
 
@@ -5855,7 +5852,7 @@ void QListView::setOpen( QListViewItem * item, bool open )
 	QListViewItem* lastChild;
 	if ( !nextParent ) {
 	    lastChild = item;
-	    for ( int i=0;i<item->childCount() && lastChild;++i ) {
+	    for ( int i = 0; i < item->childCount() && lastChild; ++i ) {
 		lastChild = lastChild->itemBelow();
 	    }
 	} else {
@@ -6011,7 +6008,6 @@ void QListViewItem::moveToJustAfter( QListViewItem * olderSibling )
     }
 }
 
-
 /*! Moves this item after the item \a after. This means it will get
 the sibling exactly after the item \a after. To move an item in the
 hierarchy, use takeItem() and insertItem().
@@ -6036,8 +6032,20 @@ void QListViewItem::moveItem( QListViewItem *after )
 	lv->triggerUpdate();
 }
 
-/*!  \reimp */
+/*!
+  Recursively sorts items, from the root to this item.
+  (enforceSortOrder() won't work the other way around, as
+  documented.)
+*/
+void QListViewItem::enforceSortOrderBackToRoot()
+{
+    if ( parentItem ) {
+	parentItem->enforceSortOrderBackToRoot();
+	parentItem->enforceSortOrder();
+    }
+}
 
+/*!  \reimp */
 void QListView::showEvent( QShowEvent * )
 {
     if ( d->drawables )
@@ -6245,24 +6253,13 @@ bool QListView::isRenaming() const
   have been selected by the user, storing pointers to the items in a
   QPtrList:
   \code
-  QPtrList<QListViewItem> * getSelectedItems( QListView *lv ) {
-    if ( !lv )
-      return 0;
-
-    // Create the list
-    QPtrList<QListViewItem> *lst = new QPtrList<QListViewItem>;
-    lst->setAutoDelete( FALSE );
-
-    // Create an iterator and give the list view as argument
+    QPtrList<QListViewItem> lst;
     QListViewItemIterator it( lv );
-    // iterate through all items of the list view
-    for ( ; it.current(); ++it ) {
-      if ( it.current()->isSelected() )
-	lst->append( it.current() );
+    while ( it.current() != 0 ) {
+	if ( it.current()->isSelected() )
+	    lst.append( it.current() );
+	++it;
     }
-
-    return lst;
-  }
   \endcode
 
     A QListViewItemIterator provides a convenient and easy way to
@@ -6291,8 +6288,10 @@ QListViewItemIterator::QListViewItemIterator()
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
     : curr( item ), listView( 0 )
 {
-    if ( item )
+    if ( item ) {
+	item->enforceSortOrderBackToRoot();
 	listView = item->listView();
+    }
     addToListView();
 }
 
@@ -6307,7 +6306,7 @@ QListViewItemIterator::QListViewItemIterator( const QListViewItemIterator& it )
 }
 
 /*! Constructs an iterator for the QListView \a lv. The current
-  iterator item is set to point on the first child ( QListViewItem )
+  iterator item is set to point on the first child (QListViewItem)
   of \a lv.
 */
 
@@ -6366,31 +6365,14 @@ QListViewItemIterator &QListViewItemIterator::operator++()
 	return *this;
 
     QListViewItem *item = curr->firstChild();
-    if ( item ) {
-	curr = item;
-	return *this;
-    }
-
-    item = curr->nextSibling();
-    if ( item ) {
-	curr = item;
-	return *this;
-    }
-
-    QListViewItem *p = curr->parent();
-    bool found = FALSE;
-    while ( p ) {
-	if ( p->nextSibling() ) {
-	    curr = p->nextSibling();
-	    found = TRUE;
-	    break;
+    if ( !item ) {
+	while ( (item = curr->nextSibling()) == 0 ) {
+	    curr = curr->parent();
+	    if ( curr == 0 )
+		break;
 	}
-	p = p->parent();
     }
-
-    if ( !found )
-	curr = 0;
-
+    curr = item;
     return *this;
 }
 
@@ -6666,9 +6648,8 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 	if ( i == to )
 	    break;
     }
-    if ( changed ) {
+    if ( changed )
 	emit selectionChanged();
-    }
 }
 
 /*!
@@ -6679,87 +6660,47 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
   default comparison mode is case-sensitive, exact match.
 */
 
-QListViewItem *QListView::findItem( const QString& text, int column, ComparisonFlags compare ) const
+QListViewItem *QListView::findItem( const QString& text, int column,
+				    ComparisonFlags compare ) const
 {
     if ( text.isEmpty() )
 	return 0;
 
-    if ( compare == CaseSensitive || compare == 0 )
-	compare |= ExactMatch;
-
     QString itmtxt;
     QString comtxt = text;
-    if ( ! (compare & CaseSensitive ) )
-	comtxt = text.lower();
+    if ( !(compare & CaseSensitive) )
+	comtxt = comtxt.lower();
 
-    QListViewItem* item;
-    if ( d->focusItem )
-	item = d->focusItem;
-    else
-	item = firstChild();
+    QListViewItemIterator it( d->focusItem );
+    QListViewItem *sentinel = 0;
+    QListViewItem *item;
 
-    QListViewItemIterator it( item );
-
-    if ( item ) {
-	for ( ; it.current(); ++it ) {
-	    item = it.current();
-	    if ( ! (compare & CaseSensitive) )
-		itmtxt = item->text( column ).lower();
-	    else
-		itmtxt = item->text( column );
-
-	    if ( compare & ExactMatch ) {
-		if ( itmtxt == comtxt )
-		    return item;
-	    }
+    for ( int pass = 0; pass < 2; pass++ ) {
+	while ( (item = it.current()) != sentinel ) {
+	    itmtxt = item->text( column );
+	    if ( !(compare & CaseSensitive) )
+		itmtxt = itmtxt.lower();
 
 	    if ( compare & BeginsWith ) {
 		if ( itmtxt.startsWith( comtxt ) )
 		    return item;
-	    }
-
-	    if ( compare & EndsWith ) {
+	    } else if ( compare & EndsWith ) {
 		if ( itmtxt.endsWith( comtxt ) )
 		    return item;
-	    }
-
-	    if ( compare & Contains ) {
-		if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
+	    } else if ( compare & Contains ) {
+		if ( itmtxt.contains( comtxt ) )
+		    return item;
+	    } else { /* ExactMatch */
+		if ( itmtxt == comtxt )
 		    return item;
 	    }
+	    ++it;
 	}
 
-	if ( d->focusItem && firstChild() ) {
-	    item = firstChild();
-	    QListViewItemIterator it( item );
-	    for ( ; it.current() != d->focusItem; ++it ) {
-		item = it.current();
-		if ( ! (compare & CaseSensitive) )
-		    itmtxt = item->text( column ).lower();
-		else
-		    itmtxt = item->text( column );
-
-		if ( compare & ExactMatch ) {
-		    if ( itmtxt == comtxt )
-			return item;
-		}
-
-		if ( compare & BeginsWith ) {
-		    if ( itmtxt.startsWith( comtxt ) )
-			return item;
-		}
-
-		if ( compare & EndsWith ) {
-		    if ( itmtxt.endsWith( comtxt ) )
-			return item;
-		}
-
-		if ( compare & Contains ) {
-		    if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
-			return item;
-		}
-	    }
-	}
+	if ( !d->focusItem )
+	    break;
+	it = QListViewItemIterator( firstChild() );
+	sentinel = d->focusItem;
     }
     return 0;
 }
@@ -6778,4 +6719,3 @@ void QListView::windowActivationChange( bool )
 }
 
 #endif // QT_NO_LISTVIEW
-
