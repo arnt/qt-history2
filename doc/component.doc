@@ -106,9 +106,10 @@ any number of components.
 <h3>Plug-Ins and Add-Ins</h3>
 Plugins are components that implement an application specific interface.
 The application can make use of any available implementation of its
-interfaces to extend or modify existing functionality. The application
-can provide the plugin with interfaces implemented in the application
-itself so that the plugin is able to access and modify application data.
+interfaces to extend or modify existing functionality. Plugins are commonly provided
+as shared libraries, and placing the library in a special subdirectory makes the
+application recognize the new functionality at start up. Most applications support only
+single-component libraries.
 </td>
 </tr>
 </table>
@@ -474,10 +475,26 @@ plugin support. The application would then have to load multiple component serve
 query for the required interface and add the returned component to an internal list 
 which it can look-up to use the component when necessary.
 
-A component implements the interface providing a certain set of
-"features", and it must inform the client application about the list
-of features it provides. To achieve this the component must implement the
-QFeatureListInterface
+If an application wants to enable plugin support it has to provide one or more 
+interface definitions that the plugins can implement to add functionality to the
+application. A plugin for an image processing application might implement the following
+interface to add a color-manipulation filter:
+
+\code
+struct ImageColorInterface : public QUnknownInterface
+{
+    QImage	changeColor( const QImage &image ) = 0;
+};
+\endcode
+
+The application will be able to use all components that implement this interface as
+plugins. All the application needs to know now is which interface implementation to call
+for which image filter. But this is not possible with the above interface definition - there
+is no way for the application to "know" which color filter is provided by which component.
+
+A plugable component implements an interface providing a certain set of "features", and it must 
+inform the client application about the list of features it provides. To achieve this the 
+component must implement the QFeatureListInterface
 
 \code
 struct QFeatureListInterface : public QUnknownInterface
@@ -486,9 +503,8 @@ struct QFeatureListInterface : public QUnknownInterface
 };
 \endcode
 
-For example, a plugin for an image processing application might implement the
-ImageColorInterface providing the feature "Sepia", or multiple features
-like "Contrast" and "Brightness". The ImageColorInterface might be
+To make the ImageColorInterface "plugable" it has to inherit QFeatureListInterface, and the
+\e changeColor function would have to change like this:
 
 \code
 struct ImageColorInterface : public QFeatureListInterface
@@ -498,7 +514,7 @@ struct ImageColorInterface : public QFeatureListInterface
 \endcode
 
 All functions of this interface must be passed the name of the requested
-feature, and are implemented like this:
+feature, and have to be implemented like this:
 
 \code
 QImage ImageColorComponent::changeColor( const QString &feature, const QImage &image )
@@ -552,21 +568,21 @@ While the plugin concept allows you to dynamically extend and modify an
 application it has one major drawback: the application has to load a large
 number of libraries to determine which ones provide suitable
 components. This might not be a problem for a small number of highly
-specialized plugins, but when plugins are shared
-between different applications the number of libraries being loaded and
-unloaded unnecessarily makes application startup very inefficient.
+specialized plugins, but when plugins are shared between different applications 
+the number of libraries being loaded and unloaded unnecessarily makes application 
+startup very inefficient.
 
 A Component Trader tells an application which components implement a
 certain set of interfaces, and the application can then select and use
 one of those components. If multiple components are suitable the user
-should be able to prioritize a single component. This makes it 
-necessary for components to register their set of implemented interfaces
-in the central database, so that the component trader can look up the
-components matching the request and pick the preferred one for the
-application to use.
+is able to prioritize a single component.
 
-Registering (and unregistering) the component once again uses the
-implementation of the QComponentServerInterface:
+This makes it necessary for components to register their set of implemented 
+interfaces in the central database, so that the component trader can look up the
+components matching the request and pick the preferred one for the application to use.
+
+Registering (and unregistering) the component is again done in the implementation of the 
+QComponentServerInterface:
 
 \code
 bool NumberComponent::registerComponents( const QString &filepath ) const
