@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 2.12 1999/05/23 20:27:24 agulbra Exp $
+** $Id: debug.doc,v 2.13 1999/05/24 23:42:32 agulbra Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -58,10 +58,10 @@ version of Qt.
 Qt includes three global functions for writing out warning and debug
 text.
 <ul>
-<li>\link ::debug() debug()\endlink for writing debug output for testing etc.
-<li>\link ::warning() warning()\endlink for writing warning output when program
+<li>\link ::qDebug() qDebug()\endlink for writing debug output for testing etc.
+<li>\link ::qWarning() qWarning()\endlink for writing warning output when program
 errors occur.
-<li>\link ::fatal() fatal()\endlink for writing fatal error messages and exit.
+<li>\link ::qFatal() qFatal()\endlink for writing fatal error messages and exit.
 </ul>
 
 The Qt implementation of these functions prints the text to the \c stderr
