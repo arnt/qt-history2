@@ -65,6 +65,8 @@ public:
     bool	event( QEvent* e );
 #endif
 
+    int	insertTearOffHandle( int id=-1, int index=-1 );
+
 signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
@@ -104,6 +106,7 @@ private slots:
     void	modalActivation( int );
 
     void	subMenuTimer();
+    void     toggleTearOff();
 
 private:
     void	menuContentsChanged();
@@ -134,8 +137,10 @@ private:
     uint accelDisabled : 1;
     uint checkable : 1;
     uint connectModalRecursionSafety : 1;
+    uint tearedOff : 1;
     int maxPMWidth;
     int ncols;
+    bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
 
     friend class QMenuData;
     friend class QMenuBar;

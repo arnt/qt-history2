@@ -97,13 +97,13 @@ public:
     MyMenuItem( const QString& s, const QFont& f )
 	: string( s ), font( f ){};
     ~MyMenuItem(){}
-    
+
     void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
     {
 	p->setFont ( font );
 	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | ShowPrefix | DontClip, string );
     }
-    
+
     QSize sizeHint()
     {
 	return QFontMetrics( font ).size( AlignLeft | AlignVCenter | ShowPrefix | DontClip,  string );
@@ -149,9 +149,11 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 
     QPopupMenu* options = new QPopupMenu( this );
     CHECK_PTR( options );
+    options->insertTearOffHandle();
+    options->setCaption("Options");
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
-    
+
     QFont fnt = font();
     fnt.setBold( TRUE );
     boldID = options->insertItem( new MyMenuItem( "&Bold", fnt ) );
@@ -162,7 +164,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     underlineID = options->insertItem( new MyMenuItem( "&Underline", fnt ) );
     options->setAccel( CTRL+Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
-    
+
     isBold = FALSE;
     isUnderline = FALSE;
     options->setCheckable( TRUE );

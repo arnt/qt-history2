@@ -35,6 +35,7 @@
 #include "qtimer.h"
 #include "qwhatsthis.h"
 #include "qobjectlist.h"
+#include "qguardedptr.h"
 #include <ctype.h>
 
 #ifdef QT_BUILDER
@@ -88,8 +89,6 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
 }
 
 
-
-
 // NOT REVISED
 /*!
   \class QPopupMenu qpopupmenu.h
@@ -141,7 +140,16 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
 
   For ultimate flexibility, you can also add entire widgets as items
   into a popup menu, for example a color selector.
-
+  
+  A QPopupMenu can also provide a tear-off menu. A tear-off menu is a
+  "torn off" copy of a menu that lives in a separate window. This
+  makes it possible for the user to "tear off" frequently used menus
+  and position them in a convenient place on the screen. If you want
+  that functionality for a certain menu, insert a tear-off handle with
+  insertTearOffHandle(). When using tear-off menus, keep in mind that
+  the concept isn't typically used on MS-Windows, so users may not be
+  familiar with it. Consider using a QToolBar instead.
+  
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
   \important insertItem removeItem removeItemAt clear text pixmap iconSet  insertSeparator
@@ -172,6 +180,16 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
   QPopupMenu member functions
  *****************************************************************************/
 
+class QMenuDataData {
+    // attention: also defined in qmenudata.cpp
+public:
+    QMenuDataData();
+    QGuardedPtr<QWidget> aWidget; 
+    int aInt;
+};
+
+
+static QPopupMenu* active_popup_menu = 0;
 /*!
   Constructs a popup menu with a parent and a widget name.
 
@@ -192,6 +210,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     popupActive	  = -1;
     tab = 0;
     checkable = 0;
+    tearedOff = 0;
     maxPMWidth = 0;
 
     tab = 0;
@@ -214,7 +233,9 @@ QPopupMenu::~QPopupMenu()
 	qApp->exit_loop();
 	syncMenu = 0;
     }
-	
+    
+    delete (QWidget*) QMenuData::d->aWidget;  // tear-off menu
+    
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
 }
@@ -239,6 +260,8 @@ void QPopupMenu::setCheckable( bool enable )
     if ( isCheckable() != enable ) {
 	checkable = enable;
 	badSize = TRUE;
+	if ( QMenuData::d->aWidget )
+	    ( (QPopupMenu*)(QWidget*)QMenuData::d->aWidget)->setCheckable( enable );
     }
 }
 
@@ -258,14 +281,28 @@ void QPopupMenu::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
     if ( isVisible() ) {
+	if ( tearedOff )
+	    return;
 	updateSize();
 	update();
+    }
+    QPopupMenu* p = (QPopupMenu*)(QWidget*)QMenuData::d->aWidget;
+    if ( p && p->isVisible() ) {
+	p->mitems->clear();
+	for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
+	    if ( it.current()->id() != QMenuData::d->aInt && !it.current()->widget() )
+		p->mitems->append( it.current() );
+	}
+	p->updateSize();
+	p->update();
     }
 }
 
 void QPopupMenu::menuStateChanged()
 {
     repaint();
+    if ( QMenuData::d->aWidget )
+	QMenuData::d->aWidget->repaint();
 }
 
 void QPopupMenu::menuInsPopup( QPopupMenu *popup )
@@ -309,6 +346,9 @@ void QPopupMenu::frameChanged()
 
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 {
+    if ( !isPopup() && isVisible() )
+	hide();
+    
     //avoid circularity
     if ( isVisible() || !isEnabled() )
 	return;
@@ -453,7 +493,7 @@ void QPopupMenu::setFirstItemActive()
     int ai = 0;
     while ( (mi=it.current()) ) {
 	++it;
-	if ( !mi->isSeparator() ) {
+	if ( !mi->isSeparator() && mi->id() != QMenuData::d->aInt ) {
 	    setActiveItem( ai );
 	    return;
 	}
@@ -470,7 +510,11 @@ void QPopupMenu::setFirstItemActive()
 void QPopupMenu::hideAllPopups()
 {
     register QMenuData *top = this;		// find top level popup
-    while ( top->parentMenu && top->parentMenu->isPopupMenu )
+    if ( !isPopup() )
+	return; // nothing to do
+    
+    while ( top->parentMenu && top->parentMenu->isPopupMenu 
+	    && ((QPopupMenu*)top->parentMenu)->isPopup() )
 	top = top->parentMenu;
     ((QPopupMenu*)top)->hide();			// cascade from top level
 }
@@ -504,7 +548,24 @@ bool QPopupMenu::tryMenuBar( QMouseEvent *e )
     while ( top->parentMenu )
 	top = top->parentMenu;
     return top->isMenuBar ?
-	((QMenuBar *)top)->tryMouseEvent( this, e ) : FALSE;
+	((QMenuBar *)top)->tryMouseEvent( this, e ) : 
+			      ((QPopupMenu*)top)->tryMouseEvent(this, e );
+}
+
+
+/*!
+  \internal
+*/
+bool QPopupMenu::tryMouseEvent( QPopupMenu *p, QMouseEvent * e)
+{
+    if ( p == this )
+	return FALSE;
+    QPoint pos = mapFromGlobal( e->globalPos() );
+    if ( !rect().contains( pos ) )		// outside
+	return FALSE;
+    QMouseEvent ee( e->type(), pos, e->globalPos(), e->button(), e->state() );
+    event( &ee );
+    return TRUE;
 }
 
 /*!
@@ -628,7 +689,7 @@ void QPopupMenu::updateSize()
     for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
 	mi = it2.current();
 	int w = 0;
-	int itemHeight = style().popupMenuItemHeight( checkable, mi, fm );
+	int itemHeight = QPopupMenu::itemHeight( mi );
 	
 	if ( mi->widget() ) {
 	    hasWidgetItems = TRUE;
@@ -640,8 +701,12 @@ void QPopupMenu::updateSize()
 	    itemHeight = s.height();
 	} else {
 	    if ( mi->custom() ) {
-		QSize s ( mi->custom()->sizeHint() );
-		w += s.width();
+		if ( mi->custom()->fullSpan() ) {
+		    maxWidgetWidth = QMAX( maxWidgetWidth, mi->custom()->sizeHint().width() );
+		} else {
+		    QSize s ( mi->custom()->sizeHint() );
+		    w += s.width();
+		}
 	    }
 	
 	    if ( !mi->text().isNull() && !mi->isSeparator() ) {
@@ -695,10 +760,10 @@ void QPopupMenu::updateSize()
 	max_width = maxWidgetWidth - tab;
 
     if ( ncols == 1 ) {
-	resize( max_width + tab + 2*frameWidth(), height + 2*frameWidth() );
+	setFixedSize( max_width + tab + 2*frameWidth(), height + 2*frameWidth() );
     }
     else {
-	resize( (ncols*(max_width + tab)) + 2*frameWidth(), dh );
+	setFixedSize( (ncols*(max_width + tab)) + 2*frameWidth(), dh );
     }
 	
     badSize = FALSE;
@@ -850,6 +915,9 @@ void QPopupMenu::setFont( const QFont &font )
 
 void QPopupMenu::show()
 {
+    if ( !isPopup() && isVisible() )
+	hide();
+    
     if ( isVisible() ) {
 	supressAboutToShow = FALSE;
 	return;
@@ -881,6 +949,7 @@ void QPopupMenu::hide()
 	qApp->exit_loop();
 	syncMenu = 0;
     }
+    
 }
 
 
@@ -899,6 +968,8 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 {
     if  ( mi->widget() )
 	return mi->widget()->height();
+    if ( mi->custom() && mi->custom()->fullSpan() )
+	return mi->custom()->sizeHint().height();
     return style().popupMenuItemHeight( checkable, mi, fontMetrics() );
 }
 
@@ -907,8 +978,15 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
     bool dis = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
-    style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, mi, palette(),
-			      act, !dis, x, y, w, h);
+    if ( mi->custom() && mi->custom()->fullSpan() ) {
+	QMenuItem dummy;
+	style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, &dummy, palette(),
+				  act, !dis, x, y, w, h);
+	mi->custom()->paint( p, colorGroup(), act, !dis, x, y, w, h );
+    }
+    else
+	style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, mi, palette(),
+				  act, !dis, x, y, w, h);
 }
 
 
@@ -1029,6 +1107,8 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	bool b = QWhatsThis::inWhatsThisMode();
 	if ( !mi->isEnabled() ) {
 	    if ( b ) {
+		actItem = -1;
+		updateItem( mi->id() );
 		byeMenuBar();
 		actSig( mi->id(), b);
 	    }
@@ -1037,9 +1117,13 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	} else {				// normal menu item
 	    byeMenuBar();			// deactivate menu bar
 	    if ( mi->isEnabled() ) {
+		actItem = -1;
+		updateItem( mi->id() );
+		active_popup_menu = this;
 		actSig( mi->id(), b );
 		if ( mi->signal() && !b )
 		    mi->signal()->activate();
+		active_popup_menu = 0;
 	    }
 	}
     } else {
@@ -1054,19 +1138,21 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
     motion++;
-    if ( parentMenu && parentMenu->isPopupMenu &&
-	 (parentMenu->actItem != ((QPopupMenu *)parentMenu)->popupActive ) ) {
-	// hack it to work: if there's a parent popup, and its active
-	// item is not the same as its popped-up child, make the
-	// popped-up child active
-	QPopupMenu * p = (QPopupMenu *)parentMenu;
-	int lastActItem = p->actItem;
-	p->actItem = p->popupActive;
-	if ( lastActItem >= 0 )
-	    p->updateRow( lastActItem );
-	if ( p->actItem >= 0 )
-	    p->updateRow( p->actItem );
-    }
+    
+    /* cannot remember why we had that workaround, but it breaks tear-off menus. Matthias */
+//     if ( parentMenu && parentMenu->isPopupMenu &&
+// 	 (parentMenu->actItem != ((QPopupMenu *)parentMenu)->popupActive ) ) {
+// 	// hack it to work: if there's a parent popup, and its active
+// 	// item is not the same as its popped-up child, make the
+// 	// popped-up child active
+// 	QPopupMenu * p = (QPopupMenu *)parentMenu;
+// 	int lastActItem = p->actItem;
+// 	p->actItem = p->popupActive;
+// 	if ( lastActItem >= 0 )
+// 	    p->updateRow( lastActItem );
+// 	if ( p->actItem >= 0 )
+// 	    p->updateRow( p->actItem );
+//     }
 
     if ( (e->state() & Qt::MouseButtonMask) == 0 &&
 	 !hasMouseTracking() )
@@ -1079,10 +1165,8 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( lastActItem >= 0 )
 	    updateRow( lastActItem );
 
-	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) )
+	if ( !rect().contains( e->pos() )  && !tryMenuBar( e ) )
 	    popupSubMenuLater( style() == WindowsStyle ? 256 : 96, this );
-	else if ( singleSingleShot )
-	    singleSingleShot->stop();
     } else {					// mouse on valid item
 	// but did not register mouse press
 	if ( (e->state() & Qt::MouseButtonMask) && !mouseBtDn )
@@ -1144,6 +1228,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Escape:
+	if ( tearedOff ) {
+	    close();
+	    return;
+	}
 	// just hide one
 	hide();
   	if ( parentMenu && parentMenu->isMenuBar )
@@ -1205,16 +1293,20 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    popupSubMenuLater( 20, this );
 	    popup->setFirstItemActive();
 	} else {
+	    actItem = -1;
+	    updateItem( mi->id() );
 	    byeMenuBar();
 	    bool b = QWhatsThis::inWhatsThisMode();
 	    if ( mi->isEnabled() || b ) {
+		active_popup_menu = this;
 		actSig( mi->id(), b );
 		if ( mi->signal() && !b )
 		    mi->signal()->activate();
+		active_popup_menu = 0;
 	    }
 	}
 	break;
-
+	
     case Key_F1:
 	if ( actItem < 0 || e->state() != ShiftButton)
 	    break;
@@ -1261,9 +1353,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		byeMenuBar();
 		bool b = QWhatsThis::inWhatsThisMode();
 		if ( mi->isEnabled() || b ) {
+		    active_popup_menu = this;
 		    actSig( mi->id(), b );
 		    if ( mi->signal() && !b  )
 			mi->signal()->activate();
+		    active_popup_menu = 0;
 		}
 	    }
 	}
@@ -1638,6 +1732,94 @@ void QPopupMenu::focusInEvent( QFocusEvent * )
  */
 void QPopupMenu::focusOutEvent( QFocusEvent * )
 {
+}
+
+
+class QTearOffMenuItem : public QCustomMenuItem
+{
+public:
+    QTearOffMenuItem()
+    {
+    }
+    ~QTearOffMenuItem()
+    {
+    }
+    void paint( QPainter* p, const QColorGroup& cg, bool /* act*/, 
+		bool /*enabled*/, int x, int y, int w, int h ) 
+    {
+	p->setPen( QPen( cg.dark(), 1, DashLine ) );
+	p->drawLine( x+2, y+h/2-1, x+w-4, y+h/2-1 );
+	p->setPen( QPen( cg.light(), 1, DashLine ) );
+	p->drawLine( x+2, y+h/2, x+w-4, y+h/2 );
+    }
+    bool fullSpan() const 
+    {
+	return TRUE;
+    }
+    
+    QSize sizeHint()
+    {
+	return QSize( 20, 6 );
+    }
+};
+
+
+
+/*!
+  Inserts a tear-off handle into the menu. A tear-off handle is a
+  special menu item, that - when selected - creates a copy of the
+  menu. This "torn off" copy lives in a separate window. It contains
+  the same choices as the original menu, with the exception of the
+  tear-off handle.
+  
+  You may also want to set a proper window title for the tear-off menu
+  with setCaption().
+  
+  The handle item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The tear-off
+  handle is appended at the end of the list if \a index is negative.
+ */
+int QPopupMenu::insertTearOffHandle( int id, int index )
+{
+    int myid = insertItem( new QTearOffMenuItem, id, index );
+    connectItem( myid, this, SLOT( toggleTearOff() ) );
+    QMenuData::d->aInt = myid;
+    return myid;
+}
+
+
+/*!\internal
+
+  implements tear-off menus
+ */
+void QPopupMenu::toggleTearOff()
+{
+    if ( active_popup_menu && active_popup_menu->tearedOff ) {
+	active_popup_menu->close();
+    } else  if (QMenuData::d->aWidget ) {
+	delete (QWidget*) QMenuData::d->aWidget; // delete the old one
+    } else {
+	// create a tear off menu
+	QPopupMenu* p = new QPopupMenu( 0, "tear off menu" );
+	p->setCaption( caption() );
+	p->setCheckable( isCheckable() );
+	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool | WRepaintNoErase | WDestructiveClose,
+		     geometry().topLeft(), FALSE );
+	if ( parentWidget() )
+	    parentWidget()->removeChild( p ); // we want to own this
+	p->mitems->setAutoDelete( FALSE );
+	p->tearedOff = TRUE;
+	for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
+	    if ( it.current()->id() != QMenuData::d->aInt && !it.current()->widget() )
+		p->mitems->append( it.current() );
+	}
+	p->show();
+	QMenuData::d->aWidget = p;
+    }
 }
 
 #ifdef QT_BUILDER

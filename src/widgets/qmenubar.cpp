@@ -39,7 +39,9 @@
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp
 public:
-    QGuardedPtr<QWidget> activeBefore; // ## only useful for QMenuBar
+    QMenuDataData();
+    QGuardedPtr<QWidget> aWidget; 
+    int aInt;
 };
 
 
@@ -58,15 +60,15 @@ public:
   menubar->insertItem( "&File", filemenu );
   \endcode
   inserts the menu into the menu bar. The ampercent in the item text declares
-  Alt-f as shortcut for this menu. 
-  
+  Alt-f as shortcut for this menu.
+
   Items are either enabled or disabled. You toggle their state with
   setItemEnabled().
 
   Note that there is no need to layout a menu bar. It automatically
   sets its own geometry to the top of the parent widget and changes it
   appropriately whenever the parent is resized.
-  
+
   \important insertItem removeItem clear insertSeparator() setItemEnabled isItemEnabled
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
@@ -453,9 +455,9 @@ void QMenuBar::accelDestroyed()
 }
 
 
-bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
+bool QMenuBar::tryMouseEvent( QPopupMenu *, QMouseEvent *e )
 {
-    QPoint pos = mapFromGlobal( popup->mapToGlobal( e->pos() ) );
+    QPoint pos = mapFromGlobal( e->globalPos() );
     if ( !rect().contains( pos ) )		// outside
 	return FALSE;
     int item = itemAtPos( pos );
@@ -465,7 +467,7 @@ bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
 	goodbye();
 	return FALSE;
     }
-    QMouseEvent ee( e->type(), pos, e->button(), e->state() );
+    QMouseEvent ee( e->type(), pos, e->globalPos(), e->button(), e->state() );
     event( &ee );
     return TRUE;
 }
@@ -1063,15 +1065,15 @@ void QMenuBar::setAltMode( bool enable )
 {
     waitforalt = 0;
     if ( enable ) {
-	if ( !QMenuData::d->activeBefore )
-	    QMenuData::d->activeBefore = qApp->focusWidget();
+	if ( !QMenuData::d->aWidget )
+	    QMenuData::d->aWidget = qApp->focusWidget();
 	setFocus();
 	updateItem( idAt( actItem ) );
     } else {
-	if ( QMenuData::d->activeBefore )
-	    QMenuData::d->activeBefore->setFocus();
+	if ( QMenuData::d->aWidget )
+	    QMenuData::d->aWidget->setFocus();
 	updateItem( idAt( actItem ) );
-	QMenuData::d->activeBefore = 0;
+	QMenuData::d->aWidget = 0;
     }
 }
 

@@ -38,11 +38,15 @@
 // Not used yet...
 class QMenuItemData { };
 class QMenuDataData {
-    // attention: also defined in qmenubar.cpp
+    // attention: also defined in qmenubar.cpp and qpopupmenu.cpp
 public:
-    QGuardedPtr<QWidget> activeBefore; // ## only useful for QMenuBar
-
+    QMenuDataData();
+    QGuardedPtr<QWidget> aWidget; 
+    int aInt;
 };
+QMenuDataData::QMenuDataData() 
+    : aInt(-1)
+{}
 
 // NOT REVISED
 /*!
@@ -584,16 +588,20 @@ int QMenuData::insertItem( const QIconSet& icon,
   If a widget is not focus enabled ( see QWidget::isFocusEnabled() ),
   the menu treats it as a separator. This means, the item is not
   selectable and will never get focus. This way you can for example
-  simply insert a QLabel if you need a popup menu with a title.
+  simply insert a QLabel if you need a popup menu with a title. 
 
   If the widget is focus enabled, it will get focus when the user
-  traverses the popup menu with the arrow keys. It's up to the widget
-  to provide the possibility to put the focus back on the menu again
-  by calling QWidget::focusNextPrevChild() respectively. Futhermore should the
-  embedded widget close the menu when the user made a selection.
-  This can be done safely by calling
-  \code
-  if ( isVisible() && parentWidget() && parentWidget()->inherits("QPopupMenu") )
+  traverses the popup menu with the arrow keys. If the widget does not
+  accept ArrowUp and ArrowDown in its key event handler, the focus
+  will move back to the menu when the the respective arrow key is hit
+  one more time. This works for example with a QLineEdit.  If the
+  widget accepts the arrow keys itself, it must also provide the
+  possibility to put the focus back on the menu again by calling
+  QWidget::focusNextPrevChild() respectively. Futhermore should the
+  embedded widget close the menu when the user made a selection.  This
+  can be done safely by calling \code if ( isVisible() &&
+  parentWidget() &&
+  parentWidget()->inherits("QPopupMenu") )
 	parentWidget()->close();
   \endcode
 
@@ -1238,6 +1246,11 @@ QString QMenuData::whatsThis( int id ) const
 
   A custom item is inserted into a popup menu with
   QPopupMenu::insertItem().
+  
+  Per default, a custom item can also have an icon set and/or an
+  accelerator key. You can, however, reimplement fullSpan() to return
+  TRUE if you want the item to span the entire popup menu width. This
+  is in particular useful for labels.
 
   Note that you can also insert pixmaps or bitmaps as items into a
   popup menu. A custom menu item, however, offers even more
@@ -1281,6 +1294,19 @@ QCustomMenuItem::~QCustomMenuItem()
 void QCustomMenuItem::setFont( const QFont&  )
 {
 }
+
+
+
+/*!
+  Returns whether this item wants to span the entire popup menu width.
+  The default is FALSE, meaning that the menu may show an icon and/or
+  an accelerator key for this itemas well.
+ */
+bool QCustomMenuItem::fullSpan() const
+{
+    return FALSE;
+}
+
 
 
 /*! \fn void QCustomMenuItem::paint( QPainter* p, const QColorGroup& cg, bool act,  bool enabled, int x, int y, int w, int h );

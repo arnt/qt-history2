@@ -117,8 +117,9 @@ class Q_EXPORT QCustomMenuItem : public Qt
 public:
     QCustomMenuItem();
     virtual ~QCustomMenuItem();
+    virtual bool fullSpan() const;
     virtual void setFont( const QFont& font );
-    virtual void paint( QPainter* p, const QColorGroup& cg, bool act, 
+    virtual void paint( QPainter* p, const QColorGroup& cg, bool act,
 			bool enabled, int x, int y, int w, int h ) = 0;
     virtual QSize sizeHint() = 0;
 };
@@ -174,7 +175,7 @@ public:
 			    int id=-1, int index=-1 );
 
     int		insertItem( QWidget* widget, int id=-1, int index=-1 );
-    
+
     int		insertItem( const QIconSet& icon, QCustomMenuItem* custom, int id=-1, int index=-1 );
     int		insertItem( QCustomMenuItem* custom, int id=-1, int index=-1 );
 
