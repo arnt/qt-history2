@@ -635,7 +635,8 @@ void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 void QListView::mouseMoveEvent(QMouseEvent *e)
 {
     QAbstractItemView::mouseMoveEvent(e);
-    if (state() == QAbstractItemView::SelectingState && d->selectionMode != SingleSelection) {
+    if (state() == QAbstractItemView::DragSelectingState
+        && d->selectionMode != SingleSelection) {
         QPoint topLeft(d->pressedPosition.x() - horizontalOffset(),
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
