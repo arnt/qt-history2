@@ -376,6 +376,9 @@ public:
     void setUndoDepth( int d ) { steps = d; }
     int undoDepth() const { return steps; }
 
+    int historySize() const { return history.count(); }
+    int currentPosition() const { return current; }
+
 private:
     QPtrList<QTextCommand> history;
     int current, steps;
