@@ -35,9 +35,40 @@
 #include <sys/wait.h>
 #include <netinet/in.h>
 
+// On 64-bit platforms sockets use socklen_t
+#define QT_SOCKLEN_T		socklen_t
+
+// Only Solaris 7 and better support 64-bit
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
+
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED
 static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return ::connect(s, addr, addrlen); }
+#if defined (connect)
+# undef connect
+#endif
+
+// Solaris redefines bind -> __xnet_bind with _XOPEN_SOURCE_EXTENDED
+static inline int qt_socket_bind(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
+{ return ::bind(s, addr, addrlen); }
+#if defined(bind)
+# undef bind
+#endif
+
+// POSIX Large File Support redefines open -> open64
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
+#if defined(open)
+# undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+static inline int qt_truncate(const char *pathname, off_t length)
+{ return ::truncate(pathname, length); }
+#if defined(truncate)
+# undef truncate
+#endif
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
@@ -71,16 +102,5 @@ static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T a
 #define QT_SIGNAL_RETTYPE	void
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
-
-// On 64-bit platforms sockets use socklen_t
-#define QT_SOCKLEN_T		socklen_t
-
-// Only Solaris 7 and better support 64-bit
-#define QT_SNPRINTF		::snprintf
-#define QT_VSNPRINTF		::vsnprintf
-
-#ifdef connect
-#undef connect
-#endif
 
 #endif // QPLATFORMDEFS_H
