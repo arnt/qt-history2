@@ -4524,9 +4524,9 @@ QDragObject *QIconView::dragObject()
     drag->setPixmap( *d->currentItem->pixmap(),
  		     QPoint( d->currentItem->pixmapRect().width() / 2,
 			     d->currentItem->pixmapRect().height() / 2 ) );
-
-    if ( d->selectionMode == NoSelection && d->startDragItem ) {
-	QIconViewItem *item = d->startDragItem;
+   
+    if ( d->selectionMode == NoSelection ) {  
+	QIconViewItem *item = d->currentItem; 
 	drag->append( QIconDragItem(),
 		      QRect( item->pixmapRect( FALSE ).x() - orig.x(),
 			     item->pixmapRect( FALSE ).y() - orig.y(),
