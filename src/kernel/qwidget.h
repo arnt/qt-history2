@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#160 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#161 $
 **
 ** Definition of QWidget class
 **
@@ -202,10 +202,11 @@ public slots:
 
     virtual void show();
     virtual void hide();
-    void	 iconify();
+    void iconify();
+    bool close();
 
 public:
-    virtual bool close( bool forceKill=FALSE );
+    virtual bool close( bool forceKill );
     bool	 isVisible()	const;
     bool	 isVisibleTo(QWidget*) const;
     bool	 isVisibleToTLW() const;
@@ -274,7 +275,7 @@ protected:
     virtual void moveEvent( QMoveEvent * );
     virtual void resizeEvent( QResizeEvent * );
     virtual void closeEvent( QCloseEvent * );
-    
+
     virtual void dragEnterEvent( QDragEnterEvent * );
     virtual void dragMoveEvent( QDragMoveEvent * );
     virtual void dragLeaveEvent( QDragLeaveEvent * );
@@ -284,7 +285,7 @@ protected:
     virtual void showEvent( QShowEvent * );
     virtual void hideEvent( QHideEvent * );
     virtual void customEvent( QCustomEvent * );
-    
+
 #if defined(_WS_MAC_)
     virtual bool macEvent( MSG * );		// Macintosh event
 #elif defined(_WS_WIN_)
@@ -488,6 +489,9 @@ inline void QWidget::erase()
 
 inline void QWidget::erase( const QRect &r )
 { erase( r.x(), r.y(), r.width(), r.height() ); }
+
+inline bool QWidget::close() 
+{ return close( FALSE ); }
 
 inline bool QWidget::isVisible() const
 { return testWFlags(WState_Visible); }

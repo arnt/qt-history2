@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#335 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#336 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -244,9 +244,34 @@ public:
 extern "C" {
 #endif
 
+static bool x11_ignore_badwindow;    
+static bool x11_badwindow;
+    
+    
+    // starts to ignore bad window errors from X
+static void qt_ignore_badwindow()
+{
+    x11_ignore_badwindow = TRUE;
+    x11_badwindow = FALSE;
+}    
+    
+    // ends ignoring bad window errors and returns whether an error
+    // had happen.
+static bool qt_badwindow()
+{
+    x11_ignore_badwindow = FALSE;
+    return x11_badwindow; 
+}
+    
 static int qt_x_errhandler( Display *dpy, XErrorEvent *err ) {
-    if ( err->request_code == 25 && qt_xdnd_handle_badwindow() )
-	return 0;
+    if ( err->error_code == BadWindow ) {
+	x11_badwindow = TRUE;
+	if ( err->request_code == 25 && qt_xdnd_handle_badwindow() )
+	    return 0;
+	if ( x11_ignore_badwindow )
+	    return 0;
+    }
+
     char errstr[256];
     XGetErrorText( dpy, err->error_code, errstr, 256 );
     fatal( "X Error: %s %d\n  Major opcode:  %d", errstr, err->error_code, err->request_code );
@@ -2090,8 +2115,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		Window parent = event->xreparent.parent;
 		XGetWindowAttributes( widget->x11Display(),
 				      widget->winId(), &a1 );
+		qt_ignore_badwindow();
 		XGetWindowAttributes( widget->x11Display(), parent,
 				      &a2 );
+		if (qt_badwindow())
+		    break;
+		
 		QRect *r = &widget->crect;
 		XWindowAttributes *a;
 		if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )

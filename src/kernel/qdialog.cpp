@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#58 $
 **
 ** Implementation of QDialog class
 **
@@ -65,10 +65,9 @@
     }
   \endcode
 
-  Note that the parent widget has a different meaning for modal dialogs
-  than for other types of widgets. A dialog is placed on top of the parent
-  widget. The dialog is centered on the screen if the parent widget is
-  zero.
+  Note that the parent widget has an additional meaning for modal
+  dialogs.  A modal dialog is placed on top of the parent widget. The
+  dialog is centered on the screen if the parent widget is zero.
 
   You would normally call exec() to start a modal dialog. This enters
   a local event loop, which is terminated when the modal dialog calls
@@ -82,7 +81,7 @@
     }
   \endcode
 
-  Modeless dialogs behave just like ordinary widgets. The only difference
+  Modeless dialogs behave just like ordinary toplevel widgets. The only difference
   is that they have the default button mechanism.
 
   \sa QTabDialog QWidget QSemiModal
@@ -99,13 +98,13 @@
   The \a f argument is the \link QWidget::QWidget() widget flags,
   \endlink which can be used to customize the window frame style.
 
-  \warning Creating a modeless dialog with a parent makes it an ordinary
-  child widget, which is probably not what you want. Expect strange
-  behavior (QDialog has a default button mechanism).
+  A dialog is always a top level widget. The optional parent, however,
+  will know about this child and also delete it on destruction.
+
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( parent, name, modal ? (f | WType_Modal) : f )
+    : QWidget( parent, name, WType_Modal | (modal ? (f | WType_Modal) : f ) )
 {
     rescode = 0;
     did_move = did_resize = FALSE;
@@ -117,7 +116,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
 
 QDialog::~QDialog()
 {
-    // Need to hide() here, as our (to-be) overridden hide() 
+    // Need to hide() here, as our (to-be) overridden hide()
     // will not be called in ~QWidget.
     hide();
 }
@@ -315,9 +314,9 @@ void QDialog::show()
 	while ( (extraw == 0 || extrah == 0) &&
 		it.current() != 0 ) {
 	    int w, h;
-	    w = it.current()->frameGeometry().width() - 
+	    w = it.current()->frameGeometry().width() -
 		it.current()->width();
-	    h = it.current()->frameGeometry().height() - 
+	    h = it.current()->frameGeometry().height() -
 		it.current()->height();
 
 	    extraw = QMAX( extraw, w );

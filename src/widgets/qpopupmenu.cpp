@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#168 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#169 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -313,19 +313,16 @@ static QString accel_str( int k )
  *****************************************************************************/
 
 /*!
-  Constructs a popup menu with a null parent and a widget name.
+  Constructs a popup menu with a parent and a widget name.
 
-  A popup menu must be a top level widget, i.e. parent must be 0.
-  This argument is present merely for API uniformity.
+  A popup menu is always a top level widget. The parent, however, will
+  know about this child and also delete it on destruction.
+
 */
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
-    : QTableView( 0, name, WType_Popup )
+    : QTableView( parent, name, WType_Popup )
 {
-#if defined(CHECK_RANGE)
-    if ( parent != 0 )
-	warning( "QPopupMenu: (%s) Parent must be null", name );
-#endif
     isPopupMenu	  = TRUE;
     selfItem	  = 0;
     autoaccel	  = 0;

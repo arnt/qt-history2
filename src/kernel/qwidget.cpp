@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#267 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#268 $
 **
 ** Implementation of QWidget class
 **
@@ -2470,18 +2470,18 @@ void QWidget::show()
 	register QObject *object;
 	QWidget *widget;
 	while ( it ) {				// show all widget children
-	    object = it.current();		//   (except popups)
+	    object = it.current();		//   (except popups and other toplevels)
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->testWFlags(WState_DoHide) )
+		if ( !widget->testWFlags(WState_DoHide) && !widget->isTopLevel() )
 		    widget->show();
 	    }
 	}
     }
     if ( testWFlags(WStyle_Tool) ) {
 	raise();
-    } else if ( testWFlags(WType_TopLevel) && !testWFlags(WType_Popup) ) {
+    } else if ( testWFlags(WType_TopLevel) && !isPopup() ) {
 	while ( QApplication::activePopupWidget() )
 	    QApplication::activePopupWidget()->hide();
     }
@@ -3032,7 +3032,8 @@ void QWidget::wheelEvent( QWheelEvent *e )
   QKeyEvent ignore()\endlink the press if you do not understand it, so
   that the widget's parent can interpret it.
 
-  The default implementation ignores the event.
+  The default implementation closes popup wigets if you hit
+  escape. Otherwise the event is ignored.
 
   As a special case to support applications not utilizing focus,
   \link isTopLevel() Top-level widgets \endlink that have
@@ -3044,7 +3045,13 @@ void QWidget::wheelEvent( QWheelEvent *e )
 
 void QWidget::keyPressEvent( QKeyEvent *e )
 {
-    e->ignore();
+    if ( isPopup() && e->key() == Key_Escape ) {
+	e->accept();
+	close();
+    }
+    else {
+	e->ignore();
+    }
 }
 
 /*!
