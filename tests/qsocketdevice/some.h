@@ -22,6 +22,7 @@ public slots:
     void bind();
     void listen();
     void accept();
+    void waitForMore();
 
     void read();
     void write();

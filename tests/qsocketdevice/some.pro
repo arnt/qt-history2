@@ -5,5 +5,3 @@ SOURCES		= main.cpp \
 		  some.cpp
 INTERFACES	= 
 TARGET		= some
-unix:LIBS       = -lqnetwork
-win32:LIBS      = $(QTDIR)\lib\qnetwork.lib

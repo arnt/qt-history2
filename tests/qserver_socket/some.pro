@@ -7,5 +7,3 @@ SOURCES		= main.cpp \
 		  thing.cpp
 INTERFACES	= 
 TARGET		= some
-unix:LIBS       = -lqnetwork
-win32:LIBS      = $(QTDIR)\lib\qnetwork.lib

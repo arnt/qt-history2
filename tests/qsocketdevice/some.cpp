@@ -1,19 +1,13 @@
 #include <qpushbutton.h>
+#include <qdatetime.h>
+#include <qmessagebox.h>
 
 #include "some.h"
-
-
-// choose here if you want to test stream or datagram
-#if 1
-#define SD_TYPE QSocketDevice::Stream
-#else
-#define SD_TYPE QSocketDevice::Datagram
-#endif
 
 Some::Some( const QString& host_, uint port_ )
     : port(port_)
 {
-    sd = new QSocketDevice( SD_TYPE );
+    sd = new QSocketDevice( QSocketDevice::Stream );
     if ( !address.setAddress( host_ ) )
 	qWarning( "Error parsing Host Address" );
 
@@ -30,6 +24,8 @@ Some::Some( const QString& host_, uint port_ )
     QObject::connect( pb, SIGNAL(pressed()), SLOT(listen()) );
     pb = new QPushButton( "Accept", vb );
     QObject::connect( pb, SIGNAL(pressed()), SLOT(accept()) );
+    pb = new QPushButton( "Wait For More (10s)", vb );
+    QObject::connect( pb, SIGNAL(pressed()), SLOT(waitForMore()) );
     pb = new QPushButton( "Quit", vb );
     QObject::connect( pb, SIGNAL(pressed()), SLOT(quit()) );
 
@@ -142,9 +138,22 @@ void Some::accept()
     } else {
 	Some *s = new Some( address.toString(), port );
 	QObject::connect( s, SIGNAL(quitted()), SLOT(quit()) );
-	s->sd->setSocket( fd, SD_TYPE );
+	s->sd->setSocket( fd, QSocketDevice::Stream );
 	s->show();
     }
+}
+
+void Some::waitForMore()
+{
+    QTime waitTime;
+    waitTime.start();
+    int available = sd->waitForMore( 10000 );
+    int waited = waitTime.elapsed();
+
+    QString message =
+	QString( "Stopped waiting after %1 s; %2 bytes available"
+	       ).arg( (float)waited/1000 ).arg( available );
+    QMessageBox::information( this, "", message );
 }
 
 ////////////////////////////////
