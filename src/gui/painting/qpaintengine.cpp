@@ -16,6 +16,7 @@
 #include "qpainter_p.h"
 #include "qpolygon.h"
 #include "qbitmap.h"
+#include "qpaintdevicemetrics.h"
 #include <qdebug.h>
 
 #include <private/qfontengine_p.h>
@@ -542,6 +543,10 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     // sure that all states are in sync when the function returns.
     if (dirtyFlag)
         updateInternal(state);
+
+    if (QPaintDeviceMetrics(d->pdev).depth() < 16)
+        emulationSpecifier &= ~(AlphaFill | AlphaStroke);
+
 }
 
 /*!

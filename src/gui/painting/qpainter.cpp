@@ -2196,7 +2196,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
-            QPoint offset(d->state->matrix.dx(), d->state->matrix.dy());
+            QPointF offset((float) d->state->matrix.dx(), (float) d->state->matrix.dy());
             for (int i=index; i<index + nlines*2; i+=2)
                 lines << QLineF(a.at(i) + offset, a.at(i+1) + offset);
         } else {
