@@ -946,5 +946,8 @@ bool FormWindowManager::isPassiveInteractor(QWidget *o) const
         return (lastWasAPassiveInteractor = true);
     else if (o->objectName() == QLatin1String("designer_wizardstack_button"))
         return (lastWasAPassiveInteractor = true);
+    else if (o->objectName().startsWith("__qt__passive_"))
+        return (lastWasAPassiveInteractor = true);
+
     return lastWasAPassiveInteractor;
 }

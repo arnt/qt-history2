@@ -15,9 +15,13 @@
 #define BUTTON_TASKMENU_H
 
 #include <QAbstractButton>
+#include <QPointer>
 
 #include <taskmenu.h>
 #include <default_extensionfactory.h>
+
+class QLineEdit;
+class AbstractFormWindow;
 
 class ButtonTaskMenu: public QObject, public ITaskMenu
 {
@@ -29,12 +33,18 @@ public:
 
     virtual QList<QAction*> taskActions() const;
 
+    bool eventFilter(QObject *object, QEvent *event);
+
 private slots:
     void editText();
     void editIcon();
+    void updateText(const QString &text);
+    void updateSelection();
 
 private:
     QAbstractButton *m_button;
+    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<QLineEdit> m_editor;
     mutable QList<QAction*> m_taskActions;
 };
 
