@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#55 $
 **
 ** Implementation of QScrollView class
 **
@@ -724,7 +724,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 {
     QPainter p(&d->viewport);
-    p.setClipRect(pe->rect());
+    p.setClipRegion(pe->region());
     int ex = pe->rect().x() + contentsX();
     int ey = pe->rect().y() + contentsY();
     int ew = pe->rect().width();

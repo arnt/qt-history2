@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#33 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#34 $
 **
 ** Definition of QLCDNumber class
 **
@@ -74,7 +74,6 @@ signals:
     void    overflow();
 
 protected:
-    void    resizeEvent( QResizeEvent * );
     void    drawContents( QPainter * );
 
 private:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#78 $
 **
 ** Implementation of QRadioButton class
 **
@@ -73,7 +73,7 @@ static const int margin = 2; // to right of text
 */
 
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WResizeNoErase )
 {
     init();
 }
@@ -86,7 +86,7 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
 
 QRadioButton::QRadioButton( const char *text, QWidget *parent,
 			    const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WResizeNoErase )
 {
     init();
     setText( text );
@@ -333,10 +333,26 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 	    p->drawRect( br );
 	}
     }
-
-
 }
 
+void QRadioButton::resizeEvent( QResizeEvent* )
+{
+    int x, w, h;
+    GUIStyle gs = style();
+    QSize sz = sizeOfBitmap( gs );
+    if ( gs == WindowsStyle )
+	sz.setWidth(sz.width()+1);
+    x = sz.width() + gutter;
+    w = width() - x;
+    h = height();
+
+    QPainter p(this);
+    QRect br = qItemRect( &p, gs, x, 0, w, h,
+			  AlignLeft|AlignVCenter|ShowPrefix,
+			  isEnabled(),
+			  pixmap(), text() );
+    update( br.right(), w, 0, h );
+}
 
 /*!  Obsolete; to be removed in Qt 2.0. */
 

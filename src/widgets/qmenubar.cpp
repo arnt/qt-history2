@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#118 $
 **
 ** Implementation of QMenuBar class
 **
@@ -120,6 +120,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     isMenuBar = TRUE;
     autoaccel = 0;
     irects    = 0;
+    rightSide = 0; // Right of hear is rigth-aligned content
     mseparator = 0;
     windowsaltactive = 0;
     if ( parent ) {
@@ -523,6 +524,7 @@ int QMenuBar::calculateRects( int max_width )
     bool update = ( max_width < 0 );
 
     if ( update ) {
+	rightSide = 0;
 	if ( !badSize )				// size was not changed
 	    return 0;
 	if ( irects )		// Avoid purify complaint.
@@ -580,9 +582,12 @@ int QMenuBar::calculateRects( int max_width )
     if ( update ) {
 	if ( separator >= 0 && style() == MotifStyle ) {
 	    int moveBy = max_width - x;
+	    rightSide = x;
 	    while( --i > separator ) {
 		irects[i].moveBy( moveBy, 0 );
 	    }
+	} else {
+	    rightSide = width()-frameWidth();
 	}
 	if ( max_height != height() )
 	    resize( max_width, max_height );
@@ -965,8 +970,22 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
   Handles resize events for the menu bar.
 */
 
-void QMenuBar::resizeEvent( QResizeEvent * )
+void QMenuBar::resizeEvent( QResizeEvent *e )
 {
+    QRect frect = frameRect();
+    if ( !frect.isNull() ) {
+	QRect r( frect.x(), frect.y(), width(), height() );
+	setFrameRect( r );
+    }
+
+    updateResizedBorder( e, frameWidth() );
+
+    if ( e->oldSize().height() == height() ) {
+	update( rightSide, 0, width(), height()-frameWidth()*2 );
+    } else {
+	update();
+    }
+
     badSize = TRUE;
 }
 

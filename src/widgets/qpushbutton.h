@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#36 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#37 $
 **
 ** Definition of QPushButton class
 **
@@ -64,6 +64,7 @@ protected:
     void	drawButton( QPainter * );
     void	drawButtonLabel( QPainter * );
     void	focusInEvent( QFocusEvent * );
+    void	resizeEvent( QResizeEvent * );
 
 private:
     void	init();

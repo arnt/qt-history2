@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#157 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#158 $
 **
 ** Definition of QWidget class
 **
@@ -331,6 +331,8 @@ protected:
 #endif
 
     QFocusData  *focusData();
+
+    void updateResizedBorder( QResizeEvent*, int bw );
 
 private slots:
     void	 focusProxyDestroyed();

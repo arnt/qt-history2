@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#32 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#33 $
 **
 ** Definition of QMenuBar class
 **
@@ -93,6 +93,7 @@ private:
     void	setupAccelerators();
     QAccel     *autoaccel;
     QRect      *irects;
+    int		rightSide;
     
     uint	mseparator	: 1;
     uint	windowsaltactive : 1;

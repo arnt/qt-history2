@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#56 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -589,19 +589,6 @@ void QLCDNumber::setSmallDecimalPoint( bool b )
 {
     smallPoint = b;
     display( 0.0 );
-}
-
-
-/*!
-  Handles resize Events for the QLCDNumber.
-
-  \internal
-
-  FIXME: Why is this implemented and empty?
-*/
-
-void QLCDNumber::resizeEvent( QResizeEvent * )
-{
 }
 
 

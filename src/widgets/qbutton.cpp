@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#116 $
 **
 ** Implementation of QButton widget class
 **
@@ -208,7 +208,6 @@ static int shortcutChar( const char *str )
   <a href="http://www.microsoft.com/win32dev/uiguide/uigui161.htm">Microsoft Style Guide</a>
 */
 
-
 /*!
   Constructs a standard button with a parent widget and a name.
 
@@ -216,8 +215,8 @@ static int shortcutChar( const char *str )
   QButtonGroup::insert().
 */
 
-QButton::QButton( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+QButton::QButton( QWidget *parent, const char *name, WFlags f )
+    : QWidget( parent, name, f )
 {
     bpixmap    = 0;
     toggleBt   = FALSE;				// button is not on/off
@@ -748,7 +747,7 @@ void QButton::paintEvent( QPaintEvent *event )
 	// This optimization is worth it, since we often call repaint()
 	// to draw exactly the whole button.
 	if ( event && !event->rect().contains(rect()) )
-	    paint.setClipRect( event->rect() );
+	    paint.setClipRegion( event->region() );
 
 	if ( event )
 	    erase( event->rect() );
@@ -758,8 +757,6 @@ void QButton::paintEvent( QPaintEvent *event )
 	drawButton( &paint );
 	paint.end();
     }
-
-
 }
 
 /*!

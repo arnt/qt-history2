@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#41 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -501,7 +501,7 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
   Handles resize events for the spin box.
 */
 
-void QSpinBox::resizeEvent( QResizeEvent* )
+void QSpinBox::resizeEvent( QResizeEvent* e )
 {
     if ( !up || !down ) // may happen if the application has a pointer error
 	return;
@@ -561,6 +561,8 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 			 x - frameWidth(), height() - 2*frameWidth() );
     else
 	vi->setGeometry( contentsRect() );
+
+    updateResizedBorder( e, frameWidth() );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#139 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -250,7 +250,7 @@ static inline bool checkIndex( const char *method, const char * name,
 */
 
 QComboBox::QComboBox( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WResizeNoErase )
 {
     d = new QComboData;
     if ( style() == WindowsStyle ) {
@@ -301,7 +301,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 
 
 QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WResizeNoErase )
 {
     d = new QComboData;
     d->listBox = new QListBox( 0, 0, WType_Popup );
@@ -903,14 +903,23 @@ void QComboBox::setFont( const QFont &font )
   Handles resize events for the combo box.
 */
 
-void QComboBox::resizeEvent( QResizeEvent * )
+void QComboBox::resizeEvent( QResizeEvent *e )
 {
-    if ( !d->ed )
-	return;
-    else if ( style() == WindowsStyle )
-	d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
-    else
-	d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+    int xw = QMAX(0,width()-e->oldSize().width());
+    if ( d->ed ) {
+	if ( style() == WindowsStyle ) {
+	    d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
+	} else {
+	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+	}
+    }
+    if ( style() == WindowsStyle ) {
+	updateResizedBorder( e, 2 );
+	update( 20-xw, 2, width()-20+xw, height()-4 );
+    } else {
+	updateResizedBorder( e, 3 );
+	update( 2, 2, width()-4, height()-4 );
+    }
 }
 
 
@@ -922,7 +931,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 {
     QPainter p( this );
     if ( event )
-	p.setClipRect( event->rect() );
+	p.setClipRegion( event->region() );
     QColorGroup g  = colorGroup();
 
     if ( width() < 5 || height() < 5 ) {

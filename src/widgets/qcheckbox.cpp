@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#75 $
 **
 ** Implementation of QCheckBox class
 **
@@ -63,7 +63,7 @@ static QSize sizeOfBitmap( GUIStyle gs )
 */
 
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WResizeNoErase )
 {
     setToggleButton( TRUE );
 }
@@ -75,7 +75,7 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
 */
 
 QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WResizeNoErase )
 {
     setText( text );
     setToggleButton( TRUE );
@@ -265,4 +265,21 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 	    p->drawRect( br );
 	}
     }
+}
+
+void QCheckBox::resizeEvent( QResizeEvent* )
+{
+    int x, w, h;
+    GUIStyle gs = style();
+    QSize sz = sizeOfBitmap( gs );
+    x = sz.width() + extraWidth( gs );
+    w = width() - x;
+    h = height();
+
+    QPainter p(this);
+    QRect br = qItemRect( &p, gs, x, 0, w, h,
+			  AlignLeft|AlignVCenter|ShowPrefix,
+			  isEnabled(),
+			  pixmap(), text() );
+    update( br.right(), w, 0, h );
 }

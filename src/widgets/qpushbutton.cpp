@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#117 $
 **
 ** Implementation of QPushButton class
 **
@@ -56,7 +56,7 @@
 */
 
 QPushButton::QPushButton( QWidget *parent, const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WResizeNoErase )
 {
     init();
 }
@@ -69,7 +69,7 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
 
 QPushButton::QPushButton( const char *text, QWidget *parent,
 			  const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WResizeNoErase )
 {
     init();
     setText( text );
@@ -273,6 +273,11 @@ void QPushButton::setGeometry( const QRect &r )
     QWidget::setGeometry( r );
 }
 
+void QPushButton::resizeEvent( QResizeEvent *e )
+{
+    updateResizedBorder( e, 2 );
+    repaint( 2, 2, width()-4, height()-4 );
+}
 
 /*!
   Draws the push button, except its label.

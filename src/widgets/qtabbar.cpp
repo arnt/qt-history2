@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#37 $
 **
 ** Implementation of QTabBar class
 **
@@ -407,8 +407,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 void QTabBar::paintEvent( QPaintEvent * e )
 {
     QPainter p( this );
-    p.setClipping( TRUE );
-    p.setClipRect( e->rect() );
+    p.setClipRegion( e->region() );
 
     QTab * t;
     t = l->first();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#98 $
 **
 ** Implementation of QScrollBar class
 **
@@ -476,7 +476,7 @@ void QScrollBar::paintEvent( QPaintEvent *event )
 {
     QPainter p( this );
     if ( event )
-	p.setClipRect( event->rect() );
+	p.setClipRegion( event->region() );
 
     qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
     if ( hasFocus() ) {

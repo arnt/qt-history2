@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#63 $
 **
 ** Implementation of QFrame widget class
 **
@@ -105,7 +105,7 @@
 
 QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 		bool allowLines )
-    : QWidget( parent, name, f )
+    : QWidget( parent, name, f|WResizeNoErase )
 {
     frect  = QRect( 0, 0, 0, 0 );
     fstyle = NoFrame;
@@ -443,14 +443,13 @@ void QFrame::paintEvent( QPaintEvent *event )
 
     if ( !contentsRect().contains( event->rect() ) ) {
 	paint.save();
-	QRect r( frameRect() );
-	paint.setClipRect( r.intersect( event->rect() ) );
+	paint.setClipRegion( event->region().intersect(frameRect()) );
 	drawFrame( &paint );
 	paint.restore();
     }
     if ( event->rect().intersects( contentsRect() ) &&
 	 (fstyle & MShape) != HLine && (fstyle & MShape) != VLine ) {
-	paint.setClipRect( event->rect().intersect( contentsRect() ) );
+	paint.setClipRegion( event->region().intersect( contentsRect() ) );
 	drawContents( &paint );
     }
 }
@@ -477,6 +476,11 @@ void QFrame::resizeEvent( QResizeEvent *e )
 		 height() - (e->oldSize().height() - frect.height()) );
 	setFrameRect( r );
     }
+
+    // Since we use WResizeNoErase, we repaint the relevant parts:
+    updateResizedBorder( e, frameWidth() );
+
+    update( contentsRect() );
 }
 
 

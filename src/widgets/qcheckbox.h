@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#22 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#23 $
 **
 ** Definition of QCheckBox class
 **
@@ -42,6 +42,7 @@ public:
     QSize sizeHint() const;
 
 protected:
+    void    resizeEvent( QResizeEvent* );
     void    drawButton( QPainter * );
     void    drawButtonLabel( QPainter * );
 
