@@ -1032,20 +1032,20 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 
 
 /*!
-    \fn void QTextCharFormat::setTextColor(const QColor &color)
+    \fn void QTextCharFormat::foreground(const QBrush &brush)
 
-    Sets the text format's font color to \a color.
+    Sets the foreground brush to \a brush. The foreground brush is msotly used for drawing text.
 
-    \sa textColor()
+    \sa foreground()
 */
 
 
 /*!
-    \fn QColor QTextCharFormat::textColor() const
+    \fn QBrush QTextCharFormat::foreground() const
 
-    Returns the text format's font color.
+    returns the formats foreground brush.
 
-    \sa setTextColor()
+    \sa setForeground()
 */
 
 
