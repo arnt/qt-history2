@@ -15,10 +15,11 @@ HEADERS		= qwidgetfactory.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
 		  ../designer/config.h \
-		  ../designer/pixmapchooser.h
+		  ../designer/pixmapchooser.h \
+		  ../designer/pixmapfunction.h
 
-sql:SOURCES += 		  ../designer/database.cpp 
-sql:HEADERS +=		  ../designer/database.h 
+sql:SOURCES += 		  ../designer/database.cpp
+sql:HEADERS +=		  ../designer/database.h
 
 TARGET		= qresource
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
