@@ -406,7 +406,7 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 				const QRect &r,
 				const QColorGroup &cg,
 				SFlags flags,
-				void **data ) const
+				const QStyleOption &data ) const
 {
     switch (pe) {
     case PE_HeaderSection:
@@ -554,9 +554,8 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
     case PE_Panel:
     case PE_PanelPopup:
 	{
-	    int lw = pixelMetric(PM_DefaultFrameWidth);
-	    if (data)
-		lw = *((int *) data[0]);
+	    int lw = data.isDefault() ?
+		     pixelMetric(PM_DefaultFrameWidth) : data.lineWidth();
 
 	    if (lw == 2)
 		drawLightBevel(p, r, cg, flags, FALSE,
@@ -568,9 +567,8 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_PanelDockWindow:
 	{
-	    int lw = pixelMetric(PM_DockWindowFrameWidth);
-	    if (data)
-		lw = *((int *) data[0]);
+	    int lw = data.isDefault() ?
+		     pixelMetric(PM_DockWindowFrameWidth) : data.lineWidth();
 
 	    if (lw == 2)
 		drawLightBevel(p, r, cg, flags, FALSE,
@@ -582,9 +580,8 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_PanelMenuBar:
 	{
-	    int lw = pixelMetric(PM_MenuBarFrameWidth);
-	    if (data)
-		lw = *((int *) data[0]);
+	    int lw = data.isDefault() ?
+		     pixelMetric(PM_MenuBarFrameWidth) : data.lineWidth();
 
 	    if (lw == 2)
 		drawLightBevel(p, r, cg, flags, FALSE,
@@ -704,7 +701,7 @@ void LightStyle::drawControl( ControlElement control,
 			      const QRect &r,
 			      const QColorGroup &cg,
 			      SFlags flags,
-			      void **data ) const
+			      const QStyleOption &data ) const
 {
     switch (control) {
     case CE_TabBarTab:
@@ -778,13 +775,13 @@ void LightStyle::drawControl( ControlElement control,
 
     case CE_PopupMenuItem:
 	{
-	    if (! widget || !data)
+	    if (! widget || data.isDefault())
 		break;
 
 	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-	    QMenuItem *mi = (QMenuItem *) data[0];
-	    int tab = *((int *) data[1]);
-	    int maxpmw = *((int *) data[2]);
+	    QMenuItem *mi = data.menuItem();
+	    int tab = data.tabWidth();
+	    int maxpmw = data.maxIconWidth();
 
 	    if ( mi && mi->isSeparator() ) {
 		// draw separator
@@ -926,10 +923,10 @@ void LightStyle::drawControl( ControlElement control,
 	    else
 		p->fillRect(r, cg.brush(QColorGroup::Button));
 
-	    if (! data)
+	    if (data.isDefault())
 		break;
 
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = data.menuItem();
 	    drawItem( p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
 		      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
 		      ((flags & Style_Active) ? &
@@ -953,7 +950,7 @@ void LightStyle::drawControlMask( ControlElement control,
 				  QPainter *p,
 				  const QWidget *widget,
 				  const QRect &r,
-				  void **data ) const
+				  const QStyleOption &data ) const
 {
     switch (control) {
     case CE_PushButton:
@@ -975,7 +972,7 @@ void LightStyle::drawComplexControl( ComplexControl control,
 				     SFlags flags,
 				     SCFlags controls,
 				     SCFlags active,
-				     void **data ) const
+				     const QStyleOption &data ) const
 {
     switch (control) {
     case CC_ComboBox:
@@ -1020,10 +1017,9 @@ void LightStyle::drawComplexControl( ComplexControl control,
 			QRect fr =
 			    QStyle::visualRect( subRect( SR_ComboBoxFocusRect, widget ),
 						widget );
-			void *pdata[1];
-			pdata[0] = (void *) &cg.highlight();
 			drawPrimitive( PE_FocusRect, p, fr, cg,
-				       flags | Style_FocusAtBorder, pdata);
+				       flags | Style_FocusAtBorder,
+				       QStyleOption(cg.highlight()));
 		    }
 
 		    p->setPen(cg.highlightedText());
@@ -1260,7 +1256,7 @@ void LightStyle::drawComplexControl( ComplexControl control,
 QRect LightStyle::querySubControlMetrics( ComplexControl control,
 					  const QWidget *widget,
 					  SubControl sc,
-					  void **data ) const
+					  const QStyleOption &data ) const
 {
     QRect ret;
 
@@ -1355,7 +1351,7 @@ QRect LightStyle::querySubControlMetrics( ComplexControl control,
 QStyle::SubControl LightStyle::querySubControl( ComplexControl control,
 						const QWidget *widget,
 						const QPoint &pos,
-						void **data ) const
+						const QStyleOption &data ) const
 {
     QStyle::SubControl ret =
 	QWindowsStyle::querySubControl(control, widget, pos, data);
@@ -1417,24 +1413,24 @@ int LightStyle::pixelMetric( PixelMetric metric,
 QSize LightStyle::sizeFromContents( ContentsType contents,
 				    const QWidget *widget,
 				    const QSize &contentsSize,
-				    void **data ) const
+				    const QStyleOption &data ) const
 {
     QSize ret;
 
     switch (contents) {
     case CT_PopupMenuItem:
 	{
-	    if (! widget || ! data)
+	    if (! widget || data.isDefault())
 		break;
 
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = data.menuItem();
 	    if (mi->isSeparator()) {
 		ret = QSize(10, 3);
 		break;
 	    }
 
 	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-	    int maxpmw = *((int *) data[1]);
+	    int maxpmw = data.maxIconWidth();
 	    int w = contentsSize.width(), h = contentsSize.height();
 
 	    // most iconsets are 22x22 in menus

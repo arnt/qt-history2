@@ -35,7 +35,7 @@ public:
 			const QRect &r,
 			const QColorGroup &cg,
 			SFlags flags = Style_Default,
-			void **data = 0 ) const;
+			const QStyleOption &data = QStyleOption::Default ) const;
 
     void drawControl( ControlElement control,
 		      QPainter *p,
@@ -43,12 +43,12 @@ public:
 		      const QRect &r,
 		      const QColorGroup &cg,
 		      SFlags flags = Style_Default,
-		      void **data = 0 ) const;
+		      const QStyleOption &data = QStyleOption::Default ) const;
     void drawControlMask( ControlElement control,
 			  QPainter *p,
 			  const QWidget *widget,
 			  const QRect &r,
-			  void **data = 0 ) const;
+			  const QStyleOption &data = QStyleOption::Default ) const;
 
     void drawComplexControl( ComplexControl control,
 			     QPainter* p,
@@ -58,17 +58,17 @@ public:
 			     SFlags flags = Style_Default,
 			     SCFlags controls = SC_All,
 			     SCFlags active = SC_None,
-			     void **data = 0 ) const;
+			     const QStyleOption &data = QStyleOption::Default ) const;
 
     QRect querySubControlMetrics( ComplexControl control,
 				  const QWidget *widget,
 				  SubControl sc,
-				  void **data = 0 ) const;
+				  const QStyleOption &data = QStyleOption::Default ) const;
 
     SubControl querySubControl( ComplexControl control,
 				const QWidget *widget,
 				const QPoint &pos,
-				void **data = 0 ) const;
+				const QStyleOption &data = QStyleOption::Default ) const;
 
     int pixelMetric( PixelMetric metric,
 		     const QWidget *widget = 0 ) const;
@@ -76,7 +76,7 @@ public:
     QSize sizeFromContents( ContentsType contents,
 			    const QWidget *widget,
 			    const QSize &contentsSize,
-			    void **data ) const;
+			    const QStyleOption &data = QStyleOption::Default ) const;
 };
 
 
