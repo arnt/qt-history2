@@ -4856,6 +4856,7 @@ void QCanvasText::draw(QPainter& painter)
 {
     painter.setFont(fnt);
     painter.setPen(col);
+    brect = painter.fontMetrics().boundingRect(int(x()), int(y()), 0, 0, flags, txt);
     painter.drawText(brect, flags, txt);
 }
 
