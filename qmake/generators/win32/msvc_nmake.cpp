@@ -328,7 +328,7 @@ NmakeMakefileGenerator::init()
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
-		project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
+		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
 	    }
 	} else {
 	    if(project->isActiveConfig("thread"))
