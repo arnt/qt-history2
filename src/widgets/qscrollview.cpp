@@ -96,7 +96,7 @@ struct QScrollViewData {
 	hbar( QScrollBar::Horizontal, parent, "qt_hbar" ),
 	vbar( QScrollBar::Vertical, parent, "qt_vbar" ),
 	viewport( parent, "qt_viewport", vpwflags ),
-	clipped_viewport( 0 ), 
+	clipped_viewport( 0 ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 ),
 	autoscroll_timer( parent ), drag_autoscroll( TRUE )
     {
@@ -222,7 +222,7 @@ struct QScrollViewData {
     int autoscroll_time;
     int autoscroll_accel;
     bool drag_autoscroll;
-    
+
     // This variable allows ensureVisible to move the contents then
     // update both the sliders.  Otherwise, updating the sliders would
     // cause two image scrolls, creating ugly flashing.
@@ -410,7 +410,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     d = new QScrollViewData(this,WResizeNoErase| (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity));
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
 	     this, SLOT( doDragAutoScroll() ) );
-    
+
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
     connect( &d->vbar, SIGNAL( valueChanged( int ) ),
@@ -1109,7 +1109,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 		    startDragAutoScroll();
 		    ( (QDragMoveEvent*)e )->accept( QRect(0,0,0,0) ); // Keep sending move events
 		}
-	    }	    
+	    }	
 	    viewportDragMoveEvent( (QDragMoveEvent*)e );
 	} break;
 	case QEvent::DragLeave:
@@ -2202,10 +2202,24 @@ void QScrollView::doDragAutoScroll()
     }
 }
 
+/*!
+  If \a b is set to TRUE, the QScrollView automatically scrolles the contents
+  in drag move events if the user moves the cursor close to a border of the
+  view. This of course only works id the viewport accepts drops!.
+  Specifying FALSE here disables this autscroll feature.
+*/
+
 void QScrollView::setDragAutoScroll( bool b )
 {
     d->drag_autoscroll = b;
 }
+
+/*!
+  Returns TRUE if autoscrolling in drag move events is enabled, else
+  FALSE.
+  
+  \sa setDragAutoScroll()
+*/
 
 bool QScrollView::dragAutoScroll() const
 {
