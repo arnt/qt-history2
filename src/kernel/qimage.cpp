@@ -2559,108 +2559,92 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
 */
 QImage QImage::mirror(bool horizontal, bool vertical) const
 {
-    QImage result = copy(); // Could be avoided.
+    int w = width();
+    int h = height();
+    if (w <= 1 && h <= 1 || (!horizontal && !vertical))
+        return *this;
+        
+    // Create result image, copy colormap
+    QImage result(w, h, depth(), numColors(), bitOrder());
+    memcpy(result.colorTable(), colorTable(), numColors()*sizeof(QRgb));
+    result.setAlphaBuffer(hasAlphaBuffer());
+    
+    if (depth() == 1)
+        w = (w+7)/8;
+    int dxi = horizontal ? -1 : 1;
+    int dxs = horizontal ? w-1 : 0;
+    int dyi = vertical ? -1 : 1;
+    int dy = vertical ? h-1: 0;
 
-    if (height() <= 1 || width() <= 1)
-	return result;
-
-    // Vertical mirror
-    if (vertical) {
-	int bpl = result.bytesPerLine();
-	int y1, y2;
-	for (y1 = 0, y2 = result.height()-1; y1 < y2; y1++, y2--) {
-	    uchar* a1 = result.scanLine(y1);
-	    uchar* a2 = result.scanLine(y2);
-	    for (int x = bpl; x > 0; x--) {
-		uchar c = *a1;
-		*a1++ = *a2;
-		*a2++ = c;
-	    }
-	}
+    // 1 bit, 8 bit
+    if (depth() == 1 || depth() == 8) {
+        for (int sy = 0; sy < h; sy++, dy += dyi) {
+            UINT8* ssl = (UINT8*)(data->bits[sy]);
+            UINT8* dsl = (UINT8*)(result.data->bits[dy]);
+            int dx = dxs;
+            for (int sx = 0; sx < w; sx++, dx += dxi)
+                dsl[dx] = ssl[sx];
+        }
     }
-
-    // Horizontal mirror
-    if (horizontal) {
 #ifndef QT_NO_IMAGE_TRUECOLOR
-	if (result.depth() == 32) {
-	    for (int y = result.height()-1; y >= 0; y--) {
-		uint* a1 = (uint *)result.scanLine(y);
-		uint* a2 = a1+result.width()-1;
-		while (a1 < a2) {
-		    uint c = *a1;
-		    *a1++ = *a2;
-		    *a2-- = c;
-		}
-	    }
 #ifndef QT_NO_IMAGE_16_BIT
-	} else if (result.depth() == 16) {
-	    for (int y = result.height()-1; y >= 0; y--) {
-		ushort* a1 = (ushort *)result.scanLine(y);
-		ushort* a2 = a1+result.width()-1;
-		while (a1 < a2) {
-		    ushort c = *a1;
-		    *a1++ = *a2;
-		    *a2-- = c;
-		}
-	    }
-#endif	    
-	} else 
-#endif // QT_NO_IMAGE_TRUECOLOR
-	    if (result.depth() == 8) {
-	    for (int y = result.height()-1; y >= 0; y--) {
-		uchar* a1 = result.scanLine(y);
-		uchar* a2 = a1+result.width()-1;
-		while (a1 < a2) {
-		    uchar c = *a1;
-		    *a1++ = *a2;
-		    *a2-- = c;
-		}
-	    }
-	} else if (result.depth() == 1) {
-	    // Flip bytes
-	    const uchar* fliptab = qt_get_bitflip_array();
-	    int bpl = (result.width()+7)/8;
-	    for (int y = result.height()-1; y >= 0; y--) {
-		uchar* a1 = result.scanLine(y);
-		uchar* a2 = a1+bpl-1;
-		while (a1 <= a2) {
-		    uchar c = *a1;
-		    *a1++ = fliptab[*a2];
-		    *a2-- = fliptab[c];
-		}
-	    }
-	    // Shift bits if unaligned
-	    int shift = result.width() % 8;
-	    if (shift != 0) {
-		if (result.bitOrder() == QImage::LittleEndian) {
-		    for (int y = result.height()-1; y >= 0; y--) {
-			uchar* a = result.scanLine(y)+bpl-1;
-			uchar* a0 = result.scanLine(y);
-			uchar c = 0;
-			while (a >= a0) {
-			    uchar nc = *a << shift;
-			    *a-- = (*a >> (8-shift)) | c;
-			    c = nc;
-			}
-		    }
-		} else {
-		    for (int y = result.height()-1; y >= 0; y--) {
-			uchar* a = result.scanLine(y)+bpl-1;
-			uchar* a0 = result.scanLine(y);
-			uchar c = 0;
-			while (a >= a0) {
-			    uchar nc = *a >> shift;
-			    *a-- = (*a << (8-shift)) | c;
-			    c = nc;
-			}
-		    }
-		}
-	    }
-	}
+    // 16 bit
+    else if (depth() == 16) {
+        for (int sy = 0; sy < h; sy++, dy += dyi) {
+            UINT16* ssl = (UINT16*)(data->bits[sy]);
+            UINT16* dsl = (UINT16*)(result.data->bits[dy]);
+            int dx = dxs;
+            for (int sx = 0; sx < w; sx++, dx += dxi)
+                dsl[dx] = ssl[sx];
+        }
     }
-    return result;
+#endif
+    // 32 bit
+    else if (depth() == 32) {
+        for (int sy = 0; sy < h; sy++, dy += dyi) {
+            UINT32* ssl = (UINT32*)(data->bits[sy]);
+            UINT32* dsl = (UINT32*)(result.data->bits[dy]);
+            int dx = dxs;
+            for (int sx = 0; sx < w; sx++, dx += dxi)
+                dsl[dx] = ssl[sx];
+        }
+    }
+#endif
+    
+    // special handling of 1 bit images for horizontal mirroring
+    if (horizontal && depth() == 1) {
+        int shift = width() % 8;
+        for (int y = h-1; y >= 0; y--) {
+            UINT8* a0 = (UINT8*)(result.data->bits[y]);
+            // Swap bytes
+            UINT8* a = a0+dxs;
+            while (a >= a0) {
+                *a = bitflip[*a];
+                a--;
+            }
+            // Shift bits if unaligned
+            if (shift != 0) {
+                a = a0+dxs;
+                UINT8 c = 0;
+                if (bitOrder() == QImage::LittleEndian) {
+                    while (a >= a0) {
+                        UINT8 nc = *a << shift;
+                        *a-- = (*a >> (8-shift)) | c;
+                        c = nc;
+                    }
+                } else {
+                    while (a >= a0) {
+                        UINT8 nc = *a >> shift;
+                        *a-- = (*a << (8-shift)) | c;
+                        c = nc;
+                    }
+                }
+            }
+        }
+    }
+    
+    return result;    
 }
-
 
 /*!
   Returns a QImage which is a vertically mirrored copy of this
@@ -2669,17 +2653,7 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
 
 QImage QImage::mirror() const
 {
-    // DO NOT MAINTAIN THIS FUNCTION.  Improve the other one above
-    //            and use mirror(FALSE,TRUE) here.
-
-    QImage res = copy(); // Why? We write the whole image.
-    if ( !isNull() ) {
-	int numScanLines = height();
-	int lineSize = bytesPerLine();
-	for ( int i = 0; i < numScanLines; i++ )
-	    memcpy( res.scanLine(numScanLines-1-i), scanLine(i), lineSize );
-    }
-    return res;
+    return mirror(FALSE,TRUE);
 }
 
 
