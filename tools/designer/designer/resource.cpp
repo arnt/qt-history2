@@ -719,7 +719,9 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
     // if the widget has a layout we pretend that all widget's childs are childs of the layout - makes the structure nicer
     QLayout *layout = 0;
     QDesignerGridLayout* grid = 0;
-    if ( !obj->inherits( "QSplitter" ) && obj->isWidgetType() &&
+    if ( !obj->inherits( "QSplitter" ) &&
+	 WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( obj ) ) ) &&
+	 obj->isWidgetType() &&
 	 WidgetFactory::layoutType( (QWidget*)obj, layout ) != WidgetFactory::NoLayout ) {
 	WidgetFactory::LayoutType lay = WidgetFactory::layoutType( (QWidget*)obj, layout );
 	switch ( lay ) {
