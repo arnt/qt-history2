@@ -614,7 +614,7 @@ int QMenuBar::calculateRects( int max_width )
     int nlitems = 0;				// number on items on cur line
     int gs = style();
     int x = motifBarFrame + motifBarHMargin;
-    int y = motifBarFrame + motifBarVMargin;
+    int y = motifBarFrame + motifBarVMargin - 2; // ##### not good....
     int i = 0;
     int separator = -1;
     if ( gs == WindowsStyle )	//###H
@@ -667,11 +667,12 @@ int QMenuBar::calculateRects( int max_width )
 	}
 	if ( max_height != height() )
 	    resize( max_width, max_height );
-	for ( i = 0; i < (int)mitems->count(); i++ )
-	    irects[i].setHeight( max_height - 2*motifBarFrame );
+	// #### Reggie: Why is this needed? It destroys the layout!
+// 	for ( i = 0; i < (int)mitems->count(); i++ )
+// 	    irects[i].setHeight( max_height - 2*motifBarFrame );
 	badSize = FALSE;
     }
-
+    
     return max_height;
 }
 
