@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#50 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#50 $");
 
 
 /*!
@@ -823,7 +823,7 @@ void QComboBox::currentChanged()
     repaint();
 }
 
-/*!
+/* nobang
   \internal 
    The event filter steals events from the popup or listbox
    when they are popped up. It makes the popup stay up after a short click

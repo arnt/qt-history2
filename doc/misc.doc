@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.0 1996/09/24 10:15:14 agulbra Exp $
+** $Id: misc.doc,v 2.1 1996/09/26 08:15:56 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.0 1996/09/24 10:15:14 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.1 1996/09/26 08:15:56 agulbra Exp $";
 #endif
 
 
@@ -106,9 +106,9 @@ work day and night to improve Qt, and enjoy it. We started the
 company in 1994, but parts of Qt were written for earlier
 projects. The first line of code was written in 1992.
 <p>
-Our income comes from selling Qt licenses and from a development contract
-with a beta customer; we develop code based on Qt for the Norwegian
-division of NCR (previously AT&T).
+Our income comes from selling Qt licenses and from a development
+contract with a customer; we develop code based on Qt for the
+Norwegian division of NCR (previously AT&T).
 <p>
 <li>
 Can I use Qt's classes without writing a graphical user interface?  
@@ -235,8 +235,9 @@ use on computers running the X Window System.
 
 <p>
 
-You may copy this beta version of the Qt toolkit provided that the entire
-archive is distributed unchanged and as a whole, including this notice.
+You may copy this version of the Qt toolkit provided that the entire
+archive is distributed unchanged and as a whole, including this
+notice.
 
 <p>
 

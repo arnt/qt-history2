@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# a4:
-
 $pointsize = 10;
 
 $a4 = ".pl 29.7c-1i\n.ll 21c-2i\n";
@@ -14,7 +12,7 @@ $initstr =
 .ad l
 .nh
 .ls 1.2
-.nr $v 120
+.nr \$v 120
 .sp 8
 .ft CR
 .sz 24
@@ -22,7 +20,7 @@ $initstr =
 Troll Tech AS
 .sp 2
 .sz 36
-Qt 0.99 beta
+Qt 1.0
 .sz 24
 Tutorial and Reference
 .sz 18
@@ -124,8 +122,9 @@ sub fixup {
     s-<var>(.*?)</var>-\\fI$1\\fP-gs;
 
     # images
-    s!\s*<img src=(.*?\.gif).*?>\s*!{
-	my ( $filename ) = "/tmp/".$$."-".++$uniq.".ps";
+    s!\s*<img src=\"?(.*?\.gif).*?>\s*!{
+	$uniq++;
+	my ( $filename ) = "/tmp/".$$."-".$uniq.".ps";
 	my ( $postscript, $width, $height );
 	open(PS, "giftopnm < $1 | ppmtopgm | pnmtops -noturn -nocenter |")
 	    || die;
@@ -186,7 +185,7 @@ sub parselist {
 	    if ( $m eq "ul" ) {
 		"\n.bu\n";
 	    } else {
-		$++n;
+		$n++;
 		"\n.ip $n\n";
 	    }
 	}
@@ -343,40 +342,40 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
 }
 closedir DIR;
 
-open( O, "> /tmp/qtdoc-0.99.me" ) || die;
+open( O, "> /tmp/qtdoc-1.0.me" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-0.99.me\n";
+print "/tmp/qtdoc-1.0.me\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-0.99-a4.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-1.0-a4.ps" ) || die;
 print O $a4, $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-0.99-a4.ps\n";
+print "/tmp/qtdoc-1.0-a4.ps\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-0.99-letter.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-1.0-letter.ps" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-0.99-letter.ps\n";
+print "/tmp/qtdoc-1.0-letter.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-0.99-a4.ps |" )
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.0-a4.ps |" )
     || die;
 $_ = <I>;
 close I;
 s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-0.99-a4-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-1.0-a4-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-0.99-a4-2.ps\n";
+print "/tmp/qtdoc-1.0-a4-2.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-0.99-letter.ps |" )
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.0-letter.ps |" )
     || die;
 $_ = <I>;
 close I;
 s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-0.99-letter-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-1.0-letter-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-0.99-letter-2.ps\n";
+print "/tmp/qtdoc-1.0-letter-2.ps\n";
 
 foreach ( keys %delete ) {
     unlink $_ if ( -f $_ );
