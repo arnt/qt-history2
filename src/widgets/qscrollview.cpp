@@ -1876,7 +1876,7 @@ void QScrollView::moveContents(int x, int y)
     d->hideOrShowAll(this, TRUE );
 }
 
-#if QT_VERSION >= 400
+#if (QT_VERSION-0 >= 400)
 #if defined(Q_CC_GNU)
 #warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -890,7 +890,7 @@ QDataStream &operator<<( QDataStream &s, const QGDict &dict )
     return dict.write( s );
 }
 
-#if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER >= 50190001)
+#if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER-0 >= 50190001)
 #pragma message disable narrowptr
 #endif
 
