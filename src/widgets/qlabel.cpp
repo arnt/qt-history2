@@ -1012,6 +1012,15 @@ QMovie* QLabel::movie() const
 #endif  // QT_NO_MOVIE
 
 /*!
+    \property QLabel::backgroundMode
+    \brief the label's background mode
+
+    Get this property with backgroundMode().
+
+    \sa QWidget::setBackgroundMode()
+*/
+
+/*!
     \property QLabel::textFormat
     \brief the label's text format
 

@@ -2,8 +2,12 @@
 
 #define	QValidChar(u)	   ((u) ? QChar((u)) : QChar::replacement)
 
-/*! \class QIsciiCodec
-  \internal
+/*!
+    \class QIsciiCodec
+    \brief The QIsciiCodec class provides conversion to and from the ISCII encoding.
+
+    \ingroup i18n
+    \internal
 */
 
 int QIsciiCodec::mibEnum() const

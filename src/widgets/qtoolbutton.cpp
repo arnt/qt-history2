@@ -257,6 +257,15 @@ QToolButton::~QToolButton()
 
 
 /*!
+    \property QToolButton::backgroundMode
+    \brief the toolbutton's background mode
+
+    Get this property with backgroundMode().
+
+    \sa QWidget::setBackgroundMode()
+*/
+
+/*!
     \property QToolButton::toggleButton
     \brief whether this tool button is a toggle button.
 
