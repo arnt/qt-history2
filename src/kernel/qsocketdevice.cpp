@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#12 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -42,7 +43,7 @@
 #endif
 
 
-#ifdef _OS_SOLARIS_
+#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
 #include <sys/filio.h>
 #define FNDELAY O_NDELAY
 #endif
