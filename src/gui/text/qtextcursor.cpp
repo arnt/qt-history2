@@ -1099,8 +1099,9 @@ static void getText(QString &text, QTextDocumentPrivate *priv, const QString &do
 
 /*!
     Returns the current selection's text (which may be empty). This
-    only returns the text, with no formatting information. If you want
-    a document fragment (i.e. formatted text) use selection() instead.
+    only returns the text, with no rich text formatting information.
+    If you want a document fragment (i.e. formatted rich text) use
+    selection() instead.
 */
 QString QTextCursor::selectedText() const
 {
