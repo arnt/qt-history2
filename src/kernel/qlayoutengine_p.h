@@ -38,6 +38,9 @@
 #ifndef QLAYOUTENGINE_P_H
 #define QLAYOUTENGINE_P_H
 
+#ifndef QLAYOUT_H
+    #error "Need to include qlayout.h before including qlayoutengine_p.h"
+#endif
 
 //
 //  W A R N I N G
