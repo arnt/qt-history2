@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#45 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -204,7 +204,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	case QStyle::TitleUnshadeButton:
 	case QStyle::TitleNormalButton:
 	case QStyle::TitleMinButton:
-	    if(window->isMinimized())
+	    if(window && window->isMinimized())
 		buttonDown = QStyle::TitleNormalButton;
 	    else
 		buttonDown = ctrl;
@@ -220,9 +220,10 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	}
 
 	QPainter p(this);
-	style().drawTitleBarControls(&p, this, buttonDown, buttonDown);
+	if(window && window->isMinimized())
+	    ctrl |= QStyle::TitleNormalButton;
+	style().drawTitleBarControls(&p, this, ctrl, buttonDown);
 	p.end();
-
     }
 }
 
@@ -244,7 +245,8 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 	    ctrl = QStyle::TitleNormalButton;
 	if(ctrl == buttonDown) {
 	    QPainter p(this);
-	    style().drawTitleBarControls(&p, this, buttonDown, 0);
+	    style().drawTitleBarControls(&p, this, 
+					 ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0), 0);
 	    p.end();
 		
 	    switch(ctrl) {
@@ -290,15 +292,22 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
     case QStyle::TitleMaxButton:
     case QStyle::TitleCloseButton:
     {
+	static int last_ctrl = 0;
 	int ctrl = style().titleBarPointOver(this, e->pos());
-	if(window && ctrl == QStyle::TitleMinButton && window->isMinimized())
+	if(ctrl == QStyle::TitleMinButton && window && window->isMinimized())
 	    ctrl = QStyle::TitleNormalButton;
-
-	QPainter p(this);
-	if(ctrl != buttonDown)
-	    style().drawTitleBarControls(&p, this, buttonDown, QStyle::TitleNone);
-	else
-	    style().drawTitleBarControls(&p, this, buttonDown, buttonDown);
+	if(ctrl != last_ctrl) {
+	    QPainter p(this);
+	    if(ctrl == buttonDown)
+		style().drawTitleBarControls(&p, this, 
+					     ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0), 
+					     buttonDown);
+	    else
+		style().drawTitleBarControls(&p, this, 
+					     ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0), 
+					     QStyle::TitleNone);
+	}
+	last_ctrl = ctrl;
 	break;
     }
     case QStyle::TitleLabel:
