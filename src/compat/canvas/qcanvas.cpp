@@ -446,7 +446,7 @@ static int scm(int a, int b)
 
     The canvas is optimized for large numbers of items, particularly
     where only a small percentage of the items change at any
-    one time. If the entire display changes very regularly, you should
+    one time. If the entire display changes very frequently, you should
     consider using your own custom QScrollView subclass.
 
     Qt provides a rich set of canvas item classes, e.g.
