@@ -77,7 +77,8 @@ public:
     virtual void bindValue( const QString& holder, const QVariant& value );
     virtual void bindValue( int pos, const QVariant& value );
     virtual void addBindValue( const QVariant& value );
-    virtual void clearValues();
+    void clearValues();
+    void clearIndex();
 
     enum BindMethod { BindByPosition, BindByName };
     BindMethod bindMethod();
