@@ -168,17 +168,18 @@ QSqlTable::~QSqlTable()
 
 /*!
 
-  Adds \a field as the next column to be diplayed.  By default, fields
-  which are not visible and fields which are part of a cursor's primary
-  index are not displayed.
+  Adds \a field from the current cursor as the next column to be
+  diplayed.  Fields which are not visible and fields which are part of
+  a cursor's primary index are not displayed. If there is no current
+  cursor, nothing happens.
 
-  \sa QSqlField
+  \sa QSqlField setCursor()
 
 */
 
 void QSqlTable::addColumn( const QSqlField* field )
 {
-    if ( field->isVisible() && !field->isPrimaryIndex() ) {
+    if ( cursor() && field && field->isVisible() && !field->isPrimaryIndex() ) {
 	setNumCols( numCols() + 1 );
 	d->colIndex.append( field->fieldNumber() );
 	if ( field->isReadOnly() )
