@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#11 $
+** $Id: //depot/qt/main/src/tools/qarray.h#12 $
 **
 ** Definition of QArray template/macro class
 **
@@ -122,8 +122,8 @@ public:
 	{ return (QArrayT<type>&)QGArray::duplicate(a); }
     QArrayT<type>& duplicate( const type *a, uint n )
 	{ return (QArrayT<type>&)QGArray::duplicate((char*)a,n*sizeof(type)); }
-    QArrayM(type)& setRawData( const type *a, uint n )
-	{ return (QArrayM(type)&)QGArray::setRawData((char*)a,
+    QArrayT(type)& setRawData( const type *a, uint n )
+	{ return (QArrayT(type)&)QGArray::setRawData((char*)a,
 						     n*sizeof(type)); }
     void resetRawData( const type *a, uint n )
 	{ QGArray::resetRawData((char*)a,n*sizeof(type)); }
