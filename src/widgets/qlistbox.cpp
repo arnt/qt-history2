@@ -39,9 +39,7 @@
 #include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
-#if defined(connect)
 #undef connect
-#endif
 
 #include "qlistbox.h"
 #ifndef QT_NO_LISTBOX
@@ -154,7 +152,7 @@ QListBoxPrivate::~QListBoxPrivate()
 
 
 /*!
-  \class QListBoxItem qlistbox.h
+  \class QListBoxItem
   \ingroup advanced
 
   \brief The QListBoxItem class is the base class of all list box items.
@@ -346,7 +344,7 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
     custom_highlight = FALSE;
     p = n = 0;
 
-    // just something that'll look noticeable in the debugger
+    // just something that'll be noticeable in the debugger
     x = y = 42;
 
     if (listbox)
@@ -580,7 +578,7 @@ int QListBoxText::RTTI = 1;
 
   Make your derived classes return their own values for rtti(), and
   you can distinguish between listbox items. You should use values
-  greater than 1000 preferably a large random number, to allow for
+  greater than 1000, preferably a large random number, to allow for
   extensions to this class.
 */
 
@@ -590,7 +588,7 @@ int QListBoxText::rtti() const
 }
 
 /*!
-  \class QListBoxPixmap qlistbox.h
+  \class QListBoxPixmap
   \ingroup advanced
   \brief The QListBoxPixmap class provides list box items with a pixmap
   and optional text.
@@ -760,7 +758,7 @@ int QListBoxPixmap::rtti() const
 }
 
 /*!
-  \class QListBox qlistbox.h
+  \class QListBox
   \brief The QListBox widget provides a list of selectable, read-only items.
 
   \ingroup advanced
@@ -2451,20 +2449,19 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
 	    d->selectAnchor = d->current;
     } break;
-    default: {
-	    if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
-		d->findItemByName( e->text() );
-	    } else {
-		d->currInputString = QString::null;
-		if ( e->state() & ControlButton ) {
-		    switch ( e->key() ) {
-		    case Key_A:
-			selectAll( TRUE );
-			break;
-		    }
-		} else {
-		    e->ignore();
+    default:
+	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
+	    d->findItemByName( e->text() );
+	} else {
+	    d->currInputString = QString::null;
+	    if ( e->state() & ControlButton ) {
+		switch ( e->key() ) {
+		case Key_A:
+		    selectAll( TRUE );
+		    break;
 		}
+	    } else {
+		e->ignore();
 	    }
 	}
     }
@@ -4101,7 +4098,7 @@ void QListBox::takeItem( const QListBoxItem * item )
 /*!
   \internal
   Finds the first item beginning with \a text and makes
-  it the current one
+  it the current one.
 */
 
 void QListBoxPrivate::findItemByName( const QString &text )
@@ -4110,7 +4107,31 @@ void QListBoxPrivate::findItemByName( const QString &text )
 	inputTimer->stop();
     inputTimer->start( 500, TRUE );
     currInputString += text.lower();
+
     QListBoxItem *item = listBox->findItem( currInputString );
+
+    if ( item == 0 && currInputString.length() >= 2 &&
+	 currInputString.left(1) == currInputString.right(1) &&
+	 listBox->currentItem() != -1 ) {
+	QListBoxItem *current = listBox->item( listBox->currentItem() );
+	if ( current != 0 &&
+	     current->text()[0].lower() == currInputString[0] ) {
+	    QListBoxItem *next = listBox->item( listBox->currentItem() + 1 );
+	    if ( next && next->text()[0].lower() == currInputString[0] ) {
+		item = next;
+		currInputString.truncate( 1 );
+	    } else {
+		int originalCurrentItem = listBox->currentItem();
+		listBox->setCurrentItem( 0 );
+		item = listBox->findItem( currInputString.left(1) );
+		if ( item ) {
+		    currInputString.truncate( 1 );
+		} else {
+		    listBox->setCurrentItem( originalCurrentItem );
+		}
+	    }
+	}
+    }
     if ( item ) {
 	listBox->setCurrentItem( item );
 	if ( selectionMode == QListBox::Extended ) {
