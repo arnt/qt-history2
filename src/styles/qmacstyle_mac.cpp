@@ -334,13 +334,10 @@ void QMacStyle::polish(QWidget* w)
 	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
     }
 #endif
-
-#if 0
     else if(w->inherits("QTitleBar")) {
-	w->font().setPixelSize(10);
+//	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
     }
-#endif
 }
 
 /*! \reimp */
@@ -1115,8 +1112,10 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
 	else if(tbar->testWFlags(WStyle_SysMenu))
 	    twa |= kThemeWindowHasCloseBox;
+#if 0
 	if(flags & Style_MouseOver)
 	    tds = kThemeStateRollover;
+#endif
 	//AppMan paints outside the given rectangle, so I have to adjust for the height properly!
 	QRegion treg;
 	GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r),
@@ -1124,8 +1123,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	QRect br = treg.boundingRect(), newr = r;
 	newr.moveBy(newr.x() - br.x(), newr.y() - br.y());
 	((QMacPainter *)p)->setport();
-	DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, p, FALSE),
-			     tds, &twm, twa, NULL, 0);
+	DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, p, FALSE), tds, &twm, twa, NULL, 0);
 	if((sub & SC_TitleBarLabel) || 1) {
 	    p->save();
 	    int iw = 0;
@@ -1150,6 +1148,42 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		p->drawText(x, y + p->fontMetrics().ascent(), tbar->visibleText());
 	    }
 	    p->restore();
+	}
+	if(sub & SC_TitleBarCloseButton) {
+	    ThemeDrawState wtds = tds;
+	    if(qAquaActive(cg) && (subActive & SC_TitleBarCloseButton))
+		wtds = kThemeStatePressed;
+	    else if(flags & Style_MouseOver)
+		wtds = kThemeStateRollover;
+	    ThemeWindowMetrics tm;
+	    tm.metricSize = sizeof(tm);
+	    ((QMacPainter *)p)->setport();
+	    DrawThemeTitleBarWidget(macWinType, qt_glb_mac_rect(newr, p, FALSE), 
+				    wtds, &tm, twa, kThemeWidgetCloseBox);
+	}
+	if(sub & SC_TitleBarMaxButton) {
+	    ThemeDrawState wtds = tds;
+	    if(qAquaActive(cg) && (subActive & SC_TitleBarMaxButton))
+		wtds = kThemeStatePressed;
+	    else if(flags & Style_MouseOver)
+		wtds = kThemeStateRollover;
+	    ThemeWindowMetrics tm;
+	    tm.metricSize = sizeof(tm);
+	    ((QMacPainter *)p)->setport();
+	    DrawThemeTitleBarWidget(macWinType, qt_glb_mac_rect(newr, p, FALSE), 
+				    wtds, &tm, twa, kThemeWidgetZoomBox);
+	}
+	if(sub & SC_TitleBarMinButton) {
+	    ThemeDrawState wtds = tds;
+	    if(qAquaActive(cg) && (subActive & SC_TitleBarMinButton))
+		wtds = kThemeStatePressed;
+	    else if(flags & Style_MouseOver)
+		wtds = kThemeStateRollover;
+	    ThemeWindowMetrics tm;
+	    tm.metricSize = sizeof(tm);
+	    ((QMacPainter *)p)->setport();
+	    DrawThemeTitleBarWidget(macWinType, qt_glb_mac_rect(newr, p, FALSE), 
+				    wtds, &tm, twa, kThemeWidgetCollapseBox);
 	}
 	break; }
     case CC_ScrollBar: {
