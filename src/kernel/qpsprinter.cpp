@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#75 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2521,16 +2521,17 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 			    const QImage &img )
 {
-    stream << pnt.x() << " " << pnt.y() << " TR\n";
+    if ( pnt.x() || pnt.y() )
+	stream << pnt.x() << " " << pnt.y() << " TR\n";
 
     //bool mask  = FALSE;
     int width  = img.width();
     int height = img.height();
-    
+
     QColor fgCol = paint->pen().color();
     QColor bgCol = paint->backgroundColor();
 
-    if ( width * height > 21844 ) {
+    if ( width * height > 21840 ) { // 65535/3, tolerance for broken printers
 	delete d->savedImage;
 	d->savedImage = 0;
 	stream << "/sl " << width*3 << " string def\n"
@@ -2540,8 +2541,10 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
     } else if ( d->savedImage && img == *d->savedImage ) {
 	stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
     } else {
-	stream << "/sl " << width*3*height
-	       << " string def\ncurrentfile sl readhexstring\n";
+	if ( !d->savedImage ||
+	     d->savedImage->width()*d->savedImage->height() != width*height )
+	    stream << "/sl " << width*3*height << " string def\n";
+	stream << "currentfile sl readhexstring\n";
 	ps_dumpPixmapData( stream, img, fgCol, bgCol );
 	stream << "pop pop\n";
 	delete d->savedImage;
@@ -2549,7 +2552,8 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 	d->savedImage->detach();
 	stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
     }
-    stream << -pnt.x() << " " << -pnt.y() << " TR\n";
+    if ( pnt.x() || pnt.y() )
+	stream << -pnt.x() << " " << -pnt.y() << " TR\n";
 }
 
 void QPSPrinter::matrixSetup( QPainter *paint )
