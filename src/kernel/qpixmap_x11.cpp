@@ -319,7 +319,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	    rendhd = (HANDLE) XftDrawCreateBitmap( data->xinfo->display(), hd );
 	} else {
 	    rendhd = (HANDLE) XftDrawCreate( data->xinfo->display(), hd,
-					     data->xinfo->visual(),
+					     (Visual *) data->xinfo->visual(),
 					     data->xinfo->colormap() );
 	}
     }
@@ -586,7 +586,7 @@ QImage QPixmap::convertToImage() const
     int	    h  = height();
     int	    d  = depth();
     bool    mono = d == 1;
-    Visual *visual = data->xinfo->visual();
+    Visual *visual = (Visual *) data->xinfo->visual();
     bool    trucol = (visual->c_class == TrueColor) && !mono && d > 8;
 
     if ( d > 1 && d <= 8 )			// set to nearest valid depth
@@ -1041,10 +1041,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     Display *dpy   = data->xinfo->display();
-    Visual *visual = data->xinfo->visual();
+    Visual *visual = (Visual *) data->xinfo->visual();
     XImage *xi	   = 0;
     bool    trucol = (visual->c_class == TrueColor);
-    int	    nbytes = image.numBytes();
+    uint    nbytes = image.numBytes();
     uchar  *newbits= 0;
 
     if ( trucol ) {				// truecolor display
@@ -1298,7 +1298,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    int	  mindist;
 	};
 	int ncols = 0;
-	for ( i=0; i<image.numColors(); i++ ) { // compute number of colors
+	for ( i=0; i< (uint) image.numColors(); i++ ) { // compute number of colors
 	    if ( pop[i] > 0 )
 		ncols++;
 	}
@@ -1338,7 +1338,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	pixarr_sorted[0] = pixarr[maxpix];
 	pixarr[maxpix].use = 0;
 
-	for ( i=1; i<ncols; i++ ) {		// sort pixels
+	for ( i=1; i< (uint) ncols; i++ ) {		// sort pixels
 	    int minpix = -1, mindist = -1;
 	    px = &pixarr_sorted[i-1];
 	    int r = px->r;
@@ -1382,7 +1382,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 	uint pix[256];				// pixel translation table
 	px = &pixarr_sorted[0];
-	for ( i=0; i<ncols; i++ ) {		// allocate colors
+	for ( i=0; i< (uint) ncols; i++ ) {		// allocate colors
 	    QColor c( px->r, px->g, px->b );
 	    pix[px->index] = c.pixel(data->xinfo->screen());
 	    px++;
@@ -1442,7 +1442,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		rendhd = (HANDLE) XftDrawCreateBitmap( data->xinfo->display (), hd );
 	    } else {
 		rendhd = (HANDLE) XftDrawCreate( data->xinfo->display (), hd,
-						 data->xinfo->visual(), data->xinfo->colormap() );
+						 (Visual *) data->xinfo->visual(), data->xinfo->colormap() );
 	    }
 	}
 #endif // QT_NO_XFTFREETYPE
@@ -1497,7 +1497,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    data->alphapm->rendhd =
 		(HANDLE) XftDrawCreateAlpha( data->xinfo->display(), data->alphapm->hd, 8 );
 
-	    XImage *axi = XCreateImage(data->xinfo->display(), data->xinfo->visual(),
+	    XImage *axi = XCreateImage(data->xinfo->display(), (Visual *) data->xinfo->visual(),
 				       8, ZPixmap, 0, 0, w, h, 8, 0);
 
 	    if (axi) {
@@ -1805,7 +1805,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    XCopyArea( dpy, xshmpm, pm.handle(), gc, 0, 0, w, h, 0, 0 );
 	} else {
 #endif
-	    xi = XCreateImage( dpy, data->xinfo->visual(), data->xinfo->depth(),
+	    xi = XCreateImage( dpy, (Visual *) data->xinfo->visual(), data->xinfo->depth(),
 			       ZPixmap, 0, (char *)dptr, w, h, 32, 0 );
 	    XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
 	    qSafeXDestroyImage( xi );
@@ -1853,7 +1853,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 			(HANDLE) XftDrawCreateAlpha( data->xinfo->display(),
 						     pm.data->alphapm->hd, 8 );
 
-		    XImage *axi2 = XCreateImage(data->xinfo->display(), data->xinfo->visual(),
+		    XImage *axi2 = XCreateImage(data->xinfo->display(), (Visual *) data->xinfo->visual(),
 						8, ZPixmap, 0, (char *)dptr, w, h, 8, 0);
 
 		    if (axi2) {

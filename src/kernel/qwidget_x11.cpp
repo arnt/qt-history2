@@ -403,8 +403,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	xd->x_depth = a.depth;
 	xd->x_cells = DisplayCells( dpy, xd->x_screen );
 	xd->x_visual = a.visual;
-	xd->x_defvisual = ( XVisualIDFromVisual( a.visual ) ==
-			    XVisualIDFromVisual( QX11Info::appVisual(d->xinfo->screen()) ) );
+	xd->x_defvisual = ( XVisualIDFromVisual( (Visual *) a.visual ) ==
+			    XVisualIDFromVisual( (Visual *) QX11Info::appVisual(d->xinfo->screen()) ) );
 	xd->x_colormap = a.colormap;
 	xd->x_defcolormap = ( a.colormap == QX11Info::appColormap(d->xinfo->screen()) );
 	d->xinfo->setX11Data(xd);
@@ -434,7 +434,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					crect.left(), crect.top(),
 					crect.width(), crect.height(),
 					0, d->xinfo->depth(), InputOutput,
-					d->xinfo->visual(),
+					(Visual *) d->xinfo->visual(),
 					CWBackPixel|CWBorderPixel|CWColormap,
 					&wsa );
 	}
@@ -449,7 +449,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( X11->has_xft )
-	rendhd = (HANDLE) XftDrawCreate( dpy, id, d->xinfo->visual(), d->xinfo->colormap() );
+	rendhd = (HANDLE) XftDrawCreate( dpy, id, (Visual *) d->xinfo->visual(), d->xinfo->colormap() );
 #endif // QT_NO_XFTFREETYPE
 
     // NET window types
@@ -1452,7 +1452,7 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
 	global_double_buffer->rendhd =
 	    (Qt::HANDLE) XftDrawCreate(QX11Info::appDisplay(),
 				       global_double_buffer->hd,
-				       QX11Info::appVisual(),
+				       (Visual *) QX11Info::appVisual(),
 				       QX11Info::appColormap());
 #endif
 

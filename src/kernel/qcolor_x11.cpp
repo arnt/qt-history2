@@ -149,7 +149,7 @@ static int highest_bit( uint v )
 
 int QColor::maxColors()
 {
-    Visual *visual = QX11Info::appVisual();
+    Visual *visual = (Visual *) QX11Info::appVisual();
     if (visual->c_class & 1)
 	return QX11Info::appCells();
     return -1;
@@ -193,7 +193,7 @@ void QColor::initialize()
 
     for ( scr = 0; scr < screencount; ++scr ) {
 	screendata[scr] = new QColorScreenData;
-        screendata[scr]->g_vis = QX11Info::appVisual( scr );
+        screendata[scr]->g_vis = (Visual *) QX11Info::appVisual( scr );
 	screendata[scr]->g_truecolor = screendata[scr]->g_vis->c_class == TrueColor;
 
 	int	     ncols= QX11Info::appCells( scr );

@@ -110,7 +110,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     // qDebug( "Choosing cmap for vID %0x", vi->visualid );
 
     if ( vi->visualid ==
-	 XVisualIDFromVisual( QX11Info::appVisual( vi->screen ) ) ) {
+	 XVisualIDFromVisual( (Visual *) QX11Info::appVisual( vi->screen ) ) ) {
 	// qDebug( "Using x11AppColormap" );
 	return QX11Info::appColormap( vi->screen );
     }
@@ -281,7 +281,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	XFree( vi );
 	XVisualInfo appVisInfo;
 	memset( &appVisInfo, 0, sizeof(XVisualInfo) );
-	appVisInfo.visualid = XVisualIDFromVisual( xinfo->visual() );
+	appVisInfo.visualid = XVisualIDFromVisual( (Visual *) xinfo->visual() );
 	appVisInfo.screen = xinfo->screen();
 	int nvis;
 	vi = XGetVisualInfo( disp, VisualIDMask | VisualScreenMask, &appVisInfo, &nvis );
@@ -620,7 +620,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	     && c.pixel( screen ) == overlayTransparentColor().pixel( screen ) )
 	    return c.pixel( screen );		// Special; don't look-up
 	if ( ((XVisualInfo*)vi)->visualid ==
-	     XVisualIDFromVisual( QX11Info::appVisual( screen ) ) )
+	     XVisualIDFromVisual( (Visual *) QX11Info::appVisual( screen ) ) )
 	    return c.pixel( screen );		// We're using QColor's cmap
 
 	XVisualInfo *info = (XVisualInfo *) vi;
@@ -1002,7 +1002,7 @@ static bool qCanAllocColors( QWidget * w )
     long mask;
     XVisualInfo templ;
     XVisualInfo * visuals;
-    VisualID id = XVisualIDFromVisual(w->topLevelWidget()->x11Info()->visual());
+    VisualID id = XVisualIDFromVisual((Visual *) w->topLevelWidget()->x11Info()->visual());
 
     mask = VisualScreenMask;
     templ.screen = w->x11Info()->screen();
@@ -1050,12 +1050,12 @@ void QGLWidget::setColormap( const QGLColormap & c )
     // If the child GL widget is not of the same visual class as the
     // toplevel widget we will get in trouble..
     Window wid = tlw->winId();
-    Visual * vis = tlw->x11Info()->visual();;
-    VisualID cvId = XVisualIDFromVisual(x11Info()->visual());
-    VisualID tvId = XVisualIDFromVisual(tlw->x11Info()->visual());
+    Visual * vis = (Visual *) tlw->x11Info()->visual();;
+    VisualID cvId = XVisualIDFromVisual((Visual *) x11Info()->visual());
+    VisualID tvId = XVisualIDFromVisual((Visual *) tlw->x11Info()->visual());
     if ( cvId != tvId ) {
 	wid = winId();
-	vis = x11Info()->visual();
+	vis = (Visual *) x11Info()->visual();
     }
 
     if ( !d->cmap.handle() ) // allocate a cmap if necessary

@@ -1564,9 +1564,9 @@ void qt_init( QApplicationPrivate *priv, int,
 	QX11Info::x_appdepth_arr = new int[ appScreenCount ];
 	QX11Info::x_appcells_arr = new int[ appScreenCount ];
 	QX11Info::x_approotwindow_arr = new Qt::HANDLE[ appScreenCount ];
-	QX11Info::x_appcolormap_arr = new Colormap[ appScreenCount ];
+	QX11Info::x_appcolormap_arr = new Qt::HANDLE[ appScreenCount ];
 	QX11Info::x_appdefcolormap_arr = new bool[ appScreenCount ];
-	QX11Info::x_appvisual_arr = new Visual*[ appScreenCount ];
+	QX11Info::x_appvisual_arr = new void*[ appScreenCount ];
 	QX11Info::x_appdefvisual_arr = new bool[ appScreenCount ];
 
 	int screen;
@@ -2322,7 +2322,7 @@ static GC create_gc( int scrn, bool monochrome )
 	    a.colormap = QX11Info::appColormap( scrn );
 	    w = XCreateWindow( X11->display, RootWindow( X11->display, scrn ), 0, 0, 100, 100,
 			       0, QX11Info::appDepth( scrn ), InputOutput,
-			       QX11Info::appVisual( scrn ),
+			       (Visual *) QX11Info::appVisual( scrn ),
 			       CWBackPixel|CWBorderPixel|CWColormap, &a );
 	    gc = XCreateGC( X11->display, w, 0, 0 );
 	    XDestroyWindow( X11->display, w );

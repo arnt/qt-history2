@@ -37,6 +37,9 @@
 #define SPI_GETDROPSHADOW                   0x1024
 #endif
 #endif
+#if defined(Q_WS_X11)
+#include "qx11info_x11.h"
+#endif
 
 /*!
     \class QWhatsThis qwhatsthis.h
@@ -621,7 +624,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 			       widget, text,
 #if defined(Q_WS_X11)
 			       QApplication::desktop()->screen( widget ?
-								widget->x11Screen() :
+								widget->x11Info()->screen() :
 								QCursor::x11Screen() ),
 #else
 			       0,

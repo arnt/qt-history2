@@ -8,10 +8,10 @@ Display *QX11Info::x_appdisplay;
 int QX11Info::x_appscreen;
 int *QX11Info::x_appdepth_arr;
 int *QX11Info::x_appcells_arr;
-Window *QX11Info::x_approotwindow_arr;
-Colormap *QX11Info::x_appcolormap_arr;
+Qt::HANDLE *QX11Info::x_approotwindow_arr;
+Qt::HANDLE *QX11Info::x_appcolormap_arr;
 bool *QX11Info::x_appdefcolormap_arr;
-Visual **QX11Info::x_appvisual_arr;
+void **QX11Info::x_appvisual_arr;
 bool *QX11Info::x_appdefvisual_arr;
 
 static int *dpisX = 0, *dpisY = 0;

@@ -41,6 +41,9 @@
 #endif
 #include "qpainter.h"
 #include "qtooltip.h"
+#if defined(Q_WS_X11)
+#include "qx11info_x11.h"
+#endif
 
 #include "qwidget_p.h"
 #define d d_func()
@@ -778,7 +781,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
 	q->fnt = q->parentWidget()->fnt;
     }
 #if defined(Q_WS_X11)
-    q->fnt.x11SetScreen( q->x11Screen() );
+    q->fnt.x11SetScreen( xinfo->screen() );
 #endif // Q_WS_X11
 
     if ( !q->isDesktop() )
@@ -2577,7 +2580,7 @@ void QWidgetPrivate::setFont_helper( const QFont &font )
     q->fnt = font;
 #if defined(Q_WS_X11)
     // make sure the font set on this widget is associated with the correct screen
-    q->fnt.x11SetScreen( q->x11Screen() );
+    q->fnt.x11SetScreen( xinfo->screen() );
 #endif
     if ( !d->children.isEmpty() ) {
 	for (int i = 0; i < d->children.size(); ++i) {
@@ -3446,7 +3449,7 @@ static inline QSize qt_initial_size(QWidget *w) {
     if ( exp & QSizePolicy::Vertically )
 	s.setHeight( qMax( s.height(), 150 ) );
 #if defined(Q_WS_X11)
-    QRect screen = QApplication::desktop()->screenGeometry( w->x11Screen() );
+    QRect screen = QApplication::desktop()->screenGeometry( w->x11Info()->screen() );
 #else // all others
     QRect screen = QApplication::desktop()->screenGeometry( w->pos() );
 #endif
@@ -4089,7 +4092,7 @@ void QWidget::adjustSize()
     if ( isTopLevel() ) {
 
 #if defined(Q_WS_X11)
-	QRect screen = QApplication::desktop()->screenGeometry( x11Screen() );
+	QRect screen = QApplication::desktop()->screenGeometry( d->xinfo->screen() );
 #else // all others
 	QRect screen = QApplication::desktop()->screenGeometry( pos() );
 #endif
@@ -4364,7 +4367,7 @@ bool QWidget::event( QEvent *e )
 #ifdef QT_COMPAT
 	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 #endif
-    } 
+    }
 	break;
 
     case QEvent::FocusIn: {

@@ -1325,12 +1325,12 @@ void QX11GC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
     // since we can't scale pixmaps this should always hold
     Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
 
-    if ( d->pdev->x11Screen() != pixmap.x11Screen() ) {
+    if ( d->pdev->x11Screen() != pixmap.x11Info()->screen() ) {
         QPixmap* p = (QPixmap*) &pixmap;
         p->x11SetScreen( d->pdev->x11Screen() );
     }
 
-    QPixmap::x11SetDefaultScreen( pixmap.x11Screen() );
+    QPixmap::x11SetDefaultScreen( pixmap.x11Info()->screen() );
 
     QBitmap *mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
@@ -1379,7 +1379,7 @@ void QX11GC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 
         QBitmap *comb = new QBitmap( sw, sh );
         comb->detach();
-        GC cgc = qt_xget_temp_gc( pixmap.x11Screen(), TRUE );   // get temporary mono GC
+        GC cgc = qt_xget_temp_gc( pixmap.x11Info()->screen(), TRUE );   // get temporary mono GC
         XSetForeground( d->dpy, cgc, 0 );
         XFillRectangle( d->dpy, comb->handle(), cgc, 0, 0, sw, sh );
         XSetBackground( d->dpy, cgc, 0 );

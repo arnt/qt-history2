@@ -3,12 +3,13 @@
 
 #include "qnamespace.h"
 #include "qshared.h"
-#include <X11/Xlib.h>
 
 struct QX11InfoData;
 class QPaintDevice;
 class QApplicationPrivate;
 class QX11InfoPrivate;
+
+typedef struct _XDisplay Display;
 
 class QX11Info
 {
@@ -22,18 +23,18 @@ public:
     int screen() const;
     int depth() const;
     int cells() const;
-    Colormap colormap() const;
+    Qt::HANDLE colormap() const;
     bool defaultColormap() const;
-    Visual *visual() const;
+    void *visual() const;
     bool defaultVisual() const;
 
     static Display *appDisplay();
     static int appScreen();
     static int appDepth(int screen = -1);
     static int appCells(int screen = -1);
-    static Colormap appColormap(int screen = -1);
-    static Visual *appVisual(int screen = -1);
-    static Window appRootWindow(int screen = -1);
+    static Qt::HANDLE appColormap(int screen = -1);
+    static void *appVisual(int screen = -1);
+    static Qt::HANDLE appRootWindow(int screen = -1);
     static bool appDefaultColormap(int screen = -1);
     static bool appDefaultVisual(int screen = -1);
     static int appDpiX(int screen = -1);
@@ -51,10 +52,10 @@ protected:
     static int x_appscreen;
     static int *x_appdepth_arr;
     static int *x_appcells_arr;
-    static Window *x_approotwindow_arr;
-    static Colormap *x_appcolormap_arr;
+    static Qt::HANDLE *x_approotwindow_arr;
+    static Qt::HANDLE *x_appcolormap_arr;
     static bool *x_appdefcolormap_arr;
-    static Visual **x_appvisual_arr;
+    static void **x_appvisual_arr;
     static bool *x_appdefvisual_arr;
 
     QX11InfoData *x11data;
@@ -73,9 +74,9 @@ struct QX11InfoData : public QShared {
     int x_screen;
     int x_depth;
     int x_cells;
-    Colormap x_colormap;
+    Qt::HANDLE x_colormap;
     bool x_defcolormap;
-    Visual *x_visual;
+    void *x_visual;
     bool x_defvisual;
 };
 
@@ -85,13 +86,13 @@ inline Display *QX11Info::appDisplay()
 inline int QX11Info::appScreen()
 { return x_appscreen; }
 
-inline Colormap QX11Info::appColormap(int screen)
+inline Qt::HANDLE QX11Info::appColormap(int screen)
 { return x_appcolormap_arr[screen == -1 ? x_appscreen : screen]; }
 
-inline Visual *QX11Info::appVisual(int screen)
+inline void *QX11Info::appVisual(int screen)
 { return x_appvisual_arr[screen == -1 ? x_appscreen : screen]; }
 
-inline Window QX11Info::appRootWindow(int screen)
+inline Qt::HANDLE QX11Info::appRootWindow(int screen)
 { return x_approotwindow_arr[screen == -1 ? x_appscreen : screen]; }
 
 inline int QX11Info::appDepth(int screen)
@@ -118,13 +119,13 @@ inline int QX11Info::depth() const
 inline int QX11Info::cells() const
 { return x11data ? x11data->x_cells : QX11Info::appCells(); }
 
-inline Colormap QX11Info::colormap() const
+inline Qt::HANDLE QX11Info::colormap() const
 { return x11data ? x11data->x_colormap : QX11Info::appColormap(); }
 
 inline bool QX11Info::defaultColormap() const
 { return x11data ? x11data->x_defcolormap : QX11Info::appDefaultColormap(); }
 
-inline Visual *QX11Info::visual() const
+inline void *QX11Info::visual() const
 { return x11data ? x11data->x_visual : QX11Info::appVisual(); }
 
 inline bool QX11Info::defaultVisual() const
