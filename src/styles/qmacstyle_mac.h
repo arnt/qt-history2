@@ -68,6 +68,14 @@ public:
 			SFlags flags = Style_Default,
 			const QStyleOption& = QStyleOption::Default ) const;
 
+    void drawControl( ControlElement element,
+		      QPainter *p,
+		      const QWidget *widget,
+		      const QRect &r,
+		      const QColorGroup &cg,
+		      SFlags how = Style_Default,
+		      const QStyleOption& = QStyleOption::Default ) const;
+
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

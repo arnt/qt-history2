@@ -123,6 +123,8 @@ private:        // Disabled copy constructor and operator=
     QAquaStyle( const QAquaStyle & );
     QAquaStyle& operator=( const QAquaStyle & );
 #endif
+
+protected:
     QAquaStylePrivate *d;
 };
 

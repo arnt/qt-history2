@@ -38,6 +38,77 @@
 
 #ifndef QT_NO_STYLE_AQUA
 
+#include <qwidget.h>
+#include <qguardedptr.h>
+#include <qptrlist.h>
+#include <qpushbutton.h>
+#include <qprogressbar.h>
+
+extern QColor qt_mac_highlight_color;
+extern bool qt_mac_scrollbar_arrows_together;
+
+class QAquaFocusWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    QAquaFocusWidget( );
+    ~QAquaFocusWidget() {}
+    void setFocusWidget( QWidget * widget );
+    QWidget* widget() { return d; }
+    QSize sizeHint() { return QSize( 0, 0 ); }
+    static bool handles(QWidget *);
+
+public slots:
+    void objDestroyed(QObject *);
+
+protected:
+    bool eventFilter( QObject * o, QEvent * e );
+    void paintEvent( QPaintEvent * );
+
+private:
+    QWidget *d;
+};
+
+class QAquaStylePrivate : public QObject
+{
+    Q_OBJECT
+public:
+    //blinking buttons
+    struct buttonState {
+    public:
+        buttonState() : stop_pulse(0), frame(0), dir(1) {}
+	QPushButton *stop_pulse;
+        int frame;
+        int dir;
+    };
+    QPushButton * defaultButton;
+    buttonState   buttonState;
+    int buttonTimerId;
+    //animated progress bars
+    QPtrList<QProgressBar> progressBars;
+    int progressTimerId;
+    int progressOff;
+    //big focus rects
+    QGuardedPtr<QAquaFocusWidget> focusWidget;
+
+public slots:
+    void objDestroyed(QObject *);
+};
+
+/*
+  Hackish method of finding out whether the window is active or not
+ */
+static inline bool qAquaActive( const QColorGroup & g )
+{
+    if( g.buttonText() == QColor( 148,148,148 ) )
+        return FALSE;
+    else
+        return TRUE;
+}
+
+#ifdef QT_AQUA_XPM
+#include <qpixmapcache.h>
+
 enum AquaMode {
     AquaModeUnknown,
     AquaModeGraphite,
@@ -12119,17 +12190,6 @@ static int qAquaGetNum( const QString & s)
 
 
 /*
-  Hackish method of finding out whether the window is active or not
- */
-static bool qAquaActive( const QColorGroup & g )
-{
-    if( g.buttonText() == QColor( 148,148,148 ) )
-        return FALSE;
-    else
-        return TRUE;
-}
-
-/*
   Handle scaling and caching of pixmaps used in the Aqua style.
   Pixmaps are removed from the cache if the cache is idle for a
   certain amount of time
@@ -12986,6 +13046,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 	QPixmapCache::find( str, p );
     }
 }
+#endif
 
 #endif /* QT_NO_STYLE_AQUA */
 #endif /* __QAQUASTYLE_P_H__ */

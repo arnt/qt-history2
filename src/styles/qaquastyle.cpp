@@ -46,7 +46,6 @@
 #include "qscrollbar.h"
 #include "qimage.h"
 #include "qbitmap.h"
-#include "qpixmapcache.h"
 #include "qtoolbutton.h"
 #include "qtoolbar.h"
 #include "qobjectlist.h"
@@ -62,6 +61,7 @@
 #include "private/qtitlebar_p.h"
 #include "private/qinternal_p.h"
 #include "qpopupmenu.h"
+#define QT_AQUA_XPM
 #include "qaquastyle_p.h"
 #include "qguardedptr.h"
 #include "qlineedit.h"
@@ -80,31 +80,9 @@ static const int aquaTabSpacing        = 12;   // space between text and tab
 static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
-static QColor highlightColor = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
-static bool scrollbar_arrows_together = FALSE; //whether scroll arrows go together
+QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
+bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go together
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
-
-class QAquaFocusWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    QAquaFocusWidget( );
-    ~QAquaFocusWidget() {}
-    void setFocusWidget( QWidget * widget );
-    QWidget* widget() { return d; }
-    QSize sizeHint() { return QSize( 0, 0 ); }
-    static bool handles(QWidget *);
-
-public slots:
-    void objDestroyed(QObject *);
-
-protected:
-    bool eventFilter( QObject * o, QEvent * e );
-    void paintEvent( QPaintEvent * );
-
-private:
-    QWidget *d;
-};
 
 QAquaFocusWidget::QAquaFocusWidget( )
     : QWidget( NULL, "magicFocusWidget", WResizeNoErase | WRepaintNoErase ), d( NULL )
@@ -221,33 +199,6 @@ void QAquaFocusWidget::paintEvent( QPaintEvent * )
     buffer.painter()->drawPixmap( width() - pmbr.width(), height() - pmbr.height(), pmbr );
 }
 
-class QAquaStylePrivate : public QObject
-{
-    Q_OBJECT
-public:
-    //blinking buttons
-    struct buttonState {
-    public:
-        buttonState() : stop_pulse(0), frame(0), dir(1) {}
-	QPushButton *stop_pulse;
-        int frame;
-        int dir;
-    };
-    QPushButton * defaultButton;
-    buttonState   buttonState;
-    int buttonTimerId;
-    //animated progress bars
-    QPtrList<QProgressBar> progressBars;
-    int progressTimerId;
-    int progressOff;
-    //big focus rects
-    QGuardedPtr<QAquaFocusWidget> focusWidget;
-
-public slots:
-    void objDestroyed(QObject *);
-};
-#include "qaquastyle.moc"
-
 void QAquaStylePrivate::objDestroyed(QObject *o)
 {
     if(o == buttonState.stop_pulse)
@@ -349,8 +300,8 @@ void QAquaStyle::polish( QApplication* app )
     pal.setColor( QPalette::Disabled, QColorGroup::ButtonText,
                   QColor( 148,148,148 ));
 
-    pal.setColor( QPalette::Active, QColorGroup::Highlight, highlightColor );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, highlightColor.light() );
+    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_color );
+    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_color.light() );
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
 
     pal.setColor( QColorGroup::HighlightedText, Qt::black);
@@ -831,7 +782,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 		mod += "up_";
 	    mod += QString::number(r.width());
 	}
-	if( scrollbar_arrows_together )
+	if( qt_mac_scrollbar_arrows_together )
 	    join = "joined_";
 	qAquaPixmap( prefix + "sbr_" + join + "arw_" + mod, arrow );
 	p->drawPixmap( r.x(), r.y(), arrow );
@@ -847,7 +798,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	qAquaPixmap( prefix + "sbr_back_fill_" + QString::number(
 	    flags & Style_Horizontal ? r.height() : r.width()), fill );
 	QRect fillr = r;
-	if( pe == PE_ScrollBarSubPage && scrollbar_arrows_together) {
+	if( pe == PE_ScrollBarSubPage && qt_mac_scrollbar_arrows_together) {
 	    QPixmap cap;
 	    qAquaPixmap( prefix + "sbr_joined_back_cap_" + QString::number(
 		flags & Style_Horizontal ? r.height() : r.width()), cap );
@@ -1544,12 +1495,12 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    //cleanup
 	    QRect eraserect(slider);
 	    if(scrollbar->orientation() == Qt::Vertical) {
-		if(!scrollbar_arrows_together && eraserect.y() < subline.height())
+		if(!qt_mac_scrollbar_arrows_together && eraserect.y() < subline.height())
 		    eraserect.setY(subline.height());
 		if(eraserect.bottom() > addline.y())
 		    eraserect.setBottom(addline.y());
 	    } else {
-		if(!scrollbar_arrows_together && eraserect.x() < subline.width())
+		if(!qt_mac_scrollbar_arrows_together && eraserect.x() < subline.width())
 		    eraserect.setX(subline.width());
 		if(eraserect.right() > addline.x())
 		    eraserect.setRight(addline.x());
@@ -1907,7 +1858,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	default:
 	    rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
 	}
-	if( scrollbar_arrows_together ) {
+	if( qt_mac_scrollbar_arrows_together ) {
 	    switch(sc) {
 	    case SC_ScrollBarAddLine:
 		if(scr->orientation() == Horizontal)
@@ -2022,12 +1973,14 @@ void QAquaStyle::appearanceChanged()
 	s = sizeof(color);
 	if(!GetCollectionItem(c, kThemeHighlightColorTag, 0, &s, &color)) {
 	    QColor qc(color.red/256, color.green/256, color.blue/256);
-	    if(highlightColor != qc) {
+	    if(qt_mac_highlight_color != qc) {
 		changed = TRUE;
-		highlightColor = qc;
+		qt_mac_highlight_color = qc;
 		QPalette pal = qApp->palette();
-		pal.setColor( QPalette::Active, QColorGroup::Highlight, highlightColor );
-		pal.setColor( QPalette::Inactive, QColorGroup::Highlight, highlightColor.light() );
+		pal.setColor( QPalette::Active, QColorGroup::Highlight,
+			      qt_mac_highlight_color );
+		pal.setColor( QPalette::Inactive, QColorGroup::Highlight, 
+			      qt_mac_highlight_color.light() );
 		qApp->setPalette( pal, TRUE );
 	    }
 	} else {
@@ -2037,8 +1990,8 @@ void QAquaStyle::appearanceChanged()
 	ThemeScrollBarArrowStyle arrows;
 	GetThemeScrollBarArrowStyle(&arrows);
 	bool sat = (arrows == kThemeScrollBarArrowsLowerRight);
-	if(sat != scrollbar_arrows_together) {
-	    scrollbar_arrows_together = sat;
+	if(sat != qt_mac_scrollbar_arrows_together) {
+	    qt_mac_scrollbar_arrows_together = sat;
 	    changed = TRUE;
 	}
 

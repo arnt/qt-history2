@@ -38,9 +38,20 @@
 #include "qmacstyle_mac.h"
 
 #if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_AQUA )
-#include <qscrollbar.h>
-#include <qpainter.h>
-#include <qdrawutil.h>
+#include "qaquastyle_p.h"
+#include <qpushbutton.h>
+#include <qt_mac.h>
+#include <Appearance.h>
+
+static inline const Rect *mac_rect(const QRect &qr)
+{
+    static Rect r;
+    SetRect(&r, qr.left(), qr.top(), qr.right()+1, qr.bottom()+1); //qt says be inclusive!
+    return &r;
+}
+static inline const Rect *mac_rect(const QPoint &qp, const QSize &qs) 
+{ return mac_rect(QRect(qp, qs)); }
+
 
 QMacStyle::QMacStyle(  )  : QAquaStyle()
 {
@@ -58,9 +69,38 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 			       SFlags flags,
 			       const QStyleOption& opt ) const
 {
-    
-
+    QAquaStyle::drawPrimitive( pe, p, r, cg, flags, opt);
 }
 
+
+void QMacStyle::drawControl( ControlElement element,
+				 QPainter *p,
+				 const QWidget *widget,
+				 const QRect &r,
+				 const QColorGroup &cg,
+				 SFlags how,
+				 const QStyleOption& opt ) const
+{
+    SFlags flags = Style_Default;
+    if (widget->isEnabled())
+	flags |= Style_Enabled;
+
+    switch(element) {
+    case CE_PushButton: {
+	ThemeButtonDrawInfo info;
+	if(!qAquaActive(cg))
+	    info.state |= kThemeStateInactive;
+	else
+	    info.state |= kThemeStateActive;
+	if(how & Style_Down)
+	    info.state = kThemeStatePressed;
+	info.value = 0;
+	info.adornment = kThemeAdornmentNone;
+	DrawThemeButton(mac_rect(r), kThemePushButton, &info, NULL, NULL, NULL, 0);
+	break; }
+    default:
+	QAquaStyle::drawControl(element, p, widget, r, cg, how, opt);
+    }
+}
 
 #endif

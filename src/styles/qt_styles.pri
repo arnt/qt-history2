@@ -27,7 +27,7 @@ styles {
 	!contains( styles, mac ):DEFINES += QT_NO_STYLE_MAC
 
 	contains( styles, aqua ) {
-		HEADERS +=$$STYLES_H/qaquastyle.h
+		HEADERS +=$$STYLES_H/qaquastyle.h $$STYLES_CPP/qaquastyle_p.h
 		SOURCES +=$$STYLES_CPP/qaquastyle.cpp
 
 		!contains( styles, windows ) {

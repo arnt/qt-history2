@@ -217,11 +217,9 @@ QStringList QStyleFactory::keys()
     if ( !list.contains( "Aqua" ) )
 	list << "Aqua";
 #endif
-#if 0
-#ifdef Q_WS_MAC
+#ifndef QT_NO_STYLE_MAC
     if ( !list.contains( "Macintosh" ) )
 	list << "Macintosh";
-#endif
 #endif
 
     return list;
