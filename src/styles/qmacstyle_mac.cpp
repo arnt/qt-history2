@@ -69,6 +69,7 @@ public:
 #include <qlineedit.h>
 #include <qregexp.h>
 #include "qwidgetlist.h"
+#include <qguardedptr.h>
 #include "private/qaquastyle_p.h"
 
 #include <string.h>
@@ -119,7 +120,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
 }
 
 //utility to figure out the size
-AquaSize qt_mac_get_size_for_painter(QPainter *p)
+QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
 {
     if(p && p->device()->devType() == QInternal::Widget) 
 	return qt_aqua_size_constrain((QWidget*)p->device());
@@ -289,7 +290,7 @@ void QMacStyle::polish( QApplication* app )
 /*! \reimp */
 void QMacStyle::polish( QWidget* w )
 {
-    qt_mac_polish_font(w, qt_aqua_size_constrain(w, TRUE));
+    qt_mac_polish_font(w, qt_aqua_size_constrain(w));
     d->addWidget(w);
 
     if(w->inherits("QLineEdit")) {
@@ -522,7 +523,7 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	if(flags & Style_On)
 	    info.value = kThemeButtonOn;
 	ThemeButtonKind bkind = kThemeRadioButton;
-	if(qt_mac_get_size_for_painter(p) == AquaSizeSmall)
+	if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 	    bkind = kThemeSmallRadioButton;
 	if(pe == PE_ExclusiveIndicator) {
 	    p->fillRect(r, white);
@@ -547,7 +548,7 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	else if(flags & Style_On)
 	    info.value = kThemeButtonOn;
 	ThemeButtonKind bkind = kThemeCheckBox;
-	if(qt_mac_get_size_for_painter(p) == AquaSizeSmall)
+	if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 	    bkind = kThemeSmallCheckBox;
 	if(pe == PE_Indicator) {
 	    p->fillRect(r, white);
@@ -815,7 +816,7 @@ void QMacStyle::drawControl( ControlElement element,
 	    ThemeTrackDrawInfo ttdi;
 	    memset(&ttdi, '\0', sizeof(ttdi));
 	    ttdi.kind = kThemeLargeProgressBar;
-	    if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 		ttdi.kind = kThemeMediumProgressBar;
 	    ttdi.bounds = *qt_glb_mac_rect(r, p);
 	    ttdi.max = pbar->totalSteps();
@@ -857,7 +858,7 @@ void QMacStyle::drawControl( ControlElement element,
 	DrawThemeTab(qt_glb_mac_rect(r, p, FALSE), tts, ttd, NULL, 0);
 	if(!(how & Style_Selected)) {
 	    int height = kThemeLargeTabHeight;
-	    if(qt_mac_get_size_for_painter(p) == AquaSizeSmall)
+	    if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 		height = kThemeSmallTabHeight;
 	    QRect pr = QRect(r.x() - 20, r.y() + height, r.width() + 20, 8);
 	    DrawThemeTabPane(qt_glb_mac_rect(pr, p), tds);	    
@@ -1024,6 +1025,8 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break; }
     case CC_SpinWidget: {
 	QSpinWidget * sw = (QSpinWidget *) widget;
+	if(sub & SC_SpinWidgetFrame) 
+	    drawPrimitive(PE_PanelLineEdit, p, r, cg);
 	if((sub & SC_SpinWidgetDown) || (sub & SC_SpinWidgetUp)) {
 	    if(!sw->isUpEnabled() && !sw->isDownEnabled())
 		tds = kThemeStateUnavailable;
@@ -1041,9 +1044,6 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    DrawThemeButton(qt_glb_mac_rect(updown, p), kThemeIncDecButton, 
 			    &info, NULL, NULL, NULL, 0);
 	}
-	if ( sub & SC_SpinWidgetFrame )
-	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, 
-					      SC_SpinWidgetFrame, subActive, opt);
 	break; }
     case CC_TitleBar: {
 	if(!widget)
@@ -1103,7 +1103,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumScrollBar;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(r, p);
 	ttdi.min = scrollbar->minValue();
@@ -1139,7 +1139,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumSlider;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallSlider;
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p);
 	ttdi.min = sldr->minValue();
@@ -1252,7 +1252,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	break;
     case PM_ScrollBarExtent: {
 	ThemeMetric tm = kThemeMetricScrollBarWidth;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    tm = kThemeMetricSmallScrollBarWidth;
 	GetThemeMetric(tm, &ret);
 	break; }
@@ -1261,25 +1261,25 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	break;
     case PM_IndicatorHeight: {
 	ThemeMetric tm = kThemeMetricCheckBoxHeight;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    tm = kThemeMetricSmallCheckBoxHeight;
 	GetThemeMetric(tm, &ret);
 	break; }
     case PM_IndicatorWidth: {
 	ThemeMetric tm = kThemeMetricCheckBoxWidth;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    tm = kThemeMetricSmallCheckBoxWidth;
 	GetThemeMetric(tm, &ret);
 	break; }
     case PM_ExclusiveIndicatorHeight: {
 	ThemeMetric tm = kThemeMetricRadioButtonHeight;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    tm = kThemeMetricSmallRadioButtonHeight;
 	GetThemeMetric(tm, &ret);
 	break; }
     case PM_ExclusiveIndicatorWidth: {
 	ThemeMetric tm = kThemeMetricRadioButtonWidth;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    tm = kThemeMetricSmallRadioButtonWidth;
 	GetThemeMetric(tm, &ret);
 	break; }
@@ -1348,7 +1348,7 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumScrollBar;
-	if(qt_aqua_size_constrain(w) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(w) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = scrollbar->minValue();
@@ -1385,7 +1385,7 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumSlider;
-	if(qt_aqua_size_constrain(w) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(w) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallSlider;
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = sldr->minValue();
@@ -1458,7 +1458,7 @@ QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumScrollBar;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect());
 	ttdi.min = scrollbar->minValue();
@@ -1562,7 +1562,7 @@ QSize QMacStyle::sizeFromContents( ContentsType contents,
     switch(contents) {
     case CT_TabBarTab: {
 	SInt32 lth = kThemeLargeTabHeight;
-	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    lth = kThemeSmallTabHeight;
 	if(sz.height() > lth) 
 	    sz.setHeight(lth);
@@ -1621,6 +1621,15 @@ QSize QMacStyle::sizeFromContents( ContentsType contents,
     default:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	break;
+    }
+    {
+	QSize macsz;
+	if(qt_aqua_size_constrain(widget, contents, &macsz) != QAquaSizeUnknown && macsz != QSize(-1, -1)) {
+	    if(macsz.width() != -1)
+		sz.setWidth(macsz.width());
+	    if(macsz.height() != -1)
+		sz.setHeight(macsz.height());
+	}
     }
     return sz;
 }

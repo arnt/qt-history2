@@ -682,21 +682,19 @@ int QSlider::goodPart( const QPoint &p ) const
 QSize QSlider::sizeHint() const
 {
     constPolish();
-    const int length = 84;
-    //    int thick = style() == MotifStyle ? 24 : 16;
+    const int length = 84, tickSpace = 5;
     int thick = style().pixelMetric( QStyle::PM_SliderThickness, this );
-    const int tickSpace = 5;
-
     if ( ticks & Above )
 	thick += tickSpace;
     if ( ticks & Below )
 	thick += tickSpace;
-    // if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks )
-    // thick += style().pixelMetric( QStyle::PM_SliderLength, this ) / 4; // pointed slider
-    if ( orient == Horizontal )
-	return QSize( length, thick ).expandedTo( QApplication::globalStrut() );
-    else
-	return QSize( thick, length ).expandedTo( QApplication::globalStrut() );
+    int w = thick, h = length;
+    if ( orient == Horizontal ) {
+	w = length;
+	h = thick;
+    }
+    return (style().sizeFromContents(QStyle::CT_Slider, this, 
+				     QSize(w, h)).expandedTo(QApplication::globalStrut()));
 }
 
 

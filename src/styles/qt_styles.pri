@@ -19,13 +19,9 @@ styles {
 	contains( styles, mac ) {
 		HEADERS +=$$STYLES_H/qmacstyle_mac.h
 		SOURCES +=$$STYLES_CPP/qmacstyle_mac.cpp
+		HEADERS *= $$STYLES_CPP/qaquastyle_p.h 
+		SOURCES *= $$STYLES_CPP/qaquastyle_p.cpp 
 
-		#at the moment we require aqua
-		!contains( styles, aqua ) {
-			message( mac requires aqua )
-			styles += aqua
-		}
-		#we inherit from windows..
 		!contains( styles, windows ) {
 			message( mac requires windows )
 			styles += windows
@@ -34,8 +30,10 @@ styles {
 	else:DEFINES += QT_NO_STYLE_MAC
 
 	contains( styles, aqua ) {
-		HEADERS +=$$STYLES_H/qaquastyle.h $$STYLES_CPP/qaquastyle_p.h
-		SOURCES +=$$STYLES_CPP/qaquastyle.cpp
+		HEADERS += $$STYLES_H/qaquastyle.h 
+		SOURCES += $$STYLES_CPP/qaquastyle.cpp 
+		HEADERS *= $$STYLES_CPP/qaquastyle_p.h 
+		SOURCES *= $$STYLES_CPP/qaquastyle_p.cpp 
 
 		!contains( styles, windows ) {
 			message( aqua requires windows )

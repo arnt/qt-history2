@@ -1183,7 +1183,8 @@ QSize QHeader::sizeHint() const
 	for ( int i = 0; i < count(); i++ )
 	    height += d->sizes[i];
     }
-    return QSize( width, height );
+    return (style().sizeFromContents(QStyle::CT_Header, this, 
+				     QSize(width, height)).expandedTo(QApplication::globalStrut()));
 }
 
 /*! \property QHeader::offset

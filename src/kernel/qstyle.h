@@ -466,6 +466,9 @@ public:
 	CT_ProgressBar,
 	CT_PopupMenuItem,
 	CT_TabBarTab,
+	CT_Slider,
+	CT_Header,
+	CT_LineEdit,
 
 	// do not add any values below/greater than this
 	CT_CustomBase =		0xf0000000

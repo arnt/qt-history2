@@ -2364,6 +2364,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    break;
 	}
 
+    case CT_LineEdit:
+    case CT_Header:
+    case CT_Slider:
     case CT_ProgressBar:
 	// just return the contentsSize for now
 	// fall through intended
