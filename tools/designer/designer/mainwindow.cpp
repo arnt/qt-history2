@@ -649,6 +649,8 @@ QObjectList *MainWindow::runProject( bool execMain )
 		else
 		    l->append( qwf_form_object );
 		w->hide();
+	    } else {
+		l->append( qwf_form_object );
 	    }
 	}
 
