@@ -473,7 +473,7 @@ const QPixmap TrWindow::splash()
     Embed *splash = 0;
 
     setupImageDict();
-    splash = imageDict->find( QString("splash.png") );
+    splash = imageDict->find( QString("splash") );
     if ( splash == 0 )
 	return 0;
     QPixmap pixmap;
@@ -486,7 +486,7 @@ const QPixmap TrWindow::pageCurl()
     Embed *ess = 0;
 
     setupImageDict();
-    ess = imageDict->find( QString("pagecurl.png") );
+    ess = imageDict->find( QString("pagecurl") );
     if ( ess == 0 )
 	return 0;
     QPixmap pixmap;
@@ -561,13 +561,15 @@ TrWindow::TrWindow()
 
     phraseBooks.setAutoDelete( TRUE );
 
-    f = new FindDialog( this, "find", FALSE );
+    f = new FindDialog( FALSE, this, "find", FALSE );
     f->setCaption( tr("Qt Linguist") );
+    h = new FindDialog( TRUE, this, "replace", FALSE );
+    h->setCaption( tr("Qt Linguist") );
     findMatchCase = FALSE;
-    findWhere   = 0;
-    foundItem   = 0;
-    foundScope  = 0;
-    foundWhere  = 0;
+    findWhere = 0;
+    foundItem = 0;
+    foundScope = 0;
+    foundWhere = 0;
     foundOffset = 0;
 
     connect( lv, SIGNAL(currentChanged(QListViewItem *)),
@@ -692,6 +694,9 @@ void TrWindow::openFile( const QString& name )
 	    foundOffset = 0;
 	    findAct->setEnabled( TRUE );
 	    findAgainAct->setEnabled( FALSE );
+#if notyet
+	    replaceAct->setEnabled( TRUE );
+#endif
 	    addRecentlyOpenedFile( name, recentFiles );
 	} else {
 	    statusBar()->clear();
@@ -829,6 +834,7 @@ void TrWindow::print()
 
 void TrWindow::find()
 {
+    h->hide();
     f->show();
     f->setActiveWindow();
     f->raise();
@@ -855,7 +861,7 @@ void TrWindow::findAgain()
 
     slv->setUpdatesEnabled( FALSE );
     do {
-	// Iterate through every item in all scopes
+	// Iterate through every item in all contexts
 	if ( j == 0 ) {
 	    j = lv->firstChild();
 	    setCurrentContextItem( j );
@@ -900,7 +906,7 @@ void TrWindow::findAgain()
 
     // This is just to keep the current scope and source text item
     // selected after a search failed.
-    if ( oldScope ){
+    if ( oldScope ) {
 	setCurrentContextItem( oldScope );
 	QListViewItem * tmp = indexToItem( slv, oldItemNo );
 	if( tmp )
@@ -919,6 +925,14 @@ void TrWindow::findAgain()
     foundItem   = 0;
     foundWhere  = 0;
     foundOffset = 0;
+}
+
+void TrWindow::replace()
+{
+    f->hide();
+    h->show();
+    h->setActiveWindow();
+    h->raise();
 }
 
 int TrWindow::itemToIndex( QListView * view, QListViewItem * item )
@@ -940,21 +954,21 @@ QListViewItem * TrWindow::indexToItem( QListView * view, int index )
 {
     QListViewItem * item = 0;
 
-    if( view && (index > 0) ){
+    if ( view && index > 0 ) {
 	item = view->firstChild();
-	while( item && (index-- > 0) )
+	while( item && index-- > 0 )
 	    item = item->nextSibling();
     }
     return item;
 }
 
-bool TrWindow::searchItem( const QString & searchWhat,  QListViewItem * j,
+bool TrWindow::searchItem( const QString & searchWhat, QListViewItem * j,
 			   QListViewItem * k )
 {
     if ( (findWhere & foundWhere) != 0 ) {
 	foundOffset = searchWhat.find( findText, foundOffset, findMatchCase );
 	if ( foundOffset >= 0 ) {
-	    foundItem  = itemToIndex( slv, k );
+	    foundItem = itemToIndex( slv, k );
 	    foundScope = j;
 	    setCurrentMessageItem( k );
 	    slv->setUpdatesEnabled( TRUE );
@@ -1086,7 +1100,7 @@ void TrWindow::about()
     Embed *ess = 0;
 
     setupImageDict();
-    ess = imageDict->find( QString("splash.png") );
+    ess = imageDict->find( QString("splash") );
     if ( ess == 0 )
 	return;
 
@@ -1759,7 +1773,11 @@ void TrWindow::setupMenuBar()
     findAgainAct = new Action( editp, tr("Find &Next"),
 			       this, SLOT(findAgain()), Key_F3 );
     findAgainAct->setEnabled( FALSE );
-    editp->insertSeparator();
+#if notyet
+    replaceAct = new Action( editp, tr("&Replace..."), this, SLOT(replace()),
+			     QAccel::stringToKey(tr("Ctrl+H")) );
+    replaceAct->setEnabled( FALSE );
+#endif
 
     // Translation menu
     // when updating the accelerators, remember the status bar
@@ -1858,6 +1876,11 @@ void TrWindow::setupMenuBar()
     findAct->setWhatsThis( tr("Search for some text in the translation "
 				"source file.") );
     findAgainAct->setWhatsThis( tr("Continue the search where it was left.") );
+#if notyet
+    replaceAct->setWhatsThis( tr("Search for some text in the translation"
+				 " source file and replace it by another"
+				 " text.") );
+#endif
 
     newPhraseBookAct->setWhatsThis( tr("Create a new phrase book.") );
     openPhraseBookAct->setWhatsThis( tr("Open a phrase book to assist"
@@ -1914,6 +1937,9 @@ void TrWindow::setupToolBars()
     deleteAct->addToToolbar( editt, tr("Delete"), "editdelete" );
     editt->addSeparator();
     findAct->addToToolbar( editt, tr("Find"), "searchfind" );
+#if notyet
+    replaceAct->addToToolbar( editt, tr("Replace"), "replace" );
+#endif
 
     startFromSourceAct->addToToolbar( translationst, tr("Start from Source"),
 				      "searchfind" );

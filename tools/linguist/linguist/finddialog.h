@@ -28,16 +28,20 @@ class FindDialog : public QDialog
 public:
     enum { SourceText = 0x1, Translations = 0x2, Comments = 0x4 };
 
-    FindDialog( QWidget *parent = 0, const char *name = 0, bool modal = FALSE );
+    FindDialog( bool replace, QWidget *parent = 0, const char *name = 0, bool modal = FALSE );
 
 signals:
     void findNext( const QString& text, int where, bool matchCase );
+    void replace( const QString& before, const QString& after, bool matchCase, bool all );
 
 private slots:
     void emitFindNext();
+    void emitReplace();
+    void emitReplaceAll();
 
 private:
     QLineEdit *led;
+    QLineEdit *red;
     QCheckBox *sourceText;
     QCheckBox *translations;
     QCheckBox *comments;

@@ -76,6 +76,7 @@ private slots:
     void print();
     void find();
     void findAgain();
+    void replace();
     void newPhraseBook();
     void openPhraseBook();
     void closePhraseBook( int id );
@@ -122,11 +123,11 @@ private:
     PhraseBook getPhrases( const QString& source );
     bool danger( const QString& source, const QString& translation,
 		 bool verbose = FALSE );
-    bool searchItem( const QString & searchWhere, QListViewItem * j,
-		     QListViewItem * k );
 
-    int             itemToIndex( QListView * view, QListViewItem * item );
+    int itemToIndex( QListView * view, QListViewItem * item );
     QListViewItem * indexToItem( QListView * view, int index );
+    bool searchItem( const QString & searchWhat, QListViewItem * j,
+		     QListViewItem * k );
 
     QListView     * plv;
     QListView     * lv;
@@ -152,6 +153,7 @@ private:
     QPrinter printer;
 
     FindDialog *f;
+    FindDialog *h;
     QString findText;
     int findWhere;
     bool findMatchCase;
@@ -183,6 +185,7 @@ private:
     Action *selectAllAct;
     Action *findAct;
     Action *findAgainAct;
+    Action *replaceAct;
     Action *newPhraseBookAct;
     Action *openPhraseBookAct;
     Action *acceleratorsAct;
