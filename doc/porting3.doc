@@ -729,6 +729,15 @@ QASyncIO, QDataSink, QDataSource, QIODeviceSource and QDataPump were
 used internally in previous versions of Qt, but are not used anymore.
 They are now obsolete.
 
+\section1 
+
+In Qt 2.x, the AutoMask property was used to obtain a
+transparent-looking widget. In general, this approach is slow and
+processor hungry. Qt 3.0 uses the BackgroundOrigin which provides
+vastly improved performance and more flexibility in most cases. The
+few classes for which the AutoMask property is still the best approach
+are QCheckBox, QComboBox, QPushButton, QRadioButton and QTabWidget.
+
 \section1 Bezier Curves
 
 The function names for Bezier curves in QPainter and QPointArray have
