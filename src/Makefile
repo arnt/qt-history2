@@ -41,36 +41,36 @@ moc: FORCE
 #
 
 static: Makefile.static
-	${MAKE} -f Makefile.static
+	$(MAKE) -f Makefile.static
 
 staticdbg: Makefile.staticdbg
-	${MAKE} -f Makefile.staticdbg
+	$(MAKE) -f Makefile.staticdbg
 
 shared: Makefile.shared
-	${MAKE} -f Makefile.shared
+	$(MAKE) -f Makefile.shared
 
 shareddbg: Makefile.shareddbg
-	${MAKE} -f Makefile.shareddbg
+	$(MAKE) -f Makefile.shareddbg
 
 Makefile.static: qt.pro qtinternal.pro Makefile
 	mkdir -p obj/static
 	tmake qt.pro -p qtinternal.pro -o Makefile.static "CONFIG+=staticlib" "OBJECTS_DIR=obj/static"
-	${MAKE} -s include
+	$(MAKE) -s include
 
 Makefile.staticdbg: qt.pro qtinternal.pro Makefile
 	mkdir -p obj/staticdbg
 	tmake qt.pro -p qtinternal.pro -o Makefile.staticdbg "CONFIG+=staticlib debug" "OBJECTS_DIR=obj/staticdbg"
-	${MAKE} -s include
+	$(MAKE) -s include
 
 Makefile.shared: qt.pro qtinternal.pro Makefile
 	mkdir -p obj/shared
 	tmake qt.pro -p qtinternal.pro -o Makefile.shared "OBJECTS_DIR=obj/shared"
-	${MAKE} -s include
+	$(MAKE) -s include
 
 Makefile.shareddbg: qt.pro qtinternal.pro Makefile
 	mkdir -p obj/shareddbg
 	tmake qt.pro -p qtinternal.pro -o Makefile.shareddbg "CONFIG+=debug" "OBJECTS_DIR=obj/shareddbg"
-	${MAKE} -s include
+	$(MAKE) -s include
 
 
 showdirs:
