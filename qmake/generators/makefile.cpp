@@ -965,8 +965,10 @@ QString MakefileGenerator::build_args()
 	    ret += " -nodependheuristics";
 
 	//arguments
-	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it)
-	    ret += " \"" + (*it) + "\"";
+	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
+	    if((*it) != "QMAKE_ABSOLUTE_SOURCE_PATH")
+		ret += " \"" + (*it) + "\"";
+	}
 
 	//inputs
 	QStringList files = Option::mkfile::project_files;

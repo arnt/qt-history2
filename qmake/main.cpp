@@ -121,17 +121,16 @@ int main(int argc, char **argv)
 		/* open make file */
 		bool using_stdout = FALSE;
 		if(!(Option::output.state() & IO_Open)) {
-		    if(Option::output.name().isEmpty()) {
-			if(!proj.variables()["QMAKE_MAKEFILE"].isEmpty()) {
-			    Option::output.setName(proj.first("QMAKE_MAKEFILE"));
-			} else {
-			    if(!def_mkfile.isEmpty()) 
-				Option::output.setName(def_mkfile);
-			    else
-				Option::output.setName("Makefile");
-			    proj.variables()["QMAKE_MAKEFILE"].append(Option::output.name());
-			}
+		    QString default_makefile = proj.first("QMAKE_MAKEFILE");
+		    if(default_makefile.isEmpty()) {
+			if(!def_mkfile.isEmpty()) 
+			    default_makefile = def_mkfile;
+			else
+			    default_makefile = "Makefile";
+			proj.variables()["QMAKE_MAKEFILE"].append(default_makefile);
 		    }
+		    if(Option::output.name().isEmpty()) 
+			Option::output.setName(default_makefile);
 		    if(Option::output.name().isEmpty() || Option::output.name() == "-") {
 			Option::output.setName("");
 			Option::output.open(IO_WriteOnly | IO_Translate, stdout);
