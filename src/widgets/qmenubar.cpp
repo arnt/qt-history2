@@ -203,12 +203,12 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     }
 
     setFrameStyle( QFrame::MenuBarPanel );
-    
+
     QFontMetrics fm = fontMetrics();
     int gs = style();
     int h;
     if ( gs == WindowsStyle ) {
-        h = 2 + fm.height() + motifItemVMargin + 2*frameWidth();
+        h = 2 + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
     } else {
         h =  style().defaultFrameWidth() + motifBarVMargin + fm.height()
 	     + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
@@ -717,6 +717,9 @@ int QMenuBar::calculateRects( int max_width )
     if ( gs == MotifStyle ) {
 	x += motifBarHMargin;
 	y += motifBarVMargin;
+    } else if ( gs == WindowsStyle ) {
+	x += 2;
+	y += 2;
     }
     if ( reverse )
 	x = max_width - x;
@@ -799,6 +802,11 @@ int QMenuBar::calculateRects( int max_width )
 	nlitems++;
 	i++;
     }
+    if ( gs == WindowsStyle ) {
+	max_height += 2;
+	max_width += 2;
+    }
+
     if ( update ) {
 	if ( separator >= 0 ) {
 	    int moveBy = max_width - x;
