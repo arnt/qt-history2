@@ -93,8 +93,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     aglDescribePixelFormat( fmt, AGL_STEREO, &res );
     glFormat.setStereo( res );
 
-    if ( shareContext &&
-	 ( !shareContext->isValid() || !shareContext->cx ) ) {
+    if ( shareContext && ( !shareContext->isValid() || !shareContext->cx ) ) {
 #if defined(QT_CHECK_NULL)
 	    qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
 #endif
@@ -104,7 +103,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     // sharing between rgba and color-index will give wrong colors
     if ( shareContext && ( format().rgba() != shareContext->format().rgba() ) )
 	shareContext = 0;
-    AGLContext ctx = aglCreateContext(fmt, (AGLContext)shareContext->cx);
+    AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
     cx = (void *)ctx;
     if(ctx) {
 	if(paintDevice->devType() == QInternal::Widget)
@@ -132,7 +131,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 void *QGLContext::chooseMacVisual(GDHandle device)
 {
     int pmDepth = deviceIsPixmap() ? ((QPixmap*)paintDevice)->depth() : 32;
-    GLint attribs[30], cnt=0;
+    GLint attribs[20], cnt=0;
     if ( deviceIsPixmap() )
 	attribs[cnt++] = AGL_OFFSCREEN;
     else if ( glFormat.doubleBuffer() && !deviceIsPixmap() )
@@ -156,8 +155,9 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	attribs[cnt++] = 4;
     }
     attribs[cnt++] = AGL_ACCELERATED;
-    
-    AGLPixelFormat fmt = aglChoosePixelFormat(&device, cnt-1, attribs);
+
+    attribs[cnt] = AGL_NONE;
+    AGLPixelFormat fmt = aglChoosePixelFormat(&device, 1, attribs);
     return fmt;
 }
 
@@ -333,31 +333,18 @@ void QGLWidget::setContext( QGLContext *context,
     QGLContext* oldcx = glcx;
     glcx = context;
 
-    bool createFailed = FALSE;
-    if ( !glcx->isValid() ) {
-	if ( !glcx->create( shareContext ? shareContext : oldcx ) )
-	    createFailed = TRUE;
-    }
-    if ( createFailed ) {
-	if ( deleteOldContext )
-	    delete oldcx;
-	return;
+    bool doShow = FALSE;
+    if ( oldcx && !glcx->deviceIsPixmap() ) {
+	doShow = isVisible();
+	QWidget::reparent( parentWidget(), 0, geometry().topLeft(), FALSE );
     }
 
-    if ( glcx->windowCreated() || glcx->deviceIsPixmap() ) {
-	if ( deleteOldContext )
-	    delete oldcx;
-	return;
-    }
-
-    bool visible = isVisible();
-    if ( visible )
-	hide();
-
-    //blah? FIXME
-    if ( visible )
+    if ( !glcx->isValid() )
+	glcx->create( shareContext ? shareContext : oldcx );
+    if ( deleteOldContext )
+	delete oldcx;
+    if ( doShow )
 	show();
-    glcx->setWindowCreated( TRUE );
 }
 
 
