@@ -73,6 +73,7 @@ extern Atom qt_xa_clipboard;
 extern Atom qt_selection_property;
 extern Atom qt_clipboard_sentinel;
 extern Atom qt_selection_sentinel;
+extern Atom qt_utf8_string;
 extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
 extern const char* qt_xdnd_atom_to_str( Atom );
 
@@ -608,6 +609,236 @@ static void qt_xclb_send_incremental_property(Display *dpy, const Window window,
     XSelectInput(dpy, window, NoEventMask);
 }
 
+static Atom send_targets_selection(QClipboardData *d, Window window, Atom property)
+{
+    int atoms = 0;
+    while (d->source()->format(atoms)) atoms++;
+    if (d->source()->provides("image/ppm")) atoms++;
+    if (d->source()->provides("image/pbm")) atoms++;
+    if (d->source()->provides("text/plain")) atoms+=4;
+
+#if defined(QCLIPBOARD_DEBUG_VERBOSE)
+    qDebug("qclipboard_x11.cpp: send_targets_selection()\n"
+	   "    %d provided types", atoms);
+#endif
+
+    // for 64 bit cleanness... XChangeProperty expects long* for data with format == 32
+    QByteArray data((atoms+3) * sizeof(long)); // plus TARGETS, MULTIPLE and TIMESTAMP
+    long *atarget = (long *) data.data();
+
+    const char *fmt;
+    int n = 0;
+    while ((fmt=d->source()->format(n)) && n < atoms)
+	atarget[n++] = *qt_xdnd_str_to_atom(fmt);
+
+#if defined(QCLIPBOARD_DEBUG_VERBOSE)
+    qDebug("    before standard, n(%d) atoms(%d)", n, atoms);
+#endif
+
+    static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
+    static Atom xa_compound_text = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
+    static Atom xa_targets = *qt_xdnd_str_to_atom("TARGETS");
+    static Atom xa_multiple = *qt_xdnd_str_to_atom("MULTIPLE");
+    static Atom xa_timestamp = *qt_xdnd_str_to_atom("TIMESTAMP");
+
+    if (d->source()->provides("image/ppm"))
+	atarget[n++] = XA_PIXMAP;
+    if (d->source()->provides("image/pbm"))
+	atarget[n++] = XA_BITMAP;
+    if (d->source()->provides("text/plain")) {
+	atarget[n++] = qt_utf8_string;
+	atarget[n++] = xa_text;
+	atarget[n++] = xa_compound_text;
+	atarget[n++] = XA_STRING;
+    }
+
+    atarget[n++] = xa_targets;
+    atarget[n++] = xa_multiple;
+    atarget[n++] = xa_timestamp;
+
+#if defined(QCLIPBOARD_DEBUG_VERBOSE)
+    for (int index = 0; index < n; index++) {
+	qDebug("    atom %d: 0x%lx (%s)", index, atarget[index],
+	       qt_xdnd_atom_to_str(atarget[index]));
+    }
+
+    qDebug("    after standard, n(%d) atoms(%d)", n, atoms);
+    qDebug("    size %d %d", n * sizeof(long), data.size());
+#endif
+
+    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, xa_targets, 32,
+		    PropModeReplace, (uchar *) data.data(), n);
+    return property;
+}
+
+static Atom send_string_selection(QClipboardData *d, Atom target, Window window, Atom property)
+{
+    static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
+    static Atom xa_compound_text = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
+
+#if defined(QCLIPBOARD_DEBUG)
+    qDebug( "qclipboard_x11.cpp: send_string_selection()\n"
+	    "    property type %lx\n"
+	    "    property name '%s'",
+	    target, qt_xdnd_atom_to_str(target));
+#endif
+
+    if (target == xa_text || target == xa_compound_text) {
+	// the ICCCM states that TEXT and COMPOUND_TEXT are in the
+	// encoding of choice, so we choose the encoding of the locale
+	QByteArray data = d->source()->encodedData("text/plain");
+	data.resize(data.size() + 1);
+	data[data.size() - 1] = '\0';
+	char *list[] = { data.data(), NULL };
+
+	XICCEncodingStyle style =
+	    (target == xa_compound_text) ? XCompoundTextStyle : XStdICCTextStyle;
+	XTextProperty textprop;
+	if (list[0] != NULL
+	    && XmbTextListToTextProperty(QPaintDevice::x11AppDisplay(),
+					 list, 1, style, &textprop) == Success) {
+#ifdef QCLIPBOARD_DEBUG
+	    qDebug("    textprop type %lx\n"
+		   "    textprop name '%s'\n"
+		   "    format %d\n"
+		   "    %ld items",
+		   textprop.encoding, qt_xdnd_atom_to_str(textprop.encoding),
+		   textprop.format, textprop.nitems);
+#endif
+
+	    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property,
+			    textprop.encoding, textprop.format, PropModeReplace,
+			    textprop.value, textprop.nitems);
+	    XFree(textprop.value);
+	    return property;
+	}
+
+	return None;
+    }
+
+    Atom xtarget = None;
+    const char *fmt = 0;
+    if (target == XA_STRING
+	|| (target == xa_text && QTextCodec::codecForLocale()->mibEnum() == 4)) {
+	// the ICCCM states that STRING is latin1 plus newline and tab
+	// see section 2.6.2
+	fmt = "text/plain;charset=ISO-8859-1";
+	xtarget = XA_STRING;
+    } else if (target == qt_utf8_string) {
+	// proposed UTF8_STRING conversion type
+	fmt = "text/plain;charset=UTF-8";
+	xtarget = qt_utf8_string;
+    }
+
+    if (xtarget == None) // should not happen
+	return None;
+
+    QByteArray data = d->source()->encodedData(fmt);
+
+#ifdef QCLIPBOARD_DEBUG
+    qDebug("    format 8\n    %d bytes", data.size());
+#endif
+
+    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, xtarget, 8,
+		    PropModeReplace, (uchar *) data.data(), data.size());
+    return property;
+}
+
+static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window, Atom property)
+{
+    QPixmap pm;
+
+    if ( target == XA_PIXMAP ) {
+	QByteArray data = d->source()->encodedData("image/ppm");
+	pm.loadFromData(data);
+    } else if ( target == XA_BITMAP ) {
+	QByteArray data = d->source()->encodedData("image/pbm");
+	QImage img;
+	img.loadFromData(data);
+	if ( img.depth() != 1 )
+	    img = img.convertDepth(1);
+    }
+
+    if (pm.isNull()) // should never happen
+	return None;
+
+    Pixmap handle = pm.handle();
+    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property,
+		    target, 32, PropModeReplace, (uchar *) &handle, 1);
+    d->addTransferredPixmap(pm);
+    return property;
+}
+
+static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom property,
+			   Atom selection, Time timestamp, bool allow_incr)
+{
+    Atom xtarget = 0;
+    int xformat = 0;
+    const char *fmt = 0;
+
+    fmt = qt_xdnd_atom_to_str(target);
+    xtarget = target;
+    xformat = 8;
+    if (fmt && !d->source()->provides(fmt)) // Not a MIME type we can produce
+	return None;
+
+    QByteArray data = d->source()->encodedData(fmt);
+
+    int sz;
+    switch (xformat) {
+    default:
+    case 8:  sz = sizeof( char); break;
+    case 16: sz = sizeof(short); break;
+    case 32: sz = sizeof( long); break;
+    }
+
+#if defined(QCLIPBOARD_DEBUG)
+    qDebug( "qclipboard_x11.cpp: send_selection()\n"
+	    "    property type %lx\n"
+	    "    property name '%s'\n"
+	    "    format %d\n"
+	    "    %d bytes",
+	    xtarget, qt_xdnd_atom_to_str(xtarget), xformat, data.size());
+#endif
+
+    const int increment =
+	(XMaxRequestSize(QPaintDevice::x11AppDisplay()) >= 65536 ?
+	 65536 : XMaxRequestSize(QPaintDevice::x11AppDisplay()));
+    if ( data.size() > increment && allow_incr) {
+	// only support INCR when not using INCR
+	long bytes = data.size();
+	XChangeProperty(QPaintDevice::x11AppDisplay(), window, property,
+			qt_x_incr, 32, PropModeReplace, (uchar *) &bytes, 1);
+
+	XEvent event;
+	event.xselection.type      = SelectionNotify;
+	event.xselection.display   = QPaintDevice::x11AppDisplay();
+	event.xselection.requestor = window;
+	event.xselection.selection = selection;
+	event.xselection.target    = xtarget;
+	event.xselection.property  = property;
+	event.xselection.time      = timestamp;
+
+	XSelectInput(QPaintDevice::x11AppDisplay(), window, PropertyChangeMask);
+	XSendEvent(QPaintDevice::x11AppDisplay(), window, False, NoEventMask, &event);
+	XFlush(QPaintDevice::x11AppDisplay());
+
+	qt_xclb_send_incremental_property(QPaintDevice::x11AppDisplay(), window, property,
+					  xtarget, xformat, data, increment);
+
+	return qt_x_incr;
+    }
+
+    // make sure we can perform the XChangeProperty in a single request
+    if ((int)data.size() >= XMaxRequestSize(QPaintDevice::x11AppDisplay()) - 100)
+	return None; // ### perhaps use several XChangeProperty calls w/ PropModeAppend?
+
+    // use a single request to transfer data
+    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, xtarget,
+		    xformat, PropModeReplace, (uchar *) data.data(), data.size() / sz);
+    return property;
+}
+
 /*! \internal
     Internal cleanup for Windows.
 */
@@ -739,14 +970,14 @@ bool QClipboard::event( QEvent *e )
 
 	    if (req->requestor == owner->winId()) break;
 
-	    XEvent evt;
-	    evt.xselection.type = SelectionNotify;
-	    evt.xselection.display	= req->display;
-	    evt.xselection.requestor	= req->requestor;
-	    evt.xselection.selection	= req->selection;
-	    evt.xselection.target	= req->target;
-	    evt.xselection.property	= None;
-	    evt.xselection.time = req->time;
+	    XEvent event;
+	    event.xselection.type      = SelectionNotify;
+	    event.xselection.display   = req->display;
+	    event.xselection.requestor = req->requestor;
+	    event.xselection.selection = req->selection;
+	    event.xselection.target    = req->target;
+	    event.xselection.property  = None;
+	    event.xselection.time      = req->time;
 
 #if defined(QCLIPBOARD_DEBUG)
 	    qDebug("qclipboard_x11.cpp: selection requested\n"
@@ -774,7 +1005,16 @@ bool QClipboard::event( QEvent *e )
 			  req->selection );
 #endif // QT_CHECK_RANGE
 
-		XSendEvent(dpy, req->requestor, False, NoEventMask, &evt);
+		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
+		break;
+	    }
+
+	    if (! d->source()) {
+#ifdef QT_CHECK_STATE
+		qWarning("QClipboard: cannot transfer data, no data available");
+#endif // QT_CHECK_STATE
+
+		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
 		break;
 	    }
 
@@ -788,25 +1028,26 @@ bool QClipboard::event( QEvent *e )
 		qDebug("QClipboard: SelectionRequest too old");
 #endif
 
-		XSendEvent(dpy, req->requestor, False, NoEventMask, &evt);
+		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
 		break;
 	    }
 
-	    const char* fmt;
-	    QByteArray data;
-	    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
-	    static Atom xa_multiple = *qt_xdnd_str_to_atom( "MULTIPLE" );
+	    static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
+	    static Atom xa_compound_text = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
+	    static Atom xa_targets = *qt_xdnd_str_to_atom("TARGETS");
+	    static Atom xa_multiple = *qt_xdnd_str_to_atom("MULTIPLE");
 	    static Atom xa_timestamp = *qt_xdnd_str_to_atom("TIMESTAMP");
-	    static Atom xa_utf8_string = *qt_xdnd_str_to_atom( "UTF8_STRING" );
-	    static Atom xa_text = *qt_xdnd_str_to_atom( "TEXT" );
-	    static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
+
 	    struct AtomPair { Atom target; Atom property; } *multi = 0;
+	    Atom multi_type = None;
 	    int nmulti = 0;
 	    int imulti = -1;
+	    bool multi_writeback = FALSE;
+
 	    if ( req->target == xa_multiple ) {
 		QByteArray multi_data;
 		if (qt_xclb_read_property(dpy, req->requestor, req->property,
-					  FALSE, &multi_data, 0, 0, 0, 0)) {
+					  FALSE, &multi_data, 0, &multi_type, 0, 0)) {
 		    nmulti = multi_data.size()/sizeof(*multi);
 		    multi = new AtomPair[nmulti];
 		    memcpy(multi,multi_data.constData(),multi_data.size());
@@ -815,11 +1056,8 @@ bool QClipboard::event( QEvent *e )
 	    }
 
 	    for (; imulti < nmulti; ++imulti) {
-		Window target;
+		Atom target;
 		Atom property;
-		bool send_selection_notify = TRUE;
-
-		evt.xselection.property = None;
 
 		if ( multi ) {
 		    target = multi[imulti].target;
@@ -829,250 +1067,66 @@ bool QClipboard::event( QEvent *e )
 		    property = req->property;
 		}
 
-		if (! d->source()) {
-#ifdef QT_CHECK_STATE
-		    qWarning("QClipboard: cannot transfer data, no data available");
-#endif // QT_CHECK_STATE
-		} else if (target == xa_targets) {
-		    int atoms = 0;
-		    while (d->source()->format(atoms)) atoms++;
-		    if (d->source()->provides("image/ppm")) atoms++;
-		    if (d->source()->provides("image/pbm")) atoms++;
-		    if (d->source()->provides("text/plain")) atoms+=4;
-
-#if defined(QCLIPBOARD_DEBUG_VERBOSE)
-		    qDebug("qclipboard_x11.cpp:%d: %d provided types", __LINE__, atoms);
-#endif
-
-		    // for 64 bit cleanness... XChangeProperty expects long* for data
-		    // with format == 32
-		    data = QByteArray((atoms+3) * sizeof(long)); // plus TARGETS, MULTIPLE and TIMESTAMP
-		    long *atarget = (long *) data.data();
-
-		    int n = 0;
-		    while ((fmt=d->source()->format(n)) && n < atoms) {
-			Atom *dnd = qt_xdnd_str_to_atom(fmt);
-
-			// compiler should handle the Atom to long conversion implicitly
-			atarget[n++] = *dnd;
-		    }
-
-#if defined(QCLIPBOARD_DEBUG_VERBOSE)
-		    qDebug("qclipboard_x11.cpp:%d: before standard, n(%d) atoms(%d)",
-			   __LINE__, n, atoms);
-#endif
-
-		    if ( d->source()->provides("image/ppm") )
-			atarget[n++] = XA_PIXMAP;
-		    if ( d->source()->provides("image/pbm") )
-			atarget[n++] = XA_BITMAP;
-		    if ( d->source()->provides("text/plain") ) {
-			atarget[n++] = xa_utf8_string;
-			atarget[n++] = xa_text;
-			atarget[n++] = xa_compound_text;
-			atarget[n++] = XA_STRING;
-		    }
-
-		    atarget[n++] = xa_targets;
-		    atarget[n++] = xa_multiple;
-		    atarget[n++] = xa_timestamp;
-
-#if defined(QCLIPBOARD_DEBUG_VERBOSE)
-		    for (int index = 0; index < n; index++) {
-			qDebug("qclipboard_x11.cpp: atom %d: 0x%lx (%s)",
-			       index, atarget[index],
-			       qt_xdnd_atom_to_str(atarget[index]));
-		    }
-
-		    qDebug("qclipboard_x11.cpp:%d: after standard, n(%d) atoms(%d)",
-			   __LINE__, n, atoms);
-		    qDebug("qclipboard_x11.cpp:%d: size %d %d",
-			   __LINE__, n * sizeof(long), data.size());
-#endif
-
-		    XChangeProperty ( dpy, req->requestor, property, xa_targets, 32,
-				      PropModeReplace, (uchar *) data.data(), n );
-		    evt.xselection.property = property;
-		    if ( multi )
-			delete[] multi;
-		} else if (target == xa_timestamp) {
+		Atom ret = None;
+		if (target == xa_timestamp) {
 		    if (d->timestamp != CurrentTime) {
 			XChangeProperty(dpy, req->requestor, property, xa_timestamp, 32,
 					PropModeReplace, (uchar *) &d->timestamp, 1);
-			evt.xselection.property = property;
-#ifdef QT_CHECK_STATE
+			ret = property;
 		    } else {
+
+#ifdef QT_CHECK_STATE
 			qWarning("QClipboard: invalid data timestamp");
 #endif // QT_CHECK_STATE
 		    }
+		} else if (target == xa_targets) {
+		    ret = send_targets_selection(d, req->requestor, property);
+		} else if (target == XA_STRING
+			   || target == xa_text
+			   || target == xa_compound_text
+			   || target == qt_utf8_string) {
+		    ret = send_string_selection(d, target, req->requestor, property);
+		} else if (target == XA_PIXMAP
+			   || target == XA_BITMAP) {
+		    ret = send_pixmap_selection(d, target, req->requestor, property);
 		} else {
-		    bool already_formatted = FALSE;
-		    bool already_sent = FALSE;
-		    Atom xtarget = 0;
-		    int xformat = 0;
-		    if ( target == XA_STRING ||
-			 ( target == xa_text &&
-			   QTextCodec::codecForLocale()->mibEnum() == 4 ) ) {
-			// the ICCCM states that STRING is latin1 plus newline and tab
-			// see section 2.6.2
-			fmt = "text/plain;charset=ISO-8859-1";
-			xtarget = XA_STRING;
-			xformat = 8;
-		    } else if ( target == xa_utf8_string ) {
-			// proposed UTF8_STRING conversion type
-			fmt = "text/plain;charset=UTF-8";
-			xtarget = xa_utf8_string;
-			xformat = 8;
-		    } else if ( target == xa_text || target == xa_compound_text ) {
-			// the ICCCM states that TEXT and COMPOUND_TEXT are in the
-			// encoding of choice, so we choose the encoding of the locale
-			fmt = "text/plain";
-			data = d->source()->encodedData( fmt );
-			int newSize = data.size() + 1;
-			data.resize(newSize);
-			if (data.size() == newSize)
-			    data[data.size() - 1] = '\0';
-			char *list[] = { data.data(), NULL };
-
-			XICCEncodingStyle style;
-			if ( target == xa_compound_text )
-			    style = XCompoundTextStyle;
-			else
-			    style = XStdICCTextStyle;
-			XTextProperty textprop;
-			if ( list[0] != NULL &&
-			     XmbTextListToTextProperty( dpy, list, 1, style,
-							&textprop ) == Success ) {
-
-			    xtarget = textprop.encoding;
-			    xformat = textprop.format;
-
-			    int sz;
-			    switch (xformat) {
-			    default:
-			    case 8:  sz = sizeof( char); break;
-			    case 16: sz = sizeof(short); break;
-			    case 32: sz = sizeof( long); break;
-			    }
-			    data = QByteArray((const char *)textprop.value, textprop.nitems * sz);
-
-			    XFree( textprop.value );
-			}
-			already_formatted = TRUE;
-		    } else if ( target == XA_PIXMAP ) {
-			fmt = "image/ppm";
-			data = d->source()->encodedData(fmt);
-			QPixmap pm;
-			pm.loadFromData(data);
-			Pixmap ph = pm.handle();
-			XChangeProperty ( dpy, req->requestor, property,
-					  target, 8,
-					  PropModeReplace,
-					  (uchar *)&ph,
-					  sizeof(Pixmap));
-			evt.xselection.property = property;
-			d->addTransferredPixmap(pm);
-			already_formatted = TRUE;
-			already_sent = TRUE;
-		    } else if ( target == XA_BITMAP ) {
-			fmt = "image/pbm";
-			data = d->source()->encodedData(fmt);
-			QPixmap pm;
-			QImage img;
-			img.loadFromData(data);
-			if ( img.depth() == 1 ) {
-			    pm.convertFromImage(img);
-			    Pixmap ph = pm.handle();
-			    XChangeProperty ( dpy, req->requestor, property,
-					      target, 8,
-					      PropModeReplace,
-					      (uchar *)&ph,
-					      sizeof(Pixmap));
-			    evt.xselection.property = property;
-			    d->addTransferredPixmap(pm);
-			} else {
-			    pm.convertFromImage(img.convertDepth(1));
-			    Pixmap ph = pm.handle();
-			    XChangeProperty ( dpy, req->requestor, property,
-					      target, 8,
-					      PropModeReplace,
-					      (uchar *)&ph,
-					      sizeof(Pixmap));
-			    evt.xselection.property = property;
-			    d->addTransferredPixmap(pm);
-			}
-			already_formatted = TRUE;
-			already_sent = TRUE;
-		    } else {
-			fmt = qt_xdnd_atom_to_str(target);
-			xtarget = target;
-			xformat = 8;
-			if ( fmt && !d->source()->provides(fmt) ) {
-			    fmt = 0; // Not a MIME type we can produce
-			}
-		    }
-		    if ( fmt ) {
-			if (! already_formatted)
-			    data = d->source()->encodedData(fmt);
-
-			if (! already_sent) {
-			    int sz;
-			    switch (xformat) {
-			    default:
-			    case 8:  sz = sizeof( char); break;
-			    case 16: sz = sizeof(short); break;
-			    case 32: sz = sizeof( long); break;
-			    }
-
-#if defined(QCLIPBOARD_DEBUG)
-			    qDebug( "qclipboard_x11.cpp: property type %lx '%s' format %d",
-				    xtarget, qt_xdnd_atom_to_str(xtarget), xformat);
-#endif
-
-			    const int increment =
-				(XMaxRequestSize(dpy) >= 65536 ?
-				 65536 : XMaxRequestSize(dpy));
-			    if ( data.size() > increment ) {
-				long bytes = data.size();
-				XChangeProperty(dpy, req->requestor, property,
-						qt_x_incr, 32, PropModeReplace,
-						(uchar *) &bytes, 1);
-				evt.xselection.property = property;
-
-				XSelectInput(dpy, req->requestor, PropertyChangeMask);
-				XSendEvent(dpy, req->requestor, False,
-					   NoEventMask, &evt);
-				XFlush(dpy);
-
-				qt_xclb_send_incremental_property(dpy, req->requestor,
-								  property, xtarget,
-								  xformat, data,
-								  increment);
-				send_selection_notify = FALSE;
-			    } else {
-				XChangeProperty ( dpy, req->requestor, property,
-						  xtarget, xformat,
-						  PropModeReplace,
-						  (uchar *)data.data(),
-						  data.size() / sz);
-				evt.xselection.property = property;
-			    }
-			}
-		    }
+		    ret = send_selection(d, target, req->requestor, property,
+					 req->selection, req->time, !nmulti);
 		}
 
-		if (send_selection_notify) {
-#if defined(QCLIPBOARD_DEBUG)
-		    qDebug("qclipboard_x11.cpp: SelectionNotify to 0x%lx\n"
-			   "                    property 0x%lx (%s)",
-			   req->requestor, evt.xselection.property,
-			   qt_xdnd_atom_to_str(evt.xselection.property));
-#endif
-
-		    XSendEvent(dpy, req->requestor, False, NoEventMask, &evt);
-		}
-		if ( !nmulti )
+		if (nmulti > 0) {
+		    if (ret == None) {
+			multi[imulti].property = None;
+			multi_writeback = TRUE;
+		    }
+		} else {
+		    event.xselection.property = ret;
 		    break;
+		}
+	    }
+
+	    if (nmulti > 0) {
+		if (multi_writeback) {
+		    // according to ICCCM 2.6.2 says to put None back
+		    // into the original property on the requestor window
+		    XChangeProperty(dpy, req->requestor, req->property, multi_type, 32,
+				    PropModeReplace, (uchar *) multi, nmulti * 2);
+		}
+
+		event.xselection.property = req->property;
+	    }
+
+	    if (event.xselection.property != qt_x_incr) {
+		// send selection notify to requestor
+		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
+
+#if defined(QCLIPBOARD_DEBUG)
+		qDebug("qclipboard_x11.cpp: SelectionNotify to 0x%lx\n"
+		       "                    property 0x%lx (%s)",
+		       req->requestor, event.xselection.property,
+		       qt_xdnd_atom_to_str(event.xselection.property));
+#endif
+		break;
 	    }
 	}
 	break;
@@ -1144,7 +1198,6 @@ const char* QClipboardWatcher::format( int n ) const
 	QClipboardWatcher *that = (QClipboardWatcher *) this;
 	QByteArray ba = getDataInFormat(xa_targets);
 	Atom *unsorted_target = (Atom *) ba.data();
-	static Atom xa_utf8_string = *qt_xdnd_str_to_atom( "UTF8_STRING" );
 	static Atom xa_text = *qt_xdnd_str_to_atom( "TEXT" );
 	static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
 	int i, size = ba.size() / sizeof(Atom);
@@ -1156,7 +1209,7 @@ const char* QClipboardWatcher::format( int n ) const
 	memset( target, 0, (size+4) * sizeof(Atom) );
 
 	for ( i = 0; i < size; ++i ) {
-	    if ( unsorted_target[i] == xa_utf8_string )
+	    if ( unsorted_target[i] == qt_utf8_string )
 		target[0] = unsorted_target[i];
 	    else if ( unsorted_target[i] == xa_compound_text )
 		target[1] = unsorted_target[i];
@@ -1175,7 +1228,7 @@ const char* QClipboardWatcher::format( int n ) const
 		that->formatList.append("image/ppm");
 	    else if ( target[i] == XA_STRING )
 		that->formatList.append( "text/plain;charset=ISO-8859-1" );
-	    else if ( target[i] == xa_utf8_string )
+	    else if ( target[i] == qt_utf8_string )
 		that->formatList.append( "text/plain;charset=UTF-8" );
 	    else if ( target[i] == xa_text ||
 		      target[i] == xa_compound_text )
