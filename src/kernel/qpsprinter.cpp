@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#60 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -368,15 +368,15 @@ static const char *ps_header[] = {
 "",
 "",
 "",// use MF like this make /F114 a 12 point font, preferably Univers, but
-"",// Helvetica if Univers is not available and Courier if all else fails:
+"",// Helvetica if Univers is not available:
 "",//
 "",// /F114 FE0 [ 12 0 0 -12 0 0 ] [ /Univers /Helvetica ] MF
 "",
-"/F /Courier def",
+"/F null def",
 "/MF {",				// make font [ newname encoding matrix fontlist ]
-"  /F /Courier def",
+"  /F null def",
 "  {",
-"    dup FontDirectory exch known",
+"    dup FontDirectory exch known F null eq or",
 "    {",
 "      /F exch def",
 "      exit",
