@@ -413,16 +413,16 @@ bool QAbstractItemModel::equal(const QModelIndex &left, const QModelIndex &right
 }
 
 /*!
-  Returns true if the data associated with \a left is greater than the data associated with \a right;
+  Returns true if the data associated with \a left is less than the data associated with \a right;
   otherwise returns false.
 
   \sa equal()
  */
-bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &right) const
+bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     if (left.row() == right.row())
-        return left.column() > right.column();
-    return left.row() > right.row();
+        return left.column() < right.column();
+    return left.row() < right.row();
 }
 
 /*!
