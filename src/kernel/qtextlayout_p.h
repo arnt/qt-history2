@@ -83,8 +83,9 @@ public:
     QTextItem findItem( int strPos ) const;
 
     enum LayoutMode {
-	MultiLine,
-	SingleLine
+	NoBidi,
+	SingleLine,
+	MultiLine
     };
     void beginLayout( LayoutMode m = MultiLine );
     void beginLine( int width );

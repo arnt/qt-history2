@@ -245,7 +245,12 @@ QTextItem QTextLayout::findItem( int strPos ) const
 void QTextLayout::beginLayout( QTextLayout::LayoutMode m )
 {
     d->items.clear();
-    d->itemize( m == SingleLine ? QTextEngine::SingleLine : QTextEngine::Full );
+    QTextEngine::Mode mode = QTextEngine::Full;
+    if (m == NoBidi)
+	mode = QTextEngine::NoBidi;
+    else if (m == SingleLine)
+	mode = QTextEngine::SingleLine;
+    d->itemize( mode );
     d->currentItem = 0;
     d->firstItemInLine = -1;
 }

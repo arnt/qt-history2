@@ -2810,6 +2810,9 @@ void qt_format_text( const QFont& font, const QRect &_r,
 			( ( (tf & Qt::AlignLeft) && !isRightToLeft ) ||
 			  ( (tf & Qt::AlignRight) && isRightToLeft ) ) );
 
+    if ( !painter )
+	tf |= Qt::DontPrint;
+
     int maxUnderlines = 0;
     int numUnderlines = 0;
     int underlinePositionStack[32];
@@ -2870,6 +2873,10 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    text.setLength( cout - text.unicode() );
     }
 
+    // no need to do extra work for underlines if we don't paint
+    if ( tf & Qt::DontPrint )
+	numUnderlines = 0;
+
     int height = 0;
     int left = r.width();
     int right = 0;
@@ -2884,7 +2891,9 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	left = right = 0;
 	tf |= QPainter::DontPrint;
     } else {
-	textLayout.beginLayout( (haveLineSep || expandtabs || wordbreak) ? QTextLayout::MultiLine : QTextLayout::SingleLine );
+	textLayout.beginLayout((haveLineSep || expandtabs || wordbreak) ?
+			       QTextLayout::MultiLine :
+			       (tf & Qt::DontPrint) ? QTextLayout::NoBidi : QTextLayout::SingleLine );
 
 	// break underline chars into items of their own
 	for( int i = 0; i < numUnderlines; i++ ) {
@@ -2962,7 +2971,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
     if ( brect )
 	*brect = QRect( r.x() + left, r.y() + yoff, right-left + lb+rb, height );
 
-    if ( painter && !( tf & QPainter::DontPrint ) ) {
+    if (!(tf & QPainter::DontPrint)) {
 	bool restoreClipping = FALSE;
 	bool painterHasClip = FALSE;
 	QRegion painterClipRegion;
