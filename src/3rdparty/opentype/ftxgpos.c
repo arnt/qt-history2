@@ -52,7 +52,7 @@
   typedef struct GPOS_Instance_  GPOS_Instance;
 
 
-  static FT_Error  Do_Glyph_Lookup( GPOS_Instance*    gpi,
+  static FT_Error  GPos_Do_Glyph_Lookup( GPOS_Instance*    gpi,
                                     FT_UShort         lookup_index,
                                     TTO_GSUB_String*  in,
                                     TTO_GPOS_Data*    out,
@@ -3203,7 +3203,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
         /* Do a positioning */
 
-        error = Do_Glyph_Lookup( gpi, pos->LookupListIndex, in, out,
+        error = GPos_Do_Glyph_Lookup( gpi, pos->LookupListIndex, in, out,
                                  GlyphCount, nesting_level );
 
         if ( error )
@@ -3455,7 +3455,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  Free_Context1( TTO_ContextPosFormat1*  cpf1,
+  static void  GPos_Free_Context1( TTO_ContextPosFormat1*  cpf1,
 			      FT_Memory               memory )
   {
     FT_UShort        n, count;
@@ -3752,7 +3752,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  Free_Context2( TTO_ContextPosFormat2*  cpf2,
+  static void  GPos_Free_Context2( TTO_ContextPosFormat2*  cpf2,
 			      FT_Memory               memory )
   {
     FT_UShort         n, count;
@@ -3860,7 +3860,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  Free_Context3( TTO_ContextPosFormat3*  cpf3,
+  static void  GPos_Free_Context3( TTO_ContextPosFormat3*  cpf3,
 			      FT_Memory               memory )
   {
     FT_UShort      n, count;
@@ -3923,15 +3923,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
     switch ( cp->PosFormat )
     {
     case 1:
-      Free_Context1( &cp->cpf.cpf1, memory );
+      GPos_Free_Context1( &cp->cpf.cpf1, memory );
       break;
 
     case 2:
-      Free_Context2( &cp->cpf.cpf2, memory );
+      GPos_Free_Context2( &cp->cpf.cpf2, memory );
       break;
 
     case 3:
-      Free_Context3( &cp->cpf.cpf3, memory );
+      GPos_Free_Context3( &cp->cpf.cpf3, memory );
       break;
     }
   }
@@ -4496,7 +4496,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  Free_ChainContext1( TTO_ChainContextPosFormat1*  ccpf1,
+  static void  GPos_Free_ChainContext1( TTO_ChainContextPosFormat1*  ccpf1,
 				   FT_Memory                    memory )
   {
     FT_UShort             n, count;
@@ -4922,7 +4922,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  Free_ChainContext2( TTO_ChainContextPosFormat2*  ccpf2,
+  static void  GPos_Free_ChainContext2( TTO_ChainContextPosFormat2*  ccpf2,
 				   FT_Memory                    memory )
   {
     FT_UShort              n, count;
@@ -5120,7 +5120,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  Free_ChainContext3( TTO_ChainContextPosFormat3*  ccpf3,
+  static void  GPos_Free_ChainContext3( TTO_ChainContextPosFormat3*  ccpf3,
 				   FT_Memory                    memory )
   {
     FT_UShort      n, count;
@@ -5205,15 +5205,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
     switch ( ccp->PosFormat )
     {
     case 1:
-      Free_ChainContext1( &ccp->ccpf.ccpf1, memory );
+      GPos_Free_ChainContext1( &ccp->ccpf.ccpf1, memory );
       break;
 
     case 2:
-      Free_ChainContext2( &ccp->ccpf.ccpf2, memory );
+      GPos_Free_ChainContext2( &ccp->ccpf.ccpf2, memory );
       break;
 
     case 3:
-      Free_ChainContext3( &ccp->ccpf.ccpf3, memory );
+      GPos_Free_ChainContext3( &ccp->ccpf.ccpf3, memory );
       break;
     }
   }
@@ -6026,7 +6026,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   /* Do an individual subtable lookup.  Returns TT_Err_Ok if positioning
      has been done, or TTO_Err_Not_Covered if not.                        */
 
-  static FT_Error  Do_Glyph_Lookup( GPOS_Instance*    gpi,
+  static FT_Error  GPos_Do_Glyph_Lookup( GPOS_Instance*    gpi,
                                     FT_UShort         lookup_index,
                                     TTO_GSUB_String*  in,
                                     TTO_GPOS_Data*    out,
@@ -6123,7 +6123,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   /* apply one lookup to the input string object */
 
-  static FT_Error  Do_String_Lookup( GPOS_Instance*    gpi,
+  static FT_Error  GPos_Do_String_Lookup( GPOS_Instance*    gpi,
                                      FT_UShort         lookup_index,
                                      TTO_GSUB_String*  in,
                                      TTO_GPOS_Data*    out )
@@ -6154,7 +6154,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
            It is up to the font designer to provide meaningful lookups and
            lookup order.                                                   */
 
-        error = Do_Glyph_Lookup( gpi, lookup_index, in, out,
+        error = GPos_Do_Glyph_Lookup( gpi, lookup_index, in, out,
                                  0xFFFF, nesting_level );
         if ( error && error != TTO_Err_Not_Covered )
           return error;
@@ -6293,7 +6293,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     for ( j = 0; j < gpos->LookupList.LookupCount; j++ )
       if ( !properties || properties[j] )
       {
-        error = Do_String_Lookup( &gpi, j, in, *out );
+        error = GPos_Do_String_Lookup( &gpi, j, in, *out );
         if ( error && error != TTO_Err_Not_Covered )
           return error;
       }

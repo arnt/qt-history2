@@ -150,10 +150,7 @@ zlib {
 
 unix:xftfreetype {
 	INCLUDEPATH += 3rdparty/opentype
-	SOURCES += 3rdparty/opentype/ftxgsub.c \
-		3rdparty/opentype/ftxgpos.c \
-		3rdparty/opentype/ftxgdef.c \
-		3rdparty/opentype/ftxopen.c
+	SOURCES += 3rdparty/opentype/ftxopentype.c
 }
 
 #use Qt gif

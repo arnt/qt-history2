@@ -963,7 +963,7 @@
   }
 
 
-  FT_Error  Coverage_Index( TTO_Coverage*  c,
+  static inline FT_Error  Coverage_Index( TTO_Coverage*  c,
                             FT_UShort      glyphID,
                             FT_UShort*     index )
   {
@@ -1285,7 +1285,7 @@
   }
 
 
-  FT_Error  Get_Class( TTO_ClassDefinition*  cd,
+  inline FT_Error  Get_Class( TTO_ClassDefinition*  cd,
                        FT_UShort             glyphID,
                        FT_UShort*            klass,
                        FT_UShort*            index )

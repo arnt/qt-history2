@@ -48,7 +48,7 @@
                                         ) ) != TT_Err_Ok )
 
 
-  static FT_Error  Do_Glyph_Lookup( TTO_GSUBHeader*   gsub,
+  static FT_Error  GSub_Do_Glyph_Lookup( TTO_GSUBHeader*   gsub,
                                     FT_UShort         lookup_index,
                                     TTO_GSUB_String*  in,
                                     TTO_GSUB_String*  out,
@@ -1341,7 +1341,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
         /* Do a substitution */
 
-        error = Do_Glyph_Lookup( gsub, subst->LookupListIndex, in, out,
+        error = GSub_Do_Glyph_Lookup( gsub, subst->LookupListIndex, in, out,
                                  GlyphCount, nesting_level );
 
         subst++;
@@ -1605,7 +1605,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   }
 
 
-  static void  Free_Context1( TTO_ContextSubstFormat1* csf1,
+  static void  GSub_Free_Context1( TTO_ContextSubstFormat1* csf1,
 			      FT_Memory                memory )
   {
     FT_UShort        n, count;
@@ -1902,7 +1902,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   }
 
 
-  static void  Free_Context2( TTO_ContextSubstFormat2*  csf2,
+  static void  GSub_Free_Context2( TTO_ContextSubstFormat2*  csf2,
 			      FT_Memory                 memory )
   {
     FT_UShort         n, count;
@@ -2011,7 +2011,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   }
 
 
-  static void  Free_Context3( TTO_ContextSubstFormat3*  csf3,
+  static void  GSub_Free_Context3( TTO_ContextSubstFormat3*  csf3,
 			      FT_Memory                 memory )
   {
     FT_UShort      n, count;
@@ -2074,15 +2074,15 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     switch ( cs->SubstFormat )
     {
     case 1:
-      Free_Context1( &cs->csf.csf1, memory );
+      GSub_Free_Context1( &cs->csf.csf1, memory );
       break;
 
     case 2:
-      Free_Context2( &cs->csf.csf2, memory );
+      GSub_Free_Context2( &cs->csf.csf2, memory );
       break;
 
     case 3:
-      Free_Context3( &cs->csf.csf3, memory );
+      GSub_Free_Context3( &cs->csf.csf3, memory );
       break;
     }
   }
@@ -2649,7 +2649,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   }
 
 
-  static void  Free_ChainContext1( TTO_ChainContextSubstFormat1*  ccsf1,
+  static void  GSub_Free_ChainContext1( TTO_ChainContextSubstFormat1*  ccsf1,
 				   FT_Memory                      memory )
   {
     FT_UShort             n, count;
@@ -3080,7 +3080,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   }
 
 
-  static void  Free_ChainContext2( TTO_ChainContextSubstFormat2*  ccsf2,
+  static void  GSub_Free_ChainContext2( TTO_ChainContextSubstFormat2*  ccsf2,
 				   FT_Memory                      memory )
   {
     FT_UShort              n, count;
@@ -3280,7 +3280,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   }
 
 
-  static void  Free_ChainContext3( TTO_ChainContextSubstFormat3*  ccsf3,
+  static void  GSub_Free_ChainContext3( TTO_ChainContextSubstFormat3*  ccsf3,
 				   FT_Memory                      memory )
   {
     FT_UShort      n, count;
@@ -3365,15 +3365,15 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     switch ( ccs->SubstFormat )
     {
     case 1:
-      Free_ChainContext1( &ccs->ccsf.ccsf1, memory );
+      GSub_Free_ChainContext1( &ccs->ccsf.ccsf1, memory );
       break;
 
     case 2:
-      Free_ChainContext2( &ccs->ccsf.ccsf2, memory );
+      GSub_Free_ChainContext2( &ccs->ccsf.ccsf2, memory );
       break;
 
     case 3:
-      Free_ChainContext3( &ccs->ccsf.ccsf3, memory );
+      GSub_Free_ChainContext3( &ccs->ccsf.ccsf3, memory );
       break;
     }
   }
@@ -4181,7 +4181,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   /* Do an individual subtable lookup.  Returns TT_Err_Ok if substitution
      has been done, or TTO_Err_Not_Covered if not.                        */
 
-  static FT_Error  Do_Glyph_Lookup( TTO_GSUBHeader*   gsub,
+  static FT_Error  GSub_Do_Glyph_Lookup( TTO_GSUBHeader*   gsub,
                                     FT_UShort         lookup_index,
                                     TTO_GSUB_String*  in,
                                     TTO_GSUB_String*  out,
@@ -4258,7 +4258,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
   /* apply one lookup to the input string object */
 
-  static FT_Error  Do_String_Lookup( TTO_GSUBHeader*   gsub,
+  static FT_Error  GSub_Do_String_Lookup( TTO_GSUBHeader*   gsub,
                                      FT_UShort         lookup_index,
                                      TTO_GSUB_String*  in,
                                      TTO_GSUB_String*  out )
@@ -4278,7 +4278,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
       if ( ~p_in[in->pos] & prop )
       {
         /* 0xFFFF indicates that we don't have a context length yet */
-        error = Do_Glyph_Lookup( gsub, lookup_index, in, out,
+        error = GSub_Do_Glyph_Lookup( gsub, lookup_index, in, out,
                                  0xFFFF, nesting_level );
       }
       else
@@ -4511,7 +4511,7 @@ EXPORT_FUNC
     for ( j = 0; j < gsub->LookupList.LookupCount; j++ )
       if ( properties[j] )
       {
-        error = Do_String_Lookup( gsub, j, ptmp1, ptmp2 );
+        error = GSub_Do_String_Lookup( gsub, j, ptmp1, ptmp2 );
         if ( error && error != TTO_Err_Not_Covered )
           return error;
 

@@ -1124,7 +1124,7 @@
   }
 
 
-  FT_Error  Check_Property( TTO_GDEFHeader*  gdef,
+  inline FT_Error  Check_Property( TTO_GDEFHeader*  gdef,
                             FT_UShort        index,
                             FT_UShort        flags,
                             FT_UShort*       property )
