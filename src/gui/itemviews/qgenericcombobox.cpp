@@ -486,6 +486,8 @@ void QGenericComboBox::setCurrentText(const QString& text)
 
 QModelIndex QGenericComboBox::insertItem(const QString &text, int row)
 {
+    if (row < 0)
+        row = model()->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
@@ -496,6 +498,8 @@ QModelIndex QGenericComboBox::insertItem(const QString &text, int row)
 
 QModelIndex QGenericComboBox::insertItem(const QIconSet &icon, int row)
 {
+    if (row < 0)
+        row = model()->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
@@ -506,6 +510,8 @@ QModelIndex QGenericComboBox::insertItem(const QIconSet &icon, int row)
 
 QModelIndex QGenericComboBox::insertItem(const QString &text, const QIconSet &icon, int row)
 {
+    if (row < 0)
+        row = model()->rowCount(root());
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
