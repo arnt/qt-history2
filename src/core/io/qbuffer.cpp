@@ -236,13 +236,13 @@ void QBuffer::setData(const QByteArray &data)
 /*!
    \reimp
 */
-bool QBuffer::open(DeviceMode flags)
+bool QBuffer::open(OpenMode flags)
 {
     Q_D(QBuffer);
 
     if ((flags & Append) == Append)
         flags |= WriteOnly;
-    setDeviceMode(flags);
+    setOpenMode(flags);
     if (!(isReadable() || isWritable())) {
         qWarning("QFile::open: File access not specified");
         return false;

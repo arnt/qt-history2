@@ -61,7 +61,7 @@ protected:
     QTemporaryFile(QFilePrivate &dd, QObject *parent);
 #endif
 
-    bool open(DeviceMode flags);
+    bool open(OpenMode flags);
 
 private:
     Q_DISABLE_COPY(QTemporaryFile)

@@ -333,7 +333,7 @@ bool Q3SocketDevice::open( int mode )
 #if defined(Q3SOCKETDEVICE_DEBUG)
     qDebug( "Q3SocketDevice::open: mode %x", mode );
 #endif
-    setDeviceMode( DeviceMode(mode & IO_ReadWrite) );
+    setOpenMode( OpenMode(mode & IO_ReadWrite) );
     return TRUE;
 }
 

@@ -121,9 +121,9 @@ public:
 
     bool isSequential() const;
 
-    bool open(DeviceMode flags);
-    bool open(DeviceMode flags, FILE *);
-    bool open(DeviceMode flags, int);
+    bool open(OpenMode flags);
+    bool open(OpenMode flags, FILE *);
+    bool open(OpenMode flags, int);
     virtual void close();
 
     Q_LONGLONG size() const;

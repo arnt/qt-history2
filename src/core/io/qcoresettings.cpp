@@ -1002,7 +1002,7 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
         ftruncate(fd, 0);
 
     return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Translate
-                     : QIODevice::DeviceMode(QIODevice::ReadOnly),
+                     : QIODevice::OpenMode(QIODevice::ReadOnly),
                      fd);
 
 #else
@@ -1042,7 +1042,7 @@ static void closeFile(QFile &file, QConfFile &confFile)
     close(fd);
 #else
     int increment;
-    if (file.deviceMode() & QIODevice::ReadOnly)
+    if (file.openMode() & QIODevice::ReadOnly)
         increment = 1;
     else
         increment = FileLockSemMax;

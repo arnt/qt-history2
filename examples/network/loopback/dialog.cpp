@@ -84,6 +84,7 @@ void Dialog::startTransfer()
 
 void Dialog::updateServerProgress()
 {
+    qDebug("readyRead!");
     bytesReceived = (int)tcpServerConnection->bytesAvailable();
     serverProgressBar->setMaximum(TotalBytes);
     serverProgressBar->setValue(bytesReceived);

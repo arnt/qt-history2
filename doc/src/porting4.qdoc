@@ -43,7 +43,7 @@
 
     <     Function: void QWSInputMethod::setFont(const QFont &)
 
-    ### DeviceMode or OpenMode
+    ### OpenMode or OpenMode
 
     ### QWSDecoration
 \endomit

@@ -714,7 +714,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
         // connected() and return.
         if (socketLayer.connectToHost(host, port)) {
             state = Qt::ConnectedState;
-            q->setDeviceMode(QIODevice::ReadWrite);
+            q->setOpenMode(QIODevice::ReadWrite);
             emit q->stateChanged(state);
             if (d->readSocketNotifier)
                 readSocketNotifier->setEnabled(true);
@@ -757,7 +757,7 @@ void QAbstractSocketPrivate::testConnection()
 
     if (socketLayer.socketState() == Qt::ConnectedState || socketLayer.connectToHost(host, port)) {
         state = Qt::ConnectedState;
-        q->setDeviceMode(QIODevice::ReadWrite);
+        q->setOpenMode(QIODevice::ReadWrite);
         emit q->stateChanged(state);
 
         if (d->readSocketNotifier)
@@ -1129,7 +1129,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
 
     d->setupSocketNotifiers();
 
-    setDeviceMode(ReadWrite);
+    setOpenMode(ReadWrite);
 
     if (d->state != socketState) {
         d->state = socketState;
@@ -1516,7 +1516,7 @@ void QAbstractSocket::close()
 
     d->resetSocketLayer();
     d->state = Qt::UnconnectedState;
-    setDeviceMode(NotOpen);
+    setOpenMode(NotOpen);
 
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::close() emits stateChanged(), then closed()");

@@ -340,7 +340,7 @@ QTextStream::QTextStream(QIODevice *iod)
     readRawBytes() or writeRawBytes() on such a stream.
 */
 
-QTextStream::QTextStream(QString *str, QIODevice::DeviceMode)
+QTextStream::QTextStream(QString *str, QIODevice::OpenMode)
 {
     init();
 
@@ -384,7 +384,7 @@ QTextStream::QTextStream(QString *str, QIODevice::DeviceMode)
     \endcode
 */
 
-QTextStream::QTextStream(QByteArray *a, QIODevice::DeviceMode flags)
+QTextStream::QTextStream(QByteArray *a, QIODevice::OpenMode flags)
 {
     init();
 
@@ -408,7 +408,7 @@ QTextStream::QTextStream(QByteArray *a, QIODevice::DeviceMode flags)
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
     is created to wrap the byte array.
 */
-QTextStream::QTextStream(const QByteArray &a, QIODevice::DeviceMode flags)
+QTextStream::QTextStream(const QByteArray &a, QIODevice::OpenMode flags)
 {
     init();
 
@@ -438,7 +438,7 @@ QTextStream::QTextStream(const QByteArray &a, QIODevice::DeviceMode flags)
     crashes.
 */
 
-QTextStream::QTextStream(FILE *fh, QIODevice::DeviceMode flags)
+QTextStream::QTextStream(FILE *fh, QIODevice::OpenMode flags)
 {
     init();
 

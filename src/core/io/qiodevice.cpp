@@ -35,7 +35,7 @@
 
 #define CHECK_WRITABLE(function) \
    do { \
-       if ((d->deviceMode & WriteOnly) == 0) { \
+       if ((d->openMode & WriteOnly) == 0) { \
            qWarning("QIODevice::"#function" called on a ReadOnly device"); \
            return Q_LONGLONG(-1); \
        } \
@@ -43,7 +43,7 @@
 
 #define CHECK_READABLE(function) \
    do { \
-       if ((d->deviceMode & ReadOnly) == 0) { \
+       if ((d->openMode & ReadOnly) == 0) { \
            qWarning("QIODevice::"#function" called on a WriteOnly device"); \
            return Q_LONGLONG(-1); \
        } \
@@ -51,7 +51,7 @@
 
 QIODevicePrivate::QIODevicePrivate()
 {
-    deviceMode = QIODevice::NotOpen;
+    openMode = QIODevice::NotOpen;
     errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
 }
 
@@ -302,40 +302,88 @@ bool QIODevice::isSequential() const
     return false;
 }
 
-QIODevice::DeviceMode QIODevice::deviceMode() const
+/*!
+    Returns the mode in which the device has been opened,
+    i.e. ReadOnly or WriteOnly.
+
+    \sa OpenMode
+*/
+QIODevice::OpenMode QIODevice::openMode() const
 {
-    return d->deviceMode;
+    return d->openMode;
 }
 
-void QIODevice::setDeviceMode(DeviceMode deviceMode)
+/*!
+    Sets the OpenMode of the device to \a openMode.
+
+    \sa openMode(), OpenMode
+*/
+void QIODevice::setOpenMode(OpenMode openMode)
 {
-    d->deviceMode = deviceMode;
+    d->openMode = openMode;
 }
 
+/*!
+    Returns true is the device is open; otherwise returns false. A
+    QIODevice is open if it can be read from and/or written to. By
+    default, this function returns false if openMode() returns
+    NotOpen.
+
+    \sa openMode(), OpenMode
+*/
 bool QIODevice::isOpen() const
 {
-    return d->deviceMode != NotOpen;
+    return d->openMode != NotOpen;
 }
 
+/*!
+    Returns true if you can read from the device; otherwise returns
+    false. Call bytesAvailable() to determine how many bytes can be
+    read.
+
+    This is a convenience function which checks if the OpenMode of the
+    device contains the ReadOnly flag.
+
+    \sa openMode(), OpenMode
+*/
 bool QIODevice::isReadable() const
 {
-    return (deviceMode() & ReadOnly) != 0;
+    return (openMode() & ReadOnly) != 0;
 }
 
+/*!
+    Returns true if you can write to the device; otherwise returns
+    false.
+
+    This is a convenience function which checks if the OpenMode of the
+    device contains the WriteOnly flag.
+
+    \sa openMode(), OpenMode
+*/
 bool QIODevice::isWritable() const
 {
-    return (deviceMode() & WriteOnly) != 0;
+    return (openMode() & WriteOnly) != 0;
 }
 
-bool QIODevice::open(DeviceMode mode)
+/*!
+    Opens the device and sets its OpenMode to \a mode.
+
+    \sa openMode(), OpenMode
+*/
+bool QIODevice::open(OpenMode mode)
 {
-    d->deviceMode = mode;
+    d->openMode = mode;
     return true;
 }
 
+/*!
+    Closes the device and sets its OpenMode to NotOpen.
+
+    \sa setOpenMode(), OpenMode
+*/
 void QIODevice::close()
 {
-    d->deviceMode = NotOpen;
+    d->openMode = NotOpen;
 #ifdef QT_NO_QOBJECT
     d->errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
 #else

@@ -257,7 +257,7 @@ QDataStream::QDataStream(QIODevice *d)
 QDataStream::QDataStream(QByteArray *a, int mode)
 {
     QBuffer *buf = new QBuffer(a);
-    buf->open(QIODevice::DeviceMode(mode));
+    buf->open(QIODevice::OpenMode(mode));
     dev = buf;
     owndev = true;
     byteorder = BigEndian;
@@ -277,7 +277,7 @@ QDataStream::QDataStream(QByteArray *a, int mode)
     is created to wrap the byte array.
 */
 
-QDataStream::QDataStream(QByteArray *a, QIODevice::DeviceMode flags)
+QDataStream::QDataStream(QByteArray *a, QIODevice::OpenMode flags)
 {
     QBuffer *buf = new QBuffer(a);
     buf->open(flags);

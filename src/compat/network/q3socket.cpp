@@ -644,7 +644,7 @@ bool Q3Socket::open( int m )
 #endif
 	return FALSE;
     }
-    QIODevice::setDeviceMode( DeviceMode(m & IO_ReadWrite) );
+    QIODevice::setOpenMode( OpenMode(m & IO_ReadWrite) );
     return TRUE;
 }
 
@@ -689,7 +689,7 @@ void Q3Socket::close()
 	return;
     }
     resetStatus();
-    setDeviceMode(NotOpen);
+    setOpenMode(NotOpen);
     d->close();
     d->state = Idle;
 }
@@ -793,7 +793,7 @@ bool Q3Socket::flush()
 		name() );
 #endif
 	resetStatus();
-	setDeviceMode(NotOpen);
+	setOpenMode(NotOpen);
 	d->close();
 	d->state = Idle;
 	emit delayedCloseFinished();

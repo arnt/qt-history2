@@ -37,7 +37,7 @@ class Q_CORE_EXPORT QIODevice
     Q_OBJECT
 #endif
 public:
-    enum DeviceModeFlag {
+    enum OpenModeFlag {
         NotOpen = 0x0000,
         ReadOnly = 0x0001,
         WriteOnly = 0x0002,
@@ -46,7 +46,7 @@ public:
         Truncate = 0x0008,
         Translate = 0x0010
     };
-    Q_DECLARE_FLAGS(DeviceMode, DeviceModeFlag)
+    Q_DECLARE_FLAGS(OpenMode, OpenModeFlag)
 
     QIODevice();
 #ifndef QT_NO_QOBJECT
@@ -54,14 +54,14 @@ public:
 #endif
     virtual ~QIODevice();
 
-    DeviceMode deviceMode() const;
+    OpenMode openMode() const;
 
     bool isOpen() const;
     bool isReadable() const;
     bool isWritable() const;
     virtual bool isSequential() const;
 
-    virtual bool open(DeviceMode mode);
+    virtual bool open(OpenMode mode);
     virtual void close();
     virtual bool flush();
 
@@ -106,7 +106,7 @@ protected:
     virtual Q_LONGLONG readData(char *data, Q_LONGLONG maxlen) = 0;
     virtual Q_LONGLONG writeData(const char *data, Q_LONGLONG len) = 0;
 
-    void setDeviceMode(DeviceMode deviceMode);
+    void setOpenMode(OpenMode openMode);
 
     void setErrorString(const QString &errorString);
 
@@ -122,8 +122,8 @@ private:
 public:
     typedef Q_LONGLONG Offset;
 
-    inline QT_COMPAT int flags() const { return (int) deviceMode(); }
-    inline QT_COMPAT int mode() const { return (int) deviceMode(); }
+    inline QT_COMPAT int flags() const { return (int) openMode(); }
+    inline QT_COMPAT int mode() const { return (int) openMode(); }
     inline QT_COMPAT int state() const;
 
     inline QT_COMPAT bool isDirectAccess() const { return !isSequential(); }
@@ -133,7 +133,7 @@ public:
     inline QT_COMPAT bool isRaw() const { return false; }
     inline QT_COMPAT bool isSynchronous() const { return true; }
     inline QT_COMPAT bool isAsynchronous() const { return false; }
-    inline QT_COMPAT bool isTranslated() const { return (deviceMode() & Translate) != 0; }
+    inline QT_COMPAT bool isTranslated() const { return (openMode() & Translate) != 0; }
     inline QT_COMPAT bool isInactive() const { return !isOpen(); }
 
     QT_COMPAT int status() const;
@@ -152,7 +152,7 @@ public:
 #endif
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QIODevice::DeviceMode)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QIODevice::OpenMode)
 
 #ifdef QT_COMPAT
 static QT_COMPAT const uint IO_Direct = 0x0100;

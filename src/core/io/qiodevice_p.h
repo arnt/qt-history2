@@ -47,7 +47,7 @@ public:
     QIODevicePrivate();
     virtual ~QIODevicePrivate();
 
-    QIODevice::DeviceMode deviceMode;
+    QIODevice::OpenMode openMode;
     QString errorString;
 
     QByteArray ungetBuffer;

@@ -64,7 +64,7 @@ public:
 #ifdef QT_COMPAT
     QDataStream(QByteArray *, int mode);
 #endif
-    QDataStream(QByteArray *, QIODevice::DeviceMode flags);
+    QDataStream(QByteArray *, QIODevice::OpenMode flags);
     QDataStream(const QByteArray &);
     virtual ~QDataStream();
 

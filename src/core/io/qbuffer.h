@@ -41,7 +41,7 @@ public:
     void setData(const QByteArray &data);
     inline void setData(const char *data, int len) { setData(QByteArray(data, len)); }
 
-    bool open(DeviceMode deviceMode);
+    bool open(OpenMode openMode);
 
     void close();
     Q_LONGLONG size() const;

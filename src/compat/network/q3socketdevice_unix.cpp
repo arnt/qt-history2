@@ -214,7 +214,7 @@ void Q3SocketDevice::close()
     if ( fd == -1 || !isOpen() )		// already closed
 	return;
     resetStatus();
-    setDeviceMode(NotOpen);
+    setOpenMode(NotOpen);
     ::close( fd );
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "Q3SocketDevice::close: Closed socket %x", fd );

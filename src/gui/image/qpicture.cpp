@@ -752,7 +752,7 @@ void QPicture::detach_helper()
     int pictsize = size();
     x->pictb.setData(data(), pictsize);
     if (d->pictb.isOpen()) {
-        x->pictb.open(d->pictb.deviceMode());
+        x->pictb.open(d->pictb.openMode());
         x->pictb.seek(d->pictb.pos());
     }
     x->trecs = d->trecs;
@@ -1700,7 +1700,7 @@ bool QPictureIO::write()
     if (!d->iodev && !d->fname.isEmpty()) {
         file.setFileName(d->fname);
         bool translate = h->text_mode==QPictureHandler::TranslateInOut;
-        QIODevice::DeviceMode fmode = translate ? QIODevice::WriteOnly | QIODevice::Translate : QIODevice::DeviceMode(QIODevice::WriteOnly);
+        QIODevice::OpenMode fmode = translate ? QIODevice::WriteOnly | QIODevice::Translate : QIODevice::OpenMode(QIODevice::WriteOnly);
         if (!file.open(fmode))                // couldn't create file
             return false;
         d->iodev = &file;

@@ -700,7 +700,7 @@ bool QFile::isSequential() const
 */
 
 bool
-QFile::open(DeviceMode flags, FILE *fh)
+QFile::open(OpenMode flags, FILE *fh)
 {
     return open(flags, QT_FILENO(fh));
 }
@@ -710,7 +710,7 @@ QFile::open(DeviceMode flags, FILE *fh)
 */
 
 bool
-QFile::open(DeviceMode flags)
+QFile::open(OpenMode flags)
 {
     if (isOpen()) {
         qWarning("QFile::open: File already open");
@@ -719,12 +719,12 @@ QFile::open(DeviceMode flags)
     if (flags & Append)
         flags |= WriteOnly;
     unsetError();
-    setDeviceMode(flags);
+    setOpenMode(flags);
     if ((flags & (ReadOnly | WriteOnly)) == 0) {
         qWarning("QIODevice::open: File access not specified");
         return false;
     }
-    if (fileEngine()->open(deviceMode())) {
+    if (fileEngine()->open(openMode())) {
         d->isOpen = true;
         return true;
     }
@@ -757,7 +757,7 @@ QFile::open(DeviceMode flags)
 */
 
 bool
-QFile::open(DeviceMode flags, int fd)
+QFile::open(OpenMode flags, int fd)
 {
     if (isOpen()) {
         qWarning("QFile::open: File already open");
@@ -766,14 +766,14 @@ QFile::open(DeviceMode flags, int fd)
     if (flags & Append)
         flags |= WriteOnly;
     unsetError();
-    setDeviceMode(flags);
+    setOpenMode(flags);
     if (!(isReadable() || isWritable())) {
         qWarning("QFile::open: File access not specified");
         return false;
     }
-    if(d->openExternalFile(deviceMode(), fd)) {
+    if(d->openExternalFile(openMode(), fd)) {
         d->isOpen = true;
-        setDeviceMode(flags);
+        setOpenMode(flags);
         return true;
     }
     return false;

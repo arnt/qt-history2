@@ -379,7 +379,7 @@ QFileEngine *QTemporaryFile::fileEngine() const
    \reimp
 */
 
-bool QTemporaryFile::open(DeviceMode flags)
+bool QTemporaryFile::open(OpenMode flags)
 {
     Q_D(QTemporaryFile);
     if (QFile::open(flags)) {
