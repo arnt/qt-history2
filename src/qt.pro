@@ -13,7 +13,7 @@ DLLDESTDIR	= ../bin
 # This is duplicated in examples.pro
 MODULES_BASE	= tools kernel widgets dialogs
 MODULES_PRO	= iconview workspace
-MODULES_ENT	= network canvas table xml opengl
+MODULES_ENT	= network canvas table xml opengl database
 MODULES		= $$MODULES_BASE $$MODULES_PRO
 enterprise:MODULES	+= $$MODULES_ENT
 
@@ -101,6 +101,7 @@ win32:TABLE_H	= ../include
 win32:ICONVIEW_H	= ../include
 win32:XML_H	= ../include
 win32:WORKSPACE_H	= ../include
+win32:DATABASE_H	= ../include
 
 unix:DIALOGS_H	= dialogs
 unix:KERNEL_H	= kernel
@@ -113,6 +114,7 @@ unix:TABLE_H	= table
 unix:ICONVIEW_H	= iconview
 unix:XML_H	= xml
 unix:WORKSPACE_H	= workspace
+unix:DATABASE_H	= database
 
 DIALOGS_P	= dialogs
 KERNEL_P	= kernel
@@ -120,7 +122,7 @@ TOOLS_P		= tools
 WIDGETS_P	= widgets
 
 win32:DEPENDPATH = ../include
-unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H:$$OPENGL_H:$$NETWORK_H:$$CANVAS_H:$$TABLE_H:$$ICONVIEW_H:$$XML_H:$$WORKSPACE_H
+unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H:$$OPENGL_H:$$NETWORK_H:$$CANVAS_H:$$TABLE_H:$$ICONVIEW_H:$$XML_H:$$WORKSPACE_H:$$DATABASE_H
 
 dialogs:HEADERS	+= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qfiledialog.h \
@@ -663,6 +665,22 @@ iconview:SOURCES += iconview/qiconview.cpp
 
 table:HEADERS += $$TABLE_H/qtable.h
 table:SOURCES += table/qtable.cpp
+
+database:HEADERS += $$DATABASE_H/qsql.h \
+		    $$DATABASE_H/qsqldatabase.h \
+		    $$DATABASE_H/qsqldriver.h \
+		    $$DATABASE_H/qsqldriverinterface.h \
+		    $$DATABASE_H/qsqldriverplugin.h \
+		    $$DATABASE_H/qsqlerror.h \
+		    $$DATABASE_H/qsqlresult.h \
+		    $$DATABASE_H/qsqlresultinfo.h 
+database:SOURCES += database/qsql.cpp \
+		    database/qsqldatabase.cpp \
+		    database/qsqldriver.cpp \
+		    database/qsqldriverplugin.cpp \
+		    database/qsqlerror.cpp \
+		    database/qsqlresult.cpp \
+		    database/qsqlresultinfo.cpp 
 
 opengl:HEADERS += $$OPENGL_H/qgl.h
 OPENGL_SOURCES	= opengl/qgl.cpp
