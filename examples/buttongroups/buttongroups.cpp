@@ -34,46 +34,46 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------- first group
 
     // Create an exclusive button group
-    QButtonGroup *grp1 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 1 (exclusive)", this);
-    box1->addWidget( grp1 );
-    grp1->setExclusive( TRUE );
+    QButtonGroup *bgrp1 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 1 (exclusive)", this);
+    box1->addWidget( bgrp1 );
+    bgrp1->setExclusive( TRUE );
 
     // insert 3 radiobuttons
-    QRadioButton *rb11 = new QRadioButton( "&Radiobutton 1", grp1 );
+    QRadioButton *rb11 = new QRadioButton( "&Radiobutton 1", bgrp1 );
     rb11->setChecked( TRUE );
-    (void)new QRadioButton( "R&adiobutton 2", grp1 );
-    (void)new QRadioButton( "Ra&diobutton 3", grp1 );
+    (void)new QRadioButton( "R&adiobutton 2", bgrp1 );
+    (void)new QRadioButton( "Ra&diobutton 3", bgrp1 );
 
     // ------- second group
 
     // Create a non-exclusive buttongroup
-    QButtonGroup *grp2 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 2 (non-exclusive)", this );
-    box1->addWidget( grp2 );
-    grp2->setExclusive( FALSE );
+    QButtonGroup *bgrp2 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 2 (non-exclusive)", this );
+    box1->addWidget( bgrp2 );
+    bgrp2->setExclusive( FALSE );
 
     // insert 3 checkboxes
-    (void)new QCheckBox( "&Checkbox 1", grp2 );
-    QCheckBox *cb12 = new QCheckBox( "C&heckbox 2", grp2 );
+    (void)new QCheckBox( "&Checkbox 1", bgrp2 );
+    QCheckBox *cb12 = new QCheckBox( "C&heckbox 2", bgrp2 );
     cb12->setChecked( TRUE );
-    QCheckBox *cb13 = new QCheckBox( "Triple &State Button", grp2 );
+    QCheckBox *cb13 = new QCheckBox( "Triple &State Button", bgrp2 );
     cb13->setTristate( TRUE );
     cb13->setChecked( TRUE );
 
     // ------------ third group
 
     // create a buttongroup which is exclusive for radiobuttons and non-exclusive for all other buttons
-    QButtonGroup *grp3 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 3 (Radiobutton-exclusive)", this );
-    box2->addWidget( grp3 );
-    grp3->setRadioButtonExclusive( TRUE );
+    QButtonGroup *bgrp3 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 3 (Radiobutton-exclusive)", this );
+    box2->addWidget( bgrp3 );
+    bgrp3->setRadioButtonExclusive( TRUE );
 
     // insert three radiobuttons
-    rb21 = new QRadioButton( "Rad&iobutton 1", grp3 );
-    rb22 = new QRadioButton( "Radi&obutton 2", grp3 );
-    rb23 = new QRadioButton( "Radio&button 3", grp3 );
+    rb21 = new QRadioButton( "Rad&iobutton 1", bgrp3 );
+    rb22 = new QRadioButton( "Radi&obutton 2", bgrp3 );
+    rb23 = new QRadioButton( "Radio&button 3", bgrp3 );
     rb23->setChecked( TRUE );
 
     // insert a checkbox...
-    state = new QCheckBox( "E&nable Radiobuttons", grp3 );
+    state = new QCheckBox( "E&nable Radiobuttons", bgrp3 );
     state->setChecked( TRUE );
     // ...and connect its SIGNAL clicked() with the SLOT slotChangeGrp3State()
     connect( state, SIGNAL( clicked() ), this, SLOT( slotChangeGrp3State() ) );
@@ -81,13 +81,13 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------------ fourth group
 
     // create a groupbox which layouts its childs in a columns
-    QGroupBox *grp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with normal buttons", this );
-    box2->addWidget( grp4 );
+    QGroupBox *bgrp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with normal buttons", this );
+    box2->addWidget( bgrp4 );
 
     // insert three pushbuttons...
-    (void)new QPushButton( "&Push Button", grp4 );
-    QPushButton *tb2 = new QPushButton( "&Toggle Button", grp4 );
-    QPushButton *tb3 = new QPushButton( "&Flat Button", grp4 );
+    (void)new QPushButton( "&Push Button", bgrp4 );
+    QPushButton *tb2 = new QPushButton( "&Toggle Button", bgrp4 );
+    QPushButton *tb3 = new QPushButton( "&Flat Button", bgrp4 );
 
     // ... and make the second one a toggle button
     tb2->setToggleButton( TRUE );
