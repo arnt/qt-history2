@@ -205,7 +205,7 @@ QFSFileInfoEnginePrivate::doStat() const
 		r = 0;
 	    }
 	}
-	if (!r)
+	if (r != 0)
 	    could_stat = false;
 	SetErrorMode(oldmode);
         return !r;
