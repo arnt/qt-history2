@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#8 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#8 $";
 #endif
 
 #include "qstring.h"
@@ -85,6 +85,8 @@ QListBox::QListBox( QWidget *parent, const char *name )
     stringsOnly   = TRUE;
     ownerDrawn    = FALSE;
     itemList      = new QLBItemList;
+    CHECK_PTR( itemList );
+    debug( "==========> ITEMLIST %x", itemList );
     setCellWidth( 100 );			// setup table params
     setCellHeight( 16 );
     setNumCols( 1 );
@@ -104,7 +106,7 @@ void QListBox::setStrList( const QStrList *l )
 {
     clearList();
     if ( !l ) {
-#if defined ( CHECK_NULL )
+#if defined(CHECK_NULL)
         CHECK_PTR( l );
 #endif
         setNumRows( 0 );
@@ -122,7 +124,7 @@ void QListBox::setStrList( const QStrList *l )
 
 void QListBox::setStrList( const char **strs,int numStrings )
 {
-    clearList();
+//    clearList();
     if ( !strs ) {
 #if defined ( CHECK_NULL )
         CHECK_PTR( strs );
@@ -130,7 +132,6 @@ void QListBox::setStrList( const char **strs,int numStrings )
         setNumRows( 0 );
         return;
     }
-    const char *tmp;
     for( int i = 0 ; i < numStrings ; i++ )
         itemList->append( newAny( strs[i], 0 ) );
 
@@ -143,7 +144,7 @@ void QListBox::insertStrList( const QStrList *l, int index )
     if ( !checkInsertIndex( "insertStrList", count(), &index ) )
         return;
 
-#if defined ( CHECK_NULL )
+#if defined(CHECK_NULL)
     CHECK_PTR( l );
 #endif
 
@@ -162,11 +163,10 @@ void QListBox::insertStrList( const char **strs, int numStrings, int index )
     if ( !checkInsertIndex( "insertStrList", count(), &index ) )
         return;
 
-#if defined ( CHECK_NULL )
+#if defined(CHECK_NULL)
     CHECK_PTR( strs );
 #endif
 
-    const char *tmp;
     for( int i = numStrings - 1 ; i >= 0 ; i-- )
         insertAny( strs[i], 0, 0, index );
     updateNumRows();
@@ -179,7 +179,7 @@ void QListBox::insertItem( const char *string, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
         return;
-#if defined ( CHECK_NULL )
+#if defined(CHECK_NULL)
     CHECK_PTR( string );
 #endif
     insertAny( string, 0, 0, index );
@@ -193,7 +193,7 @@ void QListBox::insertItem( const QBitMap *bitmap, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
         return;
-#if defined ( CHECK_NULL )
+#if defined(CHECK_NULL)
     CHECK_PTR( bitmap );
 #endif
     if ( stringsOnly ) {
@@ -210,7 +210,7 @@ void QListBox::insertItem( const QBitMap *bitmap, int index )
 
 void QListBox::inSort( const char *string )
 {
-#if defined ( CHECK_NULL )
+#if defined(CHECK_NULL)
     CHECK_PTR( string );
 #endif
     itemList->inSort( newAny( string, 0 ) );
@@ -341,7 +341,7 @@ void QListBox::insertItem( const QLBItem *lbi, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
         return;
-#if defined ( CHECK_NULL )
+#if defined(CHECK_NULL)
     CHECK_PTR( lbi );
 #endif
     insertAny( 0, 0, lbi, index );
@@ -352,7 +352,7 @@ void QListBox::insertItem( const QLBItem *lbi, int index )
 
 void QListBox::inSort( const QLBItem *lbi )
 {
-#if defined ( CHECK_NULL )
+#if defined(CHECK_NULL)
     CHECK_PTR( lbi );
 #endif
     itemList->inSort( lbi );
@@ -454,6 +454,7 @@ void QListBox::paintCell( QPainter *p, long row, long column )
         debug( "QListBox::paintCell: Column = %i!", column );
 
     if ( ownerDrawn ) {
+	debug( "ownerdrawn" );
         paintItem( p, row );
         return;
     }
@@ -465,11 +466,15 @@ void QListBox::paintCell( QPainter *p, long row, long column )
     if ( lbi->type == LBI_BitMap ) {
         return;         // ###
     }
+    ASSERT( (lbi->type & LBI_String) != 0 );
+    debug( "=====================> %d (%d) %x", lbi->type, itemList->count(),
+	   itemList);
     tmp = (char*) lbi->string;
-       
+
     if ( !tmp )
         return;
 
+    debug( "printing '%s'", tmp );
     if ( current == row ) {
         p->fillRect( 0, 0, cellWidth( column ), cellHeight( row ), black );
         p->pen().setColor( backgroundColor() );
@@ -560,7 +565,7 @@ void QListBox::clearList()
     while( itemList->count() ) {
         tmp = itemList->take( 0 );
         if ( !ownerDrawn && copyStrings && tmp->type == LBI_String )
-                delete [] (char *) tmp->string;
+	    delete (char *)tmp->string;
         deleteItem( tmp );
     }
     bool a = autoUpdate();
@@ -575,7 +580,6 @@ QLBItem *QListBox::newAny( const char *s, const QBitMap *bm )
     if ( !s && !bm )
         debug( "QListBox::newAny: Both s and bm are NULL " );
 #endif
-
     QLBItem *tmp = newItem();
     if ( s ) {
         if ( copyStrings )
@@ -587,6 +591,7 @@ QLBItem *QListBox::newAny( const char *s, const QBitMap *bm )
         tmp->bitmap = (QBitMap *)bm;
         tmp->type   = LBI_BitMap;
     }
+    return tmp;
 }
 
 void QListBox::insertAny( const char *s, const QBitMap *bm, 
@@ -635,6 +640,3 @@ void QListBox::init()
 {
 
 }
-
-
-
