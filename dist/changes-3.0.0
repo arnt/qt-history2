@@ -188,11 +188,13 @@ data is available.  This is especially useful if the XML document
 comes from a slow source, e.g. over the network, as it allows the
 application to start working on the data at a very early stage.
 
-SVG device
+SVG support
 ---------
 
-##########
-
+SVG is a W3C standard for "Scalable Vector Graphics". XML support
+pre-requisited, QPicture can optionally generate and import static
+SVG documents. Supported are those SVG features that have an equivalent
+counterpart in QPainter.
 
 Multihead support
 -----------------
@@ -846,7 +848,6 @@ QLibrary
 QLibraryInterface
 QStyleFactory
 QStyleInterface
-QSvgDevice [xml]
 QTextCodecInterface
 QUnknownInterface
 QUuid
