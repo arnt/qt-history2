@@ -18,8 +18,6 @@ public:
 
 private:
     QString text;
-    QPixmap topGradient;
-    QPixmap bottomGradient;
     QPoint oldMousePoint;
     QTextDocument *textDocument;
     bool mouseDown;

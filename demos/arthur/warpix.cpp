@@ -79,7 +79,6 @@ void Warpix::mouseReleaseEvent(QMouseEvent *)
 
 void Warpix::mouseMoveEvent(QMouseEvent *e)
 {
-    clickPos = QPoint(qLimit(100, width()-200, e->x()),
-                      qLimit(100, height()-200, e->y()));
-
+    clickPos = QPoint(qLimit(0, width(), e->x()),
+                      qLimit(0, height(), e->y()));
 }
