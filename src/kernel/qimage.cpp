@@ -2552,13 +2552,13 @@ void pnmscale(const QImage& src, QImage& dst)
   image. The purpose of these modes is to retain the ratio of the image if
   this is required.
 
-  \value ScaleFree the image is scaled freely: the resulting image fits exactly
+  \value ScaleFree The image is scaled freely: the resulting image fits exactly
     into the specified size; the ratio will not necessarily be preserved.
-  \value ScaleMin the ratio of the image is preserved and the resulting image
+  \value ScaleMin The ratio of the image is preserved and the resulting image
     is guaranteed to fit into the specified size (it is as large as possible
     within these constraints) - the image might be smaller than the
     requested size.
-  \value ScaleMax the ratio of the image is preserved and the resulting image
+  \value ScaleMax The ratio of the image is preserved and the resulting image
     fills the whole specified rectangle (it is as small as possible within
     these constraints) - the image might be larger than the requested size.
 */
