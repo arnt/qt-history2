@@ -79,6 +79,8 @@ protected slots:
     void insertBR();
     void showFontDialog();
 
+    void closeEvent( QCloseEvent *e );
+
 private:
     TextEdit *textEdit;
     QMultiLineEdit *mlined;

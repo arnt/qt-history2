@@ -704,7 +704,6 @@ int MultiLineEditor::exec()
 void MultiLineEditor::okClicked()
 {
     applyClicked();
-    qApp->exit_loop();
     hide();
 }
 
@@ -726,6 +725,12 @@ void MultiLineEditor::cancelClicked()
 {
     res = 0;
     hide();
+}
+
+void MultiLineEditor::closeEvent( QCloseEvent *e )
+{
+    qApp->exit_loop();
+    MultiLineEditorBase::closeEvent( e );
 }
 
 void MultiLineEditor::insertTags( const QString &tag )
