@@ -248,7 +248,7 @@ bool QFontEngine::canRender( const QChar *string,  int len )
 {
     bool allExist = TRUE;
     while ( len-- )
-	if ( !memorymanager->inFont( handle(), string[len] ) ) {
+	if ( !memorymanager->inFont( handle(), string[len].unicode() ) ) {
 	    allExist = FALSE;
 	    break;
 	}
