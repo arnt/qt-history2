@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#38 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -188,6 +188,17 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #endif
 		    (void)execlp( print_prog.data(), print_prog.data(),
 				  pr.data(), 0 );
+		    // if execlp returns EACCES it couldn't find the
+		    // program.  if no special print program has been
+		    // set, let's try a little harder...
+		    if ( print_prog == "lpr" && errno == EACCES ) {
+			(void)execl( "/bin/lpr", "lpr", pr.data(), 0 );
+			(void)execl( "/usr/bin/lpr", "lpr", pr.data(), 0 );
+			pr[1] = 'd';
+			(void)execlp( "lp", "lp", pr.data(), 0 );
+			(void)execl( "/bin/lp", "lp", pr.data(), 0 );
+			(void)execl( "/usr/bin/lp", "lp", pr.data(), 0 );
+		    }
 		    exit( 0 );
 		} else {		// parent process
 		    ::close( fds[0] );
