@@ -3163,7 +3163,7 @@ bool QETWidget::translatePaintEvent( const MSG & )
 	 || (res == NULLREGION) ) {
 	DeleteObject( possible_region );
 	hdc = 0;
-	return TRUE;
+	return FALSE;
     }
 
     PAINTSTRUCT ps;
