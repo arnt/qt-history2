@@ -38,6 +38,10 @@
 
 #include <private/qlibrary_p.h>
 
+#ifndef QT_NO_COMPONENT
+
+#include <qregexp.h>
+
 // uncomment this to get error messages
 //#define QT_DEBUG_COMPONENT 1
 // uncomment this to get error and success messages
@@ -48,8 +52,6 @@
 #  define QT_DEBUG_COMPONENT 1
 # endif
 #endif
-
-#ifndef QT_NO_COMPONENT
 
 // KAI C++ has at the moment problems with unloading the Qt plugins. So don't
 // unload them as a workaround for now.
@@ -226,6 +228,7 @@ void QLibraryPrivate::killTimer()
 QLibrary::QLibrary( const QString& filename, Policy pol )
     : libfile( filename ), libPol( pol ), entry( 0 )
 {
+    libfile.replace( QRegExp("\\\\"), "/" );
     d = new QLibraryPrivate( this );
     if ( pol == Immediately )
 	load();
@@ -530,6 +533,7 @@ QString QLibrary::library() const
 	return libfile;
 
     QString filename = libfile;
+
 #if defined(Q_WS_WIN)
     if ( filename.find( ".dll" ) == -1 )
 	filename += ".dll";
@@ -537,8 +541,16 @@ QString QLibrary::library() const
     if ( filename.find( ".dylib" ) == -1 )
 	filename += ".dylib";
 #else
-    if ( filename.find( ".so" ) == -1 )
-	filename = QString( "lib%1.so" ).arg( filename );
+    if ( filename.find( ".so" ) == -1 ) {
+	const int x = filename.findRev( "/" );
+	if ( x != -1 ) {
+	    QString path = filename.left( x + 1 );
+	    QString file = filename.right( filename.length() - x - 1 );
+	    filename = QString( "%1lib%2.so" ).arg( path ).arg( file );
+	} else {
+	    filename = QString( "lib%1.so" ).arg( filename );
+	}
+    }
 #endif
 
     return filename;
