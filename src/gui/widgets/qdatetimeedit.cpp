@@ -351,7 +351,7 @@ void QDateTimeEdit::setTime(const QTime &time)
     necessary, to ensure that the range remains valid. If the date is
     not a valid QDate object, this function does nothing.
 
-    \sa minimumDate, minimumTime, maximumTime, setDateRange()
+    \sa minimumTime, maximumTime, setDateRange()
 */
 
 QDate QDateTimeEdit::minimumDate() const
@@ -578,7 +578,7 @@ void QDateTimeEdit::setCurrentSection(Section section)
 
     Returns the text from the given \a section.
 
-    \sa cleanText(), currentSection()
+    \sa currentSection()
 */
 
 QString QDateTimeEdit::sectionText(Section s) const
@@ -933,6 +933,8 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 
 
 /*!
+    Returns an appropriate datetime for the given \a text.
+
     This virtual function is used by the datetime edit whenever it
     needs to interpret text entered by the user as a value.
 
