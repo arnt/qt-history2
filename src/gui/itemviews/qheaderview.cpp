@@ -1255,10 +1255,7 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 
 void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
-    QStyleOptionHeader opt = d->getStyleOption();
-    opt.rect = rect;
-    opt.section = logicalIndex;
-
+    QStyle::StyleFlags state = QStyle::Style_None;
     if (d->clickableSections) {
         bool selected = false;
         if (d->orientation == Qt::Horizontal)
@@ -1266,14 +1263,19 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         else
             selected = selectionModel()->isRowSelected(logicalIndex, QModelIndex());
         if (selected)
-            opt.state |= QStyle::Style_Down;
+            state = QStyle::Style_Down;
     } else {
         if (logicalIndex == d->pressed)
-            opt.state |= QStyle::Style_Down;
+            state = QStyle::Style_Down;
     }
 
     int textAlignment = d->model->headerData(logicalIndex, orientation(),
                                              QAbstractItemModel::TextAlignmentRole).toInt();
+
+    QStyleOptionHeader opt = d->getStyleOption();
+    opt.rect = rect;
+    opt.section = logicalIndex;
+    opt.state |= state;
     opt.textAlignment = Qt::Alignment(textAlignment);
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
