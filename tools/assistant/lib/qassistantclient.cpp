@@ -133,10 +133,10 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     socket = new QTcpSocket( this );
     connect( socket, SIGNAL( connected() ),
             SLOT( socketConnected() ) );
-    connect( socket, SIGNAL( closed() ),
+    connect( socket, SIGNAL( disconnected() ),
             SLOT( socketConnectionClosed() ) );
-    connect( socket, SIGNAL( error( int ) ),
-            SLOT( socketError( int ) ) );
+    connect( socket, SIGNAL( error( QTcpSocket::SocketError ) ),
+             SLOT( socketError( QTcpSocket::SocketError ) ) );
     opened = false;
     proc = new QProcess( this );
     port = 0;
@@ -292,11 +292,11 @@ void QAssistantClient::socketConnectionClosed()
     emit assistantClosed();
 }
 
-void QAssistantClient::socketError( int i )
+void QAssistantClient::socketError(QTcpSocket::SocketError err)
 {
-    if ( i == QTcpSocket::ConnectionRefusedError )
+    if (err == QTcpSocket::ConnectionRefusedError)
         emit error( tr( "Could not connect to Assistant: Connection refused" ) );
-    else if ( i == QTcpSocket::HostNotFoundError )
+    else if (err == QTcpSocket::HostNotFoundError)
         emit error( tr( "Could not connect to Assistant: Host not found" ) );
     else
         emit error( tr( "Communication error" ) );
