@@ -1182,8 +1182,8 @@ QMakeProject::read(uchar cmd)
 
         if(cmd & ReadFeatures) {
             debug_msg(1, "Processing default_pre: %s", vars["CONFIG"].join("::").toLatin1().constData());
-            if(doProjectInclude("default_pre", true, base_vars) == IncludeNoExist)
-                doProjectInclude("default", true, base_vars);
+            if(doProjectInclude("default_pre", IncludeFlagFeature, base_vars) == IncludeNoExist)
+                doProjectInclude("default", IncludeFlagFeature, base_vars);
         }
     }
 
@@ -1261,7 +1261,7 @@ QMakeProject::read(uchar cmd)
 
     if(cmd & ReadFeatures) {
         debug_msg(1, "Processing default_post: %s", vars["CONFIG"].join("::").toLatin1().constData());
-        doProjectInclude("default_post", true, vars);
+        doProjectInclude("default_post", IncludeFlagFeature, vars);
 
         QHash<QString, bool> processed;
         const QStringList &configs = vars["CONFIG"];
@@ -1271,7 +1271,7 @@ QMakeProject::read(uchar cmd)
             for(int i = configs.size()-1; i >= 0; --i) {
                 if(!processed.contains(configs[i])) {
                     processed.insert(configs[i], true);
-                    if(doProjectInclude(configs[i], true, vars) == IncludeSuccess) {
+                    if(doProjectInclude(configs[i], IncludeFlagFeature, vars) == IncludeSuccess) {
                         finished = false;
                         break;
                     }
@@ -1427,10 +1427,9 @@ QMakeProject::doProjectExpand(QString func, const QString &params,
 }
 
 QMakeProject::IncludeStatus
-QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
-                               const QString &seek_var)
+QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringList> &place)
 {
-    if(feature) {
+    if(flags & IncludeFlagFeature) {
         if(!file.endsWith(Option::prf_ext))
             file += Option::prf_ext;
         if(file.indexOf(Option::dir_sep) == -1 || !QFile::exists(file)) {
@@ -1486,9 +1485,11 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
         return IncludeNoExist;
 
     if(Option::mkfile::do_preprocess) //nice to see this first..
-        fprintf(stderr, "#switching file %s(%s) - %s:%d\n", feature ? "load" : "include", file.toLatin1().constData(),
+        fprintf(stderr, "#switching file %s(%s) - %s:%d\n", (flags & IncludeFlagFeature) ? "load" : "include",
+                file.toLatin1().constData(),
                 parser.file.toLatin1().constData(), parser.line_no);
-    debug_msg(1, "Project Parser: %s'ing file %s.", feature ? "load" : "include", file.toLatin1().constData());
+    debug_msg(1, "Project Parser: %s'ing file %s.", (flags & IncludeFlagFeature) ? "load" : "include",
+              file.toLatin1().constData());
     QString orig_file = file;
     int di = file.lastIndexOf(Option::dir_sep);
     QString oldpwd = qmake_getpwd();
@@ -1502,10 +1503,9 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     parser_info pi = parser;
     QStack<ScopeBlock> sc = scope_blocks;
     bool parsed = false;
-    if(!seek_var.isNull()) {
-        QMap<QString, QStringList> tmp = place;
-        if((parsed = read(file.toLatin1().constData(), tmp)))
-            place[seek_var] += tmp[seek_var];
+    if(flags & IncludeFlagNewProject) {
+        QMakeProject proj;
+        parsed = proj.read(file.toLatin1().constData(), place);
     } else {
         parsed = read(file.toLatin1().constData(), place);
     }
@@ -1671,7 +1671,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             file = Option::fixPathToLocalOS(file);
 
             QMap<QString, QStringList> tmp;
-            if(doProjectInclude(file, false, tmp, seek_var) == IncludeSuccess) {
+            if(doProjectInclude(file, IncludeFlagNewProject, tmp) == IncludeSuccess) {
                 if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
                     place["QMAKE_INTERNAL_INCLUDED_FILES"] += tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
                 ret = tmp[seek_var].join(QString(Option::field_sep));
@@ -2136,7 +2136,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
 
         bool ret = false;
         QMap<QString, QStringList> tmp;
-        if(doProjectInclude(Option::fixPathToLocalOS(args[0]), false, tmp, args[1]) == IncludeSuccess) {
+        if(doProjectInclude(Option::fixPathToLocalOS(args[0]), IncludeFlagNewProject, tmp) == IncludeSuccess) {
             if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
                 place["QMAKE_INTERNAL_INCLUDED_FILES"] += tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
             if(args.count() == 2) {
@@ -2204,7 +2204,10 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         }
         QString file = args.first();
         file = Option::fixPathToLocalOS(file);
-        IncludeStatus stat = doProjectInclude(file, !include_statement, place, seek_var);
+        uchar flags = IncludeFlagNone;
+        if(!include_statement)
+            flags |= IncludeFlagFeature;
+        IncludeStatus stat = doProjectInclude(file, flags, place);
         if(stat == IncludeFeatureAlreadyLoaded) {
             warn_msg(WarnParser, "%s:%d: Duplicate of loaded feature %s",
                      parser.file.toLatin1().constData(), parser.line_no, file.toLatin1().constData());
