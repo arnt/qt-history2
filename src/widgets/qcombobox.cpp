@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#51 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#51 $");
 
 
 /*!
@@ -119,6 +119,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d		  = new QComboData;
     if ( style() == WindowsStyle ) {
 	d->listBox      = new QListBox( 0, 0, WType_Popup );
+	d->listBox->setAutoScrollBar( FALSE );
 	d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
 	d->listBox->setLineWidth( 1 );
 	d->listBox->resize( 100, 10 );
@@ -560,13 +561,13 @@ void QComboBox::setPalette( const QPalette &palette )
 
 void QComboBox::setFont( const QFont &font )
 {
-    if ( d->autoresize )
-	adjustSize();
     QWidget::setFont( font );
     if ( d->usingListBox )
-	d->popup->setFont( font );
+	d->listBox->setFont( font );
     else
 	d->popup->setFont( font );
+    if ( d->autoresize )
+	adjustSize();
 }
 
 

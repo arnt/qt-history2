@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#33 $
 **
 ** Implementation of QTableView class
 **
@@ -19,7 +19,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#33 $");
 
 
 const int sbDim = 16;
@@ -1394,15 +1394,18 @@ const QScrollBar *QTableView::verticalScrollBar() const
 {
     QTableView *that = (QTableView*)this; // semantic const
     if ( !vScrollBar ) {
-	that->vScrollBar = new QScrollBar( QScrollBar::Vertical, that );
-	that->vScrollBar->setTracking( FALSE );
-	connect( vScrollBar, SIGNAL(valueChanged(int)),
+	QScrollBar *sb = new QScrollBar( QScrollBar::Vertical, that );
+	CHECK_PTR(sb);
+	sb->setTracking( FALSE );
+	connect( sb, SIGNAL(valueChanged(int)),
 		 SLOT(verSbValue(int)));
-	connect( vScrollBar, SIGNAL(sliderMoved(int)),
+	connect( sb, SIGNAL(sliderMoved(int)),
 		 SLOT(verSbSliding(int)));
-	connect( vScrollBar, SIGNAL(sliderReleased()),
+	connect( sb, SIGNAL(sliderReleased()),
 		 SLOT(verSbSlidingDone()));
-	that->vScrollBar->hide();
+	sb->hide();
+	that->vScrollBar = sb;
+	return sb;
     }
     return vScrollBar;
 }
@@ -1417,15 +1420,18 @@ const QScrollBar *QTableView::horizontalScrollBar() const
 {
     QTableView *that = (QTableView*)this; // semantic const
     if ( !hScrollBar ) {
-	that->hScrollBar = new QScrollBar( QScrollBar::Horizontal, that );
-	that->hScrollBar->setTracking( FALSE );
-	connect( hScrollBar, SIGNAL(valueChanged(int)),
+	QScrollBar *sb = new QScrollBar( QScrollBar::Horizontal, that );
+	CHECK_PTR(sb);
+	sb->setTracking( FALSE );
+	connect( sb, SIGNAL(valueChanged(int)),
 		 SLOT(horSbValue(int)));
-	connect( hScrollBar, SIGNAL(sliderMoved(int)),
+	connect( sb, SIGNAL(sliderMoved(int)),
 		 SLOT(horSbSliding(int)));
-	connect( hScrollBar, SIGNAL(sliderReleased()),
+	connect( sb, SIGNAL(sliderReleased()),
 		 SLOT(horSbSlidingDone()));
-	that->hScrollBar->hide();
+	sb->hide();
+	that->hScrollBar = sb;
+	return sb;
     }
     return hScrollBar;
 }

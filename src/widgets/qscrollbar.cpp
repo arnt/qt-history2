@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#57 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#57 $");
 
 
 /*!
@@ -322,6 +322,8 @@ void QScrollBar::paintEvent( QPaintEvent * )
 }
 
 
+static QCOORD sliderStartPos = 0;
+
 /*!
   Handles mouse press events for the scroll bar.
 */
@@ -336,7 +338,8 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	case SLIDER:
 	    clickOffset = (QCOORD)( (HORIZONTAL ? e->pos().x() : e->pos().y())
 				    - sliderPos );
-	    slidePrevVal = value();
+	    slidePrevVal   = value();
+	    sliderStartPos = sliderPos;
 	    emit sliderPressed();
 	    break;
 	case NONE:
@@ -397,23 +400,32 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
     if ( pressedControl == SLIDER ) {
 	int sliderMin, sliderMax;
 	PRIV->sliderMinMax( &sliderMin, &sliderMax );
-	newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y()) -clickOffset;
+	QRect r = rect();
+	if ( orientation() == Horizontal )
+	    r.setRect( r.x(), r.y() - 30, r.width(), r.height() + 60 );
+	else
+	    r.setRect( r.x() - 30, r.y(), r.width() + 60, r.height() );
+	if ( style() == WindowsStyle && !r.contains( e->pos() ) )
+	    newSliderPos = sliderStartPos;
+        else
+	    newSliderPos = (HORIZONTAL ? e->pos().x() : 
+			                 e->pos().y()) -clickOffset;
 	if ( newSliderPos < sliderMin )
 	    newSliderPos = sliderMin;
 	else if ( newSliderPos > sliderMax )
 	    newSliderPos = sliderMax;
-	if ( newSliderPos != sliderPos ) {
-	    int newVal = PRIV->sliderPosToRangeValue(newSliderPos);
-	    if ( newVal != slidePrevVal )
-		emit sliderMoved( newVal );
-	    if ( track && newVal != value() ) {
-		directSetValue( newVal ); // Set directly, painting done below
-		emit valueChanged( value() );
-	    }
-	    slidePrevVal = newVal;
-	    sliderPos = (QCOORD)newSliderPos;
-	    PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
+	if ( newSliderPos == sliderPos )
+	    return;
+	int newVal = PRIV->sliderPosToRangeValue(newSliderPos);
+	if ( newVal != slidePrevVal )
+	    emit sliderMoved( newVal );
+	if ( track && newVal != value() ) {
+	    directSetValue( newVal ); // Set directly, painting done below
+	    emit valueChanged( value() );
 	}
+	slidePrevVal = newVal;
+	sliderPos = (QCOORD)newSliderPos;
+	PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
     }
 }
 
