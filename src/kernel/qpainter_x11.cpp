@@ -3194,6 +3194,9 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
     fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
 		  shaped->offsets, shaped->num_glyphs, rightToLeft );
 
+#if 0
+    // ##### use the correct font from the  item. Need some way to
+    // support qt_format_text underlining fast.
     if ( cfont.underline() || cfont.strikeOut() ) {
         QFontMetrics fm = fontMetrics();
         int lw = fm.lineWidth();
@@ -3206,7 +3209,7 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
         if ( cfont.strikeOut() )
             XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), si.width, lw );
     }
-
+#endif
 }
 
 /*!
