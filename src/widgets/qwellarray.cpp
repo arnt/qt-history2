@@ -113,8 +113,8 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 
     int b = 1;
 
-    if ( !smallStyle )
-	b = 3; //#####
+//     if ( !smallStyle )
+// 	b = 2; //#####
 
     const QColorGroup & g = colorGroup();
     p->setPen( QPen( black, 0, SolidLine ) );
