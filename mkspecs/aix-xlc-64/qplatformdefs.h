@@ -45,6 +45,7 @@ static inline int qt_truncate(const char *pathname, off_t length)
 #define QT_STATBUF4TSTAT	struct stat
 #define QT_STAT			::stat
 #define QT_FSTAT		::fstat
+#define QT_LSTAT		::lstat
 #define QT_STAT_REG		S_IFREG
 #define QT_STAT_DIR		S_IFDIR
 #define QT_STAT_MASK		S_IFMT
@@ -55,6 +56,7 @@ static inline int qt_truncate(const char *pathname, off_t length)
 #define QT_OPEN			qt_open
 #define QT_CLOSE		::close
 #define QT_TRUNCATE		qt_truncate
+#define QT_FTRUNCATE		::ftruncate
 #define QT_LSEEK		::lseek
 #define QT_READ			::read
 #define QT_WRITE		::write
