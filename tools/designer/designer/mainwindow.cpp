@@ -794,7 +794,7 @@ void MainWindow::helpContents()
 	focusWidget = focusWidget->parentWidget();
     }
 
-    QString source = "book1.html";
+    QString source = "designer-manual.html";
     if ( propertyDocumentation.isEmpty() ) {
 	QString indexFile = documentationPath() + "/propertyindex";
 	QFile f( indexFile );
@@ -844,7 +844,7 @@ void MainWindow::helpContents()
 	}
 
 	QString classname =  WidgetFactory::classNameOf( propertyEditor->widget() );
-	if ( source.isEmpty() || source == "book1.html" ) {
+	if ( source.isEmpty() || source == "designer-manual.html" ) {
 	    if ( classname.lower() == "spacer" )
 		source = "qspaceritem.html#details";
 	    else if ( classname == "QLayoutWidget" )
@@ -868,7 +868,7 @@ void MainWindow::helpContents()
 void MainWindow::helpManual()
 {
     QStringList lst;
-    lst << assistantPath() << "d:book1.html";
+    lst << assistantPath() << "d:designer-manual.html";
     QProcess proc( lst );
     proc.start();
 }
@@ -2522,9 +2522,13 @@ void MainWindow::checkTempFiles()
 
 void MainWindow::openHelpForDialog( const QString &dia )
 {
-    QString manualdir = QString( getenv( "QTDIR" ) ) + "/tools/designer/manual/book1.html";
+    QMessageBox::information( this, tr( "Help" ), tr( "There is no help available for this dialog at the moment." ) );
+    // ##### get this working again when we have a reference manual again
+    Q_UNUSED( dia );
+#if 0
+    QString manualdir = QString( getenv( "QTDIR" ) ) + "/tools/designer/manual/designer-manual.html";
     if ( !QFile::exists( manualdir ) )
-	manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer/book1.html";
+	manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer/designer-manual.html";
     QFile file( manualdir );
     if ( !file.open( IO_ReadOnly ) )
 	return;
@@ -2547,6 +2551,7 @@ void MainWindow::openHelpForDialog( const QString &dia )
 	QProcess proc( lst );
 	proc.start();
     }
+#endif
 }
 
 void MainWindow::showDialogHelp()
@@ -2587,6 +2592,9 @@ void MainWindow::showDialogHelp()
 	openHelpForDialog( "The Preferences Dialog" );
     else if ( w->inherits( "TopicChooserBase" ) )
 	openHelpForDialog( "The Topic Chooser Dialog" );
+    else
+	QMessageBox::information( this, tr( "Help" ),
+				  tr( "There is no help available for this dialog at the moment." ) );
 }
 
 void MainWindow::setupActionManager()
