@@ -465,7 +465,8 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 		--it;
 		if ( o->isWidgetType() &&
 		     ((QWidget*)o)->isVisible() &&
-		     ((QWidget*)o)->geometry().contains( p ) ) {
+		     ((QWidget*)o)->geometry().contains( p ) &&
+		     !((QWidget*)o)->isTopLevel()) {
 		    w = (QWidget *)o;
 		    done = FALSE;
 		    p = w->mapFromParent( p );
