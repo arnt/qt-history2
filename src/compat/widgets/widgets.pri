@@ -9,10 +9,11 @@ HEADERS +=      widgets/q3whatsthis.h \
                 widgets/q3menubar.h \
                 widgets/q3popupmenu.h \
 	 	../gui/widgets/qdatetimeedit.h \
-		../gui/widgets/qdockarea.h \
-		../gui/widgets/qdockwindow.h \
-		../gui/widgets/qmainwindow.h \
-		../gui/widgets/qtoolbar.h
+		widgets/q3dockarea.h \
+		widgets/q3dockwindow.h \
+		widgets/q3mainwindow.h \
+		widgets/q3mainwindow_p.h \
+		widgets/q3toolbar.h
 
 SOURCES +=      widgets/q3whatsthis.cpp \
 		widgets/q3action.cpp \
@@ -23,9 +24,9 @@ SOURCES +=      widgets/q3whatsthis.cpp \
                 widgets/q3menubar.cpp \
                 widgets/q3popupmenu.cpp \
 	 	../gui/widgets/qdatetimeedit.cpp \
-		../gui/widgets/qdockarea.cpp \
-		../gui/widgets/qdockwindow.cpp \
-		../gui/widgets/qmainwindow.cpp \
-		../gui/widgets/qtoolbar.cpp
+		widgets/q3dockarea.cpp \
+		widgets/q3dockwindow.cpp \
+		widgets/q3mainwindow.cpp \
+		widgets/q3toolbar.cpp
 
 mac:SOURCES += widgets/q3menubar_mac.cpp
