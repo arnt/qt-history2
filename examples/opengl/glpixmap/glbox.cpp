@@ -56,7 +56,6 @@ GLBox::GLBox( const QGLFormat& format, QWidget* parent, const char* name,
 
 GLBox::~GLBox()
 {
-    makeCurrent();
 }
 
 
