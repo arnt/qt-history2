@@ -1315,17 +1315,15 @@ void QGLExtensions::init()
     if (visinfo)
         XFree(visinfo);
 
-    if (!ctx) {
+    if (ctx) {
+        if (glXMakeCurrent(X11->display, win, ctx))
+            init_extensions();
+        else
+            qDebug("QGLExtensions: glXMakeCurrent() failed.");
+        glXDestroyContext(X11->display, ctx);
+    } else {
         qDebug("QGLExtensions: glXCreateContext failed.");
-        XDestroyWindow(X11->display, win);
-        return;
     }
-
-    if (glXMakeCurrent(X11->display, win, ctx))
-        init_extensions();
-    else
-        qDebug("QGLExtensions: glXMakeCurrent() failed.");
-
-    glXDestroyContext(X11->display, ctx);
     XDestroyWindow(X11->display, win);
+    XFreeColormap(X11->display, attr.colormap);
 }
