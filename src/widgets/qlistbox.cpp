@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#255 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#256 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1648,6 +1648,10 @@ void QListBox::focusInEvent( QFocusEvent * )
 	setCurrentItem( topItem() );
     }
     updateItem( currentItem() );
+    if ( !d->init && isVisible() ) {
+        ensureCurrentVisible();
+        d->init = TRUE;
+    }
 }
 
 
@@ -2795,6 +2799,10 @@ void QListBox::showEvent( QShowEvent * )
     d->ignoreMoves = FALSE;
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
+    if ( !d->init && isVisible() ) {
+        ensureCurrentVisible();
+        //d->init = TRUE;
+    }
 }
 
 /*!
