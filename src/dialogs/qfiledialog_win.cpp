@@ -299,10 +299,6 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     if ( title.isNull() )
 	title = tr("Save As");
 
-    QString title = caption;
-    if ( title.isNull() )
-	title = tr("Save As");
-
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
