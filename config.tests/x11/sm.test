@@ -18,7 +18,7 @@ fi
 if [ "$SM" = "yes" ]
 then
     INC="X11/SM/SM.h"
-    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
     INCDIRS="$XDIRS /usr/include /include"
     F=
     for INCDIR in $INCDIRS

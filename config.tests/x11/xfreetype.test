@@ -22,7 +22,7 @@ fi
 
 # check for lib
 
-XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $1/qmake.conf`
+XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
 LIBDIRS="$XDIRS /usr/lib /lib"
 F=
 for LIBDIR in $LIBDIRS
@@ -54,7 +54,7 @@ XFT_H=
 if [ "$XFREETYPE" = "yes" ]
 then
     INC="X11/Xft/Xft.h"
-    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
     INCDIRS="$XDIRS /usr/include /include"
     F=
     for INCDIR in $INCDIRS
@@ -83,7 +83,7 @@ fi
 if [ "$XFREETYPE" = "yes" ]
 then
     INC="X11/Xft/XftFreetype.h"
-    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
     INCDIRS="$XDIRS /usr/include /include"
     F=
     for INCDIR in $INCDIRS
@@ -126,8 +126,8 @@ FREETYPE2_INCDIR=
 if [ "$XFREETYPE" = "yes" ]
 then
     INC="freetype2/freetype/freetype.h"
-    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
-    LDIRS=`sed -n -e '/^QMAKE_INCDIR[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
+    LDIRS=`sed -n -e '/^QMAKE_INCDIR[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
     INCDIRS="$XDIRS $LDIRS /usr/include /include"
     F=
     for INCDIR in $INCDIRS
