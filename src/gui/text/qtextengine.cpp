@@ -1200,7 +1200,7 @@ void QTextEngine::justify(const QScriptLine &line)
 
     if (!line.gridfitted) {
         // redo layout in device metrics, then adjust
-        line.gridfitted = true;
+        const_cast<QScriptLine &>(line).gridfitted = true;
     }
 
     if ((textFlags & Qt::AlignHorizontal_Mask) != Qt::AlignJustify) {
@@ -1220,7 +1220,7 @@ void QTextEngine::justify(const QScriptLine &line)
     --line_length;
 
     if (!line_length) {
-        line.justified = true;
+        const_cast<QScriptLine &>(line).justified = true;
         return;
     }
 
@@ -1299,7 +1299,7 @@ void QTextEngine::justify(const QScriptLine &line)
 
     // don't justify last line. Return here, so we ensure justificationType etc. are reset.
     if (line.from + (int)line.length == string.length()) {
-        line.justified = true;
+        const_cast<QScriptLine &>(line).justified = true;
         return;
     }
 
@@ -1307,7 +1307,7 @@ void QTextEngine::justify(const QScriptLine &line)
     Q26Dot6 need = line.width - line.textWidth;
     if (need < 0) {
         // line overflows already!
-        line.justified = true;
+        const_cast<QScriptLine &>(line).justified = true;
         return;
     }
 
@@ -1358,5 +1358,5 @@ void QTextEngine::justify(const QScriptLine &line)
         Q_ASSERT(!need);
     }
  end:
-    line.justified = true;
+    const_cast<QScriptLine &>(line).justified = true;
 }
