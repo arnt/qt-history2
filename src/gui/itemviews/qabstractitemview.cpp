@@ -1124,10 +1124,8 @@ bool QAbstractItemView::edit(const QModelIndex &index,
                              BeginEditAction action,
                              QEvent *event)
 {
-    if (itemDelegate()->editorType(model(), index) == QAbstractItemDelegate::Events) {
-        itemDelegate()->event(event, model(), index);
-        return true; // event was consumed
-    }
+    if (itemDelegate()->event(event, model(), index))
+        return true; // the delegate handled the event
 
     QModelIndex buddy = model()->buddy(index);
     QModelIndex edit = buddy.isValid() ? buddy : index;
@@ -1166,12 +1164,8 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool commit)
 
     d->state = NoState;
 
-    QAbstractItemDelegate::EditorType type = itemDelegate()->editorType(model(), persistent);
-    if (type == QAbstractItemDelegate::Events)
-        return;
-
     QWidget *editor = d->editors.value(persistent);
-    if (editor && type == QAbstractItemDelegate::Widget) {
+    if (editor) {
         if (commit)
             itemDelegate()->setModelData(editor, model(), index);
         if (!d->persistent.contains(editor)) { // if the editor is not persistent, remove it
@@ -1829,8 +1823,6 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction act
     if (action == QAbstractItemView::AlwaysEdit)
         return true;
     if (action & beginEditActions)
-        return true;
-    if (delegate && delegate->editorType(model, index) == QAbstractItemDelegate::Events)
         return true;
     return d->editors.contains(QPersistentModelIndex(index, model)); // persistent editor
 }

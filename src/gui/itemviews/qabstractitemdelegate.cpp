@@ -133,19 +133,6 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 */
 
 /*!
-    Returns the \c EditorType for the item at the given \a index in the
-    \a model.
-
-    If you provide an editor(), you will want to reimplement this
-    function to return the \c EditorType appropriate to your editor().
-*/
-QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QAbstractItemModel *,
-                                                                    const QModelIndex &) const
-{
-    return QAbstractItemDelegate::Events;
-}
-
-/*!
     Returns the editor to be used for editing the data item at the
     given \a index in the \a model. The action that caused the edit is
     specified by \a action; The editor's parent widget is specified by

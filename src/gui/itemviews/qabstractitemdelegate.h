@@ -30,11 +30,6 @@ public:
     QAbstractItemDelegate(QObject *parent = 0);
     virtual ~QAbstractItemDelegate();
 
-    enum EditorType {
-        Events,
-        Widget
-    };
-
     // painting
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
                        const QAbstractItemModel *model, const QModelIndex &index) const = 0;
@@ -43,8 +38,6 @@ public:
                            const QModelIndex &index) const = 0;
 
     // editing
-    virtual EditorType editorType(const QAbstractItemModel *model, const QModelIndex &index) const;
-
     virtual QWidget *editor(QWidget *parent,
                             const QStyleOptionViewItem &option,
                             const QAbstractItemModel *model,

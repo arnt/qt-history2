@@ -202,21 +202,6 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 }
 
 /*!
-    \fn QItemDelegate::EditorType QItemDelegate::editorType(const QAbstractItemModel *model, const QModelIndex &index) const
-
-    Returns the type of editor that this delegate implements for the item at
-    the given \a index in the \a model.
-
-    \sa QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType()
-*/
-
-QItemDelegate::EditorType QItemDelegate::editorType(const QAbstractItemModel *,
-                                                    const QModelIndex &) const
-{
-    return Widget;
-}
-
-/*!
     Returns the widget used to edit the item specified by the \a model and
     item \a index for the editing \a action given. The \a parent widget and
     style \a option are used to control how the editor widget appears.
