@@ -346,14 +346,14 @@ struct XPThemeData
 	} else if ( name && name == "EDIT" ) {
 	    // We assume upto 2px border on the lineedit
 	    // pixmap, and clip the rest to avoid flicker
-	    HRGN hr;
-	    CombineRgn( hr, 
-			CreateRectRgn( rec.left(), rec.top(), rec.right() + 1, rec.bottom() + 1 ),
-			CreateRectRgn( rec.left() + 2, rec.top() + 2, rec.right() - 1, rec.bottom() - 1 ),
-			RGN_XOR );
-	    SelectClipRgn( painter->handle(), hr );
+	    HRGN hr1 = CreateRectRgn( rec.left(), rec.top(), rec.right() + 1, rec.bottom() + 1 );
+	    HRGN hr2 = CreateRectRgn( rec.left() + 2, rec.top() + 2, rec.right() - 1, rec.bottom() - 1 );
+	    CombineRgn( hr1, hr1, hr2, RGN_DIFF );
+	    SelectClipRgn( painter->handle(), hr1 );
 	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
 	    SelectClipRgn( painter->handle(), 0 );
+	    DeleteObject( hr1 );
+	    DeleteObject( hr2 );
 	} else {
 	    QRect rt = rec;
 	    rec = painter->xForm( rec );
