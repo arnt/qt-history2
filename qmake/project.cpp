@@ -1353,7 +1353,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	file = Option::fixPathToLocalOS(file);
 	file.replace("\"", "");
 	bool ret = doProjectInclude(file, !include_statement, place, seek_var);
-	if(!ret) {
+	if(!ret && !ignore_error) {
 	    printf("Project LOAD(): Feature %s cannot be found.\n", file.latin1());
 	    if (!ignore_error)
 		exit(3);
