@@ -229,6 +229,21 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
         break;
     }
+    case QTextCursor::StartOfBlock: {
+        newPosition = blockIt.position();
+        break;
+    }
+    case QTextCursor::StartOfWord: {
+        const QCharAttributes *attributes = layout->engine()->attributes();
+
+        if (relativePos == 0)
+            return false;
+        while (relativePos > 0 && !attributes[relativePos].wordStop && !attributes[relativePos].whiteSpace)
+            relativePos--;
+
+        newPosition = blockIt.position() + relativePos;
+        break;
+    }
     case QTextCursor::PreviousBlock: {
         if (blockIt == priv->blocksBegin())
             return false;
@@ -301,7 +316,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
         const int len = layout->text().length();
         if (relativePos >= len)
-            return relativePos;
+            return false;
         relativePos++;
         while (relativePos < len && !attributes[relativePos].wordStop && !attributes[relativePos].whiteSpace)
             relativePos++;

@@ -53,6 +53,8 @@ public:
         Start,
         Up,
         StartOfLine,
+        StartOfBlock,
+        StartOfWord,
         PreviousBlock,
         PreviousCharacter,
         PreviousWord,
