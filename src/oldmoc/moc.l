@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/oldmoc/moc.l#1 $
+** $Id: //depot/qt/main/src/oldmoc/moc.l#2 $
 **
 ** Lexical analyzer for meta object compiler
 **
 ** Created : 930417
 **
-** Copyright (C) 1993-1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **

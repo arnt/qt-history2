@@ -5,7 +5,7 @@
 **
 ** Created : 981126
 **
-** Copyright (C) 1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **

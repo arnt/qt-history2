@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/oldmoc/moc.y#1 $
+** $Id: //depot/qt/main/src/oldmoc/moc.y#2 $
 **
 ** Parser and code generator for meta object compiler
 **
 ** Created : 930417
 **
-** Copyright (C) 1993-1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -1119,7 +1119,7 @@ void enterNameSpace( const char *name = 0 )   	 // prepare for new class
 	namespaces.setAutoDelete( TRUE );
 	first = FALSE;
     }
-	
+
     NamespaceInfo *tmp = new NamespaceInfo;
     if ( name )
 	tmp->name = name;
@@ -1184,7 +1184,7 @@ void closeNameSpaceForMetaObject( FILE *out, int levels )
 	    fprintf( out, "}" );
     if ( levels )
 	fprintf( out, "\n" );
-	
+
 }
 
 void selectOutsideClassState()
@@ -1706,7 +1706,7 @@ void generateClass()		      // generate C++ source code for a class
 	} else {
 	    fprintf( out, "    typedef void (QObject::*RT)(%s);\n",
 		     (const char*)typstr);
-	    fprintf( out, "    typedef RT *PRT;\n" );	
+	    fprintf( out, "    typedef RT *PRT;\n" );
 	}
 	if ( nargs ) {
 	    for ( i=0; i<=nargs; i++ )

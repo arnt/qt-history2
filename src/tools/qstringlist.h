@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#19 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#20 $
 **
 ** Definition of QStringList class
 **
 ** Created : 990406
 **
-** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **

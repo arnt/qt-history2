@@ -4,7 +4,7 @@
 ** Compatibility file - should only be included by legacy code.
 ** It #includes the file which obsoletes this one.
 **
-** Copyright (C) 1998-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
 **  This file is part of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License

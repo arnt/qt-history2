@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#10 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#11 $
 **
 ** Implementation of Network Extension Library
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **

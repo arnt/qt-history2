@@ -5,7 +5,7 @@
 **
 ** Created : 930417
 **
-** Copyright (C) 1993-1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -1046,7 +1046,7 @@ opt_komma:		  /*empty*/
 			;
 
 enum_tail:		  IDENTIFIER '{'   enum_list opt_komma
-			  '}'   { BEGIN QT_DEF;	
+			  '}'   { BEGIN QT_DEF;
 				  if ( tmpAccessPerm == _PUBLIC) {
 				      tmpEnum->name = $1;
 				      addEnum();
@@ -1374,7 +1374,7 @@ void enterNameSpace( const char *name = 0 )   	 // prepare for new class
 	namespaces.setAutoDelete( TRUE );
 	first = FALSE;
     }
-	
+
     NamespaceInfo *tmp = new NamespaceInfo;
     if ( name )
 	tmp->name = name;
@@ -1439,7 +1439,7 @@ void closeNameSpaceForMetaObject( FILE *out, int levels )
 	    fprintf( out, "}" );
     if ( levels )
 	fprintf( out, "\n" );
-	
+
 }
 
 void selectOutsideClassState()
@@ -1806,7 +1806,7 @@ int generateProps()
     for( QListIterator<Property> it( props ); it.current(); ) {
 	Property* p = it.current();
 	++it;
-	
+
 	// verify get function
 	if ( !p->get.isEmpty() ) {
 	    FuncList candidates = propfuncs.find( p->get );
@@ -1833,7 +1833,7 @@ int generateProps()
 		if ( tmp.left(6) == "const " )
 		    tmp = tmp.mid( 6, tmp.length() - 6 );
 		tmp = tmp.simplifyWhiteSpace();
-		
+
 		if ( p->type == tmp ) {
 		    p->gspec = spec;
 		    p->getfunc = f;
@@ -1847,7 +1847,7 @@ int generateProps()
 		    fprintf( stderr, "   Have been looking for public get functions \n"
 			     "      %s %s() const\n"
 			     "      %s& %s() const\n"
-			     "      %s* %s() const\n",		
+			     "      %s* %s() const\n",
 			     (const char*) p->type, (const char*) p->get,
 			     (const char*) p->type, (const char*) p->get,
 			     (const char*) p->type, (const char*) p->get );
@@ -1880,7 +1880,7 @@ int generateProps()
 		}
 	    }
 	}
-	
+
 	// verify set function
 	if ( !p->set.isEmpty() ) {
 	    FuncList candidates = propfuncs.find( p->set );
@@ -1904,7 +1904,7 @@ int generateProps()
 		if ( tmp.left(6) == "const " )
 		    tmp = tmp.mid( 6, tmp.length() - 6 );
 		tmp = tmp.simplifyWhiteSpace();
-		
+
 		if ( p->type == tmp && f->args->count() == 1 ) {
 		    p->sspec = spec;
 		    p->setfunc = f;
@@ -1926,7 +1926,7 @@ int generateProps()
 		    if ( p->type == "QCString" )
 			fprintf( stderr, "      void %s( const char* ) const\n",
 				 (const char*) p->set );
-		
+
 		    if ( !candidates.isEmpty() ) {
 			fprintf( stderr, "   but only found the missmatching candidate(s)\n");
 			for ( Function* f = candidates.first(); f; f = candidates.next() ) {
@@ -1991,12 +1991,12 @@ int generateProps()
 	int count = 0;
 	int entry = 0;
 	for( QListIterator<Property> it( props ); it.current(); ++it ){
-	
+
 	    fprintf( out, "    props_tbl[%d].t = \"%s\";\n", entry,
 		     (const char*)it.current()->type );
 	    fprintf( out, "    props_tbl[%d].n = \"%s\";\n",
 		     entry, (const char*) it.current()->name );
-	
+
 	    if ( it.current()->getfunc )
 		fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count );
@@ -2008,8 +2008,8 @@ int generateProps()
 			 entry, Prop_Num, count + 1 );
 	    else
 		fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
-	
-	
+
+
 	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n",
 		     entry, Property::specToString(it.current()->gspec ));
 
@@ -2047,7 +2047,7 @@ int generateClassInfos()
 		" but no Q_OBJECT macro!", className.data());
 
     fprintf( out, "    QClassInfo* classinfo_tbl = QMetaObject::new_classinfo( %i );\n", infos.count() );
-	
+
     int i = 0;
     for( QListIterator<ClassInfo> it( infos ); it.current(); ++it, ++i ) {
 	fprintf( out, "    classinfo_tbl[%i].name = \"%s\";\n", i, it.current()->name.data() );
@@ -2328,7 +2328,7 @@ void generateClass()		      // generate C++ source code for a class
 	} else {
 	    fprintf( out, "    typedef void (QObject::*RT)(%s);\n",
 		     (const char*)typstr);
-	    fprintf( out, "    typedef RT *PRT;\n" );	
+	    fprintf( out, "    typedef RT *PRT;\n" );
 	}
 	if ( nargs ) {
 	    for ( i=0; i<=nargs; i++ )

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#355 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#356 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
 ** Created : 931203
 **
-** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit Professional Edition.
 **

@@ -1,4 +1,4 @@
-// Copyright 1999 Troll Tech AS
+// Copyright 1999-2000 Troll Tech AS
 
 #ifndef QWSEVENT_H
 #define QWSEVENT_H
