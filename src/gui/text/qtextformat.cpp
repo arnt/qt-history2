@@ -686,10 +686,7 @@ void QTextFormat::setProperty(int propertyId, const QVariant &value)
 */
 void QTextFormat::setProperty(int propertyId, bool value)
 {
-    if (!value)
-        clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -700,10 +697,7 @@ void QTextFormat::setProperty(int propertyId, bool value)
 */
 void QTextFormat::setProperty(int propertyId, int value)
 {
-    if (!value)
-        clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -715,10 +709,7 @@ void QTextFormat::setProperty(int propertyId, int value)
 */
 void QTextFormat::setProperty(int propertyId, float value)
 {
-    if (value == 0.)
-        clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -728,10 +719,7 @@ void QTextFormat::setProperty(int propertyId, float value)
 */
 void QTextFormat::setProperty(int propertyId, const QString &value)
 {
-    if (value.isNull())
-        clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -741,10 +729,7 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
 */
 void QTextFormat::setProperty(int propertyId, const QColor &value)
 {
-    if (!value.isValid())
-        clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 
@@ -755,10 +740,7 @@ void QTextFormat::setProperty(int propertyId, const QColor &value)
 */
 void QTextFormat::setProperty(int propertyId, const QTextLength &value)
 {
-    if (value.type() == QTextLength::VariableLength)
-        clearProperty(propertyId);
-    else
-        d->insertProperty(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
