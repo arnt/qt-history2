@@ -626,6 +626,11 @@ menu. The Edit menu will pop up; drag the optionsAction down the menu
 (a horizontal red line indicates its position), and drop it at the end
 after the "Find" option.
 
+Since we also want to make this option available from the toolbar,
+click the optionsAction again, and this time drag it to the toolbar.
+Drop it to the left of the scissors (Cut) toolbar button. (A
+horizontal red line indicates its position during the drag.)
+
 The options action ought to be visually separated from the other Edit
 menu options. Click the form's Edit menu, then right click the
 "Find" option, then click \Menu{Insert Separator}.
@@ -647,10 +652,8 @@ Click the editAddAction and drag it to be the first item in the Edit
 menu. (Drag it to the edit menu and drop it when the horizontal red
 line is above the "Cut" menu option.)
 
-Since we also want to make this option available from the toolbar,
-click the editAddAction again, and this time drag it to the toolbar.
-Drop it to the left of the scissors (Cut) toolbar button. (A
-horizontal red line indicates its position during the drag.)
+Click the editAddAction again, and this time drag it to the toolbar.
+Drop it to the left of the scissors (Cut) toolbar button. 
 
 \section4 Tidying Up
 
