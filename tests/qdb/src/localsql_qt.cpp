@@ -37,7 +37,6 @@ public:
     {
 	return QSqlError("LocalSQL: " + err, env.lastError(), 0);
     }
-    QString databasePath;
     LocalSQL env;
 };
 
@@ -45,7 +44,7 @@ LocalSQLResult::LocalSQLResult( const LocalSQLDriver* db, const QString& path )
     : QSqlResult( db )
 {
     d =   new LocalSQLPrivate();
-    d->databasePath = path;
+    d->env.setPath( path );
 }
 
 LocalSQLResult::~LocalSQLResult()
@@ -261,7 +260,8 @@ QStringList LocalSQLDriver::tables( const QString& /*user*/ ) const
 QSqlIndex LocalSQLDriver::primaryIndex( const QString& tablename ) const
 {
     LocalSQL env;
-    env.addFileDriver( 0, databasePath + "/" + tablename );
+    env.setPath( databasePath );
+    env.addFileDriver( 0, tablename );
     localsql::FileDriver* driver = env.fileDriver( 0 );
     if ( !driver->open() ) {
 	qWarning( "LocalSQLDriver::record: Unable to open table:" + tablename );
@@ -285,7 +285,8 @@ QSqlIndex LocalSQLDriver::primaryIndex( const QString& tablename ) const
 QSqlRecord LocalSQLDriver::record( const QString& tablename ) const
 {
     LocalSQL env;
-    env.addFileDriver( 0, databasePath + "/" + tablename );
+    env.setPath( databasePath );
+    env.addFileDriver( 0, tablename );
     localsql::FileDriver* driver = env.fileDriver( 0 );
     if ( !driver->open() ) {
 	qWarning( "LocalSQLDriver::record: Unable to open table:" + tablename );

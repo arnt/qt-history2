@@ -168,8 +168,6 @@ int main( int argc, char** argv )
 	die( "directory does not exist: " + dbdirname );
     if ( verbose )
 	outstream << "using database in " + dbdirname << endl;
-    if ( !QDir::setCurrent( dbdirname ) )
-	die( "could not cd: " + dbdirname );
 
     /* index stuff */
     if ( index && tablename.length() ) {
@@ -179,16 +177,16 @@ int main( int argc, char** argv )
 	xbShort rc;
 	xbXBase x;
 	xbDbf file( &x );
-	if( ( rc =  file.OpenDatabase( tablename ) ) != 0 )
-	    die( "could not open table " + tablename );
+	if( ( rc =  file.OpenDatabase( dbdirname + "/" + tablename ) ) != 0 )
+	    die( "could not open table " + dbdirname + "/" + tablename );
 	xbNdx idx( &file );
-	QFileInfo fi( tablename );
+	QFileInfo fi( dbdirname + "/" + tablename );
 	QString basename = fi.baseName();
 	QDir dir;
-	QStringList indexnames = dir.entryList( basename + "*.ndx", QDir::Files );
+	QStringList indexnames = dir.entryList( dbdirname + "/" + basename + "*.ndx", QDir::Files );
 	for ( uint i = 0; i < indexnames.count(); ++i ) {
-	    if( ( rc = idx.OpenIndex( indexnames[i] )) != XB_NO_ERROR )
-		die( "could not open index " + indexnames[i] );
+	    if( ( rc = idx.OpenIndex( dbdirname + "/" + indexnames[i] )) != XB_NO_ERROR )
+		die( "could not open index " + dbdirname + "/" + indexnames[i] );
 	    idx.GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
 	    QString output = indexnames[i] + ": " + buf;
 	    if ( rebuildindexes ) {
@@ -207,6 +205,7 @@ int main( int argc, char** argv )
     /* table description */
     if ( tablename.length() ) {
 	LocalSQL env;
+	env.setPath( dbdirname );
 	uint i = 0;
 	env.addFileDriver( 0, tablename );
 	localsql::FileDriver* driver = env.fileDriver( 0 );
@@ -265,6 +264,7 @@ int main( int argc, char** argv )
 
     /* execute commands */
     LocalSQL env;
+    env.setPath( dbdirname );
     env.setOutput( outstream );
     if ( env.parse( commands, echo ) ) {
 	if ( analyse )

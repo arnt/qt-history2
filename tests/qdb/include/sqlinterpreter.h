@@ -128,6 +128,12 @@ private:
     localsql::ColumnKey::ConstIterator keyit;
     localsql::Data::Iterator datait;
     int j;
+    enum Pos {
+	BeforeFirst = -1,
+	AfterLast = -2,
+	Valid = 0
+    };
+    Pos pos;
 };
 
 class Parser : public localsql::Parser

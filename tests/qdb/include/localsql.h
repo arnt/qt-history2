@@ -49,7 +49,8 @@ public:
     localsql::ResultSet* resultSet( int id );
     void setLastError( const QString& error );
     QString lastError() const;
-
+    void setPath( const QString& path );
+    QString path() const;
 
 private:
     class Private;

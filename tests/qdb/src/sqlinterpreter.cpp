@@ -260,7 +260,7 @@ public:
 
 };
 
-/*!  Constructs an empty
+/*!  Constructs an empty result set
 
 */
 
@@ -270,6 +270,7 @@ ResultSet::ResultSet( localsql::Environment* environment )
     head = new Header();
     datait = data.end();
     keyit = sortKey.end();
+    pos = BeforeFirst;
 }
 
 ResultSet::ResultSet( const ResultSet& other )
@@ -288,6 +289,7 @@ ResultSet& ResultSet::operator=( const ResultSet& other )
     keyit = other.keyit;
     datait = other.datait;
     j = other.j;
+    pos = other.pos;
     return *this;
 }
 
@@ -431,66 +433,100 @@ static bool operator<( const QVariant &v1, const QVariant& v2 )
 
 bool ResultSet::first()
 {
-    if ( !data.count() )
+    if ( !data.count() ) {
+	pos = BeforeFirst;
 	return FALSE;
+    }
     keyit = sortKey.begin();
     datait = data.begin();
     j = 0;
+    pos = Valid;
     return TRUE;
 }
 
 bool ResultSet::last()
 {
-    if ( !data.count() )
+    if ( !data.count() ) {
+	pos = BeforeFirst;
 	return FALSE;
+    }
     if ( sortKey.count() ) {
 	keyit = --sortKey.end();
 	j = keyit.data().count()-1;
     } else {
 	datait = --data.end();
     }
+    pos = Valid;
     return TRUE;
 }
 
 bool ResultSet::next()
 {
-    if ( !data.count() )
+    if ( !data.count() ) {
+	pos = BeforeFirst;
 	return FALSE;
+    }
     if ( sortKey.count() ) {
-	if ( keyit == sortKey.end() )
+	if ( pos == BeforeFirst )
 	    return first();
+	if ( pos == AfterLast )
+	    return FALSE;
 	if ( j+1 > (int)keyit.data().count()-1 ) { /* go to next map element */
-	    if ( keyit == --sortKey.end() )
+	    if ( keyit == --sortKey.end() ) {
+		pos = AfterLast;
 		return FALSE;
+	    }
 	    ++keyit;
 	    j = 0;
 	} else /* go to next list element in the same map element */
 	    ++j;
     } else {
-	if ( datait == --data.end() )
+	if ( pos == BeforeFirst )
+	    return first();
+	if ( pos == AfterLast )
 	    return FALSE;
+	if ( datait == --data.end() ) {
+	    pos = AfterLast;
+	    return FALSE;
+	}
 	++datait;
     }
+    pos = Valid;
     return TRUE;
 }
 
 bool ResultSet::prev()
 {
-    if ( !data.count() )
+    if ( !data.count() ) {
+	pos = BeforeFirst;
 	return FALSE;
+    }
     if ( sortKey.count() ) {
+	if ( pos == BeforeFirst )
+	    return FALSE;
+	if ( pos == AfterLast )
+	    return last();
 	if ( j-1 < 0 ) { /* go to previous map element */
-	    if ( keyit == sortKey.begin() )
+	    if ( keyit == sortKey.begin() ) {
+		pos = BeforeFirst;
 		return FALSE;
+	    }
 	    --keyit;
 	    j = keyit.data().count()-1;
 	} else /* go to previous list element in the same map element */
 	    --j;
     } else {
-	if ( datait == data.begin() )
+	if ( pos == BeforeFirst )
 	    return FALSE;
+	if ( pos == AfterLast )
+	    return last();
+	if ( datait == data.begin() ) {
+	    pos = BeforeFirst;
+	    return FALSE;
+	}
 	--datait;
     }
+    pos = Valid;
     return TRUE;
 }
 
@@ -669,6 +705,6 @@ bool ResultSet::sort( const localsql::List& index )
 		reverse( sortKey, data.count() );
 	}
     }
-
+    pos = BeforeFirst;
     return TRUE;
 }

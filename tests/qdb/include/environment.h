@@ -217,6 +217,8 @@ namespace localsql {
 	virtual ResultSet* resultSet( int id ) = 0;
 	virtual void setLastError( const QString& error ) = 0;
 	virtual QString lastError() const = 0;
+	virtual void setPath( const QString& path ) = 0;
+	virtual QString path() const = 0;
     };
 
 };

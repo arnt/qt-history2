@@ -45,6 +45,7 @@ public:
     QTextStream stdOut;
     QTextStream* out;
     QString err;
+    QString path;
 };
 
 /*! \class LocalSQL
@@ -298,4 +299,14 @@ bool LocalSQL::addFileDriverAlias( const localsql::List& drivers, const QString 
     }
     d->driverAlias[alias] = aliasedFile;
     return TRUE;
+}
+
+void LocalSQL::setPath( const QString& path )
+{
+    d->path = path;
+}
+
+QString LocalSQL::path() const
+{
+    return d->path;
 }

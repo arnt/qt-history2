@@ -235,6 +235,11 @@ bool FileDriver::create( const localsql::List& data )
     if ( !data.count() ) {
 	ERROR_RETURN( "No fields defined, nothing to create" );
     }
+    if ( QFile::exists( env->path() + "/" + name() ) ||
+	 QFile::exists( env->path() + "/" + name() + ".dbf" ) ) {
+	env->output() << "Table already exists: " << name() << endl;
+	return TRUE;
+    }
     QArray<xbSchema> xbrec( data.count()+1 ); /* one extra for null entry */
     xbSchema x;
     uint i = 0;
@@ -275,7 +280,7 @@ bool FileDriver::create( const localsql::List& data )
     memset( &x, 0, sizeof(xbSchema) );
     xbrec[ data.count() ] = x;
     d->file.SetVersion( 4 );   /* create dbase IV style files */
-    xbShort rc = d->file.CreateDatabase( name().latin1(), xbrec.data(), XB_OVERLAY );
+    xbShort rc = d->file.CreateDatabase( env->path() + "/" + name().latin1(), xbrec.data(), XB_OVERLAY );
     if ( rc != XB_NO_ERROR ) {
 	ERROR_RETURN( "Unable to  create table '" + name() + "': " + QString( xbStrError( rc ) ) );
     }
@@ -295,29 +300,29 @@ bool FileDriver::open()
     if ( !name() ) {
 	ERROR_RETURN( "No table name specified" );
     }
-    xbShort rc = d->file.OpenDatabase( name().latin1() );
+    xbShort rc = d->file.OpenDatabase( env->path() + "/" + name().latin1() );
     if ( rc != XB_NO_ERROR ) {
 	ERROR_RETURN( "Unable to open table '" + name() + "': " + QString ( xbStrError( rc ) ) );
     }
 #ifdef DEBUG_XBASE
-    env->output() << name().latin1() << " opened..." << flush;
+    env->output() << env->path() + "/" + name().latin1() << " opened..." << flush;
 #endif
     setIsOpen( TRUE );
     /* open all associated indexes */
-    QFileInfo fi( name() );
+    QFileInfo fi( env->path() + "/" + name() );
     QString basename = fi.baseName();
     QDir dir;
-    QStringList indexList = dir.entryList( basename + "*.ndx", QDir::Files );
+    QStringList indexList = dir.entryList( env->path() + "/" + basename + "*.ndx", QDir::Files );
     d->indexes.resize( indexList.count() );
     for ( uint i = 0; i < indexList.count(); ++i ) {
 	xbNdx* idx = new xbNdx( &d->file );
-	rc = idx->OpenIndex( indexList[i].latin1() );
+	rc = idx->OpenIndex( env->path() + "/" + indexList[i].latin1() );
 	if ( rc != XB_NO_ERROR ) {
 	    delete idx;
 	    ERROR_RETURN( "Unable to open index: " + QString( xbStrError( rc ) ) );
 	}
 #ifdef DEBUG_XBASE
-	env->output() << indexList[i].latin1() << " index opened..." << flush;
+	env->output() << env->path() + "/" + indexList[i].latin1() << " index opened..." << flush;
 #endif
 	d->indexes.insert( i, idx );
     }
@@ -998,10 +1003,7 @@ bool FileDriver::createIndex( const localsql::List& data, bool unique )
 	    d->indexes[i]->GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
 	    if ( QString(buf) == indexDesc ) {
 		forceCreate = FALSE;
-#ifdef DEBUG_XBASE
-		env->output() << "index already exists..." << flush;
-#endif
-		//## make this an error instead?
+		env->output() << "Index already exists: " << env->path() + "/" + name() << "." << buf << endl;
 		break;
 	    }
 	}
@@ -1016,24 +1018,24 @@ bool FileDriver::createIndex( const localsql::List& data, bool unique )
 	d->indexes.resize( d->indexes.size()+1 );
 	d->indexes.insert( d->indexes.size()-1, idx );
 	/* get unique index name based on file name */
-	QFileInfo fi( name() );
+	QFileInfo fi( env->path() + "/" + name() );
 	indexName = fi.baseName();
 	i = 1;
-	fi.setFile( indexName + QString::number(i) + ".ndx" );
+	fi.setFile( env->path() + "/" + indexName + QString::number(i) + ".ndx" );
 	while ( fi.exists() ) {
 	    i++;
-	    fi.setFile( indexName + QString::number(i) + ".ndx" );
+	    fi.setFile( env->path() + "/" + indexName + QString::number(i) + ".ndx" );
 	}
 	indexName = fi.fileName();
-	rc = idx->CreateIndex( indexName.latin1(), indexDesc.latin1(),
-				       unique ? XB_UNIQUE : XB_NOT_UNIQUE, XB_OVERLAY );
+	rc = idx->CreateIndex( env->path() + "/" + indexName.latin1(), indexDesc.latin1(),
+			       unique ? XB_UNIQUE : XB_NOT_UNIQUE, XB_OVERLAY );
 	if ( rc != XB_NO_ERROR ) {
-	    QFile::remove( indexName );
+	    QFile::remove( env->path() + "/" + indexName );
 	    ERROR_RETURN( "Unable to create index: " + QString( xbStrError( rc ) ) );
 	}
 	/* build index */
 	if ( ( rc = idx->ReIndex() ) != XB_NO_ERROR ) {
-	    QFile::remove( indexName );
+	    QFile::remove( env->path() + "/" + indexName );
 	    ERROR_RETURN( "Unable to build index: " + QString( xbStrError( rc ) ) );
 	}
 
@@ -1054,10 +1056,10 @@ bool FileDriver::drop()
     }
     if ( isOpen() )
 	close();
-    QFileInfo fi( name() );
+    QFileInfo fi( env->path() + "/" + name() );
     QString basename = fi.baseName();
     QDir dir;
-    QStringList indexList = dir.entryList( basename + "*.*", QDir::Files );
+    QStringList indexList = dir.entryList( env->path() + "/" + basename + "*.*", QDir::Files );
     for ( uint i = 0; i < indexList.count(); ++i )
 	QFile::remove( indexList[i] );
 #ifdef DEBUG_XBASE
