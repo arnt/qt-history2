@@ -1,0 +1,100 @@
+/****************************************************************************
+** $Id: index.doc,v 1.1 1997/09/25 14:05:48 warwick Exp $
+**
+** Index page
+**
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: index.doc,v 1.1 1997/09/25 14:05:48 warwick Exp $";
+#endif
+
+/*! \page index.html
+
+<title>Qt Image IO Extension Library</title>
+</head>
+<body bgcolor=#ffffff>
+
+<h1 align=center>Qt Image IO Extension Library</h1>
+<hr>
+
+<p>
+This library is an extension to the
+Qt GUI Toolkit.  It provides image input/output facilities for additional
+formats which may require additional libraries or DLLs, or simply large
+amounts of code to implement.  The purpose of this extension is to allow
+the Qt GUI Toolkit to remain unbloated by such additional library code,
+while allowing Qt applications with specific image I/O requirements to
+have readily available support.
+
+<p>
+The API of the library is simple.  An application requiring additional
+image formats should either call the function:
+
+<ul>
+ <li> <a href=#all><b>qInitImageIO</b></a> () - below
+</ul>
+
+<em>or</em> call a selection of the format-specific functions:
+
+<ul>
+ <li> <a href=#jpeg><b>qInitJpegIO</b></a> () - below
+ <li> <a href=#png><b>qInitPngIO</b></a> () - below
+</ul>
+
+
+<hr>
+
+<h2>Function Documentation</h2>
+
+<h3> <a name=all>qInitImageIO()</a> </h3>
+
+<pre>
+  #include &lt;qimgio.h&gt;
+</pre>
+
+  Initialize <em>all</em> image I/O extensions.  Note, that future versions
+  of this extension may support more formats than the version your application
+  was originally linked with.  If you link dynamically with <tt>libqimgio</tt>,
+  then
+  those new formats will be available, and your application will require
+  any libraries for supporting those formats.
+  If this is not what you want, consider calling the individual format
+  functions.  Also consider linking statically in this case.
+<p>
+  Currently, this function enables JPEG and PNG support.
+
+
+<h3> <a name=jpeg>qInitJpegIO()</a> </h3>
+
+<pre>
+  #include &lt;qjpegio.h&gt;
+</pre>
+
+  Initialize JPEG image I/O extensions.
+
+ <ul>
+   <li> Requires <tt>libjpeg.so.6</tt>
+	- specifically tested with <tt>libjpeg.so.6.0.1</tt>.
+ </ul>
+
+<h3> <a name=png>qInitPngIO()</a> </h3>
+
+<pre>
+  #include &lt;qpngio.h&gt;
+</pre>
+
+  Initialize PNG image I/O extensions.
+
+ <ul>
+   <li> Requires <tt>libpng.so.0</tt>
+	- specifically tested with <tt>libpng.so.0.96</tt>
+   <li> Requires <tt>libz.so.1</tt>
+	- specifically tested with <tt>libz.so.1.0.4</tt>
+ </ul>
+
+</body>
+</html>
+*/
