@@ -21,6 +21,7 @@
 #include "qwindowsystem_qws.h"
 #include "qlist.h"
 #include "qmap.h"
+#include "qdatastream.h"
 
 typedef QMap<QString, QList<QWSClient*> > QCopServerMap;
 static QCopServerMap *qcopServerMap = 0;
