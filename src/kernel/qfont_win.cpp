@@ -231,18 +231,19 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
     if ( qt_winver & Qt::WV_NT_based ) {
 	chr = ch.unicode();
     } else
-#else
+#endif
     {
 	chr = ch.latin1();
     }
-#endif
     if ( chr ) {
+	if ( !currHDC )
+	    currHDC = fin->dc();
 	DWORD res = GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat );
 	if ( res != GDI_ERROR )
 	    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
 #ifndef QT_NO_DEBUG
 	else if ( qt_winver & Qt::WV_NT_based )
-	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code=%d", GetLastError() );
+	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code" );
 #endif
     }
 #endif
@@ -669,9 +670,9 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
     if ( len == 0 )
 	return;
     if ( hdc )
-	    currHDC = hdc;
+	currHDC = hdc;
     else
-	    currHDC = fin->dc();
+	currHDC = fin->dc();
 
     int width = 0;
     SIZE s = {0,0};
