@@ -161,18 +161,18 @@ to have deep copies in your collection.
 
 When removing an item from a list, the virtual function \link
 QCollection::deleteItem() QCollection::deleteItem()\endlink is called.
-The default implementation in all collection classes is to delete the item
+The default implementation in all collection classes deletes the item
 if auto-deletion is enabled.
 
 
 <h2>Usage</h2>
 
-A reference based collection class, for instance QList\<type\>, defines a
+A reference based collection class, such as QList\<type\>, defines a
 collection of \e pointers to \e type objects.  The pointer (*) is
 implicit.
 
-We discuss \l QList here, but the same applies for all reference based
-collection classes and all collection class iterators.
+We discuss \l QList here, but the same techniques apply for all
+reference based collection classes and all collection class iterators.
 
 Template instantiation:
 \code
@@ -219,8 +219,8 @@ Qt has the following predefined collection classes:
 </ul>
 
 In almost all cases you would choose QStringList, which is a value
-list of implicit shared QString unicode strings. QStrList and
-QStrIList in return store char* pointers.
+list of implicitly shared QString unicode strings. QStrList and
+QStrIList only store char* pointers.
 
 <h2>Comparison with the STL</h2>
 
@@ -231,7 +231,8 @@ why we use and provide these templates: <ul>
 instantiated than the STL ones do.  Size is important for a library,
 and Qt contains many instantiations of QDict, QList etc.
 <li>Qt's reference based containers are often not as fast as the
-STL's, for several reasons.  This is however not very important for
+STL's, for several reasons such as Qt's safe iterators.
+This is however not very important for
 Qt, as they are used in code that doesn't need to be very fast. (The
 speed-critical data structures in Qt are mostly caches - either QCache
 instantiations or custom-written, custom-optimized ones.)
@@ -239,11 +240,10 @@ instantiations or custom-written, custom-optimized ones.)
 started writing Qt, STL was far away in the future, and when we
 released Qt 1.0, no widely-used compilers could compile the STL.  For
 a library such as Qt, it is of course very important to compile on the
-widest possible variety of compilers. As by today, the STL is still
-not portable across all plattforms supported by Qt.
-<li>Qt's containers are documented because we document our APIs, and
-the containers and their documentation are provided as parts of Qt's
-external API because we saw no reason to hide them.
+widest possible variety of compilers. Even today, the STL is
+not portable across all platforms supported by Qt.
+<li> Though primarily written for use internally in Qt, the containers
+are well documented and so we saw no reason to hide them.
 </ul>
 
 Value based containers in the style of the STL do have one major
@@ -256,7 +256,7 @@ based containers</a> in Qt-2.0. As with the other containers, the new
 ones have a well documented interface and a naming scheme that matches
 the usual Qt conventions - another advantage over the STL classes.
 
-There are also other differences, but the ones above are the important
+There are other differences, but the ones above are the important
 reasons behind our decision to write, use and provide these classes.
 
 */
