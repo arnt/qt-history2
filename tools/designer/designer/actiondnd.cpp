@@ -3,6 +3,8 @@
 #include <qmainwindow.h>
 #include <qpainter.h>
 #include <qobjectlist.h>
+#include <qapplication.h>
+#include <qlayout.h>
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     : QToolBar( mw ), lastIndicatorPos( -1, -1 )
@@ -10,6 +12,7 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     insertAnchor = 0;
     afterAnchor = TRUE;
     setAcceptDrops( TRUE );
+    insertingAction = 0;
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -25,7 +28,7 @@ void QDesignerToolBar::dragMoveEvent( QDragMoveEvent *e )
 {
     if ( e->provides( "application/x-designer-actions" ) )
 	e->accept();
-    else 
+    else
 	return;
     drawIndicator( calcIndicatorPos( e->pos() ) );
 }
@@ -46,14 +49,56 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 	return;
     QString s( e->encodedData( "application/x-designer-actions" ) );
     QAction *a = (QAction*)s.toLong(); // #### huha, that is evil
+    insertingAction = a;
     a->addTo( this );
     if ( lastIndicatorPos != QPoint( -1, -1 ) )
 	drawIndicator( QPoint( -1, -1 ) );
-    insertAnchor = 0;
-    afterAnchor = TRUE;
 }
 
 #endif
+
+static bool doReinsert = TRUE;
+
+void QDesignerToolBar::reInsert()
+{
+    doReinsert = FALSE;
+    QAction *a = 0;
+    actionMap.clear();
+    clear();
+    QApplication::sendPostedEvents();
+    for ( a = actionList.first(); a; a = actionList.next() ) {
+	insertingAction = a;
+	a->addTo( this );
+	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    }
+    boxLayout()->invalidate();
+    boxLayout()->activate();
+    doReinsert = TRUE;
+}
+
+void QDesignerToolBar::childEvent( QChildEvent *e )
+{
+    if ( e->type() != QEvent::ChildInserted || !insertingAction || !e->child()->isWidgetType() ) 
+	return;
+    actionMap.insert( (QWidget*)e->child(), insertingAction );
+
+    if ( doReinsert ) {
+	int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+	if ( index != -1 && afterAnchor )
+	    ++index;
+	if ( !insertAnchor )
+	    index = 0;
+	if ( index == -1 )
+	    actionList.append( insertingAction );
+	else
+	    actionList.insert( index, insertingAction );
+	reInsert();
+    }
+
+    insertingAction = 0;
+    insertAnchor = 0;
+    afterAnchor = TRUE;
+}
 
 QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 {
@@ -64,7 +109,6 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 	if ( !children() )
 	    return pnt;
 	pnt = QPoint( 13, 0 );
-	afterAnchor = FALSE;
 	QObjectListIt it( *children() );
 	QObject * obj;
 	while( (obj=it.current()) != 0 ) {
@@ -82,6 +126,8 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 	return pnt;
     } else {
     }
+    
+    return QPoint( -1, -1 );
 }
 
 void QDesignerToolBar::drawIndicator( const QPoint &pos )
