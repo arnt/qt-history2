@@ -145,8 +145,9 @@ void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
 {
     QPen old = p->pen();
     p->setPen(lightGray);
+    int v = QApplication::reverseLayout() ? x : x + w;
+    p->drawLine(v, y, v, y + h);
     p->drawLine(x, y + h, x + w, y + h);
-    p->drawLine(x + w, y, x + w, y + h);
     p->setPen(old);
 }
 
@@ -469,9 +470,7 @@ int QGenericTableView::columnViewportPosition(int column) const
     int colp = d->topHeader->sectionPosition(column) - d->topHeader->offset();
     if (!QApplication::reverseLayout())
         return colp;
-    if (verticalScrollBar()->isVisible())
-        return colp + d->topHeader->x() - verticalScrollBar()->width();
-    return colp + d->topHeader->x();
+    return colp + (d->topHeader->x() - d->viewport->x());
 }
 
 int QGenericTableView::columnWidth(int column) const
@@ -481,7 +480,10 @@ int QGenericTableView::columnWidth(int column) const
 
 int QGenericTableView::columnAt(int x) const
 {
-    return d->topHeader->sectionAt(x + d->topHeader->offset() - d->topHeader->x());
+    int p = x + d->topHeader->offset();
+    if (!QApplication::reverseLayout())
+        return d->topHeader->sectionAt(p);
+    return d->topHeader->sectionAt(p - (d->topHeader->x() - d->viewport->x()));
 }
 
 bool QGenericTableView::isRowHidden(int row) const
