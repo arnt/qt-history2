@@ -24,6 +24,7 @@
 #include <qevent.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
+#include <qpixmapcache.h>
 
 static const int border = 1;
 
@@ -165,7 +166,7 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     value = model->data(index, QAbstractItemModel::BackgroundColorRole);
     if (value.isValid() && value.toColor().isValid())
         painter->fillRect(option.rect, value.toColor());
-    
+
     // draw the item
     drawDecoration(painter, opt, pixmapRect, pixmap);
     drawDisplay(painter, opt, textRect, text);
@@ -340,15 +341,33 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
             bool enabled = option.state & QStyle::Style_Enabled;
             QColor col = option.palette.color(enabled ? QPalette::Normal : QPalette::Disabled,
                                               QPalette::Highlight);
-
-            // ### some trickery to get alpha blended selections - revisit this when QPixmap has been fixed
-            QPixmap fake(pixmap.width(), pixmap.height());
-            fake.setMask(*pixmap.mask());
-            QPainter p(&fake);
-            p.drawPixmap(0, 0, pixmap);
-            p.fillRect(fake.rect(), QBrush(QColor(col.red(), col.green(), col.blue(), 90)));
-            p.end();
-            painter->drawPixmap(rect.topLeft(), fake);
+	    QString key;
+	    key.sprintf("%d-%d", pixmap.serialNumber(), enabled);
+	    QPixmap *pm = QPixmapCache::find(key);
+	    if (!pm) {
+		QImage img = pixmap.toImage();
+		if (img.depth() != 32)
+		    img = img.convertDepth(32);
+		img.setAlphaBuffer(true);
+		int i = 0;
+		uint rgb = col.rgb();
+		while (i < img.height()) {
+		    uint *p = (uint *) img.scanLine(i);
+		    uint *end = p + img.width();
+		    while (p < end) {
+			*p = (0xff000000 & *p)
+ 			     | (0xff & (int)(qRed(*p)*0.70 + qRed(rgb)*0.30)) << 16
+ 			     | (0xff & (int)(qGreen(*p)*0.70 + qGreen(rgb)*0.30)) << 8
+ 			     | (0xff & (int)(qBlue(*p)*0.70 + qBlue(rgb)*0.30));
+			++p;
+		    }
+		    ++i;
+		}
+		pm = new QPixmap;
+		pm->fromImage(img);
+		QPixmapCache::insert(key, pm);
+	    }
+            painter->drawPixmap(rect.topLeft(), *pm);
         } else {
             painter->drawPixmap(rect.topLeft(), pixmap);
         }
