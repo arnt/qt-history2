@@ -1397,7 +1397,7 @@ void QPainter::translate( double dx, double dy )
 #else
     xlatex += (int)dx;
     xlatey += (int)dy;
-    setf( VxF );
+    setf( VxF, xlatex || xlatey );
 #endif
 }
 
@@ -1461,7 +1461,7 @@ void QPainter::resetXForm()
 }
 
 static const int TxNone      = 0;		// transformation codes
-static const int TxTranslate = 1;		// copy in qpainter_xyz.cpp
+static const int TxTranslate = 1;		// copy in qpainter_*.cpp
 static const int TxScale     = 2;
 static const int TxRotShear  = 3;
 
@@ -1504,8 +1504,6 @@ void QPainter::updateXForm()
 	setf(DirtyFont);
 #endif
     }
-#undef FZ
-#undef FEQ
 }
 
 
@@ -1541,6 +1539,7 @@ void QPainter::resetXForm()
 {
     xlatex = 0;
     xlatey = 0;
+    clearf( VxF );
 }
 #endif // QT_NO_TRANSFORMATIONS
 
@@ -1617,7 +1616,6 @@ void QPainter::map( int x, int y, int w, int h,
 #endif
 	    break;
     }
-
 #else
     *rx = x + xlatex;
     *ry = y + xlatey;
@@ -1641,7 +1639,6 @@ void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
     double ty = im12()*x + im22()*y+idy();
     *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
     *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
-
 #else
     *rx = x - xlatex;
     *ry = y - xlatey;
@@ -1670,7 +1667,6 @@ void QPainter::mapInv( int x, int y, int w, int h,
     *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
     *rw = tw >= 0 ? int(tw + 0.5) : int(tw - 0.5);
     *rh = th >= 0 ? int(th + 0.5) : int(th - 0.5);
-
 #else
     *rx = x - xlatex;
     *ry = y - xlatey;
@@ -1692,10 +1688,12 @@ QPoint QPainter::xForm( const QPoint &pv ) const
 #ifndef QT_NO_TRANSFORMATIONS
     if ( txop == TxNone )
 	return pv;
-#endif
     int x=pv.x(), y=pv.y();
     map( x, y, &x, &y );
     return QPoint( x, y );
+#else
+    return QPoint( pv.x()+xlatex, pv.y()+xlatey );
+#endif
 }
 
 /*! \overload
@@ -1713,19 +1711,19 @@ QRect QPainter::xForm( const QRect &rv ) const
 #ifndef QT_NO_TRANSFORMATIONS
     if ( txop == TxNone )
 	return rv;
-
     if ( txop == TxRotShear ) {			// rotation/shear
 	QPointArray a( rv );
 	a = xForm( a );
 	return a.boundingRect();
     }
-#endif
-
     // Just translation/scale
     int x, y, w, h;
     rv.rect( &x, &y, &w, &h );
     map( x, y, w, h, &x, &y, &w, &h );
     return QRect( x, y, w, h );
+#else
+    return QRect( rv.x()+xlatex, rv.y()+xlatey, rv.width(), rv.height() );
+#endif
 }
 
 /*! \overload
@@ -1838,7 +1836,6 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 	return a.boundingRect();
     }
 #endif
-
     // Just translation/scale
     int x, y, w, h;
     rd.rect( &x, &y, &w, &h );
