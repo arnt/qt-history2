@@ -279,7 +279,7 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
     }
 #endif // QT_NO_XINERAMA
 
-    return x11Info()->screen();
+    return widget->x11Info()->screen();
 }
 
 int QDesktopWidget::screenNumber(const QPoint &point) const
