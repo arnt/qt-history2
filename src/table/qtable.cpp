@@ -852,8 +852,9 @@ QString QTableItem::key() const
 
 QSize QTableItem::sizeHint() const
 {
+    QSize strutSize = QApplication::globalStrut();
     if ( edType == Always && table()->cellWidget( rw, cl ) )
-	return table()->cellWidget( rw, cl )->sizeHint();
+	return table()->cellWidget( rw, cl )->sizeHint().expandedTo( strutSize );
 
     QSize s;
     if ( !pix.isNull() ) {
@@ -862,9 +863,9 @@ QSize QTableItem::sizeHint() const
     }
 
     if ( !wordwrap )
-	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10, QMAX( s.height(), table()->fontMetrics().height() ) );
+	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10, QMAX( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
     QRect r = table()->fontMetrics().boundingRect( 0, 0, table()->columnWidth( col() ), 0, wordwrap ? (alignment() | WordBreak) : alignment(), txt );
-    return QSize( s.width() + r.width(), QMAX( s.height(), r.height() ) );
+    return QSize( s.width() + r.width(), QMAX( s.height(), r.height() ) ).expandedTo( strutSize );
 }
 
 /*!
@@ -1318,7 +1319,7 @@ QSize QComboTableItem::sizeHint() const
     fakeCombo->setCurrentItem( fakeCombo->count() - 1 );
     QSize sh = fakeCombo->sizeHint();
     fakeCombo->removeItem( fakeCombo->count() - 1 );
-    return sh;
+    return sh.expandedTo( QApplication::globalStrut() );
 }
 
 /*!
@@ -1488,7 +1489,7 @@ QSize QCheckTableItem::sizeHint() const
 		      table()->style().pixelMetric( QStyle::PM_IndicatorHeight ) );
     sz.setWidth( sz.width() + 6 );
     QSize sh( QTableItem::sizeHint() );
-    return QSize( sh.width() + sz.width(), QMAX( sh.height(), sz.height() ) );
+    return QSize( sh.width() + sz.width(), QMAX( sh.height(), sz.height() ) ).expandedTo( QApplication::globalStrut() );
 }
 
 /*! \file table/small-table-demo/main.cpp */
@@ -1942,9 +1943,9 @@ void QTable::init( int rows, int cols )
     // Initialize headers
     int i = 0;
     for ( i = 0; i < numCols(); ++i )
-	topHeader->resizeSection( i, 100 );
+	topHeader->resizeSection( i, QMAX( 100, QApplication::globalStrut().width() ) );
     for ( i = 0; i < numRows(); ++i )
-	leftHeader->resizeSection( i, 20 );
+	leftHeader->resizeSection( i, QMAX( 20, QApplication::globalStrut().height() ) );
     topHeader->setUpdatesEnabled( TRUE );
     leftHeader->setUpdatesEnabled( TRUE );
 
@@ -5386,6 +5387,7 @@ void QTable::adjustColumn( int col )
 	else
 	    w = QMAX( w, itm->sizeHint().width() );
     }
+    w = QMAX( w, QApplication::globalStrut().width() );
     setColumnWidth( col, w );
 }
 
@@ -5411,6 +5413,7 @@ void QTable::adjustRow( int row )
 	else
 	    h = QMAX( h, itm->sizeHint().height() );
     }
+    h = QMAX( h, QApplication::globalStrut().height() );
     setRowHeight( row, h );
 }
 
