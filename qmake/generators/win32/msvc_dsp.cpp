@@ -184,23 +184,29 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    QString fname = (*it);
 		    fname.replace(QRegExp("\\.ui"), "");
-
+		    int lbs = fname.find( "\\" );
+		    QString fpath;
+		    if ( lbs != -1 )
+			fpath = fname.left( lbs + 1 );
+		    fname = fname.right( fname.length() - fname.find( "\\" ) - 1 );
+		    
 		    QString mocFile;
 		    if(!project->variables()["MOC_DIR"].isEmpty())
 			mocFile = project->variables()["MOC_DIR"].first();
 		    else
-			mocFile = "./"; //fn_target.left(dir_pos+1);
+			mocFile = fpath;
+
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + (*it) + "...\n"
 			"InputPath=.\\" + (*it) + "\n\n" "BuildCmds= \\\n\t" + uicpath + (*it) +
-		     " -o " + fname + ".h \\\n" "\t" + uicpath  + (*it) +
-		     " -i " + fname + ".h -o " + fname + ".cpp \\\n"
-//		     "\t" + mocpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n\n"
-		     "\t" + mocpath + fname + ".h -o " + mocablesToMOC[ fname + ".h" ] + "\\\n\n"
-		     "\"" + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
+		     " -o " + fpath + fname + ".h \\\n" "\t" + uicpath  + (*it) +
+		     " -i " + fpath + fname + ".h -o " + fpath + fname + ".cpp \\\n"
+		     "\t" + mocpath + fpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n\n"
+//		     "\t" + mocpath + fname + ".h -o " + mocablesToMOC[ fname + ".h" ] + "\\\n\n"
+		     "\"" + fpath + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 		     "\t$(BuildCmds)\n\n"
-		     "\"" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+		     "\"" + fpath + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 		     "\t$(BuildCmds)\n\n"
-		     "\"moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+		     "\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 		     "\t$(BuildCmds)\n\n" "# End Custom Build\n\n";
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
