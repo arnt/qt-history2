@@ -62,6 +62,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_OBJECT
     Q_ENUMS( BackgroundMode FocusPolicy BackgroundOrigin )
     Q_PROPERTY( bool isTopLevel READ isTopLevel )
+    Q_PROPERTY( bool isDialog READ isDialog )
     Q_PROPERTY( bool isModal READ isModal )
     Q_PROPERTY( bool isPopup READ isPopup )
     Q_PROPERTY( bool isDesktop READ isDesktop )
@@ -137,9 +138,10 @@ public:
     // Widget types and states
 
     bool	 isTopLevel()	const;
-    bool	 isModal()	const;
+    bool	 isDialog()	const;
     bool	 isPopup()	const;
     bool	 isDesktop()	const;
+    bool	 isModal()	const;
 
     bool	 isEnabled()	const;
     bool	 isEnabledTo(QWidget*) const;
@@ -642,8 +644,8 @@ inline WId QWidget::winId() const
 inline bool QWidget::isTopLevel() const
 { return testWFlags(WType_TopLevel); }
 
-inline bool QWidget::isModal() const
-{ return testWFlags(WType_Modal); }
+inline bool QWidget::isDialog() const
+{ return testWFlags(WType_Dialog); }
 
 inline bool QWidget::isPopup() const
 { return testWFlags(WType_Popup); }
@@ -653,6 +655,9 @@ inline bool QWidget::isDesktop() const
 
 inline bool QWidget::isEnabled() const
 { return !testWState(WState_Disabled); }
+
+inline bool QWidget::isModal() const
+{ return testWFlags(WShowModal); }
 
 inline bool QWidget::isEnabledToTLW() const
 { return isEnabled(); }

@@ -1185,14 +1185,15 @@ void QWidget::styleChange( QStyle& )
 
   Child widgets are the opposite of top-level widgets.
 
-  \sa topLevelWidget(), isModal(), isPopup(), isDesktop(), parentWidget()
+  \sa topLevelWidget(), isDialog(), isModal(), isPopup(), isDesktop(), parentWidget()
 */
 
 /*!
-  \fn bool QWidget::isModal() const
-  Returns TRUE if the widget is a modal widget, otherwise FALSE.
+  \fn bool QWidget::isDialog() const
+  
+  Returns TRUE if the widget is a dialog widget, otherwise FALSE.
 
-  A modal widget is also a top-level widget.
+  A dialog widget is a secondary top-level widget.
 
   \sa isTopLevel(), QDialog
 */
@@ -1219,6 +1220,16 @@ void QWidget::styleChange( QStyle& )
   \sa isTopLevel(), QApplication::desktop()
 */
 
+/*!
+  \fn bool QWidget::isModal() const
+  Returns TRUE if the widget is a modal widget, otherwise FALSE.
+
+  isModal() makes only sense for top-level widgets.  It prevents
+  widgets in all other top-level widget from getting any
+  input.
+
+  \sa isTopLevel(), isDialog(), QDialog
+*/
 
 /*!
   \fn bool QWidget::isEnabled() const
