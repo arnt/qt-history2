@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#78 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#77 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#78 $";
 #endif
 
 
@@ -1071,6 +1071,9 @@ static char *pat_tbl[] = {
     XSetFillStyle( dpy, gc_brush, s );
 }
 
+/*! Opens the painter on \e pd and returns TRUE if successful.  It may
+  return FALSE e.g. if the painter is already open, if \e pd is null, or
+  if the paint device is somehow unable to be painted on.  \sa end(). */
 
 bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 {
@@ -1174,6 +1177,9 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     return TRUE;
 }
 
+/*! Closes the painter.  Any resources and files used while painting
+  are freed. \sa begin(). */
+
 bool QPainter::end()				// end painting
 {
     if ( !isActive() )
@@ -1200,6 +1206,10 @@ bool QPainter::end()				// end painting
     return TRUE;
 }
 
+/*! Sets the background \link QColor color \endlink of the painter to
+  \e c. \sa QColor, backgroundColor(), backgroundMode(),
+  setBackgroundMode(), brushOrigin(), setBrushOrigin(), setPen(),
+  setBrush(). */
 
 void QPainter::setBackgroundColor( const QColor &c )
 {						// set background color
@@ -1216,6 +1226,10 @@ void QPainter::setBackgroundColor( const QColor &c )
     if ( gc_brush )
 	updateBrush();				// update brush setting
 }
+
+/*! Sets the background mode to \e m, which must be one of \c
+  TransparentMode and \c OpaqueMode. \sa setBackgroundColor,
+  setBrush(), setBrushOrigin(), setPen(). */
 
 void QPainter::setBackgroundMode( BGMode m )	// set background mode
 {
@@ -1238,6 +1252,10 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
     if ( gc_brush )
 	updateBrush();				// update brush setting
 }
+
+/*! Sets the raster operation to \e r, which must be one of <code>
+  GXcopy, GXor, GXxor, GXandInverted, GXcopyInverted, GXorInverted,
+  GXequiv, GXand</code> and \c GXinvert. */
 
 void QPainter::setRasterOp( RasterOp r )	// set raster operation
 {
@@ -1285,7 +1303,6 @@ void QPainter::setBrushOrigin( int x, int y )	// set brush origin
 	XSetTSOrigin( dpy, gc_brush, x, y );
 }
 
-
 void QPainter::setViewXForm( bool onOff )	// set xform on/off
 {
     if ( !isActive() || onOff == testf(VxF) )
@@ -1299,6 +1316,9 @@ void QPainter::setViewXForm( bool onOff )	// set xform on/off
     if ( testf(WxF) )
 	updateXForm();
 }
+
+/*! Returns the coordinate system you use to draw in the window.  \sa
+  setWindow(). */
 
 QRect QPainter::window() const			// get window
 {
@@ -1352,7 +1372,6 @@ void QPainter::setViewport( int x, int y, int w, int h )
     if ( !testf(VxF) )
 	setViewXForm( TRUE );
 }
-
 
 void QPainter::setWorldXForm( bool onOff )	// set world xform on/off
 {
@@ -1621,6 +1640,8 @@ void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
     setClipping( TRUE );
 }
 
+/*! Draws a single point at \e (x,y) using the current pen and brush.
+  \sa setPen(), setBrush(), setBrushOrigin(). */
 
 void QPainter::drawPoint( int x, int y )	// draw a single point
 {
@@ -1646,6 +1667,7 @@ void QPainter::drawPoint( int x, int y )	// draw a single point
     XDrawPoint( dpy, hd, gc, x, y );
 }
 
+/*! Sets the current point, for lineTo(). */
 
 void QPainter::moveTo( int x, int y )		// set current point for lineTo
 {
@@ -1669,6 +1691,8 @@ void QPainter::moveTo( int x, int y )		// set current point for lineTo
     curPt = QPoint( x, y );
 }
 
+/*! Draws a line from the current point to \e (x,y) using the current
+  pen and brush. \sa setPen(), setBrush(), setBrushOrigin(). */ 
 
 void QPainter::lineTo( int x, int y )		// draw line from current point
 {
@@ -1696,6 +1720,8 @@ void QPainter::lineTo( int x, int y )		// draw line from current point
     curPt = QPoint( x, y );
 }
 
+/*! Draws a line from \e (x1,y2) to \e (x2,y2) using the current
+  pen and brush. \sa setPen(), setBrush(), setBrushOrigin(). */ 
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 {						// draw line
@@ -1740,6 +1766,13 @@ static void fix_neg_rect( int *x, int *y, int *w, int *h )
     }
 }
 
+/*! Draws a rectangle with upper left corner at \e (x,y) and with
+  width \e w and height \e h using the current pen and brush.
+
+  The width and height include both lines.
+
+  \sa setPen(), setBrush(), setBrushOrigin(), drawRoundRect() and many
+  others. */
 
 void QPainter::drawRect( int x, int y, int w, int h )
 {						// draw rectangle
@@ -1787,6 +1820,16 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
 }
 
+/*! Draws a rectangle with round corners at \e (x,y), with width \e w
+  and height \e h using the current pen and brush.
+
+  The \e xRnd and \e yRnd arguments indicate how rounded the corners
+  should be.  0 is angled corners, 99 is maximum roundedness.
+
+  The width and height include both lines.
+
+  \sa setPen(), setBrush(), setBrushOrigin(), drawRect() and many
+  others. */
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 {						// draw round rectangle
@@ -1926,6 +1969,8 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
     }
 }
 
+/*! Draws an ellipse with center at \e (x+w/2,y+h/2) and size \e
+  (w,h), using the current pen and brush. */
 
 void QPainter::drawEllipse( int x, int y, int w, int h )
 {						// draw ellipse
@@ -2470,6 +2515,13 @@ static void ins_text_bitmap( const Q2DMatrix &m, const QFont &f,
 	delete pm;
 }
 
+/*! Writes at most \e len characters from \e str to position \e (x,y)
+  using the current font.  \e x is the leftmost x coordinate at the
+  base line and \e y is the base line.  If the current font is
+  italicized, a part of the first character may be painted to the left
+  of \e x, see QFontMetrics for an explanation of thise.
+
+  \sa setFont(), QFont, QFontMetrics. */
 
 void QPainter::drawText( int x, int y, const char *str, int len )
 {
