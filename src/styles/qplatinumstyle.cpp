@@ -1068,9 +1068,6 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		slide = (const QSlider*)widget;
 		
 		if ( sub & SC_SliderGroove ) {
-		    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
-						  slide );
-		
 		    int thickness = pixelMetric( PM_SliderControlThickness,
 						 slide );
 		    int mid = thickness / 2;
@@ -1084,15 +1081,8 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 			mid -= len / 8;
 		
 
-// 		    QRect ir = querySubControlMetrics( control, widget,
-//  						       SC_SliderGroove, data );
-
-		    // some of this really needs to be put in querySubMetric
-		    QRect ir;
-		    if ( slide->orientation() == QSlider::Horizontal )
-			ir.setRect( 0, tickOffset, slide->width(), thickness );
-		    else
-			ir.setRect( tickOffset, 0, thickness, slide->width() );
+		    QRect ir = querySubControlMetrics( control, widget,
+ 						       SC_SliderGroove, data );
 		
 		    p->fillRect( ir, cg.brush(QColorGroup::Background) );
 		    if ( slide->orientation() == Horizontal ) {
@@ -1354,46 +1344,42 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	    }
 	    break;
 	}
-//     case CC_Slider:
-// 	{
-// 	    const QSlider *slide;
-// 	    slide = (const QSlider*)widget;
-// 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
-// 					  slide );
+    case CC_Slider:
+	{	   
+	    const QSlider *slide;
+	    slide = (const QSlider*)widget;
+	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
+					  slide );
 		
-// 	    int thickness = pixelMetric( PM_SliderControlThickness,
-// 					 slide );
-// 	    int mid = thickness / 2;
-// 	    int ticks = slide->tickmarks();
-// 	    int len = pixelMetric( PM_SliderLength, slide );
-// 	    int x, y, wi, he;
-	
-// 	    if ( ticks & QSlider::Above )
-// 		mid += len / 8;
-// 	    if ( ticks & QSlider::Below )
-// 		mid -= len / 8;
-// 	    if ( slide->orientation() == QSlider::Horizontal )
-// 		rect.setRect( 0, tickOffset, slide->width(), thickness );
-// 	    else
-// 		rect.setRect( tickOffset, 0, thickness, slide->width() );
-	
-// // 	    if ( slide->orientation() == Horizontal ) {
-// // 		rect.setX( 0 );
-// // 		rect.setY( rect.y() + mid - 3 );
-// // 		rect.setWidth( slide->width() );
-// // 		rect.setHeight( 7 );
-// // 	    }
-// // 	    else {
-// // 		rect.setX( rect.x()+ mid - 3 );
-// // 		rect.setY( 0 );
-// // 		rect.setWidth( 7 );
-// // 		rect.setHeight( slide->height() );
-// //	}
-//	    break;
-	    //	}
+	    int thickness = pixelMetric( PM_SliderControlThickness,
+					 slide );
+	    int mid = thickness / 2;
+	    int ticks = slide->tickmarks();
+	    int len = pixelMetric( PM_SliderLength, slide );
+
+	    switch ( sc ) {
+	    case SC_SliderGroove:
+		if ( ticks & QSlider::Above )
+		    mid += len / 8;
+		if ( ticks & QSlider::Below )
+		    mid -= len / 8;
+		if ( slide->orientation() == QSlider::Horizontal )
+		    rect.setRect( 0, tickOffset,
+				  slide->width(), thickness );
+		else
+		    rect.setRect( tickOffset, 0, thickness, 
+				  slide->width() );
+		break;
+	    default:
+		rect = QWindowsStyle::querySubControlMetrics( control, widget,
+							      sc, data );
+		break;
+	    }
+	    break;
+	}
     default:
 	rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							  sc, data );
+						      sc, data );
 	break;
     }
     return rect;
@@ -1435,16 +1421,6 @@ int QPlatinumStyle::pixelMetric( PixelMetric metric,
 
 /*!\reimp
  */
-QSize QPlatinumStyle::sizeFromContents( ContentsType contents,
-					const QWidget *widget,
-					const QSize &contentsSize,
-					void **data ) const
-{
-    return QWindowsStyle::sizeFromContents( contents, widget, contentsSize, data);
-}
-
-/*!\reimp
- */
 QRect QPlatinumStyle::subRect( SubRect r, const QWidget *widget ) const
 {
     QRect rect;
@@ -1461,15 +1437,6 @@ QRect QPlatinumStyle::subRect( SubRect r, const QWidget *widget ) const
 	break;
     }
     return rect;
-}
-
-/*!\reimp
- */
-QPixmap QPlatinumStyle::stylePixmap( StylePixmap stylepixmap,
-				     const QWidget *widget,
-				     void **data ) const
-{
-    return QWindowsStyle::stylePixmap( stylepixmap, widget, data );
 }
 
 /*!
@@ -1531,12 +1498,5 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 	}
 }
 
-
-/*! \reimp
-*/
-void QPlatinumStyle::polishPopupMenu( QPopupMenu* p)
-{
-    QWindowsStyle::polishPopupMenu( p );
-}
 
 #endif

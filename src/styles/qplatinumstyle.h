@@ -59,8 +59,6 @@ public:
     QPlatinumStyle();
     virtual ~QPlatinumStyle();
 
-    void polishPopupMenu( QPopupMenu* );
-
     // new Style Stuff
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
@@ -68,7 +66,7 @@ public:
 			const QColorGroup &cg,
 			SFlags flags = Style_Default,
 			void **data = 0 ) const;
-    
+
     void drawControl( ControlElement element,
 		      QPainter *p,
 		      const QWidget *widget,
@@ -94,17 +92,7 @@ public:
 
     int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
 
-    QSize sizeFromContents( ContentsType contents,
-			    const QWidget *widget,
-			    const QSize &contentsSize,
-			    void **data ) const;
-
     QRect subRect( SubRect r, const QWidget *widget ) const;
-
-    QPixmap stylePixmap( StylePixmap stylepixmap,
-			 const QWidget *widget = 0,
-			 void **data = 0 ) const;
-
 
 protected:
      QColor mixedColor(const QColor &, const QColor &) const;
