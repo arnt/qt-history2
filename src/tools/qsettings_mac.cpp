@@ -345,7 +345,8 @@ void QSettingsPrivate::sysInsertSearchPath(QSettings::System s, const QString &p
     QString realpath = path;
     while(realpath.right(1) == "/")
 	realpath.truncate(realpath.length() -1);
-    sysd->searchPaths.append(realpath);
+    if (!realpath.isEmpty())
+	sysd->searchPaths.append(realpath);
 }
 
 void QSettingsPrivate::sysRemoveSearchPath(QSettings::System s, const QString &path)
