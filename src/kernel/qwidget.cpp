@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#217 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#218 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#217 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#218 $");
 
 
 /*!
@@ -1031,7 +1031,7 @@ void QWidget::setEnabled( bool enable )
     } else {
 	if ( !testWFlags(WState_Disabled) ) {
 	    if ( focusWidget() == this )
-		clearFocus(); // perhaps we should move the focus?
+		focusNextPrevChild( TRUE );
 	    setWFlags( WState_Disabled );
 	    setBackgroundColorFromMode();
 	    enabledChange( FALSE );
