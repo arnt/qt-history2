@@ -40,8 +40,8 @@
     the same branch of the tree at the same time.
 
     A non-computing example of a semaphore would be dining at a
-    restuarant. A semaphore is initialized to have a maximum count
-    equal to the number of chairs in the restuarant. As people
+    restaurant. A semaphore is initialized to have a maximum count
+    equal to the number of chairs in the restaurant. As people
     arrive, they want a seat. As seats are filled, the semaphore is
     accessed, once per person. As people leave, the access is
     released, allowing more people to enter. If a party of 10 people
