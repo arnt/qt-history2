@@ -594,13 +594,12 @@ void QButton::setState( ToggleState s )
 	if ( autoMask() )
 	    updateMask();
 	repaint( FALSE );
-	if ( was != (stat != Off) )
-	    emit toggled( stat != Off );
-	emit stateChanged( s );
-
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
+	if ( was != (stat != Off) )
+	    emit toggled( stat != Off );
+	emit stateChanged( s );
     }
 }
 
@@ -735,12 +734,12 @@ void QButton::mousePressEvent( QMouseEvent *e )
 	    updateMask();
 
 	repaint( FALSE );
-	emit pressed();
-	if ( repeat )
-	    timer()->start( autoRepeatDelay, TRUE );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
+	emit pressed();
+	if ( repeat )
+	    timer()->start( autoRepeatDelay, TRUE );
     }
 }
 
@@ -759,15 +758,18 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     buttonDown = FALSE;
     if ( hitButton( e->pos() ) ) {		// mouse release on button
 	nextState();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+#endif
 	emit released();
 	emit clicked();
     } else {
 	repaint( FALSE );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+#endif
 	emit released();
     }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
-#endif
 }
 
 /*! \reimp */
@@ -781,18 +783,21 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;
 	    repaint( FALSE );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+#endif
 	    emit pressed();
 	}
     } else {					// mouse move outside button
 	if ( buttonDown ) {
 	    buttonDown = FALSE;
 	    repaint( FALSE );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+#endif
 	    emit released();
 	}
     }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
-#endif
 }
 
 
@@ -871,12 +876,12 @@ void QButton::nextState()
         updateMask();
     repaint( FALSE );
     if ( t ) {
-	if ( was != (stat != Off) )
-	    emit toggled( stat != Off );
-	emit stateChanged( stat );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
+	if ( was != (stat != Off) )
+	    emit toggled( stat != Off );
+	emit stateChanged( stat );
     }
 }
 
@@ -912,10 +917,10 @@ void QButton::setToggleType( ToggleType type )
 {
     toggleTyp = type;
     if ( type != Tristate && stat == NoChange )
-	setState( On );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
+	setState( On );
 }
 
 bool QButton::isExclusiveToggle() const
