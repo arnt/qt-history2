@@ -167,12 +167,15 @@ find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
 echo "Fixing copyright banner in .h and .cpp files.." >&2
-cd ${DISTDIR}/qt/src
 if [ "${disttype}" = "free" ]; then
-  ${curdir}/fixcopyright-free ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
+  fixcopyright=fixcopyright-free
 else
-  ${curdir}/fixcopyright-prof ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
+  fixcopyright=fixcopyright-prof
 fi
+cd ${DISTDIR}/qt/src
+${curdir}/${fixcopyright} ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
+cd ${DISTDIR}/qt/extensions
+${curdir}/${fixcopyright} ${VERSION} */src/q*.h */src/q*.cpp
 
 echo "Generate lex and yacc files for moc..." >&2
 cd ${DISTDIR}/qt/src/moc
