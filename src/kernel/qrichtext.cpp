@@ -4495,14 +4495,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int lasth = 0;
     for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
-#if 0 // seems we don't need that anymore
-	if ( !str->isBidi() && is_printer( &painter ) ) { // ### fix our broken ps-printer
-	    if ( !chr->lineStart )
-		chr->x = QMAX( chr->x, tw );
-	    else
-		tw = 0;
-	}
-#endif
 	cw = string()->width( i );
 	if ( chr->c == '\t' && i < length() - 1 )
 	    cw = at( i + 1 )->x - chr->x + 1;
@@ -4511,9 +4503,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	// init a new line
 	if ( chr->lineStart ) {
-#if 0 // seems we don't need that anymore
-	    tw = 0;
-#endif
 	    ++line;
 	    lineInfo( line, cy, h, baseLine );
 	    lasth = h;
@@ -4603,17 +4592,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    }
 		}
 	    }
-#if 0 // seems we don't need that anymore
-	    if ( !str->isBidi() && is_printer( &painter ) ) { // ### fix our broken ps-printer
-		if ( !chr->lineStart ) {
-		    // ### the next line doesn't look 100% correct for arabic
-		    tw = startX + painter.fontMetrics().width( qstr.mid(paintStart, paintEnd - paintStart +1) );
-		    chr->x = QMAX( chr->x, tw );
-		} else {
-		    tw = 0;
-		}
-	    }
-#endif
 	    if ( !chr->isCustom() ) {
 		if ( chr->c != '\n' && chr->c != QChar_linesep ) {
 		    paintStart = i;
@@ -5558,6 +5536,8 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 {
     const QChar &c = string->at( pos ).c;
     char ch = c.latin1();
+    if ( c == QChar_linesep )
+	return TRUE;
     if ( c.isSpace() && ch != '\n' && c.unicode() != 0x00a0U )
 	return TRUE;
     if ( c.unicode() == 0xad ) // soft hyphen
@@ -5748,8 +5728,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 
 	if ( wrapEnabled &&
 	     ( wrapAtColumn() == -1 && x + ww > w ||
-	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
-	       lastChr == QChar_linesep ) {
+	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ) {
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw;
 	    y += h;
@@ -5937,15 +5916,21 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		minw = QMAX( minw, tw );
 	}
 
-	if ( wrapEnabled && ( !c->c.isSpace() || lastBreak == -2 )
-	     && ( lastBreak != -1 || allowBreakInWords() ) &&
-	     ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
-	       wrapAtColumn() == -1 && x + ww > w - 4 && lastBreak == -1 && allowBreakInWords() ||
-	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
-	       lastChr == QChar_linesep && firstChar < c ) {
+	if ( wrapEnabled && // if wrap enabled and
+	     // force a break, because last char was a hard break or
+	     lastChr == QChar_linesep ||
+	     // force a break, because the last item was a table or
+	     lastBreak == -2 ||
+	     // current char is not a space (because we don't let spaces be at the beginning of a line) and
+	     ( !c->c.isSpace() &&
+	       // a previous char (at lastBreak) is breakable, or we are allowed to break in words and
+	       (lastBreak != -1 || allowBreakInWords()) &&
+	       // we break at w pixels and x+ww (==would be new line width) is larger than w or
+	       // we break at a fixed column number and col is bigger than that
+	       ( (wrapAtColumn() == -1 && x + ww > w) || (wrapAtColumn() != -1 && col >= wrapAtColumn()) ) ) ) {
 	    if ( wrapAtColumn() != -1 )
 		minw = QMAX( minw, x + ww );
-	    if ( lastBreak < 0 ) {
+	    if ( lastBreak < 0 || lastChr == QChar_linesep ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 		    h = QMAX( h, tmph );
@@ -6006,7 +5991,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tminw = marg;
 		continue;
 	    }
-	} else if ( lineStart && ( isBreakable( string, i ) || c->c == QChar_linesep ) ) {
+	} else if ( lineStart && isBreakable( string, i ) ) {
 	    if ( len <= 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() + linespace );
