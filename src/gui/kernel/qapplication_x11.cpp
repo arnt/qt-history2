@@ -1324,7 +1324,7 @@ void qt_init(QApplicationPrivate *priv, int,
 
         // Set application name and class
         char *app_class = 0;
-        if (argv) {
+        if (argv && argv[0]) {
             const char *p = strrchr(argv[0], '/');
             appName = p ? p + 1 : argv[0];
             app_class = qstrdup(appName);
