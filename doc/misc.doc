@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.14 1996/02/18 23:32:44 agulbra Exp $
+** $Id: misc.doc,v 1.15 1996/03/14 16:46:52 hanord Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.14 1996/02/18 23:32:44 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.15 1996/03/14 16:46:52 hanord Exp $";
 #endif
 
 /*! \page license.html
@@ -156,8 +156,8 @@ Frequently Asked Questions
        company in 1993, but parts of Qt were written for earlier
        projects.  The first line of code was written in 1992. <p>
        Most of our income comes from a contract with a beta customer;
-       we develop code based on Qt for the Norwegian division of a small
-       company called AT&T. <p>
+       we develop code based on Qt for the Norwegian division of
+       called NCR (previously AT&T). <p>
 <li>Q: Can I use Qt's classes without writing a graphical user interface? <p>
     A: Quite a few of the classes can be used independently of the user
        interface.  See <a href=tools.html>utility classes,</a>  There are
