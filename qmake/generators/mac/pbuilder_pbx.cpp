@@ -550,10 +550,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     QString r = opt.right(opt.length() - 2);
                     fixEnvVariables(r);
                     libdirs.append(r);
-                } else if(opt == "-seg1addr") {
-                    ++it;
-                    if(it == tmp.end())
-                        break;
                 } else if(opt == "-prebind") {
                     project->variables()["QMAKE_DO_PREBINDING"].append("TRUE");
                     remove = true;
@@ -611,11 +607,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                             break;
                         }
                     }
-                } else if(opt == "-undefined") {
-                    ++it; //the next option is not a library..
                 } else if(opt.left(1) != "-") {
-                    remove = true;
-                    library = opt;
+                    if(QFile::exists(opt)) {
+                        remove = true;
+                        library = opt;
+                    }
                 }
                 if(!library.isEmpty()) {
                     if(name.isEmpty()) {
