@@ -3954,10 +3954,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
     QTextString *string = parag->string();
-    int left = doc ? parag->leftMargin() + 4 : 4;
+    int left = doc ? parag->leftMargin() + 4 : 0;
     int x = left;
     int curLeft = left;
-    int dw = parag->documentVisibleWidth() - ( doc ? 8 : 0 );
+    int dw = parag->documentVisibleWidth() - ( doc ? 8 : -4 );
     int y = 0;
     int h = 0;
     int len = parag->length();
