@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#2 $
 **
 ** Implementation of QBitArray class
 **
@@ -10,14 +10,13 @@
 **
 ** --------------------------------------------------------------------------
 ** The size of a bit array is stored in the beginning of the actual array,
-** which complicates the implementation. It's probably nicer to use the
-** QShared class, and we might reimplement it with QShared later.
+** which complicates the implementation.  But it still works fine.
 *****************************************************************************/
 
 #include "qbitarry.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#2 $";
 #endif
 
 
@@ -25,14 +24,14 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#1 $";
 // QBitArray class
 //
 
-#define BA_SIZE	  *((qbitarraysz_t)data())
-#define SZ_SIZE	  sizeof(qbitarraysz_t)
+#define BA_SIZE	  *((UINT32)data())
+#define SZ_SIZE	  sizeof(UINT32)
 #define BA_DATA	  (data()+SZ_SIZE)
 
-QBitArray::QBitArray( uint size ) : QByteArray( SZ_SIZE + size/8 + 1 )
+QBitArray::QBitArray( uint size ) : QByteArray( SZ_SIZE + (size+7)/8 )
 {
     BA_SIZE = size;				// set number of bits
-    memset( BA_DATA, 0, size/8 + 1 );		// set all bits to zero
+    memset( BA_DATA, 0, (size+7)/8 );		// set all bits to zero
 }
 
 
@@ -51,15 +50,15 @@ void QBitArray::pad0()				// pad last byte with 0-bits
 bool QBitArray::resize( uint sz )		// resize bit array
 {
     uint s = size();
-    if ( !QByteArray::resize( SZ_SIZE + sz/8 + 1 ) )
+    if ( !QByteArray::resize( SZ_SIZE + (sz+7)/8 ) )
 	return FALSE;				// cannot resize
     if ( sz != 0 ) {				// not null array
 	BA_SIZE = sz;
-	sz = sz/8 - s/8;
+	sz = (sz+7)/8 - (s+7)/8;		// number of bytes difference
 	if ( sz > 0 ) {
 	    if ( !s )				// was null
 		*BA_DATA = 0;
-	    memset( BA_DATA + s/8 + 1, 0, sz );
+	    memset( BA_DATA + (s+7)/8, 0, sz );
 	}
     }
     return TRUE;
@@ -74,7 +73,7 @@ bool QBitArray::fill( bool v, int sz )		// fill bit array with value
     }
     else
 	sz = size();
-    memset( BA_DATA, v ? 0xff : 0, sz/8 );	// set many bytes, fast
+    memset( BA_DATA, v ? 0xff : 0, (sz+7)/8 );	// set many bytes, fast
     pad0();
     return TRUE;
 }
@@ -88,7 +87,7 @@ bool QBitArray::testBit( uint i ) const		// test if bit set
 	return FALSE;
     }
 #endif
-    return *((pcchar)BA_DATA+(i>>3)) & (1 << (i & 7));
+    return *(BA_DATA+(i>>3)) & (1 << (i & 7));
 }
 
 void QBitArray::setBit( uint i )		// set bit
@@ -223,7 +222,7 @@ QStream &operator<<( QStream &s, const QBitArray &a )
     UINT32 len = a.size();
     s << len;					// write size of array
     if ( len )					// write data
-	s.writeBytes( a.data()+SZ_SIZE, (uint)(len/8+1) );
+	s.writeBytes( a.data()+SZ_SIZE, QByteArray::size()-SZ_SIZE );
     return s;
 }
 
@@ -238,6 +237,6 @@ QStream &operator>>( QStream &s, QBitArray &a )
 	len = 0;
     }
     if ( len > 0 )				// read data
-	s.readBytes( a.data()+SZ_SIZE, (uint)(len/8+1) );
+	s.readBytes( a.data()+SZ_SIZE, QByteArray::size()-SZ_SIZE );
     return s;
 }
