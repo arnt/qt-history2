@@ -503,8 +503,8 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->setPaletteBackgroundPixmap( *d->tabBody( widget ) );
     }
 
-    if ( !widget->ownPalette() )
-	widget->setBackgroundOrigin( QWidget::AncestorOrigin );
+    if ( !widget->ownPalette() && widget->parentWidget(TRUE) && widget->parentWidget(TRUE)->paletteBackgroundPixmap() )
+	 widget->setBackgroundOrigin( QWidget::AncestorOrigin );
 
     updateRegion( widget );
 }
