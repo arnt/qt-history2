@@ -61,6 +61,12 @@ class QColor;
 class Q_EXPORT QTextView : public QScrollView
 {
     Q_OBJECT
+    Q_PROPERTY( QString text READ text WRITE setText )
+    Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
+    Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
+    Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor )
+    Q_PROPERTY( bool linkUnderline READ linkUnderline WRITE setLinkUnderline )
+    Q_PROPERTY( QString documentTitle READ documentTitle )
 
 public:
     QTextView( const QString& text, const QString& context = QString::null,
@@ -75,7 +81,7 @@ public:
 
     QString text() const;
     QString text( int parag, bool formatted = FALSE ) const;
-    Qt::TextFormat textFormat() const;
+    TextFormat textFormat() const;
     QString fileName() const;
 
     void cursorPosition( int &parag, int &index );
@@ -155,8 +161,9 @@ public slots:
 
     virtual void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
 
-    virtual void setTextFormat( Qt::TextFormat f );
-    virtual void setText( const QString &txt, const QString &context = QString::null );
+    virtual void setTextFormat( TextFormat f );
+    virtual void setText( const QString &txt ) { setText( txt, QString::null ); }
+    virtual void setText( const QString &txt, const QString &context );
 
     virtual void load( const QString &fn );
     virtual void save( const QString &fn = QString::null );

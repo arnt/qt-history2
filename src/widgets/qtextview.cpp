@@ -1309,7 +1309,7 @@ void QTextView::selection( int &parag_from, int &index_from,
     doc->selectionEnd( QTextDocument::Standard, parag_from, index_from );
 }
 
-void QTextView::setTextFormat( Qt::TextFormat f )
+void QTextView::setTextFormat( TextFormat f )
 {
     doc->setTextFormat( f );
 }

@@ -877,7 +877,8 @@ public:
     QString anchorHref() const;
     QString anchorName() const;
     bool isAnchor() const;
-
+    bool useLinkColor() const;
+    
     void setBold( bool b );
     void setItalic( bool b );
     void setUnderline( bool b );
@@ -909,7 +910,8 @@ private:
     QFont fn;
     QColor col;
     QFontMetrics fm;
-    bool missp;
+    uint missp : 1;
+    uint linkColor : 1;
     int leftBearing, rightBearing;
     uchar widths[ 256 ];
     int hei, asc, dsc;
@@ -921,7 +923,7 @@ private:
     QString anchor_href;
     QString anchor_name;
     QPainter *painter;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1402,14 +1404,15 @@ inline void QTextDocument::setTabStops( int tw )
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 inline QTextFormat::QTextFormat()
-    : fm( QFontMetrics( fn ) ), logicalFontSize( 3 ), stdPointSize( 12 ), painter( 0 )
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( 12 ), 
+      painter( 0 )
 {
     missp = FALSE;
     collection = 0;
 }
 
 inline QTextFormat::QTextFormat( const QFont &f, const QColor &c )
-    : fn( f ), col( c ), fm( QFontMetrics( f ) ),
+    : fn( f ), col( c ), fm( QFontMetrics( f ) ), linkColor( TRUE ),
       logicalFontSize( 3 ), stdPointSize( f.pointSize() ), painter( 0 )
 {
     collection = 0;
@@ -1443,6 +1446,7 @@ inline QTextFormat::QTextFormat( const QTextFormat &f )
     k = f.k;
     anchor_name = f.anchor_name;
     anchor_href = f.anchor_href;
+    linkColor = f.linkColor;
     addRef();
 }
 
@@ -1464,6 +1468,7 @@ inline QTextFormat& QTextFormat::operator=( const QTextFormat &f )
     k = f.k;
     anchor_name = f.anchor_name;
     anchor_href = f.anchor_href;
+    linkColor = f.linkColor;
     addRef();
     return *this;
 }
@@ -1633,6 +1638,11 @@ inline QString QTextFormat::anchorName() const
 inline bool QTextFormat::isAnchor() const
 {
     return !anchor_href.isEmpty()  || !anchor_name.isEmpty();
+}
+
+inline bool QTextFormat::useLinkColor() const
+{
+    return linkColor;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

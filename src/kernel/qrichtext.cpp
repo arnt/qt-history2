@@ -2818,7 +2818,7 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
     painter.setPen( QPen( lastFormat->color() ) );
     painter.setFont( lastFormat->font() );
 
-    if ( doc && lastFormat->isAnchor() && !lastFormat->anchorHref().isEmpty() ) {
+    if ( doc && lastFormat->isAnchor() && !lastFormat->anchorHref().isEmpty() && lastFormat->useLinkColor() ) {
 	painter.setPen( QPen( doc->linkColor() ) );
 	if ( doc->underlineLinks() ) {
 	    QFont fn = lastFormat->font();
@@ -4377,8 +4377,10 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     bool changed = FALSE;
     if ( style ) {
 	if ( style->name() == "font") {
-	    if ( attr.contains("color") )
+	    if ( attr.contains("color") ) {
 		format.col.setNamedColor( attr["color"] );
+		format.linkColor = FALSE;
+	    }
 	    if ( attr.contains("size") ) {
 		QString a = attr["size"];
 		int n = a.toInt();
