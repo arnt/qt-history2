@@ -26,6 +26,7 @@ to be modified for other platforms.
 
 <pre>
 	cd ~/qt-<i>version</i>
+	export QTDIR=~/qt-<i>version</i>
 	./configure
 	make
 </pre>
@@ -352,8 +353,13 @@ framebuffer you can use the
 <a href="qvfb-qws.html">Qt/Embedded virtual framebuffer</a>.
 <p>
 Change to a Linux console and select an example to run, e.g. examples/compact.
-Make sure $LD_LIBRARY_PATH is set correctly and run the application
-with the <i>-qws</i> option:
+Make sure $QTDIR is set to the directory where you installed Qt/Embedded
+and add the $QTDIR/lib directory to $LD_LIBRARY_PATH, e.g.:
+<pre>
+export QTDIR=$HOME/qt-embedded
+export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+</pre>
+Run the application with the <i>-qws</i> option:
 <pre>
 cd $QTDIR/examples/compact
 ./compact -qws
@@ -364,7 +370,7 @@ You can exit the master application at any time using ctrl+alt+backspace.
 <p>
 At the time of writing Qt/Embedded supports MouseMan (default), Microsoft and
 IntelliMouse.  To specify the mouse to use set the $QWS_MOUSE_PROTO environment
-variable:
+variable, e.g.:
 <pre>
 export QWS_MOUSE_PROTO=IntelliMouse
 </pre>
