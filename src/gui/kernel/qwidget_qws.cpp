@@ -1460,11 +1460,11 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     update -= scrollRegion;
     if (dx) {
         int x = x2 == sr.x() ? sr.x()+w : sr.x();
-        update |= QRect(x, sr.y(), QABS(dx), sr.height());
+        update |= QRect(x, sr.y(), qAbs(dx), sr.height());
     }
     if (dy) {
         int y = y2 == sr.y() ? sr.y()+h : sr.y();
-        update |= QRect(sr.x(), y, sr.width(), QABS(dy));
+        update |= QRect(sr.x(), y, sr.width(), qAbs(dy));
     }
     repaint(update);
     if (!valid_rect)

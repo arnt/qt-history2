@@ -722,8 +722,8 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
             return *this;                        // identity matrix
         h = qRound(matrix.m22()*hs);
         w = qRound(matrix.m11()*ws);
-        h = QABS(h);
-        w = QABS(w);
+        h = qAbs(h);
+        w = qAbs(w);
         if (matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F &&
                 depth() == defaultDepth()) // ### stretchBlt limitation
         {

@@ -1537,7 +1537,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
         if (res != FcResultMatch || !scalable) {
             int pixelSize;
             res = FcPatternGetInteger(font, FC_PIXEL_SIZE, 0, &pixelSize);
-            if (res != FcResultMatch || QABS((size_value-pixelSize)/size_value) > 0.2)
+            if (res != FcResultMatch || qAbs((size_value-pixelSize)/size_value) > 0.2)
                 continue;
         }
 

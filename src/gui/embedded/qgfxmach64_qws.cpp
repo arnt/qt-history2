@@ -421,7 +421,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     dx=abs(x2-x1);
     dy=abs(y2-y1);
 
-    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, qAbs(dy)+1))
 
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_LINE) {
         setDest();

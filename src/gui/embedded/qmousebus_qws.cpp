@@ -169,7 +169,7 @@ void QWSBusMouseHandlerPrivate::readMouseData()
         sendEvent=true;
 
         if (sendEvent) {
-            if (QABS(dx) > accel_limit || QABS(dy) > accel_limit) {
+            if (qAbs(dx) > accel_limit || qAbs(dy) > accel_limit) {
                 dx *= accel;
                 dy *= accel;
             }

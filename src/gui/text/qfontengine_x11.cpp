@@ -1040,7 +1040,7 @@ XftFont *QFontEngineXft::transformedFont(const QMatrix &matrix)
     XftPatternGetMatrix(_pattern, XFT_MATRIX, 0, &mat);
     XftMatrix m2;
     double scale = matrix.det();
-    scale = sqrt(QABS(scale));
+    scale = sqrt(qAbs(scale));
     m2.xx = matrix.m11()*_scale;
     m2.xy = -matrix.m21()*_scale;
     m2.yx = -matrix.m12()*_scale;

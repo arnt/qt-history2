@@ -546,7 +546,7 @@ static inline bool compareEdges(const QEdge *e1, const QEdge *e2)
 
 static inline bool isEqual(const QPointF &p1, const QPointF &p2)
 {
-    return QABS(p1.x()-p2.x()) < 0.0001 && QABS(p1.y() - p2.y()) < 0.0001;
+    return qAbs(p1.x()-p2.x()) < 0.0001 && qAbs(p1.y() - p2.y()) < 0.0001;
 }
 
 struct QIntersectionPoint {
@@ -776,7 +776,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
 	// calc intersection points
  	QVarLengthArray<QIntersectionPoint> isects(aet.size()+1);
  	for (int i = 0; i < isects.size()-1; ++i) {
- 	    isects[i].x = QABS(aet.at(i)->p1.x() - aet.at(i)->p2.x()) > 0.0001 ?
+ 	    isects[i].x = qAbs(aet.at(i)->p1.x() - aet.at(i)->p2.x()) > 0.0001 ?
 			  ((y - aet.at(i)->b)*aet.at(i)->m) : aet.at(i)->p1.x();
 	    isects[i].edge = aet.at(i);
 	}

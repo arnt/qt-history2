@@ -1160,7 +1160,7 @@ void QGfxVga16::drawLine(int x1, int y1, int x2, int y2)
     int dx=x2-x1;
     int dy=y2-y1;
 
-    VGA16_GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+    VGA16_GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, qAbs(dy)+1))
 
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // Fast path
@@ -1179,8 +1179,8 @@ void QGfxVga16::drawLine(int x1, int y1, int x2, int y2)
 #endif
     // Bresenham algorithm from Graphics Gems
 
-    int ax=QABS(dx)*2;
-    int ay=QABS(dy)*2;
+    int ax=qAbs(dx)*2;
+    int ay=qAbs(dy)*2;
     int sx=dx>0 ? 1 : -1;
     int sy=dy>0 ? 1 : -1;
     int x=x1;
@@ -1604,7 +1604,7 @@ void QGfxVga16::scroll(int rx,int ry,int w,int h,int sx, int sy)
     if (dx == 0 && dy == 0)
         return;
 
-    VGA16_GFX_START(QRect(qMin(rx+xoffs,sx+xoffs), qMin(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
+    VGA16_GFX_START(QRect(qMin(rx+xoffs,sx+xoffs), qMin(ry+yoffs,sy+yoffs), w+qAbs(dx)+1, h+qAbs(dy)+1))
 
     srcbits=buffer;
     src_normal_palette=true;

@@ -590,7 +590,7 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     // On the Voodoo3, unlike the Mach64, Bresenham parameters
     // for the line are calculated automatically
 
-    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, qAbs(dy)+1))
     setDest();
     (*gfx_optype)=1;
     (*gfx_lastop)=LASTOP_LINE;

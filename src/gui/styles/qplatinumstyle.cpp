@@ -108,7 +108,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
 
             QPen oldPen = p->pen();
             if (w * h < 1600 ||
-                 QABS(w - h) > 10) {
+                 qAbs(w - h) > 10) {
                 // small buttons
 
                 if (!(flags & (Style_Sunken | Style_Down))) {
@@ -768,7 +768,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
             // bevel buttons (what a heuristic....)
             if (btn->isCheckable() || (btn->pixmap() &&
                       (btn->width() * btn->height() < 1600 ||
-                       QABS(btn->width() - btn->height()) < 10)))
+                       qAbs(btn->width() - btn->height()) < 10)))
                 useBevelButton = true;
             else
                 useBevelButton = false;

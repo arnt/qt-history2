@@ -485,7 +485,7 @@ bool QSvgDevice::cmd (int c, QPainter *painter, QPDevCmdParam *p)
         double y1 = y0 - ry*sin(a);
         double x2 = x0 + rx*cos(a+al);
         double y2 = y0 - ry*sin(a+al);
-        int large = QABS(al) > (180.0 * deg2rad) ? 1 : 0;
+        int large = qAbs(al) > (180.0 * deg2rad) ? 1 : 0;
         int sweep = al < 0.0 ? 1 : 0;
         if (c == PdcDrawPie)
             str = QString("M %1 %2 L %3 %4 ").arg(x0).arg(y0)
@@ -829,7 +829,7 @@ bool QSvgDevice::play(const QDomNode &node)
             y2 = lenToInt(attr, "y2");
             QPen p = pt->pen();
             w = p.width();
-            p.setWidth((unsigned int)(w * (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2));
+            p.setWidth((unsigned int)(w * (qAbs(pt->worldMatrix().m11()) + qAbs(pt->worldMatrix().m22())) / 2));
             pt->setPen(p);
             pt->drawLine(x1, y1, x2, y2);
             p.setWidth(w);
@@ -1476,7 +1476,7 @@ void QSvgDevice::applyStyle(QDomElement *e, int c) const
         if (pw == 0 && pt->pen().style() != Qt::NoPen)
             pw = 0.9;
         if (c == PdcDrawLine)
-            pw /= (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2.0;
+            pw /= (qAbs(pt->worldMatrix().m11()) + qAbs(pt->worldMatrix().m22())) / 2.0;
         s += QString("stroke-width:%1;").arg(pw);
         if (pt->pen().style() == Qt::DashLine)
             s+= QString("stroke-dasharray:18,6;");
