@@ -6,9 +6,11 @@ provides an overview of the XML format used, and should provide enough
 information for developers to write their own \c .ui parsers so that
 they can read and modify \c .ui files programatically.
 
-One way to parse a \c .ui file is to use Qt and the \l QDom class;
-this is how \QD does it: see the \c resource.h and \c resource.cpp
-source files. 
+One way to parse a \File .ui file is to use Qt and the \l QDom class;
+this is how \QD does it: see the \c uilib/qwidgetfactory.h and \c
+uilib/qwidgetfactory.cpp source files. For information on dynamically
+loading and running \File .ui files see \l{Loading and Executing a
+Dynamic Dialog}.
 
 The doctype of a \c .ui file is simply "UI", so the doctype tag is:
 
@@ -34,7 +36,8 @@ types:
 \i \link comment comment\endlink - comments, e.g. copyright notices
 \i \link connections connections\endlink - signal/slot connections
 \i \link customwidgets customwidgets\endlink - custom widgets
-\i \link exportmacro exportmacro\endlink - ###
+(old-style)
+\i \link exportmacro exportmacro\endlink - Windows-specific
 \i \link forwards forwards\endlink - forward declarations
 \i \link images images\endlink - embedded images: only for \c .ui files than include embedded images; images are normally stored in a separate \c images directory
 \i \link includes includes\endlink - include files
@@ -173,6 +176,11 @@ object and its slot. Each \c slot element provides a slot's prototype.
 \QD can operate with custom widgets. A custom widget is represented in
 a \File .ui file using the \c{<customwidget>} element.
 
+Note that these are the 'old-style' custom widgets that show up on the
+form as grey rectangles. Use plugins to seamlessly integrate your
+custom widgets into \QD -- see \l{Creating Custom Widgets with
+Plugins}.
+
 Each custom widget has a class name and a header file. They also have
 a size hint and size policy. A pixmap can be specified; this is
 displayed on a \QD toolbar button which the user can use to create an
@@ -207,7 +215,26 @@ widget has are also included.
 \target exportmacro
 \section2 exportmacro
 
-### TODO
+This tag is only relevant to Windows users.
+
+If you have a class that requires some Windows-specific export macro,
+e.g. for classes in a DLL that need to be declared like this: \c{class
+win_specific_declaration_goes_here Class}, you can use the
+\c{<exportmacro>} tag. (In standard Qt we use the \c Q_EXPORT macro,
+e.g. \c{class Q_EXPORT QWidget}.) If you use this tag you must also:
+\list 1
+\i \link includes include\endlink the file which contains the macro
+definition; 
+\i add the export macro to the form -- this is achieved by entering
+the macro's name in the 'export macro' sub-property of the form's name
+property.
+\endlist
+Following these steps will ensure that \link uic.html uic\endlink will
+create the correct \c{class YOUR_MACRO Form} declarations.
+
+\code
+<exportmacro>EDITOR_EXPORT</exportmacro>
+\endcode
 
 \target forwards
 \section2 forwards
