@@ -1221,7 +1221,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
         int nPackets;        // the number of packets we get from the queue
 #endif
 
-    LRESULT res = 0;
+    long res = 0;
     if (!qApp)                                // unstable app state
         goto do_default;
 
