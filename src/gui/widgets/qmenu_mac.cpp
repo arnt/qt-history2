@@ -37,7 +37,7 @@
   QMenu globals
  *****************************************************************************/
 bool qt_mac_no_menubar_icons = false;
-bool qt_mac_no_native_menubar = true;
+bool qt_mac_no_native_menubar = false;
 bool qt_mac_no_menubar_merge = false;
 
 static uint qt_mac_menu_static_cmd_id = 'QT00';
