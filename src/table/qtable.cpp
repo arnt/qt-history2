@@ -4089,14 +4089,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	} else {
 	    setCurrentCell( tmpRow, tmpCol, FALSE );
 	    if ( !isRowSelection( selectionMode() ) ) {
-		bool b = signalsBlocked();
-		blockSignals( TRUE );
 		clearSelection();
-		blockSignals( b );
-		currentSel = new QTableSelection( tmpRow, tmpCol, tmpRow, tmpCol );
-		selections.append( currentSel );
-		repaintSelections( 0, currentSel, TRUE );
-		emit selectionChanged();
 	    } else {
 		bool currentInSelection = tmpRow == oldRow && isSelected( tmpRow, tmpCol, FALSE );
 		if ( !currentInSelection ) {
