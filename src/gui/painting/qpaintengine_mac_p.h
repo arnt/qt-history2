@@ -71,8 +71,6 @@ public:
     {
         hd = 0;
         shading = 0;
-        lineAntialiasingEnabled = 1;
-        textAntialiasingEnabled = 1;
     }
 
     //state info (shared with QD)
@@ -80,10 +78,6 @@ public:
     //cg strucutres
     CGContextRef hd;
     CGShadingRef shading;
-
-    //flags
-    uint lineAntialiasingEnabled : 1;
-    uint textAntialiasingEnabled : 1;
 
     //internal functions
     enum { CGStroke=0x01, CGFill=0x02 };

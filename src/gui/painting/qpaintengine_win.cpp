@@ -326,7 +326,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 //         return true;
     }
 
-    d->antialiased = false;
+    clearRenderHints(QPainter::LineAntialiasing)
     d->penAlphaColor = false;
     d->brushAlphaColor = false;
 
@@ -1556,24 +1556,11 @@ void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, c
     }
 }
 
-void QWin32PaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
+void QWin32PaintEngine::setRenderHints(QPainter::RenderHint hints)
 {
-    switch (hint) {
-    case QPainter::LineAntialiasing:
-        d->antialiased = enable;
-        break;
-    default:
-        break;
-    }
-
+    QPaintEngine::setRenderHints(hints);
     if (d->tryGdiplus())
-        d->gdiplusEngine->setRenderHint(hint, enable);
-}
-
-QPainter::RenderHints QWin32PaintEngine::renderHints() const
-{
-    // ### Fill in the correct renderHints
-    return 0;
+        d->gdiplusEngine->setRenderHints(hints);
 }
 
 QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
@@ -1600,7 +1587,10 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     d->gdiplusInUse = true;
     q->setDirty(QPaintEngine::AllDirty);
     q->updateState(q->state);
-    d->gdiplusEngine->setRenderHint(QPainter::LineAntialiasing, antialiased);
+    if (q->renderHints() & QPainter::LineAntialiasing)
+	d->gdiplusEngine->setRenderHints(QPainter::LineAntialiasing);
+    else
+	d->gdiplusEngine->clearRenderHints(QPainter::LineAntialiasing);
 }
 
 void QWin32PaintEnginePrivate::endGdiplus()
@@ -2315,22 +2305,14 @@ QPainter::RenderHints QGdiplusPaintEngine::supportedRenderHints() const
     return QPainter::LineAntialiasing;
 }
 
-QPainter::RenderHints QGdiplusPaintEngine::renderHints() const
+void QGdiplusPaintEngine::setRenderHints(QPainter::RenderHint hints)
 {
-    QPainter::RenderHints hints;
-    if (d->antiAliasEnabled)
-        hints |= QPainter::LineAntialiasing;
-    return hints;
-}
-
-void QGdiplusPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
-{
-    if (hint == QPainter::LineAntialiasing) {
+    QPaintEngine::setRenderHints(hints);
+    if (hints & QPainter::LineAntialiasing) {
         GdipSetSmoothingMode(d->graphics, enable
                                ? 2 /* QualityModeHigh */
                                : 1 /* QualityModeLow */ );
 //         d->graphics->SetPixelOffsetMode(enable ? PixelOffsetModeHalf : PixelOffsetModeNone);
-        d->antiAliasEnabled = enable;
     }
 }
 

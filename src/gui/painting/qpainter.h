@@ -222,7 +222,8 @@ public:
     QPointArray xFormDev(const QPointArray &) const;
     QPointArray xFormDev(const QPointArray &, int index, int npoints) const;
 
-    void setRenderHint(RenderHint hint, bool enable);
+    void setRenderHints(RenderHint hints);
+    void clearRenderHints(RenderHint hints);
     RenderHints supportedRenderHints() const;
     RenderHints renderHints() const;
 

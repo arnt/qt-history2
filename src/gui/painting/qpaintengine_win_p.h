@@ -56,7 +56,6 @@ public:
         usesTempDC(false),
         usePen(false),
         temporaryBrush(false),
-        antiAliasEnabled(false)
     {
     }
 
@@ -75,7 +74,6 @@ public:
     uint usesTempDC : 1;
     uint usePen : 1;
     uint temporaryBrush : 1;
-    uint antiAliasEnabled : 1;
 };
 
 class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate

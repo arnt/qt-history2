@@ -77,8 +77,7 @@ public:
            UsePrivateCx = 0x10000, VolatileDC = 0x20000, Qt2Compat = 0x40000 };
 
     QPainter::RenderHints supportedRenderHints() const;
-    QPainter::RenderHints renderHints() const;
-    void setRenderHint(QPainter::RenderHint hint, bool enable);
+    void setRenderHints(QPainter::RenderHint hints);
 
 protected:
     QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target, PaintEngineFeatures caps);
@@ -126,8 +125,7 @@ public:
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     QPainter::RenderHints supportedRenderHints() const;
-    QPainter::RenderHints renderHints() const;
-    void setRenderHint(QPainter::RenderHint hint, bool enable);
+    void setRenderHints(QPainter::RenderHint hints);
 
     HDC handle() const;
     Type type() const { return Gdiplus; }

@@ -121,7 +121,8 @@ public:
 
     virtual QPainter::RenderHints supportedRenderHints() const;
     virtual QPainter::RenderHints renderHints() const;
-    virtual void setRenderHint(QPainter::RenderHint hint, bool enable);
+    virtual void setRenderHints(QPainter::RenderHint hints);
+    virtual void clearRenderHints(QPainter::RenderHint hints);
 
     enum Type {
         //X11

@@ -1004,8 +1004,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         CGShadingRelease(d->shading);
         d->shading = 0;
     }
-    d->lineAntialiasingEnabled = 1;
-    d->textAntialiasingEnabled = 1;
+    setRenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
     d->offx = d->offy = 0; // (quickdraw compat!!)
 
     setupCGClip(0); //get handle to drawable
@@ -1034,7 +1033,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)d->pdev;
         if(pm->depth() == 1)
-            d->textAntialiasingEnabled = d->lineAntialiasingEnabled = 0;
+                clearRenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
         if(pm->isNull()) {
             qWarning("QCoreGraphicsPaintEngine::begin: Cannot paint null pixmap");
             end();

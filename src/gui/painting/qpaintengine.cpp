@@ -18,8 +18,8 @@
 
 #include <private/qfontengine_p.h>
 
-#define d d_ptr()
-#define q q_ptr()
+#define d d_func()
+#define q q_func()
 
 QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
     : dirtyFlag(0),
@@ -181,13 +181,18 @@ QPainter::RenderHints QPaintEngine::supportedRenderHints() const
 
 QPainter::RenderHints QPaintEngine::renderHints() const
 {
-    return 0;
+    return d->renderhints;
 }
 
-void QPaintEngine::setRenderHint(QPainter::RenderHint, bool)
+void QPaintEngine::setRenderHints(QPainter::RenderHint hints)
 {
+    d->renderhints |= hints;
 }
 
+void QPaintEngine::clearRenderHints(QPainter::RenderHint hints)
+{
+    d->renderhints &= ~hints;
+}
 
 void QWrapperPaintEngine::updatePen(const QPen &pen) { wrap->updatePen(pen); }
 void QWrapperPaintEngine::updateBrush(const QBrush &brush, const QPoint &pt)

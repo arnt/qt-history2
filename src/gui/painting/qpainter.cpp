@@ -511,8 +511,8 @@ bool QPainter::begin(QPaintDevice *pd)
         updateXForm();
 
     Q_ASSERT(d->engine->isActive());
-    d->engine->setRenderHint(QPainter::LineAntialiasing, false);
-    d->engine->setRenderHint(QPainter::TextAntialiasing, true);
+    d->engine->clearRenderHints(QPainter::LineAntialiasing);
+    d->engine->setRenderHints(QPainter::TextAntialiasing);
     ++d->device->painters;
     return true;
 }
@@ -2906,16 +2906,30 @@ QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) co
 }
 
 /*!
-    If \a enable is true, sets the painter's render hint, \a hint on;
-    otherwise switches the render hint off.
+    Sets the render hints supplied in \a hints. Several render hints
+    can be OR'ed together in \a hints.
 */
-void QPainter::setRenderHint(RenderHint hint, bool enable)
+void QPainter::setRenderHints(RenderHint hints)
 {
     if (!isActive()) {
         qWarning("Painter must be active to set rendering hints");
         return;
     }
-    d->engine->setRenderHint(hint, enable);
+
+    d->engine->setRenderHints(hints);
+}
+
+/*!
+    Clears the render hints supplied in \a hints. Several render hints
+    can be OR'ed together in \a hints.
+*/
+void QPainter::clearRenderHints(RenderHint hints)
+{
+    if (!isActive()) {
+        qWarning("Painter must be active to clear rendering hints");
+        return;
+    }
+    d->engine->clearRenderHints(hints);
 }
 
 /*!
@@ -3266,7 +3280,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
     int rh = r.height();
 
     QPainter p(pixmap);
-    p.setRenderHint(QPainter::LineAntialiasing, false);
+    p.clearRenderHints(QPainter::LineAntialiasing);
 
     if (QABS(dx) > QABS(dy)) { // Fill horizontally
         // Make sure we fill left to right.
