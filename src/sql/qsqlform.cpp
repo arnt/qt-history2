@@ -47,13 +47,14 @@
 class QSqlFormPrivate
 {
 public:
-    QSqlFormPrivate() : propertyMap( 0 ), buf( 0 ) {}
+    QSqlFormPrivate() : propertyMap( 0 ), buf( 0 ), dirty( FALSE ) {}
     ~QSqlFormPrivate() { if ( propertyMap ) delete propertyMap; }
     QStringList fld;
     QDict<QWidget> wgt;
     QMap< QWidget *, QSqlField * > map;
     QSqlPropertyMap * propertyMap;
     QSqlRecord* buf;
+    bool dirty;
 };
 
 /*!
@@ -163,9 +164,8 @@ void QSqlForm::installPropertyMap( QSqlPropertyMap * pmap )
 
 void QSqlForm::setRecord( QSqlRecord* buf )
 {
+    d->dirty = TRUE;
     d->buf = buf;
-    for ( uint i = 0; i < d->fld.count(); ++i )
-	insert( d->wgt[ d->fld[ i ] ], buf->field( d->fld[ i ] ) );
 }
 
 /*!  Insert a \a widget, and the \a field it is to be mapped to, into
@@ -178,6 +178,7 @@ void QSqlForm::setRecord( QSqlRecord* buf )
 
 void QSqlForm::insert( QWidget * widget, const QString& field )
 {
+    d->dirty = TRUE;
     d->wgt.insert( field, widget );
     d->fld += field;
 }
@@ -188,6 +189,7 @@ void QSqlForm::insert( QWidget * widget, const QString& field )
 
 void QSqlForm::remove( const QString& field )
 {
+    d->dirty = TRUE;
     if ( d->fld.find( field ) != d->fld.end() )
 	d->fld.remove( d->fld.find( field ) );
     d->wgt.remove( field );
@@ -236,6 +238,7 @@ void QSqlForm::clearValues( bool nullify )
 */
 void QSqlForm::clear()
 {
+    d->dirty = TRUE;
     d->fld.clear();
     QMap< QWidget *, QSqlField * >::Iterator it;
     for( it = d->map.begin(); it != d->map.end(); ++it ){
@@ -304,11 +307,11 @@ QSqlField * QSqlForm::widgetToField( QWidget * widget ) const
 */
 void QSqlForm::readFields()
 {
+    sync();
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
     QSqlPropertyMap * pmap = (d->propertyMap == 0) ?
 			     QSqlPropertyMap::defaultMap() : d->propertyMap;
-
     for(it = d->map.begin() ; it != d->map.end(); ++it ){
 	f = widgetToField( it.key() );
 	if( !f ) continue;
@@ -322,6 +325,7 @@ void QSqlForm::readFields()
 */
 void QSqlForm::writeFields()
 {
+    sync();
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
     QSqlPropertyMap * pmap = (d->propertyMap == 0) ?
@@ -342,10 +346,10 @@ void QSqlForm::writeFields()
 */
 void QSqlForm::readField( QWidget * widget )
 {
+    sync();
     QSqlField * field = 0;
     QSqlPropertyMap * pmap = (d->propertyMap == 0) ?
 			     QSqlPropertyMap::defaultMap() : d->propertyMap;
-
     field = widgetToField( widget );
     if( field )
 	pmap->setProperty( widget, field->value() );
@@ -358,13 +362,28 @@ void QSqlForm::readField( QWidget * widget )
 */
 void QSqlForm::writeField( QWidget * widget )
 {
+    sync();
     QSqlField * field = 0;
     QSqlPropertyMap * pmap = (d->propertyMap == 0) ?
 			     QSqlPropertyMap::defaultMap() : d->propertyMap;
-
     field = widgetToField( widget );
     if( field )
 	field->setValue( pmap->property( widget ) );
+}
+
+/*! \internal
+*/
+
+void QSqlForm::sync()
+{
+    if ( d->dirty ) {
+	clear();
+	if ( d->buf ) {
+	    for ( uint i = 0; i < d->fld.count(); ++i )
+		insert( d->wgt[ d->fld[ i ] ], d->buf->field( d->fld[ i ] ) );
+	}
+    }
+    d->dirty = FALSE;
 }
 
 #endif // QT_NO_SQL

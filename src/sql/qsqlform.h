@@ -91,6 +91,7 @@ protected:
     virtual void remove( QWidget * widget );
 
 private:
+    virtual void sync();
     QSqlFormPrivate* d;
 };
 
