@@ -783,7 +783,7 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     }
 
     QSqlQuery fi = createQuery();
-    fi.exec( stmt.arg( tablename ) );
+    fi.exec( stmt.arg( tablename.lower() ) );
     while ( fi.next() ) {
 	QSqlField f( fi.value(0).toString(), qDecodePSQLType( fi.value(1).toInt() ) );
 	fil.append( f );
@@ -857,7 +857,7 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
     }
 
     QSqlQuery query = createQuery();
-    query.exec( stmt.arg( tablename ) );
+    query.exec( stmt.arg( tablename.lower() ) );
     if ( pro >= QPSQLDriver::Version71 ) {
 	while ( query.next() ) {
 	    int len = query.value( 3 ).toInt();
