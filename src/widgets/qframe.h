@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#2 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#3 $
 **
 ** Definition of QFrame widget class
 **
@@ -44,16 +44,26 @@ public:
     int	    midLineWidth()  const { return mwidth; }
     void    setMidLineWidth( int );
 
+    QRect   frameRect()	    const;
+
 protected:
+    void    setFrameRect( const QRect & );
     void    paintEvent( QPaintEvent * );
     virtual void drawFrame( QPainter * );
     virtual void drawContents( QPainter * );    
 
 private:
+    QRect   frect;				// frame rectangle
     int     fstyle;				// frame style
     short   fwidth;				// frame width
     short   mwidth;				// mid line width
 };
+
+
+inline QRect QFrame::frameRect() const
+{
+    return frect.isNull() ? clientRect() : frect;
+}
 
 
 #endif // QFRAME_H

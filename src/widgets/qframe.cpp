@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#4 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,11 +14,11 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#4 $";
 #endif
 
 
-#define lightColor  white		/* humbug!!! */
+#define lightColor  white			// humbug!!!
 #define darkColor   darkGray
 #define midColor    gray
 
@@ -26,17 +26,20 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#3 $";
 QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
 {
     initMetaObject();
+    frect  = QRect( 0, 0, 0, 0 );
     fstyle = NoFrame;				// set default frame style
     fwidth = 1;
     mwidth = 0;
     setForegroundColor( black );
     setBackgroundColor( lightGray );
+    if ( !frect.isNull() )
+	debug("OIOIOI");
 }
 
 
 QRect QFrame::contentsRect() const
 {
-    QRect r = clientRect();
+    QRect r = frameRect();
     int tw = fwidth+mwidth;
     r.setRect( r.x()+tw, r.y()+tw, r.width()-tw*2, r.height()-tw*2 );
     return r;
@@ -46,7 +49,6 @@ QRect QFrame::contentsRect() const
 void QFrame::setFrame( int f )
 {
     fstyle = (short)f;
-    update();
 }
 
 void QFrame::setFrameWidth( int fw )
@@ -57,6 +59,12 @@ void QFrame::setFrameWidth( int fw )
 void QFrame::setMidLineWidth( int mw )
 {
     mwidth = mw;
+}
+
+
+void QFrame::setFrameRect( const QRect &r )
+{
+    frect = r;
 }
 
 
@@ -72,7 +80,7 @@ void QFrame::paintEvent( QPaintEvent * )
 
 void QFrame::drawFrame( QPainter *p )
 {
-    QRect     r = clientRect();
+    QRect     r = frameRect();
     QPoint    p1, p2;
     QPainter *paint = p;
     int	      type  = fstyle & MType;
