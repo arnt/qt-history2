@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#12 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#12 $");
 
 
 /*!
@@ -677,10 +677,11 @@ void QGridLayout::init( int nRows, int nCols )
   Adds the widget \a w to the cell grid at \a row, \a col.
   The top left position is (0,0)
 
-  Alignment is
-  specified by \a align which takes the same arguments as QLabel::setAlignment().
-  Note that widgets take all the space they can get; alignment has no effect unless
-  you have set QWidget::maximumSize().
+  Alignment is specified by \a align which takes the same arguments as
+  QLabel::setAlignment().  Note that widgets take all the space they
+  can get; alignment has no effect unless you have set
+  QWidget::maximumSize().  
+
 */
 
 void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
@@ -733,10 +734,10 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
     } else {
 	c =  (*cols)[ fromCol ];
     }
-    if ( a & (AlignHCenter|AlignLeft) )
+    if ( a & (AlignHCenter|AlignRight) )
 	basicManager()->addSpacing( c, 0 );
     basicManager()->addWidget( c, w, 1 ); //stretch ignored in parallel chain
-    if ( a & (AlignHCenter|AlignRight) )
+    if ( a & (AlignHCenter|AlignLeft) )
 	basicManager()->addSpacing( c, 0 );
 
     // vertical dimension:
@@ -750,10 +751,10 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
     } else {
 	c =  (*rows)[ fromRow ];
     }
-    if ( a & (AlignVCenter|AlignTop) )
+    if ( a & (AlignVCenter|AlignBottom) )
 	basicManager()->addSpacing( c, 0 );
     basicManager()->addWidget( c, w, 1 ); //stretch ignored in parallel chain
-    if ( a & (AlignVCenter|AlignBottom) )
+    if ( a & (AlignVCenter|AlignTop) )
 	basicManager()->addSpacing( c, 0 );
 }
 
