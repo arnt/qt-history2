@@ -28,7 +28,7 @@
             <x>0</x>
             <y>0</y>
             <width>467</width>
-            <height>387</height>
+            <height>449</height>
         </rect>
     </property>
     <property name="caption">
@@ -64,12 +64,6 @@
                 <grid>
                     <property name="name">
                         <cstring>unnamed</cstring>
-                    </property>
-                    <property name="margin">
-                        <number>11</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
                     </property>
                     <widget class="QButtonGroup" row="0" column="0" rowspan="2" colspan="1">
                         <property name="name">
@@ -121,7 +115,7 @@
                                     <cstring>radioColor</cstring>
                                 </property>
                                 <property name="focusPolicy">
-                                    <enum>TabFocus</enum>
+                                    <enum>NoFocus</enum>
                                 </property>
                                 <property name="text">
                                     <string>Co&amp;lor</string>
@@ -311,26 +305,6 @@
                             </widget>
                         </vbox>
                     </widget>
-                    <spacer row="3" column="0">
-                        <property name="name">
-                            <cstring>Spacer3</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>A splash screen is displayed when starting Qt Designer if this option is checked.</string>
-                        </property>
-                    </spacer>
                     <widget class="QGroupBox" row="2" column="0">
                         <property name="name">
                             <cstring>GroupBox5</cstring>
@@ -452,6 +426,90 @@
                                 </property>
                             </widget>
                         </vbox>
+                    </widget>
+                    <spacer row="4" column="0">
+                        <property name="name">
+                            <cstring>Spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>16</height>
+                            </size>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>A splash screen is displayed when starting Qt Designer if this option is checked.</string>
+                        </property>
+                    </spacer>
+                    <widget class="QGroupBox" row="3" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>groupBox4</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Aut&amp;o Save</string>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxAutoSave</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Enable Auto Sa&amp;ve</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer3</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>81</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>textLabelAutoSave</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Auto Save &amp;Interval:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>timeEditAutoSave</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QTimeEdit">
+                                <property name="name">
+                                    <cstring>timeEditAutoSave</cstring>
+                                </property>
+                                <property name="time">
+                                    <time>
+                                        <hour>0</hour>
+                                        <minute>30</minute>
+                                        <second>0</second>
+                                    </time>
+                                </property>
+                            </widget>
+                        </hbox>
                     </widget>
                 </grid>
             </widget>
@@ -633,4 +691,8 @@
     <slot access="protected">destroy()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>styledbutton.h</includehint>
+    <includehint>styledbutton.h</includehint>
+</includehints>
 </UI>

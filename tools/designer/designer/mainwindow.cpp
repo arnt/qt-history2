@@ -115,7 +115,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
-      previewing( FALSE ), databaseAutoEdit( FALSE )
+      previewing( FALSE ), databaseAutoEdit( FALSE ), autoSaveEnabled( FALSE ), autoSaveInterval( 1800 )
 {
 #ifdef Q_WS_WIN
     extern void qInitImages_designerlib();
@@ -141,6 +141,10 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     updateFunctionsTimer = new QTimer( this );
     connect( updateFunctionsTimer, SIGNAL( timeout() ),
 	     this, SLOT( doFunctionsChanged() ) );
+
+    autoSaveTimer = new QTimer( this );
+    connect( autoSaveTimer, SIGNAL( timeout() ),
+	     this, SLOT( fileSaveAll() ) );
 
     set_splash_status( "Loading Plugins..." );
     setupPluginManagers();
@@ -244,6 +248,9 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     set_splash_status( "Initialization Done." );
     if ( shStartDialog )
 	QTimer::singleShot( 0, this, SLOT( showStartDialog() ));
+
+    if ( autoSaveEnabled )
+	autoSaveTimer->start( autoSaveInterval * 1000 );
 }
 
 MainWindow::~MainWindow()
@@ -2028,6 +2035,9 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentlyFiles, ',' );
     config.writeEntry( keybase + "RecentlyOpenedProjects", recentlyProjects, ',' );
     config.writeEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
+    
+    config.writeEntry( keybase + "AutoSave/Enabled", autoSaveEnabled );
+    config.writeEntry( keybase + "AutoSave/Interval", autoSaveInterval );
 
     config.writeEntry( keybase + "Grid/Snap", snGrid );
     config.writeEntry( keybase + "Grid/Show", sGrid );
@@ -2143,6 +2153,8 @@ void MainWindow::readConfig()
 	templPath = config.readEntry( keybase + "TemplatePath", QString::null );
 	databaseAutoEdit = config.readBoolEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
 	shStartDialog = config.readBoolEntry( keybase + "ShowStartDialog", shStartDialog );
+	autoSaveEnabled = config.readBoolEntry( keybase + "AutoSave/Enabled", autoSaveEnabled );
+	autoSaveInterval = config.readNumEntry( keybase + "AutoSave/Interval", autoSaveInterval );
     }
 
     if ( restoreConfig || readPreviousConfig ) {

@@ -430,6 +430,9 @@ private:
     QValueList<Tab> projectTabs;
     bool databaseAutoEdit;
     QTimer *updateFunctionsTimer;
+    QTimer *autoSaveTimer;
+    bool autoSaveEnabled;
+    int autoSaveInterval;
     QLineEdit *incrementalSearch;
     QGuardedPtr<FindDialog> findDialog;
     QGuardedPtr<ReplaceDialog> replaceDialog;

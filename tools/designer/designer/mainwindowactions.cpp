@@ -38,6 +38,7 @@
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qinputdialog.h>
+#include <qdatetimeedit.h>
 
 #include "defs.h"
 #include "project.h"
@@ -1861,6 +1862,12 @@ void MainWindow::editPreferences()
     dia->checkBoxSplash->setChecked( splashScreen );
     dia->checkAutoEdit->setChecked( !databaseAutoEdit );
     dia->checkBoxStartDialog->setChecked( shStartDialog );
+    dia->checkBoxAutoSave->setChecked( autoSaveEnabled );
+    int h = autoSaveInterval / 3600;
+    int m = ( autoSaveInterval - h * 3600 ) / 60;
+    int s = autoSaveInterval - ( h * 3600 + m * 60 );
+    QTime t( h, m, s );
+    dia->timeEditAutoSave->setTime( t );
 
     SenderObject *senderObject = new SenderObject( designerInterface() );
     QValueList<Tab>::Iterator it;
@@ -1894,6 +1901,14 @@ void MainWindow::editPreferences()
 	splashScreen = dia->checkBoxSplash->isChecked();
 	databaseAutoEdit = !dia->checkAutoEdit->isChecked();
 	shStartDialog = dia->checkBoxStartDialog->isChecked();
+	autoSaveEnabled = dia->checkBoxAutoSave->isChecked();
+	if ( autoSaveEnabled ) {
+	    QTime time = dia->timeEditAutoSave->time();
+	    autoSaveInterval = time.hour() * 3600 + time.minute() * 60 + time.second();
+	    autoSaveTimer->start( autoSaveInterval * 1000 );
+	} else {
+	    autoSaveTimer->stop();
+	}
     }
     delete senderObject;
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
