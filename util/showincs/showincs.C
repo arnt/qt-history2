@@ -4,6 +4,7 @@
 #include <qfile.h>
 #include <qlist.h>
 
+
 QString includePath = 				// default include path
     "/home/popcorn/hanord/quasar/src/include";
 //    "/usr/g++-include:"
@@ -54,16 +55,29 @@ typedef declare(QDict,FileInfo) FilesDict;
 FilesDict *fdict = 0;
 QStrList  *flist = 0;
 
-void parse( const QString &fileName, bool isIncluded=FALSE, bool local=TRUE )
+void addFile( const QString &fileName, bool isIncluded=FALSE )
 {
-    QString file;				// path + file name
-    file = fileName;
-
-    if ( fdict == 0 ) {				// create main list
+    if ( fdict == 0 ) {				// create main dict and list
 	fdict = new FilesDict(23,TRUE,FALSE);
 	fdict->autoDelete( TRUE );
 	flist = new QStrList;
     }
+    FileInfo *f = fdict->find(fileName);	// already added?
+    if ( !f ) {
+	f = new FileInfo;			// create new node
+	f->name = fileName;
+	f->in = isIncluded;
+	f->flag = FALSE;
+	f->incl = new QStrList;
+	fdict->insert( f->name, f );
+	flist->append( f->name );
+    }
+}
+
+void parse( const QString &fileName, bool local=TRUE )
+{
+    QString file;				// path + file name
+    file = fileName;
 
     if ( !local )				// get full pathname
 	file = getFilePath( file, includePath );
@@ -71,14 +85,7 @@ void parse( const QString &fileName, bool isIncluded=FALSE, bool local=TRUE )
     if ( file.isNull() || !QFile::exists(file) )
 	return;					// cannot find file
 
-    FileInfo *f;
-    f = new FileInfo;				// create new node
-    f->name = fileName;
-    f->in = isIncluded;
-    f->flag = FALSE;
-    f->incl = new QStrList;
-    fdict->insert( f->name, f );
-    flist->append( f->name );
+    addFile( fileName, TRUE );
 
     QString buf(512);
     FILE *fh = fopen( file, "r" );
@@ -99,19 +106,30 @@ void parse( const QString &fileName, bool isIncluded=FALSE, bool local=TRUE )
 		p++;
 	    }
 	    *p = 0;
-	    if ( !fdict->find(fn) )		// not parsed yet
-		parse( fn, TRUE, loc );		// parse this file
-	    f->incl->append( fn );
+	    FileInfo *f = fdict->find( fn );
+	    if ( !f )				// not parsed yet
+		parse( fn, loc );		// parse this file
+	    fdict->find( fileName )->incl->append( fn );
 	}
     }
     fclose( fh );
 }
 
-void results( QStrList *aList=0, int level = 0 )
+void runIt()					// starts hunting #includes
 {
-    if ( aList == 0 )
-	aList = flist;
-    QStrListIterator i(*aList);
+    QStrListIterator i(*flist);
+    while ( i )
+	parse( i() );
+}
+
+
+// --------------------------------------------------------------------------
+// Output functions: The result can be displayed in a hierarchy or flat
+//
+
+void printHier( QStrList *list=flist, int level=0 )
+{
+    QStrListIterator i(*list);
     while ( i ) {
 	FileInfo *f = fdict->find( i.get() );
 	QString indent;
@@ -120,7 +138,22 @@ void results( QStrList *aList=0, int level = 0 )
 	    printf( "%s%s\n", (pcchar)indent, i.get() );
 	if ( !f->flag ) {
 	    f->flag = TRUE;
-	    results( f->incl, level+1 );
+	    printHier( f->incl, level+1 );
+	}
+	++i;
+    }
+}
+
+void printFlat()
+{
+    QStrListIterator i(*flist);
+    while ( i ) {
+	FileInfo *f = fdict->find( i.get() );
+	if ( !f->in ) {
+	    printf( "%s\n", i.get() );
+	    QStrListIterator j(*f->incl);
+	    while ( j )
+		printf( "    %s\n", j() );
 	}
 	++i;
     }
@@ -133,8 +166,10 @@ void results( QStrList *aList=0, int level = 0 )
 
 int main( int argc, char **argv )
 {
+    bool flat = TRUE;
+    bool wasFiles = FALSE;
     if ( argc < 2 )
-	fatal( "Usage:\n\tshowincs [-Ipath] files ..." );
+	fatal( "Usage:\n\tshowincs [-Ipath] [-hf] files ..." );
 
     for ( int n=1; n<argc; n++ ) {
 	QString s = argv[n];
@@ -143,8 +178,22 @@ int main( int argc, char **argv )
 	    includePath += &s[2];
 	}
 	else
-	    parse( s );
+        if ( s.find("-h") == 0 )
+	    flat = FALSE;
+	else
+        if ( s.find("-f") == 0 )
+	    flat = TRUE;
+	else {
+	    wasFiles = TRUE;
+	    addFile( s );
+	}
     }
-    results();
+    if ( !wasFiles )
+	fatal( "Hey! You forgot to specify some files" );
+    runIt();					// starts looking for includes
+    if ( flat )
+	printFlat();				// print flat results
+    else
+	printHier( flist, 0 );			// print hierarchical results
     return 0;
 }
