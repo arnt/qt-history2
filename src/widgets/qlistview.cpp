@@ -2449,7 +2449,7 @@ int QListView::columnWidth( int c ) const
 
 
 /*!
-  Sets column \c to behave according to \a mode.  The default depends
+  Sets column \a c to behave according to \a mode.  The default depends
   on whether the width argument to addColumn was positive or negative.
 
   \sa QListViewItem::width()
