@@ -338,7 +338,7 @@ Client API (libpq) because it is more stable and still downward
 compatible.
 
 If you want to link the plugin against the libpq shipped with version
-6 we recomment a recent version like PostgreSQL 6.5.3, otherwise a
+6 we recommend a recent version like PostgreSQL 6.5.3, otherwise a
 connection to a version 7 server may not work.
 
 The driver auto-detects the server version of PostgreSQL after a
@@ -393,6 +393,21 @@ cd $QTDIR/plugins/src/sqldrivers/psql
 qmake -o Makefile "INCLUDEPATH+=/usr/include/pgsql /usr/include/pgsql/server" "LIBS+=-L/usr/lib -lpq" psql.pro
 make
 \endcode
+
+\section3 How to build the plugin on Windows
+
+You need to get the PostgreSQL installation files and install them.
+Build the plugin as follows (here it is assumed that PostgreSQL is
+installed in C:\\psql):
+
+\code
+cd %QTDIR%\plugins\src\sqldrivers\psql
+qmake -o Makefile "INCLUDEPATH+=C:\psql\include" "LIBS+=C:\psql\lib\msvc\libpqdll.lib" psql.pro
+nmake
+\endcode
+
+If you are not using a Microsoft compiler, replace "nmake" with "make" in the
+statement above.
 
 \target QTDS7
 \section2 QTDS7 - Sybase Adaptive Server and Microsoft SQL Server
