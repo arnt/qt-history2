@@ -617,10 +617,11 @@ QWidget *QDockWindow::widget() const
 void QDockWindow::setWidget(QWidget *widget)
 {
     Q_D(QDockWindow);
-    Q_ASSERT_X(widget != 0, "QDockWindow::setWidget", "parameter cannot be zero");
-    Q_ASSERT_X(d->widget == 0, "QDockWindow::setWidget", "widget already set");
+    if (d->widget)
+        d->box->removeWidget(d->widget);
     d->widget = widget;
-    d->box->insertWidget(1, widget);
+    if (d->widget)
+        d->box->insertWidget(1, d->widget);
 }
 
 /*!
