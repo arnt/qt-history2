@@ -125,9 +125,11 @@ void QDesignerWorkbench::initialize()
     QAction *modeAction = 0;
 
     modeAction = m_modeActionGroup->addAction(tr("&Top Level Mode"));
+    modeAction->setCheckable(true);
     connect(modeAction, SIGNAL(triggered()), this, SLOT(switchToTopLevelMode()));
 
     modeAction = m_modeActionGroup->addAction(tr("&Workspace Mode"));
+    modeAction->setCheckable(true);
     connect(modeAction, SIGNAL(triggered()), this, SLOT(switchToWorkspaceMode()));
 
     m_integration = new QDesignerIntegration(core(), this);

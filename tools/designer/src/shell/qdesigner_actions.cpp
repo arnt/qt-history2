@@ -11,8 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qdesigner.h"
 #include "qdesigner_actions.h"
 #include "qdesigner_mainwindow.h"
+#include "qdesigner_workbench.h"
 
 // sdk
 #include <abstractformeditor.h>
@@ -54,6 +56,8 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 //
     m_newFormAction = new QAction(tr("&New Form..."), this);
     m_newFormAction->setShortcut(tr("CTRL+N"));
+    connect(m_newFormAction, SIGNAL(triggered()),
+            workbench(), SLOT(createFormWindow()));
     m_fileActions->addAction(m_newFormAction);
 
     m_openFormAction = new QAction(tr("&Open Form..."), this);
@@ -78,6 +82,8 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_fileActions->addSeparator();
 
     m_quitAction = new QAction(tr("&Quit"), this);
+    connect(m_quitAction, SIGNAL(triggered()),
+            qDesigner, SLOT(quit()));
     m_fileActions->addAction(m_quitAction);
 
 //
