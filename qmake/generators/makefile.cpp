@@ -282,7 +282,6 @@ MakefileGenerator::findFilesInVPATH(QStringList l, VPATHMIssingFiles missing, co
                         l.removeAt(val_it);
                         for(int i = (int)files.count()-1; i >= 0; i--)
                             l.insert(val_it, fileFixify(dir + files[i]));
-                        val_it += files.count();
                     }
                 } else {
                     debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
@@ -892,9 +891,9 @@ MakefileGenerator::writePrlFile(QTextStream &t)
         t << "QMAKE_PRL_CXXFLAGS = " << project->variables()["PRL_EXPORT_CXXFLAGS"].join(" ") << endl;
     if(!project->isEmpty("CONFIG"))
         t << "QMAKE_PRL_CONFIG = " << project->variables()["CONFIG"].join(" ") << endl;
-    if(!project->isEmpty("TARGET_VERSION_EXT")) 
+    if(!project->isEmpty("TARGET_VERSION_EXT"))
         t << "QMAKE_PRL_VERSION = " << project->first("TARGET_VERSION_EXT") << endl;
-    else if(!project->isEmpty("VERSION")) 
+    else if(!project->isEmpty("VERSION"))
         t << "QMAKE_PRL_VERSION = " << project->first("VERSION") << endl;
     if(project->isActiveConfig("staticlib") || project->isActiveConfig("explicitlib")) {
         QStringList libs;
