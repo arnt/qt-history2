@@ -30,5 +30,6 @@ import @BasicSetup
 def @QDR { @I{Qt Designer} }
 
 import @BasicSetup
-def @Xref right x { x @CrossLink { [p. @PageOf{ x }] } }
+def @Xref right x { [p. @PageOf{ x }] }
+#def @Xref right x { x @CrossLink { [p. @PageOf{ x }] } }
 
