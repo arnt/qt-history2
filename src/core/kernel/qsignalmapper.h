@@ -18,20 +18,21 @@
 #ifndef QT_H
 #include "qobject.h"
 #endif // QT_H
+
 #ifndef QT_NO_SIGNALMAPPER
-class  QSignalMapperPrivate;
+class QSignalMapperPrivate;
 
-
-class Q_CORE_EXPORT QSignalMapper : public QObject {
+class Q_CORE_EXPORT QSignalMapper : public QObject
+{
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSignalMapper);
 public:
-    QSignalMapper(QObject* parent);
+    QSignalMapper(QObject *parent);
     ~QSignalMapper();
 
-    virtual void setMapping(const QObject* sender, int identifier);
-    virtual void setMapping(const QObject* sender, const QString &identifier);
-    void removeMappings(const QObject* sender);
+    virtual void setMapping(const QObject *sender, int id);
+    virtual void setMapping(const QObject *sender, const QString &id);
+    void removeMappings(const QObject *sender);
 
 signals:
     void mapped(int);
@@ -40,13 +41,12 @@ signals:
 public slots:
     void map();
 
-
 private slots:
     void removeMapping();
 
 public:
     QSignalMapper(QObject *parent, const char *name);
 };
-
 #endif // QT_NO_SIGNALMAPPER
+
 #endif // QSIGNALMAPPER_H
