@@ -14,9 +14,9 @@
 #ifndef Q3HEADER_H
 #define Q3HEADER_H
 
+#include "qicon.h"
 #include "qwidget.h"
 #include "qstring.h"
-#include "qiconset.h" // conversion QPixmap->QIconset
 
 #ifndef QT_NO_HEADER
 
@@ -45,12 +45,12 @@ public:
     ~Q3Header();
 
     int                addLabel(const QString &, int size = -1);
-    int                addLabel(const QIconSet&, const QString &, int size = -1);
+    int                addLabel(const QIcon&, const QString &, int size = -1);
     void         removeLabel(int section);
     virtual void setLabel(int, const QString &, int size = -1);
-    virtual void setLabel(int, const QIconSet&, const QString &, int size = -1);
+    virtual void setLabel(int, const QIcon&, const QString &, int size = -1);
     QString         label(int section) const;
-    QIconSet*         iconSet(int section) const;
+    QIcon*         iconSet(int section) const;
 
     virtual void setOrientation(Qt::Orientation);
     Qt::Orientation orientation() const;

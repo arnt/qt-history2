@@ -14,10 +14,10 @@
 #ifndef QACTION_H
 #define QACTION_H
 
-#include "qwidget.h"
-#include "qiconset.h"
-#include "qstring.h"
+#include "qicon.h"
 #include "qkeysequence.h"
+#include "qstring.h"
+#include "qwidget.h"
 
 class QMenu;
 class QActionGroup;
@@ -31,7 +31,7 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-    Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
+    Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QString iconText READ iconText WRITE setIconText)
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
@@ -44,20 +44,20 @@ class Q_GUI_EXPORT QAction : public QObject
 public:
     QAction(QObject* parent = 0);
     QAction(const QString &text, QObject* parent=0);
-    QAction(const QIconSet &icon, const QString &text, QObject* parent=0);
+    QAction(const QIcon &icon, const QString &text, QObject* parent=0);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QAction(QObject* parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QAction(const QString &text, const QKeySequence &shortcut, QObject* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
+    QT_COMPAT_CONSTRUCTOR QAction(const QIcon &icon, const QString &text, const QKeySequence &shortcut,
                                   QObject* parent, const char* name);
 #endif
     ~QAction();
 
     void setActionGroup(QActionGroup *group);
     QActionGroup *actionGroup() const;
-    void setIcon(const QIconSet&icon);
-    QIconSet icon() const;
+    void setIcon(const QIcon &icon);
+    QIcon icon() const;
 
     void setText(const QString &text);
     QString text() const;
@@ -105,8 +105,8 @@ public:
     inline QT_COMPAT void setOn(bool b) { setChecked(b); }
     inline QT_COMPAT bool isToggleAction() const { return isCheckable(); }
     inline QT_COMPAT void setToggleAction(bool b) { setCheckable(b); }
-    inline QT_COMPAT void setIconSet(const QIconSet &i) { setIcon(i); }
-    inline QT_COMPAT QIconSet iconSet() const { return icon(); }
+    inline QT_COMPAT void setIconSet(const QIcon &i) { setIcon(i); }
+    inline QT_COMPAT QIcon iconSet() const { return icon(); }
     inline QT_COMPAT bool addTo(QWidget *w) { w->addAction(this); return true; }
     inline QT_COMPAT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
     inline QT_COMPAT void setAccel(const QKeySequence &shortcut) { setShortcut(shortcut); }

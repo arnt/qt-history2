@@ -1217,8 +1217,8 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
                              2*CE_ITEMFRAME);
 
                 if (mi->iconSet() != 0)
-                    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
-                                                      QIconSet::Normal).height() +
+                    h = qMax(h, mi->iconSet()->pixmap(QIcon::Small,
+                                                      QIcon::Normal).height() +
                              2*CE_ITEMFRAME);
             }
 
@@ -2389,15 +2389,15 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             } else if (! act)
                 p->fillRect(xpos, y, checkcol , h, pal.brush(QPalette::Button));
 
-            if (mi->iconSet()) {              // draw iconset
-                QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+            if (mi->iconSet()) {              // draw icon
+                QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode, QIconSet::On);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis && !mi->isChecked())
@@ -2538,7 +2538,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 break;
 
             QAction *mi = opt.action();
-            QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+            QPixmap pix = mi->icon().pixmap(QIcon::Small, QIcon::Normal);
             drawItem(p, r, Qt::AlignCenter|Qt::TextShowMnemonic|Qt::TextDontClip|Qt::TextSingleLine, pal,
                       mi->isEnabled(), pix.isNull() ? 0 : &pix, mi->text(), -1,
                       &pal.color(QPalette::ButtonText));
@@ -2766,18 +2766,18 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             }
 
             int tf=Qt::AlignVCenter | Qt::TextShowMnemonic;
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
             if (button->iconSet() && ! button->iconSet()->isNull()) {
-                QIconSet::Mode mode =
-                    button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
-                if (mode == QIconSet::Normal && button->hasFocus())
-                    mode = QIconSet::Active;
+                QIcon::Mode mode =
+                    button->isEnabled() ? QIcon::Normal : QIcon::Disabled;
+                if (mode == QIcon::Normal && button->hasFocus())
+                    mode = QIcon::Active;
 
-                QIconSet::State state = QIconSet::Off;
+                QIcon::State state = QIcon::Off;
                 if (button->isToggleButton() && button->isOn())
-                    state = QIconSet::On;
+                    state = QIcon::On;
 
-                QPixmap pixmap = button->iconSet()->pixmap(QIconSet::Small, mode, state);
+                QPixmap pixmap = button->iconSet()->pixmap(QIcon::Small, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
 
@@ -2795,7 +2795,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 else if (button->pixmap())
                     tf |= Qt::AlignHCenter;
             } else
-#endif //QT_NO_ICONSET
+#endif //QT_NO_ICON
                 tf |= Qt::AlignHCenter;
             drawItem(p, ir, tf, pal,
                      flags & Style_Enabled, button->pixmap(), button->text(),
@@ -2842,17 +2842,17 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                              toolbutton->text().length(), &btext);
                 } else {
                     QPixmap pm;
-                    QIconSet::Size size =
-                        toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
-                    QIconSet::State state =
-                        toolbutton->isOn() ? QIconSet::On : QIconSet::Off;
-                    QIconSet::Mode mode;
+                    QIcon::Size size =
+                        toolbutton->usesBigPixmap() ? QIcon::Large : QIcon::Small;
+                    QIcon::State state =
+                        toolbutton->isOn() ? QIcon::On : QIcon::Off;
+                    QIcon::Mode mode;
                     if (! toolbutton->isEnabled())
-                        mode = QIconSet::Disabled;
+                        mode = QIcon::Disabled;
                     else if (flags & (Style_Down | Style_On | Style_Raised))
-                        mode = QIconSet::Active;
+                        mode = QIcon::Active;
                     else
-                        mode = QIconSet::Normal;
+                        mode = QIcon::Normal;
                     pm = toolbutton->iconSet().pixmap(size, mode, state);
 
                     if (toolbutton->usesTextLabel()) {
@@ -2895,11 +2895,11 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 const QHeader* header = (const QHeader *) widget;
                 int section = opt.headerSection();
 
-                QIconSet* icon = header->iconSet(section);
+                QIcon* icon = header->iconSet(section);
                 if (icon) {
-                    QPixmap pixmap = icon->pixmap(QIconSet::Small,
+                    QPixmap pixmap = icon->pixmap(QIcon::Small,
                                                 flags & Style_Enabled ?
-                                                QIconSet::Normal : QIconSet::Disabled);
+                                                QIcon::Normal : QIcon::Disabled);
                     int pixw = pixmap.width();
                     int pixh = pixmap.height();
                     // "pixh - 1" because of tricky integer division

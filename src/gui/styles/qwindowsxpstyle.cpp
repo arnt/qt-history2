@@ -1253,15 +1253,15 @@ void QWindowsXPStyle::drawControl(ControlElement element,
             } else if (! act)
                 p->fillRect(xvis, y, checkcol , h, pal.brush(QColorGroup::Button));
 
-            if (mi->iconSet()) {              // draw iconset
-                QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+            if (mi->iconSet()) {              // draw icon
+                QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode, QIconSet::On);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis && !mi->isChecked())
@@ -1385,7 +1385,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
                 p->fillRect(r, pal.brush(QPalette::Button));
 
             QAction *mi = opt.action();
-            QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+            QPixmap pix = mi->icon().pixmap(QIcon::Small, QIcon::Normal);
             drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine, pal,
                      flags & Style_Enabled, pix, mi->text(), -1,
                      flags & Style_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
@@ -2563,8 +2563,8 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
                              2*windowsItemFrame);
 
                 if (mi->iconSet() != 0)
-                    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
-                                                      QIconSet::Normal).height() +
+                    h = qMax(h, mi->iconSet()->pixmap(QIcon::Small,
+                                                      QIcon::Normal).height() +
                              2*windowsItemFrame);
             }
 

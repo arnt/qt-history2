@@ -68,33 +68,33 @@ class QFileIconProviderPrivate
 public:
     QFileIconProviderPrivate();
 
-    QIconSet file;
-    QIconSet dir;
-    QIconSet driveHD;
-    QIconSet computer;
-    QIconSet fileLink;
-    QIconSet dirLink;
+    QIcon file;
+    QIcon dir;
+    QIcon driveHD;
+    QIcon computer;
+    QIcon fileLink;
+    QIcon dirLink;
 
     QFileIconProvider *q_ptr;
 };
 
 QFileIconProviderPrivate::QFileIconProviderPrivate()
 {
-    file.setPixmap(QApplication::style().standardPixmap(QStyle::SP_FileIcon), QIconSet::Small);
+    file.setPixmap(QApplication::style().standardPixmap(QStyle::SP_FileIcon), QIcon::Small);
     fileLink.setPixmap(QApplication::style().standardPixmap(QStyle::SP_FileLinkIcon),
-                       QIconSet::Small);
+                       QIcon::Small);
 
     dir.setPixmap(QApplication::style().standardPixmap(QStyle::SP_DirOpenIcon),
-                  QIconSet::Small, QIconSet::Normal, QIconSet::On);
-    dir.setPixmap(QApplication::style().standardPixmap(QStyle::SP_DirClosedIcon), QIconSet::Small,
-                  QIconSet::Normal, QIconSet::Off);
-    dirLink.setPixmap(QApplication::style().standardPixmap(QStyle::SP_DirLinkIcon), QIconSet::Small,
-                      QIconSet::Normal, QIconSet::On);
+                  QIcon::Small, QIcon::Normal, QIcon::On);
+    dir.setPixmap(QApplication::style().standardPixmap(QStyle::SP_DirClosedIcon), QIcon::Small,
+                  QIcon::Normal, QIcon::Off);
+    dirLink.setPixmap(QApplication::style().standardPixmap(QStyle::SP_DirLinkIcon), QIcon::Small,
+                      QIcon::Normal, QIcon::On);
 
     driveHD.setPixmap(QApplication::style().standardPixmap(QStyle::SP_DriveHDIcon),
-                      QIconSet::Small);
+                      QIcon::Small);
     computer.setPixmap(QApplication::style().standardPixmap(QStyle::SP_ComputerIcon),
-                       QIconSet::Small);
+                       QIcon::Small);
 }
 
 /*!
@@ -120,16 +120,16 @@ QFileIconProvider::~QFileIconProvider()
   Returns an icon set for the computer.
 */
 
-QIconSet QFileIconProvider::computerIcon() const
+QIcon QFileIconProvider::computerIcon() const
 {
     return d_ptr->computer;
 }
 
 /*!
-  Returns an icon set for the file described by \a info.
+  Returns an icon for the file described by \a info.
 */
 
-QIconSet QFileIconProvider::icon(const QFileInfo &info) const
+QIcon QFileIconProvider::icon(const QFileInfo &info) const
 {
     if (info.isRoot())
         return d_ptr->driveHD;
@@ -139,7 +139,7 @@ QIconSet QFileIconProvider::icon(const QFileInfo &info) const
         return d_ptr->dir;
     if (info.isSymLink())
         return d_ptr->fileLink;
-    return QIconSet();
+    return QIcon();
 }
 
 /*!
@@ -190,7 +190,7 @@ public:
         { return rootIsVirtual ? QObject::tr("My Computer") : root.info.absoluteFilePath(); }
     inline QString rootName() const
         { return rootIsVirtual ? QObject::tr("My Computer") : root.info.fileName(); }
-    inline QIconSet rootIcon() const
+    inline QIcon rootIcon() const
         { return rootIsVirtual ? iconProvider->computerIcon() : iconProvider->icon(root.info); }
 
     mutable QDirNode root;
@@ -244,12 +244,9 @@ public:
   about the underlying files and directories related to items in the model.
   Directories can be created and removed using mkdir(), rmdir(), and the
   model will be automatically updated to take the changes into account.
-  The icon() function returns the icons that are supplied to views.
 
-
-  nameFilters(), setFilter(), filter()
-
-  \sa \link model-view-programming.html Model/View Programming\endlink QListView QTreeView
+  \sa nameFilters(), setFilter(), filter(),
+      \link model-view-programming.html Model/View Programming\endlink QListView QTreeView
 
 */
 
@@ -979,7 +976,7 @@ QString QDirModel::name(const QModelIndex &index) const
   \a index.
 */
 
-QIconSet QDirModel::icon(const QModelIndex &index) const
+QIcon QDirModel::icon(const QModelIndex &index) const
 {
     if (!index.isValid())
         return d->rootIcon();

@@ -500,11 +500,11 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
     switch (variant.type()) {
     case QVariant::IconSet:
         return variant.toIconSet().pixmap(option.decorationSize == QStyleOptionViewItem::Small
-                                          ? QIconSet::Small : QIconSet::Large,
+                                          ? QIcon::Small : QIcon::Large,
                                           option.state & QStyle::Style_Enabled
-                                          ? QIconSet::Normal : QIconSet::Disabled,
+                                          ? QIcon::Normal : QIcon::Disabled,
                                           option.state & QStyle::Style_Open
-                                          ? QIconSet::On : QIconSet::Off);
+                                          ? QIcon::On : QIcon::Off);
     case QVariant::Bool: {
         static QPixmap checked(checked_xpm);
         static QPixmap unchecked(unchecked_xpm);

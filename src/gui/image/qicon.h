@@ -11,70 +11,76 @@
 **
 ****************************************************************************/
 
-#ifndef QICONSET_H
-#define QICONSET_H
+#ifndef QICON_H
+#define QICON_H
 
 #include "qglobal.h"
+#include "qsize.h"
+
 #ifdef QT_INCLUDE_COMPAT
 #include "qobject.h"
 #include "qpixmap.h"
 #endif
 
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
 
+class QIconPrivate;
 class QPixmap;
-class QIconSetData;
 class QString;
-class QSize;
 
-class Q_GUI_EXPORT QIconSet
+class Q_GUI_EXPORT QIcon
 {
 public:
     enum Size { Automatic, Small, Large };
     enum Mode { Normal, Disabled, Active };
     enum State { On, Off };
 
-    QIconSet() : d(0) {}
-    QIconSet(const QPixmap& pixmap, Size size = Automatic);
-    QIconSet(const QPixmap& smallPix, const QPixmap& largePix);
-    QIconSet(const QIconSet& other);
-    ~QIconSet();
+    QIcon();
+    QIcon(const QPixmap &pixmap, Size size = Automatic);
+    QIcon(const QPixmap &smallPix, const QPixmap &largePix);
+    QIcon(const QIcon &other);
+    ~QIcon();
 
-    void reset(const QPixmap& pixmap, Size size);
-
-    void setPixmap(const QPixmap& pixmap, Size size, Mode mode = Normal, State state = Off);
-    void setPixmap(const QString& fileName, Size size, Mode mode = Normal, State state = Off);
+    void reset(const QPixmap &pixmap, Size size);
+    void setPixmap(const QPixmap &pixmap, Size size, Mode mode = Normal, State state = Off);
+    void setPixmap(const QString &fileName, Size size, Mode mode = Normal, State state = Off);
     QPixmap pixmap(Size size, Mode mode, State state = Off) const;
     QPixmap pixmap(Size size, bool enabled, State state = Off) const;
     QPixmap pixmap() const;
     bool isGenerated(Size size, Mode mode, State state = Off) const;
     void clearGenerated();
-    typedef QPixmap *(*PixmapGeneratorFn)(const QIconSet &icon, Size size, Mode mode, State state);
+    typedef QPixmap *(*PixmapGeneratorFn)(const QIcon &icon, Size size, Mode mode, State state);
     void setPixmapGeneratorFn(PixmapGeneratorFn func);
 
-    inline bool isNull() const { return !d; }
-
+    bool isNull() const;
     void detach();
 
-    QIconSet& operator=(const QIconSet& other);
+    QIcon &operator=(const QIcon &other);
 
-    static void setIconSize(Size which, const QSize& size);
-    static QSize iconSize(Size which);
+    static void setPixmapSize(Size which, const QSize &size);
+    static QSize pixmapSize(Size which);
     static void setDefaultPixmapGeneratorFn(PixmapGeneratorFn func);
     inline static PixmapGeneratorFn defaultPixmapGeneratorFn() { return defaultGeneratorFn; }
 
-    Q_DUMMY_COMPARISON_OPERATOR(QIconSet)
+#ifdef QT_COMPAT
+    inline static QT_COMPAT void setIconSize(Size which, const QSize &size)
+        { setPixmapSize(which, size); }
+    inline static QT_COMPAT QSize iconSize(Size which)
+        { return pixmapSize(which); }
+#endif
+
+    Q_DUMMY_COMPARISON_OPERATOR(QIcon)
 
 private:
-    void normalize(Size& which, const QSize& pixSize);
-    QPixmap *createScaled(Size size, const QPixmap *suppliedPix) const;
-    QPixmap *createIcon(Size size, Mode mode, State state) const;
-    static QPixmap *defaultGenerator(const QIconSet &icon, Size size, Mode mode, State state);
+    QIconPrivate *d;
 
-    QIconSetData *d;
-    friend class QIconSetData;
+    friend class QIconPrivate;
     static PixmapGeneratorFn defaultGeneratorFn;
 };
 
-#endif // QT_NO_ICONSET
+#ifdef QT_COMPAT
+typedef QIcon QIconSet;
+#endif
+
+#endif // QT_NO_ICON
 #endif

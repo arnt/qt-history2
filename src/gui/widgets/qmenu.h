@@ -16,7 +16,7 @@
 
 #include <qwidget.h>
 #include <qstring.h>
-#include <qiconset.h>
+#include <qicon.h>
 #include <qaction.h>
 
 class QMenuPrivate;
@@ -34,7 +34,7 @@ private:
     Q_PROPERTY(bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(QString title READ title WRITE setTitle)
-    Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
+    Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
 
 public:
     QMenu(QWidget *parent = 0);
@@ -47,13 +47,13 @@ public:
     using QWidget::addAction;
 #endif
     QAction *addAction(const QString &text);
-    QAction *addAction(const QIconSet &icon, const QString &text);
+    QAction *addAction(const QIcon &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
-    QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
+    QAction *addAction(const QIcon &icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
 
     QAction *addMenu(QMenu *menu);
     QMenu *addMenu(const QString &title);
-    QMenu *addMenu(const QIconSet &icon, const QString &title);
+    QMenu *addMenu(const QIcon &icon, const QString &title);
 
     QAction *addSeparator();
 
@@ -91,8 +91,8 @@ public:
     QString title() const;
     void setTitle(const QString &title);
 
-    QIconSet icon() const;
-    void setIcon(const QIconSet &icon);
+    QIcon icon() const;
+    void setIcon(const QIcon &icon);
 
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);
@@ -131,34 +131,34 @@ public:
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
         return insertAny(0, &text, receiver, member, &shortcut, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text,
+    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text,
                                     const QObject *receiver, const char* member,
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
         return insertAny(&icon, &text, receiver, member, &shortcut, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, const QObject *receiver, const char* member,
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
-        QIconSet icon(pixmap);
+        QIcon icon(pixmap);
         return insertAny(&icon, 0, receiver, member, &shortcut, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QString &text, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, popup, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, int id=-1, int index=-1) {
-        QIconSet icon(pixmap);
+        QIcon icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, QMenu *popup, int id=-1, int index=-1) {
-        QIconSet icon(pixmap);
+        QIcon icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
     QT_COMPAT int insertSeparator(int index=-1);
@@ -180,10 +180,10 @@ public:
         }
     }
 #endif
-    inline QT_COMPAT QIconSet iconSet(int id) const {
+    inline QT_COMPAT QIcon iconSet(int id) const {
         if(QAction *act = findActionForId(id))
             return act->icon();
-        return QIconSet(); }
+        return QIcon(); }
     inline QT_COMPAT QString text(int id) const {
         if(QAction *act = findActionForId(id))
             return act->text();
@@ -205,8 +205,8 @@ public:
             act->setText(text); }
     inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) {
         if(QAction *act = findActionForId(id))
-            act->setIcon(QIconSet(pixmap)); }
-    inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QString &text) {
+            act->setIcon(QIcon(pixmap)); }
+    inline QT_COMPAT void changeItem(int id, const QIcon &icon, const QString &text) {
         if(QAction *act = findActionForId(id)) {
             act->setIcon(icon);
             act->setText(text);
@@ -321,7 +321,7 @@ private:
     Q_PRIVATE_SLOT(d, void actionTriggered())
     Q_PRIVATE_SLOT(d, void actionHovered())
 
-    int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
+    int insertAny(const QIcon *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *shorcut, const QMenu *popup, int id, int index);
     QAction *findActionForId(int id) const;
     int findIdForAction(QAction*) const;

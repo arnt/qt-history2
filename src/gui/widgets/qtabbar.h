@@ -16,7 +16,7 @@
 
 #include "qwidget.h"
 
-class QIconSet;
+class QIcon;
 class QTabBarPrivate;
 
 class Q_GUI_EXPORT QTabBar: public QWidget
@@ -39,10 +39,10 @@ public:
     void setShape(Shape shape);
 
     int addTab(const QString &text);
-    int addTab(const QIconSet& icon, const QString &text);
+    int addTab(const QIcon& icon, const QString &text);
 
     int insertTab(int index, const QString &text);
-    int insertTab(int index, const QIconSet& icon, const QString &text);
+    int insertTab(int index, const QIcon& icon, const QString &text);
 
     void removeTab(int index);
 
@@ -52,8 +52,8 @@ public:
     QString tabText(int index) const;
     void setTabText(int index, const QString &text);
 
-    QIconSet tabIcon(int index) const;
-    void setTabIcon(int index, const QIconSet & icon);
+    QIcon tabIcon(int index) const;
+    void setTabIcon(int index, const QIcon & icon);
 
     void setTabToolTip(int index, const QString & tip);
     QString tabToolTip(int index) const;

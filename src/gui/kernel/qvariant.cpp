@@ -20,7 +20,7 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 #include "qfont.h"
-#include "qiconset.h"
+#include "qicon.h"
 #include "qimage.h"
 #include "qkeysequence.h"
 #include "qpalette.h"
@@ -109,10 +109,10 @@ static void construct(QVariant::Private *x, const void *v)
             break;
 #endif
 #endif
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
         case QVariant::Icon:
             x->data.shared = new QCoreVariant::PrivateShared(
-                     new QIconSet(*static_cast<const QIconSet *>(v)));
+                     new QIcon(*static_cast<const QIcon *>(v)));
             break;
 #endif
 #ifndef QT_NO_ACCEL
@@ -185,9 +185,9 @@ static void construct(QVariant::Private *x, const void *v)
             break;
 #endif
 #endif
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
         case QVariant::Icon:
-            x->data.shared = new QCoreVariant::PrivateShared(new QIconSet);
+            x->data.shared = new QCoreVariant::PrivateShared(new QIcon);
             break;
 #endif
 #ifndef QT_NO_ACCEL
@@ -264,9 +264,9 @@ static void clear(QVariant::Private *p)
         break;
 #endif
 #endif
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
     case QVariant::Icon:
-        delete static_cast<QIconSet *>(p->data.shared->value.ptr);
+        delete static_cast<QIcon *>(p->data.shared->value.ptr);
         break;
 #endif
     case QVariant::SizePolicy:
@@ -311,9 +311,9 @@ static bool isNull(const QVariant::Private *d)
         return static_cast<QRect *>(d->data.shared->value.ptr)->isNull();
     case QVariant::Size:
         return static_cast<QSize *>(d->data.shared->value.ptr)->isNull();
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
     case QVariant::Icon:
-        return static_cast<QIconSet *>(d->data.shared->value.ptr)->isNull();
+        return static_cast<QIcon *>(d->data.shared->value.ptr)->isNull();
 #endif
     case QVariant::Cursor:
     case QVariant::StringList:
@@ -394,11 +394,11 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
 #endif
 #endif
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
     case QVariant::Icon:
         QPixmap x;
         s >> x;
-        *static_cast<QIconSet *>(d->data.shared->value.ptr) = QIconSet(x);
+        *static_cast<QIcon *>(d->data.shared->value.ptr) = QIcon(x);
         break;
     }
 #endif
@@ -479,10 +479,10 @@ static void save(const QVariant::Private *d, QDataStream &s)
         break;
 #endif
 #endif
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
     case QVariant::Icon:
-        //### add stream operator to iconset
-        s << static_cast<QIconSet *>(d->data.shared->value.ptr)->pixmap();
+        //### add stream operator to icon
+        s << static_cast<QIcon *>(d->data.shared->value.ptr)->pixmap();
         break;
 #endif
     case QVariant::SizePolicy:
@@ -559,10 +559,10 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
             == *static_cast<QColorGroup *>(b->data.shared->value.ptr);
 #endif
 #endif
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
     case QVariant::Icon:
-        return static_cast<QIconSet *>(a->data.shared->value.ptr)->pixmap().serialNumber()
-            == static_cast<QIconSet *>(b->data.shared->value.ptr)->pixmap().serialNumber();
+        return static_cast<QIcon *>(a->data.shared->value.ptr)->pixmap().serialNumber()
+            == static_cast<QIcon *>(b->data.shared->value.ptr)->pixmap().serialNumber();
 #endif
     case QVariant::SizePolicy:
         return *static_cast<QSizePolicy *>(a->data.shared->value.ptr)
@@ -817,7 +817,7 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-  \fn QVariant::QVariant(const QIconSet &val)
+  \fn QVariant::QVariant(const QIcon &val)
 
     Constructs a new variant with an icon set value of \a val.
 */
@@ -1015,9 +1015,9 @@ QVariant::QVariant(const QPalette &val) { create(Palette, &val); }
 QVariant::QVariant(const QColorGroup &val) { create(ColorGroup, &val); }
 #endif
 #endif //QT_NO_PALETTE
-#ifndef QT_NO_ICONSET
-QVariant::QVariant(const QIconSet &val) { create(Icon, &val); }
-#endif //QT_NO_ICONSET
+#ifndef QT_NO_ICON
+QVariant::QVariant(const QIcon &val) { create(Icon, &val); }
+#endif //QT_NO_ICON
 QVariant::QVariant(const QPointArray &val) { create(PointArray, &val); }
 QVariant::QVariant(const QRegion &val) { create(Region, &val); }
 QVariant::QVariant(const QBitmap& val) { create(Bitmap, &val); }
@@ -1077,10 +1077,10 @@ QVariant::QVariant(const QSizePolicy &val) { create(SizePolicy, &val); }
 */
 
 /*!
-    \fn QIconSet QVariant::toIcon() const
+    \fn QIcon QVariant::toIcon() const
 
-    Returns the variant as a QIconSet if the variant has type()
-    Icon; otherwise returns a null QIconSet.
+    Returns the variant as a QIcon if the variant has type()
+    Icon; otherwise returns a null QIcon.
 */
 
 /*!
@@ -1278,22 +1278,22 @@ const QPointArray QVariant::toPointArray() const
     return *static_cast<QPointArray *>(d.data.shared->value.ptr);
 }
 
-#ifndef QT_NO_ICONSET
-QIconSet QVariant::toIcon() const
+#ifndef QT_NO_ICON
+QIcon QVariant::toIcon() const
 {
     if (d.type != Icon)
-        return QIconSet();
+        return QIcon();
 
-    return *static_cast<QIconSet *>(d.data.shared->value.ptr);
+    return *static_cast<QIcon *>(d.data.shared->value.ptr);
 }
 #ifdef QT_COMPAT
 /*!
     Use toIcon() instead.
 */
-QIconSet QVariant::toIconSet() const { return toIcon(); }
+QIcon QVariant::toIconSet() const { return toIcon(); }
 #endif
 
-#endif //QT_NO_ICONSET
+#endif //QT_NO_ICON
 
 
 #define Q_VARIANT_TO(f) \
@@ -1369,7 +1369,7 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
         dbg.nospace() << v.toPalette();
         break;
 #endif
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
     case QVariant::IconSet:
         dbg.nospace() << v.toIconSet();
         break;
@@ -1412,7 +1412,7 @@ template<> QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor
 { return static_cast<const QVariant &>(v).toColor(); }
 template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*)
 { return static_cast<const QVariant &>(v).toPalette(); }
-template<> QIconSet QVariant_to_helper<QIconSet>(const QCoreVariant &v, const QIconSet*)
+template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*)
 { return static_cast<const QVariant &>(v).toIconSet(); }
 template<> QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*)
 { return static_cast<const QVariant &>(v).toPointArray(); }
@@ -1453,7 +1453,7 @@ template<> QColor QVariant_to<QColor>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toColor(); }
 template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPalette(); }
-template<> QIconSet QVariant_to<QIconSet>(const QCoreVariant &v)
+template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toIconSet(); }
 template<> QPointArray QVariant_to<QPointArray>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPointArray(); }
@@ -1529,7 +1529,7 @@ template<> QSize QVariant_to<QSize>(const QCoreVariant &v)
 */
 
 /*!
-    \fn QIconSet& QVariant::asIconSet()
+    \fn QIcon& QVariant::asIconSet()
 
     Use toIcon() instead.
 */

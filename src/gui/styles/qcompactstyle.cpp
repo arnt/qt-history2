@@ -71,16 +71,16 @@ static int extraPopupMenuItemWidth(bool checkable, int maxpmw, Q3MenuItem* mi, c
             w += motifTabSpacing;
     }
 
-    if (maxpmw) { // we have iconsets
+    if (maxpmw) { // we have icons
         w += maxpmw;
-        w += 6; // add a little extra border around the iconset
+        w += 6; // add a little extra border around the icon
     }
 
     if (checkable && maxpmw < windowsCheckMarkWidth) {
         w += windowsCheckMarkWidth - maxpmw; // space for the checkmarks
     }
 
-    if (maxpmw > 0 || checkable) // we have a check-column (iconsets or checkmarks)
+    if (maxpmw > 0 || checkable) // we have a check-column (icons or checkmarks)
         w += motifCheckMarkHMargin; // add space to separate the columns
 
     w += windowsRightBorder; // windows has a strange wide border on the right side
@@ -99,7 +99,7 @@ static int popupMenuItemHeight(bool /*checkable*/, Q3MenuItem* mi, const QFontMe
         h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame - 1;
 
     if (!mi->isSeparator() && mi->iconSet() != 0) {
-        h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small, QIconSet::Normal).height() + 2*motifItemFrame);
+        h = qMax(h, mi->iconSet()->pixmap(QIcon::Small, QIcon::Normal).height() + 2*motifItemFrame);
     }
     if (mi->custom())
         h = qMax(h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame) - 1;
@@ -173,15 +173,15 @@ void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidg
                             pal.brush(QPalette::Button));
             }
 
-            if (mi->iconSet()) {                // draw iconset
-                QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+            if (mi->iconSet()) {                // draw icon
+                QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode, QIconSet::On);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis) {

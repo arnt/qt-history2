@@ -15,12 +15,12 @@
 #define QTABDIALOG_H
 
 #include "qdialog.h"
-#include "qiconset.h"
 
 #ifndef QT_NO_TABDIALOG
 
-class  QTabBar;
-class  QTabDialogPrivate;
+class QIcon;
+class QTabBar;
+class QTabDialogPrivate;
 
 class Q_COMPAT_EXPORT QTabDialog : public QDialog
 {
@@ -34,13 +34,13 @@ public:
     void setFont(const QFont &font);
 
     void addTab(QWidget *, const QString &);
-    void addTab(QWidget *child, const QIconSet &iconset, const QString &label);
+    void addTab(QWidget *child, const QIcon &icon, const QString &label);
 
     void insertTab(QWidget *, const QString &, int index = -1);
-    void insertTab(QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
+    void insertTab(QWidget *child, const QIcon &icon, const QString &label, int index = -1);
 
     void changeTab(QWidget *, const QString &);
-    void changeTab(QWidget *child, const QIconSet& iconset, const QString &label);
+    void changeTab(QWidget *child, const QIcon &icon, const QString &label);
 
     bool isTabEnabled( QWidget *) const;
     void setTabEnabled(QWidget *, bool);

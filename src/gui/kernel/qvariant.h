@@ -26,7 +26,7 @@ class QPalette;
 #ifdef QT_COMPAT
 class QColorGroup;
 #endif
-class QIconSet;
+class QIcon;
 class QDataStream;
 class QPointArray;
 class QRegion;
@@ -60,8 +60,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QT_COMPAT_CONSTRUCTOR QVariant(const QColorGroup &cg);
 #endif // QT_COMPAT
 #endif // QT_NO_PALETTE
-#ifndef QT_NO_ICONSET
-    QVariant(const QIconSet &iconset);
+#ifndef QT_NO_ICON
+    QVariant(const QIcon &icon);
 #endif
     QVariant(const QPointArray &pointarray);
     QVariant(const QRegion &region);
@@ -122,7 +122,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #ifdef QT_COMPAT
     QT_COMPAT QColorGroup toColorGroup() const;
 #endif
-    QIconSet toIcon() const;
+    QIcon toIcon() const;
     const QPointArray toPointArray() const;
     QBitmap toBitmap() const;
     QRegion toRegion() const;
@@ -141,7 +141,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 
 
 #ifdef QT_COMPAT
-    QIconSet toIconSet() const;
+    QIcon toIconSet() const;
     inline QT_COMPAT QFont& asFont() { return *static_cast<QFont *>(castOrDetach(Font)); }
     inline QT_COMPAT QImage& asImage() { return *static_cast<QImage *>(castOrDetach(Image)); }
     inline QT_COMPAT QBrush& asBrush() { return *static_cast<QBrush *>(castOrDetach(Brush)); }
@@ -150,8 +150,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QT_COMPAT QPalette& asPalette() { return *static_cast<QPalette *>(castOrDetach(Palette)); }
     inline QT_COMPAT QColorGroup& asColorGroup() { return *static_cast<QColorGroup *>(castOrDetach(ColorGroup)); }
 #endif // QT_NO_PALETTE
-#ifndef QT_NO_ICONSET
-    inline QT_COMPAT QIconSet& asIconSet() { return *static_cast<QIconSet *>(castOrDetach(IconSet)); }
+#ifndef QT_NO_ICON
+    inline QT_COMPAT QIcon &asIconSet() { return *static_cast<QIcon *>(castOrDetach(IconSet)); }
 #endif
     inline QT_COMPAT QPointArray& asPointArray() { return *static_cast<QPointArray *>(castOrDetach(PointArray)); }
     inline QT_COMPAT QBitmap& asBitmap() { return *static_cast<QBitmap *>(castOrDetach(Bitmap)); }
@@ -223,7 +223,7 @@ template<> QImage QVariant_to_helper<QImage>(const QCoreVariant &v, const QImage
 template<> QBrush QVariant_to_helper<QBrush>(const QCoreVariant &v, const QBrush*);
 template<> QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor*);
 template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*);
-template<> QIconSet QVariant_to_helper<QIconSet>(const QCoreVariant &v, const QIconSet*);
+template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*);
 template<> QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*);
 template<> QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*);
 template<> QRegion QVariant_to_helper<QRegion>(const QCoreVariant &v, const QRegion*);
@@ -247,7 +247,7 @@ template<> QImage QVariant_to<QImage>(const QCoreVariant &v);
 template<> QBrush QVariant_to<QBrush>(const QCoreVariant &v);
 template<> QColor QVariant_to<QColor>(const QCoreVariant &v);
 template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v);
-template<> QIconSet QVariant_to<QIconSet>(const QCoreVariant &v);
+template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v);
 template<> QPointArray QVariant_to<QPointArray>(const QCoreVariant &v);
 template<> QBitmap QVariant_to<QBitmap>(const QCoreVariant &v);
 template<> QRegion QVariant_to<QRegion>(const QCoreVariant &v);

@@ -21,7 +21,7 @@
 #include "qsqlcursor.h"
 #include "qsqlindex.h"
 #include "qsqleditorfactory.h"
-#include "qiconset.h"
+#include "qicon.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
@@ -57,12 +57,12 @@ public:
     virtual void addColumn(const QString& fieldName,
                             const QString& label = QString(),
                             int width = -1,
-                            const QIconSet& iconset = QIconSet());
+                            const QIcon &icon = QIcon());
     virtual void removeColumn(int col);
     virtual void setColumn(int col, const QString& fieldName,
                             const QString& label = QString(),
                             int width = -1,
-                            const QIconSet& iconset = QIconSet());
+                            const QIcon &icon = QIcon());
 
     QString      nullText() const;
     QString      trueText() const;

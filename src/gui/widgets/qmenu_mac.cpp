@@ -473,7 +473,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     data.whichData |= kMenuItemDataIconHandle;
     if(!action->action->icon().isNull() && !qt_mac_no_menubar_icons) {
         data.iconType = kMenuIconRefType;
-        data.iconHandle = (Handle)qt_mac_create_iconref(action->action->icon().pixmap(QIconSet::Small, QIconSet::Normal));
+        data.iconHandle = (Handle)qt_mac_create_iconref(action->action->icon().pixmap(QIcon::Small, QIcon::Normal));
     } else {
         data.iconType = kMenuNoIcon;
     }

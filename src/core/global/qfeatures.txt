@@ -30,7 +30,7 @@ SeeAlso: ???
 
 Feature: TOOLBOX
 Section: Widgets
-Requires: ICONSET SCROLLVIEW TOOLTIP LAYOUT TOOLBUTTON
+Requires: ICON SCROLLVIEW TOOLTIP LAYOUT TOOLBUTTON
 Name: Tool box
 SeeAlso: ???
 
@@ -173,10 +173,10 @@ Requires:
 Name: QDate/QTime/QDateTime toString() and fromString()
 SeeAlso: ???
 
-Feature: ICONSET
+Feature: ICON
 Section: Images
 Requires: IMAGEIO IMAGE_SMOOTHSCALE PALETTE IMAGE_HEURISTIC_MASK
-Name: QIconSet
+Name: QIcon
 SeeAlso: ???
 
 Feature: DIR
@@ -398,7 +398,7 @@ SeeAlso: ???
 
 Feature: PROPERTIES
 Section: Kernel
-Requires: VARIANT STRINGLIST ICONSET
+Requires: VARIANT STRINGLIST ICON
 Name: Properties
 SeeAlso: ???
 
@@ -854,7 +854,7 @@ SeeAlso: ???
 
 Feature: TOOLBUTTON
 Section: Widgets
-Requires: BUTTON ICONSET STYLE
+Requires: BUTTON ICON STYLE
 Name: Tool-buttons
 SeeAlso: ???
 
@@ -926,7 +926,7 @@ SeeAlso: ???
 
 Feature: MENUDATA
 Section: Widgets
-Requires: ICONSET VARIANT
+Requires: ICON VARIANT
 Name: Menu-oriented widgets
 SeeAlso: ???
 
@@ -1125,7 +1125,7 @@ SeeAlso: ???
 
 Feature: HEADER
 Section: Widgets
-Requires: STYLE ICONSET
+Requires: STYLE ICON
 Name: QHeader
 SeeAlso: ???
 
@@ -1308,7 +1308,7 @@ SeeAlso: ???
 
 Feature: WIDGETPLUGIN
 Section: Widgets
-Requires: COMPONENT ICONSET
+Requires: COMPONENT ICON
 Name: QWidgetPlugin
 SeeAlso: ???
 

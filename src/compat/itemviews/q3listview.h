@@ -22,7 +22,7 @@
 class QPixmap;
 class QFont;
 class Q3Header;
-class QIconSet;
+class QIcon;
 
 class Q3ListView;
 struct Q3ListViewPrivate;
@@ -240,10 +240,10 @@ public:
     Q3Header * header() const;
 
     virtual int addColumn(const QString &label, int size = -1);
-    virtual int addColumn(const QIconSet& iconset, const QString &label, int size = -1);
+    virtual int addColumn(const QIcon& icon, const QString &label, int size = -1);
     virtual void removeColumn(int index);
     virtual void setColumnText(int column, const QString &label);
-    virtual void setColumnText(int column, const QIconSet& iconset, const QString &label);
+    virtual void setColumnText(int column, const QIcon& icon, const QString &label);
     QString columnText(int column) const;
     virtual void setColumnWidth(int column, int width);
     int columnWidth(int column) const;

@@ -101,7 +101,7 @@ class Q3ActionPrivate
 public:
     Q3ActionPrivate(Q3Action *act);
     ~Q3ActionPrivate();
-    QIconSet *iconset;
+    QIcon *icon;
     QString text;
     QString menutext;
     QString tooltip;
@@ -155,7 +155,7 @@ public:
 QAction *Q3ActionPrivate::Action4Item::action = 0;
 
 Q3ActionPrivate::Q3ActionPrivate(Q3Action *act)
-    : iconset(0),
+    : icon(0),
 #ifndef QT_NO_ACCEL
       key(0), accel(0), accelid(0),
 #endif
@@ -223,7 +223,7 @@ Q3ActionPrivate::~Q3ActionPrivate()
 #ifndef QT_NO_ACCEL
     delete accel;
 #endif
-    delete iconset;
+    delete icon;
 }
 
 class Q3ActionGroupPrivate
@@ -273,10 +273,10 @@ void Q3ActionPrivate::update(uint upd)
             mi->popup->setItemVisible(mi->id, visible);
 
         if (upd & Icons)
-            if (iconset)
-                mi->popup->changeItem(mi->id, *iconset, t);
+            if (icon)
+                mi->popup->changeItem(mi->id, *icon, t);
             else
-                mi->popup->changeItem(mi->id, QIconSet(), t);
+                mi->popup->changeItem(mi->id, QIcon(), t);
         if (upd & EverythingElse) {
             mi->popup->changeItem(mi->id, t);
             if (!whatsthis.isEmpty())
@@ -291,10 +291,10 @@ void Q3ActionPrivate::update(uint upd)
         if (upd & Visibility)
             act->setVisible(visible);
         if (upd & Icons) {
-            if (iconset)
-                act->setIcon(*iconset);
+            if (icon)
+                act->setIcon(*icon);
             else
-                act->setIcon(QIconSet());
+                act->setIcon(QIcon());
         }
         if (upd & EverythingElse) {
             QString text = action->menuText();
@@ -317,10 +317,10 @@ void Q3ActionPrivate::update(uint upd)
         if (upd & Visibility)
             visible ? btn->show() : btn->hide();
         if (upd & Icons) {
-            if (iconset)
-                btn->setIconSet(*iconset);
+            if (icon)
+                btn->setIconSet(*icon);
             else
-                btn->setIconSet(QIconSet());
+                btn->setIconSet(QIcon());
         }
         if (upd & EverythingElse) {
             btn->setToggleButton(toggleaction);
@@ -347,8 +347,8 @@ void Q3ActionPrivate::update(uint upd)
         ComboItem *ci = *it3;
         if (!ci->combo)
             return;
-        if (iconset)
-            ci->combo->changeItem(iconset->pixmap(), text, ci->id);
+        if (icon)
+            ci->combo->changeItem(icon->pixmap(), text, ci->id);
         else
             ci->combo->changeItem(text, ci->id);
     }
@@ -437,7 +437,7 @@ Q3Action::Q3Action(QObject* parent, const char* name, bool toggle)
 
 /*!
     This constructor creates an action with the following properties:
-    the icon or iconset \a icon, the menu text \a menuText and
+    the icon or icon \a icon, the menu text \a menuText and
     keyboard accelerator \a accel. It is a child of \a parent and
     called \a name.
 
@@ -459,7 +459,7 @@ Q3Action::Q3Action(QObject* parent, const char* name, bool toggle)
     \warning To prevent recursion, don't create an action as a child
     of a widget that the action is later added to.
 */
-Q3Action::Q3Action(const QIconSet& icon, const QString& menuText, QKeySequence accel,
+Q3Action::Q3Action(const QIcon& icon, const QString& menuText, QKeySequence accel,
                   QObject* parent, const char* name)
     : QObject(parent, name)
 {
@@ -508,7 +508,7 @@ Q3Action::Q3Action(const QString& menuText, QKeySequence accel,
 
 /*!
     This constructor creates an action with the following properties:
-    the description \a text, the icon or iconset \a icon, the menu
+    the description \a text, the icon or icon \a icon, the menu
     text \a menuText and keyboard accelerator \a accel. It is a child
     of \a parent and called \a name. If \a toggle is true the action
     will be a toggle action, otherwise it will be a command action.
@@ -523,7 +523,7 @@ Q3Action::Q3Action(const QString& menuText, QKeySequence accel,
     tips unless you provide specific text for these using setToolTip()
     and setStatusTip().
 */
-Q3Action::Q3Action(const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel, QObject* parent, const char* name, bool toggle)
+Q3Action::Q3Action(const QString& text, const QIcon& icon, const QString& menuText, QKeySequence accel, QObject* parent, const char* name, bool toggle)
     : QObject(parent, name)
 {
     d = new Q3ActionPrivate(this);
@@ -591,28 +591,28 @@ Q3Action::~Q3Action()
     The icon is used as the tool button icon and in the menu to the
     left of the menu text. There is no default icon.
 
-    If a null icon (QIconSet::isNull() is passed into this function,
+    If a null icon (QIcon::isNull() is passed into this function,
     the icon of the action is cleared.
 
     (See the action/toggleaction/toggleaction.cpp example.)
 
 */
-void Q3Action::setIconSet(const QIconSet& icon)
+void Q3Action::setIconSet(const QIcon& icon)
 {
-    register QIconSet *i = d->iconset;
+    register QIcon *i = d->icon;
     if (!icon.isNull())
-        d->iconset = new QIconSet(icon);
+        d->icon = new QIcon(icon);
     else
-        d->iconset = 0;
+        d->icon = 0;
     delete i;
     d->update(Q3ActionPrivate::Icons);
 }
 
-QIconSet Q3Action::iconSet() const
+QIcon Q3Action::iconSet() const
 {
-    if (d->iconset)
-        return *d->iconset;
-    return QIconSet();
+    if (d->icon)
+        return *d->icon;
+    return QIcon();
 }
 
 /*!
@@ -1010,8 +1010,8 @@ bool Q3Action::addTo(QWidget* w)
             addedTo(btn, w);
             btn->setToggleButton(d->toggleaction);
             d->toolbuttons.append(btn);
-            if (d->iconset)
-                btn->setIconSet(*d->iconset);
+            if (d->icon)
+                btn->setIconSet(*d->icon);
             d->update(Q3ActionPrivate::State | Q3ActionPrivate::Visibility | Q3ActionPrivate::EverythingElse) ;
             connect(btn, SIGNAL(clicked()), this, SIGNAL(activated()));
             connect(btn, SIGNAL(toggled(bool)), this, SLOT(toolButtonToggled(bool)));
@@ -1022,11 +1022,11 @@ bool Q3Action::addTo(QWidget* w)
     if (qt_cast<QPopupMenu*>(w)) {
         Q3ActionPrivate::MenuItem* mi = new Q3ActionPrivate::MenuItem;
         mi->popup = (QPopupMenu*) w;
-        QIconSet* diconset = d->iconset;
+        QIcon* dicon = d->icon;
         if (objectName() == QLatin1String("qt_separator_action"))
             mi->id = ((QPopupMenu*)w)->insertSeparator();
-        else if (diconset)
-            mi->id = mi->popup->insertItem(*diconset, QString::fromLatin1(""));
+        else if (dicon)
+            mi->id = mi->popup->insertItem(*dicon, QString::fromLatin1(""));
         else
             mi->id = mi->popup->insertItem(QString::fromLatin1(""));
         addedTo(mi->popup->indexOf(mi->id), mi->popup);
@@ -1043,8 +1043,8 @@ bool Q3Action::addTo(QWidget* w)
         connect(ci->combo, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
         ci->id = ci->combo->count();
         if (objectName() == QLatin1String("qt_separator_action")) {
-            if (d->iconset)
-                ci->combo->insertItem(d->iconset->pixmap(), text());
+            if (d->icon)
+                ci->combo->insertItem(d->icon->pixmap(), text());
             else
                 ci->combo->insertItem(text());
         } else {
@@ -1966,7 +1966,7 @@ void Q3ActionGroup::setVisible(bool visible)
 
 /*! \reimp
 */
-void Q3ActionGroup::setIconSet(const QIconSet& icon)
+void Q3ActionGroup::setIconSet(const QIcon& icon)
 {
     Q3Action::setIconSet(icon);
     d->update(this);

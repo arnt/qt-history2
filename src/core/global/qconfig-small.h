@@ -42,7 +42,7 @@
 #define QT_NO_PICTURE
 
 #define QT_NO_IMAGE_TRUECOLOR
-/* #define QT_NO_IMAGE_SMOOTHSCALE  //needed for iconset --> pushbutton */
+/* #define QT_NO_IMAGE_SMOOTHSCALE  //needed for icon --> pushbutton */
 #define QT_NO_IMAGE_TEXT
 #define QT_NO_DIR
 

@@ -588,7 +588,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     Q3DockWindow::setVerticalStretchable() are used to make specific dock
     windows or toolbars stretchable.
     \i setUsesBigPixmaps() is used to set whether tool buttons should
-    draw small or large pixmaps (see QIconSet for more information).
+    draw small or large pixmaps (see QIcon for more information).
     \i setUsesTextLabel() is used to set whether tool buttons
     should display a textual label in addition to pixmaps
     (see QToolButton for more information).

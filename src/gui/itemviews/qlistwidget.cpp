@@ -341,9 +341,9 @@ bool QListWidgetItem::isHidden() const
 */
 
 /*!
-    \fn QIconSet QListWidgetItem::icon() const
+    \fn QIcon QListWidgetItem::icon() const
 
-    Returns this list widget item's iconset.
+    Returns this list widget item's icon.
 
     \sa setIcon()
 */
@@ -421,7 +421,7 @@ bool QListWidgetItem::isHidden() const
 */
 
 /*!
-    \fn void QListWidgetItem::setIcon(const QIconSet &icon)
+    \fn void QListWidgetItem::setIcon(const QIcon &icon)
 
     Sets this list widget item's \a icon.
 

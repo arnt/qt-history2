@@ -17,7 +17,7 @@
 #include "qwindowdefs.h"
 #include "qfactoryinterface.h"
 #include "qstringlist.h"
-#include "qiconset.h"
+#include "qicon.h"
 
 struct QWidgetFactoryInterface : public QFactoryInterface
 {
@@ -29,10 +29,10 @@ struct QWidgetFactoryInterface : public QFactoryInterface
       widget \a widget */
     virtual QString group(const QString &widget) const = 0;
 
-    /*! In the implementation return the iconset, which should be used
+    /*! In the implementation return the icon, which should be used
       in the Qt Designer menubar and toolbar to represent the widget
       \a widget */
-    virtual QIconSet iconSet(const QString &widget) const = 0;
+    virtual QIcon iconSet(const QString &widget) const = 0;
 
     /*! In the implementation return the include file which is needed
       for the widget \a widget in the generated code which uic
@@ -103,7 +103,7 @@ public:
     virtual QWidget *create(const QString &key, QWidget *parent = 0, const char *name = 0) = 0;
 
     virtual QString group(const QString &key) const;
-    virtual QIconSet iconSet(const QString &key) const;
+    virtual QIcon iconSet(const QString &key) const;
     virtual QString includeFile(const QString &key) const;
     virtual QString toolTip(const QString &key) const;
     virtual QString whatsThis(const QString &key) const;

@@ -89,7 +89,7 @@
   Note that even if a tab is disabled, the page can still be visible;
   for example, if all of the tabs happen to be disabled.
 
-  You can change a tab's label and iconset using changeTab(). A tab
+  You can change a tab's label and icon using changeTab(). A tab
   page can be removed with removePage() and shown with showPage(). The
   current page is given by currentPage().
 
@@ -390,12 +390,12 @@ void QTabDialog::addTab(QWidget * child, const QString &label)
 
 /*! \overload
 
-  This version of the function shows the \a iconset as well as the \a
+  This version of the function shows the \a icon as well as the \a
   label on the tab of \a child.
 */
-void QTabDialog::addTab(QWidget *child, const QIconSet& iconset, const QString &label)
+void QTabDialog::addTab(QWidget *child, const QIcon& icon, const QString &label)
 {
-    d->tw->addTab(child, iconset, label);
+    d->tw->addTab(child, icon, label);
 }
 
 
@@ -431,12 +431,12 @@ void QTabDialog::insertTab(QWidget * child, const QString &label, int index)
 
 /*! \overload
 
-  This version of the function shows the \a iconset as well as the \a
+  This version of the function shows the \a icon as well as the \a
   label on the tab of \a child.
  */
-void QTabDialog::insertTab(QWidget *child, const QIconSet& iconset, const QString &label, int index)
+void QTabDialog::insertTab(QWidget *child, const QIcon& icon, const QString &label, int index)
 {
-    d->tw->insertTab(child, iconset, label, index);
+    d->tw->insertTab(child, icon, label, index);
 }
 
 
@@ -1028,12 +1028,12 @@ void QTabDialog::changeTab(QWidget *w, const QString &label)
 }
 
 /*!
-    Changes tab page \a w's iconset to \a iconset and label to \a label.
+    Changes tab page \a w's icon to \a icon and label to \a label.
 
  */
-void QTabDialog::changeTab(QWidget *w, const QIconSet& iconset, const QString &label)
+void QTabDialog::changeTab(QWidget *w, const QIcon& icon, const QString &label)
 {
-    d->tw->changeTab(w, iconset, label);
+    d->tw->changeTab(w, icon, label);
 }
 
 /*! Removes page \a w from this stack of widgets. Does not

@@ -498,7 +498,7 @@ QMenu *QMenuBar::addMenu(const QString &title)
 
   \sa QWidget::addAction() QMenu::menuAction()
 */
-QMenu *QMenuBar::addMenu(const QIconSet &icon, const QString &title)
+QMenu *QMenuBar::addMenu(const QIcon &icon, const QString &title)
 {
     QMenu *menu = new QMenu(title, this);
     menu->setIcon(icon);
@@ -1221,7 +1221,7 @@ int QMenuBar::frameWidth() const
     return style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, this);
 }
 
-int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
+int QMenuBar::insertAny(const QIcon *icon, const QString *text, const QObject *receiver, const char *member,
                         const QKeySequence *shortcut, const QMenu *popup, int id, int index)
 {
     QAction *act = popup ? popup->menuAction() : new QAction(this);
@@ -1326,7 +1326,7 @@ int QMenuBar::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn int QMenuBar::insertItem(const QIconSet& icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence& shortcut, int id, int index)
+    \fn int QMenuBar::insertItem(const QIcon& icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence& shortcut, int id, int index)
 
     Use one of the insertAction() or addAction() overloads instead.
 */
@@ -1345,7 +1345,7 @@ int QMenuBar::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn int QMenuBar::insertItem(const QIconSet& icon, const QString &text, int id, int index)
+    \fn int QMenuBar::insertItem(const QIcon& icon, const QString &text, int id, int index)
 
     Use one of the insertAction(), addAction(), insertMenu(), or
     addMenu() overloads instead.
@@ -1358,7 +1358,7 @@ int QMenuBar::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn int QMenuBar::insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id, int index)
+    \fn int QMenuBar::insertItem(const QIcon& icon, const QString &text, QMenu *popup, int id, int index)
 
     Use one of the insertMenu(), or addMenu() overloads instead.
 */
@@ -1401,7 +1401,7 @@ int QMenuBar::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn QIconSet QMenuBar::iconSet(int id) const
+    \fn QIcon QMenuBar::iconSet(int id) const
 
     Use icon() on the relevant QAction instead.
 */
@@ -1443,7 +1443,7 @@ int QMenuBar::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn void QMenuBar::changeItem(int id, const QIconSet &icon, const QString &text)
+    \fn void QMenuBar::changeItem(int id, const QIcon &icon, const QString &text)
 
     Use setIcon() and setText() on the relevant QAction instead.
 */

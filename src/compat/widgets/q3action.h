@@ -14,10 +14,10 @@
 #ifndef Q3ACTION_H
 #define Q3ACTION_H
 
-#include "qobject.h"
-#include "qiconset.h"
-#include "qstring.h"
+#include "qicon.h"
 #include "qkeysequence.h"
+#include "qobject.h"
+#include "qstring.h"
 
 #ifndef QT_NO_ACTION
 
@@ -34,7 +34,7 @@ class Q_COMPAT_EXPORT Q3Action : public QObject
     Q_PROPERTY(bool toggleAction READ isToggleAction WRITE setToggleAction)
     Q_PROPERTY(bool on READ isOn WRITE setOn)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-    Q_PROPERTY(QIconSet iconSet READ iconSet WRITE setIconSet)
+    Q_PROPERTY(QIcon iconSet READ iconSet WRITE setIconSet)
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QString menuText READ menuText WRITE setMenuText)
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
@@ -50,10 +50,10 @@ public:
 #ifndef QT_NO_ACCEL
     Q3Action(const QString& menuText, QKeySequence accel,
              QObject* parent, const char* name = 0);
-    Q3Action(const QIconSet& icon, const QString& menuText, QKeySequence accel,
+    Q3Action(const QIcon& icon, const QString& menuText, QKeySequence accel,
              QObject* parent, const char* name = 0);
 
-    Q3Action(const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
+    Q3Action(const QString& text, const QIcon& icon, const QString& menuText, QKeySequence accel,
              QObject* parent, const char* name = 0, bool toggle = false); // obsolete
     Q3Action(const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
              const char* name = 0, bool toggle = false); // obsolete
@@ -61,8 +61,8 @@ public:
     Q3Action(QObject* parent, const char* name , bool toggle); // obsolete
     ~Q3Action();
 
-    virtual void setIconSet(const QIconSet&);
-    QIconSet iconSet() const;
+    virtual void setIconSet(const QIcon&);
+    QIcon iconSet() const;
     virtual void setText(const QString&);
     QString text() const;
     virtual void setMenuText(const QString&);
@@ -146,7 +146,7 @@ public:
     void setUsesDropDown(bool enable);
     bool usesDropDown() const;
 
-    void setIconSet(const QIconSet&);
+    void setIconSet(const QIcon &);
     void setText(const QString&);
     void setMenuText(const QString&);
     void setToolTip(const QString&);

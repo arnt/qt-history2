@@ -1048,7 +1048,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value DateTime  a QDateTime
     \value Double  a double
     \value Font  a QFont
-    \value Icon  a QIconSet
+    \value Icon  a QIcon
     \value Image  a QImage
     \value Int  an int
     \value KeySequence  a QKeySequence
@@ -1452,7 +1452,7 @@ static const char* const type_map[ntypes] =
 #else
     "",
 #endif
-    "QIconSet",
+    "QIcon",
     "QPoint",
     "QImage",
     "int",

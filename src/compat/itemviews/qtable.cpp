@@ -28,7 +28,7 @@
 #include <qdatatable.h>
 #include <qdragobject.h>
 #include <qevent.h>
-#include <qiconset.h>
+#include <qicon.h>
 #include <qlineedit.h>
 #include <qlistbox.h>
 #include <qpainter.h>
@@ -64,7 +64,7 @@ public:
     ~QTableHeader() {};
     void addLabel(const QString &s, int size);
     void setLabel(int section, const QString & s, int size = -1);
-    void setLabel(int section, const QIconSet & iconset, const QString & s,
+    void setLabel(int section, const QIcon & icon, const QString & s,
                    int size = -1);
 
     void setLabels(const QStringList & labels);
@@ -6386,10 +6386,10 @@ void QTableHeader::setLabel(int section, const QString & s, int size)
     sectionLabelChanged(section);
 }
 
-void QTableHeader::setLabel(int section, const QIconSet & iconset,
+void QTableHeader::setLabel(int section, const QIcon & icon,
                              const QString & s, int size)
 {
-    Q3Header::setLabel(section, iconset, s, size);
+    Q3Header::setLabel(section, icon, s, size);
     sectionLabelChanged(section);
 }
 
@@ -7073,7 +7073,7 @@ void QTableHeader::swapSections(int oldIdx, int newIdx, bool swapTable)
     extern bool qt_qheader_label_return_null_strings; // qheader.cpp
     qt_qheader_label_return_null_strings = true;
 
-    QIconSet oldIconSet, newIconSet;
+    QIcon oldIconSet, newIconSet;
     if (iconSet(oldIdx))
         oldIconSet = *iconSet(oldIdx);
     if (iconSet(newIdx))

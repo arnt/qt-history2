@@ -134,7 +134,7 @@ QSize QDockWindowTitleButton::sizeHint() const
 
     int dim = 0;
     if (!icon().isNull()) {
-        const QPixmap pm = icon().pixmap(QIconSet::Automatic, QIconSet::Normal);
+        const QPixmap pm = icon().pixmap(QIcon::Automatic, QIcon::Normal);
         dim = qMax(pm.width(), pm.height());
     }
 
@@ -178,7 +178,7 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *)
 
     r.addCoords(2, 2, -2, -2);
     const QPixmap pm =
-        icon().pixmap(QIconSet::Automatic, isEnabled() ? QIconSet::Normal : QIconSet::Disabled);
+        icon().pixmap(QIcon::Automatic, isEnabled() ? QIcon::Normal : QIcon::Disabled);
     style().drawItem(&p, r, Qt::AlignCenter, palette(), isEnabled(), pm);
 }
 

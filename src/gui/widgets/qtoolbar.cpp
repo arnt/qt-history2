@@ -359,7 +359,7 @@ QAction *QToolBar::addAction(const QString &text)
     Creates a new action with the icon \a icon and text \a text. This
     action is added to the end of the tool bar.
 */
-QAction *QToolBar::addAction(const QIconSet &icon, const QString &text)
+QAction *QToolBar::addAction(const QIcon &icon, const QString &text)
 {
     QAction *action = new QAction(icon, text, this);
     addAction(action);
@@ -389,7 +389,7 @@ QAction *QToolBar::addAction(const QString &text,
     QAction::triggered() triggered()\endlink signal is connected to \a
     member in \a receiver.
 */
-QAction *QToolBar::addAction(const QIconSet &icon, const QString &text,
+QAction *QToolBar::addAction(const QIcon &icon, const QString &text,
                              const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(icon, text, this);
@@ -425,7 +425,7 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text)
     action is inserted into the tool bar in front of the tool bar item
     associated with the \a before action.
 */
-QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text)
+QAction *QToolBar::insertAction(QAction *before, const QIcon &icon, const QString &text)
 {
     QAction *action = new QAction(icon, text, this);
     insertAction(before, action);
@@ -457,8 +457,8 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text,
     QAction::triggered() triggered()\endlink signal is connected to
     the \a member in the \a receiver.
 */
-QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text,
-				 const QObject *receiver, const char* member)
+QAction *QToolBar::insertAction(QAction *before, const QIcon &icon, const QString &text,
+                                const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(icon, text, this);
     QObject::connect(action, SIGNAL(triggered()), receiver, member);

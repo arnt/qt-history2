@@ -34,9 +34,9 @@ public:
     inline void setText(const QString &text)
         { setData(QAbstractItemModel::DisplayRole, text); }
 
-    inline QIconSet icon() const
+    inline QIcon icon() const
         { return data(QAbstractItemModel::DecorationRole).toIcon(); }
-    inline void setIcon(const QIconSet &icon)
+    inline void setIcon(const QIcon &icon)
         { setData(QAbstractItemModel::DecorationRole, icon); }
 
     inline QString statusTip() const

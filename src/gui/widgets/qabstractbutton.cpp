@@ -459,7 +459,7 @@ QString QAbstractButton::text() const
   \property QAbstractButton::icon
   \brief the icon shown on the button
 */
-void QAbstractButton::setIcon(const QIconSet &icon)
+void QAbstractButton::setIcon(const QIcon &icon)
 {
     d->icon = icon;
     if (autoMask())
@@ -468,7 +468,7 @@ void QAbstractButton::setIcon(const QIconSet &icon)
     updateGeometry();
 }
 
-QIconSet QAbstractButton::icon() const
+QIcon QAbstractButton::icon() const
 {
     return d->icon;
 }
@@ -953,10 +953,10 @@ or because setChecked() was called.
 /*!
     Use icon() instead.
 */
-QIconSet *QAbstractButton::iconSet() const
+QIcon *QAbstractButton::iconSet() const
 {
     if (!d->icon.isNull())
-        return const_cast<QIconSet *>(&d->icon);
+        return const_cast<QIcon *>(&d->icon);
     return 0;
 }
 
@@ -991,7 +991,7 @@ QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f
     Use setIcon() instead.
 */
 
-/*! \fn void QAbstractButton::setIconSet(const QIconSet &icon)
+/*! \fn void QAbstractButton::setIconSet(const QIcon &icon)
 
     Use setIcon() instead.
 */

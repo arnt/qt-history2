@@ -6,7 +6,7 @@ HEADERS += \
 	image/qasyncimageio.h \
 	image/qbitmap.h \
 	image/qgif.h \
-	image/qiconset.h \
+	image/qicon.h \
 	image/qimage.h \
 	image/qimageio.h \
 	image/qimageformatplugin.h \
@@ -22,7 +22,7 @@ HEADERS += \
 SOURCES += \
 	image/qasyncimageio.cpp \
 	image/qbitmap.cpp \
-	image/qiconset.cpp \
+	image/qicon.cpp \
 	image/qimage.cpp \
 	image/qimageio.cpp \
 	image/qimageformatplugin.cpp \

@@ -153,7 +153,7 @@ private:
         menuOption.maxIconWidth = 0;
         if (!menuOption.icon.isNull())
             menuOption.maxIconWidth
-                = menuOption.icon.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
+                = menuOption.icon.pixmap(QIcon::Small, QIcon::Normal).width() + 4;
         menuOption.menuRect = option.rect;
         menuOption.rect = option.rect;
         return menuOption;
@@ -206,7 +206,7 @@ public:
         if (parent.isValid() || count < 1 || row < 0 || row > rowCount())
             return false;
 
-        QPair<QString, QIconSet> emptyPair;
+        QPair<QString, QIcon> emptyPair;
         while (count--)
             list.insert(row, emptyPair);
         emit rowsInserted(parent, row, row+count-1);
@@ -225,7 +225,7 @@ public:
     }
 
 private:
-    QList<QPair<QString,QIconSet> > list;
+    QList<QPair<QString,QIcon> > list;
 };
 
 class QComboBoxPrivate: public QWidgetPrivate

@@ -977,8 +977,8 @@ QPixmap QComboBox::pixmap(int row) const
     QStyleOptionComboBox opt = d->getStyleOption();
     QModelIndex index = model()->index(row, 0, root());
     return model()->data(d->currentIndex, QAbstractItemModel::DecorationRole).toIconSet()
-        .pixmap(QIconSet::Automatic,
-                opt.state & QStyle::Style_Enabled ? QIconSet::Normal : QIconSet::Disabled);
+        .pixmap(QIcon::Automatic,
+                opt.state & QStyle::Style_Enabled ? QIcon::Normal : QIcon::Disabled);
 }
 
 /*!
@@ -1034,7 +1034,7 @@ void QComboBox::insertItem(const QString &text, int row)
     Inserts the \a icon into the combobox at the given \a row.
 */
 
-void QComboBox::insertItem(const QIconSet &icon, int row)
+void QComboBox::insertItem(const QIcon &icon, int row)
 {
     if (!(count() < d->maxCount))
         return;
@@ -1053,7 +1053,7 @@ void QComboBox::insertItem(const QIconSet &icon, int row)
     Inserts the \a icon and \a text into the combobox at the given \a row.
 */
 
-void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
+void QComboBox::insertItem(const QIcon &icon, const QString &text, int row)
 {
     if (!(count() < d->maxCount))
         return;
@@ -1098,7 +1098,7 @@ void QComboBox::setItemText(const QString &text, int row)
     Sets the \a icon for the item on the given \a row in the combobox.
 */
 
-void QComboBox::setItemIcon(const QIconSet &icon, int row)
+void QComboBox::setItemIcon(const QIcon &icon, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
@@ -1110,7 +1110,7 @@ void QComboBox::setItemIcon(const QIconSet &icon, int row)
     Sets the \a icon and \a text for the given \a row in the combobox.
 */
 
-void QComboBox::setItem(const QIconSet &icon, const QString &text, int row)
+void QComboBox::setItem(const QIcon &icon, const QString &text, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
@@ -1504,16 +1504,16 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
 /*!
     \fn void QComboBox::insertItem(const QPixmap &pixmap, int row)
 
-    Use an insertItem() function that takes a QIconSet instead, for
-    example, insertItem(QIconSet(pixmap), row).
+    Use an insertItem() function that takes a QIcon instead, for
+    example, insertItem(QIcon(pixmap), row).
 */
 
 /*!
     \fn void QComboBox::insertItem(const QPixmap &pixmap, const QString &text, int row)
 
 
-    Use an insertItem() function that takes a QIconSet instead, for
-    example, insertItem(QIconSet(pixmap), text, row).
+    Use an insertItem() function that takes a QIcon instead, for
+    example, insertItem(QIcon(pixmap), text, row).
 */
 
 /*!
@@ -1526,13 +1526,13 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
     \fn void QComboBox::changeItem(const QPixmap &pixmap, int row)
 
     Use setItemIcon() instead, for example,
-    setItemIcon(QIconSet(pixmap), row).
+    setItemIcon(QIcon(pixmap), row).
 */
 
 /*!
     \fn void QComboBox::changeItem(const QPixmap &pixmap, const QString &text, int row)
 
-    Use setItem() instead, for example, setItem(QIconSet(pixmap), text row).
+    Use setItem() instead, for example, setItem(QIcon(pixmap), text row).
 */
 
 

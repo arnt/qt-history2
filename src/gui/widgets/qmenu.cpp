@@ -100,11 +100,11 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         QAction *action = items.at(i);
         if(!action->isVisible())
             continue;
-        QIconSet is = action->icon();
+        QIcon is = action->icon();
         if(!is.isNull())
             const_cast<QMenuPrivate *>(this)->maxIconWidth =
                 qMax(maxIconWidth,
-                     (uint)is.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4);
+                     (uint)is.pixmap(QIcon::Small, QIcon::Normal).width() + 4);
     }
 
     //calculate size
@@ -139,9 +139,9 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             sz.setWidth(w);
             sz.setHeight(qMax(fm.height(), qfm.height()));
 
-            QIconSet is = action->icon();
+            QIcon is = action->icon();
             if(!is.isNull()) {
-                QSize is_sz = is.pixmap(QIconSet::Small, QIconSet::Normal).size();
+                QSize is_sz = is.pixmap(QIcon::Small, QIcon::Normal).size();
                 if(is_sz.height() > sz.height())
                     sz.setHeight(is_sz.height());
             }
@@ -354,12 +354,12 @@ void QMenu::setTitle(const QString &text)
 
   This is equivalent to the QAction::icon property of the menuAction().
 */
-QIconSet QMenu::icon() const
+QIcon QMenu::icon() const
 {
     return d->menuAction->icon();
 }
 
-void QMenu::setIcon(const QIconSet &icon)
+void QMenu::setIcon(const QIcon &icon)
 {
     d->menuAction->setIcon(icon);
 }
@@ -749,7 +749,7 @@ QAction *QMenu::addAction(const QString &text)
 
     \sa QWidget::addAction()
 */
-QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
+QAction *QMenu::addAction(const QIcon &icon, const QString &text)
 {
     QAction *ret = new QAction(icon, text, this);
     addAction(ret);
@@ -787,7 +787,7 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
 
     \sa QWidget::addAction()
 */
-QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver,
+QAction *QMenu::addAction(const QIcon &icon, const QString &text, const QObject *receiver,
                           const char* member, const QKeySequence &shortcut)
 {
     QAction *action = new QAction(icon, text, this);
@@ -828,7 +828,7 @@ QMenu *QMenu::addMenu(const QString &title)
 
   \sa QWidget::addAction() QMenu::menuAction()
 */
-QMenu *QMenu::addMenu(const QIconSet &icon, const QString &title)
+QMenu *QMenu::addMenu(const QIcon &icon, const QString &title)
 {
     QMenu *menu = new QMenu(title, this);
     menu->setIcon(icon);
@@ -1958,7 +1958,7 @@ void QMenu::setNoReplayFor(QWidget *noReplayFor)
 
 #ifdef QT_COMPAT
 
-int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
+int QMenu::insertAny(const QIcon *icon, const QString *text, const QObject *receiver, const char *member,
                           const QKeySequence *shortcut, const QMenu *popup, int id, int index)
 {
     QAction *act = popup ? popup->menuAction() : new QAction(this);
@@ -2075,7 +2075,7 @@ int QMenu::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn int QMenu::insertItem(const QIconSet& icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence& shortcut, int id, int index)
+    \fn int QMenu::insertItem(const QIcon& icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence& shortcut, int id, int index)
 
     Use insertAction() or one of the addAction() overloads instead.
 */
@@ -2093,7 +2093,7 @@ int QMenu::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn int QMenu::insertItem(const QIconSet& icon, const QString &text, int id, int index)
+    \fn int QMenu::insertItem(const QIcon& icon, const QString &text, int id, int index)
 
     Use insertAction() or one of the addAction() overloads instead.
 */
@@ -2105,7 +2105,7 @@ int QMenu::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn int QMenu::insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id, int index)
+    \fn int QMenu::insertItem(const QIcon& icon, const QString &text, QMenu *popup, int id, int index)
 
     Use insertMenu() or one of the addMenu() overloads instead.
 */
@@ -2147,7 +2147,7 @@ int QMenu::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn QIconSet QMenu::iconSet(int id) const
+    \fn QIcon QMenu::iconSet(int id) const
 
     Use icon() on the relevant QAction instead.
 */
@@ -2189,7 +2189,7 @@ int QMenu::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn void QMenu::changeItem(int id, const QIconSet &icon, const QString &text)
+    \fn void QMenu::changeItem(int id, const QIcon &icon, const QString &text)
 
     Use setIcon() and setText() on the relevant QAction instead.
 */

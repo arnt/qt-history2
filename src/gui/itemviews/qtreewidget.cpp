@@ -1,4 +1,3 @@
-//depot/qt/main/src/gui/itemviews/qtreewidget.cpp#39 - edit change 150339 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -564,7 +563,7 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 */
 
 /*!
-    \fn QIconSet QTreeWidgetItem::icon(int column) const
+    \fn QIcon QTreeWidgetItem::icon(int column) const
 
     Returns the icon that is displayed in the specified \a column.
 
@@ -572,7 +571,7 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 */
 
 /*!
-    \fn void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
+    \fn void QTreeWidgetItem::setIcon(int column, const QIcon &icon)
 */
 
 /*!

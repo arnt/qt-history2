@@ -15,7 +15,7 @@
 #define QTOOLBOX_H
 
 #include <qframe.h>
-#include <qiconset.h>
+#include <qicon.h>
 
 #ifndef QT_NO_TOOLBOX
 
@@ -35,9 +35,9 @@ public:
     ~QToolBox();
 
     int addItem(QWidget *widget, const QString &text);
-    int addItem(QWidget *widget, const QIconSet &icon, const QString &text);
+    int addItem(QWidget *widget, const QIcon &icon, const QString &text);
     int insertItem(int index, QWidget *widget, const QString &text);
-    int insertItem(int index, QWidget *widget, const QIconSet &icon, const QString &text);
+    int insertItem(int index, QWidget *widget, const QIcon &icon, const QString &text);
 
     void removeItem(int index);
 
@@ -47,8 +47,8 @@ public:
     void setItemText(int index, const QString &text);
     QString itemText(int index) const;
 
-    void setItemIcon(int index, const QIconSet &icon);
-    QIconSet itemIcon(int index) const;
+    void setItemIcon(int index, const QIcon &icon);
+    QIcon itemIcon(int index) const;
 
     void setItemToolTip(int index, const QString &toolTip);
     QString itemToolTip(int index) const;
@@ -86,8 +86,8 @@ public:
     inline QT_COMPAT QString itemLabel(int index) const { return itemText(index); }
     inline QT_COMPAT QWidget *currentItem() const { return widget(currentIndex()); }
     inline QT_COMPAT void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
-    inline QT_COMPAT void setItemIconSet(int index, const QIconSet &icon) { setItemIcon(index, icon); }
-    inline QT_COMPAT QIconSet itemIconSet(int index) const { return itemIcon(index); }
+    inline QT_COMPAT void setItemIconSet(int index, const QIcon &icon) { setItemIcon(index, icon); }
+    inline QT_COMPAT QIcon itemIconSet(int index) const { return itemIcon(index); }
     inline QT_COMPAT int removeItem(QWidget *item)
     { int i = indexOf(item); removeItem(i); return i; }
     inline QT_COMPAT QWidget *item(int index) const { return widget(index); }
@@ -96,12 +96,12 @@ public:
 
 
 inline int QToolBox::addItem(QWidget *item, const QString &text)
-{ return insertItem(-1, item, QIconSet(), text); }
-inline int QToolBox::addItem(QWidget *item, const QIconSet &iconSet,
+{ return insertItem(-1, item, QIcon(), text); }
+inline int QToolBox::addItem(QWidget *item, const QIcon &iconSet,
                               const QString &text)
 { return insertItem(-1, item, iconSet, text); }
 inline int QToolBox::insertItem(int index, QWidget *item, const QString &text)
-{ return insertItem(index, item, QIconSet(), text); }
+{ return insertItem(index, item, QIcon(), text); }
 
 #endif // QT_NO_TOOLBOX
 #endif

@@ -1507,7 +1507,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     for (int r = 0; r < model->rowCount(QModelIndex::Null); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex::Null);
         QString path = model->path(index);
-        QIconSet icons = model->icon(index);
+        QIcon icons = model->icon(index);
         lookIn->insertItem(icons, path);
     }
     QModelIndex home = model->index(QDir::homePath());
@@ -1611,7 +1611,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
     QString pth = d->model->path(index);
-    QIconSet icn = d->model->icon(index);
+    QIcon icn = d->model->icon(index);
     int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {

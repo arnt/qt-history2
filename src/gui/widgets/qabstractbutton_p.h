@@ -24,7 +24,7 @@ public:
     QAbstractButtonPrivate();
 
     QString text;
-    QIconSet icon;
+    QIcon icon;
     QKeySequence shortcut;
     int shortcutId;
     uint checkable :1;

@@ -1044,7 +1044,7 @@ void QMotifStyle::drawControl(ControlElement element,
         if (!mi)
             return;
 
-        QIconSet is = mi->icon();
+        QIcon is = mi->icon();
         QRect vrect = visualRect(QRect(x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame), r);
         int xvis = vrect.x();
         if (mi->isChecked()) {
@@ -1056,15 +1056,15 @@ void QMotifStyle::drawControl(ControlElement element,
                         pal.brush(QPalette::Button));
         }
 
-        if(!is.isNull()) {              // draw iconset
-            QIconSet::Mode mode = QIconSet::Normal; // no disabled icons in Motif
+        if(!is.isNull()) {              // draw icon
+            QIcon::Mode mode = QIcon::Normal; // no disabled icons in Motif
             if (act && !dis)
-                mode = QIconSet::Active;
+                mode = QIcon::Active;
             QPixmap pixmap;
             if (checkable && mi->isChecked())
-                pixmap = is.pixmap(QIconSet::Small, mode, QIconSet::On);
+                pixmap = is.pixmap(QIcon::Small, mode, QIcon::On);
             else
-                pixmap = is.pixmap(QIconSet::Small, mode);
+                pixmap = is.pixmap(QIcon::Small, mode);
 
             int pixw = pixmap.width();
             int pixh = pixmap.height();
@@ -1195,15 +1195,15 @@ void QMotifStyle::drawControl(ControlElement element,
                             pal.brush(QPalette::Button));
             }
 
-            if (mi->iconSet()) {              // draw iconset
-                QIconSet::Mode mode = QIconSet::Normal; // no disabled icons in Motif
+            if (mi->iconSet()) {              // draw icon
+                QIcon::Mode mode = QIcon::Normal; // no disabled icons in Motif
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode, QIconSet::On);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
@@ -1944,13 +1944,13 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
                 w += motifArrowHMargin + 4*motifItemFrame;
 
             if (checkable && maxpmw <= 0)
-                // if we are checkable and have no iconsets, add space for a checkmark
+                // if we are checkable and have no icons, add space for a checkmark
                 w += motifCheckMarkSpace;
             else if (checkable && maxpmw < motifCheckMarkSpace)
-                // make sure the check-column is wide enough if we have iconsets
+                // make sure the check-column is wide enough if we have icons
                 w += (motifCheckMarkSpace - maxpmw);
 
-            // if we have a check-column (iconsets of checkmarks), add space
+            // if we have a check-column (icons of checkmarks), add space
             // to separate the columns
             if (maxpmw > 0 || checkable)
                 w += motifCheckMarkHMargin;
@@ -1996,13 +1996,13 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
                 w += motifArrowHMargin + 4*motifItemFrame;
 
             if (checkable && maxpmw <= 0)
-                // if we are checkable and have no iconsets, add space for a checkmark
+                // if we are checkable and have no icons, add space for a checkmark
                 w += motifCheckMarkSpace;
             else if (checkable && maxpmw < motifCheckMarkSpace)
-                // make sure the check-column is wide enough if we have iconsets
+                // make sure the check-column is wide enough if we have icons
                 w += (motifCheckMarkSpace - maxpmw);
 
-            // if we have a check-column (iconsets of checkmarks), add space
+            // if we have a check-column (icons of checkmarks), add space
             // to separate the columns
             if (maxpmw > 0 || checkable)
                 w += motifCheckMarkHMargin;

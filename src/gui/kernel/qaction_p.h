@@ -32,7 +32,7 @@ public:
     QPointer<QActionGroup> group;
     QString text;
     QString iconText;
-    QIconSet *icons;
+    QIcon icon;
     QString tooltip;
     QString statustip;
     QString whatsthis;

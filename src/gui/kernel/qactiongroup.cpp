@@ -187,7 +187,7 @@ QAction *QActionGroup::addAction(const QString &text)
 
     \sa QAction::setActionGroup()
 */
-QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text)
+QAction *QActionGroup::addAction(const QIcon &icon, const QString &text)
 {
     return new QAction(icon, text, this);
 }

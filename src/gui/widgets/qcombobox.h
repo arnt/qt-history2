@@ -102,14 +102,14 @@ public:
 
     void insertStringList(const QStringList &list, int row = -1);
     void insertItem(const QString &text, int row = -1);
-    void insertItem(const QIconSet &icon, int row = -1);
-    void insertItem(const QIconSet &icon, const QString &text, int row = -1);
+    void insertItem(const QIcon &icon, int row = -1);
+    void insertItem(const QIcon &icon, const QString &text, int row = -1);
 
     void removeItem(int row);
 
     void setItemText(const QString &text, int row);
-    void setItemIcon(const QIconSet &icon, int row);
-    void setItem(const QIconSet &icon, const QString &text, int row);
+    void setItemIcon(const QIcon &icon, int row);
+    void setItem(const QIcon &icon, const QString &text, int row);
 
     QListView *listView() const;
 
@@ -124,15 +124,15 @@ public:
     QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
     QT_COMPAT bool editable() const { return isEditable(); }
     QT_COMPAT void insertItem(const QPixmap &pix, int row = -1)
-        { insertItem(QIconSet(pix), row); }
+        { insertItem(QIcon(pix), row); }
     QT_COMPAT void insertItem(const QPixmap &pix, const QString &text, int row = -1)
-        { insertItem(QIconSet(pix), text, row); }
+        { insertItem(QIcon(pix), text, row); }
     QT_COMPAT void changeItem(const QString &text, int row)
         { setItemText(text, row); }
     QT_COMPAT void changeItem(const QPixmap &pix, int row)
-        { setItemIcon(QIconSet(pix), row); }
+        { setItemIcon(QIcon(pix), row); }
     QT_COMPAT void changeItem(const QPixmap &pix, const QString &text, int row)
-        { setItem(QIconSet(pix), text, row); }
+        { setItem(QIcon(pix), text, row); }
 #endif
 
 public slots:

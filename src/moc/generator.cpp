@@ -68,7 +68,7 @@ static const char* const type_map[ntypes] =
     "QColor",
     "QPalette",
     "QColorGroup",
-    "QIconSet",
+    "QIcon",
     "QPoint",
     "QImage",
     "int",

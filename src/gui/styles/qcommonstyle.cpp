@@ -703,14 +703,14 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             QRect ir = btn->rect;
             uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic;
             if (!btn->icon.isNull()) {
-                QIconSet::Mode mode = btn->state & Style_Enabled ? QIconSet::Normal
-                                                                 : QIconSet::Disabled;
-                if (mode == QIconSet::Normal && btn->state & Style_HasFocus)
-                    mode = QIconSet::Active;
-                QIconSet::State state = QIconSet::Off;
+                QIcon::Mode mode = btn->state & Style_Enabled ? QIcon::Normal
+                                                              : QIcon::Disabled;
+                if (mode == QIcon::Normal && btn->state & Style_HasFocus)
+                    mode = QIcon::Active;
+                QIcon::State state = QIcon::Off;
                 if (btn->state & Style_On)
-                    state = QIconSet::On;
-                QPixmap pixmap = btn->icon.pixmap(QIconSet::Small, mode, state);
+                    state = QIcon::On;
+                QPixmap pixmap = btn->icon.pixmap(QIcon::Small, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 //Center the icon if there is neither text nor pixmap
@@ -744,7 +744,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix;
             if (btn->icon.isNull())
-                pix = btn->icon.pixmap(QIconSet::Small, QIconSet::Normal);
+                pix = btn->icon.pixmap(QIcon::Small, QIcon::Normal);
             drawItem(p, btn->rect, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, btn->palette,
                      btn->state & Style_Enabled, pix, btn->text);
             if (btn->state & Style_HasFocus) {
@@ -778,7 +778,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
             if (!styleHint(SH_UnderlineShortcut, mbi, widget))
                 alignment |= Qt::TextHideMnemonic;
-            QPixmap pix = mbi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
+            QPixmap pix = mbi->icon.pixmap(QIcon::Small, QIcon::Normal);
             drawItem(p, mbi->rect, alignment, mbi->palette, mbi->state & Style_Enabled,
                      pix, mbi->text, -1, &mbi->palette.buttonText().color());
         }
@@ -878,9 +878,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             QRect rect = header->rect;
             if (!header->icon.isNull()) {
                 QPixmap pixmap
-                    = header->icon.pixmap(QIconSet::Small,
-                                          header->state & Style_Enabled ? QIconSet::Normal
-                                                                        : QIconSet::Disabled);
+                    = header->icon.pixmap(QIcon::Small,
+                                          header->state & Style_Enabled ? QIcon::Normal
+                                                                        : QIcon::Disabled);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 // "pixh - 1" because of tricky integer division
@@ -888,7 +888,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QRect pixRect = rect;
                 pixRect.setY(rect.center().y() - (pixh - 1) / 2);
                 drawItem(p, pixRect, Qt::AlignVCenter, header->palette, (header->state & Style_Enabled)
-                         || !header->icon.isGenerated(QIconSet::Small, QIconSet::Disabled), pixmap);
+                         || !header->icon.isGenerated(QIcon::Small, QIcon::Disabled), pixmap);
                 rect.setLeft(rect.left() + pixw + 2);
             }
 
@@ -942,19 +942,18 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                              opt->state & Style_Enabled, tb->text, -1, &btext);
                 } else {
                     QPixmap pm;
-                    QIconSet::Size size =
-                        tb->features & QStyleOptionToolButton::BigPixmap ? QIconSet::Large
-                                                                        : QIconSet::Small;
-                    QIconSet::State state =
-                        tb->state & Style_On ? QIconSet::On : QIconSet::Off;
-                    QIconSet::Mode mode;
+                    QIcon::Size size =
+                        tb->features & QStyleOptionToolButton::BigPixmap ? QIcon::Large
+                                                                         : QIcon::Small;
+                    QIcon::State state = tb->state & Style_On ? QIcon::On : QIcon::Off;
+                    QIcon::Mode mode;
                     if (!(tb->state & Style_Enabled))
-                        mode = QIconSet::Disabled;
+                        mode = QIcon::Disabled;
                     else if (opt->state & (Style_Down | Style_On) ||
                              ((opt->state & Style_Raised) && (opt->state & Style_AutoRaise)))
-                        mode = QIconSet::Active;
+                        mode = QIcon::Active;
                     else
-                        mode = QIconSet::Normal;
+                        mode = QIcon::Normal;
                     pm = tb->icon.pixmap(size, mode, state);
 
                     if (tb->features & QStyleOptionToolButton::TextLabel) {
@@ -971,7 +970,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                             tr.addCoords(0, pr.bottom(), 0, -3);
                             pr.moveBy(shiftX, shiftY);
                             drawItem(p, pr, Qt::AlignCenter, tb->palette,
-                                     mode != QIconSet::Disabled
+                                     mode != QIcon::Disabled
                                      || !tb->icon.isGenerated(size, mode, state), pm);
                             alignment |= Qt::AlignCenter;
                         } else {
@@ -979,7 +978,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                             tr.addCoords(pr.right(), 0, 0, 0);
                             pr.moveBy(shiftX, shiftY);
                             drawItem(p, pr, Qt::AlignCenter, tb->palette,
-                                      mode != QIconSet::Disabled
+                                      mode != QIcon::Disabled
                                       || !tb->icon.isGenerated(size, mode, state), pm);
                             alignment |= Qt::AlignLeft | Qt::AlignVCenter;
                         }
@@ -990,7 +989,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                     } else {
                         rect.moveBy(shiftX, shiftY);
                         drawItem(p, rect, Qt::AlignCenter, tb->palette,
-                                  mode != QIconSet::Disabled
+                                  mode != QIcon::Disabled
                                   || !tb->icon.isGenerated(size, mode, state), pm);
                     }
                 }
@@ -1093,16 +1092,16 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
             const QRect cr = subRect(SR_ToolBarButtonContents, opt, p->fontMetrics(), widget);
 
-            QIconSet::Mode iconMode = (button->state & Style_Enabled)
-                                      ? QIconSet::Normal
-                                      : QIconSet::Disabled;
+            QIcon::Mode iconMode = (button->state & Style_Enabled)
+                                   ? QIcon::Normal
+                                   : QIcon::Disabled;
             if (button->state & Style_Down)
-                iconMode = QIconSet::Active;
-            QIconSet::State iconState = (button->state & Style_On)
-                                        ? QIconSet::On
-                                        : QIconSet::Off;
+                iconMode = QIcon::Active;
+            QIcon::State iconState = (button->state & Style_On)
+                                     ? QIcon::On
+                                     : QIcon::Off;
 
-            const QPixmap pixmap = button->icon.pixmap(QIconSet::Automatic, iconMode, iconState);
+            const QPixmap pixmap = button->icon.pixmap(QIcon::Automatic, iconMode, iconState);
 
             if (button->state & (Style_On | Style_Down)) {
                 qDrawShadePanel(p, cr, button->palette, true);
@@ -1224,7 +1223,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
 
             if (!btn->icon.isNull()) {
                 r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
-                             btn->icon.pixmap(QIconSet::Small, QIconSet::Normal));
+                             btn->icon.pixmap(QIcon::Small, QIcon::Normal));
             } else {
                 r = itemRect(fm, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->state & Style_Enabled, btn->text);
@@ -1261,7 +1260,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
 
             if(!btn->icon.isNull()) {
                 r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
-                             btn->icon.pixmap(QIconSet::Small, QIconSet::Normal));
+                             btn->icon.pixmap(QIcon::Small, QIcon::Normal));
             } else {
                 r = itemRect(fm, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->state & Style_Enabled, btn->text);
@@ -2474,7 +2473,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
             } else {
                 h = qMax(h, fm.height() + 8);
                 if (!mi->icon.isNull())
-                    h = qMax(h, mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
+                    h = qMax(h, mi->icon.pixmap(QIcon::Small, QIcon::Normal).height() + 4);
             }
             if (mi->text.contains('\t'))
                 w += 12;
@@ -2507,7 +2506,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
     case CT_HeaderSection:
         if (const QStyleOptionHeader *hdr = qt_cast<const QStyleOptionHeader *>(opt)) {
             int margin = pixelMetric(QStyle::PM_HeaderMargin);
-            QSize icn = hdr->icon.isNull() ? QSize(0,0) : QIconSet::iconSize(QIconSet::Small);
+            QSize icn = hdr->icon.isNull() ? QSize(0,0) : QIcon::iconSize(QIcon::Small);
             QSize txt = fm.size(0, hdr->text);
             sz.setHeight(margin + qMax(icn.height(), txt.height()) + margin);
             sz.setWidth(margin + icn.width() + margin + txt.width() + margin);

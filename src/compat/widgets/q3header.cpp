@@ -33,7 +33,7 @@ public:
         sizes.resize(n);
         positions.resize(n);
         labels.resize(n);
-        iconsets.resize(n);
+        icons.resize(n);
         i2s.resize(n);
         s2i.resize(n);
         clicks.resize(n);
@@ -62,8 +62,8 @@ public:
     }
     ~Q3HeaderData()
     {
-        for (int i = 0; i < iconsets.size(); ++i)
-            delete iconsets.at(i);
+        for (int i = 0; i < icons.size(); ++i)
+            delete icons.at(i);
     }
 
 
@@ -72,7 +72,7 @@ public:
     bool heightDirty;
     QVector<QCOORD>        positions; // sorted by index
     QVector<QString>        labels;
-    QVector<QIconSet *> iconsets;
+    QVector<QIcon *> icons;
     QVector<int>                i2s;
     QVector<int>                s2i;
 
@@ -137,12 +137,12 @@ static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
     used by QTable and QListView for example.
 
     A header is composed of one or more \e sections, each of which can
-    display a text label and an \link QIconSet iconset\endlink. A sort
+    display a text label and an \link QIcon icon\endlink. A sort
     indicator (an arrow) can also be displayed using
     setSortIndicator().
 
     Sections are added with addLabel() and removed with removeLabel().
-    The label and iconset are set in addLabel() and can be changed
+    The label and icon are set in addLabel() and can be changed
     later with setLabel(). Use count() to retrieve the number of
     sections in the header.
 
@@ -930,19 +930,19 @@ QRect Q3Header::sectionRect(int section) const
 /*!
     \overload
 
-    Sets the icon for section \a section to \a iconset and the text to
+    Sets the icon for section \a section to \a icon and the text to
     \a s. The section's width is set to \a size if \a size \>= 0;
     otherwise it is left unchanged.
 
     If the section does not exist, nothing happens.
 */
 
-void Q3Header::setLabel(int section, const QIconSet& iconset,
+void Q3Header::setLabel(int section, const QIcon& icon,
                         const QString &s, int size)
 {
     if (section < 0 || section >= count())
         return;
-    d->iconsets.insert(section, new QIconSet(iconset));
+    d->icons.insert(section, new QIcon(icon));
     setLabel(section, s, size);
 }
 
@@ -991,29 +991,29 @@ QString Q3Header::label(int section) const
     not exist, 0 is returned.
 */
 
-QIconSet *Q3Header::iconSet(int section) const
+QIcon *Q3Header::iconSet(int section) const
 {
     if (section < 0 || section >= count())
         return 0;
-    return d->iconsets[section];
+    return d->icons[section];
 }
 
 
 /*!
     \overload
 
-    Adds a new section with iconset \a iconset and label text \a s.
+    Adds a new section with icon \a icon and label text \a s.
     Returns the index position where the section was added (at the
     right for horizontal headers, at the bottom for vertical headers).
     The section's width is set to \a size, unless size is negative in
     which case the size is calculated taking account of the size of
     the text.
 */
-int Q3Header::addLabel(const QIconSet& iconset, const QString &s, int size)
+int Q3Header::addLabel(const QIcon& icon, const QString &s, int size)
 {
     int n = count() + 1;
-    d->iconsets.resize(n + 1);
-    d->iconsets.insert(n - 1, new QIconSet(iconset));
+    d->icons.resize(n + 1);
+    d->icons.insert(n - 1, new QIcon(icon));
     return addLabel(s, size);
 }
 
@@ -1033,14 +1033,14 @@ void Q3Header::removeLabel(int section)
         d->sizes[i] = d->sizes[i+1];
         d->labels[i] = d->labels[i+1];
         d->labels[i+1] = QString();
-        d->iconsets[i] = d->iconsets[i+1];
-        d->iconsets[i+1] = 0;
+        d->icons[i] = d->icons[i+1];
+        d->icons[i+1] = 0;
     }
 
     d->sizes.resize(n);
     d->positions.resize(n);
     d->labels.resize(n);
-    d->iconsets.resize(n);
+    d->icons.resize(n);
 
     for (i = section; i < n; ++i)
         d->s2i[i] = d->s2i[i+1];
@@ -1073,9 +1073,9 @@ QSize Q3Header::sectionSizeHint(int section, const QFontMetrics& fm) const
 {
     int iw = 0;
     int ih = 0;
-    if (d->iconsets[section] != 0) {
-        QSize isize = d->iconsets[section]->pixmap(QIconSet::Small,
-                                                    QIconSet::Normal).size();
+    if (d->icons[section] != 0) {
+        QSize isize = d->icons[section]->pixmap(QIcon::Small,
+                                                    QIcon::Normal).size();
         iw = isize.width() + 2;
         ih = isize.height();
     }
@@ -1147,8 +1147,8 @@ void Q3Header::setSectionSizeAndHeight(int section, int size)
 int Q3Header::addLabel(const QString &s, int size)
 {
     int n = ++d->count;
-    if ((int)d->iconsets.size() < n )
-        d->iconsets.resize(n);
+    if ((int)d->icons.size() < n )
+        d->icons.resize(n);
     if ((int)d->sizes.size() < n ) {
         d->labels.resize(n);
         d->sizes.resize(n);
@@ -1187,7 +1187,7 @@ int Q3Header::addLabel(const QString &s, int size)
 
 void Q3Header::resizeArrays(int size)
 {
-    d->iconsets.resize(size);
+    d->icons.resize(size);
     d->labels.resize(size);
     d->sizes.resize(size);
     d->positions.resize(size);

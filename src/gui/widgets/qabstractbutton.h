@@ -14,10 +14,9 @@
 #ifndef QABSTRACTBUTTON_H
 #define QABSTRACTBUTTON_H
 
-#include "qwidget.h"
-#include "qiconset.h"
+#include "qicon.h"
 #include "qkeysequence.h"
-
+#include "qwidget.h"
 
 class QButtonGroup;
 class QAbstractButtonPrivate;
@@ -27,7 +26,7 @@ class Q_GUI_EXPORT QAbstractButton : public QWidget
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractButton)
     Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
+    Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
@@ -42,8 +41,8 @@ public:
     void setText(const QString &text);
     QString text() const;
 
-    void setIcon(const QIconSet &icon);
-    QIconSet icon() const;
+    void setIcon(const QIcon &icon);
+    QIcon icon() const;
 
     void setShortcut(const QKeySequence &key);
     QKeySequence shortcut() const;
@@ -100,9 +99,9 @@ public:
     QT_COMPAT_CONSTRUCTOR QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f=0);
     inline QT_COMPAT bool isOn() const { return isChecked(); }
     inline QT_COMPAT QPixmap *pixmap() const { return 0; } // help styles compile
-    inline QT_COMPAT void setPixmap( const QPixmap &p ) { setIcon(QIconSet(p)); }
-    QT_COMPAT QIconSet *iconSet() const;
-    inline QT_COMPAT void setIconSet(const QIconSet &icon) { setIcon(icon); }
+    inline QT_COMPAT void setPixmap( const QPixmap &p ) { setIcon(QIcon(p)); }
+    QT_COMPAT QIcon *iconSet() const;
+    inline QT_COMPAT void setIconSet(const QIcon &icon) { setIcon(icon); }
 public slots:
     inline QT_MOC_COMPAT void setOn(bool b) { setChecked(b); }
 public:

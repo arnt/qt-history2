@@ -41,7 +41,7 @@ public:
 
     QAction *addMenu(QMenu *menu);
     QMenu *addMenu(const QString &title);
-    QMenu *addMenu(const QIconSet &icon, const QString &title);
+    QMenu *addMenu(const QIcon &icon, const QString &title);
 
 
     QAction *addSeparator();
@@ -98,34 +98,34 @@ public:
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
         return insertAny(0, &text, receiver, member, &shortcut, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text,
+    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text,
                                     const QObject *receiver, const char* member,
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
         return insertAny(&icon, &text, receiver, member, &shortcut, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, const QObject *receiver, const char* member,
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
-        QIconSet icon(pixmap);
+        QIcon icon(pixmap);
         return insertAny(&icon, 0, receiver, member, &shortcut, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QString &text, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
+    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, popup, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, int id=-1, int index=-1) {
-        QIconSet icon(pixmap);
+        QIcon icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, QMenu *popup, int id=-1, int index=-1) {
-        QIconSet icon(pixmap);
+        QIcon icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
     QT_COMPAT int insertSeparator(int index=-1);
@@ -145,10 +145,10 @@ public:
             act->setShortcut(key);
     }
 #endif
-    inline QT_COMPAT QIconSet iconSet(int id) const {
+    inline QT_COMPAT QIcon iconSet(int id) const {
         if(QAction *act = findActionForId(id))
             return act->icon();
-        return QIconSet(); }
+        return QIcon(); }
     inline QT_COMPAT QString text(int id) const {
         if(QAction *act = findActionForId(id))
             return act->text();
@@ -170,8 +170,8 @@ public:
             act->setText(text); }
     inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) {
         if(QAction *act = findActionForId(id))
-            act->setIcon(QIconSet(pixmap)); }
-    inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QString &text) {
+            act->setIcon(QIcon(pixmap)); }
+    inline QT_COMPAT void changeItem(int id, const QIcon &icon, const QString &text) {
         if(QAction *act = findActionForId(id)) {
             act->setIcon(icon);
             act->setText(text);
@@ -253,7 +253,7 @@ protected:
 
 private:
     QAction *findActionForId(int id) const;
-    int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
+    int insertAny(const QIcon *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *shorcut, const QMenu *popup, int id, int index);
     int findIdForAction(QAction*) const;
 #endif

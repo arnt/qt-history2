@@ -16,7 +16,7 @@
 #include "qbitmap.h"
 #include "qcursor.h"
 #include "qevent.h"
-#include "qiconset.h"
+#include "qicon.h"
 #include "qpainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
@@ -48,11 +48,11 @@ public:
 
     struct Tab {
         inline Tab():enabled(true), shortcutId(0){}
-        inline Tab(const QIconSet &ico,  const QString &txt):enabled(true), shortcutId(0), text(txt), icon(ico){}
+        inline Tab(const QIcon &ico,  const QString &txt):enabled(true), shortcutId(0), text(txt), icon(ico){}
         bool enabled;
         int shortcutId;
         QString text, toolTip;
-        QIconSet icon;
+        QIcon icon;
         QRect rect;
     };
     QList<Tab> tabList;
@@ -388,7 +388,7 @@ int QTabBar::addTab(const QString &text)
     Adds a new tab with icon \a icon and text \a
     text. Returns the new tab's index.
 */
-int QTabBar::addTab(const QIconSet& icon, const QString &text)
+int QTabBar::addTab(const QIcon& icon, const QString &text)
 {
     return insertTab(-1, icon, text);
 }
@@ -400,7 +400,7 @@ int QTabBar::addTab(const QIconSet& icon, const QString &text)
 */
 int QTabBar::insertTab(int index, const QString &text)
 {
-    return insertTab(index, QIconSet(), text);
+    return insertTab(index, QIcon(), text);
 }
 
 /*!\overload
@@ -409,7 +409,7 @@ int QTabBar::insertTab(int index, const QString &text)
     \a index. If \a index is out of range, the new tab is
     appended. Returns the new tab's index.
 */
-int QTabBar::insertTab(int index, const QIconSet& icon, const QString &text)
+int QTabBar::insertTab(int index, const QIcon& icon, const QString &text)
 {
     if (!d->validIndex(index)) {
         index = d->tabList.count();
@@ -497,17 +497,17 @@ void QTabBar::setTabText(int index, const QString &text)
     Returns the icon of the tab at position \a index, or a null icon
     if \a index is out of range.
 */
-QIconSet QTabBar::tabIcon(int index) const
+QIcon QTabBar::tabIcon(int index) const
 {
     if (const QTabBarPrivate::Tab *tab = d->at(index))
         return tab->icon;
-    return QIconSet();
+    return QIcon();
 }
 
 /*!
     Sets the icon of the tab at position \a index to \a icon.
 */
-void QTabBar::setTabIcon(int index, const QIconSet & icon)
+void QTabBar::setTabIcon(int index, const QIcon & icon)
 {
     if (QTabBarPrivate::Tab *tab = d->at(index))
         tab->icon = icon;
@@ -616,7 +616,7 @@ QSize QTabBar::minimumSizeHint() const
 QSize QTabBar::tabSizeHint(int index) const
 {
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
-        QSize iconSize = tab->icon.iconSize(QIconSet::Small);
+        QSize iconSize = tab->icon.iconSize(QIcon::Small);
         const QFontMetrics fm = fontMetrics();
         QSize csz(fm.width(tab->text) + iconSize.width() + 5,
                   qMax(fm.height() + 10, iconSize.height()));

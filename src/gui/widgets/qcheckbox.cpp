@@ -15,7 +15,7 @@
 #ifndef QT_NO_CHECKBOX
 #include "qapplication.h"
 #include "qbitmap.h"
-#include "qiconset.h"
+#include "qicon.h"
 #include "qpainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"

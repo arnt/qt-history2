@@ -78,7 +78,7 @@ public:
     QStringList fld;
     QStringList fldLabel;
     QList<int> fldWidth;
-    QList<QIconSet> fldIcon;
+    QList<QIcon> fldIcon;
     QList<bool> fldHidden;
     QSqlCursorManager cur;
     QDataManager dat;
@@ -267,11 +267,11 @@ QDataTable::~QDataTable()
 
 /*!
     Adds the next column to be displayed using the field \a fieldName,
-    column label \a label, width \a width and iconset \a iconset.
+    column label \a label, width \a width and icon \a icon.
 
     If \a label is specified, it is used as the column's header label,
     otherwise the field's display label is used when setSqlCursor() is
-    called. The \a iconset is used to set the icon used by the column
+    called. The \a icon is used to set the icon used by the column
     header; by default there is no icon.
 
     \sa setSqlCursor() refresh()
@@ -280,22 +280,22 @@ QDataTable::~QDataTable()
 void QDataTable::addColumn(const QString& fieldName,
                             const QString& label,
                             int width,
-                            const QIconSet& iconset)
+                            const QIcon& icon)
 {
     d->fld += fieldName;
     d->fldLabel += label;
-    d->fldIcon += iconset;
+    d->fldIcon += icon;
     d->fldWidth += width;
     d->fldHidden += false;
 }
 
 /*!
     Sets the \a col column to display using the field \a fieldName,
-    column label \a label, width \a width and iconset \a iconset.
+    column label \a label, width \a width and icon \a icon.
 
     If \a label is specified, it is used as the column's header label,
     otherwise the field's display label is used when setSqlCursor() is
-    called. The \a iconset is used to set the icon used by the column
+    called. The \a icon is used to set the icon used by the column
     header; by default there is no icon.
 
     \sa setSqlCursor() refresh()
@@ -304,11 +304,11 @@ void QDataTable::addColumn(const QString& fieldName,
 void QDataTable::setColumn(int col, const QString& fieldName,
                             const QString& label,
                             int width,
-                            const QIconSet& iconset)
+                            const QIcon& icon)
 {
     d->fld[col]= fieldName;
     d->fldLabel[col] = label;
-    d->fldIcon[col] = iconset;
+    d->fldIcon[col] = icon;
     d->fldWidth[col] = width;
     d->fldHidden[col] = false;
 }
@@ -2157,7 +2157,7 @@ void QDataTable::swapColumns(int col1, int col2, bool)
 {
     QString fld = d->fld[col1];
     QString fldLabel = d->fldLabel[col1];
-    QIconSet fldIcon = d->fldIcon[col1];
+    QIcon fldIcon = d->fldIcon[col1];
     int fldWidth = d->fldWidth[col1];
 
     d->fld[col1] = d->fld[col2];

@@ -15,7 +15,7 @@
 #define QTABWIDGET_H
 
 #include "qwidget.h"
-#include "qiconset.h"
+#include "qicon.h"
 
 #ifndef QT_NO_TABWIDGET
 
@@ -37,10 +37,10 @@ public:
     ~QTabWidget();
 
     int addTab(QWidget *widget, const QString &);
-    int addTab(QWidget *widget, const QIconSet& iconset, const QString &label);
+    int addTab(QWidget *widget, const QIcon& icon, const QString &label);
 
     int insertTab(int index, QWidget *widget, const QString &);
-    int insertTab(int index, QWidget *widget, const QIconSet& iconset, const QString &label);
+    int insertTab(int index, QWidget *widget, const QIcon& icon, const QString &label);
 
     void removeTab(int index);
 
@@ -50,8 +50,8 @@ public:
     QString tabText(int index) const;
     void setTabText(int index, const QString &);
 
-    QIconSet tabIcon(int index) const;
-    void setTabIcon(int index, const QIconSet & iconset);
+    QIcon tabIcon(int index) const;
+    void setTabIcon(int index, const QIcon & icon);
 
     void setTabToolTip(int index, const QString & tip);
     QString tabToolTip(int index) const;
@@ -109,12 +109,12 @@ public:
     QT_COMPAT_CONSTRUCTOR QTabWidget(QWidget *parent, const char *name, Qt::WFlags f = 0);
 
     inline QT_COMPAT void insertTab(QWidget * w, const QString &s, int index = -1) { insertTab(index, w, s); }
-    inline QT_COMPAT void insertTab(QWidget *child, const QIconSet& iconset,
-                                    const QString &label, int index = -1) { insertTab(index, child, iconset, label); }
+    inline QT_COMPAT void insertTab(QWidget *child, const QIcon& icon,
+                                    const QString &label, int index = -1) { insertTab(index, child, icon, label); }
 
     inline QT_COMPAT void changeTab(QWidget *w, const QString &s) {setTabText(indexOf(w), s); }
-    inline QT_COMPAT void changeTab(QWidget *w, const QIconSet& iconset,
-                                    const QString &label) { int idx = indexOf(w); setTabText(idx, label); setTabIcon(idx, iconset); }
+    inline QT_COMPAT void changeTab(QWidget *w, const QIcon& icon,
+                                    const QString &label) { int idx = indexOf(w); setTabText(idx, label); setTabIcon(idx, icon); }
 
     inline QT_COMPAT bool isTabEnabled( QWidget *w) const {return isTabEnabled(indexOf(w)); }
     inline QT_COMPAT void setTabEnabled(QWidget *w, bool b) { setTabEnabled(indexOf(w), b); }
@@ -122,8 +122,8 @@ public:
     inline QT_COMPAT QString tabLabel(QWidget *w) const  {return tabText(indexOf(w)); }
     inline QT_COMPAT void setTabLabel(QWidget *w, const QString &l) { setTabText(indexOf(w), l); }
 
-    inline QT_COMPAT QIconSet tabIconSet(QWidget * w) const  {return tabIcon(indexOf(w)); }
-    inline QT_COMPAT void setTabIconSet(QWidget * w, const QIconSet & iconset) { setTabIcon(indexOf(w), iconset); }
+    inline QT_COMPAT QIcon tabIconSet(QWidget * w) const  {return tabIcon(indexOf(w)); }
+    inline QT_COMPAT void setTabIconSet(QWidget * w, const QIcon & icon) { setTabIcon(indexOf(w), icon); }
 
     inline QT_COMPAT void removeTabToolTip(QWidget * w) {setTabToolTip(indexOf(w), QString());}
     inline QT_COMPAT void setTabToolTip(QWidget * w, const QString & tip) {setTabToolTip(indexOf(w), tip);}

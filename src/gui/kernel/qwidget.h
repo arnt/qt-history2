@@ -895,7 +895,7 @@ inline bool QWidget::testAttribute(Qt::WidgetAttribute attribute) const
 }
 
 #ifdef QT_COMPAT
-inline bool QWidget::isVisibleToTLW() const // obsolete
+inline bool QWidget::isVisibleToTLW() const
 { return isVisible(); }
 inline QWidget *QWidget::parentWidget(bool sameWindow) const
 {
@@ -904,7 +904,7 @@ inline QWidget *QWidget::parentWidget(bool sameWindow) const
     return static_cast<QWidget *>(QObject::parent());
 }
 #ifndef QT_NO_PALETTE
-inline QColorGroup QWidget::colorGroup() const //obsolete
+inline QColorGroup QWidget::colorGroup() const
 { return QColorGroup(palette()); }
 inline void QWidget::setPaletteForegroundColor(const QColor &c)
 { QPalette p = palette(); p.setColor(foregroundRole(), c); setPalette(p); }

@@ -32,7 +32,7 @@ public:
 
     QAction *addAction(QAction* a);
     QAction *addAction(const QString &text);
-    QAction *addAction(const QIconSet &icon, const QString &text);
+    QAction *addAction(const QIcon &icon, const QString &text);
     void removeAction(QAction *a);
     QList<QAction*> actions() const;
 

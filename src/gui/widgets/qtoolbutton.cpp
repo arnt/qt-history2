@@ -18,7 +18,7 @@
 #include <qdesktopwidget.h>
 #include <qdrawutil.h>
 #include <qevent.h>
-#include <qiconset.h>
+#include <qicon.h>
 #include <qmenu.h>
 #include <qpainter.h>
 #include <qpointer.h>
@@ -78,7 +78,7 @@ public:
     automatically turned on when a button is used inside a QToolBar.
     Change it with setAutoRaise().
 
-    A tool button's icon is set as QIconSet. This makes it possible to
+    A tool button's icon is set as QIcon. This makes it possible to
     specify different pixmaps for the disabled and active state. The
     disabled pixmap is used when the button's functionality is not
     available. The active pixmap is displayed when the button is
@@ -153,7 +153,7 @@ QToolButton::QToolButton(QWidget * parent, const char *name)
     receiver.
 */
 
-QToolButton::QToolButton(const QIconSet& iconSet, const QString &textLabel,
+QToolButton::QToolButton(const QIcon& iconSet, const QString &textLabel,
                           const QString& statusTip,
                           QObject * receiver, const char *slot,
                           QWidget * parent, const char *name)
@@ -319,17 +319,17 @@ QSize QToolButton::sizeHint() const
         w = fm.width(text());
         h = fm.height(); // boundingRect()?
     } else if (usesBigPixmap()) {
-        QPixmap pm = icon().pixmap(QIconSet::Large, QIconSet::Normal);
+        QPixmap pm = icon().pixmap(QIcon::Large, QIcon::Normal);
         w = pm.width();
         h = pm.height();
-        QSize iconSize = QIconSet::iconSize(QIconSet::Large);
+        QSize iconSize = QIcon::iconSize(QIcon::Large);
         if (w < iconSize.width())
             w = iconSize.width();
         if (h < iconSize.height())
             h = iconSize.height();
     } else if (!icon().isNull()) {
-        // ### in 3.1, use QIconSet::iconSize(QIconSet::Small);
-        QPixmap pm = icon().pixmap(QIconSet::Small, QIconSet::Normal);
+        // ### in 3.1, use QIcon::iconSize(QIcon::Small);
+        QPixmap pm = icon().pixmap(QIcon::Small, QIcon::Normal);
         w = pm.width();
         h = pm.height();
         if (w < 16)
@@ -564,7 +564,7 @@ bool QToolButton::uses3D() const
 /*!
     Use icon() instead.
 */
-QIconSet QToolButton::onIconSet() const
+QIcon QToolButton::onIconSet() const
 {
     return icon();
 }
@@ -572,7 +572,7 @@ QIconSet QToolButton::onIconSet() const
 /*!
     Use icon() instead.
 */
-QIconSet QToolButton::offIconSet() const
+QIcon QToolButton::offIconSet() const
 {
     return icon();
 }
@@ -584,7 +584,7 @@ QIconSet QToolButton::offIconSet() const
   Use setIcon() instead.
 
 */
-void QToolButton::setOnIconSet(const QIconSet& set)
+void QToolButton::setOnIconSet(const QIcon& set)
 {
     setIcon(set);
     /*
@@ -601,7 +601,7 @@ void QToolButton::setOnIconSet(const QIconSet& set)
   Use setIcon() instead.
 
 */
-void QToolButton::setOffIconSet(const QIconSet& set)
+void QToolButton::setOffIconSet(const QIcon& set)
 {
     setIcon(set);
 }
@@ -610,17 +610,17 @@ void QToolButton::setOffIconSet(const QIconSet& set)
 /*! \overload
     \obsolete
 
-  Since Qt 3.0, QIconSet contains both the On and Off icons.
+  Since Qt 3.0, QIcon contains both the On and Off icons.
 
   For ease of porting, this function ignores the \a on parameter and
   sets the \l iconSet property. If you relied on the \a on parameter,
-  you probably want to update your code to use the QIconSet On/Off
+  you probably want to update your code to use the QIcon On/Off
   mechanism.
 
-  \sa iconSet QIconSet::State
+  \sa iconSet QIcon::State
 */
 
-void QToolButton::setIconSet(const QIconSet & set, bool /* on */)
+void QToolButton::setIconSet(const QIcon & set, bool /* on */)
 {
     QAbstractButton::setIcon(set);
     qWarning("QToolButton::setIconSet(): 'on' parameter ignored");
@@ -629,14 +629,14 @@ void QToolButton::setIconSet(const QIconSet & set, bool /* on */)
 /*! \overload
     \obsolete
 
-  Since Qt 3.0, QIconSet contains both the On and Off icons.
+  Since Qt 3.0, QIcon contains both the On and Off icons.
 
   For ease of porting, this function ignores the \a on parameter and
   returns the \l iconSet property. If you relied on the \a on
-  parameter, you probably want to update your code to use the QIconSet
+  parameter, you probably want to update your code to use the QIcon
   On/Off mechanism.
 */
-QIconSet QToolButton::iconSet(bool /* on */) const
+QIcon QToolButton::iconSet(bool /* on */) const
 {
     return QAbstractButton::icon();
 }
@@ -835,11 +835,11 @@ void QToolButton::setTextPosition(TextPosition pos)
 /*!
     \fn void QToolButton::setPixmap(const QPixmap &pixmap)
 
-    Use setIcon(QIconSet(pixmap)) instead.
+    Use setIcon(QIcon(pixmap)) instead.
 */
 
 /*!
-    \fn void QToolButton::setIconSet(const QIconSet &icon)
+    \fn void QToolButton::setIconSet(const QIcon &icon)
 
     Use setIcon() instead.
 */
@@ -857,7 +857,7 @@ void QToolButton::setTextPosition(TextPosition pos)
 */
 
 /*!
-    \fn QIconSet QToolButton::iconSet() const
+    \fn QIcon QToolButton::iconSet() const
 
     Use icon() instead.
 */

@@ -603,11 +603,11 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         if(szHint == QSize(-1, -1)) { //just 'guess'..
             const QToolButton *bt = static_cast<const QToolButton *>(widg);
             if(!bt->icon().isNull()) {
-                QIconSet::Size sz = QIconSet::Small;
+                QIcon::Size sz = QIcon::Small;
                 if(bt->usesBigPixmap())
-                    sz = QIconSet::Large;
-                QSize iconSize = QIconSet::iconSize(sz);
-                QPixmap pm = bt->icon().pixmap(sz, QIconSet::Normal);
+                    sz = QIcon::Large;
+                QSize iconSize = QIcon::iconSize(sz);
+                QPixmap pm = bt->icon().pixmap(sz, QIcon::Normal);
                 width = qMax(width, qMax(iconSize.width(), pm.width()));
                 height = qMax(height, qMax(iconSize.height(), pm.height()));
             }
@@ -1784,11 +1784,11 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                    cg, kHIThemeOrientationNormal);
             }
             if (!mi->icon.isNull()) {
-                QIconSet::Mode mode = (mi->state & QStyle::Style_Enabled) ? QIconSet::Normal
-                                                                  : QIconSet::Disabled;
+                QIcon::Mode mode = (mi->state & QStyle::Style_Enabled) ? QIcon::Normal
+                                                                       : QIcon::Disabled;
                 if (active && !enabled)
-                    mode = QIconSet::Active;
-                QPixmap pixmap = mi->icon.pixmap(QIconSet::Small, mode);
+                    mode = QIcon::Active;
+                QPixmap pixmap = mi->icon.pixmap(QIcon::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 QRect cr(xpos, contentRect.y(), checkcol, contentRect.height());
@@ -1876,7 +1876,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             HIThemeDrawMenuTitle(&mbRect, &rect, &tdi, cg,
                                  kHIThemeOrientationNormal, &textRect);
             //text
-            QPixmap pix = mi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
+            QPixmap pix = mi->icon.pixmap(QIcon::Small, QIcon::Normal);
             q->drawItem(p, qt_qrectForHIRect(textRect),
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                         | Qt::TextSingleLine,
@@ -2035,14 +2035,14 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     case QStyle::CE_ToolBarButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, p->fontMetrics(), w);
-            QIconSet::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIconSet::Normal
-                                                                   : QIconSet::Disabled;
+            QIcon::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIcon::Normal
+                                                                        : QIcon::Disabled;
             if (btn->state & QStyle::Style_Down)
-                iconMode = QIconSet::Active;
-            QIconSet::State iconState = (btn->state & QStyle::Style_On) ? QIconSet::On
-                                                                        : QIconSet::Off;
+                iconMode = QIcon::Active;
+            QIcon::State iconState = (btn->state & QStyle::Style_On) ? QIcon::On
+                                                                     : QIcon::Off;
 
-            const QPixmap pixmap = btn->icon.pixmap(QIconSet::Large, iconMode, iconState);
+            const QPixmap pixmap = btn->icon.pixmap(QIcon::Large, iconMode, iconState);
 
             p->drawPixmap((cr.width() - pixmap.width()) / 2, 3, pixmap);
             if (!btn->text.isEmpty()) {
@@ -3421,12 +3421,12 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 DrawThemeTextBox(checkmark, kThemeMenuItemMarkFont, menuTDS, false,
                                  qt_glb_mac_rect(r, p), teFlushDefault, 0);
             }
-            if (!mi->icon.isNull()) {              // draw iconset
-                QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+            if (!mi->icon.isNull()) {              // draw icon
+                QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
                 QPixmap pixmap;
-                pixmap = mi->icon.pixmap(QIconSet::Small, mode);
+                pixmap = mi->icon.pixmap(QIcon::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 QRect cr(xpos, y, checkcol, h);
@@ -3596,14 +3596,14 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, p->fontMetrics(),
                                         widget);
-            QIconSet::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIconSet::Normal
-                                                                   : QIconSet::Disabled;
+            QIcon::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIcon::Normal
+                                                                        : QIcon::Disabled;
             if (btn->state & QStyle::Style_Down)
-                iconMode = QIconSet::Active;
-            QIconSet::State iconState = (btn->state & QStyle::Style_On) ? QIconSet::On
-                                                                        : QIconSet::Off;
+                iconMode = QIcon::Active;
+            QIcon::State iconState = (btn->state & QStyle::Style_On) ? QIcon::On
+                                                                     : QIcon::Off;
 
-            const QPixmap pixmap = btn->icon.pixmap(QIconSet::Large, iconMode, iconState);
+            const QPixmap pixmap = btn->icon.pixmap(QIcon::Large, iconMode, iconState);
 
             p->drawPixmap((cr.width() - pixmap.width()) / 2, 3, pixmap);
             if (!btn->text.isEmpty()) {
@@ -4959,16 +4959,16 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
             QRect textr = header->rect;
             if (!header->icon.isNull()) {
-                QIconSet::Mode mode = QIconSet::Disabled;
+                QIcon::Mode mode = QIcon::Disabled;
                 if (opt->state & QStyle::Style_Enabled)
-                    mode = QIconSet::Normal;
-                QPixmap pixmap = header->icon.pixmap(QIconSet::Small, mode);
+                    mode = QIcon::Normal;
+                QPixmap pixmap = header->icon.pixmap(QIcon::Small, mode);
 
                 QRect pixr = header->rect;
                 pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
                 drawItem(p, pixr, Qt::AlignVCenter, header->palette,
-                         mode != QIconSet::Disabled
-                                || !header->icon.isGenerated(QIconSet::Small, mode), pixmap);
+                         mode != QIcon::Disabled
+                                || !header->icon.isGenerated(QIcon::Small, mode), pixmap);
                 textr.moveBy(pixmap.width() + 2, 0);
             }
 
@@ -5096,7 +5096,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
             } else {
                 h = qMax(h, fm.height() + 2);
                 if (!mi->icon.isNull())
-                    h = qMax(h, mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
+                    h = qMax(h, mi->icon.pixmap(QIcon::Small, QIcon::Normal).height() + 4);
             }
             if (mi->text.contains('\t'))
                 w += 12;
@@ -5124,7 +5124,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
         break;
     case QStyle::CT_ToolBarButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            sz = btn->icon.pixmap(QIconSet::Large, QIconSet::Normal).size() + QSize(7, 7);
+            sz = btn->icon.pixmap(QIcon::Large, QIcon::Normal).size() + QSize(7, 7);
             if (!btn->text.isEmpty()) {
                 sz.rheight() += fm.lineSpacing();
                 sz.rwidth() = qMax(sz.width(), fm.width(btn->text));

@@ -19,7 +19,7 @@
 class QToolBarPrivate;
 
 class QAction;
-class QIconSet;
+class QIcon;
 class QMainWindow;
 
 class Q_GUI_EXPORT QToolBar : public QFrame
@@ -58,15 +58,15 @@ public:
     { QWidget::insertAction(before, action); }
 
     QAction *addAction(const QString &text);
-    QAction *addAction(const QIconSet &icon, const QString &text);
+    QAction *addAction(const QIcon &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member);
-    QAction *addAction(const QIconSet &icon, const QString &text,
+    QAction *addAction(const QIcon &icon, const QString &text,
 		       const QObject *receiver, const char* member);
     QAction *insertAction(QAction *before, const QString &text);
-    QAction *insertAction(QAction *before, const QIconSet &icon, const QString &text);
+    QAction *insertAction(QAction *before, const QIcon &icon, const QString &text);
     QAction *insertAction(QAction *before, const QString &text,
 			  const QObject *receiver, const char* member);
-    QAction *insertAction(QAction *before, const QIconSet &icon, const QString &text,
+    QAction *insertAction(QAction *before, const QIcon &icon, const QString &text,
 			  const QObject *receiver, const char* member);
 
     QAction *addSeparator();

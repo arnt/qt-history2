@@ -683,7 +683,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     user.
 
     \value CE_PushButton  The bevel and default indicator of a QPushButton
-    \value CE_PushButtonLabel  The label (iconset with text or pixmap)
+    \value CE_PushButtonLabel  The label (icon with text or pixmap)
         of a QPushButton
 
     \value CE_CheckBox  The indicator of a QCheckBox
@@ -811,7 +811,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     This enum represents a sub-area of a widget. Style implementations
     use these areas to draw the different parts of a widget.
 
-    \value SR_PushButtonContents  Area containing the label (iconset
+    \value SR_PushButtonContents  Area containing the label (icon
         with text or pixmap)
     \value SR_PushButtonFocusRect  Area for the focus rect (usually
         larger than the contents rect)

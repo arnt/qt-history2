@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qaction.h"
 #include "qactiongroup.h"
 
@@ -42,7 +43,7 @@ static QString qt_strippedText(QString s)
 };
 
 
-QActionPrivate::QActionPrivate() : group(0), icons(0), enabled(1), forceDisabled(0),
+QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
                                    visible(1), forceInvisible(0), checkable(0), checked(0), separator(0)
 {
 #ifdef QT_COMPAT
@@ -55,7 +56,6 @@ QActionPrivate::QActionPrivate() : group(0), icons(0), enabled(1), forceDisabled
 
 QActionPrivate::~QActionPrivate()
 {
-    delete icons;
 }
 
 void QActionPrivate::sendDataChanged()
@@ -202,10 +202,10 @@ QAction::QAction(const QString &text, QObject* parent)
     tool tips unless you specify a different test using
     setToolTip().
 */
-QAction::QAction(const QIconSet &icon, const QString &text, QObject* parent)
+QAction::QAction(const QIcon &icon, const QString &text, QObject* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->icons = new QIconSet(icon);
+    d->icon = icon;
     d->text = text;
     d->group = qt_cast<QActionGroup *>(parent);
     if (d->group)
@@ -303,14 +303,14 @@ QAction::QAction(const QString &text, const QKeySequence &shortcut, QObject* par
     Use one of the QAction constructors that doesn't take a \a name
     argument and call setObjectName() instead.
 */
-QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
+QAction::QAction(const QIcon &icon, const QString &text, const QKeySequence &shortcut,
                  QObject* parent, const char* name)
- : QObject(*(new QActionPrivate), parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
     d->text = text;
     setShortcut(shortcut);
-    d->icons = new QIconSet(icon);
+    d->icon = icon;
     d->group = qt_cast<QActionGroup *>(parent);
     if (d->group)
         d->group->addAction(this);
@@ -373,20 +373,18 @@ QActionGroup *QAction::actionGroup() const
     it is displayed to the left of the menu text. There is no default
     icon.
 
-    If a null icon (QIconSet::isNull() is passed into this function,
+    If a null icon (QIcon::isNull() is passed into this function,
     the icon of the action is cleared.
 */
-void QAction::setIcon(const QIconSet &icons)
+void QAction::setIcon(const QIcon &icon)
 {
-    d->icons = new QIconSet(icons);
+    d->icon = icon;
     d->sendDataChanged();
 }
 
-QIconSet QAction::icon() const
+QIcon QAction::icon() const
 {
-    if(d->icons)
-        return *d->icons;
-    return QIconSet();
+    return d->icon;
 }
 
 /*!
@@ -865,7 +863,7 @@ void QAction::activate(ActionEvent event)
 */
 
 /*!
-    \fn void QAction::setIconSet(const QIconSet &i)
+    \fn void QAction::setIconSet(const QIcon &i)
 
     Use setIcon() instead.
 */
@@ -901,7 +899,7 @@ void QAction::activate(ActionEvent event)
 */
 
 /*!
-    \fn QIconSet QAction::iconSet() const
+    \fn QIcon QAction::iconSet() const
 
     Use icon() instead.
 */

@@ -37,9 +37,9 @@ public:
     inline void setText(int column, const QString &text)
         { setData(column, QAbstractItemModel::DisplayRole, text); }
 
-    inline QIconSet icon(int column) const
+    inline QIcon icon(int column) const
         { return data(column, QAbstractItemModel::DecorationRole).toIcon(); }
-    inline void setIcon(int column, const QIconSet &icon)
+    inline void setIcon(int column, const QIcon &icon)
         { setData(column, QAbstractItemModel::DecorationRole, icon); }
 
     inline QString statusTip(int column) const

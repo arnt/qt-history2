@@ -508,9 +508,9 @@
 #define QT_NO_DIAL
 #endif
 
-// QIconSet
-#if !defined(QT_NO_ICONSET) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_IMAGE_SMOOTHSCALE) || defined(QT_NO_PALETTE) || defined(QT_NO_IMAGE_HEURISTIC_MASK))
-#define QT_NO_ICONSET
+// QIcon
+#if !defined(QT_NO_ICON) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_IMAGE_SMOOTHSCALE) || defined(QT_NO_PALETTE) || defined(QT_NO_IMAGE_HEURISTIC_MASK))
+#define QT_NO_ICON
 #endif
 
 // QLabel
@@ -644,7 +644,7 @@
 #endif
 
 // Menu-oriented widgets
-#if !defined(QT_NO_MENUDATA) && (defined(QT_NO_ICONSET) || defined(QT_NO_VARIANT))
+#if !defined(QT_NO_MENUDATA) && (defined(QT_NO_ICON) || defined(QT_NO_VARIANT))
 #define QT_NO_MENUDATA
 #endif
 
@@ -684,7 +684,7 @@
 #endif
 
 // Properties
-#if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_ICONSET))
+#if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_ICON))
 #define QT_NO_PROPERTIES
 #endif
 
@@ -704,7 +704,7 @@
 #endif
 
 // QHeader
-#if !defined(QT_NO_HEADER) && (defined(QT_NO_STYLE) || defined(QT_NO_ICONSET))
+#if !defined(QT_NO_HEADER) && (defined(QT_NO_STYLE) || defined(QT_NO_ICON))
 #define QT_NO_HEADER
 #endif
 
@@ -729,7 +729,7 @@
 #endif
 
 // Tool-buttons
-#if !defined(QT_NO_TOOLBUTTON) && (defined(QT_NO_BUTTON) || defined(QT_NO_ICONSET) || defined(QT_NO_STYLE))
+#if !defined(QT_NO_TOOLBUTTON) && (defined(QT_NO_BUTTON) || defined(QT_NO_ICON) || defined(QT_NO_STYLE))
 #define QT_NO_TOOLBUTTON
 #endif
 
@@ -879,7 +879,7 @@
 #endif
 
 // QWidgetPlugin
-#if !defined(QT_NO_WIDGETPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_ICONSET))
+#if !defined(QT_NO_WIDGETPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_ICON))
 #define QT_NO_WIDGETPLUGIN
 #endif
 
@@ -929,7 +929,7 @@
 #endif
 
 // Tool box
-#if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICONSET) || defined(QT_NO_SCROLLVIEW) || defined(QT_NO_TOOLTIP) || defined(QT_NO_LAYOUT) || defined(QT_NO_TOOLBUTTON))
+#if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICON) || defined(QT_NO_SCROLLVIEW) || defined(QT_NO_TOOLTIP) || defined(QT_NO_LAYOUT) || defined(QT_NO_TOOLBUTTON))
 #define QT_NO_TOOLBOX
 #endif
 

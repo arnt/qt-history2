@@ -15,7 +15,7 @@
 #define QSTYLEOPTION_H
 
 #include "qabstractspinbox.h"
-#include "qiconset.h"
+#include "qicon.h"
 #include "qslider.h"
 #include "qstyle.h"
 #include "qtabbar.h"
@@ -95,7 +95,7 @@ protected:
     QStyleOptionFrame(int version);
 };
 
-class Q_GUI_EXPORT  QStyleOptionHeader : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionHeader : public QStyleOption
 {
 public:
     enum { Type = SO_Header };
@@ -103,13 +103,13 @@ public:
 
     int section;
     QString text;
-    QIconSet icon;
+    QIcon icon;
 
     QStyleOptionHeader();
 
     QDOC_PROPERTY(int section);
     QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIconSet icon);
+    QDOC_PROPERTY(QIcon icon);
 
 protected:
     QStyleOptionHeader(int version);
@@ -126,13 +126,13 @@ public:
 
     ButtonFeatures features;
     QString text;
-    QIconSet icon;
+    QIcon icon;
 
     QStyleOptionButton();
 
     QDOC_PROPERTY(ButtonFeatures features);
     QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIconSet icon);
+    QDOC_PROPERTY(QIcon icon);
 
 protected:
     QStyleOptionButton(int version);
@@ -150,7 +150,7 @@ public:
 
     QTabBar::Shape shape;
     QString text;
-    QIconSet icon;
+    QIcon icon;
     int row;
     TabPosition position;
 
@@ -158,7 +158,7 @@ public:
 
     QDOC_PROPERTY(QTabBar::Shape shape);
     QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIconSet icon);
+    QDOC_PROPERTY(QIcon icon);
     QDOC_PROPERTY(int row);
     QDOC_PROPERTY(TabPosition position);
 
@@ -209,7 +209,7 @@ public:
     bool exclusive;
     QRect menuRect;
     QString text;
-    QIconSet icon;
+    QIcon icon;
     int maxIconWidth;
     int tabWidth;
     QFont font;
@@ -221,7 +221,7 @@ public:
     QDOC_PROPERTY(bool exclusive);
     QDOC_PROPERTY(QRect menuRect);
     QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIconSet icon);
+    QDOC_PROPERTY(QIcon icon);
     QDOC_PROPERTY(int maxIconWidth);
     QDOC_PROPERTY(int tabWidth);
     QDOC_PROPERTY(QFont font);
@@ -311,7 +311,7 @@ public:
     enum { Version = 1 };
 
     QString text;
-    QIconSet icon;
+    QIcon icon;
     QPalette::ColorRole bgRole;
     QPalette::ColorRole currentWidgetBGRole;
     QPalette currentWidgetPalette;
@@ -319,7 +319,7 @@ public:
     QStyleOptionToolBox();
 
     QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIconSet icon);
+    QDOC_PROPERTY(QIcon icon);
     QDOC_PROPERTY(QPalette::ColorRole bgRole);
     QDOC_PROPERTY(QPalette::ColorRole currentWidgetBGRole);
     QDOC_PROPERTY(QPalette currentWidgetPalette);
@@ -444,7 +444,7 @@ public:
     Q_DECLARE_FLAGS(ToolButtonFeatures, ToolButtonFeature);
 
     ToolButtonFeatures features;
-    QIconSet icon;
+    QIcon icon;
     QString text;
     Qt::ArrowType arrowType;
     QPalette::ColorRole bgRole;
@@ -455,7 +455,7 @@ public:
     QStyleOptionToolButton();
 
     QDOC_PROPERTY(ToolButtonFeatures features);
-    QDOC_PROPERTY(QIconSet icon);
+    QDOC_PROPERTY(QIcon icon);
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(Qt::ArrowType arrowType);
     QDOC_PROPERTY(QPalette::ColorRole bgRole);

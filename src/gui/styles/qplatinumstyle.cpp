@@ -865,16 +865,16 @@ void QPlatinumStyle::drawControl(ControlElement element,
                                pal, flags, opt);
                 w -= dx;
             }
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
             if (!btn->icon().isNull()) {
-                QIconSet::Mode mode = btn->isEnabled()
-                                      ? QIconSet::Normal : QIconSet::Disabled;
-                if (mode == QIconSet::Normal && btn->hasFocus())
-                    mode = QIconSet::Active;
-                QIconSet::State state = QIconSet::Off;
+                QIcon::Mode mode = btn->isEnabled()
+                                   ? QIcon::Normal : QIcon::Disabled;
+                if (mode == QIcon::Normal && btn->hasFocus())
+                    mode = QIcon::Active;
+                QIcon::State state = QIcon::Off;
                 if (btn->isCheckable() && btn->isChecked())
-                    state = QIconSet::On;
-                QPixmap pixmap = btn->icon().pixmap(QIconSet::Small, mode, state);
+                    state = QIcon::On;
+                QPixmap pixmap = btn->icon().pixmap(QIcon::Small, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 p->drawPixmap(x + 2, y + h / 2 - pixh / 2, pixmap);

@@ -247,11 +247,11 @@ int QTabWidget::addTab(QWidget *child, const QString &label)
     Adds another tab and page to the tab view.
 
     This function is the same as addTab(), but with an additional \a
-    iconset.
+    icon.
 */
-int QTabWidget::addTab(QWidget *child, const QIconSet& iconset, const QString &label)
+int QTabWidget::addTab(QWidget *child, const QIcon& icon, const QString &label)
 {
-    return insertTab(-1, child, iconset, label);
+    return insertTab(-1, child, icon, label);
 }
 
 
@@ -280,7 +280,7 @@ int QTabWidget::addTab(QWidget *child, const QIconSet& iconset, const QString &l
 */
 int QTabWidget::insertTab(int index, QWidget *w, const QString &label)
 {
-    return insertTab(index, w, QIconSet(), label);
+    return insertTab(index, w, QIcon(), label);
 }
 
 
@@ -292,7 +292,7 @@ int QTabWidget::insertTab(int index, QWidget *w, const QString &label)
     This function is the same as insertTab(), but with an additional
     \a icon.
 */
-int QTabWidget::insertTab(int index, QWidget *w, const QIconSet& icon, const QString &label)
+int QTabWidget::insertTab(int index, QWidget *w, const QIcon& icon, const QString &label)
 {
     index = d->tabs->insertTab(index, icon, label);
     d->stack->insertWidget(index, w);
@@ -325,7 +325,7 @@ QString QTabWidget::tabText(int index) const
 
     Sets the \a icon for the tab at position \a index.
 */
-void QTabWidget::setTabIcon(int index, const QIconSet &icon)
+void QTabWidget::setTabIcon(int index, const QIcon &icon)
 {
     d->tabs->setTabIcon(index, icon);
     setUpLayout();
@@ -335,7 +335,7 @@ void QTabWidget::setTabIcon(int index, const QIconSet &icon)
     Returns the label text for the tab on the page at position \a index.
 */
 
-QIconSet QTabWidget::tabIcon(int index) const
+QIcon QTabWidget::tabIcon(int index) const
 {
     return d->tabs->tabIcon(index);
 }
@@ -891,7 +891,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
 */
 
 /*!
-    \fn void QTabWidget::insertTab(QWidget *widget, const QIconSet& icon, const QString &label, int index)
+    \fn void QTabWidget::insertTab(QWidget *widget, const QIcon& icon, const QString &label, int index)
 
     Use insertTab(index, widget, icon, label) instead.
 */
@@ -905,7 +905,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
 */
 
 /*!
-    \fn void QTabWidget::changeTab(QWidget *widget, const QIconSet& icon, const QString &label)
+    \fn void QTabWidget::changeTab(QWidget *widget, const QIcon& icon, const QString &label)
 
     Use setTabText() and setTabIcon() instead.
 */
@@ -936,13 +936,13 @@ void QTabWidget::paintEvent(QPaintEvent *)
 */
 
 /*!
-    \fn QIconSet QTabWidget::tabIconSet(QWidget * widget) const
+    \fn QIcon QTabWidget::tabIconSet(QWidget * widget) const
 
     Use tabIcon(tabWidget->indexOf(widget)) instead.
 */
 
 /*!
-    \fn void QTabWidget::setTabIconSet(QWidget * widget, const QIconSet & icon)
+    \fn void QTabWidget::setTabIconSet(QWidget * widget, const QIcon & icon)
 
     Use setTabIcon(tabWidget->indexOf(widget), icon) instead.
 */

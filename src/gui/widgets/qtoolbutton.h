@@ -90,21 +90,21 @@ private:
 public:
     QT_COMPAT_CONSTRUCTOR QToolButton(QWidget * parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QToolButton(Qt::ArrowType type, QWidget *parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QToolButton( const QIconSet& s, const QString &textLabel,
+    QT_COMPAT_CONSTRUCTOR QToolButton( const QIcon& s, const QString &textLabel,
                                        const QString& grouptext,
                                        QObject * receiver, const char* slot,
                                        QWidget * parent, const char* name=0 );
-    inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setIcon(static_cast<QIconSet>(pixmap)); }
-    QT_COMPAT void setOnIconSet(const QIconSet&);
-    QT_COMPAT void setOffIconSet(const QIconSet&);
-    inline QT_COMPAT void setIconSet(const QIconSet &icon){setIcon(icon);}
-    QT_COMPAT void setIconSet(const QIconSet &, bool on);
+    inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setIcon(static_cast<QIcon>(pixmap)); }
+    QT_COMPAT void setOnIconSet(const QIcon&);
+    QT_COMPAT void setOffIconSet(const QIcon&);
+    inline QT_COMPAT void setIconSet(const QIcon &icon){setIcon(icon);}
+    QT_COMPAT void setIconSet(const QIcon &, bool on);
     inline QT_COMPAT void setTextLabel(const QString &text, bool tooltip = true) { setText(text); if (tooltip)setToolTip(text);}
     inline QT_COMPAT QString textLabel() const { return text(); }
-    QT_COMPAT QIconSet onIconSet() const;
-    QT_COMPAT QIconSet offIconSet() const;
-    QT_COMPAT QIconSet iconSet(bool on) const;
-    inline QT_COMPAT QIconSet iconSet() const { return icon(); }
+    QT_COMPAT QIcon onIconSet() const;
+    QT_COMPAT QIcon offIconSet() const;
+    QT_COMPAT QIcon iconSet(bool on) const;
+    inline QT_COMPAT QIcon iconSet() const { return icon(); }
     inline QT_COMPAT void openPopup()  { showMenu(); }
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }

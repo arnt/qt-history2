@@ -674,8 +674,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled,
-                     !checkbox->icon().isNull() ? checkbox->icon().pixmap(QIconSet::Small,
-                                                                          QIconSet::Normal)
+                     !checkbox->icon().isNull() ? checkbox->icon().pixmap(QIcon::Small,
+                                                                          QIcon::Normal)
                                                 : QPixmap(),
                      checkbox->text());
 
@@ -703,8 +703,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled,
-                    !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(QIconSet::Small,
-                                                                               QIconSet::Normal)
+                    !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(QIcon::Small,
+                                                                               QIcon::Normal)
                                                   : QPixmap(),
                      radiobutton->text());
 
@@ -728,7 +728,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 p->fillRect(r, pal.button());
 
             QAction *mi = opt.action();
-            QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+            QPixmap pix = mi->icon().pixmap(QIcon::Small, QIcon::Normal);
             drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                      pal, flags & Style_Enabled, pix, mi->text(), -1,
                      &pal.buttonText().color());
@@ -806,17 +806,17 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 p->fillRect(vrect, pal.brush(QPalette::Button));
             }
 
-            if(!mi->icon().isNull()) {              // draw iconset
-                QIconSet::Mode mode = (!dis) ? QIconSet::Normal : QIconSet::Disabled;
+            if(!mi->icon().isNull()) {              // draw icon
+                QIcon::Mode mode = (!dis) ? QIcon::Normal : QIcon::Disabled;
 
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
 
                 QPixmap pixmap;
                 if(checkable && mi->isChecked())
-                    pixmap = mi->icon().pixmap(QIconSet::Small, mode, QIconSet::On);
+                    pixmap = mi->icon().pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = mi->icon().pixmap(QIconSet::Small, mode);
+                    pixmap = mi->icon().pixmap(QIcon::Small, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
@@ -924,25 +924,24 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if (mi->isChecked()) {
                 if (mi->iconSet()) {
                     qDrawShadePanel(p, vrect.x(), y+2, checkcol, h-2*2,
-                                     pal, true, 1, &pal.brush(QPalette::Midlight));
+                                    pal, true, 1, &pal.brush(QPalette::Midlight));
                 }
             } else if (!act) {
                 p->fillRect(vrect,
                             pal.brush(QPalette::Button));
             }
 
-            if (mi->iconSet()) {              // draw iconset
-                QIconSet::Mode mode = (!dis) ? QIconSet::Normal : QIconSet::Disabled;
+            if (mi->iconSet()) {              // draw icon
+                QIcon::Mode mode = (!dis) ? QIcon::Normal : QIcon::Disabled;
 
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
 
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode,
-                                                    QIconSet::On);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();

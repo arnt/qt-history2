@@ -27,7 +27,7 @@
 //
 
 #include <private/qcom_p.h>
-#include "qiconset.h"
+#include "qicon.h"
 #include "qwindowdefs.h" // for QWidgetList
 
 #ifndef QT_NO_WIDGETPLUGIN
@@ -59,10 +59,10 @@ public:
       widget \a widget */
     virtual QString group(const QString &widget) const = 0;
 
-    /*! In the implementation return the iconset, which should be used
+    /*! In the implementation return the icon, which should be used
       in the Qt Designer menubar and toolbar to represent the widget
       \a widget */
-    virtual QIconSet iconSet(const QString &widget) const = 0;
+    virtual QIcon iconSet(const QString &widget) const = 0;
 
     /*! In the implementation return the include file which is needed
       for the widget \a widget in the generated code which uic

@@ -1467,14 +1467,14 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             // draw the icon recessed to indicate an item is checked. If we
             // have no icon, we draw a checkmark instead.
             if (!menuitem->icon.isNull()) {
-                QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+                QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checked)
-                    pixmap = menuitem->icon.pixmap(QIconSet::Small, mode, QIconSet::On);
+                    pixmap = menuitem->icon.pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = menuitem->icon.pixmap(QIconSet::Small, mode);
+                    pixmap = menuitem->icon.pixmap(QIcon::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis && menuitem->checkState == QStyleOptionMenuItem::Unchecked)
@@ -2170,7 +2170,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
                  sz.setHeight(qMax(sz.height(),
-                              mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height()
+                              mi->icon.pixmap(QIcon::Small, QIcon::Normal).height()
                               + 2 * windowsItemFrame));
             bool checkable = mi->checkState != QStyleOptionMenuItem::NotCheckable;
             int maxpmw = mi->maxIconWidth;

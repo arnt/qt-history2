@@ -23,7 +23,7 @@
 #include "qevent.h"
 #include "qhash.h"
 #include "q3header.h"
-#include "qiconset.h"
+#include "qicon.h"
 #include "qlineedit.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
@@ -3193,7 +3193,7 @@ int Q3ListView::addColumn(const QString &label, int width)
     \overload
 
     Adds a \a width pixels wide new column with the header \a label
-    and the \a iconset to the list view, and returns the index of the
+    and the \a icon to the list view, and returns the index of the
     column.
 
     If \a width is negative, the new column's \l WidthMode is set to
@@ -3201,9 +3201,9 @@ int Q3ListView::addColumn(const QString &label, int width)
 
     \sa setColumnText() setColumnWidth() setColumnWidthMode()
 */
-int Q3ListView::addColumn(const QIconSet& iconset, const QString &label, int width)
+int Q3ListView::addColumn(const QIcon& icon, const QString &label, int width)
 {
-    int c = d->h->addLabel(iconset, label, width);
+    int c = d->h->addLabel(icon, label, width);
     d->column.resize(c+1);
     d->column[c].wmode = (width >= 0 ? Manual : Maximum);
     updateGeometries();
@@ -3305,14 +3305,14 @@ void Q3ListView::setColumnText(int column, const QString &label)
 /*!
     \overload
 
-    Sets the heading of column \a column to \a iconset and \a label.
+    Sets the heading of column \a column to \a icon and \a label.
 
     \sa columnText()
 */
-void Q3ListView::setColumnText(int column, const QIconSet& iconset, const QString &label)
+void Q3ListView::setColumnText(int column, const QIcon& icon, const QString &label)
 {
     if (column < d->h->count()) {
-        d->h->setLabel(column, iconset, label);
+        d->h->setLabel(column, icon, label);
         updateGeometries();
     }
 }

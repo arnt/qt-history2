@@ -79,7 +79,7 @@ public:
     optionally a small icon. These can be set using the constructors
     and changed later using setText(), setPixmap() and setIconSet().
     If the button is disabled the appearance of the text or pixmap and
-    iconset will be manipulated with respect to the GUI style to make
+    icon will be manipulated with respect to the GUI style to make
     the button look "disabled".
 
     A push button emits the signal clicked() when it is activated by
@@ -240,7 +240,7 @@ QPushButton::QPushButton(const QString &text, QWidget *parent)
     the implicit type conversion provided by C++).
 
 */
-QPushButton::QPushButton(const QIconSet& icon, const QString &text, QWidget *parent)
+QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
     d->init();
@@ -336,10 +336,10 @@ QSize QPushButton::sizeHint() const
     int w = 0, h = 0;
 
     // calculate contents size...
-#ifndef QT_NO_ICONSET
+#ifndef QT_NO_ICON
     if (!icon().isNull()) {
-        int iw = icon().pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
-        int ih = icon().pixmap(QIconSet::Small, QIconSet::Normal).height();
+        int iw = icon().pixmap(QIcon::Small, QIcon::Normal).width() + 4;
+        int ih = icon().pixmap(QIcon::Small, QIcon::Normal).height();
         w += iw;
         h = qMax(h, ih);
     }
@@ -608,7 +608,7 @@ QPushButton::QPushButton(const QString &text, QWidget *parent, const char *name)
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
 */
-QPushButton::QPushButton(const QIconSet& icon, const QString &text, QWidget *parent, const char *name)
+QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
     setObjectName(name);

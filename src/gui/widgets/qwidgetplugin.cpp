@@ -94,14 +94,14 @@ QString QWidgetPlugin::group(const QString &) const
 }
 
 /*!
-    Returns the iconset that \e{Qt Designer} should use to represent
+    Returns the icon that \e{Qt Designer} should use to represent
     the custom widget of class \a key in the toolbar.
 
-    The default implementation returns an null iconset.
+    The default implementation returns an null icon.
 */
-QIconSet QWidgetPlugin::iconSet(const QString &) const
+QIcon QWidgetPlugin::iconSet(const QString &) const
 {
-    return QIconSet();
+    return QIcon();
 }
 
 /*!

@@ -1023,14 +1023,14 @@ void QSGIStyle::drawControl(ControlElement element,
             }
 
             if(!mi->icon().isNull()) {
-                QIconSet::Mode mode = QIconSet::Normal;
+                QIcon::Mode mode = QIcon::Normal;
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->icon().pixmap(QIconSet::Small, mode, QIconSet::On);
+                    pixmap = mi->icon().pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = mi->icon().pixmap(QIconSet::Small, mode);
+                    pixmap = mi->icon().pixmap(QIcon::Small, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
@@ -1153,14 +1153,14 @@ void QSGIStyle::drawControl(ControlElement element,
             }
 
             if (mi->iconSet()) {
-                QIconSet::Mode mode = QIconSet::Normal;
+                QIcon::Mode mode = QIcon::Normal;
                 if (act && !dis)
-                    mode = QIconSet::Active;
+                    mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode, QIconSet::On);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
@@ -1265,7 +1265,7 @@ void QSGIStyle::drawControl(ControlElement element,
 
             QAction *mi = opt.action();
             if (!mi->icon().isNull()) {
-                QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+                QPixmap pix = mi->icon().pixmap(QIcon::Small, QIcon::Normal);
                 drawItem(p, r, Qt::AlignCenter|Qt::TextDontClip|Qt::TextSingleLine,
                         pal, mi->isEnabled(), pix, "", -1, &pal.buttonText().color());
             }

@@ -705,7 +705,7 @@ void Q3ToolBar::actionEvent(QActionEvent *e)
         } else {
             QToolButton* btn = new QToolButton(this);
             btn->setToggleButton(a->isCheckable());
-            QIconSet icon = a->icon();
+            QIcon icon = a->icon();
             if (!icon.isNull())
                 btn->setIconSet(icon);
             connect(btn, SIGNAL(clicked()), a, SIGNAL(triggered()));
