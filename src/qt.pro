@@ -6,7 +6,7 @@ VERSION		= 3.0.0
 DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
-CONFIG		+= qt warn_on release
+CONFIG		+= qt warn_on
 
 KERNEL_CPP	= kernel	
 CANVAS_CPP      = canvas
