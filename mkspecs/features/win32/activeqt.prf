@@ -12,6 +12,7 @@ equals(ACTIVEQT_IDE, "VisualStudio") {
 	ACTIVEQT_NEWLINE = \t
 	ACTIVEQT_TARGET = $(TargetPath)
 	ACTIVEQT_OUTPUT = $(IntDir)/$${TARGET}
+	GENERATED += $${OBJECTS_DIR}/$${TARGET}.idl $${OBJECTS_DIR}/$${TARGET}.tlb
 }
 equals(ACTIVEQT_IDE, "makefile") {
 	ACTIVEQT_IDC = -$(IDC)
