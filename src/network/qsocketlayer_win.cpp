@@ -828,22 +828,28 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
 
 Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
 {
-    Q_LONGLONG ret = -1;
-    //### this only sends a small amount at a time ... is this the best idea (see the loop back example with out this)
-    // this only lest us write about 8k when in fact can write upto 15MB without a problem, so now this is slow
-    Q_LONGLONG bytesToSend = qMin(option(SendBufferSocketOption), len);
-    DWORD bytesWritten = 0;
+    Q_LONGLONG ret = 0;
+    // don't send more than 49152 per call to WSASendTo to avoid getting a WSAENOBUFS
     for (;;) {
+        Q_LONGLONG bytesToSend = qMin(49152, len - ret);
         WSABUF buf;
-        buf.buf = (char*)data + bytesWritten;
+        buf.buf = (char*)data + ret;
         buf.len = bytesToSend;
         DWORD flags = 0;
+        DWORD bytesWritten = 0;
+    
+        int socketRet = ::WSASend(socketDescriptor, &buf, 1, &bytesWritten, flags, 0,0);
         
-        if (::WSASend(socketDescriptor, &buf, 1, &bytesWritten, flags, 0,0) ==  SOCKET_ERROR) {
-            if (WSAGetLastError() == WSAEWOULDBLOCK) {
-                ret = Q_LONGLONG(bytesWritten);
+        ret += Q_LONGLONG(bytesWritten);
+        
+        if (socketRet != SOCKET_ERROR) {
+            if (ret == len)
                 break;
-            }
+            else
+                continue;
+        } else if (WSAGetLastError() == WSAEWOULDBLOCK) {
+            break;
+        } else {
             WS_ERROR_DEBUG
             switch (WSAGetLastError()) {
             case WSAECONNRESET:
@@ -855,15 +861,13 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
             default:
                 break;
             }
-        } else {
-            ret = Q_LONGLONG(bytesWritten);
-        }
+            break;
+        }             
     }
 
 #if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeWrite(%p \"%s\", %lu) == %i",
-           data, qt_prettyDebug(data, qMin((int) bytesWritten, 16),
-                                (int) bytesWritten).data(), len, (int) ret);
+    qDebug("QSocketLayerPrivate::nativeWrite(%p \"%s\", %li) == %li",
+           data, qt_prettyDebug(data, qMin((int)ret, 16), (int)ret).data(), (int)len, (int)ret);
 #endif
 
     return ret;
@@ -894,8 +898,8 @@ Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxLength)
     }
 
 #if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeRead(%p \"%s\", %lu) == %i",
-           data, qt_prettyDebug(data, qMin((int)bytesRead, 16), bytesRead).data(), maxLength, bytesRead);
+    qDebug("QSocketLayerPrivate::nativeRead(%p \"%s\", %l) == %li",
+           data, qt_prettyDebug(data, qMin((int)bytesRead, 16), (int)bytesRead).data(), (int)maxLength, (int)ret);
 #endif
 
     return ret;
