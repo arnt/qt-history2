@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.18 1996/05/24 14:23:42 eiriken Exp $
+** $Id: misc.doc,v 1.19 1996/05/24 15:01:52 eiriken Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.18 1996/05/24 14:23:42 eiriken Exp $";
+static char ident[] = "$Id: misc.doc,v 1.19 1996/05/24 15:01:52 eiriken Exp $";
 #endif
 
 
@@ -28,9 +28,9 @@ and they will be free for non-commercial purposes. <p>
 
 <li>Q: What kind of licenses exist for Qt? <p>
 
-    A: The Qt toolkit is available under several licenses; the free license
-for X, a license for shareware developers for X, an academic license, and
-a fully-fledged commercial license. <p>
+    A: The Qt toolkit is available under several licenses; the free
+license for X, a license for shareware developers for X and a
+fully-fledged commercial license. <p>
 
 <li>Q: What are the differences between the free and commercial versions of Qt?
  <p>
@@ -80,8 +80,7 @@ work day and night to improve Qt, and enjoy it. We started the company in
 code was written in 1992. <p>
 
 Most of our income comes from a contract with a beta customer; we develop
-code based on Qt for the Norwegian division of called NCR (previously
-AT&T). <p>
+code based on Qt for the Norwegian division of NCR (previously AT&T). <p>
 
 <li>Q: Can I use Qt's classes without writing a graphical user interface?  <p>
 
@@ -93,11 +92,10 @@ work without the GUI only by chance. <p>
 <li>Q: I want to port Qt to a new platform.  What do I do? <p>
 
     A: If the new platform is POSIX-like and runs the X Window System, it's
-simple.  Make a new Makefile with suitable CFLAGS and so on, edit
-qglobal.h and qapp_x11.cpp and try to compile.  Fix what comes up.
-Finally send us the patches.  When we've added your patches to our source
-tree, Qt will officially support the new platform and it will be legal to
-distribute the new library. <p>
+       simple.  Read the file PORTING for details. If you succeed you can
+       send us the patches.  When we've added your patches to our source
+       tree, Qt will officially support the new platform.
+<p>
 
 <li>Q: Will Qt be available for [OS/2, Mac, Amiga]? <p>
 
