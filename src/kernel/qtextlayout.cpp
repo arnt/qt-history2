@@ -513,7 +513,7 @@ int QTextLayout::nextCursorPosition( int oldPos, CursorMode mode ) const
 	while ( oldPos < len - 1 && !attributes[oldPos].charStop )
 	    oldPos++;
     } else {
-	while ( oldPos < len - 1 && !attributes[oldPos].wordStop )
+	while ( oldPos < len - 1 && !attributes[oldPos].wordStop && !attributes[oldPos].whiteSpace )
 	    oldPos++;
     }
 //     qDebug("  -> %d",  oldPos );
@@ -531,7 +531,7 @@ int QTextLayout::previousCursorPosition( int oldPos, CursorMode mode ) const
 	while ( oldPos && !attributes[oldPos].charStop )
 	    oldPos--;
     } else {
-	while ( oldPos && !attributes[oldPos].wordStop )
+	while ( oldPos && !attributes[oldPos].wordStop && !attributes[oldPos].whiteSpace )
 	    oldPos--;
     }
 //     qDebug("  -> %d",  oldPos );
