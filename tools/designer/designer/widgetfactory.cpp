@@ -34,6 +34,7 @@
 #include "multilineeditorimpl.h"
 #include "../integration/kdevelop/kdewidgets.h"
 #include "widgetinterface.h"
+#include "tableeditorimpl.h"
 
 #include <qmodules.h>
 
@@ -931,6 +932,8 @@ bool WidgetFactory::hasSpecialEditor( int id )
 	return TRUE;
     if ( className == "QTextEdit" || className == "QMultiLineEdit" )
 	return TRUE;
+    if ( className.contains( "Table" ) )
+	return TRUE;
 
     return FALSE;
 }
@@ -991,6 +994,13 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 
     if ( className == "QMultiLineEdit" ) {
 	MultiLineEditor *e = new MultiLineEditor( parent, editWidget, fw );
+	e->exec();
+	delete e;
+	return;
+    }
+
+    if ( className == "QTable" ) {
+	TableEditor *e = new TableEditor( parent, editWidget, fw );
 	e->exec();
 	delete e;
 	return;
