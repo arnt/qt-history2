@@ -686,6 +686,10 @@ bool QProcess::start( QStringList *env )
 #else
     if ( (comms & Stderr) && qnx6SocketPairReplacement(sStderr) == -1 ) {
 #endif
+	if ( comms & Stdin ) {
+	    ::close( sStdin[0] );
+	    ::close( sStdin[1] );
+	}
 	return FALSE;
     }
 #ifndef Q_OS_QNX6
@@ -693,6 +697,14 @@ bool QProcess::start( QStringList *env )
 #else
     if ( (comms & Stdout) && qnx6SocketPairReplacement(sStdout) == -1 ) {
 #endif
+	if ( comms & Stdin ) {
+	    ::close( sStdin[0] );
+	    ::close( sStdin[1] );
+	}
+	if ( comms & Stderr ) {
+	    ::close( sStderr[0] );
+	    ::close( sStderr[1] );
+	}
 	return FALSE;
     }
 

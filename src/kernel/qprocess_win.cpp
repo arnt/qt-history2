@@ -183,28 +183,46 @@ bool QProcess::start( QStringList *env )
     // CreatePipe and DupilcateHandle aren't avaliable for Q_OS_TEMP
     HANDLE tmpStdin, tmpStdout, tmpStderr;
     if ( comms & Stdin ) {
-	if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) )
+	if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
+	    d->closeHandles()
 	    return FALSE;
-	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdin, GetCurrentProcess(), &d->pipeStdin[1], 0, FALSE, DUPLICATE_SAME_ACCESS ) )
+	}
+	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdin, GetCurrentProcess(), &d->pipeStdin[1], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+	    d->closeHandles()
 	    return FALSE;
-	if ( !CloseHandle( tmpStdin ) )
+	}
+	if ( !CloseHandle( tmpStdin ) ) {
+	    d->closeHandles()
 	    return FALSE;
+	}
     }
     if ( comms & Stdout ) {
-	if ( !CreatePipe( &tmpStdout, &d->pipeStdout[1], &secAtt, 0 ) )
+	if ( !CreatePipe( &tmpStdout, &d->pipeStdout[1], &secAtt, 0 ) ) {
+	    d->closeHandles()
 	    return FALSE;
-	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdout, GetCurrentProcess(), &d->pipeStdout[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) )
+	}
+	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdout, GetCurrentProcess(), &d->pipeStdout[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+	    d->closeHandles()
 	    return FALSE;
-	if ( !CloseHandle( tmpStdout ) )
+	}
+	if ( !CloseHandle( tmpStdout ) ) {
+	    d->closeHandles()
 	    return FALSE;
+	}
     }
     if ( comms & Stderr ) {
-	if ( !CreatePipe( &tmpStderr, &d->pipeStderr[1], &secAtt, 0 ) )
+	if ( !CreatePipe( &tmpStderr, &d->pipeStderr[1], &secAtt, 0 ) ) {
+	    d->closeHandles()
 	    return FALSE;
-	if ( !DuplicateHandle( GetCurrentProcess(), tmpStderr, GetCurrentProcess(), &d->pipeStderr[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) )
+	}
+	if ( !DuplicateHandle( GetCurrentProcess(), tmpStderr, GetCurrentProcess(), &d->pipeStderr[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+	    d->closeHandles()
 	    return FALSE;
-	if ( !CloseHandle( tmpStderr ) )
+	}
+	if ( !CloseHandle( tmpStderr ) ) {
+	    d->closeHandles()
 	    return FALSE;
+	}
     }
     if ( comms & DupStderr ) {
 	CloseHandle( d->pipeStderr[1] );
