@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#469 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#470 $
 **
 ** Implementation of QWidget class
 **
@@ -364,7 +364,7 @@
 
   <li> closeEvent() - called when the user closes the widget (or when
   close() is called).
- </ul>
+  </ul>
 
   There are also some \e really obscure events.  They are listed in
   qevent.h and you need to reimplement event() to handle them.  The
@@ -383,7 +383,7 @@
   easily.
 
   sizePolicy() lets you supply good defaults for the layout management
-  handling, so that other widgets can contain yours easily.
+  handling, so that other widgets can contain and manage yours easily.
   sizeHint() indicates a "good" size for the widget.
 
   <li>If your widget is a top-level window, setCaption() and setIcon() set
@@ -469,85 +469,172 @@ inline bool QWidgetMapper::remove( WId id )
  *****************************************************************************/
 
 // helper function - borland needs it.
-static
-QPalette default_palette( QWidget *parent )
+static QPalette default_palette( QWidget *parent )
 {
     return parent ? parent->palette()           // use parent's palette
 	   : QApplication::palette();
 }
 // helper function - borland needs it.
-static
-QFont default_font( QWidget *parent )
+static QFont default_font( QWidget *parent )
 {
     return parent ? parent->font()           // use parent's font
 	   : QApplication::font();
 }
 
+
+/*
+    Widget state flags:
+  <dl compact>
+  <dt>WState_Created<dd> The widget has a valid winId().
+  <dt>WState_Disabled<dd> The widget does not receive any mouse
+       or keyboard events.
+  <dt>WState_ForceDisabled<dd> The widget is explicitely disabled, i.e. it will remain
+	disabled even when all its ancestors are set to enabled
+	state. This implies WState_Disabled.
+  <dt>WState_Visible<dd> The widget is currently visible.
+  <dt>WState_ForceHide<dd> The widget is explicitely hidden, i.e.it will remain invisible
+       even when all its ancestors are shown. This implies !WState_Visible
+  <dt>WState_OwnCursor<dd> A cursor has been set for this widget.
+  <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
+  <dt>WState_CompressKeys<dd> Compress keyboard events.
+  <dt>WState_BlockUpdates<dd> Repaints and updates are disabled.
+  <dt>WState_InPaintEvent<dd> Currently processing a paint event.
+  <dt>WState_Reparented<dd> The widget has been reparented.
+  <dt>WState_ConfigPending<dd> A config (resize/move) event is pending.
+  <dt>WState_Resized<dd> The widget has been resized.
+  <dt>WState_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
+  <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
+  <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
+  <dt>WState_USPositionX<dd> X11 only: Set the USPosition size hint.
+  <dt>WState_PaletteSet<dd> The palette has been set.
+  <dt>WState_PaletteFixed<dd> The widget has a fixed palette.
+  <dt>WState_FontSet<dd> The font has been set.
+  <dt>WState_FontFixed<dd> The widget has a fixed font.
+  <dt> WState_Withdrawn<dd> The widget is withdrawn, i.e. hidden from the
+	   window system by the program itself.
+  </dl>
+*/
+
+
+/*! \enum Qt::WidgetFlags
+
+This enum type is used to specify various window-system properties
+of the widget.  Mostly they are fairly unusal, but necessary in a
+few cases.
+
+The main types are <ul>
+
+<li> \c WType_TopLevel - indicates that this widget is a top-level
+widget, usually with a window-system frame and so on.
+
+<li> \c WType_Modal - indicates that this widget is a modal top-level
+widget, ie. that it prevents widgets in all other top-level widget
+from getting any input.  \c WType_Modal inplies \c WStyle_Dialog.
+
+<li> \c WType_Popup - indicates that this widget is a popup top-level
+window, ie. that it is modal, but has a window system frame
+appropriate for popup menus.
+
+<li> \c WType_Desktop - indicates that this widget is the desktop.
+See also \c WPaintDesktop below.
+
+</ul> There are also a number of flags to let you customize the
+appearance of top-level windows.  These have no effect on other
+windows.<ul>
+
+<li> \c WStyle_Customize - indicates that instead of the default, the
+WStyle_* flags should be used to build the window.
+
+<li> \c WStyle_NormalBorder - gives the window a normal border. Cannot
+be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
+
+<li> \c WStyle_DialogBorder - gives the window a thin dialog border.
+Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
+
+<li> \c WStyle_NoBorder - gives a borderless window.  Note that the
+user cannot move or resize a borderless window via the window system.
+Cannot be combined with \c WStyle_NormalBorder or \c
+WStyle_DialogBorder.
+
+<li> \c WStyle_Title - gives the window a title bar.
+
+<li> \c WStyle_SysMenu - adds a window system menu.
+
+<li> \c WStyle_Minimize - adds a minimize button.
+
+<li> \c WStyle_Maximize - adds a maximize button.
+
+<li> \c WStyle_MinMax - is equal to \c WStyle_Minimize|WStyle_Maximize
+
+<li> \c WStyle_Tool - makes the window a tool window.  A tool window
+is a small window that lives for a short time and it is typically used
+for creating popup windows.  It there is a parent, the tool window
+will always be kept on top of it.  If there isn't a parent, you may
+consider passing WStyle_StaysOnTop as well.  If the window system
+supports it, a tool window is be decorated with a somewhat lighter
+frame.  It can, however, be combined with \c WStyle_NoBorder as well.
+
+<li> \c WStyle_StaysOnTop - informs the window system that the window
+should stay on top of all other windows.
+
+<li> \c WStyle_Dialog - indicates that the window is a logical
+subwindow of its parent, in other words: a dialog.  The window will
+not get its own taskbar entry and be kept on top of its parent by
+the window system.  Usually, it will also be minimized when the
+parent is minized.  If not customized, the window is decorated
+with a slightly simpler title bar.  This is the flag QDialog uses.
+
+</ul> Finally, there are some modifier flags: <ul>
+
+<li> \c WDestructiveClose - makes Qt delete this object when the object has
+accepted closeEvent(), or when the widget tried to ignore closeEvent() but
+could not.
+
+<li> \c WPaintDesktop - gives this widget paint events for the desktop.
+
+<li> \c WPaintUnclipped - makes all painters operating on this widget
+unclipped.  Children of this widget, or other widgets in front of it,
+do not clip the area the painter can paint on.
+
+<li> \c WPaintClever - indicates that Qt should not try to optimize
+repainting for the widget, but instead pass on window system repaint
+events directly.  (This tends to produce more events and smaller
+repaint regions.)
+
+<li> \c WResizeNoErase -
+
+<li> \c WMouseNoMask - indicates that even if the widget has a mask,
+it wants mouse events for its entire rectangle.
+
+<li> \c WNorthWestGravity - indicates that the widget contents is
+north-west aligned and static. On resize, such a widget will receive
+paint events only for the newly visible part of itself.
+
+<li> \c WRepaintNoErase - indacates that the widget paints all its
+pixels.  Scrolling and focus changes should therefore not erase the
+widget.  This allows smart-repainting to avoid flicker.
+
+</ul>
+
+*/
+
+
 /*!
-  Constructs a widget which is a child of \e parent, with the name \e name and
-  widget flags set to \e f.
+  Constructs a widget which is a child of \a parent, with the name \a name and
+  widget flags set to \a f.
 
-  If \e parent is 0, the new widget becomes a \link isTopLevel() top-level
-  window\endlink. If \e parent is another widget, this widget becomes a child
-  window inside \e parent.  Unless the newly created widget is
-  \link QWidget::reparent() reparented\endlink, it will be deleted when
-  the parent is deleted.
+  If \a parent is 0, the new widget becomes a top-level window.  If \a
+  parent is another widget, this widget becomes a child window inside
+  \a parent.  The new widget is deleted when \a parent is.
 
-  The \e name is sent to the QObject constructor.
+  The \a name is sent to the QObject constructor.
 
   <a name="widgetflags"></a>
 
-  The widget flags argument \e f is normally 0, but it can be set to
-  customize the window frame of a top-level widget (i.e. \e parent must be
+  The widget flags argument \a f is normally 0, but it can be set to
+  customize the window frame of a top-level widget (i.e. \a parent must be
   zero). To customize the frame, set the \c WStyle_Customize flag OR'ed with
   any of these flags:
-
-  <ul>
-
-  <li> \c WStyle_NormalBorder gives the window a normal border. Cannot
-  be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
-
-  <li> \c WStyle_DialogBorder gives the window a thin dialog
-  border. Cannot be combined with \c WStyle_NormalBorder or \c
-  WStyle_NoBorder.
-
-  <li> \c WStyle_NoBorder gives a borderless window. Note that the
-  user cannot move or resize a borderless window via the window
-  system.  Cannot be combined with \c WStyle_NormalBorder or \c
-  WStyle_DialogBorder.
-
-  <li> \c WStyle_Title gives the window a title bar.
-
-  <li> \c WStyle_SysMenu adds a window system menu.
-
-  <li> \c WStyle_Minimize adds a minimize button.
-
-  <li> \c WStyle_Maximize adds a maximize button.
-
-  <li> \c WStyle_MinMax is equal to <code>(WStyle_Minimize | WStyle_Maximize)
-  </code>.
-
-  <li> \c WStyle_Tool makes the window a tool window.  A tool window
-  is a small window that lives for a short time and it is typically
-  used for creating popup windows.  It there is a parent, the tool
-  window will be kept on top of it.  If there isn't a parent, you may
-  consider passing WStyle_StaysOnTop as well.  If the window system
-  supports it, a tool window will be decorated with a somewhat lighter
-  frame.  It can, however, be combined with \c WStyle_NoBorder as
-  well.
-
-  <li> \c WStyle_StaysOnTop informs the window system that the window
-  should stay on top of all other windows.
-
-  <li> \c WStyle_Dialog indicates that the window is a logical
-  subwindow of its parent, in other words: a dialog.  The window will
-  not get its own taskbar entry and be kept on top of its parent by
-  the window system.  Usually, it will also be minimized when the
-  parent is minized.  If not customized, the window is decorated
-  slightly less.  WStyle_Dialog is implied by WType_Modal.  It is
-  implicitely defined when using the class QDialog.
-
-  </ul>
 
   Note that the X11 version of Qt may not be able to deliver all
   combinations of style flags on all systems.  This is because on X11,
@@ -850,7 +937,7 @@ void QWidget::deactivateWidgetCleanup()
 
 
 /*!
-  Returns a pointer to the widget with window identifer/handle \e id.
+  Returns a pointer to the widget with window identifer/handle \a id.
 
   The window identifier type depends by the underlying window system,
   see qwindowdefs.h for the actual definition.
@@ -876,7 +963,7 @@ QWidget *QWidget::find( WId id )
 
 /*!
   \fn WFlags QWidget::getWFlags() const
-  \internal
+
   Returns the widget flags for this this widget.
 
   Widget flags are internal, not meant for public use.
@@ -885,19 +972,21 @@ QWidget *QWidget::find( WId id )
 
 /*!
   \fn void QWidget::setWFlags( WFlags f )
-  \internal
-  Sets the widget flags \e f.
+
+  Sets the widget flags \a f.
 
   Widget flags are internal, not meant for public use.
+
   \sa testWFlags(), getWFlags(), clearWFlags()
 */
 
 /*!
   \fn void QWidget::clearWFlags( WFlags f )
-  \internal
-  Clears the widget flags \e f.
+
+  Clears the widget flags \a f.
 
   Widget flags are internal, not meant for public use.
+
   \sa testWFlags(), getWFlags(), setWFlags()
 */
 
@@ -905,6 +994,7 @@ QWidget *QWidget::find( WId id )
 
 /*!
   \fn WId QWidget::winId() const
+
   Returns the window system identifier of the widget.
 
   Portable in principle, but if you use it you are probably about to do
@@ -1052,7 +1142,7 @@ bool QWidget::isEnabledToTLW() const
 
 
 /*!
-  Enables widget input events if \e enable is TRUE, otherwise disables
+  Enables widget input events if \a enable is TRUE, otherwise disables
   input events.
 
   An enabled widget receives keyboard and mouse events; a disabled
@@ -1121,7 +1211,7 @@ void QWidget::setEnabled( bool enable )
 /*!
   \fn void QWidget::enabledChange( bool oldEnabled )
 
-  This virtual function is called from setEnabled(). \e oldEnabled is the
+  This virtual function is called from setEnabled(). \a oldEnabled is the
   previous setting; you can get the new setting from isEnabled().
 
   Reimplement this function if your widget needs to know when it becomes
@@ -1346,7 +1436,7 @@ QSize QWidget::baseSize() const
 
 
 /*!
-  Sets both the minimum and maximum sizes of the widget to \e s,
+  Sets both the minimum and maximum sizes of the widget to \a s,
   thereby preventing it from ever growing or shrinking.
 
   \sa setMaximumSize() setMinimumSize()
@@ -1454,26 +1544,26 @@ void QWidget::setFixedHeight( int h )
 
 
 /*!
-  Translates the widget coordinate \e pos to a coordinate in the parent widget.
+  Translates the widget coordinate \a pos to a coordinate in the parent widget.
 
   Same as mapToGlobal() if the widget has no parent.
   \sa mapFromParent()
 */
 
-QPoint QWidget::mapToParent( const QPoint &p ) const
+QPoint QWidget::mapToParent( const QPoint &pos ) const
 {
     return p + crect.topLeft();
 }
 
 /*!
-  Translates the parent widget coordinate \e pos to widget coordinates.
+  Translates the parent widget coordinate \a pos to widget coordinates.
 
   Same as mapFromGlobal() if the widget has no parent.
 
   \sa mapToParent()
 */
 
-QPoint QWidget::mapFromParent( const QPoint &p ) const
+QPoint QWidget::mapFromParent( const QPoint &pos ) const
 {
     return p - crect.topLeft();
 }
@@ -1629,7 +1719,7 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   The background is what the widget contains when paintEvent() is called.
   To minimize flicker, this should be the most common color in the
   widget. For \c PaletteBackground, use colorGroup() . \link QColorGroup::brush()
-  brush\endlink ( \c QColorGroup::Background ), and so on. 
+  brush\endlink ( \c QColorGroup::Background ), and so on.
 
   The following values are valid:  <ul>
 
@@ -3350,91 +3440,6 @@ QSize QWidget::minimumSizeHint() const
   Returns TRUE if any of the widget flags in \e n are set. The
   widget flags are listed in qnamespace.h, and are strictly for
   internal use.
-
-  \internal
-
-  Widget state flags:
-  <dl compact>
-  <dt>WState_Created<dd> The widget has a valid winId().
-  <dt>WState_Disabled<dd> The widget does not receive any mouse
-       or keyboard events.
-  <dt>WState_ForceDisabled<dd> The widget is explicitely disabled, i.e. it will remain
-	disabled even when all its ancestors are set to enabled
-	state. This implies WState_Disabled.
-  <dt>WState_Visible<dd> The widget is currently visible.
-  <dt>WState_ForceHide<dd> The widget is explicitely hidden, i.e.it will remain invisible
-       even when all its ancestors are shown. This implies !WState_Visible
-  <dt>WState_OwnCursor<dd> A cursor has been set for this widget.
-  <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
-  <dt>WState_CompressKeys<dd> Compress keyboard events.
-  <dt>WState_BlockUpdates<dd> Repaints and updates are disabled.
-  <dt>WState_InPaintEvent<dd> Currently processing a paint event.
-  <dt>WState_Reparented<dd> The widget has been reparented.
-  <dt>WState_ConfigPending<dd> A config (resize/move) event is pending.
-  <dt>WState_Resized<dd> The widget has been resized.
-  <dt>WState_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
-  <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
-  <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
-  <dt>WState_USPositionX<dd> X11 only: Set the USPosition size hint.
-  <dt>WState_PaletteSet<dd> The palette has been set.
-  <dt>WState_PaletteFixed<dd> The widget has a fixed palette.
-  <dt>WState_FontSet<dd> The font has been set.
-  <dt>WState_FontFixed<dd> The widget has a fixed font.
-  <dt> WState_Withdrawn<dd> The widget is withdrawn, i.e. hidden from the
-	   window system by the program itself.
-  </dl>
-
-  Widget type flags:
-  <dl compact>
-  <dt>WType_TopLevel<dd> Top-level widget (not a child).
-  <dt>WType_Modal<dd> Modal widget, implies \c WType_TopLevel.
-  <dt>WType_Popup<dd> Popup widget, implies \c WType_TopLevel.
-  <dt>WType_Desktop<dd> Desktop widget (root window), implies
-	\c WType_TopLevel.
-  </dl>
-
-  Window style flags (for top-level widgets):
-  <dl compact>
-  <dt>WStyle_Customize<dd> Custom window style.
-  <dt>WStyle_NormalBorder<dd> Normal window border.
-  <dt>WStyle_DialogBorder<dd> Thin dialog border.
-  <dt>WStyle_NoBorder<dd> No window border.
-  <dt>WStyle_Title<dd> The window has a title.
-  <dt>WStyle_SysMenu<dd> The window has a system menu
-  <dt>WStyle_Minimize<dd> The window has a minimize box.
-  <dt>WStyle_Maximize<dd> The window has a maximize box.
-  <dt>WStyle_MinMax<dd> Equals (\c WStyle_Minimize | \c WStyle_Maximize).
-  <dt>WStyle_Tool<dd> The window is a tool window.
-  <dt>WStyle_StaysOnTop<dd> The window should stay on top of all other windows
-  <dt>WStyle_Dialog<dd> The window is a dialog
-  </dl>
-
-  Misc. flags:
-  <dl compact>
-  <dt>WDestructiveClose<dd> The widget is deleted when its closed.
-  <dt>WPaintDesktop<dd> The widget wants desktop paint events.
-  <dt>WPaintUnclipped<dd> Paint without clipping child widgets.
-  <dt>WPaintClever<dd> The widget wants every update rectangle.
-  <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
-			 This allows smart-repainting to avoid flicker.
-  <dt>WRepaintNoErase<dd> The Widget paints all its pixels. Scrolling and focus
-			 changes should therefore not erase the widget.
-			 This allows smart-repainting to avoid flicker.
-  <dt>WResizeNoErase<dd> Same as WPaintAllPixels.
-  <dt>WMouseNoMask<dd> Even if the widget has a mask, mouse events
-			are delivered for the entire rectangle.
-  <dt>WNorthWestGravity<dd> Indicates that the widget contents is
-					north-west aligned and static. On resize, you will
-					recieve paint events consequentely only for the
-			newly visible parts of the widget.
-					This allows even more smart-repainting to
-			avoid even more flicker.   In case you need
-			to repaint areas in addition (what shouldn't
-			be the case with true north-west gravity),
-			it's your responsibility to call repaint() or
-			update() in the resizeEvent()-handler for the
-			respective region.
-  </dl>
 */
 
 /*!
