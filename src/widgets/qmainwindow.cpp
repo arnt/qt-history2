@@ -2179,11 +2179,14 @@ void QMainWindow::show()
 /*!  \reimp */
 QSize QMainWindow::sizeHint() const
 {
-    if ( !d->tll ) {
-	QMainWindow* that = (QMainWindow*) this;
+    QMainWindow* that = (QMainWindow*) this;
+    // Workaround: because d->tll get's deleted in
+    // totalSizeHint->polish->sendPostedEvents->childEvent->triggerLayout
+    // [eg. canvas example on Qt/Embedded]
+    QApplication::sendPostedEvents( that, QEvent::ChildInserted );
+    if ( !that->d->tll )
 	that->setUpLayout();
-    }
-    return d->tll->totalSizeHint();
+    return that->d->tll->totalSizeHint();
 }
 
 /*!  \reimp */
