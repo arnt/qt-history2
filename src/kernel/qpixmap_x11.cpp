@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#23 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#23 $";
 #endif
 
 
@@ -995,7 +995,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     QPixmap pm( w, h );				// create new pixmap
     XPutImage( dpy, pm.handle(), qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h);
     pm.data->uninit = FALSE;
-    pm.data->bitmap = (DefaultDepth(dpy) == 1); // dubious
+    pm.data->bitmap = (DefaultDepth(dpy, qt_xscreen()) == 1); // dubious
     XDestroyImage( xi );
     return pm;
 }
