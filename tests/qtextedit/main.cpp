@@ -400,7 +400,7 @@ int main( int argc, char ** argv )
     a.setMainWidget( &mw );
     mw.resize( 650, 700 );
     mw.show();
-
+#if 0
     SimpleText t;
     t.resize ( 100, 100 );
     t.show();
@@ -409,7 +409,7 @@ int main( int argc, char ** argv )
     ( (QMimeSourceFactory*)b.mimeSourceFactory() )->setFilePath( "/home/reggie/tmp/release/qt-2.2.0/doc/html" );
     b.setSource( "qcheckbox.html" );
     b.show();
-
+#endif
     return a.exec();
 }
 

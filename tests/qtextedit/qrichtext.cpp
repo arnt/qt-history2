@@ -2290,6 +2290,7 @@ QTextString::QTextString()
 {
     textChanged = FALSE;
     bidi = FALSE;
+    rightToLeft = FALSE;
 }
 
 void QTextString::insert( int index, const QString &s, QTextFormat *f )
@@ -2368,16 +2369,45 @@ void QTextString::checkBidi() const
     int len = data.size();
     const Char *c = data.data();
     ((QTextString *)this)->bidi = FALSE;
+    ((QTextString *)this)->rightToLeft = FALSE;
     while( len ) {
 	unsigned char row = c->c.row();
 	if( (row > 0x04 && row < 0x09) || row > 0xfa ) {
 	    ((QTextString *)this)->bidi = TRUE;
+	    basicDirection();
 	    return;
 	}
 	len--;
 	++c;
     }
 }
+
+void QTextString::basicDirection() const
+{
+    int pos = 0;
+    ((QTextString *)this)->rightToLeft = FALSE;
+    while( pos < length() ) {
+	switch( at(pos).c.direction() )
+	{
+	case QChar::DirL:
+	case QChar::DirLRO:
+	case QChar::DirLRE:
+	    return;
+	case QChar::DirR:
+	case QChar::DirAL:
+	case QChar::DirRLO:
+	case QChar::DirRLE:
+	    ((QTextString *)this)->rightToLeft = TRUE;
+	    return;
+	default:
+	    break;
+	}
+	++pos;
+    }
+    return;
+}
+
+
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -3160,31 +3190,10 @@ struct QTextBidiRun {
     uchar level;
 };
 
-static QChar::Direction basicDirection(const QTextString &text)
-{
-    int pos = 0;
-    while( pos < text.length() ) {
-	switch( text.at(pos).c.direction() )
-	{
-	case QChar::DirL:
-	case QChar::DirLRO:
-	case QChar::DirLRE:
-	    return QChar::DirL;
-	case QChar::DirR:
-	case QChar::DirAL:
-	case QChar::DirRLO:
-	case QChar::DirRLE:
-	    return QChar::DirR;
-	default:
-	    break;
-	}
-	++pos;
-    }
-    return QChar::DirL;
-}
-
 //#define BIDI_DEBUG 1
+#ifdef BIDI_DEBUG
 #include <iostream>
+#endif
 
 // collects one line of the paragraph and transforms it to visual order
 QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QTextParag::LineStart *line,
@@ -3202,10 +3211,10 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	// first line
 	if( start != 0 )
 	    qDebug( "bidiReorderLine::internal error");
-	if( basicDirection(*text) == QChar::DirL )
-	    context = new QTextBidiContext( 0, QChar::DirL );
-	else
+	if( text->isRightToLeft() )
 	    context = new QTextBidiContext( 1, QChar::DirR );
+	else
+	    context = new QTextBidiContext( 0, QChar::DirL );
     }
     context->ref();
 
@@ -3682,6 +3691,10 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 
     // now construct the reordered string out of the runs...
 
+    // in rtl text the leftmost character is usually a space
+    // this space should not take up visible space on the left side, to get alignment right.
+    // the following bool is used for that purpose
+    bool first = TRUE;
     r = runs.first();
     int x = 0;
     while ( r ) {
@@ -3690,6 +3703,11 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	    int pos = r->stop;
 	    while(pos >= r->start) {
 		QTextString::Char *c = &text->at(pos);
+		if ( first ) {
+		    first = FALSE;
+		    if ( c->c == ' ' )
+			x -= c->width();
+		}
 		c->x = x;
 		c->rightToLeft = TRUE;
 		int ww = 0;
@@ -3706,6 +3724,11 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	    int pos = r->start;
 	    while(pos <= r->stop) {
 		QTextString::Char* c = &text->at(pos);
+		if ( first ) {
+		    first = FALSE;
+		    if ( c->c == ' ' )
+			x -= c->width();
+		}
 		c->x = x;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
@@ -3724,6 +3747,15 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
     context->deref();
     return ls;
 }
+
+bool QTextFormatter::isBreakable( QTextString *string, int pos )
+{
+    // ### add line breaking rules for Kanji, thai and other languages
+    if( string->at(pos).c.isSpace() )
+	return TRUE;
+    return FALSE;
+}
+
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -3838,6 +3870,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 {
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
+    QTextString *string = parag->string();
     int left = parag->leftMargin();
     int x = left;
     int curLeft = left;
@@ -3864,12 +3897,12 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
     int i = start;
     QTextParag::LineStart *lineStart = new QTextParag::LineStart( 0, 0, 0 );
     parag->lineStartList().insert( 0, lineStart );
-    int lastSpace = -1;
+    int lastBreak = -1;
     int tmpBaseLine = 0, tmph = 0;
     bool lastWasNonInlineCustom = FALSE;
 
     for ( ; i < len; ++i ) {
-	c = &parag->string()->at( i );
+	c = &string->at( i );
 	if ( i > 0 && x > curLeft || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
 	} else {
@@ -3891,6 +3924,8 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	
 	if ( c->isCustom && c->customItem()->ownLine() ) {
 // 	    doc->setMinimumWidth( c->customItem()->minimumWidth(), parag ); ##### needed for minimum width stuff
+	    lineStart->space = w - x;
+	    lineStart = formatLine( string, lineStart, firstChar, c-1 );
 	    x = parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
 	    w = dw - parag->document()->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 );
 	    c->customItem()->width = dw;
@@ -3901,23 +3936,28 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	    y += h;
 	    tmph = c->height();
 	    h = tmph;
-	    lineStart = new QTextParag::LineStart( y, h, h );
+	    lineStart->y = y;
+	    lineStart->h = h;
+	    lineStart->baseLine = h;
 	    parag->lineStartList().insert( i, lineStart );
 	    c->lineStart = 1;
 	    firstChar = c;
 	    tmpBaseLine = lineStart->baseLine;
-	    lastSpace = -1;
+	    lastBreak = -1;
 	    x = 0xffffff;
 	    continue;
 	}
 	
 	if ( x + ww > w ) {
-	    if ( lastSpace == -1 ) {
+	    if ( lastBreak == -1 ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 		    h = QMAX( h, tmph );
 		    lineStart->h = h;
 		}
+		lineStart->space = w - x;
+		lineStart = formatLine( string, lineStart, firstChar, c-1 );
+		
 		x = parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
 		w = dw - parag->document()->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 );
 		if ( x != left || w != dw )
@@ -3926,7 +3966,6 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		y += h;
 		tmph = c->height();
 		h = 0;
-		lineStart = formatLine( parag->string(), lineStart, firstChar, c-1 );
 		lineStart->y = y;
 		parag->lineStartList().insert( i, lineStart );
 		lineStart->baseLine = c->ascent();
@@ -3934,9 +3973,11 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		c->lineStart = 1;
 		firstChar = c;
 		tmpBaseLine = lineStart->baseLine;
-		lastSpace = -1;
+		lastBreak = -1;
 	    } else {
-		i = lastSpace;
+		i = lastBreak;
+		lineStart->space = w - string->at( i ).x;
+		lineStart = formatLine( string, lineStart, firstChar, parag->at( lastBreak ) );
 		x = parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
 		w = dw - parag->document()->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 );
 		if ( x != left || w != dw )
@@ -3945,7 +3986,6 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		y += h;
 		tmph = c->height();
 		h = tmph;
-		lineStart = formatLine( parag->string(), lineStart, firstChar, parag->at( lastSpace ) );
 		lineStart->y = y;
 		parag->lineStartList().insert( i + 1, lineStart );
 		lineStart->baseLine = c->ascent();
@@ -3953,10 +3993,10 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		c->lineStart = 1;
 		firstChar = c;
 		tmpBaseLine = lineStart->baseLine;
-		lastSpace = -1;
+		lastBreak = -1;
 		continue;
 	    }
-	} else if ( lineStart && c->c == ' ' ) {
+	} else if ( lineStart && isBreakable( string, i ) ) {
 	    if ( len < 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() );
@@ -3964,7 +4004,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 	    h = QMAX( h, tmph );
 	    lineStart->h = h;
-	    lastSpace = i;
+	    lastBreak = i;
 	} else {
 	    tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 	    tmph = QMAX( tmph, c->height() );
@@ -3978,27 +4018,34 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 	h = QMAX( h, tmph );
 	lineStart->h = h;
-	lineStart = formatLine( parag->string(), lineStart, firstChar, c );
+	lineStart->space = w - x;
+	lineStart = formatLine( string, lineStart, firstChar, c );
 	delete lineStart;
     }
 
+    int align = parag->alignment();
+    if( align & Qt::AlignAuto ) {
+	// align according to directionality of the paragraph...
+	if ( string->isRightToLeft() )
+	    align = Qt::AlignRight;
+    }
+    
     if ( parag->alignment() & Qt::AlignHCenter || parag->alignment() & Qt::AlignRight ) {
 	int last = 0;
 	QMap<int, QTextParag::LineStart*>::Iterator it = parag->lineStartList().begin();
 	while ( TRUE ) {
+	    int space = it.data()->space;
 	    it++;
 	    int i = 0;
 	    if ( it == parag->lineStartList().end() )
 		i = parag->length() - 1;
 	    else
 		i = it.key() - 1;
-	    c = &parag->string()->at( i );
-	    int lw = c->x + c->width();
-	    int diff = w - lw;
+	    c = &string->at( i );
 	    if ( parag->alignment() & Qt::AlignHCenter )
-		diff /= 2;
+		space /= 2;
 	    for ( int j = last; j <= i; ++j )
-		parag->string()->at( j ).x += diff;
+		string->at( j ).x += space;
 	    last = i + 1;
 	    if ( it == parag->lineStartList().end() )
 		break;

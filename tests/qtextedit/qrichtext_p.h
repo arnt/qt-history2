@@ -508,15 +508,17 @@ public:
     void setBidi( bool b ) { bidi = b; }
     bool isTextChanged() const { return textChanged; }
     bool isBidi() const;
-
+    bool isRightToLeft() const;
+    
 private:
     void checkBidi() const;
+    void basicDirection() const;
     
     QArray<Char> data;
     QString cache;
     uint textChanged : 1;
-    uint bidi : 1;
-
+    uint bidi : 1; // true when the paragraph right to left characters
+    uint rightToLeft : 1; // true if the basic direction of the paragraph is right to left.
 };
 
 inline bool QTextString::isBidi() const
@@ -525,16 +527,24 @@ inline bool QTextString::isBidi() const
 	checkBidi();
     return bidi;
 }
+
+inline bool QTextString::isRightToLeft() const
+{
+     if ( textChanged )
+	checkBidi();
+    return rightToLeft;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class QTextParag
 {
 public:
     struct LineStart {
-	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {}
-	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
+	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), space( 0 ), bidicontext( 0 ) {}
+	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ), space( 0 ),
 	    bidicontext(0) {}
-	LineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0),
+	LineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0), space( 0 ),
 	    bidicontext( c ), status( s ) { if(bidicontext) bidicontext->ref(); }
 	~LineStart() { if(bidicontext) bidicontext->deref(); }
 	void setContext( QTextBidiContext *c ) 
@@ -546,7 +556,7 @@ public:
 	}
 	QTextBidiContext *context() const { return bidicontext; }
     public:
-	ushort y, baseLine, h;
+	ushort y, baseLine, h, space;
     private:
 	QTextBidiContext *bidicontext;
     public:
@@ -729,6 +739,7 @@ protected:
     QTextDocument *doc;
     QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start, QTextString::Char *last );
     QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start, QTextString::Char *last );
+    bool isBreakable( QTextString *string, int pos );
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
