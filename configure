@@ -264,8 +264,9 @@ else
 		Desc=Professional
 		Edition=pro
 	    fi
+	    ExpiryDate=`echo $ExpiryDate | sed -e "s,-,,g"`
 	    NOW=`date +%Y%m%d`
-	    if [ "$NOW" -gt "0$ExpiryDate" ]
+	    if [ "$NOW" -gt "$ExpiryDate" ]
 	    then
 		echo
 		echo "WARNING  WARNING  WARNING  WARNING"
