@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#35 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#36 $
 **
 ** Implementation of QMessageBox class
 **
@@ -14,8 +14,9 @@
 #include "qpushbt.h"
 #include "qimage.h"
 #include "qkeycode.h"
+#include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#36 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -461,6 +462,16 @@ QMessageBox::Icon QMessageBox::icon() const
 
 void QMessageBox::setIcon( Icon icon )
 {
+    setIconPixmap( standardIcon(icon, style()) );
+    mbd->icon = icon;
+}
+
+/*!
+  Returns the pixmap used for a standard icon.  This
+  allows the pixmaps to be used in more complex message boxes.
+*/
+QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
+{
     uint icon_size;
     const uchar *icon_data;
     switch ( icon ) {
@@ -484,9 +495,9 @@ void QMessageBox::setIcon( Icon icon )
     if ( icon_size ) {
 	QImage image;
 	image.loadFromData( icon_data, icon_size );
-	if ( style() == MotifStyle ) {
+	if ( style == MotifStyle ) {
 	    // All that colour looks ugly in Motif
-	    QColorGroup g = colorGroup();
+	    QColorGroup g = QApplication::palette()->normal();
 	    switch ( icon ) {
 	      case Information:
 		image.setColor( 2, 0xff000000 | g.light().rgb() );
@@ -504,8 +515,7 @@ void QMessageBox::setIcon( Icon icon )
 	}
 	pm.convertFromImage(image);
     }
-    setIconPixmap( pm ); // Changes icon to NoIcon (user defined)
-    mbd->icon = icon;    // NOW we set it.
+    return pm;
 }
 
 

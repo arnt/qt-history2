@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#21 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#22 $
 **
 ** Definition of QMessageBox class
 **
@@ -78,6 +78,8 @@ public:
     void	adjustSize();
 
     void	setStyle( GUIStyle );
+
+    static QPixmap standardIcon( Icon icon, GUIStyle style );
 
 protected:
     void	resizeEvent( QResizeEvent * );
