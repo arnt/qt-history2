@@ -61,8 +61,6 @@
 #include <qregexp.h>
 #include <qcleanuphandler.h>
 
-static QCleanupHandler<QRegExp> regexp_cleanup;
-
 /*
   The indenter avoids getting stuck in almost infinite loops by
   imposing arbitrary limits on the number of lines it analyzes when
@@ -90,6 +88,12 @@ static int ppHardwareTabSize = 8;
 static int ppIndentSize = 4;
 static int ppContinuationIndentSize = 8;
 static int ppCommentOffset = 2;
+
+static QRegExp *literal = 0;
+static QRegExp *label = 0;
+static QRegExp *inlineCComment = 0;
+static QRegExp *braceX = 0;
+static QRegExp *iflikeKeyword = 0;
 
 /*
   Returns the first non-space character in the string t, or
@@ -162,23 +166,6 @@ static inline void eraseChar( QString& t, int k, QChar ch )
 */
 static QString trimmedCodeLine( const QString& t )
 {
-    static QRegExp *literal = 0;
-    static QRegExp *label = 0;
-    static QRegExp *inlineCComment = 0;
-
-    if ( literal == 0 ) {
-	literal = new QRegExp( QString("([\"'])(?:[^\"\\\\]|\\\\.)*\\1") );
-	regexp_cleanup.add( &literal );
-
-	label = new QRegExp( QString(
-		"^\\s*((?:case\\b[^:]+|[a-zA-Z_0-9]+):)(?!:)") );
-	regexp_cleanup.add( &label );
-
-	inlineCComment = new QRegExp( QString("/\\*.*\\*/") );
-	inlineCComment->setMinimal( TRUE );
-	regexp_cleanup.add( &inlineCComment );
-    }
-
     QString trimmed = t;
     int k;
 
@@ -298,14 +285,7 @@ static const bool& yyLeftBraceFollows = yyLinizerState.leftBraceFollows;
 */
 static bool readLine()
 {
-    static QRegExp *braceX = 0;
-
     int k;
-
-    if ( braceX == 0 ) {
-	braceX = new QRegExp( QString("^\\s*\\}\\s*(?:else|catch)\\b") );
-	regexp_cleanup.add( &braceX );
-    }
 
     yyLinizerState.leftBraceFollows =
 	    ( firstNonWhiteSpace(yyLinizerState.line) == QChar('{') );
@@ -512,27 +492,7 @@ static int indentWhenBottomLineStartsInCComment()
 */
 static bool matchBracelessControlStatement()
 {
-    static QRegExp *iflikeKeyword = 0;
-
     int delimDepth = 0;
-
-    if ( iflikeKeyword == 0 ) {
-	/*
-	  'do', 'for', etc., are the keywords that can appear in the
-	  following construct:
-
-	      keyword ( x )
-		  y;
-
-	  'else' is treated apart, as its syntax is
-
-	      else
-		  y;
-	*/
-	iflikeKeyword = new QRegExp( QString(
-		"\\b(?:catch|do|for|if|while)\\b") );
-	regexp_cleanup.add( &iflikeKeyword );
-    }
 
     if ( yyLine.endsWith(QString("else")) )
 	return TRUE;
@@ -971,6 +931,32 @@ static int indentForStandaloneLine()
 }
 
 /*
+  Constructs regular expressions used by the indenter.
+*/
+static void initializeIndenter()
+{
+    literal = new QRegExp( QString("([\"'])(?:[^\"\\\\]|\\\\.)*\\1") );
+    label = new QRegExp( QString(
+	    "^\\s*((?:case\\b[^:]+|[a-zA-Z_0-9]+):)(?!:)") );
+    inlineCComment = new QRegExp( QString("/\\*.*\\*/") );
+    inlineCComment->setMinimal( TRUE );
+    braceX = new QRegExp( QString("^\\s*\\}\\s*(?:else|catch)\\b") );
+    iflikeKeyword = new QRegExp( QString("\\b(?:catch|do|for|if|while)\\b") );
+}
+
+/*
+  Destroys regular expressions used by the indenter.
+*/
+static void terminateIndenter()
+{
+    delete literal;
+    delete label;
+    delete inlineCComment;
+    delete braceX;
+    delete iflikeKeyword;
+}
+
+/*
   Returns the recommended indent for the bottom line of program.
   Unless null, typedIn stores the character of yyProgram that
   triggered reindentation.
@@ -982,16 +968,17 @@ static int indentForStandaloneLine()
 */
 int indentForBottomLine( const QStringList& program, QChar typedIn )
 {
-    int indent;
-
     if ( program.isEmpty() )
 	return 0;
+
+    initializeIndenter();
 
     yyProgram = new QStringList( program );
     startLinizer();
 
     const QString& bottomLine = program.last();
     QChar firstCh = firstNonWhiteSpace( bottomLine );
+    int indent;
 
     if ( bottomLineStartsInCComment() ) {
 	/*
@@ -1045,7 +1032,7 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
 	}
     }
     delete yyProgram;
-    yyProgram = 0;
+    terminateIndenter();
     return QMAX( 0, indent );
 }
 
