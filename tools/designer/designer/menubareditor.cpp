@@ -1,5 +1,6 @@
 #include <qaction.h>
 #include <qapplication.h>
+#include <qbitmap.h>
 #include <qdragobject.h>
 #include <qlineedit.h>
 #include <qmainwindow.h>
@@ -595,8 +596,10 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 		hasSeparator = TRUE;
 		itemCreated = TRUE;
 	    }
+	    
 	    MenuBarEditorItemPtrDrag * d =
 		new MenuBarEditorItemPtrDrag( draggedItem, this );
+	    d->setPixmap( createTextPixmap( draggedItem->menuText() ) );
 	    hideItem();
 	    draggedItem->setVisible( FALSE );
 	    update();
@@ -977,7 +980,7 @@ void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint & pos )
 
 void MenuBarEditor::safeDec()
 {
-    do  {
+    do {
 	currentIndex--;
     } while ( currentIndex > 0 && !( item( currentIndex )->isVisible() ) );
 }
@@ -988,7 +991,7 @@ void MenuBarEditor::safeInc()
     if ( !hasSeparator )
 	max += 1;
     if ( currentIndex < max ) {
-	do  {
+	do {
 	    currentIndex++;
 	    // skip invisible items
 	} while ( currentIndex < max && !( item( currentIndex )->isVisible() ) );
@@ -1064,4 +1067,22 @@ void MenuBarEditor::leaveEditMode()
 	cmd->execute();
     }
     showItem();
+}
+
+QPixmap MenuBarEditor::createTextPixmap( const QString &text )
+{
+    QSize sz( fontMetrics().boundingRect( text ).size() );
+    QPixmap pix( sz.width() + 20, sz.height() * 2 );
+    pix.fill( white );
+    QPainter p( &pix, this );
+    p.drawText( 2, 0, pix.width(), pix.height(), 0, text );
+    p.end();
+    QBitmap bm( pix.size() );
+    bm.fill( color0 );
+    p.begin( &bm );
+    p.setPen( color1 );
+    p.drawText( 2, 0, pix.width(), pix.height(), 0, text );
+    p.end();
+    pix.setMask( bm );
+    return pix;
 }

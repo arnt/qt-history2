@@ -140,6 +140,8 @@ protected:
     void navigateRight( bool ctrl );
     void enterEditMode();
     void leaveEditMode();
+
+    QPixmap createTextPixmap( const QString &text );
     
 private:
     FormWindow * formWnd;
