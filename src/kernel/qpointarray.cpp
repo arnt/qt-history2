@@ -642,9 +642,10 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 
     if ( arc ) {
 	double da1 = double(a1)*Q_PI / (360*8);
-	double da2 = double(a2)*Q_PI / (360*8);
+	double da3 = double(a2+a1)*Q_PI / (360*8);
 	int i = int(da1/inc+0.5);
-	int k = int(da2/inc+0.5);
+	int l = int(da3/inc+0.5);
+	int k = (l-i)+1;
 	QPointArray r(k);
 	int j = 0;
 

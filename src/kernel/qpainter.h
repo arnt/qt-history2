@@ -302,7 +302,11 @@ private:
     void	map( int, int, int, int, int *, int *, int *, int * ) const;
     void	mapInv( int, int, int *, int * ) const;
     void	mapInv( int, int, int, int, int *, int *, int *, int * ) const;
+#ifdef Q_WS_MACX
+    void	drawPolyInternal( const QPointArray &, bool close=TRUE, bool inset=TRUE );
+#else
     void	drawPolyInternal( const QPointArray &, bool close=TRUE );
+#endif
     void	drawWinFocusRect( int x, int y, int w, int h, bool xorPaint,
 				  const QColor &penColor );
 

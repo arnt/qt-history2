@@ -805,8 +805,10 @@ void QPainter::setClipRegion(const QRegion &rgn, CoordinateMode m)
     initPaintDevice(); //reset clip region
 }
 
-void QPainter::drawPolyInternal(const QPointArray &a, bool close)
+void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
 {
+    if(a.isEmpty())
+	return;
     initPaintDevice();
     if(d->cache.paintreg.isEmpty())
 	return;
@@ -822,7 +824,7 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close)
 
     if(close && this->brush().style() != NoBrush) {
 	updateBrush();
-	if(cpen.style() == NoPen)  // Inset all points, no frame will be painted.
+	if(inset && cpen.style() == NoPen)  // Inset all points, no frame will be painted.
 	    InsetRgn(polyRegion, 1, 1);
 	if(this->brush().style() == SolidPattern) {
 	    PaintRgn(polyRegion);
@@ -873,7 +875,6 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close)
 	    }
 	}
     }
-
     if(cpen.style() != NoPen) {
 	updatePen();
 	FrameRgn(polyRegion);
@@ -1400,8 +1401,7 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
 	if(!pdev->cmd(QPaintDevice::PdcDrawPie, this, param) || !pdev->handle())
 	    return;
     }
-    //There is probably a way to do this with FrameArc/PaintArc, but for now it is
-    //very different from Qt and not worth it FIXME
+#if 1
     QPointArray pa;
     pa.makeArc(x, y, w, h, a, alen, xmat); // arc polyline
     int n = pa.size();
@@ -1410,7 +1410,17 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
     pa.resize(n+2);
     pa.setPoint(n, cx, cy);	// add legs
     pa.setPoint(n+1, pa.at(0));
-    drawPolyInternal(pa);
+    drawPolyInternal(pa, TRUE, FALSE);
+#else
+    //There is probably a way to do this with FrameArc/PaintArc, but for now it is
+    //very different from Qt and not worth it FIXME
+    initPaintDevice();
+    if(d->cache.paintreg.isEmpty())
+	return;
+    Rect r;
+    SetRect(&r, d->offx + x, d->offy + y, d->offx + x + w, d->offy + y + h);
+    PaintArc(&r, -((a * 16) - 30), -(alen * 16));
+#endif
 }
 
 void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
