@@ -262,40 +262,50 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     int sectionpos = 0;
     int linestrut = 0;
     QValueList<DockData> lastLine;
+    // go through all widgets in the dock
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
 	if ( !dw->isVisibleTo( parentWidget ) )
 	    continue;
+	// if the current widget doesn't fit into the line anymore and it is not the first widget of the line
 	if ( !lastLine.isEmpty() &&
 	     ( space_left( r, QMAX( pos, dw->offset() ), orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
-	    if ( !testonly )
+	    if ( !testonly ) // place the last line, if not in test mode
 		place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+	    // remember the line coordinats of the last line
 	    if ( orientation() == Horizontal )
 		lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
 	    else
 		lines.append( QRect( sectionpos, 0, linestrut, r.height() ) );
+	    // do some clearing for the next line
 	    lastLine.clear();
 	    sectionpos += linestrut;
 	    linestrut = 0;
 	    pos = start;
 	}
 
+	// remeber first widget of a line
 	if ( lastLine.isEmpty() )
 	    ls.append( dw );
+	
+	// do some calculations and add the remember the rect which the docking widget requires for the placing
 	pos = QMAX( pos, dw->offset() );
 	lastLine.append( DockData( dw, QRect( pos, sectionpos,
 					      dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
 	add_size( dock_extend( dw, orientation() ), pos, orientation() );
     }
+    
+    // if some stuff was not placed/stored yet, do it now
     if ( !testonly )
 	place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
-    if ( !lines.count() ) {
-	if ( orientation() == Horizontal )
-	    lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
-	else
-	    lines.append( QRect( sectionpos, 0, linestrut, r.height() ) );
-    }
+    if ( orientation() == Horizontal )
+	lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
+    else
+	lines.append( QRect( sectionpos, 0, linestrut, r.height() ) );
+    if ( *(--lines.end()) == *(--(--lines.end())) )
+	lines.remove( lines.at( lines.count() - 1 ) );
+
     return sectionpos + linestrut;
 }
 
@@ -365,6 +375,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	bool insertLine = FALSE;
 	int i = 0;
 	QRect lineRect;
+	// find the line which we touched with the mouse
 	for ( QValueList<QRect>::Iterator it = lines.begin(); it != lines.end(); ++it, ++i ) {
 	    if ( point_pos( pos, orientation(), TRUE ) >= point_pos( (*it).topLeft(), orientation(), TRUE ) &&
 		 point_pos( pos, orientation(), TRUE ) <= point_pos( (*it).topLeft(), orientation(), TRUE ) +
@@ -374,56 +385,65 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		break;
 	    }
 	}
-	if ( dockLine == -1 ) {
+	if ( dockLine == -1 ) { // outside the dock...
 	    insertLine = TRUE;
-	    if ( point_pos( pos, orientation(), TRUE ) < 0 )
+	    if ( point_pos( pos, orientation(), TRUE ) < 0 ) // insert as first line
 		dockLine = 0;
 	    else
-		dockLine = lines.count();
-	} else {
+		dockLine = lines.count(); // insert after the last line
+	} else { // inside the dock (we have found a dockLine)
 	    if ( point_pos( pos, orientation(), TRUE ) < point_pos( lineRect.topLeft(), orientation(), TRUE ) +
-		 size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) {
-		insertLine = TRUE;
+		 size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) { 	// mouse was at the very beginning of the line
+		insertLine = TRUE;					// insert a new line before that with the docking widget
 	    } else if ( point_pos( pos, orientation(), TRUE ) > point_pos( lineRect.topLeft(), orientation(), TRUE ) +
-			3 * size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) {
-		insertLine = TRUE;
+			3 * size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) {	// mouse was at the very and of the line
+		insertLine = TRUE;						// insert a line after that with the docking widget
 		dockLine++;
 	    }
 	}
 	qDebug( "insert in line %d, and insert that line: %d", dockLine, insertLine );
+	qDebug( "     (btw, we have %d lines)", lines.count() );
 	QDockWidget *dw = 0;
-	if ( dockLine >= (int)lines.count() ) {
+	if ( dockLine >= (int)lines.count() ) { // insert before first line
 	    dockWidgets->append( dockWidget );
 	    dockWidget->setNewLine( TRUE );
 	    qDebug( "insert at the end" );
-	} else if ( dockLine == 0 && insertLine ) {
+	} else if ( dockLine == 0 && insertLine ) { // insert after last line
 	    dockWidgets->insert( 0, dockWidget );
 	    dockWidgets->at( 1 )->setNewLine( TRUE );
 	    qDebug( "insert at the begin" );
-	} else {
-	    int searchLine = dockLine;
+	} else { // insert somewhere in between
+	    // make sure each line start has a new line
 	    QList<QDockWidget> lineStarts = layout->lineStarts();
 	    for ( dw = lineStarts.first(); dw; dw = lineStarts.next() )
 		dw->setNewLine( TRUE );
-	    if ( insertLine )
-		searchLine--;
+	    // find the index of the first widget in the search line	    
+	    int searchLine = dockLine;
 	    qDebug( "search line start of %d", searchLine );
 	    int index = dockWidgets->find( lineStarts.at( searchLine ) );
 	    qDebug( "     which starts at %d", index );
 	    int lastPos = 0;
-	    for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
-		if ( point_pos( dw->pos(), orientation() ) < lastPos )
-		    break;
-		if ( point_pos( pos, orientation() ) < size_extend( dw->size(), orientation() ) / 2 )
-		    break;
-		index++;
-	    }
-	    qDebug( "insert at index: %d", index );
-	    if ( index >= 0 && index < (int)dockWidgets->count() && dockWidgets->at( index )->newLine() ) {
-		qDebug( "get rid of the old newline and get me one" );
-		dockWidgets->at( index )->setNewLine( FALSE );
+	    if ( !insertLine ) { // if we only insert the docking widget in the existing line
+		// find the index for the widget
+		for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
+		    if ( point_pos( dw->pos(), orientation() ) < lastPos )
+			break;
+		    if ( point_pos( pos, orientation() ) < size_extend( dw->size(), orientation() ) / 2 )
+			break;
+		    index++;
+		}
+		qDebug( "insert at index: %d", index );
+		// if we insert it just before a widget which has a new line, transfer the newline to the docking widget
+		if ( index >= 0 && index < (int)dockWidgets->count() && dockWidgets->at( index )->newLine() ) {
+		    qDebug( "get rid of the old newline and get me one" );
+		    dockWidgets->at( index )->setNewLine( FALSE );
+		    dockWidget->setNewLine( TRUE );
+		}
+	    } else { // insert in a new line, so make sure the dock widget and the widget which will be after it have a newline
+		dockWidgets->at( index )->setNewLine( TRUE );
 		dockWidget->setNewLine( TRUE );
 	    }
+	    // finally insert the widget
 	    dockWidgets->insert( index, dockWidget );
 	}
     }
