@@ -270,6 +270,8 @@
     \value Vertical
     \value Wide
 
+    \omitvalue Single
+
 */
 
 /*!
@@ -325,6 +327,12 @@
     \value ByteOrderSwapped
     \value ParagraphSeparator
     \value LineSeparator
+
+    \omitvalue null
+    \omitvalue replacement
+    \omitvalue byteOrderMark
+    \omitvalue byteOrderSwapped
+    \omitvalue nbsp
 */
 
 /*!
@@ -783,3 +791,28 @@ QChar QChar::fromAscii(char c)
     Returns true if the numeric Unicode value of \a c1 is greater than
     that of \a c2; otherwise returns false.
 */
+
+/*!
+    \fn bool QChar::mirrored() const
+
+    Use hasMirrored() instead.
+*/
+
+/*!
+    \fn QChar QChar::lower() const
+
+    Use toLower() instead.
+*/
+
+/*!
+    \fn QChar QChar::upper() const
+
+    Use toUpper() instead.
+*/
+
+/*!
+    \fn bool QChar::networkOrdered()
+
+    See if QSysInfo::ByteOrder == QSysInfo::BigEndian instead.
+*/
+

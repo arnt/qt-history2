@@ -40,6 +40,12 @@ void QDir::slashify(QString& n)
     }
 }
 
+/*!
+    Returns the user's home directory or an empty string if it cannot
+    be determined.
+
+    \sa currentDirPath() rootDirPath()
+*/
 QString QDir::homeDirPath()
 {
     typedef HRESULT (WINAPI *PtrSHGetSpecialFolderLocation)(HWND,int,LPITEMIDLIST*);
@@ -115,12 +121,29 @@ QString QDir::canonicalPath() const
 }
 
 
+// ### Is the last sentence true?
+/*!
+    Tries to create a directory called \a dirName. Returns true on
+    success; otherwise returns false. If \a acceptAbsPath is false \a
+    dirName must be relative to the current working directory.
+
+    \sa currentDirPath()
+*/
 bool QDir::mkdir(const QString &dirName, bool acceptAbsPath) const
 {
     return ::_wmkdir((TCHAR*)filePath(dirName,acceptAbsPath).ucs2()) == 0;
 }
 
 
+// ### Is the last sentence true?
+/*!
+    Tries to delete the directory specified by \a dirName. Returns
+    true on success; otherwise returns false. If \a acceptAbsPath is
+    false \a dirName must be relative to the current working
+    directory.
+
+    \sa currentDirPath()
+*/
 bool QDir::rmdir(const QString &dirName, bool acceptAbsPath) const
 {
     return ::_wrmdir((TCHAR*)filePath(dirName,acceptAbsPath).ucs2()) == 0;
@@ -172,6 +195,12 @@ bool QDir::setCurrent(const QString &path)
 }
 
 
+/*!
+    Returns the current working directory or "/" if the current
+    directory cannot be determined.
+
+    \sa homeDirPath() rootDirPath()
+*/
 QString QDir::currentDirPath()
 {
     QMutexLocker locker(qt_global_mutexpool ?
@@ -183,6 +212,11 @@ QString QDir::currentDirPath()
 }
 
 
+/*!
+    Returns "/".
+
+    \sa homeDirPath() currentDirPath()
+*/
 QString QDir::rootDirPath()
 {
 

@@ -945,6 +945,7 @@ public:
     };
 
 #ifdef QT_COMPAT
+    // Documented in qnamespace.doc
     enum BackgroundMode {
         FixedColor,
         FixedPixmap,

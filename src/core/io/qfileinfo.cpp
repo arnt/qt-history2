@@ -687,6 +687,10 @@ QFileInfo::absoluteDir() const
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use absoluteDir() or the dir() overload that takes no parameters
+    instead.
+*/
 QDir QFileInfo::dir(bool absPath) const
 {
     if(absPath)
@@ -1029,3 +1033,29 @@ QFileInfo::setCaching(bool enable)
     detach();
     d->data->cache_enabled = enable;
 }
+
+/*!
+    \fn QString QFileInfo::baseName(bool complete)
+
+    Use completeBaseName() or the baseName() overload that takes no
+    parameters instead.
+*/
+
+/*!
+    \fn QString QFileInfo::extension(bool complete = true) const
+
+    Use completeSuffix() or suffix() instead.
+*/
+
+/*!
+    \fn QString QFileInfo::absFilePath() const
+
+    Use absoluteFilePath() instead.
+*/
+
+/*!
+    \fn bool QFileInfo::convertToAbs()
+
+    Use makeAbsolute() instead.
+*/
+

@@ -717,6 +717,14 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     window which always stays on top of the main window.
 
     \value DockUnmanaged not managed by a Q3MainWindow.
+
+    \omitvalue Bottom
+    \omitvalue Left
+    \omitvalue Minimized
+    \omitvalue Right
+    \omitvalue Top
+    \omitvalue TornOff
+    \omitvalue Unmanaged
 */
 
 /*!

@@ -2230,4 +2230,10 @@ void Q3ActionGroup::addedTo(int index, QPopupMenu *menu)
     Q_UNUSED(menu);
 }
 
+/*!
+    \fn void Q3ActionGroup::insert(Q3Action* a)
+
+    Use add() instead.
+*/
+
 #endif

@@ -22,6 +22,10 @@
 
 */
 
+/*!
+    Creates a new frame with the given \a parent, object \a name, and
+    with widget flags \a f.
+*/
 Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WFlags f)
     :QFrame(parent, f), marg(0)
 {
@@ -30,10 +34,17 @@ Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WFlags f)
     setAttribute(Qt::WA_LayoutOnEntireRect);
 }
 
+/*!
+    Destructs the frame.
+*/
 Q3Frame::~Q3Frame()
 {
 }
 
+/*!
+    Paints the frame (or part of the frame) that's necessary,
+    depending on the \a event.
+*/
 void Q3Frame::paintEvent(QPaintEvent * event)
 {
     QPainter paint(this);
@@ -50,7 +61,10 @@ void Q3Frame::paintEvent(QPaintEvent * event)
 }
 
 /*!
-    Virtual function that draws the contents of the frame.
+    \fn void Q3Frame::drawContents(QPainter *painter)
+
+    Virtual function that draws the contents of the frame on the given
+    \a painter.
 
     The QPainter is already open when you get it, and you must leave
     it open. Painter \link QPainter::setWorldMatrix()
@@ -87,6 +101,12 @@ void Q3Frame::drawFrame(QPainter *p)
     QFrame::drawFrame(p);
 }
 
+/*!
+    \fn void Q3Frame::resizeEvent(QResizeEvent *event)
+
+    This just calls frameChanged(); it does not make use of the \a
+    event itself.
+*/
 void Q3Frame::resizeEvent(QResizeEvent *)
 {
     frameChanged();
@@ -129,6 +149,9 @@ void Q3Frame::setMargin(int w)
     frameChanged();
 }
 
+/*!
+    Returns the frame's contents rectangle (including the margins).
+*/
 QRect Q3Frame::contentsRect() const
 {
     QRect cr(QFrame::contentsRect());
@@ -136,6 +159,9 @@ QRect Q3Frame::contentsRect() const
     return cr;
 }
 
+/*!
+    Returns the width of the frame (including the margin).
+*/
 int Q3Frame::frameWidth() const
 {
     return QFrame::frameWidth() + marg;

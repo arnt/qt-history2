@@ -1332,4 +1332,10 @@ bool QTranslatorMessage::operator<(const QTranslatorMessage& m) const
     otherwise returns false.
 */
 
+/*!
+    \fn QString QTranslator::find(const char *context, const char *sourceText, const char * comment) const
+
+    Use findMessage() instead.
+*/
+
 #endif // QT_NO_TRANSLATION

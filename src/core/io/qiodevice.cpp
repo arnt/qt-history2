@@ -1003,3 +1003,10 @@ QString QIODevice::errorString() const
 
     \sa QIOEngine
 */
+
+/*!
+    \fn bool QIODevice::at(Offset off)
+
+    Use seek() instead.
+*/
+

@@ -149,6 +149,10 @@ void QFileInfo::doStat() const
 }
 
 
+/*!
+    Returns the path (which may be relative). If \a absPath is true,
+    returns the absolute path, i.e., from the root.
+*/
 QString QFileInfo::dirPath(bool absPath) const
 {
     QString s;

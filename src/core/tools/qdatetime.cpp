@@ -2754,3 +2754,57 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dt)
     return in;
 }
 #endif // QT_NO_DATASTREAM
+
+
+/*!
+    \fn QString QDate::monthName(int month)
+
+    Use shortMonthName() instead.
+*/
+
+/*!
+    \fn QString QDate::dayName(int weekday)
+
+    Use shortDayName() instead.
+*/
+
+/*!
+    \fn bool QDate::leapYear(int year)
+
+    Use isLeapYear() instead.
+*/
+
+/*!
+    \fn QDate QDate::currentDate(Qt::TimeSpec spec)
+
+    Use the currentDate() overload that takes no parameters; or
+    extract from currentDateTime() instead.
+*/
+
+/*!
+    \fn QDate QTime::currentDate(Qt::TimeSpec spec)
+
+    Use the currentDate() overload that takes no parameters; or
+    extract from currentDateTime() instead.
+*/
+
+/*!
+    \fn QTime QTime::currentTime(Qt::TimeSpec spec)
+
+    Use the currentTime() overload that takes no parameters; or
+    extract from currentDateTime() instead.
+*/
+
+/*!
+    \fn void QDateTime::setTime_t(uint secsSince1Jan1970UTC, Qt::TimeSpec spec)
+
+    Use the single-argument overload of setTime_t() instead.
+*/
+
+/*!
+    \fn QDateTime QDateTime::currentDateTime(Qt::TimeSpec spec)
+
+    Use the currentDateTime() overload that takes no parameters
+    instead.
+*/
+

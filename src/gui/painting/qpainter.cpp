@@ -3683,4 +3683,19 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     srcPixmap.convertFromImage(*src, conversion_flags);
     bitBlt_helper(dst, QPoint(dx, dy), &srcPixmap, QRect(sx, sy, sw, sh), false);
 }
+
 #endif // QT_COMPAT
+
+/*!
+    \enum Qt::PaintUnit
+
+    \compat
+
+    \value PixelUnit
+    \value LoMetricUnit Obsolete
+    \value HiMetricUnit Obsolete
+    \value LoEnglishUnit Obsolete
+    \value HiEnglishUnit Obsolete
+    \value TwipsUnit Obsolete
+*/
+

@@ -742,3 +742,16 @@ void *QLibrary::resolve(const QString &fileName, const char *symbol)
     QLibrary library(fileName);
     return library.resolve(symbol);
 }
+
+/*!
+    \fn QString QLibrary::library() const
+
+    Use fileName() instead.
+*/
+
+/*!
+    \fn void QLibrary::setAutoUnload( bool b )
+
+    Use load(), isLoaded(), and unload() as necessary instead.
+*/
+

@@ -285,6 +285,8 @@ QObject::QObject(QObject *parent)
 /*!
     \overload
     \obsolete
+
+    Creates a new QObject with the given \a parent and object \a name.
  */
 QObject::QObject(QObject *parent, const char *name)
     : d_ptr(new QObjectPrivate)
@@ -534,7 +536,9 @@ static QObject *qChildHelper(const char *objName, const char *inheritsClass,
 }
 
 
-/*
+/*!
+    \internal
+
     Searches the children and optionally grandchildren of this object,
     and returns a child that is called \a objName that inherits \a
     inheritsClass. If \a inheritsClass is 0 (the default), any class
@@ -946,7 +950,9 @@ static void objSearch(QObjectList &result,
     }
 }
 
-/*
+/*!
+    \internal
+
     Searches the children and optionally grandchildren of this object,
     and returns a list of those objects that are named or that match
     \a objName and inherit \a inheritsClass. If \a inheritsClass is 0
@@ -2561,3 +2567,65 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
 }
 #endif
 #endif
+
+/*!
+    \fn void QObject::insertChild(QObject *object)
+
+    Use setParent() instead, i.e., call object->setParent(this).
+*/
+
+/*!
+    \fn void QObject::removeChild(QObject *object)
+
+    Use setParent() instead, i.e., call object->setParent(0).
+*/
+
+/*!
+    \fn bool QObject::isA(const char *classname) const
+
+    Compare with the object's metaObject()->className() instead.
+*/
+
+/*!
+    \fn const char *QObject::className() const
+
+    Use metaObject()->className() instead.
+*/
+
+/*!
+    \fn const char *QObject::name() const
+
+    Use objectName() instead.
+*/
+
+/*!
+    \fn const char *QObject::name(const char *defaultName) const
+
+    Use objectName() instead.
+*/
+
+/*!
+    \fn void QObject::setName(const char *name)
+
+    Use setObjectName() instead.
+*/
+
+/*!
+    \fn bool QObject::checkConnectArgs(const char *signal, const
+    QObject *object, const char *member)
+
+    Use QMetaObject::checkConnectArgs() instead.
+*/
+
+/*!
+    \fn QByteArray QObject::normalizeSignalSlot(const char *signalSlot)
+
+    Use QMetaObject::normalizedSignature() instead.
+*/
+
+/*!
+    \fn const char *QMetaObject::superClassName() const
+
+    \internal
+*/
+

@@ -960,6 +960,18 @@ void Q3GroupBoxPrivate::updateCheckBoxGeometry()
     }
 }
 
+/*!
+    \fn int Q3GroupBox::margin() const
+
+    Use insideMargin() instead.
+*/
+
+/*!
+    \fn void Q3GroupBox::setMargin(int m)
+
+    Use setInsideMargin() instead.
+*/
+
 
 #include "moc_q3groupbox.cpp"
 

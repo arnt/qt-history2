@@ -27,3 +27,9 @@ QMutexLocker::QMutexLocker(QStaticMutex &m)
     mtx = reinterpret_cast<QMutex *>(m);
     relock();
 }
+
+/*!
+    \fn bool QMutex::locked()
+
+    Use isLocked() instead.
+*/

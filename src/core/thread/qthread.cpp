@@ -268,3 +268,16 @@ void QThread::cleanup()
     delete static_qt_global_mutexpool;
     static_qt_global_mutexpool = 0;
 }
+
+/*!
+    \fn bool QThread::finished() const
+
+    Use isFinished() instead.
+*/
+
+/*!
+    \fn bool QThread::running() const
+
+    Use isRunning() instead.
+*/
+

@@ -103,7 +103,6 @@
     \value DragLeave    The cursor leaves a widget during a drag and drop action, \l{QDragLeaveEvent}.
     \value DragMove     A drag and drop action is in progress, \l{QDragMoveEvent}.
     \value Drop  A drag and drop action is completed, \l{QDropEvent}.
-    \value EmitSignal
     \value EnabledChange Widget's enabled state has changed
     \value Enter  Mouse enters widget's boundaries.
     \value FileOpen File open request.
@@ -116,7 +115,6 @@
     \value IMEnd  The end of input method composition, \l{QIMEvent}.
     \value IMStart  The start of input method composition, \l{QIMEvent}.
     \value IconTextChange Widget's icon text has been changed
-    \value InvokeSlot
     \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
     \value KeyRelease  Key release, \l{QKeyEvent}.
     \value LanguageChange  The application translation changed, \l{QTranslator}
@@ -124,6 +122,7 @@
     \value LayoutRequest  Widget layout needs to be redone.
     \value Leave  Mouse leaves widget's boundaries.
     \value LocaleChange  The system locale changed
+    \value MetaCall
     \value ModifiedChange Widgets modification state has been changed
     \value MouseButtonDblClick  Mouse press again, \l{QMouseEvent}.
     \value MouseButtonPress  Mouse press, \l{QMouseEvent}.
@@ -180,6 +179,13 @@
     \omitvalue IconDrag
     \omitvalue OkRequest
     \omitvalue Style
+    \omitvalue ChildInserted
+    \omitvalue LayoutHint
+    \omitvalue CaptionChange
+    \omitvalue IconChange
+    \omitvalue Accel
+    \omitvalue AccelAvailable
+    \omitvalue AccelOverride
 
     User events should have values between User and MaxUser inclusive.
 */
@@ -365,7 +371,7 @@ QEvent::~QEvent()
 
 
 /*!
-    \fn QCustomEvent::QCustomEvent(Type type, void *data)
+    \fn QCustomEvent::QCustomEvent(int type, void *data)
 
     Constructs a custom event object with the event \a type and a
     pointer to \a data. The value of \a type must be at least as
@@ -389,3 +395,11 @@ QEvent::~QEvent()
 
     \sa setData()
 */
+
+/*!
+    \fn bool QChildEvent::inserted() const
+
+    A child has been inserted if the event's type() is ChildInserted.
+*/
+
+

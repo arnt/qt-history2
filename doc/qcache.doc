@@ -192,3 +192,10 @@
 
     \sa remove()
 */
+
+/*!
+    \fn QCache::QCache(int maxCost, int dummy)
+
+    Use QCache(int) instead.
+*/
+

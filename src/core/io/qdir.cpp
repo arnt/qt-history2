@@ -1711,15 +1711,71 @@ QDir::nameFiltersFromString(const QString &nameFilter)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use nameFilters() instead.
+*/
 QString QDir::nameFilter() const
 {
     return nameFilters().join(QString(d->filterSepChar));
 }
 
+/*!
+    Use setNameFilters() instead.
+*/
 void QDir::setNameFilter(const QString &nameFilter)
 {
     d->filterSepChar = QDirPrivate::getFilterSepChar(nameFilter);
     setNameFilters(QDirPrivate::splitFilters(nameFilter, d->filterSepChar));
 }
 #endif
+
+/*!
+    \fn QString QDir::absPath() const
+
+    Use absolutePath() instead.
+*/
+
+/*!
+    \fn QString QDir::absFilePath(const QString &fileName, bool acceptAbsPath) const
+
+    Use absoluteFilePath() instead.
+*/
+
+/*!
+    \fn bool QDir::matchAllDirs() const
+
+    Use filter() & AllDirs instead.
+*/
+
+/*!
+    \fn void QDir::setMatchAllDirs(bool on)
+
+    Use setFilter() instead.
+*/
+
+/*!
+    \fn QStringList QDir::entryList(const QString &nameFilter, int filterSpec, int sortSpec) const
+
+    Use the overload that takes a name filter string list as first
+    argument instead.
+*/
+
+/*!
+    \fn QFileInfoList QDir::entryInfoList(const QString &nameFilter, int filterSpec, int sortSpec) const
+
+    Use the overload that takes a name filter string list as first
+    argument instead.
+*/
+
+/*!
+    \fn void QDir::convertToAbs()
+
+    Use makeAbsolute() instead.
+*/
+
+/*!
+    \fn QString QDir::cleanDirPath(const QString &name)
+
+    Use cleanPath() instead.
+*/
 

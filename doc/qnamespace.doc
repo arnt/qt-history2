@@ -320,3 +320,30 @@
     \omitvalue DockWindowAreaMask
     \omitvalue NDockWindowAreas
 */
+
+/*!
+    \enum Qt::BackgroundMode
+
+    \compat
+
+    \value FixedColor
+    \value FixedPixmap
+    \value NoBackground
+    \value PaletteForeground
+    \value PaletteButton
+    \value PaletteLight
+    \value PaletteMidlight
+    \value PaletteDark
+    \value PaletteMid
+    \value PaletteText
+    \value PaletteBrightText
+    \value PaletteBase
+    \value PaletteBackground
+    \value PaletteShadow
+    \value PaletteHighlight
+    \value PaletteHighlightedText
+    \value PaletteButtonText
+    \value PaletteLink
+    \value PaletteLinkVisited
+    \value X11ParentRelative
+*/

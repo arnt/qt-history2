@@ -20,6 +20,9 @@
     \compat
 */
 
+/*!
+    Constructs a new What's This object for widget \a w.
+*/
 Q3WhatsThis::Q3WhatsThis(QWidget *w)
     : QObject(w)
 {
@@ -27,10 +30,16 @@ Q3WhatsThis::Q3WhatsThis(QWidget *w)
         w->installEventFilter(this);
 }
 
+/*!
+    Destructs the What's This object.
+*/
 Q3WhatsThis::~Q3WhatsThis()
 {
 }
 
+/*!
+    Handles What's This events.
+*/
 bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
 {
     if (o != parent() || !o->isWidgetType())
@@ -50,6 +59,9 @@ bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
     return true;
 }
 
+/*!
+    Returns the parent's What's This text or an empty string.
+*/
 QString Q3WhatsThis::text(const QPoint &)
 {
     if (parent() && parent()->isWidgetType())
@@ -57,7 +69,48 @@ QString Q3WhatsThis::text(const QPoint &)
     return QString();
 }
 
+/*!
+    Returns true.
+*/
 bool Q3WhatsThis::clicked(const QString &)
 { return true;}
 
+/*!
+    \fn void Q3WhatsThis::enterWhatsThisMode()
 
+*/
+
+/*!
+    \fn bool Q3WhatsThis::inWhatsThisMode()
+
+*/
+
+/*!
+    \fn void Q3WhatsThis::leaveWhatsThisMode()
+
+*/
+
+/*!
+    \fn void Q3WhatsThis::add(QWidget *w, const QString &s)
+
+*/
+
+/*!
+    \fn void Q3WhatsThis::remove(QWidget *w)
+
+*/
+
+/*!
+    \fn void Q3WhatsThis::leaveWhatsThisMode(const QString& text = QString::null, const QPoint& pos = QCursor::pos(), QWidget* w = 0)
+
+*/
+
+/*!
+    \fn void Q3WhatsThis::display(const QString& text, const QPoint& pos = QCursor::pos(), QWidget* w = 0)
+
+*/
+
+/*!
+    \fn QToolButton* Q3WhatsThis::whatsThisButton(QWidget * parent)
+
+*/

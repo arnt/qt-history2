@@ -3605,3 +3605,121 @@ QByteArray QByteArray::fromBase64(const QByteArray &base64)
 /*! \typedef QByteArray::iterator
     \internal
 */
+
+/*!
+    \fn QByteArray::QByteArray(int size)
+
+    Use QByteArray(int, char) instead.
+*/
+
+
+/*!
+    \fn QByteArray QByteArray::leftJustify(uint width, char fill, bool truncate) const
+
+    Use leftJustified() instead.
+*/
+
+/*!
+    \fn QByteArray QByteArray::rightJustify(uint width, char fill, bool truncate) const
+
+    Use rightJustified() instead.
+*/
+
+/*!
+    \fn QByteArray& QByteArray::duplicate(const QByteArray& a)
+
+    Use simple assignment instead. (QByteArray uses implicit sharing
+    so if you modify a copy, only the copy is changed.)
+*/
+
+/*!
+    \fn QByteArray& QByteArray::duplicate(const char *a, uint n)
+
+    Use simple assignment instead. (QByteArray uses implicit sharing
+    so if you modify a copy, only the copy is changed.)
+*/
+
+/*!
+    \fn QByteArray& QByteArray::setRawData(const char *a, uint n)
+
+    Use fromRawData() instead.
+*/
+
+/*!
+    \fn void QByteArray::resetRawData(const char *data, uint n)
+
+    Use clear() instead.
+*/
+
+/*!
+    \fn QByteArray QByteArray::lower() const
+
+    Use toLower() instead.
+*/
+
+/*!
+    \fn QByteArray QByteArray::upper() const
+
+    Use toUpper() instead.
+*/
+
+/*!
+    \fn QByteArray QByteArray::stripWhiteSpace() const
+
+    Use trimmed() instead.
+*/
+
+/*!
+    \fn QByteArray QByteArray::simplifyWhiteSpace() const
+
+    Use simplified() instead.
+*/
+
+/*!
+    \fn int QByteArray::find(char c, int from = 0) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn int QByteArray::find(const char *c, int from = 0) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn int QByteArray::find(const QByteArray &ba, int from = 0) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn int QByteArray::findRev(char c, int from = -1) const
+
+    Use lastIndexOf() instead.
+*/
+
+/*!
+    \fn int QByteArray::findRev(const char *c, int from = -1) const
+
+    Use lastIndexOf() instead.
+*/
+
+/*!
+    \fn int QByteArray::findRev(const QByteArray &ba, int from = -1) const
+
+    Use lastIndexOf() instead.
+*/
+
+/*!
+    \fn int QByteArray::find(const QString &s, int from = 0) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn int QByteArray::findRev(const QString &s, int from = -1) const
+
+    Use lastIndexOf() instead.
+*/
+

@@ -813,8 +813,18 @@ QByteArray QMetaObject::normalizedSignature(const char *member)
 /*!
     \enum QMetaMember::Attributes
 
-    \value Compatability
+    \value Compatibility
     \value Cloned
+    \value Scriptable
+
+*/
+
+/*!
+    \enum QMetaMember::MemberType
+
+    \value Method
+    \value Signal
+    \value Slot
 */
 
 /*!

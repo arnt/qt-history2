@@ -571,3 +571,16 @@ QIOEngine
         d->fileEngine = QFileEngine::createFileEngine(d->fileName);
     return d->fileEngine;
 }
+
+/*!
+    \fn QString QFile::name() const
+
+    Use fileName() instead.
+*/
+
+/*!
+    \fn void QFile::setName(const QString &name)
+
+    Use setFileName() instead.
+*/
+
