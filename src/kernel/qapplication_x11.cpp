@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#511 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#512 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -493,12 +493,10 @@ static bool qt_set_desktop_properties()
     int e = XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
 			     FALSE, AnyPropertyType, &type, &format, &nitems,
 			     &after,  (unsigned char**)&data );
-
-    if ( e != Success || !nitems ) {
-	if ( data )
-	    XFree(  (unsigned char*)data );
+    if ( data )
+	XFree(  (unsigned char*)data );
+    if ( e != Success || !nitems )
 	return FALSE;
-    }
 
     QBuffer  properties;
     properties.open( IO_WriteOnly );

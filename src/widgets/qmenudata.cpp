@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#82 $
 **
 ** Implementation of QMenuData class
 **
@@ -59,7 +59,8 @@ class QMenuDataData { };
 QMenuItem::QMenuItem()
 {
     ident	 = -1;
-    is_separator = is_checked = FALSE;
+    is_separator = FALSE;
+    is_checked   = FALSE;
     is_enabled	 = TRUE;
     is_dirty	 = TRUE;
     iconset_data	 = 0;
@@ -102,7 +103,9 @@ QMenuData::QMenuData()
     CHECK_PTR( mitems );
     mitems->setAutoDelete( TRUE );
     parentMenu = 0;				// assume top level
-    isPopupMenu = isMenuBar = mouseBtDn = FALSE;
+    isPopupMenu = FALSE;
+    isMenuBar = FALSE;
+    mouseBtDn = FALSE;
     badSize = TRUE;
     avoid_circularity = 0;
     d = 0; // FOR EXTENSION
@@ -729,7 +732,7 @@ int QMenuData::accel( int id ) const
   Defines an accelerator key for the menu item \a id.
 
   An accelerator key consists of a key code and a combination of the modifiers
-  \c SHIFT, \c CTRL and \c ALT (OR'ed or added).
+  \c SHIFT, \c CTRL, \c ALT, or \c UNICODE_ACCEL (OR'ed or added).
   The header file qnamespace.h contains a list of key codes.
 
   Defining an accelerator key generates a text which is added to the

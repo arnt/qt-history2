@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#149 $
 **
 ** Implementation of QMenuBar class
 **
@@ -982,8 +982,8 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 		}
 	    }
 	}
-    } else if ( !e->state() && e->key() >= Key_0 && e->key() <= Key_Z ) {
-	char c = '0' + e->key() - Key_0;
+    } else if ( !e->state() && e->text().length()==1 ) {
+	QChar c = e->text()[0].upper();
 
 	QMenuItemListIt it(*mitems);
 	register QMenuItem *m;
@@ -993,8 +993,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
 		int i = s.find( '&' );
-		if ( i >= 0 &&
-			(s[i+1].isLetter() || s[i+1].isNumber()) )
+		if ( i >= 0 )
 		{
 		    if ( s[i+1].upper() == c ) {
 			mi = m;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#26 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#27 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -201,10 +201,13 @@ public:
     };
 
     enum Modifier {		// accelerator modifiers
-	SHIFT = 0x00002000,
-	CTRL = 0x00004000,
-	ALT = 0x00008000,
-	ASCII_ACCEL = 0x10000000
+	SHIFT         = 0x00200000,
+	CTRL          = 0x00400000,
+	ALT           = 0x00800000,
+	MODIFIER_MASK = 0x00e00000,
+	UNICODE_ACCEL = 0x10000000,
+
+	ASCII_ACCEL = UNICODE_ACCEL // 1.x compat
     };
 
     enum Key {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#253 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#254 $
 **
 ** Implementation of QListView widget class
 **
@@ -2960,13 +2960,13 @@ void QListView::keyPressEvent( QKeyEvent * e )
         e->ignore(); // For QDialog
         break;
     default:
-        if ( e->ascii() && isalnum( e->ascii() ) ) {
+        if ( e->text().length() > 0 ) {
             QString input( d->currentPrefix );
             QListViewItem * keyItem = i;
             QTime now( QTime::currentTime() );
             while( keyItem ) {
                 // try twice, first with the previous string and this char
-                input += (char)tolower( e->ascii() );
+                input = input + e->text().lower();
                 QString keyItemKey;
                 QString prefix;
                 while( keyItem ) {

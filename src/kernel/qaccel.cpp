@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#74 $
 **
 ** Implementation of QAccel class
 **
@@ -38,7 +38,7 @@
 
   A QAccel contains a list of accelerator items. Each accelerator item
   consists of an identifier and a keyboard code combined with modifiers
-  (\c SHIFT, \c CTRL, \c ALT or \c ASCII_ACCEL).
+  (\c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL).
 
   For example, <code>CTRL + Key_P</code> could be a shortcut for printing
   a document. The key codes are listed in qnamespace.h.
@@ -71,12 +71,9 @@
 struct QAccelItem {				// internal accelerator item
     QAccelItem( int k, int i )
 	{ key=k; id=i; enabled=TRUE; signal=0; }
-    QAccelItem( int k, QChar kt, int i )
-	{ key=k; key_text=kt; id=i; enabled=TRUE; signal=0; }
    ~QAccelItem()	       { delete signal; }
     int		id;
     int		key;
-    QChar	key_text;
     bool	enabled;
     QSignal    *signal;
     QString whatsthis;
@@ -105,15 +102,15 @@ static QAccelItem *find_id( QAccelList &list, int id )
     return item;
 }
 
-static QAccelItem *find_key( QAccelList &list, int key, int ascii, QChar text )
+static QAccelItem *find_key( QAccelList &list, int key, int ch )
 {
     register QAccelItem *item = list.first();
     while ( item ) {
 	int k = item->key;
-	if ( (k & Qt::ASCII_ACCEL) != 0 && (k & 0xff) == ascii ) {
-	    break;
-	} else if ( !item->key_text.isNull() && ((key&k) == k)
-		    && item->key_text == text ) {
+	if ( (k & Qt::UNICODE_ACCEL)
+		&& (k & Qt::MODIFIER_MASK) == (key & Qt::MODIFIER_MASK)
+		&& QChar(k & 0xffff).lower() == QChar(ch).lower() )
+	{
 	    break;
 	} else if ( k == key ) {
 	    break;
@@ -215,7 +212,7 @@ uint QAccel::count() const
     QAccel *a = new QAccel( myWindow );		// create accels for myWindow
     a->insertItem( Key_P + CTRL, 200 );		// Ctrl+P to print document
     a->insertItem( Key_X + ALT , 201 );		// Alt+X  to quit
-    a->insertItem( ASCII_ACCEL + 'q', 202 );	// ASCII 'q' to quit
+    a->insertItem( UNICODE_ACCEL + 'q', 202 );	// Unicode 'q' to quit
     a->insertItem( Key_D );			// gets id 3
     a->insertItem( Key_P + CTRL + SHIFT );	// gets id 4
   \endcode
@@ -226,34 +223,6 @@ int QAccel::insertItem( int key, int id )
     if ( id == -1 )
 	id = d->aitems.count();
     d->aitems.insert( 0, new QAccelItem(key,id) );
-    return id;
-}
-
-/*!
-  Inserts an accelerator item and returns the item's identifier.
-
-  \arg \e keystate is a combination of SHIFT, CTRL and ALT.
-  \arg \e keytext is (Unicode) character.
-  \arg \e id is the accelerator item id.
-
-  If \e id is negative, then the item will be assigned a unique
-  identifier.
-
-  \code
-    QAccel *a = new QAccel( myWindow );		// create accels for myWindow
-
-    // Ctrl plus whatever should be used for the "P" accelerator in
-    // according the installed translations.
-    //
-    a->insertItem( CTRL, tr("P")[0], 200 );
-  \endcode
-*/
-
-int QAccel::insertItem( int keystate, QChar keytext, int id )
-{
-    if ( id == -1 )
-	id = d->aitems.count();
-    d->aitems.insert( 0, new QAccelItem(keystate,keytext,id) );
     return id;
 }
 
@@ -297,19 +266,7 @@ int QAccel::key( int id )
 
 int QAccel::findKey( int key ) const
 {
-    QAccelItem *item = find_key( d->aitems, key, key & 0xff, QChar::null );
-    return item ? item->id : -1;
-}
-
-
-/*!
-  Returns the identifier of the accelerator item with the keystate \e key
-  and text \a keytext, or -1 if the item cannot be found.
-*/
-
-int QAccel::findKey( int keystate, QChar keytext ) const
-{
-    QAccelItem *item = find_key( d->aitems, keystate, 0, keytext );
+    QAccelItem *item = find_key( d->aitems, key, key & 0xffff );
     return item ? item->id : -1;
 }
 
@@ -434,7 +391,7 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	    key |= CTRL;
 	if ( k->state() & AltButton )
 	    key |= ALT;
-	QAccelItem *item = find_key( d->aitems, key, k->ascii(), k->text()[0] );
+	QAccelItem *item = find_key( d->aitems, key, k->text()[0].unicode() );
 	bool b = QWhatsThis::inWhatsThisMode();
 	if ( item && ( item->enabled || b )) {
 	    if (e->type() == QEvent::Accel) {
@@ -491,12 +448,11 @@ int QAccel::shortcutKey( const QString &str )
 	if ( p <= 0 || p == (int)str.length() )
 	    return 0;
 	if ( str[p] != '&' ) {
-	    int c = str[p].unicode();
-	    if ( c < 32 || ( c > 126 && c < 160 ) || c > 255 )
+	    QChar c = str[p];
+	    if ( c < ' ' || ( c > '\176' && c < '\240' ) )
 		return 0;
-	    if ( c >= 'a' && c <= 'z' )
-		c -= 32;
-	    return c + ALT;
+	    c = c.upper();
+	    return c.unicode() + ALT + UNICODE_ACCEL;
 	}
     }
     return 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#228 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#229 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -144,9 +144,8 @@ QString QPopupMenu::accelString( int k )
     }
     k &= ~(SHIFT | CTRL | ALT);
     QString p;
-    if ( (k & ASCII_ACCEL) == ASCII_ACCEL ) {
-	k &= ~ASCII_ACCEL;
-	p.sprintf( "%c", (k & 0xff) );
+    if ( (k & UNICODE_ACCEL) == UNICODE_ACCEL ) {
+	p = QChar(k & 0xffff);
     } else if ( k >= Key_F1 && k <= Key_F24 ) {
 	p = tr( "F%1" ).arg(k - Key_F1 + 1);
     } else if ( k > Key_Space && k <= Key_AsciiTilde ) {
@@ -1150,9 +1149,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	ok_key = FALSE;
 
     }
-#if 1
-    if ( !ok_key && !e->state() && e->key() >= Key_0 && e->key() <= Key_Z ) {
-	char c = '0' + e->key() - Key_0;
+    if ( !ok_key && !e->state() && e->text().length()==1 ) {
+	QChar c = e->text()[0].upper();
 
 	QMenuItemListIt it(*mitems);
 	register QMenuItem *m;
@@ -1162,8 +1160,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
 		int i = s.find( '&' );
-		if ( i >= 0 &&
-			( s[i+1].isLetter() || s[i+1].isNumber() ) ) {
+		if ( i >= 0 ) {
 		    if ( s[i+1].upper() == c ) {
 			mi = m;
 			ok_key = TRUE;
@@ -1191,7 +1188,6 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
-#endif
     if ( !ok_key ) {				// send to menu bar
 	register QMenuData *top = this;		// find top level
 	while ( top->parentMenu )
