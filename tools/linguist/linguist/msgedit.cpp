@@ -384,12 +384,11 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     doGuesses = TRUE;
     v = new QVBoxLayout( this );
 
-    topDockWnd = new QDockWindow(parent);
+    topDockWnd = new QDockWindow(parent, Qt::DockWindowAreaTop);
     topDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
     topDockWnd->setClosable(true);
     topDockWnd->setMovable(true);
     topDockWnd->setFloatable(true);
-    topDockWnd->setArea(Qt::DockWindowAreaTop);
     topDockWnd->setWindowTitle(tr("Source text"));
 
     srcTextList = new Q3ListView();
@@ -424,14 +423,12 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     sw->setMinimumSize( QSize( 100, 150 ) );
     sv->addChild( sw );
 
-    bottomDockWnd = new QDockWindow(parent);
+    bottomDockWnd = new QDockWindow(parent, Qt::DockWindowAreaBottom);
     bottomDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
     bottomDockWnd->setClosable(true);
     bottomDockWnd->setMovable(true);
     bottomDockWnd->setFloatable(true);
-    bottomDockWnd->setArea(Qt::DockWindowAreaBottom);
     bottomDockWnd->setWindowTitle(tr("Phrases"));
-
 
     QWidget * w = new QWidget();
     w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,

@@ -173,13 +173,12 @@ TrWindow::TrWindow()
     setCorner(Qt::BottomRight, Qt::DockWindowAreaRight);
 
     // Set up the Scope dock window
-    QDockWindow * dwScope = new QDockWindow(this);
+    QDockWindow * dwScope = new QDockWindow(this, Qt::DockWindowAreaLeft);
 
     dwScope->setAllowedAreas(Qt::AllDockWindowAreas);
     dwScope->setClosable(true);
     dwScope->setMovable(true);
     dwScope->setFloatable(true);
-    dwScope->setArea(Qt::DockWindowAreaLeft);
     dwScope->setWindowTitle(tr("Context"));
 
     lv = new Q3ListView();
