@@ -409,8 +409,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	forwardDecl += "QSqlForm";
 
     for ( it = tags.begin(); it != tags.end(); ++it ) {
-	nl = e.elementsByTagName( *it );
-	for ( i = 0; i < (int) nl.length(); i++ ) {
+	nl = e.parentNode().toElement().elementsByTagName( *it );
+	for ( i = 1; i < (int) nl.length(); i++ ) { // begin at 1, 0 is the toplevel widget
 	    QString s = getClassName( nl.item(i).toElement() );
 	    if ( s == "QLayoutWidget" )
 		continue; // hide qlayoutwidgets
@@ -494,8 +494,8 @@ void Uic::createFormDecl( const QDomElement &e )
     // children
     bool needEventHandler = FALSE;
     bool needPolish = FALSE;
-    nl = e.elementsByTagName( "widget" );
-    for ( i = 0; i < (int) nl.length(); i++ ) {
+    nl = e.parentNode().toElement().elementsByTagName( "widget" );
+    for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	n = nl.item(i).toElement();
 	createObjectDecl( n );
 	needEventHandler = needEventHandler ||
@@ -718,8 +718,8 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // includes for child widgets
     for ( it = tags.begin(); it != tags.end(); ++it ) {
-	nl = e.elementsByTagName( *it );
-	for ( i = 0; i < (int) nl.length(); i++ ) {
+	nl = e.parentNode().toElement().elementsByTagName( *it );
+	for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	    QString name = getClassName( nl.item(i).toElement() );
 	    if ( name != objClass )
 		globalIncludes += getInclude( name );
@@ -967,8 +967,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    nl = e.elementsByTagName( "widget" );
-    for ( i = 0; i < (int) nl.length(); i++ ) {
+    nl = e.parentNode().toElement().elementsByTagName( "widget" );
+    for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	n = nl.item(i).toElement();
 	QString s = getClassName( n );
 	if ( s == "QDataBrowser" || s == "QDataView" ) {
@@ -1569,6 +1569,8 @@ void Uic::createToolbarImpl( const QDomElement &n )
 		out << indent << n2.attribute( "name" ) << "->addTo( " << objName << " );" << endl;
 	    else if ( n2.tagName() == "separator" )
 		out << indent << objName << "->addSeparator();" << endl;
+	    else if ( n2.tagName() == "widget" )
+		createObjectImpl( n2, "QToolBar", objName );
 	}
     }
 }
@@ -1587,6 +1589,7 @@ void Uic::createMenuBarImpl( const QDomElement &n )
 		out << indent << objName << "->insertSeparator();" << endl;
 	}
 	out << indent << "menuBar()->insertItem( " << trmacro << "(" << fixString( ae.attribute( "text" ) ) << "), " << objName << " );" << endl;
+	out << endl;
     }
 }
 
