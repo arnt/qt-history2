@@ -344,7 +344,6 @@ void MainWindow::setupOutputWindow()
     dw->setWidget( oWindow );
     dw->setFixedExtentHeight( 150 );
     dw->setCaption( tr( "Output Window" ) );
-    dw->show();
 }
 
 void MainWindow::setupHierarchyView()
@@ -1994,10 +1993,16 @@ void MainWindow::readConfig()
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     bool ok;
+    bool readPreviousConfig = FALSE;
     restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", TRUE, &ok );
     if ( !ok ) {
-	readOldConfig();
-	return;
+	keybase = DesignerApplication::oldSettingsKey();
+	restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", TRUE, &ok );
+	if ( !ok ) {
+	    readOldConfig();
+	    return;
+	}
+	readPreviousConfig = TRUE;
     }
     docPath = config.readEntry( keybase + "DocPath", docPath );
     fileFilter = config.readEntry( keybase + "FileFilter", fileFilter );
@@ -2115,6 +2120,11 @@ void MainWindow::readConfig()
 	ts >> *this;
 	f.close();
     }
+
+    if ( readPreviousConfig && oWindow ) {
+	oWindow->shuttingDown();
+	( (QDockWindow*)oWindow->parent() )->hide();
+    }
     rebuildCustomWidgetGUI();
 
     QStringList l = config.readListEntry( keybase + "ToolBox/CommonWidgets" );
@@ -2134,6 +2144,8 @@ void MainWindow::readConfig()
 	    rebuildCommonWidgetsToolBoxPage();
 	}
     }
+    if ( readPreviousConfig )
+	keybase = DesignerApplication::settingsKey();
 }
 
 void MainWindow::readOldConfig()

@@ -98,12 +98,20 @@ void DesignerApplication::closeSplash()
 }
 
 static QString *settings_key = 0;
+static QString *old_settings_key = 0;
 
 QString DesignerApplication::settingsKey()
 {
     if ( !settings_key )
 	settings_key = new QString( "/Qt Designer/3.1/" );
     return *settings_key;
+}
+
+QString DesignerApplication::oldSettingsKey()
+{
+    if ( !old_settings_key )
+	old_settings_key = new QString( "/Qt Designer/3.0/" );
+    return *old_settings_key;
 }
 
 void DesignerApplication::setSettingsKey( const QString &key )

@@ -37,6 +37,7 @@ public:
     static void closeSplash();
 
     static QString settingsKey();
+    static QString oldSettingsKey();
     static void setSettingsKey( const QString &key );
 
 protected:
