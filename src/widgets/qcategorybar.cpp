@@ -45,10 +45,29 @@
 #include <qobjectlist.h>
 #include <qapplication.h>
 #include <qwidgetlist.h>
+#include <qlayout.h>
+#include <qptrdict.h>
 
 class QCategoryBarPrivate
 {
 public:
+    QCategoryBarPrivate()
+	{
+	    currentPage = 0;
+	    lastTab = 0;
+	    buttons = new QWidgetList;
+	}
+
+    ~QCategoryBarPrivate()
+	{
+	    delete buttons;
+	}
+
+    QPtrDict<QWidget> pages;
+    QWidgetList *buttons;
+    QVBoxLayout *layout;
+    QWidget *currentPage;
+    QCategoryButton *lastTab;
 };
 
 class QCategoryButton : public QToolButton
@@ -119,15 +138,13 @@ void QCategoryButton::drawButton( QPainter *p )
 QCategoryBar::QCategoryBar( QWidget *parent, const char *name )
     :  QWidget( parent, name )
 {
-    currentPage = 0;
-    lastTab = 0,
-    layout = new QVBoxLayout( this );
-    buttons = new QWidgetList;
+    d = new QCategoryBarPrivate;
+    d->layout = new QVBoxLayout( this );
 }
 
 QCategoryBar::~QCategoryBar()
 {
-    delete buttons;
+    delete d;
 }
 
 static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
@@ -143,7 +160,7 @@ void QCategoryBar::addCategory( const QString &name, QWidget *page )
 {
     page->setBackgroundMode( PaletteBackground );
     QCategoryButton *button = new QCategoryButton( this, name.latin1() );
-    buttons->append( button );
+    d->buttons->append( button );
     button->setText( name );
     button->setFixedHeight( button->sizeHint().height() );
     connect( button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
@@ -152,16 +169,16 @@ void QCategoryBar::addCategory( const QString &name, QWidget *page )
     sv->addChild( page );
     sv->setFrameStyle( QFrame::NoFrame );
     page->show();
-    pages.insert( button, sv );
-    layout->addWidget( button );
-    layout->addWidget( sv );
+    d->pages.insert( button, sv );
+    d->layout->addWidget( button );
+    d->layout->addWidget( sv );
     button->show();
-    if ( pages.count() == 1 ) {
-	currentPage = sv;
-	lastTab = button;
-	lastTab->setSelected( TRUE );
+    if ( d->pages.count() == 1 ) {
+	d->currentPage = sv;
+	d->lastTab = button;
+	d->lastTab->setSelected( TRUE );
 	sv->show();
-	set_background_mode( currentPage, PaletteLight );
+	set_background_mode( d->currentPage, PaletteLight );
     } else {
 	sv->hide();
     }
@@ -171,27 +188,27 @@ void QCategoryBar::addCategory( const QString &name, QWidget *page )
 void QCategoryBar::buttonClicked()
 {
     QCategoryButton *tb = (QCategoryButton*)sender();
-    QWidget *page = pages.find( tb );
-    if ( !page || currentPage == page )
+    QWidget *page = d->pages.find( tb );
+    if ( !page || d->currentPage == page )
 	return;
     tb->setSelected( TRUE );
-    if ( lastTab )
-	lastTab->setSelected( FALSE );
-    lastTab = tb;
-    if ( currentPage )
-	currentPage->hide();
-    currentPage = page;
-    currentPage->show();
-    set_background_mode( currentPage, PaletteLight );
+    if ( d->lastTab )
+	d->lastTab->setSelected( FALSE );
+    d->lastTab = tb;
+    if ( d->currentPage )
+	d->currentPage->hide();
+    d->currentPage = page;
+    d->currentPage->show();
+    set_background_mode( d->currentPage, PaletteLight );
     updateTabs();
 }
 
 void QCategoryBar::updateTabs()
 {
     bool after = FALSE;
-    for ( QWidget *w = buttons->first(); w; w = buttons->next() ) {
+    for ( QWidget *w = d->buttons->first(); w; w = d->buttons->next() ) {
 	w->setBackgroundMode( !after ? PaletteBackground : PaletteLight );
 	w->update();
-	after = w == lastTab;
+	after = w == d->lastTab;
     }
 }

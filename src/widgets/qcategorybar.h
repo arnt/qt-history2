@@ -39,8 +39,7 @@
 #define QCATEGORYBAR_H
 
 #include <qwidget.h>
-#include <qlayout.h>
-#include <qptrdict.h>
+#include <qiconset.h>
 
 class QCategoryButton;
 class QCategoryBarPrivate;
@@ -54,7 +53,40 @@ public:
     QCategoryBar( QWidget *parent = 0, const char *name = 0 );
     ~QCategoryBar();
 
-    void addCategory( const QString &name, QWidget *page );
+    virtual void addCategory( const QString &label, QWidget *page );
+    virtual void addCategory( const QString &label, const QIconSet &iconSet,
+			      QWidget *page );
+    virtual void insertCategory( const QString &label, QWidget *page, int index = -1 );
+    virtual void insertCategory( const QString &label, const QIconSet &iconSet,
+			 QWidget *page, int index = -1 );
+
+    bool isCategoryEnabled( QWidget *page ) const;
+
+    QString categoryLabel( QWidget *page ) const;
+
+    QIconSet categoryIconSet( QWidget *page ) const;
+
+    QString categoryToolTip( QWidget *page ) const;
+
+    QWidget *currentPage() const;
+    int currentIndex() const;
+    QWidget *page( int index ) const;
+    int index( QWidget *page ) const;
+
+    int count() const;
+
+public slots:
+    virtual void setCurrentPage( int index );
+    virtual void setCurrentPage( QWidget *page );
+    virtual void setCategoryEnabled( QWidget *page, bool enabled );
+    virtual void removeCategory( QWidget *page );
+    virtual void setCategoryLabel( QWidget *page, const QString &lable );
+    virtual void setCategoryIconSet( QWidget *page, const QIconSet &iconSet );
+    virtual void setCategoryToolTip( QWidget *page, const QString &toolTip );
+
+signals:
+    void currentChanged( QWidget *page );
+    void currentChanged( int index );
 
 private slots:
     void buttonClicked();
@@ -63,11 +95,6 @@ private:
     void updateTabs();
 
 private:
-    QPtrDict<QWidget> pages;
-    QWidgetList *buttons;
-    QVBoxLayout *layout;
-    QWidget *currentPage;
-    QCategoryButton *lastTab;
     QCategoryBarPrivate *d;
 
 };
