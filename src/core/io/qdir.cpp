@@ -426,7 +426,7 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
 */
 
 QDir::QDir(const QString &path, const QString &nameFilter,
-           QDir::SortFlags sort, QDir::Filters filters)  : d_ptr(new QDirPrivate(this))
+           SortFlags sort, Filters filters)  : d_ptr(new QDirPrivate(this))
 {
     Q_D(QDir);
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
