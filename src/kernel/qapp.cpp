@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#17 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#17 $";
 #endif
 
 
@@ -70,8 +70,10 @@ QApplication::QApplication()
     quit_now = FALSE;
     quit_code = 0;
     qApp = this;
-    create_palettes();
-    appPal = new QPalette( *motifPalette );
+    if ( !appPal ) {				// palette not already set
+	create_palettes();
+	appPal = new QPalette( *motifPalette );
+    }
     QWidget::createMapper();			// create widget mapper
     starting_up = FALSE;			// no longer starting up
 }
