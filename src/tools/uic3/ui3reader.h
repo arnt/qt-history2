@@ -30,6 +30,7 @@ class DomProperty;
 class DomLayout;
 class DomLayoutItem;
 class DomActionGroup;
+class Porting;
 struct Color;
 
 typedef QList<QPair<int, Color> > ColorGroup;
@@ -38,6 +39,7 @@ class Ui3Reader
 {
 public:
     Ui3Reader(QTextStream &stream);
+    ~Ui3Reader();
 
     void generateUi4(const QString &fn, const QString &outputFn, QDomDocument doc);
 
@@ -171,6 +173,7 @@ private:
     QDomElement widget;
 
     QMap<QString, bool> candidateCustomWidgets;
+    Porting *m_porting;
 };
 
 #endif

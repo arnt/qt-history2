@@ -17,6 +17,7 @@
 #include "ui4.h"
 #include "widgetinfo.h"
 #include "globaldefs.h"
+#include "qt3to4.h"
 
 #include <qfile.h>
 #include <qdatetime.h>
@@ -94,9 +95,9 @@ QString Ui3Reader::trcall(const QString& sourceText, const QString& comment)
     if (comment.isEmpty()) {
         return t + QLatin1String("(") + fixString(sourceText, encode) + QLatin1String(")");
     } else {
-        return t + QLatin1String("(") 
-            + fixString(sourceText, encode) 
-            + QLatin1String(", ") 
+        return t + QLatin1String("(")
+            + fixString(sourceText, encode)
+            + QLatin1String(", ")
             + fixString(comment, encode) + QLatin1String(")");
     }
 }
@@ -178,6 +179,12 @@ QDomElement Ui3Reader::parse(const QDomDocument &doc)
 Ui3Reader::Ui3Reader(QTextStream &outStream)
    : out(outStream), trout(&languageChangeBody)
 {
+    m_porting = new Porting();
+}
+
+Ui3Reader::~Ui3Reader()
+{
+    delete m_porting;
 }
 
 void Ui3Reader::generate(const QString &uiHeaderFn, const QString &fn, const QString &outputFn,
@@ -402,10 +409,10 @@ void Ui3Reader::createColorGroupImpl(const QString& name, const QDomElement& e)
         } else if (n.tagName() == QLatin1String("pixmap")) {
             QString pixmap = n.firstChild().toText().data();
             if (!pixmapLoaderFunction.isEmpty()) {
-                pixmap.prepend(pixmapLoaderFunction 
-                    + QLatin1String("(") 
+                pixmap.prepend(pixmapLoaderFunction
+                    + QLatin1String("(")
                     + QLatin1String(externPixmaps ? "\"" : ""));
-                    
+
                 pixmap.append(QLatin1String(externPixmaps ? "\"" : "") + QLatin1String(")"));
             }
             out << indent << name << ".setBrush(QColorGroup::"

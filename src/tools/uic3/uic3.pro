@@ -14,7 +14,8 @@ INCLUDEPATH += .
 HEADERS += ui3reader.h \
            parser.h \
            domtool.h \
-           widgetinfo.h
+           widgetinfo.h \
+           qt3to4.h
 
 SOURCES += main.cpp \
            ui3reader.cpp \
@@ -25,7 +26,8 @@ SOURCES += main.cpp \
            form.cpp \
            converter.cpp \
            widgetinfo.cpp \
-           embed.cpp
+           embed.cpp \
+           qt3to4.cpp
 
 DEFINES -= QT_COMPAT_WARNINGS
 DEFINES += QT_COMPAT

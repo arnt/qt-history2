@@ -18,6 +18,7 @@
 #include "widgetinfo.h"
 #include "globaldefs.h"
 #include "utils.h"
+#include "qt3to4.h"
 
 #include <qdebug.h>
 #include <qfile.h>
@@ -375,118 +376,12 @@ void Ui3Reader::fixActionGroup(DomActionGroup *g)
 
 QString Ui3Reader::fixClassName(const QString &className) const
 {
-    if (className == QLatin1String("QListViewItem"))
-        return QLatin1String("Q3ListViewItem");
-    else if (className == QLatin1String("QTimeEdit"))
-        return QLatin1String("Q3TimeEdit");
-    else if (className == QLatin1String("QFileIconProvider"))
-        return QLatin1String("Q3FileIconProvider");
-    else if (className == QLatin1String("QListViewItemIterator"))
-        return QLatin1String("Q3ListViewItemIterator");
-    else if (className == QLatin1String("QToolBar"))
-        return QLatin1String("Q3ToolBar");
-    else if (className == QLatin1String("QButtonGroup"))
-        return QLatin1String("Q3ButtonGroup");
-    else if (className == QLatin1String("QFilePreview"))
-        return QLatin1String("Q3FilePreview");
-    else if (className == QLatin1String("QMainWindow"))
-        return QLatin1String("Q3MainWindow");
-    else if (className == QLatin1String("QDockArea"))
-        return QLatin1String("Q3DockArea");
-    else if (className == QLatin1String("QGroupBox"))
-        return QLatin1String("Q3GroupBox");
-    else if (className == QLatin1String("QDateEdit"))
-        return QLatin1String("Q3DateEdit");
-    else if (className == QLatin1String("QDateTimeEdit"))
-        return QLatin1String("Q3DateTimeEdit");
-    else if (className == QLatin1String("QHeader"))
-        return QLatin1String("Q3Header");
-    else if (className == QLatin1String("QTextEdit"))
-        return QLatin1String("Q3TextEdit");
-    else if (className == QLatin1String("QDockWindow"))
-        return QLatin1String("Q3DockWindow");
-    else if (className == QLatin1String("QListView"))
-        return QLatin1String("Q3ListView");
-    else if (className == QLatin1String("QGuardedPtr"))
-        return QLatin1String("QPointer");
-    else if (className == QLatin1String("QPtrList"))
-        return QLatin1String("Q3PtrList");
-    else if (className == QLatin1String("QListBox"))
-        return QLatin1String("Q3ListBox");
-    else if (className == QLatin1String("QListBoxItem"))
-        return QLatin1String("Q3ListBoxItem");
-    else if (className == QLatin1String("QProgressBar"))
-        return QLatin1String("Q3ProgressBar");
-    else if (className == QLatin1String("QAccel"))
-        return QLatin1String("Q3Accel");
-    else if (className == QLatin1String("QPaintDeviceMetrics"))
-        return QLatin1String("Q3PaintDeviceMetrics");
-    else if (className == QLatin1String("QSimpleRichText"))
-        return QLatin1String("Q3SimpleRichText");
-    else if (className == QLatin1String("QStyleSheet"))
-        return QLatin1String("Q3StyleSheet");
-    else if (className == QLatin1String("QTextBrowser"))
-        return QLatin1String("Q3TextBrowser");
-    else if (className == QLatin1String("QMimeSourceFactory"))
-        return QLatin1String("Q3MimeSourceFactory");
-    /*
-    else if (className == QLatin1String("QAction"))
-        return QLatin1String("Q3Action");
-    */
-    return className;
+    return m_porting->renameClass(className);
 }
 
 QString Ui3Reader::fixHeaderName(const QString &headerName) const
 {
-    if (headerName == QLatin1String("qgroupbox.h"))
-        return QLatin1String("q3groupbox.h");
-    else if (headerName == QLatin1String("qdatetimeedit.h"))
-        return QLatin1String("q3datetimeedit.h");
-    else if (headerName == QLatin1String("qtextedit.h"))
-        return QLatin1String("q3textedit.h");
-    else if (headerName == QLatin1String("qbuttongroup.h"))
-        return QLatin1String("q3buttongroup.h");
-    else if (headerName == QLatin1String("qtoolbar.h"))
-        return QLatin1String("q3toolbar.h");
-    else if (headerName == QLatin1String("qlistview.h"))
-        return QLatin1String("q3listview.h");
-    else if (headerName == QLatin1String("qheader.h"))
-        return QLatin1String("q3header.h");
-    else if (headerName == QLatin1String("qmainwindow.h"))
-        return QLatin1String("q3mainwindow.h");
-    else if (headerName == QLatin1String("qdockarea.h"))
-        return QLatin1String("q3dockarea.h");
-    else if (headerName == QLatin1String("qdockwindow.h"))
-        return QLatin1String("q3dockwindow.h");
-    else if (headerName == QLatin1String("qfiledialog.h"))
-        return QLatin1String("q3filedialog.h");
-    else if (headerName == QLatin1String("qguardedptr.h"))
-        return QLatin1String("qpointer.h");
-    else if (headerName == QLatin1String("qptrlist.h"))
-        return QLatin1String("q3ptrlist.h");
-    else if (headerName == QLatin1String("qptrlist.h"))
-        return QLatin1String("q3ptrlist.h");
-    else if (headerName == QLatin1String("qlistbox.h"))
-        return QLatin1String("q3listbox.h");
-    else if (headerName == QLatin1String("qprogressbar.h"))
-        return QLatin1String("q3progressbar.h");
-    else if (headerName == QLatin1String("qaccel.h"))
-        return QLatin1String("q3accel.h");
-    else if (headerName == QLatin1String("qpaintdevicemetrics.h"))
-        return QLatin1String("q3paintdevicemetrics.h");
-    else if (headerName == QLatin1String("qsimplerichtext.h"))
-        return QLatin1String("q3simplerichtext.h");
-    else if (headerName == QLatin1String("qstylesheet.h"))
-        return QLatin1String("q3stylesheet.h");
-    else if (headerName == QLatin1String("qtextbrowser.h"))
-        return QLatin1String("q3textbrowser.h");
-    else if (headerName == QLatin1String("qmimesourcefactory.h"))
-        return QLatin1String("q3mimesourcefactory.h");
-    /*
-    else if (headerName == QLatin1String("qaction.h"))
-        return QLatin1String("q3action.h");
-      */ 
-    return headerName;
+    return m_porting->renameHeader(headerName);
 }
 
 DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetClass)
