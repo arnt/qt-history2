@@ -584,8 +584,6 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 	macDndExtra->acceptact = de.isActionAccepted();
 	acceptfmt = macDndExtra->acceptfmt;
 	acceptact = macDndExtra->acceptact;
-	if(!de.isAccepted())
-	    current_drag_widget = NULL;
     } else {
 	if(current_drag_widget && ((theMessage == kDragTrackingLeaveWindow) ||
 				     (widget != current_drag_widget))) {
@@ -616,8 +614,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 		macDndExtra->acceptact = de.isActionAccepted();
 		acceptfmt = macDndExtra->acceptfmt;
 		acceptact = macDndExtra->acceptact;
-		if(1 || de.isAccepted())
-		    current_drag_widget = widget;
+		current_drag_widget = widget;
 	    }
 	}
     }
