@@ -95,9 +95,19 @@ public:
     enum ActionEvent { Trigger, Hover };
     void activate(ActionEvent event);
 
+#ifdef QT_COMPAT
+    inline bool isOn() const { return isCheckable(); }
+    inline void setOn(bool b) { setCheckable(b); }
+    inline bool isToggleAction() const { return isCheckable(); }
+    inline void setToggleAction(bool b) { setChecked(b); }
+    inline void setIconSet(const QIconSet &i) { setIcon(i); }
+    inline QIconSet iconSet() const { return icon(); }
+    inline bool addTo(QWidget *w) { w->addAction(this); return true; }
+    inline bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
+#endif
+
 protected:
-    void sendDataChanged();
-    virtual void addedTo(QWidget *) {} // can this go away?
+    virtual void addedTo(QWidget *) {};
 
 public slots:
     void setChecked(bool);
@@ -105,15 +115,16 @@ public slots:
     inline void setDisabled(bool b) { setEnabled(!b); }
     void setVisible(bool);
 
-private slots:
-    void sendAccelActivated();
-
 signals:
     void dataChanged();
     void triggered();
     void hovered();
 
+private slots:
+    void sendAccelActivated();
+
 private:
+    friend class QWidget;
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
     QAction(const QAction &);
     QAction &operator=(const QAction &);

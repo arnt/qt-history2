@@ -40,6 +40,8 @@ public:
     uint checkable : 1;
     uint checked : 1;
     uint separator : 1;
+
+    void sendDataChanged();
 };
 
 class QActionGroupPrivate : public QObjectPrivate

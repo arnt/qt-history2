@@ -23,6 +23,13 @@
 QAccel *QActionPrivate::actionAccels = 0;
 
 /* QAction code */
+void QActionPrivate::sendDataChanged()
+{
+    emit q->dataChanged();
+    QActionEvent e(QEvent::ActionChanged, q);
+    QApplication::sendEvent(q, &e);
+}
+
 QAction::QAction(QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->group = parent;
@@ -112,7 +119,7 @@ void QAction::setAccel(const QKeySequence &accel)
 	d->accel = QActionPrivate::actionAccels->insertItem(accel);
 	QActionPrivate::actionAccels->connectItem(d->accel, this, SLOT(sendAccelActivated()));
     }
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 QKeySequence QAction::accel() const
@@ -147,7 +154,7 @@ QActionGroup *QAction::actionGroup() const
 void QAction::setIcon(const QIconSet &icons)
 {
     d->icons = new QIconSet(icons);
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 QIconSet QAction::icon() const
@@ -160,7 +167,7 @@ QIconSet QAction::icon() const
 void QAction::setMenu(Q4Menu *menu)
 {
     d->menu = menu;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 Q4Menu *QAction::menu() const
@@ -171,7 +178,7 @@ Q4Menu *QAction::menu() const
 void QAction::setSeparator(bool b)
 {
     d->separator = b;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 bool QAction::isSeparator() const
@@ -182,7 +189,7 @@ bool QAction::isSeparator() const
 void QAction::setText(const QString &text)
 {
     d->text = text;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 
@@ -194,7 +201,7 @@ QString QAction::text() const
 void QAction::setToolTip(const QString &tooltip)
 {
     d->tooltip = tooltip;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 QString QAction::toolTip() const
@@ -205,7 +212,7 @@ QString QAction::toolTip() const
 void QAction::setStatusTip(const QString &statustip)
 {
     d->statustip = statustip;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 QString QAction::statusTip() const
@@ -216,7 +223,7 @@ QString QAction::statusTip() const
 void QAction::setWhatsThis(const QString &whatsthis)
 {
     d->whatsthis = whatsthis;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 QString QAction::whatsThis() const
@@ -227,7 +234,7 @@ QString QAction::whatsThis() const
 void QAction::setCheckable(bool b)
 {
     d->checkable = b;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 bool QAction::isCheckable() const
@@ -238,7 +245,7 @@ bool QAction::isCheckable() const
 void QAction::setChecked(bool b)
 {
     d->checkable = b;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 bool QAction::isChecked() const
@@ -249,7 +256,7 @@ bool QAction::isChecked() const
 void QAction::setEnabled(bool b)
 {
     d->enabled = b;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 bool QAction::isEnabled() const
@@ -260,7 +267,7 @@ bool QAction::isEnabled() const
 void QAction::setVisible(bool b)
 {
     d->visible = b;
-    sendDataChanged();
+    d->sendDataChanged();
 }
 
 
@@ -282,15 +289,7 @@ void QAction::activate(ActionEvent event)
 	emit hovered();
 }
 
-void QAction::sendDataChanged()
-{
-    emit dataChanged();
-    QActionEvent e(QEvent::ActionChanged, this);
-    QApplication::sendEvent(this, &e);
-}
-
 /* QActionGroup code */
-
 QActionGroup::QActionGroup(QObject* parent) : QObject(*new QActionGroupPrivate, parent)
 {
 }
