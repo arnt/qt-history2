@@ -41,9 +41,6 @@ class QTextDocumentFragmentPrivate
 public:
     QTextDocumentFragmentPrivate() {}
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
-    ~QTextDocumentFragmentPrivate();
-    QTextDocumentFragmentPrivate(const QTextDocumentFragmentPrivate &);
-    QTextDocumentFragmentPrivate &operator =(const QTextDocumentFragmentPrivate &);
 
     void insert(QTextCursor &cursor) const;
 
@@ -84,6 +81,11 @@ inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentP
 { return stream << block.createBlockUponInsertion << block.blockFormat << block.charFormat << block.fragments; }
 inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate::Block &block)
 { return stream >> block.createBlockUponInsertion >> block.blockFormat >> block.charFormat >> block.fragments; }
+
+inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate &priv)
+{ return stream << priv.formats << priv.blocks << priv.localBuffer; }
+inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate &priv)
+{ return stream >> priv.formats >> priv.blocks >> priv.localBuffer; }
 
 class QTextHTMLImporter : public QTextHtmlParser
 {

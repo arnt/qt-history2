@@ -152,25 +152,6 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     formats = QTextFormatCollectionState(pieceTable->formatCollection(), usedFormats);
 }
 
-QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextDocumentFragmentPrivate &rhs)
-{
-    operator=(rhs);
-}
-
-QTextDocumentFragmentPrivate &QTextDocumentFragmentPrivate::operator=(const QTextDocumentFragmentPrivate &rhs)
-{
-    blocks = rhs.blocks;
-    localBuffer = rhs.localBuffer;
-    formats = rhs.formats;
-
-    return *this;
-}
-
-
-QTextDocumentFragmentPrivate::~QTextDocumentFragmentPrivate()
-{
-}
-
 void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
 {
     if (cursor.isNull())
@@ -360,9 +341,7 @@ QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragme
     if (!fragment.d)
         return stream;
 
-    const QTextDocumentFragmentPrivate *d = fragment.d;
-
-    return stream << d->formats << d->localBuffer << d->blocks;
+    return stream << *fragment.d;
 }
 
 /*!
@@ -370,13 +349,10 @@ QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragme
 */
 QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
 {
-    QTextDocumentFragmentPrivate *d = new QTextDocumentFragmentPrivate;
+    if (!fragment.d)
+        fragment.d = new QTextDocumentFragmentPrivate;
 
-    stream >> d->formats >> d->localBuffer >> d->blocks;
-
-    delete fragment.d;
-    fragment.d = d;
-    return stream;
+    return stream >> *fragment.d;
 }
 
 /*!
