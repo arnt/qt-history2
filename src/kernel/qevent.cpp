@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#10 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#10 $";
 #endif
 
 
@@ -218,8 +218,10 @@ Constructs a key event object.
 
 The type parameter must be \c Event_KeyPress or \c Event_KeyRelease.
 
-The accept flag is set to TRUE.
-*/
+Sending \e Key 0 meams that the event is not a result of a known key
+(e.g. it may be a compose sequence, keyboard macro).
+
+The accept flag is set to TRUE. */
 
 /*!
 \fn int QKeyEvent::key() const
@@ -227,7 +229,9 @@ Returns the code if the key that was pressed or released.
 
 The header file qkeycode.h lists the possible keybord codes.  These codes
 are independent of the underlying window system.
-*/
+
+Key code 0 meams that the event is not a result of a known key (e.g. it
+may be a compose sequence, keyboard macro). */
 
 /*!
 \fn char QKeyEvent::ascii() const
