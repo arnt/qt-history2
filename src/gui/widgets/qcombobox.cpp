@@ -87,7 +87,10 @@ void ItemViewContainer::updateScrollers()
     if (!top || !bottom)
         return;
 
-    if (view->verticalScrollBar()->minimum() < view->verticalScrollBar()->maximum()) {
+    QStyleOptionComboBox opt = comboStyleOption();
+    if (!combo->isEditable() &&
+        combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo) &&
+        view->verticalScrollBar()->minimum() < view->verticalScrollBar()->maximum()) {
         bool needTop = view->verticalScrollBar()->value()
                        > (view->verticalScrollBar()->minimum() + spacing());
         bool needBottom = view->verticalScrollBar()->value()
@@ -164,7 +167,8 @@ void ItemViewContainer::setItemView(QAbstractItemView *itemView)
     view->viewport()->installEventFilter(this);
     QStyleOptionComboBox opt = comboStyleOption();
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo))
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)
+        && !combo->isEditable())
         view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     if (style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
         style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)) {
@@ -512,8 +516,8 @@ void QComboBoxPrivate::init()
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
     QStyleOptionComboBox opt = d->getStyleOption();
-    if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
-        l->setItemDelegate(new MenuDelegate(l, q));
+    if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q) && !q->isEditable())
+        q->setItemDelegate(new MenuDelegate(l, q));
     QObject::connect(container, SIGNAL(itemSelected(QModelIndex)),
                      q, SLOT(itemSelected(QModelIndex)));
     QObject::connect(q->itemView()->selectionModel(),
@@ -820,9 +824,20 @@ void QComboBox::setEditable(bool editable)
     if (isEditable() == editable)
         return;
 
+    QStyleOptionComboBox opt = d->getStyleOption();
     if (editable) {
+        if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
+            setItemDelegate(new QItemDelegate(itemView()));
+            d->container->updateScrollers();
+            itemView()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        }
         setLineEdit(new QLineEdit(this));
     } else {
+        if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
+            setItemDelegate(new MenuDelegate(itemView(), this));
+            d->container->updateScrollers();
+            itemView()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        }
         delete d->lineEdit;
         d->lineEdit = 0;
     }
@@ -911,12 +926,14 @@ QAbstractItemDelegate *QComboBox::itemDelegate() const
 
 /*!
     Sets the item \a delegate for the popup list view.
+    The combobox takes ownership of the delegate.
 
     \sa itemDelegate()
 */
 void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     Q_ASSERT(delegate);
+    delete itemView()->itemDelegate();
     itemView()->setItemDelegate(delegate);
 }
 
