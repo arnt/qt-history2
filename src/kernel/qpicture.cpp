@@ -822,7 +822,6 @@ bool QPicture::checkFormat()
     s.setVersion( major );
 
     Q_UINT8  c, clen;
-    Q_UINT32 nrecords;
     s >> c >> clen;
     if ( c == PdcBegin ) {
 	if ( !( major >= 1 && major <= 3 )) {
