@@ -340,19 +340,19 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
             break;
 
         case Title: {
-                    QRect r(rect.left() + titleHeight, rect.top() - titleHeight,
-                            rect.width() - 4*titleHeight, titleHeight);
-                    if (r.width() > 0)
-                        region = r;
+                QRect r(rect.left() + titleHeight, rect.top() - titleHeight,
+                        rect.width() - 4*titleHeight, titleHeight);
+                if (r.width() > 0)
+                    region = r;
             }
             break;
 
         case Top: {
-                    QRect r(rect.left() + CORNER_GRAB,
-                            rect.top() - titleHeight - bw,
-                            rect.width() - 2 * CORNER_GRAB,
-                            bw);
-                    region = r;
+                QRect r(rect.left() + CORNER_GRAB,
+                        rect.top() - titleHeight - bw,
+                        rect.width() - 2 * CORNER_GRAB,
+                        bw);
+                region = r;
             }
             break;
 
@@ -450,9 +450,9 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
             break;
 
         case Menu: {
-                    QRect r(rect.left(), rect.top() - titleHeight,
-                            titleHeight, titleHeight);
-                    region = r;
+                QRect r(rect.left(), rect.top() - titleHeight,
+                        titleHeight, titleHeight);
+                region = r;
             }
             break;
 
@@ -494,15 +494,15 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
         return false;
 
     const QPalette pal = widget->palette();
-    int titleHeight = getTitleHeight(widget);
-    int titleWidth = getTitleWidth(widget);
+    const QRect titleRect = QDecoration::region(widget, Title).boundingRect();
+    int titleHeight = titleRect.height();
+    int titleWidth = titleRect.width();
 
     bool paintAll = (decorationRegion == All);
     bool handled = false;
     if (paintAll || decorationRegion & Borders) {
         QRegion oldClip = painter->clipRegion();
-        painter->setClipRegion(oldClip - // reduce flicker
-                               QRect(titleHeight, -titleHeight,  titleWidth, titleHeight - 1));
+        painter->setClipRegion(oldClip - titleRect); // reduce flicker
 
         QRect br = QDecoration::region(widget).boundingRect();
         qDrawWinPanel(painter, br.x(), br.y(), br.width(),
@@ -513,8 +513,27 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
 
         handled |= true;
     }
-    if (paintAll || decorationRegion & Title) {
-        qWarning("QDecorationDefault::paint(): Title - NYI!");
+    if (paintAll || decorationRegion & Title && titleWidth > 0) {
+        QBrush titleBrush;
+        QPen   titlePen;
+
+        if (widget == qApp->activeWindow()) {
+            titleBrush = pal.brush(QPalette::Highlight);
+            titlePen   = pal.color(QPalette::HighlightedText);
+        } else {
+            titleBrush = pal.brush(QPalette::Background);
+            titlePen   = pal.color(QPalette::Text);
+        }
+
+        qDrawShadePanel(painter,
+                        titleRect.x(), titleRect.y(), titleRect.width(), titleRect.height(),
+                        pal, true, 1, &titleBrush);
+
+        painter->setPen(titlePen);
+        painter->setFont(widget->font());
+        painter->drawText(titleRect.x() + 4, titleRect.y(),
+                          titleRect.width() - 8, titleRect.height(),
+                          Qt::AlignVCenter, widget->windowTitle());
     }
     if (paintAll || decorationRegion & Menu) {
         qWarning("QDecorationDefault::paint(): Menu - NYI!");
@@ -537,78 +556,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
 #if 0
 void QDecorationDefault::paint(QPainter *painter, const QWidget *widget)
 {
-    int titleWidth = getTitleWidth(widget);
-    int titleHeight = getTitleHeight(widget);
-
-    QRect rect(widget->rect());
-
-    // title bar rect
-    QRect tr(titleHeight, -titleHeight,  titleWidth, titleHeight - 1);
-
-    QRegion oldClip = painter->clipRegion();
-    painter->setClipRegion(oldClip - QRegion(tr));        // reduce flicker
-
-#ifndef QT_NO_PALETTE
-    QPalette pal = QApplication::palette();
-//    const QPalette pal = widget->palette();
-    pal.setCurrentColorGroup(QPalette::Active);
-
-#if !defined(QT_NO_DRAWUTIL)
-    // Border rect
-    QRect br(rect.left() - BORDER_WIDTH,
-                rect.top() - BORDER_WIDTH - titleHeight,
-                rect.width() + 2 * BORDER_WIDTH,
-                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight);
-
-    qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-                  br.height() - 4, pal, false,
-                  &pal.brush(QPalette::Background));
-#endif
-
-    painter->setClipRegion(oldClip);
-
     if (titleWidth > 0) {
-        QBrush titleBrush;
-        QPen   titlePen;
-        int    titleLeft = titleHeight + 4;
-
-        if (widget == qApp->activeWindow()) {
-            titleBrush = pal.brush(QPalette::Highlight);
-            titlePen   = pal.color(QPalette::HighlightedText);
-        } else {
-            titleBrush = pal.brush(QPalette::Background);
-            titlePen   = pal.color(QPalette::Text);
-        }
-
-#define CLAMP(x, y)            (((x) > (y)) ? (y) : (x))
-
-        {
-
-#if !defined(QT_NO_DRAWUTIL)
-            qDrawShadePanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-                            pal, true, 1, &titleBrush);
-#endif
-
-#ifndef QT_NO_WIDGET_TOPEXTRA
-            painter->setPen(titlePen);
-            painter->setFont(widget->font());
-            painter->drawText(titleLeft, -titleHeight,
-                            titleWidth-5, titleHeight - 1,
-                            Qt::AlignVCenter, widget->windowTitle());
-#endif
-            return;
-        }
-
-#ifndef QT_NO_WIDGET_TOPEXTRA
-        painter->setPen(titlePen);
-        painter->setFont(widget->font());
-        painter->drawText(titleLeft, -titleHeight,
-                        rect.width() - titleHeight - 10, titleHeight-1,
-                        Qt::AlignVCenter, widget->windowTitle());
-#endif
-    }
-
-#endif //QT_NO_PALETTE
 
 }
 
