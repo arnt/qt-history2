@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#36 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#37 $
 **
 ** Definition of QDialog class
 **
@@ -56,6 +56,10 @@ public:
     void	resize( const QSize & );
     void	setGeometry( int x, int y, int w, int h );
     void	setGeometry( const QRect & );
+
+#ifdef QT_BUILDER
+    bool QDialog::configure( const QDomElement& element );
+#endif
 
 protected slots:
     virtual void done( int );

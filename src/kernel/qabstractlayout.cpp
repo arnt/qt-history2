@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#69 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1608,6 +1608,11 @@ bool QLayout::stringToAlign( const QString& tmp, int* _align )
     else
       return false;
     return true;
+}
+
+bool QLayout::configure( const QDomElement& element, QWidget* )
+{
+  return QObject::configure( element );
 }
 
 #endif

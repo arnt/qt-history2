@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#44 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#45 $
 **
 ** Definition of layout classes
 **
@@ -82,7 +82,7 @@ public:
     void setGeometry( const QRect& );
 
 #ifdef QT_BUILDER
-    virtual bool QGridLayout::configure( const QDomElement& _resource );
+    virtual bool configure( const QDomElement&, QWidget* mainwidget );
 #endif // QT_BUILDER
 
 protected:
@@ -166,6 +166,10 @@ public:
     QHBoxLayout( int space = -1, const char *name=0 );
 
     ~QHBoxLayout();
+
+#ifdef QT_BUILDER
+    bool configure( const QDomElement&, QWidget* mainwidget );
+#endif
 };
 
 
@@ -181,6 +185,10 @@ public:
     QVBoxLayout( int space = -1, const char *name=0 );
 
     ~QVBoxLayout();
+
+#ifdef QT_BUILDER
+    bool configure( const QDomElement&, QWidget* mainwidget );
+#endif
 };
 
 

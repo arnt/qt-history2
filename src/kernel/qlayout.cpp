@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#117 $
 **
 ** Implementation of layout classes
 **
@@ -1261,7 +1261,7 @@ void QGridLayout::invalidate()
 
 #ifdef QT_BUILDER
 
-bool QGridLayout::configure( const QDomElement& element )
+bool QGridLayout::configure( const QDomElement& element, QWidget* mainwidget )
 {
   int r = 0;
 
@@ -1315,13 +1315,13 @@ bool QGridLayout::configure( const QDomElement& element )
 	  QDomElement res = child.firstChild().toElement();
 	  if ( child.tagName() == "Widget" )
 	  {
-	    w = res.toWidget( mainWidget() );
+	    w = res.toWidget( mainwidget );
 	    if ( !w )
 	      return FALSE;
 	  }
 	  else if ( cell.tagName() == "Layout" )
 	  {
-	    l = res.toLayout();
+	    l = res.toLayout( 0, mainwidget );
 	    if ( !l )
 	      return FALSE;
 	  }
@@ -1358,7 +1358,7 @@ bool QGridLayout::configure( const QDomElement& element )
     }
   }
 
-  if ( !QLayout::configure( element ) )
+  if ( !QLayout::configure( element, mainwidget ) )
     return FALSE;
 
   return TRUE;
@@ -1882,7 +1882,61 @@ QHBoxLayout::~QHBoxLayout()
 {
 }
 
+#ifdef QT_BUILDER
+bool QHBoxLayout::configure( const QDomElement& element, QWidget* mainwidget )
+{
+  QDomElement cell = element.firstChild().toElement();
+  for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
+  {
+    if ( cell.tagName() == "Widget" || cell.tagName() == "Layout" )
+    {
+      int stretch = 0;
+      int align = 0;
+      if ( cell.hasAttribute( "stretch" ) )
+	stretch = cell.attribute( "stretch" ).toInt();
+      int x,y;
+      if ( stringToAlign( cell.attribute( "valign" ), &y ) )
+      {
+	if ( y == Qt::AlignCenter )
+	  y = Qt::AlignVCenter;
+	align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+      }
+      if ( stringToAlign( cell.attribute( "halign" ), &x ) )
+      {
+	if ( x == Qt::AlignCenter )
+	  x = Qt::AlignHCenter;
+	align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+      }
+      
+      if ( cell.tagName() == "Widget" )
+      {
+	QWidget* w = cell.firstChild().toElement().toWidget( mainwidget );
+	if ( !w )
+	  return FALSE;
+	addWidget( w, stretch, align );
+      }
+      else // Layout
+      {
+	QLayout* l = cell.firstChild().toElement().toLayout( 0, mainwidget );
+	if ( !l )
+	  return FALSE;
+	addLayout( l, stretch );
+      }
+    }
+    else if ( cell.tagName() == "Space" && cell.hasAttribute( "size" ) )
+      addSpacing( cell.attribute( "size" ).toInt() );
+    else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "factor" ) )
+      addStretch( cell.attribute( "factor" ).toInt() );
+    else
+      return FALSE;
+  }
 
+  if ( !QBoxLayout::configure( element, mainwidget ) )
+    return FALSE;
+
+  return TRUE;
+}
+#endif // QT_BUILDER
 
 /*!
   \class QVBoxLayout qlayout.h
@@ -1944,5 +1998,60 @@ QVBoxLayout::~QVBoxLayout()
 {
 }
 
+#ifdef QT_BUILDER
 
+bool QVBoxLayout::configure( const QDomElement& element, QWidget* mainwidget )
+{
+  QDomElement cell = element.firstChild().toElement();
+  for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
+  {
+    if ( cell.tagName() == "Widget" || cell.tagName() == "Layout" )
+    {
+      int stretch = 0;
+      int align = 0;
+      if ( cell.hasAttribute( "stretch" ) )
+	stretch = cell.attribute( "stretch" ).toInt();
+      int x,y;
+      if ( stringToAlign( cell.attribute( "valign" ), &y ) )
+      {
+	if ( y == Qt::AlignCenter )
+	  y = Qt::AlignVCenter;
+	align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+      }
+      if ( stringToAlign( cell.attribute( "halign" ), &x ) )
+      {
+	if ( x == Qt::AlignCenter )
+	  x = Qt::AlignHCenter;
+	align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+      }
+      
+      if ( cell.tagName() == "Widget" )
+      {
+	QWidget* w = cell.firstChild().toElement().toWidget( mainwidget );
+	if ( !w )
+	  return FALSE;
+	addWidget( w, stretch, align );
+      }
+      else // Layout
+      {
+	QLayout* l = cell.firstChild().toElement().toLayout( 0, mainwidget );
+	if ( !l )
+	  return FALSE;
+	addLayout( l, stretch );
+      }
+    }
+    else if ( cell.tagName() == "Space" && cell.hasAttribute( "size" ) )
+      addSpacing( cell.attribute( "size" ).toInt() );
+    else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "factor" ) )
+      addStretch( cell.attribute( "factor" ).toInt() );
+    else
+      return FALSE;
+  }
 
+  if ( !QBoxLayout::configure( element, mainwidget ) )
+    return FALSE;
+
+  return TRUE;
+}
+
+#endif // QT_BUILDER

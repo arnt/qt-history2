@@ -469,6 +469,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertBefore( QDOM_NodePrivate* newChild, QD
 
   newChild->m_nextSibling = refChild;
   newChild->m_previousSibling = refChild->previousSibling();
+  refChild->m_previousSibling->m_nextSibling = newChild;
   refChild->m_previousSibling = newChild;
 
   return newChild;
@@ -519,6 +520,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertAfter( QDOM_NodePrivate* newChild, QDO
 
   newChild->m_previousSibling = refChild;
   newChild->m_nextSibling = refChild->nextSibling();
+  refChild->m_nextSibling->m_previousSibling = newChild;
   refChild->m_nextSibling = newChild;
 
   return newChild;

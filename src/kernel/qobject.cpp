@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#209 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#210 $
 **
 ** Implementation of QObject class
 **
@@ -615,7 +615,7 @@ QObject* QObject::child( const char *name, const char *type )
 	QObject *obj;
 	while ( ( obj = it.current() ) ) {
 	    ++it;
-	    if ( ( !type || obj->inherits(type) ) && qstrcmp( name, obj->name() ) == 0 )
+	    if ( ( !type || obj->inherits(type) ) && ( !name || qstrcmp( name, obj->name() ) == 0 ) )
 		return obj;
 	}
 
@@ -1779,10 +1779,17 @@ void QObject::initMetaObject()
 /*!
   The functionality of initMetaObject(), provided as a static function.
 */
+#ifdef QT_BUILDER
+QMetaObject* QObject::staticMetaObject()
+{
+    if ( metaObj )
+	return metaObj;
+#else // QT_BUILDER
 void QObject::staticMetaObject()
 {
     if ( metaObj )
 	return;
+#endif // QT_BUILDER
     typedef void(QObject::*m1_t0)();
     m1_t0 v1_0 = &QObject::cleanupEventFilter;
     QMetaData *slot_tbl = new QMetaData[1];
@@ -1793,9 +1800,30 @@ void QObject::staticMetaObject()
     QMetaData *signal_tbl = new QMetaData[1];
     signal_tbl[0].name = "destroyed()";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
+#ifdef QT_BUILDER
+    QMetaProperty *props_tbl = new QMetaProperty[1];
+    typedef const char*(QObject::*m3_t0)()const;
+    typedef void(QObject::*m3_t1)(const char*);
+    m3_t0 v3_0 = &QObject::name;
+    m3_t1 v3_1 = &QObject::setName;
+    props_tbl[0].name = "name";
+    props_tbl[0].get = *((QMember*)&v3_0);
+    props_tbl[0].set = *((QMember*)&v3_1);
+    props_tbl[0].readonly = FALSE;
+    props_tbl[0].type = "QString";
+    props_tbl[0].enumType = 0;
+    props_tbl[0].getSpec = '!';
+    props_tbl[0].setSpec = '!';
+    metaObj = new QMetaObject( "QObject", "",
+	slot_tbl, 1,
+	signal_tbl, 1,
+	props_tbl, 1 );
+    return metaObj;
+#else // QT_BUILDER
     metaObj = new QMetaObject( "QObject", "",
 	slot_tbl, 1,
 	signal_tbl, 1 );
+#endif // QT_BUILDER
 }
 
 
@@ -2071,6 +2099,7 @@ bool QObject::setProperty( const char *_name, const QVariant& _value )
   {
     if ( strcmp( _name, "name" ) == 0 )
     {
+      qDebug("Setting name property to '%s'\n", _value.stringValue().ascii() );
       Proto3 m;
       m = *((Proto3*)&p->set);
       (this->*m)( _value.stringValue() );
@@ -2801,6 +2830,9 @@ bool QObject::configure( const QDomElement& element )
 	sender = child( tmp );
       else
 	sender = this;
+      if ( !sender )
+	qDebug("Did not find sender object %s\n", tmp.ascii());
+
       tmp = e.attribute( "receiver" );
       QObject *receiver;
       if ( tmp == name() )
@@ -2809,7 +2841,9 @@ bool QObject::configure( const QDomElement& element )
 	receiver = child( tmp );
       else
 	receiver = this;
-      
+      if ( !receiver )
+	qDebug("Did not find receiver object %s\n", tmp.ascii());
+ 
       if ( !sender || !receiver )
 	return FALSE;
 

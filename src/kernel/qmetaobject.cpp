@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#50 $
 **
 ** Implementation of QMetaObject class
 **
@@ -127,6 +127,7 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     enumData = enum_data;
     nEnumData = n_enums;
     inspectorFactory = 0;
+    objectFactory = 0;
     commentData = 0;
     pixmapData = 0;
 #endif // QT_BUILDER

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#27 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#28 $
 **
 ** Definition of the abstract layout base class
 **
@@ -38,6 +38,7 @@ struct QLayoutData;
 class QLayoutItem;
 class QLayout;
 class QSpacerItem;
+class QDomElement;
 
 class Q_EXPORT QGLayoutIterator : public QShared
 {
@@ -201,6 +202,10 @@ public:
     QSize totalMaximumSize() const;
     QSize totalSizeHint() const;
     QLayout *layout();
+
+#ifdef QT_BUILDER
+    virtual bool configure( const QDomElement&, QWidget* mainwidget );
+#endif
 protected:
     bool  eventFilter( QObject *, QEvent * );
     void addChildLayout( QLayout *l );

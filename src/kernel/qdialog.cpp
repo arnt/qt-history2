@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#84 $
 **
 ** Implementation of QDialog class
 **
@@ -29,6 +29,10 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidgetlist.h"
+
+#ifdef QT_BUILDER
+#include "qdom.h"
+#endif // QT_BUILDER
 
 /*!
   \class QDialog qdialog.h
@@ -129,6 +133,15 @@ QDialog::~QDialog()
     hide();
 }
 
+#ifdef QT_BUILDER
+bool QDialog::configure( const QDomElement& element )
+{
+  if ( element.hasAttribute( "modal" ) && element.attribute( "modal" ).toInt() == 1 )
+    setWFlags( getWFlags() | WType_Modal );
+
+  return QWidget::configure( element );
+}
+#endif
 
 /*!
   \internal

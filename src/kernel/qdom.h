@@ -403,7 +403,7 @@ class QDomCharacterData;
     QPoint toPoint() const;
     QWidget* toWidget( QWidget* parent = 0 ) const;
     QLayout* toLayout( QWidget* parent ) const;
-    QLayout* toLayout( QLayout* parent = 0 ) const;
+    QLayout* toLayout( QLayout* parent, QWidget* mainwidget = 0 ) const;
 
     QVariant property( const QString& name, QVariant::Type ) const;
     void setProperty( const QString& name, const QVariant& prop );
