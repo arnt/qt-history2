@@ -157,7 +157,7 @@ QAssistantClient::~QAssistantClient()
     if( dpointers ) {
 	QAssistantClientPrivate *d = (*dpointers)[ this ];
 	if( d ) {
-	    dpointers->remove( this );
+	    dpointers->erase( this );
 	    delete d;
 	    if( dpointers->isEmpty() ) {
 		delete dpointers;
