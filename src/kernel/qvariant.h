@@ -507,7 +507,7 @@ Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QVariant);
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QVariant &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QVariant &);
 #endif
 
 #endif // QT_NO_VARIANT
