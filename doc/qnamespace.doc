@@ -233,18 +233,18 @@
 /*!
     \enum Qt::DateFormat
 
-    \value TextDate (default) Qt format
+    \value TextDate The default Qt format.
     \value ISODate ISO 8601 extended format (YYYY-MM-DD, or with time,
-    YYYY-MM-DDTHH:MM:SS)
-    \value LocalDate locale dependent format
+    YYYY-MM-DDTHH:MM:SS).
+    \value LocalDate The locale-dependent format.
 */
 
 
 /*!
     \enum Qt::TimeSpec
 
-    \value LocalTime Locale dependent time (Timezones and Daylight Savings Time)
-    \value UTC Coordinated Universal Time, replaces Greenwich Time
+    \value LocalTime Locale dependent time (Timezones and Daylight Savings Time).
+    \value UTC Coordinated Universal Time, replaces Greenwich Mean Time.
 */
 
 /*!

@@ -713,7 +713,8 @@ bool Q3DateTimeEditor::setFocusSection(int sec)
     return d->setFocusSection(sec);
 }
 
-/*! \class Q3DateTimeEditBase
+/*! 
+    \class Q3DateTimeEditBase
     \brief The Q3DateTimeEditBase class provides an abstraction for date and edit editors.
 
     Small abstract class that provides some functions that are common

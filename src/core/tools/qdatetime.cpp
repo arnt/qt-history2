@@ -1208,14 +1208,14 @@ void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
     }
 }
 
-/*! \fn static QDate fromJulianDay(int jd)
+/*! \fn static QDate QDate::fromJulianDay(int jd)
 
-Converts a Julian day to a QDate.
+Converts the Julian day \a jd to a QDate.
 
 \sa toJulianDay
 */
 
-/*! \fn int toJulianDay() const
+/*! \fn int QDate::toJulianDay() const
 
 Converts the date to a julian day.
 */
@@ -1450,8 +1450,8 @@ QString QTime::toString(Qt::DateFormat f) const
 
     \table
     \header \i Format \i Result
-    \row \i hh:mm:ss.zzz \i11 14:13:09.042
-    \row \i h:m:s ap     \i11 2:13:9 pm
+    \row \i hh:mm:ss.zzz \i 14:13:09.042
+    \row \i h:m:s ap     \i 2:13:9 pm
     \endtable
 
     If the datetime is invalid, an empty string will be returned.
@@ -2130,7 +2130,9 @@ uint QDateTime::toTime_t() const
 }
 
 /*!
-    Sets the date and time given the number of seconds that have
+    \fn void QDateTime::setTime_t(uint seconds)
+
+    Sets the date and time given the number of \a seconds that have
     passed since 1970-01-01T00:00:00, Coordinated Universal Time
     (Qt::UTC). On systems that do not support timezones this function
     will behave as if local time were Qt::UTC.
@@ -2294,10 +2296,10 @@ QString QDateTime::toString(Qt::DateFormat f) const
 
     \table
     \header \i Format       \i Result
-    \row \i dd.MM.yyyy      \i11 21.05.2001
-    \row \i ddd MMMM d yy   \i11 Tue May 21 01
-    \row \i hh:mm:ss.zzz    \i11 14:13:09.042
-    \row \i h:m:s ap        \i11 2:13:9 pm
+    \row \i dd.MM.yyyy      \i 21.05.2001
+    \row \i ddd MMMM d yy   \i Tue May 21 01
+    \row \i hh:mm:ss.zzz    \i 14:13:09.042
+    \row \i h:m:s ap        \i 2:13:9 pm
     \endtable
 
     If the datetime is invalid, an empty string will be returned.
@@ -2624,6 +2626,25 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     return QDateTime();
 }
 #endif //QT_NO_DATESTRING
+
+
+/*!
+    \fn QDateTime QDateTime::toLocalTime() const
+
+    Returns a datetime containing the date and time information in
+    this datetime, but specified using the Qt::LocalTime definition.
+
+    \sa Qt::TimeSpec
+*/
+
+/*!
+    \fn QDateTime QDateTime::toUTC() const
+
+    Returns a datetime containing the date and time information in
+    this datetime, but specified using the Qt::UTC definition.
+
+    \sa Qt::TimeSpec
+*/
 
 
 /*****************************************************************************
