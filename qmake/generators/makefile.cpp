@@ -268,6 +268,9 @@ MakefileGenerator::init()
                     QString &val = l[val_it];
                     if(!val.isEmpty()) {
                         QString file = fileFixify(val, QDir::currentPath(), Option::output_dir);
+                        if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
+                            file = file.mid(1, file.length() - 2);
+
                         if(QFile::exists(file))
                             continue;
                         bool found = false;
