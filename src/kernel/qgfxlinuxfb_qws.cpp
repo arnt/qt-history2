@@ -42,6 +42,8 @@
 
 #include "qgfxlinuxfb_qws.h"
 
+static int dummy_optype = 0;
+static int dummy_lastop = 0;
 
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers
@@ -134,10 +136,8 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	pos+=(sizeof(int))*4;
 	entries=(QPoolEntry *)pos;
     } else {
-	int * tmp=(int *)
-		  (data+(width() * height() * depth())/8);
-	optype=tmp;
-	lastop=tmp+1;
+	optype = &dummy_optype;
+	lastop = &dummy_lastop;
     }
 
     // Now read in palette
@@ -401,10 +401,8 @@ bool QLinuxFbScreen::initCard()
 	*entryp=0;
 	*lowest=mapsize;
     } else {
-	int * tmp=(int *)
-		  (data+(width() * height() * depth())/8);
-	optype=tmp;
-	lastop=tmp+1;
+	optype = &dummy_optype;
+	lastop = &dummy_lastop;
     }
 
     *optype=0;
