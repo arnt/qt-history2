@@ -1678,6 +1678,10 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 void
 QWidget::addAction(QAction *action)
 {
+    if(!action) {
+        qWarning("Attempt to add null action!");
+        return;
+    }
     if(d->actions.contains(action))
         return;
     d->actions.append(action);
@@ -1708,6 +1712,10 @@ QWidget::addActions(QList<QAction*> actions)
 void
 QWidget::insertAction(QAction *before, QAction *action)
 {
+    if(!action) {
+        qWarning("Attempt to insert null action!");
+        return;
+    }
     if(d->actions.contains(action))
         d->actions.removeAll(action);
     int before_int = d->actions.indexOf(before);
