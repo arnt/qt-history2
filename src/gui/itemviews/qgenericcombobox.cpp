@@ -228,6 +228,9 @@ void QGenericComboBoxPrivate::init()
     container->setParent(q, Qt::WType_Popup);
     QApplication::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
                           q, SLOT(itemSelected(const QModelIndex &)));
+    QApplication::connect(q->listView()->selectionModel(),
+                          SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                          q, SLOT(q->emitHighlighted(const QModelIndex &)));
 }
 
 QStyleOptionComboBox QGenericComboBoxPrivate::getStyleOption() const
@@ -326,7 +329,7 @@ void QGenericComboBoxPrivate::itemSelected(const QModelIndex &item)
             lineEdit->setText(model->data(q->currentItem(), QAbstractItemModel::Role_Edit)
                               .toString());
         }
-        q->emit activated(q->currentItem());
+        emitActivated(q->currentItem());
     }
 }
 
@@ -339,6 +342,22 @@ bool QGenericComboBoxPrivate::contains(const QString &text, int role)
     return model->match(model->index(0, 0, q->root()),
                              role, text, 1, QAbstractItemModel::Match_Exactly
                              |QAbstractItemModel::Match_Case).count() > 0;
+}
+
+void QGenericComboBoxPrivate::emitActivated(const QModelIndex &index)
+{
+    QString text(q->model()->data(index, QAbstractItemModel::Role_Edit).toString());
+    emit q->activated(index.row());
+    emit q->activated(text);
+    emit q->activated(index);
+}
+
+void QGenericComboBoxPrivate::emitHighlighted(const QModelIndex &index)
+{
+    QString text(q->model()->data(index, QAbstractItemModel::Role_Edit).toString());
+    emit q->highlighted(index.row());
+    emit q->highlighted(text);
+    emit q->highlighted(index);
 }
 
 QGenericComboBox::~QGenericComboBox()
@@ -360,6 +379,19 @@ void QGenericComboBox::setSizeLimit(int limit)
 int QGenericComboBox::count() const
 {
     return model()->rowCount(root());
+}
+
+void QGenericComboBox::setMaxCount(int max)
+{
+    if (max < count())
+        model()->removeRows(max, root(), count() - max);
+
+    d->maxCount = max;
+}
+
+int QGenericComboBox::maxCount() const
+{
+    return d->maxCount;
 }
 
 bool QGenericComboBox::autoCompletion() const
@@ -428,6 +460,8 @@ void QGenericComboBox::setLineEdit(QLineEdit *edit)
 	d->lineEdit->setParent(this);
     connect(d->lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
     connect(d->lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(complete()));
+    connect(d->lineEdit, SIGNAL(textChanged(const QString&)),
+            this, SIGNAL(textChanged(const QString &)));
     d->lineEdit->setFrame(false);
     d->lineEdit->setAttribute(Qt::WA_CompositeChild);
     setAttribute(Qt::WA_CompositeParent);
@@ -449,6 +483,17 @@ void QGenericComboBox::setLineEdit(QLineEdit *edit)
 QLineEdit *QGenericComboBox::lineEdit() const
 {
     return d->lineEdit;
+}
+
+void QGenericComboBox::setValidator(const QValidator *v)
+{
+    if (d->lineEdit)
+        d->lineEdit->setValidator(v);
+}
+
+const QValidator *QGenericComboBox::validator() const
+{
+    return d->lineEdit ? d->lineEdit->validator() : 0;
 }
 
 /*!
@@ -536,6 +581,35 @@ void QGenericComboBox::setCurrentText(const QString& text)
     }
 }
 
+QString QGenericComboBox::text(int row) const
+{
+    QModelIndex index = model()->index(row, 0, root());
+    return model()->data(index, QAbstractItemModel::Role_Edit).toString();
+}
+
+QPixmap QGenericComboBox::pixmap(int row) const
+{
+    QModelIndex index = model()->index(row, 0, root());
+    return model()->data(index, QAbstractItemModel::Role_Edit).toIconSet().pixmap();
+}
+
+void QGenericComboBox::insertStringList(const QStringList &list, int row)
+{
+    if (list.isEmpty())
+        return;
+
+    if (row < 0)
+        row = model()->rowCount(root());
+
+    if (model()->insertRows(row, root(), list.count())) {
+        QModelIndex item;
+        for (int i = 0; i < list.count(); ++i) {
+            item = model()->index(i+row, 0, root());
+            model()->setData(item, QAbstractItemModel::Role_Edit, list.at(i));
+        }
+    }
+}
+
 QModelIndex QGenericComboBox::insertItem(const QString &text, int row)
 {
     if (row < 0)
@@ -573,6 +647,11 @@ QModelIndex QGenericComboBox::insertItem(const QString &text, const QIconSet &ic
         model()->setItemData(item, values);
     }
     return item;
+}
+
+void QGenericComboBox::removeItem(int row)
+{
+    model()->removeRows(row, root(), 1);
 }
 
 QModelIndex QGenericComboBox::changeItem(const QString &text, int row)
@@ -686,7 +765,7 @@ void QGenericComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
     if (d->lineEdit)
         d->lineEdit->setText(model()->data(q->currentItem(), QAbstractItemModel::Role_Edit)
                              .toString());
-    emit activated(currentItem());
+    d->emitActivated(currentItem());
 }
 
 void QGenericComboBox::focusInEvent(QFocusEvent *)

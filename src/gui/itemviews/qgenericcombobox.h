@@ -19,6 +19,7 @@ class Q_GUI_EXPORT QGenericComboBox : public QWidget
     Q_PROPERTY(int sizeLimit READ sizeLimit WRITE setSizeLimit)
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
+    Q_PROPERTY(int maxCount READ maxCount WRITE setMaxCount)
 
 public:
 
@@ -37,7 +38,10 @@ public:
 
     int sizeLimit() const;
     void setSizeLimit(int limit);
+
     int count() const;
+    void setMaxCount(int max);
+    int maxCount() const;
 
     bool autoCompletion() const;
     void setAutoCompletion(bool enable);
@@ -52,6 +56,8 @@ public:
     void setEditable(bool editable);
     void setLineEdit(QLineEdit *edit);
     QLineEdit *lineEdit() const;
+    void setValidator (const QValidator *v);
+    const QValidator * validator () const;
 
     QAbstractItemDelegate *itemDelegate() const;
     void setItemDelegate(QAbstractItemDelegate *delegate);
@@ -67,9 +73,15 @@ public:
     QString currentText() const;
     void setCurrentText(const QString&);
 
+    QString text (int row) const;
+    QPixmap pixmap (int row) const;
+
+    void insertStringList(const QStringList &list, int row = -1);
     QModelIndex insertItem(const QString &text, int row = -1);
     QModelIndex insertItem(const QIconSet &icon, int row = -1);
     QModelIndex insertItem(const QString &text, const QIconSet &icon, int row = -1);
+
+    void removeItem(int row);
 
     QModelIndex changeItem(const QString &text, int row);
     QModelIndex changeItem(const QIconSet &icon, int row);
@@ -83,7 +95,12 @@ public:
 
 signals:
     void textChanged(const QString &);
+    void activated(int row);
+    void activated(const QString &);
     void activated(const QModelIndex &);
+    void highlighted(int row);
+    void highlighted(const QString &);
+    void highlighted(const QModelIndex &);
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
 
 protected slots:
@@ -98,7 +115,6 @@ protected:
     void paintEvent(QPaintEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
-
 
 private:
     Q_PRIVATE_SLOT(void itemSelected(const QModelIndex &item))

@@ -206,6 +206,7 @@ public:
           autoCompletion(true),
           duplicatesEnabled(false),
           sizeLimit(10),
+          maxCount(INT_MAX),
           ignoreMousePressEvent(false),
           skipCompletion(false) {}
     ~QGenericComboBoxPrivate() {}
@@ -216,6 +217,8 @@ public:
     void complete();
     void itemSelected(const QModelIndex &item);
     bool contains(const QString &text, int role);
+    void emitActivated(const QModelIndex&);
+    void emitHighlighted(const QModelIndex&);
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
@@ -225,6 +228,7 @@ public:
     bool autoCompletion;
     bool duplicatesEnabled;
     int sizeLimit;
+    int maxCount;
     bool ignoreMousePressEvent;
     bool skipCompletion;
     mutable QSize sizeHint;
