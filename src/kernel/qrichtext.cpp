@@ -2011,7 +2011,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     // do word wrap
     int lastSpace =current;
     int lastHeight = rh;
-    int lastWidth = 0;
+    int lastWidth = currentx;
     int lastAsc = rasc;
     int lastDesc = rdesc;
     bool noSpaceFound = TRUE;
@@ -2021,8 +2021,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     if ( p )
 	p->setFont( fmt->font() );
     QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
-    int space_width = fm.width(' ');
-
+    
     widthUsed = 0;
 
     QList<QTextCustomItem> floatingItems;
@@ -2036,7 +2035,6 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 		p->setFont( fmt->font() );
 	    else
 		fm = QFontMetrics( fmt->font() );
-	    space_width = fm.width(' ');
 	}
 
 	QTextRichString::Item* item = &paragraph->text.items[current];
@@ -2076,8 +2074,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	// if a wordbreak is possible and required, do it. Unless we
 	// have a newline, of course. In that case we break after the
 	// newline to avoid empty lines.
-	if ( currentx > width - rmargin - space_width
-	     && !noSpaceFound && lastc != '\n' ) {
+	if ( currentx > width - rmargin && !noSpaceFound && lastc != '\n' ) {
 	    break;
 	}
 
