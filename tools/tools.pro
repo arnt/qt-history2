@@ -3,7 +3,10 @@ no-png {
     message("Tools not available without PNG support")
 } else {
     SUBDIRS		= assistant/lib \
-			assistant linguist
+			assistant \
+			linguist \
+			porting \
+			designer
     unix:SUBDIRS        += qtconfig
 }
 
