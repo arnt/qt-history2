@@ -165,6 +165,11 @@ TrWindow::TrWindow()
     pxObsolete = new QPixmap( QPixmap::fromMimeSource( "d_s_check_obs.png" ) );
     pxDanger = new QPixmap( QPixmap::fromMimeSource( "s_check_danger.png" ) );
 
+    setCorner(TopLeft, DockWindowAreaLeft);
+    setCorner(TopRight, DockWindowAreaRight);
+    setCorner(BottomLeft, DockWindowAreaLeft);
+    setCorner(BottomRight, DockWindowAreaRight);
+
     // Set up the Scope dock window
     QDockWindow * dwScope = new QDockWindow(this);
 
