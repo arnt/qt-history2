@@ -525,6 +525,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			    }
 			}
 		    }
+		    fqn = findDependency(inc); //all else fails..
 		cache_fqn:
 		    if(from_source_dir) {
 			fqn = fileFixify(fqn);

@@ -37,6 +37,7 @@ protected:
     virtual void processPrlFiles();
 
     virtual bool findLibraries();
+    virtual QString findDependency(const QString &);
     virtual void init();
 
     void writeMakeParts(QTextStream &);

@@ -31,6 +31,7 @@ protected:
     virtual void writeSubDirs(QTextStream &t);
     int findHighestVersion(const QString &dir, const QString &stem);
     bool findLibraries(const QString &);
+    QString findDependency(const QString &);
     virtual bool findLibraries();
     virtual void processPrlFiles();
 

@@ -231,6 +231,21 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     return biggest;
 }
 
+QString
+Win32MakefileGenerator::findDependency(const QString &dep)
+{
+    {
+	QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
+	for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
+	    QString targ = var((*it) + ".target");
+	    if(targ.isEmpty())
+		targ = (*it);
+	    if(targ.endsWith(dep)) 
+		return targ;
+	}
+    }
+    return MakefileGenerator::findDependency(dep);
+}
 
 bool
 Win32MakefileGenerator::findLibraries(const QString &where)
