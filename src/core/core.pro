@@ -1,4 +1,4 @@
-TARGET		= qcore
+TARGET		= QtCore
 QT         =
 
 DEFINES += QT_BUILD_CORE_LIB

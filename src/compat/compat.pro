@@ -1,7 +1,7 @@
 # Qt compat library
 
 REQUIRES = !qt_one_lib
-TARGET		= q3compat
+TARGET		= Qt3Compat
 QT         = core gui network sql
 
 DEFINES += QT_BUILD_COMPAT_LIB 

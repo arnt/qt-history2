@@ -1,5 +1,5 @@
 REQUIRES = !qt_one_lib
-TARGET = qnetwork
+TARGET = QtNetwork
 
 DEFINES += QT_BUILD_NETWORK_LIB
 

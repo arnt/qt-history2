@@ -1560,13 +1560,20 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "System architecture: '$ARCH'"
 fi
 
-# symlink the arch/$ARCH/arch/ include directory to include/arch/
-if [ -d "$outpath/include" ]; then
-    rm -f "$outpath/include/arch"
+# symlink the arch/$ARCH/arch/ include directory to include/QtCore/arch/
+if [ -d "$outpath/include/QtCore/arch" ]; then
+    rm -f "$outpath/include/QtCore/arch"
 else
-    mkdir "$outpath/include"
+    mkdir -p "$outpath/include/QtCore/"
 fi
-ln -s "$relpath/src/core/arch/$ARCH/arch" "$outpath/include/arch"
+ln -s "$relpath/src/core/arch/$ARCH/arch" "$outpath/include/QtCore/arch"
+#this is for the "flat" compat
+if [ -d "$outpath/include/Qt/arch" ]; then
+    rm -f "$outpath/include/Qt/arch"
+else
+    mkdir -p "$outpath/include/Qt/"
+fi
+ln -s "$relpath/src/core/arch/$ARCH/arch" "$outpath/include/Qt/arch"
 
 #-------------------------------------------------------------------------------
 # tests that don't need qmake (must be run before displaying help)
@@ -2449,15 +2456,18 @@ fi
 if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     echo "Creating qmake. Please wait..."
     OLD_QCONFIG_H=
-    if [ -f "$outpath/include/qconfig.h" ]; then
-         OLD_QCONFIG_H="$outpath/include/qconfig.h"
+    if [ -f "$outpath/include/QtCore/qconfig.h" ]; then
+         OLD_QCONFIG_H="$outpath/include/QtCore/qconfig.h"
          mv -f "$OLD_QCONFIG_H" "${OLD_QCONFIG_H}.old"
     fi
 
     # create temporary qconfig.h for compiling qmake
     # when building qmake, we use #defines for the install paths,
     # however they are real functions in the library
-    echo "/* All features enabled while building qmake */" >$outpath/include/qconfig.h #temporary config
+    echo "/* All features enabled while building qmake */" >"$outpath/include/QtCore/qconfig.h" #temporary config
+    if [ '!' -f "$outpath/include/Qt/qconfig.h" ]; then
+	ln -s "$outpath/include/QtCore/qconfig.h" "$outpath/include/Qt/qconfig.h"
+    fi
 
     #mkspecs/default is used as a (gasp!) default mkspec so QMAKESPEC needn't be set once configured
     rm -f mkspecs/default
@@ -3029,15 +3039,15 @@ QT_BUILD_KEY=`echo $QT_BUILD_KEY | sed -e "s,  *, ,g" -e "s,^  *,," -e "s,  *$,,
 
 case "$CFG_QCONFIG" in
 full)
-    echo "/* Everything */" >$outpath/include/qconfig.h.new
+    echo "/* Everything */" >$outpath/include/QtCore/qconfig.h.new
     ;;
 *)
     QCONFIGFILE=qconfig-$CFG_QCONFIG.h
-    echo "/* Copied from $QCONFIGFILE */" >$outpath/include/qconfig.h.new
-    cat $relpath/src/tools/$QCONFIGFILE >>$outpath/include/qconfig.h.new
+    echo "/* Copied from $QCONFIGFILE */" >$outpath/include/QtCore/qconfig.h.new
+    cat $relpath/src/tools/$QCONFIGFILE >>$outpath/include/QtCore/qconfig.h.new
     ;;
 esac
-cat >> $outpath/include/qconfig.h.new <<EOF
+cat >> $outpath/include/QtCore/qconfig.h.new <<EOF
 
 /* License information */
 #define QT_PRODUCT_LICENSEE "$Licensee"
@@ -3053,14 +3063,14 @@ cat >> $outpath/include/qconfig.h.new <<EOF
 
 /* Compile time features */
 EOF
-[ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/include/qconfig.h.new
+[ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/include/QtCore/qconfig.h.new
 
 if [ "$CFG_LARGEFILE" = "yes" ]; then
-    echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
+    echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/QtCore/qconfig.h.new
 fi
 
 $unixtests/ptrsize.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
-echo "#define QT_POINTER_SIZE $?" >>$outpath/include/qconfig.h.new
+echo "#define QT_POINTER_SIZE $?" >>$outpath/include/QtCore/qconfig.h.new
 
 ## find excluded styles and add this to $QCONFIG_FLAGS
 
@@ -3094,7 +3104,7 @@ done
 if [ -n "$QCONFIG_FLAGS" ]; then
     for cfg in $QCONFIG_FLAGS; do
 
-cat >>$outpath/include/qconfig.h.new << EOF
+cat >>$outpath/include/QtCore/qconfig.h.new << EOF
 #ifndef $cfg
 # define $cfg
 #endif
@@ -3104,12 +3114,15 @@ EOF
 fi
 
 # avoid unecessary rebuilds by copying only if qconfig.h has changed
-if cmp -s $outpath/include/qconfig.h $outpath/include/qconfig.h.new; then
-    rm -f $outpath/include/qconfig.h.new
+if cmp -s "$outpath/include/QtCore/qconfig.h" "$outpath/include/QtCore/qconfig.h.new"; then
+    rm -f "$outpath/include/QtCore/qconfig.h.new"
 else
-    [ -f $outpath/include/qconfig.h ] && chmod +w $outpath/include/qconfig.h
-    mv $outpath/include/qconfig.h.new $outpath/include/qconfig.h
-    chmod -w $outpath/include/qconfig.h
+    [ -f "$outpath/include/QtCore/qconfig.h" ] && chmod +w "$outpath/include/QtCore/qconfig.h"
+    mv "$outpath/include/QtCore/qconfig.h.new" "$outpath/include/QtCore/qconfig.h"
+    chmod -w "$outpath/include/QtCore/qconfig.h"
+    if [ '!' -f "$outpath/include/Qt/qconfig.h" ]; then
+	ln -s "$outpath/include/QtCore/qconfig.h" "$outpath/include/Qt/qconfig.h"
+    fi
 fi
 
 #-------------------------------------------------------------------------------

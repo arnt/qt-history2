@@ -1,6 +1,6 @@
 # Qt opengl module
 
-TARGET = qopengl
+TARGET = QtOpenGL
 
 include(../qbase.pri)
 

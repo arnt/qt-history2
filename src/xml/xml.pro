@@ -1,7 +1,7 @@
 # Qt xml module
 
 REQUIRES = !qt_one_lib
-TARGET		= qxml
+TARGET		= QtXML
 QT = core gui
 
 DEFINES += QT_BUILD_XML_LIB

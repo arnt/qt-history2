@@ -1,4 +1,4 @@
-TARGET		= qt
+TARGET		= QtGUI
 DEFINES += QT_BUILD_GUI_LIB
 
 include(../qbase.pri)
@@ -30,6 +30,7 @@ include(accessible/accessible.pri)
 include(itemviews/itemviews.pri)
 
 # ##### this should go away eventually
+INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt3Compat
 include(compat.pri)
 
 QMAKE_LIBS += $$QMAKE_LIBS_GUI

@@ -1,4 +1,5 @@
 isEmpty(TARGET):error(You must set TARGET before includ()'ing ${FILE})
+INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 
 # debug/release combos for our libraries
 dll:unix {

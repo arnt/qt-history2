@@ -29,23 +29,25 @@ target_qt {
 }
 for(QTLIB, QT) {
     qlib =
-    isEqual(QTLIB, gui):qlib = qt
-    else:isEqual(QTLIB, network):qlib = qnetwork
-    else:isEqual(QTLIB, xml):qlib = qxml
-    else:isEqual(QTLIB, opengl):qlib = qopengl
-    else:isEqual(QTLIB, sql):qlib = qsql
-    else:isEqual(QTLIB, core):qlib = qcore
-    else:isEqual(QTLIB, canvas):qlib = qcanvas
-    else:isEqual(QTLIB, compat):qlib = q3compat
+    isEqual(QTLIB, gui):qlib = QtGUI
+    else:isEqual(QTLIB, network):qlib = QtNetwork
+    else:isEqual(QTLIB, xml):qlib = QtXML
+    else:isEqual(QTLIB, opengl):qlib = QtOpenGL
+    else:isEqual(QTLIB, sql):qlib = QtSQL
+    else:isEqual(QTLIB, core):qlib = QtCore
+    else:isEqual(QTLIB, canvas):qlib = QtCanvas
+    else:isEqual(QTLIB, compat):qlib = Qt3Compat
     else:message("Unknown QT: $$qlib):qlib =
     !isEmpty(qlib) {
         target_qt:isEqual(TARGET, qlib) {
             warning($$TARGET cannot have a QT of $$QTLIB)
         } else {
 	    isEqual(QTLIB, compat) {
-	        QTDIR_build:warning(***USE of $$upper($${QTLIB}) inside of QTDIR!**)
-	        !contains(DEFINES, QT_COMPAT):DEFINES *= QT_COMPAT_WARNINGS
+	       QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
+	       INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt
+	       !contains(DEFINES, QT_COMPAT):DEFINES *= QT_COMPAT_WARNINGS
 	    }
+	    exists($$QMAKE_INCDIR_QT/$$qlib):INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$qlib
 	    isEqual(QTLIB, opengl):CONFIG += opengl
             LIBS   += -l$${qlib}
         }
