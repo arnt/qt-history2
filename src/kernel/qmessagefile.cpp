@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#5 $
 **
 ** Localization database support.
 **
@@ -161,7 +161,7 @@ void QMessageFile::open( const QString & filename, const QString & directory )
     }
 
 #if defined(UNIX)
-    // unix
+    // unix (if mmap supported)
 
     //const char * lang = getenv( "LANG" );
 
@@ -192,12 +192,12 @@ void QMessageFile::open( const QString & filename, const QString & directory )
 
     d->unmapPointer = tmp;
     d->unmapLength = st.st_size;
-#else
-    // windows
-#endif
-
     d->t = ((const char *) tmp)+16; // 16 being the length of the magic number
     d->l = d->unmapLength - 16;
+#else
+    // windows
+    fatal("Not written yet -- contact agulbra@troll.no");
+#endif
 
     // now that we've read it and all, check that it has the right
     // magic number, and forget all about it if it doesn't.
@@ -333,9 +333,9 @@ void QMessageFile::clear()
 
 static inline void writethreebytes( QByteArray & b, uint o, uint d )
 {
-    b[o  ] = (d&0xff0000) >> 16;
-    b[o+1] = (d&0x00ff00) >>  8;
-    b[o+2] = (d&0x0000ff);
+    b[(int)o  ] = (d&0xff0000) >> 16;
+    b[(int)o+1] = (d&0x00ff00) >>  8;
+    b[(int)o+2] = (d&0x0000ff);
 }
 
 
@@ -423,8 +423,8 @@ void QMessageFile::squeeze()
 		res = items[i].result;
 		uint k;
 		for( k=0; k<res.length(); k++ ) {
-		    b[sp++] = res[k].row;
-		    b[sp++] = res[k].cell;
+		    b[(int)sp++] = res[k].row;
+		    b[(int)sp++] = res[k].cell;
 		}
 		i--;
 		j--;
