@@ -217,8 +217,7 @@ void QRangeControl::directSetValue(int value)
 }
 
 /*!
-  Equivalent to \c{setValue( value() + pageStep() )} plus a
-  test for numerical overflow.
+  Equivalent to \c{setValue( value() + pageStep() )}.
 
   If the value is changed, then valueChange() is called.
 
@@ -227,15 +226,11 @@ void QRangeControl::directSetValue(int value)
 
 void QRangeControl::addPage()
 {
-    if ( value() + pageStep() < maxValue() )
-	setValue( value() + pageStep() );
-    else
-	setValue( maxValue() );
+    setValue( value() + pageStep() );
 }
 
 /*!
-  Equivalent to \c{setValue( value() - pageStep() )}  plus a
-  test for numerical underflow.
+  Equivalent to \c{setValue( value() - pageStep() )}.
 
   If the value is changed, then valueChange() is called.
 
@@ -244,15 +239,11 @@ void QRangeControl::addPage()
 
 void QRangeControl::subtractPage()
 {
-    if ( value() - pageStep() > minValue() )
-	setValue( value() - pageStep() );
-    else
-	setValue( minValue() );
+    setValue( value() - pageStep() );
 }
 
 /*!
-  Equivalent to \c{setValue( value() + lineStep() )}  plus a
-  test for numerical overflow
+  Equivalent to \c{setValue( value() + lineStep() )}.
 
   If the value is changed, then valueChange() is called.
 
@@ -261,15 +252,11 @@ void QRangeControl::subtractPage()
 
 void QRangeControl::addLine()
 {
-    if ( value() + lineStep() < maxValue() )
-	setValue( value() + lineStep() );
-    else
-	setValue( maxValue() );
+    setValue( value() + lineStep() );
 }
 
 /*!
-  Equivalent to \c{setValue( value() - lineStep() )} plus a
-  test for numerical underflow
+  Equivalent to \c{setValue( value() - lineStep() )}.
 
   If the value is changed, then valueChange() is called.
 
@@ -278,10 +265,7 @@ void QRangeControl::addLine()
 
 void QRangeControl::subtractLine()
 {
-    if ( value() - lineStep() > minValue() )
-	setValue( value() - lineStep() );
-    else
-	setValue( minValue() );
+    setValue( value() - lineStep() );
 }
 
 
