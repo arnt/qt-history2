@@ -27,15 +27,12 @@
 //
 
 #include "qpaintdevice.h"
-#include "qrect.h"
 #include "qdom.h"
 
 #ifndef QT_NO_SVG
 
 class QPainter;
 class QPaintEngine;
-class QDomNode;
-class QDomNamedNodeMap;
 struct QSvgDeviceState;
 class QSvgDevicePrivate;
 
