@@ -81,7 +81,7 @@ public:
 		 QToolTipGroup *, const QString& , QToolTip *, bool );
     void    add( QWidget *, const QRect &, const QString& ,
 		 QToolTipGroup *, const QString& , QToolTip *, bool );
-    void    remove( QWidget *, const QRect & );
+    void    remove( QWidget *, const QRect &, bool delayhide = FALSE );
     void    remove( QWidget * );
 
     void    removeFromGroup( QToolTipGroup * );
@@ -178,6 +178,7 @@ void QTipManager::add( const QRect &gm, QWidget *w,
 		       QToolTipGroup *g, const QString& gs,
 		       QToolTip *tt, bool a )
 {
+    remove( w, r, TRUE );
     QTipManager::Tip *h = (*tips)[ w ];
     QTipManager::Tip *t = new QTipManager::Tip;
     t->next = h;
@@ -191,7 +192,7 @@ void QTipManager::add( const QRect &gm, QWidget *w,
 
     if ( h ) {
 	tips->take( w );
-	if (h->autoDelete) {
+	if ( h != currentTip && h->autoDelete ) {
 	    t->next = h->next;
 	    delete h;
 	}
@@ -226,25 +227,28 @@ void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
 }
 
 
-void QTipManager::remove( QWidget *w, const QRect & r )
+void QTipManager::remove( QWidget *w, const QRect & r, bool delayhide )
 {
     QTipManager::Tip *t = (*tips)[ w ];
     if ( t == 0 )
 	return;
 
     if ( t == currentTip )
-	hideTip();
+	if (!delayhide)
+	    hideTip();
+	else
+	    currentTip->autoDelete = true;
 
     if ( t == previousTip )
 	previousTip = 0;
 
-    if ( t->rect == r ) {
+    if ( ( currentTip != t || !delayhide ) && t->rect == r ) {
 	tips->take( w );
 	if ( t->next )
 	    tips->insert( w, t->next );
 	delete t;
     } else {
-	while( t->next && t->next->rect != r )
+	while(  t->next && t->next->rect != r && ( currentTip != t->next || !delayhide ))
 	    t = t->next;
 	if ( t->next ) {
 	    QTipManager::Tip *d = t->next;
