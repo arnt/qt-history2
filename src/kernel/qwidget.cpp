@@ -3466,7 +3466,7 @@ bool QWidget::close( bool alsoDelete )
 		delete this;
 	}
     }
-    if ( accept  ) {	// last window closed?
+    if ( accept ) {	// last window closed?
 	if ( checkLastWindowClosed
 	     && qApp->receivers(SIGNAL(lastWindowClosed()))
 	     && noMoreToplevels() )
