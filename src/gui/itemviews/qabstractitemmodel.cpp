@@ -500,8 +500,10 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     dataChanged(), rowsInserted(), columnsInserted(), rowsRemoved()
     and columnsRemoved().
 
-    When subclassing QAbstractItemModel, you must implement index(),
-    parent(), rowCount(), columnCount(), and data().
+    When subclassing QAbstractItemModel, at the very least you must
+    implement index(), parent(), rowCount(), columnCount(), and data().
+    To enable editing in your model, you must also implement isEditable()
+    and setData().
 
     \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
 
