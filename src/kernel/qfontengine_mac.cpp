@@ -60,10 +60,9 @@ int QFontEngine::underlinePosition() const
 }
 
 //Mac (ATSUI) engine
-QFontEngineMac::~QFontEngineMac()
-{
-    if(width_cache)
-	delete width_cache;
+QFontEngineMac::QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL)
+{ 
+    memset(widthCache, '\0', widthCacheSize);
 }
 
 QFontEngine::Error
@@ -74,12 +73,15 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance
 	*nglyphs = len;
 	return OutOfMemory;
     }
-    for(int i = 0; i < len; i++ )
-	glyphs[i] = str[i].unicode();
+     memcpy(glyphs, str, len*sizeof(QChar));
     *nglyphs = len;
     if(advances) {
-	for(int i = 0; i < len; i++)
-	    advances[i] = doTextTask(str+i, 0, 1, 1, WIDTH);
+	for(int i = 0; i < len; i++) {
+	    if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()])
+		advances[i] = widthCache[str[i].unicode()];
+	    else
+		advances[i] = doTextTask(str+i, 0, 1, 1, WIDTH);
+	}
     }
     return NoError;
 }
@@ -188,8 +190,13 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	int lineWidth = p->fontMetrics().lineWidth();
 	if(textFlags & Qt::Underline) {
 	    Rect r;
+	    int start_x = x, end_x = x + w;
+	    if(si->analysis.bidiLevel % 2) {
+		start_x = x - w;
+		end_x = x;
+	    }
 	    SetRect(&r, x, (y + 2) - (lineWidth / 2),
-		    x + w, (y + 2) + (lineWidth / 2));
+		    end_x, (y + 2) + (lineWidth / 2));
 	    if(!(r.bottom - r.top))
 		r.bottom++;
 	    PaintRect(&r);
@@ -197,8 +204,13 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	if(textFlags & Qt::Overline) {
 	    int spos = ascent() + 1;
 	    Rect r;
-	    SetRect(&r, x, (y - spos) - (lineWidth / 2),
-		    x + w, (y - spos) + (lineWidth / 2));
+	    int start_x = x, end_x = x + w;
+	    if(si->analysis.bidiLevel % 2) {
+		start_x = x - w;
+		end_x = x;
+	    }
+	    SetRect(&r, start_x, (y - spos) - (lineWidth / 2),
+		    end_x, (y - spos) + (lineWidth / 2));
 	    if(!(r.bottom - r.top))
 		r.bottom++;
 	    PaintRect(&r);
@@ -208,8 +220,13 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	    if(!spos)
 		spos = 1;
 	    Rect r;
-	    SetRect(&r, x, (y - spos) - (lineWidth / 2),
-		    x + w, (y - spos) + (lineWidth / 2));
+	    int start_x = x, end_x = x + w;
+	    if(si->analysis.bidiLevel % 2) {
+		start_x = x - w;
+		end_x = x;
+	    }
+	    SetRect(&r, start_x, (y - spos) - (lineWidth / 2),
+		    end_x, (y - spos) + (lineWidth / 2));
 	    if(!(r.bottom - r.top))
 		r.bottom++;
 	    PaintRect(&r);
@@ -280,15 +297,16 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	}
     } 
     if((task & WIDTH)) {
-	QFontCache::Key key = QFontCache::Key(fontDef, QFont::NoScript, 0);
-	if(!width_cache) 
-	    ((QFontEngineMac*)this)->width_cache = new QCache<QFontCache::Key, QCache<QString, int> >(5);
-	if(width_cache->find(key, cache)) {
-	    if(cache.find(QString(s+pos, use_len), ret) && task == WIDTH)
-		return ret;
-	} else {
-	    width_cache->insert(key, cache);
-	}
+ 	bool use_cached_width = TRUE;
+ 	for(int i = 0; i < use_len; i++) {
+ 	    if(s[i].unicode() >= widthCacheSize || !widthCache[s[i].unicode()]) {
+ 		use_cached_width = FALSE;
+ 		break;
+ 	    }
+ 	    ret += widthCache[s[i].unicode()];
+ 	}
+ 	if(use_cached_width && task == WIDTH) 
+	    return ret;
     }
 
     //create layout
@@ -393,7 +411,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	    ATSUMeasureText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 			    &left, &right, &bottom, &top);
 	ret = FixRound(right-left);
-	cache.insert(QString(s+pos, use_len), ret);
+ 	if(use_len == 1 && s->unicode() < widthCacheSize)
+ 	    widthCache[s->unicode()] = ret;
     }
     if(task & DRAW) {
 	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,

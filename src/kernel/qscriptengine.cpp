@@ -749,9 +749,16 @@ static const ushort arabicUnicodeLamAlefMapping[6][4] = {
 
 static inline int getShape( uchar cell, int shape )
 {
+#ifdef Q_OS_MAC
+    // the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here
+    uint ch = ( cell != 0x49 ) 
+	      ? (shape ? arabicUnicodeMapping[cell][0] + shape : 0x600+cell)
+	      : alefMaksura[shape] ;
+#else
     // the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here
     uint ch = ( cell != 0x49 ) ? arabicUnicodeMapping[cell][0] + shape
 	    		       : alefMaksura[shape] ;
+#endif
     return ch;
 }
 

@@ -499,14 +499,14 @@ class QFontEngineMac : public QFontEngine
     short fnum;
     int psize;
     QMacFontInfo *internal_fi;
-    QCache<QFontCache::Key, QCache<QString, int> > *width_cache;
+    enum { widthCacheSize = 0x500 };
+    unsigned char widthCache[widthCacheSize];
     friend class QGLContext;
     friend class QFontPrivate;
     friend class QMacSetFontInfo;
 
 public:
-    QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL), width_cache(NULL) { }
-    ~QFontEngineMac();
+    QFontEngineMac();
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 
