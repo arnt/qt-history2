@@ -1558,6 +1558,12 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
 fi
 
 case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
+IRIX*:*:*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+        echo "    IRIX on SGI hardware..."
+    fi
+    ARCH=`uname -p`
+    ;;
 SunOS:5*:sun4*)
     if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "    Solaris on Sun hardware..."
