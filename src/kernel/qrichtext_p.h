@@ -1037,7 +1037,7 @@ private:
     int uDepth;
     QString oText;
     QPtrList<QTextDocument> childList;
-    QColor linkColor;
+    QColor linkColor, bodyText;
     double scaleFontsFactor;
 
     short list_tm,list_bm, list_lm, li_tm, li_bm, par_tm, par_bm;

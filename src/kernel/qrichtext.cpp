@@ -1562,6 +1562,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
     int pos = 0;
     QValueStack<QTextDocumentTag> tags;
     QTextDocumentTag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
+    if ( bodyText.isValid() )
+	initag.format.setColor( bodyText );
     QTextDocumentTag curtag = initag;
     bool space = TRUE;
     bool canMergeLi = FALSE;
@@ -1708,6 +1710,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			    QColor c( attr["text"] );
 			    initag.format.setColor( c );
 			    curtag.format.setColor( c );
+			    bodyText = c;
 			}
 			if ( attr.contains( "link" ) )
 			    linkColor = QColor( attr["link"] );
@@ -7833,7 +7836,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 				int row, int column,
 				const QMap<QString, QString> &attr,
 				const QStyleSheetItem* /*style*/, // ### use them
-				const QTextFormat& /*fmt*/, const QString& context,
+				const QTextFormat& fmt, const QString& context,
 				QMimeSourceFactory &factory, QStyleSheet *sheet,
 				const QString& doc)
 {
@@ -7849,6 +7852,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     stretch_ = 0;
     richtext = new QTextDocument( table->parent );
     richtext->formatCollection()->setPaintDevice( table->parent->formatCollection()->paintDevice() );
+    richtext->bodyText = fmt.color();
     richtext->setTableCell( this );
     QString a = *attr.find( "align" );
     if ( !a.isEmpty() ) {
