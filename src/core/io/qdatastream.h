@@ -25,6 +25,8 @@ template<typename T> class QVector;
 template<class Key, class T> class QHash;
 template<class Key, class T> class QMap;
 
+class QDataStreamPrivate;
+
 #ifndef QT_NO_DATASTREAM
 class Q_CORE_EXPORT QDataStream
 {
@@ -42,6 +44,12 @@ public:
 #endif
     };
 
+    enum Status {
+        Ok,
+        CorruptedData,
+        ReadPastEnd
+    };
+
     QDataStream();
     QDataStream(QIODevice *);
     QDataStream(QByteArray *, int mode);
@@ -53,7 +61,13 @@ public:
     void unsetDevice();
 
     bool atEnd() const;
-    bool eof() const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool eof() const { return atEnd(); }
+#endif
+
+    Status status() const;
+    void setStatus(Status status);
+    void resetStatus();
 
     enum ByteOrder { BigEndian, LittleEndian };
     ByteOrder byteOrder() const;
@@ -73,10 +87,6 @@ public:
     QDataStream &operator>>(Q_UINT32 &i);
     QDataStream &operator>>(Q_INT64 &i);
     QDataStream &operator>>(Q_UINT64 &i);
-#if !defined(Q_OS_WIN64)
-    QDataStream &operator>>(Q_LONG &i);
-    QDataStream &operator>>(Q_ULONG &i);
-#endif
 
     QDataStream &operator>>(float &f);
     QDataStream &operator>>(double &f);
@@ -90,22 +100,27 @@ public:
     QDataStream &operator<<(Q_UINT32 i);
     QDataStream &operator<<(Q_INT64 i);
     QDataStream &operator<<(Q_UINT64 i);
-#if !defined(Q_OS_WIN64)
-    QDataStream &operator<<(Q_LONG i);
-    QDataStream &operator<<(Q_ULONG i);
-#endif
     QDataStream &operator<<(float f);
     QDataStream &operator<<(double f);
     QDataStream &operator<<(const char *str);
 
     QDataStream &readBytes(char *&, uint &len);
-    QDataStream &readRawBytes(char *, uint len);
+    int readRawData(char *, int len);
 
     QDataStream &writeBytes(const char *, uint len);
-    QDataStream &writeRawBytes(const char *, uint len);
+    int writeRawData(const char *, int len);
+
+//#ifdef QT_COMPAT
+    inline /* QT_COMPAT */ QDataStream &readRawBytes(char *str, uint len)
+        { readRawData(str, (int)len); return *this; }
+    inline /* QT_COMPAT */ QDataStream &writeRawBytes(const char *str, uint len)
+        { writeRawData(str, (int)len); return *this; }
+//#endif
 
 private:
     Q_DISABLE_COPY(QDataStream)
+
+    QDataStreamPrivate *d;
 
     QIODevice *dev;
     bool owndev;
@@ -113,6 +128,7 @@ private:
     bool noswap;
     ByteOrder byteorder;
     int ver;
+    Status q_status;
 };
 
 
@@ -122,9 +138,6 @@ private:
 
 inline QIODevice *QDataStream::device() const
 { return dev; }
-
-inline bool QDataStream::eof() const
-{ return atEnd(); }
 
 inline QDataStream::ByteOrder QDataStream::byteOrder() const
 { return byteorder; }
@@ -153,11 +166,6 @@ inline QDataStream &QDataStream::operator>>(Q_UINT32 &i)
 inline QDataStream &QDataStream::operator>>(Q_UINT64 &i)
 { return *this >> reinterpret_cast<Q_INT64&>(i); }
 
-#if !defined(Q_OS_WIN64)
-inline QDataStream &QDataStream::operator>>(Q_ULONG &i)
-{ return *this >> reinterpret_cast<Q_LONG&>(i); }
-#endif
-
 inline QDataStream &QDataStream::operator<<(Q_UINT8 i)
 { return *this << Q_INT8(i); }
 
@@ -169,11 +177,6 @@ inline QDataStream &QDataStream::operator<<(Q_UINT32 i)
 
 inline QDataStream &QDataStream::operator<<(Q_UINT64 i)
 { return *this << Q_INT64(i); }
-
-#if !defined(Q_OS_WIN64)
-inline QDataStream &QDataStream::operator<<(Q_ULONG i)
-{ return *this << Q_LONG(i); }
-#endif
 
 template <typename T>
 QDataStream& operator>>(QDataStream& s, QList<T>& l)

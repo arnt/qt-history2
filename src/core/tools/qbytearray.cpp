@@ -2396,27 +2396,25 @@ QDataStream &operator<<(QDataStream &out, const QByteArray &ba)
 
 QDataStream &operator>>(QDataStream &in, QByteArray &ba)
 {
+    ba.clear();
     Q_UINT32 len;
-    in >> len;                                        // read size of array
-    if (len == 0xffffffff) {
-        ba.clear();
+    in >> len;
+    if (len == 0xffffffff)
         return in;
+
+    const Q_UINT32 Step = 1024 * 1024;
+    Q_UINT32 allocated = 0;
+
+    while (allocated < len) {
+        int blockSize = qMin(Step, len - allocated);
+        ba.resize(allocated + blockSize);
+        if (in.readRawData(ba.data() + allocated, blockSize) != blockSize) {
+            ba.clear();
+            in.setStatus(QDataStream::ReadPastEnd);
+            return in;
+        }
+        allocated += blockSize;
     }
-    if ((int)len <= 0) {
-        ba = QByteArray("");
-        return in;
-    }
-    if (in.eof()) {
-        ba.clear();
-        return in;
-    }
-    ba.resize((int)len);
-    if (ba.size() != (int)len) {
-        qWarning("QDataStream: Not enough memory to read QByteArray");
-        len = 0;
-    }
-    if (len > 0)                                // not null array
-        in.readRawBytes(ba.data(), (uint)len);
     return in;
 }
 #endif //QT_NO_DATASTREAM

@@ -73,10 +73,9 @@ application happens to be running on.
 	\endlist
 \row \i const char *
      \i \list
-	\i The size of the string including the terminating 0 (Q_UINT32)
-	\i The string bytes including the terminating 0
+        \i The string length (Q_UINT32)
+        \i The string bytes, excluding the terminating 0
 	\endlist
-	The null string is represented as \c {(Q_UINT32)0}.
 \row \i QBitArray
      \i \list
 	\i The array size (Q_UINT32)
@@ -152,6 +151,15 @@ application happens to be running on.
      \i \list
 	\i The number of items (Q_UINT32)
 	\i For all items, the key (Key) and value (T)
+	\endlist
+\row \i QMatrix
+     \i \list
+	\i m11 (double)
+	\i m12 (double)
+	\i m21 (double)
+	\i m22 (double)
+	\i dx (double)
+	\i dy (double)
 	\endlist
 \row \i QPair\<T1, T2\>
      \i \list
@@ -236,15 +244,6 @@ application happens to be running on.
      \i \list
 	\i The number of items (Q_UINT32)
 	\i The items (T)
-	\endlist
-\row \i QWMatrix
-     \i \list
-	\i m11 (double)
-	\i m12 (double)
-	\i m21 (double)
-	\i m22 (double)
-	\i dx (double)
-	\i dy (double)
 	\endlist
 \endtable
 
