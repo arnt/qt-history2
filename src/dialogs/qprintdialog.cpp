@@ -149,7 +149,7 @@ static void parsePrintcap( QListView * printers )
 	    atEnd = TRUE;
 	QString line = line_ascii;
 	line = line.stripWhiteSpace();
-	if (line.length() >= 1 && line[line.length()-1] == '\\' )
+	if (line.length() >= 1 && line[int(line.length())-1] == '\\' )
 	    line.truncate(line.length()-1);
 	if ( line[0] == '#' ) {
 	    if ( !atEnd ) continue;
