@@ -355,7 +355,7 @@ void QDialog::hideDefault()
 int QDialog::exec()
 {
     if ( in_loop ) {
-	qWarning( "QDialog::exec: Recursive call detected." );
+	qWarning( "QDialog::exec: Recursive call detected" );
 	return -1;
     }
 
@@ -377,7 +377,7 @@ int QDialog::exec()
     int res = result();
 
     if ( destructiveClose )
-      delete this;
+	delete this;
 
     return res;
 }
@@ -667,6 +667,19 @@ void QDialog::show()
 #endif
 }
 
+/*!
+    Shows a modal dialog.
+
+    ### Mark and I (Jasmin) will update the documentation
+*/
+void QDialog::showModal()
+{
+    bool wasShowModal = testWFlags( WShowModal );
+    setWFlags( WShowModal );
+    show();
+    if ( !wasShowModal )
+	clearWFlags( WShowModal );
+}
 
 /*!\internal
  */

@@ -87,6 +87,7 @@ public:
 
 public slots:
     int exec();
+    void showModal();
 
 protected slots:
     virtual void done( int );
