@@ -928,9 +928,9 @@ void QWidget::setWindowState(uint newstate)
 
 	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
 	    if (newstate & WindowFullScreen) {
-		if ( topData()->normalGeometry.width() < 0 && !(oldstate & WindowMaximized) )
-		    topData()->normalGeometry = QRect( pos(), size() );
-		topData()->savedFlags = GetWindowLongA(winId(), GWL_STYLE);
+		if ( d->topData()->normalGeometry.width() < 0 && !(oldstate & WindowMaximized) )
+		    d->topData()->normalGeometry = QRect( pos(), size() );
+		d->topData()->savedFlags = GetWindowLongA(winId(), GWL_STYLE);
 		UINT style = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP;
 		if (isVisible())
 		    style |= WS_VISIBLE;
@@ -943,11 +943,11 @@ void QWidget::setWindowState(uint newstate)
 		SetWindowPos(winId(), HWND_TOP, r.left(), r.top(), r.width(), r.height(), swpf);
 		updateFrameStrut();
 	    } else {
-		UINT style = topData()->savedFlags;
+		UINT style = d->topData()->savedFlags;
 		if (isVisible())
 		    style |= WS_VISIBLE;
 		SetWindowLongA(winId(), GWL_STYLE, style);
-		QRect r = topData()->normalGeometry;
+		QRect r = d->topData()->normalGeometry;
 
 		UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE;
 		if (newstate & WindowActive)
@@ -957,12 +957,12 @@ void QWidget::setWindowState(uint newstate)
 
 		// the widget had been maximized
 		if ( r.width() >= 0 ) {
-		    topData()->normalGeometry = QRect(0,0,-1,-1);
-		    r.addCoords(topData()->fleft, topData()->ftop, topData()->fleft, topData()->ftop);
+		    d->topData()->normalGeometry = QRect(0,0,-1,-1);
+		    r.addCoords(d->topData()->fleft, d->topData()->ftop, d->topData()->fleft, d->topData()->ftop);
 		    setGeometry(r);
 		} else {
 		    r = qApp->desktop()->availableGeometry(this);
-		    r.addCoords(-topData()->fleft, -topData()->ftop, -topData()->fleft, -topData()->ftop);
+		    r.addCoords(-(int)d->topData()->fleft, -(int)d->topData()->ftop, -(int)d->topData()->fleft, -(int)d->topData()->ftop);
 		    setGeometry(r);
 		}
 	    }
