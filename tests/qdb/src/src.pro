@@ -42,7 +42,7 @@ SOURCES	        += ../src/sqlinterpreter.cpp \
 		../src/filedriver_xbase.cpp \
 		../src/op.cpp \
 		../src/parser.cpp \
-		../src/qdb.cpp 
+		../src/localsql.cpp 
 LIBS		+= -lxdb
 TARGET          += qdb
 VERSION		+= 1.0.0

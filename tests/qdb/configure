@@ -70,4 +70,4 @@ cd src && qmake -o Makefile src.pro && cd ..
 echo creating bin/Makefile
 cd bin && qmake -o Makefile bin.pro && cd ..
 echo creating Makefile
-qmake -o Makefile qdb.pro
+qmake -o Makefile localsql.pro
