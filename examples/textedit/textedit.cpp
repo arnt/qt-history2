@@ -51,7 +51,7 @@ TextEdit::TextEdit(QWidget *parent)
     tabWidget = new QTabWidget(this);
     connect(tabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(editorChanged()));
-    setCentralWidget(tabWidget);
+    setCenterWidget(tabWidget);
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
@@ -66,7 +66,7 @@ TextEdit::TextEdit(QWidget *parent)
 void TextEdit::setupFileActions()
 {
     QToolBar *tb = new QToolBar(this);
-    tb->setLabel("File Actions");
+//    tb->setLabel("File Actions");
     QMenu *menu = new QMenu(this);
     menuBar()->addMenu(tr("&File"), menu);
 
@@ -111,7 +111,7 @@ void TextEdit::setupFileActions()
 void TextEdit::setupEditActions()
 {
     QToolBar *tb = new QToolBar(this);
-    tb->setLabel("Edit Actions");
+//    tb->setLabel("Edit Actions");
     QMenu *menu = new QMenu(this);
     menuBar()->addMenu(tr("&Edit"), menu);
 
@@ -138,7 +138,7 @@ void TextEdit::setupEditActions()
 void TextEdit::setupTextActions()
 {
     QToolBar *tb = new QToolBar(this);
-    tb->setLabel("Format Actions");
+//    tb->setLabel("Format Actions");
     QMenu *menu = new QMenu(this);
     menuBar()->addMenu(tr("F&ormat"), menu);
 
@@ -272,6 +272,7 @@ void TextEdit::fileSaveAs()
 
 void TextEdit::filePrint()
 {
+    /*
     if (!currentEditor)
         return;
 #ifndef QT_NO_PRINTER
@@ -312,6 +313,7 @@ void TextEdit::filePrint()
             printer.newPage();
             page++;
         } while (true);
+        */
 
         /*
 	QSimpleRichText richText(edit->plainText(), font,
@@ -335,8 +337,10 @@ void TextEdit::filePrint()
 	    page++;
 	} while (true);
         */
+    /*
     }
 #endif
+*/
 }
 
 void TextEdit::fileClose()
