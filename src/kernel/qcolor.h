@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#18 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#19 $
 **
 ** Definition of QColor class
 **
@@ -49,6 +49,7 @@ public:
     QColor( ulong rgb, ulong pixel=0xffffffff); // specify RGB and/or pixel
     QColor( const char *name );			// load color from database
     QColor( const QColor & );			// copy color
+    QColor &operator=( const QColor & );	// copy color
 
     static bool lazyAlloc()	{ return lalloc; }
     static void setLazyAlloc( bool );		// enable/disable lazy alloc
@@ -89,6 +90,7 @@ public:
     static void cleanup();			// cleanup color system
 
 private:
+    static bool ginit;
     static bool lalloc;
 #if defined(_WS_WIN_)
     static HANDLE hpal;
