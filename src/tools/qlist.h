@@ -149,7 +149,7 @@ public:
     inline ConstIterator end() const { return (Node*) p.end(); }
     inline ConstIterator constEnd() const { return (Node*) p.end(); }
     Iterator insert(Iterator before, const T &t);
-    Iterator erase(Iterator it);
+    Iterator erase(Iterator pos);
     Iterator erase(Iterator first, Iterator last);
 
     // more Qt
@@ -177,16 +177,16 @@ public:
 
 #ifndef QT_NO_COMPAT
     // compatibility
-    inline Iterator remove(Iterator it) { return erase(it); }
+    inline Iterator remove(Iterator pos) { return erase(pos); }
     inline int findIndex( const T& t ) const { return indexOf(t); }
-    inline Iterator find (const T& t)
+    inline Iterator find(const T& t)
     { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
     inline ConstIterator find (const T& t) const
     { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
-    inline Iterator find (Iterator it, const T& t)
-    { int i = indexOf(t, it-begin()); return i == -1 ? end() : begin()+i; }
-    inline ConstIterator find (ConstIterator it, const T& t) const
-    { int i = indexOf(t, it-begin()); return i == -1 ? end() : begin()+i; }
+    inline Iterator find(Iterator from, const T& t)
+    { int i = indexOf(t, from - begin()); return i == -1 ? end() : begin()+i; }
+    inline ConstIterator find(ConstIterator from, const T& t) const
+    { int i = indexOf(t, from - begin()); return i == -1 ? end() : begin()+i; }
 #endif
 
     // comfort

@@ -106,7 +106,7 @@ public:
     inline ConstIterator end() const { return e; }
     inline ConstIterator constEnd() const { return e; }
     Iterator insert(Iterator before, const T &t);
-    Iterator erase(Iterator it);
+    Iterator erase(Iterator pos);
     Iterator erase(Iterator first, Iterator last);
 
     // more Qt
@@ -134,16 +134,16 @@ public:
 
 #ifndef QT_NO_COMPAT
     // compatibility
-    inline Iterator remove(Iterator it) { return erase(it); }
+    inline Iterator remove(Iterator pos) { return erase(pos); }
     inline int findIndex( const T& t ) const
-    { int i=0; for (const_iterator it = begin(); it != end(); ++it, ++i) if(*it == t) return i; return i;}
-    inline Iterator find (Iterator it, const T& t)
-    { while (it != end() && !(*it == t)) ++it; return it; }
-    inline Iterator find (const T& t)
+    { int i=0; for (ConstIterator it = begin(); it != end(); ++it, ++i) if(*it == t) return i; return -1;}
+    inline Iterator find(Iterator from, const T& t)
+    { while (from != end() && !(*from == t)) ++from; return from; }
+    inline Iterator find(const T& t)
     { return find(begin(), t); }
-    inline ConstIterator find (ConstIterator it, const T& t) const
-    { while (it != end() && !(*it == t)) ++it; return it; }
-    inline ConstIterator find (const T& t) const
+    inline ConstIterator find(ConstIterator from, const T& t) const
+    { while (from != end() && !(*from == t)) ++from; return from; }
+    inline ConstIterator find(const T& t) const
     { return find(begin(), t); }
 #endif
 
@@ -360,9 +360,9 @@ int QLinkedList<T>::count(const T &t) const
 
 
 template <typename T>
-typename QLinkedList<T>::Iterator QLinkedList<T>::insert(Iterator pos, const T &t)
+typename QLinkedList<T>::Iterator QLinkedList<T>::insert(Iterator before, const T &t)
 {
-    Node *i = pos;
+    Node *i = before.i;
     Node *m = new Node(t);
     m->n = i;
     m->p = i->p;
