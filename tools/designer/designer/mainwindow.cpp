@@ -681,7 +681,7 @@ void MainWindow::previewForm( const QString & style )
 
     if ( !w )
 	return;
-    st->reparent(w);
+    st->setParent(w);
     w->show();
 }
 
