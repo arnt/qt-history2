@@ -182,7 +182,7 @@ public:
     // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
     // implementation to be a redefinition which is probably a
     // compiler bug.
-    inline length() const;
+    inline int length() const;
 #else
     int length() const;
 #endif
@@ -208,7 +208,7 @@ public:
     QMemArray<QTextStringChar> rawData() const { return data; }
 
     void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
-    void operator+=( const QString &s ) {insert( length(), s, 0 ); }
+    void operator+=( const QString &s ) { insert( length(), s, 0 ); }
     void prepend( const QString &s ) { insert( 0, s, 0 ); }
 
 private:
