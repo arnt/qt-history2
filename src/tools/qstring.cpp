@@ -1689,7 +1689,9 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
 	    } else {
 		if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
 		    int i_end = run;
-		    if(!ret.isEmpty())
+		    if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
+			i_end++;
+		    if((flags & SectionIncludeLeadingSep) && it != sections.begin() && x == start)
 			i_end++;
 		    for(int i = 0; i < i_end; i++)
 			ret += sep;
