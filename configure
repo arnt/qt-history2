@@ -1275,7 +1275,8 @@ fi
 
 # binaries from qt
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic -L \$\$QT_BUILD_TREE/plugins\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC3=$outpath/bin/uic3\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
 # hacky src line
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$outpath/src/moc\""

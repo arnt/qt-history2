@@ -4,10 +4,10 @@ isEmpty(QMAKE_UIC3) {
     else:QMAKE_UIC3 = $(QTDIR)/bin/uic3
 }
 
-##### isEmpty(QMAKE_UIC) {  ### uncomment me!
+isEmpty(QMAKE_UIC) {  ### uncomment me!
    win32:QMAKE_UIC = $(QTDIR)\bin\uic.exe
    else:QMAKE_UIC = $(QTDIR)/bin/uic
-##### }
+}
 
 isEmpty(UI_DIR):UI_DIR = .
 isEmpty(UI_SOURCES_DIR):UI_SOURCES_DIR = $$UI_DIR
