@@ -2317,13 +2317,13 @@ bool QApplication::closingDown()
 
 
 /*!
-  Processes pending events, for 3 seconds or until there are no more
-  events to process, whichever is shorter.
+    Processes pending events, for 3 seconds or until there are no more
+    events to process, whichever is shorter.
 
-  You can call this function occasionally when your program is busy
-  performing a long operation (e.g. copying a file).
+    You can call this function occasionally when your program is busy
+    performing a long operation (e.g. copying a file).
 
-  \sa exec(), QTimer
+    \sa exec(), QTimer, QEventLoop::processEvents()
 */
 
 void QApplication::processEvents()
@@ -2340,7 +2340,7 @@ void QApplication::processEvents()
     You can call this function occasionally when you program is busy
     doing a long operation (e.g. copying a file).
 
-    \sa exec(), QTimer
+    \sa exec(), QTimer, QEventLoop::processEvents()
 */
 void QApplication::processEvents( int maxtime )
 {
@@ -2370,8 +2370,10 @@ void QApplication::processOneEvent()
  *****************************************************************************/
 
 /*!
-  Returns the application event loop.  This function will return
-  zero if called during and after destroying QApplication.
+    Returns the application event loop. This function will return
+    zero if called during and after destroying QApplication.
+
+    \sa QEventLoop
 */
 QEventLoop *QApplication::eventLoop()
 {

@@ -230,8 +230,12 @@ int QEventLoop::loopLevel() const
     any arguments, then all event types are processed for a maximum of
     3 seconds (3000 milliseconds).
 
-    NOTE: Specifying the WaitForMore flag makes no sense, and will be
-    ignored.
+    This function is especially useful if you have a long running
+    operation and want to show its progress without allowing user
+    input, i.e. by using the \c ExcludeUserInput flag.
+
+    NOTE: Specifying the \c WaitForMore flag makes no sense, and will
+    be ignored.
 */
 void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 {
@@ -251,10 +255,10 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
     Processes pending events that match \a flags. If no
     events matching \a flags are available, this function will wait
-    for the next event if the WaitForMore flag is set in \a flags,
+    for the next event if the \c WaitForMore flag is set in \a flags,
     otherwise it returns immediately.
 
-    Returns TRUE if an event was processed, otherwise returns FALSE.
+    Returns TRUE if an event was processed; otherwise returns FALSE.
 
     \sa ProcessEvents
 */
