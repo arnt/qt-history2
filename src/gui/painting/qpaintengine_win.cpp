@@ -40,6 +40,11 @@
 #define d d_func()
 #define q q_func()
 
+// For alpha blending, we must load the AlphaBlend() function at run time.
+#if !defined(AC_SRC_ALPHA)
+#define AC_SRC_ALPHA 0x01
+#endif
+
 // True if GDI+ and its function could be resolved...
 static bool qt_gdiplus_support = false;
 static bool qt_resolved_gdiplus = false;
