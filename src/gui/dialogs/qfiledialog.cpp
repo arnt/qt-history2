@@ -4166,7 +4166,7 @@ void QFileDialog::popupContextMenu(const QString &filename, bool,
         }
 
         m.move(p);
-        int res = m.exec();
+        int res = m.exec(QCursor::pos(), -1);
 
         if (res == ok)
             action = PA_Open;
@@ -4207,7 +4207,7 @@ void QFileDialog::popupContextMenu(const QString &filename, bool,
         m.setItemChecked(hidden, bShowHiddenFiles);
 
         m.move(p);
-        int res = m.exec();
+        int res = m.exec(QCursor::pos(), -1);
 
         if (res == reload)
             action = PA_Reload;
