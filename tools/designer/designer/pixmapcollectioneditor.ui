@@ -126,7 +126,7 @@
                         <cstring>buttonClose</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Close</string>
+                        <string>C&amp;lose</string>
                     </property>
                     <property name="default">
                         <bool>true</bool>
