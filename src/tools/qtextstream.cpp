@@ -861,7 +861,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 uint QTextStream::ts_getline( QChar* buf )
 {
     uint rnum=0;   // the number of QChars really read
-    static char cbuf[ getline_buf_size+1 ];
+    char cbuf[ getline_buf_size+1 ];
 
     if ( d && d->ungetcBuf.length() ) {
 	while( rnum < getline_buf_size && rnum < d->ungetcBuf.length() ) {
@@ -1662,7 +1662,7 @@ QString QTextStream::readLine()
        ) ) {
 	readCharByChar = FALSE;
 	// use optimized read line
-	static QChar c[getline_buf_size];
+	QChar c[getline_buf_size];
 	int pos = 0;
 	bool eof = FALSE;
 
