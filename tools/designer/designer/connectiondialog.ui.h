@@ -191,7 +191,8 @@ void ConnectionDialog::okClicked()
 	MetaDataBase::connections( MainWindow::self->formWindow() );
     QPtrList<Command> newConnectionCmds;
     QPtrList<Command> oldConnectionCmds;
-    for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
+    for(QList<ConnectionContainer*>::Iterator it = connections.begin(); it != connections.end(); ++it) {
+	ConnectionContainer *c = (*it);
 	MetaDataBase::Connection conn;
 
         // find sender widget
@@ -252,11 +253,11 @@ void ConnectionDialog::cancelClicked()
 void ConnectionDialog::deleteClicked()
 {
     int cr = connectionsTable->currentRow();
-    connections.remove( cr );
+    connections.removeAt( cr );
     connectionsTable->removeRow( cr );
     int i = 0;
-    for ( ConnectionContainer *c = connections.first(); c; c = connections.next() )
-	c->setRow( i++ );
+    for(QList<ConnectionContainer*>::Iterator it = connections.begin(); it != connections.end(); ++it)
+	(*it)->setRow( i++ );
 }
 
 
@@ -266,7 +267,8 @@ void ConnectionDialog::editSlots()
     dlg.exec();
     int currentCol = connectionsTable->currentColumn();
     connectionsTable->setCurrentCell( connectionsTable->currentRow(), 0 );
-    for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
+    for(QList<ConnectionContainer*>::Iterator it = connections.begin(); it != connections.end(); ++it) {
+	ConnectionContainer *c = (*it);
 	if ( c->receiverItem()->currentText() !=
 	     QString( MainWindow::self->formWindow()->mainContainer()->name() ) )
 	    continue;
@@ -298,7 +300,8 @@ void ConnectionDialog::updateConnectionContainers()
 {
     QPtrList<ConnectionContainer> newContainers;
     for ( int i = 0; i < connectionsTable->numRows(); ++i ) {
-	for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
+	for(QList<ConnectionContainer*>::Iterator it = connections.begin(); it != connections.end(); ++it) {
+	    ConnectionContainer *c = (*it);
 	    if ( c->senderItem() == connectionsTable->item( i, 0 ) ) {
 		newContainers.append( c );
 		c->setRow( i );

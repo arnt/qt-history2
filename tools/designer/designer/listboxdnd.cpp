@@ -15,7 +15,6 @@
 #include <qheader.h>
 #include <qpainter.h>
 #include <qdragobject.h>
-#include <qvaluelist.h>
 #include <qevent.h>
 
 // The Dragobject Declaration ---------------------------------------
@@ -76,15 +75,11 @@ bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
 	    ListBoxItemDrag * dragobject = new ListBoxItemDrag( list, (dMode & Internal), (QListBox *) src );
 
 	    // Emit signal for all dragged items
-	    QListBoxItem * i = list.first();
-	    while ( i ) {
-		emit dragged( i );
-		i = list.next();
-	    }
+	    for(ListBoxItemList::Iterator it = list.begin(); it != list.end(); ++it) 
+		emit dragged( *it );
 
-	    if ( dMode & Move ) {
+	    if ( dMode & Move ) 
 		removeList( list ); // "hide" items
-	    }
 
 	    dragobject->dragCopy();
 
@@ -117,20 +112,16 @@ int ListBoxDnd::buildList( ListBoxItemList & list )
 
 void ListBoxDnd::insertList( ListBoxItemList & list )
 {
-    QListBoxItem * i = list.first();
-    while ( i ) {
+    for(ListBoxItemList::Iterator it = list.begin(); it != list.end(); ++it) {
+	QListBoxItem * i = (*it);
 	((QListBox *)src)->insertItem( i, i->prev() );
-	i = list.next();
     }
 }
 
 void ListBoxDnd::removeList( ListBoxItemList & list )
 {
-    QListBoxItem * i = list.first();
-    while ( i ) {
-	((QListBox *)src)->takeItem( i ); // remove item from QListBox
-	i = list.next();
-    }
+    for(ListBoxItemList::Iterator it = list.begin(); it != list.end(); ++it) 
+	((QListBox *)src)->takeItem( *it ); // remove item from QListBox
 }
 
 void ListBoxDnd::updateLine( const QPoint & dragPos )
@@ -181,15 +172,12 @@ ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, bool sendPtr, QListBo
     stream << items.count();
     stream << (Q_UINT8) sendPtr; // just transfer item pointer; omit data
 
-    QListBoxItem * i = items.first();
-
     if ( sendPtr ) {
-	while ( i ) {
-	    stream << (Q_ULONG) i; //###FIX: demands sizeof(ulong) >= sizeof(void*)
-	    i = items.next();
-	}
+	for(ListBoxItemList::Iterator it = items.begin(); it != items.end(); ++it)
+	    stream << (Q_ULONG) (*it); //###FIX: demands sizeof(ulong) >= sizeof(void*)
     } else {
-	while ( i ) {
+	for(ListBoxItemList::Iterator it = items.begin(); it != items.end(); ++it) {
+	    QListBoxItem * i = (*it);
 	    Q_UINT8 b = 0;
 
 	    b = (Q_UINT8) ( i->text() != QString::null ); // does item have text ?
@@ -200,13 +188,9 @@ ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, bool sendPtr, QListBo
 
 	    b = (Q_UINT8) ( !!i->pixmap() ); // does item have a pixmap ?
 	    stream << b;
-	    if ( b ) {
+	    if ( b ) 
 		stream << ( *i->pixmap() );
-	    }
-
 	    stream << (Q_UINT8) i->isSelectable();
-
-	    i = items.next();
 	}
 
     }

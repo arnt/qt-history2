@@ -282,7 +282,7 @@ void ListViewEditor::deleteColumnClicked()
     if ( !i )
 	return;
 
-    for ( QValueList<Column>::Iterator it = columns.begin(); it != columns.end(); ++it ) {
+    for ( QList<Column>::Iterator it = columns.begin(); it != columns.end(); ++it ) {
 	if ( ( *it ).item == i ) {
 	    delete (*it).item;
 	    columns.remove( it );
@@ -596,7 +596,7 @@ ListViewEditor::Column *ListViewEditor::findColumn( QListBoxItem *i )
     if ( !i )
 	return 0;
 
-    for ( QValueList<Column>::Iterator it = columns.begin(); it != columns.end(); ++it ) {
+    for ( QList<Column>::Iterator it = columns.begin(); it != columns.end(); ++it ) {
 	if ( ( *it ).item == i )
 	    return &( *it );
     }

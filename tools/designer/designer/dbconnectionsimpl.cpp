@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 #include "dbconnectionsimpl.h"
-#include <qptrlist.h>
 #include <qgroupbox.h>
 #include <qlayout.h>
 #include "project.h"

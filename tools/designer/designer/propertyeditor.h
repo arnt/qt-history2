@@ -19,7 +19,6 @@
 #include <qguardedptr.h>
 #include <qtabwidget.h>
 #include <qmodules.h>
-#include <qptrlist.h>
 #include <qlayout.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>

@@ -17,7 +17,6 @@
 
 #include <qmap.h>
 #include <qpixmap.h>
-#include <qvaluelist.h>
 
 class FormWindow;
 
@@ -78,7 +77,7 @@ private:
 
 private:
     QListView *listview;
-    QValueList<Column> columns;
+    QList<Column> columns;
     int numColumns;
     FormWindow *formwindow;
 

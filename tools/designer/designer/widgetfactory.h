@@ -14,9 +14,9 @@
 #define WIDGETFACTORY_H
 
 #include <qvariant.h>
+#include <qhash.h>
 #include <qiconset.h>
 #include <qstring.h>
-#include <qintdict.h>
 #include <qtabwidget.h>
 #include <qpixmap.h>
 #include <qsize.h>
@@ -24,7 +24,6 @@
 #include <qevent.h>
 #include <qlabel.h>
 #include <qwizard.h>
-#include <qptrdict.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
 #include <qcheckbox.h>
@@ -207,7 +206,7 @@ private:
 	QWidget *p;
 	QString t;
     };
-    QPtrDict<QWidget> removedPages;
+    QHash<QWidget *, QWidget *> removedPages;
 
 };
 

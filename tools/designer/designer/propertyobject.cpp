@@ -13,7 +13,6 @@
 #include "propertyobject.h"
 #include "metadatabase.h"
 #include <qptrvector.h>
-#include <qptrlist.h>
 #include <qmetaobject.h>
 #include <qvariant.h>
 

@@ -78,7 +78,6 @@
 #include <qmetaobject.h>
 #include <qwidgetstack.h>
 #include <qwizard.h>
-#include <qvaluelist.h>
 #include <qtimer.h>
 #include <qscrollbar.h>
 #include <qmainwindow.h>

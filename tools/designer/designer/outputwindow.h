@@ -15,7 +15,7 @@
 
 #include <qtabwidget.h>
 #include <qstringlist.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qlistview.h>
 
 struct DesignerOutputDock;
@@ -52,7 +52,7 @@ public:
     OutputWindow( QWidget *parent );
     ~OutputWindow();
 
-    void setErrorMessages( const QStringList &errors, const QValueList<uint> &lines,
+    void setErrorMessages( const QStringList &errors, const QList<uint> &lines,
 			   bool clear, const QStringList &locations,
 			   const QObjectList &locationObjects );
     void appendDebug( const QString& );

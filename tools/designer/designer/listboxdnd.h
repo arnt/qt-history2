@@ -13,11 +13,11 @@
 #ifndef LISTBOXDND_H
 #define LISTBOXDND_H
 
-#include <qptrlist.h>
 #include <qlistbox.h>
 #include "listdnd.h"
+#include <qlist.h>
 
-typedef QPtrList<QListBoxItem> ListBoxItemList;
+typedef QList<QListBoxItem*> ListBoxItemList;
 
 class ListBoxDnd : public ListDnd
 {

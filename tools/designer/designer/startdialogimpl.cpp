@@ -1,6 +1,5 @@
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qptrlist.h>
 #include <qiconview.h>
 #include <qcombobox.h>
 #include <qlabel.h>
