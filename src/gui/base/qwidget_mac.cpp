@@ -996,8 +996,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 
 	if(wclass == kFloatingWindowClass) //these dialogs don't hide
-	    ChangeWindowAttributes((WindowRef)id, kWindowNoAttributes,
-				    kWindowHideOnSuspendAttribute | kWindowNoActivatesAttribute);
+	    ChangeWindowAttributes((WindowRef)id, kWindowNoAttributes, kWindowNoActivatesAttribute);
 #if QT_MACOSX_VERSION >= 0x1020
 	if(qt_mac_is_macdrawer(this))
 	    SetDrawerParent((WindowRef)id, (WindowRef)parentWidget()->handle());
