@@ -43,7 +43,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qdrawutil.h"
-#include "qmemarray.h"
+#include "qvector.h"
 #include "qobjectlist.h"
 #include "qpainter.h"
 #include "qptrlist.h"
@@ -807,7 +807,7 @@ void QSplitter::doResize()
 {
     QRect r = contentsRect();
     int n = d->list.count();
-    QMemArray<QLayoutStruct> a( n );
+    QVector<QLayoutStruct> a( n );
 
     for ( int pass = 0; pass < 2; pass++ ) {
 	int numAutoWithStretch = 0;
