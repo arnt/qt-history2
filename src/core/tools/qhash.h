@@ -131,8 +131,8 @@ struct QHashNode
     Key key;
     T value;
 
-    inline QHashNode(const Key &key0, const T &value0)
-        : key(key0), value(value0) { }
+    inline QHashNode(const Key &key0) : key(key0) {}
+    inline QHashNode(const Key &key0, const T &value0) : key(key0), value(value0) {}
     inline bool same_key(uint h0, const Key &key0) { return h0 == h && key0 == key; }
 };
 
@@ -144,7 +144,8 @@ struct QHashNode
         union { uint h; key_type key; }; \
         T value; \
 \
-        inline QHashNode(key_type /* key0 */, const T &value0) : value(value0) { } \
+        inline QHashNode(key_type /* key0 */) {} \
+        inline QHashNode(key_type /* key0 */, const T &value0) : value(value0) {} \
         inline bool same_key(uint h0, key_type) { return h0 == h; } \
     }
 
@@ -345,6 +346,7 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE void *QHash<Key, T>::allocateNode()
 {
     size_t size;
+
     if (QTypeInfo<T>::isDummy) {
         size = reinterpret_cast<char *>(&reinterpret_cast<Node *>(&QHashData::shared_null)->value)
                - reinterpret_cast<char *>(&QHashData::shared_null);
@@ -371,15 +373,27 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE QHashData::Node *QHash<Key, T>::duplicateNode(QHashData::Node *node)
 {
     Node *concreteNode = concrete(node);
-    return reinterpret_cast<QHashData::Node *>(
-            new (allocateNode()) Node(concreteNode->key, concreteNode->value));
+    if (QTypeInfo<T>::isDummy) {
+        return reinterpret_cast<QHashData::Node *>(
+                new (allocateNode()) Node(concreteNode->key));
+    } else {
+        return reinterpret_cast<QHashData::Node *>(
+                new (allocateNode()) Node(concreteNode->key, concreteNode->value));
+    }
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::Node *
 QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNode)
 {
-    Node *node = new (allocateNode()) Node(key, value);
+    Node *node;
+
+    if (QTypeInfo<T>::isDummy) {
+        node = new (allocateNode()) Node(key);
+    } else {
+        node = new (allocateNode()) Node(key, value);
+    }
+
     node->h = h;
     node->next = *nextNode;
     *nextNode = node;
@@ -579,7 +593,8 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::iterator QHash<Key, T>::insert(const K
     if (*node == e)
         return iterator(createNode(h, key, value, node));
 
-    (*node)->value = value;
+    if (!QTypeInfo<T>::isDummy)
+        (*node)->value = value;
     return iterator(*node);
 }
 
@@ -712,7 +727,9 @@ Q_OUTOFLINE_TEMPLATE bool QHash<Key, T>::operator==(const QHash<Key, T> &other) 
     const_iterator it2 = other.begin();
 
     while (it1 != end()) {
-        if (!(it1.key() == it2.key()) || !(it1.value() == it2.value()))
+        if (!(it1.key() == it2.key()))
+            return false;
+        if (!QTypeInfo<T>::isDummy && !(it1.value() == it2.value()))
             return false;
         ++it2;
         ++it1;
