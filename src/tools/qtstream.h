@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.h#18 $
+** $Id: //depot/qt/main/src/tools/qtstream.h#19 $
 **
 ** Definition of QTextStream class
 **
@@ -193,13 +193,22 @@ QTextStream &ws( QTextStream &s );		// eat whitespace on input
 QTextStream &reset( QTextStream &s );		// set default flags
 
 inline QTSManip setw( int w )
-{ return QTSManip(&QTextStream::width,w); }
+{
+	QTSMFI func = &QTextStream::width;
+	return QTSManip(func,w);
+}
 
 inline QTSManip setfill( int f )
-{ return QTSManip(&QTextStream::fill,f); }
+{
+	QTSMFI func = &QTextStream::fill;
+	return QTSManip(func,f);
+}
 
 inline QTSManip setprecision( int p )
-{ return QTSManip(&QTextStream::precision,p); }
+{
+	QTSMFI func = &QTextStream::precision;
+	return QTSManip(func,p);
+}
 
 
 #endif // QTSTREAM_H
