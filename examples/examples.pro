@@ -109,6 +109,7 @@ embedded:SUBDIRS += launcher
 embedded:SUBDIRS -= showimg
 
 win32:SUBDIRS += trayicon
+embedded:SUBDIRS += trayicon
 
 X11DIRS	    =   biff \
 		desktop
