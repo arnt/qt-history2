@@ -460,7 +460,7 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 #ifdef Q_OS_TEMP
     // Show borderless toplevel windows in tasklist & NavBar
     if (!parent) {
-        QString txt = caption().isEmpty()?qAppName():caption();
+        QString txt = windowTitle().isEmpty()?qAppName():windowTitle();
         SetWindowText(winId(), (TCHAR*)txt.utf16());
     }
 #endif
