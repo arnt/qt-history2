@@ -1151,6 +1151,22 @@ QImage QImage::fromMimeSource( const QString &abs_name )
 }
 #endif
 
+/*!
+    Sets the image bits to the \a pixmap contents and returns a
+    reference to the image.
+
+    If the image shares data with other images, it will first
+    dereference the shared data.
+
+    Makes a call to QPixmap::convertToImage().
+*/
+
+QImage QImage::operator=( const QPixmap &pixmap )
+{
+    *this = pixmap.convertToImage();
+    return *this;
+}
+
 #endif //QT_NO_DATASTREAM
 
 

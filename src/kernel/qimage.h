@@ -69,10 +69,7 @@ public:
    ~QImage();
 
 #ifdef QT_GUI
-    inline QImage &operator=( const QPixmap &pixmap ) {     
-	*this = pixmap.convertToImage();
-	return *this;
-    }
+    QImage &operator=( const QPixmap &pixmap );
 #endif
     QImage     &operator=( const QImage & );
     bool	operator==( const QImage & ) const;

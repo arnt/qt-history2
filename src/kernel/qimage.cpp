@@ -6095,18 +6095,6 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 }
 
 /*!
-    \fn QImage &QImage::operator=( QImage &image, const QPixmap &pixmap )
-
-    Sets the image bits to the \a pixmap contents and returns a
-    reference to the image.
-
-    If the image shares data with other images, it will first
-    dereference the shared data.
-
-    Makes a call to QPixmap::convertToImage().
-*/
-
-/*!
     Returns TRUE if this image and image \a i have the same contents;
     otherwise returns FALSE. The comparison can be slow, unless there
     is some obvious difference, such as different widths, in which
