@@ -170,8 +170,7 @@ public:
     QByteArray &insert(int i, const QString &s);
     QByteArray &replace(const QString &before, const char *after);
     QByteArray &replace(char c, const QString &after);
-    inline QByteArray &replace(const QString &before, const QByteArray &after)
-	{ return replace(before, after.constData()); }
+    QByteArray &replace(const QString &before, const QByteArray &after);
     QByteArray &operator+=(const QString &s);
     int indexOf(const QString &s, int from = 0) const;
     int lastIndexOf(const QString &s, int from = -1) const;
@@ -261,8 +260,8 @@ public:
     inline QT_COMPAT int findRev(const char *c, int from = -1) const { return lastIndexOf(c, from); }
     inline QT_COMPAT int findRev(const QByteArray &ba, int from = -1) const { return lastIndexOf(ba, from); }
 #ifndef QT_NO_CAST_TO_ASCII
-    inline QT_COMPAT int find(const QString &s, int from = 0) const { return indexOf(s, from); }
-    inline QT_COMPAT int findRev(const QString &s, int from = -1) const { return lastIndexOf(s, from); }
+    QT_COMPAT int find(const QString &s, int from = 0) const;
+    QT_COMPAT int findRev(const QString &s, int from = -1) const;
 #endif
 #endif
 

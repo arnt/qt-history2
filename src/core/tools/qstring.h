@@ -675,9 +675,9 @@ inline bool operator!=(const QString &s, QString::Null) { return !s.isNull(); }
 
 #ifndef QT_NO_CAST_FROM_ASCII
 inline bool QString::operator==(const char *s) const {
-#ifndef QT_NO_TEXTCODEC
+#  ifndef QT_NO_TEXTCODEC
     if ( codecForCStrings ) return (*this == QString::fromAscii(s));
-#endif
+#  endif
     return (*this == QLatin1String(s));
 }
 inline bool QString::operator!=(const char *s) const{ return !(*this == s); }
@@ -700,7 +700,7 @@ inline bool QByteArray::operator>(const QString &s) const { return constData() <
 inline bool QByteArray::operator<=(const QString &s) const { return constData() < s;}
 inline bool QByteArray::operator>=(const QString &s) const { return constData() < s;}
 
-#ifndef QT_NO_CAST_TO_ASCII
+#  ifndef QT_NO_CAST_TO_ASCII
 inline QByteArray &QByteArray::append(const QString &s)
 { return append(s.toAscii()); }
 inline QByteArray &QByteArray::insert(int i, const QString &s)
@@ -709,14 +709,22 @@ inline QByteArray &QByteArray::replace(char c, const QString &after)
 { return replace(c, after.toAscii()); }
 inline QByteArray &QByteArray::replace(const QString &before, const char *after)
 { return replace(before.toAscii(), after); }
+inline QByteArray &replace(const QString &before, const QByteArray &after)
+{ return replace(before, after.constData()); }
 inline QByteArray &QByteArray::operator+=(const QString &s)
 { return operator+=(s.toAscii()); }
 inline int QByteArray::indexOf(const QString &s, int from) const
 { return indexOf(s.toAscii(), from); }
 inline int QByteArray::lastIndexOf(const QString &s, int from) const
 { return lastIndexOf(s.toAscii(), from); }
-#endif // QT_NO_CAST_TO_ASCII
-#endif
+#  ifdef QT_COMPAT
+inline int QByteArray::find(const QString &s, int from) const
+{ return indexOf(s, from); }
+inline int QByteArray::findRev(const QString &s, int from) const
+{ return lastIndexOf(s, from); }
+#  endif // QT_COMPAT
+#  endif // QT_NO_CAST_TO_ASCII
+#endif   // QT_NO_CAST_FROM_ASCII
 
 inline const QString operator+(const QString &s1, const QString &s2)
 { return QString(s1) += s2; }
