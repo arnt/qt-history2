@@ -63,6 +63,10 @@ public:
     QList<QMakeLocalFileName> dependencyPaths() const { return depdirs; }
     void setDependencyPaths(const QList<QMakeLocalFileName> &);
 
+    enum DependencyMode { Recursive, NonRecursive };
+    inline void setDependencyMode(DependencyMode mode) { dep_mode = mode; }
+    inline DependencyMode dependencyMode() const { return dep_mode; }
+
     enum SourceFileType { TYPE_UNKNOWN, TYPE_C, TYPE_UI, TYPE_QRC };
     enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02, ADD_MOC=0x04 };
     void addSourceFiles(const QStringList &, uchar seek, SourceFileType type=TYPE_C);
@@ -78,6 +82,9 @@ public:
     void setCacheFile(const QString &cachefile); //auto caching
     void loadCache(const QString &cf);
     void saveCache(const QString &cf);
+
+private:
+    DependencyMode dep_mode;
 };
 
 #endif /* __MAKEFILEDEPS_H__ */

@@ -144,7 +144,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     /* files */
     t << "####### Files" << endl << endl;
-    t << "SOURCES       = " << varList("SOURCES") << endl;
+    t << "SOURCES       = " << varList("SOURCES") << " " << varList("GENERATED_SOURCES") << endl;
     if(do_incremental) {
         QStringList &objs = project->variables()["OBJECTS"], &incrs = project->variables()["QMAKE_INCREMENTAL"], incrs_out;
         t << "OBJECTS       = ";
@@ -239,7 +239,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << mkdir_p_asstring("$(@D)") << "\n\t"
           << "@$(CC) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
-        QString src[] = { "SOURCES", QString::null };
+        QString src[] = { "SOURCES", "GENERATED_SOURCES", QString::null };
         for(int x = 0; !src[x].isNull(); x++) {
             QStringList &l = project->variables()[src[x]];
             for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {

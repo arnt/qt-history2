@@ -204,6 +204,9 @@ bool QMakeSourceFileInfo::mocable(const QString &file)
 
 QMakeSourceFileInfo::QMakeSourceFileInfo(const QString &cf)
 {
+    //dep_mode
+    dep_mode = Recursive;
+
     //quick project lookups
     files = 0;
     files_changed = false;
@@ -538,10 +541,11 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
         for(; x < buffer_len && !QMAKE_EOL(*(buffer + x)); x++);
         line_count++;
     }
-    //done last because buffer is shared
-    for(int i = 0; i < file->deps->used_nodes; i++) { //now recurse
-        if(!file->deps->children[i]->deps)
-            findDeps(file->deps->children[i]);
+    if(dependencyMode() == Recursive) { //done last because buffer is shared
+        for(int i = 0; i < file->deps->used_nodes; i++) {
+            if(!file->deps->children[i]->deps)
+                findDeps(file->deps->children[i]);
+        }
     }
     return true;
 }

@@ -308,10 +308,8 @@ void Win32MakefileGenerator::processQtConfig()
 void Win32MakefileGenerator::processFileTagsVar()
 {
     QStringList tags;
-    char *builtins[] = { "SOURCES", "DEF_FILE", "RC_FILE", "TARGET",
-                         "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", 0 };
-    for(int i = 0; builtins[i]; i++)
-        tags += project->variables()[builtins[i]];
+    tags << "SOURCES" << "GENERATED_SOURCES" << "DEF_FILE" << "RC_FILE"
+         << "TARGET" << "QMAKE_LIBS" << "DESTDIR" << "DLLDESTDIR" << "INCLUDEPATH";
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
         const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
         for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it)
@@ -320,9 +318,8 @@ void Win32MakefileGenerator::processFileTagsVar()
 
     //clean path
     QStringList &filetags = project->variables()["QMAKE_FILETAGS"];
-    for(int i = 0; i < tags.size(); ++i) {
+    for(int i = 0; i < tags.size(); ++i)
         filetags += Option::fixPathToTargetOS(tags.at(i), false);
-    }
 }
 
 void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
@@ -429,7 +426,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << endl;
 
     t << "####### Files" << endl << endl;
-    t << "SOURCES       = " << varList("SOURCES") << endl;
+    t << "SOURCES       = " << varList("SOURCES") << " " << varList("GENERATED_SOURCES") << endl;
 
     writeObjectsPart(t);
 

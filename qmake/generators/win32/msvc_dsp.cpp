@@ -127,9 +127,8 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
             QStringList compilerDepends = project->variables()[compiler + ".depends"];
             QStringList compilerConfig = project->variables()[compiler + ".CONFIG"];
             
-            if (compilerConfig.contains("moc_verify"))
-                if (!verifyExtraCompiler(compiler, file))
-                    continue;
+            if (!verifyExtraCompiler(compiler, file))
+                continue;
 
             bool combineAll = compilerConfig.contains("combine");
             if (combineAll && inputList.first() != file)
@@ -346,15 +345,21 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
         writeFileGroup(t, project->variables()["TYPELIBS"], "Type Libraries", "tlb;olb");
     } else { // directory mode
         QStringList list(project->variables()["SOURCES"]
+            + project->variables()["GENERATED_SOURCES"]
             + project->variables()["DEF_FILE"]
-            + project->variables()["HEADERS"]
-            + project->variables()["FORMS"]
             + project->variables()["IMAGES"]
-            + project->variables()["RESOURCES"]
             + project->variables()["RC_FILE"]
             + project->variables()["TRANSLATIONS"]
             + project->variables()["LEXSOURCES"]
             + project->variables()["YACCSOURCES"]);
+        if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+            const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+            for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+                const QStringList &inputs = project->values((*it)+".input");
+                for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input)
+                    list += project->values((*input));
+            }
+        }
 
         list.sort();
         for (i = 0; i < list.count(); ++i) {
@@ -369,7 +374,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
         endGroups(t);
     }
 
-    writeFileGroup(t, project->variables()["GENERATED"] 
+    writeFileGroup(t, project->variables()["GENERATED_SOURCES"] 
                       + swappedBuildSteps.keys(), "Generated", "");
 
     t << "# End Target" << endl;
@@ -630,7 +635,7 @@ DspMakefileGenerator::init()
     // Move some files around
     if (!project->variables()["IMAGES"].isEmpty()) {
         QString imageFactory(project->variables()["QMAKE_IMAGE_COLLECTION"].first());
-        project->variables()["GENERATED"] += imageFactory;
+        project->variables()["GENERATED_SOURCES"] += imageFactory;
         project->variables()["SOURCES"].removeAll(imageFactory);
     }
 

@@ -201,7 +201,7 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
             if(!dirTemp.isEmpty())
                 source_directories.insertMulti(dirTemp, (void*)1);
         }
-        QString srcs[] = { QString("SOURCES"), QString::null };
+        QString srcs[] = { QString("SOURCES"), QString("GENERATED_SOURCES"), QString::null };
         for(int x = 0; !srcs[x].isNull(); x++) {
             QStringList &l = project->variables()[srcs[x]];
             for(QStringList::Iterator sit = l.begin(); sit != l.end(); ++sit) {

@@ -238,7 +238,7 @@ Option::parseCommandLine(int argc, char **argv, int skip)
             } else {
                 if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
                    Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
-                    if(opt == "nodepend") {
+                    if(opt == "nodepend" || opt == "nodepends") {
                         Option::mkfile::do_deps = false;
                     } else if(opt == "nomoc") {
                         Option::mkfile::do_mocs = false;
@@ -295,7 +295,7 @@ Option::parseCommandLine(int argc, char **argv, int skip)
             }
         }
     }
-    
+
     QString qt_library_config = QLibraryInfo::configuration();
     if(qt_library_config.isNull() && argv && argv[0]) {
         bool trySearch = true;

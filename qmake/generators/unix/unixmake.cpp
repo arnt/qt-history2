@@ -136,9 +136,7 @@ UnixMakefileGenerator::init()
     if(project->isEmpty("QMAKE_RUN_CXX_IMP"))
         project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) " + compile_flag + " $(CXXFLAGS) $(INCPATH) -o $@ $<");
 
-    char *filetags[] = { "SOURCES", "TARGET", "DESTDIR", NULL };
-    for(int i = 0; filetags[i]; i++)
-        project->variables()["QMAKE_FILETAGS"] << filetags[i];
+    project->variables()["QMAKE_FILETAGS"] << "SOURCES" << "GENERATED_SOURCES" << "TARGET" << "DESTDIR";
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
         const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
         for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it)

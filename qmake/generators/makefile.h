@@ -40,7 +40,7 @@ class MakefileGenerator : protected QMakeSourceFileInfo
 
 protected:
     //makefile style generator functions
-    void writeObj(QTextStream &, const QString &obj, const QString &src);
+    void writeObj(QTextStream &, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);
     void writeInstalls(QTextStream &t, const QString &installs);
@@ -68,18 +68,6 @@ protected:
     //extra compiler interface
     bool verifyExtraCompiler(const QString &c, const QString &f);
     virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
-
-    //compiler interface (just a sketch, not used yet)
-    struct Compiler
-    {
-        QStringList variable_in, variable_out;
-        SourceFileType type;
-        enum CompilerFlags {
-            CompilerNoCheckDeps  = 0x01,
-            CompilerNoCheckExist = 0x02
-        };
-        uchar flags;
-    };
 
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool);

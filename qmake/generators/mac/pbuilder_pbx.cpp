@@ -340,6 +340,8 @@ ProjectBuilderSources::ProjectBuilderSources(const QString &k,
             group = "Headers";
         else if(k == "QMAKE_INTERNAL_INCLUDED_FILES")
             group = "Sources [qmake]";
+        else if(k == "GENERATED_SOURCES")
+            group = "Temporary Sources";
         else
             fprintf(stderr, "No group available for %s!\n", k.toLatin1().constData());
     }
@@ -417,6 +419,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     QMap<QString, QStringList> groups;
     QList<ProjectBuilderSources> sources;
     sources.append(ProjectBuilderSources("SOURCES"));
+    sources.append(ProjectBuilderSources("GENERATED_SOURCES"));
     sources.append(ProjectBuilderSources("HEADERS"));
     sources.append(ProjectBuilderSources("QMAKE_INTERNAL_INCLUDED_FILES"));
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
@@ -444,7 +447,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QStringList files = fileFixify(sources.at(source).files(project));
         for(int f = 0; f < files.count(); ++f) {
             bool buildable = false;
-            if(sources.at(source).keyName() == "SOURCES")
+            if(sources.at(source).keyName() == "SOURCES" ||
+               sources.at(source).keyName() == "GENERATED_SOURCES")
                 buildable = true;
 
             QString file = files[f];
