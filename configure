@@ -812,6 +812,7 @@ while [ "$#" -gt 0 ]; do
 	OPT="$VAL"
 	VAL=`echo $VAR | sed "s,^[^-]*-\([^-]*\).*,\1,"`
 	VAR=`echo $VAR | sed "s,^\([^-]*\).*,\1,"`
+	ERROR=no
 	if [ "$VAR" = "imgfmt" ]; then
 	    [ "$OPT" = "qt" ] && OPT=yes
 	    if [ "$OPT" = "no" ] || [ "$OPT" = "yes" ] || [ "$OPT" = "plugin" ]; then
@@ -2256,8 +2257,10 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	fi
 	in_mkfile="$relpath/qmake/$in_mkfile"
 	mkfile="$outpath/qmake/$mkfile"
-	[ "$Edition" = "troll" ] && $WHICH chflags >/dev/null 2>&1 && chflags nouchg $mkfile
-	rm -f $mkfile
+	if [ -f "$mkfile" ]; then
+	    [ "$Edition" = "troll" ] && $WHICH chflags >/dev/null 2>&1 && chflags nouchg $mkfile
+	    rm -f $mkfile
+	fi
 	[ -f "$in_mkfile" ] || continue
 
 	echo "########################################################################" >$mkfile
