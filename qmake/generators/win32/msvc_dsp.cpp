@@ -273,7 +273,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     t << endl;
     t << "# TARGTYPE \"Win32 (x86) " << var("MSVCDSP_TARGETTYPE") << "\" " << var("MSVCDSP_DSPTYPE") << endl;
     t << endl;
-    t << "CFG=" << var("MSVCDSP_PROJECT") << " - " << platform << " " << configurations.last() << endl;
+    t << "CFG=" << var("MSVCDSP_PROJECT") << " - " << platform << " " << configurations.first() << endl;
     t << "!MESSAGE This is not a valid makefile. To build this project using NMAKE," << endl;
     t << "!MESSAGE use the Export Makefile command and run" << endl;
     t << "!MESSAGE " << endl;
@@ -396,9 +396,10 @@ DspMakefileGenerator::init()
         platform = varGlue("QMAKE_PLATFORM", "", " ", "");
 
     if(!project->isActiveConfig("debug"))
-        configurations << "Debug" << "Release";
-    else
         configurations << "Release" << "Debug";
+    else
+        configurations << "Debug" << "Release";
+        
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "vcapp")
