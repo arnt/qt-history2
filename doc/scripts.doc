@@ -44,21 +44,21 @@ to clarify pronunciation.
 
 \i Ligatures. In special contexts, some characters following each
 other directly get replaced by a combined glyph forming a 
-ligature. Common examples are the ff and fi ligatures used in
+ligature. Common examples are the fl and fi ligatures used in
 typesetting US and European books.
 
 \endlist
 
-Except for ligatures which are currently only supported for the special
-case of Arabic, Qt tries to take care of all the special features
-listed above. You will usually never have to worry about these
-features as long as you use Qt's input (e.g. QLineEdit, QTextView
-or derived classes) and displaying controls (e.g. QLabel).
+Except for ligatures, which are currently only supported for the
+special case of Arabic, Qt tries to take care of all the special
+features listed above. You will usually never have to worry about
+these features as long as you use Qt's input (e.g. QLineEdit,
+QTextView or derived classes) and displaying controls (e.g. QLabel).
 
 Support for these writing systems is transparent to the programmer
-and completely encapsulated in Qt's text engine. This implies that
-you don't need to have any knowledge about the writing system used in
-a particular language, except for a couple of small things listed below.
+and completely encapsulated in Qt's text engine. This means that you
+don't need to have any knowledge about the writing system used in a
+particular language, except for a couple of small things listed below.
 
 \list
 

@@ -57,66 +57,67 @@ to maximize resource usage and minimize copying of data.
 A shared class consists of a pointer to a shared data block that
 contains a reference count and the data.
 
-When a shared object is created, it sets the reference count to 1.  The
-reference count is incremented whenever a new object references the shared
-data, and decremented when the object dereferences the shared data.  The
-shared data is deleted when the reference count becomes zero.
+When a shared object is created, it sets the reference count to 1. The
+reference count is incremented whenever a new object references the
+shared data, and decremented when the object dereferences the shared
+data. The shared data is deleted when the reference count becomes
+zero.
 
 \keyword deep copy
 \keyword shallow copy
 
-When dealing with shared objects, there are two ways of copying an object.
-We usually speak about \e deep and \e shallow copies.  A deep copy implies
-duplicating an object.  A shallow copy is a reference copy, we only copy a
-pointer to a shared data block.  Making a deep copy can be expensive in
-terms of memory and CPU.  Making a shallow copy is very fast, because it
-only involves setting a pointer and incrementing the reference count.
+When dealing with shared objects, there are two ways of copying an
+object. We usually speak about \e deep and \e shallow copies. A deep
+copy implies duplicating an object. A shallow copy is a reference
+copy, i.e. just a pointer to a shared data block. Making a deep copy
+can be expensive in terms of memory and CPU. Making a shallow copy is
+very fast, because it only involves setting a pointer and incrementing
+the reference count.
 
-Object assignment (with operator=) for implicitly and explicitly
-shared objects is implemented as shallow copies.  A deep copy can be
+Object assignment (with operator=()) for implicitly and explicitly
+shared objects is implemented using shallow copies. A deep copy can be
 made by calling a copy() function or by using \l QDeepCopy.
 
-The benefit of sharing is that a program does not need to duplicate data
-when it is not required, which results in less memory usage and less
-copying of data. Objects can easily be assigned, sent as function
-arguments and returned from functions.
+The benefit of sharing is that a program does not need to duplicate
+data unnecessarily, which results in lower memory use and less copying
+of data. Objects can easily be assigned, sent as function arguments,
+and returned from functions.
 
 Now comes the distinction between \e explicit and \e implicit sharing.
-Explicit sharing means that the programmer must be aware of the fact that
-objects share common data.  Implicit sharing means that the sharing
-mechanism takes place behind the scenes and the programmer does not need
-to worry about it.
-
+Explicit sharing means that the programmer must be aware of the fact
+that objects share common data. Implicit sharing means that the
+sharing mechanism takes place behind the scenes and the programmer
+does not need to worry about it.
 
 \section1 A QByteArray Example
 
 QByteArray is an example of a shared class that uses explicit sharing.
 Example:
 \code
-			  //        a=         b=         c=
-    QByteArray a(3),b(2)  // 1)     {?,?,?}    {?,?}
-    b[0] = 12; b[1] = 34; // 2)     {?,?,?}    {12,34}
-    a = b;                // 3)     {12,34}    {12,34}
-    a[1] = 56;            // 4)     {12,56}    {12,56}
-    QByteArray c = a;     // 5)     {12,56}    {12,56}    {12,56}
-    a.detach();           // 6)     {12,56}    {12,56}    {12,56}
-    a[1] = 78;            // 7)     {12,78}    {12,56}    {12,56}
-    b = a.copy();         // 8)     {12,78}    {12,78}    {12,56}
-    a[1] = 90;            // 9)     {12,90}    {12,78}    {12,56}
+			  //Line    a=         b=         c=
+    QByteArray a(3),b(2)  // 1:     {?,?,?}    {?,?}
+    b[0] = 12; b[1] = 34; // 2:     {?,?,?}    {12,34}
+    a = b;                // 3:     {12,34}    {12,34}
+    a[1] = 56;            // 4:     {12,56}    {12,56}
+    QByteArray c = a;     // 5:     {12,56}    {12,56}    {12,56}
+    a.detach();           // 6:     {12,56}    {12,56}    {12,56}
+    a[1] = 78;            // 7:     {12,78}    {12,56}    {12,56}
+    b = a.copy();         // 8:     {12,78}    {12,78}    {12,56}
+    a[1] = 90;            // 9:     {12,90}    {12,78}    {12,56}
 \endcode
 
-The assignment \c {a = b} on line 3 throws away \c a's
-original shared block (the reference count becomes zero), sets
-\c a's shared block to point to \c b's shared block
-and increments the reference count.
+The assignment \c {a = b} on line 3 throws away \c a's original shared
+block (the reference count becomes zero), sets \c a's shared block to
+point to \c b's shared block and increments the reference count.
 
 On line 4, the contents of \c a is modified. \c b is also modified,
-because \c a and \c b refer the same data block. This is the difference
-between explicit and implicit sharing (explained below).
+because \c a and \c b refer to the same data block. This is the
+difference between explicit and implicit sharing (explained below).
 
-The \c a object detaches from the common data on line 6.  Detaching means
-to copy the shared data to make sure that an object has its own private
-data.  Therefore, modifying \c a on line 7 will not affect \c b or \c c.
+The \c a object detaches from the common data on line 6. Detaching
+means that the shared data is copied to make sure that an object has
+its own private data. Therefore, modifying \c a on line 7 does not
+affect \c b or \c c.
 
 Finally, on line 8 we make a deep copy of \c a and assign it to \c b,
 so that when \c a is modified on line 9, \c b remains unchanged.
@@ -124,25 +125,26 @@ so that when \c a is modified on line 9, \c b remains unchanged.
 
 \section1 Explicit vs. Implicit Sharing
 
-Implicit sharing automatically detaches the object from a shared
-block if the object is about to change and the reference count is
-greater than one. Explicit sharing leaves this job to the
-programmer.  If an explicitly shared object is not detached, changing
-the object will change all other objects that refer to the same data.
+Implicit sharing automatically detaches the object from a shared block
+if the object is about to change and the reference count is greater
+than one. (This is often called "copy-on-write".) Explicit sharing
+leaves this job to the programmer. If an explicitly shared object is
+not detached, changing an object will change all other objects that
+refer to the same data.
 
-Implicit sharing optimizes memory usage and copying of data without this
-side effect.  So why didn't we implement implicit sharing for all
-shared classes?  The answer is that a class that allows direct access to
-its internal data (for efficiency reasons), like QByteArray, cannot be
-implicitly shared, because it can be changed without letting QByteArray
-know.
+Implicit sharing optimizes memory use and copying of data without
+this side effect. So why didn't we implement implicit sharing for all
+shared classes? The answer is that a class that allows direct access
+to its internal data (for efficiency reasons), like QByteArray, cannot
+be implicitly shared, because it can be changed without letting
+QByteArray know.
 
-An implicitly shared class has total control of its internal data.  In any
-member functions that modify its data, it automatically detaches
+An implicitly shared class has total control of its internal data. In
+any member functions that modify its data, it automatically detaches
 before modifying the data.
 
-The QPen class, which uses implicit sharing, detaches from the shared data
-in all member functions that change the internal data.
+The QPen class, which uses implicit sharing, detaches from the shared
+data in all member functions that change the internal data.
 
 Code fragment:
 \code
@@ -159,8 +161,8 @@ Code fragment:
     }
 \endcode
 
-This is clearly not possible for QByteArray, because the programmer can
-do the following:
+This is clearly not possible for QByteArray, because the programmer
+can do the following:
 
 \code
     QByteArray array( 10 );
@@ -175,8 +177,8 @@ become unacceptably slow.
 
 \section1 Explicitly Shared Classes
 
-All classes that are instances of the QMemArray template class are explicitly
-shared:
+All classes that are instances of the QMemArray template class are
+explicitly shared:
 
 \list
 \i \l QBitArray
@@ -185,12 +187,13 @@ shared:
 \i Any other instantiation of \link QMemArray QMemArray\<type\>\endlink
 \endlist
 
-These classes have a detach() function that can be called if you want your
-object to get a private copy of the shared data.  They also have a copy()
-function that returns a deep copy with a reference count of 1.
+These classes have a detach() function that can be called if you want
+your object to get a private copy of the shared data. They also have a
+copy() function that returns a deep copy with a reference count of 1.
 
-The same is true for \l QImage, which does not inherit QMemArray. \l QMovie
-is also explicitly shared, but it does not support detach() and copy().
+The same is true for \l QImage, which does not inherit QMemArray. \l
+QMovie is also explicitly shared, but it does not support detach() or
+copy().
 
 \section1 Implicitly Shared Classes
 
@@ -216,13 +219,13 @@ The Qt classes that are implicitly shared are:
 \i \l QValueStack
 \endlist
 
-These classes automatically detach from common data if an object is about
-to be changed.  The programmer will not even notice that the objects are
-shared.  Thus you should treat separate instances of them as separate
-objects.  They will always behave as separate objects but with the added
-bonus of sharing data whenever possible.  For this reason, you can pass
-instances of these classes as arguments to functions by value without
-concern for the copying overhead.
+These classes automatically detach from common data if an object is
+about to be changed. The programmer will not even notice that the
+objects are shared. Thus you should treat separate instances of them
+as separate objects. They will always behave as separate objects but
+with the added benefit of sharing data whenever possible. For this
+reason, you can pass instances of these classes as arguments to
+functions by value without concern for the copying overhead.
 
 Example:
 \code
@@ -236,8 +239,9 @@ Example:
 \endcode
 
 In this example, \c p1 and \c p2 share data until QPainter::begin() is
-called for \c p2, because painting a pixmap will modify it.  The same
-happens also if anything is \link ::bitBlt() bitBlt()\endlink'ed into \c p2.
+called for \c p2, because painting a pixmap will modify it. The same
+also happens if anything is \link ::bitBlt() bitBlt()\endlink'ed into
+\c p2.
 
 
 \section1 QCString: implicit or explicit?

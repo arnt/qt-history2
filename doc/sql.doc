@@ -114,14 +114,15 @@ Systems (7th ed.)} by C. J. Date, ISBN 0201385902.
 </blockquote>
 
 Whilst this module overview presents the classes from a purely
-programmatic point of view the \e {Qt Designer} manual's "Creating
-Database Applications" chapter takes a higher-level approach
-demonstrating how to set up master-detail relationships between widgets,
-perform drilldown and handle foreign key lookups.
+programmatic point of view the \link designer-manual.book Qt
+Designer\endlink manual's "Creating Database Applications" chapter
+takes a higher-level approach demonstrating how to set up
+master-detail relationships between widgets, perform drilldown and
+handle foreign key lookups.
 
 This document is divided into six sections:
 
-\link #Architecture SQL Module Architecture \endlink. This describes the
+\link #Architecture SQL Module Architecture \endlink. This describes
 how the classes fit together.
 
 \link #Connecting_to_Databases Connecting to Databases \endlink. 
@@ -136,15 +137,16 @@ database). The focus is purely on database interaction using \l
 QSqlQuery.
 
 \link #Using_QSqlCursor Using Cursors \endlink. This section explains
-how to use the QSqlCursor class which provides a more structured and
-powerful API than the raw SQL used with \l QSqlQuery.
+how to use the QSqlCursor class which provides a simpler API than the
+raw SQL used with \l QSqlQuery.
 
 \link #Data-Aware_Widgets Data-Aware Widgets \endlink. This section shows
 how to programmatically link your database to the user interface. In
 this section we introduce the \l QDataTable, \l QSqlForm, \l
-QSqlPropertyMap and QSqlEditorFactory classes and demonstrate how to use
-custom data-aware widgets. \e {Qt Designer} provides an easy visual
-way of achieving the same thing.  See the \e {Qt Designer} manual,
+QSqlPropertyMap and QSqlEditorFactory classes and demonstrate how to
+use custom data-aware widgets. \link designer-manual.book Qt
+Designer\endlink provides an easy visual way of achieving the same
+thing. See the \link designer-manual.book Qt Designer\endlink manual,
 \l QDataBrowser and \l QDataView for more information.
 
 \link #Subclassing_QSqlCursor Subclassing QSqlCursor \endlink. This
@@ -161,15 +163,15 @@ All the examples in this document use the tables defined in the
 
 The SQL classes are divided into three layers:
 
-\e {User Interface Layer.} These classes provide data-aware
-widgets that can be connected to tables or views in the database (by
-using a QSqlCursor as a data source). End users can interact directly
-with these widgets to browse or edit data. \e {Qt Designer} is
-fully integrated with the SQL classes and can be used to create
-data-aware forms. The data-aware widgets can also be programmed
-directly with your own C++ code. The classes that support this layer
-include \l QSqlEditorFactory, \l QSqlForm, \l QSqlPropertyMap, \l
-QDataTable, \l QDataBrowser and \l QDataView.
+\e {User Interface Layer.} These classes provide data-aware widgets
+that can be connected to tables or views in the database (by using a
+QSqlCursor as a data source). End users can interact directly with
+these widgets to browse or edit data. \link designer-manual.book Qt
+Designer\endlink is fully integrated with the SQL classes and can be
+used to create data-aware forms. The data-aware widgets can also be
+programmed directly with your own C++ code. The classes that support
+this layer include \l QSqlEditorFactory, \l QSqlForm, \l
+QSqlPropertyMap, \l QDataTable, \l QDataBrowser and \l QDataView.
 
 \e {SQL API Layer.} These classes provide access to databases.
 Connections are made using the \l QSqlDatabase class. Database
@@ -177,15 +179,15 @@ interaction is achieved either by using the QSqlQuery class and
 executing SQL commands directly or by using the higher level \l
 QSqlCursor class which composes SQL commands automatically. In
 addition to \l QSqlDatabase, \l QSqlCursor and \l QSqlQuery, the SQL
-API layer is supported by QSqlError, QSqlField, QSqlIndex and
-QSqlRecord.
+API layer is supported by QSqlError, QSqlField, QSqlFieldInfo,
+QSqlIndex, QSqlRecord and QSqlRecordInfo.
 
 \e {Driver Layer.} This comprises three classes, \l QSqlResult, \l
 QSqlDriver and QSqlDriverFactoryInterface. This layer provides the
 low level bridge between the database and the SQL classes. This layer
 is \link sql-driver.html documented separately \endlink since it is
 only relevant to driver writers, and is rarely used in standard
-database application programming.  See \link sql-driver.html here
+database application programming. See \link sql-driver.html here
 \endlink for more information on implementing a Qt SQL driver plugin.
 
 \target Plugins
@@ -233,8 +235,8 @@ passing the name of the driver we wish to use for this connection. At
 the time of writing the available drivers are: QODBC3 (Open Database
 Connectivity), QOCI8 (Oracle 8 and 9), QTDS7 (Sybase Adaptive Server and 
 Microsoft SQL Server), QPSQL7 (PostgreSQL 6 and 7) and QMYSQL3 (MySQL).
-Note that some of these drivers aren't included in the Qt Free Edition, 
-look at the README files for details.
+Note that some of these drivers aren't included in the Qt Free Edition; 
+see the \c README files for details.
 
 The connection which is created becomes the application's default 
 database connection and will be used by the Qt SQL classes if no 
@@ -242,13 +244,13 @@ other database is specified.
 
 Second we call setDatabaseName(), setUserName(), setPassword() and
 setHostName() to initialize the connection information. Note that for
-the QOCI8 (Oracle 8 and 9) driver the TNS Service Name has to be
-passed to setDatbaseName(). When connecting to ODBC data sources the
-Data Source Name (DSN) should be used in the setDatabaseName() call.
+the QOCI8 (Oracle 8 and 9) driver the TNS Service Name must be passed
+to setDatbaseName(). When connecting to ODBC data sources the Data
+Source Name (DSN) should be used in the setDatabaseName() call.
 
 Third we call open() to open the database and give us access to the
 data. If this call fails it will return FALSE; error information can
-be determined using \l QSqlDatabase::lastError().
+be obtained from \l QSqlDatabase::lastError().
 
 \target Connecting_to_Multiple_Databases
 \section2 Connecting to Multiple Databases
@@ -298,19 +300,21 @@ createConnections() function.cpp.
 
 The static function \l QSqlDatabase::database() can be called from
 anywhere to provide a pointer to a database connection. If we call it
-without any parameter it will return the default connection. If called
+without a parameter it will return the default connection. If called
 with the identifier we've used for a connection, e.g. "ORACLE", in the
 above example, it will return a pointer to the specified connection.
 
-If you create a \c main.cpp using \e{Qt Designer}, it will \e not
-include our example createConnections() function. This means that
-applications that preview correctly in \e{Qt Designer} will not run
-unless you implement your own database connections function.
+If you create a \c main.cpp using \link designer-manual.book Qt
+Designer\endlink, it will \e not include our example
+createConnections() function. This means that applications that
+preview correctly in \link designer-manual.book Qt Designer\endlink
+will not run unless you implement your own database connections
+function.
 
 Note that in the code above the ODBC connection was not named and is
-therefore used as the default connection.  \l QSqlDatabase maintains
+therefore used as the default connection. \l QSqlDatabase maintains
 ownership of the pointers returned by the addDatabase() static
-function.  To remove a database from the list of maintained
+function. To remove a database from the list of maintained
 connections, first close the database with QSqlDatabase::close(), and
 then remove it using the static function
 QSqlDatabase::removeDatabase().
@@ -333,10 +337,11 @@ section and use the \l QSqlCursor class covered in
 \section2 Transactions
 
 If the underlying database engine supports transactions
-QSqlDriver::hasFeature( QSqlDriver::Transactions ) will return TRUE. You can use
-QSqlDatabase::transaction() to initiate a transaction, followed by the
-SQL commands you want to execute within the context of the transaction,
-and then either QSqlDatabase::commit() or \l{QSqlDatabase::rollback()}.
+QSqlDriver::hasFeature( QSqlDriver::Transactions ) will return TRUE.
+You can use QSqlDatabase::transaction() to initiate a transaction,
+followed by the SQL commands you want to execute within the context of
+the transaction, and then either QSqlDatabase::commit() or
+\l{QSqlDatabase::rollback()}.
 
 \target Basic_Browsing
 \section2 Basic Browsing
@@ -393,7 +398,7 @@ This example demonstrates straightforward SQL DML (data manipulation
 language) commands. Since we did not specify a database in the \l
 QSqlQuery constructor the default database is used. \l QSqlQuery objects
 can also be used to execute SQL DDL (data definition language) commands
-such as \c CREATE TABLE and \c CREATE INDEX.
+such as \c{CREATE TABLE} and \c{CREATE INDEX}.
 
 \target Navigating_Result_Sets
 \section2 Navigating Result Sets
@@ -402,9 +407,8 @@ Once a \c SELECT query has been executed successfully we have access
 to the result set of records that matched the query criteria. We have
 already used one of the navigation functions, next(), which can be
 used alone to step sequentially through the records. \l QSqlQuery also
-provides first(), last(), next() and prev(). After any of these
-commands we can check that we are on a valid record location by
-calling isValid().
+provides first(), last() and prev(). After any of these commands we
+can check that we are on a valid record by calling isValid().
 
 We can also navigate to any arbitrary record using seek(). The
 first record in the dataset is zero. The number of the last record is
@@ -467,21 +471,22 @@ database, by default, \l QSqlCursor objects retrieve all the fields of
 each record in the table or view whenever navigating to a new
 record. If only some fields are relevant simply confine your
 processing to those and ignore the others. Or, manually disable the
-generation of certain fields using QSqlRecord::setGenerated().
-However, if you really don't want to retrieve all fields in the cursor
-then you should use a \l QSqlQuery instead, and customize the query to
-suit your needs.  You can edit records using a \l QSqlCursor providing
-that the table or view has a primary index that uniquely distinguishes
-each record. If this condition is not met then you'll need to use a \l
-QSqlQuery for edits. (Note that not all databases support editable
-views.)
+generation of certain fields using QSqlRecord::setGenerated(). Another
+approach is to create a \c VIEW which only presents the fields you're
+interested in; but note that some databases do not support editable
+views. So if you really don't want to retrieve all the fields in the
+cursor, then you should use a \l QSqlQuery instead, and customize the
+query to suit your needs. You can edit records using a \l QSqlCursor
+providing that the table or view has a primary index that uniquely
+distinguishes each record. If this condition is not met then you'll
+need to use a \l QSqlQuery for edits.
 
-QSqlCursor operates on a single record at a time.  Whenever performing
+QSqlCursor operates on a single record at a time. Whenever performing
 an insert, update or delete using QSqlCursor, only a single record in
-the database is affected.  When navigating through records in the
+the database is affected. When navigating through records in the
 cursor, only one record at a time is available in application code.
 In addition, QSqlCursor maintains a separate 'edit buffer' which is
-used to make changes to a single record in the database.  The edit
+used to make changes to a single record in the database. The edit
 buffer is maintained in a separate memory area, and is unnaffected by
 the 'navigation buffer' which changes as the cursor moves from record
 to record.
@@ -522,7 +527,7 @@ The SQL executed by the cur.select() call is
 \endcode
 
 Next, we iterate through the records returned by this select statement
-using cur.next().  Field values are retrieved in in a similar way to
+using cur.next(). Field values are retrieved in in a similar way to
 QSqlQuery, except that we pass field names rather than numeric indexes
 to value() and setValue().
 
@@ -530,9 +535,9 @@ to value() and setValue().
 \section3 Sorting and Filtering Records
 
 To specify a subset of records to retrieve we can pass filtering
-criteria to the select() function.  Each record that is returned will
+criteria to the select() function. Each record that is returned will
 meet the criteria of the filter (the filter corresponds to the SQL
-statement's WHERE clause).
+statement's \c WHERE clause).
 
 \code
     cur.select( "id > 100" );
@@ -561,7 +566,7 @@ Here we create a \l QSqlIndex object with one field, "surname". When
 we call the select() function we pass the index object, which
 specifies that the records should be returned sorted by
 staff.surname. Each field in the index object is used in the ORDER BY
-clause of the select statement.  The SQL executed here is 
+clause of the select statement. The SQL executed here is 
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid 
     FROM staff ORDER BY staff.surname ASC
@@ -571,11 +576,11 @@ Combining the retrieval of a subset of records and ordering the results
 is straightforward.
 
 \code
-    cur.select( "surname LIKE 'A%'", nameIndex );
+    cur.select( "staff.surname LIKE 'A%'", nameIndex );
 \endcode
 
-We pass in a filter string (the WHERE clause), and the \l QSqlIndex
-object to sort by (the ORDER BY clause). This produces
+We pass in a filter string (the \c WHERE clause), and the \l QSqlIndex
+object to sort by (the \c{ORDER BY} clause). This produces
 
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid
@@ -583,7 +588,7 @@ object to sort by (the ORDER BY clause). This produces
 \endcode
 
 To sort by more than one field, an index can be created which contains
-multiple fields.  Ascending and descending order can be set using
+multiple fields. Ascending and descending order can be set using
 QSqlIndex::setDescending(); the default is ascending.
 
 \quotefile sql/overview/order1/main.cpp
@@ -620,9 +625,9 @@ The "order" \l QSqlIndex contains two fields, "id" and "forename"
 which are used to order the results. The "filter" \l QSqlIndex
 contains a single field, "surname". When an index is passed as a
 filter to the select() function, for each field in the filter, a
-\e fieldname=value subclause is created where the value
+\e{fieldname=value} subclause is created where the value
 is taken from the current cursor's value for that field. We use
-setValue() to ensure the value used is the one we want.
+setValue() to ensure that the value used is the one we want.
 
 \target Extracting_Data
 \section3 Extracting Data
@@ -634,26 +639,27 @@ setValue() to ensure the value used is the one we want.
 \printline
 \caption From \l sql/overview/extract/main.cpp
 
-In this example we begin by creating a cursor on the creditors table. We
-create two \l QSqlIndex objects. The first, "order", is created from the
-"orderFields" string list. The second, "filter", is created from the
-"filterFields" string list. We set the values of the two fields used in
-the filter, "surname" and "city", to the values we're interested in. Now
-we call select() which generates and executes the following SQL:
+In this example we begin by creating a cursor on the creditors table.
+We create two \l QSqlIndex objects. The first, "order", is created
+from the "orderFields" string list. The second, "filter", is created
+from the "filterFields" string list. We set the values of the two
+fields used in the filter, "surname" and "city", to the values we're
+interested in. Now we call select() which generates and executes the
+following SQL:
 \code
     SELECT creditors.city, creditors.surname, creditors.forename, creditors.id 
     FROM creditors 
     WHERE creditors.surname = 'Chirac' AND creditors.city = 'Paris' 
     ORDER BY creditors.surname ASC, creditors.forename ASC
 \endcode
-The filter fields are used in the WHERE clause. Their values are taken
-from the cursor's current values for those fields; we set these values
-ourselves with the setValue() calls. The order fields are used in the
-ORDER BY clause. 
+The filter fields are used in the \c WHERE clause. Their values are
+taken from the cursor's current values for those fields; we set these
+values ourselves with the setValue() calls. The order fields are used
+in the \c{ORDER BY} clause. 
 
 Now we iterate through each matching record (if any). We retrieve the
-contents of the id, forename and surname fields and pass them on to some
-processing function, in this example a simple qDebug() call.
+contents of the id, forename and surname fields and pass them on to
+some processing function, in this example a simple qDebug() call.
 
 \target Manipulating_Records
 \section2 Manipulating Records
@@ -664,43 +670,44 @@ that uniquely distinguishes each record. If this is not the case a \l
 QSqlQuery must be used instead. (Note that not all databases support
 editable views.)
 
-Each cursor has an internal 'edit buffer' which is used by all the edit
-operations (insert, update and delete).  The editing process is the same
-for each operation: acquire a pointer to the relevant buffer; call
-setValue() to prime the buffer with the values you want; call insert()
-or update() or del() to perform the desired operation. For example, when
-inserting a record using a cursor, you call primeInsert() to get a
-pointer to the edit buffer and then call setValue() on this buffer to
-set each field's value. Then you call QSQlCursor::insert() to insert the
-contents of the edit buffer into the database.  Similarly, when updating
-(or deleting) a record, the values of the fields in the edit buffer are
-used to update (or delete) the record in the database.  The 'edit
-buffer' is unaffected by any \link #Navigating_Result_Sets cursor
-navigation \endlink functions. Note that if you pass a string value to
-setValue() any single quotes will be escaped (turned into a pair of
-single quotes) since a single quote is a special character in SQL.
+Each cursor has an internal 'edit buffer' which is used by all the
+edit operations (insert, update and delete). The editing process is
+the same for each operation: acquire a pointer to the relevant buffer;
+call setValue() to prime the buffer with the values you want; call
+insert() or update() or del() to perform the desired operation. For
+example, when inserting a record using a cursor, you call
+primeInsert() to get a pointer to the edit buffer and then call
+setValue() on this buffer to set each field's value. Then you call
+QSQlCursor::insert() to insert the contents of the edit buffer into
+the database. Similarly, when updating (or deleting) a record, the
+values of the fields in the edit buffer are used to update (or delete)
+the record in the database. The 'edit buffer' is unaffected by any
+\link #Navigating_Result_Sets cursor navigation \endlink functions.
+Note that if you pass a string value to setValue() any single quotes
+will be escaped (turned into a pair of single quotes) since a single
+quote is a special character in SQL.
 
 The primeInsert(), primeUpdate() and primeDelete() methods all return
-a pointer to the internal edit buffer, however each method can
-potentially perform different operations on the edit buffer before
-returning it.  By default,  QSqlCursor::primeInsert() clears all the
-field values in the edit buffer (see \l QSqlRecord::clearValues()).
-Both \l QSqlCursor::primeUpdate() and QSqlCursor::primeDelete()
-initialize the edit buffer with the current contents of the cursor
-before returning it.  All three of these functions are virtual, so
-you can redefine the behavior (for example, reimplementing
-primeInsert() to auto-number fields in the edit buffer). Data-aware
-user-interface controls emit signals, e.g. primeInsert(), that you
-can connect to; these pass a pointer to the appropriate buffer so
-subclassing may not be necessary. See \link #Subclassing_QSqlCursor
-subclassing QSqlCursor \endlink for more information on subclassing;
-see the \e {Qt Designer} manual for more on connecting to the
-primeInsert() signal.
+a pointer to the internal edit buffer. Each method can potentially
+perform different operations on the edit buffer before returning it.
+By default,  QSqlCursor::primeInsert() clears all the field values in
+the edit buffer (see \l QSqlRecord::clearValues()). Both \l
+QSqlCursor::primeUpdate() and QSqlCursor::primeDelete() initialize the
+edit buffer with the current contents of the cursor before returning
+it. All three of these functions are virtual, so you can redefine the
+behavior (for example, reimplementing primeInsert() to auto-number
+fields in the edit buffer). Data-aware user-interface controls emit
+signals, e.g. primeInsert(), that you can connect to; these pass a
+pointer to the appropriate buffer so subclassing may not be necessary.
+See \link #Subclassing_QSqlCursor subclassing QSqlCursor \endlink for
+more information on subclassing; see the \link designer-manual.book Qt
+Designer\endlink manual for more on connecting to the primeInsert()
+signal.
 
 When insert(), update() or del() is called on a cursor, it will be
-invalidated and will no longer be positioned on a valid record. If we
+invalidated and will no longer be positioned on a valid record. If you
 need to move to another record after performing an insert(), update()
-or del() we must make a fresh select() call.  This ensures that
+or del() you must make a fresh select() call. This ensures that
 changes to the database are accurately reflected in the cursor.
 
 \target Inserting_Records
@@ -717,7 +724,7 @@ create a list of product names which we iterate over. For each
 iteration we call the cursor's primeInsert() method. This method
 returns a pointer to a \l QSqlRecord buffer in which all the fields
 are set to \c NULL. (Note that QSqlCursor::primeInsert() is virtual,
-and can be customized by derived classes.  See \l QSqlCursor). Next we
+and can be customized by derived classes. See \l QSqlCursor). Next we
 call setValue() for each field that requires a value. Finally we call
 insert() to insert the record. The insert() call returns the number of
 rows inserted.
@@ -782,11 +789,12 @@ e.g.
 
 Data-Aware Widgets provide a simple yet powerful means of connecting
 databases to Qt user interfaces. The easiest way of creating and
-manipulating data-aware widgets is with \e {Qt Designer}. 
-For those who prefer a purely programmatic approach the following
-examples and explanations provide an introduction. Note that the
-"Creating Database Applications" chapter of the \e {Qt Designer}
-manual and its accompanying examples provides additional information.
+manipulating data-aware widgets is with \link designer-manual.book Qt
+Designer\endlink. For those who prefer a purely programmatic approach
+the following examples and explanations provide an introduction. Note
+that the "Creating Database Applications" chapter of the \link
+designer-manual.book Qt Designer\endlink manual and its accompanying
+examples provides additional information.
 
 \target Data-Aware_Tables
 \section2 Data-Aware Tables
@@ -835,9 +843,10 @@ memory cost.
 \section2 Creating Data-Aware Forms
 
 Creating data-aware forms is more involved than using data-aware
-tables because we must take care of each field individually.  Most of
-the code below can be automatically generated by \e {Qt Designer}.
-See the \e {Qt Designer} manual for more details.
+tables because we must take care of each field individually. Most of
+the code below can be automatically generated by \link
+designer-manual.book Qt Designer\endlink. See the \link
+designer-manual.book Qt Designer\endlink manual for more details.
 
 \target Displaying_a_Record
 \section3 Displaying a Record
@@ -855,7 +864,7 @@ include \c qsqldatabase.h and \c qsqlcursor.h as usual, but we now add
 
 The form will be presented as a dialog so we subclass \l QDialog with
 our own FormDialog class. We use a \l QLineEdit for the salary so that
-the user can change it. All the widgets are laid out with a grid.
+the user can change it. All the widgets are laid out using a grid.
 
 We create a cursor on the staff table, select all records and move to
 the first record.
@@ -870,8 +879,8 @@ widgets with data from the database via the cursor's buffer.
 \section3 Displaying a Record in a Data Form
 
 \l QDataView is a Widget that can hold a read-only \l QSqlForm. In
-addition to \l QSqlForm it offers the slot refresh ( \l QSqlRecord * ) so it
-can easily be linked together with a \l QDataTable to display a detailled
+addition to \l QSqlForm it offers the slot refresh( \l QSqlRecord * ) so it
+can easily be linked together with a \l QDataTable to display a detailed
 view of a record:
 
 \code
@@ -900,12 +909,12 @@ confirm their update. We also hold pointers to the \l QSqlCursor and the
 \printline setTrimmed
 \printline
 
-We call setTrimmed() on the text fields so that any spaces used to right
-pad the fields are removed when the fields are retrieved.
+We call setTrimmed() on the text fields so that any spaces used to
+right pad the fields are removed when the fields are retrieved.
 
-Properties that we might wish to apply to fields, such as alignment and
-validation are achieved in the conventional way, for example, by calling
-QLineEdit::setAlignment and QLineEdit::setValidator.
+Properties that we might wish to apply to fields, such as alignment
+and validation are achieved in the conventional way, for example, by
+calling QLineEdit::setAlignment() and QLineEdit::setValidator().
 
 \skipto forenameEdit
 \printline forenameEdit
@@ -915,9 +924,9 @@ QLineEdit::setAlignment and QLineEdit::setValidator.
 \printline connect
 
 The FormDialog constructor is similar to the one in the previous
-example. We have changed the forename and surname widgets to QLineEdits
-to make them editable and have added a \l QPushButton the user can click
-to save their updates.
+example. We have changed the forename and surname widgets to
+\l{QLineEdit}s to make them editable and have added a \l QPushButton
+the user can click to save their updates.
 
 \skipto saveButton
 \printline saveButton
@@ -958,20 +967,21 @@ right time.
 \printline save
 \printuntil }
 
-Finally we add the save functionality for when the user presses the save
-button. We write back the data from the widgets to the \l QSqlRecord
-buffer with the writeFields() call. Then we update the database with the
-updated version of the record with the cursor's update() function. At
-this point the cursor is no longer positioned at a valid record so we
-reissue the select() call using our \l QSqlIndex and move to the first
-record.
+Finally we add the save functionality for when the user presses the
+save button. We write back the data from the widgets to the \l
+QSqlRecord buffer with the writeFields() call. Then we update the
+database with the updated version of the record with the cursor's
+update() function. At this point the cursor is no longer positioned at
+a valid record so we reissue the select() call using our \l QSqlIndex
+and move to the first record.
 
 QDataBrowser and QDataView are widgets which provide a great deal of
-the above functionality.  \l QDataBrowser provides a data form which
-allows editing of and navigation through records in a cursor.  \l
+the above functionality. \l QDataBrowser provides a data form which
+allows editing of and navigation through a cursor's records. \l
 QDataView provides a read only form for data in a cursor or database
-record.  See the class documentation or the \e {Qt Designer}
-manual for more information on using these widgets.
+record. See the class documentation or the \link designer-manual.book
+Qt Designer\endlink manual for more information on using these
+widgets.
 
 Link to \l sql/overview/form2/main.cpp
 
@@ -984,9 +994,9 @@ by installing a property map that contains information about the
 properties of the custom widget which should be used to transfer the
 data.
 
-This example is based on the form2 example in the previous section so we
-will only cover the differences here. The full source is in
-\l sql/overview/custom1/main.h and \l sql/overview/custom1/main.cpp
+This example is based on the form2 example in the previous section so
+we will only cover the differences here. The full source is in \l
+sql/overview/custom1/main.h and \l sql/overview/custom1/main.cpp
 
 \quotefile sql/overview/custom1/main.h
 \skipto CustomEdit
@@ -994,22 +1004,22 @@ will only cover the differences here. The full source is in
 \printuntil };
 
 We've created a simple subclass of QLineEdit and added a property,
-upperLineText, which will hold an uppercase version of the text. We also
-created a slot, changed.
+upperLineText, which will hold an uppercase version of the text. We
+also created a slot, changed().
 
 \skipto propMap
 \printline propMap
 
-We will be using a property map so we add a pointer to a property map to
-our FormDialog's private data.
+We will be using a property map so we add a pointer to a property map
+to our FormDialog's private data.
 
 \quotefile sql/overview/custom1/main.cpp
 \skipto CustomEdit
 \printline CustomEdit
 \printuntil }
 
-In the CustomEdit constructor we use the QLineEdit constructor and add a
-connection between the textChanged signal and our own changed slot.
+In the CustomEdit constructor we use the QLineEdit constructor and add
+a connection between the textChanged signal and our own changed slot.
 
 \skipto changed
 \printline changed
@@ -1065,9 +1075,9 @@ our CustomEdit widget.
 \section3 Custom Editor Widgets for Tables
 
 We must reimpliment QSqlEditorFactory to use custom editor widgets in
-tables. In the following example we will create a custom editor based on
-QComboBox and a QSqlEditorFactory subclass to show how a QDataTable can use
-a custom editor.
+tables. In the following example we will create a custom editor based
+on QComboBox and a QSqlEditorFactory subclass to show how a QDataTable
+can use a custom editor.
 
 \quotefile sql/overview/table3/main.h
 \skipto StatusPicker
@@ -1117,16 +1127,16 @@ which maps combobox indexes to statusids.
 
 The statusId() function implements the statusid property's WRITE
 function. We create an iterator over a QMap and iterate over the
-index2id QMap. We compare each index2id element's data (statusid) to the
-id parameter's value. If we have a match we set the combobox's current
-item to the index2id element's key (the combobox index), and leave the
-loop.
+index2id QMap. We compare each index2id element's data (statusid) to
+the id parameter's value. If we have a match we set the combobox's
+current item to the index2id element's key (the combobox index), and
+leave the loop.
 
 When the user edits the status field in the QDataTable they will be
 presented with a combobox of valid status names taken from the status
 table. However the status displayed is still the raw statusid. To
-display the status name when the field isn't being edited requires us to
-subclass QDataTable and reimplement the paintField() function.
+display the status name when the field isn't being edited requires us
+to subclass QDataTable and reimplement the paintField() function.
 
 \quotefile sql/overview/table4/main.h
 \skipto CustomTable
@@ -1144,8 +1154,8 @@ anything. We also declare the paintField function.
 \printline
 \caption From \l sql/overview/table4/main.cpp
 
-The paintField code is based on QDataTable's source code. We need to make
-three changes. Firstly add an if clause \c {field->name() ==
+The paintField code is based on QDataTable's source code. We need to
+make three changes. Firstly add an if clause \c{field->name() ==
 "statusid"} and look up the textual value for the id with a
 straighforward QSqlQuery. Secondly call the superclass to handle other
 fields. The last change is in our main function where we change
@@ -1190,14 +1200,14 @@ We have created a separate header file and subclassed QSqlCursor.
 \caption From \l sql/overview/subclass2/main.cpp
 
 In our class's constructor we call the QSqlCursor constructor with the
-name of the table. We don't have any other characteristics to add at this
-stage.
+name of the table. We don't have any other characteristics to add at
+this stage.
 
 \skipto InvoiceItemCursor
 \printline InvoiceItemCursor
 
-Whenever we require a cursor over the invoiceitem table we can create an
-InvoiceItemCursor instead of a generic QSqlCursor. 
+Whenever we require a cursor over the invoiceitem table we can create
+an InvoiceItemCursor instead of a generic QSqlCursor. 
 
 We still need to show the product name rather than the pricesid.
 
@@ -1207,8 +1217,8 @@ We still need to show the product name rather than the pricesid.
 \printline
 \caption From \l sql/overview/subclass3/main.h
 
-The change in the header file is minimal: we simply add the signature of
-the calculateField() function since we will be reimplementing it.
+The change in the header file is minimal: we simply add the signature
+of the calculateField() function since we will be reimplementing it.
 
 \quotefile sql/overview/subclass3/main.cpp
 \skipto InvoiceItem
@@ -1218,11 +1228,12 @@ the calculateField() function since we will be reimplementing it.
 \caption From \l sql/overview/subclass3/main.cpp
 
 We have changed the InvoiceItemCursor constructor. We now create a new
-QSqlField called productname and append this to the InvoiceItemCursor's
-set of fields. We call setCalculated() on productname to identify it as
-a calculated field. The first argument to setCalculated() is the field
-name, the second a bool which if TRUE signifies that calculateField()
-must be called to get the field's value.
+QSqlField called productname and append this to the
+InvoiceItemCursor's set of fields. We call setCalculated() on
+productname to identify it as a calculated field. The first argument
+to setCalculated() is the field name, the second a bool which if TRUE
+signifies that calculateField() must be called to get the field's
+value.
 
 \skipto addColumn
 \printline addColumn
@@ -1231,12 +1242,13 @@ We add our new fields with addColumn() which adds them to the form and
 sets their display names.
 
 We have to define our own calculateField() function. In our example
-database the pricesid in the invoiceitem table is a foreign key into the
-prices table. We find the name of the product by executing a query on
-the prices table using the pricesid. This returns the product's name.
+database the pricesid in the invoiceitem table is a foreign key into
+the prices table. We find the name of the product by executing a query
+on the prices table using the pricesid. This returns the product's
+name.
 
-We are now able to extend the example to include calculated fields which
-perform real calculations.
+We are now able to extend the example to include calculated fields
+which perform real calculations.
 
 The header file, \l sql/overview/subclass4/main.h, remains unchanged
 from the previous example, but the constructor and calculateField()
@@ -1258,19 +1270,20 @@ calls to setCalculated().
 \printline
 \caption From \l sql/overview/subclass4/main.cpp
 
-The calculateField() function has expanded slightly because now we must
-calculate the value of three different fields. The productname and price
-fields are produced by looking up the corresponding values in the prices
-table keyed by pricesid. The cost field is calculated simply by
-multiplying the price by the quantity. Note that we cast the cost to a
-QVariant since that is the type that calculateField() must return.
+The calculateField() function has expanded slightly because now we
+must calculate the value of three different fields. The productname
+and price fields are produced by looking up the corresponding values
+in the prices table keyed by pricesid. The cost field is calculated
+simply by multiplying the price by the quantity. Note that we cast the
+cost to a QVariant since that is the type that calculateField() must
+return.
 
-We've written three separate queries rather than one to make the example
-more like a real application where it is more likely that each
+We've written three separate queries rather than one to make the
+example more like a real application where it is more likely that each
 calculated field would be a lookup against a different table or view.
 
-The last feature that we need to add is defaulting values when the user
-attempts to insert a new record. 
+The last feature that we need to add is defaulting values when the
+user attempts to insert a new record. 
 
 \quotefile sql/overview/subclass5/main.h
 \skipto primeInsert
@@ -1290,17 +1303,17 @@ The constructor and the calculateField() function remain unchanged.
 
 We get a pointer to the internal edit buffer that the cursor uses for
 inserts and updates. The id field is a unique integer that we generate
-using the invoiceitem_seq. We default the value of the paiddate field to
-today's date and default the quantity to 1. Finally we return a pointer
-to the buffer. The rest of the code is unchanged from the previous
-version.
+using the invoiceitem_seq. We default the value of the paiddate field
+to today's date and default the quantity to 1. Finally we return a
+pointer to the buffer. The rest of the code is unchanged from the
+previous version.
 
 \target Example_Tables
 \section1 The Example Tables
 
-The example tables used can be recreated with the following standard SQL.
-You may need to modify the SQL to match that used by your particular
-database. 
+The example tables used can be recreated with the following standard
+SQL. You may need to modify the SQL to match that used by your
+particular database. 
 
 \code
 create table people (id integer primary key, name char(40))
@@ -1320,7 +1333,7 @@ create table invoiceitem (id integer primary key,
 			  paiddate date)
 \endcode 
 
-A sequence was used in the calculateField() example above.  Note that
+A sequence was used in the calculateField() example above. Note that
 sequences are not supported in all databases.
 
 \code

@@ -37,24 +37,24 @@
 
 \title Qt/Embedded Virtual Framebuffer
 
-The virtual framebuffer allows Qt/Embedded programs to be developed on your
-desktop machine, without switching between consoles and X11.
+The virtual framebuffer allows Qt/Embedded programs to be developed on
+a desktop machine, without switching between consoles and X11.
 
 The virtual framebuffer is located in \c $QTDIR/tools/qvfb.
 
 \section1 Using the Virtual Framebuffer
 
 \list 1 
-\i Make sure QT_NO_QWS_VFB in \c $QTDIR/src/tools/qconfig.h is \e not defined
-    and compile the Qt/Embedded library.
+\i Make sure \c QT_NO_QWS_VFB in \c $QTDIR/src/tools/qconfig.h is \e
+    not defined and compile the Qt/Embedded library.
 \i Compile \c qvfb as a normal Qt/X11 application and run it. Do \e not
     compile it as a Qt/Embedded application.
-\i Start a Qt/Embedded master application (i.e., construct QApplication with
-    QApplication::GuiServer flag or use the -qws command line parameter).
-    You will need to specify to the server that you wish to use the virtual
-    framebuffer driver, e.g.:
+\i Start a Qt/Embedded master application (i.e., construct
+    QApplication with the QApplication::GuiServer flag or use the \c
+    -qws command line parameter). You must specify to the server that
+    you wish to use the virtual framebuffer driver, e.g.:
     \code
-    widgets -qws -display QVFb:0
+    masterapp -qws -display QVFb:0
     \endcode
 \i You may prefer to set the \c QWS_DISPLAY environment variable to
     be \c QVFb:0.
@@ -62,53 +62,49 @@ The virtual framebuffer is located in \c $QTDIR/tools/qvfb.
 
 \c qvfb supports the following command line options:
  
-\list
-\i \c{-width width} 
-
-the width of the virtual framebuffer (default: 240).
-
-\i \c{-height height} 
-
-the height of the virtual framebuffer (default: 320).
-
-\i \c{-depth depth} 
-
-the depth of the virtual framebuffer (1, 8 or 32; default: 8).
-
-\i \c{-nocursor} 
-
-do not display the X11 cursor in the framebuffer window.
-
-\i \c{-qwsdisplay :id} 
-
-the Qt/Embedded display id to provide (default: 0).
-
-\endlist
+\table
+\header \i Option \i Meaning
+\row
+\i \c -width \e width 
+\i the width of the virtual framebuffer (default: 240).
+\row
+\i \c -height \e height
+\i the height of the virtual framebuffer (default: 320).
+\row
+\i \c -depth \e depth 
+\i the depth of the virtual framebuffer (1, 8 or 32; default: 8).
+\row
+\i \c -nocursor 
+\i do not display the X11 cursor in the framebuffer window.
+\row
+\i \c -qwsdisplay \e :id 
+\i the Qt/Embedded display id to provide (default: 0).
+\endtable
 
 \section1 Virtual Framebuffer Design
 
 The virtual framebuffer emulates a framebuffer using a shared memory region
 (the virtual frame buffer) and a utility to display the framebuffer in a
-window (\c qvfb).  The regions of the display that have changed are updated
+window (\c qvfb). The regions of the display that have changed are updated
 periodically, so you will see discrete snapshots of the framebuffer rather
-than each individual drawing operation.  For this reason drawing problems
+than each individual drawing operation. For this reason drawing problems
 such as flickering may not be apparent until the program is run using a real
 framebuffer.
 
 The target refresh rate can be set via the <b>View|Refresh Rate</b>
 menu item. This will cause \c qvfb to check for updated regions more
-frequently.  The rate is a target only.  If little drawing is being
+frequently. The rate is a target only. If little drawing is being
 done, the framebuffer will not show any updates between drawing
-events.  If an application is displaying an animation the updates will
-be frequent, and the application and \c qvfb will compete for processor
-time.
+events. If an application is displaying an animation the updates will
+be frequent, then the application and \c qvfb will compete for
+processor time.
 
 Mouse and keyboard events are passed to the Qt/Embedded master process via
 named pipes.
 
-The virtual framebuffer is a development tool only.  No security issues have
-been considered in the virtual framebuffer design.  It should be avoided
-in a production environment; QT_NO_QWS_VFB should always be defined
+The virtual framebuffer is a development tool only. No security issues have
+been considered in the virtual framebuffer design. It should be avoided
+in a production environment; \c QT_NO_QWS_VFB should always be defined
 in production libraries.
 
 */

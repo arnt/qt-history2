@@ -40,7 +40,7 @@
 
 \section1  Definitions 
 
-A \e session is a group of applications running, each of which has a
+A \e session is a group of running applications, each of which has a
 particular state. The session is controlled by a service called the \e
 session \e manager. The applications participating in the session are
 called \e session \e clients.
@@ -48,7 +48,7 @@ called \e session \e clients.
 The session manager issues commands to its clients on behalf of the
 user. These commands may cause clients to commit unsaved changes (for
 example by saving open files), to preserve their state for future
-sessions or to terminate gracefully. The set of these operations is
+sessions, or to terminate gracefully. The set of these operations is
 called \e session \e management.
 
 In the common case, a session consists of all applications that a
@@ -59,12 +59,12 @@ may span multiple displays.
 \section1  Shutting a session down 
 
 A session is shut down by the session manager, usually on behalf of
-the user when they want to log out. A system might also
-perform an automatic shutdown in an emergency situation, for example,
-if power is about to be lost. Clearly there is a significant big difference
-between both shutdowns. During the first, the user may want to
-interact with the application, specifying exactly which files should be
-saved and which should be discarded. In the latter case, there's no
+the user when they want to log out. A system might also perform an
+automatic shutdown in an emergency situation, for example, if power is
+about to be lost. Clearly there is a significant difference between
+these types of shutdown. During the first, the user may want to
+interact with the application, specifying exactly which files should
+be saved and which should be discarded. In the latter case, there's no
 time for interaction. There may not even be a user sitting in front of
 the machine!
 
@@ -73,9 +73,9 @@ the machine!
 
 On Mac OS X and MS-Windows, there is nothing like complete session
 management for applications yet, i.e. no restoring of previous
-sessions.  They do support graceful logouts where applications
-have the chance to cancel the process after getting confirmation from
-the user. This is the functionality that corresponds to the \l
+sessions. They do support graceful logouts where applications
+have the opportunity to cancel the process after getting confirmation
+from the user. This is the functionality that corresponds to the \l
 QApplication::commitData() method.
 
 X11 has supported complete session management since X11R6.
@@ -84,19 +84,19 @@ X11 has supported complete session management since X11R6.
 
 Start by reimplementing \l QApplication::commitData() to
 enable your application to take part in the graceful logout process. If
-you target the MS-Windows platform only, this is all you can and have
-to provide. Ideally, your application should provide a shutdown dialog
-similar to the following one:
+you are only targeting the MS-Windows platform, this is all you can
+and must provide. Ideally, your application should provide a shutdown
+dialog similar to the following:
 
 \img session.png A typical dialog on shutdown
 
 Example code to this dialog can be found in the documentation of \l
 QSessionManager::allowsInteraction().
 
-For complete session management (only supported on X11R6 at present), you also
-have to take care of saving the state of the application and
-potentially restore the state in the next life cycle of the session.
-This saving is done by reimplementing \l
+For complete session management (only supported on X11R6 at present),
+you must also take care of saving the application's state, and
+potentially of restoring the state in the next life cycle of the
+session. This saving is done by reimplementing \l
 QApplication::saveState(). All state data you are saving in this
 function, should be marked with the session identifier \l
 QApplication::sessionId(). This application specific identifier is
@@ -107,7 +107,7 @@ application.)
 Restoration is usually done in the application's main()
 function. Check if \l QApplication::isSessionRestored() is \c TRUE. If
 that's the case, use the session identifier \l
-QApplication::sessionId() again to access your state date and restore
+QApplication::sessionId() again to access your state data and restore
 the state of the application.
 
 <strong>Important:</strong> In order to allow the window manager to
@@ -122,12 +122,12 @@ top level widgets are given the same unique names they had before.
 Session management support on Mac OS X and Windows is fairly limited
 due to the lack of this functionality in the operating system
 itself. Simply shut the session down and verify that your application
-behaves as wanted. It may be a good idea to launch another
-application, usually the integrated development environment, before
-starting your application. This other application will get the
-shutdown message afterwards, thus permitting you to cancel the
-shutdown. Otherwise you would have to log in again after each test
-run, which is not a problem per se but time consuming.
+behaves as expected. It may be useful to launch another application,
+usually the integrated development environment, before starting your
+application. This other application will get the shutdown message
+afterwards, thus permitting you to cancel the shutdown. Otherwise you
+would have to log in again after each test run, which is not a problem
+per se, but is time consuming.
 
 On Unix you can either use a desktop environment that supports
 standard X11R6 session management or, the recommended method, use the
@@ -141,11 +141,9 @@ Athena-based user interface). Here's a simple approach:
 \i Run X11R6.
 \i Create a dot file \c .xsmstartup in your home directory which
 contains the single line
-
 \code
 xterm
 \endcode
-
 This tells \c xsm that the default/failsafe session is just an xterm
 and nothing else. Otherwise \c xsm would try to invoke lots of
 clients including the windowmanager \c twm, which isn't very helpful.
@@ -154,9 +152,9 @@ manager window and the xterm will appear. The xterm has a nice
 property that sets it apart from all the other shells you are
 currently running: within its shell, the \c SESSION_MANAGER
 environment variable points to the session manager you just started.
-\i Launch your application from the new xterm window. It will
-connect itself automatically to the session manager. You can check
-with the \e ClientList push button whether the connect was successful.<br>
+\i Launch your application from the new xterm window. It will connect
+itself automatically to the session manager. You can check with the \e
+ClientList push button whether the connect was successful.<br>
 <strong>Note:</strong> Never keep the \e ClientList open when you
 start or end session managed clients! Otherwise \c xsm is likely to
 crash.
@@ -164,13 +162,13 @@ crash.
 with different settings and see how your application behaves. The save
 type \e local means that the clients should save their state. It
 corresponds to the \l QApplication::saveState() function. The \e
-global save type asks application to save their unsaved changes in the
+global save type asks applications to save their unsaved changes in
 permanent, globally accessible storage. It invokes \l
 QApplication::commitData().
 \i Whenever something crashes, blame \c xsm and not Qt. \c xsm is far
 from being a usable session manager on a user's desktop. It is,
 however, stable and useful enough to serve as testing environment.
- \endlist
+\endlist
 
 
 */

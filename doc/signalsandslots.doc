@@ -37,7 +37,7 @@
 
 \title Signals and Slots
 
-Signals and slots are used for communication between objects.  The
+Signals and slots are used for communication between objects. The
 signal/slot mechanism is a central feature of Qt and probably the
 part that differs most from other toolkits.
 
@@ -82,9 +82,9 @@ slots can take any number of arguments of any type. They are
 completely typesafe: no more callback core dumps!
 
 All classes that inherit from QObject or one of its subclasses
-(e.g. QWidget) can contain signals and slots.  Signals are emitted by
+(e.g. QWidget) can contain signals and slots. Signals are emitted by
 objects when they change their state in a way that may be interesting
-to the outside world.  This is all the object does to communicate.  It
+to the outside world. This is all the object does to communicate. It
 does not know or care whether anything is receiving the signals it
 emits. This is true information encapsulation, and ensures that the
 object can be used as a software component.
@@ -92,14 +92,15 @@ object can be used as a software component.
 \img concrete-connections.png
 \caption An example of signals and slots connections
 
-Slots can be used for receiving signals, but they are normal member
-functions. A slot does not know if it has any signals connected to
-it. Again, the object does not know about the communication mechanism and
-can be used as a true software component.
+Slots can be used for receiving signals, but they are also normal
+member functions. Just as an object does not know if anything receives
+its signals, a slot does not know if it has any signals connected to
+it. This ensures that truly independent components can be created with
+Qt.
 
 You can connect as many signals as you want to a single slot, and a
 signal can be connected to as many slots as you desire. It is even
-possible to connect a signal directly to another signal.  (This will
+possible to connect a signal directly to another signal. (This will
 emit the second signal immediately whenever the first is emitted.)
 
 Together, signals and slots make up a powerful component programming
@@ -143,9 +144,9 @@ This class has the same internal state, and public methods to access the
 state, but in addition it has support for component programming using
 signals and slots: this class can tell the outside world that its state
 has changed by emitting a signal, \c{valueChanged()}, and it has
-a slot which other objects may send signals to.
+a slot which other objects can send signals to.
 
-All classes that contain signals and/or slots must mention Q_OBJECT in
+All classes that contain signals or slots must mention Q_OBJECT in
 their declaration.
 
 Slots are implemented by the application programmer.
@@ -162,7 +163,7 @@ Here is a possible implementation of Foo::setValue():
 \endcode
 
 The line \c{emit valueChanged(v)} emits the signal
-\c{valueChanged} from the object.  As you can see, you emit a
+\c{valueChanged} from the object. As you can see, you emit a
 signal by using \c{emit signal(arguments)}.
 
 Here is one way to connect two of these objects together:
@@ -172,7 +173,7 @@ Here is one way to connect two of these objects together:
     connect(&a, SIGNAL(valueChanged(int)), &b, SLOT(setValue(int)));
     b.setValue( 11 ); // a == undefined  b == 11
     a.setValue( 79 ); // a == 79         b == 79
-    b.value();        
+    b.value();        // returns 79        
 \endcode
 
 Calling \c{a.setValue(79)} will make \c{a} emit a \c{valueChanged()}
@@ -180,7 +181,7 @@ signal, which \c{b} will receive in its \c{setValue()} slot,
 i.e. \c{b.setValue(79)} is called. \c{b} will then, in turn,
 emit the same \c{valueChanged()} signal, but since no slot has been
 connected to \c{b}'s \c{valueChanged()} signal, nothing happens (the
-signal disappears). 
+signal is ignored). 
 
 Note that the \c{setValue()} function sets the value and emits
 the signal only if \c{v != val}. This prevents infinite looping
@@ -188,16 +189,18 @@ in the case of cyclic connections (e.g. if \c{b.valueChanged()}
 were connected to \c{a.setValue()}).
 
 This example illustrates that objects can work together without knowing
-each other, as long as there is someone around to set up a connection
-between them initially.
+about each other, as long as there is someone around to set up a
+connection between them initially.
 
-The preprocessor changes or removes the \c{signals},
-\c{slots} and \c{emit} keywords so that the compiler is presented with
-standard C++.
+The preprocessor changes or removes the \c{signals}, \c{slots} and
+\c{emit} keywords so that the compiler is presented with standard C++.
 
 Run the \link moc.html moc\endlink on class definitions that contain
 signals or slots. This produces a C++ source file which should be compiled
-and linked with the other object files for the application. 
+and linked with the other object files for the application. If you use
+\link qmake-manual.book qmake\endlink, the makefile rules to
+automatically invoke the \link moc.html moc\endlink will be added to
+your makefile for you.
 
 \section1 Signals
 
@@ -207,9 +210,9 @@ Only the class that defines a signal and its subclasses can emit the
 signal.
 
 A list box, for example, emits both \c{highlighted()} and
-\c{activated()} signals.  Most objects will probably only be
-interested in \c{activated()} but some may want to know about
-which item in the list box is currently highlighted.  If the signal is
+\c{activated()} signals. Most objects will probably only be
+interested in \c{activated()}, but some may want to know about
+which item in the list box is currently highlighted. If the signal is
 interesting to two different objects you just connect the signal to
 slots in both objects.
 
@@ -222,44 +225,45 @@ If several slots are connected to one signal, the slots will be
 executed one after the other, in an arbitrary order, when the signal
 is emitted.
 
-Signals are automatically generated by the moc and must not be implemented
-in the .cpp file. They can never have return types (i.e. use \c void).
+Signals are automatically generated by the \link moc.html moc\endlink
+and must not be implemented in the \c .cpp file. They can never have
+return types (i.e. use \c void).
 
 A note about arguments. Our experience shows that signals and slots
-are more reusable if they do \e not use special types.  If \l
+are more reusable if they do \e not use special types. If \l
 QScrollBar::valueChanged() were to use a special type such as the
-hypothetical QRangeControl::Range, it could only be connected to slots
-designed specifically for QRangeControl.  Something as simple as the
-program in \link tutorial1-05.html Tutorial #1 part 5\endlink would be
-impossible.
+hypothetical \c QRangeControl::Range, it could only be connected to
+slots designed specifically for QRangeControl. Something as simple as
+the program in \link tutorial1-05.html Tutorial #1 part 5\endlink
+would be impossible.
 
 \section1 Slots
 
-A slot is called when a signal connected to it is emitted.  Slots are
+A slot is called when a signal connected to it is emitted. Slots are
 normal C++ functions and can be called normally; their only special
-feature is that signals can be connected to them.  A slot's arguments
+feature is that signals can be connected to them. A slot's arguments
 cannot have default values, and, like signals, it is rarely wise to
 use your own custom types for slot arguments.
 
 Since slots are normal member functions with just a little extra
-spice, they have access rights like ordinary member functions.  A
+spice, they have access rights like ordinary member functions. A
 slot's access right determines who can connect to it:
 
-A \c{public slots:} section contains slots that anyone can
-connect signals to.  This is very useful for component programming:
-you create objects that know nothing about each other, connect their
-signals and slots so that information is passed correctly, and, like a
-model railway, turn it on and leave it running.
+A \c{public slots} section contains slots that anyone can connect
+signals to. This is very useful for component programming: you create
+objects that know nothing about each other, connect their signals and
+slots so that information is passed correctly, and, like a model
+railway, turn it on and leave it running.
 
-A \c{protected slots:} section contains slots that this class
-and its subclasses may connect signals to.  This is intended for
-slots that are part of the class' implementation rather than its
-interface to the rest of the world.
+A \c{protected slots} section contains slots that this class and its
+subclasses may connect signals to. This is intended for slots that are
+part of the class's implementation rather than its interface to the
+rest of the world.
 
-A \c{private slots:} section contains slots that only the
-class itself may connect signals to.  This is intended for very
-tightly connected classes, where even subclasses aren't trusted to get
-the connections right.
+A \c{private slots} section contains slots that only the class itself
+may connect signals to. This is intended for very tightly connected
+classes, where even subclasses aren't trusted to get the connections
+right.
 
 You can also define slots to be virtual, which we have found quite
 useful in practice.
@@ -268,32 +272,33 @@ The signals and slots mechanism is efficient, but not quite as fast as
 "real" callbacks. Signals and slots are slightly slower because of the
 increased flexibility they provide, although the difference for real
 applications is insignificant. In general, emitting a signal that is
-connected to some slots, is approximately ten times slower than calling
-the receivers directly, with non-virtual function calls. This is the
-overhead required to locate the connection object, to safely iterate
-over all connections (i.e. checking that subsequent receivers have not
-been destroyed during the emission) and to marshall any parameters in a
-generic fashion. While ten non-virtual function calls may sound like a
-lot, it's much less overhead than any 'new' or 'delete' operation, for
-example. As soon as you perform a string, vector or list operation that
-behind the scene requires 'new' or 'delete', the signals and slots
-overhead is only responsible for a very small proportion of the complete
-function call costs. The same is true whenever you do a system call in a
-slot - or indirectly call more than ten functions. On an i586-500, you
-can emit around 2,000,000 signals per second connected to one receiver,
-or around 1,200,000 per second connected to two receivers. The
-simplicity and flexibility of the signals and slots mechanism is well
-worth the overhead, which your users won't even notice.
+connected to some slots, is approximately ten times slower than
+calling the receivers directly, with non-virtual function calls. This
+is the overhead required to locate the connection object, to safely
+iterate over all connections (i.e. checking that subsequent receivers
+have not been destroyed during the emission) and to marshall any
+parameters in a generic fashion. While ten non-virtual function calls
+may sound like a lot, it's much less overhead than any 'new' or
+'delete' operation, for example. As soon as you perform a string,
+vector or list operation that behind the scene requires 'new' or
+'delete', the signals and slots overhead is only responsible for a
+very small proportion of the complete function call costs. The same is
+true whenever you do a system call in a slot; or indirectly call more
+than ten functions. On an i586-500, you can emit around 2,000,000
+signals per second connected to one receiver, or around 1,200,000 per
+second connected to two receivers. The simplicity and flexibility of
+the signals and slots mechanism is well worth the overhead, which your
+users won't even notice.
 
 
 \section1 Meta Object Information
 
-The meta object compiler (moc) parses the class declaration in a C++
-file and generates C++ code that initializes the meta object. The meta
-object contains names of all signal and slot members, as well as
-pointers to these functions. (For more information on Qt's Meta Object
-System, see \link templates.html Why doesn't Qt use templates for
-signals and slots?\endlink.)
+The meta object compiler (\link moc.html moc\endlink) parses the class
+declaration in a C++ file and generates C++ code that initializes the
+meta object. The meta object contains the names of all the signal and
+slot members, as well as pointers to these functions. (For more
+information on Qt's Meta Object System, see \link templates.html Why
+doesn't Qt use templates for signals and slots?\endlink.)
 
 The meta object contains additional information such as the object's \link
 QObject::className() class name\endlink. You can also check if an object
@@ -359,7 +364,7 @@ any slot.
 
 If, on the other hand, you want to call two different error functions
 when the number overflows, simply connect the signal to two different
-slots.  Qt will call both (in arbitrary order).
+slots. Qt will call both (in arbitrary order).
 
 \code
     public slots:
@@ -374,13 +379,13 @@ slots.  Qt will call both (in arbitrary order).
 \endcode
 
 A slot is a receiving function, used to get information about state
-changes in other widgets.  QLCDNumber uses it, as the code above
-indicates, to set the displayed number.  Since \c{display()} is part
-of the class' interface with the rest of the program, the slot is
+changes in other widgets. QLCDNumber uses it, as the code above
+indicates, to set the displayed number. Since \c{display()} is part
+of the class's interface with the rest of the program, the slot is
 public.
 
-Several of the example programs connect the newValue signal of a
-QScrollBar to the display slot, so the LCD number continuously shows
+Several of the example programs connect the newValue() signal of a
+QScrollBar to the display() slot, so the LCD number continuously shows
 the value of the scroll bar.
 
 Note that display() is overloaded; Qt will select the appropriate version
