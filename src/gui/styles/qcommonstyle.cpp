@@ -1079,7 +1079,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
             const QPixmap pixmap = button->icon.pixmap(QIconSet::Automatic, iconMode, iconState);
 
-            if (button->state & Style_Down) {
+            if (button->state & (Style_On | Style_Down)) {
                 qDrawShadePanel(p, cr, button->palette, true);
             } else if (button->state & (Style_MouseOver | Style_Open)) {
                 qDrawShadePanel(p, cr, button->palette, false);
