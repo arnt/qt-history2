@@ -1274,8 +1274,7 @@ QTextDocument::~QTextDocument()
     delete buf_pixmap;
     delete indenter;
     delete backBrush;
-    if ( tArray )
-	delete [] tArray;
+    delete [] tArray;
 }
 
 void QTextDocument::clear( bool createEmptyParag )
@@ -3849,8 +3848,7 @@ QTextParagraph::~QTextParagraph()
     } else {
 	delete pseudoDocument();
     }
-    if ( tArray )
-	delete [] tArray;
+    delete [] tArray;
     delete eData;
     QMap<int, QTextLineStart*>::Iterator it = lineStarts.begin();
     for ( ; it != lineStarts.end(); ++it )
@@ -4323,7 +4321,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
     int fullSelectionWidth = 0;
     if ( drawSelections && fullWidthStyle )
 	fullSelectionWidth = (hasdoc ? document()->width() : r.width());
-	
+
     QString qstr = str->toString();
     // ### workaround so that \n are not drawn, actually this should
     // be fixed in QFont somewhere (under Windows you get ugly boxes
@@ -4440,7 +4438,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    }
 	    paintStart = i+1;
 	}
-	
+
     }
 
     if (fullWidthStyle && drawSelections && selection >= 0 && next() && next()->mSelections)
