@@ -533,7 +533,7 @@ foreach (@modules_to_sync) {
                         print "$header [$lib]\n";
                     } else {
                         #put it into the master file
-			$master_header_out .= "#include \"$public_header\"\n" if($public_header);
+			$master_header_out .= "#include \"$public_header\"\n" if($public_header && !($header =~ /_/));
                         #now sync the header file
 			my @headers;
 			if ($public_header) {
