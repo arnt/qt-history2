@@ -151,8 +151,7 @@ print OUTPUT "  extern \"C++\"\n";
 print OUTPUT "  {";
 my $symbol_count = 0;
 foreach (keys %CLASSES) {
-#     my @symbols = ("${_}::*", "${_}?virtual?table", "${_}?type_info?*", "vtable?for?${_}", "non-virtual?thunk?to?${_}::*");
-     my @symbols = ("${_}::*" );
+     my @symbols = ("${_}::*", "${_}?virtual?table", "${_}?type_info?*", "vtable?for?${_}", "non-virtual?thunk?to?${_}::*");
      foreach (@symbols) {
 	 print OUTPUT ";" if($symbol_count);
 	 print OUTPUT "\n     ${_}";
