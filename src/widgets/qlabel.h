@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#57 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#58 $
 **
 ** Definition of QLabel widget class
 **
@@ -89,8 +89,9 @@ private slots:
     void	movieResized(const QSize&);
 
 private:
-    void init();
-    void	updateLabel();
+    void	init();
+    void	clearContents();
+    void	updateLabel( QSize oldSizeHint );
     QSize	sizeForWidth( int w ) const;
     QString	ltext;
     QPixmap    *lpixmap;
@@ -101,10 +102,8 @@ private:
     uint	autoresize:1;
     Qt::TextFormat textformat;
     QSimpleRichText* doc;
-    QAccel *	accel;  // NON NULL
+    QAccel *	accel;
     QLabelPrivate* d;
-
-    void	unsetMovie();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

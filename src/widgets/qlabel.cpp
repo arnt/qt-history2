@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#140 $
 **
 ** Implementation of QLabel widget class
 **
@@ -50,40 +50,35 @@ public:
 // BEING REVISED: aavit
 /*!
   \class QLabel qlabel.h
-  \brief The QLabel widget displays a static text or pixmap.
+  \brief The QLabel widget provides a static information display
 
   \ingroup realwidgets
 
-  A label is a static text or pixmap field.
+  QLabel is used for displaying information in the form of text or
+  image to the user. No user interaction functionality is
+  provided. The visual appearance of the label can be configured in
+  various ways, and it can be used for specifying a focus accellerator
+  key for another widget.
 
-  It can have a frame (since QLabel inherits QFrame) and a "buddy" and
-  an accelerator for moving keyboard focus to the buddy.
+  A QLabel can contain any of the following content types:
+  <ul>
+  <li> A plain text: set by passing a QString to setText().
+  <li> A rich text: set by passing a QString that contains a rich text to setText().
+  <li> A pixmap: set by passing a QPixmap to setPixmap().
+  <li> A movie: set by passing a QMovie to setMovie().
+  <li> A number: set by passing an \e int or a \e double to setNum(), which converts the number to plain text.
+  <li> Nothing: The same as an empty plain text. This is the default. Set by clear().
+  </ul>
 
-  The contents of a label can be specified as a normal text, as a
-  numeric value (which is internally converted to a text) or, as a
-  pixmap.  If the label is normal text and one of the letters is
-  prefixed with '&', you can also specify a \e buddy for the label:
+  When the content is changed using any of these functions, any
+  previous content is cleared.
 
-  \code
-     QLineEdit * phone = new QLineEdit( this, "phone number" );
-     QLabel * phoneLabel = new QLabel( phone, "&Phone", this );
-  \endcode
-
-  In this example, keyboard focus is transferred to the label's buddy
-  (the QLineEdit) when the user presses <dfn>Alt-P.</dfn> This is
-  handy for many dialogs.  You can also use the setBuddy() function to
-  accomplish the same means.
-
-  A label can be aligned in many different ways. The alignment setting
-  specifies where to position the contents relative to the frame
-  rectangle.  See setAlignment() for a description of the alignment
-  flags.
-
-  Enabling auto-resizing make the label resize itself whenever the
-  contents change.  The top left corner does not move.
-
-  This code sets up a sunken panel with a two-line text in the bottom
-  right corner:
+  The look of a QLabel can be tuned in several ways. All the settings
+  of QFrame are available for specifying a widget frame. The
+  positioning of the content within the QLabel widget area can be
+  tuned with setAlignment() and setIndent().  For example, this code
+  sets up a sunken panel with a two-line text in the bottom right
+  corner (both lines being flush with the right side of the label):
 
   \code
     QLabel *label = new QLabel;
@@ -92,30 +87,36 @@ public:
     label->setAlignment( AlignBottom | AlignRight );
   \endcode
 
-  Both lines are flush with the right side of the label.
+  A QLabel is often used as a label for another, interactive
+  widget. For this use, QLabel provides a handy mechanism for adding
+  an accellerator key (see QAccel) that will set the keyboard focus to
+  the other widget (called the QLabel's "buddy"). Example:
+
+  \code
+     QLineEdit* phoneEdit = new QLineEdit( this, "phoneEdit" );
+     QLabel* phoneLabel = new QLabel( phoneEdit, "&Phone:", this, "phoneLabel" );
+  \endcode
+
+  In this example, keyboard focus is transferred to the label's buddy
+  (the QLineEdit) when the user presses <dfn>Alt-P.</dfn> You can also
+  use the setBuddy() function to accomplish the same.
+
+  For QLabel widgets that are not managed by a QLayout (e.g. top-level
+  widgets), the setAutoResize() function can be used to request that
+  the widget automatically resizes itself to fit the contents whenever
+  the contents change.
 
   <img src=qlabel-m.png> <img src=qlabel-w.png>
 
-  A label may also be used to provide a slightly larger amount of
-  information, for example a few lines help text in a dialog. For this
-  reason, QLabel also supports rich text rendering. The available
-  styles are defined in the default stylesheet
-  QStyleSheet::defaultSheet(). Usually the label autodetects from the
-  set text whether rich text rendering is required. The format,
-  however, can also be specified directly with setTextFormat(). Note
-  that buddies will not work yet with rich text labels since there's
-  not way to specify the accelerator (yet).
-
-  \sa QLineEdit QMovie QTextView
+  \sa QLineEdit, QTextView, QPixmap, QMovie, 
   <a href="guibooks.html#fowler">GUI Design Handbook: Label</a>
 */
 
 
 /*!
-  Constructs an empty label which is left-aligned, vertically centered,
-  has an automatic indent and with manual resizing.
+  Constructs an empty label.
 
-  The \e parent, \e name and \e f arguments are passed to the QFrame
+  The \a parent, \a name and \a f arguments are passed to the QFrame
   constructor.
 
   \sa setAlignment(), setFrameStyle(), setIndent(), setAutoResize()
@@ -129,16 +130,16 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 
 
 /*!
-  Constructs a label with a text. The label is left-aligned, vertically
-  centered, has an automatic indent and with manual resizing.
+  Constructs a label with a text. The \a text is set with setText().
 
-  The \e parent, \e name and \e f arguments are passed to the QFrame
+  The \a parent, \a name and \a f arguments are passed to the QFrame
   constructor.
 
-  \sa setAlignment(), setFrameStyle(), setIndent(), setAutoResize()
+  \sa setText(), setAlignment(), setFrameStyle(), setIndent(), setAutoResize()
 */
 
-QLabel::QLabel( const QString &text, QWidget *parent, const char *name, WFlags f )
+QLabel::QLabel( const QString &text, QWidget *parent, const char *name, 
+		WFlags f )
 	: QFrame( parent, name, f )
 {
     init();
@@ -147,36 +148,22 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name, WFlags f
 
 
 /*!
-  Constructs a label with an accelerator key.
+  Constructs a label with a text and a buddy.
+
+  The \a text is set with setText(). The \a buddy is set with setBuddy().
 
   The \a parent, \a name and \a f arguments are passed to the QFrame
-  constructor. Note that the \a parent argument does \e not default
-  to 0.
+  constructor.
 
-  In a dialog, you might create two data entry widgets and a label
-  for each, and set up the geometry so each label is just to the left
-  of its data entry widget (its "buddy"), somewhat like this:
-
-  \code
-    QLineEdit *name    = new QLineEdit( this );
-    QLabel    *name_l  = new QLabel( name, "&Name:", this );
-    QLineEdit *phone   = new QLineEdit( this );
-    QLabel    *phone_l = new QLabel( phone, "&Phone:", this );
-    // geometry management setup not shown
-  \endcode
-
-  With the code above, the focus jumps to the Name field when the user
-  presses Alt-N, and to the Phone field when the user presses Alt-P.
-
-  \sa setText(), setBuddy()
+  \sa setText(), setBuddy(), setAlignment(), setFrameStyle(),
+  setIndent(), setAutoResize()
 */
 
 QLabel::QLabel( QWidget *buddy,  const QString &text,
 		QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f ), ltext(QString::fromLatin1(""))
+    : QFrame( parent, name, f )
 {
     init();
-    align = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
     setBuddy( buddy );
     setText( text );
 }
@@ -188,9 +175,7 @@ QLabel::QLabel( QWidget *buddy,  const QString &text,
 
 QLabel::~QLabel()
 {
-    unsetMovie();
-    delete doc;
-    delete lpixmap;
+    clearContents();
     delete d;
 }
 
@@ -214,52 +199,44 @@ void QLabel::init()
 /*!
   \fn QString QLabel::text() const
 
-  Returns the label text. This may be either plain text or a small
-  rich text document.
+  Returns the label text. If the content is a plain or a rich text,
+  this is the string that was passed to setText(). Otherwise, it is an
+  empty/null string.
 
-  \sa textFormat(), setText(), setTextFormat()
+  \sa setText(), setNum(), clear()
 */
 
+
 /*!
-  Sets the label contents to \a text, updates the optional
-  accelerator and redraws the contents.
+  Sets the label contents to \a text, or does nothing if \a text is
+  equal to the current contents of the label. Any previous content is
+  cleared.
 
-  The label resizes itself if auto-resizing is enabled.  Nothing
-  happens if \a text is the same as the current label.
+  \a text will be interpreted either as a plain text or as a rich
+  text, depending on the text format setting; see setTextFormat(). The
+  default setting is \c AutoText, i.e. QLabel will try to auto-detect
+  the format of \a text.
 
-  \a text may be interpreted either as plain text or as rich text,
-  depending on the textFormat(). The default setting is \c AutoText,
-  i.e. the label autodetects the format from \a text. If the format is
-  \c RichText, the label uses the default mime source factory to
-  resolve references to images. See
-  QMimeSourceFactory::defaultFactory() for details.
+  If \a text is interpreted as a plain text, and a buddy has been set,
+  the buddy accelerator key is updated from the new text.
+  
+  The label resizes itself if auto-resizing is enabled.
 
-  Note that a label is only useful for rather small documents with one
-  or maximal two lines of text.  If you need to display larger
-  documents, a QTextView is the widget of choice. It will flicker less
-  on resize and can also provide a scrollbar if necessary.
+  Note that Qlabel is well suited to display small rich text documents
+  only. For large documents, use QTextView instead. It will flicker
+  less on resize and can also provide a scrollbar if necessary.
 
-  \sa text(), setTextFormat(), setPixmap(), setAutoResize(), QTextView
+  \sa text(), setTextFormat(), setBuddy(), setAlignment, setAutoResize()
 */
 
 void QLabel::setText( const QString &text )
 {
-    unsetMovie();
     if ( ltext == text )
 	return;
+    QSize osh = sizeHint();
+    clearContents();
     ltext = text;
 
-    if (doc ) {
-	delete doc;
-	doc = 0;
-    }
-    if ( lpixmap ) {
-	delete lpixmap;
-	lpixmap = 0;
-    }
-
-    if ( accel )
-	accel->clear();
     int p = QAccel::shortcutKey( ltext );
     if ( p ) {
 	if ( !accel )
@@ -269,28 +246,20 @@ void QLabel::setText( const QString &text )
     }
 
     if ( textformat == RichText ||
-	 ( textformat == AutoText
-	   && QStyleSheet::mightBeRichText( ltext ) ) ) {
+	 ( textformat == AutoText && QStyleSheet::mightBeRichText(ltext) ) ) {
 	doc = new QSimpleRichText( ltext, font() );
-	QPainter p (this );
+	QPainter p( this );
 	doc->setWidth( &p, 10 );
 	d->minimumWidth = doc->widthUsed();
     }
 
-    if ( autoresize ) {
-	QSize s = sizeHint();
-	if ( s.isValid() && s != size() )
-	    resize( s );
-	else
-	    repaint();
-    } else {
-	updateLabel();
-    }
-    updateGeometry();
+    updateLabel( osh );
 }
 
 
-/*!  Clears the label.  Equivalent with setText( "" ). */
+/*!
+  Clears any label contents. Equivalent with setText( "" ).
+*/
 
 void QLabel::clear()
 {
@@ -300,141 +269,111 @@ void QLabel::clear()
 
 /*!
   \fn QPixmap *QLabel::pixmap() const
-  Returns the label pixmap.
+
+  If the label contains a pixmap, returns a pointer to it. Otherwise,
+  returns 0.
+
   \sa setPixmap()
 */
 
+
 /*!
-  Sets the label contents to \e pixmap and redraws the contents.
+  Sets the label contents to \a pixmap. Any previous content is cleared.
 
-  If the label has a buddy, the accelerator is disabled since the
-  pixmap doesn't contain any suitable character.
+  The buddy accelerator, if any, is disabled.
 
-  The label resizes itself if auto-resizing is enabled.	 Nothing
-  happens if \e pixmap is the same as the current label.
+  The label resizes itself if auto-resizing is enabled.
 
-  \sa pixmap(), setText(), setTextFormat(), setAutoResize()
+  \sa pixmap(), setBuddy(), setAutoResize()
 */
 
 void QLabel::setPixmap( const QPixmap &pixmap )
 {
-    unsetMovie();
-    int w, h;
-    if ( lpixmap ) {
-	w = lpixmap->width();
-	h = lpixmap->height();
-    } else {
-	lpixmap = new QPixmap;
-	CHECK_PTR( lpixmap );
-	w = h = -1;
-    }
-    bool sameSize = w == lpixmap->width() && h == lpixmap->height();
-    *lpixmap = pixmap;
+    QSize osh = sizeHint();
+    clearContents();
+    lpixmap = new QPixmap( pixmap );
+
     if ( lpixmap->depth() == 1 && !lpixmap->mask() )
 	lpixmap->setMask( *((QBitmap *)lpixmap) );
-    if ( !ltext.isNull() )
-	ltext = QString::null;
-    if ( autoresize && !sameSize )
-	adjustSize();
-    else
-	updateLabel();
-    if ( accel )
-	accel->clear();
+
+    updateLabel( osh );
 }
 
 
 /*!
-  Sets the label contents to \e num (converts it to text) and redraws the
-  contents.
+  Sets the label contents to a plain text containing the printed value
+  of \a num. Does nothing if this is equal to the current contents of
+  the label. Any previous content is cleared.
 
-  If the label has a buddy, the accelerator is disabled since the
-  number doesn't contain any suitable character.
+  The buddy accelerator, if any, is disabled.
 
-  The label resizes itself if auto-resizing is enabled.	 Nothing
-  happens if \e num reads the same as the current label.
+  The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResize()
+  \sa setText(), QString::setNum(), setBuddy(), setAutoResize()
 */
 
 void QLabel::setNum( int num )
 {
     QString str;
     str.setNum( num );
-    if ( str != ltext ) {
 	setText( str );
-	if ( autoresize )
-	    adjustSize();
-	else
-	    updateLabel();
-    }
 }
 
 /*!
-  Sets the label contents to \e num (converts it to text) and redraws the
-  contents.
+  Sets the label contents to a plain text containing the printed value
+  of \a num.  Does nothing if this is equal to the current contents of
+  the label. Any previous content is cleared.
 
-  If the label has a buddy, the accelerator is disabled since the
-  number doesn't contain any suitable character.
+  The buddy accelerator, if any, is disabled.
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResize()
+  \sa setText(), QString::setNum(), setBuddy(), setAutoResize()
 */
 
 void QLabel::setNum( double num )
 {
     QString str;
-    str.sprintf( "%g", num );
-    if ( str != ltext ) {
+    str.setNum( num );
 	setText( str );
-	if ( autoresize )
-	    adjustSize();
-	else
-	    updateLabel();
-    }
 }
-
 
 /*!
   \fn int QLabel::alignment() const
+
   Returns the alignment setting.
+
+  \sa setAlignment()
+*/
+
+/*!
+  Sets the alignment of the label contents.
+
+  The \a alignment must be a bitwise OR of Qt::AlignmentFlags
+  values. The \c WordBreak, \c ExpandTabs, \c SingleLine and \c
+  ShowPrefix flags apply only if the label contains a plain text, and
+  are otherwise ignored. The \c DontClip flag is always ignored.
+
+  If the label has a buddy, the \c ShowPrefix flag is forced to TRUE.
 
   The default alignment is <code>AlignLeft | AlignVCenter |
   ExpandTabs</code> if the label doesn't have a buddy and
   <code>AlignLeft | AlignVCenter | ExpandTabs | ShowPrefix </code> if
   the label has a buddy.
 
-  \sa setAlignment()
-*/
-
-/*!
-  Sets the alignment of the label contents and redraws itself.
-
-  The \e alignment is the bitwise OR of the following flags:
-  <ul>
-  <li> \c AlignLeft aligns to the left border.
-  <li> \c AlignRight aligns to the right border.
-  <li> \c AlignHCenter aligns horizontally centered.
-  <li> \c AlignTop aligns to the top border.
-  <li> \c AlignBottom aligns to the bottom border.
-  <li> \c AlignVCenter aligns vertically centered
-  <li> \c AlignCenter (= \c AlignHCenter | \c AlignVCenter)
-  <li> \c ExpandTabs expands tabulators.
-  <li> \c WordBreak enables automatic word breaking.
-  </ul>
-
-  If the label has a buddy, \c ShowPrefix is forced to TRUE.
-
-  \sa alignment() setBuddy() setText()
+  \sa Qt::AlignmentFlags, alignment(), setBuddy(), setText()
 */
 
 void QLabel::setAlignment( int alignment )
 {
+    if ( alignment == align )
+	return;
+    QSize osh = sizeHint();
     if ( lbuddy )
 	align = alignment | ShowPrefix;
     else
 	align = alignment;
-    updateLabel();
+    updateLabel( osh );
 }
 
 
@@ -447,34 +386,37 @@ void QLabel::setAlignment( int alignment )
 */
 
 /*!
-  Sets the indent of the label to \e indent pixels.
+  Sets the indent of the label to \a indent pixels.
 
   The indent applies to the left edge if alignment() is \c AlignLeft,
   to the right edge if alignment() is \c AlignRight, to the top edge
   if alignment() is \c AlignTop, and to to the bottom edge if
   alignment() is \c AlignBottom.
 
-  If \e indent is negative (as it is by default), the label computes the
-  indent as follows: If the \link frameWidth() frame width\endlink is zero,
-  the effective indent becomes 0. If the frame style is greater than zero,
-  the effective indent becomes half the width of the "x" character (of the
-  widget's current \link font() font\endlink.
+  If \a indent is negative, or if no indent has been set, the label
+  computes the effective indent as follows: If frameWidth() is 0, the
+  effective indent becomes 0. If frameWidth() is greater than 0, the
+  effective indent becomes half the width of the "x" character of the
+  widget's current font().
 
-  Setting a non-negative indent gives the specified indent in pixels.
+  If \a indent is non-negative, the effective indent is \a indent
+  pixels.
 
-  \sa indent(), frameWidth(), font()
+  \sa indent(), setAlignment(), frameWidth(), font()
 */
 
 void QLabel::setIndent( int indent )
 {
     extraMargin = indent;
+    //### update? auto-resize?
 }
 
 
 /*!
   \fn bool QLabel::autoResize() const
-  Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
-  disabled.
+
+  Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing
+  is disabled.
 
   Auto-resizing is disabled by default.
 
@@ -482,13 +424,17 @@ void QLabel::setIndent( int indent )
 */
 
 /*!
-  Enables auto-resizing if \e enable is TRUE, or disables it if \e
+  Enables auto-resizing if \a enable is TRUE, or disables it if \a
   enable is FALSE.
 
-  When auto-resizing is enabled, the label will resize itself whenever the
-  contents change.  The top left corner is not moved.
+  When auto-resizing is enabled, the label will resize itself to fit
+  the contents whenever the contents change. The top left corner is
+  not moved. This is useful for QLabel widgets that are not managed by
+  a QLayout (e.g. top-level widgets).
 
-  \sa autoResize(), adjustSize()
+  Auto-resizing is disabled by default.
+
+  \sa autoResize(), adjustSize(), sizeHint()
 */
 
 void QLabel::setAutoResize( bool enable )
@@ -504,12 +450,12 @@ void QLabel::setAutoResize( bool enable )
 
 /*!
   Returns the size that will be used if the width of the label is
-  \a w. If \a w is -1, the sizeHint is returned.
+  \a w. If \a w is -1, the sizeHint() is returned.
 */
 
 QSize QLabel::sizeForWidth( int w ) const
 {
-    QPainter p( this );
+    QFontMetrics fm = fontMetrics();
     QRect br;
     QPixmap *pix = pixmap();
     QMovie *mov = movie();
@@ -517,16 +463,18 @@ QSize QLabel::sizeForWidth( int w ) const
     int m  = 2*indent();
     if ( m < 0 ) {
 	if ( fw > 0 )
-	    m = p.fontMetrics().width( 'x' );
+	    m = fm.width( 'x' );
 	else
 	    m = 0;
     }
     if ( pix ) {
-	br = QRect( 0, 0, pix->width(), pix->height() );
-    } else if ( mov ) {
-	br = QRect( 0, 0, mov->framePixmap().width(),
-		    mov->framePixmap().height() );
-    } else if (doc ){
+	br = pix->rect();
+    }
+    else if ( mov ) {
+	br = mov->framePixmap().rect();
+    } 
+    else if ( doc ) {
+	QPainter p( this );
 	if ( w < 0 ) {
 	    doc->adjustSize( &p );
 	}
@@ -535,21 +483,21 @@ QSize QLabel::sizeForWidth( int w ) const
 	    doc->setWidth( &p, w );
 	}
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
-    } else {
-	bool tryWidth = w < 0 && align&WordBreak;
-	QFontMetrics fm = fontMetrics();
-	if ( tryWidth)
+    }
+    else {
+	bool tryWidth = (w < 0) && (align & WordBreak);
+	if ( tryWidth )
 	    w = fm.width( 'x' ) * 80;
 	else if ( w < 0 )
 	    w = 2000;
-	br = p.boundingRect( 0,0, w ,2000, alignment(), text() );
+	br = fm.boundingRect( 0, 0, w ,2000, alignment(), text() );
 	if ( tryWidth && br.height() < 4*fm.lineSpacing() && br.width() > w/2 )
-	    	br = p.boundingRect( 0,0, w/2 ,2000, alignment(), text() );
-	if ( tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4)
-	    br = p.boundingRect( 0,0, w/4 ,2000, alignment(), text() );
+	    	br = fm.boundingRect( 0, 0, w/2, 2000, alignment(), text() );
+	if ( tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4 )
+	    br = fm.boundingRect( 0, 0, w/4, 2000, alignment(), text() );
 	// adjust so "Yes" and "yes" will have the same height
-	int h = fontMetrics().lineSpacing();
-	br.setHeight( ((br.height() + h-1) / h)*h - fontMetrics().leading() );
+	int h = fm.lineSpacing();
+	br.setHeight( ((br.height() + h-1) / h)*h - fm.leading() );
     }
     int wid = br.width() + m + 2*fw;
     int hei = br.height() + m + 2*fw;
@@ -559,14 +507,14 @@ QSize QLabel::sizeForWidth( int w ) const
 
 
 /*!
-  Reimplemented for rich text labels and WordBreak
+  \reimp
 */
-int QLabel::heightForWidth(int w) const
+
+int QLabel::heightForWidth( int w ) const
 {
-    if (doc  || align & WordBreak ) {
+    if ( doc || align & WordBreak )
 	return sizeForWidth( w ).height();
-    }
-    return QWidget::heightForWidth(w);
+    return QWidget::heightForWidth( w );
 }
 
 
@@ -574,13 +522,20 @@ int QLabel::heightForWidth(int w) const
 /*!
   Returns a size which fits the contents of the label.
 
-  \bug Does not work well with the WordBreak flag, use heightForWidth().
+  \bug Does not work well with the WordBreak flag; use
+  heightForWidth() in stead.
+
+  \sa adjustSize()
 */
 
 QSize QLabel::sizeHint() const
 {
     return sizeForWidth( -1 );
 }
+
+/*!
+  \reimp
+*/
 
 QSize QLabel::minimumSizeHint() const
 {
@@ -592,8 +547,8 @@ QSize QLabel::minimumSizeHint() const
 
 
 /*!
-  Specifies that this widget may stretch horizontally and
-  vertically beyond the sizeHint().
+  Specifies that this widget may stretch horizontally and vertically
+  beyond the sizeHint().
 */
 
 QSizePolicy QLabel::sizePolicy() const
@@ -608,7 +563,7 @@ QSizePolicy QLabel::sizePolicy() const
 
 
 /*!
-  Draws the label contents using the painter \e p.
+  Draws the label contents using the painter \a p.
 */
 
 void QLabel::drawContents( QPainter *p )
@@ -637,7 +592,8 @@ void QLabel::drawContents( QPainter *p )
 	// ### should add movie to qDrawItem
  	QRect r = style().itemRect( p,
 				    cr.x(), cr.y(), cr.width(), cr.height(),
-				    align, isEnabled(), &(mov->framePixmap()), ltext );
+				    align, isEnabled(), &(mov->framePixmap()),
+				    QString::null );
 	// ### could resize movie frame at this point
 	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );
     }
@@ -669,22 +625,26 @@ void QLabel::drawContents( QPainter *p )
     }
 }
 
+/*!
+  \reimp
+*/
 
 void QLabel::setAutoMask(bool b)
 {
-    if (b)
+    if ( b )
 	setBackgroundMode( PaletteText );
     else
 	setBackgroundMode( PaletteBackground );
-    QFrame::setAutoMask(b);
+    QFrame::setAutoMask( b );
 }
 
 /*!
-  Draws the label contents mask using the painter \e p.
+  Draws the label contents mask using the painter \a p.
   Used only in transparent mode.
 
   \sa QWidget::setAutoMask();
 */
+
 void QLabel::drawContentsMask( QPainter *p )
 {
     QRect cr = contentsRect();
@@ -711,7 +671,8 @@ void QLabel::drawContentsMask( QPainter *p )
 	// ### could add movie to qDrawItem
 	QRect r = style().itemRect( p,
 				    cr.x(), cr.y(), cr.width(), cr.height(),
-				    align, isEnabled(), &(mov->framePixmap()), ltext );
+				    align, isEnabled(), &(mov->framePixmap()),
+				    QString::null );
 	// ### could resize movie frame at this point
 	QPixmap pm = mov->framePixmap();
 	if ( pm.mask() ) {
@@ -723,7 +684,8 @@ void QLabel::drawContentsMask( QPainter *p )
 	return;
     }
 
-    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
+    QColorGroup g( color1, color1, color1, color1, color1, color1, color1,
+		   color1, color0);
 
     QBitmap bm;
     if (lpixmap) {
@@ -765,15 +727,24 @@ void QLabel::drawContentsMask( QPainter *p )
   Updates the label, not the frame.
 */
 
-void QLabel::updateLabel()
+void QLabel::updateLabel( QSize oldSizeHint )
 {
-    repaint(contentsRect());
-    if ( autoMask() )
-	updateMask();
+    if ( sizeHint() != oldSizeHint )
+	updateGeometry();
+    if ( autoresize ) {
+	adjustSize();
+    }
+    else {
+	repaint( contentsRect() );		// Should rather be update() ?
+	if ( autoMask() )
+	    updateMask();
+    }
 }
 
 
 /*!
+  \internal
+
   Internal slot, used to set focus for accelerator labels.
 */
 
@@ -793,6 +764,8 @@ void QLabel::acceleratorSlot()
 
 
 /*!
+  \internal
+
   Internal slot, used to clean up if the buddy widget dies.
 */
 
@@ -806,9 +779,35 @@ void QLabel::buddyDied() // I can't remember if I cried.
   Sets the buddy of this label to \a buddy.
 
   When the user presses the accelerator key indicated by this label,
-  the keyboard focus is transferred to the label's buddy.
+  the keyboard focus is transferred to the label's buddy widget.
 
-  \sa buddy(), setText()
+  The buddy mechanism is only available for QLabels that contain a
+  plain text in which one letter is prefixed with '&'. It is this
+  letter that is set as the accelerator key. The letter is displayed
+  underlined, and the '&' is not displayed (i.e. the \c ShowPrefix
+  alignment flag is turned on; see setAlignment()).
+
+  In a dialog, you might create two data entry widgets and a label for
+  each, and set up the geometry layout so each label is just to the
+  left of its data entry widget (its "buddy"), somewhat like this:
+
+  \code
+    QLineEdit *nameEd  = new QLineEdit( this );
+    QLabel    *nameLb  = new QLabel( "&Name:", this );
+    nameLb->setBuddy( nameEd );
+    QLineEdit *phoneEd = new QLineEdit( this );
+    QLabel    *phoneLb = new QLabel( "&Phone:", this );
+    phoneLb->setBuddy( phoneEd );
+    // ( layout setup not shown )
+  \endcode
+
+  With the code above, the focus jumps to the Name field when the user
+  presses Alt-N, and to the Phone field when the user presses Alt-P.
+
+  To unset a previously set buddy, call this function with \a buddy
+  set to 0.
+
+  \sa buddy(), setText(), QAccel, setAlignment()
 */
 
 void QLabel::setBuddy( QWidget *buddy )
@@ -839,7 +838,9 @@ void QLabel::setBuddy( QWidget *buddy )
 
 
 /*!
-  Returns the buddy of this label.
+  Returns the buddy of this label, or 0 if no buddy is currently set.
+
+  \sa setBuddy()
 */
 
 QWidget * QLabel::buddy() const
@@ -854,7 +855,8 @@ void QLabel::movieUpdated(const QRect& rect)
     if ( mov && !mov->isNull() ) {
 	QRect r = contentsRect();
 	r = style().itemRect( 0, r.x(), r.y(), r.width(), r.height(),
-			      align, isEnabled(), &(mov->framePixmap()), ltext );
+			      align, isEnabled(), &(mov->framePixmap()),
+			      QString::null );
 	r.moveBy(rect.x(), rect.y());
 	r.setWidth(QMIN(r.width(), rect.width()));
 	r.setHeight(QMIN(r.height(), rect.height()));
@@ -864,53 +866,56 @@ void QLabel::movieUpdated(const QRect& rect)
     }
 }
 
-void QLabel::movieResized(const QSize& size)
+void QLabel::movieResized( const QSize& size )
 {
-    if (autoresize) adjustSize();
-    movieUpdated(QRect(QPoint(0,0),size));
+    if ( autoresize )
+	adjustSize();
+    movieUpdated( QRect( QPoint(0,0), size ) );
     updateGeometry();
 }
 
 /*!
-  Sets a QMovie to display in the label, or removes any existing movie
-  if the given movie QMovie::isNull().
+  Sets the label contents to \a movie. Any previous content is cleared.
 
-  Any current pixmap or text label is cleared.
+  The buddy accelerator, if any, is disabled.
 
-  If the label has a buddy, the accelerator is disabled since the
-  movie doesn't contain any suitable character.
+  The label resizes itself if auto-resizing is enabled.
 
-  \sa unsetMovie()
+  \sa movie(), setBuddy(), setAutoResize()
 */
+
 void QLabel::setMovie( const QMovie& movie )
 {
-    unsetMovie();
+    QSize osh = sizeHint();
+    clearContents();
 
-    if ( movie.isNull() ) {
-	return;
-    } else {
-	if ( !lmovie )
-	    lmovie = new QMovie;
-	*lmovie = movie;
-    }
-
-    delete accel;
-    accel = 0;
-    delete lpixmap;
-    lpixmap = 0;
-    ltext = QString::null;
-
-    if ( lmovie ) {
+    lmovie = new QMovie( movie );
 	lmovie->connectResize(this, SLOT(movieResized(const QSize&)));
 	lmovie->connectUpdate(this, SLOT(movieUpdated(const QRect&)));
-    }
+
+    if ( !lmovie->running() )	// Assume that if the movie is running,
+	updateLabel( osh );	// resize/update signals will come soon enough
 }
 
 /*!
-  Unset the movie.
+  \internal
+
+  Clears any contents, without updating/repainting the label.
 */
-void QLabel::unsetMovie()
+
+void QLabel::clearContents()
 {
+    delete doc;
+    doc = 0;
+
+    delete lpixmap;
+    lpixmap = 0;
+
+    ltext = QString::null;
+
+    if ( accel )
+	accel->clear();
+
     if ( lmovie ) {
 	lmovie->disconnectResize(this, SLOT(movieResized(const QSize&)));
 	lmovie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
@@ -919,12 +924,14 @@ void QLabel::unsetMovie()
     }
 }
 
-/*!
-  Returns the QMovie currently displaying in the label, or 0
-  if none has been set.
 
-  \sa setMovie(), unsetMovie()
+/*!
+  If the label contains a movie, returns a pointer to it. Otherwise,
+  returns 0.
+
+  \sa setMovie()
 */
+
 QMovie* QLabel::movie() const
 {
     return lmovie;
@@ -935,41 +942,37 @@ QMovie* QLabel::movie() const
   Returns the current text format.
 
   \sa setTextFormat()
- */
+*/
+
 Qt::TextFormat QLabel::textFormat() const
 {
     return textformat;
 }
 
 /*!
-  Sets the text format to \a format. Possible choices are
-  <ul>
-  <li> \c PlainText - all characters are displayed verbatimely,
-  including all blanks and linebreaks. Word wrap is availbe
-  with the \c WordBreak alignment flag (see setAlignment() for
-  details).
-  <li> \c RichText - rich text rendering. The available
-  styles are defined in the default stylesheet
-  QStyleSheet::defaultSheet().
-  <li> \c AutoText - this is also the default. The label
-  autodetects which rendering style suits best, \c PlainText
-  or \c RichText. Technically, this is done by using the
-  QStyleSheet::mightBeRichText() heuristic.
-  </ul>
- */
+  Sets the text format to \a format. See the Qt::TextFormat enum for
+  an explanation of the possible options.
+
+  The default format is \c AutoText.
+
+  \sa textFormat(), setText()
+*/
+
 void QLabel::setTextFormat( Qt::TextFormat format )
 {
+    if ( format != textformat ) {
     textformat = format;
-    QString tmp = ltext;
-    ltext = QString::null;
-    setText( tmp ); // trigger update
+	if ( !ltext.isEmpty() )
+	    updateLabel( QSize( -1, -1 ) );
+    }
 }
 
-/*!\reimp
- */
+/*!
+  \reimp
+*/
+
 void QLabel::fontChange( const QFont & )
 {
-    QString tmp = ltext;
-    ltext = QString::null;
-    setText( tmp ); // trigger update
+    if ( !ltext.isEmpty() )
+	updateLabel( QSize( -1, -1 ) );
 }
