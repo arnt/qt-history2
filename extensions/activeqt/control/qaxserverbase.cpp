@@ -861,10 +861,6 @@ class HackWidget : public QWidget
     friend class QAxServerBase;
 };
 
-#define HIMETRIC_PER_INCH   2540
-#define PIX_TO_LOGHIM(x,ppli)   ( (HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli) )
-#define LOGHIM_TO_PIX(x,ppli)   ( ((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH )
-
 /*!
     Creates the QWidget for the classname passed to the c'tor.
 
@@ -1423,8 +1419,8 @@ void QAxServerBase::updateGeometry()
     if ( sizeHint.isValid() ) {
 	QPaintDeviceMetrics pmetric( activeqt );
 
-	sizeExtent.cx = PIX_TO_LOGHIM( sizeHint.width(), pmetric.logicalDpiX() );
-	sizeExtent.cy = PIX_TO_LOGHIM( sizeHint.height(), pmetric.logicalDpiY() );
+	sizeExtent.cx = MAP_PIX_TO_LOGHIM( sizeHint.width(), pmetric.logicalDpiX() );
+	sizeExtent.cy = MAP_PIX_TO_LOGHIM( sizeHint.height(), pmetric.logicalDpiY() );
     }
 }
 
@@ -3035,8 +3031,8 @@ HRESULT WINAPI QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
 	QPaintDeviceMetrics pmetric( activeqt );
 
 	SIZEL minSize;
-	minSize.cx = PIX_TO_LOGHIM( minSizeHint.width(), pmetric.logicalDpiX() );
-	minSize.cy = PIX_TO_LOGHIM( minSizeHint.height(), pmetric.logicalDpiY() );
+	minSize.cx = MAP_PIX_TO_LOGHIM( minSizeHint.width(), pmetric.logicalDpiX() );
+	minSize.cy = MAP_PIX_TO_LOGHIM( minSizeHint.height(), pmetric.logicalDpiY() );
 
 	if ( minSize.cx > psizel->cx || minSize.cy > psizel->cy )
 	    return E_FAIL;
