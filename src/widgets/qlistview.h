@@ -159,6 +159,9 @@ public:
     bool dropEnabled() const;
     virtual bool acceptDrop( const QMimeSource *mime ) const;
 
+    void setVisible( bool b );
+    bool isVisible() const;
+
 protected:
     virtual void enforceSortOrder() const;
     virtual void setHeight( int );
@@ -188,6 +191,7 @@ private:
     uint is_root: 1;
     uint allow_drag : 1;
     uint allow_drop : 1;
+    uint visible : 1;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;

@@ -529,8 +529,40 @@ void QListViewItem::init()
     is_root = FALSE;
     allow_drag = FALSE;
     allow_drop = FALSE;
+    visible = TRUE;
 }
 
+/* If \a b is TRUE, the item is made visible, else it is hidden, so
+   that the user can't see it use it.
+
+   If the item is not visible, itemAbove() and itemBelow() will never
+   hit this item, while you still can reach it by using e.g. the QListViewItemIterator.
+*/
+
+void QListViewItem::setVisible( bool b )
+{
+    if ( b == (bool)visible )
+	return;
+    visible = b;
+    configured = FALSE;
+    setHeight( 0 );
+    invalidateHeight();
+    QListView *lv = listView();
+    if ( lv )
+	lv->triggerUpdate();
+    for ( QListViewItem *i = childItem; i; i = i->siblingItem )
+	i->setVisible( b );
+}
+
+/*! Returns whether the item is visible or not.
+
+  \sa setVisible()
+*/
+
+bool QListViewItem::isVisible() const
+{
+    return (bool)visible;
+}
 
 /*!  Destroys the item, deleting all its children and freeing up all
   allocated resources.
@@ -936,7 +968,10 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 void QListViewItem::setHeight( int height )
 {
     if ( ownHeight != height ) {
-	ownHeight = height;
+	if ( visible )
+	    ownHeight = height;
+	else
+	    ownHeight = 0;
 	invalidateHeight();
     }
 }
@@ -1202,6 +1237,8 @@ void QListViewItem::setSelected( bool s )
 
 int QListViewItem::totalHeight() const
 {
+    if ( !visible )
+	return 0;
     if ( maybeTotalHeight >= 0 )
 	return maybeTotalHeight;
     QListViewItem * that = (QListViewItem *)this;
@@ -1559,6 +1596,8 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 				   int w, int y, int h, GUIStyle s )
 {
     listView()->paintEmptyArea( p, QRect( 0, 0, w, h ) );
+    if ( !visible )
+	return;
     QListViewItem * child = firstChild();
     int linetop = 0, linebot = 0;
 
@@ -1610,7 +1649,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    dotlines[c++] = QPoint( bx + 5, linebot );
 	    dotlines[c++] = QPoint( w, linebot );
 	    linetop = linebot + 5;
-	} else {
+	} else if ( child->visible ) {
 	    // just dotlinery
 	    dotlines[c++] = QPoint( bx+1, linebot );
 	    dotlines[c++] = QPoint( w, linebot );
@@ -2084,7 +2123,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
     while ( (current = it.current()) != 0 ) {
 	++it;
-
+	if ( !current->i->isVisible() )
+	    continue;
 	int ih = current->i->height();
 	int ith = current->i->totalHeight();
 	int c;
@@ -3091,7 +3131,7 @@ int QListViewItem::height() const
 	that->setup(); // ### virtual non-const function called in const
     }
 
-    return ownHeight;
+    return visible ? ownHeight : 0;
 }
 
 /*!
@@ -3997,7 +4037,9 @@ QListViewItem * QListView::itemAt( const QPoint & viewPos ) const
     QListViewPrivate::DrawableItem * c = d->drawables->first();
     int g = viewPos.y() + contentsY();
 
-    while( c && c->i && c->y + c->i->height() <= g )
+    while( c && c->i && ( c->y + c->i->height() <= g ||
+			  !c->i->isVisible() ||
+			  c->i->parent() && !c->i->parent()->isVisible() ) )
 	c = d->drawables->next();
 
     QListViewItem *i = (c && c->y <= g) ? c->i : 0;
