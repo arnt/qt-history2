@@ -2228,6 +2228,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     typedef void (QObject::*ProtoTime)( QTime );
     typedef void (QObject::*RProtoTime)( const QTime&);
 
+    typedef void (QObject::*ProtoDateTime)( QDateTime );
+    typedef void (QObject::*RProtoDateTime)( const QDateTime&);
+    
     QMetaObject* meta = metaObject();
 
     const QMetaProperty* p = meta->property( name, TRUE );
@@ -2817,6 +2820,25 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	break;
 
 
+    case QVariant::DateTime:
+	if ( p->sspec == QMetaProperty::Class ) {
+#ifdef Q_FP_CCAST_BROKEN
+	    ProtoDateTime m = reinterpret_cast<ProtoDateTime>(p->set);
+#else
+	    ProtoDateTime m = (ProtoDateTime)p->set;
+#endif
+	    (this->*m)( (QDateTime)(value.toDateTime()) );
+	    return TRUE;
+	} else if ( p->sspec == QMetaProperty::Reference ) {
+#ifdef Q_FP_CCAST_BROKEN
+	    RProtoDateTime m = reinterpret_cast<RProtoDateTime>(p->set);
+#else
+	    RProtoDateTime m = (RProtoDateTime)p->set;
+#endif
+	    (this->*m)( value.toDateTime() );
+	    return TRUE;
+	}
+	break;
 
     default:
 	break;
@@ -2953,6 +2975,10 @@ QVariant QObject::property( const char *name ) const
     typedef const QTime* (QObject::*PProtoTime)() const;
     typedef const QTime& (QObject::*RProtoTime)() const;
 
+    typedef QDateTime (QObject::*ProtoDateTime)() const;
+    typedef const QDateTime* (QObject::*PProtoDateTime)() const;
+    typedef const QDateTime& (QObject::*RProtoDateTime)() const;
+    
     QMetaObject* meta = metaObject();
 
     const QMetaProperty* p = meta->property( name, TRUE );
@@ -3457,7 +3483,7 @@ QVariant QObject::property( const char *name ) const
 	    ASSERT( 0 );
 	}
 	return value;
-	
+
     case QVariant::Date:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoDate m = (ProtoDate)p->get;
@@ -3496,7 +3522,25 @@ QVariant QObject::property( const char *name ) const
 	}
 	return value;
 
-	
+    case QVariant::DateTime:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoDateTime m = (ProtoDateTime)p->get;
+	    value = QVariant( (this->*m)() );
+	} else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoDateTime m = (RProtoDateTime)p->get;
+	    value = QVariant( (this->*m)() );
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoDateTime m = (PProtoDateTime)p->get;
+	    const QDateTime* p = (this->*m)();
+	    if ( p )
+		value = QVariant( *p );
+	    else
+		value = QVariant( QDateTime() );
+	} else {
+	    ASSERT( 0 );
+	}
+	return value;
+
     default:
 	break;
     }
