@@ -3689,8 +3689,7 @@ void QWidget::internalShow(bool informParent)
 	// allow our parent to monitor show events
 	QApplication::sendPostedEvents( parentWidget(), QEvent::ChildInserted );
 	// relayout before we receive our move and resize events.
-	if (parentWidget()->layout())
-	    parentWidget()->layout()->activate();
+	QApplication::sendPostedEvents( parentWidget(), QEvent::LayoutHint );
     }
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
