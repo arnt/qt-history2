@@ -59,7 +59,7 @@ typedef __signed__ int __s32;
 typedef unsigned int __u32;
 #endif
 
-#if !defined(_OS_FREEBSD_)
+#if !defined(_OS_FREEBSD_) && !defined (QT_NO_QWS_LINUXFB)
 #include <linux/fb.h>
 
 #ifdef __i386__
@@ -2046,36 +2046,36 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 
     if(sdepth==1) {
 	if ( reverse ) {
-	    if(src_little_endian) {
-		ret = ( monobitval & 0x80 ) >> 7;
-		monobitval=monobitval << 1;
-		monobitval=monobitval & 0xff;
-	    } else {
-		ret=monobitval & 0x1;
-		monobitval=monobitval >> 1;
-	    }
-	    if(monobitcount < 7) {
+	    if(monobitcount<8) {
 		monobitcount++;
 	    } else {
-		monobitcount=0;
-		(*srcdata)--;
-		monobitval=**srcdata;
-	    }
-	} else {
-	    if(src_little_endian) {
-		ret=monobitval & 0x1;
-		monobitval=monobitval >> 1;
-	    } else {
-		ret = ( monobitval & 0x80 ) >> 7;
-		monobitval=monobitval << 1;
-		monobitval=monobitval & 0xff;
-	    }
-	    if(monobitcount<7) {
-		monobitcount++;
-	    } else {
-		monobitcount=0;
+		monobitcount=1;
 		(*srcdata)++;
 		monobitval=**srcdata;
+	    }
+	    if(src_little_endian) {
+		ret = ( monobitval & 0x80 ) >> 7;
+		monobitval=monobitval << 1;
+		monobitval=monobitval & 0xff;
+	    } else {
+		ret=monobitval & 0x1;
+		monobitval=monobitval >> 1;
+	    }
+	} else {
+	    if(monobitcount<8) {
+		monobitcount++;
+	    } else {
+		monobitcount=1;
+		(*srcdata)++;
+		monobitval=**srcdata;
+	    }
+	    if(src_little_endian) {
+		ret=monobitval & 0x1;
+		monobitval=monobitval >> 1;
+	    } else {
+		ret = ( monobitval & 0x80 ) >> 7;
+		monobitval=monobitval << 1;
+		monobitval=monobitval & 0xff;
 	    }
 	}
     } else if(sdepth==32) {
@@ -3823,12 +3823,23 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    *((PackType*)myptr) = put;
 	    myptr += 2;
 # else
+	    // ### temporary unoptimized fix for the problem code below
+	    *(myptr++)=*(alphaptr++);
+	    *(myptr++)=*(alphaptr++);
+	    *(myptr++)=*(alphaptr++);
+	    *(myptr++)=*(alphaptr++);
+/*
+	    // ###
+	    // It looks right, it packs 8 bytes in to a double
+	    // and copies a double of data each time. Looks like some
+	    // subtle byte ordering problem
 	    *(fun) = *(alphaptr++);
 	    *(fun+1) = *(alphaptr++);
 	    *(fun+2) = *(alphaptr++);
 	    *(fun+3) =  *(alphaptr++);
 	    *((PackType*)myptr) = put;
 	    myptr += 4;
+*/
 # endif
 	}
 
@@ -3991,9 +4002,22 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	}
 
     } else if ( depth == 1 ) {
-	static int warn;
-	if ( warn++ < 5 )
-	    qDebug( "bitmap alpha not implemented" );
+	if (srctype==SourceImage) {
+	    static int warn;
+	    if ( warn++ < 5 )
+		qDebug( "bitmap alpha-image not implemented" );
+	    hImageLineUnclipped( x1, x2, l, srcdata, FALSE );
+	} else {
+	    bool black = qGray(clut[srccol]) < 128;
+	    for (int x=x1; x<=x2; x++) {
+		if ( *alphas++ >= 64 ) { // ### could be configurable (monoContrast)
+		    uchar* lx = l+(x>>3);
+		    uchar b = 1<<(x&0x7);
+		    if ( !(*lx&b) != black )
+			*lx ^= b;
+		}
+	    }
+	}
     }
 }
 
@@ -5231,6 +5255,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 // that does accelerated mode stuff and returns accelerated QGfxen where
 // appropriate. This is stored in qt_screen
 
+#if defined(QT_QWS_QNX)
+#include "qgfxqnxfb_qws.cpp"
+#endif
+
 #if !defined(QT_NO_QWS_LINUXFB)
 #include "qgfxlinuxfb_qws.cpp"
 #endif
@@ -5277,6 +5305,9 @@ struct DriverTable
     QScreen *(*qt_get_screen)(int);
     int accel;
 } driverTable [] = {
+#if defined(QT_QWS_QNX)
+	{ "QnxFb", qt_get_screen_qnxfb, 0 },
+#endif
 #if !defined(QT_NO_QWS_VFB)
     { "QVFb", qt_get_screen_qvfb, 0 },
 #endif

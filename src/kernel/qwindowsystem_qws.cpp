@@ -2373,7 +2373,7 @@ void QWSServer::setScreenSaverInterval(int ms)
     qwsServer->screensaverinterval = ms;
     if ( !qwsServer->screensaverinterval )
 	if ( !qwsServer->screensavertimer->isActive() )
-            qt_screen->blank(FALSE);
+	    qt_screen->blank(FALSE);
 }
 
 extern bool qt_disable_lowpriority_timers;

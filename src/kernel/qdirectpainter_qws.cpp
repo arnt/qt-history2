@@ -154,6 +154,16 @@ uchar* QDirectPainter::frameBuffer() { return d->gfx->memory(); }
 */
 int QDirectPainter::lineStep() { return d->gfx->linestep(); }
 
+/*!
+  Returns the orientation of the framebuffer. 0 means that
+  there is no rotation, values 1 to 3 mean 90 to 270 degree
+  rotation. Other values are undefined.
+*/
+int QDirectPainter::transformOrientation()
+{
+    return qt_screen->transformOrientation();
+}
+
 /*
   Returns the number of rectangles in the clip region.
 

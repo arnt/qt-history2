@@ -51,7 +51,7 @@
 #include <signal.h>
 
 #include <termios.h>
-#if !defined(_OS_FREEBSD_)
+#if !defined(_OS_FREEBSD_) && !defined(_OS_QNX_)
 #include <sys/kd.h>
 #include <sys/vt.h>
 #endif
@@ -61,11 +61,13 @@
 
 #ifndef QT_NO_QWS_KEYBOARD
 
+#ifdef QT_QWS_IPAQ
 static int xform_dirkey(int key)
 {
     int xf = qt_screen->transformOrientation();
     return (key-Qt::Key_Left+xf)%4+Qt::Key_Left;
 }
+#endif
 
 #define VTSWITCHSIG SIGUSR2
 

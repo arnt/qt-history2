@@ -692,7 +692,11 @@ void QPainter::setClipping( bool enable )
 	pdev->cmd( QPaintDevice::PdcSetClip, this, param );
 	return;
     }
-    gfx->setClipRegion(crgn);
+    if ( enable ) {
+	gfx->setClipRegion(crgn);
+    } else {
+	gfx->setClipping(FALSE);
+    }
 }
 
 

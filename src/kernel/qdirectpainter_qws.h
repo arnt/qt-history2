@@ -46,6 +46,7 @@ public:
 
     uchar* frameBuffer();
     int lineStep();
+    int transformOrientation();
 
     int numRects() const;
     const QRect& rect(int i) const;

@@ -40,14 +40,14 @@
 #include <stdlib.h>
 
 //
-// $QTDIR/etc/fonts/fontdir lists a sequence of:
+// $QTDIR/lib/fonts/fontdir lists a sequence of:
 //
 //    <name> <file> <renderer> <italic> <weight> <size> <flags>
 //
 // eg.
 //      <name> = Helvetica
-//      <file> = /usr/local/qt-embedded/etc/fonts/helvR0810.bdf or
-//                 /usr/local/qt-embedded/etc/fonts/verdana.ttf, etc.
+//      <file> = /usr/local/qt-embedded/lib/fonts/helvR0810.bdf or
+//                 /usr/local/qt-embedded/lib/fonts/verdana.ttf, etc.
 //  <renderer> = BDF or FT
 //    <italic> = y or n
 //    <weight> = 50 is Normal, 75 is Bold, etc.
@@ -190,7 +190,7 @@ int QRenderedFont::maxWidth()
 
 /*!
 Creates a font manager. This method reads in the font definition file
-from $QTDIR/etc/fonts/fontdir (or /usr/local/qt-embedded/etc/fonts/fontdir
+from $QTDIR/lib/fonts/fontdir (or /usr/local/qt-embedded/lib/fonts/fontdir
 if QTDIR isn't defined) and creates a list of QDiskFonts to hold the 
 information in the file. It also constructs any defined font factories.
 */
@@ -209,7 +209,7 @@ QFontManager::QFontManager()
 #endif
 
     // Load in font definition file
-    QString fn = qws_topdir() + "/etc/fonts/fontdir";
+    QString fn = qws_topdir() + "/lib/fonts/fontdir";
     FILE* fontdef=fopen(fn.local8Bit(),"r");
     if(!fontdef) {
 	QCString temp=fn.local8Bit();
@@ -234,7 +234,7 @@ QFontManager::QFontManager()
 	    sscanf(buf,"%s %s %s %s %d %d %s",name,file,render,isitalic,&weight,&size,flags);
 	    QString filename;
 	    if ( file[0] != '/' )
-		filename = qws_topdir() + "/etc/fonts/";
+		filename = qws_topdir() + "/lib/fonts/";
 	    filename += file;
 	    if ( QFile::exists(filename) ) {
 		for(factoryp=factories.first();factoryp;factoryp=factories.next()) {

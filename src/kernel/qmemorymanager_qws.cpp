@@ -692,7 +692,7 @@ extern QString qws_topdir();
 
 static QString fontDir()
 {
-    return qws_topdir()+"/etc/fonts/";
+    return qws_topdir()+"/lib/fonts/";
 }
 
 static QString fontFilename(const QFontDef& font)

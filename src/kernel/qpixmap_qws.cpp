@@ -535,7 +535,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     return pm;
 }
 
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
     int	   w, h;				// size of target pixmap
@@ -774,8 +774,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
     return pm;
 }
-#endif // QT_NO_TRANSFORMATIONS
-
+#endif // QT_NO_PIXMAP_TRANSFORMATION
 
 // CALLER DELETES
 QGfx * QPixmap::graphicsContext(bool) const

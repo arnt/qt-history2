@@ -808,6 +808,10 @@ void QLinuxFbScreen::restore()
 
 void QLinuxFbScreen::blank(bool on)
 {
+#if defined(QT_QWS_IPAQ)
+    if ( on )
+	system("apm --suspend");
+#else
 // Some old kernel versions don't have this.  These defines should go
 // away eventually
 #if defined(FBIOBLANK)
@@ -815,6 +819,7 @@ void QLinuxFbScreen::blank(bool on)
     ioctl(fd, FBIOBLANK, on ? VESA_POWERDOWN : VESA_NO_BLANKING);
 #else
     ioctl(fd, FBIOBLANK, on ? 1 : 0);
+#endif
 #endif
 #endif
 }
