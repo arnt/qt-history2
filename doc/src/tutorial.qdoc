@@ -95,13 +95,13 @@
     class that's part of the public Qt API, there exists a header
     file of the same name that contains its definition.
 
-    QPushButton is a classical GUI push button that the user can
-    press and release. It manages its own look and feel, like every
-    other QWidget. A widget is a user interface object that can
-    process user input and draw graphics. The programmer can change
-    both the overall look and feel and many minor properties of it
-    (such as color), as well as the widget's content. A QPushButton
-    can show either a text or a QIcon.
+    QPushButton is a GUI push button that the user can press and
+    release. It manages its own look and feel, like every other
+    QWidget. A widget is a user interface object that can process
+    user input and draw graphics. The programmer can change both the
+    overall look and feel and many minor properties of it (such as
+    color), as well as the widget's content. A QPushButton can show
+    either a text or a QIcon.
 
     \printline main
     \printline {
@@ -498,10 +498,9 @@
     \printline slider
     \printline slider
 
-    QSlider is a classical slider; the user can use the widget to
-    drag something to adjust an integer value in a range. Here we
-    create a horizontal one, set its minimum value to 0, its maximum
-    value to 99, and its initial value to 0.
+    The user can use the QSlider widget to adjust an integer value in
+    a range. Here we create a horizontal one, set its minimum value
+    to 0, its maximum value to 99, and its initial value to 0.
 
     \printline connect
     \printline SLOT
@@ -650,9 +649,9 @@
     \printuntil define
 
     This, together with the \c #endif at the end of the file, is the
-    classic C++ construction to avoid errors if a header file happens
-    to be included more than once. If you don't use it already, it is
-    a very good habit to develop.
+    standard C++ construction to avoid errors if a header file
+    happens to be included more than once. If you don't use it
+    already, it is a very good habit to develop.
 
     \printline include
 
@@ -1479,9 +1478,9 @@
     the enclosing rectangle of the shot. It uses the initial cannon force and
     angle in addition to \c timerCount, which increases as time passes.
 
-    The formula used is the classical Newtonian formula for frictionless
-    movement in a gravity field. For simplicity, we've chosen to
-    disregard any Einsteinian effects.
+    The formula used is the standard Newtonian formula for
+    frictionless movement in a gravity field. For simplicity, we've
+    chosen to disregard any Einsteinian effects.
 
     We calculate the center point in a coordinate system where \e y
     coordinates increase upward. After we have calculated the center
