@@ -45,23 +45,23 @@ struct QValueListIterator
   Ref operator*() const { return node->data; }
   Ptr operator->() const { return &(node->data); }
 
-  Type& operator++() { 
+  Type& operator++() {
     node = node->next;
     return *this;
   }
 
-  Type operator++(int) { 
+  Type operator++(int) {
     Type tmp = *this;
     node = node->next;
     return tmp;
   }
 
-  Type& operator--() { 
+  Type& operator--() {
     node = node->prev;
     return *this;
   }
 
-  Type operator--(int) { 
+  Type operator--(int) {
     Type tmp = *this;
     node = node->prev;
     return tmp;
@@ -102,7 +102,7 @@ public:
     return p;
   }
 
-  Iterator remove( Iterator it ) { 
+  Iterator remove( Iterator it ) {
     ASSERT ( it.node != node );
     NodePtr next = it.node->next;
     NodePtr prev = it.node->prev;
@@ -124,7 +124,7 @@ public:
     }
   }
 
-  Iterator at( uint i ) const { 
+  Iterator at( uint i ) const {
     ASSERT( i < nodes );
     NodePtr p = node->next;
     for( uint x = 0; x < i; ++x )
@@ -181,7 +181,7 @@ public:
   T& getFirst() const { return sh->node->next->data; }
   T& getLast() const { return sh->node->prev->data; }
 
-  T& operator[] ( uint i ) const { return sh->at(i); }
+  T& operator[] ( uint i ) const { return *sh->at(i); }
   Iterator at( uint i ) const { return sh->at(i); }
   uint count() const { return sh->nodes; }
 
