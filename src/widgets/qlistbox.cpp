@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#48 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#48 $")
 
 
 declare(QListM, QLBItem);
@@ -30,16 +30,16 @@ class QLBItemList : public QListM(QLBItem)	// internal class
 
 int QLBItemList::compareItems( GCI i1, GCI i2)
 {
-    QLBItem * lbi1 = (QLBItem*) i1;
-    QLBItem * lbi2 = (QLBItem*) i2;
+    QLBItem *lbi1 = (QLBItem *)i1;
+    QLBItem *lbi2 = (QLBItem *)i2;
 
     if ( lbi1->type == LBI_String && lbi2->type == LBI_String )
 	return strcmp( lbi1->string, lbi2->string );
     if ( lbi1->type == LBI_String )
-	return 1;   // A string is greater than an unknown
+	return 1;	// A string is greater than an unknown
     if ( lbi2->type == LBI_String )
-	return -1;  // An unknown is less than a string
-    return 0;	    // An unknown equals an unknown
+	return -1;	// An unknown is less than a string
+    return 0;		// An unknown equals an unknown
 }
 
 
@@ -47,7 +47,7 @@ static inline bool checkInsertIndex( const char *method, int count, int *index)
 {
     if ( *index > count ) {
 #if defined(CHECK_RANGE)
-	warning( "QListBox::%s Index %i out of range", method, *index );
+	warning( "QListBox::%s: Index %i out of range", method, *index );
 #endif
 	return FALSE;
     }
@@ -60,7 +60,7 @@ static inline bool checkIndex( const char *method, int count, int index )
 {
     if ( index >= count ) {
 #if defined(CHECK_RANGE)
-	warning( "QListBox::%s Index %d out of range", method, index );
+	warning( "QListBox::%s: Index %d out of range", method, index );
 #endif
 	return FALSE;
     }
@@ -247,7 +247,7 @@ void QListBox::insertItem( const char *string, int index )
     }
     insertAny( string, 0, 0, index, TRUE );
     updateNumRows( FALSE );
-    if ( autoUpdate() && itemVisible( index ) )
+    if ( autoUpdate() && itemVisible(index) )
 	update();
 }
 
@@ -272,7 +272,7 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
     if ( w > cellWidth() )
 	setCellWidth( w );
     updateNumRows( FALSE );
-    if ( autoUpdate() && itemVisible( index ) )
+    if ( autoUpdate() && itemVisible(index) )
 	update();
 }
 
@@ -300,7 +300,7 @@ void QListBox::inSort( const char *string )
 	setCellWidth( w );
     updateNumRows( FALSE );
     if ( autoUpdate() ) {
-	update(); // Optimize drawing ( find index )
+	update();			// optimize drawing (find index)
     }
 }
 
@@ -318,8 +318,7 @@ void QListBox::removeItem( int index )
     QLBItem *lbi = itemList->take( index );
     QFontMetrics fm = fontMetrics();
     int w = internalItemWidth( lbi, fm );
-    if ( w == cellWidth() )
-	updateCellWidth();
+    updateNumRows( w == cellWidth() );
     if ( lbi->type == LBI_String && copyStrings )
 	delete (char*)lbi->string;
     else if ( lbi->type == LBI_Pixmap )
@@ -337,6 +336,7 @@ void QListBox::removeItem( int index )
 void QListBox::clear()
 {
     clearList();
+    updateNumRows( TRUE );
     if ( autoUpdate() )
 	erase();
 }
@@ -1342,8 +1342,8 @@ void QListBox::insertAny( const char *str, const QPixmap *pm,
     if ( !lbi )
 	lbi = newAny( str, pm );
     itemList->insert( index, lbi );
-    QFontMetrics fm = fontMetrics();
     if ( updateCellWidth ) {
+	QFontMetrics fm = fontMetrics();
 	int w = internalItemWidth( lbi, fm );
 	if ( w > cellWidth() )
 	    setCellWidth( w );
@@ -1391,7 +1391,7 @@ void QListBox::updateNumRows( bool updateWidth )
 	setAutoUpdate( FALSE );
     bool sbBefore = testTableFlags( Tbl_vScrollBar );
     setNumRows( itemList->count() );
-    if ( updateWidth || sbBefore != testTableFlags( Tbl_vScrollBar ))
+    if ( updateWidth || sbBefore != testTableFlags(Tbl_vScrollBar) )
 	updateCellWidth();
     if ( autoU )
 	setAutoUpdate( TRUE );
