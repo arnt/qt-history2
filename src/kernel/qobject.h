@@ -20,11 +20,11 @@
 #include "qnamespace.h"
 #include "qstring.h"
 #include "qbytearray.h"
+#include "qlist.h"
 #endif // QT_H
 
 #ifdef QT_INCLUDE_COMPAT
 #include "qcoreevent.h"
-#include "qlist.h"
 #endif
 
 #define QT_TR_NOOP(x) (x)
@@ -38,10 +38,12 @@ struct QMetaObject;
 class QCoreVariant;
 class QObjectPrivate;
 class QWidgetPrivate;
+#ifndef QT_NO_REGEXP
+class QRegExp;
+#endif
 #ifndef QT_NO_USERDATA
 class QObjectUserData;
 #endif
-template<typename T>class QList;
 
 typedef QList<QObject*> QObjectList;
 
@@ -88,14 +90,32 @@ public:
     int startTimer(int interval);
     void killTimer(int id);
 
+    QObject *findChild(const char *name) const;
+    QObjectList findChildren(const char *name) const;
+
+    // MOC_SKIP_BEGIN
+    template<typename T>
+    T findChild(const char *name, T* = 0) const;
+    template<typename T>
+    QList<T> findChildren(const char *name, T* = 0) const;
+    // MOC_SKIP_END    
+#ifndef QT_NO_REGEXP
+    QObjectList findChildren(const QRegExp &re) const;
+    // MOC_SKIP_BEGIN
+    template<typename T>
+    QList<T> findChildren(const QRegExp &re, T* = 0) const;
+    // MOC_SKIP_END
+#endif
+    
+#ifdef QT_COMPAT
     QObject *child(const char *objName, const char *inheritsClass = 0,
 		   bool recursiveSearch = true) const;
-    const QObjectList &children() const;
-
     QObjectList queryList(const char *inheritsClass = 0,
 			  const char *objName = 0,
 			  bool regexpMatch = true,
 			  bool recursiveSearch = true) const;
+#endif
+    const QObjectList &children() const;
 
     void setParent(QObject *);
     void installEventFilter(const QObject *);
@@ -186,6 +206,9 @@ protected:
     QObject(QObjectPrivate &d, QObject *parent);
 private:
     QObject(QWidgetPrivate &d, QObject *parent);
+    void findChildren_helper(const char *name, const QRegExp *re,
+                             const QMetaObject &mo, QList<void*> *list) const;
+    QObject *findChild_helper(const char *name, const QMetaObject &mo) const;
     virtual void setParent_helper(QObject *);
     uint isWidget : 1;
     uint pendTimer : 1;
@@ -242,6 +265,32 @@ public:
 template <typename T>
 inline T qt_cast(const QObject *object)
 { return (T) ((T)0)->staticMetaObject.cast(object); }
+
+template<typename T>
+T QObject::findChild(const char *name, T *) const
+{
+    return static_cast<T>(findChild_helper(name, ((T)0)->staticMetaObject));
+}
+
+#ifndef QT_NO_REGEXP
+template<typename T>
+QList<T> QObject::findChildren(const QRegExp &re, T *) const
+{
+    QList<T> list;
+    findChildren_helper(0, &re, ((T)0)->staticMetaObject,
+		        reinterpret_cast<QList<void*>*>(&list));
+    return list;
+}
+#endif
+
+template<typename T>
+QList<T> QObject::findChildren(const char *name, T *) const
+{
+    QList<T> list;
+    findChildren_helper(name, 0, ((T)0)->staticMetaObject,
+		        reinterpret_cast<QList<void *>*>(&list));
+    return list;
+}
 
 #define Q_DECLARE_INTERFACE(IFace) \
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \

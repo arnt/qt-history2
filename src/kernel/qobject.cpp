@@ -1179,6 +1179,58 @@ QObjectList QObject::queryList( const char *inheritsClass,
     return list;
 }
 
+QObject *QObject::findChild(const char *name) const
+{
+    return findChild<QObject*>(name);
+}
+
+QObjectList QObject::findChildren(const char *name) const
+{
+    return findChildren<QObject*>(name);
+}
+
+#ifndef QT_NO_REGEXP
+QObjectList QObject::findChildren(const QRegExp &re) const
+{
+    return findChildren<QObject*>(re);
+}
+#endif
+
+void QObject::findChildren_helper(const char *name, const QRegExp *re,
+                         const QMetaObject &mo, QList<void*> *list) const
+{
+    QObject *obj;
+    for (int i = 0; i < d->children.size(); ++i) {
+        obj = d->children.at(i);
+        if (mo.cast(obj)) {
+            if (re) {
+                if (re->search(QString::fromLatin1(obj->d->objectName)) != -1)
+                    list->append(obj);
+            } else {
+                if (!name || qstrcmp(obj->d->objectName, name) == 0)
+                    list->append(obj);
+            }
+        }
+        obj->findChildren_helper(name, re, mo, list);
+    }
+}
+
+QObject *QObject::findChild_helper(const char *name, const QMetaObject &mo) const
+{
+    QObject *obj;
+    int i;
+    for (i = 0; i < d->children.size(); ++i) {
+	obj = d->children.at(i);
+	if (mo.cast(obj) && (!name || qstrcmp(obj->d->objectName, name) == 0))
+	    return obj;
+    }
+    for (i = 0; i < d->children.size(); ++i) {
+	obj = d->children.at(i)->findChild_helper(name, mo);
+	if (obj)
+	    return obj;
+    }
+    return 0;
+}
 
 /*!
     Makes the object a child of \a parent.
