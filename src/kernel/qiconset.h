@@ -120,8 +120,8 @@ private:
     friend class QIconSet;
     friend class QIconSetPrivate;
 
-    int refCount;
     uint autoDel : 1;
+    uint unused : 31;
 };
 
 #endif // QT_NO_ICONSET
