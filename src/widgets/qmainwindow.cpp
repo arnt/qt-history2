@@ -1670,8 +1670,6 @@ void QMainWindow::setUpLayout()
 
     if ( d->mb && !d->mb->testWState(Qt::WState_ForceHide) )
 	d->tll->setMenuBar( d->mb );
-    if ( style() == WindowsStyle )
-	d->tll->addSpacing( 1 );
 
     d->tll->addWidget( d->hideDock );
     d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
