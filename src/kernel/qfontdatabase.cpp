@@ -838,7 +838,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	// modify script according to locale
 	static QFont::Script defaultHan = QFont::UnknownScript;
 	if (defaultHan == QFont::UnknownScript) {
-	    QCString locale = setlocale(LC_ALL, NULL);
+	    QByteArray locale = setlocale(LC_ALL, NULL);
 	    if (locale.contains("ko"))
 		defaultHan = QFont::Han_Korean;
 	    else if (locale.contains("zh_TW"))
