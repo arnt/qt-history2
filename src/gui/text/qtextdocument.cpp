@@ -69,28 +69,17 @@ bool QText::mightBeRichText(const QString& text)
     The layout of a document is determined by the documentLayout();
     you can create your own QAbstractTextDocumentLayout subclass and
     set it using setDocumentLayout() if you want to use your own
-    layout logic.
+    layout logic. The document's title is available using
+    documentTitle().
 
-    You can retrieve the plain text content of the document using
-    plainText(); if you want the text and the format information use a
-    QTextCursor. The text can be searched using the find() functions.
-
-    The document's title is available using documentTitle(). The page
-    size can be set with setPageSize(), and the number of pages the
-    document occupies (with the current layout and page size) is given
-    by numPages(). Arbitrary HTML formatted text can be inserted using
-    setHtml(); for any other edits use a QTextCursor.
+    You can retrieve the contents of the document using plainText() or
+    html(). If you want the text with format information, or wish to
+    edit the text, use a QTextCursor The text can be searched using
+    the find() functions.
 
     Undo/redo can be controlled using setUndoRedoEnabled(). undo() and
     redo() slots are provided, along with contentsChanged(),
     undoAvailable() and redoAvailable() signals.
-*/
-
-/*!
-    \enum QTextDocument::FindMode
-
-    \value FindWords
-    \value FindAnything
 */
 
 /*!
@@ -214,7 +203,8 @@ bool QTextDocument::isRedoAvailable() const
 }
 
 /*!
-    Sets a new layout on the document. The old layout will be deleted.
+    Sets the document to use the given \a layout. The previous layout
+    is deleted.
 */
 void QTextDocument::setDocumentLayout(QAbstractTextDocumentLayout *layout)
 {
@@ -244,8 +234,10 @@ QString QTextDocument::documentTitle() const
 }
 
 /*!
-  Returns the plain text contained in the document. If you want
-  formatting information use a QTextCursor instead.
+    Returns the plain text contained in the document. If you want
+    formatting information use a QTextCursor instead.
+
+    \sa html()
 */
 QString QTextDocument::plainText() const
 {
@@ -254,6 +246,12 @@ QString QTextDocument::plainText() const
     return txt;
 }
 
+/*!
+    Replaces the entire contents of the document with the given plain
+    \a text.
+
+    \sa setHtml()
+*/
 void QTextDocument::setPlainText(const QString &text)
 {
     QTextDocumentFragment fragment = QTextDocumentFragment::fromPlainText(text);
@@ -265,6 +263,11 @@ void QTextDocument::setPlainText(const QString &text)
 }
 
 
+/*!
+    Returns the document in HTML format. The conversion may not be
+    perfect, especially for complex documents, due to the limitations
+    of HTML.
+*/
 QString QTextDocument::html() const
 {
     // ###########
@@ -273,12 +276,14 @@ QString QTextDocument::html() const
 }
 
 /*!
-    Clears the text and replaces it with the arbitrary piece of HTML
-    formatted text in the \a html string.
+    Replaces the entire contents of the document with the given
+    HTML-formatted text in the \a html string.
 
     The HTML formatting is respected as much as possible, i.e.
     "<b>bold</b> text" will have the text "bold text" with the first
     word having a character format with a bold font weight.
+
+    \sa setPlainText()
 */
 void QTextDocument::setHtml(const QString &html)
 {
@@ -294,15 +299,12 @@ void QTextDocument::setHtml(const QString &html)
     \overload
 
     Finds the next occurrence of the string, \a expr, starting at
-    position \a from. Returns a cursor with the match selected if \a
-    expr was found; otherwise returns a null cursor.
+    position \a from, using the given string comparison \a flags.
+    Returns a cursor with the match selected if \a expr was found;
+    otherwise returns a null cursor.
 
     If \a from is 0 (the default) the search begins from the beginning
     of the document; otherwise from the specified position.
-
-    The comparison is made in accordance with the
-    \l{Qt::StringComparisonFlags}, \a flags. By default the search is
-    case-sensitive, and can match anywhere.
 */
 QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison flags) const
 {
@@ -358,11 +360,14 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
 
 /*!
     Finds the next occurrence of the string, \a expr, starting at
-    position \a from. Returns a cursor with the match selected if \a
-    expr was found; otherwise returns a null cursor.
+    position \a from, using the given string comparison \a flags.
+    Returns a cursor with the match selected if \a expr was found;
+    otherwise returns a null cursor.
 
     If the \a from cursor has a selection the search begins after the
     selection; otherwise from the position of the cursor.
+
+    By default the search is case-sensitive, and can match anywhere.
 */
 QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, StringComparison flags) const
 {
@@ -372,6 +377,10 @@ QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, St
 
 
 
+/*!
+    Creates and returns a new document object (a QTextObject), based
+    on the given format, \a f.
+*/
 QTextObject *QTextDocument::createObject(const QTextFormat &f)
 {
     QTextObject *obj = 0;
@@ -385,11 +394,21 @@ QTextObject *QTextDocument::createObject(const QTextFormat &f)
     return obj;
 }
 
+/*!
+    \internal
+
+    Returns the frame that contains the text cursor position \a pos.
+*/
 QTextFrame *QTextDocument::frameAt(int pos) const
 {
     return d->frameAt(pos);
 }
 
+/*!
+    \internal
+
+    Returns the document's root frame.
+*/
 QTextFrame *QTextDocument::rootFrame() const
 {
     return d->rootFrame();

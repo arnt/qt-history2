@@ -145,19 +145,30 @@ QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCol
 
 /*!
     \class QTextDocumentFragment qtextdocumentfragment.h
-    \brief A fragment of text
+    \brief The QTextDocumentFragment class represents a piece of rich
+    text formatted text.
 
     \ingroup text
 
     A QTextDocumentFragment is a fragment of rich text, that can be inserted into
-    a QTextDocument, converted from and to XML.
+    a QTextDocument. A document fragment can be created from a
+    QTextDocument, from a QTextCursor's selection, or from another
+    document fragment. Document fragments can also be created by the
+    static functions, fromPlainText() and fromHTML().
 
-    A QTextDocumentFragment can also be created from HTML.
+    A document fragment is represented by a rich text format that can
+    be converted to and from XML by writing to or reading from a
+    QDataStream using operator<<() and operator>>().
+
+    A document fragment's text can be obtained by calling
+    toPlainText().
 */
 
 
 /*!
-  Constructs an empty QTextDocumentFragment.
+    Constructs an empty QTextDocumentFragment.
+
+    \sa isEmpty()
 */
 QTextDocumentFragment::QTextDocumentFragment()
     : d(0)
@@ -165,7 +176,7 @@ QTextDocumentFragment::QTextDocumentFragment()
 }
 
 /*!
-  Converts a QTextDocument into a QTextDocumentFragment.
+    Converts the given \a document into a QTextDocumentFragment.
 */
 QTextDocumentFragment::QTextDocumentFragment(QTextDocument *document)
     : d(0)
@@ -179,9 +190,11 @@ QTextDocumentFragment::QTextDocumentFragment(QTextDocument *document)
 }
 
 /*!
-  Creates a QTextDocumentFragment from a selection in the cursor \a
-  range. If the cursor doesn't contain a selection, the created
-  fragment is empty.
+    Creates a QTextDocumentFragment from the cursor \a{range}'s
+    selection. If the cursor doesn't contain a selection, the created
+    fragment is empty.
+
+    \sa isEmpty()
 */
 QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &range)
     : d(0)
@@ -193,7 +206,7 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &range)
 }
 
 /*!
-  Creates a copy of the fragment \a rhs.
+    Creates a copy of the fragment \a rhs.
 */
 QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
     : d(0)
@@ -202,7 +215,7 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
 }
 
 /*!
-  Assigns \a rhs to this fragment.
+    Assigns \a rhs to this fragment.
 */
 QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragment &rhs)
 {
@@ -224,7 +237,7 @@ QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragm
 }
 
 /*!
-  Destroys the fragment.
+    Destroys the fragment.
 */
 QTextDocumentFragment::~QTextDocumentFragment()
 {
@@ -232,7 +245,7 @@ QTextDocumentFragment::~QTextDocumentFragment()
 }
 
 /*!
-  Returns true if the fragment is empty.
+    Returns true if the fragment is empty; otherwise returns false.
 */
 bool QTextDocumentFragment::isEmpty() const
 {
@@ -240,7 +253,8 @@ bool QTextDocumentFragment::isEmpty() const
 }
 
 /*!
-  Converts the fragment to plain text.
+    Returns the document fragment's text as plain text (i.e. with no
+    formatting information).
 */
 QString QTextDocumentFragment::toPlainText() const
 {
@@ -253,7 +267,10 @@ QString QTextDocumentFragment::toPlainText() const
 }
 
 /*!
-  Saves the fragment to a QDataStream.
+    \relates QTextDocumentFragment
+
+    Saves the given \a fragment as rich text to the \a stream in an
+    XML format.
 */
 QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragment)
 {
@@ -266,7 +283,10 @@ QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragme
 }
 
 /*!
-  Converts a fragment in XML format back to a QTextDocumentFragment.
+    \relates QTextDocumentFragment
+
+    Reads a \a stream containing a document fragment in XML format,
+    and populates \a fragment with the rich text that has been read.
 */
 QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
 {
@@ -287,7 +307,7 @@ QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
 }
 
 /*!
-  Converts \a plainText to a QTextDocumentFragment.
+    Returns a document fragment that contains the given \a plainText.
 */
 QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainText)
 {
@@ -491,7 +511,10 @@ void QTextHTMLImporter::appendText(const QString &text, const QTextFormat &forma
 }
 
 /*!
-  Converts a piece of HTML into a QTextDocumentFragment.
+    Returns a QTextDocumentFragment based on the arbitrary piece of
+    HTML in the string \a html. The formatting is preserved as much as
+    possible; for example, "<b>bold</b>" will become a document
+    fragment with the text "bold" with a bold character format.
 */
 QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 {
@@ -503,9 +526,7 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 }
 
 /*!
-  \overload
-
-  Converts a piece of HTML into a QTextDocumentFragment.
+    \overload
 */
 QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
 {

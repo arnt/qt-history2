@@ -201,7 +201,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     can format, e.g. a block of text, a list, a table, etc. A format
     also has various properties (some specific to particular format
     types), as described by the \c Property enum. Every property has a
-    \c PropertyType. A property can also have an associated object().
+    \c PropertyType.
 
     The format type is given by type(), tested with
     isCharFormat(), isBlockFormat(), isListFormat(),
@@ -636,7 +636,7 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
     Returns the index of the text format's format object, or -1 if
     there isn't a format object.
 
-    \sa setObjectIndex() setObject()
+    \sa setObjectIndex()
 */
 int QTextFormat::objectIndex() const
 {
@@ -649,7 +649,7 @@ int QTextFormat::objectIndex() const
 /*!
     Set's the format object's object index to \a o.
 
-    \sa objectIndex() setObject()
+    \sa objectIndex()
 */
 void QTextFormat::setObjectIndex(int o)
 {

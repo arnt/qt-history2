@@ -391,8 +391,8 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     anchor() == position() there is no selection.
 
     The cursor position can be changed programmatically using
-    setPosition() and moveTo(); the latter can also be used to select
-    text. For selections see selectionStart(), selectionEnd(),
+    setPosition() and movePosition(); the latter can also be used to
+    select text. For selections see selectionStart(), selectionEnd(),
     hasSelection(), clearSelection(), and removeSelectedText().
 
     If the position() is at the start of a block atBlockStart()
@@ -421,8 +421,8 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     writing this is usually after every character in the text. In some
     other writing systems cursor movements are limited to "clusters"
     (e.g. a syllable in Devanagari, or a base letter plus diacritics).
-    Functions such as moveTo() and deleteChar() limit cursor movement
-    to these valid positions.
+    Functions such as movePosition() and deleteChar() limit cursor
+    movement to these valid positions.
 
 */
 
@@ -449,7 +449,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     \value Right move right one character
     \value WordRight right move one word
 
-    \sa moveTo()
+    \sa movePosition()
 */
 
 /*!
@@ -545,7 +545,7 @@ bool QTextCursor::isNull() const
     Moves the cursor to the absolute position \a pos using \c MoveMode
     \a m. The cursor is positioned between characters.
 
-    \sa position() moveTo() anchor()
+    \sa position() movePosition() anchor()
 */
 void QTextCursor::setPosition(int pos, MoveMode m)
 {
@@ -563,7 +563,7 @@ void QTextCursor::setPosition(int pos, MoveMode m)
     Returns the absolute position of the cursor within the document.
     The cursor is positioned between characters.
 
-    \sa setPosition() moveTo() anchor()
+    \sa setPosition() movePosition() anchor()
 */
 int QTextCursor::position() const
 {
@@ -578,7 +578,7 @@ int QTextCursor::position() const
     selection and anchor() marks the other end. Just like the cursor
     position, the anchor position is between characters.
 
-    \sa position() setPosition() moveTo() selectionStart() selectionEnd()
+    \sa position() setPosition() movePosition() selectionStart() selectionEnd()
 */
 int QTextCursor::anchor() const
 {
@@ -775,6 +775,11 @@ int QTextCursor::selectionEnd() const
 }
 
 
+/*!
+    Returns the current selection's text (which may be empty). This
+    only returns the text, with no formatting information. If you want
+    a document fragment use selection() instead.
+*/
 QString QTextCursor::selectedText() const
 {
     if (!d || !d->pieceTable || d->position == d->anchor)
@@ -799,6 +804,11 @@ QString QTextCursor::selectedText() const
     return text;
 }
 
+/*!
+    Returns the current selection (which may be empty). If you just
+    want the selected text, i.e. without formatting information, use
+    selectedText() instead.
+*/
 QTextDocumentFragment QTextCursor::selection() const
 {
     return QTextDocumentFragment(*this);
