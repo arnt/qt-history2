@@ -231,10 +231,14 @@ int main( int argc, char *argv[] )
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
-    if ( config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", FALSE ) )
+    if ( config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", FALSE ) ) {
+	int x = config.readNumEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowX", 0 );
+	int y = config.readNumEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowY", 0 );
+	mw->move( x, y );
 	mw->showMaximized();
-    else
+    } else {
 	mw->show();
+    }
 #if defined(Q_WS_X11)
     qt_wait_for_window_manager( mw );
 #endif
