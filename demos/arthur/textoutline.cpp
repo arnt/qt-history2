@@ -48,13 +48,10 @@ void TextOutline::paintEvent(QPaintEvent *)
 
     fillBackground(&p);
 
+    p.fillPath(xpath, QColor(159, 124, 240));
     if (attributes->antialias)
         p.setRenderHints(QPainter::LineAntialiasing);
-
-    p.setPen(Qt::black);
-    p.setBrush(QBrush(QPoint(0, 0), QColor(0, 127, 255),
-                      QPoint(width(), height()), QColor(255, 255, 127)));
-    p.drawPath(xpath);
+    p.strokePath(xpath, QPen(QColor(0, 0, 0, attribs()->antialias ? 191 : 255), 2));
 
     drawTarget(&p, pul);
     drawTarget(&p, pbl);

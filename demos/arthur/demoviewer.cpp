@@ -262,7 +262,7 @@ void DemoViewer::openSource(bool on)
         QList<QString> keywords;
         keywords << "for " << "if " << "switch " << " int " << "#include " << "const"
                  << "void " << "uint " << "case " << "double " << "#define " << "static"
-                 << "#ifndef" << "#else" << "#endif" << "#ifdef";
+                 << "#ifndef" << "#else" << "#endif" << "#ifdef" << "break" << "default";
         for (int i = 0; i < keywords.size(); ++i)
             contents.replace(keywords.at(i), QLatin1String("<font color=blue><b>")
                              + keywords.at(i) + QLatin1String("</b></font>"));
