@@ -2031,6 +2031,10 @@ cat >> $outpath/include/qconfig.h.new <<EOF
 /* Compile time features */
 EOF
 [ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/include/qconfig.h.new
+if [ "$CFG_LARGEFILE" = "yes" ]; then
+    echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
+    QMAKE_CONFIG="$QMAKE_CONFIG largefile"
+fi
 if [ "$CFG_STL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
 else
@@ -2137,7 +2141,6 @@ elif [ "$CFG_ZLIB" = "system" ]; then
 fi
 [ "$CFG_NIS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nis"
 [ "$CFG_NAS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
-[ "$CFG_LARGEFILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG largefile"
 [ "$CFG_BIG_CODECS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 
 [ "$CFG_REMOTE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG remote"
