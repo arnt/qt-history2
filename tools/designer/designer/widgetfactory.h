@@ -96,7 +96,8 @@ public:
     static QString defaultCurrentItem( QObject *w, const QString &propName );
 
     static QVariant property( QObject *w, const char *name );
-    static void saveDefaultProperties( QWidget *w, int id );
+    static void saveDefaultProperties( QObject *w, int id );
+    static void saveChangedProperties( QObject *w, int id );
 
     static QString defaultSignal( QObject *w );
 

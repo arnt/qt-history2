@@ -478,7 +478,7 @@ QMap< int, QStringList > *changedProperties = 0;
 */
 
 
-void WidgetFactory::saveDefaultProperties( QWidget *w, int id )
+void WidgetFactory::saveDefaultProperties( QObject *w, int id )
 {
     QMap< QString, QVariant> propMap;
     QStrList lst = w->metaObject()->propertyNames( TRUE );
@@ -493,7 +493,7 @@ void WidgetFactory::saveDefaultProperties( QWidget *w, int id )
     defaultProperties->replace( id, propMap );
 }
 
-static void saveChangedProperties( QWidget *w, int id )
+void WidgetFactory::saveChangedProperties( QObject *w, int id )
 {
     QStringList l = MetaDataBase::changedProperties( w );
     changedProperties->insert( id, l );

@@ -502,6 +502,24 @@ void WidgetDatabase::setupDataBase( int id )
 
     append( r );
 
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "";
+    r->name = "QDesignerAction";
+    r->includeFile = "qaction.h";
+    r->group = widgetGroup( "Temp" );
+    r->isContainer = FALSE;
+
+    append( r );
+
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "";
+    r->name = "QDesignerActionGroup";
+    r->includeFile = "qaction.h";
+    r->group = widgetGroup( "Temp" );
+    r->isContainer = FALSE;
+
+    append( r );
+
 #ifndef QT_NO_SQL
     r = new WidgetDatabaseRecord;
     r->iconSet = "";

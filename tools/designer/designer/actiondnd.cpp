@@ -42,6 +42,22 @@
 #include "hierarchyview.h"
 
 
+void QDesignerAction::init()
+{
+    MetaDataBase::addEntry( this );
+    int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( this ) );
+    WidgetFactory::saveDefaultProperties( this, id );
+    WidgetFactory::saveChangedProperties( this, id );
+}
+
+void QDesignerActionGroup::init()
+{
+    MetaDataBase::addEntry( this );
+    int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( this ) );
+    WidgetFactory::saveDefaultProperties( this, id );
+    WidgetFactory::saveChangedProperties( this, id );
+}
+
 bool QDesignerAction::addTo( QWidget *w )
 {
     if ( !widgetToInsert )

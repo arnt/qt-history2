@@ -29,6 +29,7 @@
 #include <qptrlist.h>
 #include <qtoolbar.h>
 #include <qguardedptr.h>
+#include "../shared/widgetdatabase.h"
 
 class QDesignerPopupMenu;
 class QDesignerIndicatorWidget;
@@ -41,7 +42,9 @@ class QDesignerActionGroup : public QActionGroup
 
 public:
     QDesignerActionGroup( QObject *parent )
-	: QActionGroup( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ) {}
+	: QActionGroup( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ) { init(); }
+
+    void init();
 
     QWidget *widget() const { return wid; }
     QWidget *widget( QAction *a ) const { return *widgets.find( a ); }
@@ -74,9 +77,11 @@ class QDesignerAction : public QAction
 
 public:
     QDesignerAction( QObject *parent )
-	: QAction( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( 0 ) {}
+	: QAction( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( 0 ) { init(); }
     QDesignerAction( QWidget *w, QObject *parent )
-	: QAction( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( w ) {}
+	: QAction( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( w ) { init(); }
+
+    void init();
 
     QWidget *widget() const { return wid; }
     int index() const { return idx; }
