@@ -40,6 +40,9 @@
 #include <qregexp.h>
 #include "qtestcontrol_p.h"
 #include <assert.h>
+#ifdef Q_OS_WIN32
+#include <limits.h>
+#endif
 
 /*!
   \class QTestListBox qtestlistbox.h
