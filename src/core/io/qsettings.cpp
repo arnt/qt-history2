@@ -56,8 +56,9 @@ typedef QCache<QString, QConfFile> ConfFileCache;
 
 Q_GLOBAL_STATIC(ConfFileHash, usedHashFunc)
 Q_GLOBAL_STATIC(ConfFileCache, unusedCacheFunc)
-
 Q_GLOBAL_STATIC(QMutex, mutex)
+Q_GLOBAL_STATIC(QString, defaultSystemIniPath)
+Q_GLOBAL_STATIC(QString, defaultUserIniPath)
 
 static ConfFileHash *usedHash;
 static ConfFileCache *unusedCache;
@@ -378,7 +379,7 @@ QCoreVariant QSettingsPrivate::stringToVariant(const QString &s)
             && s.at(s.length() - 1) == QLatin1Char(')')) {
 
         if (s.startsWith(QLatin1String("@ByteArray("))) {
-            return QCoreVariant(s.toLatin1().mid(11));
+            return QCoreVariant(s.toLatin1().mid(11, s.size() - 12));
         } else if (s.startsWith(QLatin1String("@Variant("))) {
             QByteArray a(s.toLatin1().mid(9));
             QDataStream stream(&a, QIODevice::ReadOnly);
@@ -796,39 +797,86 @@ void QConfFileSettingsPrivate::init()
     sync();       // loads the files the first time
 }
 
-static QString systemIniPath()
+#ifdef Q_OS_WIN
+static QString windowsConfigPath(int type)
 {
-    QString defPath;
-#if defined (Q_OS_WIN) && !defined(QT_NO_QOBJECT)
+    QString result;
+    
+#ifndef QT_NO_QOBJECT
     // We can't use QLibrary if there is QT_NO_QOBJECT is defined
+    // This only happens when bootstrapping qmake.
     QLibrary library("shell32");
     QT_WA( {
-	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
-	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");
-	if (SHGetSpecialFolderPath) {
-	    TCHAR path[MAX_PATH];
-	    SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, FALSE);
-	    defPath = QString::fromUtf16((ushort*)path);
-	}
+        typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
+        GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");
+        if (SHGetSpecialFolderPath) {
+            TCHAR path[MAX_PATH];
+            SHGetSpecialFolderPath(0, path, type, FALSE);
+            result = QString::fromUtf16((ushort*)path);
+        }
     } , {
-	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
-	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathA");
-	if (SHGetSpecialFolderPath) {
-	    char path[MAX_PATH];
-	    SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, FALSE);
-	    defPath = QString::fromLocal8Bit(path);
-	}
+        typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
+        GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathA");
+        if (SHGetSpecialFolderPath) {
+            char path[MAX_PATH];
+            SHGetSpecialFolderPath(0, path, type, FALSE);
+            result = QString::fromLocal8Bit(path);
+        }
     } );
-#else
-    defPath = QLibraryInfo::location(QLibraryInfo::SettingsPath);
+#endif // QT_NO_QOBJECT
+
+    if (result.isEmpty()) {
+        switch (type) {
+            case CSIDL_COMMON_APPDATA:
+                defPath = QLatin1String("C:\\temp\\qt-common");
+                break;
+            case CSIDL_APPDATA:
+                defPath = QLatin1String("C:\\temp\\qt-user");
+                break;
+            default:
+                break;
+        }
+    }
+    
+    return result;
+}
 #endif // Q_OS_WIN
-    return defPath + QDir::separator();
+
+static QString systemIniPath()
+{
+    QString result;
+    
+#ifdef Q_OS_WIN
+    result = windowsConfigPath(CSIDL_COMMON_APPDATA);
+#else
+    result = *defaultSystemIniPath();
+    if (result.isEmpty())
+        result = QString::fromLatin1("/etc/xdg");
+#endif // Q_OS_WIN
+    
+    return result + QDir::separator();
 }
 
 static QString userIniPath()
 {
-    QLatin1String dirName(".settings"); // update the class documentation whenever you change this
-    return QDir::homePath() + QDir::separator() + dirName + QDir::separator();
+    QString result;
+    
+#ifdef Q_OS_WIN
+    result = windowsConfigPath(CSIDL_APPDATA);
+#else
+    result = *defaultUserIniPath();
+    if (result.isEmpty()) {
+        char *env = getenv("XDG_CONFIG_HOME");
+        if (env == 0)
+            result = QDir::homePath() + QDir::separator() + QLatin1String(".config");
+        else if (*env == '/')
+            result = QLatin1String(env);
+        else
+            result = QDir::homePath() + QDir::separator() + QLatin1String(env);
+    }
+#endif // Q_OS_WIN
+
+    return result + QDir::separator();
 }
 
 QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
@@ -2511,6 +2559,45 @@ QCoreVariant QSettings::value(const QString &key, const QCoreVariant &defaultVal
     QString k = d->actualKey(key);
     d->get(k, &result);
     return result;
+}
+
+/*!
+    Sets the directory where QSettings stores its \c SystemScope .ini files on Unix systems to \a dir.
+    The default directory is \c /etc/xdg in accordance with the FreeDesktop's XDG Base Directory 
+    Specification. This default can be changed when compiling Qt by passing the \c --global-settings-dir
+    flag to \c configure.
+    
+    A call to this function should precede any instantiations of QSettings objects.
+    
+    This function does nothing on Windows.
+    
+    \sa setUserConfigPath()
+*/  
+void QSettings::setSystemIniPath(const QString &dir)
+{
+#if defined(Q_OS_UNIX)
+    *defaultSystemIniPath() = dir;
+#endif
+}
+
+/*!
+    Sets the directory where QSettings stores its \c UserScope .ini files on Unix systems to \a dir.
+    The default directory is read from the \c $XDG_CONFIG_HOME environment variable. If this variable
+    is empty or unset, \c $HOME/.config is used, in accordance with the FreeDesktop's XDG Base Directory 
+    Specification. Calling this function overrides the path specified in \c $XDG_CONFIG_HOME.
+    
+    A call to this function should precede any instantiations of QSettings objects.
+    
+    This function does nothing on Windows.
+    
+    \sa setUserConfigPath()
+*/  
+
+void QSettings::setUserIniPath(const QString &dir)
+{
+#if defined(Q_OS_UNIX)
+    *defaultUserIniPath() = dir;
+#endif
 }
 
 #ifdef QT_COMPAT

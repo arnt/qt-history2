@@ -93,6 +93,9 @@ public:
     bool fallbacksEnabled() const;
 
     QString fileName() const;
+    
+    static void setSystemIniPath(const QString &dir);
+    static void setUserIniPath(const QString &dir);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT bool writeEntry(const QString &key, bool value)
