@@ -53,7 +53,8 @@ const char * filePrintText = "Click this button to print the file you "
 "You can also select the Print command from the File menu.";
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window", WDestructiveClose )
+    : QMainWindow( 0, "example application main window", WDestructiveClose ),
+      cb( 0 ), pb( 0 )
 {
     // Toolbars
 
@@ -168,14 +169,14 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 
 	openIcon = QPixmap( fileopen );
 
- 	QPushButton* tmp = new QPushButton( fileTools );
- 	tmp->setText("Hallo");
+ 	pb = new QPushButton( fileTools );
+ 	pb->setText("Hallo");
 	QPopupMenu* popup = new QPopupMenu( this );
 	popup->insertItem("Eins");
 	popup->insertItem("Zwei");
 	popup->insertItem("Drei");
 	popup->insertItem("Vier");
- 	tmp->setPopup( popup );
+ 	pb->setPopup( popup );
 
 	QToolButton * fileOpen
 	    = new QToolButton( openIcon, "Open File", QString::null,
@@ -198,6 +199,8 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	QWhatsThis::add( fileSave, fileSaveText );
 	QWhatsThis::add( filePrint, filePrintText );
 	addToolBar( fileTools, "Toolbar 1", Top, FALSE );
+	connect( fileTools, SIGNAL( orientationChanged( Orientation ) ),
+		 this, SLOT( orientationChanged() ) );
 	return fileTools;
     } else if ( name == "file2 operations" ) {
 	QToolBar* fileTools2 = new QToolBar( this, "file2 operations" );
@@ -214,8 +217,11 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	(void)new QToolButton( printIcon2, "Print File", QString::null,
 			       this, SLOT(print2()), fileTools2, "print file2" );
 
-	fileTools2->setStretchableWidget( new QComboBox( TRUE, fileTools2 ) );
+	cb = new QComboBox( TRUE, fileTools2 );
+	fileTools2->setStretchableWidget( cb );
 	addToolBar( fileTools2, "Toolbar 2", Top, FALSE );
+	connect( fileTools2, SIGNAL( orientationChanged( Orientation ) ),
+		 this, SLOT( orientationChanged() ) );
 	return fileTools2;
     } else if ( name == "file3 operations" ) {
 	QToolBar *fileTools3 = new QToolBar( this, "file3 operations" );
@@ -448,4 +454,23 @@ void ApplicationWindow::toggleFullScreen()
 	showFullScreen();
     else
 	showNormal();
+}
+
+void ApplicationWindow::orientationChanged()
+{
+    if ( sender() && sender()->inherits( "QToolBar" ) ) {
+	QToolBar *tb = (QToolBar*)sender();
+	if ( cb && tb == cb->parent() ) {
+	    if ( tb->orientation() == Vertical )
+		cb->hide();
+	    else
+		cb->show();
+	}
+	if ( pb && tb == pb->parent() ) {
+	    if ( tb->orientation() == Vertical )
+		pb->hide();
+	    else
+		pb->show();
+	}
+    }
 }

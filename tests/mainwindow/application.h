@@ -16,6 +16,8 @@
 class QMultiLineEdit;
 class QToolBar;
 class QPopupMenu;
+class QComboBox;
+class QPushButton;
 
 class ApplicationWindow: public QMainWindow
 {
@@ -46,9 +48,14 @@ private slots:
     void about();
     void aboutQt();
 
+    void orientationChanged();
+    
 private:
     QToolBar *createToolbar( const QString &name, bool nl );
 
+    QComboBox *cb;
+    QPushButton *pb;
+    
     QMultiLineEdit *e;
     QString filename;
 

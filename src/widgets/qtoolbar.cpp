@@ -196,7 +196,8 @@ QToolBar::~QToolBar()
 {
     delete b;
     b = 0;
-    // delete d; as soon as there is a d
+    delete d;
+    d = 0;
 }
 
 
@@ -459,7 +460,7 @@ void QToolBar::setStretchable( bool stretchable )
 
 /*!
   Returns whether the toolbar is stretchable or not.
-  
+
   A stretchable toolbar fills all available width in a toolbar dock. A
   non-stretchable toolbar usually gets just the space it needs.
 
