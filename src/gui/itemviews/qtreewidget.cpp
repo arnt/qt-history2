@@ -372,6 +372,20 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 }
 
 /*!
+  \class QTreeWidgetItem qtreewidget.h
+
+  \brief The QTreeWidgetItem class provides a tree view item for use with the
+  QTreeWidget convenience class.
+
+  \ingroup model-view
+
+  The QTreeWidgetItem class is a convenience class that replaces the
+  \c QListViewItem class in Qt 3. It provides a list view item for use with
+  the QTreeWidget class.
+
+*/
+
+/*!
   Constructs a tree widget item. The item must be inserted
   into a tree view.
 
@@ -729,16 +743,19 @@ public:
 
   \ingroup model-view
 
-  The QTreeWidget class is a convenience class that replaces the \c QListView
-  class. It provides a list view widget that takes advantage of Qt's
-  model-view architecture.
+  The QTreeWidget class is a convenience class that provides a standard
+  tree view based on Qt's Model/View architecture, but which presents the
+  classic item-based interface used by the \c QListView class in Qt 3.
+  This class uses a default model to hold items, each of which is an instance
+  of the QTreeWidgetItem class.
 
-  This class uses a default model to organize the data represented in the
-  tree view, but also uses the QTreeWidgetItem class to provide a familiar
-  interface for simple list structures.
+  Developers who do not need the flexibility of the Model/View framework
+  can use this class to create simple hierarchical lists very easily. A more
+  flexible approach involves combining a QTreeView with a standard item model.
+  This allows the storage of data to be separated from its representation.
 
   \omit
-  In its simplest form, a tree view can be constructed and populated in
+  In its simplest form, a tree widget can be constructed and populated in
   the familiar way:
 
   \code
