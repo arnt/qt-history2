@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
-#include "qptrdict.h"
+#include "qhash.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qtimer.h"
@@ -105,7 +105,7 @@ private:
     int wakeUpDelay;
     QTimer  fallAsleep;
 
-    QPtrDict<Tip> *tips;
+    QHash<void*,Tip*> *tips;
     QTipLabel *label;
     QPoint pos;
     QGuardedPtr<QWidget> widget;
@@ -133,7 +133,8 @@ QTipManager::QTipManager()
     : QObject( qApp, "toolTipManager" )
 {
     wakeUpDelay = 700;
-    tips = new QPtrDict<QTipManager::Tip>( 313 );
+    tips = new QHash<void*,QTipManager::Tip*>;
+    tips->reserve(313);
     currentTip = 0;
     previousTip = 0;
     label = 0;
@@ -151,12 +152,12 @@ QTipManager::~QTipManager()
 	qApp->removeEventFilter( tipManager );
 
     if ( tips ) {
-	QPtrDictIterator<QTipManager::Tip> i( *tips );
+	QHash<void*,QTipManager::Tip*>::Iterator it(tips);
 	QTipManager::Tip *t, *n;
 	void *k;
-	while( (t = i.current()) != 0 ) {
-	    k = i.currentKey();
-	    ++i;
+	while ( (t = it.value()) != 0 ) {
+	    k = it.key();
+	    ++it;
 	    tips->take( k );
 	    while ( t ) {
 		n = t->next;
@@ -314,10 +315,10 @@ void QTipManager::remove( QWidget *w )
 
 void QTipManager::removeFromGroup( QToolTipGroup *g )
 {
-    QPtrDictIterator<QTipManager::Tip> i( *tips );
+    QHash<void*,QTipManager::Tip*>::Iterator it(tips);
     QTipManager::Tip *t;
-    while( (t = i.current()) != 0 ) {
-	++i;
+    while( (t = it.value()) != 0 ) {
+	++it;
 	while ( t ) {
 	    if ( t->group == g ) {
 		if ( t->group )

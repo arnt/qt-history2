@@ -17,7 +17,7 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qptrlist.h"
+#include "qlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_TABBAR
@@ -133,14 +133,14 @@ protected:
 
     bool event( QEvent *e );
     
-    QPtrList<QTab> * tabList();
+    QList<QTab*> *tabList();
 
 private slots:
     void scrollTabs();
 
 private:
-    QPtrList<QTab> * l;
-    QPtrList<QTab> * lstatic;
+    QList<QTab*> *l;
+    QList<QTab*> *lstatic;
     void makeVisible( QTab* t = 0 );
     void updateArrowButtons();
     QTabPrivate * d;
