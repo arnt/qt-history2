@@ -81,7 +81,7 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
 
     // copy data before waking up GUI thread
     QAuServerWindows *server = info->server;
-    QPointer<QSound> sound = info->sound;
+    QSound *sound = info->sound;
     int loops = info->loops;
     QString filename(info->filename);
     HANDLE mutex = server->mutex;
@@ -105,24 +105,26 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
         });
 	if (sound && loops == 1)
 	    server->decLoop(sound);
-    }
 
-    // signal GUI thread to continue - sound might be reset!
-    SetEvent(event);
+        // GUI thread continues, but we are done as well.
+        SetEvent(event);
+    } else {
+        // signal GUI thread to continue - sound might be reset!
+        QPointer<QSound> guarded_sound = sound;
+        SetEvent(event);
 
-    if (loops > 1) {
-        for (int l = 0; l < loops && server->current; ++l) {
-            QT_WA({
-                PlaySoundW((TCHAR*)filename.utf16(), 0, SND_FILENAME|SND_SYNC);
-            } , {
-                PlaySoundA(QFile::encodeName(filename).data(), 0,
-                    SND_FILENAME|SND_SYNC);
-            });
-
-            if (sound)
-                server->decLoop(sound);
-        }
-        server->current = 0;
+	for (int l = 0; l < loops && server->current; ++l) {
+	    QT_WA( {
+		PlaySoundW( (TCHAR*)filename.utf16(), 0, SND_FILENAME|SND_SYNC );
+	    } , {
+		PlaySoundA( QFile::encodeName(filename).data(), 0,
+		    SND_FILENAME|SND_SYNC );
+	    } );
+	    
+	    if (guarded_sound)
+		server->decLoop(guarded_sound);
+	}
+	server->current = 0;
     }
     ReleaseMutex(mutex);
 
