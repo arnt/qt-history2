@@ -12295,6 +12295,8 @@ void QString::real_detach()
 void QString::deref()
 {
     if ( d->deref() ) {
+	if ( d == shared_null )
+	    shared_null = 0;
 	delete d;
 	d = 0; // helps debugging
     }
@@ -13901,6 +13903,13 @@ ushort QString::toUShort( bool *ok, int base ) const
 
 /*!
   Returns the string converted to a <code>int</code> value.
+
+  \code
+  QString str("FF");
+  bool ok;
+  int hex = str.toInt( &ok, "16" ); // will return 255, and ok set to TRUE
+  int dec = str.toInt( &ok, "10" ); // will return 0, and ok set to FALSE
+  \endcode
 
   If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all,
