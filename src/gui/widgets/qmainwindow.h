@@ -31,7 +31,7 @@ class QMainWindowLayout;
 class QPopupMenu;
 template<class T> class QList;
 
-class Q_GUI_EXPORT QMainWindow: public QWidget
+class Q_COMPAT_EXPORT QMainWindow: public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QMainWindow)
@@ -228,8 +228,8 @@ inline void QMainWindow::setToolBarsMovable(bool b)
 #endif
 
 #ifndef QT_NO_TEXTSTREAM
-Q_GUI_EXPORT QTextStream &operator<<(QTextStream &, const QMainWindow &);
-Q_GUI_EXPORT QTextStream &operator>>(QTextStream &, QMainWindow &);
+Q_COMPAT_EXPORT QTextStream &operator<<(QTextStream &, const QMainWindow &);
+Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, QMainWindow &);
 #endif
 
 #endif // QT_NO_MAINWINDOW

@@ -1,5 +1,8 @@
 # Qt widgets module
 
+message("QT_NO_MAINWINDOW is only temporary")
+DEFINES += QT_NO_MAINWINDOW
+
 HEADERS += widgets/qbuttongroup.h \
 	widgets/qbutton.h \
 	widgets/qabstractbutton.h \
@@ -9,8 +12,10 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qcombobox.h \
 	widgets/qwidgetresizehandler_p.h \
 	widgets/qdial.h \
-	widgets/qdockarea.h \
-	widgets/qdockwindow.h \
+ 	widgets/q4dockseparator_p.h \
+	widgets/q4dockwindow.h \
+	widgets/q4dockwindowlayout_p.h \
+	widgets/q4dockwindowseparator_p.h \
 	widgets/qframe.h \
 	widgets/qframe_p.h \
 	widgets/qgrid.h \
@@ -24,7 +29,8 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qlineedit_p.h \
 	widgets/qlistbox.h \
 	widgets/qlistview.h \
-	widgets/qmainwindow.h \
+	widgets/q4mainwindow.h \
+	widgets/q4mainwindowlayout_p.h \	
         widgets/qmenu.h \
 	widgets/qpopupmenu.h \
 	widgets/qmenubar.h \
@@ -51,7 +57,8 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qtextedit.h \
 	widgets/qtitlebar_p.h \
 	widgets/qabstractslider_p.h \
-	widgets/qtoolbar.h \
+	widgets/q4toolbar.h \
+	widgets/q4toolbarbutton_p.h \
 	widgets/qtoolbox.h \
 	widgets/qtoolbutton.h \
 	widgets/qvalidator.h \
@@ -68,8 +75,10 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qcombobox.cpp \
 	widgets/qwidgetresizehandler.cpp \
 	widgets/qdial.cpp \
-	widgets/qdockarea.cpp \
-	widgets/qdockwindow.cpp \
+	widgets/q4dockseparator.cpp \
+	widgets/q4dockwindow.cpp \
+	widgets/q4dockwindowlayout.cpp \
+	widgets/q4dockwindowseparator.cpp \
 	widgets/qframe.cpp \
 	widgets/qgrid.cpp \
 	widgets/qgridview.cpp \
@@ -81,7 +90,8 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qlineedit.cpp \
 	widgets/qlistbox.cpp \
 	widgets/qlistview.cpp \
-	widgets/qmainwindow.cpp \
+	widgets/q4mainwindow.cpp \
+	widgets/q4mainwindowlayout.cpp \
 	widgets/qmenudata.cpp \
         widgets/qmenu.cpp \
 	widgets/qmenubar.cpp \
@@ -106,7 +116,8 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qtabwidget.cpp \
 	widgets/qtextedit.cpp \
 	widgets/qtitlebar.cpp \
-	widgets/qtoolbar.cpp \
+	widgets/q4toolbar.cpp \
+	widgets/q4toolbarbutton.cpp \
 	widgets/qtoolbox.cpp \
 	widgets/qtoolbutton.cpp \
 	widgets/qvalidator.cpp \
