@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#398 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#399 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2316,9 +2316,15 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    case QEvent::MouseButtonPress:
 	    case QEvent::MouseButtonDblClick:
 		popupButtonFocus = popupChild;
+		if ( popupChild && !QWidget::mouseGrabber() )
+		    setAutoCapture( popupChild->winId() );
+
 		break;
 	    case QEvent::MouseButtonRelease:
 		releaseAfter = TRUE;
+		if ( !QWidget::mouseGrabber() )
+		    releaseAutoCapture();
+
 		break;
 	    default:
 		break;				// nothing for mouse move
