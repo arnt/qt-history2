@@ -747,6 +747,11 @@ bool QDB2Result::exec()
 		return FALSE;
 	    bool isNull = (*indPtr == SQL_NULL_DATA);
 	    tmpStorage.removeFirst();
+	    
+	    if ( extension()->values[ it.data() ].typ & QSql::Out == QSql::Out ) {
+		tmpStorage.removeFirst();
+		continue;
+	    }
 
 	    if ( isNull ) {
 		values[ i ] = QVariant( values[ i ].type() );
