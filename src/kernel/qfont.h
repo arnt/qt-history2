@@ -144,9 +144,8 @@ public:
     bool	fixedPitch()	const;
     void	setFixedPitch( bool );
     StyleHint	styleHint()	const;
-    void	setStyleHint( StyleHint );
     StyleStrategy styleStrategy() const;
-    void	setStyleHint( StyleHint, StyleStrategy );
+    void	setStyleHint( StyleHint, StyleStrategy=PreferDefault );
     CharSet	charSet()	const;
     void	setCharSet( CharSet );
 

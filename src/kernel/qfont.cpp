@@ -812,17 +812,6 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 }
 
 /*!
-  Sets the style hint.
-
-  \sa setStyleHint()
-*/
-
-void QFont::setStyleHint( StyleHint hint ) //#### merge with above in 3.0
-{
-    setStyleHint( hint, PreferDefault );
-}
-
-/*!
   Returns the character set by setCharSet().
 
   Use QFontInfo to find the CharSet of the window system font actually used.
