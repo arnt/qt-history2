@@ -413,7 +413,7 @@ int QTextFormatCollection::referenceToIndex(int ref) const
     return -(ref + 2);
 }
 
-int QTextFormatCollection::indexForFormat(const QTextFormat &format) const
+int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
     // certainly need speedup
     for (int i = 0; i < formats.size(); ++i)
@@ -423,6 +423,14 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format) const
     int idx = formats.size();
     formats.append(format);
     return idx;
+}
+
+bool QTextFormatCollection::hasFormatCached(const QTextFormat &format) const
+{
+    Q_FOREACH(const QTextFormat &f, formats)
+	if (f == format)
+	    return true;
+    return false;
 }
 
 int QTextFormatCollection::createReferenceIndex(const QTextFormat &format)

@@ -10,7 +10,8 @@ public:
     int createReferenceIndex(const QTextFormat &newFormat);
     QTextFormat updateReferenceIndex(int index, const QTextFormat &newFormat);
 
-    int indexForFormat(const QTextFormat &f) const;
+    int indexForFormat(const QTextFormat &f);
+    bool hasFormatCached(const QTextFormat &format) const;
 
     QTextFormat format(int idx, int defaultFormatType = -1) const;
 
