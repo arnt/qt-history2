@@ -89,7 +89,6 @@ LINK32=link.exe
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 $$MSVCDSP_SOURCES
-$$MSVCDSP_IMAGES
 # End Group
 # Begin Group "Header Files"
 
@@ -116,6 +115,7 @@ $$MSVCDSP_YACCSOURCES
 $$MSVCDSP_MOCSOURCES
 $$MSVCDSP_FORMSOURCES
 $$MSVCDSP_FORMHEADERS
+$$MSVCDSP_IMAGES
 # Prop Default_Filter "moc"
 # End Group
 # End Target
