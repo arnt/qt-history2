@@ -329,6 +329,7 @@ void TextEdit::filePrint()
         QTextDocument doc;
         QTextCursor(&doc).insertFragment(QTextDocumentFragment(currentEditor->document()));
         QAbstractTextDocumentLayout *layout = doc.documentLayout();
+        layout->setDefaultFont(font);
         layout->setPageSize(QSize(body.width(), INT_MAX));
 
         QRect view(0, 0, body.width(), body.height());
