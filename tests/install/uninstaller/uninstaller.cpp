@@ -4,7 +4,7 @@
 #include <qmultilineedit.h>
 #include <qpushbutton.h>
 #include "uninstall.h"
-#include "environment.h"
+#include "../environment.h"
 
 QApplication* app;
 UninstallDlg* progress;
