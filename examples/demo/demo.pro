@@ -70,6 +70,8 @@ table {
 	INTERFACES += widgets/widgetsbase_pro.ui
 }
 
+include( ../../src/qt_professional.pri )
+
 TARGET		= demo
 INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
