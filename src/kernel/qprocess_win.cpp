@@ -435,7 +435,7 @@ bool QProcess::canReadLineStdout() const
 	return d->bufStdout.size() != 0;
 
     QProcess *that = (QProcess*)this;
-    return that->d->bufStdout.scanNewline( 0 );
+    return that->membufStdout()->scanNewline( 0 );
 }
 
 bool QProcess::canReadLineStderr() const
@@ -444,7 +444,7 @@ bool QProcess::canReadLineStderr() const
 	return d->bufStderr.size() != 0;
 
     QProcess *that = (QProcess*)this;
-    return that->d->bufStderr.scanNewline( 0 );
+    return that->membufStderr()->scanNewline( 0 );
 }
 
 void QProcess::writeToStdin( const QByteArray& buf )
