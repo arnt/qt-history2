@@ -110,7 +110,7 @@ class QEventLoopPrivate : public QObjectPrivate
     Q_DECL_PUBLIC(QEventLoop);
 public:
     QEventLoopPrivate()
-	: QObjectPrivate()
+	: QObjectPrivate(), xfd(-1)
     {
 	reset();
     }
