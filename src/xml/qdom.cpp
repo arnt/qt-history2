@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#27 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#28 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -77,11 +77,14 @@
 /*
   Helper to split a qualified name in the prefix and local name.
 */
-static void qt_split_namespace( QString& prefix, QString& name, const QString& qName )
+static void qt_split_namespace( QString& prefix, QString& name, const QString& qName, bool hasURI )
 {
     int i = qName.find( ':' );
     if ( i == -1 ) {
-	prefix = ""; // empty, not null!
+	if ( hasURI )
+	    prefix = "";
+	else
+	    prefix = QString::null;
 	name = qName;
     } else {
 	prefix = qName.left( i );
@@ -161,6 +164,7 @@ public:
     QString value;
     QString prefix; // set this only for ElementNode and AttributeNode
     QString namespaceURI; // set this only for ElementNode and AttributeNode
+    bool createdWithDom1Interface;
 };
 
 class QDomNodeListPrivate : public QShared
@@ -926,6 +930,7 @@ QDomNodePrivate::QDomNodePrivate( QDomDocumentPrivate* /* qd */, QDomNodePrivate
     next = 0;
     first = 0;
     last = 0;
+    createdWithDom1Interface = TRUE;
 }
 
 QDomNodePrivate::QDomNodePrivate( QDomNodePrivate* n, bool deep )
@@ -940,6 +945,7 @@ QDomNodePrivate::QDomNodePrivate( QDomNodePrivate* n, bool deep )
     value = n->value;
     prefix = n->prefix;
     namespaceURI = n->namespaceURI;
+    createdWithDom1Interface = n->createdWithDom1Interface;
 
     if ( !deep )
 	return;
@@ -1833,7 +1839,7 @@ void QDomNode::setPrefix( const QString& pre )
 */
 QString QDomNode::localName() const
 {
-    if ( !impl || IMPL->prefix.isNull() )
+    if ( !impl || IMPL->createdWithDom1Interface )
 	return QString::null;
     return IMPL->name;
 }
@@ -3199,8 +3205,9 @@ QDomAttrPrivate::QDomAttrPrivate( QDomDocumentPrivate* d, QDomNodePrivate* paren
 QDomAttrPrivate::QDomAttrPrivate( QDomDocumentPrivate* d, QDomNodePrivate* p, const QString& nsURI, const QString& qName )
     : QDomNodePrivate( d, p )
 {
-    qt_split_namespace( prefix, name, qName );
+    qt_split_namespace( prefix, name, qName, !nsURI.isNull() );
     namespaceURI = nsURI;
+    createdWithDom1Interface = FALSE;
     m_specified = FALSE;
 }
 
@@ -3442,8 +3449,9 @@ QDomElementPrivate::QDomElementPrivate( QDomDocumentPrivate* d, QDomNodePrivate*
 	const QString& nsURI, const QString& qName )
     : QDomNodePrivate( d, p )
 {
-    qt_split_namespace( prefix, name, qName );
+    qt_split_namespace( prefix, name, qName, !nsURI.isNull() );
     namespaceURI = nsURI;
+    createdWithDom1Interface = FALSE;
     m_attr = new QDomNamedNodeMapPrivate( this );
 }
 
@@ -5823,7 +5831,7 @@ bool QDomHandler::startElement( const QString& namespaceURI, const QString&, con
 {
     // tag name
     QDomNodePrivate* n;
-    if ( nsProcessing && !namespaceURI.isNull() ) {
+    if ( nsProcessing ) {
 	n = doc->createElementNS( namespaceURI, qName );
     } else {
 	n = doc->createElement( qName );
@@ -5834,9 +5842,7 @@ bool QDomHandler::startElement( const QString& namespaceURI, const QString&, con
     // attributes
     for ( int i=0; i<atts.length(); i++ )
     {
-	if ( nsProcessing && !atts.uri(i).isEmpty() ) {
-	// ### is this one the right here, I guess so (should fix qxml then):
-	//if ( nsProcessing && !atts.uri(i).isNull() ) {
+	if ( nsProcessing ) {
 	    QDomAttrPrivate *attr = doc->createAttributeNS( atts.uri(i), atts.qName(i) );
 	    attr->value = atts.value(i);
 	    ((QDomElementPrivate*)node)->setAttributeNode( attr );

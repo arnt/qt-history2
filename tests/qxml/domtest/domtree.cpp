@@ -212,8 +212,9 @@ QString DomTreeItem::contentString()
 		if ( namespaces ) {
 		    s += "<br/><b>local name:</b> ";
 		    s += _node.localName();
-		} else {
+		} else if ( !_node.localName().isNull() ) {
 		    s += "<br/>Error: Local name is not Null!";
+		    s += _node.localName();
 		}
 	    }
 	} else {
