@@ -13,6 +13,10 @@
 #include <qworkspace.h>
 #endif
 
+#ifdef Q_WS_WIN
+#include "../../include/qplatformdefs.h"
+#endif
+
 #ifndef QT_NO_WORKSPACE
 
 class QTitleBarTip : public QToolTip
@@ -74,6 +78,10 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
     getColors();
 }
 
+#ifdef Q_WS_WIN
+extern QRgb qt_colorref2qrgb(COLORREF col);
+#endif
+
 void QTitleBar::getColors()
 {
 #ifdef Q_WS_WIN
@@ -108,7 +116,7 @@ void QTitleBar::getColors()
 	    arightc = aleftc;
 	    irightc = ileftc;
 
-	    BOOL gradient;
+	    bool gradient;
 	    SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 	    if ( gradient ) {
 		arightc = qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
