@@ -17,7 +17,7 @@ public:
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
     QByteArray readKey( const QString &key, ulong type, bool *ok );
 
-    HKEY createFolder( const QString &folder );
+    HKEY openFolder( const QString &folder, bool create );
 
     QStringList paths;
 };
@@ -99,18 +99,26 @@ inline QString QSettingsPrivate::entry( const QString &key )
     return key.right( key.length() - key.findRev( "/" ) - 1 );
 }
 
-inline HKEY QSettingsPrivate::createFolder( const QString &f )
+inline HKEY QSettingsPrivate::openFolder( const QString &f, bool create )
 {
     HKEY handle = 0;
     long res;
 
     if ( local ) {
 #if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
-	else
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    if ( create )
+		res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    else
+		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_WRITE, &handle );
+	} else
 #endif
-	    res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	{
+	    if ( create )
+		res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    else
+		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_WRITE, &handle );
+	}
 #if defined(QT_CHECK_STATE)
 	if ( res != ERROR_SUCCESS )
 	    qSystemWarning("Couldn't open folder " + f + " for writing", res );
@@ -118,11 +126,19 @@ inline HKEY QSettingsPrivate::createFolder( const QString &f )
     }
     if ( !handle && user ) {
 #if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
-	else
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    if ( create )
+		res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    else
+		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_WRITE, &handle );
+	} else
 #endif
-	    res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	{
+	    if ( create )
+		res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    else
+		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_WRITE, &handle );
+	}
 #if defined(QT_CHECK_STATE)
 	if ( res != ERROR_SUCCESS )
 	    qSystemWarning( "Couldn't open folder " + f + " for writing", res );
@@ -140,7 +156,7 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
     for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
 	QString k = (*it).isEmpty() ? key : *it + "/" + key;
 	e = entry( k );
-	handle = createFolder( folder( k ) );
+	handle = openFolder( folder( k ), TRUE );
 	if ( handle )
 	    break;
     }
@@ -460,9 +476,17 @@ bool QSettings::removeEntry( const QString &key )
 {
     QString e = d->entry( key );
     long res;
-    HKEY handle = d->createFolder( d->folder( key ) );
+
+    HKEY handle = 0;
+    for ( QStringList::Iterator it = d->paths.fromLast(); it != d->paths.end(); --it ) {
+	QString k = (*it).isEmpty() ? key : *it + "/" + key;
+	e = d->entry( k );
+	handle = d->openFolder( d->folder( k ), FALSE );
+	if ( handle )
+	    break;
+    }
     if ( !handle )
-	return FALSE;
+	return TRUE;
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
